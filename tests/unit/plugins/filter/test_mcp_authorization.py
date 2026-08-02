@@ -2,7 +2,7 @@ import base64
 import importlib
 import unittest
 
-plugin_module = importlib.import_module("plugins.filter.mcp_authorization")
+plugin_module = importlib.import_module("plugins.filter.mcp.authorization")
 mcp_authorization = plugin_module.mcp_authorization
 mcp_authorization_is_renderable = plugin_module.mcp_authorization_is_renderable
 mcp_renderable_servers = plugin_module.mcp_renderable_servers

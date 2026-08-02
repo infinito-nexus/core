@@ -30,9 +30,19 @@ mcp:
 - `direction` is required; all MCP-specific fields MUST be literals (only `enabled`/`shared` may carry Jinja).
 - `direction: server | both` requires `auth` and a complete `endpoint` (`service_key`, `path`, `port_key`).
 - `auth: none` requires `exposure: internal`.
-- `auth_subject: service_account | administrator` requires `tools.mutating_tools_enabled: false`.
+- `auth_subject: service_account | administrator` requires an explicit `tools.mutating_tools_enabled: false`; omitting the key is rejected, because a privileged subject must state its tool policy rather than inherit a default.
 - `endpoint.service_key` MUST name a service in the same file; `endpoint.port_key` MUST resolve under its `ports.local` or `ports.internal`.
 - Suppress a finding with `# nocheck: mcp-schema` (file head = whole file, on/above a line = that finding).
+
+## Why stdio is not deployed
+
+`transport` accepts `streamable_http` and `sse` only. A stdio MCP server is a
+local process the client spawns, so it inherits the client container's
+filesystem and network with no endpoint to authenticate, no proxy to route
+through, and nothing for a probe to reach. Every property the other rules rely
+on (`auth`, `exposure`, `endpoint`) is undefined for it. Clients that support
+stdio are pinned away from it in their own role: Flowise sets
+`CUSTOM_MCP_PROTOCOL=sse` so no flow can spawn a command.
 
 ## Client discovery
 

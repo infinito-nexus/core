@@ -42,6 +42,7 @@ from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.services.mcp import (
     MCP_AUTH_SUBJECTS,
     MCP_AUTHS,
+    MCP_BLOCKERS,
     MCP_DIRECTIONS,
     MCP_ENDPOINT_KEYS,
     MCP_EXPOSURES,
@@ -49,6 +50,7 @@ from utils.roles.applications.services.mcp import (
     MCP_KEYS,
     MCP_PRIVILEGED_AUTH_SUBJECTS,
     MCP_REQUIRED_ENDPOINT_KEYS,
+    MCP_SERVED_KEYS,
     MCP_SERVER_DIRECTIONS,
     MCP_TOOLS_KEYS,
     MCP_TRANSPORTS,
@@ -158,6 +160,29 @@ class TestMcpSchema(unittest.TestCase):
                         f"allowed: {sorted(allowed)}",
                     )
 
+            blocker = mcp.get("blocker")
+            if blocker is not None:
+                if blocker not in MCP_BLOCKERS:
+                    flag(
+                        "blocker",
+                        f"{prefix}.blocker has invalid value {blocker!r}; "
+                        f"allowed: {sorted(MCP_BLOCKERS)}",
+                    )
+                served = sorted(set(mcp) & MCP_SERVED_KEYS)
+                if served:
+                    flag(
+                        "blocker",
+                        f"{prefix} declares a blocker, so it MUST NOT also "
+                        f"declare {served}",
+                    )
+                if mcp.get("enabled") or mcp.get("shared"):
+                    flag(
+                        "blocker",
+                        f"{prefix} declares a blocker, so 'enabled' and "
+                        f"'shared' MUST both be false",
+                    )
+                continue
+
             direction = mcp.get("direction")
             if "direction" not in mcp:
                 flag("direction", f"{prefix} is missing required 'direction'")
@@ -192,12 +217,12 @@ class TestMcpSchema(unittest.TestCase):
 
             if (
                 mcp.get("auth_subject") in MCP_PRIVILEGED_AUTH_SUBJECTS
-                and tools.get("mutating_tools_enabled") is True
+                and tools.get("mutating_tools_enabled") is not False
             ):
                 flag(
                     "auth_subject",
-                    f"{prefix} '{mcp.get('auth_subject')}' subject requires "
-                    "tools.mutating_tools_enabled: false",
+                    f"{prefix} '{mcp.get('auth_subject')}' subject requires an "
+                    "explicit tools.mutating_tools_enabled: false",
                 )
 
             endpoint = mcp.get("endpoint")

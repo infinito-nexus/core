@@ -1,7 +1,7 @@
 import importlib
 import unittest
 
-plugin_module = importlib.import_module("plugins.filter.mcp_tool_server_connections")
+plugin_module = importlib.import_module("plugins.filter.mcp.tool_server_connections")
 mcp_tool_server_connections = plugin_module.mcp_tool_server_connections
 
 

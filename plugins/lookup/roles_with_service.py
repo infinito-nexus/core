@@ -171,6 +171,8 @@ class LookupModule(LookupBase):
                     "path": endpoint.get("path"),
                     "health_path": endpoint.get("health_path"),
                     "port": _resolve_endpoint_port(services, endpoint),
+                    "key_credential": endpoint.get("key_credential"),
+                    "suffix": endpoint.get("suffix"),
                 }
             results.append(entry)
 

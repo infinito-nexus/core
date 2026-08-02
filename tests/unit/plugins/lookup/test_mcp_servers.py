@@ -53,6 +53,45 @@ class TestBuildMcpServers(unittest.TestCase):
         no_path = dict(HOMEASSISTANT, endpoint={"service_key": "x", "port": 80})
         self.assertEqual(build_mcp_servers([no_port, no_path], ADMINISTRATOR), [])
 
+    def test_path_addressed_endpoint_carries_its_key_and_suffix(self):
+        baserow = {
+            "id": "web-app-baserow",
+            "auth": "app_password",
+            "transport": "sse",
+            "endpoint": {
+                "service_key": "baserow",
+                "port": 80,
+                "path": "/mcp",
+                "key_credential": "mcp_endpoint_key",
+                "suffix": "sse",
+            },
+        }
+        administrator = dict(ADMINISTRATOR, tokens={"web-app-baserow": "t"})
+        entry = build_mcp_servers(
+            [baserow], administrator, {"web-app-baserow": "deadbeef"}
+        )[0]
+        self.assertEqual(entry["url"], "http://baserow:80/mcp/deadbeef/sse")
+
+    def test_path_addressed_endpoint_without_its_key_is_dropped(self):
+        baserow = {
+            "id": "web-app-baserow",
+            "auth": "app_password",
+            "transport": "sse",
+            "endpoint": {
+                "service_key": "baserow",
+                "port": 80,
+                "path": "/mcp",
+                "key_credential": "mcp_endpoint_key",
+                "suffix": "sse",
+            },
+        }
+        administrator = dict(ADMINISTRATOR, tokens={"web-app-baserow": "t"})
+        self.assertEqual(build_mcp_servers([baserow], administrator, {}), [])
+
+    def test_header_addressed_endpoint_is_unchanged(self):
+        entry = build_mcp_servers([HOMEASSISTANT], ADMINISTRATOR, {})[0]
+        self.assertEqual(entry["url"], "http://homeassistant:8123/api/mcp")
+
     def test_order_of_the_discovered_servers_is_kept(self):
         jenkins = {
             "id": "web-app-jenkins",
