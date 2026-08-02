@@ -36,6 +36,9 @@ mcp:
   enabled: "{{ 'web-app-hermes' in group_names or 'web-app-openclaw' in group_names }}"
   shared: "{{ 'web-app-hermes' in group_names or 'web-app-openclaw' in group_names }}"
   direction: server
+  source_url: https://www.home-assistant.io/integrations/mcp_server/
+  minimum_version: "2025.2"
+  notes: Native mcp_server integration, Streamable HTTP under /api/mcp.
   transport: streamable_http
   exposure: internal
   auth: bearer_token

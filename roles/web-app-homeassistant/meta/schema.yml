@@ -5,8 +5,3 @@ credentials:
     algorithm: alphanumeric
     validation:
       min_length: 32
-  mcp_token:
-    description: Long-lived access token issued to MCP clients of this hub
-    algorithm: alphanumeric
-    validation:
-      min_length: 50

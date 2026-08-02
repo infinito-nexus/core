@@ -32,8 +32,10 @@ flowchart LR
         svc_container_backup["container_backup"]
     end
     subgraph dependents [Dependents]
+        dpt_web_app_flowise["web-app-flowise 🐳🐝"]
         dpt_web_app_hermes["web-app-hermes 🐳🐝"]
         dpt_web_app_openclaw["web-app-openclaw 🐳🐝"]
+        dpt_web_app_openwebui["web-app-openwebui 🐳🐝"]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
@@ -41,8 +43,10 @@ flowchart LR
     dep_web_app_keycloak -- "1:1" --> svc_sso
     dep_web_app_openclaw -. "0..1" .-> svc_mcp
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
+    svc_homeassistant -. "0..1" .-> dpt_web_app_flowise
     svc_homeassistant -. "0..1" .-> dpt_web_app_hermes
     svc_homeassistant -. "0..1" .-> dpt_web_app_openclaw
+    svc_homeassistant -. "0..1" .-> dpt_web_app_openwebui
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
@@ -95,6 +99,50 @@ docker run --rm -it \
       --password-file "$INVENTORY/.password" \
       --diff -vv'
 ```
+
+## MCP Server
+
+Home Assistant ships the MCP server as a native integration. The role enables it
+through `services.mcp.enabled`, which stays true only while an MCP client role is
+part of the deployment.
+
+### Endpoint
+
+| Property | Value |
+| --- | --- |
+| Transport | Streamable HTTP |
+| URL | `http://homeassistant:8123/api/mcp` |
+| Exposure | `internal`, container network only |
+
+### Auth
+
+Clients present a long-lived access token as `Authorization: Bearer <token>`. The
+token is minted once per deployment and kept in `sys-token-store` under the
+`administrator` user, not in the role's `credentials:` block. An unauthenticated
+request is answered with 404: Home Assistant does not reveal the endpoint.
+
+### Tool categories
+
+`tools/list` returns 10 tools: entity control (`HassTurnOn`, `HassTurnOff`),
+timers, broadcast, to-do list read and write, date and time, and `GetLiveContext`
+for the current state.
+
+### Default state
+
+Off. `services.mcp.enabled` is false unless `web-app-hermes` or
+`web-app-openclaw` is deployed alongside.
+
+### Tool scope
+
+The enforced control is entity exposure, not a read-only flag. Only entities
+exposed to Assist are reachable, so an entity that is not exposed cannot be read
+or actuated through MCP even though the write tools are listed.
+
+### How to disable
+
+Remove the MCP client roles from the deployment, or pin
+`services.mcp.enabled: false` for this role in the inventory. The integration is
+then not configured and the endpoint stops answering.
 
 ## Credits
 
