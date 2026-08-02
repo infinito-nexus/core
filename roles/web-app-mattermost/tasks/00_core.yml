@@ -22,3 +22,7 @@
     - name: "🔧 Configure Keycloak OIDC mappers for Mattermost"
       include_tasks: 02_keycloak.yml
       when: MATTERMOST_OIDC_ENABLED | bool
+
+- name: "🔌 Provision the MCP server surface"
+  include_tasks: 04_mcp.yml
+  when: MATTERMOST_MCP_ENABLED | bool

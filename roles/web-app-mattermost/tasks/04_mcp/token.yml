@@ -1,0 +1,66 @@
+---
+- name: "🩺 Mattermost | Check whether the stored token is still active"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/select-user-access-token.sql"
+    named_args:
+      token: "{{ mattermost_mcp_token }}"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: mattermost_mcp_token_state
+  when: mattermost_mcp_token | length > 0
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
+- name: "🔑 Mattermost | Mint a personal access token for MCP clients"
+  when: mattermost_mcp_token | length == 0 or (mattermost_mcp_token_state.rows[0][0] | default('0') | trim) != '1'
+  block:
+    - name: "🔑 Mattermost | Ask the server for a personal access token"
+      ansible.builtin.command:
+        argv:
+          - container
+          - exec
+          - -i
+          - "{{ MATTERMOST_MCP_LOCAL_CID }}" # nocheck: container-exec-resolver
+          - /mattermost/bin/mmctl
+          - --local
+          - --json
+          - --suppress-warnings
+          - token
+          - generate
+          - "{{ lookup('users', 'administrator').username }}"
+          - "{{ MATTERMOST_MCP_TOKEN_DESCRIPTION }}"
+      register: mattermost_mcp_token_mint
+      retries: 30
+      delay: 10
+      until: mattermost_mcp_token_mint.rc == 0
+      changed_when: mattermost_mcp_token_mint.rc == 0
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      delegate_to: "{{ MATTERMOST_MCP_HOST_NODE }}"
+      run_once: true
+
+    - name: "🔧 Mattermost | Take the minted token from the mmctl payload"
+      ansible.builtin.set_fact:
+        mattermost_mcp_token: "{{ (mattermost_mcp_token_mint.stdout | from_json | first).token | trim }}"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      run_once: true
+
+- name: "🛑 Refuse a server that issued no usable token"
+  ansible.builtin.assert:
+    that:
+      - mattermost_mcp_token | length >= 26
+    fail_msg: >-
+      Mattermost returned no personal access token, so every MCP client would
+      be configured with an empty bearer and be rejected at first use.
+
+- name: "💾 Persist the token so MCP clients can read it"
+  ansible.builtin.include_role:
+    name: sys-token-store
+    tasks_from: write.yml
+  vars:
+    sys_token_store_user_key: administrator
+    sys_token_store_app: "{{ application_id }}"
+    sys_token_store_token: "{{ mattermost_mcp_token }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

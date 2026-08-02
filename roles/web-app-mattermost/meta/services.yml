@@ -58,6 +58,27 @@ mattermost:
     - web-app-keycloak
     - web-app-mailu
   lifecycle: beta
+mcp:
+  bond: 1
+  enabled: "{{ 'web-app-hermes' in group_names or 'web-app-openclaw' in group_names }}"
+  shared: "{{ 'web-app-hermes' in group_names or 'web-app-openclaw' in group_names }}"
+  direction: server
+  source_url: https://docs.mattermost.com/agents/mcpserver/README.html
+  minimum_version: "10.0"
+  notes: Ships with the Agents plugin.
+  transport: streamable_http
+  exposure: internal
+  auth: bearer_token
+  auth_subject: user
+  implementation: plugin
+  endpoint:
+    service_key: mattermost
+    path: /plugins/mattermost-ai/mcp-server/mcp
+    port_key: http
+    health_path: /plugins/mattermost-ai/mcp-server/.well-known/oauth-protected-resource
+  tools:
+    read_only_default: true
+    mutating_tools_enabled: false
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
