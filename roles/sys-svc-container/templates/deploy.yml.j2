@@ -7,6 +7,10 @@
 {% if application_id in lookup('roles_with_placement', 'manager') %}
 {% set _ = _constraints.append('node.role == manager') %}
 {% endif %}
+{% set _arch = lookup('applications') | resource_filter(application_id, 'platform_arch', service_name | default(''), '') %}
+{% if _arch != '' %}
+{% set _ = _constraints.append('node.platform.arch == ' ~ _arch) %}
+{% endif %}
 {% if groups['svc-virt-kata'] is defined %}
 {% if lookup('config', application_id, 'services.kata.enabled', false) | bool %}
 {% set _ = _constraints.append('node.labels.' ~ SANDBOX_NODE_LABEL ~ ' == true') %}

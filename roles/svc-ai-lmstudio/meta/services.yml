@@ -13,6 +13,7 @@ lmstudio:
   image: lmstudio/llmster-preview
   version: cpu
   name: lmstudio
+  platform_arch: x86_64
   min_storage: 588MB
   cpus: "4.0"
   mem_reservation: 6g
