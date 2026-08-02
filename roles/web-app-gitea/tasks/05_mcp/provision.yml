@@ -1,0 +1,53 @@
+---
+- name: "🗑 Revoke an access token left over under the same name"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ GITEA_API_LOCAL_CID | quote }} \
+      {{ lookup('timeout', 30) | curl(5, 0) }} -o /dev/null -w '%{http_code}' \
+        -X DELETE \
+        -u {{ (lookup('users', 'administrator').username ~ ':' ~ lookup('users', 'administrator').password) | quote }} \
+        {{ (GITEA_INTERNAL_API_URL ~ '/users/' ~ lookup('users', 'administrator').username ~ '/tokens/' ~ GITEA_MCP_TOKEN_NAME) | quote }}
+  register: gitea_mcp_token_revoke
+  changed_when: gitea_mcp_token_revoke.stdout | trim == '204'
+  failed_when: gitea_mcp_token_revoke.stdout | trim not in ['204', '404']
+  delegate_to: "{{ GITEA_API_HOST_NODE }}"
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔑 Mint the personal access token MCP clients present"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i --user {{ GITEA_USER }} {{ GITEA_API_LOCAL_CID | quote }} \
+      /app/gitea/gitea admin user generate-access-token \
+        --username {{ lookup('users', 'administrator').username | quote }} \
+        --token-name {{ GITEA_MCP_TOKEN_NAME | quote }} \
+        --scopes {{ GITEA_MCP_TOKEN_SCOPES | quote }} \
+        --raw \
+        -c {{ GITEA_CONFIG }}
+  register: gitea_mcp_mint
+  changed_when: true
+  delegate_to: "{{ GITEA_API_HOST_NODE }}"
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔧 Take the minted token from the mint output"
+  ansible.builtin.set_fact:
+    gitea_mcp_token: "{{ gitea_mcp_mint.stdout_lines | last | trim }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  run_once: true
+
+- name: "🛑 Refuse an instance that issued no usable token"
+  ansible.builtin.assert:
+    that:
+      - gitea_mcp_token | length >= 40
+    fail_msg: >-
+      Gitea returned no access token, so every MCP client would be configured
+      with an empty bearer and fail at first use.
+
+- name: "💾 Persist the token so MCP clients can read it"
+  ansible.builtin.include_role:
+    name: sys-token-store
+    tasks_from: write.yml
+  vars:
+    sys_token_store_user_key: administrator
+    sys_token_store_app: "{{ application_id }}"
+    sys_token_store_token: "{{ gitea_mcp_token }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

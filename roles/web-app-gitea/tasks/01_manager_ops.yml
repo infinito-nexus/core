@@ -67,6 +67,11 @@
 - name: ▶️ Execute Cleanup Routines
   include_tasks: 04_cleanup.yml
   when: MODE_CLEANUP | bool
+
+- name: "🔌 Provision the MCP surface"
+  include_tasks: 05_mcp.yml
+  when: GITEA_MCP_ENABLED | bool
+
 - name: 📂 Include DNS role to register Gitea domain(s)
   include_role:
     name: sys-dns-cloudflare-records
