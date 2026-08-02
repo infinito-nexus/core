@@ -1,0 +1,50 @@
+---
+- name: "🔑 Mint a personal access token carrying the mcp scope"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - "GITLAB_MCP_TOKEN_NAME={{ GITLAB_MCP_TOKEN_NAME }}"
+      - -e
+      - "GITLAB_MCP_TOKEN_OWNER={{ GITLAB_ROOT_USERNAME }}"
+      - -e
+      - "GITLAB_MCP_TOKEN_LIFETIME_DAYS={{ GITLAB_MCP_TOKEN_LIFETIME_DAYS }}"
+      - "{{ GITLAB_MCP_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - "{{ GITLAB_RAILS_BIN }}"
+      - runner
+      - "-"
+    stdin: "{{ lookup('file', 'provision_mcp_token.rb') }}"
+  register: gitlab_mcp_mint
+  retries: 30
+  delay: 10
+  until: gitlab_mcp_mint.rc == 0
+  changed_when: "'CHANGED' in gitlab_mcp_mint.stdout"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ GITLAB_MCP_HOST_NODE }}"
+  run_once: true
+
+- name: "🔧 Take the minted token from the runner output"
+  ansible.builtin.set_fact:
+    gitlab_mcp_token: "{{ gitlab_mcp_mint.stdout_lines | last | trim }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  run_once: true
+
+- name: "🛑 Refuse an instance that issued no usable token"
+  ansible.builtin.assert:
+    that:
+      - gitlab_mcp_token | length >= 20
+    fail_msg: >-
+      GitLab did not return a personal access token, so every MCP client would
+      be configured with an empty bearer and fail at first use.
+
+- name: "💾 Persist the token so MCP clients can read it"
+  ansible.builtin.include_role:
+    name: sys-token-store
+    tasks_from: write.yml
+  vars:
+    sys_token_store_user_key: administrator
+    sys_token_store_app: "{{ application_id }}"
+    sys_token_store_token: "{{ gitlab_mcp_token }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

@@ -1,5 +1,5 @@
 ---
-# nocheck: seaweedfs-playwright — GitLab ships no templates/playwright.env.j2 and object storage is server-side consolidated storage with no isolated upload surface
+# nocheck: seaweedfs-playwright
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -17,12 +17,34 @@ matomo:
   bond: 1
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
+# nocheck: playwright-service-flag
 email:
   bond: 1
   enabled: "{{ 'web-app-mailu' in group_names }}"
   shared: "{{ 'web-app-mailu' in group_names }}"
+mcp:
+  bond: 1
+  enabled: "{{ 'web-app-hermes' in group_names or 'web-app-openclaw' in group_names or 'web-app-openwebui' in group_names }}"
+  shared: "{{ 'web-app-hermes' in group_names or 'web-app-openclaw' in group_names or 'web-app-openwebui' in group_names }}"
+  direction: server
+  source_url: https://docs.gitlab.com/user/gitlab_duo/model_context_protocol/mcp_server/
+  minimum_version: "18.0"
+  notes: Beta and tier-gated to Premium or Ultimate; operator-gated here.
+  transport: streamable_http
+  exposure: public
+  auth: bearer_token
+  auth_subject: administrator
+  implementation: native
+  endpoint:
+    service_key: gitlab
+    path: /api/v4/mcp
+    port_key: http
+  tools:
+    read_only_default: true
+    mutating_tools_enabled: false
 # nocheck: shared
 # nocheck: dynamic-flag
+# nocheck: playwright-service-flag
 redis:
   bond: 1
   backup:
@@ -33,10 +55,12 @@ redis:
   mem_reservation: 128m
   mem_limit: 512m
   pids_limit: 512
+# nocheck: playwright-service-flag
 postgres:
   bond: 1
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
+# nocheck: playwright-service-flag
 gitlab:
   modes:
     compose:
@@ -131,10 +155,12 @@ migrations:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 512
+# nocheck: playwright-service-flag
 seaweedfs:
   bond: 1
   enabled: "{{ 'web-app-seaweedfs' in group_names }}"
   shared: "{{ 'web-app-seaweedfs' in group_names }}"
+# nocheck: playwright-service-flag
 css:
   bond: 1
   enabled: "{{ 'web-svc-css' in group_names }}"

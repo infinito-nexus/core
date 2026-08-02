@@ -19,9 +19,12 @@ flowchart LR
         dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
         dep_svc_db_redis["svc-db-redis 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
+        dep_web_app_hermes["web-app-hermes 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
+        dep_web_app_openclaw["web-app-openclaw 🐳🐝"]
+        dep_web_app_openwebui["web-app-openwebui 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
         dep_web_app_seaweedfs["web-app-seaweedfs 🐳🐝"]
         dep_web_svc_css["web-svc-css 💻"]
@@ -33,6 +36,7 @@ flowchart LR
         svc_dashboard["dashboard"]
         svc_matomo["matomo"]
         svc_email["email"]
+        svc_mcp["mcp"]
         svc_redis["redis"]
         svc_postgres["postgres"]
         svc_gitlab["gitlab"]
@@ -54,9 +58,12 @@ flowchart LR
     dep_svc_db_postgres -. "0..1" .-> svc_postgres
     dep_svc_db_redis -. "0..1" .-> svc_redis
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
+    dep_web_app_hermes -. "0..1" .-> svc_mcp
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
     dep_web_app_matomo -. "0..1" .-> svc_matomo
+    dep_web_app_openclaw -. "0..1" .-> svc_mcp
+    dep_web_app_openwebui -. "0..1" .-> svc_mcp
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_app_seaweedfs -. "0..1" .-> svc_seaweedfs
     dep_web_svc_css -. "0..1" .-> svc_css
@@ -73,6 +80,35 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - **Consolidated object storage:** artifacts, LFS, uploads, packages, external diffs, dependency proxy, terraform state, CI secure files and pages buckets on any S3-compatible endpoint; named volumes (`gitlab_shared`, `gitlab_uploads`, `gitlab_builds`) carry the data when object storage is disabled.
 - **OIDC single sign-on and SMTP:** rendered into `gitlab.yml` and an `smtp_settings.rb` initializer.
 - **Git over SSH:** gitlab-sshd on the public SSH port with role-generated host keys under `<instance>/config/hostkeys/`. Back up that directory: it is not part of any named volume, and a host rebuild or instance purge regenerates the keys, so every git client then sees a host-key-changed warning until it re-trusts the new key.
+- **MCP server contract:** Declares the built-in MCP server at `/api/v4/mcp` over streamable HTTP, bearer-token authenticated, and mints the token that MCP clients present.
+
+## MCP server
+
+`services.mcp` declares the Model Context Protocol surface GitLab serves natively from its Rails API.
+
+| Property | Value |
+| --- | --- |
+| Endpoint | `/api/v4/mcp` on the `gitlab` service, internal port `http` (workhorse), also reachable on the canonical domain |
+| Transport | streamable HTTP (JSON-RPC `initialize`, `tools/list`, `tools/call`) |
+| Auth | `Authorization: Bearer <token>` |
+| Token subject | the `root` account |
+| Default state | off; `services.mcp.enabled` turns on when `web-app-hermes`, `web-app-openclaw` or `web-app-openwebui` is in the deployment |
+
+With the service enabled, `tasks/03_mcp.yml` reads the token stored for `administrator` under this role's id, probes it against the running instance with a JSON-RPC `initialize` call, mints a replacement through `gitlab-rails runner` when the stored token is missing or rejected, writes the fresh token back through `sys-token-store`, and fails the deploy when the re-probe is still rejected. The minted token is a personal access token carrying the `mcp` scope with a 364-day expiry. That scope is filtered out of the interactive token picker, so tokens for this endpoint are created programmatically.
+
+The role attaches to the shared overlay declared in `meta/networks.yml` so client containers can reach the endpoint container-to-container; the overlay alias resolves to workhorse.
+
+Tool categories exposed at the pinned version cover issues and work items, merge requests (including diffs and conflicts), pipelines and jobs, labels, project and group search, repository files and commits, and instance metadata. The set includes mutating tools (`create_merge_request`, `create_workitem_note`, `link_work_items`). GitLab enforces no server-side read-only mode: the `mcp` scope grants both read and create access, and the only restriction mechanism is the per-request `X-Gitlab-Enabled-Mcp-Server-Tools` header, which the clients in this repository do not send. `services.mcp.tools.read_only_default` and `services.mcp.tools.mutating_tools_enabled` are declarative metadata, not an enforced policy. Every tool call runs with the blast radius of the `root` account.
+
+A Playwright scenario asserts that an unauthenticated request to the endpoint is never answered with a 2xx.
+
+### Default state
+
+Off. `services.mcp.enabled` is true only while `web-app-hermes`, `web-app-openclaw` or `web-app-openwebui` is part of the deployment. The endpoint additionally requires a Premium or Ultimate licence, so a Community deployment leaves it unreachable regardless of the flag.
+
+### How to disable
+
+Remove the MCP client roles, or pin `services.mcp.enabled: false` for this role. The token is then neither minted nor stored, and the overlay attachment is dropped.
 
 ## Quick Setup
 

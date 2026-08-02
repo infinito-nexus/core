@@ -20,7 +20,7 @@
   GITLAB_MIGRATIONS_SERVICE_NAME: {'condition': 'service_completed_successfully'},
 }) | indent(4) }}
     {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
-    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_networks', provider_self_alias=False) | indent(4) }}
 
   {% set service_name = GITLAB_WORKHORSE_SERVICE_NAME %}
   {{ service_name }}:
@@ -64,7 +64,7 @@
   GITLAB_WEBSERVICE_SERVICE_NAME: {'condition': 'service_started'},
 }) | indent(4) }}
     {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
-    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_networks', provider_self_alias=False) | indent(4) }}
 
   {% set service_name = GITLAB_GITALY_SERVICE_NAME %}
   {{ service_name }}:
@@ -79,7 +79,7 @@
       start_period: 60s
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
-    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_networks', provider_self_alias=False) | indent(4) }}
 
   {% set service_name = GITLAB_SHELL_SERVICE_NAME %}
   {{ service_name }}:
@@ -99,7 +99,7 @@
     {{ lookup('container_ports', ['gitlab', 'ssh']) | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
-    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_networks', provider_self_alias=False) | indent(4) }}
 
   {% set service_name = GITLAB_MIGRATIONS_SERVICE_NAME %}
   {% set docker_restart_policy = 'on-failure' %}
@@ -114,7 +114,7 @@
     command: ["/scripts/wait-for-deps", "/scripts/db-migrate"]
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
-    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_networks', provider_self_alias=False) | indent(4) }}
 
 {{ lookup('compose_volumes', application_id) }}
 {{ lookup('compose_networks') }}

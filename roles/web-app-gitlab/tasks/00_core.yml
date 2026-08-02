@@ -22,3 +22,7 @@
 
 - name: "⏳ Wait for GitLab services"
   include_tasks: 02_wait.yml
+
+- name: "🔌 Provision the MCP server surface"
+  include_tasks: 03_mcp.yml
+  when: GITLAB_MCP_ENABLED | bool

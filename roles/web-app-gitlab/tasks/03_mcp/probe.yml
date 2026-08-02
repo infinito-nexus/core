@@ -1,0 +1,30 @@
+---
+- name: "🩺 Ask the instance whether the stored token still authenticates"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - "GITLAB_MCP_HOST={{ GITLAB_WORKHORSE_SERVICE_NAME }}"
+      - -e
+      - "GITLAB_MCP_PORT={{ GITLAB_WORKHORSE_PORT }}"
+      - -e
+      - "GITLAB_MCP_PATH={{ GITLAB_MCP_PATH }}"
+      - -e
+      - "GITLAB_MCP_PROTOCOL_VERSION={{ GITLAB_MCP_PROTOCOL_VERSION }}"
+      - -e
+      - "GITLAB_MCP_TOKEN={{ gitlab_mcp_token }}"
+      - "{{ GITLAB_MCP_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - ruby
+      - "-"
+    stdin: "{{ lookup('file', 'probe_mcp_token.rb') }}"
+  register: gitlab_mcp_probe
+  retries: 30
+  delay: 10
+  until: gitlab_mcp_probe.rc == 0 or 'REJECTED' in gitlab_mcp_probe.stderr
+  failed_when: false
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ GITLAB_MCP_HOST_NODE }}"
+  run_once: true
