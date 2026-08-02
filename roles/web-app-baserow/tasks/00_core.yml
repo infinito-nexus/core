@@ -1,0 +1,29 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🧩 For '{{ application_id }}': load docker, db and proxy"
+  include_role:
+    name: sys-stk-full
+  vars:
+    compose_handlers_flush: false
+
+- name: "🎬 Stage trusted-header SSO build-context files for {{ application_id }}"
+  stack_host_copy:
+    src: "{{ item.src }}"
+    dest: "{{ [ lookup('container', application_id, 'directories.instance'), item.dest ] | path_join }}"
+    mode: "0644"
+  loop:
+    - { src: "Dockerfile", dest: "Dockerfile" }
+    - { src: "sso/infinito_sso.py", dest: "infinito_sso.py" }
+    - { src: "sso/settings_patch.py", dest: "settings_patch.py" }
+
+- name: "🚿 Flush compose handlers for {{ application_id }}"
+  ansible.builtin.meta: flush_handlers
+
+- name: "👔 Baserow manager-side operations (file deploys + container exec)"
+  include_tasks: 01_manager_ops.yml
+  when: IS_STACK_HOST | bool
+
+- name: "🔌 Provision the MCP server surface"
+  include_tasks: 02_mcp.yml
+  when: BASEROW_MCP_ENABLED | bool

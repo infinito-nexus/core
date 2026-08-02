@@ -1,4 +1,11 @@
 ---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ BASEROW_SERVICE_NAME }}"
+    resolve_output_prefix: BASEROW
+    resolve_compose_cid: "{{ BASEROW_CONTAINER }}"
+
 - name: "▶️ Run Baserow Django migrations before bootstrapping users"
   ansible.builtin.shell:
     cmd: >-
@@ -6,7 +13,7 @@
       -e DJANGO_SETTINGS_MODULE={{ BASEROW_DJANGO_SETTINGS_MODULE | quote }}
       -e SECRET_KEY={{ BASEROW_SECRET_KEY | quote }}
       -e BASEROW_SECRET_KEY={{ BASEROW_SECRET_KEY | quote }}
-      {{ BASEROW_APP_CONTAINER_ADDRESS }}
+      {{ BASEROW_LOCAL_CID | quote }}
       {{ BASEROW_PYTHON }} {{ BASEROW_MANAGE_PY }} locked_migrate --noinput
   register: baserow_migrate_result
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
@@ -18,9 +25,11 @@
   retries: 60
   delay: 5
   until: baserow_migrate_result.rc == 0
+  delegate_to: "{{ BASEROW_HOST_NODE }}"
+  run_once: true
 
 - name: "🔄 Restart Baserow application after applying migrations (compose mode)"
-  ansible.builtin.command: "container restart {{ BASEROW_APP_CONTAINER_ADDRESS | quote }}" # nocheck: container-address-quote compose-gated task
+  ansible.builtin.command: "container restart {{ BASEROW_LOCAL_CID | quote }}" # nocheck: container-exec-resolver  runtime-resolved CID
   register: baserow_restart_after_migrate
   changed_when: baserow_restart_after_migrate.rc == 0
   when:
@@ -36,6 +45,14 @@
     - baserow_migrate_result.changed
     - DEPLOYMENT_MODE == 'swarm'
 
+- name: "🔍 Re-resolve the container the restart replaced"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ BASEROW_SERVICE_NAME }}"
+    resolve_output_prefix: BASEROW
+    resolve_compose_cid: "{{ BASEROW_CONTAINER }}"
+  when: baserow_migrate_result.changed
+
 - name: "🎬 Bootstrap Baserow superuser '{{ BASEROW_BOOTSTRAP_ADMIN_USERNAME }}'"
   ansible.builtin.shell:
     cmd: >-
@@ -46,7 +63,7 @@
       -e BOOTSTRAP_ADMIN_USERNAME={{ BASEROW_BOOTSTRAP_ADMIN_USERNAME | quote }}
       -e BOOTSTRAP_ADMIN_EMAIL={{ BASEROW_BOOTSTRAP_ADMIN_EMAIL | quote }}
       -e BOOTSTRAP_ADMIN_PASSWORD={{ BASEROW_BOOTSTRAP_ADMIN_PASSWORD | quote }}
-      {{ BASEROW_APP_CONTAINER_ADDRESS }}
+      {{ BASEROW_LOCAL_CID | quote }}
       {{ BASEROW_PYTHON }} {{ BASEROW_MANAGE_PY }} shell -c {{ lookup('file', role_path ~ '/files/bootstrap_admin.py') | quote }}
   register: baserow_bootstrap_admin_result
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
@@ -56,3 +73,5 @@
   retries: 60
   delay: 5
   until: baserow_bootstrap_admin_result.rc == 0
+  delegate_to: "{{ BASEROW_HOST_NODE }}"
+  run_once: true
