@@ -19,7 +19,17 @@
     mode: "0644"
   loop:
     - plugins.txt
+    - mcp-api-token.groovy
     - "{{ lookup('path_absolute', 'roles/sys-ca-selfsigned/files/java-with-ca-trust.sh') }}"
   notify:
     - compose build
     - compose up
+
+- name: "🔄 Start the controller before talking to its API"
+  meta: flush_handlers
+
+- name: "🔌 Provision the MCP server surface"
+  ansible.builtin.include_tasks: 01_mcp.yml
+  when:
+    - JENKINS_MCP_ENABLED | bool
+    - IS_STACK_HOST | bool

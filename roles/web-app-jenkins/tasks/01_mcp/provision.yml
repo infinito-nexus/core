@@ -1,0 +1,37 @@
+---
+- name: "🔑 Read the API token the boot hook minted for MCP clients"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ JENKINS_LOCAL_CID | quote }} \
+      cat {{ JENKINS_MCP_TOKEN_FILE | quote }}
+  register: jenkins_mcp_token_read
+  retries: 30
+  delay: 10
+  until: jenkins_mcp_token_read.rc == 0
+  changed_when: false
+  delegate_to: "{{ JENKINS_HOST_NODE }}"
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔧 Take the minted token from the boot hook output"
+  ansible.builtin.set_fact:
+    jenkins_mcp_token: "{{ jenkins_mcp_token_read.stdout_lines | last | trim }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  run_once: true
+
+- name: "🛑 Refuse a controller that issued no usable API token"
+  ansible.builtin.assert:
+    that:
+      - jenkins_mcp_token | length >= 34
+    fail_msg: >-
+      Jenkins wrote no API token to {{ JENKINS_MCP_TOKEN_FILE }}, so every MCP
+      client would be configured with an empty credential and fail at first use.
+
+- name: "💾 Persist the token so MCP clients can read it"
+  ansible.builtin.include_role:
+    name: sys-token-store
+    tasks_from: write.yml
+  vars:
+    sys_token_store_user_key: administrator
+    sys_token_store_app: "{{ application_id }}"
+    sys_token_store_token: "{{ jenkins_mcp_token }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

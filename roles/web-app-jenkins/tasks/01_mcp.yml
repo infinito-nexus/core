@@ -1,0 +1,48 @@
+---
+- name: "🔍 Read the MCP token this controller already issued"
+  ansible.builtin.set_fact:
+    jenkins_mcp_token: >-
+      {{ lookup('users', 'administrator').tokens[application_id] | default('') | trim }}
+
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: JENKINS
+    resolve_compose_cid: "{{ JENKINS_CONTAINER }}"
+
+- name: "⏳ Wait until the controller serves requests again"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ JENKINS_LOCAL_CID | quote }} \
+      {{ lookup('timeout', 30) | curl(5, 0) }} -o /dev/null -w '%{http_code}' \
+        {{ JENKINS_MCP_READY_URL | quote }}
+  register: jenkins_ready_probe
+  retries: 60
+  delay: 5
+  until: jenkins_ready_probe.stdout is match('[234][0-9][0-9]')
+  changed_when: false
+  delegate_to: "{{ JENKINS_HOST_NODE }}"
+  run_once: true
+
+- name: "🩺 Check the stored token against the running controller"
+  ansible.builtin.include_tasks: 01_mcp/probe.yml
+  when: jenkins_mcp_token | length > 0
+
+- name: "🔑 Take over the API token the controller minted for MCP clients"
+  ansible.builtin.include_tasks: 01_mcp/provision.yml
+  when: jenkins_mcp_token | length == 0 or jenkins_mcp_token_probe.rc | default(1) != 0
+
+- name: "🩺 Re-check the freshly read token"
+  ansible.builtin.include_tasks: 01_mcp/probe.yml
+  when: jenkins_mcp_token_probe is not defined or jenkins_mcp_token_probe.rc != 0
+
+- name: "🛑 Refuse a controller whose MCP token every client would be rejected with"
+  ansible.builtin.assert:
+    that:
+      - jenkins_mcp_token_probe.rc == 0
+    fail_msg: >-
+      Jenkins rejected the API token stored for {{ application_id }}, so every MCP
+      client would be configured with a credential the controller answers 401 to.
+
+- name: "🩺 Verify the MCP endpoint answers that credential"
+  ansible.builtin.include_tasks: 01_mcp/verify.yml
