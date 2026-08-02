@@ -30,6 +30,12 @@
     dashboard:
       enabled: true
       shared: true
+    mcp:
+      enabled: true
+      shared: true
+    context_agent:
+      enabled: true
+      shared: true
     matomo:
       enabled: true
       shared: true
@@ -113,6 +119,12 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    mcp:
+      enabled: false
+      shared: false
+    context_agent:
+      enabled: false
+      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -123,91 +135,6 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     redis:
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    talk:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    talk_recording:
-      enabled: false
-    onlyoffice:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    collabora:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    bigbluebutton:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    xwiki:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    seaweedfs:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    prometheus:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    openproject:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    gitlab:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    discourse:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    mattermost:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    matrix:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    zammad:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    openwebui:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    litellm:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    mastodon:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    peertube:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-- services:
-    container_backup:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    sso:
-      enabled: true
-      shared: true
-    coturn:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    logout:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    ldap:
-      enabled: true
-      shared: true
-    dashboard:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    matomo:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    email:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    mariadb:
-      shared: true
-    redis:
-      shared: true
     talk:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -253,91 +180,6 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     openwebui:
-      enabled: true
-      shared: true
-    litellm:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    mastodon:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    peertube:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-- services:
-    container_backup:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    sso:
-      enabled: true
-      shared: true
-    coturn:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    logout:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    ldap:
-      enabled: true
-      shared: true
-    dashboard:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    matomo:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    email:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    mariadb:
-      shared: true
-    redis:
-      shared: true
-    talk:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    talk_recording:
-      enabled: false
-    onlyoffice:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    collabora:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    bigbluebutton:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    xwiki:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    seaweedfs:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    prometheus:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    openproject:
-      enabled: true
-      shared: true
-    gitlab:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    discourse:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    mattermost:
-      enabled: true
-      shared: true
-    matrix:
-      enabled: true
-      shared: true
-    zammad:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    openwebui:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
@@ -368,91 +210,12 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    matomo:
+    mcp:
       enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    email:
+      shared: false
+    context_agent:
       enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    mariadb:
-      shared: true
-    redis:
-      shared: true
-    talk:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    talk_recording:
-      enabled: false
-    onlyoffice:
-      enabled: true
-      shared: true
-    collabora:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    bigbluebutton:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    xwiki:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    seaweedfs:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    prometheus:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    openproject:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    gitlab:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    discourse:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    mattermost:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    matrix:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    zammad:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    openwebui:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    litellm:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    mastodon:
-      enabled: true
-      shared: true
-    peertube:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-- services:
-    container_backup:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    sso:
-      enabled: true
-      shared: true
-    coturn:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    logout:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    ldap:
-      enabled: true
-      shared: true
-    dashboard:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -505,6 +268,279 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     zammad:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    openwebui:
+      enabled: true
+      shared: true
+    litellm:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    mastodon:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    peertube:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+- services:
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    sso:
+      enabled: true
+      shared: true
+    coturn:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    logout:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    ldap:
+      enabled: true
+      shared: true
+    dashboard:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    mcp:
+      enabled: false
+      shared: false
+    context_agent:
+      enabled: false
+      shared: false
+    matomo:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    email:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    mariadb:
+      shared: true
+    redis:
+      shared: true
+    talk:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    talk_recording:
+      enabled: false
+    onlyoffice:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    collabora:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    bigbluebutton:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    xwiki:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    seaweedfs:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    css:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    prometheus:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    openproject:
+      enabled: true
+      shared: true
+    gitlab:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    discourse:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    mattermost:
+      enabled: true
+      shared: true
+    matrix:
+      enabled: true
+      shared: true
+    zammad:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    openwebui:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    litellm:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    mastodon:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    peertube:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+- services:
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    sso:
+      enabled: true
+      shared: true
+    coturn:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    logout:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    ldap:
+      enabled: true
+      shared: true
+    dashboard:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    mcp:
+      enabled: false
+      shared: false
+    context_agent:
+      enabled: false
+      shared: false
+    matomo:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    email:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    mariadb:
+      shared: true
+    redis:
+      shared: true
+    talk:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    talk_recording:
+      enabled: false
+    onlyoffice:
+      enabled: true
+      shared: true
+    collabora:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    bigbluebutton:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    xwiki:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    seaweedfs:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    css:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    prometheus:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    openproject:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    gitlab:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    discourse:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    mattermost:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    matrix:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    zammad:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    openwebui:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    litellm:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    mastodon:
+      enabled: true
+      shared: true
+    peertube:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+- services:
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    sso:
+      enabled: true
+      shared: true
+    coturn:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    logout:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    ldap:
+      enabled: true
+      shared: true
+    dashboard:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    mcp:
+      enabled: false
+      shared: false
+    context_agent:
+      enabled: false
+      shared: false
+    matomo:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    email:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    mariadb:
+      shared: true
+    redis:
+      shared: true
+    talk:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    talk_recording:
+      enabled: false
+    onlyoffice:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    collabora:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    bigbluebutton:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    xwiki:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    seaweedfs:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    css:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    prometheus:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    openproject:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    gitlab:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    discourse:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    mattermost:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    matrix:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    zammad:
       enabled: true
       shared: true
     openwebui:
@@ -538,6 +574,12 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    mcp:
+      enabled: false
+      shared: false
+    context_agent:
+      enabled: false
+      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -623,6 +665,12 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    mcp:
+      enabled: false
+      shared: false
+    context_agent:
+      enabled: false
+      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

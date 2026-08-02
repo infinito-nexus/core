@@ -108,6 +108,49 @@ proxy:
   mem_limit: 256m
   pids_limit: 512
   min_storage: 226MB
+  ports:
+    internal:
+      http: 80
+mcp:
+  bond: 1
+  enabled: "{{ 'web-app-hermes' in group_names or 'web-app-openclaw' in group_names }}"
+  shared: "{{ 'web-app-hermes' in group_names or 'web-app-openclaw' in group_names }}"
+  direction: server
+  source_url: https://docs.nextcloud.com/server/latest/admin_manual/ai/app_context_agent.html
+  minimum_version: "30"
+  notes: Context Agent ExApp behind the AppAPI proxy, app-password auth.
+  transport: streamable_http
+  exposure: public
+  auth: app_password
+  auth_subject: user
+  implementation: plugin
+  endpoint:
+    service_key: proxy
+    path: /index.php/apps/app_api/proxy/context_agent/mcp/
+    port_key: http
+  tools:
+    read_only_default: true
+    mutating_tools_enabled: false
+# nocheck: playwright-service-flag
+context_agent:
+  bond: 1
+  enabled: "{{ 'web-app-hermes' in group_names or 'web-app-openclaw' in group_names }}"
+  shared: "{{ 'web-app-hermes' in group_names or 'web-app-openclaw' in group_names }}"
+  name: nextcloud-context-agent
+  image: ghcr.io/nextcloud/context_agent
+  version: 2.7.0
+  backup:
+    no_stop_required: true
+  # nocheck: single-replica
+  replicas: 1
+  cpus: "1.0"
+  mem_reservation: 512m
+  mem_limit: 1g
+  pids_limit: 512
+  min_storage: 512MB
+  ports:
+    internal:
+      http: 23000
 cron:
   # nocheck: single-replica singleton cron.sh; replicas double-run background jobs on the shared data volume
   replicas: 1

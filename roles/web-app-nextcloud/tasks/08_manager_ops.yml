@@ -37,3 +37,7 @@
 
 - name: 🔧 Reconcile administrator identities after plugin setup
   include_tasks: 07_admin_identities.yml
+
+- name: "🔌 Provision the MCP server surface"
+  include_tasks: 09_mcp.yml
+  when: NEXTCLOUD_MCP_ENABLED | bool

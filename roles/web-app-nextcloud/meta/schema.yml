@@ -29,3 +29,8 @@ credentials:
     description: Internal secret for AIO Talk
     algorithm: base64_prefixed_32
     validation: ^base64:[A-Za-z0-9+/]{43}=$
+  context_agent_app_secret:
+    description: Shared secret between the Nextcloud AppAPI proxy and the Context Agent ExApp serving the MCP endpoint
+    algorithm: alphanumeric
+    validation:
+      min_length: 64
