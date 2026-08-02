@@ -152,3 +152,13 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+# nocheck: dynamic-flag  a blocker block can never be enabled, so a group_names expression would be dead code
+# nocheck: playwright-service-flag  no MCP surface is served, so no spec can exercise one
+mcp:
+  enabled: false
+  shared: false
+  blocker: licence
+  source_url: https://www.openproject.org/docs/system-admin-guide/integrations/mcp-server/
+  minimum_version: "16.0"
+  notes: Enterprise-only; upstream's own request specification asserts a 404 on Community Edition, which is what this role deploys.
