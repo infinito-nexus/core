@@ -70,7 +70,6 @@ MCP_ENDPOINT_KEYS = frozenset(
         "service_key",
         "path",
         "port_key",
-        "health_path",
         "key_credential",
         "suffix",
     }

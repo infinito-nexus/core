@@ -494,7 +494,6 @@ class RolesWithServiceLookupTests(unittest.TestCase):
             {
                 "service_key": "baserow",
                 "path": "/mcp",
-                "health_path": None,
                 "port": 8021,
                 "key_credential": None,
                 "suffix": None,

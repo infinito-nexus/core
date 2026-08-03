@@ -25,7 +25,7 @@ Kwargs:
         only roles whose block declares that ``direction`` (or ``both``)
         are returned, and each entry additionally carries ``transport``,
         ``auth``, ``auth_subject`` and an ``endpoint`` dict
-        (``service_key``, ``path``, ``health_path``, ``port`` taken from the
+        (``service_key``, ``path``, ``port`` taken from the
         referenced service's ``ports.internal`` and only then ``ports.local``:
         the entry is consumed to build a container-network URL, where a
         host-published port is always the wrong one).
@@ -169,7 +169,6 @@ class LookupModule(LookupBase):
                 entry["endpoint"] = {
                     "service_key": endpoint.get("service_key"),
                     "path": endpoint.get("path"),
-                    "health_path": endpoint.get("health_path"),
                     "port": _resolve_endpoint_port(services, endpoint),
                     "key_credential": endpoint.get("key_credential"),
                     "suffix": endpoint.get("suffix"),
