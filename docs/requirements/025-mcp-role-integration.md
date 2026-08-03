@@ -1,5 +1,7 @@
 # 025 - MCP Role Integration
 
+> **Revalidation required:** [035 - MCP Proxy Expansion and Application Interconnection](035-mcp-proxy-expansion.md) records the exhaustive 169-role audit and supersedes this document where this document assumes an empty baseline, treats metadata as enforcement, or marks client provisioning and end-to-end authorization complete. Checked items below describe the original implementation slice and MUST NOT be read as proof that the stricter identity, revocation, transport, restart, proxy, and real-tool-call criteria in requirement 035 are complete.
+
 ## User Story
 
 As a platform administrator of Infinito.Nexus, I want every role with a documented Model Context Protocol (MCP) surface to expose or consume MCP through the platform's standard service, identity, proxy, and test contracts so that AI clients can use application data and actions safely without one-off per-role wiring.
@@ -7,8 +9,8 @@ As a platform administrator of Infinito.Nexus, I want every role with a document
 ## Background
 
 MCP is a client-server protocol for connecting AI hosts to external tools, resources, and prompts.
-Several roles in this repository already deploy applications whose upstream projects document MCP support, but the current role tree has no MCP configuration or tests.
-A repository scan for `mcp` returns no role-local implementation, so this requirement starts from a clean integration layer rather than from an existing partial contract.
+Several roles in this repository deploy applications whose upstream projects document MCP support.
+The current tree contains 18 role-local `mcp:` blocks, but metadata presence does not prove endpoint compatibility, least-privilege credentials, application-scoped user authorization, client provisioning, or an end-to-end tool call.
 
 The integration MUST distinguish two directions:
 
@@ -22,7 +24,7 @@ Plugin, sidecar, or marketplace MCP servers MAY be used only when the upstream p
 
 These choices are settled at requirement creation time and bound the implementation. Re-opening any of them MUST be recorded in the implementing PR.
 
-1. **Implementation precedence.** `native` > `plugin` > `sidecar` > `external`. A lower-precedence path is allowed only when the higher one is unavailable upstream and the role README documents why.
+1. **Implementation precedence.** `native` > `plugin` > `sidecar` > `adapter` > `external`. A lower-precedence path is allowed only when the higher one is unavailable or cannot enforce the required security boundary, and the role README documents why. Adapter instances follow requirement 035 and are isolated per provider application or trust domain.
 2. **Discovery reuses existing infrastructure.** Client roles discover servers through the existing [`roles_with_service`](../../plugins/lookup/roles_with_service.py) lookup (backed by `utils.cache.applications.get_merged_applications`), extended to filter by `services.mcp.direction` and to surface endpoint metadata. No new generated repository-wide application dictionary is introduced.
 3. **Secrets reuse the credentials mechanism.** MCP tokens, app-passwords, and OAuth client secrets are declared in each role's [`meta/schema.yml`](../../roles/web-app-baserow/meta/schema.yml) `credentials:` block and read via `lookup('config', application_id, 'credentials.<name>')`. No new secret store is introduced.
 4. **MCP state is a variant axis.** Roles that gain an MCP surface MUST express the enabled/disabled split through `meta/variants.yml` so CI matrix runs cover both states.
@@ -54,9 +56,9 @@ The following roles have an upstream MCP path that this deployment cannot use.
 Each declares a `services.mcp` block carrying only `blocker`, `source_url` and `notes`, with `enabled` and `shared` false, so the role stays out of discovery while the audit still reports why it is not integrated:
 
 - [web-app-jira](../../roles/web-app-jira/) and [web-app-confluence](../../roles/web-app-confluence/): `blocker: hosted_only`. Atlassian documents the [Rovo MCP Server](https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/) for Atlassian Cloud only.
-- [web-app-wordpress](../../roles/web-app-wordpress/): `blocker: hosted_only`. Ecosystem plugins only; a maintained plugin MUST be selected and reviewed before integration.
-- [web-app-odoo](../../roles/web-app-odoo/): `blocker: hosted_only`. Third-party add-ons only; one MUST be selected and reviewed before integration.
-- [web-app-discourse](../../roles/web-app-discourse/): `blocker: hosted_only`. An MCP repository exists, but no stable supported server contract has been confirmed.
+- [web-app-wordpress](../../roles/web-app-wordpress/): the `hosted_only` classification is stale. The official WordPress MCP adapter is a plugin candidate and MUST be pinned, source-audited, restricted to reviewed Abilities with permission callbacks, and tested against the deployed WordPress version before the blocker is removed.
+- [web-app-odoo](../../roles/web-app-odoo/): `blocker: unreviewed_third_party`. Self-hostable third-party add-ons exist, but no Odoo Core server has been confirmed. A module MUST pass source, license, maintenance, authentication, and per-model/per-operation review before selection.
+- [web-app-discourse](../../roles/web-app-discourse/): the `hosted_only` classification is stale. The project-owned server is a pinned HTTP-sidecar candidate that MUST run read-only by default with a restricted User API key and separate client-facing authentication.
 - [web-app-openproject](../../roles/web-app-openproject/): `blocker: licence`. The MCP server ships in the product but is Enterprise-only, and upstream's own request specification asserts a 404 on Community Edition, which is what this role deploys.
 
 ## Target Schema
@@ -176,8 +178,8 @@ Direction gates the wiring: a `server` role only exposes `/mcp`, a `client` role
 
 The audit is the role tree itself: every fact about a role's MCP surface lives in its own `meta/services.yml`, so a separate artifact would be a copy that can go stale. `grep -l '^mcp:' roles/*/meta/services.yml` enumerates the integrated roles.
 
-- [x] Each role's MCP classification is readable from its own `meta/services.yml`: `implementation` for a served surface, `blocker` for an upstream path this deployment cannot use. A role with no upstream MCP path carries no `mcp` block at all, so absence and refusal stay distinguishable.
-- [x] A role whose upstream path exists but is unreachable here MUST declare the `blocker` naming the reason instead of being silently absent, and MUST NOT also declare a served surface. Lint enforces both.
+- [ ] Every role with an `application_id` has an explicit audit disposition as required by requirement 035. Absence of an `mcp` block is not accepted as evidence that the role was reviewed.
+- [ ] A role whose upstream path exists but is unreachable here declares the precise blocker instead of being silently absent, and MUST NOT also declare a served surface. Lint enforces both.
 - [x] A test asserts that every role declaring a served surface gates it on the role's MCP-enabled flag, so switching MCP off removes the endpoint rather than leaving it reachable.
 - [ ] A grep for `mcp` before implementation is recorded in the implementing PR to show the baseline was empty.
 
@@ -201,15 +203,15 @@ The audit is the role tree itself: every fact about a role's MCP surface lives i
 - [x] No deployed role launches arbitrary user-provided stdio MCP commands by default.
 - [x] Every MCP server endpoint is protected by OIDC, app-password, bearer-token, upstream-session auth, or an explicitly documented internal-only exception.
 - [x] MCP credentials follow their origin. A secret this deployment generates (an endpoint key, a shared app secret) is declared in the role's [`meta/schema.yml`](../../roles/web-app-baserow/meta/schema.yml) `credentials:` block and consumed via `lookup('config', application_id, 'credentials.<name>')`. A credential the application itself issues (an API token, a personal access token, an app password) MUST NOT be declared there, because the vault cannot generate it; it is minted against the running instance and persisted through `sys-token-store` under the consuming user. Either way the value is never written into `README.md`, Playwright traces, or non-secret env vars.
-- [x] Every MCP server role documents whether MCP calls execute as the requesting user, a service account, or an administrator, and the implementation enforces that subject consistently.
-- [x] Every MCP server role declares an `mcp` RBAC role, and a client MUST NOT offer the registered tool server to every signed-in user. The credential a client presents is the one the deployment issued, not the caller's own, so reaching the tool server is a distinct grant from using the application. The `mcp` RBAC role carries that grant on the platform side. On the client side Open WebUI matches a tool-server grant against a group id that `insert_new_group` mints as a fresh UUID, so the id cannot be known while the env is rendered. The env therefore renders `access_grants: []`, which `has_connection_access` reads as administrator-only, and a deploy task resolves the group and writes the grant through the admin API afterwards. `ENABLE_OAUTH_GROUP_MANAGEMENT` syncs the platform's groups on login and `BYPASS_ADMIN_ACCESS_CONTROL=false` keeps the grant binding on administrators, who reach the tool server through their own `mcp` membership rather than around it. Two limits are stated rather than claimed away: a user's `roles:` list carries role names without an application context, so `roles: [mcp]` grants every deployed application's `mcp` group at once and a per-application entitlement has to be set on the Keycloak group directly; and Open WebUI drops a stale membership only while the groups claim is non-empty, so losing a last role does not revoke access until a later login carries one.
-- [x] Public MCP exposure includes proxy routing, TLS, request-size limits, timeout limits, and rate-limit guidance.
-- [x] Mutating MCP tools are off by default wherever upstream offers a filter, a scope or a permission flag to switch them off. Where upstream offers none, `tools.mutating_tools_enabled` records the intent while the role README names the missing enforcement and the rights a call actually carries, so the gap is stated rather than implied.
+- [ ] Every MCP server role documents whether calls execute as the requesting user, a service account, or an administrator, and the implementation verifies the real provisioned identity. The current lookup selects administrator tokens independently of `auth_subject`, so metadata alone does not satisfy this criterion.
+- [ ] Every MCP server role declares an application-scoped `mcp` RBAC role, and each client enforces the corresponding server grant. Open WebUI MAY resolve or create its unpredictable local group identifier by group name and apply `access_grants` through the API, but unscoped `roles: [mcp]`, wrong-application membership, last-group removal, and post-restart reconciliation MUST be fixed and tested as defined by requirement 035.
+- [ ] Public MCP exposure enforces proxy routing, TLS, request-size, response-size, timeout, concurrency, stream-duration, and rate limits with explicit tested values.
+- [ ] Mutating MCP tools are blocked by enforceable upstream scopes or a `tools/call` policy allowlist. A `mutating_tools_enabled: false` metadata value without runtime enforcement does not satisfy this criterion.
 - [x] Role READMEs document the data and action surface exposed to MCP clients.
 
 ### MCP server roles
 
-- [x] [web-app-baserow](../../roles/web-app-baserow/) exposes its native MCP server when `services.mcp.enabled=true`, keeps it authenticated, and verifies at least one read-only tool through an MCP client.
+- [ ] [web-app-baserow](../../roles/web-app-baserow/) exposes its native MCP server when `services.mcp.enabled=true`, uses a verified least-privilege identity and read-only tool contract, and verifies at least one deterministic tool call through each selected client.
 - [ ] [web-app-gitlab](../../roles/web-app-gitlab/) exposes GitLab MCP only when the operator confirms the required tier/license and the endpoint is reachable at the documented self-managed path.
 - [x] [web-app-gitea](../../roles/web-app-gitea/) either ships the project-owned MCP server with pinned packaging and authenticated access or is reclassified with a documented blocker.
 - [x] [web-app-jenkins](../../roles/web-app-jenkins/) installs and pins the MCP Server plugin, exposes only authenticated Jenkins tools, and documents the tool scope.
@@ -220,8 +222,8 @@ The audit is the role tree itself: every fact about a role's MCP surface lives i
 
 ### MCP client roles
 
-- [x] [web-app-openwebui](../../roles/web-app-openwebui/) is pinned to an explicit `v0.6.31+` tag (replacing the current `version: main`) that supports native MCP and can register every enabled shared Streamable HTTP MCP server role.
-- [x] [web-app-flowise](../../roles/web-app-flowise/) prepares the instance so a Custom MCP node can reach every enabled shared Streamable HTTP MCP server role, without enabling arbitrary stdio execution. Flowise configures MCP per flow and exposes no instance-level registry API, so the role pins the transport and relaxes the host deny-list for container origins while selecting a server inside a flow stays an operator step.
+- [ ] [web-app-openwebui](../../roles/web-app-openwebui/) registers only compatible authorized servers, applies exact application-group grants, and restores connection state and grants after restart with `ENABLE_PERSISTENT_CONFIG=false`.
+- [ ] [web-app-flowise](../../roles/web-app-flowise/) uses Flowise 3.1.3's authenticated `/api/v1/custom-mcp-servers` registry for SSE servers, stores custom headers encrypted, authorizes and verifies the expected tools, and provisions a managed flow that executes a deterministic tool. Streamable HTTP requires a proven bridge or source-audited upgrade. Globally disabling `HTTP_SECURITY_CHECK` alone is not an integration.
 - [x] Client roles render MCP connection configuration from role metadata and secrets, not from hard-coded role names.
 - [x] Client roles whose upstream offers an administrator-visible list of configured MCP servers expose it in Playwright coverage. A client without such a surface instead has its configured servers proven at deploy time, and its README states which of the two applies.
 
@@ -240,7 +242,7 @@ The audit is the role tree itself: every fact about a role's MCP surface lives i
 - [ ] For each integrated MCP client role, Playwright verifies the client's MCP surface: the configured server list where the upstream exposes one, otherwise that the client's own API refuses an unauthenticated caller, so the credential the client holds cannot be reached from outside.
 - [ ] Every integrated MCP role (server or client) ships a matching Playwright spec under `roles/<role>/files/playwright/` covering its MCP surface, and that spec is green before the role's Acceptance Criterion is marked complete.
 - [x] A deployment with `services.mcp.enabled=false` for all roles has no MCP endpoint reachable from the public proxy.
-- [x] A deployment with one MCP server role and one MCP client role proves end-to-end tool discovery through the client UI.
+- [ ] A deployment with one MCP server role and one MCP client role executes a deterministic real tool call through the client. Rendering configuration or listing a server does not satisfy this criterion.
 - [x] With `services.mcp.enabled=true`, the role's uptime/status-code check still passes, proving the authenticated MCP path does not regress health monitoring.
 
 ### Documentation
