@@ -76,6 +76,20 @@ class TestAsyncFailures(unittest.TestCase):
             async_failures(results, []),
         )
 
+    def test_a_renamed_loop_var_is_still_named_in_the_report(self):
+        """loop_control.loop_var moves the loop value off the `item` key."""
+        renamed = {
+            "finished": 1,
+            "rc": 1,
+            "stderr": "pull failed",
+            "ansible_job_id": "j5",
+            "item": {
+                "ansible_loop_var": "model",
+                "model": "smollm2:135m",
+            },
+        }
+        self.assertEqual(["smollm2:135m: pull failed"], async_failures([renamed], []))
+
     def test_unreadable_job_is_a_failure_not_a_silent_pass(self):
         """async_status on a job started elsewhere returns finished:true with no outcome.
 

@@ -51,12 +51,10 @@ class TestContainerNetworksLookup(unittest.TestCase):
 
         with (
             mock.patch(
-                "plugins.lookup.container_networks.build_service_registry_from_applications",
+                "utils.networks.lookup_context.build_service_registry_from_applications",
                 return_value={},
             ),
-            mock.patch(
-                "plugins.lookup.container_networks.lookup_loader"
-            ) as loader_mock,
+            mock.patch("utils.networks.lookup_context.lookup_loader") as loader_mock,
             mock.patch(
                 "plugins.lookup.container_networks.render_container_networks",
                 return_value="RENDERED",
@@ -77,12 +75,10 @@ class TestContainerNetworksLookup(unittest.TestCase):
 
         with (
             mock.patch(
-                "plugins.lookup.container_networks.build_service_registry_from_applications",
+                "utils.networks.lookup_context.build_service_registry_from_applications",
                 return_value={},
             ),
-            mock.patch(
-                "plugins.lookup.container_networks.lookup_loader"
-            ) as loader_mock,
+            mock.patch("utils.networks.lookup_context.lookup_loader") as loader_mock,
             mock.patch(
                 "plugins.lookup.container_networks.render_container_networks",
                 return_value="RENDERED",
@@ -94,11 +90,8 @@ class TestContainerNetworksLookup(unittest.TestCase):
         self.assertEqual(render_mock.call_args.kwargs["deployment_mode"], "compose")
 
     def test_lookup_closures_pass_arguments_in_expected_order(self):
-        # Pin the call shape of the closures that the plugin synthesises:
-        #   config_lookup.run([app, path, default], variables=vars_)
-        #   database_lookup.run([app, key], variables=vars_)
-        # A regression that swaps app/path or drops the variables kwarg would
-        # break at runtime but stay green with naive MagicMock stubs.
+        """config_lookup.run([app, path, default]) and
+        database_lookup.run([app, key]), both with variables=vars_."""
         vars_ = {
             "application_id": "web-app-x",
             "DEPLOYMENT_MODE": "swarm",
@@ -123,12 +116,10 @@ class TestContainerNetworksLookup(unittest.TestCase):
 
         with (
             mock.patch(
-                "plugins.lookup.container_networks.build_service_registry_from_applications",
+                "utils.networks.lookup_context.build_service_registry_from_applications",
                 return_value={},
             ),
-            mock.patch(
-                "plugins.lookup.container_networks.lookup_loader"
-            ) as loader_mock,
+            mock.patch("utils.networks.lookup_context.lookup_loader") as loader_mock,
             mock.patch(
                 "plugins.lookup.container_networks.render_container_networks",
                 side_effect=_exercise,

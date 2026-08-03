@@ -10,13 +10,6 @@
     nextcloud_zammad_nc_base_url: "{{ lookup('tls', 'web-app-nextcloud', 'url.base') | regex_replace('/$', '') }}"
   changed_when: false
 
-- name: 🔍 Probe whether the Zammad partner container is running
-  shell: >
-    container inspect --type container -f '{% raw %}{{.State.Running}}{% endraw %}' {{ NEXTCLOUD_ZAMMAD_CONTAINER_ADDRESS }}
-  register: nextcloud_zammad_partner_running
-  changed_when: false
-  failed_when: false
-
 - name: 📖 Read persisted integration_zammad OAuth client id
   shell: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:get integration_zammad client_id
@@ -36,7 +29,6 @@
   include_tasks: integration_zammad_provision.yml
   when: >-
     IS_STACK_HOST | bool
-    and (nextcloud_zammad_partner_running.stdout | trim) == 'true'
     and (
       (nextcloud_zammad_client_id_current.stdout | trim) | length == 0
       or (nextcloud_zammad_client_secret_current.stdout | trim) | length == 0

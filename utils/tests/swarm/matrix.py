@@ -33,6 +33,7 @@ _SWARM_SCRIPTS = _SWARM_DIR / "routine"
 _ROLES_DIR = str(PROJECT_ROOT / "roles")
 _SWARM_EXTRAS_VARS = "inventories/development/swarm.yml"
 _DEFAULT_INVENTORY_DIR = "/tmp/inv"  # noqa: S108 - ephemeral swarm-test inventory base in CI
+DISK_FLOOR_MB = 6 * 2**10
 
 
 def _run(cmd: list[str], *, env: dict[str, str], label: str) -> int:
@@ -40,7 +41,7 @@ def _run(cmd: list[str], *, env: dict[str, str], label: str) -> int:
 
     The Actions Worker dies silently on ENOSPC while writing its own logs, so
     a full disk truncates the job without diagnostics; terminating the step at
-    <6G free keeps enough room for rescue artifacts and the log upload.
+    DISK_FLOOR_MB keeps enough room for rescue artifacts and the log upload.
     """
     print(f"=== swarm-matrix: {label} ===", flush=True)
     proc = subprocess.Popen(cmd, cwd=str(PROJECT_ROOT), env=env)
@@ -48,10 +49,10 @@ def _run(cmd: list[str], *, env: dict[str, str], label: str) -> int:
         try:
             return int(proc.wait(timeout=30))
         except subprocess.TimeoutExpired:
-            if shutil.disk_usage("/").free < 6 * 2**30:
+            if shutil.disk_usage("/").free < DISK_FLOOR_MB * 2**20:
                 print(
                     "=== swarm-matrix: DISK EXHAUSTION IMMINENT "
-                    "(<6G free on /) - aborting step ===",
+                    f"(<{DISK_FLOOR_MB}M free on /) - aborting step ===",
                     flush=True,
                 )
                 subprocess.run(["df", "-h", "/"], check=False)
@@ -198,6 +199,7 @@ def _backup_restore_drill(*, app_id: str, inv_dir: str, extras_path: str) -> int
     env["APP_ID"] = app_id
     env["INFINITO_INVENTORY_DIR"] = inv_dir
     env["DRILL_EXTRAS"] = extras_path
+    env["DISK_FLOOR_MB"] = str(DISK_FLOOR_MB)
     return _run(
         ["bash", str(_SWARM_SCRIPTS / "backup" / "base.sh")],
         env=env,

@@ -13,25 +13,13 @@ even when the provider role did not run in the same play.
 
 from __future__ import annotations
 
-import contextlib
 from typing import Any
 
 from ansible.errors import AnsibleError
-from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
+from utils.networks.lookup_context import build_context, resolve_var
 from utils.networks.render import compute_external_network_roles
-from utils.roles.applications.services.registry import (
-    build_service_registry_from_applications,
-)
-
-
-def _resolve_var(templar, value: Any) -> Any:
-    if templar is None:
-        return value
-    with contextlib.suppress(Exception):
-        return templar.template(value)
-    return value
 
 
 class LookupModule(LookupBase):
@@ -46,42 +34,20 @@ class LookupModule(LookupBase):
                 "compose_external_networks lookup takes no positional terms"
             )
 
-        vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
-        templar = getattr(self, "_templar", None)
+        ctx = build_context(self, variables, honour_mode_force=False)
 
-        application_id = _resolve_var(templar, vars_.get("application_id"))
+        application_id = resolve_var(ctx.templar, ctx.vars.get("application_id"))
         if not application_id:
             raise AnsibleError(
                 "compose_external_networks lookup: application_id is required in variables"
             )
 
-        deployment_mode = str(
-            _resolve_var(templar, vars_.get("DEPLOYMENT_MODE", "compose"))
-        )
-
-        applications = lookup_loader.get(
-            "applications", loader=self._loader, templar=getattr(self, "_templar", None)
-        ).run([], variables=vars_)[0]
-        registry = build_service_registry_from_applications(applications)
-
-        config_lookup = lookup_loader.get(
-            "config", loader=self._loader, templar=templar
-        )
-        database_lookup = lookup_loader.get(
-            "database", loader=self._loader, templar=templar
-        )
-
-        def _lookup_config(app: str, path: str, default: Any) -> Any:
-            return config_lookup.run([app, path, default], variables=vars_)[0]
-
-        def _lookup_database(app: str, key: str) -> Any:
-            return database_lookup.run([app, key], variables=vars_)[0]
-
-        roles = compute_external_network_roles(
-            application_id=str(application_id),
-            deployment_mode=deployment_mode,
-            registry=registry,
-            lookup_config=_lookup_config,
-            lookup_database=_lookup_database,
-        )
-        return [roles]
+        return [
+            compute_external_network_roles(
+                application_id=str(application_id),
+                deployment_mode=ctx.deployment_mode,
+                registry=ctx.registry,
+                lookup_config=ctx.lookup_config,
+                lookup_database=ctx.lookup_database,
+            )
+        ]

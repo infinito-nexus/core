@@ -17,14 +17,16 @@ DUMPS="${2:?usage: trigger_units.sh PATTERN DUMPS}"
 units="$(systemctl list-unit-files "${PATTERN}" --no-legend | awk '{print $1}' || true)"
 [ -n "${units}" ] || exit 2
 
+NODE="$(uname -n)"
+
 while read -r unit; do
 	[ -n "${unit}" ] || continue
-	echo "    starting ${unit} on $(hostname)"
+	echo "    starting ${unit} on ${NODE}"
 	if ! systemctl start "${unit}"; then
 		mkdir -p "${DUMPS}"
-		dump="${DUMPS}/${unit}.$(hostname).journal.txt"
+		dump="${DUMPS}/${unit}.${NODE}.journal.txt"
 		journalctl -u "${unit}" --no-pager -o short-iso >"${dump}" 2>/dev/null || true
-		echo "FAILURE: ${unit} did not complete on $(hostname); full journal at ${dump}"
+		echo "FAILURE: ${unit} did not complete on ${NODE}; full journal at ${dump}"
 		journalctl -u "${unit}" --no-pager -o cat -n 40 2>/dev/null || true
 		exit 1
 	fi

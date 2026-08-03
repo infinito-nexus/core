@@ -10,11 +10,11 @@ The pipeline owns three responsibilities for one Nextcloud plugin (app):
 2. Enable the plugin so the in-app code paths are active.
 3. Apply plugin-specific configuration keys and run any role-local hook.
 
-When a plugin is marked `enabled: false`, `06_plugin.yml` runs `occ app:disable` for that plugin instead of entering the pipeline.
+When a plugin is marked `enabled: false`, `05_plugin.yml` runs `occ app:disable` for that plugin instead of entering the pipeline.
 
 ## Pipeline stages
 
-Each `tasks/02_manager_ops/06_plugin/<step>.yml` file owns exactly one OCC stage and one decision about whether to continue.
+Each `tasks/02_manager_ops/05_plugin/<step>.yml` file owns exactly one OCC stage and one decision about whether to continue.
 
 | File | Stage | OCC command | Continues to next stage when |
 |---|---|---|---|
@@ -67,5 +67,5 @@ This guarantees that mutually exclusive integrations such as the OIDC entry poin
 
 ## Entry point
 
-The pipeline is invoked from [06_plugin.yml](../06_plugin.yml), which in turn runs once per iteration of the `NEXTCLOUD_PLUGIN_ITEMS` loop in [02_manager_ops.yml](../../02_manager_ops.yml).
+The pipeline is invoked from [05_plugin.yml](../05_plugin.yml), which in turn runs once per iteration of the `NEXTCLOUD_PLUGIN_ITEMS` loop in [02_manager_ops.yml](../../02_manager_ops.yml).
 The loop variable `plugin_item` is unpacked into `plugin_key` (the OCC app name) and `plugin_value` (its meta entry).

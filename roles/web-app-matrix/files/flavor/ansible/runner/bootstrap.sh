@@ -35,10 +35,18 @@ fi
 
 cd /mdad
 
-START_GALAXY=$SECONDS
-echo ">>> matrix-mdad-bootstrap: starting ansible-galaxy install"
-/opt/ansible/bin/ansible-galaxy install -r requirements.yml -p roles/galaxy/ --force
-echo "<<< matrix-mdad-bootstrap: galaxy install done in $((SECONDS - START_GALAXY))s"
+GALAXY_STAMP=roles/galaxy/.requirements.sha256
+GALAXY_WANT=$(sha256sum requirements.yml | cut -d' ' -f1)
+if [ -f "$GALAXY_STAMP" ] && [ "$(cat "$GALAXY_STAMP")" = "$GALAXY_WANT" ] && [ -d roles/galaxy ]; then
+  echo ">>> matrix-mdad-bootstrap: galaxy roles match requirements.yml ($GALAXY_WANT), skipping install"
+else
+  START_GALAXY=$SECONDS
+  echo ">>> matrix-mdad-bootstrap: starting ansible-galaxy install"
+  rm -f "$GALAXY_STAMP"
+  /opt/ansible/bin/ansible-galaxy install -r requirements.yml -p roles/galaxy/ --force
+  printf '%s\n' "$GALAXY_WANT" > "$GALAXY_STAMP"
+  echo "<<< matrix-mdad-bootstrap: galaxy install done in $((SECONDS - START_GALAXY))s"
+fi
 
 START_PLAY=$SECONDS
 echo ">>> matrix-mdad-bootstrap: starting ansible-playbook setup.yml --tags=${MATRIX_MDAD_PLAYBOOK_TAGS:-setup-all,start}"

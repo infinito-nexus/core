@@ -47,12 +47,10 @@ class TestComposeExternalNetworksLookup(unittest.TestCase):
 
         with (
             mock.patch(
-                "plugins.lookup.compose_external_networks.build_service_registry_from_applications",
+                "utils.networks.lookup_context.build_service_registry_from_applications",
                 return_value={},
             ),
-            mock.patch(
-                "plugins.lookup.compose_external_networks.lookup_loader"
-            ) as loader_mock,
+            mock.patch("utils.networks.lookup_context.lookup_loader") as loader_mock,
             mock.patch(
                 "plugins.lookup.compose_external_networks.compute_external_network_roles",
                 return_value=["svc-db-redis", "svc-db-openldap"],

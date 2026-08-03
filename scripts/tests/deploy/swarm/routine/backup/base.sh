@@ -26,6 +26,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "${SCRIPT_DIR}/../../utils/_context.sh"
 
 : "${DRILL_EXTRAS:?DRILL_EXTRAS required (matrix passes the round extras)}"
+: "${DISK_FLOOR_MB:?DISK_FLOOR_MB required (matrix passes its watchdog floor)}"
 
 DIR_VAR_LIB="${INFINITO_DIR_VAR_LIB:?INFINITO_DIR_VAR_LIB is not set - source scripts/meta/env/load.sh first}"
 DIR_BACKUPS="${INFINITO_DIR_BACKUPS:?INFINITO_DIR_BACKUPS is not set - regenerate .env via make dotenv}"
@@ -141,20 +142,38 @@ USB_SIZE_MB=$((PULLED_MB * 2 + 256))
 echo "    ${PULLED_MB}M pulled; sizing the loop image to ${USB_SIZE_MB}M (2x pulled tree + headroom, floor 2G)"
 docker exec "${BACKUP_NODE}" bash "${BKP_IN_NODE}/02_luks_device.sh" \
 	"${USB_IMG}" "${DEV_MOUNT}" "${DEV_DEST}" "${USB_MAPPER}" "${USB_PASS}" "${USB_SIZE_MB}"
+drill_device_teardown() {
+	docker exec "${BACKUP_NODE}" umount "${DEV_MOUNT}" 2>/dev/null || true
+	docker exec "${BACKUP_NODE}" cryptsetup luksClose "${USB_MAPPER}" 2>/dev/null || true
+	docker exec "${BACKUP_NODE}" rm -f "${USB_IMG}" 2>/dev/null || true
+}
+if ! DEVICE_FREE_RAW="$(docker exec "${BACKUP_NODE}" df --output=avail -B1M "${DEV_MOUNT}" 2>/dev/null)"; then
+	DEVICE_FREE_RAW=""
+fi
+DEVICE_FREE_MB="$(printf '%s\n' "${DEVICE_FREE_RAW}" | tail -n1 | tr -d ' ')"
 if ! FREE_RAW="$(docker exec "${BACKUP_NODE}" df --output=avail -B1M "${DIR_BACKUPS}" 2>/dev/null)"; then
 	FREE_RAW=""
 fi
 FREE_MB="$(printf '%s\n' "${FREE_RAW}" | tail -n1 | tr -d ' ')"
-case "${FREE_MB}" in
-'' | *[!0-9]*)
-	echo "FAILURE: cannot read free space on ${BACKUP_NODE}:${DIR_BACKUPS} — df --output returned '${FREE_MB}'"
+case "${DEVICE_FREE_MB}:${FREE_MB}" in
+*[!0-9:]* | *::* | :* | *:)
+	echo "FAILURE: cannot read free space on ${BACKUP_NODE} — df --output returned device '${DEVICE_FREE_MB}', backup root '${FREE_MB}'"
+	drill_device_teardown
 	exit 1
 	;;
 esac
-if [ "${FREE_MB}" -lt "${USB_SIZE_MB}" ]; then
-	echo "FAILURE: the drill holds the ${PULLED_MB}M pulled tree twice over (device sync, then the restore root plus one stage copy); ${FREE_MB}M free on ${BACKUP_NODE}:${DIR_BACKUPS}, ${USB_SIZE_MB}M needed"
+if [ "${DEVICE_FREE_MB}" -lt "${PULLED_MB}" ]; then
+	echo "FAILURE: the encrypted device offers ${DEVICE_FREE_MB}M usable after mkfs on a ${USB_SIZE_MB}M image; the ${PULLED_MB}M pulled tree does not fit"
+	drill_device_teardown
 	exit 1
 fi
+NEEDED_MB=$((PULLED_MB + DISK_FLOOR_MB))
+if [ "${FREE_MB}" -lt "${NEEDED_MB}" ]; then
+	echo "FAILURE: the sync holds the ${PULLED_MB}M pulled tree and its device copy at once (the restore root repeats that peak later), so ${NEEDED_MB}M must be free to stay above the ${DISK_FLOOR_MB}M watchdog floor; ${FREE_MB}M free on ${BACKUP_NODE}:${DIR_BACKUPS}"
+	drill_device_teardown
+	exit 1
+fi
+echo "    device offers ${DEVICE_FREE_MB}M, backup root has ${FREE_MB}M free, ${PULLED_MB}M to place"
 if ! docker exec "${BACKUP_NODE}" bash "${TRIGGER_UNITS}" 'svc-bkp-local-2-device*.service' "${UNIT_DUMPS}"; then
 	echo "FAILURE: local-2-device unit missing or failed on ${BACKUP_NODE} (role not deployed?)"
 	exit 1

@@ -32,131 +32,21 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
 
-def _is_consumer(
-    entry: dict[str, Any],
-    application_id: str,
-    lookup_config: Callable[[str, str, Any], Any],
-    lookup_database: Callable[[str, str], Any],
-) -> bool:
-    overlay = entry.get("overlay") or {}
-    consumer = overlay.get("consumer") or {}
-    kind = consumer.get("kind") or "services_flags"
-    if kind == "database":
-        if not _coerce_bool(lookup_database(application_id, "enabled")):
-            return False
-        if not _coerce_bool(lookup_database(application_id, "shared")):
-            return False
-        return lookup_database(application_id, "id") == entry.get("role")
-    if kind == "services_flags":
-        key = consumer.get("key") or entry.get("provides") or entry.get("entity_name")
-        flags = consumer.get("flags") or ["enabled", "shared"]
-        for flag in flags:
-            if not _coerce_bool(
-                lookup_config(application_id, f"services.{key}.{flag}", False)
-            ):
-                return False
-        return True
-    if kind == "web_facing":
-        return application_id.startswith(("web-app-", "web-svc-"))
-    return False
+from utils.networks.attachments import (
+    _coerce_bool,
+    _compute_attachments,
+    _is_consumer,
+)
 
-
-def _coerce_bool(value: Any) -> bool:
-    if isinstance(value, bool):
-        return value
-    if isinstance(value, str):
-        return value.strip().lower() in ("true", "1", "yes")
-    return bool(value)
-
-
-def _compute_attachments(
-    registry: dict[str, dict[str, Any]],
-    application_id: str,
-    deployment_mode: str,
-    lookup_config: Callable[[str, str, Any], Any],
-    lookup_database: Callable[[str, str], Any],
-) -> tuple[list[dict[str, Any]], list[str]]:
-    attachments: list[dict[str, Any]] = []
-    default_aliases: list[str] = []
-
-    for entry in registry.values():
-        if "canonical" in entry:
-            continue
-        overlay = entry.get("overlay")
-        if not overlay:
-            continue
-        if deployment_mode not in overlay.get("modes", []):
-            continue
-
-        is_provider = application_id == entry.get("role")
-        topology = overlay.get("topology")
-
-        if is_provider:
-            if topology == "default_net":
-                default_aliases.extend(overlay.get("aliases") or [])
-                for peer in registry.values():
-                    peer_overlay = peer.get("overlay")
-                    if not peer_overlay:
-                        continue
-                    if not peer_overlay.get("proxy_resolvable"):
-                        continue
-                    if deployment_mode not in peer_overlay.get("modes", []):
-                        continue
-                    if "canonical" in peer:
-                        continue
-                    if peer.get("role") == entry.get("role"):
-                        continue
-                    default_aliases.extend(
-                        peer_overlay.get("proxy_aliases")
-                        or peer_overlay.get("aliases")
-                        or []
-                    )
-            elif topology:
-                aliases = list(
-                    overlay.get("aliases", [entry.get("entity_name")])
-                    or [entry.get("entity_name")]
-                )
-                if overlay.get("collect_proxy_resolvable"):
-                    for peer in registry.values():
-                        peer_overlay = peer.get("overlay")
-                        if not peer_overlay:
-                            continue
-                        if not peer_overlay.get("proxy_resolvable"):
-                            continue
-                        if deployment_mode not in peer_overlay.get("modes", []):
-                            continue
-                        if "canonical" in peer:
-                            continue
-                        if peer.get("role") == entry.get("role"):
-                            continue
-                        aliases.extend(
-                            peer_overlay.get("proxy_aliases")
-                            or peer_overlay.get("aliases")
-                            or []
-                        )
-                attachments.append(
-                    {
-                        "role": entry["role"],
-                        "topology": topology,
-                        "aliases": aliases,
-                        "is_provider": True,
-                    }
-                )
-            continue
-
-        if not topology:
-            continue
-        if _is_consumer(entry, application_id, lookup_config, lookup_database):
-            attachments.append(
-                {
-                    "role": entry["role"],
-                    "topology": topology,
-                    "aliases": [],
-                    "is_provider": False,
-                }
-            )
-
-    return attachments, default_aliases
+__all__ = [
+    "_coerce_bool",
+    "_compute_attachments",
+    "_is_consumer",
+    "compute_external_network_roles",
+    "render_compose_networks",
+    "render_container_networks",
+    "shared_network_compose_key",
+]
 
 
 def _suppress_default(application_id: str) -> bool:
@@ -173,6 +63,53 @@ def _own_shared_net_provider(
         and att["topology"] == "shared_net"
         and get_entity_name(att["role"]) == own_entity
         for att in attachments
+    )
+
+
+def _shared_network_key(
+    attachments: list[dict[str, Any]],
+    own_entity: str,
+    get_entity_name: Callable[[str], str],
+) -> str:
+    if _own_shared_net_provider(attachments, own_entity, get_entity_name):
+        return own_entity
+    return "default"
+
+
+def shared_network_compose_key(
+    *,
+    application_id: str,
+    deployment_mode: str,
+    registry: dict[str, dict[str, Any]],
+    get_entity_name: Callable[[str], str],
+    lookup_config: Callable[[str, str, Any], Any],
+    lookup_database: Callable[[str, str], Any],
+    node_local: bool = False,
+) -> str:
+    """Key under which the pre-created ``<entity>`` network appears in the
+    rendered compose file, which is what docker compose stores in the
+    ``com.docker.compose.network`` label. An app that provides its own
+    ``shared_net`` gets that network under its entity key and renders a separate
+    unnamed ``default``; every other app renders ``default`` with the entity as
+    its name. :func:`render_compose_networks` derives its own branch from this
+    same call, so the label a caller stamps cannot drift from what is rendered.
+
+    Args:
+        application_id: role the network belongs to.
+        deployment_mode: compose or swarm.
+        registry: service registry built from the merged applications.
+        get_entity_name: role id to entity name.
+        lookup_config: config value accessor.
+        lookup_database: database value accessor.
+        node_local: render as compose regardless of deployment_mode.
+    """
+    if node_local:
+        deployment_mode = "compose"
+    attachments, _ = _compute_attachments(
+        registry, application_id, deployment_mode, lookup_config, lookup_database
+    )
+    return _shared_network_key(
+        attachments, get_entity_name(application_id), get_entity_name
     )
 
 
@@ -229,8 +166,8 @@ def render_compose_networks(
         lines.append("    external: true")
 
     own_entity = get_entity_name(application_id)
-    is_own_shared_net_provider = _own_shared_net_provider(
-        attachments, own_entity, get_entity_name
+    is_own_shared_net_provider = (
+        _shared_network_key(attachments, own_entity, get_entity_name) == own_entity
     )
     if not _suppress_default(application_id):
         lines.append("  default:")

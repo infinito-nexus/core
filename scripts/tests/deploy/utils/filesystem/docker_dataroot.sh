@@ -33,13 +33,16 @@ current_fstype() {
 		echo unknown
 }
 
+# Param: $1 status word recorded for this host
+# Param: $2 reason behind the status, empty when it needs none
 verdict() {
-	local status="$1" effective host
+	local status="$1" reason effective host
+	reason="$(printf '%s' "${2:-}" | tr '\n' ' ')"
 	effective="$(current_fstype)"
 	host="$(hostname 2>/dev/null || echo unknown)"
-	report "status=${status} requested=${FSTYPE:-none} effective=${effective}"
+	report "status=${status} requested=${FSTYPE:-none} effective=${effective}${reason:+ reason=${reason}}"
 	[ -n "${GITHUB_STEP_SUMMARY:-}" ] || return 0
-	echo "- \`${host}\` docker data root: **${effective}** (requested \`${FSTYPE:-none}\`, ${status})" \
+	echo "- \`${host}\` docker data root: **${effective}** (requested \`${FSTYPE:-none}\`, ${status})${reason:+ - ${reason}}" \
 		>>"${GITHUB_STEP_SUMMARY}"
 }
 
@@ -63,11 +66,11 @@ arm_autoclear() {
 decline() {
 	if [ "${REQUIRED}" = true ]; then
 		report "FAIL: ${FSTYPE} was stated but cannot be delivered: $*"
-		verdict required-but-unavailable
+		verdict required-but-unavailable "$*"
 		exit 1
 	fi
 	report "skipping ${FSTYPE}: $*"
-	verdict declined
+	verdict declined "$*"
 	exit 0
 }
 
@@ -129,12 +132,14 @@ btrfs)
 zfs)
 	require_tool zpool zfsutils-linux zfs zfs-utils ||
 		decline "the zfs userland is unavailable on this distribution"
-	modprobe zfs 2>/dev/null || true
+	if ! modprobe_out="$(modprobe zfs 2>&1)"; then
+		report "modprobe zfs failed: ${modprobe_out}"
+	fi
 	if [ ! -c /dev/zfs ]; then
 		zfs_major="$(awk '$2 == "zfs" {print $1}' /proc/devices | head -n1)"
 		[ -n "${zfs_major}" ] && mknod /dev/zfs c "${zfs_major}" 0
 	fi
-	[ -c /dev/zfs ] || decline "the zfs kernel module is not loaded on the host"
+	[ -c /dev/zfs ] || decline "the zfs kernel module is not loaded on the host: ${modprobe_out}"
 	;;
 esac
 
@@ -147,9 +152,18 @@ if mountpoint -q "${MOUNT}"; then
 	exit 0
 fi
 
+restore_docker() {
+	[ "${DOCKER_STOPPED:-false}" = true ] || return 0
+	systemctl cat docker.service >/dev/null 2>&1 || return 0
+	systemctl start docker ||
+		report "WARNING: docker did not come back up after the ${FSTYPE} setup"
+}
+
 report "putting the docker data root on ${FSTYPE}"
 systemctl stop docker.socket 2>/dev/null || true
 systemctl stop docker 2>/dev/null || true
+DOCKER_STOPPED=true
+trap restore_docker EXIT
 
 mkdir -p "${MOUNT}" "$(dirname "${IMAGE}")"
 rm -f "${IMAGE}"
@@ -172,7 +186,12 @@ done
 [ -n "${LOOP}" ] || decline "no loop device could be claimed after ${attempt} attempts"
 
 if [ "${FSTYPE}" = zfs ]; then
-	zpool create -f -m "${MOUNT}" -O acltype=posixacl -O xattr=sa "${POOL}" "${LOOP}"
+	if ! zpool_out="$(zpool create -f -m "${MOUNT}" -O acltype=posixacl -O xattr=sa "${POOL}" "${LOOP}" 2>&1)"; then
+		losetup -d "${LOOP}" ||
+			report "WARNING: ${LOOP} refused the detach and will leak into the next round"
+		rm -f "${IMAGE}"
+		decline "zpool create failed: ${zpool_out}"
+	fi
 	zfs create -o mountpoint="${MOUNT}/docker" "${POOL}/docker"
 else
 	"mkfs.${FSTYPE}" -q "${LOOP}"
@@ -199,6 +218,7 @@ PYTHON
 
 if systemctl cat docker.service >/dev/null 2>&1; then
 	systemctl start docker
+	DOCKER_STOPPED=false
 	verdict applied
 else
 	report "docker.service is not installed yet; the data root takes effect when it is"

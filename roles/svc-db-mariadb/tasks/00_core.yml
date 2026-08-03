@@ -49,6 +49,7 @@
       include_tasks: 02_reset_root_password.yml
       when:
         - mariadb_login_desired.rc != 0
+        - "'No such container' not in (mariadb_login_desired.stderr | default(''))"
 
   when: MARIADB_ALLOW_RESET_WITHOUT_PREVIOUS | bool
 

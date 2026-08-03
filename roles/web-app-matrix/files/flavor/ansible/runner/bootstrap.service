@@ -6,6 +6,7 @@ Requires=docker.service
 [Service]
 Type=oneshot
 Environment=PATH=/opt/ansible/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Environment=PYTHONUNBUFFERED=1
 ExecStartPre=/usr/bin/docker info
 ExecStart=/usr/local/bin/matrix-mdad-bootstrap
 RemainAfterExit=yes

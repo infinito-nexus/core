@@ -17,6 +17,9 @@
   async: "{{ OLLAMA_PRELOAD_ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
   changed_when: false
+  failed_when: >-
+    (pull_result.failed | default(false))
+    and 'up to date' not in ((pull_result.stdout | default('')) ~ (pull_result.stderr | default('')))
   delegate_to: "{{ OLLAMA_HOST_NODE }}"
 
 - name: "⏳ Reap the Ollama model pulls"

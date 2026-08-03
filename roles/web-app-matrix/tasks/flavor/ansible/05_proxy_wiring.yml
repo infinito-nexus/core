@@ -65,7 +65,7 @@
       {% if 'docker=failed' in matrix_mdad_bootstrap_state.stdout_lines | default([]) -%}
       the docker daemon inside matrix-mdad failed to start - see matrix_mdad_diagnostics above.
       {%- elif 'ActiveState=failed' in matrix_mdad_bootstrap_state.stdout_lines | default([]) -%}
-      matrix-mdad bootstrap playbook failed inside the container - see matrix_mdad_diagnostics above.
+      matrix-mdad bootstrap failed inside the container, in its galaxy install or its playbook - see matrix_mdad_diagnostics above.
       {%- elif matrix_mdad_bootstrap_state is failed -%}
       matrix-mdad bootstrap never reached a terminal state within the wait budget - see matrix_mdad_diagnostics above.
       {%- else -%}

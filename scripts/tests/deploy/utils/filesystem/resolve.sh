@@ -23,7 +23,11 @@ SCOPE="${4:?usage: resolve.sh STATED LABEL DISTROS SCOPE}"
 
 POOL="ext4 btrfs zfs"
 
-note() { echo "filesystem: $*" >&2; }
+note() {
+	echo "filesystem: $*" >&2
+	[ -n "${GITHUB_STEP_SUMMARY:-}" ] || return 0
+	echo "- \`${LABEL}\` filesystem: $*" >>"${GITHUB_STEP_SUMMARY}"
+}
 
 kernel_serves() {
 	local fs="$1"

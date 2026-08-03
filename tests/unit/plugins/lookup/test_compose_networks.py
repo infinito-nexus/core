@@ -55,10 +55,10 @@ class TestComposeNetworksLookup(unittest.TestCase):
 
         with (
             mock.patch(
-                "plugins.lookup.compose_networks.build_service_registry_from_applications",
+                "utils.networks.lookup_context.build_service_registry_from_applications",
                 return_value={},
             ),
-            mock.patch("plugins.lookup.compose_networks.lookup_loader") as loader_mock,
+            mock.patch("utils.networks.lookup_context.lookup_loader") as loader_mock,
             mock.patch(
                 "plugins.lookup.compose_networks.render_compose_networks",
                 return_value="RENDERED",
@@ -72,7 +72,6 @@ class TestComposeNetworksLookup(unittest.TestCase):
         kwargs = render_mock.call_args.kwargs
         self.assertEqual(kwargs["application_id"], "web-app-baserow")
         self.assertEqual(kwargs["deployment_mode"], "swarm")
-        # swarm.network.encryption: False is honoured
         self.assertFalse(kwargs["swarm_encrypted"])
 
     def test_swarm_encrypted_defaults_to_true_when_unset(self):
@@ -84,10 +83,10 @@ class TestComposeNetworksLookup(unittest.TestCase):
 
         with (
             mock.patch(
-                "plugins.lookup.compose_networks.build_service_registry_from_applications",
+                "utils.networks.lookup_context.build_service_registry_from_applications",
                 return_value={},
             ),
-            mock.patch("plugins.lookup.compose_networks.lookup_loader") as loader_mock,
+            mock.patch("utils.networks.lookup_context.lookup_loader") as loader_mock,
             mock.patch(
                 "plugins.lookup.compose_networks.render_compose_networks",
                 return_value="RENDERED",
@@ -99,11 +98,8 @@ class TestComposeNetworksLookup(unittest.TestCase):
         self.assertTrue(render_mock.call_args.kwargs["swarm_encrypted"])
 
     def test_lookup_closures_pass_arguments_in_expected_order(self):
-        # Pin the call shape of the closures that the plugin synthesises:
-        #   config_lookup.run([app, path, default], variables=vars_)
-        #   database_lookup.run([app, key], variables=vars_)
-        # A regression that swaps app/path or drops the variables kwarg would
-        # break at runtime but stay green with naive MagicMock stubs.
+        """config_lookup.run([app, path, default]) and
+        database_lookup.run([app, key]), both with variables=vars_."""
         vars_ = {
             "application_id": "web-app-x",
             "DEPLOYMENT_MODE": "swarm",
@@ -122,17 +118,16 @@ class TestComposeNetworksLookup(unittest.TestCase):
             return [""]
 
         def _exercise(*_, lookup_config, lookup_database, **__):
-            # Render-side calls the closures; pretend it does so with known args.
             lookup_config("web-app-x", "services.sso.enabled", False)
             lookup_database("web-app-x", "id")
             return "RENDERED"
 
         with (
             mock.patch(
-                "plugins.lookup.compose_networks.build_service_registry_from_applications",
+                "utils.networks.lookup_context.build_service_registry_from_applications",
                 return_value={},
             ),
-            mock.patch("plugins.lookup.compose_networks.lookup_loader") as loader_mock,
+            mock.patch("utils.networks.lookup_context.lookup_loader") as loader_mock,
             mock.patch(
                 "plugins.lookup.compose_networks.render_compose_networks",
                 side_effect=_exercise,

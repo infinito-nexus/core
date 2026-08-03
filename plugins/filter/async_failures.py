@@ -39,15 +39,18 @@ def _which(result: dict) -> str:
     """Name the job, so a batch failure says which item broke.
 
     A collected result nests the fired result under ``item``, which in turn
-    nests the original loop value - a model name, a user entry - under its own
-    ``item``. Without it a twenty-user batch reports only how many failed.
+    nests the original loop value - a model name, a user entry - under the key
+    ansible used for it. That key is ``item`` unless ``loop_control.loop_var``
+    renamed it, in which case the fired result records the name it chose under
+    ``ansible_loop_var``. Without it a twenty-user batch reports only how many
+    failed.
 
     Args:
         result: one collected ``async_status`` result.
     """
     fired = result.get("item")
     if isinstance(fired, dict):
-        original = fired.get("item")
+        original = fired.get(fired.get("ansible_loop_var") or "item")
         if original not in (None, ""):
             if isinstance(original, dict):
                 for key in ("key", "name", "model"):

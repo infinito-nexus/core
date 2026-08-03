@@ -1,11 +1,4 @@
 ---
-- name: ⏳ Wait for the OpenProject web endpoint
-  wait_for:
-    host: "{{ lookup('domain', 'web-app-openproject') }}"
-    port: 80
-    delay: 5
-    timeout: "{{ lookup('timeout', 600) | int }}"
-
 - name: "🔍 Resolve the OpenProject web hosting node and container id"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
   vars:
@@ -15,6 +8,13 @@
     resolve_compose_cid: "{{ NEXTCLOUD_OPENPROJECT_CONTAINER_ADDRESS }}"
     resolve_converge_retries: 120
     resolve_converge_delay: 5
+
+- name: ⏳ Wait for the OpenProject web endpoint
+  wait_for:
+    host: "{{ lookup('domain', 'web-app-openproject') }}"
+    port: 80
+    delay: 5
+    timeout: "{{ lookup('timeout', 600) | int }}"
 
 - name: 📁 Create the Nextcloud storage + OpenProject OAuth application
   ansible.builtin.shell:

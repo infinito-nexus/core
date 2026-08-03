@@ -111,6 +111,12 @@ def collect_host(out: Path, app_id: str, context: str, stamp: str) -> None:
             "resolve-probe.txt",
             ["getent", "hosts", "deb.debian.org", "ghcr.io", "repo.packagist.org"],
         ),
+        ("modules.txt", ["cat", "/proc/modules"]),
+        ("devices.txt", ["cat", "/proc/devices", "/proc/misc"]),
+        ("zfs-dev.txt", ["ls", "-l", "/dev/zfs"]),
+        ("zfs-version.txt", ["zfs", "version"]),
+        ("net-snmp.txt", ["cat", "/proc/net/snmp", "/proc/net/netstat"]),
+        ("conntrack-stat.txt", ["cat", "/proc/net/stat/nf_conntrack"]),
     ):
         capture(out, name, cmd)
     dmesg = run(["dmesg", "-T"]).stdout.decode(errors="replace")

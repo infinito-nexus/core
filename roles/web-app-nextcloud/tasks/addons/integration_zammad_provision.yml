@@ -1,4 +1,21 @@
 ---
+- name: "🔍 Resolve Zammad railsserver hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: railsserver
+    resolve_service_name: "{{ lookup('container_service', 'web-app-zammad', 'railsserver') }}"
+    resolve_output_prefix: NEXTCLOUD_ZAMMAD
+    resolve_compose_cid: "{{ NEXTCLOUD_ZAMMAD_CONTAINER_ADDRESS }}"
+    resolve_converge_retries: 120
+    resolve_converge_delay: 5
+
+- name: ⏳ Wait for the Zammad web endpoint
+  wait_for:
+    host: "{{ lookup('domain', 'web-app-zammad') }}"
+    port: 80
+    delay: 5
+    timeout: "{{ lookup('timeout', 600) | int }}"
+
 - name: 🔧 Provision the Zammad OAuth application for Nextcloud and capture credentials
   ansible.builtin.shell:
     cmd: >-
@@ -6,9 +23,10 @@
       -e 'NC_BASE_URL={{ nextcloud_zammad_nc_base_url }}'
       -e 'NC_REDIRECT_PATH=/apps/integration_zammad/oauth-redirect'
       -e 'NC_HAS_SECRET={{ nextcloud_zammad_client_secret_current.stdout | trim }}'
-      {{ NEXTCLOUD_ZAMMAD_CONTAINER_ADDRESS }}
+      {{ NEXTCLOUD_ZAMMAD_LOCAL_CID | quote }}
       bundle exec rails r -
     stdin: "{{ lookup('file', 'zammad/provision_oauth_app.rb') }}"
+  delegate_to: "{{ NEXTCLOUD_ZAMMAD_HOST_NODE }}"
   register: nextcloud_zammad_provision
   retries: 12
   delay: 10

@@ -1,7 +1,8 @@
 # Node image for the swarm DR test cluster, layered on the distro's infinito
 # image so python + ansible + the CLI (venv) are already baked -- the per-node
 # .deb bootstrap is gone. Adds only the node extras: dnsmasq (lab DNS), openssh
-# server (backup pull chain), cryptsetup + e2fsprogs (LUKS drill device).
+# server (backup pull chain), cryptsetup + e2fsprogs (LUKS drill device), kmod
+# (modprobe, for the data-root filesystem).
 # Distro-agnostic install (apt/dnf/pacman) since INFINITO_IMAGE is per-distro.
 # systemd-resolved is masked so it never races dnsmasq for port 53. The pacman
 # branch refreshes the keyring and does a full -Syu: the pinned parent image can
@@ -22,20 +23,28 @@ FROM ${INFINITO_IMAGE}
 RUN set -eux; \
     if command -v apt-get >/dev/null 2>&1; then \
         apt-get update -qq; \
-        apt-get install -y -qq --no-install-recommends dnsmasq openssh-server cryptsetup e2fsprogs elfutils; \
+        apt-get install -y -qq --no-install-recommends dnsmasq openssh-server cryptsetup e2fsprogs elfutils kmod; \
+        . /etc/os-release; \
+        if [ "${ID:-}" = debian ] && [ -n "${VERSION_CODENAME:-}" ]; then \
+            echo "deb http://deb.debian.org/debian ${VERSION_CODENAME} contrib" >/etc/apt/sources.list.d/contrib.list; \
+            apt-get update -qq || rm -f /etc/apt/sources.list.d/contrib.list; \
+        fi; \
+        apt-get install -y -qq --no-install-recommends zfsutils-linux || \
+            echo "zfsutils-linux unavailable; a zfs data-root pick will decline on this image" >&2; \
         rm -rf /var/lib/apt/lists/*; \
     elif command -v dnf >/dev/null 2>&1; then \
-        dnf install -y dnsmasq openssh-server cryptsetup e2fsprogs elfutils; \
+        dnf install -y dnsmasq openssh-server cryptsetup e2fsprogs elfutils kmod; \
         dnf clean all; \
     elif command -v pacman >/dev/null 2>&1; then \
         pacman -Sy --noconfirm --needed archlinux-keyring; \
-        pacman -Syu --noconfirm --needed dnsmasq openssh cryptsetup e2fsprogs elfutils; \
+        pacman -Syu --noconfirm --needed dnsmasq openssh cryptsetup e2fsprogs elfutils kmod; \
         rm -rf /var/cache/pacman/pkg/*; \
     else \
         echo "no supported package manager (apt/dnf/pacman)" >&2; exit 1; \
     fi; \
     systemctl mask systemd-resolved; \
     systemctl mask systemd-udevd systemd-udevd-kernel.socket systemd-udevd-control.socket systemd-udevd-varlink.socket systemd-udev-trigger; \
+    systemctl mask modprobe@.service; \
     systemctl enable ssh 2>/dev/null || systemctl enable sshd; \
     chmod u+rw /etc/shadow; \
     if [ -e /etc/gshadow ]; then chmod u+rw /etc/gshadow; fi; \

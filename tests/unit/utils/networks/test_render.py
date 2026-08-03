@@ -21,6 +21,7 @@ from utils.networks.render import (
     compute_external_network_roles,
     render_compose_networks,
     render_container_networks,
+    shared_network_compose_key,
 )
 
 
@@ -778,6 +779,92 @@ class TestOwnSharedNetProvider(unittest.TestCase):
         self.assertIn("seaweedfs:\n    aliases:\n      - seaweedfs", main)
         self.assertIn("seaweedfs:\n    {}", sidecar)
         self.assertNotIn("- seaweedfs", sidecar)
+
+
+class TestSharedNetworkComposeKey(unittest.TestCase):
+    """The key under which the pre-created ``<entity>`` network appears in the
+    rendered file. Callers stamp it into ``com.docker.compose.network``; docker
+    compose resolves a project's networks against that label, so a key that does
+    not match the rendered file makes compose adopt the wrong network and skip
+    creating the right one."""
+
+    def _key(self, application_id, registry, deployment_mode="compose"):
+        return shared_network_compose_key(
+            application_id=application_id,
+            deployment_mode=deployment_mode,
+            registry=registry,
+            get_entity_name=_entity_name,
+            lookup_config=_const_lookup_config(),
+            lookup_database=_const_lookup_database(),
+        )
+
+    def test_own_shared_net_provider_keys_on_its_entity(self):
+        for mode in ("compose", "swarm"):
+            with self.subTest(mode=mode):
+                self.assertEqual(
+                    self._key("web-app-seaweedfs", _PROVIDER_REGISTRY, mode),
+                    "seaweedfs",
+                )
+
+    def test_plain_app_keys_on_default(self):
+        for mode in ("compose", "swarm"):
+            with self.subTest(mode=mode):
+                self.assertEqual(self._key("web-app-baserow", {}, mode), "default")
+
+    def test_consumer_of_a_foreign_provider_keys_on_default(self):
+        registry = {
+            "ldap": {
+                "role": "svc-db-openldap",
+                "entity_name": "openldap",
+                "provides": "ldap",
+                "overlay": {"modes": ["compose"], "topology": "shared_net"},
+            },
+        }
+        self.assertEqual(self._key("web-app-baserow", registry), "default")
+
+    def test_node_local_forces_the_compose_answer(self):
+        self.assertEqual(
+            shared_network_compose_key(
+                application_id="web-app-seaweedfs",
+                deployment_mode="swarm",
+                registry=_PROVIDER_REGISTRY,
+                get_entity_name=_entity_name,
+                lookup_config=_const_lookup_config(),
+                lookup_database=_const_lookup_database(),
+                node_local=True,
+            ),
+            "seaweedfs",
+        )
+
+    def test_key_matches_the_key_the_renderer_emits(self):
+        """The contract that makes this a single source: whatever key the
+        function reports must be the key the rendered networks block actually
+        uses for the entity network."""
+        cases = (
+            ("web-app-seaweedfs", _PROVIDER_REGISTRY),
+            ("web-app-baserow", {}),
+        )
+        for application_id, registry in cases:
+            for mode in ("compose", "swarm"):
+                with self.subTest(application_id=application_id, mode=mode):
+                    key = self._key(application_id, registry, mode)
+                    rendered = render_compose_networks(
+                        application_id=application_id,
+                        deployment_mode=mode,
+                        registry=registry,
+                        get_entity_name=_entity_name,
+                        lookup_config=_const_lookup_config(
+                            **{"networks.local.subnet": "192.168.206.0/24"}
+                        ),
+                        lookup_database=_const_lookup_database(),
+                    )
+                    self.assertIn(f"  {key}:", rendered)
+                    entity = _entity_name(application_id)
+                    if key == "default":
+                        self.assertIn(f"    name: {entity}", rendered)
+                    else:
+                        self.assertEqual(key, entity)
+                        self.assertNotIn(f"    name: {entity}", rendered)
 
 
 if __name__ == "__main__":

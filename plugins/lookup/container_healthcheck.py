@@ -55,8 +55,8 @@ class LookupModule(LookupBase):
         self._vars = (
             variables or getattr(self._templar, "available_variables", {}) or {}
         )
-        self._application_id = kwargs.get("application_id") or self._vars.get(
-            "application_id"
+        self._application_id = self._render(
+            kwargs.get("application_id") or self._vars.get("application_id")
         )
         if self._templar is not None and "{{" in str(self._application_id or ""):
             with contextlib.suppress(Exception):
@@ -102,7 +102,9 @@ class LookupModule(LookupBase):
             config: that service's healthcheck entry.
             kwargs: the call site's keyword arguments.
         """
-        hostname = config.get("hostname", self._vars.get("container_hostname"))
+        hostname = self._render(
+            config.get("hostname", self._vars.get("container_hostname"))
+        )
         port_key = str(config.get("port_key", "http") or "http")
         context = {
             "test": config.get("test"),
@@ -119,6 +121,29 @@ class LookupModule(LookupBase):
                 blackhole=(self._lookup("users", "blackhole") or {}).get("email", ""),
             )
         return context
+
+    def _render(self, value: Any) -> Any:
+        """Template a value read straight out of the play vars.
+
+        Args:
+            value: raw var value; ``include_role: vars:`` hands these over
+                unrendered, e.g. ``application_id: "{{ sys_stk_full_application_id }}"``.
+
+        Raises:
+            AnsibleError: the value stayed a template. ansible-core only
+                renders strings tagged trusted and returns the rest verbatim,
+                which would bake ``{{ ... }}`` into the compose file.
+        """
+        templar = getattr(self, "_templar", None)
+        if templar is None or not isinstance(value, str) or "{{" not in value:
+            return value
+        rendered = templar.template(value)
+        if isinstance(rendered, str) and "{{" in rendered:
+            raise AnsibleError(
+                f"container_healthcheck: '{value}' did not render; it reached the "
+                "lookup untrusted as a template."
+            )
+        return rendered
 
     def _config(self, path: str, default: Any) -> Any:
         """Read one services.yml value through the config SPOT, templated.

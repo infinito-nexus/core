@@ -7,6 +7,7 @@
 - include_role:
     name: sys-service
   vars:
+    system_service_suppress_flush: true
     system_service_on_calendar: "{{ SYS_SCHEDULE_REPAIR_DOCKER_HARD }}"
     system_service_timer_enabled: true
     system_service_tpl_exec_start_pre: '{{ BIN_LOCK }} {{ SYS_SERVICE_GROUP_MANIPULATION | join(" ")  }} --ignore {{ SYS_SERVICE_REPAIR_CONTAINER_HARD }} {{ SYS_SERVICE_GROUP_CLEANUP
