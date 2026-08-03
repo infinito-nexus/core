@@ -37,9 +37,15 @@
     apply:
       delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
 
+- name: ⚙️ Apply the system configuration
+  include_tasks:
+    file: 02_manager_ops/05_system_config.yml
+    apply:
+      delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
+
 - name: 🔧 Setup Nextcloud Plugins
   include_tasks:
-    file: 02_manager_ops/05_plugin.yml
+    file: 02_manager_ops/06_plugin.yml
     apply:
       delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
   loop: "{{ NEXTCLOUD_PLUGIN_ITEMS }}"
@@ -52,7 +58,7 @@
 
 - name: 🔧 Reconcile administrator identities after plugin setup
   include_tasks:
-    file: 02_manager_ops/06_admin_identities.yml
+    file: 02_manager_ops/07_admin_identities.yml
     apply:
       delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
 

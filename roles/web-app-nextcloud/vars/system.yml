@@ -1,0 +1,38 @@
+---
+nextcloud_system_config:
+  - parameter: "hide_login_form"
+    type: "boolean"
+    value: "{{ (not lookup('config', application_id, 'services.nextcloud.legacy_login_mask.enabled')) | lower }}"
+
+  - parameter: "auth.webauthn.enabled"
+    type: "boolean"
+    value: "{{ lookup('config', application_id, 'services.nextcloud.legacy_login_mask.enabled') | lower }}"
+
+  - parameter: "maintenance_window_start"
+    type: "integer"
+    value: "{{ SYS_SCHEDULE_MAINTANANCE_NEXTCLOUD }}"
+
+  - parameter: "default_phone_region"
+    value: "{{ HOST_LL | upper }}"
+
+  - parameter: "trusted_domains 0"
+    value: "{{ NEXTCLOUD_DOMAIN }}"
+
+  - parameter: "trusted_domains 1"
+    value: "{{ NEXTCLOUD_PROXY_SERVICE }}"
+
+  - parameter: "trusted_domains 2"
+    value: "{{ NEXTCLOUD_PROXY_DNS_NAME }}"
+
+  - parameter: "overwrite.cli.url"
+    value: "{{ NEXTCLOUD_URL }}"
+
+  - parameter: "overwriteprotocol"
+    value: "{{ NEXTCLOUD_PROTOCOL }}"
+
+  - parameter: "overwritehost"
+    value: "{{ NEXTCLOUD_DOMAIN }}"
+
+  - parameter: "trusted_proxies"
+    type: "json"
+    value: "{{ NEXTCLOUD_TRUSTED_PROXIES }}"
