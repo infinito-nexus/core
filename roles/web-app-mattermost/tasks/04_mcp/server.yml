@@ -22,7 +22,7 @@
 - name: "🔎 Mattermost | Read the Agents MCP server toggle"
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/select-mcp-plugin-server.sql"
+    query_file: "{{ role_path }}/files/sql/select/mcp-plugin-server.sql"
     expect_rows: true
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   register: mattermost_mcp_toggle
@@ -83,7 +83,7 @@
 - name: "🔎 Mattermost | Re-read the Agents MCP server toggle"
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/select-mcp-plugin-server.sql"
+    query_file: "{{ role_path }}/files/sql/select/mcp-plugin-server.sql"
     expect_rows: true
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   register: mattermost_mcp_toggle_final

@@ -2,7 +2,7 @@
 - name: "🩺 Mattermost | Check whether the stored token is still active"
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/select-user-access-token.sql"
+    query_file: "{{ role_path }}/files/sql/select/user/access-token.sql"
     named_args:
       token: "{{ mattermost_mcp_token }}"
     expect_rows: true

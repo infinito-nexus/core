@@ -2,7 +2,7 @@
 # Param: assert_isolated_container - name of the container that must not run under the shared kernel
 - name: "🔍 Read the runtime '{{ assert_isolated_container }}' actually got"
   ansible.builtin.command: >-
-    container inspect {{ assert_isolated_container }}
+    container inspect --type container {{ assert_isolated_container }} # nocheck: container-exec-resolver
     --format {{ '{{.HostConfig.Runtime}}' }}
   register: assert_isolated_runtime
   changed_when: false

@@ -3,7 +3,7 @@
 - name: "🔎 Mattermost | Check administrator auth service"
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/select-user-authservice.sql"
+    query_file: "{{ role_path }}/files/sql/select/user/authservice.sql"
     named_args:
       email: "{{ lookup('users', 'administrator').email }}"
     expect_rows: true

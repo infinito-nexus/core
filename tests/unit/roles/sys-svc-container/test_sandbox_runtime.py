@@ -32,6 +32,7 @@ BASE = {
     "KATA_SHIM_BINARY": "/usr/bin/containerd-shim-kata-v2",
     "RUNSC_SHIM_BINARY": "/usr/local/bin/runsc",
     "SANDBOX_RUNTIME": "runsc",
+    "SYS_SVC_CONTAINER_DATA_ROOT": "",
     "networks": {"internet": {"dns": "192.0.2.53"}},
     "swarm": {"registry": {"host": "reg", "port": 5000}},
     "groups": {"svc-registry-cache": []},

@@ -207,7 +207,7 @@ Nextcloud serves a Model Context Protocol endpoint through the AppAPI proxy of t
 
 The `context_agent` service in [`meta/services.yml`](./meta/services.yml) renders only while `services.mcp.enabled` is true. It runs `ghcr.io/nextcloud/context_agent`, listens on its internal port for AppAPI only, and shares `credentials.context_agent_app_secret` with the ExApp registration as `APP_SECRET`.
 
-[`tasks/09_mcp.yml`](./tasks/09_mcp.yml) waits for the ExApp heartbeat, registers the deploy daemon and the ExApp (route `^/mcp`, verbs `POST,GET,DELETE`, access level `1`), enables the ExApp, mints an app password via `occ user:auth-tokens:add`, persists it through `sys-token-store` under `users.administrator.tokens['web-app-nextcloud']`, and asserts that an authenticated `initialize` call answers `200`.
+[`tasks/03_mcp.yml`](./tasks/03_mcp.yml) waits for the ExApp heartbeat, registers the deploy daemon and the ExApp (route `^/mcp`, verbs `POST,GET,DELETE`, access level `1`), enables the ExApp, mints an app password via `occ user:auth-tokens:add`, persists it through `sys-token-store` under `users.administrator.tokens['web-app-nextcloud']`, and asserts that an authenticated `initialize` call answers `200`.
 
 ### Tool categories
 

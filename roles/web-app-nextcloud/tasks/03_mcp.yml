@@ -39,7 +39,7 @@
 
 - name: "🚀 Register the Context Agent as an AppAPI ExApp"
   ansible.builtin.include_tasks:
-    file: 09_mcp/register.yml
+    file: 03_mcp/register.yml
     apply:
       delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
       run_once: true
@@ -51,15 +51,15 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🩺 Check the stored app password against the MCP endpoint"
-  ansible.builtin.include_tasks: 09_mcp/probe.yml
+  ansible.builtin.include_tasks: 03_mcp/probe.yml
   when: nextcloud_mcp_token | length > 0
 
 - name: "🔑 Mint and persist a fresh MCP app password"
-  ansible.builtin.include_tasks: 09_mcp/token.yml
+  ansible.builtin.include_tasks: 03_mcp/token.yml
   when: nextcloud_mcp_token | length == 0 or nextcloud_mcp_probe.stdout | default('') != '200'
 
 - name: "🩺 Re-check the freshly minted app password"
-  ansible.builtin.include_tasks: 09_mcp/probe.yml
+  ansible.builtin.include_tasks: 03_mcp/probe.yml
   when: nextcloud_mcp_probe is not defined or nextcloud_mcp_probe.stdout != '200'
 
 - name: "🛑 Refuse an MCP endpoint that rejects the stored app password"
