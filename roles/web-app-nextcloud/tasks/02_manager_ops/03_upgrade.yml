@@ -3,6 +3,9 @@
   shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} upgrade"
   register: occ_upgrade
   changed_when: "'Already up to date' not in occ_upgrade.stdout"
+  retries: 3
+  delay: 5
+  until: occ_upgrade.rc == 0
 
 - name: 🔧 Nextcloud | Maintenance repair
   shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} maintenance:repair --include-expensive"
@@ -39,3 +42,6 @@
   shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} maintenance:mode --off"
   register: occ_maint_off
   changed_when: "'already disabled' not in occ_maint_off.stdout"
+  retries: 3
+  delay: 5
+  until: occ_maint_off.rc == 0
