@@ -69,13 +69,12 @@ mcp:
   transport: streamable_http
   exposure: internal
   auth: bearer_token
-  auth_subject: user
+  auth_subject: administrator
   implementation: plugin
   endpoint:
     service_key: mattermost
     path: /plugins/mattermost-ai/mcp-server/mcp
     port_key: http
-    health_path: /plugins/mattermost-ai/mcp-server/.well-known/oauth-protected-resource
   tools:
     read_only_default: true
     mutating_tools_enabled: false

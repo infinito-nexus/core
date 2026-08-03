@@ -68,6 +68,7 @@ def build_mcp_servers(
                 "url": endpoint_url(endpoint, path_key),
                 "token": token,
                 "auth": server.get("auth"),
+                "auth_subject": server.get("auth_subject"),
                 "username": username,
                 "transport": str(server.get("transport") or "").replace("_", "-"),
             }

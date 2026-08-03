@@ -190,11 +190,22 @@ Read tools: `list_databases`, `list_tables`, `get_table_schema`,
 
 Write tools: `create_rows`, `update_rows`, `delete_rows`. Baserow 2.3.1 exposes
 these unconditionally; the image carries no env var, setting or UI toggle that
-removes them, which is why `services.mcp.tools.mutating_tools_enabled` is
-declared `true`.
+removes them. `services.mcp.tools.mutating_tools_enabled` is declared `false` as
+the deployment's intent, not as an enforced state: Baserow serves the three write
+tools regardless. What bounds them is the endpoint owner, whose reach is the one
+workspace that account owns.
 
 Shipped disabled upstream: `create_database`, `create_table`, `update_table`,
 `delete_table`, `create_fields`, `update_fields`, `delete_fields`.
+
+### Authorization subject
+
+`auth_subject: service_account`: Baserow scopes the endpoint to the account that
+owns it. [`tasks/02_mcp.yml`](./tasks/02_mcp.yml) creates a dedicated
+`mcp@<baserow-domain>` account and issues the endpoint to it, so a call arrives
+as that account regardless of who asked the client, and the write tools above
+reach only the workspace that account owns. Reaching the tool server is gated on
+the role's `mcp` RBAC group, not on being signed in.
 
 ### Default state
 

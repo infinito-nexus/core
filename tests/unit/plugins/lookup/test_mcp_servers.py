@@ -18,6 +18,7 @@ ADMINISTRATOR = {
 HOMEASSISTANT = {
     "id": "web-app-homeassistant",
     "auth": "bearer_token",
+    "auth_subject": "user",
     "transport": "streamable_http",
     "endpoint": {"service_key": "homeassistant", "port": 8123, "path": "/api/mcp"},
 }
@@ -34,6 +35,7 @@ class TestBuildMcpServers(unittest.TestCase):
         self.assertEqual(entry["url"], "http://homeassistant:8123/api/mcp")
         self.assertEqual(entry["token"], "ha-token")
         self.assertEqual(entry["auth"], "bearer_token")
+        self.assertEqual(entry["auth_subject"], "user")
         self.assertEqual(entry["username"], "administrator")
 
     def test_transport_is_rendered_with_dashes(self):

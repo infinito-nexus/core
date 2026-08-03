@@ -151,6 +151,13 @@ Mattermost exposes a Model Context Protocol server through the prepackaged Agent
 
 While it is `false` the route is not registered and the endpoint answers `404`. Unauthenticated requests to the enabled endpoint answer `401` with a `WWW-Authenticate: Bearer resource_metadata="<health path URL>"` header.
 
+### Authorization subject
+
+`auth_subject: administrator`: Mattermost bounds a call by the account the token
+belongs to. This deployment mints that personal access token for the
+administrator account, so calls arrive with that account's rights whoever asked.
+Reaching the tool server is gated on the role's `mcp` RBAC group.
+
 ### Tool categories
 
 The endpoint serves the Agents plugin's native Mattermost tool catalog:
@@ -161,7 +168,12 @@ The endpoint serves the Agents plugin's native Mattermost tool catalog:
 - users and teams: look up, add members, update profiles,
 - files: list, read, upload.
 
-Every call is bounded by the permissions of the account the bearer token belongs to.
+The catalog includes mutating entries (`create`, `update`, `archive`, `delete`,
+`send`, `upload`). The Agents plugin exposes no filter, scope or permission flag
+that removes them, so `services.mcp.tools.mutating_tools_enabled: false` records
+the deployment's intent rather than an enforced state. Every call is bounded by
+the permissions of the account the bearer token belongs to, which here is the
+administrator.
 
 ### How to disable
 

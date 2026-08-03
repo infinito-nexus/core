@@ -42,7 +42,7 @@ mcp:
   transport: streamable_http
   exposure: internal
   auth: bearer_token
-  auth_subject: user
+  auth_subject: administrator
   implementation: native
   endpoint:
     service_key: homeassistant

@@ -137,6 +137,14 @@ All of them are read-only; `services.mcp.tools.mutating_tools_enabled` is `false
 
 Off. `services.mcp.enabled` is true only while `web-app-hermes`, `web-app-openclaw` or `web-app-openwebui` is part of the deployment.
 
+### Authorization subject
+
+`auth_subject: administrator`: the web-service token is issued against the
+administrator account, so a call carries that account's rights regardless of who
+asked the client. The attached functions are read-only, which bounds what those
+rights can do here. Reaching the tool server is gated on the role's `mcp` RBAC
+group.
+
 ### Canonical origin
 
 Moodle compares every request against `$CFG->wwwroot`. A probe that reaches the endpoint over the internal HTTP origin is answered with a redirect to the canonical HTTPS URL rather than with JSON, so callers must send the canonical `Host` header and `X-Forwarded-Proto: https`.

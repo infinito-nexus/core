@@ -27,7 +27,7 @@ mcp:
   transport: sse
   exposure: internal
   auth: app_password
-  auth_subject: user
+  auth_subject: service_account
   implementation: native
   endpoint:
     service_key: baserow
@@ -36,8 +36,8 @@ mcp:
     key_credential: mcp_endpoint_key
     suffix: sse
   tools:
-    read_only_default: false
-    mutating_tools_enabled: true
+    read_only_default: true
+    mutating_tools_enabled: false
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"

@@ -121,6 +121,13 @@ token is minted once per deployment and kept in `sys-token-store` under the
 `administrator` user, not in the role's `credentials:` block. An unauthenticated
 request is answered with 404: Home Assistant does not reveal the endpoint.
 
+### Authorization subject
+
+`auth_subject: administrator`: Home Assistant scopes the token to the account that minted
+it. This deployment mints it for the administrator, so a call arrives as the
+administrator whoever asked the client. Entity exposure still bounds the reach.
+Getting to the tool server is gated on the role's `mcp` RBAC group.
+
 ### Tool categories
 
 `tools/list` returns 10 tools: entity control (`HassTurnOn`, `HassTurnOff`),

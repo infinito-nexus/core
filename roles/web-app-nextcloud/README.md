@@ -209,9 +209,13 @@ The `context_agent` service in [`meta/services.yml`](./meta/services.yml) render
 
 [`tasks/03_mcp.yml`](./tasks/03_mcp.yml) waits for the ExApp heartbeat, registers the deploy daemon and the ExApp (route `^/mcp`, verbs `POST,GET,DELETE`, access level `1`), enables the ExApp, mints an app password via `occ user:auth-tokens:add`, persists it through `sys-token-store` under `users.administrator.tokens['web-app-nextcloud']`, and asserts that an authenticated `initialize` call answers `200`.
 
+### Authorization subject
+
+`auth_subject: administrator`: [`tasks/03_mcp/token.yml`](./tasks/03_mcp/token.yml) mints the app password against `NEXTCLOUD_ADMINISTRATOR_USERNAME` and stores it under the `administrator` key, so every call carries that account's rights no matter who asked the client. Reaching the tool server is gated on the role's `mcp` RBAC group, which is a separate grant from administering Nextcloud.
+
 ### Tool categories
 
-The ExApp registers every tool category the Context Agent ships, read-only and mutating alike, and each call runs with the permissions of the app-password owner. List the categories and narrow the exposed set with:
+The ExApp registers every tool category the Context Agent ships, read-only and mutating alike, and each call runs with the permissions of the app-password owner. The 2.7.0 image advertises 94 tools across 23 categories, which are application names (`calendar`, `files`, `mail`, `talk`, …), not operations: each bundles its read and its write tools. `tool_status` therefore switches whole categories, and no setting removes only the mutating ones, so `services.mcp.tools.mutating_tools_enabled: false` records the deployment's intent rather than an enforced state. Disabling a category to bar its write tools also removes its read tools. List the categories and narrow the exposed set with:
 
 ```bash
 occ app_api:app:config:get context_agent tool_status

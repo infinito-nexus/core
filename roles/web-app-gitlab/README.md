@@ -102,6 +102,10 @@ Tool categories exposed at the pinned version cover issues and work items, merge
 
 A Playwright scenario asserts that an unauthenticated request to the endpoint is never answered with a 2xx.
 
+### Authorization subject
+
+`auth_subject: administrator`: the personal access token is minted against the `root` account and stored under the `administrator` key, so every call carries that account's rights no matter who asked the client. Reaching the tool server is gated on the role's `mcp` RBAC group, which is a separate grant from administering GitLab.
+
 ### Default state
 
 Off. `services.mcp.enabled` is true only while `web-app-hermes`, `web-app-openclaw` or `web-app-openwebui` is part of the deployment. The endpoint additionally requires a Premium or Ultimate licence, so a Community deployment leaves it unreachable regardless of the flag.

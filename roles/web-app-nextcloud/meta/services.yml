@@ -126,7 +126,7 @@ mcp:
   transport: streamable_http
   exposure: public
   auth: app_password
-  auth_subject: user
+  auth_subject: administrator
   implementation: plugin
   endpoint:
     service_key: proxy
