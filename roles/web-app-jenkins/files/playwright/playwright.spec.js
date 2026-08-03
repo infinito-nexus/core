@@ -9,7 +9,6 @@ const oidcIssuerUrl = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
-const mcpEndpointPath = decodeDotenvQuotedValue(process.env.MCP_ENDPOINT_PATH || "");
 
 test.beforeEach(async ({ page }) => {
   expect(baseUrl, "JENKINS_BASE_URL must be set").toBeTruthy();
@@ -51,23 +50,7 @@ test("LDAP: Jenkins LDAP plugin authenticates against svc-db-openldap (variant 1
   await expect(page.locator("body")).toBeVisible({ timeout: 60_000 });
 });
 
-test("MCP: the plugin endpoint serves no tool without credentials", async ({ page }) => {
-  skipUnlessServiceEnabled("mcp");
-  expect(mcpEndpointPath, "MCP_ENDPOINT_PATH must be set").toBeTruthy();
-  const response = await page.request.post(`${baseUrl.replace(/\/$/, "")}${mcpEndpointPath}`, {
-    failOnStatusCode: false,
-    headers: { "Content-Type": "application/json", Accept: "application/json, text/event-stream" },
-    data: { jsonrpc: "2.0", id: 1, method: "tools/list", params: {} },
-  });
-  expect(
-    response.status(),
-    "an unauthenticated tools/list must not be served a 2xx; the tool surface is credential-guarded",
-  ).toBeGreaterThanOrEqual(400);
-  expect(
-    await response.text(),
-    "a refused tools/list must not leak a tool inventory",
-  ).not.toContain('"tools"');
-});
+require("./test-mcp-guest");
 
 // Persona scenarios.
 // Bodies live in the shared helper roles/test-e2e-playwright/files/personas.js

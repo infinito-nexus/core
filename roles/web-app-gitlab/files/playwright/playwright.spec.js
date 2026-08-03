@@ -1,12 +1,10 @@
 const { test, expect } = require("@playwright/test");
 
 const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
-const { skipUnlessServiceEnabled } = require("./service-gating");
 test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
-const mcpEndpointPath = decodeDotenvQuotedValue(process.env.MCP_ENDPOINT_PATH || "");
 
 test.beforeEach(async ({ page }) => {
   expect(appBaseUrl, "APP_BASE_URL must be set").toBeTruthy();
@@ -36,22 +34,7 @@ test("GitLab returns HTML content under canonical domain", async ({ request }) =
   ).toBe(true);
 });
 
-test("guest: the MCP endpoint rejects unauthenticated access", async ({ page }) => {
-  skipUnlessServiceEnabled("mcp");
-
-  expect(mcpEndpointPath, "MCP_ENDPOINT_PATH must be set").toBeTruthy();
-
-  const response = await page.request.post(`${appBaseUrl}${mcpEndpointPath}`, {
-    failOnStatusCode: false,
-    headers: { "content-type": "application/json" },
-    data: { jsonrpc: "2.0", id: 1, method: "initialize", params: { protocolVersion: "2025-06-18" } },
-  });
-
-  expect(
-    response.status(),
-    "an unauthenticated MCP probe must not be served a 2xx; the endpoint is token-guarded",
-  ).toBeGreaterThanOrEqual(400);
-});
+require("./test-mcp-guest");
 
 // Persona scenarios.
 // Bodies live in the shared helper roles/test-e2e-playwright/files/personas
