@@ -71,7 +71,6 @@ mcp:
     service_key: jenkins
     path: /mcp-server/mcp
     port_key: http
-    health_path: /mcp-health
   tools:
     read_only_default: true
     mutating_tools_enabled: false
