@@ -27,11 +27,13 @@ Examples:
 
 from __future__ import annotations
 
+import contextlib
 from typing import Any
 
 from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
+from ansible.template import trust_as_template
 
 from utils.docker.healthcheck import PROBES, build, known_flavors
 
@@ -56,6 +58,11 @@ class LookupModule(LookupBase):
         self._application_id = kwargs.get("application_id") or self._vars.get(
             "application_id"
         )
+        if self._templar is not None and "{{" in str(self._application_id or ""):
+            with contextlib.suppress(Exception):
+                self._application_id = self._templar.template(
+                    trust_as_template(str(self._application_id))
+                )
         if not self._application_id:
             raise AnsibleError(
                 "container_healthcheck: no application_id in the play vars; "
