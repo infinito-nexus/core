@@ -42,6 +42,8 @@ class TestSysCtlClnBkpsScript(unittest.TestCase):
         argv: list[str],
         disk_percent: int,
         listdir_map: dict[str, list[str]],
+        paths_are_dirs: bool = False,
+        clock_step: int = 0,
     ) -> tuple[str, object]:
         """
         Execute the script as __main__ with provided argv, returning stdout and rmtree mock.
@@ -57,16 +59,27 @@ class TestSysCtlClnBkpsScript(unittest.TestCase):
         def listdir_side_effect(path: str) -> list[str]:
             return listdir_map.get(path, [])
 
+        clock = {"now": 0}
+
+        def clock_side_effect() -> int:
+            now = clock["now"]
+            clock["now"] += clock_step
+            return now
+
         buf = io.StringIO()
         with (
             patch.dict(sys.modules, {"psutil": fake_psutil}),
             patch.object(sys, "argv", argv),
             patch("os.listdir", side_effect=listdir_side_effect),
             patch("shutil.rmtree") as rmtree_mock,
-            patch("time.time", return_value=0),
+            patch("time.time", side_effect=clock_side_effect),
             redirect_stdout(buf),
         ):
-            runpy.run_path(str(SCRIPT_PATH), run_name="__main__")
+            if paths_are_dirs:
+                with patch("pathlib.Path.is_dir", return_value=True):
+                    runpy.run_path(str(SCRIPT_PATH), run_name="__main__")
+            else:
+                runpy.run_path(str(SCRIPT_PATH), run_name="__main__")
 
         return buf.getvalue(), rmtree_mock
 
@@ -121,6 +134,47 @@ class TestSysCtlClnBkpsScript(unittest.TestCase):
         self.assertIn("Delete Iteration: 1", out)
         self.assertIn(
             "No backup versions found to delete (average_version_directories=0). Exiting.",
+            out,
+        )
+        self.assertIn("Cleaning up finished.", out)
+        rmtree_mock.assert_not_called()
+
+    def test_breaks_when_a_pass_deletes_nothing(self) -> None:
+        """
+        Regression test for the busy-loop:
+        Every application holds exactly one version, which is also its last one,
+        so no directory is deletable. Disk usage never drops, and without a
+        guard the outer loop spins until the time limit raises.
+        """
+        backup_dir = os.environ["INFINITO_DIR_BACKUPS"]
+        host_dir = str(Path(backup_dir) / "host1")
+        app_dir = str(Path(host_dir) / "app1")
+        argv = [
+            "script.py",
+            "--maximum-backup-size-percent",
+            "75",
+            "--backups-folder-path",
+            backup_dir,
+        ]
+
+        out, rmtree_mock = self._run_script(
+            argv=argv,
+            disk_percent=90,
+            listdir_map={
+                backup_dir: ["host1"],
+                host_dir: ["app1"],
+                app_dir: ["20260101"],
+                app_dir + "/": ["20260101"],
+            },
+            paths_are_dirs=True,
+            clock_step=600,
+        )
+
+        self.assertIn("Delete Iteration: 1", out)
+        self.assertNotIn("Delete Iteration: 2", out)
+        self.assertIn(
+            "No deletable backup version left; every remaining version is the last "
+            "of its application. Exiting.",
             out,
         )
         self.assertIn("Cleaning up finished.", out)

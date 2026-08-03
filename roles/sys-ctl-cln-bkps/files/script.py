@@ -125,6 +125,7 @@ def get_amount_of_iteration(versions, average_version_directories_per_applicatio
 
 
 def delete_iteration(backup_dir, average_version_directories_per_application):
+    deleted = 0
     for host_backup_directory_name in os.listdir(backup_dir):
         print(f"Iterating over host: {host_backup_directory_name}")
         host_backup_directory_path = str(Path(backup_dir) / host_backup_directory_name)
@@ -146,7 +147,9 @@ def delete_iteration(backup_dir, average_version_directories_per_application):
                 version_path = str(Path(versions_directory) / version)
                 if is_directory_deletable(version, versions, version_path):
                     delete_version(version_path, backup_dir)
+                    deleted += 1
                 version_iteration += 1
+    return deleted
 
 
 def check_time_left(start_time, time_limit):
@@ -205,7 +208,12 @@ while is_larger_than_maximum_backup_size(maximum_backup_size_percent, backup_dir
     print(
         f"Average version directories per application directory: {average_version_directories}"
     )
-    delete_iteration(backup_dir, average_version_directories)
+    if delete_iteration(backup_dir, average_version_directories) == 0:
+        print(
+            "No deletable backup version left; every remaining version is the last "
+            "of its application. Exiting."
+        )
+        break
     itteration_counter += 1
 
 print_used_disc_space(backup_dir)
