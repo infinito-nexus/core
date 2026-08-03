@@ -47,6 +47,8 @@ redis:
   mem_limit: 512m
   pids_limit: 512
 bookwyrm:
+  healthcheck:
+    flavor: curl
   modes:
     compose:
       enabled: true

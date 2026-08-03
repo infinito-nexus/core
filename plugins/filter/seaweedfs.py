@@ -1,7 +1,27 @@
 from __future__ import annotations
 
+VOLUME_GROW_BATCH = 7
+VOLUME_SIZE_LIMIT_MB = 1024
+MIN_FREE_SPACE_VOLUMES = 2
 
-def seaweedfs_command(s3_config=""):
+
+def min_free_space():
+    return f"{VOLUME_SIZE_LIMIT_MB * MIN_FREE_SPACE_VOLUMES}MiB"
+
+
+def volume_slots(collections):
+    """Volume-slot ceiling for a server hosting *collections* buckets.
+
+    Args:
+        collections: number of buckets this server serves. Each bucket is a
+            SeaweedFS collection, and the master grows a collection in batches
+            of VOLUME_GROW_BATCH; the default collection takes one batch of its
+            own, hence the +1.
+    """
+    return (int(collections) + 1) * VOLUME_GROW_BATCH
+
+
+def seaweedfs_command(s3_config="", collections=None):
     """Build the SeaweedFS all-in-one ``server`` command.
 
     Single source for the args shared by the standalone provider stack
@@ -14,12 +34,25 @@ def seaweedfs_command(s3_config=""):
         s3_config: path to the mounted s3.json; appended as ``-s3.config``
             when truthy. The local sidecar passes ``""`` since it does not
             mount that config.
+        collections: number of buckets this server serves, passed to
+            :func:`volume_slots`. Required; without it the stock entrypoint
+            injects ``-volume.max=0`` and derives the ceiling from free disk
+            space instead.
     """
+    if collections is None:
+        raise ValueError(
+            "seaweedfs_command requires 'collections': the number of buckets "
+            "this server serves (the standalone stack passes its consumer "
+            "count, the sidecar passes 1)."
+        )
     command = [
         "server",
         "-dir=/data",
         "-ip=localhost",
         "-ip.bind=0.0.0.0",
+        f"-master.volumeSizeLimitMB={VOLUME_SIZE_LIMIT_MB}",
+        f"-volume.max={volume_slots(collections)}",
+        f"-volume.minFreeSpace={min_free_space()}",
         "-filer",
         "-s3",
     ]
@@ -58,7 +91,7 @@ def seaweedfs_sidecar_script(bucket, s3_port, access_key, secret_key):
         access_key: consumer S3 access key granted access to the bucket.
         secret_key: consumer S3 secret key.
     """
-    server = " ".join(seaweedfs_command())
+    server = " ".join(seaweedfs_command(collections=1))
     grant = (
         f"s3.configure -user {bucket} -access_key {access_key} "
         f"-secret_key {secret_key} -buckets {bucket} "

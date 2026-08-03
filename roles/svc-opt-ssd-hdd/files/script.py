@@ -6,10 +6,14 @@ from pathlib import Path
 
 
 def run_command(command):
-    """Run a shell command and return its output"""
+    """Run a shell command and return its output.
+
+    Args:
+        command: shell string; every call site passes either a static
+            command or one built from Ansible-templated config, which is
+            host-trusted and never user input.
+    """
     print(command)
-    # All call sites pass static commands or strings built from
-    # Ansible-templated config (host-trusted); not user input.
     output = (
         subprocess.check_output(command, shell=True).decode("utf-8").strip()  # noqa: S602
     )
@@ -49,14 +53,14 @@ def get_volume_path(volume):
 
 def get_image(container):
     return run_command(
-        f"container inspect --format='{{{{.Config.Image}}}}' {container}"
+        f"container inspect --type container --format='{{{{.Config.Image}}}}' {container}"
     )
 
 
 def has_healthcheck(container):
     """Check if a container has a HEALTHCHECK defined."""
     result = run_command(
-        f"container inspect --format='{{{{json .State.Health}}}}' {container}"
+        f"container inspect --type container --format='{{{{json .State.Health}}}}' {container}"
     )
     return result not in ("null", "")
 
@@ -64,7 +68,7 @@ def has_healthcheck(container):
 def get_health_status(container):
     """Return the health status."""
     return run_command(
-        f"container inspect --format='{{{{.State.Health.Status}}}}' {container}"
+        f"container inspect --type container --format='{{{{.State.Health.Status}}}}' {container}"
     )
 
 
@@ -135,7 +139,6 @@ if __name__ == "__main__":
             )
             continue
 
-        # Wait until containers with a healthcheck are healthy (not starting or unhealthy)
         for container in containers:
             if has_healthcheck(container):
                 status = get_health_status(container)
@@ -144,7 +147,6 @@ if __name__ == "__main__":
                     time.sleep(1)
                     status = get_health_status(container)
 
-        # Proceed with migration
         if has_container_with_database(containers):
             print(f"Safing volume {volume} on SSD.")
             pause_and_move(rapid_storage_path, volume, volume_path, containers)

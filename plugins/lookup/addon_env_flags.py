@@ -9,6 +9,9 @@ from ansible.plugins.lookup import LookupBase
 
 from utils.cache.base import _render_with_templar
 from utils.roles.applications.config import get
+from utils.roles.applications.services.registry import (
+    build_service_registry_from_applications,
+)
 
 ENV_SUFFIX = "_ADDON_ENABLED"
 _TRUE_TOKENS = {"true", "1", "yes", "on", "t", "y"}
@@ -47,13 +50,19 @@ def _resolve_deployed_roles(variables, templar, applications):
     return {str(r).strip() for r in resolved if str(r).strip()}
 
 
-def _any_bridge_partner_deployed(bridges, deployed_roles):
-    """A bridged addon's partner counts as deployed iff some deployed role id
-    equals or ends with the bridge name (web-app-<bridge>, web-svc-<bridge>, ...)."""
+def _any_bridge_partner_deployed(bridges, deployed_roles, service_registry):
+    """A bridged addon's partner counts as deployed when a deployed role either
+    provides the bridged service (``sso`` -> ``web-app-keycloak``, ``ldap`` ->
+    ``svc-db-openldap``) or carries the bridge name as its entity
+    (``matrix`` -> ``web-app-matrix``)."""
     for bridge in bridges:
         name = str(bridge).strip()
         if not name:
             continue
+        entry = service_registry.get(name) if service_registry else None
+        provider = entry.get("role") if isinstance(entry, dict) else None
+        if provider and provider in deployed_roles:
+            return True
         variants = {name, name.replace("_", "-")}
         for role in deployed_roles:
             if role in variants or any(role.endswith("-" + v) for v in variants):
@@ -110,6 +119,7 @@ class LookupModule(LookupBase):
             addons = {}
 
         deployed_roles = _resolve_deployed_roles(variables, templar, applications)
+        service_registry = build_service_registry_from_applications(applications)
 
         lines = []
         for addon_id in sorted(addons, key=env_key):
@@ -122,7 +132,9 @@ class LookupModule(LookupBase):
             if active and deployed_roles is not None:
                 bridges = spec.get("bridges")
                 if isinstance(bridges, list) and bridges:
-                    active = _any_bridge_partner_deployed(bridges, deployed_roles)
+                    active = _any_bridge_partner_deployed(
+                        bridges, deployed_roles, service_registry
+                    )
             lines.append(f"{env_key(addon_id)}={'true' if active else 'false'}")
 
         return ["\n".join(lines)]

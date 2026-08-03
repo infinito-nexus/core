@@ -118,6 +118,9 @@
       uidNumber: "{{ item.value.uid | int }}"
       gidNumber: "{{ item.value.gid | int }}"
     state: present
+  register: openldap_users_created
+  changed_when: false
+  # rationale: async; user creation runs overlapped, reaped right below before the password task
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
   throttle: 1
@@ -125,6 +128,13 @@
   loop_control:
     label: "{{ item.key }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "⏳ Reap the LDAP user creation jobs"
+  ansible.builtin.include_tasks: utils/async/reap.yml
+  vars:
+    async_reap_jobs: "{{ openldap_users_created.results | default([]) }}"
+    async_reap_label: "LDAP users"
+    async_reap_tolerate: []
 
 - name: 🔧 Set LDAP user password (per-user update policy)
   community.general.ldap_passwd:
@@ -151,7 +161,10 @@
     attributes:
       objectClass: "{{ LDAP.USER.OBJECTS.STRUCTURAL }}"
       mail: "{{ item.value.email }}"
-    state: "{{ 'exact' if MODE_CLEANUP else 'present' }}"
+    state: "{{ 'exact' if MODE_CLEANUP | bool else 'present' }}"
+  register: openldap_users_attrs
+  changed_when: false
+  # rationale: async; attribute updates run overlapped, reaped at the end of this file
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
   throttle: 1
@@ -159,3 +172,10 @@
   loop_control:
     label: "{{ item.key }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "⏳ Reap the LDAP attribute jobs"
+  ansible.builtin.include_tasks: utils/async/reap.yml
+  vars:
+    async_reap_jobs: "{{ openldap_users_attrs.results | default([]) }}"
+    async_reap_label: "LDAP user attributes"
+    async_reap_tolerate: []

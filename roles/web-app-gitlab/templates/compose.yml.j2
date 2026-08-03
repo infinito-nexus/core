@@ -48,8 +48,6 @@
     {{ lookup('container_networks') | indent(4) }}
 
   {% set service_name = GITLAB_SIDEKIQ_SERVICE_NAME %}
-  {% set container_healthcheck = 'liveness' %}
-  {% set container_healthcheck_start_period = '300s' %}
   {{ service_name }}:
     {{ lookup('compose_only', 'container_name', GITLAB_SIDEKIQ_CONTAINER) }}
     {{ lookup('container_image', application_id, service_name) }}
@@ -58,7 +56,7 @@
       CONFIG_TEMPLATE_DIRECTORY: "/var/opt/gitlab/config/templates"
       CONFIG_DIRECTORY: "/srv/gitlab/config"
     command: ["/scripts/wait-for-deps", "/scripts/process-wrapper"]
-    {% include 'roles/sys-svc-container/templates/healthcheck/tcp.yml.j2' %}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_depends_on', application_id, extra={
   GITLAB_MIGRATIONS_SERVICE_NAME: {'condition': 'service_completed_successfully'},
   GITLAB_WEBSERVICE_SERVICE_NAME: {'condition': 'service_started'},

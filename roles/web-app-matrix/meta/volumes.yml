@@ -44,6 +44,7 @@ element_config:
 matrix_mdad_docker:
   type: volume
   name: matrix_mdad_docker
+  backup: false
   mounts:
     - service: matrix
       target: /var/lib/docker

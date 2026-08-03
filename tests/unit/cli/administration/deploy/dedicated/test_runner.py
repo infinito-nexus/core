@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import subprocess
 import unittest
 import unittest.mock
@@ -25,7 +26,6 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
         """
 
         def _side_effect(cmd, *args, **kwargs):
-            # Normalize command to list[str] for easier assertions
             norm_cmd = cmd if isinstance(cmd, list) else [cmd]
 
             calls_store.append((norm_cmd, dict(kwargs)))
@@ -89,7 +89,6 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
         def was_called(cmd: list[str]) -> bool:
             return any(call_cmd == cmd for call_cmd, _kw in calls)
 
-        # Cleanup, build (make must run in repo_root)
         self.assertTrue(was_called(["make", "clean"]), "Expected 'make clean'")
         self.assertTrue(was_called(["make", "setup"]), "Expected 'make setup'")
 
@@ -101,7 +100,6 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
                     f"Expected make call to use cwd={repo_root}, got {kw.get('cwd')}",
                 )
 
-        # Inventory validation call must use sys.executable + validator path and cwd=repo_root
         inv_calls = [
             (call_cmd, kw)
             for call_cmd, kw in calls
@@ -115,46 +113,39 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
         for _call_cmd, kw in inv_calls:
             self.assertEqual(kw.get("cwd"), repo_root)
 
-        # The last call should be ansible-playbook
         self.assertGreaterEqual(len(calls), 1)
         last_cmd, last_kw = calls[-1]
         self.assertEqual(last_cmd[0], "ansible-playbook")
         self.assertEqual(last_kw.get("cwd"), repo_root)
 
-        # Inventory and playbook ordering: -i <inventory> <playbook>
         self.assertIn("-i", last_cmd)
         self.assertIn(inventory_path, last_cmd)
         idx_inv = last_cmd.index(inventory_path)
         self.assertGreater(len(last_cmd), idx_inv + 1)
         self.assertEqual(last_cmd[idx_inv + 1], playbook_path)
 
-        # Limit handling
         self.assertIn("-l", last_cmd)
         self.assertIn(limit, last_cmd)
 
-        # Allowed applications extra var
         last_cmd_str = " ".join(last_cmd)
         self.assertIn("APPLICATIONS_WHITELIST=web-app-foo,web-app-bar", last_cmd_str)
 
-        # MODE_* variables
-        self.assertIn("MODE_CLEANUP=true", last_cmd_str)
-        self.assertIn("MODE_ASSERT=true", last_cmd_str)
-        self.assertIn("MODE_DEBUG=true", last_cmd_str)
+        modes_index = len(last_cmd) - 1 - last_cmd[::-1].index("-e")
+        self.assertEqual(
+            json.loads(last_cmd[modes_index + 1]),
+            {"MODE_CLEANUP": True, "MODE_ASSERT": True, "MODE_DEBUG": True},
+        )
 
-        # Vault password file
         self.assertIn("--vault-password-file", last_cmd)
         self.assertIn(password_file, last_cmd)
 
-        # Diff flag
         self.assertIn("--diff", last_cmd)
 
-        # Verbosity should be at least -vvv when MODE_DEBUG=True
         self.assertTrue(
             any(arg.startswith("-vvv") for arg in last_cmd),
             "Expected at least -vvv because MODE_DEBUG=True",
         )
 
-        # Ensure we did not accidentally set text/capture_output in the final run
         self.assertNotIn("text", last_kw)
         self.assertNotIn("capture_output", last_kw)
 
@@ -209,11 +200,9 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
         last_cmd, _last_kw = calls[-1]
         self.assertEqual(last_cmd[0], "ansible-playbook")
 
-        # Passthrough must be appended at the very end (order matters for overrides)
         self.assertGreaterEqual(len(last_cmd), len(passthrough))
         self.assertEqual(last_cmd[-len(passthrough) :], passthrough)
 
-        # Ensure both wrapper and override extra-vars are present (override later wins)
         cmd_str = " ".join(last_cmd)
         self.assertIn("APPLICATIONS_WHITELIST=web-app-foo", cmd_str)
         self.assertIn("APPLICATIONS_WHITELIST=override-app", cmd_str)
@@ -260,7 +249,6 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
 
         self.assertEqual(ctx.exception.code, 4)
 
-        # Ensure ansible-playbook was invoked once
         self.assertTrue(
             any(
                 call_cmd and call_cmd[0] == "ansible-playbook"
@@ -269,7 +257,6 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
             "ansible-playbook should have been invoked once in the error path",
         )
 
-        # No cleanup, no build, no tests, no inventory validation
         self.assertFalse(any(call_cmd == ["make", "clean"] for call_cmd, _kw in calls))
         self.assertFalse(any(call_cmd == ["make", "setup"] for call_cmd, _kw in calls))
         self.assertFalse(

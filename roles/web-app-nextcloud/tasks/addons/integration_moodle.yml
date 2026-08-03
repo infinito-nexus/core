@@ -1,2 +1,1 @@
 ---
-# No exception logic required: the generic config SPOT (meta/addons/integration_moodle.yml plugin_configuration + tasks/plugin) fully wires this integration; coupling is verified by the Playwright spec.

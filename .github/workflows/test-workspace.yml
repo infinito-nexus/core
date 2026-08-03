@@ -67,16 +67,21 @@ jobs:
       - name: ⬇️ Checkout repository
         uses: actions/checkout@v7.0.0
 
-      - name: "📥 Load workspace SPOT values into job env"
+      - name: "📥 Load the rescue paths into job env"
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            grep '^INFINITO_RESCUE_DIAGNOSTICS_BASE=' default.env
+            echo "INFINITO_WORKSPACE_SLUG=$(printf '%s' "${DEV_RUNTIME_IMAGE}" | tr '/:' '--')"
+          } >> "$GITHUB_ENV"
+
+      - name: "📥 Resolve the workspace distro"
         shell: bash
         run: |
           set -euo pipefail
           distro="$(python3 -m cli.meta.ci.dev_runtime distro --image "${DEV_RUNTIME_IMAGE}")"
-          {
-            grep '^INFINITO_RESCUE_DIAGNOSTICS_BASE=' default.env
-            echo "INFINITO_WORKSPACE_SLUG=$(printf '%s' "${DEV_RUNTIME_IMAGE}" | tr '/:' '--')"
-            echo "INFINITO_DISTRO=${distro}"
-          } >> "$GITHUB_ENV"
+          echo "INFINITO_DISTRO=${distro}" >> "$GITHUB_ENV"
 
       - name: ▶️ Run workspace routine
         shell: bash
@@ -116,11 +121,13 @@ jobs:
         if: failure()
         timeout-minutes: 15
         shell: bash
-        env:
-          INFINITO_RESCUE_DIAGNOSTICS_DIR: ${{ env.INFINITO_RESCUE_DIAGNOSTICS_BASE }}/${{ env.INFINITO_WORKSPACE_SLUG }}
         run: |
-          python3 utils/diagnostics/container.py \
+          set -euo pipefail
+          rescue_dir="${INFINITO_RESCUE_DIAGNOSTICS_BASE:?}/${INFINITO_WORKSPACE_SLUG:?}"
+          INFINITO_RESCUE_DIAGNOSTICS_DIR="${rescue_dir}" \
+            python3 utils/diagnostics/container.py \
             "${INFINITO_WORKSPACE_SLUG}" "workspace suite failure" || true
+          bash ./scripts/tests/deploy/utils/rescue_index.sh "${rescue_dir}"
 
       - name: ⬆️ Upload rescue diagnostics
         if: always()

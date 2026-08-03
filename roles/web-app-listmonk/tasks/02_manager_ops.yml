@@ -45,5 +45,15 @@
     label: "{{ item.key }}"
   when: (item.condition | default(true)) | bool
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: listmonk_settings
+  changed_when: false
+  # rationale: async; settings apply overlapped, reaped below before the role ends
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+
+- name: "⏳ Reap the Listmonk settings jobs"
+  ansible.builtin.include_tasks: utils/async/reap.yml
+  vars:
+    async_reap_jobs: "{{ listmonk_settings.results | default([listmonk_settings]) }}"
+    async_reap_label: "Listmonk settings"
+    async_reap_tolerate: []

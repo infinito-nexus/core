@@ -81,6 +81,9 @@ erpnext:
   pids_limit: 2048
 backend:
   name: erpnext-backend
+  healthcheck:
+    flavor: tcp
+    start_period: 10m
   ports:
     internal:
       http: 8000

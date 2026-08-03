@@ -243,7 +243,7 @@
     "connectionTrace": [ "false" ],
     "startTls": [ "false" ],
     "usersDn": [ "{{ LDAP.DN.OU.USERS }}" ],
-    "connectionPooling": [ "true" ],
+    "connectionPooling": [ "{{ KEYCLOAK_LDAP_CONNECTION_POOLING | lower }}" ],
     "cachePolicy": [ "DEFAULT" ],
     "useKerberosForPasswordAuthentication": [ "false" ],
     "importEnabled": [ "true" ],

@@ -72,6 +72,8 @@ redis:
 # nocheck: shared
 # nocheck: dynamic-flag
 search:
+  healthcheck:
+    flavor: tcp
   ports:
     internal:
       http: 9200

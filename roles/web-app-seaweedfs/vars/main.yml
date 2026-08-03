@@ -3,6 +3,7 @@ application_id: "web-app-seaweedfs"
 entity_name: "{{ application_id | get_entity_name }}"
 
 SEAWEEDFS_CONTAINER: "{{ lookup('config', application_id, 'services.seaweedfs.name') }}"
+SEAWEEDFS_CONSUMER_COUNT: "{{ lookup('objstore_consumers', 'seaweedfs') | length }}"
 SEAWEEDFS_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'seaweedfs') }}"
 
 SEAWEEDFS_S3_PORT_INTERNAL: "{{ lookup('config', application_id, 'services.seaweedfs.api_port') }}"

@@ -17,7 +17,7 @@
       - SYNAPSE_REPORT_STATS=no
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{lookup('config', 'web-app-matrix', 'services.synapse.ports.local.http')}}:{{ container_port }}"
-{% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
 {% set _synapse_bridge_deps = {} %}
 {% for item in MATRIX_BRIDGES %}
 {%   set _ = _synapse_bridge_deps.__setitem__('mautrix-' ~ item.bridge_name, {'condition': 'service_healthy'}) %}
@@ -34,7 +34,7 @@
     {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
     ports:
       - "{{ DOCKER_BIND_HOST }}:{{ MATRIX_ELEMENT_PORT }}:{{ container_port }}"
-{% include 'roles/sys-svc-container/templates/healthcheck/wget.yml.j2' %}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
 {% for item in MATRIX_BRIDGES %}

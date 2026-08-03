@@ -1,7 +1,7 @@
 ---
 - name: "⏳ Matomo resolve | Wait for matomo container to be running"
   ansible.builtin.shell: >
-    container inspect -f '{{ "{{" }}.State.Running{{ "}}" }}'
+    container inspect --type container -f '{{ "{{" }}.State.Running{{ "}}" }}'
     {{ lookup('container_address', application_id, MATOMO_SERVICE) }}
   register: matomo_running_compose
   changed_when: false

@@ -13,14 +13,20 @@
   loop: "{{ OLLAMA_PRELOAD_MODELS }}"
   loop_control:
     loop_var: model
-  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
+  # rationale: async; model pulls run overlapped, results reaped below before playwright
+  async: "{{ OLLAMA_PRELOAD_ASYNC_TIME }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  changed_when: false
   delegate_to: "{{ OLLAMA_HOST_NODE }}"
-  changed_when: >
-    (not (ASYNC_ENABLED | bool)) and (
-      'downloaded' in (pull_result.stdout | default('')) or
-      'pulling manifest' in (pull_result.stdout | default(''))
-    )
-  failed_when: >
-    (pull_result.rc | default(0)) != 0 and
-    ('up to date' not in (pull_result.stdout | default('')))
+
+- name: "⏳ Reap the Ollama model pulls"
+  ansible.builtin.include_tasks:
+    file: utils/async/reap.yml
+    apply:
+      delegate_to: "{{ OLLAMA_HOST_NODE }}"
+  vars:
+    async_reap_jobs: "{{ pull_result.results | default([]) }}"
+    async_reap_label: "Ollama model pre-pull"
+    async_reap_tolerate:
+      - "up to date"
+    ASYNC_TIME: "{{ OLLAMA_PRELOAD_ASYNC_TIME }}"

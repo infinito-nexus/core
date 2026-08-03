@@ -10,6 +10,9 @@
 {% set _ = _insecure.append(_cache_hosts[0] ~ ':' ~ _cache_port) %}
 {% endif %}
 {
+{% if SYS_SVC_CONTAINER_DATA_ROOT | length > 0 %}
+  "data-root": "{{ SYS_SVC_CONTAINER_DATA_ROOT }}",
+{% endif %}
 {% if (networks.internet.dns | default('') | length) > 0 %}
   "dns": ["{{ networks.internet.dns }}"],
 {% endif %}

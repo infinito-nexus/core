@@ -6,7 +6,7 @@
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_ports', ['fusiondirectory', 'http', DOCKER_BIND_HOST]) | indent(4) }}
 {{ lookup('container_volumes', application_id, 'fusiondirectory') | indent(4) }}
-    {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
 {{ lookup('compose_volumes', application_id) }}

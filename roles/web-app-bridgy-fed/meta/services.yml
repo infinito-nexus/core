@@ -39,6 +39,8 @@ prometheus:
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
 bridgy-fed:
+  healthcheck:
+    flavor: tcp
   modes:
     compose:
       enabled: true

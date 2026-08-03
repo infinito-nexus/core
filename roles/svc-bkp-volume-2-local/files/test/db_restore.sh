@@ -52,7 +52,7 @@ for sql_file in "${SQL_FILES[@]}"; do
         continue
     fi
 
-    image="$(container inspect -f '{{.Config.Image}}' "${container}")"
+    image="$(container inspect --type container -f '{{.Config.Image}}' "${container}")"
     case "${image}" in
         *postgres*) engine="postgres" ;;
         *mariadb* | *mysql*) engine="mariadb" ;;

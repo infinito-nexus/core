@@ -26,6 +26,7 @@
   loop: "{{ SYS_SVC_DNS_BASE_DOMAINS | product(caa_entries) | list }}"
   loop_control:
     label: "{{ item.0 }} → {{ item.1.tag }}"
+  # rationale: async; no register and no notify, nothing reads CAA state back
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
 

@@ -23,6 +23,11 @@ if [[ "${BKP_TEST_IS_STACK_HOST}" != "true" ]]; then
     exit 0
 fi
 
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+bash "${DIR}/subvolume_probe.sh"
+bash "${DIR}/snapshot_probe.sh"
+
 wait_service_terminated() {
     local deadline state
     deadline=$(( $(date +%s) + BKP_TEST_HEALTH_TIMEOUT ))
@@ -99,7 +104,6 @@ if (( VOLUME_COUNT == 0 && COMPOSE_CONTAINERS == 0 )); then
     exit 0
 fi
 
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export MACHINE_HASH REPO_DIR REPO_NAME
 
 if [[ "${ASYNC_ENABLED}" == "true" ]]; then

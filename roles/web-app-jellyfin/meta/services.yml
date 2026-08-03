@@ -52,6 +52,9 @@ jellyfin:
       http: 8096
     local:
       http: 8088
+  healthcheck:
+    flavor: curl
+    path: health
   run_after:
     - web-app-keycloak
     - svc-db-openldap

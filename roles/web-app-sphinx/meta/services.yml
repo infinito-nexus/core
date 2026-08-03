@@ -35,6 +35,8 @@ sphinx:
       http: 8000
     local:
       http: 8036
+  healthcheck:
+    flavor: curl
   run_after:
     - web-app-matomo
   lifecycle: beta

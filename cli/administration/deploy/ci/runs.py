@@ -22,6 +22,7 @@ import re
 import subprocess
 import sys
 
+from utils.github import run_name
 from utils.symbol_glossary import to_emoji
 
 PASS = "✅"  # noqa: S105  emoji glyph, not a credential
@@ -224,6 +225,26 @@ def fetch_jobs(run_id: str, repo: str | None = None) -> list[dict]:
     )
 
 
+def fetch_run(run_id: str, repo: str | None = None) -> dict:
+    """Jobs plus the run title, in one ``gh`` call.
+
+    The title is the only place a dispatched run records its inputs: the
+    REST API answers ``inputs: null`` for a finished workflow_dispatch.
+    """
+    return json.loads(
+        _gh(["run", "view", run_id, "--json", "jobs,displayTitle"], repo=repo)
+    )
+
+
+def distros_from_title(title: str) -> str:
+    """Distro list a manual run was dispatched with, '' when unknown.
+
+    Runs from any other entry point carry an unrelated title and yield '',
+    which leaves the retrigger on the workflow's own default.
+    """
+    return run_name.value_from_title(title, "distros")
+
+
 def find_last_deploy_run(
     branch: str, repo: str | None = None, limit: int = 15
 ) -> dict | None:
@@ -243,7 +264,7 @@ def find_last_deploy_run(
             "-L",
             str(limit),
             "--json",
-            "databaseId,url,workflowName,createdAt,status",
+            "databaseId,url,workflowName,createdAt,status,displayTitle",
         ],
         repo=repo,
     )
@@ -261,6 +282,7 @@ def dispatch_workflow(
     whitelist: str = "",
     *,
     priority: str = "",
+    distros: str = "",
     repo: str | None = None,
 ) -> None:
     args = ["workflow", "run", workflow, "--ref", ref]
@@ -268,4 +290,6 @@ def dispatch_workflow(
         args += ["-f", f"whitelist={whitelist}"]
     if priority:
         args += ["-f", f"priority={priority}"]
+    if distros:
+        args += ["-f", f"distros={distros}"]
     _gh(args, repo=repo)

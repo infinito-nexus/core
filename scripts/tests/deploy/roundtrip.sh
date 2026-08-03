@@ -44,8 +44,9 @@ for app in "${_apps[@]}"; do
 		swarm)
 			ACT_PLATFORM_IMAGE=local/act-runner-fixed:latest \
 				make -C "$_repo_root" swarm-zombie app="$app" 2>&1 | tee "$log"
-			grep -q "Matrix-deploy ${app}: provision/deploy/e2e/verify per round" "$log" || {
-				echo "roundtrip: ${app} [swarm] FAILED: swarm deploy job did not run (empty matrix); see ${log}" >&2
+			marker="==> swarm drill complete: app=${app}"
+			grep -qF "${marker}" "$log" || {
+				echo "roundtrip: ${app} [swarm] FAILED: swarm-zombie exited 0 but the drill never completed for ${app} (marker '${marker}' absent from ${log})" >&2
 				exit 1
 			}
 			[ "${keep:-false}" = true ] || make -C "$_repo_root" swarm-down name="$app"

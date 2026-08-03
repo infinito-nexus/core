@@ -23,8 +23,7 @@
     -H "Content-Type: application/json"
     -d {{ ({
     "comment": mailu_token_name,
-    "email": lookup("users", mailu_user_key).email,
-    "ip": mailu_token_ip
+    "email": lookup("users", mailu_user_key).email
     } | to_json) | quote }}
   register: mailu_token_creation_request
   until: mailu_token_creation_request.rc == 0

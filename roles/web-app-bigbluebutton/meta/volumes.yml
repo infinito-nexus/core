@@ -76,3 +76,11 @@ etherpad_pg_entrypoint:
   mounts:
     - service: etherpad
       target: /etherpad_pg_entrypoint.sh
+
+postgres_initdb_etherpad:
+  type: config
+  source: "{{ [lookup('container', 'web-app-bigbluebutton', 'directories.instance'), 'postgres_initdb_etherpad.sh'] | path_join }}"
+  mode: "0555"
+  mounts:
+    - service: postgres
+      target: /docker-entrypoint-initdb.d/zz-etherpad.sh

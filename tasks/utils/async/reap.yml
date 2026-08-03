@@ -1,0 +1,27 @@
+---
+# Param: async_reap_jobs      registered results to collect: a looped task's `.results`,
+#                             or `[task_result]` for a single task
+# Param: async_reap_label     what is being collected, used in the messages
+# Param: async_reap_tolerate  list of substrings in a job's msg that count as success
+#                             (an already-exists answer from an idempotent API), [] when none
+- name: "⏳ Collect async results: {{ async_reap_label }}"
+  ansible.builtin.async_status:
+    jid: "{{ item.ansible_job_id }}"
+  loop: "{{ async_reap_jobs | selectattr('ansible_job_id', 'defined') | list }}"
+  loop_control:
+    label: "{{ item.ansible_job_id }}"
+  register: async_reap_results
+  until: async_reap_results.finished
+  retries: "{{ ((ASYNC_TIME | int) / 5) | round(0, 'ceil') | int }}"
+  delay: 5
+  changed_when: false
+  failed_when: false
+
+- name: "🛑 Fail if any async job of {{ async_reap_label }} failed"
+  vars:
+    _broken: "{{ async_reap_results.results | default([]) | async_failures(async_reap_tolerate) }}"
+  ansible.builtin.fail:
+    msg: >-
+      {{ async_reap_label }}: {{ _broken | length }} async job(s) failed:
+      {{ _broken | join(' || ') }}
+  when: _broken | length > 0

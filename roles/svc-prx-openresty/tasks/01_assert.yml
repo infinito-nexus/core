@@ -1,7 +1,8 @@
 ---
 - name: ⏳ Wait until OpenResty container is running
-  command: >
-    container inspect -f '{{ "{{.State.Running}}" }}' {{ OPENRESTY_CONTAINER }}
+  shell: >
+    container inspect --type container
+    -f '{{ "{{.State.Running}}" }}' {{ OPENRESTY_CONTAINER_ADDRESS }}
   register: openresty_running
   changed_when: false
   until: openresty_running.stdout | trim == "true"

@@ -1,0 +1,32 @@
+---
+- name: "📦 Normalise the install contract for '{{ mu_plugin_name }}'"
+  ansible.builtin.set_fact:
+    wp_mu_plugin_required: "{{ lookup('config', application_id, 'addons.' ~ mu_plugin_name ~ '.required', false) | bool }}"
+  changed_when: false
+
+- name: "📋 Copy mu-plugin '{{ mu_plugin_name }}' into the container"
+  ansible.builtin.shell: >
+    container exec -i {{ WORDPRESS_CONTAINER_ADDRESS }}
+    tee {{ [WORDPRESS_MU_PLUGINS_DIR, mu_plugin_name ~ '.php'] | path_join }}
+    > /dev/null
+  args:
+    stdin: "{{ lookup('file', [role_path, 'files/mu-plugins', mu_plugin_name ~ '.php'] | path_join) }}"
+  register: wp_mu_plugin_copy
+  changed_when: wp_mu_plugin_copy.rc == 0
+  failed_when: wp_mu_plugin_copy.rc != 0 and wp_mu_plugin_required | bool
+
+- name: "🟡 Skip optional mu-plugin '{{ mu_plugin_name }}' after a failed copy"
+  ansible.builtin.debug:
+    msg: >-
+      ::warning title=addon install failed::{{ application_id }} addon
+      '{{ mu_plugin_name }}' was not copied into the container
+      (rc={{ wp_mu_plugin_copy.rc }}); deploy continues because it is not required
+  when: wp_mu_plugin_copy.rc != 0
+
+- name: "✅ Ensure WordPress user owns mu-plugin '{{ mu_plugin_name }}'"
+  ansible.builtin.shell: >
+    container exec {{ WORDPRESS_CONTAINER_ADDRESS }}
+    chown {{ WORDPRESS_USER }}:{{ WORDPRESS_USER }}
+    {{ [WORDPRESS_MU_PLUGINS_DIR, mu_plugin_name ~ '.php'] | path_join }}
+  changed_when: false
+  when: wp_mu_plugin_copy.rc == 0

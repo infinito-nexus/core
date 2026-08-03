@@ -23,6 +23,8 @@ postgres:
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
 chess:
+  healthcheck:
+    flavor: curl
   modes:
     compose:
       enabled: true

@@ -1,0 +1,12 @@
+---
+- name: ✅ Ensure Nextcloud administrator is in the 'admin' group
+  shell: >
+    {{ NEXTCLOUD_DOCKER_EXEC }}
+    php occ group:adduser admin {{ NEXTCLOUD_ADMINISTRATOR_USERNAME }}
+  register: add_admin_to_group
+  changed_when: "'Added user' in add_admin_to_group.stdout"
+  failed_when: >
+    (add_admin_to_group.rc != 0) and
+    ("is already a member of" not in (
+      (add_admin_to_group.stderr | default('')) ~ (add_admin_to_group.stdout | default(''))
+    ))

@@ -1,5 +1,4 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-  {% set container_healthcheck = 'health' %}
   {% set service_name = 'listmonk' %}
   {{ service_name }}:
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
@@ -10,7 +9,7 @@
     {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
-    {% include 'roles/sys-svc-container/templates/healthcheck/wget.yml.j2' %}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
 
 {{ lookup('compose_volumes', application_id,
 ) }}

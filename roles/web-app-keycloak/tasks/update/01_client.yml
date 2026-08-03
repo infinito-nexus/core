@@ -49,5 +49,8 @@
     cid_resolve_cmd: "{{ KEYCLOAK_CID_RESOLVE_CMD if DEPLOYMENT_MODE == 'swarm' else omit }}"
     current_cid: "{{ KEYCLOAK_LOCAL_CID if DEPLOYMENT_MODE == 'swarm' else omit }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: kc_client_update
+  changed_when: false
+  # rationale: async; reaped in update_routines.yml before 04_rbac reads the client back
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"

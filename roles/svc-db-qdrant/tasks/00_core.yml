@@ -10,7 +10,7 @@
 
 - name: "⏳ QDRANT | Wait until container is running (not restarting)"
   ansible.builtin.shell: >
-    container inspect --format '{{ "{{.State.Status}}" }} {{ "{{.State.Restarting}}" }}' {{ QDRANT_CONTAINER_ADDRESS }}
+    container inspect --type container --format '{{ "{{.State.Status}}" }} {{ "{{.State.Restarting}}" }}' {{ QDRANT_CONTAINER_ADDRESS }}
   register: qdrant_state
   retries: 120
   delay: 2

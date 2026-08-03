@@ -1,6 +1,4 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-  {% set container_healthcheck = 'login' %}
-  {% set container_healthcheck_start_period = '10m' %}
   {% set service_name = 'jenkins' %}
   {{ service_name }}:
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
@@ -20,7 +18,7 @@
       {% endif %}
     {{ lookup('container_ports', ['jenkins', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_volumes', application_id, 'jenkins') | indent(4) }}
-    {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
 {{ lookup('compose_volumes', application_id) }}

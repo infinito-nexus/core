@@ -87,6 +87,7 @@ nextcloud:
       http: 8001
     internal:
       http: 80
+      fpm: 9000
     public:
       stun_turn: 3480
       stun_turn_tls: 5350
@@ -99,6 +100,9 @@ nextcloud:
   lifecycle: beta
 proxy:
   name: nextcloud-proxy
+  healthcheck:
+    flavor: curl
+    start_period: 20m
   image: nginx
   version: 1.31.2-alpine
   backup:
@@ -183,6 +187,10 @@ talk:
   ports:
     internal:
       signaling: 8081
+  healthcheck:
+    flavor: tcp
+    port_key: signaling
+    start_period: 20m
 whiteboard:
   name: nextcloud-whiteboard
   image: ghcr.io/nextcloud-releases/whiteboard
@@ -195,6 +203,12 @@ whiteboard:
   mem_limit: 1g
   pids_limit: 1024
   min_storage: 683MB
+  ports:
+    internal:
+      http: 3002
+  healthcheck:
+    flavor: nc
+    start_period: 20m
 # nocheck: playwright-service-flag: infrastructural sub-component (collaborative editing)
 onlyoffice:
   bond: 0.5

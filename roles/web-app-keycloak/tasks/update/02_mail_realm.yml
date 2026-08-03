@@ -10,5 +10,6 @@
     kcadm_exec: "{{ KEYCLOAK_EXEC_KCADM }}"
     assert_mode: "{{ MODE_ASSERT }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  # rationale: async; smtpServer is written here and never read back anywhere
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"

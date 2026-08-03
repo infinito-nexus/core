@@ -1,6 +1,9 @@
 ---
 # nocheck: seaweedfs-required — object storage not implemented for this role
 pgadmin:
+  healthcheck:
+    flavor: wget
+    start_period: 10m
   modes:
     compose:
       enabled: true

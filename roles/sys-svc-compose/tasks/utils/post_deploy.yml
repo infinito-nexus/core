@@ -1,7 +1,7 @@
 ---
 - name: "⏳ Wait until database container for '{{ application_id }}' is healthy"
   ansible.builtin.command: >-
-    container inspect
+    container inspect --type container
     --format={% raw %}{{.State.Health.Status}}{% endraw %}
     {{ lookup('database', application_id, 'container') }}
   register: _app_db_health

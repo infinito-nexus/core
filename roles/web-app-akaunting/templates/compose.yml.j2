@@ -1,5 +1,4 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
-  {% set container_healthcheck_start_period = '10m' %}
   {% set service_name = 'akaunting' %}
   {{ service_name }}:
 
@@ -12,7 +11,7 @@
     {{ lookup('compose_only', 'pull_policy', 'never') }}
     {{ lookup('container_ports', ['akaunting', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_volumes', application_id, 'akaunting') | indent(4) }}
-    {% include 'roles/sys-svc-container/templates/healthcheck/tcp.yml.j2' %}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
 

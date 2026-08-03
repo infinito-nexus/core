@@ -80,8 +80,6 @@ build:
       taiga:
 
   {% set service_name = TAIGA_FRONT_SERVICE %}
-  {# nocheck: container-port-set-unused #}
-  {% set container_port = lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') %}
   {{ service_name }}:
     {{ lookup('compose_only', 'container_name', TAIGA_CONTAINER ~ '-' ~ service_name) }}
     {% if TAIGA_OIDC_ENABLED | bool %}
@@ -94,7 +92,7 @@ build:
     {{ lookup('container_image', application_id, 'front', image='taigaio/taiga-front', version=TAIGA_VERSION) }}
     {% endif %}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    {% include 'roles/sys-svc-container/templates/healthcheck/http.yml.j2' %}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
 
     {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
@@ -152,7 +150,7 @@ build:
     {{ lookup('container_ports', ['taiga', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    {% include 'roles/sys-svc-container/templates/healthcheck/http.yml.j2' %}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
 
     {{ lookup('container_networks') | indent(4) }}
       taiga:

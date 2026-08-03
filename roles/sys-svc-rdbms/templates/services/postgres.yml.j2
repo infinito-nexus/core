@@ -18,10 +18,11 @@
       - {{ lookup('database', application_id, 'env') }}
     {{ lookup('compose_restart') }}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U {{ lookup('database', application_id, 'username') }}"]
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U {{ lookup('database', application_id, 'username') }}"]
       interval: 10s
       timeout: 5s
       retries: 6
+      start_period: 60s
     volumes:
       - type:   volume
         source: database

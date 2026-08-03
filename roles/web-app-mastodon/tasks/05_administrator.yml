@@ -20,5 +20,15 @@
 - name: 👍 Approve the administrator account in Mastodon
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -u root {{ MASTODON_LOCAL_CID | quote }} bash -c "bin/tootctl accounts modify {{ lookup('users', 'administrator').username }} --approve"
+  register: tootctl_approve
+  changed_when: false
+  # rationale: async; approvals run overlapped, reaped below before the login spec
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+
+- name: "⏳ Reap the Mastodon admin approval"
+  ansible.builtin.include_tasks: utils/async/reap.yml
+  vars:
+    async_reap_jobs: "{{ tootctl_approve.results | default([tootctl_approve]) }}"
+    async_reap_label: "Mastodon administrator approval"
+    async_reap_tolerate: []

@@ -1,4 +1,13 @@
 # Managed by Ansible role svc-storage-nfs-server (flavor: ganesha / FSAL_VFS).
+{% if MODE_DEBUG | bool %}
+LOG {
+    components {
+        INIT = FULL_DEBUG;
+        DISPATCH = DEBUG;
+    }
+}
+
+{% endif %}
 NFS_CORE_PARAM {
     Protocols = 4;
     Enable_NLM = false;

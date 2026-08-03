@@ -146,6 +146,27 @@ class TestValidateVolumesMeta(unittest.TestCase):
         )
         self.assertTrue(any("'swarm_safe' opt-out is only" in v for v in violations))
 
+    def test_backup_only_on_volume(self) -> None:
+        violations = validate_volumes_meta(
+            {"x": {"type": "config", "source": "/a", "backup": False}},
+            "r",
+        )
+        self.assertTrue(any("'backup' is only valid for" in v for v in violations))
+
+    def test_backup_must_be_bool(self) -> None:
+        violations = validate_volumes_meta(
+            {"x": {"type": "volume", "backup": "false"}},
+            "r",
+        )
+        self.assertTrue(any("'backup' must be bool" in v for v in violations))
+
+    def test_backup_false_on_a_volume_passes(self) -> None:
+        result = validate_volumes_meta(
+            {"x": {"type": "volume", "backup": False}},
+            "r",
+        )
+        self.assertEqual(result, [])
+
     def test_mount_requires_service_and_target(self) -> None:
         violations = validate_volumes_meta(
             {

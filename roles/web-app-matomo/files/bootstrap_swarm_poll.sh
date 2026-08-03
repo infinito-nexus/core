@@ -20,4 +20,8 @@ while [ "$(date +%s)" -lt "${deadline}" ]; do
 	fi
 	sleep "${POLL_DELAY_S}"
 done
+
+container service logs --since "${since}" --no-task-ids --tail 40 "${SERVICE_REF}" 2>&1 |
+	sed -E 's/[a-f0-9]{32,64}/<redacted>/g' |
+	tail -40 >&2
 exit 1

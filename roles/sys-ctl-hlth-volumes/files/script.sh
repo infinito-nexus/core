@@ -1,12 +1,11 @@
 #!/bin/bash
+# Param: $1 space-separated list of whitelisted volume IDs
 
 status=0
 
-# The first argument is a space-separated list of whitelisted volume IDs
 whitelist="${1:-}"
 whitelisted_volumes=()
 if [ -n "$whitelist" ]; then
-    # Split on spaces into a bash array (intentional word-splitting here).
     IFS=' ' read -r -a whitelisted_volumes <<< "$whitelist"
 fi
 
@@ -20,13 +19,12 @@ fi
 echo "Anonymous volumes found:"
 
 for volume in $anonymous_volumes; do
-    # Check if the volume is in the whitelist
     if printf '%s\n' "${whitelisted_volumes[@]}" | grep -q "^$volume$"; then
         echo "Volume $volume is whitelisted and will be skipped."
         continue
     fi
 
-    container_mount_path=$(container ps -q | xargs -I {} container inspect {} --format="{{range .Mounts}}{{if eq .Name \"$volume\"}}{{.Destination}}{{end}}{{end}}" | tr -d '\n' | xargs)
+    container_mount_path=$(container ps -q | xargs -I {} container inspect --type container {} --format="{{range .Mounts}}{{if eq .Name \"$volume\"}}{{.Destination}}{{end}}{{end}}" | tr -d '\n' | xargs)
     if [ "$container_mount_path" == "/var/www/bootstrap" ]; then
         echo "Volume $volume is a bootstrap volume and will be skipped."
         continue
@@ -41,8 +39,8 @@ for volume in $anonymous_volumes; do
     fi
 
     for container_id in $container_ids; do
-        container_name=$(container inspect --format '{{ .Name }}' "$container_id" | sed 's#^/##')
-        mount_path=$(container inspect --format "{{ range .Mounts }}{{ if eq .Name \"$volume\" }}{{ .Destination }}{{ end }}{{ end }}" "$container_id")
+        container_name=$(container inspect --type container --format '{{ .Name }}' "$container_id" | sed 's#^/##')
+        mount_path=$(container inspect --type container --format "{{ range .Mounts }}{{ if eq .Name \"$volume\" }}{{ .Destination }}{{ end }}{{ end }}" "$container_id")
 
         if [ -n "$mount_path" ]; then
             echo "Volume $volume is used by container $container_name at mount path $mount_path"

@@ -58,7 +58,7 @@
       -e 'NC_APP_ID=integration_zammad'
       -e 'NC_ENC_MODE=sensitive'
       -e 'NC_ENC_B64={{ {'client_id': nextcloud_zammad_client_id, 'client_secret': nextcloud_zammad_client_secret} | to_json | b64encode }}'
-      {{ NEXTCLOUD_CONTAINER_ADDRESS }}
+      {{ NEXTCLOUD_LOCAL_CID | quote }}
       php
     stdin: "{{ lookup('file', 'set_encrypted_appconfig.php') }}"
   register: nextcloud_zammad_enc_set

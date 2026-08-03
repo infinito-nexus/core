@@ -31,4 +31,4 @@ HEALTHCHECK --interval=10s \
             --timeout=5s \
             --start-period=15m \
             --retries=5 \
-  CMD pg_isready -U postgres || exit 1
+  CMD pg_isready -h 127.0.0.1 -U postgres || exit 1

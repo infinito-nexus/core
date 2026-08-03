@@ -59,8 +59,8 @@ def mount_opts(version, runtime):
         if runtime in ("dev", "act", "github")
         else "hard,timeo=600"
     )
-    locking = "local_lock=flock" if int(version) >= 4 else "nolock"
-    return f"vers={version},rw,{reliability},{locking}"
+    locking = "" if int(version) >= 4 else ",nolock"
+    return f"vers={version},rw,{reliability}{locking}"
 
 
 def client_src(server, version, flavor, state_path_value):

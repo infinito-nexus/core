@@ -11,7 +11,7 @@ fail_count=0
 
 echo "DinD mode: verifying runner containers started..."
 for i in $(seq 1 "${RUNNER_COUNT}"); do
-    state=$(container inspect --format '{{.State.Status}}' "${RUNNER_PROJECT_PREFIX}-${i}" 2>/dev/null || echo "not found")
+    state=$(container inspect --type container --format '{{.State.Status}}' "${RUNNER_PROJECT_PREFIX}-${i}" 2>/dev/null || echo "not found")
     if [[ "${state}" != "running" ]]; then
         echo "FAIL: ${RUNNER_PROJECT_PREFIX}-${i} is not running (state=${state})"
         fail_count=$((fail_count + 1))

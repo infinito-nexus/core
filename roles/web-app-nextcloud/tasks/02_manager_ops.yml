@@ -1,0 +1,67 @@
+---
+- name: 🚿 Flush handlers so Nextcloud container is restarted and ready
+  meta: flush_handlers
+
+- name: 🔍 Resolve the Nextcloud hosting node and container id
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ NEXTCLOUD_SERVICE }}"
+    resolve_output_prefix: NEXTCLOUD
+    resolve_compose_cid: "{{ NEXTCLOUD_CONTAINER_ADDRESS }}"
+
+- name: 🔧 Setup config.php
+  include_tasks:
+    file: 02_manager_ops/01_config.yml
+    apply:
+      delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
+
+- name: ⏳ Wait for Redis
+  include_tasks: 02_manager_ops/02_redis.yml
+
+- name: 🔄 Update\Upgrade Nextcloud
+  include_tasks:
+    file: 02_manager_ops/03_upgrade.yml
+    apply:
+      delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
+
+- name: 🔍 Re-resolve the hosting node after the upgrade
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ NEXTCLOUD_SERVICE }}"
+    resolve_output_prefix: NEXTCLOUD
+    resolve_compose_cid: "{{ NEXTCLOUD_CONTAINER_ADDRESS }}"
+
+- name: 👤 Setup the administrator account
+  include_tasks:
+    file: 02_manager_ops/04_admin.yml
+    apply:
+      delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
+
+- name: ⚙️ Apply the system configuration
+  include_tasks:
+    file: 02_manager_ops/05_system_config.yml
+    apply:
+      delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
+
+- name: 🔧 Setup Nextcloud Plugins
+  include_tasks:
+    file: 02_manager_ops/06_plugin.yml
+    apply:
+      delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
+  loop: "{{ NEXTCLOUD_PLUGIN_ITEMS }}"
+  loop_control:
+    loop_var: plugin_item
+  vars:
+    plugin_key: "{{ plugin_item.key }}"
+    plugin_value: "{{ plugin_item.value }}"
+  when: NEXTCLOUD_PLUGINS_ENABLED | bool
+
+- name: 🔧 Reconcile administrator identities after plugin setup
+  include_tasks:
+    file: 02_manager_ops/07_admin_identities.yml
+    apply:
+      delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
+
+- name: "🔌 Provision the MCP server surface"
+  include_tasks: 09_mcp.yml
+  when: NEXTCLOUD_MCP_ENABLED | bool

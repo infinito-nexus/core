@@ -19,7 +19,17 @@
     (lookup('config', application_id, 'services.wordpress.multisite.enabled')
       | default(false) | bool)
 
-- name: "📦 Install mu-plugins (OIDC→RBAC role mapper)"
+- name: "🛑 Assert every required addon is claimed by an install path"
+  ansible.builtin.assert:
+    that:
+      - WORDPRESS_ADDONS_REQUIRED | difference(WORDPRESS_ADDONS_INSTALLED) | length == 0
+    fail_msg: >-
+      Required addon(s)
+      {{ WORDPRESS_ADDONS_REQUIRED | difference(WORDPRESS_ADDONS_INSTALLED) | join(', ') }}
+      are declared in meta/addons/ but no install loop selects them; their
+      `mechanism` must be `plugin` or `mu_plugin` to be installed at all.
+
+- name: "📦 Install declared mu-plugins"
   include_tasks: 04_mu_plugins.yml
 
 - name: "🔁 Iterate through WordPress plugins"

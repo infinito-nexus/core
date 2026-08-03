@@ -42,7 +42,7 @@
 
 - name: "⏳ Matomo install | Wait for Matomo container to be healthy"
   ansible.builtin.shell: >
-    container inspect -f '{{ "{{" }}.State.Health.Status{{ "}}" }}'
+    container inspect --type container -f '{{ "{{" }}.State.Health.Status{{ "}}" }}'
     {{ MATOMO_LOCAL_CID | quote }}
   register: matomo_health
   changed_when: false

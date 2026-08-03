@@ -21,10 +21,9 @@
   changed_when: false
 
 - name: "📦 Install WP Discourse plugin"
-  ansible.builtin.shell: >
-    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
-    wp plugin install wp-discourse --activate
-    --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+  ansible.builtin.include_tasks: ../utils/install/plugin.yml
+  vars:
+    plugin_name: wp-discourse
   when: IS_STACK_HOST | bool
 
 - name: "🔧 Configure WP Discourse settings"

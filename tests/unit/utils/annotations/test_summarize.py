@@ -129,6 +129,17 @@ class TestRenderMarkdown(unittest.TestCase):
         md = render_markdown(annotations, "S")
         self.assertIn("Warnings (2)", md)
 
+    def test_warning_table_is_collapsed(self) -> None:
+        annotations = [Annotation(level="warning", message="w")]
+        md = render_markdown(annotations, "S")
+        self.assertIn("<details>\n<summary>🟡 Warnings (1)</summary>", md)
+        self.assertIn("</details>", md)
+
+    def test_error_table_stays_expanded(self) -> None:
+        annotations = [Annotation(level="error", message="e")]
+        md = render_markdown(annotations, "S")
+        self.assertIn("<details open>\n<summary>🔴 Errors (1)</summary>", md)
+
     def test_order_error_warning_notice(self) -> None:
         annotations = [
             Annotation(level="notice", message="n"),

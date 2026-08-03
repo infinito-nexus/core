@@ -27,6 +27,9 @@ mariadb:
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-mariadb' in group_names }}"
 mediawiki:
+  healthcheck:
+    flavor: tcp
+    start_period: 5m
   modes:
     compose:
       enabled: true

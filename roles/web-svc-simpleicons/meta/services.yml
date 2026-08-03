@@ -55,6 +55,8 @@ simpleicons:
       http: 3000
   proxy:
     service_key: simpleicons
+  healthcheck:
+    flavor: curl
   lifecycle: beta
 prometheus:
   bond: 1

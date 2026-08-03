@@ -18,6 +18,18 @@ is_completed_oneshot() {
 	' <<<"$ps"
 }
 
+report_tasks() {
+	local ps rows
+	if ! ps=$(timeout 15 docker service ps --no-trunc \
+		--format '{{.Name}} desired={{.DesiredState}} current={{.CurrentState}} error={{.Error}}' "$1" 2>&1); then
+		printf '  %s: docker service ps failed: %s\n' "$1" "$ps" >&2
+		return 0
+	fi
+	rows="$(printf '%s\n' "$ps" | awk '!/error=$/' | head -10)"
+	[ -n "${rows}" ] || return 0
+	printf '%s\n' "${rows}" | sed 's/^/  /' >&2
+}
+
 if ! services=$(timeout 15 docker stack services --format '{{.Name}} {{.Replicas}}' "$STACK"); then
 	echo "not converged: docker stack services failed or timed out for ${STACK}" >&2
 	exit 1
@@ -35,5 +47,9 @@ done <<<"$services"
 
 if [ -n "$not_running" ]; then
 	echo "not converged:$not_running" >&2
+	printf '%s\n' "$not_running" | tr ' ' '\n' | while read -r svc; do
+		[ -n "$svc" ] || continue
+		report_tasks "$svc"
+	done
 	exit 1
 fi

@@ -1,4 +1,1 @@
 ---
-# No exception logic required: the admin key the app actually reads (oauth_instance_url) is
-# set generically by the config SPOT (meta/addons/integration_mastodon.yml plugin_configuration
-# + tasks/plugin); per-user OAuth is authorised at runtime. Coupling is verified by the Playwright spec.

@@ -8,6 +8,7 @@
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     entrypoint: ["bash", "-c", "{{ ERPNEXT_CONFIG_READY_GATE }} exec /usr/local/bin/entrypoint.sh /home/frappe/frappe-bench/env/bin/gunicorn --chdir=/home/frappe/frappe-bench/sites --bind=0.0.0.0:{{ ERPNEXT_BACKEND_PORT }} --threads=4 --workers=2 --worker-class=gthread --worker-tmp-dir=/dev/shm --timeout=120 --preload frappe.app:application"]
     {{ lookup('depends_on', {'configurator': 'service_completed_successfully'}) }}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_volumes', application_id, ERPNEXT_BACKEND_CONTAINER) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 

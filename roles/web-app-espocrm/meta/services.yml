@@ -54,6 +54,9 @@ espocrm:
     local:
       websocket: 4002
       http: 8040
+  healthcheck:
+    flavor: curl
+    start_period: 15m
   run_after:
     - web-app-keycloak
     - web-app-mailu

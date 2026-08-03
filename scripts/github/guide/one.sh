@@ -43,9 +43,11 @@ release() {
 	rc=$?
 
 	if [ "${rc}" -ne 0 ]; then
-		INFINITO_RESCUE_DIAGNOSTICS_DIR="${INFINITO_RESCUE_DIAGNOSTICS_BASE}/${INFINITO_DISTRO}/${GUIDE_ROLE}" \
+		guide_rescue_dir="${INFINITO_RESCUE_DIAGNOSTICS_BASE}/${INFINITO_DISTRO}/${GUIDE_ROLE}"
+		INFINITO_RESCUE_DIAGNOSTICS_DIR="${guide_rescue_dir}" \
 			timeout 1500 python3 utils/diagnostics/container.py \
 			"${GUIDE_ROLE}" "guide compose post-deploy failure" || true
+		bash scripts/tests/deploy/utils/rescue_index.sh "${guide_rescue_dir}"
 	fi
 
 	make compose-down || true

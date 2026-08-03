@@ -1,0 +1,13 @@
+---
+btrfs-tools:
+  Archlinux:
+    - btrfs-progs
+  Debian:
+    - btrfs-progs
+  RedHat:
+    - btrfs-progs
+  centos:
+    names:
+      - btrfs-progs
+    repo:
+      bootstrap_package: epel-release

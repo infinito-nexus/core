@@ -10,6 +10,7 @@ ldap:
   bond: 1
   enabled: "{{ (groups['svc-db-openldap'] | default([]) | length) > 0 }}"
   shared: "{{ (groups['svc-db-openldap'] | default([]) | length) > 0 }}"
+  connection_pooling: false
   sync:
     period:
       changes: 900
@@ -29,6 +30,11 @@ email:
   shared: "{{ 'web-app-mailu' in group_names }}"
 # nocheck: playwright-service-flag — self-provider
 keycloak:
+  healthcheck:
+    flavor: http_status
+    path: health/ready
+    port_key: management
+    start_period: 180s
   modes:
     compose:
       enabled: true

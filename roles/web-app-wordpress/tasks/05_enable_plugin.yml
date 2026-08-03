@@ -10,8 +10,5 @@
   include_tasks: "{{ plugin_task_path }}"
   when: plugin_task_file.stat.exists
 
-- name: "📦 Install and activate WordPress plugin via WP CLI"
-  ansible.builtin.shell: >
-    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
-    wp plugin install {{ plugin_name }} --activate
-    --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+- name: "📦 Ensure WordPress plugin is installed and active"
+  ansible.builtin.include_tasks: utils/install/plugin.yml

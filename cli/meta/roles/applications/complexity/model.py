@@ -8,7 +8,7 @@ import subprocess
 from typing import TYPE_CHECKING, Any, NamedTuple
 
 from utils.cache.applications import get_variants
-from utils.github.variant_bundles import compose_bundle_counts
+from utils.github.variant.bundles import compose_bundle_counts
 from utils.roles.lifecycle import tested_lifecycles
 from utils.roles.meta_lookup import (
     MetaServicesShapeError,

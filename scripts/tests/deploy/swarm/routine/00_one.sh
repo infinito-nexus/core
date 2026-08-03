@@ -45,10 +45,13 @@ collect_and_teardown() {
 	rc=$?
 
 	if [ "${rc}" -ne 0 ]; then
-		INFINITO_RESCUE_DIAGNOSTICS_DIR="${INFINITO_RESCUE_DIAGNOSTICS_BASE}/${INFINITO_DISTRO}/${APP_ID}" \
+		rescue_dir="${INFINITO_RESCUE_DIAGNOSTICS_BASE}/${INFINITO_DISTRO}/${APP_ID}"
+		INFINITO_RESCUE_DIAGNOSTICS_DIR="${rescue_dir}" \
 			timeout 1500 python3 utils/diagnostics/container.py \
 			"${APP_ID}" "post-deploy failure" || true
-		timeout 900 bash "${SCRIPT_DIR}/../utils/collect/diagnostics.sh" || true
+		INFINITO_RESCUE_DIAGNOSTICS_DIR="${rescue_dir}" \
+			timeout 900 bash "${SCRIPT_DIR}/../utils/collect/diagnostics.sh" || true
+		bash "${REPO_ROOT}/scripts/tests/deploy/utils/rescue_index.sh" "${rescue_dir}" || true
 	fi
 
 	timeout 900 bash "${SCRIPT_DIR}/../utils/collect/playwright_reports.sh" || true
@@ -101,3 +104,5 @@ timeout "$((INFINITO_SWARM_STEP_TIMEOUT_MINUTES * 60))" "${matrix_cmd[@]}"
 bash "${SCRIPT_DIR}/05_seed_content.sh"
 bash "${SCRIPT_DIR}/06_drain_worker.sh"
 bash "${SCRIPT_DIR}/07_assert_state.sh"
+
+echo "==> swarm drill complete: app=${APP_ID} distro=${INFINITO_DISTRO}"

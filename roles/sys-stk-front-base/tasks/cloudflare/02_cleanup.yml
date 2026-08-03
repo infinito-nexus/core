@@ -10,5 +10,6 @@
       purge_everything: true
     body_format: json
     return_content: true
+  # rationale: async; no register at all, and the purge is idempotent on the next deploy
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"

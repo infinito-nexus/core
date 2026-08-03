@@ -24,6 +24,8 @@ css:
   enabled: "{{ 'web-svc-css' in group_names }}"
   shared: "{{ 'web-svc-css' in group_names }}"
 hugo:
+  healthcheck:
+    flavor: wget
   modes:
     compose:
       enabled: true

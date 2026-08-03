@@ -37,6 +37,9 @@ seaweedfs:
   shared: "{{ 'web-app-seaweedfs' in group_names }}"
 web:
   name: openproject-web
+  healthcheck:
+    flavor: curl
+    path: health_checks/default
   ports:
     internal:
       http: 8080

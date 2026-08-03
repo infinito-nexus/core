@@ -27,6 +27,9 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 # nocheck: playwright-service-flag — self-provider
 dashboard:
+  healthcheck:
+    flavor: tcp
+    start_period: 10m
   modes:
     compose:
       enabled: true

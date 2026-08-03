@@ -17,9 +17,16 @@
   register: _backups_fstype
   changed_when: false
 
-- name: 🔐 Apply POSIX ACLs for the backup user (non-NFS filesystems)
+- name: 🔎 Probe whether that filesystem serves POSIX ACLs
+  ansible.builtin.command:
+    cmd: "setfacl -m user:backup:rwx {{ DIR_BACKUPS }}"
+  register: _backups_acl_probe
+  changed_when: false
+  failed_when: false
+
+- name: "🔐 Apply POSIX ACLs on {{ _backups_fstype.stdout | trim }}"
   ansible.builtin.include_tasks: 02_permissions_folders/acl.yml
-  when: not ((_backups_fstype.stdout | trim) is match('^nfs'))
+  when: _backups_acl_probe.rc == 0
 
 - name: 📁 Fix ownership level 0..2 directories to backup:backup
   ansible.builtin.shell: >

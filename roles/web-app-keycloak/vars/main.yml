@@ -100,6 +100,7 @@ KEYCLOAK_LDAP_CMP_NAME: "{{ LDAP.SERVER.DOMAIN }}" # Name of the LDAP User Feder
 KEYCLOAK_LDAP_BIND_DN: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
 KEYCLOAK_LDAP_BIND_PW: "{{ LDAP.BIND_CREDENTIAL }}"
 KEYCLOAK_LDAP_URL: "{{ LDAP.SERVER.URI }}"
+KEYCLOAK_LDAP_CONNECTION_POOLING: "{{ lookup('config', application_id, 'services.ldap.connection_pooling') | bool }}"
 KEYCLOAK_LDAP_SYNC_CHANGES_PERIOD: "{{ lookup('config', application_id, 'services.ldap.sync.period.changes') }}"
 KEYCLOAK_LDAP_SYNC_FULL_PERIOD: "{{ lookup('config', application_id, 'services.ldap.sync.period.full') }}"
 

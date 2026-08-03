@@ -1,14 +1,47 @@
 import re
 import unittest
 
-from utils.packages.plan import (
-    AUR_BUILDER_USER,
-    PACMAN_CONF,
-    STATE_ABSENT,
-    STATE_PRESENT,
-    build_plan,
-)
-from utils.packages.schema import PackageSpec
+from utils.packages.calls import STATE_ABSENT, STATE_PRESENT
+from utils.packages.plan import build_plan
+from utils.packages.schema import SOURCE_AUR, SOURCE_BUILD, SOURCE_COPR, PackageSpec
+from utils.packages.sources import AUR_BUILDER_USER, PACMAN_CONF
+
+
+class TestExternalFetchRetries(unittest.TestCase):
+    """Every call that reaches an endpoint outside a distribution repository
+    carries a retry policy; the repository calls carry none."""
+
+    def _retried(self, plan):
+        return {call.module for call in plan if call.retry is not None}
+
+    def test_the_aur_build_is_retried(self):
+        plan = build_plan(
+            PackageSpec(("nfs-ganesha",), source=SOURCE_AUR), STATE_PRESENT
+        )
+        self.assertEqual(self._retried(plan), {"kewlfft.aur.aur"})
+
+    def test_the_build_command_is_retried(self):
+        spec = PackageSpec(("tool",), source=SOURCE_BUILD, build={"command": "make"})
+        self.assertEqual(
+            self._retried(build_plan(spec, STATE_PRESENT)), {"ansible.builtin.command"}
+        )
+
+    def test_enabling_a_copr_is_retried(self):
+        spec = PackageSpec(("pkg",), source=SOURCE_COPR, repo={"copr": "user/proj"})
+        self.assertEqual(
+            self._retried(build_plan(spec, STATE_PRESENT)), {"community.general.copr"}
+        )
+
+    def test_adding_a_ppa_is_retried(self):
+        spec = PackageSpec(("pkg",), repo={"ppa": "ppa:x/y"})
+        self.assertEqual(
+            self._retried(build_plan(spec, STATE_PRESENT)),
+            {"ansible.builtin.apt_repository"},
+        )
+
+    def test_a_plain_repository_install_is_not_retried(self):
+        plan = build_plan(PackageSpec(("git",)), STATE_PRESENT)
+        self.assertEqual(self._retried(plan), set())
 
 
 def _modules(plan):

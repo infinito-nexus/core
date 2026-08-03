@@ -6,7 +6,7 @@
     {{ lookup('compose_only', 'container_name', LOGOUT_CONTAINER) }}
     {{ lookup('container_ports', ['logout', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
-    {% include 'roles/sys-svc-container/templates/healthcheck/tcp.yml.j2' %}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
 
 {{ lookup('compose_volumes', application_id) }}
 

@@ -17,5 +17,7 @@
     stdin: "{{ KEYCLOAK_USER_PROFILE_OBJECT | to_json }}"
   changed_when: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: kc_userprofile
+  # rationale: async; consumed only by a playwright spec, reaped at the end of update_routines.yml
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"

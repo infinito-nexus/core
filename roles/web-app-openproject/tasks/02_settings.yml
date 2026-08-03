@@ -1,7 +1,8 @@
 ---
 - name: ⏳ Wait until OpenProject web container is running (compose)
   shell: >
-    container inspect -f '{{"{{"}}.State.Status{{"}}"}}' {{ OPENPROJECT_WEB_CONTAINER }}
+    container inspect --type container
+    -f '{{"{{"}}.State.Status{{"}}"}}' {{ OPENPROJECT_WEB_CONTAINER_ADDRESS }}
   register: openproject_web_state
   retries: 60
   delay: 5
@@ -36,7 +37,8 @@
 
 - name: ⏳ Wait until OpenProject web container is running (after migrations, compose)
   shell: >
-    container inspect -f '{{"{{"}}.State.Status{{"}}"}}' {{ OPENPROJECT_WEB_CONTAINER }}
+    container inspect --type container
+    -f '{{"{{"}}.State.Status{{"}}"}}' {{ OPENPROJECT_WEB_CONTAINER_ADDRESS }}
   register: openproject_web_state_after_migrate
   retries: 60
   delay: 5

@@ -120,7 +120,7 @@ docker run --rm -it \
 
 The goal of this deployment is to provide a production-ready, scalable WordPress instance with multisite capabilities and enhanced performance. By automating the custom image build and configuration processes via Docker Compose and Ansible, it minimizes manual intervention, reduces errors, and allows you to concentrate on building great content.
 
-## Multisite (requirement 005)
+## Multisite
 
 WordPress Multisite is opt-in. Set `services.wordpress.multisite.enabled: true` in the inventory to convert the deployed instance into a sub-domain Multisite network. Every entry in `domains.canonical` becomes a site in the network; the first entry is the network primary, subsequent entries are child sites.
 
@@ -133,9 +133,8 @@ Operator-facing instructions for assigning these groups live in [Administration 
 
 ## Addons
 
-Plugins and the OIDC→RBAC mu-plugin are declared in
-[`meta/addons/`](./meta/addons/) under the unified addon contract
-(requirement 026). The OIDC and WP-Discourse runtime config lives in each addon's `config:` block.
+Every plugin and mu-plugin is declared in [`meta/addons/`](./meta/addons/) under
+the unified addon contract. The OIDC and WP-Discourse runtime config lives in each addon's `config:` block. Both install paths read those declarations: a `required` addon that fails to install stops the deploy, an optional one warns and is skipped.
 
 | Addon | Mechanism | Default state | Bridges |
 |-------|-----------|---------------|---------|
@@ -143,17 +142,18 @@ Plugins and the OIDC→RBAC mu-plugin are declared in
 | `wp-discourse` | `plugin` | enabled with the `discourse` service | `discourse` → `web-app-discourse` |
 | `activitypub` | `plugin` | always enabled (Fediverse federation) | none |
 | `infinito-oidc-rbac-mapper` | `mu_plugin` | `required` (always installed, vendored) | `sso` → `web-app-keycloak` |
+| `infinito-http-ca-trust` | `mu_plugin` | `required` (always installed, vendored) | none |
 
 The OIDC login + RBAC paths are covered by `test-admin-oidc-login.js` /
 `test-rbac-roles.js`, the Discourse round-trip by `test-discourse-roundtrip.js`.
 
 ## Playwright service dependencies
 
-The Playwright suite in [files/playwright/playwright.spec.js](files/playwright/playwright.spec.js) gates its scenarios on the following shared services (requirement 006). Scenarios that depend on a service report as `skipped` when the corresponding `<SERVICE>_SERVICE_ENABLED=false` in the staged `.env`:
+The Playwright suite in [files/playwright/playwright.spec.js](files/playwright/playwright.spec.js) gates its scenarios on the following shared services. Scenarios that depend on a service report as `skipped` when the corresponding `<SERVICE>_SERVICE_ENABLED=false` in the staged `.env`:
 
 - `oidc`: baseline admin OIDC round-trip plus the three RBAC scenarios (subscriber/editor/administrator).
 - `ldap`: the three RBAC scenarios additionally depend on LDAP group sync; disabling LDAP skips them alongside OIDC.
-- `discourse`: the WP->Discourse post round-trip scenario (requirement 007). Disabling Discourse skips it; front-page reachability and CSP baselines stay active.
+- `discourse`: the WP->Discourse post round-trip scenario. Disabling Discourse skips it; front-page reachability and CSP baselines stay active.
 
 The front-page CSP + canonical-domain baseline is ungated and always runs.
 

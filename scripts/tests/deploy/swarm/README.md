@@ -157,7 +157,8 @@ the cluster declaration (image, containers, network, DNS play) in
 | chaos | `routine/05_seed_content.sh` | seed a marker on the NFS volume |
 | chaos | `routine/06_drain_worker.sh` | drain the app's worker + force reschedule |
 | chaos | `routine/07_assert_state.sh` | assert the marker + reachability survived |
-| teardown | `utils/collect/diagnostics.sh` | collect stack/service diagnostics on failure |
+| teardown | `utils/collect/diagnostics.sh` | write stack/service diagnostics on failure, one file per topic under the rescue dir |
+| teardown | `../utils/rescue_index.sh` | list the collected rescue tree so a reader knows what the artifact holds |
 | teardown | `utils/collect/playwright_reports.sh` | pull Playwright reports from the manager into `/tmp/playwright-artifacts/<distro>/<app>` |
 | teardown | `utils/collect/topology_summary.sh` | render the node list + service placement into `$GITHUB_STEP_SUMMARY` |
 | teardown | `utils/clean/teardown.sh` | kill the nodes + remove the lab network |

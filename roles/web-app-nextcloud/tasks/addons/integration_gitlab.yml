@@ -6,8 +6,8 @@
   changed_when: false
 
 - name: 🔍 Probe whether the GitLab partner container is running
-  command: >
-    container inspect -f '{% raw %}{{.State.Running}}{% endraw %}' {{ nextcloud_gl_container }}
+  command: > # nocheck: container-exec-resolver  this IS the bare-name partner probe gate, compose co-location
+    container inspect --type container -f '{% raw %}{{.State.Running}}{% endraw %}' {{ nextcloud_gl_container }}
   register: integration_gitlab_partner_running
   changed_when: false
   failed_when: false

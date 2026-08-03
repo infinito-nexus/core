@@ -1,0 +1,50 @@
+---
+- name: 🔐 Resolve the LDAP-backed administrator identities
+  when: NEXTCLOUD_USER_LDAP_ENABLED | bool
+  block:
+    - name: 🔎 Check whether Nextcloud LDAP OCC namespace is available
+      shell: >
+        {{ NEXTCLOUD_DOCKER_EXEC_OCC }} list ldap
+      register: nextcloud_admin_ldap_namespace
+      changed_when: false
+      failed_when: false
+
+    - name: 🔍 Resolve LDAP-backed Nextcloud administrator identities
+      shell: >
+        {{ NEXTCLOUD_DOCKER_EXEC_OCC }} ldap:search {{ NEXTCLOUD_ADMINISTRATOR_USERNAME }}
+      register: nextcloud_admin_ldap_search
+      changed_when: false
+      failed_when: nextcloud_admin_ldap_search.rc != 0
+      when:
+        - nextcloud_admin_ldap_namespace is defined
+        - nextcloud_admin_ldap_namespace.rc == 0
+
+- name: 🔨 Build the list of Nextcloud administrator identities
+  set_fact:
+    nextcloud_administrator_identities: >-
+      {{
+        (
+          [NEXTCLOUD_ADMINISTRATOR_USERNAME] +
+          (
+            (
+              (nextcloud_admin_ldap_search | default({})).get('stdout', '')
+            )
+            | regex_findall('\(([^)]+)\)')
+          )
+        )
+        | unique
+      }}
+
+- name: ✅ Ensure all Nextcloud administrator identities are in the 'admin' group
+  shell: >
+    {{ NEXTCLOUD_DOCKER_EXEC_OCC }} group:adduser admin {{ item }}
+  loop: "{{ nextcloud_administrator_identities }}"
+  register: nextcloud_admin_group_membership
+  changed_when: >
+    'Added user' in (nextcloud_admin_group_membership.stdout | default(''))
+  failed_when: >
+    (nextcloud_admin_group_membership.rc != 0) and
+    ('is already a member of' not in (
+      (nextcloud_admin_group_membership.stderr | default('')) ~
+      (nextcloud_admin_group_membership.stdout | default(''))
+    ))

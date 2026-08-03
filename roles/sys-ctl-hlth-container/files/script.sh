@@ -33,8 +33,8 @@ fi
 if [ "$swarm_state" != "active" ] && [ -n "$docker_ps_grep_exited" ]; then
     for container_id in $docker_ps_grep_exited
     do
-        container_exit_code="$(container inspect "$container_id" --format='{{.State.ExitCode}}')"
-        container_name="$(container inspect "$container_id" --format='{{.Name}}')"
+        container_exit_code="$(container inspect --type container "$container_id" --format='{{.State.ExitCode}}')"
+        container_name="$(container inspect --type container "$container_id" --format='{{.Name}}')"
         container_name="${container_name#/}"
 
         if [ "$container_exit_code" -ne "0" ]; then

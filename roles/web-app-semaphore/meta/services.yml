@@ -39,6 +39,9 @@ postgres:
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
 semaphore:
+  healthcheck:
+    flavor: wget
+    path: api/ping
   modes:
     compose:
       enabled: true

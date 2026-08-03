@@ -83,7 +83,9 @@ def render_markdown(annotations: list[Annotation], title: str) -> str:
             continue
         icon = ICONS[level]
         heading = HEADINGS[level]
-        lines.append(f"### {icon} {heading} ({len(items)})\n")
+        lines.append("<details open>" if level == "error" else "<details>")
+        lines.append(f"<summary>{icon} {heading} ({len(items)})</summary>")
+        lines.append("")
         lines.append("| Title | File | Message |")
         lines.append("|-------|------|---------|")
         for a in items:
@@ -93,6 +95,8 @@ def render_markdown(annotations: list[Annotation], title: str) -> str:
                 loc = f"{loc}:{a.line}"
             msg = a.message.replace("|", "\\|")
             lines.append(f"| {t} | {loc} | {msg} |")
+        lines.append("")
+        lines.append("</details>")
         lines.append("")
     return "\n".join(lines)
 

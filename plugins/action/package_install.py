@@ -28,18 +28,21 @@ Args:
 
 from __future__ import annotations
 
+import time
 from typing import Any
 
 from ansible.errors import AnsibleActionFail
 from ansible.plugins.action import ActionBase
 
-from utils.packages.plan import (
+from utils.packages.calls import (
     GENERIC_PACKAGE,
     STATE_PRESENT,
     STATES,
     ModuleCall,
-    build_plan,
 )
+from utils.packages.facts import distribution_and_family, read_fact
+from utils.packages.outcome import aggregate
+from utils.packages.plan import build_plan
 from utils.packages.registry import build_registry, project_root_from_env, resolve
 from utils.packages.schema import ROLE_FILE_META_PACKAGES, PackagesShapeError
 
@@ -53,7 +56,12 @@ class ActionModule(ActionBase):
 
         state = self._state()
         facts = self._target_facts(task_vars)
-        distribution, os_family = self._facts(facts)
+        distribution, os_family = distribution_and_family(facts)
+        if not distribution:
+            raise AnsibleActionFail(
+                "package_install needs gathered facts; ansible_facts.distribution "
+                "and ansible_facts.os_family must both be set."
+            )
 
         package_ids = self._package_ids()
         registry = self._registry()
@@ -70,7 +78,7 @@ class ActionModule(ActionBase):
                 continue
             results.extend(self._run_plan(plan, task_vars, facts))
 
-        return self._aggregate(results, skipped, distribution)
+        return aggregate(results, skipped, distribution)
 
     def _plan_for(self, spec, state) -> list[ModuleCall]:
         try:
@@ -86,11 +94,35 @@ class ActionModule(ActionBase):
     ) -> list[dict[str, Any]]:
         results: list[dict[str, Any]] = []
         for call in plan:
-            result = self._execute(call, task_vars, facts)
+            result = self._attempt(call, task_vars, facts)
             results.append(result)
             if result.get("failed"):
                 break
         return results
+
+    def _attempt(
+        self, call: ModuleCall, task_vars: dict[str, Any], facts: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Run *call* once, or up to its retry policy while it keeps
+        failing. Returns the last result, tagged with the module that
+        produced it."""
+        if call.retry is None:
+            return self._tagged(call, task_vars, facts)
+        result: dict[str, Any] = {}
+        for attempt in range(1, call.retry.attempts + 1):
+            result = self._tagged(call, task_vars, facts)
+            if not result.get("failed"):
+                return result
+            if attempt < call.retry.attempts:
+                time.sleep(call.retry.seconds)
+        return result
+
+    def _tagged(
+        self, call: ModuleCall, task_vars: dict[str, Any], facts: dict[str, Any]
+    ) -> dict[str, Any]:
+        result = self._execute(call, task_vars, facts)
+        result["module"] = call.module
+        return result
 
     def _execute(
         self, call: ModuleCall, task_vars: dict[str, Any], facts: dict[str, Any]
@@ -120,7 +152,7 @@ class ActionModule(ActionBase):
     def _module_name(self, call: ModuleCall, facts: dict[str, Any]) -> str:
         if call.module != GENERIC_PACKAGE:
             return call.module
-        pkg_mgr = self._fact(facts, "pkg_mgr")
+        pkg_mgr = read_fact(facts, "pkg_mgr")
         if not pkg_mgr:
             raise AnsibleActionFail(
                 "package_install needs ansible_facts.pkg_mgr to choose a package "
@@ -151,29 +183,6 @@ class ActionModule(ActionBase):
                 f"target '{delegate}': {result.get('msg', 'setup failed')}"
             )
         return result.get("ansible_facts") or {}
-
-    @staticmethod
-    def _fact(facts: dict[str, Any], name: str) -> str:
-        """Read a fact from either the task_vars shape or the setup-module one.
-
-        task_vars['ansible_facts'] carries bare keys, the setup module returns
-        them ``ansible_``-prefixed.
-        """
-        for key in (name, f"ansible_{name}"):
-            value = facts.get(key)
-            if value:
-                return str(value).strip()
-        return ""
-
-    def _facts(self, facts: dict[str, Any]) -> tuple[str, str]:
-        distribution = self._fact(facts, "distribution").lower()
-        os_family = self._fact(facts, "os_family")
-        if not distribution or not os_family:
-            raise AnsibleActionFail(
-                "package_install needs gathered facts; ansible_facts.distribution "
-                "and ansible_facts.os_family must both be set."
-            )
-        return distribution, os_family
 
     def _role(self) -> str | None:
         role = getattr(self._task, "_role", None)
@@ -235,29 +244,3 @@ class ActionModule(ActionBase):
                 f"'{distribution}' (os_family '{os_family}') in {declaration.path}."
             )
         return spec
-
-    def _aggregate(
-        self, results: list[dict[str, Any]], skipped: list[str], distribution: str
-    ) -> dict[str, Any]:
-        if not results:
-            return {
-                "changed": False,
-                "skipped": True,
-                "skip_reason": (
-                    f"{', '.join(skipped)} declare nothing to install on {distribution}"
-                ),
-            }
-
-        failed = [result for result in results if result.get("failed")]
-        aggregated: dict[str, Any] = {
-            "changed": any(bool(result.get("changed")) for result in results),
-            "results": results,
-        }
-        if skipped:
-            aggregated["skipped_ids"] = skipped
-        if failed:
-            aggregated["failed"] = True
-            aggregated["msg"] = "; ".join(
-                str(result.get("msg", "package install failed")) for result in failed
-            )
-        return aggregated

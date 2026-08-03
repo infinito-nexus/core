@@ -44,6 +44,8 @@ friendica:
   enabled: "{{ 'web-app-friendica' in group_names }}"
   shared: "{{ 'web-app-friendica' in group_names }}"
 fediwall:
+  healthcheck:
+    flavor: curl
   modes:
     compose:
       enabled: true

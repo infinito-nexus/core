@@ -1,6 +1,5 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
   {% set service_name = 'dashboard' %}
-  {% set container_healthcheck_start_period = '10m' %}
   {% set container_port = lookup('config', application_id, 'services.' ~ service_name ~ '.ports.internal.http') %}
   {{ service_name }}:
     {% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
@@ -11,7 +10,7 @@
     {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
     {{ lookup('compose_restart') }}
     {{ lookup('container_networks') | indent(4) }}
-    {% include 'roles/sys-svc-container/templates/healthcheck/tcp.yml.j2' %}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
 
 {{ lookup('compose_volumes', application_id) }}
 

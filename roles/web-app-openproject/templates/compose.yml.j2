@@ -29,7 +29,6 @@ x-op-app: &app
     {{ lookup('container_volumes', application_id, 'proxy') | indent(4) }}
 
   {% set service_name = OPENPROJECT_WEB_SERVICE %}
-  {% set container_healthcheck = 'health_checks/default' %}
   {{ service_name }}:
     <<: *app
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
@@ -40,7 +39,7 @@ x-op-app: &app
   'cache': {'condition': 'service_started'},
   OPENPROJECT_SEEDER_SERVICE: {'condition': 'service_started'},
 }) | indent(4) }}
-    {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_volumes', application_id, OPENPROJECT_WEB_SERVICE) | indent(4) }}
 
   {% set service_name = 'worker' %}

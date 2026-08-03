@@ -40,6 +40,8 @@ postgres:
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
 pretix:
+  healthcheck:
+    flavor: curl
   modes:
     compose:
       enabled: true

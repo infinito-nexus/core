@@ -1,7 +1,5 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
-  {# nocheck: container-port-set-unused #}
-  {% set container_port = PENPOT_FRONTEND_INTERNAL_PORT %}
   {% set service_name = PENPOT_FRONTEND_SERVICE %}
   {{ service_name }}:
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
@@ -13,7 +11,7 @@
       - 'until getent hosts {{ PENPOT_BACKEND_SERVICE }} >/dev/null 2>&1 && getent hosts {{ PENPOT_EXPORTER_SERVICE }} >/dev/null 2>&1; do sleep 1; done; exec nginx -g "daemon off;"'
     {{ lookup('container_ports', ['penpot', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
-    {% include 'roles/sys-svc-container/templates/healthcheck/curl.yml.j2' %}
+    {{ lookup('container_healthcheck', 'penpot') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id, extra={
   PENPOT_BACKEND_SERVICE: {'condition': 'service_started'},

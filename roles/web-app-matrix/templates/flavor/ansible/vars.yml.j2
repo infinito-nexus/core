@@ -59,7 +59,7 @@ matrix_livekit_jwt_service_container_port: 8030
 {% if MATRIX_OIDC_ENABLED or (TLS_MODE | lower) == 'self_signed' %}
 matrix_synapse_container_extra_arguments:
 {% if MATRIX_OIDC_ENABLED %}
-  - "--add-host={{ OIDC.CLIENT.ISSUER_URL | urlsplit('hostname') }}:{{ lookup('config', application_id, 'networks.local.subnet') | regex_replace('\\.0/\\d+$', '.1') }}"
+  - "--add-host={{ OIDC.CLIENT.ISSUER_URL | urlsplit('hostname') }}:{{ lookup('subnet_gateway') }}"
 {% endif %}
 {% if (TLS_MODE | lower) == 'self_signed' %}
   - "--mount type=bind,src={{ CA_TRUST.cert_host }},dst={{ MATRIX_CA_MOUNT_PATH }},ro"

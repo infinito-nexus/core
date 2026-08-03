@@ -19,7 +19,7 @@ flowchart TB
         conv["Wait until every stack service converges"]
         reach["Probe the app is reachable in-cluster"]
         bkphost["Deploy the backup host<br/>(round 1 only: pull + device roles on bkp-01)"]
-        t_term["⚡ Terminator at that play's end (MODE_BACKUP):<br/>remote-2-local pull force-starts on bkp-01<br/>(fails without the ssh trust the drill installs later)"]
+        t_term["Terminator at that play's end:<br/>the lab deploys with --skip-backup, so MODE_BACKUP is false<br/>and remote-2-local stays out of the final run list -<br/>the drill is the only caller that starts the pull"]
 
         subgraph drill["Disaster-recovery drill (round 1 only)"]
             d1["Seed markers on the live NFS volume<br/>and in the manager secrets"]
@@ -50,7 +50,7 @@ flowchart TB
     boot --> matrix --> chaos --> teardown
 
     classDef trigger fill:#f7e28b,stroke:#b8860b,color:#000
-    class t_pre,t_term,t_d2,t_d4,t_d5 trigger
+    class t_pre,t_d2,t_d4,t_d5 trigger
 ```
 
 The nightly timers (volume 01:00, nfs 01:30, secrets 01:45, device

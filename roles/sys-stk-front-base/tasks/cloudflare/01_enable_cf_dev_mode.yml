@@ -31,5 +31,6 @@
     ASYNC_ENABLED | bool and
     cf_dev_mode_current.json.result.value is defined and
     cf_dev_mode_current.json.result.value != 'on'
+  # rationale: async; last task of the file, cf_dev_mode_enable is read nowhere else
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"

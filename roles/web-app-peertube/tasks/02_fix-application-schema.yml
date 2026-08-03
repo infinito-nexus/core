@@ -62,9 +62,11 @@
     argv:
       - container
       - inspect
+      - --type
+      - container
       - -f
       - "{{ '{{.State.Health.Status}}' }}"
-      - "{{ PEERTUBE_LOCAL_CID }}"
+      - "{{ PEERTUBE_LOCAL_CID }}" # nocheck: container-exec-resolver  PEERTUBE_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
   register: _peertube_health
   retries: 60
   delay: 5

@@ -1,0 +1,9 @@
+---
+- name: ⏳ Wait until Redis is ready (PONG)
+  shell: "container exec {{ NEXTCLOUD_REDIS_CONTAINER_ADDRESS }} redis-cli ping"
+  register: redis_ping
+  retries: 60
+  delay: 2
+  until: redis_ping.stdout is search('PONG')
+  changed_when: false
+  when: lookup('engine', 'redis', application_id, 'local')

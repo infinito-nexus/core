@@ -28,6 +28,8 @@
     lab_is_worker: "{{ inventory_hostname in [lab_wrk1, lab_wrk2] }}"
     lab_dns_node: "{{ lab_is_mgr or lab_is_worker }}"
     lab_domain_target: "{{ lookup('env', 'INFINITO_SWARM_MGR_IP') }}"
+    lab_filesystem: "{{ lookup('env', 'INFINITO_DOCKER_FILESYSTEM') }}"
+    lab_filesystem_required: "{{ lookup('env', 'INFINITO_DOCKER_FILESYSTEM_REQUIRED') | default('false', true) }}"
     lab_no_proxy: "localhost,127.0.0.1,::1,infinito-registry-cache,{{ lab_mgr }},{{ lab_wrk1 }},{{ lab_wrk2 }},{{ lab_nfs }},{{ lab_backup }},gcr.io,storage.googleapis.com,googleusercontent.com"
   tasks:
     - name: require the lab manager IP (lookup('env') yields '' for a missing key, and an empty dnsmasq address= is valid syntax)
@@ -78,6 +80,20 @@
         name: systemd-user-sessions
         state: started
       timeout: 30
+
+    - name: put the node docker data root on the stated filesystem (before anything is pulled)
+      script: >-
+        {{ lab_repo_root }}/scripts/tests/deploy/utils/filesystem/docker_dataroot.sh
+        {{ lab_filesystem }} {{ lab_filesystem_required }}
+      timeout: 600
+      when: lab_filesystem | length > 0
+      changed_when: true
+      register: lab_dataroot
+
+    - name: surface the node's effective data root filesystem
+      debug:
+        msg: "{{ lab_dataroot.stdout_lines | select('search', '^docker-dataroot-filesystem: status=') | list }}"
+      when: not (lab_dataroot is skipped)
 
     - name: probe the registry-cache CA (mounted by cache.override.yml, absent without a local cache stack)
       stat:

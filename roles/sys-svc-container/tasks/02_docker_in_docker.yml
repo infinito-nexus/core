@@ -14,6 +14,22 @@
 - name: 🧮 Compute and set Docker daemon MTU (container)
   include_tasks: "_mtu.yml"
 
+- name: 🔎 Read the docker daemon config already on this host
+  ansible.builtin.slurp:
+    src: "{{ SYS_SVC_DOCKER_DAEMON }}"
+  register: sys_svc_container_daemon_before
+  failed_when: false
+  changed_when: false
+
+- name: "📦 Carry a data-root someone else already set"
+  ansible.builtin.set_fact:
+    SYS_SVC_CONTAINER_DATA_ROOT: >-
+      {{ (sys_svc_container_daemon_before.content | b64decode | from_json).get('data-root', '')
+         if sys_svc_container_daemon_before.content is defined
+            and sys_svc_container_daemon_before.content | length > 0
+         else '' }}
+  changed_when: false
+
 - name: 🔧 Configure docker daemon storage driver (container)
   include_tasks: "daemon_config.yml"
 

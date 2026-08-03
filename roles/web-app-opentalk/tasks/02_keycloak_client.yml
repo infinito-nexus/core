@@ -12,7 +12,7 @@
 
 - name: "⏳ Wait for the Keycloak container to be healthy before OpenTalk provisioning"
   ansible.builtin.shell: >
-    container inspect --format '{{ "{{" }}.State.Health.Status{{ "}}" }}'
+    container inspect --type container --format '{{ "{{" }}.State.Health.Status{{ "}}" }}'
     {{ OPENTALK_KEYCLOAK_LOCAL_CID | quote }}
   register: opentalk_kc_health
   retries: 60

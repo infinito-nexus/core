@@ -8,7 +8,10 @@ A comment is VALID only when it is one of:
   `rubocop:`, `stylelint-disable`, `pragma`, language annotations, ...),
 * a **marked exception** -- a mid-code comment that flags a real trip-wire
   (warning, pitfall, deliberate non-idiomatic choice) whose text starts with
-  one of the exception markers (`Exception`, ...).
+  one of the exception markers (`Exception`, ...),
+* a **rationale** -- `rationale: <topic>; <one line>`, required by another lint
+  that will not accept the construct without a written justification. Today the
+  only such lint is the async one, so the form is `rationale: async; ...`.
 
 Mid-code comments are ONLY allowed as exceptions. Plain narration, banners,
 restating the next line, or neutral `Note:`-style info carry no warning and so
@@ -72,6 +75,7 @@ _MARKERS = (
     "safety",
     "deprecated",
     "limitation",
+    "rationale",
 )
 _MARKER_RE = re.compile(rf"^[\s*/#>-]*(?:{'|'.join(_MARKERS)})\b", re.IGNORECASE)
 

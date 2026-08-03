@@ -5,6 +5,8 @@
 # - BKP_VOLUME_2_LOCAL_NO_STOP_REQUIRED: Exact deployed image refs where backup.no_stop_required is set (for --images-no-stop-required)
 # - BKP_VOLUME_2_LOCAL_DISABLED:         Exact deployed image refs where backup.disabled is set (for --images-no-backup-required)
 # - BKP_VOLUME_2_LOCAL_HARD_RESTART:     Compose project (entity) names where backup.project_hard_restart is set (for --hard-restart-projects)
+# - BKP_VOLUME_2_LOCAL_SNAPSHOT_BIN:     Launcher that appends --snapshot/--snapshot-subject per run when the mode allows it
+# - BKP_VOLUME_2_LOCAL_SNAPSHOT_MODE:    services.volume-2-local.snapshot_mode normalised; YAML reads a bare off/no/false as a boolean
 # baudolo matches --images-* exactly, so the refs carry the swarm registry prefix.
 # CLI-ready variables render these lists as argument strings.
 
@@ -12,6 +14,30 @@ application_id: svc-bkp-volume-2-local
 system_service_id: "{{ application_id }}"
 
 BKP_VOLUME_2_LOCAL_BAUDOLO_BIN: baudolo
+BKP_VOLUME_2_LOCAL_SNAPSHOT_BIN: "{{ [ DIR_BIN, 'baudolo-snapshot' ] | path_join }}"
+BKP_VOLUME_2_LOCAL_SUBVOLUME_BIN: "{{ [ DIR_BIN, 'baudolo-subject-subvolume' ] | path_join }}"
+
+BKP_VOLUME_2_LOCAL_SNAPSHOT_MODES:
+  - auto
+  - never
+  - btrfs
+  - zfs
+
+BKP_VOLUME_2_LOCAL_SNAPSHOT_FALSEY:
+  - "false"
+  - "off"
+  - "no"
+  - "n"
+  - "0"
+  - "never"
+
+BKP_VOLUME_2_LOCAL_SNAPSHOT_MODE_RAW: >-
+  {{ lookup('config', application_id, 'services.volume-2-local.snapshot_mode') }}
+
+BKP_VOLUME_2_LOCAL_SNAPSHOT_MODE: >-
+  {{ 'never'
+     if (BKP_VOLUME_2_LOCAL_SNAPSHOT_MODE_RAW | string | lower | trim) in BKP_VOLUME_2_LOCAL_SNAPSHOT_FALSEY
+     else (BKP_VOLUME_2_LOCAL_SNAPSHOT_MODE_RAW | string | lower | trim) }}
 
 BKP_VOLUME_2_LOCAL_DB_ENABLED: >-
   {{
@@ -27,6 +53,9 @@ BKP_VOLUME_2_LOCAL_NO_STOP_REQUIRED: >-
 
 BKP_VOLUME_2_LOCAL_DISABLED: >-
   {{ lookup('backup_image', 'disabled') }}
+
+BKP_VOLUME_2_LOCAL_VOLUMES_DISABLED: >-
+  {{ lookup('backup_volume') }}
 
 BKP_VOLUME_2_LOCAL_HARD_RESTART: >-
   {{ lookup('backup_hard_restart_projects') }}
@@ -46,6 +75,11 @@ BKP_VOLUME_2_LOCAL_DISABLED_CLI: >-
     --images-no-backup-required {{ BKP_VOLUME_2_LOCAL_DISABLED | join(' ') }}
   {%- endif %}
 
+BKP_VOLUME_2_LOCAL_VOLUMES_DISABLED_CLI: >-
+  {% if BKP_VOLUME_2_LOCAL_VOLUMES_DISABLED | length > 0 -%}
+    --volumes-no-backup-required {{ BKP_VOLUME_2_LOCAL_VOLUMES_DISABLED | join(' ') }}
+  {%- endif %}
+
 BKP_VOLUME_2_LOCAL_HARD_RESTART_CLI: >-
   {% if DEPLOYMENT_MODE == 'compose' and BKP_VOLUME_2_LOCAL_HARD_RESTART | length > 0 -%}
     --hard-restart-projects {{ BKP_VOLUME_2_LOCAL_HARD_RESTART | join(' ') }}
@@ -55,9 +89,13 @@ BKP_VOLUME_2_LOCAL_CLI_ARGS_LIST:
   - "{{ BKP_VOLUME_2_LOCAL_DB_ROUTINE_CLI }}"
   - "{{ BKP_VOLUME_2_LOCAL_NO_STOP_REQUIRED_CLI }}"
   - "{{ BKP_VOLUME_2_LOCAL_DISABLED_CLI }}"
+  - "{{ BKP_VOLUME_2_LOCAL_VOLUMES_DISABLED_CLI }}"
   - "{{ BKP_VOLUME_2_LOCAL_HARD_RESTART_CLI }}"
 
 BKP_VOLUME_2_LOCAL_EXEC: >-
+  {{ BKP_VOLUME_2_LOCAL_SNAPSHOT_BIN }}
+  --mode {{ BKP_VOLUME_2_LOCAL_SNAPSHOT_MODE }}
+  --
   {{ BKP_VOLUME_2_LOCAL_BAUDOLO_BIN }}
   --compose-dir {{ DIR_COMPOSITIONS }}
   --databases-csv {{ FILE_DATABASE_SECRETS }}

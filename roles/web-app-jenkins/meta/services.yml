@@ -25,6 +25,10 @@ ldap:
   enabled: "{{ 'svc-db-openldap' in group_names }}"
   shared: "{{ 'svc-db-openldap' in group_names }}"
 jenkins:
+  healthcheck:
+    flavor: curl
+    path: login
+    start_period: 10m
   modes:
     compose:
       enabled: true

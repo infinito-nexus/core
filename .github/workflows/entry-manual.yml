@@ -9,32 +9,42 @@ on:
   workflow_dispatch:
     inputs:
       distros:
-        description: "Space-separated distro list (overrides default). Example: 'arch debian'"
+        description: "🐧 Distros to sweep. Example: 'arch debian'"
         required: false
         default: "debian"
         type: string
+      priority:
+        description: "⭐ Roles to deploy first. The rest waits until they are green."
+        required: false
+        default: ""
+        type: string
       whitelist:
-        description: "Empty: diff vs origin/main. '__ALL__': force full deploy. Else: explicit space-separated app ids."
+        description: "🎯 Roles to deploy. Empty: diff vs origin/main. '__ALL__': every role."
         required: false
         default: ""
         type: string
       lifecycles:
-        description: "Lifecycle envelope for test-deploy discovery (comma/space-separated)."
+        description: "♻️ Lifecycle envelope for test-deploy discovery (comma/space-separated)."
         required: false
         default: ""
         type: string
       modes:
-        description: "Deploy modes to test (space-separated: 'swarm compose host'). Only the listed modes run their deploy job."
+        description: "🚀 Deploy modes to test. Only the listed ones run their deploy job."
         required: false
         default: "swarm compose host"
         type: string
-      priority:
-        description: "Optional space-separated app ids for the priority line: deployed first in every mode; the regular line runs the remaining roles only after every priority job succeeded."
+      filesystem:
+        description: "🗄️ Filesystem the docker data root runs on. 'auto' picks one at random per deploy mode; btrfs and zfs are what engage the backup snapshot mode."
         required: false
-        default: ""
-        type: string
+        default: "auto"
+        type: choice
+        options:
+          - "auto"
+          - "ext4"
+          - "btrfs"
+          - "zfs"
       workspace:
-        description: "Run the workspace test (dev-runtime image matrix). 'auto' runs it on a global scope only."
+        description: "🧑‍💻 Run the workspace test (dev-runtime image matrix). 'auto' runs it on a global scope only."
         required: false
         default: "auto"
         type: choice
@@ -43,7 +53,7 @@ on:
           - "true"
           - "false"
       instructions:
-        description: "Run the instructions test (role README Production command). 'auto' runs it on a global scope only."
+        description: "📖 Run the instructions test (role README Production command). 'auto' runs it on a global scope only."
         required: false
         default: "auto"
         type: choice
@@ -69,6 +79,7 @@ jobs:
       lifecycles: ${{ inputs.lifecycles }}
       modes: ${{ inputs.modes }}
       priority: ${{ inputs.priority }}
+      filesystem: ${{ inputs.filesystem }}
       workspace: ${{ inputs.workspace }}
       instructions: ${{ inputs.instructions }}
       force_cancel_in_progress: true

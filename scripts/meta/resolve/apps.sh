@@ -6,7 +6,7 @@ set -euo pipefail
 # lifecycle envelope, INFINITO_MAX_JOBS cap with 'auto') lives in
 # cli.meta.ci.query, shared with the deploy-plan table. Compose and host
 # emit whole role names; swarm emits per-variant "role#variant" tokens.
-# variant_bundles maps the list onto matrix entries.
+# variant.bundles maps the list onto matrix entries.
 #
 # Inputs via env (defaults live in default.env, the single source of truth):
 #   INFINITO_DEPLOY_MODE           compose|swarm|host (required; workflows set it)

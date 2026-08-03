@@ -51,6 +51,9 @@ listmonk:
       http: 9000
     local:
       http: 8019
+  healthcheck:
+    flavor: wget
+    path: health
   public_api_activated: false
   run_after:
     - web-app-matomo

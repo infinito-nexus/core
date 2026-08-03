@@ -757,6 +757,13 @@ test-main-merged:
 test-merge-signed:
 	@bash scripts/git/assert/merge_signed.sh
 
+.PHONY: test-performance
+# Run the runtime-performance suite (not part of the `test` fan-out).
+test-performance: install
+	@INFINITO_TEST_TYPE="performance" \
+	INFINITO_COMPILE=0 \
+	bash scripts/tests/code/wrapper.sh
+
 .PHONY: test-signed
 # Verify HEAD is signed.
 # Note: `git log %G?` returns N for unsigned; gates the pre-push hook against unsigned tips.

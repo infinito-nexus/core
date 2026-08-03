@@ -36,6 +36,9 @@ ldap:
   enabled: false
   shared: false
 akaunting:
+  healthcheck:
+    flavor: tcp
+    start_period: 10m
   modes:
     compose:
       enabled: true

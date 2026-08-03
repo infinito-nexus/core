@@ -35,7 +35,7 @@ _EXEC_TIMEOUT = 120
 _NESTED_TIMEOUT = 600
 _TAR_TIMEOUT = 300
 _SELF_IN_CONTAINER = "/tmp/rescue-self.py"  # noqa: S108 - fixed staging path inside the inspected container
-_LOCAL_DUMPS_DIR = "/tmp/infinito-rescue-diagnostics"  # noqa: S108 - SPOT: group_vars/all/05_paths.yml DIR_RESCUE_DIAGNOSTICS, where in-play role dumps (pg_hba, xwiki) land
+_LOCAL_DUMPS_ENV = "INFINITO_RESCUE_LOCAL_DUMPS_DIR"
 
 
 def runtime_bin() -> str | None:
@@ -101,6 +101,16 @@ def collect_host(out: Path, app_id: str, context: str, stamp: str) -> None:
             ["journalctl", "-b", "-p", "warning", "--since", "-6h", "--no-pager"],
         ),
         ("systemctl.txt", ["systemctl", "list-units", "--all", "--no-pager"]),
+        ("resolv-conf.txt", ["cat", "/etc/resolv.conf"]),
+        ("daemon-json.txt", ["cat", "/etc/docker/daemon.json"]),
+        ("ip-addr.txt", ["ip", "-4", "addr"]),
+        ("sockets-udp.txt", ["ss", "-lunp"]),
+        ("sockets-tcp.txt", ["ss", "-lntp"]),
+        ("nat-rules.txt", ["iptables-save", "-t", "nat"]),
+        (
+            "resolve-probe.txt",
+            ["getent", "hosts", "deb.debian.org", "ghcr.io", "repo.packagist.org"],
+        ),
     ):
         capture(out, name, cmd)
     dmesg = run(["dmesg", "-T"]).stdout.decode(errors="replace")
@@ -120,7 +130,10 @@ def collect_local_dumps(out: Path) -> None:
     INFINITO_RESCUE_DIAGNOSTICS_DIR), so the walk must skip its own
     output subtree or copytree recurses into the growing destination
     until ENAMETOOLONG."""
-    src = Path(_LOCAL_DUMPS_DIR)
+    configured = os.environ.get(_LOCAL_DUMPS_ENV)
+    if not configured:
+        return
+    src = Path(configured)
     if not src.is_dir():
         return
     out_resolved = out.resolve()
@@ -274,6 +287,8 @@ def recurse(
                 f"RESCUE_DEPTH={depth + 1}",
                 "-e",
                 f"RESCUE_MAX_DEPTH={max_depth}",
+                "-e",
+                f"{_LOCAL_DUMPS_ENV}={os.environ.get(_LOCAL_DUMPS_ENV, '')}",
                 name,
                 "python3",
                 _SELF_IN_CONTAINER,
@@ -333,6 +348,8 @@ def main(argv: list[str]) -> int:
         f"   captured: {len(containers)} container(s), {len(services)} service(s), "
         f"{nested_n} nested runtime(s) at depth {depth}, journal + host resources"
     )
+    if not os.environ.get(_LOCAL_DUMPS_ENV):
+        print(f"   {_LOCAL_DUMPS_ENV} unset: in-play role dumps were not collected")
     print("   full detail in the uploaded rescue-diagnostics artifact")
     return 1
 

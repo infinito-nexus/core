@@ -8,6 +8,13 @@
 - name: "📂 Load Mail Update routines for '{{ application_id }} - master'"
   include_tasks: "{{ role_path }}/tasks/update/03_mail_master.yml"
 
+- name: "⏳ Reap the client update job"
+  ansible.builtin.include_tasks: utils/async/reap.yml
+  vars:
+    async_reap_jobs: "{{ kc_client_update.results | default([kc_client_update]) }}"
+    async_reap_label: "Keycloak client settings"
+    async_reap_tolerate: []
+
 - name: "📂 Load RBAC Update routines for '{{ application_id }}'"
   include_tasks: "{{ role_path }}/tasks/update/04_rbac_client_scope.yml"
 
@@ -39,3 +46,12 @@
 - name: "📂 Load Users Update routines for '{{ application_id }}' (emailVerified)"
   include_tasks: "{{ role_path }}/tasks/update/08_users/email_verified.yml"
   when: KEYCLOAK_USER_EMAILS_VERIFIED | bool
+
+- name: "⏳ Reap the remaining Keycloak update jobs"
+  ansible.builtin.include_tasks: utils/async/reap.yml
+  vars:
+    async_reap_jobs: >-
+      {{ (kc_rbac_default.results | default([kc_rbac_default] if kc_rbac_default is defined else []))
+         + (kc_userprofile.results | default([kc_userprofile] if kc_userprofile is defined else [])) }}
+    async_reap_label: "Keycloak realm updates"
+    async_reap_tolerate: []

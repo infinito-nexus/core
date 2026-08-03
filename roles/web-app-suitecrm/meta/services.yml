@@ -34,6 +34,9 @@ mariadb:
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-mariadb' in group_names }}"
 suitecrm:
+  healthcheck:
+    flavor: curl
+    start_period: 20m
   modes:
     compose:
       enabled: true

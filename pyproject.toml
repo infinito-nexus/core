@@ -237,7 +237,6 @@ ignore = [
 "plugins/lookup/prometheus_integration_active.py" = ["BLE001"]
 "plugins/lookup/version.py" = ["BLE001"]
 "utils/cache/base.py" = ["BLE001"]
-"utils/github/variant_bundles.py" = ["BLE001"]
 "utils/nexus/list_apt_proxy_repos.py" = ["BLE001"]
 "utils/roles/applications/in_group_deps.py" = ["BLE001"]
 "utils/roles/applications/services/resources.py" = ["BLE001"]

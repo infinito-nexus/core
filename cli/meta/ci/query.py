@@ -41,7 +41,7 @@ MODES = ("compose", "swarm", "host")
 def expands_variants(mode: str) -> bool:
     """Whether *mode* queries, ranks and triggers one CI job per variant.
     Swarm does (``role#variant`` tokens through the whole chain); compose
-    and host bundle every variant into whole-role jobs (variant_bundles
+    and host bundle every variant into whole-role jobs (variant.bundles
     SPOT), so their query rows stay whole-role too."""
     return mode == "swarm"
 

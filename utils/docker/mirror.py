@@ -7,8 +7,10 @@ the registry probes that read them.
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 from utils import PROJECT_ROOT
+from utils.cache.files import read_text
 from utils.docker.image.ref import DOCKER_HUB_REGISTRIES, split_registry_and_name
 
 _MIRROR_PREFIX_ENV = "INFINITO_GHCR_MIRROR_PREFIX"
@@ -43,6 +45,25 @@ def _normalise_registry(registry: str | None) -> str:
     return registry
 
 
+def _config_path() -> Path:
+    """Return the git config file, following the linked-worktree indirection.
+
+    In a linked worktree ``.git`` is a file naming that worktree's gitdir, so
+    reading ``.git/config`` raises NotADirectoryError and every caller silently
+    loses the remote - which costs the image mirror and sends every probe to the
+    upstream registry. The shared config lives in the common dir the worktree's
+    ``commondir`` points at.
+    """
+    git = PROJECT_ROOT / ".git"
+    if git.is_dir():
+        return git / "config"
+    gitdir = Path(read_text(str(git)).partition("gitdir:")[2].strip())
+    commondir = gitdir / "commondir"
+    if commondir.is_file():
+        gitdir = (gitdir / read_text(str(commondir)).strip()).resolve()
+    return gitdir / "config"
+
+
 def _git_config() -> dict[str, str]:
     """Return ``.git/config`` as ``{"<section>.<key>": value}``.
 
@@ -51,9 +72,7 @@ def _git_config() -> dict[str, str]:
     branch are enough to make it raise).
     """
     try:
-        raw = (PROJECT_ROOT / ".git" / "config").read_text(  # nocheck: cache-read
-            encoding="utf-8"
-        )
+        raw = _config_path().read_text(encoding="utf-8")  # nocheck: cache-read
     except OSError:
         return {}
 

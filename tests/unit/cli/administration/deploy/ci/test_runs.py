@@ -5,6 +5,7 @@ from typing import ClassVar
 
 from cli.administration.deploy.ci import runs
 from tests.utils.ci_job_names import deploy_job_name
+from utils.github import run_name
 
 
 def _job(name: str, conclusion: str | None, status: str = "completed") -> dict:
@@ -216,6 +217,29 @@ class TestSlugFromUrl(unittest.TestCase):
     def test_raises_on_non_github(self) -> None:
         with self.assertRaises(ValueError):
             runs.slug_from_url("https://example.com/x/y")
+
+
+class TestDistrosFromTitle(unittest.TestCase):
+    """A retrigger has to sweep the distros the source run swept.
+
+    The REST API answers ``inputs: null`` for a finished workflow_dispatch, so
+    the run title entry-manual.yml builds is the only record of them. Guessing
+    wrong is silent: entry-manual.yml defaults to debian alone, so a failure
+    that only reproduces on centos comes back green.
+    """
+
+    def test_the_distros_are_read_back_from_a_manual_run(self) -> None:
+        title = run_name.title_with(
+            "distros", "debian arch centos", "diff-derived (origin/main)"
+        )
+        self.assertEqual(runs.distros_from_title(title), "debian arch centos")
+
+    def test_a_priority_segment_does_not_bleed_into_them(self) -> None:
+        title = run_name.title_with("distros", "debian", "web-app-x ⭐; __ALL__")
+        self.assertEqual(runs.distros_from_title(title), "debian")
+
+    def test_a_run_from_another_entry_point_yields_no_override(self) -> None:
+        self.assertEqual(runs.distros_from_title("CI: Pull Request"), "")
 
 
 if __name__ == "__main__":

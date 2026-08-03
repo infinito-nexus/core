@@ -22,6 +22,9 @@
     attributes:
       objectClass: "{{ missing_auxiliary }}"
     state: present
+  register: openldap_aux_classes
+  changed_when: false
+  # rationale: async; class additions run overlapped, reaped at the end of this file
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
   loop: "{{ ldap_users_with_classes.results }}"
@@ -33,3 +36,10 @@
          | difference(item.objectClass | default([]))
       }}
   when: missing_auxiliary | length > 0
+
+- name: "⏳ Reap the LDAP auxiliary class jobs"
+  ansible.builtin.include_tasks: utils/async/reap.yml
+  vars:
+    async_reap_jobs: "{{ openldap_aux_classes.results | default([]) }}"
+    async_reap_label: "LDAP auxiliary classes"
+    async_reap_tolerate: []

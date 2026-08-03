@@ -64,14 +64,28 @@
 - name: Build compose
   ansible.builtin.shell: |
     set -euo pipefail
-    compose build || {
-      echo "Retrying without cache and pulling bases...";
-      compose build --no-cache --pull;
-    }
+    compose build
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    executable: /bin/bash
+  register: compose_build
+  timeout: "{{ lookup('timeout', 3600) | int }}"
+  retries: 3
+  delay: 30
+  until: compose_build is succeeded
+  ignore_errors: true
+  listen:
+    - compose build
+
+- name: Rebuild compose without cache once the spaced retries are exhausted
+  ansible.builtin.shell: |
+    set -euo pipefail
+    compose build --no-cache --pull
   args:
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
     executable: /bin/bash
   timeout: "{{ lookup('timeout', 3600) | int }}"
+  when: compose_build is failed
   listen:
     - compose build
 

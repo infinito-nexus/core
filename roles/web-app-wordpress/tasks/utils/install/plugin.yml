@@ -1,0 +1,42 @@
+---
+- name: "📦 Normalise the install contract for '{{ plugin_name }}'"
+  ansible.builtin.set_fact:
+    wp_plugin_required: "{{ lookup('config', application_id, 'addons.' ~ plugin_name ~ '.required', false) | bool }}"
+  changed_when: false
+
+- name: "🔎 Check if WordPress plugin '{{ plugin_name }}' is installed"
+  ansible.builtin.shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
+    wp plugin is-installed {{ plugin_name }}
+    --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+  register: wp_plugin_present
+  changed_when: false
+  failed_when: wp_plugin_present.rc not in [0, 1]
+
+- name: "📦 Install WordPress plugin '{{ plugin_name }}' via WP CLI"
+  ansible.builtin.shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
+    wp plugin install {{ plugin_name }}
+    --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+  register: wp_plugin_install
+  when: wp_plugin_present.rc != 0
+  failed_when: wp_plugin_install.rc != 0 and wp_plugin_required | bool
+
+- name: "🟡 Skip optional WordPress plugin '{{ plugin_name }}' after a failed install"
+  ansible.builtin.debug:
+    msg: >-
+      ::warning title=addon install failed::{{ application_id }} addon
+      '{{ plugin_name }}' did not install (rc={{ wp_plugin_install.rc }});
+      activation skipped, deploy continues because the addon is not required
+  when: (wp_plugin_install.rc | default(0)) != 0
+
+- name: "✅ Activate WordPress plugin '{{ plugin_name }}' via WP CLI"
+  ansible.builtin.shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
+    wp plugin activate {{ plugin_name }}
+    --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+  register: wp_plugin_activate
+  when: (wp_plugin_install.rc | default(0)) == 0
+  changed_when: >
+    wp_plugin_activate.rc == 0
+    and ('already' not in (wp_plugin_activate.stderr | lower))

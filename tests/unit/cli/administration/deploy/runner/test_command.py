@@ -28,7 +28,6 @@ class TestRunnerBuildParser(unittest.TestCase):
             ["myhost", "--roles", "svc-runner", "--distribution", "debian"]
         )
         self.assertEqual(args.output, DEFAULT_OUTPUT)
-        self.assertEqual(DEFAULT_OUTPUT, "/tmp/infinito-runner-deploy.log")
 
     def test_port_defaults_to_none(self):
         args = build_parser().parse_args(

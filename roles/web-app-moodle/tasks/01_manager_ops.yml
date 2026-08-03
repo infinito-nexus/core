@@ -20,7 +20,7 @@
 
 - name: ⏳ Wait until the Moodle container is healthy
   ansible.builtin.shell: >
-    container inspect --format '{% raw %}{{.State.Health.Status}}{% endraw %}' {{ MOODLE_CONTAINER_ADDRESS }}
+    container inspect --type container --format '{% raw %}{{.State.Health.Status}}{% endraw %}' {{ MOODLE_CONTAINER_ADDRESS }}
   register: health_check
   until: health_check.stdout.strip() == "healthy"
   retries: 120

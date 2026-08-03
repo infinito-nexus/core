@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import datetime
+import json
 import os
 import subprocess
 import sys
@@ -35,27 +36,18 @@ def run_ansible_playbook(
     start_time = datetime.datetime.now(tz=datetime.UTC)
     print(f"\n▶️ Script started at: {start_time.isoformat()}\n")
 
-    # ---------------------------------------------------------
-    # 1) Cleanup Phase (wrapper-level)
-    # ---------------------------------------------------------
     if modes.get("MODE_CLEANUP", False):
         print("\n🧹 Cleaning up...\n", flush=True)
         run_make(repo_root, "clean")
     else:
         print("\n🧹 Cleanup skipped (MODE_CLEANUP not set or False)\n")
 
-    # ---------------------------------------------------------
-    # 2) Build Phase
-    # ---------------------------------------------------------
     if not skip_build:
         print("\n🛠️  Running project build (make setup)...\n")
         run_make(repo_root, "setup")
     else:
         print("\n🛠️  Build skipped (--skip-build)\n")
 
-    # ---------------------------------------------------------
-    # 3) `disable` env var consistency guard
-    # ---------------------------------------------------------
     try:
         assert_services_disabled_inventory_consistency_from_env(
             inventory_dir=Path(inventory).resolve().parent,
@@ -65,9 +57,6 @@ def run_ansible_playbook(
         print(f"\n[ERROR] {exc}\n", file=sys.stderr)
         sys.exit(1)
 
-    # ---------------------------------------------------------
-    # 4) Inventory Validation Phase
-    # ---------------------------------------------------------
     if modes.get("MODE_ASSERT") is False:
         print("\n🔍 Inventory assertion explicitly disabled (MODE_ASSERT=false)\n")
     else:
@@ -85,22 +74,17 @@ def run_ansible_playbook(
             )
             sys.exit(1)
 
-    # ---------------------------------------------------------
-    # 5) Build ansible-playbook command
-    # ---------------------------------------------------------
     cmd: list[str] = ["ansible-playbook", "-i", inventory, playbook_path]
 
     if limit:
         cmd.extend(["-l", limit])
 
-    # Wrapper-provided extra-vars first; user can override via passthrough -e later.
     if allowed_applications:
         joined = ",".join(allowed_applications)
         cmd.extend(["-e", f"APPLICATIONS_WHITELIST={joined}"])
 
-    for key, value in modes.items():
-        val = str(value).lower() if isinstance(value, bool) else str(value)
-        cmd.extend(["-e", f"{key}={val}"])
+    if modes:
+        cmd.extend(["-e", json.dumps(modes)])
 
     if password_file:
         cmd.extend(["--vault-password-file", password_file])
@@ -114,7 +98,6 @@ def run_ansible_playbook(
     if verbose:
         cmd.append("-" + "v" * verbose)
 
-    # Native ansible-playbook flags passthrough (must come last for override behavior)
     if ansible_args:
         cmd.extend(ansible_args)
 

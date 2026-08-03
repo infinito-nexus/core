@@ -39,6 +39,9 @@
           SET @collation := '{{ MARIADB_COLLATION }}';
           {{ lookup('file', role_path ~ '/files/sql/create/database.sql') }}
       register: mariadb_create_db
+      retries: 30
+      delay: 3
+      until: mariadb_create_db.rc == 0
       delegate_to: "{{ STACK_HOST }}"
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       changed_when: false
@@ -55,6 +58,9 @@
           SET @db_name := '{{ database_name }}';
           {{ lookup('file', role_path ~ '/files/sql/create/user_grant.sql') }}
       register: mariadb_create_user
+      retries: 30
+      delay: 3
+      until: mariadb_create_user.rc == 0
       delegate_to: "{{ STACK_HOST }}"
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       changed_when: false

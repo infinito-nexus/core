@@ -1,0 +1,27 @@
+---
+- name: "⏳ Wait until Nextcloud is reachable on its local HTTP port"
+  wait_for:
+    host: "{{ DOCKER_REACH_HOST }}"
+    port: "{{ lookup('config', application_id, 'services.nextcloud.ports.local.http') }}"
+    timeout: "{{ lookup('timeout', 120) | int }}"
+    delay: 2
+    state: started
+
+- name: ⏳ Wait until Nextcloud is installed (occ status)
+  shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} status"
+  register: occ_status
+  retries: 60
+  delay: 5
+  until: >
+    occ_status.rc == 0 and
+    (occ_status.stdout | default('')) is search('installed: true')
+  changed_when: false
+
+- name: "📄 Install the infinito additional-config loader into config/"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  NEXTCLOUD_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      container exec -i -u root {{ NEXTCLOUD_LOCAL_CID | quote }}
+      sh -c 'cat > {{ NEXTCLOUD_DOCKER_CONF_LOADER_PATH }}
+      && chmod 0444 {{ NEXTCLOUD_DOCKER_CONF_LOADER_PATH }}'
+    stdin: "{{ lookup('template', 'include.php.j2') }}"
+  changed_when: true

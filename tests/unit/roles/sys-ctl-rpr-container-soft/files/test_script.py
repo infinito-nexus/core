@@ -59,7 +59,6 @@ class TestRepairDockerSoft(unittest.TestCase):
             calls["sleeps"] += 1
 
         def fake_time():
-            # each call advances time by 610s
             t["now"] += 610
             return t["now"]
 
@@ -89,7 +88,6 @@ class TestRepairDockerSoft(unittest.TestCase):
         def fake_print_bash(cmd):
             cmd_log.append(cmd)
 
-            # 1) container ps mocks (STRICT: prefilter compose-labeled containers)
             if cmd.startswith(
                 "container ps --filter label=com.docker.compose.project --filter health=unhealthy"
             ):
@@ -97,12 +95,10 @@ class TestRepairDockerSoft(unittest.TestCase):
             if cmd.startswith(
                 "container ps --filter label=com.docker.compose.project --filter status=exited"
             ):
-                # non-compose containers are filtered out by the new container ps command
                 return ["app1-worker-1"]
 
-            # 2) container inspect labels (only called for compose containers now)
             if cmd.startswith(
-                "container inspect -f '{{ index .Config.Labels \"com.docker.compose.project\" }}'"
+                "container inspect --type container -f '{{ index .Config.Labels \"com.docker.compose.project\" }}'"
             ):
                 container = cmd.split()[-1]
                 if container in ("app1-web-1", "app1-worker-1"):
@@ -112,7 +108,7 @@ class TestRepairDockerSoft(unittest.TestCase):
                 return [""]
 
             if cmd.startswith(
-                "container inspect -f '{{ index .Config.Labels \"com.docker.compose.project.working_dir\" }}'"
+                "container inspect --type container -f '{{ index .Config.Labels \"com.docker.compose.project.working_dir\" }}'"
             ):
                 container = cmd.split()[-1]
                 if container in ("app1-web-1", "app1-worker-1"):
@@ -121,7 +117,6 @@ class TestRepairDockerSoft(unittest.TestCase):
                     return ["/BASE/db"]
                 return [""]
 
-            # 3) wrapper invocations
             if "compose" in cmd:
                 return []
 
@@ -141,7 +136,6 @@ class TestRepairDockerSoft(unittest.TestCase):
 
             errors = s.main("/BASE", manipulation_services=[], timeout=None)
 
-            # With label prefilter, non-compose containers are ignored -> 0 errors
             self.assertEqual(errors, 0)
 
             restart_cmds = [c for c in cmd_log if "compose" in c and " restart" in c]
@@ -158,7 +152,6 @@ class TestRepairDockerSoft(unittest.TestCase):
                 )
             )
 
-            # Wrapper calls must include --project
             self.assertTrue(
                 all("--project" in c for c in restart_cmds),
                 "Wrapper calls must include --project",

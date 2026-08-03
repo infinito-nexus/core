@@ -10,7 +10,7 @@
     {{ lookup('compose_only', 'container_name', BRIDGY_CONTAINER) }}
     hostname: "{{ container_hostname }}"
     {{ lookup('container_ports', ['bridgy-fed', 'http', DOCKER_BIND_HOST]) | indent(4) }}
-    {% include 'roles/sys-svc-container/templates/healthcheck/tcp.yml.j2' %}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_networks') | indent(4) }}
 

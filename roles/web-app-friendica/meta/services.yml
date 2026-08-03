@@ -2,6 +2,8 @@
 # nocheck: seaweedfs-required, object storage not implemented for this role
 # nocheck: playwright-service-flag, self-provider
 friendica:
+  healthcheck:
+    flavor: msmtp_curl
   modes:
     compose:
       enabled: true

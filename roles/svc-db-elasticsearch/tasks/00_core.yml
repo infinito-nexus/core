@@ -10,7 +10,7 @@
 
 - name: "⏳ ELASTICSEARCH | Wait until container is running (not restarting)"
   ansible.builtin.shell: >
-    container inspect --format '{{ "{{.State.Status}}" }} {{ "{{.State.Restarting}}" }}' {{ ELASTICSEARCH_CONTAINER_ADDRESS }}
+    container inspect --type container --format '{{ "{{.State.Status}}" }} {{ "{{.State.Restarting}}" }}' {{ ELASTICSEARCH_CONTAINER_ADDRESS }}
   register: es_state
   retries: 120
   delay: 2

@@ -8,7 +8,7 @@
 
 - name: "🔎 Check health status of '{{ item }}' container"
   ansible.builtin.shell: >
-    container inspect --format '{{ "{{.State.Health.Status}}" }}'
+    container inspect --type container --format '{{ "{{.State.Health.Status}}" }}'
     {{ GITLAB_WAIT_LOCAL_CID | quote }}
   register: healthcheck
   retries: 90

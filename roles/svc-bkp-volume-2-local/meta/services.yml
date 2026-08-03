@@ -12,6 +12,7 @@ volume-2-local:
   shared: true
   provides: container_backup
   lifecycle: beta
+  snapshot_mode: auto
   min_storage: 0GB
   cpus: "0.5"
   mem_reservation: "256m"

@@ -133,6 +133,12 @@ jobs:
       - validate-pr-branch-prefix
       - detect-affected-roles
     if: ${{ github.event_name == 'pull_request' && needs.detect-pr-scope.outputs.run_ci_orchestrator == 'true' }}
+    permissions:
+      actions: write
+      contents: read
+      packages: write
+      security-events: write
+      issues: write
     uses: ./.github/workflows/ci-orchestrator.yml
     with:
       distros: "arch debian ubuntu fedora centos"

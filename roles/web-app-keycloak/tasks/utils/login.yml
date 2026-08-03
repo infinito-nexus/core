@@ -1,7 +1,7 @@
 ---
 - name: "⏳ Keycloak login | Wait for keycloak container to be running"
   ansible.builtin.shell: >
-    container inspect -f '{{ "{{" }}.State.Running{{ "}}" }}'
+    container inspect --type container -f '{{ "{{" }}.State.Running{{ "}}" }}'
     {{ lookup('container_address', application_id, entity_name) }}
   register: kc_running_compose
   changed_when: false
@@ -24,7 +24,7 @@
 
 - name: "⏳ Keycloak login | Wait for keycloak container to be healthy"
   ansible.builtin.shell: >
-    container inspect --format '{{ "{{" }}.State.Health.Status{{ "}}" }}'
+    container inspect --type container --format '{{ "{{" }}.State.Health.Status{{ "}}" }}'
     {{ KEYCLOAK_LOCAL_CID | quote }}
   register: kc_health
   retries: 60

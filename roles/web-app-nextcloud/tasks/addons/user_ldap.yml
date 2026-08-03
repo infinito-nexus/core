@@ -57,5 +57,3 @@
 - name: 🗂️ Warm LDAP cache (to guaranty that all LDAP users are present)
   shell: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} ldap:search ""
-  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"

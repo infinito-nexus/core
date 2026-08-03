@@ -96,7 +96,7 @@
   register: nextcloud_mm_oauth_url_set
   changed_when: "' set to ' in nextcloud_mm_oauth_url_set.stdout"
 
-# nocheck: container-exec-resolver NEXTCLOUD_CONTAINER_ADDRESS is a swarm-mode subshell that only a shell can expand; command/argv would pass it literally
+# nocheck: container-exec-resolver NEXTCLOUD_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
 - name: 🔐 Store integration_mattermost OAuth credentials Nextcloud-encrypted (lazy)
   ansible.builtin.shell:
     cmd: >-
@@ -104,7 +104,7 @@
       -e NC_APP_ID=integration_mattermost
       -e NC_ENC_MODE=sensitive
       -e "NC_ENC_B64={{ {'client_id': nextcloud_mm_client_id, 'client_secret': nextcloud_mm_client_secret} | to_json | b64encode }}"
-      {{ NEXTCLOUD_CONTAINER_ADDRESS }} php
+      {{ NEXTCLOUD_LOCAL_CID | quote }} php
     stdin: "{{ lookup('file', 'set_encrypted_appconfig.php') }}"
   register: nextcloud_mm_enc_set
   changed_when: "'OK' in nextcloud_mm_enc_set.stdout"

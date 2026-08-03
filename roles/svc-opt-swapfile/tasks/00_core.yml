@@ -9,6 +9,7 @@
 - name: ▶️ Execute create swapfile script
   shell: "{{ SWAPFILE_PKG }} '{{ SWAPFILE_SIZE }}'"
   become: true
+  # rationale: async; no register and no notify, and nothing in the repo reads swap state
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
 

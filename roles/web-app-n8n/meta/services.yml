@@ -42,6 +42,10 @@ postgres:
   enabled: true
   shared: "{{ 'svc-db-postgres' in group_names }}"
 n8n:
+  healthcheck:
+    flavor: wget
+    path: healthz
+    start_period: 5m
   modes:
     compose:
       enabled: true

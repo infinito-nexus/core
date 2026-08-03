@@ -14,5 +14,3 @@
     state: stopped
     enabled: false
   when: dummy_timer.changed or SYS_TIMER_ALL_ENABLED | bool
-  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"

@@ -94,8 +94,6 @@
     path: "{{ lookup('container', application_id, 'directories.instance') }}mautrix/{{ item.bridge_name }}/registration.yaml"
     mode: "0755"
   loop: "{{ MATRIX_BRIDGES }}"
-  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
 
 - name: "🔄 Restart synapse to load bridge registrations (compose mode)"
   command:

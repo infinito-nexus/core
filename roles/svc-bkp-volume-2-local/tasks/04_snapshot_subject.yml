@@ -1,0 +1,13 @@
+---
+- name: 📁 create {{ BKP_VOLUME_2_LOCAL_SUBVOLUME_BIN }}
+  ansible.builtin.copy:
+    src: shell/ensure_subject_subvolume.sh
+    dest: "{{ BKP_VOLUME_2_LOCAL_SUBVOLUME_BIN }}"
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: 🧱 Carve the docker data root into a btrfs subvolume so it can be snapshotted
+  ansible.builtin.command: "{{ BKP_VOLUME_2_LOCAL_SUBVOLUME_BIN }}"
+  register: bkp_volume_2_local_subvolume
+  changed_when: "'converting' in bkp_volume_2_local_subvolume.stdout"

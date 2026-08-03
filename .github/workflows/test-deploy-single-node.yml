@@ -32,6 +32,11 @@ on:
         required: false
         type: string
         default: ""
+      filesystem:
+        description: "Filesystem the docker data root runs on (ext4, btrfs, zfs). Empty picks one at random."
+        required: false
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -48,6 +53,7 @@ jobs:
       lifecycles: ${{ inputs.lifecycles }}
       blacklist: ${{ inputs.blacklist }}
       marker: ${{ inputs.marker }}
+      filesystem: ${{ inputs.filesystem }}
 
   host:
     name: 💻 Host
@@ -59,4 +65,5 @@ jobs:
       lifecycles: ${{ inputs.lifecycles }}
       blacklist: ${{ inputs.blacklist }}
       marker: ${{ inputs.marker }}
+      filesystem: ${{ inputs.filesystem }}
       exclude_compose_covered: ${{ contains(inputs.modes, 'compose') && 'true' || 'false' }}

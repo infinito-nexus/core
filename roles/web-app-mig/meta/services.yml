@@ -26,6 +26,8 @@ redis:
   backup:
     disabled: true
 mig:
+  healthcheck:
+    flavor: curl
   modes:
     compose:
       enabled: true

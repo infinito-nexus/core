@@ -1,6 +1,1 @@
 ---
-# No exception logic required: the upstream integration_peertube app is a search + link-preview
-# connector with no OAuth coupling (it has no client_id/client_secret/oauth_instance_url config and
-# no /oauth/authorize flow). The only key it reads (instances) is set generically by the config SPOT
-# (meta/addons/integration_peertube.yml plugin_configuration + tasks/plugin). Coupling is verified by
-# the Playwright spec asserting the admin panel is pinned to the partner instance.

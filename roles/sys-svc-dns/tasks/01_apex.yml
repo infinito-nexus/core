@@ -9,6 +9,7 @@
     proxied: false
     ttl: 1
     state: present
+  # rationale: async; no register and no notify, the sibling AAAA and CAA write other record types
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
 
@@ -24,5 +25,6 @@
     state: present
   when:
     - (networks.internet.ip6 | default('') | trim) != ''
+  # rationale: async; last task of the file, no register and no notify, nothing reads AAAA back
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"

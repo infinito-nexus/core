@@ -1,0 +1,12 @@
+---
+- block:
+    - include_tasks: 06_plugin/01_install.yml
+  when: plugin_value.enabled | bool
+
+- name: 🔴 disable {{ plugin_key }} nextcloud plugin
+  shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} app:disable {{ plugin_key }}"
+  changed_when: false
+  when: not (plugin_value.enabled | bool)
+  # rationale: async; caller includes this file per plugin so the disables overlap, nothing reads the state
+  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
+  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"

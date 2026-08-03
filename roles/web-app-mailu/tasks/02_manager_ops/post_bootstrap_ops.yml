@@ -15,7 +15,6 @@
     mailu_user_key: "{{ user_item.key }}"
     mailu_user_name: "{{ user_item.value.username }}"
     mailu_user_password: "{{ user_item.value.password }}"
-    mailu_token_ip: "{{ user_item.value.ip | default(networks.internet.ip4) }}"
     mailu_token_name: "{{ SOFTWARE_NAME ~ ' Token for ' ~ user_item.value.username }}"
     mailu_user_roles: "{{ user_item.value.roles | default([]) }}"
     mailu_user_accounts: "{{ user_item.value.accounts | default([]) }}"

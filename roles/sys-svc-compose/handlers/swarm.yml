@@ -9,14 +9,31 @@
 - name: "swarm: pre-deploy build of local images"
   ansible.builtin.shell: |
     set -euo pipefail
-    compose build || {
-      echo "Retrying without cache and pulling bases...";
-      compose build --no-cache --pull;
-    }
+    compose build
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    executable: /bin/bash
+  register: _swarm_pre_deploy_build
+  timeout: "{{ lookup('timeout', 3600) | int }}"
+  retries: 3
+  delay: 30
+  until: _swarm_pre_deploy_build is succeeded
+  ignore_errors: true
+  listen:
+    - compose up
+    - swarm deploy
+  run_once: true
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "swarm: rebuild without cache once the spaced retries are exhausted"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    compose build --no-cache --pull
   args:
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
     executable: /bin/bash
   timeout: "{{ lookup('timeout', 3600) | int }}"
+  when: _swarm_pre_deploy_build is failed
   listen:
     - compose up
     - swarm deploy
@@ -37,6 +54,29 @@
     - compose up
     - swarm deploy
   when: (swarm.registry.host | default('') | length > 0) and (application_id != 'svc-registry-docker')
+  run_once: true
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "swarm: pre-pull images the local registry cannot serve"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    images="$(compose config --images)"
+    [ -n "$images" ] || { echo "no images resolved from compose config" >&2; exit 1; }
+    printf '%s\n' "$images" | xargs -n1 docker pull
+  args:
+    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+    executable: /bin/bash
+  register: _swarm_bypass_pull
+  timeout: "{{ lookup('timeout', 600) | int }}"
+  retries: 5
+  delay: 30
+  until: _swarm_bypass_pull is succeeded
+  listen:
+    - compose up
+    - swarm deploy
+  when:
+    - swarm.registry.host | default('') | length > 0
+    - _swarm_registry_sync is skipped
   run_once: true
   delegate_to: "{{ STACK_HOST }}"
 

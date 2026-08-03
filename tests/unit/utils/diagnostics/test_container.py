@@ -71,7 +71,7 @@ class CollectTests(unittest.TestCase):
             dumps = Path(td) / "dumps"
             (dumps / "pg").mkdir(parents=True)
             (dumps / "pg" / "pg_hba.conf").write_text("evidence")
-            with mock.patch.object(mod, "_LOCAL_DUMPS_DIR", str(dumps)):
+            with mock.patch.dict(os.environ, {mod._LOCAL_DUMPS_ENV: str(dumps)}):
                 mod.collect_local_dumps(out)
             self.assertEqual(
                 (
@@ -90,7 +90,7 @@ class CollectTests(unittest.TestCase):
             out.mkdir(parents=True)
             (src / "pg_hba.txt").write_text("evidence")
             (out / "meta.txt").write_text("snapshot")
-            with mock.patch.object(mod, "_LOCAL_DUMPS_DIR", str(src)):
+            with mock.patch.dict(os.environ, {mod._LOCAL_DUMPS_ENV: str(src)}):
                 mod.collect_local_dumps(out)
             dumps = out / "local-dumps"
             self.assertTrue((dumps / "pg_hba.txt").is_file())
@@ -101,7 +101,17 @@ class CollectTests(unittest.TestCase):
         mod = _load()
         with tempfile.TemporaryDirectory() as td:
             out = Path(td)
-            with mock.patch.object(mod, "_LOCAL_DUMPS_DIR", str(Path(td) / "absent")):
+            with mock.patch.dict(
+                os.environ, {mod._LOCAL_DUMPS_ENV: str(Path(td) / "absent")}
+            ):
+                mod.collect_local_dumps(out)
+            self.assertFalse((out / "local-dumps").exists())
+
+    def test_collect_local_dumps_skips_when_the_dir_is_not_configured(self):
+        mod = _load()
+        with tempfile.TemporaryDirectory() as td:
+            out = Path(td)
+            with mock.patch.dict(os.environ, {mod._LOCAL_DUMPS_ENV: ""}):
                 mod.collect_local_dumps(out)
             self.assertFalse((out / "local-dumps").exists())
 

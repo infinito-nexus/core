@@ -144,7 +144,17 @@
           -c 'mc alias set minio {{ MINIO_API_URL | quote }} "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD" >/dev/null \
               && mc admin policy create minio {{ MINIO_OIDC_POLICY_NAME | quote }} /dev/stdin'
   args: { executable: /bin/bash }
+  register: minio_policy_create
+  changed_when: false
+  # rationale: async; consumed only by the STS playwright spec, reaped at the end of this file
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
   when:
     - mc_policy_info_raw.rc != 0
+
+- name: "⏳ Reap the MinIO policy job"
+  ansible.builtin.include_tasks: utils/async/reap.yml
+  vars:
+    async_reap_jobs: "{{ minio_policy_create.results | default([minio_policy_create]) }}"
+    async_reap_label: "MinIO OIDC policy"
+    async_reap_tolerate: []

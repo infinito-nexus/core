@@ -12,6 +12,9 @@ redis:
   enabled: false
   shared: "{{ 'svc-db-redis' in group_names }}"
 collabora:
+  healthcheck:
+    flavor: tcp
+    path: hosting/discovery
   modes:
     compose:
       enabled: true

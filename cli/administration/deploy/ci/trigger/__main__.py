@@ -74,6 +74,7 @@ def main(argv: list[str] | None = None) -> int:
 
     whitelist = ""
     priority = ""
+    distros = ""
     if args.apps is not None:
         apps = " ".join(args.apps.split())
         if not apps:
@@ -83,11 +84,13 @@ def main(argv: list[str] | None = None) -> int:
         scope = "docker" if args.failed == "compose" else args.failed
         if args.run:
             if args.run.isdigit():
-                jobs = runs.fetch_jobs(args.run, repo=repo)
+                source = runs.fetch_run(args.run, repo=repo)
             else:
-                jobs = runs.fetch_jobs(
+                source = runs.fetch_run(
                     runs.run_id_from_url(args.run), repo=runs.slug_from_url(args.run)
                 )
+            jobs = source.get("jobs", [])
+            title = source.get("displayTitle", "")
         else:
             run = runs.find_last_deploy_run(branch, repo=repo)
             if run is None:
@@ -97,6 +100,7 @@ def main(argv: list[str] | None = None) -> int:
                 )
                 return 1
             jobs = run["_jobs"]
+            title = run.get("displayTitle", "")
         failed = runs.failed_roles(
             runs.parse_role_statuses(jobs), scope, strict=args.strict
         )
@@ -104,6 +108,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"Nothing failed ({args.failed}) in that run; not triggering.")
             return 0
         priority = " ".join(failed)
+        distros = runs.distros_from_title(title)
     else:
         whitelist = _ALL
 
@@ -113,8 +118,11 @@ def main(argv: list[str] | None = None) -> int:
         label = "all roles"
     else:
         label = whitelist
-    print(f"Triggering {_WORKFLOW} on {repo}@{branch} for: {label}")
-    runs.dispatch_workflow(_WORKFLOW, branch, whitelist, priority=priority, repo=repo)
+    on_distros = f" on {distros}" if distros else ""
+    print(f"Triggering {_WORKFLOW} on {repo}@{branch} for: {label}{on_distros}")
+    runs.dispatch_workflow(
+        _WORKFLOW, branch, whitelist, priority=priority, distros=distros, repo=repo
+    )
     print("Dispatched. Watch with: infinito administration deploy ci status")
     return 0
 

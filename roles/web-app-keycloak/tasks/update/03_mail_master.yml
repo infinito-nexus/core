@@ -10,5 +10,6 @@
     kcadm_exec: "{{ KEYCLOAK_EXEC_KCADM }}"
     assert_mode: "{{ MODE_ASSERT }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  # rationale: async; writes the master realm smtpServer, which nothing reads back
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"

@@ -491,6 +491,8 @@
       "Bash(gh variable *)",
       "Bash(gh workflow disable*)",
       "Bash(gh workflow enable*)",
+      "Bash(git --git-dir*)",
+      "Bash(git --work-tree*)",
       "Bash(git -C *)",
       "Bash(git -c *)",
       "Bash(git branch -D*)",

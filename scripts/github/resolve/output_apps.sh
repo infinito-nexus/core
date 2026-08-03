@@ -15,7 +15,7 @@ source "${REPO_ROOT}/scripts/meta/env/python.sh"
 apps="$(./scripts/meta/resolve/apps.sh)"
 [[ -n "$apps" ]] || apps='[]'
 
-matrix="$(printf '%s' "$apps" | "${PYTHON}" -m utils.github.variant_bundles)"
+matrix="$(printf '%s' "$apps" | "${PYTHON}" -m utils.github.variant.bundles)"
 [[ -n "$matrix" ]] || matrix='[]'
 
 echo "apps=$matrix" >>"$GITHUB_OUTPUT"

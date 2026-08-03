@@ -4,11 +4,13 @@
 # in-cluster simulated containers use; the host-network DNS-resolver
 # SPOT does not apply inside act-DinD nested containers.
 ---
+ASYNC_ENABLED: true
+MODE_DEBUG: true
 TLS_MODE: "self_signed"
 
 networks:
   internet:
-    ip4: "127.0.0.1"
+    ip4: "{{ lookup('env', 'INFINITO_SWARM_MGR_IP') }}"
     ip6: "::1"
     dns: "172.17.0.1" # nocheck: hardcoded-dns-resolver (mgr-01 docker bridge gateway, served by local dnsmasq)
 

@@ -38,6 +38,7 @@ _TYPE_REQUIRES_SOURCE = frozenset({"bind", "config", "secret"})
 _TYPE_HAS_MODE = frozenset({"config", "secret"})
 _TYPE_HAS_READ_ONLY = frozenset({"bind", "volume"})
 _TYPE_HAS_NFS = frozenset({"volume"})
+_TYPE_HAS_BACKUP = frozenset({"volume"})
 
 
 class VolumesSchemaError(ValueError):
@@ -146,6 +147,15 @@ def validate_volumes_meta(
         if "nfs" in entry and not isinstance(entry["nfs"], (bool, dict)):
             violations.append(
                 f"{prefix}: 'nfs' must be bool or dict, got {type(entry['nfs']).__name__}"
+            )
+
+        if "backup" in entry and vtype not in _TYPE_HAS_BACKUP:
+            violations.append(
+                f"{prefix}: 'backup' is only valid for type volume (got type={vtype!r})"
+            )
+        if "backup" in entry and not isinstance(entry["backup"], bool):
+            violations.append(
+                f"{prefix}: 'backup' must be bool, got {type(entry['backup']).__name__}"
             )
 
         if "swarm_safe" in entry and vtype != "bind":

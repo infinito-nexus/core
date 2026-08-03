@@ -34,6 +34,9 @@ yourls:
       http: 8006
     internal:
       http: 8080
+  healthcheck:
+    flavor: curl
+    path: "{{ (lookup('config', 'web-app-yourls', 'server.locations.admin') | regex_replace('^/+', '') | regex_replace('/+$', '')) ~ '/' }}"
   run_after:
     - web-app-matomo
     - web-app-keycloak

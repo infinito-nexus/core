@@ -27,6 +27,9 @@ postgres:
   shared: "{{ 'svc-db-postgres' in group_names }}"
   enabled: true # nocheck: dynamic-flag
 decidim:
+  healthcheck:
+    flavor: curl
+    path: health_check
   modes:
     compose:
       enabled: true

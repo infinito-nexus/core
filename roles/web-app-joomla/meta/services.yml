@@ -33,6 +33,9 @@ mariadb:
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-mariadb' in group_names }}"
 joomla:
+  healthcheck:
+    flavor: curl
+    start_period: 15m
   modes:
     compose:
       enabled: true

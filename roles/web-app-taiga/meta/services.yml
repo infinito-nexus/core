@@ -68,6 +68,11 @@ async:
   mem_limit: 1.5g
   pids_limit: 512
 front:
+  healthcheck:
+    flavor: http
+  ports:
+    internal:
+      http: 80
   image: node
   version: 26-alpine
   cpus: "0.3"
@@ -75,6 +80,11 @@ front:
   mem_limit: 512m
   pids_limit: 256
 gateway:
+  healthcheck:
+    flavor: http
+  ports:
+    internal:
+      http: 80
   image: nginx
   version: alpine
   cpus: "0.3"

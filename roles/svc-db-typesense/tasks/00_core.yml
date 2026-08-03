@@ -10,7 +10,7 @@
 
 - name: "⏳ TYPESENSE | Wait until container is running (not restarting)"
   ansible.builtin.shell: >
-    container inspect --format '{{ "{{.State.Status}}" }} {{ "{{.State.Restarting}}" }}' {{ TYPESENSE_CONTAINER_ADDRESS }}
+    container inspect --type container --format '{{ "{{.State.Status}}" }} {{ "{{.State.Restarting}}" }}' {{ TYPESENSE_CONTAINER_ADDRESS }}
   register: ts_state
   retries: 120
   delay: 2

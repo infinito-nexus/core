@@ -16,7 +16,7 @@
     {{ lookup('container_volumes', application_id, FRIENDICA_SERVICE) | indent(4) }}
     {{ lookup('container_ports', ['friendica', 'http', DOCKER_BIND_HOST]) | indent(4) }}
 
-    {% include 'roles/sys-svc-container/templates/healthcheck/msmtp_curl.yml.j2' %}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
 

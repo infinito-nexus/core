@@ -59,6 +59,8 @@ gitea:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 1024
+  healthcheck:
+    flavor: curl
   title: "{{ SOFTWARE_NAME }} Code Hub"
   configuration:
     repository:

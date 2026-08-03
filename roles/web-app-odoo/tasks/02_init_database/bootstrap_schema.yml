@@ -31,7 +31,7 @@
     resolve_compose_cid: "{{ ODOO_CONTAINER }}"
 
 - name: "⏳ Wait for Odoo container to be healthy after init"
-  ansible.builtin.command: container inspect --format {% raw %}'{{.State.Health.Status}}'{% endraw %} {{ ODOO_LOCAL_CID }}
+  ansible.builtin.command: container inspect --type container --format {% raw %}'{{.State.Health.Status}}'{% endraw %} {{ ODOO_LOCAL_CID }} # nocheck: container-exec-resolver  ODOO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
   delegate_to: "{{ ODOO_HOST_NODE }}"
   register: container_health
   until: container_health.stdout | trim == 'healthy'

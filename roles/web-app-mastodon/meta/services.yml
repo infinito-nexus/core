@@ -65,6 +65,9 @@ mastodon:
       websocket: 4000
   proxy:
     service_key: mastodon
+  healthcheck:
+    flavor: wget
+    path: health
   run_after:
     - web-app-keycloak
   lifecycle: beta
@@ -77,8 +80,18 @@ streaming:
   mem_limit: 512m
   pids_limit: 256
   min_storage: 309MB
+  ports:
+    internal:
+      http: 4000
+  healthcheck:
+    flavor: wget
+    path: api/v1/streaming/health
 sidekiq:
   name: mastodon-sidekiq
+  healthcheck:
+    test: ["CMD-SHELL", "pgrep -f sidekiq || exit 1"]
+    interval: 1m
+    timeout: 10s
   cpus: "0.8"
   mem_reservation: 1g
   mem_limit: 1.5g

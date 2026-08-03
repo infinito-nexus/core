@@ -177,6 +177,7 @@ def dump_yaml_str(
     *,
     sort_keys: bool = False,
     default_flow_style: bool = False,
+    width: int | None = None,
 ) -> str:
     """Serialise *data* to a YAML string.
 
@@ -186,9 +187,16 @@ def dump_yaml_str(
     helper exists so callers don't have to ``import yaml`` just to call
     ``yaml.safe_dump`` — keeping every YAML touchpoint in
     ``utils.cache.yaml``.
+
+    Args:
+        data: the structure to serialise.
+        sort_keys: emit mapping keys in sorted order.
+        default_flow_style: emit collections inline instead of block style.
+        width: column to wrap long scalars at, None for the PyYAML default.
     """
+    extra = {} if width is None else {"width": width}
     return yaml.safe_dump(  # nocheck: direct-yaml — this module IS the cache.
-        data, sort_keys=sort_keys, default_flow_style=default_flow_style
+        data, sort_keys=sort_keys, default_flow_style=default_flow_style, **extra
     )
 
 

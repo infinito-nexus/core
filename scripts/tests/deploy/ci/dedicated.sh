@@ -84,6 +84,7 @@ cleanup() {
 	docker exec "${INFINITO_CONTAINER}" \
 		tar -C "${INFINITO_RESCUE_DIAGNOSTICS_DIR}" -cf - . 2>/dev/null |
 		tar -C "${_rescue_host_dir}" -xf - 2>/dev/null || true
+	bash scripts/tests/deploy/utils/rescue_index.sh "${_rescue_host_dir}"
 
 	local _inv_parent
 	_inv_parent="$(dirname "${INFINITO_INVENTORY_DIR}")"

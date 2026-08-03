@@ -44,6 +44,8 @@ sso:
 # nocheck: playwright-service-flag - internal sub-component (multi-entity role)
 web:
   enabled: true
+  healthcheck:
+    flavor: tcp
   ports:
     local:
       http: 8031
@@ -109,6 +111,9 @@ prometheus:
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
 api:
+  healthcheck:
+    flavor: wget
+    path: xrpc/_health
   ports:
     local:
       http: 8030

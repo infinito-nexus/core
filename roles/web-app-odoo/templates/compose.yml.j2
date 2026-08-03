@@ -1,8 +1,6 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
   {% set container_port = lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') %}
-  {% set container_healthcheck = 'web/health' %}
-  {% set container_healthcheck_start_period = '5m' %}
   {% set service_name = ODOO_SERVICE %}
   {{ service_name }}:
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
@@ -17,7 +15,7 @@
     stop_signal: SIGTERM
     stop_grace_period: 30s
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    {% include 'roles/sys-svc-container/templates/healthcheck/tcp.yml.j2' %}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_ports',
               ['odoo', 'http', DOCKER_BIND_HOST],
               ['odoo', 'websocket', DOCKER_BIND_HOST]) | indent(4) }}

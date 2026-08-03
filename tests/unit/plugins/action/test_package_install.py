@@ -5,7 +5,7 @@ from ansible.errors import AnsibleActionFail
 from ansible.plugins.loader import become_loader, shell_loader
 
 from plugins.action.package_install import ActionModule
-from utils.packages.plan import GENERIC_PACKAGE, ModuleCall
+from utils.packages.calls import GENERIC_PACKAGE, ModuleCall, RetryPolicy
 
 
 def _action(args) -> ActionModule:
@@ -217,46 +217,31 @@ class TestTargetFacts(unittest.TestCase):
         self.assertIn("localhost", str(caught.exception))
 
 
-class TestFactShapes(unittest.TestCase):
-    def test_bare_keys_from_task_vars(self):
-        distribution, os_family = _action({})._facts(
-            {"distribution": "Fedora", "os_family": "RedHat"}
-        )
-        self.assertEqual((distribution, os_family), ("fedora", "RedHat"))
+class TestAttempt(unittest.TestCase):
+    def _action_with(self, results):
+        action = _action({})
+        action._execute = mock.Mock(side_effect=list(results))
+        return action
 
-    def test_prefixed_keys_from_the_setup_module(self):
-        distribution, os_family = _action({})._facts(
-            {"ansible_distribution": "Ubuntu", "ansible_os_family": "Debian"}
-        )
-        self.assertEqual((distribution, os_family), ("ubuntu", "Debian"))
+    def test_without_a_policy_the_call_runs_once(self):
+        action = self._action_with([{"failed": True}])
+        result = action._attempt(ModuleCall("m", {}), {}, {})
+        self.assertEqual(action._execute.call_count, 1)
+        self.assertEqual(result["module"], "m")
 
-    def test_missing_facts_fail_loud(self):
-        with self.assertRaises(AnsibleActionFail):
-            _action({})._facts({})
-
-
-class TestAggregate(unittest.TestCase):
-    def test_all_skipped_reports_skip(self):
-        result = _action({})._aggregate([], ["selinux-python-binding"], "debian")
-        self.assertTrue(result["skipped"])
-        self.assertFalse(result["changed"])
-
-    def test_changed_is_any_changed(self):
-        result = _action({})._aggregate(
-            [{"changed": False}, {"changed": True}], [], "debian"
-        )
-        self.assertTrue(result["changed"])
-
-    def test_failure_propagates(self):
-        result = _action({})._aggregate(
-            [{"changed": False}, {"failed": True, "msg": "boom"}], [], "debian"
-        )
+    def test_a_policy_repeats_until_the_budget_is_spent(self):
+        action = self._action_with([{"failed": True}] * 3)
+        call = ModuleCall("m", {}, retry=RetryPolicy(attempts=3, seconds=0))
+        result = action._attempt(call, {}, {})
+        self.assertEqual(action._execute.call_count, 3)
         self.assertTrue(result["failed"])
-        self.assertIn("boom", result["msg"])
 
-    def test_partial_skips_are_reported(self):
-        result = _action({})._aggregate([{"changed": True}], ["libntirpc"], "debian")
-        self.assertEqual(result["skipped_ids"], ["libntirpc"])
+    def test_a_policy_stops_at_the_first_success(self):
+        action = self._action_with([{"failed": True}, {"changed": True}])
+        call = ModuleCall("m", {}, retry=RetryPolicy(attempts=3, seconds=0))
+        result = action._attempt(call, {}, {})
+        self.assertEqual(action._execute.call_count, 2)
+        self.assertFalse(result.get("failed"))
 
 
 if __name__ == "__main__":

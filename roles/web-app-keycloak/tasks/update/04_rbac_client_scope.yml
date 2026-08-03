@@ -76,12 +76,6 @@
       {{ (def_scopes.stdout | kcadm_json
           | selectattr('id','equalto', scope_id_rbac) | list | length) > 0 }}
 
-# The RBAC scope MUST be a default client scope so that the OIDC userinfo
-# endpoint runs the group-membership mapper on every session. When it is an
-# optional scope, Keycloak gates the userinfo-level mapper on the scope
-# being explicitly granted — and the `groups` scope is dropped from the
-# granted scope set when `include.in.token.scope=false`, leaving userinfo
-# without the claim.
 - name: 🗑️ Remove RBAC scope from optional client scopes (if present)
   when: has_rbac_optional
   shell: >
@@ -98,8 +92,8 @@
     {{ KEYCLOAK_EXEC_KCADM }} update
     clients/{{ app_client_id }}/default-client-scopes/{{ scope_id_rbac }}
     -r {{ KEYCLOAK_REALM }}
-  register: add_default
+  register: kc_rbac_default
   changed_when: true
-  failed_when: add_default.rc != 0
+  # rationale: async; no task in the chain reads the scope back, reaped at the end of update_routines.yml
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"

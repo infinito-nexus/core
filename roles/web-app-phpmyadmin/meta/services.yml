@@ -17,6 +17,8 @@ mariadb:
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-mariadb' in group_names }}"
 phpmyadmin:
+  healthcheck:
+    flavor: tcp
   modes:
     compose:
       enabled: true

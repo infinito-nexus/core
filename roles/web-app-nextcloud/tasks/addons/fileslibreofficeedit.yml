@@ -1,5 +1,1 @@
 ---
-# No exception logic required: fileslibreofficeedit only gates its enable on OnlyOffice's
-# absence (OnlyOffice declares it an incompatible plugin and disables it on install). The
-# generic addon config SPOT (meta/addons/<id>.yml + tasks/plugin) fully wires it; coupling
-# is verified by the Playwright spec.

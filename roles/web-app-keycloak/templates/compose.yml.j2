@@ -1,8 +1,5 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
-  {# nocheck: container-port-set-unused #}
-  {% set container_port = lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.management') %}
-  {% set container_healthcheck = 'health/live' %}
   {% set service_name = 'keycloak' %}
   {{ service_name }}:
     {{ lookup('container_image', application_id, 'keycloak') }}
@@ -14,7 +11,7 @@
     {{ lookup('container_volumes', application_id, 'keycloak') | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
-    {% include 'roles/sys-svc-container/templates/healthcheck/tcp.yml.j2' %}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
 
 {{ lookup('compose_volumes', application_id,
 ) }}

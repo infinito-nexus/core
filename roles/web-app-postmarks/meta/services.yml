@@ -38,6 +38,8 @@ prometheus:
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
 postmarks:
+  healthcheck:
+    flavor: tcp
   modes:
     compose:
       enabled: true

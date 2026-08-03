@@ -48,6 +48,9 @@ prometheus:
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
 checkmk:
+  healthcheck:
+    flavor: curl
+    path: cmk/check_mk/login.py
   modes:
     compose:
       enabled: true

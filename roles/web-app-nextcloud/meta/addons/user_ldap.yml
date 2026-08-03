@@ -126,12 +126,7 @@ config:
       configvalue: "inetOrgPerson"
     - appid: "user_ldap"
       configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_userlist_filter"
-      configvalue: |-
-        {% if lookup('config', 'web-app-nextcloud', 'addons.user_ldap.config.user_directory.enabled') %}
-        {{ LDAP.FILTERS.USERS.ALL }}
-        {% else %}
-        ()
-        {% endif %}
+      configvalue: "{{ LDAP.FILTERS.USERS.ALL if lookup('config', 'web-app-nextcloud', 'addons.user_ldap.config.user_directory.enabled') else '()' }}"
     - appid: "user_ldap"
       configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}use_memberof_to_detect_membership"
       configvalue: 1

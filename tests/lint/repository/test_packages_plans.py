@@ -11,7 +11,8 @@ from __future__ import annotations
 
 import unittest
 
-from utils.packages.plan import STATE_ABSENT, STATE_PRESENT, build_plan
+from utils.packages.calls import STATE_ABSENT, STATE_PRESENT
+from utils.packages.plan import build_plan
 from utils.packages.registry import build_registry, resolve
 from utils.packages.schema import DISTRO_FAMILY
 

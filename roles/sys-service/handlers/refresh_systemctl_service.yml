@@ -5,6 +5,7 @@
     enabled: true
     daemon_reload: true
   become: true
+  # rationale: async; opt-out per caller, a role that reads the unit state sets system_service_force_linear_sync
   async: "{{ system_service_async }}"
   poll: "{{ system_service_poll }}"
 
@@ -13,6 +14,7 @@
     name: "{{ system_service_name }}"
     state: "{{ system_service_state }}"
   become: true
+  # rationale: async; the Result gate below only runs meaningfully for callers that set system_service_force_linear_sync
   async: "{{ system_service_async }}"
   poll: "{{ system_service_poll }}"
   when: not (system_service_suppress_flush | bool)

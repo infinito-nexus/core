@@ -22,14 +22,14 @@ FROM ${INFINITO_IMAGE}
 RUN set -eux; \
     if command -v apt-get >/dev/null 2>&1; then \
         apt-get update -qq; \
-        apt-get install -y -qq --no-install-recommends dnsmasq openssh-server cryptsetup e2fsprogs; \
+        apt-get install -y -qq --no-install-recommends dnsmasq openssh-server cryptsetup e2fsprogs elfutils; \
         rm -rf /var/lib/apt/lists/*; \
     elif command -v dnf >/dev/null 2>&1; then \
-        dnf install -y dnsmasq openssh-server cryptsetup e2fsprogs; \
+        dnf install -y dnsmasq openssh-server cryptsetup e2fsprogs elfutils; \
         dnf clean all; \
     elif command -v pacman >/dev/null 2>&1; then \
         pacman -Sy --noconfirm --needed archlinux-keyring; \
-        pacman -Syu --noconfirm --needed dnsmasq openssh cryptsetup e2fsprogs; \
+        pacman -Syu --noconfirm --needed dnsmasq openssh cryptsetup e2fsprogs elfutils; \
         rm -rf /var/cache/pacman/pkg/*; \
     else \
         echo "no supported package manager (apt/dnf/pacman)" >&2; exit 1; \

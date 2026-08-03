@@ -204,5 +204,54 @@ class TestBridgeDeploymentGating(unittest.TestCase):
         self.assertEqual(f["MASTO_BRIDGE_ADDON_ENABLED"], "false")
 
 
+class TestBridgeResolvesProviderKey(unittest.TestCase):
+    """A bridge may name the service key a role registers, not only its entity.
+    'sso' is provided by web-app-keycloak, whose id ends in neither '-sso' nor
+    'sso', so the entity-suffix rule alone can never match it."""
+
+    def setUp(self):
+        self.lookup = LookupModule()
+        self.lookup._loader = mock.MagicMock()
+        self.applications = {
+            "web-app-keycloak": {
+                "services": {
+                    "keycloak": {"enabled": True, "shared": True, "provides": "sso"}
+                }
+            },
+            "web-app-wordpress": {"services": {}},
+        }
+        self.addons = {
+            "ca_trust": {"enabled": True, "required": True, "bridges": ["sso"]},
+        }
+        self._patchers = [
+            patch(
+                "plugins.lookup.addon_env_flags.lookup_loader",
+                _applications_loader(self.applications),
+            ),
+            patch("plugins.lookup.addon_env_flags.get", return_value=self.addons),
+            patch(
+                "plugins.lookup.addon_env_flags._render_with_templar",
+                side_effect=lambda v, **k: v,
+            ),
+        ]
+        for p in self._patchers:
+            p.start()
+        self.addCleanup(lambda: [p.stop() for p in self._patchers])
+
+    def _flag(self, apps):
+        out = self.lookup.run(
+            ["web-app-wordpress"], variables={"TEST_E2E_PLAYWRIGHT_APPS": apps}
+        )[0]
+        return dict(line.split("=", 1) for line in out.splitlines())[
+            "CA_TRUST_ADDON_ENABLED"
+        ]
+
+    def test_provider_role_deployed_keeps_true(self):
+        self.assertEqual(self._flag(["web-app-keycloak", "web-app-wordpress"]), "true")
+
+    def test_provider_role_absent_gates_false(self):
+        self.assertEqual(self._flag(["web-app-wordpress"]), "false")
+
+
 if __name__ == "__main__":
     unittest.main()

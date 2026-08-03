@@ -23,8 +23,6 @@ chmod 775 "$TMPDIR"
 
 BOOT_LOCK="${APP_DIR}/.suitecrm-boot.lock.d"
 
-# Exception: the swarm NFS mount forces local_lock=flock, so flock(2) never
-# crosses nodes; atomic mkdir on the NFS server is the working cross-replica mutex.
 _have_lock=0
 _lock_tries=0
 while :; do

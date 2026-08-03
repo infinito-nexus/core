@@ -6,5 +6,5 @@
     http_port: "{{ NEXTCLOUD_PORT }}"
 
 - name: "🖥️ Nextcloud stack-host post-deploy (config, occ, plugins, admin)"
-  include_tasks: 08_manager_ops.yml
+  include_tasks: 02_manager_ops.yml
   when: IS_STACK_HOST | bool

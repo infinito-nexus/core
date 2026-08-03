@@ -27,6 +27,8 @@ discourse:
   enabled: "{{ 'web-app-discourse' in group_names }}"
   shared: "{{ 'web-app-discourse' in group_names }}"
 wordpress:
+  healthcheck:
+    flavor: msmtp_curl
   modes:
     compose:
       enabled: true

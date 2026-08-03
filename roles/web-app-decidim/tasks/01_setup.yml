@@ -8,7 +8,7 @@
 
 - name: "⏳ Decidim | Wait for web container to be healthy"
   ansible.builtin.shell: >
-    container inspect --format '{{ "{{.State.Health.Status}}" }}'
+    container inspect --type container --format '{{ "{{.State.Health.Status}}" }}'
     {{ DECIDIM_LOCAL_CID | quote }}
   register: decidim_health
   changed_when: false

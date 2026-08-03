@@ -120,7 +120,8 @@ def pull_backups(hostname: str, backups_dir: str) -> None:
         Path(local_backup_destination_path).mkdir(parents=True, exist_ok=True)
 
         rsync_command = (
-            f"rsync -abP --numeric-ids --delete --delete-excluded --timeout=300 "
+            f"rsync -ab --partial --info=stats2 "
+            f"--numeric-ids --delete --delete-excluded --timeout=300 "
             f'-e "ssh {SSH_OPTS}" '
             f'--rsync-path="sudo rsync" '
             f'--link-dest="{local_previous_version_dir}" '
@@ -150,17 +151,24 @@ def pull_backups(hostname: str, backups_dir: str) -> None:
                     max_retries = 12
 
             last_retry_start = int(time.time())
-            rsync_exit_code = os.system(rsync_command)  # noqa: S605
+            rsync_status = os.system(rsync_command)  # noqa: S605
+            rsync_exit_code = os.waitstatus_to_exitcode(rsync_status)
 
             if rsync_exit_code == 0:
                 break
 
+            print(
+                f"rsync exit {rsync_exit_code} on attempt "
+                f"{retry_count + 1}/{max_retries} for {hostname}:{backup_type}",
+                file=sys.stderr,
+            )
             retry_count += 1
-            time.sleep(retry_delay)
+            if retry_count < max_retries:
+                time.sleep(retry_delay)
 
         if rsync_exit_code != 0:
             raise RuntimeError(
-                f"rsync failed after {max_retries} attempts "
+                f"rsync exit {rsync_exit_code} after {max_retries} attempts "
                 f"for {hostname}:{backup_type}"
             )
 

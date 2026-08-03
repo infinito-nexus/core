@@ -103,6 +103,10 @@ webservice:
   mem_limit: 6g
   pids_limit: 2048
 sidekiq:
+  healthcheck:
+    flavor: tcp
+    path: liveness
+    start_period: 300s
   image: registry.gitlab.com/gitlab-org/build/cng/gitlab-sidekiq-ce
   version: v19.1.2
   name: gitlab-sidekiq

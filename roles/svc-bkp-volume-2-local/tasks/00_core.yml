@@ -42,6 +42,34 @@
     group: root
     mode: "0755"
 
+- name: ✅ Assert the configured snapshot_mode names a snapshot mode
+  ansible.builtin.assert:
+    that:
+      - BKP_VOLUME_2_LOCAL_SNAPSHOT_MODE in BKP_VOLUME_2_LOCAL_SNAPSHOT_MODES
+    fail_msg: >-
+      services.volume-2-local.snapshot_mode is '{{ BKP_VOLUME_2_LOCAL_SNAPSHOT_MODE_RAW }}', which
+      resolves to '{{ BKP_VOLUME_2_LOCAL_SNAPSHOT_MODE }}' and is not one of
+      {{ BKP_VOLUME_2_LOCAL_SNAPSHOT_MODES | join(', ') }}. Quote the value: YAML reads a bare
+      on/yes/true as a boolean.
+    quiet: true
+
+- name: 📦 Install the btrfs tools the snapshot launcher shells out to
+  become: true
+  package_install:
+    id: btrfs-tools
+  when: ansible_facts.mounts | selectattr('fstype', 'equalto', 'btrfs') | list | length > 0
+
+- include_tasks: 04_snapshot_subject.yml
+  when: BKP_VOLUME_2_LOCAL_SNAPSHOT_MODE != 'never'
+
+- name: "📁 create {{ BKP_VOLUME_2_LOCAL_SNAPSHOT_BIN }}"
+  ansible.builtin.copy:
+    src: python/baudolo_snapshot.py
+    dest: "{{ BKP_VOLUME_2_LOCAL_SNAPSHOT_BIN }}"
+    owner: root
+    group: root
+    mode: "0755"
+
 - name: "▶️ Execute system service setup for '{{ system_service_id }}'"
   include_role:
     name: sys-service

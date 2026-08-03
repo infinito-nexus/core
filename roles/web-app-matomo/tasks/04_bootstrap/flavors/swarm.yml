@@ -1,7 +1,7 @@
 ---
 - name: "⏳ Matomo bootstrap | Swarm: wait for Matomo healthy before installer"
   ansible.builtin.shell: >
-    container inspect -f '{{ "{{" }}.State.Health.Status{{ "}}" }}'
+    container inspect --type container -f '{{ "{{" }}.State.Health.Status{{ "}}" }}'
     {{ MATOMO_LOCAL_CID | quote }}
   register: matomo_health_preboot
   changed_when: false
@@ -28,7 +28,8 @@
   ansible.builtin.fail:
     msg: >-
       Matomo swarm bootstrap failed after {{ MATOMO_BOOTSTRAP_ATTEMPTS }} attempt(s)
-      with rc={{ matomo_bootstrap_swarm.rc | default('n/a') }}.
+      with rc={{ matomo_bootstrap_swarm.rc | default('n/a') }}:
+      {{ (matomo_bootstrap_swarm | default({})).stderr | default('') | trim }}
   when: >-
     ((matomo_bootstrap_swarm | default({})).rc | default(1)) | int != 0
     or (((matomo_bootstrap_swarm | default({})).stdout | default('')) | trim | length) == 0

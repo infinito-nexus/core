@@ -36,6 +36,8 @@ postgres:
   enabled: true # nocheck: dynamic-flag — matrix always needs a database
   shared: "{{ 'svc-db-postgres' in group_names }}"
 synapse:
+  healthcheck:
+    flavor: curl
   version: v1.156.0
   image: matrixdotorg/synapse
   name: matrix-synapse
@@ -54,6 +56,8 @@ synapse:
   mem_limit: "2g"
   pids_limit: 2048
 element:
+  healthcheck:
+    flavor: wget
   version: v1.12.23
   image: vectorim/element-web
   name: matrix-element

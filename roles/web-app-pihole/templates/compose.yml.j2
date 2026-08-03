@@ -14,7 +14,7 @@
     cap_add:
       - NET_ADMIN
     {{ lookup('container_volumes', application_id, 'pihole') | indent(4) }}
-    {% include 'roles/sys-svc-container/templates/healthcheck/tcp.yml.j2' %}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
 {{ lookup('compose_volumes', application_id) }}

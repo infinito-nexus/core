@@ -144,21 +144,21 @@ def get_compose_project_info(container: str) -> tuple[str, str]:
     On failure: dump *everything* Docker knows about the container.
     """
     out_project = print_bash(
-        f"container inspect -f '{{{{ index .Config.Labels \"com.docker.compose.project\" }}}}' {container}"
+        f"container inspect --type container -f '{{{{ index .Config.Labels \"com.docker.compose.project\" }}}}' {container}"
     )
     out_workdir = print_bash(
-        f"container inspect -f '{{{{ index .Config.Labels \"com.docker.compose.project.working_dir\" }}}}' {container}"
+        f"container inspect --type container -f '{{{{ index .Config.Labels \"com.docker.compose.project.working_dir\" }}}}' {container}"
     )
 
     project = out_project[0].strip() if out_project else ""
     workdir = out_workdir[0].strip() if out_workdir else ""
 
     if not project or not workdir:
-        print("DEBUG: compose label lookup failed – dumping full container inspect")
+        print("DEBUG: compose label lookup failed – dumping the full state")
         try:
-            print_bash(f"container inspect {container}")
+            print_bash(f"container inspect --type container {container}")
         except Exception as e:
-            print(f"DEBUG: container inspect failed completely: {e}")
+            print(f"DEBUG: the state dump failed completely: {e}")
 
     if not project:
         raise RuntimeError(f"No compose project label found for container {container}")

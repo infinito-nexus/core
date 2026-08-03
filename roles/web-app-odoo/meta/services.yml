@@ -31,6 +31,10 @@ postgres:
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
 odoo:
+  healthcheck:
+    flavor: tcp
+    path: web/health
+    start_period: 5m
   modes:
     compose:
       enabled: true

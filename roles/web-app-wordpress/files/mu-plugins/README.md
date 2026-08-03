@@ -16,20 +16,24 @@ See the [WordPress Must-Use Plugins handbook](https://developer.wordpress.org/ad
 
 Put a file in this directory only when the behavior it implements is part of the security or integration contract of this role and MUST remain in effect for every request. Everyday feature plugins SHOULD stay in normal `wp-content/plugins/` and be managed through [05_enable_plugin.yml](../../tasks/05_enable_plugin.yml) so operators can disable them per site if needed.
 
-Each file in this directory SHOULD declare its purpose, hooks, and source requirement at the top of the file so readers can understand why it cannot be switched off.
+Each file in this directory SHOULD declare its purpose and the hooks it registers at the top of the file so readers can understand why it cannot be switched off.
 
 ## OIDC -> RBAC mapping (infinito-oidc-rbac-mapper.php) 🎫
 
-[infinito-oidc-rbac-mapper.php](infinito-oidc-rbac-mapper.php) is the only file shipped here today. It implements the OIDC -> WordPress role contract from requirements 004 and 005:
+[infinito-oidc-rbac-mapper.php](infinito-oidc-rbac-mapper.php) implements the OIDC -> WordPress role contract:
 
 - **Single-Site path**: the claim MUST contain `/roles/web-app-wordpress/<role>` entries. The highest-privilege role across all matches wins (`administrator > editor > author > contributor > subscriber`). When no entry matches, the user's role is set to `subscriber` as a deterministic fallback.
 - **Multisite path** (auto-detected via `is_multisite()`): per-site roles come from `/roles/web-app-wordpress/<canonical-domain>/<role>` entries; the super-admin capability comes from `/roles/web-app-wordpress/network-administrator`. The mapper adds the user to any site they have a role for (`add_user_to_blog`) and removes them from sites it previously added them to (`remove_user_from_blog`) when a role for that site disappears from the claim. A user-meta marker (`_infinito_oidc_added_blog_ids`) records which blog memberships the mapper owns, so memberships added through `wp-admin` or the REST API outside the OIDC flow are never touched.
 
 For the broader RBAC contract (LDAP layout, `rbac.tenancy` schema, the `rbac_group_path` lookup plugin), see [rbac.md](../../../../docs/contributing/design/iam/rbac.md).
 
+## HTTP CA trust (infinito-http-ca-trust.php) 🔐
+
+[infinito-http-ca-trust.php](infinito-http-ca-trust.php) points WordPress's HTTP API at the deployment's CA bundle so outbound calls to internal HTTPS endpoints (OIDC discovery, REST loopback) verify instead of failing.
+
 ## Deployment 🚚
 
-Files in this directory are copied into the running container by [04_mu_plugins.yml](../../tasks/04_mu_plugins.yml). The task runs on every deploy, so dropping a new file here is enough to have it picked up on the next playbook run.
+Every file here is declared as an addon under [meta/addons/](../../meta/addons/) with `mechanism: mu_plugin` and `source: vendored`, and the addon id is the file stem. [04_mu_plugins.yml](../../tasks/04_mu_plugins.yml) loops over those declarations and copies `<addon_id>.php` into the container on every deploy; a new file therefore needs its `meta/addons/<addon_id>.yml` entry and a Playwright spec before it is installed.
 
 ## Credits 🙏
 

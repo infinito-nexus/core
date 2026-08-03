@@ -23,9 +23,9 @@ fi
 
 SELF_NAME=""
 SELF_PROJECT=""
-if container inspect "$(hostname)" >/dev/null 2>&1; then
-    SELF_NAME="$(container inspect -f '{{.Name}}' "$(hostname)" | sed 's|^/||')"
-    SELF_PROJECT="$(container inspect -f '{{index .Config.Labels "com.docker.compose.project"}}' "$(hostname)")"
+if container inspect --type container "$(hostname)" >/dev/null 2>&1; then
+    SELF_NAME="$(container inspect --type container -f '{{.Name}}' "$(hostname)" | sed 's|^/||')"
+    SELF_PROJECT="$(container inspect --type container -f '{{index .Config.Labels "com.docker.compose.project"}}' "$(hostname)")"
     echo "OK: excluding own container '${SELF_NAME}' (project '${SELF_PROJECT}') from the cycle"
 fi
 
@@ -66,7 +66,7 @@ for project in "${PROJECTS[@]}"; do
     compose --chdir "${PROJECT_DIR[${project}]}" --project "${project}" down --remove-orphans
 done
 for name in "${RUNNING[@]}"; do
-    if [[ "$(container inspect -f '{{.State.Status}}' "${name}" 2>/dev/null || echo gone)" == "running" ]]; then
+    if [[ "$(container inspect --type container -f '{{.State.Status}}' "${name}" 2>/dev/null || echo gone)" == "running" ]]; then
         echo "FAIL: ${name} still running after compose down"
         exit 1
     fi
@@ -123,7 +123,7 @@ NOHC_NAMES=()
 NOHC_RESTARTS=()
 for name in "${RUNNING[@]}"; do
     while :; do
-        state="$(container inspect -f '{{.State.Status}} {{.State.ExitCode}} {{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' "${name}" 2>/dev/null)" || {
+        state="$(container inspect --type container -f '{{.State.Status}} {{.State.ExitCode}} {{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' "${name}" 2>/dev/null)" || {
             echo "GONE: ${name} disappeared during health wait"
             break
         }
@@ -131,7 +131,7 @@ for name in "${RUNNING[@]}"; do
         if [[ "${health}" == "healthy" ]] || { [[ "${health}" == "none" ]] && [[ "${status}" == "running" ]]; }; then
             if [[ "${health}" == "none" ]]; then
                 NOHC_NAMES+=("${name}")
-                NOHC_RESTARTS+=("$(container inspect -f '{{.RestartCount}}' "${name}" 2>/dev/null || echo -1)")
+                NOHC_RESTARTS+=("$(container inspect --type container -f '{{.RestartCount}}' "${name}" 2>/dev/null || echo -1)")
             fi
             echo "OK: ${name} ${status}/${health}"
             break
@@ -153,7 +153,7 @@ if (( ${#NOHC_NAMES[@]} > 0 )); then
     sleep 15
     for idx in "${!NOHC_NAMES[@]}"; do
         name="${NOHC_NAMES[idx]}"
-        state="$(container inspect -f '{{.State.Status}} {{.State.ExitCode}} {{.RestartCount}}' "${name}" 2>/dev/null || echo "gone -1 -1")"
+        state="$(container inspect --type container -f '{{.State.Status}} {{.State.ExitCode}} {{.RestartCount}}' "${name}" 2>/dev/null || echo "gone -1 -1")"
         read -r status exit_code restarts <<<"${state}"
         if [[ "${status}" == "exited" ]] && [[ "${exit_code}" == "0" ]]; then
             continue

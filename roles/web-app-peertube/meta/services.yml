@@ -50,6 +50,8 @@ seaweedfs:
   public: true
 # nocheck: playwright-service-flag: shared provider entity; the app itself is covered by this role's own Playwright spec
 peertube:
+  healthcheck:
+    flavor: tcp
   modes:
     compose:
       enabled: true

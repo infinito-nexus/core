@@ -15,8 +15,8 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: 🔍 Probe whether the SuiteCRM partner container is running
-  command: >
-    container inspect -f '{% raw %}{{.State.Running}}{% endraw %}' {{ nextcloud_crm_container }}
+  command: > # nocheck: container-exec-resolver  this IS the bare-name partner probe gate, compose co-location
+    container inspect --type container -f '{% raw %}{{.State.Running}}{% endraw %}' {{ nextcloud_crm_container }}
   register: integration_suitecrm_partner_running
   changed_when: false
   failed_when: false

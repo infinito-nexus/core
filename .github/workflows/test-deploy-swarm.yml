@@ -22,6 +22,11 @@ on:
         required: false
         type: string
         default: ""
+      filesystem:
+        description: "Filesystem every node's docker data root runs on (ext4, btrfs, zfs). Empty picks one at random."
+        required: false
+        type: string
+        default: ""
       marker:
         description: "Optional suffix appended to the discover job name (e.g. ' ⭐' for the priority line)"
         required: false
@@ -45,6 +50,11 @@ on:
         default: ""
       blacklist:
         description: "Optional space-separated app ids to drop from discovery"
+        required: false
+        type: string
+        default: ""
+      filesystem:
+        description: "Filesystem every node's docker data root runs on (ext4, btrfs, zfs). Empty picks one at random."
         required: false
         type: string
         default: ""
@@ -203,11 +213,23 @@ jobs:
           source scripts/meta/env/load.sh
           echo "${VENV}/bin" >> "${GITHUB_PATH}"
 
+      - name: "🗄️ Resolve the node filesystem"
+        shell: bash
+        run: >-
+          ./scripts/tests/deploy/utils/filesystem/resolve.sh "${{ inputs.filesystem }}"
+          "swarm/${{ matrix.apps }}${{ matrix.variant_slug && format('/{0}', matrix.variant_slug) || '' }}"
+          "${{ inputs.distros }}" node
+
       - name: "🚀 Drill ${{ matrix.apps }} per distro: ${{ inputs.distros }}"
         shell: bash
         env:
           variant: ${{ matrix.variant }}
         run: ./scripts/tests/deploy/distros.sh "${{ env.SCRIPTS }}/00_one.sh" 2>&1 | tee "/tmp/ansible-${{ matrix.apps }}.log"
+
+      - name: "🗄️ Effective node filesystems"
+        if: always()
+        shell: bash
+        run: ./scripts/tests/deploy/utils/filesystem/report.sh "/tmp/ansible-${{ matrix.apps }}.log"
 
       - name: "📊 Role runtimes"
         if: always()

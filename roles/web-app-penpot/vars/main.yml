@@ -13,7 +13,6 @@ PENPOT_EXPORTER_SERVICE: "exporter"
 
 PENPOT_BACKEND_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, PENPOT_BACKEND_SERVICE) }}"
 
-PENPOT_FRONTEND_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.penpot.ports.internal.http') }}"
 PENPOT_BACKEND_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.backend.ports.internal.http') }}"
 PENPOT_EXPORTER_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.exporter.ports.internal.http') }}"
 

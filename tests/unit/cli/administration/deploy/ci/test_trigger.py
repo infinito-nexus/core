@@ -8,6 +8,7 @@ from unittest import mock
 from cli.administration.deploy.ci import runs
 from cli.administration.deploy.ci.trigger import __main__ as trigger
 from tests.utils.ci_job_names import deploy_job_name
+from utils.github import run_name
 
 
 def _job(mode: str, app: str, conclusion: str) -> dict:
@@ -26,6 +27,12 @@ _JOBS = [
 ]
 
 _RUN_URL = "https://github.com/o/r/actions/runs/55"  # nocheck: url
+_SOURCE_RUN = {
+    "jobs": _JOBS,
+    "displayTitle": run_name.title_with(
+        "distros", "arch centos", "diff-derived (origin/main)"
+    ),
+}
 
 
 class TestTriggerMain(unittest.TestCase):
@@ -39,8 +46,8 @@ class TestTriggerMain(unittest.TestCase):
             mock.patch.object(
                 runs,
                 "dispatch_workflow",
-                side_effect=lambda wf, ref, wl="", priority="", repo=None: calls.append(
-                    (wf, ref, wl, priority, repo)
+                side_effect=lambda wf, ref, wl="", priority="", distros="", repo=None: (
+                    calls.append((wf, ref, wl, priority, distros, repo))
                 ),
             ),
             redirect_stdout(buf),
@@ -52,7 +59,7 @@ class TestTriggerMain(unittest.TestCase):
         rc, calls = self._run([])
         self.assertEqual(rc, 0)
         self.assertEqual(
-            calls, [("entry-manual.yml", "feature/x", "__ALL__", "", "o/r")]
+            calls, [("entry-manual.yml", "feature/x", "__ALL__", "", "", "o/r")]
         )
 
     def test_apps_explicit_list(self) -> None:
@@ -89,20 +96,20 @@ class TestTriggerMain(unittest.TestCase):
         with (
             mock.patch.object(runs, "current_branch", return_value="feature/x"),
             mock.patch.object(runs, "resolve_repo", return_value="o/r"),
-            mock.patch.object(runs, "fetch_jobs", return_value=_JOBS) as fetch,
+            mock.patch.object(runs, "fetch_run", return_value=_SOURCE_RUN) as fetch,
             mock.patch.object(runs, "find_last_deploy_run") as find_last,
             mock.patch.object(
                 runs,
                 "dispatch_workflow",
-                side_effect=lambda wf, ref, wl="", priority="", repo=None: calls.append(
-                    priority
+                side_effect=lambda wf, ref, wl="", priority="", distros="", repo=None: (
+                    calls.append((priority, distros))
                 ),
             ),
             redirect_stdout(io.StringIO()),
         ):
             rc = trigger.main(["--failed", "--run", _RUN_URL])
         self.assertEqual(rc, 0)
-        self.assertEqual(calls[0], "web-app-x web-app-y")
+        self.assertEqual(calls[0], ("web-app-x web-app-y", "arch centos"))
         fetch.assert_called_once()
         find_last.assert_not_called()
 
@@ -111,20 +118,20 @@ class TestTriggerMain(unittest.TestCase):
         with (
             mock.patch.object(runs, "current_branch", return_value="feature/x"),
             mock.patch.object(runs, "resolve_repo", return_value="o/r"),
-            mock.patch.object(runs, "fetch_jobs", return_value=_JOBS) as fetch,
+            mock.patch.object(runs, "fetch_run", return_value=_SOURCE_RUN) as fetch,
             mock.patch.object(runs, "find_last_deploy_run") as find_last,
             mock.patch.object(
                 runs,
                 "dispatch_workflow",
-                side_effect=lambda wf, ref, wl="", priority="", repo=None: calls.append(
-                    priority
+                side_effect=lambda wf, ref, wl="", priority="", distros="", repo=None: (
+                    calls.append((priority, distros))
                 ),
             ),
             redirect_stdout(io.StringIO()),
         ):
             rc = trigger.main(["--failed", "--run", "55"])
         self.assertEqual(rc, 0)
-        self.assertEqual(calls[0], "web-app-x web-app-y")
+        self.assertEqual(calls[0], ("web-app-x web-app-y", "arch centos"))
         fetch.assert_called_once_with("55", repo="o/r")
         find_last.assert_not_called()
 
