@@ -142,9 +142,12 @@ rendering, so the config never carries an unusable credential.
 
 ### Verification
 
-The deploy runs `hermes mcp test <server>` for every configured server and fails
-when one does not answer. A successful run reports the negotiated connection and
-the discovered tool count.
+Hermes exposes no administrator-visible list of configured MCP servers, so the
+configured set is proven at deploy time instead: the deploy runs `hermes mcp
+test <server>` for every configured server and fails when one does not answer. A
+successful run reports the negotiated connection and the discovered tool count.
+The Playwright spec covers the complementary case, that the agent API holding
+the MCP credentials refuses an unauthenticated caller.
 
 ### Default state
 

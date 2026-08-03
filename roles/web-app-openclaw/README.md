@@ -137,6 +137,15 @@ through `MCP_DISCOVERED_SERVERS` and written into the agent configuration.
 Servers whose auth scheme cannot be presented as a header are dropped before
 rendering, so no entry carries a credential the server would reject.
 
+### Verification
+
+OpenClaw exposes no administrator-visible list of configured MCP servers, so the
+configured set is proven at deploy time instead:
+[`tasks/01_mcp_assert.yml`](./tasks/01_mcp_assert.yml) probes the agent's `mcp`
+surface and fails the deploy on a non-zero return code or a `failed to start
+server` line. The Playwright spec covers the complementary case, that the
+gateway holding the MCP credentials refuses an unauthenticated caller.
+
 ### Default state
 
 Off. `services.mcp.enabled` is false unless an MCP server role is part of the
