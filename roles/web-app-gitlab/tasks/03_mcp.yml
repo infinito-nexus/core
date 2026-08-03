@@ -31,3 +31,14 @@
       The instance rejected the token stored for {{ application_id }}, so every
       MCP client would be configured with a bearer {{ GITLAB_MCP_PATH }} answers
       401 to.
+
+- name: "🛑 Refuse an instance that authenticates but advertises no MCP tool"
+  ansible.builtin.assert:
+    that:
+      - "'tools=' in (gitlab_mcp_probe.stdout | default(''))"
+      - "'tools=0' not in (gitlab_mcp_probe.stdout | default(''))"
+    fail_msg: >-
+      {{ GITLAB_MCP_PATH }} accepted the token but advertised no tool. GitLab
+      serves MCP only on Premium and Ultimate, so this Community deployment
+      cannot carry a served MCP surface and the role belongs behind
+      'blocker: licence' instead.
