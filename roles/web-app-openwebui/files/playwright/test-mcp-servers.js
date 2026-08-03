@@ -60,6 +60,39 @@ exports.register = function (shared) {
         String(connection.key || "").length,
         `${connection?.info?.id} must carry a non-empty bearer, an empty one is rejected by the server`
       ).toBeGreaterThan(0);
+      const grants = connection?.config?.access_grants ?? [];
+      expect(
+        grants,
+        `${connection?.info?.id} must be scoped to its role's mcp group; an empty grant list falls back to administrator-only`
+      ).toHaveLength(1);
+      expect(
+        grants[0],
+        `${connection?.info?.id} must grant read to a group, not to a user or to everyone`
+      ).toMatchObject({ principal_type: "group", permission: "read" });
+      expect(
+        String(grants[0]?.principal_id || ""),
+        `${connection?.info?.id} must name a resolved OpenWebUI group id`
+      ).not.toHaveLength(0);
+      expect(
+        connection?.config?.enable,
+        `${connection?.info?.id} must be enabled; the deploy enables a server only together with its grant`
+      ).toBeTruthy();
+    }
+
+    const tools = await page.request.get(`${base}/api/v1/tools/`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    expect(
+      tools.ok(),
+      `the tool list must answer the administrator (HTTP ${tools.status()})`
+    ).toBeTruthy();
+
+    const served = JSON.stringify(await tools.json());
+    for (const id of expected) {
+      expect(
+        served,
+        `the administrator holds ${id}'s mcp group, so its tools must be served; absence means the OIDC group mapping or the grant is wrong`
+      ).toContain(id);
     }
   });
 };

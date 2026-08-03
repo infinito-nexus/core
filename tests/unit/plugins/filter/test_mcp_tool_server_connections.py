@@ -32,8 +32,36 @@ class TestMcpToolServerConnections(unittest.TestCase):
         self.assertEqual(entry["type"], "mcp")
         self.assertEqual(entry["auth_type"], "bearer")
         self.assertEqual(entry["key"], "secret")
-        self.assertTrue(entry["config"]["enable"])
+        self.assertFalse(
+            entry["config"]["enable"],
+            "an entry with no grant must not be served: OpenWebUI reads empty grants "
+            "as every administrator, which is wider than the role's mcp group",
+        )
+        self.assertEqual(entry["config"]["access_grants"], [])
         self.assertEqual(entry["info"]["id"], "web-app-homeassistant")
+
+    def test_no_connection_is_offered_to_every_signed_in_user(self):
+        result = mcp_tool_server_connections(
+            [
+                {
+                    "id": "web-app-baserow",
+                    "url": "http://baserow/mcp/key/sse",
+                    "token": "secret",
+                    "auth": "app_password",
+                },
+                {
+                    "id": "web-app-homeassistant",
+                    "url": "http://homeassistant:8123/api/mcp",
+                    "token": "secret",
+                    "auth": "bearer_token",
+                },
+            ]
+        )
+
+        self.assertEqual(len(result), 2)
+        for entry in result:
+            self.assertNotIn("access_control", entry["config"])
+            self.assertEqual(entry["config"]["access_grants"], [])
 
     def test_entry_without_url_is_dropped(self):
         self.assertEqual(

@@ -6,6 +6,14 @@ Open WebUI reads ``TOOL_SERVER_CONNECTIONS`` as a JSON list validated by its
 ``ToolServerConnection`` model. For ``type: mcp`` it connects to ``url``
 directly, so the discovered endpoint URL goes there whole and ``path`` stays
 empty.
+
+Entries render disabled. An empty ``config.access_grants`` is not "nobody":
+``has_connection_access`` reads it as every administrator, which is wider than
+the role's ``mcp`` group and would apply on every start, because
+``ENABLE_PERSISTENT_CONFIG=false`` makes this env authoritative again after a
+restart. ``tasks/01_mcp.yml`` resolves the group, whose Open WebUI id exists
+only at runtime, and enables the entry in the same write. Until it does, the
+tool server is not served at all.
 """
 
 from __future__ import annotations
@@ -45,7 +53,7 @@ def mcp_tool_server_connections(servers: Sequence[Mapping[str, Any]]) -> list[di
                 "type": TOOL_SERVER_TYPE,
                 "auth_type": AUTH_TYPE_BEARER,
                 "key": str(server.get("token", "")),
-                "config": {"enable": True, "access_control": None},
+                "config": {"enable": False, "access_grants": []},
                 "info": {"id": server_id, "name": server_id},
             }
         )

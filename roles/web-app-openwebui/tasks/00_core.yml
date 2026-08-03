@@ -6,3 +6,7 @@
     name: sys-stk-full
   vars:
     compose_repository_pull: false
+
+- name: "🔌 Provision MCP tool-server access grants"
+  ansible.builtin.include_tasks: 01_mcp.yml
+  when: OPENWEBUI_MCP_SERVERS | length > 0

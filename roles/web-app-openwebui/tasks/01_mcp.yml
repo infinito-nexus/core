@@ -1,0 +1,45 @@
+---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: OPENWEBUI
+    resolve_compose_cid: "{{ OPENWEBUI_CONTAINER }}"
+
+- name: "🔧 Map every discovered MCP server to its role's mcp group"
+  ansible.builtin.set_fact:
+    openwebui_mcp_groups: >-
+      {{ openwebui_mcp_groups | default({})
+         | combine({item.id: '/' ~ lookup('rbac_group_path', application_id=item.id, role='mcp')}) }}
+  loop: "{{ OPENWEBUI_MCP_SERVERS }}"
+  loop_control:
+    label: "{{ item.id }}"
+
+- name: "🔑 Grant the mcp group read access to every MCP tool server"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - "OPENWEBUI_BASE=http://localhost:{{ OPENWEBUI_INTERNAL_HTTP_PORT }}"
+      - -e
+      - "OPENWEBUI_ADMIN_EMAIL={{ OPENWEBUI_API_BOT_USER.email }}"
+      - -e
+      - "OPENWEBUI_ADMIN_NAME={{ OPENWEBUI_API_BOT_USER.username }}"
+      - -e
+      - "OPENWEBUI_ADMIN_PASSWORD={{ OPENWEBUI_API_BOT_USER.password }}"
+      - -e
+      - "OPENWEBUI_MCP_GROUPS={{ openwebui_mcp_groups | to_json }}"
+      - "{{ OPENWEBUI_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - python3
+      - "-"
+    stdin: "{{ lookup('file', 'provision_mcp_grants.py') }}"
+  register: openwebui_mcp_grants
+  retries: 30
+  delay: 10
+  until: openwebui_mcp_grants.rc == 0
+  changed_when: openwebui_mcp_grants.stdout.startswith('CHANGED')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ OPENWEBUI_HOST_NODE }}"
+  run_once: true

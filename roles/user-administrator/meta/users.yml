@@ -9,5 +9,6 @@ administrator:
   gid: 1001
   roles:
     - administrator
+    - mcp
   authorized_keys: []
   accounts: [host, mailbox, identity]

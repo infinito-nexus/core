@@ -10,6 +10,8 @@ OPENWEBUI_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enab
 OPENWEBUI_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') }}"
 OPENWEBUI_LITELLM_API_KEY: "{{ lookup('config', application_id, 'credentials.litellm_api_key') }}"
 OPENWEBUI_MCP_SERVERS: "{{ MCP_DISCOVERED_SERVERS if (lookup('config', application_id, 'services.mcp.enabled') | bool) else [] }}"
+OPENWEBUI_INTERNAL_HTTP_PORT: "{{ lookup('config', application_id, 'services.openwebui.ports.internal.http') }}"
+OPENWEBUI_API_BOT_USER: "{{ lookup('users', 'openwebui-api-bot') }}"
 
 OPENWEBUI_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 OPENWEBUI_OIDC_REDIRECT_URL: "{{ [OPENWEBUI_URL,'/oauth/oidc/callback'] | url_join }}"

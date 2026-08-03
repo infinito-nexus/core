@@ -1,0 +1,163 @@
+import asyncio
+import json
+import os
+import secrets
+import sys
+import urllib.error
+import urllib.request
+from copy import deepcopy
+
+sys.path.insert(0, "/app/backend")
+
+BASE = os.environ.get("OPENWEBUI_BASE", "").rstrip("/")
+GROUPS = json.loads(os.environ.get("OPENWEBUI_MCP_GROUPS", "{}"))
+ADMIN_EMAIL = os.environ.get("OPENWEBUI_ADMIN_EMAIL", "")
+ADMIN_NAME = os.environ.get("OPENWEBUI_ADMIN_NAME", "administrator")
+ADMIN_PASSWORD = os.environ.get("OPENWEBUI_ADMIN_PASSWORD", "")
+
+
+async def resolve_api_key():
+    """Return an administrator API key and whether this run minted it.
+
+    Signup cannot be used: Open WebUI only promotes a signup to admin while it
+    is the very first user, and disables signup afterwards. So the key is taken
+    from an existing administrator, and only a deployment with no users at all
+    creates one. A key minted here is removed again once the run is done, so the
+    deploy leaves no standing admin credential behind.
+    """
+    from open_webui.models.auths import Auths
+    from open_webui.models.users import Users
+    from open_webui.utils.auth import get_password_hash
+
+    existing = (await Users.get_users()).get("users") or []
+    admin = next((user for user in existing if user.role == "admin"), None)
+    if admin is None:
+        admin = await Auths.insert_new_auth(
+            email=ADMIN_EMAIL.lower(),
+            password=await get_password_hash(ADMIN_PASSWORD),
+            name=ADMIN_NAME,
+            role="admin",
+        )
+    if admin is None:
+        sys.exit("FAILED: no administrator exists and one could not be created")
+
+    key = await Users.get_user_api_key_by_id(admin.id)
+    if key:
+        return admin.id, key, False
+
+    key = f"sk-{secrets.token_hex(32)}"
+    if not await Users.update_user_api_key_by_id(admin.id, key):
+        sys.exit(f"FAILED: could not mint an API key for {admin.id}")
+    return admin.id, key, True
+
+
+async def drop_api_key(user_id):
+    from open_webui.models.users import Users
+
+    await Users.delete_user_api_key_by_id(user_id)
+
+
+def call(path, key, payload=None):
+    data = json.dumps(payload).encode() if payload is not None else None
+    request = urllib.request.Request(  # noqa: S310 - fixed http:// base from OPENWEBUI_BASE, no user-supplied scheme
+        f"{BASE}{path}",
+        data=data,
+        method="POST" if data else "GET",
+    )
+    request.add_header("Content-Type", "application/json")
+    request.add_header("Authorization", f"Bearer {key}")
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:  # noqa: S310 - fixed http:// base from OPENWEBUI_BASE, no user-supplied scheme
+            return response.status, json.loads(response.read() or b"null")
+    except urllib.error.HTTPError as error:
+        return error.code, error.read().decode(errors="replace")
+
+
+def group_id(key, name):
+    status, body = call("/api/v1/groups/", key)
+    if status != 200:
+        sys.exit(f"FAILED listing groups: {status} {body}")
+
+    matches = [group for group in body if group.get("name") == name]
+    if len(matches) > 1:
+        sys.exit(f"FAILED: {len(matches)} groups named {name}, refusing to guess")
+    if matches:
+        return matches[0]["id"]
+
+    status, body = call(
+        "/api/v1/groups/create",
+        key,
+        {"name": name, "description": "MCP tool server access"},
+    )
+    if status != 200:
+        sys.exit(f"FAILED creating group {name}: {status} {body}")
+    return body["id"]
+
+
+def grant(key):
+    status, body = call("/api/v1/configs/tool_servers", key)
+    if status != 200:
+        sys.exit(f"FAILED reading tool servers: {status} {body}")
+
+    connections = body.get("TOOL_SERVER_CONNECTIONS") or []
+    before = len(connections)
+    original = deepcopy(connections)
+    wanted = {}
+    for connection in connections:
+        server_id = (connection.get("info") or {}).get("id")
+        name = GROUPS.get(server_id)
+        if connection.get("type") != "mcp" or not name:
+            continue
+        wanted[server_id] = group_id(key, name)
+        config = connection.setdefault("config", {})
+        config["access_grants"] = [
+            {
+                "principal_type": "group",
+                "principal_id": wanted[server_id],
+                "permission": "read",
+            }
+        ]
+        config["enable"] = True
+
+    if connections == original:
+        return len(wanted), False
+
+    status, body = call(
+        "/api/v1/configs/tool_servers", key, {"TOOL_SERVER_CONNECTIONS": connections}
+    )
+    if status != 200:
+        sys.exit(f"FAILED writing tool servers: {status} {body}")
+
+    status, body = call("/api/v1/configs/tool_servers", key)
+    if status != 200:
+        sys.exit(f"FAILED re-reading tool servers: {status} {body}")
+
+    written = body.get("TOOL_SERVER_CONNECTIONS") or []
+    if len(written) != before:
+        sys.exit(f"FAILED: connection count changed from {before} to {len(written)}")
+
+    for connection in written:
+        server_id = (connection.get("info") or {}).get("id")
+        if server_id not in wanted:
+            continue
+        config = connection.get("config") or {}
+        grants = config.get("access_grants") or []
+        ids = [
+            g.get("principal_id") for g in grants if g.get("principal_type") == "group"
+        ]
+        if ids != [wanted[server_id]]:
+            sys.exit(f"FAILED: {server_id} carries {grants} instead of one group grant")
+        if not config.get("enable"):
+            sys.exit(f"FAILED: {server_id} stayed disabled after the grant was written")
+
+    return len(wanted), True
+
+
+if __name__ == "__main__":
+    admin_id, api_key, minted = asyncio.run(resolve_api_key())
+    try:
+        granted, changed = grant(api_key)
+    finally:
+        if minted:
+            asyncio.run(drop_api_key(admin_id))
+    print(f"{'CHANGED' if changed else 'OK'} granted={granted}")
