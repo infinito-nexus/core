@@ -69,6 +69,7 @@ The role exposes Jenkins as an MCP server through the [MCP Server plugin](https:
 | Property | Value |
 | --- | --- |
 | Transport | `streamable_http` |
+| Plugin | `mcp-server` pinned to `0.190.ve5a_6581ffc96` in [`files/plugins.txt`](./files/plugins.txt) |
 | Endpoint | `http://jenkins:8080/mcp-server/mcp` |
 | Health | `/mcp-health` |
 | Auth | `basic_auth` (`Authorization: Basic base64(<user>:<apiToken>)`) |
@@ -93,6 +94,13 @@ curl -u "<administrator>:<apiToken>" \
 
 Off. `services.mcp.enabled` is true only while `web-app-hermes` or
 `web-app-openclaw` is part of the deployment.
+
+### Authorization subject
+
+`auth_subject: administrator`: the API token is issued against the
+administrator account, so every call carries that account's rights no matter who
+asked the client. Reaching the tool server is gated on the role's `mcp` RBAC
+group, which is a separate grant from administering Jenkins.
 
 ### Tool scope
 

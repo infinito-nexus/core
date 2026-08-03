@@ -1,5 +1,5 @@
 configuration-as-code:latest
-mcp-server:latest
+mcp-server:0.190.ve5a_6581ffc96
 oic-auth:latest
 ldap:latest
 role-strategy:latest
