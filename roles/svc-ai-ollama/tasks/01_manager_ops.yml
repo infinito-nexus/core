@@ -14,7 +14,7 @@
   loop_control:
     loop_var: model
   # rationale: async; model pulls run overlapped, results reaped below before playwright
-  async: "{{ OLLAMA_PRELOAD_ASYNC_TIME }}"
+  async: "{{ OLLAMA_PRELOAD_ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
   changed_when: false
   delegate_to: "{{ OLLAMA_HOST_NODE }}"
