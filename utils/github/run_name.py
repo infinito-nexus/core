@@ -31,6 +31,54 @@ def template() -> str:
     return str(declared)
 
 
+def _split(tpl: str) -> tuple[list[str], list[str]]:
+    """Alternating pieces of a run-name template.
+
+    Args:
+        tpl: run-name template text.
+
+    Returns:
+        ``(literals, expressions)`` with ``len(literals) ==
+        len(expressions) + 1``; ``literals[i]`` precedes ``expressions[i]``.
+    """
+    cursor = 0
+    literals: list[str] = []
+    expressions: list[str] = []
+    for match in _EXPRESSION.finditer(tpl):
+        literals.append(tpl[cursor : match.start()])
+        expressions.append(match.group(1).strip())
+        cursor = match.end()
+    literals.append(tpl[cursor:])
+    return literals, expressions
+
+
+def _openings_after(
+    literals: list[str], expressions: list[str], index: int
+) -> list[str]:
+    """Literal texts any later segment can start with.
+
+    Args:
+        literals: template literals from :func:`_split`.
+        expressions: template expressions from :func:`_split`.
+        index: expression position after which segments are inspected.
+
+    Returns:
+        Every non-empty rendering a later segment can open with: the leading
+        literal of each quoted string inside later expressions (format
+        placeholders stripped) and each later inter-expression literal.
+    """
+    openings: list[str] = []
+    for j in range(index + 1, len(expressions)):
+        for quoted in re.findall(r"'([^']*)'", expressions[j]):
+            head = quoted.split("{", 1)[0].strip()
+            if head:
+                openings.append(head)
+        trailing = literals[j + 1].strip()
+        if trailing:
+            openings.append(trailing)
+    return openings
+
+
 def frame(input_name: str, tpl: str | None = None) -> tuple[str, str]:
     """Literal text surrounding ``inputs.<input_name>`` in the run name.
 
@@ -47,16 +95,8 @@ def frame(input_name: str, tpl: str | None = None) -> tuple[str, str]:
             name, so no literal frame identifies its value.
     """
     tpl = template() if tpl is None else tpl
+    literals, expressions = _split(tpl)
     wanted = f"inputs.{input_name}"
-    cursor = 0
-    literals: list[str] = []
-    expressions: list[str] = []
-    for match in _EXPRESSION.finditer(tpl):
-        literals.append(tpl[cursor : match.start()])
-        expressions.append(match.group(1).strip())
-        cursor = match.end()
-    literals.append(tpl[cursor:])
-
     for index, expression in enumerate(expressions):
         if expression == wanted:
             return literals[index], literals[index + 1]
@@ -84,11 +124,33 @@ def value_from_title(title: str, input_name: str, tpl: str | None = None) -> str
     Returns an empty string when *title* does not follow the run name at all —
     a run from another entry point carries an unrelated title, and guessing a
     value for it would be worse than admitting ignorance.
+
+    The value's end is the literal that follows it in the template; when that
+    literal is only whitespace, the earliest opening any later segment can
+    render (:func:`_openings_after`) terminates the value instead.
     """
-    before, after = frame(input_name, tpl)
+    tpl = template() if tpl is None else tpl
+    literals, expressions = _split(tpl)
+    wanted = f"inputs.{input_name}"
+    try:
+        index = expressions.index(wanted)
+    except ValueError:
+        raise ValueError(f"{wanted} is not interpolated on its own in: {tpl}") from None
+    before, after = literals[index], literals[index + 1]
     if not title.startswith(before):
         return ""
     rest = title[len(before) :]
-    if after:
+    if after.strip():
         rest = rest.split(after, 1)[0]
+    else:
+        cuts = [
+            found
+            for found in (
+                rest.find(opening)
+                for opening in _openings_after(literals, expressions, index)
+            )
+            if found != -1
+        ]
+        if cuts:
+            rest = rest[: min(cuts)]
     return " ".join(rest.split())

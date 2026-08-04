@@ -1,4 +1,4 @@
-name: "⚡ CI: Push"
+name: "📤 Push"
 
 concurrency:
   group: global-ci-${{ github.repository }}-${{ github.ref_name }}

@@ -17,6 +17,7 @@ Pulls only. Pushes are not intercepted.
 | Format | Repo names | Upstream |
 |---|---|---|
 | `apt` | `apt-debian`, `apt-debian-security`, `apt-ubuntu`, `apt-ubuntu-security` | `deb.debian.org`, `archive.ubuntu.com`, `security.ubuntu.com` |
+| `apt` (mirrors) | `apt-debian-mirror`, `apt-debian-security-mirror`, `apt-ubuntu-mirror`, `apt-ubuntu-security-mirror` | `ftp.debian.org`, `security.debian.org`, `de.archive.ubuntu.com` |
 | `pypi` | `pypi-proxy` | `pypi.org` (incl. `files.pythonhosted.org`) |
 | `npm` | `npm-proxy` | `registry.npmjs.org` |
 | `rubygems` | `gem-proxy` | `rubygems.org` |
@@ -24,6 +25,10 @@ Pulls only. Pushes are not intercepted.
 | `helm` | `helm-bitnami` | `charts.bitnami.com/bitnami` |
 | `yum` | `yum-rocky`, `yum-fedora` | `download.rockylinux.org`, `dl.fedoraproject.org` |
 | `raw` | `raw-githubusercontent`, `raw-codeload-github`, `raw-packagist`, `raw-alpine` | `raw.githubusercontent.com`, `codeload.github.com`, `repo.packagist.org`, `dl-cdn.alpinelinux.org` |
+
+A proxy repo that holds a cached copy serves it when its remote is unreachable, regardless of `metadataMaxAge` (measured). `autoBlock` is therefore off: while a remote is auto-blocked Nexus answers `404 Remote Auto Blocked` instead of falling back to that cached copy. The mirror repos below only come into play when nothing is cached either.
+
+Every apt suite exists twice, once per upstream mirror. Nexus has no group repository type for `apt` (only maven, raw, docker, yum, npm, pypi, rubygems, go and friends), so the failover lives in the frontend: a request that the primary repo answers with `502`/`503`/`504` is re-run against the `-mirror` repo, which proxies a different host. `404` deliberately does not retry, because a missing file is missing on both mirrors and apt probes for missing files often.
 
 Bootstrap is idempotent and runs from [package.sh](../../../scripts/docker/cache/package.sh) once the stack is healthy.
 
@@ -45,7 +50,7 @@ The `cache` decision is exposed via `Profile.registry_cache_active()` in [profil
 - [compose/cache.override.yml](../../../compose/cache.override.yml) is layered on top of the base [compose.yml](../../../compose.yml) by [compose.py](../../../cli/administration/deploy/development/compose.py) and [down.py](../../../cli/administration/deploy/development/down.py) via [common.py](../../../cli/administration/deploy/development/common.py)`compose_file_args`.
 - The cache services are added.
 - The runner's `infinito` service receives:
-  - bind-mounts for the registry-cache CA, the package-cache client snippets (`pip.conf`, `npmrc`, `apt.list`), and the frontend CA file
+  - bind-mounts for the registry-cache CA, the package-cache client snippets (`pip.conf`, `npmrc`, `apt/${INFINITO_DISTRO}.list`), and the frontend CA file
   - `extra_hosts` entries DNS-hijacking the HTTPS upstream hostnames to the frontend's static IP
   - `INFINITO_CACHE_PACKAGE_FRONTEND_IP` env var for the inner compose wrapper
 - Cert generation, Nexus repo bootstrap, and runner trust-store install run from [compose.py](../../../cli/administration/deploy/development/compose.py).
@@ -59,7 +64,7 @@ CI signals (`GITHUB_ACTIONS=true`, `INFINITO_RUNNING_ON_GITHUB=true`, `CI=true`)
 | Traffic | Mechanism | Cached |
 |---|---|---|
 | Image pulls (any registry, inner `dockerd`) | `registry-cache` MITM via `HTTP_PROXY` env on `dockerd` | ✓ |
-| `apt-get install` (Ansible task in runner) | `apt.list` URL-rewrite to `package-cache:8081` | ✓ |
+| `apt-get install` (Ansible task in runner) | `apt/${INFINITO_DISTRO}.list` URL-rewrite to `package-cache:8081` | ✓ |
 | `pip install` (Ansible task in runner) | `pip.conf` URL-rewrite | ✓ |
 | `npm install` (Ansible task in runner) | `.npmrc` URL-rewrite | ✓ |
 | `gem`, `composer`, `go`, `curl https://…` (Ansible task in runner) | DNS-hijack + frontend HTTPS + runner CA-trust | ✓ |

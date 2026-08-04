@@ -1,27 +1,32 @@
 #!/usr/bin/env bash
-# Resolve which filesystem one matrix entry runs its docker data root on and
-# record the decision for the steps that follow.
+# Resolve which filesystem one distro iteration runs its docker data root on and
+# hand the decision to the applying step.
 #
-# A random pick draws from what this kernel serves, measured here, narrowed to
-# what every distro of the entry carries a userland for. A stated pick is
-# honoured even where it is unsupported, and the applying step then fails. The
-# choice goes to the step summary, since reproducing a red run means re-stating
-# it verbatim.
+# The draw happens once per distro rather than once per matrix entry, so a single
+# entry covers several filesystems instead of locking all of its distros to the
+# one kind that came up first. The pool is what this kernel serves, measured
+# here; every distro image carries the userland for all three, baked by
+# scripts/install/filesystem.sh. Naming kinds narrows the pool to them and makes the
+# pick mandatory, so a host that cannot deliver one of them fails instead of
+# quietly running on something else. The choice goes to the step summary, since
+# reproducing a red run means re-stating it verbatim.
 #
 # Arguments:
-#   $1 STATED   ext4 | btrfs | zfs; 'auto' or empty for a random pick
-#   $2 LABEL    matrix entry the pick belongs to, e.g. compose/web-app-gitea
-#   $3 DISTROS  space-separated distributions the entry deploys on
-#   $4 SCOPE    node   every distro in DISTROS must carry the userland too
-#               runner DISTROS is ignored; only the kernel decides
+#   $1 ALLOWED  space-separated subset of 'ext4 btrfs zfs' the draw may use;
+#               empty draws from all three
+#   $2 LABEL    what the pick belongs to, e.g. compose/web-app-gitea/debian
+#   $3 DISTROS  distributions the pick covers, recorded with the decision
+#   $4 SCOPE    runner | node; names where the pick gets applied. The kernel
+#               measured here is the runner's either way, because the node
+#               containers share it.
 set -euo pipefail
 
-STATED="${1:-}"
-LABEL="${2:?usage: resolve.sh STATED LABEL DISTROS SCOPE}"
+ALLOWED="${1:-}"
+LABEL="${2:?usage: resolve.sh ALLOWED LABEL DISTROS SCOPE}"
 DISTROS="${3:-}"
-SCOPE="${4:?usage: resolve.sh STATED LABEL DISTROS SCOPE}"
+SCOPE="${4:?usage: resolve.sh ALLOWED LABEL DISTROS SCOPE}"
 
-POOL="ext4 btrfs zfs"
+KINDS="ext4 btrfs zfs"
 
 note() {
 	echo "filesystem: $*" >&2
@@ -44,54 +49,48 @@ kernel_serves() {
 	return 1
 }
 
-userland_for() {
-	case "$1" in
-	centos | arch | fedora) echo "ext4 btrfs" ;;
-	*) echo "ext4 btrfs zfs" ;;
-	esac
-}
-
-every_distro_carries() {
-	local fs="$1" distro
-	[ "${SCOPE}" = node ] || return 0
-	for distro in ${DISTROS}; do
-		case " $(userland_for "${distro}") " in
-		*" ${fs} "*) ;;
-		*) return 1 ;;
-		esac
-	done
-	return 0
-}
-
+# Param: $1 space-separated kinds the draw is allowed to use
 candidates() {
 	local kept="" fs
-	for fs in ${POOL}; do
+	for fs in $1; do
 		if ! kernel_serves "${fs}"; then
-			continue
-		fi
-		if ! every_distro_carries "${fs}"; then
-			note "${fs} left out: not every distro of this entry carries the userland"
 			continue
 		fi
 		kept="${kept} ${fs}"
 	done
-	kept="${kept# }"
-	echo "${kept:-ext4}"
+	echo "${kept# }"
 }
 
-if [ -n "${STATED}" ] && [ "${STATED}" != auto ]; then
-	PICKED="${STATED}"
-	ORIGIN="stated"
+read -ra ALLOWED_KINDS <<<"${ALLOWED}"
+
+for fs in "${ALLOWED_KINDS[@]}"; do
+	case " ${KINDS} " in
+	*" ${fs} "*) ;;
+	*)
+		echo "filesystem: '${fs}' is not one of ${KINDS}" >&2
+		exit 2
+		;;
+	esac
+done
+
+if [ "${#ALLOWED_KINDS[@]}" -gt 0 ]; then
 	REQUIRED=true
+	POOL="$(candidates "${ALLOWED_KINDS[*]}")"
+	if [ -z "${POOL}" ]; then
+		note "this kernel serves none of '${ALLOWED_KINDS[*]}'; the applying step reports why"
+		POOL="${ALLOWED_KINDS[*]}"
+	fi
 else
-	POOL="$(candidates)"
-	read -ra POOL_ENTRIES <<<"${POOL}"
-	PICKED="$(printf '%s\n' "${POOL_ENTRIES[@]}" | shuf -n1)"
-	ORIGIN="random out of '${POOL}' on the ${SCOPE}; re-state it to reproduce this run"
 	REQUIRED=false
+	POOL="$(candidates "${KINDS}")"
+	POOL="${POOL:-ext4}"
 fi
 
-echo "filesystem for ${LABEL}: ${PICKED} (${ORIGIN})"
+read -ra POOL_ENTRIES <<<"${POOL}"
+PICKED="$(printf '%s\n' "${POOL_ENTRIES[@]}" | shuf -n1)"
+ORIGIN="random out of '${POOL}' on the ${SCOPE}; re-state it to reproduce this run"
+
+echo "filesystem for ${LABEL} on '${DISTROS}': ${PICKED} (${ORIGIN})"
 
 if [ -n "${GITHUB_ENV:-}" ]; then
 	{

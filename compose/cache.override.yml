@@ -140,8 +140,8 @@ services:
       - ${INFINITO_CACHE_PACKAGE_PIP_CONF:?Set by 'cli deploy development up' / 'make compose-up' (driver-injected, not produced by 'make
         dotenv')}:/etc/pip.conf:ro
       - ${INFINITO_CACHE_PACKAGE_NPMRC:?Set by 'cli deploy development up' / 'make compose-up' (driver-injected, not produced by 'make dotenv')}:/root/.npmrc:ro
-      - ${INFINITO_CACHE_PACKAGE_APT_LIST:?Set by 'cli deploy development up' / 'make compose-up' (driver-injected, not produced by 'make
-        dotenv')}:/etc/apt/sources.list.d/package-cache.list:ro
+      - ./compose/package-cache/apt/${INFINITO_DISTRO:?Run 'make dotenv' to generate the .env single source of
+        truth}.list:/etc/apt/sources.list.d/package-cache.list:ro
       - ${INFINITO_CACHE_PACKAGE_FRONTEND_CA_FILE:?Set by 'cli deploy development up' / 'make compose-up' (driver-injected, not produced by 'make
         dotenv')}:/opt/package-frontend-ca.crt:ro
       - ./scripts/docker/cache/package-frontend/ca.sh:/usr/local/bin/package-frontend-ca.sh:ro

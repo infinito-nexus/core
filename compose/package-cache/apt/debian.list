@@ -1,0 +1,11 @@
+# apt sources for the Debian runner: routes apt-get through the
+# package-cache (Sonatype Nexus 3 OSS) pull-through proxy.
+#
+# Real mirror hostname, not the `package-cache` service name, which
+# coredns — the container's resolver — cannot resolve; the compose
+# overrides map the hostname to the cache frontend via extra_hosts.
+#
+# One file per INFINITO_DISTRO: apt fails the whole `apt-get update`
+# when a single source is unreachable, so a Debian runner must never
+# carry the Ubuntu entry.
+deb [trusted=yes] http://deb.debian.org/debian bookworm main

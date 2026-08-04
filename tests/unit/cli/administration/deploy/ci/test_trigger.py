@@ -30,7 +30,7 @@ _RUN_URL = "https://github.com/o/r/actions/runs/55"  # nocheck: url
 _SOURCE_RUN = {
     "jobs": _JOBS,
     "displayTitle": run_name.title_with(
-        "distros", "arch centos", "diff-derived (origin/main)"
+        "distros", "arch centos", "🔀 diff (origin/main)"
     ),
 }
 

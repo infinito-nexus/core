@@ -30,10 +30,11 @@ COPY . ${INFINITO_SRC_DIR}
 
 # hadolint ignore=DL3008,DL3033,DL3041,SC1090
 RUN set -euo pipefail; \
-  source <(grep -hE '^INFINITO_(PYTHON|DOCKER_CLI|PACKAGE)_INSTALL_SCRIPT=' "${INFINITO_SRC_DIR}/default.env"); \
+  source <(grep -hE '^INFINITO_(PYTHON|DOCKER_CLI|PACKAGE|FILESYSTEM)_INSTALL_SCRIPT=' "${INFINITO_SRC_DIR}/default.env"); \
   /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_PYTHON_INSTALL_SCRIPT:?}"; \
   /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_DOCKER_CLI_INSTALL_SCRIPT:?}"; \
-  /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_PACKAGE_INSTALL_SCRIPT:?}"
+  /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_PACKAGE_INSTALL_SCRIPT:?}"; \
+  /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_FILESYSTEM_INSTALL_SCRIPT:?}"
 
 RUN set -euo pipefail; \
   systemctl mask systemd-firstboot.service first-boot-complete.target || true; \

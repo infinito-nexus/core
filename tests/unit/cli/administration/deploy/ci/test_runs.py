@@ -230,12 +230,12 @@ class TestDistrosFromTitle(unittest.TestCase):
 
     def test_the_distros_are_read_back_from_a_manual_run(self) -> None:
         title = run_name.title_with(
-            "distros", "debian arch centos", "diff-derived (origin/main)"
+            "distros", "debian arch centos", "🔀 diff (origin/main)"
         )
         self.assertEqual(runs.distros_from_title(title), "debian arch centos")
 
     def test_a_priority_segment_does_not_bleed_into_them(self) -> None:
-        title = run_name.title_with("distros", "debian", "web-app-x ⭐; __ALL__")
+        title = run_name.title_with("distros", "debian", "⭐ web-app-x 🎯 __ALL__")
         self.assertEqual(runs.distros_from_title(title), "debian")
 
     def test_a_run_from_another_entry_point_yields_no_override(self) -> None:

@@ -47,6 +47,26 @@ class VolumeRecovery(DirectoryRecovery):
             capture_output=True,
             text=True,
         ).stdout.strip()
+        options = subprocess.run(
+            [*docker, "volume", "inspect", "--format", "{{json .Options}}", volume],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+        if options not in ("", "null", "{}"):
+            probe = (
+                ["ssh", docker_host.split("://", 1)[-1], "mountpoint", "-q", mountpoint]
+                if docker_host
+                else ["mountpoint", "-q", mountpoint]
+            )
+            if subprocess.run(probe, check=False).returncode != 0:
+                raise SystemExit(
+                    f"volume {volume} declares its own backing store ({options}) but "
+                    f"{mountpoint} is not mounted; docker mounts such volumes only while "
+                    "a container holds them, so a restore now would land on the node "
+                    "disk and be shadowed by the real backing store on the next mount. "
+                    "Start a container that holds the volume, then retry."
+                )
         target = (
             f"{docker_host.split('://', 1)[-1]}:{mountpoint}"
             if docker_host

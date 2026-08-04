@@ -36,3 +36,6 @@ nextcloud_system_config:
   - parameter: "trusted_proxies"
     type: "json"
     value: "{{ NEXTCLOUD_TRUSTED_PROXIES }}"
+
+  - parameter: "log_type"
+    value: "errorlog"

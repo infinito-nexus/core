@@ -13,6 +13,16 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../.." && pwd)"
 
 : "${apps:?apps is required (e.g. apps=web-app-keycloak)}"
 : "${INFINITO_DISTRO:?INFINITO_DISTRO is required (exported by scripts/tests/deploy/distros.sh)}"
+: "${INFINITO_DEPLOY_MODE:?INFINITO_DEPLOY_MODE is required (declared by the deploy workflow)}"
+
+# shellcheck source=scripts/tests/deploy/utils/filesystem/pick.sh
+. "${REPO_ROOT}/scripts/tests/deploy/utils/filesystem/pick.sh"
+filesystem_pick "${INFINITO_DEPLOY_MODE}/${apps}/${INFINITO_DISTRO}" runner
+if [ -n "${INFINITO_DOCKER_FILESYSTEM:-}" ]; then
+	sudo -E "${REPO_ROOT}/scripts/tests/deploy/utils/filesystem/docker_dataroot.sh" \
+		"${INFINITO_DOCKER_FILESYSTEM}" "${INFINITO_DOCKER_FILESYSTEM_REQUIRED}" 30G \
+		"${INFINITO_DEPLOY_MODE}-runner"
+fi
 
 INFINITO_IMAGE="$(bash "${REPO_ROOT}/scripts/meta/resolve/image/ci.sh")"
 export INFINITO_IMAGE

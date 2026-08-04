@@ -55,14 +55,99 @@ class VolumeRecoverTests(unittest.TestCase):
             mount = Path(td) / "mount"
             mount.mkdir()
             with mock.patch.object(
-                mod.subprocess, "run", return_value=mock.Mock(stdout=f"{mount}\n")
+                mod.subprocess,
+                "run",
+                side_effect=[
+                    mock.Mock(stdout=f"{mount}\n"),
+                    mock.Mock(stdout="null\n"),
+                ],
             ) as run:
                 rec = mod.VolumeRecovery(str(source), "myvol", service_backup=False)
-            cmd = run.call_args.args[0]
+            cmd = run.call_args_list[0].args[0]
             self.assertEqual(cmd[:4], ["docker", "volume", "inspect", "--format"])
             self.assertEqual(cmd[-1], "myvol")
             self.assertEqual(rec.target_dir, mount)
             self.assertFalse(rec.service_backup)
+
+    def test_refuses_unmounted_backing_store(self):
+        mod = _load("svc-bkp-volume-2-local", "volume_recover")
+        with tempfile.TemporaryDirectory() as td:
+            source = Path(td) / "source"
+            source.mkdir()
+            mount = Path(td) / "mount"
+            mount.mkdir()
+            options = '{"device":":/export/x","o":"addr=10.0.0.1","type":"nfs"}'
+            with (
+                mock.patch.object(
+                    mod.subprocess,
+                    "run",
+                    side_effect=[
+                        mock.Mock(stdout=f"{mount}\n"),
+                        mock.Mock(stdout=f"{options}\n"),
+                        mock.Mock(returncode=1),
+                    ],
+                ) as run,
+                self.assertRaisesRegex(SystemExit, "not mounted"),
+            ):
+                mod.VolumeRecovery(str(source), "myvol", service_backup=False)
+            self.assertEqual(
+                run.call_args_list[2].args[0], ["mountpoint", "-q", str(mount)]
+            )
+
+    def test_accepts_mounted_backing_store(self):
+        mod = _load("svc-bkp-volume-2-local", "volume_recover")
+        with tempfile.TemporaryDirectory() as td:
+            source = Path(td) / "source"
+            source.mkdir()
+            mount = Path(td) / "mount"
+            mount.mkdir()
+            options = '{"device":":/export/x","o":"addr=10.0.0.1","type":"nfs"}'
+            with mock.patch.object(
+                mod.subprocess,
+                "run",
+                side_effect=[
+                    mock.Mock(stdout=f"{mount}\n"),
+                    mock.Mock(stdout=f"{options}\n"),
+                    mock.Mock(returncode=0),
+                ],
+            ):
+                rec = mod.VolumeRecovery(str(source), "myvol", service_backup=False)
+            self.assertEqual(rec.target_dir, mount)
+
+    def test_probes_remote_mount_over_ssh(self):
+        mod = _load("svc-bkp-volume-2-local", "volume_recover")
+        with tempfile.TemporaryDirectory() as td:
+            source = Path(td) / "source"
+            source.mkdir()
+            options = '{"device":":/export/x","type":"nfs"}'
+            with (
+                mock.patch.object(
+                    mod.subprocess,
+                    "run",
+                    side_effect=[
+                        mock.Mock(stdout="/var/lib/docker/volumes/x/_data\n"),
+                        mock.Mock(stdout=f"{options}\n"),
+                        mock.Mock(returncode=1),
+                    ],
+                ) as run,
+                self.assertRaisesRegex(SystemExit, "not mounted"),
+            ):
+                mod.VolumeRecovery(
+                    str(source),
+                    "myvol",
+                    service_backup=False,
+                    docker_host="ssh://root@node-1",
+                )
+            self.assertEqual(
+                run.call_args_list[2].args[0],
+                [
+                    "ssh",
+                    "root@node-1",
+                    "mountpoint",
+                    "-q",
+                    "/var/lib/docker/volumes/x/_data",
+                ],
+            )
 
     def test_main_wires_argparse_to_recovery(self):
         mod = _load("svc-bkp-volume-2-local", "volume_recover")

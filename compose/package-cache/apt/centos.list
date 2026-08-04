@@ -1,0 +1,4 @@
+# Empty on purpose: CentOS uses dnf, which reaches the package-cache
+# through `yum-rocky`, not through apt. The bind mount is unconditional
+# in the compose overrides, and docker would create a host directory
+# here if the source were missing.

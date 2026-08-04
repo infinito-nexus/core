@@ -30,6 +30,7 @@
     lab_domain_target: "{{ lookup('env', 'INFINITO_SWARM_MGR_IP') }}"
     lab_filesystem: "{{ lookup('env', 'INFINITO_DOCKER_FILESYSTEM') }}"
     lab_filesystem_required: "{{ lookup('env', 'INFINITO_DOCKER_FILESYSTEM_REQUIRED') | default('false', true) }}"
+    lab_dataroot_size: "{{ '60G' if lab_is_mgr else '30G' }}"
     lab_no_proxy: "localhost,127.0.0.1,::1,infinito-registry-cache,{{ lab_mgr }},{{ lab_wrk1 }},{{ lab_wrk2 }},{{ lab_nfs }},{{ lab_backup }},gcr.io,storage.googleapis.com,googleusercontent.com"
   tasks:
     - name: require the lab manager IP (lookup('env') yields '' for a missing key, and an empty dnsmasq address= is valid syntax)
@@ -84,7 +85,7 @@
     - name: put the node docker data root on the stated filesystem (before anything is pulled)
       script: >-
         {{ lab_repo_root }}/scripts/tests/deploy/utils/filesystem/docker_dataroot.sh
-        {{ lab_filesystem }} {{ lab_filesystem_required }}
+        {{ lab_filesystem }} {{ lab_filesystem_required }} {{ lab_dataroot_size }} {{ inventory_hostname }}
       timeout: 600
       when: lab_filesystem | length > 0
       changed_when: true

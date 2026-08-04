@@ -8,4 +8,4 @@ For services, activation, coverage, and operations of the local cache stack, see
 
 - `pip.conf`: pip configuration. Mounted at `/etc/pip.conf`. Routes pip through `pypi-proxy`.
 - `npmrc`: npm configuration. Mounted at `/root/.npmrc`. Routes npm through `npm-proxy`.
-- `apt.list`: apt sources. Mounted at `/etc/apt/sources.list.d/package-cache.list`. Routes apt through `apt-debian` (Debian runners) and `apt-ubuntu` (Ubuntu runners).
+- `apt/<distro>.list`: apt sources, one file per `INFINITO_DISTRO`. The matching file is mounted at `/etc/apt/sources.list.d/package-cache.list`. `apt/debian.list` routes apt through `apt-debian`, `apt/ubuntu.list` through `apt-ubuntu`; the pacman/dnf distros get an empty file, because `apt-get update` fails as a whole on a single unreachable source and must not carry a foreign distro's entry.

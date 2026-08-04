@@ -28,7 +28,7 @@ on:
         type: string
         default: ""
       filesystem:
-        description: "Filesystem the docker data root runs on (ext4, btrfs, zfs). Empty picks one at random."
+        description: "🗄️ Space-separated filesystems the per-distro pick draws from (ext4, btrfs, zfs). Empty: all three."
         required: false
         type: string
         default: ""
@@ -46,6 +46,7 @@ env:
   INFINITO_PLAYWRIGHT_KEEP: ${{ vars.INFINITO_PLAYWRIGHT_KEEP }}
   INFINITO_APP_DISCOVERY_RUNNER: host
   INFINITO_DEPLOY_MODE: compose
+  INFINITO_DOCKER_FILESYSTEM_ALLOWED: ${{ inputs.filesystem }}
   INFINITO_LIFECYCLES: ${{ inputs.lifecycles }}
   INFINITO_BLACKLIST: ${{ inputs.blacklist }}
 jobs:
@@ -150,20 +151,6 @@ jobs:
         if: ${{ !env.ACT }}
         shell: bash
         run: ./scripts/github/runner/relocate_docker_dataroot.sh
-
-      - name: 🗄️ Resolve the filesystem
-        if: ${{ !env.ACT }}
-        shell: bash
-        run: >-
-          ./scripts/tests/deploy/utils/filesystem/resolve.sh "${{ inputs.filesystem }}"
-          "compose/${{ matrix.apps }}" "${{ inputs.distros }}" runner
-
-      - name: 🗄️ Put the Docker data-root on it
-        if: ${{ !env.ACT }}
-        shell: bash
-        run: >-
-          sudo -E ./scripts/tests/deploy/utils/filesystem/docker_dataroot.sh
-          "${INFINITO_DOCKER_FILESYSTEM}" "${INFINITO_DOCKER_FILESYSTEM_REQUIRED}"
 
       - name: 🔍 Resolve repository owner
         shell: bash

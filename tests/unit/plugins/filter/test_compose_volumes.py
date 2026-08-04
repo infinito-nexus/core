@@ -362,7 +362,7 @@ class TestComposeVolumes(unittest.TestCase):
     def test_swarm_pinned_role_stays_node_local(self):
         apps = self._base_apps()
         with mock.patch(
-            "plugins.filter.compose_volumes.get_role_placement",
+            "utils.roles.meta_lookup.get_role_placement",
             return_value="manager",
         ):
             rendered = _call(

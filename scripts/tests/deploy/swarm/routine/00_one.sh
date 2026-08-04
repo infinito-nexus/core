@@ -62,6 +62,10 @@ collect_and_teardown() {
 }
 trap collect_and_teardown EXIT
 
+# shellcheck source=scripts/tests/deploy/utils/filesystem/pick.sh
+. "${REPO_ROOT}/scripts/tests/deploy/utils/filesystem/pick.sh"
+filesystem_pick "swarm/${APP_ID}/${INFINITO_DISTRO}" node
+
 INFINITO_IMAGE="$(bash "${REPO_ROOT}/scripts/meta/resolve/image/local.sh"):${INFINITO_IMAGE_TAG}"
 if docker image inspect "${INFINITO_IMAGE}" >/dev/null 2>&1; then
 	echo "==> node image: locally built ${INFINITO_IMAGE}"

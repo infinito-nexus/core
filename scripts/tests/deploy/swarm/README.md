@@ -11,7 +11,8 @@ bridge (`192.168.244.0/24`, MTU 1400): three swarm nodes (1 manager +
 2 workers), a non-swarm NFSv4 server serving the shared volume storage,
 and a non-swarm backup host for the DR drill. The node image
 ([`compose/swarm/Dockerfile`](../../../../compose/swarm/Dockerfile))
-bakes python3 + dnsmasq; the containers and the lab network are declared
+bakes python3 + dnsmasq and masks the zfs boot units the parent image's
+userland enables; the containers and the lab network are declared
 in [`compose/swarm/compose.yml`](../../../../compose/swarm/compose.yml) (project
 `${SWARM_NAME}`, backup host behind the `drill` profile) and started by
 one `docker compose up` in `routine/01_bootstrap.sh`. Lab DNS is provisioned
@@ -40,15 +41,16 @@ flowchart TB
 
         subgraph drill["🔐 routine/backup/base.sh (DR drill, once, after round 1)"]
             direction TB
-            s1["1️⃣ seed marker into the live NFS volume"]:::drill
-            s2["2️⃣ trigger backup units<br/>volume-2-local @ manager, nfs-2-local @ NFS server"]:::drill
-            s3["3️⃣ locate the generation holding the marker"]:::drill
+            s1["1️⃣ seed markers into the live NFS volume<br/>and the manager secrets"]:::drill
+            s2["2️⃣ trigger backup units<br/>volume + secrets @ manager, nfs-2-local @ NFS server"]:::drill
+            s3["3️⃣ locate the generation holding the marker<br/>3️⃣b assert the volume repo is fresh + non-empty<br/>(its NFS-backed volumes are excluded by design)"]:::drill
             s4["4️⃣ pull to the backup host<br/>remote-2-local over the user-backup ssh wrapper"]:::drill
-            s5["5️⃣ mirror to a LUKS loop 'USB'<br/>local-2-device script.py"]:::drill
-            s6["6️⃣ recover device → local root<br/>local-2-device recover.py (luksOpen + newest snapshot)"]:::drill
-            s7["7️⃣ stack rm + wipe volume, recover root → export<br/>nfs-2-local recover.py"]:::drill
-            s8["8️⃣ recover volume + secrets backups<br/>volume-2-local + secrets recover.py<br/>(marker verified after the update pass)"]:::drill
-            s1 --> s2 --> s3 --> s4 --> s5 --> s6 --> s7 --> s8
+            s5["5️⃣ space gate: pulled tree + watchdog floor,<br/>du breakdown on failure; then LUKS loop 'USB'<br/>via the local-2-device unit"]:::drill
+            s6["6️⃣ full disaster: stack rm"]:::drill
+            s7["7️⃣ wipe the pulled tree, recover device → local root<br/>(luksOpen; the device holds the only copy left)"]:::drill
+            s8["8️⃣ wipe the live export (marker proven gone),<br/>recover root → export, restore NFS coherence"]:::drill
+            s9["9️⃣ delete the marker server-side, recover the volume<br/>through its NFS-mounted mountpoint, re-verify on the<br/>server; recover the host secrets"]:::drill
+            s1 --> s2 --> s3 --> s4 --> s5 --> s6 --> s7 --> s8 --> s9
         end
 
         prov --> dep --> conv --> drill --> purge

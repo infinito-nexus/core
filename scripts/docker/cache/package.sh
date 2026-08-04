@@ -93,44 +93,54 @@ ensure_blobstore() {
 	esac
 }
 
-ensure_proxy_repo() {
-	local format="$1" name="$2" payload="$3"
+ensure_repo() {
+	local format="$1" kind="$2" name="$3" payload="$4"
 	local code
 	code="$(nexus_curl -sS -o /dev/null -w '%{http_code}' \
 		-u "${ADMIN_USER}:${ADMIN_PASS}" \
 		-H "Content-Type: application/json" \
-		-X POST "${NEXUS_REST}/v1/repositories/${format}/proxy" \
+		-X POST "${NEXUS_REST}/v1/repositories/${format}/${kind}" \
 		--data "${payload}" || true)"
 	case "${code}" in
-	201 | 204) log "${format} proxy ${name} created (HTTP ${code})" ;;
+	201 | 204) log "${format} ${kind} ${name} created (HTTP ${code})" ;;
 	400 | 409)
 		code="$(nexus_curl -sS -o /dev/null -w '%{http_code}' \
 			-u "${ADMIN_USER}:${ADMIN_PASS}" \
 			-H "Content-Type: application/json" \
-			-X PUT "${NEXUS_REST}/v1/repositories/${format}/proxy/${name}" \
+			-X PUT "${NEXUS_REST}/v1/repositories/${format}/${kind}/${name}" \
 			--data "${payload}" || true)"
 		case "${code}" in
-		200 | 204) log "${format} proxy ${name} updated (HTTP ${code})" ;;
+		200 | 204) log "${format} ${kind} ${name} updated (HTTP ${code})" ;;
 		*)
-			log "unexpected HTTP ${code} updating ${format} proxy ${name}"
+			log "unexpected HTTP ${code} updating ${format} ${kind} ${name}"
 			return 1
 			;;
 		esac
 		;;
 	*)
-		log "unexpected HTTP ${code} creating ${format} proxy ${name}"
+		log "unexpected HTTP ${code} creating ${format} ${kind} ${name}"
 		return 1
 		;;
 	esac
 }
 
+ensure_proxy_repo() { ensure_repo "$1" proxy "$2" "$3"; }
+
+# autoBlock stays off: once Nexus blocks a remote it answers every client
+# with `404 Remote Auto Blocked` for the whole block window, so a single
+# upstream hiccup fails every concurrent job instead of just the request
+# that hit it.
 ensure_all_proxies() {
-	local storage='"storage":{"blobStoreName":"default","strictContentTypeValidation":true},"proxy":{"contentMaxAge":'"${CACHE_CONTENT_MAX_AGE_MIN}"',"metadataMaxAge":'"${CACHE_METADATA_MAX_AGE_MIN}"'},"negativeCache":{"enabled":true,"timeToLive":'"${CACHE_METADATA_MAX_AGE_MIN}"'},"httpClient":{"blocked":false,"autoBlock":true}'
+	local storage='"storage":{"blobStoreName":"default","strictContentTypeValidation":true},"proxy":{"contentMaxAge":'"${CACHE_CONTENT_MAX_AGE_MIN}"',"metadataMaxAge":'"${CACHE_METADATA_MAX_AGE_MIN}"'},"negativeCache":{"enabled":true,"timeToLive":'"${CACHE_METADATA_MAX_AGE_MIN}"'},"httpClient":{"blocked":false,"autoBlock":false}'
 
 	ensure_proxy_repo apt apt-debian "$(printf '{"name":"apt-debian","online":true,%s,"proxy":{"remoteUrl":"http://deb.debian.org/debian","contentMaxAge":'"${CACHE_CONTENT_MAX_AGE_MIN}"',"metadataMaxAge":'"${CACHE_METADATA_MAX_AGE_MIN}"'},"apt":{"distribution":"bookworm","flat":false}}' "${storage}")"
 	ensure_proxy_repo apt apt-ubuntu "$(printf '{"name":"apt-ubuntu","online":true,%s,"proxy":{"remoteUrl":"http://archive.ubuntu.com/ubuntu","contentMaxAge":'"${CACHE_CONTENT_MAX_AGE_MIN}"',"metadataMaxAge":'"${CACHE_METADATA_MAX_AGE_MIN}"'},"apt":{"distribution":"jammy","flat":false}}' "${storage}")"
 	ensure_proxy_repo apt apt-debian-security "$(printf '{"name":"apt-debian-security","online":true,%s,"proxy":{"remoteUrl":"http://deb.debian.org/debian-security","contentMaxAge":'"${CACHE_CONTENT_MAX_AGE_MIN}"',"metadataMaxAge":'"${CACHE_METADATA_MAX_AGE_MIN}"'},"apt":{"distribution":"bookworm-security","flat":false}}' "${storage}")" # nocheck: url (bare GET on the deb.debian.org redirector returns 404; apt-client paths underneath dists/bookworm-security/ resolve correctly)
 	ensure_proxy_repo apt apt-ubuntu-security "$(printf '{"name":"apt-ubuntu-security","online":true,%s,"proxy":{"remoteUrl":"http://security.ubuntu.com/ubuntu","contentMaxAge":'"${CACHE_CONTENT_MAX_AGE_MIN}"',"metadataMaxAge":'"${CACHE_METADATA_MAX_AGE_MIN}"'},"apt":{"distribution":"jammy-security","flat":false}}' "${storage}")"
+	ensure_proxy_repo apt apt-debian-mirror "$(printf '{"name":"apt-debian-mirror","online":true,%s,"proxy":{"remoteUrl":"http://ftp.debian.org/debian","contentMaxAge":'"${CACHE_CONTENT_MAX_AGE_MIN}"',"metadataMaxAge":'"${CACHE_METADATA_MAX_AGE_MIN}"'},"apt":{"distribution":"bookworm","flat":false}}' "${storage}")"
+	ensure_proxy_repo apt apt-ubuntu-mirror "$(printf '{"name":"apt-ubuntu-mirror","online":true,%s,"proxy":{"remoteUrl":"http://de.archive.ubuntu.com/ubuntu","contentMaxAge":'"${CACHE_CONTENT_MAX_AGE_MIN}"',"metadataMaxAge":'"${CACHE_METADATA_MAX_AGE_MIN}"'},"apt":{"distribution":"jammy","flat":false}}' "${storage}")"
+	ensure_proxy_repo apt apt-debian-security-mirror "$(printf '{"name":"apt-debian-security-mirror","online":true,%s,"proxy":{"remoteUrl":"http://security.debian.org/debian-security","contentMaxAge":'"${CACHE_CONTENT_MAX_AGE_MIN}"',"metadataMaxAge":'"${CACHE_METADATA_MAX_AGE_MIN}"'},"apt":{"distribution":"bookworm-security","flat":false}}' "${storage}")"
+	ensure_proxy_repo apt apt-ubuntu-security-mirror "$(printf '{"name":"apt-ubuntu-security-mirror","online":true,%s,"proxy":{"remoteUrl":"http://de.archive.ubuntu.com/ubuntu","contentMaxAge":'"${CACHE_CONTENT_MAX_AGE_MIN}"',"metadataMaxAge":'"${CACHE_METADATA_MAX_AGE_MIN}"'},"apt":{"distribution":"jammy-security","flat":false}}' "${storage}")"
 	ensure_proxy_repo pypi pypi-proxy "$(printf '{"name":"pypi-proxy","online":true,%s,"proxy":{"remoteUrl":"https://pypi.org/","contentMaxAge":'"${CACHE_CONTENT_MAX_AGE_MIN}"',"metadataMaxAge":'"${CACHE_METADATA_MAX_AGE_MIN}"'}}' "${storage}")"
 	ensure_proxy_repo npm npm-proxy "$(printf '{"name":"npm-proxy","online":true,%s,"proxy":{"remoteUrl":"https://registry.npmjs.org/","contentMaxAge":'"${CACHE_CONTENT_MAX_AGE_MIN}"',"metadataMaxAge":'"${CACHE_METADATA_MAX_AGE_MIN}"'}}' "${storage}")"
 	ensure_proxy_repo helm helm-bitnami "$(printf '{"name":"helm-bitnami","online":true,%s,"proxy":{"remoteUrl":"https://charts.bitnami.com/bitnami","contentMaxAge":'"${CACHE_CONTENT_MAX_AGE_MIN}"',"metadataMaxAge":'"${CACHE_METADATA_MAX_AGE_MIN}"'}}' "${storage}")"

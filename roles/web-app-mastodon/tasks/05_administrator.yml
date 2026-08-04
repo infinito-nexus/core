@@ -1,9 +1,14 @@
 ---
-- name: 🧹 Remove "- administrator" from config/settings.yml to enable admin creation
+- name: 🧹 Unblock the administrator username
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -u root {{ MASTODON_LOCAL_CID | quote }}
-    sed -i '/- administrator/d' config/settings.yml
-  when: lookup('users', 'administrator').username == "administrator"
+    container exec -i -u root
+    -e MASTODON_ADMIN_USERNAME={{ lookup('users', 'administrator').username | quote }}
+    {{ MASTODON_LOCAL_CID | quote }}
+    bundle exec rails runner -
+  args:
+    stdin: "{{ lookup('file', 'ruby/unblock_admin_username.rb') }}"
+  register: mastodon_unblock
+  changed_when: "'Unblocked 0 ' not in mastodon_unblock.stdout"
 - name: 📁 Create admin account via tootctl
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -u root {{ MASTODON_LOCAL_CID | quote }} bash -c

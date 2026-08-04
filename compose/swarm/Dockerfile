@@ -17,6 +17,12 @@
 # AppArmor profile then denies the setuid helper CAP_DAC_READ_SEARCH and every
 # PAM account lookup fails; a hard 0600 instead of u+rw breaks debian's setgid
 # helper.
+#
+# The zfs userland arrives with the parent image and enables six units by
+# preset. All of them run before scripts/tests/deploy/utils/filesystem/
+# docker_dataroot.sh creates the pool, so on a node they can only fail and
+# leave systemd degraded; they are masked here rather than in the parent, which
+# a real host also boots.
 ARG INFINITO_IMAGE
 FROM ${INFINITO_IMAGE}
 
@@ -24,13 +30,6 @@ RUN set -eux; \
     if command -v apt-get >/dev/null 2>&1; then \
         apt-get update -qq; \
         apt-get install -y -qq --no-install-recommends dnsmasq openssh-server cryptsetup e2fsprogs elfutils kmod; \
-        . /etc/os-release; \
-        if [ "${ID:-}" = debian ] && [ -n "${VERSION_CODENAME:-}" ]; then \
-            echo "deb http://deb.debian.org/debian ${VERSION_CODENAME} contrib" >/etc/apt/sources.list.d/contrib.list; \
-            apt-get update -qq || rm -f /etc/apt/sources.list.d/contrib.list; \
-        fi; \
-        apt-get install -y -qq --no-install-recommends zfsutils-linux || \
-            echo "zfsutils-linux unavailable; a zfs data-root pick will decline on this image" >&2; \
         rm -rf /var/lib/apt/lists/*; \
     elif command -v dnf >/dev/null 2>&1; then \
         dnf install -y dnsmasq openssh-server cryptsetup e2fsprogs elfutils kmod; \
@@ -45,6 +44,7 @@ RUN set -eux; \
     systemctl mask systemd-resolved; \
     systemctl mask systemd-udevd systemd-udevd-kernel.socket systemd-udevd-control.socket systemd-udevd-varlink.socket systemd-udev-trigger; \
     systemctl mask modprobe@.service; \
+    systemctl mask zfs-import-cache zfs-import-scan zfs-mount zfs-share zfs-volume-wait zfs-zed; \
     systemctl enable ssh 2>/dev/null || systemctl enable sshd; \
     chmod u+rw /etc/shadow; \
     if [ -e /etc/gshadow ]; then chmod u+rw /etc/gshadow; fi; \

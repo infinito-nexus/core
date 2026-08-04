@@ -1,6 +1,12 @@
 import unittest
 
-from utils.storage.nfs import client_src, fstype, mount_opts, state_path
+from utils.storage.nfs import (
+    client_src,
+    fstype,
+    mount_opts,
+    state_path,
+    swarm_nfs_backed,
+)
 
 
 class TestNfsHelpers(unittest.TestCase):
@@ -43,6 +49,88 @@ class TestNfsHelpers(unittest.TestCase):
         self.assertEqual(
             client_src("1.2.3.4", 3, "kernel", "/srv/nfs/infinito-state"),
             "1.2.3.4:/srv/nfs/infinito-state",
+        )
+
+
+class TestSwarmNfsBacked(unittest.TestCase):
+    """The predicate mirrors the compose_volumes rewrite decision: swarm mode
+    with an nfs backend backs every volume of a non-manager-pinned role unless
+    the entry opts out with ``nfs: false``. web-app-nextcloud carries no
+    placement pin; web-app-seaweedfs is pinned to the manager on purpose."""
+
+    def test_backed_in_swarm_with_nfs(self):
+        self.assertTrue(
+            swarm_nfs_backed(
+                {"name": "nextcloud_data"},
+                application_id="web-app-nextcloud",
+                deployment_mode="swarm",
+                storage_backend="nfs",
+            )
+        )
+
+    def test_compose_mode_never_backs(self):
+        self.assertFalse(
+            swarm_nfs_backed(
+                {"name": "nextcloud_data"},
+                application_id="web-app-nextcloud",
+                deployment_mode="compose",
+                storage_backend="nfs",
+            )
+        )
+
+    def test_local_backend_never_backs(self):
+        self.assertFalse(
+            swarm_nfs_backed(
+                {"name": "nextcloud_data"},
+                application_id="web-app-nextcloud",
+                deployment_mode="swarm",
+                storage_backend="local",
+            )
+        )
+
+    def test_a_manager_pinned_role_stays_node_local(self):
+        self.assertFalse(
+            swarm_nfs_backed(
+                {"name": "seaweedfs_data"},
+                application_id="web-app-seaweedfs",
+                deployment_mode="swarm",
+                storage_backend="nfs",
+            )
+        )
+
+    def test_nfs_false_opts_out(self):
+        self.assertFalse(
+            swarm_nfs_backed(
+                {"name": "gitaly_repos", "nfs": False},
+                application_id="web-app-gitlab",
+                deployment_mode="swarm",
+                storage_backend="nfs",
+            )
+        )
+
+    def test_a_role_forcing_compose_is_not_backed(self):
+        """web-app-bigbluebutton pins compose_mode_force: compose in its vars,
+        so the rewrite leaves its volumes node-local even in a swarm cluster."""
+        self.assertFalse(
+            swarm_nfs_backed(
+                {"name": "bigbluebutton_database"},
+                application_id="web-app-bigbluebutton",
+                deployment_mode="swarm",
+                storage_backend="nfs",
+            )
+        )
+
+    def test_an_unresolvable_force_expression_is_not_backed(self):
+        """web-app-matrix computes compose_mode_force from a config lookup. A
+        mode this predicate cannot resolve statically must keep the volume in
+        the volume backup rather than drop it from both capture paths."""
+        self.assertFalse(
+            swarm_nfs_backed(
+                {"name": "matrix_mdad_matrix"},
+                application_id="web-app-matrix",
+                deployment_mode="swarm",
+                storage_backend="nfs",
+            )
         )
 
 

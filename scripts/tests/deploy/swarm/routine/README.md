@@ -24,12 +24,12 @@ flowchart TB
         subgraph drill["Disaster-recovery drill (round 1 only)"]
             d1["Seed markers on the live NFS volume<br/>and in the manager secrets"]
             t_d2["⚡ Trigger the deployed backup units again:<br/>volume + secrets on the manager,<br/>nfs on the export host - markers get captured"]
-            d3["Locate the backup generation<br/>holding the marker"]
+            d3["Locate the backup generation holding the marker;<br/>assert the volume repo is fresh and non-empty<br/>(its NFS-backed volumes are excluded by design)"]
             t_d4["⚡ Install the ssh pull identity, then start<br/>the remote-2-local unit: bkp-01 pulls every provider"]
-            t_d5["⚡ Plug a LUKS loop device as simulated USB:<br/>the .mount unit fires the local-2-device unit"]
-            d6["Recover device -> local backup root<br/>(full LUKS open)"]
-            d7["Remove the stack, wipe the live NFS export,<br/>recover it from the local root"]
-            d8["Recover the docker volume<br/>and the host secrets"]
+            t_d5["⚡ Space gate (pulled tree + watchdog floor,<br/>du breakdown on failure), then plug a LUKS loop<br/>device as simulated USB: the .mount unit fires<br/>the local-2-device unit"]
+            d6["Recover device -> local backup root<br/>(full LUKS open; the pulled tree is wiped first,<br/>so the device holds the only copy)"]
+            d7["Remove the stack, wipe the live NFS export<br/>(marker proven gone), recover it from the local<br/>root, restore NFS coherence"]
+            d8["Delete the marker server-side, recover the docker<br/>volume through its NFS-mounted mountpoint and<br/>re-verify on the server; recover the host secrets"]
             d9["Redeploy the stack, assert the marker<br/>is back on the live volume"]
             d1 --> t_d2 --> d3 --> t_d4 --> t_d5 --> d6 --> d7 --> d8 --> d9
         end

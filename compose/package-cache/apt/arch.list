@@ -1,0 +1,3 @@
+# Empty on purpose: Arch uses pacman, which the package-cache does not
+# proxy. The bind mount is unconditional in the compose overrides, and
+# docker would create a host directory here if the source were missing.

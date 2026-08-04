@@ -24,7 +24,7 @@ try:
         resolve_database_service_key,
     )
     from utils.roles.applications.services.sso import get_sso_config
-    from utils.roles.meta_lookup import get_role_placement
+    from utils.storage.nfs import swarm_nfs_backed
 except ModuleNotFoundError:
     from docker.service_enabled import FilterModule as _DockerServiceEnabledFilter
     from get.entity_name import get_entity_name
@@ -41,7 +41,7 @@ except ModuleNotFoundError:
         resolve_database_service_key,
     )
     from utils.roles.applications.services.sso import get_sso_config
-    from utils.roles.meta_lookup import get_role_placement
+    from utils.storage.nfs import swarm_nfs_backed
 
 
 def _to_plain(obj: Any) -> Any:
@@ -280,19 +280,17 @@ def compose_volumes(
             continue
 
     storage_backend = (storage or {}).get("backend", "local")
-    swarm_nfs_enabled = (
-        deployment_mode == "swarm" and str(storage_backend).lower() == "nfs"
-    )
-    role_pinned = (
-        str(get_role_placement(application_id) or "").strip().lower() == "manager"
-    )
 
     for vol_name, vol_spec in list(volumes.items()):
         if not isinstance(vol_spec, dict):
             continue
         nfs_meta = vol_spec.pop("nfs", None)
-        nfs_opted_out = nfs_meta is False
-        if swarm_nfs_enabled and not role_pinned and not nfs_opted_out:
+        if swarm_nfs_backed(
+            {"nfs": nfs_meta},
+            application_id=application_id,
+            deployment_mode=deployment_mode,
+            storage_backend=storage_backend,
+        ):
             named = vol_spec.get("name", vol_name)
             vol_spec.update(_swarm_nfs_driver_opts(dir_var_lib, str(named)))
             if isinstance(nfs_meta, dict):

@@ -1,4 +1,10 @@
 ---
+- name: "📁 Ensure the CDN staging tree exists on the CDN host"
+  ansible.builtin.file:
+    path: "{{ CDN_ASSET_STAGE }}"
+    state: directory
+    mode: "0755"
+
 - name: "🔎 Find every role that declares frontend dependencies"
   ansible.builtin.find:
     paths: "{{ lookup('path_absolute', 'roles') }}"

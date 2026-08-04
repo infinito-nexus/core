@@ -1,5 +1,5 @@
-name: "⚡ CI: Manual"
-run-name: "Manual CI triggered: ${{ inputs.distros }}; ${{ inputs.priority != '' && format('{0} ⭐; ', inputs.priority) || '' }}${{ inputs.whitelist != '' && inputs.whitelist || 'diff-derived (origin/main)' }}"
+name: "🕹️ Manual"
+run-name: "🕹️ 🐧 ${{ inputs.distros }} ${{ inputs.priority != '' && format('⭐ {0} ', inputs.priority) || '' }}${{ inputs.whitelist != '' && format('🎯 {0}', inputs.whitelist) || '🔀 diff (origin/main)' }}"
 
 concurrency:
   group: global-ci-${{ github.repository }}-${{ github.ref_name }}
@@ -34,15 +34,10 @@ on:
         default: "swarm compose host"
         type: string
       filesystem:
-        description: "🗄️ Filesystem the docker data root runs on. 'auto' picks one at random per deploy mode; btrfs and zfs are what engage the backup snapshot mode."
+        description: "🗄️ Space-separated filesystems the per-distro pick draws from (ext4, btrfs, zfs). Empty: all three."
         required: false
-        default: "auto"
-        type: choice
-        options:
-          - "auto"
-          - "ext4"
-          - "btrfs"
-          - "zfs"
+        default: ""
+        type: string
       workspace:
         description: "🧑‍💻 Run the workspace test (dev-runtime image matrix). 'auto' runs it on a global scope only."
         required: false

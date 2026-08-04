@@ -77,7 +77,6 @@ The env-var contracts each service expects strictly via `${VAR:?…}` (consumed 
 | `INFINITO_CACHE_PACKAGE_PORT` | Host-side port mapped to Nexus REST/UI. Bound to `${INFINITO_BIND_IP}` only. |
 | `INFINITO_CACHE_PACKAGE_PIP_CONF` | Bind source for `/etc/pip.conf`. Driver-injected by `make compose-up` under the `cache` profile. |
 | `INFINITO_CACHE_PACKAGE_NPMRC` | Bind source for `/root/.npmrc`. Driver-injected. |
-| `INFINITO_CACHE_PACKAGE_APT_LIST` | Bind source for `/etc/apt/sources.list.d/package-cache.list`. Driver-injected. |
 | `INFINITO_CACHE_PACKAGE_FRONTEND_CA_DIR` | Host directory for the frontend CA. |
 | `INFINITO_CACHE_PACKAGE_FRONTEND_CERTS_DIR` | Host directory for per-hostname leaf certs. |
 | `INFINITO_CACHE_PACKAGE_FRONTEND_IP` | Static IPv4 address for the frontend on the compose default network. |
