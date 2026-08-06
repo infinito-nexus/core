@@ -7,7 +7,8 @@ Usage in any service template:
     {{ lookup('container_networks') | indent(4) }}
 
 Pass ``provider_self_alias=False`` for a sidecar service that must not carry the
-provider's own alias.
+provider's own alias, and ``own_network_only=True`` for one that must not
+inherit the networks its provider joins as a consumer.
 """
 
 from __future__ import annotations
@@ -50,5 +51,6 @@ class LookupModule(LookupBase):
                 lookup_database=ctx.lookup_database,
                 provider_self_alias=bool(kwargs.get("provider_self_alias", True)),
                 node_local=bool(kwargs.get("node_local", False)),
+                own_network_only=bool(kwargs.get("own_network_only", False)),
             )
         ]

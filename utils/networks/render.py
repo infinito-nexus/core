@@ -13,7 +13,10 @@ discovered into the service_registry by ``discover_role_services``. Keys:
 * ``topology``: ``shared_net`` | ``default_net``. Absent = beacon-only (no attachment)
 * ``aliases``: list of DNS aliases. Default: ``[entity_name]`` for shared_net, ``[]`` for default_net
 * ``consumer``: optional override
-   * ``kind``: ``services_flags`` (default) | ``database``
+   * ``kind``: ``services_flags`` (default) | ``database`` | ``mcp_client``
+     | ``web_facing``. ``mcp_client`` admits only roles whose
+     ``services.mcp.direction`` is ``client`` or ``both``, so a provider's
+     network carries its clients and not every other MCP server.
    * ``key``: services.<key>.* lookup base. Default: provides or entity_name
    * ``flags``: list of flags to AND. Default: ``[enabled, shared]``
 * ``proxy_resolvable``: beacon flag - the harvested aliases get attached to
@@ -211,6 +214,7 @@ def render_container_networks(
     lookup_database: Callable[[str, str], Any],
     provider_self_alias: bool = True,
     node_local: bool = False,
+    own_network_only: bool = False,
 ) -> str:
     if node_local:
         deployment_mode = "compose"
@@ -221,6 +225,8 @@ def render_container_networks(
     for att in attachments:
         if att["is_provider"] and att["topology"] == "default_net":
             continue
+        if own_network_only and not att["is_provider"]:
+            continue
         lines.append(f"  {get_entity_name(att['role'])}:")
         aliases = att["aliases"]
         if att["is_provider"] and not provider_self_alias:
@@ -230,6 +236,11 @@ def render_container_networks(
             lines.extend(f"      - {alias}" for alias in aliases)
         else:
             lines.append("    {}")
+
+    if own_network_only:
+        if len(lines) == 1:
+            return ""
+        return "\n" + "\n".join(lines)
 
     if not _suppress_default(application_id):
         if default_aliases:

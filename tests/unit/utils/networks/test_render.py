@@ -66,6 +66,59 @@ class TestCoerceBool(unittest.TestCase):
         self.assertFalse(_coerce_bool([]))
 
 
+class TestMcpClientConsumer(unittest.TestCase):
+    """Only an MCP client joins a provider's network, never another server."""
+
+    def _consumer(self, **flags):
+        entry = {
+            "role": "web-app-homeassistant",
+            "overlay": {"consumer": {"kind": "mcp_client"}},
+        }
+        return _is_consumer(
+            entry,
+            "svc-db-qdrant",
+            _const_lookup_config(**flags),
+            _const_lookup_database(),
+        )
+
+    def test_client_joins(self):
+        self.assertTrue(
+            self._consumer(
+                **{
+                    "services.mcp.enabled": True,
+                    "services.mcp.shared": True,
+                    "services.mcp.direction": "client",
+                }
+            )
+        )
+
+    def test_both_joins(self):
+        self.assertTrue(
+            self._consumer(
+                **{
+                    "services.mcp.enabled": True,
+                    "services.mcp.shared": True,
+                    "services.mcp.direction": "both",
+                }
+            )
+        )
+
+    def test_server_stays_out(self):
+        self.assertFalse(
+            self._consumer(
+                **{
+                    "services.mcp.enabled": True,
+                    "services.mcp.shared": True,
+                    "services.mcp.direction": "server",
+                }
+            ),
+            "a provider on another provider's network is the mesh this kind removes",
+        )
+
+    def test_disabled_stays_out(self):
+        self.assertFalse(self._consumer(**{"services.mcp.direction": "client"}))
+
+
 class TestSuppressDefault(unittest.TestCase):
     def test_svc_db_prefix_suppresses(self):
         self.assertTrue(_suppress_default("svc-db-mariadb"))
@@ -498,6 +551,61 @@ class TestRenderComposeNetworks(unittest.TestCase):
             lookup_database=_const_lookup_database(),
         )
         self.assertEqual(rendered, expected)
+
+    def test_own_network_only_drops_the_consumer_networks(self):
+        registry = {
+            "qdrant": {
+                "role": "svc-db-qdrant",
+                "entity_name": "qdrant",
+                "overlay": {"modes": ["compose"], "topology": "shared_net"},
+            },
+            "moodle": {
+                "role": "web-app-moodle",
+                "entity_name": "moodle",
+                "overlay": {"modes": ["compose"], "topology": "shared_net"},
+            },
+        }
+        lookup_config = _const_lookup_config(
+            **{"services.moodle.enabled": True, "services.moodle.shared": True}
+        )
+        full = render_container_networks(
+            application_id="svc-db-qdrant",
+            deployment_mode="compose",
+            registry=registry,
+            get_entity_name=_entity_name,
+            lookup_config=lookup_config,
+            lookup_database=_const_lookup_database(),
+        )
+        restricted = render_container_networks(
+            application_id="svc-db-qdrant",
+            deployment_mode="compose",
+            registry=registry,
+            get_entity_name=_entity_name,
+            lookup_config=lookup_config,
+            lookup_database=_const_lookup_database(),
+            own_network_only=True,
+            provider_self_alias=False,
+        )
+        self.assertIn("moodle:", full)
+        self.assertIn("qdrant:", restricted)
+        self.assertNotIn("moodle:", restricted)
+        self.assertNotIn("aliases:", restricted)
+
+    def test_own_network_only_emits_nothing_without_an_attachment(self):
+        rendered = render_container_networks(
+            application_id="web-app-prometheus",
+            deployment_mode="compose",
+            registry={},
+            get_entity_name=_entity_name,
+            lookup_config=_const_lookup_config(),
+            lookup_database=_const_lookup_database(),
+            own_network_only=True,
+        )
+        self.assertEqual(
+            rendered,
+            "",
+            "a bare 'networks:' key is not a list and compose refuses the file",
+        )
 
     def test_node_local_swarm_renders_bridge(self):
         rendered = render_compose_networks(

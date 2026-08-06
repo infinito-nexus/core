@@ -6,7 +6,6 @@ overlay:
   topology: shared_net
   aliases: ["proxy"]
   consumer:
-    kind: services_flags
-    key: mcp
+    kind: mcp_client
   proxy_resolvable: true
   proxy_aliases: ["{{ lookup('domain', 'web-app-nextcloud') }}"]

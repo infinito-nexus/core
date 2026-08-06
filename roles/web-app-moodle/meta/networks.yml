@@ -6,5 +6,4 @@ overlay:
   topology: shared_net
   aliases: ["nginx"]
   consumer:
-    kind: services_flags
-    key: mcp
+    kind: mcp_client
