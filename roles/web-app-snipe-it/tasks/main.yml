@@ -1,4 +1,11 @@
 ---
+- name: "🔌 Stage the MCP adapter instance for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
+  vars:
+    mcp_adapter_instance_dir: "{{ SNIPEIT_MCP_INSTANCE_DIR }}"
+    mcp_adapter_upstream_key: true
+  when: SNIPEIT_MCP_ENABLED | bool
+
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
@@ -8,3 +15,7 @@
 - name: "👔 Snipe-IT manager-side operations (container exec)"
   include_tasks: 01_install/manager_ops.yml
   when: IS_STACK_HOST | bool
+
+- name: "🔌 Serve MCP from {{ application_id }}"
+  ansible.builtin.include_tasks: 05_mcp.yml
+  when: SNIPEIT_MCP_ENABLED | bool

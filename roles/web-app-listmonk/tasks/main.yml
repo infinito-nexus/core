@@ -1,4 +1,10 @@
 ---
+- name: "🔌 Stage the MCP adapter instance for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
+  vars:
+    mcp_adapter_instance_dir: "{{ LISTMONK_MCP_INSTANCE_DIR }}"
+  when: LISTMONK_MCP_ENABLED | bool
+
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
@@ -14,3 +20,7 @@
 - name: "👔 Listmonk manager-side operations (file deploys + container exec)"
   include_tasks: 02_manager_ops.yml
   when: IS_STACK_HOST | bool
+
+- name: "🔌 Serve MCP from {{ application_id }}"
+  ansible.builtin.include_tasks: 03_mcp.yml
+  when: LISTMONK_MCP_ENABLED | bool

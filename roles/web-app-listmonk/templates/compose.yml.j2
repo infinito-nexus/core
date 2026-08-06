@@ -11,6 +11,36 @@
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
 
+
+  {% if LISTMONK_MCP_ENABLED | bool %}
+  {% set service_name = LISTMONK_MCP_SERVICE_KEY %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'listmonkmcp') }}
+    build:
+      context: {{ LISTMONK_MCP_INSTANCE_DIR }}
+      dockerfile: Dockerfile
+      args:
+        MCP_ADAPTER_BASE_IMAGE: {{ lookup('config', application_id, 'services.listmonkmcp.image') }}
+        MCP_ADAPTER_BASE_TAG: "{{ lookup('config', application_id, 'services.listmonkmcp.version') }}"
+    {{ lookup('compose_only', 'container_name', LISTMONK_MCP_CONTAINER) }}
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      ADAPTER_CONTRACT: {{ LISTMONK_MCP_CONTRACT | to_json | to_json }}
+      ADAPTER_BEARER: {{ LISTMONK_MCP_BEARER | to_json }}
+      ADAPTER_PORT: "{{ LISTMONK_MCP_PORT }}"
+      ADAPTER_UPSTREAM_KEY: {{ LISTMONK_MCP_UPSTREAM_KEY | to_json }}
+      ADAPTER_UPSTREAM_AUTH_HEADER: {{ LISTMONK_MCP_UPSTREAM_AUTH_HEADER | to_json }}
+      ADAPTER_UPSTREAM_AUTH_FORMAT: {{ LISTMONK_MCP_UPSTREAM_AUTH_FORMAT | to_json }}
+    expose:
+      - "{{ LISTMONK_MCP_PORT }}"
+    {{ lookup('container_networks', own_network_only=True, provider_self_alias=False) | indent(4) }}
+  {% endif %}
+
 {{ lookup('compose_volumes', application_id,
 ) }}
 

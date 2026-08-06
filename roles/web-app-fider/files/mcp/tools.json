@@ -1,0 +1,39 @@
+{
+  "fider_get_suggestion": {
+    "description": "Return one post.",
+    "input_schema": {
+      "properties": {
+        "number": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "number"
+      ],
+      "type": "object"
+    },
+    "method": "GET",
+    "path": "/api/v1/posts/{number}"
+  },
+  "fider_list_tags": {
+    "description": "List the tags.",
+    "method": "GET",
+    "path": "/api/v1/tags"
+  },
+  "fider_search_suggestions": {
+    "description": "Search feedback posts.",
+    "input_schema": {
+      "properties": {
+        "query": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "type": "object"
+    },
+    "method": "GET",
+    "path": "/api/v1/posts"
+  }
+}

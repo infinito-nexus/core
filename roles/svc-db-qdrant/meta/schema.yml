@@ -1,0 +1,8 @@
+---
+credentials:
+  mcp_bearer:
+    description: "Bearer an MCP client must present to the Qdrant adapter instance. Distinct from the Qdrant API key the adapter presents upstream, because authenticating
+      to Qdrant says nothing about who called the adapter."
+    algorithm: alphanumeric
+    validation: "^[A-Za-z0-9]{32,}$"
+    length: 48

@@ -1,6 +1,11 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "🔌 Stage the MCP adapter instance for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
+  vars:
+    mcp_adapter_instance_dir: "{{ CHECKMK_MCP_INSTANCE_DIR }}"
+  when: CHECKMK_MCP_ENABLED | bool
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
@@ -11,3 +16,7 @@
 - name: "🔧 Run Checkmk manager-side operations"
   include_tasks: 01_manager_ops.yml
   when: IS_STACK_HOST | bool
+
+- name: "🔌 Serve MCP from {{ application_id }}"
+  ansible.builtin.include_tasks: 02_mcp.yml
+  when: CHECKMK_MCP_ENABLED | bool

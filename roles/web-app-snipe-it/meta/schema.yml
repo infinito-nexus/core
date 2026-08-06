@@ -4,3 +4,15 @@ credentials:
     description: "Generic 32-byte base64 key with base64: prefix"
     algorithm: base64_prefixed_32
     validation: ^base64:[A-Za-z0-9+/]{43}=$
+  mcp_bearer:
+    description: "Bearer an MCP client must present to this role's adapter instance. Distinct from the upstream credential the adapter presents, because authenticating
+      to the application says nothing about who called the adapter."
+    algorithm: alphanumeric
+    validation: "^[A-Za-z0-9]{32,}$"
+    length: 48
+  mcp_upstream_token:
+    description: "Read-scoped API token the MCP adapter presents to this application. Separate from mcp_bearer, which guards the adapter itself: one says who may
+      call the adapter, the other what the adapter may read."
+    algorithm: alphanumeric
+    validation: "^[A-Za-z0-9]{32,}$"
+    length: 48

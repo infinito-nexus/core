@@ -1,0 +1,74 @@
+---
+- name: "🧱 Rebuild the MCP adapter of {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/rebuild.yml') }}"
+
+- name: "🚿 Flush compose handlers for {{ application_id }}"
+  ansible.builtin.meta: flush_handlers
+
+- name: "🔍 Read the upstream credential the {{ application_id }} adapter holds"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/current_key.yml') }}"
+  vars:
+    mcp_upstream_key_path: "{{ [JELLYFIN_MCP_INSTANCE_DIR, 'upstream.env'] | path_join }}"
+
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ JELLYFIN_MCP_SERVICE_KEY }}"
+    resolve_output_prefix: JELLYFIN_IDENTITY
+    resolve_compose_cid: "{{ JELLYFIN_MCP_CONTAINER }}"
+
+- name: "🔑 Converge the read-only Jellyfin user the MCP adapter authenticates as"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - "JELLYFIN_BASE={{ JELLYFIN_MCP_UPSTREAM_URL }}"
+      - -e
+      - "JELLYFIN_ADMIN_USER={{ JELLYFIN_ADMIN_USERNAME }}"
+      - -e
+      - "JELLYFIN_ADMIN_PASSWORD={{ JELLYFIN_ADMIN_PASSWORD }}"
+      - -e
+      - "MCP_USER={{ JELLYFIN_MCP_UPSTREAM_USER }}"
+      - -e
+      - "MCP_PASSWORD={{ JELLYFIN_MCP_UPSTREAM_PASSWORD }}"
+      - -e
+      - "MCP_DEVICE_ID={{ JELLYFIN_MCP_UPSTREAM_DEVICE_ID }}"
+      - -e
+      - "MCP_CURRENT_TOKEN={{ MCP_UPSTREAM_CURRENT_KEY }}"
+      - "{{ JELLYFIN_IDENTITY_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - python3
+      - "-"
+    stdin: "{{ lookup('file', 'provision_mcp_identity.py') }}"
+  register: jellyfin_mcp_identity
+  retries: 30
+  delay: 10
+  until: jellyfin_mcp_identity.rc == 0 or 'REJECTED' in jellyfin_mcp_identity.stderr
+  changed_when: jellyfin_mcp_identity.stdout_lines[0] | default('') == 'CHANGED'
+  delegate_to: "{{ JELLYFIN_IDENTITY_HOST_NODE }}"
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🛑 Refuse an adapter whose upstream identity did not converge"
+  ansible.builtin.assert:
+    that:
+      - jellyfin_mcp_identity.rc == 0
+      - jellyfin_mcp_identity.stdout_lines | length == 2
+    fail_msg: >-
+      {{ application_id }} could not give its MCP adapter a read-only identity.
+
+- name: "🔑 Hand the captured token to the adapter"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/upstream_key.yml') }}"
+  vars:
+    mcp_upstream_key_path: "{{ [JELLYFIN_MCP_INSTANCE_DIR, 'upstream.env'] | path_join }}"
+    mcp_upstream_key: "{{ jellyfin_mcp_identity.stdout_lines[1] }}"
+
+- name: "🩺 Prove the MCP contract of {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
+  vars:
+    mcp_probe_bearer: "{{ JELLYFIN_MCP_BEARER }}"
+    mcp_probe_path_key: ""
+    mcp_probe_read_tool: "jellyfin_get_playback_status"
+    mcp_probe_read_args: {}
+    mcp_probe_host: ""

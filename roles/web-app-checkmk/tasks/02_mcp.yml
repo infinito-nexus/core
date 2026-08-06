@@ -1,0 +1,61 @@
+---
+- name: "🧱 Rebuild the MCP adapter of {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/rebuild.yml') }}"
+
+- name: "🚿 Flush compose handlers for {{ application_id }}"
+  ansible.builtin.meta: flush_handlers
+
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ CHECKMK_MCP_SERVICE_KEY }}"
+    resolve_output_prefix: CHECKMK_IDENTITY
+    resolve_compose_cid: "{{ CHECKMK_MCP_CONTAINER }}"
+
+- name: "🔑 Converge the read-only Checkmk identity the MCP adapter presents"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - "CHECKMK_API={{ CHECKMK_MCP_UPSTREAM_URL }}"
+      - -e
+      - "CHECKMK_ADMIN_USER=cmkadmin"
+      - -e
+      - "CHECKMK_ADMIN_PASSWORD={{ CHECKMK_ADMIN_PASSWORD }}"
+      - -e
+      - "CHECKMK_SITE={{ CHECKMK_SITE }}"
+      - -e
+      - "MCP_USER={{ CHECKMK_MCP_UPSTREAM_USER }}"
+      - -e
+      - "MCP_SECRET={{ CHECKMK_MCP_UPSTREAM_KEY }}"
+      - "{{ CHECKMK_IDENTITY_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - python3
+      - "-"
+    stdin: "{{ lookup('file', 'provision_mcp_identity.py') }}"
+  register: checkmk_mcp_identity
+  retries: 30
+  delay: 10
+  until: checkmk_mcp_identity.rc == 0 or 'REJECTED' in checkmk_mcp_identity.stderr
+  changed_when: checkmk_mcp_identity.stdout == 'CHANGED'
+  delegate_to: "{{ CHECKMK_IDENTITY_HOST_NODE }}"
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🛑 Refuse an adapter whose upstream identity did not converge"
+  ansible.builtin.assert:
+    that:
+      - checkmk_mcp_identity.rc == 0
+    fail_msg: >-
+      {{ application_id }} could not give its MCP adapter a read-only identity:
+      {{ checkmk_mcp_identity.stderr | default('no output') }}
+
+- name: "🩺 Prove the MCP contract of {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
+  vars:
+    mcp_probe_bearer: "{{ CHECKMK_MCP_BEARER }}"
+    mcp_probe_path_key: ""
+    mcp_probe_read_tool: "checkmk_list_hosts"
+    mcp_probe_read_args: {}
+    mcp_probe_host: ""

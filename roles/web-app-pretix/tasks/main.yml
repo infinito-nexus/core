@@ -1,4 +1,10 @@
 ---
+- name: "🔌 Stage the MCP adapter instance for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
+  vars:
+    mcp_adapter_instance_dir: "{{ PRETIX_MCP_INSTANCE_DIR }}"
+  when: PRETIX_MCP_ENABLED | bool
+
 - block:
     - name: "🧩 load docker, db and proxy for {{ application_id }}"
       include_role:
@@ -7,3 +13,7 @@
         compose_handlers_flush: true
     - include_tasks: utils/once/flag.yml
   when: run_once_web_app_pretix is not defined
+
+- name: "🔌 Serve MCP from {{ application_id }}"
+  ansible.builtin.include_tasks: 01_mcp.yml
+  when: PRETIX_MCP_ENABLED | bool

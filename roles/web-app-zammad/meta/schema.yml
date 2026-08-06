@@ -23,8 +23,18 @@ credentials:
     validation: "^[A-Za-z0-9]{32,}$"
     length: 48
   api_token:
-    description: "Long-lived Zammad API token created during bootstrap; used by tasks/main.yml for post-start configuration (OIDC settings, inbound channel, group
-      mapping)."
+    description: "Long-lived Zammad API token pinned on the read-only MCP agent, which the MCP adapter presents to Zammad."
     algorithm: alphanumeric
     validation: "^[A-Za-z0-9]{32,}$"
     length: 64
+  mcp_bearer:
+    description: "Bearer an MCP client must present to this role's adapter instance. Distinct from the upstream credential the adapter presents, because authenticating
+      to the application says nothing about who called the adapter."
+    algorithm: alphanumeric
+    validation: "^[A-Za-z0-9]{32,}$"
+    length: 48
+  mcp_upstream_token:
+    description: "Password of the read-only Zammad agent the MCP adapter's API token belongs to. Distinct from api_token, which is the token itself."
+    algorithm: alphanumeric
+    validation: "^[A-Za-z0-9]{32,}$"
+    length: 48

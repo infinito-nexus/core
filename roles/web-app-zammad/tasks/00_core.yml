@@ -1,12 +1,34 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "🔌 Stage the MCP adapter instance for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
+  vars:
+    mcp_adapter_instance_dir: "{{ ZAMMAD_MCP_INSTANCE_DIR }}"
+  when: ZAMMAD_MCP_ENABLED | bool
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
   vars:
     compose_handlers_flush: false
 
+- name: "🧱 Rebuild the MCP adapter of {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/rebuild.yml') }}"
+  when: ZAMMAD_MCP_ENABLED | bool
+
 - name: "👔 Zammad manager-side operations (file deploys + container exec)"
   include_tasks: 01_manager_ops.yml
   when: IS_STACK_HOST | bool
+
+- name: "🚿 Flush compose handlers for {{ application_id }}"
+  ansible.builtin.meta: flush_handlers
+
+- name: "🩺 Prove the MCP contract of {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
+  vars:
+    mcp_probe_bearer: "{{ ZAMMAD_MCP_BEARER }}"
+    mcp_probe_path_key: ""
+    mcp_probe_read_tool: "zammad_list_organizations"
+    mcp_probe_read_args: {}
+    mcp_probe_host: ""
+  when: ZAMMAD_MCP_ENABLED | bool

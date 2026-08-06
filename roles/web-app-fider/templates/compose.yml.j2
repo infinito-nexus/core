@@ -16,6 +16,34 @@
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
 
+
+  {% if FIDER_MCP_ENABLED | bool %}
+  {% set service_name = FIDER_MCP_SERVICE_KEY %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'fidermcp') }}
+    build:
+      context: {{ FIDER_MCP_INSTANCE_DIR }}
+      dockerfile: Dockerfile
+      args:
+        MCP_ADAPTER_BASE_IMAGE: {{ lookup('config', application_id, 'services.fidermcp.image') }}
+        MCP_ADAPTER_BASE_TAG: "{{ lookup('config', application_id, 'services.fidermcp.version') }}"
+    {{ lookup('compose_only', 'container_name', FIDER_MCP_CONTAINER) }}
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      ADAPTER_CONTRACT: {{ FIDER_MCP_CONTRACT | to_json | to_json }}
+      ADAPTER_BEARER: {{ FIDER_MCP_BEARER | to_json }}
+      ADAPTER_PORT: "{{ FIDER_MCP_PORT }}"
+      ADAPTER_UPSTREAM_KEY: {{ FIDER_MCP_UPSTREAM_KEY | to_json }}
+    expose:
+      - "{{ FIDER_MCP_PORT }}"
+    {{ lookup('container_networks', own_network_only=True, provider_self_alias=False) | indent(4) }}
+  {% endif %}
+
 {{ lookup('compose_volumes', application_id,
 ) }}
 {{ lookup('compose_networks') }}

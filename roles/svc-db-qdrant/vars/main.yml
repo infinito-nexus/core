@@ -10,3 +10,20 @@ QDRANT_PORT: "{{ database_port | default(lookup('config', application_id, 'servi
 QDRANT_EXPOSE_LOCAL: true
 QDRANT_DELAY: 2
 QDRANT_EXEC_SHELL: "container exec {{ QDRANT_CONTAINER_ADDRESS }} bash -lc"
+
+QDRANT_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') | bool }}"
+QDRANT_MCP_SERVICE_KEY: "qdrantmcp"
+QDRANT_MCP_CONTAINER: "{{ lookup('config', application_id, 'services.qdrantmcp.name') }}"
+QDRANT_MCP_PORT: "{{ lookup('config', application_id, 'services.qdrantmcp.ports.internal.http') }}"
+QDRANT_MCP_BEARER: "{{ lookup('config', application_id, 'credentials.mcp_bearer') }}"
+QDRANT_MCP_INSTANCE_DIR: "{{ [lookup('container', application_id, 'directories.instance'), 'mcp'] | path_join }}"
+QDRANT_MCP_UPSTREAM_URL: "http://{{ QDRANT_CONTAINER }}:{{ lookup('config', application_id, 'services.qdrant.ports.internal.qdrant') }}"
+QDRANT_MCP_CONTRACT:
+  provider: "{{ application_id }}"
+  upstream_url: "{{ QDRANT_MCP_UPSTREAM_URL }}"
+  auth_subject: "{{ lookup('config', application_id, 'mcp.auth_subject') }}"
+  mutating_tools_enabled: "{{ lookup('config', application_id, 'mcp.tools.mutating_tools_enabled') | bool }}"
+  tools: "{{ lookup('file', 'mcp/tools.json') | from_json }}"
+  limits: "{{ lookup('config', application_id, 'mcp.limits') }}"
+  schema_sha256: "{{ lookup('config', application_id, 'mcp.tools.schema_sha256') }}"
+QDRANT_MCP_UPSTREAM_KEY: ""
