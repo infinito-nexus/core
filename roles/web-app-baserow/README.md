@@ -22,7 +22,6 @@ flowchart LR
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
-        dep_web_app_openwebui["web-app-openwebui 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
         dep_web_app_seaweedfs["web-app-seaweedfs 🐳🐝"]
         dep_web_svc_css["web-svc-css 💻"]
@@ -33,7 +32,6 @@ flowchart LR
         svc_dashboard["dashboard"]
         svc_matomo["matomo"]
         svc_email["email"]
-        svc_mcp["mcp"]
         svc_sso["sso"]
         svc_redis["redis"]
         svc_postgres["postgres"]
@@ -56,7 +54,6 @@ flowchart LR
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
     dep_web_app_matomo -. "0..1" .-> svc_matomo
-    dep_web_app_openwebui -. "0..1" .-> svc_mcp
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_app_seaweedfs -. "0..1" .-> svc_seaweedfs
     dep_web_svc_css -. "0..1" .-> svc_css
@@ -148,7 +145,7 @@ Configuration is controlled via `applications.<app>.bootstrap_admin.*`:
 ## MCP Server
 
 Baserow ships a native MCP server in the OSS backend, mounted on the ASGI root
-ahead of Django. The role turns it on with `services.mcp.enabled` and hands
+ahead of Django. The role turns it on with `mcp.enabled` and hands
 clients the container-network origin (`exposure: internal`); `env.j2` then adds
 that origin to `BASEROW_EXTRA_PUBLIC_URLS` so the image's Caddy layer routes
 `/mcp/*` to the backend instead of falling through to the Nuxt frontend.
@@ -190,7 +187,7 @@ Read tools: `list_databases`, `list_tables`, `get_table_schema`,
 
 Write tools: `create_rows`, `update_rows`, `delete_rows`. Baserow 2.3.1 exposes
 these unconditionally; the image carries no env var, setting or UI toggle that
-removes them. `services.mcp.tools.mutating_tools_enabled` is declared `false` as
+removes them. `mcp.tools.mutating_tools_enabled` is declared `false` as
 the deployment's intent, not as an enforced state: Baserow serves the three write
 tools regardless. What bounds them is the endpoint owner, whose reach is the one
 workspace that account owns.
@@ -209,12 +206,12 @@ the role's `mcp` RBAC group, not on being signed in.
 
 ### Default state
 
-Off. `services.mcp.enabled` is true only while `web-app-openwebui` is part of the
+Off. `mcp.enabled` is true only while `web-app-openwebui` is part of the
 deployment.
 
 ### How to disable
 
-Remove the MCP client role, or pin `services.mcp.enabled: false` for this role in
+Remove the MCP client role, or pin `mcp.enabled: false` for this role in
 the inventory. The endpoint is then not provisioned and `BASEROW_EXTRA_PUBLIC_URLS`
 drops the MCP origin, so the image's Caddy layer stops routing `/mcp/*`.
 

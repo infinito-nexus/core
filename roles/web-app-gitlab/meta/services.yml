@@ -22,26 +22,6 @@ email:
   bond: 1
   enabled: "{{ 'web-app-mailu' in group_names }}"
   shared: "{{ 'web-app-mailu' in group_names }}"
-mcp:
-  bond: 1
-  enabled: "{{ 'web-app-hermes' in group_names or 'web-app-openclaw' in group_names or 'web-app-openwebui' in group_names }}"
-  shared: "{{ 'web-app-hermes' in group_names or 'web-app-openclaw' in group_names or 'web-app-openwebui' in group_names }}"
-  direction: server
-  source_url: https://docs.gitlab.com/user/gitlab_duo/model_context_protocol/mcp_server/
-  minimum_version: "18.0"
-  notes: Beta and tier-gated to Premium or Ultimate; operator-gated here.
-  transport: streamable_http
-  exposure: public
-  auth: bearer_token
-  auth_subject: administrator
-  implementation: native
-  endpoint:
-    service_key: gitlab
-    path: /api/v4/mcp
-    port_key: http
-  tools:
-    read_only_default: true
-    mutating_tools_enabled: false
 # nocheck: shared
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag
@@ -71,7 +51,6 @@ gitlab:
   enabled: true # nocheck: dynamic-flag
   shared: true
   min_storage: 30GB
-  # Exception: the entity runs no container of its own (webservice/sidekiq/workhorse/gitaly/shell/migrations carry the real budgets); these keys only satisfy the entity resource contract
   cpus: "0.1"
   mem_reservation: 128m
   mem_limit: 256m

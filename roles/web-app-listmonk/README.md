@@ -43,6 +43,7 @@ flowchart LR
         svc_css["css"]
         svc_hcaptcha["hcaptcha"]
         svc_prometheus["prometheus"]
+        svc_listmonkmcp["listmonkmcp"]
     end
     dep_svc_db_postgres -. "0..1" .-> svc_postgres
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard

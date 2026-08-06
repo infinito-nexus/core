@@ -1,0 +1,48 @@
+---
+enabled: false
+shared: false
+classification: adapter_server
+direction: server
+source_url: https://s.infinito.nexus/code
+supported_version: 1.0.0
+transport: streamable_http
+exposure: internal
+auth: bearer_token
+auth_subject: service_account
+implementation: adapter
+credential:
+  owner: mcp-web-app-listmonk
+  source: credentials
+  key: mcp_bearer
+allowed_consumers:
+  - web-app-openwebui
+  - web-app-hermes
+  - web-app-openclaw
+endpoint:
+  service_key: listmonkmcp
+  path: /mcp
+  port_key: http
+adapter:
+  type: openapi_allowlist
+  image: infinito/mcp-adapter
+  version: 1.0.0
+  digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+  upstream_api_version: v1
+  specification_path: roles/web-app-listmonk/files/mcp/tools.json
+  specification_sha256: sha256:3459dd13cfef868ed4de0123695292c8d75c8d3c612bef78fa8d5eaba297f06e
+limits:
+  request_bytes: 65536
+  response_bytes: 1048576
+  timeout_seconds: 15
+  concurrent_requests: 4
+  page_size: 100
+  result_items: 100
+  stream_seconds: 300
+tools:
+  allowlist:
+    - listmonk_get_campaign
+    - listmonk_get_stats
+    - listmonk_list_campaigns
+  schema_sha256: sha256:3459dd13cfef868ed4de0123695292c8d75c8d3c612bef78fa8d5eaba297f06e
+  read_only_default: true
+  mutating_tools_enabled: false

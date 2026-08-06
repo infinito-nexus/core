@@ -1,0 +1,44 @@
+---
+enabled: true
+shared: true
+classification: plugin_server
+direction: server
+source_url: https://docs.mattermost.com/agents/mcpserver/README.html
+minimum_version: "10.0"
+transport: streamable_http
+exposure: internal
+auth: bearer_token
+auth_subject: service_account
+implementation: plugin
+credential:
+  owner: mcp-web-app-mattermost
+  source: token_store
+  key: web-app-mattermost
+allowed_consumers:
+  - web-app-openwebui
+  - web-app-hermes
+  - web-app-openclaw
+endpoint:
+  service_key: mattermost
+  path: /plugins/mattermost-ai/mcp-server/mcp
+  port_key: http
+tools:
+  allowlist:
+    - add_user_to_channel
+    - create_channel
+    - create_post
+    - dm
+    - get_channel_info
+    - get_channel_members
+    - get_team_info
+    - get_team_members
+    - get_user_channels
+    - group_message
+    - list_agents
+    - read_channel
+    - read_file
+    - read_post
+    - search_posts
+    - search_users
+  read_only_default: true
+  mutating_tools_enabled: false

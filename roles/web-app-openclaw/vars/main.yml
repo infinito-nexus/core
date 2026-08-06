@@ -7,4 +7,4 @@ OPENCLAW_CONTAINER: "{{ lookup('config', application_id, 'services.openclaw.name
 OPENCLAW_PORT_INTERNAL: "{{ lookup('config', application_id, 'services.openclaw.ports.internal.http') }}"
 OPENCLAW_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 OPENCLAW_CONFIG_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'openclaw.json' ] | path_join }}"
-OPENCLAW_MCP_SERVERS: "{{ MCP_DISCOVERED_SERVERS if (lookup('config', application_id, 'services.mcp.enabled') | bool) else [] }}"
+OPENCLAW_MCP_SERVERS: "{{ MCP_DISCOVERED_SERVERS if (lookup('config', application_id, 'mcp.enabled') | bool) else [] }}"

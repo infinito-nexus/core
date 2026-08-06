@@ -51,15 +51,15 @@ MOODLE_CRON_CONTAINER: "{{ lookup('config', application_id, 'services.cron.name'
 MOODLE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 MOODLE_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 
-MOODLE_MCP_ENABLED: "{{ lookup('config', application_id, 'services.mcp.enabled') }}"
+MOODLE_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') }}"
 MOODLE_MCP_PLUGIN_VERSION: "v0.6.0"
 MOODLE_MCP_PLUGIN_ARCHIVE_URL: "https://github.com/onbirdev/moodle-webservice_mcp/archive/refs/tags/{{ MOODLE_MCP_PLUGIN_VERSION }}.zip"
 MOODLE_MCP_PLUGIN_RELPATH: "{{ [MOODLE_WEBSERVICE_SUBDIR, 'mcp'] | path_join }}"
 MOODLE_MCP_PLUGIN_SOURCE_DIR: "{{ [MOODLE_SOURCE_DIR, MOODLE_MCP_PLUGIN_RELPATH] | path_join }}"
 MOODLE_MCP_PLUGIN_DIR: "{{ [MOODLE_CODE_DIR, MOODLE_MCP_PLUGIN_RELPATH] | path_join }}"
-MOODLE_MCP_SERVICE_KEY: "{{ lookup('config', application_id, 'services.mcp.endpoint.service_key') }}"
+MOODLE_MCP_SERVICE_KEY: "{{ lookup('config', application_id, 'mcp.endpoint.service_key') }}"
 MOODLE_MCP_PORT: "{{ lookup('config', application_id, 'services.nginx.ports.internal.http') }}"
-MOODLE_MCP_URL: "http://{{ MOODLE_MCP_SERVICE_KEY }}:{{ MOODLE_MCP_PORT }}{{ lookup('config', application_id, 'services.mcp.endpoint.path') }}"
+MOODLE_MCP_URL: "http://{{ MOODLE_MCP_SERVICE_KEY }}:{{ MOODLE_MCP_PORT }}{{ lookup('config', application_id, 'mcp.endpoint.path') }}"
 MOODLE_MCP_EXTERNAL_SERVICE_NAME: "Model Context Protocol"
 MOODLE_MCP_EXTERNAL_SERVICE_SHORTNAME: "infinito_mcp"
 MOODLE_MCP_EXTERNAL_FUNCTIONS:

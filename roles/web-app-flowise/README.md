@@ -39,7 +39,6 @@ flowchart LR
         svc_sso["sso"]
         svc_ldap["ldap ❌"]
         svc_litellm["litellm"]
-        svc_mcp["mcp"]
         svc_qdrant["qdrant"]
         svc_postgres["postgres"]
         svc_flowise["flowise"]
@@ -61,10 +60,8 @@ flowchart LR
     dep_svc_db_qdrant -. "0..1" .-> svc_qdrant
     dep_svc_db_redis -. "0..1" .-> svc_redis
     dep_web_app_baserow -. "0..1" .-> svc_baserow
-    dep_web_app_baserow -. "0..1" .-> svc_mcp
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_homeassistant -. "0..1" .-> svc_homeassistant
-    dep_web_app_homeassistant -. "0..1" .-> svc_mcp
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
     dep_web_app_matomo -. "0..1" .-> svc_matomo
@@ -157,12 +154,12 @@ is a deliberate operator step.
 
 ### Default state
 
-Off. `services.mcp.enabled` is false unless an MCP server role is part of the
+Off. `mcp.enabled` is false unless an MCP server role is part of the
 deployment.
 
 ### How to disable
 
-Remove the MCP server roles, or pin `services.mcp.enabled: false` for this role.
+Remove the MCP server roles, or pin `mcp.enabled: false` for this role.
 The security-check and deny-list overrides are then not rendered.
 
 ## Credits

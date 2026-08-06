@@ -39,16 +39,12 @@ def _is_consumer(
                 return False
         return True
     if kind == "mcp_client":
-        if not _coerce_bool(
-            lookup_config(application_id, "services.mcp.enabled", False)
-        ):
+        if not _coerce_bool(lookup_config(application_id, "mcp.enabled", False)):
             return False
-        if not _coerce_bool(
-            lookup_config(application_id, "services.mcp.shared", False)
-        ):
+        if not _coerce_bool(lookup_config(application_id, "mcp.shared", False)):
             return False
         direction = str(
-            lookup_config(application_id, "services.mcp.direction", "") or ""
+            lookup_config(application_id, "mcp.direction", "") or ""
         ).strip()
         return direction in ("client", "both")
     if kind == "web_facing":

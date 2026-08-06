@@ -1,0 +1,36 @@
+---
+enabled: false
+shared: false
+classification: plugin_server
+direction: server
+source_url: https://github.com/WordPress/mcp-adapter/tree/v0.5.0
+supported_version: 0.5.0
+minimum_version: 0.5.0
+transport: streamable_http
+exposure: public
+auth: app_password
+auth_subject: service_account
+implementation: plugin
+credential:
+  owner: mcp-web-app-wordpress
+  source: token_store
+  key: web-app-wordpress
+allowed_consumers:
+  - web-app-openwebui
+  - web-app-hermes
+  - web-app-openclaw
+endpoint:
+  service_key: wordpress
+  path: /wp-json/mcp/mcp-adapter-default-server
+  port_key: http
+limits:
+  request_bytes: 65536
+  response_bytes: 1048576
+  timeout_seconds: 15
+  concurrent_requests: 4
+  page_size: 20
+  result_items: 20
+  stream_seconds: 300
+tools:
+  read_only_default: true
+  mutating_tools_enabled: false

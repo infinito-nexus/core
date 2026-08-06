@@ -34,6 +34,7 @@ flowchart LR
         svc_prometheus["prometheus"]
         svc_jellyfin["jellyfin"]
         svc_container_backup["container_backup"]
+        svc_jellyfinmcp["jellyfinmcp"]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_openldap -. "0..1" .-> svc_ldap

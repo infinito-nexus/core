@@ -1,0 +1,12 @@
+---
+# Matrix-deploy variant overrides for svc-db-qdrant.
+# See docs/contributing/artefact/files/role/variants.md for the file format.
+
+# variant 0: MCP adapter enabled (canonical default).
+
+- mcp:
+    enabled: true
+    shared: true
+- mcp:
+    enabled: false
+    shared: false

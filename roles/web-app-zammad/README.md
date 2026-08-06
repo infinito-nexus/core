@@ -49,6 +49,7 @@ flowchart LR
         svc_scheduler["scheduler"]
         svc_nginx["nginx"]
         svc_container_backup["container_backup"]
+        svc_zammadmcp["zammadmcp"]
     end
     subgraph dependents [Dependents]
         dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]

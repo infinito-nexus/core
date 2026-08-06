@@ -1,9 +1,9 @@
-"""Schema lint for the ``services.mcp`` block.
+"""Schema lint for the ``mcp`` block.
 
 A role declares ``mcp`` only when it actually serves or consumes MCP. Why a
 role cannot is recorded once in the design documentation, not in a metadata
 block per role restating an enum. What is declared here has to be complete,
-with vocabulary from ``utils/roles/applications/services/mcp.py``.
+with vocabulary from ``utils/roles/applications/mcp.py``.
 
 It is a hard lint. It rejects:
 
@@ -55,7 +55,7 @@ from functools import partial
 from utils.annotations.suppress import is_suppressed_at, is_suppressed_in_head
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
-from utils.roles.applications.services.mcp import (
+from utils.roles.applications.mcp import (
     MCP_ADAPTER_KEYS,
     MCP_ADAPTER_REQUIRED_KEYS,
     MCP_ADAPTER_TYPES,
@@ -87,7 +87,7 @@ from utils.roles.applications.services.mcp import (
     delegation_is_proven,
     value_is_templated,
 )
-from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.roles.mapping import ROLE_FILE_META_MCP, ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
 
@@ -172,7 +172,7 @@ def _is_exact_names(value: object) -> bool:
 
 
 class TestMcpSchema(unittest.TestCase):
-    """Hard lint: every deployable ``services.mcp`` block obeys the contract."""
+    """Hard lint: every deployable ``mcp`` block obeys the contract."""
 
     def test_mcp_schema(self) -> None:
         roles_root = PROJECT_ROOT / "roles"
@@ -182,26 +182,29 @@ class TestMcpSchema(unittest.TestCase):
         errors: list[str] = []
 
         for role_dir in sorted(p for p in roles_root.iterdir() if p.is_dir()):
-            services_path = role_dir / ROLE_FILE_META_SERVICES
-            if not services_path.is_file():
+            mcp_path = role_dir / ROLE_FILE_META_MCP
+            if not mcp_path.is_file():
                 continue
-            rel = services_path.relative_to(PROJECT_ROOT).as_posix()
-            lines = read_text(str(services_path)).splitlines()
+            rel = mcp_path.relative_to(PROJECT_ROOT).as_posix()
+            lines = read_text(str(mcp_path)).splitlines()
 
             if is_suppressed_in_head(lines, _RULE):
                 continue
 
             try:
-                services = load_yaml_any(str(services_path), default_if_missing={})
+                mcp = load_yaml_any(str(mcp_path), default_if_missing={})
             except Exception:
                 continue
+
+            services = load_yaml_any(
+                str(role_dir / ROLE_FILE_META_SERVICES), default_if_missing={}
+            )
             if not isinstance(services, Mapping):
-                continue
-            mcp = services.get("mcp")
+                services = {}
             if mcp is None:
                 continue
 
-            prefix = f"{role_dir.name}: services.mcp"
+            prefix = f"{role_dir.name}: mcp"
             flag = partial(_flag, errors, lines, rel)
 
             if not isinstance(mcp, Mapping):
@@ -242,8 +245,7 @@ class TestMcpSchema(unittest.TestCase):
 
         if errors:
             self.fail(
-                f"services.mcp schema violations ({len(errors)}):\n"
-                + "\n".join(sorted(errors))
+                f"mcp schema violations ({len(errors)}):\n" + "\n".join(sorted(errors))
             )
 
     def _check_deployable(
@@ -589,11 +591,10 @@ class TestMcpConsumerCompatibility(unittest.TestCase):
 
         blocks: dict[str, Mapping] = {}
         for role_dir in sorted(p for p in roles_root.iterdir() if p.is_dir()):
-            services_path = role_dir / ROLE_FILE_META_SERVICES
-            if not services_path.is_file():
+            mcp_path = role_dir / ROLE_FILE_META_MCP
+            if not mcp_path.is_file():
                 continue
-            services = load_yaml_any(str(services_path), default_if_missing={})
-            mcp = services.get("mcp") if isinstance(services, Mapping) else None
+            mcp = load_yaml_any(str(mcp_path), default_if_missing={})
             if isinstance(mcp, Mapping):
                 blocks[role_dir.name] = mcp
 

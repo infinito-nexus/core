@@ -30,28 +30,6 @@ homeassistant:
   proxy:
     service_key: homeassistant
 
-# nocheck: playwright-service-flag
-mcp:
-  bond: 1
-  enabled: "{{ 'web-app-hermes' in group_names or 'web-app-openclaw' in group_names }}"
-  shared: "{{ 'web-app-hermes' in group_names or 'web-app-openclaw' in group_names }}"
-  direction: server
-  source_url: https://www.home-assistant.io/integrations/mcp_server/
-  minimum_version: "2025.2"
-  notes: Native mcp_server integration, Streamable HTTP under /api/mcp.
-  transport: streamable_http
-  exposure: internal
-  auth: bearer_token
-  auth_subject: administrator
-  implementation: native
-  endpoint:
-    service_key: homeassistant
-    path: /api/mcp
-    port_key: http
-  tools:
-    read_only_default: true
-    mutating_tools_enabled: false
-
 # nocheck: sso, dynamic-flag, playwright-service-flag
 sso:
   enabled: false

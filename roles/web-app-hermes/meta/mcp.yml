@@ -1,0 +1,20 @@
+---
+enabled: true
+shared: true
+classification: native_client
+direction: client
+source_url: https://hermes-agent.nousresearch.com/
+supported_version: v2026.7.20
+minimum_version: 0.2.0
+implementation: native
+supported_transports:
+  - streamable_http
+  - sse
+supported_auths:
+  - bearer_token
+  - app_password
+  - upstream_session
+  - basic_auth
+tools:
+  read_only_default: true
+  mutating_tools_enabled: false

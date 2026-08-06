@@ -85,9 +85,9 @@ class TestMcpClientConsumer(unittest.TestCase):
         self.assertTrue(
             self._consumer(
                 **{
-                    "services.mcp.enabled": True,
-                    "services.mcp.shared": True,
-                    "services.mcp.direction": "client",
+                    "mcp.enabled": True,
+                    "mcp.shared": True,
+                    "mcp.direction": "client",
                 }
             )
         )
@@ -96,9 +96,9 @@ class TestMcpClientConsumer(unittest.TestCase):
         self.assertTrue(
             self._consumer(
                 **{
-                    "services.mcp.enabled": True,
-                    "services.mcp.shared": True,
-                    "services.mcp.direction": "both",
+                    "mcp.enabled": True,
+                    "mcp.shared": True,
+                    "mcp.direction": "both",
                 }
             )
         )
@@ -107,16 +107,16 @@ class TestMcpClientConsumer(unittest.TestCase):
         self.assertFalse(
             self._consumer(
                 **{
-                    "services.mcp.enabled": True,
-                    "services.mcp.shared": True,
-                    "services.mcp.direction": "server",
+                    "mcp.enabled": True,
+                    "mcp.shared": True,
+                    "mcp.direction": "server",
                 }
             ),
             "a provider on another provider's network is the mesh this kind removes",
         )
 
     def test_disabled_stays_out(self):
-        self.assertFalse(self._consumer(**{"services.mcp.direction": "client"}))
+        self.assertFalse(self._consumer(**{"mcp.direction": "client"}))
 
 
 class TestSuppressDefault(unittest.TestCase):

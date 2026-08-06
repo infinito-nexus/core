@@ -20,11 +20,9 @@ flowchart LR
         dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
         dep_svc_db_redis["svc-db-redis 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
-        dep_web_app_hermes["web-app-hermes 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
-        dep_web_app_openclaw["web-app-openclaw 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
         dep_web_app_seaweedfs["web-app-seaweedfs 🐳🐝"]
         dep_web_svc_css["web-svc-css 💻"]
@@ -39,7 +37,6 @@ flowchart LR
         svc_email["email"]
         svc_postgres["postgres"]
         svc_mattermost["mattermost"]
-        svc_mcp["mcp"]
         svc_redis["redis"]
         svc_minio["minio ❌"]
         svc_seaweedfs["seaweedfs"]
@@ -56,11 +53,9 @@ flowchart LR
     dep_svc_db_postgres -. "0..1" .-> svc_postgres
     dep_svc_db_redis -. "0..1" .-> svc_redis
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
-    dep_web_app_hermes -. "0..1" .-> svc_mcp
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
     dep_web_app_matomo -. "0..1" .-> svc_matomo
-    dep_web_app_openclaw -. "0..1" .-> svc_mcp
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_app_seaweedfs -. "0..1" .-> svc_seaweedfs
     dep_web_svc_css -. "0..1" .-> svc_css
@@ -142,7 +137,7 @@ Mattermost exposes a Model Context Protocol server through the prepackaged Agent
 
 ### Default state
 
-`services.mcp.enabled` resolves to `true` only when `web-app-hermes` or `web-app-openclaw` is part of the same deployment, and is `false` otherwise. While it is `true` the deploy:
+`mcp.enabled` resolves to `true` only when `web-app-hermes` or `web-app-openclaw` is part of the same deployment, and is `false` otherwise. While it is `true` the deploy:
 
 - sets `MM_SERVICESETTINGS_ENABLEUSERACCESSTOKENS=true`,
 - enables the `mattermost-ai` plugin through `mmctl --local`,
@@ -170,14 +165,14 @@ The endpoint serves the Agents plugin's native Mattermost tool catalog:
 
 The catalog includes mutating entries (`create`, `update`, `archive`, `delete`,
 `send`, `upload`). The Agents plugin exposes no filter, scope or permission flag
-that removes them, so `services.mcp.tools.mutating_tools_enabled: false` records
+that removes them, so `mcp.tools.mutating_tools_enabled: false` records
 the deployment's intent rather than an enforced state. Every call is bounded by
 the permissions of the account the bearer token belongs to, which here is the
 administrator.
 
 ### How to disable
 
-Remove the MCP client roles, or pin `services.mcp.enabled: false` for this role. The Agents plugin's MCP server is then left switched off and no personal access token is issued.
+Remove the MCP client roles, or pin `mcp.enabled: false` for this role. The Agents plugin's MCP server is then left switched off and no personal access token is issued.
 
 ## Configuration
 

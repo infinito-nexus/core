@@ -47,8 +47,8 @@ NEXTCLOUD_PROXY_SERVICE: "proxy"
 NEXTCLOUD_PROXY_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_PROXY_SERVICE ~ '.name') }}"
 NEXTCLOUD_PROXY_DNS_NAME: "{{ (entity_name ~ '_' ~ NEXTCLOUD_PROXY_SERVICE) if DEPLOYMENT_MODE == 'swarm' else NEXTCLOUD_PROXY_CONTAINER }}"
 
-NEXTCLOUD_MCP_ENABLED: "{{ lookup('config', application_id, 'services.mcp.enabled') }}"
-NEXTCLOUD_MCP_PATH: "{{ lookup('config', application_id, 'services.mcp.endpoint.path') }}"
+NEXTCLOUD_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') }}"
+NEXTCLOUD_MCP_PATH: "{{ lookup('config', application_id, 'mcp.endpoint.path') }}"
 NEXTCLOUD_MCP_TOKEN_NAME: "infinito-mcp"
 
 NEXTCLOUD_CONTEXT_AGENT_SERVICE: "context_agent"

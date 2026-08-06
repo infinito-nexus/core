@@ -69,11 +69,3 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
-
-# nocheck: dynamic-flag  a blocker block can never be enabled, so a group_names expression would be dead code
-mcp:
-  enabled: false
-  shared: false
-  blocker: hosted_only
-  source_url: https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/
-  notes: Rovo MCP is Atlassian Cloud only; this role deploys an unsupported self-hosted container.

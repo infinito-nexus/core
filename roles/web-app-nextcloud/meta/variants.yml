@@ -30,9 +30,6 @@
     dashboard:
       enabled: true
       shared: true
-    mcp:
-      enabled: true
-      shared: true
     context_agent:
       enabled: true
       shared: true
@@ -100,6 +97,9 @@
     peertube:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+  mcp:
+    enabled: true
+    shared: true
 - services:
     container_backup:
       enabled: false
@@ -119,9 +119,6 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    mcp:
-      enabled: false
-      shared: false
     context_agent:
       enabled: false
       shared: false
@@ -191,6 +188,9 @@
     peertube:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+  mcp:
+    enabled: false
+    shared: false
 - services:
     container_backup:
       enabled: false
@@ -210,9 +210,6 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    mcp:
-      enabled: false
-      shared: false
     context_agent:
       enabled: false
       shared: false
@@ -282,6 +279,9 @@
     peertube:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+  mcp:
+    enabled: false
+    shared: false
 - services:
     container_backup:
       enabled: false
@@ -301,9 +301,6 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    mcp:
-      enabled: false
-      shared: false
     context_agent:
       enabled: false
       shared: false
@@ -373,6 +370,9 @@
     peertube:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+  mcp:
+    enabled: false
+    shared: false
 - services:
     container_backup:
       enabled: false
@@ -392,9 +392,6 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    mcp:
-      enabled: false
-      shared: false
     context_agent:
       enabled: false
       shared: false
@@ -464,6 +461,9 @@
     peertube:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+  mcp:
+    enabled: false
+    shared: false
 - services:
     container_backup:
       enabled: false
@@ -483,9 +483,6 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    mcp:
-      enabled: false
-      shared: false
     context_agent:
       enabled: false
       shared: false
@@ -555,6 +552,9 @@
     peertube:
       enabled: true
       shared: true
+  mcp:
+    enabled: false
+    shared: false
 - services:
     container_backup:
       enabled: false
@@ -574,9 +574,6 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    mcp:
-      enabled: false
-      shared: false
     context_agent:
       enabled: false
       shared: false
@@ -646,6 +643,9 @@
     peertube:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+  mcp:
+    enabled: false
+    shared: false
 - services:
     container_backup:
       enabled: false
@@ -665,9 +665,6 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    mcp:
-      enabled: false
-      shared: false
     context_agent:
       enabled: false
       shared: false
@@ -737,3 +734,6 @@
     peertube:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+  mcp:
+    enabled: false
+    shared: false

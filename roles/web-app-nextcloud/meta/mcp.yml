@@ -1,0 +1,35 @@
+---
+enabled: true
+shared: true
+classification: plugin_server
+direction: server
+source_url: https://docs.nextcloud.com/server/latest/admin_manual/ai/app_context_agent.html
+minimum_version: "30"
+transport: streamable_http
+exposure: public
+auth: app_password
+auth_subject: service_account
+implementation: plugin
+credential:
+  owner: mcp-web-app-nextcloud
+  source: token_store
+  key: web-app-nextcloud
+allowed_consumers:
+  - web-app-openwebui
+  - web-app-hermes
+  - web-app-openclaw
+endpoint:
+  service_key: proxy
+  path: /index.php/apps/app_api/proxy/context_agent/mcp/
+  port_key: http
+limits:
+  request_bytes: 65536
+  response_bytes: 1048576
+  timeout_seconds: 15
+  concurrent_requests: 4
+  page_size: 100
+  result_items: 500
+  stream_seconds: 300
+tools:
+  read_only_default: true
+  mutating_tools_enabled: false

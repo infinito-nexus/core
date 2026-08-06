@@ -97,5 +97,5 @@
       - (mattermost_mcp_toggle_final.rows[0][0] | trim) == 'true'
     fail_msg: >-
       The Agents plugin still reports mcp.enablePluginServer=false, so
-      {{ lookup('config', application_id, 'services.mcp.endpoint.path') }}
+      {{ lookup('config', application_id, 'mcp.endpoint.path') }}
       answers 404 and every MCP client would be pointed at a dead endpoint.

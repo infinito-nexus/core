@@ -37,6 +37,7 @@ flowchart LR
         svc_cadvisor["cadvisor"]
         svc_node_exporter["node-exporter"]
         svc_container_backup["container_backup"]
+        svc_prometheusmcp["prometheusmcp"]
     end
     subgraph dependents [Dependents]
         dpt_web_app_akaunting["web-app-akaunting 🐳🐝"]

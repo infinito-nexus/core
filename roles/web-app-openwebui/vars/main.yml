@@ -9,7 +9,11 @@ OPENWEBUI_ENABLE_API_KEYS: "{{ lookup('config', application_id, 'services.openwe
 OPENWEBUI_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 OPENWEBUI_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') }}"
 OPENWEBUI_LITELLM_API_KEY: "{{ lookup('config', application_id, 'credentials.litellm_api_key') }}"
-OPENWEBUI_MCP_SERVERS: "{{ MCP_DISCOVERED_SERVERS if (lookup('config', application_id, 'services.mcp.enabled') | bool) else [] }}"
+OPENWEBUI_SECRET_KEY: "{{ lookup('config', application_id, 'credentials.webui_secret_key') }}"
+OPENWEBUI_MCP_SERVERS: "{{ MCP_DISCOVERED_SERVERS if (lookup('config', application_id, 'mcp.enabled') | bool) else [] }}"
+OPENWEBUI_MCP_GROUP_OWNER: "openwebui-mcp-groups"
+OPENWEBUI_MCP_GROUP_IDS: "{{ (lookup('users', OPENWEBUI_MCP_GROUP_OWNER, {}) | default({}, true)).get('tokens', {}) }}"
+OPENWEBUI_MCP_MEMBERS: "{{ lookup('users') | mcp_group_members(OPENWEBUI_MCP_SERVERS) }}"
 OPENWEBUI_INTERNAL_HTTP_PORT: "{{ lookup('config', application_id, 'services.openwebui.ports.internal.http') }}"
 OPENWEBUI_API_BOT_USER: "{{ lookup('users', 'openwebui-api-bot') }}"
 

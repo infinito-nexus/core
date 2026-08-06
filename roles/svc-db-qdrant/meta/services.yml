@@ -26,6 +26,24 @@ qdrant:
     internal:
       qdrant: 6333
   lifecycle: beta
+# nocheck: playwright-service-flag  internal adapter sidecar, covered by the role's MCP integration test
+# nocheck: dockerfile-custom  the Dockerfile is owned by svc-ai-mcp-adapter and staged per instance, so every adapter-backed provider shares one audited build
+# nocheck: dynamic-flag  the sidecar tracks this role's own mcp flag, not another role's presence; a group_names expression would decide its exposure from an unrelated deployment
+qdrantmcp:
+  enabled: "{{ lookup('config', 'svc-db-qdrant', 'mcp.enabled') | bool }}"
+  shared: false
+  image: python
+  # nocheck: docker-version  base of the self-built stdlib adapter, not the served application
+  version: "3.13-slim"
+  custom: true
+  name: qdrantmcp
+  cpus: "0.25"
+  mem_reservation: 24m
+  mem_limit: 48m
+  pids_limit: 64
+  ports:
+    internal:
+      http: 8080
 
 # nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
 container_backup: # nocheck: bond-baseline backup host joins outside the variant topology

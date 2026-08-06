@@ -11,9 +11,6 @@
     litellm:
       enabled: true
       shared: true
-    mcp:
-      enabled: true
-      shared: true
     logout:
       enabled: true
       shared: true
@@ -32,6 +29,9 @@
     homeassistant:
       enabled: true
       shared: true
+  mcp:
+    enabled: true
+    shared: true
 - services:
     container_backup:
       enabled: false
@@ -42,9 +42,6 @@
     litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    mcp:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
     logout:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -63,3 +60,6 @@
     homeassistant:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+  mcp:
+    enabled: false
+    shared: false

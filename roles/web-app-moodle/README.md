@@ -19,12 +19,9 @@ flowchart LR
         dep_svc_db_mariadb["svc-db-mariadb 🐳🐝"]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
-        dep_web_app_hermes["web-app-hermes 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
-        dep_web_app_openclaw["web-app-openclaw 🐳🐝"]
-        dep_web_app_openwebui["web-app-openwebui 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
         dep_web_svc_css["web-svc-css 💻"]
         dep_web_svc_logout["web-svc-logout 🐳🐝"]
@@ -36,7 +33,6 @@ flowchart LR
         svc_matomo["matomo"]
         svc_email["email"]
         svc_ldap["ldap"]
-        svc_mcp["mcp"]
         svc_mariadb["mariadb"]
         svc_moodle["moodle"]
         svc_nginx["nginx"]
@@ -49,12 +45,9 @@ flowchart LR
     dep_svc_db_mariadb -. "0..1" .-> svc_mariadb
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
-    dep_web_app_hermes -. "0..1" .-> svc_mcp
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
     dep_web_app_matomo -. "0..1" .-> svc_matomo
-    dep_web_app_openclaw -. "0..1" .-> svc_mcp
-    dep_web_app_openwebui -. "0..1" .-> svc_mcp
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_svc_css -. "0..1" .-> svc_css
     dep_web_svc_logout -. "0..1" .-> svc_logout
@@ -120,7 +113,7 @@ The role exposes a Model Context Protocol surface through the `webservice_mcp` p
 | Transport | Streamable HTTP (JSON-RPC 2.0 over `POST`) |
 | Auth | `Authorization: Bearer <token>`, a Moodle web-service token |
 | Subject | the `administrator` account |
-| Default state | off; `services.mcp.enabled` turns true when `web-app-hermes`, `web-app-openclaw` or `web-app-openwebui` is in the inventory |
+| Default state | off; `mcp.enabled` turns true when `web-app-hermes`, `web-app-openclaw` or `web-app-openwebui` is in the inventory |
 
 Provisioning runs in `tasks/06_mcp.yml`: it copies the plugin into the code volume, runs `admin/cli/upgrade.php`, enables `enablewebservices`, appends `mcp` to `webserviceprotocols`, creates the `infinito_mcp` external service, attaches the read-only functions, mints the permanent token and stores it under `users.administrator.tokens['web-app-moodle']`.
 
@@ -131,11 +124,11 @@ Tool categories exposed by the external service:
 - user lookup (`core_user_get_users_by_field`)
 - calendar events (`core_calendar_get_calendar_events`)
 
-All of them are read-only; `services.mcp.tools.mutating_tools_enabled` is `false` and no write function is attached.
+All of them are read-only; `mcp.tools.mutating_tools_enabled` is `false` and no write function is attached.
 
 ### Default state
 
-Off. `services.mcp.enabled` is true only while `web-app-hermes`, `web-app-openclaw` or `web-app-openwebui` is part of the deployment.
+Off. `mcp.enabled` is true only while `web-app-hermes`, `web-app-openclaw` or `web-app-openwebui` is part of the deployment.
 
 ### Authorization subject
 
@@ -151,7 +144,7 @@ Moodle compares every request against `$CFG->wwwroot`. A probe that reaches the 
 
 ### How to disable
 
-Remove the MCP client roles, or pin `services.mcp.enabled: false` for this role. The web-service token is then not issued and the protocol plugin stays unconfigured.
+Remove the MCP client roles, or pin `mcp.enabled: false` for this role. The web-service token is then not issued and the protocol plugin stays unconfigured.
 
 ## Image source
 

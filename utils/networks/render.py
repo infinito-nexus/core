@@ -15,7 +15,7 @@ discovered into the service_registry by ``discover_role_services``. Keys:
 * ``consumer``: optional override
    * ``kind``: ``services_flags`` (default) | ``database`` | ``mcp_client``
      | ``web_facing``. ``mcp_client`` admits only roles whose
-     ``services.mcp.direction`` is ``client`` or ``both``, so a provider's
+     ``mcp.direction`` is ``client`` or ``both``, so a provider's
      network carries its clients and not every other MCP server.
    * ``key``: services.<key>.* lookup base. Default: provides or entity_name
    * ``flags``: list of flags to AND. Default: ``[enabled, shared]``

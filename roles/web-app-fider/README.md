@@ -48,6 +48,7 @@ flowchart LR
         svc_javascript["javascript"]
         svc_prometheus["prometheus"]
         svc_seaweedfs["seaweedfs"]
+        svc_fidermcp["fidermcp"]
     end
     dep_svc_db_postgres -. "0..1" .-> svc_postgres
     dep_svc_db_redis -. "0..1" .-> svc_redis

@@ -31,8 +31,8 @@ GITLAB_OIDC_REDIRECT_URI: "{{ (GITLAB_URL | regex_replace('/$', '')) ~ '/users/a
 GITLAB_INIT_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
 GITLAB_ROOT_USERNAME: "root"
 
-GITLAB_MCP_ENABLED: "{{ lookup('config', application_id, 'services.mcp.enabled') }}"
-GITLAB_MCP_PATH: "{{ lookup('config', application_id, 'services.mcp.endpoint.path') }}"
+GITLAB_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') }}"
+GITLAB_MCP_PATH: "{{ lookup('config', application_id, 'mcp.endpoint.path') }}"
 GITLAB_MCP_TOKEN_NAME: "infinito-mcp"
 GITLAB_RAILS_BIN: "/srv/gitlab/bin/rails" # nocheck: literal-path  CNG images ship no omnibus gitlab-rails wrapper
 GITLAB_MCP_TOKEN_LIFETIME_DAYS: 364

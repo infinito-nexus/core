@@ -10,26 +10,25 @@ import unittest
 
 from utils.cache.files import iter_project_files_with_content
 from utils.cache.yaml import load_yaml_any
-from utils.roles.applications.services.mcp import MCP_SERVER_DIRECTIONS
-from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.roles.applications.mcp import MCP_SERVER_DIRECTIONS
+from utils.roles.mapping import ROLE_FILE_META_MCP
 
 from . import PROJECT_ROOT
 
 ROLES_DIR = PROJECT_ROOT / "roles"
 
-GATE_MARKERS = ("MCP_ENABLED", "services.mcp.enabled")
+GATE_MARKERS = ("MCP_ENABLED", "mcp.enabled")
 SEARCHED_EXTENSIONS = (".yml", ".yaml", ".j2")
-SERVICES_BASENAME = ROLE_FILE_META_SERVICES.split("/")[-1]
+MCP_BASENAME = ROLE_FILE_META_MCP.split("/")[-1]
 
 
 def _server_roles() -> list[str]:
     roles = []
     for role_dir in sorted(ROLES_DIR.iterdir()):
-        services_path = role_dir / ROLE_FILE_META_SERVICES
-        if not role_dir.is_dir() or not services_path.is_file():
+        mcp_path = role_dir / ROLE_FILE_META_MCP
+        if not role_dir.is_dir() or not mcp_path.is_file():
             continue
-        data = load_yaml_any(str(services_path))
-        block = data.get("mcp") if isinstance(data, dict) else None
+        block = load_yaml_any(str(mcp_path))
         if not isinstance(block, dict):
             continue
         if str(block.get("direction") or "") in MCP_SERVER_DIRECTIONS:
@@ -43,7 +42,7 @@ def _roles_that_gate() -> set[str]:
     for path, text in iter_project_files_with_content(
         extensions=SEARCHED_EXTENSIONS, exclude_tests=True
     ):
-        if not path.startswith(prefix) or path.endswith(SERVICES_BASENAME):
+        if not path.startswith(prefix) or path.endswith(MCP_BASENAME):
             continue
         if any(marker in text for marker in GATE_MARKERS):
             gating.add(path[len(prefix) :].split("/", 1)[0])
@@ -61,7 +60,7 @@ class TestMcpDisabledHasNoSurface(unittest.TestCase):
             ungated,
             [],
             "MCP server roles that render their surface unconditionally, so "
-            f"`services.mcp.enabled=false` would not remove it: {ungated}",
+            f"`mcp.enabled=false` would not remove it: {ungated}",
         )
 
 

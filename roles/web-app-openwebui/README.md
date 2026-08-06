@@ -42,7 +42,6 @@ flowchart LR
         svc_css["css"]
         svc_javascript["javascript"]
         svc_litellm["litellm"]
-        svc_mcp["mcp"]
         svc_email["email"]
         svc_prometheus["prometheus"]
         svc_container_backup["container_backup"]
@@ -50,19 +49,14 @@ flowchart LR
         svc_baserow["baserow"]
     end
     subgraph dependents [Dependents]
-        dpt_web_app_baserow["web-app-baserow 🐳🐝"]
-        dpt_web_app_gitlab["web-app-gitlab 🐳🐝"]
-        dpt_web_app_moodle["web-app-moodle 🐳🐝"]
         dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]
     end
     dep_svc_ai_litellm -. "0..1" .-> svc_litellm
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
     dep_web_app_baserow -. "0..1" .-> svc_baserow
-    dep_web_app_baserow -. "0..1" .-> svc_mcp
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_homeassistant -. "0..1" .-> svc_homeassistant
-    dep_web_app_homeassistant -. "0..1" .-> svc_mcp
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
     dep_web_app_matomo -. "0..1" .-> svc_matomo
@@ -70,9 +64,6 @@ flowchart LR
     dep_web_app_seaweedfs -. "0..1" .-> svc_seaweedfs
     dep_web_svc_css -. "0..1" .-> svc_css
     dep_web_svc_logout -. "0..1" .-> svc_logout
-    svc_sso -. "0..1" .-> dpt_web_app_baserow
-    svc_sso -. "0..1" .-> dpt_web_app_gitlab
-    svc_sso -. "0..1" .-> dpt_web_app_moodle
     svc_sso -. "0..1" .-> dpt_web_app_nextcloud
 ```
 
@@ -230,12 +221,12 @@ with a bearer and a non-empty key.
 
 ### Default state
 
-Off. `services.mcp.enabled` is false unless an MCP server role is part of the
+Off. `mcp.enabled` is false unless an MCP server role is part of the
 deployment.
 
 ### How to disable
 
-Remove the MCP server roles, or pin `services.mcp.enabled: false` for this role.
+Remove the MCP server roles, or pin `mcp.enabled: false` for this role.
 `TOOL_SERVER_CONNECTIONS` then renders empty.
 
 ## Credits

@@ -10,4 +10,4 @@ HERMES_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.e
 HERMES_LITELLM_API_KEY: "{{ lookup('config', application_id, 'credentials.litellm_api_key') }}"
 HERMES_CONFIG_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'config.yaml' ] | path_join }}"
 HERMES_DOCKER_USER_ID: 10000
-HERMES_MCP_SERVERS: "{{ MCP_DISCOVERED_SERVERS if (lookup('config', application_id, 'services.mcp.enabled') | bool) else [] }}"
+HERMES_MCP_SERVERS: "{{ MCP_DISCOVERED_SERVERS if (lookup('config', application_id, 'mcp.enabled') | bool) else [] }}"

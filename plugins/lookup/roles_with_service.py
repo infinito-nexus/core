@@ -45,7 +45,7 @@ from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from utils.domains.primary_domain import get_primary_domain
-from utils.roles.applications.services.mcp import DEFAULT_MCP_TRANSPORT
+from utils.roles.applications.mcp import DEFAULT_MCP_TRANSPORT
 from utils.roles.entity.name import get_entity_name
 
 if TYPE_CHECKING:
@@ -125,6 +125,7 @@ class LookupModule(LookupBase):
         ).run([], variables=vars_)[0]
 
         scope = str(kwargs.get("scope", "host")).strip().lower()
+        topic = kwargs.get("topic")
         direction_raw = kwargs.get("direction")
         direction = (
             str(direction_raw).strip().lower() if direction_raw is not None else None
@@ -141,8 +142,8 @@ class LookupModule(LookupBase):
                 continue
             services = app_config.get("services")
             if not isinstance(services, dict):
-                continue
-            block = services.get(service_name)
+                services = {}
+            block = app_config.get(topic) if topic else services.get(service_name)
             if not isinstance(block, dict):
                 continue
             if not bool(block.get("enabled")):

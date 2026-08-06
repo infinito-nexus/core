@@ -25,7 +25,7 @@ from collections.abc import Mapping
 from utils.annotations.suppress import is_suppressed_in_head
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
-from utils.roles.applications.services.mcp import MCP_DEPLOYABLE_CLASSIFICATIONS
+from utils.roles.applications.mcp import MCP_DEPLOYABLE_CLASSIFICATIONS
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_VARIANTS
 
 from . import PROJECT_ROOT
@@ -62,7 +62,7 @@ class TestMcpVariantCoverage(unittest.TestCase):
             variants_path = role_dir / ROLE_FILE_META_VARIANTS
             if not variants_path.is_file():
                 offenders.append(
-                    f"{role_dir.name}: services.mcp is off in meta/services.yml "
+                    f"{role_dir.name}: mcp is off in meta/services.yml "
                     f"and the role ships no meta/variants.yml, so its adapter, "
                     f"probe and endpoint can never run"
                 )
@@ -77,7 +77,7 @@ class TestMcpVariantCoverage(unittest.TestCase):
             )
             if not enabled:
                 offenders.append(
-                    f"{role_dir.name}: services.mcp is off in meta/services.yml "
+                    f"{role_dir.name}: mcp is off in meta/services.yml "
                     f"and no variant enables it, so its adapter, probe and "
                     f"endpoint can never run"
                 )

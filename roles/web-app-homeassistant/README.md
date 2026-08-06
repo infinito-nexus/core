@@ -17,14 +17,11 @@ flowchart LR
     subgraph deps [Dependencies]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
-        dep_web_app_hermes["web-app-hermes 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
-        dep_web_app_openclaw["web-app-openclaw 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
     end
     subgraph role [web-app-homeassistant 🐳🐝]
         svc_homeassistant["homeassistant"]
-        svc_mcp["mcp"]
         svc_sso["sso ❌"]
         svc_logout["logout ❌"]
         svc_dashboard["dashboard"]
@@ -39,9 +36,7 @@ flowchart LR
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
-    dep_web_app_hermes -. "0..1" .-> svc_mcp
     dep_web_app_keycloak -- "1:1" --> svc_sso
-    dep_web_app_openclaw -. "0..1" .-> svc_mcp
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     svc_homeassistant -. "0..1" .-> dpt_web_app_flowise
     svc_homeassistant -. "0..1" .-> dpt_web_app_hermes
@@ -103,7 +98,7 @@ docker run --rm -it \
 ## MCP Server
 
 Home Assistant ships the MCP server as a native integration. The role enables it
-through `services.mcp.enabled`, which stays true only while an MCP client role is
+through `mcp.enabled`, which stays true only while an MCP client role is
 part of the deployment.
 
 ### Endpoint
@@ -136,7 +131,7 @@ for the current state.
 
 ### Default state
 
-Off. `services.mcp.enabled` is false unless `web-app-hermes` or
+Off. `mcp.enabled` is false unless `web-app-hermes` or
 `web-app-openclaw` is deployed alongside.
 
 ### Tool scope
@@ -148,7 +143,7 @@ or actuated through MCP even though the write tools are listed.
 ### How to disable
 
 Remove the MCP client roles from the deployment, or pin
-`services.mcp.enabled: false` for this role in the inventory. The integration is
+`mcp.enabled: false` for this role in the inventory. The integration is
 then not configured and the endpoint stops answering.
 
 ## Credits

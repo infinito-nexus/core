@@ -34,6 +34,9 @@
     css:
       enabled: true
       shared: true
+  mcp:
+    enabled: true
+    shared: true
 - services:
     asset:
       enabled: false
@@ -64,3 +67,6 @@
     css:
       enabled: false
       shared: false
+  mcp:
+    enabled: false
+    shared: false

@@ -20,11 +20,9 @@ flowchart LR
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
         dep_svc_db_redis["svc-db-redis 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
-        dep_web_app_hermes["web-app-hermes 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
-        dep_web_app_openclaw["web-app-openclaw 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
         dep_web_app_seaweedfs["web-app-seaweedfs 🐳🐝"]
         dep_web_svc_css["web-svc-css 💻"]
@@ -40,7 +38,6 @@ flowchart LR
         svc_mariadb["mariadb"]
         svc_gitea["gitea"]
         svc_giteamcp["giteamcp"]
-        svc_mcp["mcp"]
         svc_redis["redis"]
         svc_minio["minio ❌"]
         svc_seaweedfs["seaweedfs"]
@@ -53,11 +50,9 @@ flowchart LR
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
     dep_svc_db_redis -. "0..1" .-> svc_redis
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
-    dep_web_app_hermes -. "0..1" .-> svc_mcp
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
     dep_web_app_matomo -. "0..1" .-> svc_matomo
-    dep_web_app_openclaw -. "0..1" .-> svc_mcp
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_app_seaweedfs -. "0..1" .-> svc_seaweedfs
     dep_web_svc_css -. "0..1" .-> svc_css
@@ -155,7 +150,7 @@ repository, issue, pull request, search, file, branch, tag, commit and release.
 
 ### Default state
 
-Off. `services.mcp.enabled` is false unless `web-app-hermes` or
+Off. `mcp.enabled` is false unless `web-app-hermes` or
 `web-app-openclaw` is deployed alongside.
 
 ### Public vhost
@@ -166,7 +161,7 @@ vhost is answered with an SSO redirect, never with an MCP response.
 ### How to disable
 
 Remove the MCP client roles from the deployment, or pin
-`services.mcp.enabled: false` for this role. The `giteamcp` service is then not
+`mcp.enabled: false` for this role. The `giteamcp` service is then not
 rendered into the compose file.
 
 ## Credits

@@ -54,24 +54,6 @@ litellm:
   enabled: "{{ 'svc-ai-litellm' in group_names }}"
   shared: "{{ 'svc-ai-litellm' in group_names }}"
 
-# nocheck: shared-provider
-mcp:
-  bond: 1
-  enabled: "{{ 'web-app-homeassistant' in group_names }}"
-  shared: "{{ 'web-app-homeassistant' in group_names }}"
-  direction: client
-  source_url: https://hermes-agent.nousresearch.com/
-  minimum_version: 0.2.0
-  notes: MCP client since v0.2.0, server since v0.6.0.
-  transport: streamable_http
-  exposure: internal
-  auth: bearer_token
-  auth_subject: user
-  implementation: native
-  tools:
-    read_only_default: true
-    mutating_tools_enabled: false
-
 dashboard:
   bond: 1
   enabled: "{{ 'web-app-dashboard' in group_names }}"

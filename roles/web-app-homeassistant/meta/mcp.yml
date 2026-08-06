@@ -1,0 +1,38 @@
+---
+enabled: true
+shared: true
+classification: native_server
+direction: server
+source_url: https://www.home-assistant.io/integrations/mcp_server/
+minimum_version: "2025.2"
+transport: streamable_http
+exposure: internal
+auth: bearer_token
+auth_subject: service_account
+implementation: native
+credential:
+  owner: mcp-web-app-homeassistant
+  source: token_store
+  key: web-app-homeassistant
+allowed_consumers:
+  - web-app-openwebui
+  - web-app-hermes
+  - web-app-openclaw
+endpoint:
+  service_key: homeassistant
+  path: /api/mcp
+  port_key: http
+tools:
+  allowlist:
+    - GetDateTime
+    - GetLiveContext
+    - HassBroadcast
+    - HassCancelAllTimers
+    - HassListAddItem
+    - HassListCompleteItem
+    - HassListRemoveItem
+    - HassTurnOff
+    - HassTurnOn
+    - todo_get_items
+  read_only_default: true
+  mutating_tools_enabled: false

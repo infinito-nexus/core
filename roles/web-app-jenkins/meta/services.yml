@@ -54,26 +54,6 @@ jenkins:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 1024
-mcp:
-  bond: 1
-  enabled: "{{ 'web-app-hermes' in group_names or 'web-app-openclaw' in group_names }}"
-  shared: "{{ 'web-app-hermes' in group_names or 'web-app-openclaw' in group_names }}"
-  direction: server
-  source_url: https://plugins.jenkins.io/mcp-server/
-  minimum_version: "2.462"
-  notes: Plugin based; pinned like every other Jenkins plugin.
-  transport: streamable_http
-  exposure: internal
-  auth: basic_auth
-  auth_subject: administrator
-  implementation: plugin
-  endpoint:
-    service_key: jenkins
-    path: /mcp-server/mcp
-    port_key: http
-  tools:
-    read_only_default: true
-    mutating_tools_enabled: false
 # nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
   bond: 1

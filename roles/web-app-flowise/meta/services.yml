@@ -32,23 +32,6 @@ litellm:
   bond: 1
   enabled: "{{ 'svc-ai-litellm' in group_names }}"
   shared: "{{ 'svc-ai-litellm' in group_names }}"
-mcp:
-  bond: 1
-  enabled: "{{ 'web-app-homeassistant' in group_names or 'web-app-baserow' in group_names }}"
-  shared: "{{ 'web-app-homeassistant' in group_names or 'web-app-baserow' in group_names }}"
-  direction: client
-  source_url: https://docs.flowiseai.com/tutorials/tools-and-mcp
-  minimum_version: 3.0.0
-  notes: Custom MCP tool node, configured per flow; no instance-level registry API, so servers cannot be preregistered. Arbitrary stdio commands stay off in
-    deployments.
-  transport: streamable_http
-  exposure: internal
-  auth: bearer_token
-  auth_subject: user
-  implementation: native
-  tools:
-    read_only_default: true
-    mutating_tools_enabled: false
 # nocheck: playwright-service-flag - DB engine, covered by role-local integration tests
 qdrant:
   bond: 1
@@ -71,10 +54,15 @@ flowise:
   shared: true
   backup:
     no_stop_required: false
-  image: flowiseai/flowise
-  version: 3.1.3
+  image: node
+  # nocheck: docker-version
+  version: "24-bookworm-slim"
+  npm_version: 3.1.4
+  sqlite_version: 12.11.1
+  custom: true
   name: flowise
-  min_storage: 1195MB
+  # nocheck: min-storage-headroom  Reason: the deployed image is built here from node:24-bookworm-slim and measures 4.8 GB, so the base image transfer is not its footprint
+  min_storage: 6GB
   cpus: "1.0"
   mem_reservation: 1g
   mem_limit: 2g

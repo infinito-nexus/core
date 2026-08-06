@@ -1,0 +1,20 @@
+---
+enabled: true
+shared: true
+classification: native_client
+direction: client
+source_url: https://openclaw.ai/
+supported_version: "2026.7.1"
+minimum_version: "2025.1"
+implementation: native
+supported_transports:
+  - streamable_http
+  - sse
+supported_auths:
+  - bearer_token
+  - app_password
+  - upstream_session
+  - basic_auth
+tools:
+  read_only_default: true
+  mutating_tools_enabled: false

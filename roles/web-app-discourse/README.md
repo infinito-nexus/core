@@ -42,7 +42,6 @@ flowchart LR
         svc_css["css"]
         svc_prometheus["prometheus"]
         svc_container_backup["container_backup"]
-        svc_mcp["mcp ❌"]
     end
     subgraph dependents [Dependents]
         dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]

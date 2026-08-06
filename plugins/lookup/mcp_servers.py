@@ -18,7 +18,7 @@ cannot be rendered, so they abort the run instead of disappearing quietly: a
 client that silently ends up with fewer tools than the deployment declared is
 indistinguishable from one that works.
 
-The provider credential is whatever ``services.mcp.credential`` declares:
+The provider credential is whatever ``mcp.credential`` declares:
 ``owner`` names the principal, ``source`` where its secret lives
 (``token_store`` or the role's own ``credentials``), ``key`` the entry. No
 provider inherits the administrator's token.
@@ -32,7 +32,7 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from utils.roles.applications.services.mcp import DEFAULT_MCP_TRANSPORT
+from utils.roles.applications.mcp import DEFAULT_MCP_TRANSPORT
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
@@ -113,7 +113,7 @@ def build_mcp_discovery(
     Args:
         servers: ``roles_with_service('mcp', direction='server')`` entries.
         consumer_id: ``application_id`` of the client doing the discovery.
-        consumer: the client's own ``services.mcp`` block, carrying
+        consumer: the client's own ``mcp`` block, carrying
             ``supported_transports`` and ``supported_auths``.
         credentials: resolved ``(token, owner)`` per provider role id.
         path_keys: resolved ``key_credential`` values, keyed by role id.
@@ -253,7 +253,13 @@ class LookupModule(LookupBase):
 
         servers = lookup_loader.get(
             "roles_with_service", loader=self._loader, templar=templar
-        ).run(["mcp"], variables=vars_, direction="server", scope="deployment")[0]
+        ).run(
+            ["mcp"],
+            variables=vars_,
+            topic="mcp",
+            direction="server",
+            scope="deployment",
+        )[0]
 
         applications = lookup_loader.get(
             "applications", loader=self._loader, templar=templar
@@ -262,9 +268,7 @@ class LookupModule(LookupBase):
             [], variables=vars_
         )[0]
 
-        consumer = ((applications.get(consumer_id) or {}).get("services") or {}).get(
-            "mcp"
-        ) or {}
+        consumer = (applications.get(consumer_id) or {}).get("mcp") or {}
 
         credentials: dict[str, tuple[str, str]] = {}
         path_keys: dict[str, str] = {}

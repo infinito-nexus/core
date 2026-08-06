@@ -23,6 +23,7 @@ flowchart LR
     end
     subgraph role [svc-db-qdrant 🐳🐝]
         svc_qdrant["qdrant"]
+        svc_qdrantmcp["qdrantmcp"]
         svc_container_backup["container_backup"]
     end
     subgraph dependents [Dependents]

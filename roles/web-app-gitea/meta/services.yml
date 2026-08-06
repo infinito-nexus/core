@@ -93,26 +93,6 @@ giteamcp:
   ports:
     internal:
       http: 8080
-mcp:
-  bond: 1
-  enabled: "{{ 'web-app-hermes' in group_names or 'web-app-openclaw' in group_names }}"
-  shared: "{{ 'web-app-hermes' in group_names or 'web-app-openclaw' in group_names }}"
-  direction: server
-  source_url: https://pkg.go.dev/gitea.com/gitea/gitea-mcp
-  minimum_version: "1.24"
-  notes: Project-owned package; packaging and auth maturity gate it.
-  transport: streamable_http
-  exposure: internal
-  auth: bearer_token
-  auth_subject: administrator
-  implementation: sidecar
-  endpoint:
-    service_key: giteamcp
-    path: /mcp
-    port_key: http
-  tools:
-    read_only_default: true
-    mutating_tools_enabled: false
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:

@@ -177,6 +177,7 @@ ROLE_FILE_META_SERVER = "meta/server.yml"
 ROLE_FILE_META_CSP = "meta/csp.yml"
 ROLE_FILE_META_DOMAINS = "meta/domains.yml"
 ROLE_FILE_META_NETWORKS = "meta/networks.yml"
+ROLE_FILE_META_MCP = "meta/mcp.yml"
 ROLE_FILE_META_RBAC = "meta/rbac.yml"
 ROLE_FILE_META_VOLUMES = "meta/volumes.yml"
 ROLE_FILE_META_SCHEMA = "meta/schema.yml"
@@ -352,6 +353,17 @@ ROLE_FILES: dict[str, dict[str, object]] = {
     ROLE_FILE_META_INFO: {
         "description": ("Optional dashboard / UI metadata (logo, label) for the role."),
         "types": _all(mandatory=False),
+    },
+    ROLE_FILE_META_MCP: {
+        "description": (
+            "Model Context Protocol capability of the role: direction, transport, "
+            "auth, credential, tool surface and admitted counterparts. Not a "
+            "service entry, because no single role provides MCP."
+        ),
+        "types": [
+            {"type": ROLE_TYPE_APPLICATION, "mandatory": False, "entries": []},
+            *_all(allowed=False),
+        ],
     },
     ROLE_FILE_META_USERS: {
         "description": (

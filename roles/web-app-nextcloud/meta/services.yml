@@ -115,26 +115,6 @@ proxy:
   ports:
     internal:
       http: 80
-mcp:
-  bond: 1
-  enabled: "{{ 'web-app-hermes' in group_names or 'web-app-openclaw' in group_names }}"
-  shared: "{{ 'web-app-hermes' in group_names or 'web-app-openclaw' in group_names }}"
-  direction: server
-  source_url: https://docs.nextcloud.com/server/latest/admin_manual/ai/app_context_agent.html
-  minimum_version: "30"
-  notes: Context Agent ExApp behind the AppAPI proxy, app-password auth.
-  transport: streamable_http
-  exposure: public
-  auth: app_password
-  auth_subject: administrator
-  implementation: plugin
-  endpoint:
-    service_key: proxy
-    path: /index.php/apps/app_api/proxy/context_agent/mcp/
-    port_key: http
-  tools:
-    read_only_default: true
-    mutating_tools_enabled: false
 # nocheck: playwright-service-flag
 context_agent:
   bond: 1

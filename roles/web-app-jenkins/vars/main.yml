@@ -14,13 +14,13 @@ JENKINS_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enable
 
 JENKINS_LOOPBACK_URL: "http://localhost:{{ lookup('config', application_id, 'services.jenkins.ports.internal.http') }}"
 
-JENKINS_MCP_ENABLED: "{{ lookup('config', application_id, 'services.mcp.enabled') }}"
-JENKINS_MCP_USERNAME: "{{ lookup('users', 'administrator').username }}"
+JENKINS_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') }}"
+JENKINS_MCP_USERNAME: "{{ lookup('config', application_id, 'mcp.credential.owner') }}"
 JENKINS_MCP_TOKEN_NAME: "infinito-mcp"
 JENKINS_MCP_TOKEN_FILE: "/var/jenkins_home/secrets/infinito-mcp.token"
 JENKINS_MCP_IDENTITY_URL: "{{ JENKINS_LOOPBACK_URL }}/whoAmI/api/json"
 JENKINS_MCP_READY_URL: "{{ JENKINS_LOOPBACK_URL }}/login"
-JENKINS_MCP_URL: "{{ JENKINS_LOOPBACK_URL }}{{ lookup('config', application_id, 'services.mcp.endpoint.path') }}"
+JENKINS_MCP_URL: "{{ JENKINS_LOOPBACK_URL }}{{ lookup('config', application_id, 'mcp.endpoint.path') }}"
 JENKINS_MCP_INITIALIZE_PAYLOAD:
   jsonrpc: "2.0"
   id: 1

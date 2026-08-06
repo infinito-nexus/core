@@ -1,4 +1,4 @@
-"""Vocabulary of the ``services.mcp`` block in ``meta/services.yml``.
+"""Vocabulary of the ``mcp`` block in ``meta/services.yml``.
 
 Every role with an ``application_id`` declares exactly one ``mcp:`` entry.
 The block is an audit disposition first and a deployable surface second:
@@ -140,7 +140,6 @@ MCP_KEYS = frozenset(
     {
         "enabled",
         "shared",
-        "bond",
         "classification",
         "reason",
         "direction",
@@ -254,7 +253,7 @@ def is_deployable(mcp: object) -> bool:
     """Return whether this block may carry a served surface and be discovered.
 
     Args:
-        mcp: the role's ``services.mcp`` mapping, or anything else.
+        mcp: the role's ``mcp`` mapping, or anything else.
     """
     if not isinstance(mcp, dict):
         return False
@@ -265,7 +264,7 @@ def declares_delegation(mcp: object) -> bool:
     """Return whether this block claims to act as the requesting end user.
 
     Args:
-        mcp: the role's ``services.mcp`` mapping, or anything else.
+        mcp: the role's ``mcp`` mapping, or anything else.
     """
     if not isinstance(mcp, dict):
         return False
@@ -279,7 +278,7 @@ def delegation_is_proven(mcp: object) -> bool:
     """Return whether a recorded per-version audit backs the delegation claim.
 
     Args:
-        mcp: the role's ``services.mcp`` mapping, or anything else.
+        mcp: the role's ``mcp`` mapping, or anything else.
     """
     if not isinstance(mcp, dict):
         return False

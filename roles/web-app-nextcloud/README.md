@@ -57,7 +57,6 @@ flowchart LR
         svc_mariadb["mariadb"]
         svc_nextcloud["nextcloud"]
         svc_proxy["proxy"]
-        svc_mcp["mcp"]
         svc_context_agent["context_agent"]
         svc_cron["cron"]
         svc_talk["talk"]
@@ -96,7 +95,6 @@ flowchart LR
     dep_web_app_discourse -. "0..1" .-> svc_discourse
     dep_web_app_gitlab -. "0..1" .-> svc_gitlab
     dep_web_app_hermes -. "0..1" .-> svc_context_agent
-    dep_web_app_hermes -. "0..1" .-> svc_mcp
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
     dep_web_app_mastodon -. "0..1" .-> svc_mastodon
@@ -104,7 +102,6 @@ flowchart LR
     dep_web_app_matrix -. "0..1" .-> svc_matrix
     dep_web_app_mattermost -. "0..1" .-> svc_mattermost
     dep_web_app_openclaw -. "0..1" .-> svc_context_agent
-    dep_web_app_openclaw -. "0..1" .-> svc_mcp
     dep_web_app_openproject -. "0..1" .-> svc_openproject
     dep_web_app_openwebui -. "0..1" .-> svc_openwebui
     dep_web_app_peertube -. "0..1" .-> svc_peertube
@@ -201,11 +198,11 @@ Nextcloud serves a Model Context Protocol endpoint through the AppAPI proxy of t
 | Auth | Nextcloud app password, sent as `Authorization: Bearer <app-password>` |
 | Identity | the Nextcloud user the app password belongs to; every tool call runs with that user's permissions |
 | Implementation | plugin (the `context_agent` ExApp container, registered through the `manual_install` deploy daemon) |
-| Default state | off; `services.mcp.enabled` turns on when `web-app-hermes` or `web-app-openclaw` is deployed |
+| Default state | off; `mcp.enabled` turns on when `web-app-hermes` or `web-app-openclaw` is deployed |
 
 ### Deployment
 
-The `context_agent` service in [`meta/services.yml`](./meta/services.yml) renders only while `services.mcp.enabled` is true. It runs `ghcr.io/nextcloud/context_agent`, listens on its internal port for AppAPI only, and shares `credentials.context_agent_app_secret` with the ExApp registration as `APP_SECRET`.
+The `context_agent` service in [`meta/services.yml`](./meta/services.yml) renders only while `mcp.enabled` is true. It runs `ghcr.io/nextcloud/context_agent`, listens on its internal port for AppAPI only, and shares `credentials.context_agent_app_secret` with the ExApp registration as `APP_SECRET`.
 
 [`tasks/03_mcp.yml`](./tasks/03_mcp.yml) waits for the ExApp heartbeat, registers the deploy daemon and the ExApp (route `^/mcp`, verbs `POST,GET,DELETE`, access level `1`), enables the ExApp, mints an app password via `occ user:auth-tokens:add`, persists it through `sys-token-store` under `users.administrator.tokens['web-app-nextcloud']`, and asserts that an authenticated `initialize` call answers `200`.
 
@@ -215,7 +212,7 @@ The `context_agent` service in [`meta/services.yml`](./meta/services.yml) render
 
 ### Tool categories
 
-The ExApp registers every tool category the Context Agent ships, read-only and mutating alike, and each call runs with the permissions of the app-password owner. The 2.7.0 image advertises 94 tools across 23 categories, which are application names (`calendar`, `files`, `mail`, `talk`, …), not operations: each bundles its read and its write tools. `tool_status` therefore switches whole categories, and no setting removes only the mutating ones, so `services.mcp.tools.mutating_tools_enabled: false` records the deployment's intent rather than an enforced state. Disabling a category to bar its write tools also removes its read tools. List the categories and narrow the exposed set with:
+The ExApp registers every tool category the Context Agent ships, read-only and mutating alike, and each call runs with the permissions of the app-password owner. The 2.7.0 image advertises 94 tools across 23 categories, which are application names (`calendar`, `files`, `mail`, `talk`, …), not operations: each bundles its read and its write tools. `tool_status` therefore switches whole categories, and no setting removes only the mutating ones, so `mcp.tools.mutating_tools_enabled: false` records the deployment's intent rather than an enforced state. Disabling a category to bar its write tools also removes its read tools. List the categories and narrow the exposed set with:
 
 ```bash
 occ app_api:app:config:get context_agent tool_status
@@ -237,11 +234,11 @@ An unauthenticated request to the same path answers `404`; [`files/playwright/te
 
 ### Default state
 
-Off. `services.mcp.enabled` is true only while `web-app-hermes` or `web-app-openclaw` is part of the deployment.
+Off. `mcp.enabled` is true only while `web-app-hermes` or `web-app-openclaw` is part of the deployment.
 
 ### How to disable
 
-Remove the MCP client roles, or pin `services.mcp.enabled: false` for this role. The `context_agent` service is then not rendered, the ExApp is not registered with AppAPI, and no app password is minted.
+Remove the MCP client roles, or pin `mcp.enabled: false` for this role. The `context_agent` service is then not rendered, the ExApp is not registered with AppAPI, and no app password is minted.
 
 ## Documentation
 
