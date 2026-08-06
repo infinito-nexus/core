@@ -1,7 +1,42 @@
 #!/bin/bash
+#
+# Report anonymous volumes that are neither whitelisted nor a bootstrap volume,
+# then check every NFS-backed volume for reachability.
+#
+# Both the container lookup and the mount-path lookup go through the helpers
+# below, so the bootstrap check and the report can never disagree about which
+# containers hold a volume or where they mount it. The lookup spans stopped
+# containers: a reaped container keeps its anonymous bootstrap volume attached,
+# and skipping it would report that volume as an anomaly.
+#
 # Param: $1 space-separated list of whitelisted volume IDs
 
+BOOTSTRAP_MOUNT_PATH="/var/www/bootstrap"
+
 status=0
+
+# Param: $1 volume name
+containers_using_volume() {
+    container ps -aq --filter volume="$1"
+}
+
+# Param: $1 volume name
+# Param: $2 container id
+volume_mount_path() {
+    container inspect --type container --format "{{ range .Mounts }}{{ if eq .Name \"$1\" }}{{ .Destination }}{{ end }}{{ end }}" "$2"
+}
+
+# Param: $1 volume name
+# Param: $2 space-separated container ids
+is_bootstrap_volume() {
+    local container_id
+    for container_id in $2; do
+        if [ "$(volume_mount_path "$1" "$container_id")" == "$BOOTSTRAP_MOUNT_PATH" ]; then
+            return 0
+        fi
+    done
+    return 1
+}
 
 whitelist="${1:-}"
 whitelisted_volumes=()
@@ -24,23 +59,23 @@ for volume in $anonymous_volumes; do
         continue
     fi
 
-    container_mount_path=$(container ps -q | xargs -I {} container inspect --type container {} --format="{{range .Mounts}}{{if eq .Name \"$volume\"}}{{.Destination}}{{end}}{{end}}" | tr -d '\n' | xargs)
-    if [ "$container_mount_path" == "/var/www/bootstrap" ]; then
+    container_ids=$(containers_using_volume "$volume")
+
+    if is_bootstrap_volume "$volume" "$container_ids"; then
         echo "Volume $volume is a bootstrap volume and will be skipped."
         continue
     fi
 
     ((status++))
-        
-    container_ids=$(container ps -aq --filter volume="$volume")
+
     if [ -z "$container_ids" ]; then
-        echo "Volume $volume is not used by any running containers."
+        echo "Volume $volume is not used by any container."
         continue
     fi
 
     for container_id in $container_ids; do
         container_name=$(container inspect --type container --format '{{ .Name }}' "$container_id" | sed 's#^/##')
-        mount_path=$(container inspect --type container --format "{{ range .Mounts }}{{ if eq .Name \"$volume\" }}{{ .Destination }}{{ end }}{{ end }}" "$container_id")
+        mount_path=$(volume_mount_path "$volume" "$container_id")
 
         if [ -n "$mount_path" ]; then
             echo "Volume $volume is used by container $container_name at mount path $mount_path"

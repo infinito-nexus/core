@@ -1,4 +1,18 @@
 ---
+# Hanzi labels are compact hierarchical category fragments.
+# Every label uses exactly two Chinese characters.
+#
+# The labels prioritize short, consistent, left-to-right navigation over
+# complete or grammatically natural Chinese terminology.
+#
+# Display paths:
+#   parent · child · grandchild
+#
+# Examples:
+#   sys-ctl-cln -> 系统·控制·清理
+#   web-app     -> 网络·应用
+#   svc-ai      -> 服务·智能
+#
 # Deploy stages in call order (tasks/stages/0*.yml): the constructor pass
 # runs first, then the per-host-type passes (workstation, then server), and
 # the destructor pass last. Each top-level category declares the `stage` it
@@ -9,76 +23,104 @@ stages:
   - workstation
   - server
   - destructor
+
 roles:
   dev:
     title: "Software Development Utilties"
+    hanzi: "开发" # Means "development".
     stage: workstation
     invokable: false
+
   sys:
     title: "System"
+    hanzi: "系统" # Means "system".
     description: "System near components. Will be automaticly called if necessary from other roles."
     stage: server
     invokable: false
+
     ctl:
       title: "Control"
+      hanzi: "控制" # Means "control" or "steering".
       description: "Control layer for system lifecycle management—handling cleanup, monitoring, backups, alerting, maintenance, and repair tasks."
       icon: "fas fa-cogs"
       invokable: false
+
       cln:
         title: "Cleanup"
+        hanzi: "清理" # Means "cleanup" or "clearing".
         description: "Roles for cleaning up various system resources—old backups, unused certificates, temporary files, Docker volumes, disk caches, deprecated domains,
           and more."
         icon: "fas fa-trash-alt"
         invokable: false
+
       hlth:
         title: "Monitoring"
+        hanzi: "监控" # Means "monitoring" or "surveillance".
         description: "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk
           usage, and more."
         icon: "fas fa-chart-area"
         invokable: false
+
       bkp:
         title: "Backup & Restore"
+        hanzi: "备份" # Means "backup" or "copy".
         description: "Backup strategies & restore procedures"
         icon: "fas fa-hdd"
         invokable: false
+
       alm:
         title: "Alerting"
+        hanzi: "告警" # Means "warning" or "alarm".
         description: "Notification handlers for system events"
         icon: "fas fa-bell"
         invokable: false
+
       mtn:
         title: "Maintenance"
+        hanzi: "维护" # Means "maintenance" or "upkeep".
         description: "Maintenance roles for certificates, system upkeep, and recurring operational tasks."
         icon: "fas fa-tools"
         invokable: false
+
       rpr:
         title: "Repair"
+        hanzi: "修复" # Means "repair", "fix", or "restoration".
         description: "Repair and recovery roles—handling hard/soft recovery of Docker, Btrfs balancers, and other low-level system fixes."
         icon: "fas fa-wrench"
         invokable: false
+
     dns:
       title: "DNS Automation"
+      hanzi: "域名" # Means "domain name".
       description: "DNS providers, records, and rDNS management (Cloudflare, Hetzner, etc.)."
       icon: "fas fa-network-wired"
       invokable: false
+
     stk:
       title: "Stack"
+      hanzi: "堆栈" # Means "stack".
       description: "Stack levels to setup the server"
       icon: "fas fa-bars-staggered"
       invokable: false
+
     front:
       title: "System Frontend Helpers"
+      hanzi: "前端" # Means "frontend" or literally "front end".
       description: "Frontend helpers for reverse-proxied apps (injection, shared assets, CDN plumbing)."
       icon: "fas fa-wand-magic-sparkles"
       invokable: false
+
       inj:
         title: "Injection"
+        hanzi: "注入" # Means "injection" or "insertion".
         description: "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed
           assets."
         icon: "fas fa-filter"
         invokable: false
+
   update:
     title: "Updates & Package Management"
+    hanzi: "更新" # Means "update" or "renewal".
     description: "OS & package updates"
     icon: "fas fa-sync"
     stage: constructor
@@ -86,8 +128,10 @@ roles:
       compose: false
       swarm: false
     invokable: true
+
   drv:
     title: "Drivers"
+    hanzi: "驱动" # Means "driver", "drive", or "actuation".
     description: "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
     icon: "fas fa-microchip"
     stage: constructor
@@ -96,71 +140,95 @@ roles:
       compose: false
       swarm: false
     invokable: true
+
   gen:
     title: "Generic"
+    hanzi: "通用" # Means "general-purpose" or "universal".
     description: "Helper roles & installers (git, locales, timer, etc.)"
     icon: "fas fa-wrench"
     stage: constructor
     run_after: [drv]
     invokable: true
+
   desk:
     title: "Desktop"
+    hanzi: "桌面" # Means "desktop" or literally "desk surface".
     description: "Desktop environment roles & apps (GNOME, browser, LibreOffice, etc.)"
     icon: "fas fa-desktop"
     stage: workstation
     invokable: true
+
   web:
     title: "Web Infrastructure"
+    hanzi: "网络" # Means "network" or "web".
     description: "Roles for managing web infrastructure—covering static content services and deployable web applications."
     icon: "fas fa-globe"
     stage: server
+
     svc:
       title: "Services"
+      hanzi: "服务" # Means "service".
       description: "Static content servers (assets, HTML, legal, files)"
       icon: "fas fa-file"
       invokable: true
+
     app:
       title: "Applications"
+      hanzi: "应用" # Means "application" or "use".
       description: "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
       icon: "fas fa-docker"
       run_after: [web-svc]
       invokable: true
+
     opt:
       title: "Webserver Optimation"
+      hanzi: "优化" # Means "optimization".
       description: "Tools which help to optimize webservers"
       run_after: [web-app]
       invokable: true
+
   svc:
     title: "Services"
+    hanzi: "服务" # Means "service".
     description: "Infrastructure services like databases"
     stage: constructor
     invokable: false
+
     db:
       title: "Databases"
+      hanzi: "数据" # Means "data".
       description: "Database applications (DBMS, LDAP, Redis, etc.)"
       icon: "fas fa-database"
       run_after: [svc-net]
       invokable: true
+
     dns:
       title: "DNS Resolvers"
+      hanzi: "解析" # Means "resolution", "parsing", or "analysis".
       description: "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
       icon: "fas fa-globe"
       run_after: [svc-db]
       invokable: true
+
     opt:
       title: "Service Optimation"
+      hanzi: "优化" # Means "optimization".
       description: "Optimation Services to improve your system"
       icon: "fas fa-database"
       stage: destructor
       invokable: true
+
     prx:
       title: "Proxy Servers"
-      description: "Reverse‑proxy roles for routing and load‑balancing traffic to backend services"
+      hanzi: "代理" # Means "proxy", "agent", or "representation".
+      description: "Reverse-proxy roles for routing and load-balancing traffic to backend services"
       icon: "fas fa-project-diagram"
       run_after: [svc-dns]
       invokable: true
+
     net:
       title: "Network"
+      hanzi: "网络" # Means "network" or "web".
       description: "Network setup (DNS, Let's Encrypt HTTP, WireGuard, etc.)"
       icon: "fas fa-globe"
       run_after: [gen]
@@ -168,21 +236,27 @@ roles:
         compose: false
         swarm: false
       invokable: true
+
     ai:
       title: "AI Services"
+      hanzi: "智能" # Means "intelligence" or "smart capability".
       description: "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
       icon: "fas fa-brain"
       run_after: [svc-prx]
       invokable: true
+
     bkp:
       title: "Backup Services"
+      hanzi: "备份" # Means "backup" or "copy".
       description: "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration
         across databases, files, and containers."
       icon: "fas fa-database"
       run_after: [svc-ai]
       invokable: true
+
     registry:
       title: "Container Registries"
+      hanzi: "仓库" # Means "warehouse" or "repository".
       description: "Container-registry services - local registry and pull-through cache."
       icon: "fas fa-box-archive"
       bootstrap: true
@@ -190,20 +264,25 @@ roles:
         compose: true
         swarm: false
       invokable: true
+
     storage:
       title: "Shared Storage"
+      hanzi: "存储" # Means "storage" or "to store".
       description: "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
       icon: "fas fa-hdd"
       bootstrap: true
       invokable: true
+
     swarm:
       title: "Container Orchestration"
+      hanzi: "编排" # Means "orchestration", "arrangement", or "coordination".
       description: "Docker Swarm cluster bootstrap and node-membership roles for multi-host service deployment."
       icon: "fas fa-network-wired"
       bootstrap: true
       invokable: true
     virt:
       title: "Sandboxed Runtimes"
+      hanzi: "沙箱" # Means "sandbox".
       description: "Kernel-isolating container runtimes on the container host: Kata Containers microVMs and the gVisor userspace fallback."
       icon: "fas fa-shield-halved"
       bootstrap: true
@@ -211,14 +290,18 @@ roles:
         compose: false
         swarm: false
       invokable: true
+
     runner:
       title: "CI Runner"
+      hanzi: "运行" # Means "running", "operation", or "execution".
       description: "Self-hosted GitHub Actions runner deployment and configuration"
       icon: "fas fa-play"
       run_after: [svc-bkp]
       invokable: true
+
   user:
     title: "Users & Access"
+    hanzi: "用户" # Means "user".
     description: "User accounts & access control"
     icon: "fas fa-users"
     invokable: false

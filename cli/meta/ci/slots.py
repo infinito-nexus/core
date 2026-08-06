@@ -50,6 +50,10 @@ _DEPLOY_CALLERS = frozenset(
     {
         "test-deploy-single-node",
         "test-deploy-single-node-priority",
+        "test-deploy-compose",
+        "test-deploy-compose-priority",
+        "test-deploy-host",
+        "test-deploy-host-priority",
         "test-deploy-swarm",
         "test-deploy-swarm-priority",
     }

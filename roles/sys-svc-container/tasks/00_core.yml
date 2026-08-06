@@ -58,6 +58,13 @@
     state: started
     enabled: true
 
+- name: "🔧 Resync dockerd when containerd restarted underneath it"
+  become: true
+  ansible.builtin.script: reconcile_runtime.sh
+  register: sys_svc_container_runtime_reconcile
+  changed_when: "'RECONCILED:' in sys_svc_container_runtime_reconcile.stdout"
+  throttle: 1
+
 - name: ⏳ Wait for docker socket to be available
   ansible.builtin.wait_for:
     path: /var/run/docker.sock

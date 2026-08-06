@@ -1,5 +1,6 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 {% set ERPNEXT_CONFIG_READY_GATE = "until grep -q redis_socketio sites/common_site_config.json 2>/dev/null; do sleep 2; done;" %}
+{% set ERPNEXT_BACKEND_READY_GATE = "until (exec 3<>/dev/tcp/backend/" ~ ERPNEXT_BACKEND_PORT ~ ") 2>/dev/null; do sleep 2; done;" %}
 
   {% set service_name = 'backend' %}
   {{ service_name }}:
@@ -37,7 +38,7 @@
     {{ lookup('container_image', application_id, 'erpnext') }}
     {{ lookup('compose_only', 'container_name', ERPNEXT_FRONTEND_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    command: ["nginx-entrypoint.sh"]
+    command: ["bash", "-c", "{{ ERPNEXT_BACKEND_READY_GATE }} exec nginx-entrypoint.sh"]
     {{ lookup('depends_on', {'backend': 'service_started', 'websocket': 'service_started'}) }}
     environment:
       BACKEND: "backend:{{ ERPNEXT_BACKEND_PORT }}"

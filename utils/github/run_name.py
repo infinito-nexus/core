@@ -7,8 +7,12 @@ wants to know what a run was dispatched with therefore parses the title — and
 parsing it against a hand-copied format would drift the moment the workflow
 changes, silently and without a failing test.
 
-So the format is read from the workflow itself and the literals that frame an
-input are derived, never spelled out here.
+So the format is read from the workflow itself. Every input renders as one
+segment, ``<head><value> ``, where the head is the emoji the workflow's own
+``format('🐧{0} ', …)`` prefixes the value with. An input holding its default
+renders no segment at all, so a title carries only what deviates — and an
+absent input means "the workflow's default", which is exactly what a
+retrigger should leave alone.
 """
 
 from __future__ import annotations
@@ -20,7 +24,13 @@ from utils.cache.yaml import load_yaml
 
 WORKFLOW = PROJECT_ROOT / ".github" / "workflows" / "entry-manual.yml"
 
+VALUE_GLYPHS = {"是": "true", "否": "false", "序": "serial", "并": "parallel"}
+
 _EXPRESSION = re.compile(r"\$\{\{(.*?)\}\}", re.DOTALL)
+_QUOTED = re.compile(r"'([^']*)'")
+_COMPARED = re.compile(r"[!=]=\s*'([^']*)'")
+_INPUT = re.compile(r"inputs\.([A-Za-z_][A-Za-z0-9_]*)")
+_PLACEHOLDER = "{0}"
 
 
 def template() -> str:
@@ -52,105 +62,117 @@ def _split(tpl: str) -> tuple[list[str], list[str]]:
     return literals, expressions
 
 
-def _openings_after(
-    literals: list[str], expressions: list[str], index: int
-) -> list[str]:
-    """Literal texts any later segment can start with.
+def segments(tpl: str | None = None) -> list[tuple[str, str, bool]]:
+    """``(input name, opening literal, is_marker)`` per rendered segment, in
+    template order.
 
-    Args:
-        literals: template literals from :func:`_split`.
-        expressions: template expressions from :func:`_split`.
-        index: expression position after which segments are inspected.
-
-    Returns:
-        Every non-empty rendering a later segment can open with: the leading
-        literal of each quoted string inside later expressions (format
-        placeholders stripped) and each later inter-expression literal.
+    A value segment interpolates its input through a ``format()``
+    placeholder and opens with the format string up to ``{0}``. A marker
+    segment carries no value at all: its literal shows only that the input
+    was set, and its absence is the other state.
     """
-    openings: list[str] = []
-    for j in range(index + 1, len(expressions)):
-        for quoted in re.findall(r"'([^']*)'", expressions[j]):
-            head = quoted.split("{", 1)[0].strip()
-            if head:
-                openings.append(head)
-        trailing = literals[j + 1].strip()
-        if trailing:
-            openings.append(trailing)
-    return openings
+    tpl = template() if tpl is None else tpl
+    _literals, expressions = _split(tpl)
+    out: list[tuple[str, str, bool]] = []
+    for expression in expressions:
+        names = set(_INPUT.findall(expression))
+        if len(names) != 1:
+            continue
+        quoted = _QUOTED.findall(expression)
+        placeholder = next((q for q in quoted if _PLACEHOLDER in q), None)
+        if placeholder is not None:
+            out.append((names.pop(), placeholder.split(_PLACEHOLDER, 1)[0], False))
+            continue
+        compared = set(_COMPARED.findall(expression))
+        literal = next(
+            (q.strip() for q in quoted if q.strip() and q not in compared), ""
+        )
+        if literal:
+            out.append((names.pop(), literal, True))
+    return out
 
 
-def frame(input_name: str, tpl: str | None = None) -> tuple[str, str]:
-    """Literal text surrounding ``inputs.<input_name>`` in the run name.
+def heads(tpl: str | None = None) -> dict[str, str]:
+    """Input name -> the literal its value segment opens with, template order."""
+    return {name: literal for name, literal, marker in segments(tpl) if not marker}
 
-    Args:
-        input_name: dispatch input interpolated on its own, e.g. ``distros``.
-        tpl: run-name to read; defaults to the declared one.
 
-    Returns:
-        ``(before, after)``. Either side is empty when the expression sits at
-        a boundary of the template.
+def markers(tpl: str | None = None) -> dict[str, str]:
+    """Input name -> the literal its marker segment renders when set."""
+    return {name: literal for name, literal, marker in segments(tpl) if marker}
 
-    Raises:
-        ValueError: the input is not interpolated bare anywhere in the run
-            name, so no literal frame identifies its value.
+
+def openings(tpl: str | None = None) -> set[str]:
+    """Every literal a rendered segment can start with, so any of them ends
+    the value before it.
+
+    Comparison operands (``inputs.workspace != 'auto'``) and the glyphs a
+    value renders as are excluded: they are what the template tests and emits,
+    never what a segment opens with.
     """
     tpl = template() if tpl is None else tpl
     literals, expressions = _split(tpl)
-    wanted = f"inputs.{input_name}"
-    for index, expression in enumerate(expressions):
-        if expression == wanted:
-            return literals[index], literals[index + 1]
-    raise ValueError(f"{wanted} is not interpolated on its own in: {tpl}")
-
-
-def title_with(
-    input_name: str, value: str, tail: str = "", tpl: str | None = None
-) -> str:
-    """A run name in which *input_name* holds *value*.
-
-    Args:
-        input_name: dispatch input to place.
-        value: what it held.
-        tail: whatever the workflow renders after this input's own separator.
-        tpl: run-name to read; defaults to the declared one.
-    """
-    before, after = frame(input_name, tpl)
-    return f"{before}{value}{after}{tail}"
+    found: set[str] = {literal.strip() for literal in literals}
+    for expression in expressions:
+        compared = set(_COMPARED.findall(expression))
+        for quoted in _QUOTED.findall(expression):
+            if quoted in compared or quoted in VALUE_GLYPHS:
+                continue
+            found.add(quoted.split(_PLACEHOLDER, 1)[0].strip())
+    return {opening for opening in found if opening}
 
 
 def value_from_title(title: str, input_name: str, tpl: str | None = None) -> str:
     """Value ``input_name`` held when the run named *title* was dispatched.
 
-    Returns an empty string when *title* does not follow the run name at all —
-    a run from another entry point carries an unrelated title, and guessing a
-    value for it would be worse than admitting ignorance.
+    Returns an empty string when the title carries no segment for the input —
+    it was dispatched with the workflow's default, or the title comes from
+    another entry point entirely and records nothing at all.
 
-    The value's end is the literal that follows it in the template; when that
-    literal is only whitespace, the earliest opening any later segment can
-    render (:func:`_openings_after`) terminates the value instead.
+    Raises:
+        ValueError: the run name renders no segment for this input, so no
+            title could ever carry its value.
     """
     tpl = template() if tpl is None else tpl
-    literals, expressions = _split(tpl)
-    wanted = f"inputs.{input_name}"
-    try:
-        index = expressions.index(wanted)
-    except ValueError:
-        raise ValueError(f"{wanted} is not interpolated on its own in: {tpl}") from None
-    before, after = literals[index], literals[index + 1]
-    if not title.startswith(before):
+    all_heads = heads(tpl)
+    if input_name not in all_heads:
+        raise ValueError(f"inputs.{input_name} renders no segment in: {tpl}")
+    head = all_heads[input_name]
+    start = title.find(head)
+    if start == -1:
         return ""
-    rest = title[len(before) :]
-    if after.strip():
-        rest = rest.split(after, 1)[0]
-    else:
-        cuts = [
-            found
-            for found in (
-                rest.find(opening)
-                for opening in _openings_after(literals, expressions, index)
-            )
-            if found != -1
-        ]
-        if cuts:
-            rest = rest[: min(cuts)]
-    return " ".join(rest.split())
+    rest = title[start + len(head) :]
+    cuts = [
+        found
+        for found in (
+            rest.find(opening) for opening in openings(tpl) - {head} if opening
+        )
+        if found != -1
+    ]
+    if cuts:
+        rest = rest[: min(cuts)]
+    value = " ".join(rest.split())
+    return VALUE_GLYPHS.get(value, value)
+
+
+def values_from_title(title: str, tpl: str | None = None) -> dict[str, str]:
+    """Every input the run named *title* records, keyed by input name.
+
+    Value inputs left on their default render no segment and are absent. A
+    marker input is always reported, ``'true'`` or ``'false'`` by the
+    marker's presence — which is why a title that does not open with the run
+    name's own prefix yields nothing at all rather than a title-wide 'false'.
+    """
+    tpl = template() if tpl is None else tpl
+    literals, _expressions = _split(tpl)
+    if not title.startswith(literals[0].strip()):
+        return {}
+    found = {name: value_from_title(title, name, tpl) for name in heads(tpl)}
+    found = {name: value for name, value in found.items() if value}
+    found.update(
+        {
+            name: "true" if literal in title else "false"
+            for name, literal in markers(tpl).items()
+        }
+    )
+    return found

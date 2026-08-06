@@ -1,0 +1,17 @@
+{# Exception: this file has no include= line, so php-fpm.d/*.conf is never
+   read — an override dropped there is silently inert. #}
+[global]
+error_log = /proc/self/fd/2
+daemonize = no
+
+[www]
+access.log = /proc/self/fd/2
+listen = 0.0.0.0:{{ MAGENTO_PHP_PORT }}
+pm = dynamic
+pm.max_children = 10
+pm.start_servers = 4
+pm.min_spare_servers = 2
+pm.max_spare_servers = 6
+clear_env = no
+catch_workers_output = yes
+process.dumpable = yes

@@ -3,7 +3,7 @@ from __future__ import annotations
 import unittest
 
 from cli.administration.deploy.ci import runs
-from tests.utils.ci_job_names import ORCHESTRATOR_PREFIX, deploy_job_name
+from tests.utils.ci.job_names import ORCHESTRATOR_PREFIX, deploy_job_name
 
 MODES = ("docker", "swarm")
 SAMPLE_APP = "web-app-matomo"

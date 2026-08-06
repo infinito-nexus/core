@@ -7,7 +7,7 @@ from unittest import mock
 
 from cli.administration.deploy.ci import runs
 from cli.administration.deploy.ci.status import __main__ as status
-from tests.utils.ci_job_names import deploy_job_name
+from tests.utils.ci.job_names import deploy_job_name
 
 
 def _job(mode: str, app: str, conclusion: str, url: str) -> dict:

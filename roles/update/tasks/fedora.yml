@@ -4,7 +4,7 @@
   ansible.builtin.lineinfile:
     path: /etc/dnf/dnf.conf
     regexp: "^retries="
-    line: "retries=5"
+    line: "retries=10"
     insertafter: "^\\[main\\]"
 
 - name: "🔄 update (dnf) | refresh dnf cache and upgrade all installed packages"

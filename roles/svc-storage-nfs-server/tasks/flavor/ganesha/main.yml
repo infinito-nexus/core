@@ -108,9 +108,11 @@
   ansible.builtin.wait_for:
     port: 2049
     host: 127.0.0.1
-    timeout: "{{ lookup('timeout', 60) | int }}"
+    timeout: "{{ lookup('timeout', 120) | int }}"
     msg: >-
       Port 2049 never opened within the timeout. Check 'systemctl status
       nfs-ganesha' and 'journalctl -u nfs-ganesha': a unit that stays active
       but logs nothing after the export CLIENT warnings has wedged before
-      'NFS SERVER INITIALIZED' and systemd will not restart it.
+      'NFS SERVER INITIALIZED'. ExecStartPost now turns that wedge into a
+      unit failure so Restart=on-failure can recover it; this budget covers
+      one full recovery cycle.

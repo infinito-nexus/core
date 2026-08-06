@@ -34,6 +34,7 @@ import sys
 
 from cli.meta.ci import slots
 from utils.cache.files import PROJECT_ROOT, read_text
+from utils.roles.display import display_names
 
 MODES = ("compose", "swarm", "host")
 
@@ -206,8 +207,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--format", choices=("json",), dest="fmt")
     args = parser.parse_args(argv)
 
-    whitelist = os.environ["INFINITO_WHITELIST"]
-    blacklist = os.environ["INFINITO_BLACKLIST"]
+    codec = display_names()
+    whitelist = codec.decode_list(os.environ["INFINITO_WHITELIST"])
+    blacklist = codec.decode_list(os.environ["INFINITO_BLACKLIST"])
 
     if args.matrix:
         return subprocess.run(

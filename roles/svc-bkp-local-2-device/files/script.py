@@ -51,7 +51,7 @@ def main():
     try:
         rsync_command = [
             "rsync",
-            "-abP",
+            "-aP",
             "--numeric-ids",
             "--delete",
             "--delete-excluded",

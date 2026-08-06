@@ -8,8 +8,9 @@ from utils.packages.sources import AUR_BUILDER_USER, PACMAN_CONF
 
 
 class TestExternalFetchRetries(unittest.TestCase):
-    """Every call that reaches an endpoint outside a distribution repository
-    carries a retry policy; the repository calls carry none."""
+    """Every call that fetches over the network carries a retry policy, the
+    distribution's own repositories included: their mirror pools degrade
+    independently of whatever retries the package manager does internally."""
 
     def _retried(self, plan):
         return {call.module for call in plan if call.retry is not None}
@@ -18,30 +19,34 @@ class TestExternalFetchRetries(unittest.TestCase):
         plan = build_plan(
             PackageSpec(("nfs-ganesha",), source=SOURCE_AUR), STATE_PRESENT
         )
-        self.assertEqual(self._retried(plan), {"kewlfft.aur.aur"})
+        self.assertEqual(
+            self._retried(plan), {"kewlfft.aur.aur", "ansible.builtin.package"}
+        )
 
     def test_the_build_command_is_retried(self):
         spec = PackageSpec(("tool",), source=SOURCE_BUILD, build={"command": "make"})
         self.assertEqual(
-            self._retried(build_plan(spec, STATE_PRESENT)), {"ansible.builtin.command"}
+            self._retried(build_plan(spec, STATE_PRESENT)),
+            {"ansible.builtin.command", "ansible.builtin.package"},
         )
 
     def test_enabling_a_copr_is_retried(self):
         spec = PackageSpec(("pkg",), source=SOURCE_COPR, repo={"copr": "user/proj"})
         self.assertEqual(
-            self._retried(build_plan(spec, STATE_PRESENT)), {"community.general.copr"}
+            self._retried(build_plan(spec, STATE_PRESENT)),
+            {"community.general.copr", "ansible.builtin.package"},
         )
 
     def test_adding_a_ppa_is_retried(self):
         spec = PackageSpec(("pkg",), repo={"ppa": "ppa:x/y"})
         self.assertEqual(
             self._retried(build_plan(spec, STATE_PRESENT)),
-            {"ansible.builtin.apt_repository"},
+            {"ansible.builtin.apt_repository", "ansible.builtin.package"},
         )
 
-    def test_a_plain_repository_install_is_not_retried(self):
+    def test_a_plain_repository_install_is_retried(self):
         plan = build_plan(PackageSpec(("git",)), STATE_PRESENT)
-        self.assertEqual(self._retried(plan), set())
+        self.assertEqual(self._retried(plan), {"ansible.builtin.package"})
 
 
 def _modules(plan):

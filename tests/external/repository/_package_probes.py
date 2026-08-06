@@ -32,7 +32,11 @@ CENTOS_STREAM = "10-stream"
 BOOTSTRAP_BASEURL: dict[str, str] = {
     "epel-release": (
         "https://dl.fedoraproject.org/pub/epel/$releasever/Everything/$basearch/"
-    )
+    ),
+    "centos-release-nfs-ganesha11": (
+        "https://mirror.stream.centos.org/SIGs/$releasever-stream"
+        "/storage/$basearch/nfsganesha-11/"
+    ),
 }
 """Where a repository shipped as a package publishes its packages. A
 declaration names the bootstrap package because that is what the install

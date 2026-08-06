@@ -1,6 +1,6 @@
 # Category Tests 🗂️
 
-Integration tests that validate `meta/categories.yml`: every declared category path MUST correspond to an existing directory under `roles/`, and `invokable: true` MUST NOT appear on any descendant of an already-invokable ancestor.
+Integration tests that validate `meta/categories.yml`: every declared category path MUST correspond to an existing directory under `roles/`, `invokable: true` MUST NOT appear on any descendant of an already-invokable ancestor, and every category MUST declare a `hanzi` label that is unique among its siblings.
 
 Tests in this directory MUST only cover the category hierarchy itself. Tests for `application_id` classification driven by `invokable_paths.py` MUST live under `tests/integration/roles/applications/id/`.
 

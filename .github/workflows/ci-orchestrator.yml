@@ -26,6 +26,16 @@ on:
         required: false
         type: string
         default: ""
+      sequencing:
+        description: "🐛 Deploy-mode order per line. 'serial': swarm, then compose, then host. 'parallel': all at once. 'auto': serial above the job threshold."
+        required: false
+        type: string
+        default: "auto"
+      mode_fail_fast:
+        description: "🛑 Stop a serial line at its first failed mode. Off: keep deploying the remaining modes."
+        required: false
+        type: boolean
+        default: true
       filesystem:
         description: "🗄️ Space-separated filesystems the per-distro pick draws from (ext4, btrfs, zfs). Empty: all three."
         required: false
@@ -162,22 +172,65 @@ jobs:
       image_wait_sleep_seconds: ${{ inputs.image_wait_sleep_seconds }}
     secrets: inherit
 
-  test-deploy-single-node-priority:
-    name: ⭐ Priority · single-node
-    if: ${{ inputs.priority != '' && (contains(inputs.modes, 'compose') || contains(inputs.modes, 'host')) }}
-    needs:
-      - test-dns
-      - images-mirror-missing
-      - lint
-      - test
-    uses: ./.github/workflows/test-deploy-single-node.yml
-    with:
-      distros: ${{ inputs.distros }}
-      whitelist: ${{ inputs.priority }}
-      lifecycles: ${{ inputs.lifecycles }}
-      filesystem: ${{ inputs.filesystem }}
-      modes: ${{ inputs.modes }}
-      marker: " ⭐"
+  sequencing:
+    name: 🐛 Sequencing
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    outputs:
+      priority: ${{ steps.priority.outputs.sequencing }}
+      regular: ${{ steps.regular.outputs.sequencing }}
+    env:
+      INFINITO_APP_DISCOVERY_RUNNER: host
+      INFINITO_LIFECYCLES: ${{ inputs.lifecycles }}
+      INFINITO_HOST_EXCLUDE_COMPOSE: ${{ contains(inputs.modes, 'compose') && 'true' || 'false' }}
+    steps:
+      - uses: actions/checkout@v7.0.0
+        with:
+          fetch-depth: 0
+
+      - name: 🔧 Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: 📦 Install project (host venv)
+        shell: bash
+        run: make install
+
+      - name: 🔍 Resolve effective whitelist (diff vs origin/main)
+        id: resolve_wl
+        shell: bash
+        env:
+          INPUT_WHITELIST: ${{ inputs.whitelist }}
+        run: ./scripts/github/resolve/effective_whitelist.sh
+
+      - name: ⭐ Decide the priority line
+        id: priority
+        if: ${{ inputs.priority != '' }}
+        shell: bash
+        run: |
+          source scripts/meta/env/load.sh
+          "${PYTHON}" -m cli.meta.ci.sequencing \
+            --modes "${{ inputs.modes }}" \
+            --whitelist "${{ inputs.priority }}" \
+            --lifecycles "${{ inputs.lifecycles }}" \
+            --choice "${{ inputs.sequencing }}" \
+            | tee -a "$GITHUB_OUTPUT"
+
+      - name: 🔁 Decide the regular line
+        id: regular
+        shell: bash
+        run: |
+          source scripts/meta/env/load.sh
+          "${PYTHON}" -m cli.meta.ci.sequencing \
+            --modes "${{ inputs.modes }}" \
+            --whitelist "${{ steps.resolve_wl.outputs.whitelist }}" \
+            --blacklist "${{ inputs.priority }}" \
+            --lifecycles "${{ inputs.lifecycles }}" \
+            --choice "${{ inputs.sequencing }}" \
+            | tee -a "$GITHUB_OUTPUT"
 
   test-deploy-swarm-priority:
     name: ⭐ Priority · swarm
@@ -195,21 +248,135 @@ jobs:
       filesystem: ${{ inputs.filesystem }}
       marker: " ⭐"
 
+  test-deploy-single-node-priority:
+    name: ⭐ Priority · single-node
+    if: >-
+      ${{ inputs.priority != ''
+          && needs.sequencing.outputs.priority == 'parallel'
+          && (contains(inputs.modes, 'compose') || contains(inputs.modes, 'host')) }}
+    needs:
+      - test-dns
+      - images-mirror-missing
+      - lint
+      - test
+      - sequencing
+    uses: ./.github/workflows/test-deploy-single-node.yml
+    with:
+      distros: ${{ inputs.distros }}
+      whitelist: ${{ inputs.priority }}
+      lifecycles: ${{ inputs.lifecycles }}
+      filesystem: ${{ inputs.filesystem }}
+      modes: ${{ inputs.modes }}
+      marker: " ⭐"
+
+  test-deploy-compose-priority:
+    name: ⭐ Priority · compose
+    if: >-
+      ${{ always()
+          && inputs.priority != ''
+          && needs.sequencing.outputs.priority == 'serial'
+          && contains(inputs.modes, 'compose')
+          && needs.lint.result == 'success'
+          && needs.test.result == 'success'
+          && needs.test-dns.result == 'success'
+          && needs.images-mirror-missing.result == 'success'
+          && (!inputs.mode_fail_fast
+              || contains(fromJSON('["success","skipped"]'), needs.test-deploy-swarm-priority.result)) }}
+    needs:
+      - test-dns
+      - images-mirror-missing
+      - lint
+      - test
+      - sequencing
+      - test-deploy-swarm-priority
+    uses: ./.github/workflows/test-deploy-compose.yml
+    with:
+      distros: ${{ inputs.distros }}
+      whitelist: ${{ inputs.priority }}
+      lifecycles: ${{ inputs.lifecycles }}
+      filesystem: ${{ inputs.filesystem }}
+      marker: " ⭐"
+
+  test-deploy-host-priority:
+    name: ⭐ Priority · host
+    if: >-
+      ${{ always()
+          && inputs.priority != ''
+          && needs.sequencing.outputs.priority == 'serial'
+          && contains(inputs.modes, 'host')
+          && needs.lint.result == 'success'
+          && needs.test.result == 'success'
+          && needs.test-dns.result == 'success'
+          && needs.images-mirror-missing.result == 'success'
+          && (!inputs.mode_fail_fast
+              || contains(fromJSON('["success","skipped"]'), needs.test-deploy-compose-priority.result)) }}
+    needs:
+      - test-dns
+      - images-mirror-missing
+      - lint
+      - test
+      - sequencing
+      - test-deploy-compose-priority
+    uses: ./.github/workflows/test-deploy-host.yml
+    with:
+      distros: ${{ inputs.distros }}
+      whitelist: ${{ inputs.priority }}
+      lifecycles: ${{ inputs.lifecycles }}
+      filesystem: ${{ inputs.filesystem }}
+      marker: " ⭐"
+      exclude_compose_covered: ${{ contains(inputs.modes, 'compose') && 'true' || 'false' }}
+
+  test-deploy-swarm:
+    name: 🔁 Regular · swarm
+    if: >-
+      ${{ always()
+          && contains(inputs.modes, 'swarm')
+          && needs.lint.result == 'success'
+          && needs.test.result == 'success'
+          && needs.build-ci-images.result == 'success'
+          && needs.images-mirror-missing.result == 'success'
+          && contains(fromJSON('["success","skipped"]'), needs.test-deploy-single-node-priority.result)
+          && contains(fromJSON('["success","skipped"]'), needs.test-deploy-compose-priority.result)
+          && contains(fromJSON('["success","skipped"]'), needs.test-deploy-host-priority.result)
+          && contains(fromJSON('["success","skipped"]'), needs.test-deploy-swarm-priority.result) }}
+    needs:
+      - build-ci-images
+      - images-mirror-missing
+      - test-deploy-single-node-priority
+      - test-deploy-compose-priority
+      - test-deploy-host-priority
+      - test-deploy-swarm-priority
+      - lint
+      - test
+    uses: ./.github/workflows/test-deploy-swarm.yml
+    with:
+      distros: ${{ inputs.distros }}
+      whitelist: ${{ inputs.whitelist }}
+      lifecycles: ${{ inputs.lifecycles }}
+      filesystem: ${{ inputs.filesystem }}
+      blacklist: ${{ inputs.priority }}
+
   test-deploy-single-node:
     name: 🔁 Regular · single-node
     if: >-
       ${{ always()
+          && needs.sequencing.outputs.regular == 'parallel'
           && (contains(inputs.modes, 'compose') || contains(inputs.modes, 'host'))
           && needs.lint.result == 'success'
           && needs.test.result == 'success'
           && needs.test-dns.result == 'success'
           && needs.images-mirror-missing.result == 'success'
           && contains(fromJSON('["success","skipped"]'), needs.test-deploy-single-node-priority.result)
+          && contains(fromJSON('["success","skipped"]'), needs.test-deploy-compose-priority.result)
+          && contains(fromJSON('["success","skipped"]'), needs.test-deploy-host-priority.result)
           && contains(fromJSON('["success","skipped"]'), needs.test-deploy-swarm-priority.result) }}
     needs:
       - test-dns
       - images-mirror-missing
+      - sequencing
       - test-deploy-single-node-priority
+      - test-deploy-compose-priority
+      - test-deploy-host-priority
       - test-deploy-swarm-priority
       - lint
       - test
@@ -222,31 +389,76 @@ jobs:
       modes: ${{ inputs.modes }}
       blacklist: ${{ inputs.priority }}
 
-  test-deploy-swarm:
-    name: 🔁 Regular · swarm
+  test-deploy-compose:
+    name: 🔁 Regular · compose
     if: >-
       ${{ always()
-          && contains(inputs.modes, 'swarm')
+          && needs.sequencing.outputs.regular == 'serial'
+          && contains(inputs.modes, 'compose')
           && needs.lint.result == 'success'
           && needs.test.result == 'success'
-          && needs.build-ci-images.result == 'success'
+          && needs.test-dns.result == 'success'
           && needs.images-mirror-missing.result == 'success'
           && contains(fromJSON('["success","skipped"]'), needs.test-deploy-single-node-priority.result)
-          && contains(fromJSON('["success","skipped"]'), needs.test-deploy-swarm-priority.result) }}
+          && contains(fromJSON('["success","skipped"]'), needs.test-deploy-compose-priority.result)
+          && contains(fromJSON('["success","skipped"]'), needs.test-deploy-host-priority.result)
+          && contains(fromJSON('["success","skipped"]'), needs.test-deploy-swarm-priority.result)
+          && (!inputs.mode_fail_fast
+              || contains(fromJSON('["success","skipped"]'), needs.test-deploy-swarm.result)) }}
     needs:
-      - build-ci-images
+      - test-dns
       - images-mirror-missing
+      - sequencing
       - test-deploy-single-node-priority
+      - test-deploy-compose-priority
+      - test-deploy-host-priority
       - test-deploy-swarm-priority
+      - test-deploy-swarm
       - lint
       - test
-    uses: ./.github/workflows/test-deploy-swarm.yml
+    uses: ./.github/workflows/test-deploy-compose.yml
     with:
       distros: ${{ inputs.distros }}
       whitelist: ${{ inputs.whitelist }}
       lifecycles: ${{ inputs.lifecycles }}
       filesystem: ${{ inputs.filesystem }}
       blacklist: ${{ inputs.priority }}
+
+  test-deploy-host:
+    name: 🔁 Regular · host
+    if: >-
+      ${{ always()
+          && needs.sequencing.outputs.regular == 'serial'
+          && contains(inputs.modes, 'host')
+          && needs.lint.result == 'success'
+          && needs.test.result == 'success'
+          && needs.test-dns.result == 'success'
+          && needs.images-mirror-missing.result == 'success'
+          && contains(fromJSON('["success","skipped"]'), needs.test-deploy-single-node-priority.result)
+          && contains(fromJSON('["success","skipped"]'), needs.test-deploy-compose-priority.result)
+          && contains(fromJSON('["success","skipped"]'), needs.test-deploy-host-priority.result)
+          && contains(fromJSON('["success","skipped"]'), needs.test-deploy-swarm-priority.result)
+          && (!inputs.mode_fail_fast
+              || contains(fromJSON('["success","skipped"]'), needs.test-deploy-compose.result)) }}
+    needs:
+      - test-dns
+      - images-mirror-missing
+      - sequencing
+      - test-deploy-single-node-priority
+      - test-deploy-compose-priority
+      - test-deploy-host-priority
+      - test-deploy-swarm-priority
+      - test-deploy-compose
+      - lint
+      - test
+    uses: ./.github/workflows/test-deploy-host.yml
+    with:
+      distros: ${{ inputs.distros }}
+      whitelist: ${{ inputs.whitelist }}
+      lifecycles: ${{ inputs.lifecycles }}
+      filesystem: ${{ inputs.filesystem }}
+      blacklist: ${{ inputs.priority }}
+      exclude_compose_covered: ${{ contains(inputs.modes, 'compose') && 'true' || 'false' }}
 
   test-runner-smoke:
     needs:
@@ -280,11 +492,15 @@ jobs:
     secrets: inherit
 
   report-main-failures:
-    name: 🐛 Report main role failures
+    name: 🐞 Report main role failures
     needs:
       - test-deploy-single-node-priority
+      - test-deploy-compose-priority
+      - test-deploy-host-priority
       - test-deploy-swarm-priority
       - test-deploy-single-node
+      - test-deploy-compose
+      - test-deploy-host
       - test-deploy-swarm
     if: ${{ always() && github.ref == 'refs/heads/main' && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) }}
     runs-on: ubuntu-latest
@@ -294,7 +510,7 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v7.0.0
-      - name: 🐛 Open or append issues for failed roles
+      - name: 🐞 Open or append issues for failed roles
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python3 -m cli.meta.ci.report_failures --run-id "${{ github.run_id }}" --repo "${{ github.repository }}"
@@ -309,9 +525,14 @@ jobs:
       - test-dns
       - test-install-make
       - test-install-pkgmgr
+      - sequencing
       - test-deploy-single-node-priority
+      - test-deploy-compose-priority
+      - test-deploy-host-priority
       - test-deploy-swarm-priority
       - test-deploy-single-node
+      - test-deploy-compose
+      - test-deploy-host
       - test-deploy-swarm
       - test-runner-smoke
       - test-workspace

@@ -10,9 +10,9 @@ from __future__ import annotations
 
 import re
 
+from tests.utils import PROJECT_ROOT
 from utils.cache.files import read_text
-
-from . import PROJECT_ROOT
+from utils.roles.display import display_names
 
 WORKFLOWS = PROJECT_ROOT / ".github" / "workflows"
 
@@ -27,11 +27,11 @@ ORCHESTRATOR_PREFIX = {
     "host": "🎶 Orchestrate CI / test-deploy-host / ",
 }
 _NAME_RE = re.compile(r"name: (.+)$", re.MULTILINE)
-_VARIANT_EXPR_RE = re.compile(r"\$\{\{ matrix\.variant.*?\}\}")
 
 
-def _template(mode: str) -> str:
-    workflow_file, job_id = _DEPLOY[mode]
+def _template(mode: str, job_id: str | None = None) -> str:
+    workflow_file, deploy_job = _DEPLOY[mode]
+    job_id = job_id or deploy_job
     block = re.search(
         rf"^  {job_id}:\n((?:    .*\n)+)",
         read_text(str(WORKFLOWS / workflow_file)),
@@ -41,6 +41,18 @@ def _template(mode: str) -> str:
     name = _NAME_RE.search(block.group(1))
     assert name, f"no name: in job '{job_id}' of {workflow_file}"
     return name.group(1).strip().strip('"').strip("'")
+
+
+def discover_job_name(mode: str, distros: str, marker: str = "") -> str:
+    """The job display name GitHub emits for *mode*'s discover step.
+
+    Args:
+        mode: ``'docker'`` (compose), ``'swarm'`` or ``'host'``.
+        distros: the distro list the run swept.
+        marker: line suffix, e.g. ``' ⭐'`` for the priority line.
+    """
+    rendered = _template(mode, "discover").replace("${{ inputs.distros }}", distros)
+    return rendered.replace("${{ inputs.marker }}", marker)
 
 
 def deploy_job_name(
@@ -54,6 +66,7 @@ def deploy_job_name(
         variant: shard token GitHub appends, e.g. ``'0,1'`` (``''`` = single).
         orchestrated: include the ci-orchestrator caller prefix (real runs do).
     """
-    rendered = _template(mode).replace("${{ matrix.apps }}", app)
-    rendered = _VARIANT_EXPR_RE.sub(f" {variant}" if variant else "", rendered)
+    rendered = _template(mode).replace(
+        "${{ matrix.label }}", display_names().encode(app, variant)
+    )
     return (ORCHESTRATOR_PREFIX[mode] if orchestrated else "") + rendered

@@ -20,10 +20,7 @@ family when that one distribution differs::
       centos:
         names: [nfs-ganesha, nfs-ganesha-vfs]
         repo:
-          name: centos-nfs-ganesha11
-          description: CentOS Storage SIG nfs-ganesha 11
-          baseurl: https://mirror.stream.centos.org/SIGs/$releasever-stream/storage/$basearch/nfsganesha-11/
-          gpgkey: https://www.centos.org/keys/RPM-GPG-KEY-CentOS-SIG-Storage
+          bootstrap_package: centos-release-nfs-ganesha11
       Archlinux:
         source: aur
         names: [nfs-ganesha]

@@ -108,7 +108,7 @@ class TestSshWrapperRsyncE2E(unittest.TestCase):
         result = subprocess.run(
             [
                 "rsync",
-                "-abP",
+                "-aP",
                 "--numeric-ids",
                 "--delete",
                 "--delete-excluded",

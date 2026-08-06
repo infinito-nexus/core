@@ -1,0 +1,13 @@
+upstream fastcgi_backend {
+  server {{ MAGENTO_PHP_HOST }}:{{ MAGENTO_PHP_PORT }};
+}
+
+server {
+  listen {{ MAGENTO_NGINX_PORT }};
+
+  set $MAGE_ROOT /var/www/html;
+
+  {# Exception: glob, not a typo — a hard include emergs on first boot,
+     before the bootstrap has copied nginx.conf into the volume. #}
+  include /var/www/html/nginx[.]conf;
+}

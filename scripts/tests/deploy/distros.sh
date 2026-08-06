@@ -46,6 +46,7 @@ echo "=== Global time budget: ${INFINITO_CI_DISTRO_BUDGET_SECONDS}s (deadline ep
 max_seen=0
 skipped=0
 ran=0
+passed=0
 durations=()
 statuses=()
 seconds=()
@@ -124,7 +125,7 @@ for i in "${!distro_arr[@]}"; do
 	distro_start="$(date +%s)"
 
 	set +e
-	"$@"
+	timeout -k 60 "${remaining}s" "$@"
 	rc=$?
 	set -e
 
@@ -140,6 +141,15 @@ for i in "${!distro_arr[@]}"; do
 
 	echo ">>> Duration: distro=${distro} took ${dur}s (max_seen=${max_seen}s)"
 
+	if [[ $rc -eq 124 ]] && ((dur >= remaining - 5)) && ((passed > 0)); then
+		statuses[i]="skipped"
+		notes[i]="budget exhausted mid-run after ${dur}s"
+		skipped=$((skipped + 1))
+		ran=$((ran - 1))
+		echo "[WARN] Budget exhausted while distro=${distro} was running; stopping."
+		break
+	fi
+
 	if [[ $rc -ne 0 ]]; then
 		statuses[i]="failed"
 		notes[i]="rc=${rc}"
@@ -153,6 +163,7 @@ for i in "${!distro_arr[@]}"; do
 	fi
 
 	statuses[i]="passed"
+	passed=$((passed + 1))
 done
 
 render_summary

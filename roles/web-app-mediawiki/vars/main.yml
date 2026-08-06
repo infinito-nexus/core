@@ -40,6 +40,7 @@ MEDIAWIKI_OIDC_LOCALLOGIN: false
 
 MEDIAWIKI_EXT_BRANCH: "REL{{ (MEDIAWIKI_VERSION | string).split('.')[:2] | join('_') }}"
 MEDIAWIKI_EXT_CFG_BASE: "{{ [ MEDIAWIKI_CONFIG_DIR, 'mwext', MEDIAWIKI_EXT_BRANCH ] | path_join }}"
+MEDIAWIKI_EXT_HELPER_DIR: "{{ [ MEDIAWIKI_EXT_CFG_BASE, 'helpers' ] | path_join }}"
 MEDIAWIKI_EXT_NAMES: "{{ lookup('config', application_id, 'addons').keys() | list }}"
 # nocheck: url
 MEDIAWIKI_EXT_URL_PREFIX: "https://codeload.github.com/wikimedia/mediawiki-extensions-"

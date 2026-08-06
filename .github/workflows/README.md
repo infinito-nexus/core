@@ -21,50 +21,52 @@ flowchart TB
     eman --> orch
 
     subgraph orchestrator["ci-orchestrator.yml jobs"]
-        plan["plan: run-summary table"]
         waitfork["wait-fork-prereq-run"] --> forkready["fork-prereqs-ready"]
 
-        lintwf["lint.yml: make lint + hadolint"] --> qualitygate["code-quality-gate"]
-        testwf["test.yml: make test"] --> qualitygate
-        codeql["security-codeql.yml"] --> qualitygate
-
-        qualitygate --> buildci["build-ci-images: images-build-ci.yml"]
-        buildci --> dns["test-dns.yml"]
+        lintwf["lint.yml: make lint + hadolint"]
+        testwf["test.yml: make test"]
+        codeql["security-codeql.yml"]
+        buildci["build-ci-images: images-build-ci.yml"] --> dns["test-dns.yml"]
         mirror["images-mirror-missing.yml"]
+        seq["sequencing: serial or parallel, per line"]
 
-        dns --> snprio["test-deploy-single-node-priority"]
-        mirror --> snprio
-        buildci --> swarmprio["test-deploy-swarm-priority"]
-        mirror --> swarmprio
+        subgraph prio["priority line, skipped without a priority input"]
+            swarmprio["test-deploy-swarm-priority"]
+            swarmprio -->|"serial"| composeprio["test-deploy-compose-priority"]
+            composeprio -->|"serial"| hostprio["test-deploy-host-priority"]
+            snprio["test-deploy-single-node-priority: parallel"]
+        end
 
-        snprio -->|"all priority jobs green"| snreg["test-deploy-single-node"]
-        swarmprio -->|"all priority jobs green"| snreg
-        snprio -->|"all priority jobs green"| swarmreg["test-deploy-swarm"]
-        swarmprio -->|"all priority jobs green"| swarmreg
-        dns --> snreg
-        mirror --> snreg
-        buildci --> swarmreg
-        mirror --> swarmreg
+        subgraph reg["regular line"]
+            swarmreg["test-deploy-swarm"]
+            swarmreg -->|"serial"| composereg["test-deploy-compose"]
+            composereg -->|"serial"| hostreg["test-deploy-host"]
+            snreg["test-deploy-single-node: parallel"]
+        end
+
+        lintwf --> prio
+        testwf --> prio
+        dns --> prio
+        mirror --> prio
+        seq --> prio
+        prio -->|"all priority jobs green"| reg
 
         swarmreg --> smoke["test-runner-smoke.yml"]
+        prio --> report["report-main-failures"]
+        reg --> report
 
-        qualitygate --> instmake["test-install-make.yml"]
-        qualitygate --> instpkgmgr["test-install-pkgmgr.yml"]
-        instmake --> instgate["test-install-gate"]
-        instpkgmgr --> instgate
-
-        qualitygate --> devenv["test-workspace: test-workspace.yml"]
-        mirror --> devenv
-
+        instmake["test-install-make.yml"]
+        instpkgmgr["test-install-pkgmgr.yml"]
+        mirror --> devenv["test-workspace: test-workspace.yml"]
         buildci --> testguide["test-instructions.yml"]
         mirror --> testguide
 
-        snprio --> donegate["done"]
-        swarmprio --> donegate
-        snreg --> donegate
-        swarmreg --> donegate
+        prio --> donegate["done"]
+        reg --> donegate
+        seq --> donegate
         smoke --> donegate
-        instgate --> donegate
+        instmake --> donegate
+        instpkgmgr --> donegate
         devenv --> donegate
         testguide --> donegate
     end
@@ -73,14 +75,107 @@ flowchart TB
     snreg --> singlenode
     singlenode --> deploycompose["test-deploy-compose.yml"]
     singlenode --> deployhost["test-deploy-host.yml"]
+    composeprio --> deploycompose
+    composereg --> deploycompose
+    hostprio --> deployhost
+    hostreg --> deployhost
     swarmprio --> deployswarm["test-deploy-swarm.yml"]
     swarmreg --> deployswarm
 ```
 
-`test-deploy-single-node-priority` and `test-deploy-swarm-priority` run only
-when the orchestrator's `priority` input is set; with it empty they are
-skipped and the regular deploy jobs start directly. The regular jobs receive
-the priority ids as `blacklist`, so each role deploys in exactly one line.
+The priority line runs only when the orchestrator's `priority` input is set;
+with it empty every priority job is skipped and the regular line starts
+directly. The regular jobs receive the priority ids as `blacklist`, so each
+role deploys in exactly one line.
+
+## Deploy-line sequencing
+
+A **line** is one half of a run: the priority line (`⭐`, the roles named in
+`priority`) or the regular line (`🔁`, everything else). Each line deploys up
+to three **modes**: swarm, compose, host. The lines are always sequential
+relative to each other; this section is about the order *inside* one line.
+
+### Why the order exists
+
+GitHub cancels a job that has sat queued for 24 hours. That clock starts when
+the job is queued, not when the run starts, and a `needs:` edge delays queueing
+until the dependency completes. A line that starts all three modes at once
+queues its whole matrix in one go, so with more roles than runner slots the
+tail of that matrix waits past the cut and dies unrun. Deploying the modes one
+after the other restarts the clock per mode.
+
+Serialising costs wall-clock, so it is only worth it above a certain size. The
+run does not pay it on a small diff.
+
+### The decision
+
+The `sequencing` job resolves the effective whitelist (the same
+`scripts/github/resolve/effective_whitelist.sh` the discover steps use) and
+calls `cli.meta.ci.sequencing` once per line, emitting `serial` or `parallel`
+as a job output.
+
+Job counts are taken on the row basis each mode actually runs on: swarm
+selections are `role#variant` tokens that map 1:1 onto jobs, compose and host
+selections are whole roles whose variants pack into bundles
+(`utils.github.variant.bundles`). The count deliberately omits the
+runner-storage filter that `scripts/meta/resolve/apps.sh` applies inside
+GitHub Actions, so it can only overestimate — erring towards the sequential
+layout, which cannot be cancelled.
+
+| `sequencing` input | Behaviour |
+|---|---|
+| `auto` (default) | `serial` above `INFINITO_CI_SEQUENTIAL_THRESHOLD` jobs in that line, `parallel` at or below it |
+| `serial` | forced; skips the count entirely |
+| `parallel` | forced; skips the count entirely |
+
+The threshold lives in [`default.env`](../../default.env) as
+`INFINITO_CI_SEQUENTIAL_THRESHOLD`. Both lines are decided independently: a
+small priority line can run parallel while the regular line behind it runs
+serial.
+
+### The two layouts
+
+Serial order is **swarm, then compose, then host** — heaviest mode first, so
+the longest queue drains while the run is youngest.
+
+- **parallel** — `test-deploy-swarm-priority` plus
+  `test-deploy-single-node-priority`, which fans compose and host out
+  together. This is the layout the pipeline had before sequencing existed.
+- **serial** — `test-deploy-swarm-priority` →
+  `test-deploy-compose-priority` → `test-deploy-host-priority`, each chained
+  on the previous through `needs:`.
+
+The regular line mirrors this with the unsuffixed job names.
+
+A `needs:` edge is static, so a workflow cannot make one conditional. Both
+layouts therefore exist as separate jobs and the `sequencing` output skips
+one of them. Because a skipped dependency otherwise skips its dependents, the
+serial jobs carry `always()` plus explicit `needs.<job>.result` checks on the
+real gates. The swarm job depends on no sequencing decision at all: it leads
+in either layout.
+
+### Stopping on failure
+
+`mode_fail_fast` (default `true`) decides whether a serial line stops at its
+first failed mode:
+
+| Value | Behaviour |
+|---|---|
+| `true` | swarm fails → compose and host of that line are skipped |
+| `false` | every mode deploys and reports; the run still ends red |
+
+`skipped` counts as passed, so a mode absent from `modes` never blocks the
+chain. The parallel layout ignores the switch — with no order there is nothing
+to stop. The setting is a checkbox on `entry-manual.yml`; the other entry
+points take the default.
+
+### Job budget
+
+`cli.meta.ci.slots` divides the run's 256-job cap between the deploy
+matrices and reads the orchestrator to do it, so every deploy caller —
+including the serial twins — must be listed in its `_DEPLOY_CALLERS`.
+A caller missing there is charged a guessed dynamic-matrix estimate instead
+of its single discover job.
 
 ## Cancellation
 

@@ -2,18 +2,6 @@ const { test, expect } = require("@playwright/test");
 
 exports.register = function (shared) {
   test.describe("matrix DM", () => {
-    // rc_login exhaustion used to be the dominant failure mode here (retries
-    // burned through Synapse's default burst of 3), which is why this block
-    // previously set retries=0. The 120s drain wait before admin's signin
-    // below made that obsolete. The dominant failure mode is now transient
-    // CI infra pressure — browser processes getting OOM-killed under the
-    // combined load of Synapse + Element + bridges + Keycloak + Mailu +
-    // Matomo on a standard runner surfaces as "Target page, context or
-    // browser has been closed" mid-navigation. Allow a single retry so those
-    // transient crashes don't fail the suite. Cap at 1 (not the config-wide
-    // 2) so a genuinely broken test can't burn 3× the DM budget (~9m).
-    test.describe.configure({ retries: 1 });
-
     test("administrator and biber can exchange a direct message in element", async ({ browser }) => {
       shared.skipUnlessServiceEnabled("sso");
       const {

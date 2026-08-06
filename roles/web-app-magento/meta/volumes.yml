@@ -4,6 +4,22 @@ data:
   name: magento_data
   mounts:
     - service: nginx
-      target: /var/www/html
+      target: /var/www
     - service: php
-      target: /var/www/html
+      target: /var/www
+
+nginx_conf:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-magento', 'directories.volumes'), 'nginx-default.conf' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: nginx
+      target: /etc/nginx/conf.d/default.conf
+
+php_fpm_conf:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-magento', 'directories.volumes'), 'php-fpm.conf' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: php
+      target: /usr/local/etc/php-fpm.conf

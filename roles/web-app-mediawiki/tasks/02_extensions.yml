@@ -27,6 +27,11 @@
     label: "{{ ext.name }}"
   register: _install_results
   changed_when: "'INSTALLED:' in _install_results.stdout"
+- name: "📋 EXT | Stage the container-side composer helpers on the hosting node"
+  ansible.builtin.copy:
+    src: install/helpers/
+    dest: "{{ MEDIAWIKI_EXT_HELPER_DIR }}/"
+    mode: "0644"
 - name: "📦 EXT | composer install in each extension when needed"
   script: >-
     composer_install_extension.sh
@@ -34,6 +39,7 @@
     "{{ ext.name }}" "{{ MEDIAWIKI_EXT_BRANCH }}"
   environment:
     MW_CID: "{{ MEDIAWIKI_LOCAL_CID }}"
+    MEDIAWIKI_EXT_HELPER_DIR: "{{ MEDIAWIKI_EXT_HELPER_DIR }}"
   loop: "{{ MEDIAWIKI_EXT_LIST }}"
   loop_control:
     loop_var: ext

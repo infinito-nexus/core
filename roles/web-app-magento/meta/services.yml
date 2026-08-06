@@ -14,7 +14,7 @@ sso:
   oauth2:
     origin:
       host: nginx
-      port: "8080"
+      port: "{{ lookup('config', 'web-app-magento', 'services.magento.ports.internal.http') }}"
 dashboard:
   bond: 1
   enabled: "{{ 'web-app-dashboard' in group_names }}"
@@ -29,7 +29,7 @@ email:
   shared: "{{ 'web-app-mailu' in group_names }}"
 php:
   image: markoshust/magento-php
-  version: 8.5-fpm
+  version: 8.4-fpm
   name: magento-php
   ports:
     internal:
@@ -100,6 +100,10 @@ prometheus:
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
 magento:
+  composer:
+    repository: https://mirror.mage-os.org/
+    package: magento/project-community-edition
+    version: 2.4.8
   modes:
     compose:
       enabled: true

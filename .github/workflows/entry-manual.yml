@@ -1,5 +1,5 @@
 name: "🕹️ Manual"
-run-name: "🕹️ 🐧 ${{ inputs.distros }} ${{ inputs.priority != '' && format('⭐ {0} ', inputs.priority) || '' }}${{ inputs.whitelist != '' && format('🎯 {0}', inputs.whitelist) || '🔀 diff (origin/main)' }}"
+run-name: "🕹️ ${{ inputs.mode_fail_fast && '🛑 ' || '' }}${{ inputs.sequencing != 'auto' && format('🐛{0} ', inputs.sequencing == 'serial' && '序' || '并') || '' }}${{ inputs.workspace != 'auto' && format('🧑‍💻{0} ', inputs.workspace == 'true' && '是' || '否') || '' }}${{ inputs.instructions != 'auto' && format('📖{0} ', inputs.instructions == 'true' && '是' || '否') || '' }}${{ inputs.filesystem != '' && format('🗄️{0} ', inputs.filesystem) || '' }}${{ inputs.distros != '' && format('🐧{0} ', inputs.distros) || '' }}${{ inputs.lifecycles != '' && format('♻️{0} ', inputs.lifecycles) || '' }}${{ inputs.modes != 'swarm compose host' && format('🚀{0} ', inputs.modes) || '' }}${{ inputs.priority != '' && format('⭐{0} ', inputs.priority) || '' }}${{ inputs.whitelist != '' && format('🎯{0}', inputs.whitelist) || '🔀 diff (origin/main)' }}"
 
 concurrency:
   group: global-ci-${{ github.repository }}-${{ github.ref_name }}
@@ -9,9 +9,9 @@ on:
   workflow_dispatch:
     inputs:
       distros:
-        description: "🐧 Distros to sweep. Example: 'arch debian'"
+        description: "🐧 Distros to sweep. Empty: one at random. Example: 'arch debian'"
         required: false
-        default: "debian"
+        default: ""
         type: string
       priority:
         description: "⭐ Roles to deploy first. The rest waits until they are green."
@@ -38,6 +38,20 @@ on:
         required: false
         default: ""
         type: string
+      sequencing:
+        description: "🐛 Deploy-mode order per line. 'serial': swarm, then compose, then host. 'parallel': all at once. 'auto': serial above 65 jobs per line."
+        required: false
+        default: "auto"
+        type: choice
+        options:
+          - "auto"
+          - "serial"
+          - "parallel"
+      mode_fail_fast:
+        description: "🛑 Stop a serial line at its first failed mode. Off: keep deploying the remaining modes."
+        required: false
+        default: true
+        type: boolean
       workspace:
         description: "🧑‍💻 Run the workspace test (dev-runtime image matrix). 'auto' runs it on a global scope only."
         required: false
@@ -65,15 +79,32 @@ permissions:
   issues: write
 
 jobs:
+  pick-distro:
+    name: 🎲 Pick distro(s)
+    runs-on: ubuntu-latest
+    outputs:
+      distros: ${{ steps.pick.outputs.distros }}
+    steps:
+      - uses: actions/checkout@v7.0.0
+
+      - id: pick
+        shell: bash
+        env:
+          INPUT_DISTROS: ${{ inputs.distros }}
+        run: ./scripts/github/resolve/manual_distros.sh
+
   ci-orchestrator:
     name: 🎛️ Orchestrate CI (manual)
+    needs: pick-distro
     uses: ./.github/workflows/ci-orchestrator.yml
     with:
-      distros: ${{ inputs.distros }}
+      distros: ${{ needs.pick-distro.outputs.distros }}
       whitelist: ${{ inputs.whitelist }}
       lifecycles: ${{ inputs.lifecycles }}
       modes: ${{ inputs.modes }}
       priority: ${{ inputs.priority }}
+      sequencing: ${{ inputs.sequencing }}
+      mode_fail_fast: ${{ inputs.mode_fail_fast }}
       filesystem: ${{ inputs.filesystem }}
       workspace: ${{ inputs.workspace }}
       instructions: ${{ inputs.instructions }}

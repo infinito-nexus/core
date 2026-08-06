@@ -67,14 +67,12 @@ moduleload      refint
 pidfile         /run/slapd/slapd.pid
 argsfile        /run/slapd/slapd.args
 
-# --- cn=config database ---
 database        config
 access to *
   by dn.exact="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" manage
   by dn.exact="${LDAP_ROOT_DN}" manage
   by * none
 
-# --- main data database ---
 database        mdb
 maxsize         1073741824
 suffix          "${LDAP_SUFFIX}"
@@ -82,14 +80,12 @@ rootdn          "${LDAP_ROOT_DN}"
 rootpw          ${hash}
 directory       "${DB_DIR}"
 
-# Allow binds for normal users (needed for Keycloak / simple bind)
 access to attrs=userPassword
   by dn.exact="${LDAP_ROOT_DN}" manage
   by self write
   by anonymous auth
   by * none
 
-# Generic access (tighten later if needed)
 access to *
   by dn.exact="${LDAP_ROOT_DN}" manage
   by * read
@@ -100,15 +96,13 @@ bootstrap_cn_config_via_slaptest() {
   rm -rf "${SLAPD_D_DIR:?}/"*
   mkdir -p "${SLAPD_D_DIR}" /run/slapd "${DB_DIR}"
 
-  # important: make sure openldap can read/write everything afterwards
   chown -R openldap:openldap /run/slapd "${DB_DIR}" "${SLAPD_D_DIR}"
 
   write_slapd_conf
 
   log "bootstrap slapd.d via slaptest for suffix ${LDAP_SUFFIX}"
-  slaptest -f "${TMP_CONF}" -F "${SLAPD_D_DIR}" >/dev/null
+  slaptest -f "${TMP_CONF}" -F "${SLAPD_D_DIR}" >/dev/null || true
 
-  # slaptest creates root-owned files → fix
   chown -R openldap:openldap "${SLAPD_D_DIR}"
 
   if ! has_cn_config; then
@@ -143,7 +137,6 @@ o: ${dc}
 dc: ${dc}
 EOF
 
-  # After slapadd, ensure permissions are correct (locks are sensitive)
   chown -R openldap:openldap "${DB_DIR}"
   chmod 700 "${DB_DIR}" || true
 
@@ -156,7 +149,6 @@ EOF
 
 log "starting entrypoint (suffix=${LDAP_SUFFIX}, rootdn=${LDAP_ROOT_DN})"
 
-# Always ensure runtime dirs exist and are writable
 mkdir -p /run/slapd "${DB_DIR}" "${SLAPD_D_DIR}"
 chown -R openldap:openldap /run/slapd "${DB_DIR}" "${SLAPD_D_DIR}"
 
@@ -173,7 +165,6 @@ fi
 
 init_mdb_files_if_needed
 
-# Final permission sweep (this is often the real fix)
 chown -R openldap:openldap /run/slapd "${DB_DIR}" "${SLAPD_D_DIR}"
 chmod 700 "${DB_DIR}" || true
 

@@ -34,7 +34,9 @@ class RetryPolicy:
 
 
 EXTERNAL_FETCH = RetryPolicy(attempts=3, seconds=10)
-"""Applies to the calls that reach the AUR, COPR, a PPA or a source build."""
+"""Applies to every call that fetches over the network, the distribution's own
+repositories included: their metadata is served by mirror pools that degrade
+independently of the package manager's internal retries."""
 
 
 @dataclass(frozen=True)
@@ -56,4 +58,6 @@ class ModuleCall:
 
 def package_call(names: list[str], state: str) -> ModuleCall:
     """Install or remove *names* through the host's own package manager."""
-    return ModuleCall(GENERIC_PACKAGE, {"name": names, "state": state})
+    return ModuleCall(
+        GENERIC_PACKAGE, {"name": names, "state": state}, retry=EXTERNAL_FETCH
+    )

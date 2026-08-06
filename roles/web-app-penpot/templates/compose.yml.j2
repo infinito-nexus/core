@@ -30,6 +30,7 @@
       - run.sh
     {% endif %}
     {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_healthcheck', 'backend') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
 

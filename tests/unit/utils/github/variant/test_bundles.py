@@ -184,8 +184,18 @@ class TestMain(unittest.TestCase):
         self.assertEqual(
             printed,
             [
-                {"apps": "web-app-five", "variant": "0,1,2", "variant_slug": "0-1-2"},
-                {"apps": "web-app-five", "variant": "3,4", "variant_slug": "3-4"},
+                {
+                    "apps": "web-app-five",
+                    "variant": "0,1,2",
+                    "variant_slug": "0-1-2",
+                    "label": "web-app-five 0,1,2",
+                },
+                {
+                    "apps": "web-app-five",
+                    "variant": "3,4",
+                    "variant_slug": "3-4",
+                    "label": "web-app-five 3,4",
+                },
             ],
         )
 
@@ -227,7 +237,12 @@ class TestSwarmMode(unittest.TestCase):
         self.assertEqual(
             printed,
             [
-                {"apps": "web-app-five", "variant": str(i), "variant_slug": str(i)}
+                {
+                    "apps": "web-app-five",
+                    "variant": str(i),
+                    "variant_slug": str(i),
+                    "label": f"web-app-five {i}",
+                }
                 for i in range(5)
             ],
         )
@@ -240,8 +255,18 @@ class TestSwarmMode(unittest.TestCase):
         self.assertEqual(
             printed,
             [
-                {"apps": "web-app-bbb", "variant": "0", "variant_slug": "0"},
-                {"apps": "web-app-bbb", "variant": "1", "variant_slug": "1"},
+                {
+                    "apps": "web-app-bbb",
+                    "variant": "0",
+                    "variant_slug": "0",
+                    "label": "web-app-bbb 0",
+                },
+                {
+                    "apps": "web-app-bbb",
+                    "variant": "1",
+                    "variant_slug": "1",
+                    "label": "web-app-bbb 1",
+                },
             ],
         )
 
@@ -253,10 +278,30 @@ class TestSwarmMode(unittest.TestCase):
         self.assertEqual(
             printed,
             [
-                {"apps": "web-app-five", "variant": "3", "variant_slug": "3"},
-                {"apps": "web-app-five", "variant": "0", "variant_slug": "0"},
-                {"apps": "web-app-bare", "variant": "0", "variant_slug": "0"},
-                {"apps": "web-app-bare", "variant": "1", "variant_slug": "1"},
+                {
+                    "apps": "web-app-five",
+                    "variant": "3",
+                    "variant_slug": "3",
+                    "label": "web-app-five 3",
+                },
+                {
+                    "apps": "web-app-five",
+                    "variant": "0",
+                    "variant_slug": "0",
+                    "label": "web-app-five 0",
+                },
+                {
+                    "apps": "web-app-bare",
+                    "variant": "0",
+                    "variant_slug": "0",
+                    "label": "web-app-bare 0",
+                },
+                {
+                    "apps": "web-app-bare",
+                    "variant": "1",
+                    "variant_slug": "1",
+                    "label": "web-app-bare 1",
+                },
             ],
         )
 
@@ -271,7 +316,14 @@ class TestSwarmMode(unittest.TestCase):
         self.assertEqual(rc, 0)
         self.assertEqual(
             json.loads(mock_print.call_args.args[0]),
-            [{"apps": "web-app-bbb", "variant": "0,1", "variant_slug": "0-1"}],
+            [
+                {
+                    "apps": "web-app-bbb",
+                    "variant": "0,1",
+                    "variant_slug": "0-1",
+                    "label": "web-app-bbb 0,1",
+                }
+            ],
         )
 
 

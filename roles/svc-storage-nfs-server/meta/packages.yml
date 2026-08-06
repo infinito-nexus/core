@@ -34,10 +34,7 @@ nfs-ganesha:
       - nfs-ganesha
       - nfs-ganesha-vfs
     repo:
-      name: centos-nfs-ganesha11
-      description: CentOS Storage SIG nfs-ganesha 11
-      baseurl: https://mirror.stream.centos.org/SIGs/$releasever-stream/storage/$basearch/nfsganesha-11/
-      gpgkey: https://www.centos.org/keys/RPM-GPG-KEY-CentOS-SIG-Storage
+      bootstrap_package: centos-release-nfs-ganesha11
 
 nfs-kernel-server:
   Archlinux: [] # nocheck: empty - the kernel server ships inside nfs-utils, installed through the nfs-client id; TODO: revisit if the family ever splits the kernel server out of nfs-utils

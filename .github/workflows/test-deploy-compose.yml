@@ -114,7 +114,7 @@ jobs:
             >> "$GITHUB_STEP_SUMMARY"
 
   compose:
-    name: 🐳 ${{ matrix.apps }}${{ matrix.variant && format(' {0}',matrix.variant) || '' }}
+    name: 🐳${{ matrix.label }}
     if: needs.discover.outputs.apps != '' && needs.discover.outputs.apps != '[]'
     runs-on: ubuntu-latest
     timeout-minutes: 355

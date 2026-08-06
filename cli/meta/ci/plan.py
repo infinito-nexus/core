@@ -32,6 +32,7 @@ from cli.meta.roles.applications.complexity.model import (
 )
 from cli.meta.roles.applications.complexity.render import _dwidth
 from utils.cache.files import PROJECT_ROOT
+from utils.roles.display import display_names
 from utils.symbol_glossary import to_emoji
 
 _STAR = to_emoji("priority")
@@ -180,6 +181,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--lifecycles", default="")
     parser.add_argument("--cli", action="store_true")
     args = parser.parse_args(argv)
+
+    codec = display_names()
+    args.whitelist = codec.decode_list(args.whitelist)
+    args.priority = codec.decode_list(args.priority)
 
     if args.lifecycles.strip():
         os.environ["INFINITO_LIFECYCLES"] = args.lifecycles

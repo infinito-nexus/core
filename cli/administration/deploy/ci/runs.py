@@ -10,9 +10,11 @@ Deploy jobs are matched by the compose/swarm/host glyph (from the symbol
 glossary, the single source of truth) their test-deploy-{compose,swarm,host}.yml
 matrix titles them with -- NOT the words "Compose"/"Swarm"/"Host", which no
 real job carries (matching those made ``--failed swarm`` silently find
-nothing). The orchestrator prepends a
-"caller / " prefix and GitHub appends a " <variant>" shard suffix (e.g.
-" 0,1"); both are tolerated.
+nothing). What follows the glyph is the role's display name
+(``utils.roles.display``), decoded back to the role id; a bare role id from a
+run that predates the display names decodes just as well. The orchestrator
+prepends a "caller / " prefix and the shard suffix (e.g. " 0,1") rides along
+in the display name; both are tolerated.
 """
 
 from __future__ import annotations
@@ -22,7 +24,9 @@ import re
 import subprocess
 import sys
 
+from utils.distros import distro_names
 from utils.github import run_name
+from utils.roles.display import display_names
 from utils.symbol_glossary import to_emoji
 
 PASS = "✅"  # noqa: S105  emoji glyph, not a credential
@@ -33,6 +37,17 @@ MISSING = "➖"
 
 MODES = ("docker", "swarm", "host")
 
+CONFIG_INPUTS = (
+    "distros",
+    "modes",
+    "lifecycles",
+    "filesystem",
+    "sequencing",
+    "mode_fail_fast",
+    "workspace",
+    "instructions",
+)
+
 MODE_GLYPHS = {
     "docker": to_emoji("compose"),
     "swarm": to_emoji("swarm"),
@@ -40,10 +55,7 @@ MODE_GLYPHS = {
 }
 _GLYPH_MODE = {glyph: mode for mode, glyph in MODE_GLYPHS.items()}
 
-_JOB_RE = re.compile(
-    rf"({'|'.join(map(re.escape, MODE_GLYPHS.values()))})"
-    r"\s+([a-z0-9]+(?:-[a-z0-9]+)+)(?:\s+[\d,]+)?\s*$"
-)
+_JOB_RE = re.compile(rf"({'|'.join(map(re.escape, MODE_GLYPHS.values()))})\s*(.+?)\s*$")
 
 
 def _effective(job: dict) -> str:
@@ -67,17 +79,20 @@ def cell(state: str) -> str:
 
 def _iter_deploy_jobs(jobs: list[dict]):
     """Yield ``(app, mode, job)`` for every compose/swarm deploy job."""
+    codec = display_names()
     for job in jobs:
         match = _JOB_RE.search(str(job.get("name", "")))
         if not match:
             continue
-        yield match.group(2), _GLYPH_MODE[match.group(1)], job
+        app = codec.decode(match.group(2))
+        if app is not None:
+            yield app, _GLYPH_MODE[match.group(1)], job
 
 
 def app_of_job(name: str) -> str | None:
     """The role id a deploy job ``name`` encodes, or None if it is not one."""
     match = _JOB_RE.search(name)
-    return match.group(2) if match else None
+    return display_names().decode(match.group(2)) if match else None
 
 
 _SEVERITY = {"success": 0, "running": 1, "failure": 3}
@@ -236,13 +251,61 @@ def fetch_run(run_id: str, repo: str | None = None) -> dict:
     )
 
 
-def distros_from_title(title: str) -> str:
-    """Distro list a manual run was dispatched with, '' when unknown.
+def untriggered_priority(title: str, statuses: dict[str, dict[str, str]]) -> list[str]:
+    """Roles the source run's priority line named but never deployed at all.
 
-    Runs from any other entry point carry an unrelated title and yield '',
-    which leaves the retrigger on the workflow's own default.
+    A priority role can fall behind the discovery budget cut in every mode, so
+    the run holds no job for it and :func:`failed_roles` cannot see it — it is
+    neither green nor red, it simply never ran. Carrying it into the retrigger
+    is the only way it ever gets deployed.
     """
-    return run_name.value_from_title(title, "distros")
+    codec = display_names()
+    named = [
+        codec.decode(name) or name
+        for name in run_name.value_from_title(title, "priority").split()
+    ]
+    return sorted(role for role in named if role not in statuses)
+
+
+def distros_from_jobs(jobs: list[dict]) -> str:
+    """Distros the run actually swept, read back from its discover job names.
+
+    A manual run dispatched with no distro list resolves one at random, so its
+    title records nothing and only the discover jobs — which name the distros
+    they discovered for — still carry the answer. Matched by content, not by
+    job-name format: the parenthesised group whose every token is a declared
+    distro (meta/distros.yml SPOT) is the list.
+    """
+    known = set(distro_names())
+    for job in jobs:
+        for group in re.findall(r"\(([^()]*)\)", str(job.get("name", ""))):
+            tokens = group.split()
+            if tokens and set(tokens) <= known:
+                return " ".join(tokens)
+    return ""
+
+
+def config_from_title(title: str) -> dict[str, str]:
+    """Configuration inputs a manual run was dispatched with, keyed by input
+    name. An input left on its workflow default renders no title segment and
+    is absent here, so the retrigger leaves it on that same default.
+
+    Only the configuration is recovered, never the selection: ``whitelist``
+    and ``priority`` say which roles ran, and a retrigger computes those
+    itself. Runs from any other entry point carry an unrelated title and
+    yield nothing at all.
+    """
+    recorded = run_name.values_from_title(title)
+    return {name: recorded[name] for name in CONFIG_INPUTS if name in recorded}
+
+
+def config_from_run(title: str, jobs: list[dict]) -> dict[str, str]:
+    """The source run's configuration, with the distros the title does not
+    record recovered from its jobs (:func:`distros_from_jobs`)."""
+    config = config_from_title(title)
+    if not config.get("distros"):
+        config = {**config, "distros": distros_from_jobs(jobs)}
+    return {name: value for name, value in config.items() if value}
 
 
 def find_last_deploy_run(
@@ -282,14 +345,26 @@ def dispatch_workflow(
     whitelist: str = "",
     *,
     priority: str = "",
-    distros: str = "",
+    config: dict[str, str] | None = None,
     repo: str | None = None,
 ) -> None:
+    """Dispatch *workflow*, carrying *config* (see :func:`config_from_title`)
+    over verbatim. An input left out keeps the workflow's own default.
+
+    The role selections go out as display names (``utils.roles.display``), so
+    the run title reads them back the way the deploy jobs are titled. The
+    workflow decodes them again before any consumer sees a role id.
+    """
+    codec = display_names()
     args = ["workflow", "run", workflow, "--ref", ref]
     if whitelist:
-        args += ["-f", f"whitelist={whitelist}"]
+        args += ["-f", f"whitelist={codec.encode_list(whitelist)}"]
     if priority:
-        args += ["-f", f"priority={priority}"]
-    if distros:
-        args += ["-f", f"distros={distros}"]
+        args += ["-f", f"priority={codec.encode_list(priority)}"]
+    args += [
+        arg
+        for name, value in (config or {}).items()
+        if value
+        for arg in ("-f", f"{name}={value}")
+    ]
     _gh(args, repo=repo)

@@ -10,9 +10,11 @@ would then run too long. Roles that fit one runner stay a single entry but still
 carry their full ``0,…,N-1`` variant CSV, so every job name shows the variants it
 covers.
 
-Each entry is ``{"apps": <id>, "variant": "<csv>", "variant_slug": "<dashed>"}``;
-``variant`` is empty only for a role that declares no variants (a plain base
-deploy). The ``variant`` slice is threaded
+Each entry is ``{"apps": <id>, "variant": "<csv>", "variant_slug": "<dashed>",
+"label": "<display name>"}``; ``variant`` is empty only for a role that
+declares no variants (a plain base deploy). ``label`` is the role's display
+name (``utils.roles.display``) with the variant CSV appended, and is what the
+deploy jobs title themselves with. The ``variant`` slice is threaded
 through to ``cli.administration.deploy.development`` via the ``variant``
 environment variable (consumed by ``--variant``), so a runner only iterates the
 rounds in its bundle. ``variant_slug`` is a comma-free copy for artifact/job
@@ -44,6 +46,7 @@ from utils.roles.applications.services.resources import (
     aggregate,
     collect_role_resources,
 )
+from utils.roles.display import display_names
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
@@ -291,6 +294,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             max_storage_bytes=resolve_max_storage(),
             bundle_size_per_app=app_bundle_sizes(apps),
         )
+    codec = display_names()
+    for entry in entries:
+        entry["label"] = codec.encode(entry["apps"], entry["variant"])
     print(json.dumps(entries))
     return 0
 

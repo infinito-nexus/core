@@ -134,6 +134,7 @@ def repository_calls(repo: dict[str, Any], names: list[str]) -> list[ModuleCall]
                     "state": repo.get("state", STATE_PRESENT),
                     "enablerepo": repo["enable_existing"],
                 },
+                retry=EXTERNAL_FETCH,
             )
         ]
 

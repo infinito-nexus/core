@@ -4,7 +4,8 @@
 # scripts/github/resolve/output_apps.sh, and write it to GITHUB_OUTPUT.
 #
 # Inputs via env:
-#   INPUT_WHITELIST  caller-provided whitelist (space-separated).
+#   INPUT_WHITELIST  caller-provided whitelist (space-separated), as role ids
+#                    or as the display names utils.roles.display renders.
 #                    Three cases, in this order of precedence:
 #                      * "__ALL__" (sentinel, case-insensitive): force
 #                        full deploy across the workflow's scope. Skips
@@ -25,6 +26,9 @@ set -euo pipefail
 
 : "${GITHUB_OUTPUT:?Missing GITHUB_OUTPUT}"
 
+# shellcheck source=scripts/meta/env/python.sh
+source scripts/meta/env/python.sh
+
 input="${INPUT_WHITELIST:-}"
 input_trimmed="${input//[[:space:]]/}"
 
@@ -38,6 +42,7 @@ fi
 shopt -u nocasematch
 
 if [[ -n "${input_trimmed}" ]]; then
+	input="$("${PYTHON}" -m utils.roles.display "${input}")"
 	unknown=()
 	for role in ${input}; do
 		[[ -d "roles/${role}" ]] || unknown+=("${role}")
