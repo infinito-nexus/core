@@ -10,6 +10,7 @@ from ruamel.yaml.comments import CommentedMap
 from cli.administration.inventory.provision.credentials_generator import (
     generate_credentials_for_roles,
 )
+from cli.administration.inventory.provision.passwords import generate_user_password
 from cli.administration.inventory.provision.users_generator import (
     generate_user_passwords,
     required_usernames,
@@ -120,7 +121,7 @@ class TestGenerateUserPasswords(unittest.TestCase):
 
             with (
                 patch(f"{RUAMEL_MODULE}.VaultHandler") as vault,
-                patch(f"{MODULE}.generate_random_password", return_value="plain"),
+                patch(f"{MODULE}.generate_user_password", return_value="plain"),
             ):
                 vault.return_value.encrypt_string.side_effect = lambda _plain, name: (
                     VAULTED.format(name=name)
@@ -188,7 +189,7 @@ class TestGenerateUserPasswords(unittest.TestCase):
 
             with (
                 patch(f"{RUAMEL_MODULE}.VaultHandler") as vault,
-                patch(f"{MODULE}.generate_random_password", return_value="plain"),
+                patch(f"{MODULE}.generate_user_password", return_value="plain"),
             ):
                 vault.return_value.encrypt_string.side_effect = lambda _plain, name: (
                     VAULTED.format(name=name)
@@ -232,6 +233,23 @@ class TestGenerateUserPasswords(unittest.TestCase):
         self.assertIsNone(doc)
 
 
+class TestGeneratedPasswordIsShellSafe(unittest.TestCase):
+    """The value travels Ansible -> shell -> container exec -> runtime env."""
+
+    def test_no_punctuation_survives_into_a_user_password(self):
+        for _ in range(200):
+            password = generate_user_password()
+            self.assertTrue(
+                password.isalnum(),
+                f"{password!r} carries punctuation; roles used to declare their "
+                "own alphanumeric credential precisely because the exec chain "
+                "mangles it",
+            )
+
+    def test_the_password_is_long_enough_to_afford_the_smaller_alphabet(self):
+        self.assertGreaterEqual(len(generate_user_password()), 64)
+
+
 class TestRealisticInventoryRoundTrip(unittest.TestCase):
     """The generator rewrites the whole host_vars, so nothing else may shift."""
 
@@ -246,7 +264,7 @@ class TestRealisticInventoryRoundTrip(unittest.TestCase):
 
         with (
             patch(f"{RUAMEL_MODULE}.VaultHandler") as vault,
-            patch(f"{MODULE}.generate_random_password", return_value="plain"),
+            patch(f"{MODULE}.generate_user_password", return_value="plain"),
         ):
             vault.return_value.encrypt_string.side_effect = lambda _plain, name: (
                 VAULTED.format(name=name)
@@ -328,7 +346,7 @@ class TestHandoffToCredentialsGenerator(unittest.TestCase):
 
             with (
                 patch(f"{RUAMEL_MODULE}.VaultHandler") as vault,
-                patch(f"{MODULE}.generate_random_password", return_value="plain"),
+                patch(f"{MODULE}.generate_user_password", return_value="plain"),
             ):
                 vault.return_value.encrypt_string.side_effect = lambda _plain, name: (
                     VAULTED.format(name=name)

@@ -30,8 +30,3 @@ credentials:
     algorithm: alphanumeric
     validation:
       min_length: 64
-  api_bot_password:
-    description: Password of the flowise-api-bot identity that mints the MCP registry key
-    algorithm: alphanumeric
-    validation:
-      min_length: 32

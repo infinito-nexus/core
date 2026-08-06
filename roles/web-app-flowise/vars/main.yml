@@ -28,7 +28,7 @@ FLOWISE_MCP_SERVERS: >-
   {{ out }}
 FLOWISE_API_BOT_USER: "{{ lookup('users', 'flowise-api-bot') }}"
 
-FLOWISE_API_BOT_PASSWORD: "{{ lookup('config', application_id, 'credentials.api_bot_password') }}"
+FLOWISE_API_BOT_PASSWORD: "{{ FLOWISE_API_BOT_USER.password }}"
 FLOWISE_MCP_API_KEY_NAME: "infinito:mcp-registry"
 FLOWISE_MCP_DESIRED: >-
   {%- set out = [] -%}

@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_META_USERS
 
-from .passwords import generate_random_password
+from .passwords import generate_user_password
 from .ruamel_io import dump_document, ensure_map, load_document, vault_value
 
 if TYPE_CHECKING:
@@ -79,7 +79,7 @@ def generate_user_passwords(
         if user_doc.get("password"):
             continue
         user_doc["password"] = vault_value(
-            vault_password_file, generate_random_password(), f"{username}_password"
+            vault_password_file, generate_user_password(), f"{username}_password"
         )
         generated += 1
 

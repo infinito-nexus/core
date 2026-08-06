@@ -25,7 +25,8 @@ ZAMMAD_SEARCH_PORT: "{{ lookup('config', application_id, 'services.' ~ ZAMMAD_SE
 
 ZAMMAD_API_BOT_USER: "{{ lookup('users', 'zammad-api-bot') }}"
 ZAMMAD_WIZARD_BYPASS_USER: "{{ lookup('users', 'zammad-wizard-bypass-admin') }}"
-ZAMMAD_API_BOT_PASSWORD: "{{ lookup('config', application_id, 'credentials.api_bot_password') }}"
+ZAMMAD_API_BOT_PASSWORD: "{{ ZAMMAD_API_BOT_USER.password }}"
+ZAMMAD_WIZARD_BYPASS_PASSWORD: "{{ ZAMMAD_WIZARD_BYPASS_USER.password }}"
 ZAMMAD_INITIAL_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.initial_admin_password') }}"
 ZAMMAD_SECRET_KEY_BASE: "{{ lookup('config', application_id, 'credentials.secret_key_base') }}"
 
