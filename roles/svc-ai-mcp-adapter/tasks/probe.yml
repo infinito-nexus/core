@@ -10,7 +10,7 @@
 # provider's MCP container instead only works when that container happens to
 # ship a python: gitea-mcp is a Go binary in a minimal image and answers 127.
 #
-# URL and credential are derived from the role's own `services.mcp` block
+# URL and credential are derived from the role's own `mcp` block
 # rather than passed in, so a caller cannot probe one endpoint with another's
 # token and call the mismatch a pass.
 #
@@ -31,11 +31,11 @@
 
 - name: "🔑 Resolve the declared MCP endpoint and credential of {{ application_id }}"
   ansible.builtin.set_fact:
-    mcp_probe_endpoint: "{{ lookup('config', application_id, 'services.mcp.endpoint') }}" # nocheck: lookup-config-path  resolved against the including provider, not this role
-    mcp_probe_allowlist: "{{ lookup('config', application_id, 'services.mcp.tools.allowlist', []) }}"
-    mcp_probe_transport: "{{ lookup('config', application_id, 'services.mcp.transport') }}" # nocheck: lookup-config-path  resolved against the including provider, not this role
-    mcp_probe_auth: "{{ lookup('config', application_id, 'services.mcp.auth') }}" # nocheck: lookup-config-path  resolved against the including provider, not this role
-    mcp_declared_owner: "{{ lookup('config', application_id, 'services.mcp.credential.owner') }}" # nocheck: lookup-config-path  resolved against the including provider, not this role
+    mcp_probe_endpoint: "{{ lookup('config', application_id, 'mcp.endpoint') }}" # nocheck: lookup-config-path  resolved against the including provider, not this role
+    mcp_probe_allowlist: "{{ lookup('config', application_id, 'mcp.tools.allowlist', []) }}"
+    mcp_probe_transport: "{{ lookup('config', application_id, 'mcp.transport') }}" # nocheck: lookup-config-path  resolved against the including provider, not this role
+    mcp_probe_auth: "{{ lookup('config', application_id, 'mcp.auth') }}" # nocheck: lookup-config-path  resolved against the including provider, not this role
+    mcp_declared_owner: "{{ lookup('config', application_id, 'mcp.credential.owner') }}" # nocheck: lookup-config-path  resolved against the including provider, not this role
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🔐 Render the credential the way a client would present it"
@@ -113,4 +113,4 @@
 
 - name: "🧱 Prove the {{ application_id }} sidecar reaches only its provider"
   ansible.builtin.include_tasks: isolation.yml
-  when: lookup('config', application_id, 'services.mcp.implementation') == 'adapter' # nocheck: lookup-config-path  resolved against the including provider, not this role
+  when: lookup('config', application_id, 'mcp.implementation') == 'adapter' # nocheck: lookup-config-path  resolved against the including provider, not this role
