@@ -91,8 +91,8 @@ exports.register = function (shared) {
     for (const id of expected) {
       expect(
         served,
-        `the administrator holds ${id}'s mcp group, so its tools must be served; absence means the OIDC group mapping or the grant is wrong`
-      ).toContain(id);
+        `mcp is granted per application, so the administrator role alone must not serve ${id}; BYPASS_ADMIN_ACCESS_CONTROL=false is what keeps an administrator out of a grant they do not hold`
+      ).not.toContain(id);
     }
   });
 };

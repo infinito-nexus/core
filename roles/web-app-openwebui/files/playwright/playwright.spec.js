@@ -16,4 +16,5 @@ require("./test-guest-persona").register(shared);
 require("./test-litellm-chat").register(shared);
 require("./test-mcp-servers").register(shared);
 require("./test-mcp-non-member").register(shared);
+require("./test-mcp-grant-via-lam").register(shared);
 require("./test-seaweedfs");

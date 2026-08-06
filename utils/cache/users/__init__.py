@@ -161,6 +161,7 @@ def _build_users(
             "description", f"Created by Infinito.Nexus Ansible for {primary_domain}"
         )
         roles = overrides.get("roles", [])
+        application_roles = overrides.get("application_roles", {})
         password = overrides.get("password", become_pwd)
         accounts = overrides.get("accounts")
         if accounts is None:
@@ -181,6 +182,7 @@ def _build_users(
             "uid": uid,
             "gid": gid,
             "roles": roles,
+            "application_roles": application_roles,
             "tokens": tokens,
             "authorized_keys": authorized_keys,
             "accounts": accounts,

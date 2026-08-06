@@ -12,7 +12,7 @@ from . import PROJECT_ROOT
 SCRIPT_PATH = PROJECT_ROOT / "roles/web-app-openwebui/files/provision_mcp_grants.py"
 
 
-def load_script(groups: dict) -> object:
+def load_script(groups: dict, members: dict | None = None) -> object:
     spec = importlib.util.spec_from_file_location("provision_mcp_grants", SCRIPT_PATH)
     module = importlib.util.module_from_spec(spec)
     with patch.dict(
@@ -20,6 +20,7 @@ def load_script(groups: dict) -> object:
         {
             "OPENWEBUI_BASE": "http://localhost:8080",
             "OPENWEBUI_MCP_GROUPS": json.dumps(groups),
+            "OPENWEBUI_MCP_MEMBERS": json.dumps(members or {}),
             "OPENWEBUI_ADMIN_EMAIL": "administrator@example.org",
             "OPENWEBUI_ADMIN_PASSWORD": "x" * 32,
         },
@@ -29,9 +30,11 @@ def load_script(groups: dict) -> object:
 
 
 class FakeUser:
-    def __init__(self, user_id, role):
+    def __init__(self, user_id, role, email="", name=""):
         self.id = user_id
         self.role = role
+        self.email = email
+        self.name = name
 
 
 class FakeBackend:
@@ -96,6 +99,7 @@ class FakeApi:
         if duplicate and self.groups:
             self.groups.append(dict(self.groups[0]))
         self.writes = 0
+        self.member_writes = 0
 
     def __call__(self, path, key, payload=None):
         if path == "/api/v1/groups/" and payload is None:
@@ -110,6 +114,14 @@ class FakeApi:
             self.writes += 1
             self.connections = deepcopy(payload["TOOL_SERVER_CONNECTIONS"])
             return 200, None
+        if path.startswith("/api/v1/groups/id/") and path.endswith("/update"):
+            group_id = path[len("/api/v1/groups/id/") : -len("/update")]
+            for group in self.groups:
+                if group["id"] == group_id:
+                    group["user_ids"] = list(payload["user_ids"])
+                    self.member_writes += 1
+                    return 200, group
+            raise AssertionError(f"update of unknown group {group_id}")
         raise AssertionError(f"unexpected call to {path}")
 
 
@@ -138,7 +150,7 @@ class TestProvisionMcpGrants(unittest.TestCase):
         with patch.object(module, "call", api):
             granted, changed = module.grant("sk-test")
 
-        self.assertEqual(1, granted)
+        self.assertEqual(["web-app-baserow"], sorted(granted))
         self.assertTrue(changed)
         by_id = {c["info"]["id"]: c for c in api.connections}
         self.assertEqual(
@@ -180,7 +192,7 @@ class TestProvisionMcpGrants(unittest.TestCase):
             writes_after_first = api.writes
             granted, changed = module.grant("sk-test")
 
-        self.assertEqual(1, granted)
+        self.assertEqual(["web-app-baserow"], sorted(granted))
         self.assertFalse(changed)
         self.assertEqual(writes_after_first, api.writes)
 
@@ -194,6 +206,110 @@ class TestProvisionMcpGrants(unittest.TestCase):
             module.grant("sk-test")
 
         self.assertEqual(1, len(api.groups))
+
+    def test_a_group_that_lost_its_last_member_is_emptied(self) -> None:
+        module = load_script(
+            {"web-app-baserow": "/roles/web-app-baserow/mcp"}, members={}
+        )
+        api = FakeApi(
+            [connection("web-app-baserow")], groups=["/roles/web-app-baserow/mcp"]
+        )
+        api.groups[0]["user_ids"] = ["stale-user"]
+
+        with patch.object(module, "call", api):
+            module.grant("sk-test")
+
+        self.assertEqual([], api.groups[0]["user_ids"])
+        self.assertEqual(1, api.member_writes)
+
+    def _grant_with_members(self, members, known_users):
+        module = load_script(
+            {"web-app-baserow": "/roles/web-app-baserow/mcp"}, members=members
+        )
+        api = FakeApi(
+            [connection("web-app-baserow")], groups=["/roles/web-app-baserow/mcp"]
+        )
+        api.groups[0]["user_ids"] = []
+        backend = FakeBackend(known_users)
+        modules = {}
+        backend.install(modules)
+
+        with patch.dict("sys.modules", modules), patch.object(module, "call", api):
+            module.grant("sk-test")
+        return api
+
+    def test_a_declared_member_is_written_into_its_group(self) -> None:
+        api = self._grant_with_members(
+            {
+                "web-app-baserow": [
+                    {"username": "biber", "email": "biber@example.org"}
+                ]
+            },
+            [FakeUser("u-biber", "user", email="biber@example.org", name="Biber")],
+        )
+
+        self.assertEqual(["u-biber"], api.groups[0]["user_ids"])
+        self.assertEqual(1, api.member_writes)
+
+    def test_a_member_is_matched_by_username_when_the_email_differs(self) -> None:
+        api = self._grant_with_members(
+            {"web-app-baserow": [{"username": "biber", "email": "unused@example.org"}]},
+            [FakeUser("u-biber", "user", email="other@example.org", name="biber")],
+        )
+
+        self.assertEqual(["u-biber"], api.groups[0]["user_ids"])
+
+    def test_the_filter_that_renders_members_produces_what_this_script_consumes(
+        self,
+    ) -> None:
+        mcp_group_members = importlib.import_module(
+            "plugins.filter.mcp.group_members"
+        ).mcp_group_members
+        members = mcp_group_members(
+            {
+                "biber": {
+                    "username": "biber",
+                    "email": "biber@example.org",
+                    "application_roles": {"web-app-baserow": ["mcp"]},
+                }
+            },
+            [{"id": "web-app-baserow"}],
+        )
+
+        api = self._grant_with_members(
+            json.loads(json.dumps(members)),
+            [FakeUser("u-biber", "user", email="biber@example.org", name="Biber")],
+        )
+
+        self.assertEqual(["u-biber"], api.groups[0]["user_ids"])
+
+    def test_a_member_openwebui_never_saw_is_skipped(self) -> None:
+        api = self._grant_with_members(
+            {"web-app-baserow": [{"username": "biber", "email": "biber@example.org"}]},
+            [FakeUser("u-other", "user", email="other@example.org", name="other")],
+        )
+
+        self.assertEqual([], api.groups[0]["user_ids"])
+        self.assertEqual(
+            0,
+            api.member_writes,
+            "a member who has never signed in must not trigger a write; the group "
+            "already matches the resolvable member set",
+        )
+
+    def test_a_group_already_matching_its_members_is_left_alone(self) -> None:
+        module = load_script(
+            {"web-app-baserow": "/roles/web-app-baserow/mcp"}, members={}
+        )
+        api = FakeApi(
+            [connection("web-app-baserow")], groups=["/roles/web-app-baserow/mcp"]
+        )
+        api.groups[0]["user_ids"] = []
+
+        with patch.object(module, "call", api):
+            module.grant("sk-test")
+
+        self.assertEqual(0, api.member_writes)
 
     def test_two_groups_of_one_name_abort_rather_than_guess(self) -> None:
         module = load_script({"web-app-baserow": "/roles/web-app-baserow/mcp"})

@@ -18,12 +18,18 @@ class TestMcpGroupMembers(unittest.TestCase):
         users = {
             "alice": {
                 "username": "alice",
+                "email": "alice@example.org",
                 "application_roles": {"web-app-baserow": ["mcp"]},
             }
         }
         self.assertEqual(
             mcp_group_members(users, SERVERS),
-            {"web-app-baserow": ["alice"], "web-app-zammad": []},
+            {
+                "web-app-baserow": [
+                    {"username": "alice", "email": "alice@example.org"}
+                ],
+                "web-app-zammad": [],
+            },
         )
 
     def test_unscoped_mcp_role_grants_nothing(self):
@@ -43,15 +49,30 @@ class TestMcpGroupMembers(unittest.TestCase):
         users = {
             "b-key": {
                 "username": "zoe",
+                "email": "zoe@example.org",
                 "application_roles": {"web-app-baserow": ["mcp"]},
             },
             "a-key": {
                 "username": "amy",
+                "email": "amy@example.org",
                 "application_roles": {"web-app-baserow": ["mcp"]},
             },
         }
         self.assertEqual(
-            mcp_group_members(users, SERVERS)["web-app-baserow"], ["amy", "zoe"]
+            [m["username"] for m in mcp_group_members(users, SERVERS)["web-app-baserow"]],
+            ["amy", "zoe"],
+        )
+
+    def test_a_member_without_an_email_still_carries_its_username(self):
+        users = {
+            "alice": {
+                "username": "alice",
+                "application_roles": {"web-app-baserow": ["mcp"]},
+            }
+        }
+        self.assertEqual(
+            mcp_group_members(users, SERVERS)["web-app-baserow"],
+            [{"username": "alice", "email": ""}],
         )
 
     def test_servers_without_an_id_are_skipped(self):
