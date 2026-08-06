@@ -71,3 +71,13 @@
       {{ nextcloud_mcp_probe.stdout | default('no status') }} for the app password stored
       for {{ application_id }}, so every MCP client would be configured with a
       bearer the endpoint rejects.
+
+- name: "🩺 Prove the MCP contract of {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
+  vars:
+    mcp_probe_owner: "{{ lookup('config', application_id, 'mcp.credential.owner') }}"
+    mcp_probe_bearer: "{{ lookup('users', mcp_probe_owner, {}).get('tokens', {}).get(application_id, '') }}"
+    mcp_probe_path_key: ""
+    mcp_probe_read_tool: "find_details_of_current_user"
+    mcp_probe_read_args: {}
+    mcp_probe_host: "{{ NEXTCLOUD_DOMAIN }}"

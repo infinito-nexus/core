@@ -81,7 +81,17 @@
     name: sys-token-store
     tasks_from: write.yml
   vars:
-    sys_token_store_user_key: administrator
+    sys_token_store_user_key: "{{ lookup('config', application_id, 'mcp.credential.owner') }}"
     sys_token_store_app: "{{ application_id }}"
     sys_token_store_token: "{{ BASEROW_MCP_ENDPOINT_KEY }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🩺 Prove the MCP contract of {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
+  vars:
+    mcp_probe_owner: "{{ lookup('config', application_id, 'mcp.credential.owner') }}"
+    mcp_probe_bearer: "{{ lookup('users', mcp_probe_owner, {}).get('tokens', {}).get(application_id, '') }}"
+    mcp_probe_path_key: "{{ BASEROW_MCP_ENDPOINT_KEY }}"
+    mcp_probe_read_tool: "list_databases"
+    mcp_probe_read_args: {}
+    mcp_probe_host: ""

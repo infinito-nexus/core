@@ -47,7 +47,7 @@
     name: sys-token-store
     tasks_from: write.yml
   vars:
-    sys_token_store_user_key: administrator
+    sys_token_store_user_key: "{{ lookup('config', application_id, 'mcp.credential.owner') }}"
     sys_token_store_app: "{{ application_id }}"
     sys_token_store_token: "{{ gitea_mcp_token }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
