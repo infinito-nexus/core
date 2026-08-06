@@ -39,9 +39,7 @@ class TestAsCommentedMap(unittest.TestCase):
 class TestLoadDocument(unittest.TestCase):
     def test_a_missing_file_yields_an_empty_map(self):
         with tempfile.TemporaryDirectory() as tmp:
-            self.assertEqual(
-                CommentedMap(), load_document(Path(tmp) / "absent.yml")
-            )
+            self.assertEqual(CommentedMap(), load_document(Path(tmp) / "absent.yml"))
 
     def test_an_empty_file_yields_an_empty_map(self):
         with tempfile.TemporaryDirectory() as tmp:

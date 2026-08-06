@@ -164,7 +164,6 @@ ansible_become_password: !vault |
             node = data["ansible_become_password"]
             self.assertEqual(getattr(node, "tag", None), "!vault")
 
-
     def test_apply_vars_overrides_from_file_deep_merge_and_overwrite(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)
