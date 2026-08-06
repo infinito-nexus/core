@@ -59,7 +59,10 @@ class TestMcpGroupMembers(unittest.TestCase):
             },
         }
         self.assertEqual(
-            [m["username"] for m in mcp_group_members(users, SERVERS)["web-app-baserow"]],
+            [
+                m["username"]
+                for m in mcp_group_members(users, SERVERS)["web-app-baserow"]
+            ],
             ["amy", "zoe"],
         )
 

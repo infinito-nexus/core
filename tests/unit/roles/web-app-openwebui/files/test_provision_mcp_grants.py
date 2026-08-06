@@ -240,11 +240,7 @@ class TestProvisionMcpGrants(unittest.TestCase):
 
     def test_a_declared_member_is_written_into_its_group(self) -> None:
         api = self._grant_with_members(
-            {
-                "web-app-baserow": [
-                    {"username": "biber", "email": "biber@example.org"}
-                ]
-            },
+            {"web-app-baserow": [{"username": "biber", "email": "biber@example.org"}]},
             [FakeUser("u-biber", "user", email="biber@example.org", name="Biber")],
         )
 
