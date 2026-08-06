@@ -26,7 +26,7 @@ The implementation MUST start from the current code rather than from the complet
 - [`roles/web-app-openwebui/tasks/01_mcp.yml`](../../roles/web-app-openwebui/tasks/01_mcp.yml) and [`roles/web-app-openwebui/files/provision_mcp_grants.py`](../../roles/web-app-openwebui/files/provision_mcp_grants.py) can resolve or create an Open WebUI group by its path-like name and then write the generated group identifier into `access_grants`. This is the correct deployment-controlled mechanism, but application-specific Keycloak membership, last-group revocation, and restart reconciliation remain mandatory gaps.
 - [`roles/web-app-openwebui/templates/env.j2`](../../roles/web-app-openwebui/templates/env.j2) sets `ENABLE_PERSISTENT_CONFIG=false`. API changes to environment-backed connection state MUST be treated as runtime state that has to be reconciled after every container restart; a deploy-only one-shot is insufficient.
 - [`roles/web-app-flowise/vars/main.yml`](../../roles/web-app-flowise/vars/main.yml) currently computes discovery data but no task registers it. [`roles/web-app-flowise/templates/env.j2`](../../roles/web-app-flowise/templates/env.j2) disables `HTTP_SECURITY_CHECK` globally when MCP servers are present, and [`roles/web-app-flowise/files/playwright/test-mcp.js`](../../roles/web-app-flowise/files/playwright/test-mcp.js) proves only that an anonymous chatflow call is rejected.
-- The exact Flowise 3.1.3 source provides authenticated create, list, update, authorize, delete, and tool-list routes under `/api/v1/custom-mcp-servers`. It stores custom-header authentication encrypted and binds entries to the active workspace. Its authorization path nevertheless constructs the toolkit with SSE explicitly, so the pinned release MUST NOT be described as a generic Streamable HTTP client.
+- The exact Flowise 3.1.4 source provides authenticated create, list, update, authorize, delete, and tool-list routes under `/api/v1/custom-mcp-servers`. It stores custom-header authentication encrypted and binds entries to the active workspace. Its authorization path passes `sse` to the toolkit, but that argument only selects stdio versus HTTP: for any URL the toolkit attempts Streamable HTTP first and falls back to SSE through `secureFetch`, whose `node-fetch` response body the MCP SDK rejects with `expected a web ReadableStream`. The pinned release therefore registers Streamable HTTP providers and cannot register SSE ones.
 - The exact n8n 1.95.3 source contains an SSE MCP Client Tool and an SSE MCP Server Trigger. Its public API can create credentials and workflows and activate workflows. The newer instance-wide administration MCP service MUST NOT be attributed to this pinned release.
 - [`roles/svc-ai-litellm/meta/services.yml`](../../roles/svc-ai-litellm/meta/services.yml) pins `main-v1.77.3.dynamic_rates`. Its current role contract is an inference gateway. It MUST remain only an inference gateway until source inspection and an end-to-end test of a new explicit pin prove the required MCP gateway behavior.
 
@@ -34,7 +34,7 @@ The implementing agent MUST start its upstream source audit from these project-o
 
 | Capability | Authoritative source entry point |
 |---|---|
-| Flowise registry at the deployed pin | [Flowise tag `flowise@3.1.3`](https://github.com/FlowiseAI/Flowise/tree/flowise%403.1.3), especially `packages/server/src/routes/custom-mcp-servers/` and `packages/server/src/services/custom-mcp-servers/` |
+| Flowise registry at the deployed pin | [Flowise tag `flowise@3.1.4`](https://github.com/FlowiseAI/Flowise/tree/flowise%403.1.4), especially `packages/server/src/routes/custom-mcp-servers/` and `packages/server/src/services/custom-mcp-servers/` |
 | n8n client, trigger, and public provisioning API | [n8n tag `n8n@1.95.3`](https://github.com/n8n-io/n8n/tree/n8n%401.95.3), especially `packages/@n8n/nodes-langchain/nodes/mcp/` and `packages/cli/src/public-api/v1/handlers/` |
 | WordPress plugin path | [`WordPress/mcp-adapter`](https://github.com/WordPress/mcp-adapter) |
 | Discourse sidecar path | [`discourse/discourse-mcp`](https://github.com/discourse/discourse-mcp) |
@@ -201,7 +201,7 @@ Direct Keycloak group membership remains valid, but both paths MUST converge on 
 Open WebUI access tests MUST cover a user with one of several MCP groups, a user with no MCP group, a user in the wrong application's group, and removal of the user's last group.
 The known empty-group synchronization behavior MUST be fixed upstream, patched in the pinned image, or compensated by an explicit reconciliation/session-invalidation mechanism before strict revocation is claimed.
 
-Flowise 3.1.3 binds registry entries to a workspace, not to the platform's per-application Keycloak groups.
+Flowise 3.1.4 binds registry entries to a workspace, not to the platform's per-application Keycloak groups.
 Until an exact pinned Flowise version proves per-server user ACLs, deployment-managed MCP connections MUST live in an admin-only workspace or a separate Flowise trust-domain instance.
 They MUST NOT be offered to every ordinary flow author merely because the user can sign into Flowise.
 The same rule applies to Hermes, OpenClaw, n8n, and any future client lacking a tested per-server user authorization boundary.
@@ -231,7 +231,7 @@ Open WebUI has environment-backed configuration with persistence disabled.
 The reconciler MUST reapply the complete desired connection and access grant after every process start, then verify it through the API.
 Restarting only the Open WebUI container MUST converge to the same enabled connections and grants as a full deployment.
 
-## Flowise 3.1.3 Integration
+## Flowise 3.1.4 Integration
 
 The current statement that Flowise lacks an instance-level registry is incorrect for the pinned version and MUST be removed from requirement 025 and the role README.
 The deployment MUST use the authenticated `/api/v1/custom-mcp-servers` routes with a scoped API identity whose workspace permissions are limited to the required `tools:create`, `tools:view`, `tools:update`, and `tools:delete` operations.
@@ -245,9 +245,11 @@ For each compatible server the reconciler MUST:
 5. Verify `AUTHORIZED` status and the exact expected tool names and schema hash.
 6. Delete a stale managed entry only when its name begins with `infinito:` and the provider is absent from the desired snapshot.
 
-Flowise 3.1.3 MUST register only SSE providers because its authorization implementation fixes the transport to SSE.
-A Streamable HTTP provider MUST be reported as incompatible or placed behind a pinned, protocol-correct bridge; it MUST NOT be claimed as registered.
-Supporting Streamable HTTP directly requires an explicit Flowise upgrade whose exact source and end-to-end tests prove the transport.
+The role MUST build its own Flowise image from the pinned npm package. The published `flowiseai/flowise` tags `3.1.3`, `3.1.4` and `latest` all ship the `flowise` package at version 3.1.2, which serves none of the `custom-mcp-servers`, `mcp-server` or `mcp-endpoint` routes; upstream's Dockerfile runs an unpinned `npm install -g flowise` whose layer the release CI reuses across builds. The deployed version therefore MUST come from `npm install -g flowise@<version>`, and the served route set MUST be verified rather than inferred from the tag.
+
+Flowise 3.1.4 MUST register only Streamable HTTP providers, because its SSE fallback cannot complete a connection at this pin.
+An SSE provider MUST be reported as incompatible or placed behind a pinned, protocol-correct bridge; it MUST NOT be claimed as registered.
+Supporting SSE directly requires an explicit Flowise upgrade whose exact source and end-to-end tests prove the transport.
 
 The role MUST NOT solve internal connectivity by globally disabling SSRF protection for all flow authors.
 If the exact pinned Flowise release cannot keep `HTTP_SECURITY_CHECK=true` for internal service DNS, the MCP workspace MUST be admin-only, egress MUST be restricted to a fixed-target MCP proxy, redirects MUST be disabled, DNS resolution MUST be revalidated at connection time, and network policy MUST prevent access to loopback, link-local metadata, unrelated application networks, and the container control plane.
@@ -304,7 +306,7 @@ The 18 roles already containing an `mcp:` block require the following revalidati
 | `web-app-baserow` | Retain the native server only with a dedicated least-privilege identity, a verified read-only tool allowlist, per-consumer grants, and an actual client tool call. |
 | `web-app-confluence` | Keep self-hosted deployment blocked while the verified Atlassian path is Cloud-only; an external connector must be explicit and must not be represented as the self-hosted role's endpoint. |
 | `web-app-discourse` | Replace `hosted_only`. Pin the project-owned HTTP sidecar, force read-only mode, use a restricted User API key where possible, and protect the sidecar with client-facing auth. Writes require separate switches and explicit opt-in. |
-| `web-app-flowise` | Reconcile the 3.1.3 SSE registry and a managed flow as defined above. Remove the global-security-relaxation-as-integration claim and replace the anonymous-only test with a deterministic tool call. |
+| `web-app-flowise` | Reconcile the 3.1.4 Streamable HTTP registry and a managed flow as defined above. Remove the global-security-relaxation-as-integration claim and replace the anonymous-only test with a deterministic tool call. |
 | `web-app-gitea` | Verify the exact project-owned package, image pin, endpoint auth, dedicated service account, tool allowlist, and read-only behavior. |
 | `web-app-gitlab` | Keep tier and exact self-managed endpoint availability as hard gates. Use a project/group-scoped token and exclude mutation tools until separately enabled. |
 | `web-app-hermes` | Keep `direction: client` unless a pinned authenticated stdio-to-HTTP bridge is added. Document the server-side path as `server_stdio_only`; do not imply a deployable HTTP server. |
@@ -346,7 +348,7 @@ If the exact pinned version cannot implement the named contract through a stable
 | `web-app-bluesky` | `n8n_workflow` | `bluesky_get_profile`, `bluesky_search_posts`, `bluesky_get_feed` | Per-user OAuth/app password for non-public data; no post, like, follow, moderation, or account mutation |
 | `web-app-bookwyrm` | `openapi_allowlist` | `bookwyrm_search_books`, `bookwyrm_get_book`, `bookwyrm_get_public_shelf` | Public access or restricted user token; no shelf, review, follow, or federation mutation |
 | `web-app-bridgy-fed` | `resource_readonly` | `bridgy_get_actor`, `bridgy_get_public_activity`, `bridgy_get_bridge_status` | Public data only; block if the pinned service has no stable bounded read API |
-| `web-app-checkmk` | `openapi_allowlist` | `checkmk_list_hosts`, `checkmk_get_host_status`, `checkmk_list_service_problems` | Automation user with monitoring-read permissions; no activation, acknowledge, downtime, host, rule, or password mutation |
+| `web-app-checkmk` | `openapi_allowlist` | `checkmk_list_hosts`, `checkmk_get_host_status`, `checkmk_list_services` | Automation user with monitoring-read permissions; no activation, acknowledge, downtime, host, rule, or password mutation |
 | `web-app-decidim` | `graphql_allowlist` or `openapi_allowlist` | `decidim_search_processes`, `decidim_get_proposal`, `decidim_list_meetings` | Public reads first; no proposal, vote, moderation, identity, or assembly mutation |
 | `web-app-espocrm` | `openapi_allowlist` | `espocrm_search_accounts`, `espocrm_get_contact`, `espocrm_list_cases` | Restricted CRM API user with field and team visibility; no generic entity endpoint or write |
 | `web-app-fider` | `openapi_allowlist` | `fider_search_suggestions`, `fider_get_suggestion`, `fider_list_tags` | Public/restricted read token; no vote, response, status, tag, user, or tenant mutation |
@@ -483,7 +485,7 @@ Sidecars and adapters MUST use an immutable version and digest, documented prove
 
 ### Flowise and n8n
 
-- [ ] Flowise 3.1.3 is reconciled through `/api/v1/custom-mcp-servers`, registers only SSE providers, stores headers encrypted, authorizes each entry, and verifies exact tool names and schemas.
+- [ ] Flowise 3.1.4 is reconciled through `/api/v1/custom-mcp-servers`, registers only Streamable HTTP providers, stores headers encrypted, authorizes each entry, and verifies exact tool names and schemas.
 - [ ] Flowise Streamable HTTP support remains blocked or bridged until a pinned source-audited release passes an end-to-end tool call.
 - [ ] Ordinary Flowise users cannot use MCP or another HTTP node to reach loopback, metadata endpoints, the container control plane, or unrelated internal services; globally disabling the SSRF check alone fails this criterion.
 - [ ] A deployment-managed Flowise fixture executes a deterministic MCP tool successfully and contains no plaintext MCP credential.
@@ -505,12 +507,13 @@ Sidecars and adapters MUST use an immutable version and digest, documented prove
 1. Correct requirement 025's stale claims and add the exhaustive audit/lint status mechanism.
 2. Remove the hard-coded administrator credential path, add provider-consumer authorization, add client capability filtering, and implement post-application reconciliation.
 3. Make Open WebUI revocation and restart behavior correct before expanding its provider set.
-4. Implement Flowise 3.1.3's SSE registry and one deterministic read-only Baserow flow without disabling unrestricted SSRF protection.
+4. Implement Flowise 3.1.4's Streamable HTTP registry and one deterministic read-only flow without disabling unrestricted SSRF protection.
 5. Implement n8n 1.95.3 as an SSE client and one bearer-protected read-only workflow server.
-6. Correct WordPress and Discourse, then validate the existing native/plugin/sidecar roles one at a time.
-7. Add Qdrant with collection isolation and the high-value read adapters for Checkmk, Prometheus, LibreTranslate, Jellyfin, Pretix, Snipe-IT, Zammad, Listmonk, and Fider.
-8. Evaluate Shopware upgrade, ERPNext plugin, Matomo plugin, LiteLLM gateway, and LM Studio client in focused requirements or PRs because each changes an upstream version or maturity boundary.
-9. Add the remaining business, content, social, and operations adapters only after the shared contract and first high-value adapters pass Compose and Swarm tests.
+6. Correct WordPress, then validate the existing native/plugin/sidecar roles one at a time.
+7. Build the reusable adapter before any sidecar that depends on it. Source inspection of `discourse/discourse-mcp` and `qdrant/mcp-server-qdrant` shows both authenticate *to* their application and neither authenticates the MCP client calling them, so deploying either on its own would put an unauthenticated tool surface on the container network. Correcting Discourse and adding Qdrant therefore follows the adapter, not the other way round.
+8. Add Qdrant with collection isolation and the high-value read adapters for Checkmk, Prometheus, LibreTranslate, Jellyfin, Pretix, Snipe-IT, Zammad, Listmonk, and Fider.
+9. Evaluate Shopware upgrade, ERPNext plugin, Matomo plugin, LiteLLM gateway, and LM Studio client in focused requirements or PRs because each changes an upstream version or maturity boundary.
+10. Add the remaining business, content, social, and operations adapters only after the shared contract and first high-value adapters pass Compose and Swarm tests.
 
 ## Prerequisites
 
