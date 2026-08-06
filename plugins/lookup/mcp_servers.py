@@ -1,10 +1,27 @@
-"""Lookup ``mcp_servers``: the MCP servers a client role can connect to.
+"""Lookup ``mcp_servers``: which MCP servers this client may connect to.
 
     {{ lookup('mcp_servers') }}
+    -> {"selected": [...], "rejected": [...]}
 
-Returns one entry per deployed MCP server role the administrator holds a
-token for, shaped for the client renderers ``mcp_authorization`` and
-``mcp_tool_server_connections``.
+Discovery is an intersection, not a list. A provider names the clients it
+admits in ``allowed_consumers``; a client names the transports and auth
+schemes it can present. Only a pair that satisfies both, and whose provider
+credential actually resolves, reaches ``selected``.
+
+Everything else lands in ``rejected`` with a stable code:
+``consumer_not_allowed``, ``transport_unsupported``, ``auth_unsupported``,
+``credential_missing`` and ``endpoint_unreachable``.
+
+``consumer_not_allowed`` is a decision and simply narrows the result. The other
+four mean the provider did authorize this consumer and the connection still
+cannot be rendered, so they abort the run instead of disappearing quietly: a
+client that silently ends up with fewer tools than the deployment declared is
+indistinguishable from one that works.
+
+The provider credential is whatever ``services.mcp.credential`` declares:
+``owner`` names the principal, ``source`` where its secret lives
+(``token_store`` or the role's own ``credentials``), ``key`` the entry. No
+provider inherits the administrator's token.
 """
 
 from __future__ import annotations
@@ -15,8 +32,23 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
+from utils.roles.applications.services.mcp import DEFAULT_MCP_TRANSPORT
+
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
+
+REJECT_CONSUMER = "consumer_not_allowed"
+REJECT_TRANSPORT = "transport_unsupported"
+REJECT_AUTH = "auth_unsupported"
+REJECT_CREDENTIAL = "credential_missing"
+REJECT_ENDPOINT = "endpoint_unreachable"
+
+FATAL_REJECTIONS = frozenset({REJECT_TRANSPORT, REJECT_AUTH, REJECT_ENDPOINT})
+
+SOURCE_TOKEN_STORE = "token_store"  # noqa: S105 - a source name, not a secret
+SOURCE_CREDENTIALS = "credentials"
+
+FORBIDDEN_OWNER = "administrator"
 
 
 def endpoint_url(endpoint: Mapping[str, Any], path_key: str) -> str:
@@ -35,45 +67,169 @@ def endpoint_url(endpoint: Mapping[str, Any], path_key: str) -> str:
     return f"{url}/{path_key}{tail}"
 
 
-def build_mcp_servers(
+def resolve_credential(
+    server: Mapping[str, Any],
+    users: Mapping[str, Any],
+    role_credentials: Mapping[str, Any],
+) -> tuple[str, str]:
+    """Return the provider's declared secret and the owner it belongs to.
+
+    Args:
+        server: a discovered ``direction=server`` entry.
+        users: the merged users mapping, carrying each principal's tokens.
+        role_credentials: the provider role's own ``credentials`` mapping.
+
+    Returns an empty token when the declaration is incomplete or the principal
+    holds nothing; the caller turns that into ``credential_missing``.
+    """
+    credential = server.get("credential") or {}
+    owner = str(credential.get("owner") or "").strip()
+    source = str(credential.get("source") or "").strip()
+    key = str(credential.get("key") or "").strip()
+    if not owner or not source or not key or owner == FORBIDDEN_OWNER:
+        return "", owner
+
+    if source == SOURCE_TOKEN_STORE:
+        principal = users.get(owner)
+        tokens = principal.get("tokens") if isinstance(principal, dict) else None
+        value = (tokens or {}).get(key) if isinstance(tokens, dict) else None
+        return str(value or "").strip(), owner
+
+    if source == SOURCE_CREDENTIALS:
+        return str(role_credentials.get(key) or "").strip(), owner
+
+    return "", owner
+
+
+def build_mcp_discovery(
     servers: Sequence[Mapping[str, Any]] | None,
-    administrator: Mapping[str, Any],
+    consumer_id: str,
+    consumer: Mapping[str, Any],
+    credentials: Mapping[str, tuple[str, str]],
     path_keys: Mapping[str, str] | None = None,
-) -> list[dict[str, Any]]:
-    """Return the connectable MCP servers among the discovered ones.
+) -> dict[str, list[dict[str, Any]]]:
+    """Return the selected and rejected MCP servers for one client role.
 
     Args:
         servers: ``roles_with_service('mcp', direction='server')`` entries.
-        administrator: the administrator user, carrying tokens and username.
+        consumer_id: ``application_id`` of the client doing the discovery.
+        consumer: the client's own ``services.mcp`` block, carrying
+            ``supported_transports`` and ``supported_auths``.
+        credentials: resolved ``(token, owner)`` per provider role id.
         path_keys: resolved ``key_credential`` values, keyed by role id.
     """
-    tokens = administrator.get("tokens") or {}
-    username = administrator.get("username")
+    supported_transports = set(consumer.get("supported_transports") or [])
+    supported_auths = set(consumer.get("supported_auths") or [])
     keys = path_keys or {}
-    connectable = []
+
+    selected: list[dict[str, Any]] = []
+    rejected: list[dict[str, Any]] = []
+    seen_owners: dict[tuple[str, str], str] = {}
+
+    def reject(server_id: str, code: str, detail: str) -> None:
+        rejected.append({"id": server_id, "reason": code, "detail": detail})
+
     for server in servers or []:
         server_id = str(server.get("id") or "")
-        token = str(tokens.get(server_id) or "").strip()
+        if not server_id or server_id == consumer_id:
+            continue
+
+        allowed = list(server.get("allowed_consumers") or [])
+        if consumer_id not in allowed:
+            reject(
+                server_id,
+                REJECT_CONSUMER,
+                f"{server_id} admits {sorted(allowed)}, not {consumer_id!r}",
+            )
+            continue
+
+        transport = str(server.get("transport") or DEFAULT_MCP_TRANSPORT)
+        if transport not in supported_transports:
+            reject(
+                server_id,
+                REJECT_TRANSPORT,
+                f"{server_id} speaks {transport!r}; {consumer_id} speaks "
+                f"{sorted(supported_transports)}",
+            )
+            continue
+
+        auth = str(server.get("auth") or "")
+        if auth not in supported_auths:
+            reject(
+                server_id,
+                REJECT_AUTH,
+                f"{server_id} authenticates with {auth!r}; {consumer_id} can "
+                f"present {sorted(supported_auths)}",
+            )
+            continue
+
+        token, owner = credentials.get(server_id, ("", ""))
+        if not token:
+            reject(
+                server_id,
+                REJECT_CREDENTIAL,
+                f"{server_id} declares owner {owner!r} but no secret resolved; "
+                f"a provider never borrows the administrator's token",
+            )
+            continue
+
+        previous = seen_owners.get((owner, token))
+        if previous is not None:
+            raise AnsibleError(
+                f"mcp_servers: {server_id!r} and {previous!r} resolve to the "
+                f"same credential owned by {owner!r}. Every provider needs its "
+                f"own principal so revoking one cannot disarm the others."
+            )
+        seen_owners[(owner, token)] = server_id
+
         endpoint = server.get("endpoint") or {}
-        port = endpoint.get("port")
-        path = endpoint.get("path")
-        if not server_id or not token or not port or not path:
-            continue
         path_key = str(keys.get(server_id) or "").strip()
-        if endpoint.get("key_credential") and not path_key:
+        if (
+            not endpoint.get("port")
+            or not endpoint.get("path")
+            or (endpoint.get("key_credential") and not path_key)
+        ):
+            reject(
+                server_id,
+                REJECT_ENDPOINT,
+                f"{server_id} resolves no reachable endpoint (port, path or "
+                f"key credential missing)",
+            )
             continue
-        connectable.append(
+
+        selected.append(
             {
                 "id": server_id,
                 "url": endpoint_url(endpoint, path_key),
                 "token": token,
-                "auth": server.get("auth"),
+                "auth": auth,
                 "auth_subject": server.get("auth_subject"),
-                "username": username,
-                "transport": str(server.get("transport") or "").replace("_", "-"),
+                "owner": owner,
+                "transport": transport.replace("_", "-"),
             }
         )
-    return connectable
+
+    return {"selected": selected, "rejected": rejected}
+
+
+def assert_authorized_are_renderable(discovery: Mapping[str, Any]) -> None:
+    """Abort when a provider authorized this consumer but nothing can connect.
+
+    Args:
+        discovery: the ``{"selected": ..., "rejected": ...}`` result.
+    """
+    fatal = [
+        entry
+        for entry in discovery.get("rejected") or []
+        if entry.get("reason") in FATAL_REJECTIONS
+    ]
+    if not fatal:
+        return
+    detail = "; ".join(f"{e['id']}: {e['reason']} — {e['detail']}" for e in fatal)
+    raise AnsibleError(
+        f"mcp_servers: {len(fatal)} authorized MCP server(s) cannot be "
+        f"rendered. {detail}"
+    )
 
 
 class LookupModule(LookupBase):
@@ -88,22 +244,45 @@ class LookupModule(LookupBase):
 
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
         templar = getattr(self, "_templar", None)
+        consumer_id = str(vars_.get("application_id") or "").strip()
+        if not consumer_id:
+            raise AnsibleError(
+                "mcp_servers: no application_id in scope. Discovery is a "
+                "per-consumer intersection, so the calling role must be known."
+            )
 
         servers = lookup_loader.get(
             "roles_with_service", loader=self._loader, templar=templar
-        ).run(["mcp"], variables=vars_, direction="server", scope="all")[0]
-        administrator = lookup_loader.get(
-            "users", loader=self._loader, templar=templar
-        ).run(["administrator"], variables=vars_)[0]
+        ).run(["mcp"], variables=vars_, direction="server", scope="deployment")[0]
 
+        applications = lookup_loader.get(
+            "applications", loader=self._loader, templar=templar
+        ).run([], variables=vars_)[0]
+        users = lookup_loader.get("users", loader=self._loader, templar=templar).run(
+            [], variables=vars_
+        )[0]
+
+        consumer = ((applications.get(consumer_id) or {}).get("services") or {}).get(
+            "mcp"
+        ) or {}
+
+        credentials: dict[str, tuple[str, str]] = {}
+        path_keys: dict[str, str] = {}
         config = lookup_loader.get("config", loader=self._loader, templar=templar)
-        path_keys = {}
         for server in servers:
+            server_id = str(server.get("id") or "")
+            role_credentials = (applications.get(server_id) or {}).get(
+                "credentials"
+            ) or {}
+            credentials[server_id] = resolve_credential(server, users, role_credentials)
             credential = (server.get("endpoint") or {}).get("key_credential")
-            if not credential:
-                continue
-            path_keys[server["id"]] = config.run(
-                [server["id"], f"credentials.{credential}"], variables=vars_
-            )[0]
+            if credential:
+                path_keys[server_id] = config.run(
+                    [server_id, f"credentials.{credential}"], variables=vars_
+                )[0]
 
-        return [build_mcp_servers(servers, administrator, path_keys)]
+        discovery = build_mcp_discovery(
+            servers, consumer_id, consumer, credentials, path_keys
+        )
+        assert_authorized_are_renderable(discovery)
+        return [discovery]

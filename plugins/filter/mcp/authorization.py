@@ -7,6 +7,13 @@
 credential as a bearer. ``basic_auth`` presents ``username:token`` base64
 encoded, which cannot reference an environment variable because the encoding
 happens before the value is known.
+
+``oidc`` is deliberately absent. It means the call executes as the requesting
+end user, and a rendered config carries no caller. Emitting the deployment's
+own bearer there would relabel a service account as user delegation, so this
+filter refuses it and ``mcp_authorization_is_renderable`` drops the server.
+Open WebUI reaches such a server through ``system_oauth`` instead; see
+``docs/contributing/design/role/services/mcp-delegation.md``.
 """
 
 from __future__ import annotations
@@ -17,8 +24,9 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
-BEARER_AUTHS = frozenset({"bearer_token", "app_password", "upstream_session", "oidc"})
+BEARER_AUTHS = frozenset({"bearer_token", "app_password", "upstream_session"})
 BASIC_AUTHS = frozenset({"basic_auth"})
+DELEGATED_AUTHS = frozenset({"oidc"})
 
 SUPPORTED_AUTHS = BEARER_AUTHS | BASIC_AUTHS
 
@@ -27,7 +35,7 @@ def mcp_authorization(server: Mapping[str, Any], env: str | None = None) -> str:
     """Return the Authorization header value for one discovered MCP server.
 
     Args:
-        server: a MCP_DISCOVERED_SERVERS entry carrying auth, token, username.
+        server: a MCP_DISCOVERED_SERVERS entry carrying auth, token, owner.
         env: name of the environment variable holding the token. Bearer schemes
             reference it instead of inlining the secret; basic auth ignores it
             because the credential is encoded, not substituted.
@@ -36,12 +44,27 @@ def mcp_authorization(server: Mapping[str, Any], env: str | None = None) -> str:
     token = str(server.get("token") or "")
 
     if auth in BASIC_AUTHS:
-        username = str(server.get("username") or "")
-        encoded = base64.b64encode(f"{username}:{token}".encode()).decode()
+        owner = str(server.get("owner") or "")
+        if not owner:
+            raise ValueError(
+                f"MCP server {server.get('id')!r} declares auth {auth!r} but "
+                f"resolves no credential owner. Basic auth would authenticate "
+                f"as the empty user and the server would answer 401."
+            )
+        encoded = base64.b64encode(f"{owner}:{token}".encode()).decode()
         return f"Basic {encoded}"
 
     if auth in BEARER_AUTHS:
         return f"Bearer ${{env:{env}}}" if env else f"Bearer {token}"
+
+    if auth in DELEGATED_AUTHS:
+        raise ValueError(
+            f"MCP server {server.get('id')!r} declares auth {auth!r}, which "
+            f"executes as the requesting user. A rendered config carries no "
+            f"caller, so presenting the deployment's own bearer here would be "
+            f"a service account wearing a user's name. Filter these servers "
+            f"out with mcp_renderable_servers."
+        )
 
     raise ValueError(
         f"MCP server {server.get('id')!r} declares auth {auth!r}, which no "

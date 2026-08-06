@@ -113,6 +113,13 @@ class TestMcpToolServerConnections(unittest.TestCase):
         )
         self.assertEqual([e["info"]["id"] for e in result], ["a", "b"])
 
+    def test_oidc_server_becomes_a_keyless_system_oauth_connection(self):
+        entry = mcp_tool_server_connections(
+            [{"id": "a", "url": "http://a/mcp", "token": "deploy", "auth": "oidc"}]
+        )[0]
+        self.assertEqual(entry["auth_type"], "system_oauth")
+        self.assertEqual(entry["key"], "")
+
 
 if __name__ == "__main__":
     unittest.main()

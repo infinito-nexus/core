@@ -419,6 +419,37 @@ class RolesWithServiceLookupTests(unittest.TestCase):
             "scope='all' returns deployment-scoped consumers regardless of group_names",
         )
 
+    def test_deployment_scope_spans_hosts_but_not_the_whole_repository(self):
+        applications = {
+            "web-app-foo": {
+                "services": {"logout": {"enabled": True, "shared": True}},
+                "domains": {"canonical": ["foo.example.com"]},
+            },
+            "web-app-bar": {
+                "services": {"logout": {"enabled": True, "shared": True}},
+                "domains": {"canonical": ["bar.example.com"]},
+            },
+            "web-app-undeployed": {
+                "services": {"logout": {"enabled": True, "shared": True}},
+                "domains": {"canonical": ["undeployed.example.com"]},
+            },
+        }
+        vars_ = {
+            "group_names": ["web-app-foo"],
+            "groups": {
+                "web-app-foo": ["host-a"],
+                "web-app-bar": ["host-b"],
+                "web-app-undeployed": [],
+            },
+        }
+        result = self._run(["logout"], applications, vars_=vars_, scope="deployment")[0]
+        self.assertEqual(
+            sorted(r["id"] for r in result),
+            ["web-app-bar", "web-app-foo"],
+            "a role deployed on another host of the same deployment is "
+            "reachable; a role in the repository but in no group is not",
+        )
+
     def test_self_provider_is_excluded(self):
         applications = {
             "web-svc-logout": {

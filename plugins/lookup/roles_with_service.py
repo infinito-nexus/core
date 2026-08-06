@@ -20,11 +20,15 @@ user-facing HTML page worth a ``_paq`` tracker, so they are dropped from
 
 Kwargs:
     scope: ``host`` (default) restricts to roles in ``group_names``;
-        ``all`` returns every declaring role.
+        ``deployment`` restricts to roles present anywhere in ``groups``,
+        which is what a container-network consumer can actually reach;
+        ``all`` returns every declaring role, deployed or not.
     direction: opt-in MCP filter. When set (``server``/``client``/``both``),
         only roles whose block declares that ``direction`` (or ``both``)
         are returned, and each entry additionally carries ``transport``,
-        ``auth``, ``auth_subject`` and an ``endpoint`` dict
+        ``auth``, ``auth_subject``, ``credential`` (``owner``/``source``/
+        ``key``), ``allowed_consumers``, ``supported_transports``,
+        ``supported_auths`` and an ``endpoint`` dict
         (``service_key``, ``path``, ``port`` taken from the
         referenced service's ``ports.internal`` and only then ``ports.local``:
         the entry is consumed to build a container-network URL, where a
@@ -78,6 +82,26 @@ def _resolve_canonical_domain(role_id: str, app_config: dict[str, Any]) -> str:
     return get_primary_domain({role_id: domains["canonical"]}, role_id)
 
 
+def _deployed_roles(scope: str, vars_: dict[str, Any]) -> set[str] | None:
+    """Return the role ids the scope admits, or None for no restriction.
+
+    Args:
+        scope: ``host``, ``deployment`` or ``all``.
+        vars_: the templating variables, carrying ``group_names``/``groups``.
+    """
+    if scope == "all":
+        return None
+    if scope == "deployment":
+        groups = vars_.get("groups")
+        if not isinstance(groups, dict):
+            return None
+        return {str(name) for name, hosts in groups.items() if hosts}
+    names = vars_.get("group_names")
+    if not isinstance(names, (list, tuple, set)) or not names:
+        return None
+    return {str(name) for name in names}
+
+
 class LookupModule(LookupBase):
     def run(
         self,
@@ -105,12 +129,7 @@ class LookupModule(LookupBase):
         direction = (
             str(direction_raw).strip().lower() if direction_raw is not None else None
         )
-        gn = vars_.get("group_names")
-        deployed = (
-            {str(g) for g in gn}
-            if scope != "all" and isinstance(gn, (list, tuple, set)) and gn
-            else None
-        )
+        deployed = _deployed_roles(scope, vars_)
 
         tls_lookup = lookup_loader.get(
             "tls", loader=self._loader, templar=self._templar
@@ -143,10 +162,14 @@ class LookupModule(LookupBase):
             if get_entity_name(str(role_id)) == service_name:
                 continue
             canonical = _resolve_canonical_domain(str(role_id), app_config)
-            if not canonical:
+            if not canonical and direction is None:
                 continue
-            resolved = tls_lookup.run([str(role_id), "url.base"], variables=variables)
-            canonical_url = str(resolved[0]).rstrip("/")
+            canonical_url = ""
+            if canonical:
+                resolved = tls_lookup.run(
+                    [str(role_id), "url.base"], variables=variables
+                )
+                canonical_url = str(resolved[0]).rstrip("/")
             iframe = (
                 bool(block["iframe"])
                 if "iframe" in block
@@ -161,11 +184,23 @@ class LookupModule(LookupBase):
             if direction is not None:
                 endpoint = block.get("endpoint")
                 endpoint = endpoint if isinstance(endpoint, dict) else {}
+                credential = block.get("credential")
+                credential = credential if isinstance(credential, dict) else {}
                 entry["transport"] = str(
                     block.get("transport") or DEFAULT_MCP_TRANSPORT
                 )
                 entry["auth"] = block.get("auth")
                 entry["auth_subject"] = block.get("auth_subject")
+                entry["credential"] = {
+                    "owner": credential.get("owner"),
+                    "source": credential.get("source"),
+                    "key": credential.get("key"),
+                }
+                entry["allowed_consumers"] = list(block.get("allowed_consumers") or [])
+                entry["supported_transports"] = list(
+                    block.get("supported_transports") or []
+                )
+                entry["supported_auths"] = list(block.get("supported_auths") or [])
                 entry["endpoint"] = {
                     "service_key": endpoint.get("service_key"),
                     "path": endpoint.get("path"),
