@@ -1,0 +1,31 @@
+---
+- name: "🔌 Provision the managed MCP trigger workflow"
+  ansible.builtin.command:
+    argv:
+      - python3
+      - "-"
+    stdin: "{{ lookup('file', 'provision_mcp.py') }}"
+  environment:
+    N8N_BASE: "{{ N8N_INTERNAL_API_URL }}"
+    N8N_OWNER_EMAIL: "{{ N8N_OWNER_EMAIL }}"
+    N8N_OWNER_PASSWORD: "{{ N8N_OWNER_PASSWORD }}"
+    N8N_API_KEY_NAME: "{{ N8N_MCP_API_KEY_NAME }}"
+    N8N_MCP_PATH: "{{ N8N_MCP_WEBHOOK_PATH }}"
+    N8N_MCP_TOKEN: "{{ N8N_MCP_TOKEN }}"
+    N8N_MCP_WORKFLOW: "{{ N8N_MCP_WORKFLOW_NAME }}"
+  register: n8n_mcp_provision
+  retries: 30
+  delay: 10
+  until: n8n_mcp_provision.rc == 0
+  changed_when: n8n_mcp_provision.stdout.startswith('CHANGED')
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
+- name: "💾 Persist the MCP bearer so clients can read it"
+  ansible.builtin.include_role:
+    name: sys-token-store
+    tasks_from: write.yml
+  vars:
+    sys_token_store_user_key: "{{ lookup('config', application_id, 'mcp.credential.owner') }}"
+    sys_token_store_app: "{{ application_id }}"
+    sys_token_store_token: "{{ N8N_MCP_TOKEN }}"

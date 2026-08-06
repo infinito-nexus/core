@@ -12,3 +12,8 @@ credentials:
     algorithm: alphanumeric
     validation: "^[A-Za-z0-9]{32,}$"
     length: 48
+  mcp_token:
+    description: "Bearer an MCP client must present to the managed MCP Server Trigger. Alphanumeric so it survives n8n's xssCheck on the workflow payload."
+    algorithm: alphanumeric
+    validation: "^[A-Za-z0-9]{32,}$"
+    length: 48

@@ -45,3 +45,10 @@
     apply:
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       run_once: true
+
+- name: "🔌 Provision the MCP surface"
+  include_tasks:
+    file: 02_mcp.yml
+    apply:
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: N8N_MCP_ENABLED | bool

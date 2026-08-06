@@ -15,5 +15,12 @@ N8N_INTERNAL_API_URL: "http://{{ DOCKER_REACH_HOST }}:{{ N8N_HTTP_PORT }}"
 
 N8N_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
 
+N8N_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') | bool }}"
+N8N_OWNER_EMAIL: "{{ lookup('users', 'administrator').email }}"
+N8N_MCP_TOKEN: "{{ lookup('config', application_id, 'credentials.mcp_token') }}"
+N8N_MCP_API_KEY_NAME: "infinito:mcp"
+N8N_MCP_WORKFLOW_NAME: "infinito:mcp-server"
+N8N_MCP_WEBHOOK_PATH: "infinito-mcp"
+
 N8N_HOOKS_FILE_HOST: "{{ [ lookup('container', application_id, 'directories.instance'), 'hooks.js' ] | path_join }}"
 N8N_HOOKS_FILE_CONTAINER: "/home/node/hooks.js" # nocheck: container-var-name-lookup
