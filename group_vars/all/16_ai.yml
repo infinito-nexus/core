@@ -11,4 +11,5 @@ LMSTUDIO_BASE_LOCAL_URL: "http://{{ lookup('config','svc-ai-lmstudio', 'services
 
 OPENROUTER_API_KEY: ""
 
-MCP_DISCOVERED_SERVERS: "{{ lookup('mcp_servers') }}"
+MCP_DISCOVERY: "{{ lookup('mcp_servers') }}"
+MCP_DISCOVERED_SERVERS: "{{ MCP_DISCOVERY.selected }}"
