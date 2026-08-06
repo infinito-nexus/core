@@ -1,0 +1,56 @@
+---
+# Stage one adapter instance into a provider's own build context.
+#
+# An Ansible role cannot be instantiated twice with different variables, and a
+# single shared adapter would end up holding every provider's credential.
+# Providers therefore include this file and run the adapter as a sidecar inside
+# their own stack, which also gives the network isolation for free: the
+# instance joins only its provider's network.
+#
+# Staging deliberately notifies nothing, which takes an explicit empty list:
+# render_replicated_templates falls back to ['compose up'] for any entry that
+# names no handler. The front-proxy step inside
+# sys-stk-full flushes handlers before the backend has rendered the
+# provider's compose file, so a notification raised here fires a compose up
+# against a project that has no compose.yml yet. rebuild.yml raises it once
+# both the context and the compose file exist.
+#
+# Param: mcp_adapter_instance_dir  build context to stage into.
+# Param: mcp_adapter_upstream_key  whether the sidecar reads a captured
+#                                  credential from an env file.
+- name: "📁 Create the MCP build context of {{ application_id }}"
+  ansible.builtin.file:
+    path: "{{ mcp_adapter_instance_dir }}"
+    state: directory
+    mode: "0755"
+  delegate_to: "{{ STACK_HOST }}"
+  become: true
+  when: mcp_adapter_upstream_key | default(false) | bool
+
+- name: "📄 Create the upstream credential file of {{ application_id }}"
+  ansible.builtin.copy:
+    content: ""
+    dest: "{{ [mcp_adapter_instance_dir, 'upstream.env'] | path_join }}"
+    mode: "0600"
+    force: false
+  delegate_to: "{{ STACK_HOST }}"
+  become: true
+  when: mcp_adapter_upstream_key | default(false) | bool
+
+- name: "📦 Stage the MCP adapter build context for {{ application_id }}"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/files/Dockerfile') }}"
+        dest: "{{ [mcp_adapter_instance_dir, 'Dockerfile'] | path_join }}"
+        mode: "0644"
+        notify: []
+      - src: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/files/policy.py') }}"
+        dest: "{{ [mcp_adapter_instance_dir, 'policy.py'] | path_join }}"
+        mode: "0644"
+        notify: []
+      - src: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/files/server.py') }}"
+        dest: "{{ [mcp_adapter_instance_dir, 'server.py'] | path_join }}"
+        mode: "0644"
+        notify: []
