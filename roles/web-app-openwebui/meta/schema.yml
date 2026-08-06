@@ -1,5 +1,11 @@
 ---
 credentials:
+  webui_secret_key:
+    description: "Signing key Open WebUI requires whenever authentication is enabled. Pinned by the deployment so a container exec sees the same value as the server,
+      which auto-generates it into the process environment only."
+    algorithm: alphanumeric
+    validation: "^[A-Za-z0-9]{32,}$"
+    length: 64
   litellm_api_key:
     description: Per-consumer virtual key for the shared svc-ai-litellm gateway
     algorithm: sk_prefixed

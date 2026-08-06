@@ -11,6 +11,9 @@ sys.path.insert(0, "/app/backend")
 
 BASE = os.environ.get("OPENWEBUI_BASE", "").rstrip("/")
 GROUPS = json.loads(os.environ.get("OPENWEBUI_MCP_GROUPS", "{}"))
+MEMBERS = json.loads(os.environ.get("OPENWEBUI_MCP_MEMBERS", "{}"))
+
+DECLARED = json.loads(os.environ.get("OPENWEBUI_MCP_CONNECTIONS", "[]"))
 ADMIN_EMAIL = os.environ.get("OPENWEBUI_ADMIN_EMAIL", "")
 ADMIN_NAME = os.environ.get("OPENWEBUI_ADMIN_NAME", "administrator")
 ADMIN_PASSWORD = os.environ.get("OPENWEBUI_ADMIN_PASSWORD", "")
@@ -82,7 +85,7 @@ def group_id(key, name):
     if len(matches) > 1:
         sys.exit(f"FAILED: {len(matches)} groups named {name}, refusing to guess")
     if matches:
-        return matches[0]["id"]
+        return matches[0]["id"], matches[0]
 
     status, body = call(
         "/api/v1/groups/create",
@@ -91,7 +94,66 @@ def group_id(key, name):
     )
     if status != 200:
         sys.exit(f"FAILED creating group {name}: {status} {body}")
-    return body["id"]
+    return body["id"], body
+
+
+async def user_ids_for(members):
+    """Return the Open WebUI ids of the users named in ``members``.
+
+    Args:
+        members: ``[{"username": ..., "email": ...}, ...]`` as granted by the
+            declarative configuration.
+
+    A member Open WebUI has never seen has no id yet, so it is skipped: the
+    OIDC login that creates the account also carries the groups claim.
+    """
+    if not members:
+        return []
+
+    from open_webui.models.users import Users
+
+    existing = (await Users.get_users()).get("users") or []
+    by_email = {str(u.email or "").lower(): u.id for u in existing}
+    by_name = {str(u.name or "").lower(): u.id for u in existing}
+
+    ids = []
+    for member in members:
+        email = str(member.get("email") or "").lower()
+        name = str(member.get("username") or "").lower()
+        found = by_email.get(email) or by_name.get(name)
+        if found and found not in ids:
+            ids.append(found)
+    return ids
+
+
+def reconcile_members(key, group, member_ids):
+    """Set a group's members to exactly ``member_ids``.
+
+    Args:
+        key: the administrator API key.
+        group: the group as the API returned it.
+        member_ids: the Open WebUI user ids that should remain.
+
+    The OIDC groups claim cannot do this on its own: Open WebUI drops a stale
+    membership only while the claim is non-empty, so a user who loses their
+    last group keeps the old one until some later login carries another. An
+    explicit write is what makes removing the last grant revoke access.
+    """
+    if sorted(group.get("user_ids") or []) == sorted(member_ids):
+        return False
+    status, body = call(
+        f"/api/v1/groups/id/{group['id']}/update",
+        key,
+        {
+            "name": group.get("name"),
+            "description": group.get("description") or "MCP tool server access",
+            "permissions": group.get("permissions"),
+            "user_ids": member_ids,
+        },
+    )
+    if status != 200:
+        sys.exit(f"FAILED updating group {group.get('name')}: {status} {body}")
+    return True
 
 
 def grant(key):
@@ -99,16 +161,19 @@ def grant(key):
     if status != 200:
         sys.exit(f"FAILED reading tool servers: {status} {body}")
 
-    connections = body.get("TOOL_SERVER_CONNECTIONS") or []
+    connections = body.get("TOOL_SERVER_CONNECTIONS") or deepcopy(DECLARED)
     before = len(connections)
     original = deepcopy(connections)
     wanted = {}
+    members_changed = False
     for connection in connections:
         server_id = (connection.get("info") or {}).get("id")
         name = GROUPS.get(server_id)
         if connection.get("type") != "mcp" or not name:
             continue
-        wanted[server_id] = group_id(key, name)
+        wanted[server_id], group = group_id(key, name)
+        member_ids = asyncio.run(user_ids_for(MEMBERS.get(server_id) or []))
+        members_changed |= reconcile_members(key, group, member_ids)
         config = connection.setdefault("config", {})
         config["access_grants"] = [
             {
@@ -120,7 +185,7 @@ def grant(key):
         config["enable"] = True
 
     if connections == original:
-        return len(wanted), False
+        return wanted, members_changed
 
     status, body = call(
         "/api/v1/configs/tool_servers", key, {"TOOL_SERVER_CONNECTIONS": connections}
@@ -150,14 +215,18 @@ def grant(key):
         if not config.get("enable"):
             sys.exit(f"FAILED: {server_id} stayed disabled after the grant was written")
 
-    return len(wanted), True
+    return wanted, True
 
 
 if __name__ == "__main__":
     admin_id, api_key, minted = asyncio.run(resolve_api_key())
     try:
-        granted, changed = grant(api_key)
+        resolved, changed = grant(api_key)
     finally:
         if minted:
             asyncio.run(drop_api_key(admin_id))
-    print(f"{'CHANGED' if changed else 'OK'} granted={granted}")
+    if GROUPS and not resolved:
+        sys.exit(f"FAILED: none of the {len(GROUPS)} declared MCP servers was granted")
+
+    print(f"{'CHANGED' if changed else 'OK'} granted={len(resolved)}")
+    print(json.dumps(resolved))

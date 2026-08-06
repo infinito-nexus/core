@@ -31,6 +31,10 @@
       - "OPENWEBUI_ADMIN_PASSWORD={{ OPENWEBUI_API_BOT_USER.password }}"
       - -e
       - "OPENWEBUI_MCP_GROUPS={{ openwebui_mcp_groups | to_json }}"
+      - -e
+      - "OPENWEBUI_MCP_MEMBERS={{ OPENWEBUI_MCP_MEMBERS | to_json }}"
+      - -e
+      - "OPENWEBUI_MCP_CONNECTIONS={{ OPENWEBUI_MCP_SERVERS | mcp_tool_server_connections(OPENWEBUI_MCP_GROUP_IDS) | to_json }}"
       - "{{ OPENWEBUI_LOCAL_CID }}" # nocheck: container-exec-resolver
       - python3
       - "-"
@@ -43,3 +47,26 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   delegate_to: "{{ OPENWEBUI_HOST_NODE }}"
   run_once: true
+
+- name: "💾 Persist each resolved group id so a bare restart keeps the grant"
+  ansible.builtin.include_role:
+    name: sys-token-store
+    tasks_from: write.yml
+  vars:
+    sys_token_store_user_key: "{{ OPENWEBUI_MCP_GROUP_OWNER }}"
+    sys_token_store_app: "{{ item.key }}"
+    sys_token_store_token: "{{ item.value }}"
+  loop: "{{ (openwebui_mcp_grants.stdout_lines | last | from_json) | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "♻️ Re-render the env now that the group ids are known"
+  stack_host_template:
+    src: "{{ role_path }}/templates/env.j2"
+    dest: "{{ lookup('container', application_id, 'files.env') }}"
+    mode: "0640"
+    force: true
+  notify: compose up
+  vars:
+    OPENWEBUI_MCP_GROUP_IDS: "{{ openwebui_mcp_grants.stdout_lines | last | from_json }}"
