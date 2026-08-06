@@ -21,6 +21,7 @@ alias i8cifo='__i8cifo(){ [ -z "${1:-}" ] && { echo "usage: i8cifo <run-id|url> 
 alias i8cire='__i8cire(){ make quality && gips && i8cifail "$1" swarm; }; __i8cire'
 alias i8co='m compose-deploy'
 alias i8co2='m console'
+alias i8coape='m compose-app-exec'
 alias i8codo='m compose-down'
 alias i8cone='m compose-entity-purge'
 alias i8coni='m compose-inner-run'

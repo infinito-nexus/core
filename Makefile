@@ -141,6 +141,16 @@ clean-sudo:
 	@echo "Removing ignored git files with sudo"
 	sudo git clean -fdX;
 
+.PHONY: compose-app-exec
+# Run a one-off command inside a deployed app container of the local compose stack.
+# Usage: make compose-app-exec app=<container> cmd="..."
+# Example: make compose-app-exec app=flowise cmd="wget -qO- http://localhost:3000/api/v1/ping"
+# Param app: container name of the deployed app.
+# Param cmd: shell command to run inside it.
+compose-app-exec:
+	@test -n '$(app)' || { echo 'usage: make compose-app-exec app=<container> cmd="..."'; exit 2; }
+	@app='$(app)' cmd='$(cmd)' bash scripts/tests/deploy/local/exec/app.sh
+
 .PHONY: compose-deploy
 # Run the local deploy router.
 # Usage: make compose-deploy [mode=...] [apps=...] [purge=...] [type=...] [bundles=...] [disable=...] [full_cycle=...] [variant=...] [debug=...]
