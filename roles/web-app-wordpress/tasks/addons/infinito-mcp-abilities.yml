@@ -1,0 +1,5 @@
+---
+- name: "🔌 Infinito MCP abilities need no integration beyond staging"
+  ansible.builtin.debug:
+    msg: "{{ application_id }}: MCP abilities register themselves on abilities_api_init"
+  changed_when: false

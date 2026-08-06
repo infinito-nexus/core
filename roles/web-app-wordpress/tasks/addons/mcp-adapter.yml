@@ -1,0 +1,10 @@
+---
+- name: "📦 Install the pinned WordPress MCP adapter from its release asset"
+  ansible.builtin.shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
+    wp plugin install
+    https://github.com/WordPress/mcp-adapter/releases/download/{{ WORDPRESS_MCP_ADAPTER_VERSION }}/mcp-adapter.zip
+    --force --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+  register: wordpress_mcp_adapter_install
+  changed_when: "'Plugin installed successfully' in wordpress_mcp_adapter_install.stdout"
+  when: IS_STACK_HOST | bool
