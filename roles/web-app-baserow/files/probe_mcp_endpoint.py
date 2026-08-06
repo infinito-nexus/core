@@ -10,6 +10,14 @@ key = os.environ["MCP_ENDPOINT_KEY"]
 TIMEOUT = 15
 STREAM_LINES = 4
 
+TRANSIENT_STATUS = frozenset({0, 429, 502, 503, 504})
+
+
+def refuse(message, status):
+    marker = "PENDING" if status in TRANSIENT_STATUS else "REJECTED"
+    sys.stderr.write(f"{marker} {message}\n")
+    sys.exit(1)
+
 
 def probe(candidate):
     """Return (status, content_type, first stream lines) of an SSE GET.
@@ -24,23 +32,20 @@ def probe(candidate):
             return response.status, response.headers.get("Content-Type", ""), lines
     except urllib.error.HTTPError as error:
         return error.code, error.headers.get("Content-Type", ""), []
+    except OSError:
+        return 0, "", []
 
 
 status, content_type, _ = probe("0" * len(key))
 if status != 401:
-    sys.stderr.write(
-        f"REJECTED unauthenticated probe answered {status} {content_type}\n"
-    )
-    sys.exit(1)
+    refuse(f"unauthenticated probe answered {status} {content_type}", status)
 
 status, content_type, lines = probe(key)
 if status != 200 or "text/event-stream" not in content_type:
-    sys.stderr.write(f"REJECTED authenticated probe answered {status} {content_type}\n")
-    sys.exit(1)
+    refuse(f"authenticated probe answered {status} {content_type}", status)
 
 stream = b"".join(lines)
 if b"event: endpoint" not in stream:
-    sys.stderr.write(f"REJECTED authenticated probe streamed {stream!r}\n")
-    sys.exit(1)
+    refuse(f"authenticated probe streamed {stream!r}", None)
 
 print("OK")
