@@ -1,6 +1,16 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "📦 Stage the {{ application_id }} build context"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "{{ lookup('path_absolute', 'roles/web-app-flowise/files/Dockerfile') }}"
+        dest: "{{ [FLOWISE_BUILD_DIR, 'Dockerfile'] | path_join }}"
+        mode: "0644"
+        notify: []
+
 - name: "🧩 load docker and db for {{ application_id }}"
   include_role:
     name: sys-stk-backend
@@ -14,3 +24,7 @@
 
 - name: "🔄 Start the stack before configuring its runtime"
   ansible.builtin.meta: flush_handlers
+
+- name: "🔌 Reconcile the MCP server registry"
+  ansible.builtin.include_tasks: 01_mcp.yml
+  when: FLOWISE_MCP_SERVERS | length > 0
