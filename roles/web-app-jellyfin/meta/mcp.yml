@@ -24,9 +24,9 @@ endpoint:
   port_key: http
 adapter:
   type: openapi_allowlist
-  image: infinito/mcp-adapter
-  version: 1.0.0
-  digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+  image: python
+  version: "3.13-slim"
+  digest: sha256:6771159cd4fa5d9bba1258caf0b82e6b73458c694d178ad97c5e925c2d0e1a91
   upstream_api_version: v1
   specification_path: roles/web-app-jellyfin/files/mcp/tools.json
   specification_sha256: sha256:08776fdcbed9f362d76e9954881a9184362da85b24e2e503f8259fd664fd85f5

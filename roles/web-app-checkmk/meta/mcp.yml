@@ -24,9 +24,9 @@ endpoint:
   port_key: http
 adapter:
   type: openapi_allowlist
-  image: infinito/mcp-adapter
-  version: 1.0.0
-  digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+  image: python
+  version: "3.13-slim"
+  digest: sha256:6771159cd4fa5d9bba1258caf0b82e6b73458c694d178ad97c5e925c2d0e1a91
   upstream_api_version: v1
   specification_path: roles/web-app-checkmk/files/mcp/tools.json
   specification_sha256: sha256:9a769b4524a2c55a12e06c6fb3d906cff1ccd7f1f3445e3543a94891a8d466be

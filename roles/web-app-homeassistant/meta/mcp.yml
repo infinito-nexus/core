@@ -18,6 +18,7 @@ allowed_consumers:
   - web-app-openwebui
   - web-app-hermes
   - web-app-openclaw
+  - web-app-flowise
 endpoint:
   service_key: homeassistant
   path: /api/mcp
