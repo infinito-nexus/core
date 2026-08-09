@@ -1,2 +1,4 @@
 ---
-roles: {}
+roles:
+  mcp:
+    description: May drive this agent's MCP clients, which reach every admitted provider with the credentials the deployment issued rather than the caller's own
