@@ -204,11 +204,11 @@ Nextcloud serves a Model Context Protocol endpoint through the AppAPI proxy of t
 
 The `context_agent` service in [`meta/services.yml`](./meta/services.yml) renders only while `mcp.enabled` is true. It runs `ghcr.io/nextcloud/context_agent`, listens on its internal port for AppAPI only, and shares `credentials.context_agent_app_secret` with the ExApp registration as `APP_SECRET`.
 
-[`tasks/03_mcp.yml`](./tasks/03_mcp.yml) waits for the ExApp heartbeat, registers the deploy daemon and the ExApp (route `^/mcp`, verbs `POST,GET,DELETE`, access level `1`), enables the ExApp, mints an app password via `occ user:auth-tokens:add`, persists it through `sys-token-store` under `users.administrator.tokens['web-app-nextcloud']`, and asserts that an authenticated `initialize` call answers `200`.
+[`tasks/utils/mcp.yml`](./tasks/utils/mcp.yml) waits for the ExApp heartbeat, registers the deploy daemon and the ExApp (route `^/mcp`, verbs `POST,GET,DELETE`, access level `1`), enables the ExApp, mints an app password via `occ user:auth-tokens:add`, persists it through `sys-token-store` under `users.administrator.tokens['web-app-nextcloud']`, and asserts that an authenticated `initialize` call answers `200`.
 
 ### Authorization subject
 
-`auth_subject: administrator`: [`tasks/03_mcp/token.yml`](./tasks/03_mcp/token.yml) mints the app password against `NEXTCLOUD_ADMINISTRATOR_USERNAME` and stores it under the `administrator` key, so every call carries that account's rights no matter who asked the client. Reaching the tool server is gated on the role's `mcp` RBAC group, which is a separate grant from administering Nextcloud.
+`auth_subject: administrator`: [`tasks/utils/mcp/token.yml`](./tasks/utils/mcp/token.yml) mints the app password against `NEXTCLOUD_ADMINISTRATOR_USERNAME` and stores it under the `administrator` key, so every call carries that account's rights no matter who asked the client. Reaching the tool server is gated on the role's `mcp` RBAC group, which is a separate grant from administering Nextcloud.
 
 ### Tool categories
 

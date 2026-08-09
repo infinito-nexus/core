@@ -147,7 +147,7 @@ The token each entry carries is the one the deployment issued, not the signed-in
 caller's own, so reaching an MCP tool server is a grant separate from signing
 in. The env renders `config.access_grants: []`, which `has_connection_access`
 reads as administrator-only, and
-[`tasks/01_mcp.yml`](./tasks/01_mcp.yml) then narrows each entry to the serving
+[`tasks/utils/mcp.yml`](./tasks/utils/mcp.yml) then narrows each entry to the serving
 role's `mcp` RBAC group.
 
 That second step exists because a group grant addresses an Open WebUI group id
@@ -196,7 +196,7 @@ reconciler or an upstream fix.
 
 **The deploy can create a role-internal administrator.** On an instance with no
 users at all there is no OIDC administrator to borrow an API key from, so
-[`tasks/01_mcp.yml`](./tasks/01_mcp.yml) creates the `openwebui-api-bot` declared
+[`tasks/utils/mcp.yml`](./tasks/utils/mcp.yml) creates the `openwebui-api-bot` declared
 in [`meta/users.yml`](./meta/users.yml), whose password the platform generates
 with every other user's. It is deliberately not an OIDC identity: Open WebUI ships
 `OAUTH_MERGE_ACCOUNTS_BY_EMAIL` disabled and refuses an OIDC login whose email a

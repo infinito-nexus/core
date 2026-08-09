@@ -174,7 +174,7 @@ the container network the key is the only guard. The key is generated as
 column) and published to MCP clients through the administrator token store
 under the `web-app-baserow` app key.
 
-`tasks/02_mcp.yml` creates a dedicated non-superuser owner
+`tasks/utils/mcp.yml` creates a dedicated non-superuser owner
 (`mcp@<canonical-domain>`, unusable password) plus its own workspace, and binds
 the endpoint to that pair. Every tool call runs as that owner and is scoped to
 that workspace, so MCP clients see only the databases created inside it. An
@@ -198,7 +198,7 @@ Shipped disabled upstream: `create_database`, `create_table`, `update_table`,
 ### Authorization subject
 
 `auth_subject: service_account`: Baserow scopes the endpoint to the account that
-owns it. [`tasks/02_mcp.yml`](./tasks/02_mcp.yml) creates a dedicated
+owns it. [`tasks/utils/mcp.yml`](./tasks/utils/mcp.yml) creates a dedicated
 `mcp@<baserow-domain>` account and issues the endpoint to it, so a call arrives
 as that account regardless of who asked the client, and the write tools above
 reach only the workspace that account owns. Reaching the tool server is gated on
