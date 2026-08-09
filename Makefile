@@ -151,6 +151,16 @@ compose-app-exec:
 	@test -n '$(app)' || { echo 'usage: make compose-app-exec app=<container> cmd="..."'; exit 2; }
 	@app='$(app)' cmd='$(cmd)' bash scripts/tests/deploy/local/exec/app.sh
 
+.PHONY: compose-app-logs
+# Dump the logs of a deployed app container of the local compose stack.
+# Usage: make compose-app-logs app=<container> [tail=<lines>]
+# Example: make compose-app-logs app=litellm tail=80
+# Param app: container name of the deployed app.
+# Param tail: number of trailing lines (default: 200).
+compose-app-logs:
+	@test -n '$(app)' || { echo 'usage: make compose-app-logs app=<container> [tail=<lines>]'; exit 2; }
+	@app='$(app)' tail='$(tail)' bash scripts/tests/deploy/local/exec/logs.sh
+
 .PHONY: compose-deploy
 # Run the local deploy router.
 # Usage: make compose-deploy [mode=...] [apps=...] [purge=...] [type=...] [bundles=...] [disable=...] [full_cycle=...] [variant=...] [debug=...]
