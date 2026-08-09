@@ -11,6 +11,7 @@ regressions surface with a precise failure rather than a snapshot diff.
 from __future__ import annotations
 
 import unittest
+from typing import ClassVar
 
 from utils.networks.render import (
     _coerce_bool,
@@ -67,7 +68,9 @@ class TestCoerceBool(unittest.TestCase):
 
 
 class TestMcpClientConsumer(unittest.TestCase):
-    """Only an MCP client joins a provider's network, never another server."""
+    """Only a client the provider admitted joins its network."""
+
+    ADMITTED: ClassVar[dict] = {"mcp.allowed_consumers": ["svc-db-qdrant"]}
 
     def _consumer(self, **flags):
         entry = {
@@ -88,6 +91,7 @@ class TestMcpClientConsumer(unittest.TestCase):
                     "mcp.enabled": True,
                     "mcp.shared": True,
                     "mcp.direction": "client",
+                    **self.ADMITTED,
                 }
             )
         )
@@ -99,6 +103,7 @@ class TestMcpClientConsumer(unittest.TestCase):
                     "mcp.enabled": True,
                     "mcp.shared": True,
                     "mcp.direction": "both",
+                    **self.ADMITTED,
                 }
             )
         )
@@ -117,6 +122,81 @@ class TestMcpClientConsumer(unittest.TestCase):
 
     def test_disabled_stays_out(self):
         self.assertFalse(self._consumer(**{"mcp.direction": "client"}))
+
+    def test_an_unadmitted_client_stays_out(self):
+        self.assertFalse(
+            self._consumer(
+                **{
+                    "mcp.enabled": True,
+                    "mcp.shared": True,
+                    "mcp.direction": "client",
+                    "mcp.allowed_consumers": ["web-app-openwebui"],
+                }
+            ),
+            "being a client is not an admission; allowed_consumers decides",
+        )
+
+    def test_a_provider_naming_nobody_admits_nobody(self):
+        self.assertFalse(
+            self._consumer(
+                **{
+                    "mcp.enabled": True,
+                    "mcp.shared": True,
+                    "mcp.direction": "client",
+                    "mcp.allowed_consumers": [],
+                }
+            )
+        )
+
+
+class TestConsumerKindList(unittest.TestCase):
+    """A provider serving two kinds of consumer declares both on one overlay.
+
+    Qdrant is the case: applications consume it as a vector database through the
+    services flags, and MCP clients must reach its adapter. One overlay per role
+    means a single `kind` cannot express both, and the second consumer silently
+    has no route.
+    """
+
+    ENTRY: ClassVar[dict] = {
+        "role": "svc-db-qdrant",
+        "entity_name": "qdrant",
+        "overlay": {
+            "consumer": {"kind": ["services_flags", "mcp_client"], "key": "qdrant"}
+        },
+    }
+
+    def _consumer(self, application_id, **flags):
+        return _is_consumer(
+            self.ENTRY,
+            application_id,
+            _const_lookup_config(**flags),
+            _const_lookup_database(),
+        )
+
+    def test_a_service_consumer_still_joins(self):
+        self.assertTrue(
+            self._consumer(
+                "web-app-openwebui",
+                **{"services.qdrant.enabled": True, "services.qdrant.shared": True},
+            )
+        )
+
+    def test_an_admitted_mcp_client_joins(self):
+        self.assertTrue(
+            self._consumer(
+                "web-app-hermes",
+                **{
+                    "mcp.enabled": True,
+                    "mcp.shared": True,
+                    "mcp.direction": "client",
+                    "mcp.allowed_consumers": ["web-app-hermes"],
+                },
+            )
+        )
+
+    def test_a_role_matching_neither_kind_stays_out(self):
+        self.assertFalse(self._consumer("web-app-unrelated"))
 
 
 class TestSuppressDefault(unittest.TestCase):

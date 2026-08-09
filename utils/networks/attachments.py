@@ -22,7 +22,24 @@ def _is_consumer(
 ) -> bool:
     overlay = entry.get("overlay") or {}
     consumer = overlay.get("consumer") or {}
-    kind = consumer.get("kind") or "services_flags"
+    declared = consumer.get("kind") or "services_flags"
+    kinds = declared if isinstance(declared, list) else [declared]
+    return any(
+        _matches_kind(
+            str(kind), entry, consumer, application_id, lookup_config, lookup_database
+        )
+        for kind in kinds
+    )
+
+
+def _matches_kind(
+    kind: str,
+    entry: dict[str, Any],
+    consumer: dict[str, Any],
+    application_id: str,
+    lookup_config: Callable[[str, str, Any], Any],
+    lookup_database: Callable[[str, str], Any],
+) -> bool:
     if kind == "database":
         if not _coerce_bool(lookup_database(application_id, "enabled")):
             return False
@@ -46,7 +63,10 @@ def _is_consumer(
         direction = str(
             lookup_config(application_id, "mcp.direction", "") or ""
         ).strip()
-        return direction in ("client", "both")
+        if direction not in ("client", "both"):
+            return False
+        admitted = lookup_config(entry.get("role") or "", "mcp.allowed_consumers", [])
+        return application_id in (admitted or [])
     if kind == "web_facing":
         return application_id.startswith(("web-app-", "web-svc-"))
     return False
