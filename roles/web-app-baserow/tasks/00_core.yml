@@ -25,5 +25,5 @@
   when: IS_STACK_HOST | bool
 
 - name: "🔌 Provision the MCP server surface"
-  include_tasks: 02_mcp.yml
+  include_tasks: utils/mcp.yml
   when: BASEROW_MCP_ENABLED | bool

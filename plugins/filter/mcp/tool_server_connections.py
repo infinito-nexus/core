@@ -14,7 +14,7 @@ apply on every start, because ``ENABLE_PERSISTENT_CONFIG=false`` makes this env
 authoritative again after a restart.
 
 The group id exists only once Open WebUI has minted it, so the first deploy
-renders the entry disabled, ``tasks/01_mcp.yml`` resolves the group through the
+renders the entry disabled, ``tasks/utils/mcp.yml`` resolves the group through the
 API and persists the id, and every later render carries the grant in the env
 itself. That is what makes a bare container restart converge: the env it reads
 on start already says who may reach the server.

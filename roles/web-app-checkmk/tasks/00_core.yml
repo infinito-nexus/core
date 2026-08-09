@@ -18,5 +18,5 @@
   when: IS_STACK_HOST | bool
 
 - name: "🔌 Serve MCP from {{ application_id }}"
-  ansible.builtin.include_tasks: 02_mcp.yml
+  ansible.builtin.include_tasks: utils/mcp.yml
   when: CHECKMK_MCP_ENABLED | bool

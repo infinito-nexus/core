@@ -22,5 +22,5 @@
   meta: flush_handlers
 
 - name: "🔌 Provision the MCP server surface"
-  ansible.builtin.include_tasks: 01_mcp.yml
+  ansible.builtin.include_tasks: utils/mcp.yml
   when: HOMEASSISTANT_MCP_ENABLED | bool

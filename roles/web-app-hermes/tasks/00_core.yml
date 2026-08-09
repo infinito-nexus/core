@@ -11,22 +11,8 @@
   include_role:
     name: sys-stk-full
 
-- name: "📄 Render the Hermes agent config (discovered MCP servers)"
-  ansible.builtin.include_tasks:
-    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
-  vars:
-    role_templates:
-      - src: "config.yaml.j2"
-        dest: "{{ HERMES_CONFIG_PATH_HOST }}"
-        owner: "{{ HERMES_DOCKER_USER_ID }}"
-        group: "{{ HERMES_DOCKER_USER_ID }}"
-
-- name: "🔄 Start the stack before reading its runtime"
-  ansible.builtin.meta: flush_handlers
-
-- name: "🔌 Prove the configured MCP servers answer"
-  ansible.builtin.include_tasks: 01_mcp_assert.yml
-  when: HERMES_MCP_SERVERS | length > 0
+- name: "🔌 Configure the Hermes MCP surface"
+  ansible.builtin.include_tasks: utils/mcp.yml
 
 - name: "🛡️ Prove the isolation {{ application_id }} promises"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-virt-kata/tasks/utils/assert_isolated.yml') }}"

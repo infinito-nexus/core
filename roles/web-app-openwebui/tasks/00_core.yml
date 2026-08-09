@@ -11,5 +11,5 @@
   ansible.builtin.meta: flush_handlers
 
 - name: "🔌 Provision MCP tool-server access grants"
-  ansible.builtin.include_tasks: 01_mcp.yml
+  ansible.builtin.include_tasks: utils/mcp.yml
   when: OPENWEBUI_MCP_SERVERS | length > 0
