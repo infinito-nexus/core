@@ -61,7 +61,7 @@ peertube:
   enabled: true # nocheck: dynamic-flag
   shared: true
   name: peertube
-  version: v8.2.2
+  version: v8.2.4
   image: chocobozzz/peertube
   min_storage: 841MB
   live:

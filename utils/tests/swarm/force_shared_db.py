@@ -76,6 +76,7 @@ def force_shared_true(host_vars_file: Path, db_keys: set[str]) -> bool:
             if (
                 svc_name in db_keys
                 and isinstance(svc, CommentedMap)
+                and svc.get("enabled") is not False
                 and svc.get("shared") is not True
             ):
                 svc["shared"] = True

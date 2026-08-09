@@ -11,7 +11,7 @@ Counterpart to ``tests/external/update/docker/test_image_versions.py``
 from-source builds, plugin and build-helper repos).
 The shared discovery / version logic lives in
 :mod:`utils.update.repository`; the CI auto-update job at
-``.github/workflows/update.yml`` (``update-repository-refs``) consumes
+``.github/workflows/cron-update.yml`` (``update-repository-refs``) consumes
 the same module to open PRs against ``main``.
 
 External test: depends on live ``git ls-remote`` calls against the
@@ -78,7 +78,6 @@ class TestRepositoryVersions(unittest.TestCase):
                     line=u.entry.line,
                 )
 
-        # Always pass — outdated refs are warnings, not hard failures.
         self.assertIsNotNone(entries)
 
 

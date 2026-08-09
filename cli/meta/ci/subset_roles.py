@@ -2,7 +2,7 @@
 
 Activated by the ``🧩 Subset`` label: the entry-pull-request workflow only
 runs this module when the label is present. It gives fork contributors the
-selective-CI capability that ``entry-manual.yml`` (``workflow_dispatch``)
+selective-CI capability that ``entry-manual-steer.yml`` (``workflow_dispatch``)
 grants maintainers, which forks cannot trigger.
 
 It reads the PR body from ``$PR_BODY``, extracts the first fenced code block

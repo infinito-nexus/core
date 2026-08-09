@@ -66,13 +66,13 @@ Compute scope from `git diff --name-only origin/main...<branch>`.
 - `distros`: a change counts as **distro-specific** only if the diff is confined to either
   - files under `packaging/<distro>/` for one or more specific distros, or
   - role tasks gated by a distro conditional (e.g. `when: ansible_os_family == '...'`, `when: ansible_distribution == '...'`), touching only the branches for one or more specific distros.
-  Pass those distros as a space-separated list via `-f distros="<distros>"`. In every other case, omit `-f distros`; `entry-manual.yml` then applies its own default (currently `debian` only, it does NOT run all distros).
+  Pass those distros as a space-separated list via `-f distros="<distros>"`. In every other case, omit `-f distros`; `entry-manual-steer.yml` then applies its own default (currently `debian` only, it does NOT run all distros).
 
 Before triggering, capture the currently latest run id for this workflow+branch as `<prev-run-id>` (empty string if none exists). This is required so the post-trigger resolve can distinguish the new run from any stale completed run on the same branch:
 
 ```
 gh run list \
-  --workflow=entry-manual.yml \
+  --workflow=entry-manual-steer.yml \
   --branch=<branch> \
   --event=workflow_dispatch \
   --limit=1 \
@@ -83,7 +83,7 @@ gh run list \
 Then trigger:
 
 ```
-gh workflow run entry-manual.yml --ref <branch> \
+gh workflow run entry-manual-steer.yml --ref <branch> \
   [-f distros="<distros>"] \
   [-f whitelist="<role>"]
 ```

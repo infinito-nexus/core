@@ -15,7 +15,7 @@ class TestSubsetRoles(unittest.TestCase):
 
     The "no subset label" case (existing diff behaviour stays unchanged) is
     covered by test_diff_affected_roles.py: this module only ever runs when
-    the label gates it in entry-pull-request-change.yml.
+    the label gates it in entry-pr-change-orchestrate.yml.
     """
 
     def _run(self, body: str):

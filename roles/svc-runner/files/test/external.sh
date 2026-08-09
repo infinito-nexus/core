@@ -40,7 +40,7 @@ dispatch_http=$(${CURL} -sf -o /dev/null -w "%{http_code}" \
     -X POST \
     -H "Authorization: Bearer ${RUNNER_API_TOKEN}" \
     -H "Accept: application/vnd.github+json" \
-    "https://api.github.com/repos/${RUNNER_GITHUB_OWNER}/${RUNNER_GITHUB_REPO}/actions/workflows/test-runner-smoke.yml/dispatches" \
+    "https://api.github.com/repos/${RUNNER_GITHUB_OWNER}/${RUNNER_GITHUB_REPO}/actions/workflows/call-test-runner-smoke.yml/dispatches" \
     -d "{\"ref\":\"${RUNNER_GIT_REF}\"}" \
     || echo "000")
 
@@ -57,7 +57,7 @@ else
         if ! runs_json=$(${CURL} -sf \
             -H "Authorization: Bearer ${RUNNER_API_TOKEN}" \
             -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${RUNNER_GITHUB_OWNER}/${RUNNER_GITHUB_REPO}/actions/workflows/test-runner-smoke.yml/runs?per_page=10"); then
+            "https://api.github.com/repos/${RUNNER_GITHUB_OWNER}/${RUNNER_GITHUB_REPO}/actions/workflows/call-test-runner-smoke.yml/runs?per_page=10"); then
             echo "FAIL: GitHub API unreachable while polling for smoke run"
             exit 1
         fi

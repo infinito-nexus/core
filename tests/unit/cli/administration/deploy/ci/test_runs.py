@@ -220,12 +220,57 @@ class TestSlugFromUrl(unittest.TestCase):
             runs.slug_from_url("https://example.com/x/y")
 
 
+class TestInputsFromJobs(unittest.TestCase):
+    """The title truncates; a called job's log does not."""
+
+    LOG: ClassVar[str] = "\n".join(
+        [
+            "2026-08-08T10:22:59.5Z ##[group] Inputs",
+            "2026-08-08T10:22:59.5Z   distros: arch",
+            "2026-08-08T10:22:59.5Z   whitelist: ",
+            "2026-08-08T10:22:59.5Z   priority: "
+            + " ".join(f"web-app-{n}" for n in range(69)),
+            "2026-08-08T10:22:59.5Z   mode_fail_fast: true",
+            "2026-08-08T10:22:59.5Z ##[endgroup]",
+            "2026-08-08T10:22:59.6Z ##[group]Run echo hi",
+            "2026-08-08T10:22:59.6Z   priority: not-an-input",
+        ]
+    )
+
+    def test_reads_the_full_priority_from_the_first_called_job(self) -> None:
+        jobs = [
+            {"name": "🎲 Pick distro(s)", "databaseId": 1},
+            {"name": "🎛️ Orchestrate CI (manual) / 🏁 Finish pipeline", "databaseId": 2},
+        ]
+        seen: list[list[str]] = []
+
+        def fake_gh(args: list[str], repo: str | None = None) -> str:
+            seen.append(args)
+            return self.LOG
+
+        original = runs._gh
+        runs._gh = fake_gh
+        try:
+            inputs = runs.inputs_from_jobs(jobs, "o/r")
+        finally:
+            runs._gh = original
+
+        self.assertEqual(seen, [["api", "repos/o/r/actions/jobs/2/logs"]])
+        self.assertEqual(len(inputs["priority"].split()), 69)
+        self.assertEqual(inputs["distros"], "arch")
+        self.assertEqual(inputs["whitelist"], "")
+        self.assertEqual(inputs["mode_fail_fast"], "true")
+
+    def test_a_run_without_a_called_job_reads_nothing(self) -> None:
+        self.assertEqual(runs.inputs_from_jobs([{"name": "🎲 Pick"}], "o/r"), {})
+
+
 class TestConfigFromTitle(unittest.TestCase):
     """A retrigger has to reproduce the source run's configuration.
 
     The REST API answers ``inputs: null`` for a finished workflow_dispatch, so
-    the run title entry-manual.yml builds is the only record of it. Guessing
-    wrong is silent: entry-manual.yml defaults to debian alone, so a failure
+    the run title entry-manual-steer.yml builds is the only record of it. Guessing
+    wrong is silent: entry-manual-steer.yml defaults to debian alone, so a failure
     that only reproduces on centos comes back green.
     """
 
@@ -277,15 +322,18 @@ class TestConfigFromTitle(unittest.TestCase):
                 )
 
     def test_priority_roles_without_any_job_are_reported(self) -> None:
-        title = render({"priority": "web-app-a web-app-b web-app-c"})
         statuses = {"web-app-a": {"swarm": "failure"}}
         self.assertEqual(
-            runs.untriggered_priority(title, statuses), ["web-app-b", "web-app-c"]
+            runs.untriggered_priority("web-app-a web-app-b web-app-c", statuses),
+            ["web-app-b", "web-app-c"],
         )
 
     def test_a_run_without_a_priority_line_reports_nothing(self) -> None:
-        title = render({"distros": "debian"})
-        self.assertEqual(runs.untriggered_priority(title, {}), [])
+        self.assertEqual(runs.untriggered_priority("", {}), [])
+
+    def test_a_truncated_priority_entry_aborts_instead_of_passing_through(self) -> None:
+        with self.assertRaises(SystemExit):
+            runs.untriggered_priority("web-app-a 网络应用·Funkwha...", {})
 
     def test_a_job_list_without_a_distro_group_adds_nothing(self) -> None:
         title = render({"sequencing": "serial"})

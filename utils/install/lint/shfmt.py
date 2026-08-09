@@ -7,7 +7,8 @@ import platform
 import tempfile
 from pathlib import Path
 
-from utils.install.github_release import download_release_asset, resolve_latest_tag
+from utils.install.github_release import download_release_asset
+from utils.install.lint.pinned import resolve_release
 from utils.install.primitives import (
     ensure_dir_on_path,
     install_with_optional_sudo,
@@ -16,7 +17,6 @@ from utils.install.primitives import (
 )
 from utils.install.system_pkg import detect_package_manager, install_command_via_pkg
 
-_LATEST_URL = "https://github.com/mvdan/sh/releases/latest"
 _DEFAULT_INSTALL_DIR = os.environ.get("SHFMT_INSTALL_DIR", "/usr/local/bin")
 
 
@@ -42,24 +42,14 @@ def _detect_arch() -> str:
     raise RuntimeError(f"Unsupported architecture for shfmt prebuilt binary: {machine}")
 
 
-def _resolve_version() -> str:
-    requested = os.environ.get("SHFMT_VERSION", "latest").lstrip("v")
-    if requested != "latest":
-        return requested
-    return resolve_latest_tag(_LATEST_URL)
-
-
 def _install_binary() -> None:
-    version = _resolve_version()
+    slug, version = resolve_release("shfmt")
     os_name = _detect_os()
     arch = _detect_arch()
     asset_name = f"shfmt_v{version}_{os_name}_{arch}"
-    url = f"https://github.com/mvdan/sh/releases/download/v{version}/{asset_name}"
+    url = f"https://github.com/{slug}/releases/download/v{version}/{asset_name}"
 
-    if os.environ.get("SHFMT_VERSION", "latest").lstrip("v") == "latest":
-        log(f"Installing latest shfmt (resolved to v{version}) from GitHub releases")
-    else:
-        log(f"Installing shfmt v{version} from GitHub releases")
+    log(f"Installing shfmt v{version} from GitHub releases")
 
     with tempfile.TemporaryDirectory() as tmpdir:
         binary_path = str(Path(tmpdir) / "shfmt")

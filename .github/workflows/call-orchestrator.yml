@@ -117,7 +117,7 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          WORKFLOW_FILE: entry-pull-request-change.yml
+          WORKFLOW_FILE: entry-pr-change-orchestrate.yml
           TARGET_EVENT: pull_request_target
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
@@ -142,16 +142,16 @@ jobs:
         run: ./scripts/github/gate/fork_prereqs.sh
 
   security-codeql:
-    uses: ./.github/workflows/security-codeql.yml
+    uses: ./.github/workflows/cron-security-codeql.yml
 
   lint:
-    uses: ./.github/workflows/lint.yml
+    uses: ./.github/workflows/call-lint.yml
 
   test:
-    uses: ./.github/workflows/test.yml
+    uses: ./.github/workflows/call-test.yml
 
   build-ci-images:
-    uses: ./.github/workflows/images-build-ci.yml
+    uses: ./.github/workflows/call-images-build-ci.yml
     with:
       distros: "arch debian ubuntu fedora centos"
       concurrency_channel: ci-orchestrator-build-consumer
@@ -160,12 +160,12 @@ jobs:
   test-dns:
     needs: 
       - build-ci-images
-    uses: ./.github/workflows/test-dns.yml
+    uses: ./.github/workflows/call-test-dns.yml
     with:
       distros: "arch debian ubuntu fedora centos"
   
   images-mirror-missing:
-    uses: ./.github/workflows/images-mirror-missing.yml
+    uses: ./.github/workflows/call-images-mirror-missing.yml
     with:
       concurrency_channel: ci-orchestrator-mirror-consumer
       image_wait_attempts: ${{ inputs.image_wait_attempts }}
@@ -240,7 +240,7 @@ jobs:
       - test
       - build-ci-images
       - images-mirror-missing
-    uses: ./.github/workflows/test-deploy-swarm.yml
+    uses: ./.github/workflows/call-test-deploy-swarm.yml
     with:
       distros: ${{ inputs.distros }}
       whitelist: ${{ inputs.priority }}
@@ -260,7 +260,7 @@ jobs:
       - lint
       - test
       - sequencing
-    uses: ./.github/workflows/test-deploy-single-node.yml
+    uses: ./.github/workflows/call-test-deploy-single-node.yml
     with:
       distros: ${{ inputs.distros }}
       whitelist: ${{ inputs.priority }}
@@ -289,7 +289,7 @@ jobs:
       - test
       - sequencing
       - test-deploy-swarm-priority
-    uses: ./.github/workflows/test-deploy-compose.yml
+    uses: ./.github/workflows/call-test-deploy-compose.yml
     with:
       distros: ${{ inputs.distros }}
       whitelist: ${{ inputs.priority }}
@@ -317,7 +317,7 @@ jobs:
       - test
       - sequencing
       - test-deploy-compose-priority
-    uses: ./.github/workflows/test-deploy-host.yml
+    uses: ./.github/workflows/call-test-deploy-host.yml
     with:
       distros: ${{ inputs.distros }}
       whitelist: ${{ inputs.priority }}
@@ -348,7 +348,7 @@ jobs:
       - test-deploy-swarm-priority
       - lint
       - test
-    uses: ./.github/workflows/test-deploy-swarm.yml
+    uses: ./.github/workflows/call-test-deploy-swarm.yml
     with:
       distros: ${{ inputs.distros }}
       whitelist: ${{ inputs.whitelist }}
@@ -380,7 +380,7 @@ jobs:
       - test-deploy-swarm-priority
       - lint
       - test
-    uses: ./.github/workflows/test-deploy-single-node.yml
+    uses: ./.github/workflows/call-test-deploy-single-node.yml
     with:
       distros: ${{ inputs.distros }}
       whitelist: ${{ inputs.whitelist }}
@@ -416,7 +416,7 @@ jobs:
       - test-deploy-swarm
       - lint
       - test
-    uses: ./.github/workflows/test-deploy-compose.yml
+    uses: ./.github/workflows/call-test-deploy-compose.yml
     with:
       distros: ${{ inputs.distros }}
       whitelist: ${{ inputs.whitelist }}
@@ -451,7 +451,7 @@ jobs:
       - test-deploy-compose
       - lint
       - test
-    uses: ./.github/workflows/test-deploy-host.yml
+    uses: ./.github/workflows/call-test-deploy-host.yml
     with:
       distros: ${{ inputs.distros }}
       whitelist: ${{ inputs.whitelist }}
@@ -464,29 +464,33 @@ jobs:
     needs:
       - test-deploy-swarm
     if: ${{ always() && vars.CI_SELF_HOSTED_RUNNER_COUNT != '0' && vars.CI_SELF_HOSTED_RUNNER_COUNT != '' && (needs.test-deploy-swarm.result == 'success' || needs.test-deploy-swarm.result == 'failure') }}
-    uses: ./.github/workflows/test-runner-smoke.yml
+    uses: ./.github/workflows/call-test-runner-smoke.yml
     with:
       ref: ${{ github.sha }}
     secrets: inherit
 
   test-install-make:
-    uses: ./.github/workflows/test-install-make.yml
+    uses: ./.github/workflows/call-test-install-make.yml
   test-install-pkgmgr:
-    uses: ./.github/workflows/test-install-pkgmgr.yml
+    uses: ./.github/workflows/call-test-install-pkgmgr.yml
 
   test-workspace:
     if: ${{ inputs.workspace == 'true' || (inputs.workspace == 'auto' && (inputs.whitelist == '' || inputs.whitelist == '__ALL__')) }}
-    uses: ./.github/workflows/test-workspace.yml
+    uses: ./.github/workflows/call-test-workspace.yml
     needs:
       - images-mirror-missing
+      - lint
+      - test
     secrets: inherit
 
   test-instructions:
     if: ${{ inputs.instructions == 'true' || (inputs.instructions == 'auto' && (inputs.whitelist == '' || inputs.whitelist == '__ALL__')) }}
-    uses: ./.github/workflows/test-instructions.yml
+    uses: ./.github/workflows/call-test-instructions.yml
     needs:
       - images-mirror-missing
       - build-ci-images
+      - lint
+      - test
     with:
       distros: ${{ inputs.distros }}
     secrets: inherit

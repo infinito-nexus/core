@@ -1,6 +1,6 @@
 """Recover a manual CI run's inputs from its run name.
 
-``entry-manual.yml`` declares a ``run-name:`` that interpolates the dispatch
+``entry-manual-steer.yml`` declares a ``run-name:`` that interpolates the dispatch
 inputs. Once a run has started, that title is the only record of them: the
 REST API answers ``inputs: null`` for a workflow_dispatch run. Anything that
 wants to know what a run was dispatched with therefore parses the title — and
@@ -22,7 +22,7 @@ import re
 from utils.cache.files import PROJECT_ROOT
 from utils.cache.yaml import load_yaml
 
-WORKFLOW = PROJECT_ROOT / ".github" / "workflows" / "entry-manual.yml"
+WORKFLOW = PROJECT_ROOT / ".github" / "workflows" / "entry-manual-steer.yml"
 
 VALUE_GLYPHS = {"是": "true", "否": "false", "序": "serial", "并": "parallel"}
 

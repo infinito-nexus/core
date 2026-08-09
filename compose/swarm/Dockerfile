@@ -29,7 +29,7 @@ FROM ${INFINITO_IMAGE}
 RUN set -eux; \
     if command -v apt-get >/dev/null 2>&1; then \
         apt-get update -qq; \
-        apt-get install -y -qq --no-install-recommends dnsmasq openssh-server cryptsetup e2fsprogs elfutils kmod; \
+        apt-get install -y -qq --no-install-recommends dnsmasq openssh-server cryptsetup e2fsprogs elfutils kmod python3-apt; \
         rm -rf /var/lib/apt/lists/*; \
     elif command -v dnf >/dev/null 2>&1; then \
         dnf install -y dnsmasq openssh-server cryptsetup e2fsprogs elfutils kmod; \

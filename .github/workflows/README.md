@@ -10,8 +10,8 @@ inputs and descriptions: [workflows.md](../../docs/contributing/tools/github/act
 ```mermaid
 flowchart TB
     push["push: main, feature/**, hotfix/**, fix/**"] --> epl["entry-push-latest.yml"]
-    pr["pull_request: opened, synchronize, reopened, ready_for_review"] --> eprc["entry-pull-request-change.yml"]
-    dispatch["workflow_dispatch"] --> eman["entry-manual.yml"]
+    pr["pull_request: opened, synchronize, reopened, ready_for_review"] --> eprc["entry-pr-change-orchestrate.yml"]
+    dispatch["workflow_dispatch"] --> eman["entry-manual-steer.yml"]
 
     epl --> orch["ci-orchestrator.yml"]
     epl -->|"version tag on main"| relv["release-version.yml"]
@@ -25,7 +25,7 @@ flowchart TB
 
         lintwf["lint.yml: make lint + hadolint"]
         testwf["test.yml: make test"]
-        codeql["security-codeql.yml"]
+        codeql["cron-security-codeql.yml"]
         buildci["build-ci-images: images-build-ci.yml"] --> dns["test-dns.yml"]
         mirror["images-mirror-missing.yml"]
         seq["sequencing: serial or parallel, per line"]
@@ -166,7 +166,7 @@ first failed mode:
 
 `skipped` counts as passed, so a mode absent from `modes` never blocks the
 chain. The parallel layout ignores the switch — with no order there is nothing
-to stop. The setting is a checkbox on `entry-manual.yml`; the other entry
+to stop. The setting is a checkbox on `entry-manual-steer.yml`; the other entry
 points take the default.
 
 ### Job budget
@@ -181,8 +181,8 @@ of its single discover job.
 
 ```mermaid
 flowchart TB
-    prclose["pull_request_target: closed, converted_to_draft"] --> eprcancel["entry-pull-request-cancel.yml"]
-    branchdelete["delete: branch"] --> delbranch["delete-branch.yml"]
+    prclose["pull_request_target: closed, converted_to_draft"] --> eprcancel["entry-pr-closed-cancel-workflows.yml"]
+    branchdelete["delete: branch"] --> delbranch["entry-delete-branch.yml"]
     eprcancel -.->|"cancels concurrency group"| runningci["running entry + child workflow runs"]
     delbranch -.->|"cancels concurrency group"| runningci
 ```
@@ -191,15 +191,15 @@ flowchart TB
 
 ```mermaid
 flowchart TB
-    daily["schedule: daily 00:00 UTC"] --> mirrorall["images-mirror-all.yml"]
-    daily --> stale["cleanup-stale.yml"]
-    daily --> relhighest["release-highest.yml"]
-    weekly["schedule: weekly Sat 00:00 UTC"] --> updatewf["update.yml"]
-    weekly --> cleanupci["images-cleanup-ci.yml"]
-    weeklymon["schedule: weekly Mon 00:00 UTC"] --> scorecard["security-scorecard.yml"]
+    daily["schedule: daily 00:00 UTC"] --> mirrorall["cron-images-mirror-all.yml"]
+    daily --> stale["cron-cleanup-stale.yml"]
+    daily --> relhighest["cron-release-highest.yml"]
+    weekly["schedule: weekly Sat 00:00 UTC"] --> updatewf["cron-update.yml"]
+    weekly --> cleanupci["cron-images-cleanup-ci.yml"]
+    weeklymon["schedule: weekly Mon 00:00 UTC"] --> scorecard["cron-security-scorecard.yml"]
     branchprot["branch_protection_rule"] --> scorecard
     pushmain["push: main"] --> updatewf
-    prtarget["pull_request_target: opened, reopened"] --> depclose["dependabot-close.yml"]
+    prtarget["pull_request_target: opened, reopened"] --> depclose["entry-pr-open-dependabot-close.yml"]
 
     relhighest -.->|"gh workflow run"| relver["release-version.yml"]
     relver --> imgbuildci["images-build-ci.yml"]
@@ -207,7 +207,7 @@ flowchart TB
     manual --> deploywf["test-instructions.yml: run a role README Production command"]
 ```
 
-Also manually dispatchable: `images-mirror-all.yml`, `images-cleanup-ci.yml`,
-`cleanup-stale.yml`, `update.yml`, `release-highest.yml`, `release-version.yml`,
-`lint.yml`, `test.yml`, `test-deploy-swarm.yml`, `test-dns.yml`,
+Also manually dispatchable: `cron-images-mirror-all.yml`, `cron-images-cleanup-ci.yml`,
+`cron-cleanup-stale.yml`, `cron-update.yml`, `cron-release-highest.yml`, `call-release-version.yml`,
+`call-lint.yml`, `call-test.yml`, `call-test-deploy-swarm.yml`, `call-test-dns.yml`,
 `test-workspace.yml`, `test-runner-smoke.yml`.

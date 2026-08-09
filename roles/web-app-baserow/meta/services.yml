@@ -66,7 +66,7 @@ baserow:
   backup:
     no_stop_required: true
   image: baserow/baserow
-  version: 2.3.1
+  version: 2.3.3
   custom: true
   name: baserow
   min_storage: 785MB

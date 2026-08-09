@@ -8,14 +8,14 @@ Repository secrets MUST be set under **Settings → Secrets and variables → Ac
 
 | Secret | Workflow | Purpose | Required when |
 |---|---|---|---|
-| `BOT_APP_CLIENT_ID` | [update.yml](../../../../../.github/workflows/update.yml) | GitHub App Client ID (OAuth-style `Iv…` identifier shown on the App's General page) used to mint a short-lived installation token for the update PR. | `CI_ENABLE_AUTO_UPDATES == 'true'` |
-| `BOT_APP_PRIVATE_KEY` | [update.yml](../../../../../.github/workflows/update.yml) | PEM-encoded private key of the same GitHub App. Used to sign the JWT that exchanges for the installation token. | `CI_ENABLE_AUTO_UPDATES == 'true'` |
+| `BOT_APP_CLIENT_ID` | [cron-update.yml](../../../../../.github/workflows/cron-update.yml) | GitHub App Client ID (OAuth-style `Iv…` identifier shown on the App's General page) used to mint a short-lived installation token for the update PR. | `CI_ENABLE_AUTO_UPDATES == 'true'` |
+| `BOT_APP_PRIVATE_KEY` | [cron-update.yml](../../../../../.github/workflows/cron-update.yml) | PEM-encoded private key of the same GitHub App. Used to sign the JWT that exchanges for the installation token. | `CI_ENABLE_AUTO_UPDATES == 'true'` |
 
 ## `BOT_APP_CLIENT_ID` and `BOT_APP_PRIVATE_KEY` 🤖
 
 ### Why these secrets exist 🎯
 
-Actions performed with the workflow-provided `GITHUB_TOKEN` do not start further workflow runs. When [update.yml](../../../../../.github/workflows/update.yml) opens an update PR with `GITHUB_TOKEN`, the `pull_request` and `pull_request_target` events that drive [entry-pull-request-change.yml](../../../../../.github/workflows/entry-pull-request-change.yml) do not fire on that PR, so the CI orchestrator never runs against it.
+Actions performed with the workflow-provided `GITHUB_TOKEN` do not start further workflow runs. When [cron-update.yml](../../../../../.github/workflows/cron-update.yml) opens an update PR with `GITHUB_TOKEN`, the `pull_request` and `pull_request_target` events that drive [entry-pr-change-orchestrate.yml](../../../../../.github/workflows/entry-pr-change-orchestrate.yml) do not fire on that PR, so the CI orchestrator never runs against it.
 
 Opening the PR through a GitHub App installation token bypasses this restriction. The App counts as a distinct actor, so PR-lifecycle events fire normally and the full CI pipeline runs against every update PR.
 
@@ -51,7 +51,7 @@ A classic personal access token MAY be used as a fallback for unrelated automati
 
 ### How the workflow consumes the secrets ⚙️
 
-Each PR-opening job in [update.yml](../../../../../.github/workflows/update.yml) runs an `actions/create-github-app-token@v2` step gated on `steps.diff.outputs.changed == 'true'`, then forwards the minted token as `GH_TOKEN` and the resolved `APP_SLUG` to the subsequent PR step. The job's `permissions:` block keeps the workflow-provided `GITHUB_TOKEN` read-only; write access is provided exclusively by the App token, scoped to the App's repository permissions.
+Each PR-opening job in [cron-update.yml](../../../../../.github/workflows/cron-update.yml) runs an `actions/create-github-app-token@v2` step gated on `steps.diff.outputs.changed == 'true'`, then forwards the minted token as `GH_TOKEN` and the resolved `APP_SLUG` to the subsequent PR step. The job's `permissions:` block keeps the workflow-provided `GITHUB_TOKEN` read-only; write access is provided exclusively by the App token, scoped to the App's repository permissions.
 
 ### Commit identity propagation 🪪
 

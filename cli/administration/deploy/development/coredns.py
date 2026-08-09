@@ -4,13 +4,11 @@ import itertools
 import os
 import shutil
 import subprocess
+import tempfile
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 from utils.env.parser import parse_static_env
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 @dataclass(frozen=True)
@@ -116,13 +114,16 @@ class CoreDNSCorefileRenderer:
 
         env = self._load_env_file(env_file)
 
-        tmp_file = out_file.with_suffix(out_file.suffix + ".tmp")
+        fd, tmp_name = tempfile.mkstemp(
+            dir=out_file.parent, prefix=out_file.name + ".", suffix=".tmp"
+        )
+        tmp_file = Path(tmp_name)
 
         self._log("Rendering Corefile via envsubst (atomic write)")
         try:
             with (
                 tmpl_file.open("r", encoding="utf-8") as fin,
-                tmp_file.open("w", encoding="utf-8") as fout,
+                os.fdopen(fd, "w", encoding="utf-8") as fout,
             ):
                 subprocess.check_call(
                     [envsubst],
@@ -131,19 +132,20 @@ class CoreDNSCorefileRenderer:
                     env=env,
                     cwd=self.repo_root,
                 )
+
+            size = tmp_file.stat().st_size
+            if size == 0:
+                raise RuntimeError(f"Rendered Corefile is empty: {tmp_file}")
+
+            tmp_file.chmod(0o644)
+            tmp_file.replace(out_file)
         except OSError as exc:
             raise RuntimeError(
                 f"Failed to write temporary Corefile: {tmp_file}"
             ) from exc
+        finally:
+            tmp_file.unlink(missing_ok=True)
 
-        if not tmp_file.exists():
-            raise RuntimeError("envsubst did not produce an output file")
-
-        size = tmp_file.stat().st_size
-        if size == 0:
-            raise RuntimeError(f"Rendered Corefile is empty: {tmp_file}")
-
-        tmp_file.replace(out_file)
         self._log(f"Rendered successfully ({size} bytes)")
 
         if show_preview:

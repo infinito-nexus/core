@@ -1,5 +1,118 @@
 # Changelog
 
+## [12.0.0] - 2026-08-08
+
+* **Docker Swarm as a second deployment mode.** Roles can now be deployed across
+  multiple hosts instead of being limited to a single Compose stack. New
+  *svc-swarm-node* initializes the cluster, while *svc-swarm-manager* marks the Raft
+  managers in the inventory. Shared state is provided through
+  *svc-storage-nfs-server* and *svc-storage-nfs-client*. *svc-registry-docker*
+  distributes locally built images, and *svc-registry-cache* provides a Docker Hub
+  pull-through cache so additional nodes do not multiply external pulls and
+  rate-limit usage. Deployment, dependency resolution, networking, health checks and
+  role templates now understand both Compose and Swarm semantics. See the
+  [svc-swarm-node](roles/svc-swarm-node/README.md) and
+  [svc-storage-nfs-server](roles/svc-storage-nfs-server/README.md) READMEs.
+
+* **Central engines and object storage.** A new *engine* lookup extends the existing
+  shared-database pattern to non-RDBMS services. Consumers can use centrally
+  provisioned Redis, Memcached, RabbitMQ, Elasticsearch, Typesense, Qdrant and Unbound
+  instances with isolated credentials, or retain an embedded sidecar.
+  *sys-svc-objstore* and the new *objstore* lookup provide the same abstraction for
+  SeaweedFS and MinIO, with lazy provider inclusion and object-storage integration
+  across fourteen application roles.
+
+* **Backup and disaster recovery.** *svc-bkp-container-2-local* is superseded by
+  *svc-bkp-volume-2-local*, making backup policy explicit per volume. The role prefers
+  filesystem snapshots when available and can prepare btrfs hosts for snapshot-based
+  backups itself. New *svc-bkp-nfs-2-local* protects the shared NFS export,
+  *svc-bkp-secrets-2-local* captures secret material, and
+  *svc-bkp-local-2-device* synchronizes backups to mounted external media. A unified
+  *recover* CLI drives restores, while Compose recovery checks and a full Swarm
+  disaster-recovery drill continuously verify the path. Rsync no longer retains
+  superseded files as *~* copies.
+
+* **Deployment and packaging foundations.** A host deployment mode joins Compose and
+  Swarm in the deployment tooling. The former *sys-package*, *sys-aur* and
+  *sys-aur-install* roles were replaced by a distribution-independent package
+  registry. Volume metadata now uses one canonical schema, single-file mounts become
+  Swarm configs, and service placement, replica counts, dependencies, addresses and
+  health probes resolve through deployment-aware lookups.
+
+* **Isolated development worktrees.** Parallel branches can use independent stacks
+  while sharing one cache layer, preventing containers and network state from
+  colliding. New *swarm-app-exec*, *swarm-diagnostic*, zombie-cluster and cross-mode
+  roundtrip targets improve live inspection and Compose/Swarm parity testing.
+
+* **CI and diagnostics.** Deployment runs are planned separately per mode and divided
+  into starred priority and regular lines, with branch-new roles scheduled first.
+  Matrix entries serialize across branches, large lines serialize their deployment
+  modes, and failed roles can be retriggered on the original distribution set;
+  *--strict* limits this to hard failures. Cancelled runs can have their failed jobs
+  rerun, and role failures on *main* open or update dedicated issues. Deployment stages
+  are sourced from *categories.yml*.
+
+  Rescue collection now uses one indexed diagnostic pipeline covering journal and
+  kernel windows, resolver and network state, PostgreSQL activity, container-kill
+  attribution, storage devices and NFS-Ganesha thread state. The Swarm recovery drill
+  and README deployment guide run across every supported distribution. CI also varies
+  Docker's data-root filesystem so ext4, btrfs and ZFS-specific paths receive real
+  coverage.
+
+* **Testing and documentation tooling.** New *test-e2e-cli* exercises the command-line
+  interface end to end. Lint and test jobs publish per-target and per-test summaries,
+  failed target logs are replayed after the summary, and the complexity matrix shows
+  whether a role already exists on *origin/main*. Generated role READMEs now provide
+  consistent status tables, quick-start instructions and dependency diagrams.
+
+* **New lint contracts.** Port variables must resolve through lookups, scheduler
+  services must declare *replicas: 1*, and volume-owning stack roles must declare
+  their backup policy. *role_path* is forbidden in shell and command bodies.
+  Deployment-mode defaults, container-inspection resolvers, asynchronous-task
+  rationales and health-check declarations are validated centrally. Hadolint
+  directives and documented *nocheck* exceptions are recognized instead of producing
+  false positives.
+
+* **Image delivery and frontend dependencies.** Image references now resolve from
+  *meta/services.yml* as their single source of truth, replacing unpinned *latest*
+  tags. *web-app-bigbluebutton* pins its component images separately. *web-svc-cdn*
+  builds and serves mirrored frontend packages through an internal one-shot service,
+  with the package-cache CA trusted by build containers.
+
+* **Application improvements.** Penpot gained hardened OIDC, LDAP and native-login
+  variants, SeaweedFS-backed asset tests and Swarm-ready health checks. Pi-hole
+  received its v6-compatible login and password flow, Keycloak RBAC integration and
+  expanded persona coverage. Further deployment, replication and startup fixes landed
+  across Akaunting, BigBlueButton, ERPNext, Gitea, Keycloak, Magento, Mailu, Mastodon,
+  Matomo, MediaWiki, Nextcloud, OpenProject, Pixelfed, Semaphore, Taiga, WordPress,
+  XWiki and the internal CDN.
+
+* **Lifecycle promotions:** *web-app-checkmk*, *web-app-jellyfin*, *web-app-n8n*,
+  *svc-registry-docker* and *svc-registry-cache* advance to *beta*.
+
+* **Image and dependency version jumps (net since 11.6.0):**
+  * *web-app-gitlab*: omnibus *gitlab-ee* 19.1.1 to CNG component images v19.1.2
+  * *web-app-mattermost*: 11.8.3 to 11.9.0
+  * *web-app-opentalk*: v2.8.1 to v2.9.0
+  * *web-app-prometheus*: v3.13.0 to v3.13.1
+  * *web-app-joomla*: 6.1.1-php8.3-apache to 6.1.2-php8.3-apache
+  * *web-app-baserow*: 2.3.0 to 2.3.1
+  * *web-app-magento*: PHP 8.5-fpm to 8.4-fpm
+  * *backup-docker-to-local*: 3.1.1 to 3.1.3
+  * *baudolo*: pinned to 3.4.1
+
+**Removed**
+
+* *sys-package*, *sys-aur* and *sys-aur-install*, superseded by the
+  distribution-independent package registry.
+* *svc-bkp-container-2-local*, superseded by the volume-oriented backup roles.
+
+**Contributors**
+
+* [Kevin Veen-Birkenbach](https://veen.world): Swarm and NFS deployment mode,
+  central engines and object storage, backup and recovery rework, CI pipeline,
+  linting and tooling
+
 ## [11.6.0] - 2026-07-08
 
 * New *web-app-n8n* role: n8n workflow automation (Community Edition). SSO is wired through a trusted-header edge hook that is copied and mounted only when SSO is enabled (native SSO is enterprise-only in CE), LDAP sign-in is supported, and per-scenario Playwright coverage exercises the CE edge-SSO model. Ships at lifecycle *alpha*; subnet and port collisions with the new *web-app-semaphore* role were resolved on the way in. See the [web-app-n8n README](roles/web-app-n8n/README.md).

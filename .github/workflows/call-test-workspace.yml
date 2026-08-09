@@ -35,6 +35,11 @@ jobs:
     timeout-minutes: 345
     needs: prepare
 
+    concurrency:
+      group: infinito-workspace-${{ matrix.dev_runtime_image }}
+      cancel-in-progress: false
+      queue: max
+
     strategy:
       fail-fast: false
       matrix:

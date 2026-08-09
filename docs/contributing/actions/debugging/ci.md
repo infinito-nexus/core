@@ -33,7 +33,7 @@ The per-job logs carry the real failing task and its error, and the artefacts ca
 
 You SHOULD use targeted manual CI jobs instead of rerunning the full pipeline if you only need one focused check.
 
-Prefer the manual workflow in [entry-manual.yml](../../../../.github/workflows/entry-manual.yml):
+Prefer the manual workflow in [entry-manual-steer.yml](../../../../.github/workflows/entry-manual-steer.yml):
 
 - Select your branch.
 - Use `debian` unless you have a clear reason to use a different distro.

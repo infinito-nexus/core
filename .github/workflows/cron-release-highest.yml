@@ -1,4 +1,4 @@
-name: "🚀 Release: Highest Missing Version"
+name: "⏰ Release: Highest Missing Version"
 
 on:
   schedule:

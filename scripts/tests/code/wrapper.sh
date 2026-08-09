@@ -10,9 +10,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 RUN_SCRIPT="${SCRIPT_DIR}/run.sh"
 
-# Pull project-wide defaults (INFINITO_SRC_DIR, INFINITO_TEST_PATTERN, ...)
-# from the generated `.env` (single source of truth) before validating
-# anything else, so the :?-checks below see the static defaults.
 cd "${REPO_ROOT}"
 # shellcheck source=scripts/meta/env/load.sh
 source scripts/meta/env/load.sh
@@ -25,30 +22,18 @@ RUN_SCRIPT_IN_CONTAINER="${INFINITO_SRC_DIR}/scripts/tests/code/run.sh"
 
 case "${INFINITO_TEST_RUNNER}" in
 docker)
-	# INFINITO_DISTRO is sourced (with a `debian` default) from
-	# scripts/meta/env/load.sh above, so no explicit check here.
 	echo "============================================================"
 	echo ">>> Running ${INFINITO_TEST_TYPE^^} tests in ${INFINITO_DISTRO} container (compose stack)" # nocheck: makefile-supplied
 	echo "============================================================"
 
-	# Auto-bring-up: if the `infinito` container is not running, kick off
-	# `make compose-up` first so test-* doesn't fail with "service not running".
 	if ! docker compose ps -q infinito 2>/dev/null | grep -q .; then
 		echo ">>> 'infinito' container not running; starting the stack via 'make compose-up'..."
-		"${MAKE:-make}" compose-up
+		exec {lockfd}>"${REPO_ROOT}/.compose-up.lock"
+		flock "${lockfd}"
+		docker compose ps -q infinito 2>/dev/null | grep -q . || "${MAKE:-make}" compose-up
+		exec {lockfd}>&-
 	fi
 
-	# Compose auto-loads `.env` (the SPOT generated from default.env),
-	# which carries every INFINITO_* default (INFINITO_DNS_IP, INFINITO_IP4,
-	# INFINITO_DOMAIN, INFINITO_CONTAINER, INFINITO_SUBNET, ...).
-	# BASH_ENV makes `bash --login` source load.sh on startup, pulling
-	# every INFINITO_* key from the bind-mounted .env into the test
-	# runner's environment (notably INFINITO_WORKER_FETCH, otherwise the
-	# external URL probe collapses to 1 worker).
-	# Per-invocation env passed through docker exec. Built as a bash
-	# array so the inline `# nocheck:` markers between elements stay
-	# syntactically valid (a backslash-continued line cannot host an
-	# inline comment).
 	exec_env_args=(
 		-e ACT="${ACT:-}"
 		-e BASH_ENV="${INFINITO_SRC_DIR}/scripts/meta/env/load.sh"

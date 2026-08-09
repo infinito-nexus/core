@@ -139,7 +139,7 @@ jobs:
       packages: write
       security-events: write
       issues: write
-    uses: ./.github/workflows/ci-orchestrator.yml
+    uses: ./.github/workflows/call-orchestrator.yml
     with:
       distros: "arch debian ubuntu fedora centos"
       whitelist: ${{ needs.detect-affected-roles.outputs.whitelist }}
@@ -168,7 +168,7 @@ jobs:
 
   build-ci-images-fork:
     needs: prepare-fork-merge-ref
-    uses: ./.github/workflows/images-build-ci.yml
+    uses: ./.github/workflows/call-images-build-ci.yml
     with:
       distros: "arch debian ubuntu fedora centos"
       checkout_ref: ${{ needs.prepare-fork-merge-ref.outputs.trusted == 'true' && github.event.pull_request.head.sha || needs.prepare-fork-merge-ref.outputs.checkout_ref }}
@@ -179,7 +179,7 @@ jobs:
 
   images-mirror-missing-fork:
     needs: prepare-fork-merge-ref
-    uses: ./.github/workflows/images-mirror-missing.yml
+    uses: ./.github/workflows/call-images-mirror-missing.yml
     with:
       repo_root: _pr_source
       source_repository: ${{ github.repository }}

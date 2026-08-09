@@ -25,7 +25,7 @@ xmpp:
   # nocheck: single-replica
   replicas: 1
   image: ejabberd/ecs
-  version: "26.04"
+  version: "26.07"
   name: ejabberd
   ports:
     local:

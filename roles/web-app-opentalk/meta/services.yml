@@ -96,7 +96,7 @@ controller:
 livekit:
   name: opentalk-livekit
   image: livekit/livekit-server
-  version: v1.13.3
+  version: v1.13.5
   min_storage: 238MB
   cpus: "2.0"
   mem_reservation: 512m
@@ -129,7 +129,7 @@ seaweedfs:
 rabbit:
   name: opentalk-rabbit
   image: rabbitmq
-  version: 4.3.2
+  version: 4.3.4
   min_storage: 314MB
   cpus: "0.5"
   mem_reservation: 256m
@@ -138,7 +138,7 @@ rabbit:
 recorder:
   name: opentalk-recorder
   image: registry.opencode.de/opentalk/recorder
-  version: v0.16.2
+  version: v0.17.1
   min_storage: 775MB
   cpus: "1.5"
   mem_reservation: 512m

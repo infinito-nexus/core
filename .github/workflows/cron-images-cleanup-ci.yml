@@ -1,4 +1,4 @@
-name: "🧹 Images: Cleanup CI (GHCR)"
+name: "⏰ Images: Cleanup CI (GHCR)"
 
 on:
   schedule:

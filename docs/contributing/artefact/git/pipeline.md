@@ -4,15 +4,15 @@ This document describes the CI pipeline structure, entry points, and gates used 
 
 ## Overview 🗺️
 
-CI is triggered automatically on pull-request events and on pushes to the branches listed in the entry-workflow row in [workflows.md](../../tools/github/actions/workflows.md). The pipeline is composed of reusable workflow files under [.github/workflows/](../../../../.github/workflows/). The central coordinator is [ci-orchestrator.yml](../../../../.github/workflows/ci-orchestrator.yml), which is called by the entry workflows.
+CI is triggered automatically on pull-request events and on pushes to the branches listed in the entry-workflow row in [workflows.md](../../tools/github/actions/workflows.md). The pipeline is composed of reusable workflow files under [.github/workflows/](../../../../.github/workflows/). The central coordinator is [call-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml), which is called by the entry workflows.
 
 ## Entry Points 🚪
 
 Every external CI trigger MUST route through one of the entry workflows. Each entry translates its event into a call to the orchestrator; the catalog of triggers and inputs lives in [workflows.md](../../tools/github/actions/workflows.md).
 
-- [entry-pull-request-change.yml](../../../../.github/workflows/entry-pull-request-change.yml): detects PR scope and conditionally calls the orchestrator.
+- [entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml): detects PR scope and conditionally calls the orchestrator.
 - [entry-push-latest.yml](../../../../.github/workflows/entry-push-latest.yml): calls the orchestrator for pushes on the supported branch prefixes and additionally invokes the release workflow on version tags. For the contributor-facing release procedure see [release.md](../../actions/release.md).
-- [entry-manual.yml](../../../../.github/workflows/entry-manual.yml): dispatches the orchestrator manually for a chosen distro set and whitelist.
+- [entry-manual-steer.yml](../../../../.github/workflows/entry-manual-steer.yml): dispatches the orchestrator manually for a chosen distro set and whitelist.
 
 The push entry synchronizes the current repository's `main` branch from the configured source repository before CI policy and deploy discovery run.
 The default source is `infinito-nexus/core`, and `CI_SYNC_MAIN_SOURCE_REPOSITORY` MAY override or disable the sync as documented in [configuration.md](../../tools/github/actions/configuration.md).
@@ -23,7 +23,7 @@ This sync **force-overwrites** the local `main`, so on a synced repository you M
 Before the full pipeline runs, CI detects the scope of the PR based on the changed files and the branch prefix (see [branch.md](branch.md)).
 
 - Documentation-only and agent-only PRs MUST pass a lightweight gate without running the full orchestrator.
-- All other scopes MUST run the full [ci-orchestrator.yml](../../../../.github/workflows/ci-orchestrator.yml).
+- All other scopes MUST run the full [call-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml).
 - The branch prefix MUST match the detected scope, otherwise the `validate-pr-branch-prefix` job fails.
 
 ## Pipeline Stages 🏗️
@@ -40,15 +40,15 @@ The `security-codeql` job runs the CodeQL scan (catalogued in the `Security and 
 
 ### 3. Linting 🧹
 
-The `lint` job runs [lint.yml](../../../../.github/workflows/lint.yml): `make lint` fans every lint check out in parallel, plus a hadolint SARIF job. It MUST pass before the pipeline continues.
+The `lint` job runs [call-lint.yml](../../../../.github/workflows/call-lint.yml): `make lint` fans every lint check out in parallel, plus a hadolint SARIF job. It MUST pass before the pipeline continues.
 
 ### 4. CI Image Build 🐳
 
-The `build-ci-images` stage uses [images-build-ci.yml](../../../../.github/workflows/images-build-ci.yml) to build Docker images for the target distributions (`arch`, `debian`, `ubuntu`, `fedora`, `centos`). These images are consumed by all subsequent test jobs.
+The `build-ci-images` stage uses [call-images-build-ci.yml](../../../../.github/workflows/call-images-build-ci.yml) to build Docker images for the target distributions (`arch`, `debian`, `ubuntu`, `fedora`, `centos`). These images are consumed by all subsequent test jobs.
 
 ### 5. Code Tests 🧪
 
-The `test` job runs [test.yml](../../../../.github/workflows/test.yml): `make test` fans the unit, integration, lint and external suites out in parallel on the runner host. It MUST pass `code-quality-gate`.
+The `test` job runs [call-test.yml](../../../../.github/workflows/call-test.yml): `make test` fans the unit, integration, lint and external suites out in parallel on the runner host. It MUST pass `code-quality-gate`.
 
 ### 6. Code Quality Gate 🚦
 
@@ -56,11 +56,11 @@ The `code-quality-gate` requires linting, code tests, and security checks to all
 
 ### 7. DNS Tests 🌐
 
-[test-dns.yml](../../../../.github/workflows/test-dns.yml) validates DNS configuration across all target distributions.
+[call-test-dns.yml](../../../../.github/workflows/call-test-dns.yml) validates DNS configuration across all target distributions.
 
 ### 8. Image Mirroring 🪞
 
-[images-mirror-missing.yml](../../../../.github/workflows/images-mirror-missing.yml) mirrors any missing upstream images in parallel with the DNS tests so later deploy jobs pull from GHCR instead of Docker Hub, MCR, or other external registries. This shields CI from upstream rate limits, geo-blocking, and transient registry outages.
+[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) mirrors any missing upstream images in parallel with the DNS tests so later deploy jobs pull from GHCR instead of Docker Hub, MCR, or other external registries. This shields CI from upstream rate limits, geo-blocking, and transient registry outages.
 
 Fork PRs cannot publish mirror packages directly, so their runs wait for the `pull_request_target` mirror producer before continuing. The producer mirrors with the Docker Hub credentials only for trusted PRs ([🛡️ Trusted](#trusted-fork-prs-)); untrusted forks mirror anonymously (no organization secrets). See [mirror.md](../image/mirror.md) for the mirroring architecture and naming convention.
 
@@ -72,10 +72,10 @@ The two deploy-test workflows listed in the `Infrastructure tests` table of [wor
 
 #### Diff-driven app selection 🎯
 
-Both [test-deploy-compose.yml](../../../../.github/workflows/test-deploy-compose.yml) and [test-deploy-swarm.yml](../../../../.github/workflows/test-deploy-swarm.yml) narrow their app matrix to the set of roles actually impacted by the branch's diff against `origin/main`. The `discover` job resolves an effective whitelist before [output_apps.sh](../../../../scripts/github/resolve/output_apps.sh) runs, using the following precedence:
+Both [call-test-deploy-compose.yml](../../../../.github/workflows/call-test-deploy-compose.yml) and [call-test-deploy-swarm.yml](../../../../.github/workflows/call-test-deploy-swarm.yml) narrow their app matrix to the set of roles actually impacted by the branch's diff against `origin/main`. The `discover` job resolves an effective whitelist before [output_apps.sh](../../../../scripts/github/resolve/output_apps.sh) runs, using the following precedence:
 
 1. **Sentinel `__ALL__` in the `whitelist` input** (case-insensitive). The diff logic MUST be skipped and an empty whitelist MUST be emitted, which deploys everything in the workflow's scope. This is the explicit opt-out from diff narrowing for manual dispatch.
-2. **Any other non-empty `whitelist`** (forwarded from `entry-manual.yml` and similar). The explicit value MUST win over the diff and is passed through verbatim.
+2. **Any other non-empty `whitelist`** (forwarded from `entry-manual-steer.yml` and similar). The explicit value MUST win over the diff and is passed through verbatim.
 3. **Diff vs `origin/main`**, applied only when the `whitelist` input is empty:
    - **No diff at all** OR **any changed path outside `roles/<role>/...`**: no whitelist is set, so the full deploy across the workflow's scope runs.
    - **All changed paths under `roles/<role>/...`**: the changed roles become the seed set, and the whitelist is the transitive closure of those seeds expanded upwards over `run_after`, `dependencies`, and shared services. In other words, every role whose prerequisite set as defined by [combined resolver](../../../../cli/meta/roles/applications/resolution/combined/resolver.py) contains one of the seeds is included, together with the seeds themselves.
@@ -101,7 +101,7 @@ roles:
 ```
 ````
 
-With the label set, the `detect-affected-roles` job in [entry-pull-request-change.yml](../../../../.github/workflows/entry-pull-request-change.yml) calls [pr_affected_roles.sh](../../../../scripts/github/resolve/pr_affected_roles.sh), which runs the [cli.meta.ci.subset_roles](../../../../cli/meta/ci/subset_roles.py) module. The module reads the first fenced block whose YAML carries a `roles:` key (the heading text is not matched) and emits that list as the `whitelist` output, which flows into the deploy tests as precedence rung 2 above. Without the label, the diff-driven precedence applies.
+With the label set, the `detect-affected-roles` job in [entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml) calls [pr_affected_roles.sh](../../../../scripts/github/resolve/pr_affected_roles.sh), which runs the [cli.meta.ci.subset_roles](../../../../cli/meta/ci/subset_roles.py) module. The module reads the first fenced block whose YAML carries a `roles:` key (the heading text is not matched) and emits that list as the `whitelist` output, which flows into the deploy tests as precedence rung 2 above. Without the label, the diff-driven precedence applies.
 
 The subset path fails the run when:
 
@@ -128,7 +128,7 @@ The final `done` job aggregates all deploy, install, and development gates. CI i
 
 - PR pipelines use `cancel-in-progress: true` so only the newest run per PR and event type is active.
 - The orchestrator and the push entry workflow (`entry-push-latest.yml`) default to `cancel-in-progress: true` and both respect the repository variable `CI_CANCEL_IN_PROGRESS`.
-- The manual entry workflow (`entry-manual.yml`) sets `cancel-in-progress: true` on its own group and passes `force_cancel_in_progress: true` into the orchestrator, so a manual run cancels on both levels regardless of `CI_CANCEL_IN_PROGRESS`.
+- The manual entry workflow (`entry-manual-steer.yml`) sets `cancel-in-progress: true` on its own group and passes `force_cancel_in_progress: true` into the orchestrator, so a manual run cancels on both levels regardless of `CI_CANCEL_IN_PROGRESS`.
 
 See [configuration.md](../../tools/github/actions/configuration.md) for all repository variables that control CI behaviour.
 

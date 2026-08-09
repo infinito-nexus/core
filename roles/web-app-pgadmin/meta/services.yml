@@ -12,7 +12,7 @@ pgadmin:
   # nocheck: default-placement-manager  embedded sqlite config db; node-local in swarm
   placement: manager
   image: dpage/pgadmin4
-  version: "9.16"
+  version: "9.17"
   min_storage: 378MB
   server_mode: false
   master_password_required: true

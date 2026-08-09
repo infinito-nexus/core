@@ -88,6 +88,19 @@ class TestForceSharedTrue(unittest.TestCase):
         )
         self.assertFalse(force_shared_true(self.host_vars, {"mariadb"}))
 
+    def test_skips_disabled_service(self):
+        self._write(
+            {
+                "applications": {
+                    "a": {"services": {"mariadb": {"enabled": False, "shared": False}}}
+                }
+            }
+        )
+        self.assertFalse(force_shared_true(self.host_vars, {"mariadb"}))
+        self.assertFalse(
+            self._read()["applications"]["a"]["services"]["mariadb"]["shared"]
+        )
+
     def test_ignores_non_db_service(self):
         self._write({"applications": {"a": {"services": {"web": {"shared": False}}}}})
         self.assertFalse(force_shared_true(self.host_vars, {"mariadb"}))

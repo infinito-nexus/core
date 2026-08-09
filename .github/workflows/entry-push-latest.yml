@@ -129,7 +129,7 @@ jobs:
       - run-policy
       - pick-distro
       - resolve-priority
-    uses: ./.github/workflows/ci-orchestrator.yml
+    uses: ./.github/workflows/call-orchestrator.yml
     with:
       distros: ${{ needs.pick-distro.outputs.distros }}
       priority: ${{ needs.resolve-priority.outputs.priority }}
@@ -172,7 +172,7 @@ jobs:
       - pick-distro
       - release-guard
     if: needs.run-policy.outputs.should_run == 'true' && needs.release-guard.outputs.allowed == 'true'
-    uses: ./.github/workflows/release-version.yml
+    uses: ./.github/workflows/call-release-version.yml
     with:
       tag: ${{ needs.pick-distro.outputs.version_tag }}
     secrets: inherit

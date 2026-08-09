@@ -126,6 +126,11 @@ jobs:
     timeout-minutes: 355
     needs: discover
 
+    concurrency:
+      group: "infinito-deploy-host-${{ matrix.apps }}#${{ matrix.variant_slug }}"
+      cancel-in-progress: false
+      queue: max
+
     strategy:
       fail-fast: false
       matrix:

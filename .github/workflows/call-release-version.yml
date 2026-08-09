@@ -102,7 +102,7 @@ jobs:
     name: 🏗️ Build missing CI images
     needs: check-ci-images
     if: needs.check-ci-images.outputs.missing == 'true'
-    uses: ./.github/workflows/images-build-ci.yml
+    uses: ./.github/workflows/call-images-build-ci.yml
     with:
       distros: ${{ needs.check-ci-images.outputs.distros }}
       checkout_ref: ${{ needs.check-ci-images.outputs.version_tag }}

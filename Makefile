@@ -726,7 +726,7 @@ swarm-zombie: install-act
 	 SWARM_NAME=$(or $(name),$(app)); \
 	 INFINITO_SWARM_STEP_TIMEOUT_MINUTES=$(or $(step_timeout),690); \
 	 INFINITO_DISTROS=$(SWARM_DISTROS)" \
-	 ACT_WORKFLOW=.github/workflows/test-deploy-swarm.yml \
+	 ACT_WORKFLOW=.github/workflows/call-test-deploy-swarm.yml \
 	 ACT_JOB=swarm \
 	 ACT_MATRIX='apps:$(app);variant:$(or $(variant),0)' \
 	 ACT_INPUTS="whitelist=$(app) distros=$(SWARM_DISTROS)" \

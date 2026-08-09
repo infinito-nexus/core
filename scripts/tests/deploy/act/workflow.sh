@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-: "${ACT_WORKFLOW:?ACT_WORKFLOW is not set (e.g. .github/workflows/test-workspace.yml)}"
+: "${ACT_WORKFLOW:?ACT_WORKFLOW is not set (e.g. .github/workflows/call-test-workspace.yml)}"
 : "${ACT_EVENT:=workflow_dispatch}"
 : "${ACT_JOB:=}"
 : "${ACT_MATRIX:=}"
@@ -33,7 +33,26 @@ fi
 
 echo "=== act: workflow=${ACT_WORKFLOW} event=${ACT_EVENT} job=${ACT_JOB:-<all>} matrix=${ACT_MATRIX:-<none>} inputs=${ACT_INPUTS:-<none>} ==="
 
-cmd=(act "${ACT_EVENT}" -W "${ACT_WORKFLOW}")
+# Exception: act's bundled Actions schema (pkg/schema/workflow_schema.json, still
+# true on main at v0.2.89) lacks the `queue` concurrency property that GitHub
+# shipped on 2026-05-07, and rejects the whole workflow over it instead of
+# ignoring it, so act is fed a copy without those lines.
+# TODO: drop this sanitize step once act's schema knows `queue` --
+# report https://github.com/nektos/act/issues/6095,
+# fix in review https://github.com/nektos/act/pull/6152.
+_act_queue_re='^[[:space:]]*queue:[[:space:]]*(single|max)[[:space:]]*$'
+_act_sanitized="$(mktemp -d)"
+trap 'rm -rf "${_act_sanitized}"' EXIT
+_act_workflow="${_act_sanitized}/$(basename "${ACT_WORKFLOW}")"
+if [[ -d "${ACT_WORKFLOW}" ]]; then
+	cp -r "${ACT_WORKFLOW}" "${_act_workflow}"
+	find "${_act_workflow}" -type f -name '*.y*ml' \
+		-exec sed -i -E "/${_act_queue_re}/d" {} +
+else
+	grep -vE "${_act_queue_re}" "${ACT_WORKFLOW}" >"${_act_workflow}"
+fi
+
+cmd=(act "${ACT_EVENT}" -W "${_act_workflow}")
 cmd+=(-P "ubuntu-latest=${ACT_PLATFORM_IMAGE}")
 cmd+=(-P "ubuntu-24.04=${ACT_PLATFORM_IMAGE}")
 cmd+=(-P "ubuntu-22.04=${ACT_PLATFORM_IMAGE}")

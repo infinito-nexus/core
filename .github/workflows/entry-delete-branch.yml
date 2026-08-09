@@ -1,14 +1,15 @@
+# Enters the same concurrency group as entry-push-latest.yml for the deleted
+# branch, which cancels that run and all its child workflow_call runs.
+#
+# On `delete` events `github.ref_name` resolves to the default branch, not the
+# deleted ref, so the group keys on `github.event.ref`. Keying on `ref_name`
+# would collide with the push-to-main CI and cancel it.
+
 name: "🚫 Cancel: Runs on Branch Delete"
 
 on:
   delete:
 
-# Enters the same concurrency group as entry-push-latest.yml for the deleted
-# branch, which cancels that run and all its child workflow_call runs.
-# NOTE: on `delete` events, `github.ref_name` resolves to the default branch
-# (the workflow runs from the default branch context), not the deleted ref.
-# Use `github.event.ref` to get the actually deleted branch name — otherwise
-# this group would collide with the push-to-main CI and cancel it.
 concurrency:
   group: global-ci-${{ github.repository }}-${{ github.event.ref }}
   cancel-in-progress: true
@@ -18,7 +19,6 @@ permissions:
   contents: read
 
 jobs:
-  # Fallback: cancel any remaining active runs via the GitHub API.
   cancel-branch-runs:
     if: ${{ github.event.ref_type == 'branch' }}
     runs-on: ubuntu-latest

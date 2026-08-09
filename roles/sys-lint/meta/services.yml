@@ -1,0 +1,11 @@
+---
+# nocheck: required-by-coverage — release pins only, nothing deploys this role
+actionlint:
+  repository: https://github.com/rhysd/actionlint.git
+  ref: v1.7.12
+hadolint:
+  repository: https://github.com/hadolint/hadolint.git
+  ref: v2.15.1
+shfmt:
+  repository: https://github.com/mvdan/sh.git
+  ref: v3.13.1

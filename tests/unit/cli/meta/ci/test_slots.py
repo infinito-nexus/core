@@ -1,3 +1,4 @@
+# nocheck: workflow-references  synthetic fixture workflows, not repository files
 from __future__ import annotations
 
 import textwrap
@@ -83,7 +84,7 @@ def _tree() -> TemporaryDirectory:
         """
         jobs:
           orchestrate:
-            uses: ./.github/workflows/ci-orchestrator.yml
+            uses: ./.github/workflows/call-orchestrator.yml
         """,
     )
     _write(
@@ -95,7 +96,7 @@ def _tree() -> TemporaryDirectory:
           release:
             uses: ./.github/workflows/installs.yml
           orchestrate:
-            uses: ./.github/workflows/ci-orchestrator.yml
+            uses: ./.github/workflows/call-orchestrator.yml
         """,
     )
     return tmp

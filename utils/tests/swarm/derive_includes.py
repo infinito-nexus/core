@@ -128,6 +128,7 @@ def _force_shared_db_view(applications: dict[str, Any]) -> dict[str, Any]:
             for key, entry in services.items()
             if key in db_keys
             and isinstance(entry, dict)
+            and entry.get("enabled") is not False
             and entry.get("shared") is not True
         }
         if not flipped:

@@ -6,8 +6,8 @@ Why
 ---
 
 Semver pinning is the precondition for the daily auto-update job at
-[update-image-versions](../../../../.github/workflows/update.yml) and
-[update-repository-refs](../../../../.github/workflows/update.yml):
+[update-image-versions](../../../../.github/workflows/cron-update.yml) and
+[update-repository-refs](../../../../.github/workflows/cron-update.yml):
 those jobs only bump entries whose current value matches the semver
 shape (``v?\\d+(\\.\\d+){0,3}(-flavor)?``). A pin like ``latest``,
 ``stable``, ``master``, ``main``, or a commit SHA silently opts the

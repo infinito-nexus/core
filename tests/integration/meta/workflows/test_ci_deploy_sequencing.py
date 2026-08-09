@@ -20,7 +20,7 @@ from itertools import pairwise
 from tests.utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml
 
-ORCHESTRATOR = PROJECT_ROOT / ".github" / "workflows" / "ci-orchestrator.yml"
+ORCHESTRATOR = PROJECT_ROOT / ".github" / "workflows" / "call-orchestrator.yml"
 
 LINES = {"priority": "-priority", "regular": ""}
 CHAIN = ("test-deploy-swarm", "test-deploy-compose", "test-deploy-host")

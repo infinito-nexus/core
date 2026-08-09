@@ -96,7 +96,7 @@ jobs:
   ci-orchestrator:
     name: 🎛️ Orchestrate CI (manual)
     needs: pick-distro
-    uses: ./.github/workflows/ci-orchestrator.yml
+    uses: ./.github/workflows/call-orchestrator.yml
     with:
       distros: ${{ needs.pick-distro.outputs.distros }}
       whitelist: ${{ inputs.whitelist }}

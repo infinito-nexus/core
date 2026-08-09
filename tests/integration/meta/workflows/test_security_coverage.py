@@ -8,15 +8,15 @@ from utils.cache.yaml import load_yaml_any
 
 from . import PROJECT_ROOT
 
-SECURITY_WORKFLOW_PATH = PROJECT_ROOT / ".github" / "workflows" / "security-codeql.yml"
+SECURITY_WORKFLOW_PATH = (
+    PROJECT_ROOT / ".github" / "workflows" / "cron-security-codeql.yml"
+)
 
-# Hidden directories that are the only ones worth scanning (the cached walker
-# already prunes .git/.venv/__pycache__/node_modules etc.).
 SCANNED_HIDDEN_DIRS = {
     ".github",
 }
+"""Hidden directories worth scanning; the cached walker prunes the rest."""
 
-# Mapping: CodeQL language name -> filename patterns
 CODEQL_FILENAME_INDICATORS: dict[str, list[str]] = {
     "c-cpp": ["*.c", "*.cc", "*.cpp", "*.cxx", "*.h", "*.hh", "*.hpp", "*.hxx"],
     "csharp": ["*.cs"],
@@ -28,8 +28,8 @@ CODEQL_FILENAME_INDICATORS: dict[str, list[str]] = {
     "rust": ["*.rs"],
     "swift": ["*.swift"],
 }
+"""CodeQL language name -> filename patterns."""
 
-# Mapping: CodeQL language name -> repository-relative path patterns
 CODEQL_PATH_INDICATORS: dict[str, list[str]] = {
     "actions": [
         ".github/workflows/*.yml",
@@ -74,8 +74,6 @@ class TestSecurityWorkflowCoverage(unittest.TestCase):
 
         for path in iter_project_files():
             rel_file = os.path.relpath(path, PROJECT_ROOT)
-            # Skip top-level hidden directories that are not SCANNED_HIDDEN_DIRS
-            # (the cached walker already prunes the vendor/cache junk).
             top = rel_file.split(os.sep, 1)[0]
             if top.startswith(".") and top not in SCANNED_HIDDEN_DIRS:
                 continue
@@ -89,7 +87,8 @@ class TestSecurityWorkflowCoverage(unittest.TestCase):
         problems: list[str] = []
         if missing_languages:
             problems.append(
-                "Detected languages missing from .github/workflows/security-codeql.yml:"
+                "Detected languages missing from "
+                ".github/workflows/cron-security-codeql.yml:"
             )
             problems.extend(f"  - {language}" for language in missing_languages)
 

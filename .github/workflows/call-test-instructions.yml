@@ -53,6 +53,10 @@ jobs:
     name: 📖 Instructions
     runs-on: ubuntu-latest
     timeout-minutes: 345
+    concurrency:
+      group: infinito-instructions
+      cancel-in-progress: false
+      queue: max
     env:
       INFINITO_IMAGE_TAG: ci-${{ github.sha }}
       INFINITO_DISTROS: ${{ inputs.distros }}

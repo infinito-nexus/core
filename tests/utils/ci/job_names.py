@@ -17,9 +17,9 @@ from utils.roles.display import display_names
 WORKFLOWS = PROJECT_ROOT / ".github" / "workflows"
 
 _DEPLOY = {
-    "docker": ("test-deploy-compose.yml", "compose"),
-    "swarm": ("test-deploy-swarm.yml", "swarm"),
-    "host": ("test-deploy-host.yml", "host"),
+    "docker": ("call-test-deploy-compose.yml", "compose"),
+    "swarm": ("call-test-deploy-swarm.yml", "swarm"),
+    "host": ("call-test-deploy-host.yml", "host"),
 }
 ORCHESTRATOR_PREFIX = {
     "docker": "🎶 Orchestrate CI / test-deploy-compose / ",

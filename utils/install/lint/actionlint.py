@@ -8,7 +8,8 @@ import tarfile
 import tempfile
 from pathlib import Path
 
-from utils.install.github_release import download_release_asset, resolve_latest_tag
+from utils.install.github_release import download_release_asset
+from utils.install.lint.pinned import resolve_release
 from utils.install.primitives import (
     ensure_dir_on_path,
     install_with_optional_sudo,
@@ -16,7 +17,6 @@ from utils.install.primitives import (
     which,
 )
 
-_LATEST_URL = "https://github.com/rhysd/actionlint/releases/latest"
 _DEFAULT_INSTALL_DIR = os.environ.get("ACTIONLINT_INSTALL_DIR", "/usr/local/bin")
 
 
@@ -46,26 +46,14 @@ def _detect_arch() -> str:
     )
 
 
-def _resolve_version() -> str:
-    requested = os.environ.get("ACTIONLINT_VERSION", "latest").lstrip("v")
-    if requested != "latest":
-        return requested
-    return resolve_latest_tag(_LATEST_URL)
-
-
 def _install_binary() -> None:
-    version = _resolve_version()
+    slug, version = resolve_release("actionlint")
     os_name = _detect_os()
     arch = _detect_arch()
     archive_name = f"actionlint_{version}_{os_name}_{arch}.tar.gz"
-    url = f"https://github.com/rhysd/actionlint/releases/download/v{version}/{archive_name}"
+    url = f"https://github.com/{slug}/releases/download/v{version}/{archive_name}"
 
-    if os.environ.get("ACTIONLINT_VERSION", "latest").lstrip("v") == "latest":
-        log(
-            f"Installing latest actionlint (resolved to v{version}) from GitHub releases"
-        )
-    else:
-        log(f"Installing actionlint v{version} from GitHub releases")
+    log(f"Installing actionlint v{version} from GitHub releases")
 
     with tempfile.TemporaryDirectory() as tmpdir:
         tmp_path = Path(tmpdir)

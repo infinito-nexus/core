@@ -173,7 +173,7 @@ the cluster declaration (image, containers, network, DNS play) in
 The matrix orchestrator
 (`utils/tests/swarm/matrix.py`) drives the deploy stage
 per variant round; `routine/00_one.sh` drives the surrounding stages for one
-distro, and the workflow `.github/workflows/test-deploy-swarm.yml` drives the
+distro, and the workflow `.github/workflows/call-test-deploy-swarm.yml` drives the
 distro loop. Run one app locally with
 `make swarm-zombie app=<id>` (keeps the cluster for inspection) or the
 whole matrix via `make roundtrip`.

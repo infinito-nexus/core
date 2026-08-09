@@ -49,7 +49,7 @@ gitea:
   shared: true
   provides: gitea
   image: gitea/gitea
-  version: 1.26.4
+  version: 1.27.1
   replicas: 1 # nocheck: single-replica  single-writer app state on swarm-shared NFS; concurrent multi-node writers corrupt app.ini
   min_storage: 270MB
   backup:

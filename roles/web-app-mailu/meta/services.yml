@@ -147,7 +147,7 @@ antivirus:
   enabled: true # nocheck: dynamic-flag
   shared: false
   image: clamav/clamav-debian
-  version: 1.5.3
+  version: 1.5.4
   cpus: "0.6"
   mem_reservation: 2g
   mem_limit: 3g

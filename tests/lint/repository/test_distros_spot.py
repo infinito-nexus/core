@@ -37,7 +37,7 @@ from utils.env.parser import parse_static_env
 from . import PROJECT_ROOT
 
 WORKFLOWS_DIR = PROJECT_ROOT / ".github" / "workflows"
-WORKSPACE_WORKFLOW = WORKFLOWS_DIR / "test-workspace.yml"
+WORKSPACE_WORKFLOW = WORKFLOWS_DIR / "call-test-workspace.yml"
 _MATRIX_REF_RE = re.compile(
     r"^\$\{\{\s*fromJson\(\s*needs\.([\w-]+)\.outputs\.([\w-]+)\s*\)\s*\}\}$",
     re.IGNORECASE,

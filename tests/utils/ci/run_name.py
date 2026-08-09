@@ -2,7 +2,7 @@
 
 Single point of truth for test fixtures, for the same reason
 ``utils.github.run_name`` parses rather than hard-codes the format: a
-hand-typed title drifts the moment ``entry-manual.yml`` changes its
+hand-typed title drifts the moment ``entry-manual-steer.yml`` changes its
 ``run-name``, and the retrigger that reads configuration back out of it
 would silently start recovering nothing.
 """
@@ -15,7 +15,7 @@ _GLYPH_OF = {value: glyph for glyph, value in run_name.VALUE_GLYPHS.items()}
 
 
 def render(config: dict[str, str]) -> str:
-    """The run name ``entry-manual.yml`` builds for *config*.
+    """The run name ``entry-manual-steer.yml`` builds for *config*.
 
     Args:
         config: dispatch inputs that deviate from their workflow default,

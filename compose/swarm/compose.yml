@@ -6,6 +6,7 @@ x-node: &node
       INFINITO_IMAGE: "${INFINITO_IMAGE:?run make dotenv / build the distro image first}"
   privileged: true
   cgroup: host
+  pids_limit: ${INFINITO_SWARM_NODE_PIDS_LIMIT:?run make dotenv first}
   security_opt:
     - seccomp=unconfined
     - apparmor=unconfined

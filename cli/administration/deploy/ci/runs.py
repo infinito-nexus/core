@@ -243,27 +243,115 @@ def fetch_jobs(run_id: str, repo: str | None = None) -> list[dict]:
 def fetch_run(run_id: str, repo: str | None = None) -> dict:
     """Jobs plus the run title, in one ``gh`` call.
 
-    The title is the only place a dispatched run records its inputs: the
-    REST API answers ``inputs: null`` for a finished workflow_dispatch.
+    The REST API answers ``inputs: null`` for a finished workflow_dispatch, so
+    the inputs are recovered from the run itself: short ones from the title
+    (:func:`config_from_title`), the long ones from a called job's log
+    (:func:`inputs_from_jobs`), which the title truncates.
     """
     return json.loads(
         _gh(["run", "view", run_id, "--json", "jobs,displayTitle"], repo=repo)
     )
 
 
-def untriggered_priority(title: str, statuses: dict[str, dict[str, str]]) -> list[str]:
+_INPUT_RE = re.compile(r"^\S+\s+(?P<name>[A-Za-z_][A-Za-z0-9_]*): ?(?P<value>.*)$")
+
+
+def inputs_from_jobs(jobs: list[dict], repo: str) -> dict[str, str]:
+    """The dispatch inputs a called job's log records verbatim.
+
+    GitHub cuts ``display_title`` at 512 UTF-8 bytes (measured on two runs,
+    both exactly 512) and closes it with a literal ``...``. The run-name
+    template renders ``priority`` second-to-last and ``whitelist`` last, and
+    on the ``--failed`` path the whitelist is empty, so the cut always lands
+    inside the priority list: measured 21 of 69 roles survived, the 21st a
+    half-token. A CJK display name costs 3 bytes per character, so the budget
+    is ~22 display names against ~28 bare role ids. Every job of the *called*
+    workflow opens its log with an ``##[group] Inputs`` block holding the full
+    values, so that is the SPOT for anything the title cannot hold.
+
+    Args:
+        jobs: the run's jobs. Only depth-1 jobs are read: a deeper one echoes
+            its own workflow's inputs, which carry no ``priority``.
+        repo: ``owner/repo`` the run lives in.
+
+    Returns:
+        input name -> value, empty when the run has no called job.
+    """
+    called = next(
+        (
+            job
+            for job in jobs
+            if str(job.get("name", "")).count(" / ") == 1 and job.get("databaseId")
+        ),
+        None,
+    )
+    if called is None:
+        return {}
+    log = _gh(["api", f"repos/{repo}/actions/jobs/{called['databaseId']}/logs"])
+    inputs: dict[str, str] = {}
+    inside = False
+    for line in log.splitlines():
+        if line.endswith("##[group] Inputs"):
+            inside = True
+            continue
+        if inside:
+            if line.endswith("##[endgroup]"):
+                break
+            match = _INPUT_RE.match(line)
+            if match:
+                inputs[match["name"]] = match["value"].strip()
+    return inputs
+
+
+def dispatched_priority(source: dict, repo: str) -> str:
+    """The source run's ``priority`` input, whole.
+
+    The title's priority segment is the cross-check, not the source: it proves
+    a priority line existed even when truncation mangled it, so an empty log
+    read is a broken reader -- expired logs, a moved Inputs block, an inlined
+    orchestrator -- rather than a run dispatched without one.
+
+    Args:
+        source: the run as :func:`fetch_run` returns it.
+        repo: ``owner/repo`` the run lives in.
+    """
+    priority = inputs_from_jobs(source["jobs"], repo).get("priority", "")
+    if not priority and run_name.value_from_title(source["displayTitle"], "priority"):
+        raise SystemExit(
+            "Source run has a priority line but its job log records no inputs; "
+            "the Inputs block moved or the log expired. Retriggering now would "
+            "silently drop every priority role."
+        )
+    return priority
+
+
+def untriggered_priority(
+    priority: str, statuses: dict[str, dict[str, str]]
+) -> list[str]:
     """Roles the source run's priority line named but never deployed at all.
 
     A priority role can fall behind the discovery budget cut in every mode, so
     the run holds no job for it and :func:`failed_roles` cannot see it — it is
     neither green nor red, it simply never ran. Carrying it into the retrigger
     is the only way it ever gets deployed.
+
+    Args:
+        priority: the raw ``priority`` input, as :func:`inputs_from_jobs` reads
+            it back. A truncated value would smuggle a half-token into the
+            retrigger's role set, so an undecodable name raises instead.
+        statuses: role -> mode -> state, from :func:`parse_role_statuses`.
     """
     codec = display_names()
-    named = [
-        codec.decode(name) or name
-        for name in run_name.value_from_title(title, "priority").split()
-    ]
+    named = []
+    for name in priority.split():
+        role = codec.decode(name)
+        if role is None:
+            raise SystemExit(
+                f"Cannot resolve priority entry {name!r} to a role. The source "
+                f"run's priority input is corrupt or truncated; retriggering "
+                f"with it would deploy a role set that is silently incomplete."
+            )
+        named.append(role)
     return sorted(role for role in named if role not in statuses)
 
 

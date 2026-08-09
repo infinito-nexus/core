@@ -24,7 +24,9 @@ from . import PROJECT_ROOT
 HANDLERS = PROJECT_ROOT / "roles" / "sys-svc-compose" / "handlers"
 SWARM = HANDLERS / "swarm.yml"
 COMPOSE = HANDLERS / "compose.yml"
-COMPOSE_WORKFLOW = PROJECT_ROOT / ".github" / "workflows" / "test-deploy-compose.yml"
+COMPOSE_WORKFLOW = (
+    PROJECT_ROOT / ".github" / "workflows" / "call-test-deploy-compose.yml"
+)
 
 BUILDS = {
     "swarm: pre-deploy build of local images": (SWARM, "_swarm_pre_deploy_build"),

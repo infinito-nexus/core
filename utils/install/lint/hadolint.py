@@ -7,7 +7,8 @@ import platform
 import tempfile
 from pathlib import Path
 
-from utils.install.github_release import download_release_asset, resolve_latest_tag
+from utils.install.github_release import download_release_asset
+from utils.install.lint.pinned import resolve_release
 from utils.install.primitives import (
     ensure_dir_on_path,
     install_with_optional_sudo,
@@ -15,7 +16,6 @@ from utils.install.primitives import (
     which,
 )
 
-_LATEST_URL = "https://github.com/hadolint/hadolint/releases/latest"
 _DEFAULT_INSTALL_DIR = os.environ.get("HADOLINT_INSTALL_DIR", "/usr/local/bin")
 
 
@@ -39,17 +39,10 @@ def _detect_arch() -> str:
     )
 
 
-def _resolve_version() -> str:
-    requested = os.environ.get("HADOLINT_VERSION", "latest").lstrip("v")
-    if requested != "latest":
-        return requested
-    return resolve_latest_tag(_LATEST_URL)
-
-
 def _install_binary() -> None:
-    version = _resolve_version()
+    slug, version = resolve_release("hadolint")
     asset_name = f"hadolint-{_detect_os()}-{_detect_arch()}"
-    url = f"https://github.com/hadolint/hadolint/releases/download/v{version}/{asset_name}"
+    url = f"https://github.com/{slug}/releases/download/v{version}/{asset_name}"
 
     log(f"Installing hadolint v{version} from GitHub releases")
 

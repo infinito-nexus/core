@@ -1,4 +1,4 @@
-name: "🧹 Cleanup: Stale Repository Data"
+name: "⏰ Cleanup: Stale Repository Data"
 
 on:
   schedule:
@@ -20,7 +20,6 @@ jobs:
       - name: 🏷️ Mark stale issues and pull requests
         uses: actions/stale@v10
         with:
-          # Issues
           days-before-issue-stale: 90
           days-before-issue-close: 7
           stale-issue-label: "stale"
@@ -31,7 +30,6 @@ jobs:
           close-issue-message: >
             This issue has been automatically closed due to inactivity.
 
-          # Pull Requests
           days-before-pr-stale: 180
           days-before-pr-close: 30
           stale-pr-label: "stale"

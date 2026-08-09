@@ -12,7 +12,7 @@
 - name: 📁 create sshd_config
   template: # nocheck: stack-host-template (per-host sshd_config)
     src: "sshd_config.j2"
-    dest: /etc/ssh/sshd_config
+    dest: "{{ SYS_SVC_SSHD_CONFIG_FILE }}"
     owner: root
     group: root
     mode: "0644"

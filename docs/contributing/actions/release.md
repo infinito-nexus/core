@@ -51,8 +51,8 @@ A `v*` tag push fans out into two CI workflows:
 
 | Workflow | Purpose |
 |---|---|
-| [release-version.yml](../../../.github/workflows/release-version.yml) | Backfills CI images for the version tag if missing, retags them to release tags, and publishes the version-specific image set. |
-| [release-highest.yml](../../../.github/workflows/release-highest.yml) | Decides whether the new version is the highest published version and, if so, advances the `latest` floating tag. |
+| [call-release-version.yml](../../../.github/workflows/call-release-version.yml) | Backfills CI images for the version tag if missing, retags them to release tags, and publishes the version-specific image set. |
+| [cron-release-highest.yml](../../../.github/workflows/cron-release-highest.yml) | Decides whether the new version is the highest published version and, if so, advances the `latest` floating tag. |
 
 Both run from the trusted workflow ref and check out the version tag for the actual build payload, so the release artefacts match the tagged commit byte-for-byte.
 

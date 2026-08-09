@@ -18,7 +18,7 @@
       - sshd
       - -t
       - -f
-      - /etc/ssh/sshd_config
+      - "{{ SYS_SVC_SSHD_CONFIG_FILE }}"
   register: sys_svc_sshd_config_check
   changed_when: false
   failed_when: false
@@ -26,13 +26,17 @@
 - name: 👁️ Show sshd_config validation after failed restart
   ansible.builtin.debug:
     msg: |
-      === sshd -t -f /etc/ssh/sshd_config ===
+      === sshd -t -f {{ SYS_SVC_SSHD_CONFIG_FILE }} ===
       rc={{ sys_svc_sshd_config_check.rc | default('n/a') }}
       {{ sys_svc_sshd_config_check.stdout | default('') }}
       {{ sys_svc_sshd_config_check.stderr | default('') }}
 
-- name: 🛑 Fail SSH restart with diagnostics
+- name: 🛑 Fail SSH restart on an invalid sshd_config
   ansible.builtin.fail:
     msg: >-
-      Restart of {{ sys_svc_sshd_service_unit }} failed.
-      See shared service diagnostics above and sshd_config validation output.
+      Restart of {{ sys_svc_sshd_service_unit }} failed and
+      sshd -t rejects {{ SYS_SVC_SSHD_CONFIG_FILE }} (rc={{ sys_svc_sshd_config_check.rc }}).
+      See shared service diagnostics above and the validation output.
+  when:
+    - sys_svc_sshd_config_check.rc is defined
+    - sys_svc_sshd_config_check.rc != 0

@@ -1,11 +1,12 @@
-import shutil
 import unittest
+from types import SimpleNamespace
 from unittest import mock
 
 from utils.storage import constrained
 from utils.storage.constrained import is_constrained, required_storage_bytes
 
 _GIB = 1024**3
+_USAGE = SimpleNamespace(free=123 * _GIB)
 
 
 class TestIsConstrained(unittest.TestCase):
@@ -53,20 +54,32 @@ class TestDockerRootFreeBytes(unittest.TestCase):
     """
 
     def test_resolvable_root_is_measured_directly(self):
-        with mock.patch.object(constrained, "docker_data_root", return_value="/"):
+        with (
+            mock.patch.object(constrained, "docker_data_root", return_value="/"),
+            mock.patch.object(
+                constrained.shutil, "disk_usage", return_value=_USAGE
+            ) as usage,
+        ):
             self.assertEqual(
                 constrained.docker_root_free_bytes(local_vantage="/nonexistent"),
-                shutil.disk_usage("/").free,
+                _USAGE.free,
             )
+        usage.assert_called_once_with("/")
 
     def test_unresolvable_root_falls_to_the_local_vantage(self):
-        with mock.patch.object(
-            constrained, "docker_data_root", return_value="/var/lib/docker-absent"
+        with (
+            mock.patch.object(
+                constrained, "docker_data_root", return_value="/var/lib/docker-absent"
+            ),
+            mock.patch.object(
+                constrained.shutil, "disk_usage", return_value=_USAGE
+            ) as usage,
         ):
             self.assertEqual(
                 constrained.docker_root_free_bytes(local_vantage="/"),
-                shutil.disk_usage("/").free,
+                _USAGE.free,
             )
+        usage.assert_called_once_with("/")
 
     def test_unreachable_daemon_still_raises(self):
         with (

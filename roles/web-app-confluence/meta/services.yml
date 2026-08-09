@@ -36,7 +36,7 @@ confluence:
     swarm:
       enabled: true
   image: atlassian/confluence
-  version: 10.2.14
+  version: 10.2.15
   custom: true
   name: confluence
   min_storage: 1390MB

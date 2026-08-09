@@ -46,7 +46,7 @@ jobs:
   compose:
     name: 📦 Compose
     if: ${{ contains(inputs.modes, 'compose') }}
-    uses: ./.github/workflows/test-deploy-compose.yml
+    uses: ./.github/workflows/call-test-deploy-compose.yml
     with:
       distros: ${{ inputs.distros }}
       whitelist: ${{ inputs.whitelist }}
@@ -58,7 +58,7 @@ jobs:
   host:
     name: 💻 Host
     if: ${{ contains(inputs.modes, 'host') }}
-    uses: ./.github/workflows/test-deploy-host.yml
+    uses: ./.github/workflows/call-test-deploy-host.yml
     with:
       distros: ${{ inputs.distros }}
       whitelist: ${{ inputs.whitelist }}

@@ -1,6 +1,6 @@
-"""Trigger the manual CI run (entry-manual.yml) for the current branch.
+"""Trigger the manual CI run (entry-manual-steer.yml) for the current branch.
 
-entry-manual.yml reads the "__ALL__" whitelist sentinel as "force a full
+entry-manual-steer.yml reads the "__ALL__" whitelist sentinel as "force a full
 deploy across all roles".
 """
 
@@ -11,7 +11,7 @@ import sys
 
 from cli.administration.deploy.ci import runs
 
-_WORKFLOW = "entry-manual.yml"
+_WORKFLOW = "entry-manual-steer.yml"
 _ALL = "__ALL__"
 
 
@@ -109,7 +109,9 @@ def main(argv: list[str] | None = None) -> int:
         scope = "docker" if args.failed == "compose" else args.failed
         statuses = runs.parse_role_statuses(source["jobs"])
         failed = runs.failed_roles(statuses, scope, strict=args.strict)
-        untriggered = runs.untriggered_priority(source["displayTitle"], statuses)
+        untriggered = runs.untriggered_priority(
+            runs.dispatched_priority(source, repo), statuses
+        )
         if not failed and not untriggered:
             print(f"Nothing failed ({args.failed}) in that run; not triggering.")
             return 0

@@ -126,7 +126,7 @@ Volume layout under `DEPLOYMENT_MODE: swarm` with `storage.backend: nfs`:
   directory is intentionally out of scope for v1 (locking / `fsync`
   semantics). See 023's Future Extensions.
 
-CI gate: [.github/workflows/test-deploy-swarm.yml](../../.github/workflows/test-deploy-swarm.yml)
+CI gate: [.github/workflows/call-test-deploy-swarm.yml](../../.github/workflows/call-test-deploy-swarm.yml)
 provisions a 3-node DinD swarm, deploys this role as a stack, drains
 the worker running the application service, and asserts that wiki
 content survives the reschedule.

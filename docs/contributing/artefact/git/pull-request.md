@@ -25,7 +25,7 @@ Before marking a PR as **ready for review**, CI in your fork MUST be green. The 
 
 | Change type | Isolated? | Required CI |
 |---|---|---|
-| Single role | ✅ No dependencies | MAY use [manual CI](../../../../.github/workflows/entry-manual.yml) for that role only |
+| Single role | ✅ No dependencies | MAY use [manual CI](../../../../.github/workflows/entry-manual-steer.yml) for that role only |
 | Single role | ❌ Has dependencies | MUST run full pipeline |
 | Multiple roles or shared code | N/A | MUST run full pipeline |
 | CI/CD, tooling, systemic | N/A | MUST run full pipeline |

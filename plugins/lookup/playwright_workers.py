@@ -1,21 +1,17 @@
 from __future__ import annotations
 
 import os
-from pathlib import Path
 from typing import Any
 
 from ansible.plugins.lookup import LookupBase
 
-# Conservative sizing for browser e2e that runs against the live, co-resident
-# application stack. The binding constraint is rarely raw CPU: it is the
-# application-under-test concurrency (Keycloak/Synapse rate limits, DB
-# connections), RAM per Chromium worker, and the deployed stack sharing the
-# host. So divide CPUs aggressively, reserve RAM for the stack, and hard-cap.
-_PER_WORKER_GB = 1.5  # Chromium + node + headroom per worker
-_RAM_FRACTION = 0.5  # leave half of RAM for the deployed stack under test
-_CPU_DIVISOR = 4  # browser workers are heavy and the stack is co-resident
-_HARD_CAP = 6  # app-under-test concurrency ceiling (login/rate limits)
-_CI_CAP = 2  # CI runners: stay minimal and stable
+from utils.env.runtime import mem_total_mb
+
+_PER_WORKER_GB = 1.5
+_RAM_FRACTION = 0.5
+_CPU_DIVISOR = 4
+_HARD_CAP = 6
+_CI_CAP = 2
 _CI_ENV = ("CI", "GITHUB_ACTIONS", "GITLAB_CI", "BUILDKITE", "JENKINS_URL")
 
 
@@ -27,14 +23,8 @@ def _cpu_count() -> int:
 
 
 def _ram_gb() -> float:
-    try:
-        with Path("/proc/meminfo").open(encoding="utf-8") as fh:
-            for line in fh:
-                if line.startswith("MemTotal:"):
-                    return int(line.split()[1]) / (1024.0 * 1024.0)
-    except (OSError, ValueError, IndexError):
-        pass  # best-effort: fall back to default when /proc/meminfo is unreadable/malformed
-    return 4.0  # conservative fallback when /proc/meminfo is unreadable
+    total_mb = mem_total_mb()
+    return total_mb / 1024 if total_mb else 4.0
 
 
 def _is_ci() -> bool:

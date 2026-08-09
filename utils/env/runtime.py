@@ -52,8 +52,8 @@ def df_avail_gb(path: str) -> int:
         return 0
 
 
-def mem_available_mb() -> int:
-    """`MemAvailable` from /proc/meminfo in MB. 0 on failure."""
+def _meminfo_mb(field: str) -> int:
+    """`field` from /proc/meminfo in MB. 0 on failure."""
     try:
         text = Path(
             "/proc/meminfo"
@@ -61,13 +61,43 @@ def mem_available_mb() -> int:
     except OSError:
         return 0
     for line in text.splitlines():
-        if line.startswith("MemAvailable:"):
+        if line.startswith(field):
             try:
                 kb = int(line.split()[1])
                 return kb // 1024
             except (IndexError, ValueError):
                 return 0
     return 0
+
+
+def mem_available_mb() -> int:
+    """`MemAvailable` from /proc/meminfo in MB. 0 on failure."""
+    return _meminfo_mb("MemAvailable:")
+
+
+def mem_total_mb() -> int:
+    """`MemTotal` from /proc/meminfo in MB. 0 on failure."""
+    return _meminfo_mb("MemTotal:")
+
+
+def mem_stall_pct() -> float:
+    """`full avg60` from /proc/pressure/memory in percent. 0.0 on failure."""
+    try:
+        text = Path(
+            "/proc/pressure/memory"
+        ).read_text()  # nocheck: cache-read -- live kernel pseudo-file
+    except OSError:
+        return 0.0
+    for line in text.splitlines():
+        if not line.startswith("full "):
+            continue
+        for field in line.split():
+            if field.startswith("avg60="):
+                try:
+                    return float(field.removeprefix("avg60="))
+                except ValueError:
+                    return 0.0
+    return 0.0
 
 
 def is_wsl2() -> bool:

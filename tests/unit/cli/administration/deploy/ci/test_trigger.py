@@ -40,13 +40,19 @@ _SOURCE_RUN = {"jobs": _JOBS, "displayTitle": render(_SOURCE_CONFIG)}
 
 
 class TestTriggerMain(unittest.TestCase):
-    def _run(self, argv: list[str], run: dict | None = None) -> tuple[int, list]:
+    def _run(
+        self,
+        argv: list[str],
+        run: dict | None = None,
+        inputs: dict[str, str] | None = None,
+    ) -> tuple[int, list]:
         calls: list[tuple] = []
         buf = io.StringIO()
         with (
             mock.patch.object(runs, "current_branch", return_value="feature/x"),
             mock.patch.object(runs, "resolve_repo", return_value="o/r"),
             mock.patch.object(runs, "find_last_deploy_run", return_value=run),
+            mock.patch.object(runs, "inputs_from_jobs", return_value=inputs or {}),
             mock.patch.object(
                 runs,
                 "dispatch_workflow",
@@ -63,7 +69,7 @@ class TestTriggerMain(unittest.TestCase):
         rc, calls = self._run([])
         self.assertEqual(rc, 0)
         self.assertEqual(
-            calls, [("entry-manual.yml", "feature/x", "__ALL__", "", {}, "o/r")]
+            calls, [("entry-manual-steer.yml", "feature/x", "__ALL__", "", {}, "o/r")]
         )
 
     def test_apps_explicit_list(self) -> None:
@@ -87,17 +93,17 @@ class TestTriggerMain(unittest.TestCase):
         self.assertEqual(calls[0][3], "web-app-y")
 
     def test_never_deployed_priority_roles_join_the_retrigger(self) -> None:
-        source = {
-            "jobs": _JOBS,
-            "displayTitle": render(
-                {**_SOURCE_CONFIG, "priority": "web-app-x web-app-never"}
-            ),
-        }
+        source = {"jobs": _JOBS, "displayTitle": render(_SOURCE_CONFIG)}
         calls: list = []
         with (
             mock.patch.object(runs, "current_branch", return_value="feature/x"),
             mock.patch.object(runs, "resolve_repo", return_value="o/r"),
             mock.patch.object(runs, "fetch_run", return_value=source),
+            mock.patch.object(
+                runs,
+                "inputs_from_jobs",
+                return_value={"priority": "web-app-x web-app-never"},
+            ),
             mock.patch.object(
                 runs,
                 "dispatch_workflow",
@@ -111,20 +117,39 @@ class TestTriggerMain(unittest.TestCase):
         self.assertEqual(rc, 0)
         self.assertEqual(calls[0], "web-app-never web-app-x web-app-y")
 
+    def test_an_unreadable_job_log_aborts_instead_of_dropping_the_priority(
+        self,
+    ) -> None:
+        source = {
+            "jobs": _JOBS,
+            "displayTitle": render({**_SOURCE_CONFIG, "priority": "web-app-x"}),
+        }
+        with (
+            mock.patch.object(runs, "current_branch", return_value="feature/x"),
+            mock.patch.object(runs, "resolve_repo", return_value="o/r"),
+            mock.patch.object(runs, "fetch_run", return_value=source),
+            mock.patch.object(runs, "inputs_from_jobs", return_value={}),
+            redirect_stdout(io.StringIO()),
+            self.assertRaises(SystemExit),
+        ):
+            trigger.main(["--failed", "--run", _RUN_URL])
+
     def test_a_never_deployed_priority_role_alone_still_dispatches(self) -> None:
         green = [
             _job("docker", "web-app-x", "success"),
             _job("swarm", "web-app-x", "success"),
         ]
-        source = {
-            "jobs": green,
-            "displayTitle": render({"priority": "web-app-x web-app-never"}),
-        }
+        source = {"jobs": green, "displayTitle": render({})}
         calls: list = []
         with (
             mock.patch.object(runs, "current_branch", return_value="feature/x"),
             mock.patch.object(runs, "resolve_repo", return_value="o/r"),
             mock.patch.object(runs, "fetch_run", return_value=source),
+            mock.patch.object(
+                runs,
+                "inputs_from_jobs",
+                return_value={"priority": "web-app-x web-app-never"},
+            ),
             mock.patch.object(
                 runs,
                 "dispatch_workflow",

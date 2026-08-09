@@ -1,5 +1,5 @@
 ---
-- name: "📁 Pre-create NFS subdir for '{{ application_id }}' volume '{{ item.key }}'"
+- name: "📁 Pre-create NFS subdirs for '{{ application_id }}'"
   ansible.builtin.file:
     path: "{{ STORAGE_NFS_STATE_PATH }}/{{ item.value.name | default(item.key) }}"
     state: directory
@@ -9,6 +9,8 @@
   delegate_to: "{{ (groups['svc-storage-nfs-server'] | default([]))[0] | default(inventory_hostname) }}"
   run_once: true # nocheck: include-uniform-apply-keyword (per-task delegation targets differ)
   loop: "{{ (lookup('compose_volumes', application_id) | from_yaml).volumes | default({}) | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
   when:
     - DEPLOYMENT_MODE == 'swarm'
     - (storage.backend | default('local')) == 'nfs'
@@ -30,7 +32,7 @@
     - (lookup('compose_volumes', application_id) | from_yaml).volumes | default({}) | length > 0
     - application_id not in lookup('roles_with_placement', 'manager')
 
-- name: "🔁 Materialize NFS subdir '{{ item.0.key }}' on every swarm node"
+- name: "🔁 Materialize NFS subdirs for '{{ application_id }}' on every swarm node"
   ansible.builtin.file:
     path: "{{ DIR_VAR_LIB }}/{{ item.0.value.name | default(item.0.key) }}"
     state: directory

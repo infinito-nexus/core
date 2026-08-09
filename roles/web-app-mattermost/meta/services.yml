@@ -40,7 +40,7 @@ mattermost:
   shared: true
   user_access_token_enabled: "{{ 'web-app-nextcloud' in group_names }}"
   image: mattermost/mattermost-team-edition
-  version: 11.9.0
+  version: 11.10.0
   min_storage: 659MB
   backup:
     no_stop_required: true

@@ -8,11 +8,14 @@ Repository variables are set under **Settings → Secrets and variables → Acti
 
 | Variable | Workflow | Default (unset) | Set to activate |
 |---|---|---|---|
-| `CI_CANCEL_IN_PROGRESS` | [entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml), [ci-orchestrator.yml](../../../../../.github/workflows/ci-orchestrator.yml) | Cancels in-progress runs on new push | `false` to keep in-progress runs alive |
+| `CI_CANCEL_IN_PROGRESS` | [entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml), [call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) | Cancels in-progress runs on new push | `false` to keep in-progress runs alive |
 | `CI_SYNC_MAIN_SOURCE_REPOSITORY` | [entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml) | Syncs `main` from `infinito-nexus/core` before CI scope discovery | `<owner>/<repo>` to use another source, or `false`, empty, or the current repository to skip |
 | `CI_RUN_ON_MAIN` | [entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml) | Pushes to `main` skip CI | `true` to run CI on `main` pushes too |
-| `CI_ENABLE_AUTO_UPDATES` | [update.yml](../../../../../.github/workflows/update.yml), [dependabot-close.yml](../../../../../.github/workflows/dependabot-close.yml) | Update jobs skipped; Dependabot PRs auto-closed | `true` to allow update PRs (workflow-driven and Dependabot) |
-| `INFINITO_PLAYWRIGHT_KEEP` | [test-deploy-compose.yml](../../../../../.github/workflows/test-deploy-compose.yml) | Playwright keeps trace, screenshot and video only when a test fails | `true` to keep them for every test (passing runs included) |
+| `CI_ENABLE_AUTO_UPDATES` | [cron-update.yml](../../../../../.github/workflows/cron-update.yml), [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml) | Update jobs skipped; Dependabot PRs auto-closed | `true` to allow update PRs (workflow-driven and Dependabot) |
+| `INFINITO_PLAYWRIGHT_KEEP` | [call-test-deploy-compose.yml](../../../../../.github/workflows/call-test-deploy-compose.yml) | Playwright keeps trace, screenshot and video only when a test fails | `true` to keep them for every test (passing runs included) |
+| `CI_RERUN_INTERVAL_MINUTES` | [cron-rerun-cancelled.yml](../../../../../.github/workflows/cron-rerun-cancelled.yml) | Sweeps for cancelled runs every full hour | Minutes between two sweeps, rounded up to whole hours |
+| `CI_RERUN_MAX_ATTEMPTS` | [cron-rerun-cancelled.yml](../../../../../.github/workflows/cron-rerun-cancelled.yml) | Revives a run however often it is cancelled | Attempt count at which a run is left alone; `0` for no ceiling |
+| `CI_RERUN_MAX_AGE_HOURS` | [cron-rerun-cancelled.yml](../../../../../.github/workflows/cron-rerun-cancelled.yml) | Ignores runs untouched for more than 24 hours | Age in hours beyond which a cancelled run is left alone |
 
 ## `CI_CANCEL_IN_PROGRESS` 🛑
 
@@ -113,7 +116,7 @@ The gate is applied inside [push_ci_policy.sh](../../../../../scripts/meta/resol
 
 ## `CI_ENABLE_AUTO_UPDATES` 🔄
 
-Controls whether automated update PRs are created. Covers both the workflow-driven jobs in [update.yml](../../../../../.github/workflows/update.yml) (Docker image versions, agent skills) and PRs opened by Dependabot (gated via [dependabot-close.yml](../../../../../.github/workflows/dependabot-close.yml), which auto-closes them).
+Controls whether automated update PRs are created. Covers both the workflow-driven jobs in [cron-update.yml](../../../../../.github/workflows/cron-update.yml) (Docker image versions, agent skills) and PRs opened by Dependabot (gated via [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml), which auto-closes them).
 
 The workflow-driven jobs additionally require the `BOT_APP_CLIENT_ID` and `BOT_APP_PRIVATE_KEY` repository secrets, see [secrets.md](secrets.md). Without those secrets, runs fail at the token-minting step and no PR is opened.
 
@@ -135,13 +138,13 @@ Delete the variable or change its value to anything other than `true`.
 
 **How it works:**
 
-In [update.yml](../../../../../.github/workflows/update.yml) each job carries a job-level guard:
+In [cron-update.yml](../../../../../.github/workflows/cron-update.yml) each job carries a job-level guard:
 
 ```yaml
 if: vars.CI_ENABLE_AUTO_UPDATES == 'true'
 ```
 
-Dependabot cannot read repository variables itself, so [dependabot-close.yml](../../../../../.github/workflows/dependabot-close.yml) listens on `pull_request_target` (`opened`, `reopened`) and closes any PR authored by `dependabot[bot]` while `CI_ENABLE_AUTO_UPDATES != 'true'`. The workflow does not check out PR code, which keeps the elevated `pull_request_target` context safe.
+Dependabot cannot read repository variables itself, so [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml) listens on `pull_request_target` (`opened`, `reopened`) and closes any PR authored by `dependabot[bot]` while `CI_ENABLE_AUTO_UPDATES != 'true'`. The workflow does not check out PR code, which keeps the elevated `pull_request_target` context safe.
 
 | Variable value | Workflow update jobs | Dependabot PRs |
 |---|---|---|
@@ -151,7 +154,7 @@ Dependabot cannot read repository variables itself, so [dependabot-close.yml](..
 
 ## `INFINITO_PLAYWRIGHT_KEEP` 🎬
 
-Controls whether Playwright keeps trace, screenshot, and video for every test or only for failing tests in the compose deploy-test workflow ([test-deploy-compose.yml](../../../../../.github/workflows/test-deploy-compose.yml)).
+Controls whether Playwright keeps trace, screenshot, and video for every test or only for failing tests in the compose deploy-test workflow ([call-test-deploy-compose.yml](../../../../../.github/workflows/call-test-deploy-compose.yml)).
 For the full propagation chain, the inventory override, and the local equivalents, see [Playwright Tests](../../../actions/testing/playwright.md#artefact-retention-).
 
 **Default behaviour (variable not set or set to any value other than `true`):**
@@ -183,3 +186,27 @@ INFINITO_PLAYWRIGHT_KEEP: ${{ vars.INFINITO_PLAYWRIGHT_KEEP }}
 | *(not set / empty)* | Trace / screenshot / video kept only on failure ✓ |
 | `true` | Trace / screenshot / video kept for every test ✓ |
 | any other value | Trace / screenshot / video kept only on failure ✓ |
+
+## `CI_RERUN_*` 🔁
+
+Three variables tune [cron-rerun-cancelled.yml](../../../../../.github/workflows/cron-rerun-cancelled.yml), the sweep that restarts the failed jobs of a branch whose latest run was cancelled.
+
+| Variable | Unset | Effect when set |
+|---|---|---|
+| `CI_RERUN_INTERVAL_MINUTES` | `60` | Minutes between two sweeps |
+| `CI_RERUN_MAX_ATTEMPTS` | `0` | A run at or above this attempt count is left alone; `0` means no ceiling, a run is revived however often it is cancelled |
+| `CI_RERUN_MAX_AGE_HOURS` | `24` | A run untouched for longer than this is left alone, so a sweep does not resurrect abandoned branches |
+
+**How the interval works:**
+
+A cron expression cannot read a repository variable, so the workflow is triggered every full hour and a gate lets only the hours that open the configured window through:
+
+```yaml
+INTERVAL_MINUTES: ${{ vars.CI_RERUN_INTERVAL_MINUTES || '60' }}
+```
+
+The interval is rounded up to whole hours and counted from 00:00 UTC, so `60` sweeps every hour, `180` at 00:00, 03:00, 06:00 and so on, and `1440` once a day at 00:00. One hour is the floor: anything below it sweeps hourly. Anything above 24 hours collapses to a daily sweep. Manual dispatch skips the gate entirely and always sweeps.
+
+The gate reads the hour, not the minute, so a scheduled run that GitHub starts a few minutes late still counts for its hour.
+
+**On the missing ceiling:** with `CI_RERUN_MAX_ATTEMPTS` unset, a run that is cancelled again after every revival is revived again, indefinitely. `CI_RERUN_MAX_AGE_HOURS` does not bound this, because each new attempt refreshes the run's `updatedAt` and so keeps it inside the age window. Set the variable to a positive number if a run should eventually be given up on.

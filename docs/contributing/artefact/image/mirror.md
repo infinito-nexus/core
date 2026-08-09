@@ -68,7 +68,7 @@ The mirror workflow runs as stage 8 of the CI pipeline. See [ci.md](../git/pipel
 ### CI Flow 📋
 
 1. Image discovery scans role declarations in `meta/services.yml`.
-2. [images-mirror-missing.yml](../../../../.github/workflows/images-mirror-missing.yml) copies only missing upstream refs into GHCR via `cli.contributing.mirror.sync --only-missing`. Optional Docker Hub credentials reduce source-side rate limits during that sync.
+2. [call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) copies only missing upstream refs into GHCR via `cli.contributing.mirror.sync --only-missing`. Optional Docker Hub credentials reduce source-side rate limits during that sync.
 3. Fork PRs cannot publish packages themselves, so their untrusted `pull_request` runs wait in `scripts/meta/wait/mirrors.sh` until a trusted producer run has published the required refs.
 4. Inventory generation writes the resulting mirror refs from `mirrors.yml` back into host vars.
 5. Deploy and test jobs resolve images from `ghcr.io/{namespace}/{repository}/mirror/...` instead of pulling directly from Docker Hub, MCR, or other upstream registries.
