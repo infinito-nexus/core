@@ -54,7 +54,11 @@ mariadb:
   mem_reservation: 512m
   mem_limit: 1.5g
   pids_limit: 512
+# nocheck: playwright-service-flag  self-provider
 nextcloud:
+  enabled: true
+  shared: true
+  bond: 1
   modes:
     compose:
       enabled: true

@@ -39,7 +39,11 @@ postgres:
   bond: 1
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
+# nocheck: playwright-service-flag  self-provider
 pretix:
+  enabled: true
+  shared: true
+  bond: 1
   healthcheck:
     flavor: curl
   modes:

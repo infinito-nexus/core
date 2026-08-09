@@ -29,7 +29,11 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: playwright-service-flag  self-provider
 jellyfin:
+  enabled: true
+  shared: true
+  bond: 1
   modes:
     compose:
       enabled: true

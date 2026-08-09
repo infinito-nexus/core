@@ -28,7 +28,11 @@ postgres:
   bond: 1
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
+# nocheck: playwright-service-flag  self-provider
 listmonk:
+  enabled: true
+  shared: true
+  bond: 1
   modes:
     compose:
       enabled: true

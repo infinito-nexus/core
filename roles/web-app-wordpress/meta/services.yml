@@ -26,7 +26,11 @@ discourse:
   bond: 1
   enabled: "{{ 'web-app-discourse' in group_names }}"
   shared: "{{ 'web-app-discourse' in group_names }}"
+# nocheck: playwright-service-flag  self-provider
 wordpress:
+  enabled: true
+  shared: true
+  bond: 1
   healthcheck:
     flavor: msmtp_curl
   modes:

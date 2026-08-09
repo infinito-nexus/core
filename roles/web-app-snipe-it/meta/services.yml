@@ -45,7 +45,11 @@ seaweedfs:
   enabled: "{{ 'web-app-seaweedfs' in group_names }}"
   shared: "{{ 'web-app-seaweedfs' in group_names }}"
   public: true
+# nocheck: playwright-service-flag  self-provider
 snipe-it:
+  enabled: true
+  shared: true
+  bond: 1
   modes:
     compose:
       enabled: true

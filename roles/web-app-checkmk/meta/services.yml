@@ -47,7 +47,11 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: playwright-service-flag  self-provider
 checkmk:
+  enabled: true
+  shared: true
+  bond: 1
   healthcheck:
     flavor: curl
     path: cmk/check_mk/login.py

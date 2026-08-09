@@ -41,7 +41,11 @@ postgres:
   bond: 1
   enabled: true
   shared: "{{ 'svc-db-postgres' in group_names }}"
+# nocheck: playwright-service-flag  self-provider
 n8n:
+  enabled: true
+  shared: true
+  bond: 1
   healthcheck:
     flavor: wget
     path: healthz
