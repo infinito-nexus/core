@@ -89,8 +89,7 @@
 - name: "🩺 Prove the MCP contract of {{ application_id }}"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
   vars:
-    mcp_probe_owner: "{{ lookup('config', application_id, 'mcp.credential.owner') }}"
-    mcp_probe_bearer: "{{ lookup('users', mcp_probe_owner, {}).get('tokens', {}).get(application_id, '') }}"
+    mcp_probe_bearer: "{{ lookup('mcp_credential', application_id) }}"
     mcp_probe_path_key: "{{ BASEROW_MCP_ENDPOINT_KEY }}"
     mcp_probe_read_tool: "list_databases"
     mcp_probe_read_args: {}

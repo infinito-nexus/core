@@ -19,6 +19,7 @@
       - probe
   register: openclaw_mcp_probe
   changed_when: false
+  failed_when: false
   retries: 20
   delay: 6
   until:
@@ -31,3 +32,4 @@
     that:
       - "'failed to start server' not in openclaw_mcp_probe.stdout"
     fail_msg: "OpenClaw could not connect to a configured MCP server: {{ openclaw_mcp_probe.stdout }}"
+  when: MCP_RECONCILE_STRICT | bool

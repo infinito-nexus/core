@@ -18,6 +18,7 @@
   delay: 10
   until: n8n_mcp_provision.rc == 0
   changed_when: n8n_mcp_provision.stdout.startswith('CHANGED')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   delegate_to: "{{ STACK_HOST }}"
   run_once: true
 

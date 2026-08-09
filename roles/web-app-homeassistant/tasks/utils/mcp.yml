@@ -1,8 +1,7 @@
 ---
 - name: "🔍 Read the MCP token this hub already issued"
   ansible.builtin.set_fact:
-    homeassistant_mcp_token: >-
-      {{ lookup('users', 'administrator').tokens[application_id] | default('') | trim }}
+    homeassistant_mcp_token: "{{ lookup('mcp_credential', application_id) }}"
 
 - name: "🔍 Resolve {{ application_id }} hosting node + container id"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
@@ -12,15 +11,15 @@
     resolve_compose_cid: "{{ HOMEASSISTANT_CONTAINER }}"
 
 - name: "🩺 Check the stored token against the running hub"
-  ansible.builtin.include_tasks: 01_mcp/probe.yml
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/probe.yml"
   when: homeassistant_mcp_token | length > 0
 
 - name: "🚀 Onboard the hub and enable its MCP server"
-  ansible.builtin.include_tasks: 01_mcp/provision.yml
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/provision.yml"
   when: homeassistant_mcp_token | length == 0 or homeassistant_token_probe.rc | default(1) != 0
 
 - name: "🩺 Re-check the freshly minted token"
-  ansible.builtin.include_tasks: 01_mcp/probe.yml
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/probe.yml"
   when: homeassistant_token_probe is not defined or homeassistant_token_probe.rc != 0
 
 - name: "🛑 Refuse a hub whose MCP token every client would be rejected with"
@@ -34,8 +33,7 @@
 - name: "🩺 Prove the MCP contract of {{ application_id }}"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
   vars:
-    mcp_probe_owner: "{{ lookup('config', application_id, 'mcp.credential.owner') }}"
-    mcp_probe_bearer: "{{ lookup('users', mcp_probe_owner, {}).get('tokens', {}).get(application_id, '') }}"
+    mcp_probe_bearer: "{{ lookup('mcp_credential', application_id) }}"
     mcp_probe_path_key: ""
     mcp_probe_read_tool: "GetDateTime"
     mcp_probe_read_args: {}

@@ -142,6 +142,7 @@ def _all(
 ROLE_FILE_DEFAULTS_MAIN = "defaults/main.yml"
 ROLE_FILE_HANDLERS_MAIN = "handlers/main.yml"
 ROLE_FILE_TASKS_MAIN = "tasks/main.yml"
+ROLE_FILE_TASKS_MCP = "tasks/utils/mcp.yml"
 ROLE_FILE_VARS_MAIN = "vars/main.yml"
 ROLE_FILE_README = "README.md"
 ROLE_FILE_TEMPL_COMPOSE = "templates/compose.yml.j2"

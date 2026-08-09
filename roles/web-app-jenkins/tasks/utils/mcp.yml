@@ -1,8 +1,7 @@
 ---
 - name: "🔍 Read the MCP token this controller already issued"
   ansible.builtin.set_fact:
-    jenkins_mcp_token: >-
-      {{ lookup('users', 'administrator').tokens[application_id] | default('') | trim }}
+    jenkins_mcp_token: "{{ lookup('mcp_credential', application_id) }}"
 
 - name: "🔍 Resolve {{ application_id }} hosting node + container id"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
@@ -25,15 +24,15 @@
   run_once: true
 
 - name: "🩺 Check the stored token against the running controller"
-  ansible.builtin.include_tasks: 01_mcp/probe.yml
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/probe.yml"
   when: jenkins_mcp_token | length > 0
 
 - name: "🔑 Take over the API token the controller minted for MCP clients"
-  ansible.builtin.include_tasks: 01_mcp/provision.yml
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/provision.yml"
   when: jenkins_mcp_token | length == 0 or jenkins_mcp_token_probe.rc | default(1) != 0
 
 - name: "🩺 Re-check the freshly read token"
-  ansible.builtin.include_tasks: 01_mcp/probe.yml
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/probe.yml"
   when: jenkins_mcp_token_probe is not defined or jenkins_mcp_token_probe.rc != 0
 
 - name: "🛑 Refuse a controller whose MCP token every client would be rejected with"
@@ -45,13 +44,12 @@
       client would be configured with a credential the controller answers 401 to.
 
 - name: "🩺 Verify the MCP endpoint answers that credential"
-  ansible.builtin.include_tasks: 01_mcp/verify.yml
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/verify.yml"
 
 - name: "🩺 Prove the MCP contract of {{ application_id }}"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
   vars:
-    mcp_probe_owner: "{{ lookup('config', application_id, 'mcp.credential.owner') }}"
-    mcp_probe_bearer: "{{ lookup('users', mcp_probe_owner, {}).get('tokens', {}).get(application_id, '') }}"
+    mcp_probe_bearer: "{{ lookup('mcp_credential', application_id) }}"
     mcp_probe_path_key: ""
     mcp_probe_read_tool: "whoAmI"
     mcp_probe_read_args: {}

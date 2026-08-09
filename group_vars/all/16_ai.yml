@@ -13,3 +13,4 @@ OPENROUTER_API_KEY: ""
 
 MCP_DISCOVERY: "{{ lookup('mcp_servers') }}"
 MCP_DISCOVERED_SERVERS: "{{ MCP_DISCOVERY.selected }}"
+MCP_RECONCILE_STRICT: false

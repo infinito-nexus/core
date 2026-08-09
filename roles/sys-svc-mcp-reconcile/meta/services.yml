@@ -1,0 +1,4 @@
+---
+# nocheck: required-by-coverage — invoked directly from the destructor stage, not consumed as a service
+mcp-reconcile:
+  lifecycle: beta

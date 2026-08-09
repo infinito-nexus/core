@@ -1,0 +1,13 @@
+---
+- name: "🔒 Stop excusing a provider whose credential never resolved"
+  ansible.builtin.set_fact:
+    MCP_RECONCILE_STRICT: true
+
+- name: "🔌 Reconcile {{ mcp_client.id }} against the complete provider set"
+  ansible.builtin.include_role:
+    name: "{{ mcp_client.id }}"
+    tasks_from: utils/mcp.yml
+  loop: "{{ lookup('roles_with_service', 'mcp', topic='mcp', direction='client') }}"
+  loop_control:
+    loop_var: mcp_client
+    label: "{{ mcp_client.id }}"

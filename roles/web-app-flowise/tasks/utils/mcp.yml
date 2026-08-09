@@ -74,6 +74,8 @@
       - "FLOWISE_WORKSPACE={{ (flowise_mcp_identity.stdout_lines | last | from_json).workspace_id }}"
       - -e
       - "FLOWISE_MCP_DESIRED={{ FLOWISE_MCP_DESIRED | to_json }}"
+      - -e
+      - "FLOWISE_MCP_TRANSPORT={{ FLOWISE_MCP_TRANSPORT }}"
       - "{{ FLOWISE_LOCAL_CID }}" # nocheck: container-exec-resolver
       - python3
       - "-"

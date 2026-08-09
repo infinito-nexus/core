@@ -39,27 +39,26 @@
 
 - name: "🚀 Register the Context Agent as an AppAPI ExApp"
   ansible.builtin.include_tasks:
-    file: 03_mcp/register.yml
+    file: "{{ role_path }}/tasks/utils/mcp/register.yml"
     apply:
       delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
       run_once: true
 
 - name: "🔍 Read the MCP app password this deployment already issued"
   ansible.builtin.set_fact:
-    nextcloud_mcp_token: >-
-      {{ lookup('users', 'administrator').tokens[application_id] | default('') | trim }}
+    nextcloud_mcp_token: "{{ lookup('mcp_credential', application_id) }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🩺 Check the stored app password against the MCP endpoint"
-  ansible.builtin.include_tasks: 03_mcp/probe.yml
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/probe.yml"
   when: nextcloud_mcp_token | length > 0
 
 - name: "🔑 Mint and persist a fresh MCP app password"
-  ansible.builtin.include_tasks: 03_mcp/token.yml
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/token.yml"
   when: nextcloud_mcp_token | length == 0 or nextcloud_mcp_probe.stdout | default('') != '200'
 
 - name: "🩺 Re-check the freshly minted app password"
-  ansible.builtin.include_tasks: 03_mcp/probe.yml
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/probe.yml"
   when: nextcloud_mcp_probe is not defined or nextcloud_mcp_probe.stdout != '200'
 
 - name: "🛑 Refuse an MCP endpoint that rejects the stored app password"
@@ -75,8 +74,7 @@
 - name: "🩺 Prove the MCP contract of {{ application_id }}"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
   vars:
-    mcp_probe_owner: "{{ lookup('config', application_id, 'mcp.credential.owner') }}"
-    mcp_probe_bearer: "{{ lookup('users', mcp_probe_owner, {}).get('tokens', {}).get(application_id, '') }}"
+    mcp_probe_bearer: "{{ lookup('mcp_credential', application_id) }}"
     mcp_probe_path_key: ""
     mcp_probe_read_tool: "find_details_of_current_user"
     mcp_probe_read_args: {}

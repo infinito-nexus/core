@@ -11,7 +11,7 @@
     mcp_upstream_key_path: "{{ [SNIPEIT_MCP_INSTANCE_DIR, 'upstream.env'] | path_join }}"
 
 - name: "🔑 Converge the upstream token the adapter presents"
-  ansible.builtin.include_tasks: 06_mcp_mint.yml
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp_mint.yml"
 
 - name: "🩺 Prove the MCP contract of {{ application_id }}"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"

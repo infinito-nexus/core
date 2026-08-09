@@ -32,6 +32,7 @@
   delay: 10
   until: pretix_mcp_identity.rc == 0
   changed_when: pretix_mcp_identity.stdout_lines[-1] | default('') == 'CHANGED'
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   delegate_to: "{{ PRETIX_IDENTITY_HOST_NODE }}"
   run_once: true
 

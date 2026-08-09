@@ -1,8 +1,7 @@
 ---
 - name: "🔍 Read the MCP token this instance already issued"
   ansible.builtin.set_fact:
-    gitlab_mcp_token: >-
-      {{ lookup('users', 'administrator').tokens[application_id] | default('') | trim }}
+    gitlab_mcp_token: "{{ lookup('mcp_credential', application_id) }}"
 
 - name: "🔍 Resolve {{ application_id }} hosting node + container id"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
@@ -12,15 +11,15 @@
     resolve_compose_cid: "{{ lookup('container_address', application_id, GITLAB_WEBSERVICE_SERVICE_NAME) }}"
 
 - name: "🩺 Check the stored token against the running instance"
-  ansible.builtin.include_tasks: 03_mcp/probe.yml
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/probe.yml"
   when: gitlab_mcp_token | length > 0
 
 - name: "🔑 Mint the MCP token and persist it"
-  ansible.builtin.include_tasks: 03_mcp/provision.yml
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/provision.yml"
   when: gitlab_mcp_token | length == 0 or gitlab_mcp_probe.rc | default(1) != 0
 
 - name: "🩺 Re-check the freshly minted token"
-  ansible.builtin.include_tasks: 03_mcp/probe.yml
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/probe.yml"
   when: gitlab_mcp_probe is not defined or gitlab_mcp_probe.rc != 0
 
 - name: "🛑 Refuse an instance whose MCP token every client would be rejected with"
@@ -46,8 +45,7 @@
 - name: "🩺 Prove the MCP contract of {{ application_id }}"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
   vars:
-    mcp_probe_owner: "{{ lookup('config', application_id, 'mcp.credential.owner') }}"
-    mcp_probe_bearer: "{{ lookup('users', mcp_probe_owner, {}).get('tokens', {}).get(application_id, '') }}"
+    mcp_probe_bearer: "{{ lookup('mcp_credential', application_id) }}"
     mcp_probe_path_key: ""
     mcp_probe_read_tool: "get_mcp_server_version"
     mcp_probe_read_args: {}

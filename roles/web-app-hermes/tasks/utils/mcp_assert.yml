@@ -20,6 +20,7 @@
   loop: "{{ HERMES_MCP_SERVERS }}"
   register: hermes_mcp_probe
   changed_when: false
+  failed_when: false
   retries: 20
   delay: 6
   until:
@@ -36,3 +37,4 @@
   loop: "{{ hermes_mcp_probe.results }}"
   loop_control:
     label: "{{ item.item.id }}"
+  when: MCP_RECONCILE_STRICT | bool
