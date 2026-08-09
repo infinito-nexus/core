@@ -43,6 +43,42 @@ def reasons(result):
     return {entry["id"]: entry["reason"] for entry in result["rejected"]}
 
 
+class TestSelectDeployed(unittest.TestCase):
+    """Providers the run does not deploy must not reach a client's config.
+
+    Inventory membership, group_names and the raw whitelist all admit roles the
+    play never runs; the deployed set is the whitelist's dependency closure, the
+    same one sys-service-loader preloads from.
+    """
+
+    SERVERS: ClassVar[list] = [
+        {"id": "web-app-homeassistant"},
+        {"id": "web-app-prometheus"},
+    ]
+
+    def test_a_provider_outside_the_closure_is_dropped(self):
+        self.assertEqual(
+            ["web-app-homeassistant"],
+            [
+                s["id"]
+                for s in plugin_module.select_deployed(
+                    self.SERVERS, {"web-app-hermes", "web-app-homeassistant"}
+                )
+            ],
+        )
+
+    def test_an_unresolvable_closure_filters_nothing(self):
+        for closure in (None, set()):
+            self.assertEqual(
+                2,
+                len(plugin_module.select_deployed(self.SERVERS, closure)),
+                "dropping every provider would look like a deployment with none",
+            )
+
+    def test_no_servers_stays_empty(self):
+        self.assertEqual([], plugin_module.select_deployed(None, {"web-app-hermes"}))
+
+
 class TestBuildMcpDiscovery(unittest.TestCase):
     def test_no_servers_yields_nothing(self):
         for servers in (None, []):
@@ -189,6 +225,29 @@ class TestAssertAuthorizedAreRenderable(unittest.TestCase):
             }
         )
 
+    def test_a_credential_that_never_resolved_aborts_the_reconciliation(self):
+        with self.assertRaises(AnsibleError):
+            self.assert_renderable(
+                {
+                    "selected": [],
+                    "rejected": [
+                        {"id": "a", "reason": "credential_missing", "detail": "d"}
+                    ],
+                },
+                strict=True,
+            )
+
+    def test_a_narrowing_decision_still_passes_under_reconciliation(self):
+        self.assert_renderable(
+            {
+                "selected": [],
+                "rejected": [
+                    {"id": "a", "reason": "consumer_not_allowed", "detail": "d"}
+                ],
+            },
+            strict=True,
+        )
+
     def test_an_authorized_but_unrenderable_server_aborts(self):
         for reason in (
             "transport_unsupported",
@@ -241,6 +300,27 @@ class TestResolveCredential(unittest.TestCase):
 
     def test_missing_declaration_resolves_to_nothing(self):
         self.assertEqual(resolve_credential({}, {}, {}), ("", ""))
+
+    def test_a_blank_stored_token_resolves_to_nothing(self):
+        server = self._server(
+            owner="mcp-web-app-x", source="token_store", key="web-app-x"
+        )
+        users = {"mcp-web-app-x": {"tokens": {"web-app-x": "   "}}}
+        self.assertEqual(resolve_credential(server, users, {}), ("", "mcp-web-app-x"))
+
+    def test_a_blank_role_credential_resolves_to_nothing(self):
+        server = self._server(
+            owner="mcp-web-app-x", source="credentials", key="mcp_token"
+        )
+        self.assertEqual(
+            resolve_credential(server, {}, {"mcp_token": ""}), ("", "mcp-web-app-x")
+        )
+
+    def test_a_principal_the_store_never_saw_resolves_to_nothing(self):
+        server = self._server(
+            owner="mcp-web-app-x", source="token_store", key="web-app-x"
+        )
+        self.assertEqual(resolve_credential(server, {}, {}), ("", "mcp-web-app-x"))
 
 
 if __name__ == "__main__":

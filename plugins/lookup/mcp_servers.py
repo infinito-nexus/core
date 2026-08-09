@@ -12,11 +12,24 @@ Everything else lands in ``rejected`` with a stable code:
 ``consumer_not_allowed``, ``transport_unsupported``, ``auth_unsupported``,
 ``credential_missing`` and ``endpoint_unreachable``.
 
-``consumer_not_allowed`` is a decision and simply narrows the result. The other
-four mean the provider did authorize this consumer and the connection still
-cannot be rendered, so they abort the run instead of disappearing quietly: a
-client that silently ends up with fewer tools than the deployment declared is
+``consumer_not_allowed`` is a decision and simply narrows the result.
+``transport_unsupported``, ``auth_unsupported`` and ``endpoint_unreachable``
+mean the provider did authorize this consumer and the connection still cannot
+be rendered, so they abort the run instead of disappearing quietly: a client
+that silently ends up with fewer tools than the deployment declared is
 indistinguishable from one that works.
+
+Providers are narrowed to ``application_closure(deployment.whitelist)``, the same
+set ``sys-service-loader`` preloads from. Inventory membership, ``group_names``
+and the raw whitelist all admit roles the run never deploys, and a client then
+carries an endpoint nothing is serving. In compose the closure covers everything
+present, so only swarm makes the difference visible.
+
+``credential_missing`` is the one authorized rejection that does not abort,
+because a provider deploying later in the same play has not written its secret
+yet. That exemption ends at the reconciliation stage, which runs once every
+provider has: ``assert_authorized_are_renderable(discovery, strict=True)``
+treats it as fatal there.
 
 The provider credential is whatever ``mcp.credential`` declares:
 ``owner`` names the principal, ``source`` where its secret lives
@@ -44,6 +57,8 @@ REJECT_CREDENTIAL = "credential_missing"
 REJECT_ENDPOINT = "endpoint_unreachable"
 
 FATAL_REJECTIONS = frozenset({REJECT_TRANSPORT, REJECT_AUTH, REJECT_ENDPOINT})
+
+RECONCILE_STRICT_VAR = "MCP_RECONCILE_STRICT"
 
 SOURCE_TOKEN_STORE = "token_store"  # noqa: S105 - a source name, not a secret
 SOURCE_CREDENTIALS = "credentials"
@@ -99,6 +114,22 @@ def resolve_credential(
         return str(role_credentials.get(key) or "").strip(), owner
 
     return "", owner
+
+
+def select_deployed(
+    servers: list[dict[str, Any]] | None, closure: set[str] | None
+) -> list[dict[str, Any]]:
+    """Drop providers this run does not deploy.
+
+    An empty or unresolvable closure filters nothing: discovery that silently
+    dropped every provider would look exactly like a deployment without any,
+    which is the failure this module refuses to produce elsewhere.
+    """
+    if not servers:
+        return list(servers or [])
+    if not closure:
+        return list(servers)
+    return [server for server in servers if server.get("id") in closure]
 
 
 def build_mcp_discovery(
@@ -212,20 +243,28 @@ def build_mcp_discovery(
     return {"selected": selected, "rejected": rejected}
 
 
-def assert_authorized_are_renderable(discovery: Mapping[str, Any]) -> None:
+def assert_authorized_are_renderable(
+    discovery: Mapping[str, Any], strict: bool = False
+) -> None:
     """Abort when a provider authorized this consumer but nothing can connect.
 
     Args:
         discovery: the ``{"selected": ..., "rejected": ...}`` result.
+        strict: also treat ``credential_missing`` as fatal. Its exemption buys
+            exactly one thing, a provider that deploys later in the same play
+            and has not written its secret yet. The reconciliation stage runs
+            after every provider, so there the exemption would only hide a
+            provider whose credential never resolved at all.
     """
+    fatal_reasons = FATAL_REJECTIONS | ({REJECT_CREDENTIAL} if strict else set())
     fatal = [
         entry
         for entry in discovery.get("rejected") or []
-        if entry.get("reason") in FATAL_REJECTIONS
+        if entry.get("reason") in fatal_reasons
     ]
     if not fatal:
         return
-    detail = "; ".join(f"{e['id']}: {e['reason']} — {e['detail']}" for e in fatal)
+    detail = "; ".join(f"{e['id']}: {e['reason']}: {e['detail']}" for e in fatal)
     raise AnsibleError(
         f"mcp_servers: {len(fatal)} authorized MCP server(s) cannot be "
         f"rendered. {detail}"
@@ -233,6 +272,20 @@ def assert_authorized_are_renderable(discovery: Mapping[str, Any]) -> None:
 
 
 class LookupModule(LookupBase):
+    def _deploy_closure(self, templar: Any, vars_: dict[str, Any]) -> set[str]:
+        """Roles this run deploys, or an empty set when that cannot be resolved."""
+        try:
+            whitelist = lookup_loader.get(
+                "deployment", loader=self._loader, templar=templar
+            ).run([], variables=vars_)[0]["whitelist"]
+            return set(
+                lookup_loader.get(
+                    "application_closure", loader=self._loader, templar=templar
+                ).run([whitelist], variables=vars_)[0]
+            )
+        except (AnsibleError, KeyError, IndexError, TypeError):
+            return set()
+
     def run(
         self,
         terms: Sequence[Any] | None,
@@ -240,7 +293,7 @@ class LookupModule(LookupBase):
         **kwargs: Any,
     ) -> list[Any]:
         if terms:
-            raise AnsibleError("mcp_servers: expected no terms — lookup('mcp_servers')")
+            raise AnsibleError("mcp_servers: expected no terms, lookup('mcp_servers')")
 
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
         templar = getattr(self, "_templar", None)
@@ -260,6 +313,8 @@ class LookupModule(LookupBase):
             direction="server",
             scope="deployment",
         )[0]
+
+        servers = select_deployed(servers, self._deploy_closure(templar, vars_))
 
         applications = lookup_loader.get(
             "applications", loader=self._loader, templar=templar
@@ -288,5 +343,7 @@ class LookupModule(LookupBase):
         discovery = build_mcp_discovery(
             servers, consumer_id, consumer, credentials, path_keys
         )
-        assert_authorized_are_renderable(discovery)
+        assert_authorized_are_renderable(
+            discovery, strict=bool(vars_.get(RECONCILE_STRICT_VAR))
+        )
         return [discovery]
