@@ -5,6 +5,9 @@
 - services:
     container_backup:
       enabled: true
+    sso:
+      enabled: true
+      shared: true
     litellm:
       enabled: true
       shared: true
@@ -28,6 +31,9 @@
     shared: true
 - services:
     container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override variant pins a literal off-switch
+    sso:
       enabled: false
       shared: false # nocheck: variants-static-override variant pins a literal off-switch
     litellm:

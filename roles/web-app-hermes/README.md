@@ -27,7 +27,7 @@ flowchart LR
     subgraph role [web-app-hermes 🐳🐝]
         svc_hermes["hermes"]
         svc_kata["kata"]
-        svc_sso["sso ❌"]
+        svc_sso["sso"]
         svc_logout["logout ❌"]
         svc_litellm["litellm"]
         svc_dashboard["dashboard"]
@@ -45,7 +45,7 @@ flowchart LR
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_homeassistant -. "0..1" .-> svc_homeassistant
-    dep_web_app_keycloak -- "1:1" --> svc_sso
+    dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_svc_css -. "0..1" .-> svc_css
