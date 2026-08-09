@@ -2,7 +2,7 @@
 
 ## Description
 
-Post-application MCP convergence for every deployed client, run at the **end of a play** once all providers have provisioned.
+Post-application MCP convergence for every deployed client, run at the **end of the server stage** once all providers have provisioned and before anything reads the converged state.
 
 ## Overview
 
@@ -15,7 +15,7 @@ The diagram places sys-svc-mcp-reconcile in the Infinito.Nexus cosmos: the compo
 ```mermaid
 flowchart LR
     subgraph role [sys-svc-mcp-reconcile 💻]
-        svc_mcp_reconcile["mcp-reconcile"]
+        svc_svc_mcp_reconcile["svc-mcp-reconcile"]
     end
 ```
 

@@ -11,3 +11,10 @@
   loop_control:
     loop_var: mcp_client
     label: "{{ mcp_client.id }}"
+
+- name: "🚿 Flush what the clients notified while they were still bound"
+  ansible.builtin.meta: flush_handlers
+
+- name: "🔓 Stop being strict once the reconciliation is over"
+  ansible.builtin.set_fact:
+    MCP_RECONCILE_STRICT: false

@@ -29,6 +29,11 @@
     loop_var: server_group
     label: "{{ server_group }}-roles.yml"
 
+- name: "🔌 Converge every MCP client from the complete provider set"
+  include_role:
+    name: sys-svc-mcp-reconcile
+  when: lookup('roles_with_service', 'mcp', topic='mcp', direction='client') | length > 0
+
 - name: ▶️ Run E2E Playwright tests
   include_role:
     name: "test-e2e-playwright"
