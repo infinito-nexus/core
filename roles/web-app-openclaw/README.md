@@ -127,7 +127,7 @@ rendering, so no entry carries a credential the server would reject.
 
 OpenClaw exposes no administrator-visible list of configured MCP servers, so the
 configured set is proven at deploy time instead:
-[`tasks/01_mcp_assert.yml`](./tasks/01_mcp_assert.yml) probes the agent's `mcp`
+[`tasks/utils/mcp_assert.yml`](./tasks/utils/mcp_assert.yml) probes the agent's `mcp`
 surface and fails the deploy on a non-zero return code or a `failed to start
 server` line. The Playwright spec covers the complementary case, that the
 gateway holding the MCP credentials refuses an unauthenticated caller.

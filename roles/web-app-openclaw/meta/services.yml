@@ -48,6 +48,7 @@ sso:
       port: 18789
     allowed_groups:
       - "{{ lookup('rbac_group_path', application_id='web-app-openclaw', role='administrator') }}"
+      - "{{ lookup('rbac_group_path', application_id='web-app-openclaw', role='mcp') }}"
 
 # nocheck: playwright-service-flag
 litellm:
