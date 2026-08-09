@@ -17,6 +17,11 @@ Environment:
     FLOWISE_WORKSPACE:  workspace id the managed entries belong to.
     FLOWISE_MCP_DESIRED: JSON list of ``{id, url, transport, header, token,
                         tools}`` entries to converge on.
+    FLOWISE_MCP_TRANSPORT: the one transport this Flowise can authorize, taken
+                        from the role's ``meta/mcp.yml``. Hard-coding it here
+                        put the same fact in two files: the declaration decided
+                        which providers may admit the role while this constant
+                        decided which ones it accepts, and they disagreed.
 """
 
 from __future__ import annotations
@@ -35,7 +40,7 @@ DESIRED = json.loads(os.environ.get("FLOWISE_MCP_DESIRED", "[]"))
 REGISTRY = "/api/v1/custom-mcp-servers"
 CHATFLOWS = "/api/v1/chatflows"
 OWNERSHIP_PREFIX = "infinito:"
-SUPPORTED_TRANSPORT = "sse"
+SUPPORTED_TRANSPORT = os.environ.get("FLOWISE_MCP_TRANSPORT", "")
 AUTH_CUSTOM_HEADERS = "CUSTOM_HEADERS"
 REDACTED = "************"
 
@@ -227,13 +232,19 @@ def upsert_fixture(server_id, entry_id):
 
 
 def main():
+    if not SUPPORTED_TRANSPORT:
+        sys.exit(
+            "FAILED: FLOWISE_MCP_TRANSPORT is unset. Without it every provider "
+            "reads as incompatible and the registry converges to empty."
+        )
+
     incompatible = [
         s["id"] for s in DESIRED if s.get("transport") != SUPPORTED_TRANSPORT
     ]
     if incompatible:
         sys.exit(
             f"FAILED: {incompatible} are not {SUPPORTED_TRANSPORT}. This Flowise "
-            f"authorizes with an SSE toolkit, so registering them would claim a "
+            f"authorizes with one transport, so registering them would claim a "
             f"connection that cannot be made."
         )
 

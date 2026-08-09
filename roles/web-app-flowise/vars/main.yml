@@ -18,6 +18,7 @@ FLOWISE_LITELLM_API_KEY: "{{ lookup('config', application_id, 'credentials.litel
 FLOWISE_QDRANT_INTERNAL_URL: "{{ lookup('engine', 'qdrant', application_id, 'url') }}"
 
 FLOWISE_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') }}"
+FLOWISE_MCP_TRANSPORT: "{{ lookup('config', application_id, 'mcp.supported_transports') | first }}"
 FLOWISE_MCP_SERVERS: >-
   {%- set out = [] -%}
   {%- if FLOWISE_MCP_ENABLED | bool -%}

@@ -75,25 +75,36 @@ def call(path, method="GET", payload=None):
 
 
 def register():
-    """Create the very first account, or report that one already exists."""
-    status, _ = call(
+    """Create the very first account, or report that one already exists.
+
+    Returns ``(created, status, body)``. A rejection is not fatal here, because
+    an already initialised instance answers the same way and only login is left
+    to do. The response is carried out so that a later login failure can name
+    what registration actually said: without it, an instance that refused to
+    create the account fails five minutes later as a bare "User Not Found",
+    which points at login rather than at the reason.
+    """
+    status, body = call(
         "/api/v1/account/register",
         method="POST",
         payload={
             "user": {"email": EMAIL, "name": NAME, "credential": PASSWORD},
         },
     )
-    return status in (200, 201)
+    return status in (200, 201), status, body
 
 
-def login():
+def login(registration=None):
     status, body = call(
         "/api/v1/auth/login",
         method="POST",
         payload={"email": EMAIL, "password": PASSWORD},
     )
     if status != 200 or not isinstance(body, dict):
-        sys.exit(f"FAILED logging in as {EMAIL}: {status} {body}")
+        detail = f"FAILED logging in as {EMAIL}: {status} {body}"
+        if registration is not None:
+            detail += f"; registration answered {registration[0]} {registration[1]}"
+        sys.exit(detail)
     return body
 
 
@@ -140,8 +151,8 @@ def api_key():
 
 
 def main():
-    registered = register()
-    user = login()
+    registered, status, body = register()
+    user = login(registration=(status, body))
     key, minted = api_key()
     print(f"{'CHANGED' if registered or minted else 'OK'}")
     print(
