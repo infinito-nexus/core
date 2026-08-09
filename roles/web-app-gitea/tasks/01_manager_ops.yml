@@ -69,7 +69,7 @@
   when: MODE_CLEANUP | bool
 
 - name: "🔌 Provision the MCP surface"
-  include_tasks: 05_mcp.yml
+  include_tasks: utils/mcp.yml
   when: GITEA_MCP_ENABLED | bool
 
 - name: 📂 Include DNS role to register Gitea domain(s)

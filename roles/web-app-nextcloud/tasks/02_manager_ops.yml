@@ -63,5 +63,5 @@
       delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
 
 - name: "🔌 Provision the MCP server surface"
-  include_tasks: 03_mcp.yml
+  include_tasks: utils/mcp.yml
   when: NEXTCLOUD_MCP_ENABLED | bool

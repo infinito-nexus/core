@@ -57,5 +57,5 @@
   when: MOODLE_LDAP_ENABLED | bool
 
 - name: "🔌 Provision the MCP server surface"
-  include_tasks: 06_mcp.yml
+  include_tasks: utils/mcp.yml
   when: MOODLE_MCP_ENABLED | bool
