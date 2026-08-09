@@ -5,6 +5,7 @@ import importlib.util
 import json
 import unittest
 from copy import deepcopy
+from typing import ClassVar
 from unittest.mock import patch
 
 from . import PROJECT_ROOT
@@ -12,7 +13,9 @@ from . import PROJECT_ROOT
 SCRIPT_PATH = PROJECT_ROOT / "roles/web-app-openwebui/files/provision_mcp_grants.py"
 
 
-def load_script(groups: dict, members: dict | None = None) -> object:
+def load_script(
+    groups: dict, members: dict | None = None, declared: list | None = None
+) -> object:
     spec = importlib.util.spec_from_file_location("provision_mcp_grants", SCRIPT_PATH)
     module = importlib.util.module_from_spec(spec)
     with patch.dict(
@@ -21,6 +24,7 @@ def load_script(groups: dict, members: dict | None = None) -> object:
             "OPENWEBUI_BASE": "http://localhost:8080",
             "OPENWEBUI_MCP_GROUPS": json.dumps(groups),
             "OPENWEBUI_MCP_MEMBERS": json.dumps(members or {}),
+            "OPENWEBUI_MCP_CONNECTIONS": json.dumps(declared or []),
             "OPENWEBUI_ADMIN_EMAIL": "administrator@example.org",
             "OPENWEBUI_ADMIN_PASSWORD": "x" * 32,
         },
@@ -134,6 +138,101 @@ def connection(server_id, kind="mcp"):
         "config": {"enable": False, "access_grants": []},
         "info": {"id": server_id, "name": server_id},
     }
+
+
+class TestDeclaredSetIsRegistered(unittest.TestCase):
+    """A provider that becomes reachable after the first run must still arrive.
+
+    Open WebUI keeps the tool servers in its own config, so a deployment that
+    already holds connections answers every later read with them. Reading that
+    answer as the desired state leaves a newly declared provider registered
+    nowhere, with nothing failing.
+    """
+
+    GROUPS: ClassVar[dict] = {
+        "web-app-baserow": "/roles/web-app-baserow/mcp",
+        "svc-db-qdrant": "/roles/svc-db-qdrant/mcp",
+    }
+
+    def test_a_newly_declared_provider_is_added(self) -> None:
+        module = load_script(self.GROUPS, declared=[connection("svc-db-qdrant")])
+        api = FakeApi([connection("web-app-baserow")])
+
+        with patch.object(module, "call", api):
+            granted, changed = module.grant("sk-test")
+
+        self.assertTrue(changed)
+        self.assertEqual(
+            ["svc-db-qdrant", "web-app-baserow"],
+            sorted(c["info"]["id"] for c in api.connections),
+        )
+        self.assertEqual(["svc-db-qdrant", "web-app-baserow"], sorted(granted))
+
+    def test_an_already_registered_provider_is_not_duplicated(self) -> None:
+        module = load_script(self.GROUPS, declared=[connection("web-app-baserow")])
+        api = FakeApi([connection("web-app-baserow")])
+
+        with patch.object(module, "call", api):
+            module.grant("sk-test")
+
+        self.assertEqual(
+            ["web-app-baserow"], [c["info"]["id"] for c in api.connections]
+        )
+
+    def test_a_rotated_bearer_replaces_the_registered_one(self) -> None:
+        rotated = connection("web-app-baserow")
+        rotated["key"] = "rotated"
+        module = load_script(self.GROUPS, declared=[rotated])
+        api = FakeApi([connection("web-app-baserow")])
+
+        with patch.object(module, "call", api):
+            module.grant("sk-test")
+
+        self.assertEqual(
+            ["rotated"],
+            [c["key"] for c in api.connections if c["info"]["id"] == "web-app-baserow"],
+            "a client left holding the old bearer keeps a credential the provider "
+            "has already rejected, and nothing reports it",
+        )
+
+    def test_a_moved_endpoint_replaces_the_registered_url(self) -> None:
+        moved = connection("web-app-baserow")
+        moved["url"] = "http://baserow:80/mcp/moved/sse"
+        module = load_script(self.GROUPS, declared=[moved])
+        api = FakeApi([connection("web-app-baserow")])
+
+        with patch.object(module, "call", api):
+            module.grant("sk-test")
+
+        self.assertEqual(
+            ["http://baserow:80/mcp/moved/sse"],
+            [c["url"] for c in api.connections if c["info"]["id"] == "web-app-baserow"],
+        )
+
+    def test_an_undeclared_connection_keeps_its_own_endpoint(self) -> None:
+        module = load_script(self.GROUPS, declared=[connection("web-app-baserow")])
+        api = FakeApi([connection("web-app-homeassistant")])
+
+        with patch.object(module, "call", api):
+            module.grant("sk-test")
+
+        self.assertEqual(
+            ["http://web-app-homeassistant/mcp"],
+            [
+                c["url"]
+                for c in api.connections
+                if c["info"]["id"] == "web-app-homeassistant"
+            ],
+        )
+
+    def test_a_connection_the_operator_added_survives(self) -> None:
+        module = load_script(self.GROUPS, declared=[connection("svc-db-qdrant")])
+        api = FakeApi([connection("some-openapi-server", kind="openapi")])
+
+        with patch.object(module, "call", api):
+            module.grant("sk-test")
+
+        self.assertIn("some-openapi-server", [c["info"]["id"] for c in api.connections])
 
 
 class TestProvisionMcpGrants(unittest.TestCase):
@@ -337,7 +436,7 @@ class TestProvisionMcpGrants(unittest.TestCase):
         ):
             module.grant("sk-test")
 
-        self.assertIn("connection count changed from 2 to 1", str(exit_.exception))
+        self.assertIn("the write lost ['web-app-jenkins']", str(exit_.exception))
 
     def test_a_write_the_server_ignores_aborts(self) -> None:
         module = load_script({"web-app-baserow": "/roles/web-app-baserow/mcp"})

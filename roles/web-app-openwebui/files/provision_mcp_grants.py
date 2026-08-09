@@ -161,9 +161,19 @@ def grant(key):
     if status != 200:
         sys.exit(f"FAILED reading tool servers: {status} {body}")
 
-    connections = body.get("TOOL_SERVER_CONNECTIONS") or deepcopy(DECLARED)
-    before = len(connections)
+    connections = body.get("TOOL_SERVER_CONNECTIONS") or []
     original = deepcopy(connections)
+    declared = {(entry.get("info") or {}).get("id"): entry for entry in DECLARED}
+    known = {
+        (connection.get("info") or {}).get("id")
+        for connection in connections
+        if connection.get("type") == "mcp"
+    }
+    connections += [
+        deepcopy(entry)
+        for server_id, entry in declared.items()
+        if server_id not in known
+    ]
     wanted = {}
     members_changed = False
     for connection in connections:
@@ -171,6 +181,10 @@ def grant(key):
         name = GROUPS.get(server_id)
         if connection.get("type") != "mcp" or not name:
             continue
+        source = declared.get(server_id) or {}
+        for field in ("url", "path", "key", "auth_type"):
+            if field in source:
+                connection[field] = source[field]
         wanted[server_id], group = group_id(key, name)
         member_ids = asyncio.run(user_ids_for(MEMBERS.get(server_id) or []))
         members_changed |= reconcile_members(key, group, member_ids)
@@ -198,8 +212,11 @@ def grant(key):
         sys.exit(f"FAILED re-reading tool servers: {status} {body}")
 
     written = body.get("TOOL_SERVER_CONNECTIONS") or []
-    if len(written) != before:
-        sys.exit(f"FAILED: connection count changed from {before} to {len(written)}")
+    missing = {(entry.get("info") or {}).get("id") for entry in connections} - {
+        (entry.get("info") or {}).get("id") for entry in written
+    }
+    if missing:
+        sys.exit(f"FAILED: the write lost {sorted(missing)}")
 
     for connection in written:
         server_id = (connection.get("info") or {}).get("id")
