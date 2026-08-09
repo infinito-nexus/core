@@ -26,7 +26,7 @@ from utils.annotations.suppress import is_suppressed_in_head
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.mcp import MCP_DEPLOYABLE_CLASSIFICATIONS
-from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_VARIANTS
+from utils.roles.mapping import ROLE_FILE_META_MCP, ROLE_FILE_META_VARIANTS
 
 from . import PROJECT_ROOT
 
@@ -44,14 +44,13 @@ class TestMcpVariantCoverage(unittest.TestCase):
         offenders: list[str] = []
 
         for role_dir in sorted(p for p in roles_root.iterdir() if p.is_dir()):
-            services_path = role_dir / ROLE_FILE_META_SERVICES
-            if not services_path.is_file():
+            mcp_path = role_dir / ROLE_FILE_META_MCP
+            if not mcp_path.is_file():
                 continue
-            if is_suppressed_in_head(read_text(str(services_path)).splitlines(), _RULE):
+            if is_suppressed_in_head(read_text(str(mcp_path)).splitlines(), _RULE):
                 continue
 
-            services = load_yaml_any(str(services_path), default_if_missing={})
-            mcp = services.get("mcp") if isinstance(services, Mapping) else None
+            mcp = load_yaml_any(str(mcp_path), default_if_missing={})
             if not isinstance(mcp, Mapping):
                 continue
             if mcp.get("classification") not in MCP_DEPLOYABLE_CLASSIFICATIONS:
@@ -70,8 +69,7 @@ class TestMcpVariantCoverage(unittest.TestCase):
 
             variants = load_yaml_any(str(variants_path), default_if_missing=[])
             enabled = any(
-                ((variant or {}).get("services") or {}).get("mcp", {}).get("enabled")
-                is True
+                ((variant or {}).get("mcp") or {}).get("enabled") is True
                 for variant in variants or []
                 if isinstance(variant, Mapping)
             )

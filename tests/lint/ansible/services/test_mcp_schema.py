@@ -125,22 +125,20 @@ def _flag(
 
 
 def _locate_line(lines: list[str], key: str) -> int | None:
+    """Return the 1-based line declaring ``key``, or None.
+
+    Args:
+        lines: the role's ``meta/mcp.yml`` split into lines.
+        key: the schema key a finding is reported against.
+
+    The whole file is the block, so there is no enclosing ``mcp:`` line to
+    anchor on. Anchoring on one made every lookup miss, which silently
+    disabled per-line suppression everywhere.
+    """
     needle = f"{key}:"
-    in_mcp = False
-    mcp_indent = 0
     for idx, raw in enumerate(lines, start=1):
-        stripped = raw.strip()
-        indent = len(raw) - len(raw.lstrip())
-        if stripped.startswith("mcp:"):
-            in_mcp = True
-            mcp_indent = indent
-            continue
-        if in_mcp:
-            if stripped and indent <= mcp_indent and not raw.lstrip().startswith("#"):
-                in_mcp = False
-                continue
-            if stripped.startswith(needle):
-                return idx
+        if raw.strip().startswith(needle):
+            return idx
     return None
 
 
@@ -266,6 +264,7 @@ class TestMcpSchema(unittest.TestCase):
         server_capable = direction in MCP_SERVER_DIRECTIONS
         client_capable = direction in MCP_CLIENT_DIRECTIONS
 
+        self._check_no_peer_gate(mcp, prefix, flag)
         self._check_delegation(mcp, prefix, flag)
         self._check_tools(mcp, prefix, flag)
 
@@ -300,6 +299,24 @@ class TestMcpSchema(unittest.TestCase):
             self._check_limits(mcp, prefix, flag)
         if is_adapter:
             self._check_adapter(mcp, prefix, flag, role)
+
+    def _check_no_peer_gate(self, mcp, prefix, flag) -> None:
+        """Pairing is the allowed_consumers intersection, never a deployed peer.
+
+        A block that reads ``'web-app-openwebui' in group_names`` turns "that
+        client happens to be deployed" into "that client may connect", which is
+        a different question and one nobody declared. It also cannot scale: each
+        new client would need an edit in every provider.
+        """
+        for key in ("enabled", "shared"):
+            value = mcp.get(key)
+            if isinstance(value, str) and "group_names" in value:
+                flag(
+                    key,
+                    f"{prefix}.{key} gates on group_names; provider enablement "
+                    f"is operator or variant state, and pairing is the "
+                    f"allowed_consumers intersection",
+                )
 
     def _check_delegation(self, mcp, prefix, flag) -> None:
         delegation = mcp.get("delegation")
@@ -514,6 +531,13 @@ class TestMcpSchema(unittest.TestCase):
                 "digest",
                 f"{prefix}.adapter.digest MUST pin an immutable "
                 f"{MCP_SHA256_PREFIX}… image digest",
+            )
+        elif set(digest[len(MCP_SHA256_PREFIX) :]) <= {"0"}:
+            flag(
+                "digest",
+                f"{prefix}.adapter.digest is an all-zero placeholder, which "
+                f"pins nothing; the build resolves this digest, so it must name "
+                f"the real base image",
             )
 
         if adapter_type in MCP_SPECIFICATION_ADAPTER_TYPES:
