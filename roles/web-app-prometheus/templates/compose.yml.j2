@@ -76,7 +76,7 @@
       dockerfile: Dockerfile
       args:
         MCP_ADAPTER_BASE_IMAGE: {{ lookup('config', application_id, 'services.prometheusmcp.image') }}
-        MCP_ADAPTER_BASE_TAG: "{{ lookup('config', application_id, 'services.prometheusmcp.version') }}"
+        MCP_ADAPTER_BASE_DIGEST: "{{ lookup('config', application_id, 'mcp.adapter.digest') }}"
     {{ lookup('compose_only', 'container_name', PROMETHEUS_MCP_CONTAINER) }}
     read_only: true
     cap_drop:

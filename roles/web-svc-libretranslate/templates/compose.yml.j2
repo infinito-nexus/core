@@ -29,7 +29,7 @@
       dockerfile: Dockerfile
       args:
         MCP_ADAPTER_BASE_IMAGE: {{ lookup('config', application_id, 'services.libretranslatemcp.image') }}
-        MCP_ADAPTER_BASE_TAG: "{{ lookup('config', application_id, 'services.libretranslatemcp.version') }}"
+        MCP_ADAPTER_BASE_DIGEST: "{{ lookup('config', application_id, 'mcp.adapter.digest') }}"
     {{ lookup('compose_only', 'container_name', LIBRETRANSLATE_MCP_CONTAINER) }}
     read_only: true
     cap_drop:
