@@ -6,6 +6,8 @@ hermes:
       enabled: true
     swarm:
       enabled: true
+  # nocheck: single-replica the agent keeps its kanban state in embedded SQLite on one shared volume, and SQLite takes a single writer lock per file, so concurrent replicas serialise into "database is locked" instead of sharing the work
+  replicas: 1
   bond: 1
   enabled: true
   shared: true
