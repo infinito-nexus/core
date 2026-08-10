@@ -16,6 +16,11 @@ happens to be unreachable today. Step 4 is what turns "the metadata says three
 tools" into "the server serves three tools": an upstream that grew a fourth
 fails here rather than in front of a client.
 
+For a provider with no adapter in front of it, step 4 is also the only runtime
+evidence behind ``mutating_tools_enabled: false``, which nothing else enforces
+there: relaxing it to a subset would let an upstream release add a mutating
+tool while the metadata still promises none.
+
 Over ``sse`` the same five assertions hold, driven through a real session:
 the stream is the response channel and the endpoint it announces is the
 request channel.
