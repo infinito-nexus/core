@@ -64,8 +64,37 @@ done
 docker compose "${COMPOSE_ARGS[@]}" -p "${SWARM_NAME}" --profile drill up -d
 
 if [ -n "${CACHE_NET}" ]; then
+	cache_subnet="$(docker network inspect "${CACHE_NET}" \
+		--format '{{range .IPAM.Config}}{{println .Subnet}}{{end}}' 2>/dev/null |
+		grep -F . | head -n1 || true)"
+	case "${cache_subnet}" in
+	*.0/24) ;;
+	*)
+		echo "FAILURE: ${CACHE_NET} reports IPv4 subnet '${cache_subnet:-<none>}'; the node pinning below only holds for a x.y.z.0/24" >&2
+		exit 1
+		;;
+	esac
+	cache_prefix="${cache_subnet%.0/24}"
+
+	node_octet=$((200 + INFINITO_INSTANCE * 5))
+	if [ "$((node_octet + 4))" -gt 254 ]; then
+		echo "FAILURE: INFINITO_INSTANCE=${INFINITO_INSTANCE} pushes the node band past ${cache_prefix}.254" >&2
+		exit 1
+	fi
+
 	for node in "${MGR}" "${WRK1}" "${WRK2}" "${NFS_SERVER}" "${BACKUP_NODE}"; do
-		docker network connect "${CACHE_NET}" "${node}" >/dev/null 2>&1 || true
+		if ! connect_err="$(docker network connect --ip "${cache_prefix}.${node_octet}" "${CACHE_NET}" "${node}" 2>&1)"; then
+			case "${connect_err}" in
+			*"already exists in network"* | *"already attached to network"*)
+				echo "==> ${node} already on ${CACHE_NET}; keeping its current address" >&2
+				;;
+			*)
+				echo "FAILURE: cannot pin ${node} to ${cache_prefix}.${node_octet} on ${CACHE_NET}: ${connect_err}" >&2
+				exit 1
+				;;
+			esac
+		fi
+		node_octet=$((node_octet + 1))
 	done
 fi
 
