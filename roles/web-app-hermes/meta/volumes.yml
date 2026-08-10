@@ -1,10 +1,6 @@
 ---
 hermes_data:
   type: volume
-  nfs:
-    uid: "10000"
-    gid: "10000"
-    mode: "0770"
   mounts:
     - service: hermes
       target: /opt/data
