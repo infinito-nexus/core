@@ -3,9 +3,9 @@
 Role selection: an explicit ``--role`` wins; otherwise a random pick from
 ``--priority``, then ``--whitelist``, then every invokable role inside the
 tested lifecycle envelope (``INFINITO_LIFECYCLES`` in ``default.env``) whose
-guide deploy mode is not skipped via ``meta/tests.yml``. The mode is ``host``
-for a role that ships no container stack (installed straight onto the machine),
-else ``compose``. The distro is not picked here: the role is replayed on every
+guide deploy mode is enabled in ``meta/services.yml`` and not skipped via
+``meta/tests.yml``. The mode is ``host`` for a role that ships no container
+stack (installed straight onto the machine), else ``compose``. The distro is not picked here: the role is replayed on every
 distro by ``scripts/tests/deploy/distros.sh``. Output is ``key=value`` lines
 for ``$GITHUB_ENV``.
 """
@@ -20,7 +20,7 @@ from typing import TYPE_CHECKING
 from utils.cache.files import PROJECT_ROOT
 from utils.roles.deploy import role_has_stack
 from utils.roles.lifecycle import tested_lifecycles
-from utils.roles.meta_lookup import get_role_test_skips
+from utils.roles.meta_lookup import get_role_mode_enabled, get_role_test_skips
 from utils.roles.validation.invokable import (
     _get_invokable_paths,
     _is_role_invokable,
@@ -50,6 +50,7 @@ def _testable_roles() -> list[str]:
         and _is_role_invokable(d.name, paths)
         and _role_lifecycle(d) in tested
         and _guide_mode(d) not in get_role_test_skips(d, role_name=d.name)
+        and get_role_mode_enabled(d, mode=_guide_mode(d), role_name=d.name)
     )
 
 
