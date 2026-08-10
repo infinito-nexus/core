@@ -1,7 +1,8 @@
 ---
 credentials:
   cmk_password:
-    description: Initial password for the Checkmk site administrator (cmkadmin), seeded via CMK_PASSWORD on first container start.
+    description: Password for the Checkmk site administrator (cmkadmin), seeded via CMK_PASSWORD on first container start and re-converged onto the site on
+      every deploy.
     algorithm: alphanumeric
   mcp_bearer:
     description: "Bearer an MCP client must present to this role's adapter instance. Distinct from the upstream credential the adapter presents, because authenticating

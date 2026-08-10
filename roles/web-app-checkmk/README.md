@@ -70,7 +70,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
   Container port 8000 is mapped to a host port (`local.agent`); external proxying for remote-host TLS agent registration is a follow-up.
 
 - **Break-glass `cmkadmin`:**
-  Seeded on first run via `CMK_PASSWORD`; reachable via the local login form only when the SSO gate is absent.
+  Seeded on first run via `CMK_PASSWORD` and re-converged onto the running site on every deploy; reachable via the local login form only when the SSO gate is absent.
 
 ## Quick Setup
 

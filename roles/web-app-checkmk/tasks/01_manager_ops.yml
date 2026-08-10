@@ -32,7 +32,11 @@
       - -lc
       - cmk-passwd -i cmkadmin
     stdin: "{{ CHECKMK_ADMIN_PASSWORD }}"
+  register: checkmk_passwd_converged
   changed_when: false
+  retries: 30
+  delay: 5
+  until: checkmk_passwd_converged.rc == 0
   delegate_to: "{{ CHECKMK_HOST_NODE }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
