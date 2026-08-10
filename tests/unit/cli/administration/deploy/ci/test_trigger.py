@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import subprocess
 import unittest
 from contextlib import redirect_stdout
 from unittest import mock
@@ -244,6 +245,39 @@ class TestTriggerMain(unittest.TestCase):
         with self.assertRaises(SystemExit) as ctx, redirect_stdout(io.StringIO()):
             trigger.main(["--failed", "--apps", "x"])
         self.assertEqual(ctx.exception.code, 2)
+
+
+class TestBranchRemote(unittest.TestCase):
+    def _resolve(self, upstream: str | None, push_default: str | None) -> str:
+        remotes = "fork\norigin"
+
+        def fake_run(args: list[str]) -> str:
+            if args[1] == "rev-parse":
+                if upstream is None:
+                    raise subprocess.CalledProcessError(128, args)
+                return upstream
+            if args[1] == "remote" and len(args) == 2:
+                return remotes
+            if args[1] == "config":
+                if push_default is None:
+                    raise subprocess.CalledProcessError(1, args)
+                return push_default
+            raise AssertionError(f"unexpected git call: {args}")
+
+        with mock.patch.object(runs, "_run", side_effect=fake_run):
+            return runs._branch_remote()
+
+    def test_tracking_remote_wins(self) -> None:
+        self.assertEqual(self._resolve("origin/main", "fork"), "origin")
+
+    def test_push_default_beats_origin_without_upstream(self) -> None:
+        self.assertEqual(self._resolve(None, "fork"), "fork")
+
+    def test_origin_when_no_upstream_and_no_push_default(self) -> None:
+        self.assertEqual(self._resolve(None, None), "origin")
+
+    def test_unknown_push_default_is_ignored(self) -> None:
+        self.assertEqual(self._resolve(None, "gone"), "origin")
 
 
 if __name__ == "__main__":
