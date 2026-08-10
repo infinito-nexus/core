@@ -9,6 +9,10 @@ so ``/domain-types/host_config/collections/all`` would answer with an empty
 list rather than the host inventory. A clone of ``guest`` with the two Setup
 read permissions is what makes that tool return anything.
 
+A 401 counts as transient, not as a verdict. The site serves its API before it
+writes the admin htpasswd, so from outside a starting site and a wrong password
+answer identically; only the caller's retry budget tells them apart.
+
 Environment:
     CHECKMK_API:            REST API base, ending in /check_mk/api/1.0.
     CHECKMK_ADMIN_USER:     administrator to act as.
@@ -71,7 +75,7 @@ def call(method, path, payload=None, headers=None):
         return 0, {"detail": f"unreachable: {error}"}
 
 
-TRANSIENT_STATUS = frozenset({0, 429, 502, 503, 504})
+TRANSIENT_STATUS = frozenset({0, 401, 429, 502, 503, 504})
 
 
 def fail(message, status=None):
