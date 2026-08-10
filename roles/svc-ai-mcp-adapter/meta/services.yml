@@ -2,9 +2,9 @@
 mcp-adapter:
   modes:
     compose:
-      enabled: true
+      enabled: false
     swarm:
-      enabled: true
+      enabled: false
   bond: 1
   enabled: true
   shared: true

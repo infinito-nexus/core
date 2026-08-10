@@ -14,7 +14,7 @@ The diagram places MCP Adapter in the Infinito.Nexus cosmos: the components it d
 
 ```mermaid
 flowchart LR
-    subgraph role [svc-ai-mcp-adapter 🐳🐝]
+    subgraph role [svc-ai-mcp-adapter]
         svc_mcp_adapter["mcp-adapter"]
     end
 ```
