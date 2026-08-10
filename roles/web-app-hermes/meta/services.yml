@@ -6,7 +6,7 @@ hermes:
       enabled: true
     swarm:
       enabled: true
-  # nocheck: single-replica the agent keeps its kanban state in embedded SQLite on one NFS-backed volume shared by every replica, and SQLite relies on POSIX advisory locks that NFS does not carry reliably, so concurrent writers corrupt or lose the lock rather than serialise
+  # nocheck: single-replica the agent keeps its kanban board in one embedded SQLite file on the shared volume, and its runtime turns WAL off on a network filesystem because the shared-memory index WAL coordinates writers through is per-host and not coherent between nodes
   replicas: 1
   bond: 1
   enabled: true
