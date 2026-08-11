@@ -202,7 +202,7 @@ class TestCommittedRoleLockfiles(unittest.TestCase):
             return lookup.run([app, package, path], variables={"group_names": []})[0]
 
     def test_dashboard_keycloak_js(self):
-        url = self._url("web-app-dashboard", "keycloak-js", "dist/keycloak.js")
+        url = self._url("web-app-dashboard", "keycloak-js", "lib/keycloak.js")
         self.assertRegex(url, self.URL_RE)
 
     def test_littlejs_bootstrap(self):

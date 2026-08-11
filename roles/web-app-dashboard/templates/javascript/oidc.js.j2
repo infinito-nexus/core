@@ -63,14 +63,12 @@ function setItemVisible(el, visible) {
 /* ==============================================
    3) Dynamically load the Keycloak.js adapter
    ============================================== */
-function loadKeycloakAdapter(src) {
-  return new Promise((resolve, reject) => {
-    const s = document.createElement("script");
-    s.src = src;
-    s.onload = resolve;
-    s.onerror = () => reject(new Error("Failed to load keycloak.js from " + src));
-    document.head.appendChild(s);
-  });
+async function loadKeycloakAdapter(src) {
+  const mod = await import(src);
+  if (typeof mod.default !== "function") {
+    throw new Error("keycloak.js exposed no default export at " + src);
+  }
+  return mod.default;
 }
 
 /* ==============================================
@@ -137,17 +135,13 @@ async function initAuthUI() {
   syncAuthMenuVisibility(false);
 
   // Load keycloak.js
-  const kcJsUrl = "{{ lookup('asset', application_id, 'keycloak-js', 'dist/keycloak.js') }}";
+  const kcJsUrl = "{{ lookup('asset', application_id, 'keycloak-js', 'lib/keycloak.js') }}";
+  let Keycloak;
   try {
-    await loadKeycloakAdapter(kcJsUrl);
+    Keycloak = await loadKeycloakAdapter(kcJsUrl);
   } catch (e) {
     console.error("[oidc] Failed to load adapter:", e);
     return; // nothing else to do
-  }
-
-  if (typeof window.Keycloak !== "function") {
-    console.error("[oidc] window.Keycloak is not available after loading:", kcJsUrl);
-    return;
   }
 
   // Initialize the Keycloak instance

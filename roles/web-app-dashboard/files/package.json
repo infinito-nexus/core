@@ -3,6 +3,6 @@
   "private": true,
   "description": "Browser-served frontend assets for web-app-dashboard, mirrored by web-svc-cdn.",
   "dependencies": {
-    "keycloak-js": "24.0.5"
+    "keycloak-js": "26.2.4"
   }
 }

@@ -9,7 +9,7 @@ coturn:
   enabled: true
   shared: true
   image: coturn/coturn
-  version: 4.17.0
+  version: 4.17.2
   min_storage: 246MB
   user_auth_enabled: false
   cpus: 1.0

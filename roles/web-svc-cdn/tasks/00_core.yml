@@ -11,6 +11,8 @@
     - name: "🧩 Deploy the CDN stack (one-shot npm-mirror build) + front proxy"
       include_role:
         name: sys-stk-full
+      vars:
+        aca_origin: "* always"
 
 - name: "🧩 Front proxy only (external CDN flavor)"
   include_role:
