@@ -28,13 +28,20 @@ import urllib.request
 import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
+import passthrough
 import policy
 
 PROTOCOL_VERSION = "2025-06-18"
 ENDPOINT = "/mcp"
 HEALTH = "/health"
 
-CONTRACT = policy.load_contract(os.environ.get("ADAPTER_CONTRACT", ""))
+RAW_CONTRACT = os.environ.get("ADAPTER_CONTRACT", "")
+UPSTREAM_IS_MCP = passthrough.declares_mcp_upstream(RAW_CONTRACT)
+CONTRACT = (
+    passthrough.load_mcp_contract(RAW_CONTRACT)
+    if UPSTREAM_IS_MCP
+    else policy.load_contract(RAW_CONTRACT)
+)
 BEARER = os.environ.get("ADAPTER_BEARER", "")
 UPSTREAM_KEY = os.environ.get("ADAPTER_UPSTREAM_KEY", "")
 UPSTREAM_AUTH_HEADER = os.environ.get("ADAPTER_UPSTREAM_AUTH_HEADER") or "Authorization"
@@ -98,6 +105,70 @@ def call_upstream(method, path, arguments):
     return parsed
 
 
+def decode_jsonrpc(body, content_type):
+    """Return the JSON-RPC object carried by an upstream response.
+
+    Args:
+        body: the raw response bytes.
+        content_type: the response's ``Content-Type`` header.
+
+    A streamable-http server may answer a single call as one SSE frame instead
+    of a plain body, so the first data frame is unwrapped rather than parsed as
+    JSON, which would fail on the ``data:`` prefix.
+    """
+    if "text/event-stream" in (content_type or ""):
+        for line in body.decode(errors="replace").splitlines():
+            if line.startswith("data:"):
+                frame = line[len("data:") :].strip()
+                if frame:
+                    return json.loads(frame)
+        raise ValueError("upstream_error: event stream carried no data frame")
+    return json.loads(body or b"null")
+
+
+def call_upstream_mcp(name, arguments):
+    """Return the result of one ``tools/call`` against an MCP upstream.
+
+    Args:
+        name: the tool name, already authorised against the contract.
+        arguments: client arguments, forwarded unchanged.
+
+    The client's own envelope is never forwarded: a fresh id and a fixed method
+    keep a caller from reaching another JSON-RPC method by nesting it in params.
+    """
+    envelope = {
+        "jsonrpc": "2.0",
+        "id": str(uuid.uuid4()),
+        "method": "tools/call",
+        "params": {"name": name, "arguments": arguments or {}},
+    }
+    request = urllib.request.Request(  # noqa: S310 - fixed http:// base from the contract, no user-supplied scheme
+        CONTRACT["upstream_url"],
+        data=json.dumps(envelope).encode(),
+        method="POST",
+    )
+    request.add_header("Content-Type", "application/json")
+    request.add_header("Accept", "application/json, text/event-stream")
+    if UPSTREAM_KEY:
+        request.add_header(
+            UPSTREAM_AUTH_HEADER, UPSTREAM_AUTH_FORMAT.format(key=UPSTREAM_KEY)
+        )
+
+    with urllib.request.urlopen(  # noqa: S310 - fixed http:// base from the contract, no user-supplied scheme
+        request, timeout=CONTRACT["limits"]["timeout_seconds"]
+    ) as response:
+        body = response.read(CONTRACT["limits"]["response_bytes"] + 1)
+        content_type = response.headers.get("Content-Type", "")
+
+    if len(body) > CONTRACT["limits"]["response_bytes"]:
+        raise ValueError("response_too_large")
+
+    parsed = decode_jsonrpc(body, content_type)
+    if isinstance(parsed, dict) and parsed.get("error"):
+        raise ValueError(f"upstream_error: {str(parsed['error'])[:200]}")
+    return parsed.get("result") if isinstance(parsed, dict) else None
+
+
 def upstream_status(error):
     """Return the status the provider answered with, 0 when it never answered.
 
@@ -151,11 +222,18 @@ def dispatch(request, consumer, correlation_id):
     params = request.get("params") or {}
     name = str(params.get("name") or "")
     arguments = params.get("arguments") or {}
-    upstream_method, path = policy.authorize_call(CONTRACT, name, arguments)
+    if UPSTREAM_IS_MCP:
+        tool = passthrough.authorize_mcp_call(CONTRACT, name, arguments)
+    else:
+        upstream_method, path = policy.authorize_call(CONTRACT, name, arguments)
 
     started = time.monotonic()
     try:
-        payload = call_upstream(upstream_method, path, arguments)
+        payload = (
+            call_upstream_mcp(tool, arguments)
+            if UPSTREAM_IS_MCP
+            else call_upstream(upstream_method, path, arguments)
+        )
     except Exception:
         log(
             policy.audit_event(
