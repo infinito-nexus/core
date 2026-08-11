@@ -51,5 +51,27 @@ tools:
     - manage_pipeline
     - search
     - search_labels
+  upstream_serves:
+    - create_issue
+    - create_merge_request
+    - create_merge_request_note
+    - create_workitem_note
+    - get_issue
+    - get_job_log
+    - get_mcp_server_version
+    - get_merge_request
+    - get_merge_request_commits
+    - get_merge_request_conflicts
+    - get_merge_request_diffs
+    - get_merge_request_notes
+    - get_merge_request_pipelines
+    - get_pipeline_jobs
+    - get_saved_view_work_items
+    - get_work_item_types
+    - get_workitem_notes
+    - link_work_items
+    - manage_pipeline
+    - search
+    - search_labels
   read_only_default: true
   mutating_tools_enabled: false

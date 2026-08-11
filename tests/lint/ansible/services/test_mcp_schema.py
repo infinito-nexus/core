@@ -492,6 +492,7 @@ class TestMcpSchema(unittest.TestCase):
         unknown = set(tools) - MCP_TOOLS_KEYS
         if unknown:
             flag("tools", f"{prefix}.tools has unknown key(s) {sorted(unknown)}")
+        self._check_upstream_serves(mcp, tools, prefix, flag)
         for key in MCP_TOOLS_BOOLEAN_KEYS & set(tools):
             if not isinstance(tools.get(key), bool):
                 flag(key, f"{prefix}.tools.{key} MUST be a boolean")
@@ -503,6 +504,73 @@ class TestMcpSchema(unittest.TestCase):
                 "auth_subject",
                 f"{prefix} '{mcp.get('auth_subject')}' subject requires an "
                 "explicit tools.mutating_tools_enabled: false",
+            )
+
+    def _check_upstream_serves(self, mcp, tools, prefix, flag) -> None:
+        """``allowlist`` is what the platform permits; ``upstream_serves`` is what
+        the upstream actually offers. State the second only where it DIFFERS,
+        because a provider that serves exactly what is allowed would otherwise
+        carry the same list twice and the copies would drift apart.
+
+        The difference between the two measures unenforced exposure: where it is
+        non-empty the allowlist is an intention rather than a constraint, and the
+        provider needs a gateway in front of it.
+
+        Three exemptions, all semantic: an adapter authors its tools here against
+        a REST upstream, so there is nothing to observe; a provider declared
+        ``enabled: false`` is never admitted; and ``upstream_serves: dynamic``
+        covers an upstream that composes its surface at runtime, such as one
+        proxying MCP servers an administrator configures, where no set of names
+        could be pinned at author time."""
+        if mcp.get("direction") not in MCP_SERVER_DIRECTIONS:
+            return
+        if mcp.get("implementation") == "adapter":
+            return
+        if mcp.get("enabled") is False:
+            return
+
+        allowlist = tools.get("allowlist")
+        serves = tools.get("upstream_serves")
+        if serves == "dynamic":
+            return
+
+        if not isinstance(allowlist, list) or not allowlist:
+            flag(
+                "allowlist",
+                f"{prefix}.tools.allowlist MUST name the tools the platform "
+                f"permits; an empty list reads as a pass while leaving every "
+                f"tool the upstream serves reachable",
+            )
+            return
+
+        if serves is None:
+            return
+
+        if not isinstance(serves, list) or not serves:
+            flag(
+                "upstream_serves",
+                f"{prefix}.tools.upstream_serves MUST list every tool the "
+                f"upstream offers at supported_version, or be omitted when it "
+                f"is identical to the allowlist",
+            )
+            return
+
+        undeclared = sorted(set(allowlist) - set(serves))
+        if undeclared:
+            flag(
+                "allowlist",
+                f"{prefix}.tools.allowlist names {undeclared} which the "
+                f"upstream does not serve; the platform would advertise a "
+                f"tool that cannot run",
+            )
+            return
+
+        if sorted(serves) == sorted(allowlist):
+            flag(
+                "upstream_serves",
+                f"{prefix}.tools.upstream_serves repeats the allowlist; omit it, "
+                f"absence already means the upstream serves exactly what is "
+                f"allowed",
             )
 
     def _check_adapter(self, mcp, prefix, flag, role) -> None:

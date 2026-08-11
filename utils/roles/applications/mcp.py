@@ -31,7 +31,14 @@ Field vocabulary (see ``docs/contributing/design/role/services/mcp.md``):
 * ``adapter``:         immutable source contract of a repository-owned adapter.
 * ``limits``:          the request, response, timeout, concurrency, pagination
   and stream ceilings the surface enforces.
-* ``tools``:           exact tool allowlist, schema hash and mutation policy.
+* ``tools``:           ``allowlist`` is policy, what the platform lets a consumer
+  reach, and is only a constraint where a gateway enforces it. ``upstream_serves``
+  is the observation: every tool the upstream offers at ``supported_version``.
+  State it only where it DIFFERS from the allowlist; absence means the two are
+  identical, which is the normal case for a provider that serves exactly what is
+  allowed. The difference between them measures unenforced exposure, and a
+  provider whose difference is non-empty needs a gateway in front. Plus schema
+  hash and mutation policy.
 * ``source_url``:      upstream documentation or source of the MCP surface.
 * ``supported_version``: the exact upstream version the contract was read at.
 * ``minimum_version``: first upstream release shipping the surface.
@@ -217,7 +224,13 @@ MCP_LIMITS_KEYS = frozenset(
 )
 
 MCP_TOOLS_KEYS = frozenset(
-    {"allowlist", "schema_sha256", "read_only_default", "mutating_tools_enabled"}
+    {
+        "allowlist",
+        "upstream_serves",
+        "schema_sha256",
+        "read_only_default",
+        "mutating_tools_enabled",
+    }
 )
 
 MCP_TOOLS_BOOLEAN_KEYS = frozenset({"read_only_default", "mutating_tools_enabled"})
