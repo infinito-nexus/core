@@ -50,6 +50,10 @@
         dest: "{{ [mcp_adapter_instance_dir, 'policy.py'] | path_join }}"
         mode: "0644"
         notify: []
+      - src: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/files/passthrough.py') }}"
+        dest: "{{ [mcp_adapter_instance_dir, 'passthrough.py'] | path_join }}"
+        mode: "0644"
+        notify: []
       - src: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/files/server.py') }}"
         dest: "{{ [mcp_adapter_instance_dir, 'server.py'] | path_join }}"
         mode: "0644"

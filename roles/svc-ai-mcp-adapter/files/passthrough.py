@@ -1,20 +1,3 @@
-"""Policy layer for fronting an upstream that already speaks MCP.
-
-The REST layer in :mod:`policy` derives a tool's blast radius from its HTTP
-method: anything outside GET/HEAD mutates. An upstream MCP server exposes no
-method, only a name, so that inference is unavailable and every tool must
-declare whether it mutates. A tool that does not say is rejected at startup
-rather than assumed harmless.
-
-Fronting such an upstream is what gives a plugin- or native-implemented
-provider an enforcement point at all. Without it the declared allowlist is a
-statement about the upstream rather than a constraint on it, and a client can
-reach any operation the upstream happens to serve by naming it.
-
-This module decides; it performs no I/O, so the rules stay testable without a
-live upstream.
-"""
-
 from __future__ import annotations
 
 import json
@@ -35,9 +18,6 @@ def contract_kind(contract: Mapping[str, Any]) -> str:
 
     Args:
         contract: the loaded contract.
-
-    The kind is required. Inferring it from the presence of other keys would
-    make a malformed contract look like a valid one of the other kind.
     """
     kind = str(contract.get("upstream_kind") or "").strip()
     if kind not in KINDS:
@@ -53,11 +33,6 @@ def declares_mcp_upstream(raw: str) -> bool:
 
     Args:
         raw: the ``ADAPTER_CONTRACT`` JSON document.
-
-    Routing question, deliberately total: a contract that omits the key is a
-    REST one, which is what every adapter rendered before this transport
-    existed. Validation of an MCP contract stays strict in
-    :func:`load_mcp_contract`.
     """
     try:
         contract = json.loads(raw or "{}")
@@ -136,9 +111,6 @@ def authorize_mcp_call(
         contract: the loaded contract.
         name: the tool the client asked for.
         arguments: the client-supplied arguments.
-
-    The same allowlist governs listing and calling, so a client cannot reach an
-    unlisted operation of the upstream by guessing its name.
     """
     spec = contract["tools"].get(name)
     if spec is None:
@@ -165,9 +137,6 @@ def filter_upstream_tools(
     Args:
         contract: the loaded contract.
         upstream_tools: the ``tools`` array of an upstream ``tools/list`` result.
-
-    Applied to a response the upstream controls, so an upstream that starts
-    serving new tools cannot widen this adapter's surface by doing so.
     """
     allowed = set(contract["tools"])
     return [
@@ -185,10 +154,6 @@ def undeclared_upstream_tools(
     Args:
         contract: the loaded contract.
         upstream_tools: the ``tools`` array of an upstream ``tools/list`` result.
-
-    Drift in this direction is not refused at call time, because the adapter
-    already refuses the names. It is reported so an upstream that grew a tool
-    surface is noticed rather than silently filtered forever.
     """
     allowed = set(contract["tools"])
     return sorted(
@@ -206,9 +171,6 @@ def missing_upstream_tools(
     Args:
         contract: the loaded contract.
         upstream_tools: the ``tools`` array of an upstream ``tools/list`` result.
-
-    This direction must fail closed: the adapter would advertise a tool that
-    cannot run, which is the dead surface the contract loader already refuses.
     """
     served = {tool.get("name") for tool in upstream_tools if isinstance(tool, dict)}
     return sorted(name for name in contract["tools"] if name not in served)

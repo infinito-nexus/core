@@ -61,9 +61,10 @@ def load(tools=None, *, mutating=False):
 class FakeResponse(io.BytesIO):
     """Stands in for the object urlopen returns, headers included."""
 
-    def __init__(self, body: bytes, content_type: str = "application/json"):
+    def __init__(self, body: bytes, content_type: str, status: int):
         super().__init__(body)
-        self.headers = {"Content-Type": content_type}
+        self.headers = {"Content-Type": content_type, "Mcp-Session-Id": "sess-1"}
+        self.status = status
 
     def __enter__(self):
         return self
@@ -86,15 +87,20 @@ class TestPassthroughDispatch(unittest.TestCase):
         )
 
     def test_a_call_is_forwarded_as_jsonrpc_by_name(self) -> None:
-        seen = {}
+        seen = {"methods": [], "sessions": []}
 
         def fake_urlopen(request, timeout=None):
             seen["url"] = request.full_url
-            seen["body"] = json.loads(request.data.decode())
+            body = json.loads(request.data.decode())
+            seen["methods"].append(body.get("method"))
+            seen["sessions"].append(request.get_header("Mcp-session-id"))
+            seen["body"] = body
             return FakeResponse(
                 json.dumps(
                     {"jsonrpc": "2.0", "id": "1", "result": {"ok": True}}
-                ).encode()
+                ).encode(),
+                content_type="application/json",
+                status=200,
             )
 
         with patch.object(self.MODULE.urllib.request, "urlopen", fake_urlopen):
@@ -108,6 +114,10 @@ class TestPassthroughDispatch(unittest.TestCase):
             )
 
         self.assertEqual(seen["url"], "http://example:8065/plugins/x/mcp")
+        self.assertEqual(
+            seen["methods"], ["initialize", "notifications/initialized", "tools/call"]
+        )
+        self.assertEqual(seen["sessions"][-1], "sess-1")
         self.assertEqual(seen["body"]["method"], "tools/call")
         self.assertEqual(seen["body"]["params"]["name"], "read_post")
         self.assertEqual(seen["body"]["params"]["arguments"], {"id": "7"})
@@ -126,8 +136,18 @@ class TestPassthroughDispatch(unittest.TestCase):
                 "cid",
             )
 
-    def test_an_upstream_error_object_is_raised_not_returned(self) -> None:
-        def fake_urlopen(_request, timeout=None):
+    def test_an_upstream_error_object_carries_the_real_status(self) -> None:
+        calls = {"n": 0}
+
+        def fake_urlopen(request, timeout=None):
+            calls["n"] += 1
+            body = json.loads(request.data.decode())
+            if body.get("method") != "tools/call":
+                return FakeResponse(
+                    json.dumps({"jsonrpc": "2.0", "id": "1", "result": {}}).encode(),
+                    content_type="application/json",
+                    status=200,
+                )
             return FakeResponse(
                 json.dumps(
                     {
@@ -135,18 +155,21 @@ class TestPassthroughDispatch(unittest.TestCase):
                         "id": "1",
                         "error": {"code": -32000, "message": "nope"},
                     }
-                ).encode()
+                ).encode(),
+                content_type="application/json",
+                status=200,
             )
 
         with (
             patch.object(self.MODULE.urllib.request, "urlopen", fake_urlopen),
-            self.assertRaises(ValueError),
+            self.assertRaises(ValueError) as caught,
         ):
             self.MODULE.dispatch(
                 {"method": "tools/call", "params": {"name": "read_post"}},
                 "consumer",
                 "cid",
             )
+        self.assertEqual(self.MODULE.upstream_status(caught.exception), 200)
 
 
 class TestEventStreamDecoding(unittest.TestCase):

@@ -126,22 +126,16 @@ def decode_jsonrpc(body, content_type):
     return json.loads(body or b"null")
 
 
-def call_upstream_mcp(name, arguments):
-    """Return the result of one ``tools/call`` against an MCP upstream.
+UPSTREAM_SESSION = {"id": "", "ready": False}
+SESSION_HEADER = "Mcp-Session-Id"
+
+
+def post_upstream(envelope):
+    """Return ``(parsed, status)`` of one JSON-RPC POST to the upstream.
 
     Args:
-        name: the tool name, already authorised against the contract.
-        arguments: client arguments, forwarded unchanged.
-
-    The client's own envelope is never forwarded: a fresh id and a fixed method
-    keep a caller from reaching another JSON-RPC method by nesting it in params.
+        envelope: the JSON-RPC request object to send.
     """
-    envelope = {
-        "jsonrpc": "2.0",
-        "id": str(uuid.uuid4()),
-        "method": "tools/call",
-        "params": {"name": name, "arguments": arguments or {}},
-    }
     request = urllib.request.Request(  # noqa: S310 - fixed http:// base from the contract, no user-supplied scheme
         CONTRACT["upstream_url"],
         data=json.dumps(envelope).encode(),
@@ -149,6 +143,9 @@ def call_upstream_mcp(name, arguments):
     )
     request.add_header("Content-Type", "application/json")
     request.add_header("Accept", "application/json, text/event-stream")
+    request.add_header("MCP-Protocol-Version", PROTOCOL_VERSION)
+    if UPSTREAM_SESSION["id"]:
+        request.add_header(SESSION_HEADER, UPSTREAM_SESSION["id"])
     if UPSTREAM_KEY:
         request.add_header(
             UPSTREAM_AUTH_HEADER, UPSTREAM_AUTH_FORMAT.format(key=UPSTREAM_KEY)
@@ -159,14 +156,70 @@ def call_upstream_mcp(name, arguments):
     ) as response:
         body = response.read(CONTRACT["limits"]["response_bytes"] + 1)
         content_type = response.headers.get("Content-Type", "")
+        session = response.headers.get(SESSION_HEADER)
+        status = response.status
 
+    if session:
+        UPSTREAM_SESSION["id"] = session
     if len(body) > CONTRACT["limits"]["response_bytes"]:
         raise ValueError("response_too_large")
+    return decode_jsonrpc(body, content_type), status
 
-    parsed = decode_jsonrpc(body, content_type)
+
+def handshake_upstream():
+    if UPSTREAM_SESSION["ready"]:
+        return
+    parsed, _ = post_upstream(
+        {
+            "jsonrpc": "2.0",
+            "id": str(uuid.uuid4()),
+            "method": "initialize",
+            "params": {
+                "protocolVersion": PROTOCOL_VERSION,
+                "capabilities": {},
+                "clientInfo": {"name": "infinito-mcp-adapter", "version": "1"},
+            },
+        }
+    )
     if isinstance(parsed, dict) and parsed.get("error"):
-        raise ValueError(f"upstream_error: {str(parsed['error'])[:200]}")
+        raise ValueError(f"upstream_error: initialize {str(parsed['error'])[:160]}")
+    post_upstream({"jsonrpc": "2.0", "method": "notifications/initialized"})
+    UPSTREAM_SESSION["ready"] = True
+
+
+def call_upstream_mcp(name, arguments):
+    """Return the result of one ``tools/call`` against an MCP upstream.
+
+    Args:
+        name: the tool name, already authorised against the contract.
+        arguments: client arguments, forwarded unchanged.
+    """
+    handshake_upstream()
+    envelope = {
+        "jsonrpc": "2.0",
+        "id": str(uuid.uuid4()),
+        "method": "tools/call",
+        "params": {"name": name, "arguments": arguments or {}},
+    }
+    try:
+        parsed, status = post_upstream(envelope)
+    except urllib.error.HTTPError:
+        UPSTREAM_SESSION["ready"] = False
+        UPSTREAM_SESSION["id"] = ""
+        handshake_upstream()
+        parsed, status = post_upstream(envelope)
+
+    if isinstance(parsed, dict) and parsed.get("error"):
+        raise UpstreamError(
+            f"upstream_error: {str(parsed['error'])[:200]}", status=status
+        )
     return parsed.get("result") if isinstance(parsed, dict) else None
+
+
+class UpstreamError(ValueError):
+    def __init__(self, message, status):
+        super().__init__(message)
+        self.code = status
 
 
 def upstream_status(error):

@@ -7,7 +7,7 @@ ARG MCP_ADAPTER_BASE_DIGEST
 FROM ${MCP_ADAPTER_BASE_IMAGE}@${MCP_ADAPTER_BASE_DIGEST}
 
 WORKDIR /opt/adapter
-COPY policy.py server.py /opt/adapter/
+COPY policy.py passthrough.py server.py /opt/adapter/
 
 RUN adduser --system --no-create-home --disabled-login adapter
 USER adapter
