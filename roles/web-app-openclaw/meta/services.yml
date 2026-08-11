@@ -6,6 +6,7 @@ openclaw:
       enabled: true
     swarm:
       enabled: true
+  replicas: 1 # nocheck: single-replica  single-writer SQLite state on swarm-shared NFS; concurrent multi-node writers corrupt the agent's state directory
   bond: 1
   enabled: true
   shared: true
