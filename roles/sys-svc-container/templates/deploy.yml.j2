@@ -1,6 +1,10 @@
 {% if (compose_mode_force | default('') or DEPLOYMENT_MODE) == 'swarm' %}
 {{ "\n" }}
+{% if service_replicas_forced is defined %}
+{% set _replicas = service_replicas_forced %}
+{% else %}
 {% set _replicas = lookup('applications') | resource_filter(application_id, 'replicas', service_name | default(''), '') %}
+{% endif %}
     deploy:
       {{ lookup('compose_replicas', _replicas) if _replicas != '' else lookup('compose_replicas') }}
 {% set _constraints = [] %}
