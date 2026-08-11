@@ -33,10 +33,19 @@
   ansible.builtin.set_fact:
     mcp_probe_endpoint: "{{ lookup('config', application_id, 'mcp.endpoint') }}" # nocheck: lookup-config-path  resolved against the including provider, not this role
     mcp_probe_allowlist: "{{ lookup('config', application_id, 'mcp.tools.allowlist', []) }}"
+    mcp_probe_serves_declared: "{{ lookup('config', application_id, 'mcp.tools.upstream_serves', '') }}" # nocheck: lookup-config-path  resolved against the including provider, not this role
     mcp_probe_transport: "{{ lookup('config', application_id, 'mcp.transport') }}" # nocheck: lookup-config-path  resolved against the including provider, not this role
     mcp_probe_auth: "{{ lookup('config', application_id, 'mcp.auth') }}" # nocheck: lookup-config-path  resolved against the including provider, not this role
     mcp_declared_owner: "{{ lookup('config', application_id, 'mcp.credential.owner') }}" # nocheck: lookup-config-path  resolved against the including provider, not this role
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📐 Resolve what the upstream is recorded to serve"
+  ansible.builtin.set_fact:
+    mcp_probe_upstream_serves: >-
+      {{ mcp_probe_serves_declared
+         if (mcp_probe_serves_declared is sequence
+             and mcp_probe_serves_declared is not string)
+         else [] }}
 
 - name: "🔐 Render the credential the way a client would present it"
   ansible.builtin.set_fact:
@@ -85,6 +94,8 @@
       - "MCP_AUTH_HEADER={{ mcp_probe_authorization }}"
       - -e
       - "MCP_EXPECTED_TOOLS={{ mcp_probe_allowlist | to_json }}"
+      - -e
+      - "MCP_UPSTREAM_SERVES={{ mcp_probe_upstream_serves | to_json }}"
       - -e
       - "MCP_READ_TOOL={{ mcp_probe_read_tool }}"
       - -e

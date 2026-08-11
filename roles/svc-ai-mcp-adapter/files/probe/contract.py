@@ -34,7 +34,10 @@ Environment:
     MCP_TRANSPORT:      ``streamable_http`` or ``sse``.
     MCP_PATH_KEY:       credential carried in the URL path, or "" for none.
     MCP_AUTH_HEADER:    Authorization header value the provider expects.
-    MCP_EXPECTED_TOOLS: JSON list of the exact tool names.
+    MCP_EXPECTED_TOOLS: JSON list of the exact tool names the platform permits.
+    MCP_UPSTREAM_SERVES: JSON list of what the upstream offers at the pinned
+        version, when that differs from the permitted set; "[]" when it does
+        not, so drift and policy are reported to different readers.
     MCP_READ_TOOL:      tool to invoke for the deterministic read.
     MCP_READ_ARGUMENTS: JSON object of arguments for that tool.
     MCP_HOST_HEADER:    vhost to address a host-routed provider by, or "".
@@ -57,6 +60,7 @@ TRANSPORT = os.environ["MCP_TRANSPORT"]
 PATH_KEY = os.environ.get("MCP_PATH_KEY", "")
 AUTH = os.environ["MCP_AUTH_HEADER"]
 EXPECTED = sorted(json.loads(os.environ.get("MCP_EXPECTED_TOOLS", "[]")))
+UPSTREAM_SERVES = sorted(json.loads(os.environ.get("MCP_UPSTREAM_SERVES", "[]")))
 READ_TOOL = os.environ.get("MCP_READ_TOOL", "")
 READ_ARGUMENTS = json.loads(os.environ.get("MCP_READ_ARGUMENTS", "{}"))
 HOST_HEADER = os.environ.get("MCP_HOST_HEADER", "")
@@ -369,8 +373,7 @@ def probe_sse():
         for tool in (answer.get("result") or {}).get("tools") or []
         if tool.get("name")
     )
-    if EXPECTED and served != EXPECTED:
-        reject(f"server serves {served} but the contract declares {EXPECTED}")
+    assert_surface(served)
 
     if READ_TOOL:
         answer = session.call(
@@ -383,6 +386,30 @@ def probe_sse():
         if (answer.get("result") or {}).get("isError"):
             reject(f"read call {READ_TOOL} returned an error result")
     print("OK")
+
+
+def assert_surface(served):
+    """Refuse a served tool set that does not match what the role recorded.
+
+    Args:
+        served: the tool names the upstream answered ``tools/list`` with.
+
+    Two comparisons with different addressees. Drift against ``upstream_serves``
+    means the vendor changed the surface, so the checked-in record is stale and
+    a human has to re-read the contract. A mismatch against the allowlist means
+    the platform's own policy is not what is being served. Reporting both as one
+    failure sent every upstream version bump to the wrong reader.
+    """
+    if UPSTREAM_SERVES and served != UPSTREAM_SERVES:
+        grew = sorted(set(served) - set(UPSTREAM_SERVES))
+        gone = sorted(set(UPSTREAM_SERVES) - set(served))
+        reject(
+            f"upstream drift: the recorded surface is stale "
+            f"(added {grew}, removed {gone}); re-read the contract at this "
+            f"version before deploying"
+        )
+    if EXPECTED and served != EXPECTED:
+        reject(f"server serves {served} but the contract declares {EXPECTED}")
 
 
 def main():
@@ -416,8 +443,7 @@ def main():
         for tool in (json.loads(body).get("result") or {}).get("tools") or []
         if tool.get("name")
     )
-    if EXPECTED and served != EXPECTED:
-        reject(f"server serves {served} but the contract declares {EXPECTED}")
+    assert_surface(served)
 
     if READ_TOOL:
         status, body = rpc(
