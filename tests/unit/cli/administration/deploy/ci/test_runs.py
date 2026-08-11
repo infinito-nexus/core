@@ -340,6 +340,40 @@ class TestConfigFromTitle(unittest.TestCase):
         jobs = [{"name": "🎲 Pick distro(s)"}, {"name": "🧹 Lint"}]
         self.assertNotIn("distros", runs.config_from_run(title, jobs))
 
+    def _suite_job(self, suite: str, conclusion: str) -> dict:
+        return {
+            "name": f"🎛️ Orchestrate CI (manual) / {runs.SUITE_JOB_IDS[suite]} / 📖 X",
+            "status": "completed",
+            "conclusion": conclusion,
+        }
+
+    def test_a_suite_the_source_run_passed_is_not_asked_for_again(self) -> None:
+        for suite in runs.SUITE_JOB_IDS:
+            with self.subTest(suite):
+                title = render({suite: "true"})
+                jobs = [self._suite_job(suite, "success")]
+                self.assertEqual(runs.config_from_run(title, jobs)[suite], "false")
+
+    def test_a_suite_that_failed_is_asked_for_again(self) -> None:
+        for suite in runs.SUITE_JOB_IDS:
+            with self.subTest(suite):
+                title = render({suite: "true"})
+                jobs = [self._suite_job(suite, "failure")]
+                self.assertEqual(runs.config_from_run(title, jobs)[suite], "true")
+
+    def test_a_suite_that_never_ran_is_asked_for_again(self) -> None:
+        title = render({"workspace": "true"})
+        jobs = [{"name": "🧹 Lint", "status": "completed", "conclusion": "success"}]
+        self.assertEqual(runs.config_from_run(title, jobs)["workspace"], "true")
+
+    def test_one_failing_shard_keeps_the_whole_suite(self) -> None:
+        title = render({"workspace": "true"})
+        jobs = [
+            self._suite_job("workspace", "success"),
+            self._suite_job("workspace", "failure"),
+        ]
+        self.assertEqual(runs.config_from_run(title, jobs)["workspace"], "true")
+
 
 if __name__ == "__main__":
     unittest.main()
