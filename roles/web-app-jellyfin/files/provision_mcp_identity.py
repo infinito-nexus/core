@@ -147,22 +147,53 @@ def ensure_user(token):
     return body["Id"], True
 
 
+def set_password(token, user_id):
+    """Converge the inventory password onto a user that already exists.
+
+    Args:
+        token: an administrator access token; the server skips the
+            current-password check only for an admin acting on another user.
+        user_id: the target user's id, passed as a query parameter because
+            omitting it retargets the caller's own account.
+    """
+    status, body = call(
+        "POST",
+        f"/Users/Password?userId={user_id}",
+        {"NewPw": MCP_PASSWORD, "ResetPassword": False},
+        token=token,
+    )
+    if status not in (200, 204):
+        fail(
+            f"setting the password of {MCP_USER} answered {status}: {str(body)[:200]}",
+            status,
+        )
+
+
 def main():
-    if CURRENT_TOKEN:
-        status, _ = call("GET", "/System/Info", token=CURRENT_TOKEN)
-        if status == 200:
-            print("UNCHANGED")
-            print(CURRENT_TOKEN)
-            return
+    status, body = call(
+        "POST", "/Users/AuthenticateByName", {"Username": MCP_USER, "Pw": MCP_PASSWORD}
+    )
+    if status == 200 and isinstance(body, dict):
+        if CURRENT_TOKEN:
+            probe, _ = call("GET", "/System/Info", token=CURRENT_TOKEN)
+            if probe == 200:
+                print("UNCHANGED")
+                print(CURRENT_TOKEN)
+                return
+        print("CHANGED")
+        print(body["AccessToken"])
+        return
 
     token = admin_token()
-    user_id, created = ensure_user(token)
+    user_id, _created = ensure_user(token)
 
     status, body = call(
         "POST", f"/Users/{user_id}/Policy", READ_ONLY_POLICY, token=token
     )
     if status not in (200, 204):
         fail(f"restricting {MCP_USER} answered {status}: {str(body)[:200]}", status)
+
+    set_password(token, user_id)
 
     status, body = call(
         "POST",
@@ -172,7 +203,7 @@ def main():
     if status != 200 or not isinstance(body, dict):
         fail(f"authenticating {MCP_USER} answered {status}: {str(body)[:200]}", status)
 
-    print("CHANGED" if created else "UNCHANGED")
+    print("CHANGED")
     print(body["AccessToken"])
 
 
