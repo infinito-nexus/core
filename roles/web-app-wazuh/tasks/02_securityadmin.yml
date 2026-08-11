@@ -1,0 +1,38 @@
+---
+# Pushes internal_users.yml/config.yml/roles.yml/roles_mapping.yml (rendered
+# by 01_core.yml) into the security index. This is a discrete, ordered step:
+# it only runs after the indexer has reported cluster health green/yellow
+# (the preceding task in 01_core.yml), never as a bare file drop.
+- name: "Run securityadmin.sh inside the indexer compose service"
+  ansible.builtin.shell:
+    # `compose exec` (and `docker compose exec` underneath it) addresses
+    # services by their COMPOSE SERVICE KEY ("indexer"), not the
+    # `container_name` value ("wazuh.indexer") - confirmed against a live
+    # deploy: exec with the container_name fails with the misleading
+    # "service ... is not running" even while the container is genuinely
+    # up and healthy. Same class of mistake as the earlier `depends_on:`
+    # bug in templates/compose.yml.j2, just in a different spot.
+    # JAVA_HOME MUST be set explicitly: securityadmin.sh's own JVM-location
+    # logic falls back to `which java`, which does not exist in this image
+    # (confirmed against a live deploy - without JAVA_HOME the script hangs
+    # indefinitely after printing its "nor OPENSEARCH_JAVA_HOME nor
+    # JAVA_HOME is set" warning and never reaches the actual securityadmin
+    # run). The real java binary lives at the bundled JDK path below.
+    cmd: >-
+      {{ BIN_COMPOSE }} exec -T -e JAVA_HOME=/usr/share/wazuh-indexer/jdk indexer
+      /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh
+      -cd {{ WAZUH_INDEXER_SECURITY_DIR_CONTAINER }}/
+      -icl
+      -key {{ WAZUH_INDEXER_CERTS_DIR_CONTAINER }}/admin-key.pem
+      -cert {{ WAZUH_INDEXER_CERTS_DIR_CONTAINER }}/admin.pem
+      -cacert {{ WAZUH_INDEXER_CERTS_DIR_CONTAINER }}/root-ca.pem
+      -nhnv
+    chdir: "{{ WAZUH_INSTANCE_DIR }}"
+  register: wazuh_securityadmin
+  changed_when: "'Done with success' in wazuh_securityadmin.stdout"
+  failed_when:
+    - wazuh_securityadmin.rc != 0
+    - "'Done with success' not in wazuh_securityadmin.stdout"
+  retries: 10
+  delay: 10
+  until: wazuh_securityadmin.rc == 0

@@ -1,0 +1,155 @@
+---
+# Wazuh has no external relational/object-store database: the wazuh.indexer
+# entity below (an OpenSearch fork) is the self-contained datastore and also
+# holds the OpenSearch security-plugin RBAC config (config.yml,
+# roles_mapping.yml, applied via securityadmin.sh). It is declared as an
+# internal stack entity, not wired to svc-db-mariadb/svc-db-postgres.
+# Email alerting (ossec.conf <global><email_notification>) is a manager
+# alerting feature independent of dashboard/login; wiring the SMTP lookup is
+# out of scope for this single-node PR, so this flag stays literal false with
+# no Playwright surface to gate.
+# nocheck: email, dynamic-flag, playwright-service-flag
+email:
+  enabled: false
+  shared: false
+sso:
+  bond: 1
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
+  flavor: oidc
+# nocheck: playwright-service-flag — identity backend consumed directly by the
+# indexer's OpenSearch security plugin (authentication_backend/type: ldap),
+# independent of the OIDC login path; no separate LDAP UI surface to probe.
+ldap:
+  bond: 1
+  enabled: "{{ 'svc-db-openldap' in group_names }}"
+  shared: "{{ 'svc-db-openldap' in group_names }}"
+logout:
+  bond: 1
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
+# nocheck: playwright-service-flag — dashboard-tile reachability is owned by
+# web-app-dashboard/files/playwright/playwright.spec.js, not consumer roles.
+dashboard:
+  bond: 1
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
+matomo:
+  bond: 1
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
+# nocheck: playwright-service-flag — Wazuh exposes no native /metrics
+# endpoint; nothing for a consumer-role spec to assert here.
+prometheus:
+  bond: 1
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
+css:
+  bond: 1
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
+# Role-level metadata holder: none of manager/indexer/dashboard alone is the
+# "primary" compose entity, so run_after/lifecycle live on this non-compose
+# holder key (get_entity_name('web-app-wazuh') == 'wazuh'), following the
+# same shape as web-app-bluesky's multi-entity holder. The lint's
+# resource-limit check applies to every top-level entity regardless of
+# whether it maps to a real container, so this holder carries a nominal
+# footprint too (bluesky's own holder entity does the same).
+wazuh:
+  min_storage: 1GB
+  cpus: "0.2"
+  mem_reservation: 128m
+  mem_limit: 256m
+  pids_limit: 256
+  run_after:
+    - web-app-keycloak
+    - svc-db-openldap
+  lifecycle: beta
+# Genuine one-shot sidecar (generates TLS material once, then exits) — see
+# templates/compose.yml.j2. A dedicated entity (not plain vars.yml literals)
+# so it gets version-bump automation / GHCR mirror coverage like every other
+# declared image, and resource-limit/logging parity via sys-svc-container's
+# base.yml.j2, following web-app-shopware's "init" sidecar precedent.
+certs_generator:
+  image: wazuh/wazuh-certs-generator
+  version: "0.0.4"
+  name: wazuh-certs-generator
+  cpus: "0.2"
+  mem_reservation: 64m
+  mem_limit: 256m
+  pids_limit: 128
+manager:
+  image: wazuh/wazuh-manager
+  version: "4.14.6"
+  # Dotted, not hyphenated: wazuh-certs-tool.sh's own SAN validation regex
+  # requires a dot followed by a 2+ letter suffix
+  # (^...([A-Za-z0-9]|...)\.([A-Za-z]{2,})$) to accept a value as a DNS name
+  # at all. A bare hyphenated name like "wazuh-manager" fails that regex and
+  # the tool exits with "Invalid IP or DNS" (confirmed against a live
+  # deploy). Matches upstream's own single-node reference naming exactly.
+  name: wazuh.manager
+  min_storage: 10GB
+  cpus: "1.0"
+  mem_reservation: 512m
+  mem_limit: 2g
+  pids_limit: 1024
+  backup:
+    no_stop_required: false
+  ports:
+    internal:
+      # Agent event data and enrollment. Not published to the host in this
+      # phase: agent enrollment across the platform's fleet is out of scope
+      # for this PR (see README). Recorded now so the compose file does not
+      # need rework once a follow-up role wires real agent enrollment.
+      agent_events: 1514
+      agent_registration: 1515
+      # Syslog intake, optional upstream feature, not published in this phase.
+      syslog: 514
+      # Wazuh API, consumed internally by wazuh.dashboard over the role's
+      # docker network. Never published to the host.
+      api: 55000
+indexer:
+  image: wazuh/wazuh-indexer
+  version: "4.14.6"
+  # Dotted: see the "manager" entity comment above for why.
+  name: wazuh.indexer
+  min_storage: 20GB
+  cpus: "2.0"
+  mem_reservation: 1g
+  mem_limit: 2g
+  pids_limit: 2048
+  backup:
+    no_stop_required: false
+  ports:
+    internal:
+      http: 9200
+    local:
+      # Localhost-only (never public): lets the Ansible control node's
+      # wait_for health-gate reach the indexer before the dashboard starts
+      # and before securityadmin.sh runs, without exposing 9200 externally.
+      http: 8081
+# Named "console", not "dashboard": the file root already has a "dashboard"
+# key for the platform's web-app-dashboard tile-integration service bond
+# above. Reusing "dashboard" here for the wazuh.dashboard compose entity
+# would collide on the same top-level YAML key and silently drop one of the
+# two definitions (confirmed: it dropped the service bond).
+console:
+  image: wazuh/wazuh-dashboard
+  version: "4.14.6"
+  # Dotted: see the "manager" entity comment above for why.
+  name: wazuh.dashboard
+  min_storage: 2GB
+  cpus: "1.0"
+  mem_reservation: 512m
+  mem_limit: 1g
+  pids_limit: 512
+  ports:
+    internal:
+      # Upstream default OpenSearch Dashboards port. server.ssl.enabled is
+      # set to false in opensearch_dashboards.yml.j2 so the container speaks
+      # plain HTTP internally; the platform's shared front-proxy terminates
+      # TLS at the edge, same as every other web-app role.
+      http: 5601
+    local:
+      http: 8089

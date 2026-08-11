@@ -1,0 +1,62 @@
+---
+# Maps this role's meta/rbac.yml roles onto OpenSearch security roles.
+# Each entry lists both the OIDC-claim shape and the LDAP-CN shape
+# (vars/main.yml) so a user reaching Wazuh via either path resolves to the
+# same OpenSearch role.
+_meta:
+  type: "rolesmapping"
+  config_version: 2
+
+all_access:
+  reserved: false
+  backend_roles:
+    - "{{ WAZUH_RBAC_ADMIN_GROUP }}"
+    - "{{ WAZUH_RBAC_ADMIN_LDAP_CN }}"
+    # Literal "admin": internal_users.yml's own 'admin' bootstrap/service
+    # account declares backend_roles: ["admin"] (matching upstream's
+    # convention), which is a different value from the RBAC-group-path
+    # shapes above. Without this literal mapping, that account
+    # authenticates successfully but gets 403 on every request (confirmed
+    # against a live deploy) - it is the account securityadmin.sh, the
+    # health checks, and manager/dashboard's INDEXER_PASSWORD all use, not
+    # a real human user reached via OIDC/LDAP.
+    - "admin"
+
+security_analyst:
+  reserved: false
+  backend_roles:
+    - "{{ WAZUH_RBAC_ANALYST_GROUP }}"
+    - "{{ WAZUH_RBAC_ANALYST_LDAP_CN }}"
+
+# readonly_auditor (files/roles.yml) is genuinely custom, not the built-in
+# readall+kibana_read_only pair: those built-ins do not cover the "read"
+# action group's full scope needed for wz-home's own bootstrap calls -
+# confirmed against a live deploy, where a readonly-auditor session got
+# permanently stuck on the app's own loading screen with a
+# `no permissions for [indices:data/read/get]` security_exception in the
+# dashboard's server log.
+readonly_auditor:
+  reserved: false
+  backend_roles:
+    - "{{ WAZUH_RBAC_READONLY_GROUP }}"
+    - "{{ WAZUH_RBAC_READONLY_LDAP_CN }}"
+
+kibana_read_only:
+  reserved: false
+  backend_roles:
+    - "{{ WAZUH_RBAC_READONLY_GROUP }}"
+    - "{{ WAZUH_RBAC_READONLY_LDAP_CN }}"
+
+# Built-in role providing the cluster-monitor/index permissions
+# wazuh.dashboard's own backend needs for its calls to wazuh.indexer.
+# internal_users.yml's 'kibanaserver' account has no backend_roles at all
+# (it is a single named service account, not a group membership), so it is
+# matched here by literal username instead: without this mapping the
+# account authenticates but gets 403 on cluster:monitor/nodes/info on
+# every request, and the dashboard never leaves "unhealthy" (confirmed
+# against a live deploy - this is what a 503 through the front-proxy
+# traced back to).
+kibana_server:
+  reserved: false
+  users:
+    - "kibanaserver"

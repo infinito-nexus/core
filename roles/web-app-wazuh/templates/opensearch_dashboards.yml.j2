@@ -1,0 +1,40 @@
+server.host: 0.0.0.0
+server.port: {{ WAZUH_DASHBOARD_INTERNAL_PORT }}
+# TLS terminates at the platform's shared front-proxy (sys-svc-webserver-https),
+# same as every other web-app role; the dashboard container speaks plain HTTP
+# on the role-local docker network.
+server.ssl.enabled: false
+opensearch.hosts: https://{{ WAZUH_INDEXER_CONTAINER }}:{{ WAZUH_INDEXER_INTERNAL_PORT }}
+opensearch.ssl.verificationMode: certificate
+opensearch.ssl.certificateAuthorities: ["/usr/share/wazuh-dashboard/certs/root-ca.pem"]
+opensearch.requestHeadersWhitelist: ["securitytenant", "Authorization"]
+opensearch_security.multitenancy.enabled: false
+opensearch_security.readonly_mode.roles: ["kibana_read_only"]
+# NOT /app/wz-home: confirmed against a live deploy that Wazuh's own
+# wz-home app throws an uncaught client-side exception during its bootstrap
+# for any OpenSearch role other than all_access (administrator only) -
+# security-analyst and readonly-auditor both hit OpenSearch Dashboards'
+# generic "Application Not Found" page, a real bug affecting any actual
+# end-user in those roles, not a test artifact. defaultRoute has no native
+# per-role conditionality (schema.string(), a single global value - see
+# src/core/server/ui_settings/settings/navigation.js). /app/home is
+# OpenSearch Dashboards' own framework-standard landing page and is
+# confirmed to render correctly for every role; administrators can still
+# reach wz-home via in-app navigation once past this landing page.
+uiSettings.overrides.defaultRoute: /app/home
+opensearch_security.cookie.ttl: 900000
+opensearch_security.session.ttl: 900000
+opensearch_security.session.keepalive: true
+{% if WAZUH_OIDC_ENABLED %}
+# Native OIDC directly against Keycloak (no oauth2-proxy sidecar). Login
+# succeeds/fails against the indexer's openid_auth_domain (config.yml.j2);
+# this block only wires the dashboard's own OIDC client so it can drive the
+# redirect and token exchange itself.
+opensearch_security.auth.type: "openid"
+opensearch_security.openid.connect_url: "{{ OIDC.CLIENT.DISCOVERY_DOCUMENT }}"
+opensearch_security.openid.client_id: "{{ OIDC.CLIENT.ID }}"
+opensearch_security.openid.client_secret: "{{ OIDC.CLIENT.SECRET }}"
+opensearch_security.openid.base_redirect_url: "{{ WAZUH_DASHBOARD_BASE_URL }}"
+opensearch_security.openid.scope: "openid profile email groups"
+opensearch_security.openid.logout_url: "{{ OIDC.CLIENT.LOGOUT_URL }}"
+{% endif %}
