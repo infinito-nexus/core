@@ -64,12 +64,30 @@ def _install_one(manager: str, package: str) -> bool:
     return True
 
 
-def install_package_candidates(manager: str, packages: list[str]) -> None:
+def install_package_candidates(
+    manager: str, packages: list[str], provides: str | None = None
+) -> None:
+    """Install packages until ``provides`` is callable, or all candidates fail.
+
+    Args:
+        manager: the detected package manager.
+        packages: candidate package names, most specific first.
+        provides: the command the caller needs.
+    """
     _prepare_manager(manager)
+    installed_any = False
     for package in packages:
         if _install_one(manager, package):
-            return
-    raise RuntimeError(f"All package candidates failed via {manager}: {packages}")
+            installed_any = True
+            if provides is None or shutil.which(provides) is not None:
+                return
+    if installed_any and provides is not None:
+        raise RuntimeError(
+            f"Installed {packages} via {manager} but {provides!r} is still not on "
+            f"PATH; the candidate list does not cover this distribution."
+        )
+    if not installed_any:
+        raise RuntimeError(f"All package candidates failed via {manager}: {packages}")
 
 
 _COMMAND_PACKAGES: dict[str, dict[str, list[str]]] = {
@@ -110,7 +128,7 @@ def install_command_via_pkg(command_name: str) -> None:
         )
 
     log(f"Missing command '{command_name}'. Attempting installation via {manager}.")
-    install_package_candidates(manager, mapping[manager])
+    install_package_candidates(manager, mapping[manager], provides=command_name)
 
 
 __all__ = [

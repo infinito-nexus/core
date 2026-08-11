@@ -27,7 +27,6 @@ class TestInstallPackageCandidates(unittest.TestCase):
     def test_pacman_succeeds_first_candidate(self) -> None:
         with mock.patch.object(system_pkg, "run_privileged") as priv:
             system_pkg.install_package_candidates("pacman", ["ansible-core", "ansible"])
-        # Only one call: the first candidate succeeded.
         self.assertEqual(len(priv.call_args_list), 1)
         self.assertEqual(priv.call_args_list[0].args[0][0], "pacman")
 
@@ -62,7 +61,25 @@ class TestInstallCommandViaPkg(unittest.TestCase):
             mock.patch.object(system_pkg, "install_package_candidates") as cand,
         ):
             system_pkg.install_command_via_pkg("ansible-playbook")
-        cand.assert_called_once_with("pacman", ["ansible-core", "ansible"])
+        cand.assert_called_once_with(
+            "pacman", ["ansible-core", "ansible"], provides="ansible-playbook"
+        )
+
+    def test_a_candidate_that_installs_without_providing_the_command_fails(
+        self,
+    ) -> None:
+        with (
+            mock.patch.object(system_pkg, "_prepare_manager"),
+            mock.patch.object(
+                system_pkg, "_install_one", side_effect=lambda m, p: p != "npm"
+            ),
+            mock.patch.object(system_pkg.shutil, "which", return_value=None),
+            self.assertRaises(RuntimeError) as caught,
+        ):
+            system_pkg.install_package_candidates(
+                "apt-get", ["npm", "nodejs"], provides="npm"
+            )
+        self.assertIn("still not on PATH", str(caught.exception))
 
     def test_unknown_command_raises(self) -> None:
         with mock.patch.object(
