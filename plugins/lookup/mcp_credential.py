@@ -8,7 +8,9 @@ slightly differently read a different thing.
 
 Usage:
     "{{ lookup('mcp_credential', 'web-app-gitea') }}"
-    -> the stored token, or "" when none has been issued yet
+    -> the reader token, or "" when none has been issued yet
+    "{{ lookup('mcp_credential', 'web-app-gitea', 'mcp-writer') }}"
+    -> the writer token, stored beside it under a role-suffixed key
 
 An empty string is a valid answer: a provider that has not minted its
 credential yet is the normal state early in a play, and the callers
@@ -23,6 +25,8 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
+from utils.roles.rbac.scoped import MCP_ROLES
+
 
 class LookupModule(LookupBase):
     def run(
@@ -32,12 +36,21 @@ class LookupModule(LookupBase):
         **kwargs: Any,
     ) -> list[Any]:
         terms = list(terms or [])
-        if len(terms) != 1 or not str(terms[0]).strip():
+        if len(terms) not in (1, 2) or not str(terms[0]).strip():
             raise AnsibleError(
-                "mcp_credential: expected exactly one term — the provider's "
-                "application_id, e.g. lookup('mcp_credential', 'web-app-gitea')"
+                "mcp_credential: expected the provider's application_id and an "
+                "optional role, e.g. lookup('mcp_credential', 'web-app-gitea') "
+                "or lookup('mcp_credential', 'web-app-gitea', 'mcp-writer')"
             )
         application_id = str(terms[0]).strip()
+        role = str(terms[1]).strip() if len(terms) == 2 else ""
+        if role and role not in MCP_ROLES:
+            raise AnsibleError(
+                f"mcp_credential: unknown role {role!r}; expected one of "
+                f"{list(MCP_ROLES)}. An empty token is a valid answer here, so a "
+                f"typo would deploy an adapter with no bearer instead of failing."
+            )
+        token_key = f"{application_id}:{role}" if role else application_id
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
         templar = getattr(self, "_templar", None)
 
@@ -59,4 +72,4 @@ class LookupModule(LookupBase):
         tokens = users.get("tokens")
         if not isinstance(tokens, dict):
             return [""]
-        return [str(tokens.get(application_id, "") or "").strip()]
+        return [str(tokens.get(token_key, "") or "").strip()]

@@ -70,10 +70,32 @@ class TestMcpCredentialLookup(unittest.TestCase):
         with self.assertRaises(AnsibleError):
             self._run(["web-app-gitea"], owner="")
 
-    def test_zero_or_many_terms_raise(self):
-        for terms in ([], ["a", "b"], ["   "]):
+    def test_zero_or_too_many_terms_raise(self):
+        for terms in ([], ["a", "b", "c"], ["   "]):
             with self.assertRaises(AnsibleError):
                 self._run(terms)
+
+    def test_an_unknown_role_raises_instead_of_returning_nothing(self):
+        with self.assertRaises(AnsibleError):
+            self._run(["web-app-gitea", "mcp-writter"])
+
+    def test_a_writer_token_is_read_from_its_own_key(self):
+        self.assertEqual(
+            ["w-tok"],
+            self._run(
+                ["web-app-gitea", "mcp-writer"],
+                users={"tokens": {"web-app-gitea:mcp-writer": "w-tok"}},
+            ),
+        )
+
+    def test_a_role_reads_a_separate_token(self):
+        self.assertEqual(
+            [""],
+            self._run(
+                ["web-app-gitea", "mcp-writer"],
+                users={"tokens": {"web-app-gitea": "reader-only"}},
+            ),
+        )
 
 
 if __name__ == "__main__":
