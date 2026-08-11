@@ -23,7 +23,22 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
-APPLICATION_SCOPED_ROLES = frozenset({"mcp"})
+MCP_READER_ROLE = "mcp-reader"
+MCP_WRITER_ROLE = "mcp-writer"
+MCP_LEGACY_ROLE = "mcp"
+
+MCP_ROLES = (MCP_READER_ROLE, MCP_WRITER_ROLE)
+
+APPLICATION_SCOPED_ROLES = frozenset({MCP_LEGACY_ROLE, *MCP_ROLES})
+
+
+def expand_mcp_role(role_name: str) -> str:
+    """Return the role a grant confers, resolving the pre-split name.
+
+    Args:
+        role_name: a role as written in a user's grants.
+    """
+    return MCP_READER_ROLE if role_name == MCP_LEGACY_ROLE else role_name
 
 
 def granted_roles(user_config: Mapping[str, object], application_id: str) -> set[str]:
@@ -39,7 +54,7 @@ def granted_roles(user_config: Mapping[str, object], application_id: str) -> set
         for role in (user_config.get("roles") or [])
         if role not in APPLICATION_SCOPED_ROLES
     ]
-    return set(unscoped) | set(scoped)
+    return set(unscoped) | set(scoped) | {expand_mcp_role(r) for r in scoped}
 
 
 def members_with_role(

@@ -369,6 +369,7 @@ class TestProvisionMcpGrants(unittest.TestCase):
                 }
             },
             [{"id": "web-app-baserow"}],
+            "mcp-reader",
         )
 
         api = self._grant_with_members(

@@ -13,7 +13,7 @@ OPENWEBUI_SECRET_KEY: "{{ lookup('config', application_id, 'credentials.webui_se
 OPENWEBUI_MCP_SERVERS: "{{ MCP_DISCOVERED_SERVERS if (lookup('config', application_id, 'mcp.enabled') | bool) else [] }}"
 OPENWEBUI_MCP_GROUP_OWNER: "openwebui-mcp-groups"
 OPENWEBUI_MCP_GROUP_IDS: "{{ (lookup('users', OPENWEBUI_MCP_GROUP_OWNER, {}) | default({}, true)).get('tokens', {}) }}"
-OPENWEBUI_MCP_MEMBERS: "{{ lookup('users') | mcp_group_members(OPENWEBUI_MCP_SERVERS) }}"
+OPENWEBUI_MCP_MEMBERS: "{{ lookup('users') | mcp_group_members(OPENWEBUI_MCP_SERVERS, 'mcp-reader') }}"
 OPENWEBUI_INTERNAL_HTTP_PORT: "{{ lookup('config', application_id, 'services.openwebui.ports.internal.http') }}"
 OPENWEBUI_API_BOT_USER: "{{ lookup('users', 'openwebui-api-bot') }}"
 

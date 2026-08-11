@@ -23,7 +23,7 @@ from utils.roles.rbac.scoped import (
 class TestGrantedRoles(unittest.TestCase):
     def test_a_scoped_grant_reaches_only_the_named_application(self) -> None:
         user = {"application_roles": {"web-app-baserow": ["mcp"]}}
-        self.assertEqual({"mcp"}, granted_roles(user, "web-app-baserow"))
+        self.assertEqual({"mcp", "mcp-reader"}, granted_roles(user, "web-app-baserow"))
         self.assertEqual(set(), granted_roles(user, "web-app-n8n"))
 
     def test_an_unscoped_scoped_role_grants_nothing_anywhere(self) -> None:
@@ -44,7 +44,8 @@ class TestGrantedRoles(unittest.TestCase):
             "application_roles": {"web-app-baserow": ["mcp"]},
         }
         self.assertEqual(
-            {"administrator", "mcp"}, granted_roles(user, "web-app-baserow")
+            {"administrator", "mcp", "mcp-reader"},
+            granted_roles(user, "web-app-baserow"),
         )
         self.assertEqual({"administrator"}, granted_roles(user, "web-app-n8n"))
 
@@ -55,7 +56,7 @@ class TestGrantedRoles(unittest.TestCase):
                 "web-app-n8n": ["administrator"],
             }
         }
-        self.assertEqual({"mcp"}, granted_roles(user, "web-app-baserow"))
+        self.assertEqual({"mcp", "mcp-reader"}, granted_roles(user, "web-app-baserow"))
         self.assertEqual({"administrator"}, granted_roles(user, "web-app-n8n"))
 
     def test_a_user_without_any_declaration_holds_nothing(self) -> None:
@@ -64,6 +65,16 @@ class TestGrantedRoles(unittest.TestCase):
     def test_null_declarations_are_treated_as_empty(self) -> None:
         user = {"roles": None, "application_roles": None}
         self.assertEqual(set(), granted_roles(user, "web-app-baserow"))
+
+    def test_a_legacy_mcp_grant_confers_reading_not_writing(self) -> None:
+        user = {"application_roles": {"web-app-baserow": ["mcp"]}}
+        granted = granted_roles(user, "web-app-baserow")
+        self.assertIn("mcp-reader", granted)
+        self.assertNotIn("mcp-writer", granted)
+
+    def test_an_explicit_writer_grant_is_kept(self) -> None:
+        user = {"application_roles": {"web-app-baserow": ["mcp-writer"]}}
+        self.assertEqual({"mcp-writer"}, granted_roles(user, "web-app-baserow"))
 
     def test_mcp_is_application_scoped(self) -> None:
         self.assertIn("mcp", APPLICATION_SCOPED_ROLES)
@@ -78,7 +89,7 @@ class TestMembersWithRole(unittest.TestCase):
 
     def test_only_the_scoped_holder_is_a_member(self) -> None:
         self.assertEqual(
-            ["biber"], members_with_role(self.USERS, "web-app-baserow", "mcp")
+            ["biber"], members_with_role(self.USERS, "web-app-baserow", "mcp-reader")
         )
 
     def test_the_unscoped_holder_is_a_member_of_no_application(self) -> None:
@@ -93,7 +104,7 @@ class TestMembersWithRole(unittest.TestCase):
         }
         self.assertEqual(
             ["biber@infinito.example"],
-            members_with_role(users, "web-app-baserow", "mcp"),
+            members_with_role(users, "web-app-baserow", "mcp-reader"),
         )
 
     def test_members_are_sorted_so_the_grant_diff_is_stable(self) -> None:
@@ -103,7 +114,7 @@ class TestMembersWithRole(unittest.TestCase):
         }
         self.assertEqual(
             ["adler", "biber", "otter"],
-            members_with_role(users, "web-app-baserow", "mcp"),
+            members_with_role(users, "web-app-baserow", "mcp-reader"),
         )
 
     def test_no_users_yields_no_members(self) -> None:
@@ -111,7 +122,19 @@ class TestMembersWithRole(unittest.TestCase):
 
     def test_a_null_user_entry_does_not_abort_the_scan(self) -> None:
         users = {"ghost": None, "biber": {"application_roles": {"app": ["mcp"]}}}
-        self.assertEqual(["biber"], members_with_role(users, "app", "mcp"))
+        self.assertEqual(["biber"], members_with_role(users, "app", "mcp-reader"))
+
+
+class TestMcpRoleVocabulary(unittest.TestCase):
+    def test_both_mcp_roles_are_application_scoped(self) -> None:
+        from utils.roles.rbac.scoped import APPLICATION_SCOPED_ROLES, MCP_ROLES
+
+        for role in MCP_ROLES:
+            self.assertIn(role, APPLICATION_SCOPED_ROLES)
+
+    def test_a_writer_grant_does_not_confer_the_reader_name(self) -> None:
+        user = {"application_roles": {"app": ["mcp-writer"]}}
+        self.assertEqual({"mcp-writer"}, granted_roles(user, "app"))
 
 
 if __name__ == "__main__":

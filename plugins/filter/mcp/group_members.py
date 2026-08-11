@@ -1,6 +1,6 @@
 """Filter ``mcp_group_members``: who may reach each MCP tool server.
 
-    {{ lookup('users') | mcp_group_members(MCP_DISCOVERED_SERVERS) }}
+    {{ lookup('users') | mcp_group_members(MCP_DISCOVERED_SERVERS, 'mcp-reader') }}
     -> {"web-app-baserow": [{"username": "alice", "email": "alice@example.org"}],
         "web-app-zammad": []}
 
@@ -19,12 +19,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from utils.roles.rbac.scoped import members_with_role
+from utils.roles.rbac.scoped import MCP_ROLES, members_with_role
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
-
-MCP_ROLE = "mcp"
 
 
 def _identify(users: Mapping[str, Any] | None, username: str) -> dict[str, str]:
@@ -38,17 +36,24 @@ def _identify(users: Mapping[str, Any] | None, username: str) -> dict[str, str]:
 def mcp_group_members(
     users: Mapping[str, Any] | None,
     servers: Sequence[Mapping[str, Any]] | None,
+    role: str,
 ) -> dict[str, list[dict[str, str]]]:
-    """Return the users granted ``mcp`` on each discovered server.
+    """Return the users granted each MCP role on each discovered server.
 
     Args:
         users: the merged users mapping.
         servers: the selected ``MCP_DISCOVERED_SERVERS`` entries.
+        role: the MCP grant to resolve.
     """
+    if role not in MCP_ROLES:
+        raise ValueError(
+            f"mcp_group_members: unknown role {role!r}; "
+            f"expected one of {list(MCP_ROLES)}"
+        )
     return {
         server_id: [
             _identify(users, username)
-            for username in members_with_role(users, server_id, MCP_ROLE)
+            for username in members_with_role(users, server_id, role)
         ]
         for server_id in (str(s.get("id") or "") for s in servers or [] if s.get("id"))
     }
