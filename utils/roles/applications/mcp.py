@@ -29,9 +29,17 @@ Field vocabulary (see ``docs/contributing/design/role/services/mcp.md``):
   the URL path, and ``suffix`` the segment that follows it, for servers that
   address a session through the path rather than a header.
 * ``adapter``:         immutable source contract of a repository-owned adapter.
+  ``category_allowlist`` suits an upstream that switches whole categories and
+  offers no per-tool filter, where a tool allowlist would be unenforceable;
+  ``mcp_passthrough`` fronts an upstream that already speaks MCP instead of
+  translating REST.
 * ``limits``:          the request, response, timeout, concurrency, pagination
   and stream ceilings the surface enforces.
-* ``tools``:           ``allowlist`` is policy, what the platform lets a consumer
+* ``tools``:           ``allowlist`` is what a reader may reach and
+  ``writer_allowlist`` what a writer may reach; the deployment renders one
+  contract per role, each with its own bearer, because the gateway tells
+  callers apart by credential and by nothing else. ``allowlist`` is policy,
+  what the platform lets a consumer
   reach, and is only a constraint where a gateway enforces it. ``upstream_serves``
   is the observation: every tool the upstream offers at ``supported_version``.
   State it only where it DIFFERS from the allowlist; absence means the two are
@@ -113,8 +121,12 @@ MCP_ADAPTER_TYPES = frozenset(
         "prometheus_readonly",
         "n8n_workflow",
         "resource_readonly",
+        "category_allowlist",
+        "mcp_passthrough",
     }
 )
+
+MCP_UPSTREAM_MCP_ADAPTER_TYPES = frozenset({"mcp_passthrough"})
 
 MCP_SCOPED_ADAPTER_TYPES = frozenset(
     {"graphql_allowlist", "named_query", "s3_prefix", "resource_readonly"}
@@ -226,7 +238,9 @@ MCP_LIMITS_KEYS = frozenset(
 MCP_TOOLS_KEYS = frozenset(
     {
         "allowlist",
+        "writer_allowlist",
         "upstream_serves",
+        "categories",
         "schema_sha256",
         "read_only_default",
         "mutating_tools_enabled",

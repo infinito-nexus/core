@@ -83,6 +83,7 @@ from utils.roles.applications.mcp import (
     MCP_TOOLS_BOOLEAN_KEYS,
     MCP_TOOLS_KEYS,
     MCP_TRANSPORTS,
+    MCP_UPSTREAM_MCP_ADAPTER_TYPES,
     declares_delegation,
     delegation_is_proven,
     value_is_templated,
@@ -492,19 +493,73 @@ class TestMcpSchema(unittest.TestCase):
         unknown = set(tools) - MCP_TOOLS_KEYS
         if unknown:
             flag("tools", f"{prefix}.tools has unknown key(s) {sorted(unknown)}")
+        self._check_writer_allowlist(tools, prefix, flag)
         self._check_upstream_serves(mcp, tools, prefix, flag)
+
         for key in MCP_TOOLS_BOOLEAN_KEYS & set(tools):
             if not isinstance(tools.get(key), bool):
                 flag(key, f"{prefix}.tools.{key} MUST be a boolean")
-        if (
-            mcp.get("auth_subject") in MCP_PRIVILEGED_AUTH_SUBJECTS
-            and tools.get("mutating_tools_enabled") is not False
-        ):
+        privileged = mcp.get("auth_subject") in MCP_PRIVILEGED_AUTH_SUBJECTS
+        mutating = tools.get("mutating_tools_enabled")
+        enforced = mcp.get("implementation") == "adapter"
+        if privileged and mutating is not False and not enforced:
             flag(
                 "auth_subject",
-                f"{prefix} '{mcp.get('auth_subject')}' subject requires an "
-                "explicit tools.mutating_tools_enabled: false",
+                f"{prefix} '{mcp.get('auth_subject')}' subject may only enable "
+                f"mutating tools behind a gateway that enforces the allowlist on "
+                f"tools/call; without one the flag records an intention that "
+                f"nothing upholds, so it MUST be false",
             )
+        if (
+            privileged
+            and mutating is True
+            and enforced
+            and not tools.get("writer_allowlist")
+        ):
+            flag(
+                "writer_allowlist",
+                f"{prefix} enables mutating tools but names no "
+                f"tools.writer_allowlist, so every reader would reach the writes "
+                f"too; the point of the split is that they get different bearers",
+            )
+
+    def _check_writer_allowlist(self, tools, prefix, flag) -> None:
+        allowlist = tools.get("allowlist")
+        if not isinstance(allowlist, list):
+            return
+        writer = tools.get("writer_allowlist")
+        if writer is None:
+            return
+        if not _is_exact_names(writer):
+            flag(
+                "writer_allowlist",
+                f"{prefix}.tools.writer_allowlist MUST name exact tools",
+            )
+            return
+        missing = sorted(set(allowlist) - set(writer))
+        if missing:
+            flag(
+                "writer_allowlist",
+                f"{prefix}.tools.writer_allowlist omits {missing}, which a reader "
+                f"may already reach; a writer that loses a read tool is a "
+                f"narrower grant wearing the wider name",
+            )
+        if set(writer) == set(allowlist):
+            flag(
+                "writer_allowlist",
+                f"{prefix}.tools.writer_allowlist repeats the allowlist; omit it, "
+                f"a provider with no extra write surface needs one contract, "
+                f"not two",
+            )
+        serves = tools.get("upstream_serves")
+        if isinstance(serves, list) and serves:
+            undeclared = sorted(set(writer) - set(serves))
+            if undeclared:
+                flag(
+                    "writer_allowlist",
+                    f"{prefix}.tools.writer_allowlist names {undeclared} which "
+                    f"the upstream does not serve",
+                )
 
     def _check_upstream_serves(self, mcp, tools, prefix, flag) -> None:
         """``allowlist`` is what the platform permits; ``upstream_serves`` is what
@@ -524,7 +579,12 @@ class TestMcpSchema(unittest.TestCase):
         could be pinned at author time."""
         if mcp.get("direction") not in MCP_SERVER_DIRECTIONS:
             return
-        if mcp.get("implementation") == "adapter":
+        adapter = mcp.get("adapter")
+        adapter_type = adapter.get("type") if isinstance(adapter, Mapping) else None
+        if (
+            mcp.get("implementation") == "adapter"
+            and adapter_type not in MCP_UPSTREAM_MCP_ADAPTER_TYPES
+        ):
             return
         if mcp.get("enabled") is False:
             return
@@ -532,6 +592,15 @@ class TestMcpSchema(unittest.TestCase):
         allowlist = tools.get("allowlist")
         serves = tools.get("upstream_serves")
         if serves == "dynamic":
+            if not _is_exact_names(tools.get("categories")):
+                flag(
+                    "categories",
+                    f"{prefix}.tools.categories MUST pin the categories the "
+                    f"deployment permits: an upstream that composes its tools at "
+                    f"runtime and switches only whole categories cannot honour a "
+                    f"per-tool allowlist, so the category is the finest contract "
+                    f"it can keep and 'dynamic' alone would permit everything",
+                )
             return
 
         if not isinstance(allowlist, list) or not allowlist:
@@ -607,6 +676,17 @@ class TestMcpSchema(unittest.TestCase):
                 f"pins nothing; the build resolves this digest, so it must name "
                 f"the real base image",
             )
+
+        if adapter_type in MCP_UPSTREAM_MCP_ADAPTER_TYPES:
+            spec = str(adapter.get("specification_path") or "")
+            if not spec:
+                flag(
+                    "specification_path",
+                    f"{prefix}.adapter.specification_path MUST name the tool "
+                    f"contract the passthrough enforces; an MCP upstream exposes "
+                    f"no method to infer a tool's blast radius from, so each tool "
+                    f"has to declare whether it mutates",
+                )
 
         if adapter_type in MCP_SPECIFICATION_ADAPTER_TYPES:
             spec = str(adapter.get("specification_path") or "")
