@@ -83,10 +83,22 @@ class TestServiceConverged(unittest.TestCase):
         self.assertEqual(proc.returncode, 0)
         self.assertEqual(proc.stderr, "")
 
-    def test_update_in_progress_names_the_state(self):
-        proc = self._run(update_state="paused", filtered_ps="Running 2 minutes ago\n")
+    def test_update_in_progress_is_worth_another_poll(self):
+        proc = self._run(update_state="updating", filtered_ps="Running 2 minutes ago\n")
         self.assertEqual(proc.returncode, 1)
-        self.assertIn("UpdateStatus.State=paused", proc.stderr)
+        self.assertIn("UpdateStatus.State=updating", proc.stderr)
+
+    def test_latched_update_gives_up_instead_of_polling(self):
+        for latched in ("paused", "rollback_paused"):
+            with self.subTest(state=latched):
+                proc = self._run(
+                    update_state=latched,
+                    filtered_ps="Running 2 minutes ago\n",
+                    full_ps="demo_app.1 node-a Shutdown Failed error=task: non-zero exit (1)\n",
+                )
+                self.assertEqual(proc.returncode, 2)
+                self.assertIn(f"UpdateStatus.State={latched}", proc.stderr)
+                self.assertIn("cannot leave this state on its own", proc.stderr)
 
     def test_missing_desired_running_task_is_named(self):
         proc = self._run(filtered_ps="")
