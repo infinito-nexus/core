@@ -35,6 +35,31 @@ if ! services=$(timeout 15 docker stack services --format '{{.Name}} {{.Replicas
 	exit 1
 fi
 
+mapfile -t service_names < <(printf '%s\n' "$services" | awk 'NF {print $1}')
+latched=""
+if [ ${#service_names[@]} -gt 0 ]; then
+	update_states=$(timeout 15 docker service inspect \
+		--format '{{.Spec.Name}} {{if .UpdateStatus}}{{.UpdateStatus.State}}{{else}}none{{end}}' \
+		"${service_names[@]}" 2>/dev/null || true)
+	while read -r name state; do
+		[ -n "$name" ] || continue
+		case "$state" in
+		paused | rollback_paused | rollback_started | rollback_completed)
+			latched="${latched} ${name}(${state})"
+			;;
+		esac
+	done <<<"$update_states"
+fi
+
+if [ -n "$latched" ]; then
+	echo "update latched:${latched}; it cannot leave this state without another stack deploy" >&2
+	printf '%s\n' "$latched" | tr ' ' '\n' | sed 's/(.*//' | while read -r svc; do
+		[ -n "$svc" ] || continue
+		report_tasks "$svc"
+	done
+	exit 2
+fi
+
 not_running=""
 while read -r name reps; do
 	[ -n "$name" ] || continue

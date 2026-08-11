@@ -100,6 +100,18 @@ class TestServiceConverged(unittest.TestCase):
                 self.assertIn(f"UpdateStatus.State={latched}", proc.stderr)
                 self.assertIn("cannot leave this state on its own", proc.stderr)
 
+    def test_a_rolled_back_update_is_not_reported_as_converged(self):
+        for reverted in ("rollback_started", "rollback_completed"):
+            with self.subTest(state=reverted):
+                proc = self._run(
+                    update_state=reverted,
+                    filtered_ps="Running 2 minutes ago\n",
+                    full_ps="demo_app.1 node-a Shutdown Failed error=task: non-zero exit (1)\n",
+                )
+                self.assertEqual(proc.returncode, 2)
+                self.assertIn(f"UpdateStatus.State={reverted}", proc.stderr)
+                self.assertIn("not the desired one", proc.stderr)
+
     def test_missing_desired_running_task_is_named(self):
         proc = self._run(filtered_ps="")
         self.assertEqual(proc.returncode, 1)
