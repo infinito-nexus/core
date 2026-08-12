@@ -9,7 +9,7 @@
       dockerfile: Dockerfile
       args:
         MCP_ADAPTER_BASE_IMAGE: {{ MCP_ADAPTER_BASE_IMAGE }}
-        MCP_ADAPTER_BASE_DIGEST: "{{ MCP_ADAPTER_BASE_DIGEST }}"
+        MCP_ADAPTER_BASE_VERSION: "{{ MCP_ADAPTER_BASE_VERSION }}"
     {{ lookup('compose_only', 'container_name', MCP_ADAPTER_CONTAINER) }}
     read_only: true
     cap_drop:

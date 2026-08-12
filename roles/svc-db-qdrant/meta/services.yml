@@ -34,7 +34,7 @@ qdrantmcp:
   shared: false
   image: python
   # nocheck: docker-version  base of the self-built stdlib adapter, not the served application
-  version: "3.13-slim"
+  version: "3.13.15-slim"
   custom: true
   name: qdrantmcp
   cpus: "0.25"

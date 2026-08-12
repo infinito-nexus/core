@@ -10,7 +10,7 @@ mcp-adapter:
   shared: true
   # nocheck: docker-version  base of a self-built stdlib-only image, not the served application
   image: python
-  version: "3.13-slim"
+  version: "3.13.15-slim"
   custom: true
   name: mcp-adapter
   min_storage: 130MB

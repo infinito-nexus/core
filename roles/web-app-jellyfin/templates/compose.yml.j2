@@ -23,7 +23,7 @@
       dockerfile: Dockerfile
       args:
         MCP_ADAPTER_BASE_IMAGE: {{ lookup('config', application_id, 'services.jellyfinmcp.image') }}
-        MCP_ADAPTER_BASE_DIGEST: "{{ lookup('config', application_id, 'mcp.adapter.digest') }}"
+        MCP_ADAPTER_BASE_VERSION: "{{ lookup('config', application_id, 'services.jellyfinmcp.version') }}"
     {{ lookup('compose_only', 'container_name', JELLYFIN_MCP_CONTAINER) }}
     read_only: true
     cap_drop:

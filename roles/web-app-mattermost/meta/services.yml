@@ -104,7 +104,7 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
 mattermostmcp:
   image: python
   # nocheck: docker-version  base of the self-built stdlib adapter, not the served application
-  version: "3.13-slim"
+  version: "3.13.15-slim"
   custom: true
   name: mattermostmcp
   cpus: "0.25"

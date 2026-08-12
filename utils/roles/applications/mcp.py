@@ -211,9 +211,6 @@ MCP_DELEGATION_PROOF_KEYS = frozenset({"refresh", "revocation", "audience_bindin
 MCP_ADAPTER_KEYS = frozenset(
     {
         "type",
-        "image",
-        "version",
-        "digest",
         "upstream_api_version",
         "specification_path",
         "specification_sha256",
@@ -221,7 +218,7 @@ MCP_ADAPTER_KEYS = frozenset(
     }
 )
 
-MCP_ADAPTER_REQUIRED_KEYS = frozenset({"type", "image", "version", "digest"})
+MCP_ADAPTER_REQUIRED_KEYS = frozenset({"type"})
 
 MCP_LIMITS_KEYS = frozenset(
     {

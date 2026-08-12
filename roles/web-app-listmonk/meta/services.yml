@@ -91,7 +91,7 @@ prometheus:
 listmonkmcp:
   image: python
   # nocheck: docker-version  base of the self-built stdlib adapter, not the served application
-  version: "3.13-slim"
+  version: "3.13.15-slim"
   custom: true
   name: listmonkmcp
   cpus: "0.25"

@@ -3,8 +3,8 @@
 # Deliberately stdlib-only: the served surface is three JSON-RPC methods, and
 # a dependency-free image has no transitive supply chain to audit per release.
 ARG MCP_ADAPTER_BASE_IMAGE
-ARG MCP_ADAPTER_BASE_DIGEST
-FROM ${MCP_ADAPTER_BASE_IMAGE}@${MCP_ADAPTER_BASE_DIGEST}
+ARG MCP_ADAPTER_BASE_VERSION
+FROM ${MCP_ADAPTER_BASE_IMAGE}:${MCP_ADAPTER_BASE_VERSION}
 
 WORKDIR /opt/adapter
 COPY policy.py passthrough.py server.py /opt/adapter/

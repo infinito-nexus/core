@@ -126,7 +126,7 @@
       dockerfile: Dockerfile
       args:
         MCP_ADAPTER_BASE_IMAGE: {{ lookup('config', application_id, 'services.gitlabmcp.image') }}
-        MCP_ADAPTER_BASE_DIGEST: "{{ lookup('config', application_id, 'mcp.adapter.digest') }}"
+        MCP_ADAPTER_BASE_VERSION: "{{ lookup('config', application_id, 'services.gitlabmcp.version') }}"
     {{ lookup('compose_only', 'container_name', GITLAB_MCP_CONTAINER) }}
     read_only: true
     cap_drop:

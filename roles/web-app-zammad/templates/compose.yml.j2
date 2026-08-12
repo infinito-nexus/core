@@ -102,7 +102,7 @@
       dockerfile: Dockerfile
       args:
         MCP_ADAPTER_BASE_IMAGE: {{ lookup('config', application_id, 'services.zammadmcp.image') }}
-        MCP_ADAPTER_BASE_DIGEST: "{{ lookup('config', application_id, 'mcp.adapter.digest') }}"
+        MCP_ADAPTER_BASE_VERSION: "{{ lookup('config', application_id, 'services.zammadmcp.version') }}"
     {{ lookup('compose_only', 'container_name', ZAMMAD_MCP_CONTAINER) }}
     read_only: true
     cap_drop:

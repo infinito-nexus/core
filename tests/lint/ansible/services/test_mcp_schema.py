@@ -662,21 +662,6 @@ class TestMcpSchema(unittest.TestCase):
                 f"{sorted(MCP_ADAPTER_TYPES)}",
             )
 
-        digest = str(adapter.get("digest") or "")
-        if not digest.startswith(MCP_SHA256_PREFIX):
-            flag(
-                "digest",
-                f"{prefix}.adapter.digest MUST pin an immutable "
-                f"{MCP_SHA256_PREFIX}… image digest",
-            )
-        elif set(digest[len(MCP_SHA256_PREFIX) :]) <= {"0"}:
-            flag(
-                "digest",
-                f"{prefix}.adapter.digest is an all-zero placeholder, which "
-                f"pins nothing; the build resolves this digest, so it must name "
-                f"the real base image",
-            )
-
         if adapter_type in MCP_UPSTREAM_MCP_ADAPTER_TYPES:
             spec = str(adapter.get("specification_path") or "")
             if not spec:
