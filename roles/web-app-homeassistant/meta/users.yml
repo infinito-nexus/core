@@ -2,3 +2,8 @@
 administrator:
   tokens:
     web-app-homeassistant: ""
+mcp-web-app-homeassistant:
+  firstname: Infinito
+  lastname: MCP
+  accounts: []
+  description: Account the Home Assistant long-lived MCP token is minted for; such a token carries the rights of whoever was logged in

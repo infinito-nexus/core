@@ -68,6 +68,17 @@ MOODLE_MCP_EXTERNAL_FUNCTIONS:
   - core_enrol_get_users_courses
   - core_user_get_users_by_field
   - core_calendar_get_calendar_events
+MOODLE_MCP_ACCOUNT: "{{ lookup('users', 'mcp-web-app-moodle') }}"
+MOODLE_MCP_ACCOUNT_USERNAME: "{{ MOODLE_MCP_ACCOUNT.username }}"
+MOODLE_MCP_ACCOUNT_EMAIL: "{{ MOODLE_MCP_ACCOUNT.email }}"
+MOODLE_MCP_ACCOUNT_PASSWORD: "{{ MOODLE_MCP_ACCOUNT.password }}"
+MOODLE_MCP_ROLE_SHORTNAME: "infinito_mcp"
+MOODLE_MCP_ROLE_NAME: "Infinito MCP service"
+MOODLE_MCP_ROLE_CAPABILITIES:
+  - webservice/mcp:use
+  - webservice/rest:use
+  - moodle/course:view
+  - moodle/user:viewdetails
 MOODLE_MCP_TOOLS_LIST_PAYLOAD:
   jsonrpc: "2.0"
   id: 1

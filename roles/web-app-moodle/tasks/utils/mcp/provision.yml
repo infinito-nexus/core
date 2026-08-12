@@ -6,6 +6,12 @@
       -e MCP_SERVICE_NAME={{ MOODLE_MCP_EXTERNAL_SERVICE_NAME | quote }} \
       -e MCP_SERVICE_SHORTNAME={{ MOODLE_MCP_EXTERNAL_SERVICE_SHORTNAME | quote }} \
       -e MCP_SERVICE_FUNCTIONS={{ MOODLE_MCP_EXTERNAL_FUNCTIONS | join(',') | quote }} \
+      -e MCP_ACCOUNT_USERNAME={{ MOODLE_MCP_ACCOUNT_USERNAME | quote }} \
+      -e MCP_ACCOUNT_EMAIL={{ MOODLE_MCP_ACCOUNT_EMAIL | quote }} \
+      -e MCP_ACCOUNT_PASSWORD={{ MOODLE_MCP_ACCOUNT_PASSWORD | quote }} \
+      -e MCP_ROLE_SHORTNAME={{ MOODLE_MCP_ROLE_SHORTNAME | quote }} \
+      -e MCP_ROLE_NAME={{ MOODLE_MCP_ROLE_NAME | quote }} \
+      -e MCP_ROLE_CAPABILITIES={{ MOODLE_MCP_ROLE_CAPABILITIES | join(',') | quote }} \
       {{ MOODLE_MCP_LOCAL_CID | quote }} php
   args:
     stdin: "{{ lookup('file', 'provision_mcp.php') }}"
@@ -33,9 +39,10 @@
   ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_MCP_LOCAL_CID | quote }} \
       php {{ MOODLE_CLI_DIR }}/purge_caches.php
-  changed_when: false
+  changed_when: true
   delegate_to: "{{ MOODLE_MCP_HOST_NODE }}"
   run_once: true
+  notify: container recreate
 
 - name: "💾 Persist the token so MCP clients can read it"
   ansible.builtin.include_role:

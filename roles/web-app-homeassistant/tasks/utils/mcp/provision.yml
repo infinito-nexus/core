@@ -13,6 +13,14 @@
       - "HA_PASSWORD={{ HOMEASSISTANT_ADMIN_PASSWORD }}"
       - -e
       - "HA_TOKEN_CLIENT_NAME={{ HOMEASSISTANT_TOKEN_CLIENT_NAME }}"
+      - -e
+      - "HA_SERVICE_USERNAME={{ HOMEASSISTANT_MCP_ACCOUNT_USERNAME }}"
+      - -e
+      - "HA_SERVICE_PASSWORD={{ HOMEASSISTANT_MCP_ACCOUNT_PASSWORD }}"
+      - -e
+      - "HA_SERVICE_NAME={{ HOMEASSISTANT_MCP_ACCOUNT_NAME }}"
+      - -e
+      - "HA_SERVICE_GROUP={{ HOMEASSISTANT_MCP_ACCOUNT_GROUP }}"
       - "{{ HOMEASSISTANT_LOCAL_CID }}" # nocheck: container-exec-resolver
       - python3
       - "-"

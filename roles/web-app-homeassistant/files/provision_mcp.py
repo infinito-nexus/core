@@ -10,6 +10,10 @@ BASE = "http://localhost:" + os.environ["HA_PORT"]
 CLIENT_ID = BASE + "/"
 USERNAME = os.environ["HA_USERNAME"]
 PASSWORD = os.environ["HA_PASSWORD"]
+SERVICE_USERNAME = os.environ["HA_SERVICE_USERNAME"]
+SERVICE_PASSWORD = os.environ["HA_SERVICE_PASSWORD"]
+SERVICE_NAME = os.environ["HA_SERVICE_NAME"]
+SERVICE_GROUP = os.environ["HA_SERVICE_GROUP"]
 
 
 def request(path, payload=None, token=None, form=False):
@@ -70,7 +74,7 @@ def access_token_via_onboarding():
     return token
 
 
-def access_token_via_login():
+def access_token_via_login(username, password):
     flow = request(
         "/auth/login_flow",
         {
@@ -81,7 +85,11 @@ def access_token_via_login():
     )
     step = request(
         "/auth/login_flow/" + flow["flow_id"],
-        {"client_id": CLIENT_ID, "username": USERNAME, "password": PASSWORD},
+        {
+            "client_id": CLIENT_ID,
+            "username": username,
+            "password": password,
+        },
     )
     return request(
         "/auth/token",
@@ -94,12 +102,13 @@ def access_token_via_login():
     )["access_token"]
 
 
-async def mint_long_lived_token(access_token, client_name):
-    """Return a fresh long-lived token for client_name.
+@contextlib.asynccontextmanager
+async def command_channel(access_token):
+    """Yield a coroutine that sends one authenticated WebSocket command.
 
-    Home Assistant refuses a second long-lived token under a client_name it
-    already knows, so a hub whose volume outlived our token store can only be
-    re-provisioned by dropping the stale one first.
+    Args:
+        access_token: the access token the channel authenticates with; every
+            command runs as that token's user.
     """
     import aiohttp
 
@@ -111,14 +120,66 @@ async def mint_long_lived_token(access_token, client_name):
         await socket.send_json({"type": "auth", "access_token": access_token})
         await socket.receive_json()
 
-        message_id = 0
+        counter = {"id": 0}
 
         async def command(payload):
-            nonlocal message_id
-            message_id += 1
-            await socket.send_json({"id": message_id, **payload})
+            counter["id"] += 1
+            await socket.send_json({"id": counter["id"], **payload})
             return await socket.receive_json()
 
+        yield command
+
+
+async def ensure_service_account(admin_token):
+    """Create the non-admin account the MCP long-lived token belongs to.
+
+    A long-lived token always belongs to the user who was logged in when it was
+    minted, and Home Assistant has no service-account concept, so the only way
+    to keep the deployment's owner account out of every MCP call is to give the
+    adapter its own user.
+    """
+    async with command_channel(admin_token) as command:
+        listed = await command({"type": "config/auth/list"})
+        existing = [
+            entry
+            for entry in listed.get("result") or []
+            if entry.get("name") == SERVICE_NAME
+        ]
+        if existing:
+            user_id = existing[0]["id"]
+        else:
+            created = await command(
+                {
+                    "type": "config/auth/create",
+                    "name": SERVICE_NAME,
+                    "group_ids": [SERVICE_GROUP],
+                }
+            )
+            if not created.get("success"):
+                raise SystemExit("MCP account refused: " + json.dumps(created))
+            user_id = created["result"]["user"]["id"]
+
+        credentials = await command(
+            {
+                "type": "config/auth_provider/homeassistant/create",
+                "user_id": user_id,
+                "username": SERVICE_USERNAME,
+                "password": SERVICE_PASSWORD,
+            }
+        )
+        if not credentials.get("success") and not existing:
+            raise SystemExit("MCP account credentials refused")
+    return not existing
+
+
+async def mint_long_lived_token(access_token, client_name):
+    """Return a fresh long-lived token for client_name.
+
+    Home Assistant refuses a second long-lived token under a client_name it
+    already knows, so a hub whose volume outlived our token store can only be
+    re-provisioned by dropping the stale one first.
+    """
+    async with command_channel(access_token) as command:
         listed = await command({"type": "auth/refresh_tokens"})
         for entry in listed.get("result") or []:
             if entry.get("client_name") == client_name:
@@ -156,15 +217,17 @@ def ensure_mcp_entry(token):
 
 
 def main():
-    access_token = (
+    admin_token = (
         access_token_via_onboarding()
         if onboarding_pending()
-        else access_token_via_login()
+        else access_token_via_login(USERNAME, PASSWORD)
     )
+    asyncio.run(ensure_service_account(admin_token))
+    service_token = access_token_via_login(SERVICE_USERNAME, SERVICE_PASSWORD)
     token = asyncio.run(
-        mint_long_lived_token(access_token, os.environ["HA_TOKEN_CLIENT_NAME"])
+        mint_long_lived_token(service_token, os.environ["HA_TOKEN_CLIENT_NAME"])
     )
-    if ensure_mcp_entry(token):
+    if ensure_mcp_entry(admin_token):
         print("CHANGED mcp_server")
     print(token)
 

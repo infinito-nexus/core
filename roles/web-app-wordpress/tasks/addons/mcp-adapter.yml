@@ -8,3 +8,7 @@
   register: wordpress_mcp_adapter_install
   changed_when: "'Plugin installed successfully' in wordpress_mcp_adapter_install.stdout"
   when: IS_STACK_HOST | bool
+
+- name: "🔑 Issue and persist the credential MCP clients present to this site"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp.yml"
+  when: IS_STACK_HOST | bool

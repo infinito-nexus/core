@@ -1,11 +1,35 @@
 ---
+- name: "🔍 List the accounts this instance knows"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i --user {{ GITEA_USER }} {{ GITEA_API_LOCAL_CID | quote }} \
+      /app/gitea/gitea admin user list -c {{ GITEA_CONFIG }}
+  register: gitea_mcp_accounts
+  changed_when: false
+  delegate_to: "{{ GITEA_API_HOST_NODE }}"
+  run_once: true
+
+- name: "👤 Create the account the MCP token belongs to"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i --user {{ GITEA_USER }} {{ GITEA_API_LOCAL_CID | quote }} \
+      /app/gitea/gitea admin user create \
+        --username {{ GITEA_MCP_USERNAME | quote }} \
+        --password {{ GITEA_MCP_USER_PASSWORD | quote }} \
+        --email {{ GITEA_MCP_USER_EMAIL | quote }} \
+        --must-change-password=false \
+        -c {{ GITEA_CONFIG }}
+  when: GITEA_MCP_USERNAME not in gitea_mcp_accounts.stdout.split()
+  changed_when: true
+  delegate_to: "{{ GITEA_API_HOST_NODE }}"
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
 - name: "🗑 Revoke an access token left over under the same name"
   ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -i {{ GITEA_API_LOCAL_CID | quote }} \
       {{ lookup('timeout', 30) | curl(5, 0) }} -o /dev/null -w '%{http_code}' \
         -X DELETE \
-        -u {{ (lookup('users', 'administrator').username ~ ':' ~ lookup('users', 'administrator').password) | quote }} \
-        {{ (GITEA_INTERNAL_API_URL ~ '/users/' ~ lookup('users', 'administrator').username ~ '/tokens/' ~ GITEA_MCP_TOKEN_NAME) | quote }}
+        -u {{ (GITEA_MCP_USERNAME ~ ':' ~ GITEA_MCP_USER_PASSWORD) | quote }} \
+        {{ (GITEA_INTERNAL_API_URL ~ '/users/' ~ GITEA_MCP_USERNAME ~ '/tokens/' ~ GITEA_MCP_TOKEN_NAME) | quote }}
   register: gitea_mcp_token_revoke
   changed_when: gitea_mcp_token_revoke.stdout | trim == '204'
   failed_when: gitea_mcp_token_revoke.stdout | trim not in ['204', '404']
@@ -17,7 +41,7 @@
   ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -i --user {{ GITEA_USER }} {{ GITEA_API_LOCAL_CID | quote }} \
       /app/gitea/gitea admin user generate-access-token \
-        --username {{ lookup('users', 'administrator').username | quote }} \
+        --username {{ GITEA_MCP_USERNAME | quote }} \
         --token-name {{ GITEA_MCP_TOKEN_NAME | quote }} \
         --scopes {{ GITEA_MCP_TOKEN_SCOPES | quote }} \
         --raw \

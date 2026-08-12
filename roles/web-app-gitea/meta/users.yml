@@ -2,3 +2,8 @@
 administrator:
   tokens:
     web-app-gitea: ""
+mcp-web-app-gitea:
+  firstname: Infinito
+  lastname: MCP
+  accounts: []
+  description: Account the Gitea MCP access token belongs to; a token on the administrator reads every private repository

@@ -26,8 +26,3 @@ credentials:
     algorithm: alphanumeric
     validation: "^[A-Za-z0-9]{32,}$"
     length: 48
-  mcp_upstream_token:
-    description: "Password of the read-only Zammad agent the MCP adapter's API token belongs to. Distinct from api_token, which is the token itself."
-    algorithm: alphanumeric
-    validation: "^[A-Za-z0-9]{32,}$"
-    length: 48

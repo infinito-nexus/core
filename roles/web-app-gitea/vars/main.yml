@@ -37,6 +37,10 @@ GITEA_MCP_URL: "http://{{ GITEA_MCP_SERVICE_KEY }}:{{ GITEA_MCP_PORT }}{{ lookup
 GITEA_MCP_UPSTREAM_URL: "http://{{ entity_name }}:{{ lookup('config', application_id, 'services.gitea.ports.internal.http') }}"
 GITEA_MCP_TOKEN_NAME: "gitea-mcp"
 GITEA_MCP_TOKEN_SCOPES: "read:repository,read:issue,read:user,read:organization,read:notification"
+GITEA_MCP_ACCOUNT: "{{ lookup('users', 'mcp-web-app-gitea') }}"
+GITEA_MCP_USERNAME: "{{ GITEA_MCP_ACCOUNT.username }}"
+GITEA_MCP_USER_EMAIL: "{{ GITEA_MCP_ACCOUNT.email }}"
+GITEA_MCP_USER_PASSWORD: "{{ GITEA_MCP_ACCOUNT.password }}"
 GITEA_MCP_TOOL_SCOPES: "user,repository,issue,pull_request,search,file,branch,tag,commit,release"
 GITEA_MCP_COMMAND:
   - "/app/gitea-mcp" # nocheck: literal-path  image ships no ENTRYPOINT, so command must carry the binary

@@ -1,0 +1,95 @@
+---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: WORDPRESS_MCP
+    resolve_compose_cid: "{{ WORDPRESS_CONTAINER_ADDRESS }}"
+
+- name: "🔍 Read the MCP application password this site already issued"
+  ansible.builtin.set_fact:
+    wordpress_mcp_token: "{{ lookup('mcp_credential', application_id) }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔍 List the accounts this site knows"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_MCP_LOCAL_CID | quote }} \
+      wp user list --field=user_login --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
+  register: wordpress_mcp_users
+  changed_when: false
+  delegate_to: "{{ WORDPRESS_MCP_HOST_NODE }}"
+  run_once: true
+
+- name: "👤 Create the subscriber the MCP adapter authenticates as"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_MCP_LOCAL_CID | quote }} \
+      wp user create {{ WORDPRESS_MCP_USERNAME | quote }} {{ WORDPRESS_MCP_EMAIL | quote }} \
+        --role={{ WORDPRESS_MCP_ROLE | quote }} --user_pass={{ WORDPRESS_MCP_USER_PASSWORD | quote }} \
+        --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
+  when: WORDPRESS_MCP_USERNAME not in wordpress_mcp_users.stdout_lines
+  changed_when: true
+  delegate_to: "{{ WORDPRESS_MCP_HOST_NODE }}"
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔍 List the application passwords that account holds"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_MCP_LOCAL_CID | quote }} \
+      wp user application-password list {{ WORDPRESS_MCP_USERNAME | quote }} \
+        --field=name --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
+  register: wordpress_mcp_app_passwords
+  changed_when: false
+  delegate_to: "{{ WORDPRESS_MCP_HOST_NODE }}"
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔑 Issue the application password MCP clients present"
+  when: >-
+    wordpress_mcp_token | length == 0
+    or WORDPRESS_MCP_APP_PASSWORD_NAME not in wordpress_mcp_app_passwords.stdout_lines
+  block:
+    - name: "🧹 Drop the application password the store cannot read back"
+      ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_MCP_LOCAL_CID | quote }} \
+          wp user application-password delete {{ WORDPRESS_MCP_USERNAME | quote }} \
+            --name={{ WORDPRESS_MCP_APP_PASSWORD_NAME | quote }} --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
+      when: WORDPRESS_MCP_APP_PASSWORD_NAME in wordpress_mcp_app_passwords.stdout_lines
+      changed_when: true
+      delegate_to: "{{ WORDPRESS_MCP_HOST_NODE }}"
+      run_once: true
+
+    - name: "🔑 Mint the application password without its display spaces"
+      ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_MCP_LOCAL_CID | quote }} \
+          wp user application-password create {{ WORDPRESS_MCP_USERNAME | quote }} \
+            {{ WORDPRESS_MCP_APP_PASSWORD_NAME | quote }} --porcelain --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
+      register: wordpress_mcp_mint
+      changed_when: true
+      delegate_to: "{{ WORDPRESS_MCP_HOST_NODE }}"
+      run_once: true
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+    - name: "🔧 Take the minted password from the wp-cli output"
+      ansible.builtin.set_fact:
+        wordpress_mcp_token: "{{ wordpress_mcp_mint.stdout_lines | last | trim | replace(' ', '') }}"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      run_once: true
+
+- name: "🛑 Refuse a site that issued no usable application password"
+  ansible.builtin.assert:
+    that:
+      - wordpress_mcp_token | length >= 24
+    fail_msg: >-
+      WordPress issued no application password for {{ WORDPRESS_MCP_USERNAME }},
+      so every MCP client would be configured with an empty credential and the
+      reconciliation stage would refuse to render this provider.
+
+- name: "💾 Persist the password so MCP clients can read it"
+  ansible.builtin.include_role:
+    name: sys-token-store
+    tasks_from: write.yml
+  vars:
+    sys_token_store_user_key: "{{ lookup('config', application_id, 'mcp.credential.owner') }}"
+    sys_token_store_app: "{{ application_id }}"
+    sys_token_store_token: "{{ wordpress_mcp_token }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

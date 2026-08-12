@@ -40,10 +40,44 @@ foreach ($functions as $function) {
     }
 }
 
-$admin = get_admin();
+require_once($CFG->dirroot . '/user/lib.php');
+
+$username = (string) getenv('MCP_ACCOUNT_USERNAME');
+$capabilities = array_filter(array_map('trim', explode(',', (string) getenv('MCP_ROLE_CAPABILITIES'))));
+$systemcontext = context_system::instance();
+
+$account = $DB->get_record('user', [
+    'username' => $username,
+    'mnethostid' => $CFG->mnet_localhost_id,
+]);
+if (!$account) {
+    $new = new stdClass();
+    $new->username = $username;
+    $new->email = (string) getenv('MCP_ACCOUNT_EMAIL');
+    $new->password = (string) getenv('MCP_ACCOUNT_PASSWORD');
+    $new->firstname = 'Infinito';
+    $new->lastname = 'MCP';
+    $new->auth = 'manual';
+    $new->confirmed = 1;
+    $new->mnethostid = $CFG->mnet_localhost_id;
+    $accountid = user_create_user($new, true, false);
+    $account = $DB->get_record('user', ['id' => $accountid], '*', MUST_EXIST);
+}
+
+$roleshortname = (string) getenv('MCP_ROLE_SHORTNAME');
+$roleid = $DB->get_field('role', 'id', ['shortname' => $roleshortname]);
+if (!$roleid) {
+    $roleid = create_role((string) getenv('MCP_ROLE_NAME'), $roleshortname, '', 'user');
+    set_role_contextlevels($roleid, [CONTEXT_SYSTEM]);
+}
+foreach ($capabilities as $capability) {
+    assign_capability($capability, CAP_ALLOW, $roleid, $systemcontext->id, true);
+}
+role_assign($roleid, $account->id, $systemcontext->id);
+
 $token = $DB->get_field('external_tokens', 'token', [
     'externalserviceid' => $service->id,
-    'userid' => $admin->id,
+    'userid' => $account->id,
     'tokentype' => EXTERNAL_TOKEN_PERMANENT,
 ], IGNORE_MULTIPLE);
 
@@ -51,8 +85,8 @@ if (!$token) {
     $token = external_generate_token(
         EXTERNAL_TOKEN_PERMANENT,
         $service->id,
-        $admin->id,
-        context_system::instance()
+        $account->id,
+        $systemcontext
     );
 }
 
