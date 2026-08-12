@@ -6,7 +6,7 @@ swarm_stack_converge_retries: 600
 MOODLE_DOMAIN: "{{ lookup('domain', application_id) }}"
 MOODLE_CODE_DIR: "/var/www/html"
 MOODLE_DATA_DIR: "/var/www/moodledata"
-MOODLE_LOCAL_CACHE_DIR: "/var/www/moodlelocalcache"
+MOODLE_LOCAL_CACHE_DIR: "{{ lookup('volume', application_id, 'localcache').mounts[0].target }}"
 MOODLE_SOURCE_DIR: "/opt/moodle-source"
 MOODLE_ENTRYPOINT_PATH: "/usr/local/bin/moodle-entrypoint.sh"
 
