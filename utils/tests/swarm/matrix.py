@@ -137,6 +137,35 @@ def _write_extras(*, extras_path: str) -> int:
     )
 
 
+def _reset_credentials(*, inv_dir: str, round_variants: dict[str, int]) -> int:
+    """Regenerate the round's credentials so the update pass has to carry them.
+
+    `administrator` stays exempt: its password is `ansible_become_password`,
+    and rotating it would lock the deploy out of the nodes it manages.
+    """
+    return _run(
+        [
+            "python3",
+            "-m",
+            "cli.administration.inventory.credentials.reset",
+            "--inventory-dir",
+            inv_dir,
+            "--host",
+            os.environ["MGR"],
+            "--schema",
+            "--users",
+            "--app-variants",
+            json.dumps(round_variants, sort_keys=True),
+            "--mirror",
+            "--backup",
+            "--except",
+            "administrator",
+        ],
+        env=os.environ.copy(),
+        label="reset credentials (rotation gate before the async pass)",
+    )
+
+
 def _deploy(
     *,
     app_id: str,
@@ -388,6 +417,8 @@ def main(argv: list[str] | None = None) -> int:
             rc = _backup_restore_drill(
                 app_id=app_id, inv_dir=inv_root, extras_path=extras_path
             )
+        if rc == 0:
+            rc = _reset_credentials(inv_dir=inv_root, round_variants=round_variants)
         if rc == 0:
             rc = _deploy(
                 app_id=app_id,
