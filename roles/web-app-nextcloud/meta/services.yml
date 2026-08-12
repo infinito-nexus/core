@@ -101,6 +101,10 @@ nextcloud:
   run_after:
     - web-app-keycloak
     - web-app-matomo
+    - web-app-gitlab
+    - web-app-mattermost
+    - web-app-openproject
+    - web-app-zammad
   lifecycle: beta
 proxy:
   name: nextcloud-proxy
