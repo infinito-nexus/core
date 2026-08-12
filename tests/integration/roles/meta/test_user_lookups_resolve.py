@@ -24,14 +24,16 @@ import unittest
 from pathlib import Path
 
 from utils.annotations.suppress import is_suppressed_at
-from utils.cache.files import read_text
+from utils.cache.files import iter_project_files_with_content
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_META_USERS
 
 from . import PROJECT_ROOT
 
 _RULE = "user-lookup-resolves"
-_LOOKUP = re.compile(r"""lookup\(\s*['"]users['"]\s*,\s*['"](mcp-[A-Za-z0-9_.-]+)['"]""")
+_LOOKUP = re.compile(
+    r"""lookup\(\s*['"]users['"]\s*,\s*['"](mcp-[A-Za-z0-9_.-]+)['"]"""
+)
 _SCANNED = (".yml", ".yaml", ".j2")
 
 
@@ -48,15 +50,15 @@ def _declared_keys(roles_root: Path) -> set[str]:
 def _referenced_keys(roles_root: Path) -> list[tuple[str, int, str]]:
     """Return ``(path, line, key)`` for every literal mcp user lookup."""
     found: list[tuple[str, int, str]] = []
-    for path in sorted(roles_root.rglob("*")):
-        if not path.is_file() or path.suffix not in _SCANNED:
+    for path, content in iter_project_files_with_content(extensions=_SCANNED):
+        if "roles" not in Path(path).parts:
             continue
-        lines = read_text(str(path)).splitlines()
+        lines = content.splitlines()
         for number, line in enumerate(lines, start=1):
             match = _LOOKUP.search(line)
             if not match or is_suppressed_at(lines, number, _RULE):
                 continue
-            found.append((str(path.relative_to(PROJECT_ROOT)), number, match.group(1)))
+            found.append((path, number, match.group(1)))
     return found
 
 

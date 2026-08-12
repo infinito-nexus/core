@@ -454,16 +454,16 @@ lint-packages: install-lint
 	@bash scripts/install/wrapper.sh packages
 	@bash scripts/lint/wrapper.sh packages
 
+.PHONY: lint-php
+# Run the PHP syntax check over every tracked PHP file.
+lint-php: install-lint
+	@bash scripts/lint/wrapper.sh php
+
 .PHONY: lint-playwright
 # Verify every role's Playwright spec parses + resolves its helpers.
 # Note: stages the spec like test-e2e-playwright does and runs `npx playwright test --list`.
 lint-playwright: install-lint
 	@bash scripts/lint/wrapper.sh playwright
-
-.PHONY: lint-php
-# Run the PHP syntax check over every tracked PHP file.
-lint-php: install-lint
-	@bash scripts/lint/wrapper.sh php
 
 .PHONY: lint-python
 # Run Python lint checks.

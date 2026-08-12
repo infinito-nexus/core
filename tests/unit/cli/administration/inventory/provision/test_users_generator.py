@@ -96,7 +96,9 @@ class TestRequiredUserPolicies(unittest.TestCase):
 
             self.assertEqual(
                 ["alice"],
-                list(required_user_policies(roles_dir, ["web-app-a", "web-app-missing"])),
+                list(
+                    required_user_policies(roles_dir, ["web-app-a", "web-app-missing"])
+                ),
             )
 
     def test_a_malformed_definition_aborts(self):
@@ -126,7 +128,9 @@ class TestGenerateUserPasswords(unittest.TestCase):
 
             with (
                 patch(f"{RUAMEL_MODULE}.VaultHandler") as vault,
-                patch(f"{MODULE}.generate_declared_user_password", return_value="plain"),
+                patch(
+                    f"{MODULE}.generate_declared_user_password", return_value="plain"
+                ),
             ):
                 vault.return_value.encrypt_string.side_effect = lambda _plain, name: (
                     VAULTED.format(name=name)
@@ -194,7 +198,9 @@ class TestGenerateUserPasswords(unittest.TestCase):
 
             with (
                 patch(f"{RUAMEL_MODULE}.VaultHandler") as vault,
-                patch(f"{MODULE}.generate_declared_user_password", return_value="plain"),
+                patch(
+                    f"{MODULE}.generate_declared_user_password", return_value="plain"
+                ),
             ):
                 vault.return_value.encrypt_string.side_effect = lambda _plain, name: (
                     VAULTED.format(name=name)
@@ -351,7 +357,9 @@ class TestHandoffToCredentialsGenerator(unittest.TestCase):
 
             with (
                 patch(f"{RUAMEL_MODULE}.VaultHandler") as vault,
-                patch(f"{MODULE}.generate_declared_user_password", return_value="plain"),
+                patch(
+                    f"{MODULE}.generate_declared_user_password", return_value="plain"
+                ),
             ):
                 vault.return_value.encrypt_string.side_effect = lambda _plain, name: (
                     VAULTED.format(name=name)
@@ -455,10 +463,14 @@ class TestDeclaredPasswordPolicy(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             roles_dir = Path(tmpdir)
             _write_role_users(
-                roles_dir, "web-app-a", "bot:\n  password:\n    algorithm: strong_password\n"
+                roles_dir,
+                "web-app-a",
+                "bot:\n  password:\n    algorithm: strong_password\n",
             )
             _write_role_users(
-                roles_dir, "web-app-b", "bot:\n  password:\n    algorithm: alphanumeric\n"
+                roles_dir,
+                "web-app-b",
+                "bot:\n  password:\n    algorithm: alphanumeric\n",
             )
 
             with self.assertRaises(SystemExit):
@@ -468,7 +480,9 @@ class TestDeclaredPasswordPolicy(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             roles_dir = Path(tmpdir)
             _write_role_users(
-                roles_dir, "web-app-a", "bot:\n  password:\n    algorithm: strong_password\n"
+                roles_dir,
+                "web-app-a",
+                "bot:\n  password:\n    algorithm: strong_password\n",
             )
             _write_role_users(roles_dir, "web-app-b", "bot: {}\n")
 
