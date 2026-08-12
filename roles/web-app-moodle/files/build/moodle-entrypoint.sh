@@ -10,6 +10,7 @@ set -euo pipefail
 
 : "${MOODLE_CODE_DIR:?required}"
 : "${MOODLE_DATA_DIR:?required}"
+: "${MOODLE_LOCAL_CACHE_DIR:?required}"
 : "${MOODLE_SOURCE_DIR:?required}"
 : "${MOODLE_RUNTIME_USER:?required}"
 : "${MOODLE_VERSION_FILE:?required}"
@@ -19,6 +20,9 @@ MOODLE_BOOTSTRAP_LOCK="${MOODLE_CODE_DIR}/.bootstrap.lock"
 
 mkdir -p "${MOODLE_DATA_DIR}"
 chown -R "${MOODLE_RUNTIME_USER}:${MOODLE_RUNTIME_USER}" "${MOODLE_DATA_DIR}" || true
+
+mkdir -p "${MOODLE_LOCAL_CACHE_DIR}"
+chown -R "${MOODLE_RUNTIME_USER}:${MOODLE_RUNTIME_USER}" "${MOODLE_LOCAL_CACHE_DIR}" || true
 
 moodle_bootstrap_code_dir() {
   if [ -f "${MOODLE_BOOTSTRAP_SENTINEL}" ]; then
