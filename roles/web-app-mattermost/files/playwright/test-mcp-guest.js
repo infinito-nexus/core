@@ -2,7 +2,7 @@ const { test, expect } = require("@playwright/test");
 
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
-const MCP_ENDPOINT_PATH = "/plugins/mattermost-ai/mcp-server/mcp";
+const MCP_ENDPOINT_PATH = process.env.MCP_ENDPOINT_PATH;
 
 exports.register = function (shared) {
   test("guest: the MCP endpoint rejects unauthenticated access", async ({ page }) => {

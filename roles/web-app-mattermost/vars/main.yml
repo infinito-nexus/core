@@ -20,3 +20,19 @@ MATTERMOST_KEYCLOAK_ADMIN_USER: "{{ lookup('config', 'web-app-keycloak', 'servic
 MATTERMOST_KEYCLOAK_ADMIN_PASS: "{{ lookup('users', 'administrator').password }}"
 
 MATTERMOST_LDAP_CONTAINER_ADDRESS: "{{ lookup('container_address', 'svc-db-openldap', 'openldap') }}"
+
+MATTERMOST_MCP_CONTAINER: "{{ lookup('config', application_id, 'services.mattermostmcp.name') }}"
+MATTERMOST_MCP_PORT: "{{ lookup('config', application_id, 'services.mattermostmcp.ports.internal.http') }}"
+MATTERMOST_MCP_INSTANCE_DIR: "{{ [lookup('container', application_id, 'directories.instance'), 'mcp'] | path_join }}"
+MATTERMOST_MCP_UPSTREAM_PATH: "/plugins/{{ MATTERMOST_MCP_PLUGIN_ID }}/mcp-server/mcp"
+MATTERMOST_MCP_UPSTREAM_URL: "http://{{ MATTERMOST_CONTAINER }}:{{ container_port }}{{ MATTERMOST_MCP_UPSTREAM_PATH }}"
+MATTERMOST_MCP_BEARER: "{{ lookup('config', application_id, 'credentials.mcp_bearer') }}"
+MATTERMOST_MCP_CONTRACT:
+  upstream_kind: mcp
+  provider: "{{ application_id }}"
+  upstream_url: "{{ MATTERMOST_MCP_UPSTREAM_URL }}"
+  auth_subject: "{{ lookup('config', application_id, 'mcp.auth_subject') }}"
+  mutating_tools_enabled: "{{ lookup('config', application_id, 'mcp.tools.mutating_tools_enabled') | bool }}"
+  tools: "{{ lookup('file', 'mcp/tools.json') | from_json }}"
+  limits: "{{ lookup('config', application_id, 'mcp.limits') }}"
+  schema_sha256: "{{ lookup('config', application_id, 'mcp.tools.schema_sha256') }}"

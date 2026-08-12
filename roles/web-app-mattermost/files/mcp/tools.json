@@ -1,0 +1,90 @@
+{
+  "get_channel_info": {
+    "description": "Get channel info.",
+    "input_schema": {
+      "properties": {},
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_channel_members": {
+    "description": "Get channel members.",
+    "input_schema": {
+      "properties": {},
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_team_info": {
+    "description": "Get team info.",
+    "input_schema": {
+      "properties": {},
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_team_members": {
+    "description": "Get team members.",
+    "input_schema": {
+      "properties": {},
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_user_channels": {
+    "description": "Get user channels.",
+    "input_schema": {
+      "properties": {},
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "list_agents": {
+    "description": "List agents.",
+    "input_schema": {
+      "properties": {},
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "read_channel": {
+    "description": "Read channel.",
+    "input_schema": {
+      "properties": {},
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "read_file": {
+    "description": "Read file.",
+    "input_schema": {
+      "properties": {},
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "read_post": {
+    "description": "Read post.",
+    "input_schema": {
+      "properties": {},
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "search_posts": {
+    "description": "Search posts.",
+    "input_schema": {
+      "properties": {},
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "search_users": {
+    "description": "Search users.",
+    "input_schema": {
+      "properties": {},
+      "type": "object"
+    },
+    "mutating": false
+  }
+}

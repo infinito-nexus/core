@@ -44,6 +44,7 @@ flowchart LR
         svc_javascript["javascript"]
         svc_prometheus["prometheus"]
         svc_container_backup["container_backup"]
+        svc_mattermostmcp["mattermostmcp"]
     end
     subgraph dependents [Dependents]
         dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]
@@ -128,7 +129,7 @@ Mattermost exposes a Model Context Protocol server through the prepackaged Agent
 
 | Property | Value |
 |----------|-------|
-| Endpoint | `/plugins/mattermost-ai/mcp-server/mcp` on the `mattermost` service, container port `services.mattermost.ports.internal.http` |
+| Endpoint | `/mcp` on the `mattermostmcp` sidecar; the adapter reaches `/plugins/mattermost-ai/mcp-server/mcp` on the `mattermost` service upstream |
 | Health path | `/plugins/mattermost-ai/mcp-server/.well-known/oauth-protected-resource` |
 | Transport | `streamable_http` (stateless); SSE is not served |
 | Auth | `Authorization: Bearer <personal access token>` |

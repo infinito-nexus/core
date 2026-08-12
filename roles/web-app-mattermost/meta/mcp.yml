@@ -1,7 +1,7 @@
 ---
 enabled: true
 shared: true
-classification: plugin_server
+classification: adapter_server
 direction: server
 source_url: https://docs.mattermost.com/agents/mcpserver/README.html
 minimum_version: "10.0"
@@ -9,21 +9,49 @@ transport: streamable_http
 exposure: internal
 auth: bearer_token
 auth_subject: service_account
-implementation: plugin
+implementation: adapter
 credential:
   owner: mcp-web-app-mattermost
-  source: token_store
-  key: web-app-mattermost
+  source: credentials
+  key: mcp_bearer
 allowed_consumers:
   - web-app-openwebui
   - web-app-hermes
   - web-app-openclaw
+adapter:
+  type: mcp_passthrough
+  image: python
+  version: "3.13-slim"
+  digest: sha256:9662417aace5ae7b8e2609cce472b72a8958e134ba372808abe9cc1a0c0125e6
+  specification_path: roles/web-app-mattermost/files/mcp/tools.json
+  specification_sha256: sha256:0355a3990ff80867e972ccdddfae412a5d4d81da9b6aa51250649f275903ba15
 endpoint:
-  service_key: mattermost
-  path: /plugins/mattermost-ai/mcp-server/mcp
+  service_key: mattermostmcp
+  path: /mcp
   port_key: http
+limits:
+  request_bytes: 65536
+  response_bytes: 1048576
+  timeout_seconds: 15
+  concurrent_requests: 4
+  page_size: 100
+  result_items: 100
+  stream_seconds: 300
 tools:
+  schema_sha256: sha256:1f3feea3ceeee056215289789666b5d2246a8c7482920c2f78c4be767a7a1c27
   allowlist:
+    - get_channel_info
+    - get_channel_members
+    - get_team_info
+    - get_team_members
+    - get_user_channels
+    - list_agents
+    - read_channel
+    - read_file
+    - read_post
+    - search_posts
+    - search_users
+  writer_allowlist:
     - add_channel_member
     - create_channel
     - create_post
