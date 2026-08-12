@@ -26,10 +26,10 @@ adapter:
   type: openapi_allowlist
   image: python
   version: "3.13-slim"
-  digest: sha256:9662417aace5ae7b8e2609cce472b72a8958e134ba372808abe9cc1a0c0125e6
+  digest: sha256:ffb752e139c0a19692a43af8d8523b274222dd68eebad5d583b45c2201c6e30a
   upstream_api_version: v1
   specification_path: roles/web-app-zammad/files/mcp/tools.json
-  specification_sha256: sha256:68c48fc5d8e6ab0d705c2d773518f70c65f65ec9942a3bdeab6946d565ef9ed8
+  specification_sha256: sha256:093becf8fef9d391372ff2bec2bc9a9b9c9ec57796ef6b5502c7bbaee6af82cf
 limits:
   request_bytes: 65536
   response_bytes: 1048576

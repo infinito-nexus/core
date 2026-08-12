@@ -308,3 +308,26 @@ def manifest_exists(image: str, reference: str) -> bool | None:
     if status == 404:
         return False
     return None
+
+
+def manifest_digest(image: str, reference: str) -> str | None:
+    """Return the digest ``image:reference`` currently resolves to.
+
+    ``None`` on any indeterminate outcome, exactly as ``manifest_exists``.
+
+    Deliberately uncached: the caller asks this to learn whether a pinned
+    digest still is the one behind a moving tag, and a cached answer would
+    report the state at pin time, which is the thing under test.
+    """
+    resolved = _resolve(image)
+    if resolved is None:
+        return None
+    host, repo = resolved
+    url = f"https://{host}/v2/{quote(repo, safe='/')}/manifests/{quote(reference, safe='')}"
+    result = _request(url, repo, method="HEAD", accept=_MANIFEST_ACCEPT)
+    if result is None:
+        return None
+    status, headers, _body = result
+    if status != 200:
+        return None
+    return headers.get("Docker-Content-Digest")

@@ -27,10 +27,10 @@ adapter:
   type: openapi_allowlist
   image: python
   version: "3.13-slim"
-  digest: sha256:9662417aace5ae7b8e2609cce472b72a8958e134ba372808abe9cc1a0c0125e6
+  digest: sha256:ffb752e139c0a19692a43af8d8523b274222dd68eebad5d583b45c2201c6e30a
   upstream_api_version: v1
   specification_path: roles/svc-db-qdrant/files/mcp/tools.json
-  specification_sha256: sha256:95037a1f1d060f8bbf092ac5943fb705d699ce0c30491a4b1c884fe1bf81d2f7
+  specification_sha256: sha256:5b813b2bd0f45749df501584d7db4c5cff5d3d188fcd0998e160521a654022f5
 limits:
   request_bytes: 65536
   response_bytes: 1048576
