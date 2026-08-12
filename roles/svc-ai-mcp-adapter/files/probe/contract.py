@@ -200,6 +200,19 @@ def assert_read_call(status, body):
     reject(f"read call {READ_TOOL} answered {status}: {body[:200]}")
 
 
+def speaks_json_rpc(body):
+    """Return whether a body is the JSON object an MCP server would answer with.
+
+    A server-side error page proves the endpoint is not serving yet, not that it
+    serves the unauthenticated. Treating a PHP fatal rendered as HTTP 200 as a
+    refusal verdict settles the caller's retry condition on the first attempt.
+    """
+    try:
+        return isinstance(json.loads(body or "null"), dict)
+    except ValueError:
+        return False
+
+
 def refused(status, body):
     """Return whether a response refused the caller rather than serving it.
 
@@ -223,6 +236,10 @@ def assert_refused(label, authorization, url=None):
     status, body = rpc("tools/list", authorization=authorization, url=url)
     if status == 0:
         unreachable(f"{label} probe could not reach {url or URL}: {body}")
+    if not speaks_json_rpc(body):
+        unreachable(
+            f"{label} probe answered {status} with no JSON-RPC body: {body[:200]}"
+        )
     if not refused(status, body):
         reject(f"{label} probe answered {status}: {body[:200]}")
     if '"tools"' in body:
