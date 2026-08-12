@@ -41,44 +41,10 @@
         config: "{{ lookup('database', application_id) }}"
         query_file: "{{ role_path }}/files/sql/update/enable-mcp-plugin-server.sql"
         mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      changed_when: true
       delegate_to: "{{ STACK_HOST }}"
       run_once: true
-
-    - name: "🔄 Mattermost | Deactivate the Agents plugin so it drops its cached config"
-      ansible.builtin.command:
-        argv:
-          - container
-          - exec
-          - -i
-          - "{{ MATTERMOST_MCP_LOCAL_CID }}" # nocheck: container-exec-resolver
-          - /mattermost/bin/mmctl
-          - --local
-          - plugin
-          - disable
-          - "{{ MATTERMOST_MCP_PLUGIN_ID }}"
-      changed_when: true
-      delegate_to: "{{ MATTERMOST_MCP_HOST_NODE }}"
-      run_once: true
-
-    - name: "🔄 Mattermost | Reactivate the Agents plugin against the patched config"
-      ansible.builtin.command:
-        argv:
-          - container
-          - exec
-          - -i
-          - "{{ MATTERMOST_MCP_LOCAL_CID }}" # nocheck: container-exec-resolver
-          - /mattermost/bin/mmctl
-          - --local
-          - plugin
-          - enable
-          - "{{ MATTERMOST_MCP_PLUGIN_ID }}"
-      register: mattermost_mcp_plugin_reload
-      retries: 30
-      delay: 5
-      until: mattermost_mcp_plugin_reload.rc == 0
-      changed_when: true
-      delegate_to: "{{ MATTERMOST_MCP_HOST_NODE }}"
-      run_once: true
+      notify: container recreate
 
 - name: "🔎 Mattermost | Re-read the Agents MCP server toggle"
   database_query:
