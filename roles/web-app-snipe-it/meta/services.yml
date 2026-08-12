@@ -55,7 +55,7 @@ snipe-it:
       enabled: true
     swarm:
       enabled: true
-  version: v8.6.3-alpine
+  version: v8.7.0-alpine
   custom: true
   name: snipe-it
   image: snipe/snipe-it
