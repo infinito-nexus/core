@@ -1,26 +1,33 @@
 ---
 enabled: true
 shared: true
-classification: native_server
+classification: adapter_server
 direction: server
 source_url: https://docs.gitlab.com/user/gitlab_duo/model_context_protocol/mcp_server/
 minimum_version: "18.0"
 transport: streamable_http
-exposure: public
+exposure: internal
 auth: bearer_token
 auth_subject: service_account
-implementation: native
+implementation: adapter
 credential:
   owner: mcp-web-app-gitlab
-  source: token_store
-  key: web-app-gitlab
+  source: credentials
+  key: mcp_bearer
 allowed_consumers:
   - web-app-openwebui
   - web-app-hermes
   - web-app-openclaw
+adapter:
+  type: mcp_passthrough
+  image: python
+  version: "3.13-slim"
+  digest: sha256:9662417aace5ae7b8e2609cce472b72a8958e134ba372808abe9cc1a0c0125e6
+  specification_path: roles/web-app-gitlab/files/mcp/tools.json
+  specification_sha256: sha256:ae5ffe0f6c8eeffcc4fe7da8ad1cc978c5f49337a64e30a060b6ab7a5dfb4b24
 endpoint:
-  service_key: gitlab
-  path: /api/v4/mcp
+  service_key: gitlabmcp
+  path: /mcp
   port_key: http
 limits:
   request_bytes: 65536
@@ -31,7 +38,23 @@ limits:
   result_items: 500
   stream_seconds: 300
 tools:
+  schema_sha256: sha256:f2a4d696104517cfa95599bdf41f4ad80fdc850aaa3d72bd5bb9e21864bfd864
   allowlist:
+    - get_issue
+    - get_job_log
+    - get_mcp_server_version
+    - get_merge_request
+    - get_merge_request_commits
+    - get_merge_request_conflicts
+    - get_merge_request_diffs
+    - get_merge_request_pipelines
+    - get_pipeline_jobs
+    - get_saved_view_work_items
+    - get_work_item_types
+    - get_workitem_notes
+    - search
+    - search_labels
+  writer_allowlist:
     - create_issue
     - create_merge_request
     - create_workitem_note

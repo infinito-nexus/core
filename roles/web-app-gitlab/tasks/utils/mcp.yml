@@ -42,10 +42,22 @@
       cannot carry a served MCP surface and the role belongs behind
       'blocker: licence' instead.
 
+- name: "🔑 Hand the minted upstream token to the adapter"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/upstream_key.yml') }}"
+  vars:
+    mcp_upstream_key_path: "{{ [GITLAB_MCP_INSTANCE_DIR, 'upstream.env'] | path_join }}"
+    mcp_upstream_key: "{{ lookup('mcp_credential', application_id) }}"
+
+- name: "🧱 Rebuild the MCP adapter of {{ application_id }} now the bearer exists"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/rebuild.yml') }}"
+
+- name: "🚿 Flush compose handlers for {{ application_id }}"
+  ansible.builtin.meta: flush_handlers
+
 - name: "🩺 Prove the MCP contract of {{ application_id }}"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
   vars:
-    mcp_probe_bearer: "{{ lookup('mcp_credential', application_id) }}"
+    mcp_probe_bearer: "{{ GITLAB_MCP_BEARER }}"
     mcp_probe_path_key: ""
     mcp_probe_read_tool: "get_mcp_server_version"
     mcp_probe_read_args: {}

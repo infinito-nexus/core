@@ -32,7 +32,7 @@ GITLAB_INIT_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
 GITLAB_ROOT_USERNAME: "root"
 
 GITLAB_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') }}"
-GITLAB_MCP_PATH: "{{ lookup('config', application_id, 'mcp.endpoint.path') }}"
+GITLAB_MCP_PATH: "{{ GITLAB_MCP_UPSTREAM_PATH }}"
 GITLAB_MCP_TOKEN_NAME: "infinito-mcp"
 GITLAB_RAILS_BIN: "/srv/gitlab/bin/rails" # nocheck: literal-path  CNG images ship no omnibus gitlab-rails wrapper
 GITLAB_MCP_TOKEN_LIFETIME_DAYS: 364
@@ -75,3 +75,20 @@ GITLAB_WORKHORSE_CONTAINER: "{{ lookup('config', application_id, 'services.workh
 GITLAB_GITALY_CONTAINER: "{{ lookup('config', application_id, 'services.gitaly.name') }}"
 GITLAB_SHELL_CONTAINER: "{{ lookup('config', application_id, 'services.shell.name') }}"
 GITLAB_MIGRATIONS_CONTAINER: "{{ lookup('config', application_id, 'services.migrations.name') }}"
+
+GITLAB_MCP_CONTAINER: "{{ lookup('config', application_id, 'services.gitlabmcp.name') }}"
+GITLAB_MCP_PORT: "{{ lookup('config', application_id, 'services.gitlabmcp.ports.internal.http') }}"
+GITLAB_MCP_INSTANCE_DIR: "{{ [lookup('container', application_id, 'directories.instance'), 'mcp'] | path_join }}"
+GITLAB_MCP_UPSTREAM_HOST: "{{ GITLAB_WORKHORSE_SERVICE_NAME }}"
+GITLAB_MCP_UPSTREAM_PATH: "/api/v4/mcp"
+GITLAB_MCP_UPSTREAM_URL: "http://{{ GITLAB_MCP_UPSTREAM_HOST }}:{{ GITLAB_WORKHORSE_PORT }}{{ GITLAB_MCP_UPSTREAM_PATH }}"
+GITLAB_MCP_BEARER: "{{ lookup('config', application_id, 'credentials.mcp_bearer') }}"
+GITLAB_MCP_CONTRACT:
+  upstream_kind: mcp
+  provider: "{{ application_id }}"
+  upstream_url: "{{ GITLAB_MCP_UPSTREAM_URL }}"
+  auth_subject: "{{ lookup('config', application_id, 'mcp.auth_subject') }}"
+  mutating_tools_enabled: "{{ lookup('config', application_id, 'mcp.tools.mutating_tools_enabled') | bool }}"
+  tools: "{{ lookup('file', 'mcp/tools.json') | from_json }}"
+  limits: "{{ lookup('config', application_id, 'mcp.limits') }}"
+  schema_sha256: "{{ lookup('config', application_id, 'mcp.tools.schema_sha256') }}"

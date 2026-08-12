@@ -46,6 +46,7 @@ flowchart LR
         svc_css["css"]
         svc_prometheus["prometheus"]
         svc_container_backup["container_backup"]
+        svc_gitlabmcp["gitlabmcp"]
     end
     subgraph dependents [Dependents]
         dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]
@@ -73,7 +74,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - **Consolidated object storage:** artifacts, LFS, uploads, packages, external diffs, dependency proxy, terraform state, CI secure files and pages buckets on any S3-compatible endpoint; named volumes (`gitlab_shared`, `gitlab_uploads`, `gitlab_builds`) carry the data when object storage is disabled.
 - **OIDC single sign-on and SMTP:** rendered into `gitlab.yml` and an `smtp_settings.rb` initializer.
 - **Git over SSH:** gitlab-sshd on the public SSH port with role-generated host keys under `<instance>/config/hostkeys/`. Back up that directory: it is not part of any named volume, and a host rebuild or instance purge regenerates the keys, so every git client then sees a host-key-changed warning until it re-trusts the new key.
-- **MCP server contract:** Declares the built-in MCP server at `/api/v4/mcp` over streamable HTTP, bearer-token authenticated, and mints the token that MCP clients present.
+- **MCP server contract:** Fronts GitLab's built-in MCP server with the repository-owned adapter. Clients reach `/mcp` on the `gitlabmcp` sidecar; the adapter alone talks to `/api/v4/mcp` upstream, so only the contracted tools are reachable.
 
 ## MCP server
 
@@ -81,7 +82,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 
 | Property | Value |
 | --- | --- |
-| Endpoint | `/api/v4/mcp` on the `gitlab` service, internal port `http` (workhorse), also reachable on the canonical domain |
+| Endpoint | `/mcp` on the `gitlabmcp` sidecar, internal port `http`; the adapter reaches `/api/v4/mcp` on workhorse upstream |
 | Transport | streamable HTTP (JSON-RPC `initialize`, `tools/list`, `tools/call`) |
 | Auth | `Authorization: Bearer <token>` |
 | Token subject | the `root` account |
