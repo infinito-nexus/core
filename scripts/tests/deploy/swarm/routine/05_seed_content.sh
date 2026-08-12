@@ -31,9 +31,7 @@ else
 	echo "Role '${APP_ID}' declares no NFS-flagged volume in meta/volumes.yml — skipping NFS marker seed"
 fi
 
-APP_CTR=$(docker exec "${NODE}" docker ps \
-	--filter "name=${SERVICE_NAME}" \
-	--format '{{.ID}}' | head -1)
+APP_CTR=$(service_container_id "${NODE}" "${SERVICE_NAME}")
 if [ -z "${APP_CTR}" ]; then
 	echo "FAILURE: cannot locate ${ENTITY} container on ${NODE}"
 	exit 1
