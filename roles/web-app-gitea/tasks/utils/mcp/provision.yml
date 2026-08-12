@@ -23,6 +23,19 @@
   run_once: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
+- name: "🔑 Set the account's password to the one this deployment declares"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i --user {{ GITEA_USER }} {{ GITEA_API_LOCAL_CID | quote }} \
+      /app/gitea/gitea admin user change-password \
+        --username {{ GITEA_MCP_USERNAME | quote }} \
+        --password {{ GITEA_MCP_USER_PASSWORD | quote }} \
+        --must-change-password=false \
+        -c {{ GITEA_CONFIG }}
+  changed_when: true
+  delegate_to: "{{ GITEA_API_HOST_NODE }}"
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
 - name: "🗑 Revoke an access token left over under the same name"
   ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -i {{ GITEA_API_LOCAL_CID | quote }} \

@@ -159,6 +159,19 @@ async def ensure_service_account(admin_token):
                 raise SystemExit("MCP account refused: " + json.dumps(created))
             user_id = created["result"]["user"]["id"]
 
+        if existing:
+            changed = await command(
+                {
+                    "type": "config/auth_provider/homeassistant/admin_change_password",
+                    "user_id": user_id,
+                    "password": SERVICE_PASSWORD,
+                }
+            )
+            if changed.get("success"):
+                return False
+            if (changed.get("error") or {}).get("code") != "credentials_not_found":
+                raise SystemExit("MCP account password refused: " + json.dumps(changed))
+
         credentials = await command(
             {
                 "type": "config/auth_provider/homeassistant/create",
@@ -167,7 +180,7 @@ async def ensure_service_account(admin_token):
                 "password": SERVICE_PASSWORD,
             }
         )
-        if not credentials.get("success") and not existing:
+        if not credentials.get("success"):
             raise SystemExit("MCP account credentials refused")
     return not existing
 

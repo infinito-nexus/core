@@ -38,6 +38,26 @@
   delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
   run_once: true
 
+- name: "🔑 Set the account's password to the one this deployment declares"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -u
+      - "{{ NEXTCLOUD_DOCKER_USER }}"
+      - -e
+      - "OC_PASS={{ NEXTCLOUD_MCP_USER_PASSWORD }}"
+      - "{{ NEXTCLOUD_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - php
+      - "{{ NEXTCLOUD_INTERNAL_OCC_COMMAND }}"
+      - user:resetpassword
+      - --password-from-env
+      - "{{ NEXTCLOUD_MCP_USERNAME }}"
+  changed_when: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
+  run_once: true
+
 - name: "🔑 Mint an app password for the MCP clients"
   ansible.builtin.command:
     argv:

@@ -90,8 +90,12 @@ if (!$user) {
     $user->first_name = "MCP";
     $user->last_name = "Adapter";
     $user->username = $username;
-    $user->password = bcrypt($password);
     $user->activated = 1;
+    $user->password = bcrypt($password);
+    $user->save();
+    $changed = true;
+} elseif (!\Illuminate\Support\Facades\Hash::check($password, (string) $user->password)) {
+    $user->password = bcrypt($password);
     $user->save();
     $changed = true;
 }
