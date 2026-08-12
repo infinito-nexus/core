@@ -162,7 +162,10 @@ def _build_users(
         )
         roles = overrides.get("roles", [])
         application_roles = overrides.get("application_roles", {})
-        password = overrides.get("password", become_pwd)
+        declared_password = overrides.get("password", become_pwd)
+        password = (
+            become_pwd if isinstance(declared_password, dict) else declared_password
+        )
         accounts = overrides.get("accounts")
         if accounts is None:
             accounts = _derive_accounts(roles)

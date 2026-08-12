@@ -10,10 +10,13 @@ from ruamel.yaml.comments import CommentedMap
 from cli.administration.inventory.provision.credentials_generator import (
     generate_credentials_for_roles,
 )
-from cli.administration.inventory.provision.passwords import generate_user_password
+from cli.administration.inventory.provision.passwords import (
+    generate_declared_user_password,
+    generate_user_password,
+)
 from cli.administration.inventory.provision.users_generator import (
     generate_user_passwords,
-    required_usernames,
+    required_user_policies,
 )
 from cli.administration.inventory.validate.users import compare_user_keys
 from utils.cache.files import read_text
@@ -64,14 +67,16 @@ def _write_role_users(roles_dir: Path, application_id: str, body: str) -> None:
     users_file.write_text(body, encoding="utf-8")
 
 
-class TestRequiredUsernames(unittest.TestCase):
+class TestRequiredUserPolicies(unittest.TestCase):
     def test_only_the_resolved_roles_contribute(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             roles_dir = Path(tmpdir)
             _write_role_users(roles_dir, "web-app-a", "alice: {}\n")
             _write_role_users(roles_dir, "web-app-b", "bob: {}\n")
 
-            self.assertEqual(["alice"], required_usernames(roles_dir, ["web-app-a"]))
+            self.assertEqual(
+                ["alice"], list(required_user_policies(roles_dir, ["web-app-a"]))
+            )
 
     def test_a_user_declared_by_two_roles_appears_once(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -81,7 +86,7 @@ class TestRequiredUsernames(unittest.TestCase):
 
             self.assertEqual(
                 ["administrator", "alice"],
-                required_usernames(roles_dir, ["web-app-a", "web-app-b"]),
+                list(required_user_policies(roles_dir, ["web-app-a", "web-app-b"])),
             )
 
     def test_a_role_without_users_contributes_none(self):
@@ -91,7 +96,7 @@ class TestRequiredUsernames(unittest.TestCase):
 
             self.assertEqual(
                 ["alice"],
-                required_usernames(roles_dir, ["web-app-a", "web-app-missing"]),
+                list(required_user_policies(roles_dir, ["web-app-a", "web-app-missing"])),
             )
 
     def test_a_malformed_definition_aborts(self):
@@ -100,7 +105,7 @@ class TestRequiredUsernames(unittest.TestCase):
             _write_role_users(roles_dir, "web-app-a", "alice: not-a-mapping\n")
 
             with self.assertRaises(SystemExit):
-                required_usernames(roles_dir, ["web-app-a"])
+                required_user_policies(roles_dir, ["web-app-a"])
 
 
 class TestGenerateUserPasswords(unittest.TestCase):
@@ -121,7 +126,7 @@ class TestGenerateUserPasswords(unittest.TestCase):
 
             with (
                 patch(f"{RUAMEL_MODULE}.VaultHandler") as vault,
-                patch(f"{MODULE}.generate_user_password", return_value="plain"),
+                patch(f"{MODULE}.generate_declared_user_password", return_value="plain"),
             ):
                 vault.return_value.encrypt_string.side_effect = lambda _plain, name: (
                     VAULTED.format(name=name)
@@ -189,7 +194,7 @@ class TestGenerateUserPasswords(unittest.TestCase):
 
             with (
                 patch(f"{RUAMEL_MODULE}.VaultHandler") as vault,
-                patch(f"{MODULE}.generate_user_password", return_value="plain"),
+                patch(f"{MODULE}.generate_declared_user_password", return_value="plain"),
             ):
                 vault.return_value.encrypt_string.side_effect = lambda _plain, name: (
                     VAULTED.format(name=name)
@@ -264,7 +269,7 @@ class TestRealisticInventoryRoundTrip(unittest.TestCase):
 
         with (
             patch(f"{RUAMEL_MODULE}.VaultHandler") as vault,
-            patch(f"{MODULE}.generate_user_password", return_value="plain"),
+            patch(f"{MODULE}.generate_declared_user_password", return_value="plain"),
         ):
             vault.return_value.encrypt_string.side_effect = lambda _plain, name: (
                 VAULTED.format(name=name)
@@ -346,7 +351,7 @@ class TestHandoffToCredentialsGenerator(unittest.TestCase):
 
             with (
                 patch(f"{RUAMEL_MODULE}.VaultHandler") as vault,
-                patch(f"{MODULE}.generate_user_password", return_value="plain"),
+                patch(f"{MODULE}.generate_declared_user_password", return_value="plain"),
             ):
                 vault.return_value.encrypt_string.side_effect = lambda _plain, name: (
                     VAULTED.format(name=name)
@@ -423,6 +428,69 @@ class TestAgainstRealAnsibleVault(unittest.TestCase):
         self.assertEqual(
             "!vault", getattr(doc["users"]["biber"]["password"], "tag", None)
         )
+
+
+class TestDeclaredPasswordPolicy(unittest.TestCase):
+    def test_a_role_declares_the_algorithm_its_application_accepts(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            roles_dir = Path(tmpdir)
+            _write_role_users(
+                roles_dir,
+                "web-app-a",
+                "bot:\n  password:\n    algorithm: strong_password\n"
+                "    validation: '[^A-Za-z0-9]'\n",
+            )
+
+            self.assertEqual(
+                {
+                    "bot": {
+                        "algorithm": "strong_password",
+                        "validation": "[^A-Za-z0-9]",
+                    }
+                },
+                required_user_policies(roles_dir, ["web-app-a"]),
+            )
+
+    def test_two_roles_disagreeing_on_one_account_abort(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            roles_dir = Path(tmpdir)
+            _write_role_users(
+                roles_dir, "web-app-a", "bot:\n  password:\n    algorithm: strong_password\n"
+            )
+            _write_role_users(
+                roles_dir, "web-app-b", "bot:\n  password:\n    algorithm: alphanumeric\n"
+            )
+
+            with self.assertRaises(SystemExit):
+                required_user_policies(roles_dir, ["web-app-a", "web-app-b"])
+
+    def test_a_role_that_asks_for_nothing_leaves_the_declared_policy_alone(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            roles_dir = Path(tmpdir)
+            _write_role_users(
+                roles_dir, "web-app-a", "bot:\n  password:\n    algorithm: strong_password\n"
+            )
+            _write_role_users(roles_dir, "web-app-b", "bot: {}\n")
+
+            self.assertEqual(
+                "strong_password",
+                required_user_policies(roles_dir, ["web-app-a", "web-app-b"])["bot"][
+                    "algorithm"
+                ],
+            )
+
+    def test_the_generated_value_satisfies_the_declared_regex(self):
+        password = generate_declared_user_password(
+            "bot", "strong_password", "[^A-Za-z0-9]"
+        )
+        self.assertRegex(password, "[^A-Za-z0-9]")
+
+    def test_an_unsatisfiable_pair_aborts_instead_of_looping(self):
+        with self.assertRaises(SystemExit):
+            generate_declared_user_password("bot", "alphanumeric", "[^A-Za-z0-9]")
+
+    def test_no_declaration_keeps_the_shell_safe_default(self):
+        self.assertTrue(generate_declared_user_password("bot", None, None).isalnum())
 
 
 if __name__ == "__main__":
