@@ -134,7 +134,7 @@ class TestResetCredentials(unittest.TestCase):
 
     def test_unrelated_keys_and_comments_survive(self):
         self._reset()
-        text = self.host_vars_file.read_text(encoding="utf-8")
+        text = self.host_vars_file.read_text(encoding="utf-8")  # nocheck: cache-read
         self.assertIn("This comment must survive the rotation.", text)
         self.assertTrue(self._document()["applications"]["web-app-a"]["features"])
 

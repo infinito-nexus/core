@@ -26,7 +26,8 @@ class TestBackup(unittest.TestCase):
     def test_the_copy_holds_the_pre_rotation_content(self):
         copy = _backup(self.host_vars_file)
         self.host_vars_file.write_text("TLS_ENABLED: false\n", encoding="utf-8")
-        self.assertEqual(copy.read_text(encoding="utf-8"), "TLS_ENABLED: true\n")
+        content = copy.read_text(encoding="utf-8")  # nocheck: cache-read
+        self.assertEqual(content, "TLS_ENABLED: true\n")
 
     def test_the_original_survives(self):
         _backup(self.host_vars_file)
@@ -48,15 +49,17 @@ class TestMirrorHostVars(unittest.TestCase):
         mirrored = _mirror_host_vars(self.host_vars_dir, self.source)
         self.assertEqual(mirrored, ["nfs-server", "wrk-01"])
         for host in mirrored:
+            path = self.host_vars_dir / f"{host}.yml"
             self.assertEqual(
-                (self.host_vars_dir / f"{host}.yml").read_text(encoding="utf-8"),
+                path.read_text(encoding="utf-8"),  # nocheck: cache-read
                 "rotated: true\n",
             )
 
     def test_a_backup_is_not_mirrored_over(self):
         backup = _backup(self.source)
         _mirror_host_vars(self.host_vars_dir, self.source)
-        self.assertEqual(backup.read_text(encoding="utf-8"), "rotated: true\n")
+        content = backup.read_text(encoding="utf-8")  # nocheck: cache-read
+        self.assertEqual(content, "rotated: true\n")
         self.assertNotIn(
             backup.stem, _mirror_host_vars(self.host_vars_dir, self.source)
         )
