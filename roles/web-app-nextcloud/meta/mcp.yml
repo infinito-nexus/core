@@ -32,5 +32,11 @@ limits:
   stream_seconds: 300
 tools:
   upstream_serves: dynamic
+  categories:
+    - calendar
+    - contacts
+    - files
+    - mail
+    - talk
   read_only_default: true
   mutating_tools_enabled: false
