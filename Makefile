@@ -405,7 +405,9 @@ lint: install-lint
 		lint-mermaid \
 		lint-packages \
 		lint-playwright \
+		lint-php \
 		lint-python \
+		lint-ruby \
 		lint-shellcheck
 
 .PHONY: lint-action
@@ -458,10 +460,20 @@ lint-packages: install-lint
 lint-playwright: install-lint
 	@bash scripts/lint/wrapper.sh playwright
 
+.PHONY: lint-php
+# Run the PHP syntax check over every tracked PHP file.
+lint-php: install-lint
+	@bash scripts/lint/wrapper.sh php
+
 .PHONY: lint-python
 # Run Python lint checks.
 lint-python: install-lint
 	@bash scripts/lint/wrapper.sh python
+
+.PHONY: lint-ruby
+# Run the Ruby syntax check over every tracked Ruby file.
+lint-ruby: install-lint
+	@bash scripts/lint/wrapper.sh ruby
 
 .PHONY: lint-shellcheck
 # Run shellcheck lint checks.
