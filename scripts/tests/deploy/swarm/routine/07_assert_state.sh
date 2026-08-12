@@ -49,12 +49,28 @@ if [ -z "${APP_CTR}" ]; then
 	echo "FAILURE: cannot locate ${ENTITY} container on ${NEW_NODE}"
 	exit 1
 fi
-for i in $(seq 1 30); do
+READY_BUDGET=$(docker exec "${NEW_NODE}" docker inspect "${APP_CTR}" 2>/dev/null |
+	awk '
+		/"Healthcheck": \{/ { inhc = 1 }
+		inhc && /"StartPeriod":/ { gsub(/[^0-9]/, "", $2); sp = $2 }
+		inhc && /"Interval":/    { gsub(/[^0-9]/, "", $2); iv = $2 }
+		inhc && /"Retries":/     { gsub(/[^0-9]/, "", $2); rt = $2; inhc = 0 }
+		END {
+			if (sp != "" && iv != "" && rt != "") {
+				print int(sp / 1000000000) + int(iv / 1000000000) * rt
+			}
+		}')
+if [ -z "${READY_BUDGET}" ]; then
+	echo "FAILURE: ${ENTITY} container ${APP_CTR} declares no healthcheck, so how long it may take to become ready is undeclared; add services.${ENTITY}.healthcheck"
+	exit 1
+fi
+echo "waiting up to ${READY_BUDGET}s for ${ENTITY} to answer on ${NEW_NODE}"
+for _ in $(seq 1 $((READY_BUDGET / 2))); do
 	if probe_app_reachable "${NEW_NODE}" "${APP_CTR}" "${PROBE_PORT}"; then
 		echo "${ENTITY} reachable after reschedule"
 		exit 0
 	fi
 	sleep 2
 done
-echo "FAILURE: ${ENTITY} not reachable after reschedule"
+echo "FAILURE: ${ENTITY} not reachable after reschedule within ${READY_BUDGET}s"
 exit 1
