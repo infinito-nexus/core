@@ -24,7 +24,7 @@ adapter:
   version: "3.13-slim"
   digest: sha256:ffb752e139c0a19692a43af8d8523b274222dd68eebad5d583b45c2201c6e30a
   specification_path: roles/web-app-mattermost/files/mcp/tools.json
-  specification_sha256: sha256:0355a3990ff80867e972ccdddfae412a5d4d81da9b6aa51250649f275903ba15
+  specification_sha256: sha256:b06c02b100fa8d959d3e4d9fca42682df943967f6bf2de2c66f7031d5a6b823f
 endpoint:
   service_key: mattermostmcp
   path: /mcp
@@ -38,7 +38,7 @@ limits:
   result_items: 100
   stream_seconds: 300
 tools:
-  schema_sha256: sha256:1f3feea3ceeee056215289789666b5d2246a8c7482920c2f78c4be767a7a1c27
+  schema_sha256: sha256:24872026324af9402aca15cad57d058a408582fbea677af02ce474fd5d7edb28
   allowlist:
     - get_channel_info
     - get_channel_members

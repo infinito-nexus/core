@@ -28,7 +28,7 @@ import sys
 import unittest
 from typing import TYPE_CHECKING
 
-from utils.annotations.suppress import is_suppressed_at
+from utils.annotations.suppress import is_suppressed_for_key
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_META_MCP
@@ -63,15 +63,6 @@ def _file_digest(path: Path) -> str:
     return "sha256:" + hashlib.sha256(raw).hexdigest()
 
 
-def _suppressed(lines: list[str], key: str) -> bool:
-    """Whether the line declaring *key* carries the rule's suppression."""
-    number = next(
-        (n for n, line in enumerate(lines, 1) if line.strip().startswith(f"{key}:")),
-        None,
-    )
-    return number is not None and is_suppressed_at(lines, number, _RULE)
-
-
 class TestMcpContractDigest(unittest.TestCase):
     def test_every_pinned_digest_matches_its_contract(self) -> None:
         roles_root = PROJECT_ROOT / "roles"
@@ -86,7 +77,7 @@ class TestMcpContractDigest(unittest.TestCase):
             lines = read_text(str(mcp_path)).splitlines()
 
             pinned = str((mcp.get("tools") or {}).get("schema_sha256") or "")
-            if pinned and not _suppressed(lines, "schema_sha256"):
+            if pinned and not is_suppressed_for_key(lines, "schema_sha256", _RULE):
                 contract_path = role_dir / _CONTRACT_RELATIVE
                 if not contract_path.is_file():
                     offenders.append(
@@ -109,7 +100,7 @@ class TestMcpContractDigest(unittest.TestCase):
             if (
                 spec_pin
                 and spec_path
-                and not _suppressed(lines, "specification_sha256")
+                and not is_suppressed_for_key(lines, "specification_sha256", _RULE)
             ):
                 specification = PROJECT_ROOT / spec_path
                 if not specification.is_file():
