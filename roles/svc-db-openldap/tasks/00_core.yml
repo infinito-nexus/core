@@ -58,7 +58,11 @@
   delegate_to: "{{ STACK_HOST }}"
   run_once: true
   changed_when: false
-  failed_when: openldap_module_dn_raw.rc != 0 or (openldap_module_dn_raw.stdout | trim) == ""
+  retries: 30
+  delay: 5
+  until:
+    - openldap_module_dn_raw.rc == 0
+    - (openldap_module_dn_raw.stdout | trim) != ""
 
 - name: 📐 Normalize OPENLDAP_MODULE_DN (ensure ,cn=config suffix)
   set_fact:
