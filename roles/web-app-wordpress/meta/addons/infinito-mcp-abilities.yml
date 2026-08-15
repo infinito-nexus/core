@@ -1,0 +1,5 @@
+---
+enabled: "{{ lookup('config', 'web-app-wordpress', 'mcp.enabled') | bool }}"
+required: false
+mechanism: mu_plugin
+source: vendored

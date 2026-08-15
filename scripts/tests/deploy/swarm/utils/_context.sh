@@ -141,6 +141,22 @@ skip_if_no_swarm_service() {
 	fi
 }
 
+# A stack whose sidecar is named after its app (<app>mcp) makes every
+# `--filter name=<app>` a two-hit match, so both helpers below match exactly.
+# Param: $1 node container, $2 swarm service name
+service_container_id() {
+	docker exec "$1" docker ps \
+		--filter "label=com.docker.swarm.service.name=$2" \
+		--format '{{.ID}}' | head -1
+}
+
+# Param: $1 manager container, $2 swarm service name
+service_replicas() {
+	docker exec "$1" docker service ls \
+		--filter "name=$2" --format '{{.Name}} {{.Replicas}}' |
+		awk -v svc="$2" '$1 == svc { print $2 }'
+}
+
 # Param: $1 node container, $2 app container id, $3 port
 probe_app_reachable() {
 	docker exec "$1" docker exec "$2" sh -c \

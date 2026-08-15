@@ -1,0 +1,45 @@
+---
+litellm:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  bond: 1
+  enabled: true
+  shared: true
+  backup:
+    no_stop_required: true
+  image: ghcr.io/berriai/litellm
+  version: main-v1.77.3.dynamic_rates
+  name: litellm
+  min_storage: 1022MB
+  cpus: "2.0"
+  mem_reservation: 1g
+  mem_limit: 2g
+  pids_limit: 1024
+  ports:
+    local:
+      http: 8081
+    internal:
+      http: 4000
+  run_after:
+    - svc-db-postgres
+  lifecycle: beta
+
+postgres:
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: true # nocheck: dynamic-flag
+
+# nocheck: playwright-service-flag, dynamic-flag
+ollama:
+  bond: 1
+  enabled: "{{ 'svc-ai-ollama' in group_names }}"
+  shared: "{{ 'svc-ai-ollama' in group_names }}"
+
+# nocheck: playwright-service-flag, dynamic-flag
+lmstudio:
+  bond: 1
+  enabled: "{{ 'svc-ai-lmstudio' in group_names }}"
+  shared: "{{ 'svc-ai-lmstudio' in group_names }}"

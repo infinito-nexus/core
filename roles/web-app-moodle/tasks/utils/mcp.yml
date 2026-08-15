@@ -1,0 +1,25 @@
+---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: MOODLE_MCP
+    resolve_compose_cid: "{{ MOODLE_CONTAINER_ADDRESS }}"
+
+- name: "🧩 Publish the MCP protocol plugin into the code volume"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/plugin.yml"
+
+- name: "🔑 Enable web services and mint the MCP bearer"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/provision.yml"
+
+- name: "🩺 Verify the MCP endpoint answers that bearer"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/verify.yml"
+
+- name: "🩺 Prove the MCP contract of {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
+  vars:
+    mcp_probe_bearer: "{{ lookup('mcp_credential', application_id) }}"
+    mcp_probe_path_key: ""
+    mcp_probe_read_tool: "core_course_get_courses"
+    mcp_probe_read_args: {}
+    mcp_probe_host: "{{ MOODLE_DOMAIN }}"

@@ -1,5 +1,5 @@
 ---
-# nocheck: seaweedfs-playwright — GitLab ships no templates/playwright.env.j2 and object storage is server-side consolidated storage with no isolated upload surface
+# nocheck: seaweedfs-playwright
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -17,12 +17,14 @@ matomo:
   bond: 1
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
+# nocheck: playwright-service-flag
 email:
   bond: 1
   enabled: "{{ 'web-app-mailu' in group_names }}"
   shared: "{{ 'web-app-mailu' in group_names }}"
 # nocheck: shared
 # nocheck: dynamic-flag
+# nocheck: playwright-service-flag
 redis:
   bond: 1
   backup:
@@ -33,10 +35,12 @@ redis:
   mem_reservation: 128m
   mem_limit: 512m
   pids_limit: 512
+# nocheck: playwright-service-flag
 postgres:
   bond: 1
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
+# nocheck: playwright-service-flag
 gitlab:
   modes:
     compose:
@@ -47,7 +51,6 @@ gitlab:
   enabled: true # nocheck: dynamic-flag
   shared: true
   min_storage: 30GB
-  # Exception: the entity runs no container of its own (webservice/sidekiq/workhorse/gitaly/shell/migrations carry the real budgets); these keys only satisfy the entity resource contract
   cpus: "0.1"
   mem_reservation: 128m
   mem_limit: 256m
@@ -135,10 +138,12 @@ migrations:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 512
+# nocheck: playwright-service-flag
 seaweedfs:
   bond: 1
   enabled: "{{ 'web-app-seaweedfs' in group_names }}"
   shared: "{{ 'web-app-seaweedfs' in group_names }}"
+# nocheck: playwright-service-flag
 css:
   bond: 1
   enabled: "{{ 'web-svc-css' in group_names }}"
@@ -153,3 +158,17 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+# nocheck: dockerfile-custom  the Dockerfile is owned by svc-ai-mcp-adapter and staged per instance, so every adapter-backed provider shares one audited build
+gitlabmcp:
+  image: python
+  # nocheck: docker-version  base of the self-built stdlib adapter, not the served application
+  version: "3.13.15-slim"
+  custom: true
+  name: gitlabmcp
+  cpus: "0.25"
+  mem_reservation: 16m
+  mem_limit: 24m
+  pids_limit: 64
+  ports:
+    internal:
+      http: 8080

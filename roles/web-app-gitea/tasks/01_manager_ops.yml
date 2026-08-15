@@ -6,9 +6,6 @@
     delay: 5
     timeout: "{{ lookup('timeout', 300) | int }}"
 
-- name: 🩹 Patch Gitea database settings in app.ini
-  include_tasks: 02_database.yml
-
 - name: "🔍 Resolve {{ application_id }} hosting node + container id"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
   vars:
@@ -62,11 +59,16 @@
   when: (GITEA_OIDC_ENABLED | bool) or (GITEA_LDAP_ENABLED | bool)
 
 - name: ▶️ Execute Setup Routines
-  include_tasks: 03_setup.yml
+  include_tasks: 02_setup.yml
 
 - name: ▶️ Execute Cleanup Routines
-  include_tasks: 04_cleanup.yml
+  include_tasks: 03_cleanup.yml
   when: MODE_CLEANUP | bool
+
+- name: "🔌 Provision the MCP surface"
+  include_tasks: utils/mcp.yml
+  when: GITEA_MCP_ENABLED | bool
+
 - name: 📂 Include DNS role to register Gitea domain(s)
   include_role:
     name: sys-dns-cloudflare-records

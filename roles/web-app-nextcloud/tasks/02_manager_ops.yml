@@ -61,3 +61,7 @@
     file: 02_manager_ops/07_admin_identities.yml
     apply:
       delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
+
+- name: "🔌 Provision the MCP server surface"
+  include_tasks: utils/mcp.yml
+  when: NEXTCLOUD_MCP_ENABLED | bool

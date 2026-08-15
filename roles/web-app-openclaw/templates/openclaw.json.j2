@@ -1,0 +1,20 @@
+{
+  "gateway": {
+    "mode": "local",
+    "controlUi": {
+      "allowedOrigins": [{{ OPENCLAW_URL | to_json }}]
+    }
+  }{% set renderable = OPENCLAW_MCP_SERVERS | mcp_renderable_servers %}{% if renderable | length > 0 %},
+  "mcp": {
+    "servers": {
+{% for server in renderable %}
+      {{ server.id | to_json }}: {
+        "url": {{ server.url | to_json }},
+        "transport": {{ server.transport | to_json }},
+        "headers": {"Authorization": {{ server | mcp_authorization | to_json }}}
+      }{{ "," if not loop.last }}
+{% endfor %}
+    }
+  }
+{% endif %}
+}

@@ -13,3 +13,4 @@ require("./test-keycloak-scope").register(shared);
 require("./test-lam-writethrough").register(shared);
 require("./test-administrator-persona").register(shared);
 require("./test-guest-persona").register(shared);
+require("./test-mcp-guest").register(shared);

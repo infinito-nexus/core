@@ -1,0 +1,33 @@
+---
+# nocheck: playwright-service-flag
+litellm:
+  modes:
+    host:
+      enabled: true
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: true # nocheck: dynamic-flag
+  provides: litellm_ui
+  lifecycle: beta
+
+# nocheck: playwright-service-flag
+dashboard:
+  bond: 1
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
+
+# nocheck: playwright-service-flag
+prometheus:
+  bond: 1
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
+
+# nocheck: sso, dynamic-flag, playwright-service-flag
+sso:
+  enabled: false
+  shared: false
+
+# nocheck: logout, dynamic-flag, playwright-service-flag
+logout:
+  enabled: false
+  shared: false

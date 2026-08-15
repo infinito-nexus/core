@@ -1,0 +1,8 @@
+---
+credentials:
+  mcp_bearer:
+    description: "Bearer an MCP client must present to this role's adapter instance. Distinct from the credential the adapter presents upstream: holding a token the
+      application accepts says nothing about who called the adapter."
+    algorithm: alphanumeric
+    validation: "^[A-Za-z0-9]{32,}$"
+    length: 48

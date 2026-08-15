@@ -55,3 +55,7 @@
 - name: "🔧 Configure auth_ldap (sync-only in variant 0, primary login in variant 1)"
   include_tasks: 05_ldap_sync.yml
   when: MOODLE_LDAP_ENABLED | bool
+
+- name: "🔌 Provision the MCP server surface"
+  include_tasks: utils/mcp.yml
+  when: MOODLE_MCP_ENABLED | bool

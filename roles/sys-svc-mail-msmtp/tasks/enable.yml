@@ -46,8 +46,6 @@
         force: true
       when: sys_svc_mail_msmtp_mta is skipped
 
-- include_tasks: ca_bundle.yml
-
 - name: 🔧 configure msmtprc.conf.j2
   template: # nocheck: stack-host-template (per-host /root/.msmtprc, not stack-host-only)
     src: "msmtprc.conf.j2"

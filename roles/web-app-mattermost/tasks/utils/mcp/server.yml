@@ -1,0 +1,67 @@
+---
+- name: "🧩 Mattermost | Activate the prepackaged Agents plugin"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ MATTERMOST_MCP_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - /mattermost/bin/mmctl
+      - --local
+      - plugin
+      - enable
+      - "{{ MATTERMOST_MCP_PLUGIN_ID }}"
+  register: mattermost_mcp_plugin_enable
+  retries: 60
+  delay: 5
+  until: mattermost_mcp_plugin_enable.rc == 0
+  changed_when: false
+  delegate_to: "{{ MATTERMOST_MCP_HOST_NODE }}"
+  run_once: true
+
+- name: "🔎 Mattermost | Read the Agents MCP server toggle"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/select/mcp-plugin-server.sql"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: mattermost_mcp_toggle
+  retries: 60
+  delay: 5
+  until: mattermost_mcp_toggle.rows | default([]) | length > 0
+  changed_when: false
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
+- name: "🟢 Mattermost | Expose the MCP server in the Agents config"
+  when: (mattermost_mcp_toggle.rows[0][0] | trim) != 'true'
+  block:
+    - name: "🟢 Mattermost | Patch the active Agents config row"
+      database_query:
+        config: "{{ lookup('database', application_id) }}"
+        query_file: "{{ role_path }}/files/sql/update/enable-mcp-plugin-server.sql"
+        mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      changed_when: true
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true
+      notify: container recreate
+
+- name: "🔎 Mattermost | Re-read the Agents MCP server toggle"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/select/mcp-plugin-server.sql"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: mattermost_mcp_toggle_final
+  changed_when: false
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
+- name: "🛑 Refuse a server that routes no MCP endpoint"
+  ansible.builtin.assert:
+    that:
+      - (mattermost_mcp_toggle_final.rows[0][0] | trim) == 'true'
+    fail_msg: >-
+      The Agents plugin still reports mcp.enablePluginServer=false, so
+      {{ lookup('config', application_id, 'mcp.endpoint.path') }}
+      answers 404 and every MCP client would be pointed at a dead endpoint.

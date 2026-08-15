@@ -102,12 +102,25 @@ def _load_user_defs(roles_dir: Path) -> OrderedDict[str, dict[str, Any]]:
 
             existing = merged[key]
             for field, value in overrides.items():
-                if field in existing and existing[field] != value:
+                if field not in existing:
+                    existing[field] = copy.deepcopy(value)
+                    continue
+                current = existing[field]
+                if isinstance(current, dict) and isinstance(value, dict):
+                    for sub_key, sub_value in value.items():
+                        if sub_key in current and current[sub_key] != sub_value:
+                            raise ValueError(
+                                f"Conflict for user '{key}': field '{field}.{sub_key}' has "
+                                f"existing value '{current[sub_key]}', tried to set "
+                                f"'{sub_value}' in {filepath}"
+                            )
+                        current[sub_key] = copy.deepcopy(sub_value)
+                    continue
+                if current != value:
                     raise ValueError(
                         f"Conflict for user '{key}': field '{field}' has existing value "
-                        f"'{existing[field]}', tried to set '{value}' in {filepath}"
+                        f"'{current}', tried to set '{value}' in {filepath}"
                     )
-            existing.update(copy.deepcopy(overrides))
 
     return merged
 
@@ -148,7 +161,11 @@ def _build_users(
             "description", f"Created by Infinito.Nexus Ansible for {primary_domain}"
         )
         roles = overrides.get("roles", [])
-        password = overrides.get("password", become_pwd)
+        application_roles = overrides.get("application_roles", {})
+        declared_password = overrides.get("password", become_pwd)
+        password = (
+            become_pwd if isinstance(declared_password, dict) else declared_password
+        )
         accounts = overrides.get("accounts")
         if accounts is None:
             accounts = _derive_accounts(roles)
@@ -168,6 +185,7 @@ def _build_users(
             "uid": uid,
             "gid": gid,
             "roles": roles,
+            "application_roles": application_roles,
             "tokens": tokens,
             "authorized_keys": authorized_keys,
             "accounts": accounts,

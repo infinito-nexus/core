@@ -16,9 +16,7 @@ DB_SERVICE=""
 
 converged=false
 for i in $(seq 1 90); do
-	app_replicas=$(docker exec "${MGR}" docker service ls \
-		--filter "name=${SERVICE_NAME}" \
-		--format '{{.Replicas}}')
+	app_replicas=$(service_replicas "${MGR}" "${SERVICE_NAME}")
 	app_state=$(docker exec "${MGR}" sh -c "
     docker service ps --no-trunc \
       --format '{{.CurrentState}}' \
@@ -29,9 +27,7 @@ for i in $(seq 1 90); do
 	db_replicas=""
 	db_state="n/a"
 	if [ -n "${DB_SERVICE}" ]; then
-		db_replicas=$(docker exec "${MGR}" docker service ls \
-			--filter "name=${DB_SERVICE}" \
-			--format '{{.Replicas}}')
+		db_replicas=$(service_replicas "${MGR}" "${DB_SERVICE}")
 		db_state=$(docker exec "${MGR}" sh -c "
       docker service ps --no-trunc \
         --format '{{.CurrentState}}' \

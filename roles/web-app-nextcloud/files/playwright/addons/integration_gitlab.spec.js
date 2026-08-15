@@ -46,34 +46,27 @@ test("integration integration_gitlab: per-user OAuth connect reaches the partner
     ).toBeVisible({ timeout: 30_000 });
 
     let authorizeUrl = await connect.getAttribute("href").catch(() => null);
-    if (!authorizeUrl || !/\/oauth\/authorize/.test(authorizeUrl)) {
-      const popupPromise = context.waitForEvent("page", { timeout: 15_000 }).catch(() => null);
-      await Promise.all([
-        page.waitForURL((u) => new URL(u).host === partnerHost, { timeout: 15_000 }).catch(() => {}),
-        connect.click({ timeout: 10_000 }).catch(() => {}),
-      ]);
-      const popup = await popupPromise;
-      const target = popup || page;
-      await target.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
-      authorizeUrl = target.url();
+    if (!authorizeUrl || !/\/oauth\/authorize/i.test(authorizeUrl)) {
+      // The control is a button doing window.location.replace(<partner>/oauth/authorize?...); GitLab
+      // bounces the unauthenticated browser to /users/sign_in, so the settled URL is no longer the
+      // authorize endpoint. Capture the authorize request itself, which carries the provisioned client_id.
+      const requestPromise = page
+        .waitForRequest((req) => /\/oauth\/authorize/i.test(req.url()), { timeout: 30_000 })
+        .catch(() => null);
+      await connect.click({ timeout: 10_000 }).catch(() => {});
+      const request = await requestPromise;
+      authorizeUrl = request ? request.url() : page.url();
     }
 
     const authorize = new URL(authorizeUrl, instanceUrl);
     const initiatedOnPartner =
-      authorize.host === partnerHost &&
-      (authorize.pathname.includes("/oauth/authorize") ||
-        (authorize.searchParams.get("redirect_to") || authorize.searchParams.get("return_to") || "").includes("/oauth/authorize"));
+      authorize.host === partnerHost && authorize.pathname.includes("/oauth/authorize");
     expect(
       initiatedOnPartner,
       `the per-user connect must initiate OAuth on the partner GitLab (got ${authorize.href})`
     ).toBe(true);
 
-    const authorizeQuery = authorize.pathname.includes("/oauth/authorize")
-      ? authorize.searchParams
-      : new URL(
-          authorize.searchParams.get("redirect_to") || authorize.searchParams.get("return_to") || authorize.href,
-          instanceUrl
-        ).searchParams;
+    const authorizeQuery = authorize.searchParams;
     expect(
       (authorizeQuery.get("client_id") || "").length,
       "the authorize request must carry the provisioned OAuth client_id (proves the partner-registered app)"

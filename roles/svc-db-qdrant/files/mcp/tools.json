@@ -1,0 +1,23 @@
+{
+  "qdrant_get_collection": {
+    "description": "Return one collection's configuration and vector count.",
+    "input_schema": {
+      "properties": {
+        "collection": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "collection"
+      ],
+      "type": "object"
+    },
+    "method": "GET",
+    "path": "/collections/{collection}"
+  },
+  "qdrant_list_collections": {
+    "description": "List the collections this application may read.",
+    "method": "GET",
+    "path": "/collections"
+  }
+}

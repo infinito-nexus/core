@@ -1,0 +1,6 @@
+---
+application_id: "svc-ai-lmstudio"
+entity_name: "{{ application_id | get_entity_name }}"
+
+LMSTUDIO_CONTAINER: "{{ lookup('config', application_id, 'services.lmstudio.name') }}"
+LMSTUDIO_PORT: "{{ lookup('config', application_id, 'services.lmstudio.ports.internal.http') }}"

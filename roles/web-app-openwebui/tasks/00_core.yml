@@ -6,3 +6,10 @@
     name: sys-stk-full
   vars:
     compose_repository_pull: false
+
+- name: "🚿 Flush compose handlers for {{ application_id }}"
+  ansible.builtin.meta: flush_handlers
+
+- name: "🔌 Provision MCP tool-server access grants"
+  ansible.builtin.include_tasks: utils/mcp.yml
+  when: OPENWEBUI_MCP_SERVERS | length > 0

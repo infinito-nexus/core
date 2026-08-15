@@ -12,15 +12,20 @@
         MOODLE_BASE_TAG: "{{ MOODLE_VERSION }}"
         MOODLE_CODE_DIR: "{{ MOODLE_CODE_DIR }}"
         MOODLE_DATA_DIR: "{{ MOODLE_DATA_DIR }}"
+        MOODLE_LOCAL_CACHE_DIR: "{{ MOODLE_LOCAL_CACHE_DIR }}"
         MOODLE_SOURCE_DIR: "{{ MOODLE_SOURCE_DIR }}"
         MOODLE_RUNTIME_USER: "{{ MOODLE_RUNTIME_USER }}"
         MOODLE_OIDC_ENABLED: "{{ MOODLE_OIDC_ENABLED | bool | ternary('1','0') }}"
         MOODLE_OIDC_PLUGIN_RELPATH: "{{ MOODLE_OIDC_PLUGIN_RELPATH }}"
+        MOODLE_MCP_ENABLED: "{{ MOODLE_MCP_ENABLED | bool | ternary('1','0') }}"
+        MOODLE_MCP_PLUGIN_RELPATH: "{{ MOODLE_MCP_PLUGIN_RELPATH }}"
+        MOODLE_MCP_PLUGIN_ARCHIVE_URL: "{{ MOODLE_MCP_PLUGIN_ARCHIVE_URL }}"
         MOODLE_RELEASE: "{{ MOODLE_RELEASE }}"
         MOODLE_TARBALL_URL: "{{ MOODLE_TARBALL_URL }}"
         MOODLE_TARBALL_FILENAME: "{{ MOODLE_TARBALL_FILENAME }}"
         MOODLE_VERSION_FILE: "{{ MOODLE_VERSION_FILE }}"
         MOODLE_AUTH_SUBDIR: "{{ MOODLE_AUTH_SUBDIR }}"
+        MOODLE_WEBSERVICE_SUBDIR: "{{ MOODLE_WEBSERVICE_SUBDIR }}"
     {{ lookup('container_image', application_id, 'moodle') }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_volumes', application_id, 'moodle') | indent(4) }}
@@ -33,7 +38,7 @@
       retries: 5
       start_period: 15m
     {{ lookup('container_depends_on', application_id) | indent(4) }}
-    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_networks', provider_self_alias=False) | indent(4) }}
 
   {% set service_name = 'nginx' %}
   {{ service_name }}:
@@ -67,7 +72,7 @@
           sleep 60
         done
     {{ lookup('compose_restart') }}
-    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_networks', provider_self_alias=False) | indent(4) }}
 
 {{ lookup('compose_volumes', application_id) }}
 {{ lookup('compose_networks') }}

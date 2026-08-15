@@ -235,7 +235,10 @@
   register: _wait_result
   retries: "{{ test_e2e_playwright_wait_retries }}"
   delay: "{{ test_e2e_playwright_wait_delay }}"
-  until: _wait_result.status is defined and _wait_result.status | int < 500
+  until: >-
+    _wait_result.status is defined
+    and (_wait_result.status | int) >= 100
+    and (_wait_result.status | int) < 500
   when: test_e2e_playwright_wait_enabled | bool
 
 - name: ✅ Ensure reports dir exists

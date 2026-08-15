@@ -1,0 +1,27 @@
+---
+mcp-adapter:
+  modes:
+    compose:
+      enabled: false
+    swarm:
+      enabled: false
+  bond: 1
+  enabled: true
+  shared: true
+  # nocheck: docker-version  base of a self-built stdlib-only image, not the served application
+  image: python
+  version: "3.13.15-slim"
+  custom: true
+  name: mcp-adapter
+  min_storage: 130MB
+  cpus: "0.25"
+  mem_reservation: 24m
+  mem_limit: 48m
+  pids_limit: 64
+  healthcheck:
+    flavor: curl
+    path: health
+  ports:
+    internal:
+      http: 8080
+  lifecycle: alpha

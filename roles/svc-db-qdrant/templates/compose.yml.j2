@@ -19,5 +19,33 @@
       retries: 18
       start_period: 60s
 
+  {% if QDRANT_MCP_ENABLED | bool %}
+  {% set service_name = QDRANT_MCP_SERVICE_KEY %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'qdrantmcp') }}
+    build:
+      context: {{ QDRANT_MCP_INSTANCE_DIR }}
+      dockerfile: Dockerfile
+      args:
+        MCP_ADAPTER_BASE_IMAGE: {{ lookup('config', application_id, 'services.qdrantmcp.image') }}
+        MCP_ADAPTER_BASE_VERSION: "{{ lookup('config', application_id, 'services.qdrantmcp.version') }}"
+    {{ lookup('compose_only', 'container_name', QDRANT_MCP_CONTAINER) }}
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      ADAPTER_CONTRACT: {{ QDRANT_MCP_CONTRACT | to_json | to_json }}
+      ADAPTER_BEARER: {{ QDRANT_MCP_BEARER | to_json }}
+      ADAPTER_PORT: "{{ QDRANT_MCP_PORT }}"
+      ADAPTER_UPSTREAM_KEY: {{ QDRANT_MCP_UPSTREAM_KEY | to_json }}
+    expose:
+      - "{{ QDRANT_MCP_PORT }}"
+    {{ lookup('container_networks', own_network_only=True, provider_self_alias=False) | indent(4) }}
+    {{ lookup('depends_on', {'qdrant': 'service_healthy'}) }}
+  {% endif %}
+
 {{ lookup('compose_volumes', application_id) }}
 {{ lookup('compose_networks') }}

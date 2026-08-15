@@ -102,6 +102,50 @@ docker run --rm -it \
       --diff -vv'
 ```
 
+## MCP server
+
+The role exposes a Model Context Protocol surface through the `webservice_mcp` protocol plugin, baked into the image at `webservice/mcp` and served by the NGINX sidecar.
+
+| Property | Value |
+| --- | --- |
+| Endpoint | `/webservice/mcp/server.php` on the canonical domain |
+| Container URL | `http://nginx:80/webservice/mcp/server.php` on the shared MCP overlay |
+| Transport | Streamable HTTP (JSON-RPC 2.0 over `POST`) |
+| Auth | `Authorization: Bearer <token>`, a Moodle web-service token |
+| Subject | the `administrator` account |
+| Default state | off; `mcp.enabled` turns true when `web-app-hermes`, `web-app-openclaw` or `web-app-openwebui` is in the inventory |
+
+Provisioning runs in `tasks/utils/mcp.yml`: it copies the plugin into the code volume, runs `admin/cli/upgrade.php`, enables `enablewebservices`, appends `mcp` to `webserviceprotocols`, creates the `infinito_mcp` external service, attaches the read-only functions, mints the permanent token and stores it under `users.administrator.tokens['web-app-moodle']`.
+
+Tool categories exposed by the external service:
+
+- site metadata (`core_webservice_get_site_info`)
+- course catalogue (`core_course_get_courses`, `core_enrol_get_users_courses`)
+- user lookup (`core_user_get_users_by_field`)
+- calendar events (`core_calendar_get_calendar_events`)
+
+All of them are read-only; `mcp.tools.mutating_tools_enabled` is `false` and no write function is attached.
+
+### Default state
+
+Off. `mcp.enabled` is true only while `web-app-hermes`, `web-app-openclaw` or `web-app-openwebui` is part of the deployment.
+
+### Authorization subject
+
+`auth_subject: administrator`: the web-service token is issued against the
+administrator account, so a call carries that account's rights regardless of who
+asked the client. The attached functions are read-only, which bounds what those
+rights can do here. Reaching the tool server is gated on the role's `mcp` RBAC
+group.
+
+### Canonical origin
+
+Moodle compares every request against `$CFG->wwwroot`. A probe that reaches the endpoint over the internal HTTP origin is answered with a redirect to the canonical HTTPS URL rather than with JSON, so callers must send the canonical `Host` header and `X-Forwarded-Proto: https`.
+
+### How to disable
+
+Remove the MCP client roles, or pin `mcp.enabled: false` for this role. The web-service token is then not issued and the protocol plugin stays unconfigured.
+
 ## Image source
 
 This role builds its own Moodle image from upstream Moodle source on top of the official `php:8.3-fpm` base.

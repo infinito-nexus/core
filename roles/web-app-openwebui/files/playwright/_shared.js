@@ -16,6 +16,12 @@ const env = {
   biberUsername: decodeDotenvQuotedValue(process.env.BIBER_USERNAME),
   biberPassword: decodeDotenvQuotedValue(process.env.BIBER_PASSWORD),
   canonicalDomain: decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN),
+  mcpExpectedServers: decodeDotenvQuotedValue(process.env.MCP_EXPECTED_SERVERS),
+  lamBaseUrl: normalizeBaseUrl(process.env.LAM_BASE_URL || ""),
+  ldapBindDn: decodeDotenvQuotedValue(process.env.LDAP_BIND_DN),
+  ldapBindPassword: decodeDotenvQuotedValue(process.env.LDAP_BIND_PASSWORD),
+  ldapUserDnBase: decodeDotenvQuotedValue(process.env.LDAP_USER_DN_BASE),
+  ldapRoleDnBase: decodeDotenvQuotedValue(process.env.LDAP_ROLE_DN_BASE),
 };
 
 function attachDiagnostics(page) {

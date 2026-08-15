@@ -1,0 +1,90 @@
+---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: FLOWISE
+    resolve_compose_cid: "{{ FLOWISE_CONTAINER }}"
+
+- name: "🔐 Converge the password of the Flowise MCP API identity"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - "NODE_PATH={{ FLOWISE_NODE_MODULES }}"
+      - -e
+      - "FLOWISE_ADMIN_EMAIL={{ FLOWISE_API_BOT_USER.email }}"
+      - -e
+      - "FLOWISE_ADMIN_PASSWORD={{ FLOWISE_API_BOT_PASSWORD }}"
+      - "{{ FLOWISE_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - node
+      - "-"
+    stdin: "{{ lookup('file', 'reconcile/identity_password.js') }}"
+  register: flowise_mcp_password
+  retries: 30
+  delay: 10
+  until: flowise_mcp_password.rc == 0
+  changed_when: flowise_mcp_password.stdout.startswith('CHANGED')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ FLOWISE_HOST_NODE }}"
+  run_once: true
+
+- name: "🔑 Mint the scoped Flowise API identity for the MCP registry"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - "FLOWISE_BASE=http://localhost:{{ FLOWISE_PORT_INTERNAL }}"
+      - -e
+      - "FLOWISE_ADMIN_EMAIL={{ FLOWISE_API_BOT_USER.email }}"
+      - -e
+      - "FLOWISE_ADMIN_PASSWORD={{ FLOWISE_API_BOT_PASSWORD }}"
+      - -e
+      - "FLOWISE_ADMIN_NAME={{ FLOWISE_API_BOT_USER.username }}"
+      - -e
+      - "FLOWISE_API_KEY_NAME={{ FLOWISE_MCP_API_KEY_NAME }}"
+      - "{{ FLOWISE_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - python3
+      - "-"
+    stdin: "{{ lookup('file', 'mint_mcp_api_key.py') }}"
+  register: flowise_mcp_identity
+  retries: 30
+  delay: 10
+  until: flowise_mcp_identity.rc == 0
+  changed_when: flowise_mcp_identity.stdout.startswith('CHANGED')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ FLOWISE_HOST_NODE }}"
+  run_once: true
+
+- name: "🔌 Reconcile the custom MCP server registry"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - "FLOWISE_BASE=http://localhost:{{ FLOWISE_PORT_INTERNAL }}"
+      - -e
+      - "FLOWISE_API_KEY={{ (flowise_mcp_identity.stdout_lines | last | from_json).api_key }}"
+      - -e
+      - "FLOWISE_WORKSPACE={{ (flowise_mcp_identity.stdout_lines | last | from_json).workspace_id }}"
+      - -e
+      - "FLOWISE_MCP_DESIRED={{ FLOWISE_MCP_DESIRED | to_json }}"
+      - -e
+      - "FLOWISE_MCP_TRANSPORT={{ FLOWISE_MCP_TRANSPORT }}"
+      - "{{ FLOWISE_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - python3
+      - "-"
+    stdin: "{{ lookup('file', 'reconcile/mcp_servers.py') }}"
+  register: flowise_mcp_registry
+  retries: 30
+  delay: 10
+  until: flowise_mcp_registry.rc == 0
+  changed_when: flowise_mcp_registry.stdout.startswith('CHANGED')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ FLOWISE_HOST_NODE }}"
+  run_once: true

@@ -2,3 +2,15 @@
 # URL of Local Ollama Container
 OLLAMA_BASE_LOCAL_URL: "http://{{ lookup('config','svc-ai-ollama', 'services.ollama.name') }}:{{ lookup('config','svc-ai-ollama', 'services.ollama.ports.internal.http')
   }}"
+
+LITELLM_BASE_LOCAL_URL: "http://{{ lookup('config','svc-ai-litellm', 'services.litellm.name') }}:{{ lookup('config','svc-ai-litellm', 'services.litellm.ports.internal.http')
+  }}"
+
+LMSTUDIO_BASE_LOCAL_URL: "http://{{ lookup('config','svc-ai-lmstudio', 'services.lmstudio.name') }}:{{ lookup('config','svc-ai-lmstudio', 'services.lmstudio.ports.internal.http')
+  }}"
+
+OPENROUTER_API_KEY: ""
+
+MCP_DISCOVERY: "{{ lookup('mcp_servers') }}"
+MCP_DISCOVERED_SERVERS: "{{ MCP_DISCOVERY.selected }}"
+MCP_RECONCILE_STRICT: false

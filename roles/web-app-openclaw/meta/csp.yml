@@ -1,0 +1,9 @@
+---
+flags:
+  script-src:
+    unsafe-eval: true
+  script-src-elem:
+    unsafe-inline: true
+whitelist:
+  font-src: []
+  connect-src: []

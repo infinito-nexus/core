@@ -44,6 +44,7 @@ flowchart LR
         svc_javascript["javascript"]
         svc_prometheus["prometheus"]
         svc_container_backup["container_backup"]
+        svc_mattermostmcp["mattermostmcp"]
     end
     subgraph dependents [Dependents]
         dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]
@@ -121,6 +122,58 @@ The workaround used here is the **GitLab OAuth2 provider** (`MM_GITLABSETTINGS_*
 The login button in the UI will read "SSO with Infinito.Nexus" (renamed via injected JavaScript). The underlying auth flow is standard OAuth2/OIDC against Keycloak.
 
 To enable SSO, set `services.sso.enabled: true` (the default) in your inventory and ensure `OIDC.CLIENT.SECRET` is configured.
+
+## MCP Server
+
+Mattermost exposes a Model Context Protocol server through the prepackaged Agents plugin (`mattermost-ai`), which ships inside the pinned `mattermost/mattermost-team-edition` image.
+
+| Property | Value |
+|----------|-------|
+| Endpoint | `/mcp` on the `mattermostmcp` sidecar; the adapter reaches `/plugins/mattermost-ai/mcp-server/mcp` on the `mattermost` service upstream |
+| Health path | `/plugins/mattermost-ai/mcp-server/.well-known/oauth-protected-resource` |
+| Transport | `streamable_http` (stateless); SSE is not served |
+| Auth | `Authorization: Bearer <personal access token>` |
+| Subject | The token owner; tool calls run with that account's Mattermost permissions |
+| Exposure | `internal` |
+
+### Default state
+
+`mcp.enabled` resolves to `true` only when `web-app-hermes` or `web-app-openclaw` is part of the same deployment, and is `false` otherwise. While it is `true` the deploy:
+
+- sets `MM_SERVICESETTINGS_ENABLEUSERACCESSTOKENS=true`,
+- enables the `mattermost-ai` plugin through `mmctl --local`,
+- sets `mcp.enablePluginServer` in the plugin's active `agents_confighistory` row and reloads the plugin,
+- mints a personal access token for the administrator account and persists it with `sys-token-store` under `users.administrator.tokens['web-app-mattermost']`.
+
+While it is `false` the route is not registered and the endpoint answers `404`. Unauthenticated requests to the enabled endpoint answer `401` with a `WWW-Authenticate: Bearer resource_metadata="<health path URL>"` header.
+
+### Authorization subject
+
+`auth_subject: administrator`: Mattermost bounds a call by the account the token
+belongs to. This deployment mints that personal access token for the
+administrator account, so calls arrive with that account's rights whoever asked.
+Reaching the tool server is gated on the role's `mcp` RBAC group.
+
+### Tool categories
+
+The endpoint serves the Agents plugin's native Mattermost tool catalog:
+
+- channels: list, read, create, update, archive,
+- posts: search, read, create, update, delete,
+- direct messages: read and send,
+- users and teams: look up, add members, update profiles,
+- files: list, read, upload.
+
+The catalog includes mutating entries (`create`, `update`, `archive`, `delete`,
+`send`, `upload`). The Agents plugin exposes no filter, scope or permission flag
+that removes them, so `mcp.tools.mutating_tools_enabled: false` records
+the deployment's intent rather than an enforced state. Every call is bounded by
+the permissions of the account the bearer token belongs to, which here is the
+administrator.
+
+### How to disable
+
+Remove the MCP client roles, or pin `mcp.enabled: false` for this role. The Agents plugin's MCP server is then left switched off and no personal access token is issued.
 
 ## Configuration
 

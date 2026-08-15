@@ -36,6 +36,9 @@
     prometheus:
       enabled: true
       shared: true
+  mcp:
+    enabled: true
+    shared: true
 - services:
     container_backup:
       enabled: false
@@ -72,3 +75,6 @@
         - blog.{{ DOMAIN_PRIMARY }}
         - biberblog.{{ DOMAIN_PRIMARY }}
         - biber.blog.{{ DOMAIN_PRIMARY }}
+  mcp:
+    enabled: false
+    shared: false

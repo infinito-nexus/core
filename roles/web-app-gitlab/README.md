@@ -46,6 +46,7 @@ flowchart LR
         svc_css["css"]
         svc_prometheus["prometheus"]
         svc_container_backup["container_backup"]
+        svc_gitlabmcp["gitlabmcp"]
     end
     subgraph dependents [Dependents]
         dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]
@@ -73,6 +74,39 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - **Consolidated object storage:** artifacts, LFS, uploads, packages, external diffs, dependency proxy, terraform state, CI secure files and pages buckets on any S3-compatible endpoint; named volumes (`gitlab_shared`, `gitlab_uploads`, `gitlab_builds`) carry the data when object storage is disabled.
 - **OIDC single sign-on and SMTP:** rendered into `gitlab.yml` and an `smtp_settings.rb` initializer.
 - **Git over SSH:** gitlab-sshd on the public SSH port with role-generated host keys under `<instance>/config/hostkeys/`. Back up that directory: it is not part of any named volume, and a host rebuild or instance purge regenerates the keys, so every git client then sees a host-key-changed warning until it re-trusts the new key.
+- **MCP server contract:** Fronts GitLab's built-in MCP server with the repository-owned adapter. Clients reach `/mcp` on the `gitlabmcp` sidecar; the adapter alone talks to `/api/v4/mcp` upstream, so only the contracted tools are reachable.
+
+## MCP server
+
+`mcp` declares the Model Context Protocol surface GitLab serves natively from its Rails API.
+
+| Property | Value |
+| --- | --- |
+| Endpoint | `/mcp` on the `gitlabmcp` sidecar, internal port `http`; the adapter reaches `/api/v4/mcp` on workhorse upstream |
+| Transport | streamable HTTP (JSON-RPC `initialize`, `tools/list`, `tools/call`) |
+| Auth | `Authorization: Bearer <token>` |
+| Token subject | the `root` account |
+| Default state | off; `mcp.enabled` turns on when `web-app-hermes`, `web-app-openclaw` or `web-app-openwebui` is in the deployment |
+
+With the service enabled, `tasks/utils/mcp.yml` reads the token stored for `administrator` under this role's id, probes it against the running instance with a JSON-RPC `initialize` call, mints a replacement through `gitlab-rails runner` when the stored token is missing or rejected, writes the fresh token back through `sys-token-store`, and fails the deploy when the re-probe is still rejected. The minted token is a personal access token carrying the `mcp` scope with a 364-day expiry. That scope is filtered out of the interactive token picker, so tokens for this endpoint are created programmatically.
+
+The role attaches to the shared overlay declared in `meta/networks.yml` so client containers can reach the endpoint container-to-container; the overlay alias resolves to workhorse.
+
+Tool categories exposed at the pinned version cover issues and work items, merge requests (including diffs and conflicts), pipelines and jobs, labels, project and group search, repository files and commits, and instance metadata. The set includes mutating tools (`create_merge_request`, `create_workitem_note`, `link_work_items`). GitLab enforces no server-side read-only mode: the `mcp` scope grants both read and create access, and the only restriction mechanism is the per-request `X-Gitlab-Enabled-Mcp-Server-Tools` header, which the clients in this repository do not send. `mcp.tools.read_only_default` and `mcp.tools.mutating_tools_enabled` are declarative metadata, not an enforced policy. Every tool call runs with the blast radius of the `root` account.
+
+A Playwright scenario asserts that an unauthenticated request to the endpoint is never answered with a 2xx.
+
+### Authorization subject
+
+`auth_subject: administrator`: the personal access token is minted against the `root` account and stored under the `administrator` key, so every call carries that account's rights no matter who asked the client. Reaching the tool server is gated on the role's `mcp` RBAC group, which is a separate grant from administering GitLab.
+
+### Default state
+
+Off. `mcp.enabled` is true only while `web-app-hermes`, `web-app-openclaw` or `web-app-openwebui` is part of the deployment. The endpoint additionally requires a Premium or Ultimate licence, so a Community deployment leaves it unreachable regardless of the flag.
+
+### How to disable
+
+Remove the MCP client roles, or pin `mcp.enabled: false` for this role. The token is then neither minted nor stored, and the overlay attachment is dropped.
 
 ## Quick Setup
 

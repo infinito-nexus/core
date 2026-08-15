@@ -1,0 +1,48 @@
+---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ SNIPE_IT_SERVICE }}"
+    resolve_output_prefix: SNIPEIT_IDENTITY
+    resolve_compose_cid: "{{ SNIPE_IT_CONTAINER }}"
+
+- name: "🔑 Mint the read-only Snipe-IT token the MCP adapter presents"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - "APP_KEY={{ SNIPE_IT_APP_KEY }}"
+      - -e
+      - "MCP_USER={{ SNIPEIT_MCP_UPSTREAM_USER }}"
+      - -e
+      - "MCP_PASSWORD={{ SNIPEIT_MCP_UPSTREAM_PASSWORD }}"
+      - -e
+      - "MCP_TOKEN_NAME={{ SNIPEIT_MCP_UPSTREAM_TOKEN_NAME }}"
+      - -e
+      - "MCP_CURRENT_TOKEN={{ MCP_UPSTREAM_CURRENT_KEY }}"
+      - "{{ SNIPEIT_IDENTITY_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - php
+    stdin: "{{ lookup('file', 'provision_mcp_identity.php') }}"
+  register: snipeit_mcp_identity
+  retries: 30
+  delay: 10
+  until: snipeit_mcp_identity.rc == 0
+  changed_when: true
+  delegate_to: "{{ SNIPEIT_IDENTITY_HOST_NODE }}"
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🛑 Refuse an adapter whose upstream identity did not converge"
+  ansible.builtin.assert:
+    that:
+      - snipeit_mcp_identity.stdout_lines | length == 2
+    fail_msg: >-
+      {{ application_id }} could not mint a read-only API token for its MCP adapter.
+
+- name: "🔑 Hand the minted token to the adapter"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/upstream_key.yml') }}"
+  vars:
+    mcp_upstream_key_path: "{{ [SNIPEIT_MCP_INSTANCE_DIR, 'upstream.env'] | path_join }}"
+    mcp_upstream_key: "{{ snipeit_mcp_identity.stdout_lines[1] }}"

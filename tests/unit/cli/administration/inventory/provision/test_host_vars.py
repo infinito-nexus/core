@@ -44,13 +44,14 @@ existing_key: foo
             self.assertEqual(data["existing_key"], "foo")
             self.assertEqual(getattr(data["secret"], "tag", None), "!vault")
 
-            # ensure_host_vars_file MUST NOT bake networks/TLS/DOMAIN defaults
-            # into host_vars; those live in group_vars / the inventory vars-file
-            # so that env-driven values (INFINITO_IP4, INFINITO_DOMAIN, ...)
-            # propagate without being silently overridden.
-            self.assertNotIn("DOMAIN_PRIMARY", data)
-            self.assertNotIn("TLS_ENABLED", data)
-            self.assertNotIn("networks", data)
+            baked = (
+                "must stay out of host_vars; it lives in group_vars or the "
+                "inventory vars-file so env-driven values propagate instead of "
+                "being silently overridden"
+            )
+            self.assertNotIn("DOMAIN_PRIMARY", data, f"DOMAIN_PRIMARY {baked}")
+            self.assertNotIn("TLS_ENABLED", data, f"TLS_ENABLED {baked}")
+            self.assertNotIn("networks", data, f"networks {baked}")
 
     def test_ensure_host_vars_file_sets_local_connection_for_localhost(self):
         yaml_rt = YAML(typ="rt")
@@ -146,7 +147,7 @@ ansible_become_password: !vault |
 """
 
             with patch(
-                "cli.administration.inventory.provision.host_vars.VaultHandler"
+                "cli.administration.inventory.provision.ruamel_io.VaultHandler"
             ) as vh:
                 inst = vh.return_value
                 inst.encrypt_string.return_value = vaulted_snippet
@@ -163,42 +164,41 @@ ansible_become_password: !vault |
             node = data["ansible_become_password"]
             self.assertEqual(getattr(node, "tag", None), "!vault")
 
+    def test_apply_vars_overrides_from_file_deep_merge_and_overwrite(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
 
-def test_apply_vars_overrides_from_file_deep_merge_and_overwrite(self):
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmp = Path(tmpdir)
+            host_vars_file = tmp / "host_vars.yml"
+            host_vars_file.write_text(
+                dump_yaml_str(
+                    {
+                        "networks": {"internet": {"ip4": "1.2.3.4", "ip6": "::1"}},
+                        "TLS_ENABLED": True,
+                        "nested": {"keep": "yes"},
+                    }
+                ),
+                encoding="utf-8",
+            )
 
-        host_vars_file = tmp / "host_vars.yml"
-        host_vars_file.write_text(
-            dump_yaml_str(
-                {
-                    "networks": {"internet": {"ip4": "1.2.3.4", "ip6": "::1"}},
-                    "TLS_ENABLED": True,
-                    "nested": {"keep": "yes"},
-                }
-            ),
-            encoding="utf-8",
-        )
+            vars_file = tmp / "vars.yml"
+            vars_file.write_text(
+                dump_yaml_str(
+                    {
+                        "networks": {"internet": {"ip4": "10.0.0.10"}},
+                        "TLS_ENABLED": False,
+                        "nested": {"newkey": "added"},
+                    }
+                ),
+                encoding="utf-8",
+            )
 
-        vars_file = tmp / "vars.yml"
-        vars_file.write_text(
-            dump_yaml_str(
-                {
-                    "networks": {"internet": {"ip4": "10.0.0.10"}},
-                    "TLS_ENABLED": False,
-                    "nested": {"newkey": "added"},
-                }
-            ),
-            encoding="utf-8",
-        )
+            apply_vars_overrides_from_file(
+                host_vars_file=host_vars_file, vars_file=vars_file
+            )
 
-        apply_vars_overrides_from_file(
-            host_vars_file=host_vars_file, vars_file=vars_file
-        )
-
-        data = load_yaml_any(host_vars_file)
-        self.assertEqual(data["networks"]["internet"]["ip4"], "10.0.0.10")
-        self.assertEqual(data["networks"]["internet"]["ip6"], "::1")
-        self.assertIs(data["TLS_ENABLED"], False)
-        self.assertEqual(data["nested"]["keep"], "yes")
-        self.assertEqual(data["nested"]["newkey"], "added")
+            data = load_yaml_any(host_vars_file)
+            self.assertEqual(data["networks"]["internet"]["ip4"], "10.0.0.10")
+            self.assertEqual(data["networks"]["internet"]["ip6"], "::1")
+            self.assertIs(data["TLS_ENABLED"], False)
+            self.assertEqual(data["nested"]["keep"], "yes")
+            self.assertEqual(data["nested"]["newkey"], "added")

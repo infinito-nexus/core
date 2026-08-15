@@ -1,0 +1,105 @@
+---
+- name: "🔍 List the accounts this instance knows"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -u
+      - "{{ NEXTCLOUD_DOCKER_USER }}"
+      - "{{ NEXTCLOUD_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - php
+      - "{{ NEXTCLOUD_INTERNAL_OCC_COMMAND }}"
+      - user:list
+      - --output=json
+  register: nextcloud_mcp_accounts
+  changed_when: false
+  delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
+  run_once: true
+
+- name: "👤 Create the account the MCP clients authenticate as"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -u
+      - "{{ NEXTCLOUD_DOCKER_USER }}"
+      - -e
+      - "OC_PASS={{ NEXTCLOUD_MCP_USER_PASSWORD }}"
+      - "{{ NEXTCLOUD_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - php
+      - "{{ NEXTCLOUD_INTERNAL_OCC_COMMAND }}"
+      - user:add
+      - --password-from-env
+      - "--display-name={{ NEXTCLOUD_MCP_USER_DISPLAY_NAME }}"
+      - "{{ NEXTCLOUD_MCP_USERNAME }}"
+  when: NEXTCLOUD_MCP_USERNAME not in (nextcloud_mcp_accounts.stdout | from_json)
+  changed_when: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
+  run_once: true
+
+- name: "🔑 Set the account's password to the one this deployment declares"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -u
+      - "{{ NEXTCLOUD_DOCKER_USER }}"
+      - -e
+      - "OC_PASS={{ NEXTCLOUD_MCP_USER_PASSWORD }}"
+      - "{{ NEXTCLOUD_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - php
+      - "{{ NEXTCLOUD_INTERNAL_OCC_COMMAND }}"
+      - user:resetpassword
+      - --password-from-env
+      - "{{ NEXTCLOUD_MCP_USERNAME }}"
+  changed_when: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
+  run_once: true
+
+- name: "🔑 Mint an app password for the MCP clients"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -u
+      - "{{ NEXTCLOUD_DOCKER_USER }}"
+      - -e
+      - "NC_PASS={{ NEXTCLOUD_MCP_USER_PASSWORD }}"
+      - "{{ NEXTCLOUD_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - php
+      - "{{ NEXTCLOUD_INTERNAL_OCC_COMMAND }}"
+      - user:auth-tokens:add
+      - "{{ NEXTCLOUD_MCP_USERNAME }}"
+      - --password-from-env
+      - "--name={{ NEXTCLOUD_MCP_TOKEN_NAME }}"
+  register: nextcloud_mcp_token_mint
+  changed_when: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
+  run_once: true
+
+- name: "🔧 Take the minted app password from the command output"
+  ansible.builtin.set_fact:
+    nextcloud_mcp_token: "{{ nextcloud_mcp_token_mint.stdout_lines | last | trim }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  run_once: true
+
+- name: "🛑 Refuse an instance that issued no usable app password"
+  ansible.builtin.assert:
+    that:
+      - nextcloud_mcp_token | length >= 64
+    fail_msg: >-
+      occ user:auth-tokens:add returned no app password, so every MCP client
+      would be configured with an empty bearer and fail at first use.
+
+- name: "💾 Persist the app password so MCP clients can read it"
+  ansible.builtin.include_role:
+    name: sys-token-store
+    tasks_from: write.yml
+  vars:
+    sys_token_store_user_key: "{{ lookup('config', application_id, 'mcp.credential.owner') }}"
+    sys_token_store_app: "{{ application_id }}"
+    sys_token_store_token: "{{ nextcloud_mcp_token }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

@@ -26,6 +26,9 @@
     css:
       enabled: true
       shared: true
+  mcp:
+    enabled: true
+    shared: true
 - services:
     container_backup:
       enabled: false
@@ -48,3 +51,6 @@
     css:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+  mcp:
+    enabled: false
+    shared: false

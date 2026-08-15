@@ -46,6 +46,7 @@ flowchart LR
         svc_recaptcha["recaptcha"]
         svc_javascript["javascript"]
         svc_prometheus["prometheus"]
+        svc_libretranslatemcp["libretranslatemcp"]
     end
     dep_svc_db_redis -. "0..1" .-> svc_redis
     dep_web_app_keycloak -. "0..1" .-> svc_sso

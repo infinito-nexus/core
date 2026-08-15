@@ -141,6 +141,26 @@ clean-sudo:
 	@echo "Removing ignored git files with sudo"
 	sudo git clean -fdX;
 
+.PHONY: compose-app-exec
+# Run a one-off command inside a deployed app container of the local compose stack.
+# Usage: make compose-app-exec app=<container> cmd="..."
+# Example: make compose-app-exec app=flowise cmd="wget -qO- http://localhost:3000/api/v1/ping"
+# Param app: container name of the deployed app.
+# Param cmd: shell command to run inside it.
+compose-app-exec:
+	@test -n '$(app)' || { echo 'usage: make compose-app-exec app=<container> cmd="..."'; exit 2; }
+	@app='$(app)' cmd='$(cmd)' bash scripts/tests/deploy/local/exec/app.sh
+
+.PHONY: compose-app-logs
+# Dump the logs of a deployed app container of the local compose stack.
+# Usage: make compose-app-logs app=<container> [tail=<lines>]
+# Example: make compose-app-logs app=litellm tail=80
+# Param app: container name of the deployed app.
+# Param tail: number of trailing lines (default: 200).
+compose-app-logs:
+	@test -n '$(app)' || { echo 'usage: make compose-app-logs app=<container> [tail=<lines>]'; exit 2; }
+	@app='$(app)' tail='$(tail)' bash scripts/tests/deploy/local/exec/logs.sh
+
 .PHONY: compose-deploy
 # Run the local deploy router.
 # Usage: make compose-deploy [mode=...] [apps=...] [purge=...] [type=...] [bundles=...] [disable=...] [full_cycle=...] [variant=...] [debug=...]
@@ -385,7 +405,9 @@ lint: install-lint
 		lint-mermaid \
 		lint-packages \
 		lint-playwright \
+		lint-php \
 		lint-python \
+		lint-ruby \
 		lint-shellcheck
 
 .PHONY: lint-action
@@ -432,6 +454,11 @@ lint-packages: install-lint
 	@bash scripts/install/wrapper.sh packages
 	@bash scripts/lint/wrapper.sh packages
 
+.PHONY: lint-php
+# Run the PHP syntax check over every tracked PHP file.
+lint-php: install-lint
+	@bash scripts/lint/wrapper.sh php
+
 .PHONY: lint-playwright
 # Verify every role's Playwright spec parses + resolves its helpers.
 # Note: stages the spec like test-e2e-playwright does and runs `npx playwright test --list`.
@@ -442,6 +469,11 @@ lint-playwright: install-lint
 # Run Python lint checks.
 lint-python: install-lint
 	@bash scripts/lint/wrapper.sh python
+
+.PHONY: lint-ruby
+# Run the Ruby syntax check over every tracked Ruby file.
+lint-ruby: install-lint
+	@bash scripts/lint/wrapper.sh ruby
 
 .PHONY: lint-shellcheck
 # Run shellcheck lint checks.
@@ -690,12 +722,12 @@ SWARM_DISTROS = $(or $(distros),$${INFINITO_DISTRO:?})
 # Param distros: optional single distro the cluster runs on (default: INFINITO_DISTRO from .env).
 # Param variant: optional matrix variant index to deploy (default 0); a multi-variant app runs one cluster per swarm-zombie, so pick the round to validate.
 # Param disable: optional comma-separated provider keys removed from the test inventory (e.g. matomo,dashboard,prometheus,email,css).
-# Param name: optional cluster-id prefix for the container + network names (parallel/named clusters); release with the same name=.
+# Param name: optional cluster-id prefix for the container + network names; release with the same name=.
 # Param step_timeout: optional minute budget for the matrix-deploy step (default 690).
 # Note: Use `make swarm-exec` / `make swarm-shell` to inspect, `make swarm-down` to release.
 swarm-zombie: install-act
 	@test -n '$(app)' || { echo 'usage: make swarm-zombie app=<application_id> [distros=<distro>] [variant=<idx>] [name=<cluster-id>] [disable=<keys>]'; exit 2; }
-	@SWARM_NAME='$(or $(name),$(app))' INFINITO_KEEP_SWARM_NODES=false bash scripts/tests/deploy/swarm/utils/clean/teardown.sh
+	@bash scripts/tests/deploy/swarm/utils/clean/lab_subnet.sh
 	@bash scripts/tests/deploy/act/down_act_outer.sh
 	@ACT_RM=false \
 	 ACT_BIND=true \

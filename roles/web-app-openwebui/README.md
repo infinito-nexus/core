@@ -15,10 +15,12 @@ The diagram places Open WebUI in the Infinito.Nexus cosmos: the components it de
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
-        dep_svc_ai_ollama["svc-ai-ollama 🐳🐝"]
+        dep_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
+        dep_web_app_baserow["web-app-baserow 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
+        dep_web_app_homeassistant["web-app-homeassistant 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
@@ -39,18 +41,22 @@ flowchart LR
         svc_seaweedfs["seaweedfs"]
         svc_css["css"]
         svc_javascript["javascript"]
-        svc_ollama["ollama"]
+        svc_litellm["litellm"]
         svc_email["email"]
         svc_prometheus["prometheus"]
         svc_container_backup["container_backup"]
+        svc_homeassistant["homeassistant"]
+        svc_baserow["baserow"]
     end
     subgraph dependents [Dependents]
         dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]
     end
-    dep_svc_ai_ollama -. "0..1" .-> svc_ollama
+    dep_svc_ai_litellm -. "0..1" .-> svc_litellm
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
+    dep_web_app_baserow -. "0..1" .-> svc_baserow
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
+    dep_web_app_homeassistant -. "0..1" .-> svc_homeassistant
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
     dep_web_app_matomo -. "0..1" .-> svc_matomo
@@ -113,6 +119,115 @@ docker run --rm -it \
 
 * Open WebUI: [openwebui.com](https://openwebui.com)
 * Ollama: [ollama.com](https://ollama.com)
+
+## MCP Client
+
+Open WebUI consumes MCP through its native tool-server support. Every deployed
+shared MCP server role is rendered into `TOOL_SERVER_CONNECTIONS` as a
+`type: mcp` entry.
+
+### Configuration
+
+| Property | Value |
+| --- | --- |
+| Direction | `client` |
+| Transport | Streamable HTTP |
+| Env key | `TOOL_SERVER_CONNECTIONS` |
+| Auth | `auth_type: bearer` with the token from the discovery data |
+| Access | `config.access_grants: []`, administrator-only rather than public |
+
+Open WebUI's `ToolServerConnection` accepts bearer, session, system_oauth and
+oauth_2.1. A server whose scheme it cannot present is skipped rather than
+registered with an unusable credential, so a basic-auth server such as Jenkins
+does not appear here.
+
+### Verification
+
+The token each entry carries is the one the deployment issued, not the signed-in
+caller's own, so reaching an MCP tool server is a grant separate from signing
+in. The env renders `config.access_grants: []`, which `has_connection_access`
+reads as administrator-only, and
+[`tasks/utils/mcp.yml`](./tasks/utils/mcp.yml) then narrows each entry to the serving
+role's `mcp` RBAC group.
+
+That second step exists because a group grant addresses an Open WebUI group id
+and `insert_new_group` assigns it as a fresh UUID, so the id cannot be known
+while the env is rendered. The task signs in as the native administrator,
+resolves or creates the group whose name matches the OIDC claim value, and
+writes the grant through `POST /api/v1/configs/tool_servers`. It refuses to act
+when two groups share a name rather than guessing between them.
+
+`BYPASS_ADMIN_ACCESS_CONTROL=false` keeps the grant meaningful for
+administrators too; upstream defaults it to true, which would let every
+administrator past any grant. `ENABLE_OAUTH_GROUP_MANAGEMENT` syncs the
+platform's groups on login, so membership follows Keycloak.
+
+Entries render **disabled**, and the task enables each one in the same write
+that carries its grant. An empty `access_grants` is not "nobody": Open WebUI
+reads it as every administrator, which is wider than the `mcp` group. Since
+`ENABLE_PERSISTENT_CONFIG=false` makes the env authoritative again on every
+start, an enabled-but-ungranted entry would hand access to all administrators
+before the first provisioning run and after any bare container restart. A
+disabled entry is not served at all, so the fallback is no access rather than
+too much.
+
+### Operational limits
+
+Three properties follow from how Open WebUI works and none of them is closed by
+this role.
+
+**A restart without a deploy switches MCP off.** The env is authoritative again
+on every start, so the connections return to disabled and stay that way until the
+next deploy runs the task. The tool servers are then not served at all. That is
+the safe direction, but it is an outage rather than a fallback, and it lasts
+until someone deploys. Closing it means either `ENABLE_PERSISTENT_CONFIG=true`,
+which hands every configuration key to the database and stops later env changes
+from applying, or a reconciliation step at container start.
+
+**Group revocation is not reliable, in both directions.** Open WebUI removes a
+user from a synced group only while the groups claim is non-empty, so a user who
+loses their last role keeps stale membership until a later login carries a
+non-empty claim. Conversely, a non-empty claim removes the user from *every*
+local group the claim does not name, including groups an administrator created by
+hand. Reconciling either from the deploy would mean a second writer for group
+membership, competing with the login-time sync and able to evict accounts the
+platform's own user list does not know about, so both are left to an external
+reconciler or an upstream fix.
+
+**The deploy can create a role-internal administrator.** On an instance with no
+users at all there is no OIDC administrator to borrow an API key from, so
+[`tasks/utils/mcp.yml`](./tasks/utils/mcp.yml) creates the `openwebui-api-bot` declared
+in [`meta/users.yml`](./meta/users.yml), whose password the platform generates
+with every other user's. It is deliberately not an OIDC identity: Open WebUI ships
+`OAUTH_MERGE_ACCOUNTS_BY_EMAIL` disabled and refuses an OIDC login whose email a
+local account already holds, so seeding a person's address would lock them out of
+their own login. On an instance that already has an administrator no account is
+created.
+
+**The `mcp` role is granted per platform, not per application.** A user's
+`roles:` list carries role names only, and
+[`build_realm_rbac_groups`](../web-app-keycloak/filter_plugins/build_realm_rbac_groups.py)
+matches them without an application context, so `roles: [mcp]` makes that user a
+member of *every* deployed `/roles/<app>/mcp` group. Entitling somebody to drive
+Baserow but not GitLab is therefore not expressible declaratively today; it needs
+the Keycloak membership to be set directly on the single group. The tool-server
+side honours whatever membership arrives, so the limit is the platform's user
+model, not this wiring, and the Playwright coverage reflects it: it proves "all
+groups sees all servers" and "no group sees none", not the selective case.
+
+The role ships a Playwright spec that signs in as the administrator, reads
+`/api/v1/configs/tool_servers`, and asserts that every discovered server appears
+with a bearer and a non-empty key.
+
+### Default state
+
+Off. `mcp.enabled` is false unless an MCP server role is part of the
+deployment.
+
+### How to disable
+
+Remove the MCP server roles, or pin `mcp.enabled: false` for this role.
+`TOOL_SERVER_CONNECTIONS` then renders empty.
 
 ## Credits
 

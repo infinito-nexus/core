@@ -10,3 +10,5 @@ roles:
     description: Can publish and manage all posts, including those by other users
   administrator:
     description: "Has full administrative access: manage themes, plugins, settings, and users"
+  mcp:
+    description: Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own

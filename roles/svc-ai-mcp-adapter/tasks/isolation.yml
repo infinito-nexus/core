@@ -1,0 +1,70 @@
+---
+# Prove the adapter sidecar joins exactly one container network.
+#
+# The sidecar holds its provider's credential, so the blast radius of a
+# compromised one is whatever else its networks reach. The templates attach it
+# to the provider's own network alone; this turns that into a measured property.
+#
+# The count is taken inside the sidecar rather than by probing a peer's name.
+# An unknown name does not fail to resolve in this environment: it falls through
+# to a wildcard resolver that answers every name with one reachable address, so
+# a name-based probe reports isolation broken for every provider.
+#
+# In swarm the runtime also attaches every task to docker_gwbridge for ingress
+# and egress. That interface is platform plumbing, not an application network,
+# so its subnet joins the expected set; without it the check rejects every
+# sidecar in swarm while proving nothing about application reachability.
+- name: "🔍 Resolve the {{ application_id }} sidecar hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ mcp_probe_endpoint.service_key }}"
+    resolve_output_prefix: MCP_SIDECAR
+    resolve_compose_cid: "{{ lookup('config', application_id, 'services.' ~ mcp_probe_endpoint.service_key ~ '.name') }}"
+
+- name: "🔍 Resolve the swarm gateway bridge the runtime attaches unconditionally"
+  community.docker.docker_network_info: # nocheck: docker-module-uses-container-cli  read-only info module
+    name: docker_gwbridge
+  register: mcp_gwbridge
+  when: DEPLOYMENT_MODE == 'swarm'
+  delegate_to: "{{ MCP_SIDECAR_HOST_NODE }}"
+  run_once: true
+
+- name: "🧱 Take the gateway-bridge subnets swarm attached on its own"
+  ansible.builtin.set_fact:
+    mcp_platform_subnets: "{{ mcp_gwbridge.network.IPAM.Config | map(attribute='Subnet') | list }}"
+  when: DEPLOYMENT_MODE == 'swarm'
+
+- name: "🧱 In compose the runtime attaches no network of its own"
+  ansible.builtin.set_fact:
+    mcp_platform_subnets: []
+  when: DEPLOYMENT_MODE == 'compose'
+
+- name: "🧱 Assemble the subnets the {{ application_id }} sidecar may hold"
+  ansible.builtin.set_fact:
+    mcp_expected_subnets: "{{ ([lookup('config', application_id, 'networks.local.subnet')] + mcp_platform_subnets) | join(',') }}" # nocheck: lookup-config-path  resolved against the including provider, not this role
+
+- name: "🧱 Check the networks the {{ application_id }} sidecar is attached to"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - "MCP_EXPECTED_SUBNETS={{ mcp_expected_subnets }}"
+      - "{{ MCP_SIDECAR_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - python3
+      - "-"
+    stdin: "{{ lookup('file', lookup('path_absolute', 'roles/svc-ai-mcp-adapter/files/probe/isolation.py')) }}"
+  register: mcp_isolation_probe
+  changed_when: false
+  failed_when: false
+  delegate_to: "{{ MCP_SIDECAR_HOST_NODE }}"
+  run_once: true
+
+- name: "🛑 Refuse a sidecar that reaches beyond its provider"
+  ansible.builtin.assert:
+    that:
+      - mcp_isolation_probe.rc == 0
+    fail_msg: >-
+      {{ application_id }} sidecar isolation failed:
+      {{ mcp_isolation_probe.stderr | default('no output') }}

@@ -1,0 +1,84 @@
+---
+- name: "🔍 Read the registered AppAPI deploy daemons"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -u
+      - "{{ NEXTCLOUD_DOCKER_USER }}"
+      - "{{ NEXTCLOUD_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - php
+      - "{{ NEXTCLOUD_INTERNAL_OCC_COMMAND }}"
+      - app_api:daemon:list
+  register: nextcloud_appapi_daemons
+  changed_when: false
+
+- name: "🚀 Register the manual-install deploy daemon"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -u
+      - "{{ NEXTCLOUD_DOCKER_USER }}"
+      - "{{ NEXTCLOUD_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - php
+      - "{{ NEXTCLOUD_INTERNAL_OCC_COMMAND }}"
+      - app_api:daemon:register
+      - "{{ NEXTCLOUD_CONTEXT_AGENT_DAEMON }}"
+      - Manual Install
+      - manual-install
+      - http
+      - "{{ NEXTCLOUD_CONTEXT_AGENT_DNS_NAME }}"
+      - "{{ NEXTCLOUD_CONTEXT_AGENT_NEXTCLOUD_URL }}"
+  when: NEXTCLOUD_CONTEXT_AGENT_DAEMON not in nextcloud_appapi_daemons.stdout
+  changed_when: true
+
+- name: "🔍 Read the registered ExApps"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -u
+      - "{{ NEXTCLOUD_DOCKER_USER }}"
+      - "{{ NEXTCLOUD_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - php
+      - "{{ NEXTCLOUD_INTERNAL_OCC_COMMAND }}"
+      - app_api:app:list
+  register: nextcloud_registered_exapps
+  changed_when: false
+
+- name: "🚀 Register the Context Agent ExApp with its MCP route"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -u
+      - "{{ NEXTCLOUD_DOCKER_USER }}"
+      - "{{ NEXTCLOUD_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - php
+      - "{{ NEXTCLOUD_INTERNAL_OCC_COMMAND }}"
+      - app_api:app:register
+      - "{{ NEXTCLOUD_CONTEXT_AGENT_SERVICE }}"
+      - "{{ NEXTCLOUD_CONTEXT_AGENT_DAEMON }}"
+      - --json-info
+      - "{{ NEXTCLOUD_CONTEXT_AGENT_JSON_INFO }}"
+      - --force-scopes
+      - --wait-finish
+  when: NEXTCLOUD_CONTEXT_AGENT_SERVICE not in nextcloud_registered_exapps.stdout
+  changed_when: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🟢 Enable the Context Agent ExApp"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -u
+      - "{{ NEXTCLOUD_DOCKER_USER }}"
+      - "{{ NEXTCLOUD_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - php
+      - "{{ NEXTCLOUD_INTERNAL_OCC_COMMAND }}"
+      - app_api:app:enable
+      - "{{ NEXTCLOUD_CONTEXT_AGENT_SERVICE }}"
+  register: nextcloud_context_agent_enable
+  changed_when: "'already enabled' not in nextcloud_context_agent_enable.stdout"

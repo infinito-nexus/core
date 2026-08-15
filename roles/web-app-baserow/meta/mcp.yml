@@ -1,0 +1,39 @@
+---
+enabled: true
+shared: true
+classification: native_server
+direction: server
+source_url: https://baserow.io/user-docs/mcp-server # nocheck: url — page is live (HEAD+GET 200); baserow.io edge intermittently 404s CI runner IPs
+supported_version: 2.3.1
+minimum_version: "1.30"
+transport: sse
+exposure: internal
+auth: app_password
+auth_subject: service_account
+implementation: native
+credential:
+  owner: mcp-web-app-baserow
+  source: token_store
+  key: web-app-baserow
+allowed_consumers:
+  - web-app-openwebui
+  - web-app-hermes
+  - web-app-openclaw
+  - web-app-n8n
+endpoint:
+  service_key: baserow
+  path: /mcp
+  port_key: http
+  key_credential: mcp_endpoint_key
+  suffix: sse
+tools:
+  allowlist:
+    - create_rows
+    - delete_rows
+    - get_table_schema
+    - list_databases
+    - list_table_rows
+    - list_tables
+    - update_rows
+  read_only_default: true
+  mutating_tools_enabled: false

@@ -85,6 +85,8 @@ def main() -> int:
 
     closure = derive_includes(app_id)
     group_hosts = _host_topology(app_id) + _placement_dep_groups(app_id)
+    if "svc-virt-kata" in closure:
+        group_hosts.extend(("svc-virt-kata", host) for host in (_MANAGER, *_WORKERS))
     group_hosts.extend(
         repo_placements(
             app_closure=closure,

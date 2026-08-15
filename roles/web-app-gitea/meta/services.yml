@@ -81,6 +81,18 @@ gitea:
     - web-app-keycloak
     - web-app-mailu
   lifecycle: beta
+# nocheck: playwright-service-flag
+giteamcp:
+  image: docker.gitea.com/gitea-mcp-server
+  version: "1.6.0"
+  name: gitea-mcp
+  cpus: 0.25
+  mem_reservation: 0.1g
+  mem_limit: 0.25g
+  pids_limit: 256
+  ports:
+    internal:
+      http: 8080
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:

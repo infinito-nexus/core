@@ -1,0 +1,41 @@
+---
+- name: "🔍 Read the MCP token this server already issued"
+  ansible.builtin.set_fact:
+    mattermost_mcp_token: "{{ lookup('mcp_credential', application_id) }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: MATTERMOST_MCP
+    resolve_compose_cid: "{{ MATTERMOST_CONTAINER_ADDRESS }}"
+    resolve_converge_retries: 120
+    resolve_converge_delay: 5
+
+- name: "🧩 Switch the Agents plugin MCP server on"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/server.yml"
+
+- name: "🔑 Hand MCP clients a bearer token"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/token.yml"
+
+- name: "🔑 Hand the minted upstream token to the adapter"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/upstream_key.yml') }}"
+  vars:
+    mcp_upstream_key_path: "{{ [MATTERMOST_MCP_INSTANCE_DIR, 'upstream.env'] | path_join }}"
+    mcp_upstream_key: "{{ lookup('mcp_credential', application_id) }}"
+
+- name: "🧱 Rebuild the MCP adapter of {{ application_id }} now the bearer exists"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/rebuild.yml') }}"
+
+- name: "🚿 Flush compose handlers for {{ application_id }}"
+  ansible.builtin.meta: flush_handlers
+
+- name: "🩺 Prove the MCP contract of {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
+  vars:
+    mcp_probe_bearer: "{{ MATTERMOST_MCP_BEARER }}"
+    mcp_probe_path_key: ""
+    mcp_probe_read_tool: "get_user_channels"
+    mcp_probe_read_args: {}
+    mcp_probe_host: ""

@@ -31,11 +31,7 @@
   changed_when: false
 
 - name: 🔧 Configure docker daemon storage driver (container)
-  ansible.builtin.template: # nocheck: stack-host-template (per-host docker daemon config, runs on every container-host)
-    src: daemon.json.j2
-    dest: "{{ SYS_SVC_DOCKER_DAEMON }}"
-    mode: "0644"
-  notify: container manager restart
+  include_tasks: "daemon_config.yml"
 
 - name: 🔎 Check if TCP MSS clamp to PMTU is already present (container)
   ansible.builtin.command:

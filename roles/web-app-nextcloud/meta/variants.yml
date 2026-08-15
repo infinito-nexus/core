@@ -30,6 +30,9 @@
     dashboard:
       enabled: true
       shared: true
+    context_agent:
+      enabled: true
+      shared: true
     matomo:
       enabled: true
       shared: true
@@ -85,7 +88,7 @@
     openwebui:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    flowise:
+    litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     mastodon:
@@ -94,6 +97,9 @@
     peertube:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+  mcp:
+    enabled: true
+    shared: true
 - services:
     container_backup:
       enabled: false
@@ -113,6 +119,9 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    context_agent:
+      enabled: false
+      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -170,7 +179,7 @@
     openwebui:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    flowise:
+    litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     mastodon:
@@ -179,6 +188,9 @@
     peertube:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+  mcp:
+    enabled: false
+    shared: false
 - services:
     container_backup:
       enabled: false
@@ -198,6 +210,9 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    context_agent:
+      enabled: false
+      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -255,15 +270,18 @@
     openwebui:
       enabled: true
       shared: true
-    flowise:
-      enabled: true
-      shared: true
+    litellm:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     peertube:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+  mcp:
+    enabled: false
+    shared: false
 - services:
     container_backup:
       enabled: false
@@ -283,6 +301,9 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    context_agent:
+      enabled: false
+      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -340,7 +361,7 @@
     openwebui:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    flowise:
+    litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     mastodon:
@@ -349,6 +370,9 @@
     peertube:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+  mcp:
+    enabled: false
+    shared: false
 - services:
     container_backup:
       enabled: false
@@ -368,6 +392,9 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    context_agent:
+      enabled: false
+      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -425,7 +452,7 @@
     openwebui:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    flowise:
+    litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     mastodon:
@@ -434,6 +461,9 @@
     peertube:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+  mcp:
+    enabled: false
+    shared: false
 - services:
     container_backup:
       enabled: false
@@ -453,6 +483,9 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    context_agent:
+      enabled: false
+      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -510,7 +543,7 @@
     openwebui:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    flowise:
+    litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     mastodon:
@@ -519,6 +552,9 @@
     peertube:
       enabled: true
       shared: true
+  mcp:
+    enabled: false
+    shared: false
 - services:
     container_backup:
       enabled: false
@@ -538,6 +574,9 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    context_agent:
+      enabled: false
+      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -595,7 +634,7 @@
     openwebui:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    flowise:
+    litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     mastodon:
@@ -604,6 +643,9 @@
     peertube:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+  mcp:
+    enabled: false
+    shared: false
 - services:
     container_backup:
       enabled: false
@@ -623,6 +665,9 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    context_agent:
+      enabled: false
+      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -680,12 +725,15 @@
     openwebui:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    flowise:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+    litellm:
+      enabled: true
+      shared: true
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     peertube:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+  mcp:
+    enabled: false
+    shared: false

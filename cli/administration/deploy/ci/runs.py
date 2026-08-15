@@ -194,7 +194,7 @@ def _run(args: list[str]) -> str:
 
 def _branch_remote() -> str:
     """The remote the current branch tracks (e.g. a fork), falling back to
-    'origin' or the only configured remote."""
+    ``remote.pushDefault``, then 'origin' or the only configured remote."""
     try:
         upstream = _run(
             ["git", "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{upstream}"]
@@ -204,6 +204,12 @@ def _branch_remote() -> str:
     except subprocess.CalledProcessError:
         pass
     remotes = _run(["git", "remote"]).split()
+    try:
+        push_default = _run(["git", "config", "--get", "remote.pushDefault"])
+        if push_default in remotes:
+            return push_default
+    except subprocess.CalledProcessError:
+        pass
     if "origin" in remotes:
         return "origin"
     if not remotes:
@@ -387,12 +393,34 @@ def config_from_title(title: str) -> dict[str, str]:
     return {name: recorded[name] for name in CONFIG_INPUTS if name in recorded}
 
 
+SUITE_JOB_IDS = {"workspace": "test-workspace", "instructions": "test-instructions"}
+
+
+def suite_passed(jobs: list[dict], suite: str) -> bool:
+    """Whether ``suite`` ('workspace' | 'instructions') ran to success in this
+    run. A suite that was skipped, cancelled or never dispatched has not
+    passed, so a retrigger keeps asking for it."""
+    job_id = SUITE_JOB_IDS[suite]
+    outcomes = [
+        _effective(job)
+        for job in jobs
+        if job_id in str(job.get("name", "")).split(" / ")[1:]
+    ]
+    return bool(outcomes) and all(outcome == "success" for outcome in outcomes)
+
+
 def config_from_run(title: str, jobs: list[dict]) -> dict[str, str]:
     """The source run's configuration, with the distros the title does not
-    record recovered from its jobs (:func:`distros_from_jobs`)."""
+    record recovered from its jobs (:func:`distros_from_jobs`).
+
+    A suite the source run already passed is turned off rather than carried
+    over, so a retrigger spends its runners on what actually failed."""
     config = config_from_title(title)
     if not config.get("distros"):
         config = {**config, "distros": distros_from_jobs(jobs)}
+    for suite in SUITE_JOB_IDS:
+        if config.get(suite) == "true" and suite_passed(jobs, suite):
+            config = {**config, suite: "false"}
     return {name: value for name, value in config.items() if value}
 
 

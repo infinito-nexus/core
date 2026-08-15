@@ -1,0 +1,4 @@
+---
+canonical:
+  hermes: hermes.ai.{{ DOMAIN_PRIMARY }}
+aliases: []

@@ -1,0 +1,46 @@
+---
+enabled: true
+shared: true
+classification: plugin_server
+direction: server
+source_url: https://plugins.jenkins.io/mcp-server/
+minimum_version: "2.462"
+transport: streamable_http
+exposure: internal
+auth: basic_auth
+auth_subject: service_account
+implementation: plugin
+credential:
+  owner: mcp-web-app-jenkins
+  source: token_store
+  key: web-app-jenkins
+allowed_consumers:
+  - web-app-hermes
+  - web-app-openclaw
+endpoint:
+  service_key: jenkins
+  path: /mcp-server/mcp
+  port_key: http
+tools:
+  allowlist:
+    - findJobsWithScmUrl
+    - getBuild
+    - getBuildChangeSets
+    - getBuildLog
+    - getBuildScm
+    - getFlakyFailures
+    - getJob
+    - getJobScm
+    - getJobs
+    - getQueueItem
+    - getReplayScripts
+    - getStatus
+    - getTestResults
+    - rebuildBuild
+    - replayBuild
+    - searchBuildLog
+    - triggerBuild
+    - updateBuild
+    - whoAmI
+  read_only_default: true
+  mutating_tools_enabled: false

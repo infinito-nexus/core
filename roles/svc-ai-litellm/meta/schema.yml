@@ -1,0 +1,12 @@
+---
+credentials:
+  master_key:
+    description: "Admin master key of the LiteLLM gateway; consumers use per-consumer virtual keys, never this one"
+    algorithm: "alphanumeric"
+    validation:
+      min_length: 50
+  ui_password:
+    description: "Login password of the LiteLLM admin UI (served at /ui, proxied by web-app-litellm)"
+    algorithm: "alphanumeric"
+    validation:
+      min_length: 32

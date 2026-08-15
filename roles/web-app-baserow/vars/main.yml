@@ -8,7 +8,6 @@ BASEROW_VERSION: "{{ lookup('config', application_id, 'services.baserow.version'
 BASEROW_IMAGE: "{{ lookup('config', application_id, 'services.baserow.image') }}"
 BASEROW_CONTAINER: "{{ lookup('config', application_id, 'services.baserow.name') }}"
 
-# Auth integrations
 BASEROW_SSO_PROXY_GATED: "{{ lookup('sso', application_id, 'is_proxy_gated') }}"
 BASEROW_SSO_ADMIN_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
 BASEROW_SSO_FALLBACK_EMAIL_DOMAIN: "{{ lookup('domain', application_id) }}"
@@ -32,7 +31,14 @@ BASEROW_PYTHON: "/baserow/venv/bin/python"
 BASEROW_MANAGE_PY: "/baserow/backend/src/baserow/manage.py"
 
 BASEROW_SERVICE_NAME: "baserow"
-BASEROW_APP_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, BASEROW_SERVICE_NAME) }}"
+BASEROW_INTERNAL_URL: "http://{{ BASEROW_CONTAINER }}:{{ lookup('config', application_id, 'services.baserow.ports.internal.http') }}"
+
+BASEROW_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') }}"
+BASEROW_MCP_ENDPOINT_KEY: "{{ lookup('config', application_id, 'credentials.mcp_endpoint_key') }}"
+BASEROW_MCP_ENDPOINT_PATH: "{{ lookup('config', application_id, 'mcp.endpoint.path') }}"
+BASEROW_MCP_ENDPOINT_NAME: "Infinito.Nexus"
+BASEROW_MCP_WORKSPACE_NAME: "Infinito.Nexus MCP"
+BASEROW_MCP_OWNER_EMAIL: "mcp@{{ lookup('domain', application_id) }}"
 
 BASEROW_BOOTSTRAP_ADMIN_USERNAME: "{{ lookup('users', 'administrator').username }}"
 BASEROW_BOOTSTRAP_ADMIN_EMAIL: "{{ lookup('users', 'administrator').email }}"

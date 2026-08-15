@@ -78,6 +78,9 @@ nginx:
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 256
+  ports:
+    internal:
+      http: 80
 cron:
   name: moodle-cron
   custom: true

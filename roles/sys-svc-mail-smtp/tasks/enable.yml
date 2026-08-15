@@ -33,3 +33,9 @@
   ansible.builtin.command: newaliases
   changed_when: false
   notify: restart postfix
+
+- name: "🚀 Ensure the local relay is listening"
+  ansible.builtin.systemd:
+    name: postfix
+    enabled: true
+    state: started

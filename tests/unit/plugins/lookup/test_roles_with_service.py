@@ -329,14 +329,25 @@ class RolesWithServiceLookupTests(unittest.TestCase):
         result = self._run(["dashboard"], applications)[0]
         self.assertEqual([r["id"] for r in result], ["web-app-bar"])
 
-    def test_canonical_with_empty_first_entry_is_skipped(self):
+    def test_canonical_with_empty_first_entry_raises(self):
         applications = {
             "web-app-foo": {
                 "services": {"dashboard": {"enabled": True, "shared": True}},
                 "domains": {"canonical": ["", "foo.example.com"]},
             },
         }
-        self.assertEqual(self._run(["dashboard"], applications), [[]])
+        with self.assertRaises(AnsibleError):
+            self._run(["dashboard"], applications)
+
+    def test_canonical_mapping_resolves_to_its_first_domain(self):
+        applications = {
+            "web-app-foo": {
+                "services": {"dashboard": {"enabled": True, "shared": True}},
+                "domains": {"canonical": {"foo": "foo.example.com"}},
+            },
+        }
+        result = self._run(["dashboard"], applications)[0]
+        self.assertEqual([r["canonical_domain"] for r in result], ["foo.example.com"])
 
     def test_unrendered_jinja_strings_are_treated_as_truthy(self):
         """In a real Ansible play, ``get_merged_applications`` runs the
@@ -408,6 +419,37 @@ class RolesWithServiceLookupTests(unittest.TestCase):
             "scope='all' returns deployment-scoped consumers regardless of group_names",
         )
 
+    def test_deployment_scope_spans_hosts_but_not_the_whole_repository(self):
+        applications = {
+            "web-app-foo": {
+                "services": {"logout": {"enabled": True, "shared": True}},
+                "domains": {"canonical": ["foo.example.com"]},
+            },
+            "web-app-bar": {
+                "services": {"logout": {"enabled": True, "shared": True}},
+                "domains": {"canonical": ["bar.example.com"]},
+            },
+            "web-app-undeployed": {
+                "services": {"logout": {"enabled": True, "shared": True}},
+                "domains": {"canonical": ["undeployed.example.com"]},
+            },
+        }
+        vars_ = {
+            "group_names": ["web-app-foo"],
+            "groups": {
+                "web-app-foo": ["host-a"],
+                "web-app-bar": ["host-b"],
+                "web-app-undeployed": [],
+            },
+        }
+        result = self._run(["logout"], applications, vars_=vars_, scope="deployment")[0]
+        self.assertEqual(
+            sorted(r["id"] for r in result),
+            ["web-app-bar", "web-app-foo"],
+            "a role deployed on another host of the same deployment is "
+            "reachable; a role in the repository but in no group is not",
+        )
+
     def test_self_provider_is_excluded(self):
         applications = {
             "web-svc-logout": {
@@ -435,6 +477,88 @@ class RolesWithServiceLookupTests(unittest.TestCase):
         }
         result = self._run(["logout"], applications)[0]
         self.assertEqual([r["id"] for r in result], ["web-app-bar", "web-app-foo"])
+
+    def _mcp_role(self, direction: str, **mcp_extra) -> dict:
+        mcp = {
+            "enabled": True,
+            "shared": True,
+            "direction": direction,
+            "transport": "streamable_http",
+            "auth": "bearer_token",
+            "auth_subject": "user",
+            "endpoint": {
+                "service_key": "baserow",
+                "path": "/mcp",
+                "port_key": "http",
+            },
+        }
+        mcp.update(mcp_extra)
+        return {
+            "services": {
+                "mcp": mcp,
+                "baserow": {"ports": {"local": {"http": 8021}}},
+            },
+            "domains": {"canonical": ["srv.example.com"]},
+        }
+
+    def test_direction_filter_excludes_other_direction(self):
+        applications = {
+            "web-app-server": self._mcp_role("server"),
+            "web-app-client": self._mcp_role("client"),
+        }
+        result = self._run(["mcp"], applications, direction="server")[0]
+        self.assertEqual([r["id"] for r in result], ["web-app-server"])
+
+    def test_direction_filter_includes_both(self):
+        applications = {"web-app-duplex": self._mcp_role("both")}
+        result = self._run(["mcp"], applications, direction="server")[0]
+        self.assertEqual([r["id"] for r in result], ["web-app-duplex"])
+
+    def test_direction_entry_carries_endpoint_metadata(self):
+        applications = {"web-app-server": self._mcp_role("server")}
+        entry = self._run(["mcp"], applications, direction="server")[0][0]
+        self.assertEqual(entry["transport"], "streamable_http")
+        self.assertEqual(entry["auth"], "bearer_token")
+        self.assertEqual(entry["auth_subject"], "user")
+        self.assertEqual(
+            entry["endpoint"],
+            {
+                "service_key": "baserow",
+                "path": "/mcp",
+                "port": 8021,
+                "key_credential": None,
+                "suffix": None,
+            },
+        )
+
+    def test_direction_endpoint_port_falls_back_to_internal(self):
+        role = self._mcp_role("server")
+        role["services"]["baserow"] = {"ports": {"internal": {"http": 80}}}
+        applications = {"web-app-server": role}
+        entry = self._run(["mcp"], applications, direction="server")[0][0]
+        self.assertEqual(entry["endpoint"]["port"], 80)
+
+    def test_the_internal_port_wins_without_any_exposure_declaration(self):
+        role = self._mcp_role("server")
+        role["services"]["baserow"]["ports"]["internal"] = {"http": 80}
+        applications = {"web-app-server": role}
+        entry = self._run(["mcp"], applications, direction="server")[0][0]
+        self.assertEqual(entry["endpoint"]["port"], 80)
+
+    def test_an_exposure_declaration_does_not_change_the_port(self):
+        role = self._mcp_role("server")
+        role["services"]["mcp"]["exposure"] = "public"
+        role["services"]["baserow"]["ports"]["internal"] = {"http": 80}
+        applications = {"web-app-server": role}
+        entry = self._run(["mcp"], applications, direction="server")[0][0]
+        self.assertEqual(entry["endpoint"]["port"], 80)
+
+    def test_without_direction_kwarg_shape_is_unchanged(self):
+        applications = {"web-app-server": self._mcp_role("server")}
+        entry = self._run(["mcp"], applications)[0][0]
+        self.assertEqual(
+            sorted(entry), ["canonical_domain", "canonical_url", "id", "iframe"]
+        )
 
 
 if __name__ == "__main__":

@@ -27,6 +27,39 @@ GITEA_REDIS_ENABLED: "{{ lookup('config', application_id, 'services.redis.enable
 GITEA_REDIS_ADDRESS: "{{ lookup('engine', 'redis', application_id, 'host') }}:{{ lookup('engine', 'redis', application_id, 'port') }}"
 GITEA_REDIS_PASSWORD: "{{ lookup('engine', 'redis', application_id, 'password') }}"
 
+GITEA_INTERNAL_API_URL: "http://{{ entity_name }}:{{ lookup('config', application_id, 'services.gitea.ports.internal.http') }}/api/v1"
+
+GITEA_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') }}"
+GITEA_MCP_SERVICE_KEY: "{{ lookup('config', application_id, 'mcp.endpoint.service_key') }}"
+GITEA_MCP_CONTAINER: "{{ lookup('config', application_id, 'services.giteamcp.name') }}"
+GITEA_MCP_PORT: "{{ lookup('config', application_id, 'services.giteamcp.ports.internal.http') }}"
+GITEA_MCP_URL: "http://{{ GITEA_MCP_SERVICE_KEY }}:{{ GITEA_MCP_PORT }}{{ lookup('config', application_id, 'mcp.endpoint.path') }}"
+GITEA_MCP_UPSTREAM_URL: "http://{{ entity_name }}:{{ lookup('config', application_id, 'services.gitea.ports.internal.http') }}"
+GITEA_MCP_TOKEN_NAME: "gitea-mcp"
+GITEA_MCP_TOKEN_SCOPES: "read:repository,read:issue,read:user,read:organization,read:notification"
+GITEA_MCP_ACCOUNT: "{{ lookup('users', 'mcp-web-app-gitea') }}"
+GITEA_MCP_USERNAME: "{{ GITEA_MCP_ACCOUNT.username }}"
+GITEA_MCP_USER_EMAIL: "{{ GITEA_MCP_ACCOUNT.email }}"
+GITEA_MCP_USER_PASSWORD: "{{ GITEA_MCP_ACCOUNT.password }}"
+GITEA_MCP_TOOL_SCOPES: "user,repository,issue,pull_request,search,file,branch,tag,commit,release"
+GITEA_MCP_COMMAND:
+  - "/app/gitea-mcp" # nocheck: literal-path  image ships no ENTRYPOINT, so command must carry the binary
+  - "-t"
+  - "http"
+  - "--port"
+  - "{{ GITEA_MCP_PORT | string }}"
+  - "-r"
+GITEA_MCP_INITIALIZE_PAYLOAD:
+  jsonrpc: "2.0"
+  id: 1
+  method: initialize
+  params:
+    protocolVersion: "2025-03-26"
+    capabilities: {}
+    clientInfo:
+      name: infinito-nexus
+      version: "1"
+
 GITEA_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.shared') | bool }}"
 GITEA_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 GITEA_IAM_ENABLED: "{{ (GITEA_OIDC_ENABLED | bool) or ( GITEA_LDAP_ENABLED | bool ) }}"

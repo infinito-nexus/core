@@ -1,0 +1,18 @@
+---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: LITELLM
+    resolve_compose_cid: "{{ LITELLM_CONTAINER }}"
+
+- name: "🔑 Ensure a virtual key exists per consumer"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i -e LITELLM_KEYS_PAYLOAD={{ LITELLM_CONSUMER_KEYS | to_json | quote }} -e LITELLM_MK={{ LITELLM_MASTER_KEY | quote }} -e LITELLM_PORT={{ LITELLM_PORT | quote }} {{ LITELLM_LOCAL_CID | quote }} python3 -c {{ lookup('file', lookup('path_absolute', 'roles/svc-ai-litellm/files/ensure_keys.py')) | quote }}
+  register: litellm_keys_result
+  retries: 10
+  delay: 6
+  until: litellm_keys_result.rc == 0
+  changed_when: "'CHANGED' in litellm_keys_result.stdout"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ LITELLM_HOST_NODE }}"

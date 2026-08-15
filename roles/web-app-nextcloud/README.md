@@ -15,6 +15,7 @@ The diagram places Nextcloud in the Infinito.Nexus cosmos: the components it dep
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
+        dep_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_mariadb["svc-db-mariadb 🐳🐝"]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
@@ -22,14 +23,15 @@ flowchart LR
         dep_web_app_bigbluebutton["web-app-bigbluebutton 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_discourse["web-app-discourse 🐳🐝"]
-        dep_web_app_flowise["web-app-flowise 🐳🐝"]
         dep_web_app_gitlab["web-app-gitlab 🐳🐝"]
+        dep_web_app_hermes["web-app-hermes 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
         dep_web_app_mastodon["web-app-mastodon 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
         dep_web_app_matrix["web-app-matrix 🐳🐝"]
         dep_web_app_mattermost["web-app-mattermost 🐳🐝"]
+        dep_web_app_openclaw["web-app-openclaw 🐳🐝"]
         dep_web_app_openproject["web-app-openproject 🐳🐝"]
         dep_web_app_openwebui["web-app-openwebui 🐳🐝"]
         dep_web_app_peertube["web-app-peertube 🐳🐝"]
@@ -55,6 +57,7 @@ flowchart LR
         svc_mariadb["mariadb"]
         svc_nextcloud["nextcloud"]
         svc_proxy["proxy"]
+        svc_context_agent["context_agent"]
         svc_cron["cron"]
         svc_talk["talk"]
         svc_whiteboard["whiteboard"]
@@ -75,13 +78,14 @@ flowchart LR
         svc_matrix["matrix"]
         svc_zammad["zammad"]
         svc_openwebui["openwebui"]
-        svc_flowise["flowise"]
+        svc_litellm["litellm"]
         svc_mastodon["mastodon"]
         svc_peertube["peertube"]
         svc_moodle["moodle ❌"]
         svc_suitecrm["suitecrm ❌"]
         svc_container_backup["container_backup"]
     end
+    dep_svc_ai_litellm -. "0..1" .-> svc_litellm
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_mariadb -. "0..1" .-> svc_mariadb
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
@@ -89,14 +93,15 @@ flowchart LR
     dep_web_app_bigbluebutton -. "0..1" .-> svc_bigbluebutton
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_discourse -. "0..1" .-> svc_discourse
-    dep_web_app_flowise -. "0..1" .-> svc_flowise
     dep_web_app_gitlab -. "0..1" .-> svc_gitlab
+    dep_web_app_hermes -. "0..1" .-> svc_context_agent
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
     dep_web_app_mastodon -. "0..1" .-> svc_mastodon
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_matrix -. "0..1" .-> svc_matrix
     dep_web_app_mattermost -. "0..1" .-> svc_mattermost
+    dep_web_app_openclaw -. "0..1" .-> svc_context_agent
     dep_web_app_openproject -. "0..1" .-> svc_openproject
     dep_web_app_openwebui -. "0..1" .-> svc_openwebui
     dep_web_app_peertube -. "0..1" .-> svc_peertube
@@ -179,6 +184,61 @@ The enable-only appstore apps stay under `nextcloud.plugins` in [`meta/services.
 | `xwiki` | `plugin` | enabled with the `xwiki` partner | `xwiki` → `web-app-xwiki` |
 
 The SSO (`sociallogin`) and LDAP (`user_ldap`) login surfaces are covered by the OIDC/LDAP Playwright specs (requirements 017/018).
+
+## MCP Server
+
+Nextcloud serves a Model Context Protocol endpoint through the AppAPI proxy of the `context_agent` ExApp.
+
+| Property | Value |
+|----------|-------|
+| Endpoint | `/index.php/apps/app_api/proxy/context_agent/mcp/` on the canonical Nextcloud vhost |
+| Container-network URL | `http://proxy:80/index.php/apps/app_api/proxy/context_agent/mcp/` |
+| Transport | Streamable HTTP |
+| Exposure | public (same nginx vhost that serves the web UI) |
+| Auth | Nextcloud app password, sent as `Authorization: Bearer <app-password>` |
+| Identity | the Nextcloud user the app password belongs to; every tool call runs with that user's permissions |
+| Implementation | plugin (the `context_agent` ExApp container, registered through the `manual_install` deploy daemon) |
+| Default state | off; `mcp.enabled` turns on when `web-app-hermes` or `web-app-openclaw` is deployed |
+
+### Deployment
+
+The `context_agent` service in [`meta/services.yml`](./meta/services.yml) renders only while `mcp.enabled` is true. It runs `ghcr.io/nextcloud/context_agent`, listens on its internal port for AppAPI only, and shares `credentials.context_agent_app_secret` with the ExApp registration as `APP_SECRET`.
+
+[`tasks/utils/mcp.yml`](./tasks/utils/mcp.yml) waits for the ExApp heartbeat, registers the deploy daemon and the ExApp (route `^/mcp`, verbs `POST,GET,DELETE`, access level `1`), enables the ExApp, mints an app password for the dedicated MCP account via `occ user:auth-tokens:add`, persists it through `sys-token-store` under `users['mcp-web-app-nextcloud'].tokens['web-app-nextcloud']`, and asserts that an authenticated `initialize` call answers `200`.
+
+### Authorization subject
+
+`auth_subject: service_account`: [`tasks/utils/mcp/token.yml`](./tasks/utils/mcp/token.yml) creates the account `NEXTCLOUD_MCP_USERNAME` with `occ user:add` if it is missing, mints the app password against that account, and stores it under `mcp.credential.owner`. Every call carries that account's rights, not the administrator's, no matter who asked the client. Reaching the tool server is gated on the role's `mcp` RBAC group, which is a separate grant from holding a Nextcloud account.
+
+### Tool categories
+
+The ExApp registers every tool category the Context Agent ships, read-only and mutating alike, and each call runs with the permissions of the app-password owner. The 2.7.0 image advertises 94 tools across 23 categories, which are application names (`calendar`, `files`, `mail`, `talk`, …), not operations: each bundles its read and its write tools. `tool_status` therefore switches whole categories, and no setting removes only the mutating ones, so `mcp.tools.mutating_tools_enabled: false` records the deployment's intent rather than an enforced state. Disabling a category to bar its write tools also removes its read tools. List the categories and narrow the exposed set with:
+
+```bash
+occ app_api:app:config:get context_agent tool_status
+occ app_api:app:config:set context_agent tool_status --value '<json map of category to bool>'
+```
+
+### Verification
+
+```bash
+curl -i -X POST \
+  -H 'Authorization: Bearer <app-password>' \
+  -H 'Accept: application/json, text/event-stream' \
+  -H 'Content-Type: application/json' \
+  --data '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"cli","version":"1"}}}' \
+  https://<nextcloud-domain>/index.php/apps/app_api/proxy/context_agent/mcp/
+```
+
+An unauthenticated request to the same path answers `404`; [`files/playwright/test-mcp-guest.js`](./files/playwright/test-mcp-guest.js) asserts the `>= 400`.
+
+### Default state
+
+Off. `mcp.enabled` is true only while `web-app-hermes` or `web-app-openclaw` is part of the deployment.
+
+### How to disable
+
+Remove the MCP client roles, or pin `mcp.enabled: false` for this role. The `context_agent` service is then not rendered, the ExApp is not registered with AppAPI, and no app password is minted.
 
 ## Documentation
 

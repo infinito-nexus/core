@@ -1,0 +1,35 @@
+---
+# nocheck: info-media no official demo video
+galaxy_info:
+  author: Kevin Veen-Birkenbach
+  description: Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy
+  license: Infinito.Nexus Community License (Non-Commercial)
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  galaxy_tags:
+    - ai
+    - llm
+    - gateway
+    - litellm
+    - admin
+    - self-hosted
+  issue_tracker_url: https://s.infinito.nexus/issues
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+dependencies: []

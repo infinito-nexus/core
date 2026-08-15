@@ -30,6 +30,8 @@ plugins:
 client-plugins:
   type: volume
   name: mattermost_client_plugins
+  # nocheck: nfs-false-data-loss  Reason: unpacked from the server-side plugin bundle at every activation; shared, replicas starting at once copy into one directory and the loser then serves 404 on the plugin routes
+  nfs: false
   mounts:
     - service: mattermost
       target: /mattermost/client/plugins

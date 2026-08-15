@@ -82,3 +82,21 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: playwright-service-flag  internal adapter sidecar, covered by the role's MCP guest spec
+# nocheck: dockerfile-custom  the Dockerfile is owned by svc-ai-mcp-adapter and staged per instance, so every adapter-backed provider shares one audited build
+# nocheck: dynamic-flag  the sidecar tracks this role's own mcp flag, not another role's presence; a group_names expression would decide its exposure from an unrelated deployment
+libretranslatemcp:
+  enabled: "{{ lookup('config', 'web-svc-libretranslate', 'mcp.enabled') | bool }}"
+  shared: false
+  image: python
+  # nocheck: docker-version  base of the self-built stdlib adapter, not the served application
+  version: "3.13.15-slim"
+  custom: true
+  name: libretranslatemcp
+  cpus: "0.25"
+  mem_reservation: 24m
+  mem_limit: 48m
+  pids_limit: 64
+  ports:
+    internal:
+      http: 8080

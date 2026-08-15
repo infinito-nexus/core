@@ -1,6 +1,19 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "🔌 Stage the MCP adapter instance for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
+  vars:
+    mcp_adapter_instance_dir: "{{ QDRANT_MCP_INSTANCE_DIR }}"
+  when: QDRANT_MCP_ENABLED | bool
+
+- name: "🧱 Rebuild the MCP adapter of {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/rebuild.yml') }}"
+  when: QDRANT_MCP_ENABLED | bool
+
+- name: "🚿 Flush compose handlers for {{ application_id }}"
+  ansible.builtin.meta: flush_handlers
+
 - name: "🔧 Setup container network for {{ application_id }}"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
   vars:
@@ -28,3 +41,13 @@
   delay: 2
   until: qdrant_ready.rc == 0
   changed_when: false
+
+- name: "🩺 Prove the MCP contract of {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
+  vars:
+    mcp_probe_bearer: "{{ QDRANT_MCP_BEARER }}"
+    mcp_probe_path_key: ""
+    mcp_probe_read_tool: "qdrant_list_collections"
+    mcp_probe_read_args: {}
+    mcp_probe_host: ""
+  when: QDRANT_MCP_ENABLED | bool

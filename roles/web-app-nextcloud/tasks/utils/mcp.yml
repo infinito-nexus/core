@@ -1,0 +1,81 @@
+---
+- name: "🔍 Resolve the Nextcloud hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ NEXTCLOUD_SERVICE }}"
+    resolve_output_prefix: NEXTCLOUD
+    resolve_compose_cid: "{{ NEXTCLOUD_CONTAINER }}"
+
+- name: "🔍 Resolve the proxy hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ NEXTCLOUD_PROXY_SERVICE }}"
+    resolve_output_prefix: NEXTCLOUD_PROXY
+    resolve_compose_cid: "{{ NEXTCLOUD_PROXY_CONTAINER }}"
+
+- name: "🔍 Resolve the Context Agent hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ NEXTCLOUD_CONTEXT_AGENT_SERVICE }}"
+    resolve_output_prefix: NEXTCLOUD_CONTEXT_AGENT
+    resolve_compose_cid: "{{ NEXTCLOUD_CONTEXT_AGENT_CONTAINER }}"
+
+- name: "⏳ Wait until the Context Agent answers its heartbeat"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ NEXTCLOUD_CONTEXT_AGENT_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - python3
+      - -c
+      - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:{{ NEXTCLOUD_CONTEXT_AGENT_PORT }}/heartbeat', timeout=5)"
+  register: nextcloud_context_agent_heartbeat
+  retries: 60
+  delay: 5
+  until: nextcloud_context_agent_heartbeat.rc == 0
+  changed_when: false
+  delegate_to: "{{ NEXTCLOUD_CONTEXT_AGENT_HOST_NODE }}"
+  run_once: true
+
+- name: "🚀 Register the Context Agent as an AppAPI ExApp"
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/utils/mcp/register.yml"
+    apply:
+      delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
+      run_once: true
+
+- name: "🔍 Read the MCP app password this deployment already issued"
+  ansible.builtin.set_fact:
+    nextcloud_mcp_token: "{{ lookup('mcp_credential', application_id) }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🩺 Check the stored app password against the MCP endpoint"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/probe.yml"
+  when: nextcloud_mcp_token | length > 0
+
+- name: "🔑 Mint and persist a fresh MCP app password"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/token.yml"
+  when: nextcloud_mcp_token | length == 0 or nextcloud_mcp_probe.stdout | default('') != '200'
+
+- name: "🩺 Re-check the freshly minted app password"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/probe.yml"
+  when: nextcloud_mcp_probe is not defined or nextcloud_mcp_probe.stdout != '200'
+
+- name: "🛑 Refuse an MCP endpoint that rejects the stored app password"
+  ansible.builtin.assert:
+    that:
+      - nextcloud_mcp_probe.stdout == '200'
+    fail_msg: >-
+      The MCP endpoint {{ NEXTCLOUD_MCP_PATH }} answered
+      {{ nextcloud_mcp_probe.stdout | default('no status') }} for the app password stored
+      for {{ application_id }}, so every MCP client would be configured with a
+      bearer the endpoint rejects.
+
+- name: "🩺 Prove the MCP contract of {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
+  vars:
+    mcp_probe_bearer: "{{ lookup('mcp_credential', application_id) }}"
+    mcp_probe_path_key: ""
+    mcp_probe_read_tool: "find_details_of_current_user"
+    mcp_probe_read_args: {}
+    mcp_probe_host: "{{ NEXTCLOUD_DOMAIN }}"

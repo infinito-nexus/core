@@ -1,0 +1,45 @@
+---
+enabled: false
+shared: false
+classification: adapter_server
+direction: server
+source_url: https://s.infinito.nexus/code
+supported_version: 1.0.0
+transport: streamable_http
+exposure: internal
+auth: bearer_token
+auth_subject: service_account
+implementation: adapter
+credential:
+  owner: mcp-web-app-checkmk
+  source: credentials
+  key: mcp_bearer
+allowed_consumers:
+  - web-app-openwebui
+  - web-app-hermes
+  - web-app-openclaw
+endpoint:
+  service_key: checkmkmcp
+  path: /mcp
+  port_key: http
+adapter:
+  type: openapi_allowlist
+  upstream_api_version: v1
+  specification_path: roles/web-app-checkmk/files/mcp/tools.json
+  specification_sha256: sha256:931508fa0fb4f7d96d39f54862ed05007cab26b177955d32a2ddafb7d9a4d67a
+limits:
+  request_bytes: 65536
+  response_bytes: 1048576
+  timeout_seconds: 15
+  concurrent_requests: 4
+  page_size: 100
+  result_items: 100
+  stream_seconds: 300
+tools:
+  allowlist:
+    - checkmk_get_host_status
+    - checkmk_list_hosts
+    - checkmk_list_services
+  schema_sha256: sha256:9a769b4524a2c55a12e06c6fb3d906cff1ccd7f1f3445e3543a94891a8d466be
+  read_only_default: true
+  mutating_tools_enabled: false

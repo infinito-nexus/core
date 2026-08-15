@@ -1,0 +1,19 @@
+---
+- name: "📄 Render the Hermes agent config from the current discovery"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "env.j2"
+        dest: "{{ lookup('container', application_id, 'files.env') }}"
+      - src: "config.yaml.j2"
+        dest: "{{ HERMES_CONFIG_PATH_HOST }}"
+        owner: "{{ HERMES_DOCKER_USER_ID }}"
+        group: "{{ HERMES_DOCKER_USER_ID }}"
+
+- name: "🔄 Start the stack so the agent reads the config"
+  ansible.builtin.meta: flush_handlers
+
+- name: "🔌 Prove the configured MCP servers answer"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp_assert.yml"
+  when: HERMES_MCP_SERVERS | length > 0

@@ -45,6 +45,40 @@ NEXTCLOUD_ZAMMAD_CONTAINER_ADDRESS: "{{ lookup('container_address', 'web-app-zam
 
 NEXTCLOUD_PROXY_SERVICE: "proxy"
 NEXTCLOUD_PROXY_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_PROXY_SERVICE ~ '.name') }}"
+NEXTCLOUD_PROXY_DNS_NAME: "{{ (entity_name ~ '_' ~ NEXTCLOUD_PROXY_SERVICE) if DEPLOYMENT_MODE == 'swarm' else NEXTCLOUD_PROXY_CONTAINER }}"
+
+NEXTCLOUD_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') }}"
+NEXTCLOUD_MCP_PATH: "{{ lookup('config', application_id, 'mcp.endpoint.path') }}"
+NEXTCLOUD_MCP_TOKEN_NAME: "infinito-mcp"
+NEXTCLOUD_MCP_ACCOUNT: "{{ lookup('users', 'mcp-web-app-nextcloud') }}"
+NEXTCLOUD_MCP_USERNAME: "{{ NEXTCLOUD_MCP_ACCOUNT.username }}"
+NEXTCLOUD_MCP_USER_DISPLAY_NAME: "Infinito MCP"
+NEXTCLOUD_MCP_USER_PASSWORD: "{{ NEXTCLOUD_MCP_ACCOUNT.password }}"
+
+NEXTCLOUD_CONTEXT_AGENT_SERVICE: "context_agent"
+NEXTCLOUD_CONTEXT_AGENT_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_CONTEXT_AGENT_SERVICE ~ '.name') }}"
+NEXTCLOUD_CONTEXT_AGENT_VERSION: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_CONTEXT_AGENT_SERVICE ~ '.version') }}"
+NEXTCLOUD_CONTEXT_AGENT_PORT: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_CONTEXT_AGENT_SERVICE ~ '.ports.internal.http') }}"
+NEXTCLOUD_CONTEXT_AGENT_SECRET: "{{ lookup('config', application_id, 'credentials.context_agent_app_secret') }}"
+NEXTCLOUD_CONTEXT_AGENT_DNS_NAME: "{{ (entity_name ~ '_' ~ NEXTCLOUD_CONTEXT_AGENT_SERVICE) if DEPLOYMENT_MODE == 'swarm' else NEXTCLOUD_CONTEXT_AGENT_CONTAINER }}"
+NEXTCLOUD_CONTEXT_AGENT_DAEMON: "manual_install"
+NEXTCLOUD_CONTEXT_AGENT_NEXTCLOUD_URL: "http://{{ NEXTCLOUD_PROXY_DNS_NAME }}:{{ container_port }}"
+NEXTCLOUD_CONTEXT_AGENT_ROUTES:
+  - url: "^/mcp"
+    verb: "POST,GET,DELETE"
+    access_level: 1
+    headers_to_exclude: []
+NEXTCLOUD_CONTEXT_AGENT_JSON_INFO: >-
+  {{
+    {
+      'id':      NEXTCLOUD_CONTEXT_AGENT_SERVICE,
+      'name':    'Nextcloud Context Agent',
+      'version': NEXTCLOUD_CONTEXT_AGENT_VERSION,
+      'secret':  NEXTCLOUD_CONTEXT_AGENT_SECRET,
+      'port':    NEXTCLOUD_CONTEXT_AGENT_PORT | int,
+      'routes':  NEXTCLOUD_CONTEXT_AGENT_ROUTES
+    } | to_json
+  }}
 
 NEXTCLOUD_CRON_SERVICE: "cron"
 NEXTCLOUD_CRON_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_CRON_SERVICE ~ '.name') }}"

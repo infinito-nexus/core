@@ -1,0 +1,45 @@
+---
+enabled: false
+shared: false
+classification: adapter_server
+direction: server
+source_url: https://s.infinito.nexus/code
+supported_version: 1.0.0
+transport: streamable_http
+exposure: internal
+auth: bearer_token
+auth_subject: service_account
+implementation: adapter
+credential:
+  owner: mcp-web-app-jellyfin
+  source: credentials
+  key: mcp_bearer
+allowed_consumers:
+  - web-app-openwebui
+  - web-app-hermes
+  - web-app-openclaw
+endpoint:
+  service_key: jellyfinmcp
+  path: /mcp
+  port_key: http
+adapter:
+  type: openapi_allowlist
+  upstream_api_version: v1
+  specification_path: roles/web-app-jellyfin/files/mcp/tools.json
+  specification_sha256: sha256:6118a09c6e7829ade5f8294b75e19eec83d52fa6b97afbe74e8c4e0d94cd09db
+limits:
+  request_bytes: 65536
+  response_bytes: 1048576
+  timeout_seconds: 15
+  concurrent_requests: 4
+  page_size: 100
+  result_items: 100
+  stream_seconds: 300
+tools:
+  allowlist:
+    - jellyfin_get_item
+    - jellyfin_get_playback_status
+    - jellyfin_search_library
+  schema_sha256: sha256:08776fdcbed9f362d76e9954881a9184362da85b24e2e503f8259fd664fd85f5
+  read_only_default: true
+  mutating_tools_enabled: false

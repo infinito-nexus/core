@@ -1,0 +1,96 @@
+---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ BASEROW_SERVICE_NAME }}"
+    resolve_output_prefix: BASEROW
+    resolve_compose_cid: "{{ BASEROW_CONTAINER }}"
+
+- name: "🔑 Create the MCP endpoint, its owner and its workspace"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - "DJANGO_SETTINGS_MODULE={{ BASEROW_DJANGO_SETTINGS_MODULE }}"
+      - -e
+      - "SECRET_KEY={{ BASEROW_SECRET_KEY }}"
+      - -e
+      - "BASEROW_SECRET_KEY={{ BASEROW_SECRET_KEY }}"
+      - -e
+      - "MCP_OWNER_EMAIL={{ BASEROW_MCP_OWNER_EMAIL }}"
+      - -e
+      - "MCP_WORKSPACE_NAME={{ BASEROW_MCP_WORKSPACE_NAME }}"
+      - -e
+      - "MCP_ENDPOINT_NAME={{ BASEROW_MCP_ENDPOINT_NAME }}"
+      - -e
+      - "MCP_ENDPOINT_KEY={{ BASEROW_MCP_ENDPOINT_KEY }}"
+      - "{{ BASEROW_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - "{{ BASEROW_PYTHON }}"
+      - "{{ BASEROW_MANAGE_PY }}"
+      - shell
+      - -c
+      - "{{ lookup('file', 'provision_mcp.py') }}"
+  register: baserow_mcp_provision
+  retries: 30
+  delay: 10
+  until: baserow_mcp_provision.rc == 0
+  changed_when: "'CHANGED' in baserow_mcp_provision.stdout"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ BASEROW_HOST_NODE }}"
+  run_once: true
+
+- name: "🩺 Probe the MCP endpoint on the internal origin"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - "MCP_BASE_URL={{ BASEROW_INTERNAL_URL }}"
+      - -e
+      - "MCP_ENDPOINT_PATH={{ BASEROW_MCP_ENDPOINT_PATH }}"
+      - -e
+      - "MCP_ENDPOINT_KEY={{ BASEROW_MCP_ENDPOINT_KEY }}"
+      - "{{ BASEROW_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - "{{ BASEROW_PYTHON }}"
+      - "-"
+    stdin: "{{ lookup('file', 'probe_mcp_endpoint.py') }}"
+  register: baserow_mcp_probe
+  retries: 30
+  delay: 10
+  until: baserow_mcp_probe.rc == 0 or 'REJECTED' in baserow_mcp_probe.stderr
+  failed_when: false
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ BASEROW_HOST_NODE }}"
+  run_once: true
+
+- name: "🛑 Refuse an endpoint that never serves the MCP stream"
+  ansible.builtin.assert:
+    that:
+      - baserow_mcp_probe.rc == 0
+    fail_msg: >-
+      {{ BASEROW_INTERNAL_URL }}{{ BASEROW_MCP_ENDPOINT_PATH }} did not answer 401
+      for an unknown key and text/event-stream for the provisioned one, so every
+      MCP client would be pointed at a dead or unguarded endpoint.
+
+- name: "💾 Persist the endpoint key so MCP clients can read it"
+  ansible.builtin.include_role:
+    name: sys-token-store
+    tasks_from: write.yml
+  vars:
+    sys_token_store_user_key: "{{ lookup('config', application_id, 'mcp.credential.owner') }}"
+    sys_token_store_app: "{{ application_id }}"
+    sys_token_store_token: "{{ BASEROW_MCP_ENDPOINT_KEY }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🩺 Prove the MCP contract of {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
+  vars:
+    mcp_probe_bearer: "{{ lookup('mcp_credential', application_id) }}"
+    mcp_probe_path_key: "{{ BASEROW_MCP_ENDPOINT_KEY }}"
+    mcp_probe_read_tool: "list_databases"
+    mcp_probe_read_args: {}
+    mcp_probe_host: ""

@@ -80,7 +80,10 @@ write_config() {
 if [ "${PHASE}" = "install" ]; then
 
 wait_up
-seed_admin_and_get_token || log "WARN: admin token unavailable after wizard retries; SSO manifest + login-button branding will be skipped"
+seed_admin_and_get_token || {
+  log "ERROR: the administrator cannot authenticate after wizard retries; the deployed password does not match the running server"
+  exit 1
+}
 
 if [ -n "${TOKEN:-}" ] && [ "${JELLYFIN_SSO_ENABLED}" = "true" ]; then
   ${CURL} -fsS -X POST "${API}/Repositories" -H "Content-Type: application/json" \
@@ -103,7 +106,10 @@ if [ "${PHASE}" != "configure" ]; then
 fi
 
 wait_up
-seed_admin_and_get_token || log "WARN: admin token unavailable; SSO configuration + branding will be skipped"
+seed_admin_and_get_token || {
+  log "ERROR: the administrator cannot authenticate after wizard retries; the deployed password does not match the running server"
+  exit 1
+}
 
 if [ "${JELLYFIN_LDAP_ENABLED}" = "true" ]; then
   write_config "LDAP-Auth.xml" <<XML

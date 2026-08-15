@@ -20,6 +20,9 @@
     css:
       enabled: true
       shared: true
+  mcp:
+    enabled: true
+    shared: true
 - services:
     matomo:
       enabled: false
@@ -35,3 +38,6 @@
     css:
       enabled: false
       shared: false
+  mcp:
+    enabled: false
+    shared: false

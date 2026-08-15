@@ -1,0 +1,19 @@
+---
+enabled: true
+shared: true
+classification: native_client
+direction: client
+source_url: https://docs.openwebui.com/features/extensibility/mcp/
+supported_version: 0.11.0
+minimum_version: 0.6.31
+implementation: native
+supported_transports:
+  - streamable_http
+  - sse
+supported_auths:
+  - bearer_token
+  - app_password
+  - upstream_session
+tools:
+  read_only_default: true
+  mutating_tools_enabled: false

@@ -1,0 +1,35 @@
+---
+# nocheck: info-media Self-written host-provisioning role that installs the gVisor runtime and registers it together with an already-present Kata shim in the container daemon; these are kernel-isolation runtimes, not consumer-facing upstream products.
+galaxy_info:
+  author: Kevin Veen-Birkenbach
+  description: Kernel-isolating container runtimes that sandbox untrusted workloads in a microVM or a userspace kernel
+  license: Infinito.Nexus Community License (Non-Commercial)
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  galaxy_tags:
+    - kata
+    - firecracker
+    - gvisor
+    - microvm
+    - isolation
+    - sandbox
+  issue_tracker_url: https://s.infinito.nexus/issues
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+dependencies: []

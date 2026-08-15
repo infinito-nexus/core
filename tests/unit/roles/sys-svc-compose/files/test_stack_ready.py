@@ -23,13 +23,16 @@ STUB = """#!/usr/bin/env bash
 case "$1 $2" in
 "stack services") printf '%s' "${STACK_SERVICES}" ;;
 "service ps") printf '%s' "${SERVICE_PS}" ;;
+"service inspect") printf '%s' "${SERVICE_INSPECT}" ;;
 esac
 exit 0
 """
 
 
 class TestStackReady(unittest.TestCase):
-    def _run(self, services: str, service_ps: str = "") -> subprocess.CompletedProcess:
+    def _run(
+        self, services: str, service_ps: str = "", service_inspect: str = ""
+    ) -> subprocess.CompletedProcess:
         with tempfile.TemporaryDirectory() as tmp:
             stub_bin = Path(tmp) / "bin"
             stub_bin.mkdir()
@@ -45,6 +48,7 @@ class TestStackReady(unittest.TestCase):
                 STACK="demo",
                 STACK_SERVICES=services,
                 SERVICE_PS=service_ps,
+                SERVICE_INSPECT=service_inspect,
                 PATH=f"{stub_bin}:{env['PATH']}",
                 BASH_ENV="",
             )
@@ -55,6 +59,33 @@ class TestStackReady(unittest.TestCase):
                 text=True,
                 check=False,
             )
+
+    def test_a_service_with_no_update_in_flight_converges(self) -> None:
+        proc = self._run("demo_web 3/3\n", service_inspect="demo_web none\n")
+        self.assertEqual(proc.returncode, 0)
+
+    def test_a_latched_update_gives_up_instead_of_polling(self) -> None:
+        for latched in ("paused", "rollback_paused"):
+            with self.subTest(state=latched):
+                proc = self._run(
+                    "demo_web 3/3\n",
+                    service_ps="demo_web.1 desired=Shutdown current=Failed error=oom\n",
+                    service_inspect=f"demo_web {latched}\n",
+                )
+                self.assertEqual(proc.returncode, 2)
+                self.assertIn(f"demo_web({latched})", proc.stderr)
+                self.assertIn("without another stack deploy", proc.stderr)
+
+    def test_a_rolled_back_update_fails_even_though_replicas_are_full(self) -> None:
+        """A revert leaves N/N of the PREVIOUS spec, so the replica check alone
+        would report this stack as converged."""
+        for reverted in ("rollback_started", "rollback_completed"):
+            with self.subTest(state=reverted):
+                proc = self._run(
+                    "demo_web 3/3\n", service_inspect=f"demo_web {reverted}\n"
+                )
+                self.assertEqual(proc.returncode, 2)
+                self.assertIn(f"demo_web({reverted})", proc.stderr)
 
     def test_a_fully_replicated_stack_converges(self) -> None:
         proc = self._run("demo_web 3/3\ndemo_db 1/1\n")

@@ -36,6 +36,7 @@ $CFG->dboptions = array(
 
 $CFG->wwwroot              = moodle_env('MOODLE_WWWROOT');
 $CFG->dataroot             = moodle_env('MOODLE_DATAROOT');
+$CFG->localcachedir        = moodle_env('MOODLE_LOCALCACHEDIR');
 $CFG->admin                = 'admin';
 $CFG->directorypermissions = 02770;
 

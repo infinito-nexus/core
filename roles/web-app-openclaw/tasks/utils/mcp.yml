@@ -1,0 +1,15 @@
+---
+- name: "📄 Render the OpenClaw gateway config from the current discovery"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "openclaw.json.j2"
+        dest: "{{ OPENCLAW_CONFIG_PATH_HOST }}"
+
+- name: "🔄 Start the stack so the gateway reads the config"
+  ansible.builtin.meta: flush_handlers
+
+- name: "🔌 Prove the configured MCP servers answer"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp_assert.yml"
+  when: OPENCLAW_MCP_SERVERS | length > 0

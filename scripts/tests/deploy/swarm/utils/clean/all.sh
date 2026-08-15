@@ -36,6 +36,16 @@ _select_names() {
 	docker ps -a --format '{{.Names}}' --filter "name=${_act_name}" 2>/dev/null
 }
 
+_names="$(_select_names | sort -u)"
+if [ -n "${_names}" ]; then
+	echo ">>> swarm-clean: quiesce nested engines and detach NFS before removal"
+	for _node in ${_names}; do
+		timeout 60 docker exec "${_node}" systemctl stop docker.socket docker >/dev/null 2>&1 || true
+	done
+	# shellcheck disable=SC2086
+	timeout 600 bash "$(dirname "$0")/../unmount/nfs_mounts.sh" ${_names} 2>&1 | sed 's/^/    /' || true
+fi
+
 echo ">>> swarm-clean: leftover containers"
 _ctrs="$(_select_ids | sort -u)"
 if [ -n "${_ctrs}" ]; then
@@ -61,6 +71,13 @@ if [ -n "${_nets}" ]; then
 fi
 docker network prune -f >/dev/null 2>&1 || true
 
+echo ">>> swarm-clean: leftover nfs-export volumes"
+_vols="$(docker volume ls --format '{{.Name}}' | grep -E '_nfs-export$' || true)"
+if [ -n "${_vols}" ]; then
+	# shellcheck disable=SC2086
+	docker volume rm ${_vols} 2>&1 | sed 's/^/    /' || true
+fi
+
 _left="$(_select_names | sort -u)"
 if [ -z "${_left}" ]; then
 	echo ">>> swarm-clean: done, no remnants"
@@ -73,10 +90,11 @@ if sudo -n true 2>/dev/null; then
 	echo ">>> clearing wedged kernel NFS on host (sudo)"
 	sudo umount -f -l "${INFINITO_DIR_VAR_LIB:?}" 2>/dev/null || true
 	sudo exportfs -ua 2>/dev/null || true
-	sudo systemctl restart docker
-	echo ">>> docker restarted; D-state remnants cleared"
+	sudo systemctl restart containerd docker
+	echo ">>> containerd and docker restarted; D-state remnants cleared"
 else
-	echo "!!! sudo unavailable here (sandbox). Clear on the host:"
-	echo "    sudo umount -f -l ${INFINITO_DIR_VAR_LIB}; sudo exportfs -ua; sudo systemctl restart docker"
+	echo "!!! sudo unavailable here (sandbox). Clear on the host (this kills every container):"
+	echo "    sudo umount -f -l ${INFINITO_DIR_VAR_LIB}; sudo exportfs -ua; sudo systemctl restart containerd docker"
+	echo "    Never run this while a deploy is in flight: it wipes every exec instance and the run dies."
 	exit 1
 fi

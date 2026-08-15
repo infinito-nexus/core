@@ -89,6 +89,16 @@
   listen:
     - compose build
 
+- name: "compose: pre-create external provider networks referenced by the stack"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/create.yml') }}"
+  vars:
+    network_role_id: "{{ external_network_role }}"
+  loop: "{{ lookup('compose_external_networks') }}"
+  loop_control:
+    loop_var: external_network_role
+  listen:
+    - compose up
+
 - name: compose up
   ansible.builtin.shell: |
     set -euo pipefail

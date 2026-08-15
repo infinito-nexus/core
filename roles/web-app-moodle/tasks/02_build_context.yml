@@ -36,17 +36,12 @@
     - { path: "{{ MOODLE_BUILD_FILES.fpm_pool }}", mode: "0644" }
     - { path: "{{ MOODLE_BUILD_FILES.install_source }}", mode: "0755" }
     - { path: "{{ MOODLE_BUILD_FILES.install_oidc }}", mode: "0755" }
+    - { path: "{{ MOODLE_BUILD_FILES.install_mcp }}", mode: "0755" }
   loop_control:
     label: "{{ item.path }}"
   notify:
     - compose build
     - compose up
-
-- name: "🔧 Ensure msmtp CA-bundle fact is set before rendering msmtprc"
-  ansible.builtin.include_role:
-    name: sys-svc-mail-msmtp
-    tasks_from: ca_bundle
-  when: sys_svc_mail_msmtp_ca_bundle is not defined
 
 - name: "📋 Copy msmtprc to {{ MOODLE_MSMTP_ABS }} (Mailu relay for mail() + healthcheck)"
   stack_host_template:

@@ -9,6 +9,7 @@ from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap
 
 from .role_resolver import resolve_role_path
+from .ruamel_io import dump_document, ensure_map, load_document
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -16,12 +17,6 @@ if TYPE_CHECKING:
 
 def _fatal(msg: str) -> None:
     raise SystemExit(f"[FATAL] {msg}")
-
-
-def _ensure_ruamel_map(node: CommentedMap, key: str) -> CommentedMap:
-    if key not in node or not isinstance(node.get(key), CommentedMap):
-        node[key] = CommentedMap()
-    return node[key]
 
 
 def _generate_credentials_snippet_for_app(
@@ -38,7 +33,6 @@ def _generate_credentials_snippet_for_app(
         return None
 
     cmd = [
-        # Use current interpreter so utils + deps match the runtime
         sys.executable,
         "-m",
         "cli.administration.inventory.credentials",
@@ -128,32 +122,17 @@ def generate_credentials_for_roles(
     if not snippets:
         return
 
-    yaml_rt = YAML(typ="rt")
-    yaml_rt.preserve_quotes = True
-
-    if host_vars_file.exists():
-        with host_vars_file.open("r", encoding="utf-8") as f:
-            doc = yaml_rt.load(f)
-        if doc is None:
-            doc = CommentedMap()
-    else:
-        doc = CommentedMap()
-
-    if not isinstance(doc, CommentedMap):
-        tmp = CommentedMap()
-        for k, v in dict(doc).items():
-            tmp[k] = v
-        doc = tmp
+    doc = load_document(host_vars_file)
 
     for snippet in snippets:
         apps_snip = snippet.get("applications", {}) or {}
         if isinstance(apps_snip, dict):
-            apps_doc = _ensure_ruamel_map(doc, "applications")
+            apps_doc = ensure_map(doc, "applications")
             for app_id, app_block_snip in apps_snip.items():
                 if not isinstance(app_block_snip, dict):
                     continue
-                app_doc = _ensure_ruamel_map(apps_doc, app_id)
-                creds_doc = _ensure_ruamel_map(app_doc, "credentials")
+                app_doc = ensure_map(apps_doc, app_id)
+                creds_doc = ensure_map(app_doc, "credentials")
 
                 creds_snip = app_block_snip.get("credentials", {}) or {}
                 if not isinstance(creds_snip, dict):
@@ -171,6 +150,4 @@ def generate_credentials_for_roles(
         ):
             doc["ansible_become_password"] = snippet["ansible_become_password"]
 
-    host_vars_file.parent.mkdir(parents=True, exist_ok=True)
-    with host_vars_file.open("w", encoding="utf-8") as f:
-        yaml_rt.dump(doc, f)
+    dump_document(host_vars_file, doc)

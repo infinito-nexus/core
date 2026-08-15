@@ -54,7 +54,11 @@ mariadb:
   mem_reservation: 512m
   mem_limit: 1.5g
   pids_limit: 512
+# nocheck: playwright-service-flag  self-provider
 nextcloud:
+  enabled: true
+  shared: true
+  bond: 1
   modes:
     compose:
       enabled: true
@@ -97,6 +101,10 @@ nextcloud:
   run_after:
     - web-app-keycloak
     - web-app-matomo
+    - web-app-gitlab
+    - web-app-mattermost
+    - web-app-openproject
+    - web-app-zammad
   lifecycle: beta
 proxy:
   name: nextcloud-proxy
@@ -112,6 +120,29 @@ proxy:
   mem_limit: 256m
   pids_limit: 512
   min_storage: 226MB
+  ports:
+    internal:
+      http: 80
+# nocheck: playwright-service-flag
+context_agent:
+  bond: 1
+  enabled: "{{ 'web-app-hermes' in group_names or 'web-app-openclaw' in group_names }}"
+  shared: "{{ 'web-app-hermes' in group_names or 'web-app-openclaw' in group_names }}"
+  name: nextcloud-context-agent
+  image: ghcr.io/nextcloud/context_agent
+  version: 2.7.0
+  backup:
+    no_stop_required: true
+  # nocheck: single-replica
+  replicas: 1
+  cpus: "1.0"
+  mem_reservation: 512m
+  mem_limit: 1g
+  pids_limit: 512
+  min_storage: 512MB
+  ports:
+    internal:
+      http: 23000
 cron:
   # nocheck: single-replica singleton cron.sh; replicas double-run background jobs on the shared data volume
   replicas: 1
@@ -256,11 +287,11 @@ openwebui:
   bond: 0.5
   enabled: "{{ 'web-app-openwebui' in group_names }}"
   shared: "{{ 'web-app-openwebui' in group_names }}"
-# nocheck: playwright-service-flag: bridged flowise partner, covered by partner role spec
-flowise:
+# nocheck: playwright-service-flag: bridged litellm gateway partner, covered by partner role spec
+litellm:
   bond: 0.5
-  enabled: "{{ 'web-app-flowise' in group_names }}"
-  shared: "{{ 'web-app-flowise' in group_names }}"
+  enabled: "{{ 'svc-ai-litellm' in group_names }}"
+  shared: "{{ 'svc-ai-litellm' in group_names }}"
 # nocheck: playwright-service-flag: bridged mastodon partner, covered by partner role spec
 mastodon:
   bond: 0.5

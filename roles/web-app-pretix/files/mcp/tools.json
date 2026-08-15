@@ -1,0 +1,58 @@
+{
+  "pretix_get_event": {
+    "description": "Return one event.",
+    "input_schema": {
+      "properties": {
+        "event": {
+          "type": "string"
+        },
+        "organizer": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "organizer",
+        "event"
+      ],
+      "type": "object"
+    },
+    "method": "GET",
+    "path": "/api/v1/organizers/{organizer}/events/{event}/"
+  },
+  "pretix_get_order_summary": {
+    "description": "Return the order summary of one event.",
+    "input_schema": {
+      "properties": {
+        "event": {
+          "type": "string"
+        },
+        "organizer": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "organizer",
+        "event"
+      ],
+      "type": "object"
+    },
+    "method": "GET",
+    "path": "/api/v1/organizers/{organizer}/events/{event}/orders/"
+  },
+  "pretix_list_events": {
+    "description": "List an organizer's events.",
+    "input_schema": {
+      "properties": {
+        "organizer": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "organizer"
+      ],
+      "type": "object"
+    },
+    "method": "GET",
+    "path": "/api/v1/organizers/{organizer}/events/"
+  }
+}

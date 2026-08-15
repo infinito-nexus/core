@@ -50,6 +50,8 @@ test("LDAP: Jenkins LDAP plugin authenticates against svc-db-openldap (variant 1
   await expect(page.locator("body")).toBeVisible({ timeout: 60_000 });
 });
 
+require("./test-mcp-guest");
+
 // Persona scenarios.
 // Bodies live in the shared helper roles/test-e2e-playwright/files/personas.js
 // so every role's persona flow stays consistent.

@@ -24,7 +24,11 @@ ldap:
   bond: 1
   enabled: "{{ 'svc-db-openldap' in group_names }}"
   shared: "{{ 'svc-db-openldap' in group_names }}"
+# nocheck: playwright-service-flag  self-provider
 jenkins:
+  enabled: true
+  shared: true
+  bond: 1
   healthcheck:
     flavor: curl
     path: login

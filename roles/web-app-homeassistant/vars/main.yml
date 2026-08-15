@@ -1,0 +1,17 @@
+---
+application_id: "web-app-homeassistant"
+domain: "{{ lookup('domain', application_id) }}"
+http_port: "{{ lookup('config', application_id, 'services.homeassistant.ports.local.http') }}"
+
+HOMEASSISTANT_CONTAINER: "{{ lookup('config', application_id, 'services.homeassistant.name') }}"
+HOMEASSISTANT_CONFIG_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'configuration.yaml' ] | path_join }}"
+HOMEASSISTANT_PORT_INTERNAL: "{{ lookup('config', application_id, 'services.homeassistant.ports.internal.http') }}"
+HOMEASSISTANT_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') }}"
+HOMEASSISTANT_ADMIN_USERNAME: "{{ lookup('users', 'administrator').username }}"
+HOMEASSISTANT_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.administrator_password') }}"
+HOMEASSISTANT_TOKEN_CLIENT_NAME: "infinito-mcp"
+HOMEASSISTANT_MCP_ACCOUNT: "{{ lookup('users', 'mcp-web-app-homeassistant') }}"
+HOMEASSISTANT_MCP_ACCOUNT_USERNAME: "{{ HOMEASSISTANT_MCP_ACCOUNT.username }}"
+HOMEASSISTANT_MCP_ACCOUNT_NAME: "Infinito MCP"
+HOMEASSISTANT_MCP_ACCOUNT_GROUP: "system-read-only"
+HOMEASSISTANT_MCP_ACCOUNT_PASSWORD: "{{ HOMEASSISTANT_MCP_ACCOUNT.password }}"

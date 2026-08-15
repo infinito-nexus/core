@@ -11,6 +11,7 @@ regressions surface with a precise failure rather than a snapshot diff.
 from __future__ import annotations
 
 import unittest
+from typing import ClassVar
 
 from utils.networks.render import (
     _coerce_bool,
@@ -64,6 +65,138 @@ class TestCoerceBool(unittest.TestCase):
         self.assertTrue(_coerce_bool([0]))
         self.assertFalse(_coerce_bool(0))
         self.assertFalse(_coerce_bool([]))
+
+
+class TestMcpClientConsumer(unittest.TestCase):
+    """Only a client the provider admitted joins its network."""
+
+    ADMITTED: ClassVar[dict] = {"mcp.allowed_consumers": ["svc-db-qdrant"]}
+
+    def _consumer(self, **flags):
+        entry = {
+            "role": "web-app-homeassistant",
+            "overlay": {"consumer": {"kind": "mcp_client"}},
+        }
+        return _is_consumer(
+            entry,
+            "svc-db-qdrant",
+            _const_lookup_config(**flags),
+            _const_lookup_database(),
+        )
+
+    def test_client_joins(self):
+        self.assertTrue(
+            self._consumer(
+                **{
+                    "mcp.enabled": True,
+                    "mcp.shared": True,
+                    "mcp.direction": "client",
+                    **self.ADMITTED,
+                }
+            )
+        )
+
+    def test_both_joins(self):
+        self.assertTrue(
+            self._consumer(
+                **{
+                    "mcp.enabled": True,
+                    "mcp.shared": True,
+                    "mcp.direction": "both",
+                    **self.ADMITTED,
+                }
+            )
+        )
+
+    def test_server_stays_out(self):
+        self.assertFalse(
+            self._consumer(
+                **{
+                    "mcp.enabled": True,
+                    "mcp.shared": True,
+                    "mcp.direction": "server",
+                }
+            ),
+            "a provider on another provider's network is the mesh this kind removes",
+        )
+
+    def test_disabled_stays_out(self):
+        self.assertFalse(self._consumer(**{"mcp.direction": "client"}))
+
+    def test_an_unadmitted_client_stays_out(self):
+        self.assertFalse(
+            self._consumer(
+                **{
+                    "mcp.enabled": True,
+                    "mcp.shared": True,
+                    "mcp.direction": "client",
+                    "mcp.allowed_consumers": ["web-app-openwebui"],
+                }
+            ),
+            "being a client is not an admission; allowed_consumers decides",
+        )
+
+    def test_a_provider_naming_nobody_admits_nobody(self):
+        self.assertFalse(
+            self._consumer(
+                **{
+                    "mcp.enabled": True,
+                    "mcp.shared": True,
+                    "mcp.direction": "client",
+                    "mcp.allowed_consumers": [],
+                }
+            )
+        )
+
+
+class TestConsumerKindList(unittest.TestCase):
+    """A provider serving two kinds of consumer declares both on one overlay.
+
+    Qdrant is the case: applications consume it as a vector database through the
+    services flags, and MCP clients must reach its adapter. One overlay per role
+    means a single `kind` cannot express both, and the second consumer silently
+    has no route.
+    """
+
+    ENTRY: ClassVar[dict] = {
+        "role": "svc-db-qdrant",
+        "entity_name": "qdrant",
+        "overlay": {
+            "consumer": {"kind": ["services_flags", "mcp_client"], "key": "qdrant"}
+        },
+    }
+
+    def _consumer(self, application_id, **flags):
+        return _is_consumer(
+            self.ENTRY,
+            application_id,
+            _const_lookup_config(**flags),
+            _const_lookup_database(),
+        )
+
+    def test_a_service_consumer_still_joins(self):
+        self.assertTrue(
+            self._consumer(
+                "web-app-openwebui",
+                **{"services.qdrant.enabled": True, "services.qdrant.shared": True},
+            )
+        )
+
+    def test_an_admitted_mcp_client_joins(self):
+        self.assertTrue(
+            self._consumer(
+                "web-app-hermes",
+                **{
+                    "mcp.enabled": True,
+                    "mcp.shared": True,
+                    "mcp.direction": "client",
+                    "mcp.allowed_consumers": ["web-app-hermes"],
+                },
+            )
+        )
+
+    def test_a_role_matching_neither_kind_stays_out(self):
+        self.assertFalse(self._consumer("web-app-unrelated"))
 
 
 class TestSuppressDefault(unittest.TestCase):
@@ -498,6 +631,61 @@ class TestRenderComposeNetworks(unittest.TestCase):
             lookup_database=_const_lookup_database(),
         )
         self.assertEqual(rendered, expected)
+
+    def test_own_network_only_drops_the_consumer_networks(self):
+        registry = {
+            "qdrant": {
+                "role": "svc-db-qdrant",
+                "entity_name": "qdrant",
+                "overlay": {"modes": ["compose"], "topology": "shared_net"},
+            },
+            "moodle": {
+                "role": "web-app-moodle",
+                "entity_name": "moodle",
+                "overlay": {"modes": ["compose"], "topology": "shared_net"},
+            },
+        }
+        lookup_config = _const_lookup_config(
+            **{"services.moodle.enabled": True, "services.moodle.shared": True}
+        )
+        full = render_container_networks(
+            application_id="svc-db-qdrant",
+            deployment_mode="compose",
+            registry=registry,
+            get_entity_name=_entity_name,
+            lookup_config=lookup_config,
+            lookup_database=_const_lookup_database(),
+        )
+        restricted = render_container_networks(
+            application_id="svc-db-qdrant",
+            deployment_mode="compose",
+            registry=registry,
+            get_entity_name=_entity_name,
+            lookup_config=lookup_config,
+            lookup_database=_const_lookup_database(),
+            own_network_only=True,
+            provider_self_alias=False,
+        )
+        self.assertIn("moodle:", full)
+        self.assertIn("qdrant:", restricted)
+        self.assertNotIn("moodle:", restricted)
+        self.assertNotIn("aliases:", restricted)
+
+    def test_own_network_only_emits_nothing_without_an_attachment(self):
+        rendered = render_container_networks(
+            application_id="web-app-prometheus",
+            deployment_mode="compose",
+            registry={},
+            get_entity_name=_entity_name,
+            lookup_config=_const_lookup_config(),
+            lookup_database=_const_lookup_database(),
+            own_network_only=True,
+        )
+        self.assertEqual(
+            rendered,
+            "",
+            "a bare 'networks:' key is not a list and compose refuses the file",
+        )
 
     def test_node_local_swarm_renders_bridge(self):
         rendered = render_compose_networks(

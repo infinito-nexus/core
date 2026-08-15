@@ -51,3 +51,15 @@
   run_once: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   become: true
+
+- name: "🪞 Mirror the store onto the controller, where every users lookup reads"
+  ansible.builtin.copy:
+    dest: "{{ FILE_TOKENS }}"
+    mode: "{{ SYS_TOKEN_STORE_FILE_MODE }}"
+    content: "{{ {'users': sys_token_store_users_merged} | to_nice_yaml(indent=2, width=9999) }}"
+  when:
+    - sys_token_store_users_merged != sys_token_store_users
+    - DEPLOYMENT_MODE == 'swarm'
+  delegate_to: localhost
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

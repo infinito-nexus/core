@@ -11,6 +11,17 @@ data:
       target: /var/www/moodledata
     - service: cron
       target: /var/www/moodledata
+localcache:
+  type: volume
+  name: moodle_localcache
+  # nocheck: nfs-false-data-loss  Reason: Moodle documents localcachedir as node-local and safe to delete, unlike cachedir and tempdir which stay on the shared dataroot
+  nfs: false
+  mounts:
+    - service: moodle
+      target: &moodle_localcache /var/www/moodlelocalcache
+    - service: cron
+      target: *moodle_localcache
+
 code:
   type: volume
   name: moodle_code

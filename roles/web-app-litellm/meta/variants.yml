@@ -1,0 +1,19 @@
+---
+# Matrix-deploy variant overrides for this role. See
+# docs/contributing/artefact/files/role/variants.md for the file format.
+
+- services:
+    dashboard:
+      enabled: true
+      shared: true
+    prometheus:
+      enabled: true
+      shared: true
+
+- services:
+    dashboard:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    prometheus:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true

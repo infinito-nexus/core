@@ -35,7 +35,7 @@ openwebui:
   backup:
     no_stop_required: true
   image: ghcr.io/open-webui/open-webui
-  version: main
+  version: 0.11.0
   name: open-webui
   min_storage: 2026MB
   offline_mode: false
@@ -53,6 +53,8 @@ openwebui:
   proxy:
     service_key: openwebui
   run_after:
+    - web-app-baserow
+    - web-app-homeassistant
     - web-app-keycloak
     - web-app-matomo
   lifecycle: beta
@@ -81,10 +83,11 @@ javascript:
   enabled: false # nocheck: dynamic-flag
   shared: true
 # nocheck: playwright-service-flag — AI backend, infrastructural
-ollama:
+litellm:
   bond: 1
-  enabled: "{{ 'svc-ai-ollama' in group_names }}"
-  shared: "{{ 'svc-ai-ollama' in group_names }}"
+  enabled: "{{ 'svc-ai-litellm' in group_names }}"
+  shared: "{{ 'svc-ai-litellm' in group_names }}"
+
 email:
   bond: 1
   enabled: "{{ 'web-app-mailu' in group_names }}"
@@ -99,3 +102,15 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+# nocheck: playwright-service-flag
+homeassistant:
+  bond: 1
+  enabled: "{{ 'web-app-homeassistant' in group_names }}"
+  shared: "{{ 'web-app-homeassistant' in group_names }}"
+
+# nocheck: playwright-service-flag
+baserow:
+  bond: 1
+  enabled: "{{ 'web-app-baserow' in group_names }}"
+  shared: "{{ 'web-app-baserow' in group_names }}"

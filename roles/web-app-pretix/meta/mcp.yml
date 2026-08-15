@@ -1,0 +1,45 @@
+---
+enabled: false
+shared: false
+classification: adapter_server
+direction: server
+source_url: https://s.infinito.nexus/code
+supported_version: 1.0.0
+transport: streamable_http
+exposure: internal
+auth: bearer_token
+auth_subject: service_account
+implementation: adapter
+credential:
+  owner: mcp-web-app-pretix
+  source: credentials
+  key: mcp_bearer
+allowed_consumers:
+  - web-app-openwebui
+  - web-app-hermes
+  - web-app-openclaw
+endpoint:
+  service_key: pretixmcp
+  path: /mcp
+  port_key: http
+adapter:
+  type: openapi_allowlist
+  upstream_api_version: v1
+  specification_path: roles/web-app-pretix/files/mcp/tools.json
+  specification_sha256: sha256:7d4044f034d4ee5aa9b427a25dd028ca8eb922d8776ae9ac571512e40abf90f9
+limits:
+  request_bytes: 65536
+  response_bytes: 1048576
+  timeout_seconds: 15
+  concurrent_requests: 4
+  page_size: 100
+  result_items: 100
+  stream_seconds: 300
+tools:
+  allowlist:
+    - pretix_get_event
+    - pretix_get_order_summary
+    - pretix_list_events
+  schema_sha256: sha256:0019dd8228113173b98d5069b183d7206bbcb999b8ac62c19f6a1e6dcaef7b14
+  read_only_default: true
+  mutating_tools_enabled: false

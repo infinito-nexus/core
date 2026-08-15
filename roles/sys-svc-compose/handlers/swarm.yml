@@ -171,7 +171,8 @@
   retries: "{{ swarm_stack_converge_retries | default(150) }}"
   delay: 2
   changed_when: false
-  until: _swarm_stack_ready_handler is succeeded
+  until: _swarm_stack_ready_handler.rc in [0, 2]
+  failed_when: _swarm_stack_ready_handler.rc != 0
   listen:
     - compose up
     - swarm deploy

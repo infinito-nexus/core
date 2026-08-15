@@ -26,4 +26,7 @@
 {% if DEPLOYMENT_MODE == 'compose' %}
 {{ include_resource_for('memcached') }}
 {% endif %}
+{% set service_name = 'memcached' %}
+{% set service_replicas_forced = 1 %}
+{% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
 {{ "\n" }}

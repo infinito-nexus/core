@@ -141,7 +141,6 @@ def _variant_override_line_indices(variants_file):
         if not value_part or value_part.startswith("#"):
             continue
 
-        # Only register leaves under services.<...>
         path_keys = [k for _, k in stack]
         if not path_keys or path_keys[0] != "services":
             continue

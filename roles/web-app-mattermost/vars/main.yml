@@ -4,14 +4,35 @@ entity_name: "{{ application_id | get_entity_name }}"
 
 container_port: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') }}"
 
+MATTERMOST_DATABASE_DSN: "{{ lookup('database', application_id, 'url_full') }}?sslmode=disable&connect_timeout=10"
+
 MATTERMOST_CONTAINER: "{{ lookup('config', application_id, 'services.mattermost.name') }}"
 MATTERMOST_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 
-# Exception: OIDC piggybacks on MM_GITLABSETTINGS_* -- Team Edition has no native OIDC provider for Keycloak
 MATTERMOST_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+
+MATTERMOST_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') }}"
+MATTERMOST_MCP_PLUGIN_ID: mattermost-ai
+MATTERMOST_MCP_TOKEN_DESCRIPTION: mcp
 
 MATTERMOST_KEYCLOAK_CONTAINER_ADDRESS: "{{ lookup('container_address', 'web-app-keycloak', 'keycloak') }}"
 MATTERMOST_KEYCLOAK_ADMIN_USER: "{{ lookup('config', 'web-app-keycloak', 'services.keycloak.accounts.system.username') }}"
 MATTERMOST_KEYCLOAK_ADMIN_PASS: "{{ lookup('users', 'administrator').password }}"
 
 MATTERMOST_LDAP_CONTAINER_ADDRESS: "{{ lookup('container_address', 'svc-db-openldap', 'openldap') }}"
+
+MATTERMOST_MCP_CONTAINER: "{{ lookup('config', application_id, 'services.mattermostmcp.name') }}"
+MATTERMOST_MCP_PORT: "{{ lookup('config', application_id, 'services.mattermostmcp.ports.internal.http') }}"
+MATTERMOST_MCP_INSTANCE_DIR: "{{ [lookup('container', application_id, 'directories.instance'), 'mcp'] | path_join }}"
+MATTERMOST_MCP_UPSTREAM_PATH: "/plugins/{{ MATTERMOST_MCP_PLUGIN_ID }}/mcp-server/mcp"
+MATTERMOST_MCP_UPSTREAM_URL: "http://{{ MATTERMOST_CONTAINER }}:{{ container_port }}{{ MATTERMOST_MCP_UPSTREAM_PATH }}"
+MATTERMOST_MCP_BEARER: "{{ lookup('config', application_id, 'credentials.mcp_bearer') }}"
+MATTERMOST_MCP_CONTRACT:
+  upstream_kind: mcp
+  provider: "{{ application_id }}"
+  upstream_url: "{{ MATTERMOST_MCP_UPSTREAM_URL }}"
+  auth_subject: "{{ lookup('config', application_id, 'mcp.auth_subject') }}"
+  mutating_tools_enabled: "{{ lookup('config', application_id, 'mcp.tools.mutating_tools_enabled') | bool }}"
+  tools: "{{ lookup('file', 'mcp/tools.json') | from_json }}"
+  limits: "{{ lookup('config', application_id, 'mcp.limits') }}"
+  schema_sha256: "{{ lookup('config', application_id, 'mcp.tools.schema_sha256') }}"

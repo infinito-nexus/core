@@ -1,0 +1,49 @@
+---
+- name: "🧱 Rebuild the MCP adapter of {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/rebuild.yml') }}"
+
+- name: "🚿 Flush compose handlers for {{ application_id }}"
+  ansible.builtin.meta: flush_handlers
+
+- name: "🔑 Converge the read-only Listmonk API identity the MCP adapter presents"
+  ansible.builtin.shell: >-
+    {{ LISTMONK_EXEC_DATABASE }}
+    -v role_name={{ LISTMONK_MCP_UPSTREAM_ROLE | quote }}
+    -v username={{ LISTMONK_MCP_UPSTREAM_USER | quote }}
+    -v token_hash={{ LISTMONK_MCP_UPSTREAM_KEY | hash('sha256') | quote }}
+    -v ON_ERROR_STOP=1
+    -f -
+  args:
+    stdin: "{{ lookup('file', 'sql/mcp_identity.sql') }}"
+  register: listmonk_mcp_identity
+  changed_when: "'INSERT 0 1' in listmonk_mcp_identity.stdout"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "listmonk"
+    resolve_output_prefix: LISTMONK_IDENTITY
+    resolve_compose_cid: "{{ LISTMONK_NAME }}"
+
+- name: "🔄 Restart Listmonk so it reloads its API user cache"
+  ansible.builtin.command:
+    argv:
+      - container
+      - restart
+      - "{{ LISTMONK_IDENTITY_LOCAL_CID }}" # nocheck: container-exec-resolver
+  changed_when: true
+  when: listmonk_mcp_identity.changed
+  delegate_to: "{{ LISTMONK_IDENTITY_HOST_NODE }}"
+  run_once: true
+
+- name: "🩺 Prove the MCP contract of {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
+  vars:
+    mcp_probe_bearer: "{{ LISTMONK_MCP_BEARER }}"
+    mcp_probe_path_key: ""
+    mcp_probe_read_tool: "listmonk_get_stats"
+    mcp_probe_read_args: {}
+    mcp_probe_host: ""
