@@ -12,7 +12,7 @@ elasticsearch:
   bond: 1
   image: elasticsearch
   name: elasticsearch
-  version: "9.4.4"
+  version: "9.5.1"
   min_storage: 1066MB
   backup:
     database_routine: true

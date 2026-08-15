@@ -59,7 +59,7 @@ erpnext:
   enabled: true
   shared: true
   image: frappe/erpnext
-  version: "v16.31.1"
+  version: "v16.32.1"
   name: erpnext
   min_storage: 1017MB
   ports:

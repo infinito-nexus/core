@@ -72,7 +72,7 @@ gitlab:
   lifecycle: beta
 webservice:
   image: registry.gitlab.com/gitlab-org/build/cng/gitlab-webservice-ce
-  version: v19.2.1
+  version: v19.2.2
   name: gitlab-webservice
   ports:
     internal:
@@ -87,7 +87,7 @@ sidekiq:
     path: liveness
     start_period: 300s
   image: registry.gitlab.com/gitlab-org/build/cng/gitlab-sidekiq-ce
-  version: v19.2.1
+  version: v19.2.2
   name: gitlab-sidekiq
   cpus: "1.0"
   mem_reservation: 2g
@@ -98,7 +98,7 @@ sidekiq:
       http: 3808
 workhorse:
   image: registry.gitlab.com/gitlab-org/build/cng/gitlab-workhorse-ce
-  version: v19.2.1
+  version: v19.2.2
   name: gitlab-workhorse
   cpus: "0.5"
   mem_reservation: 256m
@@ -108,7 +108,7 @@ gitaly:
   # nocheck: single-replica
   replicas: 1
   image: registry.gitlab.com/gitlab-org/build/cng/gitaly
-  version: v19.2.1
+  version: v19.2.2
   name: gitlab-gitaly
   ports:
     internal:
@@ -119,7 +119,7 @@ gitaly:
   pids_limit: 1024
 shell:
   image: registry.gitlab.com/gitlab-org/build/cng/gitlab-shell
-  version: v19.2.1
+  version: v19.2.2
   name: gitlab-shell
   ports:
     internal:
@@ -132,7 +132,7 @@ migrations:
   # nocheck: single-replica
   replicas: 1
   image: registry.gitlab.com/gitlab-org/build/cng/gitlab-rails-ce
-  version: v19.2.1
+  version: v19.2.2
   name: gitlab-migrations
   cpus: "1.0"
   mem_reservation: 1g
