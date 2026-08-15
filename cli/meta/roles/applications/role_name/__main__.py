@@ -18,6 +18,12 @@ from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
 
+EXIT_NO_SUCH_APPLICATION_ROLE = 3
+
+
+class RoleNotFoundError(RuntimeError):
+    """No role under `roles_path` declares this application_id."""
+
 
 def get_role(application_id, roles_path):
     """
@@ -43,7 +49,7 @@ def get_role(application_id, roles_path):
             if data.get("application_id") == application_id:
                 return role
 
-    raise RuntimeError(
+    raise RoleNotFoundError(
         f"No role found with application_id '{application_id}' in {roles_path}"
     )
 
@@ -69,6 +75,9 @@ def main():
         folder = get_role(args.application_id, args.roles_path)
         print(folder)
         sys.exit(0)
+    except RoleNotFoundError as err:
+        print(f"Error: {err}", file=sys.stderr)
+        sys.exit(EXIT_NO_SUCH_APPLICATION_ROLE)
     except RuntimeError as err:
         print(f"Error: {err}", file=sys.stderr)
         sys.exit(1)
