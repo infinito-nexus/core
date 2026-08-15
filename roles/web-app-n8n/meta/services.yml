@@ -48,7 +48,7 @@ n8n:
   bond: 1
   healthcheck:
     flavor: wget
-    path: healthz
+    path: healthz/readiness
     start_period: 5m
   modes:
     compose:
