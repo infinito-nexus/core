@@ -1,5 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { skipUnlessServiceEnabled } = require("./service-gating");
+const { performKeycloakLoginForm } = require("./personas");
 
 const LDAP_MEMBER_ATTRIBUTE = "member";
 
@@ -33,47 +34,52 @@ async function servedToolIds(page, shared) {
 async function signInToLam(page, shared) {
   await page.goto(`${shared.env.lamBaseUrl.replace(/\/+$/, "")}/`);
 
-  const usernameField = page
-    .locator("input[name='username'], input#username, input[name='user']")
-    .first();
+  if (/\/protocol\/openid-connect\//.test(page.url())) {
+    await performKeycloakLoginForm(
+      page,
+      shared.env.adminUsername,
+      shared.env.adminPassword
+    );
+  }
+
   await expect(
-    usernameField,
-    "LAM's LDAP bind form must expose a user field"
-  ).toBeVisible({ timeout: 60_000 });
+    page,
+    "LAM must be reached after the SSO hop, not left on the identity provider"
+  ).not.toHaveURL(/\/protocol\/openid-connect\//, { timeout: 60_000 });
 
   const passwordField = page
     .locator("input[type='password'], input[name='passwd'], input#passwd")
     .first();
   await expect(
     passwordField,
-    "LAM's LDAP bind form must expose a password field"
-  ).toBeVisible({ timeout: 30_000 });
+    "LAM must present its own login form after the SSO hop; the proxy does not bind to LDAP for us"
+  ).toBeVisible({ timeout: 60_000 });
 
-  await usernameField.fill(shared.env.ldapBindDn);
+  const userSelect = page.getByRole("combobox", { name: /user ?name/i }).first();
+  if (await userSelect.isVisible().catch(() => false)) {
+    const bindRdnValue = shared.env.ldapBindDn.split(",")[0].split("=").slice(1).join("=");
+    await userSelect.selectOption({ label: bindRdnValue });
+  }
+
   await passwordField.fill(shared.env.ldapBindPassword);
-  await page
-    .locator("button[type='submit'], input[type='submit']")
-    .first()
-    .click();
+  await page.getByRole("button", { name: /login|anmelden/i }).first().click();
 
   await expect(
-    page.locator("body"),
-    "LAM must leave its login form after a successful bind"
-  ).not.toContainText(/login\s*failed|wrong\s*password|invalid\s*credentials/i, {
-    timeout: 60_000,
-  });
+    passwordField,
+    "LAM must accept the bind credential instead of returning its login form"
+  ).toBeHidden({ timeout: 60_000 });
 }
 
 async function addMemberViaLamTree(page, shared, groupCn, username) {
   const base = shared.env.lamBaseUrl.replace(/\/+$/, "");
-  await page.goto(`${base}/templates/tree/treeView.php`);
+  const groupDn = `cn=${groupCn},${shared.env.ldapRoleDnBase}`;
+  const dnParam = encodeURIComponent(Buffer.from(groupDn, "utf8").toString("base64"));
+  await page.goto(`${base}/lam/templates/tools/treeView.php?dn=${dnParam}`);
 
-  const groupNode = page.getByRole("link", { name: new RegExp(`cn=${groupCn}\\b`) }).first();
   await expect(
-    groupNode,
-    `LAM's directory tree must show the ${groupCn} role group`
+    page.getByText(new RegExp(`cn=${groupCn}\\b`)).first(),
+    `LAM must open the ${groupCn} role group; an empty tree here means the LDAP bind did not take`
   ).toBeVisible({ timeout: 60_000 });
-  await groupNode.click();
 
   const addValue = page
     .getByRole("link", { name: new RegExp(`add\\s+value|${LDAP_MEMBER_ATTRIBUTE}`, "i") })
@@ -91,18 +97,17 @@ async function addMemberViaLamTree(page, shared, groupCn, username) {
     memberField,
     `LAM must expose an input for the new ${LDAP_MEMBER_ATTRIBUTE} value`
   ).toBeVisible({ timeout: 30_000 });
-  await memberField.fill(`cn=${username},${shared.env.ldapUserDnBase}`);
+  await memberField.fill(`uid=${username},${shared.env.ldapUserDnBase}`);
 
   await page
-    .locator("button[type='submit'], input[type='submit']")
-    .filter({ hasText: /save|update|change/i })
+    .getByRole("button", { name: /save|update|change/i })
     .first()
     .click();
 
   await expect(
-    page.locator("body"),
-    "LAM must confirm the directory write rather than report an error"
-  ).not.toContainText(/error|failed|denied/i, { timeout: 60_000 });
+    page.getByText(new RegExp(`uid=${username}\\b`)).first(),
+    `LAM must show ${username} among the ${LDAP_MEMBER_ATTRIBUTE} values after saving`
+  ).toBeVisible({ timeout: 60_000 });
 }
 
 exports.register = function (shared) {

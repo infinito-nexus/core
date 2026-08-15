@@ -21,6 +21,7 @@ const env = {
   ldapBindDn: decodeDotenvQuotedValue(process.env.LDAP_BIND_DN),
   ldapBindPassword: decodeDotenvQuotedValue(process.env.LDAP_BIND_PASSWORD),
   ldapUserDnBase: decodeDotenvQuotedValue(process.env.LDAP_USER_DN_BASE),
+  ldapRoleDnBase: decodeDotenvQuotedValue(process.env.LDAP_ROLE_DN_BASE),
 };
 
 function attachDiagnostics(page) {
