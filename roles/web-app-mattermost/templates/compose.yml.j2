@@ -7,6 +7,7 @@
     {{ lookup('compose_only', 'container_name', MATTERMOST_CONTAINER) }}
     {{ lookup('container_ports', ['mattermost', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    command: ["/mattermost/bin/mattermost", "server"]
     healthcheck:
       test: ["CMD", "/mattermost/bin/mmctl", "--local", "system", "status"]
       interval: 1m
