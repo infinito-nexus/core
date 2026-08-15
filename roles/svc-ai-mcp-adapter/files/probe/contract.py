@@ -233,10 +233,26 @@ def refused(status, body):
 
 
 def assert_refused(label, authorization, url=None):
-    status, body = rpc("tools/list", authorization=authorization, url=url)
+    """Prove one credential is refused, retrying while the endpoint is unserved.
+
+    Args:
+        label: which credential is being presented, for the failure message.
+        authorization: the header value to present, or None.
+        url: endpoint to probe, defaulting to the module's URL.
+    """
+    session_before = SESSION["id"]
+    try:
+        status, body = rpc(
+            "initialize",
+            {"protocolVersion": PROTOCOL_VERSION, "capabilities": {}},
+            authorization=authorization,
+            url=url,
+        )
+    finally:
+        SESSION["id"] = session_before
     if status == 0:
         unreachable(f"{label} probe could not reach {url or URL}: {body}")
-    if not speaks_json_rpc(body):
+    if not 400 <= status < 500 and not speaks_json_rpc(body):
         unreachable(
             f"{label} probe answered {status} with no JSON-RPC body: {body[:200]}"
         )

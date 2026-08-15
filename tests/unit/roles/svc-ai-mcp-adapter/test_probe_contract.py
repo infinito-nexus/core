@@ -85,6 +85,94 @@ class TestProbeContract(unittest.TestCase):
         with patch.object(module, "rpc", rpc), self.assertRaises(SystemExit):
             module.main()
 
+    def test_a_bare_401_without_a_json_rpc_body_still_counts_as_refused(self):
+        module = load()
+        conforming = ok()
+
+        def rpc(method, params=None, authorization=None, url=None, notification=False):
+            if authorization != "Bearer real":
+                return 401, "401: Unauthorized"
+            return conforming(method, params, authorization)
+
+        with patch.object(module, "rpc", rpc):
+            module.main()
+
+    def test_a_404_html_page_counts_as_refused(self):
+        module = load()
+        conforming = ok()
+
+        def rpc(method, params=None, authorization=None, url=None, notification=False):
+            if authorization != "Bearer real":
+                return 404, "<!DOCTYPE html><html><body>Not Found</body></html>"
+            return conforming(method, params, authorization)
+
+        with patch.object(module, "rpc", rpc):
+            module.main()
+
+    def test_an_endpoint_that_hands_out_a_session_without_a_credential_fails(self):
+        module = load()
+        conforming = ok()
+        stderr = io.StringIO()
+
+        def rpc(method, params=None, authorization=None, url=None, notification=False):
+            if authorization is None and method == "initialize":
+                return 200, json.dumps(
+                    {"result": {"protocolVersion": "2025-06-18", "capabilities": {}}}
+                )
+            return conforming(method, params, authorization)
+
+        with (
+            patch.object(module, "rpc", rpc),
+            contextlib.redirect_stderr(stderr),
+            self.assertRaises(SystemExit),
+        ):
+            module.main()
+        self.assertIn("REJECTED", stderr.getvalue())
+
+    def test_a_502_without_a_json_rpc_body_keeps_the_caller_retrying(self):
+        module = load()
+        stderr = io.StringIO()
+
+        def rpc(method, params=None, authorization=None, url=None, notification=False):
+            return 502, "<html><body>Bad Gateway</body></html>"
+
+        with (
+            patch.object(module, "rpc", rpc),
+            contextlib.redirect_stderr(stderr),
+            self.assertRaises(SystemExit),
+        ):
+            module.main()
+        self.assertNotIn("REJECTED", stderr.getvalue())
+
+    def test_the_unauthenticated_handshake_does_not_leak_its_session(self):
+        module = load()
+        conforming = ok()
+        module.SESSION["id"] = "authenticated-session"
+
+        def rpc(method, params=None, authorization=None, url=None, notification=False):
+            if authorization != "Bearer real":
+                module.SESSION["id"] = "anonymous-session"
+                return 401, "401: Unauthorized"
+            return conforming(method, params, authorization)
+
+        with patch.object(module, "rpc", rpc):
+            module.main()
+        self.assertEqual(module.SESSION["id"], "authenticated-session")
+
+    def test_a_200_without_a_json_rpc_body_keeps_the_caller_retrying(self):
+        module = load()
+
+        def rpc(method, params=None, authorization=None, url=None, notification=False):
+            return 200, "<br />Fatal error: uncaught Error"
+
+        with (
+            patch.object(module, "rpc", rpc),
+            contextlib.redirect_stderr(io.StringIO()) as stderr,
+            self.assertRaises(SystemExit),
+        ):
+            module.main()
+        self.assertNotIn("REJECTED", stderr.getvalue())
+
     def test_an_extra_upstream_tool_fails_closed(self):
         module = load()
         stderr = io.StringIO()
