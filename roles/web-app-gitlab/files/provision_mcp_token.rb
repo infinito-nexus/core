@@ -8,15 +8,22 @@ lifetime_days = Integer(ENV.fetch('GITLAB_MCP_TOKEN_LIFETIME_DAYS'))
 user = User.find_by_username(username)
 
 if user.nil?
-  user = User.new(
+  organization = Organizations::Organization.default_organization
+  abort("NO_DEFAULT_ORGANIZATION: cannot place the personal namespace of #{username}") if organization.nil?
+
+  result = Users::CreateService.new(
+    nil,
     username: username,
     name: display_name,
     email: email,
     password: password,
-    password_confirmation: password
-  )
-  user.skip_confirmation!
-  user.save!
+    password_confirmation: password,
+    skip_confirmation: true,
+    organization_id: organization.id
+  ).execute
+  abort("OWNER_CREATE_FAILED #{username}: #{result.message}") unless result.success?
+  user = User.find_by_username(username)
+  abort("OWNER_MISSING_AFTER_CREATE #{username}") if user.nil?
 end
 
 abort("OWNER_IS_ADMIN #{username}") if user.admin?
