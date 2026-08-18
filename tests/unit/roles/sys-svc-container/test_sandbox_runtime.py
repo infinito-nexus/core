@@ -39,6 +39,7 @@ BASE = {
     "group_names": ["svc-virt-kata"],
     "ansible_facts": {"os_family": "Debian"},
     "SYS_SVC_CONTAINER_DOCKER_FIREWALL_BACKEND_BY_OS_FAMILY": {"Debian": "iptables"},
+    "NETWORK_DOCKER_ADDRESS_POOLS": [{"base": "10.208.0.0/12", "size": 24}],
     "SYS_DOCKER_DAEMONM_MTU": 1400,
     "sys_svc_container_kvm": _shim(False),
     "sys_svc_container_kata_shim": _shim(False),

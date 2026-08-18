@@ -18,6 +18,7 @@
 {% endif %}
   "dns-search": ["{{ DOMAIN_PRIMARY }}"],
   "dns-opts": ["ndots:0"],
+  "default-address-pools": {{ NETWORK_DOCKER_ADDRESS_POOLS | tojson }},
   "log-driver": "json-file",
   "log-opts": {"max-size": "10m", "max-file": "2"}
 {% if DOCKER_IN_CONTAINER | bool %},
