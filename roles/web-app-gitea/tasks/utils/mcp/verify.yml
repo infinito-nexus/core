@@ -8,7 +8,7 @@
         -H 'Accept: application/json, text/event-stream' \
         -H {{ ('Authorization: Bearer ' ~ gitea_mcp_token) | quote }} \
         --data-binary {{ GITEA_MCP_INITIALIZE_PAYLOAD | to_json | quote }} \
-        {{ GITEA_MCP_URL | quote }}
+        {{ GITEA_MCP_SIDECAR_URL | quote }}
   register: gitea_mcp_endpoint_probe
   changed_when: false
   retries: 30

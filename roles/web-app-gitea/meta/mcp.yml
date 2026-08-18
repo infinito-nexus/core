@@ -1,7 +1,7 @@
 ---
 enabled: true
 shared: true
-classification: sidecar_server
+classification: adapter_server
 direction: server
 source_url: https://pkg.go.dev/gitea.com/gitea/gitea-mcp
 minimum_version: "1.24"
@@ -9,20 +9,33 @@ transport: streamable_http
 exposure: internal
 auth: bearer_token
 auth_subject: service_account
-implementation: sidecar
+implementation: adapter
 credential:
   owner: mcp-web-app-gitea
-  source: token_store
-  key: web-app-gitea
+  source: credentials
+  key: mcp_bearer
 allowed_consumers:
   - web-app-openwebui
   - web-app-hermes
   - web-app-openclaw
+adapter:
+  type: mcp_passthrough
+  specification_path: roles/web-app-gitea/files/mcp/tools.json
+  specification_sha256: sha256:d3c8199138ab47974c570ac0045925803eb31f54a2b2934f9339f0920c762ff5
 endpoint:
   service_key: giteamcp
   path: /mcp
   port_key: http
+limits:
+  request_bytes: 65536
+  response_bytes: 1048576
+  timeout_seconds: 15
+  concurrent_requests: 4
+  page_size: 100
+  result_items: 100
+  stream_seconds: 300
 tools:
+  schema_sha256: sha256:8180dd0dba6bc10b986f3500fd3da3f2b2e6b8d5c92408f0089b5b3e1667c876
   allowlist:
     - attachment_read
     - get_commit
