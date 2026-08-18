@@ -161,6 +161,15 @@ compose-app-logs:
 	@test -n '$(app)' || { echo 'usage: make compose-app-logs app=<container> [tail=<lines>]'; exit 2; }
 	@app='$(app)' tail='$(tail)' bash scripts/tests/deploy/local/exec/logs.sh
 
+.PHONY: compose-app-restart
+# Restart a single deployed app container of the local compose stack.
+# Usage: make compose-app-restart app=<container>
+# Example: make compose-app-restart app=nextcloud
+# Param app: container name of the deployed app.
+compose-app-restart:
+	@test -n '$(app)' || { echo 'usage: make compose-app-restart app=<container>'; exit 2; }
+	@app='$(app)' bash scripts/tests/deploy/local/exec/restart.sh
+
 .PHONY: compose-deploy
 # Run the local deploy router.
 # Usage: make compose-deploy [mode=...] [apps=...] [purge=...] [type=...] [bundles=...] [disable=...] [full_cycle=...] [variant=...] [debug=...]
