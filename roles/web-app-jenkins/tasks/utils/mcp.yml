@@ -43,13 +43,25 @@
       Jenkins rejected the API token stored for {{ application_id }}, so every MCP
       client would be configured with a credential the controller answers 401 to.
 
-- name: "🩺 Verify the MCP endpoint answers that credential"
+- name: "🩺 Verify the upstream plugin answers that credential"
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/verify.yml"
+
+- name: "🔑 Hand the controller's API token to the adapter"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/upstream_key.yml') }}"
+  vars:
+    mcp_upstream_key_path: "{{ [JENKINS_MCP_INSTANCE_DIR, 'upstream.env'] | path_join }}"
+    mcp_upstream_key: "{{ (JENKINS_MCP_USERNAME ~ ':' ~ jenkins_mcp_token) | b64encode }}"
+
+- name: "🧱 Rebuild the MCP adapter of {{ application_id }} now the bearer exists"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/rebuild.yml') }}"
+
+- name: "🚿 Flush compose handlers for {{ application_id }}"
+  ansible.builtin.meta: flush_handlers
 
 - name: "🩺 Prove the MCP contract of {{ application_id }}"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
   vars:
-    mcp_probe_bearer: "{{ lookup('mcp_credential', application_id) }}"
+    mcp_probe_bearer: "{{ JENKINS_MCP_BEARER }}"
     mcp_probe_path_key: ""
     mcp_probe_read_tool: "whoAmI"
     mcp_probe_read_args: {}

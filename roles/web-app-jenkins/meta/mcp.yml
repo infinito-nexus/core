@@ -1,28 +1,57 @@
 ---
 enabled: true
 shared: true
-classification: plugin_server
+classification: adapter_server
 direction: server
 source_url: https://plugins.jenkins.io/mcp-server/
 minimum_version: "2.462"
 transport: streamable_http
 exposure: internal
-auth: basic_auth
+auth: bearer_token
 auth_subject: service_account
-implementation: plugin
+implementation: adapter
 credential:
   owner: mcp-web-app-jenkins
-  source: token_store
-  key: web-app-jenkins
+  source: credentials
+  key: mcp_bearer
 allowed_consumers:
   - web-app-hermes
   - web-app-openclaw
+adapter:
+  type: mcp_passthrough
+  specification_path: roles/web-app-jenkins/files/mcp/tools.json
+  specification_sha256: sha256:05d96a67cd799cdf2e74caaf4560c9282462ead555a6159fd2e0c74a705b6cf5
 endpoint:
-  service_key: jenkins
-  path: /mcp-server/mcp
+  service_key: jenkinsmcp
+  path: /mcp
   port_key: http
+limits:
+  request_bytes: 65536
+  response_bytes: 1048576
+  timeout_seconds: 15
+  concurrent_requests: 4
+  page_size: 100
+  result_items: 100
+  stream_seconds: 300
 tools:
+  schema_sha256: sha256:3f17b9034a77928d25c1be511e4c6f162e739eb5157823c5602e19adc955318d
   allowlist:
+    - findJobsWithScmUrl
+    - getBuild
+    - getBuildChangeSets
+    - getBuildLog
+    - getBuildScm
+    - getFlakyFailures
+    - getJob
+    - getJobScm
+    - getJobs
+    - getQueueItem
+    - getReplayScripts
+    - getStatus
+    - getTestResults
+    - searchBuildLog
+    - whoAmI
+  upstream_serves:
     - findJobsWithScmUrl
     - getBuild
     - getBuildChangeSets

@@ -1,6 +1,13 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "🔌 Stage the MCP adapter instance for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
+  vars:
+    mcp_adapter_instance_dir: "{{ JENKINS_MCP_INSTANCE_DIR }}"
+    mcp_adapter_upstream_key: true
+  when: JENKINS_MCP_ENABLED | bool
+
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full

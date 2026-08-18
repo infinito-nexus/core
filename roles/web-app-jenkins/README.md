@@ -32,6 +32,7 @@ flowchart LR
         svc_sso["sso"]
         svc_ldap["ldap"]
         svc_jenkins["jenkins"]
+        svc_jenkinsmcp["jenkinsmcp"]
         svc_css["css"]
         svc_container_backup["container_backup"]
     end
