@@ -134,7 +134,7 @@
     security_opt:
       - no-new-privileges:true
     environment:
-      ADAPTER_CONTRACT: {{ GITLAB_MCP_CONTRACT | to_json | to_json }}
+      ADAPTER_CONTRACT: {{ GITLAB_MCP_CONTRACT | to_json | to_json | replace('$', '$$') }}
       ADAPTER_BEARER: {{ GITLAB_MCP_BEARER | to_json }}
       ADAPTER_PORT: "{{ GITLAB_MCP_PORT }}"
     expose:

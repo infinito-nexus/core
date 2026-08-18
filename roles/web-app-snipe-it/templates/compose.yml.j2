@@ -45,7 +45,7 @@
     security_opt:
       - no-new-privileges:true
     environment:
-      ADAPTER_CONTRACT: {{ SNIPEIT_MCP_CONTRACT | to_json | to_json }}
+      ADAPTER_CONTRACT: {{ SNIPEIT_MCP_CONTRACT | to_json | to_json | replace('$', '$$') }}
       ADAPTER_BEARER: {{ SNIPEIT_MCP_BEARER | to_json }}
       ADAPTER_PORT: "{{ SNIPEIT_MCP_PORT }}"
     expose:

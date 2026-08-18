@@ -37,7 +37,7 @@
     security_opt:
       - no-new-privileges:true
     environment:
-      ADAPTER_CONTRACT: {{ LIBRETRANSLATE_MCP_CONTRACT | to_json | to_json }}
+      ADAPTER_CONTRACT: {{ LIBRETRANSLATE_MCP_CONTRACT | to_json | to_json | replace('$', '$$') }}
       ADAPTER_BEARER: {{ LIBRETRANSLATE_MCP_BEARER | to_json }}
       ADAPTER_PORT: "{{ LIBRETRANSLATE_MCP_PORT }}"
       ADAPTER_UPSTREAM_KEY: {{ LIBRETRANSLATE_MCP_UPSTREAM_KEY | to_json }}

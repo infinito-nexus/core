@@ -30,7 +30,7 @@
     security_opt:
       - no-new-privileges:true
     environment:
-      ADAPTER_CONTRACT: {{ CHECKMK_MCP_CONTRACT | to_json | to_json }}
+      ADAPTER_CONTRACT: {{ CHECKMK_MCP_CONTRACT | to_json | to_json | replace('$', '$$') }}
       ADAPTER_BEARER: {{ CHECKMK_MCP_BEARER | to_json }}
       ADAPTER_PORT: "{{ CHECKMK_MCP_PORT }}"
       ADAPTER_UPSTREAM_KEY: {{ CHECKMK_MCP_UPSTREAM_KEY | to_json }}

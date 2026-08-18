@@ -110,7 +110,7 @@
     security_opt:
       - no-new-privileges:true
     environment:
-      ADAPTER_CONTRACT: {{ ZAMMAD_MCP_CONTRACT | to_json | to_json }}
+      ADAPTER_CONTRACT: {{ ZAMMAD_MCP_CONTRACT | to_json | to_json | replace('$', '$$') }}
       ADAPTER_BEARER: {{ ZAMMAD_MCP_BEARER | to_json }}
       ADAPTER_PORT: "{{ ZAMMAD_MCP_PORT }}"
       ADAPTER_UPSTREAM_KEY: {{ ZAMMAD_MCP_UPSTREAM_KEY | to_json }}

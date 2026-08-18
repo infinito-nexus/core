@@ -31,7 +31,7 @@
     security_opt:
       - no-new-privileges:true
     environment:
-      ADAPTER_CONTRACT: {{ JELLYFIN_MCP_CONTRACT | to_json | to_json }}
+      ADAPTER_CONTRACT: {{ JELLYFIN_MCP_CONTRACT | to_json | to_json | replace('$', '$$') }}
       ADAPTER_BEARER: {{ JELLYFIN_MCP_BEARER | to_json }}
       ADAPTER_PORT: "{{ JELLYFIN_MCP_PORT }}"
       ADAPTER_UPSTREAM_AUTH_HEADER: {{ JELLYFIN_MCP_UPSTREAM_AUTH_HEADER | to_json }}
