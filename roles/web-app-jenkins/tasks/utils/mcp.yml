@@ -10,18 +10,8 @@
     resolve_output_prefix: JENKINS
     resolve_compose_cid: "{{ JENKINS_CONTAINER }}"
 
-- name: "⏳ Wait until the controller serves requests again"
-  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i {{ JENKINS_LOCAL_CID | quote }} \
-      {{ lookup('timeout', 30) | curl(5, 0) }} -o /dev/null -w '%{http_code}' \
-        {{ JENKINS_MCP_READY_URL | quote }}
-  register: jenkins_ready_probe
-  retries: 60
-  delay: 5
-  until: jenkins_ready_probe.stdout is match('[234][0-9][0-9]')
-  changed_when: false
-  delegate_to: "{{ JENKINS_HOST_NODE }}"
-  run_once: true
+- name: "⏳ Wait until the controller serves requests"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/ready.yml"
 
 - name: "🩺 Check the stored token against the running controller"
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/probe.yml"
@@ -57,6 +47,9 @@
 
 - name: "🚿 Flush compose handlers for {{ application_id }}"
   ansible.builtin.meta: flush_handlers
+
+- name: "⏳ Wait until the recreated controller serves requests again"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/ready.yml"
 
 - name: "🩺 Prove the MCP contract of {{ application_id }}"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"

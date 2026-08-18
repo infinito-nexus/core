@@ -48,6 +48,7 @@
     expose:
       - "{{ JENKINS_MCP_PORT }}"
     {{ lookup('container_networks', own_network_only=True, provider_self_alias=False) | indent(4) }}
+    {{ lookup('depends_on', {'jenkins': 'service_healthy'}) }}
   {% endif %}
 
 {{ lookup('compose_volumes', application_id) }}
