@@ -271,6 +271,25 @@ def assert_authorized_are_renderable(
     )
 
 
+def resolve_consumer_id(vars_: Mapping[str, Any], templar: Any) -> str:
+    """Return the ``application_id`` of the client performing the discovery.
+
+    Args:
+        vars_: the variables in scope for the lookup.
+        templar: the templar used to render a deferred ``application_id``.
+    """
+    raw = vars_.get("application_id")
+    if templar is not None and isinstance(raw, str) and "{{" in raw:
+        raw = templar.template(raw)
+    consumer_id = str(raw or "").strip()
+    if not consumer_id:
+        raise AnsibleError(
+            "mcp_servers: no application_id in scope. Discovery is a "
+            "per-consumer intersection, so the calling role must be known."
+        )
+    return consumer_id
+
+
 class LookupModule(LookupBase):
     def _deploy_closure(self, templar: Any, vars_: dict[str, Any]) -> set[str]:
         """Roles this run deploys, or an empty set when that cannot be resolved."""
@@ -297,12 +316,7 @@ class LookupModule(LookupBase):
 
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
         templar = getattr(self, "_templar", None)
-        consumer_id = str(vars_.get("application_id") or "").strip()
-        if not consumer_id:
-            raise AnsibleError(
-                "mcp_servers: no application_id in scope. Discovery is a "
-                "per-consumer intersection, so the calling role must be known."
-            )
+        consumer_id = resolve_consumer_id(vars_, templar)
 
         servers = lookup_loader.get(
             "roles_with_service", loader=self._loader, templar=templar

@@ -14,6 +14,7 @@ from ansible.errors import AnsibleError
 plugin_module = importlib.import_module("plugins.lookup.mcp_servers")
 build_mcp_discovery = plugin_module.build_mcp_discovery
 resolve_credential = plugin_module.resolve_credential
+resolve_consumer_id = plugin_module.resolve_consumer_id
 
 CONSUMER = "web-app-openwebui"
 
@@ -321,6 +322,37 @@ class TestResolveCredential(unittest.TestCase):
             owner="mcp-web-app-x", source="token_store", key="web-app-x"
         )
         self.assertEqual(resolve_credential(server, {}, {}), ("", "mcp-web-app-x"))
+
+
+class TestResolveConsumerId(unittest.TestCase):
+    """The consumer must be a rendered role id before it is matched.
+
+    sys-svc-mcp-reconcile sets ``application_id`` from a loop variable, so the
+    lookup receives the literal ``{{ mcp_client.id }}``. An unrendered id
+    matches no ``allowed_consumers``, which rejects every provider as
+    ``consumer_not_allowed`` and empties the registry without an error.
+    """
+
+    class _Templar:
+        def template(self, value):
+            return {"{{ mcp_client.id }}": CONSUMER}[value]
+
+    def test_a_deferred_application_id_is_rendered(self):
+        self.assertEqual(
+            resolve_consumer_id(
+                {"application_id": "{{ mcp_client.id }}"}, self._Templar()
+            ),
+            CONSUMER,
+        )
+
+    def test_a_plain_application_id_is_kept(self):
+        self.assertEqual(
+            resolve_consumer_id({"application_id": CONSUMER}, self._Templar()), CONSUMER
+        )
+
+    def test_a_missing_application_id_aborts(self):
+        with self.assertRaises(AnsibleError):
+            resolve_consumer_id({}, self._Templar())
 
 
 if __name__ == "__main__":
