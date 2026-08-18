@@ -10,5 +10,5 @@ REDIS_PASSWORD: "{{ lookup('config', application_id, 'credentials.REDIS_PASSWORD
 REDIS_EXPOSE_LOCAL: true
 REDIS_RETRIES: 5
 REDIS_DELAY: 5
-REDIS_EXEC_SHELL: "container exec -e REDIS_PASSWORD={{ REDIS_PASSWORD | quote }} {{ REDIS_CONTAINER_ADDRESS }} sh -lc"
+REDIS_EXEC_SHELL: "container exec {{ REDIS_CONTAINER_ADDRESS }} sh -lc"
 REDIS_CLI: 'redis-cli -a "$REDIS_PASSWORD" --no-auth-warning'
