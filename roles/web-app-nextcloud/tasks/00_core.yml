@@ -1,6 +1,9 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "🔑 Realign the persisted database credentials before the health gate"
+  include_tasks: utils/patch_db_credentials.yml
+
 - name: 🔧 Setup the full docker stack
   include_tasks: 01_fullstack.yml
   vars:

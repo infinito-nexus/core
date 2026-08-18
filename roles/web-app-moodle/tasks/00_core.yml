@@ -1,6 +1,9 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "🔑 Realign the persisted database credentials before the health gate"
+  include_tasks: utils/patch_db_credentials.yml
+
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
