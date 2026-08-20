@@ -148,6 +148,23 @@ def workflow_body():
     }
 
 
+def activate_workflow(key, workflow_id):
+    """Return whether activating the managed workflow changed its state.
+
+    Args:
+        key: the public-API key.
+        workflow_id: id of the managed workflow.
+    """
+    status, body = call(
+        f"{PUBLIC}/workflows/{workflow_id}/activate", method="POST", api_key=key
+    )
+    if status == 200:
+        return True
+    if status == 400 and "already active" in str(body).lower():
+        return False
+    sys.exit(f"FAILED activating {WORKFLOW_NAME}: {status} {body}")
+
+
 def upsert_workflow(key):
     """Create or update the managed MCP server workflow.
 
@@ -174,11 +191,7 @@ def upsert_workflow(key):
 
     flow = matches[0]
     if flow.get("active"):
-        sys.exit(
-            f"FAILED: {WORKFLOW_NAME} is active. The managed trigger stays "
-            f"deactivated until an operator opts in; refusing to rewrite a "
-            f"live endpoint underneath its callers."
-        )
+        return activate_workflow(key, flow["id"])
     status, body = call(
         f"{PUBLIC}/workflows/{flow['id']}",
         method="PUT",
@@ -187,7 +200,8 @@ def upsert_workflow(key):
     )
     if status != 200:
         sys.exit(f"FAILED updating {WORKFLOW_NAME}: {status} {body}")
-    return flow.get("nodes") != payload["nodes"]
+    changed = flow.get("nodes") != payload["nodes"]
+    return activate_workflow(key, flow["id"]) or changed
 
 
 def main():

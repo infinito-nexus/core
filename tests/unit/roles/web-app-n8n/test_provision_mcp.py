@@ -37,6 +37,7 @@ class FakeApi:
         self.workflows = [dict(flow) for flow in workflows]
         self.created_workflows = []
         self.updated_workflows = []
+        self.activated_workflows = []
         self.deleted_keys = []
         self.logins = 0
 
@@ -60,11 +61,14 @@ class FakeApi:
         if path.startswith("/api/v1/workflows/") and method == "PUT":
             self.updated_workflows.append(payload["name"])
             return 200, payload
+        if path.endswith("/activate") and method == "POST":
+            self.activated_workflows.append(path.split("/")[-2])
+            return 200, {"active": True}
         raise AssertionError(f"unexpected {method} {path}")
 
 
 class TestProvisionMcp(unittest.TestCase):
-    def test_a_missing_workflow_is_created_deactivated(self) -> None:
+    def test_a_missing_workflow_is_created(self) -> None:
         module = load_script()
         api = FakeApi()
         with patch.object(module, "call", api):
@@ -114,15 +118,16 @@ class TestProvisionMcp(unittest.TestCase):
             module.main()
         self.assertEqual([], api.created_workflows)
         self.assertEqual(["infinito:mcp-server"], api.updated_workflows)
+        self.assertEqual(["w1"], api.activated_workflows)
 
     def test_an_active_workflow_is_never_rewritten_underneath_its_callers(self) -> None:
         module = load_script()
         api = FakeApi(
             workflows=[{"id": "w1", "name": "infinito:mcp-server", "active": True}]
         )
-        with patch.object(module, "call", api), self.assertRaises(SystemExit) as exit_:
+        with patch.object(module, "call", api):
             module.main()
-        self.assertIn("is active", str(exit_.exception))
+        self.assertEqual([], api.updated_workflows)
 
     def test_two_managed_workflows_abort_rather_than_guess(self) -> None:
         module = load_script()
