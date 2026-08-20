@@ -11,6 +11,9 @@
     {{ lookup('container_volumes', application_id, 'gitea') | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
+      {% if GITEA_MCP_ENABLED | bool %}
+      {{ GITEA_MCP_UPSTREAM_NETWORK }}:
+      {% endif %}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
 
   {% if GITEA_MCP_ENABLED | bool %}
@@ -24,7 +27,8 @@
       GITEA_HOST: "{{ GITEA_MCP_UPSTREAM_URL }}"
       GITEA_SCOPES: "{{ GITEA_MCP_TOOL_SCOPES }}"
       GITEA_READONLY: "true"
-    {{ lookup('container_networks', own_network_only=True, provider_self_alias=False) | indent(4) }}
+    networks: # nocheck: networks-literal  the sidecar authenticates nobody, so it joins the private upstream net and nothing else
+      {{ GITEA_MCP_UPSTREAM_NETWORK }}:
     {{ lookup('depends_on', {'gitea': 'service_healthy'}) }}
 
   {% set service_name = GITEA_MCP_SERVICE_KEY %}
@@ -51,7 +55,13 @@
     expose:
       - "{{ GITEA_MCP_PORT }}"
     {{ lookup('container_networks', own_network_only=True, provider_self_alias=False) | indent(4) }}
+      {{ GITEA_MCP_UPSTREAM_NETWORK }}:
   {% endif %}
 
 {{ lookup('compose_volumes', application_id) }}
 {{ lookup('compose_networks') }}
+  {% if GITEA_MCP_ENABLED | bool %}
+  {{ GITEA_MCP_UPSTREAM_NETWORK }}:
+    driver: {{ 'overlay' if DEPLOYMENT_MODE == 'swarm' else 'bridge' }}
+    internal: true
+  {% endif %}

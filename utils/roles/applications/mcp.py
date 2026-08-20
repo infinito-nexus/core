@@ -212,6 +212,7 @@ MCP_ADAPTER_KEYS = frozenset(
     {
         "type",
         "upstream_api_version",
+        "upstream_network",
         "specification_path",
         "specification_sha256",
         "scope",

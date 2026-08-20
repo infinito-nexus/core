@@ -20,6 +20,7 @@ allowed_consumers:
   - web-app-openclaw
 adapter:
   type: mcp_passthrough
+  upstream_network: giteamcpupstream_net
   specification_path: roles/web-app-gitea/files/mcp/tools.json
   specification_sha256: sha256:d3c8199138ab47974c570ac0045925803eb31f54a2b2934f9339f0920c762ff5
 endpoint:

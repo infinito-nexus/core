@@ -39,9 +39,29 @@
     mcp_platform_subnets: []
   when: DEPLOYMENT_MODE == 'compose'
 
+- name: "🔍 Resolve the private upstream network of {{ application_id }}"
+  community.docker.docker_network_info: # nocheck: docker-module-uses-container-cli  read-only info module
+    name: "{{ (application_id | get_entity_name) ~ '_' ~ mcp_upstream_network_key }}"
+  register: mcp_upstream_network
+  when: mcp_upstream_network_key | length > 0
+  vars:
+    mcp_upstream_network_key: "{{ lookup('config', application_id, 'mcp.adapter.upstream_network', '') }}" # nocheck: lookup-config-path  resolved against the including provider, not this role
+  delegate_to: "{{ MCP_SIDECAR_HOST_NODE }}"
+  run_once: true
+
+- name: "🧱 Take the subnet of the private upstream network"
+  ansible.builtin.set_fact:
+    mcp_upstream_subnets: "{{ mcp_upstream_network.network.IPAM.Config | map(attribute='Subnet') | list }}"
+  when: mcp_upstream_network.network is defined
+
+- name: "🧱 A provider without a private upstream network declares no extra subnet"
+  ansible.builtin.set_fact:
+    mcp_upstream_subnets: []
+  when: mcp_upstream_network.network is not defined
+
 - name: "🧱 Assemble the subnets the {{ application_id }} sidecar may hold"
   ansible.builtin.set_fact:
-    mcp_expected_subnets: "{{ ([lookup('config', application_id, 'networks.local.subnet')] + mcp_platform_subnets) | join(',') }}" # nocheck: lookup-config-path  resolved against the including provider, not this role
+    mcp_expected_subnets: "{{ ([lookup('config', application_id, 'networks.local.subnet')] + mcp_platform_subnets + mcp_upstream_subnets) | join(',') }}" # nocheck: lookup-config-path  resolved against the including provider, not this role
 
 - name: "🧱 Check the networks the {{ application_id }} sidecar is attached to"
   ansible.builtin.command:

@@ -34,6 +34,7 @@ GITEA_MCP_SERVICE_KEY: "{{ lookup('config', application_id, 'mcp.endpoint.servic
 GITEA_MCP_CONTAINER: "{{ lookup('config', application_id, 'services.giteamcp.name') }}"
 GITEA_MCP_PORT: "{{ lookup('config', application_id, 'services.giteamcp.ports.internal.http') }}"
 GITEA_MCP_SIDECAR_SERVICE_KEY: giteamcpupstream
+GITEA_MCP_UPSTREAM_NETWORK: "{{ lookup('config', application_id, 'mcp.adapter.upstream_network') }}"
 GITEA_MCP_SIDECAR_CONTAINER: "{{ lookup('config', application_id, 'services.giteamcpupstream.name') }}"
 GITEA_MCP_SIDECAR_PORT: "{{ lookup('config', application_id, 'services.giteamcpupstream.ports.internal.http') }}"
 GITEA_MCP_SIDECAR_URL: "http://{{ GITEA_MCP_SIDECAR_SERVICE_KEY }}:{{ GITEA_MCP_SIDECAR_PORT }}/mcp"
