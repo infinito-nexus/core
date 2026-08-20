@@ -14,3 +14,20 @@
 - name: "🔧 For '{{ application_id }}/{{ _database_consumer_id }}': Apply postgres setup"
   include_tasks: dedicated_postgres.yml
   when: _database_type == 'postgres'
+
+# Exception: without this row baudolo silently falls back to a live-file snapshot and the restore replays a torn data dir.
+- name: "➕ For '{{ _database_consumer_id }}': Add Entry for Backup Procedure"
+  include_tasks: "{{ lookup('path_absolute', 'roles/svc-bkp-volume-2-local/tasks/03_seed-database-to-backup.yml') }}"
+  vars:
+    database_consumer_id: "{{ _database_consumer_id }}"
+    database_type: "{{ _database_type }}"
+    database_instance: "{{ lookup('database', _database_consumer_id, 'instance') }}"
+    database_host: "{{ lookup('database', _database_consumer_id, 'host') }}"
+    database_port: "{{ lookup('database', _database_consumer_id, 'port') }}"
+    database_name: "{{ lookup('database', _database_consumer_id, 'name') }}"
+    database_username: "{{ lookup('database', _database_consumer_id, 'username') }}"
+    database_password: "{{ lookup('database', _database_consumer_id, 'password') }}"
+  when:
+    - "'svc-bkp-volume-2-local' in group_names"
+    - IS_STACK_HOST | bool
+    - lookup('database', _database_consumer_id, 'managed') | bool

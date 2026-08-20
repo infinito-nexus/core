@@ -1,0 +1,6 @@
+---
+# Param: NFSv4 minor versions ganesha offers to clients (comma-separated).
+# Exception: overridable default (not vars/) — pin to "0" on hosts whose
+# bleeding-edge kernel NFS client breaks ganesha 4.1+ sessions (first "ls"
+# after mount returns EIO; observed with kernel 7.0 against ganesha 6.x).
+SVC_STORAGE_NFS_SERVER_MINOR_VERSIONS: "0, 1, 2"

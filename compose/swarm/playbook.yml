@@ -26,7 +26,10 @@
     lab_systemd_timeout: "{{ lookup('env', 'SWARM_PILOT_SYSTEMD_TIMEOUT') | default('180', true) }}"
     lab_is_mgr: "{{ inventory_hostname == lab_mgr }}"
     lab_is_worker: "{{ inventory_hostname in [lab_wrk1, lab_wrk2] }}"
-    lab_dns_node: "{{ lab_is_mgr or lab_is_worker }}"
+    # Exception: the NFS sidecar is a DNS node too — the backup stack lands on
+    # it and runs the same sys-svc-container DinD-DNS gate as the swarm nodes,
+    # which NXDOMAINs on the app domain without the dnsmasq wildcard.
+    lab_dns_node: "{{ lab_is_mgr or lab_is_worker or inventory_hostname == lab_nfs }}"
     lab_domain_target: "{{ lookup('env', 'INFINITO_SWARM_MGR_IP') }}"
     lab_filesystem: "{{ lookup('env', 'INFINITO_DOCKER_FILESYSTEM') }}"
     lab_filesystem_required: "{{ lookup('env', 'INFINITO_DOCKER_FILESYSTEM_REQUIRED') | default('false', true) }}"

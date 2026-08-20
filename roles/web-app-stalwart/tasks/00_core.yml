@@ -1,0 +1,103 @@
+---
+- include_tasks: utils/once/flag.yml
+
+# Exception: Stalwart's compiled-in validation rejects RFC 6761 reserved TLDs — fail before any state change.
+- name: "✅ Assert the mail domain is provisionable by Stalwart"
+  ansible.builtin.assert:
+    that:
+      - STALWART_DOMAIN.split('.')[-1] not in ['example', 'invalid']
+    fail_msg: >-
+      Stalwart rejects the mail domain '{{ STALWART_DOMAIN }}' (TLD
+      '.{{ STALWART_DOMAIN.split('.')[-1] }}'). Use a real domain, or a
+      `.test` domain for local/CI stacks.
+    quiet: true
+
+- name: "🔴 Disable SMTP to avoid port conflicts"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-mail-smtp/tasks/disable.yml') }}"
+
+- name: ✅ Ensure Stalwart config directory exists
+  file:
+    path: "{{ STALWART_CONFIG_DIR }}"
+    state: directory
+    mode: "0755"
+
+# Exception: swarm does not auto-create a missing bind source; sys-ctl-mtn-cert-deploy fills the directory later (05_tls).
+- name: ✅ Ensure certs bind-source directory exists (host)
+  file:
+    path: "{{ [ STALWART_VOLUMES_DIR, 'certs' ] | path_join }}"
+    state: directory
+    mode: "0755"
+
+- name: 📄 Render Stalwart bootstrap configuration
+  stack_host_template:
+    src: config.json.j2
+    dest: "{{ STALWART_CONFIG_FILE }}"
+    mode: "0644"
+
+- name: "✅ Ensure the WebUI cache directory exists"
+  ansible.builtin.file:
+    path: "{{ STALWART_WEBUI_CACHE_FILE | dirname }}"
+    state: directory
+    mode: "0755"
+
+- name: "⬇️ Download the Stalwart WebUI bundle (skipped when cached)"
+  get_url_retry:
+    url: "{{ STALWART_WEBUI_RESOURCE_URL }}"
+    dest: "{{ STALWART_WEBUI_CACHE_FILE }}"
+    mode: "0644"
+  when: IS_STACK_HOST | bool
+
+- name: "📦 Install the cached WebUI bundle into the instance dir"
+  stack_host_copy:
+    src: "{{ STALWART_WEBUI_CACHE_FILE }}"
+    dest: "{{ STALWART_WEBUI_LOCAL_FILE }}"
+    remote_src: true
+    mode: "0644"
+
+- name: ✅ Ensure Roundcube custom-config directory exists
+  file:
+    path: "{{ STALWART_WEBMAIL_CONFIG_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: 📄 Render Roundcube OAuth (Keycloak SSO) configuration
+  stack_host_template:
+    src: roundcube-oauth.inc.php.j2
+    dest: "{{ STALWART_WEBMAIL_OAUTH_CONFIG }}"
+    mode: "0644"
+  register: stalwart_webmail_conf
+
+- name: 📄 Render clamav-milter configuration
+  stack_host_template:
+    src: clamav-milter.conf.j2
+    dest: "{{ STALWART_CLAMAV_MILTER_CONF }}"
+    mode: "0644"
+  register: stalwart_clamav_conf
+  when: STALWART_ANTIVIRUS_ENABLED | bool
+
+- name: "🧩 load docker, db and proxy for {{ application_id }}"
+  include_role:
+    name: sys-stk-full
+  vars:
+    compose_handlers_flush: true
+    webserver_vhost_flavour: "basic"
+    webserver_extra_configuration: "client_max_body_size 31M;"
+    domain: "{{ STALWART_WEB_DOMAIN }}"
+
+- name: "🚿 Flush Docker Compose handlers"
+  meta: flush_handlers
+
+# Exception: without the explicit service key the swarm upstream resolver picks the primary entity and the webmail vhost serves the mail server.
+- name: "🌐 Proxy the Roundcube webmail at {{ STALWART_WEBMAIL_DOMAIN }}"
+  include_role:
+    name: sys-stk-front-proxy
+  vars:
+    domain: "{{ STALWART_WEBMAIL_DOMAIN }}"
+    http_port: "{{ STALWART_WEBMAIL_HTTP_PORT }}"
+    webserver_proxy_service_key: "{{ 'webmail' if DEPLOYMENT_MODE == 'swarm' else (application_id | get_entity_name) }}"
+    proxy_internal_port: "{{ lookup('config', application_id, 'services.webmail.ports.internal.http') if DEPLOYMENT_MODE == 'swarm' else '' }}"
+    webserver_vhost_flavour: "basic"
+
+- name: "👔 Stalwart manager-side operations (container exec + provisioning)"
+  include_tasks: manager_ops.yml
+  when: IS_STACK_HOST | bool

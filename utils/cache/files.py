@@ -55,18 +55,45 @@ _DEFAULT_SKIP_DIRS: frozenset[str] = frozenset(
 
 
 @lru_cache(maxsize=1)
+def _local_exclude_dirs() -> frozenset[str]:
+    """Directory names from ``.git/info/exclude`` (git's local-only ignore).
+
+    Untracked local tooling output listed there is by definition not part of
+    the project, so project-tree scans must not descend into it. Only plain
+    single-component directory entries are honored — file patterns and globs
+    stay with git.
+    """
+    exclude = Path(str(PROJECT_ROOT)) / ".git" / "info" / "exclude"
+    names: set[str] = set()
+    try:
+        lines = exclude.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return frozenset()
+    for raw in lines:
+        line = raw.strip()
+        if not line or line.startswith(("#", "!")):
+            continue
+        token = line.strip("/")
+        if token and not any(c in token for c in "/*?["):
+            names.add(token)
+    return frozenset(names)
+
+
+@lru_cache(maxsize=1)
 def _all_project_files() -> tuple[str, ...]:
     """One-shot filesystem walk from PROJECT_ROOT.
 
     Returns absolute paths as a tuple (immutable → safe to cache).
-    Pruned at walk-time by `_DEFAULT_SKIP_DIRS`, since those dirs are never
-    relevant for any project-tree test and descending into them is pure waste.
+    Pruned at walk-time by `_DEFAULT_SKIP_DIRS` plus git's local exclude
+    file, since those dirs are never relevant for any project-tree test and
+    descending into them is pure waste.
     """
     root_str = str(PROJECT_ROOT)
+    skip_dirs = _DEFAULT_SKIP_DIRS | _local_exclude_dirs()
     paths: list[str] = []
     for dirpath, dirnames, filenames in os.walk(root_str, topdown=True):
         # prune in-place (topdown=True): stops descent into skipped dirs
-        dirnames[:] = [d for d in dirnames if d not in _DEFAULT_SKIP_DIRS]
+        dirnames[:] = [d for d in dirnames if d not in skip_dirs]
         paths.extend(str(Path(dirpath) / fn) for fn in filenames)
     return tuple(paths)
 
@@ -180,4 +207,5 @@ def _reset() -> None:
     calls to all of them.
     """
     _all_project_files.cache_clear()
+    _local_exclude_dirs.cache_clear()
     read_text.cache_clear()

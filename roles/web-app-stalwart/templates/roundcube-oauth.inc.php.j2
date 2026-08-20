@@ -1,0 +1,45 @@
+<?php
+// Roundcube OAuth2/OIDC against Keycloak. Auto-included by the roundcube image
+// (config/*.php). Client secret comes from ROUNDCUBEMAIL_OAUTH_CLIENT_SECRET so
+// it stays out of this world-readable file. Login -> Keycloak, then XOAUTH2 to
+// Stalwart.
+// Rendered even without SSO (the bind source must exist); the body self-gates.
+{% if STALWART_SSO_ENABLED | bool %}
+
+// Reached only over TLS via the reverse proxy (which speaks HTTP to this
+// container); force https so generated URLs (incl. the OAuth redirect_uri, which
+// Keycloak validates against https:// only) don't come out as http://.
+$_SERVER['HTTPS'] = 'on';
+
+$config['oauth_provider'] = 'generic';
+$config['oauth_provider_name'] = '{{ OIDC.BUTTON_TEXT }}';
+// Minimal-scope client so the access token stays under Stalwart's 4096-byte
+// XOAUTH2 SASL line limit. See roles/web-app-keycloak clients/stalwart_webmail.json.j2.
+$config['oauth_client_id'] = '{{ STALWART_WEBMAIL_OIDC_CLIENT_ID }}';
+$config['oauth_auth_uri'] = '{{ OIDC.CLIENT.AUTHORIZE_URL }}';
+$config['oauth_token_uri'] = '{{ OIDC.CLIENT.TOKEN_URL }}';
+$config['oauth_identity_uri'] = '{{ OIDC.CLIENT.USER_INFO_URL }}';
+$config['oauth_logout_uri'] = '{{ OIDC.CLIENT.LOGOUT_URL }}';
+$config['oauth_scope'] = 'openid email profile';
+$config['oauth_auth_parameters'] = [];
+$config['oauth_identity_fields'] = ['email', '{{ OIDC.ATTRIBUTES.USERNAME }}'];
+// Auto-redirect the login form straight to Keycloak (single sign-on).
+$config['oauth_login_redirect'] = true;
+
+// Accept Stalwart's self-signed cert on the internal IMAP(993)/SMTP(465) TLS hop
+// — Roundcube connects by container name, which won't match the cert SAN.
+$stalwart_tls_conn_options = ['ssl' => [
+    'verify_peer'      => false,
+    'verify_peer_name' => false,
+    'allow_self_signed' => true,
+]];
+$config['imap_conn_options'] = $stalwart_tls_conn_options;
+$config['smtp_conn_options'] = $stalwart_tls_conn_options;
+
+// Authenticated XOAUTH2 submission over implicit TLS on :465 (this include loads
+// last, so it wins). smtp_user must be non-empty or Stalwart rejects with
+// "5.5.1 You must authenticate first"; the OAuth plugin swaps %p for a token.
+$config['smtp_host'] = 'ssl://stalwart:465';
+$config['smtp_user'] = '%u';
+$config['smtp_pass'] = '%p';
+{% endif %}

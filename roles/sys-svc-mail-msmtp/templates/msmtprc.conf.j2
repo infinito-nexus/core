@@ -1,5 +1,7 @@
 {% set email = lookup('email') %}
 defaults
+# Exception: strict servers (Stalwart rejectNonFqdn) refuse a bare container hostname as EHLO.
+domain              {{ DOMAIN_PRIMARY }}
 logfile             ~/.msmtp.log
 timeout             {{ email.timeout }}
 syslog              {{ MODE_DEBUG | on_off }}

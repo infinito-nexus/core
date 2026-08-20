@@ -37,7 +37,9 @@
 - name: "📂 Include Cert deploy service for '{{ role_name }}'"
   include_role:
     name: sys-ctl-mtn-cert-deploy
-  when: lookup('tls', application_id, 'enabled') | bool
+  when:
+    - lookup('tls', application_id, 'enabled') | bool
+    - MAILU_ACTIVE_PROVIDER | bool
 
 - name: ⏳ Wait for Mailu antispam
   include_tasks: ../06_wait_for_antispam.yml
@@ -47,3 +49,7 @@
 
 - name: 🔧 Set Mailu DNS records
   include_tasks: ../08_dns-records.yml
+
+- name: "🔐 Apply Mailu OIDC provider config"
+  include_tasks: ../09_oidc_apply.yml
+  when: MAILU_OIDC_ENABLED | bool

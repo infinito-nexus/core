@@ -9,6 +9,12 @@ from typing import Any
 from ansible.errors import AnsibleError
 
 from utils.manager.value_generator import ValueGenerator
+from utils.templating.expr import (
+    find_top_level_op,
+    is_paren_wrapped,
+    split_list_items,
+    split_top_level,
+)
 
 try:
     from ansible._internal._datatag._tags import TrustedAsTemplate
@@ -45,46 +51,6 @@ _RE_FLOAT_LITERAL = re.compile(r"^-?\d+\.\d+$")
 _RE_JINJA_BLOCK = re.compile(r"\{\{\s*(.*?)\s*\}\}", re.DOTALL)
 
 
-def _split_list_items(s: str) -> list[str]:
-    """
-    Split list literal inner content into items.
-    Supports commas, single/double quotes (no escapes), and bare tokens.
-
-    Example:
-      "DIR_BIN, 'ca-inject'" -> ["DIR_BIN", "'ca-inject'"]
-    """
-    items: list[str] = []
-    buf: list[str] = []
-    q: str | None = None
-
-    for ch in s:
-        if q:
-            buf.append(ch)
-            if ch == q:
-                q = None
-            continue
-
-        if ch in ("'", '"'):
-            buf.append(ch)
-            q = ch
-            continue
-
-        if ch == ",":
-            token = "".join(buf).strip()
-            if token:
-                items.append(token)
-            buf = []
-            continue
-
-        buf.append(ch)
-
-    token = "".join(buf).strip()
-    if token:
-        items.append(token)
-
-    return items
-
-
 def _eval_list_literal(head: str, variables: dict) -> list[str]:
     """
     Evaluate a minimal Jinja list literal like:
@@ -105,7 +71,7 @@ def _eval_list_literal(head: str, variables: dict) -> list[str]:
         return []
 
     out: list[str] = []
-    for tok in _split_list_items(inner):
+    for tok in split_list_items(inner):
         t = tok.strip()
         if not t:
             continue
@@ -186,6 +152,18 @@ def _apply_filter(value: Any, filt: str) -> Any:
     return value
 
 
+def _eval_condition(cond: str, variables: dict) -> bool:
+    """Evaluate a minimal boolean condition: ``A == B`` / ``A != B`` / truthy."""
+    for op, test in (("==", str.__eq__), ("!=", str.__ne__)):
+        idx = find_top_level_op(cond, op)
+        if idx != -1:
+            left = _fallback_eval_expr(cond[:idx], variables)
+            right = _fallback_eval_expr(cond[idx + len(op) :], variables)
+            return bool(test(left, right))
+    val = _fallback_eval_expr(cond, variables)
+    return val not in ("", "False", "false", "0", "None")
+
+
 def _fallback_eval_expr(expr: str, variables: dict) -> str:
     """
     Evaluate a single Jinja expression (no surrounding {{ }}).
@@ -194,10 +172,37 @@ def _fallback_eval_expr(expr: str, variables: dict) -> str:
       - lookup('env','NAME')
       - VAR / VAR.path
       - list literal: [ VAR, 'literal', ... ]
+      - string concatenation: 'a' ~ VAR ~ 'b'
+      - inline conditional: A if COND else B  (COND: X == 'y' / X != 'y')
       - filters: | lower, | upper, | default('x', true), | path_join
 
     Any other lookup(...) must NOT be handled here.
     """
+    expr = expr.strip()
+
+    # Inline conditional: A if COND else B
+    if_idx = find_top_level_op(expr, " if ")
+    else_idx = find_top_level_op(expr, " else ")
+    if if_idx != -1 and else_idx != -1 and if_idx < else_idx:
+        a = expr[:if_idx]
+        cond = expr[if_idx + len(" if ") : else_idx]
+        b = expr[else_idx + len(" else ") :]
+        chosen = a if _eval_condition(cond, variables) else b
+        return _fallback_eval_expr(chosen, variables)
+
+    # Fully parenthesised expression
+    if is_paren_wrapped(expr):
+        return _fallback_eval_expr(expr[1:-1], variables)
+
+    # String concatenation with ~
+    tilde_parts = split_top_level(expr, "~")
+    if len(tilde_parts) > 1:
+        return "".join(_fallback_eval_expr(p, variables) for p in tilde_parts)
+
+    # Bare string literal
+    if len(expr) >= 2 and expr[0] in "'\"" and expr[-1] == expr[0]:
+        return expr[1:-1]
+
     parts = [p.strip() for p in expr.split("|")]
     head = parts[0].strip()
 

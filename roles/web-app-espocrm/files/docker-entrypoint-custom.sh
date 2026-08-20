@@ -89,7 +89,14 @@ if [ "$_have_lock" = "1" ]; then
     log "Running image entrypoint init via $ORIG_ENTRYPOINT"
     _init_rc=0
     _init_trace="/tmp/espocrm-init-trace.log"
-    bash -x "$ORIG_ENTRYPOINT" /bin/true 2>"$_init_trace" || _init_rc=$?
+    # Exception: since espocrm 10.0.3 the image entrypoint installs/migrates only for
+    # apache2*/php-fpm CMDs (a /bin/true CMD skips init silently) — shim php-fpm as a
+    # no-op so init still runs and its trailing `exec "$@"` ends idle.
+    _shim_dir="$(mktemp -d)"
+    printf '#!/bin/sh\nexit 0\n' >"${_shim_dir}/php-fpm"
+    chmod +x "${_shim_dir}/php-fpm"
+    PATH="${_shim_dir}:${PATH}" bash -x "$ORIG_ENTRYPOINT" php-fpm 2>"$_init_trace" || _init_rc=$?
+    rm -rf "$_shim_dir"
     grep -E '^(info|warning|error):' "$_init_trace" >&2 || true
     if [ "$_init_rc" -ne 0 ]; then
       log "ERROR: image entrypoint init failed (rc=$_init_rc); last trace lines:"

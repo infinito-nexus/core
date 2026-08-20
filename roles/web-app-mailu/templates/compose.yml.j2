@@ -5,6 +5,7 @@
     {{ lookup('compose_only', 'container_name', MAILU_FRONT_CONTAINER_ADDRESS) }}
     {{ lookup('container_image', application_id, 'front', image=MAILU_DOCKER_FLAVOR ~ '/nginx', version=MAILU_VERSION) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {% if MAILU_ACTIVE_PROVIDER | bool %}
     {{ lookup('container_ports',
               ['mailu', 'http', DOCKER_BIND_HOST],
               ['mailu', 'smtp', MAILU_IP4_PUBLIC],
@@ -15,6 +16,11 @@
               ['mailu', 'imap', MAILU_IP4_PUBLIC],
               ['mailu', 'imaps', MAILU_IP4_PUBLIC],
               ['mailu', 'sieve', MAILU_IP4_PUBLIC]) | indent(4) }}
+    {% else %}
+    {# Only the active MAIL_PROVIDER owns the public mail ports; a legacy
+       instance keeps just its reverse-proxied http port. #}
+    {{ lookup('container_ports', ['mailu', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {% endif %}
     {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}

@@ -54,7 +54,7 @@ for sql_file in "${SQL_FILES[@]}"; do
 
     image="$(container inspect --type container -f '{{.Config.Image}}' "${container}")"
     case "${image}" in
-        *postgres*) engine="postgres" ;;
+        *postgres* | *postgis*) engine="postgres" ;;
         *mariadb* | *mysql*) engine="mariadb" ;;
         *)
             echo "SKIP: cannot derive db engine from image '${image}' (container ${container})"

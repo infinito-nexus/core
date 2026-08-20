@@ -1,0 +1,5 @@
+---
+local:
+  # 192.168.108.0/24: the swarm branch renumbered every role to a per-role /24
+  # (mailu took the whole 192.168.106.0/24 this role's old /28 sat inside).
+  subnet: 192.168.108.0/24

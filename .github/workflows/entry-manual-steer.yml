@@ -70,7 +70,6 @@ on:
           - "auto"
           - "true"
           - "false"
-
 permissions:
   contents: read
   packages: write

@@ -1,0 +1,14 @@
+---
+flags:
+  style-src-attr:
+    unsafe-inline: true
+  script-src-elem:
+    unsafe-inline: true
+  script-src-attr:
+    unsafe-inline: true
+    unsafe-eval: true
+whitelist:
+  # The WebAdmin SPA does its OIDC code->token exchange as a browser-side fetch
+  # to Keycloak, so that origin must be allowed in connect-src (else "Failed to fetch").
+  connect-src:
+    - "{{ lookup('tls', 'web-app-keycloak', 'url.base') | regex_replace('/+$', '') }}"

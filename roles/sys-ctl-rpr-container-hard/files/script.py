@@ -26,7 +26,6 @@ def hard_restart_docker_services(dir_path: str) -> None:
 
         print(f"Performing hard restart for compose project '{project}' in: {abs_dir}")
 
-        # down + up -d (wrapper resolves env + overrides automatically)
         log_kill("compose down + up -d", project)
         run(
             ["compose", "--chdir", abs_dir, "--project", project, "down"],

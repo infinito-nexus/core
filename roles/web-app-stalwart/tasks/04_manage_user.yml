@@ -1,0 +1,54 @@
+---
+# Bots authenticate over SMTP with a derived sha256-hex secret instead of the
+# raw inventory password: consumers embed email.password unescaped in dotenv
+# URLs and YAML, where the password charset ('[', '@', '#', ...) breaks parsing.
+- name: "🔍 Resolve effective secret for '{{ stalwart_user_name }}'"
+  ansible.builtin.set_fact:
+    stalwart_user_secret: >-
+      {{ stalwart_user_password | hash('sha256')
+         if 'bot' in stalwart_user_roles else stalwart_user_password }}
+
+# Create the account (password = a Password credential keyed by index "0").
+# Idempotent: re-runs return HTTP 200 with notCreated.
+- name: "📁 Create Stalwart account '{{ stalwart_user_name }}@{{ STALWART_DOMAIN }}'"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Account/set', {'create': {'a': {
+            '@type': 'User',
+            'name': stalwart_user_name,
+            'domainId': stalwart_domain_id,
+            'description': (lookup('users', stalwart_user_key).email | default(stalwart_user_name)),
+            'credentials': {'0': {'@type': 'Password', 'secret': stalwart_user_secret}}
+          }}}, 'c0']]} | to_json }}
+
+# notCreated(primaryKeyViolation) carries the existing account id.
+- name: "🔍 Resolve pre-existing account id for '{{ stalwart_user_name }}'"
+  ansible.builtin.set_fact:
+    stalwart_existing_account_id: >-
+      {{ ((stalwart_jmap.methodResponses[0][1].notCreated | default({}))
+          .get('a', {}).get('objectId', {}) or {}).get('id', '') }}
+
+# Converge the password on re-runs: a create-only flow leaves the DB on stale
+# credentials whenever the inventory secret differs (msmtp then fails with 535).
+- name: "🔄 Update password for existing account '{{ stalwart_user_name }}'"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Account/set', {'update': {stalwart_existing_account_id: {
+            'credentials': {'0': {'@type': 'Password', 'secret': stalwart_user_secret}}
+          }}}, 'c0']]} | to_json }}
+  when: stalwart_existing_account_id | length > 0
+
+# The bot SMTP token is the account's effective secret.
+- name: "💾 Persist Stalwart submission credential for bot '{{ stalwart_user_name }}'"
+  ansible.builtin.include_role:
+    name: sys-token-store
+    tasks_from: write.yml
+  vars:
+    sys_token_store_user_key: "{{ stalwart_user_key }}"
+    sys_token_store_app: "{{ application_id }}"
+    sys_token_store_token: "{{ stalwart_user_secret }}"
+  when: "'bot' in stalwart_user_roles"

@@ -435,6 +435,90 @@ class TestComposeCaInject(unittest.TestCase):
             state = self.m.docker_image_has_bin_sh("img:1", cwd=Path("/tmp"), env={})
         self.assertIsNone(state)
 
+    def test_gather_one_image_pulls_when_absent(self):
+        """An absent image is pulled + re-inspected so the /bin/sh probe is accurate."""
+        calls = []
+
+        def fake_run(cmd, *, cwd, env, timeout=None, capture=True):
+            calls.append(cmd)
+            if cmd[:3] == ["docker", "image", "inspect"]:
+                if ["docker", "pull", "img:1"] in calls:
+                    cfg = [{"Config": {"Entrypoint": ["/entry.sh"], "Cmd": ["run"]}}]
+                    return 0, json.dumps(cfg), ""
+                return 1, "", "No such image: img:1"
+            if cmd[:2] == ["docker", "pull"]:
+                return 0, "", ""
+            if cmd[:5] == ["docker", "run", "--rm", "--entrypoint", "/bin/sh"]:
+                return 0, "", ""
+            return 1, "", "unexpected"
+
+        with patch.object(self.m, "run", side_effect=fake_run):
+            exists, ep, cmd, has_sh = self.m._gather_one_image(
+                "img:1", cwd=Path("/tmp"), env={}
+            )
+        self.assertTrue(exists)
+        self.assertEqual(ep, ["/entry.sh"])
+        self.assertEqual(cmd, ["run"])
+        self.assertTrue(has_sh)
+        self.assertIn(["docker", "pull", "img:1"], calls)
+
+    def test_gather_one_image_no_pull_when_present(self):
+        """When the image is already present, `_gather_one_image` must NOT pull."""
+        calls = []
+
+        def fake_run(cmd, *, cwd, env, timeout=None, capture=True):
+            calls.append(cmd)
+            if cmd[:3] == ["docker", "image", "inspect"]:
+                cfg = [{"Config": {"Entrypoint": ["/entry.sh"], "Cmd": ["run"]}}]
+                return 0, json.dumps(cfg), ""
+            if cmd[:5] == ["docker", "run", "--rm", "--entrypoint", "/bin/sh"]:
+                return 0, "", ""
+            return 1, "", "unexpected"
+
+        with patch.object(self.m, "run", side_effect=fake_run):
+            exists, _ep, _cmd, has_sh = self.m._gather_one_image(
+                "img:1", cwd=Path("/tmp"), env={}
+            )
+        self.assertTrue(exists)
+        self.assertTrue(has_sh)
+        self.assertNotIn(["docker", "pull", "img:1"], calls)
+
+    def test_gather_one_image_never_pulls_built_tags(self):
+        """A locally-built tag must not be pulled: the registry would serve an
+        unrelated base image whose CMD then gets pinned into the override."""
+        calls = []
+
+        def fake_run(cmd, *, cwd, env, timeout=None, capture=True):
+            calls.append(cmd)
+            if cmd[:3] == ["docker", "image", "inspect"]:
+                return 1, "", "No such image: python:3.14-bookworm"
+            return 1, "", "unexpected"
+
+        with patch.object(self.m, "run", side_effect=fake_run):
+            exists, _ep, _cmd, _has_sh = self.m._gather_one_image(
+                "python:3.14-bookworm", cwd=Path("/tmp"), env={}, pull_if_absent=False
+            )
+        self.assertFalse(exists)
+        self.assertFalse(any(c[:2] == ["docker", "pull"] for c in calls))
+
+    def test_gather_image_meta_skips_pull_for_built_images(self):
+        """gather_image_meta must route built tags through pull_if_absent=False."""
+        seen = {}
+
+        def fake_gather(image, *, cwd, env, pull_if_absent=True):
+            seen[image] = pull_if_absent
+            return (False, [], [], False)
+
+        with patch.object(self.m, "_gather_one_image", side_effect=fake_gather):
+            self.m.gather_image_meta(
+                ["built:1", "pulled:1"],
+                cwd=Path("/tmp"),
+                env={},
+                built_images={"built:1"},
+            )
+        self.assertFalse(seen["built:1"])
+        self.assertTrue(seen["pulled:1"])
+
     def test_render_override_wraps_when_probe_ambiguous(self):
         services = {"svc": {"image": "img:1"}}
         service_to_cmd = {"svc": ["docker", "compose", "-p", "p", "-f", "compose.yml"]}

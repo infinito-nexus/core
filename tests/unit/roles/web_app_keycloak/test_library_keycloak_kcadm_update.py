@@ -50,6 +50,12 @@ def _install_role_local_kcadm_json_into_ansible_module_utils() -> None:
 
     sys.modules["ansible.module_utils.kcadm_json"] = role_modutils
 
+    scopes_modutils = _load_py_module(
+        "role_web_app_keycloak_module_utils_keycloak_scopes_for_ansible",
+        PROJECT_ROOT / "utils" / "keycloak_scopes.py",
+    )
+    sys.modules["ansible.module_utils.keycloak_scopes"] = scopes_modutils
+
 
 class DummyModule:
     def fail_json(self, **kwargs):
@@ -223,6 +229,82 @@ class TestKeycloakKcadmUpdate(unittest.TestCase):
                 kcadm_exec="kcadm",
             )
         self.assertEqual(cur, {"id": "abc", "name": "thing"})
+
+    def _run_converge(self, desired, assignments, catalog):
+        """Drive converge_client_scope_lists with a fake kcadm; returns the
+        mutating commands it issued, in order."""
+        m = self.mod
+        dummy = DummyModule()
+        mutations = []
+
+        def fake_run_kcadm(_module, cmd, ignore_rc=False):
+            for kind, payload in assignments.items():
+                if f"get clients/c1/{kind} " in cmd:
+                    return 0, payload, ""
+            if "get client-scopes " in cmd:
+                return 0, catalog, ""
+            mutations.append(cmd)
+            return 0, "", ""
+
+        changed = m.converge_client_scope_lists(
+            fake_run_kcadm, dummy, "c1", desired, "example", "kcadm"
+        )
+        return changed, mutations
+
+    def test_converge_client_scopes_adds_and_removes(self):
+        changed, mutations = self._run_converge(
+            desired={"defaultClientScopes": ["a", "b"]},
+            assignments={
+                "default-client-scopes": '[{"id":"s-old","name":"old"},{"id":"s-a","name":"a"}]'
+            },
+            catalog='[{"id":"s-b","name":"b"},{"id":"s-old","name":"old"}]',
+        )
+        self.assertTrue(changed)
+        self.assertEqual(
+            mutations,
+            [
+                "kcadm delete clients/c1/default-client-scopes/s-old -r example",
+                "kcadm update clients/c1/default-client-scopes/s-b -r example",
+            ],
+        )
+
+    def test_converge_client_scopes_noop_when_in_sync(self):
+        changed, mutations = self._run_converge(
+            desired={"defaultClientScopes": ["a"]},
+            assignments={"default-client-scopes": '[{"id":"s-a","name":"a"}]'},
+            catalog='[{"id":"s-a","name":"a"}]',
+        )
+        self.assertFalse(changed)
+        self.assertEqual(mutations, [])
+
+    def test_converge_client_scopes_removals_precede_additions_across_lists(self):
+        # "x" moves default -> optional: it must be unassigned from default
+        # BEFORE it is assigned to optional.
+        changed, mutations = self._run_converge(
+            desired={"defaultClientScopes": [], "optionalClientScopes": ["x"]},
+            assignments={
+                "default-client-scopes": '[{"id":"s-x","name":"x"}]',
+                "optional-client-scopes": "[]",
+            },
+            catalog='[{"id":"s-x","name":"x"}]',
+        )
+        self.assertTrue(changed)
+        self.assertEqual(
+            mutations,
+            [
+                "kcadm delete clients/c1/default-client-scopes/s-x -r example",
+                "kcadm update clients/c1/optional-client-scopes/s-x -r example",
+            ],
+        )
+
+    def test_converge_client_scopes_skips_undeclared_lists(self):
+        changed, mutations = self._run_converge(
+            desired={"clientId": "no-scope-lists-here"},
+            assignments={"default-client-scopes": '[{"id":"s-a","name":"a"}]'},
+            catalog="[]",
+        )
+        self.assertFalse(changed)
+        self.assertEqual(mutations, [])
 
 
 if __name__ == "__main__":

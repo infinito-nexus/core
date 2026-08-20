@@ -31,7 +31,6 @@ class DatabaseLookupTests(unittest.TestCase):
 
     def _make_lookup(self, available_vars: dict):
         lm = self.db_lookup_mod.LookupModule()
-        # LookupBase expects _templar to exist (we only use available_variables)
         lm._templar = _DummyTemplar(available_vars)
         lm._loader = mock.MagicMock()
         patcher = mock.patch.object(self.db_lookup_mod, "lookup_loader")
@@ -61,10 +60,10 @@ class DatabaseLookupTests(unittest.TestCase):
         lookup = self._make_lookup(vars_)
 
         with self.assertRaises(AnsibleError):
-            lookup.run([], variables=vars_)  # missing consumer_id
+            lookup.run([], variables=vars_)
 
         with self.assertRaises(AnsibleError):
-            lookup.run(["a", "b", "c"], variables=vars_)  # too many terms
+            lookup.run(["a", "b", "c"], variables=vars_)
 
     def test_kwarg_want_is_not_supported_raises(self):
         vars_ = {"applications": {}, "ports": {}, "DIR_COMPOSITIONS": "/opt/compose/"}
@@ -96,15 +95,12 @@ class DatabaseLookupTests(unittest.TestCase):
         ):
             out = lookup.run(["web-app-foo"], variables=vars_)[0]
 
-        # enabled/shared are surfaced even if type is empty
         self.assertFalse(out["enabled"])
         self.assertFalse(out["shared"])
         self.assertFalse(out["local"])
 
-        # id should be empty when dbtype is empty
         self.assertEqual(out.get("id", ""), "")
 
-        # Mirrors the "if _dbtype else '' / False" branches from your vars
         self.assertEqual(out["type"], "")
         self.assertEqual(out["name"], "foo")
         self.assertEqual(out["username"], "foo")
@@ -119,7 +115,6 @@ class DatabaseLookupTests(unittest.TestCase):
         self.assertEqual(out["version"], "")
         self.assertEqual(out["reach_host"], "127.0.0.1")
 
-        # STRICT projection API (positional want-path)
         with patch.object(
             self.db_lookup_mod,
             "get_entity_name",
@@ -130,13 +125,11 @@ class DatabaseLookupTests(unittest.TestCase):
             )
 
     def test_postgres_dedicated_matches_helper_variables_definition(self):
-        # Consumer config: postgres enabled locally (shared=false).
         applications = {
             "web-app-foo": {
                 "services": {"postgres": {"enabled": True, "shared": False}},
                 "credentials": {"database_password": "pw"},
             },
-            # Central DB role config (used only for defaults like version; name not used if shared=false)
             "svc-db-postgres": {
                 "services": {
                     "postgres": {
@@ -164,15 +157,13 @@ class DatabaseLookupTests(unittest.TestCase):
         ):
             out = lookup.run(["web-app-foo"], variables=vars_)[0]
 
-        # enabled/shared surfaced
         self.assertTrue(out["enabled"])
         self.assertFalse(out["shared"])
         self.assertTrue(out["local"])
+        self.assertTrue(out["managed"])
 
-        # id should be present
         self.assertEqual(out["id"], "svc-db-postgres")
 
-        # ---- Helper-variable equivalence checks (no database_ prefix in lookup output) ----
         self.assertEqual(out["type"], "postgres")
         self.assertEqual(out["name"], "foo")
         self.assertEqual(out["username"], "foo")
@@ -192,7 +183,6 @@ class DatabaseLookupTests(unittest.TestCase):
         self.assertEqual(out["reach_host"], "127.0.0.1")
         self.assertEqual(out["instance"], "foo")
 
-        # STRICT projection API (positional want-path)
         with patch.object(
             self.db_lookup_mod,
             "get_entity_name",
@@ -206,6 +196,50 @@ class DatabaseLookupTests(unittest.TestCase):
                 lookup.run(["web-app-foo", "port"], variables=vars_)[0],
                 "5432",
             )
+
+    def test_dedicated_with_name_override_is_not_managed(self):
+        applications = {
+            "web-app-foo": {
+                "services": {
+                    "postgres": {
+                        "enabled": True,
+                        "shared": False,
+                        "name": "foo-postgres-1",
+                    }
+                },
+                "credentials": {"database_password": "pw"},
+            },
+            "svc-db-postgres": {
+                "services": {
+                    "postgres": {
+                        "name": "postgres-central",
+                        "image": "postgis/postgis",
+                        "version": "16",
+                        "ports": {"local": {"postgres": "5432"}},
+                    }
+                }
+            },
+        }
+        ports = {"localhost": {"database": {"svc-db-postgres": "5432"}}}
+        vars_ = {
+            "applications": applications,
+            "ports": ports,
+            "DIR_COMPOSITIONS": "/opt/compose/",
+        }
+
+        lookup = self._make_lookup(vars_)
+
+        with patch.object(
+            self.db_lookup_mod,
+            "get_entity_name",
+            side_effect=self._fake_get_entity_name,
+        ):
+            out = lookup.run(["web-app-foo"], variables=vars_)[0]
+
+        self.assertTrue(out["enabled"])
+        self.assertFalse(out["shared"])
+        self.assertTrue(out["local"])
+        self.assertFalse(out["managed"])
 
     def test_postgres_shared_uses_central_name_for_host_instance_container_volume(self):
         applications = {
@@ -239,26 +273,21 @@ class DatabaseLookupTests(unittest.TestCase):
         ):
             out = lookup.run(["web-app-foo"], variables=vars_)[0]
 
-        # enabled/shared surfaced
         self.assertTrue(out["enabled"])
         self.assertTrue(out["shared"])
         self.assertFalse(out["local"])
+        self.assertFalse(out["managed"])
 
-        # id should be present
         self.assertEqual(out["id"], "svc-db-postgres")
 
-        # database_host/database_instance = central name
         self.assertEqual(out["host"], "postgres-central")
         self.assertEqual(out["instance"], "postgres-central")
 
-        # database_container = _dbtype when central_enabled
         self.assertEqual(out["container"], "postgres")
         self.assertEqual(out["network"], "postgres")
 
-        # database_volume: no "<entity>_" prefix when shared, just host
         self.assertEqual(out["volume"], "postgres-central")
 
-        # URLs use central host
         self.assertEqual(out["url_jdbc"], "jdbc:postgresql://postgres-central:5432/foo")
         self.assertEqual(out["url_full"], "postgres://foo:pw@postgres-central:5432/foo")
 
@@ -298,7 +327,6 @@ class DatabaseLookupTests(unittest.TestCase):
         self.assertFalse(out["shared"])
         self.assertTrue(out["local"])
 
-        # id should be present
         self.assertEqual(out["id"], "svc-db-mariadb")
 
         self.assertEqual(out["type"], "mariadb")
@@ -340,15 +368,54 @@ class DatabaseLookupTests(unittest.TestCase):
         ):
             out = lookup.run(["web-app-foo"], variables=vars_)[0]
 
-        # enabled/shared surfaced
         self.assertTrue(out["enabled"])
         self.assertFalse(out["shared"])
 
-        # id should be present
         self.assertEqual(out["id"], "svc-db-postgres")
 
-        # consumer override should win:
         self.assertEqual(out["version"], "15")
+
+    def test_image_override_on_consumer_wins_over_default(self):
+        applications = {
+            "web-app-foo": {
+                "services": {
+                    "postgres": {
+                        "enabled": True,
+                        "shared": False,
+                        "image": "postgres",
+                        "version": "17",
+                    }
+                },
+                "credentials": {"database_password": "pw"},
+            },
+            "svc-db-postgres": {
+                "services": {
+                    "postgres": {
+                        "name": "postgres-central",
+                        "image": "postgis/postgis",
+                        "version": "16",
+                    }
+                }
+            },
+        }
+        ports = {"localhost": {"database": {"svc-db-postgres": "5432"}}}
+        vars_ = {
+            "applications": applications,
+            "ports": ports,
+            "DIR_COMPOSITIONS": "/opt/compose/",
+        }
+
+        lookup = self._make_lookup(vars_)
+
+        with patch.object(
+            self.db_lookup_mod,
+            "get_entity_name",
+            side_effect=self._fake_get_entity_name,
+        ):
+            out = lookup.run(["web-app-foo"], variables=vars_)[0]
+
+        self.assertEqual(out["image"], "postgres")
+        self.assertEqual(out["version"], "17")
 
     def test_local_flag_for_variant_disabling_dedicated_db(self):
         applications = {

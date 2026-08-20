@@ -30,4 +30,13 @@ if systemctl is-active --quiet dnsmasq 2>/dev/null; then
 	sudo systemctl restart dnsmasq || true
 fi
 
+# Remove the systemd-resolved routing drop-in (fallback setup)
+if [[ -f "${DNS_RESOLVED_DROPIN}" ]]; then
+	echo ">>> Removing systemd-resolved drop-in: ${DNS_RESOLVED_DROPIN}"
+	sudo rm -f "${DNS_RESOLVED_DROPIN}"
+	if systemctl is-active --quiet systemd-resolved 2>/dev/null; then
+		sudo systemctl restart systemd-resolved || true
+	fi
+fi
+
 echo ">>> Removed."

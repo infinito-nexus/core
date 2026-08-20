@@ -19,7 +19,7 @@
 #   NGINX_DIR  Base nginx config dir inside the container.
 #              Default: /etc/nginx (matches svc-prx-openresty/meta/volumes.yml).
 #   DOMAIN              DOMAIN_PRIMARY used to render Jinja in roles/<role>/meta/server.yml.
-#              Default: infinito.example.
+#              Default: infinito.test.
 
 set -euo pipefail
 

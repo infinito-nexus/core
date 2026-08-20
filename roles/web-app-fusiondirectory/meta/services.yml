@@ -13,8 +13,8 @@ prometheus:
   shared: "{{ 'web-app-prometheus' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ 'web-app-mailu' in group_names }}"
-  shared: "{{ 'web-app-mailu' in group_names }}"
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
 matomo:
   bond: 1
   enabled: "{{ 'web-app-matomo' in group_names }}"
@@ -56,6 +56,7 @@ fusiondirectory:
   run_after:
     - web-app-matomo
     - web-app-keycloak
+    - web-app-stalwart
     - web-app-mailu
     - svc-db-openldap
   lifecycle: beta

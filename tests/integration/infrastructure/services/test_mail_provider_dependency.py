@@ -8,28 +8,26 @@ from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
 
-_MAILU_ROLE = "web-app-mailu"
+_PROVIDER_ROLES = {"web-app-stalwart", "web-app-mailu"}
 _EMAIL_SERVICE_KEY = "email"
 
-# Patterns that indicate an email dependency on Mailu
-_MAILU_REF_RE = re.compile(r"web-app-mailu")
+_PROVIDER_REF_RE = re.compile(r"web-app-(?:stalwart|mailu)|MAIL_PROVIDER")
 _EMAIL_LOOKUP_RE = re.compile(r"""lookup\(\s*['"]email['"]""")
 
-# File extensions to scan within a role
 _SCAN_EXTENSIONS = {".yml", ".yaml", ".j2", ".py", ".sh", ".conf", ".env"}
 
 
 def _yaml_refs_skipping_required_by(data: object) -> tuple[bool, bool]:
-    """Walk a parsed YAML structure for mailu refs and lookup('email'), but
-    treat values inside any `required_by` subtree as inert. `required_by`
+    """Walk a parsed YAML structure for mail-provider refs and lookup('email'),
+    but treat values inside any `required_by` subtree as inert. `required_by`
     expresses inverse coverage metadata for the deploy verifier, not a
-    "consumer of mailu" relation."""
-    refs_mailu = False
+    "consumer of the mail provider" relation."""
+    refs_provider = False
     refs_email = False
 
     def walk(node: object, inside_required_by: bool) -> None:
-        nonlocal refs_mailu, refs_email
-        if refs_mailu and refs_email:
+        nonlocal refs_provider, refs_email
+        if refs_provider and refs_email:
             return
         if isinstance(node, dict):
             for k, v in node.items():
@@ -38,18 +36,18 @@ def _yaml_refs_skipping_required_by(data: object) -> tuple[bool, bool]:
             for item in node:
                 walk(item, inside_required_by)
         elif isinstance(node, str) and not inside_required_by:
-            if not refs_mailu and _MAILU_REF_RE.search(node):
-                refs_mailu = True
+            if not refs_provider and _PROVIDER_REF_RE.search(node):
+                refs_provider = True
             if not refs_email and _EMAIL_LOOKUP_RE.search(node):
                 refs_email = True
 
     walk(data, False)
-    return refs_mailu, refs_email
+    return refs_provider, refs_email
 
 
 def _scan_role(role_path: Path) -> tuple[bool, bool]:
-    """Return (refs_mailu, refs_email_lookup) for all scannable files in *role_path*."""
-    refs_mailu = False
+    """Return (refs_provider, refs_email_lookup) for all scannable files in *role_path*."""
+    refs_provider = False
     refs_email = False
     meta_services_yml = role_path / ROLE_FILE_META_SERVICES
     for path in role_path.rglob("*"):  # nocheck: project-walk
@@ -57,27 +55,27 @@ def _scan_role(role_path: Path) -> tuple[bool, bool]:
             continue
         if path == meta_services_yml:
             data = load_yaml_any(str(path), default_if_missing={})
-            yml_mailu, yml_email = _yaml_refs_skipping_required_by(data)
-            refs_mailu = refs_mailu or yml_mailu
+            yml_provider, yml_email = _yaml_refs_skipping_required_by(data)
+            refs_provider = refs_provider or yml_provider
             refs_email = refs_email or yml_email
         else:
             try:
                 text = read_text(str(path))
             except (OSError, UnicodeDecodeError):
                 continue
-            if not refs_mailu and _MAILU_REF_RE.search(text):
-                refs_mailu = True
+            if not refs_provider and _PROVIDER_REF_RE.search(text):
+                refs_provider = True
             if not refs_email and _EMAIL_LOOKUP_RE.search(text):
                 refs_email = True
-        if refs_mailu and refs_email:
+        if refs_provider and refs_email:
             break
-    return refs_mailu, refs_email
+    return refs_provider, refs_email
 
 
-class TestMailuServiceDependency(unittest.TestCase):
-    """Every role that references 'web-app-mailu' or calls lookup('email', ...)
-    must declare services.email with enabled: true and shared: true
-    in its config/main.yml."""
+class TestMailProviderServiceDependency(unittest.TestCase):
+    """Every role that references the mail provider (web-app-stalwart /
+    web-app-mailu) or calls lookup('email', ...) must declare services.email
+    with enabled: true and shared: true in its meta/services.yml."""
 
     def setUp(self):
         self.roles_root = PROJECT_ROOT / "roles"
@@ -92,18 +90,14 @@ class TestMailuServiceDependency(unittest.TestCase):
         content = load_yaml_any(config_path) or {}
         return content.get(_EMAIL_SERVICE_KEY, {}) or {}
 
-    def test_mailu_dependents_declare_email_service(self):
+    def test_provider_dependents_declare_email_service(self):
         errors = []
         for role_path in sorted(self.roles_root.iterdir()):
             if not role_path.is_dir():
                 continue
             role_name = role_path.name
-            if role_name == _MAILU_ROLE:
+            if role_name in _PROVIDER_ROLES:
                 continue
-            # Email transport providers (msmtp, smtp/postfix) and the
-            # email-alerting / mail-health roles implement or directly
-            # service the email subsystem; they call lookup('email') as the
-            # source of truth, not as dependent consumers. Exempt them.
             if role_name.startswith("sys-svc-mail") or role_name in {
                 "sys-ctl-alm-email",
                 "sys-ctl-hlth-msmtp",
@@ -114,13 +108,13 @@ class TestMailuServiceDependency(unittest.TestCase):
             if not config_path.is_file():
                 continue
 
-            refs_mailu, refs_email_lookup = _scan_role(role_path)
-            if not refs_mailu and not refs_email_lookup:
+            refs_provider, refs_email_lookup = _scan_role(role_path)
+            if not refs_provider and not refs_email_lookup:
                 continue
 
             reasons = []
-            if refs_mailu:
-                reasons.append("references 'web-app-mailu'")
+            if refs_provider:
+                reasons.append("references the mail provider")
             if refs_email_lookup:
                 reasons.append("calls lookup('email', ...)")
             reason_str = " and ".join(reasons)
@@ -141,7 +135,7 @@ class TestMailuServiceDependency(unittest.TestCase):
 
         if errors:
             self.fail(
-                "Roles that depend on Mailu must declare "
+                "Roles that depend on the mail provider must declare "
                 "services.email with enabled: true and shared: true:\n\n"
                 + "\n".join(errors)
             )

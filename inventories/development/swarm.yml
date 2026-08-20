@@ -20,6 +20,10 @@ storage:
 SVC_STORAGE_NFS_SERVER_STATE_ALLOWED_CIDRS:
   - "192.168.244.0/24" # nocheck: hardcoded-subnet (act swarm-lab subnet; nodes + controller mount the fsid=0 state export from it)
 
+# Exception: env-steerable so bleeding-edge-kernel hosts can pin "0" — their
+# NFS client breaks ganesha 4.1+ sessions (first access after mount EIOs).
+SVC_STORAGE_NFS_SERVER_MINOR_VERSIONS: "{{ lookup('env', 'INFINITO_SWARM_NFS_MINOR_VERSIONS') | default('0, 1, 2', true) }}" # nocheck: swarm-only inventory; evaluated on the CI runner where load.sh exports it, never inside the compose DiD
+
 swarm:
   network:
     encryption: true

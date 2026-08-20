@@ -1,8 +1,8 @@
 # DNS Setup Scripts 🌐
 
-This directory contains platform-specific scripts for setting up local DNS resolution for the `infinito.example` domain (and subdomains) on the development machine.
+This directory contains platform-specific scripts for setting up local DNS resolution for the `infinito.test` domain (and subdomains) on the development machine.
 
-All scripts map `*.infinito.example` → `127.0.0.1` so that local deployments are reachable via their expected hostnames.
+All scripts map `*.infinito.test` → `127.0.0.1` so that local deployments are reachable via their expected hostnames.
 
 ---
 

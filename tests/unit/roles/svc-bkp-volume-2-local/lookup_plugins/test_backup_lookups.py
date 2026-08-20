@@ -88,6 +88,20 @@ class TestBackupDatabaseContainers(unittest.TestCase):
             out = lm.run([], variables={})
         self.assertEqual(out, [[]])
 
+    def test_dedicated_sidecar_not_listed(self):
+        apps = {
+            "web-app-stalwart": {
+                "services": {
+                    "postgres": {"enabled": True, "shared": False},
+                }
+            }
+        }
+        lm = _bare(db_mod, [])
+        with mock.patch.object(db_mod, "lookup_loader") as ll:
+            ll.get.return_value = mock.MagicMock(run=lambda *_a, **_k: [apps])
+            out = lm.run([], variables={})
+        self.assertEqual(out, [[]])
+
 
 class TestBackupHardRestartProjects(unittest.TestCase):
     def test_returns_entity_names_with_marker(self):

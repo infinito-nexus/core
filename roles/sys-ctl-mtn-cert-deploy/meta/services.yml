@@ -2,7 +2,13 @@
 cert-deploy:
   lifecycle: beta
   required_by:
+    # Exception: only the default provider is a static requirement — Mailu
+    # includes the shared run-once unit only when it is the ACTIVE provider
+    # (MAIL_PROVIDER), and a legacy/standalone Mailu deploy (email consumer
+    # off, TLS_FLAVOR=notls behind the proxy) legitimately never runs it, so
+    # listing web-app-mailu here fails the required_by execution guard on
+    # exactly that deploy shape.
     compose:
-      roles: [web-app-mailu]
+      roles: [web-app-stalwart]
     swarm:
-      roles: [web-app-mailu]
+      roles: [web-app-stalwart]

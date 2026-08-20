@@ -47,7 +47,7 @@ echo ">>> Importing CA into Windows CurrentUser trust store (no admin required)"
 \$store.Add(\$cert)
 \$store.Close()
 " >/dev/null
-echo ">>> CA trusted in Windows (Chrome/Edge will trust *.infinito.example)"
+echo ">>> CA trusted in Windows (Chrome/Edge will trust *.${INFINITO_DOMAIN})"
 
 echo ">>> Discovering domains from nginx config"
 DOMAINS=$(docker exec "${CONTAINER}" bash -c \
@@ -58,7 +58,7 @@ WIN_TEMP="/mnt/c/Users/${WIN_USER}/AppData/Local/Temp"
 PS1_FILE="${WIN_TEMP}/infinito-hosts-setup.ps1"
 PS1_FILE_WIN="C:\\Users\\${WIN_USER}\\AppData\\Local\\Temp\\infinito-hosts-setup.ps1"
 HOSTS_FILE='C:\Windows\System32\drivers\etc\hosts'
-MARKER='# infinito.example --- managed by infinito-nexus'
+MARKER="# ${INFINITO_DOMAIN} --- managed by infinito-nexus"
 
 # shellcheck disable=SC2016
 {

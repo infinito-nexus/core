@@ -1,0 +1,18 @@
+---
+- include_tasks: 00_core.yml
+  when: run_once_web_app_stalwart is not defined
+  vars:
+    application_id: "web-app-stalwart"
+
+# Exception: re-entry from the service-loader post-load flush (queued in
+# 00_core when the OIDC issuer was not yet deployed — Keycloak loads after the
+# mail provider). Stack-host only: the exec/restart targets live on the
+# manager (the service is manager-pinned).
+- include_tasks: 11_oidc_restart.yml
+  when:
+    - run_once_web_app_stalwart is defined
+    - stalwart_oidc_restart_pending | default(false) | bool
+    - not (service_loader_preloading | default(false) | bool)
+    - IS_STACK_HOST | bool
+  vars:
+    application_id: "web-app-stalwart"

@@ -70,7 +70,8 @@ async function oidcLogin(page, username, password) {
   const ssoHref = await ssoButton.getAttribute("href");
   console.log("SSO href:", ssoHref);
   await page.waitForFunction(() => document.readyState === "complete");
-  const navigated = page.waitForURL(/auth\.infinito\.example/, { timeout: 30000 });
+  // Domain-agnostic: match the Keycloak authorize endpoint path, not a hardcoded IdP host.
+  const navigated = page.waitForURL(/\/protocol\/openid-connect\//, { timeout: 30000 });
   await page.evaluate((href) => {
     const csrfToken = document.querySelector("meta[name='csrf-token']")?.getAttribute("content") || "";
     const form = document.createElement("form");

@@ -1,0 +1,4 @@
+---
+cli:
+  # Exception: the migration e2e runs two nested full deploys — the default 3600s CLI budget starves it.
+  timeout: 10800

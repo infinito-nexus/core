@@ -9,6 +9,7 @@ from copy import deepcopy
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.kcadm_json import json_from_noisy_stdout
+from ansible.module_utils.keycloak_scopes import converge_client_scope_lists
 
 NO_SUCH_CONTAINER_RE = re.compile(r"no such container", re.IGNORECASE)
 DEAD_CID_MAX_RETRIES = 80
@@ -468,6 +469,9 @@ def run_module():
             stderr=err,
             payload=desired_obj,
         )
+
+    if object_kind == "client":
+        converge_client_scope_lists(run_kcadm, module, object_id, desired, realm, kcadm_exec)
 
     result["changed"] = True
     result["result"] = desired_obj

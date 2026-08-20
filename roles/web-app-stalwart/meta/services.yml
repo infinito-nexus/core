@@ -1,0 +1,148 @@
+---
+# nocheck: seaweedfs-required — object storage not implemented for this role
+sso:
+  bond: 1
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
+  flavor: oidc
+  oidc:
+    email_by_username: true
+    enable_user_creation: true
+    # Exception: under SSO, Stalwart disables password submission, so the
+    # no-reply bot relays without SMTP AUTH (see plugins/lookup/email.py).
+    # Mailu omits this.
+    submission_via_relay: true
+    # Exception: Keycloak client ids, self-declared here as the one SPOT —
+    # web-app-keycloak provisions the clients and this role's Roundcube config
+    # consumes them. webui_client_id is fixed by upstream (the WebAdmin SPA
+    # compiles it in).
+    webui_client_id: stalwart-webui
+    webmail_client_id: stalwart-webmail
+logout:
+  bond: 1
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
+dashboard:
+  bond: 1
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
+matomo:
+  bond: 1
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true
+# nocheck: playwright-service-flag — self-provider
+stalwart:
+  bond: 1
+  enabled: true
+  shared: true
+  provides: email
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: default-placement-manager  mail edge at a known IP: MX A-record, PTR and SPF bind to the stack host IP (a floating task's egress IP breaks deliverability); the mail store is NFS-hostile and IS the app — same rationale as web-app-mailu
+  placement: manager
+  image: stalwartlabs/stalwart
+  version: "v0.16.12"
+  webui_version: "v1.0.5"
+  name: stalwart
+  backup:
+    project_hard_restart: true
+  # Exception: manual cutover switch — imports the legacy Mailu maildirs over IMAP once
+  # Mailu runs as legacy and Stalwart is the active provider; see README "Migrating from Mailu".
+  migration:
+    import_mailu: false
+  # nocheck: min-storage-headroom  Reason: the mail store (maildir blobs, FTS index, queue) lives in this service's volumes and dwarfs the image transfer size
+  min_storage: 20GB
+  domain: "{{ lookup('email').domain }}"
+  # Exception: no 587/143/110 — Stalwart's default config binds only the implicit-TLS client ports.
+  ports:
+    local:
+      http: 8081
+    public:
+      smtp: 25
+      smtps: 465
+      pop3s: 995
+      imaps: 993
+      sieve: 4190
+    internal:
+      http: 8080
+      smtp: 25
+      smtps: 465
+      pop3s: 995
+      imaps: 993
+      sieve: 4190
+  run_after:
+    - web-app-matomo
+  lifecycle: beta
+  cpus: "1.0"
+  mem_reservation: 512m
+  mem_limit: 2g
+  pids_limit: 1024
+# Exception: literal false — only the migration variant pulls the legacy provider in (variants.yml round 0).
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — legacy-provider pull for the migration scenario, no UI surface
+mailu:
+  bond: 1
+  enabled: false
+  shared: false
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
+postgres:
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  # Exception: embedded in swarm — mailu pins its embedded redis for the same manager-VIP reason.
+  shared: "{{ ('svc-db-postgres' in group_names) and (DEPLOYMENT_MODE == 'compose') }}"
+  # Exception: plain postgres, not the postgis default — baudolo's substring detection needs it for sql-dump backups.
+  image: postgres
+  version: "17"
+  cpus: "0.8"
+  mem_reservation: 1g
+  mem_limit: 2g
+  pids_limit: 512
+# nocheck: dynamic-flag — role-local sub-component, always deployed with the stack
+# nocheck: playwright-service-flag — internal sub-component
+webmail:
+  bond: 1
+  enabled: true
+  shared: true
+  image: roundcube/roundcubemail
+  version: "1.7.2-apache"
+  cpus: "0.3"
+  mem_reservation: 256m
+  mem_limit: 1g
+  pids_limit: 512
+  ports:
+    local:
+      http: 8089
+    internal:
+      http: 80
+# nocheck: dynamic-flag — role-local sub-component, always deployed with the stack
+# nocheck: playwright-service-flag — antivirus milter, covered by role deploy test
+clamav:
+  enabled: true
+  shared: false
+  image: clamav/clamav
+  version: "1.5.3"
+  ports:
+    internal:
+      milter: 7357
+  # Exception: elevated memory — clamd holds the full signature DB in memory.
+  cpus: "1.0"
+  mem_reservation: 1g
+  mem_limit: 3g
+  pids_limit: 512
+# nocheck: playwright-service-flag — verified by web-svc-css provider spec
+css:
+  bond: 1
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
+prometheus:
+  bond: 1
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"

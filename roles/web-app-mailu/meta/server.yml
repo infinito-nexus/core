@@ -1,5 +1,7 @@
 ---
 status_codes:
+  # Exception: 302 — the admin UI redirects an unauthenticated HEAD once Mailu is the active provider serving the mail vhost.
   default:
+    - 302
     - 301
     - 200

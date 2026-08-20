@@ -12,6 +12,9 @@ from plugins.lookup.users import LookupModule as UsersLookup
 
 SYSTEM_EMAIL_PREFIX = "SYSTEM_EMAIL_"
 
+# Default mail provider role; overridable per inventory via the MAIL_PROVIDER var.
+DEFAULT_MAIL_PROVIDER = "web-app-stalwart"
+
 # Declared in resolution order so each computed default sees already-resolved
 # predecessors (for example ``port`` depends on ``tls``).
 RESOLUTION_ORDER = (
@@ -130,13 +133,14 @@ class LookupModule(LookupBase):
         if short_key == "timeout":
             return "30"
         if short_key == "external":
-            # Cluster-wide, not per-host: in swarm mailu is manager-pinned so
-            # worker group_names lack it, yet every node relays through the
-            # central mailu (routing mesh). Gate on the group having a host so
-            # workers use the authenticated config, not a localhost root sender
-            # mailu rejects ("Sender address rejected: Domain not found").
+            # Cluster-wide, not per-host: in swarm the mail provider is
+            # manager-pinned so worker group_names lack it, yet every node
+            # relays through the central provider (routing mesh). Gate on the
+            # group having a host so workers use the authenticated config, not
+            # a localhost root sender the provider rejects
+            # ("Sender address rejected: Domain not found").
             groups = variables.get("groups") or {}
-            return bool(groups.get("web-app-mailu"))
+            return bool(groups.get(self._mail_provider(variables)))
         if short_key == "environment":
             external = _as_bool(resolved.get("external"))
             tls_enabled = _as_bool(variables.get("TLS_ENABLED"))
@@ -154,6 +158,9 @@ class LookupModule(LookupBase):
         if short_key == "port":
             external = _as_bool(resolved.get("external"))
             tls = _as_bool(resolved.get("tls"))
+            # SSO relay: port 25 is the only listener not requiring SMTP AUTH.
+            if self._provider_uses_sso_relay(variables):
+                return 25
             return 465 if (external and tls) else 25
         if short_key == "host":
             env = resolved.get("environment")
@@ -168,14 +175,17 @@ class LookupModule(LookupBase):
                 "localhost_container",
             ):
                 return "localhost"
-            return self._lookup_mailu_domain(variables)
+            return self._lookup_mail_provider_domain(variables)
         if short_key == "auth":
             env = resolved.get("environment")
             if env in ("external_container", "localhost"):
                 return False
+            if self._provider_uses_sso_relay(variables):
+                return False
             return _as_bool(resolved.get("tls"))
         if short_key == "start_tls":
-            return False
+            # SSO relay uses STARTTLS on port 25.
+            return self._provider_uses_sso_relay(variables)
         if short_key == "smtp":
             return True
         if short_key == "from":
@@ -195,15 +205,57 @@ class LookupModule(LookupBase):
             if isinstance(no_reply, dict):
                 tokens = no_reply.get("tokens") or {}
                 if isinstance(tokens, dict):
-                    return tokens.get("web-app-mailu", "") or ""
+                    return tokens.get(self._mail_provider(variables), "") or ""
             return ""
         raise AnsibleError(f"email: unknown key {short_key!r}")
 
-    def _lookup_mailu_domain(self, variables: dict[str, Any]) -> Any:
+    def _mail_provider(self, variables: dict[str, Any]) -> str:
+        value = variables.get("MAIL_PROVIDER")
+        return str(value).strip() if value else DEFAULT_MAIL_PROVIDER
+
+    def _provider_uses_sso_relay(self, variables: dict[str, Any]) -> bool:
+        """True when the active provider self-declares SSO relay (via
+        ``services.sso.oidc.submission_via_relay``) and Keycloak is deployed."""
+        group_names = variables.get("group_names") or []
+        if "web-app-keycloak" not in group_names:
+            return False
+        apps = ApplicationsLookup()
+        apps._templar = getattr(self, "_templar", None)
+        forwarded = {
+            k: v for k, v in getattr(self, "_kwargs", {}).items() if k == "roles_dir"
+        }
+        try:
+            entry = apps.run(
+                [self._mail_provider(variables), {}],
+                variables=variables,
+                **forwarded,
+            )[0]
+        except AnsibleError:
+            return False
+        if not isinstance(entry, dict):
+            return False
+        services = entry.get("services") or {}
+        sso = services.get("sso") or {} if isinstance(services, dict) else {}
+        oidc = sso.get("oidc") or {} if isinstance(sso, dict) else {}
+        if not isinstance(oidc, dict):
+            return False
+        # A variant/inventory can pin the provider's sso.enabled to a literal
+        # false while submission_via_relay stays true in the role defaults —
+        # then the provider keeps password auth and never widens allowRelaying,
+        # so relay mode must be off. Untemplated Jinja (the role default gates
+        # on group_names) falls through to the Keycloak check above.
+        enabled = sso.get("enabled") if isinstance(sso, dict) else None
+        if enabled is not None and "{{" not in str(enabled) and not _as_bool(enabled):
+            return False
+        return _as_bool(oidc.get("submission_via_relay"))
+
+    def _lookup_mail_provider_domain(self, variables: dict[str, Any]) -> Any:
         domain_lookup = DomainLookup()
         domain_lookup._templar = getattr(self, "_templar", None)
         try:
-            return domain_lookup.run(["web-app-mailu"], variables=variables)[0]
+            return domain_lookup.run(
+                [self._mail_provider(variables)], variables=variables
+            )[0]
         except Exception:
             return "localhost"
 

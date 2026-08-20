@@ -48,12 +48,15 @@ users:
     firstname: "Harry"
     lastname: "Beaver"
     website: "https://www.infinito.nexus/"
-    email: "biber@infinito.example"
+    email: "biber@{{ DOMAIN_PRIMARY }}"
     gpg: "DUMMY-GPG-KEY-NOT-SET"
     password: "VeryUnsecurePassword!1"
 
     uid: 10001
     gid: 10001
+    # Exception: the mail personas exchange real messages (Playwright webmail flows, the
+    # Stalwart migration e2e), which a role-derived 'identity'-only account cannot receive.
+    accounts: ["mailbox", "identity"]
     roles: []
     tokens: {}
     authorized_keys: []

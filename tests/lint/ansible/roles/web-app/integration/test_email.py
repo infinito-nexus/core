@@ -12,7 +12,11 @@ from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from . import PROJECT_ROOT
 
 _ROLE_PREFIX = "web-app-"
-_MAILU_ROLE = "web-app-mailu"
+# Email *providers* call lookup('email') as the source of truth, not as
+# dependent consumers, so they are exempt from the consumer rule. Both the
+# active provider (web-app-stalwart) and the deprecated one (web-app-mailu,
+# still in tree) qualify.
+_EMAIL_PROVIDER_ROLES = {"web-app-stalwart", "web-app-mailu"}
 _EMAIL_LOOKUP_RE = re.compile(r"""lookup\(\s*['"]email['"]""")
 _SCAN_EXTENSIONS = {".yml", ".yaml", ".j2", ".py", ".sh", ".conf", ".env"}
 # The email block is at the file root (top-level `email:`).
@@ -125,7 +129,7 @@ class TestWebAppRolesIntegrateEmail(unittest.TestCase):
         for role_path in sorted(roles_dir.iterdir()):
             if not (role_path.is_dir() and role_path.name.startswith(_ROLE_PREFIX)):
                 continue
-            if role_path.name == _MAILU_ROLE:
+            if role_path.name in _EMAIL_PROVIDER_ROLES:
                 continue
             config = role_path / ROLE_FILE_META_SERVICES
 

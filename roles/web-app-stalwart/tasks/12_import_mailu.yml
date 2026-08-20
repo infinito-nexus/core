@@ -1,0 +1,44 @@
+---
+# include-gated: when: STALWART_IMPORT_MAILU and 'web-app-mailu' in group_names and STALWART_ACTIVE_PROVIDER
+# Exception: the volume name couples to web-app-mailu by design — this task imports
+# that one legacy provider's Dovecot maildirs and dies with it (lifecycle: eol).
+- name: "🔍 Resolve the legacy Mailu maildir volume mountpoint"
+  ansible.builtin.command: >-
+    container volume inspect --format "{{ '{{' }} .Mountpoint {{ '}}' }}" mailu_dovecot_mail
+  register: stalwart_mailu_maildir
+  changed_when: false
+
+- name: "🔧 Assemble the migration account credentials"
+  ansible.builtin.set_fact:
+    stalwart_migration_accounts: >-
+      {%- set acc = {} -%}
+      {%- for key, u in (lookup('users')).items() -%}
+      {%- set secret = u.password | hash('sha256') if 'bot' in (u.roles | default([])) else u.password -%}
+      {%- set _ = acc.update({u.email: secret}) -%}
+      {%- endfor -%}
+      {{ acc }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📄 Stage the migration accounts file"
+  stack_host_copy:
+    content: "{{ stalwart_migration_accounts | to_json }}"
+    dest: "{{ [ lookup('container', application_id, 'directories.instance'), '.migration-accounts.json' ] | path_join }}"
+    mode: "0600"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+# Exception: --imap-insecure is loopback-only — the published IMAPS port on this host; the
+# dev/CI cert is self-signed and a hostname match is meaningless on 127.0.0.1.
+- name: "📥 Import the Mailu maildirs into Stalwart over IMAP"
+  ansible.builtin.script:
+    cmd: >-
+      {{ [ role_path, 'files/migrate_from_mailu.py' ] | path_join }}
+      --maildir-root {{ stalwart_mailu_maildir.stdout | trim | quote }}
+      --imap-host 127.0.0.1 --imap-port 993 --imap-insecure
+      --accounts-file {{ [ lookup('container', application_id, 'directories.instance'), '.migration-accounts.json' ] | path_join | quote }}
+  register: stalwart_mailu_import
+  timeout: "{{ lookup('timeout', 3600) | int }}"
+
+- name: "🧹 Remove the migration accounts file"
+  ansible.builtin.file:
+    path: "{{ [ lookup('container', application_id, 'directories.instance'), '.migration-accounts.json' ] | path_join }}"
+    state: absent

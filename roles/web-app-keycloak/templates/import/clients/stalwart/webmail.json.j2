@@ -1,0 +1,47 @@
+{#
+  Confidential webmail client with minimal scopes (no roles/groups) so the OIDC
+  access token stays under Stalwart's 4096-byte XOAUTH2 SASL line limit. Reuses the
+  shared client secret. Keep `description` below under Keycloak's 255-char column.
+#}
+{
+  "clientId": "{{ KEYCLOAK_STALWART_WEBMAIL_CLIENT_ID }}",
+  "name": "Stalwart Webmail (Roundcube)",
+  "description": "Roundcube webmail client. Minimal scopes (no roles/groups) keep the OIDC access token small enough for Stalwart's XOAUTH2 SMTP SASL line (4096-byte limit). Reuses the shared client secret.",
+  "enabled": true,
+  "surrogateAuthRequired": false,
+  "alwaysDisplayInConsole": false,
+  "clientAuthenticatorType": "client-secret",
+  "secret": "{{ OIDC.CLIENT.SECRET }}",
+  "redirectUris": {{ KEYCLOAK_STALWART_WEBMAIL_REDIRECT_URIS | to_json }},
+  "webOrigins": {{ KEYCLOAK_STALWART_WEBMAIL_WEB_ORIGINS | to_json }},
+  "notBefore": 0,
+  "bearerOnly": false,
+  "consentRequired": false,
+  "standardFlowEnabled": true,
+  "implicitFlowEnabled": false,
+  "directAccessGrantsEnabled": false,
+  "serviceAccountsEnabled": false,
+  "publicClient": false,
+  "frontchannelLogout": false,
+  "protocol": "openid-connect",
+  "attributes": {
+    "post.logout.redirect.uris": "{{ KEYCLOAK_STALWART_WEBMAIL_POST_LOGOUT }}",
+    "oauth2.device.authorization.grant.enabled": "false",
+    "oidc.ciba.grant.enabled": "false",
+    "backchannel.logout.session.required": "true",
+    "display.on.consent.screen": "false"
+  },
+  "authenticationFlowBindingOverrides": {},
+  "fullScopeAllowed": false,
+  "nodeReRegistrationTimeout": -1,
+  "defaultClientScopes": [
+    "web-origins",
+    "acr",
+    "profile",
+    "basic",
+    "email"
+  ],
+  "optionalClientScopes": [
+    "offline_access"
+  ]
+}

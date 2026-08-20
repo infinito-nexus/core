@@ -75,7 +75,7 @@ env:
   DISCOURSE_SMTP_ADDRESS:           {{ email.host }}
   DISCOURSE_SMTP_PORT:              {{ email.port }}
   DISCOURSE_SMTP_USER_NAME:         {{ email.username }}
-  DISCOURSE_SMTP_PASSWORD:          {{ email.password }}
+  DISCOURSE_SMTP_PASSWORD:          {{ email.password | to_json }}
   DISCOURSE_SMTP_ENABLE_START_TLS:  {{ email.start_tls }}
   DISCOURSE_SMTP_FORCE_TLS:         {{ email.tls }}
   DISCOURSE_SMTP_DOMAIN:            {{ email.domain }}

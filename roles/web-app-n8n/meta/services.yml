@@ -11,8 +11,8 @@ sso:
       port: 5678
 email:
   bond: 1
-  enabled: "{{ 'web-app-mailu' in group_names }}"
-  shared: "{{ 'web-app-mailu' in group_names }}"
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -72,6 +72,7 @@ n8n:
   run_after:
     - web-app-keycloak
     - web-app-matomo
+    - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
 # nocheck: dynamic-flag

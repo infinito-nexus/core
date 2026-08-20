@@ -77,6 +77,8 @@
   when: "mm_kc_all_scopes.stdout_lines | select('search', ',openid$') | list | length == 0"
   register: mm_kc_create_openid_scope
 
+# Unconditional: a skipped task would still overwrite mm_kc_all_scopes with a
+# skip-result dict (no stdout_lines) and break every later reference to it.
 - name: "📖 Mattermost | Keycloak — re-read client scopes after possible creation"
   ansible.builtin.shell: >- # nocheck: container-exec-resolver  MATTERMOST_KC_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
     container exec -i {{ MATTERMOST_KC_LOCAL_CID | quote }}
@@ -88,7 +90,6 @@
   delegate_to: "{{ MATTERMOST_KC_HOST_NODE }}"
   register: mm_kc_all_scopes
   changed_when: false
-  when: mm_kc_create_openid_scope is changed
 
 - name: "📋 Mattermost | Keycloak — list existing default client scopes"
   ansible.builtin.shell: >- # nocheck: container-exec-resolver  MATTERMOST_KC_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell

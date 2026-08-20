@@ -1,0 +1,14 @@
+# Bridges Stalwart's DATA-stage milter (inet) to the local clamd. The
+# clamav/clamav image's clamd listens on /tmp/clamd.sock by default.
+MilterSocket inet:{{ STALWART_CLAMAV_MILTER_PORT }}
+MilterSocketMode 660
+ClamdSocket unix:/tmp/clamd.sock
+OnInfected Reject
+OnClean Accept
+# Fail-open: if clamd is unavailable/still warming up (freshclam), accept the
+# message rather than deferring — a starting scanner must not block mail.
+OnFail Accept
+AddHeader Replace
+LogSyslog no
+LogInfected Basic
+Foreground yes
