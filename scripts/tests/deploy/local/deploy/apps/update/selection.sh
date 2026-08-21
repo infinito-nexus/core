@@ -14,12 +14,6 @@ set -euo pipefail
 : "${INFINITO_INVENTORY_DIR:?INFINITO_INVENTORY_DIR is not set (e.g. INFINITO_INVENTORY_DIR=/etc/inventories/local-full-server)}"
 : "${INFINITO_INVENTORY_FILE:?INFINITO_INVENTORY_FILE is not set — source scripts/meta/env/load.sh first}"
 
-# When the previous matrix init produced one folder per round
-# (`<INFINITO_INVENTORY_DIR>-0`, `<INFINITO_INVENTORY_DIR>-1`, ...), the
-# `variant=<idx>` make arg pins this redeploy to the chosen round so the
-# operator can iterate one specific variant without re-running the full
-# matrix. Without `variant=` the unsuffixed path is used, which is
-# correct for single-variant deploys (N=1). See docs/contributing/design/variants.md.
 if [[ -n "${variant:-}" ]]; then
 	INFINITO_INVENTORY_DIR="${INFINITO_INVENTORY_DIR}-${variant}"
 	INFINITO_INVENTORY_FILE="${INFINITO_INVENTORY_DIR}/devices.yml"

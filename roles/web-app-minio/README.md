@@ -18,6 +18,7 @@ flowchart LR
         dep_svc_ai_ollama["svc-ai-ollama 🐳🐝"]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
@@ -37,6 +38,7 @@ flowchart LR
         svc_javascript["javascript"]
         svc_ollama["ollama"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
         svc_api["api"]
         svc_console["console"]
         svc_client["client"]
@@ -45,6 +47,7 @@ flowchart LR
     dep_svc_ai_ollama -. "0..1" .-> svc_ollama
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_matomo -. "0..1" .-> svc_matomo
@@ -53,7 +56,7 @@ flowchart LR
     dep_web_svc_logout -. "0..1" .-> svc_logout
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
@@ -105,6 +108,12 @@ docker run --rm -it \
 
 * MinIO: [www.min.io](https://www.min.io)
 * AWS S3 (API background): [aws.amazon.com/s3](https://aws.amazon.com/s3)
+
+## Persona contract opt-outs
+
+This role declares `PERSONA_ADMINISTRATOR_BLOCKED` and `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2` for two different reasons. The MinIO Console version pinned here never renders an SSO button — `/api/v1/login` answers `redirectRules: null` however the identity provider is registered server-side — so there is no in-page OIDC entry point for the shared helper to click. Biber is blocked because the only MinIO policy the role creates is the administrator RBAC group path (`MINIO_OIDC_POLICY_NAME` in `vars/main.yml`, attached in `tasks/02_ldap.yml`) and MinIO has no self-service signup, so biber maps to no policy and has no authenticated surface at either tier.
+
+The administrator journey is covered bespoke in `files/playwright/playwright.spec.js`: the integrated OIDC path is proven at the STS `AssumeRoleWithWebIdentity` tier, and the LDAP variant additionally drives the Console form login and logout. The path back to the generic administrator persona is a Console build that surfaces the configured IdP on its login form.
 
 ## Credits
 

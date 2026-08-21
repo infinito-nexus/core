@@ -18,7 +18,7 @@
     file: 05_patch_database.yml
     apply:
       delegate_to: "{{ MATOMO_HOST_NODE }}"
-      notify: compose up
+      notify: compose-up
   when: (matomo_install_state.stdout | trim) == 'installed'
 
 - name: "🩹 Patch Trusted Hosts for {{ application_id }}"

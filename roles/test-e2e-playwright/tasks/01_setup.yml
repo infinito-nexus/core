@@ -11,6 +11,25 @@
     dest: "{{ TEST_E2E_PLAYWRIGHT_SHARED_DIR }}/package.json"
     mode: "0644"
 
+- name: 📦 Pack the persona flows for a single transfer
+  ansible.builtin.command:
+    cmd: >-
+      tar -cf {{ TEST_E2E_PLAYWRIGHT_PERSONAS_ARCHIVE | quote }}
+      -C {{ lookup('path_absolute', 'roles/test-e2e-playwright/files/personas') | quote }} .
+  delegate_to: localhost
+  changed_when: false
+
+- name: ✅ Ensure the shared personas dir exists
+  ansible.builtin.file:
+    path: "{{ TEST_E2E_PLAYWRIGHT_SHARED_PERSONAS }}"
+    state: directory
+    mode: "0755"
+
+- name: 📋 Stage the persona flows once for every role of this run
+  ansible.builtin.unarchive:
+    src: "{{ TEST_E2E_PLAYWRIGHT_PERSONAS_ARCHIVE }}"
+    dest: "{{ TEST_E2E_PLAYWRIGHT_SHARED_PERSONAS }}/"
+
 - name: 🔍 Probe shared install stamp
   ansible.builtin.stat:
     path: "{{ TEST_E2E_PLAYWRIGHT_SHARED_STAMP }}"
@@ -31,22 +50,22 @@
             != TEST_E2E_PLAYWRIGHT_VERSION)
       }}
 
-- name: 🔧 Provision the shared Playwright install (image pull + npm install + stamp)
+- name: ⬇️ Pull the Playwright image once for every role of this run
+  ansible.builtin.command:
+    argv:
+      - container
+      - pull
+      - "{{ TEST_E2E_PLAYWRIGHT_IMAGE }}"
+  register: _playwright_shared_pull
+  changed_when: false
+  failed_when: false
+  retries: 3
+  delay: 5
+  until: _playwright_shared_pull.rc == 0
+
+- name: 🔧 Provision the shared Playwright install (npm install + stamp)
   when: _playwright_shared_install_needed | bool
   block:
-    - name: ⬇️ Pull Playwright image if missing (shared install pass)
-      ansible.builtin.command:
-        argv:
-          - container
-          - pull
-          - "{{ TEST_E2E_PLAYWRIGHT_IMAGE }}"
-      register: _playwright_shared_pull
-      changed_when: false
-      failed_when: false
-      retries: 3
-      delay: 5
-      until: _playwright_shared_pull.rc == 0
-
     - name: 📦 Install @playwright/test into the shared dir (once per host per version)
       ansible.builtin.command:
         argv:

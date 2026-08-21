@@ -22,18 +22,18 @@ Use the domain module directly. The package-level
 ``_reset_cache_for_tests`` clears every domain's caches plus the shared
 fingerprint memo in one call — preferred over hand-rolling N
 ``_reset()`` calls per test fixture.
+
+``PROJECT_ROOT`` is the single source of truth for the repository root.
+Every callsite that needs it — CLI tools, plugins, tests — MUST import
+this value rather than re-derive it via ``Path(__file__).parents[N]`` or
+``os.pardir`` chains; ``tests/lint/repository/test_project_root_import.py``
+enforces that.
 """
 
 from __future__ import annotations
 
 from pathlib import Path
 
-# Repository root, derived once from this package's location. Single
-# source of truth for every callsite in the project that needs to
-# reach the repo root (CLI tools, plugins, tests). External consumers
-# MUST import this value rather than re-derive it via
-# `Path(__file__).parents[N]` or `os.pardir` chains; the
-# `tests/lint/repository/test_project_root_import.py` lint enforces it.
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
 ROLES_DIR: Path = PROJECT_ROOT / "roles"
 
@@ -42,9 +42,12 @@ def _reset_cache_for_tests() -> None:
     """Orchestrate per-domain cache resets plus the shared fingerprint
     memo. Test fixtures rely on a single entry point so they can stay
     agnostic of how the cache is partitioned across modules."""
+    from utils.domains import application_domain_index
+
     from . import applications, base, domains, files, gitignore, users
     from . import yaml as _yaml_cache
 
+    application_domain_index._reset()
     applications._reset()
     users._reset()
     domains._reset()

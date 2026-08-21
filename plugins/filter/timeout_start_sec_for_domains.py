@@ -37,7 +37,6 @@ class FilterModule:
                         flat.extend(v.values())
                 return flat
 
-            # Accept dict | list | str
             if isinstance(domains_dict, dict):
                 flat = _flatten_from_dict(domains_dict)
             elif isinstance(domains_dict, list):
@@ -46,7 +45,6 @@ class FilterModule:
                 flat = [domains_dict]
             else:
                 # nocheck (TRY301 below): re-raised verbatim by the
-                # AnsibleFilterError handler — intentional pass-through.
                 raise AnsibleFilterError(  # noqa: TRY301
                     "Expected 'domains_dict' to be dict | list | str."
                 )

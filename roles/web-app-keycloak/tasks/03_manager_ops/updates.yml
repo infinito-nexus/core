@@ -16,6 +16,10 @@
         file: update_routines.yml
         apply:
           delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
+
+    - name: "🔢 Keycloak updates | Reset cross-node recovery attempt counter"
+      ansible.builtin.set_fact:
+        kc_update_attempt: 0
   rescue:
     - name: "🔢 Keycloak updates | Advance cross-node recovery attempt counter" # nocheck: rescue-recovery a cross-node reschedule needs a swarm-wide node re-resolve plus a change of delegate_to, which Ansible can only do by catching the failure and retrying; a diagnostics-only rescue cannot re-target the delegate, so this block recovers and only captures diagnostics once recovery is exhausted
       ansible.builtin.set_fact:
@@ -33,12 +37,8 @@
           cross-node recovery attempts: {{ ansible_failed_result.msg | default('see above') }}
       when: (kc_update_attempt | int) >= (kc_update_max_attempts | int)
 
-    - name: "🔍 Keycloak updates | Re-resolve hosting node + live container id (recovery)"
-      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
-      vars:
-        resolve_service_key: "{{ entity_name }}"
-        resolve_output_prefix: KEYCLOAK
-        resolve_compose_cid: "{{ lookup('container_address', application_id, entity_name) }}"
+    - name: "🔑 Keycloak updates | Re-resolve node + re-login on fresh container (recovery)"
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/login.yml"
 
     - name: "🔁 Keycloak updates | Retry object updates on the freshly resolved node"
       ansible.builtin.include_tasks:

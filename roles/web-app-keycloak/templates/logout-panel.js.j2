@@ -1,0 +1,5 @@
+window.__INFINITO_LOGOUT__ = {
+  origin: {{ lookup('tls', 'web-svc-logout', 'url.base') | regex_replace('/$', '') | to_json }},
+  i18n: {{ lookup('file', application_id | abs_role_path_by_application_id ~ '/files/logout_i18n.yml') | from_yaml | to_json }}
+};
+{{ lookup('file', application_id | abs_role_path_by_application_id ~ '/files/javascript/logout-panel.js') }}

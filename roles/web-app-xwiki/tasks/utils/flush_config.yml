@@ -3,7 +3,7 @@
   stack_host_template:
     src: "xwiki.properties.j2"
     dest: "{{ XWIKI_HOST_PROPERTIES_PATH }}"
-  notify: compose up
+  notify: compose-up
 
 - name: "🚿 flush compose for '{{ application_id }}'"
   meta: flush_handlers

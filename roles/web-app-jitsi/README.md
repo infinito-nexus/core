@@ -39,6 +39,7 @@ flowchart LR
         svc_prosody["prosody"]
         svc_jicofo["jicofo"]
         svc_jvb["jvb"]
+        svc_tor["tor ❌"]
     end
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
@@ -50,14 +51,14 @@ flowchart LR
     dep_web_svc_logout -. "0..1" .-> svc_logout
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
 - **JWT-bridged SSO:** Prosody validates Keycloak-issued RS256 tokens via JWKS so the OIDC client controls room moderation rights.
 - **LDAP direct-bind variant:** `meta/variants.yml` V3 wires prosody's `mod_auth_ldap2` against `svc-db-openldap` for a non-OIDC LDAP-only deploy.
 - **Three persona surfaces:** `guest` lands on the public landing without a room, `biber` joins a JWT-issued room, `administrator` is moderator with token-gated kick/lock.
-- **Self-contained Prosody:** Component secrets for jicofo, jvb, jigasi and jibri are pre-generated via `meta/schema.yml` so XMPP auth is stable across redeploys.
+- **Self-contained Prosody:** Component secrets for jicofo, jvb, jigasi and jibri are pre-generated via `meta/secrets.yml` so XMPP auth is stable across redeploys.
 
 ## Quick Setup
 
@@ -99,7 +100,7 @@ docker run --rm -it \
 
 ## Developer Notes
 
-Variant matrix lives in [variants.yml](./meta/variants.yml). Service flags, ports, and image pins in [services.yml](./meta/services.yml). Credentials declared in [schema.yml](./meta/schema.yml).
+Variant matrix lives in [variants.yml](./meta/variants.yml). Service flags, ports, and image pins in [services.yml](./meta/services.yml). Credentials declared in [secrets.yml](./meta/secrets.yml).
 
 ### Persona contract opt-outs
 

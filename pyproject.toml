@@ -11,9 +11,15 @@ requires-python = ">=3.11"
 license = { file = "LICENSE.md" }
 
 dependencies = [
+  # Pinned: utils/recovery reads the generation layout from baudolo's own
+  # BackupPaths, so the version here and in svc-bkp-volume-2-local must match.
+  "backup-docker-to-local==7.0.1",
   "bcrypt",
   "cryptography",
   "humanfriendly",
+  "PyMySQL",
+  "psycopg2-binary",
+  "ldap3",
   "PyYAML",
   "ruamel.yaml",
 ]
@@ -188,8 +194,8 @@ ignore = [
 # ``patch.object(sut, "os")`` replacements). Converting these call
 # sites to ``pathlib.Path`` would require rewriting every coupled
 # test in lockstep — out of scope for the use-pathlib pass.
-"roles/sys-ctl-rpr-container-hard/files/script.py" = ["PTH"]
-"roles/sys-ctl-rpr-container-soft/files/script.py" = ["PTH"]
+"roles/sys-ctl-rpr-container-hard/files/python/script.py" = ["PTH"]
+"roles/sys-ctl-rpr-container-soft/files/python/script.py" = ["PTH"]
 
 # BLE001 (flake8-blind-except) ratchet.
 # Broad `except Exception:` is now selected project-wide so NEW code is
@@ -224,7 +230,6 @@ ignore = [
 "cli/meta/roles/services/called/__init__.py" = ["BLE001"]
 "library/docker_bridge_gateway.py" = ["BLE001"]
 "plugins/filter/active_docker.py" = ["BLE001"]
-"plugins/filter/compose_volumes.py" = ["BLE001"]
 "plugins/filter/docker/service_enabled.py" = ["BLE001"]
 "plugins/filter/dotenv.py" = ["BLE001"]
 "plugins/filter/get/all/application_ids.py" = ["BLE001"]
@@ -259,7 +264,7 @@ ignore = [
 "cli/administration/deploy/development/deploy.py" = ["N806"]
 "cli/administration/deploy/development/init.py" = ["N806"]
 "cli/administration/deploy/development/inventory.py" = ["N806"]
-"tests/unit/cli/administration/deploy/development/test_inventory.py" = ["N806"]
+"tests/unit/python/cli/administration/deploy/development/test_inventory.py" = ["N806"]
 
 # Lazy-loaded class binding: ``ValueGenerator = _value_generator_cls()``
 # rebinds the imported class inside the function. PEP 8 keeps the

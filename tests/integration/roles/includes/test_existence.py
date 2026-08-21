@@ -144,18 +144,11 @@ class TestIncludeImportExistence(unittest.TestCase):
                 if not Path(pattern_ref).suffix:
                     pattern_ref += ".yml"
 
-                # Resolve relative to each candidate base. ``pattern_ref``
-                # may be relative or absolute; once it sits under ``base``
-                # we either expand wildcards via :meth:`Path.glob` or
-                # check for a literal file. The project-walk lint flags
-                # rglob/os.walk/glob.glob — neither is used here.
                 has_wildcard = "*" in pattern_ref or "?" in pattern_ref
                 matches: list[str] = []
                 if Path(pattern_ref).is_absolute():
                     candidates = [Path(pattern_ref)]
                     if has_wildcard:
-                        # Absolute pattern with wildcards: split off the
-                        # leading literal directory and glob from there.
                         anchor = Path(pattern_ref).anchor
                         relative = Path(pattern_ref).relative_to(anchor)
                         matches.extend(

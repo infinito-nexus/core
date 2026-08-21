@@ -124,7 +124,6 @@ class LookupModule(LookupBase):
         data_cdn_dir = _ensure_trailing_slash(_join(www_dir, "public_cdn"))
         data_global_dir = _ensure_trailing_slash(_join(www_dir, "global"))
 
-        # Container-internal nginx cache paths; not user-controllable.
         cache_general_dir = "/tmp/cache_nginx_general/"  # noqa: S108
         cache_image_dir = "/tmp/cache_nginx_image/"  # noqa: S108
 

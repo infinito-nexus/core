@@ -68,12 +68,10 @@ def resolve_run_after_transitively(start_role: str) -> list[str]:
             f"Unknown role: {start_role!r} (missing folder {rdir / start_role})"
         )
 
-    # Cache run_after lists per role for speed and consistent error reporting
     cache: dict[str, list[str]] = {}
 
     def ra(role: str) -> list[str]:
         if role not in cache:
-            # Validate role existence when it is referenced
             if not (rdir / role).is_dir():
                 raise RunAfterResolutionError(
                     f"Invalid run_after reference: {role!r} (missing folder {rdir / role})"
@@ -87,7 +85,6 @@ def resolve_run_after_transitively(start_role: str) -> list[str]:
 
     def dfs(node: str) -> None:
         if node in stack:
-            # Cycle: show a readable path: A -> B -> C -> A
             idx = stack.index(node)
             cycle = [*stack[idx:], node]
             raise RunAfterResolutionError(
@@ -105,7 +102,6 @@ def resolve_run_after_transitively(start_role: str) -> list[str]:
 
         stack.pop()
 
-        # Post-order append yields a valid prerequisites-first ordering.
         if node != start_role:
             out.append(node)
 

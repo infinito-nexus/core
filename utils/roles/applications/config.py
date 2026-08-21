@@ -6,7 +6,7 @@ from ansible.errors import AnsibleFilterError, AnsibleUndefinedVariable
 from ansible.template import AnsibleUndefined
 
 from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_META_SCHEMA
+from utils.roles.mapping import ROLE_FILE_META_SECRETS
 
 
 class AppConfigKeyError(AnsibleFilterError, ValueError):
@@ -34,7 +34,7 @@ def get(
     default=None,
     skip_missing_app=False,
 ):
-    schema_path = str(Path("roles") / application_id / ROLE_FILE_META_SCHEMA)
+    schema_path = str(Path("roles") / application_id / ROLE_FILE_META_SECRETS)
 
     def schema_defines(path):
         if not Path(schema_path).is_file():

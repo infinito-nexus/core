@@ -140,8 +140,6 @@ def _read_role_file(role_dir: Path, file_rel_path: str) -> object | None:
 def _get_role_types_cached(role_dir_str: str) -> frozenset[str]:
     role_dir = Path(role_dir_str)
 
-    # Memoise per-file reads across the marker walk so a file that
-    # carries multiple markers (e.g. ``vars/main.yml``) is parsed once.
     file_data_cache: dict[str, object] = {}
 
     found: set[str] = set()

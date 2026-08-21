@@ -2,7 +2,7 @@
 engine's on-disk data volume.
 
 NFS placement is derived from the role's ``placement`` (see
-``plugins/filter/compose_volumes.py``): an unpinned role's volumes are bound to
+``plugins/lookup/compose_volumes.py``): an unpinned role's volumes are bound to
 the shared NFS mount so they survive a node reschedule, while a pinned
 (``placement: manager``) role keeps its volumes node-local. A database,
 message-queue or search-index engine's on-disk state CANNOT live on NFS (fsync +

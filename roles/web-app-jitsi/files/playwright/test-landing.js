@@ -1,8 +1,9 @@
 const { test, expect } = require("@playwright/test");
+const { gotoOnion } = require("./personas");
 
 exports.register = function (shared) {
   test("jitsi: canonical landing reachable + CSP header", async ({ page }) => {
-    const response = await page.goto(`${shared.env.appBaseUrl}/`, {
+    const response = await gotoOnion(page, `${shared.env.appBaseUrl}/`, {
       waitUntil: "domcontentloaded",
     });
     expect(response, "jitsi landing response").toBeTruthy();

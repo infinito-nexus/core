@@ -11,6 +11,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 import utils.domains.list as domain_list
+from utils.domains.default_primary import default_domain_primary
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -19,7 +20,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "--domain-primary",
-        default=os.environ.get("DOMAIN", "infinito.example"),
+        default=os.environ.get("DOMAIN") or default_domain_primary(),
         help="Value used for DOMAIN_PRIMARY rendering",
     )
     parser.add_argument(

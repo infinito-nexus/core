@@ -179,7 +179,7 @@ ROLE_FILE_META_DOMAINS = "meta/domains.yml"
 ROLE_FILE_META_NETWORKS = "meta/networks.yml"
 ROLE_FILE_META_RBAC = "meta/rbac.yml"
 ROLE_FILE_META_VOLUMES = "meta/volumes.yml"
-ROLE_FILE_META_SCHEMA = "meta/schema.yml"
+ROLE_FILE_META_SECRETS = "meta/secrets.yml"
 ROLE_FILE_META_INFO = "meta/info.yml"
 ROLE_FILE_META_USERS = "meta/users.yml"
 ROLE_FILE_META_TESTS = "meta/tests.yml"
@@ -340,7 +340,7 @@ ROLE_FILES: dict[str, dict[str, object]] = {
             *_all(allowed=False),
         ],
     },
-    ROLE_FILE_META_SCHEMA: {
+    ROLE_FILE_META_SECRETS: {
         "description": (
             "Application config schema describing credentials and validation rules."
         ),

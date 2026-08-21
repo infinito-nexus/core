@@ -18,7 +18,7 @@ case "${state}" in
 running | degraded) ;;
 *)
 	echo "systemd never reached a running state (last: ${state:-unknown})" >&2
-	systemctl --no-pager status 2>/dev/null | head -n 20 >&2 || true
+	systemctl --no-pager status 2>/dev/null | head -n 20 >&2 || true # nocheck: shell-or-true -- diagnostics dump on the failure path
 	exit 1
 	;;
 esac
@@ -40,7 +40,7 @@ for _ in $(seq 1 60); do
 done
 if [[ "${ready}" -ne 1 ]]; then
 	echo "docker daemon never became ready" >&2
-	journalctl -u docker --no-pager 2>/dev/null | tail -n 50 >&2 || true
+	journalctl -u docker --no-pager 2>/dev/null | tail -n 50 >&2 || true # nocheck: shell-or-true -- diagnostics dump on the failure path
 	exit 1
 fi
 

@@ -38,6 +38,19 @@ def _is_consumer(
             ):
                 return False
         return True
+    if kind == "onion_sso":
+        provider = consumer.get("provider")
+        if not provider:
+            return False
+        key = consumer.get("key") or "sso"
+        if not _coerce_bool(
+            lookup_config(application_id, f"services.{key}.enabled", False)
+        ):
+            return False
+        provider_key = consumer.get("provider_key") or "tor"
+        return _coerce_bool(
+            lookup_config(provider, f"services.{provider_key}.enabled", False)
+        )
     if kind == "web_facing":
         return application_id.startswith(("web-app-", "web-svc-"))
     return False

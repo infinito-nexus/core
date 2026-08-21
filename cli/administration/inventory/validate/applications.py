@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from utils.manager.credential_key import OVERRIDE_SECTION, SECRETS_KEY
+
 from .keys import recursive_keys
 
 
@@ -22,7 +24,7 @@ def compare_application_keys(applications, application_defaults, source, variant
         for variant in variants.get(app_id, []):
             legal_keys |= recursive_keys(variant)
         for key in recursive_keys(conf):
-            if key.startswith("credentials"):
+            if key == SECRETS_KEY or key.startswith(OVERRIDE_SECTION):
                 continue
             if key not in legal_keys:
                 errs.append(f"{source}: Missing default for {app_id}: {key}")

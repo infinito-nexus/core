@@ -43,10 +43,8 @@ PASSWORD_ASSIGN_RE = re.compile(
     re.IGNORECASE | re.VERBOSE,
 )
 
-# Exactly: {{ ... }}
 JINJA_PURE_RE = re.compile(r"^\{\{\s*(?P<expr>.+?)\s*\}\}$")
 
-# Exactly: "{{ ... }}"  (FORBIDDEN - would double-quote because dotenv_quote already quotes)
 JINJA_DOUBLE_WRAPPED_RE = re.compile(r'^"\{\{\s*(?P<expr>.+?)\s*\}\}"$')
 
 DOTENV_FILTER = "dotenv_quote"
@@ -94,11 +92,9 @@ class TestEnvPasswordsQuotedAndFiltered(unittest.TestCase):
                 key = m.group("key")
                 rhs = m.group("rhs").strip()
 
-                # Only enforce rules when value is variable-derived (Jinja present)
                 if "{{" not in rhs or "}}" not in rhs:
                     continue
 
-                # Explicitly forbid: "{{ ... }}" (double-quoting in templates)
                 if JINJA_DOUBLE_WRAPPED_RE.match(rhs):
                     failures.append(
                         f"{rel}:{lineno}: {key} is wrapped in double quotes, which would cause double-quoting.\n"
@@ -108,7 +104,6 @@ class TestEnvPasswordsQuotedAndFiltered(unittest.TestCase):
                     )
                     continue
 
-                # Must be exactly a pure Jinja expression: {{ ... }}
                 m_jinja = JINJA_PURE_RE.match(rhs)
                 if not m_jinja:
                     failures.append(
@@ -120,7 +115,6 @@ class TestEnvPasswordsQuotedAndFiltered(unittest.TestCase):
 
                 expr = m_jinja.group("expr")
 
-                # Must contain dotenv_quote filter
                 if DOTENV_FILTER not in expr:
                     failures.append(
                         f"{rel}:{lineno}: {key} is missing '| {DOTENV_FILTER}'.\n"

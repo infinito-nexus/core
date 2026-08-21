@@ -1,0 +1,15 @@
+---
+data:
+  type: volume
+  name: socialhome_data
+  mounts:
+    - service: socialhome
+      target: /data
+
+config:
+  type: config
+  source: "{{ [lookup('container', 'web-app-socialhome', 'directories.volumes'), 'socialhome.toml'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: socialhome
+      target: /etc/socialhome/socialhome.toml

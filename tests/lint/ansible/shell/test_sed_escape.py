@@ -57,7 +57,6 @@ def find_sed_substitutions(text: str, file: Path) -> list[SedMatch]:
     """
     matches: list[SedMatch] = []
 
-    # Broad match for a sed command that contains a substitution starting with s<delim>
     sed_cmd_re = re.compile(
         r"""
         sed                     # sed
@@ -74,8 +73,6 @@ def find_sed_substitutions(text: str, file: Path) -> list[SedMatch]:
         d = m.group("d")
         q = m.group("q")
 
-        # Find the third unescaped delimiter after "s<d>",
-        # but ignore delimiter chars inside Jinja blocks {{ ... }}.
         i = m.end()
         delim_count = 0
         in_jinja = 0
@@ -109,7 +106,6 @@ def find_sed_substitutions(text: str, file: Path) -> list[SedMatch]:
 
         end = i
 
-        # Extend to closing quote if there was an opening quote
         if q:
             while end < len(text):
                 ch = text[end]
@@ -139,7 +135,6 @@ def extract_replacement(expr: str) -> tuple[str, str] | None:
         return None
     d = m.group("d")
 
-    # Parse: s<d> PAT <d> REPL <d> ...
     rest = expr[m.end() :]
     parts: list[str] = []
     buf: list[str] = []
@@ -148,7 +143,6 @@ def extract_replacement(expr: str) -> tuple[str, str] | None:
     in_jinja = 0
 
     while i < len(rest):
-        # Enter/exit Jinja blocks
         if rest.startswith("{{", i):
             in_jinja += 1
             buf.append("{{")
@@ -162,14 +156,12 @@ def extract_replacement(expr: str) -> tuple[str, str] | None:
 
         ch = rest[i]
 
-        # Preserve escaped characters
         if ch == "\\" and i + 1 < len(rest):
             buf.append(ch)
             buf.append(rest[i + 1])
             i += 2
             continue
 
-        # Only treat delimiter as delimiter when NOT inside Jinja
         if in_jinja == 0 and ch == d:
             parts.append("".join(buf))
             buf = []
@@ -208,11 +200,9 @@ class TestSedEscapeUsage(unittest.TestCase):
 
                 d, replacement = extracted
 
-                # Only enforce when replacement injects Jinja
                 if "{{" not in replacement:
                     continue
 
-                # Enforce sed_escape is used in the replacement segment (not just anywhere)
                 if "sed_escape" not in replacement:
                     ctx_start = max(0, sm.start - 200)
                     ctx_end = min(len(text), sm.end + 200)

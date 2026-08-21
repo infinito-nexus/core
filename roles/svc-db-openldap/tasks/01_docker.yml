@@ -18,8 +18,8 @@
     dest: "{{ [ lookup('container', application_id, 'directories.instance'), item.dest ] | path_join }}"
     mode: "{{ item.mode }}"
   loop:
-    - { src: "entrypoint.sh", dest: "entrypoint.sh", mode: "0755" }
-    - { src: "healthcheck.sh", dest: "healthcheck.sh", mode: "0755" }
+    - { src: "shell/entrypoint.sh", dest: "entrypoint.sh", mode: "0755" }
+    - { src: "shell/healthcheck.sh", dest: "healthcheck.sh", mode: "0755" }
   loop_control:
     label: "{{ item.dest }}"
 

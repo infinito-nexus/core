@@ -17,10 +17,6 @@ SCAN_DIRS = ("roles", "tasks", "group_vars")
 _SCAN_PREFIXES = tuple(f"{d}/" for d in SCAN_DIRS)
 SCAN_SUFFIXES = (".yml", ".yaml", ".j2")
 
-# Match the start of a `lookup('config', ...)` / `lookup("config", ...)` call.
-# The opening paren and arg parsing are handled procedurally below so that
-# nested parens, embedded strings, and trailing filter pipelines are tracked
-# correctly.
 _LOOKUP_CONFIG_RE = re.compile(r"""lookup\(\s*['"]config['"]""")
 _DEFAULT_FILTER_RE = re.compile(r"\|\s*default\s*\(")
 
@@ -60,8 +56,6 @@ def _walk_lookup_call(line: str, lookup_match_start: int) -> tuple[int, int]:
     while i < len(line):
         c = line[i]
         if in_str is not None:
-            # Tolerate backslash-escapes; Jinja string literals rarely use them
-            # but the loss is at worst a missed lint for an exotic edge case.
             if c == in_str and line[i - 1] != "\\":
                 in_str = None
         elif c in ("'", '"'):
@@ -90,17 +84,12 @@ def _scan_file(path: Path) -> list[Finding]:
             close_paren, commas = _walk_lookup_call(line, m.start())
             if close_paren < 0:
                 continue
-            # The plugin signature is lookup('config', application_id,
-            # config_path[, default]). With exactly 2 top-level commas the
-            # call has 3 args ('config', app, path) and no plugin default,
-            # so a missing key raises AnsibleError before any Jinja filter
-            # downstream can fire.
             if commas != 2:
                 continue
             tail = line[close_paren + 1 :]
             if _DEFAULT_FILTER_RE.search(tail):
                 findings.append(Finding(file=path, line=idx, snippet=line.strip()))
-                break  # one finding per line is enough
+                break
     return findings
 
 

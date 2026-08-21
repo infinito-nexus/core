@@ -17,17 +17,6 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
-# Engine service-key -> descriptor.
-#   svc:       central role id that owns the engine when ``shared: true``.
-#   port:      default container port.
-#   isolation: how a consumer gets its own logical slice on the central instance.
-#              acl  -> dedicated user + key-prefix (redis)
-#              vhost-> dedicated virtual host + user (rabbitmq)
-#              index-> dedicated index/alias namespace (elasticsearch)
-#              apikey -> scoped api key (typesense)
-#              collection -> per-consumer collection prefix (qdrant)
-#              prefix -> key-prefix only, no enforcement (memcached)
-#              none -> shared, no per-consumer split (unbound resolver)
 ENGINES: dict[str, dict[str, Any]] = {
     "redis": {"svc": "svc-db-redis", "port": 6379, "isolation": "acl"},
     "memcached": {"svc": "svc-db-memcached", "port": 11211, "isolation": "prefix"},

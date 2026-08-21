@@ -12,15 +12,23 @@
 # Inputs (environment variables):
 #   APPS_JSON                    JSON array of app IDs from the discover step
 #   CI_SELF_HOSTED_RUNNER_COUNT  self-hosted runner instance count (default: 0)
+#   INFINITO_CI_CONCURRENCY      GitHub-hosted runner slots (SPOT: default.env)
 #
 # Outputs (appended to $GITHUB_OUTPUT):
 #   apps_github       JSON array routed to GitHub-hosted runners
 #   apps_self_hosted  JSON array routed to self-hosted runners ([] when disabled)
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+if [[ -f "${REPO_ROOT}/scripts/meta/env/load.sh" ]]; then
+	# shellcheck source=scripts/meta/env/load.sh
+	source "${REPO_ROOT}/scripts/meta/env/load.sh"
+fi
+
 APPS_JSON="${APPS_JSON:-[]}"
 SELF_HOSTED_COUNT="${CI_SELF_HOSTED_RUNNER_COUNT:-0}"
-GITHUB_QUOTA=20
+GITHUB_QUOTA="${INFINITO_CI_CONCURRENCY:?INFINITO_CI_CONCURRENCY must be set (SPOT: default.env)}"
 
 if [[ "${SELF_HOSTED_COUNT}" -le 0 ]]; then
 	echo "apps_github=${APPS_JSON}" >>"${GITHUB_OUTPUT}"

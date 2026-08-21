@@ -30,15 +30,12 @@ class TestJinjaIncludePaths(unittest.TestCase):
                 expr = stmt.group(1).strip()
                 m = self.LITERAL_PATH_RE.match(expr)
                 if not m:
-                    continue  # ignore variable-based includes
+                    continue
 
                 include_path = m.group(1)
-                # check absolute project-relative path
                 abs_target = PROJECT_ROOT / include_path
-                # check path relative to the template file
                 rel_target = tpl.parent / include_path
 
-                # check path relative to role's templates directory
                 role_templates_root = None
                 for parent in tpl.parents:
                     if parent.name == "templates":

@@ -2,7 +2,7 @@
 
 End-to-end flow of the backup chain and its recover counterparts. Solid
 arrows run on schedule (systemd units + pull); dashed arrows are the
-recover direction (`files/recover.py` of each role, enforced by
+recover direction (`files/python/recover.py` of each role, enforced by
 `tests/lint/ansible/roles/test_bkp_roles_have_recover.py`). The swarm
 test pipeline exercises the full chain in
 `scripts/tests/deploy/swarm/routine/backup/base.sh`.
@@ -47,12 +47,25 @@ flowchart TB
     bkp_backups -.->|"operator rsync<br/>(backup user is pull-only)"| src_backups
     src_backups -.->|"nfs-2-local recover.py<br/>backup unit first, then rsync --delete"| export
     src_backups -.->|"volume-2-local recover.py<br/>backup unit first, then rsync --delete<br/>into the volume mountpoint"| volumes
+    src_backups -.->|"volume-2-local recover.py --databases<br/>baudolo-restore &lt;engine&gt; --empty per dump,<br/>consumers must be down"| volumes
     src_backups -.->|"secrets-2-local recover.py<br/>backup unit first, then rsync --delete<br/>per subtree to its fixed system path"| secrets
 ```
 
+Databases travel as sql dumps, not as a file tree (`--dump-only-sql`), so
+they have their own recover leg: `recover database <generation>`, which
+`recover full` plans right after the volume steps. That leg is the one part
+of the chain that cannot run on a bare host: a dump is replayed through
+`docker exec`, so the database service has to be deployed and up, with its
+consumers stopped. The engine of a dump is
+resolved from the consuming role's `meta/services.yml` service key in
+`utils/recovery/databases.py` — the same value the backup seed used — and a
+replay refuses to run while a consumer of that database is up, because
+`--empty` pre-cleans the schema and a booting consumer would recreate it
+underneath the replay.
+
 Per-role recover procedures live in each role's `## Recover` README
 section; `svc-bkp-remote-2-local` documents its one-way opt-out in
-`files/recover.py.nocheck`.
+`files/python/recover.py.nocheck`.
 
 ## Deploy-time trigger flow
 

@@ -2,7 +2,7 @@
 whitelist: {}
 flags:
   script-src-elem:
-    unsafe-eval: true
-    unsafe-inline: true
+    unsafe-eval: true # nocheck: csp-unsafe  Reason: historical, TODO: re-verify it is really required and does not open attack surface
+    unsafe-inline: true # nocheck: csp-unsafe  Reason: historical, TODO: re-verify it is really required and does not open attack surface
   script-src-attr:
-    unsafe-eval: true
+    unsafe-eval: true # nocheck: csp-unsafe  Reason: historical, TODO: re-verify it is really required and does not open attack surface

@@ -1,0 +1,1 @@
+# nocheck: role-files-layout - The Playwright harness. 02_run_one.yml stages these by bare name into the directory where every role spec resolves them as require("./timeouts"), require("./service-gating") and so on, so src and dest share one loop value. The layout is the import contract, not a filing choice.

@@ -1,4 +1,5 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./onion-test");
+const { resolveTimeout } = require("./timeouts");
 
 const BRIDGE_TO_BOT_LOCALPART = {
   appservice_irc: "ircbot",
@@ -59,7 +60,7 @@ exports.register = function (shared) {
       }
       const userId = `@${localpart}:${matrixServerName}`;
       const url = `${matrixBaseUrl}/_matrix/client/v3/profile/${encodeURIComponent(userId)}`;
-      const r = await request.get(url, { failOnStatusCode: false });
+      const r = await request.get(url, { failOnStatusCode: false, timeout: resolveTimeout(30_000) });
       if (r.status() >= 500) {
         failures.push(`${bridge}: ${userId} -> HTTP ${r.status()}`);
       }

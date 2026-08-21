@@ -30,11 +30,8 @@ if TYPE_CHECKING:
 _REPO_ROOT = PROJECT_ROOT
 _ROLES_ROOT = _REPO_ROOT / "roles"
 
-# Matches a FROM line that references at least one ${VAR}
 _FROM_ARG_RE = re.compile(r"^\s*FROM\s+.*\$\{(\w+)\}", re.IGNORECASE)
-# Matches an ARG declaration: ARG VARNAME or ARG VARNAME=default
 _ARG_DECL_RE = re.compile(r"^\s*ARG\s+(\w+)", re.IGNORECASE)
-# Matches any FROM line (marks the end of the global scope)
 _FROM_RE = re.compile(r"^\s*FROM\b", re.IGNORECASE)
 
 
@@ -47,7 +44,6 @@ def _undeclared_from_args(dockerfile: Path) -> list[tuple[int, str, str]]:
     FROM instruction that was not declared in the global scope."""
     lines = read_text(str(dockerfile)).splitlines()
 
-    # Pass 1 — collect ARGs declared before the first FROM (global scope)
     global_args: set[str] = set()
     for line in lines:
         if _FROM_RE.match(line):
@@ -56,7 +52,6 @@ def _undeclared_from_args(dockerfile: Path) -> list[tuple[int, str, str]]:
         if m:
             global_args.add(m.group(1))
 
-    # Pass 2 — check every FROM that references an ARG
     violations: list[tuple[int, str, str]] = []
     for lineno, line in enumerate(lines, start=1):
         violations.extend(
@@ -74,7 +69,7 @@ class TestDockerfileArgScope(unittest.TestCase):
     def test_from_args_declared_globally(self) -> None:
         dockerfiles = _collect_dockerfiles()
         self.assertTrue(
-            dockerfiles or True,  # pass even when no Dockerfiles exist yet
+            dockerfiles or True,
             "No Dockerfiles found — check _ROLES_ROOT path.",
         )
 

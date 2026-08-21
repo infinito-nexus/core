@@ -5,10 +5,6 @@ server {
   {% include 'roles/sys-front-tls/templates/nginx_ssl_header.j2' %}
 
   {% if web_opt_rdr_domains_logout_enabled | bool %}
-  {# 
-    Required for edge cases e.g. BlueSky where a canonical domain is deactivated,
-    and set as an alias but interpretated as an logout domain
-  #}
   {% include 'roles/web-svc-logout/templates/logout-proxy.conf.j2' %}
   {% endif %}
   location / {

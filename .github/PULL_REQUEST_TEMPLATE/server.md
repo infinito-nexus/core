@@ -88,7 +88,7 @@ Check the relevant rows and explain intentional omissions in `Additional Notes`.
 | [ ] | `meta/server.yml` | Usually | Server-level config (file root IS `applications.<app>.server`). CSP, `domains`, `status_codes`, plus the per-role `networks.local.{subnet,dns_resolver}`. |
 | [ ] | `meta/rbac.yml` | When the role declares RBAC | RBAC declarations (file root IS `applications.<app>.rbac`). |
 | [ ] | `meta/volumes.yml` | When the role declares Compose volumes | Volumes map (file root IS the volumes map; no `compose:`/`volumes:` wrapper). |
-| [ ] | `meta/schema.yml` | When the role declares credentials | Credential schema with optional `default:` field. |
+| [ ] | `meta/secrets.yml` | When the role declares credentials | Credential schema with optional `default:` field. |
 | [ ] | `tasks/main.yml` | Usually | Acts as the role entry point and includes the main task flow. |
 | [ ] | `templates/compose.yml.j2` | For containerized app roles | Defines the service, volume, environment, port, and network wiring. |
 | [ ] | `templates/env.j2` | When the app uses environment files | Renders the app environment configuration. |

@@ -20,7 +20,7 @@ RUN rm -rf /var/lib/apt/lists/* \
 {% endif %}
 
 COPY <<'BOOT_ENTRYPOINT_EOF' /usr/local/bin/boot-entrypoint.sh
-{{ lookup('file', lookup('path_absolute', 'roles/svc-db-postgres/files/boot-entrypoint.sh')) }}
+{{ lookup('file', lookup('path_absolute', 'roles/svc-db-postgres/files/shell/boot-entrypoint.sh')) }}
 BOOT_ENTRYPOINT_EOF
 RUN chmod +x /usr/local/bin/boot-entrypoint.sh
 

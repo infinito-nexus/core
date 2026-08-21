@@ -23,8 +23,10 @@ PREP="$(docker run -d --entrypoint sleep "${GUIDE_RUNTIME_IMAGE}" infinity)"
 docker exec "${PREP}" sh -c '
 	set -e
 	if command -v apt-get >/dev/null 2>&1; then
-		apt-get update
-		DEBIAN_FRONTEND=noninteractive apt-get install -y systemd systemd-sysv libnss-myhostname
+		APT_TIMEOUT=10m
+		APT_OPTS="-o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30"
+		timeout -k 30 "$APT_TIMEOUT" apt-get $APT_OPTS update
+		DEBIAN_FRONTEND=noninteractive timeout -k 30 "$APT_TIMEOUT" apt-get $APT_OPTS install -y systemd systemd-sysv libnss-myhostname
 	elif command -v dnf >/dev/null 2>&1; then
 		dnf install -y systemd
 	elif command -v pacman >/dev/null 2>&1; then
@@ -37,7 +39,7 @@ docker exec "${PREP}" sh -c '
 '
 BOOT_IMAGE="guide-boot:${GUIDE_ROLE}"
 docker commit "${PREP}" "${BOOT_IMAGE}" >/dev/null
-docker rm -f "${PREP}" >/dev/null 2>&1 || true
+docker rm -f "${PREP}" >/dev/null 2>&1 || true # nocheck: shell-or-true -- cleanup of a possibly already-removed container
 
 CID="$(docker run -d --privileged --cgroupns=host \
 	-v /sys/fs/cgroup:/sys/fs/cgroup:rw \
@@ -46,7 +48,7 @@ CID="$(docker run -d --privileged --cgroupns=host \
 	--entrypoint /sbin/init \
 	"${BOOT_IMAGE}")"
 # shellcheck disable=SC2154
-trap 'rc=$?; if [ "${rc}" -ne 0 ]; then _rescue="${INFINITO_RESCUE_DIAGNOSTICS_BASE}/${INFINITO_DISTRO}/${GUIDE_ROLE}"; INFINITO_RESCUE_DIAGNOSTICS_DIR="${_rescue}" python3 utils/diagnostics/container.py "${GUIDE_ROLE}" "guide host boot failure" || true; bash scripts/tests/deploy/utils/rescue_index.sh "${_rescue}"; fi; docker rm -f "${CID}" >/dev/null 2>&1 || true; docker rmi -f "${BOOT_IMAGE}" >/dev/null 2>&1 || true' EXIT
+trap 'rc=$?; if [ "${rc}" -ne 0 ]; then _rescue="${INFINITO_RESCUE_DIAGNOSTICS_BASE}/${INFINITO_DISTRO}/${GUIDE_ROLE}"; INFINITO_RESCUE_DIAGNOSTICS_DIR="${_rescue}" python3 utils/diagnostics/container.py "${GUIDE_ROLE}" "guide host boot failure" || true; bash scripts/tests/deploy/utils/rescue_index.sh "${_rescue}"; fi; docker rm -f "${CID}" >/dev/null 2>&1 || true; docker rmi -f "${BOOT_IMAGE}" >/dev/null 2>&1 || true' EXIT # nocheck: shell-or-true -- best-effort diagnostics + teardown in the EXIT trap
 
 for _ in $(seq 1 40); do
 	state="$(docker exec "${CID}" systemctl is-system-running 2>/dev/null || true)"
@@ -58,7 +60,7 @@ case "${state}" in
 running | degraded) ;;
 *)
 	echo "systemd never reached a running state (last: ${state:-unknown})" >&2
-	docker exec "${CID}" systemctl --no-pager status 2>/dev/null | head -n 20 >&2 || true
+	docker exec "${CID}" systemctl --no-pager status 2>/dev/null | head -n 20 >&2 || true # nocheck: shell-or-true -- diagnostics dump on the failure path
 	exit 1
 	;;
 esac

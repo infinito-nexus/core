@@ -18,7 +18,6 @@ class LookupModule(LookupBase):
         categorized = {}
         uncategorized = []
 
-        # Categorize cards
         for card in cards:
             found = False
             for category, data in menu_categories.items():
@@ -29,7 +28,6 @@ class LookupModule(LookupBase):
             if not found:
                 uncategorized.append(card)
 
-        # Sort categories alphabetically
         sorted_categorized = {
             k: categorized[k] for k in sorted(categorized.keys(), key=str.lower)
         }

@@ -26,6 +26,7 @@
  */
 
 const { expect } = require("@playwright/test");
+const { resolveTimeout } = require("../../timeouts");
 
 // SPOT for the role-side OIDC adapter readiness contract. A role whose
 // `templates/javascript/oidc.js.j2` wraps its Login link in a JS click
@@ -33,6 +34,8 @@ const { expect } = require("@playwright/test");
 // `window` after the click interceptor is wired, so persona helpers can
 // click the link without racing the adapter.
 const OIDC_LOGIN_READY_FLAG = "__oidcLoginReady";
+
+const OIDC_TRIGGER_NAME = /sso|openid|single[\s-]?sign/i;
 
 async function performKeycloakLoginForm(target, username, password) {
   const usernameField = target
@@ -48,11 +51,11 @@ async function performKeycloakLoginForm(target, username, password) {
     .or(target.locator("input#kc-login, button#kc-login, button[type='submit'], input[type='submit']"))
     .first();
 
-  await usernameField.waitFor({ state: "visible", timeout: 60_000 });
+  await usernameField.waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
   await usernameField.fill(username);
   await usernameField.press("Tab").catch(() => {});
   await passwordField.fill(password);
-  await signInButton.click();
+  await signInButton.click({ timeout: resolveTimeout(30_000) });
 }
 
 async function performKeycloakLogin(page, username, password, canonicalDomain) {
@@ -60,7 +63,7 @@ async function performKeycloakLogin(page, username, password, canonicalDomain) {
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `Expected redirect back to ${canonicalDomain} after Keycloak login`,
     })
     .toContain(canonicalDomain);
@@ -71,8 +74,9 @@ async function performKeycloakLogin(page, username, password, canonicalDomain) {
 // clicking, so the click hits the JS-wrapped handler (which stores
 // PKCE state) and not the raw `href` (which would skip PKCE and break
 // the post-login token exchange on PKCE-enforced clients). The 15s
-// fallback covers roles whose Login link is purely static. Returns
-// true when the navigation reached `openid-connect/auth`.
+// fallback covers roles whose Login link is purely static. Returns the
+// Page that reached `openid-connect/auth` — the opener, or the popup for
+// roles that hand the IdP off via `window.open` — else null.
 //
 // The persona MUST pass `strictLink` (exact-match locator, e.g. accessible
 // name `^\s*login\s*$/i`) AND `looseLink` (substring locator). The helper
@@ -83,37 +87,69 @@ async function performKeycloakLogin(page, username, password, canonicalDomain) {
 // roles trap the substring match and redirect the persona to the dashboard
 // flow instead of the role's own auth chain.
 async function clickOidcLoginLink(page, strictLink, looseLink) {
-  const strictVisible = await strictLink
-    .waitFor({ state: "visible", timeout: 20_000 })
-    .then(() => true)
-    .catch(() => false);
-  const loginLink = strictVisible ? strictLink : looseLink;
-  if (!strictVisible) {
-    const looseVisible = await loginLink
-      .waitFor({ state: "visible", timeout: 5_000 })
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    let oidcLink = page
+      .locator(
+        "a[href*='openid_connect' i], a[href*='openid-connect' i], a[href*='/auth/auth/' i], form[action*='openid' i] button, a[data-testid*='oidc' i], button[data-testid*='oidc' i]",
+      )
+      .first();
+    if (attempt > 0) {
+      oidcLink = oidcLink
+        .or(page.getByRole("button", { name: OIDC_TRIGGER_NAME }))
+        .or(page.getByRole("link", { name: OIDC_TRIGGER_NAME }))
+        .first();
+    }
+    const oidcVisible = await oidcLink
+      .waitFor({ state: "visible", timeout: resolveTimeout(5_000) })
       .then(() => true)
       .catch(() => false);
-    if (!looseVisible) return false;
-  }
 
-  await page
-    .waitForFunction(
-      (flag) => window[flag] === true,
-      OIDC_LOGIN_READY_FLAG,
-      { timeout: 15_000 },
-    )
-    .catch(() => {});
-  await loginLink.click().catch(() => {});
-  await page
-    .waitForURL(/openid-connect\/auth/, { timeout: 15_000 })
-    .catch(() => {});
-  return page.url().includes("openid-connect/auth");
+    let loginLink = oidcLink;
+    if (!oidcVisible) {
+      const strictVisible = await strictLink
+        .waitFor({ state: "visible", timeout: resolveTimeout(20_000) })
+        .then(() => true)
+        .catch(() => false);
+      loginLink = strictVisible ? strictLink : looseLink;
+      if (!strictVisible) {
+        const looseVisible = await loginLink
+          .waitFor({ state: "visible", timeout: resolveTimeout(5_000) })
+          .then(() => true)
+          .catch(() => false);
+        if (!looseVisible) return null;
+      }
+    }
+
+    await page
+      .waitForFunction(
+        (flag) => window[flag] === true,
+        OIDC_LOGIN_READY_FLAG,
+        { timeout: resolveTimeout(15_000) },
+      )
+      .catch(() => {});
+    const urlBeforeClick = page.url();
+    const reachedIdp = (candidate) =>
+      candidate
+        .waitForURL(/openid-connect\/auth/, { timeout: resolveTimeout(15_000) })
+        .then(() => candidate);
+    const popupPromise = page
+      .waitForEvent("popup", { timeout: resolveTimeout(15_000) })
+      .then(reachedIdp);
+    await loginLink.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
+    const authPage = await Promise.any([reachedIdp(page), popupPromise]).catch(
+      () => null,
+    );
+    if (authPage) return authPage;
+    if (page.url().includes("openid-connect/auth")) return page;
+    if (page.url() === urlBeforeClick) return null;
+  }
+  return null;
 }
 
 async function performKeycloakLoginExpectingDenial(page, username, password, canonicalDomain) {
   await performKeycloakLoginForm(page, username, password);
 
-  await page.waitForLoadState("domcontentloaded", { timeout: 60_000 }).catch(() => {});
+  await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(60_000) }).catch(() => {});
 
   const finalUrl = page.url();
   const denied =

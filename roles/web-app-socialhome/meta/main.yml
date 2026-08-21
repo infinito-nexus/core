@@ -2,7 +2,7 @@
 # nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Federated social network for content hubs and ActivityPub-based federation across the fediverse
+  description: Privacy-first social platform for households, federating peer-to-peer over WebRTC on an embedded SQLite store
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach
@@ -11,6 +11,8 @@ galaxy_info:
     - socialhome
     - social
     - federated
+    - webrtc
+    - sqlite
   issue_tracker_url: https://s.infinito.nexus/issues
   min_ansible_version: "2.9"
   platforms:

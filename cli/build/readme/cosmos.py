@@ -4,8 +4,9 @@ The role box lists EVERY service the role declares. Around it:
 
   Dependencies  roles this role consumes, on the left. A consumption is a
                 service whose ``enabled``/``shared`` flag names another role
-                (``'<role>' in group_names``) or whose key matches another
-                role's ``provides`` (provision) name.
+                (``'<role>' in group_names``), whose key matches another
+                role's ``provides`` (provision) name, or whose key is another
+                role's own primary service key while both flags are on.
   Dependents    roles that consume THIS role, on the right. The mirror of the
                 above: another role names this one, or declares a service keyed
                 by this role's ``provides`` name (e.g. web-app-keycloak
@@ -15,8 +16,16 @@ The role box lists EVERY service the role declares. Around it:
 ``provides: ldap``) is picked up even when the consuming flag uses a
 ``groups[...]`` form the ``group_names`` regex cannot read.
 
+Primary-key matching covers the mandatory relationship, where the consumer
+pins the provider on unconditionally (``enabled: true, shared: true``) and no
+``group_names`` reference is left to read — web-svc-asset consuming
+web-svc-file's ``file`` is the canonical case.
+
 Edge style encodes the flag: a solid edge is a fixed (literal ``true``)
-relationship, a dashed edge is variable (a ``{{ ... }}`` conditional).
+relationship, a dashed edge is variable (a ``{{ ... }}`` conditional), and a
+red ``0..0`` edge is one the role turns off (``enabled`` and ``shared`` both
+literally ``false``) — the relationship exists in the metadata but carries
+nothing at deploy time.
 
 ``run_after`` is deliberately NOT read: it is a deploy-ordering hint, not a
 runtime dependency. The wider cosmos (federation peers, external bridged
@@ -30,12 +39,18 @@ import re
 from pathlib import Path
 
 from utils.cache.yaml import load_yaml_any
+from utils.roles.applications.services.registry import (
+    build_role_to_primary_service_key,
+    build_service_registry_from_roles_dir,
+    is_explicit_truth,
+)
 from utils.roles.deploy import role_deploy_modes
 from utils.roles.mapping import ROLE_FILE_META_MAIN, ROLE_FILE_META_SERVICES
 from utils.symbol_glossary import to_emoji
 
 _GROUP_DEP_RE = re.compile(r"'([a-z0-9][a-z0-9-]*)'\s+in\s+group_names")
 _DEPENDENTS_CAP = 12
+_OFF_STROKE = "red"
 _MERMAID_RESERVED = {
     "call",
     "class",
@@ -104,6 +119,23 @@ def _roles_meta(roles_root_str: str) -> dict[str, dict]:
 
 
 @functools.lru_cache(maxsize=1)
+def _primary_key_providers(roles_root_str: str) -> dict[str, str]:
+    """Map each role's own primary service key to that role."""
+    registry = build_service_registry_from_roles_dir(Path(roles_root_str))
+    return {
+        key: role for role, key in build_role_to_primary_service_key(registry).items()
+    }
+
+
+def _pins_provider_on(entry: dict) -> bool:
+    """True when a consumer keeps a service on unconditionally, the shape a
+    mandatory dependency takes once no ``group_names`` reference is left."""
+    return is_explicit_truth(entry.get("enabled")) and is_explicit_truth(
+        entry.get("shared")
+    )
+
+
+@functools.lru_cache(maxsize=1)
 def _roles_ansible_deps(roles_root_str: str) -> dict[str, set[str]]:
     """Every role's ``meta/main.yml`` ``dependencies`` (string or
     ``{role: ...}`` entries), cached once."""
@@ -125,35 +157,60 @@ def _roles_ansible_deps(roles_root_str: str) -> dict[str, set[str]]:
     return deps
 
 
+def _entry_kind(entry: dict) -> str:
+    """Classify one consumed service: ``off`` when the consumer turns it off,
+    otherwise the flag's own fixed/variable shape."""
+    if _service_stopped(entry):
+        return "off"
+    return _flag_kind(entry) or "fixed"
+
+
 def _consumption_kind(
-    services: dict, provider_role: str, provider_provides: set[str]
+    services: dict,
+    provider_role: str,
+    provider_provides: set[str],
+    provider_primary_key: str | None = None,
 ) -> str | None:
-    """Return how ``services`` consumes ``provider_role`` (fixed/variable/None)."""
+    """Return how ``services`` consumes ``provider_role`` (fixed/variable/off/None)."""
     kinds: list[str] = []
     for key, entry in services.items():
         if not isinstance(entry, dict):
             continue
         if provider_role in _group_refs(entry):
             kinds.append("variable")
-        elif key in provider_provides:
-            kinds.append(_flag_kind(entry) or "fixed")
+        elif key in provider_provides or (
+            key == provider_primary_key and _pins_provider_on(entry)
+        ):
+            kinds.append(_entry_kind(entry))
     if not kinds:
         return None
-    return "fixed" if all(k == "fixed" for k in kinds) else "variable"
+    for kind in ("variable", "fixed"):
+        if kind in kinds:
+            return kind
+    return "off"
 
 
 def _edge(src: str, dst: str, kind: str) -> str:
     if kind == "variable":
         return f'    {src} -. "0..1" .-> {dst}'
+    if kind == "off":
+        return f'    {src} -- "0..0" --> {dst}'
     return f'    {src} -- "1:1" --> {dst}'
 
 
+_EDGE_PRECEDENCE = {"off": 0, "fixed": 1, "variable": 2}
+
+
 def _merge_edges(edges: list[tuple[str, str, str]]) -> dict[tuple[str, str], str]:
-    """Collapse duplicate ``(src, dst)`` edges; a variable edge wins over fixed."""
+    """Collapse duplicate ``(src, dst)`` edges; the liveliest kind wins, so a
+    relationship one service turns off still shows as on where another keeps it."""
     merged: dict[tuple[str, str], str] = {}
     for src, dst, kind in edges:
         pair = (src, dst)
-        if pair not in merged or kind == "variable":
+        if (
+            pair not in merged
+            or _EDGE_PRECEDENCE[kind] > _EDGE_PRECEDENCE[merged[pair]]
+        ):
             merged[pair] = kind
     return merged
 
@@ -199,6 +256,8 @@ def derive_cosmos_mermaid(role_dir: Path, role_name: str) -> str:
 
     provides_map = {name: _provides_of(svc) for name, svc in meta.items()}
     my_provides = _provides_of(services)
+    providers = _primary_key_providers(str(role_dir.parent))
+    my_primary_key = next((k for k, r in providers.items() if r == role_name), None)
     ansible_deps = _roles_ansible_deps(str(role_dir.parent))
 
     dep_edges: list[tuple[str, str, str]] = []
@@ -213,7 +272,16 @@ def derive_cosmos_mermaid(role_dir: Path, role_name: str) -> str:
         for provider, provs in provides_map.items():
             if provider != role_name and key in provs:
                 dep_roles.add(provider)
-                dep_edges.append((provider, key, _flag_kind(entry) or "fixed"))
+                dep_edges.append((provider, key, _entry_kind(entry)))
+        pinned = providers.get(key)
+        if (
+            pinned
+            and pinned != role_name
+            and pinned in meta
+            and _pins_provider_on(entry)
+        ):
+            dep_roles.add(pinned)
+            dep_edges.append((pinned, key, _entry_kind(entry)))
 
     gear_deps = {
         dep
@@ -233,7 +301,7 @@ def derive_cosmos_mermaid(role_dir: Path, role_name: str) -> str:
     for other, other_services in meta.items():
         if other == role_name:
             continue
-        kind = _consumption_kind(other_services, role_name, my_provides)
+        kind = _consumption_kind(other_services, role_name, my_provides, my_primary_key)
         if role_name in ansible_deps.get(other, set()):
             gear_dependents.add(other)
             kind = kind or "fixed"
@@ -293,10 +361,16 @@ def derive_cosmos_mermaid(role_dir: Path, role_name: str) -> str:
         for s in anchor
     ]
     if overflow:
-        dpt_edge_list.extend((f"svc_{_node_id(s)}", "dpt_more", "fixed") for s in anchor)
+        dpt_edge_list.extend(
+            (f"svc_{_node_id(s)}", "dpt_more", "fixed") for s in anchor
+        )
     dpt_pairs = _merge_edges(dpt_edge_list)
-    for (src, dst), kind in sorted(dep_pairs.items()):
-        lines.append(_edge(src, dst, kind))
-    for (src, dst), kind in sorted(dpt_pairs.items()):
-        lines.append(_edge(src, dst, kind))
+    emitted: list[str] = []
+    for pairs in (dep_pairs, dpt_pairs):
+        for (src, dst), kind in sorted(pairs.items()):
+            lines.append(_edge(src, dst, kind))
+            emitted.append(kind)
+    off_edges = [str(i) for i, kind in enumerate(emitted) if kind == "off"]
+    if off_edges:
+        lines.append(f"    linkStyle {','.join(off_edges)} stroke:{_OFF_STROKE};")
     return "\n".join(lines)

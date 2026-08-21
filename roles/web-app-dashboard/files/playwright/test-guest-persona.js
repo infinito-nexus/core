@@ -1,4 +1,4 @@
-const { test } = require("@playwright/test");
+const { test } = require("./fixtures/onion-test");
 
 const { runGuestFlow } = require("./personas");
 

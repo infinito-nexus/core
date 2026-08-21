@@ -20,8 +20,8 @@
     dest: "{{ lookup('container', application_id, 'files.dockerfile') }}"
     mode: "0640"
   notify:
-    - compose build
-    - compose up
+    - compose-build
+    - compose-up
   when:
     - dockerfile_src | default('') | length > 0
 
@@ -32,8 +32,8 @@
     mode: "0640"
     force: true
   notify:
-    - compose up
-    - compose build
+    - compose-up
+    - compose-build
   with_first_found:
     - files:
         - "{{ application_id | abs_role_path_by_application_id }}/templates/env.j2"
@@ -47,7 +47,7 @@
     dest: "{{ lookup('container', application_id, 'files.compose_override') }}"
     mode: "0640"
     force: true
-  notify: compose up
+  notify: compose-up
   with_first_found:
     - files:
         - "{{ application_id | abs_role_path_by_application_id }}/templates/compose.override.yml.j2"
@@ -65,4 +65,4 @@
         - "compose.yml.j2"
       skip: true
   register: docker_compose_template
-  notify: compose up
+  notify: compose-up

@@ -24,7 +24,7 @@ Key facts an agent must hold before acting:
 
 - You MUST NOT register runners against `infinito-nexus/core` from fork CI — the `GITHUB_TOKEN` there lacks organisation-level `administration` scope. The env-var override in `vars/main.yml` handles this automatically.
 - When iterating on the role tasks, deploy to a real Debian, Ubuntu, Arch Linux, or Fedora/EL host, or a systemd-enabled container. Running against the standard DinD test image will fail at the `svc.sh install` step.
-- The `test-e2e-cli` framework runs `files/test.sh` sourcing variables from `templates/test.env.j2` after each deploy cycle. Check both the deploy output and the CLI test output before declaring a fix complete.
+- The `test-e2e-cli` framework runs `files/test/test.sh` sourcing variables from `templates/test.env.j2` after each deploy cycle. Check both the deploy output and the CLI test output before declaring a fix complete.
 - When bumping `runner_count`, re-run the full deploy cycle so `test.sh` can run its end-to-end app deploy against the updated runner environment.
 - `runner_docker_base` defaults to `/mnt/docker`. Override via inventory `host_vars` for non-standard machines.
 
@@ -34,7 +34,7 @@ Iteration steps:
 2. Run `make test` — all linting and unit tests must pass before deploy.
 3. Deploy to the target host via the standard role deploy path.
 4. Inspect systemd service status: `systemctl is-active actions.runner.*`.
-5. Check `files/test.sh` output from the `test-e2e-cli` run in the deploy log.
+5. Check `files/test/test.sh` output from the `test-e2e-cli` run in the deploy log.
 6. If the runner registered correctly, verify it appears in the GitHub repository's runner list.
 
 ## Recovery & gotchas

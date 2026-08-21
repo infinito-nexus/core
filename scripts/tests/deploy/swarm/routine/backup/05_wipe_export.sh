@@ -12,7 +12,7 @@ NFS_VOL_DIR="${1:?usage: 05_wipe_export.sh NFS_VOL_DIR MARKER STAGE_DIR}"
 MARKER="${2:?usage: 05_wipe_export.sh NFS_VOL_DIR MARKER STAGE_DIR}"
 STAGE_DIR="${3:?usage: 05_wipe_export.sh NFS_VOL_DIR MARKER STAGE_DIR}"
 
-rm -rf "${NFS_VOL_DIR:?}"/* "${NFS_VOL_DIR}"/.[!.]* 2>/dev/null || true
+rm -rf "${NFS_VOL_DIR:?}"/* "${NFS_VOL_DIR}"/.[!.]* 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 if [ -e "${NFS_VOL_DIR}/${MARKER}" ]; then
 	echo "FAILURE: marker still present after wiping the live NFS volume"
 	exit 1

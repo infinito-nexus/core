@@ -5,7 +5,7 @@
     dest: "{{ [lookup('container', application_id, 'directories.volumes'), 'controller.toml'] | path_join }}"
     mode: "0644"
   notify:
-    - compose up
+    - compose-up
 
 - name: "📄 Render LiveKit config '{{ application_id }}'"
   stack_host_template:
@@ -13,7 +13,7 @@
     dest: "{{ [lookup('container', application_id, 'directories.volumes'), 'livekit.yaml'] | path_join }}"
     mode: "0644"
   notify:
-    - compose up
+    - compose-up
 
 - name: "📄 Render OpenTalk recorder config '{{ application_id }}'"
   stack_host_template:
@@ -21,7 +21,7 @@
     dest: "{{ [lookup('container', application_id, 'directories.volumes'), 'recorder.toml'] | path_join }}"
     mode: "0644"
   notify:
-    - compose up
+    - compose-up
 
 - name: "📂 Provision the OpenTalk Keycloak clients"
   include_tasks: 02_keycloak_client.yml

@@ -34,4 +34,4 @@
       {{ (sso_proxy_application_id | get_docker_paths(DIR_COMPOSITIONS)).directories.volumes
          }}{{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.configuration_file') }}
   notify:
-    - compose up
+    - compose-up

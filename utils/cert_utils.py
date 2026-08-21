@@ -47,10 +47,6 @@ class CertUtils:
                     na = line.split("=", 1)[1].strip()
 
             def _parse(openssl_dt):
-                # OpenSSL format example: "Oct 10 12:34:56 2025 GMT".
-                # ``%Z`` parses the literal "GMT" but produces a naive
-                # datetime; openssl always emits GMT, so we anchor the
-                # parsed value to UTC explicitly to make it tz-aware.
                 naive = datetime.strptime(  # noqa: DTZ007  %Z parses GMT abbrev; openssl always emits UTC, anchored below
                     openssl_dt, "%b %d %H:%M:%S %Y %Z"
                 )
@@ -90,7 +86,6 @@ class CertUtils:
         """RFC compliant SAN matching."""
         if san.startswith("*."):
             base = san[2:]
-            # Wildcard matches ONLY one additional label
             if domain == base:
                 return False
             return bool(
@@ -198,7 +193,6 @@ class CertUtils:
         def _pick_newest(entries):
             if not entries:
                 return None
-            # newest by (not_before, mtime)
             return max(entries, key=cls._score_entry)
 
         best_exact = _pick_newest(candidates_exact)
@@ -215,7 +209,6 @@ class CertUtils:
                 f"(not_before={best_wild['not_before']}, mtime={best_wild['mtime']})"
             )
 
-        # Prefer exact if it exists; otherwise wildcard
         chosen = best_exact or best_wild
 
         if chosen:

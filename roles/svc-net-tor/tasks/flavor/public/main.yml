@@ -1,0 +1,7 @@
+---
+- name: "🌍 Tor flavor 'public' — join the public Tor network"
+  ansible.builtin.debug:
+    msg: >-
+      svc-net-tor runs against the public Tor network; onion descriptor
+      publication and rendezvous take real-network latency.
+  changed_when: false

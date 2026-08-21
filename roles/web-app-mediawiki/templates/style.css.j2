@@ -6,18 +6,15 @@
 
 /* ---------- App-scoped variables (derived from global color scale) ---------- */
 :root {
-  /* Brand & accents */
   --mw-primary:                var(--color-01-60);
   --mw-primary-contrast:       var(--color-01-99);
   --mw-secondary:              var(--color-01-85);
   --mw-accent:                 var(--color-01-50);
 
-  /* Surfaces */
   --mw-surface:                var(--color-01-92);
   --mw-surface-variant:        var(--color-01-90);
   --mw-surface-muted:          var(--color-01-95);
 
-  /* Text */
   --mw-text:                   var(--color-01-20);
   --mw-text-muted:             var(--color-01-45);
   --mw-heading:                var(--color-01-15);
@@ -25,18 +22,15 @@
   --mw-link-hover:             var(--color-01-60);
   --mw-link-visited:           var(--color-01-45);
 
-  /* Lines / borders / focus */
   --mw-border:                 var(--color-01-85);
   --mw-divider:                var(--color-01-87);
   --mw-focus:                  rgba(var(--color-rgb-01-65), .35);
 
-  /* Status */
   --mw-success:                var(--bs-success);
   --mw-warning:                var(--bs-warning);
   --mw-danger:                 var(--bs-danger);
 }
 
-/* ---------- Global shell ---------- */
 body.skin-vector,
 .skin-vector .mw-page-container {
   background-color: var(--mw-surface);
@@ -49,7 +43,6 @@ body.skin-vector,
   color: var(--mw-text);
 }
 
-/* ---------- Header / site chrome ---------- */
 .skin-vector .vector-header,
 .skin-vector .vector-header-container,
 .skin-vector .mw-header {
@@ -61,7 +54,6 @@ body.skin-vector,
   border-bottom: 1px solid var(--mw-divider);
 }
 
-/* Logo & title area often inherits link styles—keep readable */
 .skin-vector .mw-logo a,
 .skin-vector .mw-logo svg,
 .skin-vector .vector-header a {
@@ -69,7 +61,6 @@ body.skin-vector,
   fill: currentColor;
 }
 
-/* ---------- Sidebar / menus ---------- */
 .skin-vector .vector-sidebar,
 .skin-vector .mw-portlet,
 .skin-vector .vector-menu-content {
@@ -83,7 +74,6 @@ body.skin-vector,
   border-bottom: 1px solid var(--mw-divider);
 }
 
-/* ---------- Table of Contents ---------- */
 .skin-vector .vector-toc,
 .skin-vector .vector-toc .vector-toc-contents {
   background-color: var(--mw-surface-muted);
@@ -94,7 +84,6 @@ body.skin-vector,
   color: var(--mw-text);
 }
 
-/* ---------- Content area ---------- */
 .skin-vector .mw-content-container,
 .skin-vector .mw-content-ltr,
 .skin-vector .mw-body,
@@ -111,13 +100,11 @@ body.skin-vector,
   color: var(--mw-heading);
 }
 
-/* Links */
 .skin-vector .mw-parser-output a { color: var(--mw-link); }
 .skin-vector .mw-parser-output a:visited { color: var(--mw-link-visited); }
 .skin-vector .mw-parser-output a:hover,
 .skin-vector .mw-parser-output a:focus { color: var(--mw-link-hover); }
 
-/* ---------- Search ---------- */
 .skin-vector .vector-search-box input,
 .skin-vector .vector-search-box .vector-search-input {
   background-color: var(--mw-surface);
@@ -131,8 +118,6 @@ body.skin-vector,
   border-color: var(--mw-link);
 }
 
-/* ---------- Buttons (MediaWiki UI + OOUI) ---------- */
-/* MediaWiki UI */
 .mw-ui-button,
 .mw-ui-button:visited {
   background-color: var(--mw-surface-muted);
@@ -180,7 +165,6 @@ body.skin-vector,
   border-color: var(--mw-primary);
 }
 
-/* Inputs */
 .mw-ui-input,
 .oo-ui-inputWidget-input {
   background-color: var(--mw-surface);
@@ -195,7 +179,6 @@ body.skin-vector,
   border-color: var(--mw-link);
 }
 
-/* ---------- Tables / infoboxes ---------- */
 table.wikitable,
 .mw-parser-output table.infobox,
 .mw-parser-output table.prettytable {
@@ -217,7 +200,6 @@ table.wikitable > * > tr > th {
   color: var(--mw-heading);
 }
 
-/* ---------- Notices / boxes ---------- */
 .mw-notification,
 .mw-message-box,
 .mw-message-box-notice {
@@ -248,7 +230,6 @@ table.wikitable > * > tr > th {
 /* ---------- Dark-mode helpers (for browser extensions honoring vars) ---------- */
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Nudge contrast a bit in dark environments */
     --mw-text:         var(--color-01-90);
     --mw-text-muted:   var(--color-01-80);
     --mw-heading:      var(--color-01-95);

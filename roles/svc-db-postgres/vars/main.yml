@@ -9,7 +9,7 @@ POSTGRES_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, enti
 POSTGRES_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
 POSTGRES_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
 POSTGRES_VERSION_MAJOR: "{{ POSTGRES_VERSION | regex_replace('^([0-9]+).*', '\\1') }}"
-POSTGRES_PASSWORD: "{{ lookup('config', application_id, 'credentials.POSTGRES_PASSWORD') }}"
+POSTGRES_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.POSTGRES_PASSWORD') }}"
 POSTGRES_PORT: "{{ database_port | default(lookup('config', application_id, 'services.postgres.ports.local.postgres')) }}"
 POSTGRES_EXPOSE_LOCAL: true
 POSTGRES_LOCAL_HOST: "127.0.0.1"

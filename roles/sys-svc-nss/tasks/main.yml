@@ -1,0 +1,4 @@
+---
+- name: "🔧 Guarantee *.localhost loopback resolution (Once)"
+  include_tasks: 00_core.yml
+  when: not (run_once_sys_svc_nss | default(false) | bool)

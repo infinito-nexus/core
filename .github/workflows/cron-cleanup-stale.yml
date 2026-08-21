@@ -6,15 +6,15 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  issues: write
-  pull-requests: write
-  packages: write
+  contents: read
 
 jobs:
   stale:
     name: 🏷️ Close inactive issues and pull requests
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
 
     steps:
       - name: 🏷️ Mark stale issues and pull requests
@@ -45,6 +45,9 @@ jobs:
   delete-stale-branches:
     name: 🌿 Delete inactive branches
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
 
     steps:
       - name: 🌿 Delete branches inactive for 360 days
@@ -62,6 +65,9 @@ jobs:
   cleanup-ghcr-ci-images:
     name: 📦 Delete old GHCR CI images
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: ⬇️ Checkout

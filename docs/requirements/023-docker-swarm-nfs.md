@@ -25,7 +25,7 @@ The implementation MUST keep a clean abstraction line between the render backend
 
 ### Role: `svc-swarm-node`
 
-- [x] A new role at `roles/svc-swarm-node/` exists and follows the role-meta layout in [layout.md](../contributing/design/role/services/layout.md) (including `meta/services.yml` with a `lifecycle` key, `meta/schema.yml`, and `tasks/main.yml`).
+- [x] A new role at `roles/svc-swarm-node/` exists and follows the role-meta layout in [layout.md](../contributing/design/role/services/layout.md) (including `meta/services.yml` with a `lifecycle` key, `meta/secrets.yml`, and `tasks/main.yml`).
 - [x] On first application against the host in `svc-swarm-manager`, the role initialises the cluster (`docker swarm init`) with the configured `advertise_addr`, persists the resulting worker and manager join tokens to a documented secret store, and is idempotent on re-runs.
 - [x] On application against any host in `svc-swarm-node` that is NOT in `svc-swarm-manager`, the role joins the cluster as a worker using the persisted worker token. Joining is idempotent.
 - [x] v1 scope is single-manager. Multi-manager Raft-quorum HA (3+ managers) is explicitly out of scope for this requirement and tracked under [Future Extensions](#future-extensions).
@@ -122,7 +122,7 @@ The implementation MUST keep a clean abstraction line between the render backend
 
   This 3-node topology (1 manager + 2 workers) is also the minimum exercised by the CI pilot workflow — see [CI: pilot validation workflow](#ci-pilot-validation-workflow). Any host in `svc-swarm-manager` MUST also be in `svc-swarm-node`. A deploy with a host in `svc-swarm-manager` but missing from `svc-swarm-node` MUST fail at inventory-validation time.
 
-- [ ] All blocks above (`storage`, `swarm`) have schema validation entries in the relevant role's `meta/schema.yml`. A missing or malformed block fails the deploy at variable-load time with a precise error, not at runtime.
+- [ ] All blocks above (`storage`, `swarm`) have schema validation entries in the relevant role's `meta/secrets.yml`. A missing or malformed block fails the deploy at variable-load time with a precise error, not at runtime.
 
 ### Cluster validation
 

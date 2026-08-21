@@ -90,7 +90,7 @@
 - name: "📦 CA | install trust helper script (SPOT) on host"
   become: true
   ansible.builtin.copy:
-    src: "with-ca-trust.sh"
+    src: "shell/with-ca-trust.sh"
     dest: "{{ BIN_CA_TRUST }}"
     owner: root
     group: root

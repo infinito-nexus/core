@@ -36,6 +36,8 @@
     seaweedfs:
       enabled: true
       shared: true
+    tor:
+      enabled: true
 
 - services:
     container_backup:
@@ -75,6 +77,8 @@
     seaweedfs:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    tor:
+      enabled: true
 
 - services:
     container_backup:
@@ -114,6 +118,8 @@
     prometheus:
       enabled: true
       shared: true
+    tor:
+      enabled: true
   addons:
     mautrix-whatsapp:
       enabled: true

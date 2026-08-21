@@ -133,8 +133,8 @@ prepared_matches() {
 release_prepared() {
 	local loop
 	report "replacing the prepared $(current_fstype) data root with ${FSTYPE}"
-	systemctl stop docker.socket 2>/dev/null || true
-	systemctl stop docker 2>/dev/null || true
+	systemctl stop docker.socket 2>/dev/null || true # nocheck: shell-or-true -- the socket unit is absent on distros that ship docker without it
+	systemctl stop docker 2>/dev/null || true        # nocheck: shell-or-true -- docker is not running yet on a runner that never started it
 	DOCKER_STOPPED=true
 	if zpool list -H -o name "${POOL}" >/dev/null 2>&1; then
 		reclaim_stale_pool "${POOL}"
@@ -177,8 +177,11 @@ esac
 
 install_packages() {
 	if command -v apt-get >/dev/null; then
-		DEBIAN_FRONTEND=noninteractive apt-get update -qq
-		DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "$@"
+		APT_TIMEOUT=10m
+		APT_INSTALL_TIMEOUT=20m
+		APT_OPTS=(-o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30)
+		DEBIAN_FRONTEND=noninteractive timeout -k 30 "${APT_TIMEOUT}" apt-get "${APT_OPTS[@]}" update -qq
+		DEBIAN_FRONTEND=noninteractive timeout -k 30 "${APT_INSTALL_TIMEOUT}" apt-get "${APT_OPTS[@]}" install -y --no-install-recommends "$@"
 	elif command -v pacman >/dev/null; then
 		pacman -Sy --noconfirm --needed "$@"
 	elif command -v dnf >/dev/null; then
@@ -220,6 +223,9 @@ zfs)
 	if ! modprobe_out="$(modprobe zfs 2>&1)"; then
 		report "modprobe zfs failed: ${modprobe_out}"
 	fi
+	if [ ! -c /dev/zfs ] && zfs_major="$(awk '$2 == "zfs" {print $1}' /proc/devices | head -n1)" && [ -n "${zfs_major}" ]; then
+		mknod /dev/zfs c "${zfs_major}" 0
+	fi
 	zfs_device_ready ||
 		decline "the zfs kernel module is not loaded on the host: ${modprobe_out}"
 	;;
@@ -251,8 +257,8 @@ if command -v zpool >/dev/null 2>&1 && zfs_device_ready; then
 fi
 
 report "putting the docker data root on ${FSTYPE}"
-systemctl stop docker.socket 2>/dev/null || true
-systemctl stop docker 2>/dev/null || true
+systemctl stop docker.socket 2>/dev/null || true # nocheck: shell-or-true -- the socket unit is absent on distros that ship docker without it
+systemctl stop docker 2>/dev/null || true        # nocheck: shell-or-true -- docker is not running yet on a runner that never started it
 DOCKER_STOPPED=true
 
 mkdir -p "${MOUNT}" "$(dirname "${IMAGE}")"

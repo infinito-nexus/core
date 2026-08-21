@@ -1,7 +1,7 @@
 
 database:
     type: postgres
-    uri: postgres://mautrix_slack_bridge:{{ lookup('config', application_id, 'credentials.mautrix_slack_bridge_database_password') | regex_replace('/', '%2F') | regex_replace('@', '%40') | regex_replace(':', '%3A') }}@{{ MATRIX_POSTGRES_HOST }}/mautrix_slack_bridge?sslmode=disable
+    uri: postgres://mautrix_slack_bridge:{{ lookup('config', application_id, 'secrets.credentials.mautrix_slack_bridge_database_password') | regex_replace('/', '%2F') | regex_replace('@', '%40') | regex_replace(':', '%3A') }}@{{ MATRIX_POSTGRES_HOST }}/mautrix_slack_bridge?sslmode=disable
     max_open_conns: 20
     max_idle_conns: 2
     max_conn_idle_time: null

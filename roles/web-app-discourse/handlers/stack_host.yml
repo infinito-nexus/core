@@ -1,5 +1,5 @@
 ---
-- name: "stop discourse container gracefully if it exist"
+- name: "🛑 stop discourse container gracefully if it exist"
   ansible.builtin.command: "container stop {{ DISCOURSE_CONTAINER }}"
   register: container_stop
   changed_when: container_stop.rc == 0
@@ -7,7 +7,7 @@
     container_stop.rc != 0 and
     'No such container' not in (container_stop.stderr | default(''))
 
-- name: "remove discourse container if it exist"
+- name: "🗑️ remove discourse container if it exist"
   ansible.builtin.command: "container rm {{ DISCOURSE_CONTAINER }}"
   register: container_action
   changed_when: container_action.rc == 0
@@ -15,7 +15,7 @@
     container_action.rc != 0 and
     'No such container' not in (container_action.stderr | default(''))
 
-- name: "add central database temporary to discourse network"
+- name: "🔗 add central database temporary to discourse network"
   command: "container network connect {{ DISCOURSE_NETWORK }} {{ DISCOURSE_DATABASE_CONTAINER }}"
   failed_when: >
     result.rc != 0 and
@@ -25,7 +25,7 @@
     - DISCOURSE_DATABASE_IS_SHARED | bool
     - DEPLOYMENT_MODE == 'compose'
 
-- name: rebuild discourse
+- name: 🔨 rebuild discourse
   shell: >
     ./launcher rebuild {{ DISCOURSE_CONTAINER }}
     {% if DOCKER_IN_CONTAINER | bool %}--skip-prereqs{% endif %}
@@ -38,7 +38,7 @@
   until: discourse_rebuild.rc == 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "Connect '{{ DISCOURSE_CONTAINER }}' to its shared swarm overlays"
+- name: "🔗 Connect '{{ DISCOURSE_CONTAINER }}' to its shared swarm overlays"
   command: "container network connect {{ discourse_overlay }} {{ DISCOURSE_CONTAINER }}"
   loop: "{{ ([DISCOURSE_WEB_NETWORK] + ([DISCOURSE_PG_NETWORK] if (DISCOURSE_DATABASE_IS_SHARED | bool) else []) + ([DISCOURSE_REDIS_NETWORK] if (DISCOURSE_REDIS_SHARED
     | bool) else [])) }}"

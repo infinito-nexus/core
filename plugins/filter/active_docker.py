@@ -17,7 +17,6 @@ from typing import Any
 
 
 def _is_mapping(x: Any) -> bool:
-    # be liberal: Mapping covers dict-like; fallback to dict check
     try:
         return isinstance(x, Mapping)
     except Exception:
@@ -37,12 +36,11 @@ def active_docker_container_count(
     try:
         pattern = re.compile(prefix_regex)
     except re.error:
-        pattern = re.compile(r"^(web-|svc-).*")  # fallback
+        pattern = re.compile(r"^(web-|svc-).*")
 
     count = 0
 
     for app_key, app_val in applications.items():
-        # host selection + name prefix
         if app_key not in group_set:
             continue
         if not pattern.match(str(app_key)):
@@ -50,19 +48,16 @@ def active_docker_container_count(
 
         services = app_val.get("services") if _is_mapping(app_val) else None
         if not _is_mapping(services):
-            # sometimes roles define a single service name string; ignore
             continue
 
         for svc_cfg in services.values():
             if not _is_mapping(svc_cfg):
-                # allow shorthand like: service: {} or image string -> counts as enabled
                 count += 1
                 continue
             enabled = svc_cfg.get("enabled", True)
             if isinstance(enabled, bool):
                 if enabled:
                     count += 1
-            # non-bool enabled -> treat "truthy" as enabled
             elif bool(enabled):
                 count += 1
 
@@ -74,6 +69,5 @@ def active_docker_container_count(
 class FilterModule:
     def filters(self):
         return {
-            # usage: {{ lookup('applications') | active_docker_container_count(group_names) }}
             "active_docker_container_count": active_docker_container_count,
         }

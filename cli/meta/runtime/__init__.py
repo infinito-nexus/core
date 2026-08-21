@@ -24,21 +24,17 @@ def detect_runtime() -> str:
       3) github
       4) host
     """
-    # 1) explicit override wins
     v = (os.getenv("RUNTIME") or "").strip()
     if v:
         return v
 
-    # 2) act (must be before GitHub)
     if os.getenv("ACT") == "true" or os.getenv("ACT_RUNNER"):
         return "act"
 
-    # 3) GitHub Actions
     if (
         os.getenv("GITHUB_ACTIONS") == "true"
         or os.getenv("INFINITO_RUNNING_ON_GITHUB") == "true"
     ):
         return "github"
 
-    # 4) default
     return "host"

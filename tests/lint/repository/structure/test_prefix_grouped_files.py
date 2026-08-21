@@ -10,7 +10,7 @@ not every delimiter position: ``swarm_registry_sync.py`` and
 
 A group of ``MIN_GROUP_SIZE`` or more such files fails the test with the
 instruction to move them into a subfolder named after the shared prefix
-(``files/swarm/registry_sync.py``). Only the basename up to the first dot is
+(``files/python/swarm/registry_sync.py``). Only the basename up to the first dot is
 considered, so ``foo.yml.j2`` and ``foo.yml`` carry the same stem. Dotfiles,
 dunder files (``__init__.py``), the ``test`` prefix (unittest discovery
 requires flat ``test_*.py`` names) and purely numeric shared prefixes

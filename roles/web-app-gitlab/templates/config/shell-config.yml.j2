@@ -11,5 +11,5 @@ sshd:
   web_listen: "0.0.0.0:{{ GITLAB_SHELL_METRICS_PORT }}"
   concurrent_sessions_limit: 100
   host_key_files:
-    - /srv/ssh-hostkeys/ssh_host_rsa_key
-    - /srv/ssh-hostkeys/ssh_host_ed25519_key
+    - {{ lookup('volume', 'web-app-gitlab', 'hostkey_rsa').target }}
+    - {{ lookup('volume', 'web-app-gitlab', 'hostkey_ed25519').target }}

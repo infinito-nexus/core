@@ -22,20 +22,17 @@ def main():
     )
     args = parser.parse_args()
 
-    # Default to 'build' if no target is specified
     make_args = args.targets or ["build"]
 
     from . import PROJECT_ROOT
 
     repo_root = str(PROJECT_ROOT)
 
-    # Check for Makefile
     makefile_path = str(Path(repo_root) / "Makefile")
     if not Path(makefile_path).is_file():
         print(f"Error: Makefile not found in {repo_root}", file=sys.stderr)
         sys.exit(1)
 
-    # Invoke make in repo root
     cmd = ["make", *make_args]
     try:
         result = subprocess.run(cmd, cwd=repo_root, check=False)

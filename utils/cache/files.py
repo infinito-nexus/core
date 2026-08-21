@@ -39,7 +39,6 @@ from .gitignore import is_path_gitignored, load_gitignore_patterns
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
 
-# Directories never worth descending into during project-tree scans.
 _DEFAULT_SKIP_DIRS: frozenset[str] = frozenset(
     {
         ".git",
@@ -65,7 +64,6 @@ def _all_project_files() -> tuple[str, ...]:
     root_str = str(PROJECT_ROOT)
     paths: list[str] = []
     for dirpath, dirnames, filenames in os.walk(root_str, topdown=True):
-        # prune in-place (topdown=True): stops descent into skipped dirs
         dirnames[:] = [d for d in dirnames if d not in _DEFAULT_SKIP_DIRS]
         paths.extend(str(Path(dirpath) / fn) for fn in filenames)
     return tuple(paths)
@@ -97,7 +95,6 @@ def iter_project_files(
         if exclude_tests and path.startswith(tests_prefix):
             continue
         if exclude_dirs_set is not None:
-            # Cheap path-segment check; avoids splitting the full path.
             rel = os.path.relpath(path, str(PROJECT_ROOT))
             if exclude_dirs_set.intersection(Path(rel).parts):
                 continue

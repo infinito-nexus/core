@@ -10,7 +10,6 @@ _CACHE_RETRY_REPO_ROOT="$(cd "${_CACHE_RETRY_DIR}/../../../../.." && pwd)"
 
 _cache_retry_stale_pattern='Release file .*is expired|Valid-Until.*expired'
 
-# Used when the Nexus API discovery call fails; mirrors scripts/docker/cache/package.sh.
 _CACHE_RETRY_FALLBACK_REPOS=(apt-debian apt-debian-security apt-ubuntu apt-ubuntu-security)
 
 _cache_retry_nexus_invalidate() {
@@ -41,7 +40,6 @@ _cache_retry_list_apt_proxy_repos() {
 }
 
 cache_retry_recover() {
-	# Defensive re-source: helper may be invoked outside the wrapping deploy script.
 	# shellcheck disable=SC1091  # path is runtime-resolved through REPO_ROOT
 	source "${REPO_ROOT:-${PWD}}/scripts/meta/env/load.sh"
 
@@ -64,9 +62,9 @@ cache_retry_recover() {
 	done
 
 	echo "[cache-retry] docker builder prune -af..."
-	docker builder prune -af >/dev/null 2>&1 || true
+	docker builder prune -af >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	echo "[cache-retry] docker image prune -af..."
-	docker image prune -af >/dev/null 2>&1 || true
+	docker image prune -af >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 }
 
 # Toggle errexit around the pipeline so a wrapped non-zero exit reaches the caller

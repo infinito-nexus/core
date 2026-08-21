@@ -87,7 +87,6 @@ def wait_for_docker_socket(container: str, timeout: int = 60) -> None:
     """
     print(">>> Waiting for Docker to be usable inside CI container...")
 
-    # 0) Verify docker CLI exists
     which = _docker_exec_capture(container, ["sh", "-lc", "command -v docker || true"])
     docker_path = (which.stdout or "").strip()
     if not docker_path:
@@ -106,7 +105,6 @@ def wait_for_docker_socket(container: str, timeout: int = 60) -> None:
             f"[diag stderr]\n{diag.stderr}\n"
         )
 
-    # 2) Poll docker info
     last_out = ""
     last_err = ""
     for _ in range(timeout):
@@ -118,7 +116,6 @@ def wait_for_docker_socket(container: str, timeout: int = 60) -> None:
             print(">>> Docker is usable inside container.")
             return
 
-        # capture a bit more detail for later
         dv = _docker_exec_capture(
             container, ["sh", "-lc", "docker version 2>&1 || true"]
         )
@@ -209,7 +206,6 @@ def run_in_container(
             name=name,
         )
 
-        # 1) Create CI inventory
         print(
             ">>> Creating CI inventory inside container "
             "(infinito administration inventory provision)..."
@@ -231,7 +227,6 @@ def run_in_container(
             check=True,
         )
 
-        # 1b) Mock backup authorized_keys file for user-backup
         print(">>> Mocking backup authorized_keys file inside CI inventory...")
         mock_key = os.environ.get(
             "AUTHORIZED_KEYS",
@@ -249,7 +244,6 @@ def run_in_container(
         )
         docker_exec(container_name, ["bash", "-lc", mock_cmd], check=True)
 
-        # 2) Ensure vault password file exists
         print(">>> Ensuring CI vault password file exists...")
         ensure_pw_cmd = (
             f"mkdir -p {shlex.quote(inv_root)} && "
@@ -262,7 +256,6 @@ def run_in_container(
             check=True,
         )
 
-        # 3) Run dedicated deploy
         cmd = [
             "python3",
             "-m",

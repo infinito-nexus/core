@@ -36,28 +36,17 @@ from utils.annotations.suppress import is_suppressed_in_head
 from utils.cache.base import PROJECT_ROOT
 from utils.cache.files import iter_non_ignored_files
 
-# A file at this length is generally too coupled / too scope-broad and
-# should be split. Bumping this number requires a corresponding cleanup
-# pass. Do not raise it just to silence the linter.
 MAX_PY_LINES: int = 500
 
-# Number of leading lines to scan for the per-file opt-out marker. Kept
-# small so the marker has to live near the top of the file (visible,
-# not buried) and so the scan stays cheap.
 SCAN_LINES: int = 30
 
 
 def _line_count(path: Path) -> int:
-    # Read as bytes + count newlines so the check works on files that
-    # accidentally ship with a non-UTF-8 byte (lint must not fail on a
-    # decode error before reporting the size violation).
     with path.open("rb") as fh:
         data = fh.read()
     if not data:
         return 0
     n = data.count(b"\n")
-    # Match `wc -l` only when the file ends with a newline; a file that
-    # ends without a final newline still has that last "line".
     return n if data.endswith(b"\n") else n + 1
 
 

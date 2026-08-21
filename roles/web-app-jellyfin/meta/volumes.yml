@@ -6,6 +6,7 @@ jellyfin_config:
       target: /config
 jellyfin_cache:
   type: volume
+  backup: false
   mounts:
     - service: jellyfin
       target: /cache

@@ -19,6 +19,5 @@ Roles still to migrate to the trusted-header SSO bridge (pattern: `web-app-baser
 - `web-app-friendica` — addon/hook: header → session
 - `web-app-akaunting` — Laravel controller shim (stage shim into the named volume on every deploy)
 - `web-app-magento` — custom `Infinito_HeaderSso` module (bypass FPC/Varnish on the handoff route)
-- `web-app-suitecrm` — header → session shim
 - `web-app-funkwhale` — django header / remote-user auth backend
-- Excluded: `web-app-flowise` (session-minting code is commercial-licensed), `web-app-jitsi` (no HTTP session — use native `AUTH_TYPE=jwt`)
+- Excluded: `web-app-flowise` (session-minting code is commercial-licensed), `web-app-jitsi` (no HTTP session — use native `AUTH_TYPE=jwt`), `web-app-suitecrm` (upstream SAML — use native `AUTH_TYPE=saml`)

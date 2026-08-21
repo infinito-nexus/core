@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       days:
-        description: "Delete CI images older than N days (default: 7)"
+        description: "🧹 Delete CI images older than N days (default: 7)"
         required: false
         default: "7"
         type: string

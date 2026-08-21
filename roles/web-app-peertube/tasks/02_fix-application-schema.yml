@@ -48,7 +48,7 @@
     config: "{{ lookup('database', application_id) }}"
     query: "{{ lookup('file', role_path ~ '/files/sql/backfill-application-defaults.sql') }}" # nocheck: database-query-raw  controller-read so the SQL travels to the remote swarm host that lacks the repo files
   register: _peertube_app_defaults
-  notify: compose up
+  notify: compose-up
 
 - name: "🔍 Resolve {{ application_id }} hosting node + container id"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"

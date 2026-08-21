@@ -27,6 +27,6 @@
 
 - name: "📁 Stage the mirror build script on the CDN host"
   ansible.builtin.copy:
-    src: build_assets.sh
+    src: shell/build_assets.sh
     dest: "{{ CDN_BUILD_SCRIPT_HOST }}"
     mode: "0755"

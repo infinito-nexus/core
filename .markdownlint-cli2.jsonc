@@ -29,6 +29,7 @@
   ],
   "ignores": [
     "node_modules/**",
+    ".cache/**",
     ".git/**",
     "venv/**",
     ".venv/**",

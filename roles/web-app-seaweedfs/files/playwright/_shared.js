@@ -1,4 +1,5 @@
 const { expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { isServiceEnabled } = require("./service-gating");
 const { decodeDotenvQuotedValue } = require("./personas");
 
@@ -10,6 +11,7 @@ const env = {
   biberUsername: decodeDotenvQuotedValue(process.env.BIBER_USERNAME),
   biberPassword: decodeDotenvQuotedValue(process.env.BIBER_PASSWORD),
   ssoEnabled: isServiceEnabled("sso"),
+  frontendEnabled: isServiceEnabled("frontend"),
   consumerBuckets: (() => {
     try {
       return JSON.parse(decodeDotenvQuotedValue(process.env.SEAWEEDFS_CONSUMER_BUCKETS) || "[]");
@@ -22,10 +24,10 @@ const env = {
 async function keycloakLogin(page, username, password) {
   await page.waitForLoadState("domcontentloaded");
   const user = page.locator("#username, input[name='username']").first();
-  await user.waitFor({ state: "visible", timeout: 60_000 });
+  await user.waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
   await user.fill(username);
   await page.locator("#password, input[name='password']").first().fill(password);
-  await page.locator("#kc-login, button[type='submit'], input[type='submit']").first().click();
+  await page.locator("#kc-login, button[type='submit'], input[type='submit']").first().click({ timeout: resolveTimeout(30_000) });
   await page.waitForLoadState("networkidle").catch(() => {});
 }
 

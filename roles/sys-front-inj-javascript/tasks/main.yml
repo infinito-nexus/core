@@ -6,7 +6,7 @@
     javascript_file_custom: >-
       {{ (application_id | abs_role_path_by_application_id ~ '/templates/javascript.js.j2')
          if lookup('fileglob', application_id | abs_role_path_by_application_id ~ '/templates/javascript.js.j2')
-         else application_id | abs_role_path_by_application_id ~ '/files/javascript.js' }}
+         else application_id | abs_role_path_by_application_id ~ '/files/javascript/javascript.js' }}
 
 - name: "📄 Load JavaScript code for '{{ application_id }}'"
   set_fact:

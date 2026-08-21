@@ -59,34 +59,22 @@ ROLES_DIR = str(PROJECT_ROOT / "roles")
 
 IMPLICIT_ADMIN_ROLE = "administrator"
 
-# Match a single rbac_group_path lookup call. `[^)]*` deliberately stops at
-# the first `)` so multi-call lines stay segmented. Jinja convention in
-# this repo keeps each lookup call on a single line.
 LOOKUP_CALL = re.compile(
     r"""lookup\(\s*['"]rbac_group_path['"]\s*,\s*(?P<kwargs>[^)]*)\)""",
     re.DOTALL,
 )
 
-# Within the captured kwargs, pick up application_id and role. application_id
-# is either a quoted literal or the bareword identifier `application_id`
-# (the only identifier form used in the codebase, per repo convention).
 APPLICATION_ID_KW = re.compile(
     r"""application_id\s*=\s*(?:'(?P<sq>[^']+)'|"(?P<dq>[^"]+)"|(?P<ident>[A-Za-z_]\w*))"""
 )
 ROLE_KW = re.compile(r"""role\s*=\s*(?:'(?P<sq>[^']+)'|"(?P<dq>[^"]+)")""")
 ROLE_NON_LITERAL = re.compile(r"role\s*=\s*[A-Za-z_]\w*")
 
-# File extensions where Jinja lookup() calls legitimately appear.
 SCAN_EXTENSIONS = (".j2", ".yml", ".yaml")
 
-# Files that mention `rbac_group_path` for documentation/contract reasons
-# rather than as live callsites. They are excluded by absolute path so
-# every other callsite stays in scope.
 EXCLUDED_RELATIVE_PATHS = frozenset(
     {
-        # The lookup plugin's own docstring shows usage examples.
         "plugins/lookup/rbac_group_path.py",
-        # This guard contains the literal call form in its docstring.
         "tests/integration/oauth2_oidc/rbac/test_group_path_role_declarations.py",  # nocheck: self-path-reference
     }
 )
@@ -190,8 +178,8 @@ def _iter_callsites():
 
 class TestRbacGroupPathRoleDeclarations(unittest.TestCase):
     def test_every_callsite_role_is_declared(self):
-        offenders = []  # hard failures
-        unresolved = []  # soft notes for diagnostics
+        offenders = []
+        unresolved = []
 
         for rel_path, abs_path, line_no, kwargs_blob in _iter_callsites():
             app_match = APPLICATION_ID_KW.search(kwargs_blob)
@@ -231,7 +219,6 @@ class TestRbacGroupPathRoleDeclarations(unittest.TestCase):
                     )
                     continue
             else:
-                # Some other identifier — out of scope for static analysis.
                 unresolved.append(
                     f"{rel_path}:{line_no}: application_id={ident_app} is a "
                     f"non-standard identifier; static check skipped"
@@ -257,8 +244,6 @@ class TestRbacGroupPathRoleDeclarations(unittest.TestCase):
                     f"or fix the callsite."
                 )
 
-        # Surface unresolved items in the failure message so a future
-        # contributor sees what this static check could not verify.
         if offenders:
             msg_lines = [
                 "rbac_group_path callsites reference roles that are not declared in the target application's meta/rbac.yml. This is the static counterpart of the runtime AnsibleError raised by plugins/lookup/rbac_group_path.py.",

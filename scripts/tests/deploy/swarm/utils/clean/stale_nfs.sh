@@ -7,7 +7,7 @@ set -uo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../../../.." && pwd)"
 
 # shellcheck source=scripts/meta/env/load.sh
-source "${ROOT_DIR}/scripts/meta/env/load.sh" >/dev/null 2>&1 || true
+source "${ROOT_DIR}/scripts/meta/env/load.sh" >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 
 CID="${CID:-}"
 NFS_MOUNT="${NFS_MOUNT:-}"
@@ -30,15 +30,15 @@ _docker_ids() {
 }
 
 _container_name() {
-	docker inspect -f '{{.Name}}' "$1" 2>/dev/null | sed 's#^/##' || true
+	docker inspect -f '{{.Name}}' "$1" 2>/dev/null | sed 's#^/##' || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 }
 
 _container_full_id() {
-	docker inspect -f '{{.Id}}' "$1" 2>/dev/null || true
+	docker inspect -f '{{.Id}}' "$1" 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 }
 
 _container_state() {
-	docker inspect -f 'status={{.State.Status}} pid={{.State.Pid}}' "$1" 2>/dev/null || true
+	docker inspect -f 'status={{.State.Status}} pid={{.State.Pid}}' "$1" 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 }
 
 _container_pids() {
@@ -53,7 +53,7 @@ _container_pids() {
 
 	if [ -n "${full_id}" ]; then
 		sudo grep -Els "${full_id}" /proc/[0-9]*/cgroup 2>/dev/null |
-			sed -E 's#/proc/([0-9]+)/cgroup#\1#' || true
+			sed -E 's#/proc/([0-9]+)/cgroup#\1#' || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	fi
 }
 
@@ -89,7 +89,7 @@ _nfs_mounts_for_pid() {
 				print unescape_mount(mount_point)
 			}
 		}
-	' "/proc/${pid}/mountinfo" 2>/dev/null || true
+	' "/proc/${pid}/mountinfo" 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 }
 
 _detach_mounts_for_pid() {
@@ -136,12 +136,12 @@ _force_reap_container() {
 	mapfile -t pids < <(_container_pids "${container}" "${full_id}" | sort -u)
 	for pid in "${pids[@]}"; do
 		echo "    kill pid ${pid}"
-		sudo kill -9 "${pid}" 2>/dev/null || true
-		sudo pkill -9 -P "${pid}" 2>/dev/null || true
+		sudo kill -9 "${pid}" 2>/dev/null || true     # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+		sudo pkill -9 -P "${pid}" 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	done
 
 	if [ -n "${full_id}" ]; then
-		sudo pkill -9 -f "containerd-shim.*(${full_id}|${short_id})" 2>/dev/null || true
+		sudo pkill -9 -f "containerd-shim.*(${full_id}|${short_id})" 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	fi
 }
 

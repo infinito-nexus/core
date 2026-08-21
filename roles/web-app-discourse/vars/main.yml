@@ -2,7 +2,7 @@
 application_id: "web-app-discourse"
 entity_name: "{{ application_id | get_entity_name }}"
 
-database_password: "{{ lookup('config', application_id, 'credentials.database_password') }}" # nocheck: lookup-config-path
+database_password: "{{ lookup('config', application_id, 'secrets.credentials.database_password') }}" # nocheck: lookup-config-path
 
 DISCOURSE_CONTAINER: "{{ entity_name }}"
 DISCOURSE_NETWORK: "{{ application_id | get_entity_name }}"

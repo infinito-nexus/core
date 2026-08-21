@@ -26,7 +26,6 @@ class TestDependencyApplicationId(unittest.TestCase):
             data = load_yaml_any(str(vars_file)) or {}
             return data.get("application_id")
 
-        # Iterate all roles
         for role_path in roles_dir.iterdir():
             if not role_path.is_dir():
                 continue
@@ -50,7 +49,6 @@ class TestDependencyApplicationId(unittest.TestCase):
                 elif isinstance(item, str):
                     dep_names.append(item)
 
-            # load application_id for this role once
             app_id_role = load_app_id(role_path)
             for dep_name in dep_names:
                 dep_path = roles_dir / dep_name
@@ -58,16 +56,13 @@ class TestDependencyApplicationId(unittest.TestCase):
                     continue
 
                 app_id_dep = load_app_id(dep_path)
-                # only check if both app_ids are defined
                 if app_id_role is None or app_id_dep is None:
                     continue
 
-                # check role A
                 if app_id_role != role_name:
                     violations.append(
                         f"{role_name}: application_id='{app_id_role}' ≠ folder name '{role_name}'"
                     )
-                # check role B
                 if app_id_dep != dep_name:
                     violations.append(
                         f"{dep_name}: application_id='{app_id_dep}' ≠ folder name '{dep_name}'"

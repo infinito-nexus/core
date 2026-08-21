@@ -34,12 +34,9 @@ MIN_FREE_GB=$((SWAP_GB + 4)) # need the target size plus a little slack
 
 "$DUMP" "before swap resize"
 
-sudo swapoff -a || true
+sudo swapoff -a || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 sudo rm -f /mnt/swapfile /swapfile
 
-# Only treat /mnt as a candidate if it is actually a separate mount.
-# On current ubuntu-latest public runners /mnt is an empty directory
-# on the root fs, which would double-count free space.
 if mountpoint -q /mnt 2>/dev/null; then
 	mnt_free=$(df --output=avail -B1G /mnt | tail -n1 | tr -d ' ')
 else

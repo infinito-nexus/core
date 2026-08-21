@@ -1,6 +1,7 @@
 const { expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, gotoOnion } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 const oidcEnabled    = isServiceEnabled("sso");
@@ -15,9 +16,9 @@ const biberPassword       = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
 const canonicalDomain     = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
 
 async function erpnextLogout(page) {
-  await page.goto(`${erpnextBaseUrl}/api/method/logout`, { waitUntil: "commit" }).catch(() => {});
+  await gotoOnion(page, `${erpnextBaseUrl}/api/method/logout`, { waitUntil: "commit" }).catch(() => {});
   if (oidcIssuerUrl) {
-    await page.goto(`${oidcIssuerUrl}/protocol/openid-connect/logout`, { waitUntil: "commit" }).catch(() => {});
+    await gotoOnion(page, `${oidcIssuerUrl}/protocol/openid-connect/logout`, { waitUntil: "commit" }).catch(() => {});
   }
   await page.context().clearCookies();
 }
@@ -25,18 +26,18 @@ async function erpnextLogout(page) {
 // Frappe's /login form serves both native local users and LDAP-federated users
 // (local DB lookup first, LDAP fallback when LDAP Settings is enabled).
 async function signInViaErpnextLocal(page, username, password, personaLabel) {
-  await page.goto(`${erpnextBaseUrl}/login`);
+  await gotoOnion(page, `${erpnextBaseUrl}/login`);
   await page.fill("input#login_email", username);
   await page.fill("input#login_password", password);
   await Promise.all([
     page.waitForURL((url) => url.toString().includes(canonicalDomain) && !url.toString().includes("/login"), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
     }),
-    page.click("button.btn-login, button[type='submit']").catch(() => page.keyboard.press("Enter")),
+    page.click("button.btn-login, button[type='submit']", { timeout: resolveTimeout(30_000) }).catch(() => page.keyboard.press("Enter")),
   ]);
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${personaLabel}: expected post-login redirect on ${canonicalDomain} (not /login)`,
     })
     .not.toContain("/login");
@@ -45,7 +46,7 @@ async function signInViaErpnextLocal(page, username, password, personaLabel) {
 async function signInViaErpnextOidc(page, username, password, personaLabel) {
   const expectedOidcAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
 
-  await page.goto(`${erpnextBaseUrl}/login`);
+  await gotoOnion(page, `${erpnextBaseUrl}/login`);
 
   const oidcSignIn = page
     .locator("a, button")
@@ -55,12 +56,12 @@ async function signInViaErpnextOidc(page, username, password, personaLabel) {
   await expect(
     oidcSignIn,
     `${personaLabel}: the Keycloak SSO button must render on /login (Social Login Key not picked up by the workers?)`,
-  ).toBeVisible({ timeout: 30_000 });
-  await oidcSignIn.click();
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
+  await oidcSignIn.click({ timeout: resolveTimeout(30_000) });
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${personaLabel}: expected redirect to Keycloak OIDC auth (${expectedOidcAuthUrl})`,
     })
     .toContain(expectedOidcAuthUrl);
@@ -69,7 +70,7 @@ async function signInViaErpnextOidc(page, username, password, personaLabel) {
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${personaLabel}: expected redirect back to ERPNext at ${erpnextBaseUrl}`,
     })
     .toContain(canonicalDomain);

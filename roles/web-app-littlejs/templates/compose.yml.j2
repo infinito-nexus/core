@@ -1,6 +1,7 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
   {% set service_name = LITTLEJS_SERVICE %}
   {{ service_name }}:
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('compose_only', 'container_name', LITTLEJS_CONTAINER) }}
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       args:
@@ -14,6 +15,6 @@
     {{ lookup('container_networks') | indent(4) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}
 
 {{ lookup('compose_networks') }}

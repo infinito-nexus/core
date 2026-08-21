@@ -111,6 +111,7 @@ flowchart LR
 | ------------------------------------- | ------------------ |
 | literal `true`                        | yes                |
 | `"{{ '<role>' in group_names }}"`     | yes                |
+| `"{{ '<role>' not in group_names }}"` | yes                |
 | literal `false`                       | no                 |
 
 So a conditional `"{{ 'web-app-matomo' in group_names }}"` edge pulls its

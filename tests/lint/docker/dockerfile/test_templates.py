@@ -33,7 +33,6 @@ if TYPE_CHECKING:
 _REPO_ROOT = PROJECT_ROOT
 _ROLES_ROOT = _REPO_ROOT / "roles"
 
-# Matches any Jinja2 control-flow or structural tag: {% ... %}
 _J2_LOGIC_RE = re.compile(r"\{%-?\s*\w")
 
 

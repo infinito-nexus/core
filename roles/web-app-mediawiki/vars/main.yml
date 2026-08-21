@@ -13,7 +13,7 @@ MEDIAWIKI_LOCALSETTINGS_HOST_PATH: "{{ MEDIAWIKI_CONFIG_DIR }}/LocalSettings.php
 MEDIAWIKI_LOCALSETTINGS_CONTAINER_PATH: "{{ MEDIAWIKI_HTML_DIR }}/LocalSettings.php"
 
 MEDIAWIKI_LOCAL_MOUNT_DIR: "{{ [ MEDIAWIKI_VOLUMES_DIR, 'mw-local' ] | path_join }}"
-MEDIAWIKI_LOCAL_PATH: "/opt/mw-local"
+MEDIAWIKI_LOCAL_PATH: "{{ lookup('volume', 'web-app-mediawiki', 'mw_local').target }}"
 
 MEDIAWIKI_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
 MEDIAWIKI_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
@@ -27,8 +27,8 @@ MEDIAWIKI_USER_GID: "33"
 MEDIAWIKI_NETWORK_DATABASE: "{{ lookup('database', application_id, 'network') }}"
 
 MEDIAWIKI_ADMINISTRATOR_NAME: "{{ lookup('users', 'administrator').username }}"
-MEDIAWIKI_ADMINISTRATOR_PASSWORD: "{{ lookup('config', application_id, 'credentials.administrator_password') }}"
-MEDIAWIKI_SECRET_KEY: "{{ lookup('config', application_id, 'credentials.secret_key') }}"
+MEDIAWIKI_ADMINISTRATOR_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.administrator_password') }}"
+MEDIAWIKI_SECRET_KEY: "{{ lookup('config', application_id, 'secrets.credentials.secret_key') }}"
 
 MEDIAWIKI_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 MEDIAWIKI_OIDC_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"

@@ -3,7 +3,7 @@
 // each scenario is registered from its own `test-*.js` companion module
 // so each test stays atomar and individually inspectable.
 
-const { test } = require("@playwright/test");
+const { test } = require("./fixtures/onion-test");
 
 const shared = require("./_shared");
 

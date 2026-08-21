@@ -37,15 +37,10 @@ from . import PROJECT_ROOT
 
 _RULE = "compose-ports-must-use-container-ports"
 
-# One `:`-delimited segment of a port mapping: a Jinja expression, a numeric
-# host/port or dotted IP, or a numeric port with a /tcp|/udp suffix. A volume
-# path (`/data`) or healthcheck command word never matches across all segments.
 _PORT_SEGMENT = re.compile(r"\A(?:\{\{.*\}\}|[\d.]+|\d+/(?:tcp|udp))\Z")
 
-# The quoted payload of a `- "..."` compose list item.
 _LIST_ITEM = re.compile(r'-\s*"([^"]*)"')
 
-# A `['service_name', 'protocol']` pair inside a container_ports lookup call.
 _PAIR = re.compile(r"\[\s*'([\w-]+)'\s*,\s*'([\w-]+)'\s*\]")
 
 
@@ -61,7 +56,7 @@ def _is_raw_port_mapping(line: str) -> bool:
     if match is None:
         return False
     inner = match.group(1)
-    if "=" in inner:  # `- "KEY=value"` environment entry, not a port mapping
+    if "=" in inner:
         return False
     segments = inner.split(":")
     return len(segments) >= 2 and all(
@@ -95,10 +90,6 @@ class TestComposePortsUseContainerPortsLookup(unittest.TestCase):
                     ):
                         findings.append((rel, idx + 1, stripped))
                     continue
-                # Track the enclosing block: a `ports:` key or a container_ports
-                # lookup opens it; any other key or lookup (extra_hosts, networks,
-                # environment, container_volumes, ...) closes it. This keeps
-                # host:ip extra_hosts entries from looking like port mappings.
                 if stripped.startswith("{{"):
                     in_ports_block = "container_ports" in stripped
                     continue

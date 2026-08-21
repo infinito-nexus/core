@@ -1,0 +1,5 @@
+# Exception: external_url has no SH_* env equivalent (socialhome/config.py `_split_toml` keeps
+# [standalone] in platform_options), and without it POST /api/pairing/initiate answers 422
+# NOT_CONFIGURED and federation pairing is dead. That is the only reason this file exists.
+[standalone]
+external_url = "{{ SOCIALHOME_EXTERNAL_URL }}"

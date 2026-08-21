@@ -1,0 +1,204 @@
+# The gate every entry point passes before it spends a runner on anything else.
+# What it checks depends on the event and on the inputs it is handed, not on
+# which workflow called it: a pull request gets its branch prefix and its merge
+# base asserted, a run that carries a selection gets that selection checked
+# against the branch it would deploy from, and a fork PR waits here for the
+# privileged run's images. Nothing downstream may start before this is green,
+# so a refusal fails the whole run instead of surfacing as one red job beside a
+# chain that keeps going.
+#
+# Under pull_request_target the token is privileged and the head belongs to the
+# fork, so the code under test is not checked out at all there and the branch
+# prefix is validated from the calling ref's own tooling. Only the merge
+# assertion and the selection check read the head, and both are reachable on
+# pull_request and workflow_dispatch alone.
+name: "✅ CI: Validation"
+
+on:
+  workflow_call:
+    inputs:
+      pr_scope:
+        description: "🔎 Detected PR scope. Set: the branch prefix is validated against it. Empty: not a PR entry, skipped."
+        required: false
+        type: string
+        default: ""
+      whitelist:
+        description: "🎯 Selection to validate against this branch. Empty: nothing to check."
+        required: false
+        type: string
+        default: ""
+      priority:
+        description: "⭐ Priority line to validate against this branch. Empty: nothing to check."
+        required: false
+        type: string
+        default: ""
+      mode:
+        description: "🚀 Deploy modes the run draws from; narrows what a pinned mode may be."
+        required: false
+        type: string
+        default: "auto"
+      tor:
+        description: "🧅 Tor axis of the run; decides whether a pinned onion state is reachable."
+        required: false
+        type: string
+        default: "auto"
+      distros:
+        description: "🐧 Distro pool of the run; narrows what a pinned distro may be."
+        required: false
+        type: string
+        default: ""
+      filesystem:
+        description: "🗄️ Filesystem pool of the run; narrows what a pinned filesystem may be."
+        required: false
+        type: string
+        default: ""
+      lifecycles:
+        description: "♻️ Lifecycle envelope; a role outside it has no row to match."
+        required: false
+        type: string
+        default: ""
+      fork_prereqs:
+        description: "🍴 Wait for the privileged fork run's images. Off for entries that build their own."
+        required: false
+        type: boolean
+        default: false
+      trusted_pr:
+        description: "🛡️ True when the PR carries the maintainer Trusted label; skips the fork-prereq wait."
+        required: false
+        type: boolean
+        default: false
+      image_wait_attempts:
+        description: "🔁 Polling attempts while waiting on prebuilt or mirrored images."
+        required: false
+        type: string
+        default: "1980"
+      image_wait_sleep_seconds:
+        description: "⏱️ Polling interval in seconds while waiting on images."
+        required: false
+        type: string
+        default: "10"
+
+permissions:
+  contents: read
+
+jobs:
+  validation:
+    name: ✅ Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout the calling ref for its tooling
+        uses: actions/checkout@v7.0.0
+        with:
+          path: .base-tooling
+          persist-credentials: false
+
+      - name: ⬇️ Checkout the code under test
+        if: ${{ github.event_name != 'pull_request_target' }}
+        uses: actions/checkout@v7.0.0
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: ${{ inputs.pr_scope != '' && '0' || '1' }}
+          path: pr-head
+          persist-credentials: false
+
+      - name: 🧭 Validate the branch prefix against the detected scope
+        if: ${{ inputs.pr_scope != '' }}
+        working-directory: .base-tooling
+        env:
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          PR_SCOPE: ${{ inputs.pr_scope }}
+        run: ./scripts/meta/resolve/pr/branch_prefix.sh
+
+      - name: 🔀 Assert the base branch is fully merged into the PR head
+        if: ${{ github.event_name == 'pull_request' && inputs.pr_scope != '' }}
+        working-directory: pr-head
+        env:
+          INFINITO_MAIN_REMOTE: origin
+          INFINITO_MAIN_BRANCH: ${{ github.event.pull_request.base.ref }}
+        run: bash "${GITHUB_WORKSPACE}/.base-tooling/scripts/git/assert/main_merged.sh"
+
+      - name: 🔧 Set up Python
+        if: ${{ inputs.whitelist != '' || inputs.priority != '' }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pr-head/pyproject.toml
+
+      - name: 📦 Install project (host venv)
+        if: ${{ inputs.whitelist != '' || inputs.priority != '' }}
+        working-directory: pr-head
+        shell: bash
+        run: make install
+
+      - name: 🎯 Validate the selection against this branch
+        if: ${{ inputs.whitelist != '' || inputs.priority != '' }}
+        working-directory: pr-head
+        shell: bash
+        env:
+          INPUT_WHITELIST: ${{ inputs.whitelist }}
+          INPUT_PRIORITY: ${{ inputs.priority }}
+          INPUT_MODE: ${{ inputs.mode }}
+          INPUT_TOR: ${{ inputs.tor }}
+          INPUT_DISTROS: ${{ inputs.distros }}
+          INPUT_FILESYSTEM: ${{ inputs.filesystem }}
+          INPUT_LIFECYCLES: ${{ inputs.lifecycles }}
+        run: ./scripts/github/validate/selection.sh
+
+  wait-fork-prereq-run:
+    name: ⏳ Wait for fork run
+    if: ${{ inputs.fork_prereqs }}
+    runs-on: ubuntu-latest
+    env:
+      WAIT_REQUIRED: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository && !inputs.trusted_pr }}
+    steps:
+      - name: 🏷️ Mark fork prerequisites as ready outside fork PRs or for trusted PRs
+        if: ${{ env.WAIT_REQUIRED != 'true' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Fork prerequisites are implicitly ready (non-fork PR or '🛡️ Trusted' label)."
+
+      - name: ⬇️ Checkout trusted workflow repo (helpers)
+        if: ${{ env.WAIT_REQUIRED == 'true' }}
+        uses: actions/checkout@v7.0.0
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          persist-credentials: false
+
+      - name: 🔑 Login to GHCR for CI image checks
+        if: ${{ env.WAIT_REQUIRED == 'true' }}
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: ⏳ Wait for privileged fork CI images
+        if: ${{ env.WAIT_REQUIRED == 'true' }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WORKFLOW_FILE: entry-pr-change-orchestrate.yml
+          TARGET_EVENT: pull_request_target
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_UPDATED_AT: ${{ github.event.pull_request.updated_at }}
+          INFINITO_DISTROS: "arch debian ubuntu fedora centos"
+          IMAGE_TAG: ci-${{ github.sha }}
+          WAIT_ATTEMPTS: ${{ inputs.image_wait_attempts }}
+          WAIT_SLEEP_SECONDS: ${{ inputs.image_wait_sleep_seconds }}
+        run: ./scripts/meta/wait/images.sh
+
+  fork-prereqs-ready:
+    name: 🚦 Gate Dependencies
+    needs: wait-fork-prereq-run
+    if: ${{ always() && inputs.fork_prereqs }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - name: ✅ Assert privileged prerequisites are ready
+        shell: bash
+        env:
+          RESULT: ${{ needs.wait-fork-prereq-run.result }}
+        run: ./scripts/github/gate/fork_prereqs.sh

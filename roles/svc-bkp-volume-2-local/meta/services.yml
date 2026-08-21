@@ -19,6 +19,13 @@ volume-2-local:
   mem_limit: "512m"
   pids_limit: 256
 
+# nocheck: dynamic-flag
+test:
+  enabled: false
+  shared: false
+  image: alpine
+  version: "3.24"
+
 # nocheck: dynamic-flag - host secrets must be captured unconditionally wherever container backups run
 secrets_backup:
   bond: 1

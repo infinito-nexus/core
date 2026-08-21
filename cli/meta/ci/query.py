@@ -1,241 +1,221 @@
 """Single source of truth for the CI app-discovery query.
 
 Usage:
-  python -m cli.meta.ci.query --mode compose|swarm|host [--matrix] [--format json]
+  python -m cli.meta.ci.query [--modes "swarm compose host"] [--matrix]
+      [--format json]
 
-Both the production discovery (scripts/meta/resolve/apps.sh) and the
-plan table (cli.meta.ci.plan) resolve role lists through this
-module, so the plan shows exactly the query the run executes. One query
-per mode, sharing filter (mode + INFINITO_WHITELIST + INFINITO_BLACKLIST),
-INFINITO_DISCOVERY_SORT order, lifecycle envelope and the
-INFINITO_MAX_JOBS cap ('auto' resolves per mode via cli.meta.ci.slots):
+One query per run, not one per deploy mode. Every row is a ``role#variant``
+selection, so the row basis, the ranking and the budget cut all speak the
+same unit and the cut can select a subset of a role's variants. Which deploy
+mode a row actually runs in is decided afterwards by the rotation in
+``utils.github.variant.bundles``; the query only decides which rows exist.
 
-  compose  whole-role rows, clones sorted last, variants packed into
-           size/storage bundles for the job count
-  host     whole-role rows, clones and tested-elsewhere roles sorted
-           last, bundled like compose
-  swarm    one row per variant (``role#variant`` tokens), ranked and
-           budget-cut on per-variant metrics; the cut can select a
-           subset of a role's variants
+The mode selection is a *filter*, not an axis: ``--modes swarm`` keeps the
+rows whose role can be deployed as a swarm stack, ``--modes "compose swarm"``
+keeps the rows at least one of the two can take. The shared filter is
+mode-clause + INFINITO_WHITELIST + INFINITO_BLACKLIST, the order is
+INFINITO_DISCOVERY_SORT, whose first key sorts clones last (one representative
+per dna cluster stays ahead of the budget cut, so redundant same-service-set
+variants fall behind it first), and the lifecycle envelope is
+INFINITO_LIFECYCLES.
 
-``--matrix`` renders exactly the row basis the mode's selection runs
-on, so the matrix order IS the selection priority. ``capped=False``
-returns the full ordered candidate list so callers can show what fell
-behind the budget cut.
+``--matrix`` renders the full ordered candidate list, so the matrix order IS
+the selection priority. Every human-facing view of that list goes through here
+rather than re-deriving the sort and the filter: hand-rolling
+``--sort "$INFINITO_DISCOVERY_SORT" --filter "compose == true"`` reads the
+wrong column (``compose`` is what a role can do, ``test_compose`` is what CI
+tests), which silently shows an order no run will ever take.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
-import os
 import subprocess
 import sys
 
-from cli.meta.ci import slots
-from utils.cache.files import PROJECT_ROOT, read_text
+from utils.cache.files import PROJECT_ROOT
+from utils.env.parser import env_setting
+from utils.github.variant.axes import MODES
 from utils.roles.display import display_names
 
-MODES = ("compose", "swarm", "host")
+ALL_MODES = "auto"
 
 
-def expands_variants(mode: str) -> bool:
-    """Whether *mode* queries, ranks and triggers one CI job per variant.
-    Swarm does (``role#variant`` tokens through the whole chain); compose
-    and host bundle every variant into whole-role jobs (variant.bundles
-    SPOT), so their query rows stay whole-role too."""
-    return mode == "swarm"
+def resolve_modes(raw: str) -> tuple[str, ...]:
+    """The deploy modes a run may draw from. ``auto`` (or empty) means every
+    mode; anything else is the listed subset, in :data:`MODES` order.
+
+    Raises:
+        SystemExit: a token that names no known mode -- a typo must not
+            silently narrow the run to nothing.
+    """
+    tokens = raw.replace(",", " ").split()
+    if not tokens or tokens == [ALL_MODES]:
+        return MODES
+    unknown = [token for token in tokens if token not in MODES]
+    if unknown:
+        raise SystemExit(
+            f"unknown deploy mode(s): {' '.join(unknown)}; expected "
+            f"{', '.join(MODES)} or {ALL_MODES!r}"
+        )
+    return tuple(mode for mode in MODES if mode in tokens)
 
 
 def build_filter(
-    mode: str,
-    whitelist: str = "",
-    blacklist: str = "",
-    covered: tuple[str, ...] = (),
+    modes: tuple[str, ...], whitelist: str = "", blacklist: str = ""
 ) -> str:
-    parts = [f"test_{mode} == true"]
+    """The complexity ``--filter`` expression for one run."""
+    clause = " or ".join(f"test_{mode} == true" for mode in modes)
+    parts = [f"({clause})" if len(modes) > 1 else clause]
     include = ",".join(whitelist.split())
     if include:
         parts.append(f"name %% {{{include}}}")
     exclude = ",".join(blacklist.split())
     if exclude:
         parts.append(f"not (name %% {{{exclude}}})")
-    if covered:
-        parts.append(f"not (name %% {{{','.join(covered)}}})")
     return " and ".join(parts)
 
 
-def compose_covered(
-    mode: str, *, whitelist: str, blacklist: str, lifecycles: str
-) -> tuple[str, ...]:
-    """Roles the same run's compose line already triggers; the host line
-    drops them instead of redeploying them in a second single-node mode.
-    Active only when the caller signals a co-running compose line via
-    INFINITO_HOST_EXCLUDE_COMPOSE."""
-    if mode != "host":
-        return ()
-    flag = os.environ["INFINITO_HOST_EXCLUDE_COMPOSE"].strip().lower()
-    if flag not in ("1", "true", "yes"):
-        return ()
-    return tuple(
-        discover(
-            "compose",
-            whitelist=whitelist,
-            blacklist=blacklist,
-            lifecycles=lifecycles,
-        )
-    )
-
-
-def _sort_spec(mode: str) -> str:
-    """The discovery sort for *mode*. Every mode prepends clones-last (one
-    representative per dna cluster stays ahead of the budget cut, so redundant
-    same-service-set variants fall behind it first); host additionally sorts
-    tested-elsewhere roles down so its slots go to roles no compose or swarm
-    matrix already covers."""
-    spec = os.environ["INFINITO_DISCOVERY_SORT"]
-    if not spec.strip():
-        for line in read_text(str(PROJECT_ROOT / "default.env")).splitlines():
-            if line.startswith("INFINITO_DISCOVERY_SORT="):
-                spec = line.split("=", 1)[1].strip().strip('"')
-                break
-    prefixes = {
-        "compose": "asc clone",
-        "swarm": "asc clone",
-        "host": "asc clone,asc tested_elsewhere",
-    }
-    prefix = prefixes.get(mode)
-    if prefix:
-        return f"{prefix},{spec}" if spec.strip() else prefix
-    return spec
-
-
-def max_jobs(mode: str, *, blacklist: str = "", lifecycles: str = "") -> int:
-    """The mode's slot budget minus the jobs the run's priority line
-    already occupies (the priority whitelist arrives here as the regular
-    line's blacklist), floored at 0."""
-    raw = os.environ["INFINITO_MAX_JOBS"].strip()
-    budget = slots.mode_slots()[mode] if raw in ("", "auto") else int(raw)
-    if blacklist.strip():
-        budget -= len(discover(mode, whitelist=blacklist, lifecycles=lifecycles))
-    return max(budget, 0)
+def sort_spec() -> str:
+    """The discovery sort as declared in default.env."""
+    return env_setting("INFINITO_DISCOVERY_SORT").strip()
 
 
 def _query_argv(
-    mode: str,
+    modes: tuple[str, ...],
     *,
     whitelist: str,
     blacklist: str,
     lifecycles: str,
-    job_cap: int | None,
     fmt: list[str],
-    covered: tuple[str, ...] = (),
+    variant: bool = True,
 ) -> list[str]:
+    """The complexity call this run discovers through.
+
+    Args:
+        variant: ``False`` collapses the rows to whole roles. Only ``--matrix``
+            renders that view; discovery itself is always per ``role#variant``,
+            because that is the unit the budget cut and the deploy speak.
+    """
     args = [
         sys.executable,
         "-m",
         "cli.meta.roles.applications.complexity",
-        "--deploy-mode",
-        mode,
+        *(["--variant"] if variant else []),
         "--filter",
-        build_filter(mode, whitelist, blacklist, covered),
+        build_filter(modes, whitelist, blacklist),
         "--sort",
-        _sort_spec(mode),
+        sort_spec(),
         *fmt,
     ]
-    if expands_variants(mode):
-        args.append("--variant")
-    envelope = lifecycles or os.environ["INFINITO_LIFECYCLES"]
+    envelope = lifecycles or env_setting("INFINITO_LIFECYCLES")
     if envelope.strip():
         args += ["--lifecycles", envelope]
-    if job_cap is not None:
-        args += ["--max-jobs", str(job_cap)]
     return args
 
 
-def discover(
-    mode: str,
+def discover_rows(
+    modes: tuple[str, ...] = MODES,
     *,
     whitelist: str = "",
     blacklist: str = "",
     lifecycles: str = "",
-    capped: bool = True,
-) -> list[str]:
-    """The ordered selection the discovery query yields for *mode*:
-    role names for compose and host, ``role#variant`` tokens for swarm."""
-    job_cap = None
-    if capped:
-        job_cap = max_jobs(mode, blacklist=blacklist, lifecycles=lifecycles)
-        if job_cap == 0:
-            return []
-    covered = compose_covered(
-        mode, whitelist=whitelist, blacklist=blacklist, lifecycles=lifecycles
-    )
+) -> list[dict]:
+    """The ordered candidate rows, each the complexity payload of one
+    ``role#variant``. Uncapped: the chunker decides what a sweep spends."""
     out = subprocess.run(
         _query_argv(
-            mode,
+            modes,
             whitelist=whitelist,
             blacklist=blacklist,
             lifecycles=lifecycles,
-            job_cap=job_cap,
-            fmt=["--format", "string"],
-            covered=covered,
+            fmt=["--format", "json"],
         ),
         cwd=PROJECT_ROOT,
         capture_output=True,
         text=True,
         check=True,
     ).stdout
-    return [line.strip() for line in out.splitlines() if line.strip()]
+    return json.loads(out) if out.strip() else []
+
+
+def token(row: dict) -> str:
+    """The ``role#variant`` selection token of one query row."""
+    return f"{row['name']}#{row['variant']}"
+
+
+def row_modes(row: dict, modes: tuple[str, ...] = MODES) -> tuple[str, ...]:
+    """The selected deploy modes this row can actually run in. Never empty
+    for a row the query returned -- the filter kept it precisely because at
+    least one selected mode claims it."""
+    return tuple(mode for mode in modes if row.get(f"test_{mode}"))
+
+
+def discover(
+    modes: tuple[str, ...] = MODES,
+    *,
+    whitelist: str = "",
+    blacklist: str = "",
+    lifecycles: str = "",
+) -> list[str]:
+    """The ordered ``role#variant`` tokens the query yields."""
+    return [
+        token(row)
+        for row in discover_rows(
+            modes, whitelist=whitelist, blacklist=blacklist, lifecycles=lifecycles
+        )
+    ]
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Run the CI app-discovery query for one deploy mode."
+        description="Run the CI app-discovery query for one workflow run."
     )
-    parser.add_argument("--mode", required=True, choices=MODES)
+    parser.add_argument("--modes", default=ALL_MODES)
     parser.add_argument(
         "--matrix",
         action="store_true",
         help=(
-            "Render the full complexity matrix in query order (uncapped) "
-            "on the mode's own row basis: per-variant rows for swarm, "
-            "whole-role rows for compose and host. The matrix order is "
-            "the selection priority."
+            "Render the full complexity matrix in query order: one row per "
+            "role#variant. The matrix order is the selection priority."
+        ),
+    )
+    parser.add_argument(
+        "--roles",
+        action="store_true",
+        help=(
+            "With --matrix: one row per role instead of per role#variant, in "
+            "the same query order."
         ),
     )
     parser.add_argument("--format", choices=("json",), dest="fmt")
     args = parser.parse_args(argv)
 
     codec = display_names()
-    whitelist = codec.decode_list(os.environ["INFINITO_WHITELIST"])
-    blacklist = codec.decode_list(os.environ["INFINITO_BLACKLIST"])
+    whitelist = codec.decode_list(env_setting("INFINITO_WHITELIST"))
+    blacklist = codec.decode_list(env_setting("INFINITO_BLACKLIST"))
+    modes = resolve_modes(args.modes)
 
     if args.matrix:
         return subprocess.run(
             _query_argv(
-                args.mode,
+                modes,
                 whitelist=whitelist,
                 blacklist=blacklist,
                 lifecycles="",
-                job_cap=None,
                 fmt=["-s"],
-                covered=compose_covered(
-                    args.mode,
-                    whitelist=whitelist,
-                    blacklist=blacklist,
-                    lifecycles="",
-                ),
+                variant=not args.roles,
             ),
             cwd=PROJECT_ROOT,
             check=False,
         ).returncode
 
-    roles = discover(args.mode, whitelist=whitelist, blacklist=blacklist)
+    tokens = discover(modes, whitelist=whitelist, blacklist=blacklist)
     if args.fmt == "json":
-        print(json.dumps(roles))
+        print(json.dumps(tokens))
     else:
-        print("\n".join(roles))
+        print("\n".join(tokens))
     return 0
 
 

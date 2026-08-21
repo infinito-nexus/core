@@ -7,4 +7,4 @@ FUNKWHALE_MUSIC_DIR: "{{ [ FUNKWHALE_DATA_ROOT, 'music' ]  | path_join }}"
 FUNKWHALE_STATIC_DIR: "{{ [ FUNKWHALE_DATA_ROOT, 'static' ]  | path_join }}"
 FUNKWHALE_CELERYD_CONCURRENCY: 1
 FUNKWHALE_DOCKER_API_PORT: "{{ lookup('config', application_id, 'services.api.ports.internal.http') }}"
-FUNKWHALE_TYPESENSE_API_KEY: "{{ lookup('config', application_id, 'credentials.api_key') }}"
+FUNKWHALE_TYPESENSE_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.api_key') }}"

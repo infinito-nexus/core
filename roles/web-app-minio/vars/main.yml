@@ -12,11 +12,6 @@ MINIO_CONSOLE_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 MINIO_CONSOLE_PORT_INTERNAL: 9001
 MINIO_CONSOLE_PORT_PUBLIC: "{{ lookup('config', application_id, 'services.console.ports.local.http') }}"
 
-# mc is invoked via `mc alias set` with explicit credential args, NOT via
-# `MC_HOST_<alias>=https://USER:PASS@host`. Reason: mc does not URL-decode
-# credentials read from the env-var URL form, while MinIO server stores the
-# decoded password, which mismatches sigv4 for any password that contains
-# URL-reserved characters.
 MINIO_MC_IMAGE: "{{ lookup('minio', application_id, 'mc_image') }}"
 
 MINIO_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"

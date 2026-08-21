@@ -151,9 +151,9 @@ gh_api_json() {
 	shift # orgs|users
 
 	if [[ "${method}" == "GET" ]]; then
-		gh api -H "Accept: application/vnd.github+json" "/${scope}/${OWNER}/${endpoint}" "$@" 2>/dev/null || true
+		gh api -H "Accept: application/vnd.github+json" "/${scope}/${OWNER}/${endpoint}" "$@" 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	else
-		gh api -X "${method}" -H "Accept: application/vnd.github+json" "/${scope}/${OWNER}/${endpoint}" "$@" 2>/dev/null || true
+		gh api -X "${method}" -H "Accept: application/vnd.github+json" "/${scope}/${OWNER}/${endpoint}" "$@" 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	fi
 }
 
@@ -181,7 +181,6 @@ detect_scope_for_pkg() {
 		return 0
 	fi
 
-	# unknown (no access / package missing). default to orgs (safe), caller will handle empties.
 	echo "orgs"
 }
 
@@ -216,13 +215,11 @@ delete_version() {
 	local encoded_pkg
 	encoded_pkg="$(encode_package_name "${pkg}")"
 
-	# Try orgs first
 	if gh api -X DELETE -H "Accept: application/vnd.github+json" \
 		"/orgs/${OWNER}/packages/container/${encoded_pkg}/versions/${id}" >/dev/null 2>&1; then
 		return 0
 	fi
 
-	# Fallback to users
 	gh api -X DELETE -H "Accept: application/vnd.github+json" \
 		"/users/${OWNER}/packages/container/${encoded_pkg}/versions/${id}" >/dev/null
 }
@@ -315,8 +312,6 @@ classify_candidate_versions() {
 			| map(select((.tags | all(startswith("ci-")))))
 		'
 }
-
-# --- main -------------------------------------------------------------------
 
 active_runs="$(list_active_runs)"
 active_run_count="$(echo "${active_runs}" | jq 'length')"

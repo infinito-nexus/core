@@ -1,22 +1,24 @@
-"""Render the plan of a CI run, one section per deploy mode.
+"""Render the plan of one CI sweep: every candidate row, and where it lands.
 
 Usage:
-  python -m cli.meta.ci.plan --distros "debian" [--whitelist "..."]
-      [--priority "..."] [--modes "swarm compose host"] [--lifecycles "..."]
-      [--cli]
+  python -m cli.meta.ci.plan [--distros "debian"] [--filesystem "zfs"]
+      [--whitelist "..."] [--priority "..."] [--modes auto]
+      [--lifecycles "..."] [--sweep N] [--cli]
 
-Every section runs the production discovery query (cli.meta.ci.query,
-the same SPOT scripts/meta/resolve/apps.sh uses) three times: the
-priority line, the capped regular line, and the uncapped candidate list.
-Rows keep the query's own order on the mode's own row basis, so the
-plan mirrors the ``--matrix`` view exactly: swarm rows are per-variant
-``role#variant`` selections (per-variant weight, the budget cut can
-split a role), compose and host rows are whole-role with the bundled
-variants listed in the variant cell (query.expands_variants SPOT).
-Status per row: ⭐ priority line, ✅ triggered, ❌ fell behind the cap
-or the coverage dedup.
+The plan runs the same pipeline the deploy jobs discover through
+(``cli.meta.ci.matrix``), so what the table shows and what CI deploys cannot
+diverge. One row per ``role#variant`` candidate in global query order, with
+the chunk it falls into and the axes it was assigned.
 
+Status per row: ⭐ a priority row, ✅ deployed by this sweep, ❌ beyond the
+sweep's budget (raise ``--offset`` to reach it), ✂️ cut as redundant coverage —
+a clone or a row an earlier one already embeds, which no sweep deploys.
 ``--cli`` renders fixed-width terminal tables instead of Markdown.
+
+🆔 numbers the rows of this table, 1..n, and 🔰 names the 🆔 of the earlier row
+that already embeds this one -- empty when nothing does. A row with a 🔰 is
+redundant coverage: whatever it would prove, the row it points at proves first. 🐑 marks the other reason a row is cut: it
+shares its service set with an earlier role, which stands in for it.
 """
 
 from __future__ import annotations
@@ -25,119 +27,122 @@ import argparse
 import os
 import sys
 
-from cli.meta.ci.query import MODES, discover, expands_variants, max_jobs
-from cli.meta.roles.applications.complexity.model import (
-    compute_complexity_rows,
-    compute_variant_complexity_rows,
-)
+from cli.meta.ci import matrix, query, slots
 from cli.meta.roles.applications.complexity.render import _dwidth
-from utils.cache.files import PROJECT_ROOT
+from utils.github.variant import axes, pools, tor
 from utils.roles.display import display_names
 from utils.symbol_glossary import to_emoji
 
 _STAR = to_emoji("priority")
 _OK = to_emoji("enabled")
 _OFF = to_emoji("disabled")
+_CUT = to_emoji("redundant")
 
-_COLUMNS = ("id", "name", "weight", "variant", "distros")
-_HEADERS = (
-    *(f"{to_emoji(key)} {key.capitalize()}" for key in _COLUMNS),
-    f"{to_emoji('enabled')} Triggered",
+_COLUMNS = (
+    "id",
+    "chunk",
+    "name",
+    "variant",
+    "mode",
+    "distro",
+    "filesystem",
+    "tor",
+    "triggered",
+    "covered_by",
+    "weight",
+    "clone",
+)
+_GLYPH = {"triggered": "enabled", "distro": "distros"}
+_HEADERS = tuple(
+    f"{to_emoji(_GLYPH.get(key, key))} {key.replace('_', ' ').capitalize()}"
+    for key in _COLUMNS
 )
 
 
-def collect_mode_plan(
-    mode: str, *, whitelist: str, priority: str, lifecycles: str = ""
-) -> list[tuple[str, str]]:
-    """Ordered ``(selection, status)`` pairs for one mode in query order
-    (selection is a role name, or ``role#variant`` on swarm): priority-line
-    selections first (⭐), then every uncapped candidate with ✅ when the
-    capped regular query triggers it, ❌ otherwise."""
-    rows: list[tuple[str, str]] = []
-    if priority.strip():
-        rows += [
-            (role, _STAR)
-            for role in discover(
-                mode, whitelist=priority, lifecycles=lifecycles, capped=True
-            )
-        ]
-    triggered = set(
-        discover(
-            mode,
-            whitelist=whitelist,
-            blacklist=priority,
-            lifecycles=lifecycles,
-            capped=True,
-        )
+def _key(entry: dict[str, str]) -> tuple[str, ...]:
+    """What identifies one deploy row: every axis it was assigned.
+
+    A priority role runs every combination of its variant, and a selection can
+    ask for one variant on two distros, so app+variant alone matches several
+    rows and would report the first one's chunk for all of them -- including
+    for rows the budget never reaches, which the table would then mark as
+    deployed.
+    """
+    return (
+        entry["apps"],
+        entry["variant"],
+        entry["mode"],
+        entry["tor"],
+        entry["distro"],
+        entry["filesystem"],
     )
-    rows += [
-        (role, _OK if role in triggered else _OFF)
-        for role in discover(
-            mode,
-            whitelist=whitelist,
-            blacklist=priority,
-            lifecycles=lifecycles,
-            capped=False,
+
+
+def _chunk_of(entry: dict[str, str], plan: list[list[dict[str, str]]]) -> int | None:
+    """Index of the chunk *entry* landed in, or ``None`` when this sweep
+    leaves it to the next one."""
+    key = _key(entry)
+    for index, chunk in enumerate(plan):
+        if any(_key(row) == key for row in chunk):
+            return index
+    return None
+
+
+def cells(
+    entries: list[dict[str, str]],
+    plan: list[list[dict[str, str]]],
+) -> list[tuple[str, ...]]:
+    rows = []
+    positions: dict[str, str] = {}
+    for counter, entry in enumerate(entries, start=1):
+        positions.setdefault(entry.get("id", ""), str(counter))
+    for counter, entry in enumerate(entries, start=1):
+        chunk = _chunk_of(entry, plan)
+        if matrix.redundant(entry):
+            status, where = _CUT, ""
+        elif chunk is None:
+            status, where = _OFF, ""
+        else:
+            status = _STAR if entry["priority"] == "true" else _OK
+            where = str(chunk)
+        covered = entry.get("covered", "0")
+        rows.append(
+            (
+                str(counter),
+                where,
+                entry["apps"],
+                entry["variant"],
+                to_emoji(entry["mode"]),
+                to_emoji(entry["distro"]),
+                to_emoji(entry["filesystem"]),
+                to_emoji("tor" if entry["tor"] == "true" else "clearnet"),
+                status,
+                positions.get(covered, covered) if covered not in ("", "0") else "",
+                entry["weight"],
+                to_emoji("clone") if entry.get("clone") == "true" else "",
+            )
         )
-    ]
     return rows
 
 
-def role_facts(lifecycles: str = "") -> tuple[dict[str, int], dict[str, int]]:
-    """Weights keyed by role name (whole-role weight) and by
-    ``role#variant`` token (per-variant weight), plus variant counts."""
-    envelope = set(lifecycles.replace(",", " ").split()) or None
-    weights: dict[str, int] = {}
-    variants: dict[str, int] = {}
-    for row in compute_complexity_rows(PROJECT_ROOT / "roles", lifecycles=envelope):
-        weights[row.name] = row.weight
-        variants[row.name] = row.variants
-    for row in compute_variant_complexity_rows(
-        PROJECT_ROOT / "roles", lifecycles=envelope
-    ):
-        weights[f"{row.name}#{row.variant}"] = row.weight
-    return weights, variants
+def _title(plan: list[list[dict[str, str]]], sweep: int) -> str:
+    sizes = ", ".join(str(len(chunk)) for chunk in plan) or "-"
+    return (
+        f"sweep {sweep} · chunk size {slots.chunk_size()} "
+        f"· {len(plan)} chunk(s) [{sizes}] · budget {slots.available()}"
+    )
 
 
-def _cells(
-    mode: str,
-    rows: list[tuple[str, str]],
-    weights: dict[str, int],
-    variants: dict[str, int],
-    *,
-    distros: str,
-) -> list[tuple[str, ...]]:
-    cells = []
-    for counter, (selection, status) in enumerate(rows, start=1):
-        role, _, variant = selection.partition("#")
-        if not expands_variants(mode):
-            variant = ",".join(str(v) for v in range(variants.get(role, 1)))
-        cells.append(
-            (
-                str(counter),
-                role,
-                str(weights.get(selection, weights.get(role, 0))),
-                variant,
-                distros,
-                status,
-            )
-        )
-    return cells
-
-
-def render_markdown(
-    sections: list[tuple[str, int, list[tuple[str, ...]]]],
-) -> str:
-    lines = ["## Plan 🗺️"]
-    for mode, budget, cells in sections:
-        lines += [
-            "",
-            f"### {to_emoji(mode)} {mode} (max jobs: {budget})",
-            "",
-            "| " + " | ".join(_HEADERS) + " |",
-            "|" + "---|" * len(_HEADERS),
-        ]
-        lines += ["| " + " | ".join(cell) + " |" for cell in cells]
+def render_markdown(title: str, rows: list[tuple[str, ...]]) -> str:
+    lines = [
+        "## Plan 🗺️",
+        "",
+        f"### {title}",
+        "",
+        "| " + " | ".join(_HEADERS) + " |",
+        "|" + "---|" * len(_HEADERS),
+    ]
+    lines += ["| " + " | ".join(cell) + " |" for cell in rows]
     return "\n".join(lines)
 
 
@@ -145,71 +150,54 @@ def _pad(value: str, width: int) -> str:
     return value + " " * max(width - _dwidth(value), 0)
 
 
-def render_cli(
-    sections: list[tuple[str, int, list[tuple[str, ...]]]],
-) -> str:
+def render_cli(title: str, rows: list[tuple[str, ...]]) -> str:
     widths = [
-        max(
-            [
-                _dwidth(header),
-                *(_dwidth(cell[i]) for _, _, cells in sections for cell in cells),
-            ]
-        )
+        max([_dwidth(header), *(_dwidth(cell[i]) for cell in rows)])
         for i, header in enumerate(_HEADERS)
     ]
-    blocks = []
-    for mode, budget, cells in sections:
-        title = f"{to_emoji(mode)} {mode} (max jobs: {budget})"
-        header = "  ".join(_pad(h, w) for h, w in zip(_HEADERS, widths, strict=True))
-        rule = "  ".join("-" * w for w in widths)
-        rows = [
-            "  ".join(_pad(value, w) for value, w in zip(cell, widths, strict=True))
-            for cell in cells
-        ]
-        blocks.append("\n".join([title, header, rule, *rows]))
-    return "\n\n".join(blocks)
+    header = "  ".join(_pad(h, w) for h, w in zip(_HEADERS, widths, strict=True))
+    rule = "  ".join("-" * w for w in widths)
+    body = [
+        "  ".join(_pad(value, w) for value, w in zip(cell, widths, strict=True))
+        for cell in rows
+    ]
+    return "\n".join([title, header, rule, *body])
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(
-        description="Render the CI plan, one section per deploy mode."
-    )
+    parser = argparse.ArgumentParser(description="Render the plan of one CI sweep.")
     parser.add_argument("--distros", default="")
     parser.add_argument("--whitelist", default="")
     parser.add_argument("--priority", default="")
-    parser.add_argument("--modes", default="")
+    parser.add_argument("--modes", default=query.ALL_MODES)
     parser.add_argument("--lifecycles", default="")
+    parser.add_argument("--sweep", type=int, default=None)
+    parser.add_argument("--tor", default=None)
+    parser.add_argument("--filesystem", default="")
+    parser.add_argument("--offset", default=None)
     parser.add_argument("--cli", action="store_true")
     args = parser.parse_args(argv)
 
     codec = display_names()
-    args.whitelist = codec.decode_list(args.whitelist)
-    args.priority = codec.decode_list(args.priority)
-
     if args.lifecycles.strip():
         os.environ["INFINITO_LIFECYCLES"] = args.lifecycles
 
-    active = [m for m in MODES if m in args.modes.split()] or list(MODES)
-    weights, variants = role_facts(args.lifecycles)
-    sections = []
-    for mode in active:
-        rows = collect_mode_plan(
-            mode,
-            whitelist=args.whitelist,
-            priority=args.priority,
-            lifecycles=args.lifecycles,
-        )
-        cells = _cells(mode, rows, weights, variants, distros=args.distros)
-        sections.append(
-            (
-                mode,
-                max_jobs(mode, blacklist=args.priority, lifecycles=args.lifecycles),
-                cells,
-            )
-        )
+    sweep = axes.resolve_sweep() if args.sweep is None else args.sweep
+    entries = matrix.entries_of(
+        modes=query.resolve_modes(args.modes),
+        whitelist=codec.decode_list(args.whitelist),
+        priority=codec.decode_list(args.priority),
+        lifecycles=args.lifecycles,
+        sweep=sweep,
+        tor_mode=tor.resolve_tor_mode(args.tor),
+        distros=pools.resolve_distros(args.distros),
+        filesystems=pools.resolve_filesystems(args.filesystem),
+    )
+    plan = matrix.chunks_of(entries, matrix.resolve_offset(args.offset))
+    rows = cells(entries, plan)
 
     render = render_cli if args.cli else render_markdown
-    print(render(sections))
+    print(render(_title(plan, sweep), rows))
     return 0
 
 

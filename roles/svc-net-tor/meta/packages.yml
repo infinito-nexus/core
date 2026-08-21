@@ -1,0 +1,8 @@
+---
+dnsmasq:
+  Archlinux:
+    - dnsmasq
+  Debian:
+    - dnsmasq
+  RedHat:
+    - dnsmasq

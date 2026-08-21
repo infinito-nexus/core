@@ -9,9 +9,9 @@
               ['api', 'http', DOCKER_BIND_HOST],
               ['console', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     command: server /data --console-address ":{{ MINIO_CONSOLE_PORT_INTERNAL }}"
-    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
 {{ lookup('compose_networks') }}
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}

@@ -62,7 +62,7 @@ nextcloud:
       enabled: true
   name: nextcloud
   image: nextcloud
-  version: 33-fpm-alpine
+  version: 34-fpm-alpine
   custom: true
   min_storage: 553MB
   backup:
@@ -71,6 +71,10 @@ nextcloud:
   mem_reservation: 2g
   mem_limit: 3g
   pids_limit: 512
+  # danger: lifts Nextcloud's SSRF guard for EVERY outbound client -- federated shares,
+  # external storage, webcal, previews -- and Nextcloud offers no per-host allowlist.
+  allow_local_remote_servers:
+    enabled: "{{ ((ENVIRONMENT | lower) == 'development') | lower }}"
   default_quota: "1000000000"
   legacy_login_mask:
     enabled: "{{ not (lookup('config', 'web-app-nextcloud', 'services.sso.enabled') | bool) }}"
@@ -104,7 +108,7 @@ proxy:
     flavor: curl
     start_period: 20m
   image: nginx
-  version: 1.31.2-alpine
+  version: 1.31.3-alpine
   backup:
     no_stop_required: true
   cpus: "0.5"
@@ -178,12 +182,12 @@ collabora:
   shared: "{{ 'web-svc-collabora' in group_names }}"
 # nocheck: playwright-service-flag: bridged web-conferencing partner, covered by partner role spec
 bigbluebutton:
-  bond: 1
+  bond: 0.5
   enabled: "{{ 'web-app-bigbluebutton' in group_names }}"
   shared: "{{ 'web-app-bigbluebutton' in group_names }}"
 # nocheck: playwright-service-flag: bridged wiki partner, covered by partner role spec
 xwiki:
-  bond: 1
+  bond: 0.5
   enabled: "{{ 'web-app-xwiki' in group_names }}"
   shared: "{{ 'web-app-xwiki' in group_names }}"
 # nocheck: playwright-service-flag: object store, no Playwright surface
@@ -221,6 +225,11 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: playwright-service-flag
+tor:
+  bond: 0.5
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: true # nocheck: dynamic-flag
 # nocheck: playwright-service-flag: bridged openproject partner, covered by partner role spec
 openproject:
   bond: 0.5

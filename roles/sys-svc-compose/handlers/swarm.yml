@@ -3,13 +3,13 @@
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/guard_instance_dir.yml') }}"
   run_once: true
   listen:
-    - compose up
-    - swarm deploy
+    - compose-up
+    - swarm-deploy
 
-- name: "swarm: pre-deploy build of local images"
+- name: "🐝 swarm: pre-deploy build of local images"
   ansible.builtin.shell: |
     set -euo pipefail
-    compose build
+    timeout -k 60 {{ lookup('timeout', 3600) | int }} compose build
   args:
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
     executable: /bin/bash
@@ -20,30 +20,30 @@
   until: _swarm_pre_deploy_build is succeeded
   ignore_errors: true
   listen:
-    - compose up
-    - swarm deploy
+    - compose-up
+    - swarm-deploy
   run_once: true
   delegate_to: "{{ STACK_HOST }}"
 
-- name: "swarm: rebuild without cache once the spaced retries are exhausted"
+- name: "🐝 swarm: rebuild without cache once the spaced retries are exhausted"
   ansible.builtin.shell: |
     set -euo pipefail
-    compose build --no-cache --pull
+    timeout -k 60 {{ lookup('timeout', 3600) | int }} compose build --no-cache --pull
   args:
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
     executable: /bin/bash
   timeout: "{{ lookup('timeout', 3600) | int }}"
   when: _swarm_pre_deploy_build is failed
   listen:
-    - compose up
-    - swarm deploy
+    - compose-up
+    - swarm-deploy
   run_once: true
   delegate_to: "{{ STACK_HOST }}"
 
-- name: "swarm: cache externals + retag built images and push to local registry"
+- name: "🐝 swarm: cache externals + retag built images and push to registry"
   ansible.builtin.script:
     cmd: >-
-      swarm/registry_sync.py
+      python/swarm/registry_sync.py
       --chdir {{ lookup('container', application_id, 'directories.instance') }}
       --registry-prefix {{ SWARM_REGISTRY_PREFIX | quote }}
   register: _swarm_registry_sync
@@ -51,13 +51,13 @@
   delay: 6
   until: _swarm_registry_sync is succeeded
   listen:
-    - compose up
-    - swarm deploy
+    - compose-up
+    - swarm-deploy
   when: (swarm.registry.host | default('') | length > 0) and (application_id != 'svc-registry-docker')
   run_once: true
   delegate_to: "{{ STACK_HOST }}"
 
-- name: "swarm: pre-pull images the local registry cannot serve"
+- name: "🐝 swarm: pre-pull images the local registry cannot serve"
   ansible.builtin.shell: |
     set -euo pipefail
     images="$(compose config --images)"
@@ -72,28 +72,28 @@
   delay: 30
   until: _swarm_bypass_pull is succeeded
   listen:
-    - compose up
-    - swarm deploy
+    - compose-up
+    - swarm-deploy
   when:
     - swarm.registry.host | default('') | length > 0
     - _swarm_registry_sync is skipped
   run_once: true
   delegate_to: "{{ STACK_HOST }}"
 
-- name: "swarm: recompute file-backed secret/config name hashes on the stack host"
+- name: "🐝 swarm: recompute file-backed secret/config hashes on the stack host"
   ansible.builtin.script:
     cmd: >-
-      swarm/secret_rotate.py
+      python/swarm/secret_rotate.py
       --chdir {{ lookup('container', application_id, 'directories.instance') }}
   register: _swarm_secret_rotate
   changed_when: "'>>> rotate' in _swarm_secret_rotate.stderr"
   listen:
-    - compose up
-    - swarm deploy
+    - compose-up
+    - swarm-deploy
   run_once: true
   delegate_to: "{{ STACK_HOST }}"
 
-- name: "swarm: generate CA trust override (no wrapper; env + CA mount only)"
+- name: "🐝 swarm: generate CA trust override (env + CA mount, no wrapper)"
   ansible.builtin.shell: |
     set -euo pipefail
     {{ lookup('compose_ca_inject_cmd', application_id, wrapper=False) }}
@@ -105,16 +105,13 @@
   delay: 20
   until: swarm_compose_ca_override is succeeded
   listen:
-    - compose up
-    - swarm deploy
-  when:
-    - lookup('domains') | has_domain(application_id)
-    - lookup('tls', application_id, 'enabled') | bool
-    - lookup('tls', application_id, 'mode') == 'self_signed'
+    - compose-up
+    - swarm-deploy
+  when: lookup('ca_injected', application_id)
   run_once: true
   delegate_to: "{{ STACK_HOST }}"
 
-- name: "swarm: pre-create external provider overlays referenced by the stack"
+- name: "🐝 swarm: pre-create external provider overlays for the stack"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/create.yml') }}"
   vars:
     network_role_id: "{{ external_network_role }}"
@@ -122,11 +119,11 @@
   loop_control:
     loop_var: external_network_role
   listen:
-    - compose up
-    - swarm deploy
+    - compose-up
+    - swarm-deploy
   when: SWARM_CLUSTER_AVAILABLE | bool
 
-- name: "swarm: validate stack file via docker stack config"
+- name: "✅ swarm: validate stack file via docker stack config"
   ansible.builtin.shell: |
     set -euo pipefail
     docker stack config {{ lookup('compose_file_args', application_id, flag='--compose-file') }} > /dev/null
@@ -137,13 +134,13 @@
   changed_when: false
   failed_when: swarm_validate.rc != 0
   listen:
-    - compose up
-    - swarm deploy
+    - compose-up
+    - swarm-deploy
   when: MODE_ASSERT_LOCAL | bool
   run_once: true
   delegate_to: "{{ STACK_HOST }}"
 
-- name: "swarm: docker stack deploy"
+- name: "🚀 swarm: docker stack deploy"
   ansible.builtin.shell: |
     set -euo pipefail
     docker stack deploy \
@@ -158,27 +155,28 @@
   register: swarm_deploy_result
   changed_when: true
   listen:
-    - compose up
-    - swarm deploy
+    - compose-up
+    - swarm-deploy
   run_once: true
   delegate_to: "{{ STACK_HOST }}"
 
-- name: "swarm: wait until stack tasks converge"
-  ansible.builtin.script: "{{ lookup('path_absolute', 'roles/sys-svc-compose/files/swarm/stack_ready.sh') }}"
+- name: "⏳ swarm: wait until stack tasks converge"
+  ansible.builtin.script: "{{ lookup('path_absolute', 'roles/sys-svc-compose/files/shell/swarm/stack_ready.sh') }}"
   environment:
     STACK: "{{ application_id | get_entity_name }}"
+    FATAL_GRACE: "{{ swarm_stack_fatal_grace }}"
   register: _swarm_stack_ready_handler
-  retries: "{{ swarm_stack_converge_retries | default(150) }}"
+  retries: "{{ swarm_stack_converge_retries }}"
   delay: 2
   changed_when: false
-  until: _swarm_stack_ready_handler is succeeded
+  until: _swarm_stack_ready_handler.rc in [0, 2]
   listen:
-    - compose up
-    - swarm deploy
+    - compose-up
+    - swarm-deploy
   run_once: true
   delegate_to: "{{ STACK_HOST }}"
 
-- name: "swarm: force task recreation so in-container state is reloaded"
+- name: "🔄 swarm: force task recreation so in-container state is reloaded"
   ansible.builtin.shell: |
     set -euo pipefail
     docker stack services --format '{{ "{{.Name}}" }}' {{ application_id | get_entity_name | quote }} \
@@ -192,6 +190,6 @@
   delay: 15
   until: _swarm_force_recreate is succeeded
   listen:
-    - container recreate
+    - container-recreate
   run_once: true
   delegate_to: "{{ STACK_HOST }}"

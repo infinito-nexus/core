@@ -34,7 +34,7 @@
       -e LDAP_UID_ATTR={{ CHECKMK_LDAP_USER_ID_ATTR | quote }}
       {{ CHECKMK_LOCAL_CID | quote }}
       bash -s
-    stdin: "{{ lookup('file', 'configure-sso.sh') }}"
+    stdin: "{{ lookup('file', 'shell/configure-sso.sh') }}"
   delegate_to: "{{ CHECKMK_HOST_NODE }}"
   when: (CHECKMK_SSO_ENABLED | bool) or (CHECKMK_LDAP_ENABLED | bool)
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

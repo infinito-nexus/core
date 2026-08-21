@@ -26,34 +26,34 @@ x-op-app: &app
     environment:
       APP_HOST: {{ OPENPROJECT_WEB_SERVICE }}
     {{ lookup('depends_on', [OPENPROJECT_WEB_SERVICE]) }}
-    {{ lookup('container_volumes', application_id, 'proxy') | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
 
   {% set service_name = OPENPROJECT_WEB_SERVICE %}
   {{ service_name }}:
     <<: *app
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    command: "./docker/prod/web"
+    command: ["{{ OPENPROJECT_AWAIT_MIGRATIONS_TARGET }}", "{{ OPENPROJECT_MIGRATION_WAIT_SECONDS }}", "{{ OPENPROJECT_MIGRATION_POLL_SECONDS }}", "./docker/prod/web"]
     {{ lookup('compose_only', 'container_name', OPENPROJECT_WEB_CONTAINER) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id, extra={
   'cache': {'condition': 'service_started'},
-  OPENPROJECT_SEEDER_SERVICE: {'condition': 'service_started'},
+  OPENPROJECT_SEEDER_SERVICE: {'condition': 'service_completed_successfully'},
 }) | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
-    {{ lookup('container_volumes', application_id, OPENPROJECT_WEB_SERVICE) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
 
   {% set service_name = 'worker' %}
   {{ service_name }}:
     <<: *app
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    command: "./docker/prod/worker"
+    command: ["{{ OPENPROJECT_AWAIT_MIGRATIONS_TARGET }}", "{{ OPENPROJECT_MIGRATION_WAIT_SECONDS }}", "{{ OPENPROJECT_MIGRATION_POLL_SECONDS }}", "./docker/prod/worker"]
     {{ lookup('compose_only', 'container_name', OPENPROJECT_WORKER_CONTAINER) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id, extra={
   'cache': {'condition': 'service_started'},
-  OPENPROJECT_SEEDER_SERVICE: {'condition': 'service_started'},
+  OPENPROJECT_SEEDER_SERVICE: {'condition': 'service_completed_successfully'},
 }) | indent(4) }}
-    {{ lookup('container_volumes', application_id, 'worker') | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
 
   {% set service_name = 'cron' %}
   {{ service_name }}:
@@ -64,9 +64,9 @@ x-op-app: &app
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id, extra={
   'cache': {'condition': 'service_started'},
-  OPENPROJECT_SEEDER_SERVICE: {'condition': 'service_started'},
+  OPENPROJECT_SEEDER_SERVICE: {'condition': 'service_completed_successfully'},
 }) | indent(4) }}
-    {{ lookup('container_volumes', application_id, 'cron') | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
 
   {% set service_name = OPENPROJECT_SEEDER_SERVICE %}
   {% set docker_restart_policy = 'on-failure' %}
@@ -76,7 +76,7 @@ x-op-app: &app
     command: "./docker/prod/seeder"
     {{ lookup('compose_only', 'container_name', OPENPROJECT_SEEDER_CONTAINER) }}
     {{ lookup('container_networks') | indent(4) }}
-    {{ lookup('container_volumes', application_id, OPENPROJECT_SEEDER_SERVICE) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

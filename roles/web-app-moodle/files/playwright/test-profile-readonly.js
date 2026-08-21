@@ -1,4 +1,6 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
+const { gotoOnion } = require("./personas");
 
 const moodleLdapBackedProfileFields = [
   "firstname", "lastname", "middlename", "alternatename",
@@ -15,21 +17,21 @@ exports.register = function (shared) {
     test.skip(shared.env.ssoEnabled, "covered by variant 1 LDAP-only run");
 
     test("biber profile-edit form locks all 19 Moodle profile-mapping fields", async ({ page }) => {
-      await page.goto(`${shared.env.moodleBaseUrl}/login/index.php`);
+      await gotoOnion(page, `${shared.env.moodleBaseUrl}/login/index.php`);
       await page.locator("input[name='username'], input#username").first().fill(shared.env.biberUsername);
       const passwordInput = page.locator(".toggle-sensitive-wrapper input[name='password'], .toggle-sensitive-wrapper input#password").first();
-      await expect(passwordInput).toBeAttached({ timeout: 30_000 });
+      await expect(passwordInput).toBeAttached({ timeout: resolveTimeout(30_000) });
       await expect(async () => {
         await passwordInput.fill(shared.env.biberPassword);
         await expect(passwordInput).toHaveValue(shared.env.biberPassword);
-      }).toPass({ timeout: 30_000 });
-      await page.locator("button[type='submit'], input[type='submit'], #loginbtn").first().click();
+      }).toPass({ timeout: resolveTimeout(30_000) });
+      await page.locator("button[type='submit'], input[type='submit'], #loginbtn").first().click({ timeout: resolveTimeout(30_000) });
       await page.waitForLoadState("load");
       const userMenu = page.locator(".usermenu, [data-region='user-menu-toggle'], a[href*='profile.php']").first();
-      await expect(userMenu, "login must succeed before the read-only checks mean anything").toBeVisible({ timeout: 30_000 });
+      await expect(userMenu, "login must succeed before the read-only checks mean anything").toBeVisible({ timeout: resolveTimeout(30_000) });
 
-      await page.goto(`${shared.env.moodleBaseUrl}/user/edit.php`);
-      await expect(page.locator("body")).toBeVisible({ timeout: 30_000 });
+      await gotoOnion(page, `${shared.env.moodleBaseUrl}/user/edit.php`);
+      await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(30_000) });
 
       for (const fieldName of moodleLdapBackedProfileFields) {
         const input = page

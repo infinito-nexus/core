@@ -17,6 +17,7 @@ flowchart LR
     subgraph deps [Dependencies]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
@@ -36,10 +37,12 @@ flowchart LR
         svc_javascript["javascript"]
         svc_prometheus["prometheus"]
         svc_checkmk["checkmk"]
+        svc_tor["tor"]
         svc_container_backup["container_backup"]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
@@ -49,7 +52,7 @@ flowchart LR
     dep_web_svc_logout -. "0..1" .-> svc_logout
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
@@ -115,6 +118,12 @@ docker run --rm -it \
 - [LDAP user management](https://docs.checkmk.com/latest/en/ldap.html)
 - [HTTP header authentication (Werk #7819)](https://checkmk.com/werk/7819)
 - [Checkmk GitHub Repository](https://github.com/Checkmk/checkmk)
+
+## Persona contract opt-outs
+
+Both authenticated Playwright personas are blocked while `services.sso.enabled` is false. Without SSO, `files/configure-sso.sh` skips the `auth_by_http_header` snippet, so the OMD site falls back to its own login form.
+
+The only account that form accepts is Checkmk's built-in `cmkadmin`, whose password comes from `credentials.cmk_password` (`CMK_PASSWORD` in the container env) — a site-local secret unrelated to the Keycloak credentials the personas use. No Checkmk user is provisioned for a non-admin identity at all. With SSO enabled both personas run through the header-auth chain.
 
 ## Credits
 

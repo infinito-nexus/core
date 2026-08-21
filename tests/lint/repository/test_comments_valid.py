@@ -12,6 +12,13 @@ A comment is VALID only when it is one of:
 * a **rationale** -- `rationale: <topic>; <one line>`, required by another lint
   that will not accept the construct without a written justification. Today the
   only such lint is the async one, so the form is `rationale: async; ...`.
+* a **key doc** -- a SINGLE line directly above a key in ``defaults/*.yml``,
+  ``vars/*.yml`` or anything under ``group_vars/``. Those files are the
+  parameter list of a role or an inventory group, so one line above the key
+  documents that variable the way a docstring documents a function. Two or more
+  lines are a block again and get flagged: the carve-out buys a doc line, not a
+  paragraph, and it holds nowhere else -- ``tasks/`` and ``meta/`` keep the
+  no-narration rule.
 
 Mid-code comments are ONLY allowed as exceptions. Plain narration, banners,
 restating the next line, or neutral `Note:`-style info carry no warning and so
@@ -33,9 +40,9 @@ intentionally OUT of scope (reliably distinguishing them from ``#`` inside a
 string needs a full lexer per language, and false positives would make the
 linter unusable).
 
-SCOPE: only files that are staged, unstaged, or untracked against ``HEAD`` are
-checked. The legacy tree is grandfathered in -- it never breaks the build --
-while every file a change touches must satisfy the policy going forward.
+SCOPE: every tracked file of a checked type, plus untracked new ones. The
+policy holds for the whole repository, not only for the files a change happens
+to touch.
 
 A whole file opts out with a ``# nocheck: comments-valid`` marker in its first
 30 lines (any comment prefix, e.g. ``{# nocheck: comments-valid #}`` for Jinja),
@@ -101,6 +108,11 @@ _DEF_RE = {
     ),
     ".css": re.compile(r"^\s*[.#:@a-zA-Z\[&*].*\{\s*$"),
 }
+
+_KEY_DOC_PATH_RE = re.compile(
+    r"(?:^|/)(?:(?:defaults|vars)/[^/]+|group_vars/.+)\.ya?ml$"
+)
+_KEY_DOC_RE = re.compile(r"^\s*(?:-\s*)?[\w.\-\"']+\s*:")
 
 _HEADER_SKIP = re.compile(r"^\s*(?:#!|<\?php|---|\.\.\.|/\*|\*|\*/|//|#|\{#)")
 _PROLOGUE = re.compile(
@@ -251,12 +263,15 @@ def _css_comments(lines):
             start = line.find("/*", cursor)
             if start < 0:
                 break
-            in_block = True
-            block_start = i
-            block_lines = {i}
-            block_body = [line[start + 2 :]]
-            cursor = len(line)
-            break
+            end = line.find("*/", start + 2)
+            if end < 0:
+                in_block = True
+                block_start = i
+                block_lines = {i}
+                block_body = [line[start + 2 :]]
+                break
+            out.append((i, line[start + 2 : end].strip(), {i}))
+            cursor = end + 2
     return out
 
 
@@ -297,6 +312,23 @@ def _jinja_comments(lines):
     return out
 
 
+def _drop_nested(comments):
+    """Drop comments that another comment already contains.
+
+    Two collectors run over a ``.j2`` template, so the closing ``#}`` of a
+    Jinja block is also a standalone ``#`` comment to the line-based one.
+    Reporting that fragment invites a fix that deletes one delimiter and
+    leaves the other, which comments out the rest of the file while every
+    parser still sees valid syntax.
+    """
+    spans = [set(c[2]) for c in comments]
+    return [
+        c
+        for c, span in zip(comments, spans, strict=True)
+        if not any(span < other for other in spans)
+    ]
+
+
 def _header_end(lines) -> int:
     end = 0
     for i, line in enumerate(lines, 1):
@@ -308,10 +340,7 @@ def _header_end(lines) -> int:
     return end
 
 
-def _next_code_is_def(start_lineno, lines, comment_lines, ext) -> bool:
-    pat = _DEF_RE.get(ext)
-    if pat is None:
-        return False
+def _next_code_matches(start_lineno, lines, comment_lines, pat) -> bool:
     for idx in range(start_lineno, len(lines)):
         n = idx + 1
         if n in comment_lines:
@@ -320,6 +349,23 @@ def _next_code_is_def(start_lineno, lines, comment_lines, ext) -> bool:
             continue
         return bool(pat.match(lines[idx]))
     return False
+
+
+def _next_code_is_def(start_lineno, lines, comment_lines, ext) -> bool:
+    pat = _DEF_RE.get(ext)
+    if pat is None:
+        return False
+    return _next_code_matches(start_lineno, lines, comment_lines, pat)
+
+
+def allows_key_doc(path: Path) -> bool:
+    """True where a one-line comment above a key documents that variable.
+
+    Ansible's variable files are the parameter list of a role or an
+    inventory group; a single line above the key is that parameter's doc,
+    the same carve-out a docstring gets above a function.
+    """
+    return bool(_KEY_DOC_PATH_RE.search(path.as_posix()))
 
 
 def _is_full_line(lineno, lines) -> bool:
@@ -374,15 +420,22 @@ def find_invalid_comments(path: Path):
         return []
 
     if ext == ".j2":
-        comments = sorted(comments + _jinja_comments(lines), key=lambda c: c[0])
+        comments = _drop_nested(
+            sorted(comments + _jinja_comments(lines), key=lambda c: c[0])
+        )
 
     header_end = _header_end(lines)
     comment_lines = {ln for c in comments for ln in c[2]}
+    key_doc_file = allows_key_doc(path)
     invalid = []
     for block in _blocks(comments, lines):
         first_body = block[0][1]
         block_marker = bool(_MARKER_RE.match(first_body))
         block_def = _next_code_is_def(block[-1][2], lines, comment_lines, underlying)
+        if not block_def and key_doc_file and len(block) == 1:
+            block_def = _next_code_matches(
+                block[-1][2], lines, comment_lines, _KEY_DOC_RE
+            )
         for lineno, body, _end, _full in block:
             if not body:
                 continue
@@ -417,13 +470,9 @@ def _git_lines(args: list[str]) -> list[str]:
     return result.stdout.splitlines()
 
 
-def _changed_targets():
-    """Files staged, unstaged, or untracked vs HEAD -- the working-tree diff.
-
-    The linter checks only what a change touches, so the legacy tree never
-    breaks the build while every file in a new change must comply.
-    """
-    rel = set(_git_lines(["diff", "--name-only", "HEAD"]))
+def _all_targets():
+    """Every tracked file of a checked type, plus untracked new ones."""
+    rel = set(_git_lines(["ls-files"]))
     rel |= set(_git_lines(["ls-files", "--others", "--exclude-standard"]))
     targets = []
     for r in sorted(rel):
@@ -437,7 +486,7 @@ def _changed_targets():
 class TestCommentsValid(unittest.TestCase):
     def test_only_valid_comments(self) -> None:
         offenders = []
-        for path in _changed_targets():
+        for path in _all_targets():
             for lineno, body in find_invalid_comments(path):
                 rel = path.relative_to(PROJECT_ROOT).as_posix()
                 offenders.append(f"{rel}:{lineno}: {body[:70]}")

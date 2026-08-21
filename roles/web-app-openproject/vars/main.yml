@@ -9,6 +9,10 @@ OPENPROJECT_REF: "{{ lookup('config', application_id, 'services.openproject.ref'
 OPENPROJECT_WEB_SERVICE: "web"
 OPENPROJECT_WEB_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ OPENPROJECT_WEB_SERVICE ~ '.name') }}"
 OPENPROJECT_WEB_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, OPENPROJECT_WEB_SERVICE) }}"
+OPENPROJECT_MIGRATION_WAIT_SECONDS: 600
+OPENPROJECT_MIGRATION_POLL_SECONDS: 10
+OPENPROJECT_AWAIT_MIGRATIONS_ABS: "{{ [ lookup('container', application_id, 'directories.config'), 'await_migrations.sh'] | path_join }}"
+OPENPROJECT_AWAIT_MIGRATIONS_TARGET: "{{ (lookup('volume', application_id, 'await_migrations').mounts | first).target }}"
 OPENPROJECT_SEEDER_SERVICE: "seeder"
 OPENPROJECT_SEEDER_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ OPENPROJECT_SEEDER_SERVICE ~ '.name') }}"
 OPENPROJECT_CRON_CONTAINER: "{{ lookup('config', application_id, 'services.cron.name') }}"
@@ -23,7 +27,6 @@ OPENPROJECT_CACHE_CONTAINER: "{{ lookup('config', application_id, 'services.cach
 
 OPENPROJECT_PLUGINS_FOLDER: "{{ lookup('container', application_id, 'directories.volumes') }}plugins/"
 
-# The following volume doesn't have a practcical function. It just exist to prevent the creation of unnecessary anonymous volumes
 OPENPROJECT_DUMMY_DIR: "{{ lookup('container', application_id, 'directories.volumes') }}dummy_volume"
 
 OPENPROJECT_EMAIL: "{{ lookup('email', application_id) }}"
@@ -35,21 +38,16 @@ OPENPROJECT_RAILS_SETTINGS:
   smtp_password: "{{ OPENPROJECT_EMAIL.password }}"
   smtp_ssl: false
 
-# Auth integrations
 OPENPROJECT_SSO_PROXY_GATED: "{{ lookup('sso', application_id, 'is_proxy_gated') }}"
 OPENPROJECT_SSO_HEADER: "X-Remote-User"
-OPENPROJECT_SSO_SECRET: "{{ lookup('config', application_id, 'credentials.auth_source_sso_secret') }}"
+OPENPROJECT_SSO_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.auth_source_sso_secret') }}"
 OPENPROJECT_SSO_LOGOUT_URL: "{{ lookup('tls', 'web-svc-logout', 'url.base') if (lookup('config', application_id, 'services.logout.enabled') | bool) else '' }}"
-# AuthSourceSSO resolves the header login only via the LDAP auth source, so the
-# header bridge is gated on LDAP being enabled too (else every login would fail).
 OPENPROJECT_HEADER_SSO_ENABLED: "{{ (OPENPROJECT_SSO_PROXY_GATED | bool) and (OPENPROJECT_LDAP_ENABLED | bool) }}"
 
-## LDAP
 OPENPROJECT_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 OPENPROJECT_LDAP_FILTER_ADMINISTRATORS_ENABLED: "{{ lookup('config', application_id, 'services.openproject.ldap.filters.administrators') }}"
 OPENPROJECT_LDAP_FILTER_USERS_ENABLED: "{{ lookup('config', application_id, 'services.openproject.ldap.filters.users') }}"
 OPENPROJECT_LDAP_FILTERS:
-  # The administrator filter just works in the Enterprise edition
   ADMINISTRATORS: "{{ '(memberOf=cn=openproject-admins,' ~ LDAP.DN.OU.ROLES ~ ')' if OPENPROJECT_LDAP_FILTER_ADMINISTRATORS_ENABLED | bool else '' }}"
   USERS: "{{ '(memberOf=cn=openproject-users,' ~ LDAP.DN.OU.ROLES ~ ')' if OPENPROJECT_LDAP_FILTER_USERS_ENABLED | bool else '' }}"
 

@@ -155,7 +155,6 @@ def ensure_become_password(
 
     current_value = doc.get("ansible_become_password")
 
-    # Respect existing value if user didn't request a new one
     if become_password is None and current_value is not None:
         return
 

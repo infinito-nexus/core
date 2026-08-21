@@ -17,9 +17,6 @@ and the curated edge data has one obvious home. The generator reads:
 
 from __future__ import annotations
 
-# Top-level meta/services.yml integration keys -> the in-axis target entity
-# they wire the role into. Skipped on purpose:
-# ldap/redis/mariadb/database -> svc-db-* (not on the axes).
 FRAMEWORK: dict[str, str] = {
     "sso": "keycloak",
     "matomo": "matomo",
@@ -35,7 +32,6 @@ FRAMEWORK: dict[str, str] = {
     "libretranslate": "libretranslate",
 }
 
-# Entity names = role suffix of every web-app-* role.
 WEB_APP: list[str] = [
     "akaunting",
     "baserow",
@@ -124,10 +120,7 @@ WEB_SVC: list[str] = [
 ]
 ENTITIES: list[str] = WEB_APP + WEB_SVC
 
-# (source, target, url, kind). kind: "check" or "coin".
-# Verified upstream plugin/integration pages.
 EDGES: list[tuple[str, str, str, str]] = [
-    # --- Nextcloud integration_* family + office/auth/analytics ---
     (
         "nextcloud",
         "openproject",
@@ -192,7 +185,6 @@ EDGES: list[tuple[str, str, str, str]] = [
     ),
     ("nextcloud", "keycloak", "https://github.com/nextcloud/user_oidc", "check"),
     ("nextcloud", "matomo", "https://apps.nextcloud.com/apps/matomo", "check"),
-    # --- Mattermost plugins ---
     (
         "mattermost",
         "gitlab",
@@ -235,7 +227,6 @@ EDGES: list[tuple[str, str, str, str]] = [
         "https://docs.mattermost.com/onboard/sso-saml.html",
         "coin",
     ),
-    # --- GitLab native integrations ---
     (
         "gitlab",
         "mattermost",
@@ -257,7 +248,6 @@ EDGES: list[tuple[str, str, str, str]] = [
         "check",
     ),
     ("gitlab", "keycloak", "https://docs.gitlab.com/integration/saml/", "check"),
-    # --- Discourse plugins ---
     (
         "discourse",
         "mattermost",
@@ -302,7 +292,6 @@ EDGES: list[tuple[str, str, str, str]] = [
         "https://github.com/discourse/discourse-activity-pub",
         "check",
     ),
-    # --- Matrix (Synapse / hookshot / Element) ---
     ("matrix", "gitlab", "https://github.com/matrix-org/matrix-hookshot", "check"),
     ("matrix", "jira", "https://github.com/matrix-org/matrix-hookshot", "check"),
     (
@@ -323,7 +312,6 @@ EDGES: list[tuple[str, str, str, str]] = [
         "https://github.com/element-hq/element-web/blob/develop/docs/jitsi.md",
         "check",
     ),
-    # --- Moodle plugins ---
     (
         "moodle",
         "bigbluebutton",
@@ -336,13 +324,11 @@ EDGES: list[tuple[str, str, str, str]] = [
     ("moodle", "jitsi", "https://moodle.org/plugins/mod_jitsi", "check"),
     ("moodle", "matomo", "https://moodle.org/plugins/tool_webanalytics", "check"),
     ("moodle", "openwebui", "https://moodle.org/plugins/aiprovider_openwebui", "check"),
-    # --- Jenkins plugins ---
     ("jenkins", "gitlab", "https://plugins.jenkins.io/gitlab-plugin", "check"),
     ("jenkins", "gitea", "https://plugins.jenkins.io/gitea/", "check"),
     ("jenkins", "mattermost", "https://plugins.jenkins.io/mattermost/", "check"),
     ("jenkins", "prometheus", "https://plugins.jenkins.io/prometheus", "check"),
     ("jenkins", "keycloak", "https://plugins.jenkins.io/oic-auth/", "check"),
-    # --- OpenProject ---
     (
         "openproject",
         "nextcloud",
@@ -361,7 +347,6 @@ EDGES: list[tuple[str, str, str, str]] = [
         "https://www.openproject.org/docs/system-admin-guide/authentication/openid-providers/",
         "coin",
     ),
-    # --- WordPress plugins ---
     ("wordpress", "matomo", "https://wordpress.org/plugins/matomo/", "check"),
     ("wordpress", "mastodon", "https://wordpress.org/plugins/activitypub/", "check"),
     ("wordpress", "discourse", "https://wordpress.org/plugins/wp-discourse/", "check"),
@@ -389,7 +374,6 @@ EDGES: list[tuple[str, str, str, str]] = [
         "https://wordpress.org/plugins/video-manager-for-peertube/",
         "check",
     ),
-    # --- MediaWiki extensions ---
     (
         "mediawiki",
         "keycloak",
@@ -422,7 +406,6 @@ EDGES: list[tuple[str, str, str, str]] = [
         "https://www.mediawiki.org/wiki/Extension:AIEditingAssistant",
         "check",
     ),
-    # --- XWiki extensions ---
     (
         "xwiki",
         "keycloak",
@@ -435,7 +418,6 @@ EDGES: list[tuple[str, str, str, str]] = [
         "https://extensions.xwiki.org/xwiki/bin/view/Extension/Piwiki%20Integration",
         "check",
     ),
-    # --- Joomla ---
     (
         "joomla",
         "keycloak",
@@ -448,30 +430,25 @@ EDGES: list[tuple[str, str, str, str]] = [
         "https://extensions.joomla.org/extension/itcs-matomo/",
         "check",
     ),
-    # --- Friendica ---
     ("friendica", "matomo", "https://github.com/friendica/friendica-addons", "check"),
-    # --- Pretix ---
     (
         "pretix",
         "keycloak",
         "https://docs.pretix.eu/en/latest/admin/installation/index.html",
         "check",
     ),
-    # --- PeerTube ---
     (
         "peertube",
         "keycloak",
         "https://www.npmjs.com/package/peertube-plugin-auth-openid-connect",
         "check",
     ),
-    # --- BigBlueButton (Greenlight) ---
     (
         "bigbluebutton",
         "keycloak",
         "https://docs.bigbluebutton.org/greenlight/v3/external-authentication/",
         "check",
     ),
-    # --- CRM / ERP: auth + email ---
     (
         "zammad",
         "keycloak",
@@ -533,7 +510,6 @@ EDGES: list[tuple[str, str, str, str]] = [
         "https://docs.frappe.io/erpnext/user/manual/en/setting-up-email-account",
         "check",
     ),
-    # --- Other SSO-to-Keycloak (covered centrally today via the sso service) ---
     (
         "baserow",
         "keycloak",

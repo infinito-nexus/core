@@ -1,0 +1,1 @@
+# nocheck: role-files-layout - Playwright discovers this suite by path; the runner copies the tree as it stands and the specs import their helpers relatively. Sorting by extension would break discovery.

@@ -7,7 +7,7 @@ Run unit tests with `make test-unit`.
 
 - You MUST use Python `unittest` as the test framework.
 - Tests MUST live under `tests/unit/`.
-- Mirror the source tree: a file at `plugins/lookup/service.py` gets its tests at `tests/unit/plugins/lookup/test_service.py`.
+- Mirror the source tree: a file at `plugins/lookup/service.py` gets its tests at `tests/unit/python/plugins/lookup/test_service.py`.
 
 ## Requirements 📋
 

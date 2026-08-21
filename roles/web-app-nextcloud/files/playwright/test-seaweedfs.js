@@ -6,6 +6,7 @@
 // file; the shared check proves the bucket grew via the Filer UI.
 
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout, isOnionTarget } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { runSeaweedfsStorageCheck } = require("./personas");
 const shared = require("./_shared");
@@ -14,7 +15,8 @@ test.use({ ignoreHTTPSErrors: true });
 
 test("seaweedfs: an uploaded Nextcloud file is stored in the SeaweedFS bucket", async ({ page, browser }) => {
   skipUnlessServiceEnabled("seaweedfs");
-  test.setTimeout(180_000);
+  test.skip(isOnionTarget(), "SeaweedFS filer UI is not a Tor surface on an onion node (headless backend)");
+  test.setTimeout(resolveTimeout(180_000));
 
   await runSeaweedfsStorageCheck(page, browser, {
     label: "a Nextcloud Files upload",
@@ -41,7 +43,7 @@ test("seaweedfs: an uploaded Nextcloud file is stored in the SeaweedFS bucket", 
       await expect(
         appPage.getByText(markerBase, { exact: false }).first(),
         `the uploaded file '${marker}' must appear in the Nextcloud Files listing`,
-      ).toBeVisible({ timeout: 30_000 });
+      ).toBeVisible({ timeout: resolveTimeout(30_000) });
     },
   });
 });

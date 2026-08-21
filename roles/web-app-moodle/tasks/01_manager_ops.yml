@@ -13,7 +13,7 @@
     src: "nginx-moodle.conf.j2"
     dest: "{{ docker_compose.directories.instance | default(lookup('container', application_id, 'directories.instance')) }}/nginx.conf"
     mode: "0640"
-  notify: compose up
+  notify: compose-up
 
 - name: 🚿 flush docker service
   meta: flush_handlers
@@ -32,7 +32,7 @@
     php {{ MOODLE_CLI_DIR }}/install_database.php
     --agree-license
     --adminuser={{ lookup('config', application_id, 'users.administrator.username') }}
-    --adminpass={{ lookup('config', application_id, 'credentials.user_password') | quote }}
+    --adminpass={{ lookup('config', application_id, 'secrets.credentials.user_password') | quote }}
     --adminemail={{ lookup('config', application_id, 'users.administrator.email') }}
     --fullname="{{ MOODLE_SITE_TITLE }}"
     --shortname=Academy
@@ -55,3 +55,26 @@
 - name: "🔧 Configure auth_ldap (sync-only in variant 0, primary login in variant 1)"
   include_tasks: 05_ldap_sync.yml
   when: MOODLE_LDAP_ENABLED | bool
+
+- name: "📧 Verify the relay accepts Moodle's mail"
+  when: lookup('config', application_id, 'services.email.enabled', false) | bool
+  block:
+    - name: "⏳ Wait for the delivery marker the healthcheck writes"
+      ansible.builtin.shell: >
+        container exec {{ MOODLE_CONTAINER_ADDRESS }} test -f {{ lookup('container_mail_marker') }}
+      register: moodle_smoke_mail
+      changed_when: false
+      failed_when: false
+      retries: 30
+      delay: 5
+      until: moodle_smoke_mail.rc == 0
+
+    - name: "🛑 Report a relay that refused every attempt"
+      ansible.builtin.assert:
+        that: moodle_smoke_mail.rc == 0
+        fail_msg: >-
+          Moodle never delivered its startup mail. The healthcheck writes
+          {{ lookup('container_mail_marker') }} only after msmtp exits 0, so the
+          relay refused every attempt. Its reason is in the container's
+          State.Health.Log; liveness itself is unaffected, which is why the
+          stack still converged.

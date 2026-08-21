@@ -8,78 +8,78 @@ bundles:
   name: shopware_bundles
   mounts:
     - service: init
-      target: /var/www/html/public/bundles
+      target: &var_www_html_public_bundles_target /var/www/html/public/bundles
     - service: web
-      target: /var/www/html/public/bundles
+      target: *var_www_html_public_bundles_target
     - service: worker
-      target: /var/www/html/public/bundles
+      target: *var_www_html_public_bundles_target
     - service: scheduler
-      target: /var/www/html/public/bundles
+      target: *var_www_html_public_bundles_target
 
 files:
   type: volume
   name: shopware_files
   mounts:
     - service: init
-      target: /var/www/html/files
+      target: &var_www_html_files_target /var/www/html/files
     - service: web
-      target: /var/www/html/files
+      target: *var_www_html_files_target
     - service: worker
-      target: /var/www/html/files
+      target: *var_www_html_files_target
     - service: scheduler
-      target: /var/www/html/files
+      target: *var_www_html_files_target
 
 media:
   type: volume
   name: shopware_media
   mounts:
     - service: init
-      target: /var/www/html/public/media
+      target: &var_www_html_public_media_target /var/www/html/public/media
     - service: web
-      target: /var/www/html/public/media
+      target: *var_www_html_public_media_target
     - service: worker
-      target: /var/www/html/public/media
+      target: *var_www_html_public_media_target
     - service: scheduler
-      target: /var/www/html/public/media
+      target: *var_www_html_public_media_target
 
 sitemap:
   type: volume
   name: shopware_sitemap
   mounts:
     - service: init
-      target: /var/www/html/public/sitemap
+      target: &var_www_html_public_sitemap_target /var/www/html/public/sitemap
     - service: web
-      target: /var/www/html/public/sitemap
+      target: *var_www_html_public_sitemap_target
     - service: worker
-      target: /var/www/html/public/sitemap
+      target: *var_www_html_public_sitemap_target
     - service: scheduler
-      target: /var/www/html/public/sitemap
+      target: *var_www_html_public_sitemap_target
 
 theme:
   type: volume
   name: shopware_theme
   mounts:
     - service: init
-      target: /var/www/html/public/theme
+      target: &var_www_html_public_theme_target /var/www/html/public/theme
     - service: web
-      target: /var/www/html/public/theme
+      target: *var_www_html_public_theme_target
     - service: worker
-      target: /var/www/html/public/theme
+      target: *var_www_html_public_theme_target
     - service: scheduler
-      target: /var/www/html/public/theme
+      target: *var_www_html_public_theme_target
 
 thumbnail:
   type: volume
   name: shopware_thumbnail
   mounts:
     - service: init
-      target: /var/www/html/public/thumbnail
+      target: &var_www_html_public_thumbnail_target /var/www/html/public/thumbnail
     - service: web
-      target: /var/www/html/public/thumbnail
+      target: *var_www_html_public_thumbnail_target
     - service: worker
-      target: /var/www/html/public/thumbnail
+      target: *var_www_html_public_thumbnail_target
     - service: scheduler
-      target: /var/www/html/public/thumbnail
+      target: *var_www_html_public_thumbnail_target
 
 init_script:
   type: config
@@ -87,13 +87,13 @@ init_script:
   mode: "0444"
   mounts:
     - service: init
-      target: /usr/local/bin/init.sh
+      target: &usr_local_bin_init_sh_target /usr/local/bin/init.sh
     - service: web
-      target: /usr/local/bin/init.sh
+      target: *usr_local_bin_init_sh_target
     - service: worker
-      target: /usr/local/bin/init.sh
+      target: *usr_local_bin_init_sh_target
     - service: scheduler
-      target: /usr/local/bin/init.sh
+      target: *usr_local_bin_init_sh_target
 
 framework_yaml:
   type: config
@@ -101,10 +101,24 @@ framework_yaml:
   mode: "0444"
   mounts:
     - service: init
-      target: /var/www/html/config/packages/framework.yaml
+      target: &var_www_html_config_packages_framework_yaml_target /var/www/html/config/packages/framework.yaml
     - service: web
-      target: /var/www/html/config/packages/framework.yaml
+      target: *var_www_html_config_packages_framework_yaml_target
     - service: worker
-      target: /var/www/html/config/packages/framework.yaml
+      target: *var_www_html_config_packages_framework_yaml_target
     - service: scheduler
-      target: /var/www/html/config/packages/framework.yaml
+      target: *var_www_html_config_packages_framework_yaml_target
+
+adminopenauth_yaml:
+  type: config
+  source: "{{ [lookup('container', 'web-app-shopware', 'directories.config'), 'adminopenauth.yaml'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: init
+      target: &var_www_html_config_packages_adminopenauth_yaml_target /var/www/html/config/packages/adminopenauth.yaml
+    - service: web
+      target: *var_www_html_config_packages_adminopenauth_yaml_target
+    - service: worker
+      target: *var_www_html_config_packages_adminopenauth_yaml_target
+    - service: scheduler
+      target: *var_www_html_config_packages_adminopenauth_yaml_target

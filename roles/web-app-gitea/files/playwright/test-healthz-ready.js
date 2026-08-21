@@ -6,10 +6,11 @@
 // correctly.
 
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 exports.register = function (shared) {
   test("healthz/ready endpoint returns non-5xx when gitea is running", async ({ request }) => {
-    const response = await request.get(shared.healthzReadyUrl());
+    const response = await request.get(shared.healthzReadyUrl(), { timeout: resolveTimeout(30_000) });
 
     expect(
       response.status(),

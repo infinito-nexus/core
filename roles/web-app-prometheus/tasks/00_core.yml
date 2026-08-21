@@ -11,7 +11,7 @@
   stack_host_template:
     src: "roles/web-app-prometheus/templates/nginx/prometheus.conf.j2"
     dest: "{{ [ lookup('nginx','directories.configuration.global'), 'prometheus.conf' ] | path_join }}"
-  notify: restart openresty
+  notify: restart-openresty
 
 - name: "📄 Render Prometheus config files (local + swarm peers)"
   ansible.builtin.include_tasks:

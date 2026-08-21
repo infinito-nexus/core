@@ -13,7 +13,7 @@ only positional argument, everything else comes from the service's
         path: health/ready
         start_period: 20m
 
-``flavor`` picks the probe shape (see utils/docker/healthcheck.py); each
+``flavor`` picks the probe shape (see utils/docker/healthcheck/); each
 flavor brings its own interval, timeout, retries and start_period, and any
 of those may be overridden next to it. Without a ``flavor`` the entry must
 carry an explicit ``test`` argv. ``port_key`` selects another entry below
@@ -33,7 +33,9 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from utils.docker.healthcheck import PROBES, build, known_flavors
+from utils.docker.healthcheck.compose import build, known_flavors, resolve_flavors
+from utils.docker.healthcheck.prefixes import PREFIXES
+from utils.docker.healthcheck.probes import PROBES
 
 
 class LookupModule(LookupBase):
@@ -64,7 +66,12 @@ class LookupModule(LookupBase):
 
         config = self._config(f"services.{service}.healthcheck", {})
         config = config if isinstance(config, dict) else {}
-        flavor = str(config.get("flavor", "") or "").strip()
+        declared = config.get("flavor", "")
+        flavor: str | list[str] = (
+            [str(name).strip() for name in declared if str(name).strip()]
+            if isinstance(declared, list)
+            else str(declared or "").strip()
+        )
         where = f"'{self._application_id}' service '{service}'"
 
         if not flavor and not config.get("test"):
@@ -72,9 +79,14 @@ class LookupModule(LookupBase):
                 f"container_healthcheck: {where} declares no healthcheck.flavor, so "
                 f"healthcheck.test is required. Known flavors: {known_flavors()}."
             )
-        if flavor and flavor not in PROBES:
+        unknown = [
+            name
+            for name in (resolve_flavors(flavor) if flavor else [])
+            if name not in PROBES and name not in PREFIXES
+        ]
+        if unknown:
             raise AnsibleError(
-                f"container_healthcheck: unknown flavor '{flavor}' for {where}. "
+                f"container_healthcheck: unknown flavor '{unknown[0]}' for {where}. "
                 f"Known flavors: {known_flavors()}."
             )
 
@@ -95,9 +107,7 @@ class LookupModule(LookupBase):
             config: that service's healthcheck entry.
             kwargs: the call site's keyword arguments.
         """
-        hostname = self._render(
-            config.get("hostname", self._vars.get("container_hostname"))
-        )
+        hostname = self._render(config.get("hostname"))
         port_key = str(config.get("port_key", "http") or "http")
         context = {
             "test": config.get("test"),
@@ -107,7 +117,7 @@ class LookupModule(LookupBase):
             "hostname": str(hostname) if hostname else None,
             "samples": int(kwargs.get("samples", config.get("samples", 1)) or 1),
         }
-        if flavor == "msmtp_curl":
+        if "msmtp" in resolve_flavors(flavor):
             context.update(
                 email_enabled=bool(self._config("services.email.enabled", False)),
                 domain=self._lookup("domain", self._application_id),

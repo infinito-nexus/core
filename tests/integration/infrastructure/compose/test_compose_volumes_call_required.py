@@ -8,8 +8,7 @@ from utils.roles.mapping import ROLE_FILE_TEMPL_COMPOSE
 
 from . import PROJECT_ROOT
 
-# New canonical call form: {{ lookup('compose_volumes', application_id, ...) }}
-COMPOSE_VOLUMES_LOOKUP_RE = re.compile(r"lookup\(\s*['\"]compose_volumes['\"]\s*,")
+COMPOSE_VOLUMES_LOOKUP_RE = re.compile(r"lookup\(\s*['\"]compose_volumes['\"]\s*[,)]")
 
 # Deprecated pipe form: {{ lookup('applications') | compose_volumes(...) }}
 # Forbidden everywhere: the Jinja filter registration was removed so this
@@ -42,7 +41,7 @@ class TestComposeVolumesCallRequired(unittest.TestCase):
                 "reference in the `services:` block and Docker Compose "
                 'fails `config --quiet` with `service "<name>" refers '
                 "to undefined volume <name>`. Add "
-                "`{{ lookup('compose_volumes', application_id) }}` to "
+                "`{{ lookup('compose_volumes') }}` to "
                 "each offending template:\n\n" + "\n".join(offenders)
             )
 
@@ -71,7 +70,7 @@ class TestComposeVolumesCallRequired(unittest.TestCase):
                 "Deprecated `| compose_volumes(...)` pipe form found. "
                 "The Jinja filter registration was removed; use the "
                 "lookup form instead: "
-                "`{{ lookup('compose_volumes', application_id) }}`. "
+                "`{{ lookup('compose_volumes') }}`. "
                 "Offending sites:\n\n" + "\n".join(offenders)
             )
 

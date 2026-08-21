@@ -37,5 +37,4 @@ echo "apps        = ${apps}"
 echo "full_cycle  = ${full_cycle:-false}"
 echo
 
-# Delegate to the selection deploy; that script already cycles the stack (down + up).
 exec bash "${SCRIPT_DIR}/../apps/reinstall/selection.sh"

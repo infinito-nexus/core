@@ -36,7 +36,7 @@
 
   rescue:
     - name: "💾 Postgres | Dump pg_hba.conf into the diagnostics folder" # nocheck: rescue-extra-diagnostics pg_hba.conf is postgres-specific auth config the generic rescue script cannot capture, and it is what a failed TCP-auth wait needs
-      ansible.builtin.script: "{{ lookup('path_absolute', 'roles/svc-db-postgres/files/dump_pg_hba.sh') }}"
+      ansible.builtin.script: "{{ lookup('path_absolute', 'roles/svc-db-postgres/files/shell/dump_pg_hba.sh') }}"
       environment:
         POSTGRES_CONTAINER_ADDRESS: "{{ POSTGRES_LOCAL_CID }}"
         PGPASSWORD: "{{ POSTGRES_PASSWORD }}"

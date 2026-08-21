@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 exports.register = function (shared) {
   test("administrator: ERPNext OIDC login lands on Frappe desk", async ({ page }) => {
@@ -9,7 +10,7 @@ exports.register = function (shared) {
 
     await shared.signInViaErpnextOidc(page, shared.env.adminUsername, shared.env.adminPassword, "administrator");
 
-    await expect(page.locator("body")).toContainText(/desk|workspace|erpnext|home|dashboard/i, { timeout: 60_000 });
+    await expect(page.locator("body")).toContainText(/desk|workspace|erpnext|home|dashboard/i, { timeout: resolveTimeout(60_000) });
 
     await shared.erpnextLogout(page);
   });

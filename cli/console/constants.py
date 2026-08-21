@@ -17,7 +17,6 @@ LS_DESC_LIMIT = 30
 HELP_ALIASES = frozenset({"help", "?", "h"})
 PROMPT_PREFIX = "🖥️  "
 
-# REPL needs the on-disk cli/ root to resolve category/command paths.
 # nocheck: project-root-import  not a project-root walk; resolves cli/ for category dispatch
 CLI_ROOT = Path(__file__).resolve().parents[1]
 RESERVED_DIRS = frozenset({"core", "__pycache__"})

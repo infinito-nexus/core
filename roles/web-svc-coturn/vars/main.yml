@@ -14,8 +14,8 @@ COTURN_RELAY_PORT_END: "{{ lookup('config', application_id, 'services.coturn.por
 COTURN_RELAY_PORT_RANGE: "{{ COTURN_RELAY_PORT_START }}-{{ COTURN_RELAY_PORT_END }}"
 
 COTURN_USER_NAME: "{{ lookup('config', application_id, 'services.coturn.username') }}"
-COTURN_USER_PASSWORD: "{{ lookup('config', application_id, 'credentials.user_password') }}"
-COTURN_STATIC_AUTH_SECRET: "{{ lookup('config', application_id, 'credentials.auth_secret') }}"
+COTURN_USER_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.user_password') }}"
+COTURN_STATIC_AUTH_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.auth_secret') }}"
 COTURN_USER_AUTH_ENABLED: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.user_auth_enabled') }}"
 
 COTURN_TLS_ENABLED: "{{ lookup('tls', application_id, 'enabled') | bool }}"

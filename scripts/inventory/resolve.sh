@@ -48,5 +48,4 @@ else
 	INFINITO_INVENTORY_DIR="${HOME}/inventories/localhost"
 fi
 
-# IMPORTANT: single-line output for Makefile $(shell ...)
 printf '%s\n' "${INFINITO_INVENTORY_DIR}"

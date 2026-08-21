@@ -1,6 +1,10 @@
 ---
 # Matrix-deploy variant overrides for web-app-bigbluebutton.
 # See docs/contributing/artefact/files/role/variants.md for the file format.
+#
+# nocheck: sso-variant-tor — meta/services.yml pins tor.enabled false: the conference
+# needs getUserMedia, which Chromium withholds outside a secure context, and a
+# plaintext onion is not one. There is no onion to log into.
 
 # variant pinning every dynamic services.yml flag to true so the
 # matrix exercises the in-group_names branch of web-app-bigbluebutton.
@@ -34,6 +38,8 @@
     css:
       enabled: true
       shared: true
+    tor:
+      enabled: false # nocheck: variants-static-override
 - services:
     container_backup:
       enabled: false
@@ -65,3 +71,5 @@
     css:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    tor:
+      enabled: false # nocheck: variants-static-override

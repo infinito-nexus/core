@@ -27,7 +27,7 @@ Shell consumers source [load.sh](../../scripts/meta/env/load.sh) under `scripts/
 - Module names MUST stay lowercase snake_case.
 - Pure passthrough or simple parser/writer helpers MUST live directly under `utils/env/`.
 - Per-variable computation MUST live under `handlers/` (see [handlers README](handlers/README.md) for the naming convention used there).
-- Test files live in [tests/unit/utils/env/](../../tests/unit/utils/env/) and mirror the module name with a `test_` prefix.
+- Test files live in [tests/unit/python/utils/env/](../../tests/unit/python/utils/env/) and mirror the module name with a `test_` prefix.
 
 ## Import Rules 🔗
 

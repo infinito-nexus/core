@@ -6,8 +6,8 @@
     version: "{{ BLUESKY_SOCIAL_APP_REF }}"
     force: true
   notify:
-    - compose up
-    - compose build
+    - compose-up
+    - compose-build
 
 - name: 💪 Force BAPP_CONFIG_URL to same-origin /config
   ansible.builtin.replace:

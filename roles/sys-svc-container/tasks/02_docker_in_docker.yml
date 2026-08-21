@@ -9,7 +9,7 @@
   ansible.builtin.package: # nocheck: dynamic-package - package set assembled at runtime for the nested runtime
     name: fuse-overlayfs
     state: present
-  notify: container manager restart
+  notify: container-manager-restart
 
 - name: 🧮 Compute and set Docker daemon MTU (container)
   include_tasks: "_mtu.yml"
@@ -35,7 +35,7 @@
     src: daemon.json.j2
     dest: "{{ SYS_SVC_DOCKER_DAEMON }}"
     mode: "0644"
-  notify: container manager restart
+  notify: container-manager-restart
 
 - name: 🔎 Check if TCP MSS clamp to PMTU is already present (container)
   ansible.builtin.command:

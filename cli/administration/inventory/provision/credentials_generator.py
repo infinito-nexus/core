@@ -8,6 +8,12 @@ from typing import TYPE_CHECKING
 from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap
 
+from cli.administration.inventory.credentials.emit import (
+    credentials_map,
+    declared_credentials,
+    ensure_map,
+)
+
 from .role_resolver import resolve_role_path
 
 if TYPE_CHECKING:
@@ -16,12 +22,6 @@ if TYPE_CHECKING:
 
 def _fatal(msg: str) -> None:
     raise SystemExit(f"[FATAL] {msg}")
-
-
-def _ensure_ruamel_map(node: CommentedMap, key: str) -> CommentedMap:
-    if key not in node or not isinstance(node.get(key), CommentedMap):
-        node[key] = CommentedMap()
-    return node[key]
 
 
 def _generate_credentials_snippet_for_app(
@@ -38,7 +38,6 @@ def _generate_credentials_snippet_for_app(
         return None
 
     cmd = [
-        # Use current interpreter so utils + deps match the runtime
         sys.executable,
         "-m",
         "cli.administration.inventory.credentials",
@@ -148,14 +147,14 @@ def generate_credentials_for_roles(
     for snippet in snippets:
         apps_snip = snippet.get("applications", {}) or {}
         if isinstance(apps_snip, dict):
-            apps_doc = _ensure_ruamel_map(doc, "applications")
+            apps_doc = ensure_map(doc, "applications")
             for app_id, app_block_snip in apps_snip.items():
                 if not isinstance(app_block_snip, dict):
                     continue
-                app_doc = _ensure_ruamel_map(apps_doc, app_id)
-                creds_doc = _ensure_ruamel_map(app_doc, "credentials")
+                app_doc = ensure_map(apps_doc, app_id)
+                creds_doc = credentials_map(app_doc)
 
-                creds_snip = app_block_snip.get("credentials", {}) or {}
+                creds_snip = declared_credentials(app_block_snip) or {}
                 if not isinstance(creds_snip, dict):
                     continue
 

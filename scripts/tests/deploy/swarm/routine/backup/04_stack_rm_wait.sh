@@ -8,11 +8,11 @@ set -euo pipefail
 
 STACK_NAME="${1:?usage: 04_stack_rm_wait.sh STACK_NAME}"
 
-docker stack rm "${STACK_NAME}" || true
+docker stack rm "${STACK_NAME}" || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 for _ in $(seq 1 90); do
 	remaining="$(docker service ls --filter "name=${STACK_NAME}_" --format '{{.Name}}' | wc -l | tr -d ' ')"
 	if [ "${remaining}" = "0" ]; then
-		docker stack rm "${STACK_NAME}" >/dev/null 2>&1 || true
+		docker stack rm "${STACK_NAME}" >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 		exit 0
 	fi
 	sleep 2

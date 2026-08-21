@@ -32,17 +32,10 @@ from . import PROJECT_ROOT
 
 _RULE = "compose-depends-on-must-use-lookup"
 
-# A literal YAML `depends_on:` keyword line. The lookup output renders
-# this keyword at render time, but the TEMPLATE source never does --
-# the source carries the call form `{{ lookup('depends_on', ...) }}`,
-# so the keyword token never appears in source for migrated blocks.
 _DEPENDS_ON_KEY = re.compile(r"^\s*depends_on\s*:\s*(?:#.*)?$")
 
-# `depends_on: [a, b]` flow form on a single line.
 _DEPENDS_ON_FLOW = re.compile(r"^\s*depends_on\s*:\s*\[")
 
-# A literal map-form `condition: service_*` line -- the swarm-incompatible
-# form the lookup also eliminates.
 _CONDITION = re.compile(
     r"^\s*condition:\s*service_(?:started|healthy|completed_successfully)\b"
 )
@@ -54,14 +47,6 @@ def _is_scan_target(rel_path: str) -> bool:
     if "/templates/" not in rel_path:
         return False
     name = Path(rel_path).name
-    # Match every compose-related Jinja YAML template:
-    # - `compose.yml.j2`
-    # - `bootstrap.compose.yml.j2`, `worker.compose.yml.j2`, …
-    # - `compose.override.yml.j2`
-    # - `compose-inits.yml.j2`
-    # The `lookup('depends_on', …)` contract applies to any file that
-    # docker compose / docker stack deploy reads, not only the
-    # canonical top-level one.
     return name.endswith(".yml.j2") and "compose" in name
 
 

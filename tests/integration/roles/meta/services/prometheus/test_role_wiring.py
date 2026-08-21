@@ -488,7 +488,6 @@ class TestPrometheusNginxEndpoints(unittest.TestCase):
             "CommunicationChannelDown must use the active_alertmanager_channels lookup plugin "
             "for dynamic channel discovery (no hardcoded list)",
         )
-        # Mailu is excluded — it is an email server, not a webhook channel.
         for app_id in ("web-app-mattermost", "web-app-matrix"):
             with self.subTest(app_id=app_id):
                 cfg = _load_config(str(roles_dir / app_id / ROLE_FILE_META_SERVICES))

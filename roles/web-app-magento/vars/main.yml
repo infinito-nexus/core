@@ -3,6 +3,8 @@ application_id: "web-app-magento"
 
 MAGENTO_VOLUME: "{{ lookup('volume', application_id, 'data').name }}"
 MAGENTO_USER: "app"
+MAGENTO_ROOT: "/var/www/html"
+MAGENTO_INSTALL_MARKER: "{{ [ magento_volume_mountpoint.stdout | trim, 'html/var/.install-complete' ] | path_join }}"
 
 MAGENTO_DOMAIN: "{{ lookup('domain',application_id) }}"
 MAGENTO_URL: "{{ lookup('tls', application_id, 'url.base') }}"
@@ -14,12 +16,15 @@ MAGENTO_NGINX_PORT: "{{ lookup('config', application_id, 'services.magento.ports
 MAGENTO_NGINX_CONF_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 'nginx-default.conf' ] | path_join }}"
 MAGENTO_PHP_FPM_CONF_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 'php-fpm.conf' ] | path_join }}"
 
+MAGENTO_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') }}"
+
 MAGENTO_SEARCH_CONTAINER: "{{ lookup('config', application_id, 'services.search.name') }}"
 
 MAGENTO_PHP_CONTAINER: "{{ lookup('config', application_id, 'services.php.name') }}"
 MAGENTO_PHP_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'php') }}"
 
 MAGENTO_NGINX_CONTAINER: "{{ lookup('config', application_id, 'services.nginx.name') }}"
+MAGENTO_NGINX_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'nginx') }}"
 
 MAGENTO_COMPOSER_REPOSITORY: "{{ lookup('config', application_id, 'services.magento.composer.repository') }}"
 MAGENTO_COMPOSER_PACKAGE: "{{ lookup('config', application_id, 'services.magento.composer.package') }}"

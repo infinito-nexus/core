@@ -34,12 +34,11 @@
       enabled: true
       shared: true
 
-    # Variant 2 (false-pinning) — siblings opted out so the
-    # variant-coverage matrix exercises the out-of-group_names branch
-    # of every dynamic services flag.
     css:
       enabled: true
       shared: true
+    tor:
+      enabled: true
 - services:
     mastodon:
       enabled: false
@@ -51,6 +50,8 @@
     css:
       enabled: false
       shared: false
+    tor:
+      enabled: true
 - services:
     mastodon:
       enabled: true
@@ -59,14 +60,14 @@
       enabled: true
       shared: true
     fediwall:
-      # Variants replace lists wholesale (not deep-merged), so every
-      # wall.config field is restated here — no template fallbacks.
+      # Exception: variants replace lists wholesale rather than deep-merging, so
+      # every wall.config field is restated here - a template fallback never applies.
       walls:
         - slug: default
           config:
             servers:
-              - "{{ lookup('domain', 'web-app-mastodon') }}"
-              - "{{ lookup('domain', 'web-app-friendica') }}"
+              - "{{ lookup('tls', 'web-app-mastodon', 'domain') }}"
+              - "{{ lookup('tls', 'web-app-friendica', 'domain') }}"
             tags: []
             accounts: []
             loadPublic: true
@@ -89,7 +90,7 @@
         - slug: mastodon
           config:
             servers:
-              - "{{ lookup('domain', 'web-app-mastodon') }}"
+              - "{{ lookup('tls', 'web-app-mastodon', 'domain') }}"
             tags: []
             accounts: []
             loadPublic: true
@@ -112,3 +113,5 @@
     css:
       enabled: false
       shared: false
+    tor:
+      enabled: true

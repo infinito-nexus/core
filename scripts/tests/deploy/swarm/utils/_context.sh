@@ -51,34 +51,6 @@ if [ -f "${ROLE_DIR}/meta/services.yml" ] &&
 	DEFAULT_PLACEMENT_MANAGER=true
 fi
 
-HAS_SWARM_SERVICE="$(PYTHONPATH="${_REPO_ROOT}" "${PYTHON}" -c "
-import os, yaml
-svc = os.path.join('${ROLE_DIR}', 'meta', 'services.yml')
-data = {}
-if os.path.exists(svc):
-    data = yaml.safe_load(open(svc)) or {}
-    if not isinstance(data, dict):
-        data = {}
-entity = data.get('${ENTITY}')
-workload = entity.get('workload') if isinstance(entity, dict) else None
-if isinstance(workload, str):
-    workload = workload.strip().lower()
-if workload == 'node-local':
-    print('false')
-    raise SystemExit
-if workload == 'stack':
-    print('true')
-    raise SystemExit
-try:
-    from utils.roles.meta_lookup import get_role_skip
-    swarm_skipped = 'swarm' in get_role_skip('${APP_ID}')
-except Exception:
-    swarm_skipped = False
-has_image = any(isinstance(v, dict) and 'image' in v for v in data.values())
-has_tpl = any(os.path.exists(os.path.join('${ROLE_DIR}', 'templates', t)) for t in ('compose.yml.j2', 'service.yml.j2'))
-print('false' if (swarm_skipped or not (has_image or has_tpl)) else 'true')
-")"
-
 PROBE_PORT="$(PYTHONPATH="${_REPO_ROOT}" "${PYTHON}" -c "
 import os, yaml
 port = 80
@@ -121,7 +93,7 @@ PRIMARY_NFS_VOLUME="${NFS_VOLUMES%%$'\n'*}"
 
 NFS_CHECK_MOUNTPOINT="/mnt/nfs-check"
 
-export APP_ID ENTITY STACK_NAME SERVICE_NAME PRIMARY_SERVICE_KEY CUSTOM_IMAGE_REPO DB_DEP NFS_VOLUMES PRIMARY_NFS_VOLUME DEFAULT_PLACEMENT_MANAGER HAS_SWARM_SERVICE PROBE_PORT NFS_CHECK_MOUNTPOINT
+export APP_ID ENTITY STACK_NAME SERVICE_NAME PRIMARY_SERVICE_KEY CUSTOM_IMAGE_REPO DB_DEP NFS_VOLUMES PRIMARY_NFS_VOLUME DEFAULT_PLACEMENT_MANAGER PROBE_PORT NFS_CHECK_MOUNTPOINT
 
 # Exits the calling chaos step (09/10/11) with success when the role is
 # manager-pinned (no worker task exists to drain).
@@ -132,11 +104,21 @@ skip_chaos_if_manager_pinned() {
 	fi
 }
 
-# Exits the calling gate (07/09/10/11) with success when the role deploys no
+has_swarm_service() {
+	local _names=""
+	[ -n "${MGR:-}" ] || return 1
+	if ! _names="$(docker exec "${MGR}" docker stack services \
+		--format '{{.Name}}' "${STACK_NAME}" 2>/dev/null)"; then
+		_names=""
+	fi
+	printf '%s\n' "${_names}" | grep -qxF "${SERVICE_NAME}"
+}
+
+# Exits the calling gate (03/05/06/07) with success when the role deploys no
 # swarm service to converge or drain.
 skip_if_no_swarm_service() {
-	if [ "${HAS_SWARM_SERVICE}" != true ]; then
-		echo "SKIP: ${ENTITY} (${APP_ID}) deploys no swarm service — converge/chaos gate does not apply"
+	if ! has_swarm_service; then
+		echo "SKIP: ${ENTITY} (${APP_ID}) deployed no swarm service — converge/chaos gate does not apply"
 		exit 0
 	fi
 }
@@ -158,6 +140,5 @@ if [ "${SWARM_NFS_PILOT_VERBOSE:-0}" = "1" ]; then
 	echo "    DB_DEP=${DB_DEP}"
 	echo "    PRIMARY_NFS_VOLUME=${PRIMARY_NFS_VOLUME}"
 	echo "    DEFAULT_PLACEMENT_MANAGER=${DEFAULT_PLACEMENT_MANAGER}"
-	echo "    HAS_SWARM_SERVICE=${HAS_SWARM_SERVICE}"
 	echo "    PROBE_PORT=${PROBE_PORT}"
 fi

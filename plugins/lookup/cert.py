@@ -81,8 +81,6 @@ class LookupModule(LookupBase):
     def run(self, terms, variables: dict | None = None, **kwargs):
         variables = variables or {}
 
-        # New API: want-path is the 2nd positional term.
-        # Legacy 'want=' kwarg is ignored (no error) to keep tasks noise-free.
         if not terms or len(terms) not in (1, 2):
             raise AnsibleError(
                 "cert: one or two terms required: (domain|application_id[, want_path])"
@@ -184,10 +182,8 @@ class LookupModule(LookupBase):
                 cert_file = _join(ss_base, cert_id, LE_FULLCHAIN)
                 key_file = _join(ss_base, cert_id, LE_PRIVKEY)
 
-                # STRICT: list[str] only
                 san_domains = _require_current_play_domains_all_strict(variables)
 
-                # Ensure primary domain is always included
                 if primary_domain:
                     san_domains = uniq_preserve([primary_domain, *san_domains])
 

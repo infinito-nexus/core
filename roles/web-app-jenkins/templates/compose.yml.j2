@@ -10,11 +10,11 @@
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     environment:
       JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
-      CASC_JENKINS_CONFIG: /var/jenkins_home/casc.yaml
+      CASC_JENKINS_CONFIG: {{ lookup('volume', 'web-app-jenkins', 'casc').target }}
     {{ lookup('container_ports', ['jenkins', 'http', DOCKER_BIND_HOST]) | indent(4) }}
-    {{ lookup('container_volumes', application_id, 'jenkins') | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

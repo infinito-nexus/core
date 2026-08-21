@@ -16,10 +16,6 @@ if TYPE_CHECKING:
 
 QUOTE_FILTER_RE = re.compile(r"\|\s*quote\b", re.IGNORECASE)
 
-# YAML "definition" line where the KEY contains "password" (case-insensitive)
-# Examples:
-#   db_password: "{{ vault_db_password }}"
-#   PASSWORD: somevalue
 PASSWORD_KEY_LINE_RE = re.compile(
     r"^\s*(?P<key>[A-Za-z0-9_.-]*password[A-Za-z0-9_.-]*)\s*:\s*(?P<value>.*)$",
     re.IGNORECASE,
@@ -72,7 +68,7 @@ def _scan_file(path: Path) -> list[Finding]:
 
 class TestPasswordDefinitionsNoQuote(unittest.TestCase):
     def test_password_definitions_must_not_use_quote_filter(self) -> None:
-        repo_root = PROJECT_ROOT  # tests/integration/<cluster>/ -> repo root
+        repo_root = PROJECT_ROOT
 
         all_findings: list[Finding] = []
         for yml in _iter_roles_yml_files(repo_root):

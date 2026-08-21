@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any
 from utils.cache.applications import get_variants
 from utils.handler.vault import VaultHandler, VaultScalar
 from utils.handler.yaml import YamlHandler
+from utils.manager.credential_key import override_key
 from utils.manager.value_generator import ValueGenerator
 from utils.roles.applications.services.database import has_single_database_service
 from utils.roles.applications.services.registry import (
@@ -13,14 +14,11 @@ from utils.roles.applications.services.registry import (
     is_explicit_truth,
     resolve_service_dependency_roles_from_config,
 )
-from utils.roles.mapping import ROLE_FILE_META_SCHEMA, ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import ROLE_FILE_META_SECRETS, ROLE_FILE_VARS_MAIN
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-# Marker fields that identify a credential schema leaf. Any
-# `default:` value is preserved verbatim; algorithm defaults to `plain` when
-# absent; `validation:` only applies to user-provided values.
 _CREDENTIAL_LEAF_MARKERS = ("description", "algorithm", "validation", "default")
 
 
@@ -91,7 +89,7 @@ class InventoryManager:
 
     @staticmethod
     def _load_role_schema_by_path(role_path: Path) -> dict[str, Any]:
-        schema_path = role_path / ROLE_FILE_META_SCHEMA
+        schema_path = role_path / ROLE_FILE_META_SECRETS
         if not schema_path.exists():
             return {}
         return YamlHandler.load_yaml(schema_path) or {}
@@ -129,7 +127,6 @@ class InventoryManager:
         resolved: list[str] = []
         seen: set[str] = set()
 
-        # seed with root role's direct includes
         root_cfg = self.load_role_config_by_path(self.role_path)
         queue: list[str] = self._direct_schema_includes_from_config(root_cfg)
 
@@ -166,7 +163,7 @@ class InventoryManager:
         apps = self.inventory.setdefault("applications", {})
         target = apps.setdefault(app_id, {})
 
-        self.recurse_credentials(schema, target)
+        self.recurse_credentials(schema, target.setdefault("secrets", {}))
 
     def _apply_one_role_special_rules(self, role_path: Path) -> None:
         """
@@ -181,20 +178,16 @@ class InventoryManager:
         if has_single_database_service({app_id: cfg}, app_id):
             apps = self.inventory.setdefault("applications", {})
             target = apps.setdefault(app_id, {})
-            target.setdefault("credentials", {})["database_password"] = (
-                self.value_generator.generate_value("alphanumeric")
-            )
+            target.setdefault("secrets", {}).setdefault("credentials", {})[
+                "database_password"
+            ] = self.value_generator.generate_value("alphanumeric")
 
-        # The oauth2-proxy sidecar (flavor: oauth2) needs a cookie secret
-        # per consumer. Pure-OIDC roles do not, but the original branch
-        # provisioned it for either flavor — keep that behaviour by
-        # provisioning whenever services.sso.enabled is truthy.
         if is_explicit_truth(sso.get("enabled")):
             apps = self.inventory.setdefault("applications", {})
             target = apps.setdefault(app_id, {})
-            target.setdefault("credentials", {})["sso_proxy_cookie_secret"] = (
-                self.value_generator.generate_value("random_hex_16")
-            )
+            target.setdefault("secrets", {}).setdefault("credentials", {})[
+                "sso_proxy_cookie_secret"
+            ] = self.value_generator.generate_value("random_hex_16")
 
         objstore_enabled = False
         if isinstance(services, dict):
@@ -208,9 +201,9 @@ class InventoryManager:
         if objstore_enabled:
             apps = self.inventory.setdefault("applications", {})
             target = apps.setdefault(app_id, {})
-            target.setdefault("credentials", {})["objstore_secret_key"] = (
-                self.value_generator.generate_value("alphanumeric")
-            )
+            target.setdefault("secrets", {}).setdefault("credentials", {})[
+                "objstore_secret_key"
+            ] = self.value_generator.generate_value("alphanumeric")
 
         for engine_name in ("rabbitmq", "elasticsearch", "typesense"):
             engine_cfg = (
@@ -221,9 +214,9 @@ class InventoryManager:
             ):
                 apps = self.inventory.setdefault("applications", {})
                 target = apps.setdefault(app_id, {})
-                target.setdefault("credentials", {})[f"{engine_name}_password"] = (
-                    self.value_generator.generate_value("alphanumeric")
-                )
+                target.setdefault("secrets", {}).setdefault("credentials", {})[
+                    f"{engine_name}_password"
+                ] = self.value_generator.generate_value("alphanumeric")
 
     def apply_schema(self) -> dict:
         """
@@ -231,18 +224,16 @@ class InventoryManager:
           1) all recursively discovered shared-provider roles
           2) this role itself
         """
-        # 1) Provider roles (transitive)
         for role_name in self.resolve_schema_includes_recursive(self.role_path.name):
             role_path = self.roles_root / role_name
             self._apply_one_role_special_rules(role_path)
             self._apply_one_role_schema(role_name)
 
-        # 2) Root role
         self._apply_one_role_special_rules(self.role_path)
 
         apps = self.inventory.setdefault("applications", {})
         target = apps.setdefault(self.app_id, {})
-        self.recurse_credentials(self.schema, target)
+        self.recurse_credentials(self.schema, target.setdefault("secrets", {}))
 
         return self.inventory
 
@@ -276,8 +267,6 @@ class InventoryManager:
             if isinstance(meta, dict):
                 sub = dest.setdefault(key, {})
                 if not isinstance(sub, dict):
-                    # Replace non-dict placeholder so nested credentials
-                    # have a writeable container.
                     sub = {}
                     dest[key] = sub
                 self.recurse_credentials(meta, sub, full_key)
@@ -305,8 +294,6 @@ class InventoryManager:
             return
 
         if "default" in meta:
-            # Write the literal Jinja string verbatim, no rendering,
-            # no validation, no algorithm-based generation.
             if isinstance(existing_value, str) and existing_value != "":
                 return
             dest[key] = meta["default"]
@@ -314,9 +301,11 @@ class InventoryManager:
 
         algorithm = meta.get("algorithm") or "plain"
 
+        set_key = override_key(self.app_id, full_key.split("credentials.", 1)[1])
+
         if algorithm == "plain":
-            if full_key in self.overrides:
-                plain = self.overrides[full_key]
+            if set_key in self.overrides:
+                plain = self.overrides[set_key]
             elif isinstance(existing_value, str) and existing_value != "":
                 return
             elif self.allow_empty_plain:
@@ -324,13 +313,13 @@ class InventoryManager:
             else:
                 print(
                     f"ERROR: Plain algorithm for '{full_key}' requires override "
-                    f"via --set {full_key}=<value>",
+                    f"via --set {set_key}=<value>",
                     file=sys.stderr,
                 )
                 sys.exit(1)
         else:
             plain = self.overrides.get(
-                full_key, self.value_generator.generate_value(algorithm)
+                set_key, self.value_generator.generate_value(algorithm)
             )
 
         if plain == "":

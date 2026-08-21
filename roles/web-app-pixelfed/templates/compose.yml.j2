@@ -5,7 +5,8 @@
     {{ lookup('compose_only', 'container_name', PIXELFED_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     entrypoint: "{{ PIXELFED_ENTRYPOINT_DOCKER }}"
-    {{ lookup('container_volumes', application_id, 'pixelfed') | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_ports', ['pixelfed', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
@@ -19,7 +20,7 @@
       AUTORUN_LARAVEL_ROUTE_CACHE: "false"
       AUTORUN_LARAVEL_VIEW_CACHE: "false"
       AUTORUN_ENABLED: "false"
-    {{ lookup('container_volumes', application_id, 'worker') | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     entrypoint: "{{ PIXELFED_WORKER_ENTRYPOINT_DOCKER }}"
     healthcheck:
       test: test ! -e /var/www/storage/.docker.init || (php artisan horizon:status | grep running)
@@ -32,5 +33,5 @@
 }) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

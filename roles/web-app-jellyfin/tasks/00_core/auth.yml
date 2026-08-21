@@ -8,7 +8,7 @@
 
 - name: "🔐 Jellyfin auth | Wizard + plugin install on the hosting node"
   ansible.builtin.script:
-    cmd: "{{ role_path }}/files/configure-auth.sh"
+    cmd: "{{ role_path }}/files/shell/configure-auth.sh"
   environment: "{{ jellyfin_auth_env | combine({'JELLYFIN_PHASE': 'install', 'JELLYFIN_CT': JELLYFIN_LOCAL_CID}) }}"
   delegate_to: "{{ JELLYFIN_HOST_NODE }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
@@ -34,7 +34,7 @@
 
 - name: "🔐 Jellyfin auth | LDAP/SSO configuration on the hosting node"
   ansible.builtin.script:
-    cmd: "{{ role_path }}/files/configure-auth.sh"
+    cmd: "{{ role_path }}/files/shell/configure-auth.sh"
   environment: "{{ jellyfin_auth_env | combine({'JELLYFIN_PHASE': 'configure', 'JELLYFIN_CT': JELLYFIN_LOCAL_CID}) }}"
   delegate_to: "{{ JELLYFIN_HOST_NODE }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

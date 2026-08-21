@@ -56,7 +56,7 @@ class TestLiteralPaths(unittest.TestCase):
                 except ConfigEntryNotSetError:
                     continue
                 except Exception:
-                    pass  # best-effort: tolerate other get() errors, validation is checked below
+                    pass
                 try:
                     validate_app_path(
                         ctx.application_defaults,

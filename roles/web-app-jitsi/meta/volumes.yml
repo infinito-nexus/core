@@ -4,7 +4,7 @@ prosody_config:
   source: "{{ [lookup('container', 'web-app-jitsi', 'directories.volumes'), 'prosody-config'] | path_join }}"
   mounts:
     - service: prosody
-      target: /config
+      target: &config_target /config
 
 prosody_plugins:
   type: bind
@@ -18,21 +18,21 @@ jicofo_config:
   source: "{{ [lookup('container', 'web-app-jitsi', 'directories.volumes'), 'jicofo'] | path_join }}"
   mounts:
     - service: jicofo
-      target: /config
+      target: *config_target
 
 jvb_config:
   type: bind
   source: "{{ [lookup('container', 'web-app-jitsi', 'directories.volumes'), 'jvb'] | path_join }}"
   mounts:
     - service: jvb
-      target: /config
+      target: *config_target
 
 web_config:
   type: bind
   source: "{{ [lookup('container', 'web-app-jitsi', 'directories.volumes'), 'config'] | path_join }}"
   mounts:
     - service: web
-      target: /config
+      target: *config_target
 
 web_transcripts:
   type: bind

@@ -18,17 +18,9 @@
         create: true
   when: not DOCKER_IN_CONTAINER | bool
 
-- name: ✅ Ensure nss-myhostname is installed so *.localhost resolves to loopback
-  become: true
-  package_install:
-    id: nss-myhostname
-
-- name: ✅ Ensure nsswitch resolves hosts via myhostname
-  become: true
-  ansible.builtin.lineinfile:
-    path: /etc/nsswitch.conf
-    regexp: "^(hosts:(?!.*\\bmyhostname\\b).*)$"
-    line: "\\1 myhostname"
-    backrefs: true
+- name: 📂 Include dependencies
+  include_role:
+    name: "sys-svc-nss"
+  when: not (run_once_sys_svc_nss | default(false) | bool)
 
 - include_tasks: utils/once/flag.yml

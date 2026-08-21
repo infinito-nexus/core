@@ -1,5 +1,6 @@
 ---
-- name: Restart systemd-logind
+- name: 🔄 Restart systemd-logind
+  listen: restart-systemd-logind
   become: true
   systemd:
     name: systemd-logind

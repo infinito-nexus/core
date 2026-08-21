@@ -1,0 +1,6 @@
+require "omniauth_openid_connect"
+
+if URI.parse({{ GITLAB_OIDC_ISSUER | ruby_dq }}).scheme == "http"
+  SWD.url_builder = URI::HTTP
+  WebFinger.url_builder = URI::HTTP
+end

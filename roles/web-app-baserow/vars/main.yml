@@ -1,19 +1,18 @@
 ---
 application_id: "web-app-baserow"
 entity_name: "{{ application_id | get_entity_name }}"
-database_password: "{{ lookup('config', application_id, 'credentials.database_password') }}" # nocheck: lookup-config-path
+database_password: "{{ lookup('config', application_id, 'secrets.credentials.database_password') }}" # nocheck: lookup-config-path
 
 BASEROW_PUBLIC_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 BASEROW_VERSION: "{{ lookup('config', application_id, 'services.baserow.version') }}"
 BASEROW_IMAGE: "{{ lookup('config', application_id, 'services.baserow.image') }}"
 BASEROW_CONTAINER: "{{ lookup('config', application_id, 'services.baserow.name') }}"
 
-# Auth integrations
 BASEROW_SSO_PROXY_GATED: "{{ lookup('sso', application_id, 'is_proxy_gated') }}"
 BASEROW_SSO_ADMIN_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
 BASEROW_SSO_FALLBACK_EMAIL_DOMAIN: "{{ lookup('domain', application_id) }}"
 
-BASEROW_SECRET_KEY: "{{ lookup('config', application_id, 'credentials.secret_key') }}"
+BASEROW_SECRET_KEY: "{{ lookup('config', application_id, 'secrets.credentials.secret_key') }}"
 
 BASEROW_DATABASE_USER: "{{ lookup('database', application_id, 'username') }}"
 BASEROW_DATABASE_NAME: "{{ lookup('database', application_id, 'name') }}"

@@ -1,4 +1,6 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
+const { gotoOnion } = require("./personas");
 
 exports.register = function (shared) {
   test("administrator: n8n SSO auto-provisioning lands directly on the workflow editor (V1)", async ({ page }) => {
@@ -15,7 +17,7 @@ exports.register = function (shared) {
 
     await expect(page.locator("body")).toContainText(
       /workflow|execution|credential|canvas|overview/i,
-      { timeout: 60_000 }
+      { timeout: resolveTimeout(60_000) }
     );
 
     await shared.n8nLogout(page);
@@ -28,13 +30,13 @@ exports.register = function (shared) {
 
     // No oauth2-proxy edge in V2: n8n presents its native login form
     // directly, and only the owner account (tasks/02_bootstrap.yml) exists.
-    await page.goto(`${shared.env.n8nBaseUrl}/`);
+    await gotoOnion(page, `${shared.env.n8nBaseUrl}/`);
 
     await shared.performN8nLoginForm(page, shared.env.adminEmail, shared.env.n8nOwnerPassword);
 
     await expect(page.locator("body")).toContainText(
       /workflow|execution|credential|canvas|overview/i,
-      { timeout: 60_000 }
+      { timeout: resolveTimeout(60_000) }
     );
 
     await shared.n8nLogout(page);

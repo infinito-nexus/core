@@ -1,4 +1,5 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../onion-test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
 
@@ -6,7 +7,7 @@ test.use({ ignoreHTTPSErrors: true });
 
 test("mautrix-meta addon: bridge appservice registers @metabot on the partner Synapse homeserver", async ({ request }) => {
   skipUnlessAddonEnabled("mautrix-meta");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   const { matrixBaseUrl, matrixServerName } = shared.env;
   expect(matrixBaseUrl, "MATRIX_BASE_URL must be set to reach the partner homeserver").toBeTruthy();
@@ -24,7 +25,7 @@ test("mautrix-meta addon: bridge appservice registers @metabot on the partner Sy
     "the bridge bot profile must be resolved against the partner Matrix homeserver host"
   ).toBe(matrixHost);
 
-  const response = await request.get(profileUrl, { failOnStatusCode: false });
+  const response = await request.get(profileUrl, { failOnStatusCode: false, timeout: resolveTimeout(30_000) });
 
   expect(
     response.status(),
@@ -52,7 +53,7 @@ test("mautrix-meta addon: bridge appservice registers @metabot on the partner Sy
     `_matrix/client/v3/profile/${encodeURIComponent(controlMxid)}`,
     matrixBaseUrl.endsWith("/") ? matrixBaseUrl : `${matrixBaseUrl}/`
   ).toString();
-  const controlResponse = await request.get(controlUrl, { failOnStatusCode: false });
+  const controlResponse = await request.get(controlUrl, { failOnStatusCode: false, timeout: resolveTimeout(30_000) });
   expect(
     controlResponse.status(),
     `an un-bridged localpart ${controlMxid} must be unknown to Synapse (404); if it resolves, ` +

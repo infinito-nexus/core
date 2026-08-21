@@ -1,5 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const { decodeDotenvQuotedValue, normalizeBaseUrl } = require("./personas");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, gotoOnion } = require("./personas");
 
 const baseUrl = normalizeBaseUrl(process.env.FLOWISE_BASE_URL || "");
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
@@ -11,7 +11,7 @@ test("baseline: Flowise responds on the canonical domain", async ({ page }) => {
   expect(canonicalDomain, "CANONICAL_DOMAIN must be set").toBeTruthy();
   await page.context().clearCookies();
 
-  const response = await page.goto(`${baseUrl}/`);
+  const response = await gotoOnion(page, `${baseUrl}/`);
   expect(response, "Expected Flowise response").toBeTruthy();
   expect(response.status(), "Expected Flowise status < 500").toBeLessThan(500);
   expect(

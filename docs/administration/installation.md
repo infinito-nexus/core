@@ -27,7 +27,7 @@ This prepares the repository for local development.
 `make environment-bootstrap` also installs the repository's local `pre-commit` hooks for this checkout.
 
 All available `make` commands are documented in the [Makefile Commands](../contributing/tools/make.md) reference.
-For a worked example of how these commands interact (including build, bootstrap, test, deploy, and teardown), see the [environment test suite](../../scripts/tests/environment/README.md).
+For a worked example of how these commands interact (including build, bootstrap, test, deploy, and teardown), see the [environment test suite](../../scripts/tests/workspace/README.md).
 For further information on setting up a local development environment, see [CONTRIBUTING.md](../../CONTRIBUTING.md).
 
 For inventory creation and deployment, continue with the [Deploy Guide](deploy.md).

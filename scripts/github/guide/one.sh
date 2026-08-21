@@ -46,11 +46,11 @@ release() {
 		guide_rescue_dir="${INFINITO_RESCUE_DIAGNOSTICS_BASE}/${INFINITO_DISTRO}/${GUIDE_ROLE}"
 		INFINITO_RESCUE_DIAGNOSTICS_DIR="${guide_rescue_dir}" \
 			timeout 1500 python3 utils/diagnostics/container.py \
-			"${GUIDE_ROLE}" "guide compose post-deploy failure" || true
+			"${GUIDE_ROLE}" "guide compose post-deploy failure" || true # nocheck: shell-or-true -- best-effort diagnostics + teardown in the EXIT trap
 		bash scripts/tests/deploy/utils/rescue_index.sh "${guide_rescue_dir}"
 	fi
 
-	make compose-down || true
+	make compose-down || true # nocheck: shell-or-true -- best-effort diagnostics + teardown in the EXIT trap
 
 	return "${rc}"
 }

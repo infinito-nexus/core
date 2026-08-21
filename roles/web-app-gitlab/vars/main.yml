@@ -5,7 +5,7 @@ entity_name: "{{ application_id | get_entity_name }}"
 swarm_stack_converge_retries: 600
 
 GITLAB_URL: "{{ lookup('tls', application_id, 'url.base') }}"
-GITLAB_HOSTNAME: "{{ lookup('domain', application_id) }}"
+GITLAB_HOSTNAME: "{{ lookup('container_hostname', application_id) }}"
 GITLAB_TLS_ENABLED: "{{ lookup('tls', application_id, 'enabled') | bool }}"
 GITLAB_WEB_PORT: "{{ lookup('tls', application_id, 'ports.web') }}"
 
@@ -42,9 +42,9 @@ GITLAB_REDIS_PORT: "{{ lookup('engine', 'redis', application_id, 'port') }}"
 GITLAB_REDIS_PASSWORD: "{{ lookup('engine', 'redis', application_id, 'password') }}"
 GITLAB_REDIS_URL: "redis://{% if GITLAB_REDIS_PASSWORD %}:{{ GITLAB_REDIS_PASSWORD | urlencode }}@{% endif %}{{ GITLAB_REDIS_HOST }}:{{ GITLAB_REDIS_PORT }}"
 
-GITLAB_SHELL_SECRET: "{{ lookup('config', application_id, 'credentials.gitlab_shell_secret') }}"
-GITLAB_GITALY_TOKEN: "{{ lookup('config', application_id, 'credentials.gitaly_token') }}"
-GITLAB_WORKHORSE_SECRET: "{{ lookup('config', application_id, 'credentials.workhorse_secret') }}"
+GITLAB_SHELL_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.gitlab_shell_secret') }}"
+GITLAB_GITALY_TOKEN: "{{ lookup('config', application_id, 'secrets.credentials.gitaly_token') }}"
+GITLAB_WORKHORSE_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.workhorse_secret') }}"
 
 GITLAB_CONFIG_DIR: "{{ lookup('container', application_id, 'directories.config') }}"
 GITLAB_CONFIG_RAILS_DIR: "{{ [GITLAB_CONFIG_DIR, 'rails'] | path_join }}"

@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 exports.register = function (shared) {
   test("biber (customer): creates a ticket via the SPA after OIDC login", async ({ page }) => {
@@ -18,22 +19,22 @@ exports.register = function (shared) {
       .getByRole("textbox", { name: /title|subject|betreff/i })
       .or(page.locator("input[name='title'], input[id*='title']"))
       .first();
-    await titleField.waitFor({ state: "visible", timeout: 60_000 });
+    await titleField.waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
     await titleField.fill(subject);
 
     const bodyField = page
       .getByRole("textbox", { name: /body|message|text|nachricht|description/i })
       .or(page.locator("div[contenteditable='true'], textarea"))
       .first();
-    await bodyField.waitFor({ state: "visible", timeout: 30_000 });
+    await bodyField.waitFor({ state: "visible", timeout: resolveTimeout(30_000) });
     await bodyField.fill("Ticket from the Infinito.Nexus customer-persona Playwright suite.");
 
     const submitButton = page
       .getByRole("button", { name: /create|submit|send|absenden|erstellen/i })
       .first();
-    await submitButton.click();
+    await submitButton.click({ timeout: resolveTimeout(30_000) });
 
-    await expect(page.locator("body")).toContainText(subject, { timeout: 60_000 });
+    await expect(page.locator("body")).toContainText(subject, { timeout: resolveTimeout(60_000) });
 
     await shared.zammadLogout(page);
   });

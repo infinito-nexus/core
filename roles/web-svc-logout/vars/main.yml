@@ -4,7 +4,7 @@ container_port: "{{ lookup('config', application_id, 'services.' ~ entity_name ~
 http_port: "{{ lookup('config', application_id, 'services.logout.ports.local.http') }}"
 entity_name: "{{ application_id | get_entity_name }}"
 
-LOGOUT_DOMAINS: "{{ (lookup('applications') | logout_domains(group_names)) | unique | sort }}"
+LOGOUT_DOMAINS: "{{ (lookup('applications') | logout_domains(group_names, lookup('domains'))) | unique | sort }}"
 LOGOUT_URLS: "{{ LOGOUT_DOMAINS | map('regex_replace', '^(.*)$', lookup('tls', application_id, 'protocols.web') ~ '://\\1') | list }}"
 LOGOUT_CONNECT_SRC_OLD: "{{ lookup('config', application_id, 'csp.whitelist.connect-src') }}"
 LOGOUT_CONNECT_SRC_NEW: "{{ (LOGOUT_CONNECT_SRC_OLD + LOGOUT_URLS) | unique }}"

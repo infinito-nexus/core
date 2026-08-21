@@ -39,7 +39,6 @@ class LookupModule(LookupBase):
             raise AnsibleError("lookup('container'): application_id is empty")
 
         raw_base = (variables or {}).get("DIR_COMPOSITIONS")
-        # DIR_COMPOSITIONS is itself a Jinja expression in swarm mode; lookup vars arrive un-templated.
         if isinstance(raw_base, str) and "{{" in raw_base and self._templar is not None:
             raw_base = self._templar.template(raw_base)
         base = _as_str(raw_base)

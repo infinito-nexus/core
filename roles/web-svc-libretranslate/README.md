@@ -31,6 +31,7 @@ The diagram places LibreTranslate in the Infinito.Nexus cosmos: the components i
 flowchart LR
     subgraph deps [Dependencies]
         dep_svc_db_redis["svc-db-redis 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
@@ -46,15 +47,17 @@ flowchart LR
         svc_recaptcha["recaptcha"]
         svc_javascript["javascript"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
     end
     dep_svc_db_redis -. "0..1" .-> svc_redis
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_svc_css -. "0..1" .-> svc_css
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
@@ -128,6 +131,11 @@ Key sections include:
 - `services.matomo`: enable analytics
 - `domains`: canonical and alias domains
 - `csp`:
+
+## Persona contract opt-outs
+
+The sidecar oauth2-proxy admits only the LibreTranslate administrator RBAC group and whitelists just the machine API paths (`/translate`, `/detect`, …); see [`meta/services.yml`](./meta/services.yml). Inside the app, authorisation is API-key-tier only and decoupled from the IdP, as documented under [Single sign-on](#single-sign-on) above.
+A non-admin visitor therefore has no UI session to drive, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true`. The `administrator` and `guest` personas run unconditionally.
 
 ## Credits
 

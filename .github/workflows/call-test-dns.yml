@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       distros:
-        description: "Space-separated distro list (e.g. 'arch debian ubuntu')"
+        description: "🐧 Space-separated distro list (e.g. 'arch debian ubuntu')"
         required: false
         default: "debian"
         type: string

@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 // biber + administrator side-by-side: two isolated browser contexts log in
 // independently, biber logs out first, admin session must persist. Exercises
@@ -24,7 +25,7 @@ exports.register = function (shared) {
       await adminPage.goto(`${shared.trimmedBaseUrl()}/network`, { waitUntil: "domcontentloaded" });
       await expect(
         adminPage.locator("#topbar-first, #navbar-apps-menu, a[href*='/logout']").first(),
-      ).toBeVisible({ timeout: 10_000 });
+      ).toBeVisible({ timeout: resolveTimeout(10_000) });
 
       await shared.friendicaLogout(adminPage);
     } finally {

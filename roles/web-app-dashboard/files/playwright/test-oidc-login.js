@@ -1,6 +1,7 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures/onion-test");
+const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, isVisible, normalizeBaseUrl } = require("./personas");
+const { decodeDotenvQuotedValue, isVisible, normalizeBaseUrl, gotoOnion } = require("./personas");
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
 const oidcIssuerUrl = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
@@ -20,7 +21,7 @@ async function waitForFirstVisible(locators, timeout, errorMessage) {
       }
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 250));
+    await new Promise((resolve) => setTimeout(resolve, resolveTimeout(250)));
   }
 
   throw new Error(errorMessage);
@@ -28,7 +29,7 @@ async function waitForFirstVisible(locators, timeout, errorMessage) {
 
 async function getHeaderNavigation(page) {
   const headerNav = page.locator("nav.menu-header").first();
-  await expect(headerNav).toBeVisible({ timeout: 60_000 });
+  await expect(headerNav).toBeVisible({ timeout: resolveTimeout(60_000) });
   return headerNav;
 }
 
@@ -46,14 +47,14 @@ async function expectLoggedOutHeaderAuthState(page) {
 
   await expect
     .poll(async () => await isVisible(controls.loginTrigger), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: "Expected dashboard OIDC JavaScript to expose Login before authentication",
     })
     .toBe(true);
 
   await expect
     .poll(async () => await isVisible(controls.accountTrigger), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: "Expected dashboard OIDC JavaScript to keep Account hidden before authentication",
     })
     .toBe(false);
@@ -66,16 +67,16 @@ async function expectLoggedInHeaderAuthState(page) {
 
   await expect
     .poll(async () => await isVisible(controls.accountTrigger), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: "Expected dashboard OIDC JavaScript to automatically switch the header button to Account",
     })
     .toBe(true);
 
-  await expect(controls.accountTrigger).toContainText(/Account/, { timeout: 60_000 });
+  await expect(controls.accountTrigger).toContainText(/Account/, { timeout: resolveTimeout(60_000) });
 
   await expect
     .poll(async () => await isVisible(controls.loginTrigger), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: "Expected dashboard OIDC JavaScript to hide Login after authentication",
     })
     .toBe(false);
@@ -97,7 +98,7 @@ async function isDropdownMenuOpen(trigger, menu) {
   return expanded === "true" || (menuVisible && (menuHasShowClass || interactiveItemVisible));
 }
 
-async function waitForDropdownMenuOpen(trigger, menu, label, timeout = 3_000) {
+async function waitForDropdownMenuOpen(trigger, menu, label, timeout = resolveTimeout(3_000)) {
   await expect
     .poll(async () => isDropdownMenuOpen(trigger, menu), {
       timeout,
@@ -127,7 +128,7 @@ async function openDropdownMenu(trigger, menu, label) {
     await attempt().catch(() => {});
 
     try {
-      await waitForDropdownMenuOpen(trigger, menu, label, 2_500);
+      await waitForDropdownMenuOpen(trigger, menu, label, resolveTimeout(2_500));
       return;
     } catch {
       // Try the next interaction strategy.
@@ -144,7 +145,7 @@ async function findAccountLogoutItem(accountMenu) {
       accountMenu.locator("a[href*='logout'], a[href*='signout'], a[href*='sign-out']"),
       accountMenu.locator("a, button, [role='link']").filter({ hasText: /logout/i }),
     ],
-    10_000,
+    resolveTimeout(10_000),
     "Timed out waiting for the Account logout entry"
   );
 }
@@ -157,12 +158,12 @@ async function confirmLogoutIfNeeded(page) {
 
   const logoutConfirmButton = await waitForFirstVisible(
     logoutConfirmCandidates,
-    5_000,
+    resolveTimeout(5_000),
     "Timed out waiting for an optional Keycloak logout confirmation button"
   ).catch(() => null);
 
   if (logoutConfirmButton) {
-    await logoutConfirmButton.click().catch(() => {});
+    await logoutConfirmButton.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
   }
 }
 
@@ -171,12 +172,17 @@ exports.register = function (shared) {
     shared.skipUnlessServiceEnabled("sso");
     const diagnostics = shared.attachDiagnostics(page);
 
-    await page.goto("/");
+    await gotoOnion(page,"/");
     await shared.waitForDashboardReady(page);
     await shared.waitForResourceResponse(diagnostics.responses, `${shared.env.dashboardJsBaseUrl}/oidc.js`, "dashboard oidc script");
 
     const loggedOutControls = await expectLoggedOutHeaderAuthState(page);
-    await loggedOutControls.loginTrigger.click();
+    await page
+      .waitForFunction(() => window.__oidcLoginReady === true, null, {
+        timeout: resolveTimeout(30_000),
+      })
+      .catch(() => {});
+    await loggedOutControls.loginTrigger.click({ timeout: resolveTimeout(30_000) });
 
     const usernameField = page.locator("input[name='username'], input#username").first();
     const passwordField = page.locator("input[name='password'], input#password").first();
@@ -186,20 +192,20 @@ exports.register = function (shared) {
       .poll(
         async () => page.url().includes(expectedOidcAuthUrl) || (await isVisible(usernameField)),
         {
-          timeout: 60_000,
+          timeout: resolveTimeout(60_000),
           message: `Expected the dashboard login flow to reach the Keycloak auth page: ${expectedOidcAuthUrl}`,
         }
       )
       .toBe(true);
 
-    await expect(usernameField).toBeVisible({ timeout: 60_000 });
+    await expect(usernameField).toBeVisible({ timeout: resolveTimeout(60_000) });
     await usernameField.fill(loginUsername);
     await passwordField.fill(loginPassword);
-    await signInButton.click();
+    await signInButton.click({ timeout: resolveTimeout(30_000) });
 
     await expect
       .poll(async () => page.url().startsWith(appBaseUrl), {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: `Expected Keycloak login to redirect back to the dashboard: ${appBaseUrl}`,
       })
       .toBe(true);
@@ -209,16 +215,16 @@ exports.register = function (shared) {
     await openDropdownMenu(loggedInControls.accountTrigger, loggedInControls.accountMenu, "Account");
 
     const logoutEntry = await findAccountLogoutItem(loggedInControls.accountMenu);
-    await expect(logoutEntry).toBeVisible({ timeout: 10_000 });
+    await expect(logoutEntry).toBeVisible({ timeout: resolveTimeout(10_000) });
     await expect(logoutEntry).toContainText(/logout/i);
-    await logoutEntry.click();
+    await logoutEntry.click({ timeout: resolveTimeout(30_000) });
 
     await expect
       .poll(
         async () =>
           page.url().includes("/protocol/openid-connect/logout") || page.url().startsWith(appBaseUrl),
         {
-          timeout: 30_000,
+          timeout: resolveTimeout(30_000),
           message: "Expected dashboard logout to reach Keycloak logout or redirect back to the dashboard",
         }
       )
@@ -228,7 +234,7 @@ exports.register = function (shared) {
       await confirmLogoutIfNeeded(page);
     }
 
-    await page.goto("/");
+    await gotoOnion(page,"/");
     await shared.waitForDashboardReady(page);
     await expectLoggedOutHeaderAuthState(page);
   });

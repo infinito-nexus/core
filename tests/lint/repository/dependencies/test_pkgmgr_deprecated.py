@@ -73,12 +73,7 @@ from utils.cache.files import iter_project_files, read_text
 
 from . import PROJECT_ROOT
 
-# A line declaring ``pkgmgr`` or ``pkgmgr-install`` as a bare YAML
-# identifier value. Matches:
-#   ``    name: pkgmgr-install``
 #   ``  name: pkgmgr  # nocheck: pkgmgr-deprecated``
-# Does NOT match string values like:
-#   ``- name: "pkgmgr install '{{ FOO }}'"``
 _PKGMGR_NAME_RE = re.compile(r"^\s*name:\s*(pkgmgr|pkgmgr-install)\s*(#.*)?$")
 
 _SCAN_EXTENSIONS = (".yml", ".yaml")
@@ -107,15 +102,9 @@ def _emit(path_rel: str, line_no: int, snippet: str) -> None:
         f"deprecated 'pkgmgr' / 'pkgmgr-install' role include "
         f"({snippet}). {_MIGRATION_HINT}"
     )
-    # Local: pytest renders this in its end-of-session "warnings summary"
-    # block regardless of capture mode.
     warnings.warn(
         f"{path_rel}:{line_no}: {body}", PkgmgrDeprecatedWarning, stacklevel=2
     )
-    # CI: shared annotation helper writes a structured
-    # ``::warning title=...,file=...,line=...::body`` directive that
-    # Actions renders with title / file / line columns — matching every
-    # other lint's PR-side annotation surface.
     if in_github_actions():
         gha_warning(body, title=_TITLE, file=path_rel, line=line_no)
 

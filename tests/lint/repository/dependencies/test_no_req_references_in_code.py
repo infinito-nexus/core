@@ -32,9 +32,6 @@ from utils.cache.files import iter_project_files, read_text
 
 from . import PROJECT_ROOT
 
-# Code extensions in scope. Markdown / RST / JSON are out of scope:
-# documentation may legitimately cross-link requirements, and JSON
-# files are usually data not prose.
 _SCAN_EXTENSIONS = (
     ".js",
     ".py",
@@ -44,29 +41,16 @@ _SCAN_EXTENSIONS = (
     ".sh",
 )
 
-# Forbidden token patterns. Each pattern matches one shape observed
-# in past offenders.
 _FORBIDDEN_PATTERNS: tuple[re.Pattern[str], ...] = (
-    # ``req 019``, ``req 019 Rule 3``, ``req-019`` — case-insensitive
-    # on the literal ``req`` token, three or more digits.
     re.compile(r"\breq[ \t-]\d{3,}\b", re.IGNORECASE),
-    # ``requirement 005``, ``requirement-013`` — also case-insensitive.
     re.compile(r"\brequirement[ \t-]\d+\b", re.IGNORECASE),
-    # ``docs/requirements/<NNN>-<slug>.md`` and the relative
-    # ``../requirements/<NNN>-<slug>.md`` form.
     re.compile(r"requirements/\d{3}-[A-Za-z0-9_-]+(?:\.md)?"),
 )
 
 _THIS_FILE = Path(__file__).resolve()
 
-# Files whose entire purpose is to detect or describe these very
-# patterns; they MUST contain the tokens they forbid in order to
-# work.
 _ALLOWED_META_FILES: frozenset[Path] = frozenset(
     {
-        # Legacy lint that detects stale ``docs/requirements/`` refs in
-        # docs/code; its docstring shows an example shape of what it
-        # matches.
         (
             PROJECT_ROOT
             / "tests"
@@ -75,8 +59,6 @@ _ALLOWED_META_FILES: frozenset[Path] = frozenset(
             / "dependencies"
             / "test_no_stale_requirement_refs.py"
         ).resolve(),
-        # The legacy-SSO-paths guard names its single ALLOW_PATHS anchor
-        # by its literal filename — the migration record itself.
         (
             PROJECT_ROOT
             / "tests"

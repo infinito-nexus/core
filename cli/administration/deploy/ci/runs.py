@@ -21,12 +21,16 @@ from __future__ import annotations
 
 import json
 import re
-import subprocess
-import sys
 
-from utils.distros import distro_names
+from cli.administration.deploy.ci.gh import (
+    _gh,
+    fetch_jobs,
+)
+from utils.cache import PROJECT_ROOT
+from utils.cache.yaml import load_yaml_any
 from utils.github import run_name
-from utils.roles.display import display_names
+from utils.github.variant import axes
+from utils.roles.display import display_names, split_axes
 from utils.symbol_glossary import to_emoji
 
 PASS = "✅"  # noqa: S105  emoji glyph, not a credential
@@ -37,25 +41,69 @@ MISSING = "➖"
 
 MODES = ("docker", "swarm", "host")
 
+ENTRY_WORKFLOW = ".github/workflows/entry-manual-steer.yml"
+
+SELECTION_INPUTS = ("priority", "offset")
+"""The two inputs a retrigger decides itself rather than carrying over.
+
+``priority`` IS the retrigger: it names what failed. ``offset`` follows from
+it -- the source run already has a verdict for everything up to where its
+budget ran out, so the regular line resumes behind that window
+(:func:`resume_offset`) instead of repeating it. Everything else is carried
+verbatim, including ``whitelist``, so a retrigger of a scoped run stays inside
+that scope instead of quietly widening to the whole repository."""
+
+
+def dispatch_inputs() -> tuple[str, ...]:
+    """Every ``workflow_dispatch`` input the manual entry declares.
+
+    Read from the workflow rather than listed here, so an input added to the
+    form is carried over without anyone remembering to teach this module about
+    it -- the failure mode otherwise is silent: the retrigger runs with that
+    input on its default and nothing says so.
+    """
+    data = (
+        load_yaml_any(str(PROJECT_ROOT / ENTRY_WORKFLOW), default_if_missing={}) or {}
+    )
+    triggers = data.get("on") if isinstance(data.get("on"), dict) else data.get(True)
+    dispatch = triggers.get("workflow_dispatch") if isinstance(triggers, dict) else None
+    inputs = dispatch.get("inputs") if isinstance(dispatch, dict) else None
+    return tuple(inputs or ())
+
+
+def carried_inputs() -> tuple[str, ...]:
+    """The inputs a retrigger reproduces: every dispatch input except the
+    selection it computes itself."""
+    return tuple(name for name in dispatch_inputs() if name not in SELECTION_INPUTS)
+
+
 CONFIG_INPUTS = (
     "distros",
-    "modes",
+    "mode",
     "lifecycles",
     "filesystem",
-    "sequencing",
-    "mode_fail_fast",
+    "chunk_gate",
     "workspace",
     "instructions",
 )
+
+LOG_INPUTS = ("tor",)
+"""Inputs the retrigger reads from the job log rather than the run title.
+
+The title renders these as glyphs, so recovering one means translating a
+symbol back into a value; the log holds the word the operator picked. Reading
+it there keeps the retrigger honest even if the title's marker changes shape.
+"""
 
 MODE_GLYPHS = {
     "docker": to_emoji("compose"),
     "swarm": to_emoji("swarm"),
     "host": to_emoji("host"),
 }
-_GLYPH_MODE = {glyph: mode for mode, glyph in MODE_GLYPHS.items()}
 
-_JOB_RE = re.compile(rf"({'|'.join(map(re.escape, MODE_GLYPHS.values()))})\s*(.+?)\s*$")
+_STATUS_MODE = {"compose": "docker", "swarm": "swarm", "host": "host"}
+"""The status table keeps calling compose 'docker'; the deploy axis calls it
+'compose'. Translate at the boundary instead of renaming either vocabulary."""
 
 
 def _effective(job: dict) -> str:
@@ -78,21 +126,21 @@ def cell(state: str) -> str:
 
 
 def _iter_deploy_jobs(jobs: list[dict]):
-    """Yield ``(app, mode, job)`` for every compose/swarm deploy job."""
+    """Yield ``(app, mode, job)`` for every deploy job."""
     codec = display_names()
     for job in jobs:
-        match = _JOB_RE.search(str(job.get("name", "")))
-        if not match:
+        label = axes.parse_label(str(job.get("name", "")))
+        if label is None:
             continue
-        app = codec.decode(match.group(2))
+        app = codec.decode(label.name)
         if app is not None:
-            yield app, _GLYPH_MODE[match.group(1)], job
+            yield app, _STATUS_MODE[label.mode], job
 
 
 def app_of_job(name: str) -> str | None:
     """The role id a deploy job ``name`` encodes, or None if it is not one."""
-    match = _JOB_RE.search(name)
-    return display_names().decode(match.group(2)) if match else None
+    label = axes.parse_label(name)
+    return display_names().decode(label.name) if label else None
 
 
 _SEVERITY = {"success": 0, "running": 1, "failure": 3}
@@ -171,89 +219,24 @@ def failed_roles(
     return sorted(app for app, modes in statuses.items() if fails(modes))
 
 
-def run_id_from_url(url: str) -> str:
-    match = re.search(r"/runs/(\d+)", url)
-    if not match:
-        raise ValueError(f"no run id found in URL: {url}")
-    return match.group(1)
-
-
-def slug_from_url(url: str) -> str:
-    """Extract the ``owner/repo`` slug from a github.com URL (https or ssh)."""
-    match = re.search(r"github\.com[/:]([^/]+)/([^/]+?)(?:\.git)?(?:/|$)", url)
-    if not match:
-        raise ValueError(f"no owner/repo found in URL: {url}")
-    return f"{match.group(1)}/{match.group(2)}"
-
-
-def _run(args: list[str]) -> str:
-    return subprocess.run(
-        args, check=True, capture_output=True, text=True
-    ).stdout.strip()
-
-
-def _branch_remote() -> str:
-    """The remote the current branch tracks (e.g. a fork), falling back to
-    'origin' or the only configured remote."""
-    try:
-        upstream = _run(
-            ["git", "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{upstream}"]
-        )
-        if "/" in upstream:
-            return upstream.split("/", 1)[0]
-    except subprocess.CalledProcessError:
-        pass
-    remotes = _run(["git", "remote"]).split()
-    if "origin" in remotes:
-        return "origin"
-    if not remotes:
-        raise RuntimeError("no git remote configured")
-    return remotes[0]
-
-
-def resolve_repo() -> str:
-    """The ``owner/repo`` the current branch lives on, derived from its
-    tracking remote (not gh's default repo, which may be the upstream)."""
-    return slug_from_url(_run(["git", "remote", "get-url", _branch_remote()]))
-
-
-def _gh(args: list[str], repo: str | None = None) -> str:
-    cmd = ["gh", *args]
-    if repo:
-        cmd += ["--repo", repo]
-    proc = subprocess.run(cmd, check=False, capture_output=True, text=True)
-    if proc.returncode != 0:
-        sys.stderr.write(
-            proc.stderr or f"gh exited {proc.returncode}: {' '.join(cmd)}\n"
-        )
-        raise SystemExit(proc.returncode)
-    return proc.stdout
-
-
-def current_branch() -> str:
-    return _run(["git", "rev-parse", "--abbrev-ref", "HEAD"])
-
-
-def fetch_jobs(run_id: str, repo: str | None = None) -> list[dict]:
-    return json.loads(_gh(["run", "view", run_id, "--json", "jobs"], repo=repo)).get(
-        "jobs", []
-    )
-
-
-def fetch_run(run_id: str, repo: str | None = None) -> dict:
-    """Jobs plus the run title, in one ``gh`` call.
-
-    The REST API answers ``inputs: null`` for a finished workflow_dispatch, so
-    the inputs are recovered from the run itself: short ones from the title
-    (:func:`config_from_title`), the long ones from a called job's log
-    (:func:`inputs_from_jobs`), which the title truncates.
-    """
-    return json.loads(
-        _gh(["run", "view", run_id, "--json", "jobs,displayTitle"], repo=repo)
-    )
-
-
 _INPUT_RE = re.compile(r"^\S+\s+(?P<name>[A-Za-z_][A-Za-z0-9_]*): ?(?P<value>.*)$")
+
+
+def _parse_inputs(log: str) -> dict[str, str]:
+    """The ``##[group] Inputs`` block of a job log, as name -> value."""
+    inputs: dict[str, str] = {}
+    inside = False
+    for line in log.splitlines():
+        if line.endswith("##[group] Inputs"):
+            inside = True
+            continue
+        if inside:
+            if line.endswith("##[endgroup]"):
+                break
+            match = _INPUT_RE.match(line)
+            if match:
+                inputs[match["name"]] = match["value"].strip()
+    return inputs
 
 
 def inputs_from_jobs(jobs: list[dict], repo: str) -> dict[str, str]:
@@ -269,38 +252,45 @@ def inputs_from_jobs(jobs: list[dict], repo: str) -> dict[str, str]:
     workflow opens its log with an ``##[group] Inputs`` block holding the full
     values, so that is the SPOT for anything the title cannot hold.
 
+    Candidates are read shallowest first, because a depth-1 job records the
+    orchestrator's own inputs while a deeper one records what its caller
+    forwarded. Skipped jobs are passed over: they never upload a log blob, so
+    their log endpoint answers ``BlobNotFound`` as a bare HTTP 404 -- and a
+    force-cancelled run can leave every depth-1 job skipped, which is why the
+    deeper jobs are read at all rather than treated as inputs-free.
+
     Args:
-        jobs: the run's jobs. Only depth-1 jobs are read: a deeper one echoes
-            its own workflow's inputs, which carry no ``priority``.
+        jobs: the run's jobs, as ``gh run view --json jobs`` returns them.
         repo: ``owner/repo`` the run lives in.
 
     Returns:
-        input name -> value, empty when the run has no called job.
+        input name -> value, empty when no job of the run records an ``Inputs``
+        block -- including when the logs have expired.
     """
-    called = next(
+    candidates = sorted(
         (
             job
             for job in jobs
-            if str(job.get("name", "")).count(" / ") == 1 and job.get("databaseId")
+            if str(job.get("name", "")).count(" / ") >= 1
+            and job.get("databaseId")
+            and job.get("conclusion") != "skipped"
         ),
-        None,
+        key=lambda job: str(job["name"]).count(" / "),
     )
-    if called is None:
-        return {}
-    log = _gh(["api", f"repos/{repo}/actions/jobs/{called['databaseId']}/logs"])
-    inputs: dict[str, str] = {}
-    inside = False
-    for line in log.splitlines():
-        if line.endswith("##[group] Inputs"):
-            inside = True
-            continue
-        if inside:
-            if line.endswith("##[endgroup]"):
-                break
-            match = _INPUT_RE.match(line)
-            if match:
-                inputs[match["name"]] = match["value"].strip()
-    return inputs
+    for job in candidates:
+        inputs = _parse_inputs(
+            _gh(
+                [
+                    "api",
+                    "--allow-escape-sequences",
+                    f"repos/{repo}/actions/jobs/{job['databaseId']}/logs",
+                ],
+                check=False,
+            )
+        )
+        if inputs:
+            return inputs
+    return {}
 
 
 def dispatched_priority(source: dict, repo: str) -> str:
@@ -335,42 +325,35 @@ def untriggered_priority(
     neither green nor red, it simply never ran. Carrying it into the retrigger
     is the only way it ever gets deployed.
 
+    A priority entry may pin axes (``web-app-zammad#1@compose+tor``), and the
+    pin rides along into the retrigger: the entry never ran, so the run holds
+    no evidence that the axes it named were the wrong ones. Only the name in
+    front of the axis suffix is resolved against the statuses.
+
     Args:
         priority: the raw ``priority`` input, as :func:`inputs_from_jobs` reads
             it back. A truncated value would smuggle a half-token into the
             retrigger's role set, so an undecodable name raises instead.
         statuses: role -> mode -> state, from :func:`parse_role_statuses`.
+
+    Returns:
+        the entries whose role has no job at all in the source run, each with
+        its own axis suffix intact.
     """
     codec = display_names()
-    named = []
-    for name in priority.split():
+    untriggered = []
+    for token in priority.split():
+        name, axes = split_axes(token)
         role = codec.decode(name)
         if role is None:
             raise SystemExit(
-                f"Cannot resolve priority entry {name!r} to a role. The source "
+                f"Cannot resolve priority entry {token!r} to a role. The source "
                 f"run's priority input is corrupt or truncated; retriggering "
                 f"with it would deploy a role set that is silently incomplete."
             )
-        named.append(role)
-    return sorted(role for role in named if role not in statuses)
-
-
-def distros_from_jobs(jobs: list[dict]) -> str:
-    """Distros the run actually swept, read back from its discover job names.
-
-    A manual run dispatched with no distro list resolves one at random, so its
-    title records nothing and only the discover jobs — which name the distros
-    they discovered for — still carry the answer. Matched by content, not by
-    job-name format: the parenthesised group whose every token is a declared
-    distro (meta/distros.yml SPOT) is the list.
-    """
-    known = set(distro_names())
-    for job in jobs:
-        for group in re.findall(r"\(([^()]*)\)", str(job.get("name", ""))):
-            tokens = group.split()
-            if tokens and set(tokens) <= known:
-                return " ".join(tokens)
-    return ""
+        if role not in statuses:
+            untriggered.append(role + axes)
+    return sorted(untriggered)
 
 
 def config_from_title(title: str) -> dict[str, str]:
@@ -387,12 +370,27 @@ def config_from_title(title: str) -> dict[str, str]:
     return {name: recorded[name] for name in CONFIG_INPUTS if name in recorded}
 
 
-def config_from_run(title: str, jobs: list[dict]) -> dict[str, str]:
-    """The source run's configuration, with the distros the title does not
-    record recovered from its jobs (:func:`distros_from_jobs`)."""
-    config = config_from_title(title)
-    if not config.get("distros"):
-        config = {**config, "distros": distros_from_jobs(jobs)}
+def config_from_run(title: str, logged: dict[str, str] | None = None) -> dict[str, str]:
+    """Every input the source run was dispatched with, except the selection.
+
+    The job log is the source: it records all inputs verbatim, including the
+    ones the title renders as a glyph and the ones it renders not at all. The
+    title fills the gaps when a log is unreadable.
+
+    An input the source left on its default resolves to empty and is dropped,
+    so the retrigger leaves it on that same default rather than pinning
+    today's default into a run that never asked for it.
+
+    Args:
+        title: the source run's display title.
+        logged: inputs read verbatim from a called job's log
+            (:func:`inputs_from_jobs`).
+    """
+    recorded = run_name.values_from_title(title)
+    config = {
+        name: (logged or {}).get(name) or recorded.get(name, "")
+        for name in carried_inputs()
+    }
     return {name: value for name, value in config.items() if value}
 
 

@@ -1,4 +1,6 @@
 <?php
+// nocheck: mirrored-unit-test - zips the plugin build directory named by $J_BUILD_DIR
+// through ZipArchive; it is a build step, not a unit
 $zip = new ZipArchive();
 if ($zip->open(getenv('J_ZIP'), ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
   fwrite(STDERR, "ZipArchive open failed\n"); exit(1);

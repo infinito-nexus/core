@@ -128,12 +128,38 @@ def _is_literal_false(value: object) -> bool:
     return value is False
 
 
-def _entry_pinned_false(entry: object) -> bool:
-    return (
-        isinstance(entry, dict)
-        and _is_literal_false(entry.get("enabled"))
-        and _is_literal_false(entry.get("shared"))
-    )
+def _entry_pinned_false(entry: object, *, shared_is_dynamic: bool = True) -> bool:
+    """Whether the variant disables the key the way deep-merge requires.
+
+    Args:
+        entry: the variant's block for one service key.
+        shared_is_dynamic: whether ``shared`` is a Jinja expression in
+            ``meta/services.yml``.
+
+    ``shared: false`` is only demanded when ``shared`` is dynamic. A literal
+    base value cannot leak through deep-merge, and restating it would be the
+    static override ``variants-static-override`` flags.
+    """
+    if not (isinstance(entry, dict) and _is_literal_false(entry.get("enabled"))):
+        return False
+    return _is_literal_false(entry.get("shared")) if shared_is_dynamic else True
+
+
+def _dynamic_shared_keys(services_file: Path) -> set[str]:
+    try:
+        services_raw = load_yaml_any(str(services_file), default_if_missing={})
+    except Exception:
+        return set()
+    if not isinstance(services_raw, dict):
+        return set()
+    return {
+        key
+        for key, entry in services_raw.items()
+        if isinstance(key, str)
+        and isinstance(entry, dict)
+        and isinstance(entry.get("shared"), str)
+        and "in group_names" in entry["shared"]
+    }
 
 
 def _statically_enabled_keys(services_file: Path) -> set[str]:
@@ -209,10 +235,15 @@ class TestVariantsAuthIsolation(unittest.TestCase):
                 ):
                     continue
 
+                dynamic_shared = _dynamic_shared_keys(
+                    role_dir / ROLE_FILE_META_SERVICES
+                )
                 missing = [
                     key
                     for key in sorted(non_auth_union)
-                    if not _entry_pinned_false(services.get(key))
+                    if not _entry_pinned_false(
+                        services.get(key), shared_is_dynamic=key in dynamic_shared
+                    )
                 ]
 
                 if missing:

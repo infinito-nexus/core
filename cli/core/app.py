@@ -27,7 +27,7 @@ class Flags:
     infinite: bool = False
     help_all: bool = False
     tree: bool = False
-    tree_depth: int | None = None  # None = unbounded
+    tree_depth: int | None = None
     version: bool = False
 
 
@@ -40,9 +40,7 @@ def _first_non_flag_token(argv: list[str]) -> str | None:
     while i < len(argv):
         token = argv[i]
 
-        # Skip flags and their args
         if token == "--log":  # noqa: S105  `token` is a CLI argv element, not a credential
-            # Skip '--log' and its argument if present
             i += 2
             continue
 
@@ -86,13 +84,10 @@ def _parse_log_dir(argv: list[str]) -> Path | None:
         )
         raise SystemExit(1)
 
-    # Determine the first command token (skipping '--log <ARG>' properly)
     first_cmd = _first_non_flag_token(argv)
 
-    # Always remove '--log <ARG>' from argv
     del argv[i : i + 2]
 
-    # Keep previous behavior: only enable logging for "deploy"
     if first_cmd != "deploy":
         return None
 
@@ -143,13 +138,11 @@ def _resolve_version() -> str:
 
 
 def main() -> None:
-    argv = sys.argv[:]  # keep sys.argv for external tools, but parse on a copy
+    argv = sys.argv[:]
     flags = parse_flags(argv)
     args = argv[1:]
 
     cli_dir = PROJECT_ROOT / "cli"
-    # sanity: cli_dir should contain __init__.py and __main__.py of dispatcher
-    # but we do not hard-fail here
 
     if flags.version:
         print(f"infinito {_resolve_version()}")
@@ -158,7 +151,6 @@ def main() -> None:
     if flags.git_clean:
         git_clean_repo()
 
-    # Global "show help for all commands" mode
     if flags.help_all:
         print_global_help(cli_dir)
         print(color_text("Full detailed help for all subcommands:", Style.BRIGHT))
@@ -166,7 +158,6 @@ def main() -> None:
         show_full_help_for_all(cli_dir)
         raise SystemExit(0)
 
-    # Tree view: optional path prefix + optional depth limit
     if flags.tree:
         tree_path_args = [a for a in args if a not in ("-h", "--help")]
         candidate = cli_dir.joinpath(*tree_path_args) if tree_path_args else cli_dir
@@ -181,31 +172,24 @@ def main() -> None:
         print_tree(cli_dir, tree_path_args, max_depth=flags.tree_depth)
         raise SystemExit(0)
 
-    # Global help: no args or top-level help flag
     if not args or args[0] in ("-h", "--help"):
         print_global_help(cli_dir)
         raise SystemExit(0)
 
-    # Directory-specific help: "<path> -h" / "<path> --help"
     if len(args) > 1 and args[-1] in ("-h", "--help"):
-        # First: if "<path>" is a real command, forward help to its argparse.
         module, remaining = resolve_command_module(cli_dir, args[:-1])
         if module and not remaining:
             subprocess.run([sys.executable, "-m", module, "--help"], check=False)
             raise SystemExit(0)
 
-        # Otherwise: category-folder overview if the path exists on disk.
         dir_parts = args[:-1]
         candidate = cli_dir.joinpath(*dir_parts)
         if candidate.is_dir():
             print_dir_overview(cli_dir, dir_parts)
             raise SystemExit(0)
 
-    # Resolve command module by package folders with __main__.py
     module, remaining = resolve_command_module(cli_dir, args)
     if not module:
-        # If the literal argv path exists on disk as a category folder
-        # (no __main__.py), navigate into it instead of failing.
         candidate = cli_dir.joinpath(*args)
         if candidate.is_dir():
             print_dir_overview(cli_dir, args)
@@ -213,7 +197,6 @@ def main() -> None:
         print(color_text(f"Error: command '{' '.join(args)}' not found.", Fore.RED))
         raise SystemExit(1)
 
-    # If user requested help for the resolved command, forward directly
     if remaining and remaining[0] in ("-h", "--help"):
         subprocess.run([sys.executable, "-m", module, remaining[0]], check=False)
         raise SystemExit(0)

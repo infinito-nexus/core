@@ -8,6 +8,7 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
+from utils.manager.credential_key import OVERRIDE_SECTION
 from utils.roles.applications.config import get
 from utils.roles.applications.services.database import (
     get_database_service_config,
@@ -125,17 +126,29 @@ class LookupModule(LookupBase):
         )
         central_name = (str(central_name) if central_name is not None else "").strip()
 
+        declared_name = get(
+            applications,
+            consumer_id,
+            f"services.{dbtype}.name",
+            strict=False,
+            default="",
+        )
+        declared_name = (
+            str(declared_name) if declared_name is not None else ""
+        ).strip()
+
         name = consumer_entity
         instance = central_name if central_enabled else name
         host = central_name if central_enabled else "database"
-        container = dbtype if central_enabled else f"{consumer_entity}-database"
+        dedicated_container = declared_name or f"{consumer_entity}-database"
+        container = dbtype if central_enabled else dedicated_container
         network = dbtype if central_enabled else consumer_entity
         username = consumer_entity
 
         password = get(
             applications,
             consumer_id,
-            "credentials.database_password",
+            f"{OVERRIDE_SECTION}.database_password",
             strict=False,
             default="",
         )
@@ -187,12 +200,17 @@ class LookupModule(LookupBase):
         volume_prefix = f"{consumer_entity}_" if not central_enabled else ""
         volume = f"{volume_prefix}{host}"
 
-        raw_mode = vars_.get("DEPLOYMENT_MODE", "compose")
         templar = getattr(self, "_templar", None)
-        if templar is not None:
-            with contextlib.suppress(Exception):
-                raw_mode = templar.template(raw_mode)
-        deployment_mode = str(raw_mode).strip()
+
+        def _templated(value: Any) -> str:
+            if templar is not None:
+                with contextlib.suppress(Exception):
+                    value = templar.template(value)
+            return str(value or "").strip()
+
+        cluster_mode = _templated(vars_.get("DEPLOYMENT_MODE", "compose"))
+        forced = _templated(vars_.get("compose_mode_force", ""))
+        deployment_mode = cluster_mode if central_enabled else (forced or cluster_mode)
 
         db_stack = dbtype if central_enabled else consumer_entity
         db_service_key = dbtype if central_enabled else "database"

@@ -81,7 +81,7 @@ function requireEnv(name) {
 
 function decodeKey(value) {
   // Accept the project-canonical `base64:<...>` prefix (algorithm
-  // `base64_prefixed_32` in meta/schema.yml) so the same vaulted
+  // `base64_prefixed_32` in meta/secrets.yml) so the same vaulted
   // value flows through the env without further mangling.
   let b64 = value || "";
   if (b64.startsWith("base64:")) b64 = b64.slice(7);

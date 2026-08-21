@@ -13,7 +13,6 @@ class TestRoleDependencies(unittest.TestCase):
         roles_dir = Path(str(PROJECT_ROOT)) / "roles"
         roles_prefix = str(roles_dir) + "/"
 
-        # Find all meta/main.yml files under roles/*/meta/main.yml
         meta_files = sorted(
             p
             for p in iter_project_files(extensions=(".yml",))
@@ -28,10 +27,8 @@ class TestRoleDependencies(unittest.TestCase):
             role_dir = str(Path(str(Path(meta_file).parent)).parent)
             role_name = Path(role_dir).name
             with self.subTest(role=role_name):
-                # Load the YAML metadata via the cached helper.
                 meta = load_yaml_any(meta_file, default_if_missing={}) or {}
 
-                # Extract dependencies list
                 dependencies = meta.get("dependencies", [])
                 self.assertIsInstance(
                     dependencies,
@@ -40,7 +37,6 @@ class TestRoleDependencies(unittest.TestCase):
                 )
 
                 for dep in dependencies:
-                    # Dependencies can be strings or dicts with a 'role' key
                     if isinstance(dep, str):
                         dep_name = dep
                     elif isinstance(dep, dict) and "role" in dep:
@@ -51,7 +47,6 @@ class TestRoleDependencies(unittest.TestCase):
                         )
 
                     dep_path = roles_dir / dep_name
-                    # Assert that the dependency role directory exists
                     self.assertTrue(
                         dep_path.is_dir(),
                         f"Role '{role_name}' declares dependency '{dep_name}' but '{dep_path}' does not exist",

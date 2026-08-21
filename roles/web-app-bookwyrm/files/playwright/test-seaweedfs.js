@@ -9,6 +9,7 @@
 // Filer UI.
 
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout, isOnionTarget } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const {
   runSeaweedfsStorageCheck,
@@ -23,8 +24,9 @@ const PNG_AVATAR_BASE64 =
   "iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAIAAAD/gAIDAAAA60lEQVR4nO3QQQ3AIADAQEDh5CAHqbOwvsiSOwVN537O4Jt1O+BPzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCswKzArMCl7E6QIw0tiFNgAAAABJRU5ErkJggg==";
 
 test("seaweedfs: a BookWyrm avatar upload is stored in the SeaweedFS bucket", async ({ page, browser }) => {
+  test.skip(isOnionTarget(), "SeaweedFS filer UI is not a Tor surface on an onion node (headless backend)");
   skipUnlessServiceEnabled("seaweedfs");
-  test.setTimeout(180_000);
+  test.setTimeout(resolveTimeout(180_000));
 
   const baseUrl = normalizeBaseUrl(process.env.BOOKWYRM_BASE_URL || "");
   const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
@@ -43,7 +45,7 @@ test("seaweedfs: a BookWyrm avatar upload is stored in the SeaweedFS bucket", as
       if (/openid-connect\/auth|\/oauth2\//.test(appPage.url())) {
         await performKeycloakLoginForm(appPage, adminUsername, adminPassword);
         await expect
-          .poll(() => appPage.url(), { timeout: 90_000 })
+          .poll(() => appPage.url(), { timeout: resolveTimeout(90_000) })
           .toContain(baseUrl.replace(/^https?:\/\//, ""));
       }
 
@@ -53,7 +55,7 @@ test("seaweedfs: a BookWyrm avatar upload is stored in the SeaweedFS bucket", as
         .locator('input[type="file"][name="avatar"]')
         .or(appPage.locator('input[type="file"]'))
         .first();
-      await avatarInput.waitFor({ state: "attached", timeout: 30_000 });
+      await avatarInput.waitFor({ state: "attached", timeout: resolveTimeout(30_000) });
       await avatarInput.setInputFiles({
         name: `infinito-storage-check-${Date.now()}.png`,
         mimeType: "image/png",
@@ -64,7 +66,7 @@ test("seaweedfs: a BookWyrm avatar upload is stored in the SeaweedFS bucket", as
         .locator('form[name="edit-profile"]')
         .getByRole("button", { name: /save/i })
         .first();
-      await saveButton.click();
+      await saveButton.click({ timeout: resolveTimeout(30_000) });
 
       // BookWyrm's EditUser view redirects to the user feed on a valid save and
       // re-renders /preferences/profile (HTTP 200) on a validation failure. The
@@ -72,9 +74,9 @@ test("seaweedfs: a BookWyrm avatar upload is stored in the SeaweedFS bucket", as
       // — that is the only signal the avatar POST was accepted and an object was
       // written to S3.
       await expect
-        .poll(() => appPage.url(), { timeout: 60_000 })
+        .poll(() => appPage.url(), { timeout: resolveTimeout(60_000) })
         .not.toContain("/preferences/profile");
-      await appPage.waitForLoadState("networkidle", { timeout: 60_000 }).catch(() => {});
+      await appPage.waitForLoadState("networkidle", { timeout: resolveTimeout(60_000) }).catch(() => {});
     },
   });
 });

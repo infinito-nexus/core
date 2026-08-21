@@ -18,7 +18,9 @@
   register: dns_check
   changed_when: false
   failed_when: dns_check.rc != 0
-  when: MODE_ASSERT | bool
+  when:
+    - MODE_ASSERT | bool
+    - not (DOMAIN_PRIMARY is search('\.onion$'))
 
 - name: 🔀 Merge variables
   block:
@@ -74,9 +76,16 @@
             | generate_all_domains(WWW_REDIRECT_ENABLED | bool)
           }}
 
-    - name: 🔀 Merge OIDC configuration
-      ansible.builtin.set_fact:
-        OIDC: "{{ defaults_oidc | combine(OIDC | default({}, true), recursive=True) }}"
+    - name: ✅ Assert OIDC resolves lazily (inventory overrides live in OIDC_OVERRIDE)
+      ansible.builtin.assert:
+        that:
+          - OIDC.CLIENT.DISCOVERY_DOCUMENT is defined
+        fail_msg: >-
+          OIDC does not resolve to the full defaults tree. An inventory most
+          likely still defines 'OIDC:' at host level, shadowing the lazy
+          group_var — migrate that block to 'OIDC_OVERRIDE:' so the issuer can
+          family-align to each consuming role.
+        quiet: true
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
     - name: 🔀 Merge design configuration
@@ -157,13 +166,13 @@
   changed_when: false
 
 - name: "🥾 Bootstrap NFS clients + registry (MUST precede Preload)"
-  ansible.builtin.include_tasks: "./tasks/groups/{{ role_group }}-roles.yml"
+  ansible.builtin.include_tasks: ./tasks/utils/setup/group.yml
   loop:
     - svc-storage
     - svc-registry
   loop_control:
     loop_var: role_group
-    label: "{{ role_group }}-roles.yml"
+    label: "{{ role_group }}"
 
 - name: 📂 Include Token Store
   ansible.builtin.include_role:
@@ -175,11 +184,11 @@
     name: sys-service-loader
 
 - name: "🧩 Load base roles"
-  ansible.builtin.include_tasks: "./tasks/groups/{{ role_group }}-roles.yml"
+  ansible.builtin.include_tasks: ./tasks/utils/setup/group.yml
   loop: "{{ lookup('stage_groups', 'constructor') }}"
   loop_control:
     loop_var: role_group
-    label: "{{ role_group }}-roles.yml"
+    label: "{{ role_group }}"
 
 - name: 📦 Install inventory-defined packages
   package_install:

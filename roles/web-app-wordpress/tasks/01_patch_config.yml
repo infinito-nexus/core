@@ -13,21 +13,21 @@
     container exec --user root {{ WORDPRESS_CONTAINER_ADDRESS }}
     sed -i "s/define(\s*'DB_HOST'\s*,\s*'[^']*'\s*);/define( 'DB_HOST', '{{ lookup('database', application_id, 'host') | sed_escape('/') }}:{{ lookup('database',
     application_id, 'port') | sed_escape('/') }}' );/i" {{ WORDPRESS_DOCKER_CONF_PATH }}
-  notify: compose up
+  notify: compose-up
 
 - name: 🔄 Update DB name in {{ WORDPRESS_CONFIG_FILE }}
   shell: >
     container exec --user root {{ WORDPRESS_CONTAINER_ADDRESS }}
     sed -i "s/define(\s*'DB_NAME'\s*,\s*'[^']*'\s*);/define( 'DB_NAME', '{{ lookup('database', application_id, 'name') | sed_escape('/') }}' );/i" {{ WORDPRESS_DOCKER_CONF_PATH
     }}
-  notify: compose up
+  notify: compose-up
 
 - name: 🔄 Update DB user in {{ WORDPRESS_CONFIG_FILE }}
   shell: >
     container exec --user root {{ WORDPRESS_CONTAINER_ADDRESS }}
     sed -i "s/define(\s*'DB_USER'\s*,\s*'[^']*'\s*);/define( 'DB_USER', '{{ lookup('database', application_id, 'username') | sed_escape('/') }}' );/i" {{ WORDPRESS_DOCKER_CONF_PATH
     }}
-  notify: compose up
+  notify: compose-up
 
 - name: 🔄 Update DB password in {{ WORDPRESS_CONFIG_FILE }}
   shell: >
@@ -35,7 +35,7 @@
     -e PATCH_PASSWORD={{ lookup('database', application_id, 'password') | sed_escape('/') | quote }}
     {{ WORDPRESS_CONTAINER_ADDRESS }}
     sh -c "sed -i \"s/define(\\s*'DB_PASSWORD'\\s*,\\s*'[^']*'\\s*);/define( 'DB_PASSWORD', '\${PATCH_PASSWORD}' );/i\" {{ WORDPRESS_DOCKER_CONF_PATH }}"
-  notify: compose up
+  notify: compose-up
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🚿 Flush handlers to reinitialize new database credentials"

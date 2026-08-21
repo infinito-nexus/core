@@ -18,7 +18,7 @@ For login with Token checkout the [Mautrix Slack authentication guide](https://d
 ### ChatGPT
 
 - Create API Token at [platform.openai.com](https://platform.openai.com/api-keys).
-- Set ``lookup('config', application_id, 'credentials.chatgpt_bridge_access_token')``
+- Set ``lookup('config', application_id, 'secrets.credentials.chatgpt_bridge_access_token')``
 
 ## Debug
 

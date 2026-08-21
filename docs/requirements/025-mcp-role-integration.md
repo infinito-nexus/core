@@ -24,7 +24,7 @@ These choices are settled at requirement creation time and bound the implementat
 
 1. **Implementation precedence.** `native` > `plugin` > `sidecar` > `external`. A lower-precedence path is allowed only when the higher one is unavailable upstream and the role README documents why.
 2. **Discovery reuses existing infrastructure.** Client roles discover servers through the existing [`roles_with_service`](../../plugins/lookup/roles_with_service.py) lookup (backed by `utils.cache.applications.get_merged_applications`), extended to filter by `services.mcp.direction` and to surface endpoint metadata. No new generated repository-wide application dictionary is introduced.
-3. **Secrets reuse the credentials mechanism.** MCP tokens, app-passwords, and OAuth client secrets are declared in each role's [`meta/schema.yml`](../../roles/web-app-baserow/meta/schema.yml) `credentials:` block and read via `lookup('config', application_id, 'credentials.<name>')`. No new secret store is introduced.
+3. **Secrets reuse the credentials mechanism.** MCP tokens, app-passwords, and OAuth client secrets are declared in each role's [`meta/secrets.yml`](../../roles/web-app-baserow/meta/secrets.yml) `credentials:` block and read via `lookup('config', application_id, 'secrets.credentials.<name>')`. No new secret store is introduced.
 4. **MCP state is a variant axis.** Roles that gain an MCP surface MUST express the enabled/disabled split through `meta/variants.yml` so CI matrix runs cover both states.
 5. **Lint reuses the suppression model.** New MCP lint rules live under [`tests/lint/ansible/services/`](../../tests/lint/ansible/services/) and honour the existing `# nocheck:` marker convention (see [suppression docs](../contributing/actions/testing/suppression.md)).
 6. **First slice.** The first end-to-end slice is `web-app-baserow` (server) plus `web-app-openwebui` (client).
@@ -165,7 +165,7 @@ The lookup MUST remain backed by `utils.cache.applications.get_merged_applicatio
 
 - [ ] No deployed role launches arbitrary user-provided stdio MCP commands by default.
 - [ ] Every MCP server endpoint is protected by OIDC, app-password, bearer-token, upstream-session auth, or an explicitly documented internal-only exception.
-- [ ] MCP credentials (tokens, app-passwords, OAuth client secrets) are declared in the role's [`meta/schema.yml`](../../roles/web-app-baserow/meta/schema.yml) `credentials:` block and consumed via `lookup('config', application_id, 'credentials.<name>')`; they are never written into `README.md`, Playwright traces, or non-secret env vars.
+- [ ] MCP credentials (tokens, app-passwords, OAuth client secrets) are declared in the role's [`meta/secrets.yml`](../../roles/web-app-baserow/meta/secrets.yml) `credentials:` block and consumed via `lookup('config', application_id, 'secrets.credentials.<name>')`; they are never written into `README.md`, Playwright traces, or non-secret env vars.
 - [ ] Every MCP server role documents whether MCP calls execute as the requesting user, a service account, or an administrator, and the implementation enforces that subject consistently.
 - [ ] Client roles MUST NOT register service-account or administrator-scoped MCP servers as globally enabled default tools unless the server advertises read-only tools only.
 - [ ] Public MCP exposure includes proxy routing, TLS, request-size limits, timeout limits, and rate-limit guidance.

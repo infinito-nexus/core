@@ -18,6 +18,7 @@ flowchart LR
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
         dep_svc_db_redis["svc-db-redis 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
@@ -36,16 +37,19 @@ flowchart LR
         svc_postgres["postgres"]
         svc_redis["redis"]
         svc_bookwyrm["bookwyrm"]
+        svc_migrate["migrate"]
         svc_worker["worker"]
         svc_minio["minio ❌"]
         svc_seaweedfs["seaweedfs"]
         svc_css["css"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
         svc_container_backup["container_backup"]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_postgres -. "0..1" .-> svc_postgres
     dep_svc_db_redis -. "0..1" .-> svc_redis
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
@@ -56,7 +60,7 @@ flowchart LR
     dep_web_svc_logout -. "0..1" .-> svc_logout
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
@@ -112,6 +116,12 @@ docker run --rm -it \
 - [BookWyrm Documentation](https://docs.joinbookwyrm.com/)
 - [ActivityPub (Wikipedia)](https://en.wikipedia.org/wiki/ActivityPub)
 - [Fediverse (Wikipedia)](https://en.wikipedia.org/wiki/Fediverse)
+
+## Persona contract opt-outs
+
+Both authenticated Playwright personas are blocked. BookWyrm's logout control is an icon-only avatar dropdown with no accessible name, so the shared in-app-logout helper cannot locate it; the trusted-header login itself works.
+
+The `administrator` persona is additionally blocked because this role never creates a BookWyrm staff account. `files/sso/header_auth.py` provisions proxied identities with `create_user(...)` and no `is_staff` flag, and no task promotes an existing account, so the administrator arrives as an ordinary member with no admin surface to exercise.
 
 ## Credits
 

@@ -91,7 +91,7 @@
 - name: 🗑️ Optionally drop shell snippet for Nix
   ansible.builtin.script:
     cmd: >-
-      {{ role_path }}/files/write_nix_shell_snippet.sh
+      {{ role_path }}/files/shell/write_nix_shell_snippet.sh
       {{ dev_nix_shell_snippet_path | quote }}
   register: dev_nix_shell_snippet_result
   changed_when: >
@@ -105,7 +105,7 @@
 - name: 🧹 Aggressively prune Nix data (GC + optimise)
   become: true
   ansible.builtin.script: >
-    aggressive_prune_nix.sh
+    shell/aggressive_prune_nix.sh
     {{ dev_nix_binary_path | quote }}
   changed_when: true
   when:

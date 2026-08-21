@@ -5,7 +5,7 @@ application_id: "web-app-postmarks"
 container_port: "{{ lookup('config', application_id, 'services.postmarks.ports.internal.http') }}"
 domain: "{{ container_hostname }}"
 http_port: "{{ lookup('config', application_id, 'services.postmarks.ports.local.http') }}"
-container_hostname: "{{ lookup('domain', application_id) }}"
+container_hostname: "{{ lookup('container_hostname', application_id) }}"
 
 POSTMARKS_CONTAINER: "{{ lookup('config', application_id, 'services.postmarks.name') }}"
 

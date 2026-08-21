@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 // Administrator follows biber on friendica.
 //
@@ -60,17 +61,17 @@ exports.register = function (shared) {
       // search form appears earlier in the document so a generic form.first()
       // selector would hit the wrong target.
       const submitButton = adminPage.locator("#dfrn-request-submit-button");
-      await submitButton.waitFor({ state: "visible", timeout: 60_000 });
+      await submitButton.waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
       await Promise.all([
         adminPage.waitForLoadState("domcontentloaded"),
-        submitButton.click(),
+        submitButton.click({ timeout: resolveTimeout(30_000) }),
       ]);
 
       // A successful follow 302-redirects to /contact/<numeric-id> — the
       // detail page of the freshly-persisted local contact row.
       await expect
         .poll(() => adminPage.url(), {
-          timeout: 60_000,
+          timeout: resolveTimeout(60_000),
           message: "Expected /contact/follow POST to land on /contact/<id> after persisting biber as a contact",
         })
         .toMatch(/\/contact\/\d+(?:[/?#]|$)/);
@@ -81,7 +82,7 @@ exports.register = function (shared) {
       await expect(
         adminPage.locator("body"),
         `Expected biber's handle "${expectedHandle}" on /contact/<id> after follow`
-      ).toContainText(expectedHandle, { timeout: 30_000 });
+      ).toContainText(expectedHandle, { timeout: resolveTimeout(30_000) });
     } finally {
       await adminContext.close().catch(() => {});
     }

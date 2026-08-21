@@ -8,7 +8,7 @@ import subprocess
 from typing import TYPE_CHECKING, Any, NamedTuple
 
 from utils.cache.applications import get_variants
-from utils.github.variant.bundles import compose_bundle_counts
+from utils.env.parser import env_setting
 from utils.roles.lifecycle import tested_lifecycles
 from utils.roles.meta_lookup import (
     MetaServicesShapeError,
@@ -63,12 +63,7 @@ class ComplexityRow(NamedTuple):
     ``covered_by`` scrambles ``id``. ``variants`` is the number of
     ``meta/variants.yml`` variants of the role in whole-role mode; under
     ``--variant`` each row already is a single variant, so it is ``1``.
-    ``bundles`` is the number of CI jobs the row maps to in the target
-    ``deploy_mode``: compose and host pack variants into size/storage
-    bundles (``compose_bundle_counts`` SPOT), swarm runs one job per
-    variant; under ``--variant`` it is ``1`` per row (one variant = one
-    bundle). ``jobs`` is the
-    running sum of ``bundles`` down the rendered rows. ``lifecycle`` is the
+    ``lifecycle`` is the
     role's ``meta/services.yml`` lifecycle stage (alpha/beta/pre/…).
     ``compose`` / ``swarm`` are True when the CI test-deploy matrix exercises
     the role in that mode, honouring the discovery skip logic: invokable +
@@ -110,8 +105,6 @@ class ComplexityRow(NamedTuple):
     covered_by: int = 0
     row: int = -1
     variants: int = 1
-    bundles: int = 1
-    jobs: int = 0
     lifecycle: str = ""
     compose: bool = False
     swarm: bool = False
@@ -125,6 +118,32 @@ class ComplexityRow(NamedTuple):
     clone: bool = False
 
 
+def _tiebreaker(name: str, variant: int | None) -> int:
+    """The row's last-resort sort key, stable across processes when seeded.
+
+    Discovery and the plan renderer run as separate processes, so a per-process
+    draw lets the rendered plan describe a different assignment than the one
+    deployed. ``INFINITO_DISCOVERY_SEED`` derives the key from the row's own
+    identity instead, which survives a different construction order and still
+    rotates the assignment whenever the seed changes.
+
+    Args:
+        name: the role the row belongs to.
+        variant: its variant index, or None for a variant-free role.
+
+    Returns:
+        A value in the same range the unseeded draw uses, so the sort spec
+        behaves identically either way.
+    """
+    seed = env_setting("INFINITO_DISCOVERY_SEED")
+    if not seed:
+        return random.randint(100000, 999999)  # noqa: S311 - sort tie-breaker, not cryptographic
+    digest = hashlib.sha1(
+        f"{seed}\n{name}\n{variant}".encode(), usedforsecurity=False
+    ).digest()
+    return 100000 + int.from_bytes(digest[:4], "big") % 900000
+
+
 def _dna_hash(name: str, services: list[str]) -> str:
     members = sorted({name, *services})
     return hashlib.sha1(
@@ -132,7 +151,14 @@ def _dna_hash(name: str, services: list[str]) -> str:
     ).hexdigest()
 
 
-def _attach_siblings(rows: list[ComplexityRow]) -> list[ComplexityRow]:
+def attach_siblings(rows: list[ComplexityRow]) -> list[ComplexityRow]:
+    """Group *rows* by dna and elect the heaviest of each group the original,
+    marking the rest ``clone`` so the budget cut keeps one representative.
+
+    Election is relative to the rows handed in, so a caller that filters MUST
+    call this again on the survivors: a stand-in the filter dropped is not
+    deployed, and the row deferring to it is cut in favour of nothing.
+    """
     by_dna: dict[str, list[ComplexityRow]] = {}
     for row in rows:
         by_dna.setdefault(row.dna, []).append(row)
@@ -209,7 +235,7 @@ def _build_row(
         weight=weight,
         dna=_dna_hash(name, services),
         siblings=[],
-        random=random.randint(100000, 999999),  # noqa: S311 - sort tie-breaker, not cryptographic
+        random=_tiebreaker(name, variant),
         variant=variant,
         integrated=any(provider != name for provider in services_direct),
     )
@@ -246,7 +272,6 @@ def compute_complexity_rows(
     *,
     include_group_names: bool = True,
     max_level: int | None = None,
-    deploy_mode: str = "compose",
     lifecycles: set[str] | None = None,
 ) -> list[ComplexityRow]:
     tested = set(lifecycles) if lifecycles else set(TESTED_LIFECYCLES)
@@ -258,10 +283,6 @@ def compute_complexity_rows(
         for role_dir in sorted(p for p in roles_dir.iterdir() if p.is_dir())
         if is_application_role(role_dir)
     ]
-    if deploy_mode == "swarm":
-        bundles = {name: len(variants.get(name) or []) or 1 for name in names}
-    else:
-        bundles = compose_bundle_counts(names, variants, roles_dir=roles_dir)
     compose_apps = _tested_apps("compose", tested)
     swarm_apps = _tested_apps("swarm", tested)
     host_apps = _tested_apps("host", tested)
@@ -281,7 +302,6 @@ def compute_complexity_rows(
         rows.append(
             _build_row(name, forward, reverse, max_level)._replace(
                 variants=len(variants.get(name) or []) or 1,
-                bundles=bundles.get(name, 1),
                 lifecycle=_role_lifecycle(variants.get(name)),
                 compose=compose,
                 swarm=swarm,
@@ -293,7 +313,7 @@ def compute_complexity_rows(
                 in_main=main_roles is None or name in main_roles,
             )
         )
-    return _attach_siblings(rows)
+    return attach_siblings(rows)
 
 
 def _variant_services_map(variant_config: Any) -> dict[str, Any]:
@@ -363,4 +383,4 @@ def compute_variant_complexity_rows(
                     test_host=host and "host" not in skips,
                 )
             )
-    return _attach_siblings(rows)
+    return attach_siblings(rows)

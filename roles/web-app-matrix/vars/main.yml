@@ -5,15 +5,19 @@ compose_mode_force: "{{ 'compose' if lookup('config', application_id, 'services.
 
 location_upload: "~ ^/_matrix/media/v3/"
 
-MATRIX_SERVER_NAME: "{{ lookup('config', application_id, 'services.matrix.server_name') }}"
+MATRIX_ONION_NODE: "{{ lookup('config', 'svc-net-tor', 'services.tor.node', '') }}"
+MATRIX_SERVER_NAME: "{{ MATRIX_ONION_NODE if (MATRIX_ONION_NODE and lookup('domain', application_id) is search('\\.onion$')) else lookup('config', application_id,
+  'services.matrix.server_name') }}"
 MATRIX_ADMINISTRATOR_USERNAME: "{{ lookup('users', 'administrator').username }}"
 MATRIX_ADMINISTRATOR_PASSWORD: "{{ lookup('users', 'administrator').password }}"
 MATRIX_WELL_KNOWN_DIRECTORY: "{{ [ lookup('nginx','directories.data.well_known'), 'matrix' ] | path_join }}"
 MATRIX_WELL_KNOWN_FILE: "{{ MATRIX_WELL_KNOWN_DIRECTORY }}server"
 MATRIX_REGISTRATION_FILE_FOLDER: "/data/"
-MATRIX_REGISTRATION_SHARED_SECRET: "{{ lookup('config', application_id, 'credentials.registration_shared_secret') }}"
+MATRIX_REGISTRATION_SHARED_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.registration_shared_secret') }}"
 MATRIX_FEDERATION_PORT: "{{ lookup('config', 'web-app-matrix', 'services.synapse.ports.public.federation') }}"
 MATRIX_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+MATRIX_OIDC_HOST: "{{ lookup('tls', 'web-app-keycloak', 'domain') }}"
+MATRIX_OIDC_HOST_IS_ONION: "{{ MATRIX_OIDC_HOST is search('\\.onion$') }}"
 MATRIX_BASE_URL: "{{ lookup('tls', application_id, 'protocols.web') }}://{{ DOMAIN_PRIMARY }}"
 
 MATRIX_SYNAPSE_NAME: "{{ lookup('config', application_id, 'services.synapse.name') }}"
@@ -28,11 +32,11 @@ MATRIX_SYNAPSE_DOMAIN: "{{ lookup('domains', application_id).synapse }}"
 MATRIX_SYNAPSE_PORT: "{{ lookup('config', 'web-app-matrix', 'services.synapse.ports.local.http') }}"
 MATRIX_SYNAPSE_CONTAINER_PORT: "{{ lookup('config', application_id, 'services.synapse.ports.internal.http') }}"
 MATRIX_SYNAPSE_CONFIG_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'homeserver.yaml' ] | path_join }}"
-MATRIX_SYNAPSE_CONFIG_PATH_CONTAINER: "/data/homeserver.yaml" # nocheck: container-var-name-lookup in-container path, not a container name
+MATRIX_SYNAPSE_CONFIG_PATH_CONTAINER: "{{ lookup('volume', 'web-app-matrix', 'synapse_config').target }}" # nocheck: container-var-name-lookup in-container path, not a container name
 MATRIX_SYNAPSE_LOG_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), MATRIX_SYNAPSE_DOMAIN ~'.log.config' ] | path_join }}"
 MATRIX_SYNAPSE_LOG_PATH_CONTAINER: "/data/{{ MATRIX_SYNAPSE_DOMAIN }}.log.config" # nocheck: container-var-name-lookup in-container path, not a container name
 MATRIX_SYNAPSE_BIND_MOUNT_MODE: "0644"
-MATRIX_SYNAPSE_URL: "{{ lookup('tls', application_id, 'protocols.web') }}://{{ MATRIX_SYNAPSE_DOMAIN }}"
+MATRIX_SYNAPSE_URL: "{{ lookup('canonical_url', application_id, 'synapse') }}"
 MATRIX_SYNAPSE_LISTEN_FLAGS: "{{ MATRIX_FEDERATION_PORT }} {{ 'ssl ' if (lookup('tls', application_id, 'enabled') | bool) else '' }} default_server"
 
 MATRIX_ELEMENT_NAME: "{{ lookup('config', application_id, 'services.element.name') }}"
@@ -79,7 +83,7 @@ MATRIX_COTURN_SHARED: "{{ lookup('config', application_id, 'services.coturn.shar
 MATRIX_COTURN_HOST: "{{ lookup('domain', 'web-svc-coturn') if MATRIX_COTURN_SHARED else '' }}"
 MATRIX_COTURN_STUN_TURN_PORT: "{{ lookup('config', 'web-svc-coturn', 'services.coturn.ports.public.stun_turn') if MATRIX_COTURN_SHARED else '' }}"
 MATRIX_COTURN_STUN_TURN_TLS_PORT: "{{ lookup('config', 'web-svc-coturn', 'services.coturn.ports.public.stun_turn_tls') if MATRIX_COTURN_SHARED else '' }}"
-MATRIX_COTURN_AUTH_SECRET: "{{ lookup('config', 'web-svc-coturn', 'credentials.auth_secret') if MATRIX_COTURN_SHARED else '' }}"
+MATRIX_COTURN_AUTH_SECRET: "{{ lookup('config', 'web-svc-coturn', 'secrets.credentials.auth_secret') if MATRIX_COTURN_SHARED else '' }}"
 
 MATRIX_OUTBOUND_MAIL_ENABLED: "{{ lookup('config', application_id, 'services.email.enabled') | bool }}"
 MATRIX_OUTBOUND_MAIL: "{{ lookup('email', application_id) if MATRIX_OUTBOUND_MAIL_ENABLED else {} }}"

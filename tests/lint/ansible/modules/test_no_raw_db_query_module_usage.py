@@ -31,11 +31,6 @@ from utils.cache.files import iter_project_files_with_content
 
 from . import PROJECT_ROOT
 
-# Match the module invocation as a YAML task key:
-#   community.postgresql.postgresql_query:
-#   postgresql_query:
-#   community.mysql.mysql_query:
-#   mysql_query:
 # Captures optional trailing comment so the same line can carry a nocheck.
 _RAW_DB_QUERY_MODULE_PATTERN = re.compile(
     r"^\s*("
@@ -48,10 +43,7 @@ _RAW_DB_QUERY_MODULE_PATTERN = re.compile(
 
 _RULE = "database-query"
 
-# Files OUTSIDE role tasks where these modules might legitimately
-# appear (e.g. this lint test's regex, the module docstring, contrib
 # docs). Skipping these saves having to scatter nocheck markers in
-# meta files / docs / fixtures.
 _SCAN_PATH_PREFIX = "roles/"
 _SCAN_PATH_INFIX = "/tasks/"
 

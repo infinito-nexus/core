@@ -10,7 +10,7 @@ FRIENDICA_INIT_GATE_FILE: "friendica-init-gate.sh"
 FRIENDICA_INIT_GATE_HOST: "{{ [lookup('container', application_id, 'directories.instance'), FRIENDICA_INIT_GATE_FILE] | path_join }}"
 FRIENDICA_BASE_URL: "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}"
 
-FRIENDICA_APPLICATION_DIR: "/var/www/html"
+FRIENDICA_APPLICATION_DIR: "{{ lookup('volume', 'web-app-friendica', 'html').target }}"
 FRIENDICA_CONFIG_DIR: "{{ [ FRIENDICA_APPLICATION_DIR,          'config' ] | path_join }}"
 FRIENDICA_CONFIG_FILE: "{{ [ FRIENDICA_CONFIG_DIR,               'local.config.php' ] | path_join }}"
 FRIENDICA_USER: "www-data"

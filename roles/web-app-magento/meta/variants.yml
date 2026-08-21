@@ -33,33 +33,37 @@
       shared: true
     redis:
       shared: true
+    tor:
+      enabled: true
 - services:
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     dashboard:
       enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      shared: false
     email:
       enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      shared: false
     logout:
       enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      shared: false
     matomo:
       enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      shared: false
     sso:
       enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      shared: false
     prometheus:
       enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      shared: false
     css:
       enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      shared: false
     seaweedfs:
       enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      shared: false
     redis:
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    tor:
+      enabled: true

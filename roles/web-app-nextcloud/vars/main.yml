@@ -5,13 +5,17 @@ entity_name: "{{ application_id | get_entity_name }}"
 
 swarm_stack_converge_retries: 600
 
-database_password: "{{ lookup('config', application_id, 'credentials.database_password') }}" # nocheck: lookup-config-path
+database_password: "{{ lookup('config', application_id, 'secrets.credentials.database_password') }}" # nocheck: lookup-config-path
 
 NEXTCLOUD_DOMAIN: "{{ lookup('domain',application_id) }}"
 NEXTCLOUD_PORT: "{{ lookup('config', application_id, 'services.nextcloud.ports.local.http') }}"
 NEXTCLOUD_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 NEXTCLOUD_PROTOCOL: "{{ lookup('tls', application_id, 'protocols.web') }}"
 NEXTCLOUD_TRUSTED_PROXIES: "{{ networks.internet.values() | select }}"
+
+NEXTCLOUD_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
+NEXTCLOUD_OIDC_HOST: "{{ lookup('tls', 'web-app-keycloak', 'domain') }}"
+NEXTCLOUD_TOR_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') }}"
 
 NEXTCLOUD_PLUGIN_ITEMS: "{{ lookup('config', application_id, 'addons') | dict2items }}"
 NEXTCLOUD_PLUGINS_ENABLED: "{{ lookup('config', application_id, 'services.nextcloud.plugins_enabled') }}"
@@ -23,17 +27,17 @@ NEXTCLOUD_HOST_NGINX_PATH: "{{ [ lookup('container', application_id, 'directorie
 
 NEXTCLOUD_CNODE_PLUGIN_TASKS_PATH: "{{ [role_path, 'tasks/addons/'] | path_join }}"
 
-NEXTCLOUD_DOCKER_WORK_DIRECTORY: "/var/www/html/"
-NEXTCLOUD_DOCKER_CONF_ADD_PATH: "/var/www/infinito/"
+NEXTCLOUD_DOCKER_WORK_DIRECTORY: "{{ lookup('volume', 'web-app-nextcloud', 'data').target }}"
+NEXTCLOUD_DOCKER_CONF_ADD_PATH: "{{ lookup('volume', 'web-app-nextcloud', 'infinito_conf').target }}"
 NEXTCLOUD_DOCKER_CONF_LOADER_PATH: "{{ [ NEXTCLOUD_DOCKER_WORK_DIRECTORY, 'config/zzz-infinito.config.php'] | path_join }}"
 
-NEXTCLOUD_ADMINISTRATOR_PASSWORD: "{{ lookup('config', application_id, 'credentials.administrator_password') }}"
+NEXTCLOUD_ADMINISTRATOR_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.administrator_password') }}"
 NEXTCLOUD_ADMINISTRATOR_USERNAME: "{{ lookup('config', application_id, 'users.administrator.username') }}"
 
-NEXTCLOUD_INIT_GATE_FILE: "nextcloud-init-gate.sh"
+NEXTCLOUD_INIT_GATE_FILE: "init-gate.sh"
+NEXTCLOUD_INIT_GATE_SRC: "{{ ['shell', 'utils', NEXTCLOUD_INIT_GATE_FILE] | path_join }}"
 NEXTCLOUD_INIT_GATE_HOST: "{{ [lookup('container', 'web-app-nextcloud', 'directories.instance'), NEXTCLOUD_INIT_GATE_FILE] | path_join }}"
 
-NEXTCLOUD_VOLUME: "{{ lookup('volume', application_id, 'data').name }}"
 NEXTCLOUD_SERVICE: "{{ entity_name }}"
 NEXTCLOUD_VERSION: "{{ lookup('config', application_id, 'services.'~ NEXTCLOUD_SERVICE ~'.version') }}"
 NEXTCLOUD_IMAGE: "{{ lookup('config', application_id, 'services.'~ NEXTCLOUD_SERVICE ~'.image') }}"
@@ -42,6 +46,14 @@ NEXTCLOUD_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, NEX
 
 NEXTCLOUD_OPENPROJECT_CONTAINER_ADDRESS: "{{ lookup('container_address', 'web-app-openproject', 'web') }}"
 NEXTCLOUD_ZAMMAD_CONTAINER_ADDRESS: "{{ lookup('container_address', 'web-app-zammad', 'railsserver') }}"
+NEXTCLOUD_GITLAB_CONTAINER_ADDRESS: "{{ lookup('container_address', 'web-app-gitlab', 'webservice') }}"
+
+NEXTCLOUD_PROXY_EXCLUDED_HOSTS:
+  - .nextcloud.com
+  - github.com
+  - .githubusercontent.com
+  - codeberg.org
+  - gitlab.com
 
 NEXTCLOUD_PROXY_SERVICE: "proxy"
 NEXTCLOUD_PROXY_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_PROXY_SERVICE ~ '.name') }}"
@@ -53,10 +65,10 @@ NEXTCLOUD_HPB_SERVICE: "talk"
 NEXTCLOUD_HPB_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.name') }}"
 NEXTCLOUD_HPB_NETWORK_MODE: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.network_mode') }}"
 NEXTCLOUD_HPB_PLUGIN_ENABLED: "{{ lookup('config', application_id, 'addons.spreed.enabled') }}"
-NEXTCLOUD_HPB_INTERNAL_SECRET: "{{ lookup('config', application_id, 'credentials.talk_internal_secret') }}"
+NEXTCLOUD_HPB_INTERNAL_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.talk_internal_secret') }}"
 NEXTCLOUD_HPB_DOMAIN: "{{ NEXTCLOUD_DOMAIN }}"
 
-NEXTCLOUD_HPB_SIGNALING_SECRET: "{{ lookup('config', application_id, 'credentials.talk_signaling_secret') }}"
+NEXTCLOUD_HPB_SIGNALING_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.talk_signaling_secret') }}"
 NEXTCLOUD_HPB_SIGNALING_LOCATION: "/standalone-signaling/"
 NEXTCLOUD_HPB_SIGNALING_PORT: "{{ lookup('config', application_id, 'services.talk.ports.internal.signaling') }}"
 NEXTCLOUD_HPB_SIGNALING_URL: "{{ [ NEXTCLOUD_URL, NEXTCLOUD_HPB_SIGNALING_LOCATION ] | url_join }}"
@@ -67,7 +79,7 @@ NEXTCLOUD_HPB_TURN_ONBOARD_PORT: "{{ lookup('config', application_id, 'services.
 NEXTCLOUD_HPB_TURN_ONBOARD_BIND_HOST: "{{ DOCKER_PUBLIC_BIND_HOST }}"
 NEXTCLOUD_HPB_TURN_ONBOARD_ENABLED: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_HPB_SERVICE ~ '.turn_server.onboard_enabled') if NEXTCLOUD_HPB_PLUGIN_ENABLED
   else false }}"
-NEXTCLOUD_HPB_TURN_ONBOARD_SECRET: "{{ lookup('config', application_id, 'credentials.talk_turn_secret') }}"
+NEXTCLOUD_HPB_TURN_ONBOARD_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.talk_turn_secret') }}"
 NEXTCLOUD_HPB_TURN_ONBOARD_PUBLISH_PORTS: "{{ not DOCKER_IN_CONTAINER | bool }}"
 NEXTCLOUD_HPB_TURN_ONBOARD_RELAY_PORT_START: "{{ lookup('config', application_id, 'services.nextcloud.ports.public.relay.start') }}"
 NEXTCLOUD_HPB_TURN_ONBOARD_RELAY_PORT_END: "{{ lookup('config', application_id, 'services.nextcloud.ports.public.relay.end') }}"
@@ -84,7 +96,7 @@ NEXTCLOUD_HPB_TURN_ONBOARD_CONFIG: >-
 
 NEXTCLOUD_HPB_TURN_STANDALONE_ROLE: "web-svc-coturn"
 NEXTCLOUD_HPB_TURN_STANDALONE_PORT: "{{ lookup('config', NEXTCLOUD_HPB_TURN_STANDALONE_ROLE, 'services.coturn.ports.public.stun_turn') }}"
-NEXTCLOUD_HPB_TURN_STANDALONE_SECRET: "{{ lookup('config',NEXTCLOUD_HPB_TURN_STANDALONE_ROLE, 'credentials.auth_secret') }}"
+NEXTCLOUD_HPB_TURN_STANDALONE_SECRET: "{{ lookup('config',NEXTCLOUD_HPB_TURN_STANDALONE_ROLE, 'secrets.credentials.auth_secret') }}"
 NEXTCLOUD_HPB_TURN_STANDALONE_ENABLED: "{{ lookup('config', application_id, 'services.talk.turn_server.standalone_enabled') if NEXTCLOUD_HPB_PLUGIN_ENABLED else false
   }}"
 NEXTCLOUD_HPB_TURN_STANDALONE_DOMAIN: "{{ lookup('domain',NEXTCLOUD_HPB_TURN_STANDALONE_ROLE) }}"
@@ -126,11 +138,9 @@ NEXTCLOUD_WHITEBOARD_IMAGE: "{{ lookup('config', application_id, 'services.' ~ N
 NEXTCLOUD_WHITEBOARD_VERSION: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_WHITEBOARD_SERVICE ~'.version') }}"
 NEXTCLOUD_WHITEBOARD_ENABLED: "{{ lookup('config', application_id, 'addons.' ~ NEXTCLOUD_WHITEBOARD_SERVICE ~'.enabled') }}"
 NEXTCLOUD_WHITEBOARD_PORT_INTERNAL: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_WHITEBOARD_SERVICE ~ '.ports.internal.http') }}"
-NEXTCLOUD_WHITEBOARD_JWT: "{{ lookup('config', application_id, 'credentials.' ~ NEXTCLOUD_WHITEBOARD_SERVICE ~'_jwt_secret') }}"
+NEXTCLOUD_WHITEBOARD_JWT: "{{ lookup('config', application_id, 'secrets.credentials.' ~ NEXTCLOUD_WHITEBOARD_SERVICE ~'_jwt_secret') }}"
 NEXTCLOUD_WHITEBOARD_LOCATION: "/whiteboard/"
 NEXTCLOUD_WHITEBOARD_URL: "{{ [ NEXTCLOUD_URL, NEXTCLOUD_WHITEBOARD_LOCATION ] | url_join }}"
-NEXTCLOUD_WHITEBOARD_TMP_VOLUME: "{{ lookup('volume', application_id, 'whiteboard_tmp').name }}"
-NEXTCLOUD_WHITEBOARD_FRONTCACHE_VOLUME: "{{ lookup('volume', application_id, 'whiteboard_fontcache').name }}"
 NEXTCLOUD_WHITEBOARD_SERVICE_DIRECTORY: "{{ [ lookup('container', application_id, 'directories.services'), 'whiteboard' ] | path_join }}"
 NEXTCLOUD_WHITEBOARD_SERVICE_DOCKERFILE: "{{ [ NEXTCLOUD_WHITEBOARD_SERVICE_DIRECTORY, 'Dockerfile' ] | path_join }}"
 NEXTCLOUD_WHITEBOARD_MAX_OLD_SPACE_SIZE: "{{ lookup('node_max_old_space_size', application_id, NEXTCLOUD_WHITEBOARD_SERVICE) }}"
@@ -139,8 +149,7 @@ NEXTCLOUD_RECORDING_SERVICE: "talk_recording"
 NEXTCLOUD_RECORDING_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_RECORDING_SERVICE ~ '.name') }}"
 NEXTCLOUD_RECORDING_ENABLED: "{{ NEXTCLOUD_HPB_PLUGIN_ENABLED }}"
 NEXTCLOUD_RECORDING_PORT: "{{ lookup('config', application_id, 'services.talk_recording.ports.internal.recording') }}"
-NEXTCLOUD_RECORDING_SECRET: "{{ lookup('config', application_id, 'credentials.talk_recording_secret') }}"
-NEXTCLOUD_RECORDING_TMP_VOLUME: "{{ lookup('volume', application_id, 'talk_recording_tmp').name }}"
+NEXTCLOUD_RECORDING_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.talk_recording_secret') }}"
 
 NEXTCLOUD_COLLABORA_URL: "{{ lookup('tls', 'web-svc-collabora', 'url.base') }}"
 

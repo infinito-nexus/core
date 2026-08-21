@@ -16,6 +16,5 @@
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
 
-{{ lookup('compose_volumes', application_id,
-) }}
+{{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

@@ -17,6 +17,7 @@ flowchart LR
     subgraph deps [Dependencies]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_mariadb["svc-db-mariadb 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
@@ -35,10 +36,12 @@ flowchart LR
         svc_mediawiki["mediawiki"]
         svc_css["css"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
         svc_container_backup["container_backup"]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_mariadb -. "0..1" .-> svc_mariadb
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
@@ -48,7 +51,7 @@ flowchart LR
     dep_web_svc_logout -. "0..1" .-> svc_logout
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
@@ -126,10 +129,16 @@ Volume layout under `DEPLOYMENT_MODE: swarm` with `storage.backend: nfs`:
   directory is intentionally out of scope for v1 (locking / `fsync`
   semantics). See 023's Future Extensions.
 
-CI gate: [.github/workflows/call-test-deploy-swarm.yml](../../.github/workflows/call-test-deploy-swarm.yml)
+CI gate: [.github/workflows/call-test-deploy.yml](../../.github/workflows/call-test-deploy.yml)
 provisions a 3-node DinD swarm, deploys this role as a stack, drains
 the worker running the application service, and asserts that wiki
 content survives the reschedule.
+
+## Persona contract opt-outs
+
+This role declares `PERSONA_ADMINISTRATOR_BLOCKED` and `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2` for two different reasons. The wiki's bureaucrat and sysop is a local account created by `maintenance/run.php createAndPromote` in `tasks/04_admin.yml` with `MEDIAWIKI_ADMINISTRATOR_PASSWORD` — the role-local `credentials.administrator_password`, not the Keycloak secret the persona helper carries in `ADMIN_PASSWORD`. `$wgPluggableAuth_EnableLocalLogin` is false, so no native form accepts that password anyway, and `$wgOpenIDConnect_UseEmailNameAsUserName` lands the Keycloak identity on a separate, e-mail-named wiki account that holds no sysop rights.
+
+Biber is blocked by `$wgPluggableAuth_EnableAutoLogin`, which this role sets to true in `vars/main.yml`: every anonymous request is bounced straight back into the identity provider, so the verified unauthenticated landing after in-app logout that the persona contract demands can never be observed here. The path back to the generic personas is either auto-login off, or a deploy step that promotes the OIDC-provisioned administrator account to sysop.
 
 ## Credits
 

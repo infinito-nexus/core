@@ -9,7 +9,7 @@
       "MaintenanceDB": "{{ server.maintenance_db }}",
       "Username": "{{ server.username }}",
       "SSLMode": "prefer",
-      "PassFile": "/pgpass"
+      "PassFile": "{{ lookup('volume', 'web-app-pgadmin', 'pgpass').target }}"
     }{% if not loop.last %},{% endif %}
     {% endfor %}
   }

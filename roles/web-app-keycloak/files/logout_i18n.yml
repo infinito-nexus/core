@@ -1,0 +1,691 @@
+---
+en:
+  dir: ltr
+  checking: Checking your other sessions…
+  keep_closed: Please do not close this page yet.
+  pace: This usually takes a few seconds.
+  pace_tor: Over Tor this can take a while.
+  no_check: Could not check your other sessions.
+  no_check_hint: Open the logout page and sign out of the remaining services yourself.
+  open_logout: Open the logout page
+  running: Signing you out of your services…
+  keep_open: Please keep this page open until this is done.
+  st_pending: signing out
+  st_done: signed out
+  st_failed: failed
+  st_unconfirmed: not confirmed
+  manual: sign out manually
+  stalled: Could not confirm every sign-out.
+  stalled_hint: Use the links below to sign out of the services still listed.
+  counter: "{done} of {total} services signed out"
+  all_done: Signed out everywhere.
+  may_close: You can close this page now.
+  partial: Signed out, except {failed} of {total} services.
+  partial_hint: Use the links below to sign out of the rest yourself.
+zh:
+  dir: ltr
+  checking: 正在检查您的其他会话…
+  keep_closed: 请先不要关闭此页面。
+  pace: 通常只需几秒钟。
+  pace_tor: 通过 Tor 可能需要较长时间。
+  no_check: 无法检查您的其他会话。
+  no_check_hint: 请打开退出页面，手动退出其余服务。
+  open_logout: 打开退出页面
+  running: 正在从各项服务中退出登录…
+  keep_open: 完成之前请保持此页面打开。
+  st_pending: 正在退出
+  st_done: 已退出
+  st_failed: 失败
+  st_unconfirmed: 未确认
+  manual: 手动退出
+  stalled: 无法确认全部退出。
+  stalled_hint: 请使用下方链接退出仍列出的服务。
+  counter: 已退出 {total} 项服务中的 {done} 项
+  all_done: 已从所有服务退出。
+  may_close: 您现在可以关闭此页面。
+  partial: 已退出，但 {total} 项服务中有 {failed} 项未成功。
+  partial_hint: 请使用下方链接自行退出其余服务。
+hi:
+  dir: ltr
+  checking: आपके अन्य सत्र जाँचे जा रहे हैं…
+  keep_closed: कृपया यह पृष्ठ अभी बंद न करें।
+  pace: इसमें आमतौर पर कुछ सेकंड लगते हैं।
+  pace_tor: Tor पर इसमें अधिक समय लग सकता है।
+  no_check: आपके अन्य सत्र जाँचे नहीं जा सके।
+  no_check_hint: लॉगआउट पृष्ठ खोलें और शेष सेवाओं से स्वयं लॉग आउट करें।
+  open_logout: लॉगआउट पृष्ठ खोलें
+  running: आपको सेवाओं से लॉग आउट किया जा रहा है…
+  keep_open: पूरा होने तक यह पृष्ठ खुला रखें।
+  st_pending: लॉग आउट हो रहा है
+  st_done: लॉग आउट हो गया
+  st_failed: विफल
+  st_unconfirmed: पुष्टि नहीं हुई
+  manual: स्वयं लॉग आउट करें
+  stalled: हर लॉगआउट की पुष्टि नहीं हो सकी।
+  stalled_hint: नीचे दिए लिंक से शेष सेवाओं से लॉग आउट करें।
+  counter: "{total} में से {done} सेवाओं से लॉग आउट"
+  all_done: सभी सेवाओं से लॉग आउट हो गया।
+  may_close: अब आप यह पृष्ठ बंद कर सकते हैं।
+  partial: लॉग आउट हुआ, {total} में से {failed} सेवाएँ शेष।
+  partial_hint: नीचे दिए लिंक से बाकी सेवाओं से स्वयं लॉग आउट करें।
+es:
+  dir: ltr
+  checking: Comprobando tus otras sesiones…
+  keep_closed: Por favor, no cierres esta página todavía.
+  pace: Esto suele tardar unos segundos.
+  pace_tor: A través de Tor puede tardar más.
+  no_check: No se pudieron comprobar tus otras sesiones.
+  no_check_hint: Abre la página de cierre de sesión y cierra tú mismo las sesiones restantes.
+  open_logout: Abrir la página de cierre de sesión
+  running: Cerrando tu sesión en los servicios…
+  keep_open: Mantén esta página abierta hasta que termine.
+  st_pending: cerrando sesión
+  st_done: sesión cerrada
+  st_failed: error
+  st_unconfirmed: sin confirmar
+  manual: cerrar sesión manualmente
+  stalled: No se pudo confirmar cada cierre de sesión.
+  stalled_hint: Usa los enlaces de abajo para cerrar sesión en los servicios que siguen listados.
+  counter: "{done} de {total} servicios cerrados"
+  all_done: Sesión cerrada en todos los servicios.
+  may_close: Ya puedes cerrar esta página.
+  partial: Sesión cerrada, salvo en {failed} de {total} servicios.
+  partial_hint: Usa los enlaces de abajo para cerrar el resto tú mismo.
+ar:
+  dir: rtl
+  checking: جارٍ التحقق من جلساتك الأخرى…
+  keep_closed: يرجى عدم إغلاق هذه الصفحة بعد.
+  pace: عادةً ما يستغرق ذلك بضع ثوانٍ.
+  pace_tor: عبر Tor قد يستغرق ذلك وقتًا أطول.
+  no_check: تعذّر التحقق من جلساتك الأخرى.
+  no_check_hint: افتح صفحة تسجيل الخروج وسجّل الخروج من الخدمات المتبقية بنفسك.
+  open_logout: فتح صفحة تسجيل الخروج
+  running: جارٍ تسجيل خروجك من الخدمات…
+  keep_open: أبقِ هذه الصفحة مفتوحة حتى ينتهي ذلك.
+  st_pending: جارٍ تسجيل الخروج
+  st_done: تم تسجيل الخروج
+  st_failed: فشل
+  st_unconfirmed: غير مؤكد
+  manual: تسجيل الخروج يدويًا
+  stalled: تعذّر تأكيد كل عمليات تسجيل الخروج.
+  stalled_hint: استخدم الروابط أدناه لتسجيل الخروج من الخدمات المذكورة.
+  counter: تم تسجيل الخروج من {done} من أصل {total} خدمة
+  all_done: تم تسجيل الخروج من جميع الخدمات.
+  may_close: يمكنك الآن إغلاق هذه الصفحة.
+  partial: تم تسجيل الخروج، عدا {failed} من أصل {total} خدمة.
+  partial_hint: استخدم الروابط أدناه لتسجيل الخروج من البقية بنفسك.
+fr:
+  dir: ltr
+  checking: Vérification de vos autres sessions…
+  keep_closed: Veuillez ne pas encore fermer cette page.
+  pace: Cela prend généralement quelques secondes.
+  pace_tor: Via Tor, cela peut prendre plus de temps.
+  no_check: Impossible de vérifier vos autres sessions.
+  no_check_hint: Ouvrez la page de déconnexion et déconnectez-vous vous-même des services restants.
+  open_logout: Ouvrir la page de déconnexion
+  running: Déconnexion de vos services en cours…
+  keep_open: Gardez cette page ouverte jusqu’à la fin.
+  st_pending: déconnexion
+  st_done: déconnecté
+  st_failed: échec
+  st_unconfirmed: non confirmé
+  manual: se déconnecter manuellement
+  stalled: Impossible de confirmer chaque déconnexion.
+  stalled_hint: Utilisez les liens ci-dessous pour vous déconnecter des services encore listés.
+  counter: "{done} services déconnectés sur {total}"
+  all_done: Déconnecté partout.
+  may_close: Vous pouvez maintenant fermer cette page.
+  partial: Déconnecté, sauf {failed} services sur {total}.
+  partial_hint: Utilisez les liens ci-dessous pour vous déconnecter des autres.
+bn:
+  dir: ltr
+  checking: আপনার অন্যান্য সেশন যাচাই করা হচ্ছে…
+  keep_closed: অনুগ্রহ করে এখনই এই পৃষ্ঠা বন্ধ করবেন না।
+  pace: সাধারণত কয়েক সেকেন্ড লাগে।
+  pace_tor: Tor-এর মাধ্যমে এটি বেশি সময় নিতে পারে।
+  no_check: আপনার অন্যান্য সেশন যাচাই করা যায়নি।
+  no_check_hint: লগআউট পৃষ্ঠা খুলুন এবং বাকি পরিষেবাগুলি থেকে নিজে লগ আউট করুন।
+  open_logout: লগআউট পৃষ্ঠা খুলুন
+  running: আপনাকে পরিষেবাগুলি থেকে লগ আউট করা হচ্ছে…
+  keep_open: শেষ না হওয়া পর্যন্ত এই পৃষ্ঠা খোলা রাখুন।
+  st_pending: লগ আউট হচ্ছে
+  st_done: লগ আউট হয়েছে
+  st_failed: ব্যর্থ
+  st_unconfirmed: নিশ্চিত নয়
+  manual: নিজে লগ আউট করুন
+  stalled: প্রতিটি লগআউট নিশ্চিত করা যায়নি।
+  stalled_hint: নিচের লিঙ্ক দিয়ে বাকি পরিষেবাগুলি থেকে লগ আউট করুন।
+  counter: "{total}টির মধ্যে {done}টি পরিষেবা থেকে লগ আউট"
+  all_done: সব পরিষেবা থেকে লগ আউট হয়েছে।
+  may_close: আপনি এখন এই পৃষ্ঠা বন্ধ করতে পারেন।
+  partial: লগ আউট হয়েছে, {total}টির মধ্যে {failed}টি বাদে।
+  partial_hint: নিচের লিঙ্ক দিয়ে বাকিগুলি থেকে নিজে লগ আউট করুন।
+pt:
+  dir: ltr
+  checking: A verificar as suas outras sessões…
+  keep_closed: Por favor, ainda não feche esta página.
+  pace: Normalmente demora alguns segundos.
+  pace_tor: Através do Tor pode demorar mais.
+  no_check: Não foi possível verificar as suas outras sessões.
+  no_check_hint: Abra a página de logout e termine a sessão nos serviços restantes.
+  open_logout: Abrir a página de logout
+  running: A terminar a sua sessão nos serviços…
+  keep_open: Mantenha esta página aberta até terminar.
+  st_pending: a terminar sessão
+  st_done: sessão terminada
+  st_failed: falhou
+  st_unconfirmed: não confirmado
+  manual: terminar sessão manualmente
+  stalled: Não foi possível confirmar todos os logouts.
+  stalled_hint: Use as ligações abaixo para terminar a sessão nos serviços ainda listados.
+  counter: "{done} de {total} serviços com sessão terminada"
+  all_done: Sessão terminada em todos os serviços.
+  may_close: Já pode fechar esta página.
+  partial: Sessão terminada, exceto em {failed} de {total} serviços.
+  partial_hint: Use as ligações abaixo para terminar os restantes.
+ru:
+  dir: ltr
+  checking: Проверка ваших других сеансов…
+  keep_closed: Пожалуйста, пока не закрывайте эту страницу.
+  pace: Обычно это занимает несколько секунд.
+  pace_tor: Через Tor это может занять больше времени.
+  no_check: Не удалось проверить ваши другие сеансы.
+  no_check_hint: Откройте страницу выхода и выйдите из оставшихся сервисов самостоятельно.
+  open_logout: Открыть страницу выхода
+  running: Выполняется выход из ваших сервисов…
+  keep_open: Держите эту страницу открытой до завершения.
+  st_pending: выполняется выход
+  st_done: выход выполнен
+  st_failed: ошибка
+  st_unconfirmed: не подтверждено
+  manual: выйти вручную
+  stalled: Не удалось подтвердить каждый выход.
+  stalled_hint: Используйте ссылки ниже, чтобы выйти из перечисленных сервисов.
+  counter: Выход выполнен из {done} из {total} сервисов
+  all_done: Выход выполнен везде.
+  may_close: Теперь вы можете закрыть эту страницу.
+  partial: Выход выполнен, кроме {failed} из {total} сервисов.
+  partial_hint: Используйте ссылки ниже, чтобы выйти из остальных.
+ur:
+  dir: rtl
+  checking: آپ کے دیگر سیشنز کی جانچ ہو رہی ہے…
+  keep_closed: براہ کرم ابھی یہ صفحہ بند نہ کریں۔
+  pace: عام طور پر اس میں چند سیکنڈ لگتے ہیں۔
+  pace_tor: Tor کے ذریعے اس میں زیادہ وقت لگ سکتا ہے۔
+  no_check: آپ کے دیگر سیشنز کی جانچ نہیں ہو سکی۔
+  no_check_hint: لاگ آؤٹ صفحہ کھولیں اور باقی سروسز سے خود لاگ آؤٹ کریں۔
+  open_logout: لاگ آؤٹ صفحہ کھولیں
+  running: آپ کو سروسز سے لاگ آؤٹ کیا جا رہا ہے…
+  keep_open: مکمل ہونے تک یہ صفحہ کھلا رکھیں۔
+  st_pending: لاگ آؤٹ ہو رہا ہے
+  st_done: لاگ آؤٹ ہو گیا
+  st_failed: ناکام
+  st_unconfirmed: غیر تصدیق شدہ
+  manual: خود لاگ آؤٹ کریں
+  stalled: ہر لاگ آؤٹ کی تصدیق نہیں ہو سکی۔
+  stalled_hint: نیچے دیے لنکس سے باقی سروسز سے لاگ آؤٹ کریں۔
+  counter: "{total} میں سے {done} سروسز سے لاگ آؤٹ"
+  all_done: تمام سروسز سے لاگ آؤٹ ہو گیا۔
+  may_close: اب آپ یہ صفحہ بند کر سکتے ہیں۔
+  partial: لاگ آؤٹ ہو گیا، سوائے {total} میں سے {failed} کے۔
+  partial_hint: نیچے دیے لنکس سے باقی سے خود لاگ آؤٹ کریں۔
+id:
+  dir: ltr
+  checking: Memeriksa sesi Anda yang lain…
+  keep_closed: Jangan tutup halaman ini dulu.
+  pace: Biasanya perlu beberapa detik.
+  pace_tor: Melalui Tor ini bisa memakan waktu lebih lama.
+  no_check: Sesi Anda yang lain tidak dapat diperiksa.
+  no_check_hint: Buka halaman logout dan keluar sendiri dari layanan yang tersisa.
+  open_logout: Buka halaman logout
+  running: Mengeluarkan Anda dari layanan…
+  keep_open: Biarkan halaman ini terbuka sampai selesai.
+  st_pending: sedang keluar
+  st_done: sudah keluar
+  st_failed: gagal
+  st_unconfirmed: belum dipastikan
+  manual: keluar secara manual
+  stalled: Tidak semua proses keluar dapat dipastikan.
+  stalled_hint: Gunakan tautan di bawah untuk keluar dari layanan yang masih tercantum.
+  counter: "{done} dari {total} layanan telah keluar"
+  all_done: Keluar dari semua layanan.
+  may_close: Anda sekarang dapat menutup halaman ini.
+  partial: Keluar, kecuali {failed} dari {total} layanan.
+  partial_hint: Gunakan tautan di bawah untuk keluar dari sisanya.
+de:
+  dir: ltr
+  checking: Ihre anderen Sitzungen werden geprüft…
+  keep_closed: Bitte schließen Sie diese Seite noch nicht.
+  pace: Das dauert meist nur wenige Sekunden.
+  pace_tor: Über Tor kann das länger dauern.
+  no_check: Ihre anderen Sitzungen konnten nicht geprüft werden.
+  no_check_hint: Öffnen Sie die Abmeldeseite und melden Sie sich bei den übrigen Diensten selbst ab.
+  open_logout: Abmeldeseite öffnen
+  running: Sie werden von Ihren Diensten abgemeldet…
+  keep_open: Lassen Sie diese Seite offen, bis das erledigt ist.
+  st_pending: wird abgemeldet
+  st_done: abgemeldet
+  st_failed: fehlgeschlagen
+  st_unconfirmed: nicht bestätigt
+  manual: manuell abmelden
+  stalled: Es konnte nicht jede Abmeldung bestätigt werden.
+  stalled_hint: Melden Sie sich über die Links unten bei den noch aufgeführten Diensten ab.
+  counter: "{done} von {total} Diensten abgemeldet"
+  all_done: Überall abgemeldet.
+  may_close: Sie können diese Seite jetzt schließen.
+  partial: Abgemeldet, außer bei {failed} von {total} Diensten.
+  partial_hint: Melden Sie sich über die Links unten bei den übrigen selbst ab.
+ja:
+  dir: ltr
+  checking: 他のセッションを確認しています…
+  keep_closed: このページはまだ閉じないでください。
+  pace: 通常は数秒で終わります。
+  pace_tor: Tor 経由では時間がかかることがあります。
+  no_check: 他のセッションを確認できませんでした。
+  no_check_hint: ログアウトページを開き、残りのサービスからご自身でログアウトしてください。
+  open_logout: ログアウトページを開く
+  running: 各サービスからログアウトしています…
+  keep_open: 完了するまでこのページを開いたままにしてください。
+  st_pending: ログアウト中
+  st_done: ログアウト済み
+  st_failed: 失敗
+  st_unconfirmed: 未確認
+  manual: 手動でログアウト
+  stalled: すべてのログアウトを確認できませんでした。
+  stalled_hint: 下のリンクから、残っているサービスをログアウトしてください。
+  counter: "{total} 件中 {done} 件のサービスからログアウト"
+  all_done: すべてのサービスからログアウトしました。
+  may_close: このページを閉じても大丈夫です。
+  partial: ログアウトしました（{total} 件中 {failed} 件を除く）。
+  partial_hint: 下のリンクから残りをご自身でログアウトしてください。
+sw:
+  dir: ltr
+  checking: Inakagua vipindi vyako vingine…
+  keep_closed: Tafadhali usifunge ukurasa huu bado.
+  pace: Kwa kawaida huchukua sekunde chache.
+  pace_tor: Kupitia Tor inaweza kuchukua muda mrefu.
+  no_check: Vipindi vyako vingine havikuweza kukaguliwa.
+  no_check_hint: Fungua ukurasa wa kuondoka na uondoke mwenyewe kwenye huduma zilizobaki.
+  open_logout: Fungua ukurasa wa kuondoka
+  running: Unaondolewa kwenye huduma zako…
+  keep_open: Acha ukurasa huu wazi hadi ikamilike.
+  st_pending: inaondoka
+  st_done: umeondoka
+  st_failed: imeshindwa
+  st_unconfirmed: haijathibitishwa
+  manual: ondoka mwenyewe
+  stalled: Haikuwezekana kuthibitisha kila kuondoka.
+  stalled_hint: Tumia viungo hapa chini kuondoka kwenye huduma zilizoorodheshwa.
+  counter: Umeondoka kwenye huduma {done} kati ya {total}
+  all_done: Umeondoka kwenye huduma zote.
+  may_close: Sasa unaweza kufunga ukurasa huu.
+  partial: Umeondoka, isipokuwa huduma {failed} kati ya {total}.
+  partial_hint: Tumia viungo hapa chini kuondoka kwenye zilizobaki.
+mr:
+  dir: ltr
+  checking: तुमची इतर सत्रे तपासली जात आहेत…
+  keep_closed: कृपया हे पृष्ठ अजून बंद करू नका.
+  pace: यास सहसा काही सेकंद लागतात.
+  pace_tor: Tor वरून यास अधिक वेळ लागू शकतो.
+  no_check: तुमची इतर सत्रे तपासता आली नाहीत.
+  no_check_hint: लॉगआउट पृष्ठ उघडा आणि उरलेल्या सेवांमधून स्वतः लॉग आउट करा.
+  open_logout: लॉगआउट पृष्ठ उघडा
+  running: तुम्हाला सेवांमधून लॉग आउट केले जात आहे…
+  keep_open: पूर्ण होईपर्यंत हे पृष्ठ उघडे ठेवा.
+  st_pending: लॉग आउट होत आहे
+  st_done: लॉग आउट झाले
+  st_failed: अयशस्वी
+  st_unconfirmed: पुष्टी नाही
+  manual: स्वतः लॉग आउट करा
+  stalled: प्रत्येक लॉगआउटची पुष्टी होऊ शकली नाही.
+  stalled_hint: खालील दुव्यांनी उरलेल्या सेवांमधून लॉग आउट करा.
+  counter: "{total} पैकी {done} सेवांमधून लॉग आउट"
+  all_done: सर्व सेवांमधून लॉग आउट झाले.
+  may_close: आता तुम्ही हे पृष्ठ बंद करू शकता.
+  partial: लॉग आउट झाले, {total} पैकी {failed} वगळता.
+  partial_hint: खालील दुव्यांनी उरलेल्यांमधून स्वतः लॉग आउट करा.
+te:
+  dir: ltr
+  checking: మీ ఇతర సెషన్లు తనిఖీ చేయబడుతున్నాయి…
+  keep_closed: దయచేసి ఈ పేజీని ఇంకా మూసివేయవద్దు.
+  pace: సాధారణంగా కొన్ని సెకన్లు పడుతుంది.
+  pace_tor: Tor ద్వారా ఇది ఎక్కువ సమయం పట్టవచ్చు.
+  no_check: మీ ఇతర సెషన్లను తనిఖీ చేయలేకపోయాము.
+  no_check_hint: లాగౌట్ పేజీని తెరిచి మిగిలిన సేవల నుండి మీరే లాగ్ అవుట్ చేయండి.
+  open_logout: లాగౌట్ పేజీని తెరవండి
+  running: మిమ్మల్ని సేవల నుండి లాగ్ అవుట్ చేస్తోంది…
+  keep_open: పూర్తయ్యే వరకు ఈ పేజీని తెరిచి ఉంచండి.
+  st_pending: లాగ్ అవుట్ అవుతోంది
+  st_done: లాగ్ అవుట్ అయ్యింది
+  st_failed: విఫలమైంది
+  st_unconfirmed: ధృవీకరించబడలేదు
+  manual: మీరే లాగ్ అవుట్ చేయండి
+  stalled: ప్రతి లాగౌట్‌ను ధృవీకరించలేకపోయాము.
+  stalled_hint: దిగువ లింక్‌లతో మిగిలిన సేవల నుండి లాగ్ అవుట్ చేయండి.
+  counter: "{total} సేవల్లో {done} నుండి లాగ్ అవుట్"
+  all_done: అన్ని సేవల నుండి లాగ్ అవుట్ అయ్యింది.
+  may_close: ఇప్పుడు మీరు ఈ పేజీని మూసివేయవచ్చు.
+  partial: లాగ్ అవుట్ అయ్యింది, {total}లో {failed} మినహా.
+  partial_hint: దిగువ లింక్‌లతో మిగిలిన వాటి నుండి మీరే లాగ్ అవుట్ చేయండి.
+tr:
+  dir: ltr
+  checking: Diğer oturumlarınız denetleniyor…
+  keep_closed: Lütfen bu sayfayı henüz kapatmayın.
+  pace: Bu genellikle birkaç saniye sürer.
+  pace_tor: Tor üzerinden bu daha uzun sürebilir.
+  no_check: Diğer oturumlarınız denetlenemedi.
+  no_check_hint: Oturum kapatma sayfasını açın ve kalan hizmetlerden kendiniz çıkın.
+  open_logout: Oturum kapatma sayfasını aç
+  running: Hizmetlerinizdeki oturumlar kapatılıyor…
+  keep_open: Bu iş bitene kadar sayfayı açık tutun.
+  st_pending: oturum kapatılıyor
+  st_done: oturum kapatıldı
+  st_failed: başarısız
+  st_unconfirmed: doğrulanmadı
+  manual: oturumu elle kapat
+  stalled: Her oturum kapatma doğrulanamadı.
+  stalled_hint: Hâlâ listelenen hizmetlerden çıkmak için aşağıdaki bağlantıları kullanın.
+  counter: "{total} hizmetin {done} tanesinde oturum kapatıldı"
+  all_done: Her yerde oturum kapatıldı.
+  may_close: Bu sayfayı şimdi kapatabilirsiniz.
+  partial: Oturum kapatıldı, {total} hizmetin {failed} tanesi hariç.
+  partial_hint: Kalanlardan çıkmak için aşağıdaki bağlantıları kullanın.
+ta:
+  dir: ltr
+  checking: உங்கள் மற்ற அமர்வுகள் சரிபார்க்கப்படுகின்றன…
+  keep_closed: தயவுசெய்து இந்தப் பக்கத்தை இன்னும் மூடாதீர்கள்.
+  pace: இது பொதுவாக சில விநாடிகள் ஆகும்.
+  pace_tor: Tor வழியாக இது அதிக நேரம் ஆகலாம்.
+  no_check: உங்கள் மற்ற அமர்வுகளை சரிபார்க்க முடியவில்லை.
+  no_check_hint: வெளியேறும் பக்கத்தைத் திறந்து மீதமுள்ள சேவைகளிலிருந்து நீங்களே வெளியேறுங்கள்.
+  open_logout: வெளியேறும் பக்கத்தைத் திற
+  running: உங்கள் சேவைகளிலிருந்து வெளியேற்றப்படுகிறீர்கள்…
+  keep_open: முடியும் வரை இந்தப் பக்கத்தைத் திறந்து வையுங்கள்.
+  st_pending: வெளியேறுகிறது
+  st_done: வெளியேறியது
+  st_failed: தோல்வி
+  st_unconfirmed: உறுதிப்படுத்தப்படவில்லை
+  manual: நீங்களே வெளியேறுங்கள்
+  stalled: ஒவ்வொரு வெளியேற்றத்தையும் உறுதிப்படுத்த முடியவில்லை.
+  stalled_hint: கீழுள்ள இணைப்புகளால் மீதமுள்ள சேவைகளிலிருந்து வெளியேறுங்கள்.
+  counter: "{total} சேவைகளில் {done} வெளியேறியது"
+  all_done: அனைத்து சேவைகளிலிருந்தும் வெளியேறியது.
+  may_close: இப்போது இந்தப் பக்கத்தை மூடலாம்.
+  partial: வெளியேறியது, {total} இல் {failed} தவிர.
+  partial_hint: கீழுள்ள இணைப்புகளால் மீதியிலிருந்து நீங்களே வெளியேறுங்கள்.
+vi:
+  dir: ltr
+  checking: Đang kiểm tra các phiên khác của bạn…
+  keep_closed: Vui lòng chưa đóng trang này.
+  pace: Việc này thường mất vài giây.
+  pace_tor: Qua Tor việc này có thể lâu hơn.
+  no_check: Không thể kiểm tra các phiên khác của bạn.
+  no_check_hint: Mở trang đăng xuất và tự đăng xuất khỏi các dịch vụ còn lại.
+  open_logout: Mở trang đăng xuất
+  running: Đang đăng xuất bạn khỏi các dịch vụ…
+  keep_open: Giữ trang này mở cho đến khi xong.
+  st_pending: đang đăng xuất
+  st_done: đã đăng xuất
+  st_failed: thất bại
+  st_unconfirmed: chưa xác nhận
+  manual: tự đăng xuất
+  stalled: Không thể xác nhận mọi lần đăng xuất.
+  stalled_hint: Dùng các liên kết bên dưới để đăng xuất khỏi những dịch vụ còn được liệt kê.
+  counter: Đã đăng xuất {done} trên {total} dịch vụ
+  all_done: Đã đăng xuất khỏi mọi dịch vụ.
+  may_close: Bây giờ bạn có thể đóng trang này.
+  partial: Đã đăng xuất, trừ {failed} trên {total} dịch vụ.
+  partial_hint: Dùng các liên kết bên dưới để tự đăng xuất phần còn lại.
+ko:
+  dir: ltr
+  checking: 다른 세션을 확인하는 중…
+  keep_closed: 아직 이 페이지를 닫지 마세요.
+  pace: 보통 몇 초면 끝납니다.
+  pace_tor: Tor를 통하면 더 오래 걸릴 수 있습니다.
+  no_check: 다른 세션을 확인할 수 없었습니다.
+  no_check_hint: 로그아웃 페이지를 열고 남은 서비스에서 직접 로그아웃하세요.
+  open_logout: 로그아웃 페이지 열기
+  running: 서비스에서 로그아웃하는 중…
+  keep_open: 완료될 때까지 이 페이지를 열어 두세요.
+  st_pending: 로그아웃 중
+  st_done: 로그아웃됨
+  st_failed: 실패
+  st_unconfirmed: 미확인
+  manual: 직접 로그아웃
+  stalled: 모든 로그아웃을 확인하지 못했습니다.
+  stalled_hint: 아래 링크로 아직 남은 서비스에서 로그아웃하세요.
+  counter: "{total}개 중 {done}개 서비스 로그아웃됨"
+  all_done: 모든 서비스에서 로그아웃했습니다.
+  may_close: 이제 이 페이지를 닫아도 됩니다.
+  partial: 로그아웃했습니다. {total}개 중 {failed}개 제외.
+  partial_hint: 아래 링크로 나머지를 직접 로그아웃하세요.
+it:
+  dir: ltr
+  checking: Controllo delle tue altre sessioni…
+  keep_closed: Per favore non chiudere ancora questa pagina.
+  pace: Di solito richiede pochi secondi.
+  pace_tor: Tramite Tor può richiedere più tempo.
+  no_check: Non è stato possibile controllare le tue altre sessioni.
+  no_check_hint: Apri la pagina di logout e disconnettiti tu stesso dai servizi rimanenti.
+  open_logout: Apri la pagina di logout
+  running: Disconnessione dai tuoi servizi in corso…
+  keep_open: Tieni aperta questa pagina finché non è finito.
+  st_pending: disconnessione
+  st_done: disconnesso
+  st_failed: non riuscito
+  st_unconfirmed: non confermato
+  manual: disconnettiti manualmente
+  stalled: Non è stato possibile confermare ogni disconnessione.
+  stalled_hint: Usa i link qui sotto per disconnetterti dai servizi ancora elencati.
+  counter: "{done} di {total} servizi disconnessi"
+  all_done: Disconnesso ovunque.
+  may_close: Ora puoi chiudere questa pagina.
+  partial: Disconnesso, tranne {failed} di {total} servizi.
+  partial_hint: Usa i link qui sotto per disconnetterti dagli altri.
+ha:
+  dir: ltr
+  checking: Ana duba sauran zaman ka…
+  keep_closed: Don Allah kada ka rufe wannan shafi tukuna.
+  pace: Yawanci yakan ɗauki ƴan daƙiƙu.
+  pace_tor: Ta hanyar Tor yana iya ɗaukar lokaci mai tsawo.
+  no_check: An kasa duba sauran zaman ka.
+  no_check_hint: Buɗe shafin fita ka fita da kanka daga sauran aiyuka.
+  open_logout: Buɗe shafin fita
+  running: Ana fitar da kai daga aiyukanka…
+  keep_open: Ka bar wannan shafi a buɗe har sai an gama.
+  st_pending: ana fita
+  st_done: an fita
+  st_failed: ya kasa
+  st_unconfirmed: ba a tabbatar ba
+  manual: fita da kanka
+  stalled: An kasa tabbatar da kowace fita.
+  stalled_hint: Yi amfani da hanyoyin da ke ƙasa don fita daga aiyukan da suka rage.
+  counter: An fita daga aiyuka {done} cikin {total}
+  all_done: An fita daga dukkan aiyuka.
+  may_close: Yanzu za ka iya rufe wannan shafi.
+  partial: An fita, sai dai aiyuka {failed} cikin {total}.
+  partial_hint: Yi amfani da hanyoyin da ke ƙasa don fita daga sauran.
+th:
+  dir: ltr
+  checking: กำลังตรวจสอบเซสชันอื่นของคุณ…
+  keep_closed: โปรดอย่าเพิ่งปิดหน้านี้
+  pace: โดยปกติใช้เวลาไม่กี่วินาที
+  pace_tor: ผ่าน Tor อาจใช้เวลานานกว่า
+  no_check: ไม่สามารถตรวจสอบเซสชันอื่นของคุณได้
+  no_check_hint: เปิดหน้าออกจากระบบและออกจากบริการที่เหลือด้วยตนเอง
+  open_logout: เปิดหน้าออกจากระบบ
+  running: กำลังออกจากระบบบริการต่าง ๆ ของคุณ…
+  keep_open: โปรดเปิดหน้านี้ไว้จนกว่าจะเสร็จ
+  st_pending: กำลังออกจากระบบ
+  st_done: ออกจากระบบแล้ว
+  st_failed: ล้มเหลว
+  st_unconfirmed: ยังไม่ยืนยัน
+  manual: ออกจากระบบเอง
+  stalled: ไม่สามารถยืนยันการออกจากระบบได้ทั้งหมด
+  stalled_hint: ใช้ลิงก์ด้านล่างเพื่อออกจากบริการที่ยังแสดงอยู่
+  counter: ออกจากระบบแล้ว {done} จาก {total} บริการ
+  all_done: ออกจากระบบทุกบริการแล้ว
+  may_close: คุณปิดหน้านี้ได้แล้ว
+  partial: ออกจากระบบแล้ว ยกเว้น {failed} จาก {total} บริการ
+  partial_hint: ใช้ลิงก์ด้านล่างเพื่อออกจากบริการที่เหลือด้วยตนเอง
+gu:
+  dir: ltr
+  checking: તમારા અન્ય સત્રો તપાસાઈ રહ્યા છે…
+  keep_closed: કૃપા કરીને આ પૃષ્ઠ હજી બંધ ન કરો.
+  pace: સામાન્ય રીતે થોડી સેકંડ લાગે છે.
+  pace_tor: Tor દ્વારા આમાં વધુ સમય લાગી શકે છે.
+  no_check: તમારા અન્ય સત્રો તપાસી શકાયા નથી.
+  no_check_hint: લૉગઆઉટ પૃષ્ઠ ખોલો અને બાકીની સેવાઓમાંથી જાતે લૉગ આઉટ કરો.
+  open_logout: લૉગઆઉટ પૃષ્ઠ ખોલો
+  running: તમને સેવાઓમાંથી લૉગ આઉટ કરવામાં આવે છે…
+  keep_open: પૂર્ણ થાય ત્યાં સુધી આ પૃષ્ઠ ખુલ્લું રાખો.
+  st_pending: લૉગ આઉટ થઈ રહ્યું છે
+  st_done: લૉગ આઉટ થયું
+  st_failed: નિષ્ફળ
+  st_unconfirmed: પુષ્ટિ થઈ નથી
+  manual: જાતે લૉગ આઉટ કરો
+  stalled: દરેક લૉગઆઉટની પુષ્ટિ થઈ શકી નથી.
+  stalled_hint: નીચેની લિંક વડે બાકીની સેવાઓમાંથી લૉગ આઉટ કરો.
+  counter: "{total} માંથી {done} સેવાઓમાંથી લૉગ આઉટ"
+  all_done: બધી સેવાઓમાંથી લૉગ આઉટ થયું.
+  may_close: હવે તમે આ પૃષ્ઠ બંધ કરી શકો છો.
+  partial: લૉગ આઉટ થયું, {total} માંથી {failed} સિવાય.
+  partial_hint: નીચેની લિંક વડે બાકીનામાંથી જાતે લૉગ આઉટ કરો.
+fa:
+  dir: rtl
+  checking: در حال بررسی نشست‌های دیگر شما…
+  keep_closed: لطفاً هنوز این صفحه را نبندید.
+  pace: معمولاً چند ثانیه طول می‌کشد.
+  pace_tor: از طریق Tor ممکن است بیشتر طول بکشد.
+  no_check: نشست‌های دیگر شما بررسی نشد.
+  no_check_hint: صفحهٔ خروج را باز کنید و از سرویس‌های باقی‌مانده خودتان خارج شوید.
+  open_logout: باز کردن صفحهٔ خروج
+  running: در حال خروج شما از سرویس‌ها…
+  keep_open: تا پایان کار این صفحه را باز نگه دارید.
+  st_pending: در حال خروج
+  st_done: خارج شد
+  st_failed: ناموفق
+  st_unconfirmed: تأیید نشده
+  manual: خروج دستی
+  stalled: همهٔ خروج‌ها تأیید نشد.
+  stalled_hint: با پیوندهای زیر از سرویس‌های باقی‌مانده خارج شوید.
+  counter: خروج از {done} سرویس از {total}
+  all_done: از همهٔ سرویس‌ها خارج شدید.
+  may_close: اکنون می‌توانید این صفحه را ببندید.
+  partial: خارج شدید، به‌جز {failed} از {total} سرویس.
+  partial_hint: با پیوندهای زیر خودتان از بقیه خارج شوید.
+pl:
+  dir: ltr
+  checking: Sprawdzanie Twoich innych sesji…
+  keep_closed: Nie zamykaj jeszcze tej strony.
+  pace: Zwykle trwa to kilka sekund.
+  pace_tor: Przez Tor może to potrwać dłużej.
+  no_check: Nie udało się sprawdzić Twoich innych sesji.
+  no_check_hint: Otwórz stronę wylogowania i wyloguj się samodzielnie z pozostałych usług.
+  open_logout: Otwórz stronę wylogowania
+  running: Trwa wylogowywanie Cię z usług…
+  keep_open: Pozostaw tę stronę otwartą do zakończenia.
+  st_pending: wylogowywanie
+  st_done: wylogowano
+  st_failed: niepowodzenie
+  st_unconfirmed: niepotwierdzone
+  manual: wyloguj ręcznie
+  stalled: Nie udało się potwierdzić każdego wylogowania.
+  stalled_hint: Skorzystaj z poniższych odnośników, aby wylogować się z wciąż wymienionych usług.
+  counter: Wylogowano z {done} z {total} usług
+  all_done: Wylogowano wszędzie.
+  may_close: Możesz teraz zamknąć tę stronę.
+  partial: Wylogowano, poza {failed} z {total} usług.
+  partial_hint: Skorzystaj z poniższych odnośników, aby wylogować się z pozostałych.
+uk:
+  dir: ltr
+  checking: Перевірка ваших інших сеансів…
+  keep_closed: Будь ласка, поки не закривайте цю сторінку.
+  pace: Зазвичай це триває кілька секунд.
+  pace_tor: Через Tor це може тривати довше.
+  no_check: Не вдалося перевірити ваші інші сеанси.
+  no_check_hint: Відкрийте сторінку виходу та вийдіть із решти сервісів самостійно.
+  open_logout: Відкрити сторінку виходу
+  running: Виконується вихід із ваших сервісів…
+  keep_open: Тримайте цю сторінку відкритою до завершення.
+  st_pending: виконується вихід
+  st_done: вихід виконано
+  st_failed: помилка
+  st_unconfirmed: не підтверджено
+  manual: вийти вручну
+  stalled: Не вдалося підтвердити кожен вихід.
+  stalled_hint: Скористайтеся посиланнями нижче, щоб вийти з перелічених сервісів.
+  counter: Вихід виконано з {done} із {total} сервісів
+  all_done: Вихід виконано скрізь.
+  may_close: Тепер ви можете закрити цю сторінку.
+  partial: Вихід виконано, крім {failed} із {total} сервісів.
+  partial_hint: Скористайтеся посиланнями нижче, щоб вийти з решти.
+ms:
+  dir: ltr
+  checking: Memeriksa sesi anda yang lain…
+  keep_closed: Sila jangan tutup halaman ini lagi.
+  pace: Biasanya mengambil masa beberapa saat.
+  pace_tor: Melalui Tor ia mungkin mengambil masa lebih lama.
+  no_check: Sesi anda yang lain tidak dapat diperiksa.
+  no_check_hint: Buka halaman log keluar dan log keluar sendiri daripada perkhidmatan yang tinggal.
+  open_logout: Buka halaman log keluar
+  running: Mengelog keluar anda daripada perkhidmatan…
+  keep_open: Biarkan halaman ini terbuka sehingga selesai.
+  st_pending: sedang log keluar
+  st_done: telah log keluar
+  st_failed: gagal
+  st_unconfirmed: belum disahkan
+  manual: log keluar sendiri
+  stalled: Tidak semua log keluar dapat disahkan.
+  stalled_hint: Gunakan pautan di bawah untuk log keluar daripada perkhidmatan yang masih disenaraikan.
+  counter: "{done} daripada {total} perkhidmatan telah log keluar"
+  all_done: Telah log keluar daripada semua perkhidmatan.
+  may_close: Anda kini boleh menutup halaman ini.
+  partial: Telah log keluar, kecuali {failed} daripada {total} perkhidmatan.
+  partial_hint: Gunakan pautan di bawah untuk log keluar daripada yang selebihnya.
+nl:
+  dir: ltr
+  checking: Je andere sessies worden gecontroleerd…
+  keep_closed: Sluit deze pagina nog niet.
+  pace: Dit duurt meestal een paar seconden.
+  pace_tor: Via Tor kan dit langer duren.
+  no_check: Je andere sessies konden niet worden gecontroleerd.
+  no_check_hint: Open de afmeldpagina en meld je zelf af bij de overige diensten.
+  open_logout: Afmeldpagina openen
+  running: Je wordt bij je diensten afgemeld…
+  keep_open: Houd deze pagina open tot dit klaar is.
+  st_pending: bezig met afmelden
+  st_done: afgemeld
+  st_failed: mislukt
+  st_unconfirmed: niet bevestigd
+  manual: handmatig afmelden
+  stalled: Niet elke afmelding kon worden bevestigd.
+  stalled_hint: Gebruik de links hieronder om je af te melden bij de nog vermelde diensten.
+  counter: "{done} van {total} diensten afgemeld"
+  all_done: Overal afgemeld.
+  may_close: Je kunt deze pagina nu sluiten.
+  partial: Afgemeld, behalve bij {failed} van {total} diensten.
+  partial_hint: Gebruik de links hieronder om je bij de rest zelf af te melden.
+pa:
+  dir: ltr
+  checking: ਤੁਹਾਡੇ ਹੋਰ ਸੈਸ਼ਨ ਜਾਂਚੇ ਜਾ ਰਹੇ ਹਨ…
+  keep_closed: ਕਿਰਪਾ ਕਰਕੇ ਇਹ ਪੰਨਾ ਹਾਲੇ ਬੰਦ ਨਾ ਕਰੋ।
+  pace: ਇਸ ਵਿੱਚ ਆਮ ਤੌਰ ਤੇ ਕੁਝ ਸਕਿੰਟ ਲੱਗਦੇ ਹਨ।
+  pace_tor: Tor ਰਾਹੀਂ ਇਸ ਵਿੱਚ ਵੱਧ ਸਮਾਂ ਲੱਗ ਸਕਦਾ ਹੈ।
+  no_check: ਤੁਹਾਡੇ ਹੋਰ ਸੈਸ਼ਨ ਜਾਂਚੇ ਨਹੀਂ ਜਾ ਸਕੇ।
+  no_check_hint: ਲਾਗਆਉਟ ਪੰਨਾ ਖੋਲ੍ਹੋ ਅਤੇ ਬਾਕੀ ਸੇਵਾਵਾਂ ਤੋਂ ਆਪ ਲਾਗ ਆਉਟ ਕਰੋ।
+  open_logout: ਲਾਗਆਉਟ ਪੰਨਾ ਖੋਲ੍ਹੋ
+  running: ਤੁਹਾਨੂੰ ਸੇਵਾਵਾਂ ਤੋਂ ਲਾਗ ਆਉਟ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ…
+  keep_open: ਮੁਕੰਮਲ ਹੋਣ ਤੱਕ ਇਹ ਪੰਨਾ ਖੁੱਲ੍ਹਾ ਰੱਖੋ।
+  st_pending: ਲਾਗ ਆਉਟ ਹੋ ਰਿਹਾ ਹੈ
+  st_done: ਲਾਗ ਆਉਟ ਹੋ ਗਿਆ
+  st_failed: ਅਸਫਲ
+  st_unconfirmed: ਪੁਸ਼ਟੀ ਨਹੀਂ
+  manual: ਆਪ ਲਾਗ ਆਉਟ ਕਰੋ
+  stalled: ਹਰ ਲਾਗਆਉਟ ਦੀ ਪੁਸ਼ਟੀ ਨਹੀਂ ਹੋ ਸਕੀ।
+  stalled_hint: ਹੇਠਾਂ ਦਿੱਤੇ ਲਿੰਕਾਂ ਨਾਲ ਬਾਕੀ ਸੇਵਾਵਾਂ ਤੋਂ ਲਾਗ ਆਉਟ ਕਰੋ।
+  counter: "{total} ਵਿੱਚੋਂ {done} ਸੇਵਾਵਾਂ ਤੋਂ ਲਾਗ ਆਉਟ"
+  all_done: ਸਾਰੀਆਂ ਸੇਵਾਵਾਂ ਤੋਂ ਲਾਗ ਆਉਟ ਹੋ ਗਿਆ।
+  may_close: ਹੁਣ ਤੁਸੀਂ ਇਹ ਪੰਨਾ ਬੰਦ ਕਰ ਸਕਦੇ ਹੋ।
+  partial: ਲਾਗ ਆਉਟ ਹੋ ਗਿਆ, {total} ਵਿੱਚੋਂ {failed} ਨੂੰ ਛੱਡ ਕੇ।
+  partial_hint: ਹੇਠਾਂ ਦਿੱਤੇ ਲਿੰਕਾਂ ਨਾਲ ਬਾਕੀਆਂ ਤੋਂ ਆਪ ਲਾਗ ਆਉਟ ਕਰੋ।

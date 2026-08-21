@@ -2,17 +2,17 @@
 
   {% set service_name = 'prometheus' %}
   {{ service_name }}:
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_image', application_id, 'prometheus') }}
     {{ lookup('compose_only', 'container_name', PROMETHEUS_CONTAINER) }}
     {{ lookup('container_ports', ['prometheus', 'http', DOCKER_BIND_HOST]) | indent(4) }}
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    {{ lookup('container_extra_hosts', extra_hosts=['host.docker.internal:host-gateway']) | indent(4) }}
     command:
       - "--config.file={{ PROMETHEUS_CONFIG_DOCKER }}"
-      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.path={{ lookup('volume', 'web-app-prometheus', 'data').target }}"
       - "--web.enable-lifecycle"
-    {{ lookup('container_volumes', application_id, 'prometheus') | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
 
     {{ lookup('container_networks') | indent(4) }}
       {% for metrics_app_id in lookup('native_metrics_apps') %}
@@ -20,22 +20,24 @@
       {% endfor %}
   {% set service_name = 'blackbox-exporter' %}
   {{ service_name }}:
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_image', application_id, 'blackbox-exporter') }}
     {{ lookup('compose_only', 'container_name', BLACKBOX_CONTAINER) }}
     command:
       - "--config.file={{ BLACKBOX_CONFIG_DOCKER }}"
-    {{ lookup('container_volumes', application_id, 'blackbox-exporter') | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
 
   {% set service_name = 'alertmanager' %}
   {{ service_name }}:
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_image', application_id, 'alertmanager') }}
     {{ lookup('compose_only', 'container_name', ALERTMANAGER_CONTAINER) }}
     command:
       - "--config.file={{ ALERTMANAGER_CONFIG_DOCKER }}"
-      - "--storage.path=/alertmanager"
-    {{ lookup('container_volumes', application_id, 'alertmanager') | indent(4) }}
+      - "--storage.path={{ lookup('volume', 'web-app-prometheus', 'alertmanager_data').target }}"
+    {{ lookup('container_volumes', service_name) | indent(4) }}
 
   {% set service_name = 'cadvisor' %}
   {{ service_name }}:
@@ -47,10 +49,11 @@
     devices:
       - /dev/kmsg
     {% endif %}
-    {{ lookup('container_volumes', application_id, 'cadvisor') | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
 
   {% set service_name = 'node-exporter' %}
   {{ service_name }}:
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_image', application_id, 'node-exporter') }}
     {{ lookup('compose_only', 'container_name', NODE_EXPORTER_CONTAINER) }}
@@ -59,14 +62,14 @@
     network_mode: host
     pid: host
     {% endif %}
-    {{ lookup('container_volumes', application_id, 'node-exporter') | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     command:
-      - "--path.procfs=/host/proc"
-      - "--path.rootfs=/rootfs"
-      - "--path.sysfs=/host/sys"
+      - "--path.procfs={{ lookup('volume', 'web-app-prometheus', 'host_proc').target }}"
+      - "--path.rootfs={{ lookup('volume', 'web-app-prometheus', 'host_rootfs').target }}"
+      - "--path.sysfs={{ lookup('volume', 'web-app-prometheus', 'host_sys').targets['node-exporter'] }}"
       - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}
   {% for metrics_app_id in lookup('native_metrics_apps') %}
   {% set service_name = metrics_app_id | get_entity_name %}

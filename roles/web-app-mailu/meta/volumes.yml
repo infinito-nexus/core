@@ -4,9 +4,9 @@ admin_data:
   name: mailu_admin_data
   mounts:
     - service: admin
-      target: /data
+      target: &data_target /data
     - service: fetchmail
-      target: /data
+      target: *data_target
 clamav_db:
   type: volume
   name: mailu_clamav_db
@@ -18,9 +18,9 @@ dkim:
   name: mailu_dkim
   mounts:
     - service: admin
-      target: /dkim
+      target: &dkim_target /dkim
     - service: antispam
-      target: /dkim
+      target: *dkim_target
 dovecot_mail:
   type: volume
   name: mailu_dovecot_mail
@@ -44,20 +44,20 @@ webdav_data:
   name: mailu_webdav_data
   mounts:
     - service: webdav
-      target: /data
+      target: *data_target
 webmail_data:
   type: volume
   name: mailu_webmail_data
   mounts:
     - service: webmail
-      target: /data
+      target: *data_target
 nginx_overrides:
   type: bind
   source: "{{ [ lookup('container', 'web-app-mailu', 'directories.volumes'), 'overrides/nginx' ] | path_join }}"
   read_only: true
   mounts:
     - service: front
-      target: /overrides
+      target: &overrides_target /overrides
 certs:
   type: bind
   source: "{{ [ lookup('container', 'web-app-mailu', 'directories.volumes'), 'certs' ] | path_join }}"
@@ -71,15 +71,15 @@ overrides:
   read_only: true
   mounts:
     - service: imap
-      target: /overrides
+      target: *overrides_target
     - service: smtp
-      target: /overrides
+      target: *overrides_target
     - service: webmail
-      target: /overrides
+      target: *overrides_target
 rspamd_overrides:
   type: bind
   source: "{{ [ lookup('container', 'web-app-mailu', 'directories.volumes'), 'overrides/rspamd' ] | path_join }}"
   read_only: true
   mounts:
     - service: antispam
-      target: /overrides
+      target: *overrides_target

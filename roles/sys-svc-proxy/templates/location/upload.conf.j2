@@ -1,18 +1,16 @@
 location {{ location_upload }} {
     
-    # Proxyconfiguration for Upload
     {{ lookup('proxy_pass', application_id, proxy_service_key | default(application_id | get_entity_name), 'http', tail='plain', local_port=http_port, internal_port=proxy_internal_port | default('')) }}
     proxy_set_header        Host              $host;
     proxy_set_header        X-Real-IP         $remote_addr;
     proxy_set_header        X-Forwarded-For   $proxy_add_x_forwarded_for;
-    proxy_set_header        X-Forwarded-Proto $scheme;
+    proxy_set_header        X-Forwarded-Proto {{ proxy_x_forwarded_proto | default('$scheme') }};
     proxy_buffering         off;
     proxy_request_buffering off;
     proxy_read_timeout      120s;
     proxy_connect_timeout   120s;
     proxy_send_timeout      120s;
 
-    # Client Limits for Upload
     client_max_body_size    {{ webserver_client_max_body_size | default(lookup('config', application_id, 'server.client_max_body_size', '100m')) }};
 
     {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}

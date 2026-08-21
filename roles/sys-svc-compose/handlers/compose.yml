@@ -2,11 +2,11 @@
 - name: "🛡️ Guard instance dir at compose flush"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/guard_instance_dir.yml') }}"
   listen:
-    - compose up
-    - compose build
-    - container recreate
+    - compose-up
+    - compose-build
+    - container-recreate
 
-- name: Generate CA trust override
+- name: 📝 Generate CA trust override
   ansible.builtin.shell: |
     set -euo pipefail
     {{ lookup('compose_ca_inject_cmd', application_id) }}
@@ -19,13 +19,10 @@
   delay: 20
   until: compose_ca_override is succeeded
   listen:
-    - compose up
-  when:
-    - lookup('domains') | has_domain(application_id)
-    - lookup('tls', application_id, 'enabled') | bool
-    - lookup('tls', application_id, 'mode') == 'self_signed'
+    - compose-up
+  when: lookup('ca_injected', application_id)
 
-- name: Validate Docker Compose configuration
+- name: ✅ Validate Docker Compose configuration
   ansible.builtin.shell: |
     set -euo pipefail
     compose config --quiet
@@ -36,13 +33,13 @@
   changed_when: false
   failed_when: dc_validate.rc != 0
   listen:
-    - compose up
+    - compose-up
   when: MODE_ASSERT_LOCAL | bool
 
-- name: compose pull
+- name: 📥 compose pull
   ansible.builtin.script:
     cmd: >-
-      pull.py
+      python/pull.py
       --chdir {{ lookup('container', application_id, 'directories.instance') }}
       --project {{ application_id | get_entity_name }}
       --compose-files {{ lookup('compose_file_args', application_id, include_ca=False) | quote }}
@@ -59,9 +56,9 @@
   delay: 30
   until: pull is succeeded
   listen:
-    - compose up
+    - compose-up
 
-- name: Build compose
+- name: 🔨 Build compose
   ansible.builtin.shell: |
     set -euo pipefail
     compose build
@@ -75,9 +72,9 @@
   until: compose_build is succeeded
   ignore_errors: true
   listen:
-    - compose build
+    - compose-build
 
-- name: Rebuild compose without cache once the spaced retries are exhausted
+- name: 🔨 Rebuild compose without cache once the retries are exhausted
   ansible.builtin.shell: |
     set -euo pipefail
     compose build --no-cache --pull
@@ -87,9 +84,9 @@
   timeout: "{{ lookup('timeout', 3600) | int }}"
   when: compose_build is failed
   listen:
-    - compose build
+    - compose-build
 
-- name: compose up
+- name: 🐳 compose up
   ansible.builtin.shell: |
     set -euo pipefail
     compose up -d --force-recreate --remove-orphans
@@ -102,5 +99,5 @@
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
     executable: /bin/bash
   listen:
-    - compose up
-    - container recreate
+    - compose-up
+    - container-recreate

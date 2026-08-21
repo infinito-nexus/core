@@ -1,0 +1,1 @@
+# nocheck: role-files-layout - Deployed as one unit: tasks/02_extensions.yml:32 copies ``install/helpers/`` as a whole directory, and composer_install.sh:29 then invokes strip_require_dev.php by name in that destination.

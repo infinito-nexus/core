@@ -19,6 +19,7 @@ flowchart LR
         dep_svc_db_mariadb["svc-db-mariadb 🐳🐝"]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
         dep_svc_db_redis["svc-db-redis 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_bigbluebutton["web-app-bigbluebutton 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_discourse["web-app-discourse 🐳🐝"]
@@ -68,6 +69,7 @@ flowchart LR
         svc_css["css"]
         svc_hcaptcha["hcaptcha"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
         svc_openproject["openproject"]
         svc_gitlab["gitlab"]
         svc_discourse["discourse"]
@@ -86,6 +88,7 @@ flowchart LR
     dep_svc_db_mariadb -. "0..1" .-> svc_mariadb
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
     dep_svc_db_redis -. "0..1" .-> svc_redis
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_bigbluebutton -. "0..1" .-> svc_bigbluebutton
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_discourse -. "0..1" .-> svc_discourse
@@ -112,7 +115,7 @@ flowchart LR
     dep_web_svc_onlyoffice -. "0..1" .-> svc_onlyoffice
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
@@ -192,6 +195,10 @@ A detailed documentation for the use and administration of Nextcloud on Infinito
 - [LDAP Integration Guide](https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_auth_ldap.html)
 - [OIDC Login Plugin (pulsejet)](https://github.com/pulsejet/nextcloud-oidc-login)
 - [Sociallogin Plugin (Official)](https://apps.nextcloud.com/apps/sociallogin)
+
+## Persona contract opt-outs
+
+The shared `biber` and `administrator` persona helpers are declared blocked in [templates/playwright.env.j2](./templates/playwright.env.j2). Nextcloud presents three different login surfaces depending on the variant (native, `oidc_login`, `sociallogin`), the native administrator authenticates with the role-local `credentials.administrator_password` rather than the Keycloak secret, and the `#firstrunwizard` modal intercepts the user-menu click the generic logout depends on. Both personas are therefore driven by the role's own login specs — `test-login-admin-native.js`, `test-login-admin-oidc.js`, `test-login-biber-oidc.js` and `test-login-biber-ldap.js` under [files/playwright](./files/playwright/) — which carry the flavor switch, the modal dismissal and the login retry the shared helper lacks.
 
 ## Credits
 

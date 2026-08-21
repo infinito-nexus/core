@@ -15,7 +15,7 @@
     - { src: "sso/header_auth.js", dest: "header_auth.js" }
     - { src: "sso/patch_server.js", dest: "patch_server.js" }
   notify:
-    - compose build
-    - compose up
+    - compose-build
+    - compose-up
 
 - include_tasks: utils/once/flag.yml

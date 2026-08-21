@@ -1,7 +1,7 @@
 ---
 - name: 🔄 reload system daemon
   command: /bin/true
-  notify: "reload system daemon"
+  notify: "reload-system-daemon"
 
 - name: "✅ Sanity check SYSTEMD_MANAGER_CONF_DIR"
   assert:
@@ -16,4 +16,4 @@
   file:
     path: "{{ SYSTEMD_MANAGER_CONF_DIR }}"
     state: absent
-  notify: reexec systemd manager
+  notify: reexec-systemd-manager

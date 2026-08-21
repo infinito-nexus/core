@@ -2,6 +2,7 @@
 {% if lookup('database', application_id, 'local') %}
 
   {{ lookup('database', application_id, 'host') }}:
+    {{ lookup('container_deploy', replicas=1) | indent(4) }}
     {{ lookup('compose_only', 'container_name', ((application_id | get_entity_name) ~ '-database')) }}
     logging:
       driver: journald

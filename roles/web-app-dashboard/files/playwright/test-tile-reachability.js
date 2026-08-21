@@ -6,7 +6,9 @@
 // personas no longer drive the dashboard click; they go straight to the
 // app URL.
 
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures/onion-test");
+const { resolveTimeout } = require("./timeouts");
+const { gotoOnion } = require("./personas");
 
 const dashboardTargetRoles = (() => {
   const raw = process.env.DASHBOARD_TARGET_ROLES_JSON || "[]";
@@ -20,7 +22,7 @@ const dashboardTargetRoles = (() => {
 
 async function findVisibleTile(page, canonicalDomain) {
   const tile = page.locator(`a[href*="${canonicalDomain}"]:visible`).first();
-  const visible = await tile.isVisible({ timeout: 5_000 }).catch(() => false);
+  const visible = await tile.isVisible().catch(() => false);
 
   if (!visible) {
     // Tile may be hidden inside a collapsed Bootstrap dropdown / accordion.
@@ -30,15 +32,15 @@ async function findVisibleTile(page, canonicalDomain) {
     const triggerCount = await triggers.count().catch(() => 0);
     for (let i = 0; i < triggerCount; i++) {
       const t = triggers.nth(i);
-      if (!(await t.isVisible({ timeout: 200 }).catch(() => false))) continue;
-      await t.click({ timeout: 1_000 }).catch(() => {});
+      if (!(await t.isVisible().catch(() => false))) continue;
+      await t.click({ timeout: resolveTimeout(1_000) }).catch(() => {});
     }
   }
 
   await expect(
     tile,
     `dashboard tile for ${canonicalDomain} MUST be visible`
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
   return tile;
 }
 
@@ -59,7 +61,7 @@ async function assertTileLoadsInIframe(page, target) {
   // top-level navigation.
   await expect
     .poll(() => page.url(), {
-      timeout: 30_000,
+      timeout: resolveTimeout(30_000),
       message: `Expected dashboard URL to embed ${target.canonical_domain} via ?iframe=... after clicking the ${target.id} tile`,
     })
     .toContain(target.canonical_domain);
@@ -68,7 +70,7 @@ async function assertTileLoadsInIframe(page, target) {
   await expect(
     iframe,
     `Expected #main iframe to be present after clicking the ${target.id} tile`
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
   const iframeSrc = await iframe.getAttribute("src");
   expect(
@@ -110,14 +112,14 @@ async function assertTileNavigatesTopLevel(page, context, target) {
   // WITHOUT an embedded #main iframe, since SPAs like Keycloak's admin console
   // force a top-window redirect that would shatter the embed.
   const popupPromise = context
-    .waitForEvent("page", { timeout: 15_000 })
+    .waitForEvent("page", { timeout: resolveTimeout(15_000) })
     .catch(() => null);
   await tile.click();
   const popup = await popupPromise;
 
   if (popup) {
     await popup
-      .waitForLoadState("domcontentloaded", { timeout: 30_000 })
+      .waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) })
       .catch(() => {});
     expect(
       popup.url(),
@@ -129,7 +131,7 @@ async function assertTileNavigatesTopLevel(page, context, target) {
 
   await expect
     .poll(() => page.url(), {
-      timeout: 30_000,
+      timeout: resolveTimeout(30_000),
       message: `Expected top-level navigation to ${target.canonical_domain} after clicking the ${target.id} tile`,
     })
     .toContain(target.canonical_domain);
@@ -162,14 +164,14 @@ async function assertTabButtonOpensNewTab(page, context, target) {
   await expect(
     tabButton,
     `Expected the dashboard header "Tab" button to be visible for the ${target.id} tile`
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
   const [popup] = await Promise.all([
-    context.waitForEvent("page", { timeout: 30_000 }),
+    context.waitForEvent("page", { timeout: resolveTimeout(30_000) }),
     tabButton.click(),
   ]);
 
-  await popup.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+  await popup.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
   expect(
     popup.url(),
     `Expected popup tab URL to contain ${target.canonical_domain}, got ${popup.url()}`
@@ -185,14 +187,14 @@ exports.register = function (shared) {
     const embeddable = target.iframe !== false;
     if (embeddable) {
       test(`dashboard tile for ${target.id} embeds ${target.canonical_domain} in iframe and opens it in a new tab`, async ({ page, context }) => {
-        await page.goto("/", { waitUntil: "domcontentloaded" });
+        await gotoOnion(page, "/", { waitUntil: "domcontentloaded" });
         await shared.waitForDashboardReady(page);
         await assertTileLoadsInIframe(page, target);
         await assertTabButtonOpensNewTab(page, context, target);
       });
     } else {
       test(`dashboard tile for ${target.id} opens ${target.canonical_domain} via top-level navigation`, async ({ page, context }) => {
-        await page.goto("/", { waitUntil: "domcontentloaded" });
+        await gotoOnion(page, "/", { waitUntil: "domcontentloaded" });
         await shared.waitForDashboardReady(page);
         await assertTileNavigatesTopLevel(page, context, target);
       });

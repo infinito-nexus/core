@@ -99,8 +99,6 @@ def _variant_service_key_line_numbers(
             continue
         stack.append((indent, key))
 
-        # Only record direct children of `services:` (depth == 2 in the
-        # variant subtree).
         path_keys = [k for _, k in stack]
         if len(path_keys) == 2 and path_keys[0] == "services":
             out[(variant_index, path_keys[1])] = idx + 1

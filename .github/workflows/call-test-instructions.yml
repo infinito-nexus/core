@@ -25,21 +25,21 @@ on:
   workflow_dispatch:
     inputs:
       distros:
-        description: "Space-separated distro list"
+        description: "🐧 Space-separated distro list"
         required: true
         type: string
       role:
-        description: "Role to test; empty picks one at random"
+        description: "📖 Role to test; empty picks one at random"
         required: false
         type: string
         default: ""
       priority:
-        description: "Space-separated app ids; a random one is preferred over whitelist"
+        description: "⭐ App ids; a random one is preferred over the whitelist"
         required: false
         type: string
         default: ""
       whitelist:
-        description: "Space-separated app ids; a random one is used when no role or priority is given"
+        description: "🎯 App ids; a random one runs when no role or priority is given"
         required: false
         type: string
         default: ""

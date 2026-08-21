@@ -68,7 +68,7 @@ def _install_binary() -> None:
                     raise RuntimeError(
                         f"Archive {archive_name} contains an unsafe path: {member.name}"
                     )
-            tar.extractall(tmpdir)  # noqa: S202 - members validated for path traversal
+            tar.extractall(tmpdir, filter="data")
 
         binary_src = tmp_path / "actionlint"
         if not binary_src.is_file():

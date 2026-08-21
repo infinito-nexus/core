@@ -34,7 +34,7 @@ Each module owns a private `_reset()` that clears its own cache dicts. The packa
 - You MUST NOT introduce a third parallel cache for the same concern. If you need to cache a derived shape, add a getter to the appropriate domain module (`applications`, `users`, or `domains`) that builds on the existing primitives.
 - You SHOULD prefer the explicit cached getter over re-implementing the same memoisation in a calling module.
 - You MUST NOT mutate values returned by `utils.cache.yaml.load_yaml`. The same dict instance is returned to every caller; callers that need to mutate MUST `copy.deepcopy()` the result first. Each domain getter documents whether it returns a fresh deep copy or the cached instance; respect that contract.
-- You MUST keep dependencies inside this package minimal. Cache primitives MUST remain importable from filter plugins, lookup plugins, and CLI tools without dragging in heavy dependencies. **Specifically: `applications.py` MUST stay ansible-free at import time.** See CI runs 24934007615 / 24935979190 for the regression that motivated the split. Tests in `tests/unit/utils/cache/test_data.py::TestImportableWithoutAnsible` pin both the import-time and call-time invariants.
+- You MUST keep dependencies inside this package minimal. Cache primitives MUST remain importable from filter plugins, lookup plugins, and CLI tools without dragging in heavy dependencies. **Specifically: `applications.py` MUST stay ansible-free at import time.** See CI runs 24934007615 / 24935979190 for the regression that motivated the split. Tests in `tests/unit/python/utils/cache/test_data.py::TestImportableWithoutAnsible` pin both the import-time and call-time invariants.
 
 ## Example Imports ✍️
 

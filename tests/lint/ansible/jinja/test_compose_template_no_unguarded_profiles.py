@@ -22,7 +22,7 @@ from pathlib import Path
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import iter_project_files_with_content
 
-from . import PROJECT_ROOT
+from . import PROJECT_ROOT, is_main_compose_template
 
 _RULE = "compose-profiles-without-swarm-gate"
 
@@ -63,14 +63,6 @@ def _is_inside_compose_only_gate(lines: list[str], target_idx: int) -> bool:
     return False
 
 
-def _is_scan_target(rel_path: str) -> bool:
-    return (
-        rel_path.startswith("roles/")
-        and "/templates/" in rel_path
-        and rel_path.endswith("compose.yml.j2")
-    )
-
-
 class TestComposeTemplateNoUnguardedProfiles(unittest.TestCase):
     def test_no_unguarded_profiles_in_compose_template(self) -> None:
         findings: list[tuple[str, int, str]] = []
@@ -79,7 +71,7 @@ class TestComposeTemplateNoUnguardedProfiles(unittest.TestCase):
             exclude_tests=True,
         ):
             rel = Path(path_str).relative_to(PROJECT_ROOT).as_posix()
-            if not _is_scan_target(rel):
+            if not is_main_compose_template(rel):
                 continue
             lines = content.splitlines()
             for idx, line in enumerate(lines):

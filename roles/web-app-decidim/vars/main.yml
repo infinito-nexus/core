@@ -1,12 +1,13 @@
 ---
 application_id: "web-app-decidim"
 domain: "{{ lookup('domain', application_id) }}"
+swarm_stack_converge_retries: 600
 
 DECIDIM_VERSION: "{{ lookup('config', application_id, 'services.decidim.version') }}"
 DECIDIM_IMAGE: "{{ lookup('config', application_id, 'services.decidim.image') }}"
 DECIDIM_CONTAINER: "{{ lookup('config', application_id, 'services.decidim.name') }}"
 
-DECIDIM_SECRET_KEY_BASE: "{{ lookup('config', application_id, 'credentials.secret_key_base') }}"
+DECIDIM_SECRET_KEY_BASE: "{{ lookup('config', application_id, 'secrets.credentials.secret_key_base') }}"
 
 DECIDIM_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 DECIDIM_OIDC_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"

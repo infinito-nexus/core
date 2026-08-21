@@ -45,16 +45,13 @@ import subprocess
 import sys
 from pathlib import Path
 
+from utils.ansible_log import LOG_PREFIX_RE
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 _ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
 _NON_SKIP_RE = re.compile(
     r"^\s*(?:ok|changed|fatal|included):\s+",
-    re.MULTILINE,
-)
-_LOG_PREFIX_RE = re.compile(
-    r"^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d,\d+ p=\d+ u=\S+ n=\S+ \w+\| ",
     re.MULTILINE,
 )
 
@@ -204,7 +201,7 @@ def _role_body_executed(log_content: str, role_id: str) -> bool:
     `skipping:` status line, so a header alone is insufficient evidence
     that the role's body ran — we must see at least one non-skip outcome.
     """
-    clean = _LOG_PREFIX_RE.sub("", _ANSI_RE.sub("", log_content))
+    clean = LOG_PREFIX_RE.sub("", _ANSI_RE.sub("", log_content))
     marker = f"TASK [{role_id} :"
     pos = 0
     while True:

@@ -22,12 +22,7 @@
     metricz.conf     — /metricz scrape endpoint (prometheus domain only); no Jinja2 — lives in files/ not templates/
   #}
   {% if lookup('prometheus_integration_active', application_id) %}
-  {# Expose the Ansible role ID so Lua metrics handlers can attach the 'app' label. #}
   set $app_id "{{ application_id }}";
-  {# Docker container name for this vhost — used by /healthz/live to query the
-     health_containers shared dict populated by the background Docker-socket timer.
-     Falls back to "" when the naming convention doesn't match (dict lookup is skipped).
-     Callers set container_name before the include to supply a non-default service key. #}
   {% if container_name is defined %}
   set $container_name "{{ container_name }}";
   {% else %}
@@ -37,7 +32,6 @@
   {% include 'roles/web-app-prometheus/templates/nginx/healthz.conf.j2' %}
   {% include 'roles/web-app-prometheus/templates/nginx/location.conf.j2' %}
   {% if application_id == 'web-app-prometheus' %}
-  {# Scrape endpoint — only on the prometheus domain itself. #}
   {% include 'roles/web-app-prometheus/files/nginx/metricz.conf' %}
   {% endif %}
   {% endif %}

@@ -1,2 +1,4 @@
 ---
 application_id: desk-gnome-extensions
+DESK_GNOME_EXTENSIONS_MANAGER_REPO: "{{ lookup('config', application_id, 'services.gnome-extensions.repository') }}"
+DESK_GNOME_EXTENSIONS_MANAGER_REF: "{{ lookup('config', application_id, 'services.gnome-extensions.ref') }}"

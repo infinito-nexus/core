@@ -8,12 +8,22 @@
 - name: "📂 Load init routine for '{{ application_id }}'"
   include_tasks: 02_init.yml
 
+- name: "📄 Deploy the logout status panel for '{{ application_id }}'"
+  stack_host_template:
+    src: logout-panel.js.j2
+    dest: "{{ KEYCLOAK_LOGOUT_PANEL_FILE }}"
+    mode: "0644"
+  when: KEYCLOAK_LOGOUT_PANEL_ENABLED | bool
+  notify: reload-openresty
+
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full
   vars:
     compose_handlers_flush: true
-    webserver_extra_configuration: "{{ lookup('template', 'nginx/helper_iframes.conf.j2') }}"
+    webserver_extra_configuration: >-
+      {{ lookup('template', 'nginx/helper_iframes.conf.j2')
+         ~ (lookup('template', 'nginx/logout_panel.conf.j2') if KEYCLOAK_LOGOUT_PANEL_ENABLED | bool else '') }}
 
 - name: "👔 Keycloak manager-side operations (file deploys + container exec)"
   include_tasks: 03_manager_ops.yml

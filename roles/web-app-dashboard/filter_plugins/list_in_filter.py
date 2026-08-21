@@ -14,9 +14,7 @@ class FilterModule:
         :param list2: Target list in which to search for elements.
         :return: True if at least one element is found, otherwise False.
         """
-        # If either parameter is not a list, return False.
         if not isinstance(list1, list) or not isinstance(list2, list):
             return False
 
-        # Iterate over list1 and check if an element exists in list2.
         return any(element in list2 for element in list1)

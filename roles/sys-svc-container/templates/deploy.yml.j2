@@ -1,13 +1,7 @@
-{% if (compose_mode_force | default('') or DEPLOYMENT_MODE) == 'swarm' %}
+{% if compose_mode == 'swarm' %}
 {{ "\n" }}
 {% set _replicas = lookup('applications') | resource_filter(application_id, 'replicas', service_name | default(''), '') %}
-    deploy:
-      {{ lookup('compose_replicas', _replicas) if _replicas != '' else lookup('compose_replicas') }}
-{% if application_id in lookup('roles_with_placement', 'manager') %}
-      placement:
-        constraints:
-          - node.role == manager
-{% endif %}
+    {{ lookup('container_deploy', replicas=_replicas) | indent(4) }}
       update_config:
         parallelism: {{ service_update_parallelism | default(1) }}
         delay: {{ service_update_delay | default('10s') }}

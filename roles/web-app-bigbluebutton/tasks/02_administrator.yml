@@ -31,7 +31,7 @@
       - bash
       - -lc
       - "bundle exec rails runner -"
-    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/greenlight_ensure_admin.rb') }}"
+    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/ruby/greenlight_ensure_admin.rb') }}"
   register: greenlight_admin_map
   changed_when: "'CHANGED' in greenlight_admin_map.stdout"
   failed_when: greenlight_admin_map.rc != 0

@@ -18,7 +18,7 @@
     src: prosody-ldap.cfg.lua.j2
     dest: "{{ JITSI_PROSODY_CONFIG_HOST_PATH }}/conf.d/ldap.cfg.lua"
     mode: "0644"
-  notify: compose up
+  notify: compose-up
   when: JITSI_LDAP_ENABLED
 
 - name: "🚿 flush handlers so Jitsi containers start with rendered env"

@@ -20,6 +20,7 @@
  */
 
 const { expect } = require("@playwright/test");
+const { resolveTimeout } = require("../../timeouts");
 
 // Injector base-URL resolution. Switch-case form (rather than a
 // dictionary lookup) is intentional: it gives `tests/lint/ansible/
@@ -62,7 +63,7 @@ async function readCspString(page) {
   if (!currentUrl || currentUrl === "about:blank") return "";
 
   const fresh = await page.request
-    .get(currentUrl, { ignoreHTTPSErrors: true, timeout: 10_000 })
+    .get(currentUrl, { ignoreHTTPSErrors: true, timeout: resolveTimeout(10_000) })
     .catch(() => null);
   if (fresh) {
     const headers = fresh.headers();

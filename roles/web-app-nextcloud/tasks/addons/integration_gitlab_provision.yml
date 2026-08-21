@@ -1,23 +1,32 @@
 ---
+- name: "🔍 Resolve GitLab webservice hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: webservice
+    resolve_service_name: "{{ lookup('container_service', 'web-app-gitlab', 'webservice') }}"
+    resolve_output_prefix: NEXTCLOUD_GITLAB
+    resolve_compose_cid: "{{ NEXTCLOUD_GITLAB_CONTAINER_ADDRESS }}"
+    resolve_converge_retries: 120
+    resolve_converge_delay: 5
+
+- name: ⏳ Wait for the GitLab web endpoint
+  wait_for:
+    host: "{{ DOCKER_REACH_HOST }}"
+    port: "{{ lookup('config', 'web-app-gitlab', 'services.gitlab.ports.local.http') }}"
+    delay: 5
+    timeout: "{{ lookup('timeout', 600) | int }}"
+
 - name: 🔧 Provision the GitLab OAuth application for Nextcloud and capture credentials
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -i
-      - -e
-      - "NC_BASE_URL={{ nextcloud_gl_nc_base_url }}"
-      - -e
-      - "NC_REDIRECT_PATH=/apps/integration_gitlab/oauth-redirect"
-      - -e
-      - "NC_HAS_SECRET={{ nextcloud_gl_client_secret_current.stdout | trim }}"
-      - "{{ nextcloud_gl_container }}" # nocheck: container-exec-resolver  runs only behind the bare-name partner probe gate, compose co-location
-      - /srv/gitlab/bin/rails
-      - runner
-      - -e
-      - production
-      - "-"
-    stdin: "{{ lookup('file', 'gitlab/provision_oauth_app.rb') }}"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i
+      -e 'NC_BASE_URL={{ nextcloud_gl_nc_base_url }}'
+      -e 'NC_REDIRECT_PATH=/apps/integration_gitlab/oauth-redirect'
+      -e 'NC_HAS_SECRET={{ nextcloud_gl_client_secret_current.stdout | trim }}'
+      {{ NEXTCLOUD_GITLAB_LOCAL_CID | quote }}
+      /srv/gitlab/bin/rails runner -e production -
+    stdin: "{{ lookup('file', 'ruby/addons/gitlab/provision_oauth_app.rb') }}"
+  delegate_to: "{{ NEXTCLOUD_GITLAB_HOST_NODE }}"
   register: nextcloud_gl_provision
   changed_when: "'CLIENT_ID=' in nextcloud_gl_provision.stdout"
   retries: 12
@@ -53,20 +62,14 @@
       integration_gitlab client_id/client_secret app config to re-provision.
 
 - name: 🔐 Store integration_gitlab OAuth credentials Nextcloud-encrypted (ICrypto, lazy)
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -i
-      - -u
-      - "{{ NEXTCLOUD_DOCKER_USER }}"
-      - -e
-      - "NC_APP_ID=integration_gitlab"
-      - -e
-      - "NC_ENC_B64={{ {'client_id': nextcloud_gl_client_id, 'client_secret': nextcloud_gl_client_secret} | to_json | b64encode }}"
-      - "{{ NEXTCLOUD_CONTAINER }}" # nocheck: container-exec-resolver  runs only behind the bare-name partner probe gate, compose co-location
-      - php
-    stdin: "{{ lookup('file', 'set_encrypted_appconfig.php') }}"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i -u {{ NEXTCLOUD_DOCKER_USER }}
+      -e 'NC_APP_ID=integration_gitlab'
+      -e 'NC_ENC_B64={{ {'client_id': nextcloud_gl_client_id, 'client_secret': nextcloud_gl_client_secret} | to_json | b64encode }}'
+      {{ NEXTCLOUD_LOCAL_CID | quote }}
+      php
+    stdin: "{{ lookup('file', 'php/utils/set_encrypted_appconfig.php') }}"
   register: nextcloud_gl_enc_set
   changed_when: "'OK' in nextcloud_gl_enc_set.stdout"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

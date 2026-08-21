@@ -10,10 +10,10 @@
       - "{{ DOCKER_BIND_HOST }}:{{ UNBOUND_PORT }}:53/udp"  # nocheck: compose-ports-must-use-container-ports
       - "{{ DOCKER_BIND_HOST }}:{{ UNBOUND_PORT }}:53/tcp"  # nocheck: compose-ports-must-use-container-ports
     {% endif %}
-    {{ lookup('container_volumes', application_id, 'unbound') | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     networks:  # nocheck: networks-literal  static-IP resolver on its own engine overlay so consumers can point dns: at it
       {{ UNBOUND_NETWORK_NAME }}:
         ipv4_address: {{ UNBOUND_RESOLVER_IP }}
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

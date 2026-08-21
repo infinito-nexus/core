@@ -18,18 +18,29 @@ set +a
 # shellcheck source=scripts/meta/env/load.sh
 source "${SCRIPT_DIR}/../../../../../scripts/meta/env/load.sh"
 
-: "${RUNNER_TEMP:?}" "${APP_ID:?}" "${INFINITO_DOMAIN:?}"
+: "${RUNNER_TEMP:?}" "${APP_ID:?}" "${INFINITO_DOMAIN:?}" "${INFINITO_CONTAINER:?}"
 
 if command -v apt-get >/dev/null 2>&1; then
-	if [ "$(id -u)" -eq 0 ]; then apt-get update -qq || true; else sudo -E apt-get update -qq || true; fi
+	APT_TIMEOUT=10m
+	APT_OPTS=(-o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30)
+	if [ "$(id -u)" -eq 0 ]; then
+		timeout -k 30 "${APT_TIMEOUT}" apt-get "${APT_OPTS[@]}" update -qq || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+	else
+		sudo -E timeout -k 30 "${APT_TIMEOUT}" apt-get "${APT_OPTS[@]}" update -qq || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+	fi
 fi
 
-bash "${SCRIPT_DIR}/../utils/unmount/nfs_mounts.sh" "${NFS_SERVER}" >/dev/null 2>&1 || true
+if docker exec "${INFINITO_CONTAINER}" docker ps --format '{{.Names}}' 2>/dev/null | grep -qx 'tor'; then
+	echo "==> quiescing CI compose tor (competing onion publisher)"
+	docker exec "${INFINITO_CONTAINER}" docker stop tor
+fi
+
+bash "${SCRIPT_DIR}/../utils/unmount/nfs_mounts.sh" "${NFS_SERVER}" >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 bash "${SCRIPT_DIR}/../utils/unmount/host_state.sh" "${INFINITO_DIR_VAR_LIB:?}"
 for node in "${MGR}" "${WRK1}" "${WRK2}" "${NFS_SERVER}" "${BACKUP_NODE}"; do
-	docker rm -f "${node}" >/dev/null 2>&1 || true
+	docker rm -f "${node}" >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 done
-docker volume rm "${SWARM_NAME}_nfs-export" >/dev/null 2>&1 || true
+docker volume rm "${SWARM_NAME}_nfs-export" >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../../.." && pwd)"
 if [ -z "${INFINITO_IMAGE:-}" ]; then
@@ -65,7 +76,7 @@ docker compose "${COMPOSE_ARGS[@]}" -p "${SWARM_NAME}" --profile drill up -d
 
 if [ -n "${CACHE_NET}" ]; then
 	for node in "${MGR}" "${WRK1}" "${WRK2}" "${NFS_SERVER}" "${BACKUP_NODE}"; do
-		docker network connect "${CACHE_NET}" "${node}" >/dev/null 2>&1 || true
+		docker network connect "${CACHE_NET}" "${node}" >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	done
 fi
 

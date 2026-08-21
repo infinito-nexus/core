@@ -19,6 +19,7 @@ flowchart LR
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
         dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
         dep_svc_db_redis["svc-db-redis 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
@@ -39,15 +40,17 @@ flowchart LR
         svc_xwiki["xwiki"]
         svc_css["css"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
         svc_container_backup["container_backup"]
     end
     subgraph dependents [Dependents]
         dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
-    dep_svc_db_openldap -- "1:1" --> svc_ldap
+    dep_svc_db_openldap -- "0..0" --> svc_ldap
     dep_svc_db_postgres -. "0..1" .-> svc_postgres
     dep_svc_db_redis -. "0..1" .-> svc_redis
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
@@ -56,9 +59,10 @@ flowchart LR
     dep_web_svc_css -. "0..1" .-> svc_css
     dep_web_svc_logout -. "0..1" .-> svc_logout
     svc_sso -. "0..1" .-> dpt_web_app_nextcloud
+    linkStyle 1 stroke:red;
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
@@ -120,13 +124,18 @@ Each one is installed through the XWiki Extension Manager and pins its upstream 
 | `matomo` | `extension` | enabled whenever the `matomo` service is present (`web-app-matomo` co-deployed) | `matomo` → `web-app-matomo` |
 
 `oidc-authenticator` and `ldap-authenticator` are mutually exclusive auth backends (only one may be enabled; see [`tasks/01_validation.yml`](./tasks/01_validation.yml)), each deriving its enablement from its bridged service flag.
-The OIDC/LDAP runtime configuration (provider URLs, bind DN, secrets) lives in the XWiki property templates and is read via `lookup('config', application_id, 'credentials.<name>')`; the addon `config:` carries only the installer coordinate.
+The OIDC/LDAP runtime configuration (provider URLs, bind DN, secrets) lives in the XWiki property templates and is read via `lookup('config', application_id, 'secrets.credentials.<name>')`; the addon `config:` carries only the installer coordinate.
 
 ## Further Resources
 
 - [XWiki Official Website](https://www.xwiki.org/)  
 - [XWiki Documentation](https://www.xwiki.org/xwiki/bin/view/Documentation/)  
 - [XWiki GitHub Repository](https://github.com/xwiki/xwiki-platform)  
+
+## Persona contract opt-outs
+
+The administrator is provisioned as an `XWiki.XWikiUsers` object without a `password` property (see [`templates/xml/user/xwikiusers_object.xml.j2`](./templates/xml/user/xwikiusers_object.xml.j2)), and every privileged operation of the role authenticates as the built-in `superadmin` with `credentials.superadminpassword`. Neither credential is the Keycloak secret the shared persona helpers submit, and `biber` has no XWiki user page at all — only the administrator page is created ([`tasks/03_administrator.yml`](./tasks/03_administrator.yml)) — while the OIDC group mapping stays commented out in [`templates/xwiki.properties.j2`](./templates/xwiki.properties.j2).
+[`templates/playwright.env.j2`](./templates/playwright.env.j2) therefore declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. The Keycloak coupling is instead proven through XWiki's own login action by the addon spec [`files/playwright/addons/oidc-authenticator.spec.js`](./files/playwright/addons/oidc-authenticator.spec.js).
 
 ## Credits
 

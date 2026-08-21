@@ -1,18 +1,14 @@
 {# Base template for all compose.yml.j2 #}
 services:
-{# Load Database #}
 {% if lookup('database', application_id, 'enabled') %}
 {% include 'roles/sys-svc-rdbms/templates/services/main.yml.j2' %}
 {% endif %}
 {% if lookup('objstore', application_id, 'local') %}
 {% include 'roles/' ~ lookup('objstore', application_id, 'id') ~ '/templates/service.yml.j2' %}
 {% endif %}
-{# Embedded Redis sidecar: only when redis is enabled and NOT shared (central),
-   or for the oauth2-proxy session store of SSO-proxied roles. #}
 {% if lookup('engine', 'redis', application_id, 'local') or lookup('sso', application_id, 'is_proxy_gated') %}
 {% include 'roles/svc-db-redis/templates/service.yml.j2' %}
 {% endif %}
-{# Load SSO-proxy sidecar (oauth2-proxy flavor only) #}
 {% if lookup('sso', application_id, 'is_proxy_gated') %}
 {% include 'roles/web-app-keycloak/templates/sso_proxy/container.yml.j2' %}
 {% endif %}

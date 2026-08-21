@@ -4,7 +4,7 @@ listen_addr = "0.0.0.0:{{ GITLAB_GITALY_PORT }}"
 
 [[storage]]
 name = "default"
-path = "/home/git/repositories"
+path = "{{ lookup('volume', 'web-app-gitlab', 'repositories').target }}"
 
 [auth]
 token = {{ GITLAB_GITALY_TOKEN | to_json }}

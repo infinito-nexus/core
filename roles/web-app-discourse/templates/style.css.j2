@@ -1,20 +1,16 @@
 /* Discourse */
 :root section#main{
-  /* Base Colors */
-  --primary:                   var(--color-01-20); /* originally #203243 */
-  --secondary:                 var(--color-01-95); /* originally #eef4f7 */
-  --tertiary:                  var(--color-01-40); /* originally #416376 */
-  --quaternary:                var(--color-01-50); /* originally #5e99b9 */
-  /* Header & Highlight */
-  --header_background:         var(--color-01-86); /* originally #86bddb */
-  --header_primary:            var(--color-01-20); /* same as --primary */
-  --highlight:                 var(--color-01-70); /* same as header_background */
-  --d-selected:                var(--color-01-85); /* originally #bee0f2 */
-  --d-hover:                   var(--color-01-90); /* originally #d2efff */
-  /* Normally refers to secondary. Somehow this reference does not work.*/
+  --primary:                   var(--color-01-20);
+  --secondary:                 var(--color-01-95);
+  --tertiary:                  var(--color-01-40);
+  --quaternary:                var(--color-01-50);
+  --header_background:         var(--color-01-86);
+  --header_primary:            var(--color-01-20);
+  --highlight:                 var(--color-01-70);
+  --d-selected:                var(--color-01-85);
+  --d-hover:                   var(--color-01-90);
   --d-sidebar-background:      var(--color-01-92); 
   --d-sidebar-footer-fade:     var(--color-01-92);
-  /* RGB values */
   --always-black-rgb:          var(--color-rgb-01-01);
   --primary-rgb:               var(--color-rgb-01-20);
   --primary-low-rgb:           var(--color-rgb-01-95);
@@ -24,66 +20,58 @@
   --tertiary-rgb:              var(--color-rgb-01-40);
   --highlight-rgb:             var(--color-rgb-01-70);
   --success-rgb:               var(--color-rgb-01-50);
-  /* Primary Scale */
-  --primary-very-low:          var(--color-01-99); /* originally #f7f9fb */
-  --primary-low:               var(--color-01-95);  /* originally #e3ebf2 */
-  --primary-low-mid:           var(--color-01-75);  /* originally #acc2d7 */
-  --primary-medium:            var(--color-01-60);  /* originally #7499bd */
-  --primary-high:              var(--color-01-40);  /* originally #487096 */
-  --primary-very-high:         var(--color-01-20);  /* originally #34516d */
-  --primary-50:                var(--color-01-99); /* originally #f7f9fb */
+  --primary-very-low:          var(--color-01-99);
+  --primary-low:               var(--color-01-95);
+  --primary-low-mid:           var(--color-01-75);
+  --primary-medium:            var(--color-01-60);
+  --primary-high:              var(--color-01-40);
+  --primary-very-high:         var(--color-01-20);
+  --primary-50:                var(--color-01-99);
 {% for i in range(1, 10) %}
   {% set primary = i * 100 %}
   {% set color = 100 - i * 8 %}
   --primary-{{ primary }}: var(--color-01-{{ "%02d" % color }});
 {% endfor %}
-  /* Header Primary Scale */
-  --header_primary-low:        rgb(var(--color-rgb-01-75));  /* rgb(128, 180, 209) */
-  --header_primary-low-mid:    rgb(var(--color-rgb-01-70));  /* rgb(110, 155, 181) */
-  --header_primary-medium:     rgb(var(--color-rgb-01-60));  /* rgb(93, 132, 155) */
-  --header_primary-high:       rgb(var(--color-rgb-01-50));  /* rgb(78, 112, 132) */
-  --header_primary-very-high:  rgb(var(--color-rgb-01-20));  /* rgb(52, 76, 94) */
-  /* Secondary Scale */
-  --secondary-low:             var(--color-01-20);  /* originally #2f5163 */
-  --secondary-medium:          var(--color-01-40);  /* originally #4e88a5 */
-  --secondary-high:            var(--color-01-60);  /* originally #7ba9c1 */
-  --secondary-very-high:       var(--color-01-90);  /* originally #d7e5ec */
-  /* Tertiary Scale */
-  --tertiary-very-low:         var(--color-01-99); /* originally #eaf0f3 */
-  --tertiary-low:              var(--color-01-95);  /* originally #dfe8ee */
-  --tertiary-medium:           var(--color-01-60);  /* originally #96b4c5 */
-  --tertiary-high:             var(--color-01-40);  /* originally #5886a0 */
-  --tertiary-hover:            var(--color-01-20);  /* originally #314a59 */
-  --tertiary-50:               var(--color-01-99); /* originally #eaf0f3 */
+  --header_primary-low:        rgb(var(--color-rgb-01-75));
+  --header_primary-low-mid:    rgb(var(--color-rgb-01-70));
+  --header_primary-medium:     rgb(var(--color-rgb-01-60));
+  --header_primary-high:       rgb(var(--color-rgb-01-50));
+  --header_primary-very-high:  rgb(var(--color-rgb-01-20));
+  --secondary-low:             var(--color-01-20);
+  --secondary-medium:          var(--color-01-40);
+  --secondary-high:            var(--color-01-60);
+  --secondary-very-high:       var(--color-01-90);
+  --tertiary-very-low:         var(--color-01-99);
+  --tertiary-low:              var(--color-01-95);
+  --tertiary-medium:           var(--color-01-60);
+  --tertiary-high:             var(--color-01-40);
+  --tertiary-hover:            var(--color-01-20);
+  --tertiary-50:               var(--color-01-99);
 {% for i in range(1, 10) %}
   {% set tertiary = i * 100 %}
   {% set color = 100 - i * 5 %}
   --tertiary-{{ tertiary }}: var(--color-01-{{ "%02d" % color }});
 {% endfor %}
-  /* Quaternary */
-  --quaternary-low:           var(--color-01-80);  /* originally #cfe0ea */
-  /* Highlight */
-  --highlight-bg:             var(--color-01-90);  /* originally #dbebf4 */
-  --highlight-low:            var(--color-01-90);  /* originally #dbebf4 */
-  --highlight-medium:         var(--color-01-80);  /* originally #c3deed */
-  --highlight-high:           var(--color-01-30);  /* originally #286688 */
-  /* Combination Variables */
-  --blend-primary-secondary-5:          rgb(var(--color-rgb-01-95));  /* originally rgb(232, 238, 241) */
-  --primary-med-or-secondary-med:       var(--color-01-60);  /* originally #7499bd */
-  --primary-med-or-secondary-high:      var(--color-01-60);  /* originally #7499bd */
-  --primary-high-or-secondary-low:      var(--color-01-40);  /* originally #487096 */
-  --primary-low-mid-or-secondary-high:  var(--color-01-75);  /* originally #acc2d7 */
-  --primary-low-mid-or-secondary-low:   var(--color-01-75);  /* originally #acc2d7 */
-  --primary-or-primary-low-mid:         var(--color-01-20);  /* originally #203243 */
-  --highlight-low-or-medium:            var(--color-01-90);  /* originally #dbebf4 */
-  --tertiary-or-tertiary-low:           var(--color-01-40);  /* originally #416376 */
-  --tertiary-low-or-tertiary-high:      var(--color-01-95);  /* originally #dfe8ee */
-  --tertiary-med-or-tertiary:           var(--color-01-60);  /* originally #96b4c5 */
-  --secondary-or-primary:               var(--color-01-95);  /* originally #eef4f7 */
-  --tertiary-or-white:                  var(--color-01-40);  /* originally #416376 */
-  /* Float Kit */
-  --float-kit-arrow-stroke-color:       var(--primary-low);  /* already mapped above */
-  --float-kit-arrow-fill-color:         var(--secondary);      /* already mapped above */
+  --quaternary-low:           var(--color-01-80);
+  --highlight-bg:             var(--color-01-90);
+  --highlight-low:            var(--color-01-90);
+  --highlight-medium:         var(--color-01-80);
+  --highlight-high:           var(--color-01-30);
+  --blend-primary-secondary-5:          rgb(var(--color-rgb-01-95));
+  --primary-med-or-secondary-med:       var(--color-01-60);
+  --primary-med-or-secondary-high:      var(--color-01-60);
+  --primary-high-or-secondary-low:      var(--color-01-40);
+  --primary-low-mid-or-secondary-high:  var(--color-01-75);
+  --primary-low-mid-or-secondary-low:   var(--color-01-75);
+  --primary-or-primary-low-mid:         var(--color-01-20);
+  --highlight-low-or-medium:            var(--color-01-90);
+  --tertiary-or-tertiary-low:           var(--color-01-40);
+  --tertiary-low-or-tertiary-high:      var(--color-01-95);
+  --tertiary-med-or-tertiary:           var(--color-01-60);
+  --secondary-or-primary:               var(--color-01-95);
+  --tertiary-or-white:                  var(--color-01-40);
+  --float-kit-arrow-stroke-color:       var(--primary-low);
+  --float-kit-arrow-fill-color:         var(--secondary);
   --d-content-background: rgba( var(--color-rgb-01-83),1 );
 }
 .search-input--header{

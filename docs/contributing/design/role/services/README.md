@@ -9,6 +9,6 @@ and consumers MUST follow.
 
 | Page | Purpose |
 |---|---|
-| [layout.md](layout.md) | Per-role `meta/<topic>.yml` shape, file-root convention, services-inlining rule, `meta/schema.yml` (incl. the `default:` field), per-role `networks:` and per-entity `ports` shape, `run_after`/`lifecycle` placement. |
+| [layout.md](layout.md) | Per-role `meta/<topic>.yml` shape, file-root convention, services-inlining rule, `meta/secrets.yml` (incl. the `default:` field), per-role `networks:` and per-entity `ports` shape, `run_after`/`lifecycle` placement. |
 | [base.md](base.md)     | Service registration, discovery, load order, injection model, lookup plugins. |
 | [email.md](email.md)   | `email` lookup plugin contract. |

@@ -43,7 +43,9 @@ from utils.annotations.suppress import is_suppressed_at
 from utils.cache.applications import get_application_defaults
 from utils.cache.files import iter_project_files_with_content
 from utils.cache.yaml import load_yaml
-from utils.docker.healthcheck import PROBES, known_flavors
+from utils.docker.healthcheck.compose import known_flavors, resolve_flavors
+from utils.docker.healthcheck.prefixes import PREFIXES
+from utils.docker.healthcheck.probes import PROBES
 from utils.roles.entity.name import get_entity_name
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
@@ -61,6 +63,7 @@ _SET_SERVICE_NAME = re.compile(r"""\{%-?\s*set\s+service_name\s*=\s*(.+?)\s*-?%\
 _LITERAL = re.compile(r"""^['"]([^'"]+)['"]$""")
 _INTERPOLATION = re.compile(r"""^\{\{\s*(.+?)\s*\}\}$""")
 _ROLE_VAR = re.compile(r"^[A-Z][A-Z0-9_]*$")
+_PLAIN_KEY = re.compile(r"^[a-z0-9][a-z0-9_-]*$")
 _ENTITY_NAME_EXPRESSIONS = ("entity_name", "application_id | get_entity_name")
 
 
@@ -89,6 +92,10 @@ def _resolve_expression(expression: str, app: str) -> str | None:
         return get_entity_name(app)
     if _ROLE_VAR.match(normalized):
         return _resolve_role_var(normalized, app)
+    if _PLAIN_KEY.match(normalized) and normalized in (
+        get_application_defaults().get(app, {}).get("services", {}) or {}
+    ):
+        return normalized
     return None
 
 
@@ -141,14 +148,25 @@ def _probe_defect(services: dict[str, Any], key: str) -> str | None:
             f"service '{key}' declares no healthcheck.flavor, so healthcheck.test "
             f"is required. Known flavors: {known_flavors()}"
         )
-    flavor = str(config.get("flavor", "") or "").strip()
+    declared = config.get("flavor", "")
+    flavor: str | list[str] = (
+        [str(name).strip() for name in declared if str(name).strip()]
+        if isinstance(declared, list)
+        else str(declared or "").strip()
+    )
     if not flavor and not config.get("test"):
         return (
             f"service '{key}' healthcheck has neither flavor nor test. "
             f"Known flavors: {known_flavors()}"
         )
-    if flavor and flavor not in PROBES:
-        return f"service '{key}' has unknown flavor '{flavor}'"
+    for name in resolve_flavors(flavor) if flavor else []:
+        if name not in PROBES and name not in PREFIXES:
+            return f"service '{key}' has unknown flavor '{name}'"
+    if flavor and len([n for n in resolve_flavors(flavor) if n in PROBES]) != 1:
+        return (
+            f"service '{key}' must name exactly one probe, "
+            f"got '{flavor}'. Known flavors: {known_flavors()}"
+        )
     if flavor and config.get("test"):
         return (
             f"service '{key}' declares both flavor '{flavor}' and test; "

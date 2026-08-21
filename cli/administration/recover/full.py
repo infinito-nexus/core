@@ -19,6 +19,7 @@ import sys
 from pathlib import Path
 
 from cli.administration.recover import paths, recoverers, remote
+from utils.recovery import manifest
 
 _REPOS: tuple[tuple[str, str], ...] = (
     ("nfs", "backup-nfs-to-local"),
@@ -34,18 +35,39 @@ def _newest_gen(root: Path, repo: str) -> Path | None:
     return generations[-1] if generations else None
 
 
-def plan(root: Path) -> list[tuple[str, str]]:
-    """(type, source-files-dir) for each present repo, in order; volume per-volume."""
+def plan(root: Path) -> tuple[list[tuple[str, str]], list[str]]:
+    """(type, source) for each present repo, in order; volume per-volume.
+
+    The volume repo contributes a database step after its file steps: the
+    dumps have to land once the volumes are back and while the consumers are
+    still down, which is where the caller has them.
+
+    Returns:
+        The steps, and the repos whose manifest could not be read. A repo that
+        cannot state its layout is skipped rather than guessed at, but it must
+        not take the others with it: recovering two repos of three beats
+        recovering none because one manifest is corrupt.
+    """
     steps: list[tuple[str, str]] = []
+    unreadable: list[str] = []
     for rtype, repo in _REPOS:
         generation = _newest_gen(root, repo)
         if generation is None:
             continue
+        try:
+            names = manifest.layout_of(generation)
+        except ValueError as error:
+            unreadable.append(f"{repo}: {error}")
+            continue
+        files_glob, dump_glob = manifest.globs_of(names)
+        files_dir = names["files_dir"]
         if rtype == "volume":
-            steps += [(rtype, str(vol)) for vol in sorted(generation.glob("*/files"))]
-        elif (generation / "files").is_dir():
-            steps.append((rtype, str(generation / "files")))
-    return steps
+            steps += [(rtype, str(vol)) for vol in sorted(generation.glob(files_glob))]
+            if any(generation.glob(dump_glob)):
+                steps.append(("database", str(generation)))
+        elif (generation / files_dir).is_dir():
+            steps.append((rtype, str(generation / files_dir)))
+    return steps, unreadable
 
 
 def _pull_cmd(source: str) -> list[str]:
@@ -70,20 +92,22 @@ def _device_restore_root(source: str) -> str:
 def _recover_under(
     root: Path, target: str, *, preview: bool, service_backup: bool
 ) -> int:
-    steps = plan(root)
+    steps, unreadable = plan(root)
+    for problem in unreadable:
+        print(f"# full: SKIPPED {problem}", file=sys.stderr)
     if not steps:
         print(f"# full: no backup repos found under {root}")
         return 1
-    returncode = 0
+    returncode = 2 if unreadable else 0
     for rtype, files_dir in steps:
         cmd = recoverers.RECOVERERS[rtype].command(
             files_dir, service_backup=service_backup, target=target
         )
         print(f"# full {rtype}  {target}: {shlex.join(cmd)}")
         if not preview:
-            returncode = subprocess.run(cmd, check=False).returncode
-            if returncode != 0:
-                return returncode
+            failed = subprocess.run(cmd, check=False).returncode
+            if failed != 0:
+                return failed
     return returncode
 
 

@@ -1,4 +1,5 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../onion-test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
 
@@ -6,7 +7,7 @@ test.use({ ignoreHTTPSErrors: true });
 
 test("mautrix-slack addon: Slack bridge appservice bot is provisioned and reachable on Synapse", async ({ request }) => {
   skipUnlessAddonEnabled("mautrix-slack");
-  test.setTimeout(60_000);
+  test.setTimeout(resolveTimeout(60_000));
 
   const matrixBaseUrl = shared.env.matrixBaseUrl;
   const matrixServerName = shared.env.matrixServerName;
@@ -16,7 +17,7 @@ test("mautrix-slack addon: Slack bridge appservice bot is provisioned and reacha
   const botUserId = `@slackbot:${matrixServerName}`;
   const profileUrl = `${matrixBaseUrl.replace(/\/$/, "")}/_matrix/client/v3/profile/${encodeURIComponent(botUserId)}`;
 
-  const response = await request.get(profileUrl, { failOnStatusCode: false });
+  const response = await request.get(profileUrl, { failOnStatusCode: false, timeout: resolveTimeout(30_000) });
   const status = response.status();
   const body = await response.text();
 

@@ -34,10 +34,8 @@ def encrypt_recursively(
         for i, item in enumerate(data):
             data[i] = encrypt_recursively(item, vault_handler, ask_confirmation, prefix)
     elif isinstance(data, str):  # noqa: SIM102  outer guard, inner ask_confirmation block has independent siblings
-        # Only encrypt if it's not already vaulted
         if not data.lstrip().startswith("$ANSIBLE_VAULT"):
             if ask_confirmation:  # noqa: SIM102  combining changes semantics: encrypted_value below must run regardless of ask_confirmation
-                # Ask for confirmation before encrypting if not `--all`
                 if not ask_for_confirmation(prefix):
                     print(f"Skipping encryption for '{prefix}'.")
                     return data
@@ -45,7 +43,7 @@ def encrypt_recursively(
             lines = encrypted_value.splitlines()
             indent = len(lines[1]) - len(lines[1].lstrip())
             body = "\n".join(line[indent:] for line in lines[1:])
-            return VaultScalar(body)  # Store encrypted value as VaultScalar
+            return VaultScalar(body)
     return data
 
 
@@ -64,18 +62,13 @@ def main():
     )
     args = parser.parse_args()
 
-    # Initialize the VaultHandler and load the inventory
     vault_handler = VaultHandler(vault_password_file=args.vault_password_file)
     updated_inventory = YamlHandler.load_yaml(Path(args.inventory_file))
 
-    # 1) Encrypt all fields recursively
     updated_inventory = encrypt_recursively(
         updated_inventory, vault_handler, ask_confirmation=not args.all
     )
 
-    # 2) Save the updated inventory to file. The custom SafeDumper
-    # subclass emits !vault literal blocks; the cached dump_yaml writes
-    # plain YAML which is the wrong output here.
     with Path(args.inventory_file).open("w", encoding="utf-8") as f:
         yaml.dump(  # nocheck: direct-yaml
             updated_inventory, f, sort_keys=False, Dumper=SafeDumper

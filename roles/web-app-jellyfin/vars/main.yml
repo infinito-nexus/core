@@ -7,7 +7,7 @@ JELLYFIN_BASE_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 JELLYFIN_API: "http://{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.jellyfin.ports.local.http') }}"
 
 JELLYFIN_ADMIN_USERNAME: "{{ lookup('users', 'administrator').username }}"
-JELLYFIN_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.administrator_password') }}"
+JELLYFIN_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.administrator_password') }}"
 
 JELLYFIN_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 JELLYFIN_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"

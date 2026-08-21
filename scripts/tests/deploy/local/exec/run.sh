@@ -59,10 +59,6 @@ cd "${REPO_ROOT}"
 source "scripts/meta/env/load.sh"
 : "${INFINITO_CONTAINER:?INFINITO_CONTAINER not set after sourcing scripts/meta/env/load.sh}"
 
-# Build the nested `docker run` argv. Splitting INFINITO_RUN_FLAGS on whitespace is
-# intentional — same UX as INFINITO_RUN_FLAGS in any other Make wrapper. Callers that
-# need single args containing spaces should pass them via the image entry-
-# point (-e VAR='spaced value' arrives intact because docker parses -e).
 docker_run_argv=(docker run --rm)
 if [[ -n "${INFINITO_RUN_FLAGS:-}" ]]; then
 	# shellcheck disable=SC2206

@@ -38,7 +38,6 @@ class TestTestFilesContainUnittestTests(unittest.TestCase):
         except SyntaxError as e:
             raise AssertionError(f"SyntaxError in {path}: {e}") from e
 
-        # Collect local aliases for TestCase (e.g. "from unittest import TestCase as TC")
         testcase_aliases = {"TestCase"}
         unittest_aliases = {"unittest"}
 
@@ -53,10 +52,8 @@ class TestTestFilesContainUnittestTests(unittest.TestCase):
                         testcase_aliases.add(n.asname or "TestCase")
 
         def is_testcase_base(base: ast.expr) -> bool:
-            # TestCase
             if isinstance(base, ast.Name) and base.id in testcase_aliases:
                 return True
-            # unittest.TestCase or alias.TestCase
             return bool(
                 isinstance(base, ast.Attribute)
                 and base.attr == "TestCase"
@@ -64,14 +61,12 @@ class TestTestFilesContainUnittestTests(unittest.TestCase):
                 and base.value.id in unittest_aliases
             )
 
-        # 1) module-level test_* function (uncommon but valid for discovery in some setups)
         for node in tree.body:
             if isinstance(node, ast.FunctionDef) and node.name.startswith("test_"):
                 return True
             if isinstance(node, ast.AsyncFunctionDef) and node.name.startswith("test_"):
                 return True
 
-        # 2) unittest.TestCase subclasses with at least one test_* method
         for node in tree.body:
             if not isinstance(node, ast.ClassDef):
                 continue
@@ -91,7 +86,6 @@ class TestTestFilesContainUnittestTests(unittest.TestCase):
 
         offenders = []
         for path in test_files:
-            # Avoid self-check loops if you name this file test_*.py (it should not be)
             rel = os.path.relpath(path, str(PROJECT_ROOT))
             if not self._file_contains_runnable_unittest_test(path):
                 offenders.append(rel)

@@ -17,15 +17,6 @@ from .test_no_jinja_default_on_spot_path import (
     _find_default_target,
 )
 
-# Ansible "magic" / connection variables that are always defined for
-# every task in every play. A Jinja ``| default(...)`` on any of them
-# is dead code: the filter never fires, and the value behind it
-# silently masks the real one if the upstream contract ever changes.
-#
-# Scope is intentionally conservative: only the bare name (no dotted
-# access) is checked. ``groups.foo``, ``hostvars.<host>.<var>``,
-# ``ansible_facts.<x>`` etc. may legitimately be absent, so defaults
-# on dotted accesses are NOT flagged.
 ANSIBLE_MAGIC_VARS = frozenset(
     {
         "group_names",
@@ -199,7 +190,6 @@ class TestAnsibleMagicDefaultScannerFixtures(unittest.TestCase):
         self.assertEqual(findings[0].var, "inventory_hostname")
 
     def test_skips_dotted_access(self) -> None:
-        # `groups.foo` may legitimately be absent — defaults are allowed.
         findings = self._scan('foo: "{{ groups.foo | default([]) }}"\n')
         self.assertEqual(findings, [])
 
@@ -214,7 +204,6 @@ class TestAnsibleMagicDefaultScannerFixtures(unittest.TestCase):
         self.assertEqual(findings, [])
 
     def test_skips_raw_block(self) -> None:
-        # `{% raw %}...{% endraw %}` is documentation, not live Jinja.
         findings = self._scan(
             "foo: |\n  {% raw %}{{ group_names | default([]) }}{% endraw %}\n"
         )

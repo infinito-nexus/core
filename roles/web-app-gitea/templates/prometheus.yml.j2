@@ -4,7 +4,7 @@
   - job_name: "gitea"
     scheme: http
     metrics_path: /metrics
-{% set _token = lookup('config', native_prometheus_application_id, 'credentials.native_metrics_token', '') %}
+{% set _token = lookup('config', native_prometheus_application_id, 'secrets.credentials.native_metrics_token', '') %}
 {% if _token %}
     bearer_token: "{{ _token }}"
 {% endif %}

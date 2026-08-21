@@ -39,23 +39,19 @@
   loop_control:
     label: "{{ item.path }}"
   notify:
-    - compose build
-    - compose up
-
-- name: "🔧 Ensure msmtp CA-bundle fact is set before rendering msmtprc"
-  ansible.builtin.include_role:
-    name: sys-svc-mail-msmtp
-    tasks_from: ca_bundle
-  when: sys_svc_mail_msmtp_ca_bundle is not defined
+    - compose-build
+    - compose-up
 
 - name: "📋 Copy msmtprc to {{ MOODLE_MSMTP_ABS }} (Mailu relay for mail() + healthcheck)"
   stack_host_template:
     src: "{{ MOODLE_MSMTP_SRC }}"
     dest: "{{ MOODLE_MSMTP_ABS }}"
     mode: "0640"
+  vars:
+    sys_svc_mail_msmtp_in_container: true
   notify:
-    - compose build
-    - compose up
+    - compose-build
+    - compose-up
 
 - name: "📄 Render PHP runtime tuning into compose context"
   stack_host_template:
@@ -63,5 +59,5 @@
     dest: "{{ [_moodle_build_dir, MOODLE_BUILD_FILES.runtime_ini] | path_join }}"
     mode: "0644"
   notify:
-    - compose build
-    - compose up
+    - compose-build
+    - compose-up

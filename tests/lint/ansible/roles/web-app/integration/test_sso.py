@@ -29,8 +29,6 @@ from . import PROJECT_ROOT
 
 _ROLE_PREFIX = "web-app-"
 
-# Provider roles — exempt from the SSO integration check (they ARE
-# the providers).
 _PROVIDER_EXEMPT: set[str] = {
     "web-app-keycloak",
 }
@@ -124,10 +122,10 @@ class TestWebAppSsoIntegration(unittest.TestCase):
                         f"Add `flavor: oidc` (default) or one of "
                         f"{sorted(_VALID_FLAVORS)}."
                     )
-                continue  # activated with a valid flavor → pass
+                continue
 
             if _is_explicit_opt_out(text, parsed, "sso"):
-                continue  # explicitly opted out → no-login app
+                continue
 
             rel = config.relative_to(root).as_posix()
             errors.append(

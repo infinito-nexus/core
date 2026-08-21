@@ -39,23 +39,14 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
 # Rule key consumed by this lint via `nocheck`-keyword suppression
-# markers. A `same-or-above` placement on the var declaration line
-# skips the var from the unused-var check. See
-# docs/contributing/actions/testing/suppression.md.
 SUPPRESS_RULE: str = "unused-var"
 
 
 _TOP_LEVEL_KEY_RE = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)\s*:")
 
 
-# Variables whose absence from .yml/.j2 is expected because they are
-# either consumed only by Python plugin code or set by Ansible itself
-# / the runner host. Adding to this list MUST be justified inline.
 _WHITELIST: frozenset[str] = frozenset(
     {
-        # Connection / behavior keys consumed by Ansible itself; they
-        # configure the runner and never need to surface in `{{ … }}`.
-        # See https://docs.ansible.com/ansible/latest/inventory_guide/intro_inventory.html#connecting-to-hosts-behavioral-inventory-parameters
         "ansible_python_interpreter",
         "ansible_shell_executable",
     }
@@ -119,7 +110,7 @@ def _collect_top_level_keys(file: Path) -> list[tuple[str, int]]:
     raw_lines = read_text(str(file)).splitlines()
     line_for_key: dict[str, int] = {}
     for i, line in enumerate(raw_lines, start=1):
-        if line[:1].isspace():  # only true top-level (no indent)
+        if line[:1].isspace():
             continue
         m = _TOP_LEVEL_KEY_RE.match(line)
         if not m:
@@ -140,8 +131,6 @@ def _collect_top_level_keys(file: Path) -> list[tuple[str, int]]:
 
 
 _BLOCK_RE = re.compile(r"{{(?:(?!}}).)*?}}|{%(?:(?!%}).)*?%}", re.DOTALL)
-# An identifier inside a block / expression is a USE unless it is
-# immediately followed by `(` (function or macro call).
 _IDENT_RE = re.compile(r"\b([A-Za-z_][A-Za-z0-9_]*)\b(?!\s*\()")
 
 
@@ -151,14 +140,6 @@ def _scan_jinja_block_idents(text: str, sink: set[str]) -> None:
             sink.add(m.group(1))
 
 
-# Ansible task-level keys that carry bare Jinja expressions (no
-# `{{ … }}` wrapper). The Jinja-block scan cannot see these, so the
-# parsed-structure walker has to harvest identifiers from them
-# explicitly. List keyed by Ansible's documented "conditional"
-# directives — extending this set is how additional false-positive
-# classes get fixed (e.g. `failed_when`/`changed_when` were missing
-# initially and produced false-positive "unused" reports for
-# error-message constants only referenced from those keys).
 _ANSIBLE_EXPR_KEYS: frozenset[str] = frozenset(
     {
         "when",

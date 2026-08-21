@@ -22,13 +22,18 @@ SUITECRM_SEED_DIR: /usr/src/suitecrm
 SUITECRM_WEB_USER: www-data
 SUITECRM_WEB_GROUP: www-data
 
+SUITECRM_SSO_ENABLED: "{{ lookup('sso', application_id, 'is_saml') }}"
+SUITECRM_SAML_IDP_DESCRIPTOR_URL: "{{ [OIDC.CLIENT.ISSUER_URL, 'protocol/saml/descriptor'] | path_join }}"
+SUITECRM_SAML_SP_ENTITY_ID: "{{ [SUITECRM_URL, 'saml/metadata'] | path_join }}"
+SUITECRM_OIDC_ONION_ISSUER: "{{ lookup('tls', 'web-app-keycloak', 'domain').endswith('.onion') }}"
+SUITECRM_OIDC_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') if SUITECRM_OIDC_ONION_ISSUER | bool else '' }}"
+
 SUITECRM_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 SUITECRM_LDAP_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'ldap.yaml'] | path_join }}"
 SUITECRM_LDAP_EXTENSION_DIR: "{{ [SUITECRM_APP_DIR, 'extensions', SUITECRM_WELL_SOFTWARE_NAME, 'config/services/ldap'] | path_join }}"
 
-SUITECRM_INIT_MAINTENANCE_MODE: "{{ lookup('config', application_id, 'services.suitecrm.maintenance_mode') }}"
-
-SUITECRM_ENTRYPOINT_SCRIPT_FILE: "docker-entrypoint-suitecrm.sh"
+SUITECRM_ENTRYPOINT_SCRIPT_FILE: "docker-entrypoint.sh"
+SUITECRM_ENTRYPOINT_SCRIPT_SRC: "shell/{{ SUITECRM_ENTRYPOINT_SCRIPT_FILE }}"
 SUITECRM_ENTRYPOINT_SCRIPT_HOST_ABS: "{{ [ lookup('container', application_id, 'directories.volumes'), SUITECRM_ENTRYPOINT_SCRIPT_FILE ] | path_join }}"
 SUITECRM_ENTRYPOINT_SCRIPT_HOST_REL: "volumes/{{ SUITECRM_ENTRYPOINT_SCRIPT_FILE }}"
 SUITECRM_ENTRYPOINT_SCRIPT_DOCKER: "{{ [ '/usr/local/bin/', SUITECRM_ENTRYPOINT_SCRIPT_FILE ] | path_join }}"

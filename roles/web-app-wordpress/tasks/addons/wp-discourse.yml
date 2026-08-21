@@ -1,8 +1,8 @@
 ---
 - name: ⏳ Wait for Discourse API
   wait_for:
-    host: "{{ lookup('domain','web-app-discourse') }}"
-    port: 80
+    host: "{{ DOCKER_REACH_HOST }}"
+    port: "{{ lookup('config', 'web-app-discourse', 'services.discourse.ports.local.http') }}"
     delay: 5
     timeout: "{{ lookup('timeout', 600) | int }}"
 

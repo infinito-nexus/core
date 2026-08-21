@@ -66,7 +66,7 @@
 
 - name: "🔍 Detect {{ DIR_VAR_LIB }} pre-mount state"
   ansible.builtin.script:
-    cmd: "{{ role_path }}/files/premount_state.sh"
+    cmd: "{{ role_path }}/files/shell/premount_state.sh"
     executable: /bin/bash
   environment:
     DIR_VAR_LIB: "{{ DIR_VAR_LIB }}"

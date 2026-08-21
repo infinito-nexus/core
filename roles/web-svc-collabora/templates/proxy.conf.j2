@@ -11,16 +11,13 @@ server {
 
   {% set proxy_service_key = 'collabora' %}
 
-  {# Normal HTTP routes (discovery, browser, assets) – no Lua injection #}
   {% set proxy_lua_enabled = false %}
   {% set location = "/" %}
   {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
 
-  {# Optional explicit fast path for discovery #}
   {% set location = "= " ~ COLLABORA_DISCOVERY_PATH %}
   {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
 
-  {# WebSocket handling for Collabora #}
   {% set webserver_websocket_location = '^~ /cool/' %}
   {% set websocket_port = http_port %}
   {% include 'roles/sys-svc-proxy/templates/location/ws.conf.j2' %}

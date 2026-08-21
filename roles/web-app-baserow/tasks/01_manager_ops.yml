@@ -47,7 +47,7 @@
       -e BOOTSTRAP_ADMIN_EMAIL={{ BASEROW_BOOTSTRAP_ADMIN_EMAIL | quote }}
       -e BOOTSTRAP_ADMIN_PASSWORD={{ BASEROW_BOOTSTRAP_ADMIN_PASSWORD | quote }}
       {{ BASEROW_APP_CONTAINER_ADDRESS }}
-      {{ BASEROW_PYTHON }} {{ BASEROW_MANAGE_PY }} shell -c {{ lookup('file', role_path ~ '/files/bootstrap_admin.py') | quote }}
+      {{ BASEROW_PYTHON }} {{ BASEROW_MANAGE_PY }} shell -c {{ lookup('file', role_path ~ '/files/python/bootstrap_admin.py') | quote }}
   register: baserow_bootstrap_admin_result
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: "'created' in baserow_bootstrap_admin_result.stdout"

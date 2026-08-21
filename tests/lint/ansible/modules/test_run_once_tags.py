@@ -44,10 +44,8 @@ def find_role_includes(roles_dir):
                 continue
 
             base_indent = len(line) - len(line.lstrip())
-            # Look ahead up to 5 lines for the associated `name:` entry
             for nxt in lines[idx + 1 : idx + 6]:
                 indent = len(nxt) - len(nxt.lstrip())
-                # Only consider more-indented lines (the block under import/include)
                 if indent <= base_indent:
                     continue
                 m = re.match(r'\s*name:\s*[\'"]?([A-Za-z0-9_\-]+)[\'"]?', nxt)
@@ -55,11 +53,9 @@ def find_role_includes(roles_dir):
                     continue
 
                 role_name = m.group(1)
-                # Ignore the generic "user" role include
                 if role_name == "user":
                     break
 
-                # Skip any dynamic includes using Jinja syntax
                 if "{{" in nxt or "}}" in nxt:
                     break
 
@@ -81,20 +77,17 @@ class TestRunOnceTag(unittest.TestCase):
     def test_all_roles_have_run_once_tag(self):
         role_to_locations = defaultdict(list)
 
-        # Collect all places where roles are included/imported
         for fpath, line, role_name in find_role_includes(ROLES_DIR):
             key = role_name.replace("-", "_")
             role_to_locations[key].append((fpath, line, role_name))
 
         errors = {}
         for key, usages in role_to_locations.items():
-            # Only check the role's own tasks/main.yml instead of the includer file
             _, line, role_name = usages[0]
             role_tasks = str(Path(ROLES_DIR) / role_name / ROLE_FILE_TASKS_MAIN)
             try:
                 content = read_text(role_tasks)
             except (FileNotFoundError, OSError):
-                # Fallback to the includer file if tasks/main.yml doesn't exist
                 includer_file = usages[0][0]
                 content = read_text(includer_file)
 

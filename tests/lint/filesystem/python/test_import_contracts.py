@@ -43,8 +43,9 @@ class TestImportContracts(unittest.TestCase):
         env["PYTHONPATH"] = os.pathsep.join(
             p for p in (str(PROJECT_ROOT), env.get("PYTHONPATH", "")) if p
         )
+        cache_dir = PROJECT_ROOT / "build" / f"import-linter-cache-{os.getuid()}"
         result = subprocess.run(
-            [_LINT_IMPORTS],
+            [_LINT_IMPORTS, "--cache-dir", str(cache_dir)],
             cwd=str(PROJECT_ROOT),
             env=env,
             capture_output=True,

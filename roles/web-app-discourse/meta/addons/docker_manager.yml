@@ -1,4 +1,5 @@
 ---
+# nocheck: addons-variant-pinning: compiled into the image from services.discourse.plugins, so an addon-level disable saves no deploy time and only silences the spec
 enabled: true
 required: false
 mechanism: plugin

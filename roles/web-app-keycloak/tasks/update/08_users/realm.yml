@@ -6,7 +6,7 @@
 # afterwards by update/08_rbac_groups_realm.yml.
 
 - name: "✅ Ensure non-reserved users exist in realm '{{ KEYCLOAK_REALM }}'"
-  ansible.builtin.script: ensure_realm_user.sh
+  ansible.builtin.script: shell/ensure_realm_user.sh
   environment:
     KEYCLOAK_EXEC_CONTAINER: "{{ KEYCLOAK_EXEC_CONTAINER }}"
     KEYCLOAK_KCADM: "{{ KEYCLOAK_KCADM }}"
@@ -19,8 +19,7 @@
     KEYCLOAK_USER_ENABLED: "true"
   loop: >-
     {{
-      lookup('users')
-      | non_reserved_users
+      lookup('users_non_reserved')
       | dict2items
       | selectattr('value.password', 'defined')
       | selectattr('value.password')

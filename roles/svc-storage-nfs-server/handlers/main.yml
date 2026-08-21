@@ -1,8 +1,11 @@
 ---
-- name: "Reload NFS exports"
+- name: "♻️ Reload NFS exports"
+  listen: reload-nfs-exports
   ansible.builtin.command: exportfs -ra
 
-- name: "Restart NFS ganesha"
-  ansible.builtin.systemd:
-    name: "{{ SVC_STORAGE_NFS_SERVER_SERVICE['ganesha'][ansible_facts['os_family']] }}"
-    state: restarted
+- name: "🔄 Restart NFS ganesha"
+  listen: restart-nfs-ganesha
+  ansible.builtin.script:
+    cmd: "{{ SVC_STORAGE_NFS_SERVER_GANESHA_SERVE }} restart"
+  register: svc_storage_nfs_server_ganesha_restart
+  changed_when: "'CHANGED' in svc_storage_nfs_server_ganesha_restart.stdout"

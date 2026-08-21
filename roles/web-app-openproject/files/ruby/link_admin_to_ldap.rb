@@ -1,3 +1,5 @@
+# nocheck: mirrored-unit-test - runs in the OpenProject console and links User to
+# LdapAuthSource; the models only exist once OpenProject has booted
 name  = ENV.fetch("OPENPROJECT_LDAP_NAME")
 login = ENV.fetch("OPENPROJECT_ADMIN_LOGIN")
 

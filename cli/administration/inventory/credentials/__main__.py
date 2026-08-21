@@ -9,7 +9,7 @@ Usage example::
       --role-path roles/web-app-akaunting \\
       --inventory-file host_vars/echoserver.yml \\
       --vault-password-file .pass/echoserver.txt \\
-      --set credentials.database_password=mysecret
+      --set secrets.credentials.database_password=mysecret
 
 Snippet mode (no file changes, YAML printed to stdout)::
 
@@ -30,8 +30,13 @@ from ruamel.yaml.comments import CommentedMap
 
 from utils.manager.inventory import InventoryManager
 
-from .emit import emit_credentials, ensure_map
-from .overrides import parse_overrides
+from .emit import (
+    credentials_map,
+    declared_credentials,
+    emit_credentials,
+    ensure_map,
+)
+from .overrides import parse_overrides, split_override_key
 from .prompts import ask_for_confirmation
 from .vault import to_vault_block
 
@@ -131,17 +136,16 @@ def _run_snippet_mode(
     for app_id, app_block in schema_apps.items():
         if not isinstance(app_block, dict):
             continue
-        schema_creds = app_block.get("credentials", {})
+        schema_creds = declared_credentials(app_block)
         if not isinstance(schema_creds, dict) or not schema_creds:
             continue
 
         app_block_snip = ensure_map(apps_snip, app_id)
-        creds_snip = ensure_map(app_block_snip, "credentials")
+        creds_snip = credentials_map(app_block_snip)
         emit_credentials(
             schema_creds,
             creds_snip,
             app_id=app_id,
-            primary_app_id=manager.app_id,
             key_path="",
             overrides=overrides,
             vault_handler=manager.vault_handler,
@@ -178,18 +182,17 @@ def _run_default_mode(
     for app_id, app_block_schema in schema_apps.items():
         if not isinstance(app_block_schema, dict):
             continue
-        schema_creds = app_block_schema.get("credentials", {})
+        schema_creds = declared_credentials(app_block_schema)
         if not isinstance(schema_creds, dict) or not schema_creds:
             continue
 
         app_block = ensure_map(apps, app_id)
-        creds = ensure_map(app_block, "credentials")
+        creds = credentials_map(app_block)
         added = newly_added_keys.setdefault(app_id, set())
         emit_credentials(
             schema_creds,
             creds,
             app_id=app_id,
-            primary_app_id=manager.app_id,
             key_path="",
             overrides=overrides,
             vault_handler=manager.vault_handler,
@@ -235,27 +238,17 @@ def _apply_force_overrides(
     inventory. Only fires under ``--force``; freshly-added keys are
     skipped because they were already populated from the same override."""
     for ov_key, ov_val in overrides.items():
-        if ov_key.startswith("applications.") and ".credentials." in ov_key:
-            rest = ov_key[len("applications.") :]
-            app_id, tail = rest.split(".credentials.", 1)
-            key = tail
-        elif ".credentials." in ov_key:
-            app_id, key = ov_key.split(".credentials.", 1)
-        else:
-            app_id = manager.app_id
-            key = (
-                ov_key.split(".", 1)[1] if ov_key.startswith("credentials.") else ov_key
-            )
+        app_id, key = split_override_key(ov_key)
 
         if app_id not in apps:
             continue
         app_block = ensure_map(apps, app_id)
-        creds = ensure_map(app_block, "credentials")
+        creds = credentials_map(app_block)
 
         if key in creds:
             if key in newly_added_keys.get(app_id, set()):
                 continue
-            if args.yes or ask_for_confirmation(f"{app_id}.credentials.{key}"):
+            if args.yes or ask_for_confirmation(f"{app_id}.secrets.credentials.{key}"):
                 creds[key] = to_vault_block(manager.vault_handler, ov_val, key)
 
 

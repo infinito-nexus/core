@@ -1,11 +1,11 @@
 ---
-- name: Trigger container manager restart non-blocking (hard timeout)
+- name: 🔄 Trigger container manager restart non-blocking (hard timeout)
   ansible.builtin.command: "timeout 10s systemctl restart docker.service --no-block"
   register: restart_cmd
   changed_when: true
   failed_when: false
 
-- name: Wait up to 60s for docker.service to become active
+- name: ⏳ Wait up to 60s for docker.service to become active
   ansible.builtin.command: "systemctl is-active docker.service"
   register: docker_active
   changed_when: false
@@ -13,7 +13,7 @@
   delay: 1
   until: docker_active.stdout.strip() == "active"
 
-- name: Assert docker is active
+- name: ✅ Assert docker is active
   ansible.builtin.assert:
     that:
       - docker_active.stdout.strip() == "active"

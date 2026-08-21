@@ -118,5 +118,4 @@ class LookupModule(LookupBase):
             raw_applications=applications,
         )
 
-        # lookup plugins must return a list
         return [value]

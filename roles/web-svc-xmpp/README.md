@@ -17,6 +17,7 @@ flowchart LR
     subgraph deps [Dependencies]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
     end
@@ -26,15 +27,17 @@ flowchart LR
         svc_sso["sso"]
         svc_ldap["ldap"]
         svc_xmpp["xmpp"]
+        svc_tor["tor"]
         svc_container_backup["container_backup"]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
@@ -91,6 +94,11 @@ docker run --rm -it \
 - [ejabberd Official Website](https://www.ejabberd.im/)
 - [ejabberd Container Documentation](https://docs.ejabberd.im/CONTAINER/)
 - [Converse.js](https://conversejs.org/)
+
+## Persona contract opt-outs
+
+ejabberd's only HTTP surface is `ejabberd_web_admin` on `/admin` (see [`templates/configuration.yml.j2`](./templates/configuration.yml.j2)). It authenticates a bare JID against LDAP over HTTP Basic, so there is no Keycloak redirect to follow and no in-app logout control to click; client authentication itself runs over ports 5222/5269 and stays outside the Playwright loop, as noted under Watch Points.
+`acl.admin` additionally lists only the administrator JID, so the web admin refuses every other account outright. [`templates/playwright.env.j2`](./templates/playwright.env.j2) therefore declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`; the `guest` persona and the baseline reachability assertions run unconditionally.
 
 ## Credits
 

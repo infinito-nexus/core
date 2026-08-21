@@ -3,8 +3,8 @@ application_id: "web-app-moodle"
 entity_name: "{{ application_id | get_entity_name }}"
 swarm_stack_converge_retries: 600
 
-MOODLE_CODE_DIR: "/var/www/html"
-MOODLE_DATA_DIR: "/var/www/moodledata"
+MOODLE_CODE_DIR: "{{ lookup('volume', 'web-app-moodle', 'code').target }}"
+MOODLE_DATA_DIR: "{{ lookup('volume', 'web-app-moodle', 'data').target }}"
 MOODLE_SOURCE_DIR: "/opt/moodle-source"
 MOODLE_ENTRYPOINT_PATH: "/usr/local/bin/moodle-entrypoint.sh"
 

@@ -3,7 +3,6 @@ set -u
 # Reverse systemd escaping for human-readable mail subject/body
 friendly="$(systemd-escape --unescape "$1")"
 
-# Resolve sendmail path across distros (/usr/sbin on EL, /usr/bin on others).
 sendmail_bin="$(command -v sendmail 2>/dev/null || true)"
 if [ -z "$sendmail_bin" ] && [ -x /usr/sbin/sendmail ]; then
   sendmail_bin="/usr/sbin/sendmail"
@@ -16,7 +15,6 @@ if [ -z "$sendmail_bin" ]; then
   exit 1
 fi
 
-# Try status with given arg; if empty, also try the escaped version
 STATUS_OUT="$(systemctl status --full "$1" 2>/dev/null | head -n 30)"
 if [ -z "$STATUS_OUT" ]; then
   esc="$(systemd-escape "$1")"

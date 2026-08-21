@@ -11,7 +11,7 @@ module.exports = [
       "**/__pycache__/**",
       // Jinja2-templated JS — not valid JS until rendered.
       "roles/*/templates/**/*.js",
-      "roles/web-app-bigbluebutton/files/ep_redis_publisher_index.js",
+      "roles/web-app-bigbluebutton/files/javascript/ep_redis_publisher_index.js",
     ],
   },
   {

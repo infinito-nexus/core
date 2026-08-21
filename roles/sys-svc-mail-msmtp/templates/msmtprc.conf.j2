@@ -1,15 +1,18 @@
 {% set email = lookup('email') %}
+{% set ca_injected = sys_svc_mail_msmtp_in_container | bool and lookup('ca_injected', application_id) %}
 defaults
 logfile             ~/.msmtp.log
 timeout             {{ email.timeout }}
 syslog              {{ MODE_DEBUG | on_off }}
-auth                {{ email.auth | on_off }}
+auth                {{ email.auth_mechanism }}
 tls_starttls        {{ email.start_tls | on_off }}
 tls                 {{ email.tls | on_off }}
-tls_trust_file      {{ sys_svc_mail_msmtp_ca_bundle }}
+{% if ca_injected %}
+tls_trust_file      {{ CA_TRUST.inject_cert_container }}
+{% endif %}
 tls_host_override   {{ email.host }}
 account             system_email_no_reply
-host                {{ lookup('smtp_host', email) }}
+host                {{ lookup('smtp_host', email, in_container=sys_svc_mail_msmtp_in_container) }}
 port                {{ email.port }}
 from                {{ email['from'] }}
 {% if (email.auth | bool) %}

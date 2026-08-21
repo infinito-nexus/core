@@ -4,37 +4,37 @@ async-rabbitmq-data:
   name: taiga_async_rabbitmq_data
   mounts:
     - service: async-rabbitmq
-      target: /var/lib/rabbitmq
+      target: &var_lib_rabbitmq_target /var/lib/rabbitmq
 events-rabbitmq-data:
   type: volume
   name: taiga_events_rabbitmq_data
   mounts:
     - service: events-rabbitmq
-      target: /var/lib/rabbitmq
+      target: *var_lib_rabbitmq_target
 media-data:
   type: volume
   name: taiga_media_data
   mounts:
     - service: taiga
-      target: /taiga-back/media
+      target: &taiga_back_media_target /taiga-back/media
     - service: async
-      target: /taiga-back/media
+      target: *taiga_back_media_target
     - service: gateway
       target: /taiga/media
     - service: manager
-      target: /taiga-back/media
+      target: *taiga_back_media_target
 static-data:
   type: volume
   name: taiga_static_data
   mounts:
     - service: taiga
-      target: /taiga-back/static
+      target: &taiga_back_static_target /taiga-back/static
     - service: async
-      target: /taiga-back/static
+      target: *taiga_back_static_target
     - service: gateway
       target: /taiga/static
     - service: manager
-      target: /taiga-back/static
+      target: *taiga_back_static_target
 frontend-conf:
   type: config
   source: "{{ [lookup('container', 'web-app-taiga', 'directories.config'), 'conf.json'] | path_join }}"
@@ -48,20 +48,20 @@ config-append:
   source: "{{ [lookup('container', 'web-app-taiga', 'directories.config'), 'taiga-config.append.py'] | path_join }}"
   mounts:
     - service: taiga
-      target: /taiga-back/settings/config.append.py
+      target: &taiga_back_settings_config_append_py_target /taiga-back/settings/config.append.py
       when: "{{ (lookup('config', 'web-app-taiga', 'services.sso.enabled') | bool) or (lookup('config', 'web-app-taiga', 'services.ldap.enabled', false) | bool) }}"
     - service: async
-      target: /taiga-back/settings/config.append.py
+      target: *taiga_back_settings_config_append_py_target
       when: "{{ (lookup('config', 'web-app-taiga', 'services.sso.enabled') | bool) or (lookup('config', 'web-app-taiga', 'services.ldap.enabled', false) | bool) }}"
 urls-py:
   type: bind
   source: "{{ [lookup('container', 'web-app-taiga', 'directories.config'), 'taiga-urls.py'] | path_join }}"
   mounts:
     - service: taiga
-      target: /taiga-back/settings/urls.py
+      target: &taiga_back_settings_urls_py_target /taiga-back/settings/urls.py
       when: "{{ lookup('config', 'web-app-taiga', 'services.sso.enabled') | bool }}"
     - service: async
-      target: /taiga-back/settings/urls.py
+      target: *taiga_back_settings_urls_py_target
       when: "{{ lookup('config', 'web-app-taiga', 'services.sso.enabled') | bool }}"
 gateway-conf:
   type: config

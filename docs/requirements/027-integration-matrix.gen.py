@@ -14,7 +14,6 @@ in the COLUMN role:
 """
 
 # nocheck: file-size — curated EDGES data table plus matrix renderers; the data
-# and the renderer read together, splitting them only adds indirection.
 
 import re
 from pathlib import Path
@@ -22,10 +21,6 @@ from pathlib import Path
 # nocheck: project-root-import — standalone docs generator, no package container to import PROJECT_ROOT from.
 ROLES_DIR = Path(__file__).resolve().parent.parent.parent / "roles"
 
-# Top-level meta/services.yml integration keys -> the in-axis target entity they
-# wire the role into. These are infinito-native service flags (already wired,
-# group-gated), distinct from the curated upstream app<->app plugins in EDGES.
-# Skipped on purpose: ldap/redis/mariadb/database -> svc-db-* (not on the axes).
 FRAMEWORK = {
     "sso": "keycloak",
     "matomo": "matomo",
@@ -41,7 +36,6 @@ FRAMEWORK = {
     "libretranslate": "libretranslate",
 }
 
-# Entity names = role suffix of every web-app-*/web-svc-* role.
 WEB_APP = [
     "akaunting",
     "baserow",
@@ -130,10 +124,7 @@ WEB_SVC = [
 ]
 ENTITIES = WEB_APP + WEB_SVC
 
-# (source, target, url, kind). kind: "check" or "coin".
-# Verified upstream plugin/integration pages.
 EDGES = [
-    # --- Nextcloud integration_* family + office/auth/analytics ---
     (
         "nextcloud",
         "openproject",
@@ -198,7 +189,6 @@ EDGES = [
     ),
     ("nextcloud", "keycloak", "https://github.com/nextcloud/user_oidc", "check"),
     ("nextcloud", "matomo", "https://apps.nextcloud.com/apps/matomo", "check"),
-    # --- Mattermost plugins ---
     (
         "mattermost",
         "gitlab",
@@ -241,7 +231,6 @@ EDGES = [
         "https://docs.mattermost.com/onboard/sso-saml.html",
         "coin",
     ),
-    # --- GitLab native integrations ---
     (
         "gitlab",
         "mattermost",
@@ -263,7 +252,6 @@ EDGES = [
         "check",
     ),
     ("gitlab", "keycloak", "https://docs.gitlab.com/integration/saml/", "check"),
-    # --- Discourse plugins ---
     (
         "discourse",
         "mattermost",
@@ -308,7 +296,6 @@ EDGES = [
         "https://github.com/discourse/discourse-activity-pub",
         "check",
     ),
-    # --- Matrix (Synapse / hookshot / Element) ---
     ("matrix", "gitlab", "https://github.com/matrix-org/matrix-hookshot", "check"),
     ("matrix", "jira", "https://github.com/matrix-org/matrix-hookshot", "check"),
     (
@@ -329,7 +316,6 @@ EDGES = [
         "https://github.com/element-hq/element-web/blob/develop/docs/jitsi.md",
         "check",
     ),
-    # --- Moodle plugins ---
     (
         "moodle",
         "bigbluebutton",
@@ -342,13 +328,11 @@ EDGES = [
     ("moodle", "jitsi", "https://moodle.org/plugins/mod_jitsi", "check"),
     ("moodle", "matomo", "https://moodle.org/plugins/tool_webanalytics", "check"),
     ("moodle", "openwebui", "https://moodle.org/plugins/aiprovider_openwebui", "check"),
-    # --- Jenkins plugins ---
     ("jenkins", "gitlab", "https://plugins.jenkins.io/gitlab-plugin", "check"),
     ("jenkins", "gitea", "https://plugins.jenkins.io/gitea/", "check"),
     ("jenkins", "mattermost", "https://plugins.jenkins.io/mattermost/", "check"),
     ("jenkins", "prometheus", "https://plugins.jenkins.io/prometheus", "check"),
     ("jenkins", "keycloak", "https://plugins.jenkins.io/oic-auth/", "check"),
-    # --- OpenProject ---
     (
         "openproject",
         "nextcloud",
@@ -367,7 +351,6 @@ EDGES = [
         "https://www.openproject.org/docs/system-admin-guide/authentication/openid-providers/",
         "coin",
     ),
-    # --- WordPress plugins ---
     ("wordpress", "matomo", "https://wordpress.org/plugins/matomo/", "check"),
     ("wordpress", "mastodon", "https://wordpress.org/plugins/activitypub/", "check"),
     ("wordpress", "discourse", "https://wordpress.org/plugins/wp-discourse/", "check"),
@@ -395,7 +378,6 @@ EDGES = [
         "https://wordpress.org/plugins/video-manager-for-peertube/",
         "check",
     ),
-    # --- MediaWiki extensions ---
     (
         "mediawiki",
         "keycloak",
@@ -428,7 +410,6 @@ EDGES = [
         "https://www.mediawiki.org/wiki/Extension:AIEditingAssistant",
         "check",
     ),
-    # --- XWiki extensions ---
     (
         "xwiki",
         "keycloak",
@@ -441,7 +422,6 @@ EDGES = [
         "https://extensions.xwiki.org/xwiki/bin/view/Extension/Piwiki%20Integration",
         "check",
     ),
-    # --- Joomla ---
     (
         "joomla",
         "keycloak",
@@ -454,30 +434,25 @@ EDGES = [
         "https://extensions.joomla.org/extension/itcs-matomo/",
         "check",
     ),
-    # --- Friendica ---
     ("friendica", "matomo", "https://github.com/friendica/friendica-addons", "check"),
-    # --- Pretix ---
     (
         "pretix",
         "keycloak",
         "https://docs.pretix.eu/en/latest/admin/installation/index.html",
         "check",
     ),
-    # --- PeerTube ---
     (
         "peertube",
         "keycloak",
         "https://www.npmjs.com/package/peertube-plugin-auth-openid-connect",
         "check",
     ),
-    # --- BigBlueButton (Greenlight) ---
     (
         "bigbluebutton",
         "keycloak",
         "https://docs.bigbluebutton.org/greenlight/v3/external-authentication/",
         "check",
     ),
-    # --- CRM / ERP: auth + email ---
     (
         "zammad",
         "keycloak",
@@ -539,7 +514,6 @@ EDGES = [
         "https://docs.frappe.io/erpnext/user/manual/en/setting-up-email-account",
         "check",
     ),
-    # --- Other SSO-to-Keycloak (covered centrally today via the sso service) ---
     (
         "baserow",
         "keycloak",
@@ -587,14 +561,11 @@ def scan_framework_edges():
 
 
 def build():
-    # Framework (infinito-native) edges first; curated upstream EDGES override
-    # them so an explicit plugin link wins over the generic services.yml link.
     by_pair = {(s, d): (url, kind) for (s, d, url, kind) in scan_framework_edges()}
     by_pair.update({(s, d): (url, kind) for (s, d, url, kind) in EDGES})
     corner = "↓ row wires → col"
 
     def render_row(label, cells):
-        # Repeat the row-label column every 10 columns for readability.
         out = [label]
         for j, cell in enumerate(cells):
             out.append(cell)
@@ -618,7 +589,6 @@ def build():
             else:
                 cells.append(CROSS)
         rows.append(render_row(f"**{src}**", cells))
-        # Repeat the column header every 10 data rows for readability.
         if (i + 1) % 10 == 0 and (i + 1) < len(ENTITIES):
             rows.append(header)
     return "\n".join(rows)

@@ -21,7 +21,6 @@ def application_allowed(
     Returns:
       bool: True if this application is allowed to deploy, False otherwise.
     """
-    # Ensure group_names is iterable
     if allowed_applications is None:
         allowed_applications = []
     if not isinstance(group_names, (list, tuple)):
@@ -29,11 +28,9 @@ def application_allowed(
             f"Expected group_names to be a list, str or tuple, got {type(group_names)}"
         )
 
-    # Must be part of the host's groups
     if application_id not in group_names:
         return False
 
-    # If allowed_applications provided, only allow if ID is in that list
     if allowed_applications:
         if not isinstance(allowed_applications, (list, tuple, str)):
             raise AnsibleFilterError(
@@ -41,7 +38,6 @@ def application_allowed(
             )
         return application_id in allowed_applications
 
-    # No filter provided → allow all in group_names
     return True
 
 

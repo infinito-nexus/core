@@ -22,7 +22,7 @@ class TestDockerRoleServicesConfiguration(unittest.TestCase):
 
             services_file = role_path / ROLE_FILE_META_SERVICES
             if not services_file.exists():
-                continue  # No services manifest to check
+                continue
 
             try:
                 services = load_yaml_any(services_file) or {}

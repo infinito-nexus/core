@@ -18,11 +18,9 @@ class TestUnittestImports(unittest.TestCase):
             if not filepath.startswith(tests_prefix):
                 continue
             filename = Path(filepath).name
-            # only consider test files named like "test_*.py"
             if not filename.startswith("test_"):
                 continue
 
-            # check for either import form
             if (
                 "import unittest" not in content
                 and "from unittest import" not in content

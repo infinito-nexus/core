@@ -11,4 +11,4 @@ config:
   bridge_name: "signal"
   database_username: "mautrix_signal_bridge"
   database_name: "mautrix_signal_bridge"
-  database_password: "{{ lookup('config', 'web-app-matrix', 'credentials.mautrix_signal_bridge_database_password') }}"
+  database_password: "{{ lookup('config', 'web-app-matrix', 'secrets.credentials.mautrix_signal_bridge_database_password', '') }}"

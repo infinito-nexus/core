@@ -3,7 +3,7 @@ application_id: svc-db-typesense
 entity_name: "{{ application_id | get_entity_name }}"
 database_type: "{{ entity_name }}"
 
-TYPESENSE_API_KEY: "{{ lookup('config', application_id, 'credentials.api_key') }}"
+TYPESENSE_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.api_key') }}"
 TYPESENSE_NAME: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
 TYPESENSE_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, TYPESENSE_NAME) }}"
 TYPESENSE_RETRIES: 30

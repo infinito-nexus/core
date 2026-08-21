@@ -7,7 +7,6 @@
       driver: journald
     volumes:
       - redis:/data
-    # Just save in memory and prevent huge redis_volumes
     command:
       - redis-server
       - --appendonly

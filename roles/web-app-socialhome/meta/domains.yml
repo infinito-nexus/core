@@ -1,0 +1,4 @@
+---
+canonical:
+  - socialhome.{{ DOMAIN_PRIMARY }}
+aliases: []

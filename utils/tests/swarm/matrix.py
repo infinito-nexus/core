@@ -63,7 +63,8 @@ def _run(cmd: list[str], *, env: dict[str, str], label: str) -> int:
         try:
             return int(proc.wait(timeout=30))
         except subprocess.TimeoutExpired:
-            if shutil.disk_usage("/").free < DISK_FLOOR_MB * 2**20:
+            free_mb = shutil.disk_usage("/").free // 2**20
+            if free_mb < DISK_FLOOR_MB:
                 return _abort(
                     proc,
                     "=== swarm-matrix: DISK EXHAUSTION IMMINENT "
@@ -75,7 +76,7 @@ def _run(cmd: list[str], *, env: dict[str, str], label: str) -> int:
             stall = mem_stall_pct()
             print(
                 f"=== swarm-matrix: host mem {avail}M/{total}M available, "
-                f"stall60 {stall:.1f}% ===",
+                f"disk {free_mb}M free on /, stall60 {stall:.1f}% ===",
                 flush=True,
             )
             if total and avail < total * MEM_FLOOR_RATIO:

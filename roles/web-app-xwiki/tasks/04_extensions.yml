@@ -40,7 +40,7 @@
 
   rescue:
     - name: "🌿 XWiki | Probe extension repos + dump xwiki.properties" # nocheck: rescue-extra-diagnostics extension-repo reachability and xwiki.properties are xwiki-specific and not in any log the generic rescue script captures
-      ansible.builtin.script: "{{ lookup('path_absolute', 'roles/web-app-xwiki/files/rescue_extensions.sh') }}"
+      ansible.builtin.script: "{{ lookup('path_absolute', 'roles/web-app-xwiki/files/shell/rescue_extensions.sh') }}"
       environment:
         XWIKI_CONTAINER_ADDRESS: "{{ XWIKI_CONTAINER_ADDRESS }}"
       changed_when: false

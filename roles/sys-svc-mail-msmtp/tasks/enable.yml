@@ -46,13 +46,13 @@
         force: true
       when: sys_svc_mail_msmtp_mta is skipped
 
-- include_tasks: ca_bundle.yml
-
 - name: 🔧 configure msmtprc.conf.j2
   template: # nocheck: stack-host-template (per-host /root/.msmtprc, not stack-host-only)
     src: "msmtprc.conf.j2"
     dest: "/root/.msmtprc"
     mode: 600
+  vars:
+    sys_svc_mail_msmtp_in_container: false
 
 - name: "🔄 Route hlth-msmtp via service-loader (after mailu compose-up)"
   ansible.builtin.include_role:

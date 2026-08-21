@@ -227,4 +227,4 @@
     realm: "{{ KEYCLOAK_REALM }}"
     assert_mode: "{{ MODE_ASSERT }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  notify: sync ldap groups
+  notify: sync-ldap-groups

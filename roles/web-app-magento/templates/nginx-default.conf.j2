@@ -5,9 +5,14 @@ upstream fastcgi_backend {
 server {
   listen {{ MAGENTO_NGINX_PORT }};
 
-  set $MAGE_ROOT /var/www/html;
+  set $MAGE_ROOT {{ MAGENTO_ROOT }};
 
-  {# Exception: glob, not a typo — a hard include emergs on first boot,
+  {# Exception: the sample only buffers the main entry point, so /setup/ and
+     /update/ would fall back to nginx's 4k default and 502 on a big header. #}
+  fastcgi_buffer_size 64k;
+  fastcgi_buffers 8 128k;
+
+  {# Exception: glob, not a typo — a hard include errors on first boot,
      before the bootstrap has copied nginx.conf into the volume. #}
-  include /var/www/html/nginx[.]conf;
+  include {{ MAGENTO_ROOT }}/nginx[.]conf;
 }

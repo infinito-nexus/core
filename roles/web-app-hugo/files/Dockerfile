@@ -9,7 +9,6 @@ ARG HUGO_BUILDER_VERSION
 ARG HUGO_NGINX_IMAGE
 ARG HUGO_NGINX_VERSION
 
-# ---------- Build stage ----------
 FROM ${HUGO_BUILDER_IMAGE}:${HUGO_BUILDER_VERSION} AS builder
 
 ARG HUGO_BASE_URL
@@ -19,10 +18,6 @@ ARG HUGO_MINIFY
 WORKDIR /src
 COPY ./services/repository/ /src/
 
-# Hugo's JS bundler resolves bare imports (e.g. `import 'alpinejs'`) via
-# node_modules/. The default hugomods/hugo:exts-* image ships Hugo only,
-# so we install Node.js/npm here and run `npm install` when the upstream
-# repo has a package.json. Skipped silently when the repo has no JS deps.
 RUN apk add --no-cache nodejs npm
 RUN set -eu; \
     if [ -f package.json ]; then \
@@ -36,7 +31,6 @@ RUN set -eu; \
         hugo -e "${HUGO_ENVIRONMENT}" -b "${HUGO_BASE_URL}" -d /public; \
     fi
 
-# ---------- Serve stage ----------
 FROM ${HUGO_NGINX_IMAGE}:${HUGO_NGINX_VERSION}
 
 COPY --from=builder /public/ /usr/share/nginx/html/

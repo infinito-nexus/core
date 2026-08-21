@@ -1,5 +1,5 @@
 ---
-# nocheck: seaweedfs-required - Jellyfin stores its library on a dedicated media volume and metadata in internal SQLite under /config; it has no S3/object-store surface.
+# nocheck: seaweedfs-required - Jellyfin stores its library on a dedicated media volume and metadata in internal SQLite under {{ lookup('volume', 'web-app-jellyfin', 'jellyfin_config').target }}; it has no S3/object-store surface.
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -44,7 +44,7 @@ jellyfin:
   version: "10.11.11"
   backup:
     no_stop_required: true
-  # nocheck: single-replica Jellyfin persists all state in embedded SQLite under the shared /config volume; concurrent replicas corrupt the database (SQLite disk I/O error, malformed image in CI) and upstream has no multi-instance support
+  # nocheck: single-replica Jellyfin persists all state in embedded SQLite under the shared {{ lookup('volume', 'web-app-jellyfin', 'jellyfin_config').target }} volume; concurrent replicas corrupt the database (SQLite disk I/O error, malformed image in CI) and upstream has no multi-instance support
   replicas: 1
   name: jellyfin
   ports:
@@ -59,6 +59,13 @@ jellyfin:
     - web-app-keycloak
     - svc-db-openldap
   lifecycle: beta
+
+# nocheck: playwright-service-flag
+# nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
+tor:
+  bond: 0.5
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: true # nocheck: dynamic-flag
 
 # nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
 container_backup: # nocheck: bond-baseline backup host joins outside the variant topology

@@ -4,19 +4,33 @@ data:
   name: mastodon_data
   mounts:
     - service: mastodon
-      target: /mastodon/public/system
+      target: &mastodon_public_system_target /mastodon/public/system
     - service: sidekiq
-      target: /mastodon/public/system
+      target: *mastodon_public_system_target
 
 force_ssl_override:
-  type: bind
+  type: config
   source: "{{ [lookup('container', 'web-app-mastodon', 'directories.instance'), 'overrides', 'zzz_disable_force_ssl.rb'] | path_join }}"
+  mode: "0444"
   mounts:
     - service: mastodon
-      target: /opt/mastodon/config/initializers/zzz_disable_force_ssl.rb
-      read_only: true
+      target: &opt_mastodon_config_initializers_zzz_disable_force_ssl_rb_target /opt/mastodon/config/initializers/zzz_disable_force_ssl.rb
       when: "{{ not (lookup('tls', 'web-app-mastodon', 'enabled') | bool) }}"
     - service: sidekiq
-      target: /opt/mastodon/config/initializers/zzz_disable_force_ssl.rb
-      read_only: true
+      target: *opt_mastodon_config_initializers_zzz_disable_force_ssl_rb_target
+      when: "{{ not (lookup('tls', 'web-app-mastodon', 'enabled') | bool) }}"
+
+oidc_http_discovery:
+  type: config
+  source: "{{ [lookup('container', 'web-app-mastodon', 'directories.instance'), 'overrides', '00_oidc_http_discovery.rb'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: mastodon
+      target: &opt_mastodon_config_initializers_00_oidc_http_discovery_rb_target /opt/mastodon/config/initializers/00_oidc_http_discovery.rb
+      when: "{{ not (lookup('tls', 'web-app-mastodon', 'enabled') | bool) }}"
+    - service: sidekiq
+      target: *opt_mastodon_config_initializers_00_oidc_http_discovery_rb_target
+      when: "{{ not (lookup('tls', 'web-app-mastodon', 'enabled') | bool) }}"
+    - service: migrate
+      target: *opt_mastodon_config_initializers_00_oidc_http_discovery_rb_target
       when: "{{ not (lookup('tls', 'web-app-mastodon', 'enabled') | bool) }}"

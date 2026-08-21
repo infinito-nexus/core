@@ -11,13 +11,6 @@ jenkins:
 
 {% if JENKINS_OIDC_ENABLED | bool %}
   securityRealm:
-    # The `oic-auth` plugin (>= 4.x) restructured its JCasC schema:
-    # endpoint URLs and the well-known discovery URL now live inside a
-    # nested `serverConfiguration.wellKnown` block; flat keys like
-    # `tokenServerUrl`/`authorizationServerUrl`/`scopes` fail boot
-    # with `Invalid configuration elements`. Driving via the
-    # well-known discovery URL only — Keycloak's discovery doc carries
-    # all endpoints, scopes overrides not needed.
     oic:
       clientId: "{{ OIDC.CLIENT.ID }}"
       clientSecret: "{{ OIDC.CLIENT.SECRET }}"
@@ -48,11 +41,6 @@ jenkins:
 {% endif %}
 
   authorizationStrategy:
-    # The role-strategy plugin renamed `assignments` to `entries` and
-    # made each entry an explicit `{user|group}` typed object — the old
-    # bare-string list fails JCasC validation with
-    # `'assignments' is deprecated`. See
-    # https://plugins.jenkins.io/role-strategy/#configuration-as-code-support
     roleBased:
       roles:
         global:

@@ -7,7 +7,6 @@ if [[ ! -S /run/systemd/private ]]; then
 	exit 1
 fi
 
-# 2) systemd must be running or degraded
 state="$(systemctl is-system-running --wait 2>/dev/null || true)"
 
 case "$state" in
@@ -18,7 +17,6 @@ running | degraded) ;;
 	;;
 esac
 
-# 3) infinito command must exist and be executable
 if ! command -v infinito >/dev/null 2>&1; then
 	echo "infinito command not found"
 	exit 1
@@ -29,11 +27,9 @@ if [[ ! -x "$(command -v infinito)" ]]; then
 	exit 1
 fi
 
-# 4) infinito must return 0 (smoke test)
 if ! infinito --help >/dev/null 2>&1; then
 	echo "infinito command failed"
 	exit 1
 fi
 
-# all good
 exit 0

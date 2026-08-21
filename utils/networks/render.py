@@ -13,9 +13,14 @@ discovered into the service_registry by ``discover_role_services``. Keys:
 * ``topology``: ``shared_net`` | ``default_net``. Absent = beacon-only (no attachment)
 * ``aliases``: list of DNS aliases. Default: ``[entity_name]`` for shared_net, ``[]`` for default_net
 * ``consumer``: optional override
-   * ``kind``: ``services_flags`` (default) | ``database``
+   * ``kind``: ``services_flags`` (default) | ``database`` | ``web_facing`` |
+      ``onion_sso``
    * ``key``: services.<key>.* lookup base. Default: provides or entity_name
    * ``flags``: list of flags to AND. Default: ``[enabled, shared]``
+      (``services_flags`` only)
+   * ``provider`` / ``provider_key``: for ``onion_sso``, the app whose
+      ``services.<provider_key>.enabled`` must also hold. Default provider_key
+      ``tor``
 * ``proxy_resolvable``: beacon flag - the harvested aliases get attached to
    every ``default_net`` provider and every ``collect_proxy_resolvable``
    provider in the same mode.

@@ -1,0 +1,9 @@
+---
+- services:
+    tor:
+      enabled: true
+    openldap:
+      exposed: true # nocheck: variants-static-override
+- services:
+    tor:
+      enabled: true

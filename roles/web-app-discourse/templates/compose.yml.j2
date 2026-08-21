@@ -8,8 +8,7 @@
 services: {}
 {% endif %}
 
-{{ lookup('compose_volumes', application_id,
-) }}
+{{ lookup('compose_volumes') }}
 
 {{ lookup('compose_networks') }}
   {{ DISCOURSE_NETWORK }}:

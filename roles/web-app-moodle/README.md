@@ -18,6 +18,7 @@ flowchart LR
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_mariadb["svc-db-mariadb 🐳🐝"]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
@@ -39,11 +40,13 @@ flowchart LR
         svc_cron["cron"]
         svc_css["css"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
         svc_container_backup["container_backup"]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_mariadb -. "0..1" .-> svc_mariadb
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
@@ -53,7 +56,7 @@ flowchart LR
     dep_web_svc_logout -. "0..1" .-> svc_logout
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
@@ -111,6 +114,12 @@ This role builds its own Moodle image from upstream Moodle source on top of the 
 - [Moodle Official Website](https://moodle.org/)
 - [Moodle Developer Documentation: Docker images](https://moodledev.io/general/app/development/setup/docker-images)
 - [moodlehq/moodle-docker](https://github.com/moodlehq/moodle-docker) (extension list reference)
+
+## Persona contract opt-outs
+
+This role declares `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. Moodle's site administrator is created by `install_database.php` in `tasks/01_manager_ops.yml` with `credentials.user_password`, a role-local secret the Playwright env never renders — `ADMIN_PASSWORD` carries the Keycloak secret instead. In the SSO variant `tasks/04_oidc.yml` sets `alternateloginurl` so `/login/index.php` bounces to the OIDC plugin and rewrites every `mdl_user` row to `auth='oidc'`, so no form accepts either secret; the SSO-off variants in `meta/variants.yml` have no OIDC chain to substitute. One env file is rendered per role, not per variant, so the flag has to hold for the worst case.
+
+Biber keeps a runnable journey: `files/playwright/test-ldap-variant.js` drives the native LDAP-bind login and `files/playwright/test-profile-readonly.js` asserts the locked profile fields. The path back to the administrator persona is a deploy step that hands the site administrator a credential the persona env already carries.
 
 ## Credits
 

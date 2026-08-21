@@ -2,6 +2,5 @@
 # General
 application_id: "web-app-lam"
 
-# LAM specific
 LAM_CONTAINER: "{{ application_id | get_entity_name }}"
-LAM_PASSWORD: "{{ lookup('config', application_id, 'credentials.administrator_password') }}"
+LAM_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.administrator_password') }}"

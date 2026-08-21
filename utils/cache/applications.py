@@ -54,7 +54,7 @@ _META_TOPICS: tuple[str, ...] = (
 _META_ADDONS_DIR: str = "addons"
 
 _META_NON_GENERIC_TOPICS: frozenset[str] = frozenset(
-    {"main", "variants", "volumes", "schema", "users"}
+    {"main", "variants", "volumes", "secrets", "users"}
 )
 
 
@@ -111,7 +111,7 @@ def _has_application_metadata(role_dir: Path) -> bool:
     """Detect whether a role behaves as an application.
 
     A role is an "application" iff at least one of its `meta/<topic>.yml`
-    files exists (plus `meta/schema.yml` and `meta/users.yml` for the
+    files exists (plus `meta/secrets.yml` and `meta/users.yml` for the
     schema-only / users-only special cases).
     """
     meta_dir = role_dir / "meta"
@@ -120,7 +120,7 @@ def _has_application_metadata(role_dir: Path) -> bool:
     for topic in _META_TOPICS:
         if (meta_dir / f"{topic}.yml").is_file():
             return True
-    if (meta_dir / "schema.yml").is_file():
+    if (meta_dir / "secrets.yml").is_file():
         return True
     if (meta_dir / "users.yml").is_file():
         return True
@@ -172,7 +172,7 @@ def _build_role_base_config(
                          templar; `get_merged_applications` re-attaches them).
     `meta/addons/*.yml` → `addons` (enable state normalised by
                          `_normalize_addons`).
-    `meta/schema.yml`   → `credentials` (only literal `default:` values;
+    `meta/secrets.yml`   → `credentials` (only literal `default:` values;
                          non-defaults come from the inventory apply_schema step
                          and are merged in by the caller).
     `meta/users.yml`    → `users` (rewritten to `lookup('users', ...)` so the
@@ -207,13 +207,13 @@ def _build_role_base_config(
     if addons_data:
         config_data["addons"] = addons_data
 
-    schema_data = _load_yaml_cached(meta_dir / "schema.yml", default_if_missing={})
+    schema_data = _load_yaml_cached(meta_dir / "secrets.yml", default_if_missing={})
     if schema_data:
         creds_defaults = extract_default_credentials(
             schema_data.get("credentials") or {}
         )
         if creds_defaults:
-            config_data["credentials"] = creds_defaults
+            config_data.setdefault("secrets", {})["credentials"] = creds_defaults
 
     users_meta = _load_yaml_cached(meta_dir / "users.yml", default_if_missing={})
     if isinstance(users_meta, dict) and users_meta:

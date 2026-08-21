@@ -1,5 +1,6 @@
 ---
 application_id: "web-app-flowise"
+swarm_stack_converge_retries: 600
 domain: "{{ lookup('domain',application_id) }}"
 http_port: "{{ lookup('config', application_id, 'services.flowise.ports.local.http') }}"
 
@@ -12,7 +13,7 @@ FLOWISE_LITELLM_CONTAINER: "{{ lookup('config', application_id, 'services.litell
 FLOWISE_LITELLM_PORT: "{{ lookup('config', application_id, 'services.litellm.ports.internal.http') }}"
 FLOWISE_LITELLM_INTERNAL_URL: "http://litellm:{{ FLOWISE_LITELLM_PORT }}"
 FLOWISE_LITELLM_CONFIG_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'litellm.config.yaml' ] | path_join }}"
-FLOWISE_LITELLM_CONFIG_PATH_DOCKER: "/etc/litellm/config.yaml"
-FLOWISE_LITELLM_MASTER_KEY: "{{ lookup('config', application_id, 'credentials.llm_master_key') }}"
+FLOWISE_LITELLM_CONFIG_PATH_DOCKER: "{{ lookup('volume', 'web-app-flowise', 'litellm_config').target }}"
+FLOWISE_LITELLM_MASTER_KEY: "{{ lookup('config', application_id, 'secrets.credentials.llm_master_key') }}"
 
 FLOWISE_QDRANT_INTERNAL_URL: "{{ lookup('engine', 'qdrant', application_id, 'url') }}"

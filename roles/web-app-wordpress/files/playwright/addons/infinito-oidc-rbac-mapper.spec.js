@@ -1,13 +1,15 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
+const { gotoOnion } = require("../personas");
 const shared = require("../_shared");
 
 test("addon infinito-oidc-rbac-mapper: OIDC login bridges to the Keycloak partner carrying the groups scope and lands on the role-mapping surface", async ({ browser }) => {
   skipUnlessAddonEnabled("infinito-oidc-rbac-mapper");
   skipUnlessServiceEnabled("sso");
   skipUnlessServiceEnabled("ldap");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();
@@ -16,14 +18,14 @@ test("addon infinito-oidc-rbac-mapper: OIDC login bridges to the Keycloak partne
   const keycloakHost = new URL(shared.env.keycloakBaseUrl).host;
 
   try {
-    await page.goto(`${shared.env.wpBaseUrl}/wp-login.php`, {
+    await gotoOnion(page, `${shared.env.wpBaseUrl}/wp-login.php`, {
       waitUntil: "domcontentloaded",
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
     });
 
     await expect
       .poll(() => page.url(), {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message:
           "wp-login.php (login_type=auto) must redirect to the SSO partner's authorize endpoint — staying on WordPress means the OIDC bridge never reached Keycloak",
       })
@@ -60,14 +62,14 @@ test("addon infinito-oidc-rbac-mapper: OIDC login bridges to the Keycloak partne
 
     await expect
       .poll(() => page.url(), {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: `Expected redirect back to ${shared.env.wpBaseUrl}/wp-admin after the OIDC round-trip`,
       })
       .toContain("/wp-admin");
 
-    await page.goto(`${shared.env.wpBaseUrl}/wp-admin/users.php`, {
+    await gotoOnion(page, `${shared.env.wpBaseUrl}/wp-admin/users.php`, {
       waitUntil: "domcontentloaded",
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
     });
 
     const roleSurface = page
@@ -76,7 +78,7 @@ test("addon infinito-oidc-rbac-mapper: OIDC login bridges to the Keycloak partne
     await expect(
       roleSurface,
       "the wp-admin users list (RBAC role-mapping surface) must render after the group-claim-bearing OIDC login"
-    ).toBeVisible({ timeout: 30_000 });
+    ).toBeVisible({ timeout: resolveTimeout(30_000) });
   } finally {
     await page.close().catch(() => {});
     await context.close().catch(() => {});

@@ -1,23 +1,48 @@
 ---
-# Replace INFX_OIDC_PLUGIN with the actual plugin name (Composer or local)
-- name: "📦 Install OIDC plugin & activate"
-  shell: |
-    container exec -i --user {{ SHOPWARE_USER }} {{ SHOPWARE_WEB_CONTAINER_ADDRESS }} sh -lc '
+- name: "📦 Install & activate {{ SHOPWARE_OIDC_PLUGIN }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i --user {{ SHOPWARE_USER }}
+      -e SHOPWARE_ROOT={{ SHOPWARE_ROOT | quote }}
+      -e PLUGIN_NAME={{ SHOPWARE_OIDC_PLUGIN | quote }}
+      {{ SHOPWARE_WEB_LOCAL_CID | quote }}
+      sh
+    stdin: |
       set -e
-      cd {{ SHOPWARE_ROOT }}
+      cd "$SHOPWARE_ROOT"
       php bin/console plugin:refresh
-      php bin/console plugin:install --activate INFX_OIDC_PLUGIN || true
-      php bin/console cache:clear
-    '
+      installed="$(php bin/console plugin:install --activate "$PLUGIN_NAME")"
+      printf '%s\n' "$installed"
+      printf '%s' "$installed" | grep -qi installed
+  changed_when: false
 
-- name: "🔧 Configure OIDC via system:config"
-  shell: |
-    container exec -i --user {{ SHOPWARE_USER }} {{ SHOPWARE_WEB_CONTAINER_ADDRESS }} sh -lc '
+- name: "🔐 Ensure the Keycloak login provider is configured"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i --user {{ SHOPWARE_USER }}
+      -e SHOPWARE_API_BASE={{ SHOPWARE_API_BASE | quote }}
+      -e ADMIN_USER={{ lookup('users', 'administrator').username | quote }}
+      -e ADMIN_PASSWORD={{ lookup('users', 'administrator').password | quote }}
+      -e OIDC_AUTH_SERVER={{ OIDC.URL | quote }}
+      -e OIDC_INTERNAL_BASE={{ SHOPWARE_OIDC_INTERNAL_BASE | quote }}
+      -e OIDC_REALM={{ OIDC.CLIENT.REALM | quote }}
+      -e OIDC_CLIENT_ID={{ OIDC.CLIENT.ID | quote }}
+      -e OIDC_CLIENT_SECRET={{ OIDC.CLIENT.SECRET | quote }}
+      {{ SHOPWARE_WEB_LOCAL_CID | quote }}
+      php
+    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/php/oidc/client.php') }}"
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "♻️ Clear the cache so the provider is discovered"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i --user {{ SHOPWARE_USER }}
+      -e SHOPWARE_ROOT={{ SHOPWARE_ROOT | quote }}
+      {{ SHOPWARE_WEB_LOCAL_CID | quote }}
+      sh
+    stdin: |
       set -e
-      cd {{ SHOPWARE_ROOT }}
-      php bin/console system:config:set "InfxOidc.config.clientId"        "{{ OIDC.CLIENT.ID }}"
-      php bin/console system:config:set "InfxOidc.config.clientSecret"    "{{ OIDC.CLIENT.SECRET }}"
-      php bin/console system:config:set "InfxOidc.config.discoveryUrl"    "{{ OIDC.CLIENT.DISCOVERY_DOCUMENT }}"
-      php bin/console system:config:set "InfxOidc.config.scopes"          "openid profile email"
+      cd "$SHOPWARE_ROOT"
       php bin/console cache:clear
-    '
+  changed_when: false

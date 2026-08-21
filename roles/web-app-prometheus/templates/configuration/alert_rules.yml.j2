@@ -49,9 +49,6 @@ groups:
     rules:
 {% set _comm_channels = lookup('active_alertmanager_channels') %}
 {% if _comm_channels %}
-      # Alert when any communication-channel app is unreachable for more than 2 minutes.
-      # Channel list is discovered dynamically: apps that declare communication.channel: true
-      # in their own config AND are deployed on this host (group_names check in plugin).
       - alert: CommunicationChannelDown
         expr: >
           probe_success{job="blackbox-healthz",

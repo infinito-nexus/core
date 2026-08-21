@@ -18,15 +18,12 @@ def _safe_yaml_load_all(path: Path) -> list[Any]:
         text = read_text(str(path))
     except Exception:
         return []
-    # Skip empty / non-yaml-ish files quickly
     if not text.strip():
         return []
     try:
         docs = list(load_yaml_all_str(text))
         return [d for d in docs if d is not None]
     except Exception:
-        # Some Ansible task files can contain Jinja that breaks YAML parsing;
-        # we keep it strict: if we can't parse, we don't pretend it's safe.
         return ["__YAML_PARSE_ERROR__"]
 
 
@@ -39,7 +36,6 @@ def _iter_task_dicts(obj: Any) -> Iterable[dict[str, Any]]:
         for item in obj:
             yield from _iter_task_dicts(item)
     elif isinstance(obj, dict):
-        # A task dict itself
         if any(
             k in obj
             for k in (
@@ -53,7 +49,6 @@ def _iter_task_dicts(obj: Any) -> Iterable[dict[str, Any]]:
         ):
             yield obj
 
-        # Recurse into known nesting constructs
         for key in ("block", "rescue", "always", "tasks", "pre_tasks", "post_tasks"):
             if key in obj:
                 yield from _iter_task_dicts(obj.get(key))
@@ -173,7 +168,6 @@ def _find_task_files(repo_root: Path) -> list[Path]:
 
     task_files.sort()
 
-    # De-dup
     uniq: list[Path] = []
     seen = set()
     for p in task_files:
@@ -196,10 +190,9 @@ class TestFactsAreNotOverriddenByVars(unittest.TestCase):
         repo_root = PROJECT_ROOT
         task_files = _find_task_files(repo_root)
 
-        facts = _collect_defined_facts(task_files)  # fact -> {paths}
-        var_overrides = _collect_var_overrides(task_files)  # (path, task_name, var_key)
+        facts = _collect_defined_facts(task_files)
+        var_overrides = _collect_var_overrides(task_files)
 
-        # Build reverse index for fast lookup
         override_index: dict[str, list[tuple[Path, str]]] = {}
         for p, tname, key in var_overrides:
             override_index.setdefault(key, []).append((p, tname))

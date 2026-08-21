@@ -379,14 +379,37 @@ class TestPortBandsDisjoint(unittest.TestCase):
             )
 
 
-class TestNoComposeWrapperInVariants(unittest.TestCase):
-    """The file root of meta/services.yml IS the services map.
-    Variant overrides in meta/variants.yml MUST follow the same shape: top
-    keys are server / services / rbac / volumes / credentials / users,
-    NEVER `compose:` (which silently no-ops because the loader doesn't
-    look there)."""
+def _legal_variant_roots() -> set[str]:
+    """The application-payload roots a variant entry may override.
 
-    def test_no_compose_wrapper_in_variants(self):
+    Derived from the meta files themselves rather than restated: the loader
+    maps ``meta/<topic>.yml`` onto ``applications.<app>.<topic>`` and the
+    ``meta/addons/`` directory onto ``addons``. ``main`` (galaxy metadata)
+    and ``variants`` (this file) are mechanism, not payload.
+    """
+    mechanism = {
+        Path(ROLE_FILE_META_MAIN).stem,
+        Path(ROLE_FILE_META_VARIANTS).stem,
+    }
+    roots: set[str] = set()
+    for meta_dir in sorted(ROLES_DIR.glob("*/meta")):
+        if not meta_dir.is_dir():
+            continue
+        roots.update(p.stem for p in meta_dir.glob("*.yml"))
+        if any((meta_dir / "addons").glob("*.yml")):
+            roots.add("addons")
+    return roots - mechanism
+
+
+class TestVariantTopLevelKeys(unittest.TestCase):
+    """A variant entry is baked into host_vars raw, so its top-level key IS
+    the ``applications.<app>.<key>`` path. A key no meta file produces lands
+    where nothing reads it: the deploy stays green and the override is
+    silently dropped. That is how `compose:` no-opped, and how `credentials:`
+    survived the move to `secrets.credentials` (commit 8a812c20e)."""
+
+    def test_variant_top_level_keys_are_payload_roots(self):
+        legal = _legal_variant_roots()
         offenders: list[str] = []
         for role_dir in sorted(ROLES_DIR.iterdir()):
             if not role_dir.is_dir():
@@ -405,15 +428,18 @@ class TestNoComposeWrapperInVariants(unittest.TestCase):
             if not isinstance(docs, list):
                 continue
             for index, entry in enumerate(docs):
-                if isinstance(entry, dict) and "compose" in entry:
-                    offenders.append(
-                        f"{variants_path.relative_to(PROJECT_ROOT)} variant "
-                        f"{index} contains a `compose:` wrapper (expected "
-                        f"top-level `services:` / `server:` / `volumes:`)."
-                    )
+                if not isinstance(entry, dict):
+                    continue
+                offenders.extend(
+                    f"{variants_path.relative_to(PROJECT_ROOT)} variant "
+                    f"{index}: `{key}:` is not an application-payload "
+                    f"root, so the override is silently discarded."
+                    for key in sorted(set(entry) - legal)
+                )
         if offenders:
             self.fail(
-                "meta/variants.yml MUST NOT use a `compose:` wrapper:\n"
+                f"meta/variants.yml top-level keys MUST be payload roots "
+                f"({', '.join(sorted(legal))}):\n"
                 + "\n".join(f"  - {o}" for o in offenders)
             )
 

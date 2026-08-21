@@ -9,7 +9,7 @@
     dest: /etc/sysctl.d/wireguard-ip.conf
     owner: root
     group: root
-  notify: reload sysctl configuration
+  notify: reload-sysctl-configuration
 
 - name: "🚀 deploy {{ WG0_CONF_DEST }}"
   copy:
@@ -17,6 +17,6 @@
     dest: "{{ WG0_CONF_DEST }}"
     owner: root
     group: root
-  notify: restart wireguard
+  notify: restart-wireguard
 
 - include_tasks: utils/once/flag.yml

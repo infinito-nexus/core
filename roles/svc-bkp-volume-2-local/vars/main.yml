@@ -7,6 +7,7 @@
 # - BKP_VOLUME_2_LOCAL_HARD_RESTART:     Compose project (entity) names where backup.project_hard_restart is set (for --hard-restart-projects)
 # - BKP_VOLUME_2_LOCAL_SNAPSHOT_BIN:     Launcher that appends --snapshot/--snapshot-subject per run when the mode allows it
 # - BKP_VOLUME_2_LOCAL_SNAPSHOT_MODE:    services.volume-2-local.snapshot_mode normalised; YAML reads a bare off/no/false as a boolean
+# - BKP_VOLUME_2_LOCAL_REPO_NAME:        Directory under <backups-dir>/<machine-hash>/; MUST match cli/administration/recover/full.py's volume repo
 # baudolo matches --images-* exactly, so the refs carry the swarm registry prefix.
 # CLI-ready variables render these lists as argument strings.
 
@@ -14,6 +15,7 @@ application_id: svc-bkp-volume-2-local
 system_service_id: "{{ application_id }}"
 
 BKP_VOLUME_2_LOCAL_BAUDOLO_BIN: baudolo
+BKP_VOLUME_2_LOCAL_REPO_NAME: backup-docker-to-local
 BKP_VOLUME_2_LOCAL_SNAPSHOT_BIN: "{{ [ DIR_BIN, 'baudolo-snapshot' ] | path_join }}"
 BKP_VOLUME_2_LOCAL_SUBVOLUME_BIN: "{{ [ DIR_BIN, 'baudolo-subject-subvolume' ] | path_join }}"
 
@@ -100,5 +102,6 @@ BKP_VOLUME_2_LOCAL_EXEC: >-
   --compose-dir {{ DIR_COMPOSITIONS }}
   --databases-csv {{ FILE_DATABASE_SECRETS }}
   --backups-dir {{ DIR_BACKUPS }}
-  --dump-only-sql
+  --repo-name {{ BKP_VOLUME_2_LOCAL_REPO_NAME }}
+  --only-sql
   {{ BKP_VOLUME_2_LOCAL_CLI_ARGS_LIST | select('string') | join(' ') }}

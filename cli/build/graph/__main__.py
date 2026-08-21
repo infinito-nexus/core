@@ -12,10 +12,8 @@ from utils.cache.yaml import load_yaml, load_yaml_any
 
 from . import PROJECT_ROOT
 
-# Regex used to ignore Jinja expressions inside include/import statements
 JINJA_PATTERN = re.compile(r'{{.*}}')
 
-# All dependency types the graph builder supports
 ALL_DEP_TYPES = [
     "run_after",
     "dependencies",
@@ -25,10 +23,8 @@ ALL_DEP_TYPES = [
     "import_role",
 ]
 
-# Graph directions: outgoing edges ("to") vs incoming edges ("from")
 ALL_DIRECTIONS = ["to", "from"]
 
-# Combined keys: e.g. "include_role_to", "dependencies_from", etc.
 ALL_KEYS = [f"{dep}_{direction}" for dep in ALL_DEP_TYPES for direction in ALL_DIRECTIONS]
 
 
@@ -87,7 +83,6 @@ def load_tasks(path: str, dep_type: str) -> List[str]:
     Parse include_tasks/import_tasks from tasks/main.yml.
     Only accepts simple, non-Jinja names.
     """
-    # `tasks/main.yml` root is a list, not a mapping.
     data = load_yaml_any(path)
     if not isinstance(data, list):
         data = []
@@ -144,7 +139,6 @@ def build_single_graph(
         if role in nodes:
             return
 
-        # Try retrieving cached meta; fallback: lazy load
         meta = meta_cache.get(role)
         if meta is None:
             try:
@@ -191,7 +185,7 @@ def build_single_graph(
                 if tgt not in path:
                     traverse(tgt, depth + 1, path | {tgt})
 
-        else:  # direction == "from"
+        else:
             for src in incoming(role):
                 ensure_node(src)
                 links.append({"source": src, "target": role, "type": dep_type})
@@ -229,16 +223,12 @@ def build_mappings(
         if os.path.isdir(os.path.join(roles_dir, r))
     ]
 
-    # Pre-caches
     meta_cache: Dict[str, Dict[str, Any]] = {}
     deps_cache: Dict[str, Dict[str, List[str]]] = {dep: {} for dep in ALL_DEP_TYPES}
     rev_cache: Dict[str, Dict[str, Set[str]]] = {dep: {} for dep in ALL_DEP_TYPES}
 
     resolver = RoleDependencyResolver(roles_dir)
 
-    # --------------------------------------------------------
-    # Step 1: Preload meta-based deps (run_after, dependencies)
-    # --------------------------------------------------------
     for role in roles:
         try:
             meta = load_meta(find_role_meta(roles_dir, role))
@@ -256,9 +246,6 @@ def build_mappings(
                     if isinstance(tgt, str) and tgt.strip():
                         rev_cache[dep_key].setdefault(tgt.strip(), set()).add(role)
 
-    # --------------------------------------------------------
-    # Step 2: Preload include_role/import_role (resolver)
-    # --------------------------------------------------------
     for role in roles:
         role_path = os.path.join(roles_dir, role)
         inc, imp = resolver._scan_tasks(role_path)
@@ -275,9 +262,6 @@ def build_mappings(
             for tgt in imp_list:
                 rev_cache["import_role"].setdefault(tgt, set()).add(role)
 
-    # --------------------------------------------------------
-    # Step 3: Preload include_tasks/import_tasks
-    # --------------------------------------------------------
     for role in roles:
         try:
             tasks_path = find_role_tasks(roles_dir, role)
@@ -298,9 +282,6 @@ def build_mappings(
         "rev": rev_cache,
     }
 
-    # --------------------------------------------------------
-    # Step 4: Build all graphs from caches
-    # --------------------------------------------------------
     for key in ALL_KEYS:
         dep_type, direction = key.rsplit("_", 1)
         try:

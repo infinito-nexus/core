@@ -25,7 +25,7 @@ config:
       configvalue: "{{ NEXTCLOUD_URL }}/"
     - appid: "onlyoffice"
       configkey: "jwt_secret"
-      configvalue: "{{ lookup('config','web-svc-onlyoffice', 'credentials.onlyoffice_jwt_secret', '') }}"
+      configvalue: "{{ lookup('config','web-svc-onlyoffice', 'secrets.credentials.onlyoffice_jwt_secret', '') }}"
     - appid: "onlyoffice"
       configkey: "jwt_header"
       configvalue: "Authorization"

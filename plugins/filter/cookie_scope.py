@@ -1,4 +1,4 @@
-def _domain_strings(domains):
+def domain_strings(domains):
     """Flatten the value returned by lookup('domains', app) into a flat list of
     domain strings. The lookup yields a dict ({key: domain}), a list, or a bare
     string depending on the role's domains shape, so normalise all three.
@@ -20,7 +20,7 @@ def common_dns_suffix(domains):
     under one base) collapses to the shared parent that a session cookie can
     span across all of them.
     """
-    cleaned = _domain_strings(domains)
+    cleaned = domain_strings(domains)
     if not cleaned:
         return ""
     if len(cleaned) == 1:
@@ -38,4 +38,7 @@ def common_dns_suffix(domains):
 
 class FilterModule:
     def filters(self):
-        return {"common_dns_suffix": common_dns_suffix}
+        return {
+            "common_dns_suffix": common_dns_suffix,
+            "domain_strings": domain_strings,
+        }

@@ -8,9 +8,10 @@
     environment:
       REGISTRY_HTTP_ADDR: "{{ REGISTRY_BIND_IP }}:{{ REGISTRY_PORT }}"
     {% else %}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_ports', ['docker', 'registry']) | indent(4) }}
     {% endif %}
-    {{ lookup('container_volumes', application_id, entity_name) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {% if DEPLOYMENT_MODE == 'swarm' %}
     networks: # nocheck: networks-literal
       hostnet: {}
@@ -18,7 +19,7 @@
     {{ lookup('container_networks') | indent(4) }}
     {% endif %}
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}
 {% if DEPLOYMENT_MODE == 'swarm' %}
 networks: # nocheck: networks-literal
   hostnet:

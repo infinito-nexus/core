@@ -17,7 +17,6 @@ from collections.abc import Mapping
 from typing import Any
 from urllib.parse import urlparse
 
-# Group-vars scalars that the users cache embeds as `{{ VAR }}` placeholders.
 _SCALAR_USER_PLACEHOLDERS: tuple[str, ...] = (
     "ORGANIZATION",
     "SOFTWARE_NAME",

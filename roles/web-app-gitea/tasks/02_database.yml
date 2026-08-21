@@ -19,7 +19,7 @@
   retries: 12
   delay: 5
   until: _gitea_patch_host.rc == 0
-  notify: compose up
+  notify: compose-up
 
 - name: 🩹 Patch Gitea DB name in app.ini
   shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
@@ -30,7 +30,7 @@
   retries: 12
   delay: 5
   until: _gitea_patch_name.rc == 0
-  notify: compose up
+  notify: compose-up
 
 - name: 🩹 Patch Gitea DB user in app.ini
   shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
@@ -41,7 +41,7 @@
   retries: 12
   delay: 5
   until: _gitea_patch_user.rc == 0
-  notify: compose up
+  notify: compose-up
 
 - name: 🩹 Patch Gitea DB password in app.ini
   shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
@@ -54,7 +54,7 @@
   retries: 12
   delay: 5
   until: _gitea_patch_passwd.rc == 0
-  notify: compose up
+  notify: compose-up
 
 - name: "🚿 Flush database patches"
   meta: flush_handlers

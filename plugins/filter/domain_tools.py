@@ -9,7 +9,6 @@ def to_zone(hostname: str) -> str:
     parts = hostname.strip(".").split(".")
     if len(parts) < 2:
         raise AnsibleFilterError(f"to_zone: '{hostname}' has no TLD part")
-    # naive default: last two labels -> SLD.TLD
     return ".".join(parts[-2:])
 
 

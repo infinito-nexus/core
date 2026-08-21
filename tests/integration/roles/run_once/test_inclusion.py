@@ -20,7 +20,6 @@ def find_role_task_yml_files(root_dir):
         if not path_str.startswith(roles_prefix):
             continue
         rel = path_str[len(roles_prefix) :].split("/")
-        # roles/<role>/tasks/<file>
         if len(rel) == 3 and rel[1] == "tasks":
             matches.append(path_str)
     return matches
@@ -53,7 +52,6 @@ class RunOnceInclusionTest(unittest.TestCase):
                 self.fail(f"Failed to parse YAML file {filepath}: {e}")
 
             for doc in docs:
-                # Determine tasks list
                 tasks = None
                 if isinstance(doc, dict) and isinstance(doc.get("tasks"), list):
                     tasks = doc["tasks"]
@@ -70,13 +68,11 @@ class RunOnceInclusionTest(unittest.TestCase):
                         continue
 
                     block = item["block"]
-                    # Check for include_role or import_role within block
                     has_role_include = any(
                         isinstance(t, dict)
                         and ("include_role" in t or "import_role" in t)
                         for t in block
                     )
-                    # Check that block contains the run-once flag include_tasks anywhere
                     has_run_once_flag = any(
                         isinstance(t, dict)
                         and t.get("include_tasks") == "utils/once/flag.yml"

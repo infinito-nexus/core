@@ -16,6 +16,19 @@ Two call forms:
     - ``source``         for binds / configs / secrets, ``''`` if absent
     - ``nfs``            NFS opt-in (bool or dict), ``None`` if absent
     - ``mounts``         the raw mounts list, ``[]`` if absent
+    - ``targets``        ``{service: container path}`` built from ``mounts``
+    - ``target``         the one container path this entry mounts at, present
+                         only when every mount agrees. An entry that lands at
+                         different paths per service omits the key rather than
+                         picking one; read ``targets[service]`` there.
+
+  ``target`` is what lets ``meta/volumes.yml`` stay the single source of a
+  container path: a role defines its constant from the registry
+
+      PROMETHEUS_CONFIG_FILE: "{{ lookup('volume', application_id, 'config').target }}"
+
+  rather than repeating the literal, which nothing keeps in step with the
+  mount it describes.
 
   ``lookup('volume', application_id)`` — return the WHOLE canonical
   registry as a dict keyed by semantic name. Useful for tasks that loop
@@ -52,11 +65,6 @@ class LookupModule(LookupBase):
 
         canonical = get_canonical_volumes(application_id)
         if not canonical:
-            # The canonical-volumes registry fills lazily as a side effect of
-            # building the application defaults; force it on a miss so a lookup
-            # that runs before any consumer built this role (e.g. nfs_prep's
-            # pre-create loop) does not see an empty registry and silently skip
-            # the subdir. Guarded so the populated hot path skips the deepcopy.
             get_application_defaults()
             canonical = get_canonical_volumes(application_id)
 
@@ -81,15 +89,38 @@ class LookupModule(LookupBase):
             )
 
         docker_name = entry.get("name", "")
-        return [
-            {
-                "name": entry.get("name") or name,
-                "semantic_name": name,
-                "docker_name": docker_name,
-                "path": entry.get("path", ""),
-                "type": entry.get("type", "volume"),
-                "source": entry.get("source", ""),
-                "nfs": entry.get("nfs", None),
-                "mounts": entry.get("mounts", []),
-            }
-        ]
+        mounts = entry.get("mounts", [])
+        resolved = {
+            "name": entry.get("name") or name,
+            "semantic_name": name,
+            "docker_name": docker_name,
+            "path": entry.get("path", ""),
+            "type": entry.get("type", "volume"),
+            "source": entry.get("source", ""),
+            "nfs": entry.get("nfs", None),
+            "mounts": mounts,
+            "targets": _targets(mounts),
+        }
+        distinct = {t for t in resolved["targets"].values() if t}
+        if len(distinct) == 1:
+            resolved["target"] = next(iter(distinct))
+        return [resolved]
+
+
+def _targets(mounts: Any) -> dict[str, str]:
+    """Map each mounting service to the container path it receives.
+
+    Args:
+        mounts: the entry's raw ``mounts`` list.
+    """
+    if not isinstance(mounts, list):
+        return {}
+    out: dict[str, str] = {}
+    for mount in mounts:
+        if not isinstance(mount, dict):
+            continue
+        service = str(mount.get("service", "") or "").strip()
+        target = str(mount.get("target", "") or "").strip()
+        if service and target:
+            out[service] = target
+    return out

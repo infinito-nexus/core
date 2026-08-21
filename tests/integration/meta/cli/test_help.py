@@ -28,7 +28,6 @@ class CLIHelpIntegrationTest(unittest.TestCase):
         """
         commands = []
         for root, dirnames, filenames in os.walk(self.cli_dir):  # nocheck: project-walk
-            # Prune __pycache__
             dirnames[:] = [d for d in dirnames if d != "__pycache__"]
 
             if "__main__.py" not in filenames:
@@ -36,12 +35,10 @@ class CLIHelpIntegrationTest(unittest.TestCase):
 
             rel_dir = os.path.relpath(root, self.cli_dir)
             if rel_dir == ".":
-                # cli/__main__.py is the dispatcher, not a command
                 continue
 
             commands.append(list(Path(rel_dir).parts))
 
-        # stable order for test output
         commands.sort(key="/".join)
         return commands
 

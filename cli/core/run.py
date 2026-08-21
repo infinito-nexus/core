@@ -29,7 +29,6 @@ def open_log_file(log_dir: Path) -> tuple[TextIO, Path]:
     log_dir = log_dir.expanduser()
     log_dir.mkdir(parents=True, exist_ok=True)
 
-    # Best-effort permission hardening (ignore failures on non-POSIX / special FS).
     with contextlib.suppress(Exception):
         log_dir.chmod(0o700)
 

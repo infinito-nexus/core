@@ -9,6 +9,7 @@ data:
 tmp:
   type: volume
   name: matomo_tmp
+  backup: false
   # nocheck: nfs-false-data-loss  Reason: regenerable Twig/session cache; Matomo requires per-server tmp/ and rebuilds it on demand
   nfs: false
   mounts:

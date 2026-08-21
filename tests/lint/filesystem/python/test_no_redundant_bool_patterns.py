@@ -54,15 +54,10 @@ from pathlib import Path
 from utils.annotations.suppress import suppressed_line_numbers
 from utils.cache.files import PROJECT_ROOT, iter_project_files, read_text
 
-# `... | ternary('true','false')` — anywhere. The literal `'true'` /
-# `'false'` payload is the signal that the upstream value is already a
-# boolean (or boolean-equivalent) and the ternary is converting it back
-# into the same truth value as a string.
 _PATTERN_TERNARY: re.Pattern[str] = re.compile(
     r"""\|\s*ternary\(\s*['"]true['"]\s*,\s*['"]false['"]\s*\)""",
 )
 
-# `| bool == ` followed by a bool literal (case-insensitive, optional quotes).
 _PATTERN_COMPARISON: re.Pattern[str] = re.compile(
     r"""\|\s*bool\s*==\s*(?:['"]?(?:true|false)['"]?)""",
     re.IGNORECASE,

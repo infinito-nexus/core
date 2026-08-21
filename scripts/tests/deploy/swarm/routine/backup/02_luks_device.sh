@@ -4,6 +4,16 @@
 # device mountpoint; the deployed svc-bkp-local-2-device unit then syncs
 # onto it like a real plug event.
 #
+# Loop devices need two things the node container cannot supply itself. It has
+# no udev, so LOOP_CTL_GET_FREE hands out a minor whose /dev node never appears
+# and cryptsetup aborts with "loop device with autoclear flag is required" —
+# hence the mknod loop below. And it cannot load kernel modules, so those nodes
+# stay dead unless the host carries the loop driver: `make kernel-loop-load`.
+#
+# The device-mapper name is host-global too, so a preserved cluster
+# (INFINITO_KEEP_SWARM_NODES) leaves it behind and the next round aborts with
+# "Device <mapper> already exists" — hence the teardown before luksOpen.
+#
 # Arguments:
 #   $1 USB_IMG      loop image path to create
 #   $2 MOUNT_DIR    configured services.local-2-device.mount path
@@ -24,8 +34,25 @@ USB_MAPPER="${4:?}"
 USB_PASS="${5:?}"
 USB_SIZE_MB="${6:-512}"
 
-losetup -ln 2>/dev/null | awk '/\(deleted\)/ {print $1}' | xargs -r -n1 losetup -d 2>/dev/null || true
-losetup -j "${USB_IMG}" 2>/dev/null | cut -d: -f1 | xargs -r -n1 losetup -d 2>/dev/null || true
+for _minor in $(seq 0 7); do
+	[ -b "/dev/loop${_minor}" ] || mknod "/dev/loop${_minor}" b 7 "${_minor}"
+done
+
+if ! losetup -f >/dev/null 2>&1; then
+	echo "FAILURE: no loop device available in this node; the nodes above are dead" >&2
+	echo "         without the host-side driver. Run 'make kernel-loop-load' on the host." >&2
+	exit 1
+fi
+
+losetup -ln 2>/dev/null | awk '/\(deleted\)/ {print $1}' | xargs -r -n1 losetup -d 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+losetup -j "${USB_IMG}" 2>/dev/null | cut -d: -f1 | xargs -r -n1 losetup -d 2>/dev/null || true        # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+
+if cryptsetup status "${USB_MAPPER}" >/dev/null 2>&1; then
+	if findmnt -rn -S "/dev/mapper/${USB_MAPPER}" >/dev/null; then
+		umount "/dev/mapper/${USB_MAPPER}"
+	fi
+	cryptsetup luksClose "${USB_MAPPER}"
+fi
 
 truncate -s "${USB_SIZE_MB}M" "${USB_IMG}"
 

@@ -11,5 +11,5 @@
     dest: "{{ BLUESKY_BROKER_BUILD_CONTEXT }}/"
     mode: preserve
   notify:
-    - compose up
-    - compose build
+    - compose-up
+    - compose-build

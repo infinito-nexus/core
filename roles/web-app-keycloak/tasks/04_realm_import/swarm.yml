@@ -39,7 +39,7 @@
   delegate_to: "{{ STACK_HOST }}"
 
 - name: "⏳ Keycloak realm-import | Wait for import job to complete"
-  ansible.builtin.script: "{{ lookup('path_absolute', 'roles/sys-svc-compose/files/swarm/job_state.sh') }}"
+  ansible.builtin.script: "{{ lookup('path_absolute', 'roles/sys-svc-compose/files/shell/swarm/job_state.sh') }}"
   environment:
     JOB: "{{ lookup('container_service', application_id, entity_name) }}_import"
   register: kc_import_done
@@ -80,7 +80,7 @@
   delegate_to: "{{ STACK_HOST }}"
 
 - name: "✅ Keycloak realm-import | Confirm replicas stay X/X for consecutive polls"
-  ansible.builtin.script: "{{ role_path }}/files/wait_replicas_stable.sh"
+  ansible.builtin.script: "{{ role_path }}/files/shell/wait_replicas_stable.sh"
   environment:
     SVC: "{{ lookup('container_service', application_id, entity_name) }}"
     WANT: "{{ KEYCLOAK_REPLICAS_WANT }}"

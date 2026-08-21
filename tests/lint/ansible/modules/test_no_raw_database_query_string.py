@@ -32,9 +32,6 @@ from utils.cache.files import iter_project_files_with_content
 
 from . import PROJECT_ROOT
 
-# Match a ``query:`` key whose IMMEDIATELY preceding non-blank line
-# is `database_query:` (any indent depth). We scan top-down so we can
-# carry that one-step look-back without a full YAML parse.
 _QUERY_KEY_PATTERN = re.compile(r"^\s*query\s*:")
 _DATABASE_QUERY_PATTERN = re.compile(r"^\s*database_query\s*:")
 
@@ -77,9 +74,6 @@ class TestNoRawDatabaseQueryString(unittest.TestCase):
                     continue
                 line_indent = len(line) - len(stripped)
 
-                # Enter / leave the inner mapping of a `database_query:`
-                # task. The block is open until a sibling/dedented key
-                # closes it.
                 if _DATABASE_QUERY_PATTERN.match(line):
                     in_database_query_block = True
                     database_query_indent = line_indent

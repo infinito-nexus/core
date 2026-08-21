@@ -8,7 +8,7 @@ As a Infinito.Nexus platform operator, I want to provide a fully integrated, pro
 
 [Penpot](https://penpot.app/) is an open-source design and prototyping platform (a self-hostable Figma alternative). This requirement tracks a new `web-app-penpot` Ansible role that deploys Penpot's containerized stack and wires it into the Infinito.Nexus ecosystem (identity, reverse proxy, marketplace, backup).
 
-The role MUST follow the standard role-meta layout described in [layout.md](../contributing/design/role/services/layout.md) (`meta/services.yml`, `meta/schema.yml`, `meta/volumes.yml`, `meta/variants.yml`, `meta/info.yml`, `meta/main.yml`). [web-app-openproject](../../roles/web-app-openproject/) is the closest structural model — it combines PostgreSQL, a Redis `cache` service, background workers, an internal proxy, Keycloak SSO and LDAP — and SHOULD be used as the primary reference; [web-app-taiga](../../roles/web-app-taiga/) and [web-app-confluence](../../roles/web-app-confluence/) are secondary references.
+The role MUST follow the standard role-meta layout described in [layout.md](../contributing/design/role/services/layout.md) (`meta/services.yml`, `meta/secrets.yml`, `meta/volumes.yml`, `meta/variants.yml`, `meta/info.yml`, `meta/main.yml`). [web-app-openproject](../../roles/web-app-openproject/) is the closest structural model — it combines PostgreSQL, a Redis `cache` service, background workers, an internal proxy, Keycloak SSO and LDAP — and SHOULD be used as the primary reference; [web-app-taiga](../../roles/web-app-taiga/) and [web-app-confluence](../../roles/web-app-confluence/) are secondary references.
 
 Penpot's upstream stack is **frontend + backend + exporter + PostgreSQL + Redis**. The exporter container is mandatory: it backs the export (SVG/PDF) and developer-handoff features required below.
 
@@ -18,7 +18,7 @@ Penpot's upstream stack is **frontend + backend + exporter + PostgreSQL + Redis*
 
 - [x] A new role exists at `roles/web-app-penpot/` and follows the role-meta layout in [layout.md](../contributing/design/role/services/layout.md).
 - [x] `meta/services.yml` declares every container service and a `lifecycle` key (starting tier `beta`).
-- [x] `meta/schema.yml` defines the role's configurable variables.
+- [x] `meta/secrets.yml` defines the role's configurable variables.
 - [x] `meta/volumes.yml` declares the role's named volumes.
 - [x] `meta/variants.yml` declares the matrix-deploy variants (see **Variants** below).
 - [x] `meta/info.yml` and `meta/main.yml` are present and valid.

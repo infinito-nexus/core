@@ -39,14 +39,6 @@ class TestPlaywrightEnvServiceFlags(unittest.TestCase):
                 content = f.read()
             for match in SERVICE_FLAG_LINE.finditer(content):
                 rhs = match.group(2).strip()
-                # The rhs MUST be a Jinja expression that yields "true" or
-                # "false" as literal strings. Three acceptable shapes:
-                #   1) A `{{ ... }}` ternary that ends with `'true'` and
-                #      `'false'` (both quote styles accepted).
-                #   2) A `{{ ... | string | lower }}` expression whose
-                #      operand is a Python boolean (`True`/`False`
-                #      lower-case to "true"/"false").
-                #   3) The literal string "true" or "false".
                 if rhs in ("true", "false"):
                     continue
                 looks_like_ternary = "{{" in rhs and (

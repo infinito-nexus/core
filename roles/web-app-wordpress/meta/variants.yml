@@ -22,6 +22,9 @@
     dashboard:
       enabled: true
       shared: true
+    email:
+      enabled: true
+      shared: true
     logout:
       enabled: true
       shared: true
@@ -36,6 +39,8 @@
     prometheus:
       enabled: true
       shared: true
+    tor:
+      enabled: true
 - services:
     container_backup:
       enabled: false
@@ -52,6 +57,9 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    email:
+      enabled: false
+      shared: false
     logout:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -66,6 +74,11 @@
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    tor:
+      enabled: true
+  addons:
+    activitypub:
+      enabled: false
   server:
     domains:
       canonical:

@@ -82,7 +82,6 @@ main() {
 		install_pacman
 		;;
 	*)
-		# Fallback: probe available package managers.
 		if command -v apt-get >/dev/null 2>&1; then
 			install_apt
 		elif command -v dnf >/dev/null 2>&1; then

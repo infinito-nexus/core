@@ -4,9 +4,6 @@ FROM ${JIRA_IMAGE}:${JIRA_VERSION}
 
 ARG JIRA_STORAGE_PATH
 
-# Optional: install OIDC SSO app (example path/name)
-# COPY ./plugins/atlassian-sso-dc-latest.obr /opt/atlassian/jira/atlassian-bundled-plugins/
 
-# Ensure proper permissions for app data
 RUN mkdir -p ${JIRA_STORAGE_PATH} && \
     chown -R 2001:2001 ${JIRA_STORAGE_PATH}

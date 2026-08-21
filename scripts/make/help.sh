@@ -33,7 +33,6 @@ else
 	C_RESET=""
 fi
 
-# Detail mode: `make help target=<name>` (or positional arg).
 if [[ $# -ge 1 && -n "$1" ]]; then
 	target="$1"
 	awk -v want="${target}" -v g="${C_GREEN}" -v b="${C_BOLD}" -v d="${C_DIM}" -v r="${C_RESET}" '
@@ -93,7 +92,6 @@ awk '
 		target = $0
 		sub(/:.*$/, "", target)
 		if (!seen[target]++) {
-			# The description is the FIRST line of the comment block (top, closest to .PHONY:).
 			printf "%s\t%s\n", target, (n >= 1 ? block[1] : "-")
 		}
 		n = 0

@@ -34,7 +34,6 @@ class OAuthLoginHTTPS(OAuthLogin):
                 request.env["ir.config_parameter"].sudo().get_param("web.base.url")
             )
             if base_url:
-                # Ensure trailing slash for consistency
                 if not base_url.endswith("/"):
                     base_url += "/"
                 return base_url
@@ -42,7 +41,6 @@ class OAuthLoginHTTPS(OAuthLogin):
             _logger.exception(
                 "Failed to read 'web.base.url' from ir.config_parameter; falling back to request URL root."
             )
-        # Fallback to standard behavior
         return request.httprequest.url_root
 
     def list_providers(self):

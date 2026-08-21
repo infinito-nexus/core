@@ -16,10 +16,10 @@ server
   
   location /
   {
-    alias {{ lookup('nginx','directories.data.files') }}; {# Path to your file directory #}
-    autoindex on;                             {# Enable directory listing #}
-    autoindex_exact_size off;                 {# Display sizes in a human-readable format #}
-    autoindex_localtime on;                   {# Show local time #}
+    alias {{ lookup('nginx','directories.data.files') }};
+    autoindex on;
+    autoindex_exact_size off;
+    autoindex_localtime on;
     {% include 'roles/sys-front-inj-all/templates/location.lua.j2' %}
   }
 

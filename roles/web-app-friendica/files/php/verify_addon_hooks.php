@@ -1,4 +1,6 @@
 <?php
+// nocheck: mirrored-unit-test - reads $argv, requires Friendica's autoloader and
+// queries the live hook table over PDO; a unit test would mock away the entire script
 
 /*
  * Verify a Friendica addon's _install() hooks are present in the

@@ -17,6 +17,7 @@ private registry.
 from __future__ import annotations
 
 import hashlib
+import http.client
 import json
 import re
 import tempfile
@@ -75,7 +76,12 @@ def _bearer_token(challenge: str, repo: str) -> str | None:
         )
         with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310 - https request to a trusted registry host
             body = json.loads(resp.read().decode())
-    except (urllib.error.URLError, OSError, json.JSONDecodeError):
+    except (
+        urllib.error.URLError,
+        OSError,
+        http.client.HTTPException,
+        json.JSONDecodeError,
+    ):
         return None
     return body.get("token") or body.get("access_token")
 
@@ -107,7 +113,7 @@ def _request(url: str, repo: str, method: str, accept: str | None):
                 if token:
                     continue
             return exc.code, exc.headers, None
-        except (urllib.error.URLError, OSError):
+        except (urllib.error.URLError, OSError, http.client.HTTPException):
             return None
     return None
 
@@ -279,6 +285,108 @@ def _transfer_size_at(
             return None
         total += int(layer.get("size") or 0)
     return total
+
+
+def _fetch_blob(image: str, digest: str) -> dict | None:
+    """Return a parsed JSON blob of *image*, or None on any failure."""
+    resolved = _resolve(image)
+    if resolved is None:
+        return None
+    host, repo = resolved
+    url = f"https://{host}/v2/{quote(repo, safe='/')}/blobs/{quote(digest, safe='')}"
+    result = _request(url, repo, method="GET", accept="application/json")
+    if result is None:
+        return None
+    status, _resp_headers, body = result
+    if status != 200 or not body:
+        return None
+    try:
+        parsed = json.loads(body.decode())
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return None
+    return parsed if isinstance(parsed, dict) else None
+
+
+def _healthcheck_at(
+    image: str, reference: str, os_name: str, architecture: str
+) -> dict | None:
+    doc = fetch_manifest(image, reference)
+    if doc is None:
+        return None
+    manifests = doc.get("manifests")
+    if isinstance(manifests, list) and manifests:
+        digest = _platform_digest(manifests, os_name, architecture)
+        if digest is None:
+            return None
+        doc = fetch_manifest(image, digest)
+        if doc is None or doc.get("manifests"):
+            return None
+    config_digest = (doc.get("config") or {}).get("digest")
+    if not isinstance(config_digest, str) or not config_digest:
+        return None
+    blob = _fetch_blob(image, config_digest)
+    if blob is None:
+        return None
+    return (blob.get("config") or {}).get("Healthcheck") or {}
+
+
+def image_healthcheck(
+    image: str,
+    reference: str,
+    *,
+    os_name: str = "linux",
+    architecture: str = "amd64",
+) -> dict | None:
+    """Return the ``HEALTHCHECK`` baked into ``image:reference``.
+
+    Args:
+        image: image name, with or without registry host.
+        reference: tag or digest.
+        os_name: platform to resolve a multi-arch index to.
+        architecture: platform to resolve a multi-arch index to.
+
+    Returns:
+        The image's healthcheck config, ``{}`` when the image definitively
+        declares none, and ``None`` when the answer is indeterminate - an
+        unresolvable name, a network error, an auth wall, a rate limit, or an
+        index without a matching platform. A caller must not read ``{}`` and
+        ``None`` as the same thing: only the former is evidence.
+
+    Reads from the mirror first and falls back to the upstream registry only
+    for images the mirror does not carry, so a full sweep does not spend the
+    upstream's rate limit. Determinate answers are cached on disk.
+    """
+    return image_healthcheck_probed(
+        image, reference, os_name=os_name, architecture=architecture
+    )[0]
+
+
+def image_healthcheck_probed(
+    image: str,
+    reference: str,
+    *,
+    os_name: str = "linux",
+    architecture: str = "amd64",
+) -> tuple[dict | None, str]:
+    """:func:`image_healthcheck` plus which address answered.
+
+    Returns:
+        ``(healthcheck, source)`` where source is ``cache``, ``mirror``,
+        ``upstream`` or ``none``. Reading upstream is the documented fallback
+        for images the mirror does not carry; a caller that sweeps many images
+        can use the counts to tell a fallback from a mirror that stopped
+        working.
+    """
+    cached = _cache_read("healthcheck", image, reference, os_name, architecture)
+    if isinstance(cached, dict):
+        return cached, "cache"
+    mirrored = mirror_image(image)
+    for candidate in _probe_order(image):
+        found = _healthcheck_at(candidate, reference, os_name, architecture)
+        if found is not None:
+            _cache_write("healthcheck", found, image, reference, os_name, architecture)
+            return found, "mirror" if candidate == mirrored else "upstream"
+    return None, "none"
 
 
 def manifest_exists(image: str, reference: str) -> bool | None:

@@ -17,6 +17,8 @@
     css:
       enabled: true
       shared: true
+    tor:
+      enabled: true
 - services:
     dashboard:
       enabled: false
@@ -30,3 +32,5 @@
     css:
       enabled: false
       shared: false
+    tor:
+      enabled: true

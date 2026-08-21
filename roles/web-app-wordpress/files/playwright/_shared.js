@@ -1,9 +1,11 @@
 const { expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const { isServiceEnabled } = require("./service-gating");
 
 const {
   decodeDotenvQuotedValue,
+  gotoOnion,
   installCspViolationObserver,
   normalizeBaseUrl,
 } = require("./personas");
@@ -64,24 +66,24 @@ async function fillKeycloakLoginForm(page, username, password) {
   await expect(
     usernameField,
     "Expected Keycloak username field to be visible"
-  ).toBeVisible({ timeout: 60_000 });
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
   await usernameField.fill(username);
   await passwordField.fill(password);
-  await signInButton.click();
+  await signInButton.click({ timeout: resolveTimeout(30_000) });
 }
 
 // WP uses login_type=auto — visiting wp-login.php triggers OIDC redirect when
 // there's no WP session. We land at Keycloak, sign in, and get redirected
 // back to /wp-admin/.
 async function wpAdminLoginViaOidc(page, wpBaseUrl, username, password) {
-  await page.goto(`${wpBaseUrl}/wp-login.php`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${wpBaseUrl}/wp-login.php`, { waitUntil: "domcontentloaded" });
   const url = page.url();
   if (!url.includes(wpBaseUrl)) {
     await fillKeycloakLoginForm(page, username, password);
   }
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `Expected redirect back to ${wpBaseUrl}/wp-admin after OIDC login`,
     })
     .toContain("/wp-admin");
@@ -93,7 +95,7 @@ async function wpAdminLoginViaOidc(page, wpBaseUrl, username, password) {
 // navigate out of inside a Playwright flow.
 async function wpSignOut(page, wpBaseUrl) {
   await page.context().clearCookies().catch(() => {});
-  await page.goto(`${wpBaseUrl}/`, { waitUntil: "domcontentloaded" }).catch(() => {});
+  await gotoOnion(page, `${wpBaseUrl}/`, { waitUntil: "domcontentloaded" }).catch(() => {});
 }
 
 async function keycloakAdminOpenUserProfile(
@@ -102,24 +104,24 @@ async function keycloakAdminOpenUserProfile(
   realmName,
   username
 ) {
-  await page.goto(`${keycloakBaseUrl}/admin/master/console/#/${realmName}/users`, {
+  await gotoOnion(page, `${keycloakBaseUrl}/admin/master/console/#/${realmName}/users`, {
     waitUntil: "domcontentloaded",
   });
   const searchInput = page
     .locator("input[placeholder*='Search'], input[name='search']")
     .first();
-  await expect(searchInput).toBeVisible({ timeout: 60_000 });
+  await expect(searchInput).toBeVisible({ timeout: resolveTimeout(60_000) });
   await searchInput.fill(username);
   await searchInput.press("Enter");
   const userRowLink = page
     .locator("table a, [role='gridcell'] a, a[data-testid='user-row']")
     .filter({ hasText: new RegExp(`^${username}$`, "i") })
     .first();
-  await expect(userRowLink).toBeVisible({ timeout: 60_000 });
-  await userRowLink.click();
+  await expect(userRowLink).toBeVisible({ timeout: resolveTimeout(60_000) });
+  await userRowLink.click({ timeout: resolveTimeout(30_000) });
   await expect
     .poll(() => page.url(), {
-      timeout: 30_000,
+      timeout: resolveTimeout(30_000),
       message: `Expected Keycloak user profile URL after clicking "${username}"`,
     })
     .toMatch(/\/users\/[^/]+/);
@@ -133,11 +135,11 @@ async function keycloakAdminOpenUserGroupsTab(page) {
     .locator("[role='tab']")
     .filter({ hasText: /^Groups$/ })
     .first();
-  await expect(groupsTab).toBeVisible({ timeout: 30_000 });
+  await expect(groupsTab).toBeVisible({ timeout: resolveTimeout(30_000) });
   await groupsTab.click();
   await expect
     .poll(() => page.url(), {
-      timeout: 30_000,
+      timeout: resolveTimeout(30_000),
       message: "Expected Keycloak user profile to switch to the Groups tab",
     })
     .toMatch(/\/users\/[^/]+\/groups/);
@@ -156,6 +158,7 @@ async function keycloakAdminToken(request, keycloakBaseUrl) {
         password: env.superAdminPassword,
       },
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      timeout: resolveTimeout(30_000),
     }
   );
   if (!tokenResp.ok()) {
@@ -183,7 +186,7 @@ async function keycloakResolveGroupId(
   const trimmed = groupPath.replace(/^\//, "");
   const byPath = await request.get(
     `${keycloakBaseUrl}/admin/realms/${encodeURIComponent(realmName)}/group-by-path/${trimmed}`,
-    { headers }
+    { headers, timeout: resolveTimeout(30_000) }
   );
   if (byPath.ok()) {
     const group = await byPath.json();
@@ -199,7 +202,7 @@ async function keycloakResolveGroupId(
     const url = parentId === null
       ? `${keycloakBaseUrl}/admin/realms/${realmName}/groups?max=500&search=${encodeURIComponent(wanted)}`
       : `${keycloakBaseUrl}/admin/realms/${realmName}/groups/${parentId}/children?max=500`;
-    const resp = await request.get(url, { headers });
+    const resp = await request.get(url, { headers, timeout: resolveTimeout(30_000) });
     if (!resp.ok()) {
       throw new Error(
         `Keycloak groups lookup failed at segment ${i} (${wanted}): ${resp.status()} ${await resp.text()}`
@@ -256,7 +259,7 @@ async function keycloakAdminAddUserToGroup(
 
   const userResp = await request.get(
     `${keycloakBaseUrl}/admin/realms/${realmName}/users?username=${encodeURIComponent(username)}&exact=true`,
-    { headers }
+    { headers, timeout: resolveTimeout(30_000) }
   );
   if (!userResp.ok()) {
     throw new Error(
@@ -279,7 +282,7 @@ async function keycloakAdminAddUserToGroup(
 
   const memberResp = await request.get(
     `${keycloakBaseUrl}/admin/realms/${realmName}/users/${user.id}/groups?max=500`,
-    { headers }
+    { headers, timeout: resolveTimeout(30_000) }
   );
   if (!memberResp.ok()) {
     throw new Error(
@@ -293,7 +296,7 @@ async function keycloakAdminAddUserToGroup(
 
   const joinResp = await request.put(
     `${keycloakBaseUrl}/admin/realms/${realmName}/users/${user.id}/groups/${groupId}`,
-    { headers }
+    { headers, timeout: resolveTimeout(30_000) }
   );
   if (!joinResp.ok()) {
     throw new Error(
@@ -327,14 +330,14 @@ async function keycloakAdminAddUserToGroupViaUi(
   await expect(
     joinButton,
     "Expected the 'Join Group' button on the user's Groups tab"
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
   await joinButton.click();
 
   const dialog = page.getByRole("dialog", { name: /join groups/i }).first();
-  await expect(dialog).toBeVisible({ timeout: 30_000 });
+  await expect(dialog).toBeVisible({ timeout: resolveTimeout(30_000) });
 
   const dialogSearchBox = dialog.getByRole("textbox", { name: /search/i }).first();
-  await expect(dialogSearchBox).toBeVisible({ timeout: 30_000 });
+  await expect(dialogSearchBox).toBeVisible({ timeout: resolveTimeout(30_000) });
   await dialogSearchBox.fill(searchTerm);
   await dialogSearchBox.press("Enter");
 
@@ -360,7 +363,7 @@ async function keycloakAdminAddUserToGroupViaUi(
       break;
     }
     await nextButton.click();
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(resolveTimeout(500));
   }
   // When the user is already a member, Keycloak's "Join Group" dialog
   // hides that group entirely. Treat a missing checkbox as "already a
@@ -374,7 +377,7 @@ async function keycloakAdminAddUserToGroupViaUi(
       .first()
       .click()
       .catch(() => {});
-    await expect(dialog).toBeHidden({ timeout: 30_000 });
+    await expect(dialog).toBeHidden({ timeout: resolveTimeout(30_000) });
     return false;
   }
 
@@ -384,15 +387,15 @@ async function keycloakAdminAddUserToGroupViaUi(
       .first()
       .click()
       .catch(() => {});
-    await expect(dialog).toBeHidden({ timeout: 30_000 });
+    await expect(dialog).toBeHidden({ timeout: resolveTimeout(30_000) });
     return false;
   }
 
   await targetCheckbox.check();
   const confirmJoin = dialog.getByRole("button", { name: /^join$/i }).first();
-  await expect(confirmJoin).toBeEnabled({ timeout: 30_000 });
+  await expect(confirmJoin).toBeEnabled({ timeout: resolveTimeout(30_000) });
   await confirmJoin.click();
-  await expect(dialog).toBeHidden({ timeout: 30_000 });
+  await expect(dialog).toBeHidden({ timeout: resolveTimeout(30_000) });
   const lastSegment = pathSegments[pathSegments.length - 1];
   const membershipRow = page
     .locator("tr, li")
@@ -401,7 +404,7 @@ async function keycloakAdminAddUserToGroupViaUi(
   await expect(
     membershipRow,
     `Expected "${targetGroupPath}" to appear as a membership on the user's Groups tab after joining.`
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
   return true;
 }
 
@@ -426,6 +429,7 @@ async function keycloakRemoveUserFromGroupViaRest(
         username: adminUsername,
         password: adminPassword,
       },
+      timeout: resolveTimeout(30_000),
     }
   );
   if (!tokenResp.ok()) {
@@ -438,7 +442,7 @@ async function keycloakRemoveUserFromGroupViaRest(
 
   const usersResp = await request.get(
     `${keycloakBaseUrl}/admin/realms/${encodeURIComponent(realmName)}/users?username=${encodeURIComponent(username)}&exact=true`,
-    { headers: auth }
+    { headers: auth, timeout: resolveTimeout(30_000) }
   );
   const users = await usersResp.json();
   const userId = users?.[0]?.id;
@@ -446,7 +450,7 @@ async function keycloakRemoveUserFromGroupViaRest(
 
   const groupResp = await request.get(
     `${keycloakBaseUrl}/admin/realms/${encodeURIComponent(realmName)}/group-by-path/${groupPath.replace(/^\//, "")}`,
-    { headers: auth }
+    { headers: auth, timeout: resolveTimeout(30_000) }
   );
   if (!groupResp.ok()) return;
   const group = await groupResp.json();
@@ -454,7 +458,7 @@ async function keycloakRemoveUserFromGroupViaRest(
 
   await request.delete(
     `${keycloakBaseUrl}/admin/realms/${encodeURIComponent(realmName)}/users/${userId}/groups/${group.id}`,
-    { headers: auth }
+    { headers: auth, timeout: resolveTimeout(30_000) }
   );
 }
 
@@ -474,10 +478,10 @@ async function discourseApiRequest(request, path, init = {}) {
   const url = `${env.discourseBaseUrl}${path}`;
   const method = (init.method || "GET").toUpperCase();
   if (method === "GET") {
-    return request.get(url, { headers });
+    return request.get(url, { headers, timeout: resolveTimeout(30_000) });
   }
   if (method === "DELETE") {
-    return request.delete(url, { headers });
+    return request.delete(url, { headers, timeout: resolveTimeout(30_000) });
   }
   throw new Error(`discourseApiRequest: unsupported method ${method}`);
 }

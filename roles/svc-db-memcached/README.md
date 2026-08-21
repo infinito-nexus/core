@@ -18,16 +18,21 @@ The diagram places Memcached in the Infinito.Nexus cosmos: the components it dep
 
 ```mermaid
 flowchart LR
+    subgraph deps [Dependencies]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
+    end
     subgraph role [svc-db-memcached 🐳🐝]
         svc_memcached["memcached"]
+        svc_tor["tor"]
     end
     subgraph dependents [Dependents]
         dpt_web_app_zammad["web-app-zammad 🐳🐝"]
     end
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     svc_memcached -. "0..1" .-> dpt_web_app_zammad
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Per-consumer isolation
 

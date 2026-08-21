@@ -25,8 +25,6 @@ def _depth(path: str) -> int:
 def main() -> int:
     root = Path()
     removed = 0
-    # Post-order: deepest directories first so emptying a child can collapse
-    # its parent on a subsequent pass through the sorted list.
     for d, _dirs, _files in sorted(os.walk(root), key=lambda t: -_depth(t[0])):
         p = Path(d)
         if p == root or p.name == "__pycache__":

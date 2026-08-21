@@ -99,7 +99,6 @@ def build_parser() -> argparse.ArgumentParser:
         add_help=False,
     )
 
-    # Custom combined help (-h / --help)
     parser.add_argument(
         "-h",
         "--help",
@@ -108,7 +107,6 @@ def build_parser() -> argparse.ArgumentParser:
         help="Show this help message and ansible-playbook --help.",
     )
 
-    # Standard arguments
     parser.add_argument("inventory", help="Path to the inventory file.")
     parser.add_argument(
         "-l", "--limit", help="Limit execution to certain hosts or groups."
@@ -165,7 +163,6 @@ def _normalize_app_ids(raw_ids: list[str]) -> list[str]:
         parts = [p.strip() for p in item.split(",") if p.strip()]
         result.extend(parts)
 
-    # remove duplicates while preserving order
     seen = set()
     unique: list[str] = []
     for app in result:

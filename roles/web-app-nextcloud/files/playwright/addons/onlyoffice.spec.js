@@ -1,6 +1,8 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -9,7 +11,7 @@ const MINIMAL_DOCX_BASE64 =
 
 test("onlyoffice addon: opening a document loads the partner document-server editor", async ({ browser }) => {
   skipUnlessAddonEnabled("onlyoffice");
-  test.setTimeout(180_000);
+  test.setTimeout(resolveTimeout(180_000));
 
   const unquote = (v) => ((v || "").trim().replace(/^"(.*)"$/, "$1"));
   const expectedDsUrl = unquote(process.env.NEXTCLOUD_ONLYOFFICE_EXPECTED_DOCUMENT_SERVER_URL);
@@ -27,7 +29,7 @@ test("onlyoffice addon: opening a document loads the partner document-server edi
     await shared.loginToStandaloneNextcloud(page);
 
     const filesUrl = new URL("apps/files/", shared.env.nextcloudBaseUrl).toString();
-    await page.goto(filesUrl, { waitUntil: "domcontentloaded", timeout: 60_000 });
+    await gotoOnion(page, filesUrl, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
     await shared.dismissBlockingNextcloudModals(page, page);
 
     const docName = `infinito-onlyoffice-${Date.now()}.docx`;
@@ -45,7 +47,7 @@ test("onlyoffice addon: opening a document loads the partner document-server edi
     await expect(
       uploadedRow,
       `the uploaded document '${docName}' must appear in the Files listing before it can be opened in ONLYOFFICE`,
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     await shared.dismissBlockingNextcloudModals(page, page);
     await uploadedRow.click();
@@ -56,7 +58,7 @@ test("onlyoffice addon: opening a document loads the partner document-server edi
     await expect(
       editorIframeElement,
       "opening the .docx must mount the ONLYOFFICE editor iframe (the onlyoffice connector view), proving the partner document server was reached",
-    ).toBeVisible({ timeout: 90_000 });
+    ).toBeVisible({ timeout: resolveTimeout(90_000) });
 
     const editorSrc = (await editorIframeElement.getAttribute("src").catch(() => "")) || "";
     let editorSrcHost = "";
@@ -80,7 +82,7 @@ test("onlyoffice addon: opening a document loads the partner document-server edi
     await expect(
       jwtError,
       "the ONLYOFFICE editor must not show a JWT/security-token or download error: that means the shared jwt_secret coupling or the document-server <-> Nextcloud round trip is broken",
-    ).toHaveCount(0, { timeout: 90_000 });
+    ).toHaveCount(0, { timeout: resolveTimeout(90_000) });
 
     const editorSurface = editorFrame.locator(
       "#editor_sdk, #id_main_view, .asc-window, canvas, #toolbar, .toolbar",
@@ -88,7 +90,7 @@ test("onlyoffice addon: opening a document loads the partner document-server edi
     await expect(
       editorSurface,
       "the ONLYOFFICE editor surface (toolbar/canvas) must render inside the partner iframe, proving the full JWT-authenticated document-server round trip works end to end",
-    ).toBeVisible({ timeout: 120_000 });
+    ).toBeVisible({ timeout: resolveTimeout(120_000) });
   } finally {
     await page.close().catch(() => {});
     await context.close().catch(() => {});

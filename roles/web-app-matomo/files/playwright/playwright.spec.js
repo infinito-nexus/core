@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 
 const { appBaseUrl, canonicalDomain, attachDiagnostics, setupMatomoPage } = require("./_shared");
-const { assertCspMetaParity, assertCspResponseHeader, expectNoCspViolations } = require("./personas");
+const { assertCspMetaParity, assertCspResponseHeader, expectNoCspViolations, gotoOnion } = require("./personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -12,7 +12,7 @@ test.beforeEach(async ({ page }) => {
 test("matomo enforces Content-Security-Policy and exposes canonical domain from applications lookup", async ({ page }) => {
   const diagnostics = attachDiagnostics(page);
 
-  const response = await page.goto(`${appBaseUrl}/`);
+  const response = await gotoOnion(page, `${appBaseUrl}/`);
   expect(response, "Expected Matomo login response").toBeTruthy();
   expect(response.status(), "Expected Matomo login response to be successful").toBeLessThan(400);
 

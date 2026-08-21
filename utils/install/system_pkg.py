@@ -20,7 +20,16 @@ def detect_package_manager() -> str:
 
 def _prepare_manager(manager: str) -> None:
     if manager == "apt-get":
-        run_privileged(["apt-get", "-o", "DPkg::Lock::Timeout=600", "update"])
+        run_privileged(
+            [
+                "apt-get",
+                "-o",
+                "DPkg::Lock::Timeout=600",
+                "-o",
+                "Acquire::Retries=3",
+                "update",
+            ]
+        )
     elif manager == "dnf":
         with contextlib.suppress(subprocess.CalledProcessError):
             run_privileged(["dnf", "-y", "install", "dnf-plugins-core"])
@@ -44,6 +53,8 @@ def _install_one(manager: str, package: str) -> bool:
                     "apt-get",
                     "-o",
                     "DPkg::Lock::Timeout=600",
+                    "-o",
+                    "Acquire::Retries=3",
                     "install",
                     "-y",
                     "--no-install-recommends",
@@ -91,6 +102,14 @@ _COMMAND_PACKAGES: dict[str, dict[str, list[str]]] = {
     "shfmt": {m: ["shfmt"] for m in _SUPPORTED},
     "shellcheck": {m: ["shellcheck"] for m in _SUPPORTED},
     "unzip": {m: ["unzip"] for m in _SUPPORTED},
+    "php": {
+        "pacman": ["php"],
+        "apt-get": ["php-cli", "php"],
+        "dnf": ["php-cli", "php"],
+        "yum": ["php-cli", "php"],
+        "brew": ["php"],
+    },
+    "ruby": {m: ["ruby"] for m in _SUPPORTED},
     "npm": {
         "pacman": ["npm", "nodejs"],
         "apt-get": ["npm", "nodejs"],

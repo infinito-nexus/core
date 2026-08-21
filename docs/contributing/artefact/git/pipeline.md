@@ -72,7 +72,7 @@ The two deploy-test workflows listed in the `Infrastructure tests` table of [wor
 
 #### Diff-driven app selection 🎯
 
-Both [call-test-deploy-compose.yml](../../../../.github/workflows/call-test-deploy-compose.yml) and [call-test-deploy-swarm.yml](../../../../.github/workflows/call-test-deploy-swarm.yml) narrow their app matrix to the set of roles actually impacted by the branch's diff against `origin/main`. The `discover` job resolves an effective whitelist before [output_apps.sh](../../../../scripts/github/resolve/output_apps.sh) runs, using the following precedence:
+[call-test-deploy.yml](../../../../.github/workflows/call-test-deploy.yml) narrows its app matrix to the set of roles actually impacted by the branch's diff against `origin/main`. The `discover` job resolves an effective whitelist before [output_apps.sh](../../../../scripts/github/resolve/output_apps.sh) runs, using the following precedence:
 
 1. **Sentinel `__ALL__` in the `whitelist` input** (case-insensitive). The diff logic MUST be skipped and an empty whitelist MUST be emitted, which deploys everything in the workflow's scope. This is the explicit opt-out from diff narrowing for manual dispatch.
 2. **Any other non-empty `whitelist`** (forwarded from `entry-manual-steer.yml` and similar). The explicit value MUST win over the diff and is passed through verbatim.

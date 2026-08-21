@@ -8,20 +8,20 @@ data:
     mode: "0770"
   mounts:
     - service: moodle
-      target: /var/www/moodledata
+      target: &var_www_moodledata_target /var/www/moodledata
     - service: cron
-      target: /var/www/moodledata
+      target: *var_www_moodledata_target
 code:
   type: volume
   name: moodle_code
   mounts:
     - service: moodle
-      target: /var/www/html
+      target: &var_www_html_target /var/www/html
     - service: nginx
-      target: /var/www/html
+      target: *var_www_html_target
       read_only: true
     - service: cron
-      target: /var/www/html
+      target: *var_www_html_target
 nginx_conf:
   type: config
   source: "{{ [lookup('container', 'web-app-moodle', 'directories.instance'), 'nginx.conf'] | path_join }}"
@@ -35,6 +35,6 @@ msmtprc:
   mode: "0444"
   mounts:
     - service: moodle
-      target: /etc/msmtprc
+      target: &etc_msmtprc_target /etc/msmtprc
     - service: cron
-      target: /etc/msmtprc
+      target: *etc_msmtprc_target

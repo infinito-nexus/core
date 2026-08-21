@@ -1,1 +1,2 @@
 # nocheck: prefix-grouped-files
+# nocheck: role-files-layout - WordPress must-use plugin tree. WordPress dictates the layout; a plugin split by file extension does not load.

@@ -30,7 +30,7 @@
     owner: root
     group: root
     mode: "0644"
-  notify: "Reload NFS exports"
+  notify: "reload-nfs-exports"
 
 - name: "🚿 Flush handlers (exports reload before next step)"
   ansible.builtin.meta: flush_handlers

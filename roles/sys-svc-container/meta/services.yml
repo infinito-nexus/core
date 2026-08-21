@@ -6,9 +6,11 @@ svc-container:
       categories: [web]
     swarm:
       categories: [web]
+# nocheck: image-healthcheck  utility image run as a one-shot, no long-running process
 busybox:
   image: busybox
   version: "1.38"
+# nocheck: image-healthcheck  build-time image run as a one-shot, no service port
 node:
   image: node
   version: "26-alpine"

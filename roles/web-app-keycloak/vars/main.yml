@@ -48,7 +48,7 @@ KEYCLOAK_HEALTH_ENABLED: true
 
 KEYCLOAK_REALM_IMPORT_ENABLED: "{{ lookup('config', application_id, 'services.keycloak.realm.import_enabled') }}"
 KEYCLOAK_REALM_IMPORT_DIR_HOST: "{{ [lookup('container', application_id, 'directories.volumes'),'import'] | path_join }}"
-KEYCLOAK_REALM_IMPORT_DIR_DOCKER: "/opt/keycloak/data/import/"
+KEYCLOAK_REALM_IMPORT_DIR_DOCKER: "{{ lookup('volume', 'web-app-keycloak', 'realm_import').target }}"
 KEYCLOAK_REALM_IMPORT_FILE_SRC: "import/realm.json.j2"
 KEYCLOAK_REALM_IMPORT_FILENAME: "realm.json"
 KEYCLOAK_REALM_IMPORT_FILE_DST: "{{ [KEYCLOAK_REALM_IMPORT_DIR_HOST,KEYCLOAK_REALM_IMPORT_FILENAME] | path_join }}"
@@ -56,10 +56,10 @@ KEYCLOAK_REALM_IMPORT_FILE_DOCKER: "{{ [KEYCLOAK_REALM_IMPORT_DIR_DOCKER,KEYCLOA
 KEYCLOAK_REALM_TOTP_ENABLED: "{{ lookup('config', application_id, 'services.keycloak.realm.totp_enabled') | bool }}"
 
 KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME: "{{ lookup('config', application_id, 'services.keycloak.accounts.bootstrap.username') }}"
-KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.administrator_password') }}"
+KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.administrator_password') }}"
 
 KEYCLOAK_PERMANENT_ADMIN_USERNAME: "{{ lookup('config', application_id, 'services.keycloak.accounts.system.username') }}"
-KEYCLOAK_PERMANENT_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.administrator_password') }}"
+KEYCLOAK_PERMANENT_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.administrator_password') }}"
 
 KEYCLOAK_CONTAINER: "{{ lookup('config', application_id, 'services.keycloak.name') }}"
 KEYCLOAK_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
@@ -82,10 +82,19 @@ KEYCLOAK_REPLICAS_WANT: "{{ KEYCLOAK_REPLICAS }}/{{ KEYCLOAK_REPLICAS }}"
 KEYCLOAK_DB_NETWORK_ARG: "{% if lookup('database', application_id, 'shared') | bool %}--network {{ lookup('database', application_id, 'network') | quote }}{% endif
   %}"
 
-KEYCLOAK_REDIRECT_FEATURES: ["services.sso.enabled", "services.sso.enabled"]
 KEYCLOAK_FRONTCHANNEL_LOGOUT_URL: "{{ lookup('tls', 'web-svc-logout', 'url.base') }}"
-KEYCLOAK_REDIRECT_URIS: "{{ lookup('domains') | redirect_uris(lookup('applications'), lookup('tls', application_id, 'protocols.web'), '/*', KEYCLOAK_REDIRECT_FEATURES)
-  }}"
+KEYCLOAK_LOGOUT_PANEL_FILE: "{{ lookup('nginx', 'directories.configuration.lua') }}{{ application_id }}-logout-panel.js"
+KEYCLOAK_LOGOUT_PANEL_ENABLED: "{{ lookup('config', application_id, 'services.javascript.enabled') | bool }}"
+KEYCLOAK_REDIRECT_URIS: "{{ lookup('redirect_uris') }}"
+KEYCLOAK_SAML_APPS: >-
+  {{ lookup('applications') | dict2items
+      | selectattr('value.services', 'defined')
+      | selectattr('value.services.sso', 'defined')
+      | selectattr('value.services.sso.flavor', 'defined')
+      | selectattr('value.services.sso.flavor', 'equalto', 'saml')
+      | map(attribute='key')
+      | select('in', group_names)
+      | list }}
 KEYCLOAK_WEB_ORIGINS: >-
   {{ KEYCLOAK_REDIRECT_URIS
       | map('regex_replace','/\\*$','')
@@ -117,8 +126,8 @@ KEYCLOAK_USER_EMAILS_VERIFIED: "{{ lookup('config', application_id, 'services.ke
 KEYCLOAK_MOODLE_ENABLED: "{{ 'web-app-moodle' in group_names }}"
 
 KEYCLOAK_RECAPTCHA_ENABLED: "{{ lookup('config', application_id, 'services.recaptcha.enabled') }}"
-KEYCLOAK_RECAPTCHA_KEY: "{{ lookup('config', application_id, 'credentials.recaptcha.key') }}"
-KEYCLOAK_RECAPTCHA_SECRET: "{{ lookup('config', application_id, 'credentials.recaptcha.secret') }}"
+KEYCLOAK_RECAPTCHA_KEY: "{{ lookup('config', application_id, 'secrets.credentials.recaptcha.key') }}"
+KEYCLOAK_RECAPTCHA_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.recaptcha.secret') }}"
 
 KEYCLOAK_COMMAND_PERMANENT_ADMIN_LOGIN: |-
   {{ KEYCLOAK_EXEC_CONTAINER }} sh -lc '

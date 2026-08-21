@@ -55,7 +55,7 @@ semaphore:
   pids_limit: 1024
   min_storage: 530MB
   image: semaphoreui/semaphore
-  version: "v2.19.7"
+  version: "v2.19.8"
   backup:
     no_stop_required: true
   name: semaphore
@@ -71,6 +71,12 @@ semaphore:
     - web-app-matomo
   lifecycle: beta
 
+# nocheck: playwright-service-flag
+# nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
+tor:
+  bond: 0.5
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: true # nocheck: dynamic-flag
 # nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
 container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
   bond: 1

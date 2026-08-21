@@ -29,6 +29,7 @@ from its procedure file. Run `make install-skills` to (re)install them.
 | A GitHub Actions / CI run failed and needs triage | `triage` |
 | A local deploy is failing on the host | `i8-debug-local` |
 | Inspecting a `*.log` or `*job-logs.txt` file dropped in the workdir | `i8-debug-log` |
+| Pulling a sibling feature branch and merging it into the current one | `i8-merge-sibling` |
 | Staged changes are ready to be committed | `i8-commit` |
 | A branch is ready to be opened as a pull request | `i8-pull-request` |
 | Pushing a branch through the manual-CI draft → ready-for-review cycle | `i8-push-trigger-pull` |

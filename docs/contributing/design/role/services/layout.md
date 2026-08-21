@@ -14,7 +14,7 @@ All role-owned metadata lives under `roles/<role>/meta/<topic>.yml`.
 | `meta/volumes.yml`       | Compose volumes. File root IS the volumes map keyed by volume name. No `compose:` and no `volumes:` wrapper.                                      |
 | `meta/addons/<id>.yml`   | Optional. One file per addon (file root IS the addon spec; filename stem = addon id). See [Unified Addons](#unified-addons-metaaddons-) below. |
 | `meta/users.yml`         | Role-local user definitions. File root IS the users map (no `users:` wrapper).                                                                     |
-| `meta/schema.yml`        | Credential schema definitions and runtime credential values.                                                                                       |
+| `meta/secrets.yml`        | Credential schema definitions and runtime credential values.                                                                                       |
 | `meta/info.yml`          | Optional. Descriptive role-level metadata (`logo`, `homepage`, `video`, `display`). File root IS `applications.<app>.info` (no `info:` wrapper). |
 | `meta/variants.yml`      | Optional. Variant overrides deep-merged over the assembled application payload (used by `svc-ai-ollama`, `web-app-phpmyadmin`).                   |
 
@@ -23,7 +23,7 @@ Every other `meta/<topic>.yml` is read by the project's own loaders (`utils/cach
 
 ## File-Root Convention 🧷
 
-Every `meta/<topic>.yml` (except `meta/main.yml`, which keeps Galaxy semantics, and `meta/schema.yml`, which is processed by `apply_schema()`) follows the rule:
+Every `meta/<topic>.yml` (except `meta/main.yml`, which keeps Galaxy semantics, and `meta/secrets.yml`, which is processed by `apply_schema()`) follows the rule:
 
 > **The file's content IS the value of `applications.<app>.<topic>`. There is NO wrapping key matching the filename.**
 
@@ -42,7 +42,11 @@ The paths are:
 | `meta/volumes.yml.<key>`              | `volumes.<key>`                                  |
 | `meta/services.yml.<primary_entity>.<top-level-key>.<…>` | `services.<primary_entity>.<top-level-key>.<…>` |
 
-`credentials.*` paths are populated by `apply_schema()` at `applications.<app>.credentials.<…>`.
+| `meta/secrets.yml.credentials.<key>`  | `secrets.credentials.<key>`                      |
+
+`secrets.credentials.*` paths are populated by `apply_schema()` at
+`applications.<app>.secrets.credentials.<…>`, so the credential file obeys the
+same file-root rule as every other `meta/<topic>.yml`.
 
 ## Services Inlining Rule 📥
 
@@ -72,9 +76,9 @@ matomo:
 data: matomo_data
 ```
 
-## Schema Format: `meta/schema.yml` 🗝️
+## Schema Format: `meta/secrets.yml` 🗝️
 
-`meta/schema.yml` consolidates two structures under the `credentials:` top-level key:
+`meta/secrets.yml` consolidates two structures under the `credentials:` top-level key:
 
 1. The credential **schema definitions** (flat keys, e.g. `alerting_telegram_bot_token: { description, algorithm, validation }`).
 2. The credential **runtime values** (nested keys, e.g. `recaptcha.key`, `recaptcha.secret`).
@@ -88,10 +92,10 @@ The unified schema supports:
   - `default:` values are **NOT validated.** `validation:` only applies to user-provided values, so the schema default is exempt.
   - When `default:` is present, the credential generator MUST NOT generate a new value via `algorithm:`. It writes the literal `default:` string verbatim.
 
-### Worked Example: runtime credentials in `meta/schema.yml`
+### Worked Example: runtime credentials in `meta/secrets.yml`
 
 ```yaml
-# roles/web-app-keycloak/meta/schema.yml
+# roles/web-app-keycloak/meta/secrets.yml
 credentials:
   recaptcha:
     key:
@@ -107,7 +111,7 @@ credentials:
 Flat schema entries keep the same shape:
 
 ```yaml
-# roles/web-app-prometheus/meta/schema.yml
+# roles/web-app-prometheus/meta/secrets.yml
 credentials:
   alerting_telegram_bot_token:
     description: "Telegram bot token for Alertmanager notifications."
@@ -344,10 +348,10 @@ config: {}                  # optional, opaque, role-interpreted runtime payload
 | `version` | no | string | `""` | A pin MUST be a quoted string, never an unquoted number. `""` tracks the app default. |
 | `group` | no | string | — | Free grouping label (e.g. Odoo `core`/`optional`). MUST NOT affect enablement. |
 | `update` | no | map | — | `monitored` (bool, default `false`), `catalog` (a supported adapter), `upstream_id` (defaults to the addon id). |
-| `config` | no | map | — | Opaque, role-interpreted runtime payload. Lint does not constrain its inner shape beyond requiring a mapping. Secrets inside `config` MUST resolve through `lookup('config', application_id, 'credentials.<name>')` and MUST NOT be inlined literally. |
+| `config` | no | map | — | Opaque, role-interpreted runtime payload. Lint does not constrain its inner shape beyond requiring a mapping. Secrets inside `config` MUST resolve through `lookup('config', application_id, 'secrets.credentials.<name>')` and MUST NOT be inlined literally. |
 
-Any credential an addon needs is declared in `meta/schema.yml` `credentials:`
-and read via `lookup('config', application_id, 'credentials.<name>')`. There
+Any credential an addon needs is declared in `meta/secrets.yml` `credentials:`
+and read via `lookup('config', application_id, 'secrets.credentials.<name>')`. There
 is no new secret store.
 
 ### Bridges: in-repo dependency vs network bridge

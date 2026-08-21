@@ -11,11 +11,11 @@
     application_id: "web-app-matomo"
   ansible.builtin.shell: sh -s
   args:
-    stdin: "{{ lookup('file', role_path ~ '/files/patch_trusted_hosts.sh') }}"
+    stdin: "{{ lookup('file', role_path ~ '/files/shell/patch_trusted_hosts.sh') }}"
   environment:
     CFG: "{{ MATOMO_CONFIG_HOST }}"
     DOMAIN: "{{ lookup('domain', 'web-app-matomo') }}"
     SERVICE: "{{ MATOMO_SERVICE }}"
     LOCAL: "{{ DOCKER_REACH_HOST }}:{{ http_port }}"
   delegate_to: "{{ MATOMO_HOST_NODE }}"
-  notify: compose up
+  notify: compose-up

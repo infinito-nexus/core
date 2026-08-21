@@ -20,14 +20,16 @@
     src: upload.ini.j2
     dest: "{{ WORDPRESS_CONFIG_UPLD_ABS }}"
   notify:
-    - compose up
-    - compose build
+    - compose-up
+    - compose-build
 
 - name: "📧 Transfering msmtprc to {{ WORDPRESS_MSMTP_ABS }}"
   stack_host_template:
     src: "{{ WORDPRESS_MSMTP_SRC }}"
     dest: "{{ WORDPRESS_MSMTP_ABS }}"
-  notify: compose up
+  vars:
+    sys_svc_mail_msmtp_in_container: true
+  notify: compose-up
 
 - name: 🚿 Flush handlers to make {{ WORDPRESS_CONFIG_FILE }} available before patch
   meta: flush_handlers

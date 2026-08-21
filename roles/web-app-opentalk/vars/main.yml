@@ -29,7 +29,7 @@ OPENTALK_DOMAIN: "{{ lookup('domain', application_id) }}"
 OPENTALK_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 
 OPENTALK_LIVEKIT_API_KEY: "controller"
-OPENTALK_LIVEKIT_API_SECRET: "{{ lookup('config', application_id, 'credentials.livekit_api_secret') }}"
+OPENTALK_LIVEKIT_API_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.livekit_api_secret') }}"
 
 OPENTALK_OBJSTORE_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, lookup('objstore', application_id, 'engine')) }}"
 
@@ -38,14 +38,14 @@ OPENTALK_RABBIT_QUEUE: "opentalk_recorder"
 
 OPENTALK_RECORDER_CONTAINER: "{{ lookup('config', application_id, 'services.recorder.name') }}"
 OPENTALK_RECORDER_OIDC_CLIENT_ID: "opentalk-recorder"
-OPENTALK_RECORDER_OIDC_CLIENT_SECRET: "{{ lookup('config', application_id, 'credentials.recorder_oidc_client_secret') }}"
+OPENTALK_RECORDER_OIDC_CLIENT_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.recorder_oidc_client_secret') }}"
 
 OPENTALK_KEYCLOAK_BASE_URL: "{{ lookup('tls', 'web-app-keycloak', 'url.base') | regex_replace('/+$','') }}"
 OPENTALK_KEYCLOAK_CONTAINER_ADDRESS: "{{ lookup('container_address', 'web-app-keycloak', 'keycloak') }}"
 OPENTALK_KEYCLOAK_REALM: "{{ OIDC.CLIENT.REALM }}"
 
 OPENTALK_CTRL_OIDC_CLIENT_ID: "opentalk-controller"
-OPENTALK_CTRL_OIDC_CLIENT_SECRET: "{{ lookup('config', application_id, 'credentials.controller_oidc_client_secret') }}"
+OPENTALK_CTRL_OIDC_CLIENT_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.controller_oidc_client_secret') }}"
 
 OPENTALK_KEYCLOAK_CLIENT_ID: "{{ OPENTALK_CTRL_OIDC_CLIENT_ID }}"
 OPENTALK_KEYCLOAK_CLIENT_SECRET: "{{ OPENTALK_CTRL_OIDC_CLIENT_SECRET }}"

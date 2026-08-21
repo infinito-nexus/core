@@ -57,14 +57,6 @@ from utils.cache.files import iter_non_ignored_files, read_text
 SUPPRESS_RULE: str = "project-root-import"
 
 
-# Regexes for forbidden patterns that compute a path relative to the
-# repo root. Every match is reported individually so the failure
-# message can name the specific shape that fired.
-#
-# The catalog is intentionally broad: ANY `parents[N]` index expression
-# and ANY ".." segment in a path-construction context flags. Files that
-# legitimately need to walk to the repo root (sys.path bootstrap shims,
-# standalone scripts without a package container) MUST mark the line
 # with `# nocheck: project-root-import` and document why.
 _FORBIDDEN_PATTERNS: tuple[tuple[str, re.Pattern[str], str], ...] = (
     (
@@ -73,16 +65,6 @@ _FORBIDDEN_PATTERNS: tuple[tuple[str, re.Pattern[str], str], ...] = (
         "stripped",
     ),
     (
-        # Catches the chained ``.parent.parent.…`` upward walk, the
-        # attribute-access twin of ``parents[N]``. Functionally
-        # identical, so subject to the same ban: any walk of two or
-        # more ``.parent`` accesses chained directly on
-        # ``Path(__file__)`` MUST use ``parents[N]`` (with the same
-        # ``__init__.py``-only rule) or import ``PROJECT_ROOT`` from
-        # the package. The match is anchored at ``Path(__file__)`` so
-        # walks on a derived path object (e.g. ``services_file.parent
-        # .parent.name`` to extract a role name from a known
-        # ``meta/services.yml`` path) do not flag.
         "chained `Path(__file__)…parent.parent.…` upward walk",
         re.compile(
             r"Path\(\s*__file__\s*\)(?:\s*\.\s*[A-Za-z_]\w*\([^)]*\))*"
@@ -91,12 +73,6 @@ _FORBIDDEN_PATTERNS: tuple[tuple[str, re.Pattern[str], str], ...] = (
         "stripped",
     ),
     (
-        # Catches the bare ``Path(__file__).resolve().parents`` chain
-        # (no ``[N]`` index) used in ``for candidate in
-        # Path(__file__).resolve().parents`` upward-search loops.
-        # The indexed ``parents[N]`` form is already covered above; the
-        # un-indexed form is the iterator hand-roll that the
-        # ``def repo_root()`` helpers below typically wrap.
         "`Path(__file__).…parents` upward iteration",
         re.compile(
             r"Path\(\s*__file__\s*\)(?:\s*\.\s*[A-Za-z_]\w*\([^)]*\))*"
@@ -109,11 +85,6 @@ _FORBIDDEN_PATTERNS: tuple[tuple[str, re.Pattern[str], str], ...] = (
         re.compile(r"\bos\.pardir\b"),
         "stripped",
     ),
-    # Catches ``".."``, ``"../.."``, ``"../../../"`` (any number of
-    # ``..`` segments separated by ``/``, with optional trailing
-    # ``/``). Runs against the *no-docs* view of the source so a
-    # docstring or ``# comment`` mentioning ``..`` does NOT trip it,
-    # while a real ``Path(... / ".." / ...)`` callsite does.
     (
         # nocheck: project-root-import  catalog entry mentions the literal pattern by design
         '".." path segment in a path-construction context',
@@ -121,33 +92,14 @@ _FORBIDDEN_PATTERNS: tuple[tuple[str, re.Pattern[str], str], ...] = (
         "no_docs",
     ),
     (
-        # Underscore-prefixed variants (``_repo_root`` / ``_project_root``)
-        # are caught alongside the public names — the leading underscore
-        # only marks the helper as private, the upward-walk it performs
-        # is the same drift this lint is built to forbid.
         "function searching upward for pyproject.toml",
         re.compile(r"^\s*def\s+_*(?:repo_root|project_root)\s*\("),
         "stripped",
     ),
 )
 
-# A top-level ``PROJECT_ROOT`` (or ``PROJECT_ROOT: <type>``) assignment.
-# Allowed only inside ``__init__.py``; everywhere else the constant
-# MUST be imported via ``from . import PROJECT_ROOT`` (or
-# ``from <pkg> import PROJECT_ROOT``).
-#
-# The regex anchors at the start of a (stripped) line so neither
-# ``_PROJECT_ROOT`` (a private re-binding) nor a regex source string
-# mentioning ``PROJECT_ROOT`` triggers it. The negative ``(?!=)``
-# lookahead after ``=`` keeps a bare comparison (``PROJECT_ROOT == …``)
-# from matching.
 _PROJECT_ROOT_ASSIGN_RE = re.compile(r"^\s*PROJECT_ROOT(?:\s*:\s*[^=]+?)?\s*=(?!=)")
 
-# The legitimate `PROJECT_ROOT = …` definition shape inside an
-# ``__init__.py``. The integrity check (does the resolved path carry
-# `pyproject.toml`?) only fires when this exact shape is seen, so a
-# package that re-exports the constant via ``from . import PROJECT_ROOT``
-# does not accidentally count as a definition.
 _INIT_PROJECT_ROOT_RE = re.compile(
     r"^\s*PROJECT_ROOT(?:\s*:\s*[A-Za-z_][\w\[\], ]*)?\s*=\s*"
     r"Path\(\s*__file__\s*\)\s*\.resolve\(\)\.parents\[\s*(\d+)\s*\]"
@@ -256,19 +208,12 @@ def _scan_file(path: Path) -> list[str]:
             target = stripped if scan_mode == "stripped" else no_docs
             if not pattern.search(target):
                 continue
-            # Inside __init__.py the canonical PROJECT_ROOT definition
-            # is allowed; the per-init `pyproject.toml` integrity check
-            # below validates that one. Other forbidden shapes
-            # (pardir chains, def repo_root) MUST still fail even in
-            # __init__.py, because there is no reason to use them there.
             if is_init and _INIT_PROJECT_ROOT_RE.match(stripped):
                 continue
             if is_suppressed_at(raw_lines, lineno, SUPPRESS_RULE, mode="same-or-above"):
                 continue
             failures.append(f"{path}:{lineno}: {label}")
 
-        # `PROJECT_ROOT = …` is allowed only inside an ``__init__.py``.
-        # Anywhere else the constant MUST be imported from the package.
         if (
             not is_init
             and _PROJECT_ROOT_ASSIGN_RE.match(stripped)
@@ -321,9 +266,6 @@ def _check_init_project_root(path: Path) -> list[str]:
 
 class TestProjectRootImport(unittest.TestCase):
     def test_no_local_project_root_computation(self):
-        # Walk only non-gitignored files so vendored skill packages under
-        # `.agents/` and `.claude/skills/` (which carry their own
-        # `parents[N]` boilerplate by upstream design) do NOT count.
         offenders: list[str] = []
         for path_str in iter_non_ignored_files(extensions=(".py",)):
             path = Path(path_str)

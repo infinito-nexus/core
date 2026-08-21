@@ -162,9 +162,6 @@ def collect_entries(repo_root: Path) -> list[RepositoryRefEntry]:
             continue
 
         raw = read_text(str(services_path))
-        # Sequential ref→line cursor: when the same ref value appears
-        # at multiple lines, each candidate consumes the next match so
-        # nested entries with identical refs each get their own line.
         ref_line_index: dict[str, list[int]] = {}
         for line_no, ref_value in _ref_lines(raw.splitlines()):
             ref_line_index.setdefault(ref_value, []).append(line_no)

@@ -27,13 +27,17 @@
   ansible.builtin.file:
     path: "{{ _cli_stage_dir }}"
     state: directory
-    mode: "0755"
+    mode: "0700"
 
 - name: 📦 Stage CLI test assets for {{ application_id }}
   ansible.builtin.copy:
     src: "{{ lookup('path_absolute', 'roles', application_id, 'files/test') }}/"
     dest: "{{ _cli_stage_dir }}/"
     mode: "0755"
+
+- name: 🧭 Reset the per-role deployment-mode override
+  ansible.builtin.include_vars:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/defaults/main.yml') }}"
 
 - name: 🔍 Check optional application defaults for {{ application_id }}
   ansible.builtin.stat:
@@ -62,7 +66,7 @@
 - name: 📄 Render test.env from templates/test.env.j2 for {{ application_id }}
   ansible.builtin.copy:
     dest: "{{ _cli_stage_dir }}/test.env"
-    mode: "0644"
+    mode: "0600"
     content: "{{ lookup('template', _cli_env_template) }}"
 
 - name: 🚀 Run CLI test script for {{ application_id }}

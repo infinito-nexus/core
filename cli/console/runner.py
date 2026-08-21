@@ -10,10 +10,6 @@ from .navigation import prompt
 def clear_screen() -> None:
     if not sys.stdout.isatty():
         return
-    # 2J clears the visible viewport, 3J wipes the scrollback buffer
-    # (xterm extension supported by every modern terminal), H homes the
-    # cursor. Together they leave a fresh frame for the next command's
-    # output instead of a stack of prior runs.
     print("\033[3J\033[2J\033[H", end="", flush=True)
 
 

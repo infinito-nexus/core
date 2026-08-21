@@ -1,3 +1,4 @@
 ---
-- name: restart systemd-journald
+- name: 🔄 restart systemd-journald
+  listen: restart-systemd-journald
   service: name=systemd-journald state=restarted

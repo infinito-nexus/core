@@ -24,11 +24,9 @@ def _normalize_when(value: Any) -> str:
         parts = []
         for v in value:
             s = "" if v is None else str(v).strip()
-            # collapse internal whitespace runs to a single space for stability
             s = " ".join(s.split())
             parts.append(s)
         return " && ".join(parts)
-    # scalar (str, int, bool, jinja template, etc.)
     s = str(value).strip()
     return " ".join(s.split())
 
@@ -46,8 +44,6 @@ def _iter_tasks(node: Any) -> Iterable[dict[str, Any]]:
         for item in node:
             yield from _iter_tasks(item)
     elif isinstance(node, dict):
-        # If this dict itself looks like a task (has module keys or 'when'/'name'),
-        # yield it, but also traverse nested blocks.
         is_task_like = any(
             k in node
             for k in (
@@ -65,12 +61,10 @@ def _iter_tasks(node: Any) -> Iterable[dict[str, Any]]:
         if is_task_like:
             yield node
 
-        # Recurse into Ansible block sections if present
         for section in ("block", "rescue", "always"):
             if section in node and isinstance(node[section], list):
                 for item in node[section]:
                     yield from _iter_tasks(item)
-        # Also traverse other nested structures conservatively
         for k, v in node.items():
             if k not in ("block", "rescue", "always") and isinstance(v, (list, dict)):
                 yield from _iter_tasks(v)
@@ -100,7 +94,6 @@ def _collect_when_counts(yaml_docs: list[Any]) -> dict[str, list[tuple[str, str]
             if not normalized:
                 continue
             task_name = str(task.get("name") or "<unnamed task>")
-            # Provide a minimal hint for where this came from (e.g., module/inclusion used)
             hint = None
             for key in (
                 "include_tasks",
@@ -139,7 +132,6 @@ class WhenConditionDuplicationTest(unittest.TestCase):
 
         for pattern in tasks_globs:
             for path in repo_root.glob(pattern):
-                # Only scan files that are inside the project workspace
                 if not path.is_file():
                     continue
 
@@ -151,7 +143,6 @@ class WhenConditionDuplicationTest(unittest.TestCase):
                 counts = _collect_when_counts(docs)
                 for normalized_when, occurrences in counts.items():
                     if len(occurrences) > THRESHOLD:
-                        # Build a helpful error message showing a few sample tasks with this condition
                         sample = "\n".join(
                             f"    - {tname} ({hint})" for tname, hint in occurrences[:5]
                         )

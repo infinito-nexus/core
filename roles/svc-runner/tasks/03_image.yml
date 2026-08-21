@@ -15,7 +15,7 @@
 
 - name: 📄 Copy entrypoint to build context
   ansible.builtin.copy: # nocheck: stack-host-consumer (include is IS_STACK_HOST-gated)
-    src: entrypoint.sh
+    src: shell/entrypoint.sh
     dest: "{{ RUNNER_INSTALL_DIR }}/build/entrypoint.sh"
     mode: "0755"
 

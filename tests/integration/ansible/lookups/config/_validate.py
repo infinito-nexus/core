@@ -8,6 +8,12 @@ import fnmatch
 from collections.abc import Mapping
 from typing import Any
 
+from utils.manager.credential_key import (
+    CREDENTIALS_KEY,
+    OVERRIDE_SECTION,
+    SECRETS_KEY,
+)
+
 
 class PathNotFoundError(Exception):
     """Raised by helpers when a dotted path does not resolve."""
@@ -83,13 +89,18 @@ def validate_app_path(
         sub = dotted.split(".", 1)[1]
         if sub in user_defaults:
             return
-    if dotted.startswith("credentials."):
-        key = dotted.split(".", 1)[1]
-        creds_cfg = cfg.get("credentials", {}) if isinstance(cfg, Mapping) else {}
+    if dotted.startswith(f"{OVERRIDE_SECTION}."):
+        key = dotted.split(f"{OVERRIDE_SECTION}.", 1)[1]
+        secrets_cfg = cfg.get(SECRETS_KEY, {}) if isinstance(cfg, Mapping) else {}
+        creds_cfg = (
+            secrets_cfg.get(CREDENTIALS_KEY, {})
+            if isinstance(secrets_cfg, Mapping)
+            else {}
+        )
         if isinstance(creds_cfg, Mapping) and key in creds_cfg:
             return
         schema = role_schemas.get(app_id, {})
-        creds = schema.get("credentials", {}) if isinstance(schema, Mapping) else {}
+        creds = schema.get(CREDENTIALS_KEY, {}) if isinstance(schema, Mapping) else {}
         if isinstance(creds, Mapping) and key in creds:
             return
         raise PathNotFoundError(f"Credential '{key}' missing for app '{app_id}'")

@@ -44,7 +44,7 @@
       delay: 15
       until: peertube_oidc_install.rc == 0
       delegate_to: "{{ PEERTUBE_HOST_NODE }}"
-      notify: container recreate
+      notify: container-recreate
 
     # Exception: happy-path only; on failure the rescue leaves bumped limits so diagnostics reflect install-time state, and the next `compose up` restores compose.yml defaults.
     - name: "♻️ PEERTUBE | Restore compose-defined mem_limit"
@@ -69,7 +69,7 @@
   delay: 3
   until: _peertube_oidc_update is succeeded
   changed_when: _peertube_oidc_update.rows | default([]) | length > 0
-  notify: container recreate
+  notify: container-recreate
 
 - name: "🔎 Check if the running PeerTube has registered the OIDC plugin"
   shell: |
@@ -79,7 +79,7 @@
   failed_when: false
   changed_when: _peertube_oidc_registered.rc != 0
   delegate_to: "{{ PEERTUBE_HOST_NODE }}"
-  notify: container recreate
+  notify: container-recreate
 
 - name: "🚿 Flush the container recreation before verifying the OIDC registration"
   meta: flush_handlers
@@ -99,5 +99,14 @@
   retries: 30
   delay: 10
   until: _peertube_oidc_verified.rc == 0
+  changed_when: false
+  delegate_to: "{{ PEERTUBE_HOST_NODE }}"
+
+- name: "🛑 Fail if the OIDC plugin registered but never built a client"
+  shell: |
+    # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container logs {{ PEERTUBE_LOCAL_CID | quote }} 2>&1 | grep -q 'Initial OpenID discovery failed'
+  register: _peertube_oidc_discovery_failed
+  failed_when: _peertube_oidc_discovery_failed.rc == 0
   changed_when: false
   delegate_to: "{{ PEERTUBE_HOST_NODE }}"

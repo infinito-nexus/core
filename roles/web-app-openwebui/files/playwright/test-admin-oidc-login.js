@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const { expectNoCspViolations } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
@@ -18,7 +19,7 @@ exports.register = function (shared) {
     await expect(
       page.getByRole("img", { name: /open\s+user\s+profile\s+menu/i }).first(),
       "administrator: post-login User profile menu must be visible (proves authenticated chrome rendered, not just the auth page)"
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     await shared.expectSignInRequiredAfterLogout(page);
 

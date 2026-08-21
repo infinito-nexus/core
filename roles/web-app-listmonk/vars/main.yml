@@ -33,14 +33,18 @@ LISTMONK_SETTINGS:
       } | to_json }}
     condition: "{{ LISTMONK_OIDC_ENABLED | bool }}"
 
+  - key: "appearance.public.custom_js"
+    value: "{{ lookup('file', lookup('path_absolute', 'roles/web-app-listmonk/files/javascript/oidc-autologin.js')) | to_json }}"
+    condition: "{{ LISTMONK_OIDC_ENABLED | bool }}"
+
   - key: "security.enable_captcha"
     value: "true"
 
   - key: "security.captcha_key"
-    value: "\"{{ lookup('config', application_id, 'credentials.hcaptcha.key') }}\""
+    value: "\"{{ lookup('config', application_id, 'secrets.credentials.hcaptcha.key') }}\""
 
   - key: "security.captcha_secret"
-    value: "\"{{ lookup('config', application_id, 'credentials.hcaptcha.secret') }}\""
+    value: "\"{{ lookup('config', application_id, 'secrets.credentials.hcaptcha.secret') }}\""
 
   - key: "smtp"
     value: >-

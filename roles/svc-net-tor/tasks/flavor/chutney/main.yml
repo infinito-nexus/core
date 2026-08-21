@@ -1,0 +1,11 @@
+---
+- name: "🧪 Tor flavor 'chutney' — join a private in-container Tor test net"
+  ansible.builtin.debug:
+    msg: >-
+      svc-net-tor joins a private chutney Tor network bootstrapped inside the
+      tor container (all nodes on 127.0.0.1). Descriptor publication and
+      rendezvous run at localhost speed; the onion is reachable only from
+      hosts sharing this private net (the node's own SOCKS), which is exactly
+      the test surface. The heavy lifting is the container entrypoint and the
+      torrc %include of /run/tor/chutney-net.conf.
+  changed_when: false

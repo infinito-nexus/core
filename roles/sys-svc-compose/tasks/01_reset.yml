@@ -2,11 +2,13 @@
 # It is necessary to shut the projects down, when reset is activated. 
 # Otherwise it can lead to this bug:
 # https://github.com/ansible/ansible/issues/10244
-- name: "📦 pkgmgr install '{{ COMPOSE_DOWN_ALL_PACKAGE }}'"
+- name: "📦 Install '{{ COMPOSE_DOWN_ALL_PACKAGE }}' system-wide via pip"
   include_role:
-    name: pkgmgr-install
+    name: sys-pip-install
   vars:
-    package_name: "{{ COMPOSE_DOWN_ALL_PACKAGE }}"
+    # TODO: switch to the PyPI name 'docodol' once it is published
+    package_name: "git+{{ COMPOSE_DOWN_ALL_REPO }}@{{ COMPOSE_DOWN_ALL_REF }}"
+    global_install: true
 
 - name: "🧹 Shutdown compose instances in '{{ DIR_COMPOSITIONS }}'"
   command: "{{ COMPOSE_DOWN_ALL_PACKAGE }} {{ DIR_COMPOSITIONS }}"

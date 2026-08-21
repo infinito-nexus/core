@@ -1,8 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     initLogoutPatch(
         '{{ OIDC.CLIENT.LOGOUT_URL }}',
-        '{{ lookup("tls", application_id, "protocols.web") }}',
-        '{{ DOMAIN_PRIMARY }}',
         {{ MODE_DEBUG | lower }}
     );
 });

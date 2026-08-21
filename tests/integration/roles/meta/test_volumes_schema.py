@@ -126,9 +126,6 @@ class TestVolumesLookupAttrs(unittest.TestCase):
                     )
                     continue
                 allowed = _allowed_attr_paths(entry)
-                # Semantic-name lookups (`.name` defaulting to the dict
-                # key when the entry omits an explicit docker name) are
-                # always permitted for type: volume entries.
                 if entry.get("type", "volume") == "volume":
                     allowed.add(("name",))
                 if tuple(attr_parts) not in allowed:

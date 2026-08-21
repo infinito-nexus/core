@@ -6,7 +6,7 @@ from unittest.mock import patch
 from utils.handler.vault import VaultScalar
 from utils.manager.inventory import InventoryManager
 from utils.roles.mapping import (
-    ROLE_FILE_META_SCHEMA,
+    ROLE_FILE_META_SECRETS,
     ROLE_FILE_META_SERVICES,
     ROLE_FILE_VARS_MAIN,
 )
@@ -26,8 +26,6 @@ class _FakeVaultHandler:
     def encrypt_string(self, plaintext: str, key_name: str) -> str:
         self.calls.append((plaintext, key_name))
 
-        # This format must have at least 2 lines after splitlines(),
-        # because InventoryManager reads lines[1] for indent detection.
         return (
             f"!vault |\n  $ANSIBLE_VAULT;1.1;AES256\n    PLAIN:{key_name}:{plaintext}\n"
         )
@@ -53,9 +51,6 @@ class TestInventoryManagerIntegration(TestCase):
             roles_root = tmp / "roles"
             roles_root.mkdir(parents=True, exist_ok=True)
 
-            # ------------------------------------------------------------------
-            # Provider role: roles/svc-db-mariadb
-            # ------------------------------------------------------------------
             provider_role = roles_root / "svc-db-mariadb"
             (provider_role / "meta").mkdir(parents=True, exist_ok=True)
             (provider_role / "vars").mkdir(parents=True, exist_ok=True)
@@ -71,7 +66,7 @@ class TestInventoryManagerIntegration(TestCase):
                 encoding="utf-8",
             )
 
-            (provider_role / ROLE_FILE_META_SCHEMA).write_text(
+            (provider_role / ROLE_FILE_META_SECRETS).write_text(
                 "credentials:\n"
                 "  root_password:\n"
                 "    description: MariaDB root password\n"
@@ -84,9 +79,6 @@ class TestInventoryManagerIntegration(TestCase):
                 encoding="utf-8",
             )
 
-            # ------------------------------------------------------------------
-            # Root role: roles/web-app-demo
-            # ------------------------------------------------------------------
             role_path = roles_root / "web-app-demo"
             (role_path / "meta").mkdir(parents=True, exist_ok=True)
             (role_path / "vars").mkdir(parents=True, exist_ok=True)
@@ -105,7 +97,7 @@ class TestInventoryManagerIntegration(TestCase):
                 encoding="utf-8",
             )
 
-            (role_path / ROLE_FILE_META_SCHEMA).write_text(
+            (role_path / ROLE_FILE_META_SECRETS).write_text(
                 "credentials:\n"
                 "  api_key:\n"
                 "    description: API key\n"
@@ -130,7 +122,9 @@ class TestInventoryManagerIntegration(TestCase):
                     role_path=role_path,
                     inventory_path=inv_path,
                     vault_pw="pw",
-                    overrides={"credentials.plain_needed": "OVERRIDE"},
+                    overrides={
+                        "applications.web-app-demo.secrets.credentials.plain_needed": "OVERRIDE"
+                    },
                     allow_empty_plain=False,
                 )
                 inv = mgr.apply_schema()
@@ -139,11 +133,8 @@ class TestInventoryManagerIntegration(TestCase):
             self.assertIn("web-app-demo", apps)
             self.assertIn("svc-db-mariadb", apps)
 
-            # ------------------------------------------------------------------
-            # Root app assertions
-            # ------------------------------------------------------------------
             root_app = apps["web-app-demo"]
-            root_creds = root_app["credentials"]
+            root_creds = root_app["secrets"]["credentials"]
 
             self.assertIn("database_password", root_creds)
             self.assertIsInstance(root_creds["database_password"], str)
@@ -163,13 +154,10 @@ class TestInventoryManagerIntegration(TestCase):
                 "PLAIN:plain_needed:OVERRIDE", str(root_creds["plain_needed"])
             )
 
-            self.assertEqual(root_app["non_credentials"]["flag"], True)
+            self.assertEqual(root_app["secrets"]["non_credentials"]["flag"], True)
 
-            # ------------------------------------------------------------------
-            # Provider app assertions
-            # ------------------------------------------------------------------
             prov_app = apps["svc-db-mariadb"]
-            prov_creds = prov_app["credentials"]
+            prov_creds = prov_app["secrets"]["credentials"]
 
             self.assertIn("root_password", prov_creds)
             self.assertIsInstance(prov_creds["root_password"], VaultScalar)
@@ -177,9 +165,6 @@ class TestInventoryManagerIntegration(TestCase):
             self.assertIn("replication_password", prov_creds)
             self.assertIsInstance(prov_creds["replication_password"], VaultScalar)
 
-            # ------------------------------------------------------------------
-            # Vault calls verification
-            # ------------------------------------------------------------------
             called_keys = [k for (_plain, k) in fake_vault.calls]
 
             self.assertIn("api_key", called_keys)
@@ -232,7 +217,7 @@ class TestInventoryManagerIntegration(TestCase):
                 "asset:\n  enabled: true\n  shared: true\n",
                 encoding="utf-8",
             )
-            (role_path / ROLE_FILE_META_SCHEMA).write_text(
+            (role_path / ROLE_FILE_META_SECRETS).write_text(
                 "credentials:\n"
                 "  api_key:\n"
                 "    description: API key\n"
@@ -257,7 +242,7 @@ class TestInventoryManagerIntegration(TestCase):
 
             apps = inv.get("applications", {})
             self.assertIn("web-app-demo", apps)
-            self.assertIn("api_key", apps["web-app-demo"]["credentials"])
+            self.assertIn("api_key", apps["web-app-demo"]["secrets"]["credentials"])
             self.assertNotIn("web-svc-asset", apps)
 
 

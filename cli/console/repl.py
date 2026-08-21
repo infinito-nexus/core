@@ -58,7 +58,6 @@ from .runner import (
 with contextlib.suppress(ImportError):
     import readline  # noqa: F401
 
-# Re-exports + the test surface stays addressable as `repl.<symbol>`.
 __all__ = [
     "AUTHOR",
     "AUTHOR_URL",

@@ -8,9 +8,9 @@ kix_shared:
     mode: "0770"
   mounts:
     - service: backend
-      target: /mnt/shared
+      target: &mnt_shared_target /mnt/shared
     - service: frontend
-      target: /mnt/shared
+      target: *mnt_shared_target
 
 kix_backend:
   type: volume
@@ -21,7 +21,7 @@ kix_backend:
     mode: "0770"
   mounts:
     - service: backend
-      target: /mnt/data
+      target: &mnt_data_target /mnt/data
 
 kix_frontend:
   type: volume
@@ -32,7 +32,7 @@ kix_frontend:
     mode: "0770"
   mounts:
     - service: frontend
-      target: /mnt/data
+      target: *mnt_data_target
 
 auth_ldap:
   type: config

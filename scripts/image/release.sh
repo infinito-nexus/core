@@ -18,14 +18,12 @@ DEFAULT_DISTRO="${DEFAULT_DISTRO:-debian}"
 PUBLISH_LATEST="${PUBLISH_LATEST:-true}"
 REPO_PREFIX="${REPO_PREFIX,,}"
 
-# VERSION_TAG must be like "v1.2.3"
 VERSION_TAG="${VERSION_TAG:-${GITHUB_REF_NAME:-}}"
 [[ -n "${VERSION_TAG}" ]] || {
 	echo "ERROR: VERSION_TAG not set"
 	exit 2
 }
 
-# CI_TAG should be "ci-<sha>"
 CI_TAG="${CI_TAG:-ci-${GITHUB_SHA:-}}"
 [[ -n "${CI_TAG}" ]] || {
 	echo "ERROR: CI_TAG not set"
@@ -62,7 +60,6 @@ for distro in ${INFINITO_DISTROS}; do
 	echo
 	echo "==> ${distro}"
 
-	# NORMAL
 	src="${REGISTRY}/${OWNER}/${REPO_PREFIX}/${distro}:${CI_TAG}"
 	dst_ver="${REGISTRY}/${OWNER}/${REPO_PREFIX}/${distro}:${VERSION_TAG}"
 	dst_latest=""
@@ -71,7 +68,6 @@ for distro in ${INFINITO_DISTROS}; do
 	fi
 	retag_set "${src}" "${dst_ver}" "${dst_latest}"
 
-	# Alias for default distro
 	if [[ "${distro}" == "${DEFAULT_DISTRO}" ]]; then
 		alias_ver="${REGISTRY}/${OWNER}/${REPO_PREFIX}:${VERSION_TAG}"
 		alias_latest=""

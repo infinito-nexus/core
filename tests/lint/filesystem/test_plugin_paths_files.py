@@ -33,10 +33,6 @@ if TYPE_CHECKING:
 
 _ANSIBLE_CFG_PATH = PROJECT_ROOT / "ansible.cfg"
 
-# Plugin path keys to read from the ``[defaults]`` section. Listed
-# explicitly (rather than scanning the section blindly) so an unrelated
-# defaults entry that happens to point at a directory does not get
-# pulled into the lint by accident.
 _PLUGIN_PATH_KEYS: tuple[str, ...] = (
     "action_plugins",
     "filter_plugins",
@@ -45,9 +41,6 @@ _PLUGIN_PATH_KEYS: tuple[str, ...] = (
     "module_utils",
 )
 
-# Filenames inside a plugin directory that are exempt from the
-# ``.py``-only rule. Kept narrow on purpose: anything else has no
-# business living under an Ansible plugin path.
 _ALLOWED_NON_PY: frozenset[str] = frozenset({"README.md"})
 
 
@@ -67,9 +60,6 @@ def _plugin_dirs() -> list[Path]:
         raw = parser.get("defaults", key, fallback="").strip()
         if not raw:
             continue
-        # ansible.cfg paths use forward slashes and may have a leading
-        # ``./`` to mark them as repo-relative. Strip the marker so the
-        # subsequent join produces a clean absolute path.
         relative = raw.removeprefix("./")
         candidate = PROJECT_ROOT / relative
         if candidate.is_dir():

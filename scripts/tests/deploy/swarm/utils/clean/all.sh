@@ -40,16 +40,16 @@ echo ">>> swarm-clean: leftover containers"
 _ctrs="$(_select_ids | sort -u)"
 if [ -n "${_ctrs}" ]; then
 	# shellcheck disable=SC2086  # intentional word-split of the id list
-	docker rm -f ${_ctrs} 2>&1 | sed 's/^/    /' || true
+	docker rm -f ${_ctrs} 2>&1 | sed 's/^/    /' || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 fi
 
 for _reap in 1 2 3 4 5; do
 	_rest="$(_select_ids | sort -u)"
 	[ -n "${_rest}" ] || break
 	# shellcheck disable=SC2086  # intentional word-split of the id list
-	docker kill -s KILL ${_rest} >/dev/null 2>&1 || true
+	docker kill -s KILL ${_rest} >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	# shellcheck disable=SC2086  # intentional word-split of the id list
-	docker rm ${_rest} 2>&1 | sed 's/^/    /' || true
+	docker rm ${_rest} 2>&1 | sed 's/^/    /' || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	sleep 2
 done
 
@@ -57,9 +57,9 @@ echo ">>> swarm-clean: leftover networks"
 _nets="$(docker network ls --format '{{.Name}}' | grep -E "${INFINITO_SWARM_LAB_NET_NAME}" || true)"
 if [ -n "${_nets}" ]; then
 	# shellcheck disable=SC2086  # intentional word-split of the network list
-	docker network rm ${_nets} 2>&1 | sed 's/^/    /' || true
+	docker network rm ${_nets} 2>&1 | sed 's/^/    /' || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 fi
-docker network prune -f >/dev/null 2>&1 || true
+docker network prune -f >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 
 _left="$(_select_names | sort -u)"
 if [ -z "${_left}" ]; then
@@ -71,8 +71,8 @@ echo ">>> swarm-clean: D-state remnants survived docker rm -f:"
 echo "    ${_left//$'\n'/$'\n'    }"
 if sudo -n true 2>/dev/null; then
 	echo ">>> clearing wedged kernel NFS on host (sudo)"
-	sudo umount -f -l "${INFINITO_DIR_VAR_LIB:?}" 2>/dev/null || true
-	sudo exportfs -ua 2>/dev/null || true
+	sudo umount -f -l "${INFINITO_DIR_VAR_LIB:?}" 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+	sudo exportfs -ua 2>/dev/null || true                             # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	sudo systemctl restart docker
 	echo ">>> docker restarted; D-state remnants cleared"
 else

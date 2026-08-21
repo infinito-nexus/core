@@ -13,9 +13,18 @@
          and (groups[lookup('database', _database_consumer_id, 'id')] | default([])) | length > 0 }}
   changed_when: false
 
+- name: "🔍 For '{{ application_id }}': Find the compose file rendering the engine"
+  ansible.builtin.stat:
+    path: "{{ lookup('path_absolute', 'roles', application_id, 'templates/compose.yml.j2') }}"
+  register: _sys_svc_rdbms_compose_template
+  delegate_to: localhost
+  changed_when: false
+
 - name: "🔧 For '{{ application_id }}/{{ _database_consumer_id }}': Apply dedicated setup"
   include_tasks: dedicated.yml
-  when: _sys_svc_rdbms_consumer_local | bool
+  when:
+    - _sys_svc_rdbms_consumer_local | bool
+    - _sys_svc_rdbms_compose_template.stat.exists
 
 - name: 🗄️ Central Database Logic
   block:
@@ -44,7 +53,7 @@
         database_consumer_id: "{{ _database_consumer_id }}"
 
     - name: "➕ For '{{ application_id }}': Add Entry for Backup Procedure"
-      include_tasks: "{{ lookup('path_absolute', 'roles/svc-bkp-volume-2-local/tasks/03_seed-database-to-backup.yml') }}"
+      include_tasks: utils/seed_backup.yml
       when:
         - "'svc-bkp-volume-2-local' in group_names"
         - IS_STACK_HOST | bool

@@ -15,6 +15,7 @@ The diagram places Assets Server in the Infinito.Nexus cosmos: the components it
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
         dep_web_svc_file["web-svc-file 💻"]
@@ -25,21 +26,23 @@ flowchart LR
         svc_matomo["matomo"]
         svc_css["css ❌"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
     end
     subgraph dependents [Dependents]
         dpt_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dpt_web_app_discourse["web-app-discourse 🐳🐝"]
         dpt_web_app_listmonk["web-app-listmonk 🐳🐝"]
     end
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
-    dep_web_svc_file -. "0..1" .-> svc_file
+    dep_web_svc_file -- "1:1" --> svc_file
     svc_asset -. "0..1" .-> dpt_web_app_dashboard
     svc_asset -. "0..1" .-> dpt_web_app_discourse
     svc_asset -. "0..1" .-> dpt_web_app_listmonk
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 

@@ -3,11 +3,13 @@
   ansible.builtin.shell: gsettings set org.gnome.shell disable-user-extensions false
   become: false
 
-- name: "📦 pkgmgr install"
+- name: 📦 Install cli-gnome-extension-manager system-wide via pip
   include_role:
-    name: pkgmgr-install
+    name: sys-pip-install
   vars:
-    package_name: cli-gnome-extension-manager
+    # TODO: switch to the PyPI name 'cli-gnome-extension-manager' once it is published
+    package_name: "git+{{ DESK_GNOME_EXTENSION_MANAGER_REPO }}@{{ DESK_GNOME_EXTENSION_MANAGER_REF }}"
+    global_install: true
 
 - name: ▶️ Execute CLI GNOME Extension manager script
   ansible.builtin.shell: >-

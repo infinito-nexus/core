@@ -20,6 +20,7 @@
 //   SEAWEEDFS_* keys consumed by runSeaweedfsStorageCheck.
 
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout, isOnionTarget } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { runSeaweedfsStorageCheck } = require("./personas");
 const shared = require("./_shared");
@@ -37,8 +38,9 @@ function pixelfedAdminScenario() {
 test.use({ ignoreHTTPSErrors: true });
 
 test("seaweedfs: an uploaded Pixelfed photo is stored in the SeaweedFS bucket", async ({ page, browser }) => {
+  test.skip(isOnionTarget(), "SeaweedFS filer UI is not a Tor surface on an onion node (headless backend)");
   skipUnlessServiceEnabled("seaweedfs");
-  test.setTimeout(180_000);
+  test.setTimeout(resolveTimeout(180_000));
 
   await runSeaweedfsStorageCheck(page, browser, {
     label: "a Pixelfed composer photo upload",
@@ -55,7 +57,7 @@ test("seaweedfs: an uploaded Pixelfed photo is stored in the SeaweedFS bucket", 
       await expect(
         fileInput,
         "the Pixelfed composer must expose a file input to attach a photo",
-      ).toBeAttached({ timeout: 60_000 });
+      ).toBeAttached({ timeout: resolveTimeout(60_000) });
 
       const marker = `infinito-storage-check-${Date.now()}.png`;
       await fileInput.setInputFiles({
@@ -71,12 +73,12 @@ test("seaweedfs: an uploaded Pixelfed photo is stored in the SeaweedFS bucket", 
       await expect(
         postAction,
         "the Pixelfed composer must advance to its caption step and expose a Post action after a photo is attached",
-      ).toBeVisible({ timeout: 60_000 });
-      await postAction.click();
+      ).toBeVisible({ timeout: resolveTimeout(60_000) });
+      await postAction.click({ timeout: resolveTimeout(30_000) });
 
       await expect
         .poll(() => appPage.url(), {
-          timeout: 90_000,
+          timeout: resolveTimeout(90_000),
           message:
             "Pixelfed must publish the composed photo (media upload to S3 + /api/compose/v0/publish), then redirect away from /i/web/compose to the new post",
         })

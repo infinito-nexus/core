@@ -4,17 +4,17 @@ on:
   workflow_dispatch:
     inputs:
       ghcr_namespace:
-        description: "GHCR namespace/org (default: repository owner)"
+        description: "🏛️ GHCR namespace/org (default: repository owner)"
         required: false
         type: string
         default: ""
       ghcr_prefix:
-        description: "Package name prefix to delete (default: mirror)"
+        description: "🏷️ Package name prefix to delete (default: mirror)"
         required: false
         type: string
         default: "mirror"
       visibility:
-        description: "Visibility filter: only packages with this visibility are deleted"
+        description: "👁️ Visibility filter: only these packages are deleted"
         required: false
         type: choice
         default: "private"
@@ -23,12 +23,12 @@ on:
           - public
           - internal
       dry_run:
-        description: "Dry-run: list packages that would be deleted without deleting them"
+        description: "🧪 Dry-run: list what would be deleted without deleting it"
         required: false
         type: boolean
         default: true
       token:
-        description: "Classic PAT with delete:packages scope. Leave empty to use the default GITHUB_TOKEN The default token may lack the delete:packages scope."
+        description: "🔑 Classic PAT with delete:packages. Empty: the default GITHUB_TOKEN"
         required: false
         type: string
         default: ""

@@ -23,10 +23,14 @@ from utils.install.lint import (
     mbake,
     mermaid_cli,
     packages,
+    php,
     playwright,
+    ruby,
     ruff,
     shellcheck,
     shfmt,
+    sqlfluff,
+    stylelint,
 )
 from utils.install.lint.ansible import collections as ansible_collections
 from utils.install.lint.ansible import commands as ansible_commands
@@ -101,6 +105,22 @@ def _install_packages_tools() -> None:
     packages.ensure()
 
 
+def _install_php_tools() -> None:
+    php.ensure()
+
+
+def _install_ruby_tools() -> None:
+    ruby.ensure()
+
+
+def _install_sql_tools() -> None:
+    sqlfluff.ensure()
+
+
+def _install_css_tools() -> None:
+    stylelint.ensure()
+
+
 _GROUP_FN_NAMES = {
     "action": "_install_action_tools",
     "ansible": "_install_ansible_tools",
@@ -113,6 +133,10 @@ _GROUP_FN_NAMES = {
     "javascript": "_install_javascript_tools",
     "playwright": "_install_playwright_tools",
     "packages": "_install_packages_tools",
+    "php": "_install_php_tools",
+    "ruby": "_install_ruby_tools",
+    "sql": "_install_sql_tools",
+    "css": "_install_css_tools",
 }
 
 
@@ -160,7 +184,8 @@ def _dispatch(group: str) -> None:
     if fn_name is None:
         raise RuntimeError(
             "Usage: python -m utils.install.lint "
-            "[all|action|ansible|python|shellcheck|dockerfile|markdown|mermaid|makefile|javascript|playwright|packages]..."
+            "[all|action|ansible|python|shellcheck|dockerfile|markdown|mermaid|makefile|"
+            "javascript|playwright|packages|php|ruby|sql|css]..."
         )
     globals()[fn_name]()
 

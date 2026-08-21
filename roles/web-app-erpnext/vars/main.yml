@@ -16,9 +16,12 @@ ERPNEXT_WEBSOCKET_PORT: "{{ lookup('config', application_id, 'services.websocket
 ERPNEXT_HOSTNAME: "{{ lookup('domain', application_id) }}"
 ERPNEXT_SITE_NAME: "{{ ERPNEXT_HOSTNAME }}"
 
-ERPNEXT_INITIAL_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.initial_admin_password') }}"
-ERPNEXT_API_BOT_PASSWORD: "{{ lookup('config', application_id, 'credentials.api_bot_password') }}"
-ERPNEXT_API_KEY_SECRET: "{{ lookup('config', application_id, 'credentials.api_key_secret') }}"
+ERPNEXT_SITES_DIR: "{{ lookup('volume', application_id, 'sites').target }}"
+ERPNEXT_BENCH_PYTHON: "bash -c 'cd {{ ERPNEXT_SITES_DIR }} && {{ ERPNEXT_SITES_DIR | dirname }}/env/bin/python -'"
+
+ERPNEXT_INITIAL_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.initial_admin_password') }}"
+ERPNEXT_API_BOT_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.api_bot_password') }}"
+ERPNEXT_API_KEY_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.api_key_secret') }}"
 
 ERPNEXT_API_BOT_USER: "{{ lookup('users', 'erpnext-api-bot') }}"
 
@@ -31,7 +34,7 @@ ERPNEXT_DB_PORT: "{{ lookup('database', application_id, 'port') }}"
 
 ERPNEXT_DB_ROOT_USER: "root"
 ERPNEXT_DB_ROOT_PASSWORD: >-
-  {{ lookup('config', 'svc-db-mariadb', 'credentials.root_password')
+  {{ lookup('config', 'svc-db-mariadb', 'secrets.credentials.root_password')
      if (lookup('config', application_id, 'services.mariadb.shared') | bool)
      else lookup('database', application_id, 'password') }}
 

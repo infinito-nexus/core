@@ -118,7 +118,7 @@ clean-cache:
 	@bash scripts/system/cache/clean.sh
 
 .PHONY: clean-container-owned
-# Remove container-owned generated artefacts (build/, tasks/groups/*.yml).
+# Remove container-owned generated artefacts (build/).
 # Note: these files are created inside the compose container with the in-container UID (typically `nobody`); the host cannot rm them directly.
 # Note: the helper auto-starts a stopped infinito container before deleting; safe no-op when the targets do not exist.
 clean-container-owned:
@@ -372,21 +372,31 @@ install-system-python:
 install-venv: install-system-python
 	@bash scripts/install/venv.sh
 
+.PHONY: kernel-loop-load
+# Load the kernel loop driver the swarm backup DR drill needs.
+# Note: run this on the host; container environments have no modprobe.
+kernel-loop-load:
+	@sudo bash scripts/system/kernel/loop/load.sh
+
 .PHONY: lint
 # Run all lint checks in parallel.
 # Note: each check runs on host or in docker per INFINITO_LINT_RUNNER.
 lint: install-lint
 	@bash scripts/make/parallel.sh lint-action \
 		lint-ansible \
+		lint-css \
 		lint-dockerfile \
 		lint-javascript \
 		lint-makefile \
 		lint-markdown \
 		lint-mermaid \
 		lint-packages \
+		lint-php \
 		lint-playwright \
 		lint-python \
-		lint-shellcheck
+		lint-ruby \
+		lint-shellcheck \
+		lint-sql
 
 .PHONY: lint-action
 # Run the GitHub Actions lint checks.
@@ -398,6 +408,12 @@ lint-action: install-lint
 # Note: runs ansible's syntax-check plus ansible-lint.
 lint-ansible: install-lint setup
 	@bash scripts/lint/wrapper.sh ansible
+
+.PHONY: lint-css
+# Check that every CSS file parses, via stylelint with an empty rule set.
+lint-css: install-lint
+	@bash scripts/install/wrapper.sh css
+	@bash scripts/lint/wrapper.sh css
 
 .PHONY: lint-dockerfile
 # Run hadolint over the root Dockerfile.
@@ -432,6 +448,13 @@ lint-packages: install-lint
 	@bash scripts/install/wrapper.sh packages
 	@bash scripts/lint/wrapper.sh packages
 
+.PHONY: lint-php
+# Check that every PHP file parses, via `php -l`.
+# Note: provisions the PHP CLI explicitly; an absent interpreter is skipped.
+lint-php: install-lint
+	@bash scripts/install/wrapper.sh php
+	@bash scripts/lint/wrapper.sh php
+
 .PHONY: lint-playwright
 # Verify every role's Playwright spec parses + resolves its helpers.
 # Note: stages the spec like test-e2e-playwright does and runs `npx playwright test --list`.
@@ -443,10 +466,24 @@ lint-playwright: install-lint
 lint-python: install-lint
 	@bash scripts/lint/wrapper.sh python
 
+.PHONY: lint-ruby
+# Check that every Ruby file parses, via `ruby -c`.
+# Note: provisions the Ruby CLI explicitly; an absent interpreter is skipped.
+lint-ruby: install-lint
+	@bash scripts/install/wrapper.sh ruby
+	@bash scripts/lint/wrapper.sh ruby
+
 .PHONY: lint-shellcheck
 # Run shellcheck lint checks.
 lint-shellcheck: install-lint
 	@bash scripts/lint/wrapper.sh shellcheck
+
+.PHONY: lint-sql
+# Check that every SQL file parses, via `sqlfluff parse`.
+# Note: dialect comes from the nearest .sqlfluff; absent tooling is skipped.
+lint-sql: install-lint
+	@bash scripts/install/wrapper.sh sql
+	@bash scripts/lint/wrapper.sh sql
 
 .PHONY: meta-list
 # Print the repository role list.
@@ -547,8 +584,9 @@ requirements-archive:
 # Param apps: space-separated role ids; default = one role per base cluster, most-complex first (complexity --unique).
 # Param modes: optional mode sequence (default "compose swarm"; append k8s once it exists).
 # Param keep: true keeps each validated swarm cluster instead of releasing it.
+# Param disable: optional comma-separated provider keys removed from the test inventory (e.g. matomo,dashboard,prometheus,email,css).
 roundtrip:
-	@apps='$(apps)' modes='$(modes)' keep='$(keep)' bash scripts/tests/deploy/roundtrip.sh
+	@apps='$(apps)' modes='$(modes)' keep='$(keep)' disable='$(disable)' bash scripts/tests/deploy/roundtrip.sh
 
 .PHONY: runner-ci-deploy
 # Provision self-hosted CI runner instances on a remote host.
@@ -695,6 +733,7 @@ SWARM_DISTROS = $(or $(distros),$${INFINITO_DISTRO:?})
 # Note: Use `make swarm-exec` / `make swarm-shell` to inspect, `make swarm-down` to release.
 swarm-zombie: install-act
 	@test -n '$(app)' || { echo 'usage: make swarm-zombie app=<application_id> [distros=<distro>] [variant=<idx>] [name=<cluster-id>] [disable=<keys>]'; exit 2; }
+	@"$${PYTHON}" -m cli.meta.ci.validate --modes swarm --whitelist '$(app)#$(or $(variant),0)@swarm'
 	@SWARM_NAME='$(or $(name),$(app))' INFINITO_KEEP_SWARM_NODES=false bash scripts/tests/deploy/swarm/utils/clean/teardown.sh
 	@bash scripts/tests/deploy/act/down_act_outer.sh
 	@ACT_RM=false \
@@ -706,10 +745,10 @@ swarm-zombie: install-act
 	 SWARM_NAME=$(or $(name),$(app)); \
 	 INFINITO_SWARM_STEP_TIMEOUT_MINUTES=$(or $(step_timeout),690); \
 	 INFINITO_DISTROS=$(SWARM_DISTROS)" \
-	 ACT_WORKFLOW=.github/workflows/call-test-deploy-swarm.yml \
-	 ACT_JOB=swarm \
-	 ACT_MATRIX='apps:$(app);variant:$(or $(variant),0)' \
-	 ACT_INPUTS="whitelist=$(app) distros=$(SWARM_DISTROS)" \
+	 ACT_WORKFLOW=.github/workflows/call-test-deploy.yml \
+	 ACT_JOB=deploy \
+	 ACT_MATRIX="apps:$(app);variant:$(or $(variant),0);mode:swarm" \
+	 ACT_INPUTS="whitelist=$(app) distros=$(SWARM_DISTROS) index=0 sweep=0 modes=swarm disable=$(disable)" \
 	 bash scripts/tests/deploy/act/workflow.sh
 
 .PHONY: system-purge
@@ -776,11 +815,32 @@ test-signed:
 	echo "✅ HEAD commit signature status: $$status"
 
 .PHONY: test-unit
-# Run the unit test suite.
-test-unit: install
+# Run the unit test suite (every language).
+test-unit: test-unit-python test-unit-javascript test-unit-php test-unit-ruby
+
+.PHONY: test-unit-javascript
+# Run the JavaScript unit test suite (node:test, no extra dependency).
+test-unit-javascript:
+	@bash scripts/tests/unit/javascript.sh
+
+.PHONY: test-unit-php
+# Run the PHP unit test suite (PHPUnit).
+# Note: skips loudly while the suite is empty or PHP is absent; see scripts/tests/unit/php.sh.
+test-unit-php:
+	@bash scripts/tests/unit/php.sh
+
+.PHONY: test-unit-python
+# Run the Python unit test suite.
+test-unit-python: install
 	@INFINITO_TEST_TYPE="unit" \
 	INFINITO_COMPILE=0 \
 	bash scripts/tests/code/wrapper.sh
+
+.PHONY: test-unit-ruby
+# Run the Ruby unit test suite (minitest, stdlib).
+# Note: skips loudly while the suite is empty or Ruby is absent; see scripts/tests/unit/ruby.sh.
+test-unit-ruby:
+	@bash scripts/tests/unit/ruby.sh
 
 .PHONY: worktree-down
 # Stop a branch worktree's stack, release the checkout and free its slot.

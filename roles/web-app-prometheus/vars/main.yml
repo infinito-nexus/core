@@ -4,19 +4,19 @@ application_id: "web-app-prometheus"
 PROMETHEUS_CONTAINER: "{{ lookup('config', application_id, 'services.prometheus.name') }}"
 
 PROMETHEUS_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'prometheus.yml' ] | path_join }}"
-PROMETHEUS_CONFIG_DOCKER: "/etc/prometheus/prometheus.yml"
+PROMETHEUS_CONFIG_DOCKER: "{{ lookup('volume', 'web-app-prometheus', 'prometheus_config').target }}"
 BLACKBOX_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'blackbox.yml' ] | path_join }}"
-BLACKBOX_CONFIG_DOCKER: "/etc/blackbox_exporter/config.yml"
+BLACKBOX_CONFIG_DOCKER: "{{ lookup('volume', 'web-app-prometheus', 'blackbox_config').target }}"
 
 ALERTMANAGER_CONTAINER: "{{ lookup('config', application_id, 'services.alertmanager.name') }}"
 ALERTMANAGER_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'alertmanager.yml' ] | path_join }}"
-ALERTMANAGER_CONFIG_DOCKER: "/etc/alertmanager/alertmanager.yml"
+ALERTMANAGER_CONFIG_DOCKER: "{{ lookup('volume', 'web-app-prometheus', 'alertmanager_config').target }}"
 ALERT_RULES_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'alert_rules.yml' ] | path_join }}"
-ALERT_RULES_CONFIG_DOCKER: "/etc/prometheus/alert_rules.yml"
+ALERT_RULES_CONFIG_DOCKER: "{{ lookup('volume', 'web-app-prometheus', 'alert_rules').target }}"
 
-ALERTMANAGER_TELEGRAM_BOT_TOKEN: "{{ lookup('config', application_id, 'credentials.alerting_telegram_bot_token', '') }}"
+ALERTMANAGER_TELEGRAM_BOT_TOKEN: "{{ lookup('config', application_id, 'secrets.credentials.alerting_telegram_bot_token', '') }}"
 ALERTMANAGER_TELEGRAM_CHAT_ID: "{{ lookup('config', application_id, 'services.prometheus.alerting.telegram.chat_id') }}"
-ALERTMANAGER_MATTERMOST_WEBHOOK_URL: "{{ lookup('config', application_id, 'credentials.alerting_mattermost_webhook_url', '') }}"
+ALERTMANAGER_MATTERMOST_WEBHOOK_URL: "{{ lookup('config', application_id, 'secrets.credentials.alerting_mattermost_webhook_url', '') }}"
 
 BLACKBOX_CONTAINER: "{{ lookup('config', application_id, 'services.blackbox-exporter.name') }}"
 

@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-pretix"
-container_hostname: "{{ lookup('domain',application_id) }}"
+container_hostname: "{{ lookup('container_hostname', application_id) }}"
 
 PRETIX_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 PRETIX_HOSTNAME: "{{ container_hostname }}"

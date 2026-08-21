@@ -11,7 +11,6 @@ from . import PROJECT_ROOT
 
 DEPENDABOT_PATH = PROJECT_ROOT / ".github" / "dependabot.yml"
 
-# Directories skipped when walking the repository
 SKIP_DIRS = {
     ".git",
     ".venv",
@@ -23,13 +22,11 @@ SKIP_DIRS = {
     "dist",
 }
 
-# Hidden directories that may contain real dependency manifests
 SCANNED_HIDDEN_DIRS = {
     ".github",
     ".devcontainer",
 }
 
-# File suffixes that indicate generated/template files, not real dependency files
 SKIP_SUFFIXES = (".j2",)
 
 GITIGNORE_PATH = PROJECT_ROOT / ".gitignore"
@@ -92,8 +89,6 @@ ECOSYSTEM_PATH_INDICATORS: dict[str, list[str]] = {
     ],
 }
 
-# Ecosystem groups where any one active member covers the shared file type.
-# E.g. terraform and opentofu both consume *.tf — either being active is sufficient.
 EQUIVALENT_ECOSYSTEMS: list[frozenset[str]] = [
     frozenset({"terraform", "opentofu"}),
 ]
@@ -112,7 +107,6 @@ def _dir_covers(dep_dir: str, file_rel_dir: str) -> bool:
     norm_dep = "/" + dep_dir.strip("/") if dep_dir.strip("/") else "/"
     norm_file = "/" + file_rel_dir.strip("/") if file_rel_dir else "/"
 
-    # '/' and '/**' are both "cover the entire repository"
     if norm_dep in ("/", "/**"):
         return True
 
@@ -239,7 +233,6 @@ class TestDependabotCoverage(unittest.TestCase):
 
         active = _load_active_entries()
 
-        # Build lookup: ecosystem → [directory patterns]
         ecosystem_dirs: dict[str, list[str]] = {}
         for entry in active:
             eco = entry["package-ecosystem"]
@@ -248,11 +241,6 @@ class TestDependabotCoverage(unittest.TestCase):
         uncovered: list[str] = []
 
         # Only scan files actually tracked by git. Dependabot operates on the
-        # committed tree, so untracked working-copy artefacts (stray host config,
-        # editor scratch files, etc.) must not influence coverage. Containerised
-        # test runs bind-mount the source tree without .git/, so git may be
-        # unavailable — fall back to os.walk plus an explicit untracked skip
-        # list when that happens.
         candidate_files = _list_candidate_files()
 
         for rel_file in candidate_files:
@@ -276,7 +264,6 @@ class TestDependabotCoverage(unittest.TestCase):
                 continue
 
             for ecosystem in sorted(_matching_ecosystems(rel_file, filename)):
-                # Collect all ecosystem names that are equivalent for this file
                 candidates: set[str] = {ecosystem}
                 for group in EQUIVALENT_ECOSYSTEMS:
                     if ecosystem in group:

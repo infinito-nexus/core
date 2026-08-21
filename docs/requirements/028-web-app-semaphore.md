@@ -61,7 +61,7 @@ roles/web-app-semaphore/
 │   ├── info.yml
 │   ├── server.yml
 │   ├── services.yml
-│   ├── schema.yml
+│   ├── secrets.yml
 │   ├── users.yml
 │   ├── rbac.yml
 │   ├── variants.yml
@@ -127,7 +127,7 @@ V1 = `sso` + `ldap` both enabled; V2 = all dynamic flags `false`; V3 = `ldap` on
 
 - [ ] `roles/web-app-semaphore/` exists with the layout in [Target Schema](#role-layout).
 - [ ] `meta/services.yml` pins `semaphoreui/semaphore` to a concrete stable `2.x` semver (no `:latest`).
-- [ ] `meta/info.yml`, `server.yml`, `main.yml`, `schema.yml`, `users.yml`, `rbac.yml`, `variants.yml`, `volumes.yml` exist and pass the repo's role-meta lint.
+- [ ] `meta/info.yml`, `server.yml`, `main.yml`, `secrets.yml`, `users.yml`, `rbac.yml`, `variants.yml`, `volumes.yml` exist and pass the repo's role-meta lint.
 
 ### Database (Decision #3 — central PostgreSQL)
 

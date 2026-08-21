@@ -12,29 +12,29 @@ shared:
   name: gitlab_shared
   mounts:
     - service: webservice
-      target: /srv/gitlab/shared
+      target: &shared_target /srv/gitlab/shared
     - service: sidekiq
-      target: /srv/gitlab/shared
+      target: *shared_target
     - service: workhorse
-      target: /srv/gitlab/shared
+      target: *shared_target
 uploads:
   type: volume
   name: gitlab_uploads
   mounts:
     - service: webservice
-      target: /srv/gitlab/public/uploads
+      target: &uploads_target /srv/gitlab/public/uploads
     - service: sidekiq
-      target: /srv/gitlab/public/uploads
+      target: *uploads_target
     - service: workhorse
-      target: /srv/gitlab/public/uploads
+      target: *uploads_target
 builds:
   type: volume
   name: gitlab_builds
   mounts:
     - service: webservice
-      target: /srv/gitlab/builds
+      target: &builds_target /srv/gitlab/builds
     - service: sidekiq
-      target: /srv/gitlab/builds
+      target: *builds_target
 webservice_logs:
   type: volume
   name: gitlab_webservice_logs
@@ -42,15 +42,15 @@ webservice_logs:
   nfs: false
   mounts:
     - service: webservice
-      target: /var/log
+      target: &var_log_target /var/log
 webservice_state:
   type: volume
   name: gitlab_webservice_state
-  # nocheck: nfs-false-data-loss  Reason: runtime state regenerated on boot from the mounted config/secrets binds, no unique persistent data.
+  # nocheck: nfs-false-data-loss  Reason: runtime state regenerated on boot from the mounted configs/secrets, no unique persistent data.
   nfs: false
   mounts:
     - service: webservice
-      target: /var/opt/gitlab
+      target: &var_opt_gitlab_target /var/opt/gitlab
 sidekiq_logs:
   type: volume
   name: gitlab_sidekiq_logs
@@ -58,15 +58,15 @@ sidekiq_logs:
   nfs: false
   mounts:
     - service: sidekiq
-      target: /var/log
+      target: *var_log_target
 sidekiq_state:
   type: volume
   name: gitlab_sidekiq_state
-  # nocheck: nfs-false-data-loss  Reason: runtime state regenerated on boot from the mounted config/secrets binds, no unique persistent data.
+  # nocheck: nfs-false-data-loss  Reason: runtime state regenerated on boot from the mounted configs/secrets, no unique persistent data.
   nfs: false
   mounts:
     - service: sidekiq
-      target: /var/opt/gitlab
+      target: *var_opt_gitlab_target
 migrations_logs:
   type: volume
   name: gitlab_migrations_logs
@@ -74,15 +74,15 @@ migrations_logs:
   nfs: false
   mounts:
     - service: migrations
-      target: /var/log
+      target: *var_log_target
 migrations_state:
   type: volume
   name: gitlab_migrations_state
-  # nocheck: nfs-false-data-loss  Reason: runtime state regenerated on boot from the mounted config/secrets binds, no unique persistent data.
+  # nocheck: nfs-false-data-loss  Reason: runtime state regenerated on boot from the mounted configs/secrets, no unique persistent data.
   nfs: false
   mounts:
     - service: migrations
-      target: /var/opt/gitlab
+      target: *var_opt_gitlab_target
 shell_logs:
   type: volume
   name: gitlab_shell_logs
@@ -99,80 +99,150 @@ gitaly_logs:
   mounts:
     - service: gitaly
       target: /var/log/gitaly
-rails_templates:
-  type: bind
-  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'rails'] | path_join }}"
-  read_only: true
+rails_gitlab_yml:
+  type: config
+  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'rails', 'gitlab.yml'] | path_join }}"
+  mode: "0444"
   mounts:
     - service: webservice
-      target: /var/opt/gitlab/config/templates
+      target: &rails_gitlab_yml_target /var/opt/gitlab/config/templates/gitlab.yml
     - service: sidekiq
-      target: /var/opt/gitlab/config/templates
+      target: *rails_gitlab_yml_target
     - service: migrations
-      target: /var/opt/gitlab/config/templates
-rails_secrets:
-  type: bind
-  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'secrets'] | path_join }}"
-  read_only: true
+      target: *rails_gitlab_yml_target
+rails_database_yml:
+  type: config
+  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'rails', 'database.yml'] | path_join }}"
+  mode: "0444"
   mounts:
     - service: webservice
-      target: /var/opt/gitlab/config/secrets
+      target: &rails_database_yml_target /var/opt/gitlab/config/templates/database.yml
     - service: sidekiq
-      target: /var/opt/gitlab/config/secrets
+      target: *rails_database_yml_target
     - service: migrations
-      target: /var/opt/gitlab/config/secrets
-workhorse_templates:
-  type: bind
-  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'workhorse'] | path_join }}"
-  read_only: true
+      target: *rails_database_yml_target
+rails_resque_yml:
+  type: config
+  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'rails', 'resque.yml'] | path_join }}"
+  mode: "0444"
   mounts:
-    - service: workhorse
-      target: /var/opt/gitlab/config/templates
+    - service: webservice
+      target: &rails_resque_yml_target /var/opt/gitlab/config/templates/resque.yml
+    - service: sidekiq
+      target: *rails_resque_yml_target
+    - service: migrations
+      target: *rails_resque_yml_target
+rails_cable_yml:
+  type: config
+  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'rails', 'cable.yml'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: webservice
+      target: &rails_cable_yml_target /var/opt/gitlab/config/templates/cable.yml
+    - service: sidekiq
+      target: *rails_cable_yml_target
+    - service: migrations
+      target: *rails_cable_yml_target
+rails_sidekiq_queues_yml:
+  type: config
+  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'rails', 'sidekiq_queues.yml'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: webservice
+      target: &rails_sidekiq_queues_yml_target /var/opt/gitlab/config/templates/sidekiq_queues.yml
+    - service: sidekiq
+      target: *rails_sidekiq_queues_yml_target
+    - service: migrations
+      target: *rails_sidekiq_queues_yml_target
+rails_secrets_yml:
+  type: secret
+  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'rails', 'secrets.yml'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: webservice
+      target: &rails_secrets_yml_target /var/opt/gitlab/config/templates/secrets.yml
+    - service: sidekiq
+      target: *rails_secrets_yml_target
+    - service: migrations
+      target: *rails_secrets_yml_target
+shell_secret:
+  type: secret
+  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'secrets', '.gitlab_shell_secret'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: webservice
+      target: &rails_shell_secret_target /var/opt/gitlab/config/secrets/.gitlab_shell_secret
+    - service: sidekiq
+      target: *rails_shell_secret_target
+    - service: migrations
+      target: *rails_shell_secret_target
+    - service: shell
+      target: /srv/gitlab-secrets/.gitlab_shell_secret
+    - service: gitaly
+      target: /etc/gitaly/.gitlab_shell_secret
 workhorse_secret:
-  type: bind
+  type: secret
   source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'secrets', '.gitlab_workhorse_secret'] | path_join }}"
-  read_only: true
+  mode: "0444"
   mounts:
     - service: workhorse
       target: /etc/gitlab/gitlab-workhorse/secret
     - service: webservice
       target: /srv/gitlab/.gitlab_workhorse_secret
-shell_templates:
-  type: bind
-  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'shell'] | path_join }}"
-  read_only: true
+workhorse_config:
+  type: config
+  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'workhorse', 'workhorse-config.toml'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: workhorse
+      target: /var/opt/gitlab/config/templates/workhorse-config.toml
+shell_config:
+  type: config
+  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'shell', 'config.yml'] | path_join }}"
+  mode: "0444"
   mounts:
     - service: shell
-      target: /srv/gitlab-config
-shell_secret:
-  type: bind
-  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'secrets', '.gitlab_shell_secret'] | path_join }}"
-  read_only: true
-  mounts:
-    - service: shell
-      target: /srv/gitlab-secrets/.gitlab_shell_secret
+      target: /srv/gitlab-config/config.yml
 gitaly_config:
-  type: bind
-  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'gitaly'] | path_join }}"
-  read_only: true
+  type: config
+  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'gitaly', 'config.toml'] | path_join }}"
+  mode: "0444"
   mounts:
     - service: gitaly
-      target: /etc/gitaly
-hostkeys:
-  type: bind
-  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'hostkeys'] | path_join }}"
-  read_only: true
+      target: /etc/gitaly/templates/config.toml
+hostkey_rsa:
+  type: secret
+  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'hostkeys', 'ssh_host_rsa_key'] | path_join }}"
+  mode: "0444"
   mounts:
     - service: shell
-      target: /srv/ssh-hostkeys
+      target: /srv/ssh-hostkeys/ssh_host_rsa_key
+hostkey_ed25519:
+  type: secret
+  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'hostkeys', 'ssh_host_ed25519_key'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: shell
+      target: /srv/ssh-hostkeys/ssh_host_ed25519_key
 smtp_initializer:
-  type: bind
+  type: config
   source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'smtp_settings.rb'] | path_join }}"
-  read_only: true
+  mode: "0444"
   mounts:
     - service: webservice
-      target: /srv/gitlab/config/initializers/smtp_settings.rb
-      when: "{{ lookup('email', 'web-app-gitlab').enabled | bool }}"
+      target: &smtp_initializer_target /srv/gitlab/config/initializers/smtp_settings.rb
+      when: &smtp_initializer_when "{{ lookup('email', 'web-app-gitlab').enabled | bool }}"
     - service: sidekiq
-      target: /srv/gitlab/config/initializers/smtp_settings.rb
-      when: "{{ lookup('email', 'web-app-gitlab').enabled | bool }}"
+      target: *smtp_initializer_target
+      when: *smtp_initializer_when
+oidc_http_discovery_initializer:
+  type: config
+  source: "{{ [lookup('container', 'web-app-gitlab', 'directories.config'), 'oidc_http_discovery.rb'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: webservice
+      target: &oidc_http_discovery_target /srv/gitlab/config/initializers/oidc_http_discovery.rb
+      when: &oidc_http_discovery_when "{{ lookup('config', 'web-app-gitlab', 'services.sso.enabled') | bool }}"
+    - service: sidekiq
+      target: *oidc_http_discovery_target
+      when: *oidc_http_discovery_when

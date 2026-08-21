@@ -1,5 +1,5 @@
 ---
-- name: "Enable systemctl service"
+- name: "🔧 Enable systemctl service"
   systemd:
     name: "{{ system_service_name }}"
     enabled: true
@@ -9,7 +9,7 @@
   async: "{{ system_service_async }}"
   poll: "{{ system_service_poll }}"
 
-- name: "Set systemctl service state"
+- name: "🔧 Set systemctl service state"
   systemd:
     name: "{{ system_service_name }}"
     state: "{{ system_service_state }}"
@@ -21,7 +21,7 @@
   register: systemd_set_state
   failed_when: false
 
-- name: sys-service | Read unit Result (oneshot-safe)
+- name: 🔍 sys-service | Read unit Result (oneshot-safe)
   ansible.builtin.command:
     argv:
       - systemctl
@@ -35,7 +35,7 @@
   changed_when: false
   failed_when: false
 
-- name: sys-service | Read unit ExecMainStatus (oneshot-safe)
+- name: 🔍 sys-service | Read unit ExecMainStatus (oneshot-safe)
   ansible.builtin.command:
     argv:
       - systemctl
@@ -49,7 +49,7 @@
   changed_when: false
   failed_when: false
 
-- name: sys-service | Show diagnostics on failure
+- name: 🐛 sys-service | Show diagnostics on failure
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/debug.yml"
   vars:
     system_service_debug_unit: "{{ system_service_name }}"

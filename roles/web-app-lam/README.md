@@ -16,6 +16,7 @@ The diagram places LAM in the Infinito.Nexus cosmos: the components it deploys (
 flowchart LR
     subgraph deps [Dependencies]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
@@ -32,8 +33,10 @@ flowchart LR
         svc_sso["sso"]
         svc_css["css"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
     end
     dep_svc_db_openldap -- "1:1" --> svc_ldap
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_matomo -. "0..1" .-> svc_matomo
@@ -42,7 +45,7 @@ flowchart LR
     dep_web_svc_logout -. "0..1" .-> svc_logout
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
@@ -92,6 +95,20 @@ docker run --rm -it \
 ## Further Resources
 
 - [LDAP Account Manager Official Website](https://www.ldap-account-manager.org/)
+
+## Persona contract opt-outs
+
+[`meta/services.yml`](./meta/services.yml) admits only the `web-app-lam` administrator RBAC group to the oauth2-proxy (`sso.oauth2.allowed_groups`), and `biber` carries an empty role list in the development inventory. The proxy denies `biber` before LAM is ever reached, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true`.
+
+`PERSONA_ADMINISTRATOR_BLOCKED=true` is declared for a second, independent reason, and two separate obstacles justify it.
+
+LAM's entry point is not `${APP_BASE_URL}/`. That path answers with a redirect to `/lam/`, whose body is nothing but `<meta http-equiv="refresh" content="0; URL=templates/login.php">`. The shared persona helper samples the DOM for a password field the moment its navigation settles, which is on that empty interstitial, and its fallback paths `/login`, `/admin/` and `/admin` all return 404 at the vhost root — so the login form is never reached. CI traces for the SSO-disabled variants confirm the helper issues no form submission at all, and LAM's own access log records no POST.
+
+Behind that sits a second, smaller mismatch. LAM authenticates by binding an LDAP DN from its `Admins` list, which [`templates/env.j2`](./templates/env.j2) fills with `LDAP.DN.ADMINISTRATOR.DATA` and `LDAP.BIND_CREDENTIAL` — the `svc-db-openldap` `credentials.administrator_database_password` — while the shared helper types `lookup('users', 'administrator').password`, the secret of `uid=administrator,ou=users,…`, a different directory entry. That one is configurable rather than structural: the helper reads `ADMIN_NATIVE_PASSWORD` for exactly this case, and the role could render it. It is recorded here so the opt-out can be revisited together with the entry-point problem, which is the blocking one.
+
+In the SSO-enabled variant the Keycloak round trip satisfies the oauth2-proxy but leaves LAM itself signed out, so the persona lands back on LAM's own login form and finds no logout control there.
+
+The `guest` persona and the role-local reachability, TLS and HSTS assertions run unconditionally.
 
 ## Credits
 

@@ -60,15 +60,9 @@ from . import PROJECT_ROOT
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-# Top-level path segments where YAML files are scanned. Files outside
-# these dirs (notably tests/, docs/) are exempt from the lint.
 SCAN_DIRS = ("roles", "tasks", "playbooks", ".github")
 MAX_LINES = 11
 
-# Ansible task keys that take a script body, plus GitHub Actions' `run`.
-# Both bare (`shell:`) and FQCN (`ansible.builtin.shell:`, `ansible.legacy.shell:`,
-# `ansible.windows.win_shell:`) forms are matched — they are interchangeable in
-# Ansible and must be linted identically.
 _BLOCK_KEY_RE = re.compile(
     r"""^(?P<indent>[ \t]*)             # leading indent (captured)
         (?:-\s+)?                        # optional YAML list dash
@@ -142,7 +136,6 @@ def _block_body(lines: list[str], start: int, outer_indent: int) -> list[str]:
         if _line_indent(line) <= outer_indent:
             break
         body.append(line)
-    # Trim trailing blank lines — they don't belong to the block.
     while body and body[-1].strip() == "":
         body.pop()
     return body
@@ -160,9 +153,6 @@ def _count_logical_lines(body: list[str]) -> int:
             continue
         if not in_continuation:
             count += 1
-        # Trim trailing whitespace, then check if the line ends with `\`.
-        # An even number of trailing backslashes is an escaped backslash,
-        # NOT a continuation; odd number means continuation.
         stripped = raw.rstrip()
         backslashes = len(stripped) - len(stripped.rstrip("\\"))
         in_continuation = (backslashes % 2) == 1
@@ -198,7 +188,6 @@ def _scan_file(path: Path) -> list[Finding]:
                     logical_lines=logical,
                 )
             )
-        # Skip past the block body so we don't re-scan its inner lines.
         i += 1 + len(body)
 
     return findings

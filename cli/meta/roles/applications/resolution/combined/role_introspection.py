@@ -109,15 +109,11 @@ def load_shared_service_roles_for_app(
         if not cfg_path.exists():
             return []
         services_map = load_yaml_file(cfg_path)
-    # Per the meta/services.yml file root IS the services map.
-    # resolve_direct_service_roles_from_config still expects the legacy
-    # `{"services": {...}}` envelope, so wrap accordingly.
     cfg = {"services": services_map} if isinstance(services_map, dict) else {}
 
     try:
         includes = resolve_direct_service_roles_from_config(cfg)
     except ServicesResolutionError as exc:
-        # Keep combined's error type for consistent UX
         raise CombinedResolutionError(str(exc)) from exc
 
     for r in includes:

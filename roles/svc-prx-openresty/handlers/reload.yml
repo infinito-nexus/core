@@ -1,0 +1,32 @@
+---
+# Vhosts, redirect configs and body_filter Lua all land under
+# directories.configuration.base, which sits inside the conf.d DIRECTORY bind.
+# A directory keeps its inode across an atomic file write, so the running
+# container already sees the new file and SIGHUP is enough -- unlike
+# nginx.conf, which is bound as a FILE and whose inode the task pins at create
+# time (see restart.yml).
+- name: ✅ Validate OpenResty configuration before reloading
+  ansible.builtin.shell: >
+    container exec {{ lookup('container_address', 'svc-prx-openresty', 'openresty') }} openresty -t -q
+  register: openresty_test_reload
+  changed_when: false
+  retries: 10
+  delay: 3
+  until: openresty_test_reload.rc == 0
+  failed_when: >
+    openresty_test_reload.rc != 0 and
+    ('is not running' not in ((openresty_test_reload.stderr | default('')) | lower)) and
+    ('no such container' not in ((openresty_test_reload.stderr | default('')) | lower)) and
+    ('is restarting' not in ((openresty_test_reload.stderr | default('')) | lower))
+
+- name: ♻️ Reload OpenResty
+  ansible.builtin.shell: >
+    container exec {{ lookup('container_address', 'svc-prx-openresty', 'openresty') }} openresty -s reload
+  register: openresty_reload
+  changed_when: openresty_reload.rc == 0
+  failed_when: >
+    openresty_reload.rc != 0 and
+    ('is not running' not in ((openresty_reload.stderr | default('')) | lower)) and
+    ('no such container' not in ((openresty_reload.stderr | default('')) | lower)) and
+    ('is restarting' not in ((openresty_reload.stderr | default('')) | lower))
+  when: openresty_test_reload.rc == 0

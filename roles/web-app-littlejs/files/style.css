@@ -1,10 +1,9 @@
 /* Global Base Styling */
 body {
-    /* Use Infinito.Nexus color scheme variables */
     background-color: var(--color-01-90);
     color: var(--color-01-05);
     min-height: 100vh;
-    padding-bottom: 4rem; /* Space for footer bar */
+    padding-bottom: 4rem;
 }
 
 /* Card Styling (Infinito.Nexus Homepage Style) */
@@ -61,7 +60,7 @@ body {
 
 .dropdown-menu .dropdown-submenu > .dropdown-menu {
     top: 0;
-    right: 100%;      /* statt left:100%; */
-    left: auto;       /* überschreibt Bootstrap default */
+    right: 100%;
+    left: auto;
     margin-right: .1rem;
 }

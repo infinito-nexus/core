@@ -20,13 +20,10 @@ from utils.cache.files import iter_non_ignored_files, read_text
 
 from . import PROJECT_ROOT
 
-# Matches markdown inline links: [text](target) and image links ![alt](target).
 _MD_LINK_RE = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
 
-# Fenced code block openers/closers (``` or ~~~, at least 3 chars).
 _FENCE_RE = re.compile(r"^\s*(`{3,}|~{3,})")
 
-# Prefixes that identify non-file references — skip these entirely.
 _SKIP_PREFIXES = (
     "http://",
     "https://",
@@ -54,9 +51,6 @@ def _tracked_md_files(root: Path) -> list[Path]:
         rel_paths = [p for p in out.decode("utf-8", errors="replace").split("\0") if p]
         return [root / rel for rel in rel_paths if rel.endswith(".md")]
     except Exception:
-        # Fallback path (e.g. sandbox without git subprocess): walk the
-        # worktree but skip gitignored files so vendored skill packages
-        # under `.agents/` and `.claude/skills/` do NOT count.
         return [Path(p) for p in iter_non_ignored_files(extensions=(".md",))]
 
 
@@ -72,8 +66,6 @@ def _is_checkable_link(target: str) -> bool:
         return False
     if any(target.startswith(prefix) for prefix in _SKIP_PREFIXES):
         return False
-    # Skip placeholder targets used in documentation examples (e.g. [...](...)
-    # where the target consists only of dots and slashes).
     stripped = target.split("#", maxsplit=1)[0]
     return not (stripped and all(c in "./" for c in stripped))
 
@@ -102,7 +94,7 @@ def _extract_links(file: Path) -> list[tuple[int, str]]:
     for line_no, line in enumerate(lines, start=1):
         fence_match = _FENCE_RE.match(line)
         if fence_match:
-            opener = fence_match.group(1)[0]  # ` or ~
+            opener = fence_match.group(1)[0]
             if not in_fence:
                 in_fence = True
                 fence_char = opener

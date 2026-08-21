@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Draw the docker data-root filesystem for the distro iteration in progress and
-# leave the decision in the calling shell's environment.
+# Settle the docker data-root filesystem for the deploy in progress and leave the
+# decision in the calling shell's environment.
 #
 # Sourced rather than executed: resolve.sh hands its answer over a file in the
 # GITHUB_ENV format, and the caller needs those values in its own environment,
@@ -20,8 +20,11 @@
 #
 # Reads:
 #   INFINITO_DOCKER_FILESYSTEM_ALLOWED  space-separated subset of
-#                                       'ext4 btrfs zfs' the draw may use;
-#                                       empty draws from all three
+#                                       'ext4 btrfs zfs' the run permits;
+#                                       empty permits all three
+#   INFINITO_DOCKER_FILESYSTEM_PICK     the kind the matrix assigned this row
+#   INFINITO_DOCKER_FILESYSTEM_ENFORCED 'true' when a human named that kind, so
+#                                       a host that cannot deliver it fails
 #   INFINITO_DISTRO                     distro under test, recorded with the pick
 
 # Param: $1 label the pick belongs to, e.g. compose/web-app-gitea/debian
@@ -44,7 +47,9 @@ filesystem_pick() {
 		"${INFINITO_DOCKER_FILESYSTEM_ALLOWED:-}" \
 		"${label}" \
 		"${INFINITO_DISTRO:-}" \
-		"${scope}"
+		"${scope}" \
+		"${INFINITO_DOCKER_FILESYSTEM_ENFORCED:-}" \
+		"${INFINITO_DOCKER_FILESYSTEM_PICK:-}"
 
 	set -a
 	# shellcheck source=/dev/null

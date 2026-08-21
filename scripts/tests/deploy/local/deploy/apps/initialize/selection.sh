@@ -70,8 +70,6 @@ if [[ $# -gt 0 ]]; then
 	exit 2
 fi
 
-# INFINITO_DISTRO is set by scripts/meta/env/load.sh (single SPOT,
-# defaults to debian) — no local fallback here.
 INFINITO_INVENTORY_DIR="${INFINITO_INVENTORY_DIR:-}"
 
 if [[ -z "${INFINITO_INVENTORY_DIR}" ]]; then
@@ -121,7 +119,6 @@ if [[ "${INFINITO_DEBUG}" == "true" ]]; then
 	deploy_cmd+=(--debug)
 fi
 
-# NOTE: --skip-cleanup keeps cleanup routines disabled during this local test run.
 deploy_cmd+=(-- --skip-backup --skip-cleanup --limit "${INFINITO_LIMIT_HOST}")
 
 echo ">>> Deploying app '${apps}'"

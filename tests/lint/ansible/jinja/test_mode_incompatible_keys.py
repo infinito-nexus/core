@@ -47,30 +47,18 @@ class ModeRule:
     extra_regexes: tuple[re.Pattern[str], ...] = field(default_factory=tuple)
 
 
-# Shared regexes for the `compose_only` lookup's broken call shapes. The
-# lookup name is matched with both quote styles; the literal key term
-# (`'container_name'` or `'pull_policy'` etc.) is the second positional
-# argument right after the lookup name.
 _CO_LOOKUP_NAME = r"""['"]compose_only['"]"""
-# Split-Jinja form: `{{ lookup('compose_only', 'key', A }}-{{ B) }}` ->
-# the outer `{{ }}` closes mid-call, Jinja raises a parse error.
 _CO_BROKEN_SPLIT = re.compile(
     rf"lookup\(\s*{_CO_LOOKUP_NAME}\s*,[^)]*\}}\}}[^{{]*\{{\{{",
 )
-# Embedded-Jinja-in-literal-string form: `lookup('compose_only', 'key',
-# "{{ X }}_suffix")` — deprecated in ansible-core 2.23. Use tilde
-# concatenation: `X ~ '_suffix'`.
 _CO_BROKEN_EMBED = re.compile(
     rf"lookup\(\s*{_CO_LOOKUP_NAME}\s*,\s*['\"][^'\"]*['\"]\s*,\s*['\"][^'\"]*\{{\{{",
 )
 
-# container-name regex --------------------------------------------------
 _CN_RAW = re.compile(r"(?m)^\s*container_name\s*:")
 
-# pull-policy regex -----------------------------------------------------
 _PP_RAW = re.compile(r"(?m)^\s*pull_policy\s*:")
 
-# restart-key regex -----------------------------------------------------
 _RESTART_RAW = re.compile(r"(?m)^\s*restart\s*:")
 
 
@@ -149,8 +137,6 @@ def _hits_for(text: str, rule: ModeRule) -> set[int]:
     return hits
 
 
-# Fast pre-filter substrings per rule: skip the regex if the literal key
-# does not appear in the file at all. Cheap text-membership check.
 _PREFILTER: dict[str, tuple[str, ...]] = {
     "container-name": ("container_name",),
     "pull-policy-key": ("pull_policy",),

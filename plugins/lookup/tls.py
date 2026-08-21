@@ -13,8 +13,10 @@ from ansible.plugins.lookup import LookupBase
 
 from utils.tls_common import (
     AVAILABLE_FLAVORS,
+    align_domain_to_consumer,
     as_str,
     collect_domains_for_app,
+    norm_domain,
     require,
     resolve_enabled,
     resolve_mode,
@@ -28,8 +30,6 @@ class LookupModule(LookupBase):
     def run(self, terms, variables: dict | None = None, **kwargs):
         variables = variables or {}
 
-        # New API: want-path is the 2nd positional term.
-        # Legacy 'want=' kwarg is ignored (no error) to keep tasks noise-free.
         if not terms or len(terms) not in (1, 2):
             raise AnsibleError(
                 "tls: one or two terms required: (domain|application_id[, want_path])"
@@ -66,6 +66,17 @@ class LookupModule(LookupBase):
             err_prefix="tls",
         )
 
+        if forced_mode == "app" or (forced_mode == "auto" and "." not in term):
+            primary_domain = norm_domain(
+                align_domain_to_consumer(
+                    domains,
+                    app_id,
+                    primary_domain,
+                    variables=variables,
+                    templar=templar,
+                )
+            )
+
         all_domains = collect_domains_for_app(domains, app_id, err_prefix="tls")
         all_domains = (
             uniq_preserve([primary_domain, *all_domains])
@@ -77,7 +88,9 @@ class LookupModule(LookupBase):
         if not isinstance(app, dict):
             app = {}
 
-        enabled = resolve_enabled(app, bool(enabled_default))
+        enabled = resolve_enabled(
+            app, bool(enabled_default), primary_domain=primary_domain
+        )
         mode = resolve_mode(app, enabled, mode_default, err_prefix="tls")
 
         if mode not in {"off"} | AVAILABLE_FLAVORS:

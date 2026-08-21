@@ -87,8 +87,6 @@ class Finding:
     suggestion: str
 
 
-# Only treat "docker ..." as a command when it appears in a command-like context.
-# i.e. start of line or after common shell operators / subshell / command substitution.
 _CMD_PREFIX = r"""
 (?:
     ^\s*                                  # line start
@@ -100,12 +98,9 @@ _CMD_PREFIX = r"""
 )
 """
 
-# Optional sudo and optional absolute path to docker binary.
 _DOCKER_BIN = r"(?:sudo\s+)?(?:/usr/bin/|/bin/|/usr/local/bin/)?docker"
 _DOCKER_COMPOSE_BIN = r"(?:sudo\s+)?(?:/usr/bin/|/bin/|/usr/local/bin/)?docker-compose"
 
-# Allowlist of real docker top-level subcommands that you consider "valid invocations".
-# Extend when needed (keep it explicit to avoid false positives).
 _DOCKER_SUBCOMMANDS = (
     "run",
     "exec",
@@ -140,7 +135,6 @@ _DOCKER_SUBCOMMANDS = (
     "context",
 )
 
-# Allowlist of compose verbs (docker compose <verb> / docker-compose <verb>)
 _COMPOSE_VERBS = (
     "up",
     "down",
@@ -161,7 +155,6 @@ _COMPOSE_VERBS = (
     "top",
 )
 
-# Compile patterns with VERBOSE for readability.
 RE_DOCKER_CMD = re.compile(
     rf"{_CMD_PREFIX}{_DOCKER_BIN}\s+(?:{'|'.join(map(re.escape, _DOCKER_SUBCOMMANDS))})\b",
     re.IGNORECASE | re.VERBOSE,
@@ -177,7 +170,6 @@ RE_DOCKER_DASH_COMPOSE_CMD = re.compile(
     re.IGNORECASE | re.VERBOSE,
 )
 
-# Rules: order matters (prefer specific messages)
 RULES: tuple[tuple[str, re.Pattern, str], ...] = (
     (
         "docker compose usage",
@@ -196,27 +188,14 @@ RULES: tuple[tuple[str, re.Pattern, str], ...] = (
     ),
 )
 
-# YAML-only rules. The line-anchored RULES above cannot see two patterns
-# that are extremely common in Ansible task files: argv lists split
-# across lines, and inline scalars where docker follows a YAML key. Both
-# must use the wrapper. Restrict these rules to .yml/.yaml files to keep
-# unrelated text immune.
 YAML_SUFFIXES: tuple[str, ...] = (".yml", ".yaml")
 
-# Multi-line scan: any `argv:` block whose first/any element is the
-# bareword `docker`. The intermediate lines (between `argv:` and the
-# offending `- docker` item) must each themselves be list items so the
-# match cannot jump across unrelated sections. The {0,40} cap keeps the
-# search bounded.
 RE_ARGV_DOCKER_BLOCK = re.compile(
     r"""argv:[ \t]*\r?\n"""
     r"""(?:[ \t]*-[ \t]+[^\r\n]*\r?\n){0,40}?"""
     r"""(?P<offender>[ \t]*-[ \t]+['"]?docker['"]?[ \t]*\r?\n)""",
 )
 
-# Single-line scan: a Jinja/Ansible task key whose scalar value begins
-# with `docker <subcommand>`. Matches both quoted and unquoted forms and
-# both fully-qualified (`ansible.builtin.shell:`) and short keys.
 RE_YAML_KEY_DOCKER_INLINE = re.compile(
     rf"""^\s*(?:-\s*)?(?:ansible\.builtin\.)?(?:shell|command|raw|cmd)\s*:"""
     rf"""\s*['"]?(?:sudo\s+)?(?:/usr/bin/|/bin/|/usr/local/bin/)?docker\s+"""
@@ -224,13 +203,6 @@ RE_YAML_KEY_DOCKER_INLINE = re.compile(
     re.IGNORECASE,
 )
 
-# Native `community.docker.docker_container_exec` Ansible module used as
-# a YAML task key. It pins the playbook to Docker just as hard as raw
-# `docker exec` CLI does and must be replaced by an
-# `ansible.builtin.command`/`shell` invocation of the `compose exec` /
-# `container exec` wrapper. Other `community.docker.*` modules
-# (network create, container start with image+args, host_info) have no
-# clean wrapper equivalent and are intentionally not flagged here.
 RE_YAML_COMMUNITY_DOCKER_MODULE = re.compile(
     r"""^\s*(?:-\s*)?(?P<module>community\.docker\.docker_container_exec)\s*:""",
 )
@@ -300,7 +272,7 @@ def scan_text(text: str, rel: str) -> list[Finding]:
     """Apply every rule to `text`. `rel` is the project-relative POSIX
     path used for diagnostic messages and YAML-rule gating."""
     findings: list[Finding] = []
-    seen_offenders = set()  # line_no — dedupe across single+multi-line passes
+    seen_offenders = set()
 
     for idx, line in enumerate(text.splitlines(), start=1):
         for rule_name, pattern, suggestion in RULES:
@@ -354,19 +326,10 @@ def format_findings(findings: Sequence[Finding]) -> str:
     return "\n".join(lines)
 
 
-# Extensions where the wrapper convention applies inside `roles/`:
-# Ansible task/var/meta YAML, Jinja2 templates, and bundled shell
-# scripts that ship as role files. Documentation (.md), JSON config,
-# and Python sources under roles/ are out of scope.
 SCAN_EXTENSIONS: tuple[str, ...] = (".yml", ".yaml", ".j2", ".sh")
 
-# Project-relative path prefix that scopes the scan. Every file outside
-# this prefix is skipped before any rule fires.
 SCAN_PATH_PREFIX: str = "roles/"
 
-# Rule key under the unified suppression grammar. See
-# docs/contributing/actions/testing/suppression.md. File-level head
-# scans cover the first 30 lines (matches the catalog default).
 SUPPRESS_RULE: str = "raw-docker"
 HEAD_SCAN_LINES: int = 30
 

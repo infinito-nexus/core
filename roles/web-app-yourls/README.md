@@ -16,6 +16,7 @@ The diagram places YOURLS in the Infinito.Nexus cosmos: the components it deploy
 flowchart LR
     subgraph deps [Dependencies]
         dep_svc_db_mariadb["svc-db-mariadb 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
@@ -34,18 +35,21 @@ flowchart LR
         svc_css["css"]
         svc_email["email ❌"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
     end
     dep_svc_db_mariadb -. "0..1" .-> svc_mariadb
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -. "0..1" .-> svc_sso
-    dep_web_app_mailu -- "1:1" --> svc_email
+    dep_web_app_mailu -- "0..0" --> svc_email
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_svc_css -. "0..1" .-> svc_css
     dep_web_svc_logout -. "0..1" .-> svc_logout
+    linkStyle 4 stroke:red;
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
@@ -106,6 +110,11 @@ docker run --rm -it \
 
 - [YOURLS Official Website](https://yourls.org/)
 - [YOURLS GitHub Repository](https://github.com/YOURLS/YOURLS)
+
+## Persona contract opt-outs
+
+YOURLS has no native SSO; the admin session is minted from the oauth2-proxy identity header by the `shunt_is_valid_user` drop-in in [`files/sso/infinito_sso.php`](./files/sso/infinito_sso.php), which honours the header only on the gated admin path and only for members of the YOURLS administrator group.
+The gate itself admits only that same RBAC group ([`meta/services.yml`](./meta/services.yml)), so `biber` is rejected before YOURLS renders anything: [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true`, and the denial is asserted explicitly by `files/playwright/test-biber-denied.js`. The `administrator` persona stays live and exercises the bridge end to end.
 
 ## Credits
 

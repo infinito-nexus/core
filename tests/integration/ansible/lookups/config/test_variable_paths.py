@@ -12,6 +12,12 @@ a fully-literal lookup (which lands in :mod:`test_literal_paths`):
 import unittest
 from collections.abc import Iterable, Mapping
 
+from utils.manager.credential_key import (
+    CREDENTIALS_KEY,
+    OVERRIDE_SECTION,
+    SECRETS_KEY,
+)
+
 from ._scan import LookupMatch, get_context, iter_matches
 from ._validate import PathNotFoundError, assert_nested
 
@@ -23,7 +29,6 @@ def _build_variable_paths(
     for m in matches:
         if m.kind != "literal":
             continue
-        # A literal app + complete path goes to literal_paths, not here.
         if m.app_literal is not None and not m.path_arg.endswith("."):
             continue
         out.setdefault(m.path_arg, []).append((m.file, m.lineno))
@@ -71,15 +76,22 @@ class TestVariablePaths(unittest.TestCase):
                 if ok:
                     return True
 
-        if dotted.startswith("credentials."):
-            key = dotted.split(".", 1)[1]
+        if dotted.startswith(f"{OVERRIDE_SECTION}."):
+            key = dotted.split(f"{OVERRIDE_SECTION}.", 1)[1]
             for cfg in ctx.application_defaults.values():
-                creds = cfg.get("credentials", {}) if isinstance(cfg, Mapping) else {}
+                secrets = cfg.get(SECRETS_KEY, {}) if isinstance(cfg, Mapping) else {}
+                creds = (
+                    secrets.get(CREDENTIALS_KEY, {})
+                    if isinstance(secrets, Mapping)
+                    else {}
+                )
                 if isinstance(creds, Mapping) and key in creds:
                     return True
             for schema in ctx.role_schemas.values():
                 creds = (
-                    schema.get("credentials", {}) if isinstance(schema, Mapping) else {}
+                    schema.get(CREDENTIALS_KEY, {})
+                    if isinstance(schema, Mapping)
+                    else {}
                 )
                 if isinstance(creds, Mapping) and key in creds:
                     return True

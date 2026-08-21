@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
-const { installCspViolationObserver } = require("./personas");
+const { installCspViolationObserver, gotoOnion } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
 // Auto-provisioned LDAP/Keycloak groups drive WordPress roles via the
@@ -46,7 +47,7 @@ exports.register = function (shared) {
       try {
         const adminKc = await newCtx();
         try {
-          await adminKc.page.goto(`${shared.env.keycloakBaseUrl}/admin/master/console/`);
+          await gotoOnion(adminKc.page, `${shared.env.keycloakBaseUrl}/admin/master/console/`);
           await shared.fillKeycloakLoginForm(
             adminKc.page,
             shared.env.superAdminUsername,
@@ -54,7 +55,7 @@ exports.register = function (shared) {
           );
           await expect
             .poll(() => adminKc.page.url(), {
-              timeout: 60_000,
+              timeout: resolveTimeout(60_000),
               message: "Expected to land in the Keycloak admin console",
             })
             .toContain("/admin/master/console/");
@@ -89,7 +90,7 @@ exports.register = function (shared) {
             shared.env.adminUsername,
             shared.env.adminPassword
           );
-          await wpAdmin.page.goto(`${shared.env.wpBaseUrl}/wp-admin/users.php`, {
+          await gotoOnion(wpAdmin.page, `${shared.env.wpBaseUrl}/wp-admin/users.php`, {
             waitUntil: "domcontentloaded",
           });
           const biberRow = wpAdmin.page
@@ -99,7 +100,7 @@ exports.register = function (shared) {
           await expect(
             biberRow,
             `Expected biber row to be visible on /wp-admin/users.php`
-          ).toBeVisible({ timeout: 30_000 });
+          ).toBeVisible({ timeout: resolveTimeout(30_000) });
           const rowText = (await biberRow.textContent()) || "";
           const expectedLabel = role.charAt(0).toUpperCase() + role.slice(1);
           expect(

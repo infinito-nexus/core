@@ -1,6 +1,7 @@
 const { expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLoginForm, runGuestFlow } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 const oidcEnabled    = isServiceEnabled("sso");
@@ -16,9 +17,9 @@ const biberPassword  = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
 
 async function zammadLogout(page) {
-  await page.goto(`${zammadBaseUrl}/#logout`, { waitUntil: "commit" }).catch(() => {});
+  await gotoOnion(page, `${zammadBaseUrl}/#logout`, { waitUntil: "commit" }).catch(() => {});
   if (oidcIssuerUrl) {
-    await page.goto(`${oidcIssuerUrl}/protocol/openid-connect/logout`, { waitUntil: "commit" }).catch(() => {});
+    await gotoOnion(page, `${oidcIssuerUrl}/protocol/openid-connect/logout`, { waitUntil: "commit" }).catch(() => {});
   }
   await page.context().clearCookies();
 }
@@ -54,13 +55,13 @@ async function signInAsApiBot(page) {
     throw new Error(`signin failed: ${signin.status()} ${await signin.text()}`);
   }
 
-  await page.goto(`${zammadBaseUrl}/`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${zammadBaseUrl}/`, { waitUntil: "domcontentloaded" });
 }
 
 async function signInViaZammadOidc(page, username, password, personaLabel) {
   const expectedOidcAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
 
-  await page.goto(`${zammadBaseUrl}/`);
+  await gotoOnion(page, `${zammadBaseUrl}/`);
 
   const oidcSignIn = page
     .locator("a, button")
@@ -68,14 +69,14 @@ async function signInViaZammadOidc(page, username, password, personaLabel) {
     .first();
 
   if ((await oidcSignIn.count().catch(() => 0)) > 0) {
-    await oidcSignIn.click();
+    await oidcSignIn.click({ timeout: resolveTimeout(30_000) });
   } else {
-    await page.goto(`${zammadBaseUrl}/auth/openid_connect`).catch(() => {});
+    await gotoOnion(page, `${zammadBaseUrl}/auth/openid_connect`).catch(() => {});
   }
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${personaLabel}: expected redirect to Keycloak OIDC auth (${expectedOidcAuthUrl})`
     })
     .toContain(expectedOidcAuthUrl);
@@ -84,7 +85,7 @@ async function signInViaZammadOidc(page, username, password, personaLabel) {
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${personaLabel}: expected redirect back to Zammad at ${zammadBaseUrl}`
     })
     .toContain(canonicalDomain);

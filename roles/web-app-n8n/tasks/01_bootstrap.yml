@@ -5,7 +5,7 @@
 # always returns 404) and avoids two n8n class-validator false-positives:
 # 1. @NoXss() on password: escapeHtml turns special chars (e.g. single quotes)
 #    to HTML entities, so the system admin password fails the check. Fix: use a
-#    dedicated alphanumeric owner_password (meta/schema.yml).
+#    dedicated alphanumeric owner_password (meta/secrets.yml).
 # 2. @NoUrl() on firstName/lastName: regex /(\.[\p{L}\d-]+)/iu flags ANY dot
 #    followed by letters — including org names like "Infinito.Nexus". Fix:
 #    replace dots with spaces before sending (see firstName/lastName below).

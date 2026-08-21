@@ -14,7 +14,7 @@
   retries: 5
   delay: 15
   until: sys_svc_container_packages_install is succeeded
-  notify: container manager restart
+  notify: container-manager-restart
 
 - name: 📦 Install Docker Python SDK dependencies via pip
   include_role:
@@ -29,7 +29,7 @@
 - name: 📦 Install container wrapper (container)
   become: true
   ansible.builtin.copy:
-    src: container.py
+    src: python/container.py
     dest: "{{ BIN_CONTAINER }}"
     mode: "0755"
     owner: root
@@ -54,7 +54,7 @@
 
 - name: "🔧 Resync dockerd when containerd restarted underneath it"
   become: true
-  ansible.builtin.script: reconcile_runtime.sh
+  ansible.builtin.script: shell/reconcile_runtime.sh
   register: sys_svc_container_runtime_reconcile
   changed_when: "'RECONCILED:' in sys_svc_container_runtime_reconcile.stdout"
   throttle: 1

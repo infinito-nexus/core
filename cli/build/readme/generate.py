@@ -54,7 +54,11 @@ def _role_author(role_dir) -> str:
     meta = load_yaml(role_dir / ROLE_FILE_META_MAIN, default_if_missing={})
     galaxy = meta.get("galaxy_info") if isinstance(meta, dict) else None
     author = galaxy.get("author") if isinstance(galaxy, dict) else None
-    return author.strip() if isinstance(author, str) and author.strip() else _DEFAULT_AUTHOR
+    return (
+        author.strip()
+        if isinstance(author, str) and author.strip()
+        else _DEFAULT_AUTHOR
+    )
 
 
 def _app_name(preamble: str, role_name: str) -> str:
@@ -88,7 +92,8 @@ def _cosmos_legend() -> str:
     symbol glossary so a glyph means the same thing everywhere."""
     return (
         f"Solid `1:1` edges are fixed relationships; dashed `0..1` edges are "
-        f"conditional (enabled only in matching deployments). Node markers "
+        f"conditional (enabled only in matching deployments); red `0..0` edges "
+        f"are turned off in this role. Node markers "
         f"show the role's deploy modes ({to_emoji('host')} host, "
         f"{to_emoji('compose')} compose, {to_emoji('swarm')} swarm); "
         f"{to_emoji('disabled')} marks a service that is explicitly turned "
@@ -105,9 +110,7 @@ def _managed_blocks(
     )
     parsed = parse_readme(rendered)
     return {
-        title: block
-        for title, block in parsed.sections
-        if title in MANAGED_SECTIONS
+        title: block for title, block in parsed.sections if title in MANAGED_SECTIONS
     }
 
 

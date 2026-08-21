@@ -21,7 +21,6 @@ class TestDomainUniqueness(unittest.TestCase):
         for app_name, app_cfg in apps.items():
             domains_cfg = app_cfg.get("server", {}).get("domains", {})
 
-            # canonical entries may be a list or a mapping
             canonical = domains_cfg.get("canonical", [])
             if isinstance(canonical, dict):
                 values = list(canonical.values())
@@ -32,7 +31,6 @@ class TestDomainUniqueness(unittest.TestCase):
                 if isinstance(d, str) and d.strip():
                     domain_to_apps[d].add(app_name)
 
-            # aliases entries may be a list or a mapping
             aliases = domains_cfg.get("aliases", [])
             if isinstance(aliases, dict):
                 values = list(aliases.values())
@@ -43,7 +41,6 @@ class TestDomainUniqueness(unittest.TestCase):
                 if isinstance(d, str) and d.strip():
                     domain_to_apps[d].add(app_name)
 
-        # Find duplicates: domains that appear in more than one app
         duplicates = {
             domain: list(apps)
             for domain, apps in domain_to_apps.items()

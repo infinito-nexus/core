@@ -10,7 +10,7 @@ Usage:
 No positional terms are accepted. Predicate logic delegates to
 ``utils.roles.applications.services.sso.get_sso_config`` so callers
 share one source of truth with ``lookup('sso', ..., 'is_proxy_gated')``
-and ``plugins/filter/compose_volumes.py``.
+and ``plugins/lookup/compose_volumes.py``.
 """
 
 from __future__ import annotations

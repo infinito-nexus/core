@@ -34,7 +34,7 @@ ODOO_ADMINISTRATOR_USERNAME: "{{ lookup('users', 'administrator').username }}"
 ODOO_ADMINISTRATOR_PASSWORD: "{{ lookup('users', 'administrator').password }}"
 ODOO_ADMINISTRATOR_EMAIL: "{{ lookup('users', 'administrator').email }}"
 
-ODOO_MASTER_PASSWORD: "{{ lookup('config', application_id, 'credentials.master_password') }}"
+ODOO_MASTER_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.master_password') }}"
 
 ODOO_MODULES_CORE: "{{ lookup('config', application_id, 'addons') | dict2items | selectattr('value.group','equalto','core') | map(attribute='key') | list }}"
 ODOO_MODULES_OPTIONAL: "{{ lookup('config', application_id, 'addons') | dict2items | selectattr('value.group','equalto','optional') | map(attribute='key') | list

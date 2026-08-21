@@ -65,7 +65,7 @@ def apply_mirror_overrides(host_vars_file: Path, mirrors_file: Path) -> None:
     mirrors_apps = mirrors_raw.get("applications", {}) or {}
     has_applications = isinstance(mirrors_apps, dict) and bool(mirrors_apps)
     if not has_applications:
-        return  # no-op
+        return
 
     yaml_rt = YAML(typ="rt")
     yaml_rt.preserve_quotes = True
@@ -129,7 +129,6 @@ def apply_mirror_overrides(host_vars_file: Path, mirrors_file: Path) -> None:
                         changed = True
                     continue
 
-                # if_missing (default)
                 if _is_blank(svc_doc.get("image")):
                     svc_doc["image"] = image
                     changed = True

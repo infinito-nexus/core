@@ -19,6 +19,7 @@ flowchart LR
         dep_svc_db_mariadb["svc-db-mariadb 🐳🐝"]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
         dep_svc_db_redis["svc-db-redis 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
@@ -41,12 +42,14 @@ flowchart LR
         svc_sso["sso"]
         svc_css["css"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
         svc_container_backup["container_backup"]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_mariadb -. "0..1" .-> svc_mariadb
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
     dep_svc_db_redis -. "0..1" .-> svc_redis
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
@@ -57,7 +60,7 @@ flowchart LR
     dep_web_svc_logout -. "0..1" .-> svc_logout
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
@@ -133,6 +136,11 @@ docker run --rm -it \
 - [Snipe‑IT Official Documentation](https://snipe-it.readme.io/)
 - [Mattermost SSO Integration Guide](https://docs.mattermost.com/onboard/sso-saml-keycloak.html)
 - [Additional GitHub Issues and Discussions](https://github.com/snipe/snipe-it/issues)
+
+## Persona contract opt-outs
+
+Snipe-IT is entered through a trusted-header bridge: the oauth2-proxy authenticates against Keycloak and Snipe-IT's `loginViaRemoteUser()` mints a native session for the matching `users.username` row (see [`files/php/apply/sso_config.php`](./files/php/apply/sso_config.php)). The gate declares no `allowed_groups`, so `biber` passes the proxy — but the role provisions only the administrator account ([`tasks/03_admin.yml`](./tasks/03_admin.yml)), so the header carries a username Snipe-IT does not know and the visitor falls back to the native login form.
+[`templates/playwright.env.j2`](./templates/playwright.env.j2) therefore declares `PERSONA_BIBER_BLOCKED=true`, while the `administrator` persona stays live (`PERSONA_ADMINISTRATOR_BLOCKED=false`) and exercises the full bridge end to end.
 
 ## Credits
 

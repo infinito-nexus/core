@@ -1,0 +1,4 @@
+---
+canonical:
+  - mirror.{{ DOMAIN_PRIMARY }}
+aliases: []

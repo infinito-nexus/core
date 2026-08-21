@@ -6,15 +6,16 @@ ARG ESPOCRM_SCRIPT_SEED_HOST_REL
 ARG ESPOCRM_SCRIPT_SEED_DOCKER
 ARG ESPOCRM_ENTRYPOINT_SCRIPT_HOST_REL
 ARG ESPOCRM_ENTRYPOINT_SCRIPT_DOCKER
+ARG ESPOCRM_ENTRYPOINT_SCRIPT_ORIGINAL
 
 RUN cp -a /usr/src/espocrm/. /var/www/html/
 
 # Exception: upstream v10 entrypoint hardcodes `set-password admin`, killing installs with a non-default admin name; the grep guard fails the build if the line changes.
-RUN sed -i 's|bin/command set-password admin |bin/command set-password "$ESPOCRM_ADMIN_USERNAME" |' /usr/local/bin/docker-entrypoint.sh \
-    && grep -qF 'set-password "$ESPOCRM_ADMIN_USERNAME"' /usr/local/bin/docker-entrypoint.sh
+RUN sed -i 's|bin/command set-password admin |bin/command set-password "$ESPOCRM_ADMIN_USERNAME" |' ${ESPOCRM_ENTRYPOINT_SCRIPT_ORIGINAL} \
+    && grep -qF 'set-password "$ESPOCRM_ADMIN_USERNAME"' ${ESPOCRM_ENTRYPOINT_SCRIPT_ORIGINAL}
 
-RUN sed -i 's#bin/command create-admin-user "$ESPOCRM_ADMIN_USERNAME" >/dev/null 2>&1#bin/command create-admin-user "$ESPOCRM_ADMIN_USERNAME" >/dev/null 2>\&1 || true#' /usr/local/bin/docker-entrypoint.sh \
-    && grep -qF 'create-admin-user "$ESPOCRM_ADMIN_USERNAME" >/dev/null 2>&1 || true' /usr/local/bin/docker-entrypoint.sh
+RUN sed -i 's#bin/command create-admin-user "$ESPOCRM_ADMIN_USERNAME" >/dev/null 2>&1#bin/command create-admin-user "$ESPOCRM_ADMIN_USERNAME" >/dev/null 2>\&1 || true#' ${ESPOCRM_ENTRYPOINT_SCRIPT_ORIGINAL} \
+    && grep -qF 'create-admin-user "$ESPOCRM_ADMIN_USERNAME" >/dev/null 2>&1 || true' ${ESPOCRM_ENTRYPOINT_SCRIPT_ORIGINAL}
 
 COPY ${ESPOCRM_SCRIPT_SEED_HOST_REL} ${ESPOCRM_SCRIPT_SEED_DOCKER}
 RUN chmod +x ${ESPOCRM_SCRIPT_SEED_DOCKER}

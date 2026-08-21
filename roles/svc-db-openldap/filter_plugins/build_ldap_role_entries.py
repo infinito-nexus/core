@@ -207,7 +207,6 @@ def build_ldap_role_entries(applications, users, ldap, group_names=None):
                         (role_cn, role_dn, role_name, member_uids, member_dns)
                     )
 
-        # Tenant containers reference per-tenant role groups.
         for tenant in tenants:
             tenant_cn = f"{application_id}-{tenant}"
             tenant_dn = f"cn={tenant_cn},{role_dn_base}"
@@ -221,7 +220,6 @@ def build_ldap_role_entries(applications, users, ldap, group_names=None):
             )
             app_child_dns.append(tenant_dn)
 
-        # Emit parent-first: app container → tenant containers → role groups.
         result[app_container_dn] = _container_entry(
             cn=app_container_cn,
             dn=app_container_dn,

@@ -91,8 +91,6 @@ _SCAN_PREFIXES: tuple[str, ...] = (
     "plugins/",
     "library/",
 )
-# ``utils/cache/`` IS the cache implementation; routing it through itself
-# would create a circular dependency.
 _SKIP_PREFIXES: tuple[str, ...] = ("utils/cache/",)
 _FORBIDDEN_ATTRS: frozenset[str] = frozenset({"read_text", "read_bytes"})
 

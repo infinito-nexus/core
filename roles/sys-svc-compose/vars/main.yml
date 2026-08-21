@@ -1,2 +1,4 @@
 ---
 COMPOSE_DOWN_ALL_PACKAGE: "docodol"
+COMPOSE_DOWN_ALL_REPO: "{{ lookup('config', 'sys-svc-compose', 'services.svc-compose.repository') }}"
+COMPOSE_DOWN_ALL_REF: "{{ lookup('config', 'sys-svc-compose', 'services.svc-compose.ref') }}"

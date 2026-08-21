@@ -10,17 +10,19 @@
         ESPOCRM_SCRIPT_SEED_DOCKER: "{{ ESPOCRM_SCRIPT_SEED_DOCKER }}"
         ESPOCRM_ENTRYPOINT_SCRIPT_HOST_REL: "{{ ESPOCRM_ENTRYPOINT_SCRIPT_HOST_REL }}"
         ESPOCRM_ENTRYPOINT_SCRIPT_DOCKER: "{{ ESPOCRM_ENTRYPOINT_SCRIPT_DOCKER }}"
+        ESPOCRM_ENTRYPOINT_SCRIPT_ORIGINAL: "{{ ESPOCRM_ENTRYPOINT_SCRIPT_ORIGINAL }}"
     {{ lookup('compose_only', 'container_name', ESPOCRM_CONTAINER) }}
     {{ lookup('container_image', application_id, 'espocrm') }}
     init: true
     stop_signal: SIGTERM
     stop_grace_period: 30s
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_ports', ['espocrm', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
-    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
 
   {% set service_name = 'daemon' %}
   {{ service_name }}:
@@ -33,7 +35,7 @@
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     entrypoint: ["{{ ESPOCRM_ENTRYPOINT_SCRIPT_DOCKER }}", "--wait-ready", "docker-daemon.sh"]
     {{ lookup('container_networks') | indent(4) }}
-    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_depends_on', application_id, extra={
   ESPOCRM_SERVICE: {'condition': 'service_healthy'},
 }) | indent(4) }}
@@ -60,11 +62,11 @@
       - ESPOCRM_CONFIG_WEB_SOCKET_ZERO_M_Q_SUBMISSION_DSN=tcp://websocket:7777
     entrypoint: ["{{ ESPOCRM_ENTRYPOINT_SCRIPT_DOCKER }}", "--wait-ready", "docker-websocket.sh"]
     {{ lookup('container_networks') | indent(4) }}
-    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_ports', ['espocrm', 'websocket', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_depends_on', application_id, extra={
   ESPOCRM_SERVICE: {'condition': 'service_healthy'},
 }) | indent(4) }}
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

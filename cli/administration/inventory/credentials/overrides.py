@@ -2,40 +2,47 @@
 
 from __future__ import annotations
 
+from utils.manager.credential_key import (
+    OVERRIDE_ROOT,
+    OVERRIDE_SECTION,
+    override_key,
+    split_override_key,
+)
+
+__all__ = ["override_for", "override_key", "parse_overrides", "split_override_key"]
+
 
 def parse_overrides(pairs: list[str]) -> dict[str, str]:
-    """Parse ``--set key=value`` pairs into a dict. Supports both
-    ``credentials.key=val`` and ``key=val`` (short) forms."""
+    """Parse ``--set <key>=<value>`` pairs into a dict.
+
+    Args:
+        pairs: raw ``key=value`` strings from the command line.
+
+    Every key MUST be the fully qualified form :func:`override_key` builds; a
+    short form is rejected rather than guessed at, because the same short key
+    names different credentials on different apps.
+    """
     out: dict[str, str] = {}
+    prefix = f"{OVERRIDE_ROOT}."
+    section = f".{OVERRIDE_SECTION}."
     for pair in pairs:
-        k, v = pair.split("=", 1)
-        out[k.strip()] = v.strip()
+        raw_key, value = pair.split("=", 1)
+        key = raw_key.strip()
+        if not key.startswith(prefix) or section not in key:
+            raise SystemExit(
+                f"--set {key}: expected "
+                f"{OVERRIDE_ROOT}.<app_id>.{OVERRIDE_SECTION}.<key>=<value>"
+            )
+        out[key] = value.strip()
     return out
 
 
-def override_for(
-    app_id: str, key: str, overrides: dict[str, str], *, is_primary: bool
-) -> str | None:
-    """Resolve overrides for a credential key.
+def override_for(app_id: str, key: str, overrides: dict[str, str]) -> str | None:
+    """The override value for one credential, or None when unset.
 
-    Supported forms:
-      - ``applications.<app_id>.credentials.<key>=...``
-      - ``<app_id>.credentials.<key>=...``
-    Backwards compatible (PRIMARY app only):
-      - ``credentials.<key>=...``
-      - ``<key>=...``
+    Args:
+        app_id: application the credential belongs to.
+        key: dotted path inside the schema's ``credentials`` node.
+        overrides: parsed ``--set`` pairs.
     """
-    v = overrides.get(f"applications.{app_id}.credentials.{key}")
-    if v is not None:
-        return v
-    v = overrides.get(f"{app_id}.credentials.{key}")
-    if v is not None:
-        return v
-    if is_primary:
-        v = overrides.get(f"credentials.{key}")
-        if v is not None:
-            return v
-        v = overrides.get(key)
-        if v is not None:
-            return v
-    return None
+    return overrides.get(override_key(app_id, key))

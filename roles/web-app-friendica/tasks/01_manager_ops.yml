@@ -1,12 +1,12 @@
 ---
 - name: "📄 Deploy '{{ FRIENDICA_INIT_GATE_HOST }}'"
   copy:
-    src: "{{ FRIENDICA_INIT_GATE_FILE }}"
+    src: "shell/{{ FRIENDICA_INIT_GATE_FILE }}"
     dest: "{{ FRIENDICA_INIT_GATE_HOST }}"
     mode: "0755"
   notify:
-    - compose build
-    - compose up
+    - compose-build
+    - compose-up
 
 - name: 🔗 Integrate LDAP
   include_tasks: 02_ldap.yml
@@ -43,7 +43,7 @@
   ansible.builtin.include_tasks:
     file: 03_patch_config.yml
     apply:
-      notify: compose up
+      notify: compose-up
   when: friendica_config_exists.rc == 0
 - name: ➕ Add Friendica Add Ons
   include_tasks: 04_addons.yml
@@ -51,3 +51,27 @@
 - name: "🎬 Bootstrap Friendica admin user (only when no LDAP provider provisions them)"
   include_tasks: 05_user_bootstrap.yml
   when: not (FRIENDICA_LDAP_ENABLED | bool)
+
+- name: "📧 Verify the relay accepted Friendica's startup mail"
+  when: lookup('config', application_id, 'services.email.enabled', false) | bool
+  block:
+    - name: "⏳ Wait for the delivery marker the healthcheck writes"
+      shell: > # nocheck: container-exec-resolver  FRIENDICA_LOCAL_CID resolved at delegate_to runtime
+        container exec {{ FRIENDICA_LOCAL_CID | quote }} test -f {{ lookup('container_mail_marker') }}
+      delegate_to: "{{ FRIENDICA_HOST_NODE }}"
+      register: friendica_smoke_mail
+      changed_when: false
+      failed_when: false
+      retries: 30
+      delay: 5
+      until: friendica_smoke_mail.rc == 0
+
+    - name: "🛑 Report a relay that refused every attempt"
+      ansible.builtin.assert:
+        that: friendica_smoke_mail.rc == 0
+        fail_msg: >-
+          Friendica never delivered its startup mail. The healthcheck writes
+          {{ lookup('container_mail_marker') }} only after msmtp exits 0, so
+          the relay refused every attempt. Its reason is in the container's
+          State.Health.Log; liveness itself is unaffected, which is why the
+          stack still converged.

@@ -1,18 +1,12 @@
 [app]
-# Interface and port where the application will run its webserver.  The default value
-# of localhost will only listen to connections from the current machine. To
-# listen on all interfaces use '0.0.0.0'. To listen on the default web address
-# port, use port 80 (this will require running with elevated permissions).
 address = "0.0.0.0:{{ container_port }}"
 
-# Database.
 [db]
 host = "{{ lookup('database', application_id, 'host') }}"
 port = {{ lookup('database', application_id, 'port') }}
 user = "{{ lookup('database', application_id, 'username') }}"
 password = "{{ lookup('database', application_id, 'password') }}"
 
-# Ensure that this database has been created in Postgres.
 database = "{{ lookup('database', application_id, 'name') }}"
 
 ssl_mode = "disable"
@@ -20,5 +14,4 @@ max_open = {{ POSTGRES_ALLOWED_AVG_CONNECTIONS }}
 max_idle = {{ ( POSTGRES_ALLOWED_AVG_CONNECTIONS | int // 2 ) }}
 max_lifetime = "300s"
 
-# Optional space separated Postgres DSN params. eg: "application_name=listmonk gssencmode=disable"
 params = ""

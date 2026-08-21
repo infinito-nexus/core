@@ -1,1 +1,20 @@
 ---
+- name: "🩹 Let the Discourse settings keep an onion URL on http"
+  # Exception: sed reads a bare & in the replacement as the whole match, so the
+  # && of the injected condition MUST stay escaped as \&\& or the guard breaks.
+  # TODO: this patches a vendored bundle and belongs upstream. onInput() in
+  # src/components/PersonalSettings.vue:217-224 rewrites http:// to https://
+  # unconditionally, which breaks an onion forum that cannot carry TLS (CI run
+  # 31658270172, job 94319317649: typed http://forum.<onion>/, stored https://,
+  # navigation failed with status -1). Send the .onion guard to
+  # nextcloud/integration_discourse and empty this file once a release ships it.
+  ansible.builtin.shell: |
+    app_dir="$({{ NEXTCLOUD_DOCKER_EXEC_OCC }} app:getpath integration_discourse)"
+    bundle="${app_dir}/js/integration_discourse-personalSettings.mjs"
+    {{ NEXTCLOUD_DOCKER_EXEC }} grep -q 'startsWith("https://")&&(' "$bundle" || exit 0
+    {{ NEXTCLOUD_DOCKER_EXEC }} sed -i 's|startsWith("https://")&&(|startsWith("https://")\&\&!this.state.url.includes(".onion")\&\&(|' "$bundle"
+    echo PATCHED
+  args:
+    executable: /bin/bash
+  register: nextcloud_discourse_onion_patch
+  changed_when: "'PATCHED' in nextcloud_discourse_onion_patch.stdout"

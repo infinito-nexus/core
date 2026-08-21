@@ -1,4 +1,5 @@
 ---
+# nocheck: variants-coverage — the export is what this role backs up, so the false polarity has no variant to live in: without the server there is no /srv/nfs and the unit's own guard aborts.
 nfs-server:
   enabled: "{{ 'svc-storage-nfs-server' in group_names }}"
   shared: "{{ 'svc-storage-nfs-server' in group_names }}"

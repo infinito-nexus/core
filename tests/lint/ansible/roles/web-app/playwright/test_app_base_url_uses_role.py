@@ -43,10 +43,6 @@ _CANONICAL_LOOKUP_RE = re.compile(
     r"""\{\{\s*lookup\(\s*['"]tls['"]\s*,\s*application_id\s*,"""
 )
 
-# Per-role waivers. The value documents *why* the role legitimately
-# deviates from the canonical pattern. Adding an entry here is the
-# explicit contract that the role's canonical surface really cannot be
-# expressed as ``lookup('tls', application_id, 'url.base')``.
 _ALLOWED_EXCEPTIONS: dict[str, str] = {
     "web-app-dashboard": (
         "uses the role-internal DASHBOARD_APPLICATION_ID constant, which "
@@ -82,10 +78,6 @@ class TestPlaywrightAppBaseUrlUsesRole(unittest.TestCase):
             body = read_text(str(env_path))
             match = _APP_BASE_URL_LINE_RE.search(body)
 
-            # Omitting APP_BASE_URL is permitted: the shared guest persona
-            # helper skips cleanly for auth-less roles whose env exposes
-            # neither CANONICAL_DOMAIN nor APP_BASE_URL (see
-            # roles/test-e2e-playwright/files/personas/guest.js).
             if match is None:
                 continue
 

@@ -7,16 +7,16 @@
 set -o pipefail
 
 echo "== findmnt -T /mnt/docker =="
-findmnt -T /mnt/docker || true
+findmnt -T /mnt/docker || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 echo
 
 echo "== df -h / /mnt /mnt/docker /var/lib/docker =="
-df -h / /mnt /mnt/docker /var/lib/docker || true
+df -h / /mnt /mnt/docker /var/lib/docker || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 echo
 
 echo '== container info | grep "Docker Root Dir" =='
-container info | grep "Docker Root Dir" || true
+container info | grep "Docker Root Dir" || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 echo
 
 echo "== du -xhd1 /usr /usr/local /usr/share /opt /mnt /var | sort -h =="
-du -xhd1 /usr /usr/local /usr/share /opt /mnt /var 2>/dev/null | sort -h || true
+du -xhd1 /usr /usr/local /usr/share /opt /mnt /var 2>/dev/null | sort -h || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error

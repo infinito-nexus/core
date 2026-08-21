@@ -7,10 +7,10 @@
     {{ lookup('container_image', application_id, 'erpnext') }}
     {{ lookup('compose_only', 'container_name', ERPNEXT_BACKEND_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    entrypoint: ["bash", "-c", "{{ ERPNEXT_CONFIG_READY_GATE }} exec /usr/local/bin/entrypoint.sh /home/frappe/frappe-bench/env/bin/gunicorn --chdir=/home/frappe/frappe-bench/sites --bind=0.0.0.0:{{ ERPNEXT_BACKEND_PORT }} --threads=4 --workers=2 --worker-class=gthread --worker-tmp-dir=/dev/shm --timeout=120 --preload frappe.app:application"]
+    entrypoint: ["bash", "-c", "{{ ERPNEXT_CONFIG_READY_GATE }} exec /usr/local/bin/entrypoint.sh /home/frappe/frappe-bench/env/bin/gunicorn --chdir={{ ERPNEXT_SITES_DIR }} --bind=0.0.0.0:{{ ERPNEXT_BACKEND_PORT }} --threads=4 --workers=2 --worker-class=gthread --worker-tmp-dir=/dev/shm --timeout=120 --preload frappe.app:application"]
     {{ lookup('depends_on', {'configurator': 'service_completed_successfully'}) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
-    {{ lookup('container_volumes', application_id, ERPNEXT_BACKEND_CONTAINER) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
   {% set service_name = 'queue-short' %}
@@ -20,7 +20,7 @@
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: ["bash", "-c", "{{ ERPNEXT_CONFIG_READY_GATE }} exec bench worker --queue short,default"]
     {{ lookup('depends_on', {'backend': 'service_started'}) }}
-    {{ lookup('container_volumes', application_id, ERPNEXT_QUEUE_SHORT_CONTAINER) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
   {% set service_name = 'queue-long' %}
@@ -30,7 +30,7 @@
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: ["bash", "-c", "{{ ERPNEXT_CONFIG_READY_GATE }} exec bench worker --queue long,default,short"]
     {{ lookup('depends_on', {'backend': 'service_started'}) }}
-    {{ lookup('container_volumes', application_id, ERPNEXT_QUEUE_LONG_CONTAINER) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
   {% set service_name = 'frontend' %}
@@ -51,7 +51,7 @@
       CLIENT_MAX_BODY_SIZE: "50m"
     {{ lookup('container_ports',
               ['erpnext', 'http', DOCKER_BIND_HOST]) | indent(4) }}
-    {{ lookup('container_volumes', application_id, ERPNEXT_FRONTEND_CONTAINER) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
   {% set service_name = 'websocket' %}
@@ -61,7 +61,7 @@
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: ["bash", "-c", "{{ ERPNEXT_CONFIG_READY_GATE }} exec node /home/frappe/frappe-bench/apps/frappe/socketio.js"]
     {{ lookup('depends_on', {'configurator': 'service_completed_successfully'}) }}
-    {{ lookup('container_volumes', application_id, ERPNEXT_WEBSOCKET_CONTAINER) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
   {% set service_name = 'scheduler' %}
@@ -71,7 +71,7 @@
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: ["bash", "-c", "{{ ERPNEXT_CONFIG_READY_GATE }} exec bench schedule"]
     {{ lookup('depends_on', {'backend': 'service_started'}) }}
-    {{ lookup('container_volumes', application_id, ERPNEXT_SCHEDULER_CONTAINER) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
   {% set service_name = 'configurator' %}
@@ -93,9 +93,9 @@
         bench set-config -g redis_socketio "{{ ERPNEXT_REDIS_URL }}/2";
         bench set-config -gp socketio_port {{ ERPNEXT_WEBSOCKET_PORT }};
         bench set-config -g host_name "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}";
-    {{ lookup('container_volumes', application_id, ERPNEXT_CONFIGURATOR_CONTAINER) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

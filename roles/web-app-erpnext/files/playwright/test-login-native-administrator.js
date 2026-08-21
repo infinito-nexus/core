@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 exports.register = function (shared) {
   // Break-glass path: not gated on any service flag (must work in every variant).
@@ -7,7 +8,7 @@ exports.register = function (shared) {
 
     await shared.signInViaErpnextLocal(page, "Administrator", shared.env.adminNativePassword, "administrator-native");
 
-    await expect(page.locator("body")).toContainText(/desk|workspace|erpnext|home|dashboard/i, { timeout: 60_000 });
+    await expect(page.locator("body")).toContainText(/desk|workspace|erpnext|home|dashboard/i, { timeout: resolveTimeout(60_000) });
 
     await shared.erpnextLogout(page);
   });

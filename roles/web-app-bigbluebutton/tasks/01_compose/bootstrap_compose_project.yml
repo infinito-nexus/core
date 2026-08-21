@@ -31,7 +31,7 @@
          ) }}
     dest: "{{ BBB_COMPOSE_FILE_FINAL }}"
   notify:
-    - compose up
+    - compose-up
 - name: "🛡️ Fail if any service still builds locally"
   command:
     cmd: grep -E '^\s+build:' {{ BBB_COMPOSE_FILE_FINAL }}

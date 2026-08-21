@@ -34,7 +34,6 @@ bigbluebutton:
   bond: 1
   enabled: true
   shared: true
-  workload: node-local
   repository: https://github.com/bigbluebutton/docker.git
   ref: v3.0.23
   recording:
@@ -199,3 +198,9 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+
+# nocheck: playwright-service-flag
+tor:
+  bond: 0.5
+  enabled: false # nocheck: dynamic-flag
+  shared: false # nocheck: dynamic-flag

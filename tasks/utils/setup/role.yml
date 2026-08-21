@@ -1,0 +1,8 @@
+---
+- name: "🔧 setup {{ role_entry.app }}"
+  ansible.builtin.include_role:
+    name: "{{ role_entry.role }}"
+  when: (role_entry.app | application_allowed(group_names, lookup('deployment').whitelist))
+
+- name: "🚿 flush handlers after {{ role_entry.app }}"
+  ansible.builtin.meta: flush_handlers

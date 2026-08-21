@@ -16,6 +16,7 @@ The diagram places Prometheus in the Infinito.Nexus cosmos: the components it de
 flowchart LR
     subgraph deps [Dependencies]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
@@ -36,6 +37,7 @@ flowchart LR
         svc_blackbox_exporter["blackbox-exporter"]
         svc_cadvisor["cadvisor"]
         svc_node_exporter["node-exporter"]
+        svc_tor["tor"]
         svc_container_backup["container_backup"]
     end
     subgraph dependents [Dependents]
@@ -54,6 +56,7 @@ flowchart LR
         dpt_more["..."]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
@@ -75,7 +78,7 @@ flowchart LR
     svc_sso -. "0..1" .-> dpt_web_app_discourse
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
@@ -126,6 +129,11 @@ docker run --rm -it \
 
 - [Prometheus Documentation](https://prometheus.io/docs/)
 - [prom/prometheus Docker image](https://hub.docker.com/r/prom/prometheus)
+
+## Persona contract opt-outs
+
+[`meta/services.yml`](./meta/services.yml) admits only the Prometheus administrator RBAC group through the oauth2-proxy gate, so the `biber` persona is denied before it ever reaches a Prometheus page: [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true`. That denial is not lost coverage — this role's own spec asserts it for every consumer, together with the admin reach and scrape-target parity checks.
+The `administrator` persona is blocked only when `services.sso.enabled` is false: without the co-deployed Keycloak there is no proxy in front of Prometheus, hence no login round-trip and no logout control to drive. The `guest` persona and the baseline reachability assertions run unconditionally.
 
 ## Credits
 

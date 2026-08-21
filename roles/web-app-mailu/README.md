@@ -23,6 +23,7 @@ flowchart LR
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_mariadb["svc-db-mariadb 🐳🐝"]
         dep_svc_db_redis["svc-db-redis 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
@@ -51,6 +52,7 @@ flowchart LR
         svc_front["front"]
         svc_css["css"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
         svc_container_backup["container_backup"]
     end
     subgraph dependents [Dependents]
@@ -71,6 +73,7 @@ flowchart LR
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_mariadb -. "0..1" .-> svc_mariadb
     dep_svc_db_redis -. "0..1" .-> svc_redis
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_matomo -. "0..1" .-> svc_matomo
@@ -84,15 +87,16 @@ flowchart LR
     svc_mailu -. "0..1" .-> dpt_web_app_bigbluebutton
     svc_mailu -. "0..1" .-> dpt_web_app_bluesky
     svc_mailu -. "0..1" .-> dpt_web_app_bookwyrm
-    svc_mailu -- "1:1" --> dpt_web_app_bridgy_fed
+    svc_mailu -- "0..0" --> dpt_web_app_bridgy_fed
     svc_mailu -. "0..1" .-> dpt_web_app_checkmk
-    svc_mailu -- "1:1" --> dpt_web_app_confluence
+    svc_mailu -- "0..0" --> dpt_web_app_confluence
     svc_mailu -. "0..1" .-> dpt_web_app_decidim
     svc_mailu -. "0..1" .-> dpt_web_app_discourse
     svc_mailu -. "0..1" .-> dpt_web_app_erpnext
+    linkStyle 17,19 stroke:red;
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
@@ -152,6 +156,12 @@ docker run --rm -it \
 - [Mailu issue #2827](https://github.com/Mailu/Mailu/issues/2827)
 - [Mailu GitHub repository](https://github.com/Mailu/Mailu)
 - [Gist by marienfressinaud](https://gist.github.com/marienfressinaud/f284a59b18aad395eb0de2d22836ae6b)
+
+## Persona contract opt-outs
+
+This role declares `PERSONA_ADMINISTRATOR_BLOCKED` and `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2`. Mailu's OIDC fork interposes its own `/sso/login` page that carries a local login form next to an `openid-connect/auth` link, while the authenticated Roundcube surface carries an `openid-connect/logout` link; the shared helper matches login controls by accessible name and cannot tell the two apart, so it clicks logout. The administrator persona is blocked for a second, independent reason: Mailu's admin surface is a separate Flask app mounted at `WEB_ADMIN=/admin` (`templates/env.j2`), not the `/webmail/` surface the OIDC callback lands on.
+
+Both journeys are covered bespoke in `files/playwright/playwright.spec.js`, which targets the `openid-connect/auth` href explicitly, opens `/admin`, and signs out at `/admin/ui/logout`; a second scenario drives the biber-to-administrator mail round-trip across two browser contexts. The path back to the generic personas is a distinguishable login control on Mailu's SSO page.
 
 ## Credits
 

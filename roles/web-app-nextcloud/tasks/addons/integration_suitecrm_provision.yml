@@ -1,8 +1,8 @@
 ---
 - name: ⏳ Wait for the SuiteCRM web endpoint
   wait_for:
-    host: "{{ lookup('domain', 'web-app-suitecrm') }}"
-    port: 80
+    host: "{{ DOCKER_REACH_HOST }}"
+    port: "{{ lookup('config', 'web-app-suitecrm', 'services.suitecrm.ports.local.http') }}"
     delay: 5
     timeout: "{{ lookup('timeout', 600) | int }}"
 
@@ -22,7 +22,7 @@
       - error_reporting=E_ERROR
       - -
     chdir: "{{ nextcloud_crm_instance_dir }}"
-    stdin: "{{ lookup('file', 'suitecrm/provision_oauth_password_client.php') }}"
+    stdin: "{{ lookup('file', 'php/addons/suitecrm/provision_oauth_password_client.php') }}"
   register: nextcloud_crm_provision
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
@@ -35,7 +35,7 @@
 - name: 🔗 Link the SuiteCRM OAuth password client into integration_suitecrm
   shell: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:set integration_suitecrm {{ item.key }}
-    --value '{{ item.value }}'
+    --value={{ item.value | quote }}
   loop:
     - { key: "oauth_instance_url", value: "{{ nextcloud_crm_base_url }}" }
     - { key: "client_id", value: "{{ nextcloud_crm_client_id }}" }

@@ -4,7 +4,6 @@ import unittest
 
 from . import PROJECT_ROOT
 
-# ensure project root is on PYTHONPATH so we can import your CLI code
 ROOT = str(PROJECT_ROOT)
 sys.path.insert(0, ROOT)
 
@@ -13,7 +12,6 @@ from utils.cache.files import iter_project_files_with_content  # noqa: E402
 
 
 class TestGroupApplications(unittest.TestCase):
-    # regex to capture any literal check in group_names: 'name' in/not in group_names
     GROUP_CHECK_RE = re.compile(
         r"['\"](?P<name>[^'\"]+)['\"]\s*(?:in|not in)\s*group_names"
     )
@@ -27,10 +25,8 @@ class TestGroupApplications(unittest.TestCase):
         for filepath, text in iter_project_files_with_content(
             extensions=(".yml", ".yaml")
         ):
-            # find all group_names checks in the file
             for match in self.GROUP_CHECK_RE.finditer(text):
                 name = match.group("name")
-                # the checked name must be one of the valid application IDs
                 self.assertIn(
                     name,
                     valid_apps,

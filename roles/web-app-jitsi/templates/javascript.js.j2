@@ -1,7 +1,5 @@
 (function () {
-  const LOGOUT_URL =
-    "{{ OIDC.CLIENT.LOGOUT_URL }}?redirect_uri=" +
-    encodeURIComponent("{{ lookup('tls', application_id, 'protocols.web') }}://{{ DOMAIN_PRIMARY }}");
+  const LOGOUT_URL = "{{ OIDC.CLIENT.LOGOUT_URL }}";
   const INJECTED_ATTR = "data-injected-logout";
   const LOGOUT_SVG =
     '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' +

@@ -23,11 +23,18 @@ invokable stack role (``templates/compose.yml.j2`` or a
 ``in group_names`` idiom; ``shared`` MUST be the literal ``true``
 (there is no per-consumer backup instance).
 
+The rule binds in both directions: a role that declares no named volume
+-- because it is not a stack, ships no ``meta/volumes.yml`` or binds
+host paths only -- MUST NOT carry ``container_backup`` either. The flag
+pulls the provider into the role's dependency graph, so a stale entry
+schedules a backup run over a role that has nothing to back up.
+
 Per-role opt-out
 ================
 Add ``# nocheck: backup-service-flag <reason>`` on the first line of the
 role's ``meta/volumes.yml``. Reserved for roles whose volumes provably
-hold only reproducible caches or ephemera.
+hold only reproducible caches or ephemera. The opt-out exempts the role
+from both directions.
 """
 
 from __future__ import annotations
@@ -85,41 +92,67 @@ def _flag_is_valid(entry: object) -> bool:
     return entry.get("shared") is True
 
 
-class TestStackVolumesBackupService(unittest.TestCase):
-    def test_stack_roles_with_volumes_carry_backup_flag(self) -> None:
-        prefixes = _invokable_prefixes()
-        findings: list[str] = []
-        for role_dir in sorted((PROJECT_ROOT / "roles").iterdir()):
-            if not role_dir.is_dir() or not role_dir.name.startswith(prefixes):
-                continue
-            if role_dir.name == _PROVIDER_ROLE:
-                continue
-            if not role_is_stack(role_dir):
-                continue
-            volumes_path = role_dir / ROLE_FILE_META_VOLUMES
-            if not volumes_path.exists():
-                continue
+def _scan() -> tuple[list[str], list[str]]:
+    """Classify every invokable role against the rule.
+
+    Returns:
+        A ``(missing, superfluous)`` pair of role-name lists: roles with
+        named volumes lacking a valid flag, and roles without named
+        volumes carrying one anyway.
+    """
+    prefixes = _invokable_prefixes()
+    missing: list[str] = []
+    superfluous: list[str] = []
+    for role_dir in sorted((PROJECT_ROOT / "roles").iterdir()):
+        if not role_dir.is_dir() or not role_dir.name.startswith(prefixes):
+            continue
+        if role_dir.name == _PROVIDER_ROLE:
+            continue
+        volumes_path = role_dir / ROLE_FILE_META_VOLUMES
+        has_volumes_file = volumes_path.exists()
+        if has_volumes_file:
             first_line = read_text(str(volumes_path)).split("\n", 1)[0]
             if f"nocheck: {_RULE}" in first_line:
                 continue
-            if not _declares_named_volume(volumes_path):
-                continue
-            services_path = role_dir / ROLE_FILE_META_SERVICES
-            services = (
-                load_yaml_any(services_path) or {} if services_path.exists() else {}
-            )
-            if not _flag_is_valid(services.get(_SERVICE_KEY)):
-                findings.append(role_dir.name)
+        needs_flag = (
+            has_volumes_file
+            and role_is_stack(role_dir)
+            and _declares_named_volume(volumes_path)
+        )
+        services_path = role_dir / ROLE_FILE_META_SERVICES
+        services = load_yaml_any(services_path) or {} if services_path.exists() else {}
+        entry = services.get(_SERVICE_KEY)
+        if needs_flag:
+            if not _flag_is_valid(entry):
+                missing.append(role_dir.name)
+        elif entry is not None:
+            superfluous.append(role_dir.name)
+    return missing, superfluous
 
+
+class TestStackVolumesBackupService(unittest.TestCase):
+    def test_stack_roles_with_volumes_carry_backup_flag(self) -> None:
+        missing, _ = _scan()
         self.assertFalse(
-            findings,
-            f"{len(findings)} stack role(s) declare named volumes in "
+            missing,
+            f"{len(missing)} stack role(s) declare named volumes in "
             f"meta/volumes.yml but miss the '{_SERVICE_KEY}' backup service "
             "flag in meta/services.yml. Add the standard consumer entry "
             "(enabled/shared gated on "
             f"\"'{_PROVIDER_ROLE}' in group_names\") or opt out with "
             f"'# nocheck: {_RULE} <reason>' on the first line of "
-            "meta/volumes.yml:\n" + "\n".join(findings),
+            "meta/volumes.yml:\n" + "\n".join(missing),
+        )
+
+    def test_roles_without_volumes_carry_no_backup_flag(self) -> None:
+        _, superfluous = _scan()
+        self.assertFalse(
+            superfluous,
+            f"{len(superfluous)} role(s) declare the '{_SERVICE_KEY}' backup "
+            "service flag in meta/services.yml without a single "
+            f"'type: volume' entry in meta/volumes.yml. Drop the flag, or "
+            "declare the named volume it is meant to protect:\n"
+            + "\n".join(superfluous),
         )
 
 

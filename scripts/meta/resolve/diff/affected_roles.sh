@@ -96,9 +96,6 @@ resolved="$(
 resolver_rc=$?
 set -e
 
-# Exit 2 means "non-modellable seed; fall back to full deploy".
-# Any other non-zero is a resolver/runtime error; we still fail-safe to
-# __ALL__ rather than risk silently shrinking the deploy matrix.
 if ((resolver_rc != 0)); then
 	emit_all
 fi

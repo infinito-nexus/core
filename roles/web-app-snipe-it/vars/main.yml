@@ -4,7 +4,7 @@ entity_name: "{{ application_id | get_entity_name }}"
 
 swarm_stack_converge_retries: 600
 
-database_password: "{{ lookup('config', application_id, 'credentials.database_password') }}" # nocheck: lookup-config-path
+database_password: "{{ lookup('config', application_id, 'secrets.credentials.database_password') }}" # nocheck: lookup-config-path
 
 SNIPE_IT_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 SNIPE_IT_CONTAINER: "{{ lookup('config', application_id, 'services.snipe-it.name') }}"
@@ -12,7 +12,7 @@ SNIPE_IT_IMAGE: "{{ lookup('config', application_id, 'services.snipe-it.image') 
 SNIPE_IT_VERSION: "{{ lookup('config', application_id, 'services.snipe-it.version') }}"
 SNIPE_IT_SERVICE: "{{ entity_name }}"
 SNIPE_IT_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, SNIPE_IT_SERVICE) }}"
-SNIPE_IT_APP_KEY: "{{ lookup('config', application_id, 'credentials.app_key') }}"
+SNIPE_IT_APP_KEY: "{{ lookup('config', application_id, 'secrets.credentials.app_key') }}"
 
 SNIPE_IT_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 SNIPE_IT_TLS_ENABLED: "{{ lookup('tls', application_id, 'enabled') | bool }}"

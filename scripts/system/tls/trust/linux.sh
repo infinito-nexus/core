@@ -16,7 +16,7 @@ CA_DST_PATH="${INFINITO_CA_CERT_HOST}"
 CA_DST_DIR="$(dirname "${CA_DST_PATH}")"
 CA_TRUST_NAME="infinito-root-ca"
 
-WITH_CA_TRUST_SCRIPT="${SCRIPT_DIR}/../../../../roles/sys-ca-selfsigned/files/with-ca-trust.sh"
+WITH_CA_TRUST_SCRIPT="${SCRIPT_DIR}/../../../../roles/sys-ca-selfsigned/files/shell/with-ca-trust.sh"
 
 log() {
 	echo "[network-trust-ca] $*" >&2

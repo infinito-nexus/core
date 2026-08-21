@@ -8,6 +8,8 @@ TAIGA_SUPERUSER_NAME: "{{ lookup('users', 'administrator').username }}"
 TAIGA_SUPERUSER_PASSWORD: "{{ lookup('users', 'administrator').password }}"
 TAIGA_SUPERUSER_EMAIL: "{{ lookup('users', 'administrator').email }}"
 
+TAIGA_COOKIE_SECURE: "{{ lookup('tls', application_id, 'enabled') | bool | capitalize }}"
+
 TAIGA_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 TAIGA_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled', false) }}"
 TAIGA_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') }}"

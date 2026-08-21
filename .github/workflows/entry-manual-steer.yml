@@ -1,5 +1,5 @@
 name: "🕹️ Manual"
-run-name: "🕹️ ${{ inputs.mode_fail_fast && '🛑 ' || '' }}${{ inputs.sequencing != 'auto' && format('🐛{0} ', inputs.sequencing == 'serial' && '序' || '并') || '' }}${{ inputs.workspace != 'auto' && format('🧑‍💻{0} ', inputs.workspace == 'true' && '是' || '否') || '' }}${{ inputs.instructions != 'auto' && format('📖{0} ', inputs.instructions == 'true' && '是' || '否') || '' }}${{ inputs.filesystem != '' && format('🗄️{0} ', inputs.filesystem) || '' }}${{ inputs.distros != '' && format('🐧{0} ', inputs.distros) || '' }}${{ inputs.lifecycles != '' && format('♻️{0} ', inputs.lifecycles) || '' }}${{ inputs.modes != 'swarm compose host' && format('🚀{0} ', inputs.modes) || '' }}${{ inputs.priority != '' && format('⭐{0} ', inputs.priority) || '' }}${{ inputs.whitelist != '' && format('🎯{0}', inputs.whitelist) || '🔀 diff (origin/main)' }}"
+run-name: "🕹️ ${{ inputs.chunk_gate && '🛑 ' || '' }}${{ inputs.offset != '0' && inputs.offset != '' && format('⏩{0} ', inputs.offset) || '' }}${{ inputs.workspace != 'auto' && format('🧑‍💻{0} ', inputs.workspace == 'true' && '是' || '否') || '' }}${{ inputs.instructions != 'auto' && format('📖{0} ', inputs.instructions == 'true' && '是' || '否') || '' }}${{ inputs.tor != 'auto' && format('{0} ', inputs.tor == 'disabled' && '🌐' || inputs.tor == 'enforced' && '🧅强制' || '🧅独占') || '' }}${{ inputs.filesystem != '' && format('🗄️{0} ', inputs.filesystem) || '' }}${{ inputs.distros != '' && format('🐧{0} ', inputs.distros) || '' }}${{ inputs.lifecycles != '' && format('♻️{0} ', inputs.lifecycles) || '' }}${{ inputs.mode != 'auto' && format('🚀{0} ', inputs.mode) || '' }}${{ inputs.priority != '' && format('⭐{0} ', inputs.priority) || '' }}${{ inputs.whitelist != '' && format('🎯{0}', inputs.whitelist) || '🔀 diff (origin/main)' }}"
 
 concurrency:
   group: global-ci-${{ github.repository }}-${{ github.ref_name }}
@@ -9,17 +9,17 @@ on:
   workflow_dispatch:
     inputs:
       distros:
-        description: "🐧 Distros to sweep. Empty: one at random. Example: 'arch debian'"
+        description: "🐧 Distro pool the rows are spread over. Empty: all five. Example: 'arch debian'"
         required: false
         default: ""
         type: string
       priority:
-        description: "⭐ Roles to deploy first. The rest waits until they are green."
+        description: "⭐ Roles to lead, in every combination left open (see README)"
         required: false
         default: ""
         type: string
       whitelist:
-        description: "🎯 Roles to deploy. Empty: diff vs origin/main. '__ALL__': every role."
+        description: "🎯 Roles to deploy. Empty: diff vs origin/main. '__ALL__': every role"
         required: false
         default: ""
         type: string
@@ -28,32 +28,48 @@ on:
         required: false
         default: ""
         type: string
-      modes:
-        description: "🚀 Deploy modes to test. Only the listed ones run their deploy job."
-        required: false
-        default: "swarm compose host"
-        type: string
-      filesystem:
-        description: "🗄️ Space-separated filesystems the per-distro pick draws from (ext4, btrfs, zfs). Empty: all three."
-        required: false
-        default: ""
-        type: string
-      sequencing:
-        description: "🐛 Deploy-mode order per line. 'serial': swarm, then compose, then host. 'parallel': all at once. 'auto': serial above 65 jobs per line."
+      mode:
+        description: "🚀 Deploy mode. 'auto' rotates a row over the modes its role offers"
         required: false
         default: "auto"
         type: choice
         options:
           - "auto"
-          - "serial"
-          - "parallel"
-      mode_fail_fast:
-        description: "🛑 Stop a serial line at its first failed mode. Off: keep deploying the remaining modes."
+          - "host"
+          - "compose"
+          - "swarm"
+      filesystem:
+        description: "🗄️ Filesystem pool the rows are spread over. Empty: ext4, btrfs, zfs"
+        required: false
+        default: ""
+        type: string
+      tor:
+        description: "🧅 Tor axis for swarm and compose; the four values are in the README"
+        required: false
+        default: "auto"
+        type: choice
+        options:
+          - "auto"
+          - "enforced"
+          - "exclusive"
+          - "disabled"
+      offset:
+        description: "⏩ Where chunk 0 starts: a row count, or a token like web-app-x#2"
+        required: false
+        default: "0"
+        type: string
+      chunk_gate:
+        description: "🛑 Stop the chunk chain at its first failed chunk"
         required: false
         default: true
         type: boolean
+      sweep:
+        description: "🔁 Sweep number driving the mode and tor rotation. Empty: the run number"
+        required: false
+        default: ""
+        type: string
       workspace:
-        description: "🧑‍💻 Run the workspace test (dev-runtime image matrix). 'auto' runs it on a global scope only."
+        description: "🧑‍💻 Run the workspace test. 'auto': on a global scope only"
         required: false
         default: "auto"
         type: choice
@@ -61,8 +77,17 @@ on:
           - "auto"
           - "true"
           - "false"
+      workspace_track:
+        description: "🧑‍💻 Workspace track per distro. 'rotate' splits compose and swarm"
+        required: false
+        default: "rotate"
+        type: choice
+        options:
+          - "rotate"
+          - "compose"
+          - "swarm"
       instructions:
-        description: "📖 Run the instructions test (role README Production command). 'auto' runs it on a global scope only."
+        description: "📖 Run the instructions test. 'auto': on a global scope only"
         required: false
         default: "auto"
         type: choice
@@ -73,40 +98,30 @@ on:
 
 permissions:
   contents: read
-  packages: write
-  security-events: write
-  actions: write
-  issues: write
 
 jobs:
-  pick-distro:
-    name: 🎲 Pick distro(s)
-    runs-on: ubuntu-latest
-    outputs:
-      distros: ${{ steps.pick.outputs.distros }}
-    steps:
-      - uses: actions/checkout@v7.0.0
-
-      - id: pick
-        shell: bash
-        env:
-          INPUT_DISTROS: ${{ inputs.distros }}
-        run: ./scripts/github/resolve/manual_distros.sh
-
   ci-orchestrator:
     name: 🎛️ Orchestrate CI (manual)
-    needs: pick-distro
+    permissions:
+      actions: read
+      contents: read
+      packages: write
+      security-events: write
+      issues: write
     uses: ./.github/workflows/call-orchestrator.yml
     with:
-      distros: ${{ needs.pick-distro.outputs.distros }}
+      distros: ${{ inputs.distros }}
       whitelist: ${{ inputs.whitelist }}
       lifecycles: ${{ inputs.lifecycles }}
-      modes: ${{ inputs.modes }}
+      mode: ${{ inputs.mode }}
       priority: ${{ inputs.priority }}
-      sequencing: ${{ inputs.sequencing }}
-      mode_fail_fast: ${{ inputs.mode_fail_fast }}
+      sweep: ${{ inputs.sweep }}
+      offset: ${{ inputs.offset }}
+      chunk_gate: ${{ inputs.chunk_gate }}
       filesystem: ${{ inputs.filesystem }}
       workspace: ${{ inputs.workspace }}
+      workspace_track: ${{ inputs.workspace_track }}
       instructions: ${{ inputs.instructions }}
+      tor: ${{ inputs.tor }}
       force_cancel_in_progress: true
     secrets: inherit

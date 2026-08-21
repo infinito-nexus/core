@@ -1,0 +1,15 @@
+[Unit]
+Description=Pin the onion OIDC host to the node gateway before nested docker starts
+Before=docker.service
+After=network.target
+
+[Service]
+Type=oneshot
+PassEnvironment=MATRIX_OIDC_ONION_HOST
+ExecStart=/usr/local/bin/matrix-mdad-hostpin
+RemainAfterExit=yes
+StandardOutput=journal+console
+StandardError=journal+console
+
+[Install]
+WantedBy=multi-user.target

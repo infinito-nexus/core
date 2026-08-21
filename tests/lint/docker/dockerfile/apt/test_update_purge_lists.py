@@ -52,15 +52,9 @@ if TYPE_CHECKING:
 _REPO_ROOT = PROJECT_ROOT
 _ROLES_ROOT = _REPO_ROOT / "roles"
 
-# Strip Jinja2 control tags so they don't fragment RUN-block parsing in
-# templated Dockerfiles. Any branch that ships an unsafe RUN must fail
-# the lint, so collapsing the branches into one text body is correct.
 _J2_CTRL_RE = re.compile(r"\{%-?.*?-?%\}", re.DOTALL)
 
 _RUN_START_RE = re.compile(r"^\s*RUN\b", re.IGNORECASE)
-# `apt-get update` with optional `-flag` / `--flag` / `-o KEY=VAL` tokens
-# in between, but not arbitrary words (so `apt-get install update` does
-# NOT match).
 _APT_UPDATE_RE = re.compile(
     r"\bapt-get\b(?:\s+-\S+(?:\s+[^-\s]\S*)?)*\s+update\b",
     re.IGNORECASE,
@@ -95,7 +89,7 @@ def _iter_run_blocks(source: str):
         if not _RUN_START_RE.match(lines[i]):
             i += 1
             continue
-        start = i + 1  # 1-based line number for human-readable output
+        start = i + 1
         buf = [lines[i]]
         while lines[i].rstrip().endswith("\\") and i + 1 < len(lines):
             i += 1

@@ -29,7 +29,6 @@ class TestVariableDefinitions(unittest.TestCase):
 
         self.project_root = str(PROJECT_ROOT)
 
-        # Collect all variable definition files: roles/*/{vars,defaults}/**/*.yml and group_vars/all/*.yml
         self.var_files: list[str] = []
         roles_prefix = str(Path(self.project_root) / "roles") + "/"
         group_vars_prefix = str(Path(self.project_root) / "group_vars" / "all") + "/"
@@ -47,42 +46,27 @@ class TestVariableDefinitions(unittest.TestCase):
             ):
                 self.var_files.append(p)
 
-        # File extensions to scan for Jinja usage/inline definitions
         self.scan_extensions = {".yml", ".j2"}
 
-        # -----------------------
-        # Raw-block pattern (ignore any Jinja inside {% raw %}...{% endraw %})
-        # Supports trimmed variants: {%- raw -%} ... {%- endraw -%}
         self.raw_block_re = re.compile(
             r"{%\s*-?\s*raw\s*-?\s*%}.*?{%\s*-?\s*endraw\s*-?\s*%}",
             re.DOTALL,
         )
 
-        # -----------------------
-        # Regex patterns
-        # -----------------------
-
-        # Simple {{ var }} usage with optional Jinja filters after a pipe
         self.simple_var_pattern = re.compile(r"{{\s*([a-zA-Z_]\w*)\s*(?:\|[^}]*)?}}")
 
-        # {% set var = ... %}   (allow trimmed variants)
         self.jinja_set_def = re.compile(r"{%\s*-?\s*set\s+([a-zA-Z_]\w*)\s*=")
 
-        # {% set var %} ... {% endset %}  (block-style set)
         self.jinja_set_block_def = re.compile(r"{%\s*-?\s*set\s+([a-zA-Z_]\w*)\s*-?%}")
 
-        # {% for x in ... %}  or  {% for k, v in ... %}   (allow trimmed variants)
         self.jinja_for_def = re.compile(
             r"{%\s*-?\s*for\s+([a-zA-Z_]\w*)(?:\s*,\s*([a-zA-Z_]\w*))?\s+in"
         )
 
-        # {% macro name(param1, param2=..., *varargs, **kwargs) %}   (allow trimmed variants)
         self.jinja_macro_def = re.compile(
             r"{%\s*-?\s*macro\s+[a-zA-Z_]\w*\s*\((.*?)\)\s*-?%}"
         )
 
-        # Ansible YAML anchors for inline var declarations
-        # Support short and FQCN forms, plus inline dict after colon
         self.ansible_set_fact = re.compile(
             r"^(?:\s*-\s*)?(?:ansible\.builtin\.)?set_fact\s*:\s*(\{[^}]*\})?\s*$"
         )
@@ -91,23 +75,13 @@ class TestVariableDefinitions(unittest.TestCase):
         self.mapping_key = re.compile(r"^\s*([a-zA-Z_]\w*)\s*:\s*")
         self.register_pat = re.compile(r"^\s*register\s*:\s*([a-zA-Z_]\w*)")
 
-        # Templated set_fact / vars key, e.g. "{{ prefix }}_HOST_NODE": such a
-        # dynamic key defines every concrete '<x>_HOST_NODE' fact, so it is
-        # registered as a name pattern rather than a single literal.
         self.templated_mapping_key = re.compile(r'^\s*(["\'])(.*?\{\{.*?\}\}.*?)\1\s*:')
 
-        # Bare vars in YAML list expressions wie:
-        #   - SOME_VAR | bool
-        #   - OTHER_VAR | length > 0
         self.bare_list_expr_var = re.compile(r"^\s*-\s*([a-zA-Z_]\w*)\b")
 
-        # -----------------------
-        # Collect "defined" names
-        # -----------------------
         self.defined = set()
         self.dynamic_defined_patterns: list[re.Pattern] = []
 
-        # 1) Keys from var files (top-level dict keys)
         for vf in self.var_files:
             try:
                 data = load_yaml_any(vf)
@@ -120,11 +94,9 @@ class TestVariableDefinitions(unittest.TestCase):
                     exc,
                 )
 
-        # 2) Inline definitions across all scanned files
         for path, content in iter_project_files_with_content(
             extensions=tuple(self.scan_extensions)
         ):
-            # Track when we're inside set_fact:/vars: blocks to also extract mapping keys.
             in_set_fact = False
             set_fact_indent = 0
             in_vars_block = False
@@ -135,12 +107,10 @@ class TestVariableDefinitions(unittest.TestCase):
                     stripped = line.lstrip()
                     indent = len(line) - len(stripped)
 
-                    # --- set_fact (short and FQCN), supports inline and block forms
                     m_sf = self.ansible_set_fact.match(stripped)
                     if m_sf:
                         inline_map = m_sf.group(1)
                         if inline_map:
-                            # Inline mapping: set_fact: { a: 1, b: 2 }
                             try:
                                 data = load_yaml_str(inline_map)
                                 if isinstance(data, dict):
@@ -153,10 +123,8 @@ class TestVariableDefinitions(unittest.TestCase):
                                     path,
                                     exc,
                                 )
-                            # do not enter block mode if inline present
                             in_set_fact = False
                         else:
-                            # Block mapping: keys on subsequent indented lines
                             in_set_fact = True
                             set_fact_indent = indent
                             continue
@@ -173,7 +141,6 @@ class TestVariableDefinitions(unittest.TestCase):
                         elif indent <= set_fact_indent and stripped:
                             in_set_fact = False
 
-                    # --- vars: block (collect mapping keys)
                     if self.ansible_vars_block.match(stripped):
                         in_vars_block = True
                         vars_block_indent = indent
@@ -187,11 +154,9 @@ class TestVariableDefinitions(unittest.TestCase):
                         elif indent <= vars_block_indent and stripped:
                             in_vars_block = False
 
-                    # --- Always scan every line (including inside blocks) for Jinja definitions
                     for m in self.jinja_set_def.finditer(line):
                         self.defined.add(m.group(1))
 
-                    # Count block-style set as a definition, too
                     for m in self.jinja_set_block_def.finditer(line):
                         self.defined.add(m.group(1))
 
@@ -229,8 +194,6 @@ class TestVariableDefinitions(unittest.TestCase):
         parts = re.split(r"\{\{.*?\}\}", key_text)
         if len(parts) < 2:
             return
-        # Need a real literal segment, else a pure '{{ x }}' key compiles to a
-        # catch-all that would match (and silently define) every variable name.
         if not any(p.strip().strip("_") for p in parts):
             return
         regex = "[A-Za-z0-9_]+".join(re.escape(p) for p in parts)
@@ -295,11 +258,8 @@ class TestVariableDefinitions(unittest.TestCase):
                             undefined_uses.append(
                                 f"{path}:{lineno}: '{{{{ {var} }}}}' used but not defined"
                             )
-                    # Handle bare vars in list expressions, e.g.:
-                    #   - SYSTEMD_MANAGER_RESET_PURGE | bool
                     stripped = line.lstrip()
 
-                    # Heuristic: "- VAR | ..." but not a mapping ("key: value")
                     if (
                         stripped.startswith("- ")
                         and "|" in stripped

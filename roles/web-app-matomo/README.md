@@ -18,6 +18,7 @@ flowchart LR
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_mariadb["svc-db-mariadb 🐳🐝"]
         dep_svc_db_redis["svc-db-redis 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
@@ -34,6 +35,7 @@ flowchart LR
         svc_redis["redis"]
         svc_css["css"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
         svc_container_backup["container_backup"]
     end
     subgraph dependents [Dependents]
@@ -54,8 +56,9 @@ flowchart LR
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_mariadb -. "0..1" .-> svc_mariadb
     dep_svc_db_redis -. "0..1" .-> svc_redis
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
-    dep_web_app_keycloak -- "1:1" --> svc_sso
+    dep_web_app_keycloak -- "0..0" --> svc_sso
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_svc_css -. "0..1" .-> svc_css
     dep_web_svc_logout -. "0..1" .-> svc_logout
@@ -72,9 +75,10 @@ flowchart LR
     svc_sso -. "0..1" .-> dpt_web_app_dashboard
     svc_sso -. "0..1" .-> dpt_web_app_decidim
     svc_sso -. "0..1" .-> dpt_web_app_discourse
+    linkStyle 5 stroke:red;
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
@@ -125,6 +129,12 @@ docker run --rm -it \
 ## Further Resources
 
 - [Matomo Official Website](https://matomo.org/)
+
+## Persona contract opt-outs
+
+This role declares `PERSONA_ADMINISTRATOR_BLOCKED` and `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2`. `meta/services.yml` pins `sso.enabled: false` — Matomo holds no Keycloak client, so the OIDC round-trip the shared helper waits for never happens; the administrator signs in on Matomo's native `index.php?module=Login` form against the local superuser configured in `vars/main.yml`. Biber is blocked for a different reason: the role provisions exactly one Matomo account, that same superuser, and has no per-user provisioning, so biber has no Matomo identity at all.
+
+The administrator journey is covered bespoke in `files/playwright/auth.spec.js`, which drives the native form and the `module=Login&action=logout` sign-out. The same file owns the deny-probe proving biber cannot reach the admin surface — the provider-side assertion the persona helpers deliberately no longer duplicate. The path back to the generic personas is a Keycloak client for Matomo plus group-driven user provisioning.
 
 ## Credits
 

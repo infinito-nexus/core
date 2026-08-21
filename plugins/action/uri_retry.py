@@ -11,7 +11,6 @@ from ansible.plugins.action.uri import ActionModule as UriActionModule
 
 
 class ActionModule(UriActionModule):
-    # Default policy when no task keywords are provided.
     DEFAULT_RETRIES = 30
     DEFAULT_DELAY = 2
 
@@ -19,7 +18,6 @@ class ActionModule(UriActionModule):
         if task_vars is None:
             task_vars = {}
 
-        # Respect explicit Ansible until/retry logic to avoid nested loops.
         if self._task_keyword_is_set("until"):
             return super().run(tmp=tmp, task_vars=task_vars)
 
@@ -48,8 +46,6 @@ class ActionModule(UriActionModule):
         return isinstance(ds, dict) and key in ds
 
     def _task_keyword_int(self, key, fallback):
-        # `retries` can be present on the parsed task object even if it is not
-        # visible in get_ds(); prefer the task attribute for reliable override.
         if key == "retries":
             retries_value = getattr(self._task, "retries", None)
             if retries_value is None:

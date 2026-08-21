@@ -1,7 +1,9 @@
 const { expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const {
   decodeDotenvQuotedValue,
+  gotoOnion,
   normalizeBaseUrl,
   runAdminFlow,
   runBiberFlow,
@@ -19,17 +21,17 @@ const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
 // gate proves the user is on the role's authenticated surface.
 async function reachJitsiPrejoin(page, personaLabel, roomSuffix) {
   const roomName = `e2e-${personaLabel}-${roomSuffix}`.toLowerCase().replace(/[^a-z0-9-]/g, "");
-  await page.goto(`${appBaseUrl}/${roomName}`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${appBaseUrl}/${roomName}`, { waitUntil: "domcontentloaded" });
   const prejoin = page
     .getByRole("button", { name: /join meeting|join|beitreten/i })
     .or(page.locator('[data-testid="prejoin.joinMeeting"], #premeeting-screen'))
     .first();
   await expect(prejoin, `${personaLabel}: prejoin surface must render`).toBeVisible({
-    timeout: 60_000,
+    timeout: resolveTimeout(60_000),
   });
   await expect
     .poll(() => page.url(), {
-      timeout: 30_000,
+      timeout: resolveTimeout(30_000),
       message: `${personaLabel}: URL must include the room path`,
     })
     .toContain(`/${roomName}`);
@@ -48,7 +50,7 @@ async function openJitsiSettingsPanel(page, personaLabel) {
   await expect(
     settingsTrigger,
     `${personaLabel}: a Settings / More-options control must be visible in the DOM`,
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
 }
 
 async function beforeEach({ page }) {

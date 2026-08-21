@@ -7,6 +7,7 @@ set -euo pipefail
 #           (complexity clone == false), most complex first, when unset
 #   modes - mode sequence (default "compose swarm"; append "k8s" here once it exists)
 #   keep  - true keeps each validated swarm cluster instead of releasing it
+#   disable - comma-separated provider keys removed from the test inventory
 _repo_root="$(cd "$(dirname "$0")/../../.." && pwd)"
 
 # shellcheck source=scripts/meta/env/load.sh
@@ -39,11 +40,13 @@ for app in "${_apps[@]}"; do
 		case "$mode" in
 		compose)
 			make -C "$_repo_root" compose-deploy \
-				mode=reinstall apps="$app" full_cycle=true variant=0 2>&1 | tee "$log"
+				mode=reinstall apps="$app" full_cycle=true variant=0 \
+				disable="${disable:-}" 2>&1 | tee "$log"
 			;;
 		swarm)
 			ACT_PLATFORM_IMAGE=local/act-runner-fixed:latest \
-				make -C "$_repo_root" swarm-zombie app="$app" 2>&1 | tee "$log"
+				make -C "$_repo_root" swarm-zombie app="$app" \
+				disable="${disable:-}" 2>&1 | tee "$log"
 			marker="==> swarm drill complete: app=${app}"
 			grep -qF "${marker}" "$log" || {
 				echo "roundtrip: ${app} [swarm] FAILED: swarm-zombie exited 0 but the drill never completed for ${app} (marker '${marker}' absent from ${log})" >&2

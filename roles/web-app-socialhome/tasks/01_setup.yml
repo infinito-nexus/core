@@ -1,0 +1,28 @@
+---
+# Exception: upstream provisions the admin from SH_ADMIN_PASSWORD in
+# platform/standalone/adapter.py on_startup but never calls mark_complete(), so the SPA keeps
+# rendering the setup wizard. Re-posting the same credentials is a no-op for provision_admin()
+# and flips the setup flag; 409 means a previous run already did it.
+
+- name: "⏳ Wait for Social Home at {{ SOCIALHOME_INTERNAL_URL }}/healthz"
+  uri_retry:
+    url: "{{ SOCIALHOME_INTERNAL_URL }}/healthz"
+    method: GET
+    status_code: 200
+  register: socialhome_health
+  retries: 30
+  delay: 5
+  until: socialhome_health.status == 200
+
+- name: "🔐 Mark the standalone first-boot setup complete"
+  uri_retry:
+    url: "{{ SOCIALHOME_INTERNAL_URL }}/api/setup/standalone"
+    method: POST
+    body_format: json
+    body:
+      username: "{{ SOCIALHOME_ADMIN_USERNAME }}"
+      password: "{{ SOCIALHOME_ADMIN_PASSWORD }}"
+    status_code: [201, 409]
+  register: socialhome_setup
+  changed_when: socialhome_setup.status == 201
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

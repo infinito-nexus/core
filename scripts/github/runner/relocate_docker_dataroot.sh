@@ -55,17 +55,17 @@ fi
 restore_and_continue() {
 	echo "WARN: Docker data-root relocation failed — keeping Docker on /." >&2
 	if [ -n "$backup" ]; then
-		sudo install -m 0644 "$backup" /etc/docker/daemon.json || true
+		sudo install -m 0644 "$backup" /etc/docker/daemon.json || true # nocheck: shell-or-true -- rollback must reach the docker restart even if the restore fails
 	else
-		sudo rm -f /etc/docker/daemon.json || true
+		sudo rm -f /etc/docker/daemon.json || true # nocheck: shell-or-true -- rollback must reach the docker restart even if the cleanup fails
 	fi
-	sudo systemctl start docker.service || sudo systemctl restart docker.service || true
+	sudo systemctl start docker.service || sudo systemctl restart docker.service || true # nocheck: shell-or-true -- last-ditch daemon start; rollback still exits 0 by design
 	"$DUMP" "docker-relocate rolled back (kept on /)"
 	exit 0
 }
 
 echo "Relocating Docker data-root to ${TARGET_DIR}"
-sudo systemctl stop docker.service docker.socket || true
+sudo systemctl stop docker.service docker.socket || true # nocheck: shell-or-true -- inactive/missing units may exit non-zero; a wedged daemon is caught by the post-start root-dir check
 sudo mkdir -p "$TARGET_DIR" /etc/docker || restore_and_continue
 
 tmp="$(mktemp)"

@@ -39,7 +39,6 @@ class LookupModule(LookupBase):
             templar=getattr(self, "_templar", None),
         ).run([], variables=vars_)[0]
 
-        # application_id may be passed explicitly (term 0) or read from available_variables.
         if terms and isinstance(terms[0], str):
             application_id: str = terms[0]
         else:
@@ -54,8 +53,6 @@ class LookupModule(LookupBase):
             return [True]
 
         try:
-            # Per services live at applications.<app>.services
-            # (no `compose.services` wrapper).
             enabled = bool(
                 applications.get(application_id, {})
                 .get("services", {})

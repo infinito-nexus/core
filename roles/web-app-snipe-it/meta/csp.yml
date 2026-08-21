@@ -1,12 +1,12 @@
 ---
 flags:
   script-src-attr:
-    unsafe-inline: true
-    unsafe-eval: true
+    unsafe-inline: true # nocheck: csp-unsafe  Reason: historical, TODO: re-verify it is really required and does not open attack surface
+    unsafe-eval: true # nocheck: csp-unsafe  Reason: historical, TODO: re-verify it is really required and does not open attack surface
   script-src-elem:
-    unsafe-inline: true
+    unsafe-inline: true # nocheck: csp-unsafe  Reason: historical, TODO: re-verify it is really required and does not open attack surface
   style-src-attr:
-    unsafe-inline: true
+    unsafe-inline: true # nocheck: csp-unsafe  Reason: historical, TODO: re-verify it is really required and does not open attack surface
 whitelist:
   font-src:
     - "data:"

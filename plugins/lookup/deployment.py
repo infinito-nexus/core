@@ -16,7 +16,6 @@ def _reset_cache_for_tests() -> None:
 
 
 def _coerce_to_list(raw: Any) -> list[str]:
-    # CSV input (`-e APPLICATIONS_WHITELIST=a,b`) → tokenise; `list(str)` would yield chars.
     if raw is None:
         return []
     if isinstance(raw, str):

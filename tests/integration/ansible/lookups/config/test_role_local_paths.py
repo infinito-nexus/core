@@ -40,10 +40,6 @@ def _build_role_local_paths(
     for m in matches:
         if m.kind != "literal":
             continue
-        # Only the literal `application_id` variable maps to "this role
-        # reads its own config". Anything else (e.g. `_BBB_COTURN_ROLE`,
-        # `sso_proxy_application_id`) explicitly targets a different
-        # role at runtime and is intentionally out of scope here.
         if m.app_arg != "application_id":
             continue
         if m.path_arg.endswith("."):
