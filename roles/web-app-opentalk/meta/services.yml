@@ -61,7 +61,7 @@ opentalk:
   placement: manager
   name: opentalk
   image: registry.opencode.de/opentalk/web-frontend
-  version: v2.9.0
+  version: v2.9.1
   min_storage: 234MB
   backup:
     no_stop_required: true
@@ -80,7 +80,7 @@ opentalk:
 controller:
   name: opentalk-controller
   image: registry.opencode.de/opentalk/controller
-  version: v0.34.1
+  version: v0.34.2
   min_storage: 291MB
   backup:
     no_stop_required: true
@@ -129,7 +129,7 @@ seaweedfs:
 rabbit:
   name: opentalk-rabbit
   image: rabbitmq
-  version: 4.3.4
+  version: 4.3.5
   min_storage: 314MB
   cpus: "0.5"
   mem_reservation: 256m
