@@ -1,4 +1,8 @@
 ---
+litellm:
+  bond: 0.5
+  enabled: "{{ 'svc-ai-litellm' in group_names }}"
+  shared: "{{ 'svc-ai-litellm' in group_names }}"
 # nocheck: seaweedfs-required - object storage not implemented for this role
 sso:
   bond: 1
@@ -68,7 +72,7 @@ zammad:
   # nocheck: default-placement-manager  embedded elasticsearch engine state; node-local in swarm
   placement: manager
   image: ghcr.io/zammad/zammad
-  version: "6.5.0"
+  version: "7.1.2"
   name: zammad-railsserver
   min_storage: 520MB
   proxy:

@@ -144,6 +144,28 @@
   changed_when: false
   when: ZAMMAD_LDAP_ENABLED
 
+- name: "🔐 Verify the gateway contract for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
+  when: ZAMMAD_LITELLM_ENABLED | bool
+
+- name: "🤖 Point Zammad Smart Assist at the platform gateway"
+  ansible.builtin.shell:
+    cmd: |
+      set -euo pipefail
+      container exec -i \
+        -e AI_URL -e AI_MODEL -e AI_TOKEN \
+        {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} \
+        bundle exec rails r -
+    stdin: "{{ lookup('file', 'scripts/apply/ai_provider.rb') }}"
+  environment:
+    AI_URL: "{{ ZAMMAD_LITELLM_BASE_URL }}"
+    AI_MODEL: "{{ ZAMMAD_LITELLM_MODEL }}"
+    AI_TOKEN: "{{ ZAMMAD_LITELLM_API_KEY }}"
+  register: zammad_ai_apply
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: ZAMMAD_LITELLM_ENABLED | bool
+
 - name: "🔧 configure Zammad's Email channel (inbound IMAP + outbound SMTP) against Mailu"
   ansible.builtin.shell:
     cmd: |

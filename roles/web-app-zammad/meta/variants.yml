@@ -36,6 +36,9 @@
       shared: true
     redis:
       shared: true
+    litellm:
+      enabled: false
+      shared: false
 
   mcp:
     enabled: true
@@ -74,6 +77,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     redis:
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    litellm:
+      enabled: false
+      shared: false
 
   mcp:
     enabled: false
@@ -92,6 +98,9 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     ldap:
+      enabled: true
+      shared: true
+    litellm:
       enabled: true
       shared: true
     logout:

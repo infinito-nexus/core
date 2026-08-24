@@ -23,6 +23,12 @@ ZAMMAD_RAILS_PORT: "{{ lookup('config', application_id, 'services.' ~ ZAMMAD_RAI
 ZAMMAD_WEBSOCKET_PORT: "{{ lookup('config', application_id, 'services.' ~ ZAMMAD_WEBSOCKET_SERVICE ~ '.ports.internal.http') }}"
 ZAMMAD_SEARCH_PORT: "{{ lookup('config', application_id, 'services.' ~ ZAMMAD_SEARCH_SERVICE ~ '.ports.internal.http') }}"
 
+# Exception: env.j2 must never set DATABASE_URL. The image's config/pre_initializers/database_url.rb
+# builds it from POSTGRESQL_* only while DATABASE_URL is blank, so presetting it drops
+# POSTGRESQL_OPTIONS and Rails falls back to its default pool of 5, below the thread count
+# BackgroundServices starts in the scheduler.
+ZAMMAD_DB_POOL: 50
+
 ZAMMAD_API_BOT_USER: "{{ lookup('users', 'zammad-api-bot') }}"
 ZAMMAD_WIZARD_BYPASS_USER: "{{ lookup('users', 'zammad-wizard-bypass-admin') }}"
 ZAMMAD_API_BOT_PASSWORD: "{{ ZAMMAD_API_BOT_USER.password }}"
@@ -82,3 +88,8 @@ ZAMMAD_MCP_UPSTREAM_PASSWORD: "{{ ZAMMAD_MCP_ACCOUNT.password }}"
 ZAMMAD_MCP_UPSTREAM_TOKEN_LABEL: "infinito-mcp"
 ZAMMAD_MCP_UPSTREAM_AUTH_HEADER: "Authorization"
 ZAMMAD_MCP_UPSTREAM_AUTH_FORMAT: "Token token={key}"
+
+ZAMMAD_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') | bool }}"
+ZAMMAD_LITELLM_BASE_URL: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}"
+ZAMMAD_LITELLM_MODEL: "{{ LITELLM_CHAT_MODEL }}"
+ZAMMAD_LITELLM_API_KEY: "{{ lookup('config', application_id, 'credentials.litellm_api_key') }}"
