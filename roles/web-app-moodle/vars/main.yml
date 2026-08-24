@@ -3,7 +3,6 @@ application_id: "web-app-moodle"
 entity_name: "{{ application_id | get_entity_name }}"
 swarm_stack_converge_retries: 600
 
-MOODLE_DOMAIN: "{{ lookup('domain', application_id) }}"
 MOODLE_CODE_DIR: "/var/www/html"
 MOODLE_DATA_DIR: "/var/www/moodledata"
 MOODLE_LOCAL_CACHE_DIR: "{{ lookup('volume', application_id, 'localcache').mounts[0].target }}"
@@ -51,6 +50,40 @@ MOODLE_CRON_CONTAINER: "{{ lookup('config', application_id, 'services.cron.name'
 
 MOODLE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 MOODLE_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
+
+MOODLE_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') | bool }}"
+MOODLE_LITELLM_API_KEY: "{{ lookup('config', application_id, 'credentials.litellm_api_key') }}"
+MOODLE_LITELLM_CHAT_ENDPOINT: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}/chat/completions"
+MOODLE_LITELLM_IMAGE_ENDPOINT: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}/images/generations"
+MOODLE_LITELLM_SETTINGS:
+  - { component: aiprovider_openai, name: enabled, value: "1" }
+  - { component: aiprovider_openai, name: apikey, value: "{{ MOODLE_LITELLM_API_KEY }}" }
+  - { component: aiprovider_openai, name: action_generate_text_endpoint, value: "{{ MOODLE_LITELLM_CHAT_ENDPOINT }}" }
+  - { component: aiprovider_openai, name: action_generate_text_model, value: "{{ LITELLM_CHAT_MODEL }}" }
+  - { component: aiprovider_openai, name: action_summarise_text_endpoint, value: "{{ MOODLE_LITELLM_CHAT_ENDPOINT }}" }
+  - { component: aiprovider_openai, name: action_summarise_text_model, value: "{{ LITELLM_CHAT_MODEL }}" }
+  - { component: aiprovider_openai, name: action_generate_image_endpoint, value: "{{ MOODLE_LITELLM_IMAGE_ENDPOINT }}" }
+  - { component: aiprovider_openai, name: generate_image, value: "0" }
+  - { component: aiplacement_courseassist, name: enabled, value: "1" }
+  - { component: aiplacement_editor, name: enabled, value: "1" }
+
+MOODLE_EGRESS_BLOCKED_HOSTS:
+  - "0.0.0.0"
+  - "127.0.0.0/8"
+  - "localhost"
+  - "169.254.169.254"
+  - "0000::1"
+  - "10.0.0.0/8"
+MOODLE_EGRESS_ALLOWED_PORTS:
+  - "80"
+  - "443"
+MOODLE_EGRESS_NEWLINE: "\n"
+MOODLE_EGRESS_SETTINGS:
+  - name: curlsecurityblockedhosts
+    value: "{{ MOODLE_EGRESS_BLOCKED_HOSTS | join(MOODLE_EGRESS_NEWLINE) }}"
+  - name: curlsecurityallowedport
+    value: "{{ (MOODLE_EGRESS_ALLOWED_PORTS + ([MOODLE_LITELLM_CHAT_ENDPOINT | urlsplit('port') | string] if MOODLE_LITELLM_ENABLED | bool else [])) | join(MOODLE_EGRESS_NEWLINE)
+      }}"
 
 MOODLE_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') }}"
 MOODLE_MCP_PLUGIN_VERSION: "v0.6.0"

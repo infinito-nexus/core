@@ -15,6 +15,7 @@ The diagram places Moodle in the Infinito.Nexus cosmos: the components it deploy
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
+        dep_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_mariadb["svc-db-mariadb 🐳🐝"]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
@@ -27,6 +28,7 @@ flowchart LR
         dep_web_svc_logout["web-svc-logout 🐳🐝"]
     end
     subgraph role [web-app-moodle 🐳🐝]
+        svc_litellm["litellm"]
         svc_sso["sso"]
         svc_logout["logout"]
         svc_dashboard["dashboard"]
@@ -41,6 +43,7 @@ flowchart LR
         svc_prometheus["prometheus"]
         svc_container_backup["container_backup"]
     end
+    dep_svc_ai_litellm -. "0..1" .-> svc_litellm
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_mariadb -. "0..1" .-> svc_mariadb
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
@@ -145,6 +148,14 @@ Moodle compares every request against `$CFG->wwwroot`. A probe that reaches the 
 ### How to disable
 
 Remove the MCP client roles, or pin `mcp.enabled: false` for this role. The web-service token is then not issued and the protocol plugin stays unconfigured.
+
+## Outbound HTTP policy
+
+Moodle ships a cURL blocklist that rejects every request to `10.0.0.0/8`, `172.16.0.0/12` and `192.168.0.0/16`, and only permits ports 80 and 443. Both settings gate `\core\files\curl_security_helper`, which `auth_oidc` consults for the Keycloak token exchange and `\core\http_client` consults for the AI provider request. Keycloak answers on `172.16.0.0/12` and the gateway on `192.168.0.0/16`, so with the upstream defaults the OIDC login obtains no token and the AI provider cannot reach the gateway.
+
+`tasks/01_manager_ops.yml` therefore rewrites `curlsecurityblockedhosts` to `MOODLE_EGRESS_BLOCKED_HOSTS` and extends `curlsecurityallowedport` with the port of `MOODLE_LITELLM_CHAT_ENDPOINT` when the `litellm` service is enabled. Loopback, `0.0.0.0`, the cloud metadata address and `10.0.0.0/8` stay blocked; `172.16.0.0/12` and `192.168.0.0/16` are opened.
+
+This is an accepted trade-off, not an oversight. Moodle offers no allowlist, so a single internal host cannot be permitted without unblocking the range it sits in. The cost is that any account holding a URL-fetching capability, such as `block/rss_client:myaddinstance` or a `repository/url` instance, can make the server issue requests to sibling containers. Grant those capabilities only to roles you trust with that reach, or keep the upstream blocklist and accept that SSO login and the AI surface do not work.
 
 ## Image source
 

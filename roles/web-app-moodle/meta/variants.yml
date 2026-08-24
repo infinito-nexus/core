@@ -36,6 +36,9 @@
     prometheus:
       enabled: true
       shared: true
+    litellm:
+      enabled: true
+      shared: true
 
   mcp:
     enabled: true
@@ -71,6 +74,9 @@
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    litellm:
+      enabled: false
+      shared: false
   mcp:
     enabled: false
     shared: false
@@ -104,6 +110,9 @@
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    litellm:
+      enabled: true
+      shared: true
   mcp:
     enabled: false
     shared: false
