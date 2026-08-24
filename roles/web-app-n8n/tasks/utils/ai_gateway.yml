@@ -1,0 +1,25 @@
+---
+- name: "🔐 Verify the gateway contract for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
+
+- name: "🤖 Provision the managed OpenAI credential against the gateway"
+  ansible.builtin.command:
+    argv:
+      - python3
+      - "-"
+    stdin: "{{ lookup('file', 'provision_ai.py') }}"
+  environment:
+    N8N_BASE: "{{ N8N_INTERNAL_API_URL }}"
+    N8N_OWNER_EMAIL: "{{ N8N_OWNER_EMAIL }}"
+    N8N_OWNER_PASSWORD: "{{ N8N_OWNER_PASSWORD }}"
+    N8N_AI_CREDENTIAL: "{{ N8N_LITELLM_CREDENTIAL_NAME }}"
+    N8N_AI_BASE_URL: "{{ N8N_LITELLM_BASE_URL }}"
+    N8N_AI_API_KEY: "{{ N8N_LITELLM_API_KEY }}"
+  register: n8n_ai_provision
+  retries: 30
+  delay: 10
+  until: n8n_ai_provision.rc == 0
+  changed_when: n8n_ai_provision.stdout.startswith('CHANGED')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true

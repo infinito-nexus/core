@@ -46,6 +46,11 @@
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       run_once: true
 
+- name: "🤖 Bind the native AI surface to the platform gateway"
+  include_tasks:
+    file: utils/ai_gateway.yml
+  when: N8N_LITELLM_ENABLED | bool
+
 - name: "🔌 Provision the MCP surface"
   include_tasks:
     file: utils/mcp.yml

@@ -15,6 +15,7 @@ The diagram places n8n in the Infinito.Nexus cosmos: the components it deploys (
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
+        dep_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
@@ -36,7 +37,9 @@ flowchart LR
         svc_postgres["postgres"]
         svc_n8n["n8n"]
         svc_container_backup["container_backup"]
+        svc_litellm["litellm"]
     end
+    dep_svc_ai_litellm -. "0..1" .-> svc_litellm
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_postgres -. "0..1" .-> svc_postgres
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard

@@ -20,7 +20,13 @@ N8N_OWNER_EMAIL: "{{ lookup('users', 'administrator').email }}"
 N8N_MCP_TOKEN: "{{ lookup('config', application_id, 'credentials.mcp_token') }}"
 N8N_MCP_API_KEY_NAME: "infinito:mcp"
 N8N_MCP_WORKFLOW_NAME: "infinito:mcp-server"
+N8N_MCP_CREDENTIAL_NAME: "infinito:mcp-bearer"
 N8N_MCP_WEBHOOK_PATH: "infinito-mcp"
+
+N8N_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') | bool }}"
+N8N_LITELLM_BASE_URL: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}"
+N8N_LITELLM_API_KEY: "{{ lookup('config', application_id, 'credentials.litellm_api_key') }}"
+N8N_LITELLM_CREDENTIAL_NAME: "infinito:litellm"
 
 N8N_HOOKS_FILE_HOST: "{{ [ lookup('container', application_id, 'directories.instance'), 'hooks.js' ] | path_join }}"
 N8N_HOOKS_FILE_CONTAINER: "/home/node/hooks.js" # nocheck: container-var-name-lookup

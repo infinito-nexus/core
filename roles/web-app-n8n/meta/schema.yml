@@ -1,5 +1,10 @@
 ---
 credentials:
+  litellm_api_key:
+    description: Per-consumer virtual key for the shared svc-ai-litellm gateway
+    algorithm: sk_prefixed
+    validation:
+      min_length: 50
   encryption_key:
     description: "AES encryption key n8n uses to encrypt stored credentials at rest. Must remain stable across deploys — changing it invalidates all saved credentials."
     algorithm: alphanumeric
