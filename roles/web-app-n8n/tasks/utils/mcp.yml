@@ -13,6 +13,7 @@
     N8N_MCP_PATH: "{{ N8N_MCP_WEBHOOK_PATH }}"
     N8N_MCP_TOKEN: "{{ N8N_MCP_TOKEN }}"
     N8N_MCP_WORKFLOW: "{{ N8N_MCP_WORKFLOW_NAME }}"
+    N8N_MCP_CREDENTIAL: "{{ N8N_MCP_CREDENTIAL_NAME }}"
   register: n8n_mcp_provision
   retries: 30
   delay: 10

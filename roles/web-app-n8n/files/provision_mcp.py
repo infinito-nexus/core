@@ -1,17 +1,5 @@
 """Provision the deployment-managed MCP surfaces of n8n 1.95.3.
 
-The public API needs an ``X-N8N-API-KEY``, and that key can only be minted by a
-logged-in owner, so this runs the chain the pinned release actually supports:
-``POST /rest/login`` for the owner cookie, ``GET``/``POST /rest/api-keys`` for a
-deterministic managed key, then the public ``/api/v1`` routes for credentials
-and workflows.
-
-The managed server workflow uses the ``mcpTrigger`` node at version 1. Its
-``authentication`` is forced to ``bearerAuth``; the upstream ``none`` option
-would publish an unauthenticated SSE endpoint on the role's own vhost. The
-workflow is created deactivated, because an MCP server that answers before the
-operator opted in is a surface nobody asked for.
-
 Prints ``CHANGED``/``OK`` and then one JSON line carrying ``api_key``.
 
 Environment:
@@ -22,6 +10,7 @@ Environment:
     N8N_MCP_PATH:        webhook path segment of the managed trigger.
     N8N_MCP_TOKEN:       bearer the trigger requires from clients.
     N8N_MCP_WORKFLOW:    deterministic name of the managed workflow.
+    N8N_MCP_CREDENTIAL:  deterministic name of the managed bearer credential.
 """
 
 from __future__ import annotations
@@ -39,12 +28,14 @@ KEY_NAME = os.environ.get("N8N_API_KEY_NAME", "")
 MCP_PATH = os.environ.get("N8N_MCP_PATH", "")
 MCP_TOKEN = os.environ.get("N8N_MCP_TOKEN", "")
 WORKFLOW_NAME = os.environ.get("N8N_MCP_WORKFLOW", "")
+CREDENTIAL_NAME = os.environ.get("N8N_MCP_CREDENTIAL", "")
 
 REST = "/rest"
 PUBLIC = "/api/v1"
 TRIGGER_TYPE = "@n8n/n8n-nodes-langchain.mcpTrigger"
 TRIGGER_VERSION = 1
 BEARER_AUTH = "bearerAuth"
+CREDENTIAL_TYPE = "httpBearerAuth"
 
 SESSION = {"cookie": ""}
 
@@ -125,8 +116,48 @@ def api_key():
     return str(created["rawApiKey"]), bool(matches)
 
 
-def workflow_body():
-    """Return the managed MCP server workflow as the public API accepts it."""
+def bearer_credential():
+    """Return ``(reference, created)`` of the managed ``httpBearerAuth`` credential.
+
+    The reference is the ``{"id", "name"}`` shape a node's ``credentials`` map
+    expects. n8n encrypts credential data at rest and never hands it back, so an
+    existing managed credential is overwritten rather than compared.
+    """
+    status, body = call(f"{REST}/credentials")
+    if status != 200:
+        sys.exit(f"FAILED listing credentials: {status} {body}")
+
+    existing = (body or {}).get("data") if isinstance(body, dict) else body
+    matches = [item for item in existing or [] if item.get("name") == CREDENTIAL_NAME]
+    if len(matches) > 1:
+        sys.exit(f"FAILED: {len(matches)} credentials named {CREDENTIAL_NAME}")
+
+    payload = {
+        "name": CREDENTIAL_NAME,
+        "type": CREDENTIAL_TYPE,
+        "data": {"token": MCP_TOKEN},
+    }
+    if not matches:
+        status, body = call(f"{REST}/credentials", method="POST", payload=payload)
+        if status not in (200, 201):
+            sys.exit(f"FAILED creating {CREDENTIAL_NAME}: {status} {body}")
+        created = (body or {}).get("data") if isinstance(body, dict) else body
+        return {"id": str(created["id"]), "name": CREDENTIAL_NAME}, True
+
+    status, body = call(
+        f"{REST}/credentials/{matches[0]['id']}", method="PATCH", payload=payload
+    )
+    if status != 200:
+        sys.exit(f"FAILED updating {CREDENTIAL_NAME}: {status} {body}")
+    return {"id": str(matches[0]["id"]), "name": CREDENTIAL_NAME}, False
+
+
+def workflow_body(credential):
+    """Return the managed MCP server workflow as the public API accepts it.
+
+    Args:
+        credential: ``{"id", "name"}`` reference to the managed bearer credential.
+    """
     return {
         "name": WORKFLOW_NAME,
         "settings": {"executionOrder": "v1"},
@@ -142,6 +173,7 @@ def workflow_body():
                     "path": MCP_PATH,
                     "authentication": BEARER_AUTH,
                 },
+                "credentials": {CREDENTIAL_TYPE: credential},
             }
         ],
         "connections": {},
@@ -149,7 +181,7 @@ def workflow_body():
 
 
 def activate_workflow(key, workflow_id):
-    """Return whether activating the managed workflow changed its state.
+    """Activate the managed workflow, failing loudly when n8n refuses.
 
     Args:
         key: the public-API key.
@@ -158,18 +190,16 @@ def activate_workflow(key, workflow_id):
     status, body = call(
         f"{PUBLIC}/workflows/{workflow_id}/activate", method="POST", api_key=key
     )
-    if status == 200:
-        return True
-    if status == 400 and "already active" in str(body).lower():
-        return False
-    sys.exit(f"FAILED activating {WORKFLOW_NAME}: {status} {body}")
+    if status != 200:
+        sys.exit(f"FAILED activating {WORKFLOW_NAME}: {status} {body}")
 
 
-def upsert_workflow(key):
-    """Create or update the managed MCP server workflow.
+def upsert_workflow(key, credential):
+    """Create or reconcile the managed MCP server workflow, then activate it.
 
     Args:
         key: the public-API key.
+        credential: ``{"id", "name"}`` reference to the managed bearer credential.
     """
     status, body = call(f"{PUBLIC}/workflows", api_key=key)
     if status != 200:
@@ -180,18 +210,20 @@ def upsert_workflow(key):
     if len(matches) > 1:
         sys.exit(f"FAILED: {len(matches)} workflows named {WORKFLOW_NAME}")
 
-    payload = workflow_body()
+    payload = workflow_body(credential)
     if not matches:
         status, body = call(
             f"{PUBLIC}/workflows", method="POST", payload=payload, api_key=key
         )
         if status not in (200, 201):
             sys.exit(f"FAILED creating {WORKFLOW_NAME}: {status} {body}")
+        if not isinstance(body, dict) or "id" not in body:
+            sys.exit(f"FAILED creating {WORKFLOW_NAME}: no id in {body}")
+        activate_workflow(key, body["id"])
         return True
 
     flow = matches[0]
-    if flow.get("active"):
-        return activate_workflow(key, flow["id"])
+    changed = flow.get("nodes") != payload["nodes"] or not flow.get("active")
     status, body = call(
         f"{PUBLIC}/workflows/{flow['id']}",
         method="PUT",
@@ -200,8 +232,8 @@ def upsert_workflow(key):
     )
     if status != 200:
         sys.exit(f"FAILED updating {WORKFLOW_NAME}: {status} {body}")
-    changed = flow.get("nodes") != payload["nodes"]
-    return activate_workflow(key, flow["id"]) or changed
+    activate_workflow(key, flow["id"])
+    return changed
 
 
 def main():
@@ -209,8 +241,9 @@ def main():
         sys.exit("FAILED: no bearer configured; the trigger would be unauthenticated")
     login()
     key, rotated = api_key()
-    changed = upsert_workflow(key)
-    print(f"{'CHANGED' if changed or rotated else 'OK'}")
+    credential, minted = bearer_credential()
+    changed = upsert_workflow(key, credential)
+    print(f"{'CHANGED' if changed or minted or rotated else 'OK'}")
     print(json.dumps({"api_key": key}))
 
 
