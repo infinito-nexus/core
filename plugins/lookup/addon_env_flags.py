@@ -29,10 +29,16 @@ def _is_enabled(value: Any) -> bool:
 
 
 def _resolve_deployed_roles(variables, templar, applications):
-    """Resolve TEST_E2E_PLAYWRIGHT_APPS (the deployed playwright role ids) to a set.
+    """Resolve the round's deployed role closure to a set.
     Returns None when it cannot be resolved, in which case bridge-deployment
-    gating is skipped (no behaviour change)."""
-    raw = (variables or {}).get("TEST_E2E_PLAYWRIGHT_APPS")
+    gating is skipped (no behaviour change).
+
+    Exception: reads the inventory groups, never TEST_E2E_PLAYWRIGHT_APPS. That
+    list holds only roles that ship a Playwright suite, so a provider role
+    without one (svc-ai-litellm) is absent from it even while deployed, which
+    gated every litellm-bridged addon off.
+    """
+    raw = (variables or {}).get("group_names")
     if raw is None:
         return None
     resolved = raw
@@ -47,7 +53,7 @@ def _resolve_deployed_roles(variables, templar, applications):
         resolved = [r for r in re.split(r"[\s,]+", resolved.strip()) if r]
     if not isinstance(resolved, (list, tuple, set)):
         return None
-    return {str(r).strip() for r in resolved if str(r).strip()}
+    return {str(r).strip() for r in resolved if str(r).strip()} or None
 
 
 def _any_bridge_partner_deployed(bridges, deployed_roles, service_registry):

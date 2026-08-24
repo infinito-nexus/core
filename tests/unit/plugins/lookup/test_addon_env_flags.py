@@ -123,7 +123,7 @@ class TestNoAddons(unittest.TestCase):
 
 class TestBridgeDeploymentGating(unittest.TestCase):
     """A bridged addon's flag is true only when one of its partner roles is in the
-    deployed playwright set (TEST_E2E_PLAYWRIGHT_APPS). When the set cannot be
+    round's deployed closure (the inventory groups). When the set cannot be
     resolved the gating is skipped (flag falls back to enabled AND required)."""
 
     def setUp(self):
@@ -140,6 +140,11 @@ class TestBridgeDeploymentGating(unittest.TestCase):
                 "enabled": True,
                 "required": True,
                 "bridges": ["openwebui", "flowise"],
+            },
+            "litellm_bridge": {
+                "enabled": True,
+                "required": True,
+                "bridges": ["litellm"],
             },
             "no_bridge": {"enabled": True, "required": True},
             "disabled_bridge": {
@@ -168,27 +173,31 @@ class TestBridgeDeploymentGating(unittest.TestCase):
         return dict(line.split("=", 1) for line in out.splitlines())
 
     def test_partner_deployed_keeps_true(self):
-        f = self._flags(
-            {"TEST_E2E_PLAYWRIGHT_APPS": ["web-app-gitlab", "web-app-nextcloud"]}
-        )
+        f = self._flags({"group_names": ["web-app-gitlab", "web-app-nextcloud"]})
         self.assertEqual(f["GL_BRIDGE_ADDON_ENABLED"], "true")
 
     def test_partner_not_deployed_gated_false(self):
-        f = self._flags(
-            {"TEST_E2E_PLAYWRIGHT_APPS": ["web-app-gitlab", "web-app-nextcloud"]}
-        )
+        f = self._flags({"group_names": ["web-app-gitlab", "web-app-nextcloud"]})
         self.assertEqual(f["MASTO_BRIDGE_ADDON_ENABLED"], "false")
 
     def test_any_partner_of_multi_bridge_counts(self):
-        f = self._flags({"TEST_E2E_PLAYWRIGHT_APPS": ["svc-ai-flowise"]})
+        f = self._flags({"group_names": ["svc-ai-flowise"]})
         self.assertEqual(f["MULTI_BRIDGE_ADDON_ENABLED"], "true")
 
+    def test_provider_role_without_playwright_suite_counts(self):
+        f = self._flags({"group_names": ["web-app-mediawiki", "svc-ai-litellm"]})
+        self.assertEqual(f["LITELLM_BRIDGE_ADDON_ENABLED"], "true")
+
+    def test_provider_role_absent_from_closure_gated_false(self):
+        f = self._flags({"group_names": ["web-app-mediawiki"]})
+        self.assertEqual(f["LITELLM_BRIDGE_ADDON_ENABLED"], "false")
+
     def test_no_bridge_addon_unaffected(self):
-        f = self._flags({"TEST_E2E_PLAYWRIGHT_APPS": ["web-app-nextcloud"]})
+        f = self._flags({"group_names": ["web-app-nextcloud"]})
         self.assertEqual(f["NO_BRIDGE_ADDON_ENABLED"], "true")
 
     def test_disabled_addon_stays_false(self):
-        f = self._flags({"TEST_E2E_PLAYWRIGHT_APPS": ["web-app-gitlab"]})
+        f = self._flags({"group_names": ["web-app-gitlab"]})
         self.assertEqual(f["DISABLED_BRIDGE_ADDON_ENABLED"], "false")
 
     def test_no_deployed_set_falls_back_no_gating(self):
@@ -197,9 +206,7 @@ class TestBridgeDeploymentGating(unittest.TestCase):
         self.assertEqual(f["GL_BRIDGE_ADDON_ENABLED"], "true")
 
     def test_deployed_set_as_string_is_split(self):
-        f = self._flags(
-            {"TEST_E2E_PLAYWRIGHT_APPS": "web-app-gitlab web-app-nextcloud"}
-        )
+        f = self._flags({"group_names": "web-app-gitlab web-app-nextcloud"})
         self.assertEqual(f["GL_BRIDGE_ADDON_ENABLED"], "true")
         self.assertEqual(f["MASTO_BRIDGE_ADDON_ENABLED"], "false")
 
@@ -239,9 +246,7 @@ class TestBridgeResolvesProviderKey(unittest.TestCase):
         self.addCleanup(lambda: [p.stop() for p in self._patchers])
 
     def _flag(self, apps):
-        out = self.lookup.run(
-            ["web-app-wordpress"], variables={"TEST_E2E_PLAYWRIGHT_APPS": apps}
-        )[0]
+        out = self.lookup.run(["web-app-wordpress"], variables={"group_names": apps})[0]
         return dict(line.split("=", 1) for line in out.splitlines())[
             "CA_TRUST_ADDON_ENABLED"
         ]
