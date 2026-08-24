@@ -37,6 +37,14 @@ moodle_bootstrap_code_dir() {
   touch "${MOODLE_BOOTSTRAP_SENTINEL}"
 }
 
+moodle_refresh_config() {
+	if [ -f "${MOODLE_SOURCE_DIR}/config.php" ]; then
+		cp -f "${MOODLE_SOURCE_DIR}/config.php" "${MOODLE_CODE_DIR}/config.php" || true
+		chown "${MOODLE_RUNTIME_USER}:${MOODLE_RUNTIME_USER}" "${MOODLE_CODE_DIR}/config.php" || true
+		chmod 0640 "${MOODLE_CODE_DIR}/config.php" || true
+	fi
+}
+
 mkdir -p "${MOODLE_CODE_DIR}"
 while [ ! -f "${MOODLE_BOOTSTRAP_SENTINEL}" ]; do
   exec 9>>"${MOODLE_BOOTSTRAP_LOCK}"
@@ -47,6 +55,8 @@ while [ ! -f "${MOODLE_BOOTSTRAP_SENTINEL}" ]; do
   fi
   exec 9>&-
 done
+
+moodle_refresh_config
 
 if [ "$(id -u)" -eq 0 ] && [ "${1:-}" != "php-fpm" ]; then
   exec gosu "${MOODLE_RUNTIME_USER}" "$@"

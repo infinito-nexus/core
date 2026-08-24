@@ -43,6 +43,12 @@ $CFG->directorypermissions = 02770;
 $CFG->reverseproxy = moodle_env_bool('MOODLE_REVERSEPROXY');
 $CFG->sslproxy     = moodle_env_bool('MOODLE_SSLPROXY');
 
+$_moodle_internal_host = moodle_env('MOODLE_INTERNAL_HOST');
+if (explode(':', $_SERVER['HTTP_HOST'] ?? '', 2)[0] === $_moodle_internal_host) {
+    $_SERVER['HTTP_HOST']   = parse_url($CFG->wwwroot, PHP_URL_HOST);
+    $_SERVER['SERVER_NAME'] = $_SERVER['HTTP_HOST'];
+}
+
 $_moodle_debug     = moodle_env_bool('MOODLE_DEBUG');
 $CFG->debug        = $_moodle_debug ? 32767 : 0;
 $CFG->debugdisplay = $_moodle_debug;

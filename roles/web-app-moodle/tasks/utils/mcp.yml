@@ -22,4 +22,4 @@
     mcp_probe_path_key: ""
     mcp_probe_read_tool: "core_course_get_courses"
     mcp_probe_read_args: {}
-    mcp_probe_host: "{{ MOODLE_DOMAIN }}"
+    mcp_probe_host: ""

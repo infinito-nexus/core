@@ -6,8 +6,6 @@
         -X POST \
         -H 'Content-Type: application/json' \
         -H 'Accept: application/json' \
-        -H {{ ('Host: ' ~ MOODLE_DOMAIN) | quote }} \
-        -H 'X-Forwarded-Proto: https' \
         -H {{ ('Authorization: Bearer ' ~ moodle_mcp_token) | quote }} \
         --data-binary {{ MOODLE_MCP_TOOLS_LIST_PAYLOAD | to_json | quote }} \
         {{ MOODLE_MCP_URL | quote }}
