@@ -41,7 +41,7 @@
 - name: "Connect '{{ DISCOURSE_CONTAINER }}' to its shared swarm overlays"
   command: "container network connect {{ discourse_overlay }} {{ DISCOURSE_CONTAINER }}"
   loop: "{{ ([DISCOURSE_WEB_NETWORK] + ([DISCOURSE_PG_NETWORK] if (DISCOURSE_DATABASE_IS_SHARED | bool) else []) + ([DISCOURSE_REDIS_NETWORK] if (DISCOURSE_REDIS_SHARED
-    | bool) else [])) }}"
+    | bool) else []) + ([DISCOURSE_LITELLM_NETWORK] if (DISCOURSE_LITELLM_ENABLED | bool) else [])) }}"
   loop_control:
     loop_var: discourse_overlay
     label: "{{ discourse_overlay }}"

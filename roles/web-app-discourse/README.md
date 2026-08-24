@@ -15,6 +15,7 @@ The diagram places Discourse in the Infinito.Nexus cosmos: the components it dep
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
+        dep_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
         dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
@@ -29,6 +30,7 @@ flowchart LR
         dep_web_svc_logout["web-svc-logout 🐳🐝"]
     end
     subgraph role [web-app-discourse 🐳🐝]
+        svc_litellm["litellm"]
         svc_asset["asset"]
         svc_sso["sso"]
         svc_ldap["ldap ❌"]
@@ -47,6 +49,7 @@ flowchart LR
         dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]
         dpt_web_app_wordpress["web-app-wordpress 🐳🐝"]
     end
+    dep_svc_ai_litellm -. "0..1" .-> svc_litellm
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_openldap -- "1:1" --> svc_ldap
     dep_svc_db_postgres -. "0..1" .-> svc_postgres
@@ -59,8 +62,8 @@ flowchart LR
     dep_web_svc_asset -. "0..1" .-> svc_asset
     dep_web_svc_css -. "0..1" .-> svc_css
     dep_web_svc_logout -. "0..1" .-> svc_logout
-    svc_asset -. "0..1" .-> dpt_web_app_nextcloud
-    svc_asset -. "0..1" .-> dpt_web_app_wordpress
+    svc_litellm -. "0..1" .-> dpt_web_app_nextcloud
+    svc_litellm -. "0..1" .-> dpt_web_app_wordpress
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
