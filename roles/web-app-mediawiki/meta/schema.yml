@@ -1,5 +1,10 @@
 ---
 credentials:
+  litellm_api_key:
+    description: Per-consumer virtual key for the shared svc-ai-litellm gateway
+    algorithm: sk_prefixed
+    validation:
+      min_length: 50
   secret_key:
     description: MediaWiki $wgSecretKey (hex-encoded 32 random bytes)
     algorithm: random_hex_32

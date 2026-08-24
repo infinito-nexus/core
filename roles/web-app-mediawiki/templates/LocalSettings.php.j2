@@ -1,6 +1,7 @@
 <?php
 # Managed by Ansible ({{ SOFTWARE_NAME }}).
 # Do not edit manually; change the role/template instead.
+# nocheck: comments-valid  upstream MediaWiki LocalSettings.php reference documentation
 #
 # See includes/MainConfigSchema.php for all configurable settings
 # and their default values, but don't forget to make changes in _this_
@@ -130,6 +131,18 @@ wfLoadSkin( 'Vector' );
 
 {% if MEDIAWIKI_OIDC_ENABLED | bool %}
 require_once '{{ MEDIAWIKI_LOCAL_PATH }}/oidc.php';
+{% endif %}
+
+{% if MEDIAWIKI_LITELLM_ENABLED | bool %}
+if ( file_exists( "$IP/extensions/VisualEditorPlus/vendor/autoload.php" )
+	&& file_exists( "$IP/extensions/AIEditingAssistant/extension.json" ) ) {
+	wfLoadExtension( 'VisualEditor' );
+	wfLoadExtension( 'VisualEditorPlus' );
+	wfLoadExtension( 'AIEditingAssistant' );
+	$wgAIEditingAssistantActiveProvider = '{{ MEDIAWIKI_LITELLM_PROVIDER }}';
+	$wgAIEditingAssistantActiveProviderConnection = '{{ MEDIAWIKI_LITELLM_CONNECTION | to_json }}';
+	$wgHTTPTimeout = {{ MEDIAWIKI_LITELLM_HTTP_TIMEOUT | int }};
+}
 {% endif %}
 
 {% if MODE_DEBUG | bool %}

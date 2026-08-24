@@ -38,10 +38,19 @@ MEDIAWIKI_OIDC_BUTTON_TEXT: "{{ OIDC.BUTTON_TEXT }}"
 MEDIAWIKI_OIDC_AUTOLOGIN: true
 MEDIAWIKI_OIDC_LOCALLOGIN: false
 
+MEDIAWIKI_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') | bool }}"
+MEDIAWIKI_LITELLM_PROVIDER: "open-ai"
+MEDIAWIKI_LITELLM_CONNECTION:
+  url: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}"
+  endpoint: "chat/completions"
+  model: "{{ LITELLM_CHAT_MODEL }}"
+  secret: "{{ lookup('config', application_id, 'credentials.litellm_api_key') }}"
+MEDIAWIKI_LITELLM_HTTP_TIMEOUT: 120
+
 MEDIAWIKI_EXT_BRANCH: "REL{{ (MEDIAWIKI_VERSION | string).split('.')[:2] | join('_') }}"
 MEDIAWIKI_EXT_CFG_BASE: "{{ [ MEDIAWIKI_CONFIG_DIR, 'mwext', MEDIAWIKI_EXT_BRANCH ] | path_join }}"
 MEDIAWIKI_EXT_HELPER_DIR: "{{ [ MEDIAWIKI_EXT_CFG_BASE, 'helpers' ] | path_join }}"
-MEDIAWIKI_EXT_NAMES: "{{ lookup('config', application_id, 'addons').keys() | list }}"
+MEDIAWIKI_EXT_NAMES: "{{ lookup('config', application_id, 'addons') | dict2items | selectattr('value.enabled') | map(attribute='key') | list }}"
 # nocheck: url
 MEDIAWIKI_EXT_URL_PREFIX: "https://codeload.github.com/wikimedia/mediawiki-extensions-"
 MEDIAWIKI_EXT_URL_SUFFIX: "/tar.gz/refs/heads/{{ MEDIAWIKI_EXT_BRANCH }}"
