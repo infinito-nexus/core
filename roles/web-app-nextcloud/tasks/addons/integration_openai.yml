@@ -8,20 +8,22 @@
     nextcloud_openai_use_litellm: "{{ ('svc-ai-litellm' in group_names) and ('web-app-openwebui' not in group_names) }}"
   changed_when: false
 
-- name: 🔍 Resolve LiteLLM virtual key for integration_openai api_key
-  set_fact:
-    nextcloud_openai_litellm_api_key: "{{ lookup('config', 'web-app-nextcloud', 'credentials.litellm_api_key', '') }}"
-  changed_when: false
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+- name: 🔑 Bind integration_openai to the LiteLLM gateway
   when: nextcloud_openai_use_litellm | bool
+  block:
+    - name: "🔐 Verify the gateway contract for {{ application_id }}"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
 
-- name: 🔧 Provision integration_openai api_key for the LiteLLM gateway backend
-  shell: >
-    {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:set integration_openai api_key
-    --value '{{ nextcloud_openai_litellm_api_key }}'
-  register: nextcloud_openai_set_api_key
-  changed_when: nextcloud_openai_set_api_key.stdout is search(' set to ')
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  when:
-    - nextcloud_openai_use_litellm | bool
-    - (nextcloud_openai_litellm_api_key | default('')) | length > 0
+    - name: 🔍 Resolve LiteLLM virtual key for integration_openai api_key
+      set_fact:
+        nextcloud_openai_litellm_api_key: "{{ lookup('config', 'web-app-nextcloud', 'credentials.litellm_api_key') }}"
+      changed_when: false
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+    - name: 🔧 Provision integration_openai api_key for the LiteLLM gateway backend
+      shell: >
+        {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:set integration_openai api_key
+        --value '{{ nextcloud_openai_litellm_api_key }}'
+      register: nextcloud_openai_set_api_key
+      changed_when: nextcloud_openai_set_api_key.stdout is search(' set to ')
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
