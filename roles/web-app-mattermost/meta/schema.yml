@@ -1,5 +1,10 @@
 ---
 credentials:
+  litellm_api_key:
+    description: Per-consumer virtual key for the shared svc-ai-litellm gateway
+    algorithm: sk_prefixed
+    validation:
+      min_length: 50
   mcp_bearer:
     description: "Bearer an MCP client must present to this role's adapter instance. Distinct from the credential the adapter presents upstream: holding a token the
       application accepts says nothing about who called the adapter."

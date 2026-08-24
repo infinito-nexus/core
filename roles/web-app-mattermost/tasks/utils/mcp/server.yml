@@ -1,23 +1,9 @@
 ---
 - name: "🧩 Mattermost | Activate the prepackaged Agents plugin"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -i
-      - "{{ MATTERMOST_MCP_LOCAL_CID }}" # nocheck: container-exec-resolver
-      - /mattermost/bin/mmctl
-      - --local
-      - plugin
-      - enable
-      - "{{ MATTERMOST_MCP_PLUGIN_ID }}"
-  register: mattermost_mcp_plugin_enable
-  retries: 60
-  delay: 5
-  until: mattermost_mcp_plugin_enable.rc == 0
-  changed_when: false
-  delegate_to: "{{ MATTERMOST_MCP_HOST_NODE }}"
-  run_once: true
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/agents/enable.yml"
+  vars:
+    mattermost_agents_cid: "{{ MATTERMOST_MCP_LOCAL_CID }}"
+    mattermost_agents_node: "{{ MATTERMOST_MCP_HOST_NODE }}"
 
 - name: "🔎 Mattermost | Read the Agents MCP server toggle"
   database_query:

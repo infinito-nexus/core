@@ -1,0 +1,22 @@
+SELECT CASE
+         WHEN (SELECT s
+                 FROM jsonb_array_elements(
+                        CASE WHEN jsonb_typeof(a.config::jsonb -> 'services') = 'array'
+                             THEN a.config::jsonb -> 'services'
+                             ELSE '[]'::jsonb END
+                      ) AS s
+                WHERE s ->> 'id' = d.service ->> 'id') = d.service
+          AND (SELECT b
+                 FROM jsonb_array_elements(
+                        CASE WHEN jsonb_typeof(a.config::jsonb -> 'bots') = 'array'
+                             THEN a.config::jsonb -> 'bots'
+                             ELSE '[]'::jsonb END
+                      ) AS b
+                WHERE b ->> 'id' = d.bot ->> 'id') = d.bot
+         THEN 'converged'
+         ELSE 'stale'
+       END
+  FROM agents_confighistory a,
+       (SELECT $infinito${{ MATTERMOST_LITELLM_SERVICE | to_json }}$infinito$::jsonb AS service,
+               $infinito${{ MATTERMOST_LITELLM_BOT | to_json }}$infinito$::jsonb AS bot) AS d
+ WHERE a.active = true;

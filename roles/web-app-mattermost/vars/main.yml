@@ -11,6 +11,40 @@ MATTERMOST_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, en
 
 MATTERMOST_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 
+MATTERMOST_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') | bool }}"
+MATTERMOST_LITELLM_BASE_URL: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}"
+MATTERMOST_LITELLM_API_KEY: "{{ lookup('config', application_id, 'credentials.litellm_api_key') }}"
+MATTERMOST_LITELLM_SERVICE_ID: infinito-litellm
+MATTERMOST_LITELLM_BOT_ID: infinito-litellm-agent
+MATTERMOST_LITELLM_BOT_NAME: agent
+
+MATTERMOST_LITELLM_SERVICE:
+  id: "{{ MATTERMOST_LITELLM_SERVICE_ID }}"
+  name: Infinito LiteLLM
+  type: openaicompatible
+  apiKey: "{{ MATTERMOST_LITELLM_API_KEY }}"
+  apiURL: "{{ MATTERMOST_LITELLM_BASE_URL }}"
+  defaultModel: "{{ LITELLM_CHAT_MODEL }}"
+  orgId: ""
+  tokenLimit: 0
+  streamingTimeoutSeconds: 0
+
+MATTERMOST_LITELLM_BOT:
+  id: "{{ MATTERMOST_LITELLM_BOT_ID }}"
+  name: "{{ MATTERMOST_LITELLM_BOT_NAME }}"
+  displayName: Agent
+  customInstructions: ""
+  serviceID: "{{ MATTERMOST_LITELLM_SERVICE_ID }}"
+  model: "{{ LITELLM_CHAT_MODEL }}"
+  enableVision: false
+  disableTools: false
+  channelAccessLevel: 0
+  channelIDs: []
+  userAccessLevel: 0
+  userIDs: []
+  teamIDs: []
+  maxFileSize: 0
+
 MATTERMOST_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') }}"
 MATTERMOST_MCP_PLUGIN_ID: mattermost-ai
 MATTERMOST_MCP_TOKEN_DESCRIPTION: mcp

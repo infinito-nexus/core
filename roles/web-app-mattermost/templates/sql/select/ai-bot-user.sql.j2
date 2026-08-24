@@ -1,0 +1,4 @@
+SELECT count(*)
+  FROM bots b
+  JOIN users u ON u.id = b.userid
+ WHERE u.username = $infinito${{ MATTERMOST_LITELLM_BOT_NAME }}$infinito$;

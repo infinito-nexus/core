@@ -100,6 +100,10 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+litellm:
+  bond: 0.5
+  enabled: "{{ 'svc-ai-litellm' in group_names }}"
+  shared: "{{ 'svc-ai-litellm' in group_names }}"
 # nocheck: dockerfile-custom  the Dockerfile is owned by svc-ai-mcp-adapter and staged per instance, so every adapter-backed provider shares one audited build
 mattermostmcp:
   image: python
