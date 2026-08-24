@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Infinito MCP Abilities
- * Description: Registers the reviewed read-only Abilities the MCP adapter may expose.
+ * Description: Registers the reviewed read-only Abilities the MCP adapter may expose, and keeps the application password usable on the internal MCP hop.
  *
  * The MCP Adapter publishes an ability only when it carries
  * meta.mcp.public = true, so this file is the entire tool surface: whatever is
@@ -24,6 +24,15 @@ const INFINITO_MCP_MAX_RESULTS = 20;
 function infinito_mcp_may_read() {
 	return is_user_logged_in() && current_user_can( 'read' );
 }
+
+/**
+ * @param bool $available Whether core already considers them available.
+ */
+function infinito_mcp_app_passwords_available( $available ) {
+	return $available || 'https' === wp_parse_url( home_url(), PHP_URL_SCHEME );
+}
+
+add_filter( 'wp_is_application_passwords_available', 'infinito_mcp_app_passwords_available' );
 
 /**
  * Reduce a post to the non-sensitive fields an agent needs.
