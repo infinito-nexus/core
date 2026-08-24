@@ -26,4 +26,5 @@ require("./test-dm-admin-biber").register(shared);
 require("./test-guest-persona").register(shared);
 require("./test-element-call").register(shared);
 require("./test-bridge-roster").register(shared);
+require("./test-litellm-chatgpt").register(shared);
 require("./test-seaweedfs");

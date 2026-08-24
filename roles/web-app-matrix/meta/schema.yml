@@ -1,5 +1,10 @@
 ---
 credentials:
+  litellm_api_key:
+    description: Per-consumer virtual key for the shared svc-ai-litellm gateway
+    algorithm: sk_prefixed
+    validation:
+      min_length: 50
   administrator_password:
     description: Initial administrator password for the Matrix homeserver
     algorithm: sha256
@@ -25,9 +30,10 @@ credentials:
     algorithm: sha256
     validation: ^[a-f0-9]{64}$
   chatgpt_bridge_openai_api_key:
-    description: API key for accessing OpenAI via the Matrix ChatGPT bridge
-    algorithm: plain
-    validation: ^sk-[a-zA-Z0-9]{40,}$
+    description: Key the Matrix ChatGPT bridge presents to its inference endpoint, the shared gateway when svc-ai-litellm is deployed
+    algorithm: sk_prefixed
+    validation:
+      min_length: 50
   chatgpt_bridge_access_token:
     description: Access token used by the ChatGPT bridge for authentication
     algorithm: plain

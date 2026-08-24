@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { decodeDotenvQuotedValue } = require("./personas");
 
 const BRIDGE_TO_BOT_LOCALPART = {
   appservice_irc: "ircbot",
@@ -37,7 +38,7 @@ exports.register = function (shared) {
     shared.skipUnlessServiceEnabled("bridges");
     const { matrixBaseUrl, matrixServerName } = shared.env;
 
-    const rawPlugins = process.env.MATRIX_PLUGINS_JSON || "{}";
+    const rawPlugins = decodeDotenvQuotedValue(process.env.MATRIX_PLUGINS_JSON || "") || "{}";
     let plugins;
     try {
       plugins = JSON.parse(rawPlugins);
