@@ -20,7 +20,7 @@
 - name: "🔎 Mattermost | Compare the stored Agents config to the contract"
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query: "{{ lookup('template', role_path ~ '/templates/sql/select/ai-service.sql.j2') }}" # nocheck: database-query-raw  the desired service and bot are rendered from role vars
+    query: "{{ lookup('template', role_path ~ '/templates/sql/select/ai/service.sql.j2') }}" # nocheck: database-query-raw  the desired service and bot are rendered from role vars
     expect_rows: true
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   register: mattermost_ai_state
@@ -34,7 +34,7 @@
 - name: "🔎 Mattermost | Count the Agents bot accounts the plugin has provisioned"
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query: "{{ lookup('template', role_path ~ '/templates/sql/select/ai-bot-user.sql.j2') }}" # nocheck: database-query-raw  the bot username is templated into the predicate
+    query: "{{ lookup('template', role_path ~ '/templates/sql/select/ai/bot-user.sql.j2') }}" # nocheck: database-query-raw  the bot username is templated into the predicate
     expect_rows: true
   register: mattermost_ai_bot_state
   changed_when: false
@@ -63,7 +63,7 @@
 - name: "🔎 Mattermost | Re-read the stored Agents service and bot"
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query: "{{ lookup('template', role_path ~ '/templates/sql/select/ai-service.sql.j2') }}" # nocheck: database-query-raw  the desired service and bot are rendered from role vars
+    query: "{{ lookup('template', role_path ~ '/templates/sql/select/ai/service.sql.j2') }}" # nocheck: database-query-raw  the desired service and bot are rendered from role vars
     expect_rows: true
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   register: mattermost_ai_state_final
@@ -84,7 +84,7 @@
 - name: "🔎 Mattermost | Wait for the Agents plugin to provision its bot account"
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query: "{{ lookup('template', role_path ~ '/templates/sql/select/ai-bot-user.sql.j2') }}" # nocheck: database-query-raw  the bot username is templated into the predicate
+    query: "{{ lookup('template', role_path ~ '/templates/sql/select/ai/bot-user.sql.j2') }}" # nocheck: database-query-raw  the bot username is templated into the predicate
     expect_rows: true
   register: mattermost_ai_bot_final
   retries: 60
