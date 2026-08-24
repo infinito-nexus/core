@@ -32,11 +32,6 @@ def _resolve_deployed_roles(variables, templar, applications):
     """Resolve the round's deployed role closure to a set.
     Returns None when it cannot be resolved, in which case bridge-deployment
     gating is skipped (no behaviour change).
-
-    Exception: reads the inventory groups, never TEST_E2E_PLAYWRIGHT_APPS. That
-    list holds only roles that ship a Playwright suite, so a provider role
-    without one (svc-ai-litellm) is absent from it even while deployed, which
-    gated every litellm-bridged addon off.
     """
     raw = (variables or {}).get("group_names")
     if raw is None:

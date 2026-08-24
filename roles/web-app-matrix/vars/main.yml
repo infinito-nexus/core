@@ -40,10 +40,6 @@ MATRIX_SYNAPSE_LOG_PATH_HOST: "{{ [ lookup('container', application_id, 'directo
 MATRIX_SYNAPSE_LOG_PATH_CONTAINER: "/data/{{ MATRIX_SYNAPSE_DOMAIN }}.log.config" # nocheck: container-var-name-lookup in-container path, not a container name
 MATRIX_SYNAPSE_BIND_MOUNT_MODE: "0644"
 MATRIX_SYNAPSE_URL: "{{ lookup('tls', application_id, 'protocols.web') }}://{{ MATRIX_SYNAPSE_DOMAIN }}"
-# Exception: container-network address for co-located bridges. Reaching Synapse
-# through MATRIX_SYNAPSE_URL sends them out over the public ingress, where a 502
-# during startup still consumes an rc_login.address slot; once that bucket is
-# empty the bridge crash-loops on M_LIMIT_EXCEEDED for the container's lifetime.
 MATRIX_SYNAPSE_LOCAL_URL: "http://{{ MATRIX_SYNAPSE_CONTAINER_ADDRESS }}:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}"
 MATRIX_SYNAPSE_LISTEN_FLAGS: "{{ MATRIX_FEDERATION_PORT }} {{ 'ssl ' if (lookup('tls', application_id, 'enabled') | bool) else '' }} default_server"
 
