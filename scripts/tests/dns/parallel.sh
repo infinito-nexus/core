@@ -19,7 +19,7 @@ run_one() {
 	local image="ghcr.io/${OWNER}/${REPO_NAME}/${d}:ci-${GITHUB_SHA}"
 	local name="dns-dind-${d}"
 
-	docker rm -f "${name}" >/dev/null 2>&1 || true
+	docker rm -f "${name}" >/dev/null 2>&1 || true # nocheck: shell-or-true -- cleanup of a possibly already-removed container
 	docker run -d --name "${name}" \
 		--privileged \
 		--cgroupns=host \
@@ -60,7 +60,7 @@ for d in "${distros[@]}"; do
 		echo "::error::DNS test failed for ${d}"
 		rc_total=1
 	fi
-	docker rm -f "dns-dind-${d}" >/dev/null 2>&1 || true
+	docker rm -f "dns-dind-${d}" >/dev/null 2>&1 || true # nocheck: shell-or-true -- cleanup of a possibly already-removed container
 done
 
 exit "${rc_total}"

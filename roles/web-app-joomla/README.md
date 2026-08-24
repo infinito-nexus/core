@@ -20,6 +20,7 @@ flowchart LR
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_mariadb["svc-db-mariadb 🐳🐝"]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
@@ -39,11 +40,13 @@ flowchart LR
         svc_joomla["joomla"]
         svc_css["css"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
         svc_container_backup["container_backup"]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_mariadb -. "0..1" .-> svc_mariadb
-    dep_svc_db_openldap -- "1:1" --> svc_ldap
+    dep_svc_db_openldap -- "0..0" --> svc_ldap
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
@@ -51,9 +54,10 @@ flowchart LR
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_svc_css -. "0..1" .-> svc_css
     dep_web_svc_logout -. "0..1" .-> svc_logout
+    linkStyle 2 stroke:red;
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Addons
 
@@ -131,6 +135,12 @@ Until the biber path is added:
 
 - [Joomla Official Website](https://www.joomla.org/)
 - [Joomla Documentation](https://docs.joomla.org/)
+
+## Persona contract opt-outs
+
+The shared `biber` and `administrator` persona journeys are opted out via `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`.
+Joomla's site template ships no login/logout module, and `plg_system_keycloak` exposes sign-out only as the route `index.php?option=keycloak&task=logout` (`files/joomla-oidc-plugin/plg_system_keycloak/src/Extension/Keycloak.php`, `handleLogout`) rather than as a rendered control, so the persona's mandatory in-app logout click has no target and navigating a logout URL directly is forbidden by the contract.
+The OIDC handshake itself, the LDAP variant and the `/administrator?fallback=local` hatch are covered by `files/playwright/test-oidc-login.js`, `test-ldap-login.js` and `test-oidc-fallback.js`.
 
 ## Credits
 

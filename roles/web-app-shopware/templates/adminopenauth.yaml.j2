@@ -1,0 +1,9 @@
+services:
+  heptacom.admin_open_auth.oidc.http_client:
+    class: 'GuzzleHttp\Client'
+    arguments:
+      - protocols: {{ ['http', 'https'] if (SHOPWARE_OIDC_INTERNAL_BASE | regex_search('^http://')) else ['https'] }}
+        verify: true
+        timeout: 15
+        headers:
+          Accept: application/json

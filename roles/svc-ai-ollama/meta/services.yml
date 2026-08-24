@@ -1,5 +1,7 @@
 ---
 ollama:
+  healthcheck:
+    flavor: tcp
   modes:
     compose:
       enabled: true
@@ -11,7 +13,7 @@ ollama:
   backup:
     no_stop_required: true
   image: ollama/ollama
-  version: 0.32.13
+  version: 0.32.15
   name: ollama
   min_storage: 3473MB
   cpus: "4.0"

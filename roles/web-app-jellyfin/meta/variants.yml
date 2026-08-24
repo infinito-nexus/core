@@ -23,6 +23,8 @@
     sso:
       enabled: true
       shared: true
+    tor:
+      enabled: true
 
   mcp:
     enabled: true
@@ -52,6 +54,8 @@
     sso:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    tor:
+      enabled: true
 
   mcp:
     enabled: false
@@ -81,6 +85,9 @@
     sso:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    tor:
+      enabled: true
+
   mcp:
     enabled: false
     shared: false

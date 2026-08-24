@@ -13,7 +13,7 @@
     group: root
     mode: "0644"
   when: ansible_facts['os_family'] == 'Archlinux'
-  notify: "Restart NFS ganesha"
+  notify: "restart-nfs-ganesha"
 
 - name: "🔧 Mask the broken nfs-ganesha-config helper unit"
   ansible.builtin.systemd:
@@ -46,7 +46,7 @@
     owner: root
     group: root
     mode: "0644"
-  notify: "Restart NFS ganesha"
+  notify: "restart-nfs-ganesha"
 
 - name: "📁 Ensure the nfs-ganesha systemd drop-in dir exists"
   ansible.builtin.file:
@@ -63,7 +63,7 @@
     owner: root
     group: root
     mode: "0644"
-  notify: "Restart NFS ganesha"
+  notify: "restart-nfs-ganesha"
 
 - name: "🔄 Reload systemd so the drop-in is live before ganesha starts"
   ansible.builtin.systemd:
@@ -99,20 +99,8 @@
 - name: "🚿 Flush handlers so a pending config change restarts ganesha first"
   ansible.builtin.meta: flush_handlers
 
-- name: "🟢 Start nfs-ganesha"
-  ansible.builtin.systemd:
-    name: "{{ SVC_STORAGE_NFS_SERVER_SERVICE['ganesha'][ansible_facts['os_family']] }}"
-    state: started
-
-- name: "✅ Assert ganesha reached listen state"
-  ansible.builtin.wait_for:
-    port: 2049
-    host: 127.0.0.1
-    timeout: "{{ lookup('timeout', 120) | int }}"
-    msg: >-
-      Port 2049 never opened within the timeout. Check 'systemctl status
-      nfs-ganesha' and 'journalctl -u nfs-ganesha': a unit that stays active
-      but logs nothing after the export CLIENT warnings has wedged before
-      'NFS SERVER INITIALIZED'. ExecStartPost now turns that wedge into a
-      unit failure so Restart=on-failure can recover it; this budget covers
-      one full recovery cycle.
+- name: "🟢 Ensure nfs-ganesha serves on 2049"
+  ansible.builtin.script:
+    cmd: "{{ SVC_STORAGE_NFS_SERVER_GANESHA_SERVE }} start"
+  register: svc_storage_nfs_server_ganesha_start
+  changed_when: "'CHANGED' in svc_storage_nfs_server_ganesha_start.stdout"

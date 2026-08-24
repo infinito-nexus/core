@@ -1,5 +1,4 @@
 :root {
-  /* Base and derived colors are now referenced from the computed scale */
   --color-01-primary:           var(--color-01-50);
   --color-01-primary-contrast:  var(--color-01-99);
   --color-01-primary-dark-1:    var(--color-01-48);
@@ -16,14 +15,12 @@
   --color-01-primary-light-5:   var(--color-01-57);
   --color-01-primary-light-6:   var(--color-01-59);
   --color-01-primary-light-7:   var(--color-01-61);
-  /* Alpha variants reference the base RGB variable */
 {% for i in range(1, 10) %}
   {% set alpha = i * 10 %}
   --color-01-primary-alpha-{{ alpha }}: rgba(var(--color-rgb-01-50), 0.{{ alpha }});
 {% endfor %}
   --color-01-primary-hover:     var(--color-01-primary-dark-1);
   --color-01-primary-active:    var(--color-01-primary-dark-2);
-  /* Secondary colors */
   --color-01-secondary:         var(--color-01-80);
   --color-01-secondary-dark-1:  var(--color-01-78);
   --color-01-secondary-dark-2:  var(--color-01-76);
@@ -49,7 +46,6 @@
   --color-01-secondary-button:  var(--color-01-secondary-dark-4);
   --color-01-secondary-hover:   var(--color-01-secondary-dark-5);
   --color-01-secondary-active:  var(--color-01-secondary-dark-6);
-  /* Console Colors */
   --color-01-console-fg:         var(--color-01-98);
   --color-01-console-fg-subtle:  var(--color-01-85);
   --color-01-console-bg:         var(--color-01-10);
@@ -58,7 +54,6 @@
   --color-01-console-active-bg:  var(--color-01-40);
   --color-01-console-menu-bg:    var(--color-01-38);
   --color-01-console-menu-border:var(--color-01-45);
-  /* Body, Text, and Miscellaneous Colors */
   --color-01-white:      var(--color-01-99);
   --color-01-grey:       var(--color-01-60);
   --color-01-grey-light: var(--color-01-65);
@@ -71,20 +66,17 @@
   --color-01-text-light-3: var(--color-01-75);
   --color-01-footer:     var(--color-01-nav-bg);
   --color-01-timeline:   var(--color-01-80);
-  /* Input Colors */
   --color-01-input-text: var(--color-01-10);
   --color-01-input-background: var(--color-01-white);
   --color-01-input-toggle-background: var(--color-01-80);
   --color-01-input-border: var(--color-01-secondary);
   --color-01-input-border-hover: var(--color-01-secondary-dark-1);
-  /* Effects */
   --color-01-light: var(--color-01-05);
   --color-01-light-mimic-enabled: rgba(var(--color-rgb-01-05), calc(6 / 255 * 222 / 255 / 0.55));
   --color-01-light-border: var(--color-01-05);
   --color-01-hover: var(--color-01-05);
   --color-01-hover-opaque: var(--color-01-95);
   --color-01-active: var(--color-01-05);
-  /* Menu, Card, and Markup Colors */
   --color-01-menu: var(--color-01-99);
   --color-01-card: var(--color-01-99);
   --color-01-markup-table-row: var(--color-01-01);
@@ -100,18 +92,15 @@
   --color-01-editor-line-highlight: var(--color-01-primary-light-6);
   --color-01-project-column-bg: var(--color-01-secondary-light-4);
   --color-01-caret: var(--color-01-10);
-  /* Reaction and Tooltip Colors */
   --color-01-reaction-bg: var(--color-01-05);
   --color-01-reaction-hover-bg: var(--color-01-primary-light-5);
   --color-01-reaction-active-bg: var(--color-01-primary-light-6);
   --color-01-tooltip-text: var(--color-01-99);
   --color-01-tooltip-bg: var(--color-01-05);
-  /* Navigation Colors */
   --color-01-nav-bg: var(--color-01-99);
   --color-01-nav-hover-bg: var(--color-01-secondary-light-1);
   --color-01-nav-text: var(--color-01-40);
   --color-01-secondary-nav-bg: var(--color-01-99);
-  /* Label and Accent Colors */
   --color-01-label-text: var(--color-01-40);
   --color-01-label-bg: var(--color-01-50);
   --color-01-label-hover-bg: var(--color-01-60);

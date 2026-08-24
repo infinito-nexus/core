@@ -57,10 +57,8 @@ _ALLOWED_SKIP_GUARDS: tuple[str, ...] = (
     "PERSONA_BIBER_BLOCKED",
     "PERSONA_ADMINISTRATOR_BLOCKED",
     "PERSONA_GUEST_BLOCKED",
-    # Auth-less persona-collapse exception:
     "!canonicalDomain",
     "!appBaseUrl",
-    # Service-gate skip — the helper itself owns the contract:
     "safeSkipUnlessEnabled",
     "skipUnlessServiceEnabled",
 )
@@ -99,14 +97,11 @@ def _enclosing_if_condition(text: str, idx: int) -> str | None:
             depth += 1
         elif ch == "{":
             if depth == 0:
-                # We found the open of the enclosing block. Walk back
-                # over whitespace and capture the `if (...)` head.
                 j = i - 1
                 while j >= 0 and text[j] in " \t\n\r":
                     j -= 1
                 if j < 0 or text[j] != ")":
                     return None
-                # Match parens backwards to extract the condition.
                 paren_depth = 1
                 k = j - 1
                 while k >= 0 and paren_depth > 0:
@@ -119,7 +114,6 @@ def _enclosing_if_condition(text: str, idx: int) -> str | None:
                     return None
                 cond_start = k + 2
                 cond_end = j
-                # Verify the keyword before the `(` is `if`.
                 pre = text[: k + 1].rstrip()
                 if not pre.endswith("if"):
                     return None
@@ -176,9 +170,6 @@ class TestPersonaStrictMode(unittest.TestCase):
                 continue
             text = read_text(str(path))
             for m in _STATUS_200_RE.finditer(text):
-                # Find the opening `{` of the branch this `=== 200`
-                # introduces. The branch may be `if (status === 200) {`
-                # — walk forward to the next `{`.
                 brace_idx = text.find("{", m.end())
                 if brace_idx < 0:
                     continue

@@ -1,3 +1,4 @@
+# nocheck: mirrored-unit-test - an Odoo addon manifest, a bare dict literal the registry reads; there is no behaviour to exercise
 {  # noqa: B018  Odoo addon manifests are bare dict expressions at module level by design
     "name": "OAuth HTTPS & Configurable UID",
     "version": "19.0.1.8.0",

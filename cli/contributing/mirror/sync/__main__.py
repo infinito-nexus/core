@@ -81,7 +81,6 @@ def main() -> int:
     last_start_ts: float | None = None
 
     for img in iter_role_images(repo_root):
-        # Optional throttling (only when --images-per-hour is set)
         last_start_ts = _throttle_before_next_copy(
             images_per_hour=args.images_per_hour,
             last_start_ts=last_start_ts,
@@ -104,7 +103,6 @@ def main() -> int:
             provider.mirror(img)
 
         except subprocess.CalledProcessError as e:
-            # keep going, but remember the failure
             msg = (
                 f"{label}: FAILED (exit={e.returncode})\n"
                 f"  cmd: {' '.join(map(str, e.cmd))}"

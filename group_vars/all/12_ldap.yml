@@ -19,51 +19,19 @@ _ldap_user_id: "uid"
 _ldap_filters_users_all: "(|(objectclass=inetOrgPerson))"
 
 LDAP:
-  # Distinguished Names (DN)
   DN:
-    # -------------------------------------------------------------------------
-    # Base DN / Suffix
-    # This is the top-level naming context for your directory, used as the
-    # default search base for most operations (e.g. adding users, groups).
-    # Example: “dc=example,dc=com”
     ROOT: "{{ LDAP_DN_BASE }}"
     ADMINISTRATOR:
-      # -------------------------------------------------------------------------
-      # Data-Tree Administrator Bind DN
-      # The DN used to authenticate for regular directory operations under
-      # the data tree (adding users, modifying attributes, creating OUs, etc.).
-      # Typically: “cn=admin,dc=example,dc=com”
       DATA: "cn={{ lookup('users', 'administrator').username }},{{ LDAP_DN_BASE }}"
 
-      # -------------------------------------------------------------------------
-      # Config-Tree Administrator Bind DN
-      # The DN used to authenticate against the cn=config backend when you
-      # need to load or modify schema, overlays, modules, or other server-
-      # level settings.  
-      # Typically: “cn=admin,cn=config”
       CONFIGURATION: "cn={{ lookup('users', 'administrator').username }},cn=config"
 
     OU:
-      # -------------------------------------------------------------------------
-      # Organizational Units (OUs)
-      # Pre-created containers in the directory tree to logically separate entries:
-      # – users:  Contains all user objects (person/posixAccount entries).
-      # – groups: Contains organizational or business groups (e.g., departments, teams).
-      # – roles:  Contains application-specific RBAC roles 
-      #           (e.g., "cn=app1-user", "cn=yourls-admin").
       USERS: "ou=users,{{ LDAP_DN_BASE }}"
       GROUPS: "ou=groups,{{ LDAP_DN_BASE }}"
       ROLES: "ou=roles,{{ LDAP_DN_BASE }}"
 
-  # -------------------------------------------------------------------------
-  # Additional Notes
-  # – Always bind as data_admin for CRUD on entries under your base DN.
-  # – Always bind as config_admin when you push schema-level LDIFs via ldapi:///
-  # – Keeping these distinct prevents accidental use of config credentials
-  #   for ordinary user/group operations, and vice versa.
-
-  # Password to access dn.bind
-  BIND_CREDENTIAL: "{{ lookup('config','svc-db-openldap', 'credentials.administrator_database_password') }}"
+  BIND_CREDENTIAL: "{{ lookup('config','svc-db-openldap', 'secrets.credentials.administrator_database_password') }}"
   SERVER:
     DOMAIN: "{{ _ldap_name if _ldap_docker_network_enabled else _ldap_domain }}" # Mapping for public or locale access
     PORT: "{{ _ldap_server_port }}"
@@ -75,19 +43,12 @@ LDAP:
     OBJECTS:
       STRUCTURAL:
         - person # Structural Classes define the core identity of an entry:
-        # • Specify mandatory attributes (e.g. sn, cn)
-        # • Each entry must have exactly one structural class
         - inetOrgPerson # An extension of person adding internet-related attributes
-        # (e.g. mail, employeeNumber)
         - posixAccount # Provides UNIX account attributes (uidNumber, gidNumber,
-      # homeDirectory)
       AUXILIARY:
         NEXTCLOUD_USER: "nextcloudUser" # Auxiliary Classes attach optional attributes without
-        # changing the entry’s structural role. Here they add
-        # nextcloudQuota and nextcloudEnabled for Nextcloud.
         SSH_PUBLIC_KEY: "ldapPublicKey" # Allows storing SSH public keys for services like Gitea.
     ATTRIBUTES:
-      # Attribut to identify the user
       ID: "{{ _ldap_user_id }}"
       MAIL: "mail"
       FULLNAME: "cn"
@@ -101,7 +62,5 @@ LDAP:
       ALL: "{{ _ldap_filters_users_all }}"
   RBAC:
     FLAVORS:
-      # Valid values posixGroup, groupOfNames
       - groupOfNames
-      # - posixGroup
     EMPTY_MEMBER_DN: "cn=__empty__,{{ LDAP.DN.ROOT }}"

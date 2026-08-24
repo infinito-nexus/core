@@ -47,9 +47,6 @@ SCAN_SUFFIXES = (".yml", ".yaml")
 
 _INLINE_SQL_THRESHOLD = 3
 
-# Keyword leaders that strongly imply the line is real SQL (rather than
-# bash, Jinja, log output, or comment text). Anchored at the start of the
-# stripped line and case-insensitive.
 _SQL_KEYWORD_LEADERS = (
     "ALTER ",
     "BEGIN;",
@@ -79,7 +76,6 @@ _SQL_KEYWORD_LEADERS = (
     "WITH ",
 )
 
-# Files we must not scan to avoid recursive false positives.
 _EXCLUDED_RELATIVE_PATHS = frozenset(
     {
         "tests/lint/ansible/sql/test_no_inline_multiline_sql.py",  # nocheck: self-path-reference

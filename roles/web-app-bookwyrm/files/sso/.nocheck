@@ -1,0 +1,1 @@
+# nocheck: role-files-layout - SSO sidecar shims deployed as one tree next to oauth2-proxy. eslint.config.js also scopes roles/**/files/sso/** as ES modules rather than CommonJS, keyed on this path.

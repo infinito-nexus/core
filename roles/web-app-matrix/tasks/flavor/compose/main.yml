@@ -14,8 +14,8 @@
   set_fact:
     MATRIX_BRIDGES: "{{ MATRIX_BRIDGES | rejectattr('bridge_name', 'equalto', 'telegram') | list }}"
   when: >-
-    (lookup('config', application_id, 'credentials.mautrix_telgegram_bridge_api_id', '') | default('', true) | string | trim | length == 0)
-    or (lookup('config', application_id, 'credentials.mautrix_telgegram_bridge_api_pin', '') | default('', true) | string | trim | length == 0)
+    (lookup('config', application_id, 'secrets.credentials.mautrix_telgegram_bridge_api_id', '') | default('', true) | string | trim | length == 0)
+    or (lookup('config', application_id, 'secrets.credentials.mautrix_telgegram_bridge_api_pin', '') | default('', true) | string | trim | length == 0)
   changed_when: false
 
 - name: "🐳 compose-flavor: docker stack for '{{ application_id }}'"

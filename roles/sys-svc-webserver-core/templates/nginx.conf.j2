@@ -6,34 +6,25 @@ events
 http
 {
 {% if DEPLOYMENT_MODE == 'swarm' %}
-  {# Resolve swarm service-name upstreams at request time: VIPs may be absent on openresty (re)start and nginx refuses to boot on an unresolvable literal upstream. #}
   resolver 127.0.0.11 valid=10s ipv6=off;
 {% endif %}
-  {#
-    Map the client's Upgrade header to the proper Connection value for WebSocket proxying:
-    use "upgrade" when an Upgrade is requested, otherwise "close". Define once in http{} and use $connection_upgrade.
-  #}
   map $http_upgrade $connection_upgrade {
     default upgrade;
     ''      close;
+    h2c     close;
+  }
+  map $http_upgrade $proxy_upgrade {
+    default $http_upgrade;
+    h2c     '';
   }
   include mime.types;
-  {# default_type  application/octet-stream; If html filter does not work, this one needs to be used#}
   default_type text/html;
-  {# Ensure caches (browsers, proxies, CDNs) treat responses as dependent on the Origin header
-  to prevent cross-domain cache poisoning issues. #}
   add_header 'Vary' 'Origin' always;
-  {# caching #}
   proxy_cache_path {{ lookup('nginx','directories.cache.general') }} levels=1:2 keys_zone=cache:20m max_size=20g inactive=14d use_temp_path=off;
   proxy_cache_path {{ lookup('nginx','directories.cache.image') }} levels=1:2 keys_zone=imgcache:10m inactive=60m use_temp_path=off;
-  # --------------------------------------------------------------------------------
-  # Tweak the hash table used to store your server_name entries:
-  server_names_hash_bucket_size 64;   # size of each bucket for server_name lookups (in bytes)
+  server_names_hash_bucket_size 128;  # size of each bucket for server_name lookups (in bytes)
   server_names_hash_max_size    512;  # maximum total buckets for the server_name hash table
-  # --------------------------------------------------------------------------------
-  {# logging and debugging #}
 {% if MODE_DEBUG | bool %}
-  {# individual log format for better debugging #}
   log_format debug '$host - $remote_addr [$time_local] '
                   '"$request" $status $body_bytes_sent '
                   '"Referer: $http_referer" '
@@ -48,7 +39,6 @@ http
   error_log  /dev/stderr  info;
   sendfile on;
   keepalive_timeout 65;
-  {# gzip #}
   gzip on;
   gzip_proxied any;
   gzip_vary on;
@@ -63,7 +53,6 @@ http
   include {{ dir }}*.conf;
   {% endfor %}
 }
-# For port proxies
 stream{
   include {{ lookup('nginx','directories.configuration.streams') }}*.conf;
 }

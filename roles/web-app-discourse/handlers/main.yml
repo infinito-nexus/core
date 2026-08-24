@@ -1,5 +1,5 @@
 ---
-- name: "Handle stack host"
+- name: "🖥️ Handle stack host"
   include_tasks: stack_host.yml
   when: IS_STACK_HOST | bool
-  listen: recreate discourse
+  listen: recreate-discourse

@@ -59,8 +59,6 @@ class TestTopLevelVariableUsage(unittest.TestCase):
             ".html",
             ".txt",
         )
-        # Global Ansible runtime knobs are consumed by Ansible itself and may not
-        # appear as plain string references inside this repository.
         self.ignored_top_level_keys = {
             "ansible_python_interpreter",
             "ansible_shell_executable",
@@ -97,16 +95,12 @@ class TestTopLevelVariableUsage(unittest.TestCase):
         for path, content in iter_project_files_with_content(
             extensions=self.valid_extensions
         ):
-            # Fast pre-check: if varname doesn't appear anywhere in the file,
-            # skip the line-by-line scan entirely. Cheap on cached content.
             if varname not in content:
                 continue
 
             if path != definition_path or decl_line is None:
-                # No declaration line to exclude → any hit is a real usage.
                 return True
 
-            # Same file as the definition: skip exactly the declaration line.
             for i, line in enumerate(content.splitlines(), 1):
                 if i == decl_line:
                     continue

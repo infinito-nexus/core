@@ -4,7 +4,6 @@ import unittest
 
 from . import PROJECT_ROOT
 
-# ensure project root is on PYTHONPATH so we can import the CLI code
 ROOT = str(PROJECT_ROOT)
 sys.path.insert(0, ROOT)
 
@@ -25,7 +24,6 @@ class TestValidApplicationUsage(unittest.TestCase):
     validated here, because the app ID is a runtime variable.
     """
 
-    # Literal app-id captured from lookup('applications', 'name') / lookup("applications", "name")
     LOOKUP_APPLICATIONS_RE = re.compile(
         r"lookup\(\s*['\"]applications['\"]\s*,\s*['\"](?P<name>[^'\"]+)['\"]"
     )
@@ -59,12 +57,10 @@ class TestValidApplicationUsage(unittest.TestCase):
                 for match in pattern.finditer(content):
                     start = match.start()
 
-                    # Determine the full line containing this match
                     line_start = content.rfind("\n", 0, start) + 1
                     line_end = content.find("\n", start)
                     line = content[line_start : line_end if line_end != -1 else None]
 
-                    # Skip any import or from-import lines
                     if line.strip().startswith(("import ", "from ")):
                         continue
 
@@ -72,7 +68,6 @@ class TestValidApplicationUsage(unittest.TestCase):
 
                     line_no, col = self._line_no_and_col(content, start)
 
-                    # each found reference must be in valid_apps
                     self.assertIn(
                         name,
                         valid_apps,

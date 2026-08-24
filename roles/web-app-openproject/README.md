@@ -18,6 +18,7 @@ flowchart LR
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
         dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
@@ -45,6 +46,7 @@ flowchart LR
         svc_sso["sso"]
         svc_css["css"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
         svc_openproject["openproject"]
         svc_container_backup["container_backup"]
     end
@@ -54,6 +56,7 @@ flowchart LR
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
     dep_svc_db_postgres -. "0..1" .-> svc_postgres
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
@@ -65,7 +68,7 @@ flowchart LR
     svc_logout -. "0..1" .-> dpt_web_app_nextcloud
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Purpose
 
@@ -138,6 +141,10 @@ docker run --rm -it \
 ## Developer Notes
 
 To inspect and modify live settings inside the container, open a shell and use the Rails console for full LDAP and SMTP configuration.
+
+## Persona contract opt-outs
+
+The `administrator` persona is **not** blocked: [tasks/04_admin.yml](./tasks/04_admin.yml) seeds a native OpenProject account whose password is the Keycloak administrator secret, so the journey runs in every variant. The `biber` persona is blocked only in the `sso: false` variants — OpenProject is seeded with the administrator alone, and `biber` is auto-provisioned exclusively through the oauth2-proxy trusted-header bridge onto the LDAP auth source, which those variants remove. Both flags are declared explicitly in [templates/playwright.env.j2](./templates/playwright.env.j2).
 
 ## Credits
 

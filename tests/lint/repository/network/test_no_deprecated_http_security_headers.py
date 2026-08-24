@@ -57,8 +57,6 @@ _DEPRECATED_HEADERS: tuple[str, ...] = (
 
 _NAMES_GROUP = "|".join(re.escape(h) for h in _DEPRECATED_HEADERS)
 
-# Matches both nginx (`add_header NAME`) and apache
-# (`Header set NAME`, `Header add NAME`, `Header always set NAME`).
 _HEADER_RE = re.compile(
     r"\b(?:add_header|Header\s+(?:always\s+)?(?:set|add))\s+"
     rf"(?P<name>{_NAMES_GROUP})\b",

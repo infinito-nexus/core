@@ -71,7 +71,7 @@ roles/web-app-atmo/
 │   ├── info.yml
 │   ├── server.yml                 # canonical: rsvp.{{ DOMAIN_PRIMARY }}
 │   ├── services.yml
-│   ├── schema.yml
+│   ├── secrets.yml
 │   ├── users.yml
 │   ├── variants.yml
 │   └── volumes.yml

@@ -49,8 +49,6 @@ def _is_ignored_line(line: str) -> bool:
 
 
 def _indent_len(indent: str) -> int:
-    # Tabs are allowed in regex, but we treat them as 1 unit here.
-    # If you enforce spaces-only, this still works.
     return len(indent.replace("\t", " "))
 
 
@@ -62,7 +60,6 @@ def _block_bounds_for_key(
     based on indentation dropping below key_indent_len.
     Returns (start_inclusive, end_exclusive).
     """
-    # Scan upwards to find where indentation drops below key_indent_len.
     start = idx
     j = idx - 1
     while j >= 0:
@@ -71,7 +68,6 @@ def _block_bounds_for_key(
             j -= 1
             continue
 
-        # Indentation of this non-empty, non-comment line
         cur_indent = len(ln) - len(ln.lstrip(" \t"))
         cur_indent_len = _indent_len(ln[:cur_indent])
 
@@ -80,7 +76,6 @@ def _block_bounds_for_key(
         start = j
         j -= 1
 
-    # Scan downwards similarly
     end = idx + 1
     k = idx + 1
     while k < len(lines):
@@ -139,15 +134,13 @@ def _scan_file_for_missing_image(path: Path) -> list[Finding]:
         indent_str = m.group("indent") or ""
         indent_len = _indent_len(indent_str)
 
-        # Determine block bounds for this build: key
         b_start, b_end = _block_bounds_for_key(lines, idx, indent_len)
 
-        # Need image: at same indent level somewhere within that block
         if not _has_image_same_indent(lines, b_start, b_end, indent_str):
             findings.append(
                 Finding(
                     file=str(path),
-                    build_line=idx + 1,  # 1-based for humans
+                    build_line=idx + 1,
                     build_indent=indent_len,
                     note="Found `build:` without `image:` at the same indentation level in the same mapping block.",
                 )
@@ -179,7 +172,6 @@ class TestComposeBuildRequiresImage(unittest.TestCase):
             all_findings.extend(_scan_file_for_missing_image(f))
 
         if all_findings:
-            # Pretty error output
             msg_lines = [
                 "Some sys-svc-compose templates/files contain a `build:` key but are missing an `image:` key at the same indentation level (same YAML mapping level).",
                 "",

@@ -58,10 +58,6 @@ def _load_services(role_dir: Path) -> dict:
 class TestRunAfterServicesExplicit(unittest.TestCase):
     def test_run_after_entries_have_matching_service_flag(self):
         registry = build_service_registry_from_roles_dir(ROLES_DIR)
-        # role -> [primary_key, *provides]. Each role's primary service
-        # key plus its declared ``provides:`` (e.g. ``web-app-keycloak``
-        # provides ``sso`` so a consumer's ``services.sso`` block also
-        # satisfies ``run_after: [web-app-keycloak]``).
         role_to_candidate_keys = build_role_to_covered_keys(registry)
 
         offenders: list[str] = []
@@ -88,7 +84,6 @@ class TestRunAfterServicesExplicit(unittest.TestCase):
                     )
                     continue
 
-                # A single legitimate entry is enough.
                 matched = False
                 near_misses: list[str] = []
                 for key in candidate_keys:

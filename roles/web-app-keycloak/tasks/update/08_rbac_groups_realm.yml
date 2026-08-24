@@ -7,7 +7,7 @@
 
 - name: "🔐 RBAC realm groups: provision groups + memberships for '{{ item.path }}'"
   ansible.builtin.script:
-    cmd: "files/scripts/rbac_realm/ensure_group_path_members.sh"
+    cmd: "files/shell/rbac_realm/ensure_group_path_members.sh"
     executable: /bin/bash
   environment:
     KC_CONTAINER: "{{ KEYCLOAK_TARGET_CONTAINER }}"
@@ -17,7 +17,7 @@
   loop: >-
     {{
       lookup('applications')
-      | build_realm_rbac_groups(lookup('users'), KEYCLOAK_RBAC_GROUP_NAME, KEYCLOAK_RBAC_RUN_APP_IDS)
+      | build_realm_rbac_groups(lookup('users_non_reserved'), KEYCLOAK_RBAC_GROUP_NAME, KEYCLOAK_RBAC_RUN_APP_IDS)
     }}
   loop_control:
     label: "{{ item.path }}"

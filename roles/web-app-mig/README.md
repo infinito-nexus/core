@@ -18,6 +18,7 @@ The diagram places MIG in the Infinito.Nexus cosmos: the components it deploys (
 flowchart LR
     subgraph deps [Dependencies]
         dep_svc_db_redis["svc-db-redis 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
@@ -33,16 +34,19 @@ flowchart LR
         svc_mig["mig"]
         svc_css["css"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
     end
     dep_svc_db_redis -. "0..1" .-> svc_redis
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
-    dep_web_app_keycloak -- "1:1" --> svc_sso
+    dep_web_app_keycloak -- "0..0" --> svc_sso
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_svc_css -. "0..1" .-> svc_css
+    linkStyle 3 stroke:red;
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
@@ -91,6 +95,12 @@ docker run --rm -it \
 ## Further Resources
 
 - [Meta Infinite Graph Homepage](https://github.com/kevinveenbirkenbach/meta-infinite-graph)
+
+## Persona contract opt-outs
+
+This role declares `PERSONA_ADMINISTRATOR_BLOCKED` and `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2` for the same reason. `meta/services.yml` pins `sso.enabled: false` and `sso.shared: false`: MIG serves the pre-rendered Meta Infinite Graph over its own compose stack and has no login surface, no accounts, and no authenticated state at all. Consequently the env file renders no `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `BIBER_USERNAME` or `BIBER_PASSWORD` for the shared helpers to read.
+
+The `dashboard` service in `meta/services.yml` is only a consumer tile pointing at MIG's canonical domain; it does not host MIG. The role's contract is fully carried by the reachability, canonical-domain and content-type scenarios in `files/playwright/playwright.spec.js`, plus the guest persona. The path back to the generic personas is an authenticated MIG surface, which upstream does not have.
 
 ## Credits
 

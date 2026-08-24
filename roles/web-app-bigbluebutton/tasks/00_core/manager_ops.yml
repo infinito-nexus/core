@@ -10,28 +10,28 @@
   stack_host_template:
     src: compose.override.yml.j2
     dest: "{{ [lookup('container', application_id, 'directories.instance'), 'compose.override.yml'] | path_join }}"
-  notify: compose up
+  notify: compose-up
 
 - name: "🩹 Vendor the ep_redis_publisher fix mounted over the etherpad plugin"
   stack_host_copy:
-    src: ep_redis_publisher_index.js
+    src: javascript/ep_redis_publisher_index.js
     dest: "{{ [lookup('container', application_id, 'directories.instance'), 'ep_redis_publisher_index.js'] | path_join }}"
     mode: "0444"
-  notify: compose up
+  notify: compose-up
 
 - name: "🩹 Vendor the etherpad postgres-DB entrypoint wrapper"
   stack_host_copy:
-    src: etherpad_pg_entrypoint.sh
+    src: shell/etherpad_pg_entrypoint.sh
     dest: "{{ [lookup('container', application_id, 'directories.instance'), 'etherpad_pg_entrypoint.sh'] | path_join }}"
     mode: "0444"
-  notify: compose up
+  notify: compose-up
 
 - name: "🩹 Vendor the initdb hook that creates the etherpad database"
   stack_host_copy:
-    src: postgres_initdb_etherpad.sh
+    src: shell/postgres_initdb_etherpad.sh
     dest: "{{ [lookup('container', application_id, 'directories.instance'), 'postgres_initdb_etherpad.sh'] | path_join }}"
     mode: "0555"
-  notify: compose up
+  notify: compose-up
 
 - name: 📁 Create symbolic link from .env file to target location
   file:
@@ -50,3 +50,17 @@
 
 - name: "🔧 Setup administrator"
   include_tasks: "../02_administrator.yml"
+
+- name: "🔧 Pin search_path on immutable_lower_unaccent in every database"
+  ansible.builtin.shell: # nocheck: compose_mode_force role
+    cmd: >-
+      container exec -i {{ BBB_POSTGRES_CONTAINER_ADDRESS }}
+      sh -c 'cat > /tmp/pin_search_path.sql
+      && for db in $(psql -U postgres -d postgres -v ON_ERROR_STOP=1 -tAf /tmp/pin_search_path.sql);
+      do psql -U postgres -d "$db" -v ON_ERROR_STOP=1 -f /tmp/pin_search_path.sql; done'
+    stdin: "{{ lookup('file', role_path ~ '/files/sql/pin_immutable_lower_unaccent_search_path.sql') }}"
+  register: bbb_pg_search_path
+  retries: 20
+  delay: 3
+  until: bbb_pg_search_path.rc == 0
+  changed_when: false

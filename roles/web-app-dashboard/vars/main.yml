@@ -4,11 +4,7 @@ DASHBOARD_APPLICATION_ID: "web-app-dashboard"
 http_port: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.ports.local.http') }}"
 
 DASHBOARD_SIMPLEICONS_ENABLED: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.simpleicons.enabled') }}"
-# Browser-facing absolute base URL of the public Simple Icons service.
-# Cards reference SVGs directly under this URL (icon.source = "<base>/<slug>.svg").
 DASHBOARD_SIMPLEICONS_URL_BASE: "{{ lookup('tls', 'web-svc-simpleicons', 'url.base') }}"
-# Direct local service port — used only for the in-cluster readiness wait
-# (avoids the TLS + redirect chain of the public URL during early bring-up).
 DASHBOARD_SIMPLEICONS_SYNC_URL_BASE: "{{ 'http://' ~ DOCKER_REACH_HOST ~ ':' ~ (lookup('config', 'web-svc-simpleicons', 'services.simpleicons.ports.local.http') |
   string) ~ '/' }}"
 

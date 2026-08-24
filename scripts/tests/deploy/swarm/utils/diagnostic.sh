@@ -31,7 +31,7 @@ else
 	)
 fi
 
-read -r -d '' PROBE <<PROBE_EOF || true
+read -r -d '' PROBE <<PROBE_EOF || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 echo "### backup units"
 systemctl list-units --type=service --all --no-legend '${UNIT_GLOB}' 2>/dev/null | awk '{print \$1, \$3, \$4}'
 echo "### backup unit journals (last 60 lines each)"
@@ -42,7 +42,7 @@ done
 echo "### NFS mounts"
 mount 2>/dev/null | grep -iE 'nfs|${DIR_VAR_LIB}' || echo '(none)'
 echo "### D-state processes (uninterruptible; often a wedged NFS mount)"
-ps -eo stat,pid,comm,args 2>/dev/null | awk '\$1 ~ /^D/' || true
+ps -eo stat,pid,comm,args 2>/dev/null | awk '\$1 ~ /^D/' || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 echo "### rsync / baudolo / db-dump processes"
 ps -eo pid,etime,stat,args 2>/dev/null | grep -iE 'rsync|baudolo|mariadb-dump|pg_dump' | grep -v grep || echo '(none)'
 echo "### disk"

@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 exports.register = function (shared) {
   test("administrator: native local login (break-glass) lands on authenticated surface", async ({ page }) => {
@@ -6,13 +7,13 @@ exports.register = function (shared) {
       shared.env.ldapEnabled,
       "LDAP_SERVICE_ENABLED=true forces LDAP-only form auth; the local break-glass login is only reachable when ldap is disabled",
     );
-    test.setTimeout(60_000);
+    test.setTimeout(resolveTimeout(60_000));
     expect(shared.env.breakglassUsername, "BREAKGLASS_USERNAME must be set").toBeTruthy();
     expect(shared.env.breakglassPassword, "BREAKGLASS_PASSWORD must be set").toBeTruthy();
 
     await shared.signInViaLocal(page, shared.env.breakglassUsername, shared.env.breakglassPassword, "administrator-native");
 
-    await expect(page.locator("body")).toContainText(/dashboard|project|task|new project/i, { timeout: 60_000 });
+    await expect(page.locator("body")).toContainText(/dashboard|project|task|new project/i, { timeout: resolveTimeout(60_000) });
 
     await shared.logout(page, "administrator-native");
   });

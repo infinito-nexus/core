@@ -25,10 +25,11 @@
       enabled: true
       shared: true
 
-    # variant 1: Keycloak/federation surface off; LDAP-backed only.
     css:
       enabled: true
       shared: true
+    tor:
+      enabled: true
 - services:
     dashboard:
       enabled: false
@@ -46,10 +47,11 @@
       enabled: false
       shared: false
 
-    # variant 2: LDAP-only path explicitly disables oauth2.
     css:
       enabled: false
       shared: false
+    tor:
+      enabled: true
 - services:
     sso:
       enabled: false
@@ -69,3 +71,5 @@
     prometheus:
       enabled: false
       shared: false
+    tor:
+      enabled: true

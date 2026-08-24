@@ -8,9 +8,8 @@
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
 
     {{ lookup('container_depends_on', application_id) | indent(4) }}
-    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
-
 
   {% if CHECKMK_MCP_ENABLED | bool %}
   {% set service_name = CHECKMK_MCP_SERVICE_KEY %}
@@ -41,6 +40,6 @@
     {{ lookup('container_networks', own_network_only=True, provider_self_alias=False) | indent(4) }}
   {% endif %}
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}
 
 {{ lookup('compose_networks') }}

@@ -12,7 +12,7 @@
         src: "{{ system_service_script_src }}"
         dest: "{{ [system_service_script_dir, (system_service_script_src | basename | regex_replace('\\.j2$', ''))] | path_join }}"
         mode: "0755"
-      notify: "{{ 'reload system daemon' if system_service_is_template | bool else 'refresh systemctl service' }}"
+      notify: "{{ 'reload-system-daemon' if system_service_is_template | bool else 'refresh-systemctl-service' }}"
       when: system_service_script_src.endswith('.j2')
 
     - name: "📋 copy raw file"
@@ -21,5 +21,5 @@
         dest: "{{ [system_service_script_dir, (system_service_script_src | basename)] | path_join }}"
         mode: "0755"
       when: not system_service_script_src.endswith('.j2')
-      notify: "{{ 'reload system daemon' if system_service_is_template | bool else 'refresh systemctl service' }}"
+      notify: "{{ 'reload-system-daemon' if system_service_is_template | bool else 'refresh-systemctl-service' }}"
   when: system_service_copy_files | bool

@@ -1,10 +1,12 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
+const { gotoOnion } = require("../personas");
 const shared = require("../_shared");
 
 test("addon activitypub: WordPress is a discoverable Fediverse actor (WebFinger -> ActivityStreams actor)", async ({ browser }) => {
   skipUnlessAddonEnabled("activitypub");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();
@@ -17,15 +19,15 @@ test("addon activitypub: WordPress is a discoverable Fediverse actor (WebFinger 
       shared.env.adminPassword
     );
 
-    await page.goto(`${shared.env.wpBaseUrl}/wp-admin/profile.php`, {
+    await gotoOnion(page, `${shared.env.wpBaseUrl}/wp-admin/profile.php`, {
       waitUntil: "domcontentloaded",
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
     });
     const loginField = page.locator("#user_login");
     await expect(
       loginField,
       "the WP admin profile must expose the user_login used to mint the ActivityPub author handle"
-    ).toBeVisible({ timeout: 30_000 });
+    ).toBeVisible({ timeout: resolveTimeout(30_000) });
     const wpUserLogin = (await loginField.inputValue()).trim();
     expect(wpUserLogin, "WP user_login must be resolvable").toBeTruthy();
 
@@ -38,6 +40,7 @@ test("addon activitypub: WordPress is a discoverable Fediverse actor (WebFinger 
 
     const webfingerResp = await request.get(webfingerUrl.toString(), {
       headers: { Accept: "application/jrd+json, application/json" },
+      timeout: resolveTimeout(30_000),
     });
     expect(
       webfingerResp.status(),
@@ -77,6 +80,7 @@ test("addon activitypub: WordPress is a discoverable Fediverse actor (WebFinger 
 
     const actorResp = await request.get(actorUrl.toString(), {
       headers: { Accept: "application/activity+json" },
+      timeout: resolveTimeout(30_000),
     });
     expect(
       actorResp.status(),

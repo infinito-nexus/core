@@ -23,8 +23,9 @@ SHOPWARE_WEB_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 
 SHOPWARE_WORKER_CONTAINER: "{{ lookup('config', application_id, 'services.worker.name') }}"
 SHOPWARE_SCHED_CONTAINER: "{{ lookup('config', application_id, 'services.scheduler.name') }}"
 SHOPWARE_INIT_HOST: "{{ [ lookup('container', application_id, 'directories.volumes'), 'init.sh' ] | path_join }}"
-SHOPWARE_INIT_DOCKER: "/usr/local/bin/init.sh"
+SHOPWARE_INIT_DOCKER: "{{ lookup('volume', 'web-app-shopware', 'init_script').target }}"
 SHOPWARE_FRAMEWORK_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'framework.yaml' ] | path_join }}"
+SHOPWARE_ADMINOPENAUTH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'adminopenauth.yaml' ] | path_join }}"
 SHOPWARE_FILESYSTEM_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'shopware.yaml' ] | path_join }}"
 SHOPWARE_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') }}"
 
@@ -32,7 +33,10 @@ SHOPWARE_WORKER_ENTRYPOINT: "{{ lookup('config', application_id, 'services.worke
 SHOPWARE_SCHED_ENTRYPOINT: "{{ lookup('config', application_id, 'services.scheduler.entrypoint') }}"
 
 SHOPWARE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
-SHOPWARE_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
+SHOPWARE_OIDC_PLUGIN: KskHeptacomAdminOpenAuth
+SHOPWARE_OIDC_INTERNAL_BASE: "http://{{ lookup('container_service', 'web-app-keycloak', 'keycloak') }}:{{ lookup('config', 'web-app-keycloak', 'services.keycloak.ports.internal.http')
+  }}" # nocheck: literal-protocol-lookup  container-to-container hop that must bypass the canonical URL, because cURL refuses the .onion name the tls lookup returns
+SHOPWARE_API_BASE: "http://127.0.0.1:{{ lookup('config', application_id, 'services.web.ports.internal.http') }}"
 
 SHOPWARE_REDIS_ENABLED: "{{ lookup('config', application_id, 'services.redis.enabled') }}"
 SHOPWARE_REDIS_URL: "{{ lookup('engine', 'redis', application_id, 'url') }}"
@@ -41,4 +45,6 @@ SHOPWARE_OPENSEARCH_PORT: "{{ lookup('config', application_id, 'services.opensea
 SHOPWARE_OPENSEARCH_ENABLED: "{{ lookup('config', application_id, 'services.opensearch.enabled') }}"
 SHOPWARE_OPENSEARCH_CONTAINER: "{{ lookup('config', application_id, 'services.opensearch.name') }}"
 SHOPWARE_OPENSEARCH_MEM_RESERVATION: "{{ lookup('config', application_id, 'services.opensearch.mem_reservation') }}"
-SHOPWARE_OPENSEARCH_INITIAL_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.opensearch_initial_admin_password') }}"
+SHOPWARE_OPENSEARCH_INITIAL_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.opensearch_initial_admin_password') }}"
+
+swarm_stack_fatal_grace: 600

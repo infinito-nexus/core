@@ -1,4 +1,4 @@
-"""Extract literal ``default:`` credential values from a ``meta/schema.yml``
+"""Extract literal ``default:`` credential values from a ``meta/secrets.yml``
 ``credentials:`` tree.
 
 Kept in its own module so ``utils.cache.applications`` stays under the

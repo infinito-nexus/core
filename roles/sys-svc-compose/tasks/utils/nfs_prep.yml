@@ -8,7 +8,7 @@
     mode: "{{ (item.value['x-infinito-nfs'] | default({})).mode | default(omit) }}"
   delegate_to: "{{ (groups['svc-storage-nfs-server'] | default([]))[0] | default(inventory_hostname) }}"
   run_once: true # nocheck: include-uniform-apply-keyword (per-task delegation targets differ)
-  loop: "{{ (lookup('compose_volumes', application_id) | from_yaml).volumes | default({}) | dict2items }}"
+  loop: "{{ (lookup('compose_volumes') | from_yaml).volumes | default({}) | dict2items }}"
   loop_control:
     label: "{{ item.key }}"
   when:
@@ -29,7 +29,7 @@
     - DEPLOYMENT_MODE == 'swarm'
     - (storage.backend | default('local')) == 'nfs'
     - (groups['svc-storage-nfs-server'] | default([])) | length > 0
-    - (lookup('compose_volumes', application_id) | from_yaml).volumes | default({}) | length > 0
+    - (lookup('compose_volumes') | from_yaml).volumes | default({}) | length > 0
     - application_id not in lookup('roles_with_placement', 'manager')
 
 - name: "🔁 Materialize NFS subdirs for '{{ application_id }}' on every swarm node"
@@ -41,7 +41,7 @@
     mode: "{{ (item.0.value['x-infinito-nfs'] | default({})).mode | default(omit) }}"
   delegate_to: "{{ item.1 }}"
   run_once: true
-  loop: "{{ (lookup('compose_volumes', application_id) | from_yaml).volumes | default({}) | dict2items | product(groups['svc-swarm-node'] | default([])) | list }}"
+  loop: "{{ (lookup('compose_volumes') | from_yaml).volumes | default({}) | dict2items | product(groups['svc-swarm-node'] | default([])) | list }}"
   loop_control:
     label: "{{ item.0.key }} @ {{ item.1 }}"
   when:

@@ -39,9 +39,8 @@ class FilterModule:
 
         s = str(value)
 
-        # Escape order matters
-        s = s.replace("\\", "\\\\")  # backslash
-        s = s.replace("&", "\\&")  # sed match reference
+        s = s.replace("\\", "\\\\")
+        s = s.replace("&", "\\&")
 
         if delimiter:
             s = s.replace(delimiter, "\\" + delimiter)

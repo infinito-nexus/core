@@ -1,19 +1,9 @@
 {# The following directives enforce OAuth2 authentication: #}
 
 auth_request /oauth2/auth;
-{# This directive issues an internal sub-request to '/oauth2/auth' for every incoming request. #}
-{# The sub-request checks if the client is authenticated. #}
 
 error_page 401 = /oauth2/start;
-{# If the authentication check fails (i.e., a 401 Unauthorized is returned), #}
-{# this directive redirects the client to '/oauth2/start', which typically initiates the OAuth2 login process. #}
 
-{# Forward the authenticated user's identity to the upstream. oauth2-proxy
-   exposes these headers on the /oauth2/auth response when
-   `set_xauthrequest = true` and `pass_user_headers = true` are set in
-   the proxy config. Backends that ignore the headers stay unaffected;
-   backends like the Bluesky login-broker rely on them to identify
-   the Keycloak user. #}
 auth_request_set $authrequest_user        $upstream_http_x_auth_request_user;
 auth_request_set $authrequest_username    $upstream_http_x_auth_request_preferred_username;
 auth_request_set $authrequest_email       $upstream_http_x_auth_request_email;

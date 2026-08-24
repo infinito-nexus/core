@@ -1,6 +1,11 @@
 ---
 # Matrix-deploy variant overrides for web-app-opencloud.
 # See docs/contributing/artefact/files/role/variants.md for the file format.
+#
+# nocheck: sso-variant-tor — the SSO-less variants run OpenCloud's built-in IDP,
+# and lico rejects a non-https iss (bootstrap.go: "invalid iss value, URL must
+# start with https://"). An onion has no TLS, so OC_URL is http and the whole
+# single-binary runtime crash-loops. Variant 0 carries the onion.
 
 # variant pinning every dynamic services.yml flag to true so the
 # matrix exercises the in-group_names branch of web-app-opencloud.
@@ -31,6 +36,8 @@
     prometheus:
       enabled: true
       shared: true
+    tor:
+      enabled: true
 
 - services:
     container_backup:
@@ -60,6 +67,8 @@
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    tor:
+      enabled: false
 
 - services:
     container_backup:
@@ -89,3 +98,5 @@
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    tor:
+      enabled: false

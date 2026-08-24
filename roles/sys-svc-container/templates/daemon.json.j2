@@ -13,8 +13,8 @@
 {% if SYS_SVC_CONTAINER_DATA_ROOT | length > 0 %}
   "data-root": "{{ SYS_SVC_CONTAINER_DATA_ROOT }}",
 {% endif %}
-{% if (networks.internet.dns | default('') | length) > 0 %}
-  "dns": ["{{ networks.internet.dns }}"],
+{% if lookup('container_dns') %}
+  "dns": {{ lookup('container_dns') | to_json }},
 {% endif %}
   "dns-search": ["{{ DOMAIN_PRIMARY }}"],
   "dns-opts": ["ndots:0"],

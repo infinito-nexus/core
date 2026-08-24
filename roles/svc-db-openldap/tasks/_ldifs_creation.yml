@@ -7,4 +7,4 @@
       - src_glob: "ldif/{{ folder }}/*.j2"
         dest_dir: "{{ OPENLDAP_LDIF_PATH_HOST }}{{ folder }}"
         mode: "0770"
-        notify: "Import {{ folder }} LDIF files"
+        notify: "import-{{ folder }}-ldif-files"

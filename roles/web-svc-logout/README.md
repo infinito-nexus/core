@@ -23,6 +23,7 @@ The diagram places Universal Logout in the Infinito.Nexus cosmos: the components
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
         dep_web_svc_css["web-svc-css 💻"]
@@ -33,6 +34,7 @@ flowchart LR
         svc_css["css"]
         svc_javascript["javascript"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
     end
     subgraph dependents [Dependents]
         dpt_web_app_akaunting["web-app-akaunting 🐳🐝"]
@@ -49,6 +51,7 @@ flowchart LR
         dpt_web_app_espocrm["web-app-espocrm 🐳🐝"]
         dpt_more["..."]
     end
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_svc_css -. "0..1" .-> svc_css
@@ -67,7 +70,7 @@ flowchart LR
     svc_logout -. "0..1" .-> dpt_web_app_espocrm
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
@@ -124,6 +127,11 @@ docker run --rm -it \
 ---
 
 *This role is licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).*
+
+## Persona contract opt-outs
+
+[`meta/services.yml`](./meta/services.yml) declares no `sso` service, so this role is never registered as a Keycloak client. Its only HTTP surface is the anonymous logout conductor and the `/logout` endpoints proxied by [`templates/logout-proxy.conf.j2`](./templates/logout-proxy.conf.j2) — there is no login form, no account and no session to end.
+[`templates/playwright.env.j2`](./templates/playwright.env.j2) therefore declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. The service's real coverage is per consumer: [`files/playwright/playwright.spec.js`](./files/playwright/playwright.spec.js) parameterises the injected logout JS over `roles_with_service('logout')`.
 
 ## Credits
 

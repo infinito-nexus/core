@@ -100,10 +100,6 @@ def get_sso_config(
     if flavor not in _VALID_FLAVORS:
         flavor = _DEFAULT_FLAVOR
 
-    # oauth2-flavor sub-fields. Render-time consumers (sys-svc-proxy ACL
-    # routing, the oauth2-proxy upstream-config template, the prometheus
-    # JS gate) read these — we surface them as named properties so call
-    # sites stay flavor-aware without spelling the literal nested path.
     raw_host = _get(applications, application_id, "services.sso.oauth2.origin.host", "")
     raw_port = _get(applications, application_id, "services.sso.oauth2.origin.port", "")
     raw_acl = _get(applications, application_id, "services.sso.oauth2.acl", {})

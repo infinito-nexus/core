@@ -15,7 +15,7 @@
   stack_host_template:
     src: "nginx.stream.conf.j2"
     dest: "{{ lookup('nginx','directories.configuration.streams') }}{{ lookup('domain',application_id) }}.conf"
-  notify: restart openresty
+  notify: restart-openresty
   when: OPENLDAP_NETWORK_SWITCH_PUBLIC | bool
 
 - name: 🧹 Remove {{ lookup('domain',application_id) }}.conf if LDAP not public

@@ -1,0 +1,7 @@
+---
+- name: "🧩 setup {{ role_group }} roles in run_after order"
+  ansible.builtin.include_tasks: ./tasks/utils/setup/role.yml
+  loop: "{{ lookup('group_roles', role_group) }}"
+  loop_control:
+    loop_var: role_entry
+    label: "{{ role_entry.app }}"

@@ -10,26 +10,18 @@ mydomain = localdomain
 myorigin = $mydomain
 append_dot_mydomain = no
 
-# Listen only on loopback interfaces
 inet_interfaces = loopback-only
 inet_protocols = all
 
-# Accept mail only for local destinations
 mydestination = $myhostname, localhost.$mydomain, localhost, $mydomain
 
-# No outbound relay
 relayhost =
 relay_domains =
 
-# Trusted local networks (IPv4 + IPv6 loopback)
 mynetworks = 127.0.0.0/8 [::1]/128
 
-# Local delivery must be enabled for admin mails
-# (DO NOT disable local_transport for local-only mode)
-# local_transport = error: local delivery disabled
 
 {% set email = lookup('email') %}
-# SMTP timeouts (defensive, avoids hanging clients)
 smtp_connect_timeout = {{ email.timeout }}s
 smtp_helo_timeout = {{ email.timeout }}s
 smtp_mail_timeout = {{ email.timeout }}s
@@ -37,10 +29,8 @@ smtp_rcpt_timeout = {{ email.timeout }}s
 smtp_data_init_timeout = {{ email.timeout }}s
 smtp_data_xfer_timeout = {{ email.timeout }}s
 
-# Mandatory relay restrictions (prevents open relay and startup failures)
 smtpd_relay_restrictions = permit_mynetworks, reject_unauth_destination
 smtpd_recipient_restrictions = permit_mynetworks, reject_unauth_destination
 
-# Alias database (Arch Linux default: lmdb)
 alias_maps = lmdb:/etc/postfix/aliases
 alias_database = lmdb:/etc/postfix/aliases

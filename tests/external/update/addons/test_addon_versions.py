@@ -18,7 +18,7 @@ It mirrors the Docker image / repository-ref external checks:
 
 The reconciliation core (``discover_addon_updates``) is pure and is exercised
 with fixture catalogs by the unit suite
-(``tests/unit/utils/update/test_addons.py``); this file owns the live,
+(``tests/unit/python/utils/update/test_addons.py``); this file owns the live,
 warn-only surface and degrades to "monitored, not yet checked" warnings when
 no live adapter is wired for a catalog.
 """
@@ -42,8 +42,6 @@ class TestAddonVersions(unittest.TestCase):
 
         monitored = [e for e in entries if e.monitored]
 
-        # Group the monitored addons by catalog so the operator sees, per
-        # adapter, exactly which addons the drift job tracks.
         by_catalog: dict[str, list[str]] = {}
         for entry in monitored:
             catalog = entry.catalog or "(none)"
@@ -71,7 +69,6 @@ class TestAddonVersions(unittest.TestCase):
                         file=str(entry.config_path.relative_to(PROJECT_ROOT)),
                     )
 
-        # Always pass: drift is reported as warnings, never a hard failure.
         self.assertIsNotNone(entries)
 
 

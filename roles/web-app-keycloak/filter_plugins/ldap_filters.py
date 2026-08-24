@@ -32,7 +32,6 @@ class FilterModule:
         if flavors is None:
             flavors = []
         if isinstance(flavors, str):
-            # be forgiving if someone passes a comma-separated string
             flavors = [f.strip() for f in flavors.split(",") if f.strip()]
         if not isinstance(flavors, Iterable):
             raise TypeError(
@@ -49,7 +48,6 @@ class FilterModule:
             return "(objectClass=groupOfNames)"
         if have_ou:
             return "(objectClass=organizationalUnit)"
-        # fallback
         return f"(objectClass={default})"
 
     def ldap_roles_mapper_payload(self, desired_group_mapper, ldap_cmp_id) -> str:

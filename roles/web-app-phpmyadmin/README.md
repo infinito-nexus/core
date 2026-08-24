@@ -16,6 +16,7 @@ The diagram places PhpMyAdmin in the Infinito.Nexus cosmos: the components it de
 flowchart LR
     subgraph deps [Dependencies]
         dep_svc_db_mariadb["svc-db-mariadb 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
@@ -34,18 +35,21 @@ flowchart LR
         svc_css["css"]
         svc_email["email ❌"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
     end
     dep_svc_db_mariadb -. "0..1" .-> svc_mariadb
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -. "0..1" .-> svc_sso
-    dep_web_app_mailu -- "1:1" --> svc_email
+    dep_web_app_mailu -- "0..0" --> svc_email
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_svc_css -. "0..1" .-> svc_css
     dep_web_svc_logout -. "0..1" .-> svc_logout
+    linkStyle 4 stroke:red;
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Purpose
 
@@ -96,6 +100,10 @@ docker run --rm -it \
       --password-file "$INVENTORY/.password" \
       --diff -vv'
 ```
+
+## Persona contract opt-outs
+
+phpMyAdmin signs in as the MariaDB `root` account wired through `PMA_USER` / `PMA_PASSWORD` ([`templates/env.j2`](./templates/env.j2), [`vars/main.yml`](./vars/main.yml)); the Keycloak `administrator` username is not a MariaDB user, so in the `services.sso.enabled: false` matrix variants the `administrator` persona has no native login to drive and [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_ADMINISTRATOR_BLOCKED=true`. [`meta/services.yml`](./meta/services.yml) admits only the `web-app-phpmyadmin` administrator RBAC group to the oauth2-proxy (`sso.oauth2.allowed_groups`) and `biber` carries an empty role list, so `PERSONA_BIBER_BLOCKED=true` holds in every variant. The `guest` persona and the baseline assertions run unconditionally.
 
 ## Credits
 

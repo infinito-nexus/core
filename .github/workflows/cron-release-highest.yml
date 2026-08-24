@@ -1,4 +1,5 @@
-name: "⏰ Release: Highest Missing Version"
+name: "🚀 Release missing tag"
+run-name: "${{ github.event_name == 'schedule' && '⏰ ' || '' }}🚀 Release missing tag"
 
 on:
   schedule:

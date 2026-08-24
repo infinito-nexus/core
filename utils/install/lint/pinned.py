@@ -16,7 +16,7 @@ every ``lint-*`` target depends on ``install-lint``, which bootstraps the
 toolchain on a bare interpreter -- PyYAML is not installed yet at that point,
 and importing it here fails the whole lint stage with ``ModuleNotFoundError``.
 ``_parse_pins`` therefore only understands the two-level shape this one file
-uses; ``tests/unit/utils/install/lint/test_pinned_versions.py`` cross-checks it
+uses; ``tests/unit/python/utils/install/lint/test_pinned_versions.py`` cross-checks it
 against PyYAML so the two readings cannot drift apart.
 """
 

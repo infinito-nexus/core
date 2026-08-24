@@ -11,7 +11,7 @@
     _wait_service_name: "{{ (wait_service_name | default('')) or lookup('container_service', application_id, wait_service_key) }}"
   block:
     - name: "⏳ swarm | wait for '{{ wait_service_key }}' task to converge"
-      ansible.builtin.script: "{{ lookup('path_absolute', 'roles/sys-svc-compose/files/swarm/service_converged.sh') }}"
+      ansible.builtin.script: "{{ lookup('path_absolute', 'roles/sys-svc-compose/files/shell/swarm/service_converged.sh') }}"
       environment:
         SERVICE: "{{ _wait_service_name }}"
       register: _swarm_converged

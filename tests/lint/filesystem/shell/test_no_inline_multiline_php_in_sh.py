@@ -58,17 +58,11 @@ from . import PROJECT_ROOT
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-# Top-level path segments where shell files are scanned. Tests/, docs/
-# and similar are exempt.
 SCAN_DIRS = ("roles", "scripts", ".github")
 SCAN_SUFFIXES = (".sh", ".bash")
 
-# php -r '   or   php -r "    (capturing the opening quote).
 _PHP_R_OPEN_RE = re.compile(r"""\bphp\s+-r\s+(?P<q>['"])""")
 
-# php  ...  <<['"]?MARK['"]?  (also <<-, allowing leading dash).
-# Captures the heredoc end-marker. Anything between `php` and `<<` is
-# tolerated to allow `php -dfoo=1 <<EOF` and similar.
 _PHP_HEREDOC_OPEN_RE = re.compile(
     r"""\bphp\b[^<\n]*<<-?\s*(?P<mq>['"]?)(?P<mark>[A-Za-z_][A-Za-z0-9_]*)(?P=mq)"""
 )
@@ -78,7 +72,7 @@ _PHP_HEREDOC_OPEN_RE = re.compile(
 class Finding:
     file: Path
     line: int
-    kind: str  # "php -r" or "php <<HEREDOC"
+    kind: str
     span_lines: int
 
     def format(self, repo_root: Path) -> str:

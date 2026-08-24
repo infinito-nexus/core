@@ -4,7 +4,8 @@
 // env-presence guard and reuses the same helpers and admin-login flow.
 
 const { expect } = require("@playwright/test");
-const { decodeDotenvQuotedValue, installCspViolationObserver, normalizeBaseUrl } = require("./personas");
+const { resolveTimeout } = require("./timeouts");
+const { decodeDotenvQuotedValue, gotoOnion, installCspViolationObserver, normalizeBaseUrl } = require("./personas");
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
 const oidcIssuerUrl = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
@@ -102,7 +103,7 @@ async function setupMatomoPage(page) {
 }
 
 async function loginAsAdmin(page) {
-  await page.goto(`${appBaseUrl}/index.php?module=Login`);
+  await gotoOnion(page, `${appBaseUrl}/index.php?module=Login`);
 
   const usernameField = page.locator("input#login_form_login, input[name='form_login']").first();
   const passwordField = page.locator("input#login_form_password, input[name='form_password']").first();
@@ -110,14 +111,14 @@ async function loginAsAdmin(page) {
     .locator("input#login_form_submit, button#login_form_submit, button[type='submit'], input[type='submit']")
     .first();
 
-  await expect(usernameField, "Expected Matomo login form username field").toBeVisible({ timeout: 60_000 });
+  await expect(usernameField, "Expected Matomo login form username field").toBeVisible({ timeout: resolveTimeout(60_000) });
   await usernameField.fill(adminUsername);
   await passwordField.fill(adminPassword);
   await submitButton.click();
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: "Expected Matomo login to leave the Login module",
     })
     .not.toContain("module=Login");

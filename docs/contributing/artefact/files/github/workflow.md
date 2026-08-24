@@ -6,12 +6,13 @@ For the script placement rule that applies to extracted shell helpers, see [scri
 
 ## Naming 🏷️
 
-Every workflow MUST follow the schema `"[Emoji] Category: Subject (Qualifier)"`.
+Every workflow MUST follow the schema `"[Emoji] Category: Subject (Qualifier)"`, except a scheduled one — see [Scheduled runs](#scheduled-runs-).
 
 - You MUST quote the `name:` value in double quotes because the colon (`:`) in the name is a reserved YAML character.
 - You MUST place the emoji before the category, never after.
 - You MUST NOT add emojis to `docs/agents/` files, but workflow `name:` fields are not agent files and MUST use emojis.
 - The qualifier in parentheses is OPTIONAL. Use it only when two workflows share the same category and subject.
+- A workflow with a `workflow_dispatch` trigger MUST keep its `name:` at or below 25 characters, enforced by [test_workflow_dispatch_name_length.py](../../../../../tests/lint/repository/test_workflow_dispatch_name_length.py). The dispatch menu lists those names in one narrow column, where a longer one is truncated. Move the explanatory wording into `run-name:`, which carries no such limit.
 
 ### Emoji legend 📋
 
@@ -40,6 +41,19 @@ name: "🧪 Test: Code (Integration)"
 name: "🪞 Mirror: Docker Hub → GHCR (only missing)"
 name: "🚫 Cancel: PR Runs on Close"
 ```
+
+### Scheduled runs ⏰
+
+A scheduled workflow (`cron-*.yml`) drops the `Category:` schema: its `name:` MUST read as one short sentence saying what the run does, because the Actions list shows scheduled runs next to each other with no PR or branch to tell them apart.
+
+It MUST NOT carry ⏰ in its `name:`, and MUST carry a `run-name:` that prefixes ⏰ only when the schedule started the run, so a dispatched run is not mislabelled as scheduled:
+
+```yaml
+name: "🔄 Update versions"
+run-name: "${{ github.event_name == 'schedule' && '⏰ ' || '' }}🔄 Update versions"
+```
+
+Enforced by [test_workflow_trigger_prefix.py](../../../../../tests/lint/repository/test_workflow_trigger_prefix.py), which also owns the `entry-` / `call-` / `cron-` file-name rule.
 
 ## Shell execution 📜
 

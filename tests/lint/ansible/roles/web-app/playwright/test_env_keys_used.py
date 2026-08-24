@@ -34,18 +34,8 @@ if TYPE_CHECKING:
 
 _KEY_LHS_RE = re.compile(r"^([A-Z_][A-Z0-9_]*)\s*=")
 
-# Keys whose suffix marks them as dynamically consumed by a shared
-# helper that reads `process.env` by computed key — they cannot be
-# matched with a literal `process.env.<KEY>` regex. The
-# ``_SERVICE_ENABLED`` family is read by
-# `roles/test-e2e-playwright/files/service-gating.js` via
-# ``Object.keys(process.env)`` plus a suffix-strip; declaring such a
-# flag in `playwright.env.j2` is the contract that registers the
-# service with the helper.
 _DYNAMIC_KEY_SUFFIXES: tuple[str, ...] = ("_SERVICE_ENABLED",)
 
-# Keys read by the Node.js runtime itself (not by user code), so a
-# missing `process.env` reference is expected and not a bug.
 _RUNTIME_KEYS: frozenset[str] = frozenset({"NODE_TLS_REJECT_UNAUTHORIZED"})
 
 

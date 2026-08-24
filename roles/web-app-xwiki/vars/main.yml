@@ -3,14 +3,14 @@ application_id: "web-app-xwiki"
 entity_name: "{{ application_id | get_entity_name }}"
 domain: "{{ lookup('domain',application_id) }}"
 
-container_hostname: "{{ domain }}"
+container_hostname: "{{ lookup('container_hostname', application_id) }}"
 
 XWIKI_HOST_PORT: "{{ lookup('config', application_id, 'services.xwiki.ports.local.http') }}"
 
 XWIKI_HOSTNAME: "{{ container_hostname }}"
 
 XWIKI_HOST_PROPERTIES_PATH: "{{ [lookup('container', application_id, 'directories.config'), 'xwiki.properties'] | path_join }}"
-XWIKI_DOCK_DATA_DIR: "/usr/local/xwiki"
+XWIKI_DOCK_DATA_DIR: "{{ lookup('volume', 'web-app-xwiki', 'data').target }}"
 
 XWIKI_IMAGE: "{{ lookup('config', application_id, 'services.xwiki.image') }}"
 XWIKI_VERSION: "{{ lookup('config', application_id, 'services.xwiki.version') }}"
@@ -25,7 +25,7 @@ XWIKI_ADMIN_USER: "{{ lookup('users', 'administrator').username }}"
 XWIKI_ADMIN_GROUP: "administrator"
 XWIKI_ADMIN_GROUP_PAGE: "XWikiAdminGroup"
 
-XWIKI_SUPERADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.superadminpassword') }}"
+XWIKI_SUPERADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.superadminpassword') }}"
 XWIKI_SUPERADMIN_USERNAME: "superadmin"
 
 XWIKI_DOCKER_REACH_URL: "http://{{ DOCKER_REACH_HOST }}:{{ XWIKI_HOST_PORT }}"

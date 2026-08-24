@@ -11,7 +11,7 @@
     dest: "{{ ODOO_CONF_FILE_HOST }}"
     mode: "0644"
   notify:
-    - compose up
+    - compose-up
 
 - name: "📋 Copy custom addons"
   copy:
@@ -19,17 +19,17 @@
     dest: "{{ ODOO_ADDONS_HOST }}"
     mode: "0644"
   notify:
-    - compose up
-    - compose build
+    - compose-up
+    - compose-build
 
 - name: "📋 Copy Odoo entrypoint (first-boot db init)"
   copy:
-    src: "docker-entrypoint-odoo.sh"
+    src: "shell/docker-entrypoint-odoo.sh"
     dest: "{{ ODOO_ENTRYPOINT_SCRIPT_HOST_ABS }}"
     mode: "0755"
   notify:
-    - compose up
-    - compose build
+    - compose-up
+    - compose-build
 
 - name: "🐳 Docker Compose Up for '{{ application_id }}'"
   meta: flush_handlers

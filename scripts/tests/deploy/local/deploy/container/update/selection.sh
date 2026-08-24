@@ -48,8 +48,6 @@ echo ">>> Running entry.sh"
 ./scripts/docker/entry.sh true
 
 echo ">>> Starting rapid deploy"
-# `--id` accepts multiple positional ids; split apps on whitespace into a
-# proper array instead of relying on shell word-splitting at expansion time
 # (which shellcheck SC2206 rightly flags as fragile).
 read -ra app_ids <<<"${apps}"
 cmd=(infinito administration deploy dedicated "${INFINITO_INVENTORY_FILE}"

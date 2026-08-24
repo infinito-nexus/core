@@ -27,6 +27,7 @@ _GROUP_PATHS_FILE = str(PROJECT_ROOT / "group_vars" / "all" / "05_paths.yml")
 _ENTRY_RE = re.compile(
     r'^(?P<key>[A-Za-z_][A-Za-z0-9_]*):\s*"?(?P<value>[^"#]*)"?\s*(?:#.*)?$'
 )
+_ITEM_RE = re.compile(r'^\s+-\s*"?(?P<value>[^"#]*)"?\s*(?:#.*)?$')
 
 
 def read_group_path(key: str) -> str:
@@ -54,6 +55,35 @@ def read_group_path(key: str) -> str:
             )
         return value
     raise KeyError(f"{key} not defined in {_GROUP_PATHS_FILE}")
+
+
+def read_group_paths(key: str) -> list[str]:
+    """Plain-string list value from the group_vars paths SPOT.
+
+    Args:
+        key: top-level variable name whose value is a YAML block sequence.
+
+    Returns:
+        The literal string entries, in file order.
+
+    Raises:
+        KeyError: the key is not defined in the SPOT or carries no entry.
+    """
+    entries: list[str] = []
+    collecting = False
+    for line in read_text(_GROUP_PATHS_FILE).splitlines():
+        if line.startswith(f"{key}:"):
+            collecting = True
+            continue
+        if not collecting:
+            continue
+        item = _ITEM_RE.match(line)
+        if item is None:
+            break
+        entries.append(item.group("value").strip())
+    if not entries:
+        raise KeyError(f"{key} not defined as a list in {_GROUP_PATHS_FILE}")
+    return entries
 
 
 def _dir_var_lib() -> str:

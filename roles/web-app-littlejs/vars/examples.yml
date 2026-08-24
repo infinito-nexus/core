@@ -1,4 +1,5 @@
 ---
+# nocheck: comments-valid the commented-out entries ARE the deactivation mechanism for an example tile
 # LittleJS examples for launcher UI (used to generate example tiles and menu)
 
 littlejs_examples:

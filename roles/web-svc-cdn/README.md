@@ -17,6 +17,7 @@ The diagram places Content Delivery Network in the Infinito.Nexus cosmos: the co
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
     end
@@ -27,12 +28,20 @@ flowchart LR
         svc_matomo["matomo"]
         svc_javascript["javascript"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
     end
+    subgraph dependents [Dependents]
+        dpt_web_app_dashboard["web-app-dashboard 🐳🐝"]
+        dpt_web_svc_css["web-svc-css 💻"]
+    end
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
+    svc_dashboard -- "1:1" --> dpt_web_app_dashboard
+    svc_dashboard -- "1:1" --> dpt_web_svc_css
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 

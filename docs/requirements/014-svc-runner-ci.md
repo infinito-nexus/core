@@ -12,7 +12,7 @@ Add an `svc-runner` role that provisions a dedicated machine as an Infinito.Nexu
 
 ### Role: `svc-runner`
 
-- [x] A new role at `roles/svc-runner/` (path to be created) exists and follows the role-meta layout in `docs/contributing/design/services/layout.md` (including `meta/services.yml` with a `lifecycle` key, `meta/schema.yml`, and `tasks/main.yml`).
+- [x] A new role at `roles/svc-runner/` (path to be created) exists and follows the role-meta layout in `docs/contributing/design/services/layout.md` (including `meta/services.yml` with a `lifecycle` key, `meta/secrets.yml`, and `tasks/main.yml`).
 - [x] When applied to a host, `svc-runner` brings up an Infinito.Nexus-capable CI runner on that host (the runner is the execution environment in which subsequent Infinito.Nexus deploys and tests run).
 - [x] The role is compatible with — and exercised by — the CLI script described under **CLI: `cli/administration/deploy/runner/`** below; deploying through that script against a fresh host MUST yield a working runner without manual post-steps.
 - [x] `make test` passes with the new role in place.

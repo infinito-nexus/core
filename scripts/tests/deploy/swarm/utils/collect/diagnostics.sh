@@ -58,14 +58,16 @@ done'
 
 if [ "${DB_DEP}" = "mariadb" ]; then
 	sep "mariadb-env" "live mariadb container env (MARIADB* only, value prefix redacted)"
-	MARIADB_CID=$(dexec "${MGR}" sh -c \
-		'docker ps --filter name=mariadb --format "{{.ID}}" | head -n1')
+	DB_SERVICE="$(resolve_db_service)"
+	MARIADB_CID=""
+	[ -z "${DB_SERVICE}" ] || MARIADB_CID=$(dexec "${MGR}" sh -c \
+		"docker ps --filter name=${DB_SERVICE} --format '{{.ID}}' | head -n1")
 	if [ -n "${MARIADB_CID}" ]; then
 		dexec "${MGR}" docker exec "${MARIADB_CID}" sh -c \
 			'env | grep -E "^MARIADB|^MYSQL" | sed "s/=\(.\{1,3\}\).*/=\1...(redacted)/"' ||
 			echo "(failed to exec into ${MARIADB_CID})"
 	else
-		echo "(no live mariadb container found)"
+		echo "(no live container for db service '${DB_SERVICE}')"
 	fi
 fi
 

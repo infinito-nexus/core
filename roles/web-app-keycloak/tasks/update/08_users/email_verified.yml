@@ -6,14 +6,14 @@
 #   - dict key is ignored completely
 
 - name: "🔧 Set emailVerified=true for users in realm '{{ KEYCLOAK_REALM }}'"
-  ansible.builtin.script: set_email_verified.sh
+  ansible.builtin.script: shell/set_email_verified.sh
   environment:
     KEYCLOAK_EXEC_CONTAINER: "{{ KEYCLOAK_EXEC_CONTAINER }}"
     KEYCLOAK_KCADM: "{{ KEYCLOAK_KCADM }}"
     KEYCLOAK_REALM: "{{ KEYCLOAK_REALM }}"
     KEYCLOAK_USERNAME: "{{ item.value.username }}"
     KEYCLOAK_EMAIL_VERIFIED: "true"
-  loop: "{{ lookup('users') | non_reserved_users | dict2items }}"
+  loop: "{{ lookup('users_non_reserved') | dict2items }}"
   loop_control:
     label: "{{ item.value.username }}"
   register: kc_email_verified_updates

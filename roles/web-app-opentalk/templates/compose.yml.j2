@@ -15,7 +15,7 @@
     {{ lookup('compose_only', 'container_name', OPENTALK_CTRL_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_ports', ['controller', 'http', DOCKER_BIND_HOST]) | indent(4) }}
-    {{ lookup('container_volumes', application_id, 'controller') | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
@@ -29,8 +29,8 @@
     network_mode: host
     command:
       - --config
-      - /etc/livekit/livekit.yaml
-    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+      - {{ lookup('volume', 'web-app-opentalk', 'livekit_yaml').target }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     logging:
       driver: journald
 
@@ -47,7 +47,7 @@
       interval: 30s
       timeout: 10s
       retries: 5
-    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     logging:
       driver: journald
@@ -58,11 +58,11 @@
     {{ lookup('container_image', application_id, 'recorder') }}
     {{ lookup('compose_only', 'container_name', OPENTALK_RECORDER_CONTAINER) }}
     {{ lookup('compose_restart') }}
-    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('depends_on', {'rabbit': 'service_healthy', 'controller': 'service_started'}) }}
     logging:
       driver: journald
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

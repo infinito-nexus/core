@@ -16,3 +16,9 @@ SVC_STORAGE_NFS_SERVER_STATE_EXPORT_OPTIONS: >-
   rw,sync,no_subtree_check,no_root_squash,no_all_squash
 SVC_STORAGE_NFS_SERVER_STATE_ALLOWED_CIDRS:
   - "*"
+
+SVC_STORAGE_NFS_SERVER_GANESHA_SERVE: >-
+  shell/ganesha-serve.sh
+  {{ SVC_STORAGE_NFS_SERVER_SERVICE['ganesha'][ansible_facts['os_family']] | quote }}
+  2049
+  {{ lookup('timeout', 120) | int }}

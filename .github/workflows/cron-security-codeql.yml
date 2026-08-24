@@ -11,7 +11,8 @@
 # the `language` matrix defined below to confirm you have the correct set of
 # supported CodeQL languages.
 #
-name: "⏰ Scan: CodeQL (Advanced)"
+name: "🔐 Scan with CodeQL"
+run-name: "${{ github.event_name == 'schedule' && '⏰ ' || '' }}🔐 Scan with CodeQL"
 
 concurrency:
   group: codeql-${{ github.repository }}-${{ github.ref }}
@@ -22,6 +23,8 @@ on:
   schedule:
     - cron: '0 0 * * 6'
 
+permissions:
+  contents: read
 
 jobs:
   analyze:

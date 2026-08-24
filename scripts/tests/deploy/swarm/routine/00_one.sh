@@ -18,6 +18,8 @@ set -euo pipefail
 #   INFINITO_RESCUE_DIAGNOSTICS_BASE    host dir the rescue snapshots land under
 #   INFINITO_SWARM_STEP_TIMEOUT_MINUTES deploy-step ceiling
 #   variant                             optional matrix variant pin
+#   disable                             optional provider keys to render disabled,
+#                                       minus SWARM_REQUIRED_SERVICES
 #
 # Exports:
 #   MGR/WRK1/WRK2/NFS_SERVER/BACKUP_NODE and their *_IP peers, from the topology SPOT
@@ -41,26 +43,48 @@ export SWARM_DRILL_ENV
 : "${INFINITO_RESCUE_DIAGNOSTICS_BASE:?INFINITO_RESCUE_DIAGNOSTICS_BASE is required}"
 : "${INFINITO_SWARM_STEP_TIMEOUT_MINUTES:?INFINITO_SWARM_STEP_TIMEOUT_MINUTES is required}"
 
+SWARM_REQUIRED_SERVICES="node nfs-server container_backup nfs_backup"
+if [ -n "${disable:-}" ]; then
+	_keep="" _drop=""
+	IFS=', ' read -r -a _keys <<<"${disable}"
+	for _key in "${_keys[@]}"; do
+		[ -n "${_key}" ] || continue
+		case " ${SWARM_REQUIRED_SERVICES} " in
+		*" ${_key} "*) _drop="${_drop}${_drop:+,}${_key}" ;;
+		*) _keep="${_keep}${_keep:+,}${_key}" ;;
+		esac
+	done
+	if [ -n "${_drop}" ]; then
+		echo "==> disable: keeping '${_drop}' enabled -- the swarm drill needs them"
+	fi
+	disable="${_keep}"
+	export disable
+	unset _keep _drop _key _keys
+fi
+
 collect_and_teardown() {
-	rc=$?
+	rc=${1:-$?}
+	[ -n "${_teardown_done:-}" ] && return 0
+	_teardown_done=1
 
 	if [ "${rc}" -ne 0 ]; then
 		rescue_dir="${INFINITO_RESCUE_DIAGNOSTICS_BASE}/${INFINITO_DISTRO}/${APP_ID}"
 		INFINITO_RESCUE_DIAGNOSTICS_DIR="${rescue_dir}" \
 			timeout 1500 python3 utils/diagnostics/container.py \
-			"${APP_ID}" "post-deploy failure" || true
+			"${APP_ID}" "post-deploy failure" || true # nocheck: shell-or-true -- best-effort diagnostics + teardown in the EXIT trap
 		INFINITO_RESCUE_DIAGNOSTICS_DIR="${rescue_dir}" \
-			timeout 900 bash "${SCRIPT_DIR}/../utils/collect/diagnostics.sh" || true
-		bash "${REPO_ROOT}/scripts/tests/deploy/utils/rescue_index.sh" "${rescue_dir}" || true
+			timeout 900 bash "${SCRIPT_DIR}/../utils/collect/diagnostics.sh" || true              # nocheck: shell-or-true -- best-effort diagnostics + teardown in the EXIT trap
+		bash "${REPO_ROOT}/scripts/tests/deploy/utils/rescue_index.sh" "${rescue_dir}" || true # nocheck: shell-or-true -- best-effort diagnostics + teardown in the EXIT trap
 	fi
 
-	timeout 900 bash "${SCRIPT_DIR}/../utils/collect/playwright_reports.sh" || true
-	bash "${SCRIPT_DIR}/../utils/collect/topology_summary.sh" || true
-	timeout 900 bash "${SCRIPT_DIR}/../utils/clean/teardown.sh" || true
+	timeout 900 bash "${SCRIPT_DIR}/../utils/collect/playwright_reports.sh" || true # nocheck: shell-or-true -- best-effort diagnostics + teardown in the EXIT trap
+	bash "${SCRIPT_DIR}/../utils/collect/topology_summary.sh" || true               # nocheck: shell-or-true -- best-effort diagnostics + teardown in the EXIT trap
+	timeout 900 bash "${SCRIPT_DIR}/../utils/clean/teardown.sh" || true             # nocheck: shell-or-true -- best-effort diagnostics + teardown in the EXIT trap
 
 	return "${rc}"
 }
 trap collect_and_teardown EXIT
+trap 'collect_and_teardown 143' TERM
 
 # shellcheck source=scripts/tests/deploy/utils/filesystem/pick.sh
 . "${REPO_ROOT}/scripts/tests/deploy/utils/filesystem/pick.sh"

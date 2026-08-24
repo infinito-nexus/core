@@ -8,6 +8,17 @@
   delay: 2
   until: joomla_files.rc == 0
 
+- name: "⏳ Wait for the image entrypoint to finish its own install"
+  shell: >
+    container exec {{ JOOMLA_CONTAINER_ADDRESS }}
+    sh -c 'test -e {{ JOOMLA_INIT_READY_FILE }} || test -e {{ JOOMLA_CONFIG_FILE }}'
+  register: joomla_entrypoint_done
+  changed_when: false
+  failed_when: false
+  retries: 60
+  delay: 5
+  until: joomla_entrypoint_done.rc == 0
+
 - name: "🔎 Check for CLI installer"
   shell: >
     container exec {{ JOOMLA_CONTAINER_ADDRESS }} test -f {{ JOOMLA_INSTALLER_CLI_FILE }}

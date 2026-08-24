@@ -9,10 +9,9 @@ DOCKER_HUB_REGISTRIES = frozenset(
 GHCR_REGISTRY = "ghcr.io"
 MCR_REGISTRY = "mcr.microsoft.com"
 
-# Docker image reference (name only, WITHOUT tag/digest).
 IMAGE_NAME_RE = re.compile(
     r"^"
-    r"("  # optional registry
+    r"("
     r"(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)"
     r"(?:\.(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?))*"
     r"(?:\:[0-9]{1,5})?"
@@ -31,7 +30,6 @@ def is_valid_image_name(image: Any) -> bool:
     if not image or " " in image or "@" in image:
         return False
 
-    # Reject repo:tag while still allowing registry hosts with a port.
     if image.rfind(":") > image.rfind("/"):
         return False
 

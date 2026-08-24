@@ -8,14 +8,14 @@ For how the file is consumed at runtime (folder-per-round model, `--variant` / `
 
 - The file MUST live at `roles/<application_id>/meta/variants.yml`.
 - It MUST NOT be named `meta/inventory.yml`. The Ansible language server auto-applies the inventory schema to that filename, and the variant list does not satisfy it.
-- A role MAY omit the file entirely. The loader then exposes exactly one variant equal to the assembled per-role meta payload (`meta/services.yml` + `meta/server.yml` + `meta/rbac.yml` + `meta/volumes.yml` + `apply_schema()`'d `meta/schema.yml`) unchanged.
+- A role MAY omit the file entirely. The loader then exposes exactly one variant equal to the assembled per-role meta payload (`meta/services.yml` + `meta/server.yml` + `meta/rbac.yml` + `meta/volumes.yml` + `apply_schema()`'d `meta/secrets.yml`) unchanged.
 
 ## File Format 📋
 
 - The top-level node MUST be a YAML list. A non-list root is a hard error.
 - Each list entry MUST be either:
   - the empty mapping `{}` (the canonical no-override entry), or
-  - a YAML mapping that mirrors the assembled application payload, so it can override anything reachable under `applications.<app>.{server,rbac,services,volumes,credentials}` (see [layout.md](../../../design/role/services/layout.md)).
+  - a YAML mapping that mirrors the assembled application payload, so it can override anything reachable under `applications.<app>.<root>` (see [layout.md](../../../design/role/services/layout.md)). Every root is the name of a `meta/` topic — `services`, `server`, `rbac`, `volumes`, `secrets`, `addons`, `csp`, `domains`, `networks`, `info`, `users` — because the entry is baked into `host_vars` raw, which makes its top-level key the inventory path. A key no `meta/<topic>.yml` produces lands where nothing reads it and the override is silently discarded; `TestVariantTopLevelKeys` in [test_layout.py](../../../../../tests/lint/ansible/roles/meta/test_layout.py) rejects it.
 - The literal `null` is normalised to `{}` so a bare `- ` list item stays valid.
 - Scalars at entry level (numbers, strings, lists) are rejected.
 - Variants are addressed by their **zero-based index** in the list.
@@ -83,7 +83,7 @@ This declares two variants. Variant 0 pins every dynamic service-key from `meta/
 2. Make sure variant 0 pins every dynamic service-key from `meta/services.yml` to `enabled: true, shared: true`.
 3. Append a list entry for the new variant. For every dynamic service-key variant 0 enables, the new entry MUST either keep it on (re-pin `enabled: true, shared: true`) or explicitly disable it (`enabled: false, shared: false`). Add the variant-specific overrides that justify the new entry.
 4. If the new variant relies on cleanup steps that the standard inter-round entity purge does not cover, extend the role's purge handling. The matrix wrapper invokes the standard purge between rounds for every app whose variant changed.
-5. Add or extend the deep-merge edge-case tests in [test_variants.py](../../../../../tests/unit/utils/cache/test_variants.py) when the new variant exercises behaviour beyond the existing fixtures (for example list replacement vs. nested scalar override).
+5. Add or extend the deep-merge edge-case tests in [test_variants.py](../../../../../tests/unit/python/utils/cache/test_variants.py) when the new variant exercises behaviour beyond the existing fixtures (for example list replacement vs. nested scalar override).
 
 ## What Not To Do 🚫
 

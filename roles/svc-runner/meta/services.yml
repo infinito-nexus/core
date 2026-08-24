@@ -1,5 +1,6 @@
 ---
 # nocheck: dockerfile-custom
+# nocheck: image-healthcheck  CI runner, no service port; readiness is the runner's own registration
 runner:
   modes:
     compose:
@@ -7,16 +8,14 @@ runner:
     swarm:
       enabled: true
   lifecycle: beta
-  workload: node-local
   proxy:
     service_key: runner-1
   github_owner: infinito-nexus
   github_repo: core
   docker_base: /mnt/docker
   image: ubuntu
-  # todo: bump to the current ubuntu release once download.docker.com publishes a repo for its codename (26.10 "stonking" has none yet)
   # nocheck: docker-version
-  version: "24.04"
+  version: "26.04"
   docker_gid_fallback: 999
   project_prefix: runner
   sysctl_conf: /etc/sysctl.d/99-github-runner.conf

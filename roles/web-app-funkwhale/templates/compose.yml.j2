@@ -6,8 +6,10 @@
     command: celery -A funkwhale_api.taskapp worker -l INFO --concurrency={{FUNKWHALE_CELERYD_CONCURRENCY}}
     environment:
       - C_FORCE_ROOT=true
-    {{ lookup('container_volumes', application_id, 'celeryworker') | indent(4) }}
-    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_depends_on', application_id, extra={
+  'migrate': {'condition': 'service_completed_successfully'},
+}) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
   {% set service_name = 'celerybeat' %}
@@ -15,29 +17,35 @@
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_image', application_id, 'api') }}
     command: celery -A funkwhale_api.taskapp beat --pidfile= -l INFO
-    {{ lookup('container_volumes', application_id, 'celerybeat') | indent(4) }}
-    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_depends_on', application_id, extra={
+  'migrate': {'condition': 'service_completed_successfully'},
+}) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
   {% set service_name = 'api' %}
   {{ service_name }}:
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_image', application_id, 'api') }}
     command: gunicorn
-    {{ lookup('container_volumes', application_id, 'api') | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     ports:
       - "{{ FUNKWHALE_DOCKER_API_PORT }}"
-    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_depends_on', application_id, extra={
+  'migrate': {'condition': 'service_completed_successfully'},
+}) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
   {% set service_name = 'front' %}
   {{ service_name }}:
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_image', application_id, 'funkwhale') }}
+    {{ lookup('container_healthcheck', 'funkwhale') | indent(4) }}
     {{ lookup('depends_on', ['api']) }}
     environment:
       - "NGINX_MAX_BODY_SIZE=100M"
-    {{ lookup('container_volumes', application_id, 'front') | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_ports', ['funkwhale', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
@@ -45,12 +53,21 @@
   {{ service_name }}:
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_image', application_id, 'typesense') }}
-    {{ lookup('container_volumes', application_id, 'typesense') | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     command: --data-dir /data --enable-cors --api-key {{ FUNKWHALE_TYPESENSE_API_KEY }}
     {% if DEPLOYMENT_MODE == 'compose' %}
     profiles:
       - typesense
     {% endif %}
 
-{{ lookup('compose_volumes', application_id) }}
+  {% set service_name = 'migrate' %}
+  {% set docker_restart_policy = 'on-failure' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'api') }}
+    command: migrate
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+
+{{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

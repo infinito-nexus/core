@@ -12,7 +12,7 @@ x-environment: &shopware
     {{ lookup('compose_only', 'container_name', SHOPWARE_INIT_CONTAINER) }}
     entrypoint: [ "sh", "{{ SHOPWARE_INIT_DOCKER }}" ]
     user: "0:0"
-    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
 
     {{ lookup('container_networks') | indent(4) }}
 
@@ -40,10 +40,11 @@ x-environment: &shopware
       timeout: 5s
       retries: 10
       start_period: 120s
-    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
 
 
     {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
 
   {% set service_name = 'worker' %}
   {{ service_name }}:
@@ -58,7 +59,7 @@ x-environment: &shopware
       timeout: 5s
       retries: 3
       start_period: 10s
-    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
 
     {{ lookup('container_networks') | indent(4) }}
 
@@ -75,7 +76,7 @@ x-environment: &shopware
       timeout: 5s
       retries: 3
       start_period: 10s
-    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
 
 
     {{ lookup('container_networks') | indent(4) }}
@@ -103,5 +104,5 @@ x-environment: &shopware
     {{ lookup('container_networks') | indent(4) }}
   {% endif %}
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

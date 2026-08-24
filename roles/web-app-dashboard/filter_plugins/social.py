@@ -15,7 +15,6 @@ def fediverse_url(handle, protocol="https", path_prefix="@"):
 
     value = str(handle).strip()
 
-    # Optional leading '@'
     value = value.removeprefix("@")
 
     parts = value.split("@")
@@ -29,7 +28,6 @@ def fediverse_url(handle, protocol="https", path_prefix="@"):
     if not username or not host:
         raise AnsibleFilterError(f"Invalid Fediverse handle '{handle}'")
 
-    # Allow configurable path prefix, default "@"
     return f"{protocol}://{host}/{path_prefix}{username}"
 
 

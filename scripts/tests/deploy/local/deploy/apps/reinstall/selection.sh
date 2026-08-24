@@ -56,22 +56,7 @@ deploy_args=(
 	--debug
 )
 
-# Single init bakes the matrix folders with the inventory's default
-# ASYNC_ENABLED (false). The async update pass runs as a per-round
-# re-deploy with `-e ASYNC_ENABLED=true` overriding the host_var, so
-# Pass 1 and Pass 2 always stay co-located on the SAME variant. The dev
-# deploy wrapper handles that interleaving when `--full-cycle` is set
-# (or `full_cycle=true` is passed to make compose-deploy, which we already inherit here via the recipe's env-prefix).
 echo ">>> init inventory (ASYNC_ENABLED=false, RUNTIME=dev baked)"
-# RUNTIME MUST be `dev` here: the host process running this script lives
-# OUTSIDE the development compose stack, so `detect_runtime()` falls back
-# to "host". Without an explicit override the matrix-init step would bake
-# `RUNTIME=host` into host_vars and the Playwright E2E gate
-# (RUNTIME in [dev, act, github]) would never fire.
-#
-# Allow ad-hoc inventory overrides for dev iteration via `INIT_VARS_EXTRA`,
-# e.g. `INIT_VARS_EXTRA='"SYSTEM_EMAIL_EXTERNAL": true'` to skip the local
-# postfix relay in dev containers where systemd-postfix won't start.
 INIT_VARS_BASE='"ASYNC_ENABLED": false, "RUNTIME": "dev"'
 if [[ -n "${INIT_VARS_EXTRA:-}" ]]; then
 	INIT_VARS="{${INIT_VARS_BASE}, ${INIT_VARS_EXTRA}}"

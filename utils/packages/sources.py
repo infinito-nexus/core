@@ -10,6 +10,7 @@ from __future__ import annotations
 from typing import Any
 
 from utils.packages.calls import (
+    AUR_FETCH,
     EXTERNAL_FETCH,
     STATE_PRESENT,
     ModuleCall,
@@ -51,7 +52,7 @@ def aur_calls(names: list[str]) -> list[ModuleCall]:
             "kewlfft.aur.aur",
             {"use": "makepkg", "name": names, "extra_args": AUR_MAKEPKG_ARGS},
             become_user=AUR_BUILDER_USER,
-            retry=EXTERNAL_FETCH,
+            retry=AUR_FETCH,
         ),
     ]
 

@@ -1,4 +1,5 @@
 <?php
+// nocheck: mirrored-unit-test - a YOURLS plugin loaded by the core loader; it calls yourls_add_action and reads YOURLS globals at load
 /**
  * Trusted-header SSO bridge for YOURLS.
  *

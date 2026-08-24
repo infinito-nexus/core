@@ -1,12 +1,14 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
+const { gotoOnion } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
 test("fileslibreofficeedit addon: app installed + enabled (registered in OC.appswebroots)", async ({ browser }) => {
   skipUnlessAddonEnabled("fileslibreofficeedit");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();
@@ -14,9 +16,9 @@ test("fileslibreofficeedit addon: app installed + enabled (registered in OC.apps
   try {
     await shared.loginToStandaloneNextcloud(page);
 
-    await page.goto(new URL("apps/files/", shared.env.nextcloudBaseUrl).toString(), {
+    await gotoOnion(page, new URL("apps/files/", shared.env.nextcloudBaseUrl).toString(), {
       waitUntil: "domcontentloaded",
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
     });
     await shared.dismissBlockingNextcloudModals(page, page);
 

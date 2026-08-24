@@ -65,7 +65,6 @@ ensure_leaf() {
 	key="/certs/${hostname}.key"
 
 	if cert_still_valid "${crt}" && [ -s "${key}" ]; then
-		# Reject leaf if it no longer chains to the current CA.
 		if openssl verify -CAfile "${CA_CRT}" "${crt}" >/dev/null 2>&1; then
 			return 0
 		fi
@@ -76,7 +75,6 @@ ensure_leaf() {
 	openssl genrsa -out "${key}" 2048 >/dev/null 2>&1
 	chmod 0600 "${key}"
 
-	# Modern TLS clients require SAN; CN-as-host is no longer honoured.
 	extfile="$(mktemp)"
 	{
 		printf 'subjectAltName = DNS:%s\n' "${hostname}"

@@ -172,12 +172,6 @@ def _render(entries: dict[str, str], mode: str, indent: int) -> str:
     lines = body.splitlines()
     if indent <= 0 or len(lines) <= 1:
         return body
-    # Line 1 stays unindented so the caller can place
-    # `{{ lookup('depends_on', …) }}` at their preferred template
-    # column and the surrounding leading whitespace becomes the line-1
-    # indent at render time. Jinja does not propagate that leading
-    # whitespace to continuation lines, so we bake it into lines 2+
-    # ourselves.
     return lines[0] + "\n" + textwrap.indent("\n".join(lines[1:]), " " * indent)
 
 

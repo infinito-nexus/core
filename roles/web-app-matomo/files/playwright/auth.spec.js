@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const { isServiceEnabled } = require("./service-gating");
 const {
@@ -10,7 +11,7 @@ const {
   setupMatomoPage,
   loginAsAdmin,
 } = require("./_shared");
-const { expectNoCspViolations } = require("./personas");
+const { expectNoCspViolations, gotoOnion } = require("./personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -23,9 +24,9 @@ test("matomo local administrator logs in and logs out", async ({ page }) => {
 
   await loginAsAdmin(page);
 
-  await expect(page.locator("body")).toContainText(/dashboard|websites|matomo/i, { timeout: 60_000 });
+  await expect(page.locator("body")).toContainText(/dashboard|websites|matomo/i, { timeout: resolveTimeout(60_000) });
 
-  await page.goto(`${appBaseUrl}/index.php?module=Login&action=logout`);
+  await gotoOnion(page, `${appBaseUrl}/index.php?module=Login&action=logout`);
 
   await expect
     .poll(
@@ -36,7 +37,7 @@ test("matomo local administrator logs in and logs out", async ({ page }) => {
           .count()
           .catch(() => 0)) > 0,
       {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: "Expected Matomo login form to reappear after logout"
       }
     )
@@ -72,7 +73,7 @@ test("matomo: biber is denied access at the admin surface", async ({ browser }) 
     const callbackResponsePromise = biberPage
       .waitForResponse(
         (res) => res.url().includes("/oauth2/callback"),
-        { timeout: 60_000 },
+        { timeout: resolveTimeout(60_000) },
       )
       .catch(() => null);
 
@@ -80,7 +81,7 @@ test("matomo: biber is denied access at the admin surface", async ({ browser }) 
 
     await expect
       .poll(() => biberPage.url(), {
-        timeout: 30_000,
+        timeout: resolveTimeout(30_000),
         message: `Expected redirect to Keycloak OIDC auth: ${expectedOidcAuthUrl}`,
       })
       .toContain(expectedOidcAuthUrl);
@@ -98,7 +99,7 @@ test("matomo: biber is denied access at the admin surface", async ({ browser }) 
       .or(biberPage.locator("input#kc-login, button#kc-login, button[type='submit'], input[type='submit']"))
       .first();
 
-    await usernameField.waitFor({ state: "visible", timeout: 60_000 });
+    await usernameField.waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
     await usernameField.fill(biberUsername);
     await usernameField.press("Tab").catch(() => {});
     await passwordField.fill(biberPassword);
@@ -118,7 +119,7 @@ test("matomo: biber is denied access at the admin surface", async ({ browser }) 
 
     // Fallback: no callback observed; verify the URL did not settle on the
     // authenticated Matomo surface, AND the body does not expose admin markers.
-    await biberPage.waitForLoadState("domcontentloaded", { timeout: 60_000 }).catch(() => {});
+    await biberPage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(60_000) }).catch(() => {});
     const finalUrl = biberPage.url();
     const onAuthDenialChain =
       /openid-connect\/auth/.test(finalUrl) ||

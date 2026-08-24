@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Any
 from cli.administration.deploy.development.common import DEV_INVENTORY_VARS_FILE
 from cli.administration.deploy.development.mirrors import (
     generate_ci_mirrors_file,
-    should_use_mirrors_on_ci,
+    should_use_mirrors,
 )
 
 from .payload import _bake_overrides, _resolve_variant_payloads
@@ -66,7 +66,7 @@ def build_dev_inventory(compose: Compose, spec: DevInventorySpec) -> None:
     if variant_selectors:
         cmd += ["--app-variants", json.dumps(variant_selectors, sort_keys=True)]
 
-    if should_use_mirrors_on_ci():
+    if should_use_mirrors():
         mirrors_file = generate_ci_mirrors_file(compose, inventory_dir=inv_root)
         cmd += ["--mirror", mirrors_file]
 

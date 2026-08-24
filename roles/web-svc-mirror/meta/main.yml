@@ -1,0 +1,34 @@
+---
+# nocheck: info-media Self-written privacy-proxy glue role; no third-party consumer product website or demo video.
+galaxy_info:
+  author: Kevin Veen-Birkenbach
+  description: "Nginx-based privacy proxy that mirrors whitelisted third-party assets under a first-party domain"
+  license: Infinito.Nexus Community License (Non-Commercial)
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+  galaxy_tags:
+    - nginx
+    - proxy
+    - privacy
+    - cache
+    - tor
+    - automation
+  issue_tracker_url: https://s.infinito.nexus/issues

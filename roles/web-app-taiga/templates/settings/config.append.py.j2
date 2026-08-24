@@ -17,9 +17,6 @@ AWS_S3_URL_PROTOCOL = "http:"
 {% endif %}
 
 {% if TAIGA_OIDC_ENABLED | bool %}
-# OIDC via taiga-contrib-oidc-auth (official)
-# @see https://github.com/taigaio/taiga-contrib-oidc-auth
-# NOTE: requires custom taiga-front image with frontend plugin build
 INSTALLED_APPS += [
     "mozilla_django_oidc",
     "taiga_contrib_oidc_auth",
@@ -44,11 +41,8 @@ OIDC_OP_USER_ENDPOINT           = "{{ OIDC.CLIENT.USER_INFO_URL }}"
 {% endif %}
 
 {% if TAIGA_LDAP_ENABLED | bool %}
-# LDAP via taiga-contrib-ldap-auth-ext
-# @see https://github.com/Monogramm/taiga-contrib-ldap-auth-ext
 INSTALLED_APPS += ["taiga_contrib_ldap_auth_ext"]
 
-# LDAP_SERVER must not include the port — port is set separately via LDAP_PORT
 LDAP_SERVER                     = "{{ LDAP.SERVER.URI | regex_replace(':\\d+$', '') }}"
 LDAP_PORT                       = {{ LDAP.SERVER.PORT }}
 LDAP_START_TLS                  = {{ 'True' if LDAP.SERVER.SECURITY | upper == 'TLS' else 'False' }}

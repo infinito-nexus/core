@@ -23,7 +23,6 @@ def add_parser(sub: argparse._SubParsersAction) -> None:
 
 
 def _maybe_build_missing() -> int:
-    # CI: never build (image is pulled). Local: build if missing.
     if os.environ["INFINITO_BUILD"] != "1":
         return 0
 
@@ -52,7 +51,6 @@ def _stack_is_running() -> bool:
 
 
 def handler(args: argparse.Namespace) -> int:
-    # when-down: skip if already running
     if args.when_down and _stack_is_running():
         print(">>> Stack already running — skipping up")
         return 0

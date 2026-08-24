@@ -15,8 +15,6 @@ Usage in a template:
 
 from pathlib import Path
 
-# Role-bundled plugin: Ansible loads this file by file path with no
-# package context, so `from . import PROJECT_ROOT` cannot resolve here.
 # nocheck: project-root-import
 _ROLES_DIR = str(Path(__file__).resolve().parents[2])
 
@@ -43,7 +41,6 @@ def _has_snippet(feature: str, kind: str) -> bool:
 def inj_features_filter(features, kind: str = "head"):
     if not isinstance(features, (list, tuple)):
         return []
-    # Validation + filtering in one pass; will raise if a role dir is missing.
     valid = []
     for f in features:
         name = str(f)

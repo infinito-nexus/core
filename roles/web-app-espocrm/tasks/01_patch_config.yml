@@ -7,7 +7,7 @@
       -e CONFIG_VALUE={{ item.value | quote }}
       -e CONFIG_FILE={{ ESPOCRM_CONFIG_FILE_PRIVATE | quote }}
       {{ ESPOCRM_LOCAL_CID | quote }} sh
-    stdin: "{{ lookup('file', 'patch_config_key.sh') }}"
+    stdin: "{{ lookup('file', 'shell/patch_config_key.sh') }}"
   loop:
     - { key: host, value: "{{ lookup('database', application_id, 'host') }}" }
     - { key: dbname, value: "{{ lookup('database', application_id, 'name') }}" }
@@ -17,7 +17,7 @@
     label: "{{ item.key }}"
   register: db_patch
   changed_when: "'CHANGED' in db_patch.stdout"
-  notify: compose up
+  notify: compose-up
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: ✅ Ensure siteUrl matches canonical domain
@@ -26,6 +26,6 @@
       container exec -i --user {{ ESPOCRM_USER }}
       -e ESPOCRM_URL={{ ESPOCRM_URL | quote }}
       {{ ESPOCRM_LOCAL_CID | quote }} php
-    stdin: "{{ lookup('file', 'set_siteurl.php') }}"
+    stdin: "{{ lookup('file', 'php/set_siteurl.php') }}"
   register: siteurl_set
   changed_when: "'CHANGED' in siteurl_set.stdout"

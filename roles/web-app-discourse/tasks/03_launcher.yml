@@ -10,7 +10,7 @@
   retries: 12
   delay: 30
   until: discourse_repo_pull is succeeded
-  notify: recreate discourse
+  notify: recreate-discourse
   become: true
 
 - name: 🔧 set chmod 700 for '{{ DISCOURSE_CONTAINERS_DIR }}'
@@ -24,7 +24,7 @@
     src: config.yml.j2
     dest: "{{ DISCOURSE_APPLICATION_YML_DEST }}"
     mode: "0640"
-  notify: recreate discourse
+  notify: recreate-discourse
 
 - name: "✅ Verify that '{{ DISCOURSE_CONTAINER }}' is running"
   ansible.builtin.command:
@@ -40,7 +40,7 @@
   register: docker_ps
   changed_when: docker_ps.stdout.strip() == ""
   failed_when: docker_ps.rc != 0
-  notify: recreate discourse
+  notify: recreate-discourse
 
 - name: 📂 Load discourse handlers explicitly
   include_tasks: utils/load/handlers.yml

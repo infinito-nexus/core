@@ -11,7 +11,7 @@ LIBRETRANSLATE_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') 
 LIBRETRANSLATE_MCP_SERVICE_KEY: "libretranslatemcp"
 LIBRETRANSLATE_MCP_CONTAINER: "{{ lookup('config', application_id, 'services.libretranslatemcp.name') }}"
 LIBRETRANSLATE_MCP_PORT: "{{ lookup('config', application_id, 'services.libretranslatemcp.ports.internal.http') }}"
-LIBRETRANSLATE_MCP_BEARER: "{{ lookup('config', application_id, 'credentials.mcp_bearer') }}"
+LIBRETRANSLATE_MCP_BEARER: "{{ lookup('config', application_id, 'secrets.credentials.mcp_bearer') }}"
 LIBRETRANSLATE_MCP_INSTANCE_DIR: "{{ [lookup('container', application_id, 'directories.instance'), 'mcp'] | path_join }}"
 LIBRETRANSLATE_MCP_UPSTREAM_HOST: "{{ entity_name }}"
 LIBRETRANSLATE_MCP_UPSTREAM_PORT: "{{ lookup('config', application_id, 'services.libretranslate.ports.internal.http') }}"

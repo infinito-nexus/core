@@ -2,6 +2,7 @@
   {% set service_name = 'phpldapadmin' %}
 
   {{ service_name }}:
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('compose_only', 'container_name', application_id) }}
     {{ lookup('container_image', application_id, 'phpldapadmin') }}
     {{ lookup('container_ports', ['phpldapadmin', 'http', DOCKER_BIND_HOST]) | indent(4) }}
@@ -9,5 +10,5 @@
 
     {{ lookup('container_networks') | indent(4) }}
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

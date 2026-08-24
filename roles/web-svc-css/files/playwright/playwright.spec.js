@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
 
 const { assertInjectedAssetLoadsWithoutCspBlock, decodeDotenvQuotedValue } = require("./personas");
+const { resolveTimeout } = require("./timeouts");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -37,7 +38,10 @@ test.beforeEach(() => {
 
 test("css: shared CSS asset host is reachable", async ({ request }) => {
   const cdnBase = cdnBaseUrl.replace(/\/$/, "");
-  const res = await request.get(`${cdnBase}/`, { ignoreHTTPSErrors: true });
+  const res = await request.get(`${cdnBase}/`, {
+    ignoreHTTPSErrors: true,
+    timeout: resolveTimeout(30_000),
+  });
   expect(
     res.status(),
     `GET ${cdnBase}/ must be reachable for downstream injection assertions (got ${res.status()})`

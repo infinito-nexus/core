@@ -34,7 +34,7 @@
     mode: "0644"
 - name: "📦 EXT | composer install in each extension when needed"
   script: >-
-    composer_install_extension.sh
+    shell/composer_install_extension.sh
     "{{ MEDIAWIKI_USER }}" "{{ MEDIAWIKI_HTML_DIR }}"
     "{{ ext.name }}" "{{ MEDIAWIKI_EXT_BRANCH }}"
   environment:

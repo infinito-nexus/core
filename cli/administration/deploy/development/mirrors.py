@@ -14,22 +14,11 @@ def _require_env(name: str) -> str:
     return str(val).strip()
 
 
-def _require_bool_env(name: str) -> bool:
-    raw = _require_env(name)
-    if raw == "true":
-        return True
-    if raw == "false":
-        return False
-    raise RuntimeError(
-        f"Environment variable {name} must be 'true' or 'false', got {raw!r}"
-    )
+def should_use_mirrors() -> bool:
+    """True iff image references should be rewritten to the GHCR mirror."""
+    from .profile import Profile
 
-
-def should_use_mirrors_on_ci() -> bool:
-    """
-    Mirrors are enabled strictly based on INFINITO_RUNNING_ON_GITHUB.
-    """
-    return _require_bool_env("INFINITO_RUNNING_ON_GITHUB")
+    return Profile().image_mirror_enabled()
 
 
 def _exec_env() -> dict[str, str]:

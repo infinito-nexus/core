@@ -3,9 +3,6 @@ from pathlib import Path
 
 from utils.roles.applications.config import get
 
-# Allow imports from utils (same trick as your config filter).
-# Role-bundled plugin: Ansible loads by file path with no package
-# context, so `from . import PROJECT_ROOT` cannot resolve here.
 # nocheck: project-root-import
 _BASE_DIR = str(Path(__file__).resolve().parents[3])
 _MODULE_UTILS_DIR = str(Path(_BASE_DIR) / "utils")

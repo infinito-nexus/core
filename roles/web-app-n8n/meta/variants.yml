@@ -28,6 +28,8 @@
     litellm:
       enabled: true
       shared: true
+    tor:
+      enabled: true
 
   mcp:
     enabled: true
@@ -62,6 +64,8 @@
     litellm:
       enabled: false
       shared: false
+    tor:
+      enabled: true
   mcp:
     enabled: false
     shared: false

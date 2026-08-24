@@ -18,7 +18,7 @@
 - block:
     - name: "🐛 DEBUG | superadmin check + pw hash compare (condensed)"
       script: >-
-        debug_superadmin.sh
+        shell/debug_superadmin.sh
         "{{ _super_check_ext.status }}"
         "{{ _super_check_ext.redirected | default('n/a') }}"
         "{{ _super_check_ext.url | default('n/a') }}"
@@ -63,7 +63,7 @@
       stack_host_template:
         src: "compose.yml.j2"
         dest: "{{ lookup('container', application_id, 'files.compose') }}"
-      notify: compose up
+      notify: compose-up
 
     - name: 🚀 Deploy Final Config
       include_tasks: utils/flush_config.yml

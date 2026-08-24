@@ -21,13 +21,11 @@ class TestApplicationIdConsistency(unittest.TestCase):
                 continue
 
             role_name = role_path.name
-            # check if the role name starts with one of our prefixes
             matching = [p for p in prefixes if role_name.startswith(p)]
             if not matching:
                 continue
 
             prefix = matching[0]
-            # expected_id is just the remainder after the prefix
             expected_id = role_name[len(prefix) :]
 
             vars_file = role_path / ROLE_FILE_VARS_MAIN

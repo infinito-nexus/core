@@ -51,10 +51,7 @@ from utils.cache.files import PROJECT_ROOT, iter_project_files, read_text
 
 SUPPRESS_RULE = "self-path-reference"
 
-# Paths the lint deliberately does not flag. Relative to ``PROJECT_ROOT``,
-# POSIX-style. The lint's own source file mentions the rule shape in its
 # docstring; flagging it would force a useless ``nocheck`` on every
-# example.
 _EXEMPT_PATHS: frozenset[str] = frozenset(
     {
         "tests/lint/repository/test_no_self_path_reference.py",
@@ -98,13 +95,10 @@ class TestNoSelfPathReference(unittest.TestCase):
                 continue
             rel_str = rel.as_posix()
             if "/" not in rel_str:
-                # Repo-root file exemption per the rule.
                 continue
             if rel_str in _EXEMPT_PATHS:
                 continue
             if rel.parts and rel.parts[0].endswith(".egg-info"):
-                # setuptools-generated metadata; the SOURCES.txt manifest
-                # legitimately lists every project file including itself.
                 continue
             offenders.extend(_scan_file(abs_path, rel_str))
 

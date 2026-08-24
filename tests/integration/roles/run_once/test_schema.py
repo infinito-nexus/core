@@ -86,7 +86,6 @@ class RunOnceSchemaTest(unittest.TestCase):
                 continue
 
             for task in data:
-                # Only check top-level blocks
                 if not (isinstance(task, dict) and "block" in task):
                     continue
 
@@ -102,7 +101,6 @@ class RunOnceSchemaTest(unittest.TestCase):
                     if self._line_has_suffix_opt_out(content, var):
                         continue
 
-                    # strip any ' is not defined' etc.
                     suffix = var[len("run_once_") :].split()[0]
                     if suffix != expected_suffix:
                         violations.append(

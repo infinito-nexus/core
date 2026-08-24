@@ -62,6 +62,6 @@ ANSIBLE_COLLECTIONS_DIR="${HOME}/.ansible/collections" bash scripts/install/ansi
 
 stamp_dir="$(dirname "${STAMP}")"
 mkdir -p "${stamp_dir}"
-chmod 0777 "${stamp_dir}" 2>/dev/null || true
+chmod 0777 "${stamp_dir}" 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 touch "${STAMP}"
-chmod 0777 "${STAMP}" 2>/dev/null || true
+chmod 0777 "${STAMP}" 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error

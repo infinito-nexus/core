@@ -23,6 +23,13 @@
  *     Escape every character that has special meaning in a JavaScript
  *     regular-expression source string. Suitable for embedding a raw
  *     string into a `new RegExp(...)` or `getByRole({ name: new RegExp(`^${escapeRegex(s)}$`) })`.
+ *
+ *   `LOGIN_CONTROL_NAME`
+ *     Accessible-name pattern for a sign-in control, used by the
+ *     post-login gates to assert no login affordance survived the
+ *     round-trip. Anchored on purpose: an unanchored /sso/ matches
+ *     "Acce(sso)ries" and a \blogin\b matches "Login Enabled", both of
+ *     which are ordinary navigation entries on an authenticated page.
  */
 
 const { expect } = require("@playwright/test");
@@ -61,9 +68,12 @@ function escapeRegex(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+const LOGIN_CONTROL_NAME = /^\s*(log\s*in|sign\s*in|sso)(\s+with\s+\S.*)?\s*$/i;
+
 module.exports = {
   isVisible,
   waitForFrameUrl,
   findFirstVisibleCandidate,
   escapeRegex,
+  LOGIN_CONTROL_NAME,
 };

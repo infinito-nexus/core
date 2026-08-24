@@ -16,9 +16,11 @@ The diagram places MariaDB in the Infinito.Nexus cosmos: the components it deplo
 flowchart LR
     subgraph deps [Dependencies]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
     end
     subgraph role [svc-db-mariadb 🐳🐝]
         svc_mariadb["mariadb"]
+        svc_tor["tor"]
         svc_container_backup["container_backup"]
     end
     subgraph dependents [Dependents]
@@ -37,6 +39,7 @@ flowchart LR
         dpt_more["..."]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     svc_mariadb -- "1:1" --> dpt_more
     svc_mariadb -. "0..1" .-> dpt_web_app_akaunting
     svc_mariadb -. "0..1" .-> dpt_web_app_erpnext
@@ -52,7 +55,7 @@ flowchart LR
     svc_mariadb -. "0..1" .-> dpt_web_app_phpmyadmin
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 

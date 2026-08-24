@@ -17,6 +17,7 @@ flowchart LR
     subgraph deps [Dependencies]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
@@ -35,10 +36,12 @@ flowchart LR
         svc_opencloud["opencloud"]
         svc_css["css"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
         svc_container_backup["container_backup"]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
@@ -48,7 +51,7 @@ flowchart LR
     dep_web_svc_logout -. "0..1" .-> svc_logout
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
@@ -106,6 +109,10 @@ See [IAM.md](docs/IAM.md) for OIDC discovery and verification commands, and [LDA
 - [opencloud.eu](https://opencloud.eu/)
 - [OpenCloud documentation](https://docs.opencloud.eu/)
 - [opencloudeu/opencloud on Docker Hub](https://hub.docker.com/r/opencloudeu/opencloud)
+
+## Persona contract opt-outs
+
+The shared `biber` and `administrator` persona helpers are declared blocked in [templates/playwright.env.j2](./templates/playwright.env.j2). OpenCloud Web answers Playwright's headless Chromium user agent with a "browser not supported" splash unless `forceAllowOldBrowser` is seeded into `localStorage` before the first navigation, and its OIDC callback runs through OpenCloud's own `/oidc-callback` → `/web-oidc-callback` routes instead of the oauth2-proxy pattern the shared helper detects. Both personas' Keycloak round trip is covered by [files/playwright/test-sso-login.js](./files/playwright/test-sso-login.js), which does that priming in [files/playwright/_shared.js](./files/playwright/_shared.js).
 
 ## Credits
 

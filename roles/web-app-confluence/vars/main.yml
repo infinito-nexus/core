@@ -2,11 +2,11 @@
 application_id: "web-app-confluence"
 entity_name: "{{ application_id | get_entity_name }}"
 
-container_hostname: "{{ lookup('domain',application_id) }}"
+container_hostname: "{{ lookup('container_hostname', application_id) }}"
 
 CONFLUENCE_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 CONFLUENCE_HOSTNAME: "{{ container_hostname }}"
-CONFLUENCE_HOME: "/var/atlassian/application-data/confluence"
+CONFLUENCE_HOME: "{{ lookup('volume', 'web-app-confluence', 'data').target }}"
 
 CONFLUENCE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 CONFLUENCE_OIDC_LABEL: "{{ OIDC.BUTTON_TEXT }}"

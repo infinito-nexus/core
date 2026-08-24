@@ -8,9 +8,10 @@
     environment:
       REGISTRY_PROXY_REMOTEURL: "{{ REGISTRY_CACHE_PROXY_REMOTE_URL }}"
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_ports', ['cache', 'registry']) | indent(4) }}
-    {{ lookup('container_volumes', application_id, entity_name) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

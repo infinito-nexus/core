@@ -33,7 +33,7 @@ def _iter_yaml_files():
         str(Path("group_vars") / "**" / "*.yml"),
         str(Path("roles") / "*" / "vars" / "*.yml"),
         str(Path("roles") / "*" / "defaults" / "*.yml"),
-        str(Path("roles") / "*" / "defauls" / "*.yml"),  # intentionally included
+        str(Path("roles") / "*" / "defauls" / "*.yml"),
     ]
     seen = set()
     for pattern in patterns:
@@ -60,10 +60,8 @@ def _extract_top_level_uppercase_keys(docs):
 
 class TestUppercaseConstantVarsUnique(unittest.TestCase):
     def test_uppercase_constants_unique(self):
-        # Track where each TOP-LEVEL constant is defined
         constant_to_files = defaultdict(set)
 
-        # Track YAML parse errors to fail with a helpful message
         parse_errors = []
 
         yaml_files = list(_iter_yaml_files())
@@ -88,7 +86,6 @@ class TestUppercaseConstantVarsUnique(unittest.TestCase):
                 + "\n".join(f"- {err}" for err in parse_errors)
             )
 
-        # Duplicates are same TOP-LEVEL constant appearing in >1 files
         duplicates = {
             c: sorted(files) for c, files in constant_to_files.items() if len(files) > 1
         }
@@ -103,7 +100,7 @@ class TestUppercaseConstantVarsUnique(unittest.TestCase):
             for const, files in sorted(duplicates.items()):
                 msg_lines.append(f"* {const} defined in {len(files)} files:")
                 msg_lines.extend(f"    - {f}" for f in files)
-                msg_lines.append("")  # spacer
+                msg_lines.append("")
             self.fail("\n".join(msg_lines))
 
 

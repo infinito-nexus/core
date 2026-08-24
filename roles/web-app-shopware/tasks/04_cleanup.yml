@@ -1,11 +1,4 @@
 ---
-- name: "🧹 Shopware cleanup plugins (manager-only)"
-  when: IS_STACK_HOST | bool
-  block:
-    - name: 🗑️ Remove OIDC plugin if disabled
-      include_tasks: cleanup/oidc.yml
-      when: not (SHOPWARE_OIDC_ENABLED | bool)
-
-    - name: 🗑️ Remove LDAP plugin if disabled
-      include_tasks: cleanup/ldap.yml
-      when: not (SHOPWARE_LDAP_ENABLED | bool)
+- name: 🗑️ Deactivate the admin OIDC plugin if disabled
+  ansible.builtin.include_tasks: cleanup/oidc.yml
+  when: not (SHOPWARE_OIDC_ENABLED | bool)

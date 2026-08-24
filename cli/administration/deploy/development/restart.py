@@ -22,14 +22,12 @@ def add_parser(sub: argparse._SubParsersAction) -> None:
 
 
 def handler(args: argparse.Namespace) -> int:
-    # 1) stop (best-effort)
     stop_rc = stop_handler(argparse.Namespace())
     if stop_rc != 0:
         print(f">>> WARNING: stop returned rc={stop_rc}, continuing with up")
 
-    # 2) up (normal behavior, no force unless flags provided)
     up_args = argparse.Namespace(
         skip_entry_init=bool(args.skip_entry_init),
-        when_down=False,  # REQUIRED by up.handler()
+        when_down=False,
     )
     return int(up_handler(up_args))

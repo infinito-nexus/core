@@ -18,8 +18,6 @@ def do_ls(current: list[str]) -> None:
     if not entries:
         print(color_text("(empty)", Style.DIM))
         return
-    # Folders (categories) first, then commands; within each group keep
-    # the alphabetical order `iter_dir_entries` already established.
     ordered = sorted(entries, key=lambda e: (e.is_command, e.name))
     max_name = max(len(entry.name) for entry in ordered)
     for entry in ordered:

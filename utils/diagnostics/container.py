@@ -8,13 +8,13 @@ journal, host resources), then RECURSES: it copies itself into every running
 container that carries python3 and a container runtime (DiD) and repeats the
 capture there, pulling each nested snapshot back under
 ``containers/<name>/nested/`` - from the outermost caller down to the deepest
-runtime (bounded by ``RESCUE_MAX_DEPTH``, default 3).
+runtime, however deep the nesting goes. ``RESCUE_SEEN`` carries the ids already
+entered, so a runtime that lists itself is cut as a cycle.
 
-Every collector is best-effort: a missing source must never abort the
-capture. ``INFINITO_RESCUE_DIAGNOSTICS_DIR`` (SPOT:
-``group_vars/all/05_paths.yml`` ``DIR_RESCUE_DIAGNOSTICS``) is the required
-output root; it is never defaulted here so there is one source. Prints one
-condensed summary and ALWAYS exits 1 so a failing pipeline stays failing.
+Every collector is best-effort: a missing source must never abort the capture.
+``INFINITO_RESCUE_DIAGNOSTICS_DIR`` and ``INFINITO_DNS53_SAMPLER_LOG`` are
+required and never defaulted here, so ``group_vars/all/05_paths.yml`` stays the
+one source. Prints one summary and ALWAYS exits 1 so a failure stays a failure.
 
 Usage:
     container.py [APP_ID] [CONTEXT]
@@ -23,6 +23,7 @@ Usage:
 from __future__ import annotations
 
 import contextlib
+import json
 import os
 import re
 import shutil
@@ -32,10 +33,15 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 _EXEC_TIMEOUT = 120
+_PROBE_TIMEOUT = 30
+
+_JOURNAL_TIMEOUT = 600
 _NESTED_TIMEOUT = 600
 _TAR_TIMEOUT = 300
 _SELF_IN_CONTAINER = "/tmp/rescue-self.py"  # noqa: S108 - fixed staging path inside the inspected container
 _LOCAL_DUMPS_ENV = "INFINITO_RESCUE_LOCAL_DUMPS_DIR"
+_PROBE_HOSTS = ("deb.debian.org", "ghcr.io", "repo.packagist.org")
+_INZONE_PROBE = "getent hosts rescue-probe.$(awk -F/ '/^address=/{print $2;exit}' /etc/dnsmasq.conf)"
 
 
 def runtime_bin() -> str | None:
@@ -58,15 +64,22 @@ def write(path: Path, data: bytes) -> None:
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(data)
-    except OSError:
-        pass
+    except OSError as exc:
+        print(f"rescue: cannot write {path}: {exc}", file=sys.stderr)
 
 
 def capture(
     out: Path, name: str, cmd: list[str], *, timeout: int = _EXEC_TIMEOUT
 ) -> None:
     result = run(cmd, timeout=timeout)
-    write(out / name, result.stdout + result.stderr)
+    body = result.stdout + result.stderr
+    if not body.strip():
+        body = f"[no output, exit {result.returncode}]\n".encode()
+    write(out / name, body)
+
+
+def source_name(path: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "-", path.strip("/")) + ".txt"
 
 
 def sanitize(name: str) -> str:
@@ -93,40 +106,151 @@ def collect_host(out: Path, app_id: str, context: str, stamp: str) -> None:
     capture(out, "system.txt", ["uname", "-a"])
     for name, cmd in (
         ("df.txt", ["df", "-h"]),
+        ("df-inodes.txt", ["df", "-i"]),
         ("free.txt", ["free", "-m"]),
         ("uptime.txt", ["uptime"]),
-        ("journal.txt", ["journalctl", "-n", "10000", "--no-pager"]),
-        (
-            "journal-warnings.txt",
-            ["journalctl", "-b", "-p", "warning", "--since", "-6h", "--no-pager"],
-        ),
         ("systemctl.txt", ["systemctl", "list-units", "--all", "--no-pager"]),
-        ("resolv-conf.txt", ["cat", "/etc/resolv.conf"]),
-        ("daemon-json.txt", ["cat", "/etc/docker/daemon.json"]),
         ("ip-addr.txt", ["ip", "-4", "addr"]),
+        ("ip-route.txt", ["ip", "-4", "route"]),
+        ("ip-neigh.txt", ["ip", "-4", "neigh"]),
+        ("firewall-rules.txt", ["iptables-save"]),
         ("sockets-udp.txt", ["ss", "-lunp"]),
         ("sockets-tcp.txt", ["ss", "-lntp"]),
-        ("nat-rules.txt", ["iptables-save", "-t", "nat"]),
-        (
-            "resolve-probe.txt",
-            ["getent", "hosts", "deb.debian.org", "ghcr.io", "repo.packagist.org"],
-        ),
-        ("modules.txt", ["cat", "/proc/modules"]),
-        ("devices.txt", ["cat", "/proc/devices", "/proc/misc"]),
+        ("processes.txt", ["ps", "-eo", "pid,ppid,stat,etimes,rss,comm"]),
+        ("dnsmasq-conf-d.txt", ["grep", "-rH", ".", "/etc/dnsmasq.d"]),
+        ("resolve-inzone.txt", ["sh", "-c", _INZONE_PROBE]),
         ("zfs-dev.txt", ["ls", "-l", "/dev/zfs"]),
         ("zfs-version.txt", ["zfs", "version"]),
-        ("net-snmp.txt", ["cat", "/proc/net/snmp", "/proc/net/netstat"]),
-        ("conntrack-stat.txt", ["cat", "/proc/net/stat/nf_conntrack"]),
     ):
         capture(out, name, cmd)
-    dmesg = run(["dmesg", "-T"]).stdout.decode(errors="replace")
-    write(out / "dmesg.txt", dmesg.encode())
-    oom = [
-        line
-        for line in dmesg.splitlines()
-        if re.search(r"oom|kill|memory", line, re.IGNORECASE)
+    collect_resolver_probes(out)
+    collect_dnsmasq_introspection(out)
+    for path in (
+        "/etc/os-release",
+        "/etc/resolv.conf",
+        "/etc/nsswitch.conf",
+        "/etc/hosts",
+        "/etc/dnsmasq.conf",
+        os.environ["INFINITO_DNS53_SAMPLER_LOG"],
+        "/etc/docker/daemon.json",
+        "/proc/modules",
+        "/proc/devices",
+        "/proc/misc",
+        "/proc/net/udp",
+        "/proc/net/tcp",
+        "/proc/net/udp6",
+        "/proc/net/tcp6",
+        "/proc/net/snmp",
+        "/proc/net/netstat",
+        "/proc/net/stat/nf_conntrack",
+    ):
+        capture(out, source_name(path), ["cat", path])
+    capture(out, "dmesg.txt", ["dmesg", "-T"])
+    for name, cmd in (
+        ("journal.txt", ["journalctl", "-b", "--no-pager"]),
+        ("journal-warnings.txt", ["journalctl", "-b", "-p", "warning", "--no-pager"]),
+        ("journal-errors.txt", ["journalctl", "-b", "-p", "err", "--no-pager"]),
+    ):
+        capture(out, name, cmd, timeout=_JOURNAL_TIMEOUT)
+    collect_service_state(out)
+
+
+def collect_dnsmasq_introspection(out: Path) -> None:
+    """fd table and rlimits of every live dnsmasq process.
+
+    Run 32118850138 caught dnsmasq alive with zero sockets and nothing in
+    the journal; the socket table alone cannot separate closed listeners
+    from an exhausted fd table or a lost netlink watch, the fd list can.
+    """
+    for pid in " ".join(list_lines(["pidof", "dnsmasq"])).split():
+        capture(out, f"dnsmasq-{pid}-fd.txt", ["ls", "-l", f"/proc/{pid}/fd"])
+        capture(out, f"dnsmasq-{pid}-limits.txt", ["cat", f"/proc/{pid}/limits"])
+
+
+def daemon_json_dns() -> list[str]:
+    """Nameservers pinned under the ``dns`` key of /etc/docker/daemon.json.
+
+    A Tor node's resolv.conf names only the local dnsmasq, so probing its
+    entries alone cannot say whether the pinned upstream was still alive when
+    that dnsmasq went silent. Anything unreadable or keyless yields [].
+    """
+    proc = run(["cat", "/etc/docker/daemon.json"])
+    if proc.returncode != 0:
+        return []
+    try:
+        dns = json.loads(proc.stdout.decode(errors="replace")).get("dns")
+    except ValueError:
+        return []
+    if not isinstance(dns, list):
+        return []
+    return [str(server) for server in dns]
+
+
+def collect_resolver_probes(out: Path) -> None:
+    """Resolve each probed name, once through the stack and once per nameserver.
+
+    ``getent`` honours nsswitch and cannot address a server, so on its own it
+    cannot say which of the resolvers in resolv.conf refused. Where the distro
+    ships a query tool, ask every nameserver directly; where it does not, the
+    per-name verdicts still stand on their own.
+    """
+    tool = next(
+        (
+            argv
+            for argv in (
+                ["dig", "+time=3", "+tries=1"],
+                ["nslookup", "-timeout=3"],
+            )
+            if shutil.which(argv[0])
+        ),
+        None,
+    )
+    servers = [
+        parts[1]
+        for parts in (line.split() for line in list_lines(["cat", "/etc/resolv.conf"]))
+        if parts[:1] == ["nameserver"] and len(parts) > 1
     ]
-    write(out / "dmesg-oom.txt", "\n".join(oom).encode())
+    servers += [server for server in daemon_json_dns() if server not in servers]
+    for host in _PROBE_HOSTS:
+        capture(out, f"resolve-{source_name(host)}", ["getent", "hosts", host])
+        if not tool:
+            continue
+        for server in servers:
+            argv = (
+                [*tool, f"@{server}", host, "A"]
+                if tool[0] == "dig"
+                else [*tool, host, server]
+            )
+            capture(out, f"resolve-{source_name(f'{host}-via-{server}')}", argv)
+
+
+def collect_service_state(out: Path) -> None:
+    """Dump per-service liveness for every loaded service unit.
+
+    ``systemctl list-units`` reports a forking unit as active/running while its
+    guessed main process is gone, and the containers carry no ``ps``, so the
+    unit table alone cannot answer whether a daemon is still there. MainPID and
+    NRestarts can.
+    """
+    units = [
+        line.split()[0]
+        for line in list_lines(
+            ["systemctl", "list-units", "--type=service", "--all", "--no-pager"]
+        )
+        if line.split() and line.split()[0].endswith(".service")
+    ]
+    if not units:
+        return
+    capture(
+        out,
+        "service-state.txt",
+        [
+            "systemctl",
+            "show",
+            "--property=Id,ActiveState,SubState,MainPID,NRestarts,ExecMainStatus,ExecMainStartTimestamp",
+            *units,
+        ],
+    )
 
 
 def collect_local_dumps(out: Path) -> None:
@@ -158,28 +282,42 @@ def collect_local_dumps(out: Path) -> None:
         )
 
 
+def collect_networks(out: Path, rt: str) -> None:
+    """Dump the network definitions behind every container's resolver.
+
+    A container resolves through the runtime's embedded server on 127.0.0.11,
+    which forwards to whatever the network was created with, so ``inspect`` on
+    the container shows the address but never the forwarder behind it.
+    """
+    capture(out, "networks.txt", [rt, "network", "ls"])
+    for net in list_lines([rt, "network", "ls", "--format", "{{.Name}}"]):
+        capture(
+            out / "networks",
+            f"{sanitize(net)}.inspect.json",
+            [rt, "network", "inspect", net],
+        )
+
+
 def collect_runtime(out: Path, rt: str) -> tuple[list[str], list[str]]:
     capture(out, "runtime.txt", [rt, "info"])
     capture(out, "stats.txt", [rt, "stats", "--no-stream", "--no-trunc"])
     capture(out, "containers.txt", [rt, "ps", "-a"])
+    capture(out, "runtime-df.txt", [rt, "system", "df", "-v"])
+    capture(out, "volumes.txt", [rt, "volume", "ls"])
+    capture(out, "images.txt", [rt, "image", "ls", "--digests", "--no-trunc"])
+    capture(out, "nodes.txt", [rt, "node", "ls"])
+    collect_networks(out, rt)
     capture(
-        out / "containers",
-        "_daemon-journal.txt",
-        [
-            "journalctl",
-            "-u",
-            "docker",
-            "-u",
-            "containerd",
-            "--since",
-            "-6h",
-            "--no-pager",
-        ],
+        out,
+        "journal-daemon.txt",
+        ["journalctl", "-b", "-u", "docker", "-u", "containerd", "--no-pager"],
+        timeout=_JOURNAL_TIMEOUT,
     )
     capture(
-        out / "containers",
-        "_kill-markers.txt",
-        ["journalctl", "-t", "infinito-kill", "--since", "-6h", "--no-pager"],
+        out,
+        "journal-kill-markers.txt",
+        ["journalctl", "-b", "-t", "infinito-kill", "--no-pager"],
+        timeout=_JOURNAL_TIMEOUT,
     )
     capture(
         out / "containers",
@@ -194,13 +332,20 @@ def collect_runtime(out: Path, rt: str) -> tuple[list[str], list[str]]:
         capture(out / "containers", f"{safe}.inspect.json", [rt, "inspect", name])
         capture(
             out / "containers",
+            f"{safe}.resolv-conf.txt",
+            [rt, "exec", name, "cat", "/etc/resolv.conf"],
+            timeout=_PROBE_TIMEOUT,
+        )
+        capture(
+            out / "containers",
             f"{safe}.systemctl.txt",
             [rt, "exec", name, "systemctl", "status", "--all", "--no-pager"],
+            timeout=_PROBE_TIMEOUT,
         )
         capture(
             out / "containers",
             f"{safe}.journal.txt",
-            [rt, "exec", name, "journalctl", "-n", "1000", "--no-pager"],
+            [rt, "exec", name, "journalctl", "-b", "--no-pager"],
         )
         if "postgres" in name:
             capture(
@@ -215,20 +360,6 @@ def collect_runtime(out: Path, rt: str) -> tuple[list[str], list[str]]:
                     "postgres",
                     "-c",
                     "SELECT pid, usename, datname, state, wait_event_type, backend_start, query_start, left(query, 120) AS query FROM pg_stat_activity ORDER BY backend_start;",
-                ],
-            )
-            capture(
-                out / "containers",
-                f"{safe}.pg_connections.txt",
-                [
-                    rt,
-                    "exec",
-                    name,
-                    "psql",
-                    "-U",
-                    "postgres",
-                    "-c",
-                    "SELECT usename, datname, state, count(*) FROM pg_stat_activity GROUP BY 1, 2, 3 ORDER BY 4 DESC;",
                 ],
             )
     capture(out, "services.txt", [rt, "service", "ls"])
@@ -266,15 +397,18 @@ def recurse(
     app_id: str,
     context: str,
     depth: int,
-    max_depth: int,
+    seen: list[str],
     stamp: str,
 ) -> int:
     self_path = Path(__file__).resolve()
-    if depth >= max_depth or not self_path.is_file():
+    if not self_path.is_file():
         return 0
     nested_n = 0
     nested_out = f"/tmp/rescue-nested-{stamp}-{os.getpid()}"  # noqa: S108 - staging dir inside the inspected container, removed after the tar pull
     for name in list_lines([rt, "ps", "--format", "{{.Names}}"]):
+        cid = "".join(list_lines([rt, "inspect", "--format", "{{.Id}}", name]))
+        if not cid or cid in seen:
+            continue
         if not _container_can_recurse(rt, name):
             continue
         copied = run(
@@ -292,9 +426,11 @@ def recurse(
                 "-e",
                 f"RESCUE_DEPTH={depth + 1}",
                 "-e",
-                f"RESCUE_MAX_DEPTH={max_depth}",
+                "RESCUE_SEEN=" + ",".join([*seen, cid] if cid else seen),
                 "-e",
                 f"{_LOCAL_DUMPS_ENV}={os.environ.get(_LOCAL_DUMPS_ENV, '')}",
+                "-e",
+                f"INFINITO_DNS53_SAMPLER_LOG={os.environ['INFINITO_DNS53_SAMPLER_LOG']}",
                 name,
                 "python3",
                 _SELF_IN_CONTAINER,
@@ -331,7 +467,7 @@ def main(argv: list[str]) -> int:
         )
         return 1
     depth = int(os.environ.get("RESCUE_DEPTH", "0"))
-    max_depth = int(os.environ.get("RESCUE_MAX_DEPTH", "3"))
+    seen = [cid for cid in os.environ.get("RESCUE_SEEN", "").split(",") if cid]
     stamp = datetime.now(tz=UTC).strftime("%Y%m%d%H%M%SZ")
     out = Path(out_base) / f"{app_id}-{stamp}-{os.getpid()}"
     out.mkdir(parents=True, exist_ok=True)
@@ -344,7 +480,7 @@ def main(argv: list[str]) -> int:
     nested_n = 0
     if rt:
         containers, services = collect_runtime(out, rt)
-        nested_n = recurse(out, rt, app_id, context, depth, max_depth, stamp)
+        nested_n = recurse(out, rt, app_id, context, depth, seen, stamp)
 
     print(
         f"🩺 Rescue diagnostics for '{app_id}'" + (f" ({context})" if context else "")

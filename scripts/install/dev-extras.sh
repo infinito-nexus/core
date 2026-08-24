@@ -19,6 +19,9 @@ if [[ ! -w "${VENV}" ]]; then
 	exit 0
 fi
 
+exec {lockfd}>"${VENV%/}/.dev-extras.lock"
+flock "${lockfd}"
+
 if [[ -f "${STAMP}" && "${STAMP}" -nt pyproject.toml ]]; then
 	echo "[dev-extras] up to date (${STAMP})"
 	exit 0

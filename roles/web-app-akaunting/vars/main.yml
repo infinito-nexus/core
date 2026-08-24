@@ -1,7 +1,7 @@
 ---
 application_id: "web-app-akaunting"
 
-database_password: "{{ lookup('config', application_id, 'credentials.database_password') }}" # nocheck: lookup-config-path
+database_password: "{{ lookup('config', application_id, 'secrets.credentials.database_password') }}" # nocheck: lookup-config-path
 
 AKAUNTING_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 AKAUNTING_IMAGE: "{{ lookup('config', application_id, 'services.akaunting.image') }}"
@@ -13,13 +13,13 @@ AKAUNTING_VOLUME: "{{ lookup('volume', application_id, 'data').name }}"
 AKAUNTING_COMPANY_NAME: "{{ lookup('config', application_id, 'services.akaunting.company.name') }}"
 AKAUNTING_COMPANY_EMAIL: "{{ lookup('config', application_id, 'services.akaunting.company.email') }}"
 AKAUNTING_ADMIN_EMAIL: "{{ lookup('config', application_id, 'services.akaunting.setup_admin_email') }}"
-AKAUNTING_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.setup_admin_password') }}"
+AKAUNTING_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.setup_admin_password') }}"
 AKAUNTING_SETUP_MARKER: "{{ [ akaunting_volume_mountpoint.stdout | trim, '.akaunting_installed' ] | path_join }}"
 AKAUNTING_SERVICE: "{{ lookup('container_service', application_id, 'akaunting') }}"
 AKAUNTING_SETUP_JOB: "{{ AKAUNTING_SERVICE }}_setup"
 AKAUNTING_ENTRYPOINT: "/usr/local/bin/akaunting.sh"
 AKAUNTING_REPLICAS: "{{ groups[application_id] | length }}"
-AKAUNTING_APP_KEY: "{{ lookup('config', application_id, 'credentials.app_key') }}"
+AKAUNTING_APP_KEY: "{{ lookup('config', application_id, 'secrets.credentials.app_key') }}"
 AKAUNTING_CACHE_DRIVER: "{{ 'redis' if lookup('config',application_id, 'services.redis.enabled') else 'file' }}"
 
 AKAUNTING_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"

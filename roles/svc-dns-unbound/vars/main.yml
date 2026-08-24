@@ -11,6 +11,4 @@ UNBOUND_RESOLVER_IP: "{{ lookup('config', application_id, 'networks.local.dns_re
 UNBOUND_VOLUMES_DIR: "{{ lookup('container', application_id, 'directories.volumes') }}"
 UNBOUND_CONF_FILE: "{{ [ UNBOUND_VOLUMES_DIR, 'unbound.conf' ] | path_join }}"
 
-# WSL2/DinD: iterative resolution via root-hints is unsupported in nested Docker;
-# forward to public resolvers instead. On bare-metal keep false to preserve DNSSEC.
 UNBOUND_FORWARD_DNS: "{{ (DOCKER_IN_CONTAINER | bool) or ('microsoft' in lookup('file', '/proc/version') | lower) }}"

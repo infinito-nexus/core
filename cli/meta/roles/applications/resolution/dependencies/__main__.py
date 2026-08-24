@@ -172,7 +172,6 @@ def resolve_dependencies_transitively(start_role: str) -> list[str]:
 
         stack.pop()
 
-        # Only include if it is an application role
         if node != start_role and has_application_id(node):
             out.append(node)
 

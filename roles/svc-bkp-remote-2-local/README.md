@@ -28,7 +28,7 @@ flowchart LR
     dep_sys_ctl_cln_faild_bkps -- "1:1" --> svc_remote_2_local
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Schema
 
@@ -92,7 +92,7 @@ infinito administration deploy dedicated "$INVENTORY/devices.yml" \
 
 ## Recover
 
-This role's direction is one-way by design (`files/recover.py.nocheck`): it pulls provider backups onto this host, so the pulled tree under `<backups>/<machine-hash>/<repo>/<generation>/` IS the recovery store and there is no live target here to restore into.
+This role's direction is one-way by design (`files/python/recover.py.nocheck`): it pulls provider backups onto this host, so the pulled tree under `<backups>/<machine-hash>/<repo>/<generation>/` IS the recovery store and there is no live target here to restore into.
 
 To recover a source system, transfer the wanted generation to it (the provider's `backup` user only whitelists pull commands, so pushing requires an explicit operator rsync with a root-capable target) and run the matching role's `recover.py` there (`svc-bkp-volume-2-local` for docker volumes, `svc-bkp-nfs-2-local` for NFS exports).
 

@@ -47,7 +47,7 @@ echo ">>> Importing CA into Windows CurrentUser trust store (no admin required)"
 \$store.Add(\$cert)
 \$store.Close()
 " >/dev/null
-echo ">>> CA trusted in Windows (Chrome/Edge will trust *.infinito.example)"
+echo ">>> CA trusted in Windows (Chrome/Edge will trust the deployed vhosts)"
 
 echo ">>> Discovering domains from nginx config"
 DOMAINS=$(docker exec "${CONTAINER}" bash -c \
@@ -58,6 +58,7 @@ WIN_TEMP="/mnt/c/Users/${WIN_USER}/AppData/Local/Temp"
 PS1_FILE="${WIN_TEMP}/infinito-hosts-setup.ps1"
 PS1_FILE_WIN="C:\\Users\\${WIN_USER}\\AppData\\Local\\Temp\\infinito-hosts-setup.ps1"
 HOSTS_FILE='C:\Windows\System32\drivers\etc\hosts'
+# nocheck: hardcoded-primary-domain  the marker is matched verbatim against what an earlier run wrote into the Windows hosts file; deriving it would orphan that block instead of replacing it
 MARKER='# infinito.example --- managed by infinito-nexus'
 
 # shellcheck disable=SC2016

@@ -27,7 +27,6 @@ last_run_state=""
 last_run_id=""
 
 if [[ -n "${pr_updated_at}" ]]; then
-	# GitHub can report the PR update slightly after the matching workflow run was created.
 	if ! pr_updated_at_floor="$(date -u -d "${pr_updated_at} - 300 seconds" '+%Y-%m-%dT%H:%M:%SZ' 2>/dev/null)"; then
 		echo "WARN: Could not relax PR_UPDATED_AT=${pr_updated_at}; using the raw timestamp." >&2
 		pr_updated_at_floor="${pr_updated_at}"
@@ -101,7 +100,6 @@ fi
 for attempt in $(seq 1 "${WAIT_ATTEMPTS}"); do
 	find_missing_images
 
-	# CI consumers only need the built images; mirror jobs may still be running afterwards.
 	if [[ "${#missing_images[@]}" -eq 0 ]]; then
 		echo "All required CI images are available."
 		exit 0

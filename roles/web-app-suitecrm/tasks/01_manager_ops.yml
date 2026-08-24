@@ -4,23 +4,23 @@
     src: "php.ini.j2"
     dest: "{{ SUITECRM_PHP_CONFIG_HOST }}"
   notify:
-    - compose up
+    - compose-up
 
-- name: "📄 Render SuiteCRM LDAP mapping (local + swarm peers)"
-  ansible.builtin.include_tasks:
-    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
-  vars:
-    role_templates:
-      - src: "ldap.yaml.j2"
-        dest: "{{ SUITECRM_LDAP_CONFIG_HOST }}"
+- name: "📄 Render SuiteCRM LDAP mapping"
+  stack_host_template:
+    src: "ldap.yaml.j2"
+    dest: "{{ SUITECRM_LDAP_CONFIG_HOST }}"
+  when: SUITECRM_LDAP_ENABLED | bool
+  notify:
+    - compose-up
 
 - name: "🚀 Deploy '{{ SUITECRM_ENTRYPOINT_SCRIPT_HOST_ABS }}'"
   copy:
-    src: "{{ SUITECRM_ENTRYPOINT_SCRIPT_FILE }}"
+    src: "{{ SUITECRM_ENTRYPOINT_SCRIPT_SRC }}"
     dest: "{{ SUITECRM_ENTRYPOINT_SCRIPT_HOST_ABS }}"
   notify:
-    - compose up
-    - compose build
+    - compose-up
+    - compose-build
 
 - name: "🐳 Docker Compose Up for '{{ application_id }}'"
   meta: flush_handlers

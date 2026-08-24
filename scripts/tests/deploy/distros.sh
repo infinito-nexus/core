@@ -2,8 +2,8 @@
 set -euo pipefail
 
 # SPOT: run one command once per distro, in random order, under a shared time
-# budget. A distro the budget drops is reported as skipped, not as a failure;
-# only the per-distro command failing fails the run. Every outcome lands in a
+# budget. A distro the budget drops BEFORE it starts is reported as skipped; a
+# distro the budget kills MID-RUN fails the job. Every outcome lands in a
 # job-summary table in execution order.
 #
 # Param:
@@ -24,6 +24,8 @@ source "scripts/meta/env/load.sh"
 
 : "${INFINITO_DISTROS:?INFINITO_DISTROS is required (e.g. 'arch debian ubuntu fedora centos')}"
 : "${INFINITO_CI_DISTRO_BUDGET_SECONDS:?INFINITO_CI_DISTRO_BUDGET_SECONDS is required (declared in default.env)}"
+
+BUDGET_HEADROOM_PERCENT=15
 
 if (($# == 0)); then
 	echo "[ERROR] a per-distro command is required" >&2
@@ -109,10 +111,11 @@ for i in "${!distro_arr[@]}"; do
 		break
 	fi
 
-	if ((max_seen > 0 && remaining < max_seen)); then
-		echo "[WARN] Skipping distro=${distro}: remaining=${remaining}s < max_seen=${max_seen}s (fast-fail heuristic)"
+	needed="$((max_seen * (100 + BUDGET_HEADROOM_PERCENT) / 100))"
+	if ((max_seen > 0 && remaining < needed)); then
+		echo "[WARN] Skipping distro=${distro}: remaining=${remaining}s < ${needed}s (max_seen=${max_seen}s + ${BUDGET_HEADROOM_PERCENT}% headroom)"
 		skipped=$((skipped + 1))
-		notes[i]="remaining ${remaining}s < slowest run ${max_seen}s"
+		notes[i]="remaining ${remaining}s < ${needed}s needed"
 		continue
 	fi
 
@@ -141,23 +144,18 @@ for i in "${!distro_arr[@]}"; do
 
 	echo ">>> Duration: distro=${distro} took ${dur}s (max_seen=${max_seen}s)"
 
-	if [[ $rc -eq 124 ]] && ((dur >= remaining - 5)) && ((passed > 0)); then
-		statuses[i]="skipped"
-		notes[i]="budget exhausted mid-run after ${dur}s"
-		skipped=$((skipped + 1))
-		ran=$((ran - 1))
-		echo "[WARN] Budget exhausted while distro=${distro} was running; stopping."
-		break
-	fi
-
 	if [[ $rc -ne 0 ]]; then
 		statuses[i]="failed"
-		notes[i]="rc=${rc}"
+		if [[ $rc -eq 124 || $rc -eq 137 ]] && ((dur >= remaining)); then
+			notes[i]="rc=${rc} after ${dur}s, with ${remaining}s of the ${INFINITO_CI_DISTRO_BUDGET_SECONDS}s budget left at start"
+		else
+			notes[i]="rc=${rc}"
+		fi
 		skipped=$((skipped + ${#distro_arr[@]} - i - 1))
 		for ((j = i + 1; j < ${#distro_arr[@]}; j++)); do
 			notes[j]="not run: aborted after distro=${distro} failed"
 		done
-		echo "[ERROR] Run failed for distro=${distro} (rc=${rc})" >&2
+		echo "[ERROR] Run failed for distro=${distro}: ${notes[i]}" >&2
 		render_summary
 		exit "$rc"
 	fi

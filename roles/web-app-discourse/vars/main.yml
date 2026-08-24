@@ -2,7 +2,7 @@
 application_id: "web-app-discourse"
 entity_name: "{{ application_id | get_entity_name }}"
 
-database_password: "{{ lookup('config', application_id, 'credentials.database_password') }}" # nocheck: lookup-config-path
+database_password: "{{ lookup('config', application_id, 'secrets.credentials.database_password') }}" # nocheck: lookup-config-path
 
 DISCOURSE_CONTAINER: "{{ entity_name }}"
 DISCOURSE_NETWORK: "{{ application_id | get_entity_name }}"
@@ -33,7 +33,7 @@ DISCOURSE_APPLICATION_YML_DEST: "{{ [ DISCOURSE_CONTAINERS_DIR, DISCOURSE_CONTAI
 DISCOURSE_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 
 DISCOURSE_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') | bool }}"
-DISCOURSE_LITELLM_API_KEY: "{{ lookup('config', application_id, 'credentials.litellm_api_key') }}"
+DISCOURSE_LITELLM_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') }}"
 DISCOURSE_LITELLM_NETWORK: "{{ 'svc-ai-litellm' | get_entity_name }}"
 DISCOURSE_LITELLM_HOST: "{{ LITELLM_OPENAI_BASE_LOCAL_URL | urlsplit('hostname') }}"
 DISCOURSE_LITELLM_CHAT_ENDPOINT: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}/chat/completions"

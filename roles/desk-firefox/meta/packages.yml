@@ -3,6 +3,8 @@ firefox:
   Archlinux:
     - firefox
   Debian:
-    - firefox
+    - firefox-esr
   RedHat:
+    - firefox
+  ubuntu:
     - firefox

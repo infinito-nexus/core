@@ -14,8 +14,8 @@ admin_passwd = {{ ODOO_MASTER_PASSWORD }}
 list_db = False
 
 ; Paths
-data_dir = /var/lib/odoo
-addons_path = /mnt/extra-addons,/mnt/custom-addons,/usr/lib/python3/dist-packages/odoo/addons
+data_dir = {{ lookup('volume', 'web-app-odoo', 'data').target }}
+addons_path = {{ lookup('volume', 'web-app-odoo', 'addons').target }},/mnt/custom-addons,/usr/lib/python3/dist-packages/odoo/addons
 
 ; Logging
 log_level = info

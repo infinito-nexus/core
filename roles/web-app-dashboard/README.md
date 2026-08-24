@@ -15,10 +15,12 @@ The diagram places Dashboard in the Infinito.Nexus cosmos: the components it dep
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
         dep_web_svc_asset["web-svc-asset 💻"]
+        dep_web_svc_cdn["web-svc-cdn 🐳🐝"]
         dep_web_svc_css["web-svc-css 💻"]
         dep_web_svc_logout["web-svc-logout 🐳🐝"]
         dep_web_svc_simpleicons["web-svc-simpleicons 🐳🐝"]
@@ -34,6 +36,7 @@ flowchart LR
         svc_css["css"]
         svc_javascript["javascript"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
     end
     subgraph dependents [Dependents]
         dpt_web_app_akaunting["web-app-akaunting 🐳🐝"]
@@ -50,10 +53,12 @@ flowchart LR
         dpt_web_app_erpnext["web-app-erpnext 🐳🐝"]
         dpt_more["..."]
     end
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_svc_asset -. "0..1" .-> svc_asset
+    dep_web_svc_cdn -- "1:1" --> svc_cdn
     dep_web_svc_css -. "0..1" .-> svc_css
     dep_web_svc_logout -. "0..1" .-> svc_logout
     dep_web_svc_simpleicons -. "0..1" .-> svc_simpleicons
@@ -72,7 +77,7 @@ flowchart LR
     svc_sso -. "0..1" .-> dpt_web_app_erpnext
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Purpose
 
@@ -130,6 +135,12 @@ docker run --rm -it \
       --password-file "$INVENTORY/.password" \
       --diff -vv'
 ```
+
+## Persona contract opt-outs
+
+Both authenticated Playwright personas are blocked while `services.sso.enabled` is false. The dashboard's entire Keycloak integration is the browser-side `oidc.js` bundle, and `DASHBOARD_JS_FILES` in `vars/main.yml` ships that file only when SSO is enabled, so with SSO off the page renders neither a Login link nor a logout control.
+
+port-ui is a tile launcher with no admin tier, so the `administrator` persona has no admin-only surface to assert against beyond the same login chain. With SSO enabled both personas run.
 
 ## Credits
 

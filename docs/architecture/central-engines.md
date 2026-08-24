@@ -8,7 +8,7 @@ engines are the only `placement: manager` (node-local) services.
 ## Problem this solves
 
 NFS placement is derived from `placement` (see
-`plugins/filter/compose_volumes.py`): an unpinned role's volumes are bound to the
+`plugins/lookup/compose_volumes.py`): an unpinned role's volumes are bound to the
 shared NFS mount (survive a reschedule), a pinned role keeps its volumes node-local.
 Engine on-disk state (redis/rabbitmq/elasticsearch/sqlite/postfix-queue) **cannot
 live on NFS** (fsync + locking corruption), so a role that *embeds* such an engine

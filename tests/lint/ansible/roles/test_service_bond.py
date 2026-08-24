@@ -98,7 +98,6 @@ def _collect_findings(root: Path) -> list[BondFinding]:
         if not config_path.is_file():
             continue
 
-        # meta/services.yml's root IS the services map.
         services = _load_yaml(config_path)
         if not isinstance(services, dict):
             continue

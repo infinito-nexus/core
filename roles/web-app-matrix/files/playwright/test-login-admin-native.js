@@ -1,4 +1,4 @@
-const { test } = require("@playwright/test");
+const { test } = require("./onion-test");
 
 exports.register = function (shared) {
   test("administrator: matrix element native password login (no oidc)", async ({ page }) => {

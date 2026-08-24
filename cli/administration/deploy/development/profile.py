@@ -5,8 +5,18 @@ from __future__ import annotations
 import os
 
 
+def _declared(name: str) -> bool | None:
+    """Explicit capability declaration, or None when it is left to the default."""
+    raw = (os.environ.get(name) or "").strip()
+    if raw == "true":
+        return True
+    if raw == "false":
+        return False
+    return None
+
+
 class Profile:
-    """Runtime-context flags consumed by the compose wrapper."""
+    """Runtime identity and the capability decisions derived from it."""
 
     def is_ci(self) -> bool:
         """True when any standard CI signal is set."""
@@ -16,9 +26,22 @@ class Profile:
             or os.environ.get("CI") == "true"
         )
 
-    def registry_cache_active(self) -> bool:
-        """True iff the cache stack should be loaded (local dev only)."""
-        return not self.is_ci()
+    def runs_on_github(self) -> bool:
+        """True on a real GitHub runner; act and generic CI are not that."""
+        return os.environ.get("INFINITO_RUNNING_ON_GITHUB") == "true"
+
+    def cache_stack_enabled(self) -> bool:
+        """True iff the pull-through cache stack should be loaded."""
+        declared = _declared("INFINITO_CACHE_STACK")
+        return (not self.is_ci()) if declared is None else declared
+
+    def image_mirror_enabled(self) -> bool:
+        """True iff image references should be rewritten to the GHCR mirror."""
+        return self.runs_on_github()
+
+    def docker_root_ephemeral(self) -> bool:
+        """True iff the docker data root may be wiped when the stack goes down."""
+        return self.runs_on_github()
 
     def instance(self) -> int:
         """Slot index of this checkout; 0 is the primary one.
@@ -40,4 +63,4 @@ class Profile:
 
     def owns_cache_stack(self) -> bool:
         """True iff this instance runs the cache stack rather than sharing it."""
-        return self.registry_cache_active() and not self.shared_cache_network()
+        return self.cache_stack_enabled() and not self.shared_cache_network()

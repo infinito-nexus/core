@@ -14,9 +14,6 @@ from .constants import (
 
 
 def is_category(segments: list[str]) -> bool:
-    # A category is a sub-package without its own `__main__.py`; once a
-    # package becomes directly executable it is a leaf command and the
-    # console runs it instead of cd-ing into it.
     if not segments:
         return True
     candidate = CLI_ROOT.joinpath(*segments)

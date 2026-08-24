@@ -54,7 +54,6 @@ def main():
     roles = find_roles(args.roles_dir)
 
     if args.output.lower() == 'console':
-        # Print JSON to stdout
         print(json.dumps(roles, indent=2))
     else:
         write_roles_list(roles, args.output)

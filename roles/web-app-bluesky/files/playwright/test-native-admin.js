@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { gotoOnion } = require("./personas");
 
 exports.register = function (shared) {
   test("native: broker bypassed and PDS createSession accepts the deployed administrator (no oauth2)", async ({ page, playwright }) => {
@@ -12,7 +13,7 @@ exports.register = function (shared) {
     expect(pdsBaseUrl, "PDS_BASE_URL must be set when oauth2 is disabled").toBeTruthy();
 
     const expectedBaseUrl = baseUrl.replace(/\/$/, "");
-    const landing = await page.goto(`${expectedBaseUrl}/`);
+    const landing = await gotoOnion(page, `${expectedBaseUrl}/`);
     expect(landing, "Expected bluesky landing response").toBeTruthy();
     const landingBody = await landing.text();
     expect(

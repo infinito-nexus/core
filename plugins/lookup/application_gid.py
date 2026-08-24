@@ -7,20 +7,31 @@ _APPLICATION_MARKER_FILES = (
     "server.yml",
     "rbac.yml",
     "volumes.yml",
-    "schema.yml",
+    "secrets.yml",
     "users.yml",
 )
 
 
 @functools.cache
-def _discover_sorted_application_ids(roles_dir_key: str) -> tuple[str, ...]:
-    discovered: set[str] = set()
-    for entry in os.listdir(roles_dir_key):
-        meta_dir = Path(roles_dir_key, entry, "meta")
-        if not meta_dir.is_dir():
-            continue
-        if any((meta_dir / marker).is_file() for marker in _APPLICATION_MARKER_FILES):
-            discovered.add(entry)
+def _discover_sorted_application_ids(roles_dir_abs: str) -> tuple[str, ...]:
+    """Sorted application role ids under *roles_dir_abs*, memoised per
+    process (utils.cache philosophy: CLI/test invocations rescan at most
+    once; a role added mid-process needs a fresh interpreter or
+    ``_discover_sorted_application_ids.cache_clear()``).
+
+    An "application role" is identified by the presence of at least one
+    project-owned ``meta/<topic>.yml`` marker file.
+    """
+    discovered: list[str] = []
+    with os.scandir(roles_dir_abs) as entries:
+        for entry in entries:
+            if not entry.is_dir():
+                continue
+            meta_dir = Path(entry.path) / "meta"
+            for marker in _APPLICATION_MARKER_FILES:
+                if (meta_dir / marker).is_file():
+                    discovered.append(entry.name)
+                    break
     return tuple(sorted(discovered))
 
 

@@ -43,11 +43,9 @@ def run_streaming(
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=text,
-        bufsize=1,  # line buffered (best effort)
+        bufsize=1,
     )
 
-    # Type-narrowing asserts so the type checker sees the streams as
-    # non-None below (PIPE was passed); these never fire at runtime.
     assert p.stdout is not None  # noqa: S101
     assert p.stderr is not None  # noqa: S101
 
@@ -67,7 +65,6 @@ def run_streaming(
 
     rc = p.wait()
 
-    # Process is finished; drain threads should finish quickly too.
     t_out.join()
     t_err.join()
 

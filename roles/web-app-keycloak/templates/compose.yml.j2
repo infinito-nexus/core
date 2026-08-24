@@ -8,12 +8,11 @@
     command: start{% if KEYCLOAK_DEBUG_ENABLED %} --verbose{% endif %}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_ports', ['keycloak', 'http', DOCKER_BIND_HOST]) | indent(4) }}
-    {{ lookup('container_volumes', application_id, 'keycloak') | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
 
-{{ lookup('compose_volumes', application_id,
-) }}
+{{ lookup('compose_volumes') }}
 
 {{ lookup('compose_networks') }}

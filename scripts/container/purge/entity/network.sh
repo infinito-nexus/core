@@ -55,8 +55,6 @@ if docker network inspect "${ENTITY}" >/dev/null 2>&1; then
 				"${ENTITY}" 2>/dev/null || echo ""
 		)"
 		if [[ "${label}" == "default" ]]; then
-			# Compose-managed but compose-down apparently missed it — flag
-			# it so the operator notices a pattern (stuck compose project).
 			echo ">>> network '${ENTITY}' is compose-labeled but orphaned (no endpoints); removing"
 		else
 			echo ">>> orphan network '${ENTITY}' (compose label '${label}'); removing"

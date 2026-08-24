@@ -16,7 +16,6 @@ class AnsibleTolerantLoader(yaml.SafeLoader):
 
 
 def _ansible_tag_passthrough(loader: yaml.Loader, tag_prefix: str, node: yaml.Node):
-    # Treat unknown/Ansible custom tags as plain YAML
     if isinstance(node, yaml.ScalarNode):
         return loader.construct_scalar(node)
     if isinstance(node, yaml.SequenceNode):
@@ -27,8 +26,6 @@ def _ansible_tag_passthrough(loader: yaml.Loader, tag_prefix: str, node: yaml.No
 
 
 yaml.add_multi_constructor("!", _ansible_tag_passthrough, Loader=AnsibleTolerantLoader)
-
-# -------------------------------------------------------------------------------
 
 
 Yaml = dict[str, Any] | list[Any] | Any
@@ -62,7 +59,6 @@ def _safe_load_all(path: Path) -> list[Yaml]:
     try:
         return list(load_yaml_all(str(path)))
     except Exception:
-        # If a file is completely unparsable, treat as empty (so test won't crash).
         return []
 
 
@@ -77,7 +73,6 @@ def _find_blocks_with_when(
     if isinstance(node, dict):
         if "block" in node and "when" in node and isinstance(node["block"], list):
             found.append((path or "/", node))
-        # Recurse into all values to catch nested blocks
         for k, v in node.items():
             child_path = f"{path}/{k}" if path else f"/{k}"
             found.extend(_find_blocks_with_when(v, child_path))
@@ -110,7 +105,6 @@ class BlockWhenSizeTest(unittest.TestCase):
                     name = mapping.get("name") or "<unnamed block>"
                     when_expr = mapping.get("when")
 
-                    # Check main block size
                     block_tasks = mapping.get("block", [])
                     block_count = _len_if_list(block_tasks)
                     if block_count > self.MAX_TASKS:
@@ -120,7 +114,6 @@ class BlockWhenSizeTest(unittest.TestCase):
                             f":: when={when_expr!r} :: at {yaml_path}"
                         )
 
-                    # Check rescue size (if present)
                     rescue_tasks = mapping.get("rescue", [])
                     rescue_count = _len_if_list(rescue_tasks)
                     if rescue_count > self.MAX_TASKS:
@@ -130,7 +123,6 @@ class BlockWhenSizeTest(unittest.TestCase):
                             f":: parent-when={when_expr!r} :: at {yaml_path}/rescue"
                         )
 
-                    # Check always size (if present)
                     always_tasks = mapping.get("always", [])
                     always_count = _len_if_list(always_tasks)
                     if always_count > self.MAX_TASKS:

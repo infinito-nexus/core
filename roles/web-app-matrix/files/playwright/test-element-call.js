@@ -1,4 +1,5 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./onion-test");
+const { resolveTimeout } = require("./timeouts");
 
 exports.register = function (shared) {
   test("element-call: Element config.json advertises a video-call backend when conferencing is enabled", async ({ request }) => {
@@ -8,6 +9,7 @@ exports.register = function (shared) {
     const configResponse = await request.get(`${elementBaseUrl}/config.json`, {
       failOnStatusCode: false,
       ignoreHTTPSErrors: true,
+      timeout: resolveTimeout(30_000),
     });
     expect(configResponse.status(), `Element /config.json must serve when element_call is enabled`).toBe(200);
 

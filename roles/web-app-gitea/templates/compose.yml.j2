@@ -8,7 +8,7 @@
     {{ lookup('container_ports',
               ['gitea', 'http', DOCKER_BIND_HOST],
               ['gitea', 'ssh']) | indent(4) }}
-    {{ lookup('container_volumes', application_id, 'gitea') | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
       {% if GITEA_MCP_ENABLED | bool %}
@@ -58,7 +58,7 @@
       {{ GITEA_MCP_UPSTREAM_NETWORK }}:
   {% endif %}
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}
   {% if GITEA_MCP_ENABLED | bool %}
   {{ GITEA_MCP_UPSTREAM_NETWORK }}:

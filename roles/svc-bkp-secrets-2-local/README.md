@@ -39,7 +39,7 @@ flowchart LR
     svc_secrets_2_local -- "1:1" --> dpt_svc_bkp_volume_2_local
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Schema
 
@@ -108,7 +108,7 @@ infinito administration deploy dedicated "$INVENTORY/devices.yml" \
 
 ## Recover
 
-Run `files/recover.py` on the target host:
+Run `files/python/recover.py` on the target host:
 
 ```
 recover.py <backups>/<machine-hash>/backup-secrets-to-local/<generation>/files [--restore-node-identity]

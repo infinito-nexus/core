@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING, Any
 
 from ruamel.yaml.comments import CommentedMap
 
+from utils.manager.credential_key import CREDENTIALS_KEY, SECRETS_KEY
+
 from .overrides import override_for
 from .vault import is_vault_encrypted, to_vault_block
 
@@ -21,12 +23,30 @@ def ensure_map(node: CommentedMap, key: str) -> CommentedMap:
     return node[key]
 
 
+def credentials_map(app_block: CommentedMap) -> CommentedMap:
+    """The writable ``secrets.credentials`` node of one application block.
+
+    Args:
+        app_block: the ``applications.<app_id>`` map.
+    """
+    return ensure_map(ensure_map(app_block, SECRETS_KEY), CREDENTIALS_KEY)
+
+
+def declared_credentials(app_block: dict) -> dict:
+    """The credentials an application block declares, empty when it declares
+    none. Reading a malformed ``secrets`` raises rather than resolving empty.
+
+    Args:
+        app_block: the ``applications.<app_id>`` map.
+    """
+    return app_block.get(SECRETS_KEY, {}).get(CREDENTIALS_KEY, {})
+
+
 def emit_credentials(
     schema_node: dict,
     dest_node: CommentedMap,
     *,
     app_id: str,
-    primary_app_id: str,
     key_path: str,
     overrides: dict[str, str],
     vault_handler: VaultHandler,
@@ -35,12 +55,11 @@ def emit_credentials(
 ) -> None:
     """Walk a (possibly nested) credentials schema and emit one vault
     block per scalar leaf into ``dest_node``. Nested dicts (e.g.
-    ``credentials.recaptcha = {key, secret}``) recurse into nested
+    ``secrets.credentials.recaptcha = {key, secret}``) recurse into nested
     CommentedMaps so each leaf becomes its own vault-encrypted entry
     instead of being collapsed via ``str(dict)`` into a Python-repr
     blob (the regression that broke run 26428080957 jobs 77797371397
     and 77797371442 for web-app-espocrm and web-app-listmonk)."""
-    is_primary = app_id == primary_app_id
     for key, default_val in schema_node.items():
         full_key = f"{key_path}.{key}" if key_path else key
 
@@ -50,7 +69,6 @@ def emit_credentials(
                 default_val,
                 sub,
                 app_id=app_id,
-                primary_app_id=primary_app_id,
                 key_path=full_key,
                 overrides=overrides,
                 vault_handler=vault_handler,
@@ -62,7 +80,7 @@ def emit_credentials(
         if skip_existing and key in dest_node:
             continue
 
-        ov = override_for(app_id, full_key, overrides, is_primary=is_primary)
+        ov = override_for(app_id, full_key, overrides)
         value_for_key: str | Any = ov if ov is not None else default_val
 
         if is_vault_encrypted(value_for_key):

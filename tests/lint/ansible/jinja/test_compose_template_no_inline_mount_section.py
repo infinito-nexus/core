@@ -1,7 +1,7 @@
 """Strict guard for ALL compose templates: inline ``volumes:`` /
 ``configs:`` / ``secrets:`` blocks in ``compose.yml.j2`` are forbidden.
-Every mount surface MUST flow through ``lookup('compose_volumes', ...)``
-(top-level) and ``lookup('container_volumes', application_id, service)``
+Every mount surface MUST flow through ``lookup('compose_volumes')``
+(top-level) and ``lookup('container_volumes', service)``
 (per-service). That makes ``meta/volumes.yml`` the single source for
 NFS opt-in, swarm config/secret distribution, and reschedule-safe
 bind sources.
@@ -30,10 +30,6 @@ _COMPOSE_TEMPLATE_BASENAME = re.compile(r"^compose(?:[.\-][^/]+)?\.yml\.j2$")
 _INLINE_SECTION = re.compile(r"^(?P<indent>\s*)(volumes|configs|secrets):\s*$")
 _LOOKUP_CALL = re.compile(r"lookup\(\s*['\"](compose_volumes|container_volumes)['\"]")
 
-# A short-form bind entry parses as `- "<src>:<dst>[:ro]"`. We capture
-# (src, dst) and only flag when dst names a single file (see
-# _IS_SINGLE_FILE_TARGET). Directory binds and named volumes are
-# tolerated inline.
 _SHORT_FORM_BIND = re.compile(
     r"""
     ^\s*-\s*
@@ -152,8 +148,8 @@ class TestComposeTemplateNoInlineMountSection(unittest.TestCase):
                 "plugin output:\n\n"
                 "    services:\n"
                 "      <svc>:\n"
-                "        {{ lookup('container_volumes', application_id, '<svc>') | indent(8) }}\n\n"
-                "    {{ lookup('compose_volumes', application_id) }}\n\n"
+                "        {{ lookup('container_volumes', '<svc>') | indent(8) }}\n\n"
+                "    {{ lookup('compose_volumes') }}\n\n"
                 "Mark with `# nocheck: compose-inline-mount-section` only "
                 "for legitimate exceptions (extra_* injection helpers).\n\n"
                 f"Offenders:\n{formatted}"

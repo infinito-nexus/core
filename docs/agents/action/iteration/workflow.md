@@ -27,3 +27,13 @@ For the swarm deploy loop, see [Swarm Loop](swarm.md).
 `make act-*` aborts with `failed to copy content to container: mkdirat var/run...` because the stock runner image's `/var/run` symlink trips Docker 28/29's stricter `docker cp`.
 
 Fix: run `make act-runner-image` once, then prefix any act target with `ACT_PLATFORM_IMAGE=local/act-runner-fixed:latest` (e.g. `ACT_PLATFORM_IMAGE=local/act-runner-fixed:latest make swarm-zombie app=<app>`).
+
+### A green local workspace run does not clear CI
+
+Two properties of the workspace suite differ between `make act-workflow` and a GitHub runner, so a class of defects is structurally invisible locally.
+
+**Nested Docker state does not survive a teardown locally, but does in CI.** `INFINITO_DOCKER_VOLUME` is the named volume `docker` ([default.env](../../../../default.env)) and a host path (`/mnt/docker`) on GitHub. `compose down -v` removes a named volume and cannot remove a bind mount, so every workspace track starts on a clean inner daemon locally while CI carries the previous track's containers into the next one. Defects that need a container, network, or bind source to outlive a teardown cannot reproduce under act.
+
+**The runtime identity differs.** act sets `ACT=true`, so `detect_gha_act()` in [runtime.py](../../../../utils/env/runtime.py) resolves `INFINITO_RUNNING_ON_GITHUB=false` where a real runner resolves `true`. Anything keyed off that fact behaves differently, and act cannot prove a fix to it either way.
+
+Run the local loop to iterate quickly; treat CI as the only authority for both classes.

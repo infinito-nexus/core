@@ -14,7 +14,6 @@
 
 - name: ♻️ Reset Admin Password
   include_tasks: 07_reset_admin_password.yml
-  when: joomla_installed.rc == 0
 
 - name: "📦 Install plg_system_keycloak (native OIDC)"
   include_tasks: 08_oidc_plugin.yml

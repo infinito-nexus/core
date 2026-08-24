@@ -117,11 +117,9 @@ def render_jinja2_strict_recursive(
             err_prefix=err_prefix,
         )
 
-        # Stable and no markers -> done
         if not looks_like_jinja(rendered):
             return rendered
 
-        # If it didn't change but still has markers -> cannot resolve further
         if rendered == current:
             raise AnsibleError(
                 f"{err_prefix}: {var_name} did not fully expand (still contains Jinja markers) "
@@ -131,7 +129,6 @@ def render_jinja2_strict_recursive(
 
         current = rendered
 
-    # max passes reached and still markers
     raise AnsibleError(
         f"{err_prefix}: {var_name} did not fully expand (still contains Jinja markers) "
         f"after {max_passes} passes. inventory_hostname='{inv_host}'. "
@@ -171,7 +168,6 @@ def render_strict(
     )
 
     if looks_like_jinja(rendered):
-        # Shouldn't happen (recursive renderer already fails), but keep belt+suspenders.
         raise AnsibleError(
             f"{err_prefix}: {var_name} did not fully expand (still contains Jinja markers). "
             f"inventory_hostname='{inv_host}'. Raw: {raw} | Rendered: {rendered}."

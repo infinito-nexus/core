@@ -38,6 +38,8 @@
     seaweedfs:
       enabled: true
       shared: true
+    tor:
+      enabled: true
 - services:
     container_backup:
       enabled: false
@@ -74,6 +76,8 @@
     seaweedfs:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    tor:
+      enabled: true
 - services:
     container_backup:
       enabled: false
@@ -107,3 +111,5 @@
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    tor:
+      enabled: true

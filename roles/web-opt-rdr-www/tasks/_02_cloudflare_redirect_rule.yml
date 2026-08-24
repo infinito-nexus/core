@@ -49,7 +49,6 @@
     ttl: 1
     state: present
 
-# 1) Fetch existing redirect rulesets
 - name: "📋 Cloudflare Rulesets: list dynamic redirect rulesets"
   uri_retry:
     url: "https://api.cloudflare.com/client/v4/zones/{{ cf_zone_id }}/rulesets?phase=http_request_dynamic_redirect"
@@ -71,7 +70,6 @@
       }}
     cf_redirect_ruleset_id: "{{ (cf_redirect_ruleset.id | default('')) }}"
 
-# Desired redirect rule object
 - name: "🔨 Build desired redirect rule object"
   set_fact:
     desired_redirect_rule:
@@ -86,7 +84,6 @@
           status_code: 301
           preserve_query_string: true
 
-# 2) Update existing ruleset (PUT)
 - name: "🔄 Update existing dynamic redirect ruleset (PUT)"
   when: cf_redirect_ruleset_id | length > 0
   vars:
@@ -114,7 +111,6 @@
   register: cf_ruleset_update
   changed_when: cf_ruleset_update.status in [200]
 
-# 3) Create new ruleset (POST)
 - name: "📁 Create dynamic redirect ruleset (POST)"
   when: cf_redirect_ruleset_id | length == 0
   uri_retry:

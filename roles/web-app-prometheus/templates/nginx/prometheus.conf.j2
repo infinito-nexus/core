@@ -2,10 +2,6 @@
   # Must be declared in the http{} block before any lua phase references it.
   lua_shared_dict prometheus_metrics 16m;
 
-  # Shared dict for Docker container health state, populated by the background
-  # timer below and read by every /healthz/live request.  Keys are container
-  # names (without the leading '/'); values are "up" or "down".  TTL = 60 s so
-  # stale entries expire if a container is removed and the timer misses a cycle.
   lua_shared_dict health_containers 1m;
 
   init_worker_by_lua_block {

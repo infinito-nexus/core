@@ -16,6 +16,7 @@ The diagram places phpldapadmin in the Infinito.Nexus cosmos: the components it 
 flowchart LR
     subgraph deps [Dependencies]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
@@ -32,8 +33,10 @@ flowchart LR
         svc_sso["sso"]
         svc_css["css"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
     end
     dep_svc_db_openldap -- "1:1" --> svc_ldap
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_matomo -. "0..1" .-> svc_matomo
@@ -42,7 +45,7 @@ flowchart LR
     dep_web_svc_logout -. "0..1" .-> svc_logout
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
@@ -100,6 +103,10 @@ docker run --rm -it \
 
 - [phpLDAPadmin Docker Container Documentation](https://github.com/leenooks/phpLDAPadmin/wiki/Docker-Container)
 - [Official phpldapadmin Homepage](https://github.com/leenooks/phpLDAPadmin)
+
+## Persona contract opt-outs
+
+phpLDAPadmin authenticates with an LDAP bind DN and the OpenLDAP `administrator_database_password`, not with the Keycloak `administrator` username/password pair, so the `administrator` persona has no in-app credential once it is through the oauth2-proxy. [`meta/services.yml`](./meta/services.yml) additionally admits only the `web-app-phpldapadmin` administrator RBAC group to that proxy (`sso.oauth2.allowed_groups`), and `biber` carries an empty role list, so it is denied before phpLDAPadmin is reached. [`templates/playwright.env.j2`](./templates/playwright.env.j2) therefore declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`; the `guest` persona and the baseline assertions run unconditionally.
 
 ## Credits
 

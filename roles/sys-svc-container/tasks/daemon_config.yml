@@ -40,4 +40,4 @@
     src: daemon.json.j2
     dest: "{{ SYS_SVC_DOCKER_DAEMON }}"
     mode: "0644"
-  notify: container manager restart
+  notify: container-manager-restart

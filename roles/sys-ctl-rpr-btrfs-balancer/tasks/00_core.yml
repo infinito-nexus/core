@@ -4,11 +4,12 @@
     name: sys-ctl-alm-compose
   when: run_once_sys_ctl_alm_compose is not defined
 
-- name: "📦 pkgmgr install"
+- name: 📦 Install btrfs-auto-balancer system-wide via pip
   include_role:
-    name: pkgmgr-install
+    name: sys-pip-install
   vars:
     package_name: btrfs-auto-balancer
+    global_install: true
 
 - include_role:
     name: sys-service

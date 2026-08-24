@@ -6,7 +6,7 @@ base_url = "{{ OPENTALK_URL }}"
 
 [http]
 port = {{ OPENTALK_CTRL_INTERNAL_PORT }}
-service_api_keys = [{ "id" = "controller", "secret" = "{{ lookup('config', application_id, 'credentials.service_api_secret') }}" }]
+service_api_keys = [{ "id" = "controller", "secret" = "{{ lookup('config', application_id, 'secrets.credentials.service_api_secret') }}" }]
 
 [database]
 url = "postgres://{{ lookup('database', application_id, 'username') }}:{{ lookup('database', application_id, 'password') }}@{{ lookup('database', application_id, 'host') }}:{{ lookup('database', application_id, 'port') }}/{{ lookup('database', application_id, 'name') }}"

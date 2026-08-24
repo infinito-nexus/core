@@ -7,7 +7,7 @@ database_type: "{{ entity_name }}"
 RABBITMQ_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
 RABBITMQ_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, RABBITMQ_CONTAINER) }}"
 RABBITMQ_USER: "admin"
-RABBITMQ_PASSWORD: "{{ lookup('config', application_id, 'credentials.RABBITMQ_PASSWORD') }}"
+RABBITMQ_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.RABBITMQ_PASSWORD') }}"
 RABBITMQ_EXPOSE_LOCAL: true
 RABBITMQ_RETRIES: 30
 RABBITMQ_DELAY: 5

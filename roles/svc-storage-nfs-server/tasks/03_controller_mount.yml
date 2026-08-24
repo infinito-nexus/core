@@ -1,7 +1,7 @@
 ---
 - name: "🔍 Detect controller {{ DIR_VAR_LIB }} pre-mount state"
   ansible.builtin.script:
-    cmd: "{{ lookup('path_absolute', 'roles/svc-storage-nfs-client/files/premount_state.sh') }}"
+    cmd: "{{ lookup('path_absolute', 'roles/svc-storage-nfs-client/files/shell/premount_state.sh') }}"
     executable: /bin/bash
   environment:
     DIR_VAR_LIB: "{{ DIR_VAR_LIB }}"

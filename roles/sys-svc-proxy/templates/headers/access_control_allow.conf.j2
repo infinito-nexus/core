@@ -1,18 +1,14 @@
 {#  Configure CORS headers dynamically based on role variables.
     If no variable is defined, defaults are applied (e.g. same-origin). #}
-{# Access-Control-Allow-Origin #}
 {% if aca_origin is defined %}
 add_header 'Access-Control-Allow-Origin' {{ aca_origin }};
 {% endif %}
-{# Access-Control-Allow-Credentials #}
 {% if aca_credentials is defined %}
 add_header 'Access-Control-Allow-Credentials' {{ aca_credentials }};
 {% endif %}
-{# Access-Control-Allow-Methods #}
 {% if aca_methods is defined %}
 add_header 'Access-Control-Allow-Methods' {{ aca_methods }};
 {% endif %}
-{# Access-Control-Allow-Headers #}
 {% if aca_headers is defined %}
 add_header 'Access-Control-Allow-Headers' {{ aca_headers }};
 {% endif %}

@@ -5,6 +5,10 @@ node:
   shared: true
   bond: 1
 cache:
+  healthcheck:
+    flavor: wget
+    port_key: registry
+    path: v2/
   modes:
     compose:
       enabled: true

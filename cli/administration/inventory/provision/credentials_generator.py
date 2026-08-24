@@ -8,6 +8,11 @@ from typing import TYPE_CHECKING
 from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap
 
+from cli.administration.inventory.credentials.emit import (
+    credentials_map,
+    declared_credentials,
+)
+
 from .role_resolver import resolve_role_path
 from .ruamel_io import dump_document, ensure_map, load_document
 
@@ -132,9 +137,9 @@ def generate_credentials_for_roles(
                 if not isinstance(app_block_snip, dict):
                     continue
                 app_doc = ensure_map(apps_doc, app_id)
-                creds_doc = ensure_map(app_doc, "credentials")
+                creds_doc = credentials_map(app_doc)
 
-                creds_snip = app_block_snip.get("credentials", {}) or {}
+                creds_snip = declared_credentials(app_block_snip) or {}
                 if not isinstance(creds_snip, dict):
                     continue
 

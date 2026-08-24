@@ -33,14 +33,18 @@ LISTMONK_SETTINGS:
       } | to_json }}
     condition: "{{ LISTMONK_OIDC_ENABLED | bool }}"
 
+  - key: "appearance.public.custom_js"
+    value: "{{ lookup('file', lookup('path_absolute', 'roles/web-app-listmonk/files/javascript/oidc-autologin.js')) | to_json }}"
+    condition: "{{ LISTMONK_OIDC_ENABLED | bool }}"
+
   - key: "security.enable_captcha"
     value: "true"
 
   - key: "security.captcha_key"
-    value: "\"{{ lookup('config', application_id, 'credentials.hcaptcha.key') }}\""
+    value: "\"{{ lookup('config', application_id, 'secrets.credentials.hcaptcha.key') }}\""
 
   - key: "security.captcha_secret"
-    value: "\"{{ lookup('config', application_id, 'credentials.hcaptcha.secret') }}\""
+    value: "\"{{ lookup('config', application_id, 'secrets.credentials.hcaptcha.secret') }}\""
 
   - key: "smtp"
     value: >-
@@ -150,7 +154,7 @@ LISTMONK_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') | bool
 LISTMONK_MCP_SERVICE_KEY: "listmonkmcp"
 LISTMONK_MCP_CONTAINER: "{{ lookup('config', application_id, 'services.listmonkmcp.name') }}"
 LISTMONK_MCP_PORT: "{{ lookup('config', application_id, 'services.listmonkmcp.ports.internal.http') }}"
-LISTMONK_MCP_BEARER: "{{ lookup('config', application_id, 'credentials.mcp_bearer') }}"
+LISTMONK_MCP_BEARER: "{{ lookup('config', application_id, 'secrets.credentials.mcp_bearer') }}"
 LISTMONK_MCP_INSTANCE_DIR: "{{ [lookup('container', application_id, 'directories.instance'), 'mcp'] | path_join }}"
 LISTMONK_MCP_UPSTREAM_HOST: "{{ lookup('config', application_id, 'services.listmonk.name') }}"
 LISTMONK_MCP_UPSTREAM_PORT: "{{ lookup('config', application_id, 'services.listmonk.ports.internal.http') }}"
@@ -163,7 +167,7 @@ LISTMONK_MCP_CONTRACT:
   tools: "{{ lookup('file', 'mcp/tools.json') | from_json }}"
   limits: "{{ lookup('config', application_id, 'mcp.limits') }}"
   schema_sha256: "{{ lookup('config', application_id, 'mcp.tools.schema_sha256') }}"
-LISTMONK_MCP_UPSTREAM_KEY: "{{ lookup('config', application_id, 'credentials.mcp_upstream_token') }}"
+LISTMONK_MCP_UPSTREAM_KEY: "{{ lookup('config', application_id, 'secrets.credentials.mcp_upstream_token') }}"
 LISTMONK_MCP_UPSTREAM_USER: "mcpreader"
 LISTMONK_MCP_UPSTREAM_ROLE: "mcp-readonly"
 LISTMONK_MCP_UPSTREAM_AUTH_HEADER: "Authorization"

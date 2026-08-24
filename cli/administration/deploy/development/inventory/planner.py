@@ -67,7 +67,6 @@ def plan_dev_inventory_matrix(
     total_rounds = max(primary_variant_counts.values(), default=1)
     base = str(base_inventory_dir).rstrip("/")
 
-    # WHY split: per-round include is variant-specific; purge_set is the union so the inter-round wipe clears every variant's footprint, not just the previous round's slice.
     per_variant_includes: list[tuple[str, ...]] = []
     primary_round_variants_per_round: list[dict[str, int]] = []
     for round_index in range(total_rounds):

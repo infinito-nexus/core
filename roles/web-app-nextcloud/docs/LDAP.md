@@ -47,6 +47,6 @@ When a Playwright scenario exercises the OIDC/LDAP path as `biber` (or any non-a
 If a brand-new deployment must pass the `biber` end-to-end scenario on its first run, either:
 
 - Pre-provision `biber` via `php occ ldap:check-user --update biber` (and any other personas used by the test suite) as part of the role's post-deploy tasks, or
-- Extend `roles/web-app-nextcloud/files/javascript.js` (exposed to the login page through the injected `javascript.js.j2` template) with a small guard that detects the "user does not exist" Nextcloud error message and retries the OIDC handshake once after a short delay, giving the LDAP plugin time to provision the account.
+- Extend `roles/web-app-nextcloud/files/javascript/javascript.js` (exposed to the login page through the injected `javascript.js.j2` template) with a small guard that detects the "user does not exist" Nextcloud error message and retries the OIDC handshake once after a short delay, giving the LDAP plugin time to provision the account.
 
 Either approach keeps the Playwright suite deterministic without disabling the LDAP first-login-provisioning behavior that real users rely on.

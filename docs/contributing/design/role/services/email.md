@@ -6,7 +6,7 @@ For administrator-facing configuration (keys, override variables, precedence), s
 Primary files:
 
 - [email.py](../../../../../plugins/lookup/email.py) for the plugin.
-- [test_email.py](../../../../../tests/unit/plugins/lookup/test_email.py) for unit tests.
+- [test_email.py](../../../../../tests/unit/python/plugins/lookup/test_email.py) for unit tests.
 
 ## Call Shapes 📞
 

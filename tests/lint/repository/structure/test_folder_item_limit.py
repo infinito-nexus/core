@@ -26,7 +26,6 @@ from . import PROJECT_ROOT
 
 MAX_ITEMS_PER_FOLDER = 12
 
-# Flat structure folders that intentionally stay one level deep.
 FLAT_STRUCTURE_WHITELIST = {
     ".github/workflows",
     "cli",
@@ -38,10 +37,9 @@ FLAT_STRUCTURE_WHITELIST = {
     "roles",
     "inventories/bundles/servers",
     "inventories/bundles/workstations",
-    "tasks/groups",
-    "tests/unit/plugins/filter",
-    "tests/unit/roles",
-    "tests/unit/plugins/lookup",
+    "tests/unit/python/plugins/filter",
+    "tests/unit/python/roles",
+    "tests/unit/python/plugins/lookup",
 }
 
 
@@ -67,8 +65,6 @@ def _tracked_paths(root: Path) -> list[Path]:
             stderr=subprocess.STDOUT,
         )
     except Exception:
-        # `iter_project_files` already prunes `.git`, `__pycache__`,
-        # `.cache`, `.venv`, `node_modules`, etc.
         return [Path(p) for p in iter_project_files()]
 
     rel_paths = [
@@ -112,7 +108,6 @@ def _is_whitelisted_folder(folder: Path) -> bool:
     rel = folder.as_posix()
     if rel in FLAT_STRUCTURE_WHITELIST:
         return True
-    # The first level below roles/ is intentionally flat by design.
     return len(folder.parts) == 2 and folder.parts[0] == "roles"
 
 

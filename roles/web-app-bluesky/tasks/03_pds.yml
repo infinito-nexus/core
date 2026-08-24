@@ -8,8 +8,8 @@
     dest: "{{ BLUESKY_PDSADMIN_TMP_TAR }}"
     mode: "0644"
   notify:
-    - compose up
-    - compose build
+    - compose-up
+    - compose-build
 
 - name: 📁 Create {{ BLUESKY_PDSADMIN_DIR }}
   file:

@@ -25,7 +25,7 @@
       --constraint node.role==manager \
       --env-file {{ lookup('container', application_id, 'files.env') | quote }} \
       --env AKAUNTING_SETUP=true \
-      --mount type=volume,source={{ AKAUNTING_VOLUME | quote }},target=/var/www/html \
+      --mount type=volume,source={{ AKAUNTING_VOLUME | quote }},target={{ lookup('volume', 'web-app-akaunting', 'data').target }} \
       --network {{ application_id | get_entity_name | quote }} \
       {% if lookup('database', application_id, 'shared') | bool %}--network {{ lookup('database', application_id, 'network') | quote }} {% endif %}\
       {{ AKAUNTING_IMAGE }}:{{ AKAUNTING_VERSION }} \
@@ -33,7 +33,7 @@
   changed_when: true
 
 - name: "⏳ Akaunting setup | Wait for install job to complete"
-  ansible.builtin.script: "{{ lookup('path_absolute', 'roles/sys-svc-compose/files/swarm/job_state.sh') }}"
+  ansible.builtin.script: "{{ lookup('path_absolute', 'roles/sys-svc-compose/files/shell/swarm/job_state.sh') }}"
   environment:
     JOB: "{{ AKAUNTING_SETUP_JOB }}"
   register: akaunting_setup_done

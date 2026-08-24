@@ -38,6 +38,8 @@
     css:
       enabled: true
       shared: true
+    tor:
+      enabled: true
   mcp:
     enabled: true
     shared: true
@@ -76,6 +78,8 @@
     css:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    tor:
+      enabled: true
   mcp:
     enabled: false
     shared: false
@@ -110,6 +114,8 @@
     seaweedfs:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    tor:
+      enabled: true
   mcp:
     enabled: false
     shared: false

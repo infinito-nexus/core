@@ -33,8 +33,6 @@ from . import PROJECT_ROOT
 
 _RULE = "include-uniform-apply-keyword"
 
-# Every recognised Ansible task keyword. A key absent from this set is the task's
-# module/action (e.g. ansible.builtin.shell, uri_retry) and can never be hoisted.
 _TASK_KEYWORDS = frozenset(
     {
         "action",
@@ -81,14 +79,6 @@ _TASK_KEYWORDS = frozenset(
     }
 )
 
-# Blacklist of task keywords that must NOT be flagged even when uniform. Two
-# reasons: (1) per-task binding (name/register/args/loop*/vars), block structure
-# (block/rescue/always), or the include's own gate (when) are not hoistable;
-# (2) LEAF-ONLY keywords (async/changed_when/delay/failed_when/poll/retries/until)
-# are not valid Block attributes, and apply: wraps the included tasks in a Block,
-# so it rejects them at parse ("'<kw>' is not a valid attribute for a Block").
-# Only Block-valid keywords (delegate_to, run_once, become*, no_log, notify,
-# tags, environment, connection, ...) can be hoisted to apply:.
 _IGNORED_KEYWORDS = frozenset(
     {
         "action",

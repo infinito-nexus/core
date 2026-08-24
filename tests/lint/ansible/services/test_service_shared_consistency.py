@@ -45,10 +45,7 @@ class TestServiceSharedConsistency(unittest.TestCase):
             if stripped.startswith("#"):
                 if line_has_rule(line, "shared"):
                     pending_exception = True
-                # Non-matching comment does not reset pending state so that
-                # stacked comments still work.
             elif not stripped:
-                # Blank line breaks the association between comment and key.
                 pending_exception = False
             else:
                 if pending_exception and ":" in stripped:
@@ -77,8 +74,6 @@ class TestServiceSharedConsistency(unittest.TestCase):
                 errors.append(f"{role_name}: YAML parse error in {file_path}: {exc}")
                 continue
 
-            # Per the file root of meta/services.yml IS the
-            # services map (no `compose.services` wrapper).
             services = cfg if isinstance(cfg, dict) else {}
 
             exceptions = self._exception_services(file_path)
@@ -91,7 +86,6 @@ class TestServiceSharedConsistency(unittest.TestCase):
                 has_shared = "shared" in svc_cfg
                 has_enabled = "enabled" in svc_cfg
 
-                # Rule 1: enabled=true requires shared=true
                 if (
                     enabled is True and (not has_shared)
                 ) and svc_name not in exceptions:
@@ -103,7 +97,6 @@ class TestServiceSharedConsistency(unittest.TestCase):
                         f"the intentional exception. ({file_path})"
                     )
 
-                # Rule 2: shared key requires enabled key
                 if has_shared and not has_enabled:
                     errors.append(
                         f"{role_name}: services.{svc_name} declares 'shared' "

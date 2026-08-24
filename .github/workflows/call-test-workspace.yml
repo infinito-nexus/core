@@ -2,51 +2,65 @@ name: "💻 Test: Workspace"
 
 on:
   workflow_dispatch:
+    inputs:
+      workspace_track:
+        description: "🧑‍💻 Track per distro: rotate splits compose/swarm, or pin one"
+        type: choice
+        default: rotate
+        options: [rotate, compose, swarm]
   workflow_call:
+    inputs:
+      workspace_track:
+        type: string
+        default: rotate
 
 permissions:
-  actions: write
   contents: read
   packages: read
 
 jobs:
   prepare:
-    name: 📋 Workspace Matrix
+    name: 🧑‍💻 Workspace Matrix
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
-      images: ${{ steps.matrix.outputs.images }}
+      matrix: ${{ steps.matrix.outputs.matrix }}
 
     steps:
       - name: ⬇️ Checkout repository
         uses: actions/checkout@v7.0.0
 
-      - name: 🐍 Read the distro SPOT
+      - name: 🐍 Assign one workspace track per distro
         id: matrix
         shell: bash
+        env:
+          WORKSPACE_TRACK: ${{ inputs.workspace_track }}
+          RUN_NUMBER: ${{ github.run_number }}
         run: |
           set -euo pipefail
-          images="$(python3 -m cli.meta.ci.dev_runtime images)"
-          echo "images=${images}" | tee -a "$GITHUB_OUTPUT"
+          matrix="$(python3 -m cli.meta.ci.dev_runtime matrix \
+            --mode "${WORKSPACE_TRACK:-rotate}" --run "${RUN_NUMBER:-0}")"
+          echo "matrix=${matrix}" | tee -a "$GITHUB_OUTPUT"
 
   test-workspace:
-    name: 🧑‍💻 Workspace (${{ matrix.dev_runtime_image }})
+    name: ${{ matrix.icon }} Workspace (${{ matrix.label }})
     runs-on: ubuntu-latest
     timeout-minutes: 345
     needs: prepare
 
     concurrency:
-      group: infinito-workspace-${{ matrix.dev_runtime_image }}
+      group: infinito-workspace-${{ matrix.image }}-${{ matrix.track }}
       cancel-in-progress: false
       queue: max
 
     strategy:
       fail-fast: false
       matrix:
-        dev_runtime_image: ${{ fromJson(needs.prepare.outputs.images) }}
+        include: ${{ fromJson(needs.prepare.outputs.matrix) }}
 
     env:
-      DEV_RUNTIME_IMAGE: ${{ matrix.dev_runtime_image }}
+      DEV_RUNTIME_IMAGE: ${{ matrix.image }}
+      INFINITO_WORKSPACE_TRACKS: base ${{ matrix.track }}
       NIX_CONFIG: |
         access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
       INFINITO_CACHE_REGISTRY_MAX_SIZE: 16g
@@ -76,9 +90,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          make dotenv
           {
             grep '^INFINITO_RESCUE_DIAGNOSTICS_BASE=' default.env
-            echo "INFINITO_WORKSPACE_SLUG=$(printf '%s' "${DEV_RUNTIME_IMAGE}" | tr '/:' '--')"
+            grep '^INFINITO_DNS53_SAMPLER_LOG=' .env
+            echo "INFINITO_WORKSPACE_SLUG=$(printf '%s' "${DEV_RUNTIME_IMAGE}" | tr '/:' '--')-${{ matrix.track }}"
           } >> "$GITHUB_ENV"
 
       - name: "📥 Resolve the workspace distro"
@@ -100,6 +116,7 @@ jobs:
             -e GITHUB_REPOSITORY_OWNER="${{ github.repository_owner }}" \
             -e GITHUB_SHA="${{ github.sha }}" \
             -e DEV_RUNTIME_IMAGE \
+            -e INFINITO_WORKSPACE_TRACKS \
             -e INFINITO_DISTRO \
             -e INFINITO_IMAGE="infinito-${INFINITO_DISTRO}" \
             -e INFINITO_PULL_POLICY=never \
@@ -119,11 +136,11 @@ jobs:
             -w "${HOST_WORKDIR}" \
             "${DEV_RUNTIME_IMAGE}" \
             bash -lc '
-              bash ./scripts/tests/environment/00_orchestrator.sh
+              bash ./scripts/tests/workspace/00_orchestrator.sh
             '
 
       - name: 🩺 Capture rescue diagnostics
-        if: failure()
+        if: failure() || cancelled()
         timeout-minutes: 15
         shell: bash
         run: |

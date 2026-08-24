@@ -72,10 +72,6 @@ _RULE = "playwright-service-flag"
 _ENV_TEMPLATE_REL = "templates/playwright.env.j2"  # nocheck: role-file-spot
 _ENV_KEY_LHS_RE = re.compile(r"^([A-Z_][A-Z0-9_]*)\s*=", re.MULTILINE)
 
-# SPOT-owned services: the provider's own spec parameterises
-# one assertion per consumer via *_TARGET_ROLES_JSON, so consumer roles
-# declare the service in `meta/services.yml` for inventory completeness
-# but legitimately do NOT render `<NAME>_SERVICE_ENABLED=` in their env.
 _SPOT_OWNED_SERVICES: frozenset[str] = frozenset({"dashboard", "prometheus"})
 
 
@@ -151,10 +147,6 @@ class TestPlaywrightEnvServicesMatch(unittest.TestCase):
                     continue
                 if service_key in exempt:
                     continue
-                # SPOT-owned services are globally exempt; the
-                # provider spec parameterises one assertion per
-                # consumer via the *_TARGET_ROLES_JSON manifest, so
-                # the per-role env flag is intentionally not rendered.
                 if (
                     service_key in _SPOT_OWNED_SERVICES
                     and role_name != f"web-app-{service_key}"

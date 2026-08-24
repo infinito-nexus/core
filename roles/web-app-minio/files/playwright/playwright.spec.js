@@ -1,7 +1,8 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, runBiberFlow, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, runBiberFlow, runGuestFlow } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 function parseStsAssumeRoleResponse(body) {
@@ -15,7 +16,7 @@ function parseStsAssumeRoleResponse(body) {
 }
 
 async function minioConsoleFormLogin(page, baseUrl, username, password) {
-  await page.goto(`${baseUrl}/login`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${baseUrl}/login`, { waitUntil: "domcontentloaded" });
 
   const usernameField = page
     .locator("input[name='accessKey'], input[name='username'], input#accessKey, input#username")
@@ -27,14 +28,14 @@ async function minioConsoleFormLogin(page, baseUrl, username, password) {
     .locator("button[type='submit'], input[type='submit']")
     .first();
 
-  await expect(usernameField, "expected MinIO Console login form").toBeVisible({ timeout: 60_000 });
+  await expect(usernameField, "expected MinIO Console login form").toBeVisible({ timeout: resolveTimeout(60_000) });
   await usernameField.fill(username);
   await passwordField.fill(password);
-  await submitButton.click();
+  await submitButton.click({ timeout: resolveTimeout(30_000) });
 }
 
 async function minioConsoleLogout(page, baseUrl) {
-  await page.goto(`${baseUrl}/api/v1/logout`, { waitUntil: "commit" }).catch(() => {});
+  await gotoOnion(page, `${baseUrl}/api/v1/logout`, { waitUntil: "commit" }).catch(() => {});
   await page.context().clearCookies();
 }
 
@@ -60,7 +61,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("minio console serves canonical domain over HTTPS", async ({ page }) => {
-  const response = await page.goto(`${consoleBaseUrl}/`);
+  const response = await gotoOnion(page, `${consoleBaseUrl}/`);
   expect(response, "Expected MinIO Console landing response").toBeTruthy();
   expect(response.status(), "Expected MinIO Console landing response to be successful").toBeLessThan(400);
 
@@ -70,7 +71,7 @@ test("minio console serves canonical domain over HTTPS", async ({ page }) => {
     `Expected canonical domain "${canonicalDomain}" (from applications lookup) to back the MinIO Console URL`
   ).toBe(true);
 
-  await expect(page.locator("body")).toBeVisible({ timeout: 60_000 });
+  await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
 });
 
 test("administrator: OIDC integrated login path via STS AssumeRoleWithWebIdentity", async ({ request }) => {
@@ -102,7 +103,8 @@ test("administrator: OIDC integrated login path via STS AssumeRoleWithWebIdentit
       username: adminUsername,
       password: adminPassword,
       scope: "openid profile email groups"
-    }
+    },
+    timeout: resolveTimeout(30_000),
   });
   expect(tokenResponse.status(), "Keycloak token exchange MUST succeed").toBeLessThan(400);
   const tokenJson = await tokenResponse.json();
@@ -114,7 +116,8 @@ test("administrator: OIDC integrated login path via STS AssumeRoleWithWebIdentit
       Version: "2011-06-15",
       WebIdentityToken: tokenJson.id_token,
       DurationSeconds: "3600"
-    }
+    },
+    timeout: resolveTimeout(30_000),
   });
   expect(stsResponse.status(), "MinIO STS AssumeRoleWithWebIdentity MUST succeed").toBeLessThan(400);
   const body = await stsResponse.text();
@@ -130,16 +133,16 @@ test("administrator: MinIO Console form login under LDAP variant", async ({ page
 
   await minioConsoleFormLogin(page, consoleBaseUrl, adminUsername, adminPassword);
 
-  await expect(page.locator("body")).toContainText(/object browser|buckets|access keys|monitoring/i, { timeout: 60_000 });
+  await expect(page.locator("body")).toContainText(/object browser|buckets|access keys|monitoring/i, { timeout: resolveTimeout(60_000) });
 
   await minioConsoleLogout(page, consoleBaseUrl);
 
-  await page.goto(`${consoleBaseUrl}/login`);
+  await gotoOnion(page, `${consoleBaseUrl}/login`);
   await expect(
     page
       .locator("input[name='accessKey'], input[name='username'], input#accessKey, input#username")
       .first()
-  ).toBeVisible({ timeout: 60_000 });
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
 });
 
 // Persona scenarios.

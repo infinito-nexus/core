@@ -1,10 +1,11 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
 exports.register = function (shared) {
   test("litellm chat: a gateway model answers a chat completion via OpenWebUI", async ({ page }) => {
     skipUnlessServiceEnabled("litellm");
-    test.setTimeout(120_000);
+    test.setTimeout(resolveTimeout(120_000));
 
     await shared.signInViaDashboardOidc(
       page,

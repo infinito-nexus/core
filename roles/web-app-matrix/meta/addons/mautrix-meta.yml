@@ -11,4 +11,4 @@ config:
   bridge_name: "meta"
   database_username: "mautrix_meta_bridge"
   database_name: "mautrix_meta_bridge"
-  database_password: "{{ lookup('config', 'web-app-matrix', 'credentials.mautrix_meta_bridge_database_password') }}"
+  database_password: "{{ lookup('config', 'web-app-matrix', 'secrets.credentials.mautrix_meta_bridge_database_password', '') }}"

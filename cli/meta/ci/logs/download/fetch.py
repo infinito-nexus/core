@@ -25,7 +25,13 @@ def download_log(
 ) -> tuple[str, bool]:
     jitter(delay_max)
     safe = _SAFE.sub("-", job["name"]).strip("-")
-    proc = gh_proc(["api", f"repos/{owner}/{repo}/actions/jobs/{job['id']}/logs"])
+    proc = gh_proc(
+        [
+            "api",
+            "--allow-escape-sequences",
+            f"repos/{owner}/{repo}/actions/jobs/{job['id']}/logs",
+        ]
+    )
     if proc.returncode != 0 or not proc.stdout:
         return job["name"], False
     (dest / f"{job['id']}__{safe}.log").write_text(proc.stdout, encoding="utf-8")
@@ -37,7 +43,6 @@ def download_artifact(
 ) -> tuple[str, bool]:
     jitter(delay_max)
     target = dest / name
-    # gh refuses to extract over existing files, so clear the dir for re-runs.
     shutil.rmtree(target, ignore_errors=True)
     proc = gh_proc(
         ["run", "download", run, "-R", f"{owner}/{repo}", "-n", name, "-D", str(target)]

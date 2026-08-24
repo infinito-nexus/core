@@ -15,6 +15,12 @@ literal app argument when present, otherwise from the file's
 import unittest
 from collections.abc import Iterable, Mapping
 
+from utils.manager.credential_key import (
+    CREDENTIALS_KEY,
+    OVERRIDE_SECTION,
+    SECRETS_KEY,
+)
+
 from ._scan import (
     LookupMatch,
     expr_to_wildcard_path,
@@ -81,15 +87,20 @@ class TestWildcardPaths(unittest.TestCase):
             sub = wildcard_path.split(".", 1)[1]
             if match_wildcard_path({"_root": ctx.user_defaults}, "_root." + sub):
                 return True
-        if wildcard_path.startswith("credentials."):
-            sub = wildcard_path.split(".", 1)[1]
-            creds_cfg = cfg.get("credentials")
+        if wildcard_path.startswith(f"{OVERRIDE_SECTION}."):
+            sub = wildcard_path.split(f"{OVERRIDE_SECTION}.", 1)[1]
+            secrets_cfg = cfg.get(SECRETS_KEY)
+            creds_cfg = (
+                secrets_cfg.get(CREDENTIALS_KEY)
+                if isinstance(secrets_cfg, Mapping)
+                else None
+            )
             if isinstance(creds_cfg, Mapping) and match_wildcard_segment(
                 creds_cfg, sub
             ):
                 return True
             schema = ctx.role_schemas.get(role_id, {})
-            creds = schema.get("credentials") if isinstance(schema, Mapping) else None
+            creds = schema.get(CREDENTIALS_KEY) if isinstance(schema, Mapping) else None
             if isinstance(creds, Mapping) and match_wildcard_segment(creds, sub):
                 return True
         return bool(

@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
-const { decodeDotenvQuotedValue, normalizeBaseUrl } = require("./personas");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, gotoOnion } = require("./personas");
 
 const joomlaBaseUrl = normalizeBaseUrl(process.env.JOOMLA_BASE_URL);
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
@@ -13,18 +14,18 @@ async function performJoomlaAdminFormLogin(page, baseUrl, username, password) {
   // `?fallback=local` query short-circuits the plg_system_keycloak
   // redirect so the operator has an emergency hatch when Keycloak is
   // unavailable (per the documented Modus 3 contract).
-  await page.goto(`${baseUrl}/administrator?fallback=local`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${baseUrl}/administrator?fallback=local`, { waitUntil: "domcontentloaded" });
 
   const usernameField = page.locator("input[name='username']");
   const passwordField = page.locator("input[name='passwd']");
 
-  await usernameField.waitFor({ state: "visible", timeout: 60_000 });
+  await usernameField.waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
   await usernameField.fill(username);
   await passwordField.fill(password);
 
   await Promise.all([
     page.waitForLoadState("domcontentloaded"),
-    page.locator("button[type='submit'], input[type='submit']").first().click(),
+    page.locator("button[type='submit'], input[type='submit']").first().click({ timeout: resolveTimeout(30_000) }),
   ]);
 }
 
@@ -48,5 +49,5 @@ test("OIDC: /administrator?fallback=local hatch bypasses Keycloak and accepts th
   const controlPanelMarker = page
     .locator("body.com_cpanel, #sidebarmenu, nav[aria-label='Main menu'], a[href*='option=com_cpanel']")
     .first();
-  await controlPanelMarker.waitFor({ state: "visible", timeout: 60_000 });
+  await controlPanelMarker.waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
 });

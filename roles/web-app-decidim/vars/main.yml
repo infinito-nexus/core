@@ -1,12 +1,13 @@
 ---
 application_id: "web-app-decidim"
 domain: "{{ lookup('domain', application_id) }}"
+swarm_stack_converge_retries: 600
 
 DECIDIM_VERSION: "{{ lookup('config', application_id, 'services.decidim.version') }}"
 DECIDIM_IMAGE: "{{ lookup('config', application_id, 'services.decidim.image') }}"
 DECIDIM_CONTAINER: "{{ lookup('config', application_id, 'services.decidim.name') }}"
 
-DECIDIM_SECRET_KEY_BASE: "{{ lookup('config', application_id, 'credentials.secret_key_base') }}"
+DECIDIM_SECRET_KEY_BASE: "{{ lookup('config', application_id, 'secrets.credentials.secret_key_base') }}"
 
 DECIDIM_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 DECIDIM_OIDC_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
@@ -21,7 +22,7 @@ DECIDIM_ORGANIZATION_NAME: "{{ defaults_service_provider.platform.titel }}"
 DECIDIM_PATCH_SCRIPT_FILE: "patch.py"
 DECIDIM_PATCH_SCRIPT_HOST_ABS: "{{ [ lookup('container', application_id, 'directories.volumes'), DECIDIM_PATCH_SCRIPT_FILE ] | path_join }}"
 DECIDIM_PATCH_SCRIPT_HOST_REL: "volumes/{{ DECIDIM_PATCH_SCRIPT_FILE }}"
-DECIDIM_PATCH_SCRIPT_DOCKER: "/tmp/patch.py"
+DECIDIM_PATCH_SCRIPT_DOCKER: "/tmp/{{ DECIDIM_PATCH_SCRIPT_FILE }}"
 
 DECIDIM_PATCH_RUBY_DIR: "ruby"
 DECIDIM_PATCH_RUBY_HOST_ABS: "{{ [ lookup('container', application_id, 'directories.volumes'), DECIDIM_PATCH_RUBY_DIR ] | path_join }}"

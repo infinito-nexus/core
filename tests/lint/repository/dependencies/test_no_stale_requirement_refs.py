@@ -46,16 +46,8 @@ from utils.cache.files import iter_project_files, read_text
 
 from . import PROJECT_ROOT
 
-# A requirement filename is a 3-digit prefix, dash, slug, .md.
-# Matches both ``docs/requirements/006-foo.md`` and the relative
-# form ``../requirements/006-foo.md`` that nested docs use.
 _REQ_REF_RE = re.compile(r"requirements/(\d{3}-[A-Za-z0-9_-]+\.md)")
 
-# Conventional TODO marker: uppercase "TODO" as a standalone word.
-# Matches ``# TODO``, ``// TODO``, ``<!-- TODO``, ``[TODO]:``, … —
-# anything where the literal token surfaces. Lower-case ``todo`` /
-# ``Todo`` is intentionally NOT accepted: the marker MUST be visible
-# at a glance.
 _TODO_RE = re.compile(r"\bTODO\b")
 
 _SCAN_EXTENSIONS = (
@@ -97,8 +89,6 @@ class TestNoStaleRequirementRefs(unittest.TestCase):
         offenders: list[str] = []
 
         for path in sorted(iter_project_files(extensions=_SCAN_EXTENSIONS)):
-            # The lint test itself contains the pattern as documentation
-            # of the rule it enforces; skip it to avoid false positives.
             if Path(path).resolve() == _THIS_FILE:
                 continue
             if _is_inside_requirements_dir(path):

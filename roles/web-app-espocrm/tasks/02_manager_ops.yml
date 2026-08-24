@@ -1,19 +1,19 @@
 ---
 - name: "🚀 Deploy '{{ ESPOCRM_ENTRYPOINT_SCRIPT_HOST_ABS }}'"
   copy:
-    src: "{{ ESPOCRM_ENTRYPOINT_SCRIPT_FILE }}"
+    src: "shell/{{ ESPOCRM_ENTRYPOINT_SCRIPT_FILE }}"
     dest: "{{ ESPOCRM_ENTRYPOINT_SCRIPT_HOST_ABS }}"
   notify:
-    - compose up
-    - compose build
+    - compose-up
+    - compose-build
 
 - name: "🚀 Deploy '{{ ESPOCRM_SCRIPT_SEED_HOST_ABS }}'"
   copy:
-    src: "{{ ESPOCRM_SCRIPT_SEED_FILE }}"
+    src: "php/{{ ESPOCRM_SCRIPT_SEED_FILE }}"
     dest: "{{ ESPOCRM_SCRIPT_SEED_HOST_ABS }}"
   notify:
-    - compose up
-    - compose build
+    - compose-up
+    - compose-build
 
 - name: "🐳 Docker Compose Up for '{{ application_id }}'"
   meta: flush_handlers

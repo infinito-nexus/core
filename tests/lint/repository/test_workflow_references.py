@@ -24,7 +24,7 @@ import unittest
 from pathlib import Path
 
 from utils.annotations.suppress import is_suppressed_in_head
-from utils.cache.files import iter_project_files, read_text
+from utils.cache.files import iter_non_ignored_files, read_text
 
 from . import PROJECT_ROOT
 
@@ -42,7 +42,7 @@ def missing_references() -> list[str]:
     """Every `<file>:<line>: <workflow>` whose workflow is not on disk."""
     known = {entry.name for entry in _WORKFLOW_DIR.iterdir() if entry.is_file()}
     offenders: list[str] = []
-    for path_str in iter_project_files():
+    for path_str in iter_non_ignored_files():
         path = Path(path_str)
         if not _scanned(path):
             continue

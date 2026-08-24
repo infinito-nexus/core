@@ -16,6 +16,6 @@
     owner: root
     group: root
     mode: "0644"
-  notify: sshd restart
+  notify: sshd-restart
 
 - include_tasks: utils/once/flag.yml

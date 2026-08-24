@@ -1,0 +1,8 @@
+---
+nss:
+  lifecycle: beta
+  required_by:
+    compose:
+      roles: [sys-hostname, sys-stk-front-proxy]
+    swarm:
+      roles: [sys-hostname, sys-stk-front-proxy]

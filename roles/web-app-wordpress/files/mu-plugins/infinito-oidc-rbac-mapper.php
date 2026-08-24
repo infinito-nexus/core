@@ -1,4 +1,5 @@
 <?php
+// nocheck: mirrored-unit-test - registers add_action hooks at load and maps roles through WordPress user objects the core supplies
 /**
  * Plugin Name: Infinito.Nexus OIDC RBAC Role Mapper
  * Description: Maps the Keycloak `groups` claim delivered by
@@ -170,7 +171,6 @@ function infinito_rbac_apply_multisite($user, $parsed) {
     $sites = function_exists('get_sites') ? get_sites() : array();
     foreach ($sites as $site) {
         $blog_id = (int) $site->blog_id;
-        // Resolve the tenant key for this site from its canonical domain.
         $tenant = strtolower(trim($site->domain));
         $claimed_roles = isset($parsed['per_tenant'][$tenant])
             ? $parsed['per_tenant'][$tenant]
@@ -198,8 +198,6 @@ function infinito_rbac_apply_multisite($user, $parsed) {
                     function ($id) use ($blog_id) { return $id !== $blog_id; }
                 ));
             } elseif (is_user_member_of_blog($user_id, $blog_id)) {
-                // Member by some other channel; per the fallback rule,
-                // set their role to subscriber but do NOT remove them.
                 switch_to_blog($blog_id);
                 $user_for_blog = new WP_User($user_id);
                 $user_for_blog->set_role('subscriber');

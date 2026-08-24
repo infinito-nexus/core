@@ -94,7 +94,14 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+
+# nocheck: sso-variant-tor — PeerTube distributes over WebRTC, which Tor does not carry, so an onion instance loses the feature the app exists for; and its OIDC plugin accepts a plaintext issuer only through a sed over vendored dist code
 # nocheck: dynamic-flag
+# nocheck: playwright-service-flag — the role never joins the onion topology, so no persona surface can assert it
+tor:
+  bond: 0.5
+  enabled: false
+  shared: false # nocheck: dynamic-flag
 # nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
 container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
   bond: 1

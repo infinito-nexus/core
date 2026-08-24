@@ -37,8 +37,6 @@ def _enabled_expr(addon_file) -> str:
         spec = None
     if isinstance(spec, dict) and "enabled" in spec:
         return str(spec["enabled"])
-    # Fallback for unquoted-Jinja files that fail YAML parsing: grab the raw
-    # `enabled:` line.
     match = re.search(r"^enabled:\s*(.+)$", text, re.MULTILINE)
     return match.group(1) if match else ""
 

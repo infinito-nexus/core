@@ -230,26 +230,6 @@ def get_role_test_skips(role: PathLike, *, role_name: str | None = None) -> list
     return [str(m) for m in raw]
 
 
-def get_role_variant_bundle_size(
-    role: PathLike, *, role_name: str | None = None
-) -> int | None:
-    """Return the role's ``variant_bundle_size`` from ``meta/tests.yml`` (the
-    per-role cap on variants per compose CI job), or ``None`` when absent."""
-    role_dir, name = _resolve_role(role, role_name)
-    tests = _read_meta_tests(role_dir)
-    if tests is None:
-        return None
-    raw = tests.get("variant_bundle_size")
-    if raw is None:
-        return None
-    if not isinstance(raw, int) or isinstance(raw, bool) or raw < 1:
-        raise MetaServicesShapeError(
-            f"Invalid variant_bundle_size in meta/tests.yml for role "
-            f"'{name}': {raw!r} (expected integer >= 1)."
-        )
-    return raw
-
-
 def get_role_placement(role: PathLike, *, role_name: str | None = None) -> str | None:
     """Return the role's ``placement`` string (or ``None`` when absent)."""
     role_dir, name = _resolve_role(role, role_name)

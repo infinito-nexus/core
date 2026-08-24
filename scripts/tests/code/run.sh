@@ -28,7 +28,7 @@ _suite_dir="tests/${INFINITO_TEST_TYPE}"                     # nocheck: makefile
 _junit_report="build/test-reports/${INFINITO_TEST_TYPE}.xml" # nocheck: makefile-supplied
 if "${PYTHON}" -c 'import pytest, xdist' >/dev/null 2>&1; then
 	# Exception: consider_namespace_packages + importlib import mode are
-	# required for hyphenated tests/unit/roles/<role>/ dirs; pytest's default
+	# required for hyphenated tests/unit/python/roles/<role>/ dirs; pytest's default
 	# identifier walk-up collapses every role's filter_plugins/files package
 	# onto one top-level name and cross-imports the wrong module.
 	# python_functions= pins collection to unittest-style TestCase methods,

@@ -1,5 +1,5 @@
 ---
-- name: collect systemd unit files
+- name: 🔍 collect systemd unit files
   shell: |
     shopt -s nullglob
     files=({{ DIR_SYSTEM_SERVICE }}*.service {{ DIR_SYSTEM_SERVICE }}*.timer)
@@ -11,10 +11,10 @@
   failed_when: false
   become: true
   listen:
-    - reload system daemon
-    - reexec systemd manager
+    - reload-system-daemon
+    - reexec-systemd-manager
 
-- name: validate systemd units
+- name: ✅ validate systemd units
   shell: |
     systemd-analyze verify {{ _unit_files.stdout_lines | join(' ') }}
   register: _verify_units
@@ -23,28 +23,27 @@
   become: true
   when: _unit_files.stdout | length > 0
   listen:
-    - reload system daemon
-    - reexec systemd manager
+    - reload-system-daemon
+    - reexec-systemd-manager
 
-- name: show merged manager config
+- name: 🐛 show merged manager config
   command: systemd-analyze cat-config systemd/system.conf
   register: _catcfg
   changed_when: false
   become: true
   listen:
-    - reload system daemon
-    - reexec systemd manager
+    - reload-system-daemon
+    - reexec-systemd-manager
 
-- name: "reload system daemon"
+- name: "♻️ reload system daemon"
   ansible.builtin.systemd:
     daemon_reload: true
   become: true
-  listen: reload system daemon
+  listen: reload-system-daemon
 
-- name: reexec systemd manager
-  # daemon-reexec terminates PID-1-systemd containers; effect applies on next boot.
+- name: 🔄 reexec systemd manager
   ansible.builtin.systemd:
     daemon_reexec: true
   become: true
-  listen: reexec systemd manager
+  listen: reexec-systemd-manager
   when: not (DOCKER_IN_CONTAINER | bool)

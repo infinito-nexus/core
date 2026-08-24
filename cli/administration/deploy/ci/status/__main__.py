@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 import sys
 
-from cli.administration.deploy.ci import runs
+from cli.administration.deploy.ci import gh, runs
 
 
 def _build_rows(
@@ -87,12 +87,12 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.url:
         jobs = runs.fetch_jobs(
-            runs.run_id_from_url(args.url), repo=runs.slug_from_url(args.url)
+            gh.run_id_from_url(args.url), repo=gh.slug_from_url(args.url)
         )
         source = args.url
     else:
-        branch = runs.current_branch()
-        repo = runs.resolve_repo()
+        branch = gh.current_branch()
+        repo = gh.resolve_repo()
         run = runs.find_last_deploy_run(branch, repo=repo)
         if run is None:
             print(

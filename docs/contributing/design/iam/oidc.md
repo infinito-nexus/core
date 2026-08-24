@@ -7,13 +7,19 @@ For LDAP-side details see [ldap.md](ldap.md).
 
 ## Variable Tree 🌳
 
+The `OIDC` tree is a lazy group_var: it resolves in the consuming role's
+context, so the issuer family-aligns to that consumer (clearnet page →
+clearnet issuer, onion page → onion issuer). Inventory overrides therefore
+live under `OIDC_OVERRIDE:` — an inventory-level `OIDC:` block would shadow
+the lazy resolution and is rejected by a constructor assert.
+
 The keys consumers care about:
 
 | Key | Meaning |
 |---|---|
 | `OIDC.URL` | Base URL of the Keycloak instance |
 | `OIDC.CLIENT.ID` | Client identifier, defaults to `SOFTWARE_DOMAIN` |
-| `OIDC.CLIENT.SECRET` | Client secret, MUST come from the inventory |
+| `OIDC.CLIENT.SECRET` | Client secret, MUST come from the inventory (`OIDC_OVERRIDE.CLIENT.SECRET`) |
 | `OIDC.CLIENT.REALM` | Realm the client is registered in |
 | `OIDC.CLIENT.ISSUER_URL` | Issuer URL, equal to discovery `issuer` |
 | `OIDC.CLIENT.DISCOVERY_DOCUMENT` | `.well-known/openid-configuration` URL |

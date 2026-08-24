@@ -18,6 +18,7 @@ flowchart LR
         dep_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_baserow["web-app-baserow 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_homeassistant["web-app-homeassistant 🐳🐝"]
@@ -44,6 +45,7 @@ flowchart LR
         svc_litellm["litellm"]
         svc_email["email"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
         svc_container_backup["container_backup"]
         svc_homeassistant["homeassistant"]
         svc_baserow["baserow"]
@@ -54,6 +56,7 @@ flowchart LR
     dep_svc_ai_litellm -. "0..1" .-> svc_litellm
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_baserow -. "0..1" .-> svc_baserow
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_homeassistant -. "0..1" .-> svc_homeassistant
@@ -67,7 +70,7 @@ flowchart LR
     svc_sso -. "0..1" .-> dpt_web_app_nextcloud
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 

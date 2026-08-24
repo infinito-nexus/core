@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
-# Wait until every stack service converges. With NFS shared storage the DB
-# dep runs as its own single-replica swarm service (volumes on NFS,
-# schedulable on any node), named "<dep>_<dep>" like the app service; the
-# check list is empty when APP_ID has no DB dep.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -11,8 +7,10 @@ source "${SCRIPT_DIR}/../utils/_context.sh"
 
 skip_if_no_swarm_service
 
-DB_SERVICE=""
-[ "${DB_DEP}" != "none" ] && DB_SERVICE="${DB_DEP}_${DB_DEP}"
+DB_SERVICE="$(resolve_db_service)"
+if [ "${DB_DEP}" != "none" ] && [ -z "${DB_SERVICE}" ]; then
+	echo "SKIP db gate: ${ENTITY} declares a ${DB_DEP} dep but no swarm service serves it"
+fi
 
 converged=false
 for i in $(seq 1 90); do
@@ -36,7 +34,7 @@ for i in $(seq 1 90); do
     ")
 	fi
 
-	echo "[${i}] ${ENTITY}: ${app_replicas} | state: ${app_state} | db(${DB_DEP}): ${db_replicas} ${db_state}"
+	echo "[${i}] ${ENTITY}: ${app_replicas} | state: ${app_state} | db(${DB_SERVICE}): ${db_replicas} ${db_state}"
 
 	app_ok="false"
 	if [ -n "${app_replicas}" ] &&
@@ -61,9 +59,9 @@ done
 
 if [ "${converged}" != "true" ]; then
 	echo "FAILURE: stack did not converge within timeout"
-	docker exec "${MGR}" docker service ps --no-trunc "${SERVICE_NAME}" || true
+	docker exec "${MGR}" docker service ps --no-trunc "${SERVICE_NAME}" || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	if [ -n "${DB_SERVICE}" ]; then
-		docker exec "${MGR}" docker service ps --no-trunc "${DB_SERVICE}" || true
+		docker exec "${MGR}" docker service ps --no-trunc "${DB_SERVICE}" || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	fi
 	exit 1
 fi

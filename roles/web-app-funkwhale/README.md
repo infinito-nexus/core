@@ -20,6 +20,7 @@ flowchart LR
         dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
         dep_svc_db_redis["svc-db-redis 🐳🐝"]
         dep_svc_db_typesense["svc-db-typesense 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
@@ -32,6 +33,7 @@ flowchart LR
     subgraph role [web-app-funkwhale 🐳🐝]
         svc_funkwhale["funkwhale"]
         svc_api["api"]
+        svc_migrate["migrate"]
         svc_typesense["typesense"]
         svc_logout["logout"]
         svc_ldap["ldap"]
@@ -45,6 +47,7 @@ flowchart LR
         svc_sso["sso"]
         svc_css["css"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
         svc_container_backup["container_backup"]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
@@ -52,6 +55,7 @@ flowchart LR
     dep_svc_db_postgres -. "0..1" .-> svc_postgres
     dep_svc_db_redis -. "0..1" .-> svc_redis
     dep_svc_db_typesense -. "0..1" .-> svc_typesense
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
@@ -62,7 +66,7 @@ flowchart LR
     dep_web_svc_logout -. "0..1" .-> svc_logout
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
@@ -109,6 +113,18 @@ docker run --rm -it \
       --password-file "$INVENTORY/.password" \
       --diff -vv'
 ```
+
+## Persona contract opt-outs
+
+[`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true` in every matrix variant, because the shared persona helper cannot drive this role's sign-in in any of them. Three independent reasons, each sufficient on its own:
+
+1. The oauth2 ACL in [`meta/services.yml`](./meta/services.yml) blacklists only `/login`, and `sys-svc-proxy` renders a blacklist as *expose everything by default, then protect the listed paths*. The helper lands on `/`, which is public, so the proxy never intercepts it and the Keycloak round trip never starts.
+2. Funkwhale renders its sign-in control as a bare `div`. The helper matches `getByRole("link"|"button")`, which cannot select it, so the in-app fallback misses as well.
+3. Application-level authentication is Funkwhale's own LDAP form ([`templates/env.j2`](./templates/env.j2), `LDAP_ENABLED`), not OIDC. Even a completed Keycloak round trip at the proxy leaves the Funkwhale session anonymous, so no authenticated surface appears.
+
+Earlier revisions gated these blocks on `services.sso.enabled`, which unblocked the personas in exactly the variant where the chain still does not work.
+
+The journey itself is not dropped. [`files/playwright/test-native-login.js`](./files/playwright/test-native-login.js) drives both personas through Funkwhale's own chain: `/login`, the Keycloak round trip whenever the proxy gates that route, then Funkwhale's own sign-in form, an authenticated-surface assertion, and sign-out back to the anonymous state. It is skipped when `services.ldap.enabled` is false, because no persona holds a Funkwhale account in that variant. The `guest` persona and the baseline assertions run unconditionally.
 
 ## Credits
 

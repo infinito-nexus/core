@@ -74,7 +74,6 @@ class TestSeaweedfsConsumerPlaywright(unittest.TestCase):
             role_name = role_dir.name
             if not role_name.startswith("web-app-"):
                 continue
-            # The provider role itself owns the cross-consumer bucket spec.
             if role_name == "web-app-seaweedfs":
                 continue
 
@@ -82,9 +81,6 @@ class TestSeaweedfsConsumerPlaywright(unittest.TestCase):
             if not services_file.is_file():
                 continue
 
-            # Only Playwright-enabled roles (those with a rendered env template)
-            # can actually run the scenario; a consumer without one is out of
-            # scope here.
             if not (role_dir / _ENV_TEMPLATE_REL).is_file():
                 continue
 

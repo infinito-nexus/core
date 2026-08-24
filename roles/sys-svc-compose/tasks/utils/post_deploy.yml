@@ -10,16 +10,17 @@
   changed_when: false
   until: (_app_db_health.stdout | trim) == 'healthy'
   when:
-    - DEPLOYMENT_MODE == 'compose'
+    - (compose_mode_force | default('') or DEPLOYMENT_MODE) == 'compose'
     - lookup('database', application_id, 'enabled') | bool
 
 - name: "⏳ Wait until swarm tasks of '{{ application_id | get_entity_name }}' are running"
-  ansible.builtin.script: "{{ lookup('path_absolute', 'roles/sys-svc-compose/files/swarm/stack_ready.sh') }}"
+  ansible.builtin.script: "{{ lookup('path_absolute', 'roles/sys-svc-compose/files/shell/swarm/stack_ready.sh') }}"
   environment:
     STACK: "{{ application_id | get_entity_name }}"
+    FATAL_GRACE: "{{ swarm_stack_fatal_grace }}"
   register: _swarm_tasks_ready
-  retries: 150
+  retries: "{{ swarm_stack_converge_retries }}"
   delay: 2
   changed_when: false
-  until: _swarm_tasks_ready is succeeded
+  until: _swarm_tasks_ready.rc in [0, 2]
   when: (compose_mode_force | default('') or DEPLOYMENT_MODE) == 'swarm'

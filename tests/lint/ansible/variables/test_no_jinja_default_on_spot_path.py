@@ -147,7 +147,6 @@ def _scan_file(
     masked = _RAW_BLOCK_RE.sub(_mask, text)
     text_lines = text.splitlines()
 
-    # Precompute newline offsets so we can resolve an offset to a 1-based line.
     line_starts: list[int] = [0]
     for i, ch in enumerate(masked):
         if ch == "\n":
@@ -170,20 +169,12 @@ def _scan_file(
             target = _find_default_target(expr, m_default.start())
             if target is None:
                 continue
-            # Strip a single layer of outer parentheses so
-            # ``(FOO.BAR) | default(..)`` is still treated as a pure path
-            # access. Deeper nesting / mixed operators are intentionally
-            # left alone below by the trailing-text guard.
             if target.startswith("(") and target.endswith(")"):
                 target = target[1:-1].strip()
 
             m_path = _LEADING_PATH_RE.match(target)
             if not m_path:
                 continue
-            # The leading dotted path must be the ENTIRE target expression.
-            # Subscripts ``[...]``, function calls ``(...)``, operators,
-            # and inline conditionals all leave trailing text and disqualify
-            # the match — we cannot reason about non-static access shapes.
             if target[m_path.end() :].strip():
                 continue
 

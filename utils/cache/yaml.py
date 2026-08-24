@@ -47,8 +47,11 @@ def _construct_compose_merge_tag(loader, node):
     return loader.construct_scalar(node)
 
 
+_Loader = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
+
 for _tag in ("!override", "!reset"):
     yaml.SafeLoader.add_constructor(_tag, _construct_compose_merge_tag)
+    _Loader.add_constructor(_tag, _construct_compose_merge_tag)
 
 
 def _construct_vault_tag(loader, node):
@@ -91,7 +94,7 @@ def _load_docs(path) -> list[Any]:
         _CACHE.pop(stale_key, None)
 
     with p.open("r", encoding="utf-8") as f:
-        docs = list(yaml.safe_load_all(f))  # nocheck: direct-yaml
+        docs = list(yaml.load_all(f, Loader=_Loader))  # nocheck: direct-yaml
     _CACHE[sig] = docs
     return docs
 
@@ -209,7 +212,10 @@ def load_yaml_str(text: str) -> Any:
     the helper exists for symmetry with :func:`dump_yaml_str` so
     callers never have to ``import yaml`` directly.
     """
-    return yaml.safe_load(text)  # nocheck: direct-yaml — this module IS the cache.
+    return yaml.load(
+        text,
+        Loader=_Loader,  # noqa: S506 — _Loader is CSafeLoader/SafeLoader
+    )  # nocheck: direct-yaml — this module IS the cache.
 
 
 def load_yaml_all(path, *, default_if_missing: Any = _MISSING) -> list:
@@ -237,7 +243,7 @@ def load_yaml_all_str(text: str) -> list:
     ``import yaml`` for the parse.
     """
     # This module IS the cache; calling itself would recurse.
-    return list(yaml.safe_load_all(text))  # nocheck: direct-yaml
+    return list(yaml.load_all(text, Loader=_Loader))  # nocheck: direct-yaml
 
 
 def _drop_path(path) -> None:

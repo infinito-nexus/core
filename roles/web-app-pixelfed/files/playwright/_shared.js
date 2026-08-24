@@ -5,9 +5,10 @@
 // swap, ValidationException → Laravel `back()` → Keycloak Referer → broken
 // SSO callback). `playwright.spec.js` wires `beforeAll`/`afterAll`/`beforeEach`
 // and `require()`s one test module per test scenario.
+const { resolveTimeout } = require("./timeouts");
 
 const { expect, request } = require("@playwright/test");
-const { decodeDotenvQuotedValue, findFirstVisibleCandidate, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, findFirstVisibleCandidate, gotoOnion, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
 const { isServiceEnabled } = require("./service-gating");
 
 const oidcIssuerUrl = decodeDotenvQuotedValue(process.env.OIDC_ISSUER_URL);
@@ -42,7 +43,7 @@ const loginScenarios = [
   }
 ];
 
-async function waitForFirstVisible(page, locators, timeout = 60_000, errorMessage = "Timed out waiting for a visible locator") {
+async function waitForFirstVisible(page, locators, timeout = resolveTimeout(60_000), errorMessage = "Timed out waiting for a visible locator") {
   const deadline = Date.now() + timeout;
 
   while (Date.now() < deadline) {
@@ -54,7 +55,7 @@ async function waitForFirstVisible(page, locators, timeout = 60_000, errorMessag
       }
     }
 
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(resolveTimeout(500));
   }
 
   throw new Error(errorMessage);
@@ -63,7 +64,7 @@ async function waitForFirstVisible(page, locators, timeout = 60_000, errorMessag
 async function waitForVisibleCandidate(
   page,
   candidates,
-  timeout = 60_000,
+  timeout = resolveTimeout(60_000),
   errorMessage = "Timed out waiting for a visible candidate"
 ) {
   const deadline = Date.now() + timeout;
@@ -75,7 +76,7 @@ async function waitForVisibleCandidate(
       return visibleCandidate;
     }
 
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(resolveTimeout(500));
   }
 
   throw new Error(errorMessage);
@@ -207,7 +208,7 @@ async function loginToPixelfed(page, loginScenario) {
   const expectedOidcAuthUrl = `${oidcIssuerUrl.replace(/\/$/, "")}/protocol/openid-connect/auth`;
   const expectedPixelfedBaseUrl = pixelfedBaseUrl.replace(/\/$/, "");
 
-  await page.goto(`${expectedPixelfedBaseUrl}/`);
+  await gotoOnion(page, `${expectedPixelfedBaseUrl}/`);
 
   if (!page.url().includes(expectedOidcAuthUrl)) {
     let oidcEntry = await waitForVisibleCandidate(
@@ -223,7 +224,7 @@ async function loginToPixelfed(page, loginScenario) {
         20_000,
         `Timed out waiting for the Pixelfed login entry before starting the OIDC flow for ${loginScenario.label}`
       );
-      await loginEntry.locator.click();
+      await loginEntry.locator.click({ timeout: resolveTimeout(30_000) });
       oidcEntry = await waitForVisibleCandidate(
         page,
         getPixelfedOidcEntryCandidates(page),
@@ -232,10 +233,10 @@ async function loginToPixelfed(page, loginScenario) {
       );
     }
 
-    await oidcEntry.locator.click();
+    await oidcEntry.locator.click({ timeout: resolveTimeout(30_000) });
     await expect
       .poll(() => page.url(), {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: `Expected Pixelfed to redirect to Keycloak OIDC for ${loginScenario.label}: ${expectedOidcAuthUrl}`
       })
       .toContain(expectedOidcAuthUrl);
@@ -261,7 +262,7 @@ async function loginToPixelfed(page, loginScenario) {
   if (await rememberMeCheckbox.first().isVisible().catch(() => false)) {
     await rememberMeCheckbox.first().check().catch(() => {});
   } else {
-    await page.getByText(/remember me/i).click({ timeout: 2_000 }).catch(() => {});
+    await page.getByText(/remember me/i).click({ timeout: resolveTimeout(2_000) }).catch(() => {});
   }
 
   const visibleSignInButton = await waitForFirstVisible(
@@ -271,11 +272,11 @@ async function loginToPixelfed(page, loginScenario) {
     `Timed out waiting for the Keycloak sign-in button for ${loginScenario.label}`
   );
 
-  await visibleSignInButton.click();
+  await visibleSignInButton.click({ timeout: resolveTimeout(30_000) });
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `Expected to redirect back to Pixelfed after Keycloak login for ${loginScenario.label}: ${expectedPixelfedBaseUrl}`
     })
     .toMatch(new RegExp(`^${expectedPixelfedBaseUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`));
@@ -312,7 +313,7 @@ async function confirmKeycloakLogoutIfNeeded(page, loginScenario) {
         `Timed out waiting for the Keycloak logout confirmation button for ${loginScenario.label}`
       );
 
-      await confirmButton.locator.click().catch(() => {});
+      await confirmButton.locator.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
       return true;
     }
 
@@ -323,7 +324,7 @@ async function confirmKeycloakLogoutIfNeeded(page, loginScenario) {
       return false;
     }
 
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(resolveTimeout(500));
   }
 
   return false;
@@ -357,7 +358,7 @@ async function logoutFromPixelfed(page, loginScenario) {
     );
   }
 
-  await logoutTrigger.locator.click();
+  await logoutTrigger.locator.click({ timeout: resolveTimeout(30_000) });
 
   await confirmKeycloakLogoutIfNeeded(page, loginScenario).catch(() => false);
 
@@ -382,7 +383,7 @@ async function logoutFromPixelfed(page, loginScenario) {
         return loggedOutStateReached && !pixelfedLogoutVisible;
       },
       {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: `Expected Pixelfed to return to a logged-out state after logout for ${loginScenario.label}`
       }
     )

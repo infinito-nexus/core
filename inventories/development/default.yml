@@ -35,7 +35,7 @@ design:
     colors:
       base: "#FFA500"
 
-OIDC:
+OIDC_OVERRIDE:
   CLIENT:
     SECRET: VERYUNSAFESAMPLEPASSWORD1234
 users:

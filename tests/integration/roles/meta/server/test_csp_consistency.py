@@ -76,7 +76,6 @@ class TestCspConfigurationConsistency(unittest.TestCase):
             if not cfg_file.exists():
                 continue
 
-            # Parse YAML (collect role + file path on error)
             try:
                 cfg = load_yaml_any(cfg_file) or {}
             except yaml.YAMLError as e:
@@ -85,29 +84,26 @@ class TestCspConfigurationConsistency(unittest.TestCase):
 
             csp = cfg.get("server", {}).get("csp")
             if csp is None:
-                continue  # No CSP section, nothing to check
+                continue
 
             if not isinstance(csp, dict):
                 errors.append(
                     f"{role_path.name}: 'csp' must be a dict (found {type(csp).__name__}) in {cfg_file}"
                 )
-                # Can't proceed safely with sub-sections
                 continue
 
-            # ---------- Validate whitelist ----------
             wl = csp.get("whitelist", {})
             if wl is not None and not isinstance(wl, dict):
                 errors.append(
                     f"{role_path.name}: csp.whitelist must be a dict (found {type(wl).__name__}) in {cfg_file}"
                 )
-                wl = {}  # prevent crash; continue to scan other sections
+                wl = {}
             if isinstance(wl, dict):
                 for directive, val in wl.items():
                     if directive not in self.SUPPORTED_DIRECTIVES:
                         errors.append(
                             f"{role_path.name}: whitelist contains unsupported directive '{directive}' ({cfg_file})"
                         )
-                    # val may be str or list[str]
                     if isinstance(val, str):
                         values = [val]
                     elif isinstance(val, list):
@@ -128,7 +124,6 @@ class TestCspConfigurationConsistency(unittest.TestCase):
                                 f"{role_path.name}: whitelist.{directive} entry '{entry}' is not a valid value ({cfg_file})"
                             )
 
-            # ---------- Validate flags ----------
             fl = csp.get("flags", {})
             if fl is not None and not isinstance(fl, dict):
                 errors.append(
@@ -156,7 +151,6 @@ class TestCspConfigurationConsistency(unittest.TestCase):
                                 f"{role_path.name}: flags.{directive}.{flag_name} must be a boolean (found {type(flag_val).__name__}) ({cfg_file})"
                             )
 
-            # ---------- Validate hashes ----------
             hs = csp.get("hashes", {})
             if hs is not None and not isinstance(hs, dict):
                 errors.append(

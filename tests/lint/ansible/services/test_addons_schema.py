@@ -222,7 +222,7 @@ class TestAddonsSchema(unittest.TestCase):
                         errors.append(
                             f"{prefix} config.{key} inlines a literal secret "
                             f"{value!r}; use lookup('config', application_id, "
-                            f"'credentials.<name>') instead (or mark "
+                            f"'secrets.credentials.<name>') instead (or mark "
                             f"'# nocheck: addon-secret' for a non-secret literal). "
                             f"({rel})"
                         )

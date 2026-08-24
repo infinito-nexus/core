@@ -2,7 +2,6 @@
 # Mount path in container: /overrides/ratelimit.conf  (read-only)
 
 rates {
-  {# Optional global defaults for authenticated SMTP senders #}
   authenticated = {
     bucket = [{
       burst = {{ MAILU_RSPAMD_LIMITS_DEFAULTS.BURST | int }};
@@ -10,7 +9,6 @@ rates {
     }];
   }
 
-  {# Per-user limits: require both .limits.rate and .limits.burst #}
   {% for uname, u in lookup('users').items() %}
     {% if (u.limits.rate | default(false) and u.limits.burst | default(false)) %}
   "user={{ u.email }}" = {

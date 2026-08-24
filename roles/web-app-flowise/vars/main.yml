@@ -1,5 +1,6 @@
 ---
 application_id: "web-app-flowise"
+swarm_stack_converge_retries: 600
 domain: "{{ lookup('domain',application_id) }}"
 http_port: "{{ lookup('config', application_id, 'services.flowise.ports.local.http') }}"
 
@@ -13,7 +14,7 @@ FLOWISE_SQLITE_VERSION: "{{ lookup('config', application_id, 'services.flowise.s
 FLOWISE_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 
 FLOWISE_LITELLM_URL: "{{ LITELLM_BASE_LOCAL_URL }}"
-FLOWISE_LITELLM_API_KEY: "{{ lookup('config', application_id, 'credentials.litellm_api_key') }}"
+FLOWISE_LITELLM_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') }}"
 
 FLOWISE_QDRANT_INTERNAL_URL: "{{ lookup('engine', 'qdrant', application_id, 'url') }}"
 

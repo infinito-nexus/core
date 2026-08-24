@@ -5,10 +5,8 @@
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: >-
       bash -c '
-        /venv/bin/python manage.py migrate --noinput &&
         /venv/bin/python manage.py compile_themes &&
         /venv/bin/python manage.py collectstatic --noinput &&
-        (/venv/bin/python manage.py initdb || true) &&
         /venv/bin/python -m gunicorn bookwyrm.wsgi:application --bind 0.0.0.0:{{ container_port }}
       '
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
@@ -19,11 +17,13 @@
         BOOKWYRM_REF:        "{{ BOOKWYRM_REF }}"
     {{ lookup('container_image', application_id, 'bookwyrm', version=BOOKWYRM_REF) }}
     {{ lookup('compose_only', 'container_name', BOOKWYRM_CONTAINER) }}
-    hostname: "{{ BOOKWYRM_HOSTNAME }}"
+    hostname: "{{ container_hostname }}"
     {{ lookup('container_ports', ['bookwyrm', 'http', DOCKER_BIND_HOST]) | indent(4) }}
-    {{ lookup('container_volumes', application_id, 'bookwyrm') | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
-    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_depends_on', application_id, extra={
+  'migrate': {'condition': 'service_completed_successfully'},
+}) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
   {% set service_name = 'worker' %}
@@ -33,9 +33,26 @@
     {{ lookup('compose_only', 'container_name', BOOKWYRM_WORKER_CONTAINER) }}
     command: "/venv/bin/celery -A celerywyrm worker -l INFO"
     {{ lookup('compose_only', 'pull_policy', 'never') }}
-    {{ lookup('container_volumes', application_id, 'worker') | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_depends_on', application_id, extra={
+  'migrate': {'condition': 'service_completed_successfully'},
+}) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+
+  {% set service_name = 'migrate' %}
+  {% set docker_restart_policy = 'on-failure' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'migrate', version=BOOKWYRM_REF) }}
+    {{ lookup('compose_only', 'container_name', BOOKWYRM_MIGRATE_CONTAINER) }}
+    command: >-
+      bash -c '
+        /venv/bin/python manage.py migrate --noinput &&
+        /venv/bin/python manage.py initdb
+      '
+    {{ lookup('compose_only', 'pull_policy', 'never') }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

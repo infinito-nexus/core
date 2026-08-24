@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from utils.paths import read_group_paths
+
 DEFAULT_HOSTS: tuple[str, ...] = (
     "github.com",
     "objects.githubusercontent.com",
@@ -58,12 +60,7 @@ PROXY_ENV_KEYS: tuple[str, ...] = (
     "CA_TRUST_NAME",
 )
 
-CA_BUNDLE_CANDIDATES: tuple[str, ...] = (
-    "/etc/ssl/certs/ca-certificates.crt",
-    "/etc/pki/tls/certs/ca-bundle.crt",
-    "/etc/ssl/ca-bundle.pem",
-    "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem",
-)
+CA_BUNDLE_CANDIDATES: tuple[str, ...] = tuple(read_group_paths("CA_BUNDLE_CANDIDATES"))
 
 PMTU_PROBE_SIZES: tuple[int, ...] = (1472, 1452, 1400, 1300, 1200, 1024, 576, 256)
 

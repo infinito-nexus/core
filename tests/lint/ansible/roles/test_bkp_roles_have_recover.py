@@ -1,4 +1,4 @@
-"""Lint guard: every ``svc-bkp-*`` role MUST ship ``files/recover.py``
+"""Lint guard: every ``svc-bkp-*`` role MUST ship ``files/python/recover.py``
 subclassing :class:`utils.recovery.base.DirectoryRecovery` and document
 it in a ``## Recover`` README section.
 
@@ -48,8 +48,8 @@ class TestBkpRolesHaveRecover(unittest.TestCase):
         self.assertTrue(bkp_roles, "no svc-bkp-* roles found")
         offenders = []
         for role in bkp_roles:
-            recover = role / "files" / "recover.py"
-            nocheck = role / "files" / "recover.py.nocheck"
+            recover = role / "files" / "python" / "recover.py"
+            nocheck = role / "files" / "python" / "recover.py.nocheck"
             if nocheck.is_file():
                 reason = read_text(str(nocheck)).strip()
                 if (
@@ -58,26 +58,26 @@ class TestBkpRolesHaveRecover(unittest.TestCase):
                 ):
                     continue
                 offenders.append(
-                    f"{role.name}: files/recover.py.nocheck must start with "
+                    f"{role.name}: files/python/recover.py.nocheck must start with "
                     "'nocheck: bkp-recover' followed by the reason"
                 )
                 continue
             if not recover.is_file():
-                offenders.append(f"{role.name}: files/recover.py missing")
+                offenders.append(f"{role.name}: files/python/recover.py missing")
             elif not _subclasses_base(str(recover)):
                 offenders.append(
-                    f"{role.name}: files/recover.py does not subclass "
+                    f"{role.name}: files/python/recover.py does not subclass "
                     f"utils.recovery.base.{_BASE_CLASS}"
                 )
         if offenders:
             self.fail(
                 "svc-bkp-* recover contract violations "
                 f"({len(offenders)}):\n\n"
-                "Every backup role must ship files/recover.py subclassing "
+                "Every backup role must ship files/python/recover.py subclassing "
                 f"utils.recovery.base.{_BASE_CLASS}, which runs the role's "
                 "deployed backup unit before mirroring the snapshot "
                 "(rsync --delete). A role whose direction has no recover "
-                "counterpart opts out with files/recover.py.nocheck: first "
+                "counterpart opts out with files/python/recover.py.nocheck: first "
                 "line 'nocheck: bkp-recover', followed by the reason.\n\n"
                 + "\n".join(f"  - {line}" for line in offenders)
             )
@@ -96,7 +96,7 @@ class TestBkpRolesHaveRecover(unittest.TestCase):
                 f"({len(missing)}):\n\n"
                 "Every backup role's README.md must contain a '## Recover' "
                 "section explaining exactly how the recovery works: which "
-                "script to run (files/recover.py), its arguments, the "
+                "script to run (files/python/recover.py), its arguments, the "
                 "preconditions (e.g. stop the consuming stack first) and "
                 "where the restored data and the pre-recover safety "
                 "generation end up.\n\n" + "\n".join(f"  - {name}" for name in missing)

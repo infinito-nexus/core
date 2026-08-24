@@ -109,20 +109,18 @@ class LookupModule(LookupBase):
         if want == "siblings":
             return [select_active(siblings, group_names)]
 
-        if want == "domains":
-            domain_lookup = lookup_loader.get(
-                "domain", loader=self._loader, templar=self._templar
-            )
-
-            def _resolve_domain(sibling: str) -> str:
-                return str(domain_lookup.run([sibling], variables=variables)[0]).strip()
-
-            return [resolve_for_want(siblings, group_names, want, _resolve_domain)]
-
-        # want == "url_bases"
         tls_lookup = lookup_loader.get(
             "tls", loader=self._loader, templar=self._templar
         )
+
+        if want == "domains":
+
+            def _resolve_domain(sibling: str) -> str:
+                return str(
+                    tls_lookup.run([sibling, "domain"], variables=variables)[0]
+                ).strip()
+
+            return [resolve_for_want(siblings, group_names, want, _resolve_domain)]
 
         def _resolve_url_base(sibling: str) -> str:
             return str(

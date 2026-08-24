@@ -42,7 +42,6 @@ def _build_parser(base_pkg: str) -> argparse.ArgumentParser:
     )
     sub = p.add_subparsers(dest="command", required=True)
 
-    # Keep this list explicit (predictable UX), but tolerate missing modules.
     command_names = [
         "up",
         "down",
@@ -73,7 +72,6 @@ def main(argv: list[str] | None = None) -> int:
 
     handler = getattr(args, "_handler", None)
     if handler is None:
-        # This should not happen if each subparser sets _handler, but keep it safe.
         raise SystemExit(
             f"Command '{getattr(args, 'command', '<unknown>')}' has no handler"
         )

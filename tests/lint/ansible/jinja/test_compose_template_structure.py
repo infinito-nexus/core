@@ -15,7 +15,7 @@ The house layout for a compose template is:
       {{ service_name }}:
         ...
 
-    {{ lookup('compose_volumes', application_id) }}
+    {{ lookup('compose_volumes') }}
     {{ lookup('compose_networks') }}
 
 The compose renderer runs with ``lstrip_blocks=True`` (set by the
@@ -73,7 +73,7 @@ from pathlib import Path
 from utils.annotations.suppress import is_suppressed_at, is_suppressed_in_head
 from utils.cache.files import iter_project_files_with_content
 
-from . import PROJECT_ROOT
+from . import PROJECT_ROOT, is_main_compose_template
 
 _RULE = "compose-structure"
 
@@ -184,14 +184,6 @@ _SERVICE_SCOPED_VARS = frozenset(
         "docker_compose_env",
     }
 )
-
-
-def _is_scan_target(rel_path: str) -> bool:
-    return (
-        rel_path.startswith("roles/")
-        and "/templates/" in rel_path
-        and rel_path.endswith("compose.yml.j2")
-    )
 
 
 def _service_key_message(key: str) -> str | None:
@@ -403,7 +395,7 @@ class TestComposeTemplateStructure(unittest.TestCase):
             exclude_tests=True,
         ):
             rel = Path(path_str).relative_to(PROJECT_ROOT).as_posix()
-            if not _is_scan_target(rel):
+            if not is_main_compose_template(rel):
                 continue
             lines = content.splitlines()
             if is_suppressed_in_head(lines, _RULE):

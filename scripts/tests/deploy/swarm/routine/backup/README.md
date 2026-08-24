@@ -111,10 +111,10 @@ flowchart TB
   `utils/tests/swarm/backup_repos.py` derives both the manager's inventory
   groups and the `remote-2-local` provider list from that closure; apps
   without those roles prove the chain through the nfs repository.
-- The workload form only changes step 6: stack workloads get
-  `docker stack rm`, `workload: node-local` roles get their compose
-  project stopped on every node. Every other step operates on volumes,
-  the NFS export and the deployed backup units, independent of the
-  orchestrator.
+- The workload form only changes step 6: a stack that carries services gets
+  `docker stack rm`, a role whose compose renders none gets its compose
+  project stopped on every node. `has_swarm_service` decides by asking the
+  deployed stack. Every other step operates on volumes, the NFS export and
+  the deployed backup units, independent of the orchestrator.
 - Runs once per app, in the variant-0 CI job, between the matrix's first
   deploy and its update pass.

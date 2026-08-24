@@ -35,7 +35,6 @@ _SCAN_EXTENSIONS = (
     ".md",
 )
 
-# Files outside `iter_project_files`'s reach we still want covered.
 _EXTRA_PATHS = (PROJECT_ROOT / "compose" / "coredns" / "Corefile.tmpl",)
 
 
@@ -59,7 +58,6 @@ def _load_resolver_ips() -> list[str]:
 
 def _build_pattern(ips: list[str]) -> re.Pattern[str]:
     escaped = "|".join(re.escape(ip) for ip in ips)
-    # \D|^ before, \D|$ after — IP must stand alone (no longer numeric run).
     return re.compile(rf"(?<![0-9\.])({escaped})(?![0-9\.])")
 
 

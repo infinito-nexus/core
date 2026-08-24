@@ -65,9 +65,6 @@ DEFAULT_TOKENS_FILE = FILE_TOKENS
 _RENDER_GUARD = threading.local()
 
 
-_FINGERPRINT_BY_ID: dict[int, str] = {}
-
-
 def _cache_key(roles_dir: Path) -> str:
     return str(roles_dir.resolve())
 
@@ -81,29 +78,26 @@ def _fingerprint_mapping(obj: Any) -> str:
     misses the cache across tasks. A content fingerprint hits across tasks
     whenever the inventory payload is unchanged.
 
-    Fast path: id()-keyed memo (within a single task the same dict instance is
-    typically reused for multiple lookups, so we avoid re-hashing).
-    Slow path: repr-based MD5. Non-mapping values collapse to an "id:..." tag
-    so we don't accidentally collide across unrelated types.
+    repr-based MD5 over the mapping's sorted items.
+
+    Exception: memoising the digest under ``id(obj)`` is unsound and MUST NOT
+    be reintroduced. The memo would hold no reference to *obj*, so CPython
+    recycles the address of a freed mapping and serves its digest for an
+    unrelated live one — measured at 398/400 wrong digests for short-lived
+    mappings, which silently defeats every cache keyed on this function.
     """
     if obj is None:
         return "0"
-    obj_id = id(obj)
-    cached = _FINGERPRINT_BY_ID.get(obj_id)
-    if cached is not None:
-        return cached
     try:
         import hashlib
 
         data = repr(sorted(obj.items())) if isinstance(obj, Mapping) else repr(obj)
-        digest = hashlib.md5(
+        return hashlib.md5(
             data.encode("utf-8", errors="replace"),
             usedforsecurity=False,
         ).hexdigest()
     except Exception:
-        digest = f"id:{obj_id}"
-    _FINGERPRINT_BY_ID[obj_id] = digest
-    return digest
+        return "unhashable"
 
 
 def _stable_variables_signature(variables: Mapping[str, Any] | None) -> tuple:
@@ -284,8 +278,5 @@ def _render_with_templar(
 
 
 def _reset() -> None:
-    """Clear the per-process content-fingerprint memo. Domain modules
-    own their own caches and provide their own `_reset()`; this one
-    only owns `_FINGERPRINT_BY_ID`. The facade `data._reset_cache_for_tests`
-    orchestrates all four resets."""
-    _FINGERPRINT_BY_ID.clear()
+    """No-op kept so the `data._reset_cache_for_tests` facade can call every
+    domain module uniformly. This module owns no cache."""

@@ -13,6 +13,7 @@ directly above the ``version:`` key.
 from __future__ import annotations
 
 import concurrent.futures
+import http.client
 import json
 import re
 import time
@@ -105,7 +106,12 @@ def fetch_dockerhub_tags(image: str, max_pages: int = 5) -> list[str]:
                     time.sleep(2)
                     continue
                 body = json.loads(resp.read().decode())
-        except (urllib.error.URLError, OSError, json.JSONDecodeError):
+        except (
+            urllib.error.URLError,
+            OSError,
+            http.client.HTTPException,
+            json.JSONDecodeError,
+        ):
             break
         tags.extend(item["name"] for item in body.get("results", []))
         if not body.get("next"):
@@ -138,7 +144,12 @@ def fetch_ghcr_tags(image: str) -> list[str]:
         with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310
             token_body = json.loads(resp.read().decode())
         token = token_body.get("token") or token_body.get("access_token")
-    except (urllib.error.URLError, OSError, json.JSONDecodeError):
+    except (
+        urllib.error.URLError,
+        OSError,
+        http.client.HTTPException,
+        json.JSONDecodeError,
+    ):
         return []
 
     if not token:
@@ -155,7 +166,12 @@ def fetch_ghcr_tags(image: str) -> list[str]:
     try:
         with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310
             body = json.loads(resp.read().decode())
-    except (urllib.error.URLError, OSError, json.JSONDecodeError):
+    except (
+        urllib.error.URLError,
+        OSError,
+        http.client.HTTPException,
+        json.JSONDecodeError,
+    ):
         return []
 
     return body.get("tags") or []
@@ -194,7 +210,12 @@ def fetch_mcr_tags(image: str, max_pages: int = 10) -> list[str]:
             with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310
                 body = json.loads(resp.read().decode())
                 link_header = resp.headers.get("Link", "")
-        except (urllib.error.URLError, OSError, json.JSONDecodeError):
+        except (
+            urllib.error.URLError,
+            OSError,
+            http.client.HTTPException,
+            json.JSONDecodeError,
+        ):
             break
         tags.extend(body.get("tags") or [])
         match = _LINK_NEXT_RE.search(link_header)

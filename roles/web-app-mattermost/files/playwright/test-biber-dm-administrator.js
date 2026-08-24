@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const { performKeycloakLoginForm } = require("./personas");
 
@@ -19,7 +20,7 @@ exports.register = function (shared) {
       await shared.startMattermostSsoFlow(biberPage, baseUrl);
       await expect
         .poll(() => biberPage.url(), {
-          timeout: 30_000,
+          timeout: resolveTimeout(30_000),
           message: `Expected redirect to Keycloak OIDC: ${oidcAuthUrl}`,
         })
         .toContain(oidcAuthUrl);
@@ -28,7 +29,7 @@ exports.register = function (shared) {
 
       await expect
         .poll(() => biberPage.url(), {
-          timeout: 60_000,
+          timeout: resolveTimeout(60_000),
           message: "Expected redirect back to Mattermost after biber login",
         })
         .toContain(baseUrl);
@@ -44,7 +45,7 @@ exports.register = function (shared) {
       const messageInput = biberPage
         .locator("#post_textbox, [data-testid='post_textbox'], div[contenteditable='true'].post-create__input")
         .first();
-      await messageInput.waitFor({ state: "visible", timeout: 30_000 });
+      await messageInput.waitFor({ state: "visible", timeout: resolveTimeout(30_000) });
       await messageInput.click({ force: true });
       // keyboard.type() bypasses fill()'s contenteditable-skipping React onChange gap.
       await biberPage.keyboard.type(testMessage);
@@ -52,7 +53,7 @@ exports.register = function (shared) {
 
       await expect(
         biberPage.getByTestId("postContent").getByText(testMessage)
-      ).toBeVisible({ timeout: 15_000 });
+      ).toBeVisible({ timeout: resolveTimeout(15_000) });
 
       await shared.mattermostLogout(biberPage, baseUrl);
 
@@ -61,7 +62,7 @@ exports.register = function (shared) {
       await shared.startMattermostSsoFlow(adminPage, baseUrl);
       await expect
         .poll(() => adminPage.url(), {
-          timeout: 30_000,
+          timeout: resolveTimeout(30_000),
           message: `Expected redirect to Keycloak OIDC: ${oidcAuthUrl}`,
         })
         .toContain(oidcAuthUrl);
@@ -70,19 +71,19 @@ exports.register = function (shared) {
 
       await expect
         .poll(() => adminPage.url(), {
-          timeout: 60_000,
+          timeout: resolveTimeout(60_000),
           message: "Expected redirect back to Mattermost after admin login",
         })
         .toContain(baseUrl);
 
       await shared.dismissMattermostPopups(adminPage);
-      await shared.waitForMattermostChannelView(adminPage, 30_000);
+      await shared.waitForMattermostChannelView(adminPage, resolveTimeout(30_000));
 
       await adminPage.goto(`${baseUrl}/main/messages/@${shared.env.biberUsername}`);
 
       await expect(
         adminPage.getByTestId("postContent").getByText(testMessage)
-      ).toBeVisible({ timeout: 30_000 });
+      ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
       await shared.mattermostLogout(adminPage, baseUrl);
     } finally {

@@ -6,10 +6,8 @@ from utils.cache.yaml import load_yaml_any
 
 from . import PROJECT_ROOT
 
-# Directory containing group_vars/all/*.yml
 GROUPVARS_DIR = PROJECT_ROOT / "group_vars" / "all"
 JINJA_RE = re.compile(r"{{\s*([^}]+)\s*}}")
-# Matches variables like foo.bar, foo["bar"], foo['bar']
 VAR_PATTERN = re.compile(
     r"[A-Za-z_][A-Za-z0-9_]*(?:\.(?:[A-Za-z_][A-Za-z0-9_]*|\[\"[^\"]+\"\]))*"
 )
@@ -51,7 +49,6 @@ def find_jinja_refs(val):
             continue
         for m in VAR_PATTERN.finditer(expr):
             var = m.group(0)
-            # normalize bracket notation foo["bar"] -> foo.bar
             var = re.sub(r"\[\"([^\"]+)\"\]", r".\1", var)
             var = re.sub(r"\['([^']+)'\]", r".\1", var)
             refs.append(var)

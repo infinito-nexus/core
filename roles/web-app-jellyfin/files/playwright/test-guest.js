@@ -1,10 +1,11 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
-const { assertCspResponseHeader, assertCspMetaParity } = require("./personas");
+const { assertCspResponseHeader, assertCspMetaParity, gotoOnion } = require("./personas");
 
 exports.register = function (shared) {
   test("guest: Jellyfin web reachable, serves CSP, never reaches an authenticated surface", async ({ page }) => {
-    const response = await page.goto(`${shared.env.jellyfinBaseUrl}/web/`);
+    const response = await gotoOnion(page, `${shared.env.jellyfinBaseUrl}/web/`);
     expect(response, "Expected a Jellyfin web response").toBeTruthy();
     expect(response.status(), "Expected Jellyfin web status to be < 400").toBeLessThan(400);
     expect(
@@ -17,7 +18,7 @@ exports.register = function (shared) {
 
     await expect
       .poll(() => shared.onLoginSurface(page), {
-        timeout: 30_000,
+        timeout: resolveTimeout(30_000),
         message: "guest must remain on the Jellyfin login surface",
       })
       .toBe(true);

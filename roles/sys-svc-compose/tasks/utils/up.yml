@@ -21,14 +21,14 @@
         env_template.changed          | default(false)
       )
     - compose_mode == 'compose'
-  notify: compose up
+  notify: compose-up
 
 - name: "🔔 Notify swarm deploy (under DEPLOYMENT_MODE == swarm)"
   ansible.builtin.debug:
     msg: "Triggering swarm stack deploy for {{ application_id }}"
   changed_when: true
   when: compose_mode == 'swarm'
-  notify: swarm deploy
+  notify: swarm-deploy
 
 - name: "🔄 Flush compose up handlers for '{{ application_id }}'"
   meta: flush_handlers

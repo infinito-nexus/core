@@ -10,5 +10,5 @@
   stack_host_template:
     src: "http.conf.j2"
     dest: "{{ lookup('nginx', 'files.domain', domain, protocol='http') }}"
-  notify: restart openresty
+  notify: restart-openresty
   when: HTTPS_REDIRECT_ENABLED | bool

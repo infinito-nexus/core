@@ -62,6 +62,7 @@ flowchart LR
         svc_bbb_webrtc_recorder["bbb-webrtc-recorder"]
         svc_dockerize["dockerize"]
         svc_container_backup["container_backup"]
+        svc_tor["tor ❌"]
     end
     subgraph dependents [Dependents]
         dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]
@@ -80,7 +81,7 @@ flowchart LR
     svc_sso -. "0..1" .-> dpt_web_app_nextcloud
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 

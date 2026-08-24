@@ -1,5 +1,5 @@
 ---
-- name: "Keycloak | Sync LDAP groups (ldap-roles mapper)"
+- name: "🔁 Keycloak | Sync LDAP groups (ldap-roles mapper)"
   ansible.builtin.shell: |-
     {{ KEYCLOAK_COMMAND_PERMANENT_ADMIN_LOGIN }}
       {{ KEYCLOAK_EXEC_CONTAINER }} sh -lc '
@@ -8,7 +8,7 @@
         "user-storage/{{ ldap_cmp_id | trim }}/mappers/{{ grp_mapper_id | trim }}/sync?direction=fedToKeycloak" \
         -r {{ KEYCLOAK_REALM }}
     '
-  listen: sync ldap groups
+  listen: sync-ldap-groups
   register: group_sync
   changed_when: true
   retries: 6

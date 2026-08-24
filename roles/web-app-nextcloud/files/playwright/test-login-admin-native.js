@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 exports.register = function (shared) {
   test("admin: nextcloud native login and logout (no oidc)", async ({ page }) => {
@@ -16,7 +17,7 @@ exports.register = function (shared) {
     const shellState = await shared.waitForVisibleCandidate(
       page,
       shared.getNextcloudShellCandidates(page),
-      60_000,
+      resolveTimeout(60_000),
       "Timed out waiting for a signed-in Nextcloud shell after the native login form submit",
     );
     await expect(shellState.locator).toBeVisible();

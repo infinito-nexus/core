@@ -20,7 +20,7 @@ from ansible.plugins.lookup import LookupBase
 from plugins.lookup import PROJECT_ROOT
 
 try:
-    import tomllib  # Python 3.11+
+    import tomllib
 except Exception:
     try:
         import tomli as tomllib
@@ -42,7 +42,6 @@ def _get_nested(data: dict, path: list[str]):
 
 class LookupModule(LookupBase):
     def run(self, terms, variables=None, **kwargs):
-        # Intentionally ignore terms/kwargs — no parameters supported
 
         pyproject_path = str(PROJECT_ROOT / "pyproject.toml")
 

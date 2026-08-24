@@ -1,3 +1,4 @@
+# nocheck: mirrored-unit-test - an Odoo ORM model inheriting res.users; its methods run against a live cursor and recordset
 # Part of Infinito.Nexus. See LICENSE file for full copyright and licensing details.
 
 import logging
@@ -8,9 +9,6 @@ from odoo.exceptions import AccessDenied
 
 _logger = logging.getLogger(__name__)
 
-# Configurable OIDC UID field via environment variable
-# Defaults to 'preferred_username' which is the standard OIDC claim
-# Set via ODOO_OIDC_UID_FIELD env var, sourced from OIDC.ATTRIBUTES.USERNAME
 OIDC_UID_FIELD = os.environ.get("ODOO_OIDC_UID_FIELD", "preferred_username")
 
 
@@ -73,12 +71,7 @@ class ResUsersOAuthConfigurableUid(models.Model):
         values = self._generate_signup_values(provider, validation, params)
         create_values = {k: v for k, v in values.items() if k != "oauth_access_token"}
         create_values["active"] = True
-        # Align login with oauth_uid so provisioned users follow the same
-        # seeded-admin pattern (login=preferred_username, not email).
         create_values["login"] = oauth_uid
-        # Auto-provisioned OAuth users are internal users of the stack, not
-        # portal customers. Portal-only (base.group_portal) lands the user on
-        # the website root and blocks /web backend access.
         internal_group = self.env.ref("base.group_user", raise_if_not_found=False)
         if internal_group:
             create_values["group_ids"] = [(4, internal_group.id)]
@@ -86,10 +79,6 @@ class ResUsersOAuthConfigurableUid(models.Model):
             sudo_model = self.sudo().with_context(no_reset_password=True)
             new_user = sudo_model.create(create_values)
             new_user.sudo().write({"oauth_access_token": params["access_token"]})
-            # Flush pending recomputes now, under the sudo env, so the
-            # controller's subsequent cr.commit() doesn't trigger
-            # ir_attachment._check_contents() → env.user._get_group_ids()
-            # on an empty env.user (public/unauthenticated OAuth callback).
             sudo_model.env.flush_all()
         except Exception:
             _logger.exception(

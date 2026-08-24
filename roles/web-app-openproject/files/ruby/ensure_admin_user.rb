@@ -1,3 +1,5 @@
+# nocheck: mirrored-unit-test - runs in the OpenProject console against User and its
+# password validators; the models only exist once OpenProject has booted
 pw    = ENV.fetch("OPENPROJECT_ADMIN_PASSWORD")
 login = ENV.fetch("OPENPROJECT_ADMIN_LOGIN")
 mail  = ENV.fetch("OPENPROJECT_ADMIN_EMAIL")

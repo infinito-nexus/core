@@ -11,4 +11,4 @@ config:
   bridge_name: "telegram"
   database_username: "mautrix_telegram_bridge"
   database_name: "mautrix_telegram_bridge"
-  database_password: "{{ lookup('config', 'web-app-matrix', 'credentials.mautrix_telegram_bridge_database_password') }}"
+  database_password: "{{ lookup('config', 'web-app-matrix', 'secrets.credentials.mautrix_telegram_bridge_database_password', '') }}"

@@ -83,17 +83,9 @@ class TestPersonaNaming(unittest.TestCase):
             if not spec_path.is_file():
                 continue
             env_path = role_dir / "templates" / "playwright.env.j2"
-            # Auth-less collapse exception: roles without a Playwright
-            # env template are not orchestrated by test-e2e-playwright
-            # and the persona contract does not apply.
             if not env_path.is_file():
                 continue
 
-            # Roles may keep the spec monolithic, or split each `test(...)`
-            # block into its own `test-<scenario>.js` companion module that
-            # `playwright.spec.js` `require()`s. Aggregate persona titles
-            # across all sibling `.js` files in the role's playwright dir
-            # so the lint stays correct for both layouts.
             seen: set[str] = set()
             for js_path in sorted(spec_path.parent.glob("*.js")):
                 seen |= _persona_titles_in_spec(read_text(str(js_path)))

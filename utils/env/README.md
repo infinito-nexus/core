@@ -27,7 +27,20 @@ Shell consumers source [load.sh](../../scripts/meta/env/load.sh) under `scripts/
 - Module names MUST stay lowercase snake_case.
 - Pure passthrough or simple parser/writer helpers MUST live directly under `utils/env/`.
 - Per-variable computation MUST live under `handlers/` (see [handlers README](handlers/README.md) for the naming convention used there).
-- Test files live in [tests/unit/utils/env/](../../tests/unit/utils/env/) and mirror the module name with a `test_` prefix.
+- Test files live in [tests/unit/python/utils/env/](../../tests/unit/python/utils/env/) and mirror the module name with a `test_` prefix.
+
+## Machine Facts vs Run Facts 🧭
+
+The writer a handler picks decides how long a value lives. Both kinds are registered in `default.env` and both are visible to the lints; they differ only in whether the generated `.env` remembers what the environment said.
+
+| Writer | Meaning | On the next `make dotenv` |
+|---|---|---|
+| `eb.setdefault` | machine fact | a non-empty value in the process env is adopted and written back |
+| `eb.set` | run fact | recomputed from `BuildContext`; whatever the process env said is discarded |
+
+`setdefault` is the operator-override contract: exporting a key changes it and the change persists. That persistence is why it MUST NOT carry a value an environment declares for a single run. [Makefile](../../Makefile) exports `BASH_ENV`, so every make recipe sources `.env` — a value adopted once is re-exported into every later recipe and into every container that mounts the repo, and a per-run decision has silently become a property of the machine.
+
+A key that some environment declares per run therefore MUST be written by a dedicated handler through `eb.set`. The exporting shell still wins for its own run, because [load.sh](../../scripts/meta/env/load.sh) preserves non-empty caller values when it sources `.env`; the file keeps the derived default. `INFINITO_RUNNING_ON_GITHUB` and `INFINITO_CACHE_STACK` are written this way. Note the consequence: for those keys `.env` and the running shell can legitimately disagree, and `.env` is not the authority.
 
 ## Import Rules 🔗
 

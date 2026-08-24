@@ -1,6 +1,10 @@
 ---
 # Matrix-deploy variant overrides for web-app-jitsi.
 # See docs/contributing/artefact/files/role/variants.md for the file format.
+#
+# nocheck: sso-variant-tor — meta/services.yml pins tor.enabled false: the conference
+# needs getUserMedia, which Chromium withholds outside a secure context, and a
+# plaintext onion is not one. There is no onion to log into.
 
 # V1: oidc + ldap + everything that can be true, is true
 - services:
@@ -28,8 +32,9 @@
     prometheus:
       enabled: true
       shared: true
+    tor:
+      enabled: false # nocheck: variants-static-override
 
-# V2: no auth — everything off, AUTH_TYPE=internal, anonymous rooms
 - services:
     css:
       enabled: false
@@ -55,8 +60,9 @@
     prometheus:
       enabled: false
       shared: false
+    tor:
+      enabled: false # nocheck: variants-static-override
 
-# V3: ldap only — direct prosody mod_auth_ldap2 against svc-db-openldap
 - services:
     css:
       enabled: false
@@ -82,3 +88,5 @@
     prometheus:
       enabled: false
       shared: false
+    tor:
+      enabled: false # nocheck: variants-static-override

@@ -1,10 +1,11 @@
 ---
 - name: 📦 Install '
   include_role:
-    name: pkgmgr-install
+    name: sys-pip-install
   vars:
-    package_name: "{{ SWAPFILE_PKG }}"
-  when: run_once_pkgmgr_install is not defined
+    # TODO: switch to the PyPI name 'swap-forge' once it is published
+    package_name: "git+{{ SWAPFILE_REPO }}@{{ SWAPFILE_REF }}"
+    global_install: true
 
 - name: ▶️ Execute create swapfile script
   shell: "{{ SWAPFILE_PKG }} '{{ SWAPFILE_SIZE }}'"

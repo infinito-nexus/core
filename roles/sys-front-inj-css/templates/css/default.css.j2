@@ -21,70 +21,67 @@ HINT:
   }
 }
 :root, ::after, ::before, ::backdrop {
-    /* For Dark Mode Plugin
-     * @See https://chromewebstore.google.com/detail/dark-mode/dmghijelimhndkbmpgbldicpogfkceaj
-     */
-    --native-dark-accent-color:         var(--color-01-60);  /* was #a9a9a9 */
-    --native-dark-bg-color:             var(--color-01-10);  /* was #292929 */
-    --native-dark-bg-image-color:       rgba(var(--color-rgb-01-01), 0.10); /* remains the same, or adjust if needed */
-    --native-dark-border-color:         var(--color-01-40);  /* was #555555 */
+    --native-dark-accent-color:         var(--color-01-60);
+    --native-dark-bg-color:             var(--color-01-10);
+    --native-dark-bg-image-color:       rgba(var(--color-rgb-01-01), 0.10);
+    --native-dark-border-color:         var(--color-01-40);
     --native-dark-box-shadow:           0 0 0 1px rgb(var(--color-rgb-01-99), / 10%);
-    --native-dark-cite-color:           var(--color-01-70);  /* was #92de92 – you might adjust if a green tone is needed */
-    --native-dark-fill-color:           var(--color-01-50);  /* was #7d7d7d */
-    --native-dark-font-color:           var(--color-01-95);  /* was #dcdcdc */
-    --native-dark-link-color:           var(--color-01-80);  /* was #8db2e5 */
-    --native-dark-visited-link-color:   var(--color-01-85);  /* was #c76ed7 */
+    --native-dark-cite-color:           var(--color-01-70);
+    --native-dark-fill-color:           var(--color-01-50);
+    --native-dark-font-color:           var(--color-01-95);
+    --native-dark-link-color:           var(--color-01-80);
+    --native-dark-visited-link-color:   var(--color-01-85);
 }
 /* Bootstrap Overrides (Color/Shadow Variables Only) */
 :root {
-  --bs-black: var(--color-01-01); /* Original tone: Black (#000) */
-  --bs-white: var(--color-01-99); /* Original tone: White (#fff) */
-  --bs-gray: var(--color-01-50); /* Original tone: Gray (#6c757d) */
-  --bs-gray-dark: var(--color-01-20); /* Original tone: Dark Gray (#343a40) */
+  --bs-black: var(--color-01-01);
+  --bs-white: var(--color-01-99);
+  --bs-gray: var(--color-01-50);
+  --bs-gray-dark: var(--color-01-20);
 {% for i in range(1, 10) %}
   {% set gray = i * 100 %}
   {% set color = 100 - i * 10 %}
   --bs-gray-{{ gray }}: var(--color-01-{{ "%02d" % color }});
 {% endfor %}
-  --bs-primary: var(--color-01-65); /* Original tone: Blue (#0d6efd) */
-  --bs-light: var(--color-01-95); /* Original tone: Light (#f8f9fa) */
-  --bs-dark: var(--color-01-10); /* Original tone: Dark (#212529) */
-  --bs-primary-rgb: var(--color-rgb-01-65); /* Original tone: Blue (13, 110, 253) */
-  --bs-secondary-rgb: var(--color-rgb-01-50); /* Original tone: Grayish (#6c757d / 108, 117, 125) */
-  --bs-light-rgb: var(--color-rgb-01-95); /* Original tone: Light (248, 249, 250) */
-  --bs-dark-rgb: var(--color-rgb-01-10); /* Original tone: Dark (33, 37, 41) */
-  --bs-white-rgb: var(--color-rgb-01-99); /* Original tone: White (255, 255, 255) */
-  --bs-black-rgb: var(--color-rgb-01-01); /* Original tone: Black (0, 0, 0) */
-  --bs-body-color-rgb: var(--color-rgb-01-10); /* Original tone: Dark (#212529 / 33, 37, 41) */
-  --bs-body-bg-rgb: var(--color-rgb-01-99); /* Original tone: White (#fff / 255, 255, 255) */
-  --bs-body-color: var(--color-01-10); /* Original tone: Dark (#212529) */
-  --bs-body-bg: var(--color-01-99); /* Original tone: White (#fff) */
-  --bs-border-color: var(--color-01-85); /* Original tone: Gray (#dee2e6) */
-  --bs-link-color: var(--color-01-65); /* Original tone: Blue (#0d6efd) */
-  --bs-link-hover-color: var(--color-01-60); /* Original tone: Darker Blue (#0a58ca) */
-  --bs-code-color: var(--color-01-55); /* Original tone: Pink (#d63384) */
-  --bs-highlight-bg: var(--color-01-93); /* Original tone: Light Yellow (#fff3cd) */
+  --bs-primary: var(--color-01-65);
+  --bs-light: var(--color-01-95);
+  --bs-dark: var(--color-01-10);
+  --bs-primary-rgb: var(--color-rgb-01-65);
+  --bs-secondary-rgb: var(--color-rgb-01-50);
+  --bs-light-rgb: var(--color-rgb-01-95);
+  --bs-dark-rgb: var(--color-rgb-01-10);
+  --bs-white-rgb: var(--color-rgb-01-99);
+  --bs-black-rgb: var(--color-rgb-01-01);
+  --bs-body-color-rgb: var(--color-rgb-01-10);
+  --bs-body-bg-rgb: var(--color-rgb-01-99);
+  --bs-body-color: var(--color-01-10);
+  --bs-body-bg: var(--color-01-99);
+  --bs-border-color: var(--color-01-85);
+  --bs-link-color: var(--color-01-65);
+  --bs-link-hover-color: var(--color-01-60);
+  --bs-code-color: var(--color-01-55);
+  --bs-highlight-bg: var(--color-01-93);
   --bs-list-group-bg: var(--color-01-40);
-  --bs-emphasis-color: var(--color-01-01); /* Gemappt von #000 */
-  --bs-emphasis-color-rgb: var(--color-rgb-01-01); /* Gemappt von 0, 0, 0 */
-  --bs-secondary-color: rgba(var(--color-rgb-01-10), 0.75); /* Gemappt von rgba(33, 37, 41, 0.75) */
-  --bs-secondary-color-rgb: var(--color-rgb-01-10); /* Gemappt von 33, 37, 41 */
-  --bs-secondary-bg: var(--color-01-90); /* Gemappt von #e9ecef */
-  --bs-secondary-bg-rgb: var(--color-rgb-01-90); /* Gemappt von 233, 236, 239 */
-  --bs-tertiary-color: rgba(var(--color-rgb-01-10), 0.5); /* Gemappt von rgba(33, 37, 41, 0.5) */
-  --bs-tertiary-color-rgb: var(--color-rgb-01-10); /* Gemappt von 33, 37, 41 */
-  --bs-tertiary-bg: var(--color-01-95); /* Gemappt von #f8f9fa */
-  --bs-tertiary-bg-rgb: var(--color-rgb-01-95); /* Gemappt von 248, 249, 250 */
-  --bs-link-color-rgb: var(--color-rgb-01-65); /* Gemappt von 13, 110, 253 */
-  --bs-link-hover-color-rgb: var(--color-rgb-01-60); /* Gemappt von 10, 88, 202 */
-  --bs-highlight-color: var(--color-01-10); /* Gemappt von #212529 */
-  --bs-border-color-translucent: rgba(var(--color-rgb-01-01), 0.175); /* Gemappt von rgba(0, 0, 0, 0.175) */
-  --bs-focus-ring-color: rgba(var(--color-rgb-01-65), 0.25); /* Gemappt von rgba(13, 110, 253, 0.25) */
+  --bs-emphasis-color: var(--color-01-01);
+  --bs-emphasis-color-rgb: var(--color-rgb-01-01);
+  --bs-secondary-color: rgba(var(--color-rgb-01-10), 0.75);
+  --bs-secondary-color-rgb: var(--color-rgb-01-10);
+  --bs-secondary-bg: var(--color-01-90);
+  --bs-secondary-bg-rgb: var(--color-rgb-01-90);
+  --bs-tertiary-color: rgba(var(--color-rgb-01-10), 0.5);
+  --bs-tertiary-color-rgb: var(--color-rgb-01-10);
+  --bs-tertiary-bg: var(--color-01-95);
+  --bs-tertiary-bg-rgb: var(--color-rgb-01-95);
+  --bs-link-color-rgb: var(--color-rgb-01-65);
+  --bs-link-hover-color-rgb: var(--color-rgb-01-60);
+  --bs-highlight-color: var(--color-01-10);
+  --bs-border-color-translucent: rgba(var(--color-rgb-01-01), 0.175);
+  --bs-focus-ring-color: rgba(var(--color-rgb-01-65), 0.25);
   --bs-table-color: var(--bs-emphasis-color);
-  --bs-table-bg: var(--color-01-99);          /* White (#fff) */
-  --bs-table-border-color: var(--color-01-99);  /* White (#fff) */
-  --bs-table-striped-bg: var(--color-01-85);    /* Light Gray (entspricht ca. #dee2e6) */
-  --bs-table-hover-color: var(--color-01-01);   /* Black (#000) */
+  --bs-table-bg: var(--color-01-99);
+  --bs-table-border-color: var(--color-01-99);
+  --bs-table-striped-bg: var(--color-01-85);
+  --bs-table-hover-color: var(--color-01-01);
   --bs-table-hover-bg: rgba(var(--bs-emphasis-color-rgb), 0.075);
 }
 /* Global Defaults (Colors Only) */
@@ -119,53 +116,42 @@ a:active {
 html[native-dark-active] button, button{
      background-color: var(--color-01-87);
 }
-/* Bootstrap stretched-link cards use a full-card overlay; filtering that
-   overlay on hover causes unstable pointer hit-testing on the card. */
 button:hover,
 .btn:not(.stretched-link):hover {
     filter: brightness(0.9);
 }
-/* {# Invalid state: when the input value fails validation criteria. Use danger color for error indication. #} */
 input:invalid,
 textarea:invalid,
 select:invalid {
     background-color: var(--color-01-01);
     background: linear-gradient({{ CSS_GRADIENT_ANGLE }}deg, var(--color-01-01), var(--color-01-10));
-    /* Use Bootstrap danger color for error messages */
     color: var(--bs-danger);
     border-color: var(--color-01-20);
 }
-/* {# Valid state: when the input value meets all validation criteria. Use success color for confirmation. #} */
 input:valid,
 textarea:valid,
 select:valid {
     background-color: var(--color-01-80);
     background: linear-gradient({{ CSS_GRADIENT_ANGLE }}deg, var(--color-01-80), var(--color-01-90));
-    /* Use Bootstrap success color for confirmation messages */
     color: var(--bs-success);
     border-color: var(--color-01-70);
 }
-/* {# Required field: applied to elements that must be filled out by the user. Use warning color for emphasis. #} */
 input:required,
 textarea:required,
 select:required {
     background-color: var(--color-01-50);
     background: linear-gradient({{ CSS_GRADIENT_ANGLE }}deg, var(--color-01-50), var(--color-01-60));
-    /* Use Bootstrap warning color to indicate a required field */
     color: var(--bs-warning);
     border-color: var(--color-01-70);
 }
-/* {# Optional field: applied to elements that are not mandatory. Use info color to denote additional information. #} */
 input:optional,
 textarea:optional,
 select:optional {
     background-color: var(--color-01-60);
     background: linear-gradient({{ CSS_GRADIENT_ANGLE }}deg, var(--color-01-60), var(--color-01-70));
-    /* Use Bootstrap info color to indicate optional information */
     color: var(--bs-info);
     border-color: var(--color-01-70);
 }
-/* {# Read-only state: when an element is not editable by the user. #} */
 input:read-only,
 textarea:read-only,
 select:read-only {
@@ -174,7 +160,6 @@ select:read-only {
     color: var(--color-01-20);
     border-color: var(--color-01-50);
 }
-/* {# Read-write state: when an element is editable by the user. #} */
 input:read-write,
 textarea:read-write,
 select:read-write {
@@ -183,7 +168,6 @@ select:read-write {
     color: var(--color-01-40);
     border-color: var(--color-01-70);
 }
-/* {# In-range: for inputs with a defined range, when the value is within the allowed limits. #} */
 input:in-range,
 textarea:in-range,
 select:in-range {
@@ -192,7 +176,6 @@ select:in-range {
     color: var(--color-01-40);
     border-color: var(--color-01-70);
 }
-/* {# Out-of-range: for inputs with a defined range, when the value falls outside the allowed limits. #} */
 input:out-of-range,
 textarea:out-of-range,
 select:out-of-range {
@@ -201,7 +184,6 @@ select:out-of-range {
     color: var(--color-01-10);
     border-color: var(--color-01-50);
 }
-/* {# Placeholder-shown: when the input field is displaying its placeholder text. #} */
 input:placeholder-shown,
 textarea:placeholder-shown,
 select:placeholder-shown {
@@ -210,7 +192,6 @@ select:placeholder-shown {
     color: var(--color-01-40);
     border-color: var(--color-01-70);
 }
-/* {# Focus state: when the element is focused by the user. #} */
 input:focus,
 textarea:focus,
 select:focus {
@@ -219,7 +200,6 @@ select:focus {
     color: var(--color-01-40);
     border-color: var(--color-01-50);
 }
-/* {# Hover state: when the mouse pointer is over the element. #} */
 input:hover,
 textarea:hover,
 select:hover {
@@ -228,7 +208,6 @@ select:hover {
     color: var(--color-01-40);
     border-color: var(--color-01-65);
 }
-/* {# Active state: when the element is being activated (e.g., clicked). #} */
 input:active,
 textarea:active,
 select:active {
@@ -260,7 +239,6 @@ th, td {
 }
 thead {
     background-color: var(--color-01-80);
-    /* New Gradient based on original background (80 -5, 80, 80 +1, 80 +5) */
     background: linear-gradient({{ CSS_GRADIENT_ANGLE }}deg, var(--color-01-75), var(--color-01-80), var(--color-01-81), var(--color-01-85));
     color: var(--color-01-40);
 }

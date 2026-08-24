@@ -18,6 +18,7 @@ flowchart LR
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
         dep_svc_db_redis["svc-db-redis 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
@@ -39,11 +40,13 @@ flowchart LR
         svc_css["css"]
         svc_prometheus["prometheus"]
         svc_seaweedfs["seaweedfs"]
+        svc_tor["tor"]
         svc_container_backup["container_backup"]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_postgres -. "0..1" .-> svc_postgres
     dep_svc_db_redis -. "0..1" .-> svc_redis
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
@@ -54,7 +57,7 @@ flowchart LR
     dep_web_svc_logout -. "0..1" .-> svc_logout
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
@@ -129,6 +132,14 @@ Key settings in `meta/services.yml` and `meta/server.yml`:
 - [Decidim documentation](https://docs.decidim.org/)
 - [Decidim Docker image](https://ghcr.io/decidim/decidim)
 - [omniauth_openid_connect](https://github.com/omniauth/omniauth_openid_connect)
+
+## Persona contract opt-outs
+
+Both authenticated Playwright personas are blocked, and both are covered by bespoke tests in `files/playwright/playwright.spec.js` instead.
+
+The `administrator` persona is blocked because Decidim's admin is a Devise account seeded by `files/ruby/ensure_admin_user.rb` and Devise signs in by e-mail address. The role's Playwright env therefore exposes `ADMIN_EMAIL` and no `ADMIN_USERNAME`, which is the variable the shared admin helper reads.
+
+The `biber` persona logs in through OIDC without trouble; what it cannot do is log out. Decidim's sign-out is a `data-method` link inside the account dropdown, so the role's own tests navigate to `/users/sign_out` directly rather than clicking a button the shared helper could find.
 
 ## Credits
 

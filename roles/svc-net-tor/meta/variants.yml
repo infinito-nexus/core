@@ -1,0 +1,24 @@
+---
+# Matrix-deploy variant overrides for svc-net-tor.
+# See docs/contributing/artefact/files/role/variants.md for the file format.
+#
+# nocheck: sso-variant-tor — this role IS the onion provider; its tor block is the
+# provider definition, not a consumer gate, so there is nothing to pin on.
+
+# Test deployments run without guard pinning so a single degraded entry guard
+# cannot stall the whole node; production keeps the Tor default (true). They
+# also join a private chutney Tor net (offline, localhost-speed onion publish
+# and rendezvous) whose ~9 extra in-container tor nodes need a larger resource
+# footprint than the public flavor.
+- services:
+    tor:
+      use_entry_guards: false # nocheck: variants-static-override
+      flavor: chutney
+      cpus: "1.0"
+      mem_limit: 2g
+      pids_limit: 512
+
+- services:
+    tor:
+      use_entry_guards: false
+      flavor: public

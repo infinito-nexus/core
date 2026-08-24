@@ -1,12 +1,12 @@
 ---
 - name: "🚀 Deploy {{ SHOPWARE_INIT_HOST }}"
   copy:
-    src: init.sh
+    src: shell/init.sh
     dest: "{{ SHOPWARE_INIT_HOST }}"
     mode: "0755"
   notify:
-    - compose up
-    - compose build
+    - compose-up
+    - compose-build
 
 - name: "📄 Render framework.yaml (trusted proxies/headers/hosts)"
   copy:
@@ -14,7 +14,15 @@
     dest: "{{ SHOPWARE_FRAMEWORK_HOST }}"
     mode: "0644"
   notify:
-    - compose up
+    - compose-up
+
+- name: "📄 Render adminopenauth.yaml (protocols follow the internal hop's scheme)"
+  stack_host_template:
+    src: "adminopenauth.yaml.j2"
+    dest: "{{ SHOPWARE_ADMINOPENAUTH_HOST }}"
+    mode: "0644"
+  notify:
+    - compose-up
 
 - name: "📄 Render shopware.yaml (SeaweedFS S3 filesystem)"
   stack_host_template:
@@ -23,8 +31,8 @@
     mode: "0644"
   when: SHOPWARE_OBJSTORE_ENABLED | bool
   notify:
-    - compose up
-    - compose build
+    - compose-up
+    - compose-build
 
 - name: "🚿 Flush compose handlers"
   meta: flush_handlers
@@ -50,4 +58,17 @@
     file: 01_admin.yml
     apply:
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      delegate_to: "{{ SHOPWARE_WEB_HOST_NODE }}"
+
+- name: "🔐 Install & configure the enabled admin auth plugins"
+  ansible.builtin.include_tasks:
+    file: 03_setup.yml
+    apply:
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      delegate_to: "{{ SHOPWARE_WEB_HOST_NODE }}"
+
+- name: "🧹 Remove the admin auth plugins that are disabled"
+  ansible.builtin.include_tasks:
+    file: 04_cleanup.yml
+    apply:
       delegate_to: "{{ SHOPWARE_WEB_HOST_NODE }}"

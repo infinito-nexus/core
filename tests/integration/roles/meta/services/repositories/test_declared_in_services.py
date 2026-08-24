@@ -45,18 +45,12 @@ from . import PROJECT_ROOT
 
 ROLES_DIR = PROJECT_ROOT / "roles"
 
-# Matches HTTPS git URLs of the form `https://host/<…>/<repo>.git`.
-# Requires at least one `/<path>/` segment after the host AND that
-# `.git` ends the URL path (followed by URL-terminator or end of
-# string). Without the path requirement, hostnames like
-# `raw.githubusercontent.com` partial-match as `https://raw.git`.
 _GIT_URL_RE = re.compile(
     r"https?://[A-Za-z0-9.-]+(?:/[A-Za-z0-9._~-]+)+\.git(?=[\s\"'`<>?#/]|$)"
 )
 
 _OPTOUT_MARKER = "nocheck: repository-declared"
 
-# File extensions worth scanning. Plus extensionless `Dockerfile`.
 _SCAN_EXTENSIONS = (
     ".yml",
     ".yaml",
@@ -100,8 +94,6 @@ def _iter_role_files(role_dir):
         for p in iter_project_files(extensions=_SCAN_EXTENSIONS)
         if p.startswith(role_prefix)
     )
-    # `files/Dockerfile` (no extension) is not picked up by the
-    # extension filter; iterate the cache once more explicitly.
     for p in iter_project_files():
         if p.startswith(role_prefix) and p.endswith("/Dockerfile"):
             yield p
@@ -125,8 +117,6 @@ class TestDeclaredInServices(unittest.TestCase):
                 if fpath in seen_paths:
                     continue
                 seen_paths.add(fpath)
-                # Skip the services.yml itself — the declaration is the
-                # authoritative source we are checking against.
                 if fpath.endswith("/" + ROLE_FILE_META_SERVICES):
                     continue
                 try:
@@ -139,8 +129,6 @@ class TestDeclaredInServices(unittest.TestCase):
                 for line_no, line in enumerate(lines, 1):
                     if _OPTOUT_MARKER in line:
                         continue
-                    # Marker on the preceding line also counts (handy
-                    # for Dockerfile `\\` continuations and similar).
                     if line_no >= 2 and _OPTOUT_MARKER in lines[line_no - 2]:
                         continue
                     for m in _GIT_URL_RE.finditer(line):

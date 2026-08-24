@@ -1,4 +1,5 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("../onion-test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
 
@@ -8,7 +9,7 @@ const TELEGRAM_BOT_LOCALPART = "telegrambot";
 
 test("mautrix-telegram addon: appservice bot is provisioned on the Synapse homeserver", async ({ request }) => {
   skipUnlessAddonEnabled("mautrix-telegram");
-  test.setTimeout(60_000);
+  test.setTimeout(resolveTimeout(60_000));
 
   const matrixBaseUrl = shared.env.matrixBaseUrl;
   const matrixServerName = shared.env.matrixServerName;
@@ -19,7 +20,7 @@ test("mautrix-telegram addon: appservice bot is provisioned on the Synapse homes
   const profileUrl =
     `${matrixBaseUrl}/_matrix/client/v3/profile/${encodeURIComponent(botUserId)}`;
 
-  const response = await request.get(profileUrl, { failOnStatusCode: false });
+  const response = await request.get(profileUrl, { failOnStatusCode: false, timeout: resolveTimeout(30_000) });
 
   expect(
     response.status(),

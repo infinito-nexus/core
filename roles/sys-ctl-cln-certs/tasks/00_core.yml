@@ -6,11 +6,12 @@
     - sys-ctl-alm-compose
     - sys-daemon
 
-- name: "📦 pkgmgr install"
+- name: 📦 Install certreap system-wide via pip
   include_role:
-    name: pkgmgr-install
+    name: sys-pip-install
   vars:
     package_name: certreap
+    global_install: true
 
 - include_role:
     name: sys-service

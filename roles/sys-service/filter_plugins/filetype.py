@@ -16,12 +16,10 @@ def filetype(path, full=False):
     basename = Path(path).name
 
     if full:
-        # Full extension chain (e.g., "script.sh.j2" -> "sh.j2")
         parts = basename.split(".", 1)
         if len(parts) == 2:
             return parts[1]
         return ""
-    # Last extension only (e.g., "script.sh.j2" -> "j2", "script.py" -> "py")
     suffix = Path(basename).suffix
     return suffix[1:] if suffix else ""
 

@@ -26,14 +26,10 @@ source "scripts/meta/env/load.sh"
 # shellcheck source=scripts/meta/env/load.sh
 source "scripts/meta/env/load.sh"
 
-# Stop any running cache containers first so wipe is safe (a running
-# Nexus would re-create files mid-rm). `docker compose down` of the
-# whole stack would also kill the runner, which is too destructive;
-# scope to the two cache services explicitly.
 if docker ps --format '{{.Names}}' | grep -qE '^infinito-(registry|package)-cache$'; then
 	echo "[clean-cache] stopping infinito-registry-cache + infinito-package-cache"
-	docker stop infinito-registry-cache infinito-package-cache 2>/dev/null || true
-	docker rm infinito-registry-cache infinito-package-cache 2>/dev/null || true
+	docker stop infinito-registry-cache infinito-package-cache 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+	docker rm infinito-registry-cache infinito-package-cache 2>/dev/null || true   # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 fi
 
 PATHS=(

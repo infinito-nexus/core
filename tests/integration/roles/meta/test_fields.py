@@ -39,12 +39,10 @@ class TestAnsibleRolesMetadata(unittest.TestCase):
                     raw = f.read()
                     meta_data = load_yaml_str(raw) or {}
 
-                # meta_data must be a dict
                 self.assertIsInstance(
                     meta_data, dict, msg=f"Meta data for role '{role}' is not a dict"
                 )
 
-                # description inside galaxy_info
                 galaxy_info = meta_data.get("galaxy_info") or {}
                 self.assertIsInstance(
                     galaxy_info,
@@ -62,7 +60,6 @@ class TestAnsibleRolesMetadata(unittest.TestCase):
                     msg=f"'description' is empty in galaxy_info for role '{role}'",
                 )
 
-                # no empty keys or None values in galaxy_info
                 for key, value in galaxy_info.items():
                     self.assertTrue(key, msg=f"Empty galaxy_info key in role '{role}'")
                     self.assertIsNotNone(

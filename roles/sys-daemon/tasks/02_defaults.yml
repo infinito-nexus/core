@@ -10,4 +10,4 @@
     src: timeouts.conf.j2
     dest: "{{ SYSTEMD_MANAGER_CONF_DIR }}/timeouts.conf"
     mode: "0644"
-  notify: reexec systemd manager
+  notify: reexec-systemd-manager

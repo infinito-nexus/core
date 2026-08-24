@@ -34,8 +34,6 @@ if TYPE_CHECKING:
 
 _KEY_LHS_RE = re.compile(r"^([A-Z_][A-Z0-9_]*)\s*=")
 
-# `process.env.<NAME>` / `process.env["<NAME>"]` / `process.env['<NAME>']`
-# / `readEnv("<NAME>")` / `readEnv('<NAME>')`.
 _ENV_REF_RE = re.compile(
     r"""
     process\.env\.(?P<dot>[A-Z_][A-Z0-9_]*)\b
@@ -45,13 +43,6 @@ _ENV_REF_RE = re.compile(
     re.VERBOSE,
 )
 
-# Runtime-injected / Playwright-internal names that the role's `.env.j2`
-# is NOT expected to declare. Origins:
-# * Node.js runtime itself: NODE_ENV, NODE_TLS_*, NODE_DEBUG, …
-# * Playwright runner: PLAYWRIGHT_*, PW_*, CI, DEBUG.
-# * Test-harness flags injected by the deploy task (see
-#   `roles/test-e2e-playwright/tasks/02_run_one.yml`, e.g.
-#   `INFINITO_PLAYWRIGHT_KEEP`).
 _RUNTIME_ENV_NAMES: frozenset[str] = frozenset(
     {
         "CI",
@@ -69,9 +60,6 @@ _RUNTIME_ENV_NAMES: frozenset[str] = frozenset(
     }
 )
 
-# Prefixes consumed only by shared helpers under
-# `roles/test-e2e-playwright/files/` and rendered by that role's own
-# template / injection step, not by per-app `playwright.env.j2`.
 _RUNTIME_ENV_PREFIXES: tuple[str, ...] = ()
 
 
@@ -132,8 +120,6 @@ class TestPlaywrightSpecEnvKeysDeclared(unittest.TestCase):
             env_rel = env_path.relative_to(PROJECT_ROOT).as_posix()
 
             if not env_path.is_file():
-                # `test_has_env` covers the missing-template case;
-                # silently skip here so we do not double-report.
                 continue
 
             declared = _extract_env_keys(read_text(str(env_path)))

@@ -9,7 +9,7 @@
     user: "110010100"
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
-    {{ lookup('container_volumes', application_id, KIX_BACKEND_SERVICE) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     healthcheck:
       start_period: {{ container_healthcheck_start_period }}
@@ -31,7 +31,7 @@
       - FRONTEND_NOTIFICATION_ID=kix-agent-frontend
       - NOTIFICATION_URL=http://{{ KIX_FRONTEND_SERVICE }}:{{ KIX_FRONTEND_INTERNAL_PORT }}/notifications
       - BACKEND_API_URL=http://{{ KIX_BACKEND_SERVICE }}:{{ KIX_BACKEND_INTERNAL_PORT }}/api/v1
-    {{ lookup('container_volumes', application_id, KIX_FRONTEND_SERVICE) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     healthcheck:
       start_period: {{ container_healthcheck_start_period }}
@@ -42,9 +42,9 @@
     {{ lookup('compose_only', 'container_name', KIX_PROXY_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('depends_on', [KIX_BACKEND_SERVICE, KIX_FRONTEND_SERVICE]) }}
-    {{ lookup('container_volumes', application_id, KIX_PROXY_SERVICE) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_ports', ['kix', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

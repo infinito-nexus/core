@@ -3,11 +3,11 @@ from __future__ import annotations
 import unittest
 
 from cli.administration.deploy.ci import runs
-from tests.utils.ci.job_names import ORCHESTRATOR_PREFIX, deploy_job_name
+from tests.utils.ci.job_names import deploy_job_name, orchestrator_prefix
 
-MODES = ("docker", "swarm")
+MODES = ("docker", "swarm", "host")
 SAMPLE_APP = "web-app-matomo"
-SAMPLE_VARIANTS = ("", "0", "0,1", "0,1,2")
+SAMPLE_VARIANTS = ("", "0", "2")
 
 
 class TestCiDeployJobNamesParse(unittest.TestCase):
@@ -31,7 +31,7 @@ class TestCiDeployJobNamesParse(unittest.TestCase):
     def test_failed_roles_detect_each_scope(self) -> None:
         jobs = [
             {
-                "name": deploy_job_name(mode, SAMPLE_APP, "0,1"),
+                "name": deploy_job_name(mode, SAMPLE_APP, "1"),
                 "status": "completed",
                 "conclusion": "failure",
             }
@@ -44,8 +44,8 @@ class TestCiDeployJobNamesParse(unittest.TestCase):
 
     def test_non_deploy_jobs_are_ignored(self) -> None:
         noise = [
-            {"name": ORCHESTRATOR_PREFIX["docker"] + "⛵ Navigate composition"},
-            {"name": ORCHESTRATOR_PREFIX["swarm"] + "🍯 Lure swarm"},
+            {"name": orchestrator_prefix(0) + "⛵ Navigate composition"},
+            {"name": orchestrator_prefix(1) + "🍯 Lure swarm"},
             {"name": "🐳 Update Docker image versions"},
         ]
         self.assertEqual(runs.parse_role_statuses(noise), {})

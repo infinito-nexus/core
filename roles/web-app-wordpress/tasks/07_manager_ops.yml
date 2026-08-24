@@ -56,3 +56,26 @@
   when: (wp_is_multisite.stdout | trim) == '0'
   vars:
     wp_new_url: "{{ WORDPRESS_URL }}"
+
+- name: "📧 Verify the relay accepted WordPress's startup mail"
+  when: lookup('config', application_id, 'services.email.enabled', false) | bool
+  block:
+    - name: "⏳ Wait for the delivery marker the healthcheck writes"
+      shell: >
+        container exec {{ WORDPRESS_CONTAINER_ADDRESS }} test -f {{ lookup('container_mail_marker') }}
+      register: wordpress_smoke_mail
+      changed_when: false
+      failed_when: false
+      retries: 30
+      delay: 5
+      until: wordpress_smoke_mail.rc == 0
+
+    - name: "🛑 Report a relay that refused every attempt"
+      ansible.builtin.assert:
+        that: wordpress_smoke_mail.rc == 0
+        fail_msg: >-
+          WordPress never delivered its startup mail. The healthcheck writes
+          {{ lookup('container_mail_marker') }} only after msmtp exits 0, so
+          the relay refused every attempt. Its reason is in the container's
+          State.Health.Log; liveness itself is unaffected, which is why the
+          stack still converged.

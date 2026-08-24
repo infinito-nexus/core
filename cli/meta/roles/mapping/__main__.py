@@ -335,7 +335,6 @@ def main(argv: list[str] | None = None) -> int:
         sys.stdout.write("\n")
         return 0
 
-    # text
     if args.command == "files":
         _print_lines(_render_files_text(args.role_type))
     elif args.command == "types":

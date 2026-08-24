@@ -31,6 +31,9 @@
       --format '{{ "{{.Node}}" }}' | head -1
   register: _resolve_node
   changed_when: false
+  retries: 30
+  delay: 2
+  until: (_resolve_node.stdout | trim) | length > 0
   delegate_to: "{{ STACK_HOST }}"
   when: DEPLOYMENT_MODE == 'swarm'
 
@@ -50,6 +53,9 @@
     {% endif %}
   register: _resolve_cid
   changed_when: false
+  retries: 30
+  delay: 2
+  until: DEPLOYMENT_MODE == 'compose' or (_resolve_cid.stdout | trim) | length > 0
   delegate_to: "{{ lookup('vars', resolve_output_prefix ~ '_HOST_NODE') }}"
 
 - name: "🔧 resolve_host_cid | set {{ resolve_output_prefix }}_LOCAL_CID"

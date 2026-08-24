@@ -1,0 +1,6 @@
+---
+required: true
+mechanism: mu_plugin
+source: vendored
+bridges:
+  - sso

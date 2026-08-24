@@ -20,6 +20,7 @@ flowchart LR
     subgraph deps [Dependencies]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
@@ -35,18 +36,21 @@ flowchart LR
         svc_chess["chess"]
         svc_css["css"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
         svc_container_backup["container_backup"]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_postgres -. "0..1" .-> svc_postgres
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
-    dep_web_app_keycloak -- "1:1" --> svc_sso
+    dep_web_app_keycloak -- "0..0" --> svc_sso
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_svc_css -. "0..1" .-> svc_css
+    linkStyle 4 stroke:red;
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
@@ -98,6 +102,10 @@ docker run --rm -it \
 
 - [castling.club GitHub Repository](https://github.com/stephank/castling.club)  
 - [ActivityPub Specification (W3C)](https://www.w3.org/TR/activitypub/)  
+
+## Persona contract opt-outs
+
+[`meta/services.yml`](./meta/services.yml) pins `sso.enabled` and `logout.enabled` to `false`, and the role seeds no chess account — [`templates/env.j2`](./templates/env.j2) renders only the `APP_ADMIN_URL` / `APP_ADMIN_EMAIL` contact pair. Neither the `biber` nor the `administrator` persona has a login surface here, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. The `guest` persona and the baseline reachability assertions run unconditionally.
 
 ## Credits
 

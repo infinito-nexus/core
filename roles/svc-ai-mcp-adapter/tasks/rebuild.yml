@@ -8,5 +8,5 @@
     msg: "MCP adapter build context staged for {{ application_id }}"
   changed_when: true
   notify:
-    - compose build
-    - compose up
+    - compose-build
+    - compose-up

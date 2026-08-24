@@ -9,7 +9,7 @@
   changed_when: false
 
 - name: ▶️ sys-service | Run shared service debug script
-  ansible.builtin.script: "{{ role_path }}/files/debug.sh"
+  ansible.builtin.script: "{{ role_path }}/files/shell/debug.sh"
   become: true
   environment:
     SYSTEM_SERVICE_DEBUG_UNIT: "{{ system_service_debug_unit }}"

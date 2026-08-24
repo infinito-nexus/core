@@ -4,7 +4,6 @@
     name: pkgmgr-install
   vars:
     package_name: infinito-presentation
-    # package_notify: compose up
 
 - name: ⬇️ Get path of infinito-presentation using pkgmgr
   command: "{{ ansible_facts['env']['HOME'] }}/.venvs/pkgmgr/bin/pkgmgr path infinito-presentation"
@@ -21,4 +20,4 @@
 # Hack because it wasn't possible to fix an handler bug in pkgmgr install
 - name: „Trigger“ compose up
   command: /bin/true
-  notify: compose up
+  notify: compose-up

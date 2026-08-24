@@ -39,9 +39,6 @@ receivers:
         parse_mode: "HTML"
 {% endif %}
 {% if ALERTMANAGER_MATTERMOST_WEBHOOK_URL and 'web-app-mattermost' in lookup('active_alertmanager_channels') %}
-    # Mattermost incoming webhook (Slack-compatible format).
-    # Active only when Mattermost is deployed on this host, declares communication.channel: true,
-    # AND the webhook URL is configured.
     slack_configs:
       - api_url: "{{ ALERTMANAGER_MATTERMOST_WEBHOOK_URL }}"
         send_resolved: true

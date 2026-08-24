@@ -28,9 +28,6 @@ if TYPE_CHECKING:
 
 
 def _gh_request(method: str, url: str, token: str) -> dict | list | None:
-    # All call sites build URLs from `https://api.github.com/…` literals
-    # plus a project-controlled `namespace`/`package` segment, so no
-    # arbitrary scheme can slip in.
     req = urllib.request.Request(  # noqa: S310
         url,
         headers={

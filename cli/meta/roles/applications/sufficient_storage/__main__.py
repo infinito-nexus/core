@@ -5,7 +5,6 @@ import argparse
 import json
 import sys
 
-# Ensure repo root is in PYTHONPATH
 from . import PROJECT_ROOT
 
 sys.path.insert(0, str(PROJECT_ROOT))
@@ -60,11 +59,9 @@ def main() -> int:
     )
 
     if args.format == "json":
-        # Always output valid JSON
         print(json.dumps(matching, indent=2))
         return 0
 
-    # text: one role per line (robust for shell pipelines)
     for role in matching:
         print(role)
 

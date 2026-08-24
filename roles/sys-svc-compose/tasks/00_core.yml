@@ -30,7 +30,7 @@
 - name: 📦 Install compose wrapper
   become: true
   ansible.builtin.copy:
-    src: "compose.py"
+    src: "python/compose.py"
     dest: "{{ BIN_COMPOSE }}"
     mode: "0755"
     owner: root
@@ -39,7 +39,7 @@
 - name: 📦 Install resolve-container-id helper (Swarm task → container ID)
   become: true
   ansible.builtin.copy:
-    src: "resolve_container_id.sh"
+    src: "shell/resolve_container_id.sh"
     dest: "{{ BIN_RESOLVE_CONTAINER_ID }}"
     mode: "0755"
     owner: root

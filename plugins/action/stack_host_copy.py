@@ -7,7 +7,6 @@ from ansible.module_utils.parsing.convert_bool import boolean as _to_bool
 from ansible.plugins.action.copy import ActionModule as CopyActionModule
 from ansible.template import trust_as_template
 
-# trust_as_template: Ansible 2.19+ refuses to render Python-constructed strings without the TrustedAsTemplate tag.
 _IS_STACK_HOST_EXPR = trust_as_template("{{ IS_STACK_HOST | bool }}")
 
 

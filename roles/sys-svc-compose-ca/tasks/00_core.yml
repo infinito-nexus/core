@@ -30,7 +30,7 @@
 - name: "📦 CA trust | install compose CA inject script"
   become: true
   ansible.builtin.copy:
-    src: "compose_ca.py"
+    src: "python/compose_ca.py"
     dest: "{{ BIN_CA_INJECT }}"
     mode: "0755"
     owner: root

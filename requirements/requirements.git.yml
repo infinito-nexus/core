@@ -1,18 +1,15 @@
 ---
 collections:
-  # kewlfft.aur
   - name: kewlfft.aur
     source: https://github.com/kewlfft/ansible-aur.git
     type: git
     version: master
 
-  # community.general
   - name: community.general
     source: https://github.com/ansible-collections/community.general.git
     type: git
     version: main
 
-  # hetzner.hcloud
   - name: hetzner.hcloud
     source: https://github.com/ansible-collections/hetzner.hcloud.git
     type: git

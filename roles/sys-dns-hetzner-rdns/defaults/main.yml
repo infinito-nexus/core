@@ -3,8 +3,6 @@
 # @see https://docs.hetzner.com/cloud/api/getting-started/generating-api-token/
 HETZNER_API_TOKEN: ""
 
-# Robot (dedicated) credentials
-# You can create an user here: https://robot.hetzner.com/preferences/index
 HETZNER_ROBOT_USER: ""
 HETZNER_ROBOT_PASSWORD: ""
 
@@ -15,7 +13,3 @@ hetzner_async_time: "{{ ASYNC_TIME }}"
 hetzner_async_poll: "{{ ASYNC_POLL }}"
 hetzner_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 rdns_records: []
-# Example:
-# rdns_records:
-#   - { resource: "server", ip_address: "1.2.3.4", dns_ptr: "mail.example.com" }
-#   - { resource: "primary_ip", identifier: "12345", ip_address: "2001:db8::1", dns_ptr: "mail.example.com" }

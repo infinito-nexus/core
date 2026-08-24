@@ -3,7 +3,7 @@ CLI wrapper instead of the raw ``community.docker.docker_*`` modules.
 
 Rationale
 =========
-``roles/sys-svc-container/files/container.py`` is installed as the
+``roles/sys-svc-container/files/python/container.py`` is installed as the
 ``container`` binary and is the single SPOT for talking to the container
 runtime: it injects the project root CA (``container run``), and every
 other subcommand is a passthrough to ``docker <subcommand>`` so the same
@@ -86,7 +86,7 @@ class TestNoRawDockerModule(unittest.TestCase):
             self.fail(
                 "Found `community.docker.docker_*` module calls in role "
                 "tasks/handlers. These bypass the CA-aware `container` "
-                "wrapper (roles/sys-svc-container/files/container.py) and "
+                "wrapper (roles/sys-svc-container/files/python/container.py) and "
                 "are blind to swarm service naming.\n\n"
                 "Fix: drive the operation through the `container` CLI, e.g.\n\n"
                 "    - ansible.builtin.command:\n"

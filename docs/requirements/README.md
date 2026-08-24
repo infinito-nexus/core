@@ -30,3 +30,4 @@ Its scope is user stories and acceptance criteria that define what the project m
 - 023 - Setup Penpot
 - 025 - Matrix Role Ansible Flavor (matrix-docker-ansible-deploy)
 - 028 - atmo.rsvp (AT Protocol Events) Role + Mobilizon/ActivityPub Bridge
+- 031 - svc-net-tor: Tor Onion-Service Provider (injected alongside the clearnet domain)

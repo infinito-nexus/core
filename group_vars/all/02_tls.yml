@@ -23,7 +23,7 @@ CA_ROOT:
     C: "DE"
     O: "{{ DOMAIN_PRIMARY }}"
     OU: "Infinito.Nexus Root CA"
-    CN: "{{ DOMAIN_PRIMARY }} Root CA"
+    CN: "{{ (DOMAIN_PRIMARY ~ ' Root CA') if ((DOMAIN_PRIMARY ~ ' Root CA') | length <= 64) else DOMAIN_PRIMARY }}"
 CA_TRUST:
   cert_host: "{{ CA_ROOT.cert_host }}"
   cert_container: "/etc/ssl/certs/infinito-ca.pem"

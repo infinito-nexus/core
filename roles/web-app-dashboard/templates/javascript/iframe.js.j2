@@ -1,9 +1,10 @@
+{% set _tor_node = lookup('config', 'svc-net-tor', 'services.tor.node', '') %}
 window.addEventListener("message", function(event) {
-  const allowedSuffix = ".{{ DOMAIN_PRIMARY }}";
+  const allowedSuffixes = [".{{ DOMAIN_PRIMARY }}"{% if _tor_node %}, ".{{ _tor_node }}"{% endif %}];
   const origin = event.origin;
 
-  // 1. Only allow messages from *.{{ DOMAIN_PRIMARY }}
-  if (!origin.endsWith(allowedSuffix)) return;
+  // 1. Only allow messages from an allowed domain suffix (clearnet or onion mirror)
+  if (!allowedSuffixes.some(function (suffix) { return origin.endsWith(suffix); })) return;
 
   const data = event.data;
 
@@ -12,8 +13,8 @@ window.addEventListener("message", function(event) {
     try {
       const hrefUrl = new URL(data.href);
 
-      // 3. Only allow redirects to *.{{ DOMAIN_PRIMARY }}
-      if (!hrefUrl.hostname.endsWith(allowedSuffix)) return;
+      // 3. Only allow redirects to an allowed domain suffix
+      if (!allowedSuffixes.some(function (suffix) { return hrefUrl.hostname.endsWith(suffix); })) return;
 
       // 4. Update the ?iframe= parameter in the browser URL
       const newUrl = new URL(window.location);

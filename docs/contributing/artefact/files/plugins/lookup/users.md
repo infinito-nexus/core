@@ -82,6 +82,6 @@ users:
 |---|---|
 | [users.py](../../../../../../plugins/lookup/users.py) | Runtime entry point for the `users` lookup. |
 | [users/ (cache)](../../../../../../utils/cache/users/) | Shared aggregation helper package that builds and caches defaults, handles reserved users, UID/GID allocation, and uniqueness validation. Placeholder substitution (DOMAIN_PRIMARY / ORGANIZATION / SOFTWARE_NAME) lives in [users/placeholders.py](../../../../../../utils/cache/users/placeholders.py). |
-| [test_users.py](../../../../../../tests/unit/plugins/lookup/test_users.py) | Unit tests covering the full-dict, single-entry, override, strict missing, and non-strict missing cases. |
+| [test_users.py](../../../../../../tests/unit/python/plugins/lookup/test_users.py) | Unit tests covering the full-dict, single-entry, override, strict missing, and non-strict missing cases. |
 
 For the related applications pattern see [applications.md](applications.md).

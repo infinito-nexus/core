@@ -119,7 +119,6 @@ def _scan_file(path: Path) -> list[Finding]:
     for node in ast.walk(tree):
         if not _is_sh_lc_command(node):
             continue
-        # type narrowing above ensures list/tuple with at least 3 elts
         cmd_expr = node.elts[2]  # type: ignore[attr-defined]
         if not _expr_contains_pipefail(cmd_expr, pipefail_vars):
             continue

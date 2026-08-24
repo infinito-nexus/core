@@ -1,0 +1,12 @@
+---
+- name: "➕ Seed backup entry for '{{ _database_consumer_id }}'"
+  include_tasks: "{{ lookup('path_absolute', 'roles/svc-bkp-volume-2-local/tasks/03_seed-database-to-backup.yml') }}"
+  vars:
+    database_consumer_id: "{{ _database_consumer_id }}"
+    database_type: "{{ _database_type }}"
+    database_instance: "{{ lookup('database', _database_consumer_id, 'instance') }}"
+    database_host: "{{ lookup('database', _database_consumer_id, 'host') }}"
+    database_port: "{{ lookup('database', _database_consumer_id, 'port') }}"
+    database_name: "{{ lookup('database', _database_consumer_id, 'name') }}"
+    database_username: "{{ lookup('database', _database_consumer_id, 'username') }}"
+    database_password: "{{ lookup('database', _database_consumer_id, 'password') }}"

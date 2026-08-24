@@ -21,6 +21,7 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
+from utils.manager.credential_key import OVERRIDE_SECTION
 from utils.roles.applications.config import get
 from utils.roles.applications.services.engines import (
     ENGINES,
@@ -101,7 +102,7 @@ class LookupModule(LookupBase):
             or get(
                 applications,
                 consumer_id,
-                f"credentials.{engine}_password",
+                f"{OVERRIDE_SECTION}.{engine}_password",
                 strict=False,
                 default="",
             )
@@ -119,7 +120,7 @@ class LookupModule(LookupBase):
                 get(
                     applications,
                     svc_id,
-                    "credentials.REDIS_PASSWORD",
+                    f"{OVERRIDE_SECTION}.REDIS_PASSWORD",
                     strict=False,
                     default="",
                     skip_missing_app=True,

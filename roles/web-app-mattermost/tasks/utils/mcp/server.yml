@@ -30,7 +30,7 @@
       changed_when: true
       delegate_to: "{{ STACK_HOST }}"
       run_once: true
-      notify: container recreate
+      notify: container-recreate
 
 - name: "🔎 Mattermost | Re-read the Agents MCP server toggle"
   database_query:

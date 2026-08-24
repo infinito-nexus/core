@@ -36,6 +36,26 @@ initialize | reinstall | update) ;;
 	;;
 esac
 
+TORN_DOWN_MARKER="${REPO_ROOT}/.stack-torn-down"
+if [[ "${MODE}" == "update" ]] && [[ "${PURGE}" != "true" ]] &&
+	[[ -f "${TORN_DOWN_MARKER}" ]]; then
+	cat >&2 <<-EOF
+		ERROR: refusing mode=update against a torn-down stack.
+
+		$(cat "${TORN_DOWN_MARKER}")
+
+		An update deploys onto whatever is running. With the subjects down it
+		fails on a symptom of the teardown - a missing redis, an empty database
+		- and not on whatever broke the run that left them down. Fixing that
+		symptom fixes nothing.
+
+		Re-run with purge=true to clear the entity state first, or with
+		mode=reinstall for a fresh baseline. Both remove ${TORN_DOWN_MARKER}.
+	EOF
+	exit 1
+fi
+rm -f "${TORN_DOWN_MARKER}"
+
 run_pre_purge() {
 	if [[ "${PURGE}" == "true" ]]; then
 		echo ">>> Pre-purging entities for apps=${apps}"

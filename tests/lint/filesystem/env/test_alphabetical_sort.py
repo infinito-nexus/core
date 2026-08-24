@@ -15,7 +15,6 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 _KEY_RE = re.compile(r"^\s*(?P<key>[A-Za-z_][A-Za-z0-9_]*)\s*=")
-# Jinja2 control flow makes line ordering load-bearing; skip files that use it.
 _JINJA_BLOCK_RE = re.compile(r"\{%")
 
 

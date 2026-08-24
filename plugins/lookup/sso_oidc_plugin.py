@@ -40,11 +40,6 @@ class LookupModule(LookupBase):
         templar = getattr(self, "_templar", None)
         variables = variables or getattr(self._templar, "available_variables", {}) or {}
 
-        # Use the same merged+rendered applications payload that lookup('config')
-        # consumes. The raw `variables["applications"]` that Ansible hands the
-        # lookup is the pre-merge override slice, so nested defaults like
-        # services.ldap.enabled are not yet visible there and the flavor
-        # would silently fall back to 'sociallogin'.
         applications = lookup_loader.get(
             "applications", loader=self._loader, templar=templar
         ).run([], variables=variables)[0]

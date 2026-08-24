@@ -21,3 +21,10 @@
   retries: 3
   delay: 5
   until: syscfg_shell.rc == 0
+
+- name: "🔐 Trust the internal Root CA in Nextcloud's own HTTP client bundle"
+  ansible.builtin.shell: >
+    {{ NEXTCLOUD_DOCKER_EXEC_OCC }}
+    security:certificates:import {{ CA_TRUST.inject_cert_container | quote }}
+  changed_when: false
+  when: lookup('tls', application_id, 'mode') == 'self_signed'

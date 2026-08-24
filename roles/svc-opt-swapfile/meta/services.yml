@@ -3,6 +3,8 @@ swapfile:
   modes:
     host:
       enabled: true
+  repository: https://github.com/kevinveenbirkenbach/swap-forge.git
+  ref: v1.0.0
   swapfile_size: "{{ ansible_facts['memtotal_mb'] | int }}M"
   lifecycle: beta
   min_storage: "50MB"

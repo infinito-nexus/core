@@ -86,6 +86,17 @@ for _infinito_env_key in "${!_infinito_env_preserved[@]}"; do
 done
 unset _infinito_env_key _infinito_env_preserved
 
+if [[ -z "${REQUESTS_CA_BUNDLE:-}" ]]; then
+	for _infinito_env_ca in ${INFINITO_CA_BUNDLE_CANDIDATES}; do
+		if [[ -r "${_infinito_env_ca}" ]]; then
+			export REQUESTS_CA_BUNDLE="${_infinito_env_ca}"
+			export SSL_CERT_FILE="${SSL_CERT_FILE:-${_infinito_env_ca}}"
+			break
+		fi
+	done
+	unset _infinito_env_ca
+fi
+
 export INFINITO_ENV_LOADED="1"
 _infinito_env_mtime="$(stat -c %Y "${_infinito_env_dotenv}" 2>/dev/null || echo 0)"
 export INFINITO_ENV_LOADED_MTIME="${_infinito_env_mtime}"

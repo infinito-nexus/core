@@ -10,6 +10,7 @@ from ansible.plugins.lookup import LookupBase
 
 from plugins.filter.role_path_by_app_id import abs_role_path_by_application_id
 from utils.cache.files import read_text
+from utils.tls_common import is_onion_domain
 
 _JSDELIVR = "https://cdn.jsdelivr.net"
 
@@ -27,7 +28,8 @@ def resolve_host(variables, loader, templar) -> str:
     domain = lookup_loader.get("domain", loader=loader, templar=templar).run(
         ["web-svc-cdn"], variables=variables
     )[0]
-    return f"https://{domain}"
+    scheme = "http" if is_onion_domain(domain) else "https"
+    return f"{scheme}://{domain}"
 
 
 class LookupModule(LookupBase):

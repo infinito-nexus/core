@@ -30,7 +30,7 @@
     database_host: "127.0.0.1"
     database_port: "5432"
     database_username: "postgres"
-    database_password: "{{ lookup('config', application_id, 'credentials.postgresql_secret') }}"
+    database_password: "{{ lookup('config', application_id, 'secrets.credentials.postgresql_secret') }}"
     database_name: "" # Multiple databases
   when:
     - "'svc-bkp-volume-2-local' in group_names"
@@ -41,7 +41,7 @@
     src: "websocket_upgrade.conf"
     dest: "{{ [ lookup('nginx','directories.configuration.maps'), 'websocket_upgrade.conf' ] | path_join }}"
   when: IS_STACK_HOST | bool
-  notify: restart openresty
+  notify: restart-openresty
 
 - name: "👔 BBB manager-side operations (compose render + container exec)"
   include_tasks: 00_core/manager_ops.yml

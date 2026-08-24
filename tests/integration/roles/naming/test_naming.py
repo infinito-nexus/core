@@ -3,9 +3,6 @@ import unittest
 
 from . import PROJECT_ROOT
 
-# Regex:
-# - one or more lowercase letters, digits or hyphens
-# - optionally exactly one '_' followed by one or more lowercase letters, digits or hyphens
 ROLE_NAME_PATTERN = re.compile(r"^[a-z0-9-]+(?:_[a-z0-9-]+)?$")
 
 
@@ -24,7 +21,6 @@ class TestRoleNames(unittest.TestCase):
 
             name = role_path.name
 
-            # Ignore Python cache and hidden directories
             if name.startswith(".") or name == "__pycache__":
                 continue
 

@@ -18,7 +18,6 @@ class TestRunAfterReferences(unittest.TestCase):
         from . import PROJECT_ROOT
 
         cls.roles_dir = str(PROJECT_ROOT / "roles")
-        # collect all role names (folder names) in roles/
         cls.existing_roles = {
             name
             for name in os.listdir(cls.roles_dir)
@@ -30,7 +29,6 @@ class TestRunAfterReferences(unittest.TestCase):
         for role in sorted(self.existing_roles):
             meta_path = str(Path(self.roles_dir) / role / ROLE_FILE_META_MAIN)
             if not Path(meta_path).is_file():
-                # skip roles without a meta/main.yml
                 continue
 
             data = load_yaml_any(meta_path, default_if_missing={}) or {}

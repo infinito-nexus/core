@@ -1,7 +1,7 @@
 """Recoverer classes: one per svc-bkp-* recovery type.
 
 Each Recoverer parses and validates its own colon-encoded ``source`` and
-builds the role's ``files/recover.py`` invocation. Colon segments are
+builds the role's ``files/python/recover.py`` invocation. Colon segments are
 classified by shape: an ABSOLUTE path is the restore destination (replacing
 a --target flag); for device a RELATIVE segment is the on-device snapshot
 subpath and an all-digit ``YYYYMMDDHHMMSS`` segment is the generation to
@@ -47,7 +47,7 @@ def remote_target(target: str) -> bool:
 
 
 class Recoverer(ABC):
-    """One recovery type backed by a role's ``files/recover.py``."""
+    """One recovery type backed by a role's ``files/python/recover.py``."""
 
     name: str
     role: str
@@ -55,7 +55,9 @@ class Recoverer(ABC):
     no_backup_flag: bool = True
 
     def script(self) -> str:
-        return str(PROJECT_ROOT / "roles" / self.role / "files" / "recover.py")
+        return str(
+            PROJECT_ROOT / "roles" / self.role / "files" / "python" / "recover.py"
+        )
 
     @abstractmethod
     def args(self, source: str, target: str) -> list[str]:
@@ -154,6 +156,26 @@ class VolumeRecoverer(Recoverer):
         return argv
 
 
+class DatabaseRecoverer(Recoverer):
+    name = "database"
+    role = "svc-bkp-volume-2-local"
+    summary = "Generation's sql dumps -> their databases (consumers must be down)"
+
+    def args(self, source: str, target: str) -> list[str]:
+        if is_remote(source):
+            raise ValueError(
+                "database: remote source not supported; pull first or use 'full'"
+            )
+        if not source:
+            raise ValueError("database: empty source")
+        if remote_target(target):
+            raise ValueError(
+                "database: remote target not supported; the credentials live in "
+                f"the target's own databases.csv, so run the replay on {target}"
+            )
+        return ["--databases", source]
+
+
 class SecretsRecoverer(Recoverer):
     name = "secrets"
     role = "svc-bkp-secrets-2-local"
@@ -176,6 +198,7 @@ _RECOVERERS: tuple[Recoverer, ...] = (
     DeviceRecoverer(),
     NfsRecoverer(),
     VolumeRecoverer(),
+    DatabaseRecoverer(),
     SecretsRecoverer(),
 )
 RECOVERERS: dict[str, Recoverer] = {r.name: r for r in _RECOVERERS}

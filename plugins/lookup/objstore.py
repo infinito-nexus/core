@@ -6,6 +6,7 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
+from utils.manager.credential_key import OVERRIDE_SECTION
 from utils.roles.applications.config import get
 from utils.roles.entity.name import get_entity_name
 from utils.tls_common import resolve_enabled
@@ -162,7 +163,7 @@ class LookupModule(LookupBase):
         secret_key = get(
             applications,
             consumer_id,
-            "credentials.objstore_secret_key",
+            f"{OVERRIDE_SECTION}.objstore_secret_key",
             strict=False,
             default="",
         )

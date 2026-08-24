@@ -9,7 +9,7 @@ BLUESKY_GEOLOCATION_PATH: "{{ [ BLUESKY_SOCIAL_APP_DIR,'src/geolocation/index.ts
 BLUESKY_PDSADMIN_DIR: "{{ [ lookup('container', application_id, 'directories.volumes'), 'pdsadmin' ] | path_join }}"
 BLUESKY_PDSADMIN_FILE: "{{ [ BLUESKY_PDSADMIN_DIR, 'pdsadmin' ] | path_join }}"
 BLUESKY_PDSADMIN_TMP_TAR: "/tmp/pdsadmin.tar.gz"
-BLUESKY_PDS_DATA_DIR: "/opt/pds"
+BLUESKY_PDS_DATA_DIR: "{{ lookup('volume', 'web-app-bluesky', 'pds_data').target }}"
 BLUESKY_PDS_BLOBSTORE_LOCATION: "{{ [ BLUESKY_PDS_DATA_DIR, 'blocks' ] | path_join }}"
 
 BLUESKY_WEB_ENABLED: "{{ lookup('config', application_id, 'services.web.enabled') }}"
@@ -33,8 +33,8 @@ BLUESKY_PDS_HANDLE_DOMAIN: "{{ DOMAIN_PRIMARY | regex_replace('\\.(example|test|
 
 BLUESKY_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 
-BLUESKY_JWT_SECRET: "{{ lookup('config', application_id, 'credentials.jwt_secret') }}"
-BLUESKY_ROTATION_KEY: "{{ lookup('config', application_id, 'credentials.plc_rotation_key_k256_private_key_hex') }}"
+BLUESKY_JWT_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.jwt_secret') }}"
+BLUESKY_ROTATION_KEY: "{{ lookup('config', application_id, 'secrets.credentials.plc_rotation_key_k256_private_key_hex') }}"
 
 BLUESKY_ADMIN_EMAIL: "{{ lookup('users', 'administrator').email }}"
 BLUESKY_ADMIN_PASSWORD: "{{ lookup('users', 'administrator').password }}"
@@ -54,7 +54,7 @@ BLUESKY_BROKER_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ BLU
 BLUESKY_BROKER_PORT: "{{ lookup('config', application_id, 'services.broker.ports.local.http') }}"
 BLUESKY_BROKER_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.broker.ports.internal.http') }}"
 
-BLUESKY_BRIDGE_ENCRYPTION_KEY: "{{ lookup('config', application_id, 'credentials.bridge_encryption_key') }}"
+BLUESKY_BRIDGE_ENCRYPTION_KEY: "{{ lookup('config', application_id, 'secrets.credentials.bridge_encryption_key') }}"
 
 BLUESKY_SSO_PROXY_CONTAINER: "{{ lookup('config', application_id, 'services.sso-proxy.name') }}"
 BLUESKY_SSO_PROXY_CFG_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), lookup('config', 'web-app-keycloak', 'services.sso_proxy.configuration_file')

@@ -1,6 +1,8 @@
 const { test, expect } = require("@playwright/test");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
+const { resolveTimeout } = require("../timeouts");
+const { gotoOnion } = require("../personas");
 const shared = require("../_shared");
 
 test("addon infinito-http-ca-trust: the CA-trust mu-plugin is loaded by WordPress and outbound HTTPS calls resolve", async ({
@@ -8,7 +10,7 @@ test("addon infinito-http-ca-trust: the CA-trust mu-plugin is loaded by WordPres
 }) => {
   skipUnlessAddonEnabled("infinito-http-ca-trust");
   skipUnlessServiceEnabled("sso");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();
@@ -21,15 +23,18 @@ test("addon infinito-http-ca-trust: the CA-trust mu-plugin is loaded by WordPres
       shared.env.adminPassword
     );
 
-    await page.goto(
+    await gotoOnion(
+      page,
       `${shared.env.wpBaseUrl}/wp-admin/plugins.php?plugin_status=mustuse`,
-      { waitUntil: "domcontentloaded", timeout: 60_000 }
+      { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );
 
     await expect(
       page.locator("#the-list"),
       "the Must-Use plugins screen must list the CA-trust mu-plugin under the Plugin Name its header declares — one absent from this screen was never copied into wp-content/mu-plugins"
-    ).toContainText("Infinito.Nexus HTTP CA Trust", { timeout: 30_000 });
+    ).toContainText("Infinito.Nexus HTTP CA Trust", {
+      timeout: resolveTimeout(30_000),
+    });
 
     const restResponse = await page.request.get(
       `${shared.env.wpBaseUrl}/wp-json/`,

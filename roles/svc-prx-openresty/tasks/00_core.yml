@@ -5,6 +5,7 @@
   block:
     - name: "🔎 Stat the docker socket so the swarm openresty worker can be group-added to it"
       ansible.builtin.stat:
+        # nocheck: volumes-path-single-spot  this stats the socket on the HOST; it only happens to spell the same string as the container mount target
         path: /var/run/docker.sock
       register: _openresty_docker_sock
 

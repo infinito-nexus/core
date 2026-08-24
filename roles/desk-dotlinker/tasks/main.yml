@@ -3,5 +3,4 @@
 - include_tasks: 01_install.yml
   when: run_once_desk_dotlinker is not defined
 
-# Apply mappings EVERY time the role is included (with whatever dotlinker_mappings the caller passes)
 - include_tasks: 02_apply.yml

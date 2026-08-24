@@ -61,7 +61,7 @@ opentalk:
   placement: manager
   name: opentalk
   image: registry.opencode.de/opentalk/web-frontend
-  version: v2.9.0
+  version: v2.9.0 # nocheck: docker-version — component of the OpenTalk set; TODO: pin the set to a released bundle, then unpin
   min_storage: 234MB
   backup:
     no_stop_required: true
@@ -80,7 +80,7 @@ opentalk:
 controller:
   name: opentalk-controller
   image: registry.opencode.de/opentalk/controller
-  version: v0.34.1
+  version: v0.34.1 # nocheck: docker-version — component of the OpenTalk set; TODO: pin the set to a released bundle, then unpin
   min_storage: 291MB
   backup:
     no_stop_required: true
@@ -138,7 +138,7 @@ rabbit:
 recorder:
   name: opentalk-recorder
   image: registry.opencode.de/opentalk/recorder
-  version: v0.17.1
+  version: v0.16.2 # nocheck: docker-version — v0.17 drops the rabbitmq transport and reshapes [controller]; TODO: migrate recorder.toml.j2, then unpin
   min_storage: 775MB
   cpus: "1.5"
   mem_reservation: 512m
@@ -153,6 +153,12 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+
+# nocheck: playwright-service-flag
+tor:
+  bond: 0.5
+  enabled: false # nocheck: dynamic-flag
+  shared: false # nocheck: dynamic-flag
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
 container_backup: # nocheck: bond-baseline backup host joins outside the variant topology

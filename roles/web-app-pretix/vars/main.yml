@@ -1,6 +1,6 @@
 ---
 application_id: "web-app-pretix"
-container_hostname: "{{ lookup('domain',application_id) }}"
+container_hostname: "{{ lookup('container_hostname', application_id) }}"
 
 PRETIX_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 PRETIX_HOSTNAME: "{{ container_hostname }}"
@@ -31,7 +31,7 @@ PRETIX_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') | bool }
 PRETIX_MCP_SERVICE_KEY: "pretixmcp"
 PRETIX_MCP_CONTAINER: "{{ lookup('config', application_id, 'services.pretixmcp.name') }}"
 PRETIX_MCP_PORT: "{{ lookup('config', application_id, 'services.pretixmcp.ports.internal.http') }}"
-PRETIX_MCP_BEARER: "{{ lookup('config', application_id, 'credentials.mcp_bearer') }}"
+PRETIX_MCP_BEARER: "{{ lookup('config', application_id, 'secrets.credentials.mcp_bearer') }}"
 PRETIX_MCP_INSTANCE_DIR: "{{ [lookup('container', application_id, 'directories.instance'), 'mcp'] | path_join }}"
 PRETIX_MCP_UPSTREAM_HOST: "{{ lookup('config', application_id, 'services.pretix.name') }}"
 PRETIX_MCP_UPSTREAM_PORT: "{{ lookup('config', application_id, 'services.pretix.ports.internal.http') }}"
@@ -44,7 +44,7 @@ PRETIX_MCP_CONTRACT:
   tools: "{{ lookup('file', 'mcp/tools.json') | from_json }}"
   limits: "{{ lookup('config', application_id, 'mcp.limits') }}"
   schema_sha256: "{{ lookup('config', application_id, 'mcp.tools.schema_sha256') }}"
-PRETIX_MCP_UPSTREAM_KEY: "{{ lookup('config', application_id, 'credentials.mcp_upstream_token') }}"
+PRETIX_MCP_UPSTREAM_KEY: "{{ lookup('config', application_id, 'secrets.credentials.mcp_upstream_token') }}"
 PRETIX_MCP_UPSTREAM_TEAM: "mcp-readonly"
 PRETIX_MCP_UPSTREAM_AUTH_HEADER: "Authorization"
 PRETIX_MCP_UPSTREAM_AUTH_FORMAT: "Token {key}"

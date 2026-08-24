@@ -103,7 +103,7 @@ config :geolix,
   ]
 
 config :mobilizon, Mobilizon.Web.Upload.Uploader.Local,
-  uploads: System.get_env("MOBILIZON_UPLOADS", "/var/lib/mobilizon/uploads")
+  uploads: System.get_env("MOBILIZON_UPLOADS", "{{ lookup('volume', 'web-app-mobilizon', 'uploads').target }}")
 
 formats =
   if System.get_env("MOBILIZON_EXPORTS_FORMAT_CSV_ENABLED", "true") == "true" do
@@ -269,6 +269,8 @@ config :mobilizon, :auth,
     {:keycloak, "{{ OIDC.BUTTON_TEXT }}"}
   ]
 
+ca_trust = System.get_env("SSL_CERT_FILE")
+
 config :ueberauth, Ueberauth.Strategy.Keycloak.OAuth,
   client_id: "{{ OIDC.CLIENT.ID }}",
   client_secret: "{{ OIDC.CLIENT.SECRET }}",
@@ -276,5 +278,10 @@ config :ueberauth, Ueberauth.Strategy.Keycloak.OAuth,
   authorize_url: "{{ OIDC.CLIENT.AUTHORIZE_URL }}",
   token_url: "{{ OIDC.CLIENT.TOKEN_URL }}",
   userinfo_url: "{{ OIDC.CLIENT.USER_INFO_URL }}",
-  token_method: :post
+  token_method: :post,
+  request_opts:
+    if(ca_trust in [nil, ""],
+      do: [],
+      else: [ssl: [verify: :verify_peer, cacertfile: ca_trust, customize_hostname_check: [match_fun: :public_key.pkix_verify_hostname_match_fun(:https)]]]
+    )
 {% endif %}

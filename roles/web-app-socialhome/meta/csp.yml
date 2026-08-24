@@ -1,0 +1,6 @@
+---
+whitelist:
+  media-src:
+    - "blob:"
+  script-src:
+    - "blob:"

@@ -31,13 +31,11 @@ SCAN_DIRS = ("roles", "tasks", "playbooks")
 _SCAN_PREFIXES = tuple(f"{d}/" for d in SCAN_DIRS)
 SCAN_SUFFIXES = (".yml", ".yaml")
 
-# Same-task conditional keys whose body sees a freshly-set module result.
 _CONDITIONAL_KEYS = ("changed_when", "failed_when", "until")
 _CONDITIONAL_LINE_RE = re.compile(
     rf"""^\s*(?:-\s+)?(?:{"|".join(_CONDITIONAL_KEYS)})\s*:""",
 )
 
-# Match `<word>.<stdout|stderr|rc> | default(` with optional whitespace.
 _REDUNDANT_DEFAULT_RE = re.compile(
     r"""
     \.                                  # attribute access on a registered var

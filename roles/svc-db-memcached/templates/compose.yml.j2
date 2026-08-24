@@ -22,5 +22,5 @@
       retries: 18
       start_period: 15s
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

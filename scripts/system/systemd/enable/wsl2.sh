@@ -6,12 +6,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/../../../meta/env/load.sh"
 [[ "${INFINITO_IS_WSL2}" == "true" ]] || exit 0
 
-# /run/systemd/system only exists when systemd is actually running as PID 1
 if [ -d /run/systemd/system ]; then
 	exit 0
 fi
 
-# systemd not running — check if we already wrote the config
 if grep -qs "systemd=true" /etc/wsl.conf 2>/dev/null; then
 	echo ">>> systemd is configured but not yet active."
 	echo ">>> Close ALL open Ubuntu terminals, then run in Windows PowerShell:"

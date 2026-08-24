@@ -45,6 +45,8 @@ javascript:
   enabled: "{{ lookup('config', 'web-app-jitsi', 'services.sso.enabled') | bool }}"
   shared: "{{ lookup('config', 'web-app-jitsi', 'services.sso.enabled') | bool }}"
 jitsi:
+  healthcheck:
+    flavor: tcp
   modes:
     compose:
       enabled: true
@@ -80,6 +82,9 @@ web:
   pids_limit: 512
 # nocheck: playwright-service-flag - internal sub-component (XMPP server, not a user-facing surface)
 prosody:
+  healthcheck:
+    flavor: tcp
+    port_key: http
   name: jitsi-prosody
   image: jitsi/prosody
   version: "stable-9646"
@@ -93,6 +98,7 @@ prosody:
   mem_limit: 1g
   pids_limit: 1024
 # nocheck: playwright-service-flag - internal sub-component (conference focus)
+# nocheck: image-healthcheck  XMPP component, no internal port declared
 jicofo:
   name: jitsi-jicofo
   image: jitsi/jicofo
@@ -102,6 +108,7 @@ jicofo:
   mem_limit: 1g
   pids_limit: 1024
 # nocheck: playwright-service-flag - internal sub-component (video bridge, media plane)
+# nocheck: image-healthcheck  media bridge on UDP, no internal port declared
 jvb:
   name: jitsi-jvb
   image: jitsi/jvb
@@ -110,3 +117,9 @@ jvb:
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 2048
+
+# nocheck: playwright-service-flag
+tor:
+  bond: 0.5
+  enabled: false # nocheck: dynamic-flag
+  shared: false # nocheck: dynamic-flag

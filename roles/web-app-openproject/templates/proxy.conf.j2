@@ -16,7 +16,7 @@ server
   {% if lookup('sso', application_id, 'is_proxy_gated') %}
     {% set sso_proxy_enabled = true %}
     {% set webserver_location_extra_configuration %}
-  proxy_set_header X-Remote-User "${authrequest_username}:{{ lookup('config', application_id, 'credentials.auth_source_sso_secret') }}";
+  proxy_set_header X-Remote-User "${authrequest_username}:{{ lookup('config', application_id, 'secrets.credentials.auth_source_sso_secret') }}";
     {% endset %}
     {% set location = '/' %}
     {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}

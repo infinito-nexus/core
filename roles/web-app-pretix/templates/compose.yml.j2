@@ -11,12 +11,11 @@
     hostname: '{{ PRETIX_HOSTNAME}}'
     command: ["all"]
     {{ lookup('container_ports', ['pretix', 'http', DOCKER_BIND_HOST]) | indent(4) }}
-    {{ lookup('container_volumes', application_id, 'pretix') | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
-
 
   {% if PRETIX_MCP_ENABLED | bool %}
   {% set service_name = PRETIX_MCP_SERVICE_KEY %}
@@ -47,5 +46,5 @@
     {{ lookup('container_networks', own_network_only=True, provider_self_alias=False) | indent(4) }}
   {% endif %}
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

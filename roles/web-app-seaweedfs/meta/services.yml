@@ -1,8 +1,21 @@
 ---
+# nocheck: tor-contract — object-storage backend; consumed server-side over the
+# internal network (matrix S3 media etc.), never a Tor-browser surface, so it
+# rides no node onion.
+# nocheck: dynamic-flag — role-local browser UI, never consumed by other roles; shared stays literal.
+# nocheck: variants-coverage — the onion gate is a hard invariant; no variant may force the frontend on a tor node.
+# nocheck: bond-baseline — same reason: variant 0 must not pin the frontend on.
+frontend:
+  bond: 1
+  enabled: "{{ 'svc-net-tor' not in group_names }}"
+  shared: false
+  domains:
+    - filer
+    - master
 sso:
   bond: 1
-  enabled: "{{ 'web-app-keycloak' in group_names }}"
-  shared: "{{ 'web-app-keycloak' in group_names }}"
+  enabled: "{{ ('web-app-keycloak' in group_names) and ('svc-net-tor' not in group_names) }}"
+  shared: "{{ ('web-app-keycloak' in group_names) and ('svc-net-tor' not in group_names) }}"
   flavor: oauth2
   oauth2:
     origin:
@@ -28,6 +41,9 @@ prometheus:
   shared: "{{ 'web-app-prometheus' in group_names }}"
 # nocheck: playwright-service-flag — central object-store provider entity
 seaweedfs:
+  healthcheck:
+    flavor: curl
+    path: status
   modes:
     compose:
       enabled: true
@@ -41,7 +57,7 @@ seaweedfs:
   enabled: true
   shared: true
   image: chrislusf/seaweedfs
-  version: "4.41"
+  version: "4.44"
   name: seaweedfs
   api_port: 8333
   region: us-east-1
@@ -59,6 +75,7 @@ seaweedfs:
       sso: 16507
     internal:
       http: 8333
+# nocheck: image-healthcheck  no internal port declared, so no probe can address it
 proxy:
   name: seaweedfs-proxy
   image: nginx

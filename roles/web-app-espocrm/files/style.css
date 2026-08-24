@@ -1,21 +1,17 @@
 :root {
-    /* ---------- Base layout / surfaces ---------- */
 
-    /* Page background and main surface */
-    --body-bg:               var(--color-01-83);  /* light bluish background */
-    --panel-bg:              var(--color-01-89);  /* “white” on the blue scale */
+    --body-bg:               var(--color-01-83);
+    --panel-bg:              var(--color-01-89);
     --panel-default-bg:      var(--color-01-89);
     --table-bg:              var(--color-01-89);
-    --table-bg-accent:       var(--color-01-87);  /* slightly tinted row background */
+    --table-bg-accent:       var(--color-01-87);
     --code-bg:               var(--color-01-87);
     --well-bg:               var(--color-01-89);
 
-    /* Former “white” variants now on the 01 scale */
     --white-color:           var(--color-01-89);
     --white-color-3:         var(--color-01-86);
     --white-color-5:         var(--color-01-83);
 
-    /* Main gray scale now on primary 01 */
     --main-gray:             var(--color-01-85);
     --main-gray-5:           var(--color-01-80);
     --main-gray-7:           var(--color-01-79);
@@ -25,23 +21,19 @@
     --main-gray-25:          var(--color-01-62);
     --main-gray-40:          var(--color-01-49);
 
-    /* ---------- Text ---------- */
 
-    --text-color:            var(--color-01-20);  /* main text (dark) */
+    --text-color:            var(--color-01-20);
     --text-white-color:      var(--color-01-89);
-    --text-muted-color:      var(--color-01-60);  /* secondary / muted */
+    --text-muted-color:      var(--color-01-60);
     --text-gray-color:       var(--color-01-45);
 
     --code-border-color:         var(--color-01-85);
     --blockquote-border-color:   var(--color-01-80);
 
-    /* ---------- Links ---------- */
 
-    /* Link blue = core brand color (01) */
-    --link-color:            var(--color-01-60);  /* primary link blue */
-    --link-hover-color:      var(--color-01-45);  /* darker on hover */
+    --link-color:            var(--color-01-60);
+    --link-hover-color:      var(--color-01-45);
 
-    /* ---------- Navbar / header ---------- */
 
     --navbar-bg:                 var(--color-01-83);
     --navbar-link-color:         var(--color-01-60);
@@ -64,29 +56,25 @@
     --navbar-inverse-link-icon-color:    var(--color-01-39);
     --navbar-inverse-link-icon-hover-color: var(--color-01-39);
 
-    /* ---------- Footer ---------- */
 
     --site-footer-bg:           transparent;
     --site-footer-color:        var(--color-01-40);
 
-    /* ---------- Inputs / form elements ---------- */
 
     --input-color:              var(--color-01-40);
     --input-bg:                 var(--color-01-89);
     --input-border:             var(--color-01-82);
-    --input-border-focus:       var(--color-01-60);  /* blue focus ring */
+    --input-border-focus:       var(--color-01-60);
     --input-box-shadow:         inset 0 var(--1px) var(--1px)
                                 rgba(var(--color-rgb-01-00), 0.04);
     --input-bg-disabled:        var(--color-01-80);
     --input-color-disabled:     var(--color-01-60);
     --input-border-width:       var(--1px);
 
-    /* ---------- Tooltips ---------- */
 
-    --tooltip-bg:    var(--color-01-05);  /* almost black on 01 scale */
+    --tooltip-bg:    var(--color-01-05);
     --tooltip-color: var(--color-01-89);
 
-    /* ---------- Neutral button (non-primary) ---------- */
 
     --btn-default-bg:           var(--color-01-88);
     --btn-default-border:       var(--color-01-82);
@@ -96,7 +84,6 @@
     --btn-default-active-bg:    var(--color-01-82);
     --btn-default-active-border:var(--color-01-78);
 
-    /* Primary button = same scale as links */
     --btn-primary-bg:           var(--color-01-60);
     --btn-primary-border:       var(--color-01-60);
     --btn-primary-color:        var(--color-01-89);
@@ -105,14 +92,11 @@
     --btn-primary-active-bg:    var(--color-01-40);
     --btn-primary-active-border:var(--color-01-38);
 
-    /* Keep success / danger / warning as they are for now */
-    /* (you said: do not re-declare them here) */
 
     --btn-text-color:           var(--color-01-39);
     --btn-active-box-shadow:    inset 0 3px 5px
                                 rgba(var(--color-rgb-01-00), 0.125);
 
-    /* ---------- Dropdown / popover / modal ---------- */
 
     --dropdown-bg:              var(--color-01-89);
     --dropdown-link-color:      var(--color-01-20);
@@ -135,14 +119,12 @@
     --modal-border-color:       var(--color-01-87);
     --modal-border-width:       0;
 
-    /* ---------- Scrollbars ---------- */
 
     --scroll-bg:            var(--color-01-80);
     --scroll-thumb-bg:      var(--color-01-75);
     --scroll-width:         11px;
     --scroll-border-width:  0;
 
-    /* ---------- Misc ---------- */
 
     --default-heading-bg-color: var(--color-01-83);
     --default-border-color:     var(--color-01-85);

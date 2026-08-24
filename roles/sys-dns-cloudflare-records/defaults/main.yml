@@ -4,6 +4,4 @@ cloudflare_async_time: "{{ ASYNC_TIME }}"
 cloudflare_async_poll: "{{ ASYNC_POLL }}"
 cloudflare_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-# Supported types:
-#  A/AAAA (content), CNAME/MX/TXT (value, MX hat priority), SRV (service/proto/…)
 cloudflare_records: []

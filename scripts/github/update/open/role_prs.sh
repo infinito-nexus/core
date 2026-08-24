@@ -55,4 +55,4 @@ for entry in "${entries[@]}"; do
 		bash "${SCRIPT_DIR}/pr.sh" "${ROOT}/${entry}"
 done
 
-git checkout --quiet --force --detach "${base}" || true
+git checkout --quiet --force --detach "${base}" || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error

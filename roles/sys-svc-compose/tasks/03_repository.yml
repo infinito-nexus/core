@@ -19,6 +19,6 @@
   delay: 30
   until: docker_repo_pull is succeeded
   notify:
-    - compose build
-    - compose up
+    - compose-build
+    - compose-up
   become: true

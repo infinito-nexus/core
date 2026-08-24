@@ -10,7 +10,6 @@ from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 class TestBackupsEnabledIntegrity(unittest.TestCase):
     def setUp(self):
-        # Path to the roles directory
         self.roles_dir = str(
             Path(str(Path(str(Path(__file__).parent)) / "../../../../roles")).resolve()
         )
@@ -34,8 +33,6 @@ class TestBackupsEnabledIntegrity(unittest.TestCase):
                 self.fail(f"YAML parsing failed for {docker_config_path}: {e}")
                 continue
 
-            # Per the file root of meta/services.yml IS the
-            # services map (no `compose.services` wrapper).
             services = config if isinstance(config, dict) else {}
 
             for service_key, service in services.items():

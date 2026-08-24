@@ -13,10 +13,8 @@ $map = [
 ];
 
 foreach ($map as $k => $v) {
-  // Escape single quotes for safe embedding into the PHP source string
   $vEsc = str_replace("'", "\\'", $v);
 
-  // Match current value in config: public $key = '...';
   if (preg_match("/public \\$".$k."\\s*=\\s*'([^']*)';/", $c, $m) && $m[1] !== $v) {
     $c = preg_replace(
       "/public \\$".$k."\\s*=\\s*'[^']*';/",

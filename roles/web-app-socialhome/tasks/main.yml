@@ -1,3 +1,21 @@
 ---
-# Pre-alpha scaffold: see TODO.md. The role does not deploy SocialHome yet.
-# A full implementation will follow the standard webapp pattern via sys-stk-full.
+- name: "🧩 load docker, proxy for '{{ application_id }}'"
+  include_role:
+    name: sys-stk-full
+  vars:
+    compose_handlers_flush: false
+
+- name: "📄 Render socialhome.toml for '{{ application_id }}'"
+  stack_host_template:
+    src: socialhome.toml.j2
+    dest: "{{ SOCIALHOME_CONFIG_HOST_FILE }}"
+    mode: "0444"
+  notify: compose-up
+
+- name: "🐳 Finalize compose deploy for '{{ application_id }}'"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/finalize.yml') }}"
+
+- name: "🔐 Complete the standalone first-boot setup for '{{ application_id }}'"
+  include_tasks: 01_setup.yml
+  run_once: true
+  when: IS_STACK_HOST | bool

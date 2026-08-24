@@ -11,11 +11,9 @@ from . import PROJECT_ROOT
 _MAILU_ROLE = "web-app-mailu"
 _EMAIL_SERVICE_KEY = "email"
 
-# Patterns that indicate an email dependency on Mailu
 _MAILU_REF_RE = re.compile(r"web-app-mailu")
 _EMAIL_LOOKUP_RE = re.compile(r"""lookup\(\s*['"]email['"]""")
 
-# File extensions to scan within a role
 _SCAN_EXTENSIONS = {".yml", ".yaml", ".j2", ".py", ".sh", ".conf", ".env"}
 
 
@@ -100,10 +98,6 @@ class TestMailuServiceDependency(unittest.TestCase):
             role_name = role_path.name
             if role_name == _MAILU_ROLE:
                 continue
-            # Email transport providers (msmtp, smtp/postfix) and the
-            # email-alerting / mail-health roles implement or directly
-            # service the email subsystem; they call lookup('email') as the
-            # source of truth, not as dependent consumers. Exempt them.
             if role_name.startswith("sys-svc-mail") or role_name in {
                 "sys-ctl-alm-email",
                 "sys-ctl-hlth-msmtp",

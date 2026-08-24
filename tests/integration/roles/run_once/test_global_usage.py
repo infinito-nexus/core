@@ -33,15 +33,12 @@ from utils.roles.mapping import ROLE_FILE_TASKS_MAIN
 from . import PROJECT_ROOT
 
 try:
-    import yaml  # PyYAML
+    import yaml
 except Exception:
     yaml = None
 
-# ---------- Regexes (compiled once) ----------
-# Any usage like "run_once_<suffix>"
 RUN_ONCE_USAGE_RE = re.compile(r"\brun_once_([A-Za-z0-9_]+)\b")
 
-# Task files that "define" a run-once flag for a role
 RUN_ONCE_TASK_FILES = ("utils/once/flag.yml",)
 
 
@@ -67,7 +64,6 @@ class TolerantLoader(yaml.SafeLoader):
 
 
 def _unknown_tag_constructor(loader, tag_suffix, node):
-    # Represent unknown tagged nodes as plain structures so parsing doesn't fail
     if isinstance(node, yaml.ScalarNode):
         return loader.construct_scalar(node)
     if isinstance(node, yaml.SequenceNode):
@@ -153,7 +149,6 @@ def role_defines_suffix_in_doc(doc, role_suffix: str) -> bool:
     while queue:
         node = queue.pop()
         if isinstance(node, dict):
-            # A) include/import utils/once/flag.yml or utils/once/flag.yml
             for key in ("include_tasks", "import_tasks"):
                 if key in node:
                     val = node[key]
@@ -167,11 +162,9 @@ def role_defines_suffix_in_doc(doc, role_suffix: str) -> bool:
                                 p in subval for p in RUN_ONCE_TASK_FILES
                             ):
                                 return True
-            # B) set_fact exact var
             sf = node.get("set_fact") or node.get("ansible.builtin.set_fact")
             if isinstance(sf, dict) and target_var in sf:
                 return True
-            # Recurse
             queue.extend(node.values())
         elif isinstance(node, list):
             queue.extend(node)
@@ -183,7 +176,6 @@ class RunOnceGlobalUsageFastTest(unittest.TestCase):
         root = str(PROJECT_ROOT)
         rroot = roles_root(root)
 
-        # Discover roles and their suffixes
         roles: list[str] = []
         suffix_for_role: dict[str, str] = {}
         role_tasks_roots: dict[str, str] = {}
@@ -201,21 +193,14 @@ class RunOnceGlobalUsageFastTest(unittest.TestCase):
                         str(Path(rroot) / entry / "tasks") + os.sep
                     )
 
-        # Collections built in one pass
-        used_suffixes: set[str] = set()  # all suffixes used anywhere (valid YAML only)
-        global_defined_suffixes: set[str] = (
-            set()
-        )  # suffixes defined via global set_fact
-        role_defined_suffixes: dict[str, set[str]] = {
-            role: set() for role in roles
-        }  # per-role defined suffixes
+        used_suffixes: set[str] = set()
+        global_defined_suffixes: set[str] = set()
+        role_defined_suffixes: dict[str, set[str]] = {role: set() for role in roles}
 
-        # Single pass over all valid YAML files
         for yml in walk_yaml_files(root):
             text = read_text_safe(yml)
             if not text:
                 continue
-            # Quick prefilter to avoid parsing a ton of irrelevant YAML
             if not any(
                 tok in text
                 for tok in (
@@ -230,36 +215,28 @@ class RunOnceGlobalUsageFastTest(unittest.TestCase):
 
             docs = parse_yaml_documents(text)
             if docs is None:
-                # Invalid YAML -> skip entirely (by requirement)
                 continue
             if not docs:
                 docs = [None]
 
-            # 1) USAGE: collect suffixes from all scalar strings
             for doc in docs:
                 for s in iter_scalars(doc):
                     for m in RUN_ONCE_USAGE_RE.finditer(s):
                         used_suffixes.add(m.group(1))
 
-            # 2) GLOBAL DEFINITIONS: any set_fact assigning run_once_<suffix>
             for doc in docs:
                 collect_set_fact_suffixes(doc, global_defined_suffixes)
 
-            # 3) PER-ROLE DEFINITIONS
             role = file_role_by_prefix(yml, role_tasks_roots)
             if role:
                 role_suffix = suffix_for_role[role]
-                # utils/once/flag.yml inside role tasks defines that role's own suffix
-                # OR a direct set_fact with exact run_once_<role_suffix>
                 for doc in docs:
                     if role_defines_suffix_in_doc(doc, role_suffix):
                         role_defined_suffixes[role].add(role_suffix)
-                        break  # no need to re-check other docs in this file
+                        break
 
-        # Build offenders:
         offenders: list[tuple[str, str, str]] = []
 
-        # A) Unknown suffixes used (no corresponding role) must be globally defined
         offenders.extend(
             (
                 "<no-role>",
@@ -270,7 +247,6 @@ class RunOnceGlobalUsageFastTest(unittest.TestCase):
             if suffix not in known_suffixes and suffix not in global_defined_suffixes
         )
 
-        # B) Known role suffixes used must be defined either globally or in that exact role
         for role in sorted(roles):
             suffix = suffix_for_role[role]
             if suffix in used_suffixes and (

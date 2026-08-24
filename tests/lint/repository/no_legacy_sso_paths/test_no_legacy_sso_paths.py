@@ -33,18 +33,10 @@ LEGACY_PATTERNS = (
     re.compile(r"services\.oauth2\."),
     re.compile(r"services\.oidc\."),
     re.compile(r"web-app-oauth2-proxy"),
-    # Top-level YAML key ``oauth2:`` or ``oidc:`` in a meta/services.yml
-    # (not the new ``sso.oauth2.*`` sub-keys).
     re.compile(r"(?m)^oauth2:"),
     re.compile(r"(?m)^oidc:"),
 )
 
-# Files where a legacy reference is allowed because the file documents
-# the migration itself or otherwise pins a historical contract.
-# The path below is the migration record this guard polices; keeping it
-# verbatim is intentional (the lint test_no_req_references_in_code
-# treats path-string occurrences in source as a different concern, so
-# this single literal is OK).
 ALLOW_PATHS = (
     "docs/requirements/021-sso-flavor-migration.md",  # nocheck: req-ref  TODO: anchor stays put
 )
@@ -62,7 +54,6 @@ def _should_check(path: Path) -> bool:
         return False
     if "node_modules" in path.parts or "__pycache__" in path.parts:
         return False
-    # The guard test itself names the patterns — exclude self.
     self_rel = "tests/lint/repository/no_legacy_sso_paths/test_no_legacy_sso_paths.py"  # nocheck: self-path-reference
     return rel != self_rel
 
@@ -80,7 +71,7 @@ class TestNoLegacySsoPaths(unittest.TestCase):
             for pat in LEGACY_PATTERNS:
                 if pat.search(text):
                     offenders.append(f"{rel}: matches /{pat.pattern}/")
-                    break  # one report per file is enough
+                    break
 
         if offenders:
             self.fail(

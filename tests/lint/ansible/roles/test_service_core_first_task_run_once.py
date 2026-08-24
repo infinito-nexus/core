@@ -43,7 +43,11 @@ MAIN_SCHEMA_HINT = (
     "included directly (not via load/app.yml) are also protected against duplicate "
     "execution. Required schema:\n"
     "  - include_tasks: 00_core.yml\n"
-    "    when: run_once_<role_slug> is not defined"
+    "    when: run_once_<role_slug> is not defined\n"
+    "  # or, when the role also needs extra conditions:\n"
+    "    when:\n"
+    "      - run_once_<role_slug> is not defined\n"
+    "      - <extra condition>"
 )
 
 

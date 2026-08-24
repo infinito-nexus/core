@@ -1,5 +1,6 @@
 ---
-- name: restart postfix
+- name: 🔄 restart postfix
+  listen: restart-postfix
   ansible.builtin.systemd:
     name: postfix
     enabled: true

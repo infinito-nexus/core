@@ -63,7 +63,6 @@ def _build_parser() -> argparse.ArgumentParser:
 
 def _download_logs(owner, repo, run, jobs, args, dest, workers, delay_max):
     want = _selected_conclusions(args)
-    # In-progress jobs (conclusion=null) have no log endpoint yet; skip them.
     sel = [
         j
         for j in jobs

@@ -7,7 +7,7 @@
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: ["sh", "{{ lookup('volume', application_id, 'cdn_build_script').mounts[0].target }}"]
     {{ lookup('container_networks') | indent(4) }}
-    {{ lookup('container_volumes', application_id, 'build') | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

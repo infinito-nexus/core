@@ -23,13 +23,12 @@
         published: 443
         protocol: tcp
         mode: host
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    {{ lookup('container_extra_hosts', extra_hosts=['host.docker.internal:host-gateway']) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {% else %}
     network_mode: "host"
     {% endif %}
-    {{ lookup('container_volumes', application_id, 'openresty') | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     command: ["openresty", "-g", "daemon off;"]
     healthcheck:
       test: ["CMD", "openresty", "-t", "-q"]
@@ -37,5 +36,5 @@
       timeout: 5s
       retries: 3
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

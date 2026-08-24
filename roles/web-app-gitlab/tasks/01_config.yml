@@ -53,6 +53,12 @@
         group: "1000"
         mode: "0440"
         condition: "{{ GITLAB_EMAIL_ENABLED | bool }}"
+      - src: "config/oidc_http_discovery.rb.j2"
+        dest: "{{ [GITLAB_CONFIG_DIR, 'oidc_http_discovery.rb'] | path_join }}"
+        owner: "1000"
+        group: "1000"
+        mode: "0440"
+        condition: "{{ GITLAB_OIDC_ENABLED | bool }}"
       - src: "config/gitlab_shell_secret.j2"
         dest: "{{ [GITLAB_CONFIG_SECRETS_DIR, '.gitlab_shell_secret'] | path_join }}"
         owner: "1000"
@@ -100,7 +106,7 @@
   delegate_to: "{{ STACK_HOST }}"
   run_once: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  notify: compose up
+  notify: compose-up
 
 - name: "[swarm] Slurp GitLab SSH host keys from stack host"
   ansible.builtin.slurp:
@@ -128,4 +134,4 @@
     - DEPLOYMENT_MODE == 'swarm'
     - not (IS_STACK_HOST | bool)
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  notify: compose up
+  notify: compose-up

@@ -90,7 +90,7 @@
       container exec {{ MATRIX_MDAD_CONTAINER_ADDRESS | quote }} docker exec matrix-synapse register_new_matrix_user
       -u {{ MATRIX_ADMINISTRATOR_USERNAME | quote }}
       -p {{ MATRIX_ADMINISTRATOR_PASSWORD | quote }}
-      -a -c /data/homeserver.yaml http://localhost:8008
+      -a -c {{ lookup('volume', 'web-app-matrix', 'synapse_config').target }} http://localhost:8008
   register: matrix_admin_create
   changed_when: matrix_admin_create.rc == 0 and 'User ID already taken' not in (matrix_admin_create.stdout + matrix_admin_create.stderr)
   failed_when: matrix_admin_create.rc != 0 and 'User ID already taken' not in (matrix_admin_create.stdout + matrix_admin_create.stderr)

@@ -42,7 +42,7 @@ from utils.roles.applications.in_group_deps import applications_if_group_and_all
 from utils.roles.applications.services.registry import (
     build_service_registry_from_applications,
 )
-from utils.tests.swarm.force_shared_db import db_provider_service_keys
+from utils.tests.swarm.force_shared_db import db_provider_service_keys, pinned_local_db
 
 _ROLES_DIR = PROJECT_ROOT / "roles"
 
@@ -130,6 +130,7 @@ def _force_shared_db_view(applications: dict[str, Any]) -> dict[str, Any]:
             and isinstance(entry, dict)
             and entry.get("enabled") is not False
             and entry.get("shared") is not True
+            and not pinned_local_db(app_id, key)
         }
         if not flipped:
             continue

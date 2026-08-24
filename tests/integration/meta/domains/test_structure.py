@@ -45,7 +45,6 @@ class TestDomainsStructure(unittest.TestCase):
                     )
                     continue
 
-                # Check allowed keys
                 allowed_keys = {"canonical", "aliases"}
                 extra_keys = set(domains.keys()) - allowed_keys
                 if extra_keys:
@@ -57,7 +56,6 @@ class TestDomainsStructure(unittest.TestCase):
                         )
                     )
 
-                # Validate and collect 'aliases'
                 if "aliases" in domains:
                     aliases = domains["aliases"]
                     if not isinstance(aliases, list) or not all(
@@ -73,7 +71,6 @@ class TestDomainsStructure(unittest.TestCase):
                     else:
                         all_domains.extend(aliases)
 
-                # Validate and collect 'canonical'
                 if "canonical" in domains:
                     canonical = domains["canonical"]
                     if isinstance(canonical, list):
@@ -110,7 +107,6 @@ class TestDomainsStructure(unittest.TestCase):
                             )
                         )
 
-        # Check for duplicate domains across all roles
         duplicates = [
             domain for domain, count in Counter(all_domains).items() if count > 1
         ]

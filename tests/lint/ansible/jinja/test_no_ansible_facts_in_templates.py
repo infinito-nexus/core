@@ -13,8 +13,6 @@ from . import PROJECT_ROOT
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-# Host-identity facts in a template diverge per host and corrupt the shared
-# NFS-backed config view under swarm-mode replication.
 _HOST_LOCAL_FACT_PATTERNS = (
     r"ansible_hostname",
     r"ansible_fqdn",

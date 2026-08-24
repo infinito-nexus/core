@@ -1,0 +1,2 @@
+---
+_compose_ca_applicable: "{{ lookup('ca_injected', application_id) }}"

@@ -4,9 +4,9 @@ assets:
   name: penpot_assets
   mounts:
     - service: frontend
-      target: /opt/data/assets
+      target: &opt_data_assets_target /opt/data/assets
     - service: backend
-      target: /opt/data/assets
+      target: *opt_data_assets_target
 
 java_ca_trust:
   type: config

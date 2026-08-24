@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, runGuestFlow, gotoOnion } = require("./personas");
 const { isServiceEnabled } = require("./service-gating");
 require("./test-seaweedfs");
 test.use({ ignoreHTTPSErrors: true });
@@ -38,7 +39,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("peertube landing exposes canonical domain from applications lookup", async ({ page }) => {
-  const response = await page.goto(`${peertubeBaseUrl}/`);
+  const response = await gotoOnion(page, `${peertubeBaseUrl}/`);
   expect(response, "Expected peertube landing response").toBeTruthy();
   expect(response.status(), "Expected peertube landing response to be successful").toBeLessThan(400);
   expect(
@@ -50,7 +51,7 @@ test("peertube landing exposes canonical domain from applications lookup", async
 async function signInViaDashboardOidc(page, username, password, personaLabel) {
   const expectedOidcAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
 
-  await page.goto(`${peertubeBaseUrl}/login`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${peertubeBaseUrl}/login`);
   await page.waitForLoadState("networkidle").catch(() => {});
 
   const oidcButtonPatterns = [
@@ -68,7 +69,9 @@ async function signInViaDashboardOidc(page, username, password, personaLabel) {
         for (const pattern of oidcButtonPatterns) {
           const candidate = page.locator("a, button").filter({ hasText: pattern }).first();
           if ((await candidate.count().catch(() => 0)) > 0) {
-            await candidate.waitFor({ state: "visible", timeout: 30_000 }).catch(() => {});
+            await candidate
+              .waitFor({ state: "visible", timeout: resolveTimeout(30_000) })
+              .catch(() => {});
             await candidate.click().catch(() => {});
             break;
           }
@@ -76,7 +79,7 @@ async function signInViaDashboardOidc(page, username, password, personaLabel) {
         return page.url();
       },
       {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: `${personaLabel}: no OIDC sign-in button on ${peertubeBaseUrl}/login and no redirect to Keycloak; PeerTube has not registered the auth-openid-connect plugin`
       }
     )
@@ -86,7 +89,7 @@ async function signInViaDashboardOidc(page, username, password, personaLabel) {
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `${personaLabel}: expected redirect back to peertube at ${peertubeBaseUrl}`
     })
     .toContain(peertubeBaseUrl);
@@ -106,7 +109,7 @@ async function signInViaDashboardOidc(page, username, password, personaLabel) {
         return "pending";
       },
       {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: `${personaLabel}: expected visible authenticated peertube UI marker after OIDC login`
       }
     )
@@ -119,7 +122,7 @@ test("administrator: peertube OIDC login and logout", async ({ page }) => {
 
   await peertubeLogout(page, peertubeBaseUrl);
 
-  await page.goto(`${peertubeBaseUrl}/login`);
+  await gotoOnion(page, `${peertubeBaseUrl}/login`);
   await expect
     .poll(
       async () =>
@@ -131,7 +134,7 @@ test("administrator: peertube OIDC login and logout", async ({ page }) => {
           .catch(() => 0)) > 0 ||
         (await page.locator("input[type='password']").count().catch(() => 0)) > 0,
       {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: "Expected peertube to require a new sign-in after logout"
       }
     )
@@ -144,7 +147,7 @@ test("biber: peertube OIDC login and logout", async ({ page }) => {
 
   await peertubeLogout(page, peertubeBaseUrl);
 
-  await page.goto(`${peertubeBaseUrl}/login`);
+  await gotoOnion(page, `${peertubeBaseUrl}/login`);
   await expect
     .poll(
       async () =>
@@ -156,7 +159,7 @@ test("biber: peertube OIDC login and logout", async ({ page }) => {
           .catch(() => 0)) > 0 ||
         (await page.locator("input[type='password']").count().catch(() => 0)) > 0,
       {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: "Expected peertube to require a new sign-in after logout"
       }
     )

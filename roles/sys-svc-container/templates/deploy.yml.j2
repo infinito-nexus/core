@@ -1,4 +1,4 @@
-{% if (compose_mode_force | default('') or DEPLOYMENT_MODE) == 'swarm' %}
+{% if compose_mode == 'swarm' %}
 {{ "\n" }}
 {% if service_replicas_forced is defined %}
 {% set _replicas = service_replicas_forced %}

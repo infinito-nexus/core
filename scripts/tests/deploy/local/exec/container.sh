@@ -52,8 +52,6 @@ else
 	exit 2
 fi
 
-# defaults.sh exports INFINITO_CONTAINER from INFINITO_DISTRO (single SPOT
-# for the formula). Read strictly here — no local re-derivation.
 : "${INFINITO_CONTAINER:?INFINITO_CONTAINER not set after sourcing scripts/meta/env/load.sh — bug in defaults.sh?}"
 container="${INFINITO_CONTAINER}"
 

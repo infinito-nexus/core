@@ -27,6 +27,8 @@
     matomo:
       tracking:
         scope: root
+    tor:
+      enabled: true
 - services:
     container_backup:
       enabled: false
@@ -47,3 +49,5 @@
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    tor:
+      enabled: true

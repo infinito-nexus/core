@@ -1,10 +1,11 @@
 const { test } = require("@playwright/test");
+const { gotoOnion } = require("./personas");
 
 exports.register = function (shared) {
   const { env, keycloakLogin, isAuthChain, expect } = shared;
 
   async function assertDenied(page, targetUrl) {
-    const response = await page.goto(targetUrl, { waitUntil: "domcontentloaded" });
+    const response = await gotoOnion(page, targetUrl, { waitUntil: "domcontentloaded" });
     if (isAuthChain(page.url())) {
       await keycloakLogin(page, env.biberUsername, env.biberPassword);
     }
@@ -20,6 +21,7 @@ exports.register = function (shared) {
   }
 
   test("biber: denied on Filer and Master (admin-only)", async ({ page }) => {
+    test.skip(!env.frontendEnabled, "frontend disabled (headless backend node)");
     test.skip(!env.ssoEnabled, "SSO disabled");
     await assertDenied(page, env.filerUrl);
     await page.context().clearCookies();

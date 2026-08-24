@@ -39,6 +39,8 @@
     litellm:
       enabled: false
       shared: false
+    tor:
+      enabled: true
 
   mcp:
     enabled: true
@@ -80,6 +82,8 @@
     litellm:
       enabled: false
       shared: false
+    tor:
+      enabled: true
 
   mcp:
     enabled: false
@@ -121,6 +125,8 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     redis:
       shared: true
+    tor:
+      enabled: true
   mcp:
     enabled: false
     shared: false

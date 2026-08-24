@@ -51,7 +51,6 @@ class _FiltersCollector(ast.NodeVisitor):
     def _extract_mapping(self, node) -> list[tuple[str, str]]:
         pairs: list[tuple[str, str]] = []
 
-        # dict literal
         if isinstance(node, ast.Dict):
             for k, v in zip(node.keys, node.values, strict=False):
                 key = (
@@ -64,13 +63,11 @@ class _FiltersCollector(ast.NodeVisitor):
                     pairs.append((key, val))
             return pairs
 
-        # dict(...) call
         if (
             isinstance(node, ast.Call)
             and isinstance(node.func, ast.Name)
             and node.func.id == "dict"
         ):
-            # keywords: dict(name=fn)
             pairs.extend(
                 (kw.arg, self._name_of(kw.value))
                 for kw in node.keywords or []
@@ -78,9 +75,7 @@ class _FiltersCollector(ast.NodeVisitor):
             )
             return pairs
 
-        # Name (variable) that might be a dict assembled earlier in the function
         if isinstance(node, ast.Name):
-            # Fallback: we can't easily dataflow-resolve here; handled elsewhere by walking Assign/Call
             return []
 
         return []
@@ -90,7 +85,7 @@ class _FiltersCollector(ast.NodeVisitor):
         if isinstance(v, ast.Name):
             return v.id
         if isinstance(v, ast.Attribute):
-            return v.attr  # take right-most name
+            return v.attr
         return ""
 
 
@@ -107,21 +102,17 @@ def _collect_filters_from_filters_method(
     collector = _FiltersCollector()
     collector.visit(func)
 
-    # additionally scan simple 'X = {...}' and 'X.update({...})' patterns,
-    # and if 'return X' occurs, merge those dicts.
     name_dicts: dict[str, list[tuple[str, str]]] = {}
     returns: list[str] = []
 
     for n in ast.walk(func):
         if isinstance(n, ast.Assign):
-            # X = { ... }
             if len(n.targets) == 1 and isinstance(n.targets[0], ast.Name):
                 tgt = n.targets[0].id
                 pairs = _FiltersCollector()._extract_mapping(n.value)
                 if pairs:
                     name_dicts.setdefault(tgt, []).extend(pairs)
         elif isinstance(n, ast.Call):
-            # X.update({ ... })
             if isinstance(n.func, ast.Attribute) and n.func.attr == "update":
                 obj = n.func.value
                 if isinstance(obj, ast.Name):
@@ -137,7 +128,6 @@ def _collect_filters_from_filters_method(
         for p in name_dicts.get(rname, []):
             collector.defs.append(p)
 
-    # dedupe
     seen = set()
     out: list[tuple[str, str]] = []
     for k, v in collector.defs:
@@ -202,19 +192,16 @@ def _scan_filter_usage(
     Returns:
       ``{filter_name: {"used_any": bool, "used_outside": bool}}``
     """
-    # Map filter name → its own definition file (skip self-matches).
     def_file_by_name: dict[str, str] = {
         d["filter"]: os.path.realpath(d["file"]) for d in definitions
     }
 
-    # Reverse index: callable name → filter name (for the Python-call match group).
     callable_to_filter: dict[str, str] = {}
     for d in definitions:
         c = d.get("callable")
         if c:
             callable_to_filter[c] = d["filter"]
 
-    # Build master alternations.
     escaped_names = [re.escape(d["filter"]) for d in definitions]
     name_alt = "(" + "|".join(escaped_names) + ")"
     bare_pat = re.compile(r"\|\s*" + name_alt + r"\b")
@@ -248,7 +235,6 @@ def _scan_filter_usage(
             _path_real: str = path_real,
             _is_test_path: bool = is_test_path,
         ) -> None:
-            # Skip self-matches — a filter's own definition file is not a usage site.
             if _path_real == def_file_by_name.get(name):
                 return
             s = state[name]

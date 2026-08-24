@@ -34,10 +34,26 @@ if TYPE_CHECKING:
 
 SEPARATOR = "·"
 
+VARIANT_SEPARATOR = "#"
+
 _HEADING = re.compile(r"^#\s+(.+?)\s*$", re.MULTILINE)
-_VARIANT_SUFFIX = re.compile(r"\s+[\d,]+$")
+_VARIANT_SUFFIX = re.compile(re.escape(VARIANT_SEPARATOR) + r"[\d,]+$")
 _ROLE_ID = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)+")
 _VARIATION = re.compile("[︎️]")
+_AXIS_START = re.compile(r"[#@+%/]")
+
+
+def split_axes(token: str) -> tuple[str, str]:
+    """Split a CI selection token into its name and its axis suffix.
+
+    ``#``, ``@``, ``+``, ``%`` and ``/`` introduce an axis and appear in
+    neither a role id nor a display name, so the first of them is the seam.
+
+    Args:
+        token: e.g. ``'web-app-nextcloud#0,2@swarm+tor%debian/zfs'``.
+    """
+    match = _AXIS_START.search(token)
+    return (token[: match.start()], token[match.start() :]) if match else (token, "")
 
 
 class RoleDisplayName:
@@ -123,7 +139,7 @@ class RoleDisplayName:
                 for part in ("".join(self.category_labels(app_id)), fragment)
                 if part
             )
-        return f"{name} {variant}" if variant else name
+        return f"{name}{VARIANT_SEPARATOR}{variant}" if variant else name
 
     def _registry(self) -> dict[str, str]:
         if self._by_display is None:
@@ -166,11 +182,19 @@ class RoleDisplayName:
     def decode_list(self, names: str) -> str:
         """Space-separated display names rendered as space-separated role ids.
 
+        The axis suffix a CI selection token may carry (``#0,2@swarm+tor``) is
+        split off before the lookup and re-attached after it, so translating a
+        list never drops what the operator pinned on it.
+
         Args:
             names: space-separated display names or role ids; anything that
                 names no role passes through untouched.
         """
-        return " ".join(self.decode(token) or token for token in names.split())
+        decoded = []
+        for token in names.split():
+            name, axes = split_axes(token)
+            decoded.append((self.decode(name) or name) + axes)
+        return " ".join(decoded)
 
 
 @lru_cache(maxsize=1)

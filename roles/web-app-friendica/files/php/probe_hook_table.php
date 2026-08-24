@@ -1,4 +1,6 @@
 <?php
+// nocheck: mirrored-unit-test - opens a PDO connection to the Friendica database at the
+// top level to count hook rows; the whole file is the query
 require "/var/www/html/vendor/autoload.php";
 $cfgFile = getenv("FRIENDICA_CONFIG_FILE");
 if ($cfgFile === false) {

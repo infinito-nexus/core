@@ -6,7 +6,7 @@ without a net. The flow therefore first runs the role's deployed backup
 service (``systemctl start`` on the role's unit), which applies the
 usual differential backup logic to the live data before anything is
 overwritten. Roles subclass :class:`DirectoryRecovery`, set
-``unit_pattern`` and ship a thin ``files/recover.py`` CLI around it
+``unit_pattern`` and ship a thin ``files/python/recover.py`` CLI around it
 (enforced by ``tests/lint/ansible/roles/test_bkp_roles_have_recover.py``).
 
 Host-agnostic: source and target may be a local path or a remote

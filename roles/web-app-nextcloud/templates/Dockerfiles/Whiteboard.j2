@@ -1,9 +1,7 @@
 FROM {{ NEXTCLOUD_WHITEBOARD_IMAGE }}:{{ NEXTCLOUD_WHITEBOARD_VERSION }}
 
-# Temporarily switch to root so we can install packages
 USER 0
 
-# Install Chromium, ffmpeg, fonts, and runtime libraries for headless operation on Alpine
 RUN apk add --no-cache \
       chromium \
       ffmpeg \
@@ -16,12 +14,9 @@ RUN apk add --no-cache \
       ca-certificates \
     && update-ca-certificates
 
-# Ensure a consistent Chromium binary path
 RUN if [ -x /usr/bin/chromium-browser ]; then ln -sf /usr/bin/chromium-browser /usr/bin/chromium; fi
 
-# Environment variables used by Puppeteer
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
     PUPPETEER_SKIP_DOWNLOAD=true
 
-# Switch back to the original non-root user (nobody)
 USER 65534

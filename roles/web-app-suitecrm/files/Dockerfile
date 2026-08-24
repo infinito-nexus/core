@@ -9,6 +9,7 @@ RUN rm -rf /var/lib/apt/lists/* \
   && apt-get -o Acquire::Retries=3 update && apt-get -o Acquire::Retries=3 install -y \
       git \
       wget \
+      curl \
       unzip \
       libpng-dev \
       libzip-dev \
@@ -100,7 +101,8 @@ RUN set -eux; \
       --prefer-dist \
       --no-interaction \
       --optimize-autoloader \
-      --no-scripts
+      --no-scripts; \
+    COMPOSER_ALLOW_SUPERUSER=1 composer dump-autoload --no-dev --optimize --no-interaction
 
 RUN set -eux; \
     mkdir -p "${SUITECRM_LDAP_EXTENSION_DIR}"; \
@@ -115,15 +117,19 @@ FROM base
 ARG SUITECRM_ENTRYPOINT_SCRIPT_HOST_REL
 ARG SUITECRM_ENTRYPOINT_SCRIPT_DOCKER
 ARG SUITECRM_APP_DIR
+ARG SUITECRM_APP_VERSION
 ARG SUITECRM_SEED_DIR
 ARG SUITECRM_WEB_USER
 ARG SUITECRM_WEB_GROUP
 ENV SUITECRM_APP_DIR=${SUITECRM_APP_DIR} \
+    SUITECRM_APP_VERSION=${SUITECRM_APP_VERSION} \
     SUITECRM_SEED_DIR=${SUITECRM_SEED_DIR} \
     SUITECRM_WEB_USER=${SUITECRM_WEB_USER} \
     SUITECRM_WEB_GROUP=${SUITECRM_WEB_GROUP}
 
 COPY --from=builder --chown=${SUITECRM_WEB_USER}:${SUITECRM_WEB_GROUP} ${SUITECRM_APP_DIR} ${SUITECRM_SEED_DIR}
+
+RUN test -f "${SUITECRM_SEED_DIR}/vendor/autoload_runtime.php"
 
 RUN set -eux; \
     mkdir -p "${SUITECRM_APP_DIR}"; \

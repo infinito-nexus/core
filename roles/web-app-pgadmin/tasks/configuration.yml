@@ -8,7 +8,7 @@
     src: servers.json.j2
     dest: "{{ pgadmin_host_server_file }}"
     mode: "0644"
-  notify: compose up
+  notify: compose-up
 
 - name: "📄 Render .pgpass file"
   stack_host_template:
@@ -17,4 +17,4 @@
     owner: "{{ PGADMIN_USER }}"
     group: "{{ PGADMIN_GROUP }}"
     mode: "0600"
-  notify: compose up
+  notify: compose-up

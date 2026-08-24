@@ -1,4 +1,5 @@
 <?php
+// nocheck: mirrored-unit-test - a Joomla DI service provider; register() receives the CMS container and is only callable once Joomla has booted
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Extension\PluginInterface;

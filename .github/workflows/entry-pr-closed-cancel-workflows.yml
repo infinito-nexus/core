@@ -6,6 +6,10 @@ on:
       - closed
       - converted_to_draft
 
+concurrency:
+  group: pr-ci-${{ github.repository }}-pull_request-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 permissions:
   actions: write
   contents: read

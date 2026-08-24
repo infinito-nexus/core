@@ -10,12 +10,13 @@
         WORDPRESS_VERSION:         "{{ WORDPRESS_VERSION }}"
         WORDPRESS_CONFIG_UPLD_REL: "{{ WORDPRESS_CONFIG_UPLD_REL }}"
     {{ lookup('container_ports', ['wordpress', 'http', DOCKER_BIND_HOST]) | indent(4) }}
-{{ lookup('container_volumes', application_id, 'wordpress') | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
 
+    {{ lookup('container_extra_hosts', host_alias=true) | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
 {{ lookup('compose_networks') }}
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}

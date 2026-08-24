@@ -37,13 +37,13 @@
     src: "flavor/compose/mautrix/{{ item.bridge_name }}.config.yml.j2"
     dest: "{{ lookup('container', application_id, 'directories.instance') }}mautrix/{{ item.bridge_name }}/config.yaml"
   loop: "{{ MATRIX_BRIDGES }}"
-  notify: compose up
+  notify: compose-up
 
 - name: ➕ add element configuration
   stack_host_template:
     src: "flavor/compose/element.config.json.j2"
     dest: "{{ MATRIX_ELEMENT_CONFIG_PATH_HOST }}"
-  notify: compose up
+  notify: compose-up
 
 - name: "📄 Render Synapse config files (local + swarm peers)"
   ansible.builtin.include_tasks:
@@ -66,7 +66,7 @@
   stack_host_template:
     src: "compose.yml.j2"
     dest: "{{ [ lookup('container', application_id, 'directories.instance'),'compose.yml' ] | path_join }}"
-  notify: compose up
+  notify: compose-up
 
 - name: "🐳 compose-mode lifecycle (pull + up)"
   include_tasks: 03_compose_pull_and_up.yml
@@ -144,7 +144,7 @@
     container exec -i {{ MATRIX_SYNAPSE_CONTAINER_ADDRESS }}
     register_new_matrix_user
     -u chatgptbot
-    -p {{ lookup('config', application_id, 'credentials.chatgpt_bridge_user_password') | quote }}
+    -p {{ lookup('config', application_id, 'secrets.credentials.chatgpt_bridge_user_password') | quote }}
     -a -c {{ MATRIX_SYNAPSE_CONFIG_PATH_CONTAINER | quote }}
     http://localhost:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}
   register: matrix_create_chatgptbot

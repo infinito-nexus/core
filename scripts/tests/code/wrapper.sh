@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
-# Chooses where to execute scripts/tests/code/run.sh based on
-# INFINITO_TEST_RUNNER:
+# Chooses where to execute a test runner based on INFINITO_TEST_RUNNER:
 #   docker (default) -- inside the already-running infinito compose
 #                       container (requires `make compose-up`).
 #   host             -- directly against the host shell/Python.
+#
+# Param $1: repo-relative path of the runner script to execute.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
-RUN_SCRIPT="${SCRIPT_DIR}/run.sh"
+RUNNER_REL="${1:?usage: wrapper.sh <repo-relative-runner-script>}"
+RUN_SCRIPT="${REPO_ROOT}/${RUNNER_REL}"
 
 cd "${REPO_ROOT}"
 # shellcheck source=scripts/meta/env/load.sh
@@ -18,7 +20,7 @@ source scripts/meta/env/load.sh
 : "${INFINITO_TEST_RUNNER:?INFINITO_TEST_RUNNER must be set}"
 : "${INFINITO_TEST_TYPE:?INFINITO_TEST_TYPE must be set}" # nocheck: makefile-supplied
 
-RUN_SCRIPT_IN_CONTAINER="${INFINITO_SRC_DIR}/scripts/tests/code/run.sh"
+RUN_SCRIPT_IN_CONTAINER="${INFINITO_SRC_DIR}/${RUNNER_REL}"
 
 case "${INFINITO_TEST_RUNNER}" in
 docker)

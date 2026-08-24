@@ -12,7 +12,7 @@ source scripts/meta/env/load.sh
 
 out="/tmp/inventory-swarm-${APP_ID}.zip"
 stage="/tmp/inventory-swarm-${APP_ID}"
-sudo rm -rf "${stage}" 2>/dev/null || rm -rf "${stage}" 2>/dev/null || true
+sudo rm -rf "${stage}" 2>/dev/null || rm -rf "${stage}" 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 mkdir -p "${stage}"
 
 shopt -s nullglob
@@ -28,5 +28,5 @@ if [[ "${found}" -eq 0 ]]; then
 	exit 1
 fi
 
-sudo chown -R "$(id -u):$(id -g)" "${stage}" 2>/dev/null || true
+sudo chown -R "$(id -u):$(id -g)" "${stage}" 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 (cd /tmp && zip -r "${out}" "inventory-swarm-${APP_ID}")

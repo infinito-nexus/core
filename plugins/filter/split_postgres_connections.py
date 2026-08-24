@@ -24,10 +24,8 @@ def _is_postgres_role(vars_file):
         data = load_yaml_any(vars_file, default_if_missing={}) or {}
         if not isinstance(data, dict):
             return False
-        # only count roles with explicit database_type: postgres in VARS
         return str(data.get("database_type", "")).strip().lower() == "postgres"
     except Exception:
-        # ignore unreadable/broken YAML files quietly
         return False
 
 

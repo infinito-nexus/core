@@ -30,11 +30,6 @@ cd "${REPO_ROOT}"
 
 INFINITO_DEBUG="$(normalize_bool_or_default "${INFINITO_DEBUG:-}" false INFINITO_DEBUG)"
 
-# When the previous matrix init produced one folder per round
-# (`<INFINITO_INVENTORY_DIR>-0`, `<INFINITO_INVENTORY_DIR>-1`, ...), the
-# `variant=<idx>` make arg pins this redeploy to the chosen round. Without
-# `variant=` the unsuffixed path is used, which is correct for
-# single-variant deploys (N=1).
 inv_dir="${INFINITO_INVENTORY_DIR}"
 if [[ -n "${variant:-}" ]]; then
 	inv_dir="${inv_dir}-${variant}"
@@ -61,12 +56,10 @@ echo "inventory_dir = ${inv_dir}"
 echo "inv_file      = ${inv_file}"
 echo
 
-# Ensure stack is up
 "${PYTHON}" -m cli.administration.deploy.development up \
 	--when-down \
 	--skip-entry-init
 
-# Recompute apps list (optional, but keeps filters consistent)
 apps_json="$(
 	INFINITO_WHITELIST="${INFINITO_WHITELIST:-}" \
 		scripts/meta/resolve/apps.sh
@@ -88,7 +81,6 @@ echo "apps_sample=$(
 )"
 echo
 
-# Run deploy inside container
 deploy_with_cache_retry "update-all" -- \
 	"${PYTHON}" -m cli.administration.deploy.development exec \
 	--env "INFINITO_INVENTORY_FILE=${inv_file}" \

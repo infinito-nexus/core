@@ -92,8 +92,6 @@ class ServicesResolver:
         return self.roles_root / role_name
 
     def _role_services_path(self, role_name: str) -> Path:
-        # The services manifest lives at meta/services.yml. The file
-        # root IS the services map (no `compose.services` wrapper).
         return self._role_dir(role_name) / ROLE_FILE_META_SERVICES
 
     def _load_role_config(self, role_name: str) -> dict:

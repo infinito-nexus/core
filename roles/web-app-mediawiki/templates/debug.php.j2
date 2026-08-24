@@ -9,10 +9,6 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 }
 
 {% if MODE_DEBUG | bool %}
-/**
- * DEBUG ENABLED (MODE_DEBUG=true)
- * Verbose error display & debug logs for MediaWiki and OIDC/PluggableAuth.
- */
 $wgShowExceptionDetails = true;
 $wgShowDBErrorBacktrace = true;
 $wgShowSQLErrors        = true;
@@ -33,8 +29,4 @@ $wgDebugLogGroups = array_merge($wgDebugLogGroups ?? [], [
     'OpenIDConnect'   => 'php://stderr',
 ]);
 {% else %}
-/**
- * DEBUG DISABLED (MODE_DEBUG=false)
- * Intentionally a no-op. File stays present to keep require_once stable.
- */
 {% endif %}

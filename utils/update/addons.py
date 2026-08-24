@@ -25,19 +25,12 @@ if TYPE_CHECKING:
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_DIR_META_ADDONS
 
-# The installation mechanism recorded per addon. Records the upstream
-# install path; `bridge` additionally marks a network/appservice bridge
-# addon.
 MECHANISMS: frozenset[str] = frozenset(
     {"addon", "plugin", "mu_plugin", "extension", "module", "bridge"}
 )
 
-# Where the addon's payload comes from.
 SOURCES: frozenset[str] = frozenset({"upstream", "bundled", "vendored", "built"})
 
-# The top-level keys an addon entry may carry. Everything app-specific
-# lives under the opaque `config:` mapping so the surrounding schema stays
-# uniform across roles.
 ADDON_KEYS: frozenset[str] = frozenset(
     {
         "enabled",
@@ -52,13 +45,8 @@ ADDON_KEYS: frozenset[str] = frozenset(
     }
 )
 
-# Allowed sub-keys under an addon's `update:` block.
 UPDATE_KEYS: frozenset[str] = frozenset({"monitored", "catalog", "upstream_id"})
 
-# Catalog adapters the external drift checker understands. `update.catalog`
-# MUST name one of these so a monitored addon is actually checkable and the
-# discovery stays bounded to curated relevance rules rather than scraping
-# whole public marketplaces.
 SUPPORTED_CATALOGS: frozenset[str] = frozenset(
     {
         "friendica-addons",
@@ -76,10 +64,6 @@ SUPPORTED_CATALOGS: frozenset[str] = frozenset(
     }
 )
 
-# Case-insensitive substring tokens that mark a `config:` key as carrying a
-# secret. A bare literal under such a key fails the lint; the value MUST be a
-# templated `lookup(..., 'credentials.<name>')` expression (or any other
-# Jinja expression) instead.
 SECRET_KEY_TOKENS: tuple[str, ...] = (
     "secret",
     "password",
@@ -99,7 +83,7 @@ def value_is_templated(value: Any) -> bool:
     """Return True iff *value* is a Jinja expression rather than a bare literal.
 
     A templated value (`"{{ ... }}"`), whether a `lookup(...,
-    'credentials.<name>')` call or another variable reference, is accepted;
+    'secrets.credentials.<name>')` call or another variable reference, is accepted;
     a bare scalar literal (string without `{{`, or a raw int/bool) is a
     hard-coded secret and is rejected.
     """

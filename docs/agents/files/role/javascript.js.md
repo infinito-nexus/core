@@ -13,7 +13,7 @@ For injector wiring, activation, and repository-wide behavior rules, see [Contri
 ## Implement
 
 - You MUST use `templates/javascript.js.j2` when runtime values from the inventory or role variables must be rendered into the browser code.
-- You MUST use `files/javascript.js` when the script is static and does not depend on templating.
+- You MUST use `files/javascript/javascript.js` when the script is static and does not depend on templating.
 - You MUST wait for the DOM before touching elements, and guard missing elements so unrelated pages do not break.
 - You MUST keep event handlers, observers, and DOM mutations idempotent because injected scripts may run on dynamic pages or be triggered repeatedly.
 - You MUST prefer stable selectors and narrow hooks over text matching or timing-based hacks.

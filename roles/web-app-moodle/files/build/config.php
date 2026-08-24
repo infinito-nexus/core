@@ -1,4 +1,5 @@
 <?php
+// nocheck: mirrored-unit-test - env-driven Moodle configuration; the file assigns globals and calls Moodle's setup.php, it exposes no unit
 // Env-driven Moodle config. Single source of truth for defaults is
 // env.j2 (rendered by Ansible into .env/env). All MOODLE_* env vars
 // MUST be set; missing values fail fast.

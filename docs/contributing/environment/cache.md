@@ -23,7 +23,7 @@ Pulls only. Pushes are not intercepted.
 | `rubygems` | `gem-proxy` | `rubygems.org` |
 | `go` | `go-proxy` | `proxy.golang.org` |
 | `helm` | `helm-bitnami` | `charts.bitnami.com/bitnami` |
-| `yum` | `yum-rocky`, `yum-fedora` | `download.rockylinux.org`, `dl.fedoraproject.org` |
+| `yum` | `yum-rocky`, `yum-fedora` | `download.rockylinux.org`, `download.fedoraproject.org` |
 | `raw` | `raw-githubusercontent`, `raw-codeload-github`, `raw-packagist`, `raw-alpine` | `raw.githubusercontent.com`, `codeload.github.com`, `repo.packagist.org`, `dl-cdn.alpinelinux.org` |
 
 A proxy repo that holds a cached copy serves it when its remote is unreachable, regardless of `metadataMaxAge` (measured). `autoBlock` is therefore off: while a remote is auto-blocked Nexus answers `404 Remote Auto Blocked` instead of falling back to that cached copy. The mirror repos below only come into play when nothing is cached either.
@@ -45,7 +45,7 @@ Cert generation runs in a throw-away alpine container driven by [package-fronten
 
 ## Activation 🎚️
 
-The `cache` decision is exposed via `Profile.registry_cache_active()` in [profile.py](../../../cli/administration/deploy/development/profile.py). When active:
+The `cache` decision is exposed via `Profile.cache_stack_enabled()` in [profile.py](../../../cli/administration/deploy/development/profile.py). When active:
 
 - [compose/cache.override.yml](../../../compose/cache.override.yml) is layered on top of the base [compose.yml](../../../compose.yml) by [compose.py](../../../cli/administration/deploy/development/compose.py) and [down.py](../../../cli/administration/deploy/development/down.py) via [common.py](../../../cli/administration/deploy/development/common.py)`compose_file_args`.
 - The cache services are added.
@@ -78,7 +78,7 @@ The HTTPS-only inner-build gap requires per-image CA-trust bootstrap, which is o
 
 ## Compose Wrapper Auto-Detection 🪄
 
-The runner's `compose` wrapper at [roles/sys-svc-compose/files/compose.py](../../../roles/sys-svc-compose/files/compose.py) auto-detects compose files when invoked from per-app directories under `/opt/compose/<app>/`:
+The runner's `compose` wrapper at [roles/sys-svc-compose/files/python/compose.py](../../../roles/sys-svc-compose/files/python/compose.py) auto-detects compose files when invoked from per-app directories under `/opt/compose/<app>/`:
 
 | File | When |
 |---|---|
@@ -87,7 +87,7 @@ The runner's `compose` wrapper at [roles/sys-svc-compose/files/compose.py](../..
 | `compose.ca.override.yml` | when present (TLS self-signed CA-inject runs) |
 | `compose.cache.override.yml` | generated on the fly when `INFINITO_CACHE_PACKAGE_FRONTEND_IP` is set; emits `build.extra_hosts` for every service that has a `build:` key |
 
-[pull.py](../../../roles/sys-svc-compose/files/pull.py) delegates to the same wrapper so `pull` and `build --pull` operations see the identical `-f` set.
+[pull.py](../../../roles/sys-svc-compose/files/python/pull.py) delegates to the same wrapper so `pull` and `build --pull` operations see the identical `-f` set.
 
 ## Environment Variables 🌳
 
@@ -119,7 +119,7 @@ When a new package manager or upstream needs caching:
 2. If the upstream uses HTTPS, add it to `HOSTNAMES` in [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) so a leaf cert is issued.
 3. Add a server-block in [upstreams.conf](../../../compose/package-cache-frontend/upstreams.conf) that reverse-proxies onto the new Nexus repo path (rewrite if upstream URL prefix differs from the Nexus repo path).
 4. Add an `extra_hosts` entry on the `infinito` service in [compose/cache.override.yml](../../../compose/cache.override.yml) for runner-side traffic.
-5. If the upstream is HTTP-only and inner-`dockerd` builds need it, also add it to `_CACHE_HTTP_HOSTNAMES` in [compose.py](../../../roles/sys-svc-compose/files/compose.py) so the per-app `compose.cache.override.yml` includes it in `build.extra_hosts`.
+5. If the upstream is HTTP-only and inner-`dockerd` builds need it, also add it to `_CACHE_HTTP_HOSTNAMES` in [compose.py](../../../roles/sys-svc-compose/files/python/compose.py) so the per-app `compose.cache.override.yml` includes it in `build.extra_hosts`.
 
 ## Background 📚
 

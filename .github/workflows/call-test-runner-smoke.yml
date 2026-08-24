@@ -1,10 +1,11 @@
-name: "🏃 Test: Runner smoke (self-hosted)"
+name: "🏃 Test: Runner smoke"
+run-name: "🏃 Test: Runner smoke (self-hosted)"
 
 on:
   workflow_dispatch:
     inputs:
       ref:
-        description: "Git ref to check out (branch, tag, or SHA). Defaults to the repo default branch."
+        description: "🔀 Git ref to check out; empty takes the repo default branch."
         required: false
         default: ""
         type: string
@@ -49,6 +50,6 @@ jobs:
           docker run --rm hello-world
 
       - name: 🔍 Dump runner state (on failure)
-        if: failure()
+        if: failure() || cancelled()
         shell: bash
         run: ./scripts/github/runner/dump_state.sh "runner-smoke failure"

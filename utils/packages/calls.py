@@ -38,6 +38,11 @@ EXTERNAL_FETCH = RetryPolicy(attempts=3, seconds=10)
 repositories included: their metadata is served by mirror pools that degrade
 independently of the package manager's internal retries."""
 
+AUR_FETCH = RetryPolicy(attempts=6, seconds=60)
+"""The AUR is one origin host with no mirror pool behind it, so a flap there
+lasts minutes rather than the seconds a pool member needs to rotate out;
+EXTERNAL_FETCH's ~40s window has been observed losing to a single flap."""
+
 
 @dataclass(frozen=True)
 class ModuleCall:

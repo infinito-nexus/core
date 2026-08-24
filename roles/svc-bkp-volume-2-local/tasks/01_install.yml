@@ -3,7 +3,7 @@
   include_role:
     name: sys-pip-install
   vars:
-    package_name: "backup-docker-to-local==3.4.1"
+    package_name: "backup-docker-to-local==7.0.1"
     global_install: true
 
 - name: ✅ Assert required baudolo commands are available
@@ -11,6 +11,7 @@
   loop:
     - baudolo
     - baudolo-seed
+    - baudolo-restore
   loop_control:
     loop_var: cmd_name
   changed_when: false

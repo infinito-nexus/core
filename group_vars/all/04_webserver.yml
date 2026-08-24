@@ -10,9 +10,6 @@ WEBSERVER_CPUS_EFFECTIVE: >-
     ] | min
   }}
 
-# Nginx requires an integer for worker_processes:
-# - if cpus < 1 → 1
-# - else → floor to int
 WEBSERVER_WORKER_PROCESSES: >-
   {{
     1 if (WEBSERVER_CPUS_EFFECTIVE | float) < 1
@@ -27,5 +24,3 @@ WEBSERVER_WORKER_CONNECTIONS: >-
       (lookup('applications') | resource_filter(application_id,      'pids_limit', service_name | default(''), RESOURCE_PIDS_LIMIT)) | int
     ] | min
   }}
-
-# @todo It propably makes sense to distinguish between target and source mount path, so that the config files can be stored in the openresty volumes folder

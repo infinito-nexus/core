@@ -12,13 +12,11 @@ ROOT = PROJECT_ROOT
 sys.path.insert(0, str(ROOT))
 
 STAGES_DIR = ROOT / "tasks" / "stages"
-GROUPS_DIR = ROOT / "tasks" / "groups"
 
 
 class TestMetaRolesIntegration(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.role_files = get_invokable_paths(suffix="-roles.yml")
         cls.invokable_items = get_invokable_paths()
 
         cls.playbook_contents = {}
@@ -26,7 +24,7 @@ class TestMetaRolesIntegration(unittest.TestCase):
             cls.playbook_contents[path] = read_text(str(path))
 
         cls.include_pattern = re.compile(
-            r'include_tasks:\s*["\']\./tasks/groups/\{\{\s*[A-Za-z_][A-Za-z0-9_]*\s*\}\}-roles\.yml["\']'
+            r'include_tasks:\s*["\']?\./tasks/utils/setup/group\.yml["\']?'
         )
 
         stage_lookup = re.compile(
@@ -37,39 +35,20 @@ class TestMetaRolesIntegration(unittest.TestCase):
             for match in stage_lookup.finditer(content):
                 cls.lookup_referenced.update(stage_groups(match.group("stage")))
 
-    def test_all_role_files_exist(self):
-        """Each '-roles.yml' path returned by the filter must exist in the project root."""
-        missing = []
-        for fname in self.role_files:
-            path = GROUPS_DIR / fname
-            if not path.is_file():
-                missing.append(fname)
-        self.assertFalse(
-            missing, f"The following role files are missing at project root: {missing}"
-        )
-
     def test_each_invokable_item_referenced_in_playbooks(self):
         """
-        Each invokable item (without suffix) must be either:
+        Each invokable item must be either:
         - resolved by a `lookup('stage_groups', '<stage>')` loop, or
-        - looped through by a dynamic include_tasks ({{ item }}-roles.yml), or
-        - referenced by a direct include_tasks to ./tasks/groups/<item>-roles.yml.
+        - named in the loop of a stage that includes ./tasks/utils/setup/group.yml.
         """
         not_referenced = []
         for item in self.invokable_items:
             found = item in self.lookup_referenced
             loop_entry = re.compile(rf"-\s*{re.escape(item)}\b")
-            direct_include = re.compile(
-                rf'include_tasks:\s*["\']\./tasks/groups/{re.escape(item)}-roles\.yml["\']'
-            )
             for content in self.playbook_contents.values():
                 if found:
                     break
-                dynamic_ref = self.include_pattern.search(
-                    content
-                ) and loop_entry.search(content)
-                static_ref = direct_include.search(content)
-                if dynamic_ref or static_ref:
+                if self.include_pattern.search(content) and loop_entry.search(content):
                     found = True
                     break
             if not found:

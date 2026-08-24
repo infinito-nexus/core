@@ -7,6 +7,12 @@
 - mcp:
     enabled: true
     shared: true
+  services:
+    tor:
+      enabled: true
 - mcp:
     enabled: false
     shared: false
+  services:
+    tor:
+      enabled: true

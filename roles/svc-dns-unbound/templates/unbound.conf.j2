@@ -11,7 +11,7 @@ server:
   access-control: 10.0.0.0/8 allow
   access-control: 172.16.0.0/12 allow
   access-control: 192.168.0.0/16 allow
-  directory: "/etc/unbound"
+  directory: "{{ lookup('volume', 'svc-dns-unbound', 'data').target }}"
   username: unbound
   auto-trust-anchor-file: trusted-key.key
   root-hints: "/etc/unbound/root.hints"

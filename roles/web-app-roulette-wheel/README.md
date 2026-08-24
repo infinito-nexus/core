@@ -15,6 +15,7 @@ The diagram places Roulette Wheel in the Infinito.Nexus cosmos: the components i
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
@@ -31,16 +32,19 @@ flowchart LR
         svc_roulette_wheel["roulette-wheel"]
         svc_email["email ❌"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
     end
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
-    dep_web_app_keycloak -- "1:1" --> svc_sso
-    dep_web_app_mailu -- "1:1" --> svc_email
+    dep_web_app_keycloak -- "0..0" --> svc_sso
+    dep_web_app_mailu -- "0..0" --> svc_email
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_svc_css -. "0..1" .-> svc_css
+    linkStyle 2,3 stroke:red;
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
@@ -91,6 +95,10 @@ docker run --rm -it \
 
 - [Roulette Wheel on GitHub](https://github.com/p-wojt/roulette-wheel)
 - [Stack Overflow: Invalid Host Header with Webpack Dev Server](https://stackoverflow.com/questions/43619644/i-am-getting-an-invalid-host-header-message-when-connecting-to-webpack-dev-ser)
+
+## Persona contract opt-outs
+
+[`meta/services.yml`](./meta/services.yml) pins `sso.enabled`, `logout.enabled` and `email.enabled` to `false`; the role serves a static single-page wheel with no accounts and no auth layer. There is nothing for the `biber` or `administrator` persona to log in to, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. The `guest` persona and the baseline reachability assertions run unconditionally.
 
 ## Credits
 

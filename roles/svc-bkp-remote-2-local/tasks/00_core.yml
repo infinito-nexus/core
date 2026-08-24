@@ -19,7 +19,7 @@
 
 - name: "🚀 Deploy '{{ DOCKER_BACKUP_REMOTE_2_LOCAL_SCRIPT }}'"
   copy:
-    src: "{{ DOCKER_BACKUP_REMOTE_2_LOCAL_FILE }}"
+    src: "python/{{ DOCKER_BACKUP_REMOTE_2_LOCAL_FILE }}"
     dest: "{{ DOCKER_BACKUP_REMOTE_2_LOCAL_SCRIPT }}"
     mode: "0755"
 

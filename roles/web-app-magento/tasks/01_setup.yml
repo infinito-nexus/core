@@ -14,9 +14,8 @@
     --user {{ MAGENTO_USER }}
     {{ MAGENTO_PHP_CONTAINER_ADDRESS }} bash -lc 'set -e
       mkdir -p /tmp/composer/cache
-      cd /var/www/html
+      cd {{ MAGENTO_ROOT }}
       composer create-project --no-interaction --no-progress --no-install --repository-url={{ MAGENTO_COMPOSER_REPOSITORY }} {{ MAGENTO_COMPOSER_SPEC }} .
-      cp nginx.conf.sample nginx.conf
       mkdir -p var pub/static pub/media app/etc
       chmod -R 775 var pub/static pub/media app/etc
     '
@@ -29,8 +28,8 @@
     -e COMPOSER_HOME=/tmp/composer
     -e COMPOSER_CACHE_DIR=/tmp/composer/cache
     --user {{ MAGENTO_USER }}
-    -w /var/www/html
-    {{ MAGENTO_PHP_CONTAINER_ADDRESS }} composer install --no-interaction --no-progress
+    -w {{ MAGENTO_ROOT }}
+    {{ MAGENTO_PHP_CONTAINER_ADDRESS }} composer install --no-interaction --no-progress --no-dev
   args:
     creates: "{{ [ magento_volume_mountpoint.stdout | trim, 'html/bin/magento' ] | path_join }}"
   register: magento_composer_install
@@ -38,47 +37,69 @@
   delay: 5
   until: magento_composer_install is succeeded
 
+# Exception: magento2-base ships nginx.conf.sample, so it only exists after
+# composer install -- inside the bootstrap the file is not there yet and the
+# bootstrap's own creates: guard would make the miss permanent.
+- name: "📄 Publish Magento's nginx vhost into the volume"
+  ansible.builtin.shell: >-
+    container exec --user {{ MAGENTO_USER }} -w {{ MAGENTO_ROOT }}
+    {{ MAGENTO_PHP_CONTAINER_ADDRESS }} cp nginx.conf.sample nginx.conf
+  args:
+    creates: "{{ [ magento_volume_mountpoint.stdout | trim, 'html/nginx.conf' ] | path_join }}"
+  register: magento_nginx_conf
+
 - name: "▶️ Run Magento setup:install (in container)"
   shell: >
     container exec --user {{ MAGENTO_USER }} {{ MAGENTO_PHP_CONTAINER_ADDRESS }} bash -lc "
-    cd /var/www/html && bin/magento setup:install \
-      --base-url='{{ MAGENTO_URL }}/' \
+    cd {{ MAGENTO_ROOT }} && rm -f app/etc/env.php && bin/magento setup:install \
+      --base-url='{{ MAGENTO_URL }}' \
       --db-host=\"\$MYSQL_HOST\" \
       --db-name=\"\$MYSQL_DATABASE\" \
       --db-user=\"\$MYSQL_USER\" \
       --db-password=\"\$MYSQL_PASSWORD\" \
       --skip-db-validation \
       --db-engine=mysql \
+      --backend-frontname=\"\$MAGENTO_BACKEND_FRONTNAME\" \
       --search-engine='opensearch' \
       --opensearch-host=\"\$OPENSEARCH_HOST\" \
       --opensearch-port=\"\$OPENSEARCH_PORT_NUMBER\" \
-    {% if lookup('objstore', application_id, 'enabled') | bool %} \
-      --remote-storage-driver=\"\$MAGENTO_REMOTE_STORAGE_DRIVER\" \
-      --remote-storage-bucket=\"\$MAGENTO_REMOTE_STORAGE_BUCKET\" \
-      --remote-storage-region=\"\$MAGENTO_REMOTE_STORAGE_REGION\" \
-      --remote-storage-key=\"\$MAGENTO_REMOTE_STORAGE_KEY\" \
-      --remote-storage-secret=\"\$MAGENTO_REMOTE_STORAGE_SECRET\" \
-      --remote-storage-endpoint=\"\$MAGENTO_REMOTE_STORAGE_ENDPOINT\" \
-      --remote-storage-path-style=\"\$MAGENTO_REMOTE_STORAGE_PATH_STYLE\" \
-    {% endif %} \
       --admin-firstname=\"\$MAGENTO_ADMIN_FIRSTNAME\" \
       --admin-lastname=\"\$MAGENTO_ADMIN_LASTNAME\" \
       --admin-email=\"\$MAGENTO_ADMIN_EMAIL\" \
       --admin-user=\"\$MAGENTO_ADMIN_USERNAME\" \
-      --admin-password=\"\$MAGENTO_ADMIN_PASSWORD\""
+      --admin-password=\"\$MAGENTO_ADMIN_PASSWORD\" \
+      && touch var/.install-complete"
   args:
-    creates: "{{ [ magento_volume_mountpoint.stdout | trim, 'html/app/etc/env.php' ] | path_join }}"
+    creates: "{{ MAGENTO_INSTALL_MARKER }}"
   register: magento_install
   changed_when: >
     (magento_install.stdout is defined and
      ('Magento installation complete' in magento_install.stdout
       or 'successfully installed' in magento_install.stdout))
 
-- name: "🔄 Restart nginx so it picks up Magento's vhost (compose)"
-  ansible.builtin.command: "container restart {{ MAGENTO_NGINX_CONTAINER | quote }}"
+- name: "📤 Stage Magento's remote-storage configurator into the volume"
+  ansible.builtin.copy:
+    src: php/remote-storage.php
+    dest: "{{ [ magento_volume_mountpoint.stdout | trim, 'remote-storage.php' ] | path_join }}"
+    mode: "0644"
+  when: MAGENTO_OBJSTORE_ENABLED | bool
+
+- name: "🪣 Point Magento at the S3 remote storage"
+  ansible.builtin.shell: >-
+    container exec --user {{ MAGENTO_USER }} {{ MAGENTO_PHP_CONTAINER_ADDRESS }}
+    php {{ MAGENTO_ROOT | dirname }}/remote-storage.php
+  register: magento_remote_storage
+  changed_when: "'updated' in magento_remote_storage.stdout"
+  when: MAGENTO_OBJSTORE_ENABLED | bool
+
+- name: "🔄 Reload nginx so it picks up Magento's vhost (compose)"
+  ansible.builtin.shell: >-
+    container exec {{ MAGENTO_NGINX_CONTAINER_ADDRESS }} nginx -s reload
   register: magento_nginx_restart_compose
   changed_when: magento_nginx_restart_compose.rc == 0
-  when: DEPLOYMENT_MODE == 'compose'
+  when:
+    - DEPLOYMENT_MODE == 'compose'
+    - magento_nginx_conf is changed or magento_install is changed
 
 - name: "🔄 Restart nginx so it picks up Magento's vhost (swarm)"
   ansible.builtin.command: >-
@@ -87,4 +108,6 @@
   register: magento_nginx_restart_swarm
   changed_when: magento_nginx_restart_swarm.rc == 0
   timeout: "{{ lookup('timeout', 600) | int }}"
-  when: DEPLOYMENT_MODE == 'swarm'
+  when:
+    - DEPLOYMENT_MODE == 'swarm'
+    - magento_nginx_conf is changed or magento_install is changed

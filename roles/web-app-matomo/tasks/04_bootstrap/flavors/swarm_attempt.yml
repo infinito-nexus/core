@@ -11,7 +11,7 @@
     - ((matomo_bootstrap_swarm | default({})).rc | default(1)) | int != 0
 
 - name: "🐝 Matomo bootstrap | Swarm: force installer run and wait for its token"
-  ansible.builtin.script: "{{ role_path }}/files/bootstrap_swarm_poll.sh"
+  ansible.builtin.script: "{{ role_path }}/files/shell/bootstrap_swarm_poll.sh"
   environment:
     SERVICE_REF: "{{ lookup('container_service', application_id, MATOMO_BOOTSTRAP_SERVICE) }}"
     DEADLINE_S: "{{ MATOMO_INSTALLER_STEP_DEADLINE_S | int }}"

@@ -11,7 +11,7 @@ API (STRICT):
 
 Wraps ``utils.roles.applications.services.sso.get_sso_config`` so
 templates and tasks share one source of truth with Python callers
-(notably ``plugins/filter/compose_volumes.py``).
+(notably ``plugins/lookup/compose_volumes.py``).
 """
 
 from __future__ import annotations

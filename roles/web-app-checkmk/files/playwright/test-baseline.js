@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -14,7 +15,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("Checkmk front surface is reachable under the canonical domain", async ({ page }) => {
-  const response = await page.goto(`${appBaseUrl}/`);
+  const response = await gotoOnion(page, `${appBaseUrl}/`);
   expect(response, "Expected a Checkmk front response").toBeTruthy();
   expect(response.status(), "Expected the Checkmk front status to be < 500").toBeLessThan(500);
 });
@@ -31,11 +32,11 @@ test("administrator: app → admin surface → universal logout", async ({ page 
   await runAdminFlow(page, {
     adminInteraction: async (interactivePage) => {
       const setup = interactivePage.getByRole("link", { name: /^setup$/i }).first();
-      if (await setup.isVisible({ timeout: 10_000 }).catch(() => false)) {
-        await setup.click().catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+      if (await setup.isVisible().catch(() => false)) {
+        await setup.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
+        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(/setup|hosts|services|checkmk/i, {
-          timeout: 30_000,
+          timeout: resolveTimeout(30_000),
         });
       }
     },

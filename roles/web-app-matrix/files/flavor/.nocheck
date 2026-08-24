@@ -1,0 +1,1 @@
+# nocheck: role-files-layout - Docker build context. flavor/ansible/runner/Dockerfile:70-73 does ``COPY bootstrap.sh`` / ``COPY hostpin.sh`` with bare names relative to this directory, alongside the systemd units they install.

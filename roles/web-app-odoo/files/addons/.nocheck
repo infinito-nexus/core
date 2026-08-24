@@ -1,0 +1,1 @@
+# nocheck: role-files-layout - One subtree per addon, deployed and versioned as a unit. Splitting an addon across language folders would scatter it.

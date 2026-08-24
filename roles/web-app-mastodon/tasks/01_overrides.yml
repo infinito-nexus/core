@@ -1,22 +1,28 @@
 ---
-- name: "✅ MASTODON | Ensure overrides directory exists"
-  ansible.builtin.file:
-    path: "{{ MASTODON_OVERRIDES_DIR }}"
-    state: directory
-    mode: "0755"
+- name: "📦 MASTODON | Install HTTP-only override initializers"
   when: MASTODON_HTTP_ONLY_ENABLED | bool
+  block:
+    - name: "✅ MASTODON | Ensure overrides directory exists"
+      ansible.builtin.file:
+        path: "{{ MASTODON_OVERRIDES_DIR }}"
+        state: directory
+        mode: "0755"
 
-- name: "📦 MASTODON | Install force_ssl override initializer (HTTP-only)"
-  ansible.builtin.copy:
-    dest: "{{ MASTODON_FORCE_SSL_OVERRIDE_FILE }}"
-    mode: "0644"
-    content: |
-      # frozen_string_literal: true
+    - name: "📦 MASTODON | Install force_ssl override initializer (HTTP-only)"
+      ansible.builtin.copy:
+        dest: "{{ MASTODON_FORCE_SSL_OVERRIDE_FILE }}"
+        mode: "0644"
+        content: |
+          # frozen_string_literal: true
 
-      Rails.application.config.force_ssl = false
+          Rails.application.config.force_ssl = false
+          Rails.application.config.middleware.delete ActionDispatch::SSL if defined?(ActionDispatch::SSL)
+          Rails.application.routes.default_url_options[:protocol] = "http"
+      notify: compose-up
 
-      Rails.application.config.middleware.delete ActionDispatch::SSL if defined?(ActionDispatch::SSL)
-
-      Rails.application.routes.default_url_options[:protocol] = "http"
-  when: MASTODON_HTTP_ONLY_ENABLED | bool
-  notify: compose up
+    - name: "📦 MASTODON | Install OIDC http-discovery override initializer (HTTP-only)"
+      ansible.builtin.copy:
+        src: "ruby/00_oidc_http_discovery.rb"
+        dest: "{{ MASTODON_OIDC_HTTP_DISCOVERY_FILE }}"
+        mode: "0644"
+      notify: compose-up

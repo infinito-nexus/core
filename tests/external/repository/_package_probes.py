@@ -11,8 +11,13 @@ mirror says nothing about the declaration.
 
 from __future__ import annotations
 
+import io
 import json
+import lzma
 import re
+import tarfile
+import threading
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -23,6 +28,11 @@ from utils.packages.schema import SOURCE_AUR
 _TIMEOUT = 20
 _MAX_WORKERS = 16
 _USER_AGENT = "infinito-nexus package availability check"
+_PER_HOST_REQUESTS = 2
+_RETRY_ATTEMPTS = 4
+_RETRY_BACKOFF = 1.0
+_RETRY_STATUS = frozenset({429, 500, 502, 503, 504})
+_HOST_LOCKS: dict[str, threading.Semaphore] = {}
 
 DEBIAN_SUITE = "stable"
 UBUNTU_SUITE = "noble"
@@ -42,8 +52,6 @@ BOOTSTRAP_BASEURL: dict[str, str] = {
 declaration names the bootstrap package because that is what the install
 needs; only this probe needs the URL behind it."""
 
-_DEBIAN_MISSING_RE = re.compile(r"no such package", re.IGNORECASE)
-
 
 class PackageAvailabilityWarning(UserWarning):
     """An index could not be consulted, so availability stays unknown."""
@@ -62,24 +70,99 @@ class Outcome(NamedTuple):
     probe: Probe
     available: bool | None
     detail: str
+    declared: bool = False
 
 
 def _get(url: str) -> tuple[int, bytes]:
-    request = urllib.request.Request(url, headers={"User-Agent": _USER_AGENT})  # noqa: S310 - literal https package index URLs only
-    try:
-        with urllib.request.urlopen(request, timeout=_TIMEOUT) as response:  # noqa: S310 - literal https package index URLs only
-            return response.getcode(), response.read()
-    except urllib.error.HTTPError as exc:
-        return exc.code, b""
+    """Fetch one index URL, serialising and retrying per host.
+
+    Args:
+        url: absolute http(s) URL of a package index.
+
+    Returns:
+        The HTTP status and body; the body is empty for an error status.
+    """
+    request = urllib.request.Request(url, headers={"User-Agent": _USER_AGENT})  # noqa: S310 - literal http(s) package index URLs only
+    host = urllib.parse.urlsplit(url).hostname or ""
+    with _HOST_LOCKS.setdefault(host, threading.Semaphore(_PER_HOST_REQUESTS)):
+        for attempt in range(_RETRY_ATTEMPTS):
+            try:
+                with urllib.request.urlopen(request, timeout=_TIMEOUT) as response:  # noqa: S310 - literal http(s) package index URLs only
+                    return response.getcode(), response.read()
+            except urllib.error.HTTPError as exc:
+                if exc.code not in _RETRY_STATUS or attempt == _RETRY_ATTEMPTS - 1:
+                    return exc.code, b""
+            except OSError:
+                if attempt == _RETRY_ATTEMPTS - 1:
+                    raise
+            time.sleep(_RETRY_BACKOFF * 2**attempt)
+    raise AssertionError("unreachable")
+
+
+ARCH_MIRROR = "geo.mirror.pkgbuild.com"
+_ARCH_REPOS = ("core", "extra", "multilib")
+_ARCH_INDEX_CACHE: dict[str, set[str] | str] = {}
+_ARCH_INDEX_LOCK = threading.Lock()
+
+
+def _desc_names(desc: str) -> set[str]:
+    names: set[str] = set()
+    section = ""
+    for line in desc.splitlines():
+        if line.startswith("%") and line.endswith("%"):
+            section = line
+        elif line and section in ("%NAME%", "%PROVIDES%"):
+            names.add(line.split("=")[0].split("<")[0].strip())
+    return names
+
+
+def _load_arch_index() -> None:
+    names: set[str] = set()
+    for repo in _ARCH_REPOS:
+        url = f"https://{ARCH_MIRROR}/{repo}/os/x86_64/{repo}.db"
+        try:
+            status, body = _get(url)
+        except OSError as exc:
+            _ARCH_INDEX_CACHE["error"] = f"{ARCH_MIRROR}: {exc}"
+            return
+        if status != 200:
+            _ARCH_INDEX_CACHE["error"] = f"{ARCH_MIRROR} returned HTTP {status}"
+            return
+        with tarfile.open(fileobj=io.BytesIO(body), mode="r:*") as archive:
+            for member in archive:
+                if not member.name.endswith("/desc"):
+                    continue
+                handle = archive.extractfile(member)
+                if handle is None:
+                    continue
+                names |= _desc_names(handle.read().decode("utf-8", "replace"))
+    _ARCH_INDEX_CACHE["names"] = names
+
+
+def _arch_index_names() -> tuple[set[str] | None, str]:
+    """Load the Arch repo databases once per run and answer from memory.
+
+    Returns:
+        The set of package and provided names in core, extra and multilib,
+        or None together with the fetch error when a database could not be
+        read.
+    """
+    with _ARCH_INDEX_LOCK:
+        if not _ARCH_INDEX_CACHE:
+            _load_arch_index()
+        error = _ARCH_INDEX_CACHE.get("error")
+        if error is not None:
+            return None, str(error)
+        names = _ARCH_INDEX_CACHE["names"]
+        assert isinstance(names, set)
+        return names, f"{ARCH_MIRROR} core+extra+multilib"
 
 
 def _probe_arch(name: str) -> tuple[bool | None, str]:
-    query = urllib.parse.urlencode({"name": name})
-    status, body = _get(f"https://archlinux.org/packages/search/json/?{query}")
-    if status != 200:
-        return None, f"archlinux.org returned HTTP {status}"
-    payload = json.loads(body or b"{}")
-    return bool(payload.get("results")), "official repositories"
+    names, detail = _arch_index_names()
+    if names is None:
+        return None, detail
+    return name in names, detail
 
 
 def _probe_aur(name: str) -> tuple[bool | None, str]:
@@ -91,15 +174,83 @@ def _probe_aur(name: str) -> tuple[bool | None, str]:
     return bool(payload.get("results")), "AUR"
 
 
-def _probe_debian_like(host: str, suite: str, name: str) -> tuple[bool | None, str]:
-    status, body = _get(f"https://{host}/{suite}/{urllib.parse.quote(name)}")
-    if status == 404:
-        return False, f"{host}/{suite}"
-    if status != 200:
-        return None, f"{host} returned HTTP {status}"
-    if _DEBIAN_MISSING_RE.search(body.decode("utf-8", "replace")):
-        return False, f"{host}/{suite}"
-    return True, f"{host}/{suite}"
+DEBIAN_MIRROR = "deb.debian.org"
+UBUNTU_MIRROR = "archive.ubuntu.com"
+
+
+class AptIndex(NamedTuple):
+    mirror: str
+    path: str
+    suites: tuple[str, ...]
+    components: tuple[str, ...]
+
+
+APT_INDEX: dict[str, AptIndex] = {
+    "debian": AptIndex(
+        DEBIAN_MIRROR,
+        "debian",
+        (DEBIAN_SUITE, f"{DEBIAN_SUITE}-updates"),
+        ("main", "contrib", "non-free", "non-free-firmware"),
+    ),
+    "ubuntu": AptIndex(
+        UBUNTU_MIRROR,
+        "ubuntu",
+        (UBUNTU_SUITE, f"{UBUNTU_SUITE}-updates", f"{UBUNTU_SUITE}-security"),
+        ("main", "universe", "restricted", "multiverse"),
+    ),
+}
+"""The pockets a default install actually resolves against. Ubuntu ships
+packages such as 0ad only in -updates, so probing the release pocket alone
+reports a declared package as absent."""
+
+_APT_INDEX_CACHE: dict[str, tuple[set[str] | None, str]] = {}
+_APT_INDEX_LOCK = threading.Lock()
+
+
+def _load_apt_index(index: AptIndex) -> tuple[set[str] | None, str]:
+    names: set[str] = set()
+    for suite in index.suites:
+        for component in index.components:
+            url = (
+                f"http://{index.mirror}/{index.path}/dists/{suite}"
+                f"/{component}/binary-amd64/Packages.xz"
+            )
+            try:
+                status, body = _get(url)
+            except OSError as exc:
+                return None, f"{index.mirror}: {exc}"
+            if status != 200:
+                return None, f"{index.mirror} returned HTTP {status} for {url}"
+            for line in lzma.decompress(body).decode("utf-8", "replace").splitlines():
+                if line.startswith("Package: "):
+                    names.add(line[len("Package: ") :].strip())
+                elif line.startswith("Provides: "):
+                    for entry in line[len("Provides: ") :].split(","):
+                        names.add(entry.split("(")[0].strip())
+    return names, f"{index.mirror}/{index.suites[0]}"
+
+
+def _apt_index_names(distro: str) -> tuple[set[str] | None, str]:
+    """Load a distribution's binary index once per run, answer from memory.
+
+    Args:
+        distro: key into APT_INDEX naming the mirror, suite and components.
+
+    Returns:
+        The set of binary and virtual package names in the suite, or None
+        together with the fetch error when the mirror could not be read.
+    """
+    with _APT_INDEX_LOCK:
+        if distro not in _APT_INDEX_CACHE:
+            _APT_INDEX_CACHE[distro] = _load_apt_index(APT_INDEX[distro])
+        return _APT_INDEX_CACHE[distro]
+
+
+def _probe_apt(distro: str, name: str) -> tuple[bool | None, str]:
+    names, detail = _apt_index_names(distro)
+    if names is None:
+        return None, detail
+    return name in names, detail
 
 
 def _probe_fedora(name: str) -> tuple[bool | None, str]:
@@ -170,20 +321,14 @@ def _externally_managed(repo: dict | None) -> str | None:
 def _probe(probe: Probe) -> Outcome:
     external = _externally_managed(probe.repo)
     if external:
-        return Outcome(probe, None, f"third-party repository: {external}")
+        return Outcome(probe, None, f"third-party repository: {external}", True)
     try:
         if probe.source == SOURCE_AUR:
             available, detail = _probe_aur(probe.name)
         elif probe.distro == "arch":
             available, detail = _probe_arch(probe.name)
-        elif probe.distro == "debian":
-            available, detail = _probe_debian_like(
-                "packages.debian.org", DEBIAN_SUITE, probe.name
-            )
-        elif probe.distro == "ubuntu":
-            available, detail = _probe_debian_like(
-                "packages.ubuntu.com", UBUNTU_SUITE, probe.name
-            )
+        elif probe.distro in APT_INDEX:
+            available, detail = _probe_apt(probe.distro, probe.name)
         elif probe.distro == "fedora":
             available, detail = _probe_fedora(probe.name)
         else:
@@ -191,5 +336,7 @@ def _probe(probe: Probe) -> Outcome:
     except Exception as exc:
         return Outcome(probe, None, f"{type(exc).__name__}: {exc}")
     if available is False and probe.virtual:
-        return Outcome(probe, None, f"{detail} lists no such name; declared virtual")
+        return Outcome(
+            probe, None, f"{detail} lists no such name; declared virtual", True
+        )
     return Outcome(probe, available, detail)

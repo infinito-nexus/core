@@ -9,8 +9,14 @@
   stack_host_template:
     src: "env/{{ _database_type }}.env.j2"
     dest: "{{ _database_env }}"
-  notify: compose up
+  notify: compose-up
 
 - name: "🔧 For '{{ application_id }}/{{ _database_consumer_id }}': Apply postgres setup"
   include_tasks: dedicated_postgres.yml
   when: _database_type == 'postgres'
+
+- name: "🔧 For '{{ application_id }}/{{ _database_consumer_id }}': Seed the backup entry"
+  include_tasks: utils/seed_backup.yml
+  when:
+    - "'svc-bkp-volume-2-local' in group_names"
+    - IS_STACK_HOST | bool

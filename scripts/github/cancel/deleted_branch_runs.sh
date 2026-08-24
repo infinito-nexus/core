@@ -27,6 +27,7 @@ cancel_runs_by_status() {
 			"/repos/${REPOSITORY}/actions/runs?status=${status}&per_page=100" |
 			jq -r --arg branch "${BRANCH}" '
         .workflow_runs[]
+        | select(.path != ".github/workflows/entry-pr-closed-cancel-workflows.yml")
         | select(
             .head_branch == $branch
             or any(.pull_requests[]?; (.head.ref // "") == $branch)

@@ -11,7 +11,7 @@ const {
   setupMatomoPage,
   loginAsAdmin,
 } = require("./_shared");
-const { assertInjectedAssetLoadsWithoutCspBlock } = require("./personas");
+const { assertInjectedAssetLoadsWithoutCspBlock, gotoOnion } = require("./personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -91,7 +91,7 @@ for (const target of matomoTargetRoles) {
         label: target.id,
       });
     } else {
-      await page.goto(targetUrl, { waitUntil: "domcontentloaded" });
+      await gotoOnion(page, targetUrl, { waitUntil: "domcontentloaded" });
     }
 
     const html = await page.content();

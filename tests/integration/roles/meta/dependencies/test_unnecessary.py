@@ -90,7 +90,6 @@ def collect_role_defined_vars(role_dir: str) -> set[str]:
             data = safe_load_yaml(p)
             provided |= flatten_keys(data)
 
-    # set_fact keys
     task_files = gather_yaml_files(str(Path(role_dir) / "tasks"), ["**/*.yml", "*.yml"])
     for tf in task_files:
         data = safe_load_yaml(tf)
@@ -171,10 +170,8 @@ def find_notify_offsets_for_handlers(text: str, handler_names: set[str]) -> list
         return []
     offsets: list[int] = []
     for h in handler_names:
-        # Find occurrences of the handler name
         for m in re.finditer(re.escape(h), text):
             start = m.start()
-            # Look back a bit for a 'notify' token
             back = max(0, start - 200)
             context = text[back:start]
             if re.search(r"notify\s*:", context):
@@ -222,7 +219,6 @@ class TestUnnecessaryRoleDependencies(unittest.TestCase):
         self.project_root = str(PROJECT_ROOT)
         self.roles = iter_role_dirs(self.project_root)
 
-        # Index provider data
         self.role_vars: dict[str, set[str]] = {}
         self.role_handlers: dict[str, set[str]] = {}
         for rd in self.roles:
@@ -230,7 +226,6 @@ class TestUnnecessaryRoleDependencies(unittest.TestCase):
             self.role_vars[rn] = collect_role_defined_vars(rd)
             self.role_handlers[rn] = collect_role_handler_names(rd)
 
-        # Map meta deps
         self.role_meta_deps: dict[str, set[str]] = {}
         for rd in self.roles:
             rn = role_name_from_dir(rd)
@@ -239,7 +234,6 @@ class TestUnnecessaryRoleDependencies(unittest.TestCase):
     def test_unnecessary_meta_dependencies(self):
         warnings: list[str] = []
 
-        # Prepare lookup: role_dir by name
         role_dir_by_name = {role_name_from_dir(rd): rd for rd in self.roles}
 
         for consumer_dir in self.roles:
@@ -248,7 +242,6 @@ class TestUnnecessaryRoleDependencies(unittest.TestCase):
             if not meta_deps:
                 continue
 
-            # Load consumer files
             defaults_files = [
                 p
                 for p in [
@@ -266,7 +259,6 @@ class TestUnnecessaryRoleDependencies(unittest.TestCase):
             task_texts = [(p, read_text(p)) for p in task_files]
 
             for producer in sorted(meta_deps):
-                # Skip unknown producer dirs (e.g., external roles)
                 pdir = role_dir_by_name.get(producer)
                 if not pdir:
                     continue
@@ -274,7 +266,6 @@ class TestUnnecessaryRoleDependencies(unittest.TestCase):
                 provided_vars = self.role_vars.get(producer, set())
                 provider_handlers = self.role_handlers.get(producer, set())
 
-                # --- 1) Early usage in defaults/vars/handlers? If yes -> necessary, skip.
                 early_use = False
                 for _path, text in defaults_texts:
                     if not text:
@@ -283,13 +274,10 @@ class TestUnnecessaryRoleDependencies(unittest.TestCase):
                     if off is not None:
                         early_use = True
                         break
-                    # Handler notify here is unusual; we skip.
 
                 if early_use:
-                    # Necessary because consumer needs producer vars before tasks run.
                     continue
 
-                # --- 2) Task-level analysis
                 any_usage = False
                 any_bad_order = False
 
@@ -306,17 +294,13 @@ class TestUnnecessaryRoleDependencies(unittest.TestCase):
                     if var_use_off is not None:
                         any_usage = True
                         if include_off is None or include_off > var_use_off:
-                            # Uses provider vars before ensuring it's loaded in this file.
                             any_bad_order = True
 
                     for noff in notify_offs:
                         any_usage = True
                         if include_off is None or include_off > noff:
-                            # Notifies provider handler before including provider in this file.
                             any_bad_order = True
 
-                # Decide: unnecessary if no early use, and either no usage at all,
-                # or all usages happen after an include in their respective files.
                 if not any_bad_order:
                     if not any_usage:
                         reason = "no variable/handler usage detected in consumer"
@@ -324,7 +308,6 @@ class TestUnnecessaryRoleDependencies(unittest.TestCase):
                             f"[{consumer}] meta dependency on '{producer}' appears unnecessary: {reason}."
                         )
                     else:
-                        # Usage exists but guarded by include in each file
                         reason = "all usages occur after include/import in the same task file"
                         warnings.append(
                             f"[{consumer}] meta dependency on '{producer}' appears unnecessary: {reason}."

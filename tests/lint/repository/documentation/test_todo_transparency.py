@@ -23,7 +23,6 @@ OPEN_PROJECT_URL_RE = re.compile(r"https://open\.project\.infinito\.nexus/\S*")
 TODO_LIST_ITEM_RE = re.compile(r"^\s*(?:[-*+]|\d+\.)\s+(?P<body>\S.*)$")
 WHITESPACE_RE = re.compile(r"\s+")
 
-# Scan explicit marker styles that are typically used in code comments.
 INLINE_TODO_RE = re.compile(
     r"(?i)("
     r"@"

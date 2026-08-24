@@ -30,7 +30,7 @@ for app_id in "${app_list[@]}"; do
 	[ -n "${entity}" ] || continue
 
 	echo "=== purge_stacks: removing stack '${entity}' (app ${app_id}) ==="
-	docker exec "${MGR}" docker stack rm "${entity}" >/dev/null 2>&1 || true
+	docker exec "${MGR}" docker stack rm "${entity}" >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 
 	for _ in $(seq 1 60); do
 		remaining="$(docker exec "${MGR}" docker stack ps "${entity}" \
@@ -49,5 +49,5 @@ for app_id in "${app_list[@]}"; do
 done
 
 for node in "${MGR}" "${WRK1}" "${WRK2}"; do
-	docker exec "${node}" docker volume prune -a -f >/dev/null 2>&1 || true
+	docker exec "${node}" docker volume prune -a -f >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 done

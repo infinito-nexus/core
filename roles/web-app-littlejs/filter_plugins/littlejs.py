@@ -15,11 +15,9 @@ def littlejs_href(example, protocol, domain):
     if not file:
         return "#"
 
-    # Full examples: always absolute URL
     if is_project:
         return f"{protocol}://{domain}/examples/{file}/"
 
-    # Non-full shorts: use custom runner without example browser overhead
     return f"{protocol}://{domain}/examples/shorts/run.html?file={file}"
 
 

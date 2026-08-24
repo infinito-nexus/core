@@ -3,6 +3,9 @@
 # NEVER TOUCH THE .dockerignore, BECAUSE IT ANYHOW WILL BE OVERWRITTEN
 
 site.retry
+.cache
+.ansible/
+.stack-torn-down
 *__pycache__
 compose.cache.override.yml
 venv
@@ -20,12 +23,16 @@ build/*
 .claude-*
 collections/
 .env
+.onion-identity/
 custom.env
 logs/
 job-logs.txt
 *.lock
 node_modules/
+vendor/
+.phpunit.result.cache
 inventories/production/
+/core.*
 
 # No-op for Git (ignored implicitly), but Docker needs .git in its ignore-list — keeps make dockerignore as a pure cat of this file.
 .git

@@ -1,5 +1,5 @@
 ---
-# nocheck: seaweedfs-playwright — Magento remote storage is wired into bin/magento setup:install at first boot; the role ships no templates/playwright.env.j2 (not Playwright-enabled) so the gated upload scenario cannot run here
+# nocheck: seaweedfs-playwright — Magento remote storage is wired into bin/magento setup:install at first boot and read back through the same PHP process, so the bucket has no persona-reachable upload surface
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -29,7 +29,7 @@ email:
   shared: "{{ 'web-app-mailu' in group_names }}"
 php:
   image: markoshust/magento-php
-  version: 8.5-fpm
+  version: 8.4-fpm # nocheck: docker-version — magento/product-community-edition 2.4.8 requires php ~8.2.0||~8.3.0||~8.4.0; dc08bc621 already pinned this down from 8.5 and the image bot reverted it in 1e4f82128, so composer install fails again
   name: magento-php
   ports:
     internal:
@@ -56,7 +56,8 @@ nginx:
 mariadb:
   shared: false
   enabled: true
-  version: "11.4"
+  image: mariadb
+  version: "11.4" # nocheck: docker-version — deliberate pin, predates this change; the bot must not move a database major under Magento without a compatibility check
 # nocheck: shared
 # nocheck: dynamic-flag
 redis:
@@ -100,6 +101,8 @@ prometheus:
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
 magento:
+  # nocheck: default-placement-manager  01_setup.yml bootstraps through `container exec` from IS_STACK_HOST, which can only reach a container the manager itself runs
+  placement: manager
   composer:
     repository: https://mirror.mage-os.org/
     package: magento/project-community-edition
@@ -119,12 +122,19 @@ magento:
     service_key: nginx
   run_after:
     - web-app-keycloak
-  lifecycle: pre-alpha
+  lifecycle: alpha
   min_storage: 10GB
   cpus: "1.0"
   mem_reservation: 1g
   mem_limit: 2g
   pids_limit: 1024
+
+# nocheck: playwright-service-flag
+# nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
+tor:
+  bond: 0.5
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: true # nocheck: dynamic-flag
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
 container_backup: # nocheck: bond-baseline backup host joins outside the variant topology

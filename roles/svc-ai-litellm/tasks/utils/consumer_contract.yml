@@ -2,7 +2,7 @@
 - name: "✅ Assert '{{ application_id }}' carries a gateway virtual key"
   ansible.builtin.assert:
     that:
-      - (lookup('config', application_id, 'credentials.litellm_api_key', '') | trim) | length > 0
+      - (lookup('config', application_id, 'secrets.credentials.litellm_api_key', '') | trim) | length > 0
     fail_msg: >-
       {{ application_id }} enables services.litellm but its
       credentials.litellm_api_key is empty, so its native AI surface would

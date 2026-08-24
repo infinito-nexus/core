@@ -28,6 +28,8 @@
     sso:
       enabled: true
       shared: true
+    tor:
+      enabled: true
 
 - services:
     container_backup:
@@ -59,6 +61,8 @@
     sso:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    tor:
+      enabled: true
 
 - services:
     container_backup:
@@ -90,3 +94,5 @@
     sso:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    tor:
+      enabled: true

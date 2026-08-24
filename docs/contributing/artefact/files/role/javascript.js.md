@@ -7,10 +7,10 @@ For browser-side validation requirements after visible behavior changes, see [Pl
 
 ## `javascript.js.j2` ⚙️
 
-- `sys-front-inj-javascript` loads `templates/javascript.js.j2` when it exists and otherwise falls back to `files/javascript.js`.
+- `sys-front-inj-javascript` loads `templates/javascript.js.j2` when it exists and otherwise falls back to `files/javascript/javascript.js`.
 - The injector runs when `services.javascript.enabled` is enabled.
 - The loaded script is collapsed into a one-liner before injection and added to the CSP hash list so inline execution remains consistent with the generated policy.
-- You MUST use `javascript.js.j2` when the script depends on role variables or inventory values, and use `files/javascript.js` when the script is static.
+- You MUST use `javascript.js.j2` when the script depends on role variables or inventory values, and use `files/javascript/javascript.js` when the script is static.
 
 ## Inventory 📋
 

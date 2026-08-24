@@ -1,4 +1,7 @@
 ---
+# nocheck: sso-variant-tor — meta/services.yml gates sso on
+# "svc-net-tor not in group_names": the frontend is off on a tor node by design, so
+# there is no SSO-over-onion flow to exercise.
 - services:
     container_backup:
       enabled: true

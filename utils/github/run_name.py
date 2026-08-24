@@ -70,6 +70,12 @@ def segments(tpl: str | None = None) -> list[tuple[str, str, bool]]:
     placeholder and opens with the format string up to ``{0}``. A marker
     segment carries no value at all: its literal shows only that the input
     was set, and its absence is the other state.
+
+    An input whose ``format()`` opens with nothing yields no segment: with no
+    opening literal there is nothing to locate in a title, and ``str.find('')``
+    would match at position 0 and hand back the title's own prefix as the
+    value. Such an input renders a glyph the reader understands and is
+    recovered from the job log instead (``runs.LOG_INPUTS``).
     """
     tpl = template() if tpl is None else tpl
     _literals, expressions = _split(tpl)
@@ -81,7 +87,10 @@ def segments(tpl: str | None = None) -> list[tuple[str, str, bool]]:
         quoted = _QUOTED.findall(expression)
         placeholder = next((q for q in quoted if _PLACEHOLDER in q), None)
         if placeholder is not None:
-            out.append((names.pop(), placeholder.split(_PLACEHOLDER, 1)[0], False))
+            head = placeholder.split(_PLACEHOLDER, 1)[0]
+            if not head.strip():
+                continue
+            out.append((names.pop(), head, False))
             continue
         compared = set(_COMPARED.findall(expression))
         literal = next(

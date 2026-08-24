@@ -23,10 +23,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  actions: write
   contents: read
-  packages: write
-  security-events: write
 
 jobs:
   detect-pr-scope:
@@ -48,44 +45,19 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: ./scripts/meta/resolve/pr/scope.sh
 
-  validate-pr-branch-prefix:
-    name: 🧭 Validate PR branch prefix
+  validation:
+    name: 🧭 PR scope
     needs: detect-pr-scope
     if: ${{ github.event_name == 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: ⬇️ Checkout
-        uses: actions/checkout@v7.0.0
-
-      - name: ✅ Validate branch prefix for detected scope
-        env:
-          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
-          PR_SCOPE: ${{ needs.detect-pr-scope.outputs.scope }}
-        run: ./scripts/meta/resolve/pr/branch_prefix.sh
-
-  assert-main-merged:
-    name: 🔀 Assert main is merged
-    needs: detect-pr-scope
-    if: ${{ github.event_name == 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: ⬇️ Checkout PR head
-        uses: actions/checkout@v7.0.0
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 0
-
-      - name: ✅ Assert the base branch is fully merged into the PR head
-        env:
-          INFINITO_MAIN_REMOTE: origin
-          INFINITO_MAIN_BRANCH: ${{ github.event.pull_request.base.ref }}
-        run: bash scripts/git/assert/main_merged.sh
+    uses: ./.github/workflows/call-validation.yml
+    with:
+      pr_scope: ${{ needs.detect-pr-scope.outputs.scope }}
 
   pr-scope-gate:
     name: 🚦 Gate PR scope
     needs:
       - detect-pr-scope
-      - validate-pr-branch-prefix
+      - validation
     if: ${{ needs.detect-pr-scope.outputs.run_ci_orchestrator == 'false' }}
     runs-on: ubuntu-latest
     steps:
@@ -97,7 +69,9 @@ jobs:
 
   detect-affected-roles:
     name: 🧭 Detect affected roles
-    needs: detect-pr-scope
+    needs:
+      - detect-pr-scope
+      - validation
     if: ${{ needs.detect-pr-scope.outputs.run_ci_orchestrator == 'true' }}
     runs-on: ubuntu-latest
     outputs:
@@ -130,11 +104,11 @@ jobs:
   ci-orchestrator:
     needs:
       - detect-pr-scope
-      - validate-pr-branch-prefix
+      - validation
       - detect-affected-roles
     if: ${{ github.event_name == 'pull_request' && needs.detect-pr-scope.outputs.run_ci_orchestrator == 'true' }}
     permissions:
-      actions: write
+      actions: read
       contents: read
       packages: write
       security-events: write
@@ -148,7 +122,7 @@ jobs:
   prepare-fork-merge-ref:
     needs:
       - detect-pr-scope
-      - validate-pr-branch-prefix
+      - validation
     if: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository && needs.detect-pr-scope.outputs.run_ci_orchestrator == 'true' }}
     runs-on: ubuntu-latest
     outputs:
@@ -168,6 +142,9 @@ jobs:
 
   build-ci-images-fork:
     needs: prepare-fork-merge-ref
+    permissions:
+      contents: read
+      packages: write
     uses: ./.github/workflows/call-images-build-ci.yml
     with:
       distros: "arch debian ubuntu fedora centos"
@@ -179,6 +156,9 @@ jobs:
 
   images-mirror-missing-fork:
     needs: prepare-fork-merge-ref
+    permissions:
+      contents: read
+      packages: write
     uses: ./.github/workflows/call-images-mirror-missing.yml
     with:
       repo_root: _pr_source

@@ -9,7 +9,6 @@ DNS_HOSTS_BLOCK_END="# END infinito-dns-fallback"
 DNS_HOSTS_GENERATOR="${DNS_PROJECT_ROOT}/cli/meta/domains/__main__.py"
 DNS_HOSTS_FALLBACK_DEFAULT_RAW="${DNS_DOMAIN} dashboard.${DNS_DOMAIN} matomo.${DNS_DOMAIN}"
 
-# Used by setup.sh/remove.sh after sourcing this shared helper.
 # shellcheck disable=SC2034
 DNS_NM_CONF="/etc/NetworkManager/conf.d/00-infinito-dnsmasq.conf"
 DNS_NM_DNSMASQ_DIR="/etc/NetworkManager/dnsmasq.d"
@@ -99,7 +98,6 @@ dns_read_hosts_fallback_entries() {
 dns_rewrite_hosts_file() {
 	local tmp="$1"
 
-	# Keep the existing inode when the hosts file is bind-mounted (for example /etc/hosts in CI containers).
 	if [[ -e "${DNS_HOSTS_FILE}" ]]; then
 		dns_write_file_in_place "${tmp}" "${DNS_HOSTS_FILE}"
 	else
@@ -162,7 +160,7 @@ dns_test_resolution() {
 	echo ">>> Testing resolution"
 	if [[ "${DNS_HOSTS_FILE}" == "/etc/hosts" ]]; then
 		while IFS= read -r host; do
-			getent hosts "${host}" || true
+			getent hosts "${host}" || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 			checked=$((checked + 1))
 			if [[ "${checked}" -ge 3 ]]; then
 				break

@@ -4,11 +4,11 @@
     name: "user-workstation"
 
 - name: "🔧 setup docker role includes for workstations"
-  include_tasks: "./tasks/groups/{{ workstation_group }}-roles.yml"
+  include_tasks: ./tasks/utils/setup/group.yml
   loop: "{{ lookup('stage_groups', 'workstation') }}"
   loop_control:
-    loop_var: workstation_group
-    label: "{{ workstation_group }}-roles.yml"
+    loop_var: role_group
+    label: "{{ role_group }}"
 
 - name: 🖥️ general host setup
   include_role:

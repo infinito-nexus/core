@@ -14,7 +14,6 @@ class TestRolesHaveMetaMain(unittest.TestCase):
         missing_meta = []
 
         for role in os.listdir(ROLES_DIR):
-            # Ignore Python cache and hidden directories
             if role.startswith(".") or role == "__pycache__":
                 continue
 

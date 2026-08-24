@@ -14,6 +14,6 @@ config:
     id: infinito-litellm
     type: custom
     name: Infinito LiteLLM
-    apikey: "{{ lookup('config', 'web-app-wordpress', 'credentials.litellm_api_key') }}"
+    apikey: "{{ lookup('config', 'web-app-wordpress', 'secrets.credentials.litellm_api_key') }}"
     endpoint: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}"
   default_model: "{{ LITELLM_CHAT_MODEL }}"

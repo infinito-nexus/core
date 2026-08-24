@@ -28,10 +28,10 @@ def process_role(
     output: str,
     preview: bool,
     verbose: bool,
-    no_include_role: bool,   # currently unused, kept for CLI compatibility
-    no_import_role: bool,    # currently unused, kept for CLI compatibility
-    no_dependencies: bool,   # currently unused, kept for CLI compatibility
-    no_run_after: bool,      # currently unused, kept for CLI compatibility
+    no_include_role: bool,
+    no_import_role: bool,
+    no_dependencies: bool,
+    no_run_after: bool,
 ) -> None:
     """
     Worker function: build graphs and (optionally) write meta/tree.json for a single role.
@@ -45,23 +45,19 @@ def process_role(
     if verbose:
         print(f"[worker] Processing role: {role_name}")
 
-    # Build the full graph structure (all dep types / directions) for this role
     graphs: Dict[str, Any] = build_mappings(
         start_role=role_name,
         roles_dir=roles_dir,
         max_depth=depth,
     )
 
-    # Preview mode: dump graphs to console instead of writing tree.json
     if preview:
         for key, data in graphs.items():
             if verbose:
                 print(f"[worker] Previewing graph '{key}' for role '{role_name}'")
-            # In preview mode we always output as console
             output_graph(data, "console", role_name, key)
         return
 
-    # Non-preview: write meta/tree.json for this role
     if shadow_folder:
         tree_file = os.path.join(shadow_folder, role_name, "meta", "tree.json")
     else:
@@ -120,7 +116,6 @@ def main():
         help="Enable verbose logging",
     )
 
-    # Toggles (kept for CLI compatibility, currently only meaningful for future extensions)
     parser.add_argument(
         "--no-include-role",
         action="store_true",
@@ -153,7 +148,6 @@ def main():
 
     roles = [role_name for role_name, _ in find_roles(args.role_dir)]
 
-    # For preview, run sequentially to avoid completely interleaved output.
     if args.preview:
         for role_name in roles:
             process_role(
@@ -171,7 +165,6 @@ def main():
             )
         return
 
-    # Non-preview: roles are processed in parallel
     with ProcessPoolExecutor() as executor:
         futures = {
             executor.submit(
@@ -181,7 +174,7 @@ def main():
                 args.depth,
                 args.shadow_folder,
                 args.output,
-                False,  # preview=False in parallel mode
+                False,
                 args.verbose,
                 args.no_include_role,
                 args.no_import_role,
@@ -196,7 +189,6 @@ def main():
             try:
                 future.result()
             except Exception as exc:
-                # Do not crash the whole run; report the failing role instead.
                 print(f"[ERROR] Role '{role_name}' failed: {exc}")
 
 

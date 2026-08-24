@@ -7,7 +7,7 @@ from utils.roles.entity.name import get_entity_name
 from utils.roles.mapping import (
     ROLE_FILE_META_MAIN,
     ROLE_FILE_META_RBAC,
-    ROLE_FILE_META_SCHEMA,
+    ROLE_FILE_META_SECRETS,
     ROLE_FILE_META_SERVER,
     ROLE_FILE_META_SERVICES,
     ROLE_FILE_META_USERS,
@@ -92,7 +92,7 @@ def _emit_credentials(
     detect_collision(schema_creds, converted, role_name)
     merged = yaml_io.deep_merge(schema_creds, converted)
     if merged:
-        yaml_io.dump(role_dir / ROLE_FILE_META_SCHEMA, {"credentials": merged})
+        yaml_io.dump(role_dir / ROLE_FILE_META_SECRETS, {"credentials": merged})
 
 
 def _emit_users(role_dir: Path, users_data: dict[str, Any]) -> None:

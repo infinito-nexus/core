@@ -6,7 +6,7 @@
 
 - name: "🔍 per-app mapper [{{ kc_app_id }}]: resolve groups.path root group id"
   ansible.builtin.script:
-    cmd: "files/scripts/per_app_mapper/resolve_root_group_id.sh"
+    cmd: "files/shell/per_app_mapper/resolve_root_group_id.sh"
     executable: /bin/bash
   environment:
     KC_CONTAINER: "{{ KEYCLOAK_TARGET_CONTAINER }}"
@@ -28,7 +28,7 @@
 
 - name: "✅ per-app mapper [{{ kc_app_id }}]: ensure Keycloak group exists"
   ansible.builtin.script:
-    cmd: "files/scripts/per_app_mapper/ensure_app_group.sh"
+    cmd: "files/shell/per_app_mapper/ensure_app_group.sh"
     executable: /bin/bash
   environment:
     KC_CONTAINER: "{{ KEYCLOAK_TARGET_CONTAINER }}"
@@ -47,7 +47,7 @@
 
 - name: "🧹 per-app mapper [{{ kc_app_id }}]: purge subgroups before mapper resync"
   ansible.builtin.script:
-    cmd: "files/scripts/per_app_mapper/purge/app_subgroups.sh"
+    cmd: "files/shell/per_app_mapper/purge/app_subgroups.sh"
     executable: /bin/bash
   environment:
     KC_CONTAINER: "{{ KEYCLOAK_TARGET_CONTAINER }}"
@@ -67,7 +67,7 @@
 
 - name: "📝 per-app mapper [{{ kc_app_id }}]: upsert ldap-roles-{{ kc_app_id }} mapper"
   ansible.builtin.script:
-    cmd: "files/scripts/per_app_mapper/upsert_app_mapper.sh"
+    cmd: "files/shell/per_app_mapper/upsert_app_mapper.sh"
     executable: /bin/bash
   environment:
     KC_CONTAINER: "{{ KEYCLOAK_TARGET_CONTAINER }}"
@@ -82,13 +82,18 @@
 
 - name: "🔄 per-app mapper [{{ kc_app_id }}]: sync mapper"
   ansible.builtin.script:
-    cmd: "files/scripts/per_app_mapper/sync_app_mapper.sh"
+    cmd: "files/shell/per_app_mapper/sync_app_mapper.sh"
     executable: /bin/bash
   environment:
     KC_CONTAINER: "{{ KEYCLOAK_TARGET_CONTAINER }}"
     KC_REALM: "{{ KEYCLOAK_REALM }}"
     LDAP_COMPONENT_ID: "{{ ldap_cmp_id | trim }}"
     MAPPER_ID: "{{ (per_app_mapper_id_out.stdout | default('')) | trim }}"
+  register: per_app_sync_out
   changed_when: true
-  failed_when: false
+  timeout: "{{ lookup('timeout', 60) | int }}"
+  retries: 2
+  delay: 20
+  until: per_app_sync_out is succeeded
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  ignore_errors: true

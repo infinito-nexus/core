@@ -63,7 +63,7 @@ _SCAN_EXTENSIONS = (".py", ".yml", ".yaml", ".j2", ".sh", ".md", ".conf", ".cfg"
 _ALLOWLIST: frozenset[str] = frozenset(
     {
         "utils/annotations/suppress.py",
-        "tests/unit/utils/annotations/test_suppress.py",
+        "tests/unit/python/utils/annotations/test_suppress.py",
         "docs/contributing/actions/testing/suppression.md",
         "tests/lint/repository/yaml/test_no_direct_calls.py",
         "tests/lint/repository/python/test_noqa_only_ruff_codes.py",  # nocheck: self-path-reference

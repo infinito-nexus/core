@@ -10,7 +10,7 @@ Every push runs the same gate you can run locally:
 make test          # lint + unit + integration + external
 ```
 
-On GitHub Actions this is followed by the **deploy-test matrix** — real app deploys across Debian/Ubuntu/Arch/Fedora in throwaway containers, with Playwright/CLI end-to-end checks (`.github/workflows/call-test-deploy-*.yml`). This is the heavy part and the reason self-hosted runners exist.
+On GitHub Actions this is followed by the **deploy-test matrix** — real app deploys across Debian/Ubuntu/Arch/Fedora in throwaway containers, with Playwright/CLI end-to-end checks (`.github/workflows/call-test-deploy.yml`). This is the heavy part and the reason self-hosted runners exist.
 
 ## Self-hosted runners (opt-in overflow)
 

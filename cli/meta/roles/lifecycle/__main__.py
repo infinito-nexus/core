@@ -37,14 +37,13 @@ def filter_roles(
         try:
             lifecycle_value = get_role_lifecycle(role_dir, role_name=role_name)
         except Exception:
-            # Best-effort: never fail discovery on a single broken role.
             lifecycle_value = None
         lifecycle = (lifecycle_value or "").strip().lower()
 
         if mode == "whitelist":
             if lifecycle in statuses:
                 matched.append(role_name)
-        else:  # blacklist
+        else:
             if lifecycle == "":
                 if include_missing_lifecycle_on_blacklist:
                     matched.append(role_name)
@@ -127,7 +126,6 @@ def main(argv: list[str] | None = None) -> int:
         print(str(exc), file=sys.stderr)
         return 1
 
-    # Output: role names separated by whitespaces
     sys.stdout.write(" ".join(role_names) + "\n")
     return 0
 

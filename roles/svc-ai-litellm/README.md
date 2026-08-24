@@ -17,6 +17,7 @@ flowchart LR
     subgraph deps [Dependencies]
         dep_svc_ai_lmstudio["svc-ai-lmstudio 🐳🐝"]
         dep_svc_ai_ollama["svc-ai-ollama 🐳🐝"]
+        dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
     end
     subgraph role [svc-ai-litellm 🐳🐝]
         svc_litellm["litellm"]
@@ -28,6 +29,7 @@ flowchart LR
         dpt_web_app_discourse["web-app-discourse 🐳🐝"]
         dpt_web_app_flowise["web-app-flowise 🐳🐝"]
         dpt_web_app_hermes["web-app-hermes 🐳🐝"]
+        dpt_web_app_litellm["web-app-litellm 💻"]
         dpt_web_app_matrix["web-app-matrix 🐳🐝"]
         dpt_web_app_mattermost["web-app-mattermost 🐳🐝"]
         dpt_web_app_mediawiki["web-app-mediawiki 🐳🐝"]
@@ -36,15 +38,16 @@ flowchart LR
         dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]
         dpt_web_app_openclaw["web-app-openclaw 🐳🐝"]
         dpt_web_app_openwebui["web-app-openwebui 🐳🐝"]
-        dpt_web_app_wordpress["web-app-wordpress 🐳🐝"]
         dpt_more["..."]
     end
     dep_svc_ai_lmstudio -. "0..1" .-> svc_lmstudio
     dep_svc_ai_ollama -. "0..1" .-> svc_ollama
+    dep_svc_db_postgres -- "1:1" --> svc_postgres
     svc_litellm -- "1:1" --> dpt_more
     svc_litellm -. "0..1" .-> dpt_web_app_discourse
     svc_litellm -. "0..1" .-> dpt_web_app_flowise
     svc_litellm -. "0..1" .-> dpt_web_app_hermes
+    svc_litellm -- "1:1" --> dpt_web_app_litellm
     svc_litellm -. "0..1" .-> dpt_web_app_matrix
     svc_litellm -. "0..1" .-> dpt_web_app_mattermost
     svc_litellm -. "0..1" .-> dpt_web_app_mediawiki
@@ -53,10 +56,9 @@ flowchart LR
     svc_litellm -. "0..1" .-> dpt_web_app_nextcloud
     svc_litellm -. "0..1" .-> dpt_web_app_openclaw
     svc_litellm -. "0..1" .-> dpt_web_app_openwebui
-    svc_litellm -. "0..1" .-> dpt_web_app_wordpress
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 

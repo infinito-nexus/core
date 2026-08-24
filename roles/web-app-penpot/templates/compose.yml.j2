@@ -10,7 +10,7 @@
       - -c
       - 'until getent hosts {{ PENPOT_BACKEND_SERVICE }} >/dev/null 2>&1 && getent hosts {{ PENPOT_EXPORTER_SERVICE }} >/dev/null 2>&1; do sleep 1; done; exec nginx -g "daemon off;"'
     {{ lookup('container_ports', ['penpot', 'http', DOCKER_BIND_HOST]) | indent(4) }}
-    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_healthcheck', 'penpot') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id, extra={
@@ -21,15 +21,16 @@
   {% set service_name = PENPOT_BACKEND_SERVICE %}
   {{ service_name }}:
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_image', application_id, 'backend') }}
     {{ lookup('compose_only', 'container_name', PENPOT_BACKEND_CONTAINER) }}
     {% if (TLS_MODE | lower) == 'self_signed' %}
     command:
-      - /usr/local/bin/java-with-ca-trust.sh
+      - {{ lookup('volume', 'web-app-penpot', 'java_ca_trust').target }}
       - /bin/bash
       - run.sh
     {% endif %}
-    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_healthcheck', 'backend') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
@@ -42,5 +43,5 @@
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

@@ -3,7 +3,6 @@ err=0
 set -u
 start_timeout="{{ SYSTEMCTL_ALARM_COMPOSER_START_TIMEOUT_SECONDS }}"
 {% for alarm in SYSTEMCTL_ALARM_COMPOSER_SUBSERVICES %}
-# sys-ctl-alm-email.infinito.nexus@<escaped>.service (no extra dot!)
 unit="{{ lookup('unit_name', alarm ~ '@', suffix=False) }}$(systemd-escape "$1").service"
 timeout "${start_timeout}s" /usr/bin/systemctl start -- "$unit"
 rc=$?

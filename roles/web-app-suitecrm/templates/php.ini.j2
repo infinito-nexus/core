@@ -1,17 +1,7 @@
-; Dynamic error reporting based on ENVIRONMENT
-; Rendered by Ansible/Jinja2 at deploy time.
-
-{% if (ENVIRONMENT | lower) == 'development' %}
-display_errors = On
-display_startup_errors = On
-log_errors = On
-error_reporting = E_ALL
-{% else %}
 display_errors = Off
 display_startup_errors = Off
 log_errors = On
 error_reporting = E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED
-{% endif %}
 
 session.save_handler = files
 session.save_path = "{{ SUITECRM_APP_DIR }}/tmp"

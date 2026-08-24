@@ -3,8 +3,12 @@ role's ``meta/services.yml`` (i.e. ``enabled`` is a Jinja
 ``{{ ... }}`` expression) that variant 0 pins to literal ``true`` in
 ``meta/variants.yml``, every non-baseline variant (index > 0) MUST
 explicitly pin the same key to either literal ``enabled: true`` (to
-re-enable it) or to literal ``enabled: false`` AND ``shared: false``
-(to disable it).
+re-enable it) or to literal ``enabled: false`` (to disable it).
+``shared: false`` is demanded alongside only where ``shared`` is itself
+a Jinja expression; a literal base value cannot leak through deep-merge,
+and restating it would be the static override ``variants-static-override``
+flags. ``tor`` is the case that surfaced it - its ``shared`` is a literal
+true, so both rules were asking for opposite things on the same line.
 
 Why
 ---
@@ -74,12 +78,24 @@ def _is_literal_false(value: object) -> bool:
     return value is False
 
 
-def _entry_pinned_false(entry: object) -> bool:
-    return (
-        isinstance(entry, dict)
-        and _is_literal_false(entry.get("enabled"))
-        and _is_literal_false(entry.get("shared"))
-    )
+def _entry_pinned_false(entry: object, *, shared_is_dynamic: bool) -> bool:
+    """Whether the variant disables the key the way deep-merge requires.
+
+    Args:
+        entry: the variant's block for one service key.
+        shared_is_dynamic: whether ``shared`` is a Jinja expression in
+            ``meta/services.yml``.
+
+    ``shared: false`` is only demanded when ``shared`` is dynamic. Where the
+    base value is a literal, no variant pin can leak through deep-merge, and
+    restating it would be a static override -- which is what
+    ``variants-static-override`` flags. ``tor`` is the case that surfaced it:
+    its ``shared`` is a literal true, so the two rules were asking for opposite
+    things on the same line.
+    """
+    if not (isinstance(entry, dict) and _is_literal_false(entry.get("enabled"))):
+        return False
+    return _is_literal_false(entry.get("shared")) if shared_is_dynamic else True
 
 
 def _dynamic_enabled_keys_in_services_yml(services_file: Path) -> set[str]:
@@ -97,6 +113,23 @@ def _dynamic_enabled_keys_in_services_yml(services_file: Path) -> set[str]:
         if isinstance(enabled, str) and "in group_names" in enabled:
             out.add(key)
     return out
+
+
+def _dynamic_shared_keys_in_services_yml(services_file: Path) -> set[str]:
+    try:
+        services_raw = load_yaml_any(str(services_file), default_if_missing={})
+    except Exception:
+        return set()
+    if not isinstance(services_raw, dict):
+        return set()
+    return {
+        key
+        for key, entry in services_raw.items()
+        if isinstance(key, str)
+        and isinstance(entry, dict)
+        and isinstance(entry.get("shared"), str)
+        and "in group_names" in entry["shared"]
+    }
 
 
 def _variant_header_line_numbers(variants_file: Path) -> dict[int, int]:
@@ -143,6 +176,9 @@ class TestVariantsExplicitDisables(unittest.TestCase):
             dynamic_scope = _dynamic_enabled_keys_in_services_yml(
                 role_dir / ROLE_FILE_META_SERVICES
             )
+            dynamic_shared = _dynamic_shared_keys_in_services_yml(
+                role_dir / ROLE_FILE_META_SERVICES
+            )
             baseline_keys = _baseline_enabled_keys(baseline, dynamic_scope)
             if not baseline_keys:
                 continue
@@ -170,7 +206,9 @@ class TestVariantsExplicitDisables(unittest.TestCase):
                     entry = services.get(key)
                     if _is_enabled_true(entry):
                         continue
-                    if _entry_pinned_false(entry):
+                    if _entry_pinned_false(
+                        entry, shared_is_dynamic=key in dynamic_shared
+                    ):
                         continue
                     missing.append(key)
 

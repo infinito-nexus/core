@@ -19,11 +19,12 @@
     stop_signal: SIGTERM
     stop_grace_period: 30s
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_extra_hosts', host_alias=true) | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_ports', ['suitecrm', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
-    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

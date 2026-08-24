@@ -36,6 +36,17 @@
   failed_when: false
   delegate_to: "{{ DECIDIM_HOST_NODE }}"
 
+- name: "📄 Decidim | Ensure default static pages exist (terms-of-service)"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  DECIDIM_LOCAL_CID resolved at delegate_to runtime
+    container exec -i -e RAILS_ENV={{ ENVIRONMENT | quote }}
+    {{ DECIDIM_LOCAL_CID | quote }}
+    bundle exec rails runner -
+  args:
+    stdin: "{{ lookup('file', 'ruby/ensure/default_pages.rb') }}"
+  register: decidim_pages_result
+  changed_when: "'Default pages ensured' in decidim_pages_result.stdout"
+  delegate_to: "{{ DECIDIM_HOST_NODE }}"
+
 - name: "🔧 Decidim | Set organization host"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  DECIDIM_LOCAL_CID resolved at delegate_to runtime
     container exec -i -e RAILS_ENV={{ ENVIRONMENT | quote }}
@@ -56,7 +67,7 @@
     {{ DECIDIM_LOCAL_CID | quote }}
     bundle exec rails runner -
   args:
-    stdin: "{{ lookup('file', 'ruby/ensure_admin_user.rb') }}"
+    stdin: "{{ lookup('file', 'ruby/ensure/admin_user.rb') }}"
   register: decidim_admin_result
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: "'Admin user ready' in decidim_admin_result.stdout"

@@ -17,11 +17,13 @@ flowchart LR
     subgraph deps [Dependencies]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
         dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
         dep_web_svc_css["web-svc-css 💻"]
+        dep_web_svc_logout["web-svc-logout 🐳🐝"]
     end
     subgraph role [web-app-keycloak 🐳🐝]
         svc_logout["logout ❌"]
@@ -29,12 +31,14 @@ flowchart LR
         svc_dashboard["dashboard"]
         svc_matomo["matomo"]
         svc_email["email"]
+        svc_javascript["javascript"]
         svc_keycloak["keycloak"]
         svc_sso_proxy["sso_proxy"]
         svc_postgres["postgres"]
         svc_css["css"]
         svc_recaptcha["recaptcha"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
     end
     subgraph dependents [Dependents]
         dpt_web_app_akaunting["web-app-akaunting 🐳🐝"]
@@ -53,27 +57,30 @@ flowchart LR
     end
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
     dep_svc_db_postgres -. "0..1" .-> svc_postgres
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_mailu -. "0..1" .-> svc_email
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_svc_css -. "0..1" .-> svc_css
+    dep_web_svc_logout -. "0..1" .-> svc_javascript
     svc_keycloak -- "1:1" --> dpt_more
     svc_keycloak -. "0..1" .-> dpt_web_app_akaunting
     svc_keycloak -. "0..1" .-> dpt_web_app_baserow
     svc_keycloak -. "0..1" .-> dpt_web_app_bigbluebutton
     svc_keycloak -. "0..1" .-> dpt_web_app_bluesky
     svc_keycloak -. "0..1" .-> dpt_web_app_bookwyrm
-    svc_keycloak -- "1:1" --> dpt_web_app_bridgy_fed
+    svc_keycloak -- "0..0" --> dpt_web_app_bridgy_fed
     svc_keycloak -. "0..1" .-> dpt_web_app_checkmk
-    svc_keycloak -- "1:1" --> dpt_web_app_chess
-    svc_keycloak -- "1:1" --> dpt_web_app_confluence
+    svc_keycloak -- "0..0" --> dpt_web_app_chess
+    svc_keycloak -- "0..0" --> dpt_web_app_confluence
     svc_keycloak -. "0..1" .-> dpt_web_app_dashboard
     svc_keycloak -. "0..1" .-> dpt_web_app_decidim
     svc_keycloak -. "0..1" .-> dpt_web_app_discourse
+    linkStyle 15,17,18 stroke:red;
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
@@ -132,6 +139,12 @@ For the OIDC variable tree, claim rules, and the policy that app-specific protoc
 - [Setting up Keycloak behind a Reverse Proxy](https://www.keycloak.org/server/reverseproxy)
 - [Wikipedia](https://en.wikipedia.org/wiki/Keycloak)
 - [Youtube Tutorial](https://www.youtube.com/watch?v=fvxQ8bW0vO8)
+
+## Persona contract opt-outs
+
+This role declares `PERSONA_ADMINISTRATOR_BLOCKED` and `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2`. Keycloak provides SSO rather than consuming it: `meta/services.yml` carries no `sso` block (the `keycloak` service declares `provides: sso`) and pins `logout.enabled: false`, so the canonical URL has neither an oauth2-proxy gate nor an in-app OIDC login link for the shared persona helpers to click or log out of. The administrator persona is additionally out of reach because Keycloak's only admin surface is the master-realm console, which accepts the permanent super-admin account (`KEYCLOAK_PERMANENT_ADMIN_USERNAME` / `KEYCLOAK_PERMANENT_ADMIN_PASSWORD` in `vars/main.yml`, backed by the role-local `credentials.administrator_password`) and not the normal-realm `ADMIN_PASSWORD` the helper types.
+
+Both journeys are covered bespoke in `files/playwright/playwright.spec.js`: the master-realm super administrator drives the admin console, and the normal-realm administrator and biber each drive the realm account console including sign-out. The path back to the generic personas is an app-shaped surface behind the shared auth chain, which the identity provider by definition does not have.
 
 ## Credits
 

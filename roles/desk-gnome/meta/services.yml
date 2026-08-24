@@ -3,6 +3,8 @@ gnome:
   modes:
     host:
       enabled: true
+  repository: https://github.com/kevinveenbirkenbach/cli-gnome-extension-manager.git
+  ref: v1.0.0
   lifecycle: pre-alpha
   min_storage: "2GB"
   cpus: "1.0"

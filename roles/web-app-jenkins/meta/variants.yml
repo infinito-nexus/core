@@ -30,6 +30,8 @@
     css:
       enabled: true
       shared: true
+    tor:
+      enabled: true
   mcp:
     enabled: true
     shared: true
@@ -58,6 +60,8 @@
     css:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    tor:
+      enabled: true
   mcp:
     enabled: false
     shared: false
@@ -86,6 +90,8 @@
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    tor:
+      enabled: true
   mcp:
     enabled: false
     shared: false

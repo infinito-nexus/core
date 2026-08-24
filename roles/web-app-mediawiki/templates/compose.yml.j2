@@ -8,14 +8,13 @@
         MEDIAWIKI_VERSION: "{{ MEDIAWIKI_VERSION }}"
     {{ lookup('compose_only', 'container_name', MEDIAWIKI_CONTAINER) }}
     {{ lookup('container_image', application_id, 'mediawiki') }}
-    {{ lookup('container_volumes', application_id, entity_name) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_ports', ['mediawiki', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
 
-{{ lookup('compose_volumes', application_id,
-    deployment_mode=DEPLOYMENT_MODE,
+{{ lookup('compose_volumes', deployment_mode=DEPLOYMENT_MODE,
     storage=storage | default({}),
 ) }}
 {{ lookup('compose_networks') }}

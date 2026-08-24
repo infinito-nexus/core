@@ -1,20 +1,20 @@
 :root {
---lam-background-color-default: var(--color-01-99); {# from #FFFFFF (very bright white) #}
---lam-input-bg-color: var(--color-01-98); {# from #fcfcfc (almost white) #}
---lam-text-color-default: var(--color-01-01); {# from #000000 (pure black) #}
---lam-border-color: var(--color-01-90); {# from #e8e8e8 (light grey) #}
---lam-border-color-primary: var(--color-01-15); {# from #01689e (dark blue) #}
---lam-border-color-secondary: var(--color-01-85); {# from #ffcb1d (bright yellow) #}
---lam-background-color-primary: var(--color-01-50); {# from #3daee9 (mid-tone blue) #}
---lam-background-color-secondary: var(--color-01-90); {# from #ffe233 (bright yellow) #}
---lam-text-color-primary: var(--color-01-99); {# from #ffffff (pure white) #}
---lam-text-color-secondary: var(--color-01-01); {# from #000000 (pure black) #}
---lam-text-color-ok: var(--color-01-10); {# from #237d0c (dark green) #}
---lam-table-background-color-bright: var(--color-01-98); {# from #fbfbfb (very light grey) #}
---lam-table-background-color-dark: var(--color-01-92); {# from #e8f3ff (light blue) #}
---lam-table-background-color-hover: var(--color-01-50); {# from #3daee9 (mid-tone blue) #}
---lam-table-text-color-hover: var(--color-01-99); {# from #ffffff (pure white) #}
---lam-table-border-color: var(--color-01-50); {# from #3daee9 (mid-tone blue) #}
+--lam-background-color-default: var(--color-01-99);
+--lam-input-bg-color: var(--color-01-98);
+--lam-text-color-default: var(--color-01-01);
+--lam-border-color: var(--color-01-90);
+--lam-border-color-primary: var(--color-01-15);
+--lam-border-color-secondary: var(--color-01-85);
+--lam-background-color-primary: var(--color-01-50);
+--lam-background-color-secondary: var(--color-01-90);
+--lam-text-color-primary: var(--color-01-99);
+--lam-text-color-secondary: var(--color-01-01);
+--lam-text-color-ok: var(--color-01-10);
+--lam-table-background-color-bright: var(--color-01-98);
+--lam-table-background-color-dark: var(--color-01-92);
+--lam-table-background-color-hover: var(--color-01-50);
+--lam-table-text-color-hover: var(--color-01-99);
+--lam-table-border-color: var(--color-01-50);
 }
 
 
@@ -36,7 +36,6 @@ ul.lam-tab-navigation {
 
 .titleBar {
     background-image: linear-gradient(var(--color-01-83), var(--color-01-92));
-    /* New Gradient based on original background (83 -5, 83, 83 +1, 83 +5) */
     background-image: linear-gradient({{ CSS_GRADIENT_ANGLE }}deg, var(--color-01-78), var(--color-01-83), var(--color-01-84), var(--color-01-88));
     border-top-color: var(--color-01-78);
     border-left-color: var(--color-01-87);
@@ -45,7 +44,6 @@ ul.lam-tab-navigation {
 
 div.statusInfo {
     background-color: var(--color-01-81);
-    /* New Gradient based on original background (81 -5, 81, 81 +1, 81 +5) */
     background: linear-gradient({{ CSS_GRADIENT_ANGLE }}deg, var(--color-01-76), var(--color-01-81), var(--color-01-82), var(--color-01-86));
     color: var(--color-01-23);
 }

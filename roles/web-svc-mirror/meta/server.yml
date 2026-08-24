@@ -1,0 +1,5 @@
+---
+# 404 is the healthy root response: the mirror only answers under /<origin-host>/ prefixes.
+status_codes:
+  default:
+    - 404

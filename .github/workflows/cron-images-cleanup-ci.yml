@@ -1,4 +1,5 @@
-name: "⏰ Images: Cleanup CI (GHCR)"
+name: "🧹 Prune CI images"
+run-name: "${{ github.event_name == 'schedule' && '⏰ ' || '' }}🧹 Prune CI images"
 
 on:
   schedule:
@@ -6,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       days:
-        description: "Delete CI images older than N days (default: 7)"
+        description: "🧹 Delete CI images older than N days (default: 7)"
         required: false
         default: "7"
         type: string

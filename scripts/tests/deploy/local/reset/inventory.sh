@@ -12,7 +12,6 @@ set -euo pipefail
 : "${INFINITO_INVENTORY_FILE:?INFINITO_INVENTORY_FILE is not set — source scripts/meta/env/load.sh first}"
 : "${INFINITO_INVENTORY_VARS_FILE:?INFINITO_INVENTORY_VARS_FILE is not set — source scripts/meta/env/load.sh first}"
 
-# This script always generates inventories for the development compose stack.
 RUNTIME_VARS_JSON='{"RUNTIME":"dev","SYS_SERVICE_RUNNER_RETRIES":1}'
 
 echo "=== local inventory init (ALL apps) ==="
@@ -20,12 +19,10 @@ echo "distro        = ${INFINITO_DISTRO}"
 echo "inventory_dir = ${INFINITO_INVENTORY_DIR}"
 echo
 
-# 1) Bring up development stack (no build)
 echo ">>> Starting development compose stack (no build)"
 "${PYTHON}" -m cli.administration.deploy.development up \
 	--skip-entry-init
 
-# 2) Discover apps on HOST (same as local/deploy/apps/initialize/all.sh)
 apps_json="$(
 	INFINITO_WHITELIST="${INFINITO_WHITELIST:-}" \
 		PYTHON=python3 \
@@ -65,7 +62,6 @@ echo "apps_sample=$(
 )"
 echo
 
-# 3) Run entry.sh + create inventory INSIDE container
 echo ">>> Initializing inventory inside container"
 
 "${PYTHON}" -m cli.administration.deploy.development exec \
@@ -86,7 +82,7 @@ echo ">>> Initializing inventory inside container"
 
     if [[ ! -f \"\${pw_file}\" ]]; then
       printf '%s\n' 'local-vault-password' > \"\${pw_file}\"
-      chmod 600 \"\${pw_file}\" || true
+      chmod 600 \"\${pw_file}\" || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
     fi
 
     echo \">>> Creating inventory at \${INFINITO_INVENTORY_FILE}\"

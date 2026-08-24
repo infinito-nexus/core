@@ -6,8 +6,9 @@
 # Playwright admin scenarios can complete an OIDC round-trip without
 # the extra TOTP enrollment step.
 
-- credentials:
-    administrator_password: "'$tr0ng€xampl3PW!"
+- secrets:
+    credentials:
+      administrator_password: "'$tr0ng€xampl3PW!"
   services:
     keycloak:
       realm:
@@ -16,6 +17,9 @@
       enabled: true
       shared: true
     email:
+      enabled: true
+      shared: true
+    javascript:
       enabled: true
       shared: true
     ldap:
@@ -32,9 +36,9 @@
     css:
       enabled: true
       shared: true
-- credentials:
-    administrator_password: "'$tr0ng€xampl3PW!"
-  services:
+    tor:
+      enabled: true
+- services:
     keycloak:
       realm:
         totp_enabled: false
@@ -42,6 +46,9 @@
       enabled: false
       shared: false
     email:
+      enabled: false
+      shared: false
+    javascript:
       enabled: false
       shared: false
     ldap:
@@ -58,3 +65,8 @@
     css:
       enabled: false
       shared: false
+    tor:
+      enabled: true
+  secrets:
+    credentials:
+      administrator_password: "'$tr0ng€xampl3PW!"

@@ -22,7 +22,8 @@
       openssl req -x509 -newkey rsa:2048 -nodes -days 365
       -keyout {{ [MAILU_CERTS_HOST_DIR, 'key.pem'] | path_join }}
       -out {{ [MAILU_CERTS_HOST_DIR, 'cert.pem'] | path_join }}
-      -subj "/CN={{ MAILU_HOSTNAME }}"
+      -subj "/CN={{ MAILU_HOSTNAME if (MAILU_HOSTNAME | length) <= 64 else DOMAIN_PRIMARY }}"
+      -addext "subjectAltName=DNS:{{ MAILU_HOSTNAME }}"
     creates: "{{ [MAILU_CERTS_HOST_DIR, 'cert.pem'] | path_join }}"
 
 - name: ✅ Ensure Rspamd overrides directory exists (host)

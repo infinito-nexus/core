@@ -19,3 +19,4 @@ proxy_config:
   mounts:
     - service: proxy
       target: /etc/nginx/conf.d/default.conf
+      when: "{{ lookup('config', 'web-app-seaweedfs', 'services.frontend.enabled') | bool }}"

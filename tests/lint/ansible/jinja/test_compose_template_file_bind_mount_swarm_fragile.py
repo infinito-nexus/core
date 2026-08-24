@@ -46,8 +46,6 @@ _SWARM_ONLY_GATE = re.compile(
     r"|DEPLOYMENT_MODE\s*!=\s*['\"]compose['\"]"
 )
 
-# Short-form volume entry:  - "<src>:<dst>:ro"   or   - <src>:<dst>:ro
-# Captures src and dst (Jinja blocks allowed on either side).
 _SHORT_FORM_RO = re.compile(
     r"""
     ^\s*-\s*
@@ -60,34 +58,21 @@ _SHORT_FORM_RO = re.compile(
     re.VERBOSE,
 )
 
-# Long-form bind block (multi-line):
-#   - type: bind
-#     source: ...
-#     target: <dst>
-#     read_only: true
 _LONG_FORM_TYPE_BIND = re.compile(r"^\s*-\s*type:\s*bind\b")
 _LONG_FORM_TARGET = re.compile(r"^\s*target:\s*(?P<dst>.+?)\s*$")
 _LONG_FORM_SOURCE = re.compile(r"^\s*source:\s*(?P<src>.+?)\s*$")
 _LONG_FORM_READ_ONLY_TRUE = re.compile(r"^\s*read_only:\s*true\b")
 
-# Literal-path last segment: must contain a dot, end with a known file
-# extension, and NOT end in `.d` (e.g. `conf.d/`, `/etc/systemd/system.d`
-# are debian-style additive config directories, not files).
 _FILE_LIKE = re.compile(
     r"\.(?:yaml|yml|json|conf|cfg|ini|toml|lua|php|exs|env|sh|crt|key|pem|html|txt|xml|properties)$"
 )
 _DIRECTORY_SUFFIX_D = re.compile(r"\.d/?$")
 
-# Jinja-only target like `{{ FOO_CONF_FILE }}`: lift the bare var name
-# and look for a file-suggesting suffix. Catches dashboard's
-# DASHBOARD_CONFIG_YML_DOCKER_DEST etc.
 _JINJA_VAR_ONLY = re.compile(r"^\s*\{\{\s*([A-Z][A-Z0-9_]*)\s*\}\}\s*$")
 _FILE_LIKE_VAR_SUFFIX = re.compile(
     r"_(?:FILE|CONF|YAML|YML|JSON|CFG|INI|TOML|LUA|PHP|EXS|CRT|KEY|PEM|HTML|XML)(?:_|$)"
 )
 
-# Special paths that are legitimately bind-mounted as files but cannot
-# become docker configs (sockets, kernel interfaces, etc).
 _SPECIAL_SOURCES_PREFIX = (
     "/var/run/",
     "/run/",
@@ -105,7 +90,6 @@ def _is_file_like(dst: str) -> bool:
         return False
     if _FILE_LIKE.search(dst_trimmed):
         return True
-    # Pure Jinja `{{ VAR }}` target: fall back to variable-name heuristic.
     jinja_var = _JINJA_VAR_ONLY.match(dst_trimmed)
     return bool(jinja_var and _FILE_LIKE_VAR_SUFFIX.search(jinja_var.group(1)))
 
@@ -178,9 +162,6 @@ def _scan_long_form(lines: list[str], rel: str) -> list[tuple[str, int, str]]:
         target: str | None = None
         source: str | None = None
         is_read_only = False
-        # Stop at the next list item / `- type:` or after 6 lines max so
-        # the scanner picks up the FIRST target/source/read_only of this
-        # block, not values bleeding in from the next one.
         for j in range(block_start + 1, min(block_start + 7, len(lines))):
             if _LONG_FORM_TYPE_BIND.match(lines[j]):
                 break

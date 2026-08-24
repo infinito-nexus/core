@@ -4,6 +4,8 @@ import re
 from collections import defaultdict
 from pathlib import Path
 
+from utils.ansible_log import LOG_PREFIX_RE
+
 from .model import HOST_EXECUTED, HOST_FAILED, HOST_SKIPPED, RoleRuntime
 
 ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
@@ -125,7 +127,9 @@ def parse_log(log_path: str | Path) -> list[RoleRuntime]:
     current_role: str | None = None
     in_roles_recap = not has_sections
     for raw in text.splitlines():
-        line = RUNNER_TS_RE.sub("", ANSI_RE.sub("", raw).rstrip())
+        line = LOG_PREFIX_RE.sub(
+            "", RUNNER_TS_RE.sub("", ANSI_RE.sub("", raw).rstrip())
+        )
         marker = SEGMENT_RE.search(line)
         if marker:
             meta = (

@@ -21,7 +21,7 @@ def compose_file_args() -> list[str]:
     out = ["-f", "compose.yml"]
     if profile.shared_git_dir():
         out += ["-f", "compose/worktree.override.yml"]
-    if profile.registry_cache_active():
+    if profile.cache_stack_enabled():
         out += ["-f", "compose/cache.override.yml"]
         if profile.shared_cache_network():
             out += ["-f", "compose/cache.shared.override.yml"]

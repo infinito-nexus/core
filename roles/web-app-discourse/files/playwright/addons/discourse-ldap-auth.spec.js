@@ -1,7 +1,8 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
-const { normalizeBaseUrl, decodeDotenvQuotedValue, performKeycloakLoginForm } = require("../personas");
+const { normalizeBaseUrl, decodeDotenvQuotedValue, performKeycloakLoginForm, gotoOnion } = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -13,7 +14,7 @@ const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
 async function signInViaOidc(page) {
   const expectedOidcAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
 
-  await page.goto(`${discourseBaseUrl}/`);
+  await gotoOnion(page, `${discourseBaseUrl}/`);
 
   const oidcSignIn = page
     .locator("a, button")
@@ -21,14 +22,14 @@ async function signInViaOidc(page) {
     .first();
 
   if ((await oidcSignIn.count().catch(() => 0)) > 0) {
-    await oidcSignIn.click();
+    await oidcSignIn.click({ timeout: resolveTimeout(30_000) });
   } else {
-    await page.goto(`${discourseBaseUrl}/auth/oidc`).catch(() => {});
+    await gotoOnion(page, `${discourseBaseUrl}/auth/oidc`).catch(() => {});
   }
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `expected redirect to Keycloak OIDC auth (${expectedOidcAuthUrl})`,
     })
     .toContain(expectedOidcAuthUrl);
@@ -37,7 +38,7 @@ async function signInViaOidc(page) {
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `expected redirect back to discourse at ${discourseBaseUrl}`,
     })
     .toContain(discourseBaseUrl);
@@ -56,7 +57,7 @@ function settingValue(settings, name) {
 test("discourse-ldap-auth: LDAP auth plugin binds Discourse to the distinct LDAP partner directory", async ({ page }) => {
   skipUnlessAddonEnabled("discourse-ldap-auth");
   skipUnlessServiceEnabled("ldap");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   expect(oidcIssuerUrl, "OIDC_ISSUER_URL must be set").toBeTruthy();
   expect(discourseBaseUrl, "DISCOURSE_BASE_URL must be set").toBeTruthy();
@@ -71,7 +72,7 @@ test("discourse-ldap-auth: LDAP auth plugin binds Discourse to the distinct LDAP
 
     await expect(page.locator("body")).toContainText(
       /topic|category|welcome|latest|discourse/i,
-      { timeout: 60_000 },
+      { timeout: resolveTimeout(60_000) },
     );
 
     const siteSettings = await page.evaluate(async (base) => {

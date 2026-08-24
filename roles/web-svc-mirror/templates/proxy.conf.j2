@@ -1,0 +1,39 @@
+{% set mirror_origin_hosts = lookup('applications') | external_asset_origins(None, DOMAIN_PRIMARY) %}
+server
+{
+  server_name {{ lookup('domain',application_id) }};
+
+  {% include 'roles/sys-front-tls/templates/nginx_ssl_header.j2' %}
+
+  {% include 'roles/sys-svc-proxy/templates/headers/content_security_policy.conf.j2' %}
+
+  {% set aca_origin = "* always" %}
+  {% include 'roles/sys-svc-proxy/templates/headers/access_control_allow.conf.j2' %}
+
+  charset utf-8;
+
+{% for origin_host in mirror_origin_hosts %}
+  location /{{ origin_host }}/
+  {
+    resolver {{ NETWORK_PUBLIC_DNS_RESOLVERS | join(' ') }} ipv6={{ NETWORK_IPV6_ENABLED | on_off }} valid=300s;
+    set $mirror_upstream_{{ loop.index }} {{ origin_host }};
+    rewrite ^/{{ origin_host | replace('.', '\\.') }}/(.*)$ /$1 break;
+    proxy_pass https://$mirror_upstream_{{ loop.index }};
+    proxy_ssl_server_name on;
+    proxy_ssl_name {{ origin_host }};
+    proxy_set_header Host {{ origin_host }};
+    proxy_cache cache;
+    proxy_cache_valid 200 301 302 168h;
+    proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;
+    proxy_ignore_headers Set-Cookie Cache-Control Expires;
+    proxy_hide_header Set-Cookie;
+    proxy_hide_header Access-Control-Allow-Origin;
+    expires 7d;
+  }
+{% endfor %}
+
+  location /
+  {
+    return 404;
+  }
+}

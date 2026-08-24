@@ -11,9 +11,13 @@
       shared: true
     redis:
       shared: true
+    tor:
+      enabled: true
 - services:
     prometheus:
       enabled: false
       shared: false
     redis:
       shared: false
+    tor:
+      enabled: true

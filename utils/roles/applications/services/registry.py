@@ -29,10 +29,13 @@ def _normalized_name(value: Any) -> str:
 
 
 def is_explicit_truth(value: Any) -> bool:
-    """A services.<key> flag (``enabled`` / ``shared``) is "true" if it
-    is the literal Python ``True`` OR a Jinja string of the form
-    ``"{{ '<role>' in group_names }}"`` — the dynamic form enforced by
-    ``tests/integration/roles/meta/test_services_dynamic_flags.py``.
+    """A services.<key> flag (``enabled`` / ``shared``) MAY be true if it
+    is the literal Python ``True`` OR any string containing the substring
+    ``in group_names``. Negated and compound predicates
+    (``"{{ 'X' not in group_names }}"``) match on purpose: they are true
+    on some node shape, and the static closure is the co-deploy superset.
+    Mirrors the substring test at
+    ``tests/integration/roles/meta/services/test_dynamic_flags.py:194``.
 
     Static-analysis callers (``ServicesResolver``,
     ``resolve_service_dependency_roles_from_config``, lint tests) MUST

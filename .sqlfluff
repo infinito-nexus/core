@@ -1,0 +1,11 @@
+[sqlfluff]
+# Postgres is the majority engine. A role whose meta/services.yml declares
+# `mariadb:` instead overrides this with its own .sqlfluff beside the files.
+dialect = postgres
+templater = placeholder
+
+# The shipped SQL is executed through psycopg, so `%(name)s` parameter markers
+# are the driver's, not SQL. Without this the parser rejects every file that
+# takes an argument.
+[sqlfluff:templater:placeholder]
+param_style = pyformat

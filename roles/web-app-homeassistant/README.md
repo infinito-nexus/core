@@ -36,15 +36,16 @@ flowchart LR
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
-    dep_web_app_keycloak -- "1:1" --> svc_sso
+    dep_web_app_keycloak -- "0..0" --> svc_sso
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     svc_homeassistant -. "0..1" .-> dpt_web_app_flowise
     svc_homeassistant -. "0..1" .-> dpt_web_app_hermes
     svc_homeassistant -. "0..1" .-> dpt_web_app_openclaw
     svc_homeassistant -. "0..1" .-> dpt_web_app_openwebui
+    linkStyle 2 stroke:red;
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 

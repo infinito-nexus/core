@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Version tag to release (e.g. v1.2.3)"
+        description: "🏷️ Version tag to release (e.g. v1.2.3)"
         required: true
         type: string
 
@@ -20,10 +20,8 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: write
-  packages: write
-  security-events: write
-  actions: read
+  contents: read
+  packages: read
 
 env:
   REGISTRY: ghcr.io
@@ -52,7 +50,7 @@ jobs:
       - name: 🔍 Resolve release inputs
         id: vars
         shell: bash
-        run: bash _helpers/scripts/github/resolve/release_inputs.sh "${{ inputs.tag || github.event.inputs.tag }}"
+        run: bash _helpers/scripts/github/resolve/release/inputs.sh "${{ inputs.tag || github.event.inputs.tag }}"
 
       - name: ⬇️ Checkout repository at version tag
         uses: actions/checkout@v7.0.0
@@ -102,6 +100,9 @@ jobs:
     name: 🏗️ Build missing CI images
     needs: check-ci-images
     if: needs.check-ci-images.outputs.missing == 'true'
+    permissions:
+      contents: read
+      packages: write
     uses: ./.github/workflows/call-images-build-ci.yml
     with:
       distros: ${{ needs.check-ci-images.outputs.distros }}
@@ -123,6 +124,9 @@ jobs:
         needs.build-ci-images-if-missing.result == 'skipped'
       )
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     env:
       VERSION_TAG: ${{ needs.check-ci-images.outputs.version_tag }}
       OWNER: ${{ needs.check-ci-images.outputs.owner }}

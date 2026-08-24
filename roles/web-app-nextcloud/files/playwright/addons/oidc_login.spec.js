@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { skipUnlessServiceEnabled } = require("../service-gating");
 const shared = require("../_shared");
@@ -23,7 +24,7 @@ test("addon oidc_login: nextcloud OIDC login surface authenticates", async ({ br
     const shellState = await shared.waitForVisibleCandidate(
       page,
       shared.getNextcloudShellCandidates(page),
-      60_000,
+      resolveTimeout(60_000),
       "Timed out waiting for an authenticated Nextcloud shell after the oidc_login OIDC login flow",
     );
     await expect(shellState.locator).toBeVisible();

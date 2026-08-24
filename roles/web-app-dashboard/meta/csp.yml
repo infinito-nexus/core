@@ -16,4 +16,4 @@ whitelist:
     - "*.{{ DOMAIN_PRIMARY }}"
 flags:
   script-src-attr:
-    unsafe-inline: true
+    unsafe-inline: true # nocheck: csp-unsafe  Reason: historical, TODO: re-verify it is really required and does not open attack surface

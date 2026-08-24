@@ -15,7 +15,7 @@ Trusts the Infinito Root CA on the **Linux host system**.
 
 1. Extracts `root-ca.crt` from the running Infinito container via `docker cp`
 2. Places it under `/etc/infinito.nexus/ca/root-ca.crt`
-3. Installs it into the system trust store via `roles/sys-ca-selfsigned/files/with-ca-trust.sh`
+3. Installs it into the system trust store via `roles/sys-ca-selfsigned/files/shell/with-ca-trust.sh`
 
 Requires `INFINITO_CONTAINER` to be set to the name of the running container.
 

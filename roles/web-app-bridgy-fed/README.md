@@ -15,6 +15,7 @@ The diagram places Bridgy Fed in the Infinito.Nexus cosmos: the components it de
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
@@ -31,16 +32,19 @@ flowchart LR
         svc_css["css"]
         svc_prometheus["prometheus"]
         svc_bridgy_fed["bridgy-fed"]
+        svc_tor["tor"]
     end
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
-    dep_web_app_keycloak -- "1:1" --> svc_sso
-    dep_web_app_mailu -- "1:1" --> svc_email
+    dep_web_app_keycloak -- "0..0" --> svc_sso
+    dep_web_app_mailu -- "0..0" --> svc_email
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_svc_css -. "0..1" .-> svc_css
+    linkStyle 2,3 stroke:red;
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
@@ -96,6 +100,12 @@ This role does NOT configure OIDC against `web-app-keycloak`, LDAP against `svc-
 - [Bridgy Fed Official Site](https://fed.brid.gy/)
 - [Bridgy Fed Documentation](https://bridgy-fed.readthedocs.io/)
 - [Bridgy Fed Source on GitHub](https://github.com/snarfed/bridgy-fed)
+
+## Persona contract opt-outs
+
+Both authenticated Playwright personas are blocked. `meta/services.yml` pins `sso.enabled: false` and `logout.enabled: false`: Bridgy Fed has no local user table, no in-app authorisation tier, and no logout button, and placing it behind the SSO-proxy sidecar would break inbound federation traffic.
+
+There is consequently no auth chain for the persona helpers to drive and no admin surface to assert against. The opt-out is permanent, not a rollout gap.
 
 ## Credits
 

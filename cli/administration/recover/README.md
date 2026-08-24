@@ -1,7 +1,7 @@
 # recover
 
 Uniform recovery for the `svc-bkp-*` backup roles. One command wraps each
-role's `files/recover.py` behind a single grammar and drives a full
+role's `files/python/recover.py` behind a single grammar and drives a full
 disaster recovery in the correct order.
 
 ## Usage

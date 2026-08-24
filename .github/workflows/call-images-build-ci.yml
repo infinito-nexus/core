@@ -35,7 +35,6 @@ on:
 
 permissions:
   contents: read
-  packages: write
 
 concurrency:
   group: infinito-build-${{ github.repository }}-${{ inputs.concurrency_channel }}-${{ inputs.checkout_ref || github.ref }}
@@ -62,6 +61,9 @@ jobs:
     name: 🏗️ Build (${{ matrix.distro }})
     needs: prepare
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     strategy:
       fail-fast: false

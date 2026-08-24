@@ -1,4 +1,8 @@
 ---
-- name: Restart and validate OpenResty
-  listen: restart openresty
-  include_tasks: restart_and_validate.yml
+- name: 🔄 Restart and validate OpenResty
+  listen: restart-openresty
+  include_tasks: restart.yml
+
+- name: ♻️ Reload OpenResty
+  listen: reload-openresty
+  include_tasks: reload.yml

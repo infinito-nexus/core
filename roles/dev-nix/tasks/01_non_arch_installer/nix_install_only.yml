@@ -6,7 +6,7 @@
 
 - name: 🧹 Purge stale nixbld users blocking the multi-user installer
   ansible.builtin.script:
-    cmd: "{{ role_path }}/files/purge_stale_nixbld.sh"
+    cmd: "{{ role_path }}/files/shell/purge_stale_nixbld.sh"
   register: dev_nix_purge_stale_nixbld_result
   changed_when: >
     dev_nix_purge_stale_nixbld_result.stdout is search('\\[CHANGED\\]')

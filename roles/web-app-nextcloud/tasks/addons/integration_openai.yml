@@ -16,7 +16,7 @@
 
     - name: 🔍 Resolve LiteLLM virtual key for integration_openai api_key
       set_fact:
-        nextcloud_openai_litellm_api_key: "{{ lookup('config', 'web-app-nextcloud', 'credentials.litellm_api_key') }}"
+        nextcloud_openai_litellm_api_key: "{{ lookup('config', 'web-app-nextcloud', 'secrets.credentials.litellm_api_key') }}"
       changed_when: false
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 

@@ -38,7 +38,9 @@ def _wipe_docker_root(docker_root: Path) -> None:
 
 
 def _should_wipe_docker_root() -> bool:
-    if os.environ.get("INFINITO_RUNNING_ON_GITHUB") != "true":
+    from .profile import Profile
+
+    if not Profile().docker_root_ephemeral():
         return False
     return os.environ.get("INFINITO_PRESERVE_DOCKER_CACHE") != "true"
 

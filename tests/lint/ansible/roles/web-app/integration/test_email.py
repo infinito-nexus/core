@@ -15,7 +15,6 @@ _ROLE_PREFIX = "web-app-"
 _MAILU_ROLE = "web-app-mailu"
 _EMAIL_LOOKUP_RE = re.compile(r"""lookup\(\s*['"]email['"]""")
 _SCAN_EXTENSIONS = {".yml", ".yaml", ".j2", ".py", ".sh", ".conf", ".env"}
-# The email block is at the file root (top-level `email:`).
 _EMAIL_KEY_RE = re.compile(r"^(\s*)email:\s*(#.*)?$")
 
 _SILENCER_HINT = (

@@ -138,7 +138,6 @@ def _resolve_include_tasks_path(include_value: str, including_file: str) -> str 
     if _contains_jinja(include_value):
         return None
 
-    # Absolute path?
     candidates: list[str] = []
     if Path(include_value).is_absolute():
         candidates.append(include_value)
@@ -176,7 +175,6 @@ class PureGuardedIncludeTest(unittest.TestCase):
     def setUpClass(cls):
         cls.repo_root = str(PROJECT_ROOT)
 
-        # Map pure guarded roles: role_name -> (guards, main_path)
         cls.pure_guarded_roles: dict[str, tuple[list[str], str]] = {}
 
         roles_dir = Path(cls.repo_root) / "roles"
@@ -194,13 +192,10 @@ class PureGuardedIncludeTest(unittest.TestCase):
                 if pure and guards:
                     cls.pure_guarded_roles[role_name] = (guards, main_path)
             except Exception:
-                # If parsing fails, ignore here; will be caught when scanning all files if relevant
                 pass
 
-        # Cache of parsed tasks files for include_tasks: path -> (guards, pure)
         cls.tasks_file_cache: dict[str, tuple[list[str], bool]] = {}
 
-        # All tasks files across repo
         cls.all_tasks_files = _iter_all_tasks_files(cls.repo_root)
 
     # ---------- Tests ----------
@@ -225,7 +220,6 @@ class PureGuardedIncludeTest(unittest.TestCase):
                 if not role_name:
                     continue
 
-                # Only enforce when the included role is pure guarded
                 role_entry = self.pure_guarded_roles.get(role_name)
                 if not role_entry:
                     continue
@@ -273,10 +267,8 @@ class PureGuardedIncludeTest(unittest.TestCase):
 
                 resolved = _resolve_include_tasks_path(include_value, including_path)
                 if not resolved:
-                    # Could not resolve (Jinja path or file not found). Skip enforcing.
                     continue
 
-                # Load/inspect included tasks file (with cache)
                 if resolved not in self.tasks_file_cache:
                     try:
                         target_tasks = _load_yaml_file(resolved)
@@ -286,12 +278,10 @@ class PureGuardedIncludeTest(unittest.TestCase):
                         failures.append(
                             f"[PARSE ERROR] included by {including_path} (task #{idx + 1}): {resolved}: {e}"
                         )
-                        # mark as non-pure to avoid repeated parsing attempts
                         self.tasks_file_cache[resolved] = ([], False)
 
                 guards, pure = self.tasks_file_cache.get(resolved, ([], False))
                 if not (pure and guards):
-                    # Only enforce for pure guarded task files
                     continue
 
                 include_when = _normalize_when(task.get("when"))

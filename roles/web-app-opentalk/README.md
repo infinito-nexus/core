@@ -48,10 +48,11 @@ flowchart LR
         svc_recorder["recorder"]
         svc_css["css"]
         svc_prometheus["prometheus"]
+        svc_tor["tor ❌"]
         svc_container_backup["container_backup"]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
-    dep_svc_db_openldap -- "1:1" --> svc_ldap
+    dep_svc_db_openldap -- "0..0" --> svc_ldap
     dep_svc_db_postgres -. "0..1" .-> svc_postgres
     dep_svc_db_redis -. "0..1" .-> svc_redis
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
@@ -63,9 +64,10 @@ flowchart LR
     dep_web_svc_coturn -. "0..1" .-> svc_coturn
     dep_web_svc_css -. "0..1" .-> svc_css
     dep_web_svc_logout -. "0..1" .-> svc_logout
+    linkStyle 1 stroke:red;
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
@@ -124,6 +126,10 @@ See [IAM.md](docs/IAM.md) for the OIDC and Keycloak admin Web API setup, and [LD
 - [opentalk.eu](https://opentalk.eu/)
 - [OpenTalk documentation](https://docs.opentalk.eu/)
 - [OpenTalk setup template](https://gitlab.opencode.de/opentalk/ot-setup)
+
+## Persona contract opt-outs
+
+The shared `biber` and `administrator` persona helpers are declared blocked in [templates/playwright.env.j2](./templates/playwright.env.j2). The OpenTalk frontend is a public-client OIDC single-page app — the container env carries nothing but the issuer and the client id, there is no server-side session and no HTML login form — so the role drives it with its own redirect-racing helper keyed on `LOGIN_*` / `BIBER_*` instead of the `ADMIN_*` pair the shared helper expects, and the browser-side session leaves the contract's in-app logout leg without a target. Both personas' Keycloak → dashboard chain is covered by [files/playwright/test-sso-login.js](./files/playwright/test-sso-login.js).
 
 ## Credits
 

@@ -46,7 +46,6 @@
     {{ lookup('container_networks', own_network_only=True, provider_self_alias=False) | indent(4) }}
   {% endif %}
 
-{{ lookup('compose_volumes', application_id,
-) }}
+{{ lookup('compose_volumes') }}
 
 {{ lookup('compose_networks') }}

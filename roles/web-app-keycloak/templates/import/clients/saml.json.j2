@@ -1,0 +1,65 @@
+{% for app in KEYCLOAK_SAML_APPS %}
+{% set app_url = lookup('tls', app, 'url.base') %}
+    ,{
+      "clientId": "{{ [app_url, 'saml/metadata'] | path_join }}",
+      "name": "{{ app }}",
+      "enabled": true,
+      "protocol": "saml",
+      "frontchannelLogout": true,
+      "redirectUris": ["{{ [app_url, 'saml/acs'] | path_join }}"],
+      "defaultClientScopes": [],
+      "optionalClientScopes": [],
+      "attributes": {
+        "saml.assertion.signature": "true",
+        "saml.server.signature": "true",
+        "saml.client.signature": "false",
+        "saml.signature.algorithm": "RSA_SHA256",
+        "saml_name_id_format": "username",
+        "saml_force_name_id_format": "true",
+        "saml_assertion_consumer_url_post": "{{ [app_url, 'saml/acs'] | path_join }}",
+        "saml_single_logout_service_url_redirect": "{{ [app_url, 'saml/logout'] | path_join }}"
+      },
+      "protocolMappers": [
+        {
+          "name": "username",
+          "protocol": "saml",
+          "protocolMapper": "saml-user-property-mapper",
+          "config": {
+            "user.attribute": "username",
+            "attribute.name": "{{ OIDC.ATTRIBUTES.USERNAME }}",
+            "attribute.nameformat": "Basic"
+          }
+        },
+        {
+          "name": "email",
+          "protocol": "saml",
+          "protocolMapper": "saml-user-property-mapper",
+          "config": {
+            "user.attribute": "email",
+            "attribute.name": "email",
+            "attribute.nameformat": "Basic"
+          }
+        },
+        {
+          "name": "firstName",
+          "protocol": "saml",
+          "protocolMapper": "saml-user-property-mapper",
+          "config": {
+            "user.attribute": "firstName",
+            "attribute.name": "firstName",
+            "attribute.nameformat": "Basic"
+          }
+        },
+        {
+          "name": "lastName",
+          "protocol": "saml",
+          "protocolMapper": "saml-user-property-mapper",
+          "config": {
+            "user.attribute": "lastName",
+            "attribute.name": "lastName",
+            "attribute.nameformat": "Basic"
+          }
+        }
+      ]
+    }
+{% endfor %}

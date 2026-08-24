@@ -4,13 +4,13 @@ media:
   name: funkwhale_media
   mounts:
     - service: celeryworker
-      target: /var/lib/funkwhale/media
+      target: &var_lib_funkwhale_media_target /var/lib/funkwhale/media
     - service: celerybeat
-      target: /var/lib/funkwhale/media
+      target: *var_lib_funkwhale_media_target
     - service: api
-      target: /var/lib/funkwhale/media
+      target: *var_lib_funkwhale_media_target
     - service: front
-      target: /var/lib/funkwhale/media
+      target: *var_lib_funkwhale_media_target
       read_only: true
 
 music:
@@ -18,13 +18,13 @@ music:
   name: funkwhale_music
   mounts:
     - service: celeryworker
-      target: /var/lib/funkwhale/music
+      target: &var_lib_funkwhale_music_target /var/lib/funkwhale/music
       read_only: true
     - service: celerybeat
-      target: /var/lib/funkwhale/music
+      target: *var_lib_funkwhale_music_target
       read_only: true
     - service: api
-      target: /var/lib/funkwhale/music
+      target: *var_lib_funkwhale_music_target
       read_only: true
 
 static:
@@ -32,13 +32,13 @@ static:
   name: funkwhale_static
   mounts:
     - service: celeryworker
-      target: /var/lib/funkwhale/static
+      target: &var_lib_funkwhale_static_target /var/lib/funkwhale/static
     - service: celerybeat
-      target: /var/lib/funkwhale/static
+      target: *var_lib_funkwhale_static_target
     - service: api
-      target: /var/lib/funkwhale/static
+      target: *var_lib_funkwhale_static_target
     - service: front
-      target: /var/lib/funkwhale/static
+      target: *var_lib_funkwhale_static_target
       read_only: true
 
 typesense_data:

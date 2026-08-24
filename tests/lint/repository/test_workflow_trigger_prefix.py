@@ -9,8 +9,10 @@ Rule
 The file name carries exactly one of three prefixes, derived from the `on:`
 block and checked in this order:
 
-* ``cron-``  the workflow has a `schedule` trigger. Its `name:` must also start
-  with ⏰, so a run nobody triggered is recognisable in the Actions list.
+* ``cron-``  the workflow has a `schedule` trigger. Its `name:` carries a symbol
+  describing what it does, and its `run-name:` prefixes ⏰ only when
+  `github.event_name` is `schedule`, so a run nobody triggered is recognisable
+  in the Actions list while a dispatched one is not mislabelled as scheduled.
 * ``call-``  no schedule, but a `workflow_call` trigger: a pipeline stage that
   only another workflow starts. An extra `workflow_dispatch` for debugging does
   not change that.
@@ -36,6 +38,7 @@ from . import PROJECT_ROOT
 
 _WORKFLOW_DIR = ".github/workflows/"
 _CLOCK = "⏰"
+_SCHEDULE_GUARD = "github.event_name == 'schedule'"
 _SCHEDULE = "cron-"
 _REUSABLE = "call-"
 _ENTRY = "entry-"
@@ -52,7 +55,7 @@ def _load(path: str):
         return None
 
 
-def _trigger_names(data) -> set[str]:
+def trigger_names(data) -> set[str]:
     """The keys of the `on:` block, which YAML 1.1 parsers hand back under `True`."""
     if not isinstance(data, dict):
         return set()
@@ -69,7 +72,7 @@ def _trigger_names(data) -> set[str]:
 
 
 def expected_prefix(data) -> str:
-    triggers = _trigger_names(data)
+    triggers = trigger_names(data)
     if "schedule" in triggers:
         return _SCHEDULE
     if "workflow_call" in triggers:
@@ -89,8 +92,13 @@ def issues(rel: str, data) -> list[str]:
         found.append(f"carries {carried!r}, must carry {wanted!r}")
     if wanted == _SCHEDULE:
         title = data.get("name") if isinstance(data, dict) else None
-        if not isinstance(title, str) or not title.startswith(_CLOCK):
-            found.append(f"name: must start with {_CLOCK}")
+        if isinstance(title, str) and title.startswith(_CLOCK):
+            found.append(f"name: must start with a descriptive symbol, not {_CLOCK}")
+        run_name = data.get("run-name") if isinstance(data, dict) else None
+        if not isinstance(run_name, str) or not (
+            _CLOCK in run_name and _SCHEDULE_GUARD in run_name
+        ):
+            found.append(f"run-name: must gate {_CLOCK} behind {_SCHEDULE_GUARD!r}")
     return found
 
 
@@ -109,7 +117,8 @@ class TestWorkflowTriggerPrefix(unittest.TestCase):
             self.fail(
                 f"{len(offenders)} workflow(s) break the prefix convention. A "
                 f"workflow file MUST start with {_SCHEDULE!r} when it has a "
-                f"`schedule` trigger (and then carry a {_CLOCK} name), with "
+                f"`schedule` trigger (and then carry a descriptive name plus a "
+                f"`run-name:` that gates {_CLOCK} behind {_SCHEDULE_GUARD!r}), with "
                 f"{_REUSABLE!r} when it is only reachable through `workflow_call`, "
                 f"and with {_ENTRY!r} otherwise:\n" + "\n".join(sorted(offenders))
             )

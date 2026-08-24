@@ -69,6 +69,12 @@ class TestVarsPassedAreUsed(unittest.TestCase):
 
         Line numbers are best-effort based on raw text scanning (not YAML AST),
         because PyYAML doesn't preserve line info.
+
+        Only the first key level under ``vars:`` is a variable. Anything deeper
+        belongs to that variable's value -- ``role_templates`` is passed, the
+        ``dest_dir`` of its list items is data -- and counting those as
+        variables demands they appear in a Jinja block of their own, which a
+        consumer written in Python never provides.
         """
         collected: set[str] = set()
         locations: dict[str, set[tuple[Path, int]]] = {}
@@ -90,6 +96,7 @@ class TestVarsPassedAreUsed(unittest.TestCase):
                     continue
 
                 base_indent = len(m.group(1))
+                var_indent: int | None = None
                 i += 1
 
                 while i < len(lines):
@@ -105,8 +112,10 @@ class TestVarsPassedAreUsed(unittest.TestCase):
 
                     km = key_re.match(line)
                     if km:
+                        if var_indent is None:
+                            var_indent = indent
                         key = km.group(2).strip()
-                        if key:
+                        if key and indent == var_indent:
                             collected.add(key)
                             locations.setdefault(key, set()).add((yml, i + 1))
                     i += 1

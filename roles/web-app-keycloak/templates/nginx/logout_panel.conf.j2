@@ -1,0 +1,11 @@
+{# The panel carries 30 language catalogues. Inlining it put ~15 kB gzip on every
+   Keycloak page for a feature only the logout page uses; served from this origin
+   it is fetched once and then cached. The sha1 in the name is the cache buster:
+   a changed panel is a changed URL, so immutable is safe. #}
+location ~ ^/infinito/logout-panel\.[0-9a-f]+\.js$ {
+  alias {{ KEYCLOAK_LOGOUT_PANEL_FILE }};
+  default_type application/javascript;
+  add_header Cache-Control "public, max-age=2592000, immutable" always;
+  add_header X-Content-Type-Options "nosniff" always;
+  access_log off;
+}

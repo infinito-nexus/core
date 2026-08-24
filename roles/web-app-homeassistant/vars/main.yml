@@ -8,7 +8,7 @@ HOMEASSISTANT_CONFIG_PATH_HOST: "{{ [ lookup('container', application_id, 'direc
 HOMEASSISTANT_PORT_INTERNAL: "{{ lookup('config', application_id, 'services.homeassistant.ports.internal.http') }}"
 HOMEASSISTANT_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') }}"
 HOMEASSISTANT_ADMIN_USERNAME: "{{ lookup('users', 'administrator').username }}"
-HOMEASSISTANT_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.administrator_password') }}"
+HOMEASSISTANT_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.administrator_password') }}"
 HOMEASSISTANT_TOKEN_CLIENT_NAME: "infinito-mcp"
 HOMEASSISTANT_MCP_ACCOUNT: "{{ lookup('users', 'mcp-web-app-homeassistant') }}"
 HOMEASSISTANT_MCP_ACCOUNT_USERNAME: "{{ HOMEASSISTANT_MCP_ACCOUNT.username }}"

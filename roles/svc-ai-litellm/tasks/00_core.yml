@@ -31,7 +31,7 @@
     LITELLM_CONSUMER_KEYS: >-
       {%- set out = [] -%}
       {%- for consumer in lookup('roles_with_service', 'litellm', scope='all') -%}
-        {%- set key = lookup('config', consumer.id, 'credentials.litellm_api_key', '') -%}
+        {%- set key = lookup('config', consumer.id, 'secrets.credentials.litellm_api_key', '') -%}
         {%- if key -%}
           {%- set _ = out.append({'alias': consumer.id, 'key': key}) -%}
         {%- endif -%}

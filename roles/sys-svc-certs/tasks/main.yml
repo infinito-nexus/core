@@ -9,23 +9,3 @@
 
 - name: "📂 Include flavor '{{ CERTBOT_FLAVOR }}' for '{{ domain }}'"
   include_tasks: "{{ [role_path, 'tasks/flavors', CERTBOT_FLAVOR ~'.yml'] | path_join }}"
-
-#- name: "Cleanup dedicated cert for '{{ domain }}'"
-#  command: >-
-#    certbot delete --cert-name {{ domain }} --non-interactive
-#  when:
-#    - MODE_CLEANUP | bool
-#      # Cleanup mode is enabled
-#    - CERTBOT_FLAVOR != 'dedicated'
-#      # Wildcard certificate is enabled
-#    - domain.split('.') | length == (DOMAIN_PRIMARY.split('.') | length + 1) and domain.endswith(DOMAIN_PRIMARY)
-#      # AND: The domain is a direct first-level subdomain of the primary domain
-#    - domain != DOMAIN_PRIMARY
-#      # The domain is not the primary domain
-#  register: certbot_result
-#  failed_when: certbot_result.rc != 0 and ("No certificate found with name" not in certbot_result.stderr)
-#  changed_when: certbot_result.rc == 0 and ("No certificate found with name" not in certbot_result.stderr)
-
-# NOTE (minimal invasive change):
-# ssl_cert_folder is now derived from tls so it works for both
-# letsencrypt and self_signed.

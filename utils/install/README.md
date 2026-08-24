@@ -27,7 +27,7 @@ The matching dispatcher [wrapper.sh](../../scripts/install/wrapper.sh) routes `m
 - Module names MUST stay lowercase snake_case.
 - Channel-agnostic helpers MUST live directly under `utils/install/`.
 - Per-tool policy (one tool per file) MUST live under `lint/` (see [lint README](lint/README.md)).
-- Test files live in [tests/unit/utils/install/](../../tests/unit/utils/install/) and mirror the module name with a `test_` prefix.
+- Test files live in [tests/unit/python/utils/install/](../../tests/unit/python/utils/install/) and mirror the module name with a `test_` prefix.
 
 ## Import Rules
 

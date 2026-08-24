@@ -42,7 +42,7 @@
   changed_when: true
   delegate_to: "{{ MOODLE_MCP_HOST_NODE }}"
   run_once: true
-  notify: container recreate
+  notify: container-recreate
 
 - name: "💾 Persist the token so MCP clients can read it"
   ansible.builtin.include_role:

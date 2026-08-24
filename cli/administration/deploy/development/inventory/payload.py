@@ -64,9 +64,6 @@ def _bake_overrides(
     if not isinstance(existing_apps, Mapping):
         existing_apps = {}
     apps: dict[str, Any] = dict(variant_payloads.items())
-    # Caller-supplied `applications.*` entries deep-overlay the variant
-    # payload so overrides like `applications.web-app-foo.feature_flag` from
-    # `--vars` still take precedence.
     for app_id, override in existing_apps.items():
         base_payload = apps.get(app_id)
         if isinstance(base_payload, Mapping) and isinstance(override, Mapping):

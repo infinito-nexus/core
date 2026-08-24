@@ -20,8 +20,11 @@ different flavor, or the role is moved behind a different proxy.
 
 Allowed
 =======
-* Per-line opt-out via ``# nocheck: literal-protocol-lookup``
-  (case-insensitive). Use this
+* Opt-out via ``# nocheck: literal-protocol-lookup`` (case-insensitive) on the
+  offending line or the one immediately above it. The line above is not a
+  convenience: a value long enough to be flagged is long enough for the YAML
+  formatter to wrap it, and a wrapped value cannot carry a trailing marker at
+  all - the ``#`` would land inside the quoted scalar. Use this
   for legitimate internal cases where the protocol is genuinely fixed —
   Docker-network upstreams that always speak plaintext (``http://<container>:<port>``),
   loopback URLs in CI fixtures, and similar.
@@ -49,11 +52,13 @@ from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from utils.annotations.suppress import suppressed_line_numbers
+from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import PROJECT_ROOT, iter_project_files, read_text
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+
+_RULE = "literal-protocol-lookup"
 
 _INTERP_RE: re.Pattern[str] = re.compile(r"https?://\{\{[^}]*\blookup\s*\(")
 _CONCAT_LOOKUP_RE: re.Pattern[str] = re.compile(
@@ -64,6 +69,23 @@ _CONCAT_CANONICAL_RE: re.Pattern[str] = re.compile(
 )
 
 ROLES_DIR = PROJECT_ROOT / "roles"
+
+
+def _suppressed_for_value(lines: list[str], idx: int) -> bool:
+    """Whether the value starting at 1-based *idx* carries the marker.
+
+    A wrapped value keeps its trailing comment on the last line, while the
+    offence is reported on the first, so the continuation lines count too.
+    """
+    if is_suppressed_at(lines, idx, _RULE):
+        return True
+    for following in range(idx + 1, len(lines) + 1):
+        text = lines[following - 1]
+        if not text[:1].isspace():
+            return False
+        if is_suppressed_at(lines, following, _RULE, mode="same-line"):
+            return True
+    return False
 
 
 @lru_cache(maxsize=8192)
@@ -81,11 +103,10 @@ def _file_offenders(path: Path) -> tuple[str, ...]:
         return ()
 
     lines = text.splitlines()
-    noqa_lines = suppressed_line_numbers(lines, "literal-protocol-lookup")
 
     offenders: list[str] = []
     for idx, line in enumerate(lines, start=1):
-        if idx in noqa_lines:
+        if _suppressed_for_value(lines, idx):
             continue
         snippet: str | None = None
         for pattern in (_INTERP_RE, _CONCAT_LOOKUP_RE, _CONCAT_CANONICAL_RE):

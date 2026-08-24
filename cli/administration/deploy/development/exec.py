@@ -55,8 +55,6 @@ def handler(args: argparse.Namespace) -> int:
     if services_disabled:
         extra_env["disable"] = services_disabled
 
-    # Caller-supplied --env entries win over implicit ones (current convention
-    # in the dev CLI: explicit user input overrides implicit defaults).
     extra_env.update(_parse_env_pairs(args.env or []))
 
     r = compose.exec(cmd, check=False, extra_env=extra_env or None)

@@ -1,0 +1,309 @@
+"""Focused unit tests for ``utils.cache.domains``.
+
+`get_merged_domains` is a thin derivation on top of
+`get_merged_applications` plus the
+`plugins.filter.canonical_domains_map` filter. We pin: cache-keying
+behaviour, the missing-DOMAIN_PRIMARY validation, and the dispatch to
+the upstream applications view.
+"""
+
+from __future__ import annotations
+
+import sys
+import tempfile
+import textwrap
+import unittest
+from pathlib import Path
+from unittest.mock import patch
+
+from utils.cache import _reset_cache_for_tests
+from utils.cache import domains as cache_domains
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_USERS
+
+from . import PROJECT_ROOT
+
+
+def _write(path: Path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(textwrap.dedent(content), encoding="utf-8")
+
+
+def _seed_minimal_role(tmp: Path) -> Path:
+    role = tmp / "roles" / "web-app-foo"
+    _write(
+        role / ROLE_FILE_META_SERVICES,
+        """
+        server:
+          domains:
+            canonical:
+              - foo.{{ DOMAIN_PRIMARY }}
+            aliases: []
+        """,
+    )
+    _write(role / ROLE_FILE_META_USERS, "users: {}\n")
+    return tmp / "roles"
+
+
+class TestMissingPrimaryDomain(unittest.TestCase):
+    def setUp(self) -> None:
+        _reset_cache_for_tests()
+
+    def test_raises_when_domain_primary_missing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_role(Path(tmp))
+            with self.assertRaisesRegex(ValueError, "DOMAIN_PRIMARY"):
+                cache_domains.get_merged_domains(
+                    variables={}, roles_dir=roles, templar=None
+                )
+
+    def test_falls_back_to_system_email_domain(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_role(Path(tmp))
+            with patch(
+                "utils.cache.applications.get_merged_applications",
+                return_value={},
+            ):
+                result = cache_domains.get_merged_domains(
+                    variables={"SYSTEM_EMAIL_DOMAIN": "infinito.example"},
+                    roles_dir=roles,
+                    templar=None,
+                )
+            self.assertIsInstance(result, dict)
+
+
+class TestCachingPerVariablesSignature(unittest.TestCase):
+    def setUp(self) -> None:
+        _reset_cache_for_tests()
+
+    def test_caches_result_for_identical_variables(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_role(Path(tmp))
+            with patch(
+                "utils.cache.applications.get_merged_applications",
+                return_value={},
+            ) as mocked:
+                first = cache_domains.get_merged_domains(
+                    variables={"DOMAIN_PRIMARY": "infinito.example"},
+                    roles_dir=roles,
+                    templar=None,
+                )
+                second = cache_domains.get_merged_domains(
+                    variables={"DOMAIN_PRIMARY": "infinito.example"},
+                    roles_dir=roles,
+                    templar=None,
+                )
+            self.assertEqual(mocked.call_count, 1)
+            self.assertEqual(first, second)
+
+    def test_different_domain_primary_misses_cache(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_role(Path(tmp))
+            with patch(
+                "utils.cache.applications.get_merged_applications",
+                return_value={},
+            ) as mocked:
+                cache_domains.get_merged_domains(
+                    variables={"DOMAIN_PRIMARY": "a.example"},
+                    roles_dir=roles,
+                    templar=None,
+                )
+                cache_domains.get_merged_domains(
+                    variables={"DOMAIN_PRIMARY": "b.example"},
+                    roles_dir=roles,
+                    templar=None,
+                )
+            self.assertEqual(mocked.call_count, 2)
+
+
+class TestResetClearsDomainsCache(unittest.TestCase):
+    def test_reset_evicts_cached_entry(self):
+        _reset_cache_for_tests()
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_role(Path(tmp))
+            with patch(
+                "utils.cache.applications.get_merged_applications",
+                return_value={},
+            ):
+                cache_domains.get_merged_domains(
+                    variables={"DOMAIN_PRIMARY": "infinito.example"},
+                    roles_dir=roles,
+                    templar=None,
+                )
+                self.assertEqual(len(cache_domains._MERGED_DOMAINS_CACHE), 1)
+                _reset_cache_for_tests()
+                self.assertEqual(len(cache_domains._MERGED_DOMAINS_CACHE), 0)
+
+
+class TestImportableWithoutAnsible(unittest.TestCase):
+    """`utils.cache.domains` MUST stay ansible-free at import time so
+    callers in CLI/runner-host paths can pull the module without
+    needing ansible. Calling `get_merged_domains` requires ansible
+    transitively (via `canonical_domains_map`) and is NOT pinned here
+    — the import-only invariant is what matters for the
+    ansible-less host. Subprocess isolation avoids the in-process
+    sys.modules / namespace-package hazards that bit earlier shims.
+    """
+
+    def test_module_imports_without_ansible(self):
+        import subprocess
+
+        repo_root = PROJECT_ROOT
+        snippet = (
+            "import sys\n"
+            f"sys.path.insert(0, {str(repo_root)!r})\n"
+            "class _Block:\n"
+            "    def find_spec(self, name, path=None, target=None):\n"
+            "        if name == 'ansible' or name.startswith('ansible.'):\n"
+            "            raise ImportError(f'blocked: {name}')\n"
+            "        return None\n"
+            "sys.meta_path.insert(0, _Block())\n"
+            "from utils.cache.domains import get_merged_domains\n"
+            "assert callable(get_merged_domains)\n"
+            "print('OK')\n"
+        )
+        result = subprocess.run(
+            [sys.executable, "-c", snippet],
+            capture_output=True,
+            text=True,
+            cwd=str(repo_root),
+            timeout=60,
+            check=False,
+        )
+        self.assertEqual(
+            result.returncode,
+            0,
+            msg=f"stderr=\n{result.stderr}\nstdout=\n{result.stdout}",
+        )
+        self.assertIn("OK", result.stdout)
+
+
+class TestOnionDomainInjection(unittest.TestCase):
+    ONION = "abc123def456ghij789klmno000pqrstuvwx111yz222abc333def444gh.onion"
+
+    def _apps(self, **tor):
+        return {
+            "web-app-x": {
+                "services": {
+                    "tor": {
+                        "enabled": True,
+                        "exclusive": False,
+                        "primary": False,
+                        **tor,
+                    }
+                },
+            }
+        }
+
+    def test_dual_stack_appends_onion(self):
+        merged = {"web-app-x": ["x.infinito.example"]}
+        out = cache_domains._inject_onion_domains(
+            merged, self._apps(), "infinito.example", self.ONION
+        )
+        self.assertEqual(out["web-app-x"], ["x.infinito.example", f"x.{self.ONION}"])
+
+    def test_exclusive_replaces_clearnet(self):
+        merged = {"web-app-x": ["x.infinito.example"]}
+        out = cache_domains._inject_onion_domains(
+            merged, self._apps(exclusive=True), "infinito.example", self.ONION
+        )
+        self.assertEqual(out["web-app-x"], [f"x.{self.ONION}"])
+
+    def test_primary_puts_onion_first(self):
+        merged = {"web-app-x": ["x.infinito.example"]}
+        out = cache_domains._inject_onion_domains(
+            merged, self._apps(primary=True), "infinito.example", self.ONION
+        )
+        self.assertEqual(out["web-app-x"], [f"x.{self.ONION}", "x.infinito.example"])
+
+    def test_disabled_app_untouched(self):
+        merged = {"web-app-x": ["x.infinito.example"]}
+        apps = {"web-app-x": {"services": {"tor": {"enabled": False}}}}
+        out = cache_domains._inject_onion_domains(
+            merged, apps, "infinito.example", self.ONION
+        )
+        self.assertEqual(out["web-app-x"], ["x.infinito.example"])
+
+    def test_exclusive_primary_default_from_provider(self):
+        """A consumer that omits exclusive/primary inherits the svc-net-tor
+        provider defaults (exclusive: true -> onion only)."""
+        merged = {"web-app-x": ["x.infinito.example"]}
+        apps = {
+            "web-app-x": {"services": {"tor": {"enabled": True, "shared": True}}},
+            "svc-net-tor": {
+                "services": {
+                    "tor": {
+                        "enabled": True,
+                        "shared": True,
+                        "exclusive": True,
+                        "primary": True,
+                    }
+                }
+            },
+        }
+        out = cache_domains._inject_onion_domains(
+            merged, apps, "infinito.example", self.ONION
+        )
+        self.assertEqual(out["web-app-x"], [f"x.{self.ONION}"])
+
+    def test_consumer_override_beats_provider_default(self):
+        """A consumer that pins exclusive: false overrides the provider's
+        exclusive: true and stays dual-stack."""
+        merged = {"web-app-x": ["x.infinito.example"]}
+        apps = {
+            "web-app-x": {
+                "services": {
+                    "tor": {"enabled": True, "shared": True, "exclusive": False}
+                }
+            },
+            "svc-net-tor": {
+                "services": {
+                    "tor": {
+                        "enabled": True,
+                        "shared": True,
+                        "exclusive": True,
+                        "primary": False,
+                    }
+                }
+            },
+        }
+        out = cache_domains._inject_onion_domains(
+            merged, apps, "infinito.example", self.ONION
+        )
+        self.assertEqual(out["web-app-x"], ["x.infinito.example", f"x.{self.ONION}"])
+
+    def test_consumer_exclusive_false_inherits_provider_primary_dual(self):
+        """A consumer pinning only exclusive: false inherits the provider's
+        primary: true and stays dual-stack, onion-first."""
+        merged = {"web-app-x": ["x.infinito.example"]}
+        apps = {
+            "web-app-x": {
+                "services": {
+                    "tor": {"enabled": True, "shared": True, "exclusive": False}
+                }
+            },
+            "svc-net-tor": {
+                "services": {
+                    "tor": {
+                        "enabled": True,
+                        "shared": True,
+                        "exclusive": True,
+                        "primary": True,
+                    }
+                }
+            },
+        }
+        out = cache_domains._inject_onion_domains(
+            merged, apps, "infinito.example", self.ONION
+        )
+        self.assertEqual(out["web-app-x"], [f"x.{self.ONION}", "x.infinito.example"])
+
+    def test_bare_primary_domain_maps_to_node_onion(self):
+        merged = {"web-app-x": ["infinito.example"]}
+        out = cache_domains._inject_onion_domains(
+            merged, self._apps(), "infinito.example", self.ONION
+        )
+        self.assertEqual(out["web-app-x"], ["infinito.example", self.ONION])
+
+
+if __name__ == "__main__":
+    unittest.main()

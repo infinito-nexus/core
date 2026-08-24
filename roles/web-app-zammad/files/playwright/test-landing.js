@@ -1,8 +1,9 @@
 const { test, expect } = require("@playwright/test");
+const { gotoOnion } = require("./personas");
 
 exports.register = function (shared) {
   test("zammad landing reachable on canonical domain", async ({ page }) => {
-    const response = await page.goto(`${shared.env.zammadBaseUrl}/`);
+    const response = await gotoOnion(page, `${shared.env.zammadBaseUrl}/`);
     expect(response, "Expected zammad landing response").toBeTruthy();
     expect(response.status(), "Expected zammad landing status to be < 500").toBeLessThan(500);
 

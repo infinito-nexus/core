@@ -21,13 +21,11 @@ class TestNoApplicationsVariableUsage(unittest.TestCase):
         found = []
 
         for root, dirs, files in os.walk(roles_dir):  # nocheck: project-walk
-            # Skip __pycache__ folders
             dirs[:] = [d for d in dirs if d != "__pycache__"]
             for file in files:
                 if file.endswith(".pyc"):
                     continue
                 file_path = str(Path(root) / file)
-                # Skip this test file itself (so it can contain the pattern in docstrings)
                 if str(Path(file_path).resolve()) == str(Path(__file__).resolve()):
                     continue
                 try:
@@ -37,7 +35,6 @@ class TestNoApplicationsVariableUsage(unittest.TestCase):
                             if match:
                                 found.append(f"{file_path}:{lineno}: {line.strip()}")
                 except Exception:
-                    # Binary or unreadable file, skip
                     continue
 
         if found:

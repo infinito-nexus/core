@@ -31,6 +31,12 @@ For the broader RBAC contract (LDAP layout, `rbac.tenancy` schema, the `rbac_gro
 
 [infinito-http-ca-trust.php](infinito-http-ca-trust.php) points WordPress's HTTP API at the deployment's CA bundle so outbound calls to internal HTTPS endpoints (OIDC discovery, REST loopback) verify instead of failing.
 
+## HTTP onion SOCKS (infinito-http-onion-socks.php) 🧅
+
+[infinito-http-onion-socks.php](infinito-http-onion-socks.php) sends server-side `wp_remote_*` calls whose host ends in `.onion` through the Tor SOCKS proxy named by `WORDPRESS_OIDC_SOCKS_PROXY`, which [env.j2](../../templates/env.j2) sets only when the OIDC issuer is an onion, so a clearnet deployment never routes through Tor.
+
+It hooks `http_api_curl` rather than `http_request_args` because the args array cannot express a proxy: WordPress core's `WP_HTTP_Proxy` hardcodes `CURLPROXY_HTTP`, so SOCKS5 is reachable only on the raw cURL handle. Without it, libcurl refuses an `.onion` host at name resolution under [RFC 7686](https://www.rfc-editor.org/rfc/rfc7686) — before `/etc/hosts`, `extra_hosts` or DNS is consulted — and the token exchange fails with cURL error 6, which WordPress surfaces as `wp-login.php?login-error=http_request_failed`.
+
 ## Deployment 🚚
 
 Every file here is declared as an addon under [meta/addons/](../../meta/addons/) with `mechanism: mu_plugin` and `source: vendored`, and the addon id is the file stem. [04_mu_plugins.yml](../../tasks/04_mu_plugins.yml) loops over those declarations and copies `<addon_id>.php` into the container on every deploy; a new file therefore needs its `meta/addons/<addon_id>.yml` entry and a Playwright spec before it is installed.

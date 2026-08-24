@@ -22,7 +22,7 @@
     {{ lookup('container_depends_on', application_id) | indent(4) }}
 {% endif %}
     {% if with_volumes %}
-    {{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {% endif %}
     {{ lookup('container_networks') | indent(4) }}
 {% endmacro -%}
@@ -30,7 +30,7 @@
 {{ mastodon_service(MASTODON_SERVICE_NAME, MASTODON_CONTAINER, 'mastodon', 'bash -c "rm -f /mastodon/tmp/pids/server.pid; bundle exec rails s -p 3000"', ports_key='http', with_volumes=true) }}
 {{ mastodon_service(MASTODON_STREAMING_SERVICE_NAME, MASTODON_STREAMING_CONTAINER, 'streaming', 'node ./streaming', ports_key='websocket') }}
 {{ mastodon_service(MASTODON_SIDEKIQ_SERVICE_NAME, MASTODON_SIDEKIQ_CONTAINER, 'mastodon', 'bundle exec sidekiq', with_volumes=true) }}
-{{ mastodon_service(MASTODON_MIGRATE_SERVICE_NAME, MASTODON_MIGRATE_CONTAINER, 'mastodon', 'bundle exec rails db:prepare', healthcheck=false, after_migrate=false, restart='on-failure') }}
+{{ mastodon_service(MASTODON_MIGRATE_SERVICE_NAME, MASTODON_MIGRATE_CONTAINER, 'mastodon', 'bundle exec rails db:prepare', healthcheck=false, after_migrate=false, restart='on-failure', with_volumes=true) }}
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

@@ -14,7 +14,6 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from pathlib import Path
 
-# Docker tag (version)
 TAG_RE = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$")
 
 
@@ -30,8 +29,6 @@ def _iter_role_config_files(repo_root: Path) -> list[Path]:
 
 
 def _extract_services(cfg: dict[str, Any]) -> dict[str, Any]:
-    # Per the file root of meta/services.yml IS the services
-    # map (no `compose.services` wrapper).
     return _safe_mapping(cfg)
 
 

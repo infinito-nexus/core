@@ -20,6 +20,7 @@ The diagram places Hugo in the Infinito.Nexus cosmos: the components it deploys 
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
@@ -36,16 +37,19 @@ flowchart LR
         svc_hugo["hugo"]
         svc_email["email ❌"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
     end
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
-    dep_web_app_keycloak -- "1:1" --> svc_sso
-    dep_web_app_mailu -- "1:1" --> svc_email
+    dep_web_app_keycloak -- "0..0" --> svc_sso
+    dep_web_app_mailu -- "0..0" --> svc_email
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_svc_css -. "0..1" .-> svc_css
+    linkStyle 2,3 stroke:red;
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
@@ -121,6 +125,12 @@ V1 supports **exactly one canonical domain** per role deploy. The play asserts t
 - [Hugo official site](https://gohugo.io/)
 - [Hugo documentation source: gohugoio/hugoDocs](https://github.com/gohugoio/hugoDocs)
 - [hugomods/hugo Docker images](https://hub.docker.com/r/hugomods/hugo)
+
+## Persona contract opt-outs
+
+The shared `biber` and `administrator` persona journeys are opted out via `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`.
+web-app-hugo serves a statically built site: `services.sso` is hard-disabled in `meta/services.yml`, the container is a Hugo build baked into nginx (`templates/compose.yml.j2`), and the Playwright env file renders no `ADMIN_*` / `BIBER_*` credentials.
+There is no session, no admin surface and no logout control to drive, so the `guest` persona plus the reachability, CSP and rendered-HTML assertions are the complete contract for this role.
 
 ## Credits
 

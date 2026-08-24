@@ -28,7 +28,7 @@ role name.
 Keep this module free of Ansible imports and cheap to import: it is
 pulled in by ``plugins/filter/invokable_paths.py``, which runs in
 contexts where Ansible is not installed (see
-``tests/unit/utils/cache/test_data.py``).
+``tests/unit/python/utils/cache/test_data.py``).
 """
 
 from __future__ import annotations

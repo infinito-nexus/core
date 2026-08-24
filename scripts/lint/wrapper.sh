@@ -33,11 +33,7 @@ host)
 	exec bash --login "${target_script}" "$@"
 	;;
 docker)
-	# Use bash (not --login) inside the container: --login sources
-	# /etc/profile which resets PATH to the Debian system default and
-	# drops the image's ${INFINITO_VENV_DIR}/bin entry, leaving tools
 	# like ruff / mbake / ansible-lint undiscoverable. BASH_ENV via -e
-	# still sources load.sh on non-interactive bash startup.
 	echo "============================================================"
 	echo ">>> Running lint '${lint_type}' in ${INFINITO_DISTRO} container (compose stack)"
 	echo "============================================================"
@@ -47,10 +43,6 @@ docker)
 		"${MAKE:-make}" compose-up
 	fi
 
-	# Pass BASH_ENV so `bash --login` auto-sources load.sh inside the
-	# container, putting every INFINITO_* key from the bind-mounted .env
-	# into the lint script's environment. Without this the script body
-	# would see `set -u` unbound-variable errors on first ${INFINITO_X}.
 	INFINITO_DISTRO="${INFINITO_DISTRO}" \
 		docker compose exec -T \
 		-e ACT="${ACT:-}" \

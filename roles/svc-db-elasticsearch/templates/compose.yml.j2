@@ -12,7 +12,7 @@
     {% if ELASTICSEARCH_EXPOSE_LOCAL %}
     {{ lookup('container_ports', ['elasticsearch', 'elasticsearch', DOCKER_BIND_HOST]) | indent(4) }}
     {% endif %}
-    {{ lookup('container_volumes', application_id, 'elasticsearch') | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     healthcheck:
       test:
@@ -23,5 +23,5 @@
       retries: 18
       start_period: 120s
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

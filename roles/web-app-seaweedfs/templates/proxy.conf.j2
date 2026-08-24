@@ -6,7 +6,6 @@ server
   {% include 'roles/sys-svc-proxy/templates/headers/buffers.conf.j2' %}
 
   {% if domain == lookup('config', application_id, 'domains.canonical.api') %}
-    {# Public S3 endpoint: ungated, S3 enforces its own credentials #}
     {% include 'roles/sys-front-tls/templates/nginx_ssl_header.j2' %}
 
     {% set sso_proxy_enabled = false %}
@@ -16,15 +15,12 @@ server
     {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
 
   {% elif lookup('sso', application_id, 'is_proxy_gated') %}
-    {# Admin UIs (filer/master): gated by the admin-only oauth2-proxy #}
     {% include 'roles/web-app-keycloak/templates/sso_proxy/endpoint.conf.j2'%}
     {% include 'roles/sys-front-inj-all/templates/server.conf.j2'%}
     {% include 'roles/sys-front-tls/templates/nginx_ssl_header.j2' %}
 
     {% set sso_proxy_enabled = true %}
     {% set location = "/" %}
-    {# filer/master admin UIs sit behind the oauth2-proxy sidecar; in swarm
-       route the content upstream to it (compose uses the published sso port). #}
     {% set proxy_service_key = 'sso-proxy' %}
     {% set proxy_internal_port = lookup('config', 'web-app-keycloak', 'services.sso_proxy.ports.internal.http') %}
     {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
@@ -32,7 +28,6 @@ server
     {% include 'roles/web-app-prometheus/templates/nginx/locations.conf.j2' %}
 
   {% else %}
-    {# Admin UIs without SSO: deny instead of exposing unauthenticated UIs #}
     {% include 'roles/sys-front-tls/templates/nginx_ssl_header.j2' %}
 
     location /

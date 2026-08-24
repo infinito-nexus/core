@@ -1,6 +1,6 @@
 ---
 # Recovery schema for `infinito administration recover`.
-# One uniform command wraps each svc-bkp-* role's files/recover.py.
+# One uniform command wraps each svc-bkp-* role's files/python/recover.py.
 
 command: "recover <type> <source> <target> [--preview] [--no-safety-backup]"
 target: "host to restore onto (positional label)"

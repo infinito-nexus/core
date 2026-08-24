@@ -137,24 +137,17 @@ def _scan_block_expr(
         head_id = segments[0]
         rest = segments[1:]
 
-        # Skip tokens immediately followed by call or subscript: the access
-        # shape would have to be evaluated at runtime.
         i = m_token.end()
         while i < len(expr_clean) and expr_clean[i].isspace():
             i += 1
         if i < len(expr_clean) and expr_clean[i] in "([":
             continue
 
-        # group_vars wins over role-local on conflict (group_vars is always
-        # loaded; role vars are loaded only when the role is in the play).
         if head_id in group_vars:
             root = group_vars[head_id]
         elif head_id in role_ns:
             root = role_ns[head_id]
         else:
-            # Unknown head — runtime / loop / register / macro / caller var.
-            # Out of scope here; covered by test_variable_definitions.py for
-            # the existence-of-top-level-identifier check.
             continue
 
         resolved, missing_at, opaque = _walk_path(root, rest)

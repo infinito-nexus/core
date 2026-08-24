@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
 
@@ -29,13 +30,13 @@ test("yourls: biber is denied access to /admin/ after sso login", async ({ brows
 
     const callbackResponsePromise = biberPage.waitForResponse(
       (res) => res.url().includes("/oauth2/callback"),
-      { timeout: 60_000 },
+      { timeout: resolveTimeout(60_000) },
     );
 
     await biberPage.goto(`${base}/admin/`);
     await expect
       .poll(() => biberPage.url(), {
-        timeout: 30_000,
+        timeout: resolveTimeout(30_000),
         message: `Expected redirect to Keycloak OIDC auth: ${expectedOidcAuthUrl}`,
       })
       .toContain(expectedOidcAuthUrl);

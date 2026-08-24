@@ -32,7 +32,6 @@ def _render_if_template(templar, value, var_name: str):
     try:
         rendered = templar.template(value)
     except TypeError:
-        # Unit tests can inject a minimal templar without Ansible's full signature.
         rendered = templar.template(value)
     except Exception as exc:
         raise AnsibleError(
@@ -47,21 +46,16 @@ def _render_if_template(templar, value, var_name: str):
 
 
 def _resolve_version(templar, variables):
-    # Try the canonical lookup call first.
     try:
         version = templar.template("{{ lookup('version') }}")
     except TypeError:
-        # Unit tests can inject a minimal templar without Ansible's full signature.
         version = templar.template("{{ lookup('version') }}")
 
-    # Some Ansible contexts keep nested lookups unresolved here. Fallback to direct plugin call.
     if _looks_like_template(version):
         try:
             try:
-                # Preferred when imported as Python package (tests, local scripts).
                 from plugins.lookup.version import LookupModule as VersionLookupModule
             except ModuleNotFoundError:
-                # Fallback when loaded by Ansible plugin loader from lookup_plugins path.
                 from version import LookupModule as VersionLookupModule
 
             version_lookup = VersionLookupModule()
@@ -133,8 +127,6 @@ def _build_unit_name(
     sw = _lower_required(software_domain, "SOFTWARE_DOMAIN")
     sfx = _normalize_suffix(suffix)
 
-    # Keep template semantics compatible with your previous filter:
-    # If id ends with "@", drop it and return "<base>.<ver>.<sw>@<suffix>" (e.g., "...@.service").
     if sid.endswith("@"):
         base = sid[:-1]
         return f"{base}.{ver}.{sw}@{sfx}"
@@ -152,7 +144,6 @@ class LookupModule(LookupBase):
     """
 
     def run(self, terms, variables=None, **kwargs):
-        # Make variables accessible via templar
         self.set_options(var_options=variables, direct=kwargs)
 
         if not terms:
@@ -160,7 +151,6 @@ class LookupModule(LookupBase):
                 "unit_name lookup: at least one term (systemctl_id) is required."
             )
 
-        # Read SOFTWARE_DOMAIN from current variable context
         available = getattr(self._templar, "available_variables", {}) or {}
         software_domain = available.get("SOFTWARE_DOMAIN")
         if not software_domain:
@@ -171,8 +161,6 @@ class LookupModule(LookupBase):
             self._templar, software_domain, "SOFTWARE_DOMAIN"
         )
 
-        # Resolve version via lookup('version'). Fall back to direct lookup plugin invocation
-        # if nested lookup templating remains unresolved in this context.
         version = _resolve_version(self._templar, variables)
         if not version or not str(version).strip():
             raise AnsibleError(

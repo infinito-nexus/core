@@ -42,7 +42,9 @@ fi
 	echo "TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR missing in roles/test-e2e-playwright/vars/main.yml (SPOT)" >&2
 	exit 2
 }
-reports_base="${INFINITO_PLAYWRIGHT_REPORTS_BASE_DIR:?source scripts/meta/env/load.sh or run via make}"
+# shellcheck source=/dev/null
+source <(grep -E '^INFINITO_PLAYWRIGHT_REPORTS_BASE_DIR=' "$repo_root/.env")
+reports_base="${INFINITO_PLAYWRIGHT_REPORTS_BASE_DIR:?INFINITO_PLAYWRIGHT_REPORTS_BASE_DIR missing in .env (SPOT)}"
 
 stage_dir="$stage_base/$role"
 reports_dir="$reports_base/$role"
@@ -82,6 +84,14 @@ helper_src="$repo_root/roles/test-e2e-playwright/files/service-gating.js"
 if [[ -f "$helper_src" ]]; then
 	cp "$helper_src" "$stage_dir/tests/service-gating.js"
 fi
+timeouts_src="$repo_root/roles/test-e2e-playwright/files/timeouts.js"
+if [[ -f "$timeouts_src" ]]; then
+	cp "$timeouts_src" "$stage_dir/tests/timeouts.js"
+fi
+onion_test_src="$repo_root/roles/test-e2e-playwright/files/onion-test.js"
+if [[ -f "$onion_test_src" ]]; then
+	cp "$onion_test_src" "$stage_dir/tests/onion-test.js"
+fi
 personas_dir="$repo_root/roles/test-e2e-playwright/files/personas"
 if [[ -d "$personas_dir" ]]; then
 	mkdir -p "$stage_dir/tests/personas/utils"
@@ -109,14 +119,23 @@ cmd="${TEST_E2E_PLAYWRIGHT_COMMAND:-npm install --no-fund --no-audit && npx play
 
 if [[ "${TEST_E2E_PLAYWRIGHT_NETWORK_HOST:-}" == "true" ]]; then
 	net_args=(--network host)
+	proxy_host="127.0.0.1"
 else
 	net_args=(--add-host=host.docker.internal:host-gateway)
+	proxy_host="host.docker.internal"
+fi
+
+proxy_env=()
+if grep -qiE '\.onion' "$env_file"; then
+	default_proxy="socks5://${proxy_host}:${INFINITO_TOR_SOCKS_PORT:?INFINITO_TOR_SOCKS_PORT unset (built by the env handler from svc-net-tor services.tor.ports.local.socks)}"
+	proxy_env=(-e "PLAYWRIGHT_PROXY=${PLAYWRIGHT_PROXY:-$default_proxy}")
 fi
 
 exec docker run --rm \
 	--ipc=host --shm-size=1g \
 	"${net_args[@]}" \
 	--env-file "$env_file" \
+	"${proxy_env[@]}" \
 	-v "$stage_dir:/e2e" \
 	-v "$stage_dir/volume:/volume" \
 	-v "$reports_dir:/reports" \

@@ -2,6 +2,8 @@
 application_id: "web-app-opencloud"
 entity_name: "{{ application_id | get_entity_name }}"
 
+proxy_x_forwarded_proto: "https"
+
 OPENCLOUD_CONTAINER: "{{ lookup('config', application_id, 'services.opencloud.name') }}"
 
 OPENCLOUD_URL: "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}"
@@ -10,12 +12,12 @@ OPENCLOUD_DOMAIN: "{{ lookup('domain', application_id) }}"
 OPENCLOUD_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 OPENCLOUD_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 
-OPENCLOUD_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'credentials.administrator_password') }}"
+OPENCLOUD_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.administrator_password') }}"
 
-OPENCLOUD_MACHINE_AUTH_API_KEY: "{{ lookup('config', application_id, 'credentials.machine_auth_api_key') }}"
-OPENCLOUD_STORAGE_SYSTEM_JWT_SECRET: "{{ lookup('config', application_id, 'credentials.storage_system_jwt_secret') }}"
-OPENCLOUD_JWT_SECRET: "{{ lookup('config', application_id, 'credentials.jwt_secret') }}"
-OPENCLOUD_TRANSFER_SECRET: "{{ lookup('config', application_id, 'credentials.transfer_secret') }}"
+OPENCLOUD_MACHINE_AUTH_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.machine_auth_api_key') }}"
+OPENCLOUD_STORAGE_SYSTEM_JWT_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.storage_system_jwt_secret') }}"
+OPENCLOUD_JWT_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.jwt_secret') }}"
+OPENCLOUD_TRANSFER_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.transfer_secret') }}"
 
 # Exception: the tls lookup raises when web-app-opentalk is not in scope
 OPENCLOUD_OPENTALK_ENABLED: "{{ ('web-app-opentalk' in group_names) | lower }}"

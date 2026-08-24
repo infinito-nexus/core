@@ -9,5 +9,5 @@
   stack_host_template:
     src: "config.exs.j2"
     dest: "{{ mobilizon_host_conf_exs_file }}"
-  notify: compose up
+  notify: compose-up
   when: IS_STACK_HOST | bool

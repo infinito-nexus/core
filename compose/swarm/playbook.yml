@@ -23,6 +23,7 @@
     lab_export_base: "{{ lookup('env', 'NFS_EXPORT_BASE') }}"
     lab_node_src: "{{ lookup('env', 'INFINITO_NODE_SRC_DIR') }}"
     lab_runner_temp: "{{ lookup('env', 'RUNNER_TEMP') }}"
+    lab_sampler_log: "{{ lookup('env', 'INFINITO_DNS53_SAMPLER_LOG') }}"
     lab_systemd_timeout: "{{ lookup('env', 'SWARM_PILOT_SYSTEMD_TIMEOUT') | default('180', true) }}"
     lab_is_mgr: "{{ inventory_hostname == lab_mgr }}"
     lab_is_worker: "{{ inventory_hostname in [lab_wrk1, lab_wrk2] }}"
@@ -185,3 +186,14 @@
         src: "{{ lab_runner_temp }}/infinito-src.tar"
         dest: "{{ lab_node_src }}"
       timeout: 300
+
+    - name: sample what the resolver answers, not just whether it listens
+      shell: |
+        set -eu
+        sampler={{ lab_node_src }}/scripts/tests/deploy/ci/dns53-sampler.sh
+        INFINITO_DNS53_SAMPLER_LOG={{ lab_sampler_log }} \
+          setsid sh "${sampler}" </dev/null >/dev/null 2>&1 &
+      args:
+        creates: "{{ lab_sampler_log }}"
+      timeout: 30
+      when: lab_dns_node

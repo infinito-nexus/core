@@ -5,7 +5,7 @@
     dest: "{{ MATOMO_BOOTSTRAP_ENV_FILE }}"
     mode: "0640"
     force: true
-  notify: compose up
+  notify: compose-up
 
 - name: 🚿 flush docker service
   meta: flush_handlers

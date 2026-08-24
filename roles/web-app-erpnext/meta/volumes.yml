@@ -7,20 +7,20 @@ sites:
     gid: "1000"
     mode: "0770"
   mounts:
-    - service: erpnext-configurator
-      target: /home/frappe/frappe-bench/sites
-    - service: erpnext-backend
-      target: /home/frappe/frappe-bench/sites
-    - service: erpnext-websocket
-      target: /home/frappe/frappe-bench/sites
-    - service: erpnext-scheduler
-      target: /home/frappe/frappe-bench/sites
-    - service: erpnext-queue-short
-      target: /home/frappe/frappe-bench/sites
-    - service: erpnext-queue-long
-      target: /home/frappe/frappe-bench/sites
-    - service: erpnext-frontend
-      target: /home/frappe/frappe-bench/sites
+    - service: configurator
+      target: &home_frappe_frappe_bench_sites_target /home/frappe/frappe-bench/sites
+    - service: backend
+      target: *home_frappe_frappe_bench_sites_target
+    - service: websocket
+      target: *home_frappe_frappe_bench_sites_target
+    - service: scheduler
+      target: *home_frappe_frappe_bench_sites_target
+    - service: queue-short
+      target: *home_frappe_frappe_bench_sites_target
+    - service: queue-long
+      target: *home_frappe_frappe_bench_sites_target
+    - service: frontend
+      target: *home_frappe_frappe_bench_sites_target
 logs:
   type: volume
   name: erpnext_logs
@@ -29,17 +29,17 @@ logs:
     gid: "1000"
     mode: "0770"
   mounts:
-    - service: erpnext-configurator
-      target: /home/frappe/frappe-bench/logs
-    - service: erpnext-backend
-      target: /home/frappe/frappe-bench/logs
-    - service: erpnext-websocket
-      target: /home/frappe/frappe-bench/logs
-    - service: erpnext-scheduler
-      target: /home/frappe/frappe-bench/logs
-    - service: erpnext-queue-short
-      target: /home/frappe/frappe-bench/logs
-    - service: erpnext-queue-long
-      target: /home/frappe/frappe-bench/logs
-    - service: erpnext-frontend
-      target: /home/frappe/frappe-bench/logs
+    - service: configurator
+      target: &home_frappe_frappe_bench_logs_target /home/frappe/frappe-bench/logs
+    - service: backend
+      target: *home_frappe_frappe_bench_logs_target
+    - service: websocket
+      target: *home_frappe_frappe_bench_logs_target
+    - service: scheduler
+      target: *home_frappe_frappe_bench_logs_target
+    - service: queue-short
+      target: *home_frappe_frappe_bench_logs_target
+    - service: queue-long
+      target: *home_frappe_frappe_bench_logs_target
+    - service: frontend
+      target: *home_frappe_frappe_bench_logs_target

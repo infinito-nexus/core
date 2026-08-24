@@ -28,8 +28,8 @@ media_store_path:               "/data/media_store"
 registration_shared_secret:     "{{ MATRIX_REGISTRATION_SHARED_SECRET }}"
 report_stats:                   true
 enable_metrics:                 {{ lookup('config', application_id, 'services.prometheus.native_metrics.enabled', False) | bool | lower }}
-macaroon_secret_key:            "{{ lookup('config', application_id, 'credentials.macaroon_secret_key') }}"
-form_secret:                    "{{ lookup('config', application_id, 'credentials.form_secret') }}"
+macaroon_secret_key:            "{{ lookup('config', application_id, 'secrets.credentials.macaroon_secret_key') }}"
+form_secret:                    "{{ lookup('config', application_id, 'secrets.credentials.form_secret') }}"
 signing_key_path:               "/data/{{ MATRIX_SYNAPSE_DOMAIN }}.signing.key"
 web_client_location:            "{{ lookup('tls', application_id, 'protocols.web') }}://{{ lookup('domains', application_id).element }}"
 public_baseurl:                 "{{ MATRIX_SYNAPSE_URL }}"
@@ -44,8 +44,6 @@ email:
   smtp_port:                    "{{ email.port }}"
   smtp_user:                    "{{ email.username }}"
   smtp_pass:                    "{{ email.password }}"
-  #force_tls:                    true
-  #require_transport_security:   true
   enable_tls:                   "{{ email.tls | upper }}"
   notif_from:                   "Your Friendly %(app)s homeserver <{{ email['from'] }}>"
   app_name:                     "Matrix on {{ MATRIX_SYNAPSE_DOMAIN }}"
@@ -56,11 +54,13 @@ email:
 {% endif %}
 
 {% if MATRIX_OIDC_ENABLED | bool %}
-# @See https://matrix-org.github.io/synapse/latest/openid.html
 oidc_providers:
   - idp_id:         keycloak
     idp_name:       "{{ OIDC.BUTTON_TEXT }}"
     issuer:         "{{ OIDC.CLIENT.ISSUER_URL }}"
+{% if MATRIX_OIDC_HOST_IS_ONION | bool %}
+    skip_verification: true
+{% endif %}
     client_id:      "{{ OIDC.CLIENT.ID }}"
     client_secret:  "{{ OIDC.CLIENT.SECRET }}"
     scopes: ["openid", "profile"]

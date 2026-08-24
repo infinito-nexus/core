@@ -12,7 +12,6 @@ server
   {% include 'roles/sys-front-inj-all/templates/server.conf.j2'%}
 
   {% if webserver_extra_configuration is defined %}
-    {# Additional Domain Specific Configuration #}
     {{ webserver_extra_configuration }}
   {% endif %}
 
@@ -22,7 +21,6 @@ server
     {% set acl = lookup('sso', application_id, 'oauth2_acl') %}
 
     {% if acl.blacklist is defined %}
-      {# 1. Expose everything by default, then protect blacklisted paths #}
       {% set sso_proxy_enabled = false %}
       {% set location = "/" %}
       {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
@@ -34,7 +32,6 @@ server
       {% endfor %}
 
     {% elif acl.whitelist is defined %}
-      {# 2. Protect everything by default, then expose whitelisted paths #}
       {% set sso_proxy_enabled = true %}
       {% set location = "/" %}
       {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
@@ -46,14 +43,12 @@ server
       {% endfor %}
 
     {% else %}
-      {# 3. OAuth2 enabled but no (or empty) ACL — protect all #}
       {% set sso_proxy_enabled = true %}
       {% set location = "/" %}
       {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
     {% endif %}
 
   {% else %}
-    {# 4. OAuth2 completely disabled — expose all #}
     {% set sso_proxy_enabled = false %}
     {% set location = "/" %}
     {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}

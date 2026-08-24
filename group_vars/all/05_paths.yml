@@ -27,5 +27,13 @@ FILE_TOKENS: "{{ [DIR_SECRETS, 'tokens.yml'] | path_join }}"
 FILE_DATABASE_SECRETS: "{{ [DIR_SECRETS, 'databases.csv'] | path_join }}"
 
 DIR_RESCUE_DIAGNOSTICS: "/tmp/infinito-rescue-diagnostics"
+FILE_DNS53_SAMPLER_LOG: "/var/log/infinito/dns53-sampler.log"
 
 FILE_ENVIRONMENT: "/etc/environment" # File to safe environment variables in
+
+CA_BUNDLE_CANDIDATES: # Where the distributions keep the extracted CA bundle, most likely first
+  - "/etc/ssl/certs/ca-certificates.crt"
+  - "/etc/pki/tls/certs/ca-bundle.crt"
+  - "/etc/ssl/ca-bundle.pem"
+  - "/etc/pki/tls/cacert.pem"
+  - "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem"

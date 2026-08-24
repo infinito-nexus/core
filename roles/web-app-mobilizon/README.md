@@ -17,6 +17,7 @@ flowchart LR
     subgraph deps [Dependencies]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
@@ -36,10 +37,12 @@ flowchart LR
         svc_seaweedfs["seaweedfs ❌"]
         svc_css["css"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
         svc_container_backup["container_backup"]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_postgres -. "0..1" .-> svc_postgres
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
@@ -49,7 +52,7 @@ flowchart LR
     dep_web_svc_logout -. "0..1" .-> svc_logout
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 
@@ -100,6 +103,10 @@ docker run --rm -it \
 ## Further Resources
 
 - [Mobilizon Official Website](https://mobilizon.org)
+
+## Persona contract opt-outs
+
+[`templates/config.exs.j2`](./templates/config.exs.j2) wires Keycloak as the only login provider this role configures, and [`tasks/main.yml`](./tasks/main.yml) creates no Mobilizon account; `MOBILIZON_INSTANCE_DISABLE_DATABASE_LOGIN` ([`templates/env.j2`](./templates/env.j2)) additionally closes the database login whenever LDAP is on. In the `services.sso.enabled: false` matrix variants neither persona has credentials, so [`templates/playwright.env.j2`](./templates/playwright.env.j2) renders `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`. The `guest` persona and the baseline assertions run unconditionally.
 
 ## Credits
 

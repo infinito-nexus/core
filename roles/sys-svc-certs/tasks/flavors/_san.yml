@@ -1,10 +1,11 @@
 ---
 # Necessary to have this separate file to pass performance tests
-- name: 📦 Install certbundle
+- name: 📦 Install certbundle system-wide via pip
   include_role:
-    name: pkgmgr-install
+    name: sys-pip-install
   vars:
     package_name: certbundle
+    global_install: true
 
 - name: ⚙️ Generate SAN certificate with certbundle
   command: >-

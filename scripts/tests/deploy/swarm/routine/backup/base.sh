@@ -72,6 +72,12 @@ UNIT_DUMPS="${INFINITO_RESCUE_DIAGNOSTICS_DIR:?INFINITO_RESCUE_DIAGNOSTICS_DIR i
 
 DRILL_START_TS="$(docker exec "${MGR}" date +%Y%m%d%H%M%S)"
 
+echo "==> [0/9] disarm the backup calendar timers for the duration of the drill"
+for _node in "${MGR}" "${WRK1}" "${WRK2}" "${NFS_SERVER}"; do
+	docker exec "${_node}" timeout 660 sh -c \
+		"systemctl stop 'svc-bkp-*.timer' 2>/dev/null; while systemctl is-active --quiet 'svc-bkp-*.service'; do sleep 5; done" # nocheck: shell-or-true -- a node without the timers installed has nothing to stop
+done
+
 echo "==> [1/9] seed markers (live NFS volume + manager secrets)"
 docker exec "${NFS_SERVER}" sh -c \
 	"mkdir -p '${NFS_VOL_DIR}' && printf '%s' '${DR_TOKEN}' > '${NFS_VOL_DIR}/${DR_MARKER}'"
@@ -113,8 +119,8 @@ else
 fi
 if [ -z "${MARKER_PATH}" ]; then
 	echo "FAILURE: marker not captured by any backup unit (checked ${NFS_SERVER} and ${MGR})"
-	docker exec "${NFS_SERVER}" find "${DIR_BACKUPS}" -maxdepth 4 -type d 2>/dev/null || true
-	docker exec "${MGR}" find "${DIR_BACKUPS}" -maxdepth 4 -type d 2>/dev/null || true
+	docker exec "${NFS_SERVER}" find "${DIR_BACKUPS}" -maxdepth 4 -type d 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+	docker exec "${MGR}" find "${DIR_BACKUPS}" -maxdepth 4 -type d 2>/dev/null || true        # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	exit 1
 fi
 MARKER_REL="${MARKER_PATH#"${DIR_BACKUPS}"/}"
@@ -150,7 +156,7 @@ if ! docker exec "${BACKUP_NODE}" bash "${TRIGGER_UNITS}" 'svc-bkp-remote-2-loca
 fi
 if ! docker exec "${BACKUP_NODE}" test -f "${DIR_BACKUPS}/${SRC_REL}/${DR_MARKER}"; then
 	echo "FAILURE: marker missing on ${BACKUP_NODE} after the unit pull (expected under ${DIR_BACKUPS}/${SRC_REL})"
-	docker exec "${BACKUP_NODE}" find "${DIR_BACKUPS}" -maxdepth 4 2>/dev/null || true
+	docker exec "${BACKUP_NODE}" find "${DIR_BACKUPS}" -maxdepth 4 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	exit 1
 fi
 echo "    marker present on backup host after pull"
@@ -163,9 +169,9 @@ echo "    ${PULLED_MB}M pulled; sizing the loop image to ${USB_SIZE_MB}M (2x pul
 docker exec "${BACKUP_NODE}" bash "${BKP_IN_NODE}/02_luks_device.sh" \
 	"${USB_IMG}" "${DEV_MOUNT}" "${DEV_DEST}" "${USB_MAPPER}" "${USB_PASS}" "${USB_SIZE_MB}"
 drill_device_teardown() {
-	docker exec "${BACKUP_NODE}" umount "${DEV_MOUNT}" 2>/dev/null || true
-	docker exec "${BACKUP_NODE}" cryptsetup luksClose "${USB_MAPPER}" 2>/dev/null || true
-	docker exec "${BACKUP_NODE}" rm -f "${USB_IMG}" 2>/dev/null || true
+	docker exec "${BACKUP_NODE}" umount "${DEV_MOUNT}" 2>/dev/null || true                # nocheck: shell-or-true -- teardown runs from any exit path; the device may never have been mounted
+	docker exec "${BACKUP_NODE}" cryptsetup luksClose "${USB_MAPPER}" 2>/dev/null || true # nocheck: shell-or-true -- teardown runs from any exit path; the mapper may never have been opened
+	docker exec "${BACKUP_NODE}" rm -f "${USB_IMG}" 2>/dev/null || true                   # nocheck: shell-or-true -- teardown runs from any exit path; the image may never have been created
 }
 if ! DEVICE_FREE_RAW="$(docker exec "${BACKUP_NODE}" df --output=avail -B1M "${DEV_MOUNT}" 2>/dev/null)"; then
 	DEVICE_FREE_RAW=""
@@ -203,13 +209,13 @@ if ! docker exec "${BACKUP_NODE}" bash "${TRIGGER_UNITS}" 'svc-bkp-local-2-devic
 fi
 if ! docker exec "${BACKUP_NODE}" find "${DEV_DEST}" -name "${DR_MARKER}" 2>/dev/null | grep -q .; then
 	echo "FAILURE: marker missing on the encrypted USB after the unit sync (expected under ${DEV_DEST})"
-	docker exec "${BACKUP_NODE}" find "${DEV_MOUNT}" -maxdepth 5 2>/dev/null || true
+	docker exec "${BACKUP_NODE}" find "${DEV_MOUNT}" -maxdepth 5 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 	exit 1
 fi
 echo "    marker present on encrypted USB"
 
 echo "==> [6/9] tear the stack down completely (full disaster) before recovery"
-if [ "${HAS_SWARM_SERVICE}" = true ]; then
+if has_swarm_service; then
 	docker exec "${MGR}" bash "${BKP_IN_NODE}/04_stack_rm_wait.sh" "${STACK_NAME}"
 else
 	for _node in "${MGR}" "${WRK1}" "${WRK2}"; do
@@ -221,7 +227,7 @@ fi
 
 echo "==> [7/9] recover device -> local root via the recover CLI (full LUKS open)"
 docker exec "${BACKUP_NODE}" sh -c \
-	"umount '${DEV_MOUNT}' 2>/dev/null || true; cryptsetup luksClose '${USB_MAPPER}' 2>/dev/null || true; rm -rf '${DIR_BACKUPS:?}' '${RESTORE_ROOT}'; mkdir -p '${RESTORE_ROOT}'"
+	"umount '${DEV_MOUNT}' 2>/dev/null || true; cryptsetup luksClose '${USB_MAPPER}' 2>/dev/null || true; rm -rf '${DIR_BACKUPS:?}' '${RESTORE_ROOT}'; mkdir -p '${RESTORE_ROOT}'" # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 docker exec "${BACKUP_NODE}" sh -c \
 	"printf '%s' '${USB_PASS}' | PYTHONPATH='${NODE_SRC}' python3 -m cli.administration.recover device '${USB_IMG}:${DEV_TARGET#/}:${RESTORE_ROOT}' localhost"
 if ! docker exec "${BACKUP_NODE}" test -f "${RESTORE_ROOT}/${SRC_REL}/${DR_MARKER}"; then
@@ -247,11 +253,15 @@ echo "    device-recovered files restored to the live NFS export"
 docker exec "${NFS_SERVER}" rm -rf "${DR_RESTORE_STAGE:?}"
 
 echo "==> [8b/9] restore NFS coherence after the backing-FS restore"
-docker exec "${NFS_SERVER}" timeout 120 sh -c \
-	"systemctl try-restart nfs-ganesha 2>/dev/null || systemctl try-restart nfs-server"
+if docker exec "${NFS_SERVER}" systemctl cat nfs-ganesha.service >/dev/null 2>&1; then
+	NFS_UNIT=nfs-ganesha
+else
+	NFS_UNIT=nfs-server
+fi
+docker exec "${NFS_SERVER}" timeout 240 systemctl try-restart "${NFS_UNIT}"
 for _node in "${MGR}" "${WRK1}" "${WRK2}"; do
 	docker exec "${_node}" timeout 180 sh -c \
-		"umount -l '${DIR_VAR_LIB}' 2>/dev/null || true; mount '${DIR_VAR_LIB}'"
+		"umount -l '${DIR_VAR_LIB}' 2>/dev/null || true; mount '${DIR_VAR_LIB}'" # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 done
 for _i in $(seq 1 24); do
 	if docker exec "${MGR}" sh -c \

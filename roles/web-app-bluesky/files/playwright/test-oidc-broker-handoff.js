@@ -1,4 +1,6 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
+const { gotoOnion } = require("./personas");
 
 exports.register = function (shared) {
   test("OIDC: oauth2-proxy + login-broker drop a Bluesky session into social-app via Keycloak (variant A+)", async ({ page }) => {
@@ -24,11 +26,11 @@ exports.register = function (shared) {
     const expectedOidcAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
     const expectedBaseUrl = baseUrl.replace(/\/$/, "");
 
-    await page.goto(`${expectedBaseUrl}/`);
+    await gotoOnion(page, `${expectedBaseUrl}/`);
 
     await expect
       .poll(() => page.url(), {
-        timeout: 60_000,
+        timeout: resolveTimeout(60_000),
         message: `expected redirect to Keycloak OIDC auth (${expectedOidcAuthUrl})`,
       })
       .toContain(expectedOidcAuthUrl);
@@ -45,15 +47,15 @@ exports.register = function (shared) {
     // not be under `/oauth2/`.
     await expect
       .poll(() => page.url(), {
-        timeout: 90_000,
+        timeout: resolveTimeout(90_000),
         message: `expected post-OIDC URL to land on Bluesky outside /oauth2/* (got: ${page.url()})`,
       })
       .toMatch(new RegExp(`^${expectedBaseUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/(?!oauth2/)`));
 
     // Wait for the network to settle so the broker's handoff JS can
     // commit localStorage + cookie before we inspect them.
-    await page.waitForLoadState("networkidle", { timeout: 30_000 }).catch(() => {});
-    await expect(page.locator("body")).toBeVisible({ timeout: 60_000 });
+    await page.waitForLoadState("networkidle", { timeout: resolveTimeout(30_000) }).catch(() => {});
+    await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     // The broker writes a schema-compliant `BSKY_STORAGE` payload
     // built from upstream `social-app@1.121.0`'s persisted defaults

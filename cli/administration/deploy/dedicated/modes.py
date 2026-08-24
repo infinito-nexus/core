@@ -58,7 +58,7 @@ def load_modes_from_yaml(modes_yaml_path: str) -> list[dict[str, Any]]:
             modes.append(
                 {
                     "name": key,
-                    "default": default_bool,  # True/False/None
+                    "default": default_bool,
                     "help": cmt or f"Toggle {key}",
                 }
             )
@@ -83,21 +83,18 @@ def add_dynamic_mode_args(
         short = name.replace("MODE_", "").lower()
 
         if default is True:
-            # MODE_FOO: true  → --skip-foo disables it
             opt = f"--skip-{short}"
             dest = f"skip_{short}"
             parser.add_argument(opt, action="store_true", dest=dest, help=desc)
             spec[name] = {"dest": dest, "default": True, "kind": "bool_true"}
 
         elif default is False:
-            # MODE_BAR: false → --bar enables it
             opt = f"--{short}"
             dest = short
             parser.add_argument(opt, action="store_true", dest=dest, help=desc)
             spec[name] = {"dest": dest, "default": False, "kind": "bool_false"}
 
         else:
-            # MODE_XYZ: null → --xyz true|false
             opt = f"--{short}"
             dest = short
             parser.add_argument(opt, choices=["true", "false"], dest=dest, help=desc)
@@ -118,11 +115,9 @@ def build_modes_from_args(
         value = getattr(args_namespace, dest, None)
 
         if kind == "bool_true":
-            # if user passed --skip-foo => disable => False, otherwise True
             modes[mode_name] = not value
 
         elif kind == "bool_false":
-            # if user passed --bar => enable => True, otherwise False
             modes[mode_name] = bool(value)
 
         elif value is not None:

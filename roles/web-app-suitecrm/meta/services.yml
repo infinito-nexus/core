@@ -4,11 +4,7 @@ sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
-  flavor: oauth2
-  oauth2:
-    origin:
-      host: suitecrm
-      port: "80"
+  flavor: saml
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -33,6 +29,7 @@ mariadb:
   bond: 1
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-mariadb' in group_names }}"
+# nocheck: playwright-service-flag — self-provider entry; test_env_services_match.py:28-32 grants the forbidden-self-gate exemption
 suitecrm:
   healthcheck:
     flavor: curl
@@ -59,10 +56,8 @@ suitecrm:
   pids_limit: 768
   email:
     from_name: Customer Relationship Management (SuiteCRM, {{ DOMAIN_PRIMARY }})
-  maintenance_mode: false
   ports:
     local:
-      sso: 16490
       http: 8062
     internal:
       http: 80
@@ -80,6 +75,12 @@ prometheus:
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
 
+# nocheck: playwright-service-flag
+# nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
+tor:
+  bond: 0.5
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: true # nocheck: dynamic-flag
 # nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
 container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
   bond: 1

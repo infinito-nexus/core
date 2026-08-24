@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
 
 const { setupMatomoPage } = require("./_shared");
+const { resolveTimeout } = require("./timeouts");
 const { runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
 
 test.use({ ignoreHTTPSErrors: true });
@@ -26,12 +27,12 @@ test("administrator: app → universal logout", async ({ page }) => {
       const settingsLink = interactivePage
         .getByRole("link", { name: /administration|settings|websites/i })
         .first();
-      if (await settingsLink.isVisible({ timeout: 10_000 }).catch(() => false)) {
+      if (await settingsLink.isVisible().catch(() => false)) {
         await settingsLink.click().catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: 30_000 }).catch(() => {});
+        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         await expect(interactivePage.locator("body")).toContainText(
           /websites|administration|users|general settings/i,
-          { timeout: 30_000 },
+          { timeout: resolveTimeout(30_000) },
         );
       }
     },

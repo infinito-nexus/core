@@ -41,8 +41,6 @@ if ! $EXEC grep -qF "$ORIG" "$P"; then
     exit 1
 fi
 
-# Use python to avoid shell-escaping the single quotes inside sed/awk
-# replacement text — friendica image ships python3 via Composer base.
 $EXEC python3 -c "
 import sys
 p='$P'

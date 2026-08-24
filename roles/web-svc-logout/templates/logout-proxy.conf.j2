@@ -1,5 +1,4 @@
 location = /logout {
-    {# Proxy to the logout service #}
     {{ lookup('proxy_pass', 'web-svc-logout', 'logout', 'http', tail='/logout') }}
     proxy_set_header   Host              $host;
     proxy_set_header   X-Real-IP         $remote_addr;
@@ -9,19 +8,16 @@ location = /logout {
 
     {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
 
-    {# CORS headers – allow your central page to call this #}
     {%- set aca_origin = (lookup('tls', 'web-svc-logout', 'url.base') | regex_replace('/$', '')) ~ " always" -%}
     {%- set aca_credentials = "'true' always" -%}
     {%- set aca_methods = "'GET, OPTIONS' always" -%}
     {%- set aca_headers = "'Accept, Authorization' always" -%}
     {%- include 'roles/sys-svc-proxy/templates/headers/access_control_allow.conf.j2' -%}
 
-    {# Disable caching absolutely #}
     add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0" always;
     add_header Pragma "no-cache" always;
     add_header Expires "0" always;
 
-    {# Handle preflight #}
     if ($request_method = OPTIONS) {
       return 204;
     }

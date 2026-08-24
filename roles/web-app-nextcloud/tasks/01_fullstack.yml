@@ -9,13 +9,13 @@
 
 - name: "📄 Deploy '{{ NEXTCLOUD_INIT_GATE_HOST }}'"
   copy:
-    src: "{{ NEXTCLOUD_INIT_GATE_FILE }}"
+    src: "{{ NEXTCLOUD_INIT_GATE_SRC }}"
     dest: "{{ NEXTCLOUD_INIT_GATE_HOST }}"
     mode: "0755"
   when: IS_STACK_HOST | bool
   notify:
-    - compose build
-    - compose up
+    - compose-build
+    - compose-up
 
 - when: NEXTCLOUD_WHITEBOARD_ENABLED | bool
   block:
@@ -31,7 +31,7 @@
       stack_host_template:
         src: "Dockerfiles/Whiteboard.j2"
         dest: "{{ NEXTCLOUD_WHITEBOARD_SERVICE_DOCKERFILE }}"
-      notify: compose build
+      notify: compose-build
 
 - name: "📁 create {{ NEXTCLOUD_HOST_CONF_ADD_PATH }}"
   file:

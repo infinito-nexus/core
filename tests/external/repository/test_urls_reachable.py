@@ -2,7 +2,9 @@
 
 Scans git-tracked and untracked-but-not-ignored text files for literal
 ``http://`` and ``https://`` URLs. Placeholder/template URLs and reserved
-local/example hosts are skipped. Per-line suppression uses the unified
+local/example hosts are skipped, as are ``.onion`` addresses, which no
+clearnet probe can reach without a Tor SOCKS proxy this suite does not use.
+Per-line suppression uses the unified
 ``# nocheck: url`` marker. See
 ``docs/contributing/actions/testing/suppression.md``.
 
@@ -10,11 +12,22 @@ This is an external test because it performs live HTTP requests against the
 referenced third-party URLs. HTTP ``401`` (Unauthorized), ``403`` (Forbidden),
 ``405`` (Method Not Allowed), ``406`` (Not Acceptable) and ``415``
 (Unsupported Media Type) are treated as reachable (server is alive but
-auth-gated, method-restricted, or rejecting the probe's headers). HTTP ``418`` (I'm a teapot), ``429`` (Too
-Many Requests), ``451`` (Unavailable For Legal Reasons), every ``5xx`` server
-response, plus timeouts and connection errors (reset, aborted) emit warning
-annotations rather than failing the test, since these signal an upstream issue
-outside this repository's control. All other ``4xx`` codes fail the test.
+auth-gated, method-restricted, or rejecting the probe's headers). HTTP ``418``
+(I'm a teapot), ``429`` (Too Many Requests), ``451`` (Unavailable For Legal
+Reasons) and every ``5xx`` server response emit warning annotations rather than
+failing: the server answered, so the URL exists. All other ``4xx`` codes fail.
+
+A timeout or connection error is a third outcome, reported as an unverified
+warning: the server never answered, so the URL was not checked at all. Such a
+probe is indeterminate rather than negative -- a host may be geo-blocked, be a
+rendered template placeholder, or simply be firewalled off from this runner.
+
+That tolerance is what let a sandbox with no route to the registry report a
+green run over 244 unanswered probes, among them 110 lockfile URLs that were in
+fact HTTP 404. The guard against it is ``_CONNECTIVITY_CANARIES``: before any
+probing, the suite checks the infrastructure hosts the repository actually
+depends on, and fails outright when they are unreachable. A run that cannot
+reach its subject does not pass; it does not run.
 """
 
 from __future__ import annotations
@@ -45,6 +58,11 @@ _REPO_ROOT = PROJECT_ROOT
 _URL_RE = re.compile(r"https?://[^\s<>'\"`\]]+")
 _TEMPLATE_MARKERS = ("${", "{{", "}}", "{%", "%}")
 _PUBLIC_HOST_RE = re.compile(r"^[A-Za-z0-9.-]+$")
+_CONNECTIVITY_CANARIES = (
+    "https://github.com/",
+    "https://pypi.org/simple/",
+    "https://registry.npmjs.org/",
+)
 _RESERVED_HOSTS = {
     "example",
     "example.com",
@@ -60,6 +78,7 @@ _RESERVED_HOST_SUFFIXES = (
     ".example.org",
     ".invalid",
     ".local",
+    ".onion",
     ".localhost",
     ".localdomain",
     ".test",
@@ -263,9 +282,9 @@ def _probe_url(url: str) -> ProbeOutcome:
         finally:
             response.close()
     except requests.Timeout as exc:
-        return ProbeOutcome("warn", f"Timeout: {exc}")
+        return ProbeOutcome("unverified", f"Timeout: {exc}")
     except requests.ConnectionError as exc:
-        return ProbeOutcome("warn", f"ConnectionError: {exc}")
+        return ProbeOutcome("unverified", f"ConnectionError: {exc}")
     except requests.RequestException as exc:
         return ProbeOutcome("fail", f"{type(exc).__name__}: {exc}")
     except Exception as exc:  # pragma: no cover - defensive safety net
@@ -276,6 +295,14 @@ def _probe_url(url: str) -> ProbeOutcome:
     if status in _WARNING_STATUS_CODES or status >= 500:
         return ProbeOutcome("warn", f"HTTP {status}")
     return ProbeOutcome("fail", f"HTTP {status}")
+
+
+def _probe_canary(url: str) -> ProbeOutcome:
+    """Probe a connectivity canary, retrying once so one blip cannot fail the run."""
+    outcome = _probe_url(url)
+    if outcome.kind == "unverified":
+        outcome = _probe_url(url)
+    return outcome
 
 
 def _collect_occurrences(root: Path) -> dict[str, list[UrlOccurrence]]:
@@ -297,8 +324,26 @@ class TestUrlsReachable(unittest.TestCase):
             "No probe-worthy public HTTP(S) URLs found in repository files.",
         )
 
+        unreachable_canaries = [
+            (url, outcome.detail)
+            for url, outcome in ((c, _probe_canary(c)) for c in _CONNECTIVITY_CANARIES)
+            if outcome.kind == "unverified"
+        ]
+        if unreachable_canaries:
+            self.fail(
+                "This host cannot reach the infrastructure the repository depends"
+                " on, so nothing below would actually be verified:\n"
+                + "\n".join(
+                    f"  {url} -> {detail}" for url, detail in unreachable_canaries
+                )
+                + "\n\n  Every other probe would fail the same way and be reported"
+                " as a warning, turning an unchecked run green. Run this suite from"
+                " a host with a route to the internet."
+            )
+
         failing_found: list[tuple[str, UrlOccurrence, str, int]] = []
         warnings_found: list[tuple[str, UrlOccurrence, str, int]] = []
+        unverified_found: list[tuple[str, UrlOccurrence, str, int]] = []
 
         total = len(occurrences_by_url)
         print(
@@ -347,6 +392,17 @@ class TestUrlsReachable(unittest.TestCase):
                     )
                     continue
 
+                if outcome.kind == "unverified":
+                    unverified_found.append(
+                        (
+                            "External URL unverified",
+                            occurrences[0],
+                            f"{probe_url} -> {outcome.detail}",
+                            len(occurrences),
+                        )
+                    )
+                    continue
+
                 if outcome.kind == "warn":
                     warnings_found.append(
                         (
@@ -361,9 +417,9 @@ class TestUrlsReachable(unittest.TestCase):
             unfinished_urls = [u for f, u in future_to_url.items() if not f.done()]
             for probe_url in unfinished_urls:
                 occurrences = occurrences_by_url[probe_url]
-                warnings_found.append(
+                unverified_found.append(
                     (
-                        "External URL reachability",
+                        "External URL unverified",
                         occurrences[0],
                         (
                             f"{probe_url} -> Timeout: global deadline "
@@ -375,7 +431,7 @@ class TestUrlsReachable(unittest.TestCase):
             print(
                 f"  global deadline reached at {elapsed:.1f}s; "
                 f"{len(unfinished_urls)} probes still running "
-                f"(marked as warn, not waited for)",
+                f"(counted as unverified, not waited for)",
                 file=sys.stderr,
                 flush=True,
             )
@@ -397,6 +453,19 @@ class TestUrlsReachable(unittest.TestCase):
 
         for title, occurrence, message, count in sorted(
             warnings_found,
+            key=lambda item: (item[1].file.as_posix(), item[1].line, item[2]),
+        ):
+            rel = occurrence.file.relative_to(_REPO_ROOT).as_posix()
+            suffix = "" if count == 1 else f" ({count} occurrences)"
+            warning(
+                f"{message}{suffix}",
+                title=title,
+                file=rel,
+                line=occurrence.line,
+            )
+
+        for title, occurrence, message, count in sorted(
+            unverified_found,
             key=lambda item: (item[1].file.as_posix(), item[1].line, item[2]),
         ):
             rel = occurrence.file.relative_to(_REPO_ROOT).as_posix()

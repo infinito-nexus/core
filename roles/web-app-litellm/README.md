@@ -15,6 +15,7 @@ The diagram places LiteLLM Admin UI in the Infinito.Nexus cosmos: the components
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
+        dep_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
@@ -26,12 +27,14 @@ flowchart LR
         svc_sso["sso ❌"]
         svc_logout["logout ❌"]
     end
+    dep_svc_ai_litellm -- "1:1" --> svc_litellm
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
-    dep_web_app_keycloak -- "1:1" --> svc_sso
+    dep_web_app_keycloak -- "0..0" --> svc_sso
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
+    linkStyle 2 stroke:red;
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Features
 

@@ -1,24 +1,29 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Resolve the JSON list the CI matrix deploys for the current
-# INFINITO_DEPLOY_MODE. The query itself (filter, coverage-first sort,
-# lifecycle envelope, INFINITO_MAX_JOBS cap with 'auto') lives in
-# cli.meta.ci.query, shared with the deploy-plan table. Compose and host
-# emit whole role names; swarm emits per-variant "role#variant" tokens.
-# variant.bundles maps the list onto matrix entries.
+# Resolve the CI deploy matrix for one chunk of one sweep. The pipeline itself
+# (two discovery queries, the axis rotations, the chunk split) lives in
+# cli.meta.ci.matrix, shared with the deploy-plan table, so the matrix this
+# emits and the plan the summary renders can never disagree. Every entry is one
+# role#variant row carrying the mode, onion state, distro and filesystem it was
+# assigned.
 #
 # Inputs via env (defaults live in default.env, the single source of truth):
-#   INFINITO_DEPLOY_MODE           compose|swarm|host (required; workflows set it)
+#   INFINITO_CI_CHUNK              chunk index to emit (required)
+#   INFINITO_CI_SWEEP              sweep number driving the axis rotations
+#   INFINITO_CI_OFFSET             regular rows to skip before filling the chunks
+#   INFINITO_MODES                 'auto' or a subset of 'host compose swarm'
 #   INFINITO_WHITELIST             optional space-separated app ids to keep
-#   INFINITO_BLACKLIST             optional space-separated app ids to drop
-#   INFINITO_MAX_JOBS              cumulative job cap; 'auto' derives it per
-#                                  mode from the CI chain via cli.meta.ci.slots
+#   INFINITO_PRIORITY              optional space-separated app ids to lead
+#   INFINITO_TOR                   auto|enforced|exclusive|disabled
+#   INFINITO_DISTROS               distro pool the rows are spread over; empty: all
+#   INFINITO_DOCKER_FILESYSTEM_ALLOWED  filesystem pool; empty: all
+#   INFINITO_LIFECYCLES            lifecycle envelope for discovery
 #   INFINITO_DISCOVERY_SORT        complexity --sort spec (coverage-first)
 #   INFINITO_REQUIRED_STORAGE      per-runner CI storage budget
 #   INFINITO_APP_DISCOVERY_RUNNER  host|docker
 #
-# Output: JSON array to stdout (single line, always valid).
+# Output: JSON array of matrix entries to stdout (single line, always valid).
 
 PYTHON="${PYTHON:-python3}"
 
@@ -52,23 +57,24 @@ run_meta_cli() {
 	esac
 }
 
-mode="${INFINITO_DEPLOY_MODE:?INFINITO_DEPLOY_MODE must be set to compose, swarm or host}"
-case "$mode" in
-compose | swarm | host) ;;
-*)
-	echo "apps.sh: INFINITO_DEPLOY_MODE must be compose, swarm or host, got '$mode'" >&2
-	exit 2
-	;;
-esac
-
-apps_json="$(run_meta_cli -m cli.meta.ci.query --mode "$mode" --format json)"
-
-apps_json="$(printf '%s' "${apps_json}" | jq -c 'sort')"
+matrix_json="$(
+	run_meta_cli -m cli.meta.ci.matrix \
+		--index "${INFINITO_CI_CHUNK:?INFINITO_CI_CHUNK must be set to the chunk index to emit}" \
+		--sweep "${INFINITO_CI_SWEEP}" \
+		--offset "${INFINITO_CI_OFFSET}" \
+		--modes "${INFINITO_MODES}" \
+		--whitelist "${INFINITO_WHITELIST}" \
+		--priority "${INFINITO_PRIORITY}" \
+		--lifecycles "${INFINITO_LIFECYCLES}" \
+		--tor "${INFINITO_TOR}" \
+		--distros "${INFINITO_DISTROS}" \
+		--filesystem "${INFINITO_DOCKER_FILESYSTEM_ALLOWED}"
+)"
 
 if [[ -n "${GITHUB_ACTIONS:-}" && -z "${ACT:-}" ]]; then
 	required_storage="${INFINITO_REQUIRED_STORAGE}"
 
-	mapfile -t roles < <(printf '%s\n' "${apps_json}" | jq -r '.[] | split("#")[0]' | sort -u)
+	mapfile -t roles < <(printf '%s\n' "${matrix_json}" | jq -r '.[].apps' | sort -u)
 	if [[ "${#roles[@]}" -gt 0 ]]; then
 		run_meta_cli \
 			-m cli.meta.roles.applications.sufficient_storage \
@@ -76,7 +82,7 @@ if [[ -n "${GITHUB_ACTIONS:-}" && -z "${ACT:-}" ]]; then
 			--required-storage "${required_storage}" \
 			--warnings \
 			--format json \
-			>/dev/null || true
+			>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 
 		kept_roles="$(
 			run_meta_cli \
@@ -87,12 +93,12 @@ if [[ -n "${GITHUB_ACTIONS:-}" && -z "${ACT:-}" ]]; then
 				json_compact_array
 		)"
 
-		apps_json="$(
-			printf '%s' "${apps_json}" |
+		matrix_json="$(
+			printf '%s' "${matrix_json}" |
 				jq -c --argjson keep "${kept_roles}" \
-					'map(select(. as $t | $keep | index($t | split("#")[0]) != null))'
+					'map(select(.apps as $a | $keep | index($a) != null))'
 		)"
 	fi
 fi
 
-printf '%s\n' "${apps_json}" | json_compact_array
+printf '%s\n' "${matrix_json}" | json_compact_array

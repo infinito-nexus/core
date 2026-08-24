@@ -17,7 +17,7 @@ FIDER_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') | bool }}
 FIDER_MCP_SERVICE_KEY: "fidermcp"
 FIDER_MCP_CONTAINER: "{{ lookup('config', application_id, 'services.fidermcp.name') }}"
 FIDER_MCP_PORT: "{{ lookup('config', application_id, 'services.fidermcp.ports.internal.http') }}"
-FIDER_MCP_BEARER: "{{ lookup('config', application_id, 'credentials.mcp_bearer') }}"
+FIDER_MCP_BEARER: "{{ lookup('config', application_id, 'secrets.credentials.mcp_bearer') }}"
 FIDER_MCP_INSTANCE_DIR: "{{ [lookup('container', application_id, 'directories.instance'), 'mcp'] | path_join }}"
 FIDER_MCP_UPSTREAM_HOST: "{{ lookup('config', application_id, 'services.fider.name') }}"
 FIDER_MCP_UPSTREAM_PORT: "{{ lookup('config', application_id, 'services.fider.ports.internal.http') }}"

@@ -27,7 +27,7 @@
       - "{{ COTURN_RELAY_PORT_RANGE }}/udp"  # nocheck: compose-ports-must-use-container-ports
     {{ lookup('container_networks') | indent(4) }}
     {% endif %}
-    {{ lookup('container_volumes', application_id, 'coturn') | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     command: >
       {% if COTURN_USER_AUTH_ENABLED | bool %}
       --lt-cred-mech
@@ -64,4 +64,4 @@
       start_period: 10s
 {{ lookup('compose_networks') }}
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}

@@ -2,7 +2,8 @@
 application_id: "svc-db-openldap"
 entity_name: "{{ application_id | get_entity_name }}"
 
-OPENLDAP_SERVER_URI: "ldap://{{ DOCKER_REACH_HOST }}:{{ lookup('config', application_id, 'services.openldap.ports.local.ldap') }}"
+OPENLDAP_PORT: "{{ lookup('config', application_id, 'services.openldap.ports.local.ldap') }}"
+OPENLDAP_SERVER_URI: "ldap://{{ DOCKER_REACH_HOST }}:{{ OPENLDAP_PORT }}"
 
 OPENLDAP_CONFIG_URI: "ldapi:///"
 
@@ -22,7 +23,8 @@ OPENLDAP_BIND_PW: "{{ LDAP.BIND_CREDENTIAL }}"
 
 OPENLDAP_NETWORK_SWITCH_PUBLIC: "{{ lookup('config', application_id, 'services.openldap.network.public') }}"
 OPENLDAP_NETWORK_SWITCH_LOCAL: "{{ lookup('config', application_id, 'services.openldap.network.local') }}"
-OPENLDAP_NETWORK_EXPOSE_LOCAL: "{{ OPENLDAP_NETWORK_SWITCH_PUBLIC | bool or OPENLDAP_NETWORK_SWITCH_LOCAL | bool }}"
+OPENLDAP_EXPOSED: "{{ lookup('config', application_id, 'services.openldap.exposed') | bool }}"
+OPENLDAP_NETWORK_EXPOSE_LOCAL: "{{ OPENLDAP_NETWORK_SWITCH_PUBLIC | bool or OPENLDAP_NETWORK_SWITCH_LOCAL | bool or OPENLDAP_EXPOSED | bool }}"
 
 OPENLDAP_PROVISION_CONFIGURATION: "{{ lookup('config', application_id, 'services.openldap.provision.configuration') }}"
 OPENLDAP_PROVISION_CREDENTIALS: "{{ lookup('config', application_id, 'services.openldap.provision.credentials') }}"
@@ -30,7 +32,7 @@ OPENLDAP_PROVISION_SCHEMAS: "{{ lookup('config', application_id, 'services.openl
 OPENLDAP_PROVISION_USERS: "{{ lookup('config', application_id, 'services.openldap.provision.users') }}"
 OPENLDAP_PROVISION_GROUPS: "{{ lookup('config', application_id, 'services.openldap.provision.groups') }}"
 OPENLDAP_PROVISION_UPDATE: "{{ lookup('config', application_id, 'services.openldap.provision.update') }}"
-OPENLDAP_USERS: "{{ lookup('users') | non_reserved_users }}"
+OPENLDAP_USERS: "{{ lookup('users_non_reserved') }}"
 
 OPENLDAP_PYTHON_HEADER_PACKAGE_TEMPLATES_BY_OS_FAMILY:
   Debian:

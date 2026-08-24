@@ -19,6 +19,7 @@ flowchart LR
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
         dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
         dep_svc_db_redis["svc-db-redis 🐳🐝"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
@@ -40,12 +41,14 @@ flowchart LR
         svc_css["css"]
         svc_javascript["javascript"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
         svc_container_backup["container_backup"]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
     dep_svc_db_postgres -. "0..1" .-> svc_postgres
     dep_svc_db_redis -. "0..1" .-> svc_redis
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
@@ -55,7 +58,7 @@ flowchart LR
     dep_web_svc_logout -. "0..1" .-> svc_logout
 ```
 
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
+Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
 
 ## Purpose
 
@@ -209,6 +212,10 @@ odoo shell -d <database_name>
 ```bash
 docker logs odoo -f
 ```
+
+## Persona contract opt-outs
+
+The shared `biber` and `administrator` persona helpers are declared blocked in [templates/playwright.env.j2](./templates/playwright.env.j2). Odoo renders its SSO provider link only on `/web/login` inside the `.o_login_auth` container, not on the site root the persona helper starts from, and it exposes no in-app logout control — signing out means navigating to `/web/session/logout`. The full Keycloak round trip for both users is covered by the role's own `odoo: admin sso login, verify ui, logout` and `odoo: biber sso login, verify ui, logout` scenarios in [files/playwright/playwright.spec.js](./files/playwright/playwright.spec.js).
 
 ## Credits
 

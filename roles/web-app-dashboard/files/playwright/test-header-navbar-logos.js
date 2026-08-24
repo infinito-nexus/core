@@ -1,6 +1,7 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./fixtures/onion-test");
+const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue } = require("./personas");
+const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 
 const platformLogoUrl = decodeDotenvQuotedValue(process.env.PLATFORM_LOGO_URL);
 const platformFaviconUrl = decodeDotenvQuotedValue(process.env.PLATFORM_FAVICON_URL);
@@ -10,7 +11,14 @@ async function getCurrentImageSource(locator) {
 }
 
 async function expectImageLoaded(locator, label, expectedUrl) {
-  await expect(locator).toBeVisible({ timeout: 60_000 });
+  await expect(locator).toBeVisible({ timeout: resolveTimeout(60_000) });
+
+  await expect
+    .poll(() => locator.evaluate((img) => img.complete && img.naturalWidth > 0), {
+      timeout: resolveTimeout(60_000),
+      message: `${label} never finished decoding`,
+    })
+    .toBe(true);
 
   const loaded = await locator.evaluate((img) => ({
     source: img.currentSrc || img.src || "",
@@ -28,9 +36,10 @@ async function expectImageLoaded(locator, label, expectedUrl) {
 exports.register = function (shared) {
   test("dashboard loads role-core JavaScript modules and renders header/navbar logos", async ({ page }) => {
     shared.skipUnlessServiceEnabled("cdn");
+    shared.skipUnlessServiceEnabled("asset");
 
     const diagnostics = shared.attachDiagnostics(page);
-    const documentResponse = await page.goto("/");
+    const documentResponse = await gotoOnion(page,"/");
     expect(documentResponse.status()).toBeLessThan(400);
 
     const documentHtml = await documentResponse.text();

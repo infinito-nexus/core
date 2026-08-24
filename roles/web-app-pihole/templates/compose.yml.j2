@@ -13,9 +13,9 @@
     {{ lookup('container_ports', ['pihole', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     cap_add:
       - NET_ADMIN
-    {{ lookup('container_volumes', application_id, 'pihole') | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

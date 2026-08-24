@@ -28,6 +28,11 @@ For databases the same rule reduces to coverage of ``shared``: the
 DB-consumer ``enabled`` flag stays literal ``true`` (with
 ``# nocheck: dynamic-flag``), so only ``shared`` is dynamic and needs
 the two-polarity coverage.
+
+Exempt a service with ``# nocheck: variants-coverage`` on (or directly
+above) its ``meta/services.yml`` key — for flags whose group-derived
+value is a hard invariant that variants must never override (e.g. a
+browser frontend that must stay off on onion nodes).
 """
 
 from __future__ import annotations
@@ -53,7 +58,7 @@ if TYPE_CHECKING:
 ROLES_DIR = PROJECT_ROOT / "roles"
 
 
-_RULE = "dynamic-flag"
+_RULES = ("dynamic-flag", "variants-coverage")
 
 
 def _is_dynamic_flag(value) -> bool:
@@ -62,14 +67,15 @@ def _is_dynamic_flag(value) -> bool:
 
 def _suppressed_top_level_keys(file_path: Path) -> set[str]:
     """Return the set of top-level service keys whose preceding comment
-    block carries a ``# nocheck: dynamic-flag`` marker (mirrors
+    block carries a ``# nocheck: dynamic-flag`` or
+    ``# nocheck: variants-coverage`` marker (mirrors
     ``tests.integration.roles.meta.services.test_dynamic_flags``)."""
     exceptions: set[str] = set()
     pending = False
     for raw_line in read_text(str(file_path)).splitlines():
         stripped = raw_line.strip()
         if stripped.startswith("#"):
-            if line_has_rule(raw_line, _RULE):
+            if any(line_has_rule(raw_line, rule) for rule in _RULES):
                 pending = True
             continue
         if not stripped:

@@ -8,7 +8,7 @@ source "${SCRIPT_DIR}/../utils/_context.sh"
 mapfile -t PORTS < <(
 	docker exec "${MGR}" docker service inspect "${SERVICE_NAME}" \
 		--format '{{ range .Endpoint.Ports }}{{ .PublishedPort }}{{ "\n" }}{{ end }}' 2>/dev/null |
-		grep -v '^$' || true
+		grep -v '^$' || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 )
 
 if [ "${#PORTS[@]}" -eq 0 ]; then

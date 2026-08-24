@@ -3,7 +3,6 @@ ARG BOOKWYRM_IMAGE
 ARG BOOKWYRM_VERSION
 FROM ${BOOKWYRM_IMAGE}:${BOOKWYRM_VERSION} AS builder
 
-# libsass-dev + SYSTEM_SASS=True avoids the in-tree libsass build (~25 min on arm64).
 RUN rm -rf /var/lib/apt/lists/* \
   && apt-get -o Acquire::Retries=3 update && apt-get -o Acquire::Retries=3 install -y --no-install-recommends \
     git build-essential libpq-dev \
@@ -18,7 +17,6 @@ ARG BOOKWYRM_REPOSITORY
 ARG BOOKWYRM_REF
 RUN git clone --depth=1 --branch "${BOOKWYRM_REF}" "${BOOKWYRM_REPOSITORY}" .
 
-# Resolve PEP 735 `[dependency-groups].main` into an isolated venv.
 RUN python -m venv /venv \
  && /venv/bin/pip install --upgrade "pip>=25.1.0" \
  && /venv/bin/pip install --group main
@@ -30,7 +28,6 @@ ENV PATH=/venv/bin:$PATH
 ENV SYSTEM_SASS=True
 WORKDIR /app
 
-# libsass1 is the runtime sibling of the build-time libsass-dev.
 RUN rm -rf /var/lib/apt/lists/* \
   && apt-get -o Acquire::Retries=3 update && apt-get -o Acquire::Retries=3 install -y --no-install-recommends \
     libpq5 curl \

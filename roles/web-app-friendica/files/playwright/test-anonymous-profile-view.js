@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 // Anonymous (logged-out) visitor reaches biber's friendica profile.
 //
@@ -47,7 +48,7 @@ exports.register = function (shared) {
       await expect(
         anonPage.locator("body"),
         `Expected biber's profile body to mention "${shared.env.biberUsername}"`
-      ).toContainText(shared.env.biberUsername, { timeout: 30_000 });
+      ).toContainText(shared.env.biberUsername, { timeout: resolveTimeout(30_000) });
 
       // No authenticated nav element. Anonymous viewers must not see
       // their own /logout link (frio / vier both attach it to the

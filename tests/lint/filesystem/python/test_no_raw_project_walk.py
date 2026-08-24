@@ -88,12 +88,8 @@ def _scan_file(path: Path) -> list[Finding]:
     lines = src.splitlines()
     noqa = suppressed_line_numbers(lines, _RULE)
 
-    # Track names bound to the `glob` module (`import glob`,
-    # `import glob as G`) and to the bare `glob.glob` import
-    # (`from glob import glob`, `from glob import glob as g`).
     glob_module_aliases: set[str] = set()
     direct_glob_aliases: set[str] = set()
-    # Same for `os` so we recognise `import os as O; O.walk(...)`.
     os_module_aliases: set[str] = set()
 
     for node in ast.walk(tree):
@@ -125,17 +121,14 @@ def _scan_file(path: Path) -> list[Finding]:
         func = node.func
         label: str | None = None
         if isinstance(func, ast.Attribute):
-            # `<x>.rglob(...)` — receiver may be any expression
             if func.attr == "rglob":
                 label = "rglob"
-            # `os.walk(...)` (incl. aliased os module)
             elif (
                 func.attr == "walk"
                 and isinstance(func.value, ast.Name)
                 and func.value.id in os_module_aliases
             ):
                 label = "os.walk"
-            # `glob.glob(...)` (incl. aliased glob module)
             elif (
                 func.attr == "glob"
                 and isinstance(func.value, ast.Name)
@@ -143,7 +136,6 @@ def _scan_file(path: Path) -> list[Finding]:
             ):
                 label = "glob.glob"
         elif isinstance(func, ast.Name) and func.id in direct_glob_aliases:
-            # `from glob import glob` ⇒ bare `glob(...)`
             label = "glob.glob"
 
         if label is None:

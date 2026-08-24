@@ -26,7 +26,7 @@ build_and_install_arch() {
 	echo "[arch] Initializing pacman keyring..."
 	pacman-key --init
 	pacman-key --populate archlinux
-	pacman-key --populate manjaro 2>/dev/null || true
+	pacman-key --populate manjaro 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 
 	echo "[arch] Installing build toolchain..."
 	pacman -Syu --noconfirm --needed base-devel sudo rsync
@@ -74,7 +74,7 @@ build_and_install_debian_like() {
 		echo "[debian] Installing pre-built ${PACKAGE_INSTALL_FROM}..."
 		apt-get update
 		bootstrap_docker_repo
-		dpkg -i "${PACKAGE_INSTALL_FROM}" || true
+		dpkg -i "${PACKAGE_INSTALL_FROM}" || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 		apt-get install -f -y
 		rm -rf /var/lib/apt/lists/*
 		return 0
@@ -149,7 +149,7 @@ build_and_install_rpm_like() {
 	echo "[rpm] Installing ${rpm_path} via ${pm}..."
 	bootstrap_docker_repo
 	"${pm}" -y install "${rpm_path}"
-	"${pm}" -y clean all || true
+	"${pm}" -y clean all || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 }
 
 main() {

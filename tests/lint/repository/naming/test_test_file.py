@@ -40,12 +40,8 @@ class TestTestFileNaming(unittest.TestCase):
             if not path_str.startswith(tests_prefix):
                 continue
             path = Path(path_str)
-            # Allow package initializers and shared-helper modules
-            # (``_scan.py``, ``_validate.py``, etc.) — anything whose
-            # filename starts with an underscore.
             if path.name.startswith("_"):
                 continue
-            # Exempt shared test infrastructure under tests/utils/
             if path_str.startswith(utils_prefix):
                 continue
             if not path.name.startswith("test_"):

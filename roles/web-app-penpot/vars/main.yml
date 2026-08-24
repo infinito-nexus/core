@@ -18,9 +18,9 @@ PENPOT_EXPORTER_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.ex
 
 PENPOT_PUBLIC_URI: "{{ lookup('tls', application_id, 'url.base') }}"
 
-PENPOT_SECRET_KEY: "{{ lookup('config', application_id, 'credentials.secret_key') }}"
+PENPOT_SECRET_KEY: "{{ lookup('config', application_id, 'secrets.credentials.secret_key') }}"
 
-PENPOT_ASSETS_FS_DIRECTORY: "/opt/data/assets"
+PENPOT_ASSETS_FS_DIRECTORY: "{{ lookup('volume', 'web-app-penpot', 'assets').target }}"
 
 PENPOT_DATABASE_USERNAME: "{{ lookup('database', application_id, 'username') }}"
 PENPOT_DATABASE_NAME: "{{ lookup('database', application_id, 'name') }}"

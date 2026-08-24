@@ -81,9 +81,9 @@ class TestStackHostCopyMigration(unittest.TestCase):
                 block_lines = lines[idx:block_end]
 
                 if not any(INSTANCE_MARKER in inner for inner in block_lines):
-                    continue  # not a write into the compose / build-context dir
+                    continue
                 if any(NOCHECK_MARKER in inner for inner in block_lines):
-                    continue  # explicitly suppressed
+                    continue
 
                 findings.append((rel, idx + 1, line.strip()))
 

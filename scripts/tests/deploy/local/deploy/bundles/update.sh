@@ -29,8 +29,6 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../../../.." && pwd)"
 cd "${REPO_ROOT}"
 
 PYTHON="${PYTHON:-python3}"
-# Bundle redeploys default to verbose tracing; SPOT default (empty) is
-# overridden here only when the caller did not set anything explicit.
 INFINITO_DEBUG="${INFINITO_DEBUG:-}"
 if [[ -z "${INFINITO_DEBUG}" ]]; then
 	INFINITO_DEBUG="true"

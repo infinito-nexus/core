@@ -14,6 +14,7 @@
 // via the Filer UI.
 
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout, isOnionTarget } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { runSeaweedfsStorageCheck } = require("./personas");
 const shared = require("./_shared");
@@ -21,8 +22,9 @@ const shared = require("./_shared");
 test.use({ ignoreHTTPSErrors: true });
 
 test("seaweedfs: an uploaded Open WebUI document is stored in the SeaweedFS bucket", async ({ page, browser }) => {
+  test.skip(isOnionTarget(), "SeaweedFS filer UI is not a Tor surface on an onion node (headless backend)");
   skipUnlessServiceEnabled("seaweedfs");
-  test.setTimeout(180_000);
+  test.setTimeout(resolveTimeout(180_000));
 
   await runSeaweedfsStorageCheck(page, browser, {
     label: "an Open WebUI chat document upload",
@@ -46,7 +48,7 @@ test("seaweedfs: an uploaded Open WebUI document is stored in the SeaweedFS buck
       const fileInput = appPage
         .locator("input[type='file'][accept], input[type='file'][multiple], input[type='file']")
         .first();
-      await fileInput.waitFor({ state: "attached", timeout: 60_000 });
+      await fileInput.waitFor({ state: "attached", timeout: resolveTimeout(60_000) });
       await fileInput.setInputFiles({
         name: marker,
         mimeType: "text/plain",
@@ -56,7 +58,7 @@ test("seaweedfs: an uploaded Open WebUI document is stored in the SeaweedFS buck
       await expect(
         appPage.getByText(markerBase, { exact: false }).first(),
         `the attached document '${marker}' must appear in the Open WebUI composer after upload`,
-      ).toBeVisible({ timeout: 60_000 });
+      ).toBeVisible({ timeout: resolveTimeout(60_000) });
     },
   });
 });

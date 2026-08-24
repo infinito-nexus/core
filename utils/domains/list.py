@@ -81,8 +81,6 @@ def build_applications_from_roles(
         if not isinstance(application_id, str) or not application_id.strip():
             continue
 
-        # The file-root of meta/domains.yml IS the value of
-        # applications.<app>.domains.
         domains = load_yaml_mapping(domains_meta)
         if not isinstance(domains, dict):
             continue
@@ -103,7 +101,6 @@ def list_derived_domains(domain_primary: str) -> list[str]:
     if not primary:
         return []
 
-    # Keep non-role domains that are part of the stack contract in one place.
     return [f"test.{primary}"]
 
 

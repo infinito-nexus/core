@@ -1,9 +1,9 @@
 ---
-- name: Gather service facts for SSH handler
+- name: 🔍 Gather service facts for SSH handler
   ansible.builtin.service_facts:
-  listen: sshd restart
+  listen: sshd-restart
 
-- name: Resolve SSH service unit name
+- name: 🔍 Resolve SSH service unit name
   ansible.builtin.set_fact:
     sys_svc_sshd_service_unit: >-
       {{
@@ -15,16 +15,16 @@
         ) | default('')
       }}
   changed_when: false
-  listen: sshd restart
+  listen: sshd-restart
 
-- name: Restart detected SSH service with diagnostics
+- name: 🔄 Restart detected SSH service with diagnostics
   ansible.builtin.include_tasks: restart_ssh_service.yml
   when: sys_svc_sshd_service_unit | length > 0
-  listen: sshd restart
+  listen: sshd-restart
 
-- name: Skip SSH restart if no SSH service exists
+- name: ⏭️ Skip SSH restart if no SSH service exists
   ansible.builtin.debug:
     msg: >-
-      Skip handler 'sshd restart': neither sshd nor ssh service unit exists on this host.
+      Skip handler 'sshd-restart': neither sshd nor ssh service unit exists on this host.
   when: sys_svc_sshd_service_unit | length == 0
-  listen: sshd restart
+  listen: sshd-restart

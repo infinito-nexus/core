@@ -9,7 +9,6 @@ and the ``stage_order`` / ``role_stage`` lookups read one source of truth.
 
 from __future__ import annotations
 
-from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml
 from utils.roles.applications.services.registry import run_after_topological_order
 from utils.roles.categories import categories_file
@@ -102,10 +101,10 @@ def role_sort_key(role: str) -> tuple:
 
 
 def _group_names() -> list[str]:
-    groups_dir = PROJECT_ROOT / "tasks" / "groups"
-    if not groups_dir.is_dir():
-        return []
-    return [p.name.removesuffix("-roles.yml") for p in groups_dir.glob("*-roles.yml")]
+    """The invokable category paths — the role groups a stage can loop over."""
+    from plugins.filter.invokable_paths import get_invokable_paths
+
+    return get_invokable_paths()
 
 
 def _bootstrap_prefixes() -> set[str]:
@@ -117,7 +116,7 @@ def _bootstrap_prefixes() -> set[str]:
 
 
 def stage_groups(stage: str) -> list[str]:
-    """Ordered role-group names (``tasks/groups/<g>-roles.yml``) that belong to
+    """Ordered role-group names that belong to
     ``stage``, in intra-stage call order (category run_after, then name). The
     SPOT the stage plays consume so group membership follows categories.yml.
     Bootstrap-flagged categories are excluded (they run via explicit steps)."""

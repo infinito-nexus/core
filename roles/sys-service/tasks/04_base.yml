@@ -7,8 +7,8 @@
           'files': [
             'templates/script.sh.j2',
             'templates/script.py.j2',
-            'files/script.sh',
-            'files/script.py'
+            'files/shell/script.sh',
+            'files/python/script.py'
           ],
           'paths': [ system_service_role_dir ]
         },

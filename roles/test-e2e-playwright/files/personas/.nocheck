@@ -1,0 +1,1 @@
+# nocheck: role-files-layout - Shared persona flows and helpers, imported by every role spec through relative paths such as require('./personas'). The layout is the import contract.

@@ -16,7 +16,6 @@
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
 
-
   {% if FIDER_MCP_ENABLED | bool %}
   {% set service_name = FIDER_MCP_SERVICE_KEY %}
   {{ service_name }}:
@@ -44,6 +43,5 @@
     {{ lookup('container_networks', own_network_only=True, provider_self_alias=False) | indent(4) }}
   {% endif %}
 
-{{ lookup('compose_volumes', application_id,
-) }}
+{{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

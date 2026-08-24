@@ -60,7 +60,7 @@ make environment-teardown
 
 ### Full Development Flow 🔁
 
-The repository already contains a modular environment test suite at [scripts/tests/environment/](../../../scripts/tests/environment/README.md). The commands from that suite are explained here as the intended end-to-end flow.
+The repository already contains a modular environment test suite at [scripts/tests/workspace/](../../../scripts/tests/workspace/README.md). The commands from that suite are explained here as the intended end-to-end flow.
 
 #### Flow Summary 📋
 

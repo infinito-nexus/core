@@ -3,7 +3,8 @@
 # policy, and support documentation.
 # nocheck: comments-valid  vendored OSSF scorecard workflow; upstream comments kept verbatim
 
-name: "⏰ Scorecard supply-chain security"
+name: "🛡️ Score supply chain"
+run-name: "${{ github.event_name == 'schedule' && '⏰ ' || '' }}🛡️ Score supply chain"
 on:
   # For Branch-Protection check. Only the default branch is supported. See
   # https://github.com/ossf/scorecard/blob/main/docs/checks.md#branch-protection
@@ -14,6 +15,10 @@ on:
     - cron: '00 00 * * *'
   push:
     branches: [ "main" ]
+
+concurrency:
+  group: scorecard-${{ github.repository }}-${{ github.ref_name }}
+  cancel-in-progress: true
 
 # Declare default permissions as read only.
 permissions: read-all

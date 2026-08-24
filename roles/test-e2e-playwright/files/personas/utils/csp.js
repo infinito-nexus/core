@@ -1,11 +1,11 @@
 /**
  * CSP injection assertion shared by every persona scenario.
  *
- * `assertCspInjections` re-fetches the current URL via
- * `page.request.get` so it can read the raw `content-security-policy`
- * (or `content-security-policy-report-only`) header off the response,
- * then verifies that every service whose JavaScript / CSS / asset is
- * actually injected on the page is also covered by the role's CSP.
+ * `assertCspInjections` reads the raw `content-security-policy` (or
+ * `content-security-policy-report-only`) header of the document the
+ * browser is currently showing, then verifies that every service whose
+ * JavaScript / CSS / asset is actually injected on the page is also
+ * covered by the role's CSP.
  *
  * The intent is symmetric: when an injector role like `mastodon`,
  * `web-svc-asset`, `web-svc-cdn`, `web-svc-css`, `web-svc-javascript`
@@ -14,12 +14,14 @@
  * any rendered `<script>` / `<link>` / `<img>` tag — otherwise the
  * page would load resources the CSP doesn't permit.
  *
- * The helper is tolerant of policies served via meta-tag (some apps
- * cannot set CSP via header for legacy reasons): it falls back to the
- * first `<meta http-equiv="content-security-policy">` element.
+ * The header is captured as it arrives, by a recorder `gotoOnion`
+ * installs on the page, so the surface reached through an SSO round
+ * trip is covered like the first navigation. `page.request.get`
+ * remains as a fallback for a spec that navigates without `gotoOnion`.
  */
 
 const { expect } = require("@playwright/test");
+const { resolveTimeout } = require("../../timeouts");
 
 // Injector base-URL resolution. Switch-case form (rather than a
 // dictionary lookup) is intentional: it gives `tests/lint/ansible/
@@ -57,25 +59,52 @@ function hostOf(url) {
   }
 }
 
+const _RECORDED_CSP = new WeakMap();
+
+function cspOfHeaders(headers) {
+  return (
+    headers["content-security-policy"] ||
+    headers["content-security-policy-report-only"] ||
+    ""
+  );
+}
+
+/** Start recording the CSP header of `page`'s main-frame documents.
+ *
+ * Idempotent: repeated calls for the same page keep the first recorder.
+ * `gotoOnion` calls this before every navigation, so every persona flow
+ * has it regardless of which spec drives it.
+ *
+ * @param {object} page - the Playwright page to observe
+ */
+function installCspHeaderRecorder(page) {
+  if (_RECORDED_CSP.has(page)) return;
+
+  const state = { csp: "" };
+  _RECORDED_CSP.set(page, state);
+
+  page.on("response", (response) => {
+    try {
+      if (response.frame() !== page.mainFrame()) return;
+      if (response.request().resourceType() !== "document") return;
+      state.csp = cspOfHeaders(response.headers());
+    } catch {
+      /* page torn down mid-flight */
+    }
+  });
+}
+
 async function readCspString(page) {
+  const recorded = _RECORDED_CSP.get(page);
+  if (recorded && recorded.csp) return recorded.csp;
+
   const currentUrl = page.url();
   if (!currentUrl || currentUrl === "about:blank") return "";
 
   const fresh = await page.request
-    .get(currentUrl, { ignoreHTTPSErrors: true, timeout: 10_000 })
+    .get(currentUrl, { ignoreHTTPSErrors: true, timeout: resolveTimeout(10_000) })
     .catch(() => null);
-  if (fresh) {
-    const headers = fresh.headers();
-    const fromHeader = headers["content-security-policy"] || headers["content-security-policy-report-only"];
-    if (fromHeader) return fromHeader;
-  }
-
-  const fromMeta = await page
-    .locator("meta[http-equiv='Content-Security-Policy' i]")
-    .first()
-    .getAttribute("content")
-    .catch(() => "");
-  return fromMeta || "";
+  return fresh ? cspOfHeaders(fresh.headers()) : "";
 }
 
 async function assertCspInjections(page, opts = {}) {
@@ -305,6 +334,7 @@ async function assertInjectedAssetLoadsWithoutCspBlock(page, {
 module.exports = {
   assertCspInjections,
   EXPECTED_CSP_DIRECTIVES,
+  installCspHeaderRecorder,
   installCspViolationObserver,
   readCspViolations,
   parseCspHeader,

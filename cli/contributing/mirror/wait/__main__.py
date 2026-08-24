@@ -46,7 +46,6 @@ def main() -> int:
     provider = GHCRProvider.from_args(args)
     repo_root = Path(args.repo_root).resolve()
 
-    # Deduplicate by destination ref, keeping one ImageRef per ref to probe with.
     refs: dict[str, ImageRef] = {}
     for img in iter_role_images(repo_root):
         refs.setdefault(f"{provider.image_base(img)}:{img.version}", img)

@@ -1,8 +1,12 @@
-"""Install the Ruby interpreter, whose syntax check is the lint."""
+"""Install the Ruby CLI via system package manager (parser for lint-ruby).
+
+Provisioning is best effort: a host without Ruby, or one that cannot install it,
+must not fail the whole gate. scripts/lint/ruby.sh skips loudly instead.
+"""
 
 from __future__ import annotations
 
-from utils.install.primitives import log, which
+from utils.install.primitives import log, warn, which
 from utils.install.system_pkg import install_command_via_pkg
 
 
@@ -11,7 +15,10 @@ def ensure() -> None:
         return
 
     log("Missing command 'ruby'. Attempting system package installation.")
-    install_command_via_pkg("ruby")
+    try:
+        install_command_via_pkg("ruby")
+    except RuntimeError as exc:
+        warn(f"[install-lint] ruby could not be installed: {exc}")
 
     if not which("ruby"):
-        raise RuntimeError("Command 'ruby' is still unavailable after installation.")
+        warn("[install-lint] ruby is unavailable; lint-ruby will skip.")

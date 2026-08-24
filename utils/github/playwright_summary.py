@@ -17,11 +17,8 @@ import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-# Cap the message column at this length so a multi-kilobyte stack trace
-# does not break the step-summary layout.
 _MAX_MSG_LEN = 200
 
-# Status indicators as requested: red / green / blue circles.
 _STATUS_PASSED = "passed"
 _STATUS_FAILED = "failed"
 _STATUS_SKIPPED = "skipped"
@@ -216,7 +213,6 @@ def main() -> int:
         return 0
 
     # nocheck: project-walk — walks a CI artifact directory at runtime,
-    # not the project tree; the `utils.cache.files` SPOT does not apply.
     files = sorted(base.rglob("playwright-junit.xml"))
     if not files:
         sys.stdout.write(

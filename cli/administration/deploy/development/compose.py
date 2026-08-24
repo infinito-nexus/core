@@ -201,7 +201,7 @@ class Compose:
 
         if self.profile.owns_cache_stack():
             self._bootstrap_package_cache(env)
-        if self.profile.registry_cache_active():
+        if self.profile.cache_stack_enabled():
             self._install_package_frontend_ca_in_runner()
 
         if run_entry_init:

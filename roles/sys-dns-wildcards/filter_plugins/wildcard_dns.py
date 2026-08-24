@@ -110,7 +110,7 @@ def _build_wildcard_records(
             {
                 "zone": apex,
                 "type": rtype,
-                "name": name,  # For apex wildcard, name "*" means "*.apex" in Cloudflare
+                "name": name,
                 "content": content,
                 "proxied": bool(proxied),
                 "ttl": 1,
@@ -118,12 +118,9 @@ def _build_wildcard_records(
         )
 
     for p in sorted(set(parents)):
-        # Create wildcard at apex as well (name="*")
         if p == apex:
             wc = "*"
         else:
-            # relative part (drop ".apex"); empty rel is a safety guard
-            # — shouldn't happen because p==apex handled above.
             rel = p[: -len(apex) - 1]
             wc = "*" if not rel else f"*.{rel}"
         _add(wc, "A", str(ip4))
@@ -133,7 +130,7 @@ def _build_wildcard_records(
 
 
 def wildcard_records(
-    current_play_domains_all,  # dict expected when explicit_domains is None
+    current_play_domains_all,
     apex: str,
     ip4: str,
     ip6: str | None = None,
@@ -150,7 +147,6 @@ def wildcard_records(
       - If 'explicit_domains' is provided and non-empty, use it (expects list[str]).
       - Else flatten 'current_play_domains_all' (expects dict).
     """
-    # Source domains
     if explicit_domains and len(explicit_domains) > 0:
         if not isinstance(explicit_domains, list) or not all(
             isinstance(x, str) for x in explicit_domains
@@ -160,7 +156,6 @@ def wildcard_records(
     else:
         domains = _flatten_domains_any_structure(current_play_domains_all)
 
-    # Determine parents and ALWAYS include apex for apex wildcard
     parents = _parents_from(domains, apex, min_child_depth=min_child_depth)
     parents = list(set(parents) | {apex})
 

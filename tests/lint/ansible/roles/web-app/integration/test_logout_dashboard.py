@@ -29,8 +29,6 @@ if TYPE_CHECKING:
 
 _ROLE_PREFIX = "web-app-"
 
-# Roles that ARE the providers — exempt by definition (their own
-# services.yml declares the primary entity, not a consumer reference).
 _PROVIDER_EXEMPT: set[str] = {
     "web-app-dashboard",
 }

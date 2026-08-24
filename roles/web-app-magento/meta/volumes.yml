@@ -4,9 +4,9 @@ data:
   name: magento_data
   mounts:
     - service: nginx
-      target: /var/www
+      target: &var_www_target /var/www
     - service: php
-      target: /var/www
+      target: *var_www_target
 
 nginx_conf:
   type: config

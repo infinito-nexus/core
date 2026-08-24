@@ -1,0 +1,1 @@
+# nocheck: role-files-layout - Dockerfile build context. tasks/02_build_context.yml:29-30 uses the same ``item.path`` for both ``src`` and ``dest``, so a file's path here IS its path inside the image; a language prefix breaks that identity.

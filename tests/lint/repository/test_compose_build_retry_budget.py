@@ -14,8 +14,9 @@ from __future__ import annotations
 
 import re
 import unittest
+from pathlib import Path
 
-from utils.cache.files import read_text
+from utils.cache.files import iter_project_files, read_text
 from utils.cache.yaml import load_yaml_any
 from utils.env.parser import parse_static_env
 
@@ -24,15 +25,16 @@ from . import PROJECT_ROOT
 HANDLERS = PROJECT_ROOT / "roles" / "sys-svc-compose" / "handlers"
 SWARM = HANDLERS / "swarm.yml"
 COMPOSE = HANDLERS / "compose.yml"
-COMPOSE_WORKFLOW = (
-    PROJECT_ROOT / ".github" / "workflows" / "call-test-deploy-compose.yml"
-)
+DEPLOY_WORKFLOW = PROJECT_ROOT / ".github" / "workflows" / "call-test-deploy.yml"
 
 BUILDS = {
-    "swarm: pre-deploy build of local images": (SWARM, "_swarm_pre_deploy_build"),
-    "Build compose": (COMPOSE, "compose_build"),
+    "_swarm_pre_deploy_build": SWARM,
+    "compose_build": COMPOSE,
 }
 TIMEOUT_LOOKUP = re.compile(r"lookup\('timeout',\s*(\d+)\s*\)")
+
+ROLE = PROJECT_ROOT / "roles" / "sys-svc-compose"
+GATE = "shell/swarm/stack_ready.sh"
 
 
 def _tasks(path):
@@ -53,28 +55,42 @@ def _fallbacks(path, var):
 
 
 def _longest_step_seconds(path):
+    """Longest per-step timeout the deploy workflow declares, in seconds.
+
+    Raises instead of falling back: an empty result means the workflow was
+    renamed or its step timeouts vanished, and a silent 0 would let any build
+    ladder pass the budget assertion below.
+    """
     document = load_yaml_any(str(path), default_if_missing={}) or {}
-    return 60 * max(
+    timeouts = [
         step["timeout-minutes"]
         for job in (document.get("jobs") or {}).values()
         for step in (job.get("steps") or [])
         if "timeout-minutes" in step
-    )
+    ]
+    if not timeouts:
+        raise AssertionError(
+            f"{path} declares no step-level 'timeout-minutes'; the compose "
+            f"build-retry budget is derived from it."
+        )
+    return 60 * max(timeouts)
 
 
-def _by_name(path, name):
-    return next((t for t in _tasks(path) if t.get("name") == name), None)
+def _by_register(path, var):
+    task = next((t for t in _tasks(path) if t.get("register") == var), None)
+    assert task is not None, f"no task in {path} registers {var}"
+    return task
 
 
 class TestComposeBuildRetryBudget(unittest.TestCase):
     def test_the_ladder_body_does_not_discard_the_cache(self) -> None:
-        for name, (path, _) in BUILDS.items():
-            body = _by_name(path, name)["ansible.builtin.shell"]
+        for var, path in BUILDS.items():
+            body = _by_register(path, var)["ansible.builtin.shell"]
             self.assertNotIn("--no-cache", body)
 
     def test_a_cache_discarding_fallback_guards_the_ignore_errors(self) -> None:
-        for name, (path, var) in BUILDS.items():
-            self.assertTrue(_by_name(path, name).get("ignore_errors"))
+        for var, path in BUILDS.items():
+            self.assertTrue(_by_register(path, var).get("ignore_errors"))
             self.assertEqual(len(_fallbacks(path, var)), 1, f"{var} has no fallback")
 
     def test_the_worst_case_ladder_fits_the_budget(self) -> None:
@@ -83,16 +99,41 @@ class TestComposeBuildRetryBudget(unittest.TestCase):
                 "INFINITO_CI_DISTRO_BUDGET_SECONDS"
             ]
         )
-        cap = _longest_step_seconds(COMPOSE_WORKFLOW)
-        for name, (path, var) in BUILDS.items():
-            task = _by_name(path, name)
+        cap = _longest_step_seconds(DEPLOY_WORKFLOW)
+        for var, path in BUILDS.items():
+            task = _by_register(path, var)
             worst = (
-                task["retries"] * _timeout(task)
-                + (task["retries"] - 1) * task["delay"]
+                (1 + task["retries"]) * _timeout(task)
+                + task["retries"] * task["delay"]
                 + sum(_timeout(f) for f in _fallbacks(path, var))
             )
-            self.assertLess(worst, budget, f"{name} outgrows the sweep budget")
-            self.assertLess(worst, cap, f"{name} outgrows the deploy step cap")
+            self.assertLess(worst, budget, f"{var} outgrows the sweep budget")
+            self.assertLess(worst, cap, f"{var} outgrows the deploy step cap")
+
+    def test_every_convergence_gate_waits_the_same_budget(self) -> None:
+        """Both callers poll the same script for the same stack, so a budget that
+        fits one fits the other. They drifted once -- the handler was raised to
+        600 while post_deploy kept a hardcoded 150 -- and the shorter one then
+        killed a healthy-but-slow stack on its own."""
+        budgets = {}
+        for path in sorted(iter_project_files(extensions=(".yml",))):
+            if not path.startswith(str(ROLE)):
+                continue
+            for task in _tasks(path):
+                if not isinstance(task, dict):
+                    continue
+                if GATE in str(task.get("ansible.builtin.script", "")):
+                    rel = Path(path).relative_to(PROJECT_ROOT)
+                    budgets[f"{rel}:{task.get('name')}"] = (
+                        str(task.get("retries")),
+                        str(task.get("delay")),
+                    )
+        self.assertGreaterEqual(len(budgets), 2, f"gate callers not found: {budgets}")
+        self.assertEqual(
+            len(set(budgets.values())),
+            1,
+            f"convergence gate callers disagree on their budget: {budgets}",
+        )
 
     def test_the_registry_exclusion_has_a_single_source(self) -> None:
         self.assertEqual(read_text(str(SWARM)).count("svc-registry-docker"), 1)

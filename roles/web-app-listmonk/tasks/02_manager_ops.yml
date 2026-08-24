@@ -3,7 +3,7 @@
   stack_host_template:
     src: "config.toml.j2"
     dest: "{{ LISTMONK_CONFIG_HOST }}"
-  notify: compose up
+  notify: compose-up
 
 - meta: flush_handlers
 
@@ -46,7 +46,8 @@
   when: (item.condition | default(true)) | bool
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   register: listmonk_settings
-  changed_when: false
+  changed_when: true
+  notify: container-recreate
   # rationale: async; settings apply overlapped, reaped below before the role ends
   async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
@@ -57,3 +58,6 @@
     async_reap_jobs: "{{ listmonk_settings.results | default([listmonk_settings]) }}"
     async_reap_label: "Listmonk settings"
     async_reap_tolerate: []
+
+- name: "🚿 Recreate Listmonk so the settings above are loaded"
+  ansible.builtin.meta: flush_handlers

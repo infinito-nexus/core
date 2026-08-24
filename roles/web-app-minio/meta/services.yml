@@ -21,6 +21,7 @@ matomo:
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
 # nocheck: playwright-service-flag — central object-store provider entity
+# nocheck: image-healthcheck  no internal port declared, so no probe can address it
 minio:
   modes:
     compose:
@@ -73,6 +74,12 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: playwright-service-flag
+# nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
+tor:
+  bond: 0.5
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: true # nocheck: dynamic-flag
 api:
   ports:
     local:
@@ -96,6 +103,7 @@ console:
   mem_limit: 256m
   pids_limit: 256
 # nocheck: playwright-service-flag — mc admin client, run as a one-shot, no Playwright surface
+# nocheck: image-healthcheck  mc is a one-shot client, it exits
 client:
   image: quay.io/minio/mc
   version: "RELEASE.2025-08-13T08-35-41Z" # nocheck: docker-version

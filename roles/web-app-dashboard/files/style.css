@@ -14,8 +14,6 @@
         drop-shadow(4px 4px 4px rgba(var(--color-rgb-01-23), 0.6));
 }
 
-/* The dashboard cards use stretched-link buttons as full-card overlays.
-   Disabling hover filters here keeps the hover target stable across the card. */
 .card .btn.stretched-link:hover,
 .card .btn.stretched-link:focus,
 .card .btn.stretched-link:active {

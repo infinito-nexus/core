@@ -37,7 +37,6 @@ class LookupModule(LookupBase):
         for term in terms:
             path = str(Path(str(Path(str(term)).expanduser())).resolve())
 
-            # Fail fast if path is missing or not a regular file
             if not Path(path).exists():
                 raise AnsibleError(f"local_mtime_qs: file does not exist: {path}")
             if not Path(path).is_file():
@@ -50,7 +49,7 @@ class LookupModule(LookupBase):
 
             if mode == "qs":
                 results.append(f"?{param}={mtime}")
-            else:  # mode == 'epoch'
+            else:
                 results.append(str(mtime))
 
         return results

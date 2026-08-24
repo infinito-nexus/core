@@ -1,6 +1,8 @@
 // @ts-check
 // Scenario: Native admin login (Keycloak not enabled)
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
+const { gotoOnion } = require("./personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -25,16 +27,16 @@ test.beforeEach(() => {
 test("administrator: can log in natively to pihole", async ({ page }) => {
   const expectedPiholeBaseUrl = piholeBaseUrl.replace(/\/$/, "");
 
-  await page.goto(`${expectedPiholeBaseUrl}/admin/login`);
-  await page.waitForLoadState("networkidle", { timeout: 30_000 }).catch(() => {});
+  await gotoOnion(page, `${expectedPiholeBaseUrl}/admin/login`);
+  await page.waitForLoadState("networkidle", { timeout: resolveTimeout(30_000) }).catch(() => {});
 
   const passwordInput = page.getByRole("textbox", { name: /password/i });
-  await passwordInput.waitFor({ state: "visible", timeout: 30_000 });
+  await passwordInput.waitFor({ state: "visible", timeout: resolveTimeout(30_000) });
   await passwordInput.fill(adminPassword);
   // Pi-hole v6 login button text is "Log in (uses cookie)"
-  await page.getByRole("button", { name: /log in|sign in/i }).click();
+  await page.getByRole("button", { name: /log in|sign in/i }).click({ timeout: resolveTimeout(30_000) });
 
-  await page.waitForLoadState("networkidle", { timeout: 30_000 }).catch(() => {});
+  await page.waitForLoadState("networkidle", { timeout: resolveTimeout(30_000) }).catch(() => {});
   await expect(page.locator("body")).toBeVisible();
   expect(page.url()).toContain("/admin");
 });

@@ -12,10 +12,10 @@
     state: absent
   loop: "{{ find_result.files | default([]) }}"
   when: item is defined
-  notify: restart openresty
+  notify: restart-openresty
 
 - name: 🗑️ Remove exact nginx config for {{ domain }}
   ansible.builtin.file:
     path: "{{ lookup('nginx', 'files.domain', domain) }}"
     state: absent
-  notify: restart openresty
+  notify: restart-openresty

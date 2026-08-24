@@ -10,6 +10,11 @@ compose-only pattern. Flipping every consumer's DB service to ``shared: true``
 routes it to the central svc-db-* provider (as the baseline variant does), so
 no per-app DB is scheduled in swarm.
 
+A manager-pinned role keeps its volumes node-local (``swarm_nfs_backed``) and
+its DB sidecar carries the matching placement constraint, so a literal
+``shared: false`` there is honoured instead of overridden — Magento hard-fails
+``setup:install`` on the central MariaDB major.
+
 Inputs (env): ``INV_DIR`` — inventory dir holding ``host_vars/*.yml``
 (default ``/tmp/inv``).
 """
@@ -25,6 +30,7 @@ from ruamel.yaml.comments import CommentedMap
 from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.roles.meta_lookup import get_role_placement
 
 _ROLES_DIR = PROJECT_ROOT / "roles"
 
@@ -45,6 +51,31 @@ def db_provider_service_keys(roles_dir: Path) -> set[str]:
             ):
                 keys.add(str(key))
     return keys
+
+
+def pinned_local_db(app_id: str, svc_name: str) -> bool:
+    """True when the role owns this DB on purpose and swarm can host it.
+
+    A literal ``shared: false`` (not a Jinja expression) is the role author
+    pinning an engine the central provider cannot serve. Honouring it is only
+    safe on a manager-pinned role, where the volume stays node-local and the
+    sidecar carries the matching placement constraint.
+
+    Args:
+        app_id: consumer role name, e.g. ``web-app-magento``.
+        svc_name: DB service key under the role's ``meta/services.yml``.
+    """
+    services_file = _ROLES_DIR / app_id / ROLE_FILE_META_SERVICES
+    if not services_file.exists():
+        return False
+    services = load_yaml_any(services_file)
+    if not isinstance(services, dict):
+        return False
+    entry = services.get(svc_name)
+    if not isinstance(entry, dict) or entry.get("shared") is not False:
+        return False
+    placement = get_role_placement(_ROLES_DIR / app_id, role_name=app_id)
+    return str(placement or "").strip() == "manager"
 
 
 def force_shared_true(host_vars_file: Path, db_keys: set[str]) -> bool:
@@ -78,6 +109,7 @@ def force_shared_true(host_vars_file: Path, db_keys: set[str]) -> bool:
                 and isinstance(svc, CommentedMap)
                 and svc.get("enabled") is not False
                 and svc.get("shared") is not True
+                and not pinned_local_db(str(app_id), str(svc_name))
             ):
                 svc["shared"] = True
                 changed = True

@@ -11,8 +11,8 @@
 
 - name: ⏳ Wait for the Zammad web endpoint
   wait_for:
-    host: "{{ lookup('domain', 'web-app-zammad') }}"
-    port: 80
+    host: "{{ DOCKER_REACH_HOST }}"
+    port: "{{ lookup('config', 'web-app-zammad', 'services.zammad.ports.local.http') }}"
     delay: 5
     timeout: "{{ lookup('timeout', 600) | int }}"
 
@@ -25,7 +25,7 @@
       -e 'NC_HAS_SECRET={{ nextcloud_zammad_client_secret_current.stdout | trim }}'
       {{ NEXTCLOUD_ZAMMAD_LOCAL_CID | quote }}
       bundle exec rails r -
-    stdin: "{{ lookup('file', 'zammad/provision_oauth_app.rb') }}"
+    stdin: "{{ lookup('file', 'ruby/utils/doorkeeper_allow_onion_redirect.rb') ~ '\n' ~ lookup('file', 'ruby/addons/zammad/provision_oauth_app.rb') }}"
   delegate_to: "{{ NEXTCLOUD_ZAMMAD_HOST_NODE }}"
   register: nextcloud_zammad_provision
   retries: 12
@@ -78,7 +78,7 @@
       -e 'NC_ENC_B64={{ {'client_id': nextcloud_zammad_client_id, 'client_secret': nextcloud_zammad_client_secret} | to_json | b64encode }}'
       {{ NEXTCLOUD_LOCAL_CID | quote }}
       php
-    stdin: "{{ lookup('file', 'set_encrypted_appconfig.php') }}"
+    stdin: "{{ lookup('file', 'php/utils/set_encrypted_appconfig.php') }}"
   register: nextcloud_zammad_enc_set
   changed_when: "'OK' in nextcloud_zammad_enc_set.stdout"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

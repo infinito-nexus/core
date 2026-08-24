@@ -1,8 +1,8 @@
 ---
 pgadmin_host_server_file: "{{ lookup('container', application_id, 'directories.volumes') }}servers.json"
-pgadmin_docker_server_file: "/pgadmin4/servers.json"
+pgadmin_docker_server_file: "{{ lookup('volume', 'web-app-pgadmin', 'servers_json').target }}"
 pgadmin_host_password_file: "{{ lookup('container', application_id, 'directories.volumes') }}.pgpass"
-pgadmin_docker_password_file: "/pgpass"
+pgadmin_docker_password_file: "{{ lookup('volume', 'web-app-pgadmin', 'pgpass').target }}"
 
 pgadmin_servers:
   - name: "Central Postgres Database"
@@ -10,6 +10,4 @@ pgadmin_servers:
     port: "{{ lookup('database', application_id, 'port') }}"
     username: "postgres"
     maintenance_db: "postgres"
-    password: "{{ lookup('applications', 'svc-db-postgres').credentials.POSTGRES_PASSWORD }}"
-
-# Here you can add more databases
+    password: "{{ lookup('applications', 'svc-db-postgres').secrets.credentials.POSTGRES_PASSWORD }}"

@@ -8,6 +8,9 @@ REPO_ROOT="$(cd -- "${SCRIPT_DIR}/../.." && pwd)"
 
 cd "${REPO_ROOT}"
 
+RUFF_CACHE_DIR="build/ruff-cache-$(id -u)"
+export RUFF_CACHE_DIR
+
 shfmt -w scripts
 ruff format .
 ruff check . --fix

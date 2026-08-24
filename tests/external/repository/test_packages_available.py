@@ -60,12 +60,28 @@ class TestPackagesAvailable(unittest.TestCase):
             outcomes.extend(pool.map(_probe, probes))
 
         unknown = [o for o in outcomes if o.available is None]
-        for outcome in unknown:
+        for outcome in (o for o in unknown if o.declared):
             warnings.warn(
                 f"{outcome.probe.package_id} / {outcome.probe.distro} / "
                 f"{outcome.probe.name}: {outcome.detail}",
                 PackageAvailabilityWarning,
                 stacklevel=1,
+            )
+
+        unverified = [o for o in unknown if not o.declared]
+        if unverified:
+            self.fail(
+                f"{len(unverified)} package(s) could not be checked at all, so "
+                "reporting this run green would claim a verification that did "
+                "not happen. Fix the index access, or declare the exemption "
+                "(third-party repo / virtual) where the package is declared:\n"
+                + "\n".join(
+                    f"  - {o.probe.package_id} / {o.probe.distro} / "
+                    f"{o.probe.name}: {o.detail}"
+                    for o in sorted(
+                        unverified, key=lambda o: (o.probe.package_id, o.probe.distro)
+                    )
+                )
             )
 
         missing = [o for o in outcomes if o.available is False]
