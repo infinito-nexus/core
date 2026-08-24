@@ -22,6 +22,14 @@ Canonical shape (dict-of-dicts; the YAML key is the semantic short name):
         - service: synapse
           target: /etc/synapse/config
 
+    scratch:
+      type: tmpfs
+      mounts:
+        - service: synapse
+          target: /var/run/synapse
+          size: 64m                     # per-mount tmpfs size
+          mode: "01777"                 # per-mount tmpfs permission bits
+
 The legacy list-of-dicts shape is no longer accepted.
 """
 
@@ -43,6 +51,13 @@ _TYPE_HAS_BACKUP = frozenset({"volume"})
 
 class VolumesSchemaError(ValueError):
     """Raised when a meta/volumes.yml fails schema validation."""
+
+
+def _is_octal_mode(value: Any) -> bool:
+    """True when ``value`` is a leading-zero octal permission string."""
+    return (
+        isinstance(value, str) and value.startswith("0") and value.lstrip("0").isdigit()
+    )
 
 
 def normalize_volumes_meta(
@@ -120,16 +135,15 @@ def validate_volumes_meta(
             violations.append(
                 f"{prefix}: 'mode' is only valid for type config/secret (got type={vtype!r})"
             )
-        if "mode" in entry and vtype in _TYPE_HAS_MODE:
-            mode = entry["mode"]
-            if not (
-                isinstance(mode, str)
-                and mode.startswith("0")
-                and mode.lstrip("0").isdigit()
-            ):
-                violations.append(
-                    f"{prefix}: 'mode' must be an octal string like \"0440\", got {mode!r}"
-                )
+        if (
+            "mode" in entry
+            and vtype in _TYPE_HAS_MODE
+            and not _is_octal_mode(entry["mode"])
+        ):
+            violations.append(
+                f"{prefix}: 'mode' must be an octal string like \"0440\", "
+                f"got {entry['mode']!r}"
+            )
 
         if "read_only" in entry and vtype not in _TYPE_HAS_READ_ONLY:
             violations.append(
@@ -175,6 +189,12 @@ def validate_volumes_meta(
                 f"{type(mount['size']).__name__}"
                 for mount in (entry.get("mounts") or [])
                 if "size" in mount and not isinstance(mount["size"], (str, int))
+            )
+            violations.extend(
+                f"{prefix}: tmpfs 'mode' must be an octal string like \"01777\", "
+                f"got {mount['mode']!r}"
+                for mount in (entry.get("mounts") or [])
+                if "mode" in mount and not _is_octal_mode(mount["mode"])
             )
 
         mounts = entry.get("mounts")

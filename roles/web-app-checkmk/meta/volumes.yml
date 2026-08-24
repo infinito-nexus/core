@@ -5,3 +5,11 @@ checkmk_data:
   mounts:
     - service: checkmk
       target: /omd/sites
+
+site_tmp:
+  type: tmpfs
+  mounts:
+    - service: checkmk
+      target: "/omd/sites/{{ lookup('config', 'web-app-checkmk', 'services.checkmk.site') }}/tmp"
+      size: 512m
+      mode: "01777"

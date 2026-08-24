@@ -135,8 +135,13 @@ def container_volumes(
                     "type": "tmpfs",
                     "target": target,
                 }
+                tmpfs_options: dict[str, Any] = {}
                 if mount.get("size") is not None:
-                    tmpfs_entry["tmpfs"] = {"size": mount["size"]}
+                    tmpfs_options["size"] = mount["size"]
+                if mount.get("mode") is not None:
+                    tmpfs_options["mode"] = _coerce_mode_int(mount["mode"])
+                if tmpfs_options:
+                    tmpfs_entry["tmpfs"] = tmpfs_options
                 volumes_block.append(tmpfs_entry)
 
             elif vtype == "config":

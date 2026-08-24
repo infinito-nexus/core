@@ -52,6 +52,7 @@ checkmk:
   enabled: true
   shared: true
   bond: 1
+  site: cmk
   healthcheck:
     flavor: curl
     path: cmk/check_mk/login.py

@@ -144,6 +144,30 @@ class TestContainerVolumesTmpfs(unittest.TestCase):
             },
         )
 
+    def test_tmpfs_mode_renders_as_decimal_of_the_octal_string(self) -> None:
+        meta = {
+            "scratch": {
+                "type": "tmpfs",
+                "mounts": [
+                    {"service": "app", "target": "/scratch", "mode": "01777"},
+                ],
+            }
+        }
+        out = container_volumes(_apps(meta), "my-app", "app")
+        data = _parse(out)
+        self.assertEqual(
+            data,
+            {
+                "volumes": [
+                    {
+                        "type": "tmpfs",
+                        "target": "/scratch",
+                        "tmpfs": {"mode": 0o1777},
+                    }
+                ]
+            },
+        )
+
 
 class TestContainerVolumesServiceFilter(unittest.TestCase):
     def test_only_emits_mounts_for_requested_service(self) -> None:
