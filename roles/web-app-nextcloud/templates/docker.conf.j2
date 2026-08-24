@@ -54,6 +54,11 @@ http {
             log_not_found off;
             access_log off;
         }
+        location = /healthz/ready {
+            access_log off;
+            default_type text/plain;
+            return 200 "ready\n";
+        }
         location ^~ /.well-known {
             location = /.well-known/carddav { return 301 /remote.php/dav/; }
             location = /.well-known/caldav  { return 301 /remote.php/dav/; }

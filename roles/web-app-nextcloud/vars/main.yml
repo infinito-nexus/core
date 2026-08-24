@@ -20,6 +20,7 @@ NEXTCLOUD_LDAP_CONFIG_PREFIX: "s01"
 
 NEXTCLOUD_HOST_CONF_ADD_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 'infinito' ] | path_join }}"
 NEXTCLOUD_HOST_NGINX_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 'nginx.conf' ] | path_join }}"
+NEXTCLOUD_HOST_FPM_POOL_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 'fpm-pool.conf' ] | path_join }}"
 
 NEXTCLOUD_CNODE_PLUGIN_TASKS_PATH: "{{ [role_path, 'tasks/addons/'] | path_join }}"
 

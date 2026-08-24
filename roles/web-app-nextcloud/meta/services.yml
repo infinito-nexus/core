@@ -83,6 +83,12 @@ nextcloud:
       memory_limit: "{{ ((ansible_facts['memtotal_mb'] | int) / 30) | int }}M"
       upload_limit: 5G
       opcache_memory_consumption: "{{ ((ansible_facts['memtotal_mb'] | int) / 30) | int }}M"
+      fpm:
+        max_children: 16
+        start_servers: 4
+        min_spare_servers: 4
+        max_spare_servers: 8
+        request_terminate_timeout: 900s
   plugins_enabled: true
   proxy:
     service_key: proxy
@@ -143,6 +149,10 @@ context_agent:
   ports:
     internal:
       http: 23000
+  healthcheck:
+    flavor: curl
+    path: heartbeat
+    start_period: 20m
 cron:
   # nocheck: single-replica singleton cron.sh; replicas double-run background jobs on the shared data volume
   replicas: 1

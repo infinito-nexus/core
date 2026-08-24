@@ -54,12 +54,7 @@
       APP_PORT: "{{ container_port }}"
       APP_SECRET: "{{ NEXTCLOUD_CONTEXT_AGENT_SECRET }}"
       NEXTCLOUD_URL: "{{ NEXTCLOUD_CONTEXT_AGENT_NEXTCLOUD_URL }}"
-    healthcheck:
-      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:{{ container_port }}/heartbeat', timeout=5)"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     expose:
       - "{{ container_port }}"
     {{ lookup('container_networks', provider_self_alias=False) | indent(4) }}
