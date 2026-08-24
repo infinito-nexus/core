@@ -162,6 +162,12 @@ administrators too; upstream defaults it to true, which would let every
 administrator past any grant. `ENABLE_OAUTH_GROUP_MANAGEMENT` syncs the
 platform's groups on login, so membership follows Keycloak.
 
+`ENABLE_OAUTH_ROLE_MANAGEMENT` maps the application's administrator group onto
+the Open WebUI admin role, and it also makes `OAUTH_ALLOWED_ROLES` a sign-in
+gate. The env sets `OAUTH_ALLOWED_ROLES=*` so every platform role passes that
+gate; narrow it only to a list that matches the `/roles/<app>/<role>` paths
+Keycloak emits.
+
 Entries render **disabled**, and the task enables each one in the same write
 that carries its grant. An empty `access_grants` is not "nobody": Open WebUI
 reads it as every administrator, which is wider than the `mcp` group. Since
