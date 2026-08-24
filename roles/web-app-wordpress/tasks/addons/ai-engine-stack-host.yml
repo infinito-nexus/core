@@ -1,0 +1,50 @@
+---
+- name: "🔐 Verify the gateway contract for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
+
+- name: "📌 Point the AI Engine default environment at the platform gateway"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - --user
+      - "{{ WORDPRESS_USER }}"
+      - -e
+      - "AI_ENGINE_PAYLOAD={{ lookup('config', application_id, 'addons.ai-engine.config') | to_json | b64encode }}"
+      - "{{ WORDPRESS_CONTAINER_ADDRESS }}" # nocheck: container-exec-resolver
+      - wp
+      - eval-file
+      - "-"
+      - "--path={{ WORDPRESS_DOCKER_HTML_PATH }}"
+    stdin: "{{ lookup('file', 'ai_engine_configure.php') }}"
+  changed_when: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔎 Read back the configured AI Engine endpoint"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - --user
+      - "{{ WORDPRESS_USER }}"
+      - -e
+      - "AI_ENGINE_ENV_ID={{ WORDPRESS_LITELLM_ENV_ID }}"
+      - "{{ WORDPRESS_CONTAINER_ADDRESS }}" # nocheck: container-exec-resolver
+      - wp
+      - eval-file
+      - "-"
+      - "--path={{ WORDPRESS_DOCKER_HTML_PATH }}"
+    stdin: "{{ lookup('file', 'ai_engine_endpoint.php') }}"
+  register: wordpress_ai_endpoint
+  changed_when: false
+
+- name: "🛑 Refuse an AI Engine environment that does not answer through the gateway"
+  ansible.builtin.assert:
+    that:
+      - (wordpress_ai_endpoint.stdout | trim) == LITELLM_OPENAI_BASE_LOCAL_URL
+    fail_msg: >-
+      The AI Engine environment '{{ WORDPRESS_LITELLM_ENV_ID }}' still resolves to
+      '{{ wordpress_ai_endpoint.stdout | trim }}' instead of
+      {{ LITELLM_OPENAI_BASE_LOCAL_URL }}, so prompts would leave the deployment.

@@ -38,6 +38,7 @@ The diagram places WordPress in the Infinito.Nexus cosmos: the components it dep
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
+        dep_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_mariadb["svc-db-mariadb 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
@@ -49,6 +50,7 @@ flowchart LR
         dep_web_svc_logout["web-svc-logout 🐳🐝"]
     end
     subgraph role [web-app-wordpress 🐳🐝]
+        svc_litellm["litellm"]
         svc_sso["sso"]
         svc_logout["logout"]
         svc_dashboard["dashboard"]
@@ -60,6 +62,7 @@ flowchart LR
         svc_prometheus["prometheus"]
         svc_container_backup["container_backup"]
     end
+    dep_svc_ai_litellm -. "0..1" .-> svc_litellm
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_mariadb -. "0..1" .-> svc_mariadb
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard

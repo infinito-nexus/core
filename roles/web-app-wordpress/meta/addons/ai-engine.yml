@@ -1,0 +1,19 @@
+---
+enabled: "{{ lookup('config', 'web-app-wordpress', 'services.litellm.enabled') | bool }}"
+required: true
+mechanism: plugin
+source: upstream
+bridges:
+  - litellm
+update:
+  monitored: true
+  catalog: wordpress-org
+  upstream_id: ai-engine
+config:
+  environment:
+    id: infinito-litellm
+    type: custom
+    name: Infinito LiteLLM
+    apikey: "{{ lookup('config', 'web-app-wordpress', 'credentials.litellm_api_key') }}"
+    endpoint: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}"
+  default_model: "{{ LITELLM_CHAT_MODEL }}"
