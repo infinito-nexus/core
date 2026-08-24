@@ -6,6 +6,16 @@
     resolve_output_prefix: JELLYFIN
     resolve_compose_cid: "{{ JELLYFIN_NAME }}"
 
+- name: "⏳ Jellyfin auth | Wait until Jellyfin is healthy before driving the wizard"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container inspect --type container --format '{% raw %}{{.State.Health.Status}}{% endraw %}' {{ JELLYFIN_LOCAL_CID }}
+  register: jellyfin_auth_health
+  until: jellyfin_auth_health.stdout | trim == "healthy"
+  retries: 60
+  delay: 5
+  changed_when: false
+  delegate_to: "{{ JELLYFIN_HOST_NODE }}"
+
 - name: "🔐 Jellyfin auth | Wizard + plugin install on the hosting node"
   ansible.builtin.script:
     cmd: "{{ role_path }}/files/configure-auth.sh"
