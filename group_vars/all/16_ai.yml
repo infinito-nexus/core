@@ -9,6 +9,13 @@ LITELLM_BASE_LOCAL_URL: "http://{{ lookup('config','svc-ai-litellm', 'services.l
 LMSTUDIO_BASE_LOCAL_URL: "http://{{ lookup('config','svc-ai-lmstudio', 'services.lmstudio.name') }}:{{ lookup('config','svc-ai-lmstudio', 'services.lmstudio.ports.internal.http')
   }}"
 
+LITELLM_OPENAI_BASE_LOCAL_URL: "{{ LITELLM_BASE_LOCAL_URL }}/v1"
+
+LITELLM_BACKEND_ROLES: "{{ lookup('deployment').running }}"
+
+LITELLM_CHAT_MODEL: "{{ (lookup('config', 'svc-ai-ollama', 'services.ollama.preload_models') | reject('search', 'embed') | list | first) if 'svc-ai-ollama' in LITELLM_BACKEND_ROLES
+  else ('lmstudio/default' if 'svc-ai-lmstudio' in LITELLM_BACKEND_ROLES else 'openrouter/auto') }}"
+
 OPENROUTER_API_KEY: ""
 
 MCP_DISCOVERY: "{{ lookup('mcp_servers') }}"
