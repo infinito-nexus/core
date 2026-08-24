@@ -25,19 +25,35 @@ flowchart LR
         svc_lmstudio["lmstudio"]
     end
     subgraph dependents [Dependents]
+        dpt_web_app_discourse["web-app-discourse 🐳🐝"]
         dpt_web_app_flowise["web-app-flowise 🐳🐝"]
         dpt_web_app_hermes["web-app-hermes 🐳🐝"]
+        dpt_web_app_matrix["web-app-matrix 🐳🐝"]
+        dpt_web_app_mattermost["web-app-mattermost 🐳🐝"]
+        dpt_web_app_mediawiki["web-app-mediawiki 🐳🐝"]
+        dpt_web_app_moodle["web-app-moodle 🐳🐝"]
+        dpt_web_app_n8n["web-app-n8n 🐳🐝"]
         dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]
         dpt_web_app_openclaw["web-app-openclaw 🐳🐝"]
         dpt_web_app_openwebui["web-app-openwebui 🐳🐝"]
+        dpt_web_app_wordpress["web-app-wordpress 🐳🐝"]
+        dpt_more["..."]
     end
     dep_svc_ai_lmstudio -. "0..1" .-> svc_lmstudio
     dep_svc_ai_ollama -. "0..1" .-> svc_ollama
+    svc_litellm -- "1:1" --> dpt_more
+    svc_litellm -. "0..1" .-> dpt_web_app_discourse
     svc_litellm -. "0..1" .-> dpt_web_app_flowise
     svc_litellm -. "0..1" .-> dpt_web_app_hermes
+    svc_litellm -. "0..1" .-> dpt_web_app_matrix
+    svc_litellm -. "0..1" .-> dpt_web_app_mattermost
+    svc_litellm -. "0..1" .-> dpt_web_app_mediawiki
+    svc_litellm -. "0..1" .-> dpt_web_app_moodle
+    svc_litellm -. "0..1" .-> dpt_web_app_n8n
     svc_litellm -. "0..1" .-> dpt_web_app_nextcloud
     svc_litellm -. "0..1" .-> dpt_web_app_openclaw
     svc_litellm -. "0..1" .-> dpt_web_app_openwebui
+    svc_litellm -. "0..1" .-> dpt_web_app_wordpress
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments). Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
