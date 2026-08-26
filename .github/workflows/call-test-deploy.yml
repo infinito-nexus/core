@@ -139,7 +139,12 @@ jobs:
       apps: ${{ steps.discover.outputs.apps }}
 
     steps:
-      - uses: actions/checkout@v7.0.0
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0
 
@@ -154,7 +159,7 @@ jobs:
         run: ./scripts/install/apt.sh jq gettext-base
 
       - name: 🔧 Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.12"
           cache: pip
@@ -242,6 +247,11 @@ jobs:
       SCRIPTS: scripts/tests/deploy/swarm/routine
 
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - name: 🧹 Free disk space
         if: ${{ !env.ACT }}
         uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
@@ -256,7 +266,7 @@ jobs:
 
       - name: "⬇️ Checkout"
         if: ${{ !env.ACT }}
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: "📥 Load rescue-diagnostics SPOT into job env"
         shell: bash
@@ -294,7 +304,7 @@ jobs:
 
       - name: 🔧 Set up Python
         if: ${{ matrix.mode == 'swarm' }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.12"
           cache: pip
@@ -355,7 +365,7 @@ jobs:
 
       - name: "⬆️ Upload role runtimes CSV"
         if: ${{ always() && !env.ACT }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: role-runtimes-${{ matrix.artifact }}
           path: /tmp/role-runtimes-${{ matrix.apps }}.csv
@@ -369,7 +379,7 @@ jobs:
 
       - name: "⬆️ Upload rescue diagnostics"
         if: ${{ always() && !env.ACT }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: rescue-diagnostics-${{ matrix.artifact }}
           path: ${{ env.INFINITO_RESCUE_DIAGNOSTICS_BASE }}/
@@ -389,7 +399,7 @@ jobs:
 
       - name: "⬆️ Upload inventory artifact"
         if: ${{ always() && !env.ACT }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: inventory-${{ matrix.artifact }}
           path: ${{ env.INVENTORY_ZIP }}
@@ -407,7 +417,7 @@ jobs:
 
       - name: "⬆️ Upload Playwright artifacts"
         if: ${{ always() && !env.ACT }}
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: playwright-${{ matrix.artifact }}
           path: /tmp/playwright-artifacts/
