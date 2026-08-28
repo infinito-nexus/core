@@ -6,13 +6,22 @@ SELECT CASE
                              ELSE '[]'::jsonb END
                       ) AS s
                 WHERE s ->> 'id' = d.service ->> 'id') = d.service
-          AND (SELECT b
-                 FROM jsonb_array_elements(
-                        CASE WHEN jsonb_typeof(a.config::jsonb -> 'bots') = 'array'
-                             THEN a.config::jsonb -> 'bots'
-                             ELSE '[]'::jsonb END
-                      ) AS b
-                WHERE b ->> 'id' = d.bot ->> 'id') = d.bot
+          AND EXISTS (SELECT 1
+                        FROM agents_useragents u
+                       WHERE u.username = d.bot ->> 'name'
+                         AND u.serviceid = d.bot ->> 'serviceID'
+                         AND u.model = d.bot ->> 'model'
+                         AND u.deleteat = 0
+                         AND u.botuserid <> '')
+          AND NOT EXISTS (SELECT 1
+                            FROM jsonb_array_elements(
+                                   CASE WHEN jsonb_typeof(a.config::jsonb -> 'bots') = 'array'
+                                        THEN a.config::jsonb -> 'bots'
+                                        ELSE '[]'::jsonb END
+                                 ) AS legacy
+                            JOIN agents_useragents u2
+                              ON u2.username = legacy ->> 'name'
+                             AND u2.deleteat = 0)
          THEN 'converged'
          ELSE 'stale'
        END

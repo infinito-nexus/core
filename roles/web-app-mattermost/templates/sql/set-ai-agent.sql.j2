@@ -1,0 +1,9 @@
+UPDATE agents_useragents u
+   SET serviceid = d.bot ->> 'serviceID',
+       model = d.bot ->> 'model',
+       updateat = (extract(epoch from now()) * 1000)::bigint
+  FROM (SELECT $infinito${{ MATTERMOST_LITELLM_BOT | to_json }}$infinito$::jsonb AS bot) AS d
+ WHERE u.username = d.bot ->> 'name'
+   AND u.deleteat = 0
+   AND (u.serviceid IS DISTINCT FROM d.bot ->> 'serviceID'
+        OR u.model IS DISTINCT FROM d.bot ->> 'model');

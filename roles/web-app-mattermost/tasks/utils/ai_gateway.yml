@@ -31,16 +31,6 @@
   delegate_to: "{{ STACK_HOST }}"
   run_once: true
 
-- name: "🔎 Mattermost | Count the Agents bot accounts the plugin has provisioned"
-  database_query:
-    config: "{{ lookup('database', application_id) }}"
-    query: "{{ lookup('template', role_path ~ '/templates/sql/select/ai/bot-user.sql.j2') }}" # nocheck: database-query-raw  the bot username is templated into the predicate
-    expect_rows: true
-  register: mattermost_ai_bot_state
-  changed_when: false
-  delegate_to: "{{ STACK_HOST }}"
-  run_once: true
-
 - name: "🤖 Mattermost | Point the Agents bot at the platform gateway"
   when: (mattermost_ai_state.rows[0][0] | trim) != 'converged'
   database_query:
@@ -51,11 +41,17 @@
   delegate_to: "{{ STACK_HOST }}"
   run_once: true
 
+- name: "🤖 Mattermost | Retarget the migrated agent row at the gateway"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query: "{{ lookup('template', role_path ~ '/templates/sql/set-ai-agent.sql.j2') }}" # nocheck: database-query-raw  the desired bot is rendered from role vars
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  changed_when: true
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
 - name: "🔁 Mattermost | Cycle the Agents plugin so it adopts the merged config"
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/agents/reload.yml"
-  when: >-
-    (mattermost_ai_state.rows[0][0] | trim) != 'converged'
-    or (mattermost_ai_bot_state.rows[0][0] | int) == 0
   vars:
     mattermost_agents_cid: "{{ MATTERMOST_AI_LOCAL_CID }}"
     mattermost_agents_node: "{{ MATTERMOST_AI_HOST_NODE }}"

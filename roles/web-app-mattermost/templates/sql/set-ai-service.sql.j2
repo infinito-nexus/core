@@ -23,7 +23,12 @@ UPDATE agents_confighistory a
                               ELSE '[]'::jsonb END
                        ) AS b
                  WHERE b ->> 'id' <> d.bot ->> 'id'
-              ), '[]'::jsonb) || jsonb_build_array(d.bot)
+              ), '[]'::jsonb) || CASE WHEN EXISTS (SELECT 1
+                                                     FROM agents_useragents u
+                                                    WHERE u.username = d.bot ->> 'name'
+                                                      AND u.deleteat = 0)
+                                      THEN '[]'::jsonb
+                                      ELSE jsonb_build_array(d.bot) END
             )
          || jsonb_build_object('defaultBotName', d.bot ->> 'name')
        )::text
