@@ -6,5 +6,5 @@ LITELLM_CONTAINER: "{{ lookup('config', application_id, 'services.litellm.name')
 LITELLM_PORT: "{{ lookup('config', application_id, 'services.litellm.ports.internal.http') }}"
 LITELLM_MASTER_KEY: "{{ lookup('config', application_id, 'secrets.credentials.master_key') }}"
 LITELLM_CONFIG_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'config.yaml' ] | path_join }}"
-LITELLM_CONFIG_PATH_DOCKER: "/etc/litellm/config.yaml"
+LITELLM_CONFIG_PATH_DOCKER: "{{ lookup('volume', application_id, 'litellm_config').target }}"
 LITELLM_OPENROUTER_API_KEY: "{{ OPENROUTER_API_KEY }}"
