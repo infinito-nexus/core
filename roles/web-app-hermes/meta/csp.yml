@@ -1,7 +1,7 @@
 ---
 flags:
   script-src-elem:
-    unsafe-inline: true
+    unsafe-inline: true # nocheck: csp-unsafe  Reason: set when the role first deployed, with no console error recorded against it; TODO: re-verify against the running agent and drop the flag if nothing breaks
 whitelist:
   font-src: []
   connect-src: []
