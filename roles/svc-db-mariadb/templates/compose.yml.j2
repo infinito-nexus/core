@@ -20,7 +20,7 @@
     healthcheck:
       test:
         - "CMD-SHELL"
-        - "mariadb {% if MARIADB_EXPOSE_LOCAL %}-h127.0.0.1 -P3306{% endif %} -u root -p\"$${MARIADB_ROOT_PASSWORD}\" -e 'SHOW DATABASES;'"
+        - "healthcheck.sh --su-mysql --connect --innodb_initialized"
       interval: 10s
       timeout: 5s
       retries: 18
