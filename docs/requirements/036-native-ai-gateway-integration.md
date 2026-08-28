@@ -24,13 +24,19 @@ Confirmed against upstream documentation, each accepting a custom OpenAI-compati
 | `web-app-n8n` | AI Agent nodes | a stored `openAiApi` credential carries `url` plus `apiKey`. The built-in assistant is out of reach: 1.95.3 exposes only `N8N_AI_ASSISTANT_BASE_URL`, which expects n8n's own assistant service rather than an OpenAI-compatible endpoint, and no `N8N_INSTANCE_AI_MODEL_URL` exists in that release |
 | `web-app-mediawiki` | `AIEditingAssistant` extension | provider `open-ai`; `$wgAIEditingAssistantActiveProviderConnection` carries `url`, `endpoint`, `model` and `secret`. Hard-requires `VisualEditorPlus`, which is not bundled |
 
-`web-app-matrix` is the one role that already ships an AI credential and points it at the vendor: `meta/schema.yml` declares `chatgpt_bridge_openai_api_key` with the validation `^sk-[a-zA-Z0-9]{40,}$`. That pattern enforces OpenAI's own key format and therefore **rejects a LiteLLM virtual key by construction**, so the schema has to change before the bridge can reach the gateway at all.
+`web-app-matrix` is the one role that already ships an AI credential and points it at the vendor: `meta/secrets.yml` declares `chatgpt_bridge_openai_api_key` with the validation `^sk-[a-zA-Z0-9]{40,}$`. That pattern enforces OpenAI's own key format and therefore **rejects a LiteLLM virtual key by construction**, so the schema has to change before the bridge can reach the gateway at all.
 
 `web-app-wordpress` has no AI surface in core; the requirement applies to whichever connector plugin the role installs, and the role MUST pin one rather than leaving the choice to a site administrator. The pinned connector is `ai-engine`, whose `custom` engine type takes an OpenAI-compatible base URL and an API key per environment.
 
 `web-app-zammad` was pinned at 6.5.0, which ships no AI surface at all. The role is bumped to 7.1.2, the newest line whose contract is still the `ai_provider` / `ai_provider_config` setting pair; past 7.1.x the provider moves into an `AI::ProviderConnection` record and the contract changes. 7.1.2 accepts Elasticsearch `>= 7.8, < 10`, so the role's existing 8.13.4 pin stands.
 
-Claimed by vendor documentation but not yet verified against a running instance, so each MUST be confirmed before it is implemented: `web-app-homeassistant` (conversation agent), `web-app-xwiki` (AI extension), `web-app-baserow` (AI field).
+The three candidates that vendor documentation claimed were probed against running instances on 2026-08-27, and each is filed below on what the deployed artefact actually offers rather than on the claim:
+
+| Role | Measured at | Finding | Disposition |
+| --- | --- | --- | --- |
+| `web-app-baserow` | 2.3.3 | `settings.BASEROW_OPENAI_BASE_URL` is read by `backend/src/baserow/core/generative_ai/generative_ai_model_types.py:271`, so the AI field takes a custom OpenAI-compatible base URL | confirmed |
+| `web-app-homeassistant` | 2026.7 | `openai_conversation/config_flow.py` contains no `base_url` (0 matches), so the OpenAI agent cannot be pointed anywhere but the vendor. The only configurable local path is the separate `ollama` integration, whose `config_flow.py` carries `CONF_URL` (7 matches) but speaks Ollama's native API rather than the gateway's OpenAI-compatible surface | excluded |
+| `web-app-xwiki` | `lts-postgres-tomcat` | no AI or LLM extension is present in `data/extension/repository` on the pinned image, so there is no AI surface to point at the gateway until the XWiki AI LLM Application extension is installed by the role | open, needs the extension installed |
 
 Excluded, with the reason recorded so the question is not reopened:
 
@@ -52,15 +58,15 @@ Excluded, with the reason recorded so the question is not reopened:
 
 - [ ] Each unverified candidate is probed against a running instance and moved into the confirmed table or the exclusion table with its reason, so the scope rests on measurement rather than vendor claims.
 - [x] Every role in the confirmed table declares its native AI surface in `meta/services.yml` with `enabled` and `shared` bound to `'svc-ai-litellm' in group_names`, so a deployment without the gateway configures no AI surface at all.
-- [ ] Every role in the confirmed table carries a `credentials.litellm_api_key` entry in `meta/schema.yml`, and the deploy writes that virtual key into the application's own AI configuration rather than a shared or hardcoded key.
+- [ ] Every role in the confirmed table carries a `credentials.litellm_api_key` entry in `meta/secrets.yml`, and the deploy writes that virtual key into the application's own AI configuration rather than a shared or hardcoded key.
 - [ ] Every role in the confirmed table points its AI base URL at the in-cluster gateway address, and a deploy-time assertion fails when the configured URL resolves outside the deployment.
 - [x] No role in the confirmed table retains a default that sends requests to a third-party provider when the gateway is enabled.
 - [ ] A Playwright spec per role proves the configured surface answers a prompt through the gateway, mirroring `roles/web-app-nextcloud/files/playwright/addons/integration_openai.spec.js`.
 - [ ] The deploy fails when a role declares the AI surface enabled while its configuration still carries an empty or unresolved API key, so a silently unauthenticated surface cannot reach a green deploy.
-- [x] No credential validation in `meta/schema.yml` encodes a vendor key format, so a gateway-issued virtual key satisfies every AI credential the platform mints.
+- [x] No credential validation in `meta/secrets.yml` encodes a vendor key format, so a gateway-issued virtual key satisfies every AI credential the platform mints.
 - [x] `docs/requirements/027-integration-matrix.md` lists the AI surface of every role in the confirmed table.
 
-Consumers that must name a model (`web-app-moodle`, `web-app-matrix`) read `LITELLM_CHAT_MODEL`, which picks the first non-embedding preload model of `svc-ai-ollama` and mirrors the branch order of the gateway's own `config.yaml.j2`. The consumer resolves that branch from `lookup('deployment').running` because `group_names` is per host, while the gateway resolves its backend list from its own `group_names`. On a single-host round the two agree. On a multi-host round where the gateway and a backend land on different hosts they can diverge, and the gateway's host-scoped backend selection is what has to change; that belongs to [031](031-llm-gateway-model-backends.md).
+Consumers that must name a model (`web-app-moodle`, `web-app-matrix`) read `LITELLM_CHAT_MODEL`, which picks the first non-embedding preload model of `svc-ai-ollama` and mirrors the branch order of the gateway's own `config.yaml.j2`. The consumer resolves that branch from `lookup('deployment').groups`, the round's deployed closure, which is what `group_names` carries. `.running` is wrong here: a targeted `apps=` round sets it to the whitelist, and `svc-ai-ollama` is pulled in as a dependency rather than named on the command line, so both backend branches fall through to the `openrouter/auto` vendor default. The gateway then answers `Invalid model name passed in model=openrouter/auto` with HTTP 400 and no consumer can complete a prompt. On a multi-host round where the gateway and a backend land on different hosts they can diverge, and the gateway's host-scoped backend selection is what has to change; that belongs to [031](031-llm-gateway-model-backends.md).
 
 ### Which variant exercises the gateway
 
