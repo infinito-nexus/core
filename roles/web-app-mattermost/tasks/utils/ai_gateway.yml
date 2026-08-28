@@ -20,7 +20,10 @@
 - name: "🔎 Mattermost | Compare the stored Agents config to the contract"
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query: "{{ lookup('template', role_path ~ '/templates/sql/select/ai/service.sql.j2') }}" # nocheck: database-query-raw  the desired service and bot are rendered from role vars
+    query_file: "{{ role_path }}/files/sql/select/ai/service.sql"
+    named_args:
+      service: "{{ MATTERMOST_LITELLM_SERVICE | to_json }}"
+      bot: "{{ MATTERMOST_LITELLM_BOT | to_json }}"
     expect_rows: true
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   register: mattermost_ai_state
@@ -35,7 +38,10 @@
   when: (mattermost_ai_state.rows[0][0] | trim) != 'converged'
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query: "{{ lookup('template', role_path ~ '/templates/sql/set_ai/service.sql.j2') }}" # nocheck: database-query-raw  the service and bot payloads are rendered from role vars
+    query_file: "{{ role_path }}/files/sql/update/ai/service.sql"
+    named_args:
+      service: "{{ MATTERMOST_LITELLM_SERVICE | to_json }}"
+      bot: "{{ MATTERMOST_LITELLM_BOT | to_json }}"
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: true
   delegate_to: "{{ STACK_HOST }}"
@@ -44,7 +50,9 @@
 - name: "🤖 Mattermost | Retarget the migrated agent row at the gateway"
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query: "{{ lookup('template', role_path ~ '/templates/sql/set_ai/agent.sql.j2') }}" # nocheck: database-query-raw  the desired bot is rendered from role vars
+    query_file: "{{ role_path }}/files/sql/update/ai/agent.sql"
+    named_args:
+      bot: "{{ MATTERMOST_LITELLM_BOT | to_json }}"
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: true
   delegate_to: "{{ STACK_HOST }}"
@@ -59,7 +67,10 @@
 - name: "🔎 Mattermost | Re-read the stored Agents service and bot"
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query: "{{ lookup('template', role_path ~ '/templates/sql/select/ai/service.sql.j2') }}" # nocheck: database-query-raw  the desired service and bot are rendered from role vars
+    query_file: "{{ role_path }}/files/sql/select/ai/service.sql"
+    named_args:
+      service: "{{ MATTERMOST_LITELLM_SERVICE | to_json }}"
+      bot: "{{ MATTERMOST_LITELLM_BOT | to_json }}"
     expect_rows: true
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   register: mattermost_ai_state_final
@@ -80,7 +91,9 @@
 - name: "🔎 Mattermost | Wait for the Agents plugin to provision its bot account"
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query: "{{ lookup('template', role_path ~ '/templates/sql/select/ai/bot-user.sql.j2') }}" # nocheck: database-query-raw  the bot username is templated into the predicate
+    query_file: "{{ role_path }}/files/sql/select/ai/bot-user.sql"
+    named_args:
+      bot_name: "{{ MATTERMOST_LITELLM_BOT_NAME }}"
     expect_rows: true
   register: mattermost_ai_bot_final
   retries: 60

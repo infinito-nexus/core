@@ -32,6 +32,6 @@ UPDATE agents_confighistory a
             )
          || jsonb_build_object('defaultBotName', d.bot ->> 'name')
        )::text
-  FROM (SELECT $infinito${{ MATTERMOST_LITELLM_SERVICE | to_json }}$infinito$::jsonb AS service,
-               $infinito${{ MATTERMOST_LITELLM_BOT | to_json }}$infinito$::jsonb AS bot) AS d
+  FROM (SELECT %(service)s::jsonb AS service,
+               %(bot)s::jsonb AS bot) AS d
  WHERE a.active = true;
