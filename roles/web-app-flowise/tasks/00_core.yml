@@ -1,6 +1,10 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "🔐 Verify the gateway contract for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
+  when: FLOWISE_LITELLM_ENABLED | bool
+
 - name: "📦 Stage the {{ application_id }} build context"
   ansible.builtin.include_tasks:
     file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"

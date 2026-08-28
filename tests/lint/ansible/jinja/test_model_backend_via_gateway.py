@@ -40,12 +40,14 @@ class TestModelBackendViaGateway(unittest.TestCase):
     def test_only_the_gateway_addresses_a_provider_directly(self) -> None:
         findings: list[tuple[str, int, str]] = []
         for path_str, content in iter_project_files_with_content(
-            extensions=(".j2",),
+            extensions=(".j2", ".yml"),
             exclude_tests=True,
         ):
             rel = Path(path_str).relative_to(PROJECT_ROOT).as_posix()
             parts = rel.split("/")
-            if len(parts) < 2 or parts[0] != "roles" or "/templates/" not in rel:
+            if len(parts) < 2 or parts[0] != "roles":
+                continue
+            if "/templates/" not in rel and "/vars/" not in rel:
                 continue
             if parts[1] == _GATEWAY_ROLE:
                 continue
@@ -63,7 +65,7 @@ class TestModelBackendViaGateway(unittest.TestCase):
                 for p, n, s in sorted(set(findings), key=lambda i: (i[0], i[1]))
             )
             self.fail(
-                "These templates address a model provider directly instead of "
+                "These files address a model provider directly instead of "
                 f"routing through {_GATEWAY_ROLE}, so their traffic carries no "
                 "consumer identity and ignores the gateway's model list.\n\n"
                 "Fix: declare `services.litellm` in the role's meta/services.yml "
@@ -73,6 +75,20 @@ class TestModelBackendViaGateway(unittest.TestCase):
                 "declares both.\n\n"
                 f"Offending lines:\n{formatted}"
             )
+
+    def test_the_pattern_still_matches_a_real_provider_reference(self) -> None:
+        gateway_templates = str(PROJECT_ROOT / "roles" / _GATEWAY_ROLE / "templates")
+        matched = [
+            Path(path).name
+            for path, content in iter_project_files_with_content(extensions=(".j2",))
+            if path.startswith(gateway_templates) and _PROVIDER_URL.search(content)
+        ]
+        self.assertTrue(
+            matched,
+            f"no file under roles/{_GATEWAY_ROLE}/templates/ matches the provider "
+            "pattern, so the rule would pass vacuously on every consumer too; "
+            "check that the backend variables are still named *_BASE_LOCAL_URL",
+        )
 
 
 if __name__ == "__main__":  # pragma: no cover
