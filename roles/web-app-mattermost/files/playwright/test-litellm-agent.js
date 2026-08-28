@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const { decodeDotenvQuotedValue, performKeycloakLoginForm } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
@@ -35,7 +36,7 @@ async function acquireAdminToken(context, shared, baseUrl) {
   await performKeycloakLoginForm(page, shared.env.adminUsername, shared.env.adminPassword);
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: "Expected redirect back to Mattermost after the administrator OIDC login",
     })
     .toContain(baseUrl);
@@ -66,7 +67,7 @@ async function firstBotReply(context, baseUrl, headers, channelId, botId, afterP
 exports.register = function (shared) {
   test("litellm: the Agents bot answers a prompt through the in-cluster gateway", async ({ browser }) => {
     skipUnlessServiceEnabled("litellm");
-    test.setTimeout(300_000);
+    test.setTimeout(resolveTimeout(300_000));
 
     expect(
       LITELLM_API_URL,
@@ -84,8 +85,7 @@ exports.register = function (shared) {
 
     try {
       const token = await acquireAdminToken(context, shared, baseUrl);
-      // Mattermost enforces CSRF only for a token read out of the cookie; carrying
-      // it in the Authorization header keeps these calls header-authenticated.
+      await context.clearCookies();
       const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
 
       const meResponse = await context.request.get(`${baseUrl}/api/v4/users/me`, {
@@ -143,7 +143,7 @@ exports.register = function (shared) {
             return reply.length;
           },
           {
-            timeout: 180_000,
+            timeout: resolveTimeout(180_000),
             intervals: [2_000],
             message: `the Agents bot "${LITELLM_BOT_NAME}" must answer the direct message with a real completion; silence means the plugin never reached ${LITELLM_API_URL}, the gateway rejected the virtual key, or no model is served behind it`,
           },

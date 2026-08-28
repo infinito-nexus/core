@@ -100,7 +100,21 @@ async function waitForMattermostChannelView(frame, timeout = resolveTimeout(60_0
 // `waitUntil: "commit"` avoids net::ERR_ABORTED from the multi-domain
 // redirect chain the universal-logout service triggers.
 async function mattermostLogout(page, baseUrl) {
-  await gotoOnion(page, `${baseUrl.replace(/\/$/, "")}/logout`, { waitUntil: "commit" }).catch(() => {});
+  const root = baseUrl.replace(/\/$/, "");
+  const session = await page.context().cookies(root).catch(() => []);
+  const csrf = session.find((cookie) => cookie.name === "MMCSRF");
+  await page.request
+    .post(`${root}/api/v4/users/logout`, {
+      headers: csrf ? { "X-CSRF-Token": csrf.value } : {},
+      failOnStatusCode: false,
+    })
+    .catch(() => {});
+  await gotoOnion(page, `${root}/logout`, { waitUntil: "commit" }).catch(() => {});
+  for (let attempt = 0; attempt < 40; attempt += 1) {
+    const cookies = await page.context().cookies(root).catch(() => []);
+    if (!cookies.some((cookie) => cookie.name === "MMAUTHTOKEN" && cookie.value)) return;
+    await page.waitForTimeout(resolveTimeout(500));
+  }
 }
 
 function beforeEach() {
