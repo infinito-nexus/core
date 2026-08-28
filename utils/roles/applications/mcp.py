@@ -136,25 +136,6 @@ MCP_SPECIFICATION_ADAPTER_TYPES = frozenset({"openapi_allowlist", "graphql_allow
 
 MCP_CREDENTIAL_SOURCES = frozenset({"token_store", "credentials"})
 
-MCP_SERVED_KEYS = frozenset(
-    {
-        "direction",
-        "transport",
-        "exposure",
-        "auth",
-        "auth_subject",
-        "delegation",
-        "credential",
-        "allowed_consumers",
-        "supported_transports",
-        "supported_auths",
-        "endpoint",
-        "adapter",
-        "limits",
-        "tools",
-    }
-)
-
 MCP_KEYS = frozenset(
     {
         "enabled",
@@ -236,6 +217,7 @@ MCP_LIMITS_KEYS = frozenset(
 MCP_TOOLS_KEYS = frozenset(
     {
         "allowlist",
+        "mutating",
         "writer_allowlist",
         "upstream_serves",
         "categories",

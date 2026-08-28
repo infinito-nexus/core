@@ -236,6 +236,8 @@ def build_mcp_discovery(
                 "auth": auth,
                 "auth_subject": server.get("auth_subject"),
                 "owner": owner,
+                "tools": list(server.get("tools") or []),
+                "mutating": list(server.get("mutating") or []),
                 "transport": transport.replace("_", "-"),
             }
         )

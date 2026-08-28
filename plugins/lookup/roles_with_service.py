@@ -198,6 +198,14 @@ class LookupModule(LookupBase):
                     "key": credential.get("key"),
                 }
                 entry["allowed_consumers"] = list(block.get("allowed_consumers") or [])
+                tools = block.get("tools")
+                tools = tools if isinstance(tools, dict) else {}
+                entry["tools"] = list(tools.get("allowlist") or [])
+                entry["mutating"] = (
+                    []
+                    if tools.get("mutating_tools_enabled")
+                    else list(tools.get("mutating") or [])
+                )
                 entry["supported_transports"] = list(
                     block.get("supported_transports") or []
                 )

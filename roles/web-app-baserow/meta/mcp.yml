@@ -35,5 +35,9 @@ tools:
     - list_table_rows
     - list_tables
     - update_rows
+  mutating:
+    - create_rows
+    - delete_rows
+    - update_rows
   read_only_default: true
   mutating_tools_enabled: false
