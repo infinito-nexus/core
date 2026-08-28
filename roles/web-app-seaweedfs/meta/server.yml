@@ -2,6 +2,8 @@
 client_max_body_size: 0
 status_codes:
   api:
+    - 301
+    - 302
     - 403
     - 405
   filer:
