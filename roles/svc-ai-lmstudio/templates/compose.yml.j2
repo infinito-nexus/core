@@ -7,9 +7,9 @@
     {{ lookup('compose_only', 'container_name', LMSTUDIO_CONTAINER) }}
     expose:
       - "{{ LMSTUDIO_PORT }}"
-{{ lookup('container_volumes', application_id, 'lmstudio') | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
 {{ lookup('compose_networks') }}
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}

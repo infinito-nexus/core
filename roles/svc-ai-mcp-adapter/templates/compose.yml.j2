@@ -18,8 +18,9 @@
       - no-new-privileges:true
     expose:
       - "{{ MCP_ADAPTER_PORT }}"
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
 {{ lookup('compose_networks') }}
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}

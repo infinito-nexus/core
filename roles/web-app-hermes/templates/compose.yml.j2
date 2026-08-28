@@ -21,10 +21,10 @@
       retries: 5
       start_period: 300s
     {{ lookup('container_ports', ['hermes', 'http', DOCKER_BIND_HOST]) | indent(4) }}
-{{ lookup('container_volumes', application_id, service_name) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
 
 {{ lookup('compose_networks') }}
 
-{{ lookup('compose_volumes', application_id) }}
+{{ lookup('compose_volumes') }}
