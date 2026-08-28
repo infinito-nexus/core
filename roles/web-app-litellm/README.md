@@ -26,15 +26,14 @@ flowchart LR
         svc_dashboard["dashboard"]
         svc_prometheus["prometheus"]
         svc_tor["tor"]
-        svc_sso["sso ❌"]
+        svc_sso["sso"]
         svc_logout["logout ❌"]
     end
     dep_svc_ai_litellm -- "1:1" --> svc_litellm
     dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
-    dep_web_app_keycloak -- "0..0" --> svc_sso
+    dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
-    linkStyle 3 stroke:red;
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
@@ -43,10 +42,12 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 
 - **Dedicated domain:** The admin UI is reachable on its own canonical hostname under the primary domain.
 - **Host-mode front proxy:** The role renders an OpenResty virtual host that terminates TLS and forwards to the gateway's local HTTP port, without deploying a container.
-- **Gateway credentials:** Access is gated by the LiteLLM UI username and password that the LiteLLM Gateway provisions.
+- **Keycloak sign-in:** With Keycloak in the deployment, the role sets `services.sso.flavor: oidc` and the LiteLLM Gateway reads the platform's OIDC endpoints from `GENERIC_CLIENT_ID`, `GENERIC_CLIENT_SECRET`, `GENERIC_AUTHORIZATION_ENDPOINT`, `GENERIC_TOKEN_ENDPOINT` and `GENERIC_USERINFO_ENDPOINT`. Sign in at `/sso/key/generate`; `PROXY_ADMIN_ID` carries the administrator's username. LiteLLM serves SSO for up to five accounts in `litellm_usertable` and refuses beyond that without `LITELLM_LICENSE`.
+- **Gateway credentials:** Without Keycloak, access is gated by the LiteLLM UI username and password that the LiteLLM Gateway provisions. That pair keeps working alongside SSO as a break-glass login.
 - **Scoped Content-Security-Policy:** The UI's inline bootstrap scripts pass through a `script-src-elem` flag, and no external font or connect sources are whitelisted.
 - **Dashboard tile:** The application contributes a dashboard card when the platform dashboard is part of the deployment.
-- **Guest smoke test:** A Playwright spec asserts that the UI answers behind the proxy on the canonical domain and shows the login gate to unauthenticated visitors.
+- **Guest smoke test:** A Playwright spec asserts that the UI answers behind the proxy and gates unauthenticated visitors: it expects the handover to Keycloak when SSO is on and the UI's own password form when it is off.
+- **SSO round-trip test:** `test-oidc-login.js` drives `/sso/key/generate` through the Keycloak login form and asserts the UI no longer falls back to its own password gate.
 
 ## Quick Setup
 

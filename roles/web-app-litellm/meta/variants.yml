@@ -9,6 +9,9 @@
     prometheus:
       enabled: true
       shared: true
+    sso:
+      enabled: true
+      shared: true
     tor:
       enabled: true
 
@@ -19,5 +22,8 @@
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    sso:
+      enabled: false
+      shared: false
     tor:
       enabled: true
