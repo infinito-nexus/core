@@ -20,6 +20,10 @@
  *   DATABASE_USER, DATABASE_PASSWORD: Flowise's own connection settings.
  */
 
+// nocheck: mirrored-unit-test - resolves bcryptjs and pg from the Flowise container's
+// own node_modules and writes the hash straight into the live user row; outside that
+// container the requires do not resolve
+
 const bcrypt = require('bcryptjs')
 const { Client } = require('pg')
 
