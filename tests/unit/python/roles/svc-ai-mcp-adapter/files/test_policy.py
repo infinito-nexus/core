@@ -19,7 +19,15 @@ TOOLS = {
         "method": "GET",
         "path": "/domain-types/host_config/collections/all",
     },
-    "checkmk_get_host_status": {"method": "GET", "path": "/objects/host/{host}"},
+    "checkmk_get_host_status": {
+        "method": "GET",
+        "path": "/objects/host/{host}",
+        "input_schema": {
+            "type": "object",
+            "properties": {"host": {"type": "string"}, "columns": {"type": "string"}},
+            "required": ["host"],
+        },
+    },
 }
 
 LIMITS = {
@@ -181,6 +189,51 @@ class TestLimits(unittest.TestCase):
         self.assertEqual(5, len(policy.truncate_results(contract(), list(range(50)))))
 
 
+class TestDeclaredArguments(unittest.TestCase):
+    """A published input schema is enforced, not merely advertised.
+
+    On the openapi path an argument the contract does not name is appended to
+    the upstream request as a query parameter, so an unchecked schema lets a
+    client add parameters the reviewed operation never granted.
+    """
+
+    def test_a_declared_argument_passes(self):
+        method, path = policy.authorize_call(
+            contract(), "checkmk_get_host_status", {"host": "web-01"}
+        )
+        self.assertEqual(("GET", "/objects/host/{host}"), (method, path))
+
+    def test_an_optional_declared_argument_passes(self):
+        policy.authorize_call(
+            contract(),
+            "checkmk_get_host_status",
+            {"host": "web-01", "columns": "state"},
+        )
+
+    def test_an_undeclared_argument_is_refused(self):
+        with self.assertRaises(PermissionError) as caught:
+            policy.authorize_call(
+                contract(),
+                "checkmk_get_host_status",
+                {"host": "web-01", "site": "other"},
+            )
+        self.assertIn(policy.DENY_UNKNOWN_ARGUMENT, str(caught.exception))
+
+    def test_a_missing_required_argument_is_refused(self):
+        with self.assertRaises(PermissionError) as caught:
+            policy.authorize_call(contract(), "checkmk_get_host_status", {})
+        self.assertIn(policy.DENY_MISSING_ARGUMENT, str(caught.exception))
+
+    def test_a_tool_declaring_no_schema_takes_no_arguments(self):
+        with self.assertRaises(PermissionError) as caught:
+            policy.authorize_call(contract(), "checkmk_list_hosts", {"limit": 5000})
+        self.assertIn(policy.DENY_UNKNOWN_ARGUMENT, str(caught.exception))
+
+    def test_a_tool_declaring_no_schema_still_serves_a_bare_call(self):
+        method, _path = policy.authorize_call(contract(), "checkmk_list_hosts", {})
+        self.assertEqual("GET", method)
+
+
 class TestAudit(unittest.TestCase):
     def test_the_event_names_both_sides_and_the_outcome(self):
         event = policy.audit_event(
@@ -206,6 +259,53 @@ class TestAudit(unittest.TestCase):
                 "correlation_id",
             },
             set(event),
+        )
+
+
+class TestUpstreamUrl(unittest.TestCase):
+    """A provider that keys its endpoint by URL segment instead of by header.
+
+    The secret must not reach the contract, because the contract is rendered
+    into the compose file; it arrives through the same env file the header
+    credential uses and is spliced in here.
+    """
+
+    BASE = "http://baserow:80/mcp"
+
+    def test_without_a_path_key_the_url_is_returned_untouched(self) -> None:
+        self.assertEqual(policy.upstream_url(self.BASE), self.BASE)
+
+    def test_a_trailing_slash_survives_when_nothing_is_appended(self) -> None:
+        self.assertEqual(policy.upstream_url(self.BASE + "/"), self.BASE + "/")
+
+    def test_a_path_key_is_appended_as_its_own_segment(self) -> None:
+        self.assertEqual(
+            policy.upstream_url(self.BASE, "abc123"),
+            "http://baserow:80/mcp/abc123",
+        )
+
+    def test_a_suffix_follows_the_key(self) -> None:
+        self.assertEqual(
+            policy.upstream_url(self.BASE, "abc123", "sse"),
+            "http://baserow:80/mcp/abc123/sse",
+        )
+
+    def test_a_suffix_without_a_key_still_lands(self) -> None:
+        self.assertEqual(
+            policy.upstream_url(self.BASE, "", "sse"),
+            "http://baserow:80/mcp/sse",
+        )
+
+    def test_a_trailing_slash_does_not_double_up(self) -> None:
+        self.assertEqual(
+            policy.upstream_url(self.BASE + "/", "abc123", "/sse/"),
+            "http://baserow:80/mcp/abc123/sse",
+        )
+
+    def test_a_key_carrying_url_syntax_is_escaped(self) -> None:
+        self.assertEqual(
+            policy.upstream_url(self.BASE, "a/b?c=d"),
+            "http://baserow:80/mcp/a%2Fb%3Fc%3Dd",
         )
 
 

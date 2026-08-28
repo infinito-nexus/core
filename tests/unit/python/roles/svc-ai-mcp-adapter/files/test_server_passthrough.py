@@ -16,7 +16,14 @@ FILES_DIR = PROJECT_ROOT / "roles/svc-ai-mcp-adapter/files/python"
 MODULE_PATH = FILES_DIR / "server.py"
 
 TOOLS: dict[str, dict] = {
-    "read_post": {"mutating": False},
+    "read_post": {
+        "mutating": False,
+        "input_schema": {
+            "type": "object",
+            "properties": {"id": {"type": "string"}},
+            "required": ["id"],
+        },
+    },
     "search_users": {"mutating": False},
 }
 
@@ -103,7 +110,7 @@ class TestPassthroughDispatch(unittest.TestCase):
                 status=200,
             )
 
-        with patch.object(self.MODULE.urllib.request, "urlopen", fake_urlopen):
+        with patch.object(self.MODULE.OPENER, "open", fake_urlopen):
             self.MODULE.dispatch(
                 {
                     "method": "tools/call",
@@ -127,7 +134,7 @@ class TestPassthroughDispatch(unittest.TestCase):
             raise AssertionError("the upstream must not be contacted")
 
         with (
-            patch.object(self.MODULE.urllib.request, "urlopen", fail_if_called),
+            patch.object(self.MODULE.OPENER, "open", fail_if_called),
             self.assertRaises(PermissionError),
         ):
             self.MODULE.dispatch(
@@ -161,11 +168,14 @@ class TestPassthroughDispatch(unittest.TestCase):
             )
 
         with (
-            patch.object(self.MODULE.urllib.request, "urlopen", fake_urlopen),
+            patch.object(self.MODULE.OPENER, "open", fake_urlopen),
             self.assertRaises(ValueError) as caught,
         ):
             self.MODULE.dispatch(
-                {"method": "tools/call", "params": {"name": "read_post"}},
+                {
+                    "method": "tools/call",
+                    "params": {"name": "read_post", "arguments": {"id": "7"}},
+                },
                 "consumer",
                 "cid",
             )

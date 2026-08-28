@@ -126,6 +126,8 @@ def authorize_mcp_call(
             f"{contract['limits']['request_bytes']}"
         )
 
+    policy.assert_arguments(spec, name, arguments)
+
     return name
 
 

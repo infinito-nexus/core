@@ -19,6 +19,7 @@ from __future__ import annotations
 import hashlib
 import json
 from typing import TYPE_CHECKING, Any
+from urllib.parse import quote
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
@@ -40,12 +41,39 @@ DENY_MUTATION = "mutation_not_enabled"
 DENY_REQUEST_TOO_LARGE = "request_too_large"
 DENY_SCHEMA_DRIFT = "schema_drift"
 DENY_UNAUTHENTICATED = "unauthenticated"
+DENY_TOO_MANY_REQUESTS = "too_many_concurrent_requests"
+DENY_UNKNOWN_ARGUMENT = "undeclared_argument"
+DENY_MISSING_ARGUMENT = "missing_required_argument"
 
 READ_METHODS = frozenset({"GET", "HEAD"})
 
 
 class ContractError(ValueError):
     """The rendered contract is not one this adapter may serve."""
+
+
+def upstream_url(base: str, path_key: str = "", path_suffix: str = "") -> str:
+    """Return the upstream URL with an optional secret path segment spliced in.
+
+    Not every provider authenticates through a header. Baserow keys its MCP
+    endpoint by a URL segment, so the secret cannot travel in the auth header
+    the adapter otherwise uses. Splicing it here keeps it out of the contract,
+    and therefore out of the rendered compose file: it arrives through the same
+    env file as the header credential.
+
+    Args:
+        base: ``upstream_url`` as the contract declares it.
+        path_key: secret segment to append, or "" when the provider needs none.
+        path_suffix: trailing segment after the key, e.g. ``sse``.
+    """
+    if not path_key and not path_suffix:
+        return base
+    parts = [base.rstrip("/")]
+    if path_key:
+        parts.append(quote(path_key, safe=""))
+    if path_suffix:
+        parts.append(path_suffix.strip("/"))
+    return "/".join(parts)
 
 
 def load_contract(raw: str) -> dict[str, Any]:
@@ -113,6 +141,37 @@ def schema_digest(tools: Mapping[str, Any]) -> str:
     """
     canonical = json.dumps(tools, sort_keys=True, separators=(",", ":"))
     return SHA256_PREFIX + hashlib.sha256(canonical.encode()).hexdigest()
+
+
+def assert_arguments(
+    spec: Mapping[str, Any], name: str, arguments: Mapping[str, Any] | None
+) -> None:
+    """Refuse arguments the tool's own declared schema does not describe.
+
+    Args:
+        spec: the tool's contract entry.
+        name: the tool name, for the refusal message.
+        arguments: the client-supplied arguments.
+
+    The schema was published to clients and never checked, which made it a
+    suggestion. On the openapi path that is not cosmetic: an argument the
+    contract does not name is appended to the upstream request as a query
+    parameter, so a client could add parameters the reviewed operation never
+    granted. A tool that declares no schema declares no inputs.
+    """
+    schema = spec.get("input_schema") or {}
+    declared = set((schema.get("properties") or {}).keys())
+    supplied = set(arguments or {})
+
+    undeclared = sorted(supplied - declared)
+    if undeclared:
+        raise PermissionError(
+            f"{DENY_UNKNOWN_ARGUMENT}: {name!r} does not take {undeclared}"
+        )
+
+    missing = sorted(set(schema.get("required") or []) - supplied)
+    if missing:
+        raise PermissionError(f"{DENY_MISSING_ARGUMENT}: {name!r} requires {missing}")
 
 
 def assert_no_drift(contract: Mapping[str, Any]) -> None:
@@ -183,6 +242,8 @@ def authorize_call(
             f"{DENY_REQUEST_TOO_LARGE}: {len(encoded)} bytes exceeds "
             f"{contract['limits']['request_bytes']}"
         )
+
+    assert_arguments(spec, name, arguments)
 
     return method, str(spec["path"])
 

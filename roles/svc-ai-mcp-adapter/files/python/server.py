@@ -13,6 +13,9 @@ Environment:
     ADAPTER_UPSTREAM_KEY:        credential this adapter presents to the provider.
     ADAPTER_UPSTREAM_AUTH_HEADER: header carrying it, default ``Authorization``.
     ADAPTER_UPSTREAM_AUTH_FORMAT: template for its value, default ``Bearer {key}``.
+    ADAPTER_UPSTREAM_PATH_KEY:   secret URL segment for a provider that keys its
+                                 endpoint by path instead of by header.
+    ADAPTER_UPSTREAM_PATH_SUFFIX: segment trailing that key, e.g. ``sse``.
     ADAPTER_PORT:                port to listen on.
 """
 
@@ -21,6 +24,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+import threading
 import time
 import urllib.error
 import urllib.parse
@@ -46,9 +50,32 @@ BEARER = os.environ.get("ADAPTER_BEARER", "")
 UPSTREAM_KEY = os.environ.get("ADAPTER_UPSTREAM_KEY", "")
 UPSTREAM_AUTH_HEADER = os.environ.get("ADAPTER_UPSTREAM_AUTH_HEADER") or "Authorization"
 UPSTREAM_AUTH_FORMAT = os.environ.get("ADAPTER_UPSTREAM_AUTH_FORMAT") or "Bearer {key}"
+UPSTREAM_URL = policy.upstream_url(
+    CONTRACT["upstream_url"],
+    os.environ.get("ADAPTER_UPSTREAM_PATH_KEY", ""),
+    os.environ.get("ADAPTER_UPSTREAM_PATH_SUFFIX", ""),
+)
 PORT = int(os.environ.get("ADAPTER_PORT", "8080"))
 
 policy.assert_no_drift(CONTRACT)
+
+IN_FLIGHT = threading.BoundedSemaphore(CONTRACT["limits"]["concurrent_requests"])
+
+
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    """Refuse an upstream redirect rather than follow it.
+
+    urllib carries the original request's headers onto the redirect target, so
+    an upstream answering 302 with an off-host location would hand this
+    adapter's upstream credential to whoever it named. The target is
+    contracted, so a redirect is a contract violation, not a route.
+    """
+
+    def redirect_request(self, *_args, **_kwargs):
+        return None
+
+
+OPENER = urllib.request.build_opener(NoRedirect)
 
 
 def log(event):
@@ -83,7 +110,7 @@ def call_upstream(method, path, arguments):
         resolved = f"{resolved}?{urllib.parse.urlencode(query)}"
 
     request = urllib.request.Request(  # noqa: S310 - fixed http:// base from the contract, no user-supplied scheme
-        f"{CONTRACT['upstream_url']}{resolved}", method=method
+        f"{UPSTREAM_URL}{resolved}", method=method
     )
     request.add_header("Accept", "application/json")
     if UPSTREAM_KEY:
@@ -91,7 +118,7 @@ def call_upstream(method, path, arguments):
             UPSTREAM_AUTH_HEADER, UPSTREAM_AUTH_FORMAT.format(key=UPSTREAM_KEY)
         )
 
-    with urllib.request.urlopen(  # noqa: S310 - fixed http:// base from the contract, no user-supplied scheme
+    with OPENER.open(
         request, timeout=CONTRACT["limits"]["timeout_seconds"]
     ) as response:
         body = response.read(CONTRACT["limits"]["response_bytes"] + 1)
@@ -137,7 +164,7 @@ def post_upstream(envelope):
         envelope: the JSON-RPC request object to send.
     """
     request = urllib.request.Request(  # noqa: S310 - fixed http:// base from the contract, no user-supplied scheme
-        CONTRACT["upstream_url"],
+        UPSTREAM_URL,
         data=json.dumps(envelope).encode(),
         method="POST",
     )
@@ -151,7 +178,7 @@ def post_upstream(envelope):
             UPSTREAM_AUTH_HEADER, UPSTREAM_AUTH_FORMAT.format(key=UPSTREAM_KEY)
         )
 
-    with urllib.request.urlopen(  # noqa: S310 - fixed http:// base from the contract, no user-supplied scheme
+    with OPENER.open(
         request, timeout=CONTRACT["limits"]["timeout_seconds"]
     ) as response:
         body = response.read(CONTRACT["limits"]["response_bytes"] + 1)
@@ -372,6 +399,17 @@ class Handler(BaseHTTPRequestHandler):
             self._accept()
             return
 
+        if not IN_FLIGHT.acquire(blocking=False):
+            self._respond(
+                503,
+                {
+                    "jsonrpc": "2.0",
+                    "id": request.get("id"),
+                    "error": {"code": -32000, "message": policy.DENY_TOO_MANY_REQUESTS},
+                },
+            )
+            return
+
         try:
             result = dispatch(request, consumer, correlation_id)
         except PermissionError as error:
@@ -408,6 +446,8 @@ class Handler(BaseHTTPRequestHandler):
                 },
             )
             return
+        finally:
+            IN_FLIGHT.release()
 
         self._respond(
             200, {"jsonrpc": "2.0", "id": request.get("id"), "result": result}
