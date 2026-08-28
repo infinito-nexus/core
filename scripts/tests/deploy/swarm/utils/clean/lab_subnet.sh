@@ -39,7 +39,9 @@ for _net in ${_occupants}; do
 
 	if [ -n "${_nodes// /}" ]; then
 		# shellcheck disable=SC2086
-		timeout 300 bash "${_here}/../unmount/nfs_mounts.sh" ${_nodes} || true
+		if ! timeout 300 bash "${_here}/../unmount/nfs_mounts.sh" ${_nodes}; then
+			echo ">>> lab-reclaim: nfs detach reported failures on ${_net}; continuing to removal"
+		fi
 	fi
 	bash "${_here}/../unmount/host_state.sh" "${DIR_VAR_LIB}"
 

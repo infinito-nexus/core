@@ -8,19 +8,27 @@ fail() {
 	exit 1
 }
 
+report_tasks() {
+	local ps rows
+	if ! ps=$(timeout 15 container service ps "$SERVICE" --no-trunc \
+		--format '{{.Name}} {{.Node}} {{.DesiredState}} {{.CurrentState}} error={{.Error}}' 2>&1); then
+		printf '%s: service ps failed: %s\n' "${SERVICE}" "${ps}" >&2
+		return 0
+	fi
+	rows="$(printf '%s\n' "${ps}" | awk '!/error=$/ && n++ < 10')"
+	[ -n "${rows}" ] || return 0
+	printf '%s\n' "${rows}" >&2
+}
+
 give_up() {
 	echo "${SERVICE}: $1" >&2
-	timeout 15 container service ps "$SERVICE" --no-trunc \
-		--format '{{.Name}} {{.Node}} {{.DesiredState}} {{.CurrentState}} error={{.Error}}' 2>&1 |
-		awk '!/error=$/' | head -10 >&2 || true
+	report_tasks
 	exit 2
 }
 
 report_failed_tasks() {
 	echo "${SERVICE}: $1" >&2
-	timeout 15 container service ps "$SERVICE" --no-trunc \
-		--format '{{.Name}} {{.Node}} {{.DesiredState}} {{.CurrentState}} error={{.Error}}' 2>&1 |
-		awk '!/error=$/' | head -10 >&2 || true
+	report_tasks
 	exit 1
 }
 

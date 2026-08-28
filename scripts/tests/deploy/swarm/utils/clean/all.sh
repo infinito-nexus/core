@@ -40,10 +40,14 @@ _names="$(_select_names | sort -u)"
 if [ -n "${_names}" ]; then
 	echo ">>> swarm-clean: quiesce nested engines and detach NFS before removal"
 	for _node in ${_names}; do
-		timeout 60 docker exec "${_node}" systemctl stop docker.socket docker >/dev/null 2>&1 || true
+		if ! timeout 60 docker exec "${_node}" systemctl stop docker.socket docker >/dev/null 2>&1; then
+			echo "    ${_node}: nested engine did not stop; removing it anyway"
+		fi
 	done
 	# shellcheck disable=SC2086
-	timeout 600 bash "$(dirname "$0")/../unmount/nfs_mounts.sh" ${_names} 2>&1 | sed 's/^/    /' || true
+	if ! timeout 600 bash "$(dirname "$0")/../unmount/nfs_mounts.sh" ${_names} 2>&1 | sed 's/^/    /'; then
+		echo "    nfs detach reported failures; the host layer below clears what survives"
+	fi
 fi
 
 echo ">>> swarm-clean: leftover containers"
@@ -75,7 +79,9 @@ echo ">>> swarm-clean: leftover nfs-export volumes"
 _vols="$(docker volume ls --format '{{.Name}}' | grep -E '_nfs-export$' || true)"
 if [ -n "${_vols}" ]; then
 	# shellcheck disable=SC2086
-	docker volume rm ${_vols} 2>&1 | sed 's/^/    /' || true
+	if ! docker volume rm ${_vols} 2>&1 | sed 's/^/    /'; then
+		echo "    some nfs-export volumes survived removal; a node still holds them"
+	fi
 fi
 
 _left="$(_select_names | sort -u)"
