@@ -8,6 +8,8 @@
     {{ lookup('compose_only', 'container_name', OLLAMA_CONTAINER) }}
     expose:
       - "{{ OLLAMA_PORT }}"
+    environment:
+      OLLAMA_KEEP_ALIVE: "{{ OLLAMA_KEEP_ALIVE }}"
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
