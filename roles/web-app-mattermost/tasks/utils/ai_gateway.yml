@@ -35,7 +35,7 @@
   when: (mattermost_ai_state.rows[0][0] | trim) != 'converged'
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query: "{{ lookup('template', role_path ~ '/templates/sql/set-ai-service.sql.j2') }}" # nocheck: database-query-raw  the service and bot payloads are rendered from role vars
+    query: "{{ lookup('template', role_path ~ '/templates/sql/set_ai/service.sql.j2') }}" # nocheck: database-query-raw  the service and bot payloads are rendered from role vars
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: true
   delegate_to: "{{ STACK_HOST }}"
@@ -44,7 +44,7 @@
 - name: "🤖 Mattermost | Retarget the migrated agent row at the gateway"
   database_query:
     config: "{{ lookup('database', application_id) }}"
-    query: "{{ lookup('template', role_path ~ '/templates/sql/set-ai-agent.sql.j2') }}" # nocheck: database-query-raw  the desired bot is rendered from role vars
+    query: "{{ lookup('template', role_path ~ '/templates/sql/set_ai/agent.sql.j2') }}" # nocheck: database-query-raw  the desired bot is rendered from role vars
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: true
   delegate_to: "{{ STACK_HOST }}"
