@@ -185,13 +185,14 @@ too much.
 Three properties follow from how Open WebUI works and none of them is closed by
 this role.
 
-**A restart without a deploy switches MCP off.** The env is authoritative again
-on every start, so the connections return to disabled and stay that way until the
-next deploy runs the task. The tool servers are then not served at all. That is
-the safe direction, but it is an outage rather than a fallback, and it lasts
-until someone deploys. Closing it means either `ENABLE_PERSISTENT_CONFIG=true`,
-which hands every configuration key to the database and stops later env changes
-from applying, or a reconciliation step at container start.
+**Only the first start serves nothing.** The env is authoritative again on every
+start, so what `TOOL_SERVER_CONNECTIONS` carries is the state the container comes
+back with. Before any group exists that is a disabled entry, which is the safe
+direction: no access rather than every administrator. Once the provisioning task
+has created the group, its id lives in the token store, `vars/main.yml` reads it
+back on the next deploy, and the filter renders the entry enabled with its exact
+group grant. From then on a bare container restart restores a served, correctly
+scoped connection without a deploy.
 
 **Group revocation is not reliable, in both directions.** Open WebUI removes a
 user from a synced group only while the groups claim is non-empty, so a user who

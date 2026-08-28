@@ -40,6 +40,78 @@ class TestMcpToolServerConnections(unittest.TestCase):
         self.assertEqual(entry["config"]["access_grants"], [])
         self.assertEqual(entry["info"]["id"], "web-app-homeassistant")
 
+    def test_a_known_group_enables_the_entry_with_exactly_that_grant(self):
+        """This is what survives a restart.
+
+        ``ENABLE_PERSISTENT_CONFIG=false`` makes the env authoritative on every
+        start, so whatever this filter renders is the state Open WebUI comes
+        back with. Only when the grant travels in the env does a bare container
+        restart restore a served, correctly scoped connection instead of a
+        disabled one that waits for the next deploy.
+        """
+        result = mcp_tool_server_connections(
+            [
+                {
+                    "id": "web-app-homeassistant",
+                    "url": "http://homeassistant:8123/api/mcp",
+                    "token": "secret",
+                    "auth": "bearer_token",
+                }
+            ],
+            {"web-app-homeassistant": "grp-42"},
+        )
+
+        entry = result[0]
+        self.assertTrue(entry["config"]["enable"])
+        self.assertEqual(
+            entry["config"]["access_grants"],
+            [
+                {
+                    "principal_type": "group",
+                    "principal_id": "grp-42",
+                    "permission": "read",
+                }
+            ],
+        )
+
+    def test_another_providers_group_does_not_enable_this_one(self):
+        result = mcp_tool_server_connections(
+            [
+                {
+                    "id": "web-app-homeassistant",
+                    "url": "http://homeassistant:8123/api/mcp",
+                    "token": "secret",
+                    "auth": "bearer_token",
+                }
+            ],
+            {"web-app-gitea": "grp-42"},
+        )
+
+        entry = result[0]
+        self.assertFalse(
+            entry["config"]["enable"],
+            "a group id belonging to a different provider must not open this "
+            "one; the grant is per application, not per deployment",
+        )
+        self.assertEqual(entry["config"]["access_grants"], [])
+
+    def test_an_empty_group_id_counts_as_unknown(self):
+        result = mcp_tool_server_connections(
+            [
+                {
+                    "id": "web-app-homeassistant",
+                    "url": "http://homeassistant:8123/api/mcp",
+                    "token": "secret",
+                    "auth": "bearer_token",
+                }
+            ],
+            {"web-app-homeassistant": "   "},
+        )
+
+        entry = result[0]
+        self.assertFalse(entry["config"]["enable"])
+        self.assertEqual(entry["config"]["access_grants"], [])
+
     def test_no_connection_is_offered_to_every_signed_in_user(self):
         result = mcp_tool_server_connections(
             [
