@@ -1,3 +1,6 @@
+# nocheck: mirrored-unit-test - the measurement is an SIOCGIFADDR ioctl over the
+# sidecar's own interfaces, issued at import; anything a unit test could substitute for
+# those interfaces would be the answer it is meant to check
 """Prove the adapter sidecar is attached to exactly the networks it may reach.
 
 Runs inside the sidecar itself. A container joined to N docker networks carries

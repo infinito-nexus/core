@@ -1,3 +1,6 @@
+# nocheck: mirrored-unit-test - the contract is the register/login/mint order Flowise
+# 3.1.3 enforces over a session cookie; every step is a live HTTP call and a stubbed
+# opener would only replay the order this file already states
 """Mint the scoped Flowise API identity the MCP registry reconciler uses.
 
 Flowise 3.1.3 guards ``/api/v1/apikey`` with ``apikeys:create``, so a key

@@ -19,6 +19,10 @@
  *     MCP_CURRENT_TOKEN: token the adapter holds today, or "" for none.
  */
 
+// nocheck: mirrored-unit-test - boots Snipe-IT's Laravel kernel through
+// bootstrap/app.php and mints through Passport against the live database; neither the
+// autoloader nor the models exist outside the Snipe-IT image
+
 require "vendor/autoload.php";
 $app = require "bootstrap/app.php";
 $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();

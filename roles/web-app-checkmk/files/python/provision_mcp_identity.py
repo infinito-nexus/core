@@ -1,3 +1,6 @@
+# nocheck: mirrored-unit-test - reads the administrator credential from the container
+# environment at import and every helper is one authenticated REST call against the
+# live Checkmk site; a mocked transport would assert the mock, not the identity
 """Give the MCP adapter its own read-only Checkmk identity.
 
 Checkmk accepts a caller-chosen automation secret, so the identity is the

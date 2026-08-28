@@ -56,7 +56,7 @@ The deployment renders one `ADAPTER_CONTRACT` JSON document per instance:
 }
 ```
 
-`files/policy.py` validates it at startup. A contract missing a limit, carrying an empty allowlist, naming a wildcard path or lacking a pinned schema hash is refused before the process serves anything.
+`files/python/policy.py` validates it at startup. A contract missing a limit, carrying an empty allowlist, naming a wildcard path or lacking a pinned schema hash is refused before the process serves anything.
 
 ## Endpoints
 

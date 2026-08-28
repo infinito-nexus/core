@@ -8,7 +8,7 @@
 
 - name: "🔑 Ensure a virtual key exists per consumer"
   ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i -e LITELLM_KEYS_PAYLOAD={{ LITELLM_CONSUMER_KEYS | to_json | quote }} -e LITELLM_MK={{ LITELLM_MASTER_KEY | quote }} -e LITELLM_PORT={{ LITELLM_PORT | quote }} {{ LITELLM_LOCAL_CID | quote }} python3 -c {{ lookup('file', lookup('path_absolute', 'roles/svc-ai-litellm/files/ensure_keys.py')) | quote }}
+    container exec -i -e LITELLM_KEYS_PAYLOAD={{ LITELLM_CONSUMER_KEYS | to_json | quote }} -e LITELLM_MK={{ LITELLM_MASTER_KEY | quote }} -e LITELLM_PORT={{ LITELLM_PORT | quote }} {{ LITELLM_LOCAL_CID | quote }} python3 -c {{ lookup('file', lookup('path_absolute', 'roles/svc-ai-litellm/files/python/ensure_keys.py')) | quote }}
   register: litellm_keys_result
   retries: 10
   delay: 6

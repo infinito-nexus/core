@@ -1,3 +1,6 @@
+# nocheck: mirrored-unit-test - resolves the hub's onboarding or login flow over a live
+# WebSocket command channel, reading every credential from the container environment at
+# import; nothing here runs without a started Home Assistant
 import asyncio
 import contextlib
 import json

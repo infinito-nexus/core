@@ -74,7 +74,7 @@
       - "{{ MCP_SIDECAR_LOCAL_CID }}" # nocheck: container-exec-resolver
       - python3
       - "-"
-    stdin: "{{ lookup('file', lookup('path_absolute', 'roles/svc-ai-mcp-adapter/files/probe/isolation.py')) }}"
+    stdin: "{{ lookup('file', lookup('path_absolute', 'roles/svc-ai-mcp-adapter/files/python/probe/isolation.py')) }}"
   register: mcp_isolation_probe
   changed_when: false
   failed_when: false

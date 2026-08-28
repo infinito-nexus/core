@@ -4,6 +4,10 @@
  *   AI_ENGINE_PAYLOAD: base64 of {"environment": {...}, "default_model": "..."}.
  */
 
+// nocheck: mirrored-unit-test - runs through `wp eval-file`, calling WP_CLI and the
+// get_option/update_option pair of the booted site; the WordPress runtime it needs is
+// only present inside the container
+
 $payload = json_decode(base64_decode(getenv('AI_ENGINE_PAYLOAD')), true);
 if (!is_array($payload) || empty($payload['environment']['id'])) {
     WP_CLI::error('AI_ENGINE_PAYLOAD did not decode to an environment');

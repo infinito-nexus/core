@@ -108,7 +108,7 @@
       - "{{ MCP_PROBE_IMAGE }}"
       - python3
       - "-"
-    stdin: "{{ lookup('file', lookup('path_absolute', 'roles/svc-ai-mcp-adapter/files/probe/contract.py')) }}"
+    stdin: "{{ lookup('file', lookup('path_absolute', 'roles/svc-ai-mcp-adapter/files/python/probe/contract.py')) }}"
   register: mcp_contract_probe
   retries: 30
   delay: 10

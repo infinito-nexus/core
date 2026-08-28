@@ -1,4 +1,7 @@
 <?php
+// nocheck: mirrored-unit-test - a CLI_SCRIPT that requires Moodle's config.php and
+// externallib at the top level and then writes through set_config and the webservice
+// manager; nothing loads without a provisioned Moodle install
 define('CLI_SCRIPT', true);
 
 require(getenv('MOODLE_CONFIG'));

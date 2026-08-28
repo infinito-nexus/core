@@ -1,3 +1,6 @@
+# nocheck: mirrored-unit-test - opens an MCP session against the running GitLab sidecar
+# from inside `gitlab-rails runner`, reading the host, port and path from the
+# container's environment; the live handshake is the entire contract
 require 'json'
 require 'net/http'
 require 'uri'

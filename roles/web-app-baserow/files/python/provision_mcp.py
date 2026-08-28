@@ -1,3 +1,6 @@
+# nocheck: mirrored-unit-test - imports baserow.core and django at module level and
+# writes through the ORM inside `baserow-cli`; neither the framework nor a database is
+# available outside the Baserow image
 import os
 
 from baserow.core.handler import CoreHandler

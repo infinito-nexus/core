@@ -28,7 +28,7 @@ from utils.roles.mapping import ROLE_FILE_META_MCP
 from . import PROJECT_ROOT
 
 _RULE = "mcp-adapter-endpoint-path"
-_ADAPTER_SERVER = PROJECT_ROOT / "roles/svc-ai-mcp-adapter/files/server.py"
+_ADAPTER_SERVER = PROJECT_ROOT / "roles/svc-ai-mcp-adapter/files/python/server.py"
 _ENDPOINT_CONST = re.compile(r'^ENDPOINT\s*=\s*"([^"]+)"', re.MULTILINE)
 
 

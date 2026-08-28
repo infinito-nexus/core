@@ -1,3 +1,6 @@
+# nocheck: mirrored-unit-test - the whole module is one authenticated GET against the
+# running hub, issued at import from the container's own environment; there is no
+# callable unit below it
 """Report whether the stored Home Assistant token still authenticates.
 
 Environment:

@@ -1,3 +1,6 @@
+# nocheck: mirrored-unit-test - the contract is the shape n8n 1.95.3 accepts on
+# /rest/credentials behind a session cookie; every helper is one call against the live
+# instance and a stubbed opener would assert this file's own payload back at it
 """Provision the deployment-managed OpenAI credential of n8n 1.95.3.
 
 Prints ``CHANGED``/``OK``.

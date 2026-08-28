@@ -1,3 +1,6 @@
+# nocheck: mirrored-unit-test - reads MCP_BASE_URL and the endpoint key from the
+# container environment at import and then drives a live SSE handshake; the module
+# cannot be loaded outside the running Baserow container
 import os
 import sys
 import urllib.error

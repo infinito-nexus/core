@@ -1,3 +1,6 @@
+# nocheck: mirrored-unit-test - runs in `gitlab-rails runner` against User,
+# Organizations::Organization and PersonalAccessToken; the models come from the GitLab
+# image and are not loadable anywhere else
 name = ENV.fetch('GITLAB_MCP_TOKEN_NAME')
 username = ENV.fetch('GITLAB_MCP_TOKEN_OWNER')
 display_name = ENV.fetch('GITLAB_MCP_TOKEN_OWNER_NAME')

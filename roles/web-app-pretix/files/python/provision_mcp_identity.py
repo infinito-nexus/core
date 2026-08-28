@@ -1,3 +1,6 @@
+# nocheck: mirrored-unit-test - imports pretix.base.models at module level and runs its
+# queries inside `pretix shell_scoped`, where django-scopes supplies the scope; the
+# models are not importable outside the Pretix image
 """Give the MCP adapter a read-only team token in every Pretix organizer.
 
 Runs inside ``pretix shell_scoped --override``: teams and events are
