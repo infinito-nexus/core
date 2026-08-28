@@ -145,8 +145,6 @@ _GROUP_FN_NAMES = {
     "javascript": "_install_javascript_tools",
     "playwright": "_install_playwright_tools",
     "packages": "_install_packages_tools",
-    "php": "_install_php_tools",
-    "ruby": "_install_ruby_tools",
     "sql": "_install_sql_tools",
     "css": "_install_css_tools",
 }
