@@ -28,7 +28,7 @@ _RULE = "mcp-reconcile-placement"
 _ROLE = "sys-svc-mcp-reconcile"
 _STAGE = PROJECT_ROOT / "tasks" / "stages" / "02_server.yml"
 _DESTRUCTOR = PROJECT_ROOT / "tasks" / "stages" / "03_destructor.yml"
-_APP_PASS = "tasks/groups/"
+_APP_PASS = "tasks/utils/setup/group.yml"
 _READER = "test-e2e-playwright"
 
 

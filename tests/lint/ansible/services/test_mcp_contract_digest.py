@@ -39,7 +39,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 _RULE = "mcp-contract-digest"
-_ADAPTER_FILES = PROJECT_ROOT / "roles/svc-ai-mcp-adapter/files"
+_ADAPTER_FILES = PROJECT_ROOT / "roles/svc-ai-mcp-adapter/files/python"
 _CONTRACT_RELATIVE = "files/mcp/tools.json"
 
 
