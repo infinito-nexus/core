@@ -11,6 +11,8 @@
     prometheus:
       enabled: true
       shared: true
+    tor:
+      enabled: true
 
   mcp:
     enabled: true
@@ -25,6 +27,8 @@
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    tor:
+      enabled: true
   mcp:
     enabled: false
     shared: false

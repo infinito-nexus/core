@@ -26,6 +26,8 @@
     homeassistant:
       enabled: true
       shared: true
+    tor:
+      enabled: true
   mcp:
     enabled: true
     shared: true
@@ -54,6 +56,8 @@
     homeassistant:
       enabled: false
       shared: false # nocheck: variants-static-override variant pins a literal off-switch
+    tor:
+      enabled: true
   mcp:
     enabled: false
     shared: false

@@ -23,7 +23,7 @@ hermes:
   pids_limit: 2048
   ports:
     local:
-      http: 8089
+      http: 8092
       sso: 16512
     internal:
       http: 8642
@@ -84,6 +84,13 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+
+# nocheck: playwright-service-flag
+# nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
+tor:
+  bond: 0.5
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: true # nocheck: dynamic-flag
 
 # nocheck: playwright-service-flag, dynamic-flag
 container_backup: # nocheck: bond-baseline

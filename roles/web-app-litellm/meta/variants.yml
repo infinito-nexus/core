@@ -9,6 +9,8 @@
     prometheus:
       enabled: true
       shared: true
+    tor:
+      enabled: true
 
 - services:
     dashboard:
@@ -17,3 +19,5 @@
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    tor:
+      enabled: true
