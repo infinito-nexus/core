@@ -32,10 +32,11 @@ exports.register = function (shared) {
     const modelsBody = await modelsResp.json();
     const modelIds = (Array.isArray(modelsBody?.data) ? modelsBody.data : [])
       .map((m) => String(m?.id ?? m?.name ?? ""));
-    const ollamaModel = modelIds.find((id) => id.startsWith("smollm2"));
+    const preloadedModel = String(process.env.OLLAMA_PRELOAD_MODEL || "").replace(/^"|"$/g, "");
+    const ollamaModel = modelIds.find((id) => id === preloadedModel || id.startsWith(preloadedModel.split(":")[0]));
     expect(
       ollamaModel,
-      `the preloaded Ollama model (smollm2) must be served by OpenWebUI, proving the Ollama backend is reachable and the model pulled (got ${JSON.stringify(modelIds)})`
+      `the preloaded Ollama model (${preloadedModel}) must be served by OpenWebUI, proving the Ollama backend is reachable and the model pulled (got ${JSON.stringify(modelIds)})`
     ).toBeTruthy();
 
     const chatResp = await page.request.post(`${base}/api/chat/completions`, {
