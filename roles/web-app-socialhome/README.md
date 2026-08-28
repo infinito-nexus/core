@@ -110,6 +110,6 @@ docker run --rm -it \
 
 ## Credits
 
-Implemented by **Kevin Veen-Birkenbach**.
+Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
 Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
 Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

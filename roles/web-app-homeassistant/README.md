@@ -16,6 +16,7 @@ The diagram places Home Assistant in the Infinito.Nexus cosmos: the components i
 flowchart LR
     subgraph deps [Dependencies]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
@@ -26,6 +27,7 @@ flowchart LR
         svc_logout["logout ❌"]
         svc_dashboard["dashboard"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
         svc_container_backup["container_backup"]
     end
     subgraph dependents [Dependents]
@@ -35,6 +37,7 @@ flowchart LR
         dpt_web_app_openwebui["web-app-openwebui 🐳🐝"]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -- "0..0" --> svc_sso
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
@@ -42,7 +45,7 @@ flowchart LR
     svc_homeassistant -. "0..1" .-> dpt_web_app_hermes
     svc_homeassistant -. "0..1" .-> dpt_web_app_openclaw
     svc_homeassistant -. "0..1" .-> dpt_web_app_openwebui
-    linkStyle 2 stroke:red;
+    linkStyle 3 stroke:red;
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.

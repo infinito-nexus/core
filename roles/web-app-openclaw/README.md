@@ -17,6 +17,7 @@ flowchart LR
     subgraph deps [Dependencies]
         dep_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
+        dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_svc_virt_kata["svc-virt-kata 💻"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_homeassistant["web-app-homeassistant 🐳🐝"]
@@ -36,6 +37,7 @@ flowchart LR
         svc_matomo["matomo"]
         svc_css["css"]
         svc_prometheus["prometheus"]
+        svc_tor["tor"]
         svc_container_backup["container_backup"]
         svc_homeassistant["homeassistant"]
     end
@@ -45,6 +47,7 @@ flowchart LR
     end
     dep_svc_ai_litellm -. "0..1" .-> svc_litellm
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
+    dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_svc_virt_kata -- "1:1" --> svc_kata
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_homeassistant -. "0..1" .-> svc_homeassistant

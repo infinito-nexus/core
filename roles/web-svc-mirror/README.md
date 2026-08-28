@@ -60,7 +60,7 @@ make compose-deploy mode=reinstall apps=web-svc-mirror full_cycle=false
 
 ### Production
 
-Install Asset Mirror (Privacy Proxy) directly onto the target machine — clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):
+Install Asset Mirror (Privacy Proxy) directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):
 
 ```bash
 git clone https://github.com/infinito-nexus/core.git
@@ -90,6 +90,6 @@ infinito administration deploy dedicated "$INVENTORY/devices.yml" \
 
 ## Credits
 
-Implemented by **Kevin Veen-Birkenbach**.
+Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
 Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
 Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).
