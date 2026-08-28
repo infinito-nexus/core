@@ -1,0 +1,4 @@
+---
+hermes:
+  description: Platform account the Hermes agent employee acts as. Non-privileged by design, with its own mailbox. Override the `hermes` key through the
+    inventory `users` variable to point the agent at an account that already exists instead.
