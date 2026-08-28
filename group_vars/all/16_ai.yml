@@ -11,7 +11,7 @@ LMSTUDIO_BASE_LOCAL_URL: "http://{{ lookup('config','svc-ai-lmstudio', 'services
 
 LITELLM_OPENAI_BASE_LOCAL_URL: "{{ LITELLM_BASE_LOCAL_URL }}/v1"
 
-LITELLM_BACKEND_ROLES: "{{ lookup('deployment').running }}"
+LITELLM_BACKEND_ROLES: "{{ lookup('deployment').groups }}"
 
 LITELLM_CHAT_MODEL: "{{ (lookup('config', 'svc-ai-ollama', 'services.ollama.preload_models') | reject('search', 'embed') | list | first) if 'svc-ai-ollama' in LITELLM_BACKEND_ROLES
   else ('lmstudio/default' if 'svc-ai-lmstudio' in LITELLM_BACKEND_ROLES else 'openrouter/auto') }}"
