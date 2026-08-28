@@ -76,5 +76,55 @@ class TestResolveContainerDns(unittest.TestCase):
         self.assertEqual(resolve_container_dns({}), [])
 
 
+class TestLoopbackOnlyHost(unittest.TestCase):
+    """A host resolving through its own loopback listener cannot hand that
+    address to containers, because docker drops loopback entries."""
+
+    @staticmethod
+    def _facts(nameservers):
+        return {**_BRIDGE, "dns": {"nameservers": nameservers}}
+
+    def test_a_loopback_only_host_prefers_the_bridge_without_tor(self):
+        self.assertEqual(
+            resolve_container_dns(
+                _vars(group_names=[], ansible_facts=self._facts(["127.0.0.1"]))
+            ),
+            ["172.17.0.1", "172.30.0.53"],
+        )
+
+    def test_ipv6_loopback_counts_the_same(self):
+        self.assertEqual(
+            resolve_container_dns(
+                _vars(group_names=[], ansible_facts=self._facts(["::1"]))
+            ),
+            ["172.17.0.1", "172.30.0.53"],
+        )
+
+    def test_a_routable_resolver_alongside_loopback_needs_no_bridge(self):
+        self.assertEqual(
+            resolve_container_dns(
+                _vars(
+                    group_names=[],
+                    ansible_facts=self._facts(["127.0.0.1", "172.30.0.53"]),
+                )
+            ),
+            ["172.30.0.53"],
+        )
+
+    def test_a_routable_host_resolver_needs_no_bridge(self):
+        self.assertEqual(
+            resolve_container_dns(
+                _vars(group_names=[], ansible_facts=self._facts(["172.30.0.53"]))
+            ),
+            ["172.30.0.53"],
+        )
+
+    def test_an_empty_nameserver_list_is_not_loopback_only(self):
+        self.assertEqual(
+            resolve_container_dns(_vars(group_names=[], ansible_facts=self._facts([]))),
+            ["172.30.0.53"],
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

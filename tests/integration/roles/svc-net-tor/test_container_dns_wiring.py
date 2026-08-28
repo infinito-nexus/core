@@ -52,10 +52,9 @@ class TestDnsmasqListeners(unittest.TestCase):
         self.assertIn("server=172.30.0.53", _render_dnsmasq())
 
     def test_upstream_policy_stays_off_a_listener_we_do_not_own(self):
-        """A shared dnsmasq brings its own upstreams, and in swarm
-        networks.internet.dns is the docker bridge that very dnsmasq answers
-        on. Writing a server= there points the resolver at itself, and
-        no-resolv would cut the upstreams its owner configured."""
+        """A shared dnsmasq brings its own upstreams, chosen by whoever set it
+        up. Writing our server= into it overrides that choice, and no-resolv
+        would cut the upstreams its owner configured."""
         rendered = _render_dnsmasq(TOR_DNSMASQ_OWNS_LISTENER=False)
         self.assertNotIn("server=172.30.0.53", rendered)
         self.assertNotIn("no-resolv", rendered)

@@ -12,7 +12,7 @@ networks:
   internet:
     ip4: "{{ lookup('env', 'INFINITO_SWARM_MGR_IP') }}"
     ip6: "::1"
-    dns: "172.17.0.1" # nocheck: hardcoded-dns-resolver (mgr-01 docker bridge gateway, served by local dnsmasq)
+    dns: "{{ NETWORK_PUBLIC_DNS_RESOLVERS | first }}"
 
 storage:
   backend: nfs
