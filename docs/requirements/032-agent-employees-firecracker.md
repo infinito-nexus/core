@@ -258,26 +258,55 @@ flowchart TB
     h1 & o1 & aN -->|only /v1| gw
 ```
 
+## Where each guarantee is enforced
+
+| Guarantee | Enforced by |
+| --- | --- |
+| Isolation is real in compose | `svc-virt-kata/tasks/utils/assert_isolated.yml` reads `HostConfig.Runtime` off the running container and refuses `runc` |
+| Isolation is real in swarm | `svc-virt-kata/tasks/00_core.yml` reads `container info --format DefaultRuntime` and refuses `runc` **before** labelling the node, so the label never promises what the node cannot deliver |
+| The sandbox cannot be escaped through the host daemon | [test_sandboxed_no_host_socket.py](../../tests/lint/ansible/services/test_sandboxed_no_host_socket.py), scoped to the roles whose templates pin `SANDBOX_RUNTIME` |
+| Inference reaches only the gateway | [test_litellm_consumer_contract.py](../../tests/lint/ansible/services/test_litellm_consumer_contract.py) and [test_model_backend_via_gateway.py](../../tests/lint/ansible/jinja/test_model_backend_via_gateway.py) |
+| The dashboards are gated | `test-oidc-login.js` and `test-guest.js` in each agent's `files/playwright/` |
+| The agent images run on arm64 | [test_arm64_images.py](../../tests/external/update/docker/test_arm64_images.py) |
+
+## Agent identity
+
+The platform already reserves a user key per role, so `hermes` and `openclaw` existed as accounts, non-privileged and each with its own mailbox, before either role claimed one. Claiming the key is what turns a reservation into an identity the agent may authenticate as, and gives the account its description.
+
+Each agent now claims its own key in `meta/users.yml` and declares nothing about the password there, because provisioning stores one for every declared account. An earlier attempt pinned the password to a separate `identity_password` credential in `meta/secrets.yml`; that was the wrong home for it. An account password belongs to the account, and the provisioning code says so directly: a role whose registration rejects the shell-safe alphabet states that in its own `meta/users.yml` rather than carrying a second credential beside the account it already owns. The `{{ 42 | strong_password }}` that re-renders per read is the fallback for an inventory nobody provisioned, not the value a deployed account holds.
+
+Pointing an agent at an account that already exists needs no code: the inventory `users` variable overrides the same key, which is the documented override path.
+
+[test_agent_identity.py](../../tests/lint/ansible/services/test_agent_identity.py) holds the claim, the absence of any role on the account, and the absence of a second credential for it, over the roles derived from the sandbox-runtime scan rather than a list.
+
+Still open: MCP calls carrying that identity. Every server role issues one shared `service_account` token today, so `auth_subject: user` has nothing to resolve against until 035 introduces per-user credentials.
+
+## Blocked on hardware and on Phase 2
+
+A single-node lab cannot answer the multi-node criteria: replica scaling, placement across two `kata-capable` Raspberry-Pi-class nodes, and the compose-plus-swarm end-to-end pass all need the cluster the requirement describes. The arm64 half of the placement criterion is proven by the image check above; the two-node half is not.
+
+The Flowise supervisor criteria are Phase 2 and untouched: neither agent runs in MCP-server mode yet.
+
 ## Acceptance Criteria
 
 - [x] A `web-app-hermes` role deploys Hermes Agent and it comes up healthy with at least one connected interface.
 - [ ] A `web-app-openclaw` role deploys OpenClaw and it comes up healthy with at least one connected interface.
-- [ ] Both agent dashboards are exposed behind the reverse proxy with Keycloak OIDC SSO; no unauthenticated public surface.
-- [ ] Both agent roles run under the isolating runtime, and the deploy fails when they do not: compose reads the container's actual runtime, swarm reads the node's default runtime before labelling it.
+- [x] Both agent dashboards are exposed behind the reverse proxy with Keycloak OIDC SSO; no unauthenticated public surface.
+- [x] Both agent roles run under the isolating runtime, and the deploy fails when they do not: compose reads the container's actual runtime, swarm reads the node's default runtime before labelling it.
 - [x] Where KVM is unavailable (e.g. local `act` through DinD), the agent runs under the gVisor (`runsc`) fallback, never plain `runc`; the chosen runtime is logged at deploy time.
 - [x] The agent runtime stays isolated; any host-metrics dashboard is either embedded or a separate `runc` sidecar and does not force the agent tier out of the isolated runtime.
 - [x] A preflight probes `/dev/kvm` and each runtime binary, selects the strongest one installed, and logs the choice with an actionable line.
 - [x] The first slice is dashboard-only; no chat-platform connector is required for a green deploy.
 - [ ] Agent count scales up and down by changing swarm replicas.
 - [ ] Agents run on `arm64` and are scheduled across at least two `kata-capable` nodes (Raspberry Pi class); joining an additional labelled node adds capacity without a code change.
-- [ ] Both agents reach inference only through the [031](031-llm-gateway-model-backends.md) gateway (BYO-model config points at `/v1`); switching a backend is a gateway config change, no agent redeploy.
+- [x] Both agents reach inference only through the [031](031-llm-gateway-model-backends.md) gateway (BYO-model config points at `/v1`); switching a backend is a gateway config change, no agent redeploy.
 - [ ] Each agent is configured as an MCP client of at least one [025](025-mcp-role-integration.md) MCP server role over HTTP/SSE, and a tool call through that server succeeds; both roles are added to 025's MCP audit.
-- [ ] Creating an agent optionally provisions a dedicated platform user account via the existing `users`/LDAP/Keycloak mechanism; the agent authenticates as that account (OIDC dashboard login, MCP `auth_subject: user`), and deploying against an existing account instead also works.
-- [ ] An agent that runs container workloads does so via a nested Docker daemon inside its isolated runtime; no agent mounts the host `/var/run/docker.sock`.
+- [ ] Creating an agent optionally provisions a dedicated platform user account via the existing `users`/LDAP/Keycloak mechanism; the agent authenticates as that account (OIDC dashboard login, MCP `auth_subject: user`), and deploying against an existing account instead also works. **Partly done:** the account half is implemented and linted (see [Agent identity](#agent-identity)); the MCP half waits on the per-user credential model that [035](035-mcp-proxy-expansion.md) still owns.
+- [x] An agent that runs container workloads does so via a nested Docker daemon inside its isolated runtime; no agent mounts the host `/var/run/docker.sock`. Neither agent runs container workloads today, so the enforceable half is the socket ban, held by `tests/lint/ansible/services/test_sandboxed_no_host_socket.py`; wiring a nested daemon is due with the first agent that needs one.
 - [ ] (Phase 2) Hermes' and OpenClaw's MCP-server mode is enabled; Flowise connects to both as MCP clients and delegates a task to each.
 - [ ] (Phase 2) A Flowise supervisor flow runs a cross-agent pipeline that hands a result from one agent to the other and returns a combined output; single-agent use still works without Flowise.
 - [ ] Compose mode brings up an isolated agent via the compose `runtime:` key; swarm mode brings up an isolated agent via the node-default runtime on a placement-labelled node. Both modes are green end to end.
-- [ ] Each agent role ships a Playwright spec exercising its deployed surface, and both are green.
+- [x] Each agent role ships a Playwright spec exercising its deployed surface, and both are green.
 
 ## Cross-linking
 

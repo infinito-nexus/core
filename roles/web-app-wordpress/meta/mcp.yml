@@ -31,5 +31,9 @@ limits:
   result_items: 20
   stream_seconds: 300
 tools:
+  allowlist:
+    - infinito/get-post
+    - infinito/list-categories
+    - infinito/search-posts
   read_only_default: true
   mutating_tools_enabled: false

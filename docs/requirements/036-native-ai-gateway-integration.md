@@ -23,6 +23,7 @@ Confirmed against upstream documentation, each accepting a custom OpenAI-compati
 | `web-app-wordpress` | plugin-provided, no core surface | a connector plugin such as AI Engine exposes a custom OpenAI-compatible endpoint |
 | `web-app-n8n` | AI Agent nodes | a stored `openAiApi` credential carries `url` plus `apiKey`. The built-in assistant is out of reach: 1.95.3 exposes only `N8N_AI_ASSISTANT_BASE_URL`, which expects n8n's own assistant service rather than an OpenAI-compatible endpoint, and no `N8N_INSTANCE_AI_MODEL_URL` exists in that release |
 | `web-app-mediawiki` | `AIEditingAssistant` extension | provider `open-ai`; `$wgAIEditingAssistantActiveProviderConnection` carries `url`, `endpoint`, `model` and `secret`. Hard-requires `VisualEditorPlus`, which is not bundled |
+| `web-app-xwiki` | AI LLM Application extension | the role installs the extension and points its OpenAI-compatible provider at the gateway in `tasks/addons/ai-llm.yml` |
 
 `web-app-matrix` is the one role that already ships an AI credential and points it at the vendor: `meta/secrets.yml` declares `chatgpt_bridge_openai_api_key` with the validation `^sk-[a-zA-Z0-9]{40,}$`. That pattern enforces OpenAI's own key format and therefore **rejects a LiteLLM virtual key by construction**, so the schema has to change before the bridge can reach the gateway at all.
 
@@ -34,14 +35,18 @@ The three candidates that vendor documentation claimed were probed against runni
 
 | Role | Measured at | Finding | Disposition |
 | --- | --- | --- | --- |
-| `web-app-baserow` | 2.3.3 | `settings.BASEROW_OPENAI_BASE_URL` is read by `backend/src/baserow/core/generative_ai/generative_ai_model_types.py:271`, so the AI field takes a custom OpenAI-compatible base URL | confirmed |
+| `web-app-baserow` | 2.3.3 | `settings.BASEROW_OPENAI_BASE_URL` reaches the OpenAI client at `backend/src/baserow/core/generative_ai/generative_ai_model_types.py:288`, but the only two surfaces that ever send a prompt live in `baserow_premium` and both open with `LicenseHandler.raise_if_user_doesnt_have_feature(PREMIUM, request.user, workspace)`: `AsyncGenerateAIFieldValuesView` and `GenerateFormulaWithAIView` (`premium/backend/src/baserow_premium/api/fields/views.py`). An unlicensed deployment configures the endpoint and can never reach it | excluded |
 | `web-app-homeassistant` | 2026.7 | `openai_conversation/config_flow.py` contains no `base_url` (0 matches), so the OpenAI agent cannot be pointed anywhere but the vendor. The only configurable local path is the separate `ollama` integration, whose `config_flow.py` carries `CONF_URL` (7 matches) but speaks Ollama's native API rather than the gateway's OpenAI-compatible surface | excluded |
-| `web-app-xwiki` | `lts-postgres-tomcat` | no AI or LLM extension is present in `data/extension/repository` on the pinned image, so there is no AI surface to point at the gateway until the XWiki AI LLM Application extension is installed by the role | open, needs the extension installed |
+| `web-app-xwiki` | `lts-postgres-tomcat` | no AI or LLM extension is present in `data/extension/repository` on the pinned image, so there is no AI surface to point at the gateway until the XWiki AI LLM Application extension is installed by the role | confirmed, the role installs the extension in `tasks/addons/ai-llm.yml` |
+
+`web-app-baserow` is the one row measured against the pinned source rather than a running instance. Confirm it on the deployed stack with `POST /api/database/fields/<field_id>/generate-ai-field-values/` as the seeded superuser: an unlicensed instance answers HTTP 402.
 
 Excluded, with the reason recorded so the question is not reopened:
 
 | Role | Reason |
 | --- | --- |
+| `web-app-baserow` | the endpoint is configurable but both prompt-sending views are premium-licence gated; see the measurement above |
+| `web-app-homeassistant` | the OpenAI agent takes no base URL and the `ollama` integration speaks Ollama's native API; see the measurement above |
 | `web-app-gitlab` | Duo is bound to the vendor service and exposes no self-hosted endpoint |
 | `web-app-odoo` | version 19 hardcodes a vendor model for AI server actions; a configurable endpoint needs third-party modules |
 | `web-app-erpnext` | no AI surface in the core; every option is a separately installed app |
@@ -58,11 +63,11 @@ Excluded, with the reason recorded so the question is not reopened:
 
 - [ ] Each unverified candidate is probed against a running instance and moved into the confirmed table or the exclusion table with its reason, so the scope rests on measurement rather than vendor claims.
 - [x] Every role in the confirmed table declares its native AI surface in `meta/services.yml` with `enabled` and `shared` bound to `'svc-ai-litellm' in group_names`, so a deployment without the gateway configures no AI surface at all.
-- [ ] Every role in the confirmed table carries a `credentials.litellm_api_key` entry in `meta/secrets.yml`, and the deploy writes that virtual key into the application's own AI configuration rather than a shared or hardcoded key.
-- [ ] Every role in the confirmed table points its AI base URL at the in-cluster gateway address, and a deploy-time assertion fails when the configured URL resolves outside the deployment.
+- [x] Every role in the confirmed table carries a `credentials.litellm_api_key` entry in `meta/secrets.yml`, and the deploy writes that virtual key into the application's own AI configuration rather than a shared or hardcoded key.
+- [x] Every role in the confirmed table points its AI base URL at the in-cluster gateway address, and a deploy-time assertion fails when the configured URL resolves outside the deployment.
 - [x] No role in the confirmed table retains a default that sends requests to a third-party provider when the gateway is enabled.
-- [ ] A Playwright spec per role proves the configured surface answers a prompt through the gateway, mirroring `roles/web-app-nextcloud/files/playwright/addons/integration_openai.spec.js`.
-- [ ] The deploy fails when a role declares the AI surface enabled while its configuration still carries an empty or unresolved API key, so a silently unauthenticated surface cannot reach a green deploy.
+- [x] A Playwright spec per role proves the configured surface answers a prompt through the gateway, mirroring `roles/web-app-nextcloud/files/playwright/addons/integration_openai.spec.js`.
+- [x] The deploy fails when a role declares the AI surface enabled while its configuration still carries an empty or unresolved API key, so a silently unauthenticated surface cannot reach a green deploy.
 - [x] No credential validation in `meta/secrets.yml` encodes a vendor key format, so a gateway-issued virtual key satisfies every AI credential the platform mints.
 - [x] `docs/requirements/027-integration-matrix.md` lists the AI surface of every role in the confirmed table.
 

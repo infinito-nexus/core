@@ -46,15 +46,33 @@ flowchart TB
     classDef no fill:#fdd,stroke:#c00,stroke-dasharray:4 3;
 ```
 
+## Hardware blockers
+
+Three criteria need a dedicated single-tenant device with real sensors and actuators wired to it. No such device is in the deployment, and the platform cannot simulate one honestly: a stubbed GPIO would make the criteria green while proving nothing about the embodied path. They stay unchecked until the device joins.
+
+What is already provable without it: the admission guard refuses a shared host or an empty device allowlist, both agent images publish `linux/arm64`, and neither agent is pinned away from arm64.
+
+Closing probes once the device exists: deploy with `ROBOT_DEVICE_ALLOWLIST` naming the wired devices, ask Hermes for its capability map, then read one granted sensor and drive one granted output.
+
+## Where each guarantee is enforced
+
+| Guarantee | Enforced by |
+| --- | --- |
+| Every embodiable agent runs the admission checks | [test_robot_admission_guard.py](../../tests/lint/ansible/services/test_robot_admission_guard.py), deriving the agent set from `svc-ai-robot`'s own service flags |
+| No blanket device grant, no shared host | [admit.yml](../../roles/svc-ai-robot/tasks/utils/admit.yml), included by each agent before it deploys |
+| Inference reaches only the gateway | [test_litellm_consumer_contract.py](../../tests/lint/ansible/services/test_litellm_consumer_contract.py) and [test_model_backend_via_gateway.py](../../tests/lint/ansible/jinja/test_model_backend_via_gateway.py) |
+| Tools arrive over MCP | `web-app-hermes/meta/mcp.yml` `direction: client`, held to the 025 schema by the MCP lint suite |
+| The agent images run on arm64 | [test_arm64_images.py](../../tests/external/update/docker/test_arm64_images.py) |
+
 ## Acceptance Criteria
 
-- [ ] A `svc-ai-robot` role deploys `web-app-hermes` in privileged embodied mode on a dedicated device and it comes up healthy.
-- [ ] The role hard-fails (placement/preflight guard) when targeted at a node carrying a shared-workload label or hosting other tenants.
+- [ ] A `svc-ai-robot` role deploys `web-app-hermes` in privileged embodied mode on a dedicated device and it comes up healthy. **Blocked:** see [Hardware blockers](#hardware-blockers).
+- [x] The role hard-fails (placement/preflight guard) when targeted at a node carrying a shared-workload label or hosting other tenants.
 - [x] Hardware access is limited to an operator-set device allowlist; no device outside the allowlist is exposed to the agent.
-- [ ] Hermes produces a retrievable capability map of the granted hardware (self-exploration).
-- [ ] The agent can read a granted sensor and actuate a granted output through its embodied access.
-- [ ] Inference still routes through the [031](031-llm-gateway-model-backends.md) gateway; non-hardware tools still come via [025](025-mcp-role-integration.md) MCP.
-- [ ] The role runs on `arm64`.
+- [ ] Hermes produces a retrievable capability map of the granted hardware (self-exploration). **Blocked:** see [Hardware blockers](#hardware-blockers).
+- [ ] The agent can read a granted sensor and actuate a granted output through its embodied access. **Blocked:** see [Hardware blockers](#hardware-blockers).
+- [x] Inference still routes through the [031](031-llm-gateway-model-backends.md) gateway; non-hardware tools still come via [025](025-mcp-role-integration.md) MCP.
+- [x] The role runs on `arm64`.
 - [x] Privileged mode is off by default; enabling it is an explicit, documented operator opt-in, and the README states the blast radius.
 - [x] The README prominently warns that physical hardware safety (e-stop, motion/current limits, fail-safe wiring) is the operator's responsibility and out of platform scope; the role claims no safety guarantee it does not enforce.
 

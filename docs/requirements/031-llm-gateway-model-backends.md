@@ -64,15 +64,36 @@ flowchart TB
     gw -->|route by model| openrouter
 ```
 
+## Backend blockers
+
+`lmstudio/llmster-preview:cpu` publishes one `linux/amd64` manifest, runs `/app/daemon-run.sh` as its entrypoint and exposes `1234/tcp` (measured against the registry config blob on 2026-08-28). The role wires that server and the gateway routes `lmstudio/default` to it, but a completion additionally needs a model in the container's store on an x86 node with the memory to load it. Until such a node joins the deployment, verify the gateway against `svc-ai-ollama` and leave the LM Studio completion criterion unchecked.
+
+Closing probe once the node exists: `POST {gateway}/v1/chat/completions` with `"model": "lmstudio/default"` and a consumer virtual key, expecting a non-empty `choices[0].message.content`.
+
+## Where each guarantee is enforced
+
+| Guarantee | Enforced by |
+| --- | --- |
+| No consumer addresses a backend directly | [test_model_backend_via_gateway.py](../../tests/lint/ansible/jinja/test_model_backend_via_gateway.py), over role `templates/` and `vars/` |
+| Every declared backend has a `model_list` branch | [test_gateway_backend_registered.py](../../tests/lint/ansible/services/test_gateway_backend_registered.py) |
+| Every consumer mints its own key and runs the gateway contract | [test_litellm_consumer_contract.py](../../tests/lint/ansible/services/test_litellm_consumer_contract.py) |
+| Gateway is closed, keys are per consumer, revocation is isolated | [probe_auth.py](../../roles/svc-ai-litellm/files/python/probe_auth.py), run on every gateway deploy; unit-tested in [test_probe_auth.py](../../tests/unit/python/roles/svc-ai-litellm/files/test_probe_auth.py) |
+| Empty key or out-of-deployment base URL fails the deploy | [consumer_contract.yml](../../roles/svc-ai-litellm/tasks/utils/consumer_contract.yml) |
+| The admin UI sits behind Keycloak | [test-oidc-login.js](../../roles/web-app-litellm/files/playwright/test-oidc-login.js), gated on `services.sso` |
+
+Decision 7's "proxy + SSO" is served by `services.sso.flavor: oidc` on `web-app-litellm` plus LiteLLM's own `GENERIC_*` OIDC settings, rendered into the gateway's env behind `LITELLM_UI_SSO`. An oauth2-proxy sidecar is not an option here: `get_entity_name` maps both `web-app-litellm` and `svc-ai-litellm` to `litellm`, so the two roles share one compose directory, one swarm stack name and one docker network name, and a second stack would overwrite the gateway's `compose.yml` and delete its service under `docker stack deploy --prune`. `web-app-bigbluebutton` is the precedent for a stackless role carrying `flavor: oidc`. The trade-off: an anonymous request reaches LiteLLM's own login page rather than being refused at the edge, and LiteLLM caps SSO at five accounts without a licence.
+
+Re-routing an alias is a one-line edit to `roles/svc-ai-litellm/templates/config.yaml.j2` followed by `make compose-deploy apps=svc-ai-litellm`; confirm no consumer redeploy is needed by prompting a consumer afterwards without redeploying it.
+
 ## Acceptance Criteria
 
 - [x] A `svc-ai-litellm` role exposes one OpenAI-compatible `/v1` endpoint; its `model_list` routes to at least `svc-ai-ollama`, `svc-ai-lmstudio`, and one external provider (OpenRouter).
-- [ ] A `svc-ai-lmstudio` role deploys LM Studio in headless server mode with an OpenAI-compatible API reachable in-cluster, registered behind the gateway.
-- [ ] A request to a model alias backed by `svc-ai-lmstudio` returns a completion through the gateway.
+- [x] A `svc-ai-lmstudio` role deploys LM Studio in headless server mode with an OpenAI-compatible API reachable in-cluster, registered behind the gateway.
+- [ ] A request to a model alias backed by `svc-ai-lmstudio` returns a completion through the gateway. **Blocked:** see [Backend blockers](#backend-blockers).
 - [x] `web-app-flowise` is refactored to consume `svc-ai-litellm`; its role-local LiteLLM config, compose service, and env are removed, no duplicated LiteLLM deployment remains, and Flowise stays green.
-- [ ] Switching a consumer's backend requires only a `svc-ai-litellm` config change, verified by re-routing a model alias with no consumer redeploy.
-- [ ] The gateway rejects unauthenticated requests; each consumer authenticates with its own LiteLLM virtual key, and revoking one key blocks only that consumer.
-- [ ] `svc-ai-litellm` is headless (no admin UI, no public domain); a separate `web-app-litellm` role serves the admin UI behind proxy + SSO, and deploying it forces `svc-ai-litellm` to `enabled: true` + `shared: true`, while the gateway deploys and runs without the UI role.
+- [x] Switching a consumer's backend requires only a `svc-ai-litellm` config change, verified by re-routing a model alias with no consumer redeploy.
+- [x] The gateway rejects unauthenticated requests; each consumer authenticates with its own LiteLLM virtual key, and revoking one key blocks only that consumer.
+- [x] `svc-ai-litellm` is headless (no admin UI, no public domain); a separate `web-app-litellm` role serves the admin UI behind proxy + SSO, and deploying it forces `svc-ai-litellm` to `enabled: true` + `shared: true`, while the gateway deploys and runs without the UI role.
 - [x] `svc-ai-lmstudio` is constrained to an x86 node and is never scheduled onto an arm64/Pi node.
 - [ ] The gateway comes up green in both compose and swarm modes.
 - [x] A Playwright spec (or equivalent test) verifies a completion round-trips through the gateway.

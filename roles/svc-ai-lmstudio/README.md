@@ -36,7 +36,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - **CPU inference:** The role pins the CPU build of the upstream image and passes no GPU device into the container.
 - **Persistent model store:** A named volume mounted at `/root/.lmstudio` keeps downloaded models and server settings across redeploys.
 - **Gateway backend:** The LiteLLM Gateway routes the model alias `lmstudio/default` to this instance when both roles are deployed together, as one of the interchangeable local backends alongside Ollama.
-- **Bounded resources:** The container is capped at 4 CPUs, 8 GB of memory and 2048 processes, and the role declares a minimum of 20 GB free storage.
+- **Bounded resources:** The container is capped at 4 CPUs, 8 GB of memory and 2048 processes, and the role declares a minimum of 588 MB free storage for the image; downloaded models grow the volume beyond that.
 - **Backup integration:** Backup Docker Volumes snapshots the model volume when that role is present, without stopping the container.
 
 ## Quick Setup

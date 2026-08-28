@@ -20,7 +20,7 @@ These choices are settled at requirement creation time and bound the implementat
 4. **Consumers discover it via 025.** Agent clients ([032](032-agent-employees-firecracker.md)) and other 025 client roles reach it through the `roles_with_service` lookup; the endpoint is not hard-coded in any consumer.
 5. **Auth caveat is documented.** Home Assistant uses its own auth (users + long-lived tokens + `trusted_proxies`), not full OIDC. The MCP endpoint is authenticated with a Home Assistant credential stored in `meta/secrets.yml` `credentials:`; if platform SSO in front of the HA UI is wanted, the trusted-proxy header approach and its limits MUST be documented in the role README.
 6. **arm64/Raspberry Pi is supported.** The role runs on `arm64` so it can sit next to the Pi agent from [032](032-agent-employees-firecracker.md).
-7. **Exposure is internal-only.** Home Assistant is reachable on the internal/home (or VPN) network only; it is NOT published to a public domain. The agent reaches it in-cluster via MCP. This keeps the attack surface small and matches the typical home-appliance deployment. If a home user later wants remote access, that is a documented follow-up, not the default.
+7. **The UI is published, the MCP surface is not.** *(Revised during implementation; the original decision was internal-only for both.)* Home Assistant follows the `web-app-*` contract and serves its own UI on a canonical domain through the reverse proxy, because every part of that contract — `meta/domains.yml`, `meta/csp.yml`, the guest Playwright persona — assumes a public vhost, and a role without one would have to be shaped as a `svc-*` role instead. The hub's own auth provider guards that surface. The MCP endpoint stays `exposure: internal`: it is reachable in-cluster only, an unauthenticated probe of the public origin is refused, and `files/playwright/test-mcp-guest.js` asserts exactly that. A platform-SSO gate in front of the UI remains a documented follow-up.
 
 ## Architecture
 
@@ -37,21 +37,32 @@ flowchart LR
     agent -->|"MCP over Streamable HTTP (025)"| ha
 ```
 
+## Where each guarantee is enforced
+
+| Guarantee | Enforced by |
+| --- | --- |
+| Only Assist-exposed entities are reachable | `ensure_mcp_entry` binds the MCP config entry to `llm_hass_api: ["assist"]` in [provision_mcp.py](../../roles/web-app-homeassistant/files/python/provision_mcp.py) |
+| Mutating tools stay off | the MCP long-lived token belongs to a dedicated account pinned to Home Assistant's `system-read-only` group; `ensure_service_account` re-asserts `group_ids` through `config/auth/update` on every run, so an account promoted by hand is demoted again |
+| The endpoint refuses an anonymous caller | [test-mcp-guest.js](../../roles/web-app-homeassistant/files/playwright/test-mcp-guest.js) |
+| The stored bearer still authenticates | `tasks/utils/mcp/probe.yml`, which hard-fails the deploy when the hub rejects it |
+| The advertised tool contract matches what the hub serves | the shared `svc-ai-mcp-adapter/tasks/probe.yml`, run at deploy time inside the provider's own network |
+| The pinned image runs on arm64 | [test_arm64_images.py](../../tests/external/update/docker/test_arm64_images.py) |
+
 ## Acceptance Criteria
 
-- [ ] A `web-app-homeassistant` role deploys Home Assistant in Container mode (no Supervisor/add-ons, not privileged) and it comes up healthy on the internal network; it is not published to a public domain.
+- [x] A `web-app-homeassistant` role deploys Home Assistant in Container mode (no Supervisor/add-ons, not privileged) and it comes up healthy; its MCP endpoint is not published, per the revised Decision 7.
 - [x] The native `mcp_server` integration is enabled and declared in `meta/services.yml` as `direction: server`, `implementation: native`, `transport: streamable_http`, conforming to the [025](025-mcp-role-integration.md) schema and lint.
-- [ ] The MCP endpoint is authenticated; an unauthenticated probe is rejected, and the credential lives in `meta/secrets.yml` `credentials:` (never in README/env/traces).
-- [ ] Only entities explicitly exposed to Assist are reachable via MCP; mutating tools are off unless the operator opts in.
+- [x] The MCP endpoint is authenticated; an unauthenticated probe is rejected, and the credential lives in the platform token store — `meta/mcp.yml` `credential.source: token_store`, written by `sys-token-store` — never in a README, an env file or a Playwright trace. *(Revised: 025 and 035 moved MCP bearers out of `meta/secrets.yml` into the token store after this criterion was written.)*
+- [x] Only entities explicitly exposed to Assist are reachable via MCP; mutating tools are off unless the operator opts in.
 - [ ] An MCP client (e.g. `web-app-hermes` from [032](032-agent-employees-firecracker.md)) discovers the role via `roles_with_service` and reads an exposed entity's state through MCP.
 - [x] The role is added to 025's MCP audit as a `server` role.
-- [ ] The role runs on `arm64`.
+- [x] The role runs on `arm64`.
 - [ ] The role comes up green in both compose and swarm modes.
 - [x] A Playwright spec exercises the Home Assistant surface and is green.
 
 ## Cross-linking
 
-- Implementing PR: _to be linked_.
+- Implementing PR: *to be linked*.
 
 ## See Also
 
