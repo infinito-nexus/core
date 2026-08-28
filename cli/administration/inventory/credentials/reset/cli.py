@@ -107,7 +107,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--schema",
         action="store_true",
-        help="Rotate applications.<app>.credentials.* (everything meta/schema.yml generates).",
+        help="Rotate applications.<app>.credentials.* (everything meta/secrets.yml generates).",
     )
     parser.add_argument(
         "--users", action="store_true", help="Rotate users.<name>.password."

@@ -67,7 +67,7 @@ class TestModelBackendViaGateway(unittest.TestCase):
                 f"routing through {_GATEWAY_ROLE}, so their traffic carries no "
                 "consumer identity and ignores the gateway's model list.\n\n"
                 "Fix: declare `services.litellm` in the role's meta/services.yml "
-                "and a `litellm_api_key` credential in its meta/schema.yml, then "
+                "and a `litellm_api_key` credential in its meta/secrets.yml, then "
                 "point the application at LITELLM_BASE_LOCAL_URL with that key. "
                 "The gateway provisions the virtual key for every role that "
                 "declares both.\n\n"
