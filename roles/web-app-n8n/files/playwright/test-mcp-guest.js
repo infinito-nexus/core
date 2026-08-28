@@ -1,5 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { skipUnlessServiceEnabled } = require("./service-gating");
+const { registerMcpDisabledState } = require("./mcp-endpoint");
 const { decodeDotenvQuotedValue, normalizeBaseUrl } = require("./personas");
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
@@ -27,3 +28,5 @@ test("guest: the managed MCP trigger answers nobody without its bearer", async (
     "a refused probe must not open the SSE channel",
   ).not.toContain("text/event-stream");
 });
+
+registerMcpDisabledState(() => `${appBaseUrl}${mcpEndpointPath}`);

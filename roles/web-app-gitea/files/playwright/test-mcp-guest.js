@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
 
 const { skipUnlessServiceEnabled } = require("./service-gating");
+const { registerMcpDisabledState } = require("./mcp-endpoint");
 
 exports.register = function (shared) {
   test("mcp: an unauthenticated probe of the MCP endpoint is rejected", async ({ page }) => {
@@ -27,4 +28,6 @@ exports.register = function (shared) {
       "the public vhost must not return an MCP protocol response to a bearerless probe",
     ).not.toContain('"jsonrpc"');
   });
+
+  registerMcpDisabledState(() => shared.mcpEndpointUrl());
 };

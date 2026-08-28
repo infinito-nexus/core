@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { decodeDotenvQuotedValue, normalizeBaseUrl } = require("./personas");
+const { registerMcpDisabledState } = require("./mcp-endpoint");
 
 const baseUrl = normalizeBaseUrl(process.env.JENKINS_BASE_URL || "");
 const mcpEndpointPath = decodeDotenvQuotedValue(process.env.MCP_ENDPOINT_PATH || "");
@@ -27,3 +28,7 @@ test("MCP: the plugin endpoint serves no tool without credentials", async ({ pag
     "a refused tools/list must not leak a tool inventory",
   ).not.toContain('"tools"');
 });
+
+registerMcpDisabledState(
+  () => `${baseUrl.replace(/\/$/, "")}${mcpEndpointPath}`,
+);

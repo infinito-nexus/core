@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { decodeDotenvQuotedValue } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
+const { registerMcpDisabledState } = require("./mcp-endpoint");
 
 const mcpEndpointPath = decodeDotenvQuotedValue(process.env.MCP_ENDPOINT_PATH || "");
 
@@ -34,4 +35,8 @@ exports.register = function (shared) {
       `an unauthenticated MCP probe must be rejected, got ${status} with ${excerpt}`,
     ).toBe(true);
   });
+
+  registerMcpDisabledState(() =>
+    new URL(mcpEndpointPath, shared.env.moodleBaseUrl).toString(),
+  );
 };

@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { decodeDotenvQuotedValue } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
+const { registerMcpDisabledState } = require("./mcp-endpoint");
 
 const mcpEndpointPath = decodeDotenvQuotedValue(process.env.NEXTCLOUD_MCP_ENDPOINT_PATH);
 
@@ -30,4 +31,8 @@ exports.register = function (shared) {
       "an unauthenticated MCP probe must not be served a 2xx; the endpoint is app-password guarded",
     ).toBeGreaterThanOrEqual(400);
   });
+
+  registerMcpDisabledState(() =>
+    new URL(mcpEndpointPath, shared.env.nextcloudBaseUrl).toString(),
+  );
 };

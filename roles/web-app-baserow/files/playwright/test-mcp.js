@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { normalizeBaseUrl } = require("./personas");
+const { registerMcpDisabledState } = require("./mcp-endpoint");
 
 const UNKNOWN_ENDPOINT_KEY = "0".repeat(32);
 
@@ -25,3 +26,8 @@ test("mcp: an unauthenticated probe of the MCP endpoint is rejected", async ({ p
     "a probe carrying no valid endpoint key must never receive an MCP session endpoint",
   ).not.toContain("event: endpoint");
 });
+
+registerMcpDisabledState(
+  () =>
+    `${normalizeBaseUrl(process.env.BASEROW_BASE_URL || "")}/mcp/${UNKNOWN_ENDPOINT_KEY}/sse`,
+);

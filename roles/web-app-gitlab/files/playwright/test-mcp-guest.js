@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { decodeDotenvQuotedValue, normalizeBaseUrl } = require("./personas");
+const { registerMcpDisabledState } = require("./mcp-endpoint");
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
 const mcpEndpointPath = decodeDotenvQuotedValue(process.env.MCP_ENDPOINT_PATH || "");
@@ -28,3 +29,5 @@ test("guest: the MCP endpoint rejects unauthenticated access", async ({ page }) 
     "a refused probe must not return an MCP protocol response",
   ).not.toContain('"jsonrpc"');
 });
+
+registerMcpDisabledState(() => `${appBaseUrl}${mcpEndpointPath}`);

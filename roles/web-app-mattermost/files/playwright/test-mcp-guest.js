@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 
 const { decodeDotenvQuotedValue } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
+const { registerMcpDisabledState } = require("./mcp-endpoint");
 
 const MCP_ENDPOINT_PATH = decodeDotenvQuotedValue(process.env.MCP_ENDPOINT_PATH);
 
@@ -33,4 +34,8 @@ exports.register = function (shared) {
       "an unauthenticated MCP initialize must not be served a 2xx; the endpoint is bearer-guarded",
     ).toBeGreaterThanOrEqual(400);
   });
+
+  registerMcpDisabledState(() =>
+    new URL(MCP_ENDPOINT_PATH, shared.expectedMattermostBaseUrl()).toString(),
+  );
 };

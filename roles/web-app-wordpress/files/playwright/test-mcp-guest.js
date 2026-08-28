@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const shared = require("./_shared");
+const { registerMcpDisabledState } = require("./mcp-endpoint");
 
 const MCP_ENDPOINT = "/wp-json/mcp/mcp-adapter-default-server";
 
@@ -26,3 +27,5 @@ test("guest: the MCP endpoint rejects unauthenticated access", async ({ page }) 
     "a refused probe must not return an MCP protocol response",
   ).not.toContain('"jsonrpc"');
 });
+
+registerMcpDisabledState(() => `${shared.env.wpBaseUrl}${MCP_ENDPOINT}`);
