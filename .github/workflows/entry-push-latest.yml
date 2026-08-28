@@ -2,7 +2,7 @@ name: "📤 Push"
 
 concurrency:
   group: global-ci-${{ github.repository }}-${{ github.ref_name }}
-  cancel-in-progress: ${{ vars.CI_CANCEL_IN_PROGRESS != 'false' }}
+  cancel-in-progress: ${{ github.ref_name != 'main' }}
 
 on:
   push:

@@ -126,9 +126,9 @@ The final `done` job aggregates all deploy, install, and development gates. CI i
 
 ## Concurrency 🔀
 
-- PR pipelines use `cancel-in-progress: true` so only the newest run per PR and event type is active.
-- The orchestrator and the push entry workflow (`entry-push-latest.yml`) default to `cancel-in-progress: true` and both respect the repository variable `CI_CANCEL_IN_PROGRESS`.
-- The manual entry workflow (`entry-manual-steer.yml`) sets `cancel-in-progress: true` on its own group and passes `force_cancel_in_progress: true` into the orchestrator, so a manual run cancels on both levels regardless of `CI_CANCEL_IN_PROGRESS`.
+- PR pipelines use `cancel-in-progress: true` so only the newest run per PR and event type is active. The group does not always reap a long orchestrator sweep, which then leaves the newer run parked on `pending`; [entry-cancel-superseded.yml](../../../../.github/workflows/entry-cancel-superseded.yml) cancels those leftovers through the API, see [cancel/README.md](../../../../scripts/github/cancel/README.md).
+- The orchestrator and the push entry workflow (`entry-push-latest.yml`) cancel in-progress runs on every ref except `main`, which no automatic trigger cancels. A `pull_request_target` run inherits `refs/heads/main` as its ref, so the orchestrator does not cancel there either; per-PR supersession is handled by the entry workflow's own `pr-ci-*` group. See [configuration.md](../../tools/github/actions/configuration.md).
+- The manual entry workflow (`entry-manual-steer.yml`) sets `cancel-in-progress: true` on its own group, and the orchestrator's group cancels for `workflow_dispatch` regardless of ref, so a manual sweep supersedes on both levels, `main` included.
 
 See [configuration.md](../../tools/github/actions/configuration.md) for all repository variables that control CI behaviour.
 

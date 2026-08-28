@@ -8,43 +8,26 @@ Repository variables are set under **Settings → Secrets and variables → Acti
 
 | Variable | Workflow | Default (unset) | Set to activate |
 |---|---|---|---|
-| `CI_CANCEL_IN_PROGRESS` | [entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml), [call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) | Cancels in-progress runs on new push | `false` to keep in-progress runs alive |
 | `CI_SYNC_MAIN_SOURCE_REPOSITORY` | [entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml) | Syncs `main` from `infinito-nexus/core` before CI scope discovery | `<owner>/<repo>` to use another source, or `false`, empty, or the current repository to skip |
 | `CI_RUN_ON_MAIN` | [entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml) | Pushes to `main` skip CI | `true` to run CI on `main` pushes too |
 | `CI_ENABLE_AUTO_UPDATES` | [cron-update.yml](../../../../../.github/workflows/cron-update.yml), [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml) | Update jobs skipped; Dependabot PRs auto-closed | `true` to allow update PRs (workflow-driven and Dependabot) |
 | `INFINITO_PLAYWRIGHT_KEEP` | [call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml) | Playwright keeps trace, screenshot and video only when a test fails | `true` to keep them for every test (passing runs included) |
 
-## `CI_CANCEL_IN_PROGRESS` 🛑
+## Cancelling in-progress runs 🛑
 
-Controls whether a new run cancels an already-running CI pipeline on the same ref. Applies to the push entry workflow and to the orchestrator's own concurrency group, which every entry workflow shares. The manual entry workflow overrides the variable on both levels: its own group is `cancel-in-progress: true`, and it passes `force_cancel_in_progress: true` into the orchestrator.
-
-**Default behaviour (variable not set or set to any value other than `false`):**
-In-progress runs are cancelled when a new push arrives. This is the recommended setting for most workflows.
-
-**To disable cancellation:**
-
-1. Open the repository on GitHub.
-2. Go to **Settings → Secrets and variables → Actions**.
-3. Switch to the **Variables** tab.
-4. Click **New repository variable**.
-5. Set **Name** to `CI_CANCEL_IN_PROGRESS` and **Value** to `false`.
-6. Save.
-
-**To re-enable cancellation:**
-
-Delete the variable or change its value to anything other than `false` (e.g. `true`).
-
-**How it works:**
+Not a variable: cancellation is derived from the trigger. Every automatic run on a branch other than `main` is cancelled by a newer run in the same concurrency group; automatic runs on `main` are not, because a half-finished pipeline on the default branch is worse than a queued one. A manual dispatch always supersedes, `main` included: someone typed it, so it is the intent that counts, not the ref.
 
 ```yaml
-cancel-in-progress: ${{ vars.CI_CANCEL_IN_PROGRESS != 'false' }}
+cancel-in-progress: ${{ github.ref_name != 'main' }}
 ```
 
-| Variable value | Expression result | Behaviour |
-|---|---|---|
-| *(not set / empty)* | `'' != 'false'` → `true` | Cancels in-progress runs ✓ |
-| `false` | `'false' != 'false'` → `false` | Does **not** cancel ✓ |
-| `true` | `'true' != 'false'` → `true` | Cancels in-progress runs ✓ |
+`entry-push-latest.yml` declares exactly that expression, and it fires only on `push`, where `github.ref_name` is always the pushed branch. [entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml) carries no concurrency group of its own — it is the API fallback for that group — but its push job repeats the same predicate as a job `if`, so it never touches `main` either.
+
+> ⚠️ **Do not paste that expression into a workflow that listens on `pull_request_target`.** There `github.ref` is the *base* branch, so `github.ref_name` is literally `main` and the rule collapses to a constant `false` — every pull request would stop cancelling its predecessor. `entry-pr-change-orchestrate.yml` therefore declares `cancel-in-progress: true` outright.
+
+[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) compares `github.ref` for the same reason: a called workflow inherits the caller's ref, which is `refs/pull/<n>/merge` for a `pull_request` caller but `refs/heads/main` for a `pull_request_target` one. The `ci-orchestrator` job of `entry-pr-change-orchestrate.yml` is fenced to `github.event_name == 'pull_request'`, so the ref the orchestrator sees from that caller is always the merge ref; widening that fence would silently put fork runs into main's group.
+
+`entry-manual-steer.yml` declares `cancel-in-progress: true` outright on its own group, and the orchestrator reads `github.event_name` — which a called workflow inherits from its caller — so a manual sweep supersedes on both levels without an input to pass down.
 
 ## `CI_SYNC_MAIN_SOURCE_REPOSITORY` 🔄
 

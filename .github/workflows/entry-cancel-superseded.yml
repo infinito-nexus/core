@@ -1,0 +1,76 @@
+# Deliberately without a `concurrency:` block: this workflow frees the very
+# groups that block other runs, so a group of its own would deadlock it.
+
+name: "🚫 Cancel: Superseded Runs"
+
+on:
+  push:
+    branches:
+      - "feature/**"
+      - "hotfix/**"
+      - "fix/**"
+      - "update/**"
+      - "chore/**"
+      - "alert-autofix-*"
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+      - labeled
+
+permissions:
+  contents: read
+
+jobs:
+  cancel-branch-runs:
+    name: 🚫 Cancel superseded branch runs
+    if: ${{ github.event_name == 'push' && github.ref_name != 'main' }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v7.0.0
+
+      - name: 🚫 Cancel branch runs superseded by a newer one
+        shell: bash
+        env:
+          BRANCH: ${{ github.ref_name }}
+          CURRENT_RUN_ID: ${{ github.run_id }}
+          KEEP_NEWEST_PER: all
+          FORCE_CANCEL_AFTER_SECONDS: "60"
+          INCLUDE_PATHS: |
+            .github/workflows/entry-push-latest.yml
+            .github/workflows/entry-manual-steer.yml
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+        run: bash scripts/github/cancel/branch_runs.sh
+
+  cancel-pull-request-runs:
+    name: 🚫 Cancel superseded pull request runs
+    if: ${{ github.event_name == 'pull_request_target' }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+      pull-requests: read
+    steps:
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v7.0.0
+
+      - name: 🚫 Cancel pull request runs superseded by a newer one
+        shell: bash
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          PR_HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+          CURRENT_RUN_ID: ${{ github.run_id }}
+          KEEP_NEWEST_PER: event
+          FORCE_CANCEL_AFTER_SECONDS: "60"
+          INCLUDE_PATHS: .github/workflows/entry-pr-change-orchestrate.yml
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+        run: bash scripts/github/cancel/pull_request_runs.sh

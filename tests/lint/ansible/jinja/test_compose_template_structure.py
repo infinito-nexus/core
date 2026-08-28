@@ -51,6 +51,12 @@ The rules this test enforces, distilled from that skeleton:
    inside the block). ``lstrip_blocks`` strips the indent, so this is purely for
    readability. Dashed tags, ``{%+`` tags, ``{% filter %}`` / ``{% macro %}``,
    and inline compound tags are left to their author.
+8. **restart-policy** - every service body carries a restart policy, either by
+   including ``roles/sys-svc-container/templates/base.yml.j2`` (which emits it)
+   or by calling ``{{ lookup('compose_restart') }}`` directly. A service body
+   that only includes ``deploy.yml.j2`` renders ``deploy.restart_policy`` for
+   swarm and NOTHING for compose, so Docker applies its own ``no`` default and
+   the container stays down after any daemon restart.
 
 Scope: every ``roles/*/templates/*compose.yml.j2`` (the canonical
 per-role stack file). ``compose.override.yml.j2`` and
@@ -80,6 +86,12 @@ _RULE = "compose-structure"
 _BASE_INCLUDE = re.compile(
     r"\{%-?\s*include\s+'roles/sys-svc-compose/templates/base\.yml\.j2'\s*-?%\}"
 )
+
+_CONTAINER_BASE_INCLUDE = re.compile(
+    r"\{%-?\s*include\s+'roles/sys-svc-container/templates/base\.yml\.j2'\s*-?%\}"
+)
+
+_RESTART_LOOKUP = re.compile(r"lookup\(\s*'compose_restart'")
 
 _SERVICE_KEY = re.compile(r"^  (?P<key>(?:\{\{.*?\}\}|[A-Za-z0-9_.-])+):[ \t]*$")
 
@@ -326,6 +338,26 @@ def find_structure_violations(lines: list[str]) -> list[tuple[int, str]]:
             if match and match.group("var") in _SERVICE_SCOPED_VARS:
                 late_idxs.add(i)
 
+    for k in key_idxs:
+        nxt = min((b for b in boundaries if b > k), default=region_end)
+        body = lines[k + 1 : nxt]
+        if any(
+            _CONTAINER_BASE_INCLUDE.search(w) or _RESTART_LOOKUP.search(w) for w in body
+        ):
+            continue
+        findings.append(
+            (
+                k + 1,
+                (
+                    "service body declares no restart policy — include "
+                    "`roles/sys-svc-container/templates/base.yml.j2` or add "
+                    "`{{ lookup('compose_restart') }}`; without it compose falls back "
+                    "to Docker's `no` and the container stays down after a daemon "
+                    "restart"
+                ),
+            )
+        )
+
     for i in region:
         line = lines[i]
         match = _SET_LINE.match(line)
@@ -415,7 +447,8 @@ class TestComposeTemplateStructure(unittest.TestCase):
                 "`*compose.yml.j2` MUST follow the canonical skeleton: a base-include "
                 "header, each service declared as `{{ service_name }}:` with its "
                 "`{% set service_name = ... %}` and all per-service `{% set %}` knobs "
-                "on column-0, dash-free lines directly above the key, and the "
+                "on column-0, dash-free lines directly above the key, a restart "
+                "policy in every service body, and the "
                 "`compose_volumes` / `compose_networks` lookups closing the "
                 "file at column 0.\n\n"
                 "Opt a template out with `{# nocheck: compose-structure #}` (whole file "

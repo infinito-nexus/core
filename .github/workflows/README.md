@@ -266,9 +266,16 @@ the other entry points take the defaults.
 flowchart TB
     prclose["pull_request_target: closed, converted_to_draft"] --> eprcancel["entry-pr-closed-cancel-workflows.yml"]
     branchdelete["delete: branch"] --> delbranch["entry-delete-branch.yml"]
+    newcommit["push (not main) / pull_request_target: opened, synchronize, reopened, ready_for_review, labeled"] --> superseded["entry-cancel-superseded.yml"]
     eprcancel -.->|"cancels concurrency group"| runningci["running entry + child workflow runs"]
     delbranch -.->|"cancels concurrency group"| runningci
+    superseded -.->|"cancels via API what the group left behind"| runningci
 ```
+
+The concurrency group stays the primary mechanism; it reaps within seconds of a
+run being created and needs no runner. `entry-cancel-superseded.yml` is the
+fallback for the case where it does not, and carries no group of its own,
+because the run holding a group cannot be the run that frees it.
 
 ## Scheduled and standalone
 

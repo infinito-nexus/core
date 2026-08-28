@@ -4,81 +4,109 @@ set -euo pipefail
 : "${PR_NUMBER:?Missing PR_NUMBER}"
 : "${GH_TOKEN:?Missing GH_TOKEN}"
 : "${REPOSITORY:?Missing REPOSITORY}"
-: "${CURRENT_RUN_ID:?Missing CURRENT_RUN_ID}"
 PR_HEAD_REF="${PR_HEAD_REF:-}"
 PR_HEAD_SHA="${PR_HEAD_SHA:-}"
 PR_HEAD_REPOSITORY="${PR_HEAD_REPOSITORY:-}"
+: "${CURRENT_RUN_ID:?Missing CURRENT_RUN_ID}"
+INCLUDE_PATHS="${INCLUDE_PATHS:-}"
+KEEP_NEWEST_PER="${KEEP_NEWEST_PER:-}"
+FORCE_CANCEL_AFTER_SECONDS="${FORCE_CANCEL_AFTER_SECONDS:-}"
 
-if ! command -v gh >/dev/null 2>&1; then
-	echo "ERROR: gh CLI not found." >&2
-	exit 1
-fi
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=scripts/github/cancel/lib.sh
+source "${SCRIPT_DIR}/lib.sh"
 
-if ! command -v jq >/dev/null 2>&1; then
-	echo "ERROR: jq not found." >&2
-	exit 1
-fi
+require_tools
+validate_include_paths
+validate_keep_newest_per
+validate_force_cancel_after
+
+# A fork PR's runs carry an empty `pull_requests` array, so the branch matcher
+# is all that is left — and it cannot tell two pull requests apart that share a
+# head repository and head branch. Rather than cancel the wrong one, drop the
+# matcher for as long as the head is ambiguous.
+disable_ambiguous_branch_fallback() {
+	local rivals
+	local -a query
+
+	if [[ -z "${PR_HEAD_REF}" ]]; then
+		return 0
+	fi
+
+	query=(-f state=open -f per_page=100)
+	if [[ -n "${PR_HEAD_REPOSITORY}" ]]; then
+		query+=(-f "head=${PR_HEAD_REPOSITORY%%/*}:${PR_HEAD_REF}")
+	fi
+
+	if ! rivals="$(
+		gh api --paginate \
+			-H "Accept: application/vnd.github+json" \
+			-X GET "/repos/${REPOSITORY}/pulls" \
+			"${query[@]}" |
+			jq -s \
+				--argjson pr_number "${PR_NUMBER}" \
+				--arg head_ref "${PR_HEAD_REF}" \
+				'[.[][] | select(.number != $pr_number and (.head.ref // "") == $head_ref)] | length'
+	)"; then
+		echo "WARNING: could not list open pull requests for the head; keeping the branch fallback" >&2
+		return 0
+	fi
+
+	if [[ "${rivals}" != "0" ]]; then
+		echo "Branch fallback disabled: ${rivals} other open pull request(s) share ${PR_HEAD_REPOSITORY%%/*}:${PR_HEAD_REF}"
+		PR_HEAD_REF=""
+	fi
+}
 
 echo "Searching active workflow runs for PR #${PR_NUMBER}"
 if [[ -n "${PR_HEAD_SHA}${PR_HEAD_REF}${PR_HEAD_REPOSITORY}" ]]; then
 	echo "Fallback matching enabled for head.sha=${PR_HEAD_SHA:-<empty>} head.ref=${PR_HEAD_REF:-<empty>} head.repo=${PR_HEAD_REPOSITORY:-<empty>}"
 fi
 
-cancel_runs_by_status() {
-	local status="$1"
-	local run_ids
+disable_ambiguous_branch_fallback
 
-	run_ids="$(
-		gh api --paginate \
-			-H "Accept: application/vnd.github+json" \
-			"/repos/${REPOSITORY}/actions/runs?status=${status}&per_page=100" |
-			jq -r \
-				--argjson pr_number "${PR_NUMBER}" \
-				--argjson current_run_id "${CURRENT_RUN_ID}" \
-				--arg pr_head_ref "${PR_HEAD_REF}" \
-				--arg pr_head_sha "${PR_HEAD_SHA}" \
-				--arg pr_head_repository "${PR_HEAD_REPOSITORY}" '
-	          .workflow_runs[]
-	          | select(.id != $current_run_id)
-	          | select(.event == "pull_request" or .event == "pull_request_target")
-	          | select(
-	              any(.pull_requests[]?; (.number // -1) == $pr_number)
-	              or ($pr_head_sha != "" and (.head_sha // "") == $pr_head_sha)
-	              or (
-	                $pr_head_ref != ""
-	                and (.head_branch // "") == $pr_head_ref
-	                and (
-	                  $pr_head_repository == ""
-	                  or (.head_repository.full_name // "") == $pr_head_repository
-	                  or (.head_repository.full_name // "") == ""
-	                )
-	              )
-	            )
-	          | .id
-	        ' |
-			sort -u
-	)"
+runs="$(collect_runs)"
 
-	if [[ -z "${run_ids}" ]]; then
-		echo "No ${status} runs found for PR #${PR_NUMBER}"
-		return 0
-	fi
+run_ids="$(
+	printf '%s\n' "${runs}" | jq -s -r \
+		--argjson pr_number "${PR_NUMBER}" \
+		--arg current_run_id "${CURRENT_RUN_ID}" \
+		--arg pr_head_ref "${PR_HEAD_REF}" \
+		--arg pr_head_sha "${PR_HEAD_SHA}" \
+		--arg pr_head_repository "${PR_HEAD_REPOSITORY}" \
+		--arg include_paths "${INCLUDE_PATHS}" \
+		--arg keep_newest "${KEEP_NEWEST_PER}" '
+      def drop_newest: sort_by([(.run_started_at // .created_at), .id]) | .[:-1];
+      def allowlist:
+        $include_paths | split("\n") | map(gsub("^\\s+|\\s+$"; "")) | map(select(length > 0));
 
-	while read -r run_id; do
-		[[ -n "${run_id}" ]] || continue
-		echo "Cancelling ${status} run ${run_id}"
-		if ! gh api \
-			-X POST \
-			-H "Accept: application/vnd.github+json" \
-			"/repos/${REPOSITORY}/actions/runs/${run_id}/cancel" \
-			>/dev/null; then
-			echo "Run ${run_id} could not be cancelled, likely because it already completed"
-		fi
-	done <<<"${run_ids}"
-}
+      allowlist as $paths
+      | unique_by(.id)
+      | map(
+          select($current_run_id == "" or (.id | tostring) != $current_run_id)
+          | select($include_paths == "" or ((.path // "") | IN($paths[])))
+          | select(.event == "pull_request" or .event == "pull_request_target")
+          | select(
+              any(.pull_requests[]?; (.number // -1) == $pr_number)
+              or ($pr_head_sha != "" and (.head_sha // "") == $pr_head_sha)
+              or (
+                $pr_head_ref != ""
+                and all(.pull_requests[]?; (.number // $pr_number) == $pr_number)
+                and (.head_branch // "") == $pr_head_ref
+                and (
+                  $pr_head_repository == ""
+                  or (.head_repository.full_name // "") == $pr_head_repository
+                  or (.head_repository.full_name // "") == ""
+                )
+              )
+            )
+        )
+      | (if $keep_newest == "all" then drop_newest
+         elif $keep_newest == "event" then
+           group_by(.event // "") | map(drop_newest) | flatten
+         else . end)
+      | .[].id
+    '
+)"
 
-cancel_runs_by_status requested
-cancel_runs_by_status pending
-cancel_runs_by_status waiting
-cancel_runs_by_status queued
-cancel_runs_by_status in_progress
+cancel_all "${run_ids}"

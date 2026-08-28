@@ -123,5 +123,4 @@ jobs:
       workspace_track: ${{ inputs.workspace_track }}
       instructions: ${{ inputs.instructions }}
       tor: ${{ inputs.tor }}
-      force_cancel_in_progress: true
     secrets: inherit

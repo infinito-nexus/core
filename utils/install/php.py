@@ -25,11 +25,19 @@ def ensure_php_toolchain() -> None:
     A distro ships them as packages separate from the interpreter, which is why
     a present ``php`` binary does not imply they are there.
 
+    Composer needs an archive extractor for its dist downloads. Without one it
+    silently falls back to ``--prefer-source`` and mirror-clones every
+    dependency, which blows its 300 s process timeout on ``phpunit.git``. Arch
+    ships no zip extension and no ``php-zip`` package, so the extractor has to
+    be the ``unzip`` binary rather than the extension.
+
     Raises:
-        RuntimeError: php, composer or one of the extensions is still absent.
+        RuntimeError: php, composer, unzip or one of the extensions is still
+            absent.
     """
     ensure_command_present("php")
     ensure_command_present("composer")
+    ensure_command_present("unzip")
     for extension in _PHPUNIT_EXTENSIONS:
         ensure_php_extension_present(extension)
 

@@ -1,5 +1,5 @@
 Name:           infinito-nexus
-Version:        12.0.0
+Version:        13.0.0
 Release:        1%{?dist}
 Summary:        Meta package for Infinito.Nexus host dependencies
 
@@ -58,6 +58,152 @@ install -d %{buildroot}%{_docdir}/%{name}
 %doc %{_docdir}/%{name}/DEPENDENCIES
 
 %changelog
+* Wed Aug 26 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 13.0.0-1
+- * **Tor as a first-class deployment axis.** The new *svc-net-tor* role routes onion
+-   names through Tor via DNS instead of per-app proxies, offers a chutney flavor for
+-   private-net test deployments, and ties its dnsmasq listener to ownership rather than
+-   the deploy mode. Applications follow: server-side OIDC discovery and token exchange
+-   reach plaintext onion issuers through the SOCKS proxy (WordPress, Joomla, PeerTube,
+-   Mobilizon, EspoCRM, Nextcloud), session cookies drop the *Secure* flag where an onion
+-   cannot carry it (Taiga, Pixelfed, Joomla), and mail authenticates on the submission
+-   port the onion relay actually serves. The deploy matrix gained a tor axis with an
+-   onion marker plus enforced and exclusive modes, and lint now requires the onion in
+-   every variant. See the [svc-net-tor](roles/svc-net-tor/README.md) README.
+
+- * **Single sign-on across protocols and domains.** Keycloak imports a SAML client for
+-   every app that asks for one; SuiteCRM authenticates against it via SAML instead of a
+-   proxy, and Shopware provisions its admin through AdminOpenAuth with the front and
+-   back channel split. Sessions are shared across app domains, the issuer is pinned to
+-   the canonical OIDC URL, each consumer's redirect scheme resolves on its own side, and
+-   the logout sweep runs where the visitor is looking. Directory users are read through
+-   one lookup so seeding cannot diverge.
+
+- * **One CI chain instead of four workflows.** The deploy workflows collapse into a
+-   single chunk chain gated by one validation job, with every variant getting its own
+-   row and rotating distro, filesystem and tor axes. Selection tokens pin deploy axes,
+-   retriggers reproduce the exact selection of the source run in every mode, and the
+-   regular line resumes where the source stopped. Fork code no longer runs with the base
+-   repository token, workflow tokens are scoped to the jobs that need them, superseded
+-   runs are force-cancelled, and a mid-run budget SIGKILL is counted as skipped rather
+-   than green. Apt call sites are bounded so a stalled mirror cannot burn a job budget.
+
+- * **Restore verified against real dumps.** The *recover* CLI replays a generation's
+-   database and cluster dumps, reads the generation's own layout instead of guessing it,
+-   and places each dump by the engine the backup observed rather than by name alone. The
+-   *svc-bkp-volume-2-local* drill now empties every volume it claims to test, fails on a
+-   database that was never dumped, and stops the backup timers before it goes
+-   destructive. Baudolo is pinned per host, its contract read from baudolo itself.
+
+- * **A probe for every container.** Health checks are composed from prefixes and are
+-   mandatory: every declared image either carries a probe or states why it cannot have
+-   one, enforced from both sides. Probes hit the port the container actually binds, no
+-   longer derive an HTTP Host from a kernel hostname, and are defined once instead of per
+-   proxy. Rescue diagnostics pin the dnsmasq listener loss to its moment, sample what the
+-   resolver answers rather than just its socket, probe the daemon.json upstreams, and
+-   record the whole boot instead of the last 10 000 lines.
+
+- * **Single points of truth, enforced by lint.** The new *sys-lint* role pins the
+-   GitHub-release lint tools. Every mount target has one spot in *meta/volumes.yml* and
+-   container paths are derived from it, *default.env* is the enforced source of the
+-   primary domain, *container_backup* is rejected where no volume exists, and role
+-   credentials live at *meta/secrets.yml*. Linters no longer read gitignored build
+-   output, comments are checked in every file rather than only changed ones, and every
+-   shipped script requires a mirrored unit test.
+
+- * **Tests in every language the project ships.** The quality gate parses each shipped
+-   language and runs its unit suite; the PHP and Ruby interpreters are baked into the
+-   image, and the JavaScript, PHP and Ruby suites are reported in the CI summary
+-   alongside Python. Playwright stages the persona flows once per run and mounts them
+-   read-only, and the workspace environment suite splits into base, compose and swarm
+-   tracks.
+
+- * **Swarm and proxy operation.** Convergence gates read one budget sized for a real
+-   stack, print every task row when a stack fails to converge, and give up on a terminal
+-   task; the deployment mode a stack was deployed with is resolved instead of assumed.
+-   OpenResty reloads a vhost, lua or redirect config instead of redeploying the task.
+-   GitLab ships its config trees as swarm configs rather than host binds, and role
+-   templates expand through a lookup instead of inline Jinja.
+
+- * **New and reshaped roles.** *sys-svc-nss* is split out of *sys-hostname*,
+-   *web-svc-mirror* serves frontend assets as a privacy proxy, PeerTube becomes
+-   clearnet-only, and roles that could not run were deleted rather than repaired. CLI
+-   tools install via pip instead of pkgmgr.
+
+- * **Image and dependency version jumps (net since 12.0.0):**
+
+-   *Applications*
+-   * *web-app-erpnext*: v16.26.2 to v16.32.3
+-   * *web-app-gitlab*: v19.1.2 to v19.3.0 (all six CNG component images)
+-   * *web-app-semaphore*: v2.18.25 to v2.19.8
+-   * *web-app-nextcloud*: PHP 33-fpm-alpine to 34-fpm-alpine, nginx 1.31.2 to 1.31.3
+-   * *web-app-shopware*: 6.7.8.2 to 6.7.13.0, OpenSearch 3.7.0 to 3.8.0
+-   * *web-app-matomo*: 5.11.2 to 5.13.0
+-   * *web-app-matrix*: Synapse v1.156.0 to v1.159.0, Element v1.12.23 to v1.12.26
+-   * *web-app-mattermost*: 11.9.0 to 11.10.1
+-   * *web-app-keycloak*: 26.7.0 to 26.7.2, oauth2-proxy v7.15.3 to v7.15.4
+-   * *web-app-gitea*: 1.26.4 to 1.27.2
+-   * *web-app-funkwhale*: 2.0.6 to 2.0.9 (api and front)
+-   * *web-app-penpot*: 2.16.2 to 2.17.1 (frontend, backend, exporter)
+-   * *web-app-espocrm*: 10.0.2 to 10.0.6
+-   * *web-app-opencloud*: 7.2.1 to 7.2.4
+-   * *web-app-seaweedfs*: 4.39 to 4.44
+-   * *web-app-snipe-it*: v8.6.3-alpine to v8.7.2-alpine
+-   * *web-app-wordpress*: 7.0.1 to 7.1.0
+-   * *web-app-peertube*: v8.2.2 to v8.2.4
+-   * *web-app-joomla*: 6.1.2-php8.3-apache to 6.1.3-php8.3-apache
+-   * *web-app-jira*: 11.3.8 to 11.3.10
+-   * *web-app-confluence*: 10.2.14 to 10.2.15
+-   * *web-app-baserow*: 2.3.1 to 2.3.3
+-   * *web-app-flowise*: 3.1.3 to 3.1.4
+-   * *web-app-mailu*: 1.5.3 to 1.5.4
+-   * *web-app-pgadmin*: 9.16 to 9.17
+-   * *web-app-prometheus*: Prometheus v3.13.1 to v3.14.0, Alertmanager v0.33.1 to
+-     v0.34.0, node-exporter v1.12.0 to v1.12.1
+-   * *web-app-opentalk*: LiveKit v1.13.3 to v1.13.5, RabbitMQ 4.3.2 to 4.3.4; the
+-     frontend (v2.9.0), controller (v0.34.1) and recorder (v0.16.2) stay pinned until
+-     the set is released as a bundle and *recorder.toml* is migrated
+-   * *web-app-magento*: OpenSearch 3.7.0 to 3.8.0; PHP held at 8.4-fpm and MariaDB at
+-     11.4, both deliberately fenced against the image bot
+-   * *web-app-socialhome*: newly pinned to 2026.6.16
+-   * *web-app-bluesky* and *web-app-bridgy-fed*: upstream git refs pinned to commits
+
+-   *Services and infrastructure*
+-   * *svc-ai-ollama*: 0.31.2 to 0.32.15
+-   * *svc-db-elasticsearch*: 9.4.3 to 9.5.2
+-   * *svc-db-qdrant*: v1.18.2 to v1.19.0
+-   * *svc-runner*: Ubuntu 24.04 to 26.04
+-   * *sys-ctl-hlth-csp*: 2.1.2 to 2.2.1
+-   * *web-svc-coturn*: 4.14.0 to 4.17.2
+-   * *web-svc-logout*: *latest* to universal-logout v1.3.1
+-   * *web-svc-xmpp*: 26.04 to 26.07
+-   * *test-e2e-playwright*: v1.61.1-noble to v1.62.1-noble
+-   * *svc-net-tor*: newly on debian trixie-slim
+-   * *svc-bkp-volume-2-local*: newly on alpine 3.24
+
+-   *Toolchain and dependencies*
+-   * *backup-docker-to-local* (*baudolo*): pinned to 7.0.1, via 6.0.0 and 7.0.0
+-   * *ruff*: 0.16.0 to 0.16.4
+-   * *@playwright/test*: ^1.61.1 to ^1.62.1
+-   * *eslint*: ^10.6.0 to ^10.9.0, *globals*: ^17.7.0 to ^17.9.0
+-   * *stylelint*: ^16.0.0 added
+-   * *brace-expansion*: overridden to ^5.0.9, past three DoS advisories
+-   * *keycloak-js*: 24.0.5 to 26.2.4, loaded as an ES module
+-   * *bootstrap*: 5.3.3 to 5.3.8, *@fortawesome/fontawesome-free*: 6.5.1 to 7.3.1
+-   * *roles/sys-lint* pins the GitHub-release tools: actionlint v1.7.12,
+-     hadolint v2.15.1, shfmt v3.13.1
+
+- **Renamed**
+
+- * Role credential declarations move from *meta/credentials.yml* to *meta/secrets.yml*,
+-   addressed at *secrets.credentials* like every other meta file.
+- * The NSS half of *sys-hostname* becomes its own role, *sys-svc-nss*.
+
+- **Contributors**
+
+- * [Kevin Veen-Birkenbach](https://veen.world): Tor deployment axis, SAML and
+-   cross-domain SSO, CI chunk chain, generation-level recovery, health-check and
+-   lint enforcement, multi-language test suites
+
 * Sat Aug 08 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 12.0.0-1
 - * **Docker Swarm as a second deployment mode.** Roles can now be deployed across
 -   multiple hosts instead of being limited to a single Compose stack. New

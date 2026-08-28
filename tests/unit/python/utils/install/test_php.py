@@ -18,7 +18,8 @@ class TestEnsurePhpToolchain(unittest.TestCase):
         ):
             php_mod.ensure_php_toolchain()
         self.assertEqual(
-            [c.args[0] for c in ensure.call_args_list], ["php", "composer"]
+            [c.args[0] for c in ensure.call_args_list],
+            ["php", "composer", "unzip"],
         )
         self.assertEqual(
             [c.args[0] for c in extension.call_args_list],
@@ -43,7 +44,8 @@ class TestEnsurePhpPresent(unittest.TestCase):
             phpunit.is_file.return_value = True
             php_mod.ensure_php_present()
         self.assertEqual(
-            [c.args[0] for c in ensure.call_args_list], ["php", "composer"]
+            [c.args[0] for c in ensure.call_args_list],
+            ["php", "composer", "unzip"],
         )
         run.assert_not_called()
 

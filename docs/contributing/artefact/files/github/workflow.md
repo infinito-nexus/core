@@ -26,7 +26,7 @@ Every workflow MUST follow the schema `"[Emoji] Category: Subject (Qualifier)"`,
 | `🔒` | Scan | Security scanning |
 | `⚡` | CI | CI entry points (push, pull request, manual) |
 | `🎵` | CI | CI orchestration and coordination workflows |
-| `🚫` | Cancel | Run cancellation on PR close or branch delete |
+| `🚫` | Cancel | Run cancellation on PR close, branch delete, or a superseding commit |
 | `🧪` | Test | Code tests (unit, integration, lint) |
 | `💻` | Test | Development environment tests |
 | `💬` | Test | DNS and network resolution tests |

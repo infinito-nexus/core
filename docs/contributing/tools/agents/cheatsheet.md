@@ -25,6 +25,7 @@ from its procedure file. Run `make install-skills` to (re)install them.
 | Writing or updating a Playwright spec for a `web-*` role | `i8-iterate-playwright` |
 | Running or validating tests for a specific scope | `i8-test` |
 | Running the quality gate (`make quality`) to green | `i8-quality` |
+| Running the full gate (`make quality-high`: quality plus every lint) to green | `i8-quality-high` |
 | Cleaning up code, docs, or roles after a change | `i8-refactor` |
 | Checking a branch out into a parallel worktree | `i8-worktree-create` |
 | Releasing a parallel worktree and its slot | `i8-worktree-down` |
