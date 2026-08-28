@@ -11,6 +11,7 @@
     command:
       - "--config.file={{ PROMETHEUS_CONFIG_DOCKER }}"
       - "--storage.tsdb.path={{ lookup('volume', 'web-app-prometheus', 'data').target }}"
+      - "--query.timeout={{ PROMETHEUS_QUERY_TIMEOUT }}"
       - "--web.enable-lifecycle"
     {{ lookup('container_volumes', service_name) | indent(4) }}
 

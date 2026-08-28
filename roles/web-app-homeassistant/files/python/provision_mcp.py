@@ -163,6 +163,16 @@ async def ensure_service_account(admin_token):
             user_id = created["result"]["user"]["id"]
 
         if existing:
+            regrouped = await command(
+                {
+                    "type": "config/auth/update",
+                    "user_id": user_id,
+                    "group_ids": [SERVICE_GROUP],
+                }
+            )
+            if not regrouped.get("success"):
+                raise SystemExit("MCP account group refused: " + json.dumps(regrouped))
+
             changed = await command(
                 {
                     "type": "config/auth_provider/homeassistant/admin_change_password",

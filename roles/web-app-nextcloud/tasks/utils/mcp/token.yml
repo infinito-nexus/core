@@ -58,6 +58,47 @@
   delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
   run_once: true
 
+- name: "🔍 List the app passwords the MCP account already holds"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -u
+      - "{{ NEXTCLOUD_DOCKER_USER }}"
+      - "{{ NEXTCLOUD_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - php
+      - "{{ NEXTCLOUD_INTERNAL_OCC_COMMAND }}"
+      - user:auth-tokens:list
+      - "{{ NEXTCLOUD_MCP_USERNAME }}"
+      - --output=json
+  register: nextcloud_mcp_tokens_held
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
+  run_once: true
+
+- name: "🧹 Revoke the app passwords an earlier run minted under the managed name"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -u
+      - "{{ NEXTCLOUD_DOCKER_USER }}"
+      - "{{ NEXTCLOUD_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - php
+      - "{{ NEXTCLOUD_INTERNAL_OCC_COMMAND }}"
+      - user:auth-tokens:delete
+      - "{{ NEXTCLOUD_MCP_USERNAME }}"
+      - "{{ item | string }}"
+  loop: >-
+    {{ nextcloud_mcp_tokens_held.stdout | from_json
+       | selectattr('name', 'equalto', NEXTCLOUD_MCP_TOKEN_NAME)
+       | map(attribute='id') | list }}
+  changed_when: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
+  run_once: true
+
 - name: "🔑 Mint an app password for the MCP clients"
   ansible.builtin.command:
     argv:
