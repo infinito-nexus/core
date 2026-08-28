@@ -1,0 +1,40 @@
+---
+- name: 📁 create admin account
+  shell: >-
+    container exec -i {{ MATRIX_SYNAPSE_CONTAINER_ADDRESS }}
+    register_new_matrix_user
+    -u {{ MATRIX_ADMINISTRATOR_USERNAME | quote }}
+    -p {{ MATRIX_ADMINISTRATOR_PASSWORD | quote }}
+    -a -c {{ MATRIX_SYNAPSE_CONFIG_PATH_CONTAINER | quote }}
+    http://localhost:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}
+  register: matrix_create_admin
+  changed_when: matrix_create_admin.rc == 0
+  failed_when: >
+    matrix_create_admin.rc != 0 and
+    'User ID already taken' not in (matrix_create_admin.stdout + matrix_create_admin.stderr)
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: 📁 create chatgpt bot
+  shell: >-
+    container exec -i {{ MATRIX_SYNAPSE_CONTAINER_ADDRESS }}
+    register_new_matrix_user
+    -u chatgptbot
+    -p {{ lookup('config', application_id, 'secrets.credentials.chatgpt_bridge_user_password') | quote }}
+    -a -c {{ MATRIX_SYNAPSE_CONFIG_PATH_CONTAINER | quote }}
+    http://localhost:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}
+  register: matrix_create_chatgptbot
+  changed_when: matrix_create_chatgptbot.rc == 0
+  failed_when: >
+    matrix_create_chatgptbot.rc != 0 and
+    'User ID already taken' not in (matrix_create_chatgptbot.stdout + matrix_create_chatgptbot.stderr)
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔑 Give the ChatGPT bridge a token Synapse actually issued"
+  ansible.builtin.include_tasks: chatgpt_bridge_token.yml
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "➕ re-add compose.yml now that the bridge token exists"
+  stack_host_template:
+    src: "compose.yml.j2"
+    dest: "{{ [ lookup('container', application_id, 'directories.instance'),'compose.yml' ] | path_join }}"
+  notify: compose-up

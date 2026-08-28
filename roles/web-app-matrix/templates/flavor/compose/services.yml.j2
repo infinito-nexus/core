@@ -75,13 +75,13 @@
       KEYV_BOT_STORAGE: 'true'
       MATRIX_HOMESERVER_URL: '{{ MATRIX_SYNAPSE_LOCAL_URL }}'
       MATRIX_BOT_USERNAME: '@chatgptbot:{{ MATRIX_SERVER_NAME }}'
-      MATRIX_ACCESS_TOKEN: "{{ lookup('config', application_id, 'secrets.credentials.chatgpt_bridge_access_token', '') }}"
+      MATRIX_ACCESS_TOKEN: "{{ MATRIX_CHATGPT_ACCESS_TOKEN }}"
       MATRIX_BOT_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.chatgpt_bridge_user_password') }}"
       MATRIX_DEFAULT_PREFIX: '!chatgpt'
       MATRIX_DEFAULT_PREFIX_REPLY: 'false'
       MATRIX_WHITELIST: ':{{ MATRIX_SERVER_NAME }}'
       MATRIX_AUTOJOIN: 'true'
-      MATRIX_ENCRYPTION: 'true'
+      MATRIX_ENCRYPTION: '{{ MATRIX_CHATGPT_ENCRYPTION | lower }}'
       MATRIX_THREADS: 'true'
       MATRIX_PREFIX_DM: 'false'
       MATRIX_RICH_TEXT: 'true'

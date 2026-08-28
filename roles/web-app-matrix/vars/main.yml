@@ -24,8 +24,8 @@ MATRIX_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.e
 MATRIX_CHATGPT_BRIDGE_ENDPOINT: "{{ (LITELLM_OPENAI_BASE_LOCAL_URL ~ '/chat/completions') if (MATRIX_LITELLM_ENABLED | bool) else 'https://api.openai.com/v1/chat/completions'
   }}"
 MATRIX_CHATGPT_BRIDGE_MODEL: "{{ LITELLM_CHAT_MODEL if (MATRIX_LITELLM_ENABLED | bool) else 'gpt-3.5-turbo' }}"
-MATRIX_CHATGPT_BRIDGE_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') if (MATRIX_LITELLM_ENABLED | bool) else lookup('config', application_id,
-  'secrets.credentials.chatgpt_bridge_openai_api_key') }}"
+MATRIX_CHATGPT_BRIDGE_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') if (MATRIX_LITELLM_ENABLED | bool) else lookup('config',
+  application_id, 'secrets.credentials.chatgpt_bridge_openai_api_key') }}"
 
 MATRIX_SYNAPSE_NAME: "{{ lookup('config', application_id, 'services.synapse.name') }}"
 MATRIX_SYNAPSE_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'synapse') }}"
@@ -45,6 +45,9 @@ MATRIX_SYNAPSE_LOG_PATH_CONTAINER: "/data/{{ MATRIX_SYNAPSE_DOMAIN }}.log.config
 MATRIX_SYNAPSE_BIND_MOUNT_MODE: "0644"
 MATRIX_SYNAPSE_URL: "{{ lookup('canonical_url', application_id, 'synapse') }}"
 MATRIX_SYNAPSE_LOCAL_URL: "http://{{ MATRIX_SYNAPSE_CONTAINER_ADDRESS }}:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}"
+MATRIX_SYNAPSE_LOGIN_BURST: 30
+MATRIX_CHATGPT_ACCESS_TOKEN: "{{ lookup('config', application_id, 'secrets.credentials.chatgpt_bridge_access_token', '') }}"
+MATRIX_CHATGPT_ENCRYPTION: "false"
 MATRIX_SYNAPSE_LISTEN_FLAGS: "{{ MATRIX_FEDERATION_PORT }} {{ 'ssl ' if (lookup('tls', application_id, 'enabled') | bool) else '' }} default_server"
 
 MATRIX_ELEMENT_NAME: "{{ lookup('config', application_id, 'services.element.name') }}"
