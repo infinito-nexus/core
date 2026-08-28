@@ -19,7 +19,7 @@ mcp-adapter:
   mem_limit: 48m
   pids_limit: 64
   healthcheck:
-    flavor: curl
+    flavor: http_status
     path: health
   ports:
     internal:
