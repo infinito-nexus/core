@@ -16,4 +16,21 @@ config:
     name: Infinito LiteLLM
     apikey: "{{ lookup('config', 'web-app-wordpress', 'secrets.credentials.litellm_api_key') }}"
     endpoint: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}"
+    models:
+      - model: "{{ LITELLM_CHAT_MODEL }}"
+        name: "{{ LITELLM_CHAT_MODEL }}"
+        family: custom
+        features:
+          - completion
+        price:
+          in: 0
+          out: 0
+        type: token
+        unit: 0
+        maxCompletionTokens: 4096 # nocheck: addon-secret  context window, not a credential
+        maxContextualTokens: 4096 # nocheck: addon-secret  context window, not a credential
+        finetune: false
+        tags:
+          - core
+          - chat
   default_model: "{{ LITELLM_CHAT_MODEL }}"
