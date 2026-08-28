@@ -38,7 +38,7 @@ LIMITS: dict[str, int] = {
 }
 
 
-def load(tools=None, *, mutating=False):
+def load(tools=None, *, mutating=False, transport=None):
     """Import the adapter server against an MCP-kind contract."""
     spec = importlib.util.spec_from_file_location("adapter_server_mcp", MODULE_PATH)
     module = importlib.util.module_from_spec(spec)
@@ -57,6 +57,8 @@ def load(tools=None, *, mutating=False):
             "mutating_tools_enabled": mutating,
             "schema_sha256": policy.schema_digest(payload),
         }
+        if transport is not None:
+            contract["upstream_transport"] = transport
         env = {"ADAPTER_CONTRACT": json.dumps(contract), "ADAPTER_BEARER": "real"}
         with patch.dict("os.environ", env, clear=False):
             spec.loader.exec_module(module)
@@ -187,16 +189,114 @@ class TestEventStreamDecoding(unittest.TestCase):
 
     def test_a_single_sse_frame_is_unwrapped(self) -> None:
         body = b'event: message\ndata: {"jsonrpc":"2.0","id":"1","result":{"ok":1}}\n\n'
-        parsed = self.MODULE.decode_jsonrpc(body, "text/event-stream")
+        parsed = self.MODULE.passthrough.decode_jsonrpc(body, "text/event-stream")
         self.assertEqual(parsed["result"], {"ok": 1})
 
     def test_a_stream_without_a_data_frame_is_an_error(self) -> None:
         with self.assertRaises(ValueError):
-            self.MODULE.decode_jsonrpc(b"event: ping\n\n", "text/event-stream")
+            self.MODULE.passthrough.decode_jsonrpc(
+                b"event: ping\n\n", "text/event-stream"
+            )
 
     def test_a_plain_json_body_is_parsed_directly(self) -> None:
-        parsed = self.MODULE.decode_jsonrpc(b'{"result": 2}', "application/json")
+        parsed = self.MODULE.passthrough.decode_jsonrpc(
+            b'{"result": 2}', "application/json"
+        )
         self.assertEqual(parsed["result"], 2)
+
+
+class FakeSseSession:
+    """Stands in for an open SSE session, recording what was driven through it."""
+
+    def __init__(self, *_args, **kwargs):
+        self.headers = kwargs.get("headers") or {}
+        self.calls = []
+        self.notifications = []
+        self.opened = 0
+
+    def open(self):
+        self.opened += 1
+        return self
+
+    def call(self, method, params=None, request_id=1):
+        self.calls.append((method, params, request_id))
+        return {"jsonrpc": "2.0", "id": request_id, "result": {"served": True}}
+
+    def notify(self, method, params=None):
+        self.notifications.append((method, params))
+
+
+class TestSseUpstream(unittest.TestCase):
+    """A contract may name the classic HTTP+SSE transport instead of POST."""
+
+    def _sse_module(self):
+        module = load(transport="sse")
+        made = []
+
+        def factory(*args, **kwargs):
+            session = FakeSseSession(*args, **kwargs)
+            made.append(session)
+            return session
+
+        return module, made, factory
+
+    def test_the_default_transport_stays_streamable_http(self) -> None:
+        module = load()
+        self.assertEqual("streamable_http", module.UPSTREAM_TRANSPORT)
+
+    def test_a_declared_sse_upstream_is_driven_over_a_stream(self) -> None:
+        module, made, factory = self._sse_module()
+
+        def refuse(*_args, **_kwargs):
+            raise AssertionError("an SSE upstream must not be reached by POST")
+
+        with (
+            patch.object(module.sse, "SseSession", factory),
+            patch.object(module.OPENER, "open", refuse),
+        ):
+            module.dispatch(
+                {
+                    "method": "tools/call",
+                    "params": {"name": "read_post", "arguments": {"id": "7"}},
+                },
+                "consumer",
+                "cid",
+            )
+        self.assertEqual(1, made[0].opened)
+        self.assertIn("initialize", [call[0] for call in made[0].calls])
+        self.assertIn("tools/call", [call[0] for call in made[0].calls])
+
+    def test_the_initialized_notification_carries_no_id(self) -> None:
+        module, made, factory = self._sse_module()
+        with patch.object(module.sse, "SseSession", factory):
+            module.handshake_upstream()
+        self.assertEqual(
+            [("notifications/initialized", None)],
+            made[0].notifications,
+            "a notification has no id, so awaiting a matching response would "
+            "wait for something the protocol never sends",
+        )
+
+    def test_the_stream_is_opened_once_and_reused(self) -> None:
+        module, made, factory = self._sse_module()
+        with patch.object(module.sse, "SseSession", factory):
+            module.handshake_upstream()
+            module.exchange({"jsonrpc": "2.0", "id": 2, "method": "tools/list"})
+        self.assertEqual(1, len(made))
+
+    def test_the_upstream_credential_rides_the_stream(self) -> None:
+        module, made, factory = self._sse_module()
+        with (
+            patch.object(module.sse, "SseSession", factory),
+            patch.object(module, "UPSTREAM_KEY", "upstream-secret"),
+        ):
+            module.handshake_upstream()
+        self.assertEqual({"Authorization": "Bearer upstream-secret"}, made[0].headers)
+
+    def test_an_unknown_transport_is_refused_at_load(self) -> None:
+        with self.assertRaises(Exception) as caught:
+            load(transport="carrier-pigeon")
+        self.assertIn("upstream_transport", str(caught.exception))
 
 
 if __name__ == "__main__":

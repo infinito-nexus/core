@@ -73,8 +73,7 @@ class TestSseSession(unittest.TestCase):
 
     def _session(self, stream_lines, **kwargs):
         with patch.object(self.module.OPENER, "open", self._opener(stream_lines)):
-            session = self.module.SseSession(STREAM, timeout=2, **kwargs).open()
-        return session
+            return self.module.SseSession(STREAM, timeout=2, **kwargs).open()
 
     def test_the_announced_endpoint_becomes_the_request_channel(self):
         session = self._session(frames("event: endpoint", f"data: {ENDPOINT}", ""))
@@ -102,7 +101,9 @@ class TestSseSession(unittest.TestCase):
             session = self.module.SseSession(STREAM, timeout=2).open()
             answer = session.call("tools/list", request_id=7)
         self.assertEqual({"ok": True}, answer["result"])
-        self.assertEqual([{"jsonrpc": "2.0", "id": 7, "method": "tools/list"}], self.posted)
+        self.assertEqual(
+            [{"jsonrpc": "2.0", "id": 7, "method": "tools/list"}], self.posted
+        )
 
     def test_another_caller_s_response_is_not_returned(self):
         lines = frames(

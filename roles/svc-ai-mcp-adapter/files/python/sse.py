@@ -77,7 +77,7 @@ class SseSession:
         return self
 
     def _read(self):
-        request = urllib.request.Request(self.url, method="GET")
+        request = urllib.request.Request(self.url, method="GET")  # noqa: S310 - contracted upstream origin, no user-supplied scheme
         request.add_header("Accept", "text/event-stream")
         for name, value in self.headers.items():
             request.add_header(name, value)
@@ -122,14 +122,34 @@ class SseSession:
             params: method params, or None to send none.
             request_id: id the streamed response is matched against.
         """
+        self._post({"jsonrpc": "2.0", "id": request_id, "method": method}, params)
+        return self._await(method, request_id)
+
+    def notify(self, method, params=None):
+        """Post one JSON-RPC notification, which no response ever follows.
+
+        Args:
+            method: MCP method name.
+            params: method params, or None to send none.
+
+        A notification carries no id, so waiting for a matching response would
+        wait for something the protocol never sends.
+        """
+        self._post({"jsonrpc": "2.0", "method": method}, params)
+
+    def _post(self, payload, params):
+        """Post one JSON-RPC envelope to the announced request channel.
+
+        Args:
+            payload: the envelope without its params.
+            params: method params, or None to send none.
+        """
         if self.endpoint is None:
             raise SseError("no message endpoint; open the session first")
-
-        payload = {"jsonrpc": "2.0", "id": request_id, "method": method}
         if params is not None:
             payload["params"] = params
 
-        request = urllib.request.Request(
+        request = urllib.request.Request(  # noqa: S310 - endpoint the contracted upstream announced on its own stream
             self.endpoint, data=json.dumps(payload).encode(), method="POST"
         )
         request.add_header("Content-Type", "application/json")
@@ -137,8 +157,6 @@ class SseSession:
             request.add_header(name, value)
         with OPENER.open(request, timeout=self.timeout):
             pass
-
-        return self._await(method, request_id)
 
     def _await(self, method, request_id):
         """Return the streamed message whose id matches, or raise on timeout.

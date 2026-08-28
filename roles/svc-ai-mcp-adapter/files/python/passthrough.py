@@ -12,6 +12,10 @@ KIND_MCP = "mcp"
 KIND_REST = "rest"
 KINDS = frozenset({KIND_MCP, KIND_REST})
 
+TRANSPORT_STREAMABLE = "streamable_http"
+TRANSPORT_SSE = "sse"
+TRANSPORTS = frozenset({TRANSPORT_STREAMABLE, TRANSPORT_SSE})
+
 
 def contract_kind(contract: Mapping[str, Any]) -> str:
     """Return the upstream kind a contract declares.
@@ -42,6 +46,46 @@ def declares_mcp_upstream(raw: str) -> bool:
         isinstance(contract, dict)
         and str(contract.get("upstream_kind") or "").strip() == KIND_MCP
     )
+
+
+def decode_jsonrpc(body: bytes, content_type: str) -> Any:
+    """Return the JSON-RPC object carried by an upstream response.
+
+    Args:
+        body: the raw response bytes.
+        content_type: the response's ``Content-Type`` header.
+
+    A streamable-http server may answer a single call as one SSE frame instead
+    of a plain body, so the first data frame is unwrapped rather than parsed as
+    JSON, which would fail on the ``data:`` prefix.
+    """
+    if "text/event-stream" in (content_type or ""):
+        for line in body.decode(errors="replace").splitlines():
+            if line.startswith("data:"):
+                frame = line[len("data:") :].strip()
+                if frame:
+                    return json.loads(frame)
+        raise ValueError("upstream_error: event stream carried no data frame")
+    return json.loads(body or b"null")
+
+
+def upstream_transport(contract: Mapping[str, Any]) -> str:
+    """Return the transport the MCP upstream speaks.
+
+    Args:
+        contract: the loaded contract.
+
+    Streamable HTTP is the default because it is what most servers ship. A
+    provider on the classic HTTP+SSE transport says so, since the two cannot be
+    told apart by probing without first speaking one of them wrongly.
+    """
+    declared = str(contract.get("upstream_transport") or TRANSPORT_STREAMABLE).strip()
+    if declared not in TRANSPORTS:
+        raise policy.ContractError(
+            f"contract declares upstream_transport {declared!r}; "
+            f"expected one of {sorted(TRANSPORTS)}"
+        )
+    return declared
 
 
 def load_mcp_contract(raw: str) -> dict[str, Any]:
@@ -98,6 +142,8 @@ def load_mcp_contract(raw: str) -> dict[str, Any]:
 
     if not str(contract.get("schema_sha256") or "").startswith(policy.SHA256_PREFIX):
         raise policy.ContractError("contract must pin tools.schema_sha256")
+
+    upstream_transport(contract)
 
     return contract
 

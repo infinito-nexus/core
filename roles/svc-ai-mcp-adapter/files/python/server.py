@@ -34,6 +34,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import passthrough
 import policy
+import sse
 
 PROTOCOL_VERSION = "2025-06-18"
 ENDPOINT = "/mcp"
@@ -45,6 +46,11 @@ CONTRACT = (
     passthrough.load_mcp_contract(RAW_CONTRACT)
     if UPSTREAM_IS_MCP
     else policy.load_contract(RAW_CONTRACT)
+)
+UPSTREAM_TRANSPORT = (
+    passthrough.upstream_transport(CONTRACT)
+    if UPSTREAM_IS_MCP
+    else passthrough.TRANSPORT_STREAMABLE
 )
 BEARER = os.environ.get("ADAPTER_BEARER", "")
 UPSTREAM_KEY = os.environ.get("ADAPTER_UPSTREAM_KEY", "")
@@ -62,19 +68,7 @@ policy.assert_no_drift(CONTRACT)
 IN_FLIGHT = threading.BoundedSemaphore(CONTRACT["limits"]["concurrent_requests"])
 
 
-class NoRedirect(urllib.request.HTTPRedirectHandler):
-    """Refuse an upstream redirect rather than follow it.
-
-    urllib carries the original request's headers onto the redirect target, so
-    an upstream answering 302 with an off-host location would hand this
-    adapter's upstream credential to whoever it named. The target is
-    contracted, so a redirect is a contract violation, not a route.
-    """
-
-    def redirect_request(self, *_args, **_kwargs):
-        return None
-
-
+NoRedirect = sse.NoRedirect
 OPENER = urllib.request.build_opener(NoRedirect)
 
 
@@ -132,28 +126,8 @@ def call_upstream(method, path, arguments):
     return parsed
 
 
-def decode_jsonrpc(body, content_type):
-    """Return the JSON-RPC object carried by an upstream response.
-
-    Args:
-        body: the raw response bytes.
-        content_type: the response's ``Content-Type`` header.
-
-    A streamable-http server may answer a single call as one SSE frame instead
-    of a plain body, so the first data frame is unwrapped rather than parsed as
-    JSON, which would fail on the ``data:`` prefix.
-    """
-    if "text/event-stream" in (content_type or ""):
-        for line in body.decode(errors="replace").splitlines():
-            if line.startswith("data:"):
-                frame = line[len("data:") :].strip()
-                if frame:
-                    return json.loads(frame)
-        raise ValueError("upstream_error: event stream carried no data frame")
-    return json.loads(body or b"null")
-
-
 UPSTREAM_SESSION = {"id": "", "ready": False}
+SSE = {"session": None}
 SESSION_HEADER = "Mcp-Session-Id"
 
 
@@ -190,13 +164,56 @@ def post_upstream(envelope):
         UPSTREAM_SESSION["id"] = session
     if len(body) > CONTRACT["limits"]["response_bytes"]:
         raise ValueError("response_too_large")
-    return decode_jsonrpc(body, content_type), status
+    return passthrough.decode_jsonrpc(body, content_type), status
+
+
+def sse_session():
+    """Return the open SSE session, opening it on first use.
+
+    The stream is the response channel, so it stays open for the life of the
+    adapter rather than being reopened per call.
+    """
+    if SSE["session"] is None:
+        headers = {}
+        if UPSTREAM_KEY:
+            headers[UPSTREAM_AUTH_HEADER] = UPSTREAM_AUTH_FORMAT.format(
+                key=UPSTREAM_KEY
+            )
+        SSE["session"] = sse.SseSession(
+            UPSTREAM_URL,
+            headers=headers,
+            timeout=CONTRACT["limits"]["timeout_seconds"],
+        ).open()
+    return SSE["session"]
+
+
+def exchange(envelope):
+    """Return ``(parsed, status)`` of one JSON-RPC exchange with the upstream.
+
+    Args:
+        envelope: the JSON-RPC request object to send.
+
+    Classic SSE carries the response on a stream the adapter already holds
+    open, so it reports the status the caller compares against rather than one
+    a POST returned.
+    """
+    if UPSTREAM_TRANSPORT != passthrough.TRANSPORT_SSE:
+        return post_upstream(envelope)
+
+    session = sse_session()
+    if "id" not in envelope:
+        session.notify(envelope["method"], envelope.get("params"))
+        return None, 202
+    return (
+        session.call(envelope["method"], envelope.get("params"), envelope["id"]),
+        200,
+    )
 
 
 def handshake_upstream():
     if UPSTREAM_SESSION["ready"]:
         return
-    parsed, _ = post_upstream(
+    parsed, _ = exchange(
         {
             "jsonrpc": "2.0",
             "id": str(uuid.uuid4()),
@@ -210,7 +227,7 @@ def handshake_upstream():
     )
     if isinstance(parsed, dict) and parsed.get("error"):
         raise ValueError(f"upstream_error: initialize {str(parsed['error'])[:160]}")
-    post_upstream({"jsonrpc": "2.0", "method": "notifications/initialized"})
+    exchange({"jsonrpc": "2.0", "method": "notifications/initialized"})
     UPSTREAM_SESSION["ready"] = True
 
 
@@ -229,12 +246,13 @@ def call_upstream_mcp(name, arguments):
         "params": {"name": name, "arguments": arguments or {}},
     }
     try:
-        parsed, status = post_upstream(envelope)
-    except urllib.error.HTTPError:
+        parsed, status = exchange(envelope)
+    except (urllib.error.HTTPError, sse.SseError):
         UPSTREAM_SESSION["ready"] = False
         UPSTREAM_SESSION["id"] = ""
+        SSE["session"] = None
         handshake_upstream()
-        parsed, status = post_upstream(envelope)
+        parsed, status = exchange(envelope)
 
     if isinstance(parsed, dict) and parsed.get("error"):
         raise UpstreamError(
