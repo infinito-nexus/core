@@ -14,9 +14,6 @@
 # Param TEST_E2E_PLAYWRIGHT_GLOBAL_TIMEOUT_BUFFER: seconds subtracted from
 #   run_timeout to form globalTimeout, leaving room for Ansible to collect
 #   artifacts before it kills the sidecar.
-# Param test_e2e_playwright_wait_enabled: run the optional readiness wait.
-# Param test_e2e_playwright_wait_retries: readiness wait attempts.
-# Param test_e2e_playwright_wait_delay: seconds between readiness attempts.
 # Param test_e2e_playwright_only_roles: roles whose specs run. `.running` is the
 #   whitelist when a targeted deploy sets one and the inventory groups
 #   otherwise. `.groups` would run every spec in the round even when `apps=`
@@ -38,10 +35,6 @@ test_e2e_playwright_workers: "{{ lookup('playwright_workers') }}"
 TEST_E2E_PLAYWRIGHT_GLOBAL_TIMEOUT_BUFFER: 60
 TEST_E2E_PLAYWRIGHT_GLOBAL_TIMEOUT_MS: "{{ (((TEST_E2E_PLAYWRIGHT_RUN_TIMEOUT_EFFECTIVE | int) - (TEST_E2E_PLAYWRIGHT_GLOBAL_TIMEOUT_BUFFER | int)) * 1000) | string
   }}"
-
-test_e2e_playwright_wait_enabled: true
-test_e2e_playwright_wait_retries: 30
-test_e2e_playwright_wait_delay: 5
 
 test_e2e_playwright_only_roles: "{{ lookup('deployment').running }}"
 test_e2e_playwright_skip_roles: []
