@@ -1,3 +1,7 @@
+# nocheck: mirrored-unit-test - runs in the Zammad console and writes through Setting,
+# whose validator pings the gateway on save; the round trip against the live provider is
+# the entire contract
+#
 # Bind Zammad Smart Assist to the platform LiteLLM gateway.
 #
 # Order matters: ai_provider is the boolean "a provider is configured", and its

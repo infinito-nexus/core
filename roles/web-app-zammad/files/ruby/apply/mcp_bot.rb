@@ -1,3 +1,7 @@
+# nocheck: mirrored-unit-test - runs in the Zammad console against User, Role and Token,
+# and depends on the before_create hook the live models supply; none of it is callable
+# outside the Zammad image
+#
 # Give the MCP adapter a read-only Zammad agent and pin its API token.
 #
 # Zammad overwrites any token handed to create with a generated one, but only
