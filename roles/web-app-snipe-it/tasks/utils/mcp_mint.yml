@@ -24,7 +24,7 @@
       - "MCP_CURRENT_TOKEN={{ MCP_UPSTREAM_CURRENT_KEY }}"
       - "{{ SNIPEIT_IDENTITY_LOCAL_CID }}" # nocheck: container-exec-resolver
       - php
-    stdin: "{{ lookup('file', 'provision_mcp_identity.php') }}"
+    stdin: "{{ lookup('file', 'php/provision_mcp_identity.php') }}"
   register: snipeit_mcp_identity
   retries: 30
   delay: 10

@@ -14,7 +14,7 @@
       -e MCP_ROLE_CAPABILITIES={{ MOODLE_MCP_ROLE_CAPABILITIES | join(',') | quote }} \
       {{ MOODLE_MCP_LOCAL_CID | quote }} php
   args:
-    stdin: "{{ lookup('file', 'provision_mcp.php') }}"
+    stdin: "{{ lookup('file', 'php/provision_mcp.php') }}"
   register: moodle_mcp_provision
   changed_when: false
   delegate_to: "{{ MOODLE_MCP_HOST_NODE }}"
