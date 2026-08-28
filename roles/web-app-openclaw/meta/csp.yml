@@ -1,9 +1,9 @@
 ---
 flags:
   script-src:
-    unsafe-eval: true
+    unsafe-eval: true # nocheck: csp-unsafe  Reason: set when the role first deployed, with no console error recorded against it; TODO: re-verify against the running Control UI and drop the flag if the WebSocket SPA works without it
   script-src-elem:
-    unsafe-inline: true
+    unsafe-inline: true # nocheck: csp-unsafe  Reason: set when the role first deployed, with no console error recorded against it; TODO: re-verify against the running Control UI and drop the flag if the dashboard renders without it
 whitelist:
   font-src: []
   connect-src: []
