@@ -8,7 +8,7 @@ import unittest
 
 from . import PROJECT_ROOT
 
-MODULE_PATH = PROJECT_ROOT / "roles/svc-ai-mcp-adapter/files/policy.py"
+MODULE_PATH = PROJECT_ROOT / "roles/svc-ai-mcp-adapter/files/python/policy.py"
 
 spec = importlib.util.spec_from_file_location("adapter_policy", MODULE_PATH)
 policy = importlib.util.module_from_spec(spec)

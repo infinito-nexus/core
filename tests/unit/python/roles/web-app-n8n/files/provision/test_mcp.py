@@ -1,4 +1,4 @@
-"""Unit tests for ``roles/web-app-n8n/files/provision/mcp.py``."""
+"""Unit tests for ``roles/web-app-n8n/files/python/provision/mcp.py``."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 from . import PROJECT_ROOT
 
-SCRIPT_PATH = PROJECT_ROOT / "roles/web-app-n8n/files/provision/mcp.py"
+SCRIPT_PATH = PROJECT_ROOT / "roles/web-app-n8n/files/python/provision/mcp.py"
 
 ENV = {
     "N8N_BASE": "http://n8n:5678",

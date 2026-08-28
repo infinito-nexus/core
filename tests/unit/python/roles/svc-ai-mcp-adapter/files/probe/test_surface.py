@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 from . import PROJECT_ROOT
 
-MODULE_PATH = PROJECT_ROOT / "roles/svc-ai-mcp-adapter/files/probe/contract.py"
+MODULE_PATH = PROJECT_ROOT / "roles/svc-ai-mcp-adapter/files/python/probe/contract.py"
 
 BASE_ENV = {
     "MCP_URL": "http://example:8080/mcp",

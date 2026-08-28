@@ -1,4 +1,4 @@
-"""Unit tests for ``roles/web-app-flowise/files/reconcile/mcp_servers.py``."""
+"""Unit tests for ``roles/web-app-flowise/files/python/reconcile/mcp_servers.py``."""
 
 from __future__ import annotations
 
@@ -9,7 +9,9 @@ from unittest.mock import patch
 
 from . import PROJECT_ROOT
 
-SCRIPT_PATH = PROJECT_ROOT / "roles/web-app-flowise/files/reconcile/mcp_servers.py"
+SCRIPT_PATH = (
+    PROJECT_ROOT / "roles/web-app-flowise/files/python/reconcile/mcp_servers.py"
+)
 
 SUPPORTED_SERVER = {
     "id": "svc-db-qdrant",

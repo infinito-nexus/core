@@ -11,7 +11,7 @@ from unittest.mock import patch
 
 from . import PROJECT_ROOT
 
-SCRIPT_PATH = PROJECT_ROOT / "roles/svc-ai-litellm/files/ensure_keys.py"
+SCRIPT_PATH = PROJECT_ROOT / "roles/svc-ai-litellm/files/python/ensure_keys.py"
 
 
 def load_script() -> object:

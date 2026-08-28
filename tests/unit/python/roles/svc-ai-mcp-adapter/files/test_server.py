@@ -10,7 +10,7 @@ from unittest.mock import patch
 
 from . import PROJECT_ROOT
 
-FILES_DIR = PROJECT_ROOT / "roles/svc-ai-mcp-adapter/files"
+FILES_DIR = PROJECT_ROOT / "roles/svc-ai-mcp-adapter/files/python"
 MODULE_PATH = FILES_DIR / "server.py"
 
 TOOLS = {"example_list": {"method": "GET", "path": "/api/things"}}

@@ -10,7 +10,9 @@ from unittest.mock import patch
 
 from . import PROJECT_ROOT
 
-SCRIPT_PATH = PROJECT_ROOT / "roles/web-app-openwebui/files/provision_mcp_grants.py"
+SCRIPT_PATH = (
+    PROJECT_ROOT / "roles/web-app-openwebui/files/python/provision_mcp_grants.py"
+)
 
 
 def load_script(

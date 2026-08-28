@@ -10,7 +10,7 @@ from typing import ClassVar
 
 from . import PROJECT_ROOT
 
-FILES_DIR = PROJECT_ROOT / "roles/svc-ai-mcp-adapter/files"
+FILES_DIR = PROJECT_ROOT / "roles/svc-ai-mcp-adapter/files/python"
 MODULE_PATH = FILES_DIR / "passthrough.py"
 
 LIMITS: dict[str, int] = {

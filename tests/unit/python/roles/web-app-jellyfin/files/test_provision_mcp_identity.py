@@ -9,7 +9,9 @@ from unittest.mock import patch
 
 from . import PROJECT_ROOT
 
-SCRIPT_PATH = PROJECT_ROOT / "roles/web-app-jellyfin/files/provision_mcp_identity.py"
+SCRIPT_PATH = (
+    PROJECT_ROOT / "roles/web-app-jellyfin/files/python/provision_mcp_identity.py"
+)
 
 MCP_USER = "mcpreader"
 USER_ID = "0e3f1c9a4b8d4f27a1c6d5e2b7a90f13"
