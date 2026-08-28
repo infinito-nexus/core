@@ -16,3 +16,14 @@
   changed_when: "'CHANGED' in litellm_keys_result.stdout"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   delegate_to: "{{ LITELLM_HOST_NODE }}"
+
+- name: "🔥 Warm the chat model so the first prompt is not a cold load"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i -e LITELLM_MK={{ LITELLM_MASTER_KEY | quote }} -e LITELLM_PORT={{ LITELLM_PORT | quote }} -e LITELLM_MODEL={{ LITELLM_CHAT_MODEL | quote }} {{ LITELLM_LOCAL_CID | quote }} python3 -c {{ lookup('file', lookup('path_absolute', 'roles/svc-ai-litellm/files/python/warm_model.py')) | quote }}
+  register: litellm_warm_result
+  retries: 5
+  delay: 10
+  until: litellm_warm_result.rc == 0
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ LITELLM_HOST_NODE }}"
