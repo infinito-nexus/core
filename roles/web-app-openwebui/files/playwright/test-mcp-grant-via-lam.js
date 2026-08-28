@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
-const { performKeycloakLoginForm } = require("./personas");
+const { performKeycloakLoginForm, gotoOnion } = require("./personas");
 
 const LDAP_MEMBER_ATTRIBUTE = "member";
 const MEMBER_VALUE_LIST = `#attributeList_${LDAP_MEMBER_ATTRIBUTE}`;
@@ -61,7 +62,7 @@ async function sessionUserId(page, shared) {
 }
 
 async function signInToLam(page, shared) {
-  await page.goto(`${shared.env.lamBaseUrl.replace(/\/+$/, "")}/`);
+  await gotoOnion(page, `${shared.env.lamBaseUrl.replace(/\/+$/, "")}/`);
 
   if (/\/protocol\/openid-connect\//.test(page.url())) {
     await performKeycloakLoginForm(
@@ -74,7 +75,7 @@ async function signInToLam(page, shared) {
   await expect(
     page,
     "LAM must be reached after the SSO hop, not left on the identity provider"
-  ).not.toHaveURL(/\/protocol\/openid-connect\//, { timeout: 60_000 });
+  ).not.toHaveURL(/\/protocol\/openid-connect\//, { timeout: resolveTimeout(60_000) });
 
   const passwordField = page
     .locator("input[type='password'], input[name='passwd'], input#passwd")
@@ -82,7 +83,7 @@ async function signInToLam(page, shared) {
   await expect(
     passwordField,
     "LAM must present its own login form after the SSO hop; the proxy does not bind to LDAP for us"
-  ).toBeVisible({ timeout: 60_000 });
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
   const userSelect = page.getByRole("combobox", { name: /user ?name/i }).first();
   if (await userSelect.isVisible().catch(() => false)) {
@@ -96,25 +97,25 @@ async function signInToLam(page, shared) {
   await expect(
     passwordField,
     "LAM must accept the bind credential instead of returning its login form"
-  ).toBeHidden({ timeout: 60_000 });
+  ).toBeHidden({ timeout: resolveTimeout(60_000) });
 }
 
 async function openMemberValueList(page, shared, groupCn) {
   const base = shared.env.lamBaseUrl.replace(/\/+$/, "");
   const groupDn = `cn=${groupCn},${shared.env.ldapRoleDnBase}`;
   const dnParam = encodeURIComponent(Buffer.from(groupDn, "utf8").toString("base64"));
-  await page.goto(`${base}/lam/templates/tools/treeView.php?dn=${dnParam}`);
+  await gotoOnion(page, `${base}/lam/templates/tools/treeView.php?dn=${dnParam}`);
 
   await expect(
     page.getByRole("heading", { name: new RegExp(`^cn=${groupCn},`) }).first(),
     `LAM must open the ${groupCn} role group; a missing entry heading means the LDAP bind did not take`
-  ).toBeVisible({ timeout: 60_000 });
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
   const memberList = page.locator(MEMBER_VALUE_LIST);
   await expect(
     memberList,
     `LAM must render ${groupCn}'s ${LDAP_MEMBER_ATTRIBUTE} attribute as an editable value list`
-  ).toBeVisible({ timeout: 30_000 });
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
   return memberList;
 }
 
@@ -144,7 +145,7 @@ async function revokeMemberInLam(page, shared, groupCn, memberDn) {
 
   await expect
     .poll(() => memberValues(memberList), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `LAM must drop ${memberDn} from ${groupCn}`,
     })
     .not.toContain(memberDn);
@@ -163,7 +164,7 @@ async function grantMemberInLam(page, shared, groupCn, memberDn) {
 
   await expect
     .poll(() => memberValues(memberList), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `LAM must persist ${memberDn} as a ${LDAP_MEMBER_ATTRIBUTE} of ${groupCn}`,
     })
     .toContain(memberDn);
@@ -262,7 +263,7 @@ exports.register = function (shared) {
       !shared.env.lamBaseUrl,
       "LAM_BASE_URL is empty; web-app-lam is not in this deployment's inventory"
     );
-    test.setTimeout(600_000);
+    test.setTimeout(resolveTimeout(600_000));
 
     const server = firstExpectedServer(shared);
     const groupCn = `${server}-mcp`;

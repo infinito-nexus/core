@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
@@ -6,7 +7,9 @@ exports.register = function (shared) {
   test("mcp: the agent API holding the MCP credentials refuses an unauthenticated caller", async ({ request }) => {
     skipUnlessServiceEnabled("mcp");
 
-    const anonymous = await request.get(`${shared.env.baseUrl}/v1/models`);
+    const anonymous = await request.get(`${shared.env.baseUrl}/v1/models`, {
+      timeout: resolveTimeout(30_000),
+    });
     expect(
       anonymous.status(),
       "an unauthenticated /v1/models must be refused; the agent holds one bearer per MCP server",
@@ -24,6 +27,7 @@ exports.register = function (shared) {
 
     const authenticated = await request.get(`${shared.env.baseUrl}/v1/models`, {
       headers: { Authorization: `Bearer ${shared.env.apiServerKey}` },
+      timeout: resolveTimeout(30_000),
     });
     expect(
       authenticated.status(),

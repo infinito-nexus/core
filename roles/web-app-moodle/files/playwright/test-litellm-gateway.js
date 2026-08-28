@@ -1,5 +1,6 @@
 const { test, expect } = require("@playwright/test");
-const { decodeDotenvQuotedValue, performKeycloakLogin, readEnv } = require("./personas");
+const { resolveTimeout } = require("./timeouts");
+const { decodeDotenvQuotedValue, performKeycloakLogin, readEnv, gotoOnion } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
 const adminNativePassword = decodeDotenvQuotedValue(process.env.ADMIN_NATIVE_PASSWORD || "");
@@ -23,9 +24,9 @@ const GATEWAY_PROMPT = "Reply with the single word: pong";
  */
 async function loginAsSiteAdmin(page, shared) {
   if (shared.env.ssoEnabled) {
-    await page.goto(`${shared.env.moodleBaseUrl}/auth/oidc/?source=loginpage`, {
+    await gotoOnion(page, `${shared.env.moodleBaseUrl}/auth/oidc/?source=loginpage`, {
       waitUntil: "domcontentloaded",
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
     });
     await performKeycloakLogin(
       page,
@@ -39,9 +40,9 @@ async function loginAsSiteAdmin(page, shared) {
       "ADMIN_NATIVE_PASSWORD must be rendered from credentials.user_password; with the sso service off it is the only secret that authenticates the Moodle site administrator",
     ).toBeTruthy();
 
-    await page.goto(`${shared.env.moodleBaseUrl}/login/index.php`, {
+    await gotoOnion(page, `${shared.env.moodleBaseUrl}/login/index.php`, {
       waitUntil: "domcontentloaded",
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
     });
     await page
       .locator("input[name='username'], input#username")
@@ -56,11 +57,11 @@ async function loginAsSiteAdmin(page, shared) {
     await expect(
       passwordInput,
       "the native Moodle login form must expose a password field; its absence means the login page no longer serves the manual auth form",
-    ).toBeAttached({ timeout: 30_000 });
+    ).toBeAttached({ timeout: resolveTimeout(30_000) });
     await expect(async () => {
       await passwordInput.fill(adminNativePassword);
       await expect(passwordInput).toHaveValue(adminNativePassword);
-    }).toPass({ timeout: 30_000 });
+    }).toPass({ timeout: resolveTimeout(30_000) });
 
     await page.locator("#loginbtn, button[type='submit'], input[type='submit']").first().click();
     await page.waitForLoadState("load");
@@ -69,26 +70,27 @@ async function loginAsSiteAdmin(page, shared) {
   await expect(
     page.locator(USER_MENU).first(),
     "the site administrator must reach an authenticated session; a failure here means the auth chain the deploy configured does not admit the administrator account",
-  ).toBeVisible({ timeout: 60_000 });
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
 }
 
 exports.register = function (shared) {
   test("litellm: Moodle answers a prompt through the in-cluster gateway", async ({ page }) => {
     skipUnlessServiceEnabled("litellm");
-    test.setTimeout(240_000);
+    test.setTimeout(resolveTimeout(240_000));
 
     await loginAsSiteAdmin(page, shared);
 
-    await page.goto(
+    await gotoOnion(
+      page,
       `${shared.env.moodleBaseUrl}/admin/settings.php?section=aiprovider_openai_generate_text`,
-      { waitUntil: "domcontentloaded", timeout: 60_000 },
+      { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) },
     );
 
     const endpointField = page.locator(ENDPOINT_FIELD);
     await expect(
       endpointField,
       "the aiprovider_openai generate_text settings page must render its API endpoint field; its absence means the provider was never configured or the session lacks moodle/site:config",
-    ).toBeVisible({ timeout: 60_000 });
+    ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
     const configuredEndpoint = ((await endpointField.inputValue()) || "").trim();
     expect(
@@ -131,7 +133,7 @@ exports.register = function (shared) {
           args: { contextid: bootstrap.contextid, prompttext: GATEWAY_PROMPT },
         },
       ],
-      timeout: 180_000,
+      timeout: resolveTimeout(180_000),
     });
 
     expect(

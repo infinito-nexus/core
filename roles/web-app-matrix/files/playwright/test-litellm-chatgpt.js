@@ -14,6 +14,7 @@
 //   MATRIX_CHATGPT_BRIDGE_ENDPOINT, MATRIX_CHATGPT_BRIDGE_MODEL.
 
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { decodeDotenvQuotedValue } = require("./personas");
 
 const BOT_LOCALPART = "chatgptbot";
@@ -59,6 +60,7 @@ async function loginWithPassword(request, matrixBaseUrl, username, password, dia
     const response = await request.post(`${matrixBaseUrl}/_matrix/client/v3/login`, {
       data: payload,
       failOnStatusCode: false,
+      timeout: resolveTimeout(30_000),
     });
     const raw = await response.text().catch(() => "");
     if (response.ok()) {
@@ -72,7 +74,7 @@ async function loginWithPassword(request, matrixBaseUrl, username, password, dia
     }
     diagnostic.last = `HTTP ${response.status()}: ${raw.slice(0, 400)}`;
     if (response.status() !== 429) return null;
-    let retryAfterMs = 5_000;
+    let retryAfterMs;
     try {
       retryAfterMs = Number(JSON.parse(raw).retry_after_ms) || 5_000;
     } catch {
@@ -86,7 +88,7 @@ async function loginWithPassword(request, matrixBaseUrl, username, password, dia
 async function joinedMembers(request, matrixBaseUrl, roomId, accessToken) {
   const response = await request.get(
     `${matrixBaseUrl}/_matrix/client/v3/rooms/${encodeURIComponent(roomId)}/joined_members`,
-    { headers: authHeaders(accessToken), failOnStatusCode: false },
+    { headers: authHeaders(accessToken), failOnStatusCode: false, timeout: resolveTimeout(30_000) },
   );
   if (!response.ok()) return [];
   const body = await response.json().catch(() => ({}));
@@ -100,6 +102,7 @@ async function botReplies(request, matrixBaseUrl, roomId, accessToken, botUserId
       headers: authHeaders(accessToken),
       params: { dir: "b", limit: "100" },
       failOnStatusCode: false,
+      timeout: resolveTimeout(30_000),
     },
   );
   if (!response.ok()) return [];
@@ -185,6 +188,7 @@ exports.register = function (shared) {
           name: `litellm-gateway-probe-${Date.now()}`,
         },
         failOnStatusCode: false,
+        timeout: resolveTimeout(30_000),
       });
       const createBody = await createResponse.text().catch(() => "");
       expect(
@@ -195,7 +199,7 @@ exports.register = function (shared) {
 
       await expect
         .poll(async () => (await joinedMembers(request, matrixBaseUrl, roomId, accessToken)).includes(botUserId), {
-          timeout: 180_000,
+          timeout: resolveTimeout(180_000),
           intervals: [5_000],
           message: `${botUserId} must accept the invite (MATRIX_AUTOJOIN=true); if it never joins, the bridge container is not running or failed to authenticate against Synapse, so no prompt can reach the gateway`,
         })
@@ -207,6 +211,7 @@ exports.register = function (shared) {
           headers: authHeaders(accessToken),
           data: { msgtype: "m.text", body: PROMPT },
           failOnStatusCode: false,
+          timeout: resolveTimeout(30_000),
         },
       );
       expect(
@@ -222,7 +227,7 @@ exports.register = function (shared) {
             return replies.length > 0;
           },
           {
-            timeout: 300_000,
+            timeout: resolveTimeout(300_000),
             intervals: [5_000],
             message: `${botUserId} must post an answer to the prompt; the bridge only posts once its chat-completions call returned, so silence means the request to ${bridgeEndpoint} never completed`,
           },
@@ -249,6 +254,7 @@ exports.register = function (shared) {
             headers: authHeaders(accessToken),
             data: {},
             failOnStatusCode: false,
+            timeout: resolveTimeout(30_000),
           })
           .catch(() => {});
       }
@@ -257,6 +263,7 @@ exports.register = function (shared) {
           headers: authHeaders(accessToken),
           data: {},
           failOnStatusCode: false,
+          timeout: resolveTimeout(30_000),
         })
         .catch(() => {});
     }

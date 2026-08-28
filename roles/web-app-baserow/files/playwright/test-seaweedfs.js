@@ -35,7 +35,7 @@ async function postWhileTableLocked(appPage, url, options, label) {
     if (!body.includes("ERROR_FAILED_TO_LOCK_TABLE_DUE_TO_CONFLICT") || Date.now() > deadline) {
       expect(false, `${label} failed with 409: ${body}`).toBe(true);
     }
-    await appPage.waitForTimeout(500);
+    await appPage.waitForTimeout(resolveTimeout(500));
   }
 }
 

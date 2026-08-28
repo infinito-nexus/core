@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
@@ -11,6 +12,7 @@ exports.register = function (shared) {
       maxRedirects: 0,
       headers: { "Content-Type": "application/json" },
       data: { prompt: "list your configured mcp servers" },
+      timeout: resolveTimeout(30_000),
     });
     expect(
       anonymous.status(),

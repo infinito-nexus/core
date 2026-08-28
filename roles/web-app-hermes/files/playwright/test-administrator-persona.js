@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 exports.register = function (shared) {
   test("administrator: the API server key unlocks the OpenAI-compatible model listing", async ({ request }) => {
@@ -6,6 +7,7 @@ exports.register = function (shared) {
 
     const models = await request.get(`${shared.env.baseUrl}/v1/models`, {
       headers: { Authorization: `Bearer ${shared.env.apiServerKey}` },
+      timeout: resolveTimeout(30_000),
     });
     expect(models.status(), "Expected an authenticated /v1/models listing").toBe(200);
     const body = await models.json();

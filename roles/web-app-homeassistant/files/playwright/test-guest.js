@@ -1,8 +1,10 @@
 const { test, expect } = require("@playwright/test");
 
+const { gotoOnion } = require("./personas");
+
 exports.register = function (shared) {
   test("guest: Home Assistant onboarding or login surface is reachable", async ({ page }) => {
-    const response = await page.goto(`${shared.env.baseUrl}/`);
+    const response = await gotoOnion(page, `${shared.env.baseUrl}/`);
     expect(response, "Expected a Home Assistant response").toBeTruthy();
     expect(response.status(), "Expected Home Assistant status to be < 400").toBeLessThan(400);
     expect(

@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
 
@@ -6,7 +7,7 @@ const MCP_ENDPOINT = "/wp-json/mcp/mcp-adapter-default-server";
 
 test("addon mcp-adapter: the MCP endpoint answers nobody without a credential", async ({ browser }) => {
   skipUnlessAddonEnabled("mcp-adapter");
-  test.setTimeout(60_000);
+  test.setTimeout(resolveTimeout(60_000));
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();

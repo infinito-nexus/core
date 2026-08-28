@@ -1,4 +1,5 @@
 const { test, expect, request } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { decodeDotenvQuotedValue } = require("./personas");
 
 const expectedBaseUrl = decodeDotenvQuotedValue(process.env.ZAMMAD_LITELLM_BASE_URL || "").trim();
@@ -7,7 +8,7 @@ const expectedModel = decodeDotenvQuotedValue(process.env.ZAMMAD_LITELLM_MODEL |
 exports.register = function (shared) {
   test("administrator: Smart Assist answers a prompt through the in-cluster LiteLLM gateway", async () => {
     shared.skipUnlessServiceEnabled("litellm");
-    test.setTimeout(180_000);
+    test.setTimeout(resolveTimeout(180_000));
 
     expect(expectedBaseUrl, "ZAMMAD_LITELLM_BASE_URL must be rendered into playwright.env").toBeTruthy();
     expect(expectedModel, "ZAMMAD_LITELLM_MODEL must be rendered into playwright.env").toBeTruthy();
@@ -83,7 +84,7 @@ exports.register = function (shared) {
 
       const completion = await api.post(
         `${shared.env.zammadBaseUrl}/api/v1/ai_assistance/text_tools/${tool.id}`,
-        { data: { input: "teh qick brown fox jump over teh lazy dog" }, timeout: 120_000 }
+        { data: { input: "teh qick brown fox jump over teh lazy dog" }, timeout: resolveTimeout(120_000) }
       );
       expect(
         completion.status(),

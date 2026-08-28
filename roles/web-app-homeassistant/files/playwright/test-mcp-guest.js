@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
@@ -11,6 +12,7 @@ exports.register = function (shared) {
       maxRedirects: 0,
       headers: { "Content-Type": "application/json", Accept: "application/json, text/event-stream" },
       data: { jsonrpc: "2.0", id: 1, method: "initialize", params: { protocolVersion: "2025-06-18" } },
+      timeout: resolveTimeout(30_000),
     });
 
     expect(

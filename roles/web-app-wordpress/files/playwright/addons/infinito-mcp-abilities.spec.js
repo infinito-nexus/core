@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
 
@@ -12,7 +13,7 @@ const REVIEWED_ABILITIES = [
 
 test("addon infinito-mcp-abilities: only the reviewed abilities are reachable", async ({ browser }) => {
   skipUnlessAddonEnabled("infinito-mcp-abilities");
-  test.setTimeout(60_000);
+  test.setTimeout(resolveTimeout(60_000));
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();

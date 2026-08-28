@@ -1,5 +1,6 @@
 const { test, expect } = require("@playwright/test");
-const { decodeDotenvQuotedValue } = require("./personas");
+const { resolveTimeout } = require("./timeouts");
+const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 
 const credentialName = decodeDotenvQuotedValue(process.env.N8N_LITELLM_CREDENTIAL_NAME);
 const gatewayBaseUrl = decodeDotenvQuotedValue(process.env.N8N_LITELLM_BASE_URL);
@@ -43,13 +44,13 @@ async function restClient(page, baseUrl) {
     if (browserId) {
       headers["browser-id"] = browserId;
     }
-    const options = { method, headers, failOnStatusCode: false, timeout: 120_000 };
+    const options = { method, headers, failOnStatusCode: false, timeout: resolveTimeout(120_000) };
     if (payload !== undefined) {
       options.data = payload;
     }
     const response = await page.request.fetch(`${baseUrl}${path}`, options);
     const text = await response.text();
-    let body = null;
+    let body;
     try {
       body = text ? JSON.parse(text) : null;
     } catch {
@@ -82,7 +83,7 @@ async function signInAsOwner(page, shared) {
 
   expect(shared.env.adminEmail, "ADMIN_EMAIL must be set").toBeTruthy();
   expect(shared.env.n8nOwnerPassword, "N8N_OWNER_PASSWORD must be set").toBeTruthy();
-  await page.goto(`${shared.env.n8nBaseUrl}/`);
+  await gotoOnion(page, `${shared.env.n8nBaseUrl}/`);
   await shared.performN8nLoginForm(page, shared.env.adminEmail, shared.env.n8nOwnerPassword);
 }
 
@@ -145,7 +146,7 @@ async function pollExecution(page, rest, executionId, timeoutMs) {
     if (Date.now() >= deadline) {
       return { execution: null, latest };
     }
-    await page.waitForTimeout(2_000);
+    await page.waitForTimeout(resolveTimeout(2_000));
   }
 }
 
@@ -194,7 +195,7 @@ function probeWorkflow(credentialId, endpoint) {
 exports.register = function (shared) {
   test("administrator: the managed openAiApi credential answers a prompt through the in-cluster gateway", async ({ page }) => {
     shared.skipUnlessServiceEnabled("litellm");
-    test.setTimeout(360_000);
+    test.setTimeout(resolveTimeout(360_000));
 
     expect(credentialName, "N8N_LITELLM_CREDENTIAL_NAME must be set").toBeTruthy();
     expect(gatewayBaseUrl, "N8N_LITELLM_BASE_URL must be set").toBeTruthy();

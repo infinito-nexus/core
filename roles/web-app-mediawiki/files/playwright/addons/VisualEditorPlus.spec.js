@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { normalizeBaseUrl } = require("../personas");
@@ -13,13 +14,13 @@ test("VisualEditorPlus: the extension is loaded and serves the inspector module 
   request,
 }) => {
   skipUnlessAddonEnabled("VisualEditorPlus");
-  test.setTimeout(120_000);
+  test.setTimeout(resolveTimeout(120_000));
 
   expect(appBaseUrl, "APP_BASE_URL must be set").toBeTruthy();
 
   const siteinfo = await request.get(
     `${appBaseUrl}/api.php?action=query&meta=siteinfo&siprop=extensions&format=json&formatversion=2`,
-    { timeout: 60_000 },
+    { timeout: resolveTimeout(60_000) },
   );
   expect(
     siteinfo.status(),
@@ -42,7 +43,7 @@ test("VisualEditorPlus: the extension is loaded and serves the inspector module 
 
   const module = await request.get(
     `${appBaseUrl}/load.php?modules=${INSPECTOR_MODULE}&only=scripts&raw=1&debug=1`,
-    { timeout: 60_000 },
+    { timeout: resolveTimeout(60_000) },
   );
   expect(module.status(), `load.php must serve ${INSPECTOR_MODULE}`).toBe(200);
 

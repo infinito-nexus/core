@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { normalizeBaseUrl } = require("./personas");
 
@@ -13,6 +14,7 @@ test("mcp: the instance exposes no MCP registry and refuses an unauthenticated c
   const anonymous = await request.get(`${baseUrl.replace(/\/+$/, "")}/api/v1/chatflows`, {
     failOnStatusCode: false,
     maxRedirects: 0,
+    timeout: resolveTimeout(30_000),
   });
   expect(
     anonymous.status(),

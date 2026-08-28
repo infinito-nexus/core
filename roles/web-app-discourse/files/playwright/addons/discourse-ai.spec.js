@@ -1,6 +1,12 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
-const { normalizeBaseUrl, decodeDotenvQuotedValue, performKeycloakLoginForm } = require("../personas");
+const {
+  normalizeBaseUrl,
+  decodeDotenvQuotedValue,
+  performKeycloakLoginForm,
+  gotoOnion,
+} = require("../personas");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -15,7 +21,7 @@ const expectedDisplayName = decodeDotenvQuotedValue(process.env.DISCOURSE_AI_LLM
 async function signInViaOidc(page) {
   const expectedOidcAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
 
-  await page.goto(`${discourseBaseUrl}/`);
+  await gotoOnion(page, `${discourseBaseUrl}/`);
 
   const oidcSignIn = page
     .locator("a, button")
@@ -25,12 +31,12 @@ async function signInViaOidc(page) {
   if ((await oidcSignIn.count().catch(() => 0)) > 0) {
     await oidcSignIn.click();
   } else {
-    await page.goto(`${discourseBaseUrl}/auth/oidc`).catch(() => {});
+    await gotoOnion(page, `${discourseBaseUrl}/auth/oidc`).catch(() => {});
   }
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `expected redirect to Keycloak OIDC auth (${expectedOidcAuthUrl})`,
     })
     .toContain(expectedOidcAuthUrl);
@@ -39,7 +45,7 @@ async function signInViaOidc(page) {
 
   await expect
     .poll(() => page.url(), {
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
       message: `expected redirect back to discourse at ${discourseBaseUrl}`,
     })
     .toContain(discourseBaseUrl);
@@ -53,7 +59,7 @@ function settingValue(settings, name) {
 
 test("discourse-ai: the Discourse AI model routes prompts through the in-cluster gateway and answers one", async ({ page }) => {
   skipUnlessAddonEnabled("discourse-ai");
-  test.setTimeout(180_000);
+  test.setTimeout(resolveTimeout(180_000));
 
   expect(oidcIssuerUrl, "OIDC_ISSUER_URL must be set").toBeTruthy();
   expect(discourseBaseUrl, "DISCOURSE_BASE_URL must be set").toBeTruthy();
@@ -71,7 +77,7 @@ test("discourse-ai: the Discourse AI model routes prompts through the in-cluster
 
     await expect(page.locator("body")).toContainText(
       /topic|category|welcome|latest|discourse/i,
-      { timeout: 60_000 },
+      { timeout: resolveTimeout(60_000) },
     );
 
     const llmIndex = await page.evaluate(async (base) => {
@@ -177,7 +183,7 @@ test("discourse-ai: the Discourse AI model routes prompts through the in-cluster
         body: JSON.stringify({ ai_llm: model }),
       });
       const text = await res.text();
-      let body = {};
+      let body;
       try {
         body = JSON.parse(text);
       } catch {

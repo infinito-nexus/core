@@ -1,10 +1,12 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
+const { gotoOnion } = require("../personas");
 const shared = require("../_shared");
 
 test("addon ai-engine: WordPress answers a prompt through the in-cluster LiteLLM gateway", async ({ browser }) => {
   skipUnlessAddonEnabled("ai-engine");
-  test.setTimeout(180_000);
+  test.setTimeout(resolveTimeout(180_000));
 
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();
@@ -17,15 +19,15 @@ test("addon ai-engine: WordPress answers a prompt through the in-cluster LiteLLM
       shared.env.adminPassword
     );
 
-    await page.goto(`${shared.env.wpBaseUrl}/wp-admin/admin.php?page=mwai_settings`, {
+    await gotoOnion(page, `${shared.env.wpBaseUrl}/wp-admin/admin.php?page=mwai_settings`, {
       waitUntil: "domcontentloaded",
-      timeout: 60_000,
+      timeout: resolveTimeout(60_000),
     });
 
     const bootstrap = await page.waitForFunction(
       () => (window.mwai && window.mwai.rest_nonce ? window.mwai : null),
       undefined,
-      { timeout: 60_000 }
+      { timeout: resolveTimeout(60_000) }
     ).then((handle) => handle.jsonValue());
 
     expect(
@@ -71,7 +73,7 @@ test("addon ai-engine: WordPress answers a prompt through the in-cluster LiteLLM
         model: bootstrap.options.ai_default_model,
         stream: false,
       },
-      timeout: 120_000,
+      timeout: resolveTimeout(120_000),
     });
 
     expect(

@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("../timeouts");
 
 const { skipUnlessAddonEnabled } = require("../addon-gating");
 const { normalizeBaseUrl } = require("../personas");
@@ -14,7 +15,7 @@ test("AIEditingAssistant: the wiki answers a prompt through the in-cluster gatew
   request,
 }) => {
   skipUnlessAddonEnabled("AIEditingAssistant");
-  test.setTimeout(240_000);
+  test.setTimeout(resolveTimeout(240_000));
 
   expect(appBaseUrl, "APP_BASE_URL must be set").toBeTruthy();
   expect(aiGatewayBaseUrl, "AI_GATEWAY_BASE_URL must be set").toBeTruthy();
@@ -38,7 +39,7 @@ test("AIEditingAssistant: the wiki answers a prompt through the in-cluster gatew
 
   const siteinfo = await request.get(
     `${appBaseUrl}/api.php?action=query&meta=siteinfo&siprop=extensions&format=json&formatversion=2`,
-    { timeout: 60_000 },
+    { timeout: resolveTimeout(60_000) },
   );
   expect(
     siteinfo.status(),
@@ -60,7 +61,7 @@ test("AIEditingAssistant: the wiki answers a prompt through the in-cluster gatew
       text: "this sentence have a error",
       isContinuation: false,
     },
-    timeout: 210_000,
+    timeout: resolveTimeout(210_000),
   });
 
   const bodyText = await response.text();

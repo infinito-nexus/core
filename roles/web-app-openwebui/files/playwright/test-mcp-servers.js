@@ -1,10 +1,11 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
 exports.register = function (shared) {
   test("administrator: every discovered MCP server is registered as a tool server", async ({ page }) => {
     skipUnlessServiceEnabled("mcp");
-    test.setTimeout(120_000);
+    test.setTimeout(resolveTimeout(120_000));
 
     await shared.signInViaDashboardOidc(
       page,

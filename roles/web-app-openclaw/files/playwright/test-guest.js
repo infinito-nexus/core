@@ -1,10 +1,10 @@
 const { test, expect } = require("@playwright/test");
 
-const { assertCspResponseHeader, assertCspMetaParity } = require("./personas");
+const { assertCspResponseHeader, assertCspMetaParity, gotoOnion } = require("./personas");
 
 exports.register = function (shared) {
   test("guest: OpenClaw dashboard reachable, serves CSP, never exposes an authenticated surface", async ({ page }) => {
-    const response = await page.goto(`${shared.env.baseUrl}/`);
+    const response = await gotoOnion(page, `${shared.env.baseUrl}/`);
     expect(response, "Expected a OpenClaw dashboard response").toBeTruthy();
     expect(response.status(), "Expected OpenClaw status to be < 400").toBeLessThan(400);
     expect(
