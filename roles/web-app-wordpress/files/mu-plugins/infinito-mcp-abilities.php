@@ -14,6 +14,10 @@
  * let any authenticated caller reach the ability.
  */
 
+// nocheck: mirrored-unit-test - a mu-plugin the WordPress loader includes; it exits
+// unless ABSPATH is defined, and every ability calls get_posts, current_user_can and
+// wp_register_ability against the booted site
+
 defined( 'ABSPATH' ) || exit;
 
 const INFINITO_MCP_MAX_RESULTS = 20;
