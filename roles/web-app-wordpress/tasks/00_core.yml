@@ -29,6 +29,8 @@
   stack_host_template:
     src: "{{ WORDPRESS_MSMTP_SRC }}"
     dest: "{{ WORDPRESS_MSMTP_ABS }}"
+  vars:
+    sys_svc_mail_msmtp_in_container: true
   notify: compose-up
 
 - name: 🚿 Flush handlers to make {{ WORDPRESS_CONFIG_FILE }} available before patch
