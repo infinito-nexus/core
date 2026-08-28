@@ -76,6 +76,8 @@
       - "FLOWISE_MCP_DESIRED={{ FLOWISE_MCP_DESIRED | to_json }}"
       - -e
       - "FLOWISE_MCP_TRANSPORT={{ FLOWISE_MCP_TRANSPORT }}"
+      - -e
+      - "FLOWISE_MCP_FIXTURE={{ FLOWISE_MCP_FIXTURE | to_json }}"
       - "{{ FLOWISE_LOCAL_CID }}" # nocheck: container-exec-resolver
       - python3
       - "-"

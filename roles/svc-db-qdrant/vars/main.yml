@@ -10,6 +10,8 @@ QDRANT_PORT: "{{ database_port | default(lookup('config', application_id, 'servi
 QDRANT_EXPOSE_LOCAL: true
 QDRANT_DELAY: 2
 QDRANT_EXEC_SHELL: "container exec {{ QDRANT_CONTAINER_ADDRESS }} bash -lc"
+QDRANT_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.api_key') }}"
+QDRANT_READ_ONLY_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.read_only_api_key') }}"
 
 QDRANT_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') | bool }}"
 QDRANT_MCP_SERVICE_KEY: "qdrantmcp"
@@ -26,4 +28,4 @@ QDRANT_MCP_CONTRACT:
   tools: "{{ lookup('file', 'mcp/tools.json') | from_json }}"
   limits: "{{ lookup('config', application_id, 'mcp.limits') }}"
   schema_sha256: "{{ lookup('config', application_id, 'mcp.tools.schema_sha256') }}"
-QDRANT_MCP_UPSTREAM_KEY: ""
+QDRANT_MCP_UPSTREAM_KEY: "{{ QDRANT_READ_ONLY_API_KEY }}"

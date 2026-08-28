@@ -13,9 +13,11 @@ FLOWISE_SQLITE_VERSION: "{{ lookup('config', application_id, 'services.flowise.s
 
 FLOWISE_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 
+FLOWISE_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') }}"
 FLOWISE_LITELLM_URL: "{{ LITELLM_BASE_LOCAL_URL }}"
 FLOWISE_LITELLM_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') }}"
 
+FLOWISE_QDRANT_API_KEY: "{{ lookup('engine', 'qdrant', application_id, 'password') }}"
 FLOWISE_QDRANT_INTERNAL_URL: "{{ lookup('engine', 'qdrant', application_id, 'url') }}"
 
 FLOWISE_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') }}"
@@ -32,6 +34,16 @@ FLOWISE_API_BOT_USER: "{{ lookup('users', 'flowise-api-bot') }}"
 
 FLOWISE_API_BOT_PASSWORD: "{{ FLOWISE_API_BOT_USER.password }}"
 FLOWISE_MCP_API_KEY_NAME: "infinito:mcp-registry"
+FLOWISE_MCP_FIXTURE:
+  - id: svc-db-qdrant
+    tool: qdrant_list_collections
+    args: {}
+  - id: web-app-prometheus
+    tool: prometheus_get_targets
+    args: {}
+  - id: web-app-homeassistant
+    tool: GetDateTime
+    args: {}
 FLOWISE_MCP_DESIRED: >-
   {%- set out = [] -%}
   {%- for server in FLOWISE_MCP_SERVERS -%}
@@ -41,6 +53,6 @@ FLOWISE_MCP_DESIRED: >-
       'transport': server.transport | replace('-', '_'),
       'header': 'Authorization',
       'token': server | mcp_authorization,
-      'tools': []}) -%}
+      'tools': server.tools}) -%}
   {%- endfor -%}
   {{ out }}

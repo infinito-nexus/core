@@ -40,6 +40,8 @@
       ADAPTER_CONTRACT: {{ QDRANT_MCP_CONTRACT | to_json | to_json | replace('$', '$$') }}
       ADAPTER_BEARER: {{ QDRANT_MCP_BEARER | to_json }}
       ADAPTER_PORT: "{{ QDRANT_MCP_PORT }}"
+      ADAPTER_UPSTREAM_AUTH_FORMAT: "{key}"
+      ADAPTER_UPSTREAM_AUTH_HEADER: api-key
       ADAPTER_UPSTREAM_KEY: {{ QDRANT_MCP_UPSTREAM_KEY | to_json }}
     expose:
       - "{{ QDRANT_MCP_PORT }}"

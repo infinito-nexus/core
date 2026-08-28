@@ -23,8 +23,17 @@ SUPPORTED_SERVER = {
 }
 
 
+FIXTURE = {"id": "svc-db-qdrant", "tool": "qdrant_list_collections", "args": {}}
+
+DENIED = ("127.0.0.1", "169.254.169.254")
+PROBE_NAME = "infinito:denylist-probe"
+
+
 def load_script(
-    desired: list, workspace: str = "ws-1", transport: str = "streamable_http"
+    desired: list,
+    workspace: str = "ws-1",
+    transport: str = "streamable_http",
+    fixtures: list | None = None,
 ) -> object:
     spec = importlib.util.spec_from_file_location("reconcile_mcp_servers", SCRIPT_PATH)
     module = importlib.util.module_from_spec(spec)
@@ -36,6 +45,9 @@ def load_script(
             "FLOWISE_WORKSPACE": workspace,
             "FLOWISE_MCP_DESIRED": json.dumps(desired),
             "FLOWISE_MCP_TRANSPORT": transport,
+            "FLOWISE_MCP_FIXTURE": json.dumps(
+                [FIXTURE] if fixtures is None else fixtures
+            ),
         },
     ):
         spec.loader.exec_module(module)
@@ -45,12 +57,24 @@ def load_script(
 class FakeApi:
     """Minimal stand-in for the Flowise custom-mcp-servers routes."""
 
-    def __init__(self, entries=(), tools=None, duplicate=False, flows=()):
+    def __init__(
+        self,
+        entries=(),
+        tools=None,
+        duplicate=False,
+        flows=(),
+        prediction=None,
+        permissive=False,
+    ):
+        self.permissive = permissive
         self.entries = [dict(entry) for entry in entries]
         if duplicate and self.entries:
             self.entries.append(dict(self.entries[0], id="dup"))
         self.tools = list(tools or [])
         self.flows = [dict(flow) for flow in flows]
+        self.prediction = (
+            prediction if prediction is not None else (200, {"text": "ok"})
+        )
         self.authorized = []
         self.deleted = []
         self.created = []
@@ -58,8 +82,13 @@ class FakeApi:
         self.updated_payloads = []
         self.flows_created = []
         self.flows_updated = []
+        self.flows_deleted = []
+        self.predicted = []
 
     def __call__(self, path, method="GET", payload=None):
+        if path.startswith("/api/v1/prediction/") and method == "POST":
+            self.predicted.append(path.rsplit("/", 1)[-1])
+            return self.prediction
         if path == "/api/v1/chatflows" and method == "GET":
             return 200, [dict(flow) for flow in self.flows]
         if path == "/api/v1/chatflows" and method == "POST":
@@ -70,15 +99,26 @@ class FakeApi:
         if path.startswith("/api/v1/chatflows/") and method == "PUT":
             self.flows_updated.append(payload["name"])
             return 200, payload
+        if path.startswith("/api/v1/chatflows/") and method == "DELETE":
+            dead = path.rsplit("/", 1)[-1]
+            self.flows_deleted.append(dead)
+            self.flows = [f for f in self.flows if f["id"] != dead]
+            return 200, None
         if path == "/api/v1/custom-mcp-servers" and method == "GET":
             return 200, [dict(entry) for entry in self.entries]
         if path == "/api/v1/custom-mcp-servers" and method == "POST":
             created = dict(payload, id=f"id-{payload['name']}")
             self.entries.append(created)
-            self.created.append(payload["name"])
+            if payload["name"] != PROBE_NAME:
+                self.created.append(payload["name"])
             return 201, created
         if path.endswith("/authorize"):
-            self.authorized.append(path.split("/")[-2])
+            entry_id = path.split("/")[-2]
+            entry = next((e for e in self.entries if e.get("id") == entry_id), {})
+            url = str(entry.get("serverUrl") or "")
+            if not self.permissive and any(bad in url for bad in DENIED):
+                return 500, "blocked by HTTP_DENY_LIST"
+            self.authorized.append(entry_id)
             return 200, {"status": "AUTHORIZED"}
         if path.endswith("/tools"):
             return 200, [{"name": name} for name in self.tools]
@@ -87,7 +127,10 @@ class FakeApi:
             self.updated_payloads.append(payload)
             return 200, payload
         if method == "DELETE":
-            self.deleted.append(path.rsplit("/", 1)[-1])
+            dead = path.rsplit("/", 1)[-1]
+            self.entries = [e for e in self.entries if e.get("id") != dead]
+            if PROBE_NAME not in dead:
+                self.deleted.append(dead)
             return 200, None
         raise AssertionError(f"unexpected {method} {path}")
 
@@ -196,7 +239,7 @@ class TestReconcileMcpServers(unittest.TestCase):
             module.main()
         self.assertEqual(["id-infinito:svc-db-qdrant"], api.authorized)
 
-    def test_a_managed_fixture_flow_is_created_per_provider(self) -> None:
+    def test_the_fixture_flow_is_built_for_the_first_registered_candidate(self) -> None:
         module = load_script([SUPPORTED_SERVER])
         api = FakeApi()
         with patch.object(module, "call", api):
@@ -213,11 +256,108 @@ class TestReconcileMcpServers(unittest.TestCase):
 
     def test_the_fixture_carries_the_registry_id_not_a_bearer(self) -> None:
         module = load_script([SUPPORTED_SERVER])
-        flow = module.fixture_flow_data("svc-db-qdrant", "entry-1")
+        flow = module.fixture_flow_data("entry-1", "qdrant_list_collections", {})
         serialised = json.dumps(flow)
         self.assertIn("entry-1", serialised)
         self.assertNotIn("secret", serialised)
         self.assertNotIn("Bearer", serialised)
+
+    def test_the_fixture_calls_one_named_tool_without_a_model(self) -> None:
+        module = load_script([SUPPORTED_SERVER])
+        flow = module.fixture_flow_data("entry-1", "qdrant_list_collections", {})
+        tool = flow["nodes"][1]["data"]
+        self.assertEqual("toolAgentflow", tool["name"])
+        self.assertEqual(1.2, tool["version"])
+        self.assertEqual(
+            "customMcpServerTool", tool["inputs"]["toolAgentflowSelectedTool"]
+        )
+        self.assertEqual(
+            "entry-1", tool["inputs"]["toolAgentflowSelectedToolConfig"]["mcpServerId"]
+        )
+        self.assertEqual(
+            ["qdrant_list_collections"],
+            json.loads(tool["inputs"]["toolAgentflowSelectedToolConfig"]["mcpActions"]),
+        )
+        self.assertEqual(
+            [],
+            [n for n in flow["nodes"] if "llm" in str(n["data"]["name"]).lower()],
+        )
+
+    def test_the_fixture_is_an_agentflow_the_prediction_route_can_run(self) -> None:
+        module = load_script([SUPPORTED_SERVER])
+        api = FakeApi()
+        with patch.object(module, "call", api):
+            module.main()
+        self.assertEqual(
+            ["AGENTFLOW"], [flow["type"] for flow in api.flows if flow.get("type")]
+        )
+        self.assertEqual(["flow-infinito:fixture:svc-db-qdrant"], api.predicted)
+
+    def test_a_failing_tool_call_fails_the_deploy(self) -> None:
+        module = load_script([SUPPORTED_SERVER])
+        api = FakeApi(prediction=(500, "upstream refused"))
+        with patch.object(module, "call", api), self.assertRaises(SystemExit) as exit_:
+            module.main()
+        self.assertIn("qdrant_list_collections", str(exit_.exception))
+
+    def test_an_error_body_is_not_read_as_a_successful_call(self) -> None:
+        module = load_script([SUPPORTED_SERVER])
+        api = FakeApi(prediction=(200, {"error": "tool not found"}))
+        with patch.object(module, "call", api), self.assertRaises(SystemExit) as exit_:
+            module.main()
+        self.assertIn("tool not found", str(exit_.exception))
+
+    def test_no_fixture_runs_when_no_candidate_is_registered(self) -> None:
+        module = load_script(
+            [SUPPORTED_SERVER],
+            fixtures=[{"id": "web-app-absent", "tool": "x", "args": {}}],
+        )
+        api = FakeApi()
+        with patch.object(module, "call", api):
+            module.main()
+        self.assertEqual([], api.predicted)
+        self.assertEqual([], api.flows_created)
+
+    def test_a_fixture_of_a_gone_provider_is_deleted(self) -> None:
+        module = load_script([SUPPORTED_SERVER])
+        api = FakeApi(
+            flows=[{"id": "old", "name": "infinito:fixture:web-app-prometheus"}]
+        )
+        with patch.object(module, "call", api):
+            module.main()
+        self.assertEqual(["old"], api.flows_deleted)
+
+    def test_loopback_and_metadata_are_probed_and_refused(self) -> None:
+        module = load_script([SUPPORTED_SERVER])
+        api = FakeApi()
+        with patch.object(module, "call", api):
+            module.main()
+        self.assertEqual(
+            ["http://127.0.0.1:80/mcp", "http://169.254.169.254/latest/meta-data/"],
+            module.DENIED_PROBES,
+        )
+        self.assertNotIn(f"id-{PROBE_NAME}", api.authorized)
+
+    def test_a_flowise_that_reaches_loopback_fails_the_deploy(self) -> None:
+        module = load_script([SUPPORTED_SERVER])
+        api = FakeApi(permissive=True)
+        with patch.object(module, "call", api), self.assertRaises(SystemExit) as exit_:
+            module.main()
+        self.assertIn("HTTP_DENY_LIST", str(exit_.exception))
+
+    def test_the_deny_list_probe_leaves_no_entry_behind(self) -> None:
+        module = load_script([SUPPORTED_SERVER])
+        api = FakeApi()
+        with patch.object(module, "call", api):
+            module.main()
+        self.assertEqual([], [e for e in api.entries if e.get("name") == PROBE_NAME])
+
+    def test_a_human_chatflow_is_never_deleted(self) -> None:
+        module = load_script([SUPPORTED_SERVER])
+        api = FakeApi(flows=[{"id": "mine", "name": "my own flow"}])
+        with patch.object(module, "call", api):
+            module.main()
+        self.assertEqual([], api.flows_deleted)
 
     def test_the_token_is_sent_as_an_encrypted_custom_header(self) -> None:
         module = load_script([SUPPORTED_SERVER])
