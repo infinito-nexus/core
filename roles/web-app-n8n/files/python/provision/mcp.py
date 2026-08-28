@@ -1,6 +1,6 @@
 """Provision the deployment-managed MCP surfaces of n8n 1.95.3.
 
-Prints ``CHANGED``/``OK`` and then one JSON line carrying ``api_key``.
+Prints ``CHANGED`` or ``OK``.
 
 Environment:
     N8N_BASE:            origin of the n8n API.
@@ -34,8 +34,35 @@ REST = "/rest"
 PUBLIC = "/api/v1"
 TRIGGER_TYPE = "@n8n/n8n-nodes-langchain.mcpTrigger"
 TRIGGER_VERSION = 1
+TRIGGER_NAME = "Infinito MCP Trigger"
 BEARER_AUTH = "bearerAuth"
 CREDENTIAL_TYPE = "httpBearerAuth"
+
+TOOL_TYPE = "@n8n/n8n-nodes-langchain.toolCode"
+TOOL_VERSION = 1.2
+TOOL_NAME = "infinito_health"
+TOOL_CONNECTION = "ai_tool"
+TOOL_DESCRIPTION = (
+    "Report that the managed MCP server is reachable and echo the caller's text "
+    "back. Reads nothing: it reaches no application, database, or network."
+)
+TOOL_CODE = (
+    'return JSON.stringify({status: "ok", echo: query.echo, '
+    "checked_at: new Date().toISOString()});"
+)
+TOOL_SCHEMA = json.dumps(
+    {
+        "type": "object",
+        "properties": {
+            "echo": {
+                "type": "string",
+                "description": "Text returned unchanged, to prove the round trip.",
+            }
+        },
+        "required": ["echo"],
+        "additionalProperties": False,
+    }
+)
 
 SESSION = {"cookie": ""}
 
@@ -79,11 +106,12 @@ def login():
 
 
 def api_key():
-    """Return the managed public-API key, reusing a previous run's when present.
+    """Return ``(secret, id)`` of a public-API key minted for this run alone.
 
-    n8n returns the usable secret only once, as ``rawApiKey``. A listed key is
-    redacted, so an existing entry under the managed name is deleted and minted
-    again rather than guessed at.
+    n8n returns the usable secret only once, as ``rawApiKey``, and a listed key
+    is redacted, so the key cannot be carried between runs. It is minted here
+    and revoked before the run ends; an entry left behind under the managed name
+    belongs to a run that died and is deleted rather than guessed at.
     """
     status, body = call(f"{REST}/api-keys")
     if status != 200:
@@ -113,7 +141,18 @@ def api_key():
     if status not in (200, 201):
         sys.exit(f"FAILED creating api key {KEY_NAME}: {status} {body}")
     created = (body or {}).get("data") if isinstance(body, dict) else body
-    return str(created["rawApiKey"]), bool(matches)
+    return str(created["rawApiKey"]), str(created["id"])
+
+
+def revoke_key(key_id):
+    """Delete the public-API key this run minted.
+
+    Args:
+        key_id: id of the key to delete.
+    """
+    status, body = call(f"{REST}/api-keys/{key_id}", method="DELETE")
+    if status != 200:
+        sys.exit(f"FAILED revoking api key {KEY_NAME}: {status} {body}")
 
 
 def bearer_credential():
@@ -155,6 +194,9 @@ def bearer_credential():
 def workflow_body(credential):
     """Return the managed MCP server workflow as the public API accepts it.
 
+    The trigger serves exactly the tools reaching it over an ``ai_tool``
+    connection, so the connection map is the tool allowlist.
+
     Args:
         credential: ``{"id", "name"}`` reference to the managed bearer credential.
     """
@@ -164,7 +206,7 @@ def workflow_body(credential):
         "nodes": [
             {
                 "id": "infinito-mcp-trigger",
-                "name": "Infinito MCP Trigger",
+                "name": TRIGGER_NAME,
                 "type": TRIGGER_TYPE,
                 "typeVersion": TRIGGER_VERSION,
                 "position": [0, 0],
@@ -174,9 +216,30 @@ def workflow_body(credential):
                     "authentication": BEARER_AUTH,
                 },
                 "credentials": {CREDENTIAL_TYPE: credential},
-            }
+            },
+            {
+                "id": "infinito-mcp-health",
+                "name": TOOL_NAME,
+                "type": TOOL_TYPE,
+                "typeVersion": TOOL_VERSION,
+                "position": [0, 220],
+                "parameters": {
+                    "description": TOOL_DESCRIPTION,
+                    "language": "javaScript",
+                    "jsCode": TOOL_CODE,
+                    "specifyInputSchema": True,
+                    "schemaType": "manual",
+                    "inputSchema": TOOL_SCHEMA,
+                },
+            },
         ],
-        "connections": {},
+        "connections": {
+            TOOL_NAME: {
+                TOOL_CONNECTION: [
+                    [{"node": TRIGGER_NAME, "type": TOOL_CONNECTION, "index": 0}]
+                ]
+            }
+        },
     }
 
 
@@ -240,11 +303,11 @@ def main():
     if not MCP_TOKEN:
         sys.exit("FAILED: no bearer configured; the trigger would be unauthenticated")
     login()
-    key, rotated = api_key()
+    key, key_id = api_key()
     credential, minted = bearer_credential()
     changed = upsert_workflow(key, credential)
-    print(f"{'CHANGED' if changed or minted or rotated else 'OK'}")
-    print(json.dumps({"api_key": key}))
+    revoke_key(key_id)
+    print(f"{'CHANGED' if changed or minted else 'OK'}")
 
 
 if __name__ == "__main__":

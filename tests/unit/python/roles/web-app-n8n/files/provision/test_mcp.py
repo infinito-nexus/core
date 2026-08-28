@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import contextlib
 import importlib.util
+import io
+import json
 import unittest
 from unittest.mock import patch
 
@@ -42,9 +45,12 @@ class FakeApi:
         self.created_workflows = []
         self.updated_workflows = []
         self.activated_workflows = []
+        self.deleted_workflows = []
         self.written_credentials = []
+        self.deleted_credentials = []
         self.deleted_keys = []
         self.logins = 0
+        self.minted = 0
 
     def __call__(self, path, method="GET", payload=None, api_key=None):
         if path == "/rest/login":
@@ -53,12 +59,19 @@ class FakeApi:
         if path == "/rest/credentials" and method == "GET":
             return 200, {"data": [dict(item) for item in self.credentials]}
         if path == "/rest/credentials" and method == "POST":
+            self.minted += 1
+            new = {"id": f"c{self.minted}", "name": payload["name"]}
             self.written_credentials.append(payload)
-            self.credentials = [{"id": "c1", "name": payload["name"]}]
-            return 200, {"data": {"id": "c1", "name": payload["name"]}}
+            self.credentials.append(new)
+            return 200, {"data": new}
         if path.startswith("/rest/credentials/") and method == "PATCH":
             self.written_credentials.append(payload)
             return 200, {"data": {"id": path.rsplit("/", 1)[-1]}}
+        if path.startswith("/rest/credentials/") and method == "DELETE":
+            dead = path.rsplit("/", 1)[-1]
+            self.deleted_credentials.append(dead)
+            self.credentials = [c for c in self.credentials if c["id"] != dead]
+            return 200, {"success": True}
         if path == "/rest/api-keys" and method == "GET":
             return 200, {"data": [dict(key) for key in self.keys]}
         if path == "/rest/api-keys" and method == "POST":
@@ -78,6 +91,9 @@ class FakeApi:
         if path.endswith("/activate") and method == "POST":
             self.activated_workflows.append(path.split("/")[-2])
             return 200, {"active": True}
+        if path.startswith("/api/v1/workflows/") and method == "DELETE":
+            self.deleted_workflows.append(path.rsplit("/", 1)[-1])
+            return 200, {"success": True}
         raise AssertionError(f"unexpected {method} {path}")
 
 
@@ -128,6 +144,19 @@ class TestProvisionMcp(unittest.TestCase):
         node = api.created_workflows[0]["nodes"][0]
         self.assertEqual("c9", node["credentials"]["httpBearerAuth"]["id"])
 
+    def test_a_rotated_bearer_replaces_the_one_the_credential_carries(self) -> None:
+        module = load_script()
+        api = FakeApi(credentials=[{"id": "c9", "name": "infinito:mcp-bearer"}])
+        with patch.object(module, "call", api):
+            module.main()
+        self.assertEqual(
+            [{"token": "t" * 48}],
+            [item["data"] for item in api.written_credentials],
+            "n8n never hands an existing credential's secret back, so the "
+            "managed one is overwritten rather than compared; a run that "
+            "skipped the write would leave the revoked bearer in place",
+        )
+
     def test_two_managed_credentials_abort_rather_than_guess(self) -> None:
         module = load_script()
         api = FakeApi(
@@ -153,7 +182,14 @@ class TestProvisionMcp(unittest.TestCase):
         api = FakeApi(keys=[{"id": "old", "label": "infinito:mcp"}])
         with patch.object(module, "call", api):
             module.main()
-        self.assertEqual(["old"], api.deleted_keys)
+        self.assertEqual(["old", "k1"], api.deleted_keys)
+
+    def test_the_run_leaves_no_api_key_behind(self) -> None:
+        module = load_script()
+        api = FakeApi()
+        with patch.object(module, "call", api):
+            module.main()
+        self.assertEqual(["k1"], api.deleted_keys)
 
     def test_two_managed_keys_abort_rather_than_guess(self) -> None:
         module = load_script()
@@ -197,6 +233,79 @@ class TestProvisionMcp(unittest.TestCase):
         node = api.updated_workflows[0]["nodes"][0]
         self.assertEqual("bearerAuth", node["parameters"]["authentication"])
         self.assertIn("httpBearerAuth", node["credentials"])
+
+    def test_the_only_served_tool_is_the_connected_one(self) -> None:
+        module = load_script()
+        body = module.workflow_body(REFERENCE)
+        tool = body["nodes"][1]
+        self.assertEqual("@n8n/n8n-nodes-langchain.toolCode", tool["type"])
+        self.assertEqual(
+            {
+                "infinito_health": {
+                    "ai_tool": [
+                        [
+                            {
+                                "node": "Infinito MCP Trigger",
+                                "type": "ai_tool",
+                                "index": 0,
+                            }
+                        ]
+                    ]
+                }
+            },
+            body["connections"],
+        )
+
+    def test_the_served_tool_declares_its_input_schema(self) -> None:
+        module = load_script()
+        tool = module.workflow_body(REFERENCE)["nodes"][1]
+        self.assertIs(True, tool["parameters"]["specifyInputSchema"])
+        self.assertEqual("manual", tool["parameters"]["schemaType"])
+        schema = json.loads(tool["parameters"]["inputSchema"])
+        self.assertEqual(["echo"], schema["required"])
+        self.assertIs(False, schema["additionalProperties"])
+
+    def test_the_served_tool_returns_a_string(self) -> None:
+        module = load_script()
+        tool = module.workflow_body(REFERENCE)["nodes"][1]
+        self.assertIn("JSON.stringify", tool["parameters"]["jsCode"])
+
+    def test_a_converged_deployment_reruns_unchanged(self) -> None:
+        module = load_script()
+        credential = {"id": "c9", "name": "infinito:mcp-bearer"}
+        api = FakeApi(
+            credentials=[credential],
+            workflows=[
+                {
+                    "id": "w1",
+                    "name": "infinito:mcp-server",
+                    "active": True,
+                    "nodes": module.workflow_body(credential)["nodes"],
+                }
+            ],
+        )
+        out = io.StringIO()
+        with patch.object(module, "call", api), contextlib.redirect_stdout(out):
+            module.main()
+        self.assertEqual("OK", out.getvalue().strip())
+
+    def test_resources_outside_the_managed_names_are_left_alone(self) -> None:
+        module = load_script()
+        api = FakeApi(
+            keys=[{"id": "human-key", "label": "someone else"}],
+            credentials=[{"id": "human-cred", "name": "someone else"}],
+            workflows=[{"id": "human-flow", "name": "someone else", "active": True}],
+        )
+        with patch.object(module, "call", api):
+            module.main()
+        self.assertNotIn("human-key", api.deleted_keys)
+        self.assertEqual([], api.updated_workflows)
+        self.assertEqual(
+            ["infinito:mcp-server"], [flow["name"] for flow in api.created_workflows]
+        )
+        self.assertEqual(
+            ["infinito:mcp-bearer"], [item["name"] for item in api.written_credentials]
+        )
 
     def test_two_managed_workflows_abort_rather_than_guess(self) -> None:
         module = load_script()

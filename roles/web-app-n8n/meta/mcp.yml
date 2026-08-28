@@ -30,5 +30,7 @@ endpoint:
   path: /webhook/infinito-mcp/sse
   port_key: http
 tools:
+  allowlist:
+    - infinito_health
   read_only_default: true
   mutating_tools_enabled: false

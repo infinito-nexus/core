@@ -22,6 +22,8 @@ N8N_MCP_API_KEY_NAME: "infinito:mcp"
 N8N_MCP_WORKFLOW_NAME: "infinito:mcp-server"
 N8N_MCP_CREDENTIAL_NAME: "infinito:mcp-bearer"
 N8N_MCP_WEBHOOK_PATH: "infinito-mcp"
+N8N_MCP_CLIENT_WORKFLOW_NAME: "infinito:mcp-agent"
+N8N_MCP_PROVIDERS: "{{ MCP_DISCOVERED_SERVERS if N8N_MCP_ENABLED else [] }}"
 
 N8N_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') | bool }}"
 N8N_LITELLM_BASE_URL: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}"
