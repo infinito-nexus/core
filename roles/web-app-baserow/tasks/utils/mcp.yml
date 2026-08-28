@@ -31,7 +31,7 @@
       - "{{ BASEROW_MANAGE_PY }}"
       - shell
       - -c
-      - "{{ lookup('file', 'provision_mcp.py') }}"
+      - "{{ lookup('file', 'python/provision_mcp.py') }}"
   register: baserow_mcp_provision
   retries: 30
   delay: 10
@@ -56,7 +56,7 @@
       - "{{ BASEROW_LOCAL_CID }}" # nocheck: container-exec-resolver
       - "{{ BASEROW_PYTHON }}"
       - "-"
-    stdin: "{{ lookup('file', 'probe_mcp_endpoint.py') }}"
+    stdin: "{{ lookup('file', 'python/probe_mcp_endpoint.py') }}"
   register: baserow_mcp_probe
   retries: 30
   delay: 10

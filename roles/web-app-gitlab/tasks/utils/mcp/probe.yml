@@ -18,7 +18,7 @@
       - "{{ GITLAB_MCP_LOCAL_CID }}" # nocheck: container-exec-resolver
       - ruby
       - "-"
-    stdin: "{{ lookup('file', 'probe_mcp_token.rb') }}"
+    stdin: "{{ lookup('file', 'ruby/probe_mcp_token.rb') }}"
   register: gitlab_mcp_probe
   retries: 30
   delay: 10

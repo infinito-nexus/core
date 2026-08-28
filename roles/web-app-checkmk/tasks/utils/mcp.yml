@@ -33,7 +33,7 @@
       - "{{ CHECKMK_IDENTITY_LOCAL_CID }}" # nocheck: container-exec-resolver
       - python3
       - "-"
-    stdin: "{{ lookup('file', 'provision_mcp_identity.py') }}"
+    stdin: "{{ lookup('file', 'python/provision_mcp_identity.py') }}"
   register: checkmk_mcp_identity
   retries: 30
   delay: 10

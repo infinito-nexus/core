@@ -12,7 +12,7 @@
       - "{{ HOMEASSISTANT_LOCAL_CID }}" # nocheck: container-exec-resolver
       - python3
       - "-"
-    stdin: "{{ lookup('file', 'probe_mcp_token.py') }}"
+    stdin: "{{ lookup('file', 'python/probe_mcp_token.py') }}"
   register: homeassistant_token_probe
   retries: 30
   delay: 10

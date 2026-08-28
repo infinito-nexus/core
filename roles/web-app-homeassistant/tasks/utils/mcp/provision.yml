@@ -24,7 +24,7 @@
       - "{{ HOMEASSISTANT_LOCAL_CID }}" # nocheck: container-exec-resolver
       - python3
       - "-"
-    stdin: "{{ lookup('file', 'provision_mcp.py') }}"
+    stdin: "{{ lookup('file', 'python/provision_mcp.py') }}"
   register: homeassistant_provision
   retries: 30
   delay: 10

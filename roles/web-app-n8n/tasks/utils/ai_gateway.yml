@@ -7,7 +7,7 @@
     argv:
       - python3
       - "-"
-    stdin: "{{ lookup('file', 'provision/ai.py') }}"
+    stdin: "{{ lookup('file', 'python/provision/ai.py') }}"
   environment:
     N8N_BASE: "{{ N8N_INTERNAL_API_URL }}"
     N8N_OWNER_EMAIL: "{{ N8N_OWNER_EMAIL }}"

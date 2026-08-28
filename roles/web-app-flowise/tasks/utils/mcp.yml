@@ -21,7 +21,7 @@
       - "{{ FLOWISE_LOCAL_CID }}" # nocheck: container-exec-resolver
       - node
       - "-"
-    stdin: "{{ lookup('file', 'reconcile/identity_password.js') }}"
+    stdin: "{{ lookup('file', 'javascript/reconcile/identity_password.js') }}"
   register: flowise_mcp_password
   retries: 30
   delay: 10
@@ -50,7 +50,7 @@
       - "{{ FLOWISE_LOCAL_CID }}" # nocheck: container-exec-resolver
       - python3
       - "-"
-    stdin: "{{ lookup('file', 'mint_mcp_api_key.py') }}"
+    stdin: "{{ lookup('file', 'python/mint_mcp_api_key.py') }}"
   register: flowise_mcp_identity
   retries: 30
   delay: 10
@@ -79,7 +79,7 @@
       - "{{ FLOWISE_LOCAL_CID }}" # nocheck: container-exec-resolver
       - python3
       - "-"
-    stdin: "{{ lookup('file', 'reconcile/mcp_servers.py') }}"
+    stdin: "{{ lookup('file', 'python/reconcile/mcp_servers.py') }}"
   register: flowise_mcp_registry
   retries: 30
   delay: 10

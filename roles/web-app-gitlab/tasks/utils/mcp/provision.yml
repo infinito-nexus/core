@@ -21,7 +21,7 @@
       - "{{ GITLAB_RAILS_BIN }}"
       - runner
       - "-"
-    stdin: "{{ lookup('file', 'provision_mcp_token.rb') }}"
+    stdin: "{{ lookup('file', 'ruby/provision_mcp_token.rb') }}"
   register: gitlab_mcp_mint
   retries: 30
   delay: 10
