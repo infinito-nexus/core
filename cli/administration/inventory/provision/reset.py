@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING
 from ruamel.yaml.comments import CommentedMap
 
 from cli.administration.inventory.credentials.vault import is_ruamel_vault
+from utils.manager.credential_key import CREDENTIALS_KEY, SECRETS_KEY
 
 from .credentials_generator import generate_credentials_for_roles
 from .ruamel_io import dump_document, load_document
@@ -66,7 +67,10 @@ def _drop_app_credentials(document: CommentedMap, exclude: set[str]) -> int:
     for application_id, application in applications.items():
         if application_id in exclude or not isinstance(application, CommentedMap):
             continue
-        credentials = application.get("credentials")
+        secrets = application.get(SECRETS_KEY)
+        if not isinstance(secrets, CommentedMap):
+            continue
+        credentials = secrets.get(CREDENTIALS_KEY)
         if isinstance(credentials, CommentedMap):
             dropped += _drop_generated(credentials)
     return dropped

@@ -23,22 +23,24 @@ ansible_become_password: !vault |
 
 applications:
   web-app-a:
-    credentials:
-      api_key: !vault |
-        $ANSIBLE_VAULT;1.1;AES256
-        6170695f6b6579
-      smtp_password: ''
-      recaptcha:
-        secret: !vault |
+    secrets:
+      credentials:
+        api_key: !vault |
           $ANSIBLE_VAULT;1.1;AES256
-          7365637265740a
+          6170695f6b6579
+        smtp_password: ''
+        recaptcha:
+          secret: !vault |
+            $ANSIBLE_VAULT;1.1;AES256
+            7365637265740a
     features:
       matomo: true
   web-app-keycloak:
-    credentials:
-      database_password: !vault |
-        $ANSIBLE_VAULT;1.1;AES256
-        6462706173730a
+    secrets:
+      credentials:
+        database_password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          6462706173730a
 
 users:
   administrator:
@@ -100,23 +102,28 @@ class TestResetCredentials(unittest.TestCase):
     def _document(self):
         return load_document(self.host_vars_file)
 
+    def _credentials(self, application_id):
+        """Return one application's credentials from the rotated document.
+
+        Args:
+            application_id: the application to read.
+        """
+        application = self._document()["applications"][application_id]
+        return application["secrets"]["credentials"]
+
     def test_every_generated_credential_is_dropped(self):
         self._reset()
-        credentials = self._document()["applications"]["web-app-a"]["credentials"]
+        credentials = self._credentials("web-app-a")
         self.assertNotIn("api_key", credentials)
         self.assertNotIn("secret", credentials["recaptcha"])
 
     def test_an_operator_supplied_plain_value_survives(self):
         self._reset()
-        credentials = self._document()["applications"]["web-app-a"]["credentials"]
-        self.assertEqual(credentials["smtp_password"], "")
+        self.assertEqual(self._credentials("web-app-a")["smtp_password"], "")
 
     def test_an_excluded_application_is_untouched(self):
         self._reset(exclude={"administrator", "web-app-keycloak"})
-        credentials = self._document()["applications"]["web-app-keycloak"][
-            "credentials"
-        ]
-        self.assertIn("database_password", credentials)
+        self.assertIn("database_password", self._credentials("web-app-keycloak"))
 
     def test_an_excluded_user_keeps_its_password(self):
         self._reset()
@@ -151,8 +158,7 @@ class TestResetCredentials(unittest.TestCase):
 
     def test_only_users_leaves_the_credentials_alone(self):
         _, credentials, users = self._reset(schema=False)
-        applications = self._document()["applications"]
-        self.assertIn("api_key", applications["web-app-a"]["credentials"])
+        self.assertIn("api_key", self._credentials("web-app-a"))
         credentials.assert_not_called()
         users.assert_called_once()
 
