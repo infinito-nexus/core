@@ -1,23 +1,30 @@
-{% set mcp_path = lookup('config', application_id, 'mcp.endpoint.path', '') %}
-{% if mcp_path %}
+{% set mcp_endpoint_path = lookup('config', application_id, 'mcp.endpoint.path', '') %}
+{% set mcp_upstream_path = lookup('config', application_id, 'mcp.adapter.upstream_path', '') %}
+{% if mcp_endpoint_path or mcp_upstream_path %}
 {% set mcp_public = lookup('config', application_id, 'mcp.exposure', '') == 'public'
                     and lookup('config', application_id, 'mcp.enabled', false) | bool %}
 {% set mcp_acl_gated = lookup('sso', application_id, 'is_proxy_gated')
                        and (lookup('sso', application_id, 'oauth2_acl') | length) %}
-{% if mcp_public and not mcp_acl_gated %}
+{% if not mcp_acl_gated %}
+{% set mcp_served = (mcp_endpoint_path | regex_replace('/+$', '')) if mcp_public else '' %}
+{% if mcp_served %}
 {% set mcp_limits = lookup('config', application_id, 'mcp.limits') %}
 {% set mcp_zone = 'mcp_' ~ (application_id | replace('-', '_')) %}
 {% set sso_proxy_enabled = lookup('sso', application_id, 'is_proxy_gated') %}
-{% set location = mcp_path | regex_replace('/+$', '') %}
+{% set location = mcp_served %}
 {% set webserver_client_max_body_size = mcp_limits.request_bytes %}
 {% set webserver_proxy_send_timeout = mcp_limits.timeout_seconds ~ 's' %}
 {% set webserver_proxy_read_timeout = mcp_limits.stream_seconds ~ 's' %}
 {% set webserver_send_timeout = mcp_limits.stream_seconds ~ 's' %}
 {% set webserver_location_extra_configuration %}{% include 'roles/sys-svc-proxy/templates/mcp/directives.conf.j2' %}{% endset %}
 {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
-{% elif not mcp_acl_gated %}
-  location {{ mcp_path | regex_replace('/+$', '') }} {
+{% endif %}
+{% for hidden in [mcp_upstream_path, mcp_endpoint_path] | map('regex_replace', '/+$', '') | unique | select | list %}
+{% if hidden != mcp_served %}
+  location {{ hidden }} {
     return 404;
   }
+{% endif %}
+{% endfor %}
 {% endif %}
 {% endif %}

@@ -22,6 +22,7 @@ adapter:
   type: mcp_passthrough
   specification_path: roles/web-app-mattermost/files/mcp/tools.json
   specification_sha256: sha256:b06c02b100fa8d959d3e4d9fca42682df943967f6bf2de2c66f7031d5a6b823f
+  upstream_path: /plugins/mattermost-ai/mcp-server/mcp
 endpoint:
   service_key: mattermostmcp
   path: /mcp

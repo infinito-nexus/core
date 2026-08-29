@@ -84,7 +84,7 @@ GITLAB_MCP_CONTAINER: "{{ lookup('config', application_id, 'services.gitlabmcp.n
 GITLAB_MCP_PORT: "{{ lookup('config', application_id, 'services.gitlabmcp.ports.internal.http') }}"
 GITLAB_MCP_INSTANCE_DIR: "{{ [lookup('container', application_id, 'directories.instance'), 'mcp'] | path_join }}"
 GITLAB_MCP_UPSTREAM_HOST: "{{ GITLAB_WORKHORSE_SERVICE_NAME }}"
-GITLAB_MCP_UPSTREAM_PATH: "/api/v4/mcp"
+GITLAB_MCP_UPSTREAM_PATH: "{{ lookup('config', application_id, 'mcp.adapter.upstream_path') }}"
 GITLAB_MCP_UPSTREAM_URL: "http://{{ GITLAB_MCP_UPSTREAM_HOST }}:{{ GITLAB_WORKHORSE_PORT }}{{ GITLAB_MCP_UPSTREAM_PATH }}"
 GITLAB_MCP_BEARER: "{{ lookup('config', application_id, 'secrets.credentials.mcp_bearer') }}"
 GITLAB_MCP_CONTRACT:

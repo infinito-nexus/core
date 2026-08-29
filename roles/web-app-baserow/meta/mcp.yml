@@ -24,6 +24,7 @@ adapter:
   upstream_transport: sse
   specification_path: roles/web-app-baserow/files/mcp/tools.json
   specification_sha256: sha256:716effccfedbb6e83cacd489bf0c2cf8f318853f9b20bf8fd733db4e637ec144
+  upstream_path: /mcp
 endpoint:
   service_key: baserowmcp
   path: /mcp

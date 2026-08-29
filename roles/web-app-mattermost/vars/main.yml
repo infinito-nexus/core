@@ -58,7 +58,7 @@ MATTERMOST_LDAP_CONTAINER_ADDRESS: "{{ lookup('container_address', 'svc-db-openl
 MATTERMOST_MCP_CONTAINER: "{{ lookup('config', application_id, 'services.mattermostmcp.name') }}"
 MATTERMOST_MCP_PORT: "{{ lookup('config', application_id, 'services.mattermostmcp.ports.internal.http') }}"
 MATTERMOST_MCP_INSTANCE_DIR: "{{ [lookup('container', application_id, 'directories.instance'), 'mcp'] | path_join }}"
-MATTERMOST_MCP_UPSTREAM_PATH: "/plugins/{{ MATTERMOST_MCP_PLUGIN_ID }}/mcp-server/mcp"
+MATTERMOST_MCP_UPSTREAM_PATH: "{{ lookup('config', application_id, 'mcp.adapter.upstream_path') }}"
 MATTERMOST_MCP_UPSTREAM_URL: "http://{{ MATTERMOST_CONTAINER }}:{{ container_port }}{{ MATTERMOST_MCP_UPSTREAM_PATH }}"
 MATTERMOST_MCP_BEARER: "{{ lookup('config', application_id, 'secrets.credentials.mcp_bearer') }}"
 MATTERMOST_MCP_CONTRACT:

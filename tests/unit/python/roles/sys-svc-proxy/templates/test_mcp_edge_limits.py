@@ -198,5 +198,52 @@ class TestTheAppVhostServesOnlyPublicSurfaces(unittest.TestCase):
         self.assertEqual(served, {r for r in PUBLIC_ROLES if r != "web-app-wordpress"})
 
 
+class TestTheHiddenPathIsTheOneTheAppServes(unittest.TestCase):
+    """What must be hidden is the upstream, not the sidecar's endpoint.
+
+    An adapter-fronted provider declares `endpoint.path` on its sidecar and
+    serves the real MCP surface somewhere else on its own vhost. Blocking the
+    sidecar's path there hides nothing: mattermost declares `/mcp` and answers
+    on `/plugins/mattermost-ai/mcp-server/mcp`, so the native surface stayed
+    reachable while the deploy looked correct. Baserow's two paths happen to
+    coincide, which is why one role passing proved nothing about the rest.
+    """
+
+    def passthrough_roles(self) -> dict[str, dict]:
+        found = {}
+        for meta in (PROJECT_ROOT / "roles").glob(f"*/{ROLE_FILE_META_MCP}"):
+            block = load_yaml(meta)
+            if (block.get("adapter") or {}).get("type") == "mcp_passthrough":
+                found[meta.parent.parent.name] = block
+        return found
+
+    def test_a_passthrough_provider_says_where_its_upstream_lives(self):
+        """Either on the application's own vhost, or on a separate network."""
+        for role, block in self.passthrough_roles().items():
+            with self.subTest(role=role):
+                adapter = block["adapter"]
+                self.assertTrue(
+                    adapter.get("upstream_path") or adapter.get("upstream_network"),
+                    f"{role} declares neither upstream_path nor upstream_network, "
+                    f"so nothing states whether its native surface is exposed",
+                )
+
+    def test_the_role_that_made_this_visible_declares_its_real_path(self):
+        adapter = self.passthrough_roles()["web-app-mattermost"]["adapter"]
+        self.assertEqual(
+            "/plugins/mattermost-ai/mcp-server/mcp", adapter["upstream_path"]
+        )
+        self.assertNotEqual(
+            adapter["upstream_path"],
+            self.passthrough_roles()["web-app-mattermost"]["endpoint"]["path"],
+        )
+
+    def test_a_sidecar_upstream_declares_no_path_on_the_app_vhost(self):
+        """Gitea's upstream is its own service, so it has nothing to hide."""
+        adapter = self.passthrough_roles()["web-app-gitea"]["adapter"]
+        self.assertNotIn("upstream_path", adapter)
+        self.assertTrue(adapter.get("upstream_network"))
+
+
 if __name__ == "__main__":
     unittest.main()

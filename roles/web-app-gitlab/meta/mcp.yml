@@ -23,6 +23,7 @@ adapter:
   type: mcp_passthrough
   specification_path: roles/web-app-gitlab/files/mcp/tools.json
   specification_sha256: sha256:ae5ffe0f6c8eeffcc4fe7da8ad1cc978c5f49337a64e30a060b6ab7a5dfb4b24
+  upstream_path: /api/v4/mcp
 endpoint:
   service_key: gitlabmcp
   path: /mcp

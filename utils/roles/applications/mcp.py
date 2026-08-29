@@ -29,7 +29,11 @@ Field vocabulary (see ``docs/contributing/design/role/services/mcp.md``):
   ``category_allowlist`` suits an upstream that switches whole categories and
   offers no per-tool filter, where a tool allowlist would be unenforceable;
   ``mcp_passthrough`` fronts an upstream that already speaks MCP instead of
-  translating REST.
+  translating REST. ``upstream_path`` names that upstream where it lives on the
+  application's own vhost, so the proxy can hide it: reaching it directly walks
+  past the allowlist the adapter exists to enforce. A provider whose upstream is
+  a separate sidecar declares ``upstream_network`` instead and has nothing to
+  hide there.
 * ``limits``:          the request, response, timeout, concurrency, pagination
   and stream ceilings the surface enforces.
 * ``tools``:           ``allowlist`` is what a reader may reach and
@@ -198,6 +202,7 @@ MCP_ADAPTER_KEYS = frozenset(
         "specification_sha256",
         "scope",
         "upstream_transport",
+        "upstream_path",
     }
 )
 
