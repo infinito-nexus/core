@@ -4,7 +4,8 @@ shared: true
 classification: adapter_server
 direction: server
 source_url: https://docs.gitlab.com/user/gitlab_duo/model_context_protocol/mcp_server/
-minimum_version: "18.0"
+supported_version: 19.3.1
+minimum_version: "19.0"
 transport: streamable_http
 exposure: internal
 auth: bearer_token

@@ -105,7 +105,7 @@ A Playwright scenario asserts that an unauthenticated request to the endpoint is
 
 ### Default state
 
-Off. `mcp.enabled` is true only while `web-app-hermes`, `web-app-openclaw` or `web-app-openwebui` is part of the deployment. The endpoint additionally requires a Premium or Ultimate licence, so a Community deployment leaves it unreachable regardless of the flag.
+Off. `mcp.enabled` is true only while `web-app-hermes`, `web-app-openclaw` or `web-app-openwebui` is part of the deployment. No licence tier is involved: `lib/api/mcp/base.rb` lives in the CE tree, and at the pinned `v19.3.1` its only gate is the instance setting `mcp_server_enabled`, which `app/models/application_setting.rb` defaults to `true`. Below `19.0` the same endpoint sat behind the per-user `mcp_server` feature flag, which is why `minimum_version` is `19.0` rather than the `18.3` that first shipped the route.
 
 ### How to disable
 

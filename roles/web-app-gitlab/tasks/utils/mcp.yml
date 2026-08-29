@@ -37,10 +37,11 @@
       - "'tools=' in (gitlab_mcp_probe.stdout | default(''))"
       - "'tools=0' not in (gitlab_mcp_probe.stdout | default(''))"
     fail_msg: >-
-      {{ GITLAB_MCP_PATH }} accepted the token but advertised no tool. GitLab
-      serves MCP only on Premium and Ultimate, so this Community deployment
-      cannot carry a served MCP surface and the role belongs behind
-      'blocker: licence' instead.
+      {{ GITLAB_MCP_PATH }} accepted the token but advertised no tool. The
+      endpoint needs no licence tier: CE gates it on the instance setting
+      'mcp_server_enabled', which defaults to true. An empty tool list
+      therefore means that setting was turned off on this instance, or the
+      token carries no 'mcp' scope.
 
 - name: "🔑 Hand the minted upstream token to the adapter"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/upstream_key.yml') }}"
