@@ -20,16 +20,30 @@ from utils.templating.ansible import (  # noqa: E402
     _trust_as_template,
 )
 
+_POOLS = [{"base": "10.208.0.0/12", "size": 24}]
+_PUBLIC = ["192.0.2.53", "198.51.100.53"]
+_GATEWAY = "10.208.0.1"
+
 _BRIDGE = {"docker0": {"ipv4": {"address": "172.17.0.1"}}}
 _CLEARNET = {"internet": {"dns": "172.30.0.53"}}
 
 
 def _vars(**overrides):
+    """Return play variables for the lookup.
+
+    Args:
+        overrides: values replacing the defaults.
+
+    The pools and the public resolvers are group_vars that exist on every host,
+    so a fixture without them tests a shape production never has.
+    """
     variables = {
         "ansible_facts": _BRIDGE,
         "group_names": ["svc-net-tor"],
         "networks": _CLEARNET,
         "DEPLOYMENT_MODE": "compose",
+        "NETWORK_DOCKER_ADDRESS_POOLS": _POOLS,
+        "NETWORK_PUBLIC_DNS_RESOLVERS": _PUBLIC,
     }
     variables.update(overrides)
     return variables
@@ -40,7 +54,7 @@ class TestResolveContainerDns(unittest.TestCase):
     with the clearnet resolver kept as fallback."""
 
     def test_tor_node_prefers_the_bridge_resolver(self):
-        self.assertEqual(resolve_container_dns(_vars()), ["172.17.0.1", "172.30.0.53"])
+        self.assertEqual(resolve_container_dns(_vars()), [_GATEWAY, "172.30.0.53"])
 
     def test_without_tor_only_clearnet(self):
         self.assertEqual(resolve_container_dns(_vars(group_names=[])), ["172.30.0.53"])
@@ -48,13 +62,13 @@ class TestResolveContainerDns(unittest.TestCase):
     def test_the_bridge_follows_ownership_not_the_deploy_mode(self):
         self.assertEqual(
             resolve_container_dns(_vars(DEPLOYMENT_MODE="swarm")),
-            ["172.17.0.1", "172.30.0.53"],
+            [_GATEWAY, "172.30.0.53"],
         )
 
-    def test_a_tor_node_without_clearnet_keeps_the_bridge(self):
+    def test_a_tor_node_without_clearnet_still_gets_a_second_resolver(self):
         self.assertEqual(
             resolve_container_dns(_vars(DEPLOYMENT_MODE="swarm", networks={})),
-            ["172.17.0.1"],
+            [_GATEWAY, _PUBLIC[0]],
         )
 
     def test_a_non_tor_node_yields_nothing_without_clearnet(self):
@@ -62,75 +76,67 @@ class TestResolveContainerDns(unittest.TestCase):
 
     def test_a_bridge_equal_to_clearnet_is_not_emitted_twice(self):
         self.assertEqual(
-            resolve_container_dns(_vars(networks={"internet": {"dns": "172.17.0.1"}})),
-            ["172.17.0.1"],
+            resolve_container_dns(_vars(networks={"internet": {"dns": _GATEWAY}})),
+            [_GATEWAY, _PUBLIC[0]],
         )
 
-    def test_without_bridge_only_clearnet(self):
+    def test_the_declaration_answers_where_the_fact_is_absent(self):
         self.assertEqual(
-            resolve_container_dns(_vars(ansible_facts={})), ["172.30.0.53"]
+            resolve_container_dns(_vars(ansible_facts={}, group_names=[])),
+            ["172.30.0.53"],
         )
 
-    def test_without_clearnet_only_bridge(self):
-        self.assertEqual(resolve_container_dns(_vars(networks={})), ["172.17.0.1"])
-
-    def test_nothing_configured_yields_empty_list(self):
+    def test_a_pool_less_host_has_no_bridge_to_offer(self):
         self.assertEqual(
-            resolve_container_dns(_vars(ansible_facts={}, networks={})), []
+            resolve_container_dns(_vars(networks={}, NETWORK_DOCKER_ADDRESS_POOLS=[])),
+            [],
         )
 
     def test_missing_keys_do_not_raise(self):
         self.assertEqual(resolve_container_dns({}), [])
 
 
-class TestLoopbackOnlyHost(unittest.TestCase):
-    """A host resolving through its own loopback listener cannot hand that
-    address to containers, because docker drops loopback entries."""
+class TestALoopbackResolverIsNotAClaim(unittest.TestCase):
+    """Reading resolv.conf cannot tell who binds the bridge.
+
+    A systemd-resolved stub on ``127.0.0.53`` and a node dnsmasq that also
+    listens on the bridge look identical from the host's own resolv.conf, and
+    only the second is reachable from a container. Treating loopback as proof
+    handed ordinary hosts a bridge address nothing served, and their image
+    builds resolved nothing while the daemon itself resolved fine.
+    """
 
     @staticmethod
     def _facts(nameservers):
         return {**_BRIDGE, "dns": {"nameservers": nameservers}}
 
-    def test_a_loopback_only_host_prefers_the_bridge_without_tor(self):
-        self.assertEqual(
-            resolve_container_dns(
-                _vars(group_names=[], ansible_facts=self._facts(["127.0.0.1"]))
-            ),
-            ["172.17.0.1", "172.30.0.53"],
+    def _resolve(self, nameservers, **overrides):
+        """Return the resolver list for a host with these nameservers.
+
+        Args:
+            nameservers: what the host's own resolv.conf lists.
+            overrides: further variables, e.g. the bridge declaration.
+        """
+        return resolve_container_dns(
+            _vars(group_names=[], ansible_facts=self._facts(nameservers), **overrides)
         )
 
-    def test_ipv6_loopback_counts_the_same(self):
-        self.assertEqual(
-            resolve_container_dns(
-                _vars(group_names=[], ansible_facts=self._facts(["::1"]))
-            ),
-            ["172.17.0.1", "172.30.0.53"],
-        )
+    def test_a_loopback_stub_alone_earns_no_bridge(self):
+        for nameservers in (["127.0.0.1"], ["127.0.0.53"], ["::1"]):
+            with self.subTest(nameservers=nameservers):
+                self.assertEqual(["172.30.0.53"], self._resolve(nameservers))
 
-    def test_a_routable_resolver_alongside_loopback_needs_no_bridge(self):
+    def test_the_declaration_is_what_earns_it(self):
         self.assertEqual(
-            resolve_container_dns(
-                _vars(
-                    group_names=[],
-                    ansible_facts=self._facts(["127.0.0.1", "172.30.0.53"]),
-                )
-            ),
-            ["172.30.0.53"],
+            [_GATEWAY, "172.30.0.53"],
+            self._resolve(["127.0.0.1"], NETWORK_CONTAINER_BRIDGE_RESOLVER=True),
         )
 
     def test_a_routable_host_resolver_needs_no_bridge(self):
-        self.assertEqual(
-            resolve_container_dns(
-                _vars(group_names=[], ansible_facts=self._facts(["172.30.0.53"]))
-            ),
-            ["172.30.0.53"],
-        )
+        self.assertEqual(["172.30.0.53"], self._resolve(["172.30.0.53"]))
 
-    def test_an_empty_nameserver_list_is_not_loopback_only(self):
-        self.assertEqual(
-            resolve_container_dns(_vars(group_names=[], ansible_facts=self._facts([]))),
-            ["172.30.0.53"],
-        )
+    def test_an_empty_nameserver_list_earns_no_bridge(self):
+        self.assertEqual(["172.30.0.53"], self._resolve([]))
 
 
 class _Templar:
@@ -183,6 +189,7 @@ class TestTheBridgeSurvivesTheFirstRun(unittest.TestCase):
                     group_names=[],
                     networks={"internet": {"dns": "192.0.2.1"}},
                     NETWORK_DOCKER_ADDRESS_POOLS=self.POOLS,
+                    NETWORK_CONTAINER_BRIDGE_RESOLVER=True,
                 )
             ),
             ["10.208.0.1", "192.0.2.1"],
@@ -208,7 +215,15 @@ class TestTheBridgeSurvivesTheFirstRun(unittest.TestCase):
         )
         self.assertEqual(before, after)
 
-    def test_an_observed_bridge_still_wins_over_the_declaration(self):
+    def test_a_stale_docker0_fact_never_reaches_the_daemon(self):
+        """Docker's default bridge, read before the pools moved it.
+
+        Facts are gathered before the daemon config is applied, so ``docker0``
+        still holds ``172.17.0.1`` while the pools are about to put the bridge
+        at ``10.208.0.1``. A swarm node shipped exactly that mismatch: its
+        daemon.json named the address its live interface no longer had, and
+        every lookup inside a container went to a dead resolver.
+        """
         self.assertEqual(
             resolve_container_dns(
                 _vars(
@@ -218,10 +233,74 @@ class TestTheBridgeSurvivesTheFirstRun(unittest.TestCase):
                     group_names=[],
                     networks={"internet": {"dns": "192.0.2.1"}},
                     NETWORK_DOCKER_ADDRESS_POOLS=self.POOLS,
+                    NETWORK_CONTAINER_BRIDGE_RESOLVER=True,
                 )
             ),
-            ["172.17.0.1", "192.0.2.1"],
+            ["10.208.0.1", "192.0.2.1"],
         )
+
+
+class TestTheBridgeNeverGoesOutAlone(unittest.TestCase):
+    """No host shape may end up with the bridge as its only resolver.
+
+    Whether anything answers on the bridge is not knowable from the host's own
+    resolv.conf: a systemd-resolved stub and a node dnsmasq both read as
+    loopback-only and only the second binds the bridge. A list holding just
+    that address therefore hands the daemon one possibly-dead nameserver, and
+    every container and image build loses DNS - measured as an apk install
+    failing on ``DNS: transient error`` with ``"dns": ["10.208.0.1"]``.
+
+    The assertion runs over a cross-product because the regression slipped
+    through a suite that checked each shape on its own.
+    """
+
+    NAMESERVERS: ClassVar[list] = [
+        ["127.0.0.1"],
+        ["127.0.0.53"],
+        ["::1"],
+        ["172.30.0.53"],
+        [],
+    ]
+
+    def test_every_host_shape_keeps_a_second_resolver(self):
+        for nameservers in self.NAMESERVERS:
+            for tor in ([], ["svc-net-tor"]):
+                for clearnet in ("", "192.0.2.1"):
+                    for docker0 in (
+                        {},
+                        {"docker0": {"ipv4": {"address": "172.17.0.1"}}},
+                    ):
+                        with self.subTest(
+                            nameservers=nameservers, tor=bool(tor), clearnet=clearnet
+                        ):
+                            result = resolve_container_dns(
+                                _vars(
+                                    group_names=tor,
+                                    networks={"internet": {"dns": clearnet}},
+                                    ansible_facts={
+                                        "dns": {"nameservers": nameservers},
+                                        **docker0,
+                                    },
+                                )
+                            )
+                            self.assertNotEqual([_GATEWAY], result)
+
+    def test_the_fallback_is_the_declared_resolver_not_a_literal(self):
+        """A hardcoded address here would bypass the project's own SPOT."""
+        result = resolve_container_dns(
+            _vars(group_names=["svc-net-tor"], networks={"internet": {"dns": ""}})
+        )
+        self.assertEqual([_GATEWAY, _PUBLIC[0]], result)
+
+    def test_an_empty_resolver_declaration_fails_loudly(self):
+        with self.assertRaises(AnsibleError):
+            resolve_container_dns(
+                _vars(
+                    group_names=["svc-net-tor"],
+                    networks={"internet": {"dns": ""}},
+                    NETWORK_PUBLIC_DNS_RESOLVERS=[],
+                )
+            )
 
 
 class TestTheTrustTagIsStillWhereBothSidesLookForIt(unittest.TestCase):

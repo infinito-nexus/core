@@ -14,6 +14,8 @@ networks:
     ip6: "::1"
     dns: "{{ NETWORK_PUBLIC_DNS_RESOLVERS | first }}"
 
+NETWORK_CONTAINER_BRIDGE_RESOLVER: true
+
 storage:
   backend: nfs
 
