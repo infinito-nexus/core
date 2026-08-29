@@ -16,7 +16,7 @@
         "baseUrl": {{ OPENCLAW_LITELLM_BASE_URL | to_json }},
         "apiKey": {{ OPENCLAW_LITELLM_API_KEY | to_json }},
         "api": "openai-completions",
-        "models": [{"id": {{ OPENCLAW_LITELLM_MODEL | to_json }}}]
+        "models": [{"id": {{ OPENCLAW_LITELLM_MODEL | to_json }}, "name": {{ OPENCLAW_LITELLM_MODEL | to_json }}}]
       }
     }
   }
