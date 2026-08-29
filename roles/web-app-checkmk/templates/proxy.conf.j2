@@ -27,4 +27,8 @@ server
     {% set location = '/' %}
     {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
   {% endif %}
+
+  {% include 'roles/web-app-prometheus/templates/nginx/locations.conf.j2' %}
+
+  {% include 'roles/sys-svc-proxy/templates/mcp/vhost.conf.j2' %}
 }
