@@ -3,7 +3,7 @@
 `auth_subject: user` and `auth: oidc` claim that an MCP call executes with the
 requesting end user's permissions. A `delegation:` block records the audit that
 backs the claim; without it,
-[`test_mcp_schema.py`](../../../../../tests/lint/ansible/services/test_mcp_schema.py)
+[`test_mcp_schema.py`](../../../../../../tests/lint/ansible/services/test_mcp_schema.py)
 rejects the role.
 
 ## Declaring it
@@ -29,8 +29,8 @@ for the deployed pin.
 | Client | Pin | Delegation | Evidence |
 |---|---|---|---|
 | `web-app-openwebui` | 0.11.0 | capable | `ToolServerConnection.auth_type: system_oauth` resolves the caller's token through `oauth_manager.get_oauth_token(user.id, oauth_session_id)` and presents it as the Bearer |
-| `web-app-hermes` | v2026.7.20 | incapable | [`config.yaml.j2`](../../../../../roles/web-app-hermes/templates/config.yaml.j2) renders one static `Authorization` header per server; no user session exists at render time |
-| `web-app-openclaw` | 2026.7.1 | incapable | [`openclaw.json.j2`](../../../../../roles/web-app-openclaw/templates/openclaw.json.j2) renders one static `Authorization` header per server |
+| `web-app-hermes` | v2026.7.20 | incapable | [`config.yaml.j2`](../../../../../../roles/web-app-hermes/templates/config.yaml.j2) renders one static `Authorization` header per server; no user session exists at render time |
+| `web-app-openclaw` | 2026.7.1 | incapable | [`openclaw.json.j2`](../../../../../../roles/web-app-openclaw/templates/openclaw.json.j2) renders one static `Authorization` header per server |
 | `web-app-flowise` | 3.1.3 | incapable | Registry entries bind to a workspace and store one encrypted custom header, not a per-user token |
 
 ## Provider audit
@@ -55,14 +55,14 @@ so every provider declares `auth_subject: service_account`.
 adapter-backed provider is the one surface that can declare
 `auth: oidc` with `auth_subject: user`. Only Open WebUI can consume it:
 
-- [`mcp_authorization`](../../../../../plugins/filter/mcp/authorization.py)
+- [`mcp_authorization`](../../../../../../plugins/filter/mcp/authorization.py)
   raises for `auth: oidc`, because a rendered config cannot carry a caller's
   token, and `mcp_authorization_is_renderable` returns `false` so the
   static-config clients drop the server instead of presenting a wrong secret.
-- [`mcp_tool_server_connections`](../../../../../plugins/filter/mcp/tool_server_connections.py)
+- [`mcp_tool_server_connections`](../../../../../../plugins/filter/mcp/tool_server_connections.py)
   emits `auth_type: system_oauth` with an empty `key` for those servers, so
   Open WebUI resolves the caller's own token per request.
 
 ## See Also
 
-- Service block vocabulary: [mcp.md](mcp.md)
+- Service block vocabulary: [mcp.md](../mcp.md)

@@ -88,7 +88,7 @@ A client-only block MUST NOT declare an `endpoint`.
 - `credential.owner` MUST NOT be `administrator`. Two providers resolving to the same owner and secret abort discovery.
 - `auth: none` requires `exposure: internal`.
 - `auth_subject: service_account | administrator` requires an explicit `tools.mutating_tools_enabled: false`.
-- `auth_subject: user` or `auth: oidc` requires a `delegation` block; see [mcp-delegation.md](mcp-delegation.md).
+- `auth_subject: user` or `auth: oidc` requires a `delegation` block; see [delegation.md](mcp/delegation.md).
 - `endpoint.service_key` MUST name a service in the same file; `endpoint.port_key` MUST resolve under its `ports.local` or `ports.internal`.
 - Suppress a finding with `# nocheck: mcp-schema` (file head = whole file, on/above a line = that finding).
 
@@ -130,4 +130,4 @@ users:
 ## See Also
 
 - Service metadata basics: [base.md](base.md)
-- User delegation audit: [mcp-delegation.md](mcp-delegation.md)
+- User delegation audit: [delegation.md](mcp/delegation.md)
