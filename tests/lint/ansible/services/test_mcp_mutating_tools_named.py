@@ -7,6 +7,13 @@ is built by subtracting ``tools.mutating`` from ``tools.allowlist``, so a
 mutating tool that is served but not named is offered to every client while the
 declaration says mutations are off.
 
+Switching mutations on carries its own obligation. No surface does today, so a
+test of the mutating path would assert against nothing and pass forever. What
+survives that emptiness is a guard: a surface that permits mutations must name,
+per required proof, the artifact that provides it, and the artifact must exist.
+That converts an unverifiable promise into a reviewable declaration, and it
+costs nothing until somebody flips the flag.
+
 Suppression (see ``docs/contributing/actions/testing/suppression.md``):
 
 * ``# nocheck: mcp-mutating-tools-named`` in the head of the role's
@@ -27,6 +34,50 @@ from . import PROJECT_ROOT
 
 _RULE = "mcp-mutating-tools-named"
 _SERVING = {"server", "both"}
+_PROOFS = (
+    "confirmation",
+    "authorization",
+    "idempotency",
+    "audit",
+    "reversal",
+)
+_PRESENT_FILE = "README.md"
+
+
+def missing_proofs(role: str, block: Mapping) -> list[str]:
+    """Return what a mutation-permitting surface still owes, or an empty list.
+
+    Args:
+        role: the role the surface belongs to, for the message.
+        block: its ``meta/mcp.yml`` mapping.
+
+    A surface that keeps mutations off owes nothing here, which is every
+    surface today, so the rule is exercised against a synthetic one rather
+    than trusted to be right the first time somebody needs it.
+    """
+    tools = block.get("tools")
+    if not isinstance(tools, Mapping) or not tools.get("mutating_tools_enabled"):
+        return []
+
+    proofs = block.get("mutating_proofs")
+    if not isinstance(proofs, Mapping):
+        return [
+            (
+                f"{role}: permits mutations without an mcp.mutating_proofs "
+                f"block naming {list(_PROOFS)}"
+            )
+        ]
+
+    missing = []
+    for proof in _PROOFS:
+        artifact = str(proofs.get(proof) or "").strip()
+        if not artifact:
+            missing.append(f"{role}: names no artifact for {proof!r}")
+        elif not (PROJECT_ROOT / artifact).is_file():
+            missing.append(
+                f"{role}: names {artifact!r} for {proof!r}, which is not a file"
+            )
+    return missing
 
 
 def _surfaces() -> list[tuple[str, Mapping]]:
@@ -79,6 +130,57 @@ class TestMcpMutatingToolsNamed(unittest.TestCase):
             contradictory,
             "surface(s) both permitting and withholding mutation:\n"
             + "\n".join(f"  - {c}" for c in contradictory),
+        )
+
+    def test_a_mutating_surface_names_an_artifact_per_required_proof(self) -> None:
+        unproven = []
+        for role, block in _surfaces():
+            unproven.extend(missing_proofs(role, block))
+        self.assertEqual(
+            [],
+            unproven,
+            "mutating surface(s) without a named proof:\n"
+            + "\n".join(f"  - {u}" for u in unproven),
+        )
+
+    def test_the_proof_rule_fires_on_a_surface_that_permits_mutations(self) -> None:
+        bare = {"tools": {"mutating_tools_enabled": True}}
+        self.assertEqual(
+            1,
+            len(missing_proofs("web-app-example", bare)),
+            "no surface permits mutations today, so this rule would pass "
+            "forever unless it is exercised against one that does",
+        )
+
+    def test_the_proof_rule_rejects_an_artifact_that_is_not_there(self) -> None:
+        named = {
+            "tools": {"mutating_tools_enabled": True},
+            "mutating_proofs": dict.fromkeys(_PROOFS, "tests/nowhere.py"),
+        }
+        findings = missing_proofs("web-app-example", named)
+        self.assertEqual(len(_PROOFS), len(findings))
+        self.assertTrue(all("is not a file" in f for f in findings))
+
+    def test_the_proof_rule_accepts_a_fully_proven_surface(self) -> None:
+        proven = {
+            "tools": {"mutating_tools_enabled": True},
+            "mutating_proofs": dict.fromkeys(_PROOFS, _PRESENT_FILE),
+        }
+        self.assertEqual([], missing_proofs("web-app-example", proven))
+
+    def test_a_read_only_surface_carries_no_mutating_proofs(self) -> None:
+        premature = [
+            f"{role}: declares mutating_proofs while mutations are off, so the "
+            f"artifacts it names are never the thing under test"
+            for role, block in _surfaces()
+            if block.get("mutating_proofs")
+            and not (block.get("tools") or {}).get("mutating_tools_enabled")
+        ]
+        self.assertEqual(
+            [],
+            premature,
+            "read-only surface(s) carrying mutation proofs:\n"
+            + "\n".join(f"  - {p}" for p in premature),
         )
 
     def test_the_scan_finds_surfaces(self) -> None:

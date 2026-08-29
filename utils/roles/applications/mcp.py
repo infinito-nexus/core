@@ -44,6 +44,10 @@ Field vocabulary (see ``docs/contributing/design/role/services/mcp.md``):
   allowed. The difference between them measures unenforced exposure, and a
   provider whose difference is non-empty needs a gateway in front. Plus schema
   hash and mutation policy.
+* ``mutating_proofs``: required once ``tools.mutating_tools_enabled`` is true.
+  Names the artifact proving each of confirmation, authorization, idempotency,
+  audit and reversal for the mutating variant, separately from the read-only
+  one.
 * ``source_url``:      upstream documentation or source of the MCP surface.
 * ``supported_version``: the exact upstream version the contract was read at.
 * ``minimum_version``: first upstream release shipping the surface.
@@ -154,6 +158,7 @@ MCP_KEYS = frozenset(
         "adapter",
         "limits",
         "tools",
+        "mutating_proofs",
         "source_url",
         "supported_version",
         "minimum_version",
