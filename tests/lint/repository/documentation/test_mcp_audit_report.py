@@ -23,9 +23,9 @@ from utils.roles.mapping import ROLE_FILE_META_MCP
 
 from . import PROJECT_ROOT
 
-_DOCS = PROJECT_ROOT / "docs" / "contributing" / "design" / "role" / "services"
-_GENERATOR = _DOCS / "mcp-audit.gen.py"
-_REPORT = _DOCS / "mcp-audit.md"
+_DOCS = PROJECT_ROOT / "docs" / "contributing" / "design" / "role" / "services" / "mcp"
+_GENERATOR = _DOCS / "audit.gen.py"
+_REPORT = _DOCS / "audit.md"
 
 
 def _load_generator():
