@@ -28,7 +28,8 @@ from utils.cache.files import iter_project_files_with_content
 _RULE = "mcp-secret-masking"
 
 _SECRET_RE = re.compile(
-    r"token|password|bearer|api_key|secret|credential", re.IGNORECASE
+    r"token|password|bearer|api_key|secret|credential|authoriz|auth_header",
+    re.IGNORECASE,
 )
 _PRINTS_RE = re.compile(
     r"ansible\.builtin\.(command|shell|uri|debug)|"
@@ -45,7 +46,7 @@ def _mcp_task_files() -> list[tuple[str, str]]:
         parts = Path(path).parts
         if "roles" not in parts or "tasks" not in parts:
             continue
-        if "mcp" not in Path(path).stem and "mcp" not in parts:
+        if "mcp" not in Path(path).stem and not any("mcp" in part for part in parts):
             continue
         files.append((path, content))
     return files
@@ -89,6 +90,22 @@ class TestMcpSecretsAreMasked(unittest.TestCase):
         self.assertTrue(
             _mcp_task_files(),
             "no MCP task file was scanned, so the rule would pass vacuously",
+        )
+
+    def test_the_scan_reaches_the_adapter_that_holds_every_provider_credential(
+        self,
+    ) -> None:
+        """The non-empty guard above passed while this role was invisible.
+
+        `svc-ai-mcp-adapter` is the one role whose whole job is handling other
+        roles' MCP credentials, and its directory name contains `mcp` without
+        being equal to it, so a membership test over the path parts skipped it
+        and the provider roles kept the scan looking populated.
+        """
+        scanned = {path for path, _ in _mcp_task_files()}
+        self.assertTrue(
+            any("svc-ai-mcp-adapter/tasks/" in path for path in scanned),
+            "svc-ai-mcp-adapter task files are outside the scan",
         )
 
 

@@ -114,6 +114,7 @@
   delay: 10
   until: mcp_contract_probe.rc == 0 or 'REJECTED' in mcp_contract_probe.stderr
   changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   delegate_to: "{{ STACK_HOST }}"
   run_once: true
 
