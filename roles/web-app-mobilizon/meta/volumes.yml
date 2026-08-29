@@ -1,4 +1,5 @@
 ---
+# nocheck: config-volume-secret  Mobilizon evaluates one Elixir config file at boot, so the OIDC client secret is an expression inside the same document as every other setting; there is no separate secret file the release reads.
 uploads:
   type: volume
   name: mobilizon_uploads
