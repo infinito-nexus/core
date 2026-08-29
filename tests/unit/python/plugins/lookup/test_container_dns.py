@@ -11,7 +11,13 @@ def _ensure_repo_root_on_syspath():
 
 _ensure_repo_root_on_syspath()
 
+from ansible.errors import AnsibleError  # noqa: E402
+
 from plugins.lookup.container_dns import resolve_container_dns  # noqa: E402
+from utils.templating.ansible import (  # noqa: E402
+    TrustedAsTemplate,
+    _trust_as_template,
+)
 
 _BRIDGE = {"docker0": {"ipv4": {"address": "172.17.0.1"}}}
 _CLEARNET = {"internet": {"dns": "172.30.0.53"}}
@@ -127,16 +133,47 @@ class TestLoopbackOnlyHost(unittest.TestCase):
 
 
 class _Templar:
-    """Renders one expression, the way a play's templar would."""
+    """Renders one expression, the way a play's templar would.
+
+    Ansible 2.19+ renders only strings carrying ``TrustedAsTemplate``, and
+    ``str()`` drops that tag. A stub that renders any string passes while
+    production returns the expression untouched, so this one refuses an
+    untagged string exactly as the real templar does.
+    """
 
     def __init__(self, mapping):
         self.mapping = mapping
 
     def template(self, text):
+        if TrustedAsTemplate is not None and not TrustedAsTemplate.is_tagged_on(text):
+            return text
         for name, value in self.mapping.items():
-            if text.strip() == "{{ " + name + " | first }}":
+            if str(text).strip() == "{{ " + name + " | first }}":
                 return value[0]
         return text
+
+
+class TestTheTrustTagIsStillWhereBothSidesLookForIt(unittest.TestCase):
+    """Without this the whole class below can pass while production is broken.
+
+    ``_trust_as_template`` and the stub both key off the same private ansible
+    module. Were it to move, the tagging degrades to a no-op and the templar
+    stops rendering, while the stub degrades to rendering anything and keeps
+    the tests green. This asserts the shared premise instead.
+    """
+
+    def test_the_tag_class_is_importable(self):
+        self.assertIsNotNone(
+            TrustedAsTemplate,
+            "ansible no longer exposes TrustedAsTemplate where "
+            "utils.templating.ansible looks for it; every lookup that "
+            "re-tags before templating silently stopped rendering",
+        )
+
+    def test_tagging_is_observable(self):
+        tagged = _trust_as_template("{{ x }}")
+        self.assertTrue(TrustedAsTemplate.is_tagged_on(tagged))
+        self.assertFalse(TrustedAsTemplate.is_tagged_on(str(tagged)))
 
 
 class TestInventoryExpressionIsRendered(unittest.TestCase):
@@ -194,7 +231,7 @@ class TestInventoryExpressionIsRendered(unittest.TestCase):
 
     def test_an_unresolvable_expression_aborts_instead_of_reaching_docker(self):
         """This is the shape that reached CI: no templar, so nothing rendered."""
-        with self.assertRaises(Exception) as caught:
+        with self.assertRaises(AnsibleError) as caught:
             resolve_container_dns(
                 {
                     "networks": {"internet": {"dns": self.EXPRESSION}},
@@ -205,7 +242,7 @@ class TestInventoryExpressionIsRendered(unittest.TestCase):
         self.assertIn("daemon.json", str(caught.exception))
 
     def test_a_templar_that_cannot_resolve_it_aborts_too(self):
-        with self.assertRaises(Exception):
+        with self.assertRaises(AnsibleError):
             resolve_container_dns(
                 {
                     "networks": {"internet": {"dns": self.EXPRESSION}},

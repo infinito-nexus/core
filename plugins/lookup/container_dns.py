@@ -5,6 +5,8 @@ from typing import Any
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
+from utils.templating.ansible import _trust_as_template
+
 _TOR_ROLE = "svc-net-tor"
 
 
@@ -36,11 +38,18 @@ def render(value: Any, templar: Any) -> str:
     contains. While that was a literal address nobody noticed; an expression
     there reached the daemon as its own source text and docker refused the
     config with ``ParseAddr("{{ ... }}")``.
+
+    ``str()`` drops the ``TrustedAsTemplate`` tag the loader attached, and the
+    templar returns an untagged string unrendered. Re-tagging before templating
+    is what every sibling lookup does; without it this function would trade the
+    daemon's parse error for its own.
     """
     text = str(value or "")
     if "{{" not in text:
         return text
-    rendered = str(templar.template(text)) if templar is not None else text
+    rendered = (
+        str(templar.template(_trust_as_template(text))) if templar is not None else text
+    )
     if "{{" in rendered:
         raise AnsibleError(
             f"networks.internet.dns is {text!r} and did not resolve to an "
@@ -50,9 +59,7 @@ def render(value: Any, templar: Any) -> str:
     return rendered
 
 
-def resolve_container_dns(
-    variables: dict[str, Any], templar: Any = None
-) -> list[str]:
+def resolve_container_dns(variables: dict[str, Any], templar: Any = None) -> list[str]:
     """Return the resolver list for the container runtime, most specific first.
 
     On a Tor node the node dnsmasq resolves ``.onion`` through Tor's DNSPort
