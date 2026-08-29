@@ -13,7 +13,7 @@ end user, and a rendered config carries no caller. Emitting the deployment's
 own bearer there would relabel a service account as user delegation, so this
 filter refuses it and ``mcp_authorization_is_renderable`` drops the server.
 Open WebUI reaches such a server through ``system_oauth`` instead; see
-``docs/contributing/design/role/services/mcp-delegation.md``.
+``docs/contributing/design/role/services/mcp/delegation.md``.
 """
 
 from __future__ import annotations
