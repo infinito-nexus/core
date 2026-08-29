@@ -279,13 +279,17 @@ Pointing an agent at an account that already exists needs no code: the inventory
 
 [test_agent_identity.py](../../tests/lint/ansible/services/test_agent_identity.py) holds the claim, the absence of any role on the account, and the absence of a second credential for it, over the roles derived from the sandbox-runtime scan rather than a list.
 
-Still open: MCP calls carrying that identity. Every server role issues one shared `service_account` token today, so `auth_subject: user` has nothing to resolve against until 035 introduces per-user credentials.
+Still open: MCP calls carrying that identity, and the obstacle is upstream rather than a piece of this platform nobody wrote yet. [035](035-mcp-proxy-expansion.md) already fixes the bar: `auth_subject: user` may be set only after the exact client and server prove authorization-code or token-exchange behaviour, token refresh, audience binding, revocation and expiry. No MCP provider deployed here clears it — every server role authenticates as one `service_account`, because that is what its upstream offers — so `auth_subject: user` has nothing to resolve against. Meeting the bar means a provider gaining per-user OAuth upstream, not a credential model this repository can add on its own.
 
 ## Blocked on hardware and on Phase 2
 
 A single-node lab cannot answer the multi-node criteria: replica scaling, placement across two `kata-capable` Raspberry-Pi-class nodes, and the compose-plus-swarm end-to-end pass all need the cluster the requirement describes. The arm64 half of the placement criterion is proven by the image check above; the two-node half is not.
 
-The Flowise supervisor criteria are Phase 2 and untouched: neither agent runs in MCP-server mode yet.
+The Flowise supervisor criteria are Phase 2, and reading both upstreams turned "not built yet" into a concrete blocker: `stdio_only`, the same reason `web-app-discourse` carries in [035](035-mcp-proxy-expansion.md). Neither agent's server mode speaks a transport a second container can reach.
+
+OpenClaw's own CLI reference says so directly: `openclaw mcp serve` "starts a stdio MCP server" whose process "the MCP client owns". Every HTTP transport in that document belongs to the opposite direction, `openclaw mcp add --url --transport streamable-http`, which is OpenClaw acting as a client. Hermes is the same shape: both entry points, `mcp_serve.py` and `agent/transports/hermes_tools_mcp_server.py`, run the MCP SDK's stdio transport, the repository defines neither `run_streamable_http_async` nor `sse_app`, and the user-facing MCP guide describes only Hermes consuming external servers.
+
+That is what stops the supervisor flow rather than effort. Flowise reaches an MCP server over the container network, and a stdio server has no address there: the client spawns and owns the process, so a shared endpoint two consumers could hold at once does not exist, and the deploy-time contract probe would consume the only session. Wrapping each agent in a stdio-to-HTTP bridge would put an unreviewed process on the platform's most privileged path — an agent with tool access — to work around a transport upstream has not shipped, which is the workaround this project refuses. Re-review when either upstream serves MCP over HTTP.
 
 ## Acceptance Criteria
 
@@ -301,10 +305,10 @@ The Flowise supervisor criteria are Phase 2 and untouched: neither agent runs in
 - [ ] Agents run on `arm64` and are scheduled across at least two `kata-capable` nodes (Raspberry Pi class); joining an additional labelled node adds capacity without a code change.
 - [x] Both agents reach inference only through the [031](031-llm-gateway-model-backends.md) gateway (BYO-model config points at `/v1`); switching a backend is a gateway config change, no agent redeploy.
 - [ ] Each agent is configured as an MCP client of at least one [025](025-mcp-role-integration.md) MCP server role over HTTP/SSE, and a tool call through that server succeeds; both roles are added to 025's MCP audit.
-- [ ] Creating an agent optionally provisions a dedicated platform user account via the existing `users`/LDAP/Keycloak mechanism; the agent authenticates as that account (OIDC dashboard login, MCP `auth_subject: user`), and deploying against an existing account instead also works. **Partly done:** the account half is implemented and linted (see [Agent identity](#agent-identity)); the MCP half waits on the per-user credential model that [035](035-mcp-proxy-expansion.md) still owns.
+- [ ] Creating an agent optionally provisions a dedicated platform user account via the existing `users`/LDAP/Keycloak mechanism; the agent authenticates as that account (OIDC dashboard login, MCP `auth_subject: user`), and deploying against an existing account instead also works. **Partly done:** the account half is implemented and linted (see [Agent identity](#agent-identity)); the MCP half is **blocked** on no deployed provider offering per-user OAuth, which is the bar [035](035-mcp-proxy-expansion.md) sets before `auth_subject: user` may be declared.
 - [x] An agent that runs container workloads does so via a nested Docker daemon inside its isolated runtime; no agent mounts the host `/var/run/docker.sock`. Neither agent runs container workloads today, so the enforceable half is the socket ban, held by `tests/lint/ansible/services/test_sandboxed_no_host_socket.py`; wiring a nested daemon is due with the first agent that needs one.
-- [ ] (Phase 2) Hermes' and OpenClaw's MCP-server mode is enabled; Flowise connects to both as MCP clients and delegates a task to each.
-- [ ] (Phase 2) A Flowise supervisor flow runs a cross-agent pipeline that hands a result from one agent to the other and returns a combined output; single-agent use still works without Flowise.
+- [ ] (Phase 2) Hermes' and OpenClaw's MCP-server mode is enabled; Flowise connects to both as MCP clients and delegates a task to each. **Blocked:** `stdio_only`, see [Blocked on hardware and on Phase 2](#blocked-on-hardware-and-on-phase-2).
+- [ ] (Phase 2) A Flowise supervisor flow runs a cross-agent pipeline that hands a result from one agent to the other and returns a combined output; single-agent use still works without Flowise. **Blocked:** depends on the criterion above.
 - [ ] Compose mode brings up an isolated agent via the compose `runtime:` key; swarm mode brings up an isolated agent via the node-default runtime on a placement-labelled node. Both modes are green end to end.
 - [x] Each agent role ships a Playwright spec exercising its deployed surface, and both are green.
 
