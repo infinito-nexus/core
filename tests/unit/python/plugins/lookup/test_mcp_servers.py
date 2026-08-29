@@ -146,47 +146,34 @@ class TestBuildMcpDiscovery(unittest.TestCase):
         result = build_mcp_discovery([itself], CONSUMER, CLIENT, CREDENTIALS)
         self.assertEqual(result, {"selected": [], "rejected": []})
 
-    def test_path_addressed_endpoint_carries_its_key_and_suffix(self):
-        baserow = {
-            "id": "web-app-baserow",
-            "auth": "app_password",
-            "transport": "sse",
-            "allowed_consumers": [CONSUMER],
-            "endpoint": {
-                "service_key": "baserow",
-                "port": 80,
-                "path": "/mcp",
-                "key_credential": "mcp_endpoint_key",
-                "suffix": "sse",
-            },
-        }
-        entry = build_mcp_discovery(
-            [baserow],
-            CONSUMER,
-            CLIENT,
-            {"web-app-baserow": ("t", "mcp-web-app-baserow")},
-            {"web-app-baserow": "deadbeef"},
-        )["selected"][0]
-        self.assertEqual(entry["url"], "http://baserow:80/mcp/deadbeef/sse")
+    def test_a_discovered_url_never_carries_a_secret_path_segment(self):
+        """A URL segment cannot be scoped per consumer, nor revoked alone.
 
-    def test_path_addressed_endpoint_without_its_key_is_rejected(self):
-        baserow = {
-            "id": "web-app-baserow",
-            "auth": "app_password",
-            "transport": "sse",
-            "allowed_consumers": [CONSUMER],
-            "endpoint": {
+        A provider that keys its session that way is fronted by an adapter, so
+        the segment stays between adapter and upstream and never reaches a
+        client's rendered configuration.
+        """
+        keyed = dict(
+            HOMEASSISTANT,
+            endpoint={
                 "service_key": "baserow",
                 "port": 80,
                 "path": "/mcp",
                 "key_credential": "mcp_endpoint_key",
                 "suffix": "sse",
             },
-        }
-        result = build_mcp_discovery(
-            [baserow], CONSUMER, CLIENT, {"web-app-baserow": ("t", "o")}, {}
         )
-        self.assertEqual(reasons(result), {"web-app-baserow": "endpoint_unreachable"})
+        entry = build_mcp_discovery([keyed], CONSUMER, CLIENT, CREDENTIALS)["selected"][
+            0
+        ]
+        self.assertEqual(entry["url"], "http://baserow:80/mcp")
+
+    def test_an_endpoint_without_a_port_is_rejected(self):
+        portless = dict(HOMEASSISTANT, endpoint={"service_key": "x", "path": "/mcp"})
+        result = build_mcp_discovery([portless], CONSUMER, CLIENT, CREDENTIALS)
+        self.assertEqual(
+            reasons(result), {"web-app-homeassistant": "endpoint_unreachable"}
+        )
 
     def test_order_of_the_discovered_servers_is_kept(self):
         jenkins = dict(HOMEASSISTANT, id="web-app-jenkins")

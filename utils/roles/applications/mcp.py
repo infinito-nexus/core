@@ -25,9 +25,6 @@ Field vocabulary (see ``docs/contributing/design/role/services/mcp.md``):
   admits. Discovery intersects it with the client's declared capabilities.
 * ``supported_transports`` / ``supported_auths``: what a client can present.
 * ``endpoint``:        connection metadata for clients (server roles only).
-  ``key_credential`` names a credential of the same role whose value belongs in
-  the URL path, and ``suffix`` the segment that follows it, for servers that
-  address a session through the path rather than a header.
 * ``adapter``:         immutable source contract of a repository-owned adapter.
   ``category_allowlist`` suits an upstream that switches whole categories and
   offers no per-tool filter, where a tool allowlist would be unenforceable;
@@ -170,8 +167,6 @@ MCP_ENDPOINT_KEYS = frozenset(
         "service_key",
         "path",
         "port_key",
-        "key_credential",
-        "suffix",
     }
 )
 
@@ -197,6 +192,7 @@ MCP_ADAPTER_KEYS = frozenset(
         "specification_path",
         "specification_sha256",
         "scope",
+        "upstream_transport",
     }
 )
 

@@ -66,20 +66,18 @@ SOURCE_CREDENTIALS = "credentials"
 FORBIDDEN_OWNER = "administrator"
 
 
-def endpoint_url(endpoint: Mapping[str, Any], path_key: str) -> str:
+def endpoint_url(endpoint: Mapping[str, Any]) -> str:
     """Return the URL a client connects to.
 
     Args:
         endpoint: the discovered endpoint mapping.
-        path_key: value of the credential named by ``key_credential``, empty
-            when the endpoint addresses its session through a header instead.
+
+    Every discovered endpoint authenticates through a header. A provider that
+    keys its session by URL segment instead cannot scope that segment per
+    consumer or revoke it, so it is fronted by an adapter and the segment stays
+    between the adapter and its upstream.
     """
-    url = f"http://{endpoint.get('service_key')}:{endpoint.get('port')}{endpoint.get('path')}"
-    if not endpoint.get("key_credential"):
-        return url
-    suffix = str(endpoint.get("suffix") or "").strip("/")
-    tail = f"/{suffix}" if suffix else ""
-    return f"{url}/{path_key}{tail}"
+    return f"http://{endpoint.get('service_key')}:{endpoint.get('port')}{endpoint.get('path')}"
 
 
 def resolve_credential(
@@ -137,7 +135,6 @@ def build_mcp_discovery(
     consumer_id: str,
     consumer: Mapping[str, Any],
     credentials: Mapping[str, tuple[str, str]],
-    path_keys: Mapping[str, str] | None = None,
 ) -> dict[str, list[dict[str, Any]]]:
     """Return the selected and rejected MCP servers for one client role.
 
@@ -147,11 +144,9 @@ def build_mcp_discovery(
         consumer: the client's own ``mcp`` block, carrying
             ``supported_transports`` and ``supported_auths``.
         credentials: resolved ``(token, owner)`` per provider role id.
-        path_keys: resolved ``key_credential`` values, keyed by role id.
     """
     supported_transports = set(consumer.get("supported_transports") or [])
     supported_auths = set(consumer.get("supported_auths") or [])
-    keys = path_keys or {}
 
     selected: list[dict[str, Any]] = []
     rejected: list[dict[str, Any]] = []
@@ -214,24 +209,18 @@ def build_mcp_discovery(
         seen_owners[(owner, token)] = server_id
 
         endpoint = server.get("endpoint") or {}
-        path_key = str(keys.get(server_id) or "").strip()
-        if (
-            not endpoint.get("port")
-            or not endpoint.get("path")
-            or (endpoint.get("key_credential") and not path_key)
-        ):
+        if not endpoint.get("port") or not endpoint.get("path"):
             reject(
                 server_id,
                 REJECT_ENDPOINT,
-                f"{server_id} resolves no reachable endpoint (port, path or "
-                f"key credential missing)",
+                f"{server_id} resolves no reachable endpoint (port or path missing)",
             )
             continue
 
         selected.append(
             {
                 "id": server_id,
-                "url": endpoint_url(endpoint, path_key),
+                "url": endpoint_url(endpoint),
                 "token": token,
                 "auth": auth,
                 "auth_subject": server.get("auth_subject"),
@@ -342,23 +331,14 @@ class LookupModule(LookupBase):
         consumer = (applications.get(consumer_id) or {}).get("mcp") or {}
 
         credentials: dict[str, tuple[str, str]] = {}
-        path_keys: dict[str, str] = {}
-        config = lookup_loader.get("config", loader=self._loader, templar=templar)
         for server in servers:
             server_id = str(server.get("id") or "")
             role_credentials = (applications.get(server_id) or {}).get(
                 "credentials"
             ) or {}
             credentials[server_id] = resolve_credential(server, users, role_credentials)
-            credential = (server.get("endpoint") or {}).get("key_credential")
-            if credential:
-                path_keys[server_id] = config.run(
-                    [server_id, f"credentials.{credential}"], variables=vars_
-                )[0]
 
-        discovery = build_mcp_discovery(
-            servers, consumer_id, consumer, credentials, path_keys
-        )
+        discovery = build_mcp_discovery(servers, consumer_id, consumer, credentials)
         assert_authorized_are_renderable(
             discovery, strict=bool(vars_.get(RECONCILE_STRICT_VAR))
         )

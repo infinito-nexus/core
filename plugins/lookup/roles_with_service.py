@@ -214,8 +214,6 @@ class LookupModule(LookupBase):
                     "service_key": endpoint.get("service_key"),
                     "path": endpoint.get("path"),
                     "port": _resolve_endpoint_port(services, endpoint),
-                    "key_credential": endpoint.get("key_credential"),
-                    "suffix": endpoint.get("suffix"),
                 }
             results.append(entry)
 
