@@ -1,0 +1,23 @@
+{% set mcp_path = lookup('config', application_id, 'mcp.endpoint.path', '') %}
+{% if mcp_path %}
+{% set mcp_public = lookup('config', application_id, 'mcp.exposure', '') == 'public'
+                    and lookup('config', application_id, 'mcp.enabled', false) | bool %}
+{% set mcp_acl_gated = lookup('sso', application_id, 'is_proxy_gated')
+                       and (lookup('sso', application_id, 'oauth2_acl') | length) %}
+{% if mcp_public and not mcp_acl_gated %}
+{% set mcp_limits = lookup('config', application_id, 'mcp.limits') %}
+{% set mcp_zone = 'mcp_' ~ (application_id | replace('-', '_')) %}
+{% set sso_proxy_enabled = lookup('sso', application_id, 'is_proxy_gated') %}
+{% set location = mcp_path | regex_replace('/+$', '') %}
+{% set webserver_client_max_body_size = mcp_limits.request_bytes %}
+{% set webserver_proxy_send_timeout = mcp_limits.timeout_seconds ~ 's' %}
+{% set webserver_proxy_read_timeout = mcp_limits.stream_seconds ~ 's' %}
+{% set webserver_send_timeout = mcp_limits.stream_seconds ~ 's' %}
+{% set webserver_location_extra_configuration %}{% include 'roles/sys-svc-proxy/templates/mcp/directives.conf.j2' %}{% endset %}
+{% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
+{% elif not mcp_acl_gated %}
+  location {{ mcp_path | regex_replace('/+$', '') }} {
+    return 404;
+  }
+{% endif %}
+{% endif %}

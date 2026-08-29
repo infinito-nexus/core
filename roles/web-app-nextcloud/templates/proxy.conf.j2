@@ -41,4 +41,6 @@ server
 
     try_files $uri $uri/ =404;
   }
+
+  {% include 'roles/sys-svc-proxy/templates/mcp/vhost.conf.j2' %}
 }
