@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
 _TOR_ROLE = "svc-net-tor"
@@ -23,7 +24,35 @@ def _serves_only_on_loopback(facts: dict[str, Any]) -> bool:
     )
 
 
-def resolve_container_dns(variables: dict[str, Any]) -> list[str]:
+def render(value: Any, templar: Any) -> str:
+    """Return an inventory value with its Jinja resolved.
+
+    Args:
+        value: whatever the inventory holds for the field.
+        templar: the lookup's templar, or None outside a play.
+
+    ``networks.internet.dns`` arrives through ``-e @inventories/...`` and is
+    read straight out of ``variables``, which hands back whatever the file
+    contains. While that was a literal address nobody noticed; an expression
+    there reached the daemon as its own source text and docker refused the
+    config with ``ParseAddr("{{ ... }}")``.
+    """
+    text = str(value or "")
+    if "{{" not in text:
+        return text
+    rendered = str(templar.template(text)) if templar is not None else text
+    if "{{" in rendered:
+        raise AnsibleError(
+            f"networks.internet.dns is {text!r} and did not resolve to an "
+            f"address. Emitting it would put that source text in daemon.json, "
+            f"where docker refuses the whole config."
+        )
+    return rendered
+
+
+def resolve_container_dns(
+    variables: dict[str, Any], templar: Any = None
+) -> list[str]:
     """Return the resolver list for the container runtime, most specific first.
 
     On a Tor node the node dnsmasq resolves ``.onion`` through Tor's DNSPort
@@ -52,9 +81,9 @@ def resolve_container_dns(variables: dict[str, Any]) -> list[str]:
     bridge = ((facts.get("docker0") or {}).get("ipv4") or {}).get("address") or ""
     on_tor_node = _TOR_ROLE in (variables.get("group_names") or [])
 
-    clearnet = ((variables.get("networks") or {}).get("internet") or {}).get(
-        "dns"
-    ) or ""
+    clearnet = render(
+        ((variables.get("networks") or {}).get("internet") or {}).get("dns"), templar
+    )
 
     needs_bridge = on_tor_node or _serves_only_on_loopback(facts)
     resolvers = (bridge if needs_bridge else "", clearnet)
@@ -73,4 +102,4 @@ class LookupModule(LookupBase):
         if terms:
             raise ValueError("lookup('container_dns') takes no positional terms.")
         variables = variables or getattr(self._templar, "available_variables", {}) or {}
-        return [resolve_container_dns(variables)]
+        return [resolve_container_dns(variables, self._templar)]

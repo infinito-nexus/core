@@ -126,5 +126,95 @@ class TestLoopbackOnlyHost(unittest.TestCase):
         )
 
 
+class _Templar:
+    """Renders one expression, the way a play's templar would."""
+
+    def __init__(self, mapping):
+        self.mapping = mapping
+
+    def template(self, text):
+        for name, value in self.mapping.items():
+            if text.strip() == "{{ " + name + " | first }}":
+                return value[0]
+        return text
+
+
+class TestInventoryExpressionIsRendered(unittest.TestCase):
+    """The field arrives through `-e @inventory.yml` and is read raw.
+
+    While it held a literal address nobody noticed that nothing rendered it.
+    An expression there reached the daemon as its own source text, and docker
+    refused the whole config: ParseAddr("{{ ... }}"): unable to parse IP.
+    """
+
+    EXPRESSION = "{{ NETWORK_PUBLIC_DNS_RESOLVERS | first }}"
+
+    def facts(self, nameservers):
+        return {"dns": {"nameservers": nameservers}, "docker0": {"ipv4": {}}}
+
+    def test_an_expression_is_resolved_against_the_play(self):
+        templar = _Templar({"NETWORK_PUBLIC_DNS_RESOLVERS": ["192.0.2.1", "192.0.2.2"]})
+        result = resolve_container_dns(
+            {
+                "networks": {"internet": {"dns": self.EXPRESSION}},
+                "group_names": [],
+                "ansible_facts": self.facts(["192.0.2.9"]),
+            },
+            templar,
+        )
+        self.assertEqual(["192.0.2.1"], result)
+
+    def test_no_resolver_ever_carries_jinja(self):
+        """What reaches daemon.json must be an address, not its source text."""
+        templar = _Templar({"NETWORK_PUBLIC_DNS_RESOLVERS": ["192.0.2.1"]})
+        for nameservers in ([], ["127.0.0.1"], ["192.0.2.9"]):
+            with self.subTest(nameservers=nameservers):
+                for resolver in resolve_container_dns(
+                    {
+                        "networks": {"internet": {"dns": self.EXPRESSION}},
+                        "group_names": [],
+                        "ansible_facts": self.facts(nameservers),
+                    },
+                    templar,
+                ):
+                    self.assertNotIn("{{", resolver)
+
+    def test_a_literal_survives_without_a_templar(self):
+        """Outside a play there is nothing to render against, and no need."""
+        self.assertEqual(
+            ["172.30.0.53"],
+            resolve_container_dns(
+                {
+                    "networks": {"internet": {"dns": "172.30.0.53"}},
+                    "group_names": [],
+                    "ansible_facts": self.facts(["192.0.2.9"]),
+                }
+            ),
+        )
+
+    def test_an_unresolvable_expression_aborts_instead_of_reaching_docker(self):
+        """This is the shape that reached CI: no templar, so nothing rendered."""
+        with self.assertRaises(Exception) as caught:
+            resolve_container_dns(
+                {
+                    "networks": {"internet": {"dns": self.EXPRESSION}},
+                    "group_names": [],
+                    "ansible_facts": self.facts(["192.0.2.9"]),
+                }
+            )
+        self.assertIn("daemon.json", str(caught.exception))
+
+    def test_a_templar_that_cannot_resolve_it_aborts_too(self):
+        with self.assertRaises(Exception):
+            resolve_container_dns(
+                {
+                    "networks": {"internet": {"dns": self.EXPRESSION}},
+                    "group_names": [],
+                    "ansible_facts": self.facts(["192.0.2.9"]),
+                },
+                _Templar({}),
+            )
+
+
 if __name__ == "__main__":
     unittest.main()
