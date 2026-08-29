@@ -14,6 +14,11 @@ doing - a network probe, in the case that produced this rule.
 Swarm hides it: there the nodes are provisioned with docker before the play
 reaches the role, so only the compose path fails.
 
+The comparison is per file. A role that puts the docker call in one task file
+and the stack include in another escapes, because resolving that needs the
+include graph rather than two line numbers. Every current caller keeps both in
+the same file, which is the shape this rule guards.
+
 Suppression (see ``docs/contributing/actions/testing/suppression.md``):
 
 * ``# nocheck: docker-before-stack`` on, or directly above, the include.
@@ -35,8 +40,8 @@ _STACK_RE = re.compile(r"name:\s*(sys-stk-[a-z-]+|sys-svc-container)")
 
 
 def role_task_files() -> list:
-    """Return every task file of every role."""
-    return sorted((PROJECT_ROOT / "roles").glob("*/tasks/*.yml"))
+    """Return every task file of every role, nested directories included."""
+    return sorted((PROJECT_ROOT / "roles").glob("*/tasks/**/*.yml"))
 
 
 def first_line(content: str, pattern) -> int:
