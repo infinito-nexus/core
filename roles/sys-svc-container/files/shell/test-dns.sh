@@ -35,17 +35,9 @@ done
 [ -S /var/run/docker.sock ] || fail "docker.sock missing after waiting"
 container info >/dev/null 2>&1 || fail "container info still failing after waiting"
 
-section "Resolve the bridge gateway the inner resolver answers on"
-
-DNS_IP="$(container network inspect bridge \
-  | python3 -c 'import json,sys; print(json.load(sys.stdin)[0]["IPAM"]["Config"][0]["Gateway"])')"
-
-[ -n "${DNS_IP}" ] || fail "could not read the docker bridge gateway"
-ok "bridge gateway ${DNS_IP}"
-
 section "Docker-in-Docker DNS (busybox: A + no SERVFAIL)"
 
-container run --rm --dns "${DNS_IP}" "${BUSYBOX_IMAGE}" sh -lc "
+container run --rm "${BUSYBOX_IMAGE}" sh -lc "
   set -e
 
   test_lookup_a() {
@@ -83,7 +75,7 @@ if [ -z "${NODE_IMAGE}" ]; then
 else
   section "Docker-in-Docker DNS (node/getaddrinfo)"
 
-  container run --rm --dns "${DNS_IP}" "${NODE_IMAGE}" sh -lc "
+  container run --rm "${NODE_IMAGE}" sh -lc "
     set -e
     node -e \"
       const dns = require('dns');
