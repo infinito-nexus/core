@@ -1,5 +1,6 @@
 ---
 application_id: "web-app-homeassistant"
+entity_name: "{{ application_id | get_entity_name }}"
 domain: "{{ lookup('domain', application_id) }}"
 http_port: "{{ lookup('config', application_id, 'services.homeassistant.ports.local.http') }}"
 

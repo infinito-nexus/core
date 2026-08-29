@@ -1,5 +1,6 @@
 ---
 application_id: "web-app-openclaw"
+entity_name: "{{ application_id | get_entity_name }}"
 domain: "{{ lookup('domain', application_id) }}"
 http_port: "{{ lookup('config', application_id, 'services.openclaw.ports.local.http') }}"
 
