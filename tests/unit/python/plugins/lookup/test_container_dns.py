@@ -1,5 +1,6 @@
 import sys
 import unittest
+from typing import ClassVar
 
 from . import PROJECT_ROOT
 
@@ -151,6 +152,76 @@ class _Templar:
             if str(text).strip() == "{{ " + name + " | first }}":
                 return value[0]
         return text
+
+
+class TestTheBridgeSurvivesTheFirstRun(unittest.TestCase):
+    """The run that writes daemon.json is the one with no docker0 fact.
+
+    Facts are gathered at play start and nothing re-gathers them after the
+    daemon is installed, so a fresh node renders its daemon config while
+    ``ansible_facts.docker0`` is still absent. Deriving the address from the
+    fact alone emitted the clearnet resolver on its own, and the inner
+    containers then asked a public resolver for a domain only the node dnsmasq
+    knows: ``server can't find infinito.example: NXDOMAIN``.
+    """
+
+    POOLS: ClassVar[list] = [{"base": "10.208.0.0/12", "size": 24}]
+
+    def facts(self, **extra):
+        """Return facts for a host that resolves only through loopback.
+
+        Args:
+            extra: additional fact keys, e.g. a ``docker0`` entry.
+        """
+        return {"dns": {"nameservers": ["127.0.0.1"]}, **extra}
+
+    def test_the_bridge_is_known_before_docker_ever_ran(self):
+        self.assertEqual(
+            resolve_container_dns(
+                _vars(
+                    ansible_facts=self.facts(),
+                    group_names=[],
+                    networks={"internet": {"dns": "192.0.2.1"}},
+                    NETWORK_DOCKER_ADDRESS_POOLS=self.POOLS,
+                )
+            ),
+            ["10.208.0.1", "192.0.2.1"],
+        )
+
+    def test_the_pass_after_docker_renders_the_same_bytes(self):
+        """A differing render restarts the runtime under a live stack."""
+        before = resolve_container_dns(
+            _vars(
+                ansible_facts=self.facts(),
+                group_names=[],
+                networks={"internet": {"dns": "192.0.2.1"}},
+                NETWORK_DOCKER_ADDRESS_POOLS=self.POOLS,
+            )
+        )
+        after = resolve_container_dns(
+            _vars(
+                ansible_facts=self.facts(docker0={"ipv4": {"address": "10.208.0.1"}}),
+                group_names=[],
+                networks={"internet": {"dns": "192.0.2.1"}},
+                NETWORK_DOCKER_ADDRESS_POOLS=self.POOLS,
+            )
+        )
+        self.assertEqual(before, after)
+
+    def test_an_observed_bridge_still_wins_over_the_declaration(self):
+        self.assertEqual(
+            resolve_container_dns(
+                _vars(
+                    ansible_facts=self.facts(
+                        docker0={"ipv4": {"address": "172.17.0.1"}}
+                    ),
+                    group_names=[],
+                    networks={"internet": {"dns": "192.0.2.1"}},
+                    NETWORK_DOCKER_ADDRESS_POOLS=self.POOLS,
+                )
+            ),
+            ["172.17.0.1", "192.0.2.1"],
+        )
 
 
 class TestTheTrustTagIsStillWhereBothSidesLookForIt(unittest.TestCase):

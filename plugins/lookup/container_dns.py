@@ -5,6 +5,7 @@ from typing import Any
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
+from utils.networks.address import subnet_gateway
 from utils.templating.ansible import _trust_as_template
 
 _TOR_ROLE = "svc-net-tor"
@@ -59,6 +60,43 @@ def render(value: Any, templar: Any) -> str:
     return rendered
 
 
+def bridge_address(variables: dict[str, Any]) -> str:
+    """Return the docker bridge gateway containers can reach the host on.
+
+    Args:
+        variables: the variables in scope for the lookup.
+
+    ``ansible_facts`` only carries ``docker0`` once the daemon has run, and the
+    daemon config is written before that on a fresh node - facts are gathered at
+    play start, and nothing re-gathers them after the install. Reading the fact
+    alone therefore yields nothing on the very run that has to emit the address,
+    which leaves the inner containers pointed at the clearnet resolver and the
+    DinD DNS check failing on a domain only the node dnsmasq knows.
+
+    ``default-address-pools`` is where docker takes that address from, so the
+    declaration answers before the daemon exists and answers identically
+    afterwards. That also keeps daemon.json byte-identical across passes, which
+    the fact-derived value could not: it appeared only from the second run on
+    and restarted the container runtime under a live stack.
+    """
+    facts = variables.get("ansible_facts") or {}
+    observed = ((facts.get("docker0") or {}).get("ipv4") or {}).get("address") or ""
+    if observed:
+        return str(observed)
+
+    pools = variables.get("NETWORK_DOCKER_ADDRESS_POOLS") or []
+    base = str((pools[0] or {}).get("base") or "") if pools else ""
+    if not base:
+        return ""
+    try:
+        return subnet_gateway(base)
+    except ValueError as exc:
+        raise AnsibleError(
+            f"networks: the first docker address pool {base!r} holds no gateway "
+            f"address, so containers have no way back to the host resolver."
+        ) from exc
+
+
 def resolve_container_dns(variables: dict[str, Any], templar: Any = None) -> list[str]:
     """Return the resolver list for the container runtime, most specific first.
 
@@ -85,7 +123,7 @@ def resolve_container_dns(variables: dict[str, Any], templar: Any = None) -> lis
     difference restarts the container runtime underneath a live stack.
     """
     facts = variables.get("ansible_facts") or {}
-    bridge = ((facts.get("docker0") or {}).get("ipv4") or {}).get("address") or ""
+    bridge = bridge_address(variables)
     on_tor_node = _TOR_ROLE in (variables.get("group_names") or [])
 
     clearnet = render(
