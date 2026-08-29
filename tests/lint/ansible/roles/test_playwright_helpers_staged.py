@@ -33,6 +33,7 @@ _RULE = "playwright-helper-staged"
 RUNNER_FILES = PROJECT_ROOT / "roles/test-e2e-playwright/files"
 STAGING_TASK = PROJECT_ROOT / "roles/test-e2e-playwright/tasks/02_run_one.yml"
 RERUN_SCRIPT = PROJECT_ROOT / "scripts/tests/e2e/rerun-spec.sh"
+LINT_SCRIPT = PROJECT_ROOT / "scripts/lint/playwright.sh"
 
 _REQUIRE_RE = re.compile(r"""require\(["']\./([A-Za-z0-9._-]+)["']\)""")
 
@@ -42,6 +43,7 @@ _NOT_A_HELPER = frozenset({"playwright.config.js"})
 
 _GLOB_MARKER = "roles/test-e2e-playwright/files') }}/*.js"
 _SHELL_GLOB_MARKER = 'roles/test-e2e-playwright/files"/*.js'
+_LINT_GLOB_MARKER = '"${HELPERS_SRC}"/*.js'
 
 
 def staged_helpers() -> set[str]:
@@ -94,15 +96,20 @@ def unstaged_requires() -> list[str]:
 def stagers_without_the_glob() -> list[str]:
     """Return one finding per stager that stopped deriving the helper set.
 
-    Both must glob the runner's `files/*.js`. A stager that goes back to
-    naming helpers drifts from the other one silently, which is how
-    `rerun-spec.sh` came to copy three of the five.
+    Every stager must glob the runner's `files/*.js`. One that goes back to
+    naming helpers drifts from the others silently, which is how three copies
+    of the same set came to hold three different sets: the deploy task named
+    four, `rerun-spec.sh` three, and `playwright.sh` four again but a
+    different four.
     """
     findings = []
-    if _GLOB_MARKER not in read_text(str(STAGING_TASK)):
-        findings.append(f"{STAGING_TASK.name} no longer globs the helper directory")
-    if _SHELL_GLOB_MARKER not in read_text(str(RERUN_SCRIPT)):
-        findings.append(f"{RERUN_SCRIPT.name} no longer globs the helper directory")
+    for path, marker in (
+        (STAGING_TASK, _GLOB_MARKER),
+        (RERUN_SCRIPT, _SHELL_GLOB_MARKER),
+        (LINT_SCRIPT, _LINT_GLOB_MARKER),
+    ):
+        if marker not in read_text(str(path)):
+            findings.append(f"{path.name} no longer globs the helper directory")
     return findings
 
 
