@@ -45,6 +45,7 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
+from utils.manager.credential_key import CREDENTIALS_KEY, SECRETS_KEY
 from utils.roles.applications.mcp import DEFAULT_MCP_TRANSPORT
 
 if TYPE_CHECKING:
@@ -80,6 +81,26 @@ def endpoint_url(endpoint: Mapping[str, Any]) -> str:
     return f"http://{endpoint.get('service_key')}:{endpoint.get('port')}{endpoint.get('path')}"
 
 
+def role_credentials_of(
+    applications: Mapping[str, Any], role: str
+) -> Mapping[str, Any]:
+    """Return a role's own secrets from the merged applications payload.
+
+    Args:
+        applications: the merged applications mapping.
+        role: the provider's application id.
+
+    They live at ``secrets.credentials``, which is where the roles' own vars
+    and every other consumer address them. Reading the top-level
+    ``credentials`` instead returns nothing for every provider whose
+    ``credential.source`` is ``credentials``, and the deploy then aborts on a
+    secret that was provisioned all along.
+    """
+    return ((applications.get(role) or {}).get(SECRETS_KEY) or {}).get(
+        CREDENTIALS_KEY
+    ) or {}
+
+
 def resolve_credential(
     server: Mapping[str, Any],
     users: Mapping[str, Any],
@@ -90,7 +111,8 @@ def resolve_credential(
     Args:
         server: a discovered ``direction=server`` entry.
         users: the merged users mapping, carrying each principal's tokens.
-        role_credentials: the provider role's own ``credentials`` mapping.
+        role_credentials: the provider role's own ``secrets.credentials``
+            mapping, which is where every other consumer addresses them.
 
     Returns an empty token when the declaration is incomplete or the principal
     holds nothing; the caller turns that into ``credential_missing``.
@@ -333,9 +355,7 @@ class LookupModule(LookupBase):
         credentials: dict[str, tuple[str, str]] = {}
         for server in servers:
             server_id = str(server.get("id") or "")
-            role_credentials = (applications.get(server_id) or {}).get(
-                "credentials"
-            ) or {}
+            role_credentials = role_credentials_of(applications, server_id)
             credentials[server_id] = resolve_credential(server, users, role_credentials)
 
         discovery = build_mcp_discovery(servers, consumer_id, consumer, credentials)

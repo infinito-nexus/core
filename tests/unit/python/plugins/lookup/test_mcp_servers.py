@@ -15,6 +15,7 @@ plugin_module = importlib.import_module("plugins.lookup.mcp_servers")
 build_mcp_discovery = plugin_module.build_mcp_discovery
 resolve_credential = plugin_module.resolve_credential
 resolve_consumer_id = plugin_module.resolve_consumer_id
+role_credentials_of = plugin_module.role_credentials_of
 
 CONSUMER = "web-app-openwebui"
 
@@ -273,6 +274,49 @@ class TestResolveCredential(unittest.TestCase):
         )
         self.assertEqual(
             resolve_credential(server, {}, {"mcp_token": "v"}), ("v", "mcp-web-app-x")
+        )
+
+    def test_the_role_secret_is_read_where_the_inventory_writes_it(self):
+        """The function was tested; the address its caller used was not.
+
+        Provisioning writes `<role>.secrets.credentials.<key>`, which is also
+        how the roles' own vars address it. Discovery read the top-level
+        `credentials` and therefore found nothing for all fifteen providers
+        whose source is `credentials`, aborting the deploy on a secret that
+        had been generated and vaulted all along.
+        """
+        applications = {
+            "web-app-prometheus": {
+                "secrets": {"credentials": {"mcp_bearer": "resolved"}}
+            }
+        }
+        self.assertEqual(
+            {"mcp_bearer": "resolved"},
+            role_credentials_of(applications, "web-app-prometheus"),
+        )
+
+    def test_a_top_level_credentials_block_is_not_the_address(self):
+        applications = {"web-app-x": {"credentials": {"mcp_bearer": "wrong-place"}}}
+        self.assertEqual({}, role_credentials_of(applications, "web-app-x"))
+
+    def test_an_absent_role_yields_an_empty_mapping(self):
+        self.assertEqual({}, role_credentials_of({}, "web-app-missing"))
+
+    def test_the_extraction_feeds_resolve_credential(self):
+        """End to end: the payload shape provisioning produces must resolve."""
+        applications = {
+            "web-app-prometheus": {
+                "secrets": {"credentials": {"mcp_bearer": "resolved"}}
+            }
+        }
+        server = self._server(
+            owner="mcp-web-app-prometheus", source="credentials", key="mcp_bearer"
+        )
+        self.assertEqual(
+            ("resolved", "mcp-web-app-prometheus"),
+            resolve_credential(
+                server, {}, role_credentials_of(applications, "web-app-prometheus")
+            ),
         )
 
     def test_administrator_owner_resolves_to_nothing(self):
