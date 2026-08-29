@@ -234,6 +234,99 @@ class TestDeclaredArguments(unittest.TestCase):
         self.assertEqual("GET", method)
 
 
+RANGE_TOOLS = {
+    "prometheus_query_range": {
+        "method": "GET",
+        "path": "/api/v1/query_range",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string"},
+                "start": {"type": "string"},
+                "end": {"type": "string"},
+                "step": {"type": "string"},
+            },
+            "required": ["query", "start", "end", "step"],
+        },
+    }
+}
+
+
+class TestRangeCeiling(unittest.TestCase):
+    """A client picks start, end and step, so nothing bounded the point count.
+
+    The timeout bounds how long the upstream burns, not how much it scans, and
+    the adapter discards all but `result_items` rows regardless.
+    """
+
+    def contract(self, **overrides):
+        return contract(
+            tools=RANGE_TOOLS,
+            schema_sha256=policy.schema_digest(RANGE_TOOLS),
+            limits={**LIMITS, "request_bytes": 4096},
+            **overrides,
+        )
+
+    def call(self, **arguments):
+        return policy.authorize_call(
+            self.contract(), "prometheus_query_range", {"query": "up", **arguments}
+        )
+
+    def test_a_range_inside_the_ceiling_passes(self):
+        method, path = self.call(start="0", end="4", step="1s")
+        self.assertEqual(("GET", "/api/v1/query_range"), (method, path))
+
+    def test_a_range_above_the_ceiling_is_refused(self):
+        with self.assertRaises(PermissionError) as caught:
+            self.call(start="0", end="86400", step="1s")
+        self.assertIn(policy.DENY_RANGE_TOO_WIDE, str(caught.exception))
+
+    def test_the_refusal_names_a_step_that_would_fit(self):
+        with self.assertRaises(PermissionError) as caught:
+            self.call(start="0", end="86400", step="1s")
+        self.assertIn("a step of at least 21600s fits", str(caught.exception))
+
+    def test_rfc3339_boundaries_are_understood(self):
+        with self.assertRaises(PermissionError) as caught:
+            self.call(
+                start="2026-01-01T00:00:00+00:00",
+                end="2026-01-02T00:00:00+00:00",
+                step="1m",
+            )
+        self.assertIn(policy.DENY_RANGE_TOO_WIDE, str(caught.exception))
+
+    def test_a_compound_duration_is_understood(self):
+        self.call(start="0", end="5400", step="1h30m")
+
+    def test_an_unparseable_boundary_is_refused_rather_than_waved_through(self):
+        with self.assertRaises(PermissionError) as caught:
+            self.call(start="yesterday", end="now", step="1s")
+        self.assertIn(policy.DENY_RANGE_TOO_WIDE, str(caught.exception))
+
+    def test_a_zero_step_is_refused_instead_of_dividing_by_zero(self):
+        with self.assertRaises(PermissionError) as caught:
+            self.call(start="0", end="10", step="0s")
+        self.assertIn("step must be positive", str(caught.exception))
+
+    def test_a_tool_without_the_three_range_arguments_is_untouched(self):
+        policy.authorize_call(contract(), "checkmk_list_hosts", {})
+
+
+class TestDurationGrammar(unittest.TestCase):
+    def test_bare_seconds_parse(self):
+        self.assertEqual(30.0, policy.parse_duration("30"))
+
+    def test_each_unit_parses(self):
+        self.assertEqual(0.001, policy.parse_duration("1ms"))
+        self.assertEqual(604800, policy.parse_duration("1w"))
+        self.assertEqual(31536000, policy.parse_duration("1y"))
+
+    def test_a_trailing_unit_of_its_own_is_refused(self):
+        """`1h30` is not a Prometheus duration; accepting it would guess."""
+        with self.assertRaises(ValueError):
+            policy.parse_duration("1h30")
+
+
 class TestAudit(unittest.TestCase):
     def test_the_event_names_both_sides_and_the_outcome(self):
         event = policy.audit_event(
@@ -265,9 +358,8 @@ class TestAudit(unittest.TestCase):
 class TestUpstreamUrl(unittest.TestCase):
     """A provider that keys its endpoint by URL segment instead of by header.
 
-    The secret must not reach the contract, because the contract is rendered
-    into the compose file; it arrives through the same env file the header
-    credential uses and is spliced in here.
+    The secret must not reach the contract the sidecar advertises, so it
+    arrives as its own environment variable and is spliced in here.
     """
 
     BASE = "http://baserow:80/mcp"

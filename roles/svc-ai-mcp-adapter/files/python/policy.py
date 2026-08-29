@@ -18,6 +18,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
+from datetime import datetime
 from typing import TYPE_CHECKING, Any
 from urllib.parse import quote
 
@@ -44,6 +46,19 @@ DENY_UNAUTHENTICATED = "unauthenticated"
 DENY_TOO_MANY_REQUESTS = "too_many_concurrent_requests"
 DENY_UNKNOWN_ARGUMENT = "undeclared_argument"
 DENY_MISSING_ARGUMENT = "missing_required_argument"
+DENY_RANGE_TOO_WIDE = "range_too_wide"
+
+RANGE_ARGUMENTS = ("start", "end", "step")
+
+DURATION_UNITS = {
+    "ms": 0.001,
+    "s": 1,
+    "m": 60,
+    "h": 3600,
+    "d": 86400,
+    "w": 604800,
+    "y": 31536000,
+}
 
 READ_METHODS = frozenset({"GET", "HEAD"})
 
@@ -57,9 +72,9 @@ def upstream_url(base: str, path_key: str = "", path_suffix: str = "") -> str:
 
     Not every provider authenticates through a header. Baserow keys its MCP
     endpoint by a URL segment, so the secret cannot travel in the auth header
-    the adapter otherwise uses. Splicing it here keeps it out of the contract,
-    and therefore out of the rendered compose file: it arrives through the same
-    env file as the header credential.
+    the adapter otherwise uses. Splicing it here keeps it out of the contract
+    the sidecar advertises, and the segment is percent-encoded so a key
+    carrying a separator cannot open a path of its own.
 
     Args:
         base: ``upstream_url`` as the contract declares it.
@@ -174,6 +189,88 @@ def assert_arguments(
         raise PermissionError(f"{DENY_MISSING_ARGUMENT}: {name!r} requires {missing}")
 
 
+def parse_instant(value: Any) -> float:
+    """Return a range boundary in unix seconds.
+
+    Args:
+        value: a unix timestamp or an RFC 3339 instant, as the upstream takes.
+
+    Raises ``ValueError`` for anything else, so an unparseable boundary is
+    refused rather than waved through unbounded.
+    """
+    text = str(value).strip()
+    try:
+        return float(text)
+    except ValueError:
+        pass
+    return datetime.fromisoformat(text).timestamp()
+
+
+def parse_duration(value: Any) -> float:
+    """Return a step in seconds.
+
+    Args:
+        value: seconds as a number, or a duration such as ``30s`` or ``1h30m``.
+    """
+    text = str(value).strip()
+    try:
+        return float(text)
+    except ValueError:
+        pass
+    parts = re.findall(r"(\d+)(ms|[smhdwy])", text)
+    if not parts or "".join(n + u for n, u in parts) != text:
+        raise ValueError(f"not a duration: {text!r}")
+    return sum(int(n) * DURATION_UNITS[u] for n, u in parts)
+
+
+def assert_range(
+    spec: Mapping[str, Any],
+    name: str,
+    arguments: Mapping[str, Any] | None,
+    ceiling: int,
+) -> None:
+    """Refuse a range query asking for more points than the contract returns.
+
+    Args:
+        spec: the tool's contract entry.
+        name: the tool name, for the refusal message.
+        arguments: the client-supplied arguments.
+        ceiling: ``limits.result_items``.
+
+    A client chooses ``start``, ``end`` and ``step`` freely, so nothing stopped
+    it asking for years at one-second resolution. The timeout bounds how long
+    the upstream burns on that, not how much it scans, and the adapter would
+    discard all but ``result_items`` rows anyway. Bounding the point count
+    against that same ceiling makes the two agree instead of letting the
+    upstream do work whose result is thrown away.
+    """
+    schema = spec.get("input_schema") or {}
+    declared = (schema.get("properties") or {}).keys()
+    if not all(key in declared for key in RANGE_ARGUMENTS):
+        return
+
+    supplied = arguments or {}
+    if not all(key in supplied for key in RANGE_ARGUMENTS):
+        return
+
+    try:
+        span = parse_instant(supplied["end"]) - parse_instant(supplied["start"])
+        step = parse_duration(supplied["step"])
+    except ValueError as error:
+        raise PermissionError(f"{DENY_RANGE_TOO_WIDE}: {name!r} {error}") from error
+
+    if step <= 0:
+        raise PermissionError(f"{DENY_RANGE_TOO_WIDE}: {name!r} step must be positive")
+
+    points = span / step + 1
+    if points > ceiling:
+        raise PermissionError(
+            f"{DENY_RANGE_TOO_WIDE}: {name!r} asks for {int(points)} points, "
+            f"above the {ceiling} this contract returns; a step of at least "
+            f"{span / (ceiling - 1):.0f}s fits"
+        )
+
+
 def assert_no_drift(contract: Mapping[str, Any]) -> None:
     """Fail closed when the tool contract no longer matches its pinned hash.
 
@@ -244,6 +341,7 @@ def authorize_call(
         )
 
     assert_arguments(spec, name, arguments)
+    assert_range(spec, name, arguments, contract["limits"]["result_items"])
 
     return method, str(spec["path"])
 
