@@ -654,6 +654,17 @@ class TestMcpSchema(unittest.TestCase):
         if missing:
             flag("adapter", f"{prefix}.adapter is missing key(s) {sorted(missing)}")
 
+        if "upstream_transport" in adapter:
+            declared = adapter.get("upstream_transport")
+            if declared not in MCP_TRANSPORTS:
+                flag(
+                    "upstream_transport",
+                    f"{prefix}.adapter.upstream_transport {declared!r} is "
+                    f"invalid; allowed: {sorted(MCP_TRANSPORTS)}. Omit it where "
+                    f"the upstream speaks streamable HTTP, which the adapter "
+                    f"assumes when nothing says otherwise",
+                )
+
         adapter_type = adapter.get("type")
         if adapter_type not in MCP_ADAPTER_TYPES:
             flag(

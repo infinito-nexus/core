@@ -76,21 +76,17 @@
       for an unknown key and text/event-stream for the provisioned one, so every
       MCP client would be pointed at a dead or unguarded endpoint.
 
-- name: "💾 Persist the endpoint key so MCP clients can read it"
-  ansible.builtin.include_role:
-    name: sys-token-store
-    tasks_from: write.yml
-  vars:
-    sys_token_store_user_key: "{{ lookup('config', application_id, 'mcp.credential.owner') }}"
-    sys_token_store_app: "{{ application_id }}"
-    sys_token_store_token: "{{ BASEROW_MCP_ENDPOINT_KEY }}"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+- name: "🔁 Rebuild the adapter sidecar against the current contract"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/rebuild.yml') }}"
+
+- name: "🔄 Start the sidecar before probing it"
+  ansible.builtin.meta: flush_handlers
 
 - name: "🩺 Prove the MCP contract of {{ application_id }}"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
   vars:
-    mcp_probe_bearer: "{{ lookup('mcp_credential', application_id) }}"
-    mcp_probe_path_key: "{{ BASEROW_MCP_ENDPOINT_KEY }}"
+    mcp_probe_bearer: "{{ BASEROW_MCP_BEARER }}"
+    mcp_probe_path_key: ""
     mcp_probe_read_tool: "list_databases"
     mcp_probe_read_args: {}
     mcp_probe_host: ""

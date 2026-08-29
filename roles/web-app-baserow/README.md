@@ -39,6 +39,7 @@ flowchart LR
         svc_minio["minio ❌"]
         svc_seaweedfs["seaweedfs"]
         svc_baserow["baserow"]
+        svc_baserowmcp["baserowmcp"]
         svc_css["css"]
         svc_javascript["javascript"]
         svc_prometheus["prometheus"]
@@ -74,7 +75,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - **Dynamic Customization:** Adapt workflows and database structures to suit your specific needs.
 - **Scalable Architecture:** Efficiently handle increasing workloads while maintaining high performance.
 - **Robust API Integration:** Leverage a comprehensive API to extend functionalities and integrate with other systems.
-- **MCP Server:** Serve the native Baserow MCP tools to AI clients over an internal SSE endpoint guarded by a per-workspace endpoint key.
+- **MCP Server:** Serve four read-only Baserow tools to AI clients through a bearer-guarded adapter sidecar that fronts the native SSE endpoint.
 
 ## Quick Setup
 
@@ -148,75 +149,86 @@ Configuration is controlled via `applications.<app>.bootstrap_admin.*`:
 ## MCP Server
 
 Baserow ships a native MCP server in the OSS backend, mounted on the ASGI root
-ahead of Django. The role turns it on with `mcp.enabled` and hands
-clients the container-network origin (`exposure: internal`); `env.j2` then adds
-that origin to `BASEROW_EXTRA_PUBLIC_URLS` so the image's Caddy layer routes
-`/mcp/*` to the backend instead of falling through to the Nuxt frontend.
+ahead of Django. Clients do not reach it. The role runs it as the *upstream* of
+a [`svc-ai-mcp-adapter`](../svc-ai-mcp-adapter/README.md) sidecar
+(`classification: adapter_server`), and the sidecar is the only MCP surface a
+consumer is given.
 
-### Endpoint
+The reason is the endpoint's own shape: Baserow's `MCPEndpoint` carries no
+scope column, so the endpoint key grants every tool the backend implements —
+including the three write tools — with no way to narrow it. The adapter is what
+narrows it, by serving four read tools and refusing every other name.
+
+### Topology
+
+```
+consumer ──Bearer──> baserowmcp (adapter) ──endpoint-key in URL──> baserow:80/mcp
+```
 
 | Property | Value |
 | --- | --- |
-| Transport | HTTP+SSE (`transport: sse`) |
-| Stream | `GET http://baserow:80/mcp/<endpoint-key>/sse` |
-| Client messages | `POST http://baserow:80/mcp/messages/?session_id=<id>` |
-| Declared path | `/mcp` |
+| Client transport | `streamable_http` at `http://baserowmcp:<http>/mcp` |
+| Client auth | `Authorization: Bearer <credentials.mcp_bearer>` |
+| Upstream transport | HTTP+SSE (`adapter.upstream_transport: sse`) |
+| Upstream stream | `GET http://baserow:80/mcp/<endpoint-key>/sse` |
+| Upstream messages | `POST http://baserow:80/mcp/messages/?session_id=<id>` |
 
-A client composes the stream URL by appending `/<endpoint-key>/sse` to the
-declared path. The first SSE event is `endpoint`, carrying the `session_id`
-query for the message POST. The SSE session travels through the shared Redis
-channel layer, so the two requests may land on different replicas.
+The SSE session travels through the shared Redis channel layer, so the stream
+and the message POST may land on different replicas.
 
 ### Auth
 
-The endpoint key is the credential: it sits in the URL path, not in a header.
-An `Authorization` header is ignored, and no Django middleware runs on `/mcp`.
-On the canonical vhost the oauth2-proxy SSO gate sits in front of the path; on
-the container network the key is the only guard. The key is generated as
-`credentials.mcp_endpoint_key` (32 hex characters, matching the `varchar(32)`
-column) and published to MCP clients through the administrator token store
-under the `web-app-baserow` app key.
+Two credentials, in two directions.
 
-`tasks/utils/mcp.yml` creates a dedicated non-superuser owner
-(`mcp@<canonical-domain>`, unusable password) plus its own workspace, and binds
-the endpoint to that pair. Every tool call runs as that owner and is scoped to
-that workspace, so MCP clients see only the databases created inside it. An
-unknown key answers `401 Endpoint not found.`.
+Client to adapter: `credentials.mcp_bearer`, owned by `mcp-web-app-baserow`.
+The adapter refuses any request that does not present it, so a caller on the
+container network is no longer implicitly trusted.
+
+Adapter to Baserow: the endpoint key, which Baserow reads from the URL *path*,
+not from a header. It reaches the sidecar as `ADAPTER_UPSTREAM_PATH_KEY` and is
+spliced in by `policy.upstream_url()`, so it never enters the rendered contract
+the sidecar advertises. The key is generated as `credentials.mcp_endpoint_key`
+(32 hex characters, matching the `varchar(32)` column). An unknown key answers
+`401 Endpoint not found.`.
+
+[`tasks/utils/mcp.yml`](./tasks/utils/mcp.yml) creates a dedicated non-superuser
+owner (`mcp@<canonical-domain>`, unusable password) plus its own workspace, and
+binds the endpoint to that pair.
 
 ### Tools
 
-Read tools: `list_databases`, `list_tables`, `get_table_schema`,
-`list_table_rows`.
+Served: `get_table_schema`, `list_databases`, `list_table_rows`, `list_tables`.
 
-Write tools: `create_rows`, `update_rows`, `delete_rows`. Baserow 2.3.1 exposes
-these unconditionally; the image carries no env var, setting or UI toggle that
-removes them. `mcp.tools.mutating_tools_enabled` is declared `false` as
-the deployment's intent, not as an enforced state: Baserow serves the three write
-tools regardless. What bounds them is the endpoint owner, whose reach is the one
-workspace that account owns.
+Refused: the ten remaining tools Baserow 2.3.3 implements, listed under
+`tools.upstream_serves`. Three of them (`create_rows`, `update_rows`,
+`delete_rows`) are live upstream — the image carries no env var, setting or UI
+toggle that removes them, so `mutating_tools_enabled: false` is enforced by the
+adapter and by nothing in Baserow. The other seven are shipped disabled
+upstream and are listed so a version bump that enables one shows up as contract
+drift rather than as a silently widened surface.
 
-Shipped disabled upstream: `create_database`, `create_table`, `update_table`,
-`delete_table`, `create_fields`, `update_fields`, `delete_fields`.
+The four served schemas are pinned in
+[`files/mcp/tools.json`](./files/mcp/tools.json) and hashed into
+`tools.schema_sha256`; the adapter refuses to start when the two disagree.
 
 ### Authorization subject
 
-`auth_subject: service_account`: Baserow scopes the endpoint to the account that
-owns it. [`tasks/utils/mcp.yml`](./tasks/utils/mcp.yml) creates a dedicated
-`mcp@<baserow-domain>` account and issues the endpoint to it, so a call arrives
-as that account regardless of who asked the client, and the write tools above
-reach only the workspace that account owns. Reaching the tool server is gated on
-the role's `mcp` RBAC group, not on being signed in.
+`auth_subject: service_account`. A call arrives at Baserow as the endpoint owner
+regardless of who asked the client, and reaches only the one workspace that
+account owns. That is the second bound under the adapter's allowlist, not a
+substitute for it.
 
 ### Default state
 
-Off. `mcp.enabled` is true only while `web-app-openwebui` is part of the
+Off. `mcp.enabled` is true only while an MCP client role is part of the
 deployment.
 
 ### How to disable
 
-Remove the MCP client role, or pin `mcp.enabled: false` for this role in
-the inventory. The endpoint is then not provisioned and `BASEROW_EXTRA_PUBLIC_URLS`
-drops the MCP origin, so the image's Caddy layer stops routing `/mcp/*`.
+Remove the MCP client role, or pin `mcp.enabled: false` for this role in the
+inventory. The endpoint is then not provisioned, the sidecar is not deployed,
+and `BASEROW_EXTRA_PUBLIC_URLS` drops the MCP origin, so the image's Caddy layer
+stops routing `/mcp/*`.
 
 ## Security: SECRET_KEY
 

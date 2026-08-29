@@ -1,43 +1,62 @@
 ---
 enabled: true
 shared: true
-classification: native_server
+classification: adapter_server
 direction: server
 source_url: https://baserow.io/user-docs/mcp-server # nocheck: url — page is live (HEAD+GET 200); baserow.io edge intermittently 404s CI runner IPs
-supported_version: 2.3.1
+supported_version: 2.3.3
 minimum_version: "1.30"
-transport: sse
+transport: streamable_http
 exposure: internal
-auth: app_password
+auth: bearer_token
 auth_subject: service_account
-implementation: native
+implementation: adapter
 credential:
   owner: mcp-web-app-baserow
-  source: token_store
-  key: web-app-baserow
+  source: credentials
+  key: mcp_bearer
 allowed_consumers:
   - web-app-openwebui
   - web-app-hermes
   - web-app-openclaw
-  - web-app-n8n
+adapter:
+  type: mcp_passthrough
+  upstream_transport: sse
+  specification_path: roles/web-app-baserow/files/mcp/tools.json
+  specification_sha256: sha256:716effccfedbb6e83cacd489bf0c2cf8f318853f9b20bf8fd733db4e637ec144
 endpoint:
-  service_key: baserow
+  service_key: baserowmcp
   path: /mcp
   port_key: http
-  key_credential: mcp_endpoint_key
-  suffix: sse
+limits:
+  request_bytes: 65536
+  response_bytes: 1048576
+  timeout_seconds: 15
+  concurrent_requests: 4
+  page_size: 100
+  result_items: 100
+  stream_seconds: 300
 tools:
   allowlist:
-    - create_rows
-    - delete_rows
     - get_table_schema
     - list_databases
     - list_table_rows
     - list_tables
-    - update_rows
-  mutating:
+  upstream_serves:
+    - create_database
+    - create_fields
     - create_rows
+    - create_table
+    - delete_fields
     - delete_rows
+    - delete_table
+    - get_table_schema
+    - list_databases
+    - list_table_rows
+    - list_tables
+    - update_fields
     - update_rows
+    - update_table
+  schema_sha256: sha256:f38460244b77a14edc1933fd29dd34b063256496a3bb5cc0506d0833d7d20be7
   read_only_default: true
   mutating_tools_enabled: false
