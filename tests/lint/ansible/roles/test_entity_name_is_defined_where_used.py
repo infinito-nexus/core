@@ -24,6 +24,7 @@ from __future__ import annotations
 import os
 import re
 import unittest
+from pathlib import Path
 
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import PROJECT_ROOT, iter_project_files, read_text
@@ -43,7 +44,7 @@ def files_by_role() -> dict:
         if not path.startswith(_ROLES):
             continue
         relative = path[len(_ROLES) :]
-        grouped.setdefault(relative.split(os.sep)[0], []).append(path)
+        grouped.setdefault(Path(relative).parts[0], []).append(path)
     return grouped
 
 
