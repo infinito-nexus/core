@@ -80,18 +80,11 @@ for role_js in "$role_playwright_dir"/*.js; do
 	[[ -f "$role_js" ]] || continue
 	cp "$role_js" "$stage_dir/tests/$(basename "$role_js")"
 done
-helper_src="$repo_root/roles/test-e2e-playwright/files/service-gating.js"
-if [[ -f "$helper_src" ]]; then
-	cp "$helper_src" "$stage_dir/tests/service-gating.js"
-fi
-timeouts_src="$repo_root/roles/test-e2e-playwright/files/timeouts.js"
-if [[ -f "$timeouts_src" ]]; then
-	cp "$timeouts_src" "$stage_dir/tests/timeouts.js"
-fi
-onion_test_src="$repo_root/roles/test-e2e-playwright/files/onion-test.js"
-if [[ -f "$onion_test_src" ]]; then
-	cp "$onion_test_src" "$stage_dir/tests/onion-test.js"
-fi
+for helper_src in "$repo_root/roles/test-e2e-playwright/files"/*.js; do
+	[[ -f "$helper_src" ]] || continue
+	[[ "$(basename "$helper_src")" == "playwright.config.js" ]] && continue
+	cp "$helper_src" "$stage_dir/tests/$(basename "$helper_src")"
+done
 personas_dir="$repo_root/roles/test-e2e-playwright/files/personas"
 if [[ -d "$personas_dir" ]]; then
 	mkdir -p "$stage_dir/tests/personas/utils"

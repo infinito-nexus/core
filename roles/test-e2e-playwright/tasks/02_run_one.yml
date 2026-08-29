@@ -160,14 +160,12 @@
 
 - name: 📋 Copy shared Playwright helpers into staging tests directory
   ansible.builtin.copy:
-    src: "{{ lookup('path_absolute', 'roles/test-e2e-playwright/files', item) }}"
-    dest: "{{ _playwright_stage_tests_dir }}/{{ item }}"
+    src: "{{ item }}"
+    dest: "{{ _playwright_stage_tests_dir }}/{{ item | basename }}"
     mode: "0644"
-  loop:
-    - service-gating.js
-    - onion-test.js
-    - addon-gating.js
-    - timeouts.js
+  when: (item | basename) != 'playwright.config.js'
+  with_fileglob:
+    - "{{ lookup('path_absolute', 'roles/test-e2e-playwright/files') }}/*.js"
 
 - name: ✅ Ensure staging volume directory exists
   ansible.builtin.file:
