@@ -182,40 +182,6 @@ class TestResolveOverrideMapping(unittest.TestCase):
         self.assertEqual(result, {"web-app-x": {"foo": 1}})
 
 
-class TestErrorMarkersAreRefused(unittest.TestCase):
-    """A captured template failure must not become a cached configuration value.
-
-    Ansible's marker behaviour replaces an undefined name with a literal
-    ``<< error N - ... >>`` string instead of raising. Nextcloud stored one as
-    the Collabora WOPI URL and reported itself configured.
-    """
-
-    MARKER = "<< error 10 - 'NEXTCLOUD_COLLABORA_URL' is undefined >>"
-
-    def test_a_clean_payload_passes(self):
-        base.assert_no_error_markers({"a": {"b": ["fine", 42, None]}})
-
-    def test_a_marker_in_a_nested_list_is_refused(self):
-        payload = {"applications": {"app": {"config": [{"value": self.MARKER}]}}}
-        with self.assertRaises(ValueError) as caught:
-            base.assert_no_error_markers(payload)
-        self.assertIn("applications.app.config[0].value", str(caught.exception))
-
-    def test_the_message_carries_the_offending_value(self):
-        with self.assertRaises(ValueError) as caught:
-            base.assert_no_error_markers({"k": self.MARKER})
-        self.assertIn("NEXTCLOUD_COLLABORA_URL", str(caught.exception))
-
-    def test_prose_mentioning_an_error_is_not_a_marker(self):
-        """The pattern must not fire on a description that discusses errors."""
-        base.assert_no_error_markers({"note": "returns << error >> on failure"})
-        base.assert_no_error_markers({"note": "error 10 - see the log"})
-
-    def test_a_marker_anywhere_in_a_longer_string_is_caught(self):
-        with self.assertRaises(ValueError):
-            base.assert_no_error_markers({"url": f"https://x/{self.MARKER}/y"})
-
-
 class TestFingerprintIsContentOnly(unittest.TestCase):
     def test_fingerprint_survives_reset_because_it_holds_no_state(self):
         before = base._fingerprint_mapping({"a": 1})

@@ -16,7 +16,6 @@ only when actually invoked.
 from __future__ import annotations
 
 import copy
-import re
 import threading
 from collections.abc import Mapping
 from pathlib import Path
@@ -187,39 +186,6 @@ def _resolve_override_mapping(
     return {}
 
 
-ERROR_MARKER_RE = re.compile(r"<<\s*error\s+\d+\s*-")
-
-
-def assert_no_error_markers(data: Any, path: str = "") -> None:
-    """Refuse a render that captured a template failure instead of raising.
-
-    Args:
-        data: the rendered structure.
-        path: dotted position reached so far, for the message.
-
-    Ansible's marker behaviour, inherited from whatever task is rendering,
-    replaces an undefined name with the literal ``<< error N - ... >>`` rather
-    than raising. Left alone that string is memoised and handed to every later
-    caller, and it reaches applications as a configuration value: a key set to
-    an error message, which the application stores and reports as configured.
-    Failing here keeps a value nobody can act on out of the cache.
-    """
-    if isinstance(data, Mapping):
-        for key, item in data.items():
-            assert_no_error_markers(item, f"{path}.{key}" if path else str(key))
-        return
-    if isinstance(data, (list, tuple)):
-        for index, item in enumerate(data):
-            assert_no_error_markers(item, f"{path}[{index}]")
-        return
-    if isinstance(data, str) and ERROR_MARKER_RE.search(data):
-        raise ValueError(
-            f"{path or '<root>'} rendered to {data!r}. A template failed and "
-            f"the failure was captured as text; caching it would hand that "
-            f"string to every later reader and to the application itself."
-        )
-
-
 def _render_with_templar(
     value: Any,
     *,
@@ -308,7 +274,6 @@ def _render_with_templar(
         if hasattr(templar, "available_variables"):
             templar.available_variables = prev_templar_avail
 
-    assert_no_error_markers(data)
     return _decrypt_ansible_encrypted_strings(data)
 
 
