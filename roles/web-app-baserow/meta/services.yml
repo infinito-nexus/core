@@ -99,6 +99,9 @@ baserowmcp:
   mem_reservation: 16m
   mem_limit: 24m
   pids_limit: 64
+  healthcheck:
+    flavor: http_status
+    path: health
   ports:
     internal:
       http: 8080

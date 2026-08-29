@@ -47,6 +47,7 @@
       ADAPTER_UPSTREAM_AUTH_FORMAT: {{ JENKINS_MCP_UPSTREAM_AUTH_FORMAT | to_json }}
     expose:
       - "{{ JENKINS_MCP_PORT }}"
+    {{ lookup('container_healthcheck', 'jenkinsmcp') | indent(4) }}
     {{ lookup('container_networks', own_network_only=True, provider_self_alias=False) | indent(4) }}
     {{ lookup('depends_on', {'jenkins': 'service_healthy'}) }}
   {% endif %}

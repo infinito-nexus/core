@@ -39,6 +39,7 @@
       ADAPTER_UPSTREAM_PATH_SUFFIX: "sse"
     expose:
       - "{{ BASEROW_MCP_PORT }}"
+    {{ lookup('container_healthcheck', 'baserowmcp') | indent(4) }}
     {{ lookup('container_networks', own_network_only=True, provider_self_alias=False) | indent(4) }}
     {{ lookup('depends_on', {'baserow': 'service_healthy'}) }}
   {% endif %}

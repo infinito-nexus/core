@@ -42,6 +42,7 @@
       ADAPTER_PORT: "{{ MATTERMOST_MCP_PORT }}"
     expose:
       - "{{ MATTERMOST_MCP_PORT }}"
+    {{ lookup('container_healthcheck', 'mattermostmcp') | indent(4) }}
     {{ lookup('container_networks', own_network_only=True, provider_self_alias=False) | indent(4) }}
   {% endif %}
 
