@@ -40,7 +40,7 @@ def _caller_vars(app: str) -> dict:
         app: the web-app suffix of the consuming role.
     """
     caller = load_yaml_any(
-        str(PROJECT_ROOT / f"roles/web-app-{app}/tasks/utils/patch_db_credentials.yml")
+        str(PROJECT_ROOT / f"roles/web-app-{app}/tasks/utils/patch/db_credentials.yml")
     )
     return caller[0]["vars"]
 

@@ -31,7 +31,7 @@
 - name: "🔑 Realign the password an app persisted in its own config"
   ansible.builtin.include_tasks: "{{ _app_persisted_credentials }}"
   vars:
-    _app_persisted_credentials: "{{ lookup('path_absolute', 'roles/' ~ application_id ~ '/tasks/utils/patch_db_credentials.yml') }}"
+    _app_persisted_credentials: "{{ lookup('path_absolute', 'roles/' ~ application_id ~ '/tasks/utils/patch/db_credentials.yml') }}"
   when: _app_persisted_credentials is exists
 
 - name: "⏳ Wait until swarm tasks of '{{ application_id | get_entity_name }}' are running"

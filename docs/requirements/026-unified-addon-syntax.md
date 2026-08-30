@@ -260,7 +260,7 @@ Rules:
 
 ### Per-role migration
 
-- [ ] [web-app-friendica](../../roles/web-app-friendica/) declares `ldapauth` in `meta/addons/` with `bridges: [ldap]`; the `ldap` and `sso` service blocks remain in `meta/services.yml`; [tasks/04_addons.yml](../../roles/web-app-friendica/tasks/04_addons.yml) reads the addon list from the new path; deploy behaviour is unchanged.
+- [ ] [web-app-friendica](../../roles/web-app-friendica/) declares `ldapauth` in `meta/addons/` with `bridges: [ldap]`; the `ldap` and `sso` service blocks remain in `meta/services.yml`; [tasks/03_addons.yml](../../roles/web-app-friendica/tasks/03_addons.yml) reads the addon list from the new path; deploy behaviour is unchanged.
 - [ ] [web-app-odoo](../../roles/web-app-odoo/) declares its `core` and `optional` modules in `meta/addons/` using `mechanism: module`, `required: true` for core modules, and the `group` label; the install path reads the new path.
 - [x] [web-app-nextcloud](../../roles/web-app-nextcloud/) declares each plugin in `meta/addons/`; `sociallogin` bridges `sso` and `user_ldap` bridges `ldap`, both present in `meta/services.yml`; each plugin's full runtime config from `vars/plugins/` is absorbed into its addon `config:` block and the superseded `vars/plugins/*.yml` files are deleted; the install/enable/configure tasks read the addon `config:` payload; deploy behaviour is unchanged.
 - [ ] [web-app-wordpress](../../roles/web-app-wordpress/) declares its `plugin` and `mu_plugin` entries in `meta/addons/`; the OIDC plugin bridges `sso` and `wp-discourse` bridges the Discourse service.
