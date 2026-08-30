@@ -1,9 +1,6 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🔑 Realign the persisted database credentials before the health gate"
-  include_tasks: utils/patch_db_credentials.yml
-
 - name: "🚦 Declare the MCP edge limits before the vhost references them"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-webserver-core/tasks/utils/mcp_edge_limits.yml') }}"
   when: NEXTCLOUD_MCP_ENABLED | bool

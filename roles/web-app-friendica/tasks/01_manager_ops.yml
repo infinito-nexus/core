@@ -41,10 +41,11 @@
 
 - name: 🩹 Patch Friendica local.config.php with updated DB credentials
   ansible.builtin.include_tasks:
-    file: 03_patch_config.yml
+    file: utils/patch_config.yml
     apply:
       notify: compose-up
   when: friendica_config_exists.rc == 0
+
 - name: ➕ Add Friendica Add Ons
   include_tasks: 04_addons.yml
 
