@@ -32,20 +32,14 @@ def _fetch(run: str, repo: str) -> dict:
     return gh.fetch_run(gh.run_id_from_url(run), repo=gh.slug_from_url(run))
 
 
-def _resume_offset(source: dict, whitelist: str, config: dict[str, str]) -> str:
-    """Where the retrigger's regular line should start.
-
-    The source run walked the ranking until its budget ran out. Those rows
-    have a verdict already -- and the red ones return on the priority line --
-    so the regular line resumes behind them instead of redeploying the same
-    window. The ranking is recomputed under the retrigger's own configuration,
-    because that is the list the offset will be resolved against.
+def _ranking(whitelist: str, config: dict[str, str]) -> list[dict[str, str]]:
+    """The regular line the retrigger's own discovery would walk.
 
     The priority line is deliberately left out of that computation: it only
     blacklists rows from the regular query, and a token in it that no longer
     resolves would abort here, in a helper whose job is to save runner time.
     """
-    entries = matrix.entries_of(
+    return matrix.entries_of(
         modes=query.resolve_modes(config.get("mode") or query.ALL_MODES),
         whitelist="" if whitelist == _ALL else whitelist,
         priority="",
@@ -54,9 +48,6 @@ def _resume_offset(source: dict, whitelist: str, config: dict[str, str]) -> str:
         tor_mode=tor.resolve_tor_mode(config.get("tor")),
         distros=pools.resolve_distros(config.get("distros")),
         filesystems=pools.resolve_filesystems(config.get("filesystem")),
-    )
-    return selections.resume_offset(
-        entries, selections.deployed_selections(source["jobs"])
     )
 
 
@@ -112,12 +103,44 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help=(
             "With --failed: re-trigger only roles with a hard failure (❌), "
-            "not cancelled/aborted (🚫) or still-running (⏳)."
+            "not cancelled/aborted (🚫) or still-running (⏳). With "
+            "--include-unrun it also decides what counts as covered: only a "
+            "success or a failure settles a row, so the aborted and the "
+            "still-running come back on the priority line with their axes "
+            "rather than as roles."
+        ),
+    )
+    p.add_argument(
+        "--include-unrun",
+        action="store_true",
+        help=(
+            "With --failed: also put every row of the ranking the source run "
+            "holds no job for on the priority line, with its axes. Those rows "
+            "have no verdict at all, and without this they queue behind the "
+            "ones that already have one. Expect the priority line to grow to "
+            "the size of what the source run did not reach."
+        ),
+    )
+    p.add_argument(
+        "--roles-only",
+        action="store_true",
+        help=(
+            "With --failed: put the failed roles on the priority line by name, "
+            "letting the rotation assign the axes, instead of replaying the "
+            "exact combination each job failed in. Useful when so much is red "
+            "that covering the role matters more than reproducing the row. "
+            "Priority entries the source run never deployed keep their pins "
+            "either way -- that run holds no evidence against the axes they "
+            "named."
         ),
     )
     args = p.parse_args(argv)
     if args.strict and args.failed is None:
         p.error("--strict only applies with --failed")
+    if args.roles_only and args.failed is None:
+        p.error("--roles-only only applies with --failed")
+    if args.include_unrun and args.failed is None:
+        p.error("--include-unrun only applies with --failed")
 
     branch = gh.current_branch()
     repo = gh.resolve_repo()
@@ -137,6 +160,7 @@ def main(argv: list[str] | None = None) -> int:
 
     whitelist = ""
     priority = ""
+    priority_entries: set[str] = set()
     if args.apps is not None:
         apps = " ".join(args.apps.split())
         if not apps:
@@ -145,15 +169,17 @@ def main(argv: list[str] | None = None) -> int:
     elif args.failed is not None:
         statuses = runs.parse_role_statuses(source["jobs"])
         failed = selections.failed_selections(source["jobs"], strict=args.strict)
+        if args.roles_only:
+            failed = selections.collapse_to_roles(failed)
         untriggered = runs.untriggered_priority(
             runs.dispatched_priority(source, repo), statuses
         )
-        if not failed and not untriggered:
+        if not failed and not untriggered and not args.include_unrun:
             print("Nothing failed in that run; not triggering.")
             return 0
         if untriggered:
             print(f"Priority roles that never deployed: {' '.join(untriggered)}")
-        priority = " ".join(sorted(set(failed) | set(untriggered)))
+        priority_entries = set(failed) | set(untriggered)
     else:
         whitelist = _ALL
 
@@ -169,7 +195,22 @@ def main(argv: list[str] | None = None) -> int:
         whitelist = carried_whitelist
 
     if args.failed is not None:
-        config["offset"] = _resume_offset(source, whitelist, config)
+        ranking = _ranking(whitelist, config)
+        deployed = selections.deployed_selections(source["jobs"])
+        if args.include_unrun:
+            covered = (
+                selections.settled_selections(source["jobs"])
+                if args.strict
+                else deployed
+            )
+            unrun = selections.unrun_selections(ranking, covered)
+            print(f"Rows the source run never reached: {len(unrun)}")
+            priority_entries |= set(unrun)
+        if not priority_entries:
+            print("Nothing to re-trigger from that run.")
+            return 0
+        priority = " ".join(sorted(priority_entries))
+        config["offset"] = selections.resume_offset(ranking, deployed)
         if config["offset"]:
             print(f"Regular line resumes at: {config['offset']}")
         else:

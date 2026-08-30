@@ -5,6 +5,7 @@ from typing import ClassVar
 
 from cli.administration.deploy.ci import selections
 from tests.utils.ci.job_names import deploy_job_name
+from utils.github.variant import selection
 from utils.github.variant.pools import DISTROS, FILESYSTEMS
 
 
@@ -87,3 +88,106 @@ class TestResumeOffset(unittest.TestCase):
             selections.deployed_selections(jobs),
             {"web-app-a#0@compose+clearnet" + _AXES, "web-app-b#1@swarm+tor" + _AXES},
         )
+
+
+class TestUnrunSelections(unittest.TestCase):
+    """The rows the source run never reached."""
+
+    _REGULAR: ClassVar[list[dict]] = [
+        _row("web-app-a", "0", "compose"),
+        _row("web-app-b", "1", "swarm", tor=True),
+        _row("web-app-c", "0", "host"),
+    ]
+
+    def test_a_row_with_no_job_comes_back_with_its_axes(self) -> None:
+        deployed = {"web-app-a#0@compose+clearnet" + _AXES}
+        self.assertEqual(
+            selections.unrun_selections(self._REGULAR, deployed),
+            ["web-app-b#1@swarm+tor" + _AXES, "web-app-c#0@host+clearnet" + _AXES],
+        )
+
+    def test_a_row_deployed_under_other_axes_counts_as_run(self) -> None:
+        """Mode, tor and distro rotate; comparing them calls every row unrun."""
+        deployed = {f"web-app-b#1@compose+clearnet%{DISTROS[1]}"}
+        self.assertNotIn(
+            "web-app-b#1@swarm+tor" + _AXES,
+            selections.unrun_selections(self._REGULAR, deployed),
+        )
+
+    def test_run_and_unrun_partition_the_ranking(self) -> None:
+        deployed = {"web-app-a#0@compose+clearnet" + _AXES}
+        unrun = selections.unrun_selections(self._REGULAR, deployed)
+        self.assertEqual(len(unrun) + 1, len(self._REGULAR))
+
+    def test_a_run_that_deployed_nothing_owes_every_row(self) -> None:
+        self.assertEqual(
+            len(selections.unrun_selections(self._REGULAR, set())), len(self._REGULAR)
+        )
+
+
+class TestSettledSelections(unittest.TestCase):
+    """Only a green or a red row retires a combination."""
+
+    def test_a_success_and_a_failure_both_settle(self) -> None:
+        jobs = [
+            _job(deploy_job_name("docker", "web-app-a", "0"), "success"),
+            _job(deploy_job_name("swarm", "web-app-b", "1", tor=True), "failure"),
+        ]
+        self.assertEqual(
+            selections.settled_selections(jobs),
+            {"web-app-a#0@compose+clearnet" + _AXES, "web-app-b#1@swarm+tor" + _AXES},
+        )
+
+    def test_a_cancelled_row_settles_nothing(self) -> None:
+        jobs = [_job(deploy_job_name("docker", "web-app-a", "0"), "cancelled")]
+        self.assertEqual(selections.settled_selections(jobs), set())
+        self.assertEqual(len(selections.deployed_selections(jobs)), 1)
+
+    def test_a_still_running_row_settles_nothing(self) -> None:
+        jobs = [_job(deploy_job_name("docker", "web-app-a", "0"), None, "in_progress")]
+        self.assertEqual(selections.settled_selections(jobs), set())
+
+    def test_an_aborted_row_comes_back_as_unrun(self) -> None:
+        """It was never judged, so the combination is still owed an attempt."""
+        regular = [_row("web-app-a", "0", "compose")]
+        jobs = [_job(deploy_job_name("docker", "web-app-a", "0"), "cancelled")]
+        self.assertEqual(
+            selections.unrun_selections(regular, selections.settled_selections(jobs)),
+            ["web-app-a#0@compose+clearnet" + _AXES],
+        )
+        self.assertEqual(
+            selections.unrun_selections(regular, selections.deployed_selections(jobs)),
+            [],
+        )
+
+
+class TestCollapseToRoles(unittest.TestCase):
+    """Trading the exact red combination for covering the role."""
+
+    def test_the_combinations_of_one_role_become_one_entry(self) -> None:
+        collapsed = selections.collapse_to_roles(
+            [
+                "web-app-a#0@compose+clearnet" + _AXES,
+                "web-app-a#1@swarm+tor" + _AXES,
+                "web-app-b#0@swarm+clearnet" + _AXES,
+            ]
+        )
+        self.assertEqual(collapsed, ["web-app-a", "web-app-b"])
+
+    def test_nothing_stays_pinned(self) -> None:
+        """A leftover axis would pin the rotation to a combination nobody chose."""
+        for token in selections.collapse_to_roles(
+            ["web-app-a#2@swarm+tor" + _AXES, "web-app-b#0@compose+clearnet" + _AXES]
+        ):
+            with self.subTest(token=token):
+                self.assertFalse(selection.parse(token).pinned)
+
+    def test_no_role_is_dropped(self) -> None:
+        tokens = [
+            f"web-app-{name}#0@compose+clearnet{_AXES}" for name in ("a", "b", "c")
+        ]
+        self.assertEqual(len(selections.collapse_to_roles(tokens)), len(tokens))
+
+    def test_an_already_bare_role_survives_unchanged(self) -> None:
+        """An untriggered priority entry may already carry no axes."""
+        self.assertEqual(selections.collapse_to_roles(["web-app-a"]), ["web-app-a"])
