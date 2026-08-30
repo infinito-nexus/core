@@ -316,8 +316,17 @@ class LookupModule(LookupBase):
 
         The file lands as a config rather than a bind mount because a swarm task
         may run on a node the source path does not exist on.
+
+        A role declaring two engines is left to ``compose_volumes``, which turns
+        the same ValueError into the message that says which one to drop.
         """
-        if resolve_database_service_key(applications, application_id) != "mariadb":
+        try:
+            database_service_key = resolve_database_service_key(
+                applications, application_id
+            )
+        except ValueError:
+            return extra_configs
+        if database_service_key != "mariadb":
             return extra_configs
         if get_database_service_config(applications, application_id).get("shared"):
             return extra_configs
