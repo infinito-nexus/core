@@ -122,7 +122,8 @@ class TestContainerVolumesConfigSecret(unittest.TestCase):
 
 
 class TestContainerVolumesTmpfs(unittest.TestCase):
-    def test_tmpfs_renders_long_form_dict(self) -> None:
+    def test_tmpfs_size_renders_as_the_byte_count_the_long_form_takes(self) -> None:
+        """Compose rejects "64m" outright: the long form takes an integer."""
         meta = {
             "scratch": {
                 "type": "tmpfs",
@@ -138,11 +139,47 @@ class TestContainerVolumesTmpfs(unittest.TestCase):
                     {
                         "type": "tmpfs",
                         "target": "/scratch",
-                        "tmpfs": {"size": "64m"},
+                        "tmpfs": {"size": 64 * 1024**2},
                     }
                 ]
             },
         )
+
+    def test_every_unit_a_declaration_may_use_resolves(self) -> None:
+        for written, expected in (
+            ("512m", 512 * 1024**2),
+            ("64k", 64 * 1024),
+            ("2g", 2 * 1024**3),
+            ("900b", 900),
+            ("900", 900),
+            (1024, 1024),
+        ):
+            with self.subTest(size=written):
+                meta = {
+                    "scratch": {
+                        "type": "tmpfs",
+                        "mounts": [
+                            {"service": "app", "target": "/scratch", "size": written}
+                        ],
+                    }
+                }
+                data = _parse(container_volumes(_apps(meta), "my-app", "app"))
+                self.assertEqual(expected, data["volumes"][0]["tmpfs"]["size"])
+
+    def test_a_size_that_is_not_a_byte_count_is_refused(self) -> None:
+        """Silently passing it on is what let "512m" reach compose."""
+        for written in ("", "abc", "12x"):
+            with self.subTest(size=written):
+                meta = {
+                    "scratch": {
+                        "type": "tmpfs",
+                        "mounts": [
+                            {"service": "app", "target": "/scratch", "size": written}
+                        ],
+                    }
+                }
+                with self.assertRaises(Exception):  # noqa: B017 - the plugin raises an Ansible error type
+                    container_volumes(_apps(meta), "my-app", "app")
 
     def test_tmpfs_mode_renders_as_decimal_of_the_octal_string(self) -> None:
         meta = {

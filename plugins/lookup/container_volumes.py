@@ -46,6 +46,37 @@ def _coerce_mode_int(value: Any) -> int:
         ) from exc
 
 
+_SIZE_UNITS = {"": 1, "b": 1, "k": 1024, "m": 1024**2, "g": 1024**3}
+
+
+def _coerce_size_bytes(value: Any) -> int:
+    """Return a tmpfs size as the byte count the long-form mount demands.
+
+    A declaration reads ``512m`` because that is how a human writes it and how
+    the short form accepts it. The long form takes an integer, and compose
+    rejects the string outright rather than parsing it, so the suffix has to be
+    resolved here.
+    """
+    if isinstance(value, bool):
+        raise AnsibleFilterError(
+            f"container_volumes: size must be an int or a size string, got bool: {value!r}"
+        )
+    if isinstance(value, int):
+        return value
+    text = str(value).strip().lower()
+    if not text:
+        raise AnsibleFilterError("container_volumes: size is empty")
+    number, unit = text[:-1], text[-1]
+    if unit.isdigit():
+        number, unit = text, ""
+    try:
+        return int(number) * _SIZE_UNITS[unit]
+    except (ValueError, KeyError) as exc:
+        raise AnsibleFilterError(
+            f"container_volumes: size {value!r} is not a byte count: {exc}"
+        ) from exc
+
+
 def _short_form_volume(source_name: str, target: str, read_only: bool) -> str:
     suffix = ":ro" if read_only else ""
     return f"{source_name}:{target}{suffix}"
@@ -140,7 +171,7 @@ def container_volumes(
                 }
                 tmpfs_options: dict[str, Any] = {}
                 if mount.get("size") is not None:
-                    tmpfs_options["size"] = mount["size"]
+                    tmpfs_options["size"] = _coerce_size_bytes(mount["size"])
                 if mount.get("mode") is not None:
                     tmpfs_options["mode"] = _coerce_mode_int(mount["mode"])
                 if tmpfs_options:
