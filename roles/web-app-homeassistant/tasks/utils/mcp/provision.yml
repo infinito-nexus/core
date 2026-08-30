@@ -28,10 +28,21 @@
   register: homeassistant_provision
   retries: 30
   delay: 10
-  until: homeassistant_provision.rc == 0
+  until: homeassistant_provision.rc == 0 or (HOMEASSISTANT_LOGIN_REFUSED in homeassistant_provision.stderr)
+  failed_when:
+    - homeassistant_provision.rc != 0
+    - HOMEASSISTANT_LOGIN_REFUSED not in homeassistant_provision.stderr
   changed_when: "'CHANGED' in homeassistant_provision.stdout"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   delegate_to: "{{ HOMEASSISTANT_HOST_NODE }}"
+  run_once: true
+
+- name: "🔑 Realign the owner password the hub still holds from its onboarding"
+  ansible.builtin.include_tasks:
+    file: realign_owner.yml
+    apply:
+      delegate_to: "{{ HOMEASSISTANT_HOST_NODE }}"
+  when: HOMEASSISTANT_LOGIN_REFUSED in homeassistant_provision.stderr
   run_once: true
 
 - name: "🔧 Take the minted token from the provisioning output"

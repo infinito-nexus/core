@@ -94,6 +94,10 @@ def access_token_via_login(username, password):
             "password": password,
         },
     )
+    if step.get("type") != "create_entry":
+        raise SystemExit(
+            f"home assistant refused the login of {username}: {json.dumps(step)}"
+        )
     return request(
         "/auth/token",
         {

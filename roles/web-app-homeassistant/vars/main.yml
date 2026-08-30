@@ -11,6 +11,8 @@ HOMEASSISTANT_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') }
 HOMEASSISTANT_ADMIN_USERNAME: "{{ lookup('users', 'administrator').username }}"
 HOMEASSISTANT_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.administrator_password') }}"
 HOMEASSISTANT_TOKEN_CLIENT_NAME: "infinito-mcp"
+HOMEASSISTANT_CONFIG_DIR: "{{ lookup('volume', application_id, 'homeassistant_config').target }}"
+HOMEASSISTANT_LOGIN_REFUSED: "home assistant refused the login of"
 HOMEASSISTANT_MCP_ACCOUNT: "{{ lookup('users', 'mcp-web-app-homeassistant') }}"
 HOMEASSISTANT_MCP_ACCOUNT_USERNAME: "{{ HOMEASSISTANT_MCP_ACCOUNT.username }}"
 HOMEASSISTANT_MCP_ACCOUNT_NAME: "Infinito MCP"
