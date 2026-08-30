@@ -13,7 +13,7 @@ ollama:
   backup:
     no_stop_required: true
   image: ollama/ollama
-  version: 0.33.1
+  version: 0.33.2
   name: ollama
   min_storage: 3473MB
   cpus: "4.0"

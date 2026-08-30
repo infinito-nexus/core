@@ -8,4 +8,4 @@ hadolint:
   ref: v2.15.1
 shfmt:
   repository: https://github.com/mvdan/sh.git
-  ref: v3.13.1
+  ref: v3.14.0
