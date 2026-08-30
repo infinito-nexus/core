@@ -15,7 +15,6 @@
   stack_host_template:
     src: "sql/mariadb-realign.sql.j2"
     dest: "{{ lookup('database', _database_consumer_id, 'realign_sql') }}"
-    mode: "0640"
   when: _database_type == 'mariadb'
   notify: compose-up
 

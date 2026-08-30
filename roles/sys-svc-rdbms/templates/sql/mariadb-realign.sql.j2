@@ -1,8 +1,2 @@
-CREATE USER IF NOT EXISTS '{{ lookup('database', application_id, 'username') }}'@'%'
+ALTER USER IF EXISTS '{{ lookup('database', application_id, 'username') }}'@'%'
   IDENTIFIED BY '{{ lookup('database', application_id, 'password') }}';
-ALTER USER '{{ lookup('database', application_id, 'username') }}'@'%'
-  IDENTIFIED BY '{{ lookup('database', application_id, 'password') }}';
-ALTER USER 'root'@'localhost'
-  IDENTIFIED BY '{{ lookup('database', application_id, 'password') }}';
-GRANT ALL PRIVILEGES ON `{{ lookup('database', application_id, 'name') }}`.*
-  TO '{{ lookup('database', application_id, 'username') }}'@'%';
