@@ -6,6 +6,16 @@
     resolve_output_prefix: LITELLM
     resolve_compose_cid: "{{ LITELLM_CONTAINER }}"
 
+- name: "⏳ Wait until the gateway accepts connections on its own port"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ LITELLM_LOCAL_CID | quote }} python3 -c 'import socket; socket.create_connection(("127.0.0.1", {{ LITELLM_PORT }}), 5).close()'
+  register: litellm_gateway_listening
+  retries: 60
+  delay: 5
+  until: litellm_gateway_listening.rc == 0
+  changed_when: false
+  delegate_to: "{{ LITELLM_HOST_NODE }}"
+
 - name: "🔑 Ensure a virtual key exists per consumer"
   ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -i -e LITELLM_KEYS_PAYLOAD={{ LITELLM_CONSUMER_KEYS | to_json | quote }} -e LITELLM_MK={{ LITELLM_MASTER_KEY | quote }} -e LITELLM_PORT={{ LITELLM_PORT | quote }} {{ LITELLM_LOCAL_CID | quote }} python3 -c {{ lookup('file', lookup('path_absolute', 'roles/svc-ai-litellm/files/python/ensure_keys.py')) | quote }}
