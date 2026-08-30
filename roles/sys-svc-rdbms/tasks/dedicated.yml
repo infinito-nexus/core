@@ -11,6 +11,14 @@
     dest: "{{ _database_env }}"
   notify: compose-up
 
+- name: "📄 Render the credential realignment for '{{ _database_consumer_id }}'"
+  stack_host_template:
+    src: "sql/mariadb-realign.sql.j2"
+    dest: "{{ lookup('database', _database_consumer_id, 'realign_sql') }}"
+    mode: "0640"
+  when: _database_type == 'mariadb'
+  notify: compose-up
+
 - name: "🔧 For '{{ application_id }}/{{ _database_consumer_id }}': Apply postgres setup"
   include_tasks: dedicated_postgres.yml
   when: _database_type == 'postgres'

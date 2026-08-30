@@ -28,6 +28,7 @@ from utils.roles.applications.mounts import (
     normalize_volumes_meta,
 )
 from utils.roles.applications.services.database import (
+    REALIGN_CONFIG_KEY,
     get_database_service_config,
     resolve_database_service_key,
 )
@@ -298,6 +299,44 @@ def compose_volumes(
 
 
 class LookupModule(LookupBase):
+    def _with_database_realign(
+        self,
+        applications: dict[str, Any],
+        application_id: str,
+        vars_: dict[str, Any],
+        extra_configs: dict[str, Any] | None,
+    ) -> dict[str, Any] | None:
+        """Add the realignment statements an app's own mariadb reads at start.
+
+        Args:
+            applications: the merged applications mapping.
+            application_id: the app whose stack is being rendered.
+            vars_: the variables in scope for the lookup.
+            extra_configs: configs a caller already supplied.
+
+        The file lands as a config rather than a bind mount because a swarm task
+        may run on a node the source path does not exist on.
+        """
+        if resolve_database_service_key(applications, application_id) != "mariadb":
+            return extra_configs
+        if get_database_service_config(applications, application_id).get("shared"):
+            return extra_configs
+
+        source = lookup_loader.get(
+            "database", loader=self._loader, templar=getattr(self, "_templar", None)
+        ).run([application_id, "realign_sql"], variables=vars_)[0]
+        if not source:
+            return extra_configs
+
+        entity = get_entity_name(application_id)
+        return {
+            **(extra_configs or {}),
+            REALIGN_CONFIG_KEY: {
+                "name": _config_secret_name(entity, REALIGN_CONFIG_KEY, source),
+                "file": source,
+            },
+        }
+
     def run(
         self,
         terms: list[Any] | None,
@@ -366,7 +405,9 @@ class LookupModule(LookupBase):
             applications,
             application_id,
             extra_volumes=kwargs.get("extra_volumes"),
-            extra_configs=kwargs.get("extra_configs"),
+            extra_configs=self._with_database_realign(
+                applications, application_id, vars_, kwargs.get("extra_configs")
+            ),
             extra_secrets=kwargs.get("extra_secrets"),
             deployment_mode=str(deployment_mode).strip(),
             storage=storage,
