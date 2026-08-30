@@ -235,13 +235,15 @@ jobs:
           && needs.images-mirror-missing.result == 'success'
           && needs.test-dns.result == 'success'
           && (!inputs.chunk_gate
-              || contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-1.result)) }}
+              || (contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-0.result)
+                  && contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-1.result))) }}
     needs:
       - lint
       - test
       - build-ci-images
       - images-mirror-missing
       - test-dns
+      - test-deploy-chunk-0
       - test-deploy-chunk-1
     uses: ./.github/workflows/call-test-deploy.yml
     with:
