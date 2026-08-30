@@ -109,6 +109,18 @@ class TestSandboxPlacement(unittest.TestCase):
         rendered = self._render(kata_enabled=True, compose_mode="compose")
         self.assertEqual(rendered.strip(), "")
 
+    def test_a_failed_task_does_not_latch_the_rollout(self):
+        """Swarm's default pauses forever on the first task that fails.
+
+        With no failure_action, swarmkit applies pause at a max_failure_ratio
+        of zero, so one transient failure stops the rollout for good and no
+        step in the deploy resumes it. The restart policy replaces the task and
+        the service ends up healthy, while the update status stays latched and
+        the convergence check reports the deploy as failed.
+        """
+        rendered = self._render(kata_enabled=False)
+        self.assertIn("failure_action: continue", rendered)
+
 
 if __name__ == "__main__":
     unittest.main()

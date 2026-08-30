@@ -32,6 +32,7 @@
       update_config:
         parallelism: {{ service_update_parallelism | default(1) }}
         delay: {{ service_update_delay | default('10s') }}
+        failure_action: continue
 {% if service_update_order is defined %}
         order: {{ service_update_order }}
 {% endif %}
