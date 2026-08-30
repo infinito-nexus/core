@@ -13,7 +13,9 @@ TOR_FLAVOR: "{{ lookup('config', application_id, 'services.tor.flavor') }}"
 TOR_TRANS_PORT: "{{ lookup('config', application_id, 'services.tor.ports.local.trans') }}"
 TOR_DNS_PORT: "{{ lookup('config', application_id, 'services.tor.ports.local.dns') }}"
 TOR_DNSMASQ_CONF: "/etc/dnsmasq.d/tor-onion.conf"
+# nocheck: host-local-fact  meta/services.yml pins this role to the manager, so the fact describes the node the hidden service forwards on
 TOR_CONTAINER_DNS_HOST: "{{ ansible_facts['docker0']['ipv4']['address'] | default('', true) }}"
+# nocheck: host-local-fact  meta/services.yml pins this role to the manager, so the fact describes the node the hidden service forwards on
 TOR_HS_BACKEND_HOST: "{{ ansible_facts['default_ipv4']['address'] if DEPLOYMENT_MODE == 'swarm' else (TOR_CONTAINER_DNS_HOST | ternary(TOR_CONTAINER_DNS_HOST, '127.0.0.1'))
   }}"
 
