@@ -35,9 +35,7 @@ from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 _RULE = "stack-var-foreign-scope"
 _STACK_INCLUDE = "sys-stk-full"
 
-_PASSED_RE = re.compile(
-    r"^\s+(compose_[a-z_]+):\s*\"\{\{\s*([A-Z][A-Z0-9_]*)\s*\}\}\""
-)
+_PASSED_RE = re.compile(r"^\s+(compose_[a-z_]+):\s*\"\{\{\s*([A-Z][A-Z0-9_]*)\s*\}\}\"")
 _SCOPED_RE = re.compile(r"(?<![\w.])(application_id|entity_name)\b")
 
 
