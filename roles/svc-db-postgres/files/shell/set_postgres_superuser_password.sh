@@ -2,13 +2,20 @@
 set -euo pipefail
 
 # Usage:
-#   tmp.sh <container_name> <new_postgres_password>
+#   set_postgres_superuser_password.sh <container_name> <new_password> <role>
+#
+# The role is the cluster's superuser: "postgres" for the shared engine, and
+# whatever POSTGRES_USER a dedicated one was initialised with. Both are reached
+# the same way, over the container's local socket, which authenticates by peer
+# and therefore needs no password -- that is what lets a rotated credential be
+# written into an engine nobody can log into any more.
 
 container_raw="${1:-}"
 new_pw="${2:-}"
+role="${3:-}"
 
-if [[ -z "$container_raw" || -z "$new_pw" ]]; then
-  echo "Usage: $0 <container_name> <new_postgres_password>" >&2
+if [[ -z "$container_raw" || -z "$new_pw" || -z "$role" ]]; then
+  echo "Usage: $0 <container_name> <new_password> <role>" >&2
   exit 2
 fi
 
@@ -16,14 +23,16 @@ container=""
 eval "container=$container_raw"
 
 pg_exec() {
-  container exec "$container" bash -lc "psql -U postgres -d postgres -Atc '$1'" 2>/dev/null
+  container exec -e PG_ROLE="$role" "$container" bash -lc \
+    "psql -U \"\$PG_ROLE\" -d postgres -Atc '$1'" 2>/dev/null
 }
 
 # Retry TCP auth up to 15 times (30s) to handle HBA reload delay
 auth_test() {
   for _ in {1..15}; do
-    if container exec -e PGPASSWORD="$new_pw" "$container" bash -lc \
-        'psql -h 127.0.0.1 -p 5432 -U postgres -d postgres -Atc "SELECT 1" >/dev/null 2>&1'; then
+    # shellcheck disable=SC2016
+    if container exec -e PGPASSWORD="$new_pw" -e PG_ROLE="$role" "$container" bash -lc \
+        'psql -h 127.0.0.1 -p 5432 -U "$PG_ROLE" -d postgres -Atc "SELECT 1" >/dev/null 2>&1'; then
       return 0
     fi
     sleep 2
@@ -72,9 +81,9 @@ for _ in {1..30}; do
   if auth_test; then pre_ok=1; fi
 
   # shellcheck disable=SC2016
-  if ! container exec -e NEW_POSTGRES_PASSWORD="$new_pw" "$container" bash -lc '
-    psql -U postgres -d postgres -v ON_ERROR_STOP=1 -v password="$NEW_POSTGRES_PASSWORD" <<'"'"'SQL'"'"'
-ALTER USER postgres WITH PASSWORD :'"'"'password'"'"';
+  if ! container exec -e NEW_POSTGRES_PASSWORD="$new_pw" -e PG_ROLE="$role" "$container" bash -lc '
+    psql -U "$PG_ROLE" -d postgres -v ON_ERROR_STOP=1 -v role="$PG_ROLE" -v password="$NEW_POSTGRES_PASSWORD" <<'"'"'SQL'"'"'
+ALTER USER :"role" WITH PASSWORD :'"'"'password'"'"';
 SQL
 ' 2>/dev/null; then
     cleanup; sleep 2; continue
@@ -105,7 +114,7 @@ container exec "$container" bash -lc "cp -a \"$hba_file\" \"$backup\""
 # shellcheck disable=SC2329,SC2317
 restore_hba() {
   container exec "$container" bash -lc "if [ -f \"$backup\" ]; then cp -a \"$backup\" \"$hba_file\" && rm -f \"$backup\"; fi" >/dev/null 2>&1 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
-  container exec "$container" bash -lc "psql -U postgres -d postgres -Atc 'SELECT pg_reload_conf();' >/dev/null 2>&1" || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+  pg_exec 'SELECT pg_reload_conf();' >/dev/null 2>&1 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 }
 
 # Register direct function trap so ShellCheck sees the invocation path.
@@ -116,7 +125,7 @@ container exec "$container" bash -lc "{
   cat \"$backup\"
 } > \"$hba_file\""
 
-container exec "$container" bash -lc "psql -U postgres -d postgres -Atc 'SELECT pg_reload_conf();' >/dev/null"
+pg_exec 'SELECT pg_reload_conf();' >/dev/null
 
 # Helper: test password auth explicitly over TCP
 auth_test() {
@@ -130,9 +139,9 @@ if auth_test; then
 fi
 
 # shellcheck disable=SC2016
-container exec -e NEW_POSTGRES_PASSWORD="$new_pw" "$container" bash -lc '
-  psql -U postgres -d postgres -v ON_ERROR_STOP=1 -v password="$NEW_POSTGRES_PASSWORD" <<'"'"'SQL'"'"'
-ALTER USER postgres WITH PASSWORD :'"'"'password'"'"';
+container exec -e NEW_POSTGRES_PASSWORD="$new_pw" -e PG_ROLE="$role" "$container" bash -lc '
+  psql -U "$PG_ROLE" -d postgres -v ON_ERROR_STOP=1 -v role="$PG_ROLE" -v password="$NEW_POSTGRES_PASSWORD" <<'"'"'SQL'"'"'
+ALTER USER :"role" WITH PASSWORD :'"'"'password'"'"';
 SQL
 '
 

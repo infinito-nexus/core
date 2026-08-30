@@ -13,6 +13,21 @@
     - (compose_mode_force | default('') or DEPLOYMENT_MODE) == 'compose'
     - lookup('database', application_id, 'enabled') | bool
 
+- name: "🔑 Realign the password a dedicated postgres kept from its initdb"
+  ansible.builtin.script: > # nocheck: container-address-quote script evals the fragment itself
+    {{ lookup('path_absolute', 'roles/svc-db-postgres/files/shell/set_postgres_superuser_password.sh') }}
+    {{ lookup('database', application_id, 'container') | quote }}
+    {{ lookup('database', application_id, 'password') | quote }}
+    {{ lookup('database', application_id, 'username') | quote }}
+  register: _app_db_realign
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  changed_when: _app_db_realign.stdout is search('\\[CHANGED\\]')
+  failed_when: _app_db_realign.rc != 0 or _app_db_realign.stdout is search('\\[FAIL\\]')
+  when:
+    - (compose_mode_force | default('') or DEPLOYMENT_MODE) == 'compose'
+    - lookup('database', application_id, 'local') | bool
+    - lookup('database', application_id, 'type') == 'postgres'
+
 - name: "⏳ Wait until swarm tasks of '{{ application_id | get_entity_name }}' are running"
   ansible.builtin.script: "{{ lookup('path_absolute', 'roles/sys-svc-compose/files/shell/swarm/stack_ready.sh') }}"
   environment:
