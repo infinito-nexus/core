@@ -184,6 +184,11 @@
   ansible.builtin.include_role:
     name: sys-service-loader
 
+- name: "📂 Close the service-loader preload context"
+  ansible.builtin.set_fact:
+    service_loader_preloading: false
+  changed_when: false
+
 - name: "🧩 Load base roles"
   ansible.builtin.include_tasks: ./tasks/utils/setup/group.yml
   loop: "{{ lookup('stage_groups', 'constructor') }}"
