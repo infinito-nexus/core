@@ -34,8 +34,13 @@ jobs:
       scope: ${{ steps.resolve.outputs.scope }}
       run_ci_orchestrator: ${{ steps.resolve.outputs.run_ci_orchestrator }}
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - name: ⬇️ Checkout
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: 🔍 Resolve PR scope
         id: resolve
@@ -61,6 +66,11 @@ jobs:
     if: ${{ needs.detect-pr-scope.outputs.run_ci_orchestrator == 'false' }}
     runs-on: ubuntu-latest
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - name: ✅ Confirm lightweight PR scope
         shell: bash
         run: |
@@ -77,13 +87,18 @@ jobs:
     outputs:
       whitelist: ${{ steps.resolve.outputs.whitelist }}
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - name: ⬇️ Checkout
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0
 
       - name: 🔧 Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.12"
           cache: pip
@@ -130,8 +145,13 @@ jobs:
       image_tag: ${{ steps.out.outputs.image_tag }}
       trusted: ${{ contains(github.event.pull_request.labels.*.name, '🛡️ Trusted') }}
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - name: ⬇️ Checkout
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: 🔍 Resolve merge ref and image tag
         id: out

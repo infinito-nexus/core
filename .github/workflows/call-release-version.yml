@@ -40,8 +40,13 @@ jobs:
       version_tag: ${{ steps.vars.outputs.version_tag }}
       publish_latest: ${{ steps.highest.outputs.publish_latest }}
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - name: ⬇️ Checkout trusted workflow repo (helpers)
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           ref: ${{ github.sha }}
           path: _helpers
@@ -53,7 +58,7 @@ jobs:
         run: bash _helpers/scripts/github/resolve/release/inputs.sh "${{ inputs.tag || github.event.inputs.tag }}"
 
       - name: ⬇️ Checkout repository at version tag
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           ref: ${{ steps.vars.outputs.version_tag }}
           path: _src
@@ -136,8 +141,13 @@ jobs:
       PUBLISH_LATEST: ${{ needs.check-ci-images.outputs.publish_latest }}
 
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - name: ⬇️ Checkout trusted workflow repo (helpers)
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           ref: ${{ github.sha }}
           persist-credentials: false

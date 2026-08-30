@@ -18,8 +18,13 @@ jobs:
       pull-requests: write
 
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - name: 🏷️ Mark stale issues and pull requests
-        uses: actions/stale@v10
+        uses: actions/stale@1e223db275d687790206a7acac4d1a11bd6fe629 # v10.4.0
         with:
           days-before-issue-stale: 90
           days-before-issue-close: 7
@@ -51,6 +56,11 @@ jobs:
       issues: write
 
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - name: 🌿 Delete branches inactive for 360 days
         uses: crs-k/stale-branches@e876b957ab08f0bad43c8cc271a22cdd7604bd09 # v9.0.1
         with:
@@ -71,8 +81,13 @@ jobs:
       packages: write
 
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - name: ⬇️ Checkout
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: 📦 Install project environment
         run: make install
