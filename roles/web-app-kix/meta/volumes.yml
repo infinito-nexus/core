@@ -1,4 +1,15 @@
 ---
+kix_config:
+  type: volume
+  name: kix_kix_config
+  nfs:
+    uid: "110010100"
+    gid: "110010100"
+    mode: "0770"
+  mounts:
+    - service: backend
+      target: /opt/kix/config
+
 kix_shared:
   type: volume
   name: kix_kix_shared

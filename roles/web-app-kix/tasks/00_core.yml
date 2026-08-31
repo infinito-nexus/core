@@ -20,5 +20,8 @@
         dest: "{{ KIX_PROXY_NGINX_HOST_PATH }}"
         mode: "0644"
 
+- name: "🧹 Clear the stale conf.d link before the backend starts"
+  ansible.builtin.include_tasks: utils/clear_stale_conf_link.yml
+
 - name: "🔄 Flush handlers so '{{ KIX_PROXY_CONTAINER }}' is up before further config"
   meta: flush_handlers
