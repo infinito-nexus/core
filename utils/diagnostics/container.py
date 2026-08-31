@@ -40,6 +40,7 @@ _NESTED_TIMEOUT = 600
 _TAR_TIMEOUT = 300
 _SELF_IN_CONTAINER = "/tmp/rescue-self.py"  # noqa: S108 - fixed staging path inside the inspected container
 _LOCAL_DUMPS_ENV = "INFINITO_RESCUE_LOCAL_DUMPS_DIR"
+_APP_LOG_TAIL = "find /var/log /var/www /opt /srv -xdev -type f -name '*.log' -size -20M -mmin -360 -exec sh -c 'echo \"===== $1\"; tail -n 400 \"$1\"' _ {} ';' 2>/dev/null"
 _PROBE_HOSTS = ("deb.debian.org", "ghcr.io", "repo.packagist.org")
 _INZONE_PROBE = "getent hosts rescue-probe.$(awk -F/ '/^address=/{print $2;exit}' /etc/dnsmasq.conf)"
 
@@ -330,23 +331,22 @@ def collect_runtime(out: Path, rt: str) -> tuple[list[str], list[str]]:
         safe = sanitize(name)
         capture(out / "containers", f"{safe}.log", [rt, "logs", name])
         capture(out / "containers", f"{safe}.inspect.json", [rt, "inspect", name])
-        capture(
-            out / "containers",
-            f"{safe}.resolv-conf.txt",
-            [rt, "exec", name, "cat", "/etc/resolv.conf"],
-            timeout=_PROBE_TIMEOUT,
-        )
-        capture(
-            out / "containers",
-            f"{safe}.systemctl.txt",
-            [rt, "exec", name, "systemctl", "status", "--all", "--no-pager"],
-            timeout=_PROBE_TIMEOUT,
-        )
-        capture(
-            out / "containers",
-            f"{safe}.journal.txt",
-            [rt, "exec", name, "journalctl", "-b", "--no-pager"],
-        )
+        for suffix, argv, probe_timeout in (
+            ("resolv-conf.txt", ["cat", "/etc/resolv.conf"], _PROBE_TIMEOUT),
+            (
+                "systemctl.txt",
+                ["systemctl", "status", "--all", "--no-pager"],
+                _PROBE_TIMEOUT,
+            ),
+            ("journal.txt", ["journalctl", "-b", "--no-pager"], _EXEC_TIMEOUT),
+            ("app-logs.txt", ["sh", "-c", _APP_LOG_TAIL], _PROBE_TIMEOUT),
+        ):
+            capture(
+                out / "containers",
+                f"{safe}.{suffix}",
+                [rt, "exec", name, *argv],
+                timeout=probe_timeout,
+            )
         if "postgres" in name:
             capture(
                 out / "containers",
@@ -366,14 +366,11 @@ def collect_runtime(out: Path, rt: str) -> tuple[list[str], list[str]]:
     services = list_lines([rt, "service", "ls", "--format", "{{.Name}}"])
     for svc in services:
         safe = sanitize(svc)
-        capture(
-            out / "services", f"{safe}.ps.txt", [rt, "service", "ps", "--no-trunc", svc]
-        )
-        capture(
-            out / "services",
-            f"{safe}.log",
-            [rt, "service", "logs", "--no-task-ids", svc],
-        )
+        for suffix, argv in (
+            ("ps.txt", ["service", "ps", "--no-trunc", svc]),
+            ("log", ["service", "logs", "--no-task-ids", svc]),
+        ):
+            capture(out / "services", f"{safe}.{suffix}", [rt, *argv])
     return containers, services
 
 
