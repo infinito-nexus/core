@@ -8,4 +8,4 @@ bridges:
 version: "0.7"
 group: ai-llm
 config:
-  id: org.xwiki.contrib.llm:application-ai-llm-ui
+  id: org.xwiki.contrib.llm:application-ai-llm-models-ui
