@@ -37,6 +37,9 @@
     --fullname="{{ MOODLE_SITE_TITLE }}"
     --shortname=Academy
   register: moodle_install
+  retries: 20
+  delay: 15
+  until: moodle_install.rc != 137
   changed_when: "'Moodle has been installed' in moodle_install.stdout"
   failed_when:
     - moodle_install.rc != 0
