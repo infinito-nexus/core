@@ -4,6 +4,7 @@ FROM ${FLOWISE_BASE_IMAGE}:${FLOWISE_BASE_TAG}
 
 ARG FLOWISE_VERSION
 ARG FLOWISE_SQLITE_VERSION
+ARG FLOWISE_SOCKET_TIMEOUT_SHIM=/tmp/socket-timeout.cjs
 
 RUN rm -rf /var/lib/apt/lists/* \
     && apt-get -o Acquire::Retries=3 update \
@@ -17,9 +18,11 @@ ENV FLOWISE_HOME=/opt/flowise
 
 WORKDIR ${FLOWISE_HOME}
 
-RUN npm init -y > /dev/null \
+RUN echo 'require("http").globalAgent.options.timeout=60000;require("https").globalAgent.options.timeout=60000' > "${FLOWISE_SOCKET_TIMEOUT_SHIM}" \
+    && npm init -y > /dev/null \
     && npm pkg set "overrides.better-sqlite3=^${FLOWISE_SQLITE_VERSION}" \
-    && npm install --omit=dev "flowise@${FLOWISE_VERSION}" \
+    && NODE_OPTIONS=--require="${FLOWISE_SOCKET_TIMEOUT_SHIM}" npm install --omit=dev "flowise@${FLOWISE_VERSION}" \
+    && rm -f "${FLOWISE_SOCKET_TIMEOUT_SHIM}" \
     && ln -s "${FLOWISE_HOME}/node_modules/.bin/flowise" /usr/local/bin/flowise \
     && chown -R node:node "${FLOWISE_HOME}"
 
