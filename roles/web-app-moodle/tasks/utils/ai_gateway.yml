@@ -3,18 +3,12 @@
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
 
 - name: "🤖 Point the Moodle AI subsystem at the platform gateway"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - --user
-      - "{{ MOODLE_RUNTIME_USER }}"
-      - "{{ MOODLE_CONTAINER_ADDRESS }}" # nocheck: container-exec-resolver
-      - php
-      - "{{ [MOODLE_CLI_DIR, 'cfg.php'] | path_join }}"
-      - "--component={{ item.component }}"
-      - "--name={{ item.name }}"
-      - "--set={{ item.value }}"
+  ansible.builtin.shell: >
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
+    php {{ [MOODLE_CLI_DIR, 'cfg.php'] | path_join }}
+    --component={{ item.component | quote }}
+    --name={{ item.name | quote }}
+    --set={{ item.value | quote }}
   loop: "{{ MOODLE_LITELLM_SETTINGS }}"
   loop_control:
     label: "{{ item.component }}/{{ item.name }}"
@@ -22,29 +16,17 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🧹 Purge Moodle caches so the provider picks up its endpoint"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - --user
-      - "{{ MOODLE_RUNTIME_USER }}"
-      - "{{ MOODLE_CONTAINER_ADDRESS }}" # nocheck: container-exec-resolver
-      - php
-      - "{{ [MOODLE_CLI_DIR, 'purge_caches.php'] | path_join }}"
+  ansible.builtin.shell: >
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
+    php {{ [MOODLE_CLI_DIR, 'purge_caches.php'] | path_join }}
   changed_when: false
 
 - name: "🔎 Read back the configured chat endpoint"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - --user
-      - "{{ MOODLE_RUNTIME_USER }}"
-      - "{{ MOODLE_CONTAINER_ADDRESS }}" # nocheck: container-exec-resolver
-      - php
-      - "{{ [MOODLE_CLI_DIR, 'cfg.php'] | path_join }}"
-      - "--component=aiprovider_openai"
-      - "--name=action_generate_text_endpoint"
+  ansible.builtin.shell: >
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
+    php {{ [MOODLE_CLI_DIR, 'cfg.php'] | path_join }}
+    --component=aiprovider_openai
+    --name=action_generate_text_endpoint
   register: moodle_ai_endpoint
   changed_when: false
 

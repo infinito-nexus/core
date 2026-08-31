@@ -46,17 +46,11 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🌐 Open Moodle's cURL egress policy for the deployment's own networks"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - --user
-      - "{{ MOODLE_RUNTIME_USER }}"
-      - "{{ MOODLE_CONTAINER_ADDRESS }}" # nocheck: container-exec-resolver
-      - php
-      - "{{ [MOODLE_CLI_DIR, 'cfg.php'] | path_join }}"
-      - "--name={{ item.name }}"
-      - "--set={{ item.value }}"
+  ansible.builtin.shell: >
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
+    php {{ [MOODLE_CLI_DIR, 'cfg.php'] | path_join }}
+    --name={{ item.name | quote }}
+    --set={{ item.value | quote }}
   loop: "{{ MOODLE_EGRESS_SETTINGS }}"
   loop_control:
     label: "{{ item.name }}"
