@@ -17,4 +17,7 @@ UPDATE users
 SET password = :'token_hash',
     user_role_id = (SELECT id FROM roles WHERE name = :'role_name'),
     status = 'enabled'
-WHERE username = :'username' AND type = 'api';
+WHERE username = :'username' AND type = 'api'
+  AND (password IS DISTINCT FROM :'token_hash'
+       OR user_role_id IS DISTINCT FROM (SELECT id FROM roles WHERE name = :'role_name')
+       OR status IS DISTINCT FROM 'enabled');
