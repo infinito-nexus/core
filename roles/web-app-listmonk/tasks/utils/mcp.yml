@@ -29,15 +29,24 @@
     resolve_compose_cid: "{{ LISTMONK_NAME }}"
 
 - name: "🔄 Restart Listmonk so it reloads its API user cache"
-  ansible.builtin.command:
-    argv:
-      - container
-      - restart
-      - "{{ LISTMONK_IDENTITY_LOCAL_CID }}" # nocheck: container-exec-resolver
-  changed_when: true
   when: listmonk_mcp_identity.changed
-  delegate_to: "{{ LISTMONK_IDENTITY_HOST_NODE }}"
   run_once: true
+  block:
+    - name: "🔄 compose | restart the Listmonk container"
+      ansible.builtin.command:
+        argv:
+          - container
+          - restart
+          - "{{ LISTMONK_IDENTITY_LOCAL_CID }}" # nocheck: container-exec-resolver
+      changed_when: true
+      when: DEPLOYMENT_MODE == 'compose'
+      delegate_to: "{{ LISTMONK_IDENTITY_HOST_NODE }}"
+
+    - name: "🔄 swarm | force an update of the Listmonk service"
+      ansible.builtin.command: "container service update --force {{ lookup('container_service', application_id, 'listmonk') }}"
+      changed_when: true
+      timeout: "{{ lookup('timeout', 600) | int }}"
+      when: DEPLOYMENT_MODE == 'swarm'
 
 - name: "🩺 Prove the MCP contract of {{ application_id }}"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
