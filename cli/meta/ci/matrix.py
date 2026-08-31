@@ -35,10 +35,10 @@ import sys
 
 from cli.meta.ci import chunks, query, slots
 from utils.cache.applications import get_variants
-from utils.github.variant import axes, pools, selection, tor
+from utils.github.variant import axes, instructions, pools, selection, tor
 from utils.roles.display import display_names
 
-DROPPED = ("priority", "weight", "id", "covered", "clone")
+DROPPED = ("priority", "id", "covered", "clone")
 """Entry keys the plan table reads but the matrix JSON withholds, so a deploy
 job cannot reference one: they describe the row's rank, not its deployment."""
 
@@ -149,13 +149,6 @@ def offset_index(raw: int | str | None, regular: list[dict[str, str]]) -> int:
     )
 
 
-def redundant(entry: dict[str, str]) -> bool:
-    """Whether the sweep drops this row as coverage an earlier row already has."""
-    if entry["priority"] == "true":
-        return False
-    return entry["clone"] == "true" or entry["covered"] != "0"
-
-
 def chunks_of(
     entries: list[dict[str, str]], offset: int | str | None = 0
 ) -> list[list[dict[str, str]]]:
@@ -168,7 +161,7 @@ def chunks_of(
     regular = [
         entry
         for entry in entries
-        if entry["priority"] != "true" and not redundant(entry)
+        if entry["priority"] != "true" and not instructions.redundant(entry)
     ]
     return [
         sorted(chunk, key=axes.sort_key)

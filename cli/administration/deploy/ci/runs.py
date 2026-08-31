@@ -84,7 +84,6 @@ CONFIG_INPUTS = (
     "filesystem",
     "chunk_gate",
     "workspace",
-    "instructions",
 )
 
 LOG_INPUTS = ("tor",)
@@ -370,13 +369,13 @@ def config_from_title(title: str) -> dict[str, str]:
     return {name: recorded[name] for name in CONFIG_INPUTS if name in recorded}
 
 
-SUITE_JOB_IDS = {"workspace": "test-workspace", "instructions": "test-instructions"}
+SUITE_JOB_IDS = {"workspace": "test-workspace"}
 
 
 def suite_passed(jobs: list[dict], suite: str) -> bool:
-    """Whether ``suite`` ('workspace' | 'instructions') ran to success in this
-    run. A suite that was skipped, cancelled or never dispatched has not
-    passed, so a retrigger keeps asking for it."""
+    """Whether ``suite`` ('workspace') ran to success in this run. A suite that
+    was skipped, cancelled or never dispatched has not passed, so a retrigger
+    keeps asking for it."""
     job_id = SUITE_JOB_IDS[suite]
     outcomes = [
         _effective(job)

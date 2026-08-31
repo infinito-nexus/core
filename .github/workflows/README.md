@@ -47,15 +47,12 @@ flowchart TB
         instmake["test-install-make.yml"]
         instpkgmgr["test-install-pkgmgr.yml"]
         mirror --> devenv["test-workspace: test-workspace.yml"]
-        buildci --> testguide["test-instructions.yml"]
-        mirror --> testguide
 
         chain --> donegate["done"]
         smoke --> donegate
         instmake --> donegate
         instpkgmgr --> donegate
         devenv --> donegate
-        testguide --> donegate
     end
 
     chunk0 --> deploy["call-test-deploy.yml"]
@@ -294,7 +291,6 @@ flowchart TB
     relhighest -.->|"gh workflow run"| relver["release-version.yml"]
     relver --> imgbuildci["images-build-ci.yml"]
     manual["workflow_dispatch"] --> mirrorcleanup["images-mirror-cleanup.yml"]
-    manual --> deploywf["test-instructions.yml: run a role README Production command"]
 ```
 
 Also manually dispatchable: `cron-images-mirror-all.yml`, `cron-images-cleanup-ci.yml`,

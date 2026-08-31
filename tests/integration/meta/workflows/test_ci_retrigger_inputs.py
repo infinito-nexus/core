@@ -47,7 +47,6 @@ _VALUES = {
     "sweep": "7",
     "workspace": "true",
     "workspace_track": "compose",
-    "instructions": "false",
 }
 """A value for every dispatch input, distinct from that input's default so a
 dropped one shows up as a missing key rather than as a coincidence."""

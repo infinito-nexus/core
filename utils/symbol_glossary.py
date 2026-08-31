@@ -16,6 +16,7 @@ SYMBOLS: dict[str, str] = {
     "disabled": "❌",
     "skip": "⏭️",
     "priority": "⭐",
+    "instructions": "📖",
     "distros": "🐧",
     "arch": "🏹",
     "debian": "🌀",

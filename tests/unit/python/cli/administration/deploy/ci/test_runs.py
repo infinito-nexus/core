@@ -395,7 +395,6 @@ class TestConfigFromTitle(unittest.TestCase):
             "filesystem": "ext4",
             "chunk_gate": "false",
             "workspace": "true",
-            "instructions": "false",
         }
         self.assertEqual(runs.config_from_title(render(dispatched)), dispatched)
 

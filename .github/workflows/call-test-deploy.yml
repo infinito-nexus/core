@@ -417,3 +417,18 @@ jobs:
         if: ${{ always() && matrix.mode == 'swarm' }}
         timeout-minutes: 15
         run: scripts/tests/deploy/swarm/utils/clean/teardown.sh
+
+      - name: "📖 Replay the ${{ matrix.apps }} README instructions"
+        if: ${{ matrix.instructions != '' }}
+        env:
+          GUIDE_ROLE: ${{ matrix.apps }}
+          GUIDE_MODE: ${{ matrix.instructions }}
+        run: ./scripts/tests/deploy/distros.sh scripts/github/guide/one.sh
+
+      - name: "⬆️ Upload instructions rescue diagnostics"
+        if: ${{ always() && matrix.instructions != '' && !env.ACT }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: rescue-diagnostics-instructions-${{ matrix.artifact }}
+          path: ${{ env.INFINITO_RESCUE_DIAGNOSTICS_BASE }}/
+          if-no-files-found: ignore
