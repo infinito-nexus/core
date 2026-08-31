@@ -213,6 +213,8 @@ def fixture_flow_data(entry_id, tool, args):
                     "category": "Agent Flows",
                     "baseClasses": ["Start"],
                     "inputs": {"startInputType": "chatInput"},
+                    "inputAnchors": [],
+                    "inputParams": [],
                     "outputAnchors": [
                         {
                             "id": f"{START_NODE}-output-startAgentflow",
@@ -248,6 +250,8 @@ def fixture_flow_data(entry_id, tool, args):
                             for name, value in sorted(args.items())
                         ],
                     },
+                    "inputAnchors": [],
+                    "inputParams": [],
                     "outputAnchors": [
                         {
                             "id": f"{TOOL_NODE}-output-toolAgentflow",

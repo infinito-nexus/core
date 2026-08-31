@@ -262,6 +262,19 @@ class TestReconcileMcpServers(unittest.TestCase):
         self.assertNotIn("secret", serialised)
         self.assertNotIn("Bearer", serialised)
 
+    def test_every_fixture_node_carries_the_keys_buildchatflow_iterates(self) -> None:
+        module = load_script([SUPPORTED_SERVER])
+        flow = module.fixture_flow_data("entry-1", "qdrant_list_collections", {})
+        for node in flow["nodes"]:
+            data = node["data"]
+            for key in ("inputParams", "inputAnchors", "outputAnchors"):
+                self.assertIsInstance(
+                    data.get(key),
+                    list,
+                    f"node {node['id']} must expose {key} as a list; Flowise "
+                    "iterates it and answers 500 'inputParams is not iterable'",
+                )
+
     def test_the_fixture_calls_one_named_tool_without_a_model(self) -> None:
         module = load_script([SUPPORTED_SERVER])
         flow = module.fixture_flow_data("entry-1", "qdrant_list_collections", {})
