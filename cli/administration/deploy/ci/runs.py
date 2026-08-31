@@ -47,8 +47,8 @@ SELECTION_INPUTS = ("priority", "offset")
 """The two inputs a retrigger decides itself rather than carrying over.
 
 ``priority`` IS the retrigger: it names what failed. ``offset`` follows from
-it -- the source run already has a verdict for everything up to where its
-budget ran out, so the regular line resumes behind that window
+it -- the source run got the head of the ranking green before its budget ran
+out, so the regular line resumes behind that green window
 (:func:`resume_offset`) instead of repeating it. Everything else is carried
 verbatim, including ``whitelist``, so a retrigger of a scoped run stays inside
 that scope instead of quietly widening to the whole repository."""

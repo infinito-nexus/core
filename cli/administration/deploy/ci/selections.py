@@ -90,11 +90,12 @@ def collapse_to_roles(tokens: Iterable[str]) -> list[str]:
     return sorted({selection.parse(token).app for token in tokens})
 
 
-def deployed_selections(jobs: list[dict]) -> set[str]:
-    """Every selection the source run actually deployed, green or red.
+def _selections(jobs: list[dict], states: set[str] | None = None) -> set[str]:
+    """The deploy jobs of *jobs* as tokens, narrowed to *states* when given.
 
-    The verdict is irrelevant here: what matters is that the run reached the
-    row at all, because that is what a retrigger no longer has to repeat.
+    Args:
+        jobs: the source run's jobs.
+        states: effective job states to keep; ``None`` keeps every deploy job.
     """
     return {
         selection.describe(
@@ -107,8 +108,18 @@ def deployed_selections(jobs: list[dict]) -> set[str]:
             )
         )
         for app, _mode, job in _iter_deploy_jobs(jobs)
-        if (label := axes.parse_label(str(job.get("name", "")))) is not None
+        if (states is None or _effective(job) in states)
+        and (label := axes.parse_label(str(job.get("name", "")))) is not None
     }
+
+
+def deployed_selections(jobs: list[dict]) -> set[str]:
+    """Every selection the source run actually deployed, green or red.
+
+    The verdict is irrelevant here: what matters is that the run reached the
+    row at all, because that is what a retrigger no longer has to repeat.
+    """
+    return _selections(jobs)
 
 
 def settled_selections(jobs: list[dict]) -> set[str]:
@@ -123,20 +134,18 @@ def settled_selections(jobs: list[dict]) -> set[str]:
     aborts and the still-running, is owed another attempt at the same
     combination.
     """
-    return {
-        selection.describe(
-            selection.Pin(
-                app,
-                tuple(int(part) for part in label.variant.split(",") if part),
-                label.mode,
-                label.tor,
-                label.distro or None,
-            )
-        )
-        for app, _mode, job in _iter_deploy_jobs(jobs)
-        if _effective(job) in {"success", "failure"}
-        and (label := axes.parse_label(str(job.get("name", "")))) is not None
-    }
+    return _selections(jobs, {"success", "failure"})
+
+
+def passed_selections(jobs: list[dict]) -> set[str]:
+    """Every selection the source run deployed green.
+
+    The narrowest of the three, and what :func:`resume_offset` counts: a row
+    the regular line may walk past has to be proven, not merely attempted. A
+    red or aborted row does come back on the priority line, but only for the
+    combination it was recorded in -- the regular line owes it every other one.
+    """
+    return _selections(jobs, {"success"})
 
 
 def row_selection(entry: Mapping[str, Any]) -> str:
@@ -199,29 +208,30 @@ def unrun_selections(regular: list[dict[str, str]], deployed: set[str]) -> list[
     )
 
 
-def resume_offset(regular: list[dict[str, str]], deployed: set[str]) -> str:
+def resume_offset(regular: list[dict[str, str]], passed: set[str]) -> str:
     """Where a retrigger should pick the regular line up again.
 
     The source run deployed a window of the ranking and stopped at its budget.
-    Everything inside that window has a verdict -- the red rows come back on
-    the priority line anyway -- so the regular line has no reason to walk it a
-    second time. The answer is the last row of the leading run of deployed
-    rows, as a selection token: a token still names the same row after the
-    ranking shifts, a row count does not.
+    Only the green part of that window is settled, so only it may be skipped:
+    the answer is the last row of the leading run of *successful* rows, as a
+    selection token -- a token still names the same row after the ranking
+    shifts, a row count does not.
 
-    Stops at the first gap. A hole inside the window means that row was
-    filtered out, not that the run got further, and resuming past it would skip
-    whatever follows.
+    Stops at the first row that is not green. A red or aborted row does return
+    on the priority line, but pinned to the one combination it was recorded in;
+    resuming past it would drop every other combination of that row and
+    everything the run never reached behind it.
 
     Args:
         regular: the regular line of the retrigger's own discovery, in ranking
             order.
-        deployed: tokens the source run deployed (:func:`deployed_selections`).
+        passed: tokens the source run deployed green
+            (:func:`passed_selections`).
 
     Returns:
         the ``role#variant`` token to resume at, or ``''`` when the source run
-        deployed nothing of this line -- then the retrigger starts at the head,
-        as it would without an offset.
+        got nothing of this line green -- then the retrigger starts at the
+        head, as it would without an offset.
 
         The returned token names a place in the ranking, so it carries no axes.
         Membership is still tested on the full deploy token, because that is
@@ -233,7 +243,7 @@ def resume_offset(regular: list[dict[str, str]], deployed: set[str]) -> str:
     """
     resume = ""
     for entry in regular:
-        if row_selection(entry) not in deployed:
+        if row_selection(entry) not in passed:
             break
         variants = tuple(
             int(part) for part in str(entry.get("variant", "")).split(",") if part

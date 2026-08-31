@@ -41,43 +41,48 @@ class TestResumeOffset(unittest.TestCase):
         self.assertEqual(selections.resume_offset(self._REGULAR, set()), "")
 
     def test_the_offset_is_the_last_row_of_the_leading_run(self) -> None:
-        deployed = {
+        passed = {
             "web-app-a#0@compose+clearnet" + _AXES,
             "web-app-b#1@swarm+tor" + _AXES,
         }
+        self.assertEqual(selections.resume_offset(self._REGULAR, passed), "web-app-b#1")
+
+    def test_a_red_row_stops_the_scan_so_the_line_walks_it_again(self) -> None:
+        jobs = [
+            _job(deploy_job_name("docker", "web-app-a", "0"), "success"),
+            _job(deploy_job_name("swarm", "web-app-b", "1", tor=True), "failure"),
+            _job(deploy_job_name("host", "web-app-c", "0"), "success"),
+        ]
         self.assertEqual(
-            selections.resume_offset(self._REGULAR, deployed), "web-app-b#1"
+            selections.resume_offset(self._REGULAR, selections.passed_selections(jobs)),
+            "web-app-a#0",
         )
 
     def test_the_offset_carries_no_axes_so_it_survives_a_new_sweep(self) -> None:
         """Every axis rotates with the sweep number and a retrigger gets a
         fresh one, so an axis-pinned offset would resolve only in the sweep it
         was computed at and abort every chunk's discovery in the others."""
-        deployed = {"web-app-a#0@compose+clearnet" + _AXES}
-        offset = selections.resume_offset(self._REGULAR, deployed)
+        passed = {"web-app-a#0@compose+clearnet" + _AXES}
+        offset = selections.resume_offset(self._REGULAR, passed)
         self.assertNotIn("@", offset)
         self.assertNotIn("+", offset)
         self.assertNotIn("%", offset)
         self.assertNotIn("/", offset)
 
     def test_a_gap_stops_the_scan_rather_than_skipping_past_it(self) -> None:
-        deployed = {
+        passed = {
             "web-app-a#0@compose+clearnet" + _AXES,
             "web-app-c#0@host+clearnet" + _AXES,
         }
-        self.assertEqual(
-            selections.resume_offset(self._REGULAR, deployed), "web-app-a#0"
-        )
+        self.assertEqual(selections.resume_offset(self._REGULAR, passed), "web-app-a#0")
 
     def test_a_run_that_covered_everything_resumes_at_the_last_row(self) -> None:
-        deployed = {
+        passed = {
             "web-app-a#0@compose+clearnet" + _AXES,
             "web-app-b#1@swarm+tor" + _AXES,
             "web-app-c#0@host+clearnet" + _AXES,
         }
-        self.assertEqual(
-            selections.resume_offset(self._REGULAR, deployed), "web-app-c#0"
-        )
+        self.assertEqual(selections.resume_offset(self._REGULAR, passed), "web-app-c#0")
 
     def test_the_verdict_does_not_matter_only_that_the_row_ran(self) -> None:
         jobs = [
@@ -159,6 +164,22 @@ class TestSettledSelections(unittest.TestCase):
             selections.unrun_selections(regular, selections.deployed_selections(jobs)),
             [],
         )
+
+
+class TestPassedSelections(unittest.TestCase):
+    """Only a green row lets the regular line walk past it."""
+
+    def test_only_the_successes_are_kept(self) -> None:
+        jobs = [
+            _job(deploy_job_name("docker", "web-app-a", "0"), "success"),
+            _job(deploy_job_name("swarm", "web-app-b", "1", tor=True), "failure"),
+            _job(deploy_job_name("host", "web-app-c", "0"), "cancelled"),
+        ]
+        self.assertEqual(
+            selections.passed_selections(jobs),
+            {"web-app-a#0@compose+clearnet" + _AXES},
+        )
+        self.assertEqual(len(selections.settled_selections(jobs)), 2)
 
 
 class TestCollapseToRoles(unittest.TestCase):

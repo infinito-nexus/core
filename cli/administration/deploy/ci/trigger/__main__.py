@@ -210,7 +210,9 @@ def main(argv: list[str] | None = None) -> int:
             print("Nothing to re-trigger from that run.")
             return 0
         priority = " ".join(sorted(priority_entries))
-        config["offset"] = selections.resume_offset(ranking, deployed)
+        config["offset"] = selections.resume_offset(
+            ranking, selections.passed_selections(source["jobs"])
+        )
         if config["offset"]:
             print(f"Regular line resumes at: {config['offset']}")
         else:
