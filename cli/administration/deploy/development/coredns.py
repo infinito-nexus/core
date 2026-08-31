@@ -2,31 +2,34 @@ from __future__ import annotations
 
 import itertools
 import os
-import shutil
-import subprocess
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
+from string import Template
 
+from utils.cache.files import read_text
 from utils.env.parser import parse_static_env
 
 
 @dataclass(frozen=True)
 class CoreDNSCorefileRenderer:
     """
-    Render compose/coredns/Corefile from compose/coredns/Corefile.tmpl using envsubst.
+    Render compose/coredns/Corefile from compose/coredns/Corefile.tmpl.
 
     What this does:
       - Reads variables from env file (default: .env, generated from default.env)
-      - Runs `envsubst` to substitute variables into the Corefile template
+      - Substitutes ``${VAR}`` placeholders into the Corefile template
       - Writes the output atomically (tmp -> rename)
       - Optionally prints a preview of the first N lines
+
+    Substitution runs in-process rather than through envsubst: the act runner and
+    the nested deploy containers do not all ship gettext, and a missing binary
+    turned a two-variable substitution into a failed deploy.
 
     Hard guarantees:
       - Fails if template/env files are missing
       - Fails if output path exists and is a directory
       - Fails if output directory cannot be created or is not writable
-      - Fails if envsubst is missing
       - Fails if rendered file is empty
     """
 
@@ -49,15 +52,6 @@ class CoreDNSCorefileRenderer:
             raise RuntimeError(f"{label} not found: {path}")
         if not path.is_file():
             raise RuntimeError(f"{label} is not a file: {path}")
-
-    def _require_envsubst(self) -> str:
-        p = shutil.which("envsubst")
-        if not p:
-            raise RuntimeError(
-                "envsubst not found. Install gettext-base (Ubuntu/Debian) or gettext (Arch)."
-            )
-        self._log(f"Using envsubst: {p}")
-        return p
 
     def _ensure_output_parent(self, out_file: Path) -> None:
         parent = out_file.parent
@@ -110,7 +104,6 @@ class CoreDNSCorefileRenderer:
         self._require_file(tmpl_file, label="template file")
         self._require_output_target(out_file)
         self._ensure_output_parent(out_file)
-        envsubst = self._require_envsubst()
 
         env = self._load_env_file(env_file)
 
@@ -119,19 +112,11 @@ class CoreDNSCorefileRenderer:
         )
         tmp_file = Path(tmp_name)
 
-        self._log("Rendering Corefile via envsubst (atomic write)")
+        self._log("Rendering Corefile (atomic write)")
         try:
-            with (
-                tmpl_file.open("r", encoding="utf-8") as fin,
-                os.fdopen(fd, "w", encoding="utf-8") as fout,
-            ):
-                subprocess.check_call(
-                    [envsubst],
-                    stdin=fin,
-                    stdout=fout,
-                    env=env,
-                    cwd=self.repo_root,
-                )
+            rendered = Template(read_text(tmpl_file)).safe_substitute(env)
+            with os.fdopen(fd, "w", encoding="utf-8") as fout:
+                fout.write(rendered)
 
             size = tmp_file.stat().st_size
             if size == 0:
