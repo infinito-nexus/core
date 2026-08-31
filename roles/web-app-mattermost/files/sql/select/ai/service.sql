@@ -1,11 +1,12 @@
 SELECT CASE
-         WHEN (SELECT s
-                 FROM jsonb_array_elements(
-                        CASE WHEN jsonb_typeof(a.config::jsonb -> 'services') = 'array'
-                             THEN a.config::jsonb -> 'services'
-                             ELSE '[]'::jsonb END
-                      ) AS s
-                WHERE s ->> 'id' = d.service ->> 'id') = d.service
+         WHEN EXISTS (SELECT 1
+                        FROM jsonb_array_elements(
+                               CASE WHEN jsonb_typeof(a.config::jsonb -> 'services') = 'array'
+                                    THEN a.config::jsonb -> 'services'
+                                    ELSE '[]'::jsonb END
+                             ) AS s
+                       WHERE s ->> 'id' = d.service ->> 'id'
+                         AND s @> d.service)
           AND EXISTS (SELECT 1
                         FROM agents_useragents u
                        WHERE u.username = d.bot ->> 'name'
