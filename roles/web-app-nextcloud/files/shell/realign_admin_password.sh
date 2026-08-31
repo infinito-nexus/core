@@ -6,10 +6,6 @@ set -euo pipefail
 #   OC_PASS: the declared password, read from the environment only.
 #
 # Exit: 0 with [CHANGED] or [UNCHANGED] on stdout, 1 with [FAIL] on stderr.
-#
-# Exception: staleness is detected against a marker of the password this script
-# last wrote, not against the account, so a password changed outside this script
-# is not noticed until the declared one changes too.
 
 container="${1:-}"
 run_as="${2:-}"

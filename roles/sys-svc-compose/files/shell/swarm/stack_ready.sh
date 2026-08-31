@@ -32,8 +32,6 @@ report_tasks() {
 	report_task_states "$1"
 }
 
-# Exception: `docker service ps` renders CurrentState as prose ("Preparing 3 minutes ago"), which
-# cannot distinguish an image still extracting from a task idling on something else.
 report_task_states() {
 	local ids inspect
 	if ! ids=$(timeout 15 docker service ps --no-trunc --format '{{.ID}}' "$1" 2>/dev/null); then
