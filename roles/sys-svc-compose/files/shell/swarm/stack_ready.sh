@@ -135,3 +135,10 @@ if [ -n "$not_running" ]; then
 	fi
 	exit 1
 fi
+
+printf '%s\n' "$services" | sed 's/^/  converged: /' >&2
+if [ ${#service_names[@]} -gt 0 ]; then
+	for svc in "${service_names[@]}"; do
+		report_task_states "$svc"
+	done
+fi
