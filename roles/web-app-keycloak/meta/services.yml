@@ -51,7 +51,7 @@ keycloak:
   shared: true
   provides: sso
   image: quay.io/keycloak/keycloak
-  version: "26.7.2"
+  version: "26.7.3"
   name: keycloak
   min_storage: 468MB
   cpus: "2.0"
