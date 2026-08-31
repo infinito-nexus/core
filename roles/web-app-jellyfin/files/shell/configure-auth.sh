@@ -30,8 +30,38 @@ complete_wizard() {
 
 get_token() {
   ${CURL} -fsS -X POST "${API}/Users/AuthenticateByName" -H "Content-Type: application/json" -H "${CLIENT_HDR}" \
-    -d "{\"Username\":\"${JELLYFIN_ADMIN_USERNAME}\",\"Pw\":\"${JELLYFIN_ADMIN_PASSWORD}\"}" \
+    -d "{\"Username\":\"${JELLYFIN_ADMIN_USERNAME}\",\"Pw\":\"${1-${JELLYFIN_ADMIN_PASSWORD}}\"}" \
     | sed -n 's/.*"AccessToken":"\([^"]*\)".*/\1/p'
+}
+
+get_user_id() {
+  ${CURL} -fsS -X POST "${API}/Users/AuthenticateByName" -H "Content-Type: application/json" -H "${CLIENT_HDR}" \
+    -d "{\"Username\":\"${JELLYFIN_ADMIN_USERNAME}\",\"Pw\":\"$1\"}" \
+    | sed -n 's/.*"User":{[^}]*"Id":"\([^"]*\)".*/\1/p'
+}
+
+realign_admin_password() {
+  local pin pin_token user_id
+  ${CURL} -fsS -X POST "${API}/Users/ForgotPassword" -H "Content-Type: application/json" -H "${CLIENT_HDR}" \
+    -d "{\"EnteredUsername\":\"${JELLYFIN_ADMIN_USERNAME}\"}" >/dev/null || return 1
+  pin="$(container exec "${CT}" sh -c 'cat /config/data/passwordreset*.json 2>/dev/null' \
+    | sed -n 's/.*"Pin":"\([^"]*\)".*/\1/p' | head -n1)" || pin=""
+  if [ -z "${pin}" ]; then
+    log "ERROR: Jellyfin accepted the reset request but wrote no pin file"
+    return 1
+  fi
+  ${CURL} -fsS -X POST "${API}/Users/ForgotPassword/Pin" -H "Content-Type: application/json" -H "${CLIENT_HDR}" \
+    -d "{\"Pin\":\"${pin}\"}" >/dev/null || return 1
+  pin_token="$(get_token "${pin}")" || pin_token=""
+  user_id="$(get_user_id "${pin}")" || user_id=""
+  if [ -z "${pin_token}" ] || [ -z "${user_id}" ]; then
+    log "ERROR: the administrator does not authenticate with the reset pin"
+    return 1
+  fi
+  ${CURL} -fsS -X POST "${API}/Users/${user_id}/Password" -H "Content-Type: application/json" \
+    -H "Authorization: MediaBrowser Token=\"${pin_token}\"" \
+    -d "{\"CurrentPw\":\"${pin}\",\"NewPw\":\"${JELLYFIN_ADMIN_PASSWORD}\"}" >/dev/null || return 1
+  log "realigned the administrator password with the one this deployment declares"
 }
 
 seed_admin_and_get_token() {
@@ -41,6 +71,9 @@ seed_admin_and_get_token() {
     [ -n "${TOKEN:-}" ] && return 0
     sleep 3
   done
+  realign_admin_password || return 1
+  TOKEN="$(get_token)" || TOKEN=""
+  [ -n "${TOKEN:-}" ] && return 0
   return 1
 }
 
