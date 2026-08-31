@@ -10,7 +10,8 @@
 #
 # Param: PATCH_VOLUME      - docker volume the app persists its config in
 # Param: PATCH_CONFIG_REL  - config path relative to that volume's mountpoint
-# Param: PATCH_EXPRESSION  - sed expression, with @PASSWORD@ where the value goes
+# Param: PATCH_EXPRESSION  - extended-regex sed expression (sed -E), with
+#                            @PASSWORD@ where the value goes
 # Param: PATCH_PASSWORD    - the value, already escaped for the sed delimiter
 set -euo pipefail
 
@@ -25,5 +26,12 @@ mountpoint="$(container volume inspect --format '{{.Mountpoint}}' "$PATCH_VOLUME
 config="${mountpoint}/${PATCH_CONFIG_REL}"
 test -f "$config" || exit 0
 
-sed -i "${PATCH_EXPRESSION//@PASSWORD@/$PATCH_PASSWORD}" "$config"
+expression="${PATCH_EXPRESSION//@PASSWORD@/$PATCH_PASSWORD}"
+
+if [ -z "$(sed -E -n "${expression}p" "$config" | head -n1)" ]; then
+  echo "FAILED: no line in ${PATCH_CONFIG_REL} matches the patch expression" >&2
+  exit 1
+fi
+
+sed -E -i "$expression" "$config"
 echo PATCHED
