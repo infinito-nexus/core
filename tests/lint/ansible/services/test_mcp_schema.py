@@ -17,8 +17,8 @@ It is a hard lint. It rejects:
 * an invalid ``direction`` / ``transport`` / ``exposure`` / ``auth`` /
   ``auth_subject`` / ``implementation``,
 * a ``direction`` that contradicts the ``classification``,
-* a server-capable block missing ``auth``, ``credential``,
-  ``allowed_consumers`` or a complete ``endpoint``,
+* a server-capable block missing ``auth``, ``credential``, a complete
+  ``endpoint``, or any admitted client,
 * a credential owned by ``administrator``, or read from an unknown source,
 * ``auth: none`` combined with an ``exposure`` other than ``internal``,
 * ``auth_subject: service_account|administrator`` combined with
@@ -86,6 +86,7 @@ from utils.roles.applications.mcp import (
     MCP_UPSTREAM_MCP_ADAPTER_TYPES,
     declares_delegation,
     delegation_is_proven,
+    derive_allowed_consumers,
     value_is_templated,
 )
 from utils.roles.mapping import ROLE_FILE_META_MCP, ROLE_FILE_META_SERVICES
@@ -168,6 +169,16 @@ def _is_exact_names(value: object) -> bool:
         and bool(value)
         and all(isinstance(v, str) and v.strip() and "*" not in v for v in value)
     )
+
+
+def _services_by_role() -> dict[str, object]:
+    """Return every role's services mapping, keyed by role name."""
+    return {
+        path.parent.parent.name: load_yaml_any(str(path), default_if_missing={})
+        for path in sorted(
+            (PROJECT_ROOT / "roles").glob(f"*/{ROLE_FILE_META_SERVICES}")
+        )
+    }
 
 
 class TestMcpSchema(unittest.TestCase):
@@ -273,7 +284,7 @@ class TestMcpSchema(unittest.TestCase):
             self._check_client(mcp, prefix, flag, server_capable)
         if server_capable:
             self._check_credential(mcp, prefix, flag)
-            self._check_consumers(mcp, prefix, flag)
+            self._check_consumers(role, prefix, flag)
             self._check_endpoint(mcp, services, prefix, flag)
             if "auth" not in mcp:
                 flag("auth", f"{prefix} server-capable block is missing 'auth'")
@@ -421,13 +432,14 @@ class TestMcpSchema(unittest.TestCase):
                 f"{sorted(MCP_CREDENTIAL_SOURCES)}",
             )
 
-    def _check_consumers(self, mcp, prefix, flag) -> None:
-        consumers = mcp.get("allowed_consumers")
-        if not _is_exact_names(consumers):
+    def _check_consumers(self, role, prefix, flag) -> None:
+        if not derive_allowed_consumers(role, _services_by_role()):
             flag(
-                "allowed_consumers",
-                f"{prefix} server-capable block needs a non-empty "
-                f"'allowed_consumers' list of client application ids",
+                "mcp_consumer",
+                f"{prefix} server-capable block admits no client; a client "
+                f"declares 'services.<entity>.mcp_consumer: true' in its own "
+                f"role and this provider must not override it to false for "
+                f"every one of them",
             )
 
     def _check_endpoint(self, mcp, services, prefix, flag) -> None:
@@ -766,13 +778,14 @@ class TestMcpConsumerCompatibility(unittest.TestCase):
             if isinstance(mcp, Mapping):
                 blocks[role_dir.name] = mcp
 
+        services_by_role = _services_by_role()
         errors: list[str] = []
         for role, mcp in blocks.items():
             if mcp.get("direction") not in MCP_SERVER_DIRECTIONS:
                 continue
             transport = mcp.get("transport")
             auth = mcp.get("auth")
-            for consumer in mcp.get("allowed_consumers") or []:
+            for consumer in derive_allowed_consumers(role, services_by_role):
                 client = blocks.get(consumer)
                 if client is None:
                     continue

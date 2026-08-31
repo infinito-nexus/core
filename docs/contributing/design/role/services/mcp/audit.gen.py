@@ -12,6 +12,7 @@ drift away from the roles the way the hand-maintained disposition lists once
 did.
 """
 
+import sys
 from pathlib import Path
 
 import yaml
@@ -20,6 +21,11 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[6]
 ROLES_DIR = REPO_ROOT / "roles"
 REPORT = Path(__file__).resolve().parent / "audit.md"
+
+sys.path.insert(0, str(REPO_ROOT))
+from utils.roles.applications.mcp import (  # noqa: E402
+    derive_allowed_consumers,
+)
 
 COLUMNS = (
     "role",
@@ -99,12 +105,26 @@ def _cell(value):
     return text.replace("|", r"\|") if text else EMPTY
 
 
+def _services_by_role():
+    return {
+        role_dir.name: _load(role_dir / "meta" / "services.yml")
+        for role_dir in sorted(ROLES_DIR.iterdir())
+        if role_dir.is_dir()
+    }
+
+
 def rows():
     """Yield one report row per role that owns MCP metadata."""
+    services_by_role = _services_by_role()
     for mcp_path in sorted(ROLES_DIR.glob("*/meta/mcp.yml")):
         role_dir = mcp_path.parent.parent
         mcp = _load(mcp_path)
         tools = mcp.get("tools")
+        consumers = (
+            derive_allowed_consumers(role_dir.name, services_by_role)
+            if mcp.get("direction") in ("server", "both")
+            else []
+        )
         yield {
             "role": f"`{role_dir.name}`",
             "version": _version(role_dir, mcp),
@@ -121,7 +141,7 @@ def rows():
                 else EMPTY
             ),
             "implementation": _cell(mcp.get("implementation")),
-            "consumers": _join(mcp.get("allowed_consumers")),
+            "consumers": _join(consumers),
             "blocker": _cell(mcp.get("reason")),
         }
 

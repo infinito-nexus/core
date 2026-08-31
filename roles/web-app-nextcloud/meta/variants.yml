@@ -105,6 +105,15 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
+    flowise:
+      enabled: false
+      shared: false
   mcp:
     enabled: true
     shared: true
@@ -199,6 +208,15 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    hermes:
+      enabled: true
+      shared: true
+    openclaw:
+      enabled: true
+      shared: true
+    flowise:
+      enabled: true
+      shared: true
   addons: &addons_static_off
     appointments:
       enabled: false
@@ -338,6 +356,15 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
+    flowise:
+      enabled: false
+      shared: false
   addons: *addons_static_off
   mcp:
     enabled: false
@@ -433,6 +460,15 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
+    flowise:
+      enabled: false
+      shared: false
   addons: *addons_static_off
   mcp:
     enabled: false
@@ -528,6 +564,15 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
+    flowise:
+      enabled: false
+      shared: false
   addons: *addons_static_off
   mcp:
     enabled: false
@@ -623,6 +668,15 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
+    flowise:
+      enabled: false
+      shared: false
   addons: *addons_static_off
   mcp:
     enabled: false
@@ -718,6 +772,15 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
+    flowise:
+      enabled: false
+      shared: false
   addons: *addons_static_off
   mcp:
     enabled: false
@@ -813,6 +876,15 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
+    flowise:
+      enabled: false
+      shared: false
   addons: *addons_static_off
   mcp:
     enabled: false
@@ -908,6 +980,15 @@
       shared: true
     tor:
       enabled: false
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
+    flowise:
+      enabled: false
+      shared: false
   addons: *addons_static_off
   mcp:
     enabled: false
@@ -1003,6 +1084,15 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
+    flowise:
+      enabled: false
+      shared: false
   addons: *addons_static_off
   mcp:
     enabled: false
@@ -1098,6 +1188,15 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
+    flowise:
+      enabled: false
+      shared: false
   addons: *addons_static_off
   mcp:
     enabled: false
@@ -1193,6 +1292,15 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
+    flowise:
+      enabled: false
+      shared: false
   addons: *addons_static_off
   mcp:
     enabled: false
@@ -1288,6 +1396,15 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
+    flowise:
+      enabled: false
+      shared: false
   addons: *addons_static_off
   mcp:
     enabled: false
@@ -1383,6 +1500,15 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
+    flowise:
+      enabled: false
+      shared: false
   addons: *addons_static_off
   mcp:
     enabled: false

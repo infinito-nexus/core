@@ -10,9 +10,33 @@
   services:
     tor:
       enabled: true
+    openwebui:
+      enabled: false
+      shared: false
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
+    flowise:
+      enabled: false
+      shared: false
 - mcp:
     enabled: false
     shared: false
   services:
     tor:
       enabled: true
+    openwebui:
+      enabled: true
+      shared: true
+    hermes:
+      enabled: true
+      shared: true
+    openclaw:
+      enabled: true
+      shared: true
+    flowise:
+      enabled: true
+      shared: true

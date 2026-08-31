@@ -15,10 +15,6 @@ credential:
   owner: mcp-web-app-gitlab
   source: credentials
   key: mcp_bearer
-allowed_consumers:
-  - web-app-openwebui
-  - web-app-hermes
-  - web-app-openclaw
 adapter:
   type: mcp_passthrough
   specification_path: roles/web-app-gitlab/files/mcp/tools.json

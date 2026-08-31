@@ -10,6 +10,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from utils.roles.entity.name import get_entity_name
+
 if TYPE_CHECKING:
     from collections.abc import Callable
 
@@ -65,8 +67,16 @@ def _matches_kind(
         ).strip()
         if direction not in ("client", "both"):
             return False
-        admitted = lookup_config(entry.get("role") or "", "mcp.allowed_consumers", [])
-        return application_id in (admitted or [])
+        consumer_key = get_entity_name(application_id)
+        if (
+            lookup_config(application_id, f"services.{consumer_key}.mcp_consumer", None)
+            is not True
+        ):
+            return False
+        override = lookup_config(
+            entry.get("role") or "", f"services.{consumer_key}.mcp_consumer", None
+        )
+        return override is not False
     if kind == "onion_sso":
         provider = consumer.get("provider")
         if not provider:

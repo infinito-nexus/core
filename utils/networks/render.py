@@ -15,8 +15,10 @@ discovered into the service_registry by ``discover_role_services``. Keys:
 * ``consumer``: optional override
    * ``kind``: ``services_flags`` (default) | ``database`` | ``mcp_client``
      | ``web_facing`` | ``onion_sso``. ``mcp_client`` admits a role only when
-     its ``mcp.direction`` is ``client`` or ``both`` AND the provider names it
-     in ``mcp.allowed_consumers``, so a provider's network carries the clients
+     its ``mcp.direction`` is ``client`` or ``both`` AND it declares
+     ``services.<own-entity>.mcp_consumer: true`` without the provider
+     refusing it through ``mcp_consumer: false`` on that same entry, so a
+     provider's network carries the clients
      it admitted rather than every client in the deployment. Being a client is
      not an admission: without the second condition one admission anywhere
      reaches every provider that opens its overlay.

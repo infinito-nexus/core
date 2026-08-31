@@ -24,6 +24,7 @@ flowchart LR
         dep_web_app_bigbluebutton["web-app-bigbluebutton 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_discourse["web-app-discourse 🐳🐝"]
+        dep_web_app_flowise["web-app-flowise 🐳🐝"]
         dep_web_app_gitlab["web-app-gitlab 🐳🐝"]
         dep_web_app_hermes["web-app-hermes 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
@@ -86,6 +87,9 @@ flowchart LR
         svc_moodle["moodle ❌"]
         svc_suitecrm["suitecrm ❌"]
         svc_container_backup["container_backup"]
+        svc_hermes["hermes"]
+        svc_openclaw["openclaw"]
+        svc_flowise["flowise"]
     end
     dep_svc_ai_litellm -. "0..1" .-> svc_litellm
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
@@ -96,8 +100,10 @@ flowchart LR
     dep_web_app_bigbluebutton -. "0..1" .-> svc_bigbluebutton
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_discourse -. "0..1" .-> svc_discourse
+    dep_web_app_flowise -. "0..1" .-> svc_flowise
     dep_web_app_gitlab -. "0..1" .-> svc_gitlab
     dep_web_app_hermes -. "0..1" .-> svc_context_agent
+    dep_web_app_hermes -. "0..1" .-> svc_hermes
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
     dep_web_app_mastodon -. "0..1" .-> svc_mastodon
@@ -105,6 +111,7 @@ flowchart LR
     dep_web_app_matrix -. "0..1" .-> svc_matrix
     dep_web_app_mattermost -. "0..1" .-> svc_mattermost
     dep_web_app_openclaw -. "0..1" .-> svc_context_agent
+    dep_web_app_openclaw -. "0..1" .-> svc_openclaw
     dep_web_app_openproject -. "0..1" .-> svc_openproject
     dep_web_app_openwebui -. "0..1" .-> svc_openwebui
     dep_web_app_peertube -. "0..1" .-> svc_peertube

@@ -1,6 +1,7 @@
 ---
 # nocheck: playwright-service-flag
 openclaw:
+  mcp_consumer: true
   modes:
     compose:
       enabled: true

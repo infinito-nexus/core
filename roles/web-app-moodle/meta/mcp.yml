@@ -14,10 +14,6 @@ credential:
   owner: mcp-web-app-moodle
   source: token_store
   key: web-app-moodle
-allowed_consumers:
-  - web-app-openwebui
-  - web-app-hermes
-  - web-app-openclaw
 endpoint:
   service_key: nginx
   path: /webservice/mcp/server.php

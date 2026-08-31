@@ -1,6 +1,6 @@
 # MCP Service Block 🔌
 
-A role declares `meta/mcp.yml` when it actually serves or consumes MCP. The file is a capability descriptor, not a service entry: no single role provides MCP, so the service registry cannot pair provider and consumer, and `allowed_consumers` does it instead. Vocabulary lives in [`utils/roles/applications/mcp.py`](../../../../../utils/roles/applications/mcp.py); the hard lint is [`test_mcp_schema.py`](../../../../../tests/lint/ansible/services/test_mcp_schema.py).
+A role declares `meta/mcp.yml` when it actually serves or consumes MCP. The file is a capability descriptor, not a service entry: no single role provides MCP, so the service registry cannot pair provider and consumer, and the `mcp_consumer` flag in `meta/services.yml` does it instead. Vocabulary lives in [`utils/roles/applications/mcp.py`](../../../../../utils/roles/applications/mcp.py); the hard lint is [`test_mcp_schema.py`](../../../../../tests/lint/ansible/services/test_mcp_schema.py).
 
 `classification` is required and is one of `native_server`, `native_client`, `native_both`, `plugin_server`, `sidecar_server`, `adapter_server`. A role that cannot serve declares no `mcp` block at all.
 
@@ -22,8 +22,6 @@ mcp:
     owner: mcp-web-app-example # a dedicated non-login identity, never `administrator`
     source: token_store        # token_store | credentials
     key: web-app-example
-  allowed_consumers:           # exact client application ids
-    - web-app-openwebui
   endpoint:
     service_key: example       # names a service entry in the same file
     path: /mcp
@@ -84,7 +82,8 @@ A client-only block MUST NOT declare an `endpoint`.
 
 - `classification` is required and MUST be deployable; all MCP-specific fields MUST be literals (only `enabled`/`shared` may carry Jinja).
 - `enabled`/`shared` MUST NOT name a peer role. Provider enablement is explicit operator or variant state; the variant axis lives in `meta/variants.yml`.
-- `direction: server | both` requires `auth`, `credential`, `allowed_consumers` and a complete `endpoint`.
+- `direction: server | both` requires `auth`, `credential`, a complete `endpoint`, and at least one admitted client.
+- Admission lives in `meta/services.yml`, not here. A client sets `services.<own-entity>.mcp_consumer: true` in its own role; a provider refuses one by setting `mcp_consumer: false` on that client's entry. [`test_mcp_consumer_services_entry.py`](../../../../../tests/lint/ansible/services/test_mcp_consumer_services_entry.py) requires every provider to carry a `"{{ '<client>' in group_names }}"`-gated entry for every declared client, so a round plans provider and client together.
 - `credential.owner` MUST NOT be `administrator`. Two providers resolving to the same owner and secret abort discovery.
 - `auth: none` requires `exposure: internal`.
 - `auth_subject: service_account | administrator` requires an explicit `tools.mutating_tools_enabled: false`.
@@ -106,7 +105,7 @@ Prefer `exposure: internal`. A client inside the container network reaches the e
 
 ## Client discovery
 
-Clients do not read the server list directly. [`lookup('mcp_servers')`](../../../../../plugins/lookup/mcp_servers.py) computes the intersection of the provider's `allowed_consumers` with the calling client's `supported_transports` and `supported_auths`, resolves each provider's declared credential, and returns:
+Clients do not read the server list directly. [`lookup('mcp_servers')`](../../../../../plugins/lookup/mcp_servers.py) computes the intersection of the provider's admitted clients, resolved by `derive_allowed_consumers` in [`utils/roles/applications/mcp.py`](../../../../../utils/roles/applications/mcp.py), with the calling client's `supported_transports` and `supported_auths`, resolves each provider's declared credential, and returns:
 
 ```yaml
 MCP_DISCOVERY: "{{ lookup('mcp_servers') }}"

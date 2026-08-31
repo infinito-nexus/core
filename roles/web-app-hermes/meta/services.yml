@@ -1,6 +1,7 @@
 ---
 # nocheck: playwright-service-flag
 hermes:
+  mcp_consumer: true
   modes:
     compose:
       enabled: true

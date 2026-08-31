@@ -15,9 +15,6 @@ credential:
   owner: mcp-web-app-wordpress
   source: token_store
   key: web-app-wordpress
-allowed_consumers:
-  - web-app-hermes
-  - web-app-openclaw
 endpoint:
   service_key: wordpress
   path: /wp-json/mcp/mcp-adapter-default-server

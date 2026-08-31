@@ -15,10 +15,6 @@ credential:
   owner: mcp-web-app-n8n
   source: token_store
   key: web-app-n8n
-allowed_consumers:
-  - web-app-hermes
-  - web-app-openclaw
-  - web-app-openwebui
 supported_transports:
   - sse
 supported_auths:

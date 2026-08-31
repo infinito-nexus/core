@@ -4,8 +4,8 @@
 ``http://<endpoint.service_key>:<port><path>``. That name only resolves when the
 client shares a network with the provider, which is what
 ``meta/networks.yml.overlay`` arranges: a ``topology`` creates the network and
-``consumer.kind: mcp_client`` attaches every role the provider named in
-``mcp.allowed_consumers``. A beacon-only overlay carries neither, so
+``consumer.kind: mcp_client`` attaches every role the provider admits through
+the ``mcp_consumer`` flag. A beacon-only overlay carries neither, so
 ``utils.networks.attachments._compute_attachments`` produces no attachment at
 all.
 

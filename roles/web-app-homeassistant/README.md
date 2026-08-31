@@ -18,7 +18,11 @@ flowchart LR
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
+        dep_web_app_flowise["web-app-flowise 🐳🐝"]
+        dep_web_app_hermes["web-app-hermes 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
+        dep_web_app_openclaw["web-app-openclaw 🐳🐝"]
+        dep_web_app_openwebui["web-app-openwebui 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
     end
     subgraph role [web-app-homeassistant 🐳🐝]
@@ -29,6 +33,10 @@ flowchart LR
         svc_prometheus["prometheus"]
         svc_tor["tor"]
         svc_container_backup["container_backup"]
+        svc_openwebui["openwebui"]
+        svc_hermes["hermes"]
+        svc_openclaw["openclaw"]
+        svc_flowise["flowise"]
     end
     subgraph dependents [Dependents]
         dpt_web_app_flowise["web-app-flowise 🐳🐝"]
@@ -39,13 +47,17 @@ flowchart LR
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
+    dep_web_app_flowise -. "0..1" .-> svc_flowise
+    dep_web_app_hermes -. "0..1" .-> svc_hermes
     dep_web_app_keycloak -- "0..0" --> svc_sso
+    dep_web_app_openclaw -. "0..1" .-> svc_openclaw
+    dep_web_app_openwebui -. "0..1" .-> svc_openwebui
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     svc_homeassistant -. "0..1" .-> dpt_web_app_flowise
     svc_homeassistant -. "0..1" .-> dpt_web_app_hermes
     svc_homeassistant -. "0..1" .-> dpt_web_app_openclaw
     svc_homeassistant -. "0..1" .-> dpt_web_app_openwebui
-    linkStyle 3 stroke:red;
+    linkStyle 5 stroke:red;
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.

@@ -45,6 +45,7 @@ postgres:
   shared: "{{ 'svc-db-postgres' in group_names }}"
 # nocheck: playwright-service-flag: shared provider entity; the app itself is covered by this role's own Playwright spec
 flowise:
+  mcp_consumer: true
   healthcheck:
     flavor: curl
   modes:

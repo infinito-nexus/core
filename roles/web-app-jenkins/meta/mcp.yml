@@ -14,9 +14,6 @@ credential:
   owner: mcp-web-app-jenkins
   source: credentials
   key: mcp_bearer
-allowed_consumers:
-  - web-app-hermes
-  - web-app-openclaw
 adapter:
   type: mcp_passthrough
   specification_path: roles/web-app-jenkins/files/mcp/tools.json

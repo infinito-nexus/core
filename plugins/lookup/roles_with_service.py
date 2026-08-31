@@ -45,7 +45,10 @@ from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from utils.domains.primary_domain import get_primary_domain
-from utils.roles.applications.mcp import DEFAULT_MCP_TRANSPORT
+from utils.roles.applications.mcp import (
+    DEFAULT_MCP_TRANSPORT,
+    derive_allowed_consumers,
+)
 from utils.roles.entity.name import get_entity_name
 
 if TYPE_CHECKING:
@@ -124,6 +127,12 @@ class LookupModule(LookupBase):
             "applications", loader=self._loader, templar=getattr(self, "_templar", None)
         ).run([], variables=vars_)[0]
 
+        services_by_role = {
+            role_id: config.get("services")
+            for role_id, config in applications.items()
+            if isinstance(config, dict)
+        }
+
         scope = str(kwargs.get("scope", "host")).strip().lower()
         topic = kwargs.get("topic")
         direction_raw = kwargs.get("direction")
@@ -197,7 +206,9 @@ class LookupModule(LookupBase):
                     "source": credential.get("source"),
                     "key": credential.get("key"),
                 }
-                entry["allowed_consumers"] = list(block.get("allowed_consumers") or [])
+                entry["allowed_consumers"] = derive_allowed_consumers(
+                    str(role_id), services_by_role
+                )
                 tools = block.get("tools")
                 tools = tools if isinstance(tools, dict) else {}
                 entry["tools"] = list(tools.get("allowlist") or [])

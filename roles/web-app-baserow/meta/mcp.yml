@@ -15,10 +15,6 @@ credential:
   owner: mcp-web-app-baserow
   source: credentials
   key: mcp_bearer
-allowed_consumers:
-  - web-app-openwebui
-  - web-app-hermes
-  - web-app-openclaw
 adapter:
   type: mcp_passthrough
   upstream_transport: sse

@@ -37,6 +37,23 @@ def _const_lookup_config(**values):
     return _lookup
 
 
+def _role_lookup_config(per_role, **values):
+    """Answer per (role, path) so a provider override is expressible.
+
+    Args:
+        per_role: ``{role: {path: value}}`` consulted before the shared map.
+        values: paths every role answers identically.
+    """
+
+    def _lookup(app, path, default):
+        scoped = per_role.get(app) or {}
+        if path in scoped:
+            return scoped[path]
+        return values.get(path, default)
+
+    return _lookup
+
+
 def _const_lookup_database(**values):
     def _lookup(_app, key):
         return values.get(key, "")
@@ -70,7 +87,7 @@ class TestCoerceBool(unittest.TestCase):
 class TestMcpClientConsumer(unittest.TestCase):
     """Only a client the provider admitted joins its network."""
 
-    ADMITTED: ClassVar[dict] = {"mcp.allowed_consumers": ["svc-db-qdrant"]}
+    ADMITTED: ClassVar[dict] = {"services.qdrant.mcp_consumer": True}
 
     def _consumer(self, **flags):
         entry = {
@@ -123,28 +140,37 @@ class TestMcpClientConsumer(unittest.TestCase):
     def test_disabled_stays_out(self):
         self.assertFalse(self._consumer(**{"mcp.direction": "client"}))
 
-    def test_an_unadmitted_client_stays_out(self):
+    def test_a_client_that_never_declared_itself_stays_out(self):
         self.assertFalse(
             self._consumer(
                 **{
                     "mcp.enabled": True,
                     "mcp.shared": True,
                     "mcp.direction": "client",
-                    "mcp.allowed_consumers": ["web-app-openwebui"],
                 }
             ),
-            "being a client is not an admission; allowed_consumers decides",
+            "being a client is not an admission; the self-declaration decides",
         )
 
-    def test_a_provider_naming_nobody_admits_nobody(self):
+    def test_a_provider_override_refuses_a_declared_client(self):
+        entry = {
+            "role": "web-app-homeassistant",
+            "overlay": {"consumer": {"kind": "mcp_client"}},
+        }
         self.assertFalse(
-            self._consumer(
-                **{
-                    "mcp.enabled": True,
-                    "mcp.shared": True,
-                    "mcp.direction": "client",
-                    "mcp.allowed_consumers": [],
-                }
+            _is_consumer(
+                entry,
+                "svc-db-qdrant",
+                _role_lookup_config(
+                    {"web-app-homeassistant": {"services.qdrant.mcp_consumer": False}},
+                    **{
+                        "mcp.enabled": True,
+                        "mcp.shared": True,
+                        "mcp.direction": "client",
+                        "services.qdrant.mcp_consumer": True,
+                    },
+                ),
+                _const_lookup_database(),
             )
         )
 
@@ -190,7 +216,7 @@ class TestConsumerKindList(unittest.TestCase):
                     "mcp.enabled": True,
                     "mcp.shared": True,
                     "mcp.direction": "client",
-                    "mcp.allowed_consumers": ["web-app-hermes"],
+                    "services.hermes.mcp_consumer": True,
                 },
             )
         )

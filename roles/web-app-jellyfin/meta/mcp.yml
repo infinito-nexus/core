@@ -14,10 +14,6 @@ credential:
   owner: mcp-web-app-jellyfin
   source: credentials
   key: mcp_bearer
-allowed_consumers:
-  - web-app-openwebui
-  - web-app-hermes
-  - web-app-openclaw
 endpoint:
   service_key: jellyfinmcp
   path: /mcp

@@ -21,18 +21,30 @@ flowchart LR
     subgraph deps [Dependencies]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_net_tor["svc-net-tor 🐳🐝"]
+        dep_web_app_flowise["web-app-flowise 🐳🐝"]
+        dep_web_app_hermes["web-app-hermes 🐳🐝"]
+        dep_web_app_openclaw["web-app-openclaw 🐳🐝"]
+        dep_web_app_openwebui["web-app-openwebui 🐳🐝"]
     end
     subgraph role [svc-db-qdrant 🐳🐝]
         svc_qdrant["qdrant"]
         svc_qdrantmcp["qdrantmcp"]
         svc_tor["tor"]
         svc_container_backup["container_backup"]
+        svc_openwebui["openwebui"]
+        svc_hermes["hermes"]
+        svc_openclaw["openclaw"]
+        svc_flowise["flowise"]
     end
     subgraph dependents [Dependents]
         dpt_web_app_flowise["web-app-flowise 🐳🐝"]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_net_tor -. "0..1" .-> svc_tor
+    dep_web_app_flowise -. "0..1" .-> svc_flowise
+    dep_web_app_hermes -. "0..1" .-> svc_hermes
+    dep_web_app_openclaw -. "0..1" .-> svc_openclaw
+    dep_web_app_openwebui -. "0..1" .-> svc_openwebui
     svc_qdrant -. "0..1" .-> dpt_web_app_flowise
 ```
 

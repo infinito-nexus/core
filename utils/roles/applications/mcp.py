@@ -21,8 +21,11 @@ Field vocabulary (see ``docs/contributing/design/role/services/mcp.md``):
 * ``implementation``:  how the surface is provided, ordered by precedence.
 * ``credential``:      which principal the provider authenticates as, and
   where its secret is read from. Replaces the administrator token path.
-* ``allowed_consumers``: client ``application_id`` values this provider
-  admits. Discovery intersects it with the client's declared capabilities.
+Admission is not declared here. A client marks itself once, in its own
+``meta/services.yml`` self-entry, as ``mcp_consumer: true``; a provider
+deviates by carrying ``mcp_consumer: false`` on that client's entry in its
+own ``meta/services.yml``. ``derive_allowed_consumers`` resolves the pair.
+
 * ``supported_transports`` / ``supported_auths``: what a client can present.
 * ``endpoint``:        connection metadata for clients (server roles only).
 * ``adapter``:         immutable source contract of a repository-owned adapter.
@@ -58,6 +61,8 @@ Field vocabulary (see ``docs/contributing/design/role/services/mcp.md``):
 """
 
 from __future__ import annotations
+
+from utils.roles.entity.name import get_entity_name
 
 MCP_DIRECTIONS = frozenset({"server", "client", "both"})
 MCP_TRANSPORTS = frozenset({"streamable_http", "sse"})
@@ -155,7 +160,6 @@ MCP_KEYS = frozenset(
         "delegation",
         "implementation",
         "credential",
-        "allowed_consumers",
         "supported_transports",
         "supported_auths",
         "endpoint",
@@ -258,8 +262,62 @@ MCP_SHA256_PREFIX = "sha256:"
 DEFAULT_MCP_TRANSPORT = "streamable_http"
 
 
+MCP_CONSUMER_FLAG = "mcp_consumer"
+
+
 def value_is_templated(value: object) -> bool:
     return isinstance(value, str) and "{{" in value
+
+
+def declares_mcp_consumer(role_id: str, services: object) -> bool:
+    """Return whether a role marks itself an MCP client in its own services.
+
+    Args:
+        role_id: the role's ``application_id``.
+        services: that role's ``services`` mapping, or anything else.
+    """
+    if not isinstance(services, dict):
+        return False
+    entry = services.get(get_entity_name(role_id))
+    return isinstance(entry, dict) and entry.get(MCP_CONSUMER_FLAG) is True
+
+
+def admits_mcp_consumer(provider_services: object, consumer_id: str) -> bool:
+    """Return whether a provider admits one client.
+
+    An omitted flag inherits the client's own declaration; only an explicit
+    ``mcp_consumer: false`` excludes, so a deliberate exclusion is
+    distinguishable from a forgotten entry.
+
+    Args:
+        provider_services: the provider's ``services`` mapping.
+        consumer_id: the client's ``application_id``.
+    """
+    if not isinstance(provider_services, dict):
+        return True
+    entry = provider_services.get(get_entity_name(consumer_id))
+    if isinstance(entry, dict) and MCP_CONSUMER_FLAG in entry:
+        return entry[MCP_CONSUMER_FLAG] is True
+    return True
+
+
+def derive_allowed_consumers(
+    provider_id: str, services_by_role: dict[str, object]
+) -> list[str]:
+    """Return the client application ids a provider admits, sorted.
+
+    Args:
+        provider_id: the provider's ``application_id``.
+        services_by_role: every role's ``services`` mapping, keyed by role id.
+    """
+    provider_services = services_by_role.get(provider_id)
+    return sorted(
+        role_id
+        for role_id, services in services_by_role.items()
+        if role_id != provider_id
+        and declares_mcp_consumer(role_id, services)
+        and admits_mcp_consumer(provider_services, role_id)
+    )
 
 
 def is_deployable(mcp: object) -> bool:

@@ -14,10 +14,6 @@ credential:
   owner: mcp-web-app-checkmk
   source: credentials
   key: mcp_bearer
-allowed_consumers:
-  - web-app-openwebui
-  - web-app-hermes
-  - web-app-openclaw
 endpoint:
   service_key: checkmkmcp
   path: /mcp

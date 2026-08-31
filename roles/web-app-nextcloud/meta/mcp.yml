@@ -14,10 +14,6 @@ credential:
   owner: mcp-web-app-nextcloud
   source: token_store
   key: web-app-nextcloud
-allowed_consumers:
-  - web-app-openwebui
-  - web-app-hermes
-  - web-app-openclaw
 endpoint:
   service_key: proxy
   path: /index.php/apps/app_api/proxy/context_agent/mcp/

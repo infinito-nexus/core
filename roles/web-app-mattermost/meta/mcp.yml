@@ -14,10 +14,6 @@ credential:
   owner: mcp-web-app-mattermost
   source: credentials
   key: mcp_bearer
-allowed_consumers:
-  - web-app-openwebui
-  - web-app-hermes
-  - web-app-openclaw
 adapter:
   type: mcp_passthrough
   specification_path: roles/web-app-mattermost/files/mcp/tools.json
