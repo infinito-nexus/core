@@ -62,3 +62,11 @@
 - name: "🚿 flush compose and SSO proxy"
   meta: flush_handlers
   when: compose_handlers_flush | bool
+
+- name: "🔑 For '{{ application_id }}': realign a dedicated postgres"
+  include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-rdbms/tasks/utils/realign_dedicated_db.yml') }}"
+    apply:
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true
+  when: compose_handlers_flush | bool
