@@ -18,7 +18,7 @@ from __future__ import annotations
 from functools import cache
 from typing import TYPE_CHECKING
 
-from utils.cache.files import PROJECT_ROOT
+from utils.cache.files import PROJECT_ROOT, read_text
 from utils.roles.deploy import role_has_stack
 from utils.roles.meta_lookup import get_role_mode_enabled, get_role_test_skips
 
@@ -75,9 +75,7 @@ def guide_deployable(app: str) -> str:
     """
     role_dir = PROJECT_ROOT / "roles" / app
     readme = role_dir / "README.md"
-    if not readme.is_file() or PRODUCTION_HEADING not in readme.read_text(
-        encoding="utf-8"
-    ):
+    if not readme.is_file() or PRODUCTION_HEADING not in read_text(str(readme)):
         return ""
     mode = "compose" if role_has_stack(role_dir) else "host"
     if mode in get_role_test_skips(role_dir, role_name=app):
