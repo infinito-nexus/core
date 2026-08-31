@@ -208,6 +208,9 @@ def render_compose_networks(
                 lines.append("      config:")
                 lines.append(f"        - subnet: {subnet}")
 
+    if len(lines) == 1:
+        return ""
+
     return "\n".join(lines) + "\n"
 
 
@@ -256,5 +259,8 @@ def render_container_networks(
             lines.extend(f"      - {alias}" for alias in default_aliases)
         else:
             lines.append("  default:")
+
+    if len(lines) == 1:
+        return ""
 
     return "\n" + "\n".join(lines)
