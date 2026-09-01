@@ -134,10 +134,11 @@ proxy:
     internal:
       http: 80
 # nocheck: playwright-service-flag
+# nocheck: dynamic-flag  the container serves this role's MCP surface, so it tracks the role's own mcp flag rather than one client's presence
 context_agent:
   bond: 1
-  enabled: "{{ 'web-app-hermes' in group_names or 'web-app-openclaw' in group_names }}"
-  shared: "{{ 'web-app-hermes' in group_names or 'web-app-openclaw' in group_names }}"
+  enabled: "{{ lookup('config', 'web-app-nextcloud', 'mcp.enabled') | bool }}"
+  shared: "{{ lookup('config', 'web-app-nextcloud', 'mcp.enabled') | bool }}"
   name: nextcloud-context-agent
   image: ghcr.io/nextcloud/context_agent
   version: 2.7.0
@@ -239,7 +240,10 @@ seaweedfs:
   bond: 1
   enabled: "{{ 'web-app-seaweedfs' in group_names }}"
   shared: "{{ 'web-app-seaweedfs' in group_names }}"
+# nocheck: dynamic-flag  the recording server is part of the Talk deployment, so it follows the talk entry rather than a role's presence
 talk_recording:
+  enabled: "{{ lookup('config', 'web-app-nextcloud', 'services.talk.enabled') | bool }}"
+  shared: false
   name: nextcloud-talk-recording
   image: nextcloud/aio-talk-recording
   version: latest

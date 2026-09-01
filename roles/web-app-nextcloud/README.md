@@ -100,7 +100,6 @@ flowchart LR
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_discourse -. "0..1" .-> svc_discourse
     dep_web_app_gitlab -. "0..1" .-> svc_gitlab
-    dep_web_app_hermes -. "0..1" .-> svc_context_agent
     dep_web_app_hermes -. "0..1" .-> svc_hermes
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
@@ -108,7 +107,6 @@ flowchart LR
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_matrix -. "0..1" .-> svc_matrix
     dep_web_app_mattermost -. "0..1" .-> svc_mattermost
-    dep_web_app_openclaw -. "0..1" .-> svc_context_agent
     dep_web_app_openclaw -. "0..1" .-> svc_openclaw
     dep_web_app_openproject -. "0..1" .-> svc_openproject
     dep_web_app_openwebui -. "0..1" .-> svc_openwebui
