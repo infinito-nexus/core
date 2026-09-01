@@ -7,8 +7,9 @@ The three override shapes have to stay distinguishable: ``null`` empties,
 from __future__ import annotations
 
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
-from utils.cache.files import PROJECT_ROOT
 from utils.roles.applications.topics import (
     CONFIG_TOPICS,
     apply_topic,
@@ -41,25 +42,65 @@ class TestApplyTopic(unittest.TestCase):
 
 
 class TestOverriddenProviders(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        cls.found = overridden_providers(PROJECT_ROOT / "roles")
+    """The scan runs against a synthetic tree.
 
-    def test_the_scan_finds_the_declared_overrides(self) -> None:
-        self.assertTrue(self.found)
+    No variant in ``roles/`` dictates a provider's config today, so scanning
+    the real one would assert nothing and stay green however the function
+    breaks.
+    """
+
+    def setUp(self) -> None:
+        self._tmp = TemporaryDirectory()
+        self.roles = Path(self._tmp.name)
+        self.addCleanup(self._tmp.cleanup)
+
+    def _role(self, name: str, services: str = "", variants: str = "") -> None:
+        """Write the minimum a role needs to reach the service registry.
+
+        Args:
+            name: role directory name, also its ``application_id``.
+            services: body of ``meta/services.yml``.
+            variants: body of ``meta/variants.yml``, omitted when empty.
+        """
+        meta = self.roles / name / "meta"
+        meta.mkdir(parents=True)
+        variables = self.roles / name / "vars"
+        variables.mkdir(parents=True)
+        (variables / "main.yml").write_text(
+            f"application_id: {name}\n", encoding="utf-8"
+        )
+        (meta / "services.yml").write_text(services or "{}\n", encoding="utf-8")
+        if variants:
+            (meta / "variants.yml").write_text(variants, encoding="utf-8")
+
+    def test_it_records_the_provider_a_variant_dictates(self) -> None:
+        self._role("svc-provider", "provider:\n  shared: true\n")
+        self._role(
+            "web-app-consumer",
+            "provider:\n  enabled: true\n",
+            "- services:\n    provider:\n      enabled: true\n      services: null\n",
+        )
+        self.assertEqual(
+            {("web-app-consumer", 0): {"svc-provider"}},
+            overridden_providers(self.roles),
+        )
+
+    def test_a_plain_flag_is_not_an_override(self) -> None:
+        self._role("svc-provider", "provider:\n  shared: true\n")
+        self._role(
+            "web-app-consumer",
+            "provider:\n  enabled: true\n",
+            "- services:\n    provider:\n      enabled: true\n",
+        )
+        self.assertEqual({}, overridden_providers(self.roles))
 
     def test_a_role_never_records_itself(self) -> None:
-        self.assertEqual(
-            [],
-            [(role, i) for (role, i), targets in self.found.items() if role in targets],
+        self._role(
+            "svc-provider",
+            "provider:\n  shared: true\n",
+            "- services:\n    provider:\n      services: null\n",
         )
-
-    def test_every_target_is_a_role_that_exists(self) -> None:
-        roles = {p.name for p in (PROJECT_ROOT / "roles").iterdir() if p.is_dir()}
-        missing = sorted(
-            {target for targets in self.found.values() for target in targets} - roles
-        )
-        self.assertEqual([], missing)
+        self.assertEqual({}, overridden_providers(self.roles))
 
 
 if __name__ == "__main__":

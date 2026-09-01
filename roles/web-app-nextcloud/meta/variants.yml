@@ -191,7 +191,6 @@
     openwebui:
       enabled: true
       shared: true
-      services:
     litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -206,11 +205,9 @@
     hermes:
       enabled: true
       shared: true
-      services:
     openclaw:
       enabled: true
       shared: true
-      services:
   addons: &addons_static_off
     appointments:
       enabled: false

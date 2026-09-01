@@ -129,18 +129,14 @@
     litellm:
       enabled: true
       shared: true
-      services:
     tor:
       enabled: true
     openwebui:
       enabled: true
       shared: true
-      services:
     hermes:
       enabled: true
       shared: true
-      services:
     openclaw:
       enabled: true
       shared: true
-      services:

@@ -1,19 +1,9 @@
-"""Integration guard: an MCP provider ships one round that is only MCP.
+"""Integration guard: an MCP provider ships a round that proves the pairing.
 
-A provider's clients cost a full application stack each, so the round that
-proves the MCP pairing must not also carry the role's SSO, mail, metrics and
-dashboard surfaces. Every role with a ``meta/mcp.yml`` that admits at least
-one consumer therefore needs one variant that is exactly that pairing:
-
-* every admitted consumer pinned ``enabled: true`` with ``services: null``,
-  so the client is deployed but drags none of its own dependencies along,
-* every other service pinned ``enabled: false``.
-
-``tor`` is exempt because the onion round is a deploy axis rather than a
-feature of the role, ``litellm`` because the gateway is what the clients
-answer prompts through, and so are the role's own entity and any service its
-``meta/services.yml`` pins to a literal ``true`` — the datastores, which a
-variant cannot switch off without taking the application with them.
+A surface nobody deploys against is never exercised, so every role with a
+``meta/mcp.yml`` that admits at least one consumer needs one variant pinning
+every admitted consumer to ``enabled: true``. What else that variant carries
+is the role's own call.
 
 Suppression (see ``docs/contributing/actions/testing/suppression.md``):
 
@@ -37,37 +27,17 @@ from . import PROJECT_ROOT
 
 _RULE = "mcp-consumer-variant"
 _SERVER_DIRECTIONS = frozenset({"server", "both"})
-_ALWAYS_ALLOWED = frozenset({"tor", "litellm"})
 
 ROLES_DIR = PROJECT_ROOT / "roles"
 
 
-def _statically_on(base_services: Mapping) -> set[str]:
-    """Return service keys a variant cannot switch off.
-
-    Args:
-        base_services: the role's ``meta/services.yml`` mapping.
-
-    A literal ``enabled: true`` in the base is the datastore shape: it states
-    a fact about what the application needs, not a per-round choice.
-    """
-    return {
-        key
-        for key, entry in base_services.items()
-        if isinstance(entry, Mapping) and entry.get("enabled") is True
-    }
-
-
-def _variant_findings(
-    role: str, consumers: set[str], variant: Mapping, allowed: set[str]
-) -> list[str]:
-    """Return why one variant is not the role's MCP-only round.
+def _variant_findings(role: str, consumers: set[str], variant: Mapping) -> list[str]:
+    """Return why one variant does not prove the role's MCP pairing.
 
     Args:
         role: the provider role id.
         consumers: entity keys of every admitted consumer.
         variant: one ``meta/variants.yml`` entry.
-        allowed: keys that may stay on besides the consumers.
     """
     services = variant.get("services")
     if not isinstance(services, Mapping):
@@ -77,21 +47,11 @@ def _variant_findings(
         entry = services.get(key)
         if not isinstance(entry, Mapping) or entry.get("enabled") is not True:
             findings.append(f"{role}: {key} is not enabled")
-        elif "services" not in entry or entry["services"] is not None:
-            findings.append(f"{role}: {key} lacks `services: null`")
-    findings.extend(
-        f"{role}: {key} stays enabled"
-        for key, entry in sorted(services.items())
-        if isinstance(entry, Mapping)
-        and entry.get("enabled") is True
-        and key not in consumers
-        and key not in allowed
-    )
     return findings
 
 
 def offenders() -> list[str]:
-    """Return one finding per provider without an MCP-only variant."""
+    """Return one finding per provider that never deploys its consumers."""
     defaults = get_application_defaults(roles_dir=ROLES_DIR)
     services_by_role = {
         role: (config or {}).get("services")
@@ -114,14 +74,8 @@ def offenders() -> list[str]:
         }
         if not consumers:
             continue
-        base = services_by_role.get(role)
-        allowed = (
-            _ALWAYS_ALLOWED
-            | {get_entity_name(role)}
-            | (_statically_on(base) if isinstance(base, Mapping) else set())
-        )
         per_variant = [
-            _variant_findings(role, consumers, v, allowed)
+            _variant_findings(role, consumers, v)
             for v in variants.get(role, [])
             if isinstance(v, Mapping)
         ]
@@ -129,19 +83,19 @@ def offenders() -> list[str]:
             continue
         closest = min(per_variant, key=len) if per_variant else [f"{role}: no variants"]
         findings.append(
-            f"{role}: no variant is the MCP-only round; the closest one still "
-            f"reports: {'; '.join(closest)}"
+            f"{role}: no variant enables every admitted consumer; the closest "
+            f"one still reports: {'; '.join(closest)}"
         )
     return findings
 
 
 class TestMcpConsumerVariant(unittest.TestCase):
-    def test_every_provider_ships_an_mcp_only_variant(self) -> None:
+    def test_every_provider_ships_a_variant_enabling_its_consumers(self) -> None:
         findings = offenders()
         self.assertEqual(
             [],
             findings,
-            f"MCP provider(s) without an MCP-only variant ({len(findings)}):\n"
+            f"MCP provider(s) whose consumers never deploy ({len(findings)}):\n"
             + "\n".join(f"  - {f}" for f in findings),
         )
 

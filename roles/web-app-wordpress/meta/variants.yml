@@ -91,11 +91,9 @@
     hermes:
       enabled: true
       shared: true
-      services:
     openclaw:
       enabled: true
       shared: true
-      services:
   addons:
     activitypub:
       enabled: false
