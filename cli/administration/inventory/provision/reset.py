@@ -10,12 +10,14 @@ secret into the application and the database it already created.
 
 from __future__ import annotations
 
+import sys
 from typing import TYPE_CHECKING
 
 from ruamel.yaml.comments import CommentedMap
 
 from cli.administration.inventory.credentials.vault import is_ruamel_vault
 from utils.manager.credential_key import CREDENTIALS_KEY, SECRETS_KEY
+from utils.roles.mapping import ROLE_FILE_META_SECRETS, ROLE_FILE_VARS_MAIN
 
 from .credentials_generator import generate_credentials_for_roles
 from .ruamel_io import dump_document, load_document
@@ -25,11 +27,66 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
-def _drop_generated(node: CommentedMap) -> int:
+ROTATABLE_KEY = "rotatable"
+
+
+def _pinned_paths(
+    schema: CommentedMap, prefix: tuple[str, ...]
+) -> set[tuple[str, ...]]:
+    """Return the credential paths ``schema`` marks ``rotatable: false``.
+
+    Args:
+        schema: a ``credentials`` branch of a role's ``meta/secrets.yml``.
+        prefix: the path walked so far.
+
+    Returns:
+        The pinned paths, each as a tuple of keys.
+    """
+    pinned: set[tuple[str, ...]] = set()
+    for key, meta in schema.items():
+        if not isinstance(meta, CommentedMap):
+            continue
+        if meta.get(ROTATABLE_KEY) is False:
+            pinned.add((*prefix, key))
+        else:
+            pinned |= _pinned_paths(meta, (*prefix, key))
+    return pinned
+
+
+def _pinned_credentials(roles_dir: Path) -> dict[str, set[tuple[str, ...]]]:
+    """Map application id to the credentials its role refuses to have rotated.
+
+    Args:
+        roles_dir: directory the roles live in.
+
+    Returns:
+        Application id to the set of pinned credential paths.
+    """
+    pinned: dict[str, set[tuple[str, ...]]] = {}
+    for role_dir in sorted(roles_dir.iterdir()):
+        schema = load_document(role_dir / ROLE_FILE_META_SECRETS).get(CREDENTIALS_KEY)
+        if not isinstance(schema, CommentedMap):
+            continue
+        paths = _pinned_paths(schema, ())
+        if not paths:
+            continue
+        application_id = load_document(role_dir / ROLE_FILE_VARS_MAIN).get(
+            "application_id"
+        )
+        if application_id:
+            pinned[str(application_id)] = paths
+    return pinned
+
+
+def _drop_generated(
+    node: CommentedMap, pinned: set[tuple[str, ...]], prefix: tuple[str, ...]
+) -> int:
     """Remove every vault-encrypted leaf below ``node``.
 
     Args:
         node: a ``credentials`` branch of the inventory.
+        pinned: paths the role marked ``rotatable: false``.
+        prefix: the path walked so far.
 
     Returns:
         How many values were removed.
@@ -40,21 +97,33 @@ def _drop_generated(node: CommentedMap) -> int:
     """
     dropped = 0
     for key in list(node.keys()):
+        path = (*prefix, key)
+        if path in pinned:
+            print(
+                f"[WARN] not rotated, pinned as rotatable: false: {'.'.join(path)}",
+                file=sys.stderr,
+            )
+            continue
         value = node.get(key)
         if isinstance(value, CommentedMap):
-            dropped += _drop_generated(value)
+            dropped += _drop_generated(value, pinned, path)
         elif is_ruamel_vault(value):
             del node[key]
             dropped += 1
     return dropped
 
 
-def _drop_app_credentials(document: CommentedMap, exclude: set[str]) -> int:
+def _drop_app_credentials(
+    document: CommentedMap,
+    exclude: set[str],
+    pinned: dict[str, set[tuple[str, ...]]],
+) -> int:
     """Remove the generated credentials of every application in ``document``.
 
     Args:
         document: the host_vars document.
         exclude: application ids to leave untouched.
+        pinned: per-application credential paths that must survive a rotation.
 
     Returns:
         How many values were removed.
@@ -72,7 +141,9 @@ def _drop_app_credentials(document: CommentedMap, exclude: set[str]) -> int:
             continue
         credentials = secrets.get(CREDENTIALS_KEY)
         if isinstance(credentials, CommentedMap):
-            dropped += _drop_generated(credentials)
+            dropped += _drop_generated(
+                credentials, pinned.get(str(application_id), set()), ()
+            )
     return dropped
 
 
@@ -148,7 +219,9 @@ def reset_credentials(
     document = load_document(host_vars_file)
     dropped = 0
     if schema:
-        dropped += _drop_app_credentials(document, exclude)
+        dropped += _drop_app_credentials(
+            document, exclude, _pinned_credentials(roles_dir)
+        )
     if users:
         dropped += _drop_user_passwords(document, roles_dir, application_ids, exclude)
     dump_document(host_vars_file, document)
