@@ -20,7 +20,6 @@ flowchart LR
         dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_svc_virt_kata["svc-virt-kata 💻"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
-        dep_web_app_homeassistant["web-app-homeassistant 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
@@ -39,7 +38,6 @@ flowchart LR
         svc_prometheus["prometheus"]
         svc_tor["tor"]
         svc_container_backup["container_backup"]
-        svc_homeassistant["homeassistant"]
     end
     subgraph dependents [Dependents]
         dpt_svc_ai_robot["svc-ai-robot 💻"]
@@ -61,7 +59,6 @@ flowchart LR
     dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_svc_virt_kata -- "1:1" --> svc_kata
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
-    dep_web_app_homeassistant -. "0..1" .-> svc_homeassistant
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus

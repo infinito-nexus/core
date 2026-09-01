@@ -38,12 +38,6 @@ flowchart LR
         svc_openclaw["openclaw"]
         svc_flowise["flowise"]
     end
-    subgraph dependents [Dependents]
-        dpt_web_app_flowise["web-app-flowise 🐳🐝"]
-        dpt_web_app_hermes["web-app-hermes 🐳🐝"]
-        dpt_web_app_openclaw["web-app-openclaw 🐳🐝"]
-        dpt_web_app_openwebui["web-app-openwebui 🐳🐝"]
-    end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
@@ -53,10 +47,6 @@ flowchart LR
     dep_web_app_openclaw -. "0..1" .-> svc_openclaw
     dep_web_app_openwebui -. "0..1" .-> svc_openwebui
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
-    svc_homeassistant -. "0..1" .-> dpt_web_app_flowise
-    svc_homeassistant -. "0..1" .-> dpt_web_app_hermes
-    svc_homeassistant -. "0..1" .-> dpt_web_app_openclaw
-    svc_homeassistant -. "0..1" .-> dpt_web_app_openwebui
     linkStyle 5 stroke:red;
 ```
 
