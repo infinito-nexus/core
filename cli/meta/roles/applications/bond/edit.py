@@ -70,7 +70,9 @@ def set_bond(roles_dir: Path, role: str, service_key: str, bond: float | None) -
     if not path.is_file():
         raise EditError(f"no such file: {path}")
 
-    raw = path.read_text(encoding="utf-8")  # nocheck: cache-read — a cached read would serve the text from before the previous edit and silently revert it
+    raw = path.read_text(
+        encoding="utf-8"
+    )  # nocheck: cache-read — a cached read would serve the text from before the previous edit and silently revert it
     lines = raw.splitlines(keepends=True)
     start, end = _block(lines, service_key)
 

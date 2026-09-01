@@ -28,7 +28,9 @@ class TestSetBond(unittest.TestCase):
         self.addCleanup(self._tmp.cleanup)
 
     def read(self) -> str:
-        return self.path.read_text(encoding="utf-8")  # nocheck: cache-read — re-reads the file set_bond just rewrote
+        return self.path.read_text(
+            encoding="utf-8"
+        )  # nocheck: cache-read — re-reads the file set_bond just rewrote
 
     def test_rewrites_the_value_in_place(self) -> None:
         self.assertEqual(set_bond(self.roles, "web-app-demo", "litellm", 0.25), "0.25")

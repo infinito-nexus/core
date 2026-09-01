@@ -95,4 +95,3 @@ container_backup: # nocheck: bond-baseline
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
-
