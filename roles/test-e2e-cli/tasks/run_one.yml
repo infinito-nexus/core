@@ -35,6 +35,12 @@
     dest: "{{ _cli_stage_dir }}/"
     mode: "0755"
 
+- name: 📦 Stage the shared CLI harness for {{ application_id }}
+  ansible.builtin.copy:
+    src: "{{ lookup('path_absolute', 'roles/test-e2e-cli/files/shared') }}/"
+    dest: "{{ _cli_stage_dir }}/shared/"
+    mode: "0755"
+
 - name: 🧭 Reset the per-role deployment-mode override
   ansible.builtin.include_vars:
     file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/defaults/main.yml') }}"

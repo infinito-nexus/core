@@ -12,12 +12,3 @@
 
 - name: "🔑 Converge the upstream token the adapter presents"
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp_mint.yml"
-
-- name: "🩺 Prove the MCP contract of {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
-  vars:
-    mcp_probe_bearer: "{{ SNIPEIT_MCP_BEARER }}"
-    mcp_probe_path_key: ""
-    mcp_probe_read_tool: "snipeit_get_license_summary"
-    mcp_probe_read_args: {}
-    mcp_probe_host: ""

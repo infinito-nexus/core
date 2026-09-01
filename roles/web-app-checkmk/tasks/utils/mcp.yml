@@ -50,12 +50,3 @@
     fail_msg: >-
       {{ application_id }} could not give its MCP adapter a read-only identity:
       {{ checkmk_mcp_identity.stderr | default('no output') }}
-
-- name: "🩺 Prove the MCP contract of {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
-  vars:
-    mcp_probe_bearer: "{{ CHECKMK_MCP_BEARER }}"
-    mcp_probe_path_key: ""
-    mcp_probe_read_tool: "checkmk_list_hosts"
-    mcp_probe_read_args: {}
-    mcp_probe_host: ""

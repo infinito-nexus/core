@@ -16,6 +16,7 @@ endpoint:
   service_key: proxy
   path: /index.php/apps/app_api/proxy/context_agent/mcp/
   port_key: http
+  host_header: true
 limits:
   request_bytes: 65536
   response_bytes: 1048576
@@ -25,6 +26,9 @@ limits:
   result_items: 500
   stream_seconds: 300
 tools:
+  read_probe:
+    tool: find_details_of_current_user
+    arguments: {}
   upstream_serves: dynamic
   categories:
     - calendar

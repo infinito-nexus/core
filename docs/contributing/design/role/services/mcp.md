@@ -24,6 +24,7 @@ mcp:
     service_key: example       # names a service entry in the same file
     path: /mcp
     port_key: http             # resolves under that service's ports.local or ports.internal
+    host_header: true          # optional; set it when the endpoint sits behind the role's own vhost
   tools:
     read_only_default: true
     mutating_tools_enabled: false

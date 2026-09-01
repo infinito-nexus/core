@@ -30,6 +30,9 @@ limits:
   result_items: 100
   stream_seconds: 300
 tools:
+  read_probe:
+    tool: checkmk_list_hosts
+    arguments: {}
   allowlist:
     - checkmk_get_host_status
     - checkmk_list_hosts

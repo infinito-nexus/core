@@ -17,6 +17,9 @@ endpoint:
   path: /api/mcp
   port_key: http
 tools:
+  read_probe:
+    tool: GetDateTime
+    arguments: {}
   allowlist:
     - GetDateTime
     - GetLiveContext

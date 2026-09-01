@@ -32,6 +32,9 @@ limits:
   result_items: 100
   stream_seconds: 300
 tools:
+  read_probe:
+    tool: list_databases
+    arguments: {}
   allowlist:
     - get_table_schema
     - list_databases

@@ -41,13 +41,3 @@
   delay: 2
   until: qdrant_ready.rc == 0
   changed_when: false
-
-- name: "🩺 Prove the MCP contract of {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
-  vars:
-    mcp_probe_bearer: "{{ QDRANT_MCP_BEARER }}"
-    mcp_probe_path_key: ""
-    mcp_probe_read_tool: "qdrant_list_collections"
-    mcp_probe_read_args: {}
-    mcp_probe_host: ""
-  when: QDRANT_MCP_ENABLED | bool

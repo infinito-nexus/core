@@ -81,12 +81,3 @@
 
 - name: "🔄 Start the sidecar before probing it"
   ansible.builtin.meta: flush_handlers
-
-- name: "🩺 Prove the MCP contract of {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
-  vars:
-    mcp_probe_bearer: "{{ BASEROW_MCP_BEARER }}"
-    mcp_probe_path_key: ""
-    mcp_probe_read_tool: "list_databases"
-    mcp_probe_read_args: {}
-    mcp_probe_host: ""

@@ -30,6 +30,9 @@ limits:
   result_items: 100
   stream_seconds: 300
 tools:
+  read_probe:
+    tool: fider_list_tags
+    arguments: {}
   allowlist:
     - fider_get_suggestion
     - fider_list_tags

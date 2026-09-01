@@ -46,7 +46,7 @@ from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from utils.manager.credential_key import CREDENTIALS_KEY, SECRETS_KEY
-from utils.roles.applications.mcp import DEFAULT_MCP_TRANSPORT
+from utils.roles.applications.mcp import DEFAULT_MCP_TRANSPORT, resolve_credential
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
@@ -60,11 +60,6 @@ REJECT_ENDPOINT = "endpoint_unreachable"
 FATAL_REJECTIONS = frozenset({REJECT_TRANSPORT, REJECT_AUTH, REJECT_ENDPOINT})
 
 RECONCILE_STRICT_VAR = "MCP_RECONCILE_STRICT"
-
-SOURCE_TOKEN_STORE = "token_store"  # noqa: S105 - a source name, not a secret
-SOURCE_CREDENTIALS = "credentials"
-
-FORBIDDEN_OWNER = "administrator"
 
 
 def endpoint_url(endpoint: Mapping[str, Any]) -> str:
@@ -99,41 +94,6 @@ def role_credentials_of(
     return ((applications.get(role) or {}).get(SECRETS_KEY) or {}).get(
         CREDENTIALS_KEY
     ) or {}
-
-
-def resolve_credential(
-    server: Mapping[str, Any],
-    users: Mapping[str, Any],
-    role_credentials: Mapping[str, Any],
-) -> tuple[str, str]:
-    """Return the provider's declared secret and the owner it belongs to.
-
-    Args:
-        server: a discovered ``direction=server`` entry.
-        users: the merged users mapping, carrying each principal's tokens.
-        role_credentials: the provider role's own ``secrets.credentials``
-            mapping, which is where every other consumer addresses them.
-
-    Returns an empty token when the declaration is incomplete or the principal
-    holds nothing; the caller turns that into ``credential_missing``.
-    """
-    credential = server.get("credential") or {}
-    owner = str(credential.get("owner") or "").strip()
-    source = str(credential.get("source") or "").strip()
-    key = str(credential.get("key") or "").strip()
-    if not owner or not source or not key or owner == FORBIDDEN_OWNER:
-        return "", owner
-
-    if source == SOURCE_TOKEN_STORE:
-        principal = users.get(owner)
-        tokens = principal.get("tokens") if isinstance(principal, dict) else None
-        value = (tokens or {}).get(key) if isinstance(tokens, dict) else None
-        return str(value or "").strip(), owner
-
-    if source == SOURCE_CREDENTIALS:
-        return str(role_credentials.get(key) or "").strip(), owner
-
-    return "", owner
 
 
 def select_deployed(

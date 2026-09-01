@@ -62,9 +62,12 @@ own ``meta/services.yml``. ``derive_allowed_consumers`` resolves the pair.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from utils.roles.entity.name import get_entity_name
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 MCP_DIRECTIONS = frozenset({"server", "client", "both"})
 MCP_TRANSPORTS = frozenset({"streamable_http", "sse"})
@@ -147,6 +150,9 @@ MCP_SCOPED_ADAPTER_TYPES = frozenset(
 MCP_SPECIFICATION_ADAPTER_TYPES = frozenset({"openapi_allowlist", "graphql_allowlist"})
 
 MCP_CREDENTIAL_SOURCES = frozenset({"token_store", "credentials"})
+MCP_SOURCE_TOKEN_STORE = "token_store"  # noqa: S105 - a source name, not a secret
+MCP_SOURCE_CREDENTIALS = "credentials"
+MCP_FORBIDDEN_CREDENTIAL_OWNER = "administrator"
 
 MCP_KEYS = frozenset(
     {
@@ -182,6 +188,7 @@ MCP_ENDPOINT_KEYS = frozenset(
         "service_key",
         "path",
         "port_key",
+        "host_header",
     }
 )
 
@@ -236,8 +243,11 @@ MCP_TOOLS_KEYS = frozenset(
         "schema_sha256",
         "read_only_default",
         "mutating_tools_enabled",
+        "read_probe",
     }
 )
+
+MCP_READ_PROBE_KEYS = frozenset({"tool", "arguments"})
 
 MCP_TOOLS_BOOLEAN_KEYS = frozenset({"read_only_default", "mutating_tools_enabled"})
 
@@ -421,3 +431,38 @@ def delegation_is_proven(mcp: object) -> bool:
     if not str(delegation.get("source_url") or "").strip():
         return False
     return all(delegation.get(key) is True for key in MCP_DELEGATION_PROOF_KEYS)
+
+
+def resolve_credential(
+    server: Mapping[str, Any],
+    users: Mapping[str, Any],
+    role_credentials: Mapping[str, Any],
+) -> tuple[str, str]:
+    """Return the provider's declared secret and the owner it belongs to.
+
+    Args:
+        server: a discovered ``direction=server`` entry.
+        users: the merged users mapping, carrying each principal's tokens.
+        role_credentials: the provider role's own ``secrets.credentials``
+            mapping, which is where every other consumer addresses them.
+
+    Returns an empty token when the declaration is incomplete or the principal
+    holds nothing; the caller turns that into ``credential_missing``.
+    """
+    credential = server.get("credential") or {}
+    owner = str(credential.get("owner") or "").strip()
+    source = str(credential.get("source") or "").strip()
+    key = str(credential.get("key") or "").strip()
+    if not owner or not source or not key or owner == MCP_FORBIDDEN_CREDENTIAL_OWNER:
+        return "", owner
+
+    if source == MCP_SOURCE_TOKEN_STORE:
+        principal = users.get(owner)
+        tokens = principal.get("tokens") if isinstance(principal, dict) else None
+        value = (tokens or {}).get(key) if isinstance(tokens, dict) else None
+        return str(value or "").strip(), owner
+
+    if source == MCP_SOURCE_CREDENTIALS:
+        return str(role_credentials.get(key) or "").strip(), owner
+
+    return "", owner

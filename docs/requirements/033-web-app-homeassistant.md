@@ -45,7 +45,7 @@ flowchart LR
 | Mutating tools stay off | the MCP long-lived token belongs to a dedicated account pinned to Home Assistant's `system-read-only` group; `ensure_service_account` re-asserts `group_ids` through `config/auth/update` on every run, so an account promoted by hand is demoted again |
 | The endpoint refuses an anonymous caller | [test-mcp-guest.js](../../roles/web-app-homeassistant/files/playwright/test-mcp-guest.js) |
 | The stored bearer still authenticates | `tasks/utils/mcp/probe.yml`, which hard-fails the deploy when the hub rejects it |
-| The advertised tool contract matches what the hub serves | the shared `svc-ai-mcp-adapter/tasks/probe.yml`, run at deploy time inside the provider's own network |
+| The advertised tool contract matches what the hub serves | [files/test/test.sh](../../roles/web-app-homeassistant/files/test/test.sh), which drives the shared MCP contract harness inside the provider's own network |
 | The pinned image runs on arm64 | [test_arm64_images.py](../../tests/external/update/docker/test_arm64_images.py) |
 
 ## Acceptance Criteria

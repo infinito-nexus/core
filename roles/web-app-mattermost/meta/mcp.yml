@@ -30,6 +30,9 @@ limits:
   result_items: 100
   stream_seconds: 300
 tools:
+  read_probe:
+    tool: get_user_channels
+    arguments: {}
   schema_sha256: sha256:24872026324af9402aca15cad57d058a408582fbea677af02ce474fd5d7edb28
   allowlist:
     - get_channel_info

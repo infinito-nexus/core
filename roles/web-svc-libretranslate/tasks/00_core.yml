@@ -16,13 +16,3 @@
 
 - name: "🚿 Flush compose handlers for {{ application_id }}"
   ansible.builtin.meta: flush_handlers
-
-- name: "🩺 Prove the MCP contract of {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
-  vars:
-    mcp_probe_bearer: "{{ LIBRETRANSLATE_MCP_BEARER }}"
-    mcp_probe_path_key: ""
-    mcp_probe_read_tool: "libretranslate_list_languages"
-    mcp_probe_read_args: {}
-    mcp_probe_host: ""
-  when: LIBRETRANSLATE_MCP_ENABLED | bool

@@ -25,6 +25,9 @@ limits:
   result_items: 500
   stream_seconds: 300
 tools:
+  read_probe:
+    tool: core_course_get_courses
+    arguments: {}
   allowlist:
     - core_calendar_get_calendar_events
     - core_course_get_courses

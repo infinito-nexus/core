@@ -17,6 +17,7 @@ endpoint:
   service_key: wordpress
   path: /wp-json/mcp/mcp-adapter-default-server
   port_key: http
+  host_header: true
 limits:
   request_bytes: 65536
   response_bytes: 1048576
@@ -26,6 +27,9 @@ limits:
   result_items: 20
   stream_seconds: 300
 tools:
+  read_probe:
+    tool: infinito-list-categories
+    arguments: {}
   allowlist:
     - infinito-get-post
     - infinito-list-categories

@@ -29,12 +29,3 @@
     fail_msg: >-
       The hub rejected the token stored for {{ application_id }}, so every MCP
       client would be configured with a bearer the hub answers 401 to.
-
-- name: "🩺 Prove the MCP contract of {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
-  vars:
-    mcp_probe_bearer: "{{ lookup('mcp_credential', application_id) }}"
-    mcp_probe_path_key: ""
-    mcp_probe_read_tool: "GetDateTime"
-    mcp_probe_read_args: {}
-    mcp_probe_host: ""

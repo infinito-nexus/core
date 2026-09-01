@@ -31,6 +31,9 @@ limits:
   result_items: 500
   stream_seconds: 300
 tools:
+  read_probe:
+    tool: get_mcp_server_version
+    arguments: {}
   schema_sha256: sha256:f2a4d696104517cfa95599bdf41f4ad80fdc850aaa3d72bd5bb9e21864bfd864
   allowlist:
     - get_issue

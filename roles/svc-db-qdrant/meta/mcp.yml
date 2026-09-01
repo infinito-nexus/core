@@ -31,6 +31,9 @@ limits:
   result_items: 100
   stream_seconds: 300
 tools:
+  read_probe:
+    tool: qdrant_list_collections
+    arguments: {}
   allowlist:
     - qdrant_list_collections
     - qdrant_get_collection

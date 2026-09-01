@@ -75,6 +75,7 @@ from utils.roles.applications.mcp import (
     MCP_KEYS,
     MCP_LIMITS_KEYS,
     MCP_PRIVILEGED_AUTH_SUBJECTS,
+    MCP_READ_PROBE_KEYS,
     MCP_REQUIRED_ENDPOINT_KEYS,
     MCP_SCOPED_ADAPTER_TYPES,
     MCP_SERVER_DIRECTIONS,
@@ -511,6 +512,7 @@ class TestMcpSchema(unittest.TestCase):
             flag("tools", f"{prefix}.tools has unknown key(s) {sorted(unknown)}")
         self._check_writer_allowlist(tools, prefix, flag)
         self._check_upstream_serves(mcp, tools, prefix, flag)
+        self._check_read_probe(tools, prefix, flag)
 
         for key in MCP_TOOLS_BOOLEAN_KEYS & set(tools):
             if not isinstance(tools.get(key), bool):
@@ -537,6 +539,36 @@ class TestMcpSchema(unittest.TestCase):
                 f"{prefix} enables mutating tools but names no "
                 f"tools.writer_allowlist, so every reader would reach the writes "
                 f"too; the point of the split is that they get different bearers",
+            )
+
+    def _check_read_probe(self, tools, prefix, flag) -> None:
+        probe = tools.get("read_probe")
+        if probe is None:
+            return
+        if not isinstance(probe, Mapping):
+            flag("read_probe", f"{prefix}.tools.read_probe MUST be a mapping")
+            return
+        unknown = set(probe) - MCP_READ_PROBE_KEYS
+        if unknown:
+            flag(
+                "read_probe",
+                f"{prefix}.tools.read_probe has unknown key(s) {sorted(unknown)}",
+            )
+        tool = str(probe.get("tool") or "").strip()
+        if not tool:
+            flag("read_probe", f"{prefix}.tools.read_probe MUST name a 'tool'")
+        if "arguments" in probe and not isinstance(probe.get("arguments"), Mapping):
+            flag(
+                "read_probe",
+                f"{prefix}.tools.read_probe.arguments MUST be a mapping",
+            )
+        allowlist = tools.get("allowlist")
+        if tool and isinstance(allowlist, list) and allowlist and tool not in allowlist:
+            flag(
+                "read_probe",
+                f"{prefix}.tools.read_probe.tool {tool!r} is not in "
+                f"tools.allowlist, so the gateway rejects the call before the "
+                f"server ever sees it and the probe can never pass",
             )
 
     def _check_writer_allowlist(self, tools, prefix, flag) -> None:

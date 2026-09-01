@@ -44,16 +44,6 @@
     plugin_task_path: "{{ [role_path, 'tasks/addons', plugin_name  ~ '.yml' ] | path_join }}"
   when: plugin_enabled | bool
 
-- name: "🩺 Prove the MCP contract of {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
-  when: WORDPRESS_MCP_ENABLED | bool
-  vars:
-    mcp_probe_bearer: "{{ wordpress_mcp_token }}"
-    mcp_probe_path_key: ""
-    mcp_probe_read_tool: "infinito-list-categories"
-    mcp_probe_read_args: {}
-    mcp_probe_host: "{{ WORDPRESS_DOMAINS | first }}"
-
 - name: 🔍 Detect if WordPress is Multisite
   shell: >
     container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}

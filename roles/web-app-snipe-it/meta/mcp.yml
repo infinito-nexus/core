@@ -30,6 +30,9 @@ limits:
   result_items: 100
   stream_seconds: 300
 tools:
+  read_probe:
+    tool: snipeit_get_license_summary
+    arguments: {}
   allowlist:
     - snipeit_get_asset
     - snipeit_get_license_summary

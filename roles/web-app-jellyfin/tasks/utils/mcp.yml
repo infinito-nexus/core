@@ -63,12 +63,3 @@
   vars:
     mcp_upstream_key_path: "{{ [JELLYFIN_MCP_INSTANCE_DIR, 'upstream.env'] | path_join }}"
     mcp_upstream_key: "{{ jellyfin_mcp_identity.stdout_lines[1] }}"
-
-- name: "🩺 Prove the MCP contract of {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
-  vars:
-    mcp_probe_bearer: "{{ JELLYFIN_MCP_BEARER }}"
-    mcp_probe_path_key: ""
-    mcp_probe_read_tool: "jellyfin_get_playback_status"
-    mcp_probe_read_args: {}
-    mcp_probe_host: ""

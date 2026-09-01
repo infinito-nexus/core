@@ -30,6 +30,9 @@ limits:
   result_items: 100
   stream_seconds: 300
 tools:
+  read_probe:
+    tool: whoAmI
+    arguments: {}
   schema_sha256: sha256:3f17b9034a77928d25c1be511e4c6f162e739eb5157823c5602e19adc955318d
   allowlist:
     - findJobsWithScmUrl

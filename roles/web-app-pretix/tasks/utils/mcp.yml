@@ -35,12 +35,3 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   delegate_to: "{{ PRETIX_IDENTITY_HOST_NODE }}"
   run_once: true
-
-- name: "🩺 Prove the MCP contract of {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
-  vars:
-    mcp_probe_bearer: "{{ PRETIX_MCP_BEARER }}"
-    mcp_probe_path_key: ""
-    mcp_probe_read_tool: ""
-    mcp_probe_read_args: {}
-    mcp_probe_host: ""

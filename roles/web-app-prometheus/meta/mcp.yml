@@ -30,6 +30,9 @@ limits:
   result_items: 100
   stream_seconds: 300
 tools:
+  read_probe:
+    tool: prometheus_get_targets
+    arguments: {}
   allowlist:
     - prometheus_get_targets
     - prometheus_query

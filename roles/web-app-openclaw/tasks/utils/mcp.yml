@@ -9,7 +9,3 @@
 
 - name: "🔄 Start the stack so the gateway reads the config"
   ansible.builtin.meta: flush_handlers
-
-- name: "🔌 Prove the configured MCP servers answer"
-  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp_assert.yml"
-  when: OPENCLAW_MCP_SERVERS | length > 0

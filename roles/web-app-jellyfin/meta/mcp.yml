@@ -30,6 +30,9 @@ limits:
   result_items: 100
   stream_seconds: 300
 tools:
+  read_probe:
+    tool: jellyfin_get_playback_status
+    arguments: {}
   allowlist:
     - jellyfin_get_item
     - jellyfin_get_playback_status

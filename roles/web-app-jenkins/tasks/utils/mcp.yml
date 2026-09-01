@@ -50,12 +50,3 @@
 
 - name: "⏳ Wait until the recreated controller serves requests again"
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/ready.yml"
-
-- name: "🩺 Prove the MCP contract of {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
-  vars:
-    mcp_probe_bearer: "{{ JENKINS_MCP_BEARER }}"
-    mcp_probe_path_key: ""
-    mcp_probe_read_tool: "whoAmI"
-    mcp_probe_read_args: {}
-    mcp_probe_host: ""

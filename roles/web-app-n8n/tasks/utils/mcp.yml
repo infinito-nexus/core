@@ -53,13 +53,3 @@
   delegate_to: "{{ STACK_HOST }}"
   run_once: true
   when: N8N_LITELLM_ENABLED | bool
-
-- name: "🩺 Prove the MCP contract of {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
-  vars:
-    mcp_probe_bearer: "{{ lookup('mcp_credential', application_id) }}"
-    mcp_probe_path_key: ""
-    mcp_probe_read_tool: "infinito_health"
-    mcp_probe_read_args:
-      echo: "infinito"
-    mcp_probe_host: ""

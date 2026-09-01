@@ -25,13 +25,3 @@
   when:
     - FIDER_OIDC_ENABLED | bool
     - IS_STACK_HOST | bool
-
-- name: "🩺 Prove the MCP contract of {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
-  vars:
-    mcp_probe_bearer: "{{ FIDER_MCP_BEARER }}"
-    mcp_probe_path_key: ""
-    mcp_probe_read_tool: "fider_list_tags"
-    mcp_probe_read_args: {}
-    mcp_probe_host: ""
-  when: FIDER_MCP_ENABLED | bool

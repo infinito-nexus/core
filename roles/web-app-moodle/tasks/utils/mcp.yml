@@ -14,12 +14,3 @@
 
 - name: "🩺 Verify the MCP endpoint answers that bearer"
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/verify.yml"
-
-- name: "🩺 Prove the MCP contract of {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/probe.yml') }}"
-  vars:
-    mcp_probe_bearer: "{{ lookup('mcp_credential', application_id) }}"
-    mcp_probe_path_key: ""
-    mcp_probe_read_tool: "core_course_get_courses"
-    mcp_probe_read_args: {}
-    mcp_probe_host: ""

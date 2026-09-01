@@ -30,6 +30,9 @@ limits:
   result_items: 100
   stream_seconds: 300
 tools:
+  read_probe:
+    tool: get_me
+    arguments: {}
   schema_sha256: sha256:8180dd0dba6bc10b986f3500fd3da3f2b2e6b8d5c92408f0089b5b3e1667c876
   allowlist:
     - attachment_read

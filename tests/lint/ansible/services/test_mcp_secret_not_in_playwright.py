@@ -6,11 +6,11 @@ environment dump, the network log. A provider bearer that lands there survives
 in a CI artifact long after the deploy that minted it, readable by anyone who
 can download the bundle.
 
-The deploy already respects this. ``svc-ai-mcp-adapter/tasks/probe.yml`` says so
-in its own header — the authenticated contract probe lives in a task rather than
-a spec precisely because the spec would capture the bearer — and the guest specs
-ask the anonymous question, which needs no credential at all. This rule keeps
-that arrangement from eroding one convenient environment variable at a time.
+The test suite already respects this. The authenticated MCP contract check is a
+CLI test rather than a spec precisely because the spec would capture the bearer,
+and the guest specs ask the anonymous question, which needs no credential at
+all. This rule keeps that arrangement from eroding one convenient environment
+variable at a time.
 
 Secret URL components count the same: a provider whose endpoint path carries a
 generated key hands out a working URL, not merely a hint.
