@@ -23,7 +23,7 @@ yourls:
       enabled: true
     swarm:
       enabled: true
-  version: 1.10.5-apache
+  version: 1.10.6-apache
   custom: true
   name: yourls
   image: yourls

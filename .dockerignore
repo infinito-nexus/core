@@ -40,6 +40,7 @@ compose/coredns/Corefile
 compose/Corefile
 
 # Host shell / editor / tooling state accidentally surfaced inside this working copy
+.ansible
 .bash_profile
 .bashrc
 .gitconfig
