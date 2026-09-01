@@ -87,7 +87,11 @@ def _sandbox_workers(app_id: str) -> tuple[str, ...]:
         Every worker when the app itself is sandboxed, otherwise one.
     """
     services = (applications_for_round().get(app_id) or {}).get("services") or {}
-    return _WORKERS if ((services.get("kata") or {}).get("enabled")) is True else _WORKERS[-1:]
+    return (
+        _WORKERS
+        if ((services.get("kata") or {}).get("enabled")) is True
+        else _WORKERS[-1:]
+    )
 
 
 def main() -> int:
