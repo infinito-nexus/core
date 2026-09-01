@@ -44,7 +44,7 @@ realign_admin_password() {
   local pin pin_token user_id
   ${CURL} -fsS -X POST "${API}/Users/ForgotPassword" -H "Content-Type: application/json" -H "${CLIENT_HDR}" \
     -d "{\"EnteredUsername\":\"${JELLYFIN_ADMIN_USERNAME}\"}" >/dev/null || return 1
-  pin="$(container exec "${CT}" sh -c 'cat /config/data/passwordreset*.json 2>/dev/null' \
+  pin="$(container exec "${CT}" sh -c 'cat /config/passwordreset*.json 2>/dev/null' \
     | sed -n 's/.*"Pin":"\([^"]*\)".*/\1/p' | head -n1)" || pin=""
   if [ -z "${pin}" ]; then
     log "ERROR: Jellyfin accepted the reset request but wrote no pin file"
