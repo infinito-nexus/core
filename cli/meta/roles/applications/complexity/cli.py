@@ -5,9 +5,13 @@ from __future__ import annotations
 import argparse
 import re
 import sys
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from utils import PROJECT_ROOT
+from utils.roles.applications.topics import overridden_providers
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 from .filter import FilterError, compile_predicate
 from .model import (
@@ -272,7 +276,10 @@ def _apply_sort(rows: list[ComplexityRow], sort_spec: list[tuple[str, bool]]) ->
         rows.sort(key=_SORT_KEYS[column], reverse=reverse)
 
 
-def _mark_covered(rows: list[ComplexityRow]) -> list[ComplexityRow]:
+def _mark_covered(
+    rows: list[ComplexityRow],
+    overridden: Mapping[tuple[str, int], set[str]] | None = None,
+) -> list[ComplexityRow]:
     """Assign each sorted row its numeric ``id`` (its position in sort order)
     and its ``covered_by`` via a greedy set-cover: the first row is green, and
     every later row's ``covered_by`` is the (1-based) ``id`` of the first
@@ -287,8 +294,20 @@ def _mark_covered(rows: list[ComplexityRow]) -> list[ComplexityRow]:
     Coverage is variant-aware: when a service.yml declares another service
     enabled+shared it always pulls that provider's variant 0, so only a row's
     variant-0 (or whole-role) form can be covered. A variant > 0 row is never
-    covered and is always green; it may still cover other roles' rows."""
-    green: list[tuple[int, str, set[str]]] = []
+    covered and is always green; it may still cover other roles' rows.
+
+    A variant that dictates a provider's own config is not evidence about that
+    provider in any variant: the deploy ran a configuration the provider does
+    not declare. ``overridden`` maps ``(role, variant)`` to the providers it
+    overrides, and such a pair never covers those providers.
+
+    Args:
+        rows: the complexity rows, in ranking order.
+        overridden: ``{(role, variant): {provider role, ...}}``, or None when
+            no variant dictates anything.
+    """
+    demands = overridden or {}
+    green: list[tuple[int, str, int | None, set[str]]] = []
     out: list[ComplexityRow] = []
     for index, row in enumerate(rows, start=1):
         coverable = row.variant in (None, 0)
@@ -296,8 +315,10 @@ def _mark_covered(rows: list[ComplexityRow]) -> list[ComplexityRow]:
             next(
                 (
                     gid
-                    for gid, gname, gset in green
-                    if gname != row.name and row.name in gset
+                    for gid, gname, gvariant, gset in green
+                    if gname != row.name
+                    and row.name in gset
+                    and row.name not in demands.get((gname, gvariant or 0), ())
                 ),
                 None,
             )
@@ -305,7 +326,7 @@ def _mark_covered(rows: list[ComplexityRow]) -> list[ComplexityRow]:
             else None
         )
         if coverer is None:
-            green.append((index, row.name, set(row.services)))
+            green.append((index, row.name, row.variant, set(row.services)))
         out.append(row._replace(id=index, covered_by=coverer or 0))
     return out
 
@@ -353,7 +374,7 @@ def main(argv: list[str] | None = None) -> int:
         rows = attach_siblings(rows)
 
     _apply_sort(rows, sort_spec)
-    rows = _mark_covered(rows)
+    rows = _mark_covered(rows, overridden_providers(roles_dir))
     _apply_sort(rows, sort_spec)
 
     rows = [r._replace(row=line) for line, r in enumerate(rows, start=1)]

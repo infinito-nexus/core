@@ -37,8 +37,8 @@
       enabled: true
       shared: true
     litellm:
-      enabled: true
-      shared: true
+      enabled: false
+      shared: false
     tor:
       enabled: true
 
@@ -88,14 +88,14 @@
     tor:
       enabled: true
     openwebui:
-      enabled: true
-      shared: true
+      enabled: false
+      shared: false
     hermes:
-      enabled: true
-      shared: true
+      enabled: false
+      shared: false
     openclaw:
-      enabled: true
-      shared: true
+      enabled: false
+      shared: false
 - services:
     container_backup:
       enabled: false
@@ -129,14 +129,18 @@
     litellm:
       enabled: true
       shared: true
+      services:
     tor:
       enabled: true
     openwebui:
-      enabled: false
-      shared: false
+      enabled: true
+      shared: true
+      services:
     hermes:
-      enabled: false
-      shared: false
+      enabled: true
+      shared: true
+      services:
     openclaw:
-      enabled: false
-      shared: false
+      enabled: true
+      shared: true
+      services:

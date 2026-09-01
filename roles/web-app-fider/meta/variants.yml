@@ -78,9 +78,12 @@
     openwebui:
       enabled: true
       shared: true
+      services:
     hermes:
       enabled: true
       shared: true
+      services:
     openclaw:
       enabled: true
       shared: true
+      services:

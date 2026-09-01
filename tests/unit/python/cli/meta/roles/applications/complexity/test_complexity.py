@@ -954,6 +954,21 @@ class TestCoveredBy(unittest.TestCase):
         )
         self.assertEqual([m.covered_by for m in marked], [0, 0, 2])
 
+    def test_a_variant_that_overrides_a_provider_does_not_cover_it(self) -> None:
+        rows = [_row("A", ["B", "C"], variant=1), _row("B", []), _row("C", [])]
+        marked = _mark_covered(rows, {("A", 1): {"B"}})
+        self.assertEqual([m.covered_by for m in marked], [0, 0, 1])
+
+    def test_the_override_only_bars_the_provider_it_names(self) -> None:
+        rows = [_row("A", ["B"], variant=1), _row("B", [])]
+        marked = _mark_covered(rows, {("A", 1): {"C"}})
+        self.assertEqual([m.covered_by for m in marked], [0, 1])
+
+    def test_an_override_in_another_variant_leaves_coverage_alone(self) -> None:
+        rows = [_row("A", ["B"], variant=0), _row("B", [])]
+        marked = _mark_covered(rows, {("A", 2): {"B"}})
+        self.assertEqual([m.covered_by for m in marked], [0, 1])
+
 
 if __name__ == "__main__":
     unittest.main()
