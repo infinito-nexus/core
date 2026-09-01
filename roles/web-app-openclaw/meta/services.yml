@@ -27,8 +27,6 @@ openclaw:
       sso: 16511
     internal:
       http: 18789
-  run_after:
-    - web-app-homeassistant
   lifecycle: beta
   proxy:
     service_key: openclaw
@@ -92,8 +90,3 @@ container_backup: # nocheck: bond-baseline
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
 
-# nocheck: playwright-service-flag
-homeassistant:
-  bond: 1
-  enabled: "{{ 'web-app-homeassistant' in group_names }}"
-  shared: "{{ 'web-app-homeassistant' in group_names }}"

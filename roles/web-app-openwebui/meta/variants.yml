@@ -37,12 +37,6 @@
     ldap:
       enabled: true
       shared: true
-    homeassistant:
-      enabled: true
-      shared: true
-    baserow:
-      enabled: true
-      shared: true
     tor:
       enabled: true
 - services:
@@ -79,12 +73,6 @@
     ldap:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    homeassistant:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    baserow:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
 - services:
@@ -119,12 +107,6 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     seaweedfs:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    homeassistant:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    baserow:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:

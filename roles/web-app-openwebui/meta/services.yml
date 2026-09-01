@@ -54,8 +54,6 @@ openwebui:
   proxy:
     service_key: openwebui
   run_after:
-    - web-app-baserow
-    - web-app-homeassistant
     - web-app-keycloak
     - web-app-matomo
   lifecycle: beta
@@ -111,14 +109,3 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
 
-# nocheck: playwright-service-flag
-homeassistant:
-  bond: 1
-  enabled: "{{ 'web-app-homeassistant' in group_names }}"
-  shared: "{{ 'web-app-homeassistant' in group_names }}"
-
-# nocheck: playwright-service-flag
-baserow:
-  bond: 1
-  enabled: "{{ 'web-app-baserow' in group_names }}"
-  shared: "{{ 'web-app-baserow' in group_names }}"

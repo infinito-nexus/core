@@ -28,8 +28,6 @@ hermes:
       sso: 16512
     internal:
       http: 8642
-  run_after:
-    - web-app-homeassistant
   lifecycle: beta
   proxy:
     service_key: hermes
@@ -98,8 +96,3 @@ container_backup: # nocheck: bond-baseline
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
 
-# nocheck: playwright-service-flag
-homeassistant:
-  bond: 1
-  enabled: "{{ 'web-app-homeassistant' in group_names }}"
-  shared: "{{ 'web-app-homeassistant' in group_names }}"

@@ -23,9 +23,6 @@
     prometheus:
       enabled: true
       shared: true
-    homeassistant:
-      enabled: true
-      shared: true
     tor:
       enabled: true
 - services:
@@ -48,9 +45,6 @@
       enabled: false
       shared: false # nocheck: variants-static-override variant pins a literal off-switch
     prometheus:
-      enabled: false
-      shared: false # nocheck: variants-static-override variant pins a literal off-switch
-    homeassistant:
       enabled: false
       shared: false # nocheck: variants-static-override variant pins a literal off-switch
     tor:
