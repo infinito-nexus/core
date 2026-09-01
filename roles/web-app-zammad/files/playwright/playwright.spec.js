@@ -9,6 +9,7 @@ test.use({
 test.beforeEach(shared.beforeEach);
 
 require("./test-landing").register(shared);
+require("./test-mcp-guest").register();
 require("./test-csp-headers").register(shared);
 require("./test-login-administrator").register(shared);
 require("./test-login-biber").register(shared);

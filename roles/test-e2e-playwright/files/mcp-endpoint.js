@@ -13,16 +13,30 @@
  * GET and a POST have to come back unserved.
  *
  * Contract:
+ *   mcpEndpointUrl(path?, baseUrl?) -> the endpoint under baseUrl, defaulting
+ *     to `/mcp` under APP_BASE_URL. Roles that export their own base variable
+ *     pass it rather than declaring APP_BASE_URL: the shared guest persona
+ *     collapses itself on `!APP_BASE_URL`, so adding one to a role that has
+ *     none turns its never-executed public journey live.
  *   registerMcpDisabledState(() => endpointUrl) -> registers one Playwright test
+ *   registerMcpGuestRejection(() => endpointUrl) -> registers one Playwright test
  *
  * The URL is passed as a thunk because the roles build it differently and some
  * of them resolve it from fixtures that only exist once a test is running.
  */
 
 const { test, expect } = require("@playwright/test");
-const { skipUnlessServiceDisabled } = require("./service-gating");
+const { normalizeBaseUrl } = require("./personas/utils/dotenv");
+const {
+  skipUnlessServiceDisabled,
+  skipUnlessServiceEnabled,
+} = require("./service-gating");
 
 const SERVED = new Set([200, 201, 202, 401, 403, 405, 406, 415, 429]);
+
+function mcpEndpointUrl(path = "/mcp", baseUrl = process.env.APP_BASE_URL) {
+  return `${normalizeBaseUrl(baseUrl)}${path}`;
+}
 
 function registerMcpDisabledState(resolveEndpointUrl) {
   test("guest: the MCP endpoint is gone while the service is switched off", async ({
@@ -63,4 +77,41 @@ function registerMcpDisabledState(resolveEndpointUrl) {
   });
 }
 
-module.exports = { registerMcpDisabledState };
+function registerMcpGuestRejection(resolveEndpointUrl) {
+  test("mcp: an unauthenticated probe of the MCP endpoint is rejected", async ({
+    page,
+  }) => {
+    skipUnlessServiceEnabled("mcp");
+
+    const endpointUrl = resolveEndpointUrl();
+    expect(endpointUrl, "the MCP endpoint URL must resolve").toBeTruthy();
+
+    // maxRedirects: 0 because a vhost may answer the bearerless probe with an
+    // SSO redirect; following it would land on a 200 login page and hide that
+    // no MCP response was ever served.
+    const response = await page.request.post(endpointUrl, {
+      failOnStatusCode: false,
+      maxRedirects: 0,
+      headers: { "Content-Type": "application/json" },
+      data: { jsonrpc: "2.0", id: 1, method: "initialize", params: {} },
+    });
+
+    expect(
+      response.status(),
+      `POST ${endpointUrl} answered ${response.status()} — the MCP server is ` +
+        "internal-only, so the public vhost must redirect or refuse a bearerless " +
+        "initialize, never answer it.",
+    ).toBeGreaterThanOrEqual(300);
+
+    expect(
+      await response.text(),
+      "the public vhost must not return an MCP protocol response to a bearerless probe",
+    ).not.toContain('"jsonrpc"');
+  });
+}
+
+module.exports = {
+  mcpEndpointUrl,
+  registerMcpDisabledState,
+  registerMcpGuestRejection,
+};

@@ -6,6 +6,8 @@ test.use({
   ignoreHTTPSErrors: true
 });
 
+require("./test-mcp-guest").register();
+
 // `docker --env-file` preserves the quotes emitted by `dotenv_quote`,
 // so normalize these values before building URLs or typing credentials.
 const oidcIssuerUrl      = decodeDotenvQuotedValue(process.env.OIDC_ISSUER_URL);
