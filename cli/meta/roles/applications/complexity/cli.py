@@ -8,6 +8,7 @@ import sys
 from typing import TYPE_CHECKING, Any
 
 from utils import PROJECT_ROOT
+from utils.cache.applications import get_variants
 from utils.roles.applications.topics import overridden_providers
 
 if TYPE_CHECKING:
@@ -279,6 +280,7 @@ def _apply_sort(rows: list[ComplexityRow], sort_spec: list[tuple[str, bool]]) ->
 def _mark_covered(
     rows: list[ComplexityRow],
     overridden: Mapping[tuple[str, int], set[str]] | None = None,
+    variant_counts: Mapping[str, int] | None = None,
 ) -> list[ComplexityRow]:
     """Assign each sorted row its numeric ``id`` (its position in sort order)
     and its ``covered_by`` via a greedy set-cover: the first row is green, and
@@ -291,10 +293,15 @@ def _mark_covered(
     coverer's deploy genuinely brings this row up. Two variants of the same
     role never cover each other (a role never embeds itself).
 
-    Coverage is variant-aware: when a service.yml declares another service
-    enabled+shared it always pulls that provider's variant 0, so only a row's
-    variant-0 (or whole-role) form can be covered. A variant > 0 row is never
-    covered and is always green; it may still cover other roles' rows.
+    Coverage is variant-aware: only a row's variant-0 (or whole-role) form can
+    be covered, because a coverer only ever brings a provider up at variant 0.
+    Which coverers do that is not a property of the coverer alone. A job's
+    round index is the primary role's own variant index, and
+    ``inventory.planner.plan_dev_inventory_matrix`` hands each pulled-in
+    dependency ``round_index if round_index < its variant count else 0``. So a
+    variant N row covers a provider exactly when N lands past that provider's
+    last variant and falls back to 0 - which is why ``variant_counts`` is
+    needed here: N alone does not say it.
 
     A variant that dictates a provider's own config is not evidence about that
     provider in any variant: the deploy ran a configuration the provider does
@@ -305,8 +312,16 @@ def _mark_covered(
         rows: the complexity rows, in ranking order.
         overridden: ``{(role, variant): {provider role, ...}}``, or None when
             no variant dictates anything.
+        variant_counts: ``{role: how many variants it declares}``. A role
+            missing from it counts as one, which is the whole-role case.
     """
     demands = overridden or {}
+    counts = variant_counts or {}
+
+    def pulls_at_zero(coverer_variant: int | None, provider: str) -> bool:
+        index = coverer_variant or 0
+        return index == 0 or index >= counts.get(provider, 1)
+
     green: list[tuple[int, str, int | None, set[str]]] = []
     out: list[ComplexityRow] = []
     for index, row in enumerate(rows, start=1):
@@ -319,6 +334,7 @@ def _mark_covered(
                     if gname != row.name
                     and row.name in gset
                     and row.name not in demands.get((gname, gvariant or 0), ())
+                    and pulls_at_zero(gvariant, row.name)
                 ),
                 None,
             )
@@ -374,7 +390,14 @@ def main(argv: list[str] | None = None) -> int:
         rows = attach_siblings(rows)
 
     _apply_sort(rows, sort_spec)
-    rows = _mark_covered(rows, overridden_providers(roles_dir))
+    rows = _mark_covered(
+        rows,
+        overridden_providers(roles_dir),
+        {
+            role: max(1, len(entries or [{}]))
+            for role, entries in get_variants(roles_dir=roles_dir).items()
+        },
+    )
     _apply_sort(rows, sort_spec)
 
     rows = [r._replace(row=line) for line, r in enumerate(rows, start=1)]
