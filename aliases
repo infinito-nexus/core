@@ -1,5 +1,6 @@
 alias i8='infinito' # the infinito CLI
 alias i8bo='m bootstrap'
+alias i8bond='m bond'
 alias i8bu='m build'
 alias i8buce='m build-cleanup'
 alias i8bude='m build-dependency'

@@ -47,6 +47,11 @@ autoformat: install-lint
 autoformat-restage:
 	@bash scripts/git/autoformat_restage.sh "$(MAKE)" autoformat
 
+.PHONY: bond
+# Serve the role bond matrix, where editing a cell rewrites the role's bond.
+bond:
+	@"$${PYTHON}" -m cli.meta.roles.applications.bond $(args)
+
 .PHONY: bootstrap
 # Install dependencies and prepare the project.
 bootstrap: install setup
