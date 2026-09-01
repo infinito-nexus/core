@@ -56,18 +56,8 @@ flowchart LR
     end
     subgraph dependents [Dependents]
         dpt_svc_db_qdrant["svc-db-qdrant 🐳🐝"]
-        dpt_web_app_baserow["web-app-baserow 🐳🐝"]
-        dpt_web_app_checkmk["web-app-checkmk 🐳🐝"]
-        dpt_web_app_fider["web-app-fider 🐳🐝"]
-        dpt_web_app_gitea["web-app-gitea 🐳🐝"]
-        dpt_web_app_gitlab["web-app-gitlab 🐳🐝"]
         dpt_web_app_homeassistant["web-app-homeassistant 🐳🐝"]
-        dpt_web_app_jellyfin["web-app-jellyfin 🐳🐝"]
-        dpt_web_app_jenkins["web-app-jenkins 🐳🐝"]
-        dpt_web_app_listmonk["web-app-listmonk 🐳🐝"]
-        dpt_web_app_mattermost["web-app-mattermost 🐳🐝"]
-        dpt_web_app_moodle["web-app-moodle 🐳🐝"]
-        dpt_more["..."]
+        dpt_web_app_prometheus["web-app-prometheus 🐳🐝"]
     end
     dep_svc_ai_litellm -. "0..1" .-> svc_litellm
     dep_svc_ai_ollama -. "0..1" .-> svc_ollama
@@ -86,19 +76,9 @@ flowchart LR
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_svc_css -. "0..1" .-> svc_css
     dep_web_svc_logout -. "0..1" .-> svc_logout
-    svc_logout -- "1:1" --> dpt_more
     svc_logout -. "0..1" .-> dpt_svc_db_qdrant
-    svc_logout -. "0..1" .-> dpt_web_app_baserow
-    svc_logout -. "0..1" .-> dpt_web_app_checkmk
-    svc_logout -. "0..1" .-> dpt_web_app_fider
-    svc_logout -. "0..1" .-> dpt_web_app_gitea
-    svc_logout -. "0..1" .-> dpt_web_app_gitlab
     svc_logout -. "0..1" .-> dpt_web_app_homeassistant
-    svc_logout -. "0..1" .-> dpt_web_app_jellyfin
-    svc_logout -. "0..1" .-> dpt_web_app_jenkins
-    svc_logout -. "0..1" .-> dpt_web_app_listmonk
-    svc_logout -. "0..1" .-> dpt_web_app_mattermost
-    svc_logout -. "0..1" .-> dpt_web_app_moodle
+    svc_logout -. "0..1" .-> dpt_web_app_prometheus
     linkStyle 3 stroke:red;
 ```
 

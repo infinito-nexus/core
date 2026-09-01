@@ -325,14 +325,12 @@ peertube:
 # Re-enable enabled/shared (back to the "web-app-moodle in group_names" form) once a plugin ships.
 # nocheck: playwright-service-flag: bridged moodle partner, covered by partner role spec
 moodle:
-  bond: 0.5
   enabled: false # nocheck: dynamic-flag
   shared: false # nocheck: dynamic-flag
 # TODO(bridge): integration_suitecrm requires nc <= 24 (see meta/addons/integration_suitecrm.yml).
 # Re-enable enabled/shared (back to the "web-app-suitecrm in group_names" form) once a plugin ships.
 # nocheck: playwright-service-flag: bridged suitecrm partner, covered by partner role spec
 suitecrm:
-  bond: 0.5
   enabled: false # nocheck: dynamic-flag
   shared: false # nocheck: dynamic-flag
 # nocheck: dynamic-flag
@@ -352,8 +350,8 @@ openclaw:
   enabled: "{{ 'web-app-openclaw' in group_names }}"
   shared: "{{ 'web-app-openclaw' in group_names }}"
 # nocheck: playwright-service-flag: MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
+# nocheck: dynamic-flag  the entry refuses this client, so the link is off on every host and no group_names gate can decide it
 flowise:
-  bond: 0.5
-  enabled: "{{ 'web-app-flowise' in group_names }}"
-  shared: "{{ 'web-app-flowise' in group_names }}"
+  enabled: false
+  shared: false
   mcp_consumer: false

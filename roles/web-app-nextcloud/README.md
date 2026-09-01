@@ -24,7 +24,6 @@ flowchart LR
         dep_web_app_bigbluebutton["web-app-bigbluebutton 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_discourse["web-app-discourse 🐳🐝"]
-        dep_web_app_flowise["web-app-flowise 🐳🐝"]
         dep_web_app_gitlab["web-app-gitlab 🐳🐝"]
         dep_web_app_hermes["web-app-hermes 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
@@ -89,7 +88,7 @@ flowchart LR
         svc_container_backup["container_backup"]
         svc_hermes["hermes"]
         svc_openclaw["openclaw"]
-        svc_flowise["flowise"]
+        svc_flowise["flowise ❌"]
     end
     dep_svc_ai_litellm -. "0..1" .-> svc_litellm
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
@@ -100,7 +99,6 @@ flowchart LR
     dep_web_app_bigbluebutton -. "0..1" .-> svc_bigbluebutton
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_discourse -. "0..1" .-> svc_discourse
-    dep_web_app_flowise -. "0..1" .-> svc_flowise
     dep_web_app_gitlab -. "0..1" .-> svc_gitlab
     dep_web_app_hermes -. "0..1" .-> svc_context_agent
     dep_web_app_hermes -. "0..1" .-> svc_hermes

@@ -16,6 +16,12 @@ a client adds ``mcp_consumer: false`` to that entry. Keeping the entry and
 spelling the refusal out is what makes a deliberate exclusion
 distinguishable from a forgotten one.
 
+A refused entry inverts the required shape: ``enabled`` and ``shared`` MUST
+be literally ``false`` there. The gate exists to plan provider and client
+into one round, so leaving it dynamic schedules a client the provider
+refuses, costs the round its memory, and states an integration that can
+never form.
+
 Add ``# nocheck: mcp-consumer-services-entry`` to the head of the provider's
 ``meta/mcp.yml`` for one that legitimately owns no such edge.
 """
@@ -86,6 +92,15 @@ def missing_entries() -> list[str]:
                     f"client {consumer!r}; add one gated on "
                     f"\"{{{{ '{consumer}' in group_names }}}}\", with "
                     f"'{MCP_CONSUMER_FLAG}: false' if it must not be admitted"
+                )
+                continue
+            if entry.get(MCP_CONSUMER_FLAG) is False:
+                findings.extend(
+                    f"{role}: services.{key}.{flag} must be false; the entry "
+                    f"refuses {consumer!r}, so a group_names gate would plan "
+                    f"a pairing that can never form"
+                    for flag in ("enabled", "shared")
+                    if entry.get(flag) is not False
                 )
                 continue
             findings.extend(

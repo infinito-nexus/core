@@ -59,7 +59,6 @@ sso:
 
 # nocheck: logout, dynamic-flag, playwright-service-flag
 logout:
-  bond: 1
   enabled: false
   shared: false
 

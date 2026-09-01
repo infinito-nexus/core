@@ -38,9 +38,6 @@
     openclaw:
       enabled: false
       shared: false
-    flowise:
-      enabled: false
-      shared: false
 - services:
     container_backup:
       enabled: false
@@ -81,9 +78,6 @@
     openclaw:
       enabled: true
       shared: true
-    flowise:
-      enabled: true
-      shared: true
 - services:
     container_backup:
       enabled: false
@@ -122,8 +116,5 @@
       enabled: false
       shared: false
     openclaw:
-      enabled: false
-      shared: false
-    flowise:
       enabled: false
       shared: false

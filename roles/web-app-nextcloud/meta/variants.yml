@@ -111,9 +111,6 @@
     openclaw:
       enabled: false
       shared: false
-    flowise:
-      enabled: false
-      shared: false
 # Variant 1: minimal - SSO off, no partners
 - services:
     container_backup:
@@ -209,9 +206,6 @@
       enabled: true
       shared: true
     openclaw:
-      enabled: true
-      shared: true
-    flowise:
       enabled: true
       shared: true
   addons: &addons_static_off
@@ -356,9 +350,6 @@
     openclaw:
       enabled: false
       shared: false
-    flowise:
-      enabled: false
-      shared: false
   addons: *addons_static_off
 # Variant 3: openproject
 - services:
@@ -455,9 +446,6 @@
       enabled: false
       shared: false
     openclaw:
-      enabled: false
-      shared: false
-    flowise:
       enabled: false
       shared: false
   addons: *addons_static_off
@@ -558,9 +546,6 @@
     openclaw:
       enabled: false
       shared: false
-    flowise:
-      enabled: false
-      shared: false
   addons: *addons_static_off
 # Variant 5: zammad
 - services:
@@ -657,9 +642,6 @@
       enabled: false
       shared: false
     openclaw:
-      enabled: false
-      shared: false
-    flowise:
       enabled: false
       shared: false
   addons: *addons_static_off
@@ -760,9 +742,6 @@
     openclaw:
       enabled: false
       shared: false
-    flowise:
-      enabled: false
-      shared: false
   addons: *addons_static_off
 # Variant 7: discourse
 - services:
@@ -859,9 +838,6 @@
       enabled: false
       shared: false
     openclaw:
-      enabled: false
-      shared: false
-    flowise:
       enabled: false
       shared: false
   addons: *addons_static_off
@@ -962,9 +938,6 @@
     openclaw:
       enabled: false
       shared: false
-    flowise:
-      enabled: false
-      shared: false
   addons: *addons_static_off
 # Variant 9: xwiki
 - services:
@@ -1061,9 +1034,6 @@
       enabled: false
       shared: false
     openclaw:
-      enabled: false
-      shared: false
-    flowise:
       enabled: false
       shared: false
   addons: *addons_static_off
@@ -1164,9 +1134,6 @@
     openclaw:
       enabled: false
       shared: false
-    flowise:
-      enabled: false
-      shared: false
   addons: *addons_static_off
 # Variant 11: bigbluebutton
 - services:
@@ -1263,9 +1230,6 @@
       enabled: false
       shared: false
     openclaw:
-      enabled: false
-      shared: false
-    flowise:
       enabled: false
       shared: false
   addons: *addons_static_off
@@ -1366,9 +1330,6 @@
     openclaw:
       enabled: false
       shared: false
-    flowise:
-      enabled: false
-      shared: false
   addons: *addons_static_off
 # Variant 13: litellm
 - services:
@@ -1465,9 +1426,6 @@
       enabled: false
       shared: false
     openclaw:
-      enabled: false
-      shared: false
-    flowise:
       enabled: false
       shared: false
   addons: *addons_static_off

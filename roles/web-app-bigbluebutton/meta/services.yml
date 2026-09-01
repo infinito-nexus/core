@@ -201,6 +201,5 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
 
 # nocheck: playwright-service-flag
 tor:
-  bond: 0.5
   enabled: false # nocheck: dynamic-flag
   shared: false # nocheck: dynamic-flag

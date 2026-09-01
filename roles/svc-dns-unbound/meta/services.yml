@@ -27,6 +27,5 @@ unbound:
 
 # nocheck: dynamic-flag - the resolver state volume is backup-disabled rebuildable cache, the backup consumer stays permanently off
 container_backup:
-  bond: 1
   enabled: false
   shared: true
