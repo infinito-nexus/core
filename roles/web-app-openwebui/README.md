@@ -59,10 +59,10 @@ flowchart LR
         dpt_web_app_gitlab["web-app-gitlab 🐳🐝"]
         dpt_web_app_homeassistant["web-app-homeassistant 🐳🐝"]
         dpt_web_app_jellyfin["web-app-jellyfin 🐳🐝"]
+        dpt_web_app_jenkins["web-app-jenkins 🐳🐝"]
         dpt_web_app_listmonk["web-app-listmonk 🐳🐝"]
         dpt_web_app_mattermost["web-app-mattermost 🐳🐝"]
         dpt_web_app_moodle["web-app-moodle 🐳🐝"]
-        dpt_web_app_n8n["web-app-n8n 🐳🐝"]
         dpt_more["..."]
     end
     dep_svc_ai_litellm -. "0..1" .-> svc_litellm
@@ -88,10 +88,10 @@ flowchart LR
     svc_sso -. "0..1" .-> dpt_web_app_gitlab
     svc_sso -. "0..1" .-> dpt_web_app_homeassistant
     svc_sso -. "0..1" .-> dpt_web_app_jellyfin
+    svc_sso -. "0..1" .-> dpt_web_app_jenkins
     svc_sso -. "0..1" .-> dpt_web_app_listmonk
     svc_sso -. "0..1" .-> dpt_web_app_mattermost
     svc_sso -. "0..1" .-> dpt_web_app_moodle
-    svc_sso -. "0..1" .-> dpt_web_app_n8n
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.

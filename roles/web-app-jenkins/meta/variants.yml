@@ -32,6 +32,9 @@
       shared: true
     tor:
       enabled: true
+    openwebui:
+      enabled: false
+      shared: false
     hermes:
       enabled: false
       shared: false
@@ -65,6 +68,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    openwebui:
+      enabled: true
+      shared: true
     hermes:
       enabled: true
       shared: true
@@ -98,6 +104,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    openwebui:
+      enabled: false
+      shared: false
     hermes:
       enabled: false
       shared: false

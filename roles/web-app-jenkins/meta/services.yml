@@ -97,11 +97,10 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
 # nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
-# nocheck: dynamic-flag  the entry refuses this client, so the link is off on every host and no group_names gate can decide it
 openwebui:
-  enabled: false
-  shared: false
-  mcp_consumer: false
+  bond: 0.5
+  enabled: "{{ 'web-app-openwebui' in group_names }}"
+  shared: "{{ 'web-app-openwebui' in group_names }}"
 # nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
 hermes:
   bond: 0.5

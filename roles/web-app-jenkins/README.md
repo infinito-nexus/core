@@ -23,6 +23,7 @@ flowchart LR
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
         dep_web_app_openclaw["web-app-openclaw 🐳🐝"]
+        dep_web_app_openwebui["web-app-openwebui 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
         dep_web_svc_css["web-svc-css 💻"]
         dep_web_svc_logout["web-svc-logout 🐳🐝"]
@@ -39,7 +40,7 @@ flowchart LR
         svc_jenkinsmcp["jenkinsmcp"]
         svc_css["css"]
         svc_container_backup["container_backup"]
-        svc_openwebui["openwebui ❌"]
+        svc_openwebui["openwebui"]
         svc_hermes["hermes"]
         svc_openclaw["openclaw"]
         svc_flowise["flowise ❌"]
@@ -52,6 +53,7 @@ flowchart LR
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_openclaw -. "0..1" .-> svc_openclaw
+    dep_web_app_openwebui -. "0..1" .-> svc_openwebui
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_svc_css -. "0..1" .-> svc_css
     dep_web_svc_logout -. "0..1" .-> svc_logout
