@@ -62,7 +62,7 @@ ZAMMAD_MAIL: "{{ lookup('email', application_id) if ZAMMAD_EMAIL_ENABLED else {}
 ZAMMAD_HELPDESK_USER: "{{ lookup('users', 'helpdesk') if ZAMMAD_EMAIL_ENABLED else {} }}"
 ZAMMAD_HELPDESK_EMAIL: "{{ ZAMMAD_HELPDESK_USER.email | default('') }}"
 ZAMMAD_HELPDESK_PASS: "{{ (ZAMMAD_HELPDESK_USER.tokens | default({})).get('web-app-mailu', '') }}"
-ZAMMAD_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') | bool }}"
+ZAMMAD_MCP_ENABLED: "{{ lookup('config', application_id, 'services.zammadmcp.enabled') | bool }}"
 ZAMMAD_MCP_SERVICE_KEY: "zammadmcp"
 ZAMMAD_MCP_CONTAINER: "{{ lookup('config', application_id, 'services.zammadmcp.name') }}"
 ZAMMAD_MCP_PORT: "{{ lookup('config', application_id, 'services.zammadmcp.ports.internal.http') }}"

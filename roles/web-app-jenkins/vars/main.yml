@@ -14,7 +14,7 @@ JENKINS_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enable
 
 JENKINS_LOOPBACK_URL: "http://localhost:{{ lookup('config', application_id, 'services.jenkins.ports.internal.http') }}"
 
-JENKINS_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') }}"
+JENKINS_MCP_ENABLED: "{{ lookup('config', application_id, 'services.jenkinsmcp.enabled') | bool }}"
 JENKINS_MCP_USERNAME: "{{ lookup('config', application_id, 'mcp.credential.owner') }}"
 JENKINS_MCP_TOKEN_NAME: "infinito-mcp"
 JENKINS_MCP_TOKEN_FILE: "/var/jenkins_home/secrets/infinito-mcp.token"

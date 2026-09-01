@@ -29,7 +29,7 @@ GITEA_REDIS_PASSWORD: "{{ lookup('engine', 'redis', application_id, 'password') 
 
 GITEA_INTERNAL_API_URL: "http://{{ entity_name }}:{{ lookup('config', application_id, 'services.gitea.ports.internal.http') }}/api/v1"
 
-GITEA_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') }}"
+GITEA_MCP_ENABLED: "{{ lookup('config', application_id, 'services.giteamcp.enabled') | bool }}"
 GITEA_MCP_SERVICE_KEY: "{{ lookup('config', application_id, 'mcp.endpoint.service_key') }}"
 GITEA_MCP_CONTAINER: "{{ lookup('config', application_id, 'services.giteamcp.name') }}"
 GITEA_MCP_PORT: "{{ lookup('config', application_id, 'services.giteamcp.ports.internal.http') }}"

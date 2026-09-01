@@ -27,7 +27,7 @@ PRETIX_REDIS_RESULT_DB: 2
 PRETIX_IMAGE: "{{ lookup('config', application_id, 'services.pretix.image') }}"
 PRETIX_VERSION: "{{ lookup('config', application_id, 'services.pretix.version') }}"
 PRETIX_CONTAINER: "{{ lookup('config', application_id, 'services.pretix.name') }}"
-PRETIX_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') | bool }}"
+PRETIX_MCP_ENABLED: "{{ lookup('config', application_id, 'services.pretixmcp.enabled') | bool }}"
 PRETIX_MCP_SERVICE_KEY: "pretixmcp"
 PRETIX_MCP_CONTAINER: "{{ lookup('config', application_id, 'services.pretixmcp.name') }}"
 PRETIX_MCP_PORT: "{{ lookup('config', application_id, 'services.pretixmcp.ports.internal.http') }}"

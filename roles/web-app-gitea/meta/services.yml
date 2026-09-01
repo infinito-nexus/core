@@ -83,7 +83,10 @@ gitea:
   lifecycle: beta
 # nocheck: playwright-service-flag
 # nocheck: dockerfile-custom  the Dockerfile is owned by svc-ai-mcp-adapter and staged per instance, so every adapter-backed provider shares one audited build
+# nocheck: dynamic-flag  the sidecar tracks this role's own mcp flag, not another role's presence; a group_names expression would decide its exposure from an unrelated deployment
 giteamcp:
+  enabled: "{{ lookup('config', 'web-app-gitea', 'mcp.enabled') | bool }}"
+  shared: false
   image: python
   # nocheck: docker-version  base of the self-built stdlib adapter, not the served application
   version: "3.13.15-slim"
@@ -100,7 +103,10 @@ giteamcp:
     internal:
       http: 8080
 # nocheck: playwright-service-flag
+# nocheck: dynamic-flag  the vendor server exists only behind the adapter, so it tracks this role's own mcp flag rather than another role's presence
 giteamcpupstream:
+  enabled: "{{ lookup('config', 'web-app-gitea', 'mcp.enabled') | bool }}"
+  shared: false
   image: docker.gitea.com/gitea-mcp-server
   version: "1.6.0"
   name: gitea-mcp

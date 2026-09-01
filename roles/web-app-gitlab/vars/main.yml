@@ -30,7 +30,7 @@ GITLAB_OIDC_REDIRECT_URI: "{{ (GITLAB_URL | regex_replace('/$', '')) ~ '/users/a
 
 GITLAB_INIT_ROOT_PASSWORD: "{{ lookup('users', 'administrator').password }}"
 
-GITLAB_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') }}"
+GITLAB_MCP_ENABLED: "{{ lookup('config', application_id, 'services.gitlabmcp.enabled') | bool }}"
 GITLAB_MCP_PATH: "{{ GITLAB_MCP_UPSTREAM_PATH }}"
 GITLAB_MCP_TOKEN_NAME: "infinito-mcp"
 GITLAB_MCP_ACCOUNT: "{{ lookup('users', 'mcp-web-app-gitlab') }}"

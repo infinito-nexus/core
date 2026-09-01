@@ -13,7 +13,7 @@ FIDER_TENANT_BOOTSTRAP_BODY:
   email: "{{ lookup('users', 'administrator').email }}"
   legalAgreement: true
   token: ""
-FIDER_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') | bool }}"
+FIDER_MCP_ENABLED: "{{ lookup('config', application_id, 'services.fidermcp.enabled') | bool }}"
 FIDER_MCP_SERVICE_KEY: "fidermcp"
 FIDER_MCP_CONTAINER: "{{ lookup('config', application_id, 'services.fidermcp.name') }}"
 FIDER_MCP_PORT: "{{ lookup('config', application_id, 'services.fidermcp.ports.internal.http') }}"

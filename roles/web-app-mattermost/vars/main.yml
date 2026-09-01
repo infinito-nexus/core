@@ -45,7 +45,7 @@ MATTERMOST_LITELLM_BOT:
   teamIDs: []
   maxFileSize: 0
 
-MATTERMOST_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') }}"
+MATTERMOST_MCP_ENABLED: "{{ lookup('config', application_id, 'services.mattermostmcp.enabled') | bool }}"
 MATTERMOST_MCP_PLUGIN_ID: mattermost-ai
 MATTERMOST_MCP_TOKEN_DESCRIPTION: mcp
 
