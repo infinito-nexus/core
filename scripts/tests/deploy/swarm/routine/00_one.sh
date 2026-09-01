@@ -42,6 +42,7 @@ export SWARM_DRILL_ENV
 : "${INFINITO_IMAGE_TAG:?INFINITO_IMAGE_TAG is required (source scripts/meta/env/load.sh before invoking this script)}"
 : "${INFINITO_RESCUE_DIAGNOSTICS_BASE:?INFINITO_RESCUE_DIAGNOSTICS_BASE is required}"
 : "${INFINITO_SWARM_STEP_TIMEOUT_MINUTES:?INFINITO_SWARM_STEP_TIMEOUT_MINUTES is required}"
+: "${INFINITO_SWARM_TEARDOWN_RESERVE_SECONDS:?INFINITO_SWARM_TEARDOWN_RESERVE_SECONDS is required}"
 
 SWARM_REQUIRED_SERVICES="node nfs-server container_backup nfs_backup"
 if [ -n "${disable:-}" ]; then
@@ -110,7 +111,19 @@ make setup
 # shellcheck source=scripts/meta/env/load.sh
 source scripts/meta/env/load.sh
 
-matrix_cmd=(python3 -m utils.tests.swarm.matrix)
+step_timeout="$((INFINITO_SWARM_STEP_TIMEOUT_MINUTES * 60))"
+if [ -n "${INFINITO_CI_DISTRO_DEADLINE_EPOCH:-}" ]; then
+	under_governor="$((INFINITO_CI_DISTRO_DEADLINE_EPOCH - $(date +%s) - INFINITO_SWARM_TEARDOWN_RESERVE_SECONDS))"
+	if [ "${under_governor}" -le 0 ]; then
+		echo "[ERROR] no budget left under the sweep governor for the matrix deploy" >&2
+		exit 2
+	fi
+	if [ "${under_governor}" -lt "${step_timeout}" ]; then
+		step_timeout="${under_governor}"
+	fi
+fi
+
+matrix_cmd=(timeout "${step_timeout}" python3 -m utils.tests.swarm.matrix)
 if [ "$(id -u)" -ne 0 ]; then
 	matrix_cmd=(
 		sudo -E env
@@ -127,7 +140,7 @@ if [ "$(id -u)" -ne 0 ]; then
 		"${matrix_cmd[@]}"
 	)
 fi
-timeout "$((INFINITO_SWARM_STEP_TIMEOUT_MINUTES * 60))" "${matrix_cmd[@]}"
+"${matrix_cmd[@]}"
 
 bash "${SCRIPT_DIR}/05_seed_content.sh"
 bash "${SCRIPT_DIR}/06_drain_worker.sh"
