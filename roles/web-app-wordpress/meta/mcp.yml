@@ -26,10 +26,6 @@ limits:
   result_items: 20
   stream_seconds: 300
 tools:
-  # Exception: hyphens, not the `infinito/…` ability names
-  # files/mu-plugins/infinito-mcp-abilities.php registers. The adapter's
-  # McpNameSanitizer rewrites `/` to `-` before publishing an ability as a tool,
-  # so the served surface never carries the ability spelling.
   allowlist:
     - infinito-get-post
     - infinito-list-categories
