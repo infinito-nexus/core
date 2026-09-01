@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from utils.roles.guide import guide_variant
+from utils.roles.guide import guide_deployable, guide_variant
 from utils.symbol_glossary import to_emoji
 
 if TYPE_CHECKING:
@@ -37,19 +37,26 @@ def mark(
     them proves nothing the first replay did not. The glyph goes between the
     variant number and the ⭐ of a priority row, with no space between the two:
     they are one marker block, not two axes.
+
+    The row has to run in the guide's own mode. The replay is a second deploy
+    on the same runner, so hanging it on a swarm row would ask that runner to
+    bring a compose stack up beside a swarm one. Only rows in that mode count
+    as deployed here either, so the variant search cannot settle on one that
+    this sweep runs in swarm alone.
     """
+    star = f" {to_emoji('priority')}"
     deployed: dict[str, set[str]] = {}
     for entry in entries:
-        if not redundant(entry):
-            deployed.setdefault(entry["apps"], set()).add(entry["variant"])
-    star = f" {to_emoji('priority')}"
+        app = entry["apps"]
+        if not redundant(entry) and entry["mode"] == guide_deployable(app):
+            deployed.setdefault(app, set()).add(entry["variant"])
     marked: set[str] = set()
     for entry in entries:
         app = entry["apps"]
         if app in marked or redundant(entry):
             continue
         variant, mode = guide_variant(app, variants_per_app, deployed.get(app, set()))
-        if not mode or entry["variant"] != variant:
+        if not mode or entry["variant"] != variant or entry["mode"] != mode:
             continue
         entry["instructions"] = mode
         entry["label"] = (
