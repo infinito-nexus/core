@@ -114,9 +114,6 @@
     flowise:
       enabled: false
       shared: false
-  mcp:
-    enabled: true
-    shared: true
 # Variant 1: minimal - SSO off, no partners
 - services:
     container_backup:
@@ -262,9 +259,6 @@
       enabled: false
     tasks:
       enabled: false
-  mcp:
-    enabled: false
-    shared: false
 # Variant 2: openwebui
 - services:
     container_backup:
@@ -366,9 +360,6 @@
       enabled: false
       shared: false
   addons: *addons_static_off
-  mcp:
-    enabled: false
-    shared: false
 # Variant 3: openproject
 - services:
     container_backup:
@@ -470,9 +461,6 @@
       enabled: false
       shared: false
   addons: *addons_static_off
-  mcp:
-    enabled: false
-    shared: false
 # Variant 4: onlyoffice + mastodon
 - services:
     container_backup:
@@ -574,9 +562,6 @@
       enabled: false
       shared: false
   addons: *addons_static_off
-  mcp:
-    enabled: false
-    shared: false
 # Variant 5: zammad
 - services:
     container_backup:
@@ -678,9 +663,6 @@
       enabled: false
       shared: false
   addons: *addons_static_off
-  mcp:
-    enabled: false
-    shared: false
 # Variant 6: gitlab
 - services:
     container_backup:
@@ -782,9 +764,6 @@
       enabled: false
       shared: false
   addons: *addons_static_off
-  mcp:
-    enabled: false
-    shared: false
 # Variant 7: discourse
 - services:
     container_backup:
@@ -886,9 +865,6 @@
       enabled: false
       shared: false
   addons: *addons_static_off
-  mcp:
-    enabled: false
-    shared: false
 # Variant 8: peertube - clearnet, because the OIDC plugin rejects a plaintext onion issuer
 - services:
     container_backup:
@@ -990,9 +966,6 @@
       enabled: false
       shared: false
   addons: *addons_static_off
-  mcp:
-    enabled: false
-    shared: false
 # Variant 9: xwiki
 - services:
     container_backup:
@@ -1094,9 +1067,6 @@
       enabled: false
       shared: false
   addons: *addons_static_off
-  mcp:
-    enabled: false
-    shared: false
 # Variant 10: mattermost
 - services:
     container_backup:
@@ -1198,9 +1168,6 @@
       enabled: false
       shared: false
   addons: *addons_static_off
-  mcp:
-    enabled: false
-    shared: false
 # Variant 11: bigbluebutton
 - services:
     container_backup:
@@ -1302,9 +1269,6 @@
       enabled: false
       shared: false
   addons: *addons_static_off
-  mcp:
-    enabled: false
-    shared: false
 # Variant 12: matrix
 - services:
     container_backup:
@@ -1406,9 +1370,6 @@
       enabled: false
       shared: false
   addons: *addons_static_off
-  mcp:
-    enabled: false
-    shared: false
 # Variant 13: litellm
 - services:
     container_backup:
@@ -1510,6 +1471,3 @@
       enabled: false
       shared: false
   addons: *addons_static_off
-  mcp:
-    enabled: false
-    shared: false

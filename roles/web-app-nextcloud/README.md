@@ -208,7 +208,7 @@ Nextcloud serves a Model Context Protocol endpoint through the AppAPI proxy of t
 | Auth | Nextcloud app password, sent as `Authorization: Bearer <app-password>` |
 | Identity | the Nextcloud user the app password belongs to; every tool call runs with that user's permissions |
 | Implementation | plugin (the `context_agent` ExApp container, registered through the `manual_install` deploy daemon) |
-| Default state | off; `mcp.enabled` turns on when `web-app-hermes` or `web-app-openclaw` is deployed |
+| Default state | off; `mcp.enabled` turns on when `web-app-hermes`, `web-app-openclaw` or `web-app-openwebui` is deployed |
 
 ### Deployment
 
@@ -244,7 +244,7 @@ An unauthenticated request to the same path answers `404`; [`files/playwright/te
 
 ### Default state
 
-Off. `mcp.enabled` is true only while `web-app-hermes` or `web-app-openclaw` is part of the deployment.
+Off. `mcp.enabled` is true only while `web-app-hermes`, `web-app-openclaw` or `web-app-openwebui` is part of the deployment.
 
 ### How to disable
 

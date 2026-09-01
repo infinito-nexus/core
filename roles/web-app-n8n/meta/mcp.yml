@@ -1,6 +1,4 @@
 ---
-enabled: false
-shared: false
 classification: native_both
 direction: both
 source_url: https://github.com/n8n-io/n8n/tree/n8n%401.95.3/packages/%40n8n/nodes-langchain/nodes/mcp

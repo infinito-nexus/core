@@ -26,6 +26,7 @@ from collections.abc import Mapping
 from pathlib import Path
 
 from utils.annotations.suppress import is_suppressed_in_head
+from utils.cache.applications import get_application_defaults
 from utils.cache.files import iter_project_files_with_content, read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_META_MCP
@@ -39,18 +40,23 @@ _PROBE = "roles/svc-ai-mcp-adapter/tasks/probe.yml"
 
 def _enabled_providers() -> list[Path]:
     """Return the role directories serving an MCP endpoint right now."""
+    roles_root = Path(PROJECT_ROOT, "roles")
+    defaults = get_application_defaults(roles_dir=roles_root)
     roles: list[Path] = []
-    for mcp_path in sorted(Path(PROJECT_ROOT, "roles").glob(f"*/{ROLE_FILE_META_MCP}")):
+    for mcp_path in sorted(roles_root.glob(f"*/{ROLE_FILE_META_MCP}")):
         mcp = load_yaml_any(str(mcp_path), default_if_missing={})
         if not isinstance(mcp, Mapping):
             continue
         if str(mcp.get("direction") or "").strip().lower() not in _SERVER_DIRECTIONS:
             continue
-        if not bool(mcp.get("enabled")):
+        role_dir = mcp_path.parent.parent
+        block = (defaults.get(role_dir.name) or {}).get("mcp")
+        resolved = block.get("enabled") if isinstance(block, Mapping) else None
+        if not resolved:
             continue
         if is_suppressed_in_head(read_text(str(mcp_path)).splitlines(), _RULE):
             continue
-        roles.append(mcp_path.parent.parent)
+        roles.append(role_dir)
     return roles
 
 

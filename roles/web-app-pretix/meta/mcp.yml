@@ -1,6 +1,4 @@
 ---
-enabled: false
-shared: false
 classification: adapter_server
 direction: server
 source_url: https://s.infinito.nexus/code

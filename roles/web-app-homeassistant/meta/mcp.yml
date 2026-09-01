@@ -1,6 +1,4 @@
 ---
-enabled: true
-shared: true
 classification: native_server
 direction: server
 source_url: https://www.home-assistant.io/integrations/mcp_server/

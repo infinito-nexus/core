@@ -313,21 +313,25 @@ class TestMcpSchema(unittest.TestCase):
             self._check_adapter(mcp, prefix, flag, role)
 
     def _check_no_peer_gate(self, mcp, prefix, flag) -> None:
-        """Pairing is the allowed_consumers intersection, never a deployed peer.
+        """Admission is declared, presence is derived; never both by hand here.
 
         A block that reads ``'web-app-openwebui' in group_names`` turns "that
         client happens to be deployed" into "that client may connect", which is
         a different question and one nobody declared. It also cannot scale: each
         new client would need an edit in every provider.
+
+        ``utils/cache/applications.py`` builds exactly that expression from the
+        ``mcp_consumer`` edges instead, so a hand-written one is a second source
+        for the same fact and drifts the moment an edge changes.
         """
         for key in ("enabled", "shared"):
             value = mcp.get(key)
             if isinstance(value, str) and "group_names" in value:
                 flag(
                     key,
-                    f"{prefix}.{key} gates on group_names; provider enablement "
-                    f"is operator or variant state, and pairing is the "
-                    f"allowed_consumers intersection",
+                    f"{prefix}.{key} gates on group_names by hand; the presence "
+                    f"expression is derived from the allowed_consumers "
+                    f"intersection, so declare admission in meta/services.yml",
                 )
 
     def _check_delegation(self, mcp, prefix, flag) -> None:

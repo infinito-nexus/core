@@ -14,6 +14,7 @@ import unittest
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
+from utils.cache.applications import get_application_defaults
 from utils.cache.yaml import load_yaml
 from utils.roles.mapping import ROLE_FILE_META_MCP
 
@@ -153,12 +154,22 @@ class TestPublicSurfacesAreCovered(unittest.TestCase):
 
 
 def endpoint_roles() -> dict[str, dict]:
-    """Return every role declaring an MCP endpoint path, by role name."""
+    """Return every role declaring an MCP endpoint path, by role name.
+
+    ``enabled`` comes from the resolved defaults, not from the meta file: it is
+    derived from the admitted clients and a role's own ``meta/mcp.yml`` carries
+    it only when it overrides that.
+    """
+    defaults = get_application_defaults(roles_dir=PROJECT_ROOT / "roles")
     found = {}
     for meta in (PROJECT_ROOT / "roles").glob(f"*/{ROLE_FILE_META_MCP}"):
-        block = load_yaml(meta)
-        if (block.get("endpoint") or {}).get("path"):
-            found[meta.parent.parent.name] = block
+        role = meta.parent.parent.name
+        block = dict(load_yaml(meta))
+        if not (block.get("endpoint") or {}).get("path"):
+            continue
+        resolved = (defaults.get(role) or {}).get("mcp") or {}
+        block["enabled"] = resolved.get("enabled")
+        found[role] = block
     return found
 
 
@@ -195,7 +206,7 @@ class TestTheAppVhostServesOnlyPublicSurfaces(unittest.TestCase):
 
     def test_the_public_roles_are_the_only_ones_served(self):
         served = {r for r, b in endpoint_roles().items() if self.served(b)}
-        self.assertEqual(served, {r for r in PUBLIC_ROLES if r != "web-app-wordpress"})
+        self.assertEqual(served, set(PUBLIC_ROLES))
 
 
 class TestTheHiddenPathIsTheOneTheAppServes(unittest.TestCase):

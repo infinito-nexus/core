@@ -1,6 +1,4 @@
 ---
-enabled: true
-shared: true
 classification: native_client
 direction: client
 source_url: https://hermes-agent.nousresearch.com/

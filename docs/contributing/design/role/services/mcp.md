@@ -9,8 +9,6 @@ A role declares `meta/mcp.yml` when it actually serves or consumes MCP. The file
 ```yaml
 mcp:
   bond: 1
-  enabled: true
-  shared: true
   classification: native_server
   direction: server            # server | client | both
   transport: sse               # streamable_http | sse
@@ -81,7 +79,7 @@ A client-only block MUST NOT declare an `endpoint`.
 ## Rules
 
 - `classification` is required and MUST be deployable; all MCP-specific fields MUST be literals (only `enabled`/`shared` may carry Jinja).
-- `enabled`/`shared` MUST NOT name a peer role. Provider enablement is explicit operator or variant state; the variant axis lives in `meta/variants.yml`.
+- `enabled`/`shared` are omitted. [`utils/cache/applications.py`](../../../../../utils/cache/applications.py) derives both from the admitted clients as `"{{ '<client>' in group_names or … }}"`, and `false` when no client is admitted, so a surface is reachable exactly while a peer that uses it is deployed. Write either key to override that: a value in `meta/variants.yml` wins over one in `meta/mcp.yml`, and both win over the derivation. Do not hand-write a `group_names` gate: it is a second source for the derived fact and drifts when an edge changes.
 - `direction: server | both` requires `auth`, `credential`, a complete `endpoint`, and at least one admitted client.
 - Admission lives in `meta/services.yml`, not here. A client sets `services.<own-entity>.mcp_consumer: true` in its own role; a provider refuses one by setting `mcp_consumer: false` on that client's entry. [`test_mcp_consumer_services_entry.py`](../../../../../tests/lint/ansible/services/test_mcp_consumer_services_entry.py) requires every provider to carry a `"{{ '<client>' in group_names }}"`-gated entry for every declared client, so a round plans provider and client together.
 - `credential.owner` MUST NOT be `administrator`. Two providers resolving to the same owner and secret abort discovery.

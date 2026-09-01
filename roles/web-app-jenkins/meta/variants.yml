@@ -44,9 +44,6 @@
     flowise:
       enabled: false
       shared: false
-  mcp:
-    enabled: true
-    shared: true
 - services:
     container_backup:
       enabled: false
@@ -86,9 +83,6 @@
     flowise:
       enabled: true
       shared: true
-  mcp:
-    enabled: false
-    shared: false
 - services:
     container_backup:
       enabled: false
@@ -128,6 +122,3 @@
     flowise:
       enabled: false
       shared: false
-  mcp:
-    enabled: false
-    shared: false

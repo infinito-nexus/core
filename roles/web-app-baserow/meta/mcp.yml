@@ -1,6 +1,4 @@
 ---
-enabled: true
-shared: true
 classification: adapter_server
 direction: server
 source_url: https://baserow.io/user-docs/mcp-server # nocheck: url — page is live (HEAD+GET 200); baserow.io edge intermittently 404s CI runner IPs

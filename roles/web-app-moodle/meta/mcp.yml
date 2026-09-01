@@ -1,6 +1,4 @@
 ---
-enabled: true
-shared: true
 classification: plugin_server
 direction: server
 source_url: https://moodle.org/plugins/webservice_mcp

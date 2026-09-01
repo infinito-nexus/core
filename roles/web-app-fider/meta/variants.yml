@@ -47,9 +47,6 @@
     flowise:
       enabled: false
       shared: false
-  mcp:
-    enabled: true
-    shared: true
 - services:
     dashboard:
       enabled: false
@@ -93,6 +90,3 @@
     flowise:
       enabled: true
       shared: true
-  mcp:
-    enabled: false
-    shared: false

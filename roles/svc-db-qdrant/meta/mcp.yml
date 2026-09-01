@@ -1,6 +1,5 @@
 ---
-enabled: false
-shared: false
+# nocheck: mcp-playwright-coverage  the role ships no server block and no domain, so it renders no vhost and no playwright.env.j2; there is no URL a browser-side spec could address
 classification: adapter_server
 direction: server
 source_url: https://s.infinito.nexus/code

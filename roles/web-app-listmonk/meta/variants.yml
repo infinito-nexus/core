@@ -48,9 +48,6 @@
     flowise:
       enabled: false
       shared: false
-  mcp:
-    enabled: true
-    shared: true
 - services:
     asset:
       enabled: false
@@ -95,6 +92,3 @@
     flowise:
       enabled: true
       shared: true
-  mcp:
-    enabled: false
-    shared: false

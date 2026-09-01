@@ -1,6 +1,4 @@
 ---
-enabled: true
-shared: true
 classification: adapter_server
 direction: server
 source_url: https://plugins.jenkins.io/mcp-server/

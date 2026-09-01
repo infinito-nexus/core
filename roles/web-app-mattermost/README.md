@@ -156,7 +156,7 @@ Mattermost exposes a Model Context Protocol server through the prepackaged Agent
 
 ### Default state
 
-`mcp.enabled` resolves to `true` only when `web-app-hermes` or `web-app-openclaw` is part of the same deployment, and is `false` otherwise. While it is `true` the deploy:
+`mcp.enabled` resolves to `true` only when `web-app-hermes`, `web-app-openclaw` or `web-app-openwebui` is part of the same deployment, and is `false` otherwise. While it is `true` the deploy:
 
 - sets `MM_SERVICESETTINGS_ENABLEUSERACCESSTOKENS=true`,
 - enables the `mattermost-ai` plugin through `mmctl --local`,

@@ -45,9 +45,6 @@
       shared: true
     tor:
       enabled: true
-  mcp:
-    enabled: true
-    shared: true
 - services:
     container_backup:
       enabled: false
@@ -90,9 +87,6 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
-  mcp:
-    enabled: false
-    shared: false
 - services:
     container_backup:
       enabled: false
@@ -135,6 +129,3 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
-  mcp:
-    enabled: false
-    shared: false

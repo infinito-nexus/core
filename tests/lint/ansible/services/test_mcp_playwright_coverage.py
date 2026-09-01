@@ -32,6 +32,7 @@ from collections.abc import Mapping
 from pathlib import Path
 
 from utils.annotations.suppress import is_suppressed_in_head
+from utils.cache.applications import get_application_defaults
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_META_MCP
@@ -51,16 +52,20 @@ _CLIENT_SURFACE = re.compile(
 
 def _enabled_mcp_roles() -> dict[str, str]:
     """Return ``{role: direction}`` for every role serving or consuming MCP."""
+    roles_root = Path(PROJECT_ROOT, "roles")
+    defaults = get_application_defaults(roles_dir=roles_root)
     roles: dict[str, str] = {}
-    for mcp_path in sorted(Path(PROJECT_ROOT, "roles").glob(f"*/{ROLE_FILE_META_MCP}")):
+    for mcp_path in sorted(roles_root.glob(f"*/{ROLE_FILE_META_MCP}")):
         mcp = load_yaml_any(str(mcp_path), default_if_missing={})
-        if not isinstance(mcp, Mapping) or not mcp.get("enabled"):
+        if not isinstance(mcp, Mapping):
+            continue
+        role = mcp_path.parent.parent.name
+        block = (defaults.get(role) or {}).get("mcp")
+        if not (block.get("enabled") if isinstance(block, Mapping) else None):
             continue
         if is_suppressed_in_head(read_text(str(mcp_path)).splitlines(), _RULE):
             continue
-        roles[mcp_path.parent.parent.name] = (
-            str(mcp.get("direction") or "").strip().lower()
-        )
+        roles[role] = str(mcp.get("direction") or "").strip().lower()
     return roles
 
 

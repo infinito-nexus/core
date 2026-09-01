@@ -1,6 +1,4 @@
 ---
-enabled: true
-shared: true
 classification: plugin_server
 direction: server
 source_url: https://docs.nextcloud.com/server/latest/admin_manual/ai/app_context_agent.html

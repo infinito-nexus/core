@@ -147,8 +147,8 @@ for the current state.
 
 ### Default state
 
-Off. `mcp.enabled` is false unless `web-app-hermes` or
-`web-app-openclaw` is deployed alongside.
+Off. `mcp.enabled` is false unless `web-app-flowise`, `web-app-hermes`,
+`web-app-openclaw` or `web-app-openwebui` is deployed alongside.
 
 ### Tool scope
 

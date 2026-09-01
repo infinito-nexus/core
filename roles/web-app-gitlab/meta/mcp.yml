@@ -1,6 +1,4 @@
 ---
-enabled: true
-shared: true
 classification: adapter_server
 direction: server
 source_url: https://docs.gitlab.com/user/gitlab_duo/model_context_protocol/mcp_server/

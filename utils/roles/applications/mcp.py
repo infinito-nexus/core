@@ -62,6 +62,8 @@ own ``meta/services.yml``. ``derive_allowed_consumers`` resolves the pair.
 
 from __future__ import annotations
 
+from typing import Any
+
 from utils.roles.entity.name import get_entity_name
 
 MCP_DIRECTIONS = frozenset({"server", "client", "both"})
@@ -318,6 +320,64 @@ def derive_allowed_consumers(
         and declares_mcp_consumer(role_id, services)
         and admits_mcp_consumer(provider_services, role_id)
     )
+
+
+def derive_mcp_presence(applications: dict[str, Any]) -> dict[str, Any]:
+    """Materialise every ``mcp`` topic's enable state from its declared peers.
+
+    Args:
+        applications: ``{application_id: config}``, mutated in place.
+
+    Returns:
+        The same mapping.
+
+    A surface is reachable only while a peer that uses it is deployed, so both
+    keys resolve to the ``in group_names`` form the rest of the tree uses, and
+    to ``False`` when a role has no peer at all. An explicitly configured
+    ``enabled``/``shared`` always wins, so config stays the override channel.
+    Keying on peer PRESENCE rather than on a peer's own value is required: a
+    re-entrant read under ``_RENDER_GUARD`` returns the unrendered dict.
+
+    The resolved block replaces the mapping rather than being written into it.
+    ``_build_role_base_config`` parks the YAML cache's own object under ``mcp``,
+    so an in-place write would inject these keys into every later raw read of
+    ``meta/mcp.yml``.
+    """
+    blocks = {
+        role_id: config["mcp"]
+        for role_id, config in applications.items()
+        if isinstance(config, dict) and isinstance(config.get("mcp"), dict)
+    }
+    services_by_role = {
+        role_id: (config or {}).get("services")
+        for role_id, config in applications.items()
+        if isinstance(config, dict)
+    }
+    for role_id, block in blocks.items():
+        direction = str(block.get("direction") or "").lower()
+        peers: set[str] = set()
+        if direction in ("server", "both"):
+            peers |= set(derive_allowed_consumers(role_id, services_by_role))
+        if direction in ("client", "both") and declares_mcp_consumer(
+            role_id, services_by_role.get(role_id)
+        ):
+            peers |= {
+                peer
+                for peer, peer_block in blocks.items()
+                if peer != role_id
+                and str(peer_block.get("direction") or "").lower() in ("server", "both")
+                and admits_mcp_consumer(services_by_role.get(peer), role_id)
+            }
+        value: Any = (
+            "{{ " + " or ".join(f"'{p}' in group_names" for p in sorted(peers)) + " }}"
+            if peers
+            else False
+        )
+        resolved = dict(block)
+        resolved.setdefault("enabled", value)
+        resolved.setdefault("shared", value)
+        applications[role_id]["mcp"] = resolved
+    return applications
 
 
 def is_deployable(mcp: object) -> bool:

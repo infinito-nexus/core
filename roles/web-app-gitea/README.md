@@ -169,8 +169,8 @@ repository, issue, pull request, search, file, branch, tag, commit and release.
 
 ### Default state
 
-Off. `mcp.enabled` is false unless `web-app-hermes` or
-`web-app-openclaw` is deployed alongside.
+Off. `mcp.enabled` is false unless `web-app-hermes`, `web-app-openclaw` or
+`web-app-openwebui` is deployed alongside.
 
 ### Public vhost
 
