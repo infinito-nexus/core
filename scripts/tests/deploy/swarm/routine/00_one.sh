@@ -112,8 +112,8 @@ make setup
 source scripts/meta/env/load.sh
 
 step_timeout="$((INFINITO_SWARM_STEP_TIMEOUT_MINUTES * 60))"
-if [ -n "${INFINITO_CI_DISTRO_DEADLINE_EPOCH:-}" ]; then
-	under_governor="$((INFINITO_CI_DISTRO_DEADLINE_EPOCH - $(date +%s) - INFINITO_SWARM_TEARDOWN_RESERVE_SECONDS))"
+if [ -n "${INFINITO_CI_DISTRO_DEADLINE_EPOCH:-}" ]; then                                                         # nocheck: distros.sh computes this epoch from the sweep budget at run time; a static default would be a stale timestamp
+	under_governor="$((INFINITO_CI_DISTRO_DEADLINE_EPOCH - $(date +%s) - INFINITO_SWARM_TEARDOWN_RESERVE_SECONDS))" # nocheck: run-time state, not a configurable default
 	if [ "${under_governor}" -le 0 ]; then
 		echo "[ERROR] no budget left under the sweep governor for the matrix deploy" >&2
 		exit 2
