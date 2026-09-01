@@ -1,15 +1,26 @@
 ---
-- name: "🔑 Realign the password a dedicated postgres kept from its initdb"
-  ansible.builtin.script: > # nocheck: container-address-quote script evals the fragment itself
-    {{ lookup('path_absolute', 'roles/svc-db-postgres/files/shell/set_postgres_superuser_password.sh') }}
-    {{ lookup('database', application_id, 'container') | quote }}
-    {{ lookup('database', application_id, 'password') | quote }}
-    {{ lookup('database', application_id, 'username') | quote }}
-  register: _app_db_realign
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  changed_when: _app_db_realign.stdout is search('\\[CHANGED\\]')
-  failed_when: _app_db_realign.rc != 0 or _app_db_realign.stdout is search('\\[FAIL\\]')
+- name: "🔑 Realign a dedicated postgres for '{{ application_id }}'"
   when:
     - (compose_mode_force | default('') or DEPLOYMENT_MODE) == 'compose'
     - lookup('database', application_id, 'local') | bool
     - lookup('database', application_id, 'type') == 'postgres'
+  block:
+    - name: "🔍 Find the healthy engine of '{{ application_id }}'"
+      ansible.builtin.command: >-
+        container ps -q
+        --filter name=^{{ lookup('database', application_id, 'container') }}$
+        --filter health=healthy
+      register: _app_db_engine
+      changed_when: false
+
+    - name: "🔑 Realign the password a dedicated postgres kept from its initdb"
+      ansible.builtin.script: > # nocheck: container-address-quote script evals the fragment itself
+        {{ lookup('path_absolute', 'roles/svc-db-postgres/files/shell/set_postgres_superuser_password.sh') }}
+        {{ lookup('database', application_id, 'container') | quote }}
+        {{ lookup('database', application_id, 'password') | quote }}
+        {{ lookup('database', application_id, 'username') | quote }}
+      register: _app_db_realign
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      changed_when: _app_db_realign.stdout is search('\\[CHANGED\\]')
+      failed_when: _app_db_realign.rc != 0 or _app_db_realign.stdout is search('\\[FAIL\\]')
+      when: (_app_db_engine.stdout | trim) != ''

@@ -69,4 +69,3 @@
     apply:
       delegate_to: "{{ STACK_HOST }}"
       run_once: true
-  when: compose_handlers_flush | bool
