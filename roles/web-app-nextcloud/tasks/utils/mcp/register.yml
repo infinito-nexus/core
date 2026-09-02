@@ -61,7 +61,7 @@
       - "{{ NEXTCLOUD_CONTEXT_AGENT_SERVICE }}"
       - --force
   when:
-    - nextcloud_exapp_reregister | bool
+    - nextcloud_exapp_renew | bool
     - NEXTCLOUD_CONTEXT_AGENT_SERVICE in nextcloud_registered_exapps.stdout
   changed_when: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
@@ -85,7 +85,7 @@
       - --wait-finish
   when: >-
     NEXTCLOUD_CONTEXT_AGENT_SERVICE not in nextcloud_registered_exapps.stdout
-    or nextcloud_exapp_reregister | bool
+    or nextcloud_exapp_renew | bool
   changed_when: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 

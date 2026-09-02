@@ -45,11 +45,11 @@
     tor:
       enabled: true
     hermes:
-      enabled: false
-      shared: false
+      enabled: true
+      shared: true
     openclaw:
-      enabled: false
-      shared: false
+      enabled: true
+      shared: true
 - services:
     container_backup:
       enabled: false
@@ -89,11 +89,11 @@
     tor:
       enabled: true
     hermes:
-      enabled: true
-      shared: true
+      enabled: false
+      shared: false
     openclaw:
-      enabled: true
-      shared: true
+      enabled: false
+      shared: false
   addons:
     activitypub:
       enabled: false

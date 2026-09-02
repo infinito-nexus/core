@@ -117,8 +117,8 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     sso:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      enabled: true
+      shared: true
     coturn:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -132,8 +132,8 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     context_agent:
-      enabled: false
-      shared: false
+      enabled: true
+      shared: true
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

@@ -32,14 +32,14 @@
       enabled: true
 
     openwebui:
-      enabled: false
-      shared: false
+      enabled: true
+      shared: true
     hermes:
-      enabled: false
-      shared: false
+      enabled: true
+      shared: true
     openclaw:
-      enabled: false
-      shared: false
+      enabled: true
+      shared: true
 - services:
     container_backup:
       enabled: false
@@ -73,11 +73,11 @@
     tor:
       enabled: true
     openwebui:
-      enabled: true
-      shared: true
+      enabled: false
+      shared: false
     hermes:
-      enabled: true
-      shared: true
+      enabled: false
+      shared: false
     openclaw:
-      enabled: true
-      shared: true
+      enabled: false
+      shared: false

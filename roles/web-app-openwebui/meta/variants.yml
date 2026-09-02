@@ -59,8 +59,8 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     sso:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      enabled: true
+      shared: true
     litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

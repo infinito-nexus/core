@@ -44,7 +44,7 @@
       delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
       run_once: true
   vars:
-    nextcloud_exapp_reregister: false
+    nextcloud_exapp_renew: false
 
 - name: "🔍 Read the MCP app password this deployment already issued"
   ansible.builtin.set_fact:
@@ -70,7 +70,7 @@
       delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
       run_once: true
   vars:
-    nextcloud_exapp_reregister: true
+    nextcloud_exapp_renew: true
   when: nextcloud_mcp_probe.stdout != '200'
 
 - name: "🩺 Re-check the endpoint behind the re-registered ExApp"
