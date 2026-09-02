@@ -180,6 +180,9 @@
     name: sys-token-store
   when: run_once_sys_token_store is not defined
 
+- name: 🧊 Render the applications SPOT once and carry it into every task's worker
+  applications_carrier: {}
+
 - name: 🛠️ Preload shared services
   ansible.builtin.include_role:
     name: sys-service-loader

@@ -9,6 +9,7 @@ from ansible.errors import AnsibleError
 
 from plugins.lookup.applications import LookupModule, _reset_cache_for_tests
 from utils.cache import base as cache_base
+from utils.cache.carrier import merged_applications_cache_key
 from utils.cache.yaml import dump_yaml_str
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
@@ -102,6 +103,32 @@ class TestApplicationsLookup(unittest.TestCase):
             roles_dir=str(self._tmp / "roles"),
         )[0]
         self.assertEqual(result, default_value)
+
+    def test_carrier_form_returns_cache_key_and_full_mapping(self) -> None:
+        variables = {
+            "applications": {
+                "web-app-foo": {"services": {"smtp": {"host": "override.example.org"}}}
+            }
+        }
+        roles_dir = str(self._tmp / "roles")
+        result = self.lookup.run(
+            [], variables=variables, roles_dir=roles_dir, carrier=True
+        )[0]
+        key = merged_applications_cache_key(variables, roles_dir=roles_dir)
+        self.assertEqual(result["key"], [key[0], list(key[1])])
+        self.assertEqual(
+            result["applications"]["web-app-foo"]["services"]["smtp"]["host"],
+            "override.example.org",
+        )
+
+    def test_carrier_form_rejects_terms(self) -> None:
+        with self.assertRaises(AnsibleError):
+            self.lookup.run(
+                ["web-app-foo"],
+                variables={},
+                roles_dir=str(self._tmp / "roles"),
+                carrier=True,
+            )
 
 
 if __name__ == "__main__":

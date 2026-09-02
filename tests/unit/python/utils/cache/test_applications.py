@@ -19,6 +19,10 @@ from pathlib import Path
 
 from utils.cache import _reset_cache_for_tests
 from utils.cache import applications as cache_apps
+from utils.cache.carrier import (
+    APPLICATIONS_RENDERED_FACT,
+    merged_applications_cache_key,
+)
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import (
     ROLE_DIR_META_ADDONS,
@@ -333,6 +337,71 @@ class TestGetMergedApplicationsRespectsOverrides(unittest.TestCase):
                 merged["web-app-foo"]["services"]["foo"]["image"],
                 "override",
             )
+
+
+class TestGetMergedApplicationsCarrierFact(unittest.TestCase):
+    """The constructor renders once and parks the payload with its cache key in
+    `_INFINITO_APPLICATIONS_RENDERED`. A worker process whose in-process cache is
+    empty serves that payload when the key matches and renders only when it
+    does not.
+    """
+
+    def setUp(self) -> None:
+        _reset_cache_for_tests()
+
+    @staticmethod
+    def _variables() -> dict:
+        return {
+            "applications": {
+                "web-app-foo": {"services": {"foo": {"image": "override"}}}
+            }
+        }
+
+    def test_matching_key_serves_the_carried_payload_without_rendering(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_roles(Path(tmp))
+            variables = self._variables()
+            key = merged_applications_cache_key(variables, roles_dir=roles)
+            carried = {"web-app-foo": {"carried": True}}
+            variables[APPLICATIONS_RENDERED_FACT] = {
+                "key": [key[0], list(key[1])],
+                "applications": carried,
+            }
+            merged = cache_apps.get_merged_applications(
+                variables=variables, roles_dir=roles, templar=None
+            )
+            self.assertIs(merged, carried)
+
+    def test_stale_key_falls_back_to_a_fresh_render(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_roles(Path(tmp))
+            variables = self._variables()
+            key = merged_applications_cache_key(variables, roles_dir=roles)
+            variables[APPLICATIONS_RENDERED_FACT] = {
+                "key": [key[0], ["stale"] * len(key[1])],
+                "applications": {"web-app-foo": {"carried": True}},
+            }
+            merged = cache_apps.get_merged_applications(
+                variables=variables, roles_dir=roles, templar=None
+            )
+            self.assertNotIn("carried", merged["web-app-foo"])
+            self.assertEqual(
+                merged["web-app-foo"]["services"]["foo"]["image"], "override"
+            )
+
+    def test_malformed_carrier_is_ignored(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_roles(Path(tmp))
+            for carrier in ("not-a-mapping", {"key": "x", "applications": {}}, {}):
+                _reset_cache_for_tests()
+                variables = self._variables()
+                variables[APPLICATIONS_RENDERED_FACT] = carrier
+                merged = cache_apps.get_merged_applications(
+                    variables=variables, roles_dir=roles, templar=None
+                )
+                self.assertEqual(
+                    merged["web-app-foo"]["services"]["foo"]["image"], "override"
+                )
 
 
 class TestRecursiveMetaWalk(unittest.TestCase):

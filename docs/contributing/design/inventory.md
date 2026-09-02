@@ -47,6 +47,8 @@ Rendering happens at **play runtime**, never during the build pipeline above. Th
 
 `get_merged_applications` is invoked transitively by `lookup('applications', ...)` and by `lookup('config', application_id, 'services.<x>.<y>')`. Tasks that read service flags through these lookups always see real Python values, never raw Jinja strings.
 
+The render runs once per play. The constructor stage parks the payload and its cache key in the host fact `_INFINITO_APPLICATIONS_RENDERED`, and every task's worker process (Ansible forks one per task) serves that payload instead of rendering again. See [applications.md](../artefact/files/plugins/lookup/applications.md) for the carrier contract.
+
 A role's task that reads its own service flag therefore picks up the runtime-resolved value, even when the inventory carried a Jinja string for that flag: the conditional evaluates against the play's actual `group_names`, which reflects which other application groups the host joined.
 
 ## Interaction between the three inclusion mechanisms 🧬

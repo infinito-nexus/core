@@ -25,8 +25,8 @@ from .base import (
     _render_with_templar,
     _resolve_override_mapping,
     _resolve_roles_dir,
-    _stable_variables_signature,
 )
+from .carrier import _carried_applications, merged_applications_cache_key
 from .schema_credentials import extract_default_credentials
 from .yaml import load_yaml as _load_yaml_cached
 from .yaml import load_yaml_any as _load_yaml_any_cached
@@ -396,13 +396,15 @@ def get_merged_applications(
 
     variables = variables or {}
     resolved_roles_dir = _resolve_roles_dir(roles_dir=roles_dir)
-    cache_key = (
-        _cache_key(resolved_roles_dir),
-        _stable_variables_signature(variables),
-    )
+    cache_key = merged_applications_cache_key(variables, roles_dir=resolved_roles_dir)
     cached = _MERGED_APPLICATIONS_CACHE.get(cache_key)
     if cached is not None:
         return cached
+
+    carried = _carried_applications(variables, cache_key)
+    if carried is not None:
+        _MERGED_APPLICATIONS_CACHE[cache_key] = carried
+        return carried
 
     defaults = get_application_defaults(roles_dir=resolved_roles_dir)
 
