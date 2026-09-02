@@ -208,7 +208,11 @@ def unrun_selections(regular: list[dict[str, str]], deployed: set[str]) -> list[
     )
 
 
-def resume_offset(regular: list[dict[str, str]], passed: set[str]) -> str:
+def resume_offset(
+    regular: list[dict[str, str]],
+    passed: set[str],
+    leading: Iterable[selection.Pin] = (),
+) -> str:
     """Where a retrigger should pick the regular line up again.
 
     The source run deployed a window of the ranking and stopped at its budget.
@@ -222,16 +226,26 @@ def resume_offset(regular: list[dict[str, str]], passed: set[str]) -> str:
     resuming past it would drop every other combination of that row and
     everything the run never reached behind it.
 
+    A row the priority line claims is never the answer. ``regular`` is
+    discovered without the priority line (see the retrigger's ``_ranking``), so
+    it still holds rows the run will hand to that line instead
+    (:func:`cli.meta.ci.matrix.candidates`): a variant-less pin takes its whole
+    role, a pinned one takes those variants. Naming such a row would emit an
+    offset that resolves against nothing once the run applies the priority
+    line, and abort the discovery of every chunk.
+
     Args:
         regular: the regular line of the retrigger's own discovery, in ranking
             order.
         passed: tokens the source run deployed green
             (:func:`passed_selections`).
+        leading: the retrigger's priority pins, whose rows leave the regular
+            line.
 
     Returns:
         the ``role#variant`` token to resume at, or ``''`` when the source run
-        got nothing of this line green -- then the retrigger starts at the
-        head, as it would without an offset.
+        got nothing skippable of this line green -- then the retrigger starts
+        at the head, as it would without an offset.
 
         The returned token names a place in the ranking, so it carries no axes.
         Membership is still tested on the full deploy token, because that is
@@ -241,6 +255,9 @@ def resume_offset(regular: list[dict[str, str]], passed: set[str]) -> str:
         reproduce the source run's combination, and abort the discovery of
         every chunk in all the others.
     """
+    pins = tuple(leading)
+    claimed_apps = {pin.app for pin in pins if not pin.variants}
+    claimed_rows = {(pin.app, variant) for pin in pins for variant in pin.variants}
     resume = ""
     for entry in regular:
         if row_selection(entry) not in passed:
@@ -248,5 +265,8 @@ def resume_offset(regular: list[dict[str, str]], passed: set[str]) -> str:
         variants = tuple(
             int(part) for part in str(entry.get("variant", "")).split(",") if part
         )
-        resume = selection.describe(selection.Pin(entry["apps"], variants))
+        app = entry["apps"]
+        if app in claimed_apps or any((app, v) in claimed_rows for v in variants):
+            continue
+        resume = selection.describe(selection.Pin(app, variants))
     return resume

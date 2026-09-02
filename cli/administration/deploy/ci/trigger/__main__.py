@@ -18,7 +18,7 @@ import sys
 
 from cli.administration.deploy.ci import gh, runs, selections
 from cli.meta.ci import matrix, query
-from utils.github.variant import pools, tor
+from utils.github.variant import pools, selection, tor
 
 _WORKFLOW = "entry-manual-steer.yml"
 _ALL = "__ALL__"
@@ -211,7 +211,9 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         priority = " ".join(sorted(priority_entries))
         config["offset"] = selections.resume_offset(
-            ranking, selections.passed_selections(source["jobs"])
+            ranking,
+            selections.passed_selections(source["jobs"]),
+            selection.parse_list(priority),
         )
         if config["offset"]:
             print(f"Regular line resumes at: {config['offset']}")

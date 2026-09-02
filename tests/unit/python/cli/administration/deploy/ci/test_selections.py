@@ -84,6 +84,56 @@ class TestResumeOffset(unittest.TestCase):
         }
         self.assertEqual(selections.resume_offset(self._REGULAR, passed), "web-app-c#0")
 
+    _ALL_PASSED: ClassVar[set[str]] = {
+        "web-app-a#0@compose+clearnet" + _AXES,
+        "web-app-b#1@swarm+tor" + _AXES,
+        "web-app-c#0@host+clearnet" + _AXES,
+    }
+
+    def test_a_role_the_priority_line_takes_whole_is_never_the_offset(self) -> None:
+        """A variant-less pin blacklists its whole role from the regular query,
+        so an offset naming one of its rows resolves against nothing."""
+        self.assertEqual(
+            selections.resume_offset(
+                self._REGULAR, self._ALL_PASSED, selection.parse_list("web-app-c")
+            ),
+            "web-app-b#1",
+        )
+
+    def test_a_variant_the_priority_line_pins_is_never_the_offset(self) -> None:
+        self.assertEqual(
+            selections.resume_offset(
+                self._REGULAR, self._ALL_PASSED, selection.parse_list("web-app-c#0")
+            ),
+            "web-app-b#1",
+        )
+
+    def test_a_pin_on_another_variant_leaves_the_row_offsettable(self) -> None:
+        self.assertEqual(
+            selections.resume_offset(
+                self._REGULAR, self._ALL_PASSED, selection.parse_list("web-app-c#4")
+            ),
+            "web-app-c#0",
+        )
+
+    def test_a_claimed_row_mid_line_does_not_stop_the_scan(self) -> None:
+        self.assertEqual(
+            selections.resume_offset(
+                self._REGULAR, self._ALL_PASSED, selection.parse_list("web-app-b")
+            ),
+            "web-app-c#0",
+        )
+
+    def test_every_green_row_claimed_starts_at_the_head(self) -> None:
+        self.assertEqual(
+            selections.resume_offset(
+                self._REGULAR,
+                self._ALL_PASSED,
+                selection.parse_list("web-app-a web-app-b web-app-c"),
+            ),
+            "",
+        )
+
     def test_the_verdict_does_not_matter_only_that_the_row_ran(self) -> None:
         jobs = [
             _job(deploy_job_name("swarm", "web-app-b", "1", tor=True), "failure"),
