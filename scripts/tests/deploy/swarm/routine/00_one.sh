@@ -63,6 +63,36 @@ if [ -n "${disable:-}" ]; then
 	unset _keep _drop _key _keys
 fi
 
+teardown_floor_seconds=120
+collect_floor_seconds=120
+index_floor_seconds=30
+
+# Param: $1 nominal seconds for this step
+# Param: $2 seconds to leave behind for the steps that follow it
+# Param: $3.. the command to run
+run_within_deadline() {
+	_nominal=${1}
+	_leave=${2}
+	shift 2
+	if [ -n "${INFINITO_CI_DISTRO_DEADLINE_EPOCH:-}" ]; then                       # nocheck: distros.sh computes this epoch from the sweep budget at run time; a static default would be a stale timestamp
+		_usable=$((INFINITO_CI_DISTRO_DEADLINE_EPOCH - $(date +%s) - _leave)) # nocheck: run-time state, not a configurable default
+		if [ "${_usable}" -lt 5 ]; then
+			echo "==> teardown: no budget left before the sweep deadline, skipping ${1}"
+			return 0
+		fi
+		if [ "${_usable}" -lt "${_nominal}" ]; then
+			echo "==> teardown: capping ${1} at ${_usable}s of ${_nominal}s to hold the sweep deadline"
+			_nominal=${_usable}
+		fi
+	fi
+	_rc=0
+	timeout "${_nominal}" "$@" || _rc=$?
+	if [ "${_rc}" -eq 124 ]; then
+		echo "==> teardown: ${1} was cut off at ${_nominal}s, so whatever it collects is incomplete"
+	fi
+	return "${_rc}"
+}
+
 collect_and_teardown() {
 	rc=${1:-$?}
 	[ -n "${_teardown_done:-}" ] && return 0
@@ -71,16 +101,22 @@ collect_and_teardown() {
 	if [ "${rc}" -ne 0 ]; then
 		rescue_dir="${INFINITO_RESCUE_DIAGNOSTICS_BASE}/${INFINITO_DISTRO}/${APP_ID}"
 		INFINITO_RESCUE_DIAGNOSTICS_DIR="${rescue_dir}" \
-			timeout 1500 python3 utils/diagnostics/container.py \
+			run_within_deadline 1500 "$((collect_floor_seconds * 2 + index_floor_seconds * 2 + teardown_floor_seconds))" \
+			python3 utils/diagnostics/container.py \
 			"${APP_ID}" "post-deploy failure" || true # nocheck: shell-or-true -- best-effort diagnostics + teardown in the EXIT trap
 		INFINITO_RESCUE_DIAGNOSTICS_DIR="${rescue_dir}" \
-			timeout 900 bash "${SCRIPT_DIR}/../utils/collect/diagnostics.sh" || true              # nocheck: shell-or-true -- best-effort diagnostics + teardown in the EXIT trap
-		bash "${REPO_ROOT}/scripts/tests/deploy/utils/rescue_index.sh" "${rescue_dir}" || true # nocheck: shell-or-true -- best-effort diagnostics + teardown in the EXIT trap
+			run_within_deadline 900 "$((collect_floor_seconds + index_floor_seconds * 2 + teardown_floor_seconds))" \
+			bash "${SCRIPT_DIR}/../utils/collect/diagnostics.sh" || true # nocheck: shell-or-true -- best-effort diagnostics + teardown in the EXIT trap
+		run_within_deadline 300 "$((collect_floor_seconds + index_floor_seconds + teardown_floor_seconds))" \
+			bash "${REPO_ROOT}/scripts/tests/deploy/utils/rescue_index.sh" "${rescue_dir}" || true # nocheck: shell-or-true -- best-effort diagnostics + teardown in the EXIT trap
 	fi
 
-	timeout 900 bash "${SCRIPT_DIR}/../utils/collect/playwright_reports.sh" || true # nocheck: shell-or-true -- best-effort diagnostics + teardown in the EXIT trap
-	bash "${SCRIPT_DIR}/../utils/collect/topology_summary.sh" || true               # nocheck: shell-or-true -- best-effort diagnostics + teardown in the EXIT trap
-	timeout 900 bash "${SCRIPT_DIR}/../utils/clean/teardown.sh" || true             # nocheck: shell-or-true -- best-effort diagnostics + teardown in the EXIT trap
+	run_within_deadline 900 "$((index_floor_seconds + teardown_floor_seconds))" \
+		bash "${SCRIPT_DIR}/../utils/collect/playwright_reports.sh" || true # nocheck: shell-or-true -- best-effort diagnostics + teardown in the EXIT trap
+	run_within_deadline 300 "${teardown_floor_seconds}" \
+		bash "${SCRIPT_DIR}/../utils/collect/topology_summary.sh" || true # nocheck: shell-or-true -- best-effort diagnostics + teardown in the EXIT trap
+	run_within_deadline 900 0 \
+		bash "${SCRIPT_DIR}/../utils/clean/teardown.sh" || true # nocheck: shell-or-true -- best-effort diagnostics + teardown in the EXIT trap
 
 	return "${rc}"
 }
