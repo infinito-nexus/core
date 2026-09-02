@@ -367,6 +367,8 @@ def assert_denied(url):
         "workspaceId": WORKSPACE,
     }
     status, body = call(REGISTRY, method="POST", payload=probe)
+    if status == 400 and "not allowed by policy" in str(body):
+        return
     if status not in (200, 201):
         sys.exit(f"FAILED creating the deny-list probe: {status} {body}")
 

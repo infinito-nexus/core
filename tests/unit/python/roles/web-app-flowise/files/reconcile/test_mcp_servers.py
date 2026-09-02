@@ -65,8 +65,12 @@ class FakeApi:
         flows=(),
         prediction=None,
         permissive=False,
+        refuse_on_create=False,
+        create_error=None,
     ):
         self.permissive = permissive
+        self.refuse_on_create = refuse_on_create
+        self.create_error = create_error
         self.entries = [dict(entry) for entry in entries]
         if duplicate and self.entries:
             self.entries.append(dict(self.entries[0], id="dup"))
@@ -107,6 +111,14 @@ class FakeApi:
         if path == "/api/v1/custom-mcp-servers" and method == "GET":
             return 200, [dict(entry) for entry in self.entries]
         if path == "/api/v1/custom-mcp-servers" and method == "POST":
+            url = str(payload.get("serverUrl") or "")
+            if self.create_error and any(bad in url for bad in DENIED):
+                return self.create_error
+            if self.refuse_on_create and any(bad in url for bad in DENIED):
+                return (
+                    400,
+                    '{"statusCode":400,"message":"Server URL is not allowed by policy"}',
+                )
             created = dict(payload, id=f"id-{payload['name']}")
             self.entries.append(created)
             if payload["name"] != PROBE_NAME:
@@ -350,6 +362,20 @@ class TestReconcileMcpServers(unittest.TestCase):
             module.DENIED_PROBES,
         )
         self.assertNotIn(f"id-{PROBE_NAME}", api.authorized)
+
+    def test_a_registry_that_refuses_the_denied_url_is_a_pass(self) -> None:
+        module = load_script([SUPPORTED_SERVER])
+        api = FakeApi(refuse_on_create=True)
+        with patch.object(module, "call", api):
+            module.main()
+        self.assertNotIn(f"id-{PROBE_NAME}", api.authorized)
+
+    def test_a_create_that_fails_for_another_reason_still_fails(self) -> None:
+        module = load_script([SUPPORTED_SERVER])
+        api = FakeApi(create_error=(500, "upstream exploded"))
+        with patch.object(module, "call", api), self.assertRaises(SystemExit) as exit_:
+            module.main()
+        self.assertIn("deny-list probe", str(exit_.exception))
 
     def test_a_flowise_that_reaches_loopback_fails_the_deploy(self) -> None:
         module = load_script([SUPPORTED_SERVER])
