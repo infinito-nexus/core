@@ -265,6 +265,36 @@ class TestTriggerMain(unittest.TestCase):
         self.assertEqual(rc, 0)
         self.assertEqual(calls[0], ("web-app-a", "", _SOURCE_CONFIG))
 
+    def test_chunk_gate_override_replaces_the_carried_value(self) -> None:
+        calls: list = []
+        with (
+            mock.patch.object(gh, "current_branch", return_value="feature/x"),
+            mock.patch.object(gh, "resolve_repo", return_value="o/r"),
+            mock.patch.object(gh, "fetch_run", return_value=_SOURCE_RUN),
+            mock.patch.object(matrix, "entries_of", return_value=[]),
+            mock.patch.object(
+                runs,
+                "dispatch_workflow",
+                side_effect=lambda wf, ref, wl="", priority="", config=None, repo=None: (
+                    calls.append(config)
+                ),
+            ),
+            redirect_stdout(io.StringIO()),
+        ):
+            rc = trigger.main(["--failed", "--run", _RUN_URL, "--chunk-gate", "true"])
+        self.assertEqual(rc, 0)
+        self.assertEqual(calls[0], {**_SOURCE_CONFIG, "chunk_gate": "true"})
+
+    def test_chunk_gate_override_without_a_source_run(self) -> None:
+        rc, calls = self._run(["--chunk-gate", "false"])
+        self.assertEqual(rc, 0)
+        self.assertEqual(calls[0][4], {"chunk_gate": "false"})
+
+    def test_chunk_gate_rejects_other_values(self) -> None:
+        with self.assertRaises(SystemExit) as ctx, redirect_stdout(io.StringIO()):
+            trigger.main(["--chunk-gate", "maybe"])
+        self.assertEqual(ctx.exception.code, 2)
+
     def test_failed_no_run_found(self) -> None:
         rc, calls = self._run(["--failed"], run=None)
         self.assertEqual(rc, 1)

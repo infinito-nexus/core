@@ -8,7 +8,9 @@ every other dispatch input is carried over (:func:`runs.carried_inputs`, read
 off the workflow itself), and the priority line names the exact selections that
 failed -- role, variant, deploy mode, onion state and distro -- rather than the
 roles they belong to. The filesystem is left to the rotation
-(:mod:`cli.administration.deploy.ci.selections` says why).
+(:mod:`cli.administration.deploy.ci.selections` says why). ``--chunk-gate`` is
+the one deliberate exception: it overrides the carried value so a retrigger can
+keep deploying past a failed chunk.
 """
 
 from __future__ import annotations
@@ -134,6 +136,17 @@ def main(argv: list[str] | None = None) -> int:
             "named."
         ),
     )
+    p.add_argument(
+        "--chunk-gate",
+        choices=("true", "false"),
+        default=None,
+        help=(
+            "Override the carried chunk_gate input. 'false' keeps deploying "
+            "the remaining chunks after a failed one instead of stopping the "
+            "chain; 'true' stops at the first failed chunk. Omitted: the "
+            "source run's value, else the workflow default."
+        ),
+    )
     args = p.parse_args(argv)
     if args.strict and args.failed is None:
         p.error("--strict only applies with --failed")
@@ -193,6 +206,8 @@ def main(argv: list[str] | None = None) -> int:
     carried_whitelist = config.pop("whitelist", "")
     if not whitelist and carried_whitelist:
         whitelist = carried_whitelist
+    if args.chunk_gate is not None:
+        config["chunk_gate"] = args.chunk_gate
 
     if args.failed is not None:
         ranking = _ranking(whitelist, config)
