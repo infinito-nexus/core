@@ -611,9 +611,7 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         self.assertEqual(out, {f"a.{self.ONION}": [301, 200]})
 
     def test_onion_disabled_app_stays_clearnet(self):
-        self._configure_returns(
-            {("app-a", "domains.canonical"): ["a.infinito.test"]}
-        )
+        self._configure_returns({("app-a", "domains.canonical"): ["a.infinito.test"]})
         apps = {"app-a": {"services": {"tor": {"enabled": False}}}}
         out = self.mod.web_health_expectations(
             apps,

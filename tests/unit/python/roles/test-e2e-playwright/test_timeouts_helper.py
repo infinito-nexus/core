@@ -113,9 +113,7 @@ class TestTimeoutsHelper(unittest.TestCase):
         )
         self.assertIn(
             "RESULT:false",
-            self._run(
-                "t.isOnionTarget()", {"CANONICAL_DOMAIN": '"x.infinito.test"'}
-            ),
+            self._run("t.isOnionTarget()", {"CANONICAL_DOMAIN": '"x.infinito.test"'}),
         )
 
 
