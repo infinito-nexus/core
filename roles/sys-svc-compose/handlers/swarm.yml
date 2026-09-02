@@ -146,6 +146,7 @@
     docker stack deploy \
       {{ lookup('compose_file_args', application_id, flag='--compose-file') }} \
       --resolve-image never \
+      --detach=false \
       --prune \
       --with-registry-auth \
       "{{ application_id | get_entity_name }}"
@@ -154,6 +155,7 @@
     executable: /bin/bash
   register: swarm_deploy_result
   changed_when: true
+  timeout: "{{ (swarm_stack_converge_retries | int) * 2 }}"
   listen:
     - compose-up
     - swarm-deploy
