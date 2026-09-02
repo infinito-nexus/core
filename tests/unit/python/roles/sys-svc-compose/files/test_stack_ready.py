@@ -19,7 +19,11 @@ waiting rather than arm it.
 
 A service whose ``UpdateStatus`` latched or rolled back is terminal on its own,
 without any task row: swarm will not leave that state until the next stack
-deploy, and a revert leaves the replica count full for the previous spec.
+deploy, and a revert leaves the replica count full for the previous spec. A
+service still ``updating`` keeps the caller waiting instead, and so does a
+service whose desired replicas are only met by old-spec tasks that have not been
+replaced yet - docker's own replica column counts those as running, so the gate
+counts the tasks carrying desired-state=running rather than reading that column.
 """
 
 from __future__ import annotations
@@ -52,7 +56,10 @@ case "$1 $2" in
 	esac
 	;;
 "service ps")
-	case "$5" in
+	case "$*" in
+	*'desired-state=running'*)
+		printf '%s' "${SERVICE_RUNNING}" | awk -F'|' -v s="$3" '$1 == s { print $2 }'
+		;;
 	*'{{.Name}}|{{.CurrentState}}|{{.Error}}'*) printf '%s' "${SERVICE_ERRORS}" ;;
 	*) printf '%s' "${SERVICE_PS}" ;;
 	esac
@@ -60,6 +67,11 @@ case "$1 $2" in
 esac
 exit 0
 """
+WEB_THREE_RUNNING = (
+    "demo_web|Running 2 minutes ago\n"
+    "demo_web|Running 2 minutes ago\n"
+    "demo_web|Running 2 minutes ago\n"
+)
 
 
 class TestStackReady(unittest.TestCase):
@@ -69,6 +81,7 @@ class TestStackReady(unittest.TestCase):
         service_ps: str = "",
         service_errors: str = "",
         service_inspect: str = "",
+        service_running: str = "",
         churning: int = 0,
         updated_at: str | None = None,
     ) -> subprocess.CompletedProcess:
@@ -79,6 +92,8 @@ class TestStackReady(unittest.TestCase):
             service_ps: verbose ``docker service ps`` table for the report.
             service_errors: ``name|current state|error`` rows, newest first.
             service_inspect: ``name update-state`` rows for the latched check.
+            service_running: ``service|current state`` rows carrying
+                desired-state=running, one per task of the current spec.
             churning: seconds since the deploy bumped the service ``UpdatedAt``.
             updated_at: raw ``UpdatedAt`` epoch, overriding ``churning``.
         """
@@ -102,6 +117,7 @@ class TestStackReady(unittest.TestCase):
                 SERVICE_PS=service_ps,
                 SERVICE_ERRORS=service_errors,
                 SERVICE_INSPECT=service_inspect,
+                SERVICE_RUNNING=service_running,
                 SERVICE_UPDATED_AT=updated_at,
                 PATH=f"{stub_bin}:{env['PATH']}",
                 BASH_ENV="",
@@ -115,8 +131,38 @@ class TestStackReady(unittest.TestCase):
             )
 
     def test_a_service_with_no_update_in_flight_converges(self) -> None:
-        proc = self._run("demo_web 3/3\n", service_inspect="demo_web none\n")
+        proc = self._run(
+            "demo_web 3/3\n",
+            service_inspect="demo_web none\n",
+            service_running=WEB_THREE_RUNNING,
+        )
         self.assertEqual(proc.returncode, 0)
+
+    def test_an_update_in_flight_keeps_the_caller_waiting(self) -> None:
+        proc = self._run(
+            "demo_web 3/3\n",
+            service_ps="demo_web.1 desired=Running current=Starting error=\n",
+            service_inspect="demo_web updating\n",
+            service_running=WEB_THREE_RUNNING,
+        )
+        self.assertEqual(proc.returncode, 1)
+        self.assertIn("demo_web(updating)", proc.stderr)
+        self.assertIn("rolling update still in flight", proc.stderr)
+
+    def test_old_spec_tasks_left_running_do_not_fill_the_replica_count(self) -> None:
+        """Docker's replica column counts every Running task, draining old-spec
+        ones included, so a stack mid-rollout reads as full."""
+        proc = self._run(
+            "demo_web 3/3\n",
+            service_ps="demo_web.1 desired=Running current=Preparing error=\n",
+            service_inspect="demo_web completed\n",
+            service_running=(
+                "demo_web|Running 2 minutes ago\ndemo_web|Running 2 minutes ago\n"
+            ),
+        )
+        self.assertEqual(proc.returncode, 1)
+        self.assertIn("not converged", proc.stderr)
+        self.assertIn("demo_web", proc.stderr)
 
     def test_a_latched_update_gives_up_instead_of_polling(self) -> None:
         for latched in ("paused", "rollback_paused"):
@@ -142,7 +188,10 @@ class TestStackReady(unittest.TestCase):
                 self.assertIn(f"demo_web({reverted})", proc.stderr)
 
     def test_a_fully_replicated_stack_converges(self) -> None:
-        proc = self._run("demo_web 3/3\ndemo_db 1/1\n")
+        proc = self._run(
+            "demo_web 3/3\ndemo_db 1/1\n",
+            service_running=WEB_THREE_RUNNING + "demo_db|Running 4 minutes ago\n",
+        )
         self.assertEqual(proc.returncode, 0)
 
     def test_a_short_service_does_not_converge(self) -> None:

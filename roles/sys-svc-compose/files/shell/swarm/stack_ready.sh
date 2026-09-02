@@ -78,6 +78,20 @@ has_fatal_task() {
 	' <<<"$ps"
 }
 
+inspect_update_states() {
+	timeout 15 docker service inspect \
+		--format '{{.Spec.Name}} {{if .UpdateStatus}}{{.UpdateStatus.State}}{{else}}none{{end}}' \
+		"$@" 2>/dev/null
+}
+
+running_current_spec() {
+	local states
+	states=$(timeout 15 docker service ps "$1" \
+		--filter desired-state=running \
+		--format '{{.CurrentState}}' 2>/dev/null) || return 1
+	printf '%s\n' "$states" | awk '/^Running/ { n++ } END { print n + 0 }'
+}
+
 if ! services=$(timeout 15 docker stack services --format '{{.Name}} {{.Replicas}}' "$STACK"); then
 	echo "not converged: docker stack services failed or timed out for ${STACK}" >&2
 	exit 1
@@ -85,15 +99,28 @@ fi
 
 mapfile -t service_names < <(printf '%s\n' "$services" | awk 'NF {print $1}')
 latched=""
+updating=""
+unknown=""
 if [ ${#service_names[@]} -gt 0 ]; then
-	update_states=$(timeout 15 docker service inspect \
-		--format '{{.Spec.Name}} {{if .UpdateStatus}}{{.UpdateStatus.State}}{{else}}none{{end}}' \
-		"${service_names[@]}" 2>/dev/null || true)
+	if ! update_states=$(inspect_update_states "${service_names[@]}"); then
+		sleep 2
+		if ! update_states=$(inspect_update_states "${service_names[@]}"); then
+			echo "not converged: docker service inspect failed or timed out twice for ${STACK}" >&2
+			exit 1
+		fi
+	fi
 	while read -r name state; do
 		[ -n "$name" ] || continue
 		case "$state" in
+		none | completed) ;;
 		paused | rollback_paused | rollback_started | rollback_completed)
 			latched="${latched} ${name}(${state})"
+			;;
+		updating)
+			updating="${updating} ${name}(${state})"
+			;;
+		*)
+			unknown="${unknown} ${name}(${state})"
 			;;
 		esac
 	done <<<"$update_states"
@@ -108,11 +135,26 @@ if [ -n "$latched" ]; then
 	exit 2
 fi
 
+if [ -n "$unknown" ]; then
+	echo "not converged: unrecognised update state, treated as in flight:${unknown}" >&2
+	updating="${updating}${unknown}"
+fi
+
+if [ -n "$updating" ]; then
+	echo "not converged: rolling update still in flight:${updating}" >&2
+	printf '%s\n' "$updating" | tr ' ' '\n' | sed 's/(.*//' | while read -r svc; do
+		[ -n "$svc" ] || continue
+		report_tasks "$svc"
+	done
+	exit 1
+fi
+
 not_running=""
 while read -r name reps; do
 	[ -n "$name" ] || continue
 	if awk -v r="$reps" 'BEGIN { split(r, a, "/"); exit (a[1] == a[2]) ? 0 : 1 }'; then
-		continue
+		desired=$(awk -v r="$reps" 'BEGIN { split(r, a, "/"); print a[2] }')
+		[ "$(running_current_spec "$name")" = "$desired" ] && continue
 	fi
 	is_completed_oneshot "$name" && continue
 	not_running="$not_running $name"
