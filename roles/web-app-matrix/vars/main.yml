@@ -28,13 +28,14 @@ MATRIX_CHATGPT_BRIDGE_API_KEY: "{{ lookup('config', application_id, 'secrets.cre
   application_id, 'secrets.credentials.chatgpt_bridge_openai_api_key') }}"
 
 MATRIX_SYNAPSE_NAME: "{{ lookup('config', application_id, 'services.synapse.name') }}"
+MATRIX_SYNAPSE_SERVICE: "{{ lookup('container_service', application_id, 'synapse') }}"
 MATRIX_SYNAPSE_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'synapse') }}"
 MATRIX_SYNAPSE_VOLUME: "{{ lookup('volume', application_id, 'synapse_data').name }}"
 MATRIX_SYNAPSE_UID: 991
 MATRIX_SYNAPSE_GID: 991
-MATRIX_MDAD_SERVICE: "matrix"
+MATRIX_MDAD_SERVICE_KEY: "matrix"
 MATRIX_MDAD_CONTAINER: "{{ application_id | get_entity_name }}"
-MATRIX_MDAD_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, MATRIX_MDAD_SERVICE) }}"
+MATRIX_MDAD_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, MATRIX_MDAD_SERVICE_KEY) }}"
 MATRIX_SYNAPSE_DOMAIN: "{{ lookup('domains', application_id).synapse }}"
 MATRIX_SYNAPSE_PORT: "{{ lookup('config', 'web-app-matrix', 'services.synapse.ports.local.http') }}"
 MATRIX_SYNAPSE_CONTAINER_PORT: "{{ lookup('config', application_id, 'services.synapse.ports.internal.http') }}"
@@ -44,7 +45,7 @@ MATRIX_SYNAPSE_LOG_PATH_HOST: "{{ [ lookup('container', application_id, 'directo
 MATRIX_SYNAPSE_LOG_PATH_CONTAINER: "/data/{{ MATRIX_SYNAPSE_DOMAIN }}.log.config" # nocheck: container-var-name-lookup in-container path, not a container name
 MATRIX_SYNAPSE_BIND_MOUNT_MODE: "0644"
 MATRIX_SYNAPSE_URL: "{{ lookup('canonical_url', application_id, 'synapse') }}"
-MATRIX_SYNAPSE_LOCAL_URL: "http://{{ MATRIX_SYNAPSE_CONTAINER_ADDRESS }}:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}"
+MATRIX_SYNAPSE_LOCAL_URL: "http://{{ MATRIX_SYNAPSE_SERVICE }}:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}"
 MATRIX_SYNAPSE_LOGIN_BURST: 30
 MATRIX_CHATGPT_ACCESS_TOKEN: "{{ lookup('config', application_id, 'secrets.credentials.chatgpt_bridge_access_token', '') }}"
 MATRIX_CHATGPT_ENCRYPTION: "false"
