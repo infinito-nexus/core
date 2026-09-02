@@ -12,7 +12,18 @@ user = User.find_by_username(username)
 
 if user.nil?
   organization = Organizations::Organization.default_organization
-  abort("NO_DEFAULT_ORGANIZATION: cannot place the personal namespace of #{username}") if organization.nil?
+
+  if organization.nil?
+    organization = Organizations::Organization.create(
+      id: Organizations::Organization::DEFAULT_ORGANIZATION_ID,
+      name: 'Default',
+      path: 'default',
+      visibility_level: Gitlab::VisibilityLevel::PUBLIC
+    )
+    unless organization.persisted?
+      abort("DEFAULT_ORGANIZATION_CREATE_FAILED: #{organization.errors.full_messages.join(', ')}")
+    end
+  end
 
   result = Users::CreateService.new(
     nil,
