@@ -132,9 +132,8 @@ test("prometheus: admin sso login, verify ui, logout", async ({ page }) => {
     page.getByRole("link", { name: /^(Graph|Alerts|Status)$/i }).first()
   ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
-  // 5. Logout via the injected universal-logout control; let the conductor settle.
+  // 5. Logout via the injected universal-logout control.
   await inAppLogout(page);
-  await page.waitForLoadState("networkidle", { timeout: resolveTimeout(45_000) }).catch(() => {});
 
   // 6. Verify session is gone — oauth2-proxy redirects unauthenticated requests to Keycloak.
   await gotoOnion(page, `${expectedPrometheusBaseUrl}/`, { waitUntil: "domcontentloaded" });
