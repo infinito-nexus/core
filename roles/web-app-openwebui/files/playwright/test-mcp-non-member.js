@@ -5,6 +5,7 @@ const { skipUnlessServiceEnabled } = require("./service-gating");
 exports.register = function (shared) {
   test("biber: a user outside the mcp group reaches no MCP tool", async ({ page }) => {
     skipUnlessServiceEnabled("mcp");
+    skipUnlessServiceEnabled("sso");
     test.setTimeout(resolveTimeout(120_000));
 
     await shared.signInViaDashboardOidc(

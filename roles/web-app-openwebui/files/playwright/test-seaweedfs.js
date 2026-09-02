@@ -24,6 +24,7 @@ test.use({ ignoreHTTPSErrors: true });
 test("seaweedfs: an uploaded Open WebUI document is stored in the SeaweedFS bucket", async ({ page, browser }) => {
   test.skip(isOnionTarget(), "SeaweedFS filer UI is not a Tor surface on an onion node (headless backend)");
   skipUnlessServiceEnabled("seaweedfs");
+  skipUnlessServiceEnabled("sso");
   test.setTimeout(resolveTimeout(180_000));
 
   await runSeaweedfsStorageCheck(page, browser, {

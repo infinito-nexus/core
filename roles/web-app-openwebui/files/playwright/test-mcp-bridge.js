@@ -7,6 +7,7 @@ exports.register = function (shared) {
     page,
   }) => {
     skipUnlessServiceEnabled("mcp");
+    skipUnlessServiceEnabled("sso");
 
     const expected = (shared.env.mcpExpectedServers || "")
       .split(",")

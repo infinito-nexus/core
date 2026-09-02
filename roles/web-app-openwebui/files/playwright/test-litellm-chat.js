@@ -5,6 +5,7 @@ const { skipUnlessServiceEnabled } = require("./service-gating");
 exports.register = function (shared) {
   test("litellm chat: a gateway model answers a chat completion via OpenWebUI", async ({ page }) => {
     skipUnlessServiceEnabled("litellm");
+    skipUnlessServiceEnabled("sso");
     test.setTimeout(resolveTimeout(120_000));
 
     await shared.signInViaDashboardOidc(

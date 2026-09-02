@@ -5,6 +5,7 @@ const { skipUnlessServiceEnabled } = require("./service-gating");
 exports.register = function (shared) {
   test("ollama chat: the preloaded model answers a chat completion via OpenWebUI", async ({ page }) => {
     skipUnlessServiceEnabled("ollama");
+    skipUnlessServiceEnabled("sso");
     test.setTimeout(resolveTimeout(120_000));
 
     await shared.signInViaDashboardOidc(

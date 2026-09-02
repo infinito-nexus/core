@@ -5,6 +5,7 @@ const { skipUnlessServiceEnabled } = require("./service-gating");
 exports.register = function (shared) {
   test("administrator: every discovered MCP server is registered as a tool server", async ({ page }) => {
     skipUnlessServiceEnabled("mcp");
+    skipUnlessServiceEnabled("sso");
     test.setTimeout(resolveTimeout(120_000));
 
     await shared.signInViaDashboardOidc(

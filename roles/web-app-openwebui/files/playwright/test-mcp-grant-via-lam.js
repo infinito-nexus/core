@@ -259,6 +259,7 @@ exports.register = function (shared) {
     page,
   }) => {
     skipUnlessServiceEnabled("mcp");
+    skipUnlessServiceEnabled("sso");
     test.skip(
       !shared.env.lamBaseUrl,
       "LAM_BASE_URL is empty; web-app-lam is not in this deployment's inventory"
