@@ -74,7 +74,7 @@ run_within_deadline() {
 	_nominal=${1}
 	_leave=${2}
 	shift 2
-	if [ -n "${INFINITO_CI_DISTRO_DEADLINE_EPOCH:-}" ]; then                       # nocheck: distros.sh computes this epoch from the sweep budget at run time; a static default would be a stale timestamp
+	if [ -n "${INFINITO_CI_DISTRO_DEADLINE_EPOCH:-}" ]; then               # nocheck: distros.sh computes this epoch from the sweep budget at run time; a static default would be a stale timestamp
 		_usable=$((INFINITO_CI_DISTRO_DEADLINE_EPOCH - $(date +%s) - _leave)) # nocheck: run-time state, not a configurable default
 		if [ "${_usable}" -lt 5 ]; then
 			echo "==> teardown: no budget left before the sweep deadline, skipping ${1}"
