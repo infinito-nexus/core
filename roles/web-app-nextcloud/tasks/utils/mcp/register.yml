@@ -47,6 +47,25 @@
   register: nextcloud_registered_exapps
   changed_when: false
 
+- name: "🧹 Drop a registration whose app secret the endpoint no longer accepts"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -u
+      - "{{ NEXTCLOUD_DOCKER_USER }}"
+      - "{{ NEXTCLOUD_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - php
+      - "{{ NEXTCLOUD_INTERNAL_OCC_COMMAND }}"
+      - app_api:app:unregister
+      - "{{ NEXTCLOUD_CONTEXT_AGENT_SERVICE }}"
+      - --force
+  when:
+    - nextcloud_exapp_reregister | bool
+    - NEXTCLOUD_CONTEXT_AGENT_SERVICE in nextcloud_registered_exapps.stdout
+  changed_when: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
 - name: "🚀 Register the Context Agent ExApp with its MCP route"
   ansible.builtin.command:
     argv:
@@ -64,7 +83,9 @@
       - "{{ NEXTCLOUD_CONTEXT_AGENT_JSON_INFO }}"
       - --force-scopes
       - --wait-finish
-  when: NEXTCLOUD_CONTEXT_AGENT_SERVICE not in nextcloud_registered_exapps.stdout
+  when: >-
+    NEXTCLOUD_CONTEXT_AGENT_SERVICE not in nextcloud_registered_exapps.stdout
+    or nextcloud_exapp_reregister | bool
   changed_when: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
