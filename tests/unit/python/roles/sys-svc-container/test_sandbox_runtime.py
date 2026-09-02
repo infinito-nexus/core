@@ -37,7 +37,7 @@ BASE = {
     "DEPLOYMENT_MODE": "swarm",
     "IS_STACK_HOST": False,
     "DOCKER_IN_CONTAINER": True,
-    "DOMAIN_PRIMARY": "infinito.example",
+    "DOMAIN_PRIMARY": "infinito.test",
     "KATA_SHIM_BINARY": "/usr/bin/containerd-shim-kata-v2",
     "RUNSC_SHIM_BINARY": "/usr/local/bin/runsc",
     "SANDBOX_RUNTIME": "runsc",

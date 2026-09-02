@@ -106,8 +106,8 @@ class ZoneProbeNameTests(unittest.TestCase):
 
     def test_the_owned_zone_becomes_a_probe_name(self):
         self.assertEqual(
-            self._zone("no-resolv\naddress=/infinito.example/192.168.244.10\n"),
-            "rescue-probe.infinito.example",
+            self._zone("no-resolv\naddress=/infinito.test/192.168.244.10\n"),
+            "rescue-probe.infinito.test",
         )
 
     def test_a_config_without_a_zone_yields_nothing(self):

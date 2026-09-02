@@ -98,12 +98,12 @@ class TestMembersWithRole(unittest.TestCase):
     def test_the_declared_username_wins_over_the_key(self) -> None:
         users = {
             "biber": {
-                "username": "biber@infinito.example",
+                "username": "biber@infinito.test",
                 "application_roles": {"web-app-baserow": ["mcp"]},
             }
         }
         self.assertEqual(
-            ["biber@infinito.example"],
+            ["biber@infinito.test"],
             members_with_role(users, "web-app-baserow", "mcp-reader"),
         )
 

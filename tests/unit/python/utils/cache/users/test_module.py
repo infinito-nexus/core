@@ -310,7 +310,7 @@ class TestMaterializeBuiltinUserAliases(unittest.TestCase):
         }
         out = cache_users._materialize_builtin_user_aliases(
             users,
-            variables={"DOMAIN_PRIMARY": "infinito.example"},
+            variables={"DOMAIN_PRIMARY": "infinito.test"},
             templar=None,
         )
         self.assertEqual(out["sld"]["username"], "infinito")

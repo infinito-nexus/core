@@ -60,7 +60,7 @@ class TestTimeoutsHelper(unittest.TestCase):
     def test_clearnet_default_factor_is_identity(self):
         out = self._run(
             "t.resolveTimeout(60000)",
-            {"CANONICAL_DOMAIN": '"x.infinito.example"'},
+            {"CANONICAL_DOMAIN": '"x.infinito.test"'},
         )
         self.assertIn("RESULT:60000", out)
 
@@ -75,7 +75,7 @@ class TestTimeoutsHelper(unittest.TestCase):
         out = self._run(
             "t.resolveTimeout(60000)",
             {
-                "CANONICAL_DOMAIN": "x.infinito.example",
+                "CANONICAL_DOMAIN": "x.infinito.test",
                 "PLAYWRIGHT_TIMEOUT_FACTOR": "2",
             },
         )
@@ -96,7 +96,7 @@ class TestTimeoutsHelper(unittest.TestCase):
         out = self._run(
             "t.resolveTimeout(60000)",
             {
-                "CANONICAL_DOMAIN": "x.infinito.example",
+                "CANONICAL_DOMAIN": "x.infinito.test",
                 "PLAYWRIGHT_TIMEOUT_FACTOR": "0",
             },
         )
@@ -114,7 +114,7 @@ class TestTimeoutsHelper(unittest.TestCase):
         self.assertIn(
             "RESULT:false",
             self._run(
-                "t.isOnionTarget()", {"CANONICAL_DOMAIN": '"x.infinito.example"'}
+                "t.isOnionTarget()", {"CANONICAL_DOMAIN": '"x.infinito.test"'}
             ),
         )
 

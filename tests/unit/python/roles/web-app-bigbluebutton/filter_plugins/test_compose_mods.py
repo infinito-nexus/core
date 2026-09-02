@@ -146,21 +146,21 @@ services:
                 original,
                 self.compose_repository_path,
                 self.env_file,
-                extra_hosts=["auth.infinito.example:host-gateway"],
+                extra_hosts=["auth.infinito.test:host-gateway"],
             )
         )
         services = data["services"]
         self.assertIn(
-            "auth.infinito.example:host-gateway", services["greenlight"]["extra_hosts"]
+            "auth.infinito.test:host-gateway", services["greenlight"]["extra_hosts"]
         )
         self.assertNotIn("extra_hosts", services["freeswitch"])
         self.assertEqual(
             services["nginx"]["extra_hosts"],
-            ["existing.example:1.2.3.4", "auth.infinito.example:host-gateway"],
+            ["existing.example:1.2.3.4", "auth.infinito.test:host-gateway"],
         )
         self.assertEqual(
             services["etherpad"]["extra_hosts"],
-            ["mapped.example:5.6.7.8", "auth.infinito.example:host-gateway"],
+            ["mapped.example:5.6.7.8", "auth.infinito.test:host-gateway"],
         )
 
     def test_extra_hosts_absent_without_kwarg(self):

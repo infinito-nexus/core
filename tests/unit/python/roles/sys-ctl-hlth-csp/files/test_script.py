@@ -58,11 +58,11 @@ class TestSplitOnionDomains(unittest.TestCase):
     def test_splits_families(self) -> None:
         domains = [
             "auth.abc123.onion",
-            "app.infinito.example",
+            "app.infinito.test",
             "matomo.abc123.onion",
         ]
         clearnet, onion = script.split_onion_domains(domains)
-        self.assertEqual(clearnet, ["app.infinito.example"])
+        self.assertEqual(clearnet, ["app.infinito.test"])
         self.assertEqual(onion, ["auth.abc123.onion", "matomo.abc123.onion"])
 
     def test_clearnet_only(self) -> None:
@@ -75,31 +75,31 @@ class TestSplitOnionDomains(unittest.TestCase):
 
 class TestIsSkippedDomain(unittest.TestCase):
     def test_explicit_clearnet_domain_is_skipped(self) -> None:
-        skip_set = {"mirror.infinito.example"}
+        skip_set = {"mirror.infinito.test"}
         labels = {d.split(".", 1)[0] for d in skip_set}
         self.assertTrue(
-            script.is_skipped_domain("mirror.infinito.example", skip_set, labels)
+            script.is_skipped_domain("mirror.infinito.test", skip_set, labels)
         )
 
     def test_onion_sibling_of_skipped_clearnet_is_skipped(self) -> None:
-        skip_set = {"mirror.infinito.example"}
+        skip_set = {"mirror.infinito.test"}
         labels = {d.split(".", 1)[0] for d in skip_set}
         self.assertTrue(
             script.is_skipped_domain("mirror.abc123.onion", skip_set, labels)
         )
 
     def test_unrelated_onion_is_not_skipped(self) -> None:
-        skip_set = {"mirror.infinito.example"}
+        skip_set = {"mirror.infinito.test"}
         labels = {d.split(".", 1)[0] for d in skip_set}
         self.assertFalse(
             script.is_skipped_domain("auth.abc123.onion", skip_set, labels)
         )
 
     def test_unrelated_clearnet_is_not_skipped(self) -> None:
-        skip_set = {"mirror.infinito.example"}
+        skip_set = {"mirror.infinito.test"}
         labels = {d.split(".", 1)[0] for d in skip_set}
         self.assertFalse(
-            script.is_skipped_domain("auth.infinito.example", skip_set, labels)
+            script.is_skipped_domain("auth.infinito.test", skip_set, labels)
         )
 
 
@@ -114,7 +114,7 @@ class TestMainSkipsOnionSiblings(unittest.TestCase):
         mock_run_checker: MagicMock,
     ) -> None:
         mock_extract.return_value = [
-            "mirror.infinito.example",
+            "mirror.infinito.test",
             "mirror.abc123.onion",
             "auth.abc123.onion",
         ]
@@ -134,7 +134,7 @@ class TestMainSkipsOnionSiblings(unittest.TestCase):
                     "--image",
                     "img:tag",
                     "--skip-domain",
-                    "mirror.infinito.example",
+                    "mirror.infinito.test",
                     "--tor-proxy",
                     "socks5://127.0.0.1:9050",
                 ],
@@ -144,7 +144,7 @@ class TestMainSkipsOnionSiblings(unittest.TestCase):
             script.main()
 
         probed = [d for call in mock_build_urls.call_args_list for d in call.args[1]]
-        self.assertNotIn("mirror.infinito.example", probed)
+        self.assertNotIn("mirror.infinito.test", probed)
         self.assertNotIn("mirror.abc123.onion", probed)
         self.assertIn("auth.abc123.onion", probed)
 

@@ -37,7 +37,7 @@ from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_META_MCP, ROLE_FILE_META_TESTS
 
 _SHARED = "roles/test-e2e-cli/templates/mcp/test.env.j2"
-_DOMAIN = "infinito.example"
+_DOMAIN = "infinito.test"
 _SERVER_DIRECTIONS = frozenset({"server", "both"})
 _CONSUMERS = (
     "web-app-flowise",

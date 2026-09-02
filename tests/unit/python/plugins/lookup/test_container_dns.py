@@ -168,7 +168,7 @@ class TestTheBridgeSurvivesTheFirstRun(unittest.TestCase):
     ``ansible_facts.docker0`` is still absent. Deriving the address from the
     fact alone emitted the clearnet resolver on its own, and the inner
     containers then asked a public resolver for a domain only the node dnsmasq
-    knows: ``server can't find infinito.example: NXDOMAIN``.
+    knows: ``server can't find infinito.test: NXDOMAIN``.
     """
 
     POOLS: ClassVar[list] = [{"base": "10.208.0.0/12", "size": 24}]
