@@ -155,7 +155,7 @@
     executable: /bin/bash
   register: swarm_deploy_result
   changed_when: true
-  timeout: "{{ (swarm_stack_converge_retries | int) * 2 }}"
+  timeout: "{{ lookup('timeout', (swarm_stack_converge_retries | int) * 2) | int }}"
   listen:
     - compose-up
     - swarm-deploy
