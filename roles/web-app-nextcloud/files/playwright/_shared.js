@@ -160,12 +160,12 @@ async function dismissBlockingNextcloudModals(page, nextcloudFrame, maxDismissal
   }
 }
 
-async function clickUserMenuWithModalRetry(page, nextcloudFrame, userMenuLocator, attempts = 5) {
+async function clickWithModalRetry(page, nextcloudFrame, target, attempts = 5) {
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     await dismissBlockingNextcloudModals(page, nextcloudFrame, 6);
 
     try {
-      await userMenuLocator.click({ timeout: resolveTimeout(4_000) });
+      await target.click({ timeout: resolveTimeout(4_000) });
       return;
     } catch (error) {
       const message = String(error && error.message ? error.message : error);
@@ -304,7 +304,7 @@ async function logoutStandaloneNextcloud(adminPage) {
   const logoutConfirmButton = adminPage.getByRole("button", { name: "Logout" });
 
   await dismissBlockingNextcloudModals(adminPage, adminPage);
-  await clickUserMenuWithModalRetry(adminPage, adminPage, userMenuTrigger);
+  await clickWithModalRetry(adminPage, adminPage, userMenuTrigger);
 
   const logoutLink = await waitForFirstVisible(
     adminPage,
@@ -366,7 +366,7 @@ module.exports = {
   waitForFirstVisible,
   waitForVisibleCandidate,
   dismissBlockingNextcloudModals,
-  clickUserMenuWithModalRetry,
+  clickWithModalRetry,
   loginToStandaloneNextcloud,
   logoutStandaloneNextcloud,
   loginToStandaloneNextcloudWithRetry,
