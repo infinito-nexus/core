@@ -36,8 +36,6 @@ from __future__ import annotations
 
 from typing import Any
 
-_VALID_SWARM_CONDITIONS = frozenset({"none", "on-failure", "any"})
-
 
 def swarm_restart_condition(value: Any) -> str:
     """Translate *value* (a compose-style ``docker_restart_policy``)
