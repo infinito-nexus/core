@@ -11,13 +11,15 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  actions: write
   contents: read
-  pull-requests: read
 
 jobs:
   cancel-pr-runs:
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+      pull-requests: read
     steps:
       - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0
