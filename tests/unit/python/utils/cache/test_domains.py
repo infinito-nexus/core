@@ -18,6 +18,7 @@ from unittest.mock import patch
 
 from utils.cache import _reset_cache_for_tests
 from utils.cache import domains as cache_domains
+from utils.cache.base import _RENDER_GUARD
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_USERS
 
 from . import PROJECT_ROOT
@@ -113,6 +114,37 @@ class TestCachingPerVariablesSignature(unittest.TestCase):
                     templar=None,
                 )
             self.assertEqual(mocked.call_count, 2)
+
+    def test_a_map_built_during_the_render_never_becomes_the_finished_one(self):
+        """Under the guard the applications view is still unrendered, so its
+        map must not answer a later read; it may still serve the render."""
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_role(Path(tmp))
+            variables = {"DOMAIN_PRIMARY": "infinito.test"}
+            with patch(
+                "utils.cache.applications.get_merged_applications",
+                return_value={},
+            ) as mocked:
+                _RENDER_GUARD.applications = True
+                try:
+                    cache_domains.get_merged_domains(
+                        variables=variables, roles_dir=roles, templar=None
+                    )
+                    cache_domains.get_merged_domains(
+                        variables=variables, roles_dir=roles, templar=None
+                    )
+                    self.assertEqual(mocked.call_count, 1)
+                finally:
+                    _RENDER_GUARD.applications = False
+                cache_domains.get_merged_domains(
+                    variables=variables, roles_dir=roles, templar=None
+                )
+                self.assertEqual(mocked.call_count, 2)
+            self.assertEqual(len(cache_domains._MERGED_DOMAINS_CACHE), 2)
+            self.assertEqual(
+                sorted(key[-1] for key in cache_domains._MERGED_DOMAINS_CACHE),
+                [False, True],
+            )
 
 
 class TestResetClearsDomainsCache(unittest.TestCase):

@@ -12,7 +12,7 @@ This package contains the in-process cache layers Infinito.Nexus uses to keep CL
 | [applications.py](applications.py) | Per-app variants + defaults + `get_merged_applications`. **Strictly ansible-free at import time** so the GitHub Actions runner-host CLI path (`cli.administration.deploy.development.init` → `plan_dev_inventory_matrix` → `get_variants`) keeps working without ansible installed. |
 | [carrier.py](carrier.py) | The play-scoped carrier of the rendered applications payload: the fact name `_INFINITO_APPLICATIONS_RENDERED`, `merged_applications_cache_key`, and the reader `get_merged_applications` consults before it renders. |
 | [users/](users/) | User definitions, token store hydration, alias materialization, `get_user_defaults`, `get_merged_users` (package; `users/placeholders.py` substitutes `DOMAIN_PRIMARY` / `ORGANIZATION` / `SOFTWARE_NAME` ahead of the templar render pass). |
-| [domains.py](domains.py) | Canonical-domains map derived from the merged applications view: `get_merged_domains`. |
+| [domains.py](domains.py) | Canonical-domains map derived from the merged applications view: `get_merged_domains`. A read issued while the applications render is in progress (the re-entry guard is set) sees the unrendered view, so it is cached under its own key and never answers a later read. |
 | [`__init__.py`](__init__.py) | Owns the package-level `_reset_cache_for_tests()` orchestrator that clears every cache plus the shared fingerprint memo in one call. |
 
 ## When To Use Which 🎯
