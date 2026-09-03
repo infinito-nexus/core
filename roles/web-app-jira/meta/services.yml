@@ -37,7 +37,7 @@ jira:
     swarm:
       enabled: true
   image: atlassian/jira-software
-  version: 11.3.10
+  version: 11.3.11
   custom: true
   name: jira
   min_storage: 1027MB

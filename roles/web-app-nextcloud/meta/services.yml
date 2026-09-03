@@ -122,7 +122,7 @@ proxy:
     flavor: curl
     start_period: 20m
   image: nginx
-  version: 1.31.4-alpine
+  version: 1.31.5-alpine
   backup:
     no_stop_required: true
   cpus: "0.5"
