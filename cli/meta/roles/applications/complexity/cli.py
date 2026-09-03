@@ -358,6 +358,7 @@ def main(argv: list[str] | None = None) -> int:
         sort_spec = parse_sort_spec(args.sort)
     except ValueError as exc:
         p.error(str(exc))
+        return 2
 
     roles_dir = PROJECT_ROOT / "roles"
     if not roles_dir.is_dir():
