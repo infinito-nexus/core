@@ -10,6 +10,7 @@ from utils.cache.yaml import load_yaml_str
 from utils.roles.mapping import ROLE_FILE_TASKS_MAIN
 
 BACKEND = PROJECT_ROOT / "roles/sys-stk-backend" / ROLE_FILE_TASKS_MAIN
+RDBMS_DEDICATED = PROJECT_ROOT / "roles/sys-svc-rdbms/tasks/dedicated.yml"
 COMPOSE_OWNER = "sys-svc-compose"
 _NOTIFY = re.compile(r"^\s*notify:\s*(?:\[\s*)?['\"]?(compose-[\w-]+)", re.MULTILINE)
 
@@ -47,6 +48,11 @@ class TestHandlerRegistrationOrder(unittest.TestCase):
         )
         previous = tasks[flush - 1]
         loader = _role_include(previous)
+        self.assertEqual(loader.get("name"), COMPOSE_OWNER)
+        self.assertEqual(loader.get("handlers_from"), "main")
+
+    def test_the_notifier_registers_the_owner_before_its_first_notify(self) -> None:
+        loader = _role_include(load_yaml_str(read_text(str(RDBMS_DEDICATED)))[0])
         self.assertEqual(loader.get("name"), COMPOSE_OWNER)
         self.assertEqual(loader.get("handlers_from"), "main")
 
