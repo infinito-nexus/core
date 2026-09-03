@@ -1,0 +1,52 @@
+---
+# Custom OpenSearch security roles. 'all_access' used by roles_mapping.yml.j2
+# is BUILT INTO the wazuh-indexer image and does not need to be declared
+# here. 'security_analyst' is genuinely custom: read-only over Wazuh's own
+# alert/monitoring indices, no security-index or admin actions, not a stock
+# Wazuh/OpenSearch template. 'readonly_auditor' is likewise genuinely
+# custom, replacing the built-in 'readall'+'kibana_read_only' pair: those
+# built-ins do not include the "read" action group's full scope needed for
+# wz-home's own bootstrap calls (confirmed against a live deploy - a
+# readonly-auditor session got permanently stuck on the app's own loading
+# screen with `no permissions for [indices:data/read/get]` in the
+# dashboard's server log).
+_meta:
+  type: "roles"
+  config_version: 2
+
+security_analyst:
+  reserved: false
+  description: "Security Analyst: read alerts/logs/dashboards, no security-config or RBAC-management access."
+  cluster_permissions:
+    - "cluster_composite_ops_ro"
+  index_permissions:
+    - index_patterns:
+        - "wazuh-alerts-*"
+        - "wazuh-archives-*"
+        - "wazuh-monitoring-*"
+        - "wazuh-statistics-*"
+      allowed_actions:
+        - "read"
+        - "indices:admin/mappings/get"
+        - "indices:admin/get"
+  tenant_permissions:
+    - tenant_patterns:
+        - "global_tenant"
+      allowed_actions:
+        - "kibana_all_read"
+
+readonly_auditor:
+  reserved: false
+  description: "Read-only Auditor: read-only access to dashboards and alerts across all Wazuh indices, no agent/rule/configuration actions."
+  cluster_permissions:
+    - "cluster_composite_ops_ro"
+  index_permissions:
+    - index_patterns:
+        - "*"
+      allowed_actions:
+        - "read"
+  tenant_permissions:
+    - tenant_patterns:
+        - "global_tenant"
+      allowed_actions:
+        - "kibana_all_read"

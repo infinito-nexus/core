@@ -1,0 +1,8 @@
+---
+roles:
+  administrator:
+    description: "Full administrative access: agents, rules, and security configuration."
+  security-analyst:
+    description: "Reads alerts, logs, and dashboards. No security-configuration or RBAC-management access."
+  readonly-auditor:
+    description: "Read-only access to dashboards and alerts. No agent, rule, or configuration actions."
