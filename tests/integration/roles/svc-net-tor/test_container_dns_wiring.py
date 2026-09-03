@@ -3,6 +3,11 @@ import unittest
 from jinja2 import Environment, FileSystemLoader
 
 from tests.integration.roles import PROJECT_ROOT
+from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml_str
+
+ROUTER = PROJECT_ROOT / "roles/svc-net-tor/tasks/router.yml"
+RESOLV_TASK = "🔀 Egress router | Point the host resolver at dnsmasq (127.0.0.1)"
 
 
 def _render_dnsmasq(**overrides):
@@ -38,6 +43,24 @@ class TestDnsmasqListeners(unittest.TestCase):
         self.assertIn("listen-address=127.0.0.1", rendered)
         self.assertNotIn("listen-address=172.17", rendered)
 
+    def test_loopback_only_binds_statically(self):
+        """A loopback-only listener has no address to wait for, and the rebuild
+        that bind-dynamic performs on every netlink event can then only drop it."""
+        rendered = _render_dnsmasq(TOR_CONTAINER_DNS_HOST="")
+        self.assertIn("bind-interfaces", rendered)
+        self.assertNotIn("bind-dynamic", rendered)
+
+    def test_the_static_bind_claims_no_address_it_was_not_given(self):
+        """interface= and listen-address= are a union in dnsmasq, so naming lo
+        would additionally seize 127.0.0.53 and ::1, where a distro stub sits."""
+        rendered = _render_dnsmasq(TOR_CONTAINER_DNS_HOST="")
+        self.assertNotIn("interface=", rendered)
+
+    def test_a_bridge_listener_still_binds_dynamically(self):
+        rendered = _render_dnsmasq()
+        self.assertIn("bind-dynamic", rendered)
+        self.assertNotIn("bind-interfaces", rendered)
+
     def test_no_bind_policy_when_the_listener_is_not_ours(self):
         rendered = _render_dnsmasq(
             TOR_DNSMASQ_OWNS_LISTENER=False, TOR_CONTAINER_DNS_HOST=""
@@ -67,6 +90,27 @@ class TestDnsmasqListeners(unittest.TestCase):
 
     def test_own_onion_resolves_to_a_container_reachable_backend(self):
         self.assertIn("address=/example.onion/172.17.0.1", _render_dnsmasq())
+
+
+class TestHostResolver(unittest.TestCase):
+    """glibc reads resolv.conf per query and keeps no server state, so the
+    clearnet entry costs nothing while dnsmasq answers and carries the host when
+    it stops. systemd-resolved does keep state, which is why the role has to
+    stay out of its way rather than drop the entry."""
+
+    def _resolv_conf(self) -> str:
+        tasks = load_yaml_str(read_text(str(ROUTER)))
+        task = next(t for t in tasks if t.get("name") == RESOLV_TASK)
+        return task["ansible.builtin.copy"]["content"]
+
+    def test_dnsmasq_answers_first_and_the_upstream_carries_the_host(self):
+        servers = [
+            line.split()[1]
+            for line in self._resolv_conf().splitlines()
+            if line.startswith("nameserver ")
+        ]
+        self.assertEqual(len(servers), 2)
+        self.assertEqual(servers[0], "127.0.0.1")
 
 
 if __name__ == "__main__":
