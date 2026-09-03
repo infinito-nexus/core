@@ -464,8 +464,31 @@ class TestConfigFromTitle(unittest.TestCase):
                 self.assertEqual(runs.config_from_run(title, jobs=jobs)[suite], "true")
 
     def test_a_suite_that_never_ran_is_asked_for_again(self) -> None:
+        """No job at all means it never started, which proves nothing."""
         title = render({"workspace": "true"})
         jobs = [{"name": "🧹 Lint", "status": "completed", "conclusion": "success"}]
+        self.assertEqual(runs.config_from_run(title, jobs=jobs)["workspace"], "true")
+
+    def test_a_shard_that_did_not_run_through_is_asked_for_again(self) -> None:
+        """Only a success retires the suite; every other outcome, a mid-run
+        force-cancel included, leaves it unproven."""
+        for conclusion in ("cancelled", "skipped", "timed_out"):
+            with self.subTest(conclusion):
+                title = render({"workspace": "true"})
+                jobs = [self._suite_job("workspace", conclusion)]
+                self.assertEqual(
+                    runs.config_from_run(title, jobs=jobs)["workspace"], "true"
+                )
+
+    def test_a_still_running_shard_is_asked_for_again(self) -> None:
+        title = render({"workspace": "true"})
+        jobs = [
+            {
+                "name": f"🎛️ Orchestrate CI (manual) / {runs.SUITE_JOB_IDS['workspace']}",
+                "status": "in_progress",
+                "conclusion": None,
+            }
+        ]
         self.assertEqual(runs.config_from_run(title, jobs=jobs)["workspace"], "true")
 
     def test_one_failing_shard_keeps_the_whole_suite(self) -> None:

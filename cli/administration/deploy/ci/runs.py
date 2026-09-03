@@ -376,9 +376,13 @@ SUITE_JOB_IDS = {"workspace": "test-workspace"}
 
 
 def suite_passed(jobs: list[dict], suite: str) -> bool:
-    """Whether ``suite`` ('workspace') ran to success in this run. A suite that
-    was skipped, cancelled or never dispatched has not passed, so a retrigger
-    keeps asking for it."""
+    """Whether every job of ``suite`` ('workspace') completed successfully.
+
+    Only a clean sweep of successes retires the suite. A shard that failed,
+    was cancelled, timed out or skipped did not run through, and a run that
+    holds no job for the suite at all never started it -- none of those is
+    evidence the suite is good, so the retrigger keeps asking for it.
+    """
     job_id = SUITE_JOB_IDS[suite]
     outcomes = [
         _effective(job)
@@ -403,8 +407,9 @@ def config_from_run(
     so the retrigger leaves it on that same default rather than pinning
     today's default into a run that never asked for it.
 
-    A suite the source run already passed is turned off rather than carried
-    over, so a retrigger spends its runners on what actually failed.
+    A suite is turned off only when every job of it came back green; one that
+    failed, was cancelled or never ran at all keeps it on the retrigger, so a
+    retrigger spends its runners on what is not yet proven.
 
     Args:
         title: the source run's display title.
