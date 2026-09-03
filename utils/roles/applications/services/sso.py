@@ -52,6 +52,20 @@ def is_potentially_enabled(value: Any) -> bool:
     return not (isinstance(value, str) and value.strip().lower() == "false")
 
 
+def _as_bool(value: Any) -> bool:
+    """Coerce a merged-payload flag to bool.
+
+    Args:
+        value: the raw value, which may still be the string a template rendered.
+
+    Returns:
+        True only for a literal True or a string spelling an affirmative.
+    """
+    if isinstance(value, str):
+        return value.strip().lower() in ("true", "1", "yes", "on")
+    return bool(value)
+
+
 def _get(applications: Mapping[str, Any], app_id: str, path: str, default: Any) -> Any:
     """Thin wrapper around ``get`` with the lenient flags this module uses."""
     return get(
@@ -82,6 +96,9 @@ def get_sso_config(
         oauth2_origin_port      str  — ``services.sso.oauth2.origin.port`` or ''
         oauth2_acl              dict — ``services.sso.oauth2.acl`` or {}
         oauth2_allowed_groups   list — ``services.sso.oauth2.allowed_groups`` or []
+        oauth2_pass_access_token bool — ``services.sso.oauth2.pass_access_token``,
+                                default False: the gate hands the upstream a
+                                bearer token only where the app decodes one
 
     The compound predicates are the documented call surface — call sites
     should prefer ``is_proxy_gated`` over manually combining
@@ -106,6 +123,9 @@ def get_sso_config(
     raw_allowed_groups = _get(
         applications, application_id, "services.sso.oauth2.allowed_groups", []
     )
+    raw_pass_access_token = _get(
+        applications, application_id, "services.sso.oauth2.pass_access_token", False
+    )
 
     return {
         "enabled": enabled,
@@ -123,4 +143,5 @@ def get_sso_config(
             if isinstance(raw_allowed_groups, (list, tuple))
             else []
         ),
+        "oauth2_pass_access_token": _as_bool(raw_pass_access_token),
     }

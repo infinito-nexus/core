@@ -6,6 +6,7 @@ sso:
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oauth2
   oauth2:
+    pass_access_token: true
     origin:
       host: n8n
       port: 5678
