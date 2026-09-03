@@ -1,5 +1,5 @@
 ---
-- name: "📂 For '{{ application_id }}/{{ _database_consumer_id }}': register the compose handler owner before notifying it"
+- name: "📂 For '{{ application_id }}': own the compose handler topic"
   ansible.builtin.include_role:
     name: sys-svc-compose
     tasks_from: none.yml
