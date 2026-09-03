@@ -2,7 +2,6 @@
 classification: plugin_server
 direction: server
 source_url: https://moodle.org/plugins/webservice_mcp
-minimum_version: "4.3"
 transport: streamable_http
 exposure: public
 auth: bearer_token

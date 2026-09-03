@@ -209,9 +209,9 @@ This role declares no addons (it ships no `meta/addons/` directory). Mattermost 
 
 ## References
 
-- [Mattermost Docker Install](https://docs.mattermost.com/install/install-docker.html)
-- [Mattermost Configuration Settings](https://docs.mattermost.com/configure/configuration-settings.html)
-- [GitLab SSO in Mattermost](https://docs.mattermost.com/deployment/sso-gitlab.html)
+- [Mattermost Docker Install](https://docs.mattermost.com/deployment-guide/server/deploy-containers.html)
+- [Mattermost Configuration Settings](https://docs.mattermost.com/administration-guide/configure/configuration-settings.html)
+- [GitLab SSO in Mattermost](https://docs.mattermost.com/administration-guide/onboard/sso-gitlab.html)
 
 ## Persona contract opt-outs
 

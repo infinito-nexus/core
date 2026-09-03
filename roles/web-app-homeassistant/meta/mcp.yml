@@ -2,7 +2,6 @@
 classification: native_server
 direction: server
 source_url: https://www.home-assistant.io/integrations/mcp_server/
-minimum_version: "2025.2"
 transport: streamable_http
 exposure: internal
 auth: bearer_token

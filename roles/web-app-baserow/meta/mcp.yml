@@ -2,8 +2,6 @@
 classification: adapter_server
 direction: server
 source_url: https://baserow.io/user-docs/mcp-server # nocheck: url — page is live (HEAD+GET 200); baserow.io edge intermittently 404s CI runner IPs
-supported_version: 2.3.3
-minimum_version: "1.30"
 transport: streamable_http
 exposure: internal
 auth: bearer_token

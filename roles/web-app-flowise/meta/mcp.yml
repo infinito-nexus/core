@@ -2,8 +2,6 @@
 classification: native_client
 direction: client
 source_url: https://github.com/FlowiseAI/Flowise/tree/flowise%403.1.4/packages/server/src/routes/custom-mcp-servers
-supported_version: 3.1.4
-minimum_version: 3.0.0
 implementation: native
 supported_transports:
   - streamable_http

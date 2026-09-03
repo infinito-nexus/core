@@ -2,7 +2,6 @@
 classification: adapter_server
 direction: server
 source_url: https://pkg.go.dev/gitea.com/gitea/gitea-mcp
-minimum_version: "1.24"
 transport: streamable_http
 exposure: internal
 auth: bearer_token

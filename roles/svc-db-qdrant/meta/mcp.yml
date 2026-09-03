@@ -3,7 +3,6 @@
 classification: adapter_server
 direction: server
 source_url: https://s.infinito.nexus/code
-supported_version: v1.18.2
 transport: streamable_http
 exposure: internal
 auth: bearer_token

@@ -138,7 +138,6 @@ mcp:
   implementation: adapter
   maturity: experimental
   source_url: https://example.invalid/project/source/tree/v4.5.6
-  supported_version: 4.5.6
   allowed_consumers:
     - web-app-openwebui
     - web-app-flowise

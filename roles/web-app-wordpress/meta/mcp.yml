@@ -2,8 +2,6 @@
 classification: plugin_server
 direction: server
 source_url: https://github.com/WordPress/mcp-adapter/tree/v0.5.0
-supported_version: 0.5.0
-minimum_version: 0.5.0
 transport: streamable_http
 exposure: public
 auth: basic_auth

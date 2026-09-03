@@ -146,7 +146,7 @@ docker run --rm -it \
 ## Other Resources
 
 - [Snipe‑IT Official Documentation](https://snipe-it.readme.io/)
-- [Mattermost SSO Integration Guide](https://docs.mattermost.com/onboard/sso-saml-keycloak.html)
+- [Mattermost SSO Integration Guide](https://docs.mattermost.com/administration-guide/onboard/sso-saml-keycloak.html)
 - [Additional GitHub Issues and Discussions](https://github.com/snipe/snipe-it/issues)
 
 ## Persona contract opt-outs

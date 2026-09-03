@@ -2,8 +2,6 @@
 classification: native_client
 direction: client
 source_url: https://hermes-agent.nousresearch.com/
-supported_version: v2026.7.20
-minimum_version: 0.2.0
 implementation: native
 supported_transports:
   - streamable_http

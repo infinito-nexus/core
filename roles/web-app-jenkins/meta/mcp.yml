@@ -2,7 +2,6 @@
 classification: adapter_server
 direction: server
 source_url: https://plugins.jenkins.io/mcp-server/
-minimum_version: "2.462"
 transport: streamable_http
 exposure: internal
 auth: bearer_token

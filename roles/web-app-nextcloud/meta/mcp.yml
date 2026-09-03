@@ -2,7 +2,6 @@
 classification: plugin_server
 direction: server
 source_url: https://docs.nextcloud.com/server/latest/admin_manual/ai/app_context_agent.html
-minimum_version: "30"
 transport: streamable_http
 exposure: public
 auth: app_password

@@ -63,17 +63,9 @@ def _deployed_version(role_dir):
     return EMPTY
 
 
-def _version(role_dir, mcp):
-    """Return the deployed version, naming the verified one when they differ.
-
-    A role that builds from a Dockerfile pins its base image, so the deployed
-    version alone would report ``24-bookworm-slim`` for a Flowise surface.
-    """
-    deployed = _deployed_version(role_dir)
-    verified = str(mcp.get("supported_version") or "").strip()
-    if verified and verified != deployed:
-        return f"{_cell(deployed)} (MCP verified: {_cell(verified)})"
-    return _cell(deployed)
+def _version(role_dir):
+    """Return the version the role deploys the surface at."""
+    return _cell(_deployed_version(role_dir))
 
 
 def _scope(tools):
@@ -127,7 +119,7 @@ def rows():
         )
         yield {
             "role": f"`{role_dir.name}`",
-            "version": _version(role_dir, mcp),
+            "version": _version(role_dir),
             "source": f"[link]({mcp['source_url']})"
             if mcp.get("source_url")
             else EMPTY,

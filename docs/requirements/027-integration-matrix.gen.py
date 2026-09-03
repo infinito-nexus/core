@@ -231,7 +231,7 @@ EDGES = [
     (
         "mattermost",
         "keycloak",
-        "https://docs.mattermost.com/onboard/sso-saml.html",
+        "https://docs.mattermost.com/administration-guide/onboard/sso-saml.html",
         "coin",
     ),
     (

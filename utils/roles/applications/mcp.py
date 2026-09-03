@@ -45,7 +45,7 @@ own ``meta/services.yml``. ``derive_allowed_consumers`` resolves the pair.
   callers apart by credential and by nothing else. ``allowlist`` is policy,
   what the platform lets a consumer
   reach, and is only a constraint where a gateway enforces it. ``upstream_serves``
-  is the observation: every tool the upstream offers at ``supported_version``.
+  is the observation: every tool the upstream offers at the deployed version.
   State it only where it DIFFERS from the allowlist; absence means the two are
   identical, which is the normal case for a provider that serves exactly what is
   allowed. The difference between them measures unenforced exposure, and a
@@ -56,8 +56,6 @@ own ``meta/services.yml``. ``derive_allowed_consumers`` resolves the pair.
   audit and reversal for the mutating variant, separately from the read-only
   one.
 * ``source_url``:      upstream documentation or source of the MCP surface.
-* ``supported_version``: the exact upstream version the contract was read at.
-* ``minimum_version``: first upstream release shipping the surface.
 """
 
 from __future__ import annotations
@@ -176,12 +174,8 @@ MCP_KEYS = frozenset(
         "tools",
         "mutating_proofs",
         "source_url",
-        "supported_version",
-        "minimum_version",
     }
 )
-
-MCP_PROVENANCE_KEYS = ("source_url", "supported_version", "minimum_version")
 
 MCP_ENDPOINT_KEYS = frozenset(
     {

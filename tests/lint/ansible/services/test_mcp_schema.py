@@ -667,8 +667,8 @@ class TestMcpSchema(unittest.TestCase):
             flag(
                 "upstream_serves",
                 f"{prefix}.tools.upstream_serves MUST list every tool the "
-                f"upstream offers at supported_version, or be omitted when it "
-                f"is identical to the allowlist",
+                f"upstream offers at the deployed version, or be omitted when "
+                f"it is identical to the allowlist",
             )
             return
 

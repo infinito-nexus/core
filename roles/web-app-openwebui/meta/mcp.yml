@@ -2,8 +2,6 @@
 classification: native_client
 direction: client
 source_url: https://docs.openwebui.com/features/extensibility/mcp/
-supported_version: 0.11.0
-minimum_version: 0.6.31
 implementation: native
 supported_transports:
   - streamable_http
