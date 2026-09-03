@@ -48,4 +48,10 @@ defaults_oidc:
     FAMILY_NAME: "surname"
     EMAIL: "email"
 
+  # Keycloak's own built-in admin realm/client (password-grant Admin REST API automation), distinct from the app's own CLIENT.REALM/CLIENT.ID above.
+  ADMIN:
+    REALM: "master"
+    CLI_CLIENT_ID: "admin-cli"
+
 OIDC: "{{ defaults_oidc | combine(OIDC_OVERRIDE | default({}, true), recursive=True) }}"
+
