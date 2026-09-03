@@ -46,12 +46,15 @@ ENTRY_WORKFLOW = ".github/workflows/entry-manual-steer.yml"
 SELECTION_INPUTS = ("priority", "offset")
 """The two inputs a retrigger decides itself rather than carrying over.
 
-``priority`` IS the retrigger: it names what failed. ``offset`` follows from
-it -- the source run got the head of the ranking green before its budget ran
-out, so the regular line resumes behind that green window
-(:func:`resume_offset`) instead of repeating it. Everything else is carried
-verbatim, including ``whitelist``, so a retrigger of a scoped run stays inside
-that scope instead of quietly widening to the whole repository."""
+``priority`` IS the retrigger: it names what failed. ``offset`` is recomputed
+rather than carried, but from the carried value up: the source run got a
+stretch behind its own offset green before its budget ran out, so the regular
+line resumes behind that stretch
+(:func:`cli.administration.deploy.ci.selections.resume_offset`) instead of
+repeating it, and never falls back behind where that run started. Everything
+else is carried verbatim, including ``whitelist``, so a retrigger of a scoped
+run stays inside that scope instead of quietly widening to the whole
+repository."""
 
 
 def dispatch_inputs() -> tuple[str, ...]:

@@ -20,6 +20,7 @@ import sys
 
 from cli.administration.deploy.ci import gh, runs, selections
 from cli.meta.ci import matrix, query
+from utils.github import run_name
 from utils.github.variant import pools, selection, tor
 
 _WORKFLOW = "entry-manual-steer.yml"
@@ -75,10 +76,12 @@ def main(argv: list[str] | None = None) -> int:
         help=(
             "Re-trigger what was not green in the source run as the priority "
             "line, together with the priority entries that run never deployed "
-            "at all; the remaining roles follow once they succeed. Every mode "
-            "is read, and each failed job comes back as the exact selection "
-            "that failed -- variant, deploy mode and onion state included. A "
-            "leftover scope argument is accepted and ignored."
+            "at all; the remaining roles follow once they succeed, starting "
+            "behind the green stretch the run added to the offset it was "
+            "given. Every mode is read, and each failed job comes back as the "
+            "exact selection that failed -- variant, deploy mode and onion "
+            "state included. A leftover scope argument is accepted and "
+            "ignored."
         ),
     )
     group.add_argument(
@@ -105,22 +108,9 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help=(
             "With --failed: re-trigger only roles with a hard failure (❌), "
-            "not cancelled/aborted (🚫) or still-running (⏳). With "
-            "--include-unrun it also decides what counts as covered: only a "
-            "success or a failure settles a row, so the aborted and the "
-            "still-running come back on the priority line with their axes "
-            "rather than as roles."
-        ),
-    )
-    p.add_argument(
-        "--include-unrun",
-        action="store_true",
-        help=(
-            "With --failed: also put every row of the ranking the source run "
-            "holds no job for on the priority line, with its axes. Those rows "
-            "have no verdict at all, and without this they queue behind the "
-            "ones that already have one. Expect the priority line to grow to "
-            "the size of what the source run did not reach."
+            "not cancelled/aborted (🚫) or still-running (⏳). Those two never "
+            "reached a verdict, so the regular line owes them their turn "
+            "rather than the priority line owing them a place."
         ),
     )
     p.add_argument(
@@ -152,8 +142,6 @@ def main(argv: list[str] | None = None) -> int:
         p.error("--strict only applies with --failed")
     if args.roles_only and args.failed is None:
         p.error("--roles-only only applies with --failed")
-    if args.include_unrun and args.failed is None:
-        p.error("--include-unrun only applies with --failed")
 
     branch = gh.current_branch()
     repo = gh.resolve_repo()
@@ -187,7 +175,7 @@ def main(argv: list[str] | None = None) -> int:
         untriggered = runs.untriggered_priority(
             runs.dispatched_priority(source, repo), statuses
         )
-        if not failed and not untriggered and not args.include_unrun:
+        if not failed and not untriggered:
             print("Nothing failed in that run; not triggering.")
             return 0
         if untriggered:
@@ -197,11 +185,14 @@ def main(argv: list[str] | None = None) -> int:
         whitelist = _ALL
 
     config: dict[str, str] = {}
+    carried_offset = ""
     if source is not None:
+        logged = runs.inputs_from_jobs(source["jobs"], repo)
         config = runs.config_from_run(
-            source["displayTitle"],
-            runs.inputs_from_jobs(source["jobs"], repo),
-            jobs=source["jobs"],
+            source["displayTitle"], logged, jobs=source["jobs"]
+        )
+        carried_offset = logged.get("offset") or run_name.value_from_title(
+            source["displayTitle"], "offset"
         )
     carried_whitelist = config.pop("whitelist", "")
     if not whitelist and carried_whitelist:
@@ -211,24 +202,12 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.failed is not None:
         ranking = _ranking(whitelist, config)
-        deployed = selections.deployed_selections(source["jobs"])
-        if args.include_unrun:
-            covered = (
-                selections.settled_selections(source["jobs"])
-                if args.strict
-                else deployed
-            )
-            unrun = selections.unrun_selections(ranking, covered)
-            print(f"Rows the source run never reached: {len(unrun)}")
-            priority_entries |= set(unrun)
-        if not priority_entries:
-            print("Nothing to re-trigger from that run.")
-            return 0
         priority = " ".join(sorted(priority_entries))
         config["offset"] = selections.resume_offset(
             ranking,
-            selections.passed_selections(source["jobs"]),
+            selections.proven_rows(source["jobs"]),
             selection.parse_list(priority),
+            carried=carried_offset,
         )
         if config["offset"]:
             print(f"Regular line resumes at: {config['offset']}")
