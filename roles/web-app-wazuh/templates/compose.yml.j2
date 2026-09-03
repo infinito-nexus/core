@@ -1,0 +1,141 @@
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+{# Exception: genuine one-shot job, not a persistent service: it generates the TLS
+   material once and exits. `docker_restart_policy = 'no'` means Compose
+   never restarts it once it has exited, and `service_completed_successfully`
+   (below, on manager/indexer) blocks their startup until this container
+   exits 0 on the SAME `docker compose up` invocation. Included via
+   base.yml.j2 (same as every other entity) purely for resource-limit/
+   logging parity, following web-app-shopware's "init" sidecar pattern. #}
+  {% set service_name = 'certs_generator' %}
+  {% set docker_restart_policy = 'no' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'certs_generator') }}
+    {{ lookup('compose_only', 'container_name', WAZUH_CERTS_GENERATOR_CONTAINER) }}
+    environment:
+      - CERT_TOOL_VERSION=4.14
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+
+{# Exception: docker_restart_policy is reset back to the role default here,
+   before the manager key, rather than right after certs_generator's own
+   body - a `{% set %}` after a service key is invalid per the canonical
+   compose-template structure (Jinja variables are not block-scoped, so the
+   value must be current BEFORE each service's own key line). Matches
+   web-app-shopware's identical "init" + next-service reset pattern. #}
+  {% set service_name = 'manager' %}
+  {% set docker_restart_policy = DOCKER_RESTART_POLICY %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'manager') }}
+    {{ lookup('compose_only', 'container_name', WAZUH_MANAGER_CONTAINER) }}
+    hostname: "{{ WAZUH_MANAGER_CONTAINER }}"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 655360
+        hard: 655360
+    environment:
+      - "INDEXER_URL=https://{{ WAZUH_INDEXER_CONTAINER }}:{{ WAZUH_INDEXER_INTERNAL_PORT }}"
+      - "INDEXER_USERNAME=admin"
+      - "INDEXER_PASSWORD={{ WAZUH_INDEXER_ADMIN_PASSWORD }}"
+      - "FILEBEAT_SSL_VERIFICATION_MODE=full"
+      - "SSL_CERTIFICATE_AUTHORITIES={{ lookup('volume', application_id, 'root_ca_manager_pem').target }}"
+      - "SSL_CERTIFICATE={{ lookup('volume', application_id, 'manager_filebeat_pem').target }}"
+      - "SSL_KEY={{ lookup('volume', application_id, 'manager_filebeat_key_pem').target }}"
+      - "API_USERNAME=wazuh-wui"
+      - "API_PASSWORD={{ WAZUH_WUI_PASSWORD }}"
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_depends_on', application_id, extra={
+  'certs_generator': {'condition': 'service_completed_successfully'},
+}) | indent(4) }}
+
+  {% set service_name = 'indexer' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'indexer') }}
+    {{ lookup('compose_only', 'container_name', WAZUH_INDEXER_CONTAINER) }}
+    hostname: "{{ WAZUH_INDEXER_CONTAINER }}"
+{# Exception: no per-container `sysctls: vm.max_map_count` override -
+   confirmed empirically against a live deploy that Docker/runc rejects this
+   outright ("sysctl vm.max_map_count is not in a separate kernel
+   namespace"), because it genuinely is not a namespaced sysctl. The
+   host-level ansible.posix.sysctl task in tasks/00_core.yml is the only
+   real mechanism; when Ansible runs inside a DinD sandbox and that task
+   is skipped, the indexer may fail to boot on an under-provisioned host,
+   same accepted limitation as svc-runner's inotify tuning. #}
+    {{ lookup('container_ports', ['indexer', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    environment:
+      - "OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_depends_on', application_id, extra={
+  'certs_generator': {'condition': 'service_completed_successfully'},
+}) | indent(4) }}
+{# Exception: securityadmin.sh (tasks/01_securityadmin.yml) is what actually
+   pushes this role's own credentials into the security index - it
+   authenticates via the admin client certificate
+   (plugins.security.authcz.admin_dn), not a username/password. Until
+   securityadmin.sh has run, the 'admin' user's real bcrypt hash is not
+   guaranteed to be live, so gating this healthcheck on that same password
+   creates a chicken-and-egg deadlock (confirmed against a live deploy: the
+   healthcheck itself blocks the ordering that would let securityadmin.sh
+   ever run). This healthcheck only needs to prove the security plugin has
+   loaded enough to answer HTTPS requests at all; a 401 is exactly that
+   proof. #}
+    healthcheck:
+      test:
+        - "CMD-SHELL"
+        - "curl -s -o /dev/null -w '%{http_code}' -k https://localhost:{{ WAZUH_INDEXER_INTERNAL_PORT }}/_cluster/health | grep -Eq '^(200|401)$'"
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 90s
+
+{# Exception: the compose SERVICE key stays "dashboard" (meta/services.yml's
+   own "dashboard" key is already taken by the platform's web-app-dashboard
+   tile-integration service bond - reusing it here for this compose entity
+   would collide on the same top-level YAML key and silently drop one of
+   the two definitions, confirmed: it dropped the service bond). The
+   entity's real meta/services.yml key is "console", so container_image and
+   container_ports below pass 'console' explicitly rather than service_name
+   - the two names diverge only for this one entity. #}
+  {% set service_name = 'dashboard' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'console') }}
+    {{ lookup('compose_only', 'container_name', WAZUH_DASHBOARD_CONTAINER) }}
+    hostname: "{{ WAZUH_DASHBOARD_CONTAINER }}"
+    {{ lookup('container_ports', ['console', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    environment:
+      - "INDEXER_USERNAME=admin"
+      - "INDEXER_PASSWORD={{ WAZUH_INDEXER_ADMIN_PASSWORD }}"
+      - "WAZUH_API_URL=https://{{ WAZUH_MANAGER_CONTAINER }}"
+      - "DASHBOARD_USERNAME=kibanaserver"
+      - "DASHBOARD_PASSWORD={{ WAZUH_DASHBOARD_SERVICE_PASSWORD }}"
+      - "API_USERNAME=wazuh-wui"
+      - "API_PASSWORD={{ WAZUH_WUI_PASSWORD }}"
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+{# Exception: depends_on MUST reference the compose service key
+   (indexer/manager), not the container_name value (wazuh-indexer/
+   wazuh-manager) - Compose rejects the project as invalid otherwise.
+   Confirmed by a real deploy failure: "service dashboard depends on
+   undefined service wazuh-manager". #}
+    {{ lookup('container_depends_on', application_id, extra={
+  'indexer': {'condition': 'service_healthy'},
+  'manager': {'condition': 'service_started'},
+}) | indent(4) }}
+
+{{ lookup('compose_volumes') }}
+
+{{ lookup('compose_networks') }}

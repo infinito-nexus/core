@@ -1,0 +1,256 @@
+---
+manager_api_configuration:
+  type: volume
+  name: wazuh_manager_api_configuration
+  mounts:
+    - service: manager
+      target: /var/ossec/api/configuration
+manager_etc:
+  type: volume
+  name: wazuh_manager_etc
+  mounts:
+    - service: manager
+      target: /var/ossec/etc
+manager_logs:
+  type: volume
+  name: wazuh_manager_logs
+  mounts:
+    - service: manager
+      target: /var/ossec/logs
+manager_queue:
+  type: volume
+  name: wazuh_manager_queue
+  mounts:
+    - service: manager
+      target: /var/ossec/queue
+manager_var_multigroups:
+  type: volume
+  name: wazuh_manager_var_multigroups
+  mounts:
+    - service: manager
+      target: /var/ossec/var/multigroups
+manager_integrations:
+  type: volume
+  name: wazuh_manager_integrations
+  mounts:
+    - service: manager
+      target: /var/ossec/integrations
+manager_active_response:
+  type: volume
+  name: wazuh_manager_active_response
+  mounts:
+    - service: manager
+      target: /var/ossec/active-response/bin
+manager_agentless:
+  type: volume
+  name: wazuh_manager_agentless
+  mounts:
+    - service: manager
+      target: /var/ossec/agentless
+manager_wodles:
+  type: volume
+  name: wazuh_manager_wodles
+  mounts:
+    - service: manager
+      target: /var/ossec/wodles
+manager_filebeat_etc:
+  type: volume
+  name: wazuh_manager_filebeat_etc
+  mounts:
+    - service: manager
+      target: /etc/filebeat
+manager_filebeat_var:
+  type: volume
+  name: wazuh_manager_filebeat_var
+  mounts:
+    - service: manager
+      target: /var/lib/filebeat
+indexer_data:
+  type: volume
+  name: wazuh_indexer_data
+  mounts:
+    - service: indexer
+      target: /var/lib/wazuh-indexer
+dashboard_config:
+  type: volume
+  name: wazuh_dashboard_config
+  mounts:
+    - service: dashboard
+      target: /usr/share/wazuh-dashboard/data/wazuh/config
+dashboard_custom:
+  type: volume
+  name: wazuh_dashboard_custom
+  mounts:
+    - service: dashboard
+      target: /usr/share/wazuh-dashboard/plugins/wazuh/public/assets/custom
+
+certs_generator_config:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-wazuh', 'directories.instance'), 'certs.yml' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: certs_generator
+      target: /config/certs.yml
+certs_generator_entrypoint:
+  type: config
+  source: "{{ 'web-app-wazuh' | abs_role_path_by_application_id }}/files/shell/certs-entrypoint.sh"
+  mode: "0555"
+  mounts:
+    - service: certs_generator
+      target: &entrypoint_target /entrypoint.sh
+indexer_entrypoint:
+  type: config
+  source: "{{ 'web-app-wazuh' | abs_role_path_by_application_id }}/files/shell/indexer-entrypoint.sh"
+  mode: "0555"
+  mounts:
+    - service: indexer
+      target: *entrypoint_target
+wazuh_manager_conf:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-wazuh', 'directories.instance'), 'wazuh_manager.conf' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: manager
+      target: /wazuh-config-mount/etc/ossec.conf
+wazuh_indexer_yml:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-wazuh', 'directories.instance'), 'wazuh.indexer.yml' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: indexer
+      target: /usr/share/wazuh-indexer/config/opensearch.yml
+internal_users_yml:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-wazuh', 'directories.instance'), 'internal_users.yml' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: indexer
+      target: /usr/share/wazuh-indexer/config/opensearch-security/internal_users.yml
+config_yml:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-wazuh', 'directories.instance'), 'config.yml' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: indexer
+      target: /usr/share/wazuh-indexer/config/opensearch-security/config.yml
+indexer_roles_yml:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-wazuh', 'directories.instance'), 'roles.yml' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: indexer
+      target: /usr/share/wazuh-indexer/config/opensearch-security/roles.yml
+roles_mapping_yml:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-wazuh', 'directories.instance'), 'roles_mapping.yml' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: indexer
+      target: /usr/share/wazuh-indexer/config/opensearch-security/roles_mapping.yml
+opensearch_dashboards_yml:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-wazuh', 'directories.instance'), 'opensearch_dashboards.yml' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: dashboard
+      target: /usr/share/wazuh-dashboard/config/opensearch_dashboards.yml
+dashboard_wazuh_yml:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-wazuh', 'directories.instance'), 'wazuh.yml' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: dashboard
+      target: /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml
+
+# Exception: the 8 TLS materials below stay `type: bind` rather than
+# `type: config`, because certs_generator (a sidecar in this SAME compose
+# stack) writes them to the certs directory at `docker compose up`/`stack
+# deploy` time. A docker config's source must already exist on disk before
+# the stack that would generate it has even started, so `type: config`
+# structurally cannot apply here. Swarm-scheduling safety instead comes
+# from `placement: manager` (meta/services.yml's `wazuh:` holder entity,
+# matching web-app-checkmk's precedent): every entity below is pinned to
+# the same node that rendered the certs directory, so the bind source is
+# guaranteed to exist wherever the task actually runs. `swarm_safe: false`
+# documents the same fact machine-readably.
+wazuh_certs_dir:
+  type: bind
+  source: "{{ [ lookup('container', 'web-app-wazuh', 'directories.instance'), 'certs' ] | path_join }}"
+  swarm_safe: false
+  mounts:
+    - service: certs_generator
+      target: /certificates/
+# nocheck: meta-volume-file-bind-should-be-config  Reason: generated at deploy time by certs_generator in this same stack (see the Exception note above); placement: manager guarantees the bind source exists on the scheduled node.
+root_ca_manager_pem:
+  type: bind
+  source: "{{ [ lookup('container', 'web-app-wazuh', 'directories.instance'), 'certs', 'root-ca-manager.pem' ] | path_join }}"
+  read_only: true
+  swarm_safe: false
+  mounts:
+    - service: manager
+      target: /etc/ssl/root-ca.pem
+# nocheck: meta-volume-file-bind-should-be-config  Reason: generated at deploy time by certs_generator in this same stack (see the Exception note above); placement: manager guarantees the bind source exists on the scheduled node.
+manager_filebeat_pem:
+  type: bind
+  source: "{{ [ lookup('container', 'web-app-wazuh', 'directories.instance'), 'certs', lookup('config', 'web-app-wazuh', 'services.manager.name') ~ '.pem' ] | path_join }}"
+  read_only: true
+  swarm_safe: false
+  mounts:
+    - service: manager
+      target: /etc/ssl/filebeat.pem
+# nocheck: meta-volume-file-bind-should-be-config  Reason: generated at deploy time by certs_generator in this same stack (see the Exception note above); placement: manager guarantees the bind source exists on the scheduled node.
+manager_filebeat_key_pem:
+  type: bind
+  source: "{{ [ lookup('container', 'web-app-wazuh', 'directories.instance'), 'certs', lookup('config', 'web-app-wazuh', 'services.manager.name') ~ '-key.pem' ] | path_join }}"
+  read_only: true
+  swarm_safe: false
+  mounts:
+    - service: manager
+      target: /etc/ssl/filebeat.key
+# nocheck: meta-volume-file-bind-should-be-config  Reason: generated at deploy time by certs_generator in this same stack (see the Exception note above); placement: manager guarantees the bind source exists on the scheduled node.
+root_ca_pem:
+  type: bind
+  source: "{{ [ lookup('container', 'web-app-wazuh', 'directories.instance'), 'certs', 'root-ca.pem' ] | path_join }}"
+  read_only: true
+  swarm_safe: false
+  mounts:
+    - service: indexer
+      target: /usr/share/wazuh-indexer/config/certs/root-ca.pem
+    - service: dashboard
+      target: /usr/share/wazuh-dashboard/certs/root-ca.pem
+# nocheck: meta-volume-file-bind-should-be-config  Reason: generated at deploy time by certs_generator in this same stack (see the Exception note above); placement: manager guarantees the bind source exists on the scheduled node.
+indexer_key_pem:
+  type: bind
+  source: "{{ [ lookup('container', 'web-app-wazuh', 'directories.instance'), 'certs', lookup('config', 'web-app-wazuh', 'services.indexer.name') ~ '-key.pem' ] | path_join }}"
+  read_only: true
+  swarm_safe: false
+  mounts:
+    - service: indexer
+      target: /usr/share/wazuh-indexer/config/certs/wazuh.indexer.key
+# nocheck: meta-volume-file-bind-should-be-config  Reason: generated at deploy time by certs_generator in this same stack (see the Exception note above); placement: manager guarantees the bind source exists on the scheduled node.
+indexer_cert_pem:
+  type: bind
+  source: "{{ [ lookup('container', 'web-app-wazuh', 'directories.instance'), 'certs', lookup('config', 'web-app-wazuh', 'services.indexer.name') ~ '.pem' ] | path_join }}"
+  read_only: true
+  swarm_safe: false
+  mounts:
+    - service: indexer
+      target: /usr/share/wazuh-indexer/config/certs/wazuh.indexer.pem
+# nocheck: meta-volume-file-bind-should-be-config  Reason: generated at deploy time by certs_generator in this same stack (see the Exception note above); placement: manager guarantees the bind source exists on the scheduled node.
+admin_cert_pem:
+  type: bind
+  source: "{{ [ lookup('container', 'web-app-wazuh', 'directories.instance'), 'certs', 'admin.pem' ] | path_join }}"
+  read_only: true
+  swarm_safe: false
+  mounts:
+    - service: indexer
+      target: /usr/share/wazuh-indexer/config/certs/admin.pem
+# nocheck: meta-volume-file-bind-should-be-config  Reason: generated at deploy time by certs_generator in this same stack (see the Exception note above); placement: manager guarantees the bind source exists on the scheduled node.
+admin_key_pem:
+  type: bind
+  source: "{{ [ lookup('container', 'web-app-wazuh', 'directories.instance'), 'certs', 'admin-key.pem' ] | path_join }}"
+  read_only: true
+  swarm_safe: false
+  mounts:
+    - service: indexer
+      target: /usr/share/wazuh-indexer/config/certs/admin-key.pem
