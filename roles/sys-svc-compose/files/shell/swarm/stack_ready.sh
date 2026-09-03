@@ -3,6 +3,8 @@ set -euo pipefail
 
 : "${STACK:?STACK env var is required}"
 : "${FATAL_GRACE:?FATAL_GRACE env var is required}"
+: "${DEPLOY_SINCE:=}"
+: "${DEPLOYED_SERVICES:=}"
 
 is_completed_oneshot() {
 	local ps
@@ -80,8 +82,25 @@ has_fatal_task() {
 
 inspect_update_states() {
 	timeout 15 docker service inspect \
-		--format '{{.Spec.Name}} {{if .UpdateStatus}}{{.UpdateStatus.State}}{{else}}none{{end}}' \
+		--format '{{.Spec.Name}} {{if .UpdateStatus}}{{.UpdateStatus.State}}{{else}}none{{end}} {{with .UpdateStatus}}{{with .StartedAt}}{{.Unix}}{{else}}-{{end}}{{else}}-{{end}}' \
+		"$@" 2>/dev/null && return 0
+	timeout 15 docker service inspect \
+		--format '{{.Spec.Name}} {{if .UpdateStatus}}{{.UpdateStatus.State}}{{else}}none{{end}} -' \
 		"$@" 2>/dev/null
+}
+
+started_before_deploy() {
+	case "${DEPLOY_SINCE}${1}" in
+	'' | *[!0-9]*) return 1 ;;
+	esac
+	[ "$1" -lt "$DEPLOY_SINCE" ]
+}
+
+deploy_touched() {
+	case " ${DEPLOYED_SERVICES} " in
+	*" $1 "*) return 0 ;;
+	*) return 1 ;;
+	esac
 }
 
 running_current_spec() {
@@ -109,8 +128,13 @@ if [ ${#service_names[@]} -gt 0 ]; then
 			exit 1
 		fi
 	fi
-	while read -r name state; do
+	while read -r name state started; do
 		[ -n "$name" ] || continue
+		if [ "$state" = "completed" ] && started_before_deploy "$started" &&
+			deploy_touched "$name"; then
+			updating="${updating} ${name}(pending)"
+			continue
+		fi
 		case "$state" in
 		none | completed) ;;
 		paused | rollback_paused | rollback_started | rollback_completed)

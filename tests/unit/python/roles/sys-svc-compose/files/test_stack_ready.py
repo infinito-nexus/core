@@ -52,7 +52,11 @@ case "$1 $2" in
 "service inspect")
 	case "$4" in
 	*UpdatedAt*) printf '%s' "${SERVICE_UPDATED_AT}" ;;
-	*) printf '%s' "${SERVICE_INSPECT}" ;;
+	*StartedAt*)
+		[ -n "${INSPECT_STARTEDAT_FAILS}" ] && exit 1
+		printf '%s' "${SERVICE_INSPECT}"
+		;;
+	*) printf '%s' "${SERVICE_INSPECT_PLAIN:-${SERVICE_INSPECT}}" ;;
 	esac
 	;;
 "service ps")
@@ -84,6 +88,10 @@ class TestStackReady(unittest.TestCase):
         service_running: str = "",
         churning: int = 0,
         updated_at: str | None = None,
+        deploy_since: str = "",
+        deployed_services: str = "",
+        inspect_startedat_fails: bool = False,
+        service_inspect_plain: str = "",
     ) -> subprocess.CompletedProcess:
         """Poll the gate once, ``churning`` seconds into a non-converged deploy.
 
@@ -96,6 +104,12 @@ class TestStackReady(unittest.TestCase):
                 desired-state=running, one per task of the current spec.
             churning: seconds since the deploy bumped the service ``UpdatedAt``.
             updated_at: raw ``UpdatedAt`` epoch, overriding ``churning``.
+            deploy_since: epoch seconds the deploy stamped before it ran.
+            deployed_services: space-separated services the deploy reported
+                creating or updating.
+            inspect_startedat_fails: reject the StartedAt format, as an older
+                docker would.
+            service_inspect_plain: rows the fallback format returns.
         """
         if updated_at is None:
             updated_at = str(int(time.time()) - churning)
@@ -119,6 +133,10 @@ class TestStackReady(unittest.TestCase):
                 SERVICE_INSPECT=service_inspect,
                 SERVICE_RUNNING=service_running,
                 SERVICE_UPDATED_AT=updated_at,
+                DEPLOY_SINCE=deploy_since,
+                DEPLOYED_SERVICES=deployed_services,
+                INSPECT_STARTEDAT_FAILS="1" if inspect_startedat_fails else "",
+                SERVICE_INSPECT_PLAIN=service_inspect_plain,
                 PATH=f"{stub_bin}:{env['PATH']}",
                 BASH_ENV="",
             )
@@ -148,6 +166,82 @@ class TestStackReady(unittest.TestCase):
         self.assertEqual(proc.returncode, 1)
         self.assertIn("demo_web(updating)", proc.stderr)
         self.assertIn("rolling update still in flight", proc.stderr)
+
+    def test_the_previous_rounds_completed_update_does_not_count_as_converged(
+        self,
+    ) -> None:
+        proc = self._run(
+            "demo_web 3/3\n",
+            service_inspect="demo_web completed 1788397200\n",
+            service_running=WEB_THREE_RUNNING,
+            deploy_since="1788398643",
+            deployed_services="demo_web",
+        )
+        self.assertEqual(proc.returncode, 1)
+        self.assertIn("demo_web(pending)", proc.stderr)
+
+    def test_a_service_the_deploy_left_alone_converges_on_its_old_update(
+        self,
+    ) -> None:
+        proc = self._run(
+            "demo_web 3/3\n",
+            service_inspect="demo_web completed 1788397200\n",
+            service_running=WEB_THREE_RUNNING,
+            deploy_since="1788398643",
+            deployed_services="demo_other",
+        )
+        self.assertEqual(proc.returncode, 0)
+
+    def test_an_update_registered_after_the_deploy_converges(self) -> None:
+        proc = self._run(
+            "demo_web 3/3\n",
+            service_inspect="demo_web completed 1788398649\n",
+            service_running=WEB_THREE_RUNNING,
+            deploy_since="1788398643",
+            deployed_services="demo_web",
+        )
+        self.assertEqual(proc.returncode, 0)
+
+    def test_a_stamp_that_is_not_epoch_seconds_disables_the_check(self) -> None:
+        proc = self._run(
+            "demo_web 3/3\n",
+            service_inspect="demo_web completed 2026-09-03 01:00:00 +0000 UTC\n",
+            service_running=WEB_THREE_RUNNING,
+            deploy_since="2026-09-03T01:24:03Z",
+            deployed_services="demo_web",
+        )
+        self.assertEqual(proc.returncode, 0)
+
+    def test_a_docker_that_rejects_the_stamp_format_falls_back_instead_of_stalling(
+        self,
+    ) -> None:
+        proc = self._run(
+            "demo_web 3/3\n",
+            service_running=WEB_THREE_RUNNING,
+            deploy_since="1788398643",
+            deployed_services="demo_web",
+            inspect_startedat_fails=True,
+            service_inspect_plain="demo_web completed -\n",
+        )
+        self.assertEqual(proc.returncode, 0)
+
+    def test_a_service_without_a_recorded_update_start_is_left_alone(self) -> None:
+        proc = self._run(
+            "demo_web 3/3\n",
+            service_inspect="demo_web completed -\n",
+            service_running=WEB_THREE_RUNNING,
+            deploy_since="1788398643",
+            deployed_services="demo_web",
+        )
+        self.assertEqual(proc.returncode, 0)
+
+    def test_without_a_deploy_stamp_the_gate_keeps_its_old_behaviour(self) -> None:
+        proc = self._run(
+            "demo_web 3/3\n",
+            service_inspect="demo_web completed 1788397200\n",
+            service_running=WEB_THREE_RUNNING,
+        )
+        self.assertEqual(proc.returncode, 0)
 
     def test_old_spec_tasks_left_running_do_not_fill_the_replica_count(self) -> None:
         """Docker's replica column counts every Running task, draining old-spec

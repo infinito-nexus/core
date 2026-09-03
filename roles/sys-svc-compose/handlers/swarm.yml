@@ -143,10 +143,10 @@
 - name: "🚀 swarm: docker stack deploy"
   ansible.builtin.shell: |
     set -euo pipefail
-    docker stack deploy \
+    date -u +%s
+    timeout {{ lookup('timeout', swarm_stack_converge_retries | int) | int }} docker stack deploy \
       {{ lookup('compose_file_args', application_id, flag='--compose-file') }} \
       --resolve-image never \
-      --detach=false \
       --prune \
       --with-registry-auth \
       "{{ application_id | get_entity_name }}"
@@ -155,7 +155,6 @@
     executable: /bin/bash
   register: swarm_deploy_result
   changed_when: true
-  timeout: "{{ lookup('timeout', (swarm_stack_converge_retries | int) * 2) | int }}"
   listen:
     - compose-up
     - swarm-deploy
@@ -167,6 +166,8 @@
   environment:
     STACK: "{{ application_id | get_entity_name }}"
     FATAL_GRACE: "{{ swarm_stack_fatal_grace }}"
+    DEPLOY_SINCE: "{{ swarm_deploy_result.stdout_lines | default([]) | first | default('') }}"
+    DEPLOYED_SERVICES: "{{ swarm_deploy_result | swarm_deployed_services | join(' ') }}"
   register: _swarm_stack_ready_handler
   retries: "{{ swarm_stack_converge_retries }}"
   delay: 2
@@ -183,7 +184,7 @@
   ansible.builtin.shell: |
     set -euo pipefail
     docker stack services --format '{{ "{{.Name}}" }}' {{ application_id | get_entity_name | quote }} \
-      | xargs -r -n1 docker service update --detach=false --force
+      | xargs -r -n1 timeout {{ lookup('timeout', 900) | int }} docker service update --detach=false --force
   args:
     executable: /bin/bash
   register: _swarm_force_recreate
