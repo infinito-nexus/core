@@ -13,7 +13,5 @@ mcp_servers:{{ ' {}' if renderable | length == 0 else '' }}
       resources: true
       prompts: false
 {% set callable_tools = server.tools | reject('in', server.mutating | default([])) | list %}
-{% if callable_tools %}
       include: {{ callable_tools | to_json }}
-{% endif %}
 {% endfor %}

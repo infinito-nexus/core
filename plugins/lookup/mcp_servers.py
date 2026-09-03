@@ -10,14 +10,23 @@ credential actually resolves, reaches ``selected``.
 
 Everything else lands in ``rejected`` with a stable code:
 ``consumer_not_allowed``, ``transport_unsupported``, ``auth_unsupported``,
-``credential_missing`` and ``endpoint_unreachable``.
+``credential_missing``, ``endpoint_unreachable`` and ``tools_unenforceable``.
 
 ``consumer_not_allowed`` is a decision and simply narrows the result.
-``transport_unsupported``, ``auth_unsupported`` and ``endpoint_unreachable``
-mean the provider did authorize this consumer and the connection still cannot
-be rendered, so they abort the run instead of disappearing quietly: a client
-that silently ends up with fewer tools than the deployment declared is
-indistinguishable from one that works.
+``transport_unsupported``, ``auth_unsupported``, ``endpoint_unreachable`` and
+``tools_unenforceable`` mean the provider did authorize this consumer and the
+connection still cannot be rendered, so they abort the run instead of
+disappearing quietly: a client that silently ends up with fewer tools than the
+deployment declared is indistinguishable from one that works.
+
+``tools_unenforceable`` is that same rule applied to the tool policy rather
+than the connection. A client filters by tool name, so a provider that resolves
+no callable name gives it nothing to pin and the rendered filter would be
+empty. That happens two ways, and neither is a working pairing: a surface
+composed at runtime keeps its contract in ``tools.categories``, which no
+per-tool filter can express, and a surface that withholds every tool it serves
+as mutating has nothing left to offer. Advertising either as a configured
+server would leave an agent wired to a provider it can never call.
 
 Providers are narrowed to ``application_closure(deployment.whitelist)``, the same
 set ``sys-service-loader`` preloads from. Inventory membership, ``group_names``
@@ -56,8 +65,11 @@ REJECT_TRANSPORT = "transport_unsupported"
 REJECT_AUTH = "auth_unsupported"
 REJECT_CREDENTIAL = "credential_missing"
 REJECT_ENDPOINT = "endpoint_unreachable"
+REJECT_TOOLS = "tools_unenforceable"
 
-FATAL_REJECTIONS = frozenset({REJECT_TRANSPORT, REJECT_AUTH, REJECT_ENDPOINT})
+FATAL_REJECTIONS = frozenset(
+    {REJECT_TRANSPORT, REJECT_AUTH, REJECT_ENDPOINT, REJECT_TOOLS}
+)
 
 RECONCILE_STRICT_VAR = "MCP_RECONCILE_STRICT"
 
@@ -199,6 +211,19 @@ def build_mcp_discovery(
             )
             continue
 
+        tools = list(server.get("tools") or [])
+        mutating = list(server.get("mutating") or [])
+        if not [tool for tool in tools if tool not in mutating]:
+            reject(
+                server_id,
+                REJECT_TOOLS,
+                f"{server_id} serves {len(tools)} tool(s) and withholds "
+                f"{len(mutating)}, leaving no name a client could pin; "
+                f"{consumer_id} filters by tool name and would render an "
+                f"empty filter",
+            )
+            continue
+
         selected.append(
             {
                 "id": server_id,
@@ -207,8 +232,8 @@ def build_mcp_discovery(
                 "auth": auth,
                 "auth_subject": server.get("auth_subject"),
                 "owner": owner,
-                "tools": list(server.get("tools") or []),
-                "mutating": list(server.get("mutating") or []),
+                "tools": tools,
+                "mutating": mutating,
                 "transport": transport.replace("_", "-"),
             }
         )

@@ -27,9 +27,8 @@
       {{ server.id | to_json }}: {
         "url": {{ server.url | to_json }},
         "transport": {{ server.transport | to_json }},
-        "headers": {"Authorization": {{ server | mcp_authorization | to_json }}}{% if callable_tools %},
-        "toolFilter": {"include": {{ callable_tools | to_json }}}{% endif %}
-
+        "headers": {"Authorization": {{ server | mcp_authorization | to_json }}},
+        "toolFilter": {"include": {{ callable_tools | to_json }}}
       }{{ "," if not loop.last }}
 {% endfor %}
     }

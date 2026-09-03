@@ -36,6 +36,8 @@ HOMEASSISTANT = {
         "key": "web-app-homeassistant",
     },
     "endpoint": {"service_key": "homeassistant", "port": 8123, "path": "/api/mcp"},
+    "tools": ["GetDateTime", "HassTurnOn"],
+    "mutating": ["HassTurnOn"],
 }
 
 CREDENTIALS = {"web-app-homeassistant": ("ha-token", "mcp-web-app-homeassistant")}
@@ -176,6 +178,35 @@ class TestBuildMcpDiscovery(unittest.TestCase):
             reasons(result), {"web-app-homeassistant": "endpoint_unreachable"}
         )
 
+    def test_a_provider_naming_no_tool_is_rejected(self):
+        """A runtime-composed surface keeps its contract in ``tools.categories``.
+
+        A client filters by tool name, so that contract reaches it as no
+        contract at all: the rendered filter would be empty and the agent
+        would carry a server it can never call.
+        """
+        dynamic = dict(HOMEASSISTANT, tools=[], mutating=[])
+        result = build_mcp_discovery([dynamic], CONSUMER, CLIENT, CREDENTIALS)
+        self.assertEqual(result["selected"], [])
+        self.assertEqual(
+            reasons(result), {"web-app-homeassistant": "tools_unenforceable"}
+        )
+
+    def test_a_provider_withholding_every_tool_it_serves_is_rejected(self):
+        withheld = dict(HOMEASSISTANT, tools=["HassTurnOn"], mutating=["HassTurnOn"])
+        result = build_mcp_discovery([withheld], CONSUMER, CLIENT, CREDENTIALS)
+        self.assertEqual(result["selected"], [])
+        self.assertEqual(
+            reasons(result), {"web-app-homeassistant": "tools_unenforceable"}
+        )
+
+    def test_a_provider_keeping_one_callable_tool_is_selected(self):
+        entry = build_mcp_discovery([HOMEASSISTANT], CONSUMER, CLIENT, CREDENTIALS)[
+            "selected"
+        ][0]
+        self.assertEqual(["GetDateTime", "HassTurnOn"], entry["tools"])
+        self.assertEqual(["HassTurnOn"], entry["mutating"])
+
     def test_order_of_the_discovered_servers_is_kept(self):
         jenkins = dict(HOMEASSISTANT, id="web-app-jenkins")
         credentials = dict(CREDENTIALS, **{"web-app-jenkins": ("jk", "mcp-jenkins")})
@@ -242,6 +273,7 @@ class TestAssertAuthorizedAreRenderable(unittest.TestCase):
             "transport_unsupported",
             "auth_unsupported",
             "endpoint_unreachable",
+            "tools_unenforceable",
         ):
             with self.subTest(reason=reason), self.assertRaises(AnsibleError):
                 self.assert_renderable(

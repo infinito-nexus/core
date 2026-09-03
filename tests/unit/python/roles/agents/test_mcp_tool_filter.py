@@ -6,6 +6,11 @@ tools (backward-compatible default)". OpenClaw's ``toolFilter`` is absent
 unless written. A provider that grows a mutating tool would therefore reach
 both agents without anyone declaring it, so the rendered configuration has to
 carry the allowlist rather than rely on the default.
+
+That holds for the empty allowlist too: a provider that declares none is the
+case where the default is most dangerous, so the filter is rendered
+unconditionally, the way ``web-app-n8n``'s client node pins ``include`` to
+``selected`` whatever ``includeTools`` resolves to.
 """
 
 from __future__ import annotations
@@ -94,14 +99,15 @@ class TestAgentToolFilter(unittest.TestCase):
             entry["tools"]["include"],
         )
 
-    def test_hermes_omits_the_key_when_no_allowlist_is_declared(self) -> None:
+    def test_hermes_pins_an_empty_allowlist_rather_than_omitting_it(self) -> None:
         rendered = _yaml(_render(HERMES, "config.yaml.j2", HERMES_MCP_SERVERS=SERVERS))
         entry = rendered["mcp_servers"]["web_app_prometheus"]
-        self.assertNotIn(
-            "include",
-            entry["tools"],
-            "an empty include list would register nothing at all, which reads "
-            "as a working client serving no tools",
+        self.assertEqual(
+            [],
+            entry["tools"]["include"],
+            "omitting the key means 'register all tools' upstream, so a "
+            "provider that declares no allowlist would reach the agent with "
+            "every tool it happens to serve",
         )
 
     def test_openclaw_pins_the_declared_allowlist(self) -> None:
@@ -120,7 +126,7 @@ class TestAgentToolFilter(unittest.TestCase):
             entry["toolFilter"]["include"],
         )
 
-    def test_openclaw_stays_valid_json_with_and_without_the_filter(self) -> None:
+    def test_openclaw_stays_valid_json_with_an_empty_filter(self) -> None:
         rendered = json.loads(
             _render(
                 OPENCLAW,
@@ -130,7 +136,10 @@ class TestAgentToolFilter(unittest.TestCase):
                 OPENCLAW_MCP_SERVERS=SERVERS,
             )
         )
-        self.assertNotIn("toolFilter", rendered["mcp"]["servers"]["web-app-prometheus"])
+        self.assertEqual(
+            [],
+            rendered["mcp"]["servers"]["web-app-prometheus"]["toolFilter"]["include"],
+        )
         self.assertEqual(
             {"svc-db-qdrant", "web-app-prometheus", "web-app-baserow"},
             set(rendered["mcp"]["servers"]),
