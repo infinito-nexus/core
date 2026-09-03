@@ -137,6 +137,20 @@ class TestRealmImportJson(unittest.TestCase):
         client = next(c for c in realm["clients"] if c.get("protocol") == "saml")
         self.assertEqual(client["defaultClientScopes"], [])
 
+    def test_the_allowed_origins_mapper_stays_out_of_the_access_token(self) -> None:
+        """The claim grows with every registered origin and rides along in
+        X-Forwarded-Access-Token, where an app server's header limit ends the
+        request; Keycloak's own CORS reads client.webOrigins, not the claim."""
+        realm = json.loads(render([]))
+        scope = next(s for s in realm["clientScopes"] if s["name"] == "web-origins")
+        mapper = next(
+            m
+            for m in scope["protocolMappers"]
+            if m["protocolMapper"] == "oidc-allowed-origins-mapper"
+        )
+        self.assertEqual(mapper["config"]["access.token.claim"], "false")
+        self.assertEqual(mapper["config"]["introspection.token.claim"], "true")
+
     def test_saml_client_maps_the_username_attribute_the_app_reads(self) -> None:
         realm = json.loads(render(["web-app-suitecrm"]))
         client = next(c for c in realm["clients"] if c.get("protocol") == "saml")

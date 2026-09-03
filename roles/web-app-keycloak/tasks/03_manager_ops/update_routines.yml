@@ -18,6 +18,9 @@
 - name: "📂 Load RBAC Update routines for '{{ application_id }}'"
   include_tasks: "{{ role_path }}/tasks/update/04_rbac_client_scope.yml"
 
+- name: "📂 Load web-origins claim routines for '{{ application_id }}'"
+  include_tasks: "{{ role_path }}/tasks/update/09_web_origins_claim.yml"
+
 - name: "📂 Load LDAP shared-federation routines for '{{ application_id }}'"
   include_tasks: "{{ role_path }}/tasks/update/05_ldap/shared.yml"
   when:
