@@ -1,0 +1,20 @@
+---
+# style-src-elem/style-src-attr unsafe-inline are NOT declared here: the
+# platform grants unsafe-inline to every style-src* directive by default
+# for every role (plugins/filter/csp_filters.py get_csp_flags), so an
+# explicit declaration here would be a no-op.
+flags:
+  script-src-elem:
+    unsafe-inline: true # nocheck: csp-unsafe  Reason: OpenSearch Dashboards (Kibana-derived) bootstraps via inline <script> tags injected by its plugin loader; blocking inline scripts breaks the dashboard shell before it can render.
+    unsafe-eval: true # nocheck: csp-unsafe  Reason: OpenSearch Dashboards' bundled AngularJS runtime and Vega/Timelion visualization expressions evaluate code dynamically at runtime; blocking eval breaks those code paths, same as every other Kibana/OpenSearch-Dashboards-family role in this repo (e.g. web-app-checkmk).
+# Exception: worker-src blob: is required for the OpenSearch Dashboards Dev
+# Tools console (Ace editor) to function: confirmed via reproducible live
+# testing (files/playwright/test-csp.js) that typing a query spawns a
+# Web Worker from a blob: URL, which the browser blocks without this
+# grant ("Creating a worker from 'blob:...' violates ... worker-src
+# 'self'"). This is a whitelist scheme grant, not a flags boolean:
+# get_csp_flags quotes its keys ('blob' is not valid CSP syntax for a
+# scheme source), while get_csp_whitelist appends list entries verbatim.
+whitelist:
+  worker-src:
+    - "blob:"
