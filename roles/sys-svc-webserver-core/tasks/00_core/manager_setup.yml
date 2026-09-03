@@ -16,6 +16,7 @@
   include_tasks: "utils/load/app.yml"
   vars:
     load_app_id: svc-prx-openresty
+    compose_mode_force: ""
 
 - name: 🚀 Deploy OpenResty NGINX Base Configuration
   stack_host_template:
