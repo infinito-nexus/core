@@ -5,6 +5,12 @@
     tasks_from: none.yml
     handlers_from: main
 
+- name: "🥾 For '{{ application_id }}': bootstrap the compose host once"
+  ansible.builtin.include_role:
+    name: sys-svc-compose
+    tasks_from: 00_core.yml
+  when: run_once_sys_svc_compose is not defined
+
 - name: "✅ Ensure env dir exists: {{ _container_env_dir }}"
   ansible.builtin.file:
     path: "{{ _container_env_dir }}"

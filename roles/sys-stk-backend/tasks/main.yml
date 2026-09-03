@@ -18,13 +18,6 @@
       - "sso_proxy_enabled={{ lookup('sso', application_id, 'is_proxy_gated') }}"
   when: MODE_DEBUG | bool
 
-- name: "🧩 For '{{ application_id }}': Load sys-svc-compose"
-  include_role:
-    name: sys-svc-compose
-  vars:
-    compose_handlers_flush: false
-    database_consumer_id: "{{ _sys_stk_backend_database_consumer_id }}"
-
 - name: "🧩 For '{{ application_id }}': Load central RDBMS"
   include_role:
     name: sys-svc-rdbms
@@ -50,6 +43,13 @@
     public: false
   vars:
     engine_consumer_id: "{{ application_id }}"
+
+- name: "🧩 For '{{ application_id }}': Load sys-svc-compose"
+  include_role:
+    name: sys-svc-compose
+  vars:
+    compose_handlers_flush: false
+    database_consumer_id: "{{ _sys_stk_backend_database_consumer_id }}"
 
 - block:
     - name: "🔧 set sso_proxy_application_id (needed due to lazy-loading issue)"

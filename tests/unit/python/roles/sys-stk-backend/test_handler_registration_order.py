@@ -23,20 +23,28 @@ def _role_include(task: dict) -> dict:
     return {}
 
 
-def _included_roles(tasks: list) -> list[str]:
-    names = []
+def _role_includes(tasks: list) -> list[dict]:
+    includes = []
     for task in tasks:
         include = _role_include(task)
         if include.get("name"):
-            names.append(include["name"])
-    return names
+            includes.append(include)
+    return includes
 
 
 class TestHandlerRegistrationOrder(unittest.TestCase):
-    def test_the_backend_loads_the_handler_owner_before_any_other_role(self) -> None:
-        order = _included_roles(load_yaml_str(read_text(str(BACKEND))))
+    def test_the_backend_renders_the_stack_after_every_foreign_provider(self) -> None:
+        includes = _role_includes(load_yaml_str(read_text(str(BACKEND))))
+        order = [include["name"] for include in includes]
         self.assertIn(COMPOSE_OWNER, order)
-        self.assertEqual(order[0], COMPOSE_OWNER)
+        render = next(
+            index
+            for index, include in enumerate(includes)
+            if include["name"] == COMPOSE_OWNER and not include.get("tasks_from")
+        )
+        for provider in ("sys-svc-rdbms", "sys-svc-objstore", "sys-svc-engine"):
+            with self.subTest(provider=provider):
+                self.assertLess(order.index(provider), render)
 
     def test_the_owner_is_reloaded_directly_before_the_flush(self) -> None:
         tasks = load_yaml_str(read_text(str(BACKEND)))
@@ -55,6 +63,19 @@ class TestHandlerRegistrationOrder(unittest.TestCase):
         loader = _role_include(load_yaml_str(read_text(str(RDBMS_DEDICATED)))[0])
         self.assertEqual(loader.get("name"), COMPOSE_OWNER)
         self.assertEqual(loader.get("handlers_from"), "main")
+
+    def test_the_notifier_bootstraps_the_compose_host_before_its_first_notify(self) -> None:
+        tasks = load_yaml_str(read_text(str(RDBMS_DEDICATED)))
+        bootstrap = next(
+            index
+            for index, task in enumerate(tasks)
+            if _role_include(task).get("tasks_from") == "00_core.yml"
+        )
+        notify = next(index for index, task in enumerate(tasks) if task.get("notify"))
+        self.assertLess(bootstrap, notify)
+        self.assertIn(
+            "run_once_sys_svc_compose is not defined", str(tasks[bootstrap].get("when"))
+        )
 
     def test_the_owner_still_holds_every_compose_topic_that_is_notified(self) -> None:
         owner = ""
