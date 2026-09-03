@@ -15,7 +15,8 @@ referenced third-party URLs. HTTP ``401`` (Unauthorized), ``403`` (Forbidden),
 auth-gated, method-restricted, or rejecting the probe's headers). HTTP ``418``
 (I'm a teapot), ``429`` (Too Many Requests), ``451`` (Unavailable For Legal
 Reasons) and every ``5xx`` server response emit warning annotations rather than
-failing: the server answered, so the URL exists. All other ``4xx`` codes fail.
+failing: the server answered, so the URL exists. All other ``4xx`` codes fail
+once a second probe after a pause answers the same way.
 
 A timeout or connection error is a third outcome, reported as an unverified
 warning: the server never answered, so the URL was not checked at all. Such a
@@ -87,6 +88,7 @@ _RESERVED_HOST_SUFFIXES = (
 _OK_STATUS_CODES = {401, 403, 405, 406, 415}
 _WARNING_STATUS_CODES = {418, 429, 451}
 _REQUEST_TIMEOUT_SECONDS = 10
+_FAIL_RETRY_DELAY_SECONDS = 5
 _USER_AGENT = (
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
@@ -305,6 +307,15 @@ def _probe_canary(url: str) -> ProbeOutcome:
     return outcome
 
 
+def _probe_with_retry(url: str) -> ProbeOutcome:
+    """Probe one URL; a failing HTTP status is confirmed by a second probe after a pause."""
+    outcome = _probe_url(url)
+    if outcome.kind == "fail" and outcome.detail.startswith("HTTP "):
+        time.sleep(_FAIL_RETRY_DELAY_SECONDS)
+        outcome = _probe_url(url)
+    return outcome
+
+
 def _collect_occurrences(root: Path) -> dict[str, list[UrlOccurrence]]:
     """Collect probe-worthy URLs from all non-ignored repository files."""
     by_url: dict[str, list[UrlOccurrence]] = defaultdict(list)
@@ -359,7 +370,7 @@ class TestUrlsReachable(unittest.TestCase):
         submission_order = sorted(occurrences_by_url)
         random.shuffle(submission_order)
         future_to_url = {
-            executor.submit(_probe_url, url): url for url in submission_order
+            executor.submit(_probe_with_retry, url): url for url in submission_order
         }
 
         completed = 0
