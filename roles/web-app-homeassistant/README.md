@@ -59,7 +59,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - **Persistent configuration:** Mounts `/config` as a named volume and hands it to the container backup service when volume backups are part of the deployment.
 - **MCP server contract:** Declares the built-in MCP server at `/api/mcp` over streamable HTTP as an internal, bearer-token-authenticated endpoint, and generates the token that MCP clients present. Adding the MCP Server integration itself stays a Home Assistant onboarding step.
 - **Token verified against the hub:** Every deploy asks the hub whether the stored token still authenticates and re-mints it when the hub rejects it, then fails the deploy if the fresh token is rejected too. A hub whose `.storage/auth` was recreated leaves a stored token pointing at a deleted refresh token, and clients would receive a 401 on every call.
-- **Entity-scoped tool policy:** Home Assistant offers no per-tool filter. Enabling the Assist API always publishes its actuating intents (`HassTurnOn`, `HassTurnOff`, the todo-list writers), so the enforced control is entity exposure: the role exposes no entity to Assist, which leaves those tools with nothing to act on. Making the hub actuate anything is an explicit operator step per entity.
+- **Two-layer tool policy:** Home Assistant offers no per-tool filter of its own; enabling the Assist API always publishes its actuating intents (`HassTurnOn`, `HassTurnOff`, the todo-list writers). The role names those in `tools.mutating`, and `mutating_tools_enabled: false` withholds them from every client's include list, so an agent is offered the read tools only. Entity exposure bounds the rest: the role exposes no entity to Assist, and making the hub actuate anything is an explicit operator step per entity.
 - **Guest MCP probe:** A Playwright spec asserts that an unauthenticated request to the MCP endpoint is never answered with a 2xx.
 - **Monitoring and dashboard entries:** Registers the hub with the metrics and dashboard services when those are part of the deployment.
 
@@ -143,9 +143,13 @@ Off. `mcp.enabled` is false unless `web-app-flowise`, `web-app-hermes`,
 
 ### Tool scope
 
-The enforced control is entity exposure, not a read-only flag. Only entities
-exposed to Assist are reachable, so an entity that is not exposed cannot be read
-or actuated through MCP even though the write tools are listed.
+Two controls stack. The actuating tools are named in `tools.mutating`, and
+`mutating_tools_enabled: false` withholds them from every client's include
+list, so an agent is offered `GetDateTime`, `GetLiveContext` and
+`todo_get_items` only. Entity exposure bounds those: only entities exposed to
+Assist are reachable, and the role exposes none. Setting
+`mutating_tools_enabled: true` offers the actuating tools as well; entity
+exposure then decides what they can reach.
 
 ### How to disable
 

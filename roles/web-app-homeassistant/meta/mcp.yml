@@ -31,5 +31,13 @@ tools:
     - HassTurnOff
     - HassTurnOn
     - todo_get_items
+  mutating:
+    - HassBroadcast
+    - HassCancelAllTimers
+    - HassListAddItem
+    - HassListCompleteItem
+    - HassListRemoveItem
+    - HassTurnOff
+    - HassTurnOn
   read_only_default: true
   mutating_tools_enabled: false
