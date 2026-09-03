@@ -42,7 +42,10 @@ _SELF_IN_CONTAINER = "/tmp/rescue-self.py"  # noqa: S108 - fixed staging path in
 _LOCAL_DUMPS_ENV = "INFINITO_RESCUE_LOCAL_DUMPS_DIR"
 _APP_LOG_TAIL = "find /var/log /var/www /opt /srv -xdev -type f -name '*.log' -size -20971520c -mmin -360 -exec sh -c 'echo \"===== $1\"; tail -n 400 \"$1\"' _ {} ';'"
 _PROBE_HOSTS = ("deb.debian.org", "ghcr.io", "repo.packagist.org")
-_INZONE_PROBE = "getent hosts rescue-probe.$(awk -F/ '/^address=/{print $2;exit}' /etc/dnsmasq.conf)"
+_DNSMASQ_DIRS = (
+    "$(sed -n 's|^ *conf-dir=\\([^,[:space:]]*\\).*|\\1|p' /etc/dnsmasq.conf)"
+)
+_INZONE_PROBE = f"getent hosts rescue-probe.$(grep -rhs '^ *address=/' /etc/dnsmasq.conf {_DNSMASQ_DIRS} | awk -F/ '{{print $2;exit}}')"
 
 
 def runtime_bin() -> str | None:
