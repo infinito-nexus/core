@@ -69,12 +69,20 @@
 # cannot be used here - it would resolve to an empty port. sys-stk-front-proxy
 # is included directly instead, with http_port pointed explicitly at the
 # console (dashboard) entity's port, following the same pattern
-# web-app-bluesky uses for the same structural reason.
+# web-app-bluesky uses for the same structural reason. In swarm mode,
+# resolve_upstream() (utils/networks/proxy.py) resolves the upstream from
+# services.<entity>.ports.internal.<kind> unless proxy_internal_port is
+# passed explicitly - and "wazuh" (like bluesky's own holder entity) has no
+# ports of its own, so it hard-fails there unless service_key/internal_port
+# are pointed at "console" explicitly, same as bluesky points its own
+# per-domain includes at api/web/view.
 - name: "📂 Include front proxy for {{ application_id }}"
   include_role:
     name: sys-stk-front-proxy
   vars:
     http_port: "{{ WAZUH_DASHBOARD_HTTP_PORT }}"
+    webserver_proxy_service_key: "{{ 'console' if DEPLOYMENT_MODE == 'swarm' else (application_id | get_entity_name) }}"
+    proxy_internal_port: "{{ lookup('config', application_id, 'services.console.ports.internal.http') if DEPLOYMENT_MODE == 'swarm' else '' }}"
 
 # Exception: securityadmin.sh (below) is what actually pushes this role's
 # own credentials into the security index - it authenticates via the admin
