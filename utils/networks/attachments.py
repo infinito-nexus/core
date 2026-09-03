@@ -73,10 +73,10 @@ def _matches_kind(
             is not True
         ):
             return False
-        override = lookup_config(
-            entry.get("role") or "", f"services.{consumer_key}.mcp_consumer", None
+        refusal = lookup_config(
+            entry.get("role") or "", f"services.{consumer_key}.mcp_consumer", True
         )
-        return override is not False
+        return refusal is not False
     if kind == "onion_sso":
         provider = consumer.get("provider")
         if not provider:

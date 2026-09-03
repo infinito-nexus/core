@@ -43,13 +43,18 @@ def _role_lookup_config(per_role, **values):
     Args:
         per_role: ``{role: {path: value}}`` consulted before the shared map.
         values: paths every role answers identically.
+
+    An unset path is answered the way utils.roles.applications.config.get does
+    it, which turns a ``None`` default into ``False``.
     """
 
     def _lookup(app, path, default):
         scoped = per_role.get(app) or {}
         if path in scoped:
             return scoped[path]
-        return values.get(path, default)
+        if path in values:
+            return values[path]
+        return default if default is not None else False
 
     return _lookup
 
@@ -150,6 +155,29 @@ class TestMcpClientConsumer(unittest.TestCase):
                 }
             ),
             "being a client is not an admission; the self-declaration decides",
+        )
+
+    def test_a_provider_that_states_nothing_admits_a_declared_client(self):
+        """Only an explicit false refuses; an unset flag inherits the client's
+        own declaration, and the accessor answers an unset path with false."""
+        entry = {
+            "role": "web-app-gitlab",
+            "overlay": {"consumer": {"kind": "mcp_client"}},
+        }
+        self.assertTrue(
+            _is_consumer(
+                entry,
+                "web-app-openwebui",
+                _role_lookup_config(
+                    {"web-app-openwebui": {"services.openwebui.mcp_consumer": True}},
+                    **{
+                        "mcp.enabled": True,
+                        "mcp.shared": True,
+                        "mcp.direction": "client",
+                    },
+                ),
+                _const_lookup_database(),
+            )
         )
 
     def test_a_provider_override_refuses_a_declared_client(self):
