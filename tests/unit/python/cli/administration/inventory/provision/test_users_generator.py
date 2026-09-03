@@ -1,3 +1,4 @@
+import re
 import shutil
 import tempfile
 import unittest
@@ -247,18 +248,33 @@ class TestGenerateUserPasswords(unittest.TestCase):
 class TestGeneratedPasswordIsShellSafe(unittest.TestCase):
     """The value travels Ansible -> shell -> container exec -> runtime env."""
 
-    def test_no_punctuation_survives_into_a_user_password(self):
+    SHELL_SAFE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
+    REALM_POLICY = re.compile(
+        r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{16,}$"
+    )
+
+    def test_only_unreserved_marks_survive_into_a_user_password(self):
         for _ in range(200):
             password = generate_user_password()
-            self.assertTrue(
-                password.isalnum(),
-                f"{password!r} carries punctuation; roles used to declare their "
-                "own alphanumeric credential precisely because the exec chain "
-                "mangles it",
+            self.assertRegex(
+                password,
+                self.SHELL_SAFE,
+                f"{password!r} carries punctuation the exec chain mangles; only "
+                "the URL-unreserved marks - _ . are known to survive it",
             )
+
+    def test_every_password_satisfies_the_realm_policy(self):
+        for _ in range(200):
+            password = generate_user_password()
+            self.assertRegex(password, self.REALM_POLICY)
+            self.assertRegex(password, r"[-_.]")
 
     def test_the_password_is_long_enough_to_afford_the_smaller_alphabet(self):
         self.assertGreaterEqual(len(generate_user_password()), 64)
+
+    def test_a_password_shorter_than_the_realm_minimum_is_refused(self):
+        with self.assertRaises(ValueError):
+            generate_user_password(8)
 
 
 class TestRealisticInventoryRoundTrip(unittest.TestCase):
@@ -509,7 +525,9 @@ class TestDeclaredPasswordPolicy(unittest.TestCase):
             generate_declared_user_password("bot", "alphanumeric", "[^A-Za-z0-9]")
 
     def test_no_declaration_keeps_the_shell_safe_default(self):
-        self.assertTrue(generate_declared_user_password("bot", None, None).isalnum())
+        password = generate_declared_user_password("bot", None, None)
+        self.assertRegex(password, r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
+        self.assertRegex(password, r"[-_.]")
 
 
 if __name__ == "__main__":

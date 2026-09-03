@@ -1,11 +1,18 @@
 from __future__ import annotations
 
 import re
+import secrets
+import string
 
 from utils.manager.value_generator import ValueGenerator
 
 USER_PASSWORD_LENGTH = 64
 DECLARED_PASSWORD_ATTEMPTS = 64
+SHELL_SAFE_MARKS = "-_."
+_USER_PASSWORD_ALPHABET = string.ascii_letters + string.digits + SHELL_SAFE_MARKS
+_USER_PASSWORD_RE = re.compile(
+    r"^[A-Za-z0-9](?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[-_.])[A-Za-z0-9._-]{15,}$"
+)
 
 
 def generate_random_password(length: int = 64) -> str:
@@ -16,16 +23,22 @@ def generate_user_password(length: int = USER_PASSWORD_LENGTH) -> str:
     """Return a shell-safe password for a declared user.
 
     Args:
-        length: characters to generate.
+        length: characters to generate, at least 16.
 
-    A user password reaches its application through Ansible, a shell, a
-    ``container exec -e`` and finally the runtime's own environment reader. The
-    punctuation in ``generate_strong_password`` does not survive that chain
-    intact, which is why roles used to declare a separate alphanumeric
-    credential rather than use the user's own password. At this length the
-    alphabet costs nothing worth measuring.
+    Returns:
+        letters, digits and the marks ``-_.``, never a leading ``-``, with one
+        of each class the Keycloak realm policy ``specialChars(1)`` counts.
     """
-    return ValueGenerator().generate_secure_alphanumeric(length)
+    if length < 16:
+        raise ValueError("A user password must be at least 16 characters")
+    for _ in range(DECLARED_PASSWORD_ATTEMPTS):
+        body = [secrets.choice(_USER_PASSWORD_ALPHABET) for _ in range(length)]
+        body[0] = secrets.choice(string.ascii_letters + string.digits)
+        body[secrets.randbelow(length - 1) + 1] = secrets.choice(SHELL_SAFE_MARKS)
+        password = "".join(body)
+        if _USER_PASSWORD_RE.match(password):
+            return password
+    raise RuntimeError("Failed to generate a user password after many attempts")
 
 
 def generate_declared_user_password(username, algorithm, validation):
