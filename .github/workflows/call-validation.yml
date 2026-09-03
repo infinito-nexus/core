@@ -122,8 +122,8 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
-          cache: pip
-          cache-dependency-path: pr-head/pyproject.toml
+          # Exception: no pip cache. The steps below run the PR head's own code,
+          # which would write a cache that a default-branch run later restores.
 
       - name: 📦 Install project (host venv)
         if: ${{ inputs.whitelist != '' || inputs.priority != '' }}
