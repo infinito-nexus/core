@@ -22,7 +22,7 @@ from . import PROJECT_ROOT
 
 TEMPLATE_DIR = PROJECT_ROOT / "roles/sys-svc-proxy/templates/mcp"
 
-PUBLIC_ROLES = ("web-app-moodle", "web-app-nextcloud", "web-app-wordpress")
+PUBLIC_ROLES = ("web-app-moodle", "web-app-wordpress")
 
 
 def declared_limits(role: str) -> dict:

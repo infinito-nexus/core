@@ -436,13 +436,13 @@ The section titles below are the classification vocabulary itself, and each role
 
 `web-app-n8n`.
 
-### plugin_server (3)
+### plugin_server (2)
 
-`web-app-moodle`, `web-app-nextcloud`, `web-app-wordpress`.
+`web-app-moodle`, `web-app-wordpress`.
 
-### adapter_server (15)
+### adapter_server (16)
 
-`svc-db-qdrant`, `web-app-baserow`, `web-app-checkmk`, `web-app-fider`, `web-app-gitea`, `web-app-gitlab`, `web-app-jellyfin`, `web-app-jenkins`, `web-app-listmonk`, `web-app-mattermost`, `web-app-pretix`, `web-app-prometheus`, `web-app-snipe-it`, `web-app-zammad`, `web-svc-libretranslate`.
+`svc-db-qdrant`, `web-app-baserow`, `web-app-checkmk`, `web-app-fider`, `web-app-gitea`, `web-app-gitlab`, `web-app-jellyfin`, `web-app-jenkins`, `web-app-listmonk`, `web-app-mattermost`, `web-app-nextcloud`, `web-app-pretix`, `web-app-prometheus`, `web-app-snipe-it`, `web-app-zammad`, `web-svc-libretranslate`.
 
 ### blocked (11)
 

@@ -59,6 +59,7 @@ flowchart LR
         svc_nextcloud["nextcloud"]
         svc_proxy["proxy"]
         svc_context_agent["context_agent"]
+        svc_contextagentmcp["contextagentmcp"]
         svc_cron["cron"]
         svc_talk["talk"]
         svc_whiteboard["whiteboard"]
@@ -198,18 +199,20 @@ Nextcloud serves a Model Context Protocol endpoint through the AppAPI proxy of t
 
 | Property | Value |
 |----------|-------|
-| Endpoint | `/index.php/apps/app_api/proxy/context_agent/mcp/` on the canonical Nextcloud vhost |
-| Container-network URL | `http://proxy:80/index.php/apps/app_api/proxy/context_agent/mcp/` |
+| Endpoint | `/mcp` on the `contextagentmcp` adapter sidecar |
+| Container-network URL | `http://contextagentmcp:8080/mcp` |
 | Transport | Streamable HTTP |
-| Exposure | public (same nginx vhost that serves the web UI) |
-| Auth | Nextcloud app password, sent as `Authorization: Bearer <app-password>` |
-| Identity | the Nextcloud user the app password belongs to; every tool call runs with that user's permissions |
-| Implementation | plugin (the `context_agent` ExApp container, registered through the `manual_install` deploy daemon) |
+| Exposure | internal (the sidecar is reachable on the container network only; the hub's own MCP route is not published to clients) |
+| Auth | `credentials.mcp_bearer`, sent as `Authorization: Bearer <bearer>` |
+| Identity | the Nextcloud account the app password belongs to; every tool call the adapter forwards runs with that account's permissions |
+| Implementation | adapter (`svc-ai-mcp-adapter` in `mcp_passthrough` mode, fronting the `context_agent` ExApp) |
 | Default state | off; `mcp.enabled` turns on when `web-app-hermes`, `web-app-openclaw` or `web-app-openwebui` is deployed |
 
 ### Deployment
 
-The `context_agent` service in [`meta/services.yml`](./meta/services.yml) renders only while `mcp.enabled` is true. It runs `ghcr.io/nextcloud/context_agent`, listens on its internal port for AppAPI only, and shares `credentials.context_agent_app_secret` with the ExApp registration as `APP_SECRET`.
+The `context_agent` and `contextagentmcp` services in [`meta/services.yml`](./meta/services.yml) render only while `mcp.enabled` is true. The first runs `ghcr.io/nextcloud/context_agent`, listens on its internal port for AppAPI only, and shares `credentials.context_agent_app_secret` with the ExApp registration as `APP_SECRET`. The second is the adapter sidecar, built from the staged `svc-ai-mcp-adapter` context, read-only with every capability dropped, and it is the only MCP endpoint clients are given.
+
+The sidecar reads its upstream credential from an `upstream.env` file rather than from the compose environment, because the app password does not exist when the stack is first rendered. [`tasks/utils/mcp.yml`](./tasks/utils/mcp.yml) writes that file after the mint and recreates the sidecar through `svc-ai-mcp-adapter`'s `rebuild.yml`: `compose up` resolves `env_file` while creating the container, which a restart would not.
 
 [`tasks/utils/mcp.yml`](./tasks/utils/mcp.yml) waits for the ExApp heartbeat, registers the deploy daemon and the ExApp (route `^/mcp`, verbs `POST,GET,DELETE`, access level `1`), enables the ExApp, mints an app password for the dedicated MCP account via `occ user:auth-tokens:add`, persists it through `sys-token-store` under `users['mcp-web-app-nextcloud'].tokens['web-app-nextcloud']`, and asserts that an authenticated `initialize` call answers `200`.
 
@@ -219,25 +222,35 @@ The `context_agent` service in [`meta/services.yml`](./meta/services.yml) render
 
 ### Tool categories
 
-The ExApp registers every tool category the Context Agent ships, read-only and mutating alike, and each call runs with the permissions of the app-password owner. The 2.7.0 image advertises 94 tools across 23 categories, which are application names (`calendar`, `files`, `mail`, `talk`, …), not operations: each bundles its read and its write tools. `tool_status` therefore switches whole categories, and no setting removes only the mutating ones, so `mcp.tools.mutating_tools_enabled: false` records the deployment's intent rather than an enforced state. Disabling a category to bar its write tools also removes its read tools. List the categories and narrow the exposed set with:
+The 2.7.0 image ships 23 tool categories, which are application names (`calendar`, `files`, `mail`, `talk`, …) rather than operations: each bundles its read and its write tools, and the hub offers no setting that removes only the mutating ones. Enabling the ExApp writes `true` for every category absent from `tool_status`, so the hub itself serves all of them, write tools included.
+
+The adapter is what bounds that. [`files/mcp/tools.json`](./files/mcp/tools.json) names the nine read tools of `calendar`, `contacts` and `files` — the three categories whose upstream `is_available` is unconditional, so the set does not vary with which optional apps a deployment installs. `svc-ai-mcp-adapter` refuses any tool outside that list and any tool marked `mutating` while `mutating_tools_enabled` is false, and it refuses to start at all if the contract's `schema_sha256` does not match the file. The refusal happens in the sidecar, so it holds for every client regardless of what each renders locally.
+
+The hub keeps all its categories. Nextcloud's own Assistant is unaffected by the bound: it reads the same `tool_status`, and nothing here narrows it.
+
+The app password never reaches a client. Clients present `credentials.mcp_bearer` to the sidecar; the sidecar presents the app password upstream. Revoking one does not revoke the other.
 
 ```bash
 occ app_api:app:config:get context_agent tool_status
 occ app_api:app:config:set context_agent tool_status --value '<json map of category to bool>'
 ```
 
+Widening the exposed set means adding the tool to `files/mcp/tools.json`, recomputing both `adapter.specification_sha256` and `tools.schema_sha256`, and listing it in `mcp.tools.allowlist`.
+
 ### Verification
+
+The sidecar is reachable on the container network only, so a client probes it from inside the stack:
 
 ```bash
 curl -i -X POST \
-  -H 'Authorization: Bearer <app-password>' \
+  -H 'Authorization: Bearer <credentials.mcp_bearer>' \
   -H 'Accept: application/json, text/event-stream' \
   -H 'Content-Type: application/json' \
   --data '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"cli","version":"1"}}}' \
-  https://<nextcloud-domain>/index.php/apps/app_api/proxy/context_agent/mcp/
+  http://contextagentmcp:8080/mcp
 ```
 
-An unauthenticated request to the same path answers `404`; [`files/playwright/test-mcp-guest.js`](./files/playwright/test-mcp-guest.js) asserts the `>= 400`.
+From outside, every MCP path answers `404`. The hub serves its route under two spellings — with and without the `/index.php` front controller — and `roles/sys-svc-proxy/templates/mcp/vhost.conf.j2` withdraws both, so neither reaches the Context Agent. [`files/playwright/test-mcp-guest.js`](./files/playwright/test-mcp-guest.js) probes all three public paths and asserts each answers `>= 300` without an MCP protocol body.
 
 ### Default state
 

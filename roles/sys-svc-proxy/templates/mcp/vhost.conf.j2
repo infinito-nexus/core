@@ -21,9 +21,16 @@
 {% endif %}
 {% for hidden in [mcp_upstream_path, mcp_endpoint_path] | map('regex_replace', '/+$', '') | unique | select | list %}
 {% if hidden != mcp_served %}
+{% set routed = hidden | regex_replace('^/index\\.php', '') %}
+{% if routed != hidden %}
+  location ~ ^(?:/index\.php)?{{ routed | regex_escape }}(?:$|/) {
+    return 404;
+  }
+{% else %}
   location {{ hidden }} {
     return 404;
   }
+{% endif %}
 {% endif %}
 {% endfor %}
 {% endif %}

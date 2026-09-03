@@ -67,9 +67,27 @@ NEXTCLOUD_PROXY_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ NE
 NEXTCLOUD_PROXY_DNS_NAME: "{{ (entity_name ~ '_' ~ NEXTCLOUD_PROXY_SERVICE) if DEPLOYMENT_MODE == 'swarm' else NEXTCLOUD_PROXY_CONTAINER }}"
 
 NEXTCLOUD_MCP_ENABLED: "{{ lookup('config', application_id, 'services.context_agent.enabled') | bool }}"
-NEXTCLOUD_MCP_PATH: "{{ lookup('config', application_id, 'mcp.endpoint.path') }}"
+NEXTCLOUD_MCP_PATH: "{{ lookup('config', application_id, 'mcp.adapter.upstream_path') }}"
 NEXTCLOUD_MCP_TOKEN_NAME: "infinito-mcp"
 NEXTCLOUD_MCP_ACCOUNT: "{{ lookup('users', 'mcp-web-app-nextcloud') }}"
+
+NEXTCLOUD_MCP_ADAPTER_SERVICE: "contextagentmcp"
+NEXTCLOUD_MCP_ADAPTER_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_MCP_ADAPTER_SERVICE ~ '.name') }}"
+NEXTCLOUD_MCP_ADAPTER_PORT: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_MCP_ADAPTER_SERVICE ~ '.ports.internal.http') }}"
+NEXTCLOUD_MCP_ADAPTER_INSTANCE_DIR: "{{ [lookup('container', application_id, 'directories.instance'), 'mcp'] | path_join }}"
+NEXTCLOUD_MCP_ADAPTER_BEARER: "{{ lookup('config', application_id, 'secrets.credentials.mcp_bearer') }}"
+NEXTCLOUD_MCP_ADAPTER_UPSTREAM_URL: "http://{{ NEXTCLOUD_PROXY_DNS_NAME }}:{{ container_port }}{{ lookup('config', application_id, 'mcp.adapter.upstream_path') }}"
+NEXTCLOUD_MCP_ADAPTER_UPSTREAM_ENV: "{{ [NEXTCLOUD_MCP_ADAPTER_INSTANCE_DIR, 'upstream.env'] | path_join }}"
+NEXTCLOUD_MCP_ADAPTER_CONTRACT:
+  upstream_kind: mcp
+  upstream_transport: "{{ lookup('config', application_id, 'mcp.adapter.upstream_transport') }}"
+  provider: "{{ application_id }}"
+  upstream_url: "{{ NEXTCLOUD_MCP_ADAPTER_UPSTREAM_URL }}"
+  auth_subject: "{{ lookup('config', application_id, 'mcp.auth_subject') }}"
+  mutating_tools_enabled: "{{ lookup('config', application_id, 'mcp.tools.mutating_tools_enabled') | bool }}"
+  tools: "{{ lookup('file', 'mcp/tools.json') | from_json }}"
+  limits: "{{ lookup('config', application_id, 'mcp.limits') }}"
+  schema_sha256: "{{ lookup('config', application_id, 'mcp.tools.schema_sha256') }}"
 NEXTCLOUD_MCP_USERNAME: "{{ NEXTCLOUD_MCP_ACCOUNT.username }}"
 NEXTCLOUD_MCP_USER_DISPLAY_NAME: "Infinito MCP"
 NEXTCLOUD_MCP_USER_PASSWORD: "{{ NEXTCLOUD_MCP_ACCOUNT.password }}"

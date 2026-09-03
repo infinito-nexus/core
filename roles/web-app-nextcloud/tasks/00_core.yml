@@ -5,6 +5,13 @@
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-webserver-core/tasks/utils/mcp_edge_limits.yml') }}"
   when: NEXTCLOUD_MCP_ENABLED | bool
 
+- name: "🎬 Stage the MCP adapter build context for {{ application_id }}"
+  include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
+  vars:
+    mcp_adapter_instance_dir: "{{ NEXTCLOUD_MCP_ADAPTER_INSTANCE_DIR }}"
+    mcp_adapter_upstream_key: true
+  when: NEXTCLOUD_MCP_ENABLED | bool
+
 - name: 🔧 Setup the full docker stack
   include_tasks: 01_fullstack.yml
   vars:

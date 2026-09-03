@@ -77,10 +77,11 @@ function registerMcpDisabledState(resolveEndpointUrl) {
   });
 }
 
-function registerMcpGuestRejection(resolveEndpointUrl) {
-  test("mcp: an unauthenticated probe of the MCP endpoint is rejected", async ({
-    page,
-  }) => {
+function registerMcpGuestRejection(resolveEndpointUrl, label = "") {
+  const title = label
+    ? `mcp: an unauthenticated probe of ${label} is rejected`
+    : "mcp: an unauthenticated probe of the MCP endpoint is rejected";
+  test(title, async ({ page }) => {
     skipUnlessServiceEnabled("mcp");
 
     const endpointUrl = resolveEndpointUrl();

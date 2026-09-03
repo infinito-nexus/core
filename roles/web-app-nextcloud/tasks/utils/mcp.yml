@@ -86,3 +86,15 @@
       {{ nextcloud_mcp_probe.stdout | default('no status') }} for the app password stored
       for {{ application_id }}, so every MCP client would be configured with a
       bearer the endpoint rejects.
+
+- name: "🔑 Hand the minted app password to the adapter"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/upstream_key.yml') }}"
+  vars:
+    mcp_upstream_key_path: "{{ NEXTCLOUD_MCP_ADAPTER_UPSTREAM_ENV }}"
+    mcp_upstream_key: "{{ lookup('mcp_credential', application_id) }}"
+
+- name: "🧱 Rebuild the MCP adapter of {{ application_id }} now the credential exists"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/rebuild.yml') }}"
+
+- name: "🚿 Flush compose handlers for {{ application_id }}"
+  ansible.builtin.meta: flush_handlers
