@@ -4,6 +4,7 @@
     _cli_env_template: "{{ lookup('path_absolute', 'roles', application_id, 'templates/test.env.j2') }}"
     _cli_stage_dir: "{{ TEST_E2E_CLI_STAGE_BASE_DIR }}/{{ application_id }}"
     _cli_test_script: "{{ TEST_E2E_CLI_STAGE_BASE_DIR }}/{{ application_id }}/test.sh"
+    _cli_service_key: "{{ lookup('role_tests', application_id, 'cli.container_service_key', default='') | trim }}"
 
 - name: "✅ Assert CLI test assets exist for {{ application_id }}"
   ansible.builtin.stat:
@@ -23,23 +24,41 @@
   loop_control:
     label: "{{ item.item }}"
 
+- name: 🧭 Default the CLI host to the loop host for {{ application_id }}
+  ansible.builtin.set_fact:
+    CLI_HOST_NODE: "{{ inventory_hostname }}"
+    CLI_LOCAL_CID: ""
+
+- name: "🔍 Resolve the node that holds {{ application_id }}'s test container"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ _cli_service_key }}"
+    resolve_output_prefix: CLI
+    resolve_compose_cid: "{{ lookup('container_address', application_id, _cli_service_key) }}"
+    resolve_converge_retries: 30
+    resolve_converge_delay: 2
+  when: _cli_service_key | length > 0
+
 - name: 📁 Create stage directory for {{ application_id }}
   ansible.builtin.file:
     path: "{{ _cli_stage_dir }}"
     state: directory
     mode: "0700"
+  delegate_to: "{{ CLI_HOST_NODE }}"
 
 - name: 📦 Stage CLI test assets for {{ application_id }}
   ansible.builtin.copy:
     src: "{{ lookup('path_absolute', 'roles', application_id, 'files/test') }}/"
     dest: "{{ _cli_stage_dir }}/"
     mode: "0755"
+  delegate_to: "{{ CLI_HOST_NODE }}"
 
 - name: 📦 Stage the shared CLI harness for {{ application_id }}
   ansible.builtin.copy:
     src: "{{ lookup('path_absolute', 'roles/test-e2e-cli/files/shared') }}/"
     dest: "{{ _cli_stage_dir }}/shared/"
     mode: "0755"
+  delegate_to: "{{ CLI_HOST_NODE }}"
 
 - name: 🧭 Reset the per-role deployment-mode override
   ansible.builtin.include_vars:
@@ -74,6 +93,7 @@
     dest: "{{ _cli_stage_dir }}/test.env"
     mode: "0600"
     content: "{{ lookup('template', _cli_env_template) }}"
+  delegate_to: "{{ CLI_HOST_NODE }}"
 
 - name: 🚀 Run CLI test script for {{ application_id }}
   ansible.builtin.shell:
@@ -88,6 +108,7 @@
   register: _cli_run
   changed_when: false
   failed_when: false
+  delegate_to: "{{ CLI_HOST_NODE }}"
 
 - name: 📄 Print CLI test output on failure for {{ application_id }}
   ansible.builtin.debug:
@@ -103,3 +124,10 @@
   ansible.builtin.set_fact:
     _cli_failures: "{{ (_cli_failures | default([])) + [application_id] }}"
   when: _cli_run.rc != 0
+
+- name: 🧹 Remove the delegated stage dir of {{ application_id }}
+  ansible.builtin.file:
+    path: "{{ _cli_stage_dir }}"
+    state: absent
+  delegate_to: "{{ CLI_HOST_NODE }}"
+  when: CLI_HOST_NODE != inventory_hostname

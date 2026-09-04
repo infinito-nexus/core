@@ -140,6 +140,8 @@ def _render(
         "applications": get_application_defaults(roles_dir=PROJECT_ROOT / "roles"),
         "application_id": application_id,
         "group_names": group_names,
+        "CLI_HOST_NODE": "stack-host",
+        "CLI_LOCAL_CID": f"{application_id}-container",
         "playbook_dir": str(PROJECT_ROOT),
         "compose_mode": mode,
         "DEPLOYMENT_MODE": mode,
