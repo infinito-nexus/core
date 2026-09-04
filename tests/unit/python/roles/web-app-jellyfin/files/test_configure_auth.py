@@ -44,7 +44,9 @@ class TestConfigureAuthExtraction(unittest.TestCase):
 
     def test_one_response_yields_both_the_token_and_the_user_id(self):
         self.assertEqual(len(self.expressions), 2)
-        extracted = {_apply(expression, AUTH_RESPONSE) for expression in self.expressions}
+        extracted = {
+            _apply(expression, AUTH_RESPONSE) for expression in self.expressions
+        }
         self.assertEqual(extracted, {"tok-abc-123", "a1b2c3d4"})
 
     def test_a_response_without_a_token_extracts_nothing(self):
