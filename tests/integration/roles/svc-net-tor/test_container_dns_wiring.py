@@ -10,6 +10,13 @@ ROUTER = PROJECT_ROOT / "roles/svc-net-tor/tasks/router.yml"
 RESOLV_TASK = "🔀 Egress router | Point the host resolver at dnsmasq (127.0.0.1)"
 
 
+def _walk(tasks):
+    for task in tasks or []:
+        yield task
+        for section in ("block", "rescue", "always"):
+            yield from _walk(task.get(section))
+
+
 def _render_dnsmasq(**overrides):
     variables = {
         "TOR_DNSMASQ_OWNS_LISTENER": True,
@@ -99,7 +106,7 @@ class TestHostResolver(unittest.TestCase):
     stay out of its way rather than drop the entry."""
 
     def _resolv_conf(self) -> str:
-        tasks = load_yaml_str(read_text(str(ROUTER)))
+        tasks = _walk(load_yaml_str(read_text(str(ROUTER))))
         task = next(t for t in tasks if t.get("name") == RESOLV_TASK)
         return task["ansible.builtin.copy"]["content"]
 
