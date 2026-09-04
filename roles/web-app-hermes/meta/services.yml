@@ -63,7 +63,7 @@ logout:
 # nocheck: playwright-service-flag
 litellm:
   bond: 1
-  enabled: "{{ 'svc-ai-litellm' in group_names }}"
+  enabled: "{{ ('svc-ai-litellm' in group_names) and (LITELLM_CHAT_MODEL_SERVED | bool) }}"
   shared: "{{ 'svc-ai-litellm' in group_names }}"
 
 dashboard:

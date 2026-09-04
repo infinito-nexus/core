@@ -31,7 +31,7 @@ ldap:
 # nocheck: playwright-service-flag - shared gateway consumer; inference wiring is covered by the gateway role
 litellm:
   bond: 1
-  enabled: "{{ 'svc-ai-litellm' in group_names }}"
+  enabled: "{{ ('svc-ai-litellm' in group_names) and (LITELLM_CHAT_MODEL_SERVED | bool) }}"
   shared: "{{ 'svc-ai-litellm' in group_names }}"
 # nocheck: playwright-service-flag - DB engine, covered by role-local integration tests
 qdrant:

@@ -14,7 +14,14 @@ LITELLM_OPENAI_BASE_LOCAL_URL: "{{ LITELLM_BASE_LOCAL_URL }}/v1"
 LITELLM_BACKEND_ROLES: "{{ lookup('deployment').groups }}"
 
 LITELLM_CHAT_MODEL: "{{ (lookup('config', 'svc-ai-ollama', 'services.ollama.preload_models') | reject('search', 'embed') | list | first) if 'svc-ai-ollama' in LITELLM_BACKEND_ROLES
-  else ('lmstudio/default' if 'svc-ai-lmstudio' in LITELLM_BACKEND_ROLES else 'openrouter/auto') }}"
+  else ('lmstudio/default' if 'svc-ai-lmstudio' in LITELLM_BACKEND_ROLES else ('openrouter/auto' if ((OPENROUTER_API_KEY | string) | length > 0) else '')) }}"
+
+LITELLM_CHAT_MODEL_SERVED: >-
+  {{ (('svc-ai-ollama' in LITELLM_BACKEND_ROLES)
+      and ((lookup('config', 'svc-ai-ollama', 'services.ollama.preload_models')
+            | reject('search', 'embed') | list) | length > 0))
+     or ('svc-ai-lmstudio' in LITELLM_BACKEND_ROLES)
+     or ((OPENROUTER_API_KEY | string) | length > 0) }}
 
 OPENROUTER_API_KEY: ""
 

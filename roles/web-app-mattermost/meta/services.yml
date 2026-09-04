@@ -109,7 +109,7 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   shared: true
 litellm:
   bond: 0.5
-  enabled: "{{ 'svc-ai-litellm' in group_names }}"
+  enabled: "{{ ('svc-ai-litellm' in group_names) and (LITELLM_CHAT_MODEL_SERVED | bool) }}"
   shared: "{{ 'svc-ai-litellm' in group_names }}"
 # nocheck: playwright-service-flag  internal adapter sidecar, covered by the role's MCP spec
 # nocheck: dockerfile-custom  the Dockerfile is owned by svc-ai-mcp-adapter and staged per instance, so every adapter-backed provider shares one audited build
