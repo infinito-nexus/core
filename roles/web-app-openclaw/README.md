@@ -153,9 +153,9 @@ rendering, so no entry carries a credential the server would reject.
 OpenClaw exposes no administrator-visible list of configured MCP servers, so the
 configured set is proven by a CLI test instead:
 [`files/test/test.sh`](./files/test/test.sh) probes the agent's `mcp` surface and
-fails on a `failed to start server` line. The Playwright spec covers the
-complementary case, that the gateway holding the MCP credentials refuses an
-unauthenticated caller.
+fails when the exec itself fails or the output carries a `failed to start server`
+line. The Playwright spec covers the complementary case, that the gateway
+holding the MCP credentials refuses an unauthenticated caller.
 
 ### Default state
 

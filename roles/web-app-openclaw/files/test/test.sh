@@ -20,8 +20,9 @@ fi
 
 attempt=0
 while :; do
-    out="$(container exec -i "${MCP_CLIENT_CONTAINER}" node dist/index.js mcp probe 2>&1 || true)"
-    if [[ -n "${out}" && "${out}" != *"failed to start server"* ]]; then
+    reached=0
+    out="$(container exec -i "${MCP_CLIENT_CONTAINER}" node dist/index.js mcp probe 2>&1)" || reached=$?
+    if [[ ${reached} -eq 0 && -n "${out}" && "${out}" != *"failed to start server"* ]]; then
         echo "${out}"
         echo "ALL CHECKS PASSED"
         exit 0
