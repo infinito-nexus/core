@@ -28,22 +28,25 @@ complete_wizard() {
   ${CURL} -fsS -X POST "${API}/Startup/Complete" -H "${CLIENT_HDR}" >/dev/null 2>&1 || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 }
 
-get_token() {
+authenticate() {
   ${CURL} -fsS -X POST "${API}/Users/AuthenticateByName" -H "Content-Type: application/json" -H "${CLIENT_HDR}" \
-    -d "{\"Username\":\"${JELLYFIN_ADMIN_USERNAME}\",\"Pw\":\"${1-${JELLYFIN_ADMIN_PASSWORD}}\"}" \
-    | sed -n 's/.*"AccessToken":"\([^"]*\)".*/\1/p'
+    -d "{\"Username\":\"${JELLYFIN_ADMIN_USERNAME}\",\"Pw\":\"${1-${JELLYFIN_ADMIN_PASSWORD}}\"}"
 }
 
-get_user_id() {
-  ${CURL} -fsS -X POST "${API}/Users/AuthenticateByName" -H "Content-Type: application/json" -H "${CLIENT_HDR}" \
-    -d "{\"Username\":\"${JELLYFIN_ADMIN_USERNAME}\",\"Pw\":\"$1\"}" \
-    | sed -n 's/.*"User":{[^}]*"Id":"\([^"]*\)".*/\1/p'
+token_of() { sed -n 's/.*"AccessToken":"\([^"]*\)".*/\1/p'; }
+user_id_of() { sed -n 's/.*"User":{[^}]*"Id":"\([^"]*\)".*/\1/p'; }
+
+get_token() {
+  authenticate | token_of
 }
 
 realign_admin_password() {
-  local pin pin_token user_id
+  local pin pin_token user_id auth
   ${CURL} -fsS -X POST "${API}/Users/ForgotPassword" -H "Content-Type: application/json" -H "${CLIENT_HDR}" \
-    -d "{\"EnteredUsername\":\"${JELLYFIN_ADMIN_USERNAME}\"}" >/dev/null || return 1
+    -d "{\"EnteredUsername\":\"${JELLYFIN_ADMIN_USERNAME}\"}" >/dev/null || {
+    log "ERROR: Jellyfin refused the password reset request"
+    return 1
+  }
   pin="$(container exec "${CT}" sh -c 'cat /config/passwordreset*.json 2>/dev/null' \
     | sed -n 's/.*"Pin":"\([^"]*\)".*/\1/p' | head -n1)" || pin=""
   if [ -z "${pin}" ]; then
@@ -51,16 +54,23 @@ realign_admin_password() {
     return 1
   fi
   ${CURL} -fsS -X POST "${API}/Users/ForgotPassword/Pin" -H "Content-Type: application/json" -H "${CLIENT_HDR}" \
-    -d "{\"Pin\":\"${pin}\"}" >/dev/null || return 1
-  pin_token="$(get_token "${pin}")" || pin_token=""
-  user_id="$(get_user_id "${pin}")" || user_id=""
+    -d "{\"Pin\":\"${pin}\"}" >/dev/null || {
+    log "ERROR: Jellyfin rejected the reset pin"
+    return 1
+  }
+  auth="$(authenticate "${pin}")" || auth=""
+  pin_token="$(printf '%s' "${auth}" | token_of)"
+  user_id="$(printf '%s' "${auth}" | user_id_of)"
   if [ -z "${pin_token}" ] || [ -z "${user_id}" ]; then
-    log "ERROR: the administrator does not authenticate with the reset pin"
+    log "ERROR: redeeming the reset pin cleared the stored password and the administrator still does not authenticate; the account is now WITHOUT a password"
     return 1
   fi
   ${CURL} -fsS -X POST "${API}/Users/${user_id}/Password" -H "Content-Type: application/json" \
     -H "Authorization: MediaBrowser Token=\"${pin_token}\"" \
-    -d "{\"CurrentPw\":\"${pin}\",\"NewPw\":\"${JELLYFIN_ADMIN_PASSWORD}\"}" >/dev/null || return 1
+    -d "{\"CurrentPw\":\"${pin}\",\"NewPw\":\"${JELLYFIN_ADMIN_PASSWORD}\"}" >/dev/null || {
+    log "ERROR: the password change was rejected; the reset already cleared the old one, so the administrator is now WITHOUT a password"
+    return 1
+  }
   log "realigned the administrator password with the one this deployment declares"
 }
 
