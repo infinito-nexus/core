@@ -34,11 +34,18 @@ from ansible.template import Templar, trust_as_template
 from utils.cache.applications import get_application_defaults
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_META_MCP, ROLE_FILE_META_TESTS
+from utils.roles.mapping import (
+    ROLE_FILE_DEFAULTS_MAIN,
+    ROLE_FILE_META_MCP,
+    ROLE_FILE_META_TESTS,
+    ROLE_FILE_VARS_MAIN,
+)
 
 _SHARED = "roles/test-e2e-cli/templates/mcp/test.env.j2"
 _DOMAIN = "infinito.test"
 _SERVER_DIRECTIONS = frozenset({"server", "both"})
+_CLIENT_DIRECTIONS = frozenset({"client"})
+_MODES = ("compose", "swarm")
 _CONSUMERS = (
     "web-app-flowise",
     "web-app-hermes",
@@ -59,29 +66,83 @@ _REQUIRED = (
 )
 
 
-def _providers() -> list[str]:
-    """Return the role ids that serve an MCP endpoint."""
+def _roles_with_direction(directions: frozenset[str]) -> list[str]:
+    """Return the role ids whose ``meta/mcp.yml`` declares one of ``directions``."""
     roles_root = PROJECT_ROOT / "roles"
     found: list[str] = []
     for mcp_path in sorted(roles_root.glob(f"*/{ROLE_FILE_META_MCP}")):
         mcp = load_yaml_any(str(mcp_path), default_if_missing={})
         if not isinstance(mcp, Mapping):
             continue
-        if str(mcp.get("direction") or "").strip().lower() in _SERVER_DIRECTIONS:
+        if str(mcp.get("direction") or "").strip().lower() in directions:
             found.append(mcp_path.parent.parent.name)
     return found
 
 
-def _render(application_id: str, group_names: list[str]) -> str:
+def _providers() -> list[str]:
+    """Return the role ids that serve an MCP endpoint."""
+    return _roles_with_direction(_SERVER_DIRECTIONS)
+
+
+def _clients() -> list[str]:
+    """Return the client role ids that ship a CLI test env template."""
+    return [
+        role
+        for role in _roles_with_direction(_CLIENT_DIRECTIONS)
+        if (PROJECT_ROOT / "roles" / role / "templates/test.env.j2").is_file()
+    ]
+
+
+def _trusted(value: object) -> object:
+    """Trust nested strings so a loaded var that carries Jinja still templates."""
+    if isinstance(value, str):
+        return trust_as_template(value)
+    if isinstance(value, Mapping):
+        return {k: _trusted(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_trusted(v) for v in value]
+    return value
+
+
+def _group_vars_all() -> dict:
+    """The ``group_vars/all`` layer every play carries under the role vars."""
+    loaded: dict = {}
+    for path in sorted((PROJECT_ROOT / "group_vars/all").glob("*.yml")):
+        data = load_yaml_any(str(path), default_if_missing={})
+        if isinstance(data, Mapping):
+            loaded.update({k: _trusted(v) for k, v in data.items()})
+    return loaded
+
+
+def _role_scoped_vars(application_id: str) -> dict:
+    """Mirror the ``include_vars`` chain ``run_one.yml:44-70`` runs before rendering."""
+    loaded: dict = {}
+    for candidate in (
+        PROJECT_ROOT / "roles" / application_id / ROLE_FILE_DEFAULTS_MAIN,
+        PROJECT_ROOT / "roles" / application_id / ROLE_FILE_VARS_MAIN,
+    ):
+        if not candidate.is_file():
+            continue
+        data = load_yaml_any(str(candidate), default_if_missing={})
+        if isinstance(data, Mapping):
+            loaded.update({k: _trusted(v) for k, v in data.items()})
+    return loaded
+
+
+def _render(
+    application_id: str, group_names: list[str], mode: str = "compose"
+) -> str:
     """Render the role's own env template the way ``run_one.yml`` does."""
     role_template = PROJECT_ROOT / "roles" / application_id / "templates/test.env.j2"
     variables = {
+        **_group_vars_all(),
+        **_role_scoped_vars(application_id),
         "applications": get_application_defaults(roles_dir=PROJECT_ROOT / "roles"),
         "application_id": application_id,
         "group_names": group_names,
         "playbook_dir": str(PROJECT_ROOT),
-        "compose_mode": "compose",
-        "DEPLOYMENT_MODE": "compose",
+        "compose_mode": mode,
+        "DEPLOYMENT_MODE": mode,
         "TIMEOUT_FACTOR": 1,
         "PRIMARY_DOMAIN": _DOMAIN,
         "DOMAIN_PRIMARY": _DOMAIN,
@@ -199,6 +260,52 @@ class TestMcpEnvRender(unittest.TestCase):
                     [entries[k].strip("'") for k in sorted(entries)],
                     result.stdout.splitlines(),
                 )
+
+
+class TestMcpClientEnvRender(unittest.TestCase):
+    """The client half of the same interface, in both deployment modes.
+
+    ``_providers`` covers the roles that serve an endpoint. The roles that
+    consume one render their own ``test.env.j2`` through the same path and were
+    covered by nothing, in either mode, so the swarm branch of
+    ``lookup('container_address')`` was never exercised under ``tests/``.
+    ``container_address`` reads ``DEPLOYMENT_MODE`` straight from the templar
+    variables, so both modes can be rendered in one interpreter; the per-process
+    ``config`` cache that limits the provider suite to one polarity does not
+    reach the mode split.
+    """
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.clients = _clients()
+        cls.rendered = {
+            (client, mode): _render(client, [*_CONSUMERS, client], mode)
+            for client in cls.clients
+            for mode in _MODES
+        }
+
+    def test_the_scan_finds_clients_with_a_cli_test(self) -> None:
+        self.assertTrue(self.clients)
+
+    def test_nothing_reaches_the_shell_unrendered(self) -> None:
+        for (client, mode), rendered in self.rendered.items():
+            with self.subTest(client=client, mode=mode):
+                leaked = [k for k, v in _entries(rendered).items() if "{{" in v]
+                self.assertEqual([], leaked)
+
+    def test_every_key_resolves_to_something(self) -> None:
+        for (client, mode), rendered in self.rendered.items():
+            entries = _entries(rendered)
+            with self.subTest(client=client, mode=mode):
+                self.assertTrue(entries)
+                self.assertEqual(
+                    [], [k for k, v in entries.items() if not v.strip("'")]
+                )
+
+    def test_the_flag_resolves_to_a_boolean(self) -> None:
+        for (client, mode), rendered in self.rendered.items():
+            with self.subTest(client=client, mode=mode):
+                self.assertIn(_entries(rendered)["MCP_TEST_ENABLED"], ("true", "false"))
 
 
 if __name__ == "__main__":
