@@ -120,6 +120,17 @@ class TestRealmImportJson(unittest.TestCase):
         client_ids = [c["clientId"] for c in realm["clients"]]
         self.assertNotIn(path_join([APP_URL, "saml/metadata"]), client_ids)
 
+    def test_the_declarative_profile_declares_uidnumber(self) -> None:
+        """Keycloak drops writes to an attribute the profile does not declare, and
+        the unmanaged-attribute policy is DISABLED by default, so an undeclared
+        uidNumber leaves the mattermost-id mapper with nothing to emit and the
+        OIDC callback fails on a user id of 0."""
+        realm = json.loads(render([]))
+        provider = realm["components"]["org.keycloak.userprofile.UserProfileProvider"]
+        profile = json.loads(provider[0]["config"]["kc.user.profile.config"][0])
+        declared = {attribute["name"] for attribute in profile["attributes"]}
+        self.assertIn("uidNumber", declared)
+
     def test_realm_is_valid_json_with_one_saml_app(self) -> None:
         realm = json.loads(render(["web-app-suitecrm"]))
         clients = {c["clientId"]: c for c in realm["clients"]}
