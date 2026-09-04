@@ -119,4 +119,4 @@ if [ -n "$nfs_volumes" ]; then
     done
 fi
 
-exit $status
+exit $((status ? 1 : 0))
