@@ -3,6 +3,7 @@ import subprocess
 import unittest
 
 from utils import PROJECT_ROOT
+from utils.cache.files import read_text
 
 SCRIPT = PROJECT_ROOT / "roles/web-app-jellyfin/files/shell/configure-auth.sh"
 
@@ -36,7 +37,7 @@ class TestConfigureAuthExtraction(unittest.TestCase):
     """
 
     def setUp(self) -> None:
-        self.source = SCRIPT.read_text()
+        self.source = read_text(str(SCRIPT))
         self.expressions = _SED.findall(self.source)
 
     def test_the_script_keeps_exactly_one_authenticate_call_site_per_field(self):
