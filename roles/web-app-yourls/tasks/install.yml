@@ -2,22 +2,31 @@
 - name: "🔧 Provision YOURLS on the stack host"
   when: IS_STACK_HOST | bool
   block:
+    - name: "🔍 Resolve the node that holds '{{ YOURLS_CONTAINER }}' and its local id"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+      vars:
+        resolve_service_key: "{{ entity_name }}"
+        resolve_output_prefix: YOURLS
+        resolve_compose_cid: "{{ YOURLS_CONTAINER_ADDRESS }}"
+
     - name: "⏳ Wait until YOURLS is reachable inside {{ YOURLS_CONTAINER }}"
       ansible.builtin.shell:
-        cmd: >-
-          container exec {{ YOURLS_CONTAINER_ADDRESS }}
+        cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+          container exec {{ YOURLS_LOCAL_CID | quote }}
           {{ 30 | curl }} -fS -o /dev/null http://127.0.0.1:{{ container_port }}/admin/install.php
       register: yourls_install_probe
       retries: 30
       delay: 2
       until: yourls_install_probe.rc == 0
       changed_when: false
+      delegate_to: "{{ YOURLS_HOST_NODE }}"
 
     - name: "📁 Create the YOURLS database schema via the installer (idempotent)"
       ansible.builtin.shell:
-        cmd: >-
-          container exec {{ YOURLS_CONTAINER_ADDRESS }}
+        cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+          container exec {{ YOURLS_LOCAL_CID | quote }}
           {{ 300 | curl }} -fS -d install=1 http://127.0.0.1:{{ container_port }}/admin/install.php
       register: yourls_install
       changed_when: "'tables successfully created' in yourls_install.stdout"
       failed_when: yourls_install.rc != 0
+      delegate_to: "{{ YOURLS_HOST_NODE }}"
