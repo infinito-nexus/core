@@ -39,9 +39,7 @@ from . import PROJECT_ROOT
 
 _RULE = "sandbox-placement-manager"
 
-_PLACEMENT_MANAGER = re.compile(
-    r"^\s*placement\s*:\s*['\"]?manager['\"]?\s*(?:#.*)?$"
-)
+_PLACEMENT_MANAGER = re.compile(r"^\s*placement\s*:\s*['\"]?manager['\"]?\s*(?:#.*)?$")
 
 
 def _is_scan_target(rel_path: str) -> bool:

@@ -69,8 +69,8 @@
       become: true
       ansible.builtin.lineinfile:
         path: /etc/nsswitch.conf
-        regexp: '^(hosts:.*\bresolve)\s*\[!UNAVAIL=return\](.*)$'
-        line: '\1 [SUCCESS=return NOTFOUND=continue TRYAGAIN=return]\2'
+        regexp: "^(hosts:.*\\bresolve)\\s*\\[!UNAVAIL=return\\](.*)$"
+        line: "\\1 [SUCCESS=return NOTFOUND=continue TRYAGAIN=return]\\2"
         backrefs: true
 - name: "🔀 Egress router | Redirect .onion virtual-IP TCP to Tor TransPort"
   ansible.builtin.iptables:

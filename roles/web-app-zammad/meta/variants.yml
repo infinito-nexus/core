@@ -41,7 +41,6 @@
       shared: false
     tor:
       enabled: true
-
     openwebui:
       enabled: false
       shared: false

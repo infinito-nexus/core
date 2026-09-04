@@ -64,7 +64,9 @@ class TestHandlerRegistrationOrder(unittest.TestCase):
         self.assertEqual(loader.get("name"), COMPOSE_OWNER)
         self.assertEqual(loader.get("handlers_from"), "main")
 
-    def test_the_notifier_bootstraps_the_compose_host_before_its_first_notify(self) -> None:
+    def test_the_notifier_bootstraps_the_compose_host_before_its_first_notify(
+        self,
+    ) -> None:
         tasks = load_yaml_str(read_text(str(RDBMS_DEDICATED)))
         bootstrap = next(
             index

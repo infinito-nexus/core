@@ -129,9 +129,7 @@ def _role_scoped_vars(application_id: str) -> dict:
     return loaded
 
 
-def _render(
-    application_id: str, group_names: list[str], mode: str = "compose"
-) -> str:
+def _render(application_id: str, group_names: list[str], mode: str = "compose") -> str:
     """Render the role's own env template the way ``run_one.yml`` does."""
     role_template = PROJECT_ROOT / "roles" / application_id / "templates/test.env.j2"
     variables = {
