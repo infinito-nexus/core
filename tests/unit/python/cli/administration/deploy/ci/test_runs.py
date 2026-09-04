@@ -499,6 +499,33 @@ class TestConfigFromTitle(unittest.TestCase):
         ]
         self.assertEqual(runs.config_from_run(title, jobs=jobs)["workspace"], "true")
 
+    def test_a_suite_passed_on_the_auto_default_is_retired_too(self) -> None:
+        """``auto`` is the default every unattended run reaches the suite on,
+        and a ``--failed`` retrigger leaves the whitelist empty, which
+        call-orchestrator.yml still reads as global scope. Keeping ``auto``
+        would rerun a green suite on every retrigger of the chain."""
+        for suite in runs.SUITE_JOB_IDS:
+            with self.subTest(suite):
+                jobs = [self._suite_job(suite, "success")]
+                logged = {suite: "auto"}
+                config = runs.config_from_run(render({}), logged, jobs=jobs)
+                self.assertEqual(config[suite], "false")
+
+    def test_a_suite_passed_without_any_recorded_input_is_retired_too(self) -> None:
+        for suite in runs.SUITE_JOB_IDS:
+            with self.subTest(suite):
+                jobs = [self._suite_job(suite, "success")]
+                config = runs.config_from_run(render({}), {}, jobs=jobs)
+                self.assertEqual(config[suite], "false")
+
+    def test_a_suite_left_on_auto_that_failed_stays_on_auto(self) -> None:
+        for suite in runs.SUITE_JOB_IDS:
+            with self.subTest(suite):
+                jobs = [self._suite_job(suite, "failure")]
+                logged = {suite: "auto"}
+                config = runs.config_from_run(render({}), logged, jobs=jobs)
+                self.assertEqual(config[suite], "auto")
+
 
 if __name__ == "__main__":
     unittest.main()

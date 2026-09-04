@@ -411,6 +411,13 @@ def config_from_run(
     failed, was cancelled or never ran at all keeps it on the retrigger, so a
     retrigger spends its runners on what is not yet proven.
 
+    What the source asked for does not enter that decision: the run's own jobs
+    are the evidence. A suite reached on the ``auto`` default is the common
+    case -- ``call-orchestrator.yml`` reads ``auto`` as global scope off the
+    ``whitelist`` alone, so a ``--failed`` retrigger, which puts its selection
+    on ``priority`` and leaves the whitelist empty, would run every green
+    suite again for as long as the retrigger chain lasts.
+
     Args:
         title: the source run's display title.
         logged: inputs read verbatim from a called job's log
@@ -424,7 +431,7 @@ def config_from_run(
         for name in carried_inputs()
     }
     for suite in SUITE_JOB_IDS:
-        if config.get(suite) == "true" and suite_passed(jobs or [], suite):
+        if suite_passed(jobs or [], suite):
             config = {**config, suite: "false"}
     return {name: value for name, value in config.items() if value}
 
