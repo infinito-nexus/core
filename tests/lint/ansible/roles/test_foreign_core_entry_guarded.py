@@ -50,7 +50,9 @@ from . import PROJECT_ROOT
 _RULE = "foreign-core-entry-guarded"
 
 _CORE_FILE = re.compile(r"^\d+_core(\.yml)?$")
-_CORE_LINE = re.compile(r"^\s*tasks_from\s*:\s*['\"]?\d+_core(\.yml)?['\"]?\s*(?:#.*)?$")
+_CORE_LINE = re.compile(
+    r"^\s*tasks_from\s*:\s*['\"]?\d+_core(\.yml)?['\"]?\s*(?:#.*)?$"
+)
 
 
 def _owning_role(rel_path: str) -> str:
@@ -119,10 +121,12 @@ class TestForeignCoreEntryGuarded(unittest.TestCase):
             if len(anchors) != len(entries):
                 anchors = [0] * len(entries)
             owner = _owning_role(rel)
-            for (target, guarded, name), idx in zip(entries, anchors):
+            for (target, guarded, name), idx in zip(entries, anchors, strict=True):
                 if guarded or target == owner:
                     continue
-                if idx and is_suppressed_at(lines, idx + 1, _RULE, mode="same-or-above"):
+                if idx and is_suppressed_at(
+                    lines, idx + 1, _RULE, mode="same-or-above"
+                ):
                     continue
                 findings.append((rel, idx + 1, name, _guard_for(target)))
 
