@@ -35,7 +35,6 @@
             )
           )
       }}
-    front_proxy_status_codes: "{{ lookup('applications') | accepted_status_codes(application_id, lookup('tls', application_id, 'domain')) }}"
     front_proxy_domain_conf_dst_resolved: >-
       {{
         lookup(
@@ -44,6 +43,12 @@
           (domain | default(lookup('domain', application_id)))
         )
       }}
+  changed_when: false
+
+- name: 🧊 Freeze the probe target for this vhost
+  ansible.builtin.set_fact:
+    front_proxy_probe_url: "{{ lookup('tls', front_proxy_domain, 'url.base') }}"
+    front_proxy_status_codes: "{{ lookup('applications') | accepted_status_codes(front_proxy_application_id, lookup('tls', front_proxy_domain, 'domain')) }}"
   changed_when: false
 
 - name: 📂 Include dependencies
@@ -104,9 +109,9 @@
   notify: reload-openresty
 
 - block:
-    - name: "🔍 Check if {{ lookup('domain', front_proxy_application_id) }} is reachable"
+    - name: "🔍 Check if '{{ front_proxy_domain }}' is reachable"
       uri_probe:
-        url: "{{ lookup('tls', front_proxy_application_id, 'url.base') }}"
+        url: "{{ front_proxy_probe_url }}"
         status_code: "{{ front_proxy_status_codes }}"
       register: site_check
       failed_when: false
@@ -126,7 +131,7 @@
 
 - name: "🔍 Verify '{{ front_proxy_domain }}' is served after the reload"
   uri_probe:
-    url: "{{ lookup('tls', front_proxy_application_id, 'url.base') }}"
+    url: "{{ front_proxy_probe_url }}"
     status_code: "{{ front_proxy_status_codes }}"
   register: front_proxy_reload_check
   failed_when: false
