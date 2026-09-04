@@ -24,6 +24,7 @@ import os
 import shutil
 import subprocess
 import sys
+import time
 
 from utils import PROJECT_ROOT
 from utils.env.runtime import mem_available_mb, mem_stall_pct, mem_total_mb
@@ -52,13 +53,40 @@ def _abort(proc: subprocess.Popen[bytes], banner: str, probe: list[str]) -> int:
 
 
 def _run(cmd: list[str], *, env: dict[str, str], label: str) -> int:
-    """Run a matrix step, aborting visibly before the runner disk or RAM fills.
+    """Announce a matrix step, run it, and report what it cost.
+
+    Args:
+        cmd: argv of the step.
+        env: environment the step runs with.
+        label: phase name for the banners.
+
+    Returns:
+        The step's exit code.
+    """
+    print(f"=== swarm-matrix: {label} ===", flush=True)
+    started = time.monotonic()
+    rc = _run_watched(cmd, env=env)
+    print(
+        f"=== swarm-matrix: {label} took {time.monotonic() - started:.0f}s (rc={rc}) ===",
+        flush=True,
+    )
+    return rc
+
+
+def _run_watched(cmd: list[str], *, env: dict[str, str]) -> int:
+    """Run a step, aborting visibly before the runner disk or RAM fills.
 
     The Actions Worker dies silently on ENOSPC while writing its own logs, so
     a full disk truncates the job without diagnostics; terminating the step at
     DISK_FLOOR_MB keeps enough room for rescue artifacts and the log upload.
+
+    Args:
+        cmd: argv of the step.
+        env: environment the step runs with.
+
+    Returns:
+        The step's exit code, or the abort code when a floor was hit.
     """
-    print(f"=== swarm-matrix: {label} ===", flush=True)
     proc = subprocess.Popen(cmd, cwd=str(PROJECT_ROOT), env=env)
     while True:
         try:
