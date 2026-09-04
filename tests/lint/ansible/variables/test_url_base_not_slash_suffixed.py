@@ -23,9 +23,8 @@ above it, with a comment naming why the extra slash is wanted.
 from __future__ import annotations
 
 import re
-from pathlib import Path
-
 import unittest
+from pathlib import Path
 
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import iter_project_files_with_content
@@ -75,9 +74,13 @@ def _base_url_variables() -> set[str]:
 class TestUrlBaseNotSlashSuffixed(unittest.TestCase):
     def test_no_slash_follows_a_url_base_variable(self) -> None:
         names = _base_url_variables()
-        self.assertTrue(names, "no tls url.base variable found; the scan would be vacuous")
+        self.assertTrue(
+            names, "no tls url.base variable found; the scan would be vacuous"
+        )
         pattern = re.compile(
-            r"\{\{-?\s*(" + "|".join(re.escape(n) for n in sorted(names)) + r")\s*-?\}\}/"
+            r"\{\{-?\s*("
+            + "|".join(re.escape(n) for n in sorted(names))
+            + r")\s*-?\}\}/"
         )
 
         findings: list[tuple[str, int, str]] = []
@@ -98,7 +101,8 @@ class TestUrlBaseNotSlashSuffixed(unittest.TestCase):
 
         if findings:
             formatted = "\n".join(
-                f"- {p}:{n}: {v} already ends in a slash" for p, n, v in sorted(findings)
+                f"- {p}:{n}: {v} already ends in a slash"
+                for p, n, v in sorted(findings)
             )
             self.fail(
                 "A tls url.base value already carries its trailing slash, so "
