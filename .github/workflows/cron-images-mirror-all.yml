@@ -54,7 +54,6 @@ on:
 
 permissions:
   contents: read
-  packages: write
 concurrency:
   group: mirror-images-${{ github.repository }}-${{ github.ref_name }}
   cancel-in-progress: false
@@ -63,6 +62,9 @@ jobs:
   sync:
     name: 🪞 Mirror
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     env:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}

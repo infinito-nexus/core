@@ -13,7 +13,7 @@ in the COLUMN role:
   - dash   -> diagonal (same role)
 """
 
-# nocheck: file-size — curated EDGES data table plus matrix renderers; the data
+# nocheck: file-size  curated EDGES data table plus matrix renderers; the data and the renderer read together, splitting them only adds indirection.
 
 import re
 from pathlib import Path
@@ -34,6 +34,7 @@ FRAMEWORK = {
     "collabora": "collabora",
     "onlyoffice": "onlyoffice",
     "libretranslate": "libretranslate",
+    "litellm": "litellm",
 }
 
 WEB_APP = [
@@ -67,6 +68,7 @@ WEB_APP = [
     "kix",
     "lam",
     "listmonk",
+    "litellm",
     "littlejs",
     "magento",
     "mailu",
@@ -80,6 +82,7 @@ WEB_APP = [
     "mini-qr",
     "mobilizon",
     "moodle",
+    "n8n",
     "navigator",
     "nextcloud",
     "odoo",
@@ -228,7 +231,7 @@ EDGES = [
     (
         "mattermost",
         "keycloak",
-        "https://docs.mattermost.com/onboard/sso-saml.html",
+        "https://docs.mattermost.com/administration-guide/onboard/sso-saml.html",
         "coin",
     ),
     (
@@ -615,7 +618,7 @@ A cell marks whether the **row** role ships an addon/plugin that wires in the **
 Notes:
 
 - The matrix is **directional**: the row hosts the plugin/flag. Bidirectional pairs (e.g. `nextcloud`↔`openproject`) carry a symbol in both cells, each linking to that side.
-- {wired} edges are derived automatically by scanning every role's `meta/services.yml` for integration service keys (`sso`→keycloak, `matomo`→matomo, `prometheus`→prometheus, `email`→mailu, `dashboard`, `css`, `logout`, `cdn`, `coturn`, `collabora`, `onlyoffice`, `libretranslate`). `ldap`/`redis`/`mariadb` map to `svc-db-*` roles that are off these axes and are not shown.
+- {wired} edges are derived automatically by scanning every role's `meta/services.yml` for integration service keys (`sso`→keycloak, `matomo`→matomo, `prometheus`→prometheus, `email`→mailu, `dashboard`, `css`, `logout`, `cdn`, `coturn`, `collabora`, `onlyoffice`, `libretranslate`, `litellm`). `ldap`/`redis`/`mariadb` map to `svc-db-*` roles that are off these axes and are not shown. The `litellm` column is the AI gateway surface of [036](036-native-ai-gateway-integration.md): the service key resolves to `svc-ai-litellm`, which is off-axis, so the edge is drawn to the `litellm` entity that fronts it.
 - `→ keycloak` {wired} cells are the central `sso` service; a {check}/{coin} on `→ keycloak` instead means a role-local OIDC/SAML addon path beyond the central service.
 - Native ActivityPub federation between fediverse roles (`mastodon`, `peertube`, `pixelfed`, `funkwhale`, `mobilizon`, `bookwyrm`, `socialhome`) needs **no plugin** and is therefore not a {check} edge unless an installable connector exists.
 

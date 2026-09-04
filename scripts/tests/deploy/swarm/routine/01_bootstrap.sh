@@ -55,10 +55,19 @@ fi
 COMPOSE_FILE="${SCRIPT_DIR}/../../../../../compose/swarm/compose.yml"
 COMPOSE_ARGS=(-f "${COMPOSE_FILE}")
 CACHE_FRONTEND="infinito-package-cache-frontend"
+REGISTRY_CACHE="infinito-registry-cache"
 CACHE_NET=""
 if docker inspect "${CACHE_FRONTEND}" >/dev/null 2>&1; then
 	CACHE_NET="$(docker inspect "${CACHE_FRONTEND}" --format '{{range $k, $v := .NetworkSettings.Networks}}{{$k}}{{"\n"}}{{end}}' | head -n1)"
 	echo "==> package-cache detected on ${CACHE_NET}; wiring swarm nodes to it"
+	registry_ca_src="$(docker inspect "${REGISTRY_CACHE}" \
+		--format '{{range .Mounts}}{{if eq .Destination "/ca"}}{{.Source}}{{end}}{{end}}' 2>/dev/null || true)"
+	if [ -z "${registry_ca_src}" ]; then
+		echo "FAILURE: ${CACHE_FRONTEND} is up but ${REGISTRY_CACHE} exposes no /ca bind; the nodes cannot learn its MITM CA" >&2
+		exit 1
+	fi
+	export INFINITO_CACHE_REGISTRY_CA_HOST_PATH="${registry_ca_src}"
+	echo "==> registry-cache CA source: ${INFINITO_CACHE_REGISTRY_CA_HOST_PATH}"
 	COMPOSE_ARGS+=(-f "${SCRIPT_DIR}/../../../../../compose/swarm/cache.override.yml")
 fi
 
@@ -75,8 +84,37 @@ done
 docker compose "${COMPOSE_ARGS[@]}" -p "${SWARM_NAME}" --profile drill up -d
 
 if [ -n "${CACHE_NET}" ]; then
+	cache_subnet="$(docker network inspect "${CACHE_NET}" \
+		--format '{{range .IPAM.Config}}{{println .Subnet}}{{end}}' 2>/dev/null |
+		grep -F . | head -n1 || true)"
+	case "${cache_subnet}" in
+	*.0/24) ;;
+	*)
+		echo "FAILURE: ${CACHE_NET} reports IPv4 subnet '${cache_subnet:-<none>}'; the node pinning below only holds for a x.y.z.0/24" >&2
+		exit 1
+		;;
+	esac
+	cache_prefix="${cache_subnet%.0/24}"
+
+	node_octet=$((200 + INFINITO_INSTANCE * 5))
+	if [ "$((node_octet + 4))" -gt 254 ]; then
+		echo "FAILURE: INFINITO_INSTANCE=${INFINITO_INSTANCE} pushes the node band past ${cache_prefix}.254" >&2
+		exit 1
+	fi
+
 	for node in "${MGR}" "${WRK1}" "${WRK2}" "${NFS_SERVER}" "${BACKUP_NODE}"; do
-		docker network connect "${CACHE_NET}" "${node}" >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+		if ! connect_err="$(docker network connect --ip "${cache_prefix}.${node_octet}" "${CACHE_NET}" "${node}" 2>&1)"; then
+			case "${connect_err}" in
+			*"already exists in network"* | *"already attached to network"*)
+				echo "==> ${node} already on ${CACHE_NET}; keeping its current address" >&2
+				;;
+			*)
+				echo "FAILURE: cannot pin ${node} to ${cache_prefix}.${node_octet} on ${CACHE_NET}: ${connect_err}" >&2
+				exit 1
+				;;
+			esac
+		fi
+		node_octet=$((node_octet + 1))
 	done
 fi
 

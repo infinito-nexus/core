@@ -1,0 +1,31 @@
+{% set _ollama_models = lookup('config', 'svc-ai-ollama', 'services.ollama.preload_models') if 'svc-ai-ollama' in group_names else [] %}
+{% set has_backend = _ollama_models or ('svc-ai-lmstudio' in group_names) or LITELLM_OPENROUTER_API_KEY %}
+model_list:{{ ' []' if not has_backend else '' }}
+{% for _model in _ollama_models %}
+  - model_name: "{{ _model }}"
+    litellm_params:
+      model: "ollama/{{ _model }}"
+      api_base: {{ OLLAMA_BASE_LOCAL_URL }}
+      rpm: 1000
+{% endfor %}
+{% if 'svc-ai-lmstudio' in group_names %}
+  - model_name: lmstudio/default
+    litellm_params:
+      model: openai/local-model
+      api_base: {{ LMSTUDIO_BASE_LOCAL_URL }}/v1
+      api_key: lm-studio
+      rpm: 1000
+{% endif %}
+{% if LITELLM_OPENROUTER_API_KEY %}
+  - model_name: openrouter/auto
+    litellm_params:
+      model: openrouter/openrouter/auto
+      api_key: os.environ/OPENROUTER_API_KEY
+{% endif %}
+
+litellm_settings:
+  drop_params: true
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+  database_url: os.environ/DATABASE_URL

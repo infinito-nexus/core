@@ -27,6 +27,9 @@
       shared: true
     postgres:
       shared: true
+    litellm:
+      enabled: false
+      shared: false
     sso:
       enabled: true
       shared: true
@@ -68,6 +71,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     postgres:
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    litellm:
+      enabled: false
+      shared: false
     sso:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -111,6 +117,9 @@
       enabled: true
       shared: true
     postgres:
+      shared: true
+    litellm:
+      enabled: true
       shared: true
     sso:
       enabled: true

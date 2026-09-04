@@ -14,7 +14,10 @@ awk '/^### Production$/{p=1} p && /^```bash$/{c=1; next} c && /^```$/{exit} c' \
 	grep -vE '^git clone |^cd core$' >/tmp/host-deploy.sh
 test -s /tmp/host-deploy.sh
 
+# shellcheck source=/dev/null
+source scripts/meta/env/load.sh
 sed -i "s#<your-ssh-public-key>#ssh-ed25519 AAAA_TEST_DUMMY_KEY github-ci-dummy@infinito#" /tmp/host-deploy.sh
+sed -i "s#<your-domain>#${INFINITO_DOMAIN}#" /tmp/host-deploy.sh
 
 docker pull "${GUIDE_RUNTIME_IMAGE}"
 

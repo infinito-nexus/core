@@ -117,7 +117,7 @@ test("integration integration_mastodon: connects Nextcloud to the partner Mastod
     const popupPromise = page.waitForEvent("popup", { timeout: resolveTimeout(15_000) }).catch(() => null);
     await Promise.all([
       page.waitForEvent("framenavigated", { timeout: resolveTimeout(60_000) }).catch(() => {}),
-      connect.click({ timeout: resolveTimeout(30_000) }),
+      shared.clickWithModalRetry(page, page, connect),
     ]);
 
     const popup = await popupPromise;

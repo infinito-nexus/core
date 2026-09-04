@@ -1,0 +1,363 @@
+{
+  "findJobsWithScmUrl": {
+    "description": "Get a paginated list of Jenkins jobs that use the specified git SCM URL",
+    "input_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {
+        "branch": {
+          "description": "SCM Branch (e.g., 'feature/my-feature')",
+          "type": "string"
+        },
+        "limit": {
+          "description": "The maximum number of items to return. If not specified, returns 10 items. Cannot exceed 10 items.",
+          "format": "int32",
+          "type": "integer"
+        },
+        "scmUrl": {
+          "description": "SCM URL to search for (e.g., 'git@github.com:jenkinsci/mcp-server-plugin.git')",
+          "type": "string"
+        },
+        "skip": {
+          "description": "The 0 based started index, if not specified, then start from the first (0)",
+          "format": "int32",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "scmUrl"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "getBuild": {
+    "description": "Get a specific build or the last build of a Jenkins job",
+    "input_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {
+        "buildNumber": {
+          "description": "Build number (optional, if not provided, returns the last build)",
+          "format": "int32",
+          "type": "integer"
+        },
+        "jobFullName": {
+          "description": "Job full name of the Jenkins job (e.g., 'folder/job-name')",
+          "type": "string"
+        },
+        "tree": {
+          "description": "Field selection expression using the Jenkins Remote REST API tree syntax.\nAllows limiting returned fields and nested objects (for example executable[number,url]) to reduce response size, especially for polling workflows.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "jobFullName"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "getBuildChangeSets": {
+    "description": "Retrieves change log sets of a Jenkins build",
+    "input_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {
+        "buildNumber": {
+          "description": "Build number (optional, if not provided, updates the last build)",
+          "format": "int32",
+          "type": "integer"
+        },
+        "jobFullName": {
+          "description": "Full path of the Jenkins job (e.g., 'folder/job-name')",
+          "type": "string"
+        }
+      },
+      "required": [
+        "jobFullName"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "getBuildLog": {
+    "description": "Retrieves some log lines with pagination for a specific build or the last build of a Jenkins job, as well as a boolean value indicating whether there is more content to retrieve For sequential pagination, pass the returned 'nextCursor' back as 'cursor' to resume from the same spot without re-scanning. 'totalLines' is exact for end-relative reads and -1 for forward reads (not computed). If 'nextCursor' is set but 'hasMoreContent' is false, you've read everything written so far but the build is still going; keep the cursor and call again later to pick up whatever was appended in the meantime.",
+    "input_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {
+        "buildNumber": {
+          "description": "The build number (optional, if not provided, returns the last build)",
+          "format": "int32",
+          "type": "integer"
+        },
+        "cursor": {
+          "description": "Opaque cursor previously returned as 'nextCursor'. When set, reading resumes from that position; 'skip' is ignored and 'startLine', 'endLine' and 'totalLines' are reported as -1 (the cursor doesn't carry line numbers). The cursor is tied to the (job, buildNumber) it was issued for; passing it for a different build is rejected as invalid",
+          "type": "string"
+        },
+        "jobFullName": {
+          "description": "Job full name of the Jenkins job (e.g., 'folder/job-name')",
+          "type": "string"
+        },
+        "limit": {
+          "description": "The number of lines to return (optional, if not provided, returns 100 lines), positive values return lines from the start, negative values return lines from the end",
+          "format": "int32",
+          "type": "integer"
+        },
+        "skip": {
+          "description": "The skip (optional, if not provided, returns from the first line). Negative values function as 'from the end', with -1 meaning starting with the last line",
+          "format": "int64",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "jobFullName"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "getBuildScm": {
+    "description": "Retrieves scm configurations of a Jenkins build",
+    "input_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {
+        "buildNumber": {
+          "description": "Build number (optional, if not provided, updates the last build)",
+          "format": "int32",
+          "type": "integer"
+        },
+        "jobFullName": {
+          "description": "Full path of the Jenkins job (e.g., 'folder/job-name')",
+          "type": "string"
+        }
+      },
+      "required": [
+        "jobFullName"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "getFlakyFailures": {
+    "description": "Retrieves the flaky failures associated to a Jenkins build if any found",
+    "input_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {
+        "buildNumber": {
+          "description": "Build number (optional, if not provided, returns the test results for last build)",
+          "format": "int32",
+          "type": "integer"
+        },
+        "jobFullName": {
+          "description": "Job full name of the Jenkins job (e.g., 'folder/job-name')",
+          "type": "string"
+        }
+      },
+      "required": [
+        "jobFullName"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "getJob": {
+    "description": "Get a Jenkins job by its full path",
+    "input_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {
+        "jobFullName": {
+          "description": "Job full name of the Jenkins job (e.g., 'folder/job-name')",
+          "type": "string"
+        },
+        "tree": {
+          "description": "Field selection expression using the Jenkins Remote REST API tree syntax.\nAllows limiting returned fields and nested objects (for example executable[number,url]) to reduce response size, especially for polling workflows.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "jobFullName"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "getJobScm": {
+    "description": "Retrieves scm configurations of a Jenkins job",
+    "input_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {
+        "jobFullName": {
+          "description": "Full path of the Jenkins job (e.g., 'folder/job-name')",
+          "type": "string"
+        }
+      },
+      "required": [
+        "jobFullName"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "getJobs": {
+    "description": "Get a paginated list of Jenkins jobs, sorted by name. Returns up to 'limit' jobs starting from the 'skip' index. If no jobs are available in the requested range, returns an empty list.",
+    "input_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {
+        "limit": {
+          "description": "The maximum number of items to return. If not specified, returns 10 items. Cannot exceed 10 items.",
+          "format": "int32",
+          "type": "integer"
+        },
+        "parentFullName": {
+          "description": "The full path of the Jenkins folder (e.g., 'folder'), if not specified, it returns the items under root",
+          "type": "string"
+        },
+        "skip": {
+          "description": "The 0 based started index, if not specified, then start from the first (0)",
+          "format": "int32",
+          "type": "integer"
+        },
+        "tree": {
+          "description": "Field selection expression using the Jenkins Remote REST API tree syntax.\nAllows limiting returned fields and nested objects (for example executable[number,url]) to reduce response size, especially for polling workflows.",
+          "type": "string"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "getQueueItem": {
+    "description": "Get the queue item details by its ID. The caller can check the queue item's status, build details, and other relevant information.",
+    "input_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {
+        "id": {
+          "description": "The queue item id",
+          "format": "int64",
+          "type": "integer"
+        },
+        "tree": {
+          "description": "Field selection expression using the Jenkins Remote REST API tree syntax.\nAllows limiting returned fields and nested objects (for example executable[number,url]) to reduce response size, especially for polling workflows.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "getReplayScripts": {
+    "description": "Get the pipeline script(s) of a build for replay. Returns the main script and loaded scripts. Only available for Pipeline (replayable) builds.",
+    "input_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {
+        "buildNumber": {
+          "description": "Build number (optional, if not provided, uses the last build)",
+          "format": "int32",
+          "type": "integer"
+        },
+        "jobFullName": {
+          "description": "Full path of the Jenkins job (e.g., 'folder/job-name')",
+          "type": "string"
+        }
+      },
+      "required": [
+        "jobFullName"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "getStatus": {
+    "description": "Checks the health and readiness status of a Jenkins instance, including whether it's in quiet mode, has active administrative monitors, current queue size, root URL Status, and available executor capacity. This tool provides a comprehensive overview of the controller's operational state to determine if it's stable and ready to build. Use this tool to assess Jenkins instance health rather than simple up/down status.",
+    "input_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {},
+      "required": [],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "getTestResults": {
+    "description": "Retrieves the test results associated to a Jenkins build",
+    "input_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {
+        "buildNumber": {
+          "description": "Build number (optional, if not provided, returns the test results for last build)",
+          "format": "int32",
+          "type": "integer"
+        },
+        "jobFullName": {
+          "description": "Job full name of the Jenkins job (e.g., 'folder/job-name')",
+          "type": "string"
+        },
+        "onlyFailingTests": {
+          "description": "To return only failing tests and not all test (to help reducing the size of returned data)",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "jobFullName"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "searchBuildLog": {
+    "description": "Search for log lines matching a pattern in a specific build or the last build of a Jenkins job. Returns matching lines with their line numbers and context.",
+    "input_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {
+        "buildNumber": {
+          "description": "The build number (optional, if not provided, searches the last build)",
+          "format": "int32",
+          "type": "integer"
+        },
+        "contextLines": {
+          "description": "Number of context lines to show before and after each match (default: 0)",
+          "format": "int32",
+          "type": "integer"
+        },
+        "ignoreCase": {
+          "description": "Whether the search should be case-insensitive (default: false)",
+          "type": "boolean"
+        },
+        "jobFullName": {
+          "description": "Job full name of the Jenkins job (e.g., 'folder/job-name')",
+          "type": "string"
+        },
+        "maxMatches": {
+          "description": "Maximum number of matches to return (optional, default: 100, max: 1000)",
+          "format": "int32",
+          "type": "integer"
+        },
+        "pattern": {
+          "description": "The search pattern (regex supported)",
+          "type": "string"
+        },
+        "useRegex": {
+          "description": "Whether to use regex pattern matching (default: false, uses simple string contains)",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "jobFullName",
+        "pattern"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "whoAmI": {
+    "description": "Get information about the currently authenticated user/principal, including their full name or 'anonymous' if not authenticated",
+    "input_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {},
+      "required": [],
+      "type": "object"
+    },
+    "mutating": false
+  }
+}

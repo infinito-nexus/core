@@ -110,7 +110,7 @@ if [ -n "$nfs_volumes" ]; then
             continue
         fi
 
-        if showmount -e "$server" >/dev/null 2>&1; then
+        if timeout 5 bash -c "exec 3<>/dev/tcp/${server}/2049" 2>/dev/null; then
             echo "✅ Volume $vol: server $server reachable for export $export_path"
         else
             echo "❌ Volume $vol: server $server NOT reachable (export $export_path)"
@@ -119,4 +119,4 @@ if [ -n "$nfs_volumes" ]; then
     done
 fi
 
-exit $status
+exit $((status ? 1 : 0))

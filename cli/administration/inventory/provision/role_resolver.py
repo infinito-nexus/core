@@ -3,6 +3,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+from cli.meta.roles.applications.role_name import EXIT_NO_SUCH_APPLICATION_ROLE
+
 from .subprocess_runner import run_subprocess
 
 
@@ -20,6 +22,8 @@ def resolve_role_path(
       - bare folder name (e.g. web-app-nextcloud)
       - relative path (e.g. roles/web-app-nextcloud)
       - absolute path
+
+    Returns None when the id belongs to no application role.
     """
     cmd = [
         sys.executable,
@@ -29,7 +33,14 @@ def resolve_role_path(
         "-r",
         str(roles_dir),
     ]
-    result = run_subprocess(cmd, capture_output=True, env=env)
+    result = run_subprocess(
+        cmd,
+        capture_output=True,
+        env=env,
+        ok_returncodes=(0, EXIT_NO_SUCH_APPLICATION_ROLE),
+    )
+    if result.returncode == EXIT_NO_SUCH_APPLICATION_ROLE:
+        return None
     raw = (result.stdout or "").strip()
 
     if not raw:

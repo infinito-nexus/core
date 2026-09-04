@@ -45,6 +45,12 @@
       }}
   changed_when: false
 
+- name: 🧊 Freeze the probe target for this vhost
+  ansible.builtin.set_fact:
+    front_proxy_probe_url: "{{ lookup('tls', front_proxy_domain, 'url.base') }}"
+    front_proxy_status_codes: "{{ lookup('applications') | accepted_status_codes(front_proxy_application_id, lookup('tls', front_proxy_domain, 'domain')) }}"
+  changed_when: false
+
 - name: 📂 Include dependencies
   include_role:
     name: "sys-svc-nss"
@@ -103,24 +109,21 @@
   notify: reload-openresty
 
 - block:
-    - name: "🔍 Check if {{ lookup('domain', front_proxy_application_id) }} is reachable"
+    - name: "🔍 Check if '{{ front_proxy_domain }}' is reachable"
       uri_probe:
-        url: "{{ lookup('tls', front_proxy_application_id, 'url.base') }}"
-        status_code:
-          - 200
-          - 301
-          - 302
+        url: "{{ front_proxy_probe_url }}"
+        status_code: "{{ front_proxy_status_codes }}"
       register: site_check
       failed_when: false
       changed_when: false
 
-    - name: 🔄 Restart NGINX if site is down
+    - name: "🔄 Redeploy: site answered {{ site_check.status | default('none') }}"
       ansible.builtin.command:
         cmd: "true"
       notify: restart-openresty
       when:
         - site_check.status is defined
-        - site_check.status not in [200, 301, 302]
+        - site_check.status not in front_proxy_status_codes
   when: not nginx_conf.changed
 
 - name: "🔄 Restart Webserver for '{{ front_proxy_domain_conf_dst_resolved }}'"
@@ -128,24 +131,21 @@
 
 - name: "🔍 Verify '{{ front_proxy_domain }}' is served after the reload"
   uri_probe:
-    url: "{{ lookup('tls', front_proxy_application_id, 'url.base') }}"
-    status_code:
-      - 200
-      - 301
-      - 302
+    url: "{{ front_proxy_probe_url }}"
+    status_code: "{{ front_proxy_status_codes }}"
   register: front_proxy_reload_check
   failed_when: false
   changed_when: false
   when: nginx_conf.changed
 
-- name: 🔄 Fall back to a full redeploy when the reload did not take
+- name: "🔄 Redeploy: reload left {{ front_proxy_reload_check.status | default('none') }}"
   ansible.builtin.command:
     cmd: "true"
   notify: restart-openresty
   when:
     - nginx_conf.changed
     - front_proxy_reload_check.status is defined
-    - front_proxy_reload_check.status not in [200, 301, 302]
+    - front_proxy_reload_check.status not in front_proxy_status_codes
 
 - name: "🔄 Flush the fallback redeploy for '{{ front_proxy_domain }}'"
   ansible.builtin.meta: flush_handlers

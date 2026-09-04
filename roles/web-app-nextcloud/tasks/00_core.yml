@@ -1,0 +1,23 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🚦 Declare the MCP edge limits before the vhost references them"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-webserver-core/tasks/utils/mcp_edge_limits.yml') }}"
+  when: NEXTCLOUD_MCP_ENABLED | bool
+
+- name: "🎬 Stage the MCP adapter build context for {{ application_id }}"
+  include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
+  vars:
+    mcp_adapter_instance_dir: "{{ NEXTCLOUD_MCP_ADAPTER_INSTANCE_DIR }}"
+    mcp_adapter_upstream_key: true
+  when: NEXTCLOUD_MCP_ENABLED | bool
+
+- name: 🔧 Setup the full docker stack
+  include_tasks: 01_fullstack.yml
+  vars:
+    domain: "{{ NEXTCLOUD_DOMAIN }}"
+    http_port: "{{ NEXTCLOUD_PORT }}"
+
+- name: "🖥️ Nextcloud stack-host post-deploy (config, occ, plugins, admin)"
+  include_tasks: 02_manager_ops.yml
+  when: IS_STACK_HOST | bool

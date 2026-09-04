@@ -19,10 +19,18 @@
 - name: "🥾 Bootstrap the Penpot administrator's local account"
   when: IS_STACK_HOST | bool
   block:
+    - name: "🔍 Resolve the node that holds the Penpot backend and its local id"
+      when: PENPOT_NATIVE_LOGIN_ENABLED | bool
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+      vars:
+        resolve_service_key: "{{ PENPOT_BACKEND_SERVICE }}"
+        resolve_output_prefix: PENPOT_BACKEND
+        resolve_compose_cid: "{{ PENPOT_BACKEND_CONTAINER_ADDRESS }}"
+
     - name: "🥾 Bootstrap the Penpot administrator's local account (idempotent)"
       when: PENPOT_NATIVE_LOGIN_ENABLED | bool
-      ansible.builtin.shell: >
-        container exec -i {{ PENPOT_BACKEND_CONTAINER_ADDRESS }}
+      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec -i {{ PENPOT_BACKEND_LOCAL_CID | quote }}
         python3 manage.py create-profile
         -n {{ PENPOT_ADMIN_FULLNAME | quote }}
         -e {{ PENPOT_ADMIN_EMAIL | quote }}
@@ -38,10 +46,11 @@
         - penpot_admin_create.rc != 0
         - "'already exists' not in (penpot_admin_create.stdout | default('') ~ penpot_admin_create.stderr | default(''))"
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      delegate_to: "{{ PENPOT_BACKEND_HOST_NODE }}"
 
     - name: "🔧 Set the Penpot administrator's local password when the profile already exists"
-      ansible.builtin.shell: >
-        container exec -i {{ PENPOT_BACKEND_CONTAINER_ADDRESS }}
+      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec -i {{ PENPOT_BACKEND_LOCAL_CID | quote }}
         python3 manage.py update-profile
         -e {{ PENPOT_ADMIN_EMAIL | quote }}
         -p {{ PENPOT_ADMIN_PASSWORD | quote }}
@@ -51,3 +60,4 @@
       register: penpot_admin_update
       changed_when: "'Updated' in penpot_admin_update.stdout"
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      delegate_to: "{{ PENPOT_BACKEND_HOST_NODE }}"

@@ -37,6 +37,9 @@
     --fullname="{{ MOODLE_SITE_TITLE }}"
     --shortname=Academy
   register: moodle_install
+  retries: 20
+  delay: 15
+  until: moodle_install.rc != 137
   changed_when: "'Moodle has been installed' in moodle_install.stdout"
   failed_when:
     - moodle_install.rc != 0
@@ -44,6 +47,17 @@
     - "'already installed' not in moodle_install.stdout"
     - "'Database tables already present' not in moodle_install.stderr"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🌐 Open Moodle's cURL egress policy for the deployment's own networks"
+  ansible.builtin.shell: >
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
+    php {{ [MOODLE_CLI_DIR, 'cfg.php'] | path_join }}
+    --name={{ item.name | quote }}
+    --set={{ item.value | quote }}
+  loop: "{{ MOODLE_EGRESS_SETTINGS }}"
+  loop_control:
+    label: "{{ item.name }}"
+  changed_when: false
 
 - name: "📂 Include ownership settings tasks for moodle"
   include_tasks: 03_ownership.yml
@@ -55,6 +69,14 @@
 - name: "🔧 Configure auth_ldap (sync-only in variant 0, primary login in variant 1)"
   include_tasks: 05_ldap_sync.yml
   when: MOODLE_LDAP_ENABLED | bool
+
+- name: "🤖 Bind the native AI surface to the platform gateway"
+  include_tasks: utils/ai_gateway.yml
+  when: MOODLE_LITELLM_ENABLED | bool
+
+- name: "🔌 Provision the MCP server surface"
+  include_tasks: utils/mcp.yml
+  when: MOODLE_MCP_ENABLED | bool
 
 - name: "📧 Verify the relay accepts Moodle's mail"
   when: lookup('config', application_id, 'services.email.enabled', false) | bool

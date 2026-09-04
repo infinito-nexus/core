@@ -1,4 +1,5 @@
 ---
+# nocheck: config-volume-secret  Jenkins Configuration-as-Code reads one casc.yaml that carries the OIDC client secret and the seeded administrator password beside every non-secret setting; the plugin offers no split file and no secret indirection, so the credential travels in the same read-only mount.
 jenkins_data:
   type: volume
   nfs:

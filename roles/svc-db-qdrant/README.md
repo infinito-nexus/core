@@ -21,17 +21,30 @@ flowchart LR
     subgraph deps [Dependencies]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_net_tor["svc-net-tor 🐳🐝"]
+        dep_web_app_flowise["web-app-flowise 🐳🐝"]
+        dep_web_app_hermes["web-app-hermes 🐳🐝"]
+        dep_web_app_openclaw["web-app-openclaw 🐳🐝"]
+        dep_web_app_openwebui["web-app-openwebui 🐳🐝"]
     end
     subgraph role [svc-db-qdrant 🐳🐝]
         svc_qdrant["qdrant"]
+        svc_qdrantmcp["qdrantmcp"]
         svc_tor["tor"]
         svc_container_backup["container_backup"]
+        svc_openwebui["openwebui"]
+        svc_hermes["hermes"]
+        svc_openclaw["openclaw"]
+        svc_flowise["flowise"]
     end
     subgraph dependents [Dependents]
         dpt_web_app_flowise["web-app-flowise 🐳🐝"]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_net_tor -. "0..1" .-> svc_tor
+    dep_web_app_flowise -. "0..1" .-> svc_flowise
+    dep_web_app_hermes -. "0..1" .-> svc_hermes
+    dep_web_app_openclaw -. "0..1" .-> svc_openclaw
+    dep_web_app_openwebui -. "0..1" .-> svc_openwebui
     svc_qdrant -. "0..1" .-> dpt_web_app_flowise
 ```
 
@@ -69,19 +82,20 @@ Run the published image to provision the inventory and deploy Qdrant to a manage
 ```bash
 APP=svc-db-qdrant
 HOST=<your-server>
+DOMAIN=<your-domain>
 TLS_MODE=self_signed
 SSH_PUBLIC_KEY="<your-ssh-public-key>"
 
 docker run --rm -it \
   -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  -e APP="$APP" -e HOST="$HOST" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
+  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
   ghcr.io/infinito-nexus/core/debian bash -c '
     INVENTORY=/etc/infinito.nexus/inventories/production
     infinito administration inventory provision "$INVENTORY" \
       --inventory-file "$INVENTORY/devices.yml" \
       --host "$HOST" \
       --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
+      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
     infinito administration deploy dedicated "$INVENTORY/devices.yml" \
       --password-file "$INVENTORY/.password" \
       --diff -vv'

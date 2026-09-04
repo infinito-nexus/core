@@ -1,0 +1,94 @@
+---
+classification: adapter_server
+direction: server
+source_url: https://docs.gitlab.com/user/gitlab_duo/model_context_protocol/mcp_server/
+transport: streamable_http
+exposure: internal
+auth: bearer_token
+auth_subject: service_account
+implementation: adapter
+credential:
+  owner: mcp-web-app-gitlab
+  source: credentials
+  key: mcp_bearer
+adapter:
+  type: mcp_passthrough
+  specification_path: roles/web-app-gitlab/files/mcp/tools.json
+  specification_sha256: sha256:ae5ffe0f6c8eeffcc4fe7da8ad1cc978c5f49337a64e30a060b6ab7a5dfb4b24
+  upstream_path: /api/v4/mcp
+endpoint:
+  service_key: gitlabmcp
+  path: /mcp
+  port_key: http
+limits:
+  request_bytes: 65536
+  response_bytes: 1048576
+  timeout_seconds: 15
+  concurrent_requests: 4
+  page_size: 100
+  result_items: 500
+  stream_seconds: 300
+tools:
+  read_probe:
+    tool: get_mcp_server_version
+    arguments: {}
+  schema_sha256: sha256:f2a4d696104517cfa95599bdf41f4ad80fdc850aaa3d72bd5bb9e21864bfd864
+  allowlist:
+    - get_issue
+    - get_job_log
+    - get_mcp_server_version
+    - get_merge_request
+    - get_merge_request_commits
+    - get_merge_request_conflicts
+    - get_merge_request_diffs
+    - get_merge_request_pipelines
+    - get_pipeline_jobs
+    - get_saved_view_work_items
+    - get_work_item_types
+    - get_workitem_notes
+    - search
+    - search_labels
+  writer_allowlist:
+    - create_issue
+    - create_merge_request
+    - create_workitem_note
+    - get_issue
+    - get_job_log
+    - get_mcp_server_version
+    - get_merge_request
+    - get_merge_request_commits
+    - get_merge_request_conflicts
+    - get_merge_request_diffs
+    - get_merge_request_pipelines
+    - get_pipeline_jobs
+    - get_saved_view_work_items
+    - get_work_item_types
+    - get_workitem_notes
+    - link_work_items
+    - manage_pipeline
+    - search
+    - search_labels
+  upstream_serves:
+    - create_issue
+    - create_merge_request
+    - create_merge_request_note
+    - create_workitem_note
+    - get_issue
+    - get_job_log
+    - get_mcp_server_version
+    - get_merge_request
+    - get_merge_request_commits
+    - get_merge_request_conflicts
+    - get_merge_request_diffs
+    - get_merge_request_notes
+    - get_merge_request_pipelines
+    - get_pipeline_jobs
+    - get_saved_view_work_items
+    - get_work_item_types
+    - get_workitem_notes
+    - link_work_items
+    - manage_pipeline
+    - search
+    - search_labels
+  read_only_default: true
+  mutating_tools_enabled: false

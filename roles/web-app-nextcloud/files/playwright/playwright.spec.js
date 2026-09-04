@@ -24,6 +24,7 @@ require("./test-login-admin-native").register(shared);
 require("./test-login-biber-oidc").register(shared);
 require("./test-login-biber-ldap").register(shared);
 require("./test-guest-persona").register(shared);
+require("./test-mcp-guest").register(shared);
 require("./test-biber-persona").register(shared);
 require("./test-administrator-persona").register(shared);
 require("./test-seaweedfs");

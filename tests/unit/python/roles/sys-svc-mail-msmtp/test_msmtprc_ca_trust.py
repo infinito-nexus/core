@@ -29,9 +29,9 @@ EMAIL = {
     "auth_mechanism": "PLAIN",
     "start_tls": True,
     "tls": True,
-    "host": "mail.infinito.example",
+    "host": "mail.infinito.test",
     "port": 587,
-    "from": "no-reply@infinito.example",
+    "from": "no-reply@infinito.test",
     "auth": False,
 }
 

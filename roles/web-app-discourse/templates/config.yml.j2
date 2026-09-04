@@ -137,10 +137,10 @@ hooks:
         cd: $home/plugins
         cmd:
 {% for plugin_name, plugin_config in DISCOURSE_PLUGINS.items() %}
-{% if plugin_config.enabled %}
+{% if plugin_config.enabled and plugin_config.source != 'bundled' %}
           - git clone --depth=1 https://github.com/discourse/{{ plugin_name }}.git
 {% endif %}
-{% endfor %}     
+{% endfor %}
 
 {% if DISCOURSE_LDAP_ENABLED | bool %}
           - git clone --depth=1 --branch {{ DISCOURSE_LDAP_AUTH_PLUGIN_REF }} {{ DISCOURSE_LDAP_AUTH_PLUGIN_REPOSITORY }}
@@ -231,4 +231,10 @@ docker_args:
 {% if DISCOURSE_DATABASE_IS_SHARED | bool %}
   - --network={{ DISCOURSE_PG_NETWORK }}
 {% endif %}
+{% if DISCOURSE_LITELLM_ENABLED | bool %}
+  - --network={{ DISCOURSE_LITELLM_NETWORK }}
+{% endif %}
+{% for extra_host in lookup('container_extra_hosts', entries_only=True, wantlist=True) %}
+  - --add-host={{ extra_host }}
+{% endfor %}
   - --name={{ DISCOURSE_CONTAINER }}

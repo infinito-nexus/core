@@ -54,6 +54,7 @@ _RULE = "container-exec-stack-host-gate"
 _EXEC = re.compile(r"\b(?:container|docker)\s+exec\b")
 _IS_STACK_HOST = re.compile(r"\bIS_STACK_HOST\b")
 _NAME_LINE = re.compile(r"^\s*-?\s*name\s*:")
+_ROLE_PATH_TASKS = re.compile(r"^\{\{\s*role_path\s*\}\}/tasks/")
 _DEFAULT_PLACEMENT_MANAGER = re.compile(
     r"^\s*placement\s*:\s*['\"]?manager['\"]?", re.MULTILINE
 )
@@ -139,7 +140,10 @@ def _include_target_paths(task: dict, tasks_dir: Path, parent_dir: Path) -> list
     """Resolve the file path(s) an include task references. Handles the
     static form (``include_tasks: 04_admin.yml``), the dict form
     (``include_tasks: { file: 04_admin.yml, apply: ... }``) and the loop
-    form (``include_tasks: "{{ step }}" loop: [step1.yml, step2.yml]``).
+    form (``include_tasks: "{{ step }}" loop: [step1.yml, step2.yml]``) and
+    the ``{{ role_path }}/tasks/...`` form, which a file reached through
+    ``tasks_from`` must use because the relative form resolves against a
+    different base there.
 
     Ansible resolves relative includes against the including file's
     directory first, then falls back to ``<role>/tasks/``."""
@@ -158,6 +162,7 @@ def _include_target_paths(task: dict, tasks_dir: Path, parent_dir: Path) -> list
             inc = inc.get("file")
         if not isinstance(inc, str):
             continue
+        inc = _ROLE_PATH_TASKS.sub("", inc)
         if "{{" in inc and isinstance(task.get("loop"), list):
             for item in task["loop"]:
                 if isinstance(item, str) and not item.startswith("{{"):

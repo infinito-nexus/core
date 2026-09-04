@@ -1,0 +1,25 @@
+---
+- name: "✅ Assert '{{ application_id }}' carries a gateway virtual key"
+  ansible.builtin.assert:
+    that:
+      - (lookup('config', application_id, 'secrets.credentials.litellm_api_key', '') | trim) | length > 0
+    fail_msg: >-
+      {{ application_id }} enables services.litellm but its
+      credentials.litellm_api_key is empty, so its native AI surface would
+      reach the gateway unauthenticated.
+
+- name: "✅ Assert the AI base URL of '{{ application_id }}' stays inside the deployment"
+  ansible.builtin.assert:
+    that:
+      - (LITELLM_BASE_LOCAL_URL | urlsplit('scheme')) == 'http'
+      - "'.' not in (LITELLM_BASE_LOCAL_URL | urlsplit('hostname'))"
+      - (LITELLM_BASE_LOCAL_URL | urlsplit('hostname')) != lookup('domain', application_id)
+      - (LITELLM_BASE_LOCAL_URL | urlsplit('port') | int) == (lookup('config', 'svc-ai-litellm', 'services.litellm.ports.internal.http') | int)
+    fail_msg: >-
+      {{ application_id }} would send inference traffic to
+      '{{ LITELLM_BASE_LOCAL_URL }}'. Only the container-network gateway is
+      allowed: plain http, an undotted service name (the dns-search suffix
+      turns a dotted host into the public FQDN and routes it through the
+      ingress), a host that is not this role's own domain, and the gateway's
+      internal port {{ lookup('config', 'svc-ai-litellm', 'services.litellm.ports.internal.http') }}
+      rather than its published one.

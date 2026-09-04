@@ -9,12 +9,14 @@ mount it as if it were a local filesystem.
 
 ## Overview
 
-This role installs the distro-appropriate NFS kernel server, exports
-the export base from its own services.yml SPOT (`/srv/nfs`), and restricts access to
-inventory members of the `svc-swarm-node` group. The export options
-default to `rw,sync,no_subtree_check,root_squash,no_all_squash`. NFS
-server HA, Kerberos integration, and client-side mounting are out of
-scope; client mounts are handled by `svc-storage-nfs-client`.
+This role installs an NFS server in one of two flavors, the distro kernel
+server or userspace nfs-ganesha, selected per deployment. Both export the
+swarm state path to the resolved addresses of the `svc-swarm-node` group and
+to an additional CIDR allow-list; ganesha also exports the export base and
+squashes root there. Export options come from `vars/main.yml` for the kernel
+flavor and from the ganesha configuration template for ganesha. NFS server
+HA, Kerberos integration, and client-side mounting are out of scope; client
+mounts are handled by `svc-storage-nfs-client`.
 
 ## Cosmos
 
@@ -65,7 +67,7 @@ make compose-deploy mode=reinstall apps=svc-storage-nfs-server full_cycle=false
 
 ### Production
 
-Install NFS Server directly onto the target machine — clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):
+Install NFS Server directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):
 
 ```bash
 git clone https://github.com/infinito-nexus/core.git
@@ -75,6 +77,7 @@ make install
 source scripts/meta/env/load.sh
 
 APP=svc-storage-nfs-server
+DOMAIN=<your-domain>
 TLS_MODE=self_signed
 SSH_PUBLIC_KEY="<your-ssh-public-key>"
 INVENTORY=inventories/production
@@ -82,7 +85,7 @@ infinito administration inventory provision "$INVENTORY" \
   --inventory-file "$INVENTORY/devices.yml" \
   --host localhost \
   --include "$APP" \
-  --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}"
+  --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}"
 infinito administration deploy dedicated "$INVENTORY/devices.yml" \
   --password-file "$INVENTORY/.password" \
   --diff -vv

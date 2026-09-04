@@ -53,4 +53,4 @@ jenkins:
               - group: "authenticated"
 unclassified:
   location:
-    url: "{{ lookup('tls', application_id, 'url.base') }}/"
+    url: "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}/"

@@ -42,6 +42,7 @@ import os
 import re
 from typing import TYPE_CHECKING, NamedTuple
 
+from utils.github.variant import instructions
 from utils.github.variant.pools import DISTROS, FILESYSTEMS, rotate
 from utils.github.variant.tor import (
     TOR_DEPLOY_MODES,
@@ -63,7 +64,8 @@ MODES = ("compose", "swarm", "host")
 LOCAL_GLYPH = to_emoji("test_host")
 
 _AXIS_GLYPHS = (
-    "".join(to_emoji(word) for word in ("tor", "clearnet", "priority")) + LOCAL_GLYPH
+    "".join(to_emoji(word) for word in ("tor", "clearnet", "priority", "instructions"))
+    + LOCAL_GLYPH
 )
 
 
@@ -393,7 +395,7 @@ def assign(
                     else "false",
                     "disable": "" if enabled else "tor",
                     "priority": "true" if priority else "false",
-                    "weight": str(row.get("weight", 0)),
+                    "instructions": "",
                     "id": str(row.get("id", 0)),
                     "covered": str(row.get("covered_by", 0)),
                     "clone": "true" if row.get("clone") else "false",
@@ -404,7 +406,7 @@ def assign(
                     + (f" {to_emoji('priority')}" if priority else ""),
                 }
             )
-    return _one_per_deploy(entries)
+    return instructions.mark(_one_per_deploy(entries), variants_per_app)
 
 
 def _one_per_deploy(entries: list[dict[str, str]]) -> list[dict[str, str]]:

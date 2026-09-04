@@ -8,10 +8,11 @@
     -e J_DBUSER={{ lookup('database', application_id, 'username') | quote }}
     -e J_DBPASS={{ lookup('database', application_id, 'password') | quote }}
     -e J_DBNAME={{ lookup('database', application_id, 'name') | quote }}
-    {{ JOOMLA_CONTAINER_ADDRESS }} php --
+    {{ JOOMLA_LOCAL_CID | quote }} php --
   args:
     stdin: "{{ lookup('file', role_path ~ '/files/php/configure_db.php') }}"
   register: cfg_patch
   changed_when: cfg_patch.stdout == "changed"
   failed_when: cfg_patch.rc != 0
   when: joomla_installed.rc == 0
+  delegate_to: "{{ JOOMLA_HOST_NODE }}"

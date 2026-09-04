@@ -1,0 +1,8 @@
+{% set fpm = lookup('config', application_id, 'services.nextcloud.performance.php.fpm') %}
+[www]
+pm = dynamic
+pm.max_children = {{ fpm.max_children }}
+pm.start_servers = {{ fpm.start_servers }}
+pm.min_spare_servers = {{ fpm.min_spare_servers }}
+pm.max_spare_servers = {{ fpm.max_spare_servers }}
+request_terminate_timeout = {{ fpm.request_terminate_timeout }}

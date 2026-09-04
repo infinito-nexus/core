@@ -134,6 +134,21 @@ def is_suppressed_anywhere(lines: Sequence[str], rule: str) -> bool:
     return any(line_has_rule(line, rule) for line in lines)
 
 
+def is_suppressed_for_key(lines: Sequence[str], key: str, rule: str) -> bool:
+    """Whether the mapping line declaring *key* carries a marker for *rule*.
+
+    Args:
+        lines: the file's lines.
+        key: the YAML key, matched as ``<key>:`` after stripping indentation.
+        rule: the rule to look for.
+    """
+    number = next(
+        (n for n, line in enumerate(lines, 1) if line.strip().startswith(f"{key}:")),
+        None,
+    )
+    return number is not None and is_suppressed_at(lines, number, rule)
+
+
 def suppressed_line_numbers(lines: Sequence[str], rule: str) -> set[int]:
     """Return the set of 1-based line numbers carrying a marker for *rule*."""
     rule = rule.lower()

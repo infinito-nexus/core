@@ -24,10 +24,12 @@ import os
 import shutil
 import subprocess
 import sys
+import time
 
 from utils import PROJECT_ROOT
 from utils.env.runtime import mem_available_mb, mem_stall_pct, mem_total_mb
 from utils.storage.constrained import host_storage_constrained
+from utils.tests.swarm.write.extras import ensure_swarm_keypairs
 
 _SWARM_DIR = PROJECT_ROOT / "scripts" / "tests" / "deploy" / "swarm"
 _SWARM_SCRIPTS = _SWARM_DIR / "routine"
@@ -51,13 +53,40 @@ def _abort(proc: subprocess.Popen[bytes], banner: str, probe: list[str]) -> int:
 
 
 def _run(cmd: list[str], *, env: dict[str, str], label: str) -> int:
-    """Run a matrix step, aborting visibly before the runner disk or RAM fills.
+    """Announce a matrix step, run it, and report what it cost.
+
+    Args:
+        cmd: argv of the step.
+        env: environment the step runs with.
+        label: phase name for the banners.
+
+    Returns:
+        The step's exit code.
+    """
+    print(f"=== swarm-matrix: {label} ===", flush=True)
+    started = time.monotonic()
+    rc = _run_watched(cmd, env=env)
+    print(
+        f"=== swarm-matrix: {label} took {time.monotonic() - started:.0f}s (rc={rc}) ===",
+        flush=True,
+    )
+    return rc
+
+
+def _run_watched(cmd: list[str], *, env: dict[str, str]) -> int:
+    """Run a step, aborting visibly before the runner disk or RAM fills.
 
     The Actions Worker dies silently on ENOSPC while writing its own logs, so
     a full disk truncates the job without diagnostics; terminating the step at
     DISK_FLOOR_MB keeps enough room for rescue artifacts and the log upload.
+
+    Args:
+        cmd: argv of the step.
+        env: environment the step runs with.
+
+    Returns:
+        The step's exit code, or the abort code when a floor was hit.
     """
-    print(f"=== swarm-matrix: {label} ===", flush=True)
     proc = subprocess.Popen(cmd, cwd=str(PROJECT_ROOT), env=env)
     while True:
         try:
@@ -135,6 +164,35 @@ def _write_extras(*, extras_path: str) -> int:
         ["python3", "-m", "utils.tests.swarm.write.extras"],
         env=env,
         label=f"write runtime extras ({extras_path})",
+    )
+
+
+def _reset_credentials(*, inv_dir: str, round_variants: dict[str, int]) -> int:
+    """Regenerate the round's credentials so the update pass has to carry them.
+
+    `administrator` stays exempt: its password is `ansible_become_password`,
+    and rotating it would lock the deploy out of the nodes it manages.
+    """
+    return _run(
+        [
+            "python3",
+            "-m",
+            "cli.administration.inventory.credentials.reset",
+            "--inventory-dir",
+            inv_dir,
+            "--host",
+            os.environ["MGR"],
+            "--schema",
+            "--users",
+            "--app-variants",
+            json.dumps(round_variants, sort_keys=True),
+            "--mirror",
+            "--backup",
+            "--except",
+            "administrator",
+        ],
+        env=os.environ.copy(),
+        label="reset credentials (rotation gate before the async pass)",
     )
 
 
@@ -344,9 +402,13 @@ def main(argv: list[str] | None = None) -> int:
             f"(round {round_index}): {', '.join(providers)} ===",
             flush=True,
         )
+        pubkeys = ensure_swarm_keypairs()
         vars_payload = _bake_overrides(
             base_overrides={
                 "applications": backup_applications_overrides(providers),
+                "users": {
+                    name: {"authorized_keys": [key]} for name, key in pubkeys.items()
+                },
                 "STORAGE_CONSTRAINED": host_storage_constrained(
                     [app_id], round_variants, local_vantage="/"
                 ),
@@ -389,6 +451,8 @@ def main(argv: list[str] | None = None) -> int:
             rc = _backup_restore_drill(
                 app_id=app_id, inv_dir=inv_root, extras_path=extras_path
             )
+        if rc == 0:
+            rc = _reset_credentials(inv_dir=inv_root, round_variants=round_variants)
         if rc == 0:
             rc = _deploy(
                 app_id=app_id,

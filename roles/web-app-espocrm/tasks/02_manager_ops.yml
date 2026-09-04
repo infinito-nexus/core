@@ -15,6 +15,14 @@
     - compose-up
     - compose-build
 
+- name: "🚀 Deploy '{{ ESPOCRM_SCRIPT_SIDECAR_HOST_ABS }}'"
+  copy:
+    src: "shell/{{ ESPOCRM_SCRIPT_SIDECAR_FILE }}"
+    dest: "{{ ESPOCRM_SCRIPT_SIDECAR_HOST_ABS }}"
+  notify:
+    - compose-up
+    - compose-build
+
 - name: "🐳 Docker Compose Up for '{{ application_id }}'"
   meta: flush_handlers
 

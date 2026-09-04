@@ -52,6 +52,8 @@ _STAMP_TOOLS = (
     "hadolint",
     "markdownlint-cli2",
     "mbake",
+    "php",
+    "ruby",
     "ruff",
     "shellcheck",
     "shfmt",
@@ -71,6 +73,14 @@ def _install_ansible_tools() -> None:
 def _install_python_tools() -> None:
     shfmt.ensure()
     ruff.ensure()
+
+
+def _install_php_tools() -> None:
+    php.ensure()
+
+
+def _install_ruby_tools() -> None:
+    ruby.ensure()
 
 
 def _install_shellcheck_tools() -> None:
@@ -125,6 +135,8 @@ _GROUP_FN_NAMES = {
     "action": "_install_action_tools",
     "ansible": "_install_ansible_tools",
     "python": "_install_python_tools",
+    "php": "_install_php_tools",
+    "ruby": "_install_ruby_tools",
     "shellcheck": "_install_shellcheck_tools",
     "dockerfile": "_install_dockerfile_tools",
     "markdown": "_install_markdown_tools",
@@ -133,8 +145,6 @@ _GROUP_FN_NAMES = {
     "javascript": "_install_javascript_tools",
     "playwright": "_install_playwright_tools",
     "packages": "_install_packages_tools",
-    "php": "_install_php_tools",
-    "ruby": "_install_ruby_tools",
     "sql": "_install_sql_tools",
     "css": "_install_css_tools",
 }
@@ -144,6 +154,8 @@ def _install_all() -> None:
     _install_action_tools()
     _install_ansible_tools()
     _install_python_tools()
+    _install_php_tools()
+    _install_ruby_tools()
     _install_shellcheck_tools()
     _install_dockerfile_tools()
     _install_markdown_tools()

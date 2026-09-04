@@ -36,9 +36,65 @@
     prometheus:
       enabled: true
       shared: true
+    litellm:
+      enabled: false
+      shared: false
     tor:
       enabled: true
 
+    openwebui:
+      enabled: false
+      shared: false
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
+- services:
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    css:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    dashboard:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    email:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    ldap:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    logout:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    mariadb:
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    matomo:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    sso:
+      enabled: true
+      shared: true
+    prometheus:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    litellm:
+      enabled: true
+      shared: true
+    tor:
+      enabled: true
+    openwebui:
+      enabled: true
+      shared: true
+    hermes:
+      enabled: true
+      shared: true
+    openclaw:
+      enabled: true
+      shared: true
 - services:
     container_backup:
       enabled: false
@@ -70,37 +126,17 @@
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    litellm:
+      enabled: false
+      shared: false
     tor:
       enabled: true
-- services:
-    container_backup:
+    openwebui:
       enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    css:
+      shared: false
+    hermes:
       enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    dashboard:
+      shared: false
+    openclaw:
       enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    email:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    ldap:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    logout:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    mariadb:
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    matomo:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    sso:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    prometheus:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    tor:
-      enabled: true
+      shared: false

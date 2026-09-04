@@ -36,10 +36,10 @@ exports.register = function (shared) {
 
       await shared.dismissMattermostPopups(biberPage);
 
-      // /{team}/messages/@{username} auto-joins the open team and opens the DM
-      // in one step, dodging /select_team on first login.
       await biberPage.goto(`${baseUrl}/main/messages/@${shared.env.adminUsername}`);
+      await shared.dismissMattermostPopups(biberPage);
 
+      await biberPage.reload();
       await shared.dismissMattermostPopups(biberPage);
 
       const messageInput = biberPage

@@ -5,13 +5,14 @@ import subprocess
 import unittest
 import unittest.mock as mock
 from contextlib import redirect_stdout
+from typing import ClassVar
 
 from cli.administration.deploy.ci import gh, runs
 from cli.administration.deploy.ci.trigger import __main__ as trigger
 from cli.meta.ci import matrix
 from tests.utils.ci.job_names import deploy_job_name
 from tests.utils.ci.run_name import render
-from utils.github.variant.pools import DISTROS
+from utils.github.variant.pools import DISTROS, FILESYSTEMS
 
 
 def _job(mode: str, app: str, conclusion: str) -> dict:
@@ -19,6 +20,15 @@ def _job(mode: str, app: str, conclusion: str) -> dict:
         "name": deploy_job_name(mode, app, "0,1"),
         "status": "completed",
         "conclusion": conclusion,
+    }
+
+
+def _green(app: str) -> dict:
+    """The deploy job that proves the ranking row ``app#0``."""
+    return {
+        "name": deploy_job_name("docker", app, "0"),
+        "status": "completed",
+        "conclusion": "success",
     }
 
 
@@ -57,6 +67,7 @@ class TestTriggerMain(unittest.TestCase):
         argv: list[str],
         run: dict | None = None,
         inputs: dict[str, str] | None = None,
+        entries: list[dict] | None = None,
     ) -> tuple[int, list]:
         calls: list[tuple] = []
         buf = io.StringIO()
@@ -65,7 +76,7 @@ class TestTriggerMain(unittest.TestCase):
             mock.patch.object(gh, "resolve_repo", return_value="o/r"),
             mock.patch.object(runs, "find_last_deploy_run", return_value=run),
             mock.patch.object(runs, "inputs_from_jobs", return_value=inputs or {}),
-            mock.patch.object(matrix, "entries_of", return_value=[]),
+            mock.patch.object(matrix, "entries_of", return_value=entries or []),
             mock.patch.object(
                 runs,
                 "dispatch_workflow",
@@ -190,6 +201,39 @@ class TestTriggerMain(unittest.TestCase):
         self.assertEqual(rc, 0)
         self.assertEqual(calls[0], "web-app-never")
 
+    _RANKING: ClassVar[list[dict]] = [
+        {
+            "apps": f"web-app-{name}",
+            "variant": "0",
+            "mode": "compose",
+            "tor": "false",
+            "distro": DISTROS[0],
+            "filesystem": FILESYSTEMS[0],
+            "priority": "false",
+        }
+        for name in ("a", "b", "c")
+    ]
+
+    def test_the_carried_offset_is_the_floor_for_the_new_one(self) -> None:
+        """Without it the retrigger restarts at the head every time and
+        redeploys the stretch its predecessors already proved."""
+        _rc, calls = self._run(
+            ["--failed"],
+            run={"_jobs": _JOBS},
+            inputs={"offset": "web-app-b#0"},
+            entries=self._RANKING,
+        )
+        self.assertEqual(calls[0][4]["offset"], "web-app-b#0")
+
+    def test_the_green_stretch_behind_the_carried_offset_moves_it_on(self) -> None:
+        _rc, calls = self._run(
+            ["--failed"],
+            run={"_jobs": [*_JOBS, _green("web-app-b"), _green("web-app-c")]},
+            inputs={"offset": "web-app-b#0"},
+            entries=self._RANKING,
+        )
+        self.assertEqual(calls[0][4]["offset"], "web-app-c#0")
+
     def test_failed_nothing_does_not_dispatch(self) -> None:
         green = [
             _job("docker", "web-app-x", "success"),
@@ -264,6 +308,36 @@ class TestTriggerMain(unittest.TestCase):
             rc = trigger.main(["--apps", "web-app-a", "--run", _RUN_URL])
         self.assertEqual(rc, 0)
         self.assertEqual(calls[0], ("web-app-a", "", _SOURCE_CONFIG))
+
+    def test_chunk_gate_override_replaces_the_carried_value(self) -> None:
+        calls: list = []
+        with (
+            mock.patch.object(gh, "current_branch", return_value="feature/x"),
+            mock.patch.object(gh, "resolve_repo", return_value="o/r"),
+            mock.patch.object(gh, "fetch_run", return_value=_SOURCE_RUN),
+            mock.patch.object(matrix, "entries_of", return_value=[]),
+            mock.patch.object(
+                runs,
+                "dispatch_workflow",
+                side_effect=lambda wf, ref, wl="", priority="", config=None, repo=None: (
+                    calls.append(config)
+                ),
+            ),
+            redirect_stdout(io.StringIO()),
+        ):
+            rc = trigger.main(["--failed", "--run", _RUN_URL, "--chunk-gate", "true"])
+        self.assertEqual(rc, 0)
+        self.assertEqual(calls[0], {**_SOURCE_CONFIG, "chunk_gate": "true"})
+
+    def test_chunk_gate_override_without_a_source_run(self) -> None:
+        rc, calls = self._run(["--chunk-gate", "false"])
+        self.assertEqual(rc, 0)
+        self.assertEqual(calls[0][4], {"chunk_gate": "false"})
+
+    def test_chunk_gate_rejects_other_values(self) -> None:
+        with self.assertRaises(SystemExit) as ctx, redirect_stdout(io.StringIO()):
+            trigger.main(["--chunk-gate", "maybe"])
+        self.assertEqual(ctx.exception.code, 2)
 
     def test_failed_no_run_found(self) -> None:
         rc, calls = self._run(["--failed"], run=None)

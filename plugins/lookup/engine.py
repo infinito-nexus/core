@@ -47,6 +47,31 @@ _FIELDS = (
 )
 
 
+def qdrant_consumer_key(applications: dict[str, Any], svc_id: str) -> str:
+    """Return the engine-wide key a data-owning qdrant consumer presents.
+
+    Args:
+        applications: the resolved applications mapping.
+        svc_id: the qdrant service role id.
+
+    qdrant has no per-consumer principals, only two engine-wide keys, so a
+    consumer that owns data here holds the engine's own key. The read-only key
+    is deliberately never returned: it belongs to the MCP adapter, whose whole
+    read-only guarantee rests on being unable to present anything else.
+    """
+    return str(
+        get(
+            applications,
+            svc_id,
+            f"{OVERRIDE_SECTION}.api_key",
+            strict=False,
+            default="",
+            skip_missing_app=True,
+        )
+        or ""
+    ).strip()
+
+
 class LookupModule(LookupBase):
     def run(
         self,
@@ -127,6 +152,9 @@ class LookupModule(LookupBase):
                 )
                 or ""
             ).strip()
+
+        if engine == "qdrant" and shared:
+            password = qdrant_consumer_key(applications, svc_id)
 
         if engine == "rabbitmq":
             url = (

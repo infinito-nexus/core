@@ -18,7 +18,7 @@
       interval: 10s
       timeout: 5s
       retries: 12
-      start_period: 180s
+      start_period: 900s
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 

@@ -30,9 +30,7 @@ test("richdocuments addon: Collabora connector wired to the partner WOPI server"
       "the Collabora Online (richdocuments) admin settings section must render, proving the app is enabled"
     ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
-    const wopiField = page
-      .locator("#wopi_url, input[name='wopi_url'], input[id*='wopi' i]")
-      .first();
+    const wopiField = page.locator("input#wopi_url, input[name='wopi_url']").first();
     await expect(
       wopiField,
       "the Collabora server URL (WOPI) field must render in the admin panel"

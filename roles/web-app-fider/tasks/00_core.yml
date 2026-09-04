@@ -1,0 +1,27 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🔌 Stage the MCP adapter instance for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
+  vars:
+    mcp_adapter_instance_dir: "{{ FIDER_MCP_INSTANCE_DIR }}"
+  when: FIDER_MCP_ENABLED | bool
+
+- name: "🧩 load docker, db and proxy for {{ application_id }}"
+  include_role:
+    name: sys-stk-full
+  vars:
+    compose_handlers_flush: true
+
+- name: "🧱 Rebuild the MCP adapter of {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/rebuild.yml') }}"
+  when: FIDER_MCP_ENABLED | bool
+
+- name: "🚿 Flush compose handlers for {{ application_id }}"
+  ansible.builtin.meta: flush_handlers
+
+- name: "🔧 Fider | OIDC setup"
+  include_tasks: 01_setup_oidc.yml
+  when:
+    - FIDER_OIDC_ENABLED | bool
+    - IS_STACK_HOST | bool

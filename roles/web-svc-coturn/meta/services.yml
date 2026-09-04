@@ -49,7 +49,6 @@ prometheus:
   shared: "{{ 'web-app-prometheus' in group_names }}"
 
 tor:
-  bond: 0.5
   enabled: false # nocheck: dynamic-flag
   shared: false # nocheck: dynamic-flag
 # nocheck: dynamic-flag

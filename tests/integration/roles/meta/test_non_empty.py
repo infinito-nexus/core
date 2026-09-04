@@ -1,12 +1,19 @@
 import os
+import re
 import unittest
 
 import yaml
 
 from utils.cache.files import iter_project_files
 from utils.cache.yaml import load_yaml_any
+from utils.roles.applications.topics import CONFIG_TOPICS
+from utils.roles.mapping import ROLE_FILE_META_VARIANTS
 
 from . import PROJECT_ROOT
+
+_CLEARED_TOPIC = re.compile(
+    rf"^\[\d+\]\.services\.[^.]+\.(?:{'|'.join(sorted(CONFIG_TOPICS))})$"
+)
 
 
 def find_none_values(data, prefix=None):
@@ -56,8 +63,11 @@ class TestConfigurationNoNone(unittest.TestCase):
                 data = load_yaml_any(filepath)
             except yaml.YAMLError as e:
                 self.fail(f"Failed to parse YAML in {filepath}: {e}")
+            is_variants = filepath.endswith(ROLE_FILE_META_VARIANTS)
             errors = find_none_values(data)
             for path, _value in errors:
+                if is_variants and _CLEARED_TOPIC.match(path):
+                    continue
                 all_errors.append(f"{filepath}: Key '{path}' is None")
 
         if all_errors:

@@ -1,0 +1,6 @@
+---
+# Matrix-deploy variant overrides for this role. The adapter has one variant:
+# it is the primary entity of its own role, so a deployment either runs it or
+# does not include the role at all.
+
+- services: {}

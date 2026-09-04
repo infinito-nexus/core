@@ -1,0 +1,37 @@
+---
+- name: "🧱 Rebuild the MCP adapter of {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/rebuild.yml') }}"
+
+- name: "🚿 Flush compose handlers for {{ application_id }}"
+  ansible.builtin.meta: flush_handlers
+
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "pretix"
+    resolve_output_prefix: PRETIX_IDENTITY
+    resolve_compose_cid: "{{ PRETIX_CONTAINER }}"
+
+- name: "🔑 Converge the read-only Pretix team token the MCP adapter presents"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - "MCP_TEAM={{ PRETIX_MCP_UPSTREAM_TEAM }}"
+      - -e
+      - "MCP_TOKEN={{ PRETIX_MCP_UPSTREAM_KEY }}"
+      - "{{ PRETIX_IDENTITY_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - pretix
+      - shell_scoped
+      - --override
+    stdin: "{{ lookup('file', 'python/provision_mcp_identity.py') }}"
+  register: pretix_mcp_identity
+  retries: 30
+  delay: 10
+  until: pretix_mcp_identity.rc == 0
+  changed_when: pretix_mcp_identity.stdout_lines[-1] | default('') == 'CHANGED'
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ PRETIX_IDENTITY_HOST_NODE }}"
+  run_once: true

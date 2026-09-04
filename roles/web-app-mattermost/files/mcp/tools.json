@@ -1,0 +1,300 @@
+{
+  "get_channel_info": {
+    "description": "Get channel info.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "channel_id": {
+          "description": "The exact channel ID (fastest, most reliable method),maxLength=26",
+          "type": "string"
+        },
+        "channel_name": {
+          "description": "Channel name to search for \u2014 matches against both display name and URL name (case-insensitive, supports partial matches),maxLength=64",
+          "type": "string"
+        },
+        "team_id": {
+          "description": "Team ID (optional - if provided, searches within specific team; if omitted, searches across all teams),maxLength=26",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_channel_members": {
+    "description": "Get channel members.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "channel_id": {
+          "description": "ID of the channel to get members for,minLength=26,maxLength=26",
+          "type": "string"
+        },
+        "exclude_bots": {
+          "description": "Exclude bot accounts from results (default: true)",
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "limit": {
+          "description": "Number of members to return (default: 50, max: 200),minimum=1,maximum=200",
+          "type": "integer"
+        },
+        "page": {
+          "description": "Page number for pagination (default: 0),minimum=0",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "channel_id"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_team_info": {
+    "description": "Get team info.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "team_id": {
+          "description": "The exact team ID (fastest, most reliable method),maxLength=26",
+          "type": "string"
+        },
+        "team_name": {
+          "description": "Team name to search for \u2014 matches against both display name and URL name (case-insensitive, supports partial matches)",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_team_members": {
+    "description": "Get team members.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "exclude_bots": {
+          "description": "Exclude bot accounts from results (default: true)",
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "limit": {
+          "description": "Number of members to return (default: 50, max: 200),minimum=1,maximum=200",
+          "type": "integer"
+        },
+        "page": {
+          "description": "Page number for pagination (default: 0),minimum=0",
+          "type": "integer"
+        },
+        "team_id": {
+          "description": "ID of the team to get members for,minLength=26,maxLength=26",
+          "type": "string"
+        }
+      },
+      "required": [
+        "team_id"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_user_channels": {
+    "description": "Get user channels.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "page": {
+          "description": "Page number for pagination (default: 0),minimum=0",
+          "type": "integer"
+        },
+        "per_page": {
+          "description": "Number of channels per page (default: 60, max: 200),minimum=1,maximum=200",
+          "type": "integer"
+        },
+        "team_id": {
+          "description": "Optional team ID to filter channels by team,maxLength=26",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "list_agents": {
+    "description": "List agents.",
+    "input_schema": {
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "read_channel": {
+    "description": "Read channel.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "after": {
+          "description": "Return the page of posts immediately after this post ID (history pagination). Mutually exclusive with before/since.,maxLength=26",
+          "type": "string"
+        },
+        "before": {
+          "description": "Return the page of posts immediately before this post ID (history pagination). Mutually exclusive with after/since.,maxLength=26",
+          "type": "string"
+        },
+        "channel_id": {
+          "description": "The ID of the channel to read from,minLength=26,maxLength=26",
+          "type": "string"
+        },
+        "limit": {
+          "description": "Number of posts to retrieve (default: 20, max: 100),minimum=1,maximum=100",
+          "type": "integer"
+        },
+        "page": {
+          "description": "Page number for pagination (default: 0),minimum=0",
+          "type": "integer"
+        },
+        "since": {
+          "description": "Only get posts since this timestamp (ISO 8601 format),format=date-time",
+          "type": "string"
+        }
+      },
+      "required": [
+        "channel_id"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "read_file": {
+    "description": "Read file.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "file_id": {
+          "description": "The ID of the file to read; use the File ID shown in the attached-file metadata,minLength=26,maxLength=26",
+          "type": "string"
+        },
+        "limit": {
+          "description": "Maximum number of characters to return (default 6000, capped at 20000).",
+          "type": "integer"
+        },
+        "offset": {
+          "description": "Character offset to start reading from (default 0). Pass the next offset reported by a previous call to page through a large file.",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "file_id"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "read_post": {
+    "description": "Read post.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "include_thread": {
+          "description": "Whether to include the entire thread (default: true). Set false to fetch only the single post.",
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "post_id": {
+          "description": "The ID of the post to read,minLength=26,maxLength=26",
+          "type": "string"
+        }
+      },
+      "required": [
+        "post_id"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "search_posts": {
+    "description": "Search posts.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "after": {
+          "description": "Optional date YYYY-MM-DD \u2014 only posts after this date (keyword search only)",
+          "type": "string"
+        },
+        "before": {
+          "description": "Optional date YYYY-MM-DD \u2014 only posts before this date (keyword search only)",
+          "type": "string"
+        },
+        "channel_id": {
+          "description": "Optional channel ID to limit search to a specific channel,minLength=26,maxLength=26",
+          "type": "string"
+        },
+        "from": {
+          "description": "Optional username \u2014 only posts from this user (keyword search only),maxLength=64",
+          "type": "string"
+        },
+        "in": {
+          "description": "Optional channel name or ID \u2014 only posts in this channel (keyword search only),maxLength=64",
+          "type": "string"
+        },
+        "keyword_limit": {
+          "description": "Max results from keyword search (default 10; max 100),minimum=1,maximum=100",
+          "type": "integer"
+        },
+        "keyword_offset": {
+          "description": "Offset for keyword search pagination,minimum=0",
+          "type": "integer"
+        },
+        "query": {
+          "description": "The search query,minLength=1,maxLength=4000",
+          "type": "string"
+        },
+        "semantic_limit": {
+          "description": "Max results from semantic search (default 10; max 50),minimum=1,maximum=50",
+          "type": "integer"
+        },
+        "semantic_offset": {
+          "description": "Offset for semantic search pagination,minimum=0",
+          "type": "integer"
+        },
+        "team_id": {
+          "description": "Optional team ID to limit search scope,minLength=26,maxLength=26",
+          "type": "string"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "search_users": {
+    "description": "Search users.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "limit": {
+          "description": "Maximum number of results to return (default: 20, max: 100),minimum=1,maximum=100",
+          "type": "integer"
+        },
+        "term": {
+          "description": "Search term (username, email, first name, or last name),minLength=1,maxLength=64",
+          "type": "string"
+        }
+      },
+      "required": [
+        "term"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  }
+}

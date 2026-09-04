@@ -1,0 +1,97 @@
+---
+# nocheck: playwright-service-flag
+hermes:
+  mcp_consumer: true
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: single-replica the agent keeps its kanban board in one embedded SQLite file on the shared volume, and its runtime turns WAL off on a network filesystem because the shared-memory index WAL coordinates writers through is per-host and not coherent between nodes
+  replicas: 1
+  bond: 1
+  enabled: true
+  shared: true
+  backup:
+    no_stop_required: true
+  image: nousresearch/hermes-agent
+  version: "v2026.7.20"
+  name: hermes
+  min_storage: 1146MB
+  cpus: "2.0"
+  mem_reservation: 2g
+  mem_limit: 4g
+  pids_limit: 2048
+  ports:
+    local:
+      http: 8092
+      sso: 16512
+    internal:
+      http: 8642
+  lifecycle: beta
+  proxy:
+    service_key: hermes
+
+# nocheck: playwright-service-flag, dynamic-flag
+kata:
+  bond: 1
+  enabled: true
+  shared: true
+
+sso:
+  bond: 1
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
+  flavor: oauth2
+  oauth2:
+    origin:
+      host: hermes
+      port: 8642
+    acl:
+      whitelist:
+        - /v1/
+        - /health
+    allowed_groups:
+      - "{{ lookup('rbac_group_path', application_id='web-app-hermes', role='administrator') }}"
+      - "{{ lookup('rbac_group_path', application_id='web-app-hermes', role='mcp') }}"
+
+# nocheck: logout, dynamic-flag, playwright-service-flag
+logout:
+  enabled: false
+  shared: false
+
+# nocheck: playwright-service-flag
+litellm:
+  bond: 1
+  enabled: "{{ ('svc-ai-litellm' in group_names) and (LITELLM_CHAT_MODEL_SERVED | bool) }}"
+  shared: "{{ 'svc-ai-litellm' in group_names }}"
+
+dashboard:
+  bond: 1
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
+matomo:
+  bond: 1
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
+css:
+  bond: 1
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
+prometheus:
+  bond: 1
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
+
+# nocheck: playwright-service-flag
+# nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
+tor:
+  bond: 0.5
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: true # nocheck: dynamic-flag
+
+# nocheck: playwright-service-flag, dynamic-flag
+container_backup: # nocheck: bond-baseline
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

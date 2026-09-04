@@ -82,6 +82,8 @@ class TestDistrosSpot(unittest.TestCase):
             for path in sorted(PROJECT_ROOT.glob(f"**/{pattern}")):
                 if {".git", ".claude", "node_modules"} & set(path.parts):
                     continue
+                if not path.is_file():
+                    continue
                 if path.resolve() == this_file:
                     continue
                 rel = path.relative_to(PROJECT_ROOT).as_posix()

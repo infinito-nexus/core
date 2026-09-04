@@ -51,18 +51,27 @@
     name: dnsmasq
     enabled: true
     state: "{{ 'restarted' if (_tor_dnsmasq_conf is changed or _tor_dnsmasq_confdir is changed) else 'started' }}"
-- name: "🔀 Egress router | Point the host resolver at dnsmasq (127.0.0.1)"
-  ansible.builtin.copy:
-    dest: /etc/resolv.conf
-    content: |
-      nameserver 127.0.0.1
-      nameserver {{ networks.internet.dns }}
-      options ndots:1
-    owner: root
-    group: root
-    mode: "0644"
-    unsafe_writes: true
+- name: "🔀 Egress router | Route host name resolution through dnsmasq"
   when: TOR_DNSMASQ_OWNS_LISTENER | bool
+  block:
+    - name: "🔀 Egress router | Point the host resolver at dnsmasq (127.0.0.1)"
+      ansible.builtin.copy:
+        dest: /etc/resolv.conf
+        content: |
+          nameserver 127.0.0.1
+          nameserver {{ networks.internet.dns }}
+          options ndots:1
+        owner: root
+        group: root
+        mode: "0644"
+        unsafe_writes: true
+    - name: "🔀 Egress router | Let a name systemd-resolved refuses reach dnsmasq"
+      become: true
+      ansible.builtin.lineinfile:
+        path: /etc/nsswitch.conf
+        regexp: "^(hosts:.*\\bresolve)\\s*\\[!UNAVAIL=return\\](.*)$"
+        line: "\\1 [SUCCESS=return NOTFOUND=continue TRYAGAIN=return]\\2"
+        backrefs: true
 - name: "🔀 Egress router | Redirect .onion virtual-IP TCP to Tor TransPort"
   ansible.builtin.iptables:
     table: nat

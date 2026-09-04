@@ -33,6 +33,9 @@
     matomo:
       enabled: true
       shared: true
+    litellm:
+      enabled: true
+      shared: true
     sso:
       enabled: true
       shared: true
@@ -41,6 +44,12 @@
       shared: true
     tor:
       enabled: true
+    hermes:
+      enabled: true
+      shared: true
+    openclaw:
+      enabled: true
+      shared: true
 - services:
     container_backup:
       enabled: false
@@ -68,6 +77,9 @@
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    litellm:
+      enabled: false
+      shared: false
     sso:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -76,6 +88,12 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
   addons:
     activitypub:
       enabled: false

@@ -15,6 +15,8 @@ from typing import Any
 
 from utils.cache.applications import get_variant_overrides_only
 
+from .nested_overrides import apply_topic, collect_provider_overrides
+
 
 def _resolve_variant_payloads(
     *,
@@ -32,6 +34,10 @@ def _resolve_variant_payloads(
 
     Apps without `meta/variants.yml` collapse to a single empty
     override `{}`. Out-of-range indices clamp to 0.
+
+    A config topic a variant declares under a service it depends on is
+    finally moved onto that service's provider, so the role pulling a
+    dependency in is what decides how lean the dependency runs.
     """
     overrides_per_app = get_variant_overrides_only(roles_dir=roles_dir)
     resolved: dict[str, Any] = {}
@@ -43,6 +49,16 @@ def _resolve_variant_payloads(
         if not 0 <= index < len(variant_list):
             index = 0
         resolved[app_id] = variant_list[index]
+    for provider, topics in collect_provider_overrides(
+        resolved, roles_dir=roles_dir
+    ).items():
+        if provider not in resolved:
+            continue
+        payload = resolved[provider]
+        payload = dict(payload) if isinstance(payload, Mapping) else {}
+        for topic, value in topics.items():
+            payload[topic] = apply_topic(payload.get(topic), value)
+        resolved[provider] = payload
     return resolved
 
 

@@ -1,0 +1,11 @@
+---
+- name: "📄 Render the OpenClaw gateway config from the current discovery"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "openclaw.json.j2"
+        dest: "{{ OPENCLAW_CONFIG_PATH_HOST }}"
+
+- name: "🔄 Start the stack so the gateway reads the config"
+  ansible.builtin.meta: flush_handlers

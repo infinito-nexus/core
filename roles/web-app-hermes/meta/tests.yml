@@ -1,0 +1,4 @@
+---
+cli:
+  timeout: 600
+  container_service_key: hermes

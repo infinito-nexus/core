@@ -59,6 +59,7 @@ def _construct_vault_tag(loader, node):
 
 
 yaml.SafeLoader.add_constructor("!vault", _construct_vault_tag)
+_Loader.add_constructor("!vault", _construct_vault_tag)
 
 _MISSING = object()
 _CACHE: dict[tuple[str, int, int], list[Any]] = {}

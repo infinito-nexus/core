@@ -1,0 +1,21 @@
+---
+- name: "🔍 Resolve the mountpoint of '{{ KIX_CONFIG_VOLUME }}'"
+  ansible.builtin.command: "container volume inspect --format {% raw %}'{{.Mountpoint}}'{% endraw %} {{ KIX_CONFIG_VOLUME | quote }}"
+  register: kix_config_mountpoint
+  changed_when: false
+  failed_when: false
+  delegate_to: "{{ item }}"
+  loop: "{{ (groups['svc-swarm-node'] | default([])) or [inventory_hostname] }}"
+
+- name: "🧹 Drop the dangling '*' link the entrypoint cannot recreate over"
+  ansible.builtin.file:
+    path: "{{ [ mount.stdout | trim, '*' ] | path_join }}"
+    state: absent
+  when:
+    - mount.rc == 0
+    - (mount.stdout | trim) | length > 0
+  delegate_to: "{{ mount.item }}"
+  loop: "{{ kix_config_mountpoint.results }}"
+  loop_control:
+    loop_var: mount
+    label: "{{ mount.item }}"

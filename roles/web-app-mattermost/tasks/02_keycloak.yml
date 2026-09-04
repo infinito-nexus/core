@@ -1,5 +1,5 @@
 ---
-# @see https://docs.mattermost.com/deployment/sso-gitlab.html
+# @see https://docs.mattermost.com/administration-guide/onboard/sso-gitlab.html
 
 - name: "🔍 Resolve keycloak hosting node + container id"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"

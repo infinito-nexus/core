@@ -1,0 +1,26 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🧩 load docker and db for {{ application_id }}"
+  include_role:
+    name: sys-stk-full
+
+- name: "📁 Pre-create the shared MCP overlay network (idempotent)"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/create.yml') }}"
+  vars:
+    network_role_id: "{{ application_id }}"
+
+- name: "📄 Render the Home Assistant configuration (reverse-proxy trust)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "configuration.yaml.j2"
+        dest: "{{ HOMEASSISTANT_CONFIG_PATH_HOST }}"
+
+- name: "🔄 Start the hub before talking to its API"
+  meta: flush_handlers
+
+- name: "🔌 Provision the MCP server surface"
+  ansible.builtin.include_tasks: utils/mcp.yml
+  when: HOMEASSISTANT_MCP_ENABLED | bool

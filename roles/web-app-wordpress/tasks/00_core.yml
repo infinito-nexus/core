@@ -1,0 +1,45 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🚦 Declare the MCP edge limits before the vhost references them"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-webserver-core/tasks/utils/mcp_edge_limits.yml') }}"
+  when: WORDPRESS_MCP_ENABLED | bool
+
+- name: "📂 Include role sys-stk-front-proxy for {{ application_id }}"
+  include_role:
+    name: sys-stk-front-proxy
+  loop: "{{ WORDPRESS_DOMAINS }}"
+  loop_control:
+    loop_var: domain
+  vars:
+    webserver_extra_configuration: "client_max_body_size {{ WORDPRESS_MAX_UPLOAD_SIZE }};"
+    http_port: "{{ lookup('config', application_id, 'services.wordpress.ports.local.http') }}"
+
+- name: "🧩 load docker and db for {{ application_id }}"
+  include_role:
+    name: sys-stk-backend
+  vars:
+    compose_handlers_flush: false
+
+- name: "⬆️ Transfering upload.ini to {{ WORDPRESS_CONFIG_UPLD_ABS }}"
+  stack_host_template:
+    src: upload.ini.j2
+    dest: "{{ WORDPRESS_CONFIG_UPLD_ABS }}"
+  notify:
+    - compose-up
+    - compose-build
+
+- name: "📧 Transfering msmtprc to {{ WORDPRESS_MSMTP_ABS }}"
+  stack_host_template:
+    src: "{{ WORDPRESS_MSMTP_SRC }}"
+    dest: "{{ WORDPRESS_MSMTP_ABS }}"
+  vars:
+    sys_svc_mail_msmtp_in_container: true
+  notify: compose-up
+
+- name: 🚿 Flush handlers to make {{ WORDPRESS_CONFIG_FILE }} available before patch
+  meta: flush_handlers
+
+- name: "🖥️ WordPress stack-host post-deploy (container exec, plugin install, domain ops)"
+  include_tasks: 07_manager_ops.yml
+  when: IS_STACK_HOST | bool

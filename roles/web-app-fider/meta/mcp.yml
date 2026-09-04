@@ -1,0 +1,41 @@
+---
+classification: adapter_server
+direction: server
+source_url: https://s.infinito.nexus/code
+transport: streamable_http
+exposure: internal
+auth: bearer_token
+auth_subject: service_account
+implementation: adapter
+credential:
+  owner: mcp-web-app-fider
+  source: credentials
+  key: mcp_bearer
+endpoint:
+  service_key: fidermcp
+  path: /mcp
+  port_key: http
+adapter:
+  type: openapi_allowlist
+  upstream_api_version: v1
+  specification_path: roles/web-app-fider/files/mcp/tools.json
+  specification_sha256: sha256:65ba7083806eea3171c0c64db8df7459b7e5a9be539bd3fbffbde173cfc05133
+limits:
+  request_bytes: 65536
+  response_bytes: 1048576
+  timeout_seconds: 15
+  concurrent_requests: 4
+  page_size: 100
+  result_items: 100
+  stream_seconds: 300
+tools:
+  read_probe:
+    tool: fider_list_tags
+    arguments: {}
+  allowlist:
+    - fider_get_suggestion
+    - fider_list_tags
+    - fider_search_suggestions
+  schema_sha256: sha256:50c9683dcad2b66b3a1c07b87fb553bdf5543103cfccb75522374362528fb524
+  read_only_default: true
+  mutating_tools_enabled: false

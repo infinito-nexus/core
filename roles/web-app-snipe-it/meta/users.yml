@@ -1,0 +1,6 @@
+---
+mcp-web-app-snipe-it:
+  firstname: Infinito
+  lastname: MCP
+  accounts: []
+  description: Account the Snipe-IT MCP personal access token is minted for; it carries the read permissions the adapter needs

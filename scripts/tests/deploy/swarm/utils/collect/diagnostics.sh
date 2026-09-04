@@ -79,6 +79,9 @@ dexec "${NFS_SERVER}" ls -la "${INFINITO_SWARM_NFS_EXPORT_BASE:?}"
 dexec "${NFS_SERVER}" ls -la "${INFINITO_SWARM_NFS_STATE_PATH:?}"
 dexec "${NFS_SERVER}" systemctl --no-pager --full status nfs-server nfs-ganesha 2>&1 | head -60
 
+sep "nfs-volume-contents" "nfs-server: one level inside every state volume, numeric owner and mode"
+dexec "${NFS_SERVER}" sh -c "find '${INFINITO_SWARM_NFS_STATE_PATH:?}' -maxdepth 2 -printf '%M %U:%G %10s %p\n' 2>&1 | head -400"
+
 sep "nfs-boundary" "nfs-server: kernel nfsd mount boundary + v4 pseudo-root"
 dexec "${NFS_SERVER}" findmnt -R "${INFINITO_SWARM_NFS_EXPORT_BASE:?}" 2>&1
 dexec "${NFS_SERVER}" mountpoint "${INFINITO_SWARM_NFS_STATE_PATH:?}" 2>&1

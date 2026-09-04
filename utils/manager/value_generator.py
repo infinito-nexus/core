@@ -76,6 +76,7 @@ class ValueGenerator:
         • "strong_password"
         • "bcrypt"
         • "alphanumeric"
+        • "sk_prefixed"
         • "base64_prefixed_32"
         • "vapid_private"
         • "vapid_public"
@@ -105,6 +106,8 @@ class ValueGenerator:
             )
         if algorithm == "alphanumeric":
             return self.generate_secure_alphanumeric(64)
+        if algorithm == "sk_prefixed":
+            return "sk-" + self.generate_secure_alphanumeric(48)
         if algorithm == "base64_prefixed_32":
             return "base64:" + base64.b64encode(secrets.token_bytes(32)).decode()
         if algorithm == "vapid_private":

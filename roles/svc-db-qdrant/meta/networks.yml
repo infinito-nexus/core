@@ -5,5 +5,5 @@ overlay:
   modes: [compose, swarm]
   topology: shared_net
   consumer:
-    kind: services_flags
+    kind: [services_flags, mcp_client]
     key: qdrant

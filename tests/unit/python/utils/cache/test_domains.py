@@ -18,6 +18,7 @@ from unittest.mock import patch
 
 from utils.cache import _reset_cache_for_tests
 from utils.cache import domains as cache_domains
+from utils.cache.base import _RENDER_GUARD
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_USERS
 
 from . import PROJECT_ROOT
@@ -64,7 +65,7 @@ class TestMissingPrimaryDomain(unittest.TestCase):
                 return_value={},
             ):
                 result = cache_domains.get_merged_domains(
-                    variables={"SYSTEM_EMAIL_DOMAIN": "infinito.example"},
+                    variables={"SYSTEM_EMAIL_DOMAIN": "infinito.test"},
                     roles_dir=roles,
                     templar=None,
                 )
@@ -83,12 +84,12 @@ class TestCachingPerVariablesSignature(unittest.TestCase):
                 return_value={},
             ) as mocked:
                 first = cache_domains.get_merged_domains(
-                    variables={"DOMAIN_PRIMARY": "infinito.example"},
+                    variables={"DOMAIN_PRIMARY": "infinito.test"},
                     roles_dir=roles,
                     templar=None,
                 )
                 second = cache_domains.get_merged_domains(
-                    variables={"DOMAIN_PRIMARY": "infinito.example"},
+                    variables={"DOMAIN_PRIMARY": "infinito.test"},
                     roles_dir=roles,
                     templar=None,
                 )
@@ -114,6 +115,37 @@ class TestCachingPerVariablesSignature(unittest.TestCase):
                 )
             self.assertEqual(mocked.call_count, 2)
 
+    def test_a_map_built_during_the_render_never_becomes_the_finished_one(self):
+        """Under the guard the applications view is still unrendered, so its
+        map must not answer a later read; it may still serve the render."""
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_role(Path(tmp))
+            variables = {"DOMAIN_PRIMARY": "infinito.test"}
+            with patch(
+                "utils.cache.applications.get_merged_applications",
+                return_value={},
+            ) as mocked:
+                _RENDER_GUARD.applications = True
+                try:
+                    cache_domains.get_merged_domains(
+                        variables=variables, roles_dir=roles, templar=None
+                    )
+                    cache_domains.get_merged_domains(
+                        variables=variables, roles_dir=roles, templar=None
+                    )
+                    self.assertEqual(mocked.call_count, 1)
+                finally:
+                    _RENDER_GUARD.applications = False
+                cache_domains.get_merged_domains(
+                    variables=variables, roles_dir=roles, templar=None
+                )
+                self.assertEqual(mocked.call_count, 2)
+            self.assertEqual(len(cache_domains._MERGED_DOMAINS_CACHE), 2)
+            self.assertEqual(
+                sorted(key[-1] for key in cache_domains._MERGED_DOMAINS_CACHE),
+                [False, True],
+            )
+
 
 class TestResetClearsDomainsCache(unittest.TestCase):
     def test_reset_evicts_cached_entry(self):
@@ -125,7 +157,7 @@ class TestResetClearsDomainsCache(unittest.TestCase):
                 return_value={},
             ):
                 cache_domains.get_merged_domains(
-                    variables={"DOMAIN_PRIMARY": "infinito.example"},
+                    variables={"DOMAIN_PRIMARY": "infinito.test"},
                     roles_dir=roles,
                     templar=None,
                 )
@@ -195,38 +227,38 @@ class TestOnionDomainInjection(unittest.TestCase):
         }
 
     def test_dual_stack_appends_onion(self):
-        merged = {"web-app-x": ["x.infinito.example"]}
+        merged = {"web-app-x": ["x.infinito.test"]}
         out = cache_domains._inject_onion_domains(
-            merged, self._apps(), "infinito.example", self.ONION
+            merged, self._apps(), "infinito.test", self.ONION
         )
-        self.assertEqual(out["web-app-x"], ["x.infinito.example", f"x.{self.ONION}"])
+        self.assertEqual(out["web-app-x"], ["x.infinito.test", f"x.{self.ONION}"])
 
     def test_exclusive_replaces_clearnet(self):
-        merged = {"web-app-x": ["x.infinito.example"]}
+        merged = {"web-app-x": ["x.infinito.test"]}
         out = cache_domains._inject_onion_domains(
-            merged, self._apps(exclusive=True), "infinito.example", self.ONION
+            merged, self._apps(exclusive=True), "infinito.test", self.ONION
         )
         self.assertEqual(out["web-app-x"], [f"x.{self.ONION}"])
 
     def test_primary_puts_onion_first(self):
-        merged = {"web-app-x": ["x.infinito.example"]}
+        merged = {"web-app-x": ["x.infinito.test"]}
         out = cache_domains._inject_onion_domains(
-            merged, self._apps(primary=True), "infinito.example", self.ONION
+            merged, self._apps(primary=True), "infinito.test", self.ONION
         )
-        self.assertEqual(out["web-app-x"], [f"x.{self.ONION}", "x.infinito.example"])
+        self.assertEqual(out["web-app-x"], [f"x.{self.ONION}", "x.infinito.test"])
 
     def test_disabled_app_untouched(self):
-        merged = {"web-app-x": ["x.infinito.example"]}
+        merged = {"web-app-x": ["x.infinito.test"]}
         apps = {"web-app-x": {"services": {"tor": {"enabled": False}}}}
         out = cache_domains._inject_onion_domains(
-            merged, apps, "infinito.example", self.ONION
+            merged, apps, "infinito.test", self.ONION
         )
-        self.assertEqual(out["web-app-x"], ["x.infinito.example"])
+        self.assertEqual(out["web-app-x"], ["x.infinito.test"])
 
     def test_exclusive_primary_default_from_provider(self):
         """A consumer that omits exclusive/primary inherits the svc-net-tor
         provider defaults (exclusive: true -> onion only)."""
-        merged = {"web-app-x": ["x.infinito.example"]}
+        merged = {"web-app-x": ["x.infinito.test"]}
         apps = {
             "web-app-x": {"services": {"tor": {"enabled": True, "shared": True}}},
             "svc-net-tor": {
@@ -241,14 +273,14 @@ class TestOnionDomainInjection(unittest.TestCase):
             },
         }
         out = cache_domains._inject_onion_domains(
-            merged, apps, "infinito.example", self.ONION
+            merged, apps, "infinito.test", self.ONION
         )
         self.assertEqual(out["web-app-x"], [f"x.{self.ONION}"])
 
     def test_consumer_override_beats_provider_default(self):
         """A consumer that pins exclusive: false overrides the provider's
         exclusive: true and stays dual-stack."""
-        merged = {"web-app-x": ["x.infinito.example"]}
+        merged = {"web-app-x": ["x.infinito.test"]}
         apps = {
             "web-app-x": {
                 "services": {
@@ -267,14 +299,14 @@ class TestOnionDomainInjection(unittest.TestCase):
             },
         }
         out = cache_domains._inject_onion_domains(
-            merged, apps, "infinito.example", self.ONION
+            merged, apps, "infinito.test", self.ONION
         )
-        self.assertEqual(out["web-app-x"], ["x.infinito.example", f"x.{self.ONION}"])
+        self.assertEqual(out["web-app-x"], ["x.infinito.test", f"x.{self.ONION}"])
 
     def test_consumer_exclusive_false_inherits_provider_primary_dual(self):
         """A consumer pinning only exclusive: false inherits the provider's
         primary: true and stays dual-stack, onion-first."""
-        merged = {"web-app-x": ["x.infinito.example"]}
+        merged = {"web-app-x": ["x.infinito.test"]}
         apps = {
             "web-app-x": {
                 "services": {
@@ -293,16 +325,16 @@ class TestOnionDomainInjection(unittest.TestCase):
             },
         }
         out = cache_domains._inject_onion_domains(
-            merged, apps, "infinito.example", self.ONION
+            merged, apps, "infinito.test", self.ONION
         )
-        self.assertEqual(out["web-app-x"], [f"x.{self.ONION}", "x.infinito.example"])
+        self.assertEqual(out["web-app-x"], [f"x.{self.ONION}", "x.infinito.test"])
 
     def test_bare_primary_domain_maps_to_node_onion(self):
-        merged = {"web-app-x": ["infinito.example"]}
+        merged = {"web-app-x": ["infinito.test"]}
         out = cache_domains._inject_onion_domains(
-            merged, self._apps(), "infinito.example", self.ONION
+            merged, self._apps(), "infinito.test", self.ONION
         )
-        self.assertEqual(out["web-app-x"], ["infinito.example", self.ONION])
+        self.assertEqual(out["web-app-x"], ["infinito.test", self.ONION])
 
 
 if __name__ == "__main__":

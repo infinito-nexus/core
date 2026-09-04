@@ -18,9 +18,10 @@ overrides, including ``remote-2-local.backup_providers`` (derived per round
 from ``utils.tests.swarm.backup_repos``), are baked by the matrix
 orchestrator into the provisioner's host_vars merge (INFINITO_VARS_PAYLOAD),
 NOT into the extras file: extra-vars replace the whole inventory
-``applications`` dict and would strip every generated credential. The
-deploy-facing twin ``<OUT_PATH stem>.deploy.yml`` therefore carries
-everything except ``applications``.
+``applications`` dict and would strip every generated credential. ``users``
+carries the same hazard for the same reason, and its authorized_keys travel
+the same merge channel. The deploy-facing twin ``<OUT_PATH stem>.deploy.yml``
+therefore carries everything except ``applications`` and ``users``.
 """
 
 from __future__ import annotations
@@ -104,29 +105,45 @@ def _ensure_keypair(key_path: Path) -> str:
     return pub.strip()
 
 
+def ensure_swarm_keypairs() -> dict[str, str]:
+    """Create the swarm-test keypairs if they are absent and return the public keys.
+
+    Returns:
+        Public key per user name, for ``administrator`` and ``backup``.
+
+    The matrix orchestrator needs these before it provisions, so that the
+    authorized_keys reach host_vars through the merging ``--vars`` channel
+    rather than through the replacing extra-vars file.
+    """
+    static_env = parse_static_env(PROJECT_ROOT / "default.env")
+    admin_key = Path(os.environ.get("KEY_PATH", "/tmp/swarm-nfs-admin.key"))  # noqa: S108 - ephemeral swarm-test path, overridable via KEY_PATH
+    backup_key = Path(
+        os.environ.get("INFINITO_SWARM_BACKUP_KEY")
+        or static_env["INFINITO_SWARM_BACKUP_KEY"]
+    )
+    return {
+        "administrator": _ensure_keypair(admin_key),
+        "backup": _ensure_keypair(backup_key),
+    }
+
+
 def main() -> int:
     nfs_ip = os.environ["NFS_IP"]
     mgr_ip = os.environ["MGR_IP"]
     mgr = os.environ["MGR"]
     out_path = Path(os.environ.get("OUT_PATH", "/tmp/swarm-nfs-extras.yml"))  # noqa: S108 - ephemeral swarm-test path, overridable via OUT_PATH
-    key_path = Path(os.environ.get("KEY_PATH", "/tmp/swarm-nfs-admin.key"))  # noqa: S108 - ephemeral swarm-test path, overridable via KEY_PATH
 
-    admin_pubkey = _ensure_keypair(key_path)
+    pubkeys = ensure_swarm_keypairs()
 
     static_env = parse_static_env(PROJECT_ROOT / "default.env")
 
     default_users = copy.deepcopy(load_yaml(str(_DEFAULT_INVENTORY)).get("users", {}))
     admin = dict(default_users.get("administrator", {}))
-    admin["authorized_keys"] = [admin_pubkey]
+    admin["authorized_keys"] = [pubkeys["administrator"]]
     default_users["administrator"] = admin
 
-    backup_key_path = Path(
-        os.environ.get("INFINITO_SWARM_BACKUP_KEY")
-        or static_env["INFINITO_SWARM_BACKUP_KEY"]
-    )
-    backup_pubkey = _ensure_keypair(backup_key_path)
     backup = dict(default_users.get("backup", {"accounts": ["host"]}))
-    backup["authorized_keys"] = [backup_pubkey]
+    backup["authorized_keys"] = [pubkeys["backup"]]
     default_users["backup"] = backup
 
     extras = {
@@ -150,7 +167,9 @@ def main() -> int:
     }
 
     dump_yaml(str(out_path), extras)
-    deploy_extras = {k: v for k, v in extras.items() if k != "applications"}
+    deploy_extras = {
+        k: v for k, v in extras.items() if k not in ("applications", "users")
+    }
     deploy_path = out_path.with_suffix(".deploy.yml")
     dump_yaml(str(deploy_path), deploy_extras)
     print(out_path.read_text())  # nocheck: cache-read — re-reads the file just written

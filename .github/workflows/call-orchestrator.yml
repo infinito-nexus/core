@@ -72,11 +72,6 @@ on:
         required: false
         type: string
         default: "rotate"
-      instructions:
-        description: "Run the instructions test (role README Production command). 'auto' runs it on a global scope only, 'true'/'false' force it."
-        required: false
-        type: string
-        default: "auto"
       tor:
         description: "Tor axis of the deploy matrix: 'auto' rotates the onion over the tor-capable rows, 'enforced' onions all of them, 'exclusive' also drops the rows that cannot, 'disabled' onions none."
         required: false
@@ -235,13 +230,15 @@ jobs:
           && needs.images-mirror-missing.result == 'success'
           && needs.test-dns.result == 'success'
           && (!inputs.chunk_gate
-              || contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-1.result)) }}
+              || (contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-0.result)
+                  && contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-1.result))) }}
     needs:
       - lint
       - test
       - build-ci-images
       - images-mirror-missing
       - test-dns
+      - test-deploy-chunk-0
       - test-deploy-chunk-1
     uses: ./.github/workflows/call-test-deploy.yml
     with:
@@ -283,19 +280,6 @@ jobs:
       - test
     secrets: inherit
 
-  test-instructions:
-    if: ${{ inputs.instructions == 'true' || (inputs.instructions == 'auto' && (inputs.whitelist == '' || inputs.whitelist == '__ALL__')) }}
-    uses: ./.github/workflows/call-test-instructions.yml
-    needs:
-      - images-mirror-missing
-      - build-ci-images
-      - lint
-      - test
-      - validate-selection
-    with:
-      distros: "arch debian ubuntu fedora centos"
-    secrets: inherit
-
   report-main-failures:
     name: 🐞 Report main role failures
     needs:
@@ -329,7 +313,6 @@ jobs:
       - test-deploy-chunk-2
       - test-runner-smoke
       - test-workspace
-      - test-instructions
       - test
       - lint
       - security-codeql

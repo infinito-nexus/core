@@ -1,6 +1,7 @@
 import importlib.util
 import unittest
 from pathlib import Path
+from typing import ClassVar
 
 current_dir = str(Path(__file__).parent)
 filter_plugin_path = str(
@@ -171,6 +172,93 @@ class TestBuildRealmRbacGroupsTenant(unittest.TestCase):
         self.assertNotIn(
             "roles/web-app-wordpress/blog.example/network-administrator", groups
         )
+
+
+class TestApplicationScopedRoles(unittest.TestCase):
+    """``mcp`` is granted per application, never by the unscoped role list."""
+
+    APPLICATIONS: ClassVar[dict] = {
+        "web-app-baserow": {"rbac": {"roles": {"mcp": {"description": "MCP"}}}},
+        "web-app-zammad": {"rbac": {"roles": {"mcp": {"description": "MCP"}}}},
+    }
+
+    def _groups(self, users):
+        return _by_path(build_realm_rbac_groups(self.APPLICATIONS, users, "roles"))
+
+    def test_one_of_many_grants_only_the_named_application(self):
+        groups = self._groups(
+            {
+                "alice": {
+                    "roles": [],
+                    "password": "pw",
+                    "application_roles": {"web-app-baserow": ["mcp"]},
+                }
+            }
+        )
+        self.assertEqual(groups["roles/web-app-baserow/mcp"], ["alice"])
+        self.assertEqual(groups["roles/web-app-zammad/mcp"], [])
+
+    def test_several_applications_can_be_granted_independently(self):
+        groups = self._groups(
+            {
+                "alice": {
+                    "roles": [],
+                    "password": "pw",
+                    "application_roles": {
+                        "web-app-baserow": ["mcp"],
+                        "web-app-zammad": ["mcp"],
+                    },
+                }
+            }
+        )
+        self.assertEqual(groups["roles/web-app-baserow/mcp"], ["alice"])
+        self.assertEqual(groups["roles/web-app-zammad/mcp"], ["alice"])
+
+    def test_no_membership_grants_nothing(self):
+        groups = self._groups({"biber": {"roles": [], "password": "pw"}})
+        self.assertEqual(groups["roles/web-app-baserow/mcp"], [])
+        self.assertEqual(groups["roles/web-app-zammad/mcp"], [])
+
+    def test_wrong_application_grants_nothing_here(self):
+        groups = self._groups(
+            {
+                "alice": {
+                    "roles": [],
+                    "password": "pw",
+                    "application_roles": {"web-app-nextcloud": ["mcp"]},
+                }
+            }
+        )
+        self.assertEqual(groups["roles/web-app-baserow/mcp"], [])
+        self.assertEqual(groups["roles/web-app-zammad/mcp"], [])
+
+    def test_unscoped_mcp_role_grants_no_application(self):
+        groups = self._groups({"alice": {"roles": ["mcp"], "password": "pw"}})
+        self.assertEqual(groups["roles/web-app-baserow/mcp"], [])
+        self.assertEqual(groups["roles/web-app-zammad/mcp"], [])
+
+    def test_removing_the_last_grant_empties_every_group(self):
+        granted = {
+            "alice": {
+                "roles": [],
+                "password": "pw",
+                "application_roles": {"web-app-baserow": ["mcp"]},
+            }
+        }
+        self.assertEqual(self._groups(granted)["roles/web-app-baserow/mcp"], ["alice"])
+        revoked = {"alice": {"roles": [], "password": "pw", "application_roles": {}}}
+        self.assertEqual(self._groups(revoked)["roles/web-app-baserow/mcp"], [])
+
+    def test_unscoped_roles_other_than_mcp_are_untouched(self):
+        applications = {"web-app-baserow": {"rbac": {"roles": {"editor": {}}}}}
+        groups = _by_path(
+            build_realm_rbac_groups(
+                applications,
+                {"alice": {"roles": ["editor"], "password": "pw"}},
+                "roles",
+            )
+        )
+        self.assertEqual(groups["roles/web-app-baserow/editor"], ["alice"])
 
 
 if __name__ == "__main__":

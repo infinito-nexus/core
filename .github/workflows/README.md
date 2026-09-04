@@ -47,15 +47,12 @@ flowchart TB
         instmake["test-install-make.yml"]
         instpkgmgr["test-install-pkgmgr.yml"]
         mirror --> devenv["test-workspace: test-workspace.yml"]
-        buildci --> testguide["test-instructions.yml"]
-        mirror --> testguide
 
         chain --> donegate["done"]
         smoke --> donegate
         instmake --> donegate
         instpkgmgr --> donegate
         devenv --> donegate
-        testguide --> donegate
     end
 
     chunk0 --> deploy["call-test-deploy.yml"]
@@ -258,7 +255,10 @@ failed chunk:
 `skipped` counts as passed, so an empty chunk never blocks the chain. After
 fixing what broke a sweep, `resume_from_chunk` re-enters at that index instead
 of re-running the green chunks. Both are inputs on `entry-manual-steer.yml`;
-the other entry points take the defaults.
+the other entry points take the defaults. A retrigger carries the source run's
+`chunk_gate` over unless `infinito administration deploy ci trigger
+--chunk-gate false` overrides it; the `i8ciallon` alias is `i8ciall` with that
+override, for sweeps that should report every chunk before anyone looks.
 
 ## Cancellation
 
@@ -294,7 +294,6 @@ flowchart TB
     relhighest -.->|"gh workflow run"| relver["release-version.yml"]
     relver --> imgbuildci["images-build-ci.yml"]
     manual["workflow_dispatch"] --> mirrorcleanup["images-mirror-cleanup.yml"]
-    manual --> deploywf["test-instructions.yml: run a role README Production command"]
 ```
 
 Also manually dispatchable: `cron-images-mirror-all.yml`, `cron-images-cleanup-ci.yml`,

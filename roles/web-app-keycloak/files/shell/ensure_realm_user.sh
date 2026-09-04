@@ -18,6 +18,7 @@ set -euo pipefail
 #   KEYCLOAK_FIRSTNAME
 #   KEYCLOAK_LASTNAME
 #   KEYCLOAK_USER_ENABLED   true|false (default: true)
+#   KEYCLOAK_UIDNUMBER      posix uid, mirrored into the uidNumber attribute
 ###############################################################################
 
 : "${KEYCLOAK_EXEC_CONTAINER:?missing KEYCLOAK_EXEC_CONTAINER}"
@@ -30,6 +31,7 @@ KEYCLOAK_EMAIL="${KEYCLOAK_EMAIL:-}"
 KEYCLOAK_FIRSTNAME="${KEYCLOAK_FIRSTNAME:-}"
 KEYCLOAK_LASTNAME="${KEYCLOAK_LASTNAME:-}"
 KEYCLOAK_USER_ENABLED="${KEYCLOAK_USER_ENABLED:-true}"
+KEYCLOAK_UIDNUMBER="${KEYCLOAK_UIDNUMBER:-}"
 
 # shellcheck disable=SC2016 # Inner $vars are intentionally expanded by the container shell, not the host.
 ${KEYCLOAK_EXEC_CONTAINER} sh -lc '
@@ -43,6 +45,7 @@ ${KEYCLOAK_EXEC_CONTAINER} sh -lc '
   LASTNAME="$6"
   ENABLED="$7"
   KCADM="$8"
+  UIDNUMBER="$9"
 
   RAW="$($KCADM get users -r "$REALM" -q username="$USERNAME" --fields id --format csv --noquotes 2>&1 || true)"
   USER_ID="$(printf "%s\n" "$RAW" \
@@ -76,6 +79,10 @@ ${KEYCLOAK_EXEC_CONTAINER} sh -lc '
     -s "firstName=$FIRSTNAME" \
     -s "lastName=$LASTNAME"
 
+  if [ -n "$UIDNUMBER" ]; then
+    $KCADM update users/$USER_ID -r "$REALM" -s "attributes.uidNumber=$UIDNUMBER"
+  fi
+
   $KCADM set-password -r "$REALM" \
     --username "$USERNAME" \
     --new-password "$PASSWORD"
@@ -93,4 +100,5 @@ ${KEYCLOAK_EXEC_CONTAINER} sh -lc '
   "${KEYCLOAK_FIRSTNAME}" \
   "${KEYCLOAK_LASTNAME}" \
   "${KEYCLOAK_USER_ENABLED}" \
-  "${KEYCLOAK_KCADM}"
+  "${KEYCLOAK_KCADM}" \
+  "${KEYCLOAK_UIDNUMBER}"

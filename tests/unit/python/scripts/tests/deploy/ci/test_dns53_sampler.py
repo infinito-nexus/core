@@ -11,6 +11,7 @@ from __future__ import annotations
 import subprocess
 import tempfile
 import unittest
+from pathlib import Path
 
 from utils.cache.files import PROJECT_ROOT
 
@@ -106,12 +107,39 @@ class ZoneProbeNameTests(unittest.TestCase):
 
     def test_the_owned_zone_becomes_a_probe_name(self):
         self.assertEqual(
-            self._zone("no-resolv\naddress=/infinito.example/192.168.244.10\n"),
-            "rescue-probe.infinito.example",
+            self._zone("no-resolv\naddress=/infinito.test/192.168.244.10\n"),
+            "rescue-probe.infinito.test",
         )
 
     def test_a_config_without_a_zone_yields_nothing(self):
         self.assertEqual(self._zone("no-resolv\nserver=192.0.2.1\n"), "")
+
+    def test_a_zone_declared_in_a_drop_in_is_found(self):
+        """svc-net-tor writes the onion zone to /etc/dnsmasq.d/tor-onion.conf
+        and leaves only a conf-dir pointer in the main file, so a probe that
+        reads the main file alone reports no zone on every Tor host."""
+        with tempfile.TemporaryDirectory() as tmp:
+            drop_in_dir = Path(tmp) / "dnsmasq.d"
+            drop_in_dir.mkdir()
+            (drop_in_dir / "tor-onion.conf").write_text(
+                "address=/abc123.onion/127.0.0.1\n", encoding="utf-8"
+            )
+            main = Path(tmp) / "dnsmasq.conf"
+            main.write_text(f"conf-dir={drop_in_dir},*.conf\n", encoding="utf-8")
+            proc = subprocess.run(
+                [
+                    "sh",
+                    "-c",
+                    'DNS53_SAMPLER_LIB=1 . "$1" && zone_probe_name "$2"',
+                    "sh",
+                    str(SAMPLER),
+                    str(main),
+                ],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+        self.assertEqual(proc.stdout, "rescue-probe.abc123.onion")
 
 
 if __name__ == "__main__":

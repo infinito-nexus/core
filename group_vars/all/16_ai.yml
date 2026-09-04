@@ -2,3 +2,29 @@
 # URL of Local Ollama Container
 OLLAMA_BASE_LOCAL_URL: "http://{{ lookup('config','svc-ai-ollama', 'services.ollama.name') }}:{{ lookup('config','svc-ai-ollama', 'services.ollama.ports.internal.http')
   }}"
+
+LITELLM_BASE_LOCAL_URL: "http://{{ lookup('config','svc-ai-litellm', 'services.litellm.name') }}:{{ lookup('config','svc-ai-litellm', 'services.litellm.ports.internal.http')
+  }}"
+
+LMSTUDIO_BASE_LOCAL_URL: "http://{{ lookup('config','svc-ai-lmstudio', 'services.lmstudio.name') }}:{{ lookup('config','svc-ai-lmstudio', 'services.lmstudio.ports.internal.http')
+  }}"
+
+LITELLM_OPENAI_BASE_LOCAL_URL: "{{ LITELLM_BASE_LOCAL_URL }}/v1"
+
+LITELLM_BACKEND_ROLES: "{{ lookup('deployment').groups }}"
+
+LITELLM_CHAT_MODEL: "{{ (lookup('config', 'svc-ai-ollama', 'services.ollama.preload_models') | reject('search', 'embed') | list | first) if 'svc-ai-ollama' in LITELLM_BACKEND_ROLES
+  else ('lmstudio/default' if 'svc-ai-lmstudio' in LITELLM_BACKEND_ROLES else ('openrouter/auto' if ((OPENROUTER_API_KEY | string) | length > 0) else '')) }}"
+
+LITELLM_CHAT_MODEL_SERVED: >-
+  {{ (('svc-ai-ollama' in LITELLM_BACKEND_ROLES)
+      and ((lookup('config', 'svc-ai-ollama', 'services.ollama.preload_models')
+            | reject('search', 'embed') | list) | length > 0))
+     or ('svc-ai-lmstudio' in LITELLM_BACKEND_ROLES)
+     or ((OPENROUTER_API_KEY | string) | length > 0) }}
+
+OPENROUTER_API_KEY: ""
+
+MCP_DISCOVERY: "{{ lookup('mcp_servers') }}"
+MCP_DISCOVERED_SERVERS: "{{ MCP_DISCOVERY.selected }}"
+MCP_RECONCILE_STRICT: false

@@ -45,6 +45,11 @@ class TestValueGenerator(unittest.TestCase):
         v = self.vg.generate_value("sha1")
         self.assertTrue(re.fullmatch(r"[0-9a-f]{40}", v))
 
+    def test_generate_value_sk_prefixed(self):
+        v = self.vg.generate_value("sk_prefixed")
+        self.assertTrue(v.startswith("sk-"))
+        self.assertTrue(re.fullmatch(r"[A-Za-z0-9]{48}", v.split("sk-", 1)[1]))
+
     def test_generate_value_base64_prefixed_32(self):
         v = self.vg.generate_value("base64_prefixed_32")
         self.assertTrue(v.startswith("base64:"))

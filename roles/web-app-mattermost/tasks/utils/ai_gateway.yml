@@ -1,0 +1,114 @@
+---
+- name: "🔐 Verify the gateway contract for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
+
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: MATTERMOST_AI
+    resolve_compose_cid: "{{ MATTERMOST_CONTAINER_ADDRESS }}"
+    resolve_converge_retries: 120
+    resolve_converge_delay: 5
+
+- name: "🧩 Mattermost | Activate the prepackaged Agents plugin"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/agents/enable.yml"
+  vars:
+    mattermost_agents_cid: "{{ MATTERMOST_AI_LOCAL_CID }}"
+    mattermost_agents_node: "{{ MATTERMOST_AI_HOST_NODE }}"
+
+- name: "🔎 Mattermost | Compare the stored Agents config to the contract"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/select/ai/service.sql"
+    named_args:
+      service: "{{ MATTERMOST_LITELLM_SERVICE | to_json }}"
+      bot: "{{ MATTERMOST_LITELLM_BOT | to_json }}"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: mattermost_ai_state
+  retries: 60
+  delay: 5
+  until: mattermost_ai_state.rows | default([]) | length > 0
+  changed_when: false
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
+- name: "🤖 Mattermost | Point the Agents bot at the platform gateway"
+  when: (mattermost_ai_state.rows[0][0] | trim) != 'converged'
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/update/ai/service.sql"
+    named_args:
+      service: "{{ MATTERMOST_LITELLM_SERVICE | to_json }}"
+      bot: "{{ MATTERMOST_LITELLM_BOT | to_json }}"
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  changed_when: true
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
+- name: "🤖 Mattermost | Retarget the migrated agent row at the gateway"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/update/ai/agent.sql"
+    named_args:
+      bot: "{{ MATTERMOST_LITELLM_BOT | to_json }}"
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  changed_when: true
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
+- name: "🔁 Mattermost | Cycle the Agents plugin so it adopts the merged config"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/agents/reload.yml"
+  vars:
+    mattermost_agents_cid: "{{ MATTERMOST_AI_LOCAL_CID }}"
+    mattermost_agents_node: "{{ MATTERMOST_AI_HOST_NODE }}"
+
+- name: "🔎 Mattermost | Re-read the stored Agents service and bot"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/select/ai/service.sql"
+    named_args:
+      service: "{{ MATTERMOST_LITELLM_SERVICE | to_json }}"
+      bot: "{{ MATTERMOST_LITELLM_BOT | to_json }}"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: mattermost_ai_state_final
+  changed_when: false
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
+- name: "🛑 Refuse an Agents configuration that does not match the gateway contract"
+  ansible.builtin.assert:
+    that:
+      - (mattermost_ai_state_final.rows[0][0] | trim) == 'converged'
+    fail_msg: >-
+      The Agents plugin still stores a service or bot that differs from the
+      deployed gateway contract ({{ MATTERMOST_LITELLM_BASE_URL }},
+      model {{ LITELLM_CHAT_MODEL }}), so prompts would leave the deployment,
+      use a model the gateway does not serve, or carry a stale virtual key.
+
+- name: "🔎 Mattermost | Wait for the Agents plugin to provision its bot account"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/select/ai/bot-user.sql"
+    named_args:
+      bot_name: "{{ MATTERMOST_LITELLM_BOT_NAME }}"
+    expect_rows: true
+  register: mattermost_ai_bot_final
+  retries: 60
+  delay: 5
+  until: (mattermost_ai_bot_final.rows[0][0] | int) > 0
+  changed_when: false
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
+- name: "🛑 Refuse an Agents integration whose bot account was never created"
+  ansible.builtin.assert:
+    that:
+      - (mattermost_ai_bot_final.rows[0][0] | int) > 0
+    fail_msg: >-
+      The Agents plugin never created the '{{ MATTERMOST_LITELLM_BOT_NAME }}'
+      bot account, so no Mattermost surface can address the gateway. The merged
+      config row alone does not provision the account; only the plugin's
+      EnsureBots run on activation does.

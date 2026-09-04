@@ -11,7 +11,58 @@
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
+      {% if GITEA_MCP_ENABLED | bool %}
+      {{ GITEA_MCP_UPSTREAM_NETWORK }}:
+      {% endif %}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
+
+  {% if GITEA_MCP_ENABLED | bool %}
+  {% set service_name = GITEA_MCP_SIDECAR_SERVICE_KEY %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'giteamcpupstream') }}
+    {{ lookup('compose_only', 'container_name', GITEA_MCP_SIDECAR_CONTAINER) }}
+    command: {{ GITEA_MCP_COMMAND | to_json }}
+    environment:
+      GITEA_HOST: "{{ GITEA_MCP_UPSTREAM_URL }}"
+      GITEA_SCOPES: "{{ GITEA_MCP_TOOL_SCOPES }}"
+      GITEA_READONLY: "true"
+    networks: # nocheck: networks-literal  the sidecar authenticates nobody, so it joins the private upstream net and nothing else
+      {{ GITEA_MCP_UPSTREAM_NETWORK }}:
+    {{ lookup('depends_on', {'gitea': 'service_healthy'}) }}
+
+  {% set service_name = GITEA_MCP_SERVICE_KEY %}
+  {% set docker_compose_env = [GITEA_MCP_INSTANCE_DIR, 'upstream.env'] | path_join %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'giteamcp') }}
+    build:
+      context: {{ GITEA_MCP_INSTANCE_DIR }}
+      dockerfile: Dockerfile
+      args:
+        MCP_ADAPTER_BASE_IMAGE: {{ lookup('config', application_id, 'services.giteamcp.image') }}
+        MCP_ADAPTER_BASE_VERSION: "{{ lookup('config', application_id, 'services.giteamcp.version') }}"
+    {{ lookup('compose_only', 'container_name', GITEA_MCP_CONTAINER) }}
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      ADAPTER_CONTRACT: {{ GITEA_MCP_CONTRACT | to_json | to_json | replace('$', '$$') }}
+      ADAPTER_BEARER: {{ GITEA_MCP_BEARER | to_json }}
+      ADAPTER_PORT: "{{ GITEA_MCP_PORT }}"
+    expose:
+      - "{{ GITEA_MCP_PORT }}"
+    {{ lookup('container_healthcheck', 'giteamcp') | indent(4) }}
+    {{ lookup('container_networks', own_network_only=True, provider_self_alias=False) | indent(4) }}
+      {{ GITEA_MCP_UPSTREAM_NETWORK }}:
+  {% endif %}
 
 {{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}
+  {% if GITEA_MCP_ENABLED | bool %}
+  {{ GITEA_MCP_UPSTREAM_NETWORK }}:
+    driver: {{ 'overlay' if DEPLOYMENT_MODE == 'swarm' else 'bridge' }}
+    internal: true
+  {% endif %}

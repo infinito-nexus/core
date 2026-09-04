@@ -96,23 +96,37 @@ Run the published image to provision the inventory and deploy EspoCRM to a manag
 ```bash
 APP=web-app-espocrm
 HOST=<your-server>
+DOMAIN=<your-domain>
 TLS_MODE=self_signed
 SSH_PUBLIC_KEY="<your-ssh-public-key>"
 
 docker run --rm -it \
   -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  -e APP="$APP" -e HOST="$HOST" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
+  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
   ghcr.io/infinito-nexus/core/debian bash -c '
     INVENTORY=/etc/infinito.nexus/inventories/production
     infinito administration inventory provision "$INVENTORY" \
       --inventory-file "$INVENTORY/devices.yml" \
       --host "$HOST" \
       --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
+      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
     infinito administration deploy dedicated "$INVENTORY/devices.yml" \
       --password-file "$INVENTORY/.password" \
       --diff -vv'
 ```
+
+## AI Assistance
+
+This role deploys no AI surface and declares no `litellm` service, because EspoCRM's open-source distribution does not ship one. At the pinned version `10.0.4`, `application/Espo/Modules` contains only `Crm`, `application/Espo/Resources/metadata/app/config.json` declares no AI key, and the release ZIP the image is built from leaves `custom/Espo/Modules` empty. The AI features (Summary, Intelligent Paste, AI Email Composer, AI formula functions) live exclusively in the commercial [Intelligence extension](https://www.espocrm.com/extensions/intelligence/), which is closed source, requires a purchased license, and is published in no `espocrm` GitHub repository. Bumping the version does not change this: the extension is documented as requiring EspoCRM 10.0.3 or greater, so newer cores stay hosts for it rather than absorbing it.
+
+To connect EspoCRM to the platform gateway once a license is available:
+
+1. Obtain the extension ZIP and make it reachable from the stack host at deploy time.
+2. Install it inside the container with `bin/command extension --file="path/to/package.zip"`, or through Administration > Extensions, and confirm it with `bin/command extension --list`.
+3. Create the AI model entry under Administration > Intelligence panel > Settings, selecting the `Custom OpenAI-compatible` provider, and enter the API credentials under Administration > Integrations.
+4. Use `LITELLM_OPENAI_BASE_LOCAL_URL` as the base URL, `LITELLM_CHAT_MODEL` as the model name, and the role's own virtual key from `lookup('config', application_id, 'credentials.litellm_api_key')` as the API key. Re-add that credential to `meta/secrets.yml` and the `litellm` service to `meta/services.yml` in the same change, so the gateway mints the key only once a consumer presents it.
+
+The field names on the provider record are only discoverable by unpacking the purchased artifact, so step 3 has to be measured against the extension actually installed rather than assumed from this note.
 
 ## Further Resources
 

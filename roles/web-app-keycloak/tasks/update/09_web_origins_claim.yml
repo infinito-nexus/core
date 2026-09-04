@@ -1,0 +1,38 @@
+---
+- name: ⬇️ Get all client scopes for the web-origins reconcile
+  shell: "{{ KEYCLOAK_EXEC_KCADM }} get client-scopes -r {{ KEYCLOAK_REALM }} --format json"
+  register: kc_web_origins_scopes
+  changed_when: false
+
+- name: 📤 Extract the allowed-origins mapper of the web-origins scope
+  set_fact:
+    kc_web_origins_mapper: >-
+      {{ (
+           kc_web_origins_scopes.stdout | kcadm_json
+           | selectattr('name', 'equalto', 'web-origins')
+           | map(attribute='protocolMappers') | select('defined') | list | first | default([])
+           | selectattr('protocolMapper', 'equalto', 'oidc-allowed-origins-mapper')
+           | list | first | default({})
+         ) }}
+
+- name: 📤 Extract the web-origins scope id
+  set_fact:
+    kc_web_origins_scope_id: >-
+      {{ (
+           kc_web_origins_scopes.stdout | kcadm_json
+           | selectattr('name', 'equalto', 'web-origins')
+           | list | first | default({})
+         ).id | default('') }}
+
+- name: "🚫 Keep the allowed-origins claim out of the access token"
+  shell: >
+    {{ KEYCLOAK_EXEC_KCADM }} update
+    client-scopes/{{ kc_web_origins_scope_id }}/protocol-mappers/models/{{ kc_web_origins_mapper.id }}
+    -r {{ KEYCLOAK_REALM }}
+    -s 'config."access.token.claim"=false'
+  register: kc_web_origins_claim
+  changed_when: kc_web_origins_claim.rc == 0
+  when:
+    - kc_web_origins_scope_id | length > 0
+    - kc_web_origins_mapper.id is defined
+    - (kc_web_origins_mapper.config | default({}))['access.token.claim'] | default('true') | string | lower != 'false'

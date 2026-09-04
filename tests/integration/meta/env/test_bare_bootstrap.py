@@ -58,11 +58,11 @@ class TestBareBootstrap(unittest.TestCase):
         return result.stdout.strip()
 
     def test_generator_runs_without_third_party_modules(self) -> None:
-        self.assertTrue(int(self._run({})) > 0)
+        self.assertGreater(int(self._run({})), 0)
 
     def test_generator_runs_on_the_github_actions_branch(self) -> None:
         overlay = {"GITHUB_ACTIONS": "true", "GITHUB_REPOSITORY_OWNER": "acme"}
-        self.assertTrue(int(self._run(overlay)) > 0)
+        self.assertGreater(int(self._run(overlay)), 0)
 
 
 if __name__ == "__main__":

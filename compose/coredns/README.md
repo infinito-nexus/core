@@ -7,10 +7,10 @@ The sidecar resolves the dev/CI stack's internal hostnames so the `infinito` run
 
 - This directory MUST contain only files consumed by the `coredns` compose service.
 - The `Corefile.tmpl` MUST be the source of truth.
-  It is rendered to `Corefile` by [coredns.py](../../cli/administration/deploy/development/coredns.py) via `envsubst`, using values from `.env` (generated from [default.env](../../default.env), overridable through the CLI's environment).
+  It is rendered to `Corefile` by [coredns.py](../../cli/administration/deploy/development/coredns.py), which substitutes its `${VAR}` placeholders in-process, using values from `.env` (generated from [default.env](../../default.env), overridable through the CLI's environment).
 - The rendered `Corefile` is build artefact and MUST stay in `.gitignore`.
 
 ## Files 📄
 
-- `Corefile.tmpl`: `envsubst` template processed at stack start.
+- `Corefile.tmpl`: `${VAR}` template processed at stack start.
 - `Corefile`: rendered output, bind-mounted read-only into the `coredns` container at `/Corefile`.

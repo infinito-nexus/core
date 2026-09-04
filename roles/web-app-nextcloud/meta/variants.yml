@@ -36,6 +36,9 @@
     dashboard:
       enabled: true
       shared: true
+    context_agent:
+      enabled: true
+      shared: true
     matomo:
       enabled: true
       shared: true
@@ -91,7 +94,7 @@
     openwebui:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    flowise:
+    litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     mastodon:
@@ -102,14 +105,20 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
 # Variant 1: minimal - SSO off, no partners
 - services:
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     sso:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      enabled: true
+      shared: true
     coturn:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -122,6 +131,9 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    context_agent:
+      enabled: true
+      shared: true
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -177,9 +189,9 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     openwebui:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    flowise:
+      enabled: true
+      shared: true
+    litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     mastodon:
@@ -190,6 +202,12 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    hermes:
+      enabled: true
+      shared: true
+    openclaw:
+      enabled: true
+      shared: true
   addons: &addons_static_off
     appointments:
       enabled: false
@@ -255,6 +273,9 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    context_agent:
+      enabled: false
+      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -312,7 +333,7 @@
     openwebui:
       enabled: true
       shared: true
-    flowise:
+    litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     mastodon:
@@ -323,6 +344,12 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
   addons: *addons_static_off
 # Variant 3: openproject
 - services:
@@ -344,6 +371,9 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    context_agent:
+      enabled: false
+      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -401,7 +431,7 @@
     openwebui:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    flowise:
+    litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     mastodon:
@@ -412,6 +442,12 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
   addons: *addons_static_off
 # Variant 4: onlyoffice + mastodon
 - services:
@@ -433,6 +469,9 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    context_agent:
+      enabled: false
+      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -490,7 +529,7 @@
     openwebui:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    flowise:
+    litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     mastodon:
@@ -501,6 +540,12 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
   addons: *addons_static_off
 # Variant 5: zammad
 - services:
@@ -522,6 +567,9 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    context_agent:
+      enabled: false
+      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -579,7 +627,7 @@
     openwebui:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    flowise:
+    litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     mastodon:
@@ -590,6 +638,12 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
   addons: *addons_static_off
 # Variant 6: gitlab
 - services:
@@ -611,6 +665,9 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    context_agent:
+      enabled: false
+      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -668,7 +725,7 @@
     openwebui:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    flowise:
+    litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     mastodon:
@@ -679,6 +736,12 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
   addons: *addons_static_off
 # Variant 7: discourse
 - services:
@@ -700,6 +763,9 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    context_agent:
+      enabled: false
+      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -757,9 +823,9 @@
     openwebui:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    flowise:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+    litellm:
+      enabled: true
+      shared: true
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -768,6 +834,12 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
   addons: *addons_static_off
 # Variant 8: peertube - clearnet, because the OIDC plugin rejects a plaintext onion issuer
 - services:
@@ -789,6 +861,9 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    context_agent:
+      enabled: false
+      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -846,7 +921,7 @@
     openwebui:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    flowise:
+    litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     mastodon:
@@ -857,6 +932,12 @@
       shared: true
     tor:
       enabled: false
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
   addons: *addons_static_off
 # Variant 9: xwiki
 - services:
@@ -878,6 +959,9 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    context_agent:
+      enabled: false
+      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -935,7 +1019,7 @@
     openwebui:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    flowise:
+    litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     mastodon:
@@ -946,6 +1030,12 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
   addons: *addons_static_off
 # Variant 10: mattermost
 - services:
@@ -967,6 +1057,9 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    context_agent:
+      enabled: false
+      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -1024,7 +1117,7 @@
     openwebui:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    flowise:
+    litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     mastodon:
@@ -1035,6 +1128,12 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
   addons: *addons_static_off
 # Variant 11: bigbluebutton
 - services:
@@ -1056,6 +1155,9 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    context_agent:
+      enabled: false
+      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -1113,7 +1215,7 @@
     openwebui:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    flowise:
+    litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     mastodon:
@@ -1124,6 +1226,12 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
   addons: *addons_static_off
 # Variant 12: matrix
 - services:
@@ -1145,6 +1253,9 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    context_agent:
+      enabled: false
+      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -1202,7 +1313,7 @@
     openwebui:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    flowise:
+    litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     mastodon:
@@ -1213,8 +1324,14 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
   addons: *addons_static_off
-# Variant 13: flowise
+# Variant 13: litellm
 - services:
     container_backup:
       enabled: false
@@ -1234,6 +1351,9 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    context_agent:
+      enabled: false
+      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -1291,7 +1411,7 @@
     openwebui:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    flowise:
+    litellm:
       enabled: true
       shared: true
     mastodon:
@@ -1302,4 +1422,10 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
   addons: *addons_static_off

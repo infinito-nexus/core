@@ -1,0 +1,28 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🔐 Verify the gateway contract for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
+  when: OPENCLAW_LITELLM_ENABLED | bool
+
+- name: "🤖 Admit embodied mode for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-robot/tasks/utils/admit.yml') }}"
+  vars:
+    admit_agent_role: "{{ application_id }}"
+  when: "'svc-ai-robot' in group_names"
+
+- name: "🧩 load docker and db for {{ application_id }}"
+  include_role:
+    name: sys-stk-full
+
+- name: "🔌 Configure the OpenClaw MCP surface"
+  ansible.builtin.include_tasks: utils/mcp.yml
+
+- name: "🛡️ Prove the isolation {{ application_id }} promises"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-virt-kata/tasks/utils/assert_isolated.yml') }}"
+  vars:
+    assert_isolated_container: "{{ OPENCLAW_CONTAINER }}"
+  when:
+    - DEPLOYMENT_MODE == 'compose'
+    - "'svc-ai-robot' not in group_names"
+    - lookup('config', application_id, 'services.kata.enabled') | bool

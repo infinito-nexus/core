@@ -1,0 +1,8 @@
+---
+litellm_config:
+  type: config
+  source: "{{ [ lookup('container', 'svc-ai-litellm', 'directories.config'), 'config.yaml' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: litellm
+      target: /etc/litellm/config.yaml

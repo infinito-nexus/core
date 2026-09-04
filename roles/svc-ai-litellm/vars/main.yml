@@ -1,0 +1,14 @@
+---
+application_id: "svc-ai-litellm"
+entity_name: "{{ application_id | get_entity_name }}"
+
+LITELLM_CONTAINER: "{{ lookup('config', application_id, 'services.litellm.name') }}"
+LITELLM_PORT: "{{ lookup('config', application_id, 'services.litellm.ports.internal.http') }}"
+LITELLM_MASTER_KEY: "{{ lookup('config', application_id, 'secrets.credentials.master_key') }}"
+LITELLM_CONFIG_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'config.yaml' ] | path_join }}"
+LITELLM_CONFIG_PATH_DOCKER: "{{ lookup('volume', application_id, 'litellm_config').target }}"
+LITELLM_OPENROUTER_API_KEY: "{{ OPENROUTER_API_KEY }}"
+LITELLM_UI_ROLE: "web-app-litellm"
+LITELLM_UI_SSO: "{{ (LITELLM_UI_ROLE in group_names) and (lookup('sso', LITELLM_UI_ROLE, 'is_oidc_native') | bool) }}"
+LITELLM_UI_BASE_URL: "{{ lookup('tls', LITELLM_UI_ROLE, 'url.base') }}"
+LITELLM_UI_ADMIN: "{{ lookup('users', 'administrator').username }}"

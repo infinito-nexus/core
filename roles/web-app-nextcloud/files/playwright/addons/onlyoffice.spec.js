@@ -52,29 +52,55 @@ test("onlyoffice addon: opening a document loads the partner document-server edi
     await shared.dismissBlockingNextcloudModals(page, page);
     await uploadedRow.click();
 
-    const editorIframeElement = page.locator(
-      "iframe#iframeEditor, iframe[name='frameEditor'], iframe[src*='/web-apps/'], iframe[src*='OfficeWeb']",
-    ).first();
+    const connectorIframe = page.locator("iframe#onlyofficeFrame").first();
     await expect(
-      editorIframeElement,
-      "opening the .docx must mount the ONLYOFFICE editor iframe (the onlyoffice connector view), proving the partner document server was reached",
+      connectorIframe,
+      "opening the .docx must mount the onlyoffice connector iframe (#onlyofficeFrame) into the Files view",
     ).toBeVisible({ timeout: resolveTimeout(90_000) });
 
-    const editorSrc = (await editorIframeElement.getAttribute("src").catch(() => "")) || "";
-    let editorSrcHost = "";
-    try {
-      editorSrcHost = new URL(editorSrc, shared.env.nextcloudBaseUrl).host;
-    } catch {
-      editorSrcHost = "";
-    }
-    expect(
-      editorSrcHost,
-      `the ONLYOFFICE editor iframe must be served by the web-svc-onlyoffice partner host '${documentServerHost}' (the DocumentServerUrl coupling), not by Nextcloud ('${nextcloudHost}'); got src '${editorSrc}'`,
-    ).toBe(documentServerHost);
+    const frameUrlMatching = (predicate) => {
+      const frame = page.frames().find((candidate) => {
+        try {
+          return predicate(new URL(candidate.url()));
+        } catch {
+          return false;
+        }
+      });
+      return frame ? frame.url() : "";
+    };
 
-    const editorFrame = page.frameLocator(
-      "iframe#iframeEditor, iframe[name='frameEditor'], iframe[src*='/web-apps/'], iframe[src*='OfficeWeb']",
-    );
+    await expect
+      .poll(
+        () =>
+          frameUrlMatching(
+            (url) =>
+              url.host === nextcloudHost &&
+              /^\/apps\/onlyoffice\/\d+$/.test(url.pathname) &&
+              url.searchParams.get("inframe") === "true",
+          ),
+        {
+          message: `the connector iframe must load the onlyoffice editor view '/apps/onlyoffice/<fileid>?inframe=true' from Nextcloud ('${nextcloudHost}'), which is what hands the document over to the document server`,
+          timeout: resolveTimeout(90_000),
+        },
+      )
+      .toBeTruthy();
+
+    await expect
+      .poll(
+        () =>
+          frameUrlMatching(
+            (url) => url.host === documentServerHost && url.pathname.includes("/web-apps/apps/documenteditor/"),
+          ),
+        {
+          message: `the connector view must embed the document editor served by the web-svc-onlyoffice partner host '${documentServerHost}' (the DocumentServerUrl coupling), not by Nextcloud ('${nextcloudHost}')`,
+          timeout: resolveTimeout(120_000),
+        },
+      )
+      .toBeTruthy();
+
+    const editorFrame = page
+      .frameLocator("iframe#onlyofficeFrame")
+      .frameLocator("iframe[name='frameEditor']");
 
     const jwtError = editorFrame.getByText(
       /security token is not correctly formed|token is not valid|invalid token|error while downloading|download failed/i,

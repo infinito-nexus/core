@@ -1,4 +1,8 @@
 ---
+litellm:
+  bond: 0.5
+  enabled: "{{ ('svc-ai-litellm' in group_names) and (LITELLM_CHAT_MODEL_SERVED | bool) }}"
+  shared: "{{ 'svc-ai-litellm' in group_names }}"
 # nocheck: dockerfile-custom
 sso:
   bond: 1
@@ -136,7 +140,7 @@ matrix:
   server_name: "{{ DOMAIN_PRIMARY }}"
   plugins:
     appservice_irc: false
-    chatgpt: false
+    chatgpt: "{{ 'svc-ai-litellm' in group_names }}"
     discord: false
     gitter: false
     heisenbridge: true

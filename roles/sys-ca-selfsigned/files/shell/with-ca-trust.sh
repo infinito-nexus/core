@@ -42,14 +42,15 @@ export CURL_CA_BUNDLE="$CA_TRUST_CERT"
 export NODE_EXTRA_CA_CERTS="$CA_TRUST_CERT"
 
 if [ -n "${CA_TRUST_CERT_EXTRA:-}" ] && [ -r "${CA_TRUST_CERT_EXTRA}" ]; then
-  combined="/tmp/ca-trust-combined.crt"
-  if cat "$CA_TRUST_CERT" "$CA_TRUST_CERT_EXTRA" > "$combined" 2>/dev/null; then
+  if combined="$(mktemp -t ca-trust-combined.XXXXXX 2>/dev/null)" &&
+    cat "$CA_TRUST_CERT" "$CA_TRUST_CERT_EXTRA" > "$combined" 2>/dev/null
+  then
     export SSL_CERT_FILE="$combined"
     export REQUESTS_CA_BUNDLE="$combined"
     export CURL_CA_BUNDLE="$combined"
     export NODE_EXTRA_CA_CERTS="$combined"
   else
-    log "WARN: cannot write $combined; keeping single-CA trust env"
+    log "WARN: cannot build combined CA bundle; keeping single-CA trust env"
   fi
 fi
 

@@ -10,6 +10,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from utils.roles.entity.name import get_entity_name
+
 if TYPE_CHECKING:
     from collections.abc import Callable
 
@@ -22,7 +24,24 @@ def _is_consumer(
 ) -> bool:
     overlay = entry.get("overlay") or {}
     consumer = overlay.get("consumer") or {}
-    kind = consumer.get("kind") or "services_flags"
+    declared = consumer.get("kind") or "services_flags"
+    kinds = declared if isinstance(declared, list) else [declared]
+    return any(
+        _matches_kind(
+            str(kind), entry, consumer, application_id, lookup_config, lookup_database
+        )
+        for kind in kinds
+    )
+
+
+def _matches_kind(
+    kind: str,
+    entry: dict[str, Any],
+    consumer: dict[str, Any],
+    application_id: str,
+    lookup_config: Callable[[str, str, Any], Any],
+    lookup_database: Callable[[str, str], Any],
+) -> bool:
     if kind == "database":
         if not _coerce_bool(lookup_database(application_id, "enabled")):
             return False
@@ -38,6 +57,26 @@ def _is_consumer(
             ):
                 return False
         return True
+    if kind == "mcp_client":
+        if not _coerce_bool(lookup_config(application_id, "mcp.enabled", False)):
+            return False
+        if not _coerce_bool(lookup_config(application_id, "mcp.shared", False)):
+            return False
+        direction = str(
+            lookup_config(application_id, "mcp.direction", "") or ""
+        ).strip()
+        if direction not in ("client", "both"):
+            return False
+        consumer_key = get_entity_name(application_id)
+        if (
+            lookup_config(application_id, f"services.{consumer_key}.mcp_consumer", None)
+            is not True
+        ):
+            return False
+        refusal = lookup_config(
+            entry.get("role") or "", f"services.{consumer_key}.mcp_consumer", True
+        )
+        return refusal is not False
     if kind == "onion_sso":
         provider = consumer.get("provider")
         if not provider:

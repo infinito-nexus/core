@@ -1,12 +1,3 @@
 ---
-- name: "🧩 load docker, db and proxy for {{ application_id }}"
-  include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: true
-
-- name: "🔧 Fider | OIDC setup"
-  include_tasks: 01_setup_oidc.yml
-  when:
-    - FIDER_OIDC_ENABLED | bool
-    - IS_STACK_HOST | bool
+- include_tasks: 00_core.yml
+  when: run_once_web_app_fider is not defined

@@ -1,0 +1,10 @@
+---
+enabled: "{{ lookup('config', 'web-app-discourse', 'services.litellm.enabled') | bool }}"
+required: true
+mechanism: plugin
+source: bundled # Exception: cloning it over the copy already in $home/plugins aborts the after_code hook
+bridges:
+  - litellm
+config:
+  display_name: Infinito LiteLLM Gateway
+  max_prompt_tokens: 8192 # nocheck: addon-secret llm_models.max_prompt_tokens is a context-window size, not a credential

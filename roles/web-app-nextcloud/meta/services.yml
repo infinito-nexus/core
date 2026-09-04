@@ -54,7 +54,11 @@ mariadb:
   mem_reservation: 512m
   mem_limit: 1.5g
   pids_limit: 512
+# nocheck: playwright-service-flag  self-provider
 nextcloud:
+  enabled: true
+  shared: true
+  bond: 1
   modes:
     compose:
       enabled: true
@@ -83,6 +87,12 @@ nextcloud:
       memory_limit: "{{ ((ansible_facts['memtotal_mb'] | int) / 30) | int }}M"
       upload_limit: 5G
       opcache_memory_consumption: "{{ ((ansible_facts['memtotal_mb'] | int) / 30) | int }}M"
+      fpm:
+        max_children: 16
+        start_servers: 4
+        min_spare_servers: 4
+        max_spare_servers: 8
+        request_terminate_timeout: 900s
   plugins_enabled: true
   proxy:
     service_key: proxy
@@ -101,6 +111,10 @@ nextcloud:
   run_after:
     - web-app-keycloak
     - web-app-matomo
+    - web-app-gitlab
+    - web-app-mattermost
+    - web-app-openproject
+    - web-app-zammad
   lifecycle: beta
 proxy:
   name: nextcloud-proxy
@@ -116,6 +130,54 @@ proxy:
   mem_limit: 256m
   pids_limit: 512
   min_storage: 226MB
+  ports:
+    internal:
+      http: 80
+# nocheck: playwright-service-flag
+# nocheck: dynamic-flag  the container serves this role's MCP surface, so it tracks the role's own mcp flag rather than one client's presence
+context_agent:
+  bond: 1
+  enabled: "{{ lookup('config', 'web-app-nextcloud', 'mcp.enabled') | bool }}"
+  shared: "{{ lookup('config', 'web-app-nextcloud', 'mcp.enabled') | bool }}"
+  name: nextcloud-context-agent
+  image: ghcr.io/nextcloud/context_agent
+  version: 2.7.0
+  backup:
+    no_stop_required: true
+  # nocheck: single-replica
+  replicas: 1
+  cpus: "1.0"
+  mem_reservation: 512m
+  mem_limit: 1g
+  pids_limit: 512
+  min_storage: 512MB
+  ports:
+    internal:
+      http: 23000
+  healthcheck:
+    flavor: curl
+    path: heartbeat
+    start_period: 20m
+# nocheck: playwright-service-flag  MCP sidecar, no browser surface
+# nocheck: dynamic-flag  the sidecar fronts this role's MCP surface, so it tracks the role's own mcp flag rather than one client's presence
+contextagentmcp:
+  enabled: "{{ lookup('config', 'web-app-nextcloud', 'mcp.enabled') | bool }}"
+  shared: false
+  image: python
+  # nocheck: docker-version  base of the self-built stdlib adapter, not the served application
+  version: "3.13.15-slim"
+  custom: true
+  name: contextagentmcp
+  cpus: "0.25"
+  mem_reservation: 16m
+  mem_limit: 24m
+  pids_limit: 64
+  healthcheck:
+    flavor: http_status
+    path: health
+  ports:
+    internal:
+      http: 8080
 cron:
   # nocheck: single-replica singleton cron.sh; replicas double-run background jobs on the shared data volume
   replicas: 1
@@ -198,7 +260,11 @@ seaweedfs:
   bond: 1
   enabled: "{{ 'web-app-seaweedfs' in group_names }}"
   shared: "{{ 'web-app-seaweedfs' in group_names }}"
+# nocheck: playwright-service-flag  internal recording server, reachable only from the Talk signaling backend
+# nocheck: dynamic-flag  the recording server is part of the Talk deployment, so it follows the talk entry rather than a role's presence
 talk_recording:
+  enabled: "{{ lookup('config', 'web-app-nextcloud', 'services.talk.enabled') | bool }}"
+  shared: false
   name: nextcloud-talk-recording
   image: nextcloud/aio-talk-recording
   version: latest
@@ -265,11 +331,11 @@ openwebui:
   bond: 0.5
   enabled: "{{ 'web-app-openwebui' in group_names }}"
   shared: "{{ 'web-app-openwebui' in group_names }}"
-# nocheck: playwright-service-flag: bridged flowise partner, covered by partner role spec
-flowise:
+# nocheck: playwright-service-flag: bridged litellm gateway partner, covered by partner role spec
+litellm:
   bond: 0.5
-  enabled: "{{ 'web-app-flowise' in group_names }}"
-  shared: "{{ 'web-app-flowise' in group_names }}"
+  enabled: "{{ ('svc-ai-litellm' in group_names) and (LITELLM_CHAT_MODEL_SERVED | bool) }}"
+  shared: "{{ 'svc-ai-litellm' in group_names }}"
 # nocheck: playwright-service-flag: bridged mastodon partner, covered by partner role spec
 mastodon:
   bond: 0.5
@@ -284,14 +350,12 @@ peertube:
 # Re-enable enabled/shared (back to the "web-app-moodle in group_names" form) once a plugin ships.
 # nocheck: playwright-service-flag: bridged moodle partner, covered by partner role spec
 moodle:
-  bond: 0.5
   enabled: false # nocheck: dynamic-flag
   shared: false # nocheck: dynamic-flag
 # TODO(bridge): integration_suitecrm requires nc <= 24 (see meta/addons/integration_suitecrm.yml).
 # Re-enable enabled/shared (back to the "web-app-suitecrm in group_names" form) once a plugin ships.
 # nocheck: playwright-service-flag: bridged suitecrm partner, covered by partner role spec
 suitecrm:
-  bond: 0.5
   enabled: false # nocheck: dynamic-flag
   shared: false # nocheck: dynamic-flag
 # nocheck: dynamic-flag
@@ -300,3 +364,19 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+# nocheck: playwright-service-flag: MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
+hermes:
+  bond: 0.5
+  enabled: "{{ 'web-app-hermes' in group_names }}"
+  shared: "{{ 'web-app-hermes' in group_names }}"
+# nocheck: playwright-service-flag: MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
+openclaw:
+  bond: 0.5
+  enabled: "{{ 'web-app-openclaw' in group_names }}"
+  shared: "{{ 'web-app-openclaw' in group_names }}"
+# nocheck: playwright-service-flag: MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
+# nocheck: dynamic-flag  the entry refuses this client, so the link is off on every host and no group_names gate can decide it
+flowise:
+  enabled: false
+  shared: false
+  mcp_consumer: false

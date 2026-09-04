@@ -25,7 +25,7 @@
     sso:
       enabled: true
       shared: true
-    ollama:
+    litellm:
       enabled: true
       shared: true
     prometheus:
@@ -59,9 +59,9 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     sso:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
-    ollama:
+      enabled: true
+      shared: true
+    litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
@@ -100,7 +100,7 @@
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    ollama:
+    litellm:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:

@@ -1,0 +1,45 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- include_tasks: utils/load/handlers.yml
+  vars:
+    handler_role_name: "sys-svc-compose"
+
+- name: "🧩 For '{{ application_id }}': Load central RDBMS"
+  include_role:
+    name: sys-svc-rdbms
+    public: false
+  vars:
+    database_consumer_id: "{{ application_id }}"
+  when: lookup('database', application_id, 'enabled') | bool
+
+- name: "📄 Render LiteLLM gateway config (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "config.yaml.j2"
+        dest: "{{ LITELLM_CONFIG_PATH_HOST }}"
+
+- name: "🔧 Setup container network for {{ application_id }}"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
+  vars:
+    compose_handlers_flush: true
+
+- name: "🔍 Build consumer key list"
+  ansible.builtin.set_fact:
+    LITELLM_CONSUMER_KEYS: >-
+      {%- set out = [] -%}
+      {%- for consumer in lookup('roles_with_service', 'litellm', scope='all') -%}
+        {%- set key = lookup('config', consumer.id, 'secrets.credentials.litellm_api_key', '') -%}
+        {%- if key -%}
+          {%- set _ = out.append({'alias': consumer.id, 'key': key}) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ out }}
+
+- name: "🔑 Provision per-consumer virtual keys"
+  ansible.builtin.include_tasks: 01_keys.yml
+  when:
+    - IS_STACK_HOST | bool
+    - LITELLM_CONSUMER_KEYS | length > 0

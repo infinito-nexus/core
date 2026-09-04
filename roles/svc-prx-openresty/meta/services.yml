@@ -30,6 +30,5 @@ tor:
   shared: true # nocheck: dynamic-flag
 # nocheck: dynamic-flag - proxy state is fully re-rendered by the deploy (configs, certs via binds), the backup consumer stays permanently off
 container_backup:
-  bond: 1
   enabled: false
   shared: true

@@ -1,0 +1,51 @@
+---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: LITELLM
+    resolve_compose_cid: "{{ LITELLM_CONTAINER }}"
+
+- name: "⏳ Wait until the gateway accepts connections on its own port"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ LITELLM_LOCAL_CID | quote }} python3 -c 'import socket; socket.create_connection(("127.0.0.1", {{ LITELLM_PORT }}), 5).close()'
+  register: litellm_gateway_listening
+  retries: 60
+  delay: 5
+  until: litellm_gateway_listening.rc == 0
+  changed_when: false
+  delegate_to: "{{ LITELLM_HOST_NODE }}"
+
+- name: "🔑 Ensure a virtual key exists per consumer"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i -e LITELLM_KEYS_PAYLOAD={{ LITELLM_CONSUMER_KEYS | to_json | quote }} -e LITELLM_MK={{ LITELLM_MASTER_KEY | quote }} -e LITELLM_PORT={{ LITELLM_PORT | quote }} {{ LITELLM_LOCAL_CID | quote }} python3 -c {{ lookup('file', lookup('path_absolute', 'roles/svc-ai-litellm/files/python/ensure_keys.py')) | quote }}
+  register: litellm_keys_result
+  retries: 10
+  delay: 6
+  until: litellm_keys_result.rc == 0
+  changed_when: "'CHANGED' in litellm_keys_result.stdout"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ LITELLM_HOST_NODE }}"
+
+- name: "🛡️ Prove the gateway is closed and revocation stays per consumer"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i -e LITELLM_MK={{ LITELLM_MASTER_KEY | quote }} -e LITELLM_PORT={{ LITELLM_PORT | quote }} -e LITELLM_KEY={{ (LITELLM_CONSUMER_KEYS | first).key | quote }} {{ LITELLM_LOCAL_CID | quote }} python3 -c {{ lookup('file', lookup('path_absolute', 'roles/svc-ai-litellm/files/python/probe_auth.py')) | quote }}
+  register: litellm_auth_probe
+  retries: 5
+  delay: 10
+  until: litellm_auth_probe.rc == 0
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ LITELLM_HOST_NODE }}"
+
+- name: "🔥 Warm the chat model so the first prompt is not a cold load"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i -e LITELLM_MK={{ LITELLM_MASTER_KEY | quote }} -e LITELLM_PORT={{ LITELLM_PORT | quote }} -e LITELLM_MODEL={{ LITELLM_CHAT_MODEL | quote }} {{ LITELLM_LOCAL_CID | quote }} python3 -c {{ lookup('file', lookup('path_absolute', 'roles/svc-ai-litellm/files/python/warm_model.py')) | quote }}
+  register: litellm_warm_result
+  retries: 5
+  delay: 10
+  until: litellm_warm_result.rc == 0
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ LITELLM_HOST_NODE }}"
+  when: LITELLM_CHAT_MODEL_SERVED | bool

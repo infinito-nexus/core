@@ -15,6 +15,7 @@ from typing import Any
 
 from humanfriendly import parse_size
 
+from utils.roles.applications.topics import apply_topic
 from utils.roles.entity.name import get_entity_name
 
 _RESOURCE_KEYS = ("mem_reservation", "mem_limit", "pids_limit", "cpus")
@@ -166,6 +167,7 @@ def collect_role_resources(
         )
 
     shared_dependencies: list[str] = []
+    nested_maps: dict[str, dict[str, Any]] = {}
     for service_key, raw_service_conf in services.items():
         if service_key == entity_name:
             continue
@@ -185,6 +187,8 @@ def collect_role_resources(
             add(service_key, service_conf)
         elif provider_role and provider_role != role_name:
             shared_dependencies.append(provider_role)
+            if "services" in service_conf:
+                nested_maps[provider_role] = service_conf["services"]
         elif _is_shared(service_conf):
             warnings.append(
                 f"{role_name}: shared service '{service_key}' has no registered provider"
@@ -196,9 +200,18 @@ def collect_role_resources(
         return
 
     for provider_role in shared_dependencies:
+        scoped = applications
+        if provider_role in nested_maps:
+            demanded = nested_maps[provider_role]
+            provider_conf = dict(_as_mapping(applications.get(provider_role)))
+            provider_conf["services"] = apply_topic(
+                provider_conf.get("services"), demanded
+            )
+            scoped = dict(applications)
+            scoped[provider_role] = provider_conf
         collect_role_resources(
             provider_role,
-            applications,
+            scoped,
             service_registry,
             visited,
             rows,

@@ -1,15 +1,15 @@
 ---
-enabled: "{{ (lookup('config', 'web-app-nextcloud', 'services.openwebui.enabled') | bool) or (lookup('config', 'web-app-nextcloud', 'services.flowise.enabled') |
+enabled: "{{ (lookup('config', 'web-app-nextcloud', 'services.openwebui.enabled') | bool) or (lookup('config', 'web-app-nextcloud', 'services.litellm.enabled') |
   bool) }}"
 required: true
 mechanism: plugin
 source: upstream
 bridges:
   - openwebui
-  - flowise
+  - litellm
 config:
   plugin_configuration:
     - appid: "integration_openai"
       configkey: "url"
-      configvalue: "{{ (lookup('tls', 'web-app-openwebui', 'url.base') | regex_replace('/+$', '') ~ '/api') if ('web-app-openwebui' in group_names) else lookup('tls',
-        'web-app-flowise', 'url.base') }}"
+      configvalue: "{{ (lookup('tls', 'web-app-openwebui', 'url.base') | regex_replace('/+$', '') ~ '/api') if ('web-app-openwebui' in group_names) else (LITELLM_BASE_LOCAL_URL
+        ~ '/v1') }}"

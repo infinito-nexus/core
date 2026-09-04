@@ -15,6 +15,7 @@ from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any
 
 from plugins.filter.merge.with_defaults import merge_with_defaults
+from utils.roles.applications.mcp import derive_mcp_presence
 from utils.roles.mapping import ROLE_FILE_META_VARIANTS
 
 from .base import (
@@ -24,8 +25,8 @@ from .base import (
     _render_with_templar,
     _resolve_override_mapping,
     _resolve_roles_dir,
-    _stable_variables_signature,
 )
+from .carrier import _carried_applications, merged_applications_cache_key
 from .schema_credentials import extract_default_credentials
 from .yaml import load_yaml as _load_yaml_cached
 from .yaml import load_yaml_any as _load_yaml_any_cached
@@ -281,10 +282,12 @@ def _build_variants(roles_dir: Path) -> dict[str, list[Any]]:
     behaviour.
     """
     variants: dict[str, list[Any]] = {}
+    bases: dict[str, Any] = {}
 
     for role_dir in _iter_application_role_dirs(roles_dir):
         application_id = role_dir.name
         base_config = _build_role_base_config(role_dir, roles_dir)
+        bases[application_id] = base_config
         meta_path = role_dir / ROLE_FILE_META_VARIANTS
         override_list = _load_variants_overrides(meta_path)
         role_variants: list[Any] = []
@@ -294,6 +297,19 @@ def _build_variants(roles_dir: Path) -> dict[str, list[Any]]:
             else:
                 role_variants.append(copy.deepcopy(override))
         variants[application_id] = role_variants
+
+    derive_mcp_presence(bases)
+    for application_id, role_variants in variants.items():
+        derived = (bases.get(application_id) or {}).get("mcp")
+        if not isinstance(derived, dict):
+            continue
+        for variant_config in role_variants:
+            block = (
+                variant_config.get("mcp") if isinstance(variant_config, dict) else None
+            )
+            if isinstance(block, dict):
+                block.setdefault("enabled", derived["enabled"])
+                block.setdefault("shared", derived["shared"])
 
     return {key: variants[key] for key in sorted(variants)}
 
@@ -306,6 +322,7 @@ def _build_application_defaults(roles_dir: Path) -> dict[str, Any]:
     defaults: dict[str, Any] = {}
     for role_dir in _iter_application_role_dirs(roles_dir):
         defaults[role_dir.name] = _build_role_base_config(role_dir, roles_dir)
+    derive_mcp_presence(defaults)
     return {key: defaults[key] for key in sorted(defaults)}
 
 
@@ -379,13 +396,15 @@ def get_merged_applications(
 
     variables = variables or {}
     resolved_roles_dir = _resolve_roles_dir(roles_dir=roles_dir)
-    cache_key = (
-        _cache_key(resolved_roles_dir),
-        _stable_variables_signature(variables),
-    )
+    cache_key = merged_applications_cache_key(variables, roles_dir=resolved_roles_dir)
     cached = _MERGED_APPLICATIONS_CACHE.get(cache_key)
     if cached is not None:
         return cached
+
+    carried = _carried_applications(variables, cache_key)
+    if carried is not None:
+        _MERGED_APPLICATIONS_CACHE[cache_key] = carried
+        return carried
 
     defaults = get_application_defaults(roles_dir=resolved_roles_dir)
 

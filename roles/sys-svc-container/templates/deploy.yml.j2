@@ -1,10 +1,38 @@
 {% if compose_mode == 'swarm' %}
 {{ "\n" }}
+{% if service_replicas_forced is defined %}
+{% set _replicas = service_replicas_forced %}
+{% else %}
 {% set _replicas = lookup('applications') | resource_filter(application_id, 'replicas', service_name | default(''), '') %}
-    {{ lookup('container_deploy', replicas=_replicas) | indent(4) }}
+{% endif %}
+    deploy:
+      {{ lookup('compose_replicas', _replicas) if _replicas != '' else lookup('compose_replicas') }}
+{% set _constraints = [] %}
+{% if application_id in lookup('roles_with_placement', 'manager') %}
+{% set _ = _constraints.append('node.role == manager') %}
+{% endif %}
+{% set _arch = lookup('applications') | resource_filter(application_id, 'platform_arch', service_name | default(''), '') %}
+{% if _arch != '' %}
+{% set _ = _constraints.append('node.platform.arch == ' ~ _arch) %}
+{% endif %}
+{% if groups['svc-virt-kata'] is defined %}
+{% if lookup('config', application_id, 'services.kata.enabled', false) | bool %}
+{% set _ = _constraints.append('node.labels.' ~ SANDBOX_NODE_LABEL ~ ' == true') %}
+{% else %}
+{% set _ = _constraints.append('node.labels.' ~ SANDBOX_NODE_LABEL ~ ' != true') %}
+{% endif %}
+{% endif %}
+{% if _constraints | length > 0 %}
+      placement:
+        constraints:
+{% for _constraint in _constraints %}
+          - {{ _constraint }}
+{% endfor %}
+{% endif %}
       update_config:
         parallelism: {{ service_update_parallelism | default(1) }}
         delay: {{ service_update_delay | default('10s') }}
+        failure_action: continue
 {% if service_update_order is defined %}
         order: {{ service_update_order }}
 {% endif %}

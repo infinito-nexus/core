@@ -4,7 +4,7 @@ import unittest
 from plugins.filter.csp_filters import FilterModule
 
 NODE = "ndck3kzcxbcem2oskbhytxwevvpzwn7j5dj6q36vbijyrnw3rjf2heqd.onion"
-PRIMARY = "infinito.example"
+PRIMARY = "infinito.test"
 
 
 class TestCspOnionMirror(unittest.TestCase):

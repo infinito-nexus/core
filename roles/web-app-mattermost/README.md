@@ -15,15 +15,19 @@ The diagram places Mattermost in the Infinito.Nexus cosmos: the components it de
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
+        dep_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
         dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
         dep_svc_db_redis["svc-db-redis 🐳🐝"]
         dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
+        dep_web_app_hermes["web-app-hermes 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
+        dep_web_app_openclaw["web-app-openclaw 🐳🐝"]
+        dep_web_app_openwebui["web-app-openwebui 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
         dep_web_app_seaweedfs["web-app-seaweedfs 🐳🐝"]
         dep_web_svc_css["web-svc-css 💻"]
@@ -46,19 +50,29 @@ flowchart LR
         svc_prometheus["prometheus"]
         svc_tor["tor"]
         svc_container_backup["container_backup"]
+        svc_litellm["litellm"]
+        svc_mattermostmcp["mattermostmcp"]
+        svc_openwebui["openwebui"]
+        svc_hermes["hermes"]
+        svc_openclaw["openclaw"]
+        svc_flowise["flowise ❌"]
     end
     subgraph dependents [Dependents]
         dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]
     end
+    dep_svc_ai_litellm -. "0..1" .-> svc_litellm
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_openldap -- "1:1" --> svc_ldap
     dep_svc_db_postgres -. "0..1" .-> svc_postgres
     dep_svc_db_redis -. "0..1" .-> svc_redis
     dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
+    dep_web_app_hermes -. "0..1" .-> svc_hermes
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
     dep_web_app_matomo -. "0..1" .-> svc_matomo
+    dep_web_app_openclaw -. "0..1" .-> svc_openclaw
+    dep_web_app_openwebui -. "0..1" .-> svc_openwebui
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_app_seaweedfs -. "0..1" .-> svc_seaweedfs
     dep_web_svc_css -. "0..1" .-> svc_css
@@ -97,19 +111,20 @@ Run the published image to provision the inventory and deploy Mattermost to a ma
 ```bash
 APP=web-app-mattermost
 HOST=<your-server>
+DOMAIN=<your-domain>
 TLS_MODE=self_signed
 SSH_PUBLIC_KEY="<your-ssh-public-key>"
 
 docker run --rm -it \
   -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  -e APP="$APP" -e HOST="$HOST" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
+  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
   ghcr.io/infinito-nexus/core/debian bash -c '
     INVENTORY=/etc/infinito.nexus/inventories/production
     infinito administration inventory provision "$INVENTORY" \
       --inventory-file "$INVENTORY/devices.yml" \
       --host "$HOST" \
       --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
+      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
     infinito administration deploy dedicated "$INVENTORY/devices.yml" \
       --password-file "$INVENTORY/.password" \
       --diff -vv'
@@ -124,6 +139,58 @@ The workaround used here is the **GitLab OAuth2 provider** (`MM_GITLABSETTINGS_*
 The login button in the UI will read "SSO with Infinito.Nexus" (renamed via injected JavaScript). The underlying auth flow is standard OAuth2/OIDC against Keycloak.
 
 To enable SSO, set `services.sso.enabled: true` (the default) in your inventory and ensure `OIDC.CLIENT.SECRET` is configured.
+
+## MCP Server
+
+Mattermost exposes a Model Context Protocol server through the prepackaged Agents plugin (`mattermost-ai`), which ships inside the pinned `mattermost/mattermost-team-edition` image.
+
+| Property | Value |
+|----------|-------|
+| Endpoint | `/mcp` on the `mattermostmcp` sidecar; the adapter reaches `/plugins/mattermost-ai/mcp-server/mcp` on the `mattermost` service upstream |
+| Health path | `/plugins/mattermost-ai/mcp-server/.well-known/oauth-protected-resource` |
+| Transport | `streamable_http` (stateless); SSE is not served |
+| Auth | `Authorization: Bearer <personal access token>` |
+| Subject | The token owner; tool calls run with that account's Mattermost permissions |
+| Exposure | `internal` |
+
+### Default state
+
+`mcp.enabled` resolves to `true` only when `web-app-hermes`, `web-app-openclaw` or `web-app-openwebui` is part of the same deployment, and is `false` otherwise. While it is `true` the deploy:
+
+- sets `MM_SERVICESETTINGS_ENABLEUSERACCESSTOKENS=true`,
+- enables the `mattermost-ai` plugin through `mmctl --local`,
+- sets `mcp.enablePluginServer` in the plugin's active `agents_confighistory` row and reloads the plugin,
+- mints a personal access token for the administrator account and persists it with `sys-token-store` under `users.administrator.tokens['web-app-mattermost']`.
+
+While it is `false` the route is not registered and the endpoint answers `404`. Unauthenticated requests to the enabled endpoint answer `401` with a `WWW-Authenticate: Bearer resource_metadata="<health path URL>"` header.
+
+### Authorization subject
+
+`auth_subject: administrator`: Mattermost bounds a call by the account the token
+belongs to. This deployment mints that personal access token for the
+administrator account, so calls arrive with that account's rights whoever asked.
+Reaching the tool server is gated on the role's `mcp` RBAC group.
+
+### Tool categories
+
+The endpoint serves the Agents plugin's native Mattermost tool catalog:
+
+- channels: list, read, create, update, archive,
+- posts: search, read, create, update, delete,
+- direct messages: read and send,
+- users and teams: look up, add members, update profiles,
+- files: list, read, upload.
+
+The catalog includes mutating entries (`create`, `update`, `archive`, `delete`,
+`send`, `upload`). The Agents plugin exposes no filter, scope or permission flag
+that removes them, so `mcp.tools.mutating_tools_enabled: false` records
+the deployment's intent rather than an enforced state. Every call is bounded by
+the permissions of the account the bearer token belongs to, which here is the
+administrator.
+
+### How to disable
+
+Remove the MCP client roles, or pin `mcp.enabled: false` for this role. The Agents plugin's MCP server is then left switched off and no personal access token is issued.
 
 ## Configuration
 
@@ -142,9 +209,9 @@ This role declares no addons (it ships no `meta/addons/` directory). Mattermost 
 
 ## References
 
-- [Mattermost Docker Install](https://docs.mattermost.com/install/install-docker.html)
-- [Mattermost Configuration Settings](https://docs.mattermost.com/configure/configuration-settings.html)
-- [GitLab SSO in Mattermost](https://docs.mattermost.com/deployment/sso-gitlab.html)
+- [Mattermost Docker Install](https://docs.mattermost.com/deployment-guide/server/deploy-containers.html)
+- [Mattermost Configuration Settings](https://docs.mattermost.com/administration-guide/configure/configuration-settings.html)
+- [GitLab SSO in Mattermost](https://docs.mattermost.com/administration-guide/onboard/sso-gitlab.html)
 
 ## Persona contract opt-outs
 

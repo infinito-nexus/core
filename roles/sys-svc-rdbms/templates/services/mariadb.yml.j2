@@ -10,7 +10,10 @@
     {{ lookup('compose_restart') }}
     env_file:
       - {{ lookup('database', application_id, 'env') }}
-    command: "--transaction-isolation=READ-COMMITTED --binlog-format=ROW"
+    command: "--transaction-isolation=READ-COMMITTED --binlog-format=ROW --init-file={{ lookup('database', application_id, 'realign_target') }}"
+    configs:
+      - source: {{ lookup('database', application_id, 'realign_config') }}
+        target: {{ lookup('database', application_id, 'realign_target') }}
     volumes:
       - database:/var/lib/mysql
     healthcheck:

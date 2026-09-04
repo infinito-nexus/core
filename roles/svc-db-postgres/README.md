@@ -28,6 +28,7 @@ flowchart LR
         svc_container_backup["container_backup"]
     end
     subgraph dependents [Dependents]
+        dpt_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
         dpt_web_app_baserow["web-app-baserow 🐳🐝"]
         dpt_web_app_bookwyrm["web-app-bookwyrm 🐳🐝"]
         dpt_web_app_chess["web-app-chess 🐳🐝"]
@@ -39,12 +40,12 @@ flowchart LR
         dpt_web_app_funkwhale["web-app-funkwhale 🐳🐝"]
         dpt_web_app_gitlab["web-app-gitlab 🐳🐝"]
         dpt_web_app_jira["web-app-jira 🐳🐝"]
-        dpt_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dpt_more["..."]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_net_tor -. "0..1" .-> svc_tor
     svc_postgres -- "1:1" --> dpt_more
+    svc_postgres -- "1:1" --> dpt_svc_ai_litellm
     svc_postgres -. "0..1" .-> dpt_web_app_baserow
     svc_postgres -. "0..1" .-> dpt_web_app_bookwyrm
     svc_postgres -. "0..1" .-> dpt_web_app_chess
@@ -56,7 +57,6 @@ flowchart LR
     svc_postgres -. "0..1" .-> dpt_web_app_funkwhale
     svc_postgres -. "0..1" .-> dpt_web_app_gitlab
     svc_postgres -. "0..1" .-> dpt_web_app_jira
-    svc_postgres -. "0..1" .-> dpt_web_app_keycloak
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
@@ -92,19 +92,20 @@ Run the published image to provision the inventory and deploy PostgreSQL to a ma
 ```bash
 APP=svc-db-postgres
 HOST=<your-server>
+DOMAIN=<your-domain>
 TLS_MODE=self_signed
 SSH_PUBLIC_KEY="<your-ssh-public-key>"
 
 docker run --rm -it \
   -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  -e APP="$APP" -e HOST="$HOST" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
+  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
   ghcr.io/infinito-nexus/core/debian bash -c '
     INVENTORY=/etc/infinito.nexus/inventories/production
     infinito administration inventory provision "$INVENTORY" \
       --inventory-file "$INVENTORY/devices.yml" \
       --host "$HOST" \
       --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
+      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
     infinito administration deploy dedicated "$INVENTORY/devices.yml" \
       --password-file "$INVENTORY/.password" \
       --diff -vv'

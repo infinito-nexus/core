@@ -5,6 +5,7 @@ swarm_stack_converge_retries: 600
 
 MOODLE_CODE_DIR: "{{ lookup('volume', 'web-app-moodle', 'code').target }}"
 MOODLE_DATA_DIR: "{{ lookup('volume', 'web-app-moodle', 'data').target }}"
+MOODLE_LOCAL_CACHE_DIR: "{{ lookup('volume', application_id, 'localcache').mounts[0].target }}"
 MOODLE_SOURCE_DIR: "/opt/moodle-source"
 MOODLE_ENTRYPOINT_PATH: "/usr/local/bin/moodle-entrypoint.sh"
 
@@ -14,11 +15,13 @@ MOODLE_BUILD_FILES:
   config_php: "config.php"
   install_source: "install/moodle-source.sh"
   install_oidc: "install/auth-oidc.sh"
+  install_mcp: "install/webservice-mcp.sh"
   opcache_ini: "php-conf/opcache-recommended.ini"
   runtime_ini: "php-conf/moodle-runtime.ini"
   fpm_pool: "php-conf/zz-moodle-pool.conf"
 MOODLE_VERSION_FILE: "version.php" # bootstrap-detection sentinel
 MOODLE_AUTH_SUBDIR: "auth" # top-level auth/ tree
+MOODLE_WEBSERVICE_SUBDIR: "webservice"
 MOODLE_CLI_RELPATH: "admin/cli" # admin CLI script dir
 
 MOODLE_OIDC_PLUGIN_RELPATH: "{{ [MOODLE_AUTH_SUBDIR, 'oidc'] | path_join }}"
@@ -48,6 +51,72 @@ MOODLE_CRON_CONTAINER: "{{ lookup('config', application_id, 'services.cron.name'
 MOODLE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 MOODLE_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 
+MOODLE_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') | bool }}"
+MOODLE_LITELLM_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') }}"
+MOODLE_LITELLM_CHAT_ENDPOINT: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}/chat/completions"
+MOODLE_LITELLM_IMAGE_ENDPOINT: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}/images/generations"
+MOODLE_LITELLM_SETTINGS:
+  - { component: aiprovider_openai, name: enabled, value: "1" }
+  - { component: aiprovider_openai, name: apikey, value: "{{ MOODLE_LITELLM_API_KEY }}" }
+  - { component: aiprovider_openai, name: action_generate_text_endpoint, value: "{{ MOODLE_LITELLM_CHAT_ENDPOINT }}" }
+  - { component: aiprovider_openai, name: action_generate_text_model, value: "{{ LITELLM_CHAT_MODEL }}" }
+  - { component: aiprovider_openai, name: action_summarise_text_endpoint, value: "{{ MOODLE_LITELLM_CHAT_ENDPOINT }}" }
+  - { component: aiprovider_openai, name: action_summarise_text_model, value: "{{ LITELLM_CHAT_MODEL }}" }
+  - { component: aiprovider_openai, name: action_generate_image_endpoint, value: "{{ MOODLE_LITELLM_IMAGE_ENDPOINT }}" }
+  - { component: aiprovider_openai, name: generate_image, value: "0" }
+  - { component: aiplacement_courseassist, name: enabled, value: "1" }
+  - { component: aiplacement_editor, name: enabled, value: "1" }
+
+MOODLE_EGRESS_BLOCKED_HOSTS:
+  - "0.0.0.0"
+  - "127.0.0.0/8"
+  - "localhost"
+  - "169.254.169.254"
+  - "0000::1"
+MOODLE_EGRESS_ALLOWED_PORTS:
+  - "80"
+  - "443"
+MOODLE_EGRESS_NEWLINE: "\n"
+MOODLE_EGRESS_SETTINGS:
+  - name: curlsecurityblockedhosts
+    value: "{{ MOODLE_EGRESS_BLOCKED_HOSTS | join(MOODLE_EGRESS_NEWLINE) }}"
+  - name: curlsecurityallowedport
+    value: "{{ (MOODLE_EGRESS_ALLOWED_PORTS + ([MOODLE_LITELLM_CHAT_ENDPOINT | urlsplit('port') | string] if MOODLE_LITELLM_ENABLED | bool else [])) | join(MOODLE_EGRESS_NEWLINE)
+      }}"
+
+MOODLE_MCP_ENABLED: "{{ lookup('config', application_id, 'mcp.enabled') }}"
+MOODLE_MCP_PLUGIN_VERSION: "v0.6.0"
+MOODLE_MCP_PLUGIN_ARCHIVE_URL: "https://github.com/onbirdev/moodle-webservice_mcp/archive/refs/tags/{{ MOODLE_MCP_PLUGIN_VERSION }}.zip"
+MOODLE_MCP_PLUGIN_RELPATH: "{{ [MOODLE_WEBSERVICE_SUBDIR, 'mcp'] | path_join }}"
+MOODLE_MCP_PLUGIN_SOURCE_DIR: "{{ [MOODLE_SOURCE_DIR, MOODLE_MCP_PLUGIN_RELPATH] | path_join }}"
+MOODLE_MCP_PLUGIN_DIR: "{{ [MOODLE_CODE_DIR, MOODLE_MCP_PLUGIN_RELPATH] | path_join }}"
+MOODLE_MCP_SERVICE_KEY: "{{ lookup('config', application_id, 'mcp.endpoint.service_key') }}"
+MOODLE_MCP_PORT: "{{ lookup('config', application_id, 'services.nginx.ports.internal.http') }}"
+MOODLE_MCP_URL: "http://{{ MOODLE_MCP_SERVICE_KEY }}:{{ MOODLE_MCP_PORT }}{{ lookup('config', application_id, 'mcp.endpoint.path') }}"
+MOODLE_MCP_EXTERNAL_SERVICE_NAME: "Model Context Protocol"
+MOODLE_MCP_EXTERNAL_SERVICE_SHORTNAME: "infinito_mcp"
+MOODLE_MCP_EXTERNAL_FUNCTIONS:
+  - core_webservice_get_site_info
+  - core_course_get_courses
+  - core_enrol_get_users_courses
+  - core_user_get_users_by_field
+  - core_calendar_get_calendar_events
+MOODLE_MCP_ACCOUNT: "{{ lookup('users', 'mcp-web-app-moodle') }}"
+MOODLE_MCP_ACCOUNT_USERNAME: "{{ MOODLE_MCP_ACCOUNT.username }}"
+MOODLE_MCP_ACCOUNT_EMAIL: "{{ MOODLE_MCP_ACCOUNT.email }}"
+MOODLE_MCP_ACCOUNT_PASSWORD: "{{ MOODLE_MCP_ACCOUNT.password }}"
+MOODLE_MCP_ROLE_SHORTNAME: "infinito_mcp"
+MOODLE_MCP_ROLE_NAME: "Infinito MCP service"
+MOODLE_MCP_ROLE_CAPABILITIES:
+  - webservice/mcp:use
+  - webservice/rest:use
+  - moodle/course:view
+  - moodle/user:viewdetails
+MOODLE_MCP_TOOLS_LIST_PAYLOAD:
+  jsonrpc: "2.0"
+  id: 1
+  method: tools/list
+  params: {}
 MOODLE_OIDC_CUSTOM_SCOPE: "{{ lookup('config', 'web-app-keycloak', 'services.keycloak.scopes.moodle') }}"
 MOODLE_OIDC_SCOPES: "openid profile email phone address {{ MOODLE_OIDC_CUSTOM_SCOPE }}"
 

@@ -24,6 +24,12 @@ through here, from two sources that are both optional:
 Entries are ``"name:address"`` strings and are deduplicated in first-seen
 order. With nothing to emit the lookup returns an empty string.
 
+``entries_only=true`` returns those strings as a list instead of the rendered
+block, for a container that is not described by a compose file at all:
+``web-app-discourse`` is built by discourse_docker's ``launcher``, whose only
+argument surface is ``docker_args:`` in its ``app.yml``, so it needs
+``--add-host=<entry>`` lines.
+
 The automatic pin follows the effective deploy mode, and in swarm it must NOT be
 ``host-gateway``: that alias resolves per node, while openresty publishes :80
 with ``mode: host`` under ``node.role == manager``, so every replica on a worker
@@ -48,6 +54,13 @@ Usage in any service template:
     {{ lookup('container_extra_hosts',
               extra_hosts=['host.docker.internal:host-gateway']) | indent(4) }}
     {{ lookup('container_extra_hosts', application_id='web-app-nextcloud') | indent(4) }}
+
+Usage from a non-compose call site:
+
+    {% for entry in lookup('container_extra_hosts',
+                           entries_only=True, wantlist=True) %}
+      - --add-host={{ entry }}
+    {% endfor %}
 """
 
 from __future__ import annotations
@@ -98,6 +111,8 @@ class LookupModule(LookupBase):
             )
         entries += self._caller_entries(kwargs.get("extra_hosts"))
         merged = list(dict.fromkeys(entries))
+        if _to_bool(self._render(kwargs.get("entries_only", False)), strict=False):
+            return merged
         if not merged:
             return [""]
 

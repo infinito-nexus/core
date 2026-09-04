@@ -1,0 +1,32 @@
+---
+classification: native_both
+direction: both
+source_url: https://github.com/n8n-io/n8n/tree/n8n%401.95.3/packages/%40n8n/nodes-langchain/nodes/mcp
+transport: sse
+exposure: internal
+auth: bearer_token
+auth_subject: service_account
+implementation: native
+credential:
+  owner: mcp-web-app-n8n
+  source: token_store
+  key: web-app-n8n
+supported_transports:
+  - sse
+supported_auths:
+  - bearer_token
+  - app_password
+  - upstream_session
+endpoint:
+  service_key: n8n
+  path: /webhook/infinito-mcp/sse
+  port_key: http
+tools:
+  read_probe:
+    tool: infinito_health
+    arguments:
+      echo: infinito
+  allowlist:
+    - infinito_health
+  read_only_default: true
+  mutating_tools_enabled: false

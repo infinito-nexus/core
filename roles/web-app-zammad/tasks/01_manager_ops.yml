@@ -82,6 +82,29 @@
   register: zammad_api_bot_apply
   changed_when: false
 
+- name: "🔑 ensure the read-only MCP agent and its API token in Zammad"
+  ansible.builtin.shell:
+    cmd: |
+      set -euo pipefail
+      container exec -i \
+        -e MCP_BOT_LOGIN -e MCP_BOT_EMAIL -e MCP_BOT_FIRSTNAME -e MCP_BOT_LASTNAME \
+        -e MCP_BOT_PASSWORD -e MCP_API_TOKEN -e MCP_TOKEN_LABEL \
+        {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} \
+        bundle exec rails r -
+    stdin: "{{ lookup('file', 'ruby/apply/mcp_bot.rb') }}"
+  environment:
+    MCP_BOT_LOGIN: "{{ ZAMMAD_MCP_UPSTREAM_USER }}"
+    MCP_BOT_EMAIL: "{{ ZAMMAD_MCP_UPSTREAM_EMAIL }}"
+    MCP_BOT_FIRSTNAME: "MCP"
+    MCP_BOT_LASTNAME: "Adapter"
+    MCP_BOT_PASSWORD: "{{ ZAMMAD_MCP_UPSTREAM_PASSWORD }}"
+    MCP_API_TOKEN: "{{ ZAMMAD_MCP_UPSTREAM_KEY }}"
+    MCP_TOKEN_LABEL: "{{ ZAMMAD_MCP_UPSTREAM_TOKEN_LABEL }}"
+  register: zammad_mcp_bot_apply
+  changed_when: false
+  when: ZAMMAD_MCP_ENABLED | bool
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
 - name: "📌 apply OIDC settings in Zammad (post-bootstrap; idempotent)"
   ansible.builtin.shell:
     cmd: |
@@ -124,6 +147,28 @@
   register: zammad_ldap_apply
   changed_when: false
   when: ZAMMAD_LDAP_ENABLED
+
+- name: "🔐 Verify the gateway contract for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
+  when: ZAMMAD_LITELLM_ENABLED | bool
+
+- name: "🤖 Point Zammad Smart Assist at the platform gateway"
+  ansible.builtin.shell:
+    cmd: |
+      set -euo pipefail
+      container exec -i \
+        -e AI_URL -e AI_MODEL -e AI_TOKEN \
+        {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} \
+        bundle exec rails r -
+    stdin: "{{ lookup('file', 'ruby/apply/ai_provider.rb') }}"
+  environment:
+    AI_URL: "{{ ZAMMAD_LITELLM_BASE_URL }}"
+    AI_MODEL: "{{ ZAMMAD_LITELLM_MODEL }}"
+    AI_TOKEN: "{{ ZAMMAD_LITELLM_API_KEY }}"
+  register: zammad_ai_apply
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: ZAMMAD_LITELLM_ENABLED | bool
 
 - name: "🔧 configure Zammad's Email channel (inbound IMAP + outbound SMTP) against Mailu"
   ansible.builtin.shell:

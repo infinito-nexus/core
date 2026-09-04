@@ -68,3 +68,11 @@
     role_templates:
       - src: "docker.conf.j2"
         dest: "{{ NEXTCLOUD_HOST_NGINX_PATH }}"
+
+- name: "📄 Render the php-fpm pool sizing (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "fpm-pool.conf.j2"
+        dest: "{{ NEXTCLOUD_HOST_FPM_POOL_PATH }}"

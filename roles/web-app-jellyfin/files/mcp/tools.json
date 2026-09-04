@@ -1,0 +1,39 @@
+{
+  "jellyfin_get_item": {
+    "description": "Return one library item.",
+    "input_schema": {
+      "properties": {
+        "itemId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "itemId"
+      ],
+      "type": "object"
+    },
+    "method": "GET",
+    "path": "/Items/{itemId}"
+  },
+  "jellyfin_get_playback_status": {
+    "description": "List the active playback sessions.",
+    "method": "GET",
+    "path": "/Sessions"
+  },
+  "jellyfin_search_library": {
+    "description": "Search the media library.",
+    "input_schema": {
+      "properties": {
+        "searchTerm": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "searchTerm"
+      ],
+      "type": "object"
+    },
+    "method": "GET",
+    "path": "/Items"
+  }
+}

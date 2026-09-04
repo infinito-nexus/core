@@ -47,7 +47,6 @@
 - name: "🔧 REDIS | Provision ACL user {{ redis_acl_username }} (auth-isolated)"
   ansible.builtin.shell: >
     container exec
-    -e REDIS_PASSWORD={{ REDIS_PASSWORD | quote }}
     -e REDIS_ACL_PASSWORD={{ redis_acl_password | quote }}
     {{ REDIS_CONTAINER_ADDRESS }} sh -lc
     '{{ REDIS_CLI }} ACL SETUSER {{ redis_acl_username }}
