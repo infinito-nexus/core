@@ -1,0 +1,1 @@
+# nocheck: role-files-layout - Role test harness with test.sh as its entry point; the e2e runner stages the tree by path and invokes test.sh from it.

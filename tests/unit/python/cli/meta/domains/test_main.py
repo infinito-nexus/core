@@ -40,6 +40,16 @@ class TestCliMetaApplicationsDomains(TestCase):
                 code = int(e.code) if e.code is not None else 0
                 return code, out.getvalue(), err.getvalue()
 
+    def test_domain_primary_default_resolution(self) -> None:
+        with patch.dict(mod.os.environ, {"DOMAIN": "explicit.env"}, clear=False):
+            self.assertEqual(
+                mod.parse_args(["--domain-primary", "flag.wins"]).domain_primary,
+                "flag.wins",
+            )
+            self.assertEqual(mod.parse_args([]).domain_primary, "explicit.env")
+        with patch.dict(mod.os.environ, {}, clear=True):
+            self.assertEqual(mod.parse_args([]).domain_primary, "infinito.test")
+
     def test_cli_supports_alias_and_www_flags(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             roles_dir = Path(tmp) / "roles"

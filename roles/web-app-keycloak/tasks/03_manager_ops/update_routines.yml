@@ -47,11 +47,20 @@
   include_tasks: "{{ role_path }}/tasks/update/08_users/email_verified.yml"
   when: KEYCLOAK_USER_EMAILS_VERIFIED | bool
 
+- name: "📂 Ensure application-declared clients (existing realms)"
+  include_tasks: "{{ role_path }}/tasks/update/09_declared_client.yml"
+  vars:
+    kc_declared_client_id: "{{ declared_client }}"
+  loop: "{{ KEYCLOAK_DECLARED_CLIENT_IDS }}"
+  loop_control:
+    loop_var: declared_client
+
 - name: "⏳ Reap the remaining Keycloak update jobs"
   ansible.builtin.include_tasks: utils/async/reap.yml
   vars:
     async_reap_jobs: >-
       {{ (kc_rbac_default.results | default([kc_rbac_default] if kc_rbac_default is defined else []))
-         + (kc_userprofile.results | default([kc_userprofile] if kc_userprofile is defined else [])) }}
+         + (kc_userprofile.results | default([kc_userprofile] if kc_userprofile is defined else []))
+         + (kc_declared_client_jobs | default([])) }}
     async_reap_label: "Keycloak realm updates"
     async_reap_tolerate: []

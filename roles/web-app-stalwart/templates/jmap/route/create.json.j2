@@ -1,0 +1,12 @@
+{
+  "using": ["urn:ietf:params:jmap:core", "urn:stalwart:jmap"],
+  "methodCalls": [["x:MtaRoute/set", {"create": { {{ STALWART_ONION_ROUTE_NAME | to_json }}: {
+    "@type": "Relay",
+    "name": {{ STALWART_ONION_ROUTE_NAME | to_json }},
+    "address": {{ STALWART_ONION_RELAY_HOST | to_json }},
+    "port": {{ STALWART_ONION_RELAY_PORT | int }},
+    "protocol": "smtp",
+    "implicitTls": false,
+    "authSecret": {"@type": "None"}
+  }}}, "c0"]]
+}

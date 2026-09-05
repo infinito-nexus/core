@@ -6,8 +6,8 @@ sso:
   flavor: oidc
 email:
   bond: 1
-  enabled: "{{ 'web-app-mailu' in group_names }}"
-  shared: "{{ 'web-app-mailu' in group_names }}"
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -48,6 +48,7 @@ fider:
       http: 3000
   run_after:
     - web-app-keycloak
+    - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
 # nocheck: dynamic-flag

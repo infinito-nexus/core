@@ -33,10 +33,14 @@ def mail_branch(context: dict[str, Any]) -> str:
         return ""
     domain = context.get("domain", "")
     blackhole = context.get("blackhole", "")
+    # Exception: --domain is the EHLO identity. msmtp defaults it to "localhost",
+    # which a strict relay refuses (Stalwart: 550 Invalid EHLO domain), and images
+    # that generate their own /etc/msmtprc leave no other place to set it.
+    ehlo = f"--domain={domain} " if domain else ""
     return (
         f"if [ ! -f {MAIL_MARKER} ]; then "
         f"echo 'Subject: testmessage from {domain}\\n\\nSUCCESSFULL' "
-        f"| msmtp -t {blackhole} && touch {MAIL_MARKER}; fi; "
+        f"| msmtp {ehlo}-t {blackhole} && touch {MAIL_MARKER}; fi; "
     )
 
 

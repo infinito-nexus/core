@@ -125,6 +125,9 @@ KEYCLOAK_USER_EMAILS_VERIFIED: "{{ lookup('config', application_id, 'services.ke
 
 KEYCLOAK_MOODLE_ENABLED: "{{ 'web-app-moodle' in group_names }}"
 
+KEYCLOAK_DECLARED_CLIENT_APPS: "{{ lookup('applications') | kc_declared_client_apps(lookup('deployment').groups) }}"
+KEYCLOAK_DECLARED_CLIENT_IDS: "{{ lookup('applications') | kc_declared_client_ids(lookup('deployment').groups) }}"
+
 KEYCLOAK_RECAPTCHA_ENABLED: "{{ lookup('config', application_id, 'services.recaptcha.enabled') }}"
 KEYCLOAK_RECAPTCHA_KEY: "{{ lookup('config', application_id, 'secrets.credentials.recaptcha.key') }}"
 KEYCLOAK_RECAPTCHA_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.recaptcha.secret') }}"

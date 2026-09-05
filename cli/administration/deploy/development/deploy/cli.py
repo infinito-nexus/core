@@ -188,14 +188,20 @@ def handler(args: argparse.Namespace) -> int:
             f"inv={inv_dir} variants={round_variants} apps={round_deploy_ids}"
         )
         print(f"=== {pass_label} PASS 1 (sync) ===")
-        rc = run_pass({"VARIANT_INDEX": round_index})
+        rc = run_pass({"VARIANT_INDEX": round_index, "PRIMARY_APPS": primary_app_ids})
         if rc != 0:
             return rc
 
         if bool(args.full_cycle):
             _maybe_recover_drill(compose, plan_index)
             print(f"=== {pass_label} PASS 2 (async) ===")
-            rc = run_pass({"ASYNC_ENABLED": True, "VARIANT_INDEX": round_index})
+            rc = run_pass(
+                {
+                    "ASYNC_ENABLED": True,
+                    "VARIANT_INDEX": round_index,
+                    "PRIMARY_APPS": primary_app_ids,
+                }
+            )
             if rc != 0:
                 return rc
 

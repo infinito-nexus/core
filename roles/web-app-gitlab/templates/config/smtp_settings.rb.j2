@@ -3,10 +3,12 @@ ActionMailer::Base.delivery_method = :smtp
 ActionMailer::Base.smtp_settings = {
   address: {{ GITLAB_EMAIL.host | ruby_dq }},
   port: {{ GITLAB_EMAIL.port }},
+{% if GITLAB_EMAIL.auth | bool %}
   user_name: {{ GITLAB_EMAIL.username | ruby_dq }},
   password: {{ GITLAB_EMAIL.password | ruby_dq }},
+  authentication: :login,
+{% endif %}
   domain: {{ GITLAB_EMAIL.domain | ruby_dq }},
-  authentication: {{ ':login' if (GITLAB_EMAIL.auth | bool) else 'nil' }},
   enable_starttls_auto: {{ GITLAB_EMAIL.start_tls | bool | string | lower }},
-  tls: {{ GITLAB_EMAIL.tls | bool | string | lower }}
+  tls: {{ ((GITLAB_EMAIL.tls | bool) and not (GITLAB_EMAIL.start_tls | bool)) | string | lower }}
 }

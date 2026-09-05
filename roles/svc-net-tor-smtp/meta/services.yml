@@ -1,0 +1,32 @@
+---
+# nocheck: dockerfile-custom
+# nocheck: playwright-service-flag — SMTP egress daemon, no browser surface
+tor-smtp: # nocheck: category-modes
+  primary: true
+  bond: 1
+  enabled: true
+  shared: true
+  custom: true
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: default-placement-manager  dials svc-net-tor's host-loopback SOCKS listener, which is manager-pinned; the gateway must share that node
+  placement: manager
+  image: python
+  version: 3.13-slim
+  name: tor-smtp
+  ports:
+    internal:
+      smtp: 1525
+  # Exception: the slim image ships no curl/nc — a stdlib socket connect is the
+  # probe, and it reads the listen port from the same env the daemon binds (SPOT).
+  healthcheck:
+    test: ["CMD", "python", "-c", "import os,socket; socket.create_connection(('127.0.0.1', int(os.environ['TOR_SMTP_LISTEN_PORT'])), 3).close()"]
+  min_storage: 100MB
+  cpus: "0.25"
+  mem_reservation: 64m
+  mem_limit: 128m
+  pids_limit: 64
+  lifecycle: alpha

@@ -6,6 +6,8 @@ set -eu
 
 VERBOSE="${VERBOSE:-1}"
 
+SYS_CA_BUNDLE_CANDIDATES="/etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt /etc/ssl/cert.pem"
+
 log() {
   if [ "$VERBOSE" = "1" ]; then
     echo "[with-ca-trust] $*" >&2
@@ -36,20 +38,31 @@ log "Sanitized trust name: $name"
 
 installed=0
 
-export SSL_CERT_FILE="$CA_TRUST_CERT"
-export REQUESTS_CA_BUNDLE="$CA_TRUST_CERT"
-export CURL_CA_BUNDLE="$CA_TRUST_CERT"
+ca_bundle="$CA_TRUST_CERT"
+combined="/tmp/with-ca-trust-combined.crt"
+# shellcheck disable=SC2086 # intentional word-splitting; paths contain no spaces
+for sys_bundle in $SYS_CA_BUNDLE_CANDIDATES; do
+  if [ -r "$sys_bundle" ] && cat "$sys_bundle" "$CA_TRUST_CERT" > "$combined" 2>/dev/null; then
+    ca_bundle="$combined"
+    log "Combined system CA bundle ($sys_bundle) with ${name} -> $combined"
+    break
+  fi
+done
+
+export SSL_CERT_FILE="$ca_bundle"
+export REQUESTS_CA_BUNDLE="$ca_bundle"
+export CURL_CA_BUNDLE="$ca_bundle"
 export NODE_EXTRA_CA_CERTS="$CA_TRUST_CERT"
 
 if [ -n "${CA_TRUST_CERT_EXTRA:-}" ] && [ -r "${CA_TRUST_CERT_EXTRA}" ]; then
-  combined="/tmp/ca-trust-combined.crt"
-  if cat "$CA_TRUST_CERT" "$CA_TRUST_CERT_EXTRA" > "$combined" 2>/dev/null; then
-    export SSL_CERT_FILE="$combined"
-    export REQUESTS_CA_BUNDLE="$combined"
-    export CURL_CA_BUNDLE="$combined"
-    export NODE_EXTRA_CA_CERTS="$combined"
+  combined_extra="/tmp/ca-trust-combined.crt"
+  if cat "$ca_bundle" "$CA_TRUST_CERT_EXTRA" > "$combined_extra" 2>/dev/null; then
+    export SSL_CERT_FILE="$combined_extra"
+    export REQUESTS_CA_BUNDLE="$combined_extra"
+    export CURL_CA_BUNDLE="$combined_extra"
+    export NODE_EXTRA_CA_CERTS="$combined_extra"
   else
-    log "WARN: cannot write $combined; keeping single-CA trust env"
+    log "WARN: cannot write $combined_extra; keeping existing trust env"
   fi
 fi
 

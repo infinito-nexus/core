@@ -46,7 +46,7 @@ if [[ ! -d "${BKP_TEST_REPO_ROOT}/cli/administration/recover" ]]; then
 fi
 
 recover() {
-    PYTHONPATH="${BKP_TEST_REPO_ROOT}" python3 -m cli.administration.recover \
+    PYTHONPATH="${BKP_TEST_REPO_ROOT}" "${BKP_TEST_PYTHON}" -m cli.administration.recover \
         "$1" "$2" localhost --no-safety-backup
 }
 

@@ -20,6 +20,15 @@
       --chdir {{ lookup('container', application_id, 'directories.instance') }}
       --project {{ (lookup('container', application_id, 'directories.instance') | regex_replace('/+$', '')) | basename }}
 
+- name: "✅ Verify deployed certificate material"
+  ansible.builtin.script:
+    cmd: "{{ [ role_path, 'files/shell/verify.sh' ] | path_join }} {{ lookup('container', application_id, 'directories.instance') }}"
+  environment:
+    CERT_TEST_REMOTE_ENDPOINTS: >-
+      {{ cert_deploy_remote_endpoints
+         | default(lookup('env', 'CERT_TEST_REMOTE_ENDPOINTS'), true) }}
+  changed_when: false
+
 - name: 📂 Include dependency 'sys-ctl-alm-compose'
   include_role:
     name: sys-ctl-alm-compose

@@ -1,0 +1,23 @@
+---
+# Reusable management JMAP call: in `stalwart_jmap_body` (JSON), out `stalwart_jmap`.
+- name: "🔧 Stalwart JMAP call"
+  ansible.builtin.shell: >-
+    container exec -i {{ STALWART_CONTAINER_ADDRESS }}
+    {{ 30 | curl }} -sS -f
+    -u {{ (STALWART_ADMIN_USER ~ ':' ~ STALWART_ADMIN_PASSWORD) | quote }}
+    -H "Content-Type:application/json"
+    --data-binary {{ stalwart_jmap_body | quote }}
+    {{ STALWART_JMAP_URL }}
+  register: stalwart_jmap_raw
+  changed_when: false
+  retries: 12
+  delay: 5
+  until: stalwart_jmap_raw.rc == 0
+  timeout: "{{ lookup('timeout', 120) | int }}"
+  # nocheck: include-uniform-apply-keyword — seven call sites include this file; the in-file no_log is the SPOT, per-site apply would repeat it 7×
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔧 Parse Stalwart JMAP response"
+  ansible.builtin.set_fact:
+    stalwart_jmap: "{{ stalwart_jmap_raw.stdout | from_json }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

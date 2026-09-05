@@ -20,6 +20,11 @@ matomo:
   bond: 1
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
+# nocheck: dynamic-flag
+email:
+  bond: 1
+  enabled: "{{ 'web-app-stalwart' in group_names }}"
+  shared: "{{ 'web-app-stalwart' in group_names }}"
 # nocheck: playwright-service-flag — self-provider
 mailu:
   modes:
@@ -32,7 +37,8 @@ mailu:
   placement: manager
   enabled: true # nocheck: dynamic-flag
   shared: true
-  provides: email
+  covers:
+    - email
   version: "2024.06"
   name: mailu
   backup:
@@ -65,7 +71,8 @@ mailu:
     service_key: front
   run_after:
     - web-app-matomo
-  lifecycle: beta
+    - web-app-stalwart
+  lifecycle: maintenance
   cpus: "1.0"
   mem_reservation: 512m
   mem_limit: 2g

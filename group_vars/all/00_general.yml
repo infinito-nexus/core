@@ -39,6 +39,12 @@ DNS_PROVIDER: "localhost" # The DNS Provider\Registrar for the domain -> Legit v
 
 HOSTING_PROVIDER: "localhost" # Provider which hosts the server -> hetzner
 
+MAIL_PROVIDER: "web-app-stalwart" # Active mail provider role. Set to web-app-mailu to use Mailu instead of Stalwart.
+
+MAIL_PRODUCTION_HOST: "" # Public FQDN of a reachable mail server; when set, the provider asserts its live DNS/TLS/SMTP hard facts.
+MAIL_PRODUCTION_RESOLVER: "" # Resolver those assertions query; empty uses the host's /etc/resolv.conf.
+
+
 DOCKER_IN_CONTAINER: "{{ (ansible_facts['env']['container'] | default('')) != '' }}"
 DOCKER_RESTART_POLICY: "unless-stopped" # Default restart parameter for docker containers
 DOCKER_WHITELISTET_ANON_VOLUMES: [] # Volumes which should be ignored during docker anonymous health check
@@ -52,6 +58,8 @@ ASYNC_TIME: "{{ 300 if ASYNC_ENABLED | bool else omit }}" # Run for max 5min
 ASYNC_POLL: "{{ 0 if ASYNC_ENABLED | bool else 10 }}" # Don't wait for task
 
 APPLICATIONS_WHITELIST: [] # nocheck: unused-var
+
+PRIMARY_APPS: [] # Apps this deploy was asked for; the rest of the round is their dependency closure.
 
 RBAC:
   GROUP:

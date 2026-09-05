@@ -1,0 +1,15 @@
+---
+- name: "⏳ Wait for the stalwart task to converge (swarm; no-op in compose)"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/wait_converged.yml') }}"
+  vars:
+    wait_service_key: stalwart
+
+- name: "⏳ Wait until Stalwart management API is ready"
+  ansible.builtin.shell: >-
+    container exec -i {{ STALWART_CONTAINER_ADDRESS }}
+    {{ 30 | curl }} -fsS -o /dev/null {{ STALWART_LOCAL_BASE_URL }}/healthz/ready
+  register: stalwart_api_check
+  retries: 30
+  delay: 5
+  until: stalwart_api_check.rc == 0
+  changed_when: false

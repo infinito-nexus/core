@@ -37,7 +37,7 @@ make network-trust-ca
 | Initial setup | `make bootstrap` | Installs project dependencies and runs the first repository setup. |
 | Host preparation | `make environment-bootstrap` | Prepares the local development machine for the project workflow. |
 | Start stack | `make compose-up` | Starts the local development stack. |
-| Browser trust | `make network-trust-ca` | Trusts the generated local [CA](https://en.wikipedia.org/wiki/Certificate_authority) so `*.infinito.example` works correctly in your browser. |
+| Browser trust | `make network-trust-ca` | Trusts the generated local [CA](https://en.wikipedia.org/wiki/Certificate_authority) so `*.infinito.test` works correctly in your browser. |
 
 The `pre-commit` hooks are installed automatically by `make environment-bootstrap`.
 Per-machine overrides go into the process environment before invoking `make` (e.g. `export INFINITO_FOO=…`); `make dotenv` honors caller-set values via setdefault semantics.

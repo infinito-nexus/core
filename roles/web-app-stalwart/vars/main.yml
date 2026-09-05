@@ -1,0 +1,74 @@
+---
+application_id: "web-app-stalwart"
+http_port: "{{ lookup('config', application_id, 'services.stalwart.ports.local.http') }}"
+
+database_password: "{{ lookup('config', application_id, 'secrets.credentials.database_password') }}"
+
+STALWART_VOLUMES_DIR: "{{ lookup('container', application_id, 'directories.volumes') }}"
+STALWART_CONFIG_DIR: "{{ [ STALWART_VOLUMES_DIR, 'etc' ] | path_join }}"
+STALWART_CONFIG_FILE: "{{ [ STALWART_CONFIG_DIR, 'config.json' ] | path_join }}"
+
+container_port: "{{ lookup('config', application_id, 'services.stalwart.ports.internal.http') }}"
+STALWART_LOCAL_BASE_URL: "http://localhost:{{ container_port }}"
+STALWART_JMAP_URL: "{{ STALWART_LOCAL_BASE_URL }}/jmap/"
+STALWART_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'stalwart') }}"
+
+STALWART_DOMAIN: "{{ lookup('config', application_id, 'services.stalwart.domain') }}"
+STALWART_DOMAIN_DNS_ZONE: "{{ STALWART_DOMAIN | to_zone }}"
+STALWART_EMAIL: "{{ lookup('email', application_id) }}"
+STALWART_HOSTNAME: "{{ STALWART_EMAIL.host }}"
+STALWART_WEB_DOMAIN: "{{ lookup('domain', application_id) }}"
+STALWART_HOSTNAME_DNS_ZONE: "{{ STALWART_HOSTNAME | to_zone }}"
+container_hostname: "{{ lookup('container_hostname', application_id) }}"
+
+STALWART_OIDC_ONION_ISSUER: "{{ lookup('tls', 'web-app-keycloak', 'domain').endswith('.onion') }}"
+STALWART_OIDC_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') if STALWART_OIDC_ONION_ISSUER | bool else '' }}"
+
+STALWART_CONTAINER: "{{ lookup('config', application_id, 'services.stalwart.name') }}"
+
+STALWART_ANTIVIRUS_ENABLED: "{{ lookup('config', application_id, 'services.clamav.enabled') | bool }}"
+STALWART_CLAMAV_HOST: "clamav"
+STALWART_CLAMAV_MILTER_PORT: "{{ lookup('config', application_id, 'services.clamav.ports.internal.milter') }}"
+STALWART_CLAMAV_MILTER_TIMEOUT_CONNECT_MS: 5000
+STALWART_CLAMAV_MILTER_TIMEOUT_COMMAND_MS: 5000
+STALWART_CLAMAV_MILTER_TIMEOUT_DATA_MS: 15000
+STALWART_CLAMAV_MILTER_CONF: "{{ [ STALWART_CONFIG_DIR, 'clamav-milter.conf' ] | path_join }}"
+STALWART_WEBMAIL_BASE_URL: "{{ lookup('canonical_url', application_id, 'webmail') }}"
+STALWART_WEBMAIL_DOMAIN: "{{ STALWART_WEBMAIL_BASE_URL | regex_replace('^https?://', '') }}"
+STALWART_WEBMAIL_HTTP_PORT: "{{ lookup('config', application_id, 'services.webmail.ports.local.http') }}"
+STALWART_WEBMAIL_CONFIG_DIR: "{{ [ STALWART_VOLUMES_DIR, 'webmail' ] | path_join }}"
+STALWART_WEBMAIL_OAUTH_CONFIG: "{{ [ STALWART_WEBMAIL_CONFIG_DIR, 'oauth.inc.php' ] | path_join }}"
+STALWART_WEBMAIL_OIDC_CLIENT_ID: "{{ lookup('config', application_id, 'services.sso.oidc.clients.webmail') }}"
+
+STALWART_WEBUI_VERSION: "{{ lookup('config', application_id, 'services.stalwart.webui_version') }}"
+STALWART_WEBUI_RESOURCE_URL: "https://github.com/stalwartlabs/webui/releases/download/{{ STALWART_WEBUI_VERSION }}/webui.zip"
+STALWART_WEBUI_CACHE_FILE: "/var/cache/infinito/core/cache/package/stalwart-webui/webui-{{ STALWART_WEBUI_VERSION }}.zip"
+STALWART_WEBUI_LOCAL_FILE: "{{ [ STALWART_CONFIG_DIR, 'webui.zip' ] | path_join }}"
+STALWART_WEBUI_CONTAINER_FILE: "{{ lookup('volume', application_id, 'webui_bundle').target }}"
+STALWART_WEBUI_LOCAL_URL: "file://{{ STALWART_WEBUI_CONTAINER_FILE }}"
+STALWART_WEBUI_APP_DESCRIPTION: "Stalwart Web Interface"
+
+STALWART_IP4_PUBLIC: "{{ DOCKER_PUBLIC_BIND_HOST }}"
+STALWART_ACTIVE_PROVIDER: "{{ MAIL_PROVIDER == application_id }}"
+
+STALWART_ADMIN_USER: "admin"
+STALWART_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.admin_password') }}"
+
+STALWART_DMARC_RUF: "{{ lookup('config', application_id, 'users.administrator.email') }}"
+
+STALWART_TRUSTED_NETWORKS: "{{ NETWORK_TRUSTED_PROXY_CIDRS }}"
+
+STALWART_SSO_ENABLED: "{{ lookup('sso', application_id, 'is_enabled') | bool }}"
+
+STALWART_IMPORT_MAILU: "{{ lookup('config', application_id, 'services.stalwart.migration.import_mailu') | bool }}"
+
+STALWART_PRODUCTION_HOST: "{{ MAIL_PRODUCTION_HOST | trim }}"
+STALWART_PRODUCTION_RESOLVER: "{{ MAIL_PRODUCTION_RESOLVER | trim }}"
+STALWART_PROMETHEUS_ENABLED: "{{ lookup('config', application_id, 'services.prometheus.enabled') | bool }}"
+STALWART_MAIL_FACTS_METRICS_FILE: "{{ [ DIR_METRICS_TEXTFILE, 'stalwart-mail-facts.prom' ] | path_join }}"
+
+STALWART_ONION_ACTIVE: "{{ 'svc-net-tor' in group_names }}"
+STALWART_ONION_GATEWAY_ID: "svc-net-tor-smtp"
+STALWART_ONION_ROUTE_NAME: "onion"
+STALWART_ONION_RELAY_HOST: "{{ lookup('config', STALWART_ONION_GATEWAY_ID, 'services.tor-smtp.name') }}"
+STALWART_ONION_RELAY_PORT: "{{ lookup('config', STALWART_ONION_GATEWAY_ID, 'services.tor-smtp.ports.internal.smtp') | int }}"

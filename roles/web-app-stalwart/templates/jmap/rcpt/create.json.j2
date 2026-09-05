@@ -1,0 +1,4 @@
+{
+  "using": ["urn:ietf:params:jmap:core", "urn:stalwart:jmap"],
+  "methodCalls": [["x:MtaStageRcpt/set", {"create": {"r": {"allowRelaying": {"else": {{ stalwart_relay_expr | trim | to_json }} }}}}, "c0"]]
+}

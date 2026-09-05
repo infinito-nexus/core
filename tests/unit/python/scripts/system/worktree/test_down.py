@@ -29,6 +29,15 @@ GIT_IDENTITY = {
     "GIT_COMMITTER_NAME": "test",
     "GIT_COMMITTER_EMAIL": "test@example.invalid",
 }
+GIT_REPO_SCOPE = (
+    "GIT_DIR",
+    "GIT_WORK_TREE",
+    "GIT_INDEX_FILE",
+    "GIT_COMMON_DIR",
+    "GIT_PREFIX",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+)
 NEEDS_UNPRIVILEGED = "clearing the write bit does not restrain root"
 
 
@@ -40,7 +49,10 @@ class WorktreeDownFixture:
         self.repo = self.root / "repo"
         self.base = self.root / "worktrees"
         self.checkout = self.base / "feat"
-        self.env = {**os.environ, **GIT_IDENTITY}
+        # Exception: run from a pre-commit hook, git exports GIT_DIR and GIT_INDEX_FILE,
+        # which would aim every command below at the real repo instead of this throwaway.
+        inherited = {k: v for k, v in os.environ.items() if k not in GIT_REPO_SCOPE}
+        self.env = {**inherited, **GIT_IDENTITY}
 
         scripts = self.repo / "scripts" / "system" / "worktree"
         scripts.parent.mkdir(parents=True)

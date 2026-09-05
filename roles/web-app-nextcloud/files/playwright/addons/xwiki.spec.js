@@ -1,8 +1,12 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
+const { decodeDotenvQuotedValue } = require("../personas");
 const shared = require("../_shared");
 const { gotoOnion } = require("../personas");
+
+// Partner host comes from the env file — never hardcode the stack domain.
+const xwikiPartnerHost = decodeDotenvQuotedValue(process.env.XWIKI_PARTNER_HOST || "");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -67,6 +71,10 @@ test("xwiki addon: Nextcloud admin XWiki app renders and is coupled to the partn
       "the configured XWiki instance must be the partner instance, not Nextcloud itself"
     ).not.toBe(nextcloudHost);
     const expectedXwikiHost = new URL(shared.env.xwikiBaseUrl).host;
+    expect(
+      xwikiPartnerHost,
+      "XWIKI_PARTNER_HOST must be set in the Playwright env file"
+    ).toBeTruthy();
     expect(
       instanceHost,
       "the XWiki instances appValue must point at the deployed XWiki partner host"

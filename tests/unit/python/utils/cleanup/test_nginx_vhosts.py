@@ -365,7 +365,7 @@ class TestResolveDomainPrimary(unittest.TestCase):
             if k not in ("DOMAIN", "INFINITO_DOMAIN")
         }
         with patch.dict(os.environ, env, clear=True):
-            self.assertEqual(mod._resolve_domain_primary(None), "infinito.example")
+            self.assertEqual(mod._resolve_domain_primary(None), "infinito.test")
 
 
 if __name__ == "__main__":  # pragma: no cover

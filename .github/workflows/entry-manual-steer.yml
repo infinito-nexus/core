@@ -95,7 +95,6 @@ on:
           - "auto"
           - "true"
           - "false"
-
 permissions:
   contents: read
 

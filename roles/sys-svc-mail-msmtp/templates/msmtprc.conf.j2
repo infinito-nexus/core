@@ -1,6 +1,8 @@
 {% set email = lookup('email') %}
 {% set ca_injected = sys_svc_mail_msmtp_in_container | bool and lookup('ca_injected', application_id) %}
+{% set smtp_target = lookup('smtp_host', email, in_container=sys_svc_mail_msmtp_in_container) %}
 defaults
+domain              {{ DOMAIN_PRIMARY }}
 logfile             ~/.msmtp.log
 timeout             {{ email.timeout }}
 syslog              {{ MODE_DEBUG | on_off }}
@@ -11,8 +13,13 @@ tls                 {{ email.tls | on_off }}
 tls_trust_file      {{ CA_TRUST.inject_cert_container }}
 {% endif %}
 tls_host_override   {{ email.host }}
+{% if smtp_target.endswith('.onion') %}
+{% set socks = (lookup('tor_socks_proxy') | regex_replace('^socks5h://', '')) if sys_svc_mail_msmtp_in_container | bool else lookup('tor_socks') %}
+proxy_host          {{ socks.split(':')[0] }}
+proxy_port          {{ socks.split(':')[1] }}
+{% endif %}
 account             system_email_no_reply
-host                {{ lookup('smtp_host', email, in_container=sys_svc_mail_msmtp_in_container) }}
+host                {{ smtp_target }}
 port                {{ email.port }}
 from                {{ email['from'] }}
 {% if (email.auth | bool) %}

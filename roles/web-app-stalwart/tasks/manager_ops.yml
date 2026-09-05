@@ -1,0 +1,43 @@
+---
+# include-gated: when: IS_STACK_HOST | bool
+# Manager-side operations: every task here execs into or restarts containers
+# of the manager-pinned stack, so only the stack host may run them.
+
+- name: "🔄 Restart clamav to apply milter config change (compose)"
+  ansible.builtin.command: "container restart {{ STALWART_CONTAINER }}_clamav"
+  changed_when: true
+  when:
+    - DEPLOYMENT_MODE == 'compose'
+    - STALWART_ANTIVIRUS_ENABLED | bool
+    - stalwart_clamav_conf is defined
+    - stalwart_clamav_conf is changed
+
+- name: "🔄 Restart webmail to apply Roundcube config change (compose)"
+  ansible.builtin.command: "container restart {{ STALWART_CONTAINER }}_webmail"
+  changed_when: true
+  when:
+    - DEPLOYMENT_MODE == 'compose'
+    - STALWART_SSO_ENABLED | bool
+    - stalwart_webmail_conf is defined
+    - stalwart_webmail_conf is changed
+
+- name: ⏳ Wait for Stalwart database and management API
+  include_tasks: 01_wait_for_api.yml
+
+- name: "⚙️ Provision the Stalwart WebUI (WebAdmin) bundle"
+  include_tasks: 02_webadmin.yml
+
+- name: "⚙️ Provision Stalwart mail domain, accounts, DKIM and DNS"
+  include_tasks: 03_provision_domain.yml
+
+- name: "🔧 Apply Stalwart OIDC directory changes"
+  include_tasks: 10_oidc_apply.yml
+  when: STALWART_SSO_ENABLED | bool
+
+- name: "📥 Import legacy Mailu maildirs (manual cutover switch, compose only)"
+  include_tasks: 12_import_mailu.yml
+  when:
+    - STALWART_IMPORT_MAILU | bool
+    - "'web-app-mailu' in group_names"
+    - STALWART_ACTIVE_PROVIDER | bool
+    - DEPLOYMENT_MODE == 'compose'

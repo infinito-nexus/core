@@ -9,6 +9,7 @@
       - "MAIL_RECIPIENT={{ lookup('mail_recipient') }}"
       - "MAIL_TIMEOUT={{ lookup('email').timeout }}"
 
-    system_service_force_flush_instant: "{{ MODE_DEBUG | bool }}"
+    system_service_state: "{{ omit if (service_loader_preloading | default(false) | bool) else SYS_SERVICE_DEFAULT_STATE }}"
+    system_service_force_flush_instant: "{{ (MODE_DEBUG | bool) and not (service_loader_preloading | default(false) | bool) }}"
     system_service_force_flush_final: false
 - include_tasks: utils/once/flag.yml

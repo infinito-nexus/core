@@ -12,6 +12,7 @@ dispatches to one Recoverer via :data:`RECOVERERS`.
 
 from __future__ import annotations
 
+import sys
 from abc import ABC, abstractmethod
 
 from cli.administration.recover import paths
@@ -83,7 +84,9 @@ class Recoverer(ABC):
         if not service_backup and self.no_backup_flag:
             argv.append("--no-safety-backup")
         argv += self.extra_flags(passphrase_stdin=passphrase_stdin)
-        return ["python3", self.script(), *argv]
+        # Exception: a bare "python3" resolves through PATH to an interpreter without
+        # baudolo; this process already imported the recovery stack, so reuse it.
+        return [sys.executable, self.script(), *argv]
 
 
 class DeviceRecoverer(Recoverer):
