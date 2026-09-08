@@ -12,7 +12,7 @@
     {{ DECIDIM_LOCAL_CID | quote }}
   register: decidim_health
   changed_when: false
-  retries: 20
+  retries: 60
   delay: 15
   until: (decidim_health.stdout | trim) == 'healthy'
   delegate_to: "{{ DECIDIM_HOST_NODE }}"

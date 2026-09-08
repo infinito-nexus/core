@@ -31,7 +31,7 @@ decidim:
     flavor: curl
     path: up
     interval: 10s
-    start_period: 180s
+    start_period: 10m
   modes:
     compose:
       enabled: true
