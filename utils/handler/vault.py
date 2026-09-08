@@ -1,11 +1,14 @@
+from __future__ import annotations
+
 from functools import cached_property
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import yaml
-from ansible.parsing.dataloader import DataLoader
-from ansible.parsing.vault import FileVaultSecret, VaultLib
 from yaml.dumper import SafeDumper
 from yaml.loader import SafeLoader
+
+if TYPE_CHECKING:
+    from ansible.parsing.vault import VaultLib
 
 
 class VaultScalar(str):
@@ -35,6 +38,9 @@ class VaultHandler:
 
     @cached_property
     def _vault(self) -> VaultLib:
+        from ansible.parsing.dataloader import DataLoader
+        from ansible.parsing.vault import FileVaultSecret, VaultLib
+
         secret = FileVaultSecret(filename=self.vault_password_file, loader=DataLoader())
         secret.load()
         return VaultLib([("default", secret)])
