@@ -50,7 +50,7 @@ class PostgresLibrariesLookupTests(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]["extension"], "vector")
         self.assertEqual(result[0]["name"], "pgvector")
-        self.assertIn("git_source", result[0])
+        self.assertEqual(result[0]["apt_package"], "pgvector")
 
     def test_base_extensions_are_filtered_out(self):
         result = self._run([["bloom", "postgis", "pg_trgm", "unaccent"]])[0]
