@@ -12,12 +12,6 @@
   vars:
     compose_handlers_flush: false
 
-- name: "🚀 Deploy prometheus nginx http-block config"
-  stack_host_template:
-    src: "roles/web-app-prometheus/templates/nginx/prometheus.conf.j2"
-    dest: "{{ [ lookup('nginx','directories.configuration.global'), 'prometheus.conf' ] | path_join }}"
-  notify: restart-openresty
-
 - name: "📄 Render Prometheus config files (local + swarm peers)"
   ansible.builtin.include_tasks:
     file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
@@ -51,6 +45,12 @@
   vars:
     domain: "{{ lookup('domain', application_id) }}"
     http_port: "{{ lookup('config', application_id, 'services.prometheus.ports.local.http') }}"
+
+- name: "🚀 Deploy prometheus nginx http-block config"
+  stack_host_template:
+    src: "roles/web-app-prometheus/templates/nginx/prometheus.conf.j2"
+    dest: "{{ [ lookup('nginx','directories.configuration.global'), 'prometheus.conf' ] | path_join }}"
+  notify: restart-openresty
 
 - name: "🧱 Rebuild the MCP adapter of {{ application_id }}"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/rebuild.yml') }}"
