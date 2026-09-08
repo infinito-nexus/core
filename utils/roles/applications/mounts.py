@@ -28,7 +28,6 @@ Canonical shape (dict-of-dicts; the YAML key is the semantic short name):
         - service: synapse
           target: /var/run/synapse
           size: 64m                     # per-mount tmpfs size
-          mode: "01777"                 # per-mount tmpfs permission bits
 
 The legacy list-of-dicts shape is no longer accepted.
 """
@@ -191,10 +190,11 @@ def validate_volumes_meta(
                 if "size" in mount and not isinstance(mount["size"], (str, int))
             )
             violations.extend(
-                f"{prefix}: tmpfs 'mode' must be an octal string like \"01777\", "
-                f"got {mount['mode']!r}"
+                f"{prefix}: tmpfs 'mode' is dropped by `docker stack deploy`, so it "
+                f"cannot be relied on; chown the target from the image's own "
+                f"pre-start hook instead (got {mount['mode']!r})"
                 for mount in (entry.get("mounts") or [])
-                if "mode" in mount and not _is_octal_mode(mount["mode"])
+                if "mode" in mount
             )
 
         mounts = entry.get("mounts")
