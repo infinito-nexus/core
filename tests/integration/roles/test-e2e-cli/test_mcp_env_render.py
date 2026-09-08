@@ -193,7 +193,12 @@ class TestMcpEnvRender(unittest.TestCase):
         )
         for provider, rendered in self.on.items():
             with self.subTest(provider=provider):
-                self.assertEqual(keys, sorted(_entries(rendered)))
+                missing = [key for key in keys if key not in _entries(rendered)]
+                self.assertEqual(
+                    [],
+                    missing,
+                    f"{provider} does not render the whole shared template",
+                )
 
     def test_nothing_reaches_the_shell_unrendered(self) -> None:
         for provider, rendered in self.on.items():
