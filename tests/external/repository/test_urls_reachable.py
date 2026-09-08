@@ -61,7 +61,7 @@ _TEMPLATE_MARKERS = ("${", "{{", "}}", "{%", "%}")
 _PUBLIC_HOST_RE = re.compile(r"^[A-Za-z0-9.-]+$")
 _CONNECTIVITY_CANARIES = (
     "https://github.com/",
-    "https://pypi.org/simple/",
+    "https://pypi.org/simple/ansible/",
     "https://registry.npmjs.org/",
 )
 _RESERVED_HOSTS = {
