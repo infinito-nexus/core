@@ -268,7 +268,7 @@ console:
 # Usage: make cosmos [role=<id>]
 # Param role: single role id (default: all roles)
 cosmos:
-	@"$${PYTHON}" -m cli.build.readme $(role) --update-cosmos
+	@"$${PYTHON}" -m cli.build.docs.readme $(role) --update-cosmos
 
 .PHONY: diagnose-disk-usage
 # Show disk and Docker resource usage to identify what to clean up.
@@ -282,11 +282,12 @@ diagnose-network:
 	@$(MAKE) compose-exec cmd="python3 -m cli.contributing.network.diagnose"
 
 .PHONY: docs
-# Regenerate generated documentation: role Cosmos diagrams, Quick Setup blocks, and the root-README roles index.
+# Regenerate generated documentation: role Cosmos diagrams, Quick Setup blocks, the root-README roles index, and the MCP audit report.
 docs:
 	@"$(MAKE)" cosmos
 	@"$(MAKE)" readme-generate quick_setup=true
 	@"$(MAKE)" readme-index
+	@"$(MAKE)" mcp-audit
 
 .PHONY: dotenv
 # Regenerate .env (SPOT) from default.env + runtime context.
@@ -421,6 +422,11 @@ install-system-python:
 install-venv: install-system-python
 	@bash scripts/install/venv.sh
 
+.PHONY: integration-matrix
+# Regenerate the role-by-role integration matrix from the roles and the curated edge map.
+integration-matrix:
+	@"$${PYTHON}" -m cli.build.docs.integration_matrix
+
 .PHONY: kernel-loop-load
 # Load the kernel loop driver the swarm backup DR drill needs.
 # Note: run this on the host; container environments have no modprobe.
@@ -533,6 +539,11 @@ lint-sql: install-lint
 	@bash scripts/install/wrapper.sh sql
 	@bash scripts/lint/wrapper.sh sql
 
+.PHONY: mcp-audit
+# Regenerate the MCP audit report; test_mcp_audit_report fails when it drifts.
+mcp-audit:
+	@"$${PYTHON}" -m cli.build.docs.mcp_audit
+
 .PHONY: meta-list
 # Print the repository role list.
 meta-list:
@@ -603,7 +614,7 @@ quality-high: quality lint
 .PHONY: readme-check
 # Verify every role README matches the schema template (writes nothing; fails if any would change).
 readme-check:
-	@"$${PYTHON}" -m cli.build.readme --check
+	@"$${PYTHON}" -m cli.build.docs.readme --check
 
 .PHONY: readme-generate
 # Generate/complete role README.md files from templates/roles/README.md.j2.tmpl.
@@ -613,13 +624,13 @@ readme-check:
 # Param cosmos: true regenerates only the Cosmos diagram
 # Param quick_setup: true regenerates only the Quick Setup section
 readme-generate:
-	@"$${PYTHON}" -m cli.build.readme $(role) $(if $(filter true,$(override)),--override) $(if $(filter true,$(cosmos)),--update-cosmos) $(if $(filter true,$(quick_setup)),--update-quick-setup)
+	@"$${PYTHON}" -m cli.build.docs.readme $(role) $(if $(filter true,$(override)),--override) $(if $(filter true,$(cosmos)),--update-cosmos) $(if $(filter true,$(quick_setup)),--update-quick-setup)
 
 .PHONY: readme-index
 # Regenerate the invokable-role overview table in the root README.md.
 # Param check: true verifies only and fails when the table is outdated
 readme-index:
-	@"$${PYTHON}" -m cli.build.readme.overview $(if $(filter true,$(check)),--check)
+	@"$${PYTHON}" -m cli.build.docs.readme.overview $(if $(filter true,$(check)),--check)
 
 .PHONY: requirements-archive
 # Archive fully-checked requirement files via pkgmgr (installs kpmx if missing).

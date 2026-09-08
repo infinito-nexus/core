@@ -23,9 +23,9 @@ from __future__ import annotations
 
 import jinja2
 
-from cli.build.readme import schema
-from cli.build.readme.cosmos import derive_cosmos_mermaid
-from cli.build.readme.sections import Readme, parse_readme
+from cli.build.docs.readme import schema
+from cli.build.docs.readme.cosmos import derive_cosmos_mermaid
+from cli.build.docs.readme.sections import Readme, parse_readme
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml
 from utils.roles.credits import author_urls

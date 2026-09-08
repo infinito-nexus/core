@@ -15,24 +15,20 @@ Fix a failure by regenerating and committing, never by editing the report.
 
 from __future__ import annotations
 
-import importlib.util
 import unittest
 
+from cli.build.docs.mcp_audit import __main__ as generator
 from utils.cache.files import read_text
 from utils.roles.mapping import ROLE_FILE_META_MCP
 
 from . import PROJECT_ROOT
 
 _DOCS = PROJECT_ROOT / "docs" / "contributing" / "design" / "role" / "services" / "mcp"
-_GENERATOR = _DOCS / "audit.gen.py"
 _REPORT = _DOCS / "audit.md"
 
 
 def _load_generator():
-    spec = importlib.util.spec_from_file_location("mcp_audit_gen", _GENERATOR)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+    return generator
 
 
 class TestMcpAuditReport(unittest.TestCase):
@@ -43,7 +39,7 @@ class TestMcpAuditReport(unittest.TestCase):
             rendered,
             committed,
             f"{_REPORT.name} differs from a fresh generation. Regenerate and "
-            f"commit it by running {_GENERATOR.name} from the repository root",
+            "commit it by running `make mcp-audit`",
         )
 
     def test_the_report_carries_a_row_per_role_with_metadata(self) -> None:

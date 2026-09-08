@@ -14,7 +14,7 @@ import functools
 
 import jinja2
 
-from cli.build.readme.sections import h2_titles
+from cli.build.docs.readme.sections import h2_titles
 from utils.cache.files import PROJECT_ROOT
 
 TEMPLATE_DIR = PROJECT_ROOT / "templates" / "roles"

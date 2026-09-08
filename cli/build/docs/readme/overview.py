@@ -1,7 +1,7 @@
 """Generate the invokable-role overview table in the repository README.
 
 Usage:
-  python -m cli.build.readme.overview [--check] [--readme PATH] [--roles-dir DIR]
+  python -m cli.build.docs.readme.overview [--check] [--readme PATH] [--roles-dir DIR]
 
 The table lives in its own ``## Roles Overview 🧩`` section directly above
 ``## Use it online 🚀`` in the root README.md and is fully regenerated on every

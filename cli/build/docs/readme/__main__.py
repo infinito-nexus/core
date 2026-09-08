@@ -2,7 +2,7 @@
 """Generate or complete role README.md files from the schema template.
 
 Usage:
-  python -m cli.build.readme [roles...] [--override] [--check] [--roles-dir DIR]
+  python -m cli.build.docs.readme [roles...] [--override] [--check] [--roles-dir DIR]
 
 With no role names every role directory is processed. ``--override``
 regenerates the managed sections (Cosmos, Quick Setup, Credits) even when
@@ -17,7 +17,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from cli.build.readme.generate import MANAGED_SECTIONS, generate_readme, role_dirs
+from cli.build.docs.readme.generate import MANAGED_SECTIONS, generate_readme, role_dirs
 from utils.cache.files import PROJECT_ROOT
 from utils.roles.mapping import ROLE_FILE_README
 

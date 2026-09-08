@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from cli.build.readme.overview import (
+from cli.build.docs.readme.overview import (
     ANCHOR_HEADING,
     SECTION_HEADING,
     _cell,
