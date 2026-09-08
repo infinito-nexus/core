@@ -22,8 +22,13 @@ set -euo pipefail
 
 container volume ls -q -f "name=^${PATCH_VOLUME}$" | grep -q . || exit 0
 
-mountpoint="$(container volume inspect --format '{{.Mountpoint}}' "$PATCH_VOLUME")"
-config="${mountpoint}/${PATCH_CONFIG_REL}"
+opts="$(container volume inspect --format '{{if .Options}}{{.Options.o}}{{end}}' "$PATCH_VOLUME")"
+case "$opts" in
+*bind*) data_dir="$(container volume inspect --format '{{.Options.device}}' "$PATCH_VOLUME")" ;;
+*) data_dir="$(container volume inspect --format '{{.Mountpoint}}' "$PATCH_VOLUME")" ;;
+esac
+
+config="${data_dir}/${PATCH_CONFIG_REL}"
 test -f "$config" || exit 0
 
 expression="${PATCH_EXPRESSION//@PASSWORD@/$PATCH_PASSWORD}"
