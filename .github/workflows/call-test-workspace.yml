@@ -27,8 +27,13 @@ jobs:
       matrix: ${{ steps.matrix.outputs.matrix }}
 
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - name: ⬇️ Checkout repository
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: 🐍 Assign one workspace track per distro
         id: matrix
@@ -72,6 +77,11 @@ jobs:
       INFINITO_CACHE_PACKAGE_HOST_PATH: /mnt/cache/package/data
 
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - name: 🧹 Free disk space
         uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
         with:
@@ -84,7 +94,7 @@ jobs:
           swap-storage: false
 
       - name: ⬇️ Checkout repository
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: "📥 Load the rescue paths into job env"
         shell: bash
@@ -153,7 +163,7 @@ jobs:
 
       - name: ⬆️ Upload rescue diagnostics
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: rescue-diagnostics-workspace-${{ env.INFINITO_WORKSPACE_SLUG }}
           path: ${{ env.INFINITO_RESCUE_DIAGNOSTICS_BASE }}/

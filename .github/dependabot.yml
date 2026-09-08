@@ -22,8 +22,9 @@ updates:
   # ------------------------------------------------------------
   - package-ecosystem: "github-actions"
     directories:
-      - "**"
-      - "**/*"
+      - '**'
+      - '**/*'
+      - /
     schedule:
       interval: "daily"
       time: "00:00"
@@ -36,8 +37,49 @@ updates:
   # ------------------------------------------------------------
   - package-ecosystem: "docker"
     directories:
-      - "**"
-      - "**/*"
+      - '**'
+      - '**/*'
+      - /
+      - /compose/swarm
+      - /roles/svc-db-mariadb/files
+      - /roles/svc-db-openldap/files
+      - /roles/svc-db-postgres/templates
+      - /roles/svc-net-tor/files
+      - /roles/svc-prx-openresty/files
+      - /roles/svc-runner/files
+      - /roles/web-app-baserow/files
+      - /roles/web-app-bluesky/files/login-broker
+      - /roles/web-app-bookwyrm/files
+      - /roles/web-app-bridgy-fed/files
+      - /roles/web-app-confluence/files
+      - /roles/web-app-decidim/files
+      - /roles/web-app-espocrm/files
+      - /roles/web-app-fediwall/files
+      - /roles/web-app-friendica/files
+      - /roles/web-app-hugo/files
+      - /roles/web-app-jenkins/files
+      - /roles/web-app-jira/files
+      - /roles/web-app-joomla/files
+      - /roles/web-app-littlejs/files
+      - /roles/web-app-matomo/files
+      - /roles/web-app-matrix/files/flavor/ansible/runner
+      - /roles/web-app-mediawiki/files
+      - /roles/web-app-moodle/files
+      - /roles/web-app-nextcloud/templates
+      - /roles/web-app-odoo/files
+      - /roles/web-app-openproject/files
+      - /roles/web-app-postmarks/files
+      - /roles/web-app-pretix/files
+      - /roles/web-app-roulette-wheel/files
+      - /roles/web-app-shopware/files
+      - /roles/web-app-snipe-it/files
+      - /roles/web-app-suitecrm/files
+      - /roles/web-app-taiga/templates
+      - /roles/web-app-wordpress/files
+      - /roles/web-app-xwiki/files
+      - /roles/web-app-yourls/files
+      - /roles/web-svc-libretranslate/files
+      - /roles/web-svc-simpleicons/files
     schedule:
       interval: "daily"
       time: "00:00"
@@ -83,8 +125,12 @@ updates:
   # ------------------------------------------------------------
   - package-ecosystem: "npm"
     directories:
-      - "**"
-      - "**/*"
+      - '**'
+      - '**/*'
+      - /
+      - /roles/web-app-bluesky/files/login-broker
+      - /roles/web-app-dashboard/files
+      - /roles/web-app-littlejs/files
     schedule:
       interval: "daily"
       time: "00:00"
@@ -181,8 +227,9 @@ updates:
   # ------------------------------------------------------------
   - package-ecosystem: "bundler"
     directories:
-      - "**"
-      - "**/*"
+      - '**'
+      - '**/*'
+      - /roles/web-app-openproject/files
     schedule:
       interval: "daily"
       time: "00:00"

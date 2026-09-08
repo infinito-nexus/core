@@ -48,7 +48,12 @@ jobs:
       matrix: ${{ steps.out.outputs.matrix }}
       image_tag: ${{ steps.out.outputs.image_tag }}
     steps:
-      - uses: actions/checkout@v7.0.0
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: 📦 Install jq
         run: ./scripts/install/apt.sh jq
@@ -71,14 +76,19 @@ jobs:
         distro: ${{ fromJson(needs.prepare.outputs.matrix) }}
 
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - name: ⬇️ Checkout trusted workflow repo (helpers)
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
 
       - name: ⬇️ Checkout source to build
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           repository: ${{ inputs.source_repository || github.repository }}
           ref: ${{ inputs.checkout_ref || github.ref }}

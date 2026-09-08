@@ -87,8 +87,13 @@ jobs:
       IMAGES_PER_HOUR: ${{ inputs.images_per_hour || '' }}
 
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - name: ⬇️ Checkout
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: 🔍 Resolve GHCR namespace and repository
         id: vars
@@ -99,7 +104,7 @@ jobs:
 
       - name: ⬇️ Checkout source repo for scan (optional)
         if: ${{ inputs.source_repository != '' && inputs.source_ref != '' }}
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           repository: ${{ inputs.source_repository }}
           ref: ${{ inputs.source_ref }}
@@ -109,7 +114,7 @@ jobs:
           allow-unsafe-pr-checkout: ${{ inputs.allow_unsafe_checkout }}
 
       - name: 🔧 Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.12"
           cache: pip

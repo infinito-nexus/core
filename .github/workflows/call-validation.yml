@@ -86,15 +86,20 @@ jobs:
     name: ✅ Validation
     runs-on: ubuntu-latest
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - name: ⬇️ Checkout the calling ref for its tooling
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           path: .base-tooling
           persist-credentials: false
 
       - name: ⬇️ Checkout the code under test
         if: ${{ github.event_name != 'pull_request_target' }}
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: ${{ inputs.pr_scope != '' && '0' || '1' }}
@@ -119,7 +124,7 @@ jobs:
 
       - name: 🔧 Set up Python
         if: ${{ inputs.whitelist != '' || inputs.priority != '' }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.12"
           cache: pip
@@ -152,6 +157,11 @@ jobs:
     env:
       WAIT_REQUIRED: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository && !inputs.trusted_pr }}
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - name: 🏷️ Mark fork prerequisites as ready outside fork PRs or for trusted PRs
         if: ${{ env.WAIT_REQUIRED != 'true' }}
         shell: bash
@@ -161,7 +171,7 @@ jobs:
 
       - name: ⬇️ Checkout trusted workflow repo (helpers)
         if: ${{ env.WAIT_REQUIRED == 'true' }}
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           persist-credentials: false
@@ -196,7 +206,12 @@ jobs:
     if: ${{ always() && inputs.fork_prereqs }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7.0.0
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: ✅ Assert privileged prerequisites are ready
         shell: bash
         env:
