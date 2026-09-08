@@ -43,12 +43,13 @@ def meta(role: str) -> dict:
     return load_yaml(PROJECT_ROOT / "roles" / role / ROLE_FILE_META_MCP)
 
 
-def render(role: str, *, exposure: str) -> str:
+def render(role: str, *, exposure: str, sso_gated: bool = False) -> str:
     """Return `vhost.conf.j2` for one role at one exposure.
 
     Args:
         role: the role directory name.
         exposure: the `mcp.exposure` value to render under.
+        sso_gated: whether the vhost sits behind an SSO proxy ACL.
     """
     block = meta(role)
     values = {
@@ -64,6 +65,18 @@ def render(role: str, *, exposure: str) -> str:
     def config(_app, key, default=None):
         return values.get(key, default)
 
+    sso_values = {
+        "is_proxy_gated": sso_gated,
+        "oauth2_acl": ["group:staff"] if sso_gated else [],
+    }
+
+    def lookup(kind, *args, **_kw):
+        if kind == "config":
+            return config(*args)
+        if kind == "sso":
+            return sso_values.get(args[1], "")
+        return ""
+
     env = Environment(
         loader=FileSystemLoader(str(TEMPLATE_DIR)),
         undefined=StrictUndefined,
@@ -73,9 +86,14 @@ def render(role: str, *, exposure: str) -> str:
         pattern, repl, value
     )
     env.filters["regex_escape"] = re.escape
+    env.filters["bool"] = lambda value: (
+        value
+        if isinstance(value, bool)
+        else str(value).strip().lower() in {"true", "1", "yes", "on"}
+    )
     return env.get_template("vhost.conf.j2").render(
         application_id=role,
-        lookup=lambda kind, *args, **_kw: config(*args) if kind == "config" else "",
+        lookup=lookup,
     )
 
 
@@ -163,6 +181,25 @@ class TestInternalSurfaceIsWithdrawn(unittest.TestCase):
             "no withdrawal was rendered at all, so every assertion here would "
             "pass vacuously",
         )
+
+    def test_an_acl_gated_public_surface_is_withdrawn_not_left_to_the_acl(self):
+        block = meta(FRONT_CONTROLLER_ROLE)
+        rendered = render(FRONT_CONTROLLER_ROLE, exposure="public", sso_gated=True)
+        self.assertNotIn(
+            "proxy_pass",
+            rendered,
+            "an ACL-gated surface must not be served at the edge",
+        )
+        for declared in (
+            block["endpoint"]["path"],
+            block["adapter"]["upstream_path"],
+        ):
+            with self.subTest(path=declared):
+                self.assertTrue(
+                    is_blocked(rendered, declared),
+                    f"{declared} is left to the SSO ACL alone instead of being "
+                    f"withdrawn at the edge",
+                )
 
 
 if __name__ == "__main__":

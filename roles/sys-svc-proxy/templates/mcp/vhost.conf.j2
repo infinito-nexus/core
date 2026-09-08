@@ -5,8 +5,7 @@
                     and lookup('config', application_id, 'mcp.enabled', false) | bool %}
 {% set mcp_acl_gated = lookup('sso', application_id, 'is_proxy_gated')
                        and (lookup('sso', application_id, 'oauth2_acl') | length) %}
-{% if not mcp_acl_gated %}
-{% set mcp_served = (mcp_endpoint_path | regex_replace('/+$', '')) if mcp_public else '' %}
+{% set mcp_served = (mcp_endpoint_path | regex_replace('/+$', '')) if (mcp_public and not mcp_acl_gated) else '' %}
 {% if mcp_served %}
 {% set mcp_limits = lookup('config', application_id, 'mcp.limits') %}
 {% set mcp_zone = 'mcp_' ~ (application_id | replace('-', '_')) %}
@@ -33,5 +32,4 @@
 {% endif %}
 {% endif %}
 {% endfor %}
-{% endif %}
 {% endif %}
