@@ -11,8 +11,9 @@ Generated pages stay here; the module that renders them lives in
 
 from __future__ import annotations
 
-import subprocess
 import unittest
+
+from utils.cache.files import iter_non_ignored_files
 
 from . import PROJECT_ROOT
 
@@ -20,27 +21,27 @@ ALLOWED_SUFFIXES = frozenset({".md", ".html", ".rst"})
 ALLOWED_NAMES = frozenset({".nocheck"})
 
 
-def _tracked_docs_files() -> list[str]:
-    """Return every tracked path under ``docs/``.
+def _docs_files() -> list[str]:
+    """Return every non-ignored path under ``docs/``.
 
-    Untracked build artefacts such as ``__pycache__`` are not the subject of
-    this rule, so the listing comes from git rather than from a directory walk.
+    Build artefacts such as ``__pycache__`` are not the subject of this rule,
+    so the walk applies ``.gitignore`` rather than listing the directory raw.
+    It does not ask git directly: the containerised test runner owns the
+    checkout under a different uid, and git refuses such a repository outright.
     """
-    result = subprocess.run(
-        ["git", "ls-files", "docs"],
-        cwd=PROJECT_ROOT,
-        capture_output=True,
-        text=True,
-        check=True,
+    docs = PROJECT_ROOT / "docs"
+    return sorted(
+        str(path.relative_to(PROJECT_ROOT))
+        for raw in iter_non_ignored_files(root=str(PROJECT_ROOT))
+        if (path := PROJECT_ROOT / raw).is_relative_to(docs)
     )
-    return [line for line in result.stdout.splitlines() if line]
 
 
 class TestDocsHoldsOnlyDocuments(unittest.TestCase):
     def test_every_tracked_file_under_docs_is_a_document(self) -> None:
         offenders = [
             path
-            for path in _tracked_docs_files()
+            for path in _docs_files()
             if not path.endswith(tuple(ALLOWED_SUFFIXES))
             and path.rsplit("/", 1)[-1] not in ALLOWED_NAMES
         ]
