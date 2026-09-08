@@ -93,7 +93,7 @@ docker run --rm -it \
 
 ## Further Resources
 
-* [Official Collabora CODE website](https://www.collaboraoffice.com/code/)
+* [Official Collabora CODE website](https://www.collaboraonline.com/code/)
 
 ## Credits
 
