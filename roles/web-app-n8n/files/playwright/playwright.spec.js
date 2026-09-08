@@ -14,3 +14,4 @@ require("./test-login-administrator").register(shared);
 require("./test-login-biber").register(shared);
 require("./test-guest-persona").register(shared);
 require("./test-litellm-gateway").register(shared);
+require("./test-mcp-guest").register(shared);

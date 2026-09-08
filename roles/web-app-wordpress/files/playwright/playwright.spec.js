@@ -14,3 +14,4 @@ require("./test-discourse-roundtrip").register(shared);
 require("./test-guest-persona").register(shared);
 require("./test-biber-persona").register(shared);
 require("./test-administrator-persona").register(shared);
+require("./test-mcp-guest").register(shared);

@@ -11,3 +11,4 @@ test.beforeEach(shared.beforeEach);
 require("./test-guest").register(shared);
 require("./test-mcp").register(shared);
 require("./test-administrator-persona").register(shared);
+require("./test-oidc-login").register(shared);
