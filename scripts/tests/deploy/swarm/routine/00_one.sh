@@ -155,6 +155,7 @@ if [ -n "${INFINITO_CI_DISTRO_DEADLINE_EPOCH:-}" ]; then                        
 		exit 2
 	fi
 	if [ "${under_governor}" -lt "${step_timeout}" ]; then
+		echo "==> matrix: capping the deploy at ${under_governor}s of ${step_timeout}s to hold the sweep deadline"
 		step_timeout="${under_governor}"
 	fi
 fi
