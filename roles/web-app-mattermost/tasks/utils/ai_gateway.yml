@@ -82,11 +82,14 @@
   ansible.builtin.assert:
     that:
       - (mattermost_ai_state_final.rows[0][0] | trim) == 'converged'
+      - (LITELLM_CHAT_MODEL | trim) | length > 0
     fail_msg: >-
       The Agents plugin still stores a service or bot that differs from the
       deployed gateway contract ({{ MATTERMOST_LITELLM_BASE_URL }},
       model {{ LITELLM_CHAT_MODEL }}), so prompts would leave the deployment,
       use a model the gateway does not serve, or carry a stale virtual key.
+      An empty model means the gateway serves none: neither svc-ai-ollama nor
+      svc-ai-lmstudio is in this deployment and OPENROUTER_API_KEY is empty.
 
 - name: "🔎 Mattermost | Wait for the Agents plugin to provision its bot account"
   database_query:
