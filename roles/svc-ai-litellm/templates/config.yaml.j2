@@ -7,6 +7,8 @@ model_list:{{ ' []' if not has_backend else '' }}
       model: "ollama/{{ _model }}"
       api_base: {{ OLLAMA_BASE_LOCAL_URL }}
       rpm: 1000
+      max_tokens: {{ LITELLM_MAX_OUTPUT_TOKENS }}
+      timeout: {{ LITELLM_UPSTREAM_TIMEOUT }}
 {% endfor %}
 {% if 'svc-ai-lmstudio' in group_names %}
   - model_name: lmstudio/default
@@ -15,6 +17,8 @@ model_list:{{ ' []' if not has_backend else '' }}
       api_base: {{ LMSTUDIO_BASE_LOCAL_URL }}/v1
       api_key: lm-studio
       rpm: 1000
+      max_tokens: {{ LITELLM_MAX_OUTPUT_TOKENS }}
+      timeout: {{ LITELLM_UPSTREAM_TIMEOUT }}
 {% endif %}
 {% if LITELLM_OPENROUTER_API_KEY %}
   - model_name: openrouter/auto

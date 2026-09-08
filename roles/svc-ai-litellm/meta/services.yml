@@ -13,6 +13,8 @@ litellm:
   image: ghcr.io/berriai/litellm
   version: main-v1.77.3.dynamic_rates
   name: litellm
+  max_output_tokens: 512
+  upstream_timeout: 420
   min_storage: 1022MB
   cpus: "2.0"
   mem_reservation: 1g
