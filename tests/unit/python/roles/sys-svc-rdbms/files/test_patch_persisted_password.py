@@ -27,9 +27,13 @@ from . import PROJECT_ROOT
 SCRIPT = PROJECT_ROOT / "roles/sys-svc-rdbms/files/shell/patch_persisted_password.sh"
 
 CONSUMERS: ClassVar = {
+    "friendica": "<?php\n  'password' => 'OLDPW',\n  'database' => 'friendica',\n",
+    "joomla": "<?php\nclass JConfig {\n  public $password = 'OLDPW';\n}\n",
+    "kix": "[Database]\n    'DatabasePw' => 'OLDPW',\n    'DatabaseHost' => 'postgres',\n",
     "matomo": "[database]\npassword = OLDPW\nhost = db\n",
     "moodle": "<?php\n$CFG->dbpass = 'OLDPW';\n$CFG->dbname = 'moodle';\n",
     "nextcloud": "<?php\n  'dbpassword' => 'OLDPW',\n  'dbname' => 'nc',\n",
+    "suitecrm": "<?php\n  'db_password' => 'OLDPW',\n  'db_name' => 'suitecrm',\n",
 }
 
 
@@ -144,6 +148,51 @@ class TestPatchPersistedPassword(unittest.TestCase):
                 _, content = self._run(app, volume_exists=True, config_exists=True)
                 self.assertNotIn("@PASSWORD@", content)
                 self.assertNotIn("PATCH_PASSWORD", content)
+
+    def test_it_finds_a_config_the_volume_object_does_not_point_at(self) -> None:
+        """A node can hold the volume without its driver options, so the
+        mountpoint names the empty node-local path, not the NFS export."""
+        params = _caller_vars("kix")
+        export = self.tmp / "export"
+        export.mkdir(parents=True)
+        (export / params["patch_config_rel"]).write_text(CONSUMERS["kix"])
+        bindir = self.tmp / "bin"
+        _write_stub(bindir, {params["patch_volume"]: self.tmp / "node-local"})
+        proc = subprocess.run(
+            ["/bin/bash", str(SCRIPT)],
+            env={**_script_env("kix", bindir), "PATCH_DATA_DIR": str(export)},
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertIn("PATCHED", proc.stdout, proc.stderr)
+        content = (  # nocheck: cache-read  shell just rewrote it
+            export / params["patch_config_rel"]
+        ).read_text()
+        self.assertIn("NEWPW", content)
+        self.assertNotIn("OLDPW", content)
+
+    def test_a_config_found_nowhere_names_both_paths_it_tried(self) -> None:
+        """A silent skip here left KIX crash-looping on a stale password until
+        the converge gate gave up 44 retries later."""
+        params = _caller_vars("kix")
+        bindir = self.tmp / "bin"
+        _write_stub(bindir, {params["patch_volume"]: self.tmp / "node-local"})
+        proc = subprocess.run(
+            ["/bin/bash", str(SCRIPT)],
+            env={
+                **_script_env("kix", bindir),
+                "PATCH_DATA_DIR": str(self.tmp / "export"),
+            },
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(0, proc.returncode, proc.stderr)
+        self.assertNotIn("PATCHED", proc.stdout)
+        self.assertIn("SKIPPED", proc.stdout)
+        self.assertIn("node-local", proc.stdout)
+        self.assertIn("export", proc.stdout)
 
     def test_it_refuses_to_run_without_its_parameters(self) -> None:
         """A silent no-op would look exactly like a node without the volume."""

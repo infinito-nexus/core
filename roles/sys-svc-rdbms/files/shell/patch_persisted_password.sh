@@ -13,6 +13,8 @@
 # Param: PATCH_EXPRESSION  - extended-regex sed expression (sed -E), with
 #                            @PASSWORD@ where the value goes
 # Param: PATCH_PASSWORD    - the value, already escaped for the sed delimiter
+# Param: PATCH_DATA_DIR    - inventory-known backing directory, tried when the
+#                            volume object does not name its own
 set -euo pipefail
 
 : "${PATCH_VOLUME:?}"
@@ -29,7 +31,12 @@ case "$opts" in
 esac
 
 config="${data_dir}/${PATCH_CONFIG_REL}"
-test -f "$config" || exit 0
+test -f "$config" || config="${PATCH_DATA_DIR:-}/${PATCH_CONFIG_REL}"
+if [ ! -f "$config" ]; then
+  echo "SKIPPED: ${PATCH_CONFIG_REL} is under neither ${data_dir} nor ${PATCH_DATA_DIR:-<unset>};" \
+    "a node holding ${PATCH_VOLUME} without its driver options reports the empty node-local path"
+  exit 0
+fi
 
 expression="${PATCH_EXPRESSION//@PASSWORD@/$PATCH_PASSWORD}"
 
