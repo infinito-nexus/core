@@ -273,9 +273,6 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    context_agent:
-      enabled: false
-      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -371,9 +368,6 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    context_agent:
-      enabled: false
-      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -469,9 +463,6 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    context_agent:
-      enabled: false
-      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -567,9 +558,6 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    context_agent:
-      enabled: false
-      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -665,9 +653,6 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    context_agent:
-      enabled: false
-      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -763,9 +748,6 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    context_agent:
-      enabled: false
-      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -861,9 +843,6 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    context_agent:
-      enabled: false
-      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -959,9 +938,6 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    context_agent:
-      enabled: false
-      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -1057,9 +1033,6 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    context_agent:
-      enabled: false
-      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -1155,9 +1128,6 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    context_agent:
-      enabled: false
-      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -1253,9 +1223,6 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    context_agent:
-      enabled: false
-      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -1351,9 +1318,6 @@
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    context_agent:
-      enabled: false
-      shared: false
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
