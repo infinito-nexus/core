@@ -15,7 +15,7 @@ hermes:
   backup:
     no_stop_required: true
   image: nousresearch/hermes-agent
-  version: "v2026.7.20"
+  version: "v2026.9.7"
   name: hermes
   min_storage: 1146MB
   cpus: "2.0"
