@@ -86,6 +86,7 @@
   retries: 30
   delay: 10
   until: flowise_mcp_registry.rc == 0
+  failed_when: flowise_mcp_registry.rc != 0 and (MCP_RECONCILE_STRICT | bool)
   changed_when: flowise_mcp_registry.stdout.startswith('CHANGED')
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   delegate_to: "{{ FLOWISE_HOST_NODE }}"
