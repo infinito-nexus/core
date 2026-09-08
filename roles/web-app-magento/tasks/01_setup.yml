@@ -77,6 +77,13 @@
      ('Magento installation complete' in magento_install.stdout
       or 'successfully installed' in magento_install.stdout))
 
+- name: "🔑 Realign the DB password Magento persisted in app/etc/env.php"
+  shell: >
+    container exec --user {{ MAGENTO_USER }} {{ MAGENTO_PHP_CONTAINER_ADDRESS }} bash -lc "
+    cd {{ MAGENTO_ROOT }} && bin/magento setup:config:set --no-interaction --db-password=\"\$MYSQL_PASSWORD\""
+  register: magento_db_password_realign
+  changed_when: "'You saved the new configuration' in magento_db_password_realign.stdout"
+
 - name: "📤 Stage Magento's remote-storage configurator into the volume"
   ansible.builtin.copy:
     src: php/remote-storage.php
