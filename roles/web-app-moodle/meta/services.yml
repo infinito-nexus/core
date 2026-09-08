@@ -44,7 +44,6 @@ moodle:
   bond: 1
   enabled: true # nocheck: dynamic-flag
   shared: true
-  branch: stable405
   release: 4.5.11
   image: php
   # nocheck: docker-version

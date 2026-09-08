@@ -24,6 +24,9 @@ MOODLE_AUTH_SUBDIR: "auth" # top-level auth/ tree
 MOODLE_WEBSERVICE_SUBDIR: "webservice"
 MOODLE_CLI_RELPATH: "admin/cli" # admin CLI script dir
 
+MOODLE_OIDC_PLUGIN_VERSION: "{{ lookup('config', application_id, 'addons.auth_oidc.version') }}"
+MOODLE_OIDC_PLUGIN_UPSTREAM: "{{ lookup('config', application_id, 'addons.auth_oidc.update.upstream_id') }}"
+MOODLE_OIDC_PLUGIN_ARCHIVE_URL: "https://github.com/{{ MOODLE_OIDC_PLUGIN_UPSTREAM }}/archive/refs/tags/{{ MOODLE_OIDC_PLUGIN_VERSION }}.zip"
 MOODLE_OIDC_PLUGIN_RELPATH: "{{ [MOODLE_AUTH_SUBDIR, 'oidc'] | path_join }}"
 MOODLE_OIDC_PLUGIN_DIR: "{{ [MOODLE_CODE_DIR, MOODLE_OIDC_PLUGIN_RELPATH] | path_join }}"
 MOODLE_CLI_DIR: "{{ [MOODLE_CODE_DIR, MOODLE_CLI_RELPATH] | path_join }}"
@@ -32,10 +35,8 @@ MOODLE_CONFIG: "{{ [MOODLE_CODE_DIR, 'config.php'] | path_join }}"
 MOODLE_RUNTIME_USER: "www-data"
 MOODLE_RUNTIME_USER_GROUP: "{{ MOODLE_RUNTIME_USER }}:{{ MOODLE_RUNTIME_USER }}"
 
-MOODLE_BRANCH: "{{ lookup('config', application_id, 'services.moodle.branch') }}"
 MOODLE_RELEASE: "{{ lookup('config', application_id, 'services.moodle.release') }}"
-MOODLE_TARBALL_FILENAME: "moodle-{{ MOODLE_RELEASE }}.tgz"
-MOODLE_TARBALL_URL: "https://download.moodle.org/download.php/direct/{{ MOODLE_BRANCH }}/{{ MOODLE_TARBALL_FILENAME }}"
+MOODLE_TARBALL_URL: "https://github.com/moodle/moodle/archive/refs/tags/v{{ MOODLE_RELEASE }}.tar.gz"
 
 MOODLE_MSMTP_SRC: "{{ lookup('path_absolute', 'roles/sys-svc-mail-msmtp/templates/msmtprc.conf.j2') }}"
 MOODLE_MSMTP_ABS: "{{ [ lookup('container', application_id, 'directories.config'), 'msmtprc.conf'] | path_join }}"

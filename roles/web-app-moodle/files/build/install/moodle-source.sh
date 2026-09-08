@@ -10,21 +10,18 @@ set -euxo pipefail
 : "${MOODLE_SOURCE_DIR:?required}"
 : "${MOODLE_RUNTIME_USER:?required}"
 : "${MOODLE_TARBALL_URL:?required}"
-: "${MOODLE_TARBALL_FILENAME:?required}"
 : "${MOODLE_VERSION_FILE:?required}"
 : "${MOODLE_AUTH_SUBDIR:?required}"
 
-EXTRACT_DIR="$(mktemp -d -t moodle-extract.XXXXXX)"
 TARBALL_PATH="$(mktemp -t moodle-tarball.XXXXXX)"
-trap 'rm -rf "${EXTRACT_DIR}" "${TARBALL_PATH}"' EXIT
+trap 'rm -rf "${TARBALL_PATH}"' EXIT
 
 curl --connect-timeout 5 --max-time 600 --retry 3 --retry-all-errors --retry-delay 2 -fSL -o "${TARBALL_PATH}" "${MOODLE_TARBALL_URL}"
 file "${TARBALL_PATH}"
 
 rm -rf "${MOODLE_SOURCE_DIR}"
 mkdir -p "${MOODLE_SOURCE_DIR}"
-tar -xzf "${TARBALL_PATH}" -C "${EXTRACT_DIR}"
-cp -a "${EXTRACT_DIR}/moodle/." "${MOODLE_SOURCE_DIR}/"
+tar -xzf "${TARBALL_PATH}" --strip-components=1 -C "${MOODLE_SOURCE_DIR}"
 
 test -d "${MOODLE_SOURCE_DIR}/${MOODLE_AUTH_SUBDIR}"
 test -f "${MOODLE_SOURCE_DIR}/${MOODLE_VERSION_FILE}"
