@@ -1,0 +1,29 @@
+---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: semaphore
+    resolve_output_prefix: SEMAPHORE
+    resolve_compose_cid: "{{ SEMAPHORE_NAME }}"
+
+- name: "⏳ Wait until the Semaphore API/DB is ready"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ SEMAPHORE_LOCAL_CID | quote }}
+    semaphore user list
+  register: semaphore_breakglass_ready
+  changed_when: false
+  retries: 30
+  delay: 5
+  until: semaphore_breakglass_ready.rc == 0
+  delegate_to: "{{ SEMAPHORE_HOST_NODE }}"
+
+- name: "🔑 Realign the break-glass administrator password"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ SEMAPHORE_LOCAL_CID | quote }}
+    semaphore user change-by-login
+    --login {{ SEMAPHORE_ADMIN_USERNAME | quote }}
+    --password {{ SEMAPHORE_ADMIN_PASSWORD | quote }}
+  register: semaphore_breakglass_password
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  changed_when: semaphore_breakglass_password.rc == 0
+  delegate_to: "{{ SEMAPHORE_HOST_NODE }}"
