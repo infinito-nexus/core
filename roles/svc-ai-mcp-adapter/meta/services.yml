@@ -8,8 +8,8 @@ mcp-adapter:
   bond: 1
   enabled: true
   shared: true
-  # nocheck: docker-version  base of a self-built stdlib-only image, not the served application
   image: python
+  # nocheck: docker-version  base of a self-built stdlib-only image, not the served application
   version: "3.13.15-slim"
   custom: true
   name: mcp-adapter
