@@ -12,3 +12,4 @@ site_tmp:
     - service: checkmk
       target: "/omd/sites/{{ lookup('config', 'web-app-checkmk', 'services.checkmk.site') }}/tmp"
       size: 512m
+      mode: "01777"

@@ -190,11 +190,10 @@ def validate_volumes_meta(
                 if "size" in mount and not isinstance(mount["size"], (str, int))
             )
             violations.extend(
-                f"{prefix}: tmpfs 'mode' is dropped by `docker stack deploy`, so it "
-                f"cannot be relied on; chown the target from the image's own "
-                f"pre-start hook instead (got {mount['mode']!r})"
+                f"{prefix}: tmpfs 'mode' must be an octal string or int, got "
+                f"{type(mount['mode']).__name__}"
                 for mount in (entry.get("mounts") or [])
-                if "mode" in mount
+                if "mode" in mount and not isinstance(mount["mode"], (str, int))
             )
 
         mounts = entry.get("mounts")
