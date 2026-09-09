@@ -205,7 +205,7 @@ Key settings in `meta/services.yml` and `meta/server.yml`:
 
 ## Addons
 
-This role declares no addons (it ships no `meta/addons/` directory). Mattermost **Team Edition** manages plugin install and enablement at runtime; there is no declarative per-plugin install path in this role. Plugins are operator-managed and persisted through the named plugin volumes (`plugins`, `client-plugins`) declared in `meta/volumes.yml`. No addon bridges any in-repo service.
+This role declares no addons (it ships no `meta/addons/` directory). Mattermost **Team Edition** manages plugin install and enablement at runtime; there is no declarative per-plugin install path in this role. Plugins are operator-managed. The named volumes `plugins` and `client-plugins` declared in `meta/volumes.yml` are node-local derived copies that every replica extracts for itself from the image's prepackaged bundles; an uploaded bundle persists in the file store, not in them. No addon bridges any in-repo service.
 
 ## References
 
