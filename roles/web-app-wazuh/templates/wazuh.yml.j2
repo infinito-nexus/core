@@ -1,0 +1,7 @@
+hosts:
+  - default:
+      url: "https://{{ WAZUH_MANAGER_CONTAINER }}"
+      port: {{ lookup('config', application_id, 'services.manager.ports.internal.api') }}
+      username: wazuh-wui
+      password: "{{ WAZUH_WUI_PASSWORD }}"
+      run_as: true

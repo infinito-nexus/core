@@ -1,0 +1,40 @@
+---
+# Pushes internal_users.yml/config.yml/roles.yml/roles_mapping.yml (rendered
+# by 00_core.yml) into the security index. This is a discrete, ordered step:
+# it only runs after the indexer has reported cluster health green/yellow
+# (the preceding task in 00_core.yml), never as a bare file drop.
+- name: "▶️ Run securityadmin.sh inside the indexer container"
+  ansible.builtin.shell:
+    # Exception: `container exec` (WAZUH_INDEXER_CONTAINER_ADDRESS, the
+    # container_address lookup) rather than `{{ BIN_COMPOSE }} exec`:
+    # the compose-CLI verb is docker-compose-only and breaks under
+    # `docker stack deploy` (no compose project, no service_healthy
+    # depends_on). Addressing by the compose SERVICE KEY ("indexer")
+    # rather than the `container_name` value ("wazuh.indexer") is still
+    # required in compose mode - confirmed against a live deploy: exec
+    # with the container_name fails with the misleading "service ... is
+    # not running" even while the container is genuinely up and healthy.
+    # JAVA_HOME MUST be set explicitly: securityadmin.sh's own JVM-location
+    # logic falls back to `which java`, which does not exist in this image
+    # (confirmed against a live deploy - without JAVA_HOME the script hangs
+    # indefinitely after printing its "nor OPENSEARCH_JAVA_HOME nor
+    # JAVA_HOME is set" warning and never reaches the actual securityadmin
+    # run). The real java binary lives at the bundled JDK path below.
+    cmd: >-
+      container exec -e JAVA_HOME=/usr/share/wazuh-indexer/jdk {{ WAZUH_INDEXER_CONTAINER_ADDRESS }}
+      /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh
+      -cd {{ WAZUH_INDEXER_SECURITY_DIR_CONTAINER }}/
+      -icl
+      -key {{ WAZUH_INDEXER_CERTS_DIR_CONTAINER }}/admin-key.pem
+      -cert {{ WAZUH_INDEXER_CERTS_DIR_CONTAINER }}/admin.pem
+      -cacert {{ WAZUH_INDEXER_CERTS_DIR_CONTAINER }}/root-ca.pem
+      -nhnv
+    chdir: "{{ WAZUH_INSTANCE_DIR }}"
+  register: wazuh_securityadmin
+  changed_when: "'Done with success' in wazuh_securityadmin.stdout"
+  failed_when:
+    - wazuh_securityadmin.rc != 0
+    - "'Done with success' not in wazuh_securityadmin.stdout"
+  retries: 10
+  delay: 10
+  until: wazuh_securityadmin.rc == 0

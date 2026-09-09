@@ -1,0 +1,10 @@
+nodes:
+  indexer:
+    - name: {{ WAZUH_INDEXER_CONTAINER }}
+      ip: {{ WAZUH_INDEXER_CONTAINER }}
+  server:
+    - name: {{ WAZUH_MANAGER_CONTAINER }}
+      ip: {{ WAZUH_MANAGER_CONTAINER }}
+  dashboard:
+    - name: {{ WAZUH_DASHBOARD_CONTAINER }}
+      ip: {{ WAZUH_DASHBOARD_CONTAINER }}
