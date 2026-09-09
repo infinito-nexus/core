@@ -8,7 +8,7 @@ auth                {{ email.auth_mechanism }}
 tls_starttls        {{ email.start_tls | on_off }}
 tls                 {{ email.tls | on_off }}
 {% if ca_injected %}
-tls_trust_file      {{ CA_TRUST.inject_cert_container }}
+tls_trust_file      {{ CA_TRUST.inject_bundle_container }}
 {% endif %}
 tls_host_override   {{ email.host }}
 account             system_email_no_reply
