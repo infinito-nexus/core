@@ -31,7 +31,9 @@
       net.ipv6.conf.all.disable_ipv6: "{{ (not NETWORK_IPV6_ENABLED | bool) | int }}"
     healthcheck:
       test: ["CMD", "su", "{{ NEXTCLOUD_DOCKER_USER }}", "-s", "/bin/sh", "-c", "php -r 'exit(@fsockopen(\"127.0.0.1\", {{ NEXTCLOUD_FPM_PORT }}) ? 0 : 1);' && php {{ NEXTCLOUD_INTERNAL_OCC_COMMAND }} status"]
+      # nocheck: healthcheck-timing-override  occ boots the whole Nextcloud stack per probe, so it stays off a 30s loop
       interval: 1m
+      # nocheck: healthcheck-timing-override  occ regularly needs more than the 5s default to answer
       timeout: 30s
       retries: 10
       start_period: {{ container_healthcheck_start_period }}
@@ -123,7 +125,9 @@
       net.ipv6.conf.all.disable_ipv6: "{{ (not NETWORK_IPV6_ENABLED | bool) | int }}"
     healthcheck:
       test: ["CMD", "su", "{{ NEXTCLOUD_DOCKER_USER }}", "-s", "/bin/sh", "-c", "php {{ NEXTCLOUD_INTERNAL_OCC_COMMAND }} status"]
+      # nocheck: healthcheck-timing-override  occ boots the whole Nextcloud stack per probe, so it stays off a 30s loop
       interval: 1m
+      # nocheck: healthcheck-timing-override  occ regularly needs more than the 5s default to answer
       timeout: 30s
       retries: 10
       start_period: {{ container_healthcheck_start_period }}

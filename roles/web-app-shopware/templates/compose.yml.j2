@@ -89,6 +89,7 @@ x-environment: &shopware
     healthcheck:
       test: ["CMD-SHELL", "curl -fsSL http://127.0.0.1:{{ SHOPWARE_OPENSEARCH_PORT }}/_cluster/health || exit 1"]
       interval: 30s
+      # nocheck: healthcheck-timing-override  curl against opensearch, which does not answer inside the 5s default while it is still forming its cluster
       timeout: 10s
       retries: 5
       start_period: 60s

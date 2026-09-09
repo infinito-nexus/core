@@ -21,7 +21,7 @@ RUN chmod +x /healthcheck.sh
 
 EXPOSE 389
 
-HEALTHCHECK --interval=10s --timeout=5s --start-period=15s --retries=12 \
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=12 --start-interval=5s \
   CMD ["/healthcheck.sh"]
 
 ENTRYPOINT ["/usr/bin/tini","--","/entrypoint.sh"]

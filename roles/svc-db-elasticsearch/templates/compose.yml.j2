@@ -18,7 +18,7 @@
       test:
         - "CMD-SHELL"
         - "curl -fsS -u elastic:{{ ELASTICSEARCH_PASSWORD }} http://127.0.0.1:{{ ELASTICSEARCH_INTERNAL_PORT }}/_cluster/health || exit 1"
-      interval: 10s
+      interval: 30s
       timeout: 5s
       retries: 18
       start_period: 120s
