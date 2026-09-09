@@ -86,6 +86,22 @@ function menuTriggerCandidatesOn(scope) {
   ];
 }
 
+const POLL_INTERVAL_MS = 250;
+
+async function waitForLogoutControl(page, timeoutMs) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    for (const loc of logoutCandidatesOn(page)) {
+      const count = await loc.count().catch(() => 0);
+      for (let i = 0; i < count; i++) {
+        if (await loc.nth(i).isVisible().catch(() => false)) return true;
+      }
+    }
+    await page.waitForTimeout(POLL_INTERVAL_MS);
+  }
+  return false;
+}
+
 async function waitForAnyLogoutCandidate(page, timeoutMs = resolveTimeout(30_000)) {
   // Returns true on the first visible logout-shaped element OR menu trigger
   // (Account/Profile). Async-rendered post-login UIs (e.g. dashboard's
@@ -102,7 +118,7 @@ async function waitForAnyLogoutCandidate(page, timeoutMs = resolveTimeout(30_000
         }
       }
     }
-    await page.waitForTimeout(resolveTimeout(250));
+    await page.waitForTimeout(POLL_INTERVAL_MS);
   }
   return false;
 }
@@ -122,7 +138,7 @@ async function tryLogoutViaMenus(page) {
       tried.add(key);
       await trigger.click({ timeout: resolveTimeout(5_000) }).catch(() => {});
       // Give the dropdown / popover time to render its items.
-      await page.waitForTimeout(resolveTimeout(1_500));
+      await waitForLogoutControl(page, resolveTimeout(1_500));
       if (await tryLogoutFrom(page)) {
         await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         return true;
@@ -170,8 +186,7 @@ async function confirmKeycloakLogoutIfPrompted(page) {
 async function inAppLogout(page) {
   await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
 
-  await waitForAnyLogoutCandidate(page);
-  await page.waitForTimeout(resolveTimeout(3_000));
+  await waitForLogoutControl(page, resolveTimeout(3_000));
   await waitForAnyLogoutCandidate(page);
 
   if (await tryLogoutFrom(page)) {
@@ -222,4 +237,4 @@ async function inAppLogout(page) {
   expect.soft(false, "no in-app logout control reachable on the current authenticated surface").toBe(true);
 }
 
-module.exports = { inAppLogout, confirmKeycloakLogoutIfPrompted };
+module.exports = { inAppLogout, confirmKeycloakLogoutIfPrompted, waitForLogoutControl };
