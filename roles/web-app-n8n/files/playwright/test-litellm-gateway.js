@@ -183,7 +183,7 @@ function probeWorkflow(credentialId, endpoint) {
             messages: [{ role: "user", content: PROMPT }],
             stream: false,
           }),
-          options: { timeout: COMPLETION_TIMEOUT_MS },
+          options: { timeout: COMPLETION_TIMEOUT_MS }, // nocheck: raw-timeout  an n8n node parameter, not a Playwright wait: n8n reaches LiteLLM inside the deployment and never crosses a Tor circuit
         },
         credentials: { [CREDENTIAL_TYPE]: { id: credentialId, name: credentialName } },
       },
