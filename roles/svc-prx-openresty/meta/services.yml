@@ -11,6 +11,8 @@ openresty:
   enabled: true
   shared: true
   name: openresty
+  healthcheck:
+    test: ["CMD", "openresty", "-t", "-q"]
   min_storage: 264MB
   backup:
     disabled: true
