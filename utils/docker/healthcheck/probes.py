@@ -12,6 +12,20 @@ from typing import Any, ClassVar
 CURL = ("curl",)
 CURL_NO_PROXY = ("--noproxy", "*")
 
+DEFAULT_INTERVAL = "30s"
+DEFAULT_TIMEOUT = "5s"
+DEFAULT_RETRIES = 3
+DEFAULT_START_PERIOD = "30s"
+DEFAULT_START_INTERVAL = "5s"
+
+TIMING_DEFAULTS: dict[str, object] = {
+    "interval": DEFAULT_INTERVAL,
+    "timeout": DEFAULT_TIMEOUT,
+    "retries": DEFAULT_RETRIES,
+    "start_period": DEFAULT_START_PERIOD,
+    "start_interval": DEFAULT_START_INTERVAL,
+}
+
 _HTTP_REQUEST = (
     "echo -e 'GET /{path} HTTP/1.1\\r\\nHost: localhost\\r\\n"
     "Connection: close\\r\\n\\r\\n' >&3"
@@ -53,11 +67,11 @@ class Probe:
     """Base for every flavor: timings plus the argv docker executes."""
 
     flavor: ClassVar[str] = ""
-    interval: ClassVar[str] = "30s"
-    timeout: ClassVar[str] = "5s"
-    retries: ClassVar[int] = 3
-    start_period: ClassVar[str] = "30s"
-    start_interval: ClassVar[str] = "5s"
+    interval: ClassVar[str] = DEFAULT_INTERVAL
+    timeout: ClassVar[str] = DEFAULT_TIMEOUT
+    retries: ClassVar[int] = DEFAULT_RETRIES
+    start_period: ClassVar[str] = DEFAULT_START_PERIOD
+    start_interval: ClassVar[str] = DEFAULT_START_INTERVAL
 
     def __init__(self, **context: Any) -> None:
         self.port = context.get("port", "")
