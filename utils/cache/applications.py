@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING, Any
 
 from plugins.filter.merge.with_defaults import merge_with_defaults
 from utils.roles.applications.mcp import derive_mcp_presence
-from utils.roles.mapping import ROLE_FILE_META_VARIANTS
+from utils.roles.mapping import ROLE_FILE_META_VARIANTS, ROLE_FILE_META_VOLUMES
 
 from .base import (
     _RENDER_GUARD,
@@ -450,10 +450,21 @@ def get_canonical_volumes(application_id: str) -> dict[str, Any]:
 
     Lives outside the applications payload so its embedded Jinja `source:`
     strings stay raw — see the `_CANONICAL_VOLUMES_BY_ROLE` doc-comment.
+
+    An empty result is cached under its id too, or a role without the file
+    would re-stat it on every call.
     """
-    if not _CANONICAL_VOLUMES_BY_ROLE:
-        _build_application_defaults(_resolve_roles_dir(roles_dir=None))
-    return _CANONICAL_VOLUMES_BY_ROLE.get(application_id, {})
+    cached = _CANONICAL_VOLUMES_BY_ROLE.get(application_id)
+    if cached is not None:
+        return cached
+
+    data = _load_yaml_any_cached(
+        _resolve_roles_dir(roles_dir=None) / application_id / ROLE_FILE_META_VOLUMES,
+        default_if_missing={},
+    )
+    volumes = data if isinstance(data, dict) else {}
+    _CANONICAL_VOLUMES_BY_ROLE[application_id] = volumes
+    return volumes
 
 
 def _reset() -> None:
