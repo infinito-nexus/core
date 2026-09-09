@@ -62,6 +62,7 @@
       timeout: 5s
       retries: 3
       start_period: 10s
+      start_interval: 5s
 {{ lookup('compose_networks') }}
 
 {{ lookup('compose_volumes') }}

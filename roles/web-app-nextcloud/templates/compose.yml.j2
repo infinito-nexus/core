@@ -35,6 +35,7 @@
       timeout: 30s
       retries: 10
       start_period: {{ container_healthcheck_start_period }}
+      start_interval: 5s
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
@@ -126,6 +127,7 @@
       timeout: 30s
       retries: 10
       start_period: {{ container_healthcheck_start_period }}
+      start_interval: 5s
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_networks', provider_self_alias=False) | indent(4) }}
 

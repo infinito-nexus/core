@@ -153,6 +153,12 @@ apps-akka:
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-graphql-server:
+  healthcheck:
+    test: ["CMD", "curl", "-f", "http://localhost:8085/healthz"]
+    interval: 30s
+    timeout: 10s
+    retries: 5
+    start_period: 10m
   image: alangecker/bbb-docker-graphql-server
   version: "v3.0.23"
   enabled: false

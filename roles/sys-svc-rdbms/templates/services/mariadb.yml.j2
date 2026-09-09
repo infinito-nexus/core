@@ -16,11 +16,14 @@
         target: {{ lookup('database', application_id, 'realign_target') }}
     volumes:
       - database:/var/lib/mysql
+    # nocheck: container-healthcheck-literal  shared partial rendered for the consuming role's application_id, so the declaration has no single meta/services.yml to live in
     healthcheck:
       test: [ "CMD", "sh", "-c", "/usr/bin/mariadb --user=$$MYSQL_USER --password=$$MYSQL_PASSWORD --execute 'SHOW DATABASES;'" ]
       interval: 10s
       timeout: 5s
       retries: 18
+      start_period: 30s
+      start_interval: 5s
     networks:  # nocheck: networks-literal  local sidecar inside consumer stack, default-only attachment
       - default
 {% endif %}

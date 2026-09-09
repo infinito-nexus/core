@@ -47,6 +47,12 @@ seaweedfs:
   public: true
 # nocheck: playwright-service-flag  self-provider
 snipe-it:
+  healthcheck:
+    test: ["CMD", "wget", "-q", "-O-", "http://localhost/health"]
+    interval: 10s
+    timeout: 5s
+    retries: 12
+    start_period: 5m
   enabled: true
   shared: true
   bond: 1

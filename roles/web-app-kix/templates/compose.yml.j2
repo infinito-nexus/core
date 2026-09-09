@@ -13,6 +13,7 @@
     {{ lookup('container_networks') | indent(4) }}
     healthcheck:
       start_period: {{ container_healthcheck_start_period }}
+      start_interval: 5s
 
   {% set service_name = KIX_FRONTEND_SERVICE %}
   {{ service_name }}:
@@ -35,6 +36,7 @@
     {{ lookup('container_networks') | indent(4) }}
     healthcheck:
       start_period: {{ container_healthcheck_start_period }}
+      start_interval: 5s
 
   {% set service_name = KIX_PROXY_SERVICE %}
   {{ service_name }}:

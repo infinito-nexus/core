@@ -16,6 +16,12 @@ dashboard:
   shared: "{{ 'web-app-dashboard' in group_names }}"
 # nocheck: playwright-service-flag — self-provider
 matomo:
+  healthcheck:
+    test: ["CMD-SHELL", "code=\"$$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1/index.php || echo 000)\"; [ \"$$code\" -ge 200 ] && [ \"$$code\" -lt 400 ]"]
+    interval: 10s
+    timeout: 5s
+    retries: 12
+    start_period: 900s
   modes:
     compose:
       enabled: true

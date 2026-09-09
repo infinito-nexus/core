@@ -71,6 +71,12 @@ worker:
   # nocheck: single-replica
   replicas: 1
   name: pixelfed_worker
+  healthcheck:
+    test: ["CMD-SHELL", "test ! -e /var/www/storage/.docker.init || (php artisan horizon:status | grep running)"]
+    interval: 60s
+    timeout: 5s
+    retries: 5
+    start_period: 300s
   cpus: 1.0
   mem_reservation: 0.75g
   mem_limit: 1g

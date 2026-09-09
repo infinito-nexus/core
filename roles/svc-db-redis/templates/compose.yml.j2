@@ -23,6 +23,7 @@
       timeout: 5s
       retries: 30
       start_period: 30s
+      start_interval: 5s
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 

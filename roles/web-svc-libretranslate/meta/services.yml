@@ -1,6 +1,12 @@
 ---
 # nocheck: playwright-service-flag — self-provider
 libretranslate:
+  healthcheck:
+    test: ["CMD-SHELL", "./venv/bin/python scripts/healthcheck.py"]
+    interval: 30s
+    timeout: 10s
+    retries: 3
+    start_period: 30s
   modes:
     compose:
       enabled: true

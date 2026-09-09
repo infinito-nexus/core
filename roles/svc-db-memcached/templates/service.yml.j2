@@ -9,6 +9,7 @@
       - memcached
       - -m
       - "64"
+    # nocheck: container-healthcheck-literal  probes every second, so the SPOT's 5s start cadence would report healthy later than this block already does
     healthcheck:
       test: ["CMD-SHELL", "printf 'version\\r\\n' | nc -w 1 127.0.0.1 11211 | grep -q VERSION"]
       interval: 1s

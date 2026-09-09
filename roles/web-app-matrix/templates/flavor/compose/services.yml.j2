@@ -52,6 +52,7 @@
       timeout: 10s
       retries: 5
       start_period: 5m
+      start_interval: 5s
     {{ lookup('container_networks') | indent(4) }}
 {% endfor %}
 {% if lookup('config', application_id, 'services.matrix.plugins.chatgpt') | bool %}

@@ -127,6 +127,12 @@ seaweedfs:
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'web-app-seaweedfs' in group_names }}"
 rabbit:
+  healthcheck:
+    test: ["CMD", "rabbitmq-diagnostics", "ping"]
+    interval: 30s
+    timeout: 10s
+    retries: 5
+    start_period: 30s
   name: opentalk-rabbit
   image: rabbitmq
   version: 4.3.5

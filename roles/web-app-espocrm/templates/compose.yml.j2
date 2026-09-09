@@ -41,12 +41,7 @@
     {{ lookup('container_depends_on', application_id, extra={
   ESPOCRM_SERVICE: {'condition': 'service_healthy'},
 }) | indent(4) }}
-    healthcheck:
-      test: ["CMD-SHELL", "test -f /var/www/html/bootstrap.php && php -r \"require '/var/www/html/bootstrap.php'; echo 'OK';\""]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-      start_period: 40s
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
 
   {% set service_name = 'websocket' %}
   {{ service_name }}:

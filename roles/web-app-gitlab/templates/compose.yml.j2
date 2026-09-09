@@ -10,12 +10,7 @@
       GITLAB_WEBSERVER: "PUMA"
       ACTION_CABLE_IN_APP: "true"
     command: ["/scripts/wait-for-deps", "/scripts/process-wrapper"]
-    healthcheck:
-      test: ["CMD", "/scripts/healthcheck"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 600s
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_depends_on', application_id, extra={
   GITLAB_MIGRATIONS_SERVICE_NAME: {'condition': 'service_completed_successfully'},
 }) | indent(4) }}
@@ -33,12 +28,7 @@
       GITLAB_WORKHORSE_AUTH_BACKEND: "http://{{ GITLAB_WEBSERVICE_SERVICE_NAME }}:{{ GITLAB_WEBSERVICE_PORT }}"
       GITLAB_WORKHORSE_EXTRA_ARGS: "-cableBackend http://{{ GITLAB_WEBSERVICE_SERVICE_NAME }}:{{ GITLAB_WEBSERVICE_PORT }}"
     command: ["/scripts/start-workhorse"]
-    healthcheck:
-      test: ["CMD", "/scripts/healthcheck"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 120s
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_ports', ['gitlab', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_depends_on', application_id, extra={
   GITLAB_WEBSERVICE_SERVICE_NAME: {'condition': 'service_started'},
@@ -71,12 +61,7 @@
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     environment:
       CONFIG_TEMPLATE_DIRECTORY: "/etc/gitaly/templates"
-    healthcheck:
-      test: ["CMD", "/scripts/healthcheck"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 60s
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks', provider_self_alias=False) | indent(4) }}
@@ -96,6 +81,7 @@
       timeout: 5s
       retries: 3
       start_period: 30s
+      start_interval: 5s
     {{ lookup('container_ports', ['gitlab', 'ssh']) | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}

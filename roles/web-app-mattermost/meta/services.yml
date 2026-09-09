@@ -30,6 +30,12 @@ postgres:
   shared: "{{ 'svc-db-postgres' in group_names }}"
 # nocheck: playwright-service-flag: shared provider entity; the app itself is covered by this role's own Playwright spec
 mattermost:
+  healthcheck:
+    test: ["CMD", "/mattermost/bin/mmctl", "--local", "system", "status"]
+    interval: 1m
+    timeout: 10s
+    retries: 3
+    start_period: 30s
   modes:
     compose:
       enabled: true

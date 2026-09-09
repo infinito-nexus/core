@@ -74,6 +74,12 @@ webservice:
   image: registry.gitlab.com/gitlab-org/build/cng/gitlab-webservice-ce
   version: v19.3.1
   name: gitlab-webservice
+  healthcheck:
+    test: ["CMD", "/scripts/healthcheck"]
+    interval: 30s
+    timeout: 10s
+    retries: 5
+    start_period: 600s
   ports:
     internal:
       http: 8080
@@ -100,6 +106,12 @@ workhorse:
   image: registry.gitlab.com/gitlab-org/build/cng/gitlab-workhorse-ce
   version: v19.3.1
   name: gitlab-workhorse
+  healthcheck:
+    test: ["CMD", "/scripts/healthcheck"]
+    interval: 30s
+    timeout: 5s
+    retries: 3
+    start_period: 120s
   cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 512m
@@ -109,6 +121,12 @@ gitaly:
   replicas: 1
   image: registry.gitlab.com/gitlab-org/build/cng/gitaly
   version: v19.3.1
+  healthcheck:
+    test: ["CMD", "/scripts/healthcheck"]
+    interval: 30s
+    timeout: 5s
+    retries: 3
+    start_period: 60s
   name: gitlab-gitaly
   ports:
     internal:

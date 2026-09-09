@@ -40,6 +40,7 @@ x-environment: &shopware
       timeout: 5s
       retries: 10
       start_period: 120s
+      start_interval: 5s
     {{ lookup('container_volumes', service_name) | indent(4) }}
 
 
@@ -53,12 +54,7 @@ x-environment: &shopware
     {{ lookup('compose_only', 'container_name', SHOPWARE_WORKER_CONTAINER) }}
     entrypoint: {{ SHOPWARE_WORKER_ENTRYPOINT }}
     {{ lookup('depends_on', {'init': 'service_completed_successfully'}) }}
-    healthcheck:
-      test: ["CMD", "php", "-v"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
 
     {{ lookup('container_networks') | indent(4) }}
@@ -70,12 +66,7 @@ x-environment: &shopware
     {{ lookup('compose_only', 'container_name', SHOPWARE_SCHED_CONTAINER) }}
     entrypoint: {{ SHOPWARE_SCHED_ENTRYPOINT }}
     {{ lookup('depends_on', {'init': 'service_completed_successfully'}) }}
-    healthcheck:
-      test: ["CMD", "php", "-v"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
 
 
@@ -101,6 +92,7 @@ x-environment: &shopware
       timeout: 10s
       retries: 5
       start_period: 60s
+      start_interval: 5s
     {{ lookup('container_networks') | indent(4) }}
   {% endif %}
 

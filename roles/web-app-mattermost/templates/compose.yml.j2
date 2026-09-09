@@ -8,12 +8,7 @@
     {{ lookup('container_ports', ['mattermost', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     command: ["/mattermost/bin/mattermost", "server"]
-    healthcheck:
-      test: ["CMD", "/mattermost/bin/mmctl", "--local", "system", "status"]
-      interval: 1m
-      timeout: 10s
-      retries: 3
-      start_period: 30s
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
 
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}

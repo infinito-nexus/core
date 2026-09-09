@@ -88,6 +88,12 @@ web:
   min_storage: 5GB
   pids_limit: 512
 worker:
+  healthcheck:
+    test: ["CMD", "php", "-v"]
+    interval: 30s
+    timeout: 5s
+    retries: 3
+    start_period: 10s
   name: shopware-worker
   entrypoint:
     - php
@@ -103,6 +109,12 @@ worker:
   min_storage: 5GB
   pids_limit: 512
 scheduler:
+  healthcheck:
+    test: ["CMD", "php", "-v"]
+    interval: 30s
+    timeout: 5s
+    retries: 3
+    start_period: 10s
   name: shopware-scheduler
   # nocheck: single-replica
   replicas: 1

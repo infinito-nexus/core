@@ -50,6 +50,12 @@ fider:
       http: 8067
     internal:
       http: 3000
+  healthcheck:
+    test: ["CMD", "./fider", "ping"]
+    interval: 30s
+    timeout: 10s
+    retries: 5
+    start_period: 30s
   run_after:
     - web-app-keycloak
     - web-app-mailu

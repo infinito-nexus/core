@@ -35,6 +35,12 @@ postgres:
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
 taiga:
+  healthcheck:
+    test: ["CMD", "python", "-c", "import socket; socket.create_connection(('127.0.0.1',8000),5).close()"]
+    interval: 30s
+    timeout: 5s
+    retries: 5
+    start_period: 40s
   modes:
     compose:
       enabled: true
@@ -63,6 +69,12 @@ taiga:
     - web-app-keycloak
   lifecycle: beta
 async:
+  healthcheck:
+    test: ["CMD-SHELL", "tr '\\0' ' ' </proc/1/cmdline | grep -qi celery"]
+    interval: 30s
+    timeout: 5s
+    retries: 5
+    start_period: 60s
   cpus: "1.0"
   mem_reservation: 1g
   mem_limit: 1.5g
@@ -92,6 +104,12 @@ gateway:
   mem_limit: 512m
   pids_limit: 256
 events:
+  healthcheck:
+    test: ["CMD-SHELL", "nc -z 127.0.0.1 8888"]
+    interval: 30s
+    timeout: 5s
+    retries: 5
+    start_period: 30s
   image: taigaio/taiga-events
   version: 6.10.0
   cpus: "0.3"
@@ -99,6 +117,12 @@ events:
   mem_limit: 512m
   pids_limit: 256
 async-rabbitmq:
+  healthcheck:
+    test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+    interval: 30s
+    timeout: 5s
+    retries: 5
+    start_period: 20s
   image: rabbitmq
   version: "4.3-management-alpine"
   cpus: "1.0"
@@ -106,6 +130,12 @@ async-rabbitmq:
   mem_limit: 1.5g
   pids_limit: 512
 events-rabbitmq:
+  healthcheck:
+    test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+    interval: 30s
+    timeout: 5s
+    retries: 5
+    start_period: 20s
   image: rabbitmq
   version: "4.3-management-alpine"
   cpus: "0.5"
@@ -121,6 +151,12 @@ manager:
   mem_limit: 1g
   pids_limit: 256
 protected:
+  healthcheck:
+    test: ["CMD", "python", "-c", "import socket; socket.create_connection(('127.0.0.1',8003),5).close()"]
+    interval: 30s
+    timeout: 5s
+    retries: 5
+    start_period: 20s
   image: taigaio/taiga-protected
   version: 6.10.1
   cpus: "0.2"
