@@ -31,9 +31,9 @@
     container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
     php {{ MOODLE_CLI_DIR }}/install_database.php
     --agree-license
-    --adminuser={{ lookup('config', application_id, 'users.administrator.username') }}
-    --adminpass={{ lookup('config', application_id, 'secrets.credentials.user_password') | quote }}
-    --adminemail={{ lookup('config', application_id, 'users.administrator.email') }}
+    --adminuser={{ MOODLE_ADMIN_USERNAME | quote }}
+    --adminpass={{ MOODLE_ADMIN_PASSWORD | quote }}
+    --adminemail={{ MOODLE_ADMIN_EMAIL | quote }}
     --fullname="{{ MOODLE_SITE_TITLE }}"
     --shortname=Academy
   register: moodle_install
@@ -46,6 +46,18 @@
     - "'Moodle is already installed' not in moodle_install.stderr"
     - "'already installed' not in moodle_install.stdout"
     - "'Database tables already present' not in moodle_install.stderr"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔑 Realign the administrator password Moodle persisted at install"
+  when: not (MOODLE_OIDC_ENABLED | bool)
+  shell: >
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
+    php {{ [MOODLE_CLI_DIR, 'reset_password.php'] | path_join }}
+    --username={{ MOODLE_ADMIN_USERNAME | quote }}
+    --password={{ MOODLE_ADMIN_PASSWORD | quote }}
+    --ignore-password-policy
+  register: moodle_admin_password
+  changed_when: moodle_admin_password.rc == 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🌐 Open Moodle's cURL egress policy for the deployment's own networks"

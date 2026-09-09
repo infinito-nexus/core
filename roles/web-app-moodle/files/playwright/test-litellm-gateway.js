@@ -37,7 +37,7 @@ async function loginAsSiteAdmin(page, shared) {
   } else {
     expect(
       adminNativePassword,
-      "ADMIN_NATIVE_PASSWORD must be rendered from credentials.user_password; with the sso service off it is the only secret that authenticates the Moodle site administrator",
+      "ADMIN_NATIVE_PASSWORD must be rendered from the administrator user; with the sso service off it is the only secret that authenticates the Moodle site administrator",
     ).toBeTruthy();
 
     await gotoOnion(page, `${shared.env.moodleBaseUrl}/login/index.php`, {

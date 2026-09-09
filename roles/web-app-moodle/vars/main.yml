@@ -35,6 +35,10 @@ MOODLE_CONFIG: "{{ [MOODLE_CODE_DIR, 'config.php'] | path_join }}"
 MOODLE_RUNTIME_USER: "www-data"
 MOODLE_RUNTIME_USER_GROUP: "{{ MOODLE_RUNTIME_USER }}:{{ MOODLE_RUNTIME_USER }}"
 
+MOODLE_ADMIN_USERNAME: "{{ lookup('users', 'administrator').username }}"
+MOODLE_ADMIN_PASSWORD: "{{ lookup('users', 'administrator').password }}"
+MOODLE_ADMIN_EMAIL: "{{ lookup('users', 'administrator').email }}"
+
 MOODLE_RELEASE: "{{ lookup('config', application_id, 'services.moodle.release') }}"
 MOODLE_TARBALL_URL: "https://github.com/moodle/moodle/archive/refs/tags/v{{ MOODLE_RELEASE }}.tar.gz"
 
