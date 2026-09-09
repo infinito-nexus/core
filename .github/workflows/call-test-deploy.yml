@@ -124,7 +124,7 @@ env:
     access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
   INFINITO_IMAGE_TAG: ci-${{ github.sha }}
   INFINITO_GHCR_MIRROR_PREFIX: mirror
-  INFINITO_PLAYWRIGHT_KEEP: ${{ vars.INFINITO_PLAYWRIGHT_KEEP }}
+  INFINITO_PLAYWRIGHT_KEEP: ${{ vars.PLAYWRIGHT_KEEP_ALL }}
   INFINITO_APP_DISCOVERY_RUNNER: host
   INFINITO_DOCKER_FILESYSTEM_ALLOWED: ${{ inputs.filesystem }}
   INFINITO_LIFECYCLES: ${{ inputs.lifecycles }}
