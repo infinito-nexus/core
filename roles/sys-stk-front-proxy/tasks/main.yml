@@ -144,8 +144,10 @@
   notify: restart-openresty
   when:
     - nginx_conf.changed
-    - front_proxy_reload_check.status is defined
-    - front_proxy_reload_check.status not in front_proxy_status_codes
+    - front_proxy_reload_check.status | default(-1) not in front_proxy_status_codes
+    - >-
+      not openresty_reload.changed
+      or front_proxy_reload_check.status | default(-1) in front_proxy_stale_config_status_codes
 
 - name: "🔄 Flush the fallback redeploy for '{{ front_proxy_domain }}'"
   ansible.builtin.meta: flush_handlers
