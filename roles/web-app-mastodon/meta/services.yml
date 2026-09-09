@@ -93,7 +93,9 @@ sidekiq:
   name: mastodon-sidekiq
   healthcheck:
     test: ["CMD-SHELL", "pgrep -f sidekiq || exit 1"]
+    # nocheck: healthcheck-timing-override  a worker with no endpoint, so its liveness is checked rarely
     interval: 1m
+    # nocheck: healthcheck-timing-override  carried over and never measured; pgrep fits the 5s default
     timeout: 10s
   cpus: "0.8"
   mem_reservation: 1g

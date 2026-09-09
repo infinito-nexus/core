@@ -155,7 +155,7 @@ apps-akka:
 bbb-graphql-server:
   healthcheck:
     test: ["CMD", "curl", "-f", "http://localhost:8085/healthz"]
-    interval: 30s
+    # nocheck: healthcheck-timing-override  curl against the graphql server, which does not answer inside the 5s default while it is still building its schema
     timeout: 10s
     retries: 5
     start_period: 10m

@@ -3,10 +3,8 @@
 libretranslate:
   healthcheck:
     test: ["CMD-SHELL", "./venv/bin/python scripts/healthcheck.py"]
-    interval: 30s
+    # nocheck: healthcheck-timing-override  the probe starts a venv interpreter, which does not finish inside the 5s default
     timeout: 10s
-    retries: 3
-    start_period: 30s
   modes:
     compose:
       enabled: true

@@ -37,8 +37,6 @@ postgres:
 taiga:
   healthcheck:
     test: ["CMD", "python", "-c", "import socket; socket.create_connection(('127.0.0.1',8000),5).close()"]
-    interval: 30s
-    timeout: 5s
     retries: 5
     start_period: 40s
   modes:
@@ -71,8 +69,6 @@ taiga:
 async:
   healthcheck:
     test: ["CMD-SHELL", "tr '\\0' ' ' </proc/1/cmdline | grep -qi celery"]
-    interval: 30s
-    timeout: 5s
     retries: 5
     start_period: 60s
   cpus: "1.0"
@@ -106,10 +102,7 @@ gateway:
 events:
   healthcheck:
     test: ["CMD-SHELL", "nc -z 127.0.0.1 8888"]
-    interval: 30s
-    timeout: 5s
     retries: 5
-    start_period: 30s
   image: taigaio/taiga-events
   version: 6.10.0
   cpus: "0.3"
@@ -119,8 +112,6 @@ events:
 async-rabbitmq:
   healthcheck:
     test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
-    interval: 30s
-    timeout: 5s
     retries: 5
     start_period: 20s
   image: rabbitmq
@@ -132,8 +123,6 @@ async-rabbitmq:
 events-rabbitmq:
   healthcheck:
     test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
-    interval: 30s
-    timeout: 5s
     retries: 5
     start_period: 20s
   image: rabbitmq
@@ -153,8 +142,6 @@ manager:
 protected:
   healthcheck:
     test: ["CMD", "python", "-c", "import socket; socket.create_connection(('127.0.0.1',8003),5).close()"]
-    interval: 30s
-    timeout: 5s
     retries: 5
     start_period: 20s
   image: taigaio/taiga-protected

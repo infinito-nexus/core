@@ -39,6 +39,7 @@ keycloak:
     path: health/ready
     port_key: management
     start_period: 180s
+    # nocheck: healthcheck-timing-override  the management endpoint answers from the JVM, which does not reply inside the 5s default while the realm is still importing
     timeout: 15s
     retries: 5
   modes:

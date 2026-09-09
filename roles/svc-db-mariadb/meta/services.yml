@@ -24,8 +24,6 @@ mariadb:
   exposed: false
   healthcheck:
     test: ["CMD-SHELL", "healthcheck.sh --su-mysql --connect --innodb_initialized"]
-    interval: 10s
-    timeout: 5s
     retries: 18
     start_period: 90s
   ports:

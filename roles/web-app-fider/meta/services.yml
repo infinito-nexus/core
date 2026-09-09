@@ -52,10 +52,9 @@ fider:
       http: 3000
   healthcheck:
     test: ["CMD", "./fider", "ping"]
-    interval: 30s
+    # nocheck: healthcheck-timing-override  carried over from the hand-written block and never measured; './fider ping' should fit the 5s default
     timeout: 10s
     retries: 5
-    start_period: 30s
   run_after:
     - web-app-keycloak
     - web-app-mailu

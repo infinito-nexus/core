@@ -129,10 +129,9 @@ seaweedfs:
 rabbit:
   healthcheck:
     test: ["CMD", "rabbitmq-diagnostics", "ping"]
-    interval: 30s
+    # nocheck: healthcheck-timing-override  rabbitmq-diagnostics starts an Erlang CLI node, which does not finish inside the 5s default
     timeout: 10s
     retries: 5
-    start_period: 30s
   name: opentalk-rabbit
   image: rabbitmq
   version: 4.3.5

@@ -32,10 +32,10 @@ postgres:
 mattermost:
   healthcheck:
     test: ["CMD", "/mattermost/bin/mmctl", "--local", "system", "status"]
+    # nocheck: healthcheck-timing-override  mmctl spawns a binary and talks to the local socket, so it does not belong on a 30s steady-state loop
     interval: 1m
+    # nocheck: healthcheck-timing-override  spawning that binary does not finish inside the 5s default
     timeout: 10s
-    retries: 3
-    start_period: 30s
   modes:
     compose:
       enabled: true
