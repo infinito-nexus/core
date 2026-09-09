@@ -15,9 +15,9 @@ A role whose upstream publishes no single embeddable video opts out with
 
     # nocheck: info-video-embed <reason>
 
-in the first 30 lines of ``meta/main.yml``, the same place and mechanism the
-``info-media`` marker uses. It lives there rather than in ``meta/info.yml``
-because a comment-only ``info.yml`` parses to an empty document.
+in the first 30 lines of ``meta/info.yml``, the same place and mechanism the
+``info-media`` marker uses, so an exemption sits beside the ``video`` field it
+speaks about.
 
 This is an external test because reachability needs live HTTP. Like its
 siblings it never fails on an unanswered probe: a timeout or connection error
@@ -38,7 +38,7 @@ from utils.annotations.message import warning
 from utils.annotations.suppress import is_suppressed_in_head
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_META_INFO, ROLE_FILE_META_MAIN
+from utils.roles.mapping import ROLE_FILE_META_INFO
 from utils.roles.validation.invokable import _get_invokable_paths, _is_role_invokable
 
 from . import PROJECT_ROOT
@@ -74,9 +74,9 @@ def _candidates() -> list[tuple[str, str]]:
     for role_dir in sorted((PROJECT_ROOT / "roles").iterdir()):
         if not role_dir.is_dir() or not _is_role_invokable(role_dir.name, invokable):
             continue
-        main_path = role_dir / ROLE_FILE_META_MAIN
-        if main_path.is_file() and is_suppressed_in_head(
-            read_text(str(main_path)).splitlines(), _RULE
+        info_path = role_dir / ROLE_FILE_META_INFO
+        if info_path.is_file() and is_suppressed_in_head(
+            read_text(str(info_path)).splitlines(), _RULE
         ):
             continue
         video = _video_of(role_dir.name)
@@ -161,7 +161,7 @@ class TestInfoVideoEmbeddable(unittest.TestCase):
             f"{len(not_embeddable)} invokable role(s) point 'video' at something "
             f"that cannot be embedded. Replace it with a single video URL, or opt "
             f"the role out with '# nocheck: {_RULE} <reason>' in the first 30 "
-            f"lines of {ROLE_FILE_META_MAIN}:\n"
+            f"lines of {ROLE_FILE_META_INFO}:\n"
             + "\n".join(f"  {role}: {url}" for role, url in not_embeddable),
         )
 
