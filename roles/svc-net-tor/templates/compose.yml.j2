@@ -4,9 +4,11 @@
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       args:
-        TOR_BASE_IMAGE:   "{{ TOR_IMAGE }}"
-        TOR_BASE_VERSION: "{{ TOR_VERSION }}"
-        TOR_FLAVOR:       "{{ TOR_FLAVOR }}"
+        TOR_BASE_IMAGE:        "{{ TOR_IMAGE }}"
+        TOR_BASE_VERSION:      "{{ TOR_VERSION }}"
+        TOR_FLAVOR:            "{{ TOR_FLAVOR }}"
+        TOR_ENTRYPOINT_PATH:   "{{ TOR_ENTRYPOINT_PATH }}"
+        TOR_HEALTHCHECK_PATH:  "{{ TOR_HEALTHCHECK_PATH }}"
     {{ lookup('compose_only', 'container_name', TOR_CONTAINER) }}
     {{ lookup('container_image', application_id, 'tor') }}
     {% if DEPLOYMENT_MODE == 'swarm' %}
@@ -21,14 +23,11 @@
     {% endif %}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     healthcheck:
-      test: ["CMD", "tor", "--verify-config", "-f", "{{ lookup('volume', 'svc-net-tor', 'tor_torrc').target }}"]
-      # nocheck: healthcheck-timing-override  the probe re-parses the torrc rather than asking a running service, so it is worth running rarely
-      interval: 60s
-      # nocheck: healthcheck-timing-override  parsing the torrc does not finish inside the 5s default
-      timeout: 10s
+      test: ["CMD", "{{ TOR_HEALTHCHECK_PATH }}", "{{ lookup('volume', 'svc-net-tor', 'tor_data').target }}"]
+      interval: 2m
+      timeout: 5s
       retries: 3
-      # nocheck: healthcheck-timing-override  a jinja expression the linter cannot compare; chutney bootstraps a whole test network, the real network only parses a file
-      start_period: {{ '15m' if TOR_FLAVOR == 'chutney' else '10m' }}
+      start_period: 10m
       start_interval: 5s
 
 {{ lookup('compose_volumes') }}

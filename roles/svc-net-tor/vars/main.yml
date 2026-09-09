@@ -28,3 +28,11 @@ TOR_HS_SRC_DIR: "{{ lookup('path_absolute', '.onion-identity', 'hs') }}"
 
 TOR_INSTANCE_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
 TOR_ENTRYPOINT_HOST: "{{ [ TOR_INSTANCE_DIR, 'entrypoint.sh' ] | path_join }}"
+TOR_HEALTHCHECK_HOST: "{{ [ TOR_INSTANCE_DIR, 'healthcheck.sh' ] | path_join }}"
+TOR_ENTRYPOINT_PATH: "/usr/local/bin/tor-entrypoint.sh"
+TOR_HEALTHCHECK_PATH: "/usr/local/bin/tor-healthcheck.sh"
+TOR_RESTART_REQUIRED: >-
+  {{ (_tor_hs_keys is changed)
+     or (_tor_torrc is changed)
+     or (_tor_entrypoint is changed)
+     or (_tor_healthcheck is changed) }}
