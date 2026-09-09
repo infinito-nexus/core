@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media self-written static-asset serving/glue role (copies assets to an Nginx data path); no consumer-facing upstream product
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Nginx-based server for hosting static assets copied from a source directory to the web data path

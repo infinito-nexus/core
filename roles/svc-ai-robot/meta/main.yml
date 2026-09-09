@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media Self-written embodied-agent role; the trust boundary is the dedicated device, not an upstream product.
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device

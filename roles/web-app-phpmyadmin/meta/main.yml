@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Web-based administration tool for MySQL and MariaDB with schema management, querying, and import/export

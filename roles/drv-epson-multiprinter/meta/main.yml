@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Arch Linux driver bundle for Epson multifunction printing and scanning via escpr and imagescan

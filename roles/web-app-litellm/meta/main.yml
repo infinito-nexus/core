@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy

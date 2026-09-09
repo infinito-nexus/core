@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media In-house Infinito.Nexus tool (Meta Infinite Graph) written by the same author; only a GitHub repo exists, no third-party vendor product homepage or official demo video.
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Interactive graph visualization of all Infinito.Nexus roles and their dependencies for architecture transparency

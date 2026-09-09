@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels

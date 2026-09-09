@@ -1,3 +1,4 @@
 ---
+# nocheck: info-media Self-written role that builds and serves Infinito.Nexus's own project presentation (Reveal.js slides pulled from their own source repo). No third-party consumer-facing upstream product; Reveal.js is only the rendering library, not the deployed product.
 logo:
   class: fas fa-map

@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Desktop utility for inhibiting screen blanking and sleep, autostarted on the GNOME desktop

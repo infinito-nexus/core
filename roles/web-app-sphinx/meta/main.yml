@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media no official demo video
 galaxy_info:
   author: Marko Pjevac, Kevin Veen-Birkenbach
   description: Documentation generator that builds HTML from a source repository and serves it through a lightweight HTTP server

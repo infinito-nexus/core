@@ -1,0 +1,2 @@
+---
+# nocheck: info-media self-written static-asset serving/glue role (copies assets to an Nginx data path); no consumer-facing upstream product

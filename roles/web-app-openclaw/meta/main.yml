@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Self-hosted personal AI agent gateway with a browser control UI, sandboxed in a Kata microVM or gVisor runtime

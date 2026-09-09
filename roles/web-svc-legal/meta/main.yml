@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media Self-written Nginx glue role that renders a legal imprint (Impressum) page from a Jinja2 template; no upstream product.
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template

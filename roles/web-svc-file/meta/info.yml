@@ -1,0 +1,2 @@
+---
+# nocheck: info-media Self-written web-svc infrastructure role that configures Nginx as a static file server (HTTPS, directory listing, .well-known); it is custom glue/config, not a wrapper around a named consumer-facing product.
