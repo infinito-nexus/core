@@ -37,6 +37,11 @@ test("administrator: can log in natively to pihole", async ({ page }) => {
   await page.getByRole("button", { name: /log in|sign in/i }).click({ timeout: resolveTimeout(30_000) });
 
   await page.waitForLoadState("networkidle", { timeout: resolveTimeout(30_000) }).catch(() => {});
-  await expect(page.locator("body")).toBeVisible();
-  expect(page.url()).toContain("/admin");
+  await expect
+    .poll(() => page.url(), {
+      timeout: resolveTimeout(30_000),
+      message: `native login must leave the login form, still at ${page.url()}`,
+    })
+    .not.toContain("/login");
+  await expect(passwordInput).toBeHidden({ timeout: resolveTimeout(30_000) });
 });
