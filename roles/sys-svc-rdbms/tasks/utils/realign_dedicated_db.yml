@@ -15,11 +15,11 @@
     - lookup('database', application_id, 'type') == 'postgres'
     - _app_db_compose_template.stat.exists | default(false)
   block:
-    - name: "🔍 Find the healthy engine of '{{ application_id }}'"
+    - name: "🔍 Find the running engine of '{{ application_id }}'"
       ansible.builtin.command: >-
         container ps -q
         --filter name=^{{ lookup('database', application_id, 'container') }}$
-        --filter health=healthy
+        --filter status=running
       register: _app_db_engine
       changed_when: false
 
