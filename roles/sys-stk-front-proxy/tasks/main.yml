@@ -122,8 +122,8 @@
         cmd: "true"
       notify: restart-openresty
       when:
-        - site_check.status is defined
-        - site_check.status not in front_proxy_status_codes
+        - site_check.status | default(-1) not in front_proxy_status_codes
+        - site_check.status | default(-1) in front_proxy_stale_config_status_codes
   when: not nginx_conf.changed
 
 - name: "🔄 Restart Webserver for '{{ front_proxy_domain_conf_dst_resolved }}'"
