@@ -7,7 +7,7 @@ from typing import Any
 from ansible.plugins.lookup import LookupBase
 from ansible.template import trust_as_template
 
-from utils.env.runtime import mem_total_mb
+from utils.env.runtime import mem_available_mb, mem_total_mb
 
 _PER_WORKER_GB = 1.5
 _RAM_FRACTION = 0.5
@@ -15,7 +15,7 @@ _CPU_DIVISOR = 4
 _HARD_CAP = 6
 _CI_CAP = 2
 _ONION_FACTOR = 2
-_ONION_CAP = 4
+_ONION_CAP = 3
 _CI_ENV = ("CI", "GITHUB_ACTIONS", "GITLAB_CI", "BUILDKITE", "JENKINS_URL")
 
 
@@ -27,6 +27,18 @@ def _cpu_count() -> int:
 
 
 def _ram_gb() -> float:
+    """Memory a new worker may actually claim, in GB.
+
+    MemAvailable, not MemTotal: the ceiling exists to stop the sidecar from
+    competing with what already runs, and on a CI runner the deployed stacks
+    hold most of the machine by the time the suite starts. Sizing from the
+    total made the term inert -- it computed five workers on a 16 GB runner
+    that had 5.5 GB free -- so the CI cap was the only thing ever binding.
+    Falls back to the total, then to a floor, when /proc does not answer.
+    """
+    available_mb = mem_available_mb()
+    if available_mb:
+        return available_mb / 1024
     total_mb = mem_total_mb()
     return total_mb / 1024 if total_mb else 4.0
 
@@ -53,7 +65,8 @@ def compute_workers(
 
     Args:
         cpus: usable cores.
-        ram_gb: total memory.
+        ram_gb: memory a worker may claim, taken from what is free rather than
+            from what the machine has.
         ci: whether a CI runner is executing, which lowers the ceiling.
         onion: whether the suite reaches its target over Tor. A run against a
             `.onion` address waits on circuits rather than on the CPU: measured

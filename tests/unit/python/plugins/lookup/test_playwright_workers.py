@@ -30,22 +30,26 @@ class TestComputeWorkers(unittest.TestCase):
             compute_workers(20, 64.0, False, cpu_divisor=2, hard_cap=100), 10
         )
 
-    def test_onion_lifts_the_ci_runner_off_one_worker(self):
-        """The CI ceiling describes CPU contention, which Tor does not create.
+    def test_onion_lifts_the_latency_bound_phase(self):
+        """Tor makes the phase wait on circuits, so cores stop describing it.
 
         The 4-core runner yields one worker because a quarter of four cores is
-        one. Over Tor the phase waits on circuits instead, so the count is
-        raised rather than derived from cores.
+        one. Over Tor the browser waits rather than computes, so the count is
+        raised from that base instead of derived from cores again.
         """
         self.assertEqual(compute_workers(4, 16.0, True), 1)
         self.assertEqual(compute_workers(4, 16.0, True, onion=True), 2)
+
+    def test_onion_yields_to_a_machine_with_no_memory_left(self):
+        """Free memory, not total, decides: a busy runner keeps one worker."""
+        self.assertEqual(compute_workers(4, 5.5, True, onion=True), 1)
 
     def test_onion_still_respects_memory(self):
         """Circuits are cheap, browsers are not: RAM keeps its veto."""
         self.assertEqual(compute_workers(20, 3.0, False, onion=True), 1)
 
     def test_onion_cap_binds_on_a_large_host(self):
-        self.assertEqual(compute_workers(64, 256.0, False, onion=True), 4)
+        self.assertEqual(compute_workers(64, 256.0, False, onion=True), 3)
 
 
 class TestLookup(unittest.TestCase):
