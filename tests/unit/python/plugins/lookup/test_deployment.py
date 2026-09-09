@@ -22,7 +22,15 @@ class TestDeploymentLookup(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertEqual(
             set(result[0].keys()),
-            {"whitelist", "running", "groups", "deployed", "runtime", "all"},
+            {
+                "whitelist",
+                "running",
+                "groups",
+                "inventory",
+                "deployed",
+                "runtime",
+                "all",
+            },
         )
 
     @patch("plugins.lookup.deployment.list_invokable_app_ids")
@@ -87,6 +95,72 @@ class TestDeploymentLookup(unittest.TestCase):
         self.assertEqual(result[0]["groups"], [])
         self.assertEqual(result[0]["running"], [])
         self.assertEqual(result[0]["all"], ["a"])
+
+    @patch("plugins.lookup.deployment.list_invokable_app_ids")
+    def test_inventory_is_play_wide_not_host_scoped(self, mock_list):
+        mock_list.return_value = []
+        worker = {
+            "group_names": ["web-app-mattermost"],
+            "groups": {
+                "svc-ai-litellm": ["mgr-01"],
+                "svc-ai-ollama": ["mgr-01"],
+                "web-app-mattermost": ["mgr-01", "wrk-01"],
+            },
+        }
+        result = LookupModule().run([], variables=worker)
+        self.assertEqual(result[0]["groups"], ["web-app-mattermost"])
+        self.assertEqual(
+            result[0]["inventory"],
+            ["svc-ai-litellm", "svc-ai-ollama", "web-app-mattermost"],
+        )
+
+    @patch("plugins.lookup.deployment.list_invokable_app_ids")
+    def test_inventory_skips_groups_without_hosts(self, mock_list):
+        mock_list.return_value = []
+        result = LookupModule().run(
+            [],
+            variables={
+                "group_names": [],
+                "groups": {"has-hosts": ["h1"], "empty": [], "also-empty": None},
+            },
+        )
+        self.assertEqual(result[0]["inventory"], ["has-hosts"])
+
+    @patch("plugins.lookup.deployment.list_invokable_app_ids")
+    def test_inventory_drops_the_implicit_groups(self, mock_list):
+        mock_list.return_value = []
+        result = LookupModule().run(
+            [],
+            variables={
+                "group_names": ["web-app-mattermost"],
+                "groups": {
+                    "all": ["mgr-01", "wrk-01"],
+                    "ungrouped": ["mgr-01"],
+                    "web-app-mattermost": ["mgr-01", "wrk-01"],
+                },
+            },
+        )
+        self.assertEqual(result[0]["inventory"], ["web-app-mattermost"])
+
+    @patch("plugins.lookup.deployment.list_invokable_app_ids")
+    def test_inventory_empty_without_the_magic_var(self, mock_list):
+        mock_list.return_value = []
+        result = LookupModule().run([], variables={"group_names": ["a"]})
+        self.assertEqual(result[0]["inventory"], [])
+
+    @patch("plugins.lookup.deployment.list_invokable_app_ids")
+    def test_cache_key_separates_hosts_with_equal_group_names(self, mock_list):
+        mock_list.return_value = []
+        first = LookupModule().run(
+            [],
+            variables={"group_names": ["a"], "groups": {"a": ["h1"]}},
+        )
+        second = LookupModule().run(
+            [],
+            variables={"group_names": ["a"], "groups": {"a": ["h1"], "b": ["h2"]}},
+        )
+        self.assertEqual(first[0]["inventory"], ["a"])
+        self.assertEqual(second[0]["inventory"], ["a", "b"])
 
     @patch("plugins.lookup.deployment.list_invokable_app_ids")
     def test_caches_same_input(self, mock_list):
