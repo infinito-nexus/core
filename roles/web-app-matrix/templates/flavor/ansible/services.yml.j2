@@ -28,6 +28,7 @@
       - {{ lookup('volume', application_id, 'matrix_mdad_matrix').name }}:{{ lookup('volume', 'web-app-matrix', 'matrix_mdad_matrix').target }}
 {% if (TLS_MODE | lower) == 'self_signed' %}
       - {{ CA_TRUST.cert_host }}:{{ CA_TRUST.cert_host }}:ro
+      - {{ CA_TRUST.bundle_host }}:{{ CA_TRUST.bundle_host }}:ro
 {% endif %}
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
     tmpfs:
