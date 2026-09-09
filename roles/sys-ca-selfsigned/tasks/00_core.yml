@@ -98,7 +98,8 @@
 - name: "📄 CA | build the trust bundle its readers name with no fallback"
   become: true
   ansible.builtin.shell: >-
-    cat {{ ([CA_ROOT.cert_host] + (_ca_public_bundle_candidates.results | selectattr('stat.exists') | map(attribute='item') | list)[:1]) | map('quote') | join(' ') }}
+    cat {{ ([CA_ROOT.cert_host] + (_ca_public_bundle_candidates.results | selectattr('stat.exists') | map(attribute='item') | list)[:1]) | map('quote') | join(' ')
+    }}
     > {{ CA_TRUST.bundle_host | quote }}
   changed_when: true
 
