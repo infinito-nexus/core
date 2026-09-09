@@ -329,7 +329,6 @@ class TestHealthcheckTimingOverrides(unittest.TestCase):
             + "\n".join(f"- {f}" for f in undocumented)
         )
 
-
     def test_definitions_outside_the_lookup_spell_the_defaults_out(self) -> None:
         findings = literal_findings()
         if not findings:
@@ -343,7 +342,6 @@ class TestHealthcheckTimingOverrides(unittest.TestCase):
             "definition needs another one:\n\n"
             f"    # nocheck: {RULE}  <why>\n\n" + "\n".join(f"- {f}" for f in findings)
         )
-
 
     def test_the_start_window_outlasts_one_interval(self) -> None:
         findings = windows_shorter_than_a_tick()
