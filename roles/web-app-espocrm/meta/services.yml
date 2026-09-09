@@ -57,6 +57,7 @@ espocrm:
       http: 8040
   healthcheck:
     flavor: curl
+    # nocheck: healthcheck-timing-override  boots slower than the ten minute window; the value predates this default and has not been measured against it
     start_period: 15m
   run_after:
     - web-app-keycloak
@@ -66,7 +67,6 @@ daemon:
   healthcheck:
     test: ["CMD-SHELL", "test -f /var/www/html/bootstrap.php && php -r \"require '/var/www/html/bootstrap.php'; echo 'OK';\""]
     retries: 5
-    start_period: 40s
   custom: true
   # nocheck: single-replica
   replicas: 1

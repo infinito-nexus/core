@@ -26,9 +26,9 @@
     # nocheck: container-healthcheck-literal  per-consumer sidecar partial rendered for the consuming role's application_id, so the declaration has no single meta/services.yml to live in
     healthcheck:
       test: ["CMD", "/bin/oauth2-proxy", "--version"]
-      interval: 30s
+      interval: 2m
       timeout: 5s
       retries: 1
-      start_period: 5s
+      start_period: 10m
       start_interval: 5s
 {% endif %}

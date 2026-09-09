@@ -48,11 +48,11 @@
       - ./mautrix/{{ item.bridge_name }}:/data
     healthcheck:
       test: ["CMD-SHELL", "test -f {{ MATRIX_REGISTRATION_FILE_FOLDER }}registration.yaml || exit 1"]
-      interval: 30s
+      interval: 2m
       # nocheck: healthcheck-timing-override  the probe waits for a file the registration step writes, and the share it reads answers slower than the 5s default under load
       timeout: 10s
       retries: 5
-      start_period: 5m
+      start_period: 10m
       start_interval: 5s
     {{ lookup('container_networks') | indent(4) }}
 {% endfor %}

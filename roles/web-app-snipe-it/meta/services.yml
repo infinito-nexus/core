@@ -50,7 +50,6 @@ snipe-it:
   healthcheck:
     test: ["CMD", "wget", "-q", "-O-", "http://localhost/health"]
     retries: 12
-    start_period: 5m
   enabled: true
   shared: true
   bond: 1

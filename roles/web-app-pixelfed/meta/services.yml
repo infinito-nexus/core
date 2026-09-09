@@ -76,7 +76,6 @@ worker:
     # nocheck: healthcheck-timing-override  php artisan boots Laravel on every probe, so it stays off a 30s steady-state loop
     interval: 60s
     retries: 5
-    start_period: 300s
   cpus: 1.0
   mem_reservation: 0.75g
   mem_limit: 1g

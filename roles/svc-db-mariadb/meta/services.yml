@@ -25,7 +25,6 @@ mariadb:
   healthcheck:
     test: ["CMD-SHELL", "healthcheck.sh --su-mysql --connect --innodb_initialized"]
     retries: 18
-    start_period: 90s
   ports:
     local:
       mariadb: 3306

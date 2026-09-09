@@ -9,11 +9,13 @@ service that repeats what it would have inherited changes nothing and only hides
 the moment the default moves.
 
 A value that differs is a decision, and one that costs something carries a
-reason rather than a number alone. Three do: ``interval`` is steady state load
-for the life of the deployment, ``timeout`` decides when a slow probe counts as
-a failure, and ``start_interval`` is the only timing that moves the moment a
-stack reports healthy. ``start_period`` and ``retries`` buy patience with a
-broken container and cost nothing while it works, so a deviation there needs no
+reason rather than a number alone. Four do. ``interval`` is steady state load
+for the life of the deployment. ``timeout`` decides when a slow probe counts as
+a failure. ``start_interval`` is the only timing that moves the moment a stack
+reports healthy, and ``start_period`` is the window it lives in: shorten that
+window below the service's real boot and the fast cadence stops covering it, so
+the tail of the boot waits a whole ``interval`` again. ``retries`` only buys
+patience with a container that is already broken, so a deviation there needs no
 defence and only the redundant restatement is flagged.
 
 Comparison is against the EFFECTIVE default, resolved through the same
@@ -49,15 +51,29 @@ from pathlib import Path
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import iter_project_files_with_content, read_text
 from utils.cache.yaml import load_yaml_any
-from utils.docker.healthcheck.compose import compose
+from utils.docker.healthcheck.compose import compose, timing_rank
 from utils.docker.healthcheck.probes import TIMING_DEFAULTS
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
 
 RULE = "healthcheck-timing-override"
+COVER_RULE = "healthcheck-start-period-covers-interval"
 
-DOCUMENTED_KEYS = ("interval", "timeout", "start_interval")
+DOCUMENTED_KEYS = ("interval", "timeout", "start_interval", "start_period")
+
+
+def _means_the_same(declared: object, default: object) -> bool:
+    """Whether a declared timing says what the default says, 600s and 10m alike.
+
+    Args:
+        declared: the value written in the file, possibly a jinja expression.
+        default: the value the service would inherit.
+    """
+    if str(declared) == str(default):
+        return True
+    left, right = timing_rank(declared), timing_rank(default)
+    return left > 0 and right > 0 and left == right
 
 
 def _effective_defaults(flavor: object) -> dict[str, object]:
@@ -120,7 +136,7 @@ def timing_findings() -> tuple[list[str], list[str]]:
                     continue
                 line_no = _timing_line(lines, service, key)
                 where = f"{rel}:{line_no or '?'} {service}.{key}"
-                if str(health[key]) == str(default):
+                if _means_the_same(health[key], default):
                     redundant.append(f"{where} = {health[key]} (the default)")
                 elif key in DOCUMENTED_KEYS and (
                     line_no is None or not is_suppressed_at(lines, line_no, RULE)
@@ -129,7 +145,7 @@ def timing_findings() -> tuple[list[str], list[str]]:
     return redundant, undocumented
 
 
-_YAML_KEY = "healthcheck:"
+_YAML_KEY = re.compile(r"^\s*healthcheck:\s*(?:#.*)?$")
 _DOCKERFILE_KEY = "HEALTHCHECK"
 _DOCKERFILE_FLAG = "--{key}="
 
@@ -151,7 +167,12 @@ def _yaml_literal_timings(lines: list[str], index: int) -> dict[str, tuple[str, 
 
 
 def _dockerfile_timings(lines: list[str], index: int) -> dict[str, tuple[str, int]]:
-    """Timings on the ``HEALTHCHECK`` at *index*, following its continuations."""
+    """Timings on the ``HEALTHCHECK`` at *index*, following its continuations.
+
+    Every timing reports the instruction's own line, not the continuation it
+    happens to sit on: a backslash continuation cannot carry a comment, so the
+    only line a marker can live above is where the instruction starts.
+    """
     found: dict[str, tuple[str, int]] = {}
     cursor = index
     while cursor < len(lines):
@@ -159,7 +180,7 @@ def _dockerfile_timings(lines: list[str], index: int) -> dict[str, tuple[str, in
             flag = _DOCKERFILE_FLAG.format(key=key.replace("_", "-"))
             match = re.search(rf"{re.escape(flag)}(\S+)", lines[cursor])
             if match:
-                found[key] = (match.group(1), cursor + 1)
+                found[key] = (match.group(1), index + 1)
         if not lines[cursor].rstrip().endswith("\\"):
             break
         cursor += 1
@@ -183,7 +204,7 @@ def literal_findings() -> list[str]:
                     continue
                 declared = _dockerfile_timings(lines, index)
             else:
-                if line.strip() != _YAML_KEY:
+                if not _YAML_KEY.match(line):
                     continue
                 declared = _yaml_literal_timings(lines, index)
                 if not declared and "{{" not in content:
@@ -191,7 +212,7 @@ def literal_findings() -> list[str]:
             anchor = index + 1
             for key, default in TIMING_DEFAULTS.items():
                 value, line_no = declared.get(key, (None, anchor))
-                if value is not None and str(value) == str(default):
+                if value is not None and _means_the_same(value, default):
                     continue
                 if value is not None and key not in DOCUMENTED_KEYS:
                     continue
@@ -199,6 +220,89 @@ def literal_findings() -> list[str]:
                     continue
                 shown = "omitted" if value is None else value
                 findings.append(f"{rel}:{line_no} {key} = {shown}, default {default}")
+    return findings
+
+
+def _uncovered(start_period: object, interval: object) -> bool:
+    """Whether the start window fails to outlast one steady state tick.
+
+    A jinja expression is unreadable rather than zero, so it is left alone; an
+    absent window really is zero, because docker defaults it to none.
+
+    Args:
+        start_period: the effective window, ``None`` when it is not written.
+        interval: the effective steady state cadence.
+    """
+    tick = timing_rank(interval)
+    if tick <= 0:
+        return False
+    if start_period is None:
+        return True
+    window = timing_rank(start_period)
+    if window <= 0 and str(start_period).strip() not in ("0", "0s"):
+        return False
+    return window <= tick
+
+
+def windows_shorter_than_a_tick() -> list[str]:
+    """Every healthcheck whose start window does not outlast one interval."""
+    findings: list[str] = []
+    for meta in sorted((PROJECT_ROOT / "roles").glob(f"*/{ROLE_FILE_META_SERVICES}")):
+        try:
+            content = read_text(str(meta))
+            data = load_yaml_any(str(meta), default_if_missing={}) or {}
+        except (OSError, ValueError):
+            continue
+        if not isinstance(data, dict):
+            continue
+        lines = content.splitlines()
+        rel = meta.relative_to(PROJECT_ROOT).as_posix()
+        for service, entry in data.items():
+            if not isinstance(entry, dict):
+                continue
+            health = entry.get("healthcheck")
+            if not isinstance(health, dict):
+                continue
+            effective = _effective_defaults(health.get("flavor"))
+            effective.update({k: v for k, v in health.items() if k in effective})
+            if not _uncovered(effective["start_period"], effective["interval"]):
+                continue
+            line_no = _timing_line(lines, service, "start_period") or 1
+            if is_suppressed_at(lines, line_no, COVER_RULE):
+                continue
+            findings.append(
+                f"{rel}:{line_no} {service} start_period "
+                f"{effective['start_period']} <= interval {effective['interval']}"
+            )
+
+    for path_str, content in iter_project_files_with_content(exclude_tests=True):
+        rel = Path(path_str).relative_to(PROJECT_ROOT).as_posix()
+        if not rel.startswith("roles/"):
+            continue
+        is_dockerfile = Path(rel).name.startswith("Dockerfile")
+        if not (rel.endswith(".j2") or is_dockerfile):
+            continue
+        lines = content.splitlines()
+        for index, line in enumerate(lines):
+            if is_dockerfile:
+                if not line.lstrip().startswith(_DOCKERFILE_KEY):
+                    continue
+                declared = _dockerfile_timings(lines, index)
+            else:
+                if not _YAML_KEY.match(line):
+                    continue
+                declared = _yaml_literal_timings(lines, index)
+            if not declared:
+                continue
+            window = declared.get("start_period", (None, index + 1))
+            tick = declared.get("interval", (None, index + 1))
+            if tick[0] is None or not _uncovered(window[0], tick[0]):
+                continue
+            if is_suppressed_at(lines, window[1], COVER_RULE):
+                continue
+            findings.append(
+                f"{rel}:{window[1]} start_period {window[0]} <= interval {tick[0]}"
+            )
     return findings
 
 
@@ -238,6 +342,25 @@ class TestHealthcheckTimingOverrides(unittest.TestCase):
             "Fix: spell the timing out at the platform value, or say why this "
             "definition needs another one:\n\n"
             f"    # nocheck: {RULE}  <why>\n\n" + "\n".join(f"- {f}" for f in findings)
+        )
+
+
+    def test_the_start_window_outlasts_one_interval(self) -> None:
+        findings = windows_shorter_than_a_tick()
+        if not findings:
+            return
+        self.fail(
+            "These healthchecks close their start window before one steady "
+            "state tick has passed. The fast start cadence then stops covering "
+            "the boot, and a service that becomes ready just after the window "
+            "waits a whole interval anyway, which is the quantisation the "
+            "cadence exists to remove.\n\n"
+            "Fix: raise start_period above interval. It costs nothing while the "
+            "container works, only the time until a broken one is called "
+            "unhealthy. A probe that deliberately runs without a window says "
+            "so:\n\n"
+            f"    # nocheck: {COVER_RULE}  <why>\n\n"
+            + "\n".join(f"- {f}" for f in findings)
         )
 
 

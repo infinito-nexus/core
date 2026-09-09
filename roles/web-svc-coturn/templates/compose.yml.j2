@@ -58,10 +58,10 @@
       --cipher-list=DEFAULT
     healthcheck:
       test: ["CMD", "sh", "-c", "command -v turnutils_stunclient >/dev/null && turnutils_stunclient -p {{ COTURN_STUN_TURN_PORT }} 127.0.0.1 || nc -z 127.0.0.1 {{ COTURN_STUN_TURN_PORT }}"]
-      interval: 30s
+      interval: 2m
       timeout: 5s
       retries: 3
-      start_period: 10s
+      start_period: 10m
       start_interval: 5s
 {{ lookup('compose_networks') }}
 

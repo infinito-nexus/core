@@ -21,7 +21,8 @@ RUN chmod +x /usr/local/bin/boot-entrypoint.sh
 ENTRYPOINT ["boot-entrypoint.sh"]
 CMD ["postgres"]
 
-HEALTHCHECK --interval=30s \
+# nocheck: healthcheck-timing-override  a first initdb of a large cluster outlasts the ten minute window
+HEALTHCHECK --interval=2m \
             --timeout=5s \
             --start-period=15m \
             --retries=5 \

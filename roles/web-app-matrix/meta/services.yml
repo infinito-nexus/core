@@ -109,7 +109,6 @@ matrix:
   healthcheck:
     flavor: http_status
     path: _matrix/client/versions
-    start_period: 10m
     retries: 10
   ports:
     internal:

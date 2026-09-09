@@ -23,7 +23,6 @@ rabbitmq:
   healthcheck:
     test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping || exit 1"]
     retries: 18
-    start_period: 60s
   ports:
     local:
       rabbitmq: 5672

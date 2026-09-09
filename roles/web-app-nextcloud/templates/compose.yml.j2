@@ -36,6 +36,7 @@
       # nocheck: healthcheck-timing-override  occ regularly needs more than the 5s default to answer
       timeout: 30s
       retries: 10
+      # nocheck: healthcheck-timing-override  a role variable the linter cannot compare, tuned per deployment size
       start_period: {{ container_healthcheck_start_period }}
       start_interval: 5s
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
@@ -130,6 +131,7 @@
       # nocheck: healthcheck-timing-override  occ regularly needs more than the 5s default to answer
       timeout: 30s
       retries: 10
+      # nocheck: healthcheck-timing-override  a role variable the linter cannot compare, tuned per deployment size
       start_period: {{ container_healthcheck_start_period }}
       start_interval: 5s
     {{ lookup('container_depends_on', application_id) | indent(4) }}

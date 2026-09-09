@@ -29,7 +29,6 @@ matomo:
 dashboard:
   healthcheck:
     flavor: tcp
-    start_period: 10m
   modes:
     compose:
       enabled: true

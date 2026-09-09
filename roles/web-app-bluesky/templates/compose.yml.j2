@@ -51,10 +51,10 @@
       INSECURE_TLS: "{{ MODE_DEBUG | string | lower }}"
     healthcheck:
       test: ["CMD", "wget", "-q", "-O-", "http://127.0.0.1:{{ BLUESKY_BROKER_INTERNAL_PORT }}/healthz"]
-      interval: 30s
+      interval: 2m
       timeout: 5s
       retries: 3
-      start_period: 30s
+      start_period: 10m
       start_interval: 5s
     {{ lookup('container_networks') | indent(4) }}
   {% endif %}

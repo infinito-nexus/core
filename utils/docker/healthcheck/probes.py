@@ -12,10 +12,10 @@ from typing import Any, ClassVar
 CURL = ("curl",)
 CURL_NO_PROXY = ("--noproxy", "*")
 
-DEFAULT_INTERVAL = "30s"
+DEFAULT_INTERVAL = "2m"
 DEFAULT_TIMEOUT = "5s"
 DEFAULT_RETRIES = 3
-DEFAULT_START_PERIOD = "30s"
+DEFAULT_START_PERIOD = "10m"
 DEFAULT_START_INTERVAL = "5s"
 
 TIMING_DEFAULTS: dict[str, object] = {
@@ -107,6 +107,13 @@ class Probe:
         for the curl flavors -- and a stack converges no faster than its slowest
         quantisation. It changes when the same probe runs, never what it tests.
 
+        `start_period` therefore bounds it: once the window closes the cadence
+        falls back to `interval`, so a service that becomes ready just after the
+        window pays a full tick anyway. The window has to outlast a realistic
+        boot, not merely a fast one, which is why it is measured in minutes
+        rather than sized to `interval`. It costs nothing while the container
+        works, only the time until a broken one is called unhealthy.
+
         Args:
             overrides: service level values that win over the flavor defaults.
         """
@@ -137,7 +144,6 @@ class Curl(Probe):
     """
 
     flavor = "curl"
-    interval = "1m"
     timeout = "10s"
 
     def test(self) -> list[str]:
@@ -149,7 +155,6 @@ class Curl(Probe):
 
 class Wget(Probe):
     flavor = "wget"
-    interval = "1m"
     timeout = "10s"
 
     def test(self) -> list[str]:
@@ -166,7 +171,6 @@ class Http(Probe):
 
     flavor = "http"
     retries = 5
-    start_period = "20s"
 
     def test(self) -> list[str]:
         return [
@@ -218,7 +222,6 @@ class HttpStatus(Tcp):
 class Nc(Probe):
     flavor = "nc"
     timeout = "3s"
-    start_period = "10s"
 
     def test(self) -> list[str]:
         return ["CMD-SHELL", f"nc -z localhost {self.port} || exit 1"]
@@ -233,7 +236,6 @@ class Connect(Probe):
     """
 
     flavor = "connect"
-    interval = "1m"
     timeout = "20s"
     retries = 5
     start_period = "15m"

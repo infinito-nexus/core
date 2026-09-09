@@ -19,6 +19,7 @@ matomo:
   healthcheck:
     test: ["CMD-SHELL", "code=\"$$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1/index.php || echo 000)\"; [ \"$$code\" -ge 200 ] && [ \"$$code\" -lt 400 ]"]
     retries: 12
+    # nocheck: healthcheck-timing-override  boots slower than the ten minute window; the value predates this default and has not been measured against it
     start_period: 900s
   modes:
     compose:

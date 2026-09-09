@@ -120,6 +120,7 @@ proxy:
   name: nextcloud-proxy
   healthcheck:
     flavor: curl
+    # nocheck: healthcheck-timing-override  a sidecar of a stack whose main service alone takes minutes; the value predates this default and has not been measured against it
     start_period: 20m
   image: nginx
   version: 1.31.5-alpine
@@ -157,6 +158,7 @@ context_agent:
   healthcheck:
     flavor: curl
     path: heartbeat
+    # nocheck: healthcheck-timing-override  a sidecar of a stack whose main service alone takes minutes; the value predates this default and has not been measured against it
     start_period: 20m
 # nocheck: playwright-service-flag  MCP sidecar, no browser surface
 # nocheck: dynamic-flag  the sidecar fronts this role's MCP surface, so it tracks the role's own mcp flag rather than one client's presence
@@ -213,6 +215,7 @@ talk:
   healthcheck:
     flavor: tcp
     port_key: signaling
+    # nocheck: healthcheck-timing-override  a sidecar of a stack whose main service alone takes minutes; the value predates this default and has not been measured against it
     start_period: 20m
 whiteboard:
   name: nextcloud-whiteboard
@@ -231,6 +234,7 @@ whiteboard:
       http: 3002
   healthcheck:
     flavor: nc
+    # nocheck: healthcheck-timing-override  a sidecar of a stack whose main service alone takes minutes; the value predates this default and has not been measured against it
     start_period: 20m
 # nocheck: playwright-service-flag: infrastructural sub-component (collaborative editing)
 onlyoffice:

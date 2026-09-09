@@ -38,7 +38,6 @@ jenkins:
   healthcheck:
     flavor: curl
     path: login
-    start_period: 10m
   modes:
     compose:
       enabled: true

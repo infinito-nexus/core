@@ -17,7 +17,7 @@
       - --maxmemory-policy
       - "allkeys-lru"
     # nocheck: container-healthcheck-literal  probes every second, so the SPOT's 5s start cadence would report healthy later than this block already does
-    healthcheck: # nocheck: healthcheck-timing-override  a swarm-init gate that must clear in seconds, so it runs without a start window rather than inside one
+    healthcheck: # nocheck: healthcheck-timing-override, healthcheck-start-period-covers-interval  a swarm-init gate that must clear in seconds, so it runs without a start window rather than inside one
       test: ["CMD", "redis-cli", "ping"]
       # nocheck: healthcheck-timing-override  probes every second on purpose, which is why start_interval is left off
       interval: 1s

@@ -90,7 +90,6 @@ web:
 worker:
   healthcheck:
     test: ["CMD", "php", "-v"]
-    start_period: 10s
   name: shopware-worker
   entrypoint:
     - php
@@ -108,7 +107,6 @@ worker:
 scheduler:
   healthcheck:
     test: ["CMD", "php", "-v"]
-    start_period: 10s
   name: shopware-scheduler
   # nocheck: single-replica
   replicas: 1

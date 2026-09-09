@@ -34,7 +34,6 @@ mariadb:
 mediawiki:
   healthcheck:
     flavor: tcp
-    start_period: 5m
   modes:
     compose:
       enabled: true

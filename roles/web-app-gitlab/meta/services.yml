@@ -79,7 +79,6 @@ webservice:
     # nocheck: healthcheck-timing-override  the script answers from the Rails webservice, which does not reply inside the 5s default while it is still loading
     timeout: 10s
     retries: 5
-    start_period: 600s
   ports:
     internal:
       http: 8080
@@ -91,7 +90,6 @@ sidekiq:
   healthcheck:
     flavor: tcp
     path: liveness
-    start_period: 300s
   image: registry.gitlab.com/gitlab-org/build/cng/gitlab-sidekiq-ce
   version: v19.3.1
   name: gitlab-sidekiq
@@ -108,7 +106,6 @@ workhorse:
   name: gitlab-workhorse
   healthcheck:
     test: ["CMD", "/scripts/healthcheck"]
-    start_period: 120s
   cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 512m
@@ -120,7 +117,6 @@ gitaly:
   version: v19.3.1
   healthcheck:
     test: ["CMD", "/scripts/healthcheck"]
-    start_period: 60s
   name: gitlab-gitaly
   ports:
     internal:

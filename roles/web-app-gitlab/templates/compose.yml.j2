@@ -77,10 +77,10 @@
       SSH_DAEMON: "gitlab-sshd"
     healthcheck:
       test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/{{ GITLAB_SSHD_PORT }}"]
-      interval: 30s
+      interval: 2m
       timeout: 5s
       retries: 3
-      start_period: 30s
+      start_period: 10m
       start_interval: 5s
     {{ lookup('container_ports', ['gitlab', 'ssh']) | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}

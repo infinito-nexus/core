@@ -59,7 +59,6 @@ n8n:
   healthcheck:
     flavor: wget
     path: healthz/readiness
-    start_period: 5m
   modes:
     compose:
       enabled: true

@@ -158,7 +158,6 @@ bbb-graphql-server:
     # nocheck: healthcheck-timing-override  curl against the graphql server, which does not answer inside the 5s default while it is still building its schema
     timeout: 10s
     retries: 5
-    start_period: 10m
   image: alangecker/bbb-docker-graphql-server
   version: "v3.0.23"
   enabled: false

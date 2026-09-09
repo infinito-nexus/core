@@ -27,7 +27,8 @@
       # nocheck: healthcheck-timing-override  parsing the torrc does not finish inside the 5s default
       timeout: 10s
       retries: 3
-      start_period: {{ '150s' if TOR_FLAVOR == 'chutney' else '10s' }}
+      # nocheck: healthcheck-timing-override  a jinja expression the linter cannot compare; chutney bootstraps a whole test network, the real network only parses a file
+      start_period: {{ '15m' if TOR_FLAVOR == 'chutney' else '10m' }}
       start_interval: 5s
 
 {{ lookup('compose_volumes') }}
