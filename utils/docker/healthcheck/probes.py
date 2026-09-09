@@ -57,6 +57,7 @@ class Probe:
     timeout: ClassVar[str] = "5s"
     retries: ClassVar[int] = 3
     start_period: ClassVar[str] = "30s"
+    start_interval: ClassVar[str] = "5s"
 
     def __init__(self, **context: Any) -> None:
         self.port = context.get("port", "")
@@ -86,11 +87,17 @@ class Probe:
     def block(self, overrides: dict[str, Any]) -> dict[str, Any]:
         """Assemble the healthcheck mapping.
 
+        `start_interval` is the cadence while `start_period` is still running.
+        Without it a probe only fires every `interval`, so a service ready after
+        three seconds is reported healthy at the next tick -- 30s, or a minute
+        for the curl flavors -- and a stack converges no faster than its slowest
+        quantisation. It changes when the same probe runs, never what it tests.
+
         Args:
             overrides: service level values that win over the flavor defaults.
         """
         block: dict[str, Any] = {"test": self.test()}
-        for key in ("interval", "timeout", "retries", "start_period"):
+        for key in ("interval", "timeout", "retries", "start_period", "start_interval"):
             block[key] = overrides.get(key, getattr(self, key))
         return block
 
