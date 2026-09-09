@@ -50,6 +50,7 @@
 
 - name: "🔑 Realign the administrator password Moodle persisted at install"
   when: not (MOODLE_OIDC_ENABLED | bool)
+  # nocheck: password-quote  the token is upstream's CLI filename, not a credential
   shell: >
     container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
     php {{ [MOODLE_CLI_DIR, 'reset_password.php'] | path_join }}
