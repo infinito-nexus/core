@@ -20,6 +20,38 @@
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   when: DEPLOYMENT_MODE == 'compose'
 
+- when:
+    - DEPLOYMENT_MODE == 'swarm'
+    - MATRIX_BRIDGES | length > 0
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  timeout: "{{ lookup('timeout', 60) | int }}"
+  block:
+    - name: "🔍 List the services a previous swarm deploy left running"
+      ansible.builtin.command:
+        argv:
+          - container
+          - service
+          - ls
+          - --filter
+          - "label=com.docker.stack.namespace={{ application_id | get_entity_name }}"
+          - --format
+          - "{{ '{{.Name}}' }}"
+      register: matrix_swarm_services
+      changed_when: false
+
+    - name: "🐝 Remove synapse and the bridges before their registrations are wiped"
+      ansible.builtin.command:
+        argv: "{{ ['container', 'service', 'rm'] + matrix_swarm_registration_services }}"
+      vars:
+        matrix_swarm_registration_services: >-
+          {{ ([MATRIX_SYNAPSE_SERVICE]
+              + (MATRIX_BRIDGES | map(attribute='bridge_name')
+                 | map('regex_replace', '^', (application_id | get_entity_name) ~ '_mautrix-') | list))
+             | select('in', matrix_swarm_services.stdout_lines) | list }}
+      changed_when: true
+      when: matrix_swarm_registration_services | length > 0
+
 - name: "🧹 cleanup project folder"
   file:
     path: "{{ lookup('container', application_id, 'directories.instance') }}mautrix/"
