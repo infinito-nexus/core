@@ -48,6 +48,14 @@ def ok(tools=("a_get", "a_list"), is_error=False):
     def rpc(method, params=None, authorization=None, url=None, notification=False):
         if authorization != "Bearer real":
             return 401, '{"error":"unauthenticated"}'
+        if method == "initialize" and not (params or {}).get("clientInfo"):
+            return 200, json.dumps(
+                {
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "error": {"code": -32602, "message": "Invalid request parameters"},
+                }
+            )
         if method == "initialize":
             return 200, json.dumps({"result": {"protocolVersion": "2025-06-18"}})
         if method == "tools/list":
@@ -55,6 +63,28 @@ def ok(tools=("a_get", "a_list"), is_error=False):
                 {"result": {"tools": [{"name": name} for name in tools]}}
             )
         return 200, json.dumps({"result": {"isError": is_error, "content": []}})
+
+    return rpc
+
+
+def erroring_at(step):
+    """Return a fake rpc() answering one authenticated step with an error on 200.
+
+    Args:
+        step: the MCP method whose authenticated call carries the JSON-RPC error.
+    """
+    honest = ok()
+
+    def rpc(method, params=None, authorization=None, url=None, notification=False):
+        if method == step and authorization == "Bearer real":
+            return 200, json.dumps(
+                {
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "error": {"code": -32602, "message": "Invalid params"},
+                }
+            )
+        return honest(method, params, authorization)
 
     return rpc
 
@@ -202,6 +232,50 @@ class TestProbeContract(unittest.TestCase):
         ):
             module.main()
         self.assertIn("error result", stderr.getvalue())
+
+    def test_a_json_rpc_error_on_200_fails_each_authenticated_step(self):
+        for step in ("initialize", "tools/list", "tools/call"):
+            with self.subTest(step=step):
+                module = load()
+                stderr = io.StringIO()
+                with (
+                    patch.object(module, "rpc", erroring_at(step)),
+                    contextlib.redirect_stderr(stderr),
+                    self.assertRaises(SystemExit),
+                ):
+                    module.main()
+                self.assertIn("REJECTED", stderr.getvalue())
+                self.assertIn("Invalid params", stderr.getvalue())
+
+    def test_every_initialize_names_its_client(self):
+        module = load()
+        honest = ok()
+        seen = []
+
+        def rpc(method, params=None, authorization=None, url=None, notification=False):
+            if method == "initialize":
+                seen.append((params or {}).get("clientInfo"))
+            return honest(method, params, authorization)
+
+        with patch.object(module, "rpc", rpc):
+            module.main()
+        self.assertEqual(len(seen), 3)
+        self.assertTrue(all(seen))
+
+    def test_rpc_error_reads_only_a_json_rpc_error_object(self):
+        module = load()
+        cases = {
+            "<br />Fatal error": None,
+            "": None,
+            "null": None,
+            "[1]": None,
+            '"text"': None,
+            '{"result": {}}': None,
+            '{"error": {"code": 1}}': {"code": 1},
+        }
+        for body, expected in cases.items():
+            with self.subTest(body=body):
+                self.assertEqual(module.rpc_error(body), expected)
 
     def test_the_read_call_is_skipped_when_none_is_declared(self):
         module = load({"MCP_READ_TOOL": ""})
@@ -363,18 +437,27 @@ IDLE_SECONDS = 30
 class FakeProvider:
     """Serves one SSE MCP surface, guarded by the key in its URL path."""
 
-    def __init__(self, tools=TOOLS, guarded=True, preamble_frames=1, is_error=False):
+    def __init__(
+        self,
+        tools=TOOLS,
+        guarded=True,
+        preamble_frames=1,
+        is_error=False,
+        error_at=None,
+    ):
         """
         Args:
             tools: the tool names ``tools/list`` advertises.
             guarded: whether a wrong path key is refused.
             preamble_frames: comment frames sent before the endpoint event.
             is_error: whether ``tools/call`` reports an error result.
+            error_at: the method answered with a JSON-RPC error, or None.
         """
         self.tools = tuple(tools)
         self.guarded = guarded
         self.preamble_frames = preamble_frames
         self.is_error = is_error
+        self.error_at = error_at
         self.sessions: dict[str, queue.Queue] = {}
         self._server = ThreadingHTTPServer(("127.0.0.1", 0), self._handler())
         threading.Thread(target=self._server.serve_forever, daemon=True).start()
@@ -452,17 +535,21 @@ class FakeProvider:
                 self.end_headers()
 
                 method = payload.get("method")
-                if method == "initialize":
-                    result = {"protocolVersion": "2025-06-18", "capabilities": {}}
+                answer = {"jsonrpc": "2.0", "id": payload.get("id")}
+                if method == provider.error_at:
+                    answer["error"] = {"code": -32602, "message": "Invalid params"}
+                elif method == "initialize":
+                    answer["result"] = {
+                        "protocolVersion": "2025-06-18",
+                        "capabilities": {},
+                    }
                 elif method == "tools/list":
-                    result = {"tools": [{"name": name} for name in provider.tools]}
+                    answer["result"] = {
+                        "tools": [{"name": name} for name in provider.tools]
+                    }
                 else:
-                    result = {"isError": provider.is_error, "content": []}
-                provider.sessions[session_id].put(
-                    json.dumps(
-                        {"jsonrpc": "2.0", "id": payload.get("id"), "result": result}
-                    )
-                )
+                    answer["result"] = {"isError": provider.is_error, "content": []}
+                provider.sessions[session_id].put(json.dumps(answer))
 
             def _chunk(self, body):
                 self.wfile.write(f"{len(body):X}\r\n".encode() + body + b"\r\n")
@@ -528,6 +615,16 @@ class TestSseSessionProbe(unittest.TestCase):
         ):
             module.main()
         self.assertIn("unauthenticated probe answered 200", stderr.getvalue())
+
+    def test_a_json_rpc_error_on_tools_list_names_the_error(self):
+        provider = self.serve(error_at="tools/list")
+        module = load(sse_env(provider))
+        with (
+            contextlib.redirect_stderr(io.StringIO()) as stderr,
+            self.assertRaises(SystemExit),
+        ):
+            module.main()
+        self.assertIn("authenticated tools/list returned", stderr.getvalue())
 
     def test_a_long_preamble_does_not_hide_the_endpoint_announcement(self):
         provider = self.serve(preamble_frames=6)

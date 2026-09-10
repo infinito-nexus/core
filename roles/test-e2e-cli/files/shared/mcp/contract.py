@@ -66,6 +66,11 @@ READ_ARGUMENTS = json.loads(os.environ.get("MCP_READ_ARGUMENTS", "{}"))
 HOST_HEADER = os.environ.get("MCP_HOST_HEADER", "")
 
 PROTOCOL_VERSION = "2025-06-18"
+INITIALIZE = {
+    "protocolVersion": PROTOCOL_VERSION,
+    "capabilities": {},
+    "clientInfo": {"name": "infinito-contract-probe", "version": "1"},
+}
 TIMEOUT = 30
 SESSION_TIMEOUT = 20
 WRONG_CREDENTIAL = "Bearer " + "0" * 40
@@ -159,6 +164,11 @@ def reject(message):
     sys.exit(1)
 
 
+def reject_error(label, error):
+    if error:
+        reject(f"{label} returned {str(error)[:200]}")
+
+
 def unreachable(message):
     """Fail without the REJECTED marker, so the caller keeps retrying.
 
@@ -213,6 +223,15 @@ def speaks_json_rpc(body):
         return False
 
 
+def rpc_error(body):
+    """Return the JSON-RPC ``error`` object a response body carries, or None."""
+    try:
+        payload = json.loads(body or "null")
+    except ValueError:
+        return None
+    return payload.get("error") if isinstance(payload, dict) else None
+
+
 def refused(status, body):
     """Return whether a response refused the caller rather than serving it.
 
@@ -224,12 +243,7 @@ def refused(status, body):
     with a transport-level 200 and an ``error`` object. Moodle does exactly
     that. Demanding a 4xx would read a correct refusal as a served request.
     """
-    if status >= 400:
-        return True
-    try:
-        return bool((json.loads(body or "null") or {}).get("error"))
-    except (ValueError, AttributeError):
-        return False
+    return status >= 400 or bool(rpc_error(body))
 
 
 def assert_refused(label, authorization, url=None):
@@ -243,10 +257,7 @@ def assert_refused(label, authorization, url=None):
     session_before = SESSION["id"]
     try:
         status, body = rpc(
-            "initialize",
-            {"protocolVersion": PROTOCOL_VERSION, "capabilities": {}},
-            authorization=authorization,
-            url=url,
+            "initialize", INITIALIZE, authorization=authorization, url=url
         )
     finally:
         SESSION["id"] = session_before
@@ -389,18 +400,11 @@ def probe_sse():
     if not session.endpoint:
         reject("authenticated stream announced no message endpoint")
 
-    answer = session.call(
-        "initialize",
-        {
-            "protocolVersion": PROTOCOL_VERSION,
-            "capabilities": {},
-            "clientInfo": {"name": "infinito-contract-probe", "version": "1"},
-        },
-    )
-    if answer.get("error"):
-        reject(f"authenticated initialize returned {answer['error']}")
+    answer = session.call("initialize", INITIALIZE)
+    reject_error("authenticated initialize", answer.get("error"))
 
     answer = session.call("tools/list", request_id=2)
+    reject_error("authenticated tools/list", answer.get("error"))
     served = sorted(
         str(tool.get("name"))
         for tool in (answer.get("result") or {}).get("tools") or []
@@ -414,8 +418,7 @@ def probe_sse():
             {"name": READ_TOOL, "arguments": READ_ARGUMENTS},
             request_id=3,
         )
-        if answer.get("error"):
-            reject(f"read call {READ_TOOL} returned {answer['error']}")
+        reject_error(f"read call {READ_TOOL}", answer.get("error"))
         if (answer.get("result") or {}).get("isError"):
             reject(f"read call {READ_TOOL} returned an error result")
     print("OK")
@@ -455,21 +458,19 @@ def main():
     assert_refused("unauthenticated", None, guarded)
     assert_refused("wrong-credential", WRONG_CREDENTIAL, guarded)
 
-    status, body = rpc(
-        "initialize",
-        {"protocolVersion": PROTOCOL_VERSION, "capabilities": {}},
-        authorization=AUTH,
-    )
+    status, body = rpc("initialize", INITIALIZE, authorization=AUTH)
     if status == 0:
         unreachable(f"authenticated probe could not reach {URL}: {body}")
     if status != 200:
         reject(f"authenticated initialize answered {status}: {body[:200]}")
+    reject_error("authenticated initialize", rpc_error(body))
 
     rpc("notifications/initialized", authorization=AUTH, notification=True)
 
     status, body = rpc("tools/list", authorization=AUTH)
     if status != 200:
         reject(f"authenticated tools/list answered {status}: {body[:200]}")
+    reject_error("authenticated tools/list", rpc_error(body))
 
     served = sorted(
         str(tool.get("name"))
@@ -485,6 +486,7 @@ def main():
             authorization=AUTH,
         )
         assert_read_call(status, body)
+        reject_error(f"read call {READ_TOOL}", rpc_error(body))
         if (json.loads(body).get("result") or {}).get("isError"):
             reject(f"read call {READ_TOOL} returned an error result")
 
