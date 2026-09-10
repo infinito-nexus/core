@@ -234,6 +234,7 @@
         + ['-e', 'PLAYWRIGHT_FULLY_PARALLEL=' ~ TEST_E2E_PLAYWRIGHT_FULLY_PARALLEL]
         + ['-e', 'PLAYWRIGHT_TEST_TIMEOUT=' ~ (TEST_E2E_PLAYWRIGHT_ONION_TEST_TIMEOUT if (TEST_E2E_PLAYWRIGHT_IS_ONION | bool) else test_e2e_playwright_test_timeout)]
         + ['-e', 'PLAYWRIGHT_TIMEOUT_FACTOR=' ~ TIMEOUT_FACTOR]
+        + (['-e', 'PLAYWRIGHT_ONION_TIMEOUT_MULTIPLIER=' ~ TEST_E2E_PLAYWRIGHT_ONION_TIMEOUT_MULTIPLIER] if (TEST_E2E_PLAYWRIGHT_IS_ONION | bool) else [])
         + ['-e', 'PLAYWRIGHT_NAVIGATION_TIMEOUT=' ~ (TEST_E2E_PLAYWRIGHT_ONION_NAVIGATION_TIMEOUT if (TEST_E2E_PLAYWRIGHT_IS_ONION | bool) else TEST_E2E_PLAYWRIGHT_NAVIGATION_TIMEOUT)]
         + ['-v', _playwright_stage_dir ~ ':/e2e']
         + ['-v', _playwright_stage_dir ~ '/volume:/volume']
