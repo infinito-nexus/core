@@ -18,9 +18,11 @@ from __future__ import annotations
 
 import re
 import unittest
-from pathlib import Path
 
-PROJECT_ROOT: Path = Path(__file__).resolve().parents[5]
+from utils.cache.files import read_text
+
+from . import PROJECT_ROOT
+
 _MATRIX = PROJECT_ROOT / "roles/web-app-matrix/templates/flavor/ansible"
 
 _BOUND_BY_SYNAPSE = re.compile(r"src='?\s*~?\s*CA_TRUST\.(\w+)")
@@ -33,7 +35,7 @@ class TestCaTrustPassthrough(unittest.TestCase):
     def test_every_ca_path_synapse_mounts_is_passed_through_at_the_same_path(
         self,
     ) -> None:
-        wanted = set(_BOUND_BY_SYNAPSE.findall((_MATRIX / "vars.yml.j2").read_text()))
+        wanted = set(_BOUND_BY_SYNAPSE.findall(read_text(str(_MATRIX / "vars.yml.j2"))))
         self.assertTrue(
             wanted,
             "no CA_TRUST bind source found in vars.yml.j2 — the regex no longer "
@@ -41,7 +43,7 @@ class TestCaTrustPassthrough(unittest.TestCase):
             "stopped guarding anything",
         )
 
-        services = (_MATRIX / "services.yml.j2").read_text()
+        services = read_text(str(_MATRIX / "services.yml.j2"))
         same_path = {
             source
             for source, target in _PASSED_THROUGH.findall(services)
