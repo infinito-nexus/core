@@ -139,7 +139,9 @@ exports.register = function (shared) {
       await expect
         .poll(
           async () => {
-            reply = await firstBotReply(context, baseUrl, headers, dm.id, bot.id, prompted.id);
+            reply = await firstBotReply(context, baseUrl, headers, dm.id, bot.id, prompted.id).catch(
+              () => "",
+            );
             return reply.length;
           },
           {
