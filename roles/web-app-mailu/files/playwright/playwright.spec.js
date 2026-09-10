@@ -16,6 +16,8 @@ const adminEmail     = decodeDotenvQuotedValue(process.env.ADMIN_EMAIL);
 const biberUsername  = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
 const biberPassword  = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
 const biberEmail     = decodeDotenvQuotedValue(process.env.BIBER_EMAIL);
+const POLL_INTERVAL_MS = 500;
+const INBOX_REFRESH_INTERVAL_MS = 3_000;
 
 async function waitForFirstVisible(page, locators, timeout = resolveTimeout(60_000)) {
   const deadline = Date.now() + timeout;
@@ -27,7 +29,7 @@ async function waitForFirstVisible(page, locators, timeout = resolveTimeout(60_0
       }
     }
 
-    await page.waitForTimeout(resolveTimeout(500));
+    await page.waitForTimeout(POLL_INTERVAL_MS);
   }
 
   throw new Error("Timed out waiting for one of the expected selectors to become visible");
@@ -73,7 +75,7 @@ async function waitForEmailInInbox(page, subjectText, timeout = resolveTimeout(6
 
     // Refresh inbox by clicking the inbox folder
     await page.getByRole("link", { name: "Inbox" }).first().click().catch(() => {});
-    await page.waitForTimeout(resolveTimeout(3_000));
+    await page.waitForTimeout(INBOX_REFRESH_INTERVAL_MS);
   }
 
   throw new Error(`Timed out waiting for email with subject "${subjectText}" to arrive`);
