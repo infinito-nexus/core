@@ -11,6 +11,9 @@
   ];
   //    Cache buster (highest mtime computed during deploy)
   const VERSION = "{{ javascript_file_version }}";
+{% if 'oidc.js' in DASHBOARD_JS_FILES %}
+  window.__oidcLoginReady = false;
+{% endif %}
 
   // 2) Helper to load a <script> with proper query param
   function loadScriptSequential(url) {
