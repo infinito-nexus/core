@@ -64,6 +64,24 @@
     mattermost_agents_cid: "{{ MATTERMOST_AI_LOCAL_CID }}"
     mattermost_agents_node: "{{ MATTERMOST_AI_HOST_NODE }}"
 
+- name: "🔄 Mattermost | Carry the merged Agents config to every replica"
+  ansible.builtin.command: >-
+    container service update --force
+    {{ lookup('container_service', application_id, entity_name) }}
+  register: mattermost_agents_swarm_update
+  changed_when: mattermost_agents_swarm_update.rc == 0
+  become: true
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  when:
+    - DEPLOYMENT_MODE == 'swarm'
+    - IS_STACK_HOST | bool
+
+- name: "⏳ Mattermost | Wait until every replica is back on the merged config"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/wait_converged.yml') }}"
+  vars:
+    wait_service_key: "{{ entity_name }}"
+
 - name: "🔎 Mattermost | Re-read the stored Agents service and bot"
   database_query:
     config: "{{ lookup('database', application_id) }}"
