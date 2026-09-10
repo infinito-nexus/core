@@ -36,6 +36,20 @@
   failed_when: false
   delegate_to: "{{ DECIDIM_HOST_NODE }}"
 
+- name: "🏛️ Decidim | Create the organization that db:seed skips in production"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  DECIDIM_LOCAL_CID resolved at delegate_to runtime
+    container exec -i -e RAILS_ENV={{ ENVIRONMENT | quote }}
+    -e DECIDIM_ORG_HOST={{ domain | quote }}
+    -e DECIDIM_ORG_NAME={{ DECIDIM_ORGANIZATION_NAME | quote }}
+    {{ DECIDIM_LOCAL_CID | quote }}
+    bundle exec rails runner -
+  args:
+    stdin: "{{ lookup('file', 'ruby/ensure/organization.rb') }}"
+  register: decidim_organization_result
+  changed_when: "'Organization created' in decidim_organization_result.stdout"
+  when: ENVIRONMENT == 'production'
+  delegate_to: "{{ DECIDIM_HOST_NODE }}"
+
 - name: "📄 Decidim | Ensure default static pages exist (terms-of-service)"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  DECIDIM_LOCAL_CID resolved at delegate_to runtime
     container exec -i -e RAILS_ENV={{ ENVIRONMENT | quote }}
