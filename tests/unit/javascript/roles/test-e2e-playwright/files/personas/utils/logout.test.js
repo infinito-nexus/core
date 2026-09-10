@@ -10,7 +10,7 @@ Module._load = function (request, ...rest) {
 };
 
 const PROJECT_ROOT = path.resolve(__dirname, "../../../../../../../..");
-const { waitForLogoutControl } = require(
+const { confirmKeycloakLogoutIfPrompted, waitForLogoutControl } = require(
   path.join(PROJECT_ROOT, "roles/test-e2e-playwright/files/personas/utils/logout.js"),
 );
 
@@ -72,4 +72,62 @@ test("polls on a fixed interval that no onion multiplier scales", async () => {
     [250],
     "the poll interval must stay 250ms so a slow target is detected sooner, not later",
   );
+});
+
+const KEYCLOAK_LOGOUT = "https://auth.test/realms/r/protocol/openid-connect/logout";
+
+function keycloakLogoutPage({ url = KEYCLOAK_LOGOUT, promptAfterMs = Infinity, leaveAfterMs = Infinity } = {}) {
+  let current = url;
+  if (leaveAfterMs !== Infinity) setTimeout(() => { current = "https://app.test/"; }, leaveAfterMs);
+  const page = {
+    clicks: 0,
+    probes: 0,
+    url: () => current,
+    locator: () => ({
+      first: () => ({
+        waitFor: ({ timeout }) => {
+          page.probes += 1;
+          return new Promise((resolve, reject) => {
+            if (promptAfterMs <= timeout) setTimeout(resolve, promptAfterMs);
+            else setTimeout(() => reject(new Error("waitFor timed out")), timeout);
+          });
+        },
+        click: async () => { page.clicks += 1; },
+      }),
+    }),
+    waitForURL: (predicate, { timeout }) =>
+      new Promise((resolve, reject) => {
+        const deadline = Date.now() + timeout;
+        const tick = () => {
+          if (predicate(new URL(current))) return resolve();
+          if (Date.now() >= deadline) return reject(new Error("waitForURL timed out"));
+          return setTimeout(tick, 20);
+        };
+        tick();
+      }),
+    waitForLoadState: async () => {},
+  };
+  return page;
+}
+
+test("confirm helper does nothing off the Keycloak logout endpoint", async () => {
+  const page = keycloakLogoutPage({ url: "https://app.test/" });
+  await confirmKeycloakLogoutIfPrompted(page);
+  assert.equal(page.probes, 0);
+  assert.equal(page.clicks, 0);
+});
+
+test("confirm helper clicks the confirmation Keycloak renders", async () => {
+  const page = keycloakLogoutPage({ promptAfterMs: 100 });
+  await confirmKeycloakLogoutIfPrompted(page);
+  assert.equal(page.clicks, 1);
+});
+
+test("confirm helper returns once Keycloak redirects away without a prompt", async () => {
+  const page = keycloakLogoutPage({ leaveAfterMs: 100 });
+  const started = Date.now();
+  await confirmKeycloakLogoutIfPrompted(page);
+  const elapsed = Date.now() - started;
+  assert.equal(page.clicks, 0);
+  assert.ok(elapsed < 1_000, `must not wait out the confirm window after the redirect, waited ${elapsed}ms`);
 });

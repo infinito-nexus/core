@@ -8,11 +8,13 @@ const oidcIssuerUrl = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
 const loginUsername = decodeDotenvQuotedValue(process.env.LOGIN_USERNAME);
 const loginPassword = decodeDotenvQuotedValue(process.env.LOGIN_PASSWORD);
 const expectedOidcAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
+const KEYCLOAK_LOGOUT_PATH = "/protocol/openid-connect/logout";
+const POLL_INTERVAL_MS = 250;
 
-async function waitForFirstVisible(locators, timeout, errorMessage) {
+async function waitForFirstVisible(locators, timeout, errorMessage, shouldStop = () => false) {
   const deadline = Date.now() + timeout;
 
-  while (Date.now() < deadline) {
+  while (Date.now() < deadline && !shouldStop()) {
     for (const locator of locators) {
       const candidate = locator.first();
 
@@ -21,7 +23,7 @@ async function waitForFirstVisible(locators, timeout, errorMessage) {
       }
     }
 
-    await new Promise((resolve) => setTimeout(resolve, resolveTimeout(250)));
+    await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
   }
 
   throw new Error(errorMessage);
@@ -159,7 +161,8 @@ async function confirmLogoutIfNeeded(page) {
   const logoutConfirmButton = await waitForFirstVisible(
     logoutConfirmCandidates,
     resolveTimeout(5_000),
-    "Timed out waiting for an optional Keycloak logout confirmation button"
+    "Timed out waiting for an optional Keycloak logout confirmation button",
+    () => !page.url().includes(KEYCLOAK_LOGOUT_PATH)
   ).catch(() => null);
 
   if (logoutConfirmButton) {
@@ -222,7 +225,7 @@ exports.register = function (shared) {
     await expect
       .poll(
         async () =>
-          page.url().includes("/protocol/openid-connect/logout") || page.url().startsWith(appBaseUrl),
+          page.url().includes(KEYCLOAK_LOGOUT_PATH) || page.url().startsWith(appBaseUrl),
         {
           timeout: resolveTimeout(30_000),
           message: "Expected dashboard logout to reach Keycloak logout or redirect back to the dashboard",
@@ -230,7 +233,7 @@ exports.register = function (shared) {
       )
       .toBe(true);
 
-    if (page.url().includes("/protocol/openid-connect/logout")) {
+    if (page.url().includes(KEYCLOAK_LOGOUT_PATH)) {
       await confirmLogoutIfNeeded(page);
     }
 
