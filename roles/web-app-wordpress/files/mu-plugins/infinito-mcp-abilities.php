@@ -3,10 +3,9 @@
  * Plugin Name: Infinito MCP Abilities
  * Description: Registers the reviewed read-only Abilities the MCP adapter may expose, and keeps the application password usable on the internal MCP hop.
  *
- * The MCP Adapter publishes an ability only when it carries
- * meta.mcp.public = true, so this file is the entire tool surface: whatever is
- * not registered here cannot be reached over MCP, no matter what else the site
- * has installed.
+ * The filter at the end of this file sets the default MCP server's tools to
+ * exactly these three abilities and empties its resources and prompts, at
+ * PHP_INT_MAX so that the usual extension at default priority cannot widen it.
  *
  * Every ability is a read of already-published content and carries its own
  * permission callback. The callback is not decoration: the adapter authorises
@@ -54,17 +53,27 @@ function infinito_mcp_public_post( $post ) {
 }
 
 add_action(
-	'abilities_api_init',
+	'wp_abilities_api_categories_init',
 	function () {
-		if ( ! function_exists( 'wp_register_ability' ) ) {
-			return;
-		}
+		wp_register_ability_category(
+			'infinito',
+			array(
+				'label'       => __( 'Infinito', 'infinito' ),
+				'description' => __( 'Reviewed read-only access to published content.', 'infinito' ),
+			)
+		);
+	}
+);
 
+add_action(
+	'wp_abilities_api_init',
+	function () {
 		wp_register_ability(
 			'infinito/search-posts',
 			array(
 				'label'               => __( 'Search published posts', 'infinito' ),
 				'description'         => __( 'Full-text search across published posts.', 'infinito' ),
+				'category'            => 'infinito',
 				'input_schema'        => array(
 					'type'       => 'object',
 					'properties' => array(
@@ -83,7 +92,7 @@ add_action(
 							'suppress_filters' => false,
 						)
 					);
-					return array_map( 'infinito_mcp_public_post', $posts );
+					return array( 'posts' => array_map( 'infinito_mcp_public_post', $posts ) );
 				},
 				'meta'                => array( 'mcp' => array( 'public' => true ) ),
 			)
@@ -94,6 +103,7 @@ add_action(
 			array(
 				'label'               => __( 'Get one published post', 'infinito' ),
 				'description'         => __( 'Fetch a single published post by id.', 'infinito' ),
+				'category'            => 'infinito',
 				'input_schema'        => array(
 					'type'       => 'object',
 					'properties' => array(
@@ -104,10 +114,10 @@ add_action(
 				'permission_callback' => 'infinito_mcp_may_read',
 				'execute_callback'    => function ( $input ) {
 					$post = get_post( (int) ( $input['id'] ?? 0 ) );
-					if ( ! $post || 'publish' !== $post->post_status ) {
-						return null;
+					if ( ! $post || 'publish' !== $post->post_status || 'post' !== $post->post_type ) {
+						return array( 'post' => null );
 					}
-					return infinito_mcp_public_post( $post );
+					return array( 'post' => infinito_mcp_public_post( $post ) );
 				},
 				'meta'                => array( 'mcp' => array( 'public' => true ) ),
 			)
@@ -118,6 +128,7 @@ add_action(
 			array(
 				'label'               => __( 'List categories', 'infinito' ),
 				'description'         => __( 'List the site categories with post counts.', 'infinito' ),
+				'category'            => 'infinito',
 				'input_schema'        => array( 'type' => 'object', 'properties' => array() ),
 				'permission_callback' => 'infinito_mcp_may_read',
 				'execute_callback'    => function () {
@@ -129,22 +140,35 @@ add_action(
 						)
 					);
 					if ( is_wp_error( $terms ) ) {
-						return array();
+						return array( 'categories' => array() );
 					}
-					return array_map(
-						function ( $term ) {
-							return array(
-								'id'    => $term->term_id,
-								'name'  => $term->name,
-								'slug'  => $term->slug,
-								'count' => $term->count,
-							);
-						},
-						$terms
+					return array(
+						'categories' => array_map(
+							function ( $term ) {
+								return array(
+									'id'    => $term->term_id,
+									'name'  => $term->name,
+									'slug'  => $term->slug,
+									'count' => $term->count,
+								);
+							},
+							$terms
+						),
 					);
 				},
 				'meta'                => array( 'mcp' => array( 'public' => true ) ),
 			)
 		);
 	}
+);
+
+add_filter(
+	'mcp_adapter_default_server_config',
+	function ( $config ) {
+		$config['tools']     = array( 'infinito/search-posts', 'infinito/get-post', 'infinito/list-categories' );
+		$config['resources'] = array();
+		$config['prompts']   = array();
+		return $config;
+	},
+	PHP_INT_MAX
 );
