@@ -5,7 +5,6 @@
 # Safe to run repeatedly; only changes when the mode is not already "on".
 
 - name: "📖 Read current Cloudflare development_mode setting"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   uri_retry:
     url: "https://api.cloudflare.com/client/v4/zones/{{ cf_zone_id }}/settings/development_mode"
     method: GET
@@ -17,7 +16,6 @@
   when: ASYNC_ENABLED | bool
 
 - name: "🟢 Enable Cloudflare Development Mode"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   uri_retry:
     url: "https://api.cloudflare.com/client/v4/zones/{{ cf_zone_id }}/settings/development_mode"
     method: PATCH

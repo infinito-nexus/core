@@ -30,6 +30,7 @@
   loop: "{{ MATRIX_BRIDGES }}"
   loop_control:
     label: "{{ item.bridge_name }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: ➕ add multiple mautrix bridge configuration
   stack_host_template:
@@ -108,6 +109,7 @@
   loop_control:
     label: "{{ item.bridge_name }}"
   register: matrix_bridge_ready
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   retries: 60
   delay: 10
   until: matrix_bridge_ready.rc == 0

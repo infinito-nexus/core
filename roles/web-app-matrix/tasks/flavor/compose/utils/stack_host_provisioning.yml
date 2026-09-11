@@ -50,8 +50,10 @@
   when: not matrix_create_chatgptbot.changed
 
 - name: "🔑 Give the ChatGPT bridge a token Synapse actually issued"
-  ansible.builtin.include_tasks: chatgpt_bridge_token.yml
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  ansible.builtin.include_tasks:
+    file: chatgpt_bridge_token.yml
+    apply:
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "➕ re-add compose.yml now that the bridge token exists"
   stack_host_template:

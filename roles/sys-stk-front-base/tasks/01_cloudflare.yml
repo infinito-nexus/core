@@ -42,7 +42,10 @@
     - cf_zone_lookup_dev.json.result | length == 0
 
 - name: 🟢 activate cloudflare cache development mode
-  include_tasks: "cloudflare/01_enable_cf_dev_mode.yml"
+  include_tasks:
+    file: "cloudflare/01_enable_cf_dev_mode.yml"
+    apply:
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   when: (ENVIRONMENT | lower) == 'development'
 
 - name: 🧹 purge cloudflare domain cache
