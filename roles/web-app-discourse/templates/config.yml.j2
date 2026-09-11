@@ -165,10 +165,10 @@ run:
   - exec: rails r "SiteSetting.username_change_period = 0" # Deactivate changing of username
 
   # OIDC Activation
-  - exec: rails r "SiteSetting.openid_connect_enabled = true"
   - exec: rails r "SiteSetting.openid_connect_discovery_document = '{{OIDC.CLIENT.DISCOVERY_DOCUMENT}}'"
   - exec: rails r "SiteSetting.openid_connect_client_id = '{{ OIDC.CLIENT.ID }}'"         
-  - exec: rails r "SiteSetting.openid_connect_client_secret = '{{ OIDC.CLIENT.SECRET }}'"     
+  - exec: rails r "SiteSetting.openid_connect_client_secret = '{{ OIDC.CLIENT.SECRET }}'"
+  - exec: rails r "SiteSetting.openid_connect_enabled = true"
   - exec: rails r "SiteSetting.openid_connect_rp_initiated_logout_redirect = '{{ DISCOURSE_OIDC_LOGOUT_REDIRECT_URL }}'"
   - exec: rails r "SiteSetting.openid_connect_allow_association_change = false"
   - exec: rails r "SiteSetting.openid_connect_rp_initiated_logout = true"
