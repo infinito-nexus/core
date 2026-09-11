@@ -1,6 +1,12 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "📂 Register the compose handlers the pre-compose staging notifies"
+  ansible.builtin.include_role:
+    name: sys-svc-compose
+    tasks_from: none.yml
+    handlers_from: main
+
 - name: "🐳 Pre-compose web-enabled staging (services dir + social-app + login-broker)"
   block:
     - name: "✅ Ensure social-app services directory exists"
@@ -20,13 +26,10 @@
   ansible.builtin.include_tasks: "03_pds.yml"
 
 - name: "🧹 Heal oauth2-proxy cfg bind-mount (if it became a directory in a prior deploy)"
-  ansible.builtin.shell: >-
-    if [ -d "{{ BLUESKY_SSO_PROXY_CFG_PATH }}" ]; then
-      container stop "{{ BLUESKY_SSO_PROXY_CONTAINER }}" 2>/dev/null || true;
-      rm -rf "{{ BLUESKY_SSO_PROXY_CFG_PATH }}";
-    fi
-  args:
-    executable: /bin/bash
+  ansible.builtin.script: "{{ role_path }}/files/shell/heal_sso_proxy_cfg.sh"
+  environment:
+    SSO_PROXY_CFG_PATH: "{{ BLUESKY_SSO_PROXY_CFG_PATH }}"
+    SSO_PROXY_CONTAINER: "{{ BLUESKY_SSO_PROXY_CONTAINER }}"
   changed_when: false
 
 - name: "📂 include sys-stk-backend role"

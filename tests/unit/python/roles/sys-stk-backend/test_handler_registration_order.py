@@ -11,6 +11,7 @@ from utils.roles.mapping import ROLE_FILE_TASKS_MAIN
 
 BACKEND = PROJECT_ROOT / "roles/sys-stk-backend" / ROLE_FILE_TASKS_MAIN
 RDBMS_DEDICATED = PROJECT_ROOT / "roles/sys-svc-rdbms/tasks/dedicated.yml"
+BLUESKY_CORE = PROJECT_ROOT / "roles/web-app-bluesky/tasks/00_core.yml"
 COMPOSE_OWNER = "sys-svc-compose"
 _NOTIFY = re.compile(r"^\s*notify:\s*(?:\[\s*)?['\"]?(compose-[\w-]+)", re.MULTILINE)
 
@@ -63,6 +64,21 @@ class TestHandlerRegistrationOrder(unittest.TestCase):
         loader = _role_include(load_yaml_str(read_text(str(RDBMS_DEDICATED)))[0])
         self.assertEqual(loader.get("name"), COMPOSE_OWNER)
         self.assertEqual(loader.get("handlers_from"), "main")
+
+    def test_bluesky_registers_the_owner_before_its_pre_compose_staging(self) -> None:
+        tasks = load_yaml_str(read_text(str(BLUESKY_CORE)))
+        loader = next(
+            index
+            for index, task in enumerate(tasks)
+            if _role_include(task).get("name") == COMPOSE_OWNER
+            and _role_include(task).get("handlers_from") == "main"
+        )
+        staging = next(
+            index
+            for index, task in enumerate(tasks)
+            if "Pre-compose" in str(task.get("name"))
+        )
+        self.assertLess(loader, staging)
 
     def test_the_notifier_bootstraps_the_compose_host_before_its_first_notify(
         self,
