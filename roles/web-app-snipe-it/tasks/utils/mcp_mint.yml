@@ -6,12 +6,28 @@
     resolve_output_prefix: SNIPEIT_IDENTITY
     resolve_compose_cid: "{{ SNIPE_IT_CONTAINER }}"
 
+- name: "🔐 Hand Passport's keys to apache, as the image's startup script does"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ SNIPEIT_IDENTITY_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - chown
+      - -R
+      - apache:root
+      - /var/lib/snipeit/keys
+  changed_when: false
+  delegate_to: "{{ SNIPEIT_IDENTITY_HOST_NODE }}"
+  run_once: true
+
 - name: "🔑 Mint the read-only Snipe-IT token the MCP adapter presents"
   ansible.builtin.command:
     argv:
       - container
       - exec
       - -i
+      - -u
+      - apache
       - -e
       - "APP_KEY={{ SNIPE_IT_APP_KEY }}"
       - -e

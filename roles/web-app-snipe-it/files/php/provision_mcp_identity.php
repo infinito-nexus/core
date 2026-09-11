@@ -11,6 +11,7 @@
  * here before anything is minted.
  *
  * Prints CHANGED or UNCHANGED on the first line and the token on the second.
+ * Exits 1 when Snipe-IT's own API refuses the token it just minted.
  *
  * Environment:
  *     MCP_USER:          username to converge.
@@ -41,22 +42,25 @@ $permissions = json_encode([
     "licenses.view" => "1",
 ]);
 
-if ($currentToken !== "") {
+function apiStatus(string $token): int
+{
     $probe = curl_init("http://127.0.0.1/api/v1/hardware?limit=1");
     curl_setopt_array($probe, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_HTTPHEADER => [
-            "Authorization: Bearer " . $currentToken,
+            "Authorization: Bearer " . $token,
             "Accept: application/json",
         ],
         CURLOPT_TIMEOUT => 20,
     ]);
     curl_exec($probe);
-    if (curl_getinfo($probe, CURLINFO_HTTP_CODE) === 200) {
-        echo "UNCHANGED\n";
-        echo $currentToken . "\n";
-        exit(0);
-    }
+    return (int) curl_getinfo($probe, CURLINFO_HTTP_CODE);
+}
+
+if ($currentToken !== "" && apiStatus($currentToken) === 200) {
+    echo "UNCHANGED\n";
+    echo $currentToken . "\n";
+    exit(0);
 }
 
 $changed = false;
@@ -113,6 +117,12 @@ $revoked = DB::table("oauth_access_tokens")
 $changed = $changed || $revoked > 0;
 
 $token = $user->createToken($tokenName)->accessToken;
+
+$status = apiStatus($token);
+if ($status !== 200) {
+    fwrite(STDERR, "Snipe-IT's own API answered {$status} to the token it just minted\n");
+    exit(1);
+}
 
 echo ($changed ? "CHANGED" : "UNCHANGED") . "\n";
 echo $token . "\n";
