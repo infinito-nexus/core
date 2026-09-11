@@ -43,7 +43,6 @@
   include_tasks:
     file: 01_bootstrap.yml
     apply:
-      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       run_once: true
 
 - name: "🤖 Bind the native AI surface to the platform gateway"
