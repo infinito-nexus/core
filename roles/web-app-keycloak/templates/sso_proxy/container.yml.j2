@@ -5,6 +5,8 @@
     command: --config /oauth2-proxy.cfg
     {{ lookup('compose_only', 'container_name', ((application_id | get_entity_name) ~ '-sso-proxy')) }}
     hostname: sso-proxy
+    labels:
+      infinito.sso-proxy.config-sha256: "{{ lookup('template', lookup('path_absolute', 'roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2'), template_vars={'sso_proxy_application_id': application_id}) | hash('sha256') }}"
     ports:
       - {{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.' ~ (application_id | get_entity_name) ~ '.ports.local.sso') }}:{{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.ports.internal.http') }}/tcp
     volumes:
