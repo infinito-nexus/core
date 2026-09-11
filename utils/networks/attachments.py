@@ -191,3 +191,34 @@ def _compute_attachments(
             )
 
     return attachments, default_aliases
+
+
+def _suppress_default(
+    application_id: str, lookup_database: Callable[[str, str], Any]
+) -> bool:
+    if not application_id.startswith(("svc-db-", "svc-ai-")):
+        return False
+    return not bool(lookup_database(application_id, "local"))
+
+
+def _own_shared_net_provider(
+    attachments: list[dict[str, Any]],
+    own_entity: str,
+    get_entity_name: Callable[[str], str],
+) -> bool:
+    return any(
+        att["is_provider"]
+        and att["topology"] == "shared_net"
+        and get_entity_name(att["role"]) == own_entity
+        for att in attachments
+    )
+
+
+def _shared_network_key(
+    attachments: list[dict[str, Any]],
+    own_entity: str,
+    get_entity_name: Callable[[str], str],
+) -> str:
+    if _own_shared_net_provider(attachments, own_entity, get_entity_name):
+        return own_entity
+    return "default"

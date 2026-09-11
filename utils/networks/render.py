@@ -48,44 +48,22 @@ from utils.networks.attachments import (
     _coerce_bool,
     _compute_attachments,
     _is_consumer,
+    _own_shared_net_provider,
+    _shared_network_key,
+    _suppress_default,
 )
 
 __all__ = [
     "_coerce_bool",
     "_compute_attachments",
     "_is_consumer",
+    "_own_shared_net_provider",
+    "_suppress_default",
     "compute_external_network_roles",
     "render_compose_networks",
     "render_container_networks",
     "shared_network_compose_key",
 ]
-
-
-def _suppress_default(application_id: str) -> bool:
-    return application_id.startswith(("svc-db-", "svc-ai-"))
-
-
-def _own_shared_net_provider(
-    attachments: list[dict[str, Any]],
-    own_entity: str,
-    get_entity_name: Callable[[str], str],
-) -> bool:
-    return any(
-        att["is_provider"]
-        and att["topology"] == "shared_net"
-        and get_entity_name(att["role"]) == own_entity
-        for att in attachments
-    )
-
-
-def _shared_network_key(
-    attachments: list[dict[str, Any]],
-    own_entity: str,
-    get_entity_name: Callable[[str], str],
-) -> str:
-    if _own_shared_net_provider(attachments, own_entity, get_entity_name):
-        return own_entity
-    return "default"
 
 
 def shared_network_compose_key(
@@ -181,7 +159,7 @@ def render_compose_networks(
     is_own_shared_net_provider = (
         _shared_network_key(attachments, own_entity, get_entity_name) == own_entity
     )
-    if not _suppress_default(application_id):
+    if not _suppress_default(application_id, lookup_database):
         lines.append("  default:")
         if deployment_mode == "swarm":
             if not is_own_shared_net_provider and own_entity:
@@ -254,7 +232,7 @@ def render_container_networks(
             return ""
         return "\n" + "\n".join(lines)
 
-    if not _suppress_default(application_id):
+    if not _suppress_default(application_id, lookup_database):
         if default_aliases:
             lines.append("  default:")
             lines.append("    aliases:")

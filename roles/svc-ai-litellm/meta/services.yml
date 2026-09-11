@@ -32,7 +32,7 @@ litellm:
 postgres:
   bond: 1
   enabled: true # nocheck: dynamic-flag
-  shared: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-postgres' in group_names }}"
 
 # nocheck: playwright-service-flag, dynamic-flag
 ollama:

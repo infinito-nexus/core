@@ -45,7 +45,7 @@ flowchart LR
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_net_tor -. "0..1" .-> svc_tor
     svc_postgres -- "1:1" --> dpt_more
-    svc_postgres -- "1:1" --> dpt_svc_ai_litellm
+    svc_postgres -. "0..1" .-> dpt_svc_ai_litellm
     svc_postgres -. "0..1" .-> dpt_web_app_baserow
     svc_postgres -. "0..1" .-> dpt_web_app_bookwyrm
     svc_postgres -. "0..1" .-> dpt_web_app_chess

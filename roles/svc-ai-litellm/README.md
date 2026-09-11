@@ -42,7 +42,7 @@ flowchart LR
     end
     dep_svc_ai_lmstudio -. "0..1" .-> svc_lmstudio
     dep_svc_ai_ollama -. "0..1" .-> svc_ollama
-    dep_svc_db_postgres -- "1:1" --> svc_postgres
+    dep_svc_db_postgres -. "0..1" .-> svc_postgres
     svc_litellm -- "1:1" --> dpt_more
     svc_litellm -. "0..1" .-> dpt_web_app_discourse
     svc_litellm -. "0..1" .-> dpt_web_app_flowise
