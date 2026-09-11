@@ -16,8 +16,8 @@ Pulls only. Pushes are not intercepted.
 
 | Format | Repo names | Upstream |
 |---|---|---|
-| `apt` | `apt-debian`, `apt-debian-security`, `apt-ubuntu`, `apt-ubuntu-security` | `deb.debian.org`, `archive.ubuntu.com`, `security.ubuntu.com` |
-| `apt` (mirrors) | `apt-debian-mirror`, `apt-debian-security-mirror`, `apt-ubuntu-mirror`, `apt-ubuntu-security-mirror` | `ftp.debian.org`, `security.debian.org`, `de.archive.ubuntu.com` |
+| `apt` | `apt-debian`, `apt-debian-security`, `apt-ubuntu`, `apt-ubuntu-security` | `deb.debian.org`; both Ubuntu repos take the first entry of `INFINITO_APT_UBUNTU_MIRRORS` |
+| `apt` (mirrors) | `apt-debian-mirror`, `apt-debian-security-mirror`, `apt-ubuntu-mirror`, `apt-ubuntu-security-mirror` | `ftp.debian.org`, `security.debian.org`; both Ubuntu repos take the second entry of `INFINITO_APT_UBUNTU_MIRRORS` |
 | `pypi` | `pypi-proxy` | `pypi.org` (incl. `files.pythonhosted.org`) |
 | `npm` | `npm-proxy` | `registry.npmjs.org` |
 | `rubygems` | `gem-proxy` | `rubygems.org` |
