@@ -39,7 +39,7 @@ dashboard:
   shared: true
   name: dashboard
   image: ghcr.io/kevinveenbirkenbach/port-ui
-  version: 2.0.0
+  version: 2.1.2
   min_storage: 549MB
   cpus: "0.3"
   mem_reservation: 256m
