@@ -65,12 +65,10 @@ test("biber: is denied access to pihole admin panel", async ({ page }) => {
     const body = await page.locator("body").textContent({ timeout: resolveTimeout(15_000) }).catch(() => "");
     const text = (body || "").toLowerCase();
     const url = page.url();
-    if (url.includes("/oauth2/callback")) return "still handing off";
+    if (text.includes("access denied") || text.includes("you do not have permission")) return "denied";
     if (url.includes(expectedOidcAuthUrl)) return "denied";
-    return text.includes("403") || text.includes("forbidden") ||
-      text.includes("access denied") || text.includes("you do not have permission")
-      ? "denied"
-      : `reached ${url}`;
+    if (url.includes("/oauth2/callback")) return "still handing off";
+    return `reached ${url}`;
   };
 
   await expect
