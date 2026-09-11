@@ -7,7 +7,14 @@ from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_str
 
 ROUTER = PROJECT_ROOT / "roles/svc-net-tor/tasks/router.yml"
+CORE = PROJECT_ROOT / "roles/svc-net-tor/tasks/00_core.yml"
+ROLE_FILES = PROJECT_ROOT / "roles/svc-net-tor/files"
 RESOLV_TASK = "🔀 Egress router | Point the host resolver at dnsmasq (127.0.0.1)"
+DROPIN_BLOCK = "🔁 Egress router | Retry dnsmasq until docker0 exists after a boot"
+START_TASK = "🚀 Egress router | Enable + (re)start dnsmasq"
+REGATHER_TASK = (
+    "📊 Re-gather the docker0 fact so torrc and dnsmasq bind the live bridge"
+)
 
 
 def _walk(tasks):
@@ -63,16 +70,23 @@ class TestDnsmasqListeners(unittest.TestCase):
         rendered = _render_dnsmasq(TOR_CONTAINER_DNS_HOST="")
         self.assertNotIn("interface=", rendered)
 
-    def test_a_bridge_listener_still_binds_dynamically(self):
+    def test_a_bridge_listener_binds_statically_too(self):
         rendered = _render_dnsmasq()
-        self.assertIn("bind-dynamic", rendered)
-        self.assertNotIn("bind-interfaces", rendered)
+        self.assertIn(
+            "bind-interfaces",
+            rendered,
+            "bind-dynamic closes every listener a failed netlink re-enumeration did "
+            "not re-find, loopback included, and nothing reopens them until the "
+            "next address event",
+        )
+        self.assertNotIn("bind-dynamic", rendered)
 
     def test_no_bind_policy_when_the_listener_is_not_ours(self):
         rendered = _render_dnsmasq(
             TOR_DNSMASQ_OWNS_LISTENER=False, TOR_CONTAINER_DNS_HOST=""
         )
         self.assertNotIn("bind-dynamic", rendered)
+        self.assertNotIn("bind-interfaces", rendered)
         self.assertNotIn("listen-address", rendered)
 
     def test_onion_queries_go_to_the_tor_resolver(self):
@@ -99,6 +113,58 @@ class TestDnsmasqListeners(unittest.TestCase):
         self.assertIn("address=/example.onion/172.17.0.1", _render_dnsmasq())
 
 
+class TestStaticBindSurvivesBoot(unittest.TestCase):
+    def _router_tasks(self):
+        return list(_walk(load_yaml_str(read_text(str(ROUTER)))))
+
+    def test_dnsmasq_retries_until_its_addresses_exist(self):
+        tasks = self._router_tasks()
+        block = next(t for t in tasks if t.get("name") == DROPIN_BLOCK)
+        self.assertEqual(
+            block["when"],
+            "TOR_DNSMASQ_OWNS_LISTENER | bool",
+            "a shared dnsmasq keeps the unit its owner configured",
+        )
+        src = next(
+            t["ansible.builtin.copy"]["src"]
+            for t in _walk(block["block"])
+            if "ansible.builtin.copy" in t
+        )
+        dropin = read_text(str(ROLE_FILES / src))
+        self.assertIn(
+            "Restart=on-failure",
+            dropin.splitlines(),
+            "docker.service orders after nss-lookup.target, which dnsmasq precedes, "
+            "so a static bind on docker0 fails once per boot and must be retried",
+        )
+
+    def test_a_changed_dropin_is_loaded_before_dnsmasq_starts(self):
+        tasks = self._router_tasks()
+        names = [t.get("name") for t in tasks]
+        start = next(t for t in tasks if t.get("name") == START_TASK)
+        self.assertLess(names.index(DROPIN_BLOCK), names.index(START_TASK))
+        self.assertEqual(
+            start["ansible.builtin.systemd"]["daemon_reload"],
+            "{{ _tor_dnsmasq_dropin is changed }}",
+        )
+
+    def test_the_bridge_fact_is_live_before_anything_binds_it(self):
+        tasks = list(_walk(load_yaml_str(read_text(str(CORE)))))
+        names = [t.get("name") for t in tasks]
+        regather = next(t for t in tasks if t.get("name") == REGATHER_TASK)
+        self.assertEqual(
+            regather["ansible.builtin.setup"]["filter"],
+            ["ansible_docker0"],
+            "the play-start docker0 fact predates default-address-pools moving the "
+            "bridge, and a static bind on the stale address makes dnsmasq exit",
+        )
+        self.assertLess(names.index(REGATHER_TASK), names.index("📝 Render torrc"))
+        self.assertLess(
+            names.index(REGATHER_TASK),
+            names.index("🧅 Wire the host-level transparent .onion egress router"),
+        )
+
+
 class TestHostResolver(unittest.TestCase):
     """glibc reads resolv.conf per query and keeps no server state, so the
     clearnet entry costs nothing while dnsmasq answers and carries the host when
@@ -108,7 +174,14 @@ class TestHostResolver(unittest.TestCase):
     def _resolv_conf(self) -> str:
         tasks = _walk(load_yaml_str(read_text(str(ROUTER))))
         task = next(t for t in tasks if t.get("name") == RESOLV_TASK)
-        return task["ansible.builtin.copy"]["content"]
+        env = Environment(
+            loader=FileSystemLoader(str(PROJECT_ROOT)),
+            autoescape=False,  # noqa: S701 - resolv.conf, html escaping would corrupt it
+        )
+        template = env.get_template(
+            f"roles/svc-net-tor/templates/{task['ansible.builtin.template']['src']}"
+        )
+        return template.render(networks={"internet": {"dns": "172.30.0.53"}})
 
     def test_dnsmasq_answers_first_and_the_upstream_carries_the_host(self):
         servers = [

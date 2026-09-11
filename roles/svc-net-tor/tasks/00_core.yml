@@ -47,6 +47,14 @@
   become: true
   register: _tor_hs_keys
 
+- name: "📊 Re-gather the docker0 fact so torrc and dnsmasq bind the live bridge"
+  ansible.builtin.setup:
+    gather_subset:
+      - "!all"
+      - network
+    filter:
+      - ansible_docker0
+
 - name: "📝 Render torrc"
   ansible.builtin.template: # nocheck: stack-host-template (per-host torrc under DIR_VAR_LIB; tor is a node-local host-network sidecar)
     src: torrc.j2

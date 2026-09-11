@@ -2,10 +2,8 @@
 listen-address=127.0.0.1
 {% if TOR_CONTAINER_DNS_HOST | length > 0 %}
 listen-address={{ TOR_CONTAINER_DNS_HOST }}
-bind-dynamic
-{% else %}
-bind-interfaces
 {% endif %}
+bind-interfaces
 no-resolv
 {% endif %}
 no-hosts

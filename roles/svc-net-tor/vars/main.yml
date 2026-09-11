@@ -13,6 +13,7 @@ TOR_FLAVOR: "{{ lookup('config', application_id, 'services.tor.flavor') }}"
 TOR_TRANS_PORT: "{{ lookup('config', application_id, 'services.tor.ports.local.trans') }}"
 TOR_DNS_PORT: "{{ lookup('config', application_id, 'services.tor.ports.local.dns') }}"
 TOR_DNSMASQ_CONF: "/etc/dnsmasq.d/tor-onion.conf"
+TOR_DNSMASQ_DROPIN: "/etc/systemd/system/dnsmasq.service.d/infinito-restart.conf"
 # nocheck: host-local-fact  meta/services.yml pins this role to the manager, so the fact describes the node the hidden service forwards on
 TOR_CONTAINER_DNS_HOST: "{{ ansible_facts['docker0']['ipv4']['address'] | default('', true) }}"
 # nocheck: host-local-fact  meta/services.yml pins this role to the manager, so the fact describes the node the hidden service forwards on
