@@ -1,11 +1,12 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
+const { apiGetOnion } = require("./personas");
 
 exports.register = function (shared) {
   test("administrator: the API server key unlocks the OpenAI-compatible model listing", async ({ request }) => {
     test.skip(!shared.env.apiServerKey, "no Hermes API server key provisioned");
 
-    const models = await request.get(`${shared.env.baseUrl}/v1/models`, {
+    const models = await apiGetOnion(request, `${shared.env.baseUrl}/v1/models`, {
       headers: { Authorization: `Bearer ${shared.env.apiServerKey}` },
       timeout: resolveTimeout(30_000),
     });

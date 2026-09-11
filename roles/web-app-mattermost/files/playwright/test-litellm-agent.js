@@ -1,7 +1,12 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, performKeycloakLoginForm } = require("./personas");
+const {
+  apiFetchOnion,
+  apiGetOnion,
+  decodeDotenvQuotedValue,
+  performKeycloakLoginForm,
+} = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
 const LITELLM_API_URL = decodeDotenvQuotedValue(process.env.LITELLM_API_URL);
@@ -13,7 +18,8 @@ const PLUGIN_FAILURE_NOTICE = /sorry!?\s*an error|an error occurred|accessing th
 // password grant exists exactly in the deployments that run without OIDC.
 async function acquireAdminToken(context, shared, baseUrl) {
   if (!shared.oidcEnabled) {
-    const login = await context.request.post(`${baseUrl}/api/v4/users/login`, {
+    const login = await apiFetchOnion(context.request, `${baseUrl}/api/v4/users/login`, {
+      method: "POST",
       failOnStatusCode: false,
       headers: { "Content-Type": "application/json" },
       data: { login_id: shared.env.adminUsername, password: shared.env.adminPassword },
@@ -88,7 +94,7 @@ exports.register = function (shared) {
       await context.clearCookies();
       const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
 
-      const meResponse = await context.request.get(`${baseUrl}/api/v4/users/me`, {
+      const meResponse = await apiGetOnion(context.request, `${baseUrl}/api/v4/users/me`, {
         headers,
         failOnStatusCode: false,
       });
@@ -98,7 +104,8 @@ exports.register = function (shared) {
       ).toBe(200);
       const me = await meResponse.json();
 
-      const botResponse = await context.request.get(
+      const botResponse = await apiGetOnion(
+        context.request,
         `${baseUrl}/api/v4/users/username/${LITELLM_BOT_NAME}`,
         { headers, failOnStatusCode: false },
       );
@@ -112,7 +119,8 @@ exports.register = function (shared) {
         `the "${LITELLM_BOT_NAME}" account must carry a user id so a direct message channel can be opened with it`,
       ).toBeTruthy();
 
-      const dmResponse = await context.request.post(`${baseUrl}/api/v4/channels/direct`, {
+      const dmResponse = await apiFetchOnion(context.request, `${baseUrl}/api/v4/channels/direct`, {
+        method: "POST",
         headers,
         failOnStatusCode: false,
         data: [me.id, bot.id],
