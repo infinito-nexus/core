@@ -4,7 +4,7 @@ synapse_data:
   name: matrix_synapse_data
   mounts:
     - service: synapse
-      target: /data
+      target: &data_target /data
       when: "{{ lookup('config', 'web-app-matrix', 'services.matrix.flavor', 'ansible') == 'compose' }}"
 
 chatgpt_data:
@@ -13,6 +13,25 @@ chatgpt_data:
   mounts:
     - service: matrix-chatgpt-bot
       target: /storage
+
+mautrix_workdir:
+  type: tmpfs
+  mounts:
+    - service: mautrix-whatsapp
+      target: *data_target
+      size: 16m
+    - service: mautrix-meta
+      target: *data_target
+      size: 16m
+    - service: mautrix-signal
+      target: *data_target
+      size: 16m
+    - service: mautrix-slack
+      target: *data_target
+      size: 16m
+    - service: mautrix-telegram
+      target: *data_target
+      size: 16m
 
 synapse_config:
   type: config

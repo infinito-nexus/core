@@ -13,44 +13,9 @@
     database_username: "{{ item.database_username }}"
     database_name: "{{ item.database_name }}"
   loop: "{{ MATRIX_BRIDGES }}"
-
-- name: 🐳 shut down compose project
-  command:
-    cmd: "{{ BIN_COMPOSE }} down"
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-  when: DEPLOYMENT_MODE == 'compose'
-
-- when:
-    - DEPLOYMENT_MODE == 'swarm'
-    - MATRIX_BRIDGES | length > 0
-  delegate_to: "{{ STACK_HOST }}"
-  run_once: true
-  timeout: "{{ lookup('timeout', 60) | int }}"
-  block:
-    - name: "🔍 List the services a previous swarm deploy left running"
-      ansible.builtin.command:
-        argv:
-          - container
-          - service
-          - ls
-          - --filter
-          - "label=com.docker.stack.namespace={{ application_id | get_entity_name }}"
-          - --format
-          - "{{ '{{.Name}}' }}"
-      register: matrix_swarm_services
-      changed_when: false
-
-    - name: "🐝 Remove synapse and the bridges before their registrations are wiped"
-      ansible.builtin.command:
-        argv: "{{ ['container', 'service', 'rm'] + matrix_swarm_registration_services }}"
-      vars:
-        matrix_swarm_registration_services: >-
-          {{ ([MATRIX_SYNAPSE_SERVICE]
-              + (MATRIX_BRIDGES | map(attribute='bridge_name')
-                 | map('regex_replace', '^', (application_id | get_entity_name) ~ '_mautrix-') | list))
-             | select('in', matrix_swarm_services.stdout_lines) | list }}
-      changed_when: true
-      when: matrix_swarm_registration_services | length > 0
+  loop_control:
+    label: "{{ item.bridge_name }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🧹 cleanup project folder"
   file:
@@ -59,16 +24,31 @@
 
 - name: "📁 create bridge folders"
   file:
-    path: "{{ lookup('container', application_id, 'directories.instance') }}mautrix/{{ item.bridge_name }}"
+    path: "{{ [ MATRIX_BRIDGE_SOURCE_DIR, item.bridge_name ] | path_join }}"
     state: directory
     mode: "0755"
   loop: "{{ MATRIX_BRIDGES }}"
+  loop_control:
+    label: "{{ item.bridge_name }}"
 
 - name: ➕ add multiple mautrix bridge configuration
   stack_host_template:
     src: "flavor/compose/mautrix/{{ item.bridge_name }}.config.yml.j2"
-    dest: "{{ lookup('container', application_id, 'directories.instance') }}mautrix/{{ item.bridge_name }}/config.yaml"
+    dest: "{{ [ MATRIX_BRIDGE_SOURCE_DIR, item.bridge_name, 'config.yaml' ] | path_join }}"
   loop: "{{ MATRIX_BRIDGES }}"
+  loop_control:
+    label: "{{ item.bridge_name }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  notify: compose-up
+
+- name: "➕ add the registration each bridge config implies"
+  stack_host_template:
+    src: "flavor/compose/mautrix/registration.yaml.j2"
+    dest: "{{ [ MATRIX_BRIDGE_SOURCE_DIR, item.bridge_name, 'registration.yaml' ] | path_join }}"
+  loop: "{{ MATRIX_BRIDGES }}"
+  loop_control:
+    label: "{{ item.bridge_name }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   notify: compose-up
 
 - name: ➕ add element configuration
@@ -104,46 +84,8 @@
   include_tasks: 03_compose_pull_and_up.yml
   when: DEPLOYMENT_MODE == 'compose'
 
-- name: "🚿 Flush handlers so the swarm stack deploys before the registration wait"
+- name: "🚿 Flush handlers so the stack deploys before the Synapse wait"
   meta: flush_handlers
-
-- name: ⏳ wait for registration files
-  wait_for:
-    path: "{{ lookup('container', application_id, 'directories.instance') }}mautrix/{{ item.bridge_name }}/registration.yaml"
-    state: present
-    timeout: "{{ lookup('timeout', 120) | int }}"
-  loop: "{{ MATRIX_BRIDGES }}"
-
-- name: "🔐 Make each bridge directory traversable for synapse"
-  file:
-    path: "{{ lookup('container', application_id, 'directories.instance') }}mautrix/{{ item.bridge_name }}"
-    state: directory
-    mode: "0755"
-  loop: "{{ MATRIX_BRIDGES }}"
-
-- name: "🔐 change file permissions"
-  file:
-    path: "{{ lookup('container', application_id, 'directories.instance') }}mautrix/{{ item.bridge_name }}/registration.yaml"
-    mode: "0755"
-  loop: "{{ MATRIX_BRIDGES }}"
-
-- name: "🔄 Restart synapse to load bridge registrations (compose mode)"
-  command:
-    cmd: "{{ BIN_COMPOSE }} restart synapse"
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-  changed_when: true
-  when:
-    - MATRIX_BRIDGES | length > 0
-    - DEPLOYMENT_MODE == 'compose'
-
-- name: "🔄 Restart synapse to load bridge registrations (swarm mode)"
-  ansible.builtin.command: "container service update --force {{ MATRIX_SYNAPSE_SERVICE }}"
-  changed_when: true
-  timeout: "{{ lookup('timeout', 600) | int }}"
-  when:
-    - MATRIX_BRIDGES | length > 0
-    - DEPLOYMENT_MODE == 'swarm'
-    - IS_STACK_HOST | bool
 
 - name: ⏳ wait for Synapse client/versions endpoint
   uri_retry:

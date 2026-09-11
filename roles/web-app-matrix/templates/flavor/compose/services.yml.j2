@@ -7,7 +7,7 @@
     {{ lookup('compose_restart') }}
     logging:
       driver: journald
-    {{ lookup('container_volumes', service_name, extra_volumes=lookup('matrix_bridge_mounts')) | indent(4) }}
+    {{ lookup('container_volumes', service_name, extra_secrets=lookup('matrix_bridge_mounts', 'synapse')) | indent(4) }}
     environment:
       - SYNAPSE_SERVER_NAME={{ MATRIX_SYNAPSE_DOMAIN }}
       - SYNAPSE_REPORT_STATS=no
@@ -15,11 +15,7 @@
       - "{{ DOCKER_BIND_HOST }}:{{lookup('config', 'web-app-matrix', 'services.synapse.ports.local.http')}}:{{ container_port }}"
     {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
-{% set _synapse_bridge_deps = {} %}
-{% for item in MATRIX_BRIDGES %}
-{%   set _ = _synapse_bridge_deps.__setitem__('mautrix-' ~ item.bridge_name, {'condition': 'service_healthy'}) %}
-{% endfor %}
-    {{ lookup('container_depends_on', application_id, extra=_synapse_bridge_deps) | indent(4) }}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 {% set service_name = 'element' %}
   {{ service_name }}:
@@ -41,19 +37,17 @@
     {{ lookup('compose_only', 'container_name', 'matrix-' ~ item.bridge_name) }}
     image: "dock.mau.dev/mautrix/{{ item.bridge_name }}:latest"  # nocheck: container-image-lookup
     {{ lookup('compose_restart') }}
-    environment:
-      UID: "{{ MATRIX_SYNAPSE_UID }}"
-      GID: "{{ MATRIX_SYNAPSE_GID }}"
-    volumes: # nocheck: compose-inline-mount-section
-      - ./mautrix/{{ item.bridge_name }}:/data
+    user: "{{ MATRIX_SYNAPSE_UID }}:{{ MATRIX_SYNAPSE_GID }}"
+    command: ["/usr/bin/mautrix-{{ item.bridge_name }}", "--config", "{{ MATRIX_BRIDGE_CONFIG_TARGET }}", "--no-update"]
+    {{ lookup('container_volumes', service_name, extra_secrets=lookup('matrix_bridge_mounts', 'bridge', item.bridge_name)) | indent(4) }}
     healthcheck:
-      test: ["CMD-SHELL", "test -f {{ MATRIX_REGISTRATION_FILE_FOLDER }}registration.yaml || exit 1"]
+      test: ["CMD", "curl", "--noproxy", "*", "-fsS", "http://127.0.0.1:{{ item.appservice_port }}/_matrix/mau/ready"]
       interval: 2m
-      # nocheck: healthcheck-timing-override  the probe waits for a file the registration step writes, and the share it reads answers slower than the 5s default under load
-      timeout: 10s
-      retries: 5
+      timeout: 5s
+      retries: 3
       start_period: 10m
       start_interval: 5s
+    {{ lookup('container_depends_on', application_id, extra={'synapse': {'condition': 'service_healthy'}}) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 {% endfor %}
 {% if lookup('config', application_id, 'services.matrix.plugins.chatgpt') | bool %}

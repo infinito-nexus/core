@@ -5,6 +5,6 @@
     {% include 'flavor/compose/services.yml.j2' %}
     {% endif %}
 
-{{ lookup('compose_volumes') }}
+{{ lookup('compose_volumes', extra_secrets=(lookup('matrix_bridge_mounts', 'stack') if matrix_flavor == 'compose' else {})) }}
 
 {{ lookup('compose_networks') }}

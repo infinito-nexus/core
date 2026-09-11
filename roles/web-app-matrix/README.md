@@ -167,10 +167,8 @@ flowchart TD
     end
     kc["keycloak_keycloak<br/>+ one-shot realm import job"]
 
-    role["web-app-matrix tasks"] -- "renders compose.yml,<br/>notify: swarm deploy" --> flush["meta: flush_handlers<br/>(before registration wait)"]
-    flush -- "docker stack deploy" --> stack
-    stack -- "writes mautrix/*/registration.yaml" --> role
-    role -- "waits for registration files" --> stack
+    role["web-app-matrix tasks"] -- "renders config/mautrix/*/{config,registration}.yaml<br/>and compose.yml, notify: swarm deploy" --> flush["meta: flush_handlers<br/>(before the Synapse wait)"]
+    flush -- "docker stack deploy<br/>(both files as secrets)" --> stack
 
     syn -- "OIDC discovery via<br/>--add-host issuer → subnet .1" --> prx
     prx -- "vhost auth.*" --> kc
@@ -190,8 +188,9 @@ The ansible flavor maps each true flag to the matching `matrix_<bridge>_enabled`
 The mautrix network bridges are declared in
 [`meta/addons/`](./meta/addons/) as `mechanism: bridge` addons
 (requirement 026, Decision 13). Each is `required: false` and **disabled by default**; its
-per-network DB password is referenced from
-[`meta/secrets.yml`](./meta/secrets.yml) `credentials:`, never inlined.
+per-network DB password and its appservice `as_token`/`hs_token` pair are referenced from
+[`meta/secrets.yml`](./meta/secrets.yml) `credentials:`, never inlined. The role renders each
+bridge's `config.yaml` and the matching Synapse `registration.yaml` from the same tokens.
 
 | Addon | Mechanism | Default state | Bridges |
 |-------|-----------|---------------|---------|
