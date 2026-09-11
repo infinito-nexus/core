@@ -68,7 +68,7 @@ ZAMMAD_MCP_CONTAINER: "{{ lookup('config', application_id, 'services.zammadmcp.n
 ZAMMAD_MCP_PORT: "{{ lookup('config', application_id, 'services.zammadmcp.ports.internal.http') }}"
 ZAMMAD_MCP_BEARER: "{{ lookup('config', application_id, 'secrets.credentials.mcp_bearer') }}"
 ZAMMAD_MCP_INSTANCE_DIR: "{{ [lookup('container', application_id, 'directories.instance'), 'mcp'] | path_join }}"
-ZAMMAD_MCP_UPSTREAM_HOST: "{{ lookup('config', application_id, 'services.nginx.name') }}"
+ZAMMAD_MCP_UPSTREAM_HOST: "{{ ZAMMAD_NGINX_SERVICE }}"
 ZAMMAD_MCP_UPSTREAM_PORT: "{{ lookup('config', application_id, 'services.zammad.ports.internal.http') }}"
 ZAMMAD_MCP_UPSTREAM_URL: "http://{{ ZAMMAD_MCP_UPSTREAM_HOST }}:{{ ZAMMAD_MCP_UPSTREAM_PORT }}"
 ZAMMAD_MCP_CONTRACT:
