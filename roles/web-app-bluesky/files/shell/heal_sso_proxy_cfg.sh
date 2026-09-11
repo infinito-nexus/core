@@ -10,7 +10,7 @@ cfg_path="${SSO_PROXY_CFG_PATH:?SSO_PROXY_CFG_PATH must be set}"
 container_name="${SSO_PROXY_CONTAINER:?SSO_PROXY_CONTAINER must be set}"
 
 if [[ -d "${cfg_path}" ]]; then
-	if container inspect "${container_name}" >/dev/null 2>&1; then
+	if container inspect --type container "${container_name}" >/dev/null 2>&1; then
 		container stop "${container_name}" >/dev/null
 	fi
 	rm -rf "${cfg_path}"
