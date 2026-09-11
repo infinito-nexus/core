@@ -19,6 +19,7 @@ literal-protocol-lookup and lookup-config-path static-scan guards).
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
+from urllib.parse import quote
 
 from utils.roles.applications.config import get
 
@@ -28,6 +29,7 @@ if TYPE_CHECKING:
 
 _DEFAULT_FLAVOR = "oidc"
 _VALID_FLAVORS = frozenset({"oidc", "oauth2", "saml"})
+OAUTH2_SIGN_OUT_PATH = "/oauth2/sign_out"
 
 
 def is_potentially_enabled(value: Any) -> bool:
@@ -145,3 +147,15 @@ def get_sso_config(
         ),
         "oauth2_pass_access_token": _as_bool(raw_pass_access_token),
     }
+
+
+def logout_url(oidc_logout_url: str, is_proxy_gated: bool) -> str:
+    """Return the logout target of an application's own logout control.
+
+    Args:
+        oidc_logout_url: the identity provider's end-session endpoint.
+        is_proxy_gated: whether oauth2-proxy fronts the application.
+    """
+    if not is_proxy_gated:
+        return oidc_logout_url
+    return f"{OAUTH2_SIGN_OUT_PATH}?rd={quote(oidc_logout_url, safe='/')}"

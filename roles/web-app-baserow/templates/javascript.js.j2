@@ -1,5 +1,5 @@
 (function () {
-  const LOGOUT_URL = {{ (('/oauth2/sign_out?rd=' ~ (OIDC.CLIENT.LOGOUT_URL | urlencode)) if (lookup('sso', application_id, 'is_proxy_gated') | bool) else OIDC.CLIENT.LOGOUT_URL) | to_json }};
+  const LOGOUT_URL = {{ lookup('sso', application_id, 'logout_url') | to_json }};
   const INJECTED_ATTR = "data-injected-logout";
   const LOGOUT_SVG =
     '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' +

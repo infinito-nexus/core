@@ -2,10 +2,15 @@ from __future__ import annotations
 
 import unittest
 
+from jinja2.filters import do_urlencode
+
 from utils.roles.applications.services.sso import (
     get_sso_config,
     is_potentially_enabled,
+    logout_url,
 )
+
+KEYCLOAK_LOGOUT = "https://auth.example.org/realms/r/protocol/openid-connect/logout"
 
 
 def _apps(
@@ -201,6 +206,23 @@ class IsPotentiallyEnabledTests(unittest.TestCase):
 
     def test_empty_string_is_potentially_enabled(self):
         self.assertTrue(is_potentially_enabled(""))
+
+
+class TestLogoutUrl(unittest.TestCase):
+    def test_an_app_without_the_proxy_logs_out_at_the_provider(self):
+        self.assertEqual(logout_url(KEYCLOAK_LOGOUT, False), KEYCLOAK_LOGOUT)
+
+    def test_a_proxy_gated_app_signs_out_of_oauth2_proxy_first(self):
+        self.assertEqual(
+            logout_url(KEYCLOAK_LOGOUT, True),
+            "/oauth2/sign_out?rd=https%3A//auth.example.org/realms/r/protocol/openid-connect/logout",
+        )
+
+    def test_the_rd_encoding_matches_the_jinja_urlencode_filter(self):
+        self.assertEqual(
+            logout_url(KEYCLOAK_LOGOUT, True),
+            f"/oauth2/sign_out?rd={do_urlencode(KEYCLOAK_LOGOUT)}",
+        )
 
 
 if __name__ == "__main__":
