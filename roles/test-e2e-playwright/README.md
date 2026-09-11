@@ -101,7 +101,7 @@ Both are used as central defaults for every app role.
 
 ### Discovery filters
 
-- `test_e2e_playwright_only_roles` (default: `allowed_applications`)
+- `test_e2e_playwright_only_roles` (default: `lookup('deployment').running`, every role the round deploys, dependencies included)
 - `test_e2e_playwright_skip_roles` (default: `[]`)
 
 ## Design notes
@@ -118,7 +118,7 @@ Both are used as central defaults for every app role.
    - `roles/<application_id>/templates/playwright.env.j2`
    - `roles/<application_id>/files/playwright/playwright.spec.js`
    Follow [Contributing `playwright.env.j2`](../../docs/agents/files/role/playwright.env.j2.md) and [Contributing `playwright.spec.js`](../../docs/contributing/artefact/files/role/playwright.specs.js.md) while creating them.
-2. Run deployment and include your app in `allowed_applications` (or leave it empty to run all discovered apps).
+2. Deploy a round that includes your app (e.g. `make compose-deploy apps=<application_id>`); its specs run with those of every other role the round deploys.
 3. Keep `package.json` and `playwright.config.js` centralized in `roles/test-e2e-playwright/` (`templates/package.json.j2` and `files/playwright.config.js`).
 
 Example override for running only one spec:
