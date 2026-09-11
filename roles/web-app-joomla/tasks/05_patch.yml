@@ -1,5 +1,6 @@
 ---
 - name: "✅ Ensure configuration.php DB settings match inventory"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   shell: >
     container exec -i
     -e J_CONFIG_FILE={{ JOOMLA_CONFIG_FILE | quote }}

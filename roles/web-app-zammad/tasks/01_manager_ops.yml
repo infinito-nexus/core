@@ -65,6 +65,7 @@
   changed_when: false
 
 - name: "✅ ensure API-bot user in Zammad (Basic-auth REST API; all variants, no-auth too)"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   ansible.builtin.shell:
     cmd: |
       set -euo pipefail
@@ -106,6 +107,7 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "📌 apply OIDC settings in Zammad (post-bootstrap; idempotent)"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   ansible.builtin.shell:
     cmd: |
       set -euo pipefail

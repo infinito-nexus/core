@@ -17,6 +17,7 @@
 
 - block:
     - name: "🐛 DEBUG | superadmin check + pw hash compare (condensed)"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       script: >-
         shell/debug_superadmin.sh
         "{{ _super_check_ext.status }}"

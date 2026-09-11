@@ -27,6 +27,7 @@
     compose_handlers_flush: true
 
 - name: "🔍 Build consumer key list"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   ansible.builtin.set_fact:
     LITELLM_CONSUMER_KEYS: >-
       {%- set out = [] -%}

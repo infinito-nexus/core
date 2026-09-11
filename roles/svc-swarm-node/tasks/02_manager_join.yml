@@ -6,6 +6,7 @@
   failed_when: docker_swarm_local_state.rc != 0
 
 - name: "🐝 Join swarm cluster as manager (only when not already active)"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   ansible.builtin.command: >-
     container swarm join
     --token {{ svc_swarm_manager_token }}

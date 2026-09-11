@@ -31,6 +31,7 @@
   changed_when: false
 
 - name: "📣 Publish tokens + advertise addr as facts (cluster-wide)"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   ansible.builtin.set_fact:
     svc_swarm_worker_token: "{{ docker_swarm_worker_token.stdout }}"
     svc_swarm_manager_token: "{{ docker_swarm_manager_token.stdout }}"

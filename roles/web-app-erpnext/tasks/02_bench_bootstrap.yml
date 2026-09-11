@@ -39,6 +39,7 @@
   changed_when: false
 
 - name: "📌 apply API-bot user + bypass setup wizard"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   ansible.builtin.shell:
     cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
       container exec -i

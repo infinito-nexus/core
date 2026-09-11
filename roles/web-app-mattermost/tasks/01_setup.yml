@@ -21,6 +21,7 @@
   delegate_to: "{{ MATTERMOST_HOST_NODE }}"
 
 - name: "📁 Mattermost | Create system administrator user"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   ansible.builtin.shell: | # nocheck: container-exec-resolver  MATTERMOST_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
     container exec -i {{ MATTERMOST_LOCAL_CID | quote }} \
       /mattermost/bin/mmctl --local user create \

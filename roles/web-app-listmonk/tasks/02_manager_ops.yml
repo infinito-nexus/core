@@ -11,6 +11,7 @@
   include_tasks: "01_database.yml"
 
 - name: 🔨 Build OIDC settings JSON
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   set_fact:
     oidc_settings_json: >-
       {{ {

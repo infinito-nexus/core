@@ -33,6 +33,7 @@
   changed_when: "'migrations completed' in migrate.stdout"
 
 - name: "📁 Create initial admin user"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -i --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} \
       /app/gitea/gitea admin user create \
