@@ -22,7 +22,7 @@ from utils.roles.applications.mounts import (
     mount_when_passes,
     normalize_volumes_meta,
 )
-from utils.templating.ansible import _trust_as_template
+from utils.templating.ansible import _trust_as_template, to_plain
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -193,11 +193,11 @@ def container_volumes(
                 secrets_block.append(sec_ref)
 
     if extra_volumes:
-        volumes_block.extend(extra_volumes)
+        volumes_block.extend(to_plain(extra_volumes))
     if extra_configs:
-        configs_block.extend(extra_configs)
+        configs_block.extend(to_plain(extra_configs))
     if extra_secrets:
-        secrets_block.extend(extra_secrets)
+        secrets_block.extend(to_plain(extra_secrets))
 
     payload: dict[str, Any] = {}
     if volumes_block:

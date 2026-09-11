@@ -6,7 +6,6 @@ DEPLOYMENT_MODE, and the `storage` mapping from the templating context.
 from __future__ import annotations
 
 import contextlib
-from collections.abc import Mapping, Sequence
 from typing import Any
 
 from ansible.errors import AnsibleError, AnsibleFilterError
@@ -34,28 +33,7 @@ from utils.roles.applications.services.database import (
 )
 from utils.roles.applications.services.sso import get_sso_config
 from utils.storage.nfs import swarm_nfs_backed
-from utils.templating.ansible import _trust_as_template
-
-
-def _to_plain(obj: Any) -> Any:
-    """Convert Ansible/Jinja proxy types into plain Python so PyYAML can serialize."""
-
-    if obj is None:
-        return None
-
-    if isinstance(obj, str):
-        return str(obj)
-
-    if isinstance(obj, (int, float, bool)):
-        return obj
-
-    if isinstance(obj, Mapping):
-        return {str(_to_plain(k)): _to_plain(v) for k, v in obj.items()}
-
-    if isinstance(obj, Sequence) and not isinstance(obj, (str, bytes, bytearray)):
-        return [_to_plain(x) for x in obj]
-
-    return str(obj)
+from utils.templating.ansible import _trust_as_template, to_plain
 
 
 def _resolve_database_volume_name(
@@ -221,10 +199,15 @@ def compose_volumes(
 
     if extra_volumes:
         volumes.update(extra_volumes)
-    if extra_configs:
-        configs.update(extra_configs)
-    if extra_secrets:
-        secrets.update(extra_secrets)
+    for section, extra in ((configs, extra_configs), (secrets, extra_secrets)):
+        for key, spec in (extra or {}).items():
+            named = spec
+            if isinstance(spec, dict) and spec.get("file") and not spec.get("name"):
+                named = {
+                    **spec,
+                    "name": _config_secret_name(role_entity, key, str(spec["file"])),
+                }
+            section[key] = named
 
     role_data = applications.get(application_id) or {}
     raw_meta_volumes = (
@@ -289,11 +272,11 @@ def compose_volumes(
             if isinstance(nfs_meta, dict):
                 vol_spec["x-infinito-nfs"] = dict(nfs_meta)
 
-    payload: dict[str, Any] = {"volumes": _to_plain(volumes)}
+    payload: dict[str, Any] = {"volumes": to_plain(volumes)}
     if configs:
-        payload["configs"] = _to_plain(configs)
+        payload["configs"] = to_plain(configs)
     if secrets:
-        payload["secrets"] = _to_plain(secrets)
+        payload["secrets"] = to_plain(secrets)
 
     return dump_yaml_str(payload).rstrip()
 

@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import os
 import sys
+import tempfile
 import unittest
 import unittest.mock as mock
+from pathlib import Path
 from typing import Any
 
 from ansible.errors import AnsibleFilterError
@@ -171,6 +173,29 @@ class TestComposeVolumes(unittest.TestCase):
         data = self._parse_yaml(rendered)
 
         self.assertEqual(data["volumes"]["redis"]["name"], "custom_redis")
+
+    def test_extra_secret_without_name_gets_the_content_hashed_name(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            one, two = Path(tmp) / "one.yaml", Path(tmp) / "two.yaml"
+            one.write_text("as_token: one\n", encoding="utf-8")
+            two.write_text("as_token: two\n", encoding="utf-8")
+            secrets = self._parse_yaml(
+                _call(
+                    self._base_apps(),
+                    "app",
+                    extra_secrets={
+                        "cfg": {"file": str(one)},
+                        "other": {"file": str(two)},
+                        "named": {"name": "kept", "file": str(one)},
+                    },
+                )
+            )["secrets"]
+
+        self.assertEqual(secrets["cfg"]["file"], str(one))
+        self.assertRegex(secrets["cfg"]["name"], r"^app_cfg_[0-9a-f]{8}$")
+        self.assertRegex(secrets["other"]["name"], r"^app_other_[0-9a-f]{8}$")
+        self.assertNotEqual(secrets["cfg"]["name"][-8:], secrets["other"]["name"][-8:])
+        self.assertEqual(secrets["named"]["name"], "kept")
 
     def test_database_enabled_not_shared_shared_provider_name_used_when_present(self):
         apps = self._base_apps()

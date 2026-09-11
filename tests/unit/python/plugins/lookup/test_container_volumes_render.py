@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from collections.abc import Mapping
 
 import yaml
 
@@ -329,6 +330,38 @@ class TestContainerVolumesExtras(unittest.TestCase):
                 "configs": [{"source": "cfg", "target": "/etc/x"}],
                 "secrets": [{"source": "s", "target": "/run/secrets/y"}],
             },
+        )
+
+    def test_extras_handed_over_as_templating_proxies_still_serialize(self) -> None:
+        class ProxyMapping(Mapping):
+            def __init__(self, data):
+                self._data = data
+
+            def __getitem__(self, key):
+                return self._data[key]
+
+            def __iter__(self):
+                return iter(self._data)
+
+            def __len__(self):
+                return len(self._data)
+
+        class TaggedInt(int):
+            pass
+
+        out = container_volumes(
+            _apps(None),
+            "my-app",
+            "app",
+            extra_secrets=[
+                ProxyMapping(
+                    {"source": "s", "target": "/run/y", "mode": TaggedInt(0o444)}
+                )
+            ],
+        )
+        self.assertEqual(
+            _parse(out),
+            {"secrets": [{"source": "s", "target": "/run/y", "mode": 0o444}]},
         )
 
 
