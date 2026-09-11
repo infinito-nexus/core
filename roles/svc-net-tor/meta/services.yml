@@ -26,6 +26,9 @@ tor: # nocheck: category-modes
   node: ""
   use_entry_guards: true
   flavor: public
+  timeout_multipliers:
+    chutney: 2
+    public: 5
   ports:
     local:
       socks: 9050
