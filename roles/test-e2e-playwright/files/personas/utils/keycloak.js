@@ -12,7 +12,7 @@
  *
  *   `performKeycloakLogin(page, username, password, canonicalDomain)`
  *     Calls `performKeycloakLoginForm` and additionally polls the
- *     page URL until it contains `canonicalDomain`, asserting the
+ *     page URL until its hostname is `canonicalDomain`, asserting the
  *     OAuth2-Proxy / app callback completes.
  *
  *   `performKeycloakLoginExpectingDenial(page, username, password, canonicalDomain)`
@@ -27,6 +27,7 @@
 
 const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("../../timeouts");
+const { hostnameOf } = require("./dom");
 
 // SPOT for the role-side OIDC adapter readiness contract. A role whose
 // `templates/javascript/oidc.js.j2` wraps its Login link in a JS click
@@ -75,11 +76,11 @@ async function performKeycloakLogin(page, username, password, canonicalDomain) {
   await performKeycloakLoginForm(page, username, password);
 
   await expect
-    .poll(() => page.url(), {
+    .poll(() => hostnameOf(page.url()), {
       timeout: resolveTimeout(60_000),
       message: `Expected redirect back to ${canonicalDomain} after Keycloak login`,
     })
-    .toContain(canonicalDomain);
+    .toBe(canonicalDomain);
 }
 
 // Click a role's in-app Login link to start the OIDC chain. Waits for
@@ -167,7 +168,7 @@ async function performKeycloakLoginExpectingDenial(page, username, password, can
       await page.content().catch(() => ""),
     ) ||
     /openid-connect\/auth/.test(finalUrl) ||
-    !finalUrl.includes(canonicalDomain);
+    hostnameOf(finalUrl) !== canonicalDomain;
 
   expect(
     denied,
