@@ -171,6 +171,86 @@ class TestBuildDockerCmdProxy(unittest.TestCase):
         self.assertNotIn("--proxy", cmd)
 
 
+class TestBuildDockerCmdTimeout(unittest.TestCase):
+    def test_timeout_arg_appended(self) -> None:
+        cmd = script.build_docker_cmd(
+            image="img",
+            urls=["http://a.onion/"],
+            short_mode=True,
+            ignore_network_blocks_from=[],
+            timeout_ms=100000,
+        )
+        idx = cmd.index("--timeout")
+        self.assertEqual(cmd[idx + 1], "100000")
+
+    def test_no_timeout_arg_without_one(self) -> None:
+        cmd = script.build_docker_cmd(
+            image="img",
+            urls=["https://a.example/"],
+            short_mode=True,
+            ignore_network_blocks_from=[],
+        )
+        self.assertNotIn("--timeout", cmd)
+
+    def test_the_timeout_precedes_the_url_separator(self) -> None:
+        cmd = script.build_docker_cmd(
+            image="img",
+            urls=["http://a.onion/"],
+            short_mode=True,
+            ignore_network_blocks_from=["cdn.example"],
+            timeout_ms=100000,
+        )
+        self.assertLess(
+            cmd.index("--timeout"),
+            cmd.index("--"),
+            "an argument after the separator reaches the checker as a URL",
+        )
+
+
+class TestMainTimesOutOnionsOnly(unittest.TestCase):
+    @patch("script.run_checker")
+    @patch("script.build_urls_from_nginx_confs")
+    @patch("script.extract_domains_from_filenames")
+    def test_the_onion_batch_alone_carries_the_budget(
+        self,
+        mock_extract: MagicMock,
+        mock_build_urls: MagicMock,
+        mock_run_checker: MagicMock,
+    ) -> None:
+        mock_extract.return_value = ["auth.infinito.test", "auth.abc123.onion"]
+        mock_build_urls.side_effect = lambda _dir, domains: [
+            f"http://{d}/" for d in domains
+        ]
+        mock_run_checker.return_value = 0
+
+        with (
+            patch.object(
+                script.sys,
+                "argv",
+                [
+                    "script.py",
+                    "--nginx-config-dir",
+                    "/etc/nginx",
+                    "--image",
+                    "img:tag",
+                    "--tor-proxy",
+                    "socks5://127.0.0.1:9050",
+                    "--onion-timeout",
+                    "100000",
+                ],
+            ),
+            self.assertRaises(SystemExit),
+        ):
+            script.main()
+
+        budgets = {
+            call.kwargs["urls"][0]: call.kwargs["timeout_ms"]
+            for call in mock_run_checker.call_args_list
+        }
+        self.assertEqual(budgets["http://auth.abc123.onion/"], 100000)
+        self.assertEqual(budgets["http://auth.infinito.test/"], 0)
+
+
 class TestDetectSchemeFromConf(unittest.TestCase):
     def test_detects_https_via_443(self) -> None:
         with patch("pathlib.Path.read_text", return_value="listen 443 ssl;"):

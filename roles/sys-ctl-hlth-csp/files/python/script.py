@@ -130,6 +130,7 @@ def build_docker_cmd(
     ignore_network_blocks_from: list[str],
     use_host_network: bool = True,
     proxy: str = "",
+    timeout_ms: int = 0,
 ) -> list[str]:
     cmd = ["container", "run", "--rm"]
 
@@ -148,6 +149,9 @@ def build_docker_cmd(
     if proxy:
         cmd.extend(["--proxy", proxy])
 
+    if timeout_ms:
+        cmd.extend(["--timeout", str(timeout_ms)])
+
     if ignore_network_blocks_from:
         cmd.append("--ignore-network-blocks-from")
         cmd.extend(ignore_network_blocks_from)
@@ -165,6 +169,7 @@ def run_checker(
     always_pull: bool,
     use_host_network: bool = True,
     proxy: str = "",
+    timeout_ms: int = 0,
 ) -> int:
     """
     Runs the CSP checker container and returns its exit code.
@@ -180,6 +185,7 @@ def run_checker(
         ignore_network_blocks_from=ignore_network_blocks_from,
         use_host_network=use_host_network,
         proxy=proxy,
+        timeout_ms=timeout_ms,
     )
 
     try:
@@ -240,6 +246,16 @@ def main() -> None:
         ),
     )
     parser.add_argument(
+        "--onion-timeout",
+        type=int,
+        default=0,
+        help=(
+            "Navigation budget in milliseconds for the .onion batch, which "
+            "reaches its vhosts over Tor and needs longer than the checker's "
+            "own default. 0 leaves that default in place."
+        ),
+    )
+    parser.add_argument(
         "--tor-proxy",
         default="",
         help=(
@@ -287,9 +303,9 @@ def main() -> None:
         sys.exit(0)
 
     rc = 0
-    for batch_domains, batch_proxy in (
-        (clearnet_domains, ""),
-        (onion_domains, args.tor_proxy),
+    for batch_domains, batch_proxy, batch_timeout in (
+        (clearnet_domains, "", 0),
+        (onion_domains, args.tor_proxy, args.onion_timeout),
     ):
         if not batch_domains:
             continue
@@ -305,6 +321,7 @@ def main() -> None:
             always_pull=bool(args.always_pull),
             use_host_network=not bool(args.no_host_network),
             proxy=batch_proxy,
+            timeout_ms=batch_timeout,
         )
         rc = rc or batch_rc
     sys.exit(rc)
