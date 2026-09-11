@@ -33,6 +33,7 @@ const {
 } = require("./service-gating");
 
 const SERVED = new Set([200, 201, 202, 401, 403, 405, 406, 415, 429]);
+const ABSOLUTE_URL = /^https?:\/\/[^/]+/;
 
 function mcpEndpointUrl(path = "/mcp", baseUrl = process.env.APP_BASE_URL) {
   return `${normalizeBaseUrl(baseUrl)}${path}`;
@@ -45,7 +46,7 @@ function registerMcpDisabledState(resolveEndpointUrl) {
     skipUnlessServiceDisabled("mcp");
 
     const endpointUrl = resolveEndpointUrl();
-    expect(endpointUrl, "the MCP endpoint URL must resolve even while disabled").toBeTruthy();
+    expect(endpointUrl, "the MCP endpoint URL must resolve to an absolute URL even while disabled").toMatch(ABSOLUTE_URL);
 
     const attempts = [
       await page.request.get(endpointUrl, {
@@ -85,7 +86,7 @@ function registerMcpGuestRejection(resolveEndpointUrl, label = "") {
     skipUnlessServiceEnabled("mcp");
 
     const endpointUrl = resolveEndpointUrl();
-    expect(endpointUrl, "the MCP endpoint URL must resolve").toBeTruthy();
+    expect(endpointUrl, "the MCP endpoint URL must resolve to an absolute URL").toMatch(ABSOLUTE_URL);
 
     // maxRedirects: 0 because a vhost may answer the bearerless probe with an
     // SSO redirect; following it would land on a 200 login page and hide that
