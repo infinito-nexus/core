@@ -113,7 +113,7 @@ class TestProvisionMcp(unittest.TestCase):
         node = module.workflow_body(REFERENCE)["nodes"][0]
         self.assertEqual("bearerAuth", node["parameters"]["authentication"])
         self.assertEqual("@n8n/n8n-nodes-langchain.mcpTrigger", node["type"])
-        self.assertEqual(1, node["typeVersion"])
+        self.assertEqual(2, node["typeVersion"])
 
     def test_the_trigger_carries_the_credential_the_bearer_lives_in(self) -> None:
         module = load_script()

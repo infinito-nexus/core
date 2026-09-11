@@ -5,7 +5,6 @@ source_url: https://docs.openwebui.com/features/extensibility/mcp/
 implementation: native
 supported_transports:
   - streamable_http
-  - sse
 supported_auths:
   - bearer_token
   - app_password

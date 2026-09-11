@@ -1,17 +1,17 @@
 const { test, expect } = require("@playwright/test");
 const { skipUnlessServiceEnabled } = require("./service-gating");
-const { registerMcpDisabledState } = require("./mcp-endpoint");
-const { decodeDotenvQuotedValue, normalizeBaseUrl } = require("./personas");
+const { mcpEndpointUrl, registerMcpDisabledState } = require("./mcp-endpoint");
+const { decodeDotenvQuotedValue } = require("./personas");
 
-const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
 const mcpEndpointPath = decodeDotenvQuotedValue(process.env.MCP_ENDPOINT_PATH || "");
+const resolveEndpointUrl = () => mcpEndpointUrl(mcpEndpointPath, process.env.N8N_BASE_URL);
 
 exports.register = function () {
-  test("guest: the managed MCP trigger answers nobody without its bearer", async ({ page }) => {
+  test("guest: the public vhost refuses the internal MCP trigger to every unauthenticated caller", async ({ page }) => {
     skipUnlessServiceEnabled("mcp");
     expect(mcpEndpointPath, "MCP_ENDPOINT_PATH must be set").toBeTruthy();
 
-    const response = await page.request.get(`${appBaseUrl}${mcpEndpointPath}`, {
+    const response = await page.request.get(resolveEndpointUrl(), {
       failOnStatusCode: false,
       maxRedirects: 0,
       headers: { accept: "text/event-stream" },
@@ -19,14 +19,9 @@ exports.register = function () {
 
     expect(
       response.status(),
-      "the trigger is bearerAuth-guarded and stays deactivated until an operator opts in, so an anonymous probe must never receive a stream",
-    ).toBeGreaterThanOrEqual(300);
-
-    expect(
-      response.headers()["content-type"] || "",
-      "a refused probe must not open the SSE channel",
-    ).not.toContain("text/event-stream");
+      "n8n's MCP trigger is exposure: internal, so the public vhost must answer 404; the bearer guard itself is proven in-cluster by the CLI MCP contract",
+    ).toBe(404);
   });
 
-  registerMcpDisabledState(() => `${appBaseUrl}${mcpEndpointPath}`);
+  registerMcpDisabledState(resolveEndpointUrl);
 };

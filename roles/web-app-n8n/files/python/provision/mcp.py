@@ -1,4 +1,4 @@
-"""Provision the deployment-managed MCP surfaces of n8n 1.95.3.
+"""Provision the deployment-managed MCP surfaces of n8n 1.100.1.
 
 Prints ``CHANGED`` or ``OK``.
 
@@ -33,7 +33,7 @@ CREDENTIAL_NAME = os.environ.get("N8N_MCP_CREDENTIAL", "")
 REST = "/rest"
 PUBLIC = "/api/v1"
 TRIGGER_TYPE = "@n8n/n8n-nodes-langchain.mcpTrigger"
-TRIGGER_VERSION = 1
+TRIGGER_VERSION = 2
 TRIGGER_NAME = "Infinito MCP Trigger"
 BEARER_AUTH = "bearerAuth"
 CREDENTIAL_TYPE = "httpBearerAuth"
