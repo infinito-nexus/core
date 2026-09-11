@@ -31,7 +31,7 @@ config:
       configkey: "custom_providers"
       configvalue:
         custom_oidc:
-          - name: "{{ lookup('domain','web-app-keycloak') }}"
+          - name: "{{ lookup('bounded_name', 'web-app-keycloak', 64 - 1 - 36) }}"
             title: "keycloak"
             style: "keycloak"
             authorizeUrl: "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
