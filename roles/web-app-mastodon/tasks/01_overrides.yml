@@ -18,6 +18,11 @@
           Rails.application.config.force_ssl = false
           Rails.application.config.middleware.delete ActionDispatch::SSL if defined?(ActionDispatch::SSL)
           Rails.application.routes.default_url_options[:protocol] = "http"
+          Rails.application.config.x.use_https = false
+          Rails.application.config.x.streaming_api_base_url = "ws://#{Rails.application.config.x.web_domain}"
+          ActiveSupport.on_load(:action_mailer) do
+            self.default_url_options = default_url_options.merge(protocol: "http://")
+          end
       notify: compose-up
 
     - name: "📦 MASTODON | Install OIDC http-discovery override initializer (HTTP-only)"
