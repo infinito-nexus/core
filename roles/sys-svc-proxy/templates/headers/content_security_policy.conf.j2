@@ -25,6 +25,12 @@ header_filter_by_lua_block {
         ngx.header.content_length = nil
     else
         ngx.ctx.is_html = false
+{% if (lookup('config', application_id, 'services.tor.enabled', False) | bool) and (lookup('applications') | external_asset_origins(application_id, DOMAIN_PRIMARY)) %}
+        if lct:find("^text/css") and (ngx.var.http_host or ""):sub(-6) == ".onion" then
+            ngx.ctx.is_css = true
+            ngx.header.content_length = nil
+        end
+{% endif %}
     end
 }
 
