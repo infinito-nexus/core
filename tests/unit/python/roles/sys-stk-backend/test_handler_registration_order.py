@@ -12,6 +12,10 @@ from utils.roles.mapping import ROLE_FILE_TASKS_MAIN
 BACKEND = PROJECT_ROOT / "roles/sys-stk-backend" / ROLE_FILE_TASKS_MAIN
 RDBMS_DEDICATED = PROJECT_ROOT / "roles/sys-svc-rdbms/tasks/dedicated.yml"
 BLUESKY_CORE = PROJECT_ROOT / "roles/web-app-bluesky/tasks/00_core.yml"
+BLUESKY_STAGING = tuple(
+    PROJECT_ROOT / "roles/web-app-bluesky/tasks" / name
+    for name in ("01_social_app.yml", "02_login_broker.yml", "03_pds.yml")
+)
 COMPOSE_OWNER = "sys-svc-compose"
 _NOTIFY = re.compile(r"^\s*notify:\s*(?:\[\s*)?['\"]?(compose-[\w-]+)", re.MULTILINE)
 
@@ -65,20 +69,30 @@ class TestHandlerRegistrationOrder(unittest.TestCase):
         self.assertEqual(loader.get("name"), COMPOSE_OWNER)
         self.assertEqual(loader.get("handlers_from"), "main")
 
-    def test_bluesky_registers_the_owner_before_its_pre_compose_staging(self) -> None:
+    def test_bluesky_pre_compose_staging_notifies_no_compose_topic(self) -> None:
+        for path in BLUESKY_STAGING:
+            with self.subTest(path=path.name):
+                self.assertEqual(
+                    _NOTIFY.findall(read_text(str(path))),
+                    [],
+                    "staging runs before sys-stk-backend, where any flush (the "
+                    "container runtime's first one on a fresh host) would run "
+                    "the compose handlers before ca-inject and compose.yml exist",
+                )
+
+    def test_bluesky_rebuilds_after_the_backend_renders_the_stack(self) -> None:
         tasks = load_yaml_str(read_text(str(BLUESKY_CORE)))
-        loader = next(
+        backend = next(
             index
             for index, task in enumerate(tasks)
-            if _role_include(task).get("name") == COMPOSE_OWNER
-            and _role_include(task).get("handlers_from") == "main"
+            if _role_include(task).get("name") == "sys-stk-backend"
         )
-        staging = next(
+        rebuild = next(
             index
             for index, task in enumerate(tasks)
-            if "Pre-compose" in str(task.get("name"))
+            if {"compose-build", "compose-up"} <= set(task.get("notify") or [])
         )
-        self.assertLess(loader, staging)
+        self.assertGreater(rebuild, backend)
 
     def test_the_notifier_bootstraps_the_compose_host_before_its_first_notify(
         self,

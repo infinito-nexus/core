@@ -1,12 +1,6 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "📂 Register the compose handlers the pre-compose staging notifies"
-  ansible.builtin.include_role:
-    name: sys-svc-compose
-    tasks_from: none.yml
-    handlers_from: main
-
 - name: "🐳 Pre-compose web-enabled staging (services dir + social-app + login-broker)"
   block:
     - name: "✅ Ensure social-app services directory exists"
@@ -37,6 +31,18 @@
     name: sys-stk-backend
   vars:
     compose_handlers_flush: false
+
+- name: "🧱 Rebuild the stack when the pre-compose staging changed a build context"
+  ansible.builtin.debug:
+    msg: "Pre-compose build context changed for {{ application_id }}"
+  changed_when: true
+  notify:
+    - compose-build
+    - compose-up
+  when: >-
+    (BLUESKY_WEB_ENABLED | bool
+     and (bluesky_social_app_clone is changed or bluesky_login_broker_copy is changed))
+    or bluesky_pdsadmin_download is changed
 
 - name: "📂 Include front proxy for {{ BLUESKY_API_DOMAIN }}:{{ BLUESKY_API_PORT }}"
   include_role:
