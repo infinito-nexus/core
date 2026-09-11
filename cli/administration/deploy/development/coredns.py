@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import itertools
 import os
+import re
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
@@ -114,7 +115,9 @@ class CoreDNSCorefileRenderer:
 
         self._log("Rendering Corefile (atomic write)")
         try:
-            rendered = Template(read_text(tmpl_file)).safe_substitute(env)
+            rendered = Template(read_text(tmpl_file)).safe_substitute(
+                env, DOMAIN_RE=re.escape(env["INFINITO_DOMAIN"])
+            )
             with os.fdopen(fd, "w", encoding="utf-8") as fout:
                 fout.write(rendered)
 
