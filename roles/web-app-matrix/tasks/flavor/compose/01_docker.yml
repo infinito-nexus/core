@@ -97,6 +97,23 @@
   delay: 2
   until: matrix_synapse_health.status == 200
 
+- name: "✅ Wait until Synapse reaches every bridge as ready"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec {{ MATRIX_SYNAPSE_CONTAINER_ADDRESS }}
+      {{ 10 | curl(retries=0) }} --noproxy '*' -fS
+      http://mautrix-{{ item.bridge_name }}:{{ item.appservice_port }}/_matrix/mau/ready
+    executable: /bin/bash
+  loop: "{{ MATRIX_BRIDGES }}"
+  loop_control:
+    label: "{{ item.bridge_name }}"
+  register: matrix_bridge_ready
+  retries: 60
+  delay: 10
+  until: matrix_bridge_ready.rc == 0
+  changed_when: false
+  when: IS_STACK_HOST | bool
+
 - name: "👤 Provision what only the stack host owns (accounts, bridge token, compose)"
   ansible.builtin.include_tasks: utils/stack_host_provisioning.yml
   when: IS_STACK_HOST | bool

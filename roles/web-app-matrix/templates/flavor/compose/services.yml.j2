@@ -41,7 +41,7 @@
     command: ["/usr/bin/mautrix-{{ item.bridge_name }}", "--config", "{{ MATRIX_BRIDGE_CONFIG_TARGET }}", "--no-update"]
     {{ lookup('container_volumes', service_name, extra_secrets=lookup('matrix_bridge_mounts', 'bridge', item.bridge_name)) | indent(4) }}
     healthcheck:
-      test: ["CMD", "curl", "--noproxy", "*", "-fsS", "http://127.0.0.1:{{ item.appservice_port }}/_matrix/mau/ready"]
+      test: ["CMD", "curl", "--noproxy", "*", "-fsS", "http://127.0.0.1:{{ item.appservice_port }}/_matrix/mau/live"]
       interval: 2m
       timeout: 5s
       retries: 3
@@ -50,7 +50,7 @@
     {{ lookup('container_depends_on', application_id, extra={'synapse': {'condition': 'service_healthy'}}) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 {% endfor %}
-{% if lookup('config', application_id, 'services.matrix.plugins.chatgpt') | bool %}
+{% if (lookup('config', application_id, 'services.matrix.plugins.chatgpt') | bool) and (MATRIX_CHATGPT_ACCESS_TOKEN | length > 0) %}
 {% set service_name = 'matrix-chatgpt-bot' %}
   {{ service_name }}:
 {% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
