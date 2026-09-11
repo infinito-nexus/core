@@ -253,6 +253,42 @@ jobs:
       filesystem: ${{ inputs.filesystem }}
       tor: ${{ inputs.tor }}
 
+  test-deploy-chunk-3:
+    name: 🧱 Chunk 3
+    if: >-
+      ${{ always()
+          && inputs.resume_from_chunk <= 3
+          && needs.lint.result == 'success'
+          && needs.test.result == 'success'
+          && needs.build-ci-images.result == 'success'
+          && needs.images-mirror-missing.result == 'success'
+          && needs.test-dns.result == 'success'
+          && (!inputs.chunk_gate
+              || (contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-0.result)
+                  && contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-1.result)
+                  && contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-2.result))) }}
+    needs:
+      - lint
+      - test
+      - build-ci-images
+      - images-mirror-missing
+      - test-dns
+      - test-deploy-chunk-0
+      - test-deploy-chunk-1
+      - test-deploy-chunk-2
+    uses: ./.github/workflows/call-test-deploy.yml
+    with:
+      distros: ${{ inputs.distros }}
+      index: "3"
+      sweep: ${{ inputs.sweep != '' && inputs.sweep || github.run_number }}
+      offset: ${{ inputs.offset }}
+      whitelist: ${{ inputs.whitelist }}
+      priority: ${{ inputs.priority }}
+      lifecycles: ${{ inputs.lifecycles }}
+      modes: ${{ inputs.mode }}
+      filesystem: ${{ inputs.filesystem }}
+      tor: ${{ inputs.tor }}
+
   test-runner-smoke:
     needs:
       - test-deploy-chunk-0
@@ -286,6 +322,7 @@ jobs:
       - test-deploy-chunk-0
       - test-deploy-chunk-1
       - test-deploy-chunk-2
+      - test-deploy-chunk-3
     if: ${{ always() && github.ref == 'refs/heads/main' && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) }}
     runs-on: ubuntu-latest
     permissions:
@@ -311,6 +348,7 @@ jobs:
       - test-deploy-chunk-0
       - test-deploy-chunk-1
       - test-deploy-chunk-2
+      - test-deploy-chunk-3
       - test-runner-smoke
       - test-workspace
       - test

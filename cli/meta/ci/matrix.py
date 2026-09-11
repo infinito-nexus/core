@@ -169,7 +169,7 @@ def chunks_of(
             [entry for entry in entries if entry["priority"] == "true"],
             regular,
             size=slots.chunk_size(),
-            blocks=slots.chunk_count(),
+            blocks=slots.chunk_blocks(),
             budget=slots.available(),
             offset=offset_index(offset, regular),
         )

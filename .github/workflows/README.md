@@ -33,6 +33,7 @@ flowchart TB
             chunk0["test-deploy-chunk-0"]
             chunk0 --> chunk1["test-deploy-chunk-1"]
             chunk1 --> chunk2["test-deploy-chunk-2"]
+            chunk2 --> chunk3["test-deploy-chunk-3"]
         end
 
         lintwf --> chain
@@ -99,8 +100,11 @@ the whole list instead of re-testing the same head forever.
 GitHub Actions cannot generate a variable number of jobs, so the chunk blocks
 are written out in the orchestrator. `INFINITO_CI_MAX_CHUNKS` must equal how
 many exist there — `slots` plans a sweep against that key, and a sweep planned
-larger than the chain silently drops its tail. Blocks whose slice comes back
-empty skip themselves and cost nothing.
+larger than the chain silently drops its tail. Declare one block more than
+`available` fills (`ceil(available / chunk size) + 1`): the split receives
+every declared block, so after a short priority chunk the regular rows still
+fill the rest of the budget. Blocks whose slice comes back empty skip
+themselves and cost nothing.
 
 Run `python -m cli.meta.ci.slots --matrix` to see the whole budget.
 
