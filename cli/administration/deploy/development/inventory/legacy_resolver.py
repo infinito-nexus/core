@@ -20,6 +20,8 @@ from utils.cache.base import _deep_merge
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
+from .nested_overrides import apply_topic, collect_provider_overrides
+
 
 def _build_services_overrides_for_round(
     *,
@@ -72,7 +74,28 @@ def _build_services_overrides_for_round(
         merged = _deep_merge(dict(base_services), dict(variant_services))
         if isinstance(merged, dict):
             overrides[role_name] = merged
+    _apply_nested_service_maps(overrides, roles_dir=roles_dir)
     return overrides
+
+
+def _apply_nested_service_maps(overrides: dict[str, dict], *, roles_dir: str) -> None:
+    """Replace a pulled-in provider's services map with what the round demands.
+
+    Only the ``services`` topic reaches this path: the closure walks service
+    edges, so the other config topics a variant may override are the inventory
+    bake's business.
+
+    Args:
+        overrides: ``{role: services map}``, mutated in place.
+        roles_dir: roles directory the service registry is built from.
+    """
+    payloads = {role: {"services": services} for role, services in overrides.items()}
+    for provider, topics in collect_provider_overrides(
+        payloads, roles_dir=roles_dir
+    ).items():
+        if "services" not in topics:
+            continue
+        overrides[provider] = apply_topic(overrides.get(provider), topics["services"])
 
 
 def _resolve_round_include(

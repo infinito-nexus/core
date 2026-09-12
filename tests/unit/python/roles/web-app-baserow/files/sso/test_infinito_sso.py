@@ -10,11 +10,11 @@ from unittest.mock import MagicMock, patch
 from . import PROJECT_ROOT
 
 MODULE_PATH = PROJECT_ROOT / "roles/web-app-baserow/files/sso/infinito_sso.py"
-HOSTNAME = "baserow.infinito.example"
+HOSTNAME = "baserow.infinito.test"
 SSO_ON = {"PROXY_HEADER_SSO": "true"}
 IDENTITY = {
     "username": "alice",
-    "email": "alice@baserow.infinito.example",
+    "email": "alice@baserow.infinito.test",
     "name": "Alice Smith",
     "is_admin": False,
 }
@@ -239,7 +239,7 @@ class TestFallbackDomain(unittest.TestCase):
             self.assertEqual(mod._fallback_domain(), HOSTNAME)
 
     def test_strips_scheme_and_path_from_a_url_shaped_hostname(self):
-        mod = _load_module(hostname="https://baserow.infinito.example/app")
+        mod = _load_module(hostname="https://baserow.infinito.test/app")
         with patch.dict(os.environ, {}, clear=True):
             self.assertEqual(mod._fallback_domain(), HOSTNAME)
 

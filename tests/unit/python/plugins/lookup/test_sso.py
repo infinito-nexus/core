@@ -50,6 +50,7 @@ def _apps(
     oauth2_origin_port=None,
     oauth2_acl=None,
     oauth2_allowed_groups=None,
+    oauth2_pass_access_token=None,
     include_app=True,
 ):
     if not include_app:
@@ -67,6 +68,8 @@ def _apps(
         oauth2_sub["acl"] = oauth2_acl
     if oauth2_allowed_groups is not None:
         oauth2_sub["allowed_groups"] = oauth2_allowed_groups
+    if oauth2_pass_access_token is not None:
+        oauth2_sub["pass_access_token"] = oauth2_pass_access_token
     if oauth2_sub:
         sso["oauth2"] = oauth2_sub
     return {"web-app-x": {"services": {"sso": sso}}}
@@ -125,6 +128,34 @@ class SsoLookupTests(unittest.TestCase):
             _apps(enabled=True, flavor="oauth2"), ["web-app-x", "is_proxy_gated"]
         )
         self.assertEqual(result, [True])
+
+    def test_pass_access_token_defaults_to_false(self):
+        result = self._run(
+            _apps(enabled=True, flavor="oauth2"),
+            ["web-app-x", "oauth2_pass_access_token"],
+        )
+        self.assertEqual(result, [False])
+
+    def test_pass_access_token_reads_the_declared_opt_in(self):
+        result = self._run(
+            _apps(enabled=True, flavor="oauth2", oauth2_pass_access_token=True),
+            ["web-app-x", "oauth2_pass_access_token"],
+        )
+        self.assertEqual(result, [True])
+
+    def test_pass_access_token_accepts_a_rendered_string(self):
+        result = self._run(
+            _apps(enabled=True, flavor="oauth2", oauth2_pass_access_token="True"),
+            ["web-app-x", "oauth2_pass_access_token"],
+        )
+        self.assertEqual(result, [True])
+
+    def test_pass_access_token_rejects_a_rendered_false_string(self):
+        result = self._run(
+            _apps(enabled=True, flavor="oauth2", oauth2_pass_access_token="False"),
+            ["web-app-x", "oauth2_pass_access_token"],
+        )
+        self.assertEqual(result, [False])
 
     def test_is_proxy_gated_false_for_oidc(self):
         result = self._run(

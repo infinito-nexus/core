@@ -26,6 +26,7 @@ flowchart LR
         svc_secrets_backup["secrets_backup"]
     end
     subgraph dependents [Dependents]
+        dpt_svc_ai_lmstudio["svc-ai-lmstudio 🐳🐝"]
         dpt_svc_ai_ollama["svc-ai-ollama 🐳🐝"]
         dpt_svc_db_elasticsearch["svc-db-elasticsearch 🐳🐝"]
         dpt_svc_db_mariadb["svc-db-mariadb 🐳🐝"]
@@ -37,12 +38,12 @@ flowchart LR
         dpt_svc_db_typesense["svc-db-typesense 🐳🐝"]
         dpt_svc_dns_unbound["svc-dns-unbound 🐳🐝"]
         dpt_svc_prx_openresty["svc-prx-openresty 🐳🐝"]
-        dpt_svc_registry_cache["svc-registry-cache 🐳"]
         dpt_more["..."]
     end
     dep_svc_bkp_secrets_2_local -- "1:1" --> svc_secrets_backup
     dep_sys_ctl_cln_faild_bkps -- "1:1" --> svc_volume_2_local
     svc_volume_2_local -- "1:1" --> dpt_more
+    svc_volume_2_local -. "0..1" .-> dpt_svc_ai_lmstudio
     svc_volume_2_local -. "0..1" .-> dpt_svc_ai_ollama
     svc_volume_2_local -. "0..1" .-> dpt_svc_db_elasticsearch
     svc_volume_2_local -. "0..1" .-> dpt_svc_db_mariadb
@@ -54,7 +55,6 @@ flowchart LR
     svc_volume_2_local -. "0..1" .-> dpt_svc_db_typesense
     svc_volume_2_local -- "1:1" --> dpt_svc_dns_unbound
     svc_volume_2_local -- "1:1" --> dpt_svc_prx_openresty
-    svc_volume_2_local -- "1:1" --> dpt_svc_registry_cache
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
@@ -190,7 +190,7 @@ make compose-deploy mode=reinstall apps=svc-bkp-volume-2-local full_cycle=false
 
 ### Production
 
-Install Backup Docker Volumes directly onto the target machine — clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):
+Install Backup Docker Volumes directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):
 
 ```bash
 git clone https://github.com/infinito-nexus/core.git
@@ -200,6 +200,7 @@ make install
 source scripts/meta/env/load.sh
 
 APP=svc-bkp-volume-2-local
+DOMAIN=<your-domain>
 TLS_MODE=self_signed
 SSH_PUBLIC_KEY="<your-ssh-public-key>"
 INVENTORY=inventories/production
@@ -207,7 +208,7 @@ infinito administration inventory provision "$INVENTORY" \
   --inventory-file "$INVENTORY/devices.yml" \
   --host localhost \
   --include "$APP" \
-  --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}"
+  --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}"
 infinito administration deploy dedicated "$INVENTORY/devices.yml" \
   --password-file "$INVENTORY/.password" \
   --diff -vv

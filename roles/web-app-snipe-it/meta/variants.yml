@@ -40,6 +40,15 @@
       shared: true
     tor:
       enabled: true
+    openwebui:
+      enabled: false
+      shared: false
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false
 - services:
     container_backup:
       enabled: false
@@ -67,8 +76,8 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     sso:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      enabled: true
+      shared: true
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -77,6 +86,15 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    openwebui:
+      enabled: true
+      shared: true
+    hermes:
+      enabled: true
+      shared: true
+    openclaw:
+      enabled: true
+      shared: true
 - services:
     container_backup:
       enabled: false
@@ -112,3 +130,12 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     tor:
       enabled: true
+    openwebui:
+      enabled: false
+      shared: false
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false

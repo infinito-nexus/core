@@ -23,6 +23,8 @@ logs:
 plugins:
   type: volume
   name: mattermost_plugins
+  # nocheck: nfs-false-data-loss  Reason: extracted per node from the image's prepackaged bundles, the file store holds none; shared over NFS a redeploy unlinks the tree while the outgoing task still holds the plugin binary open, silly-rename leaves it non-empty, and the reinstall then fails destination-already-exists and the node serves 404
+  nfs: false
   mounts:
     - service: mattermost
       target: /mattermost/plugins
@@ -30,6 +32,8 @@ plugins:
 client-plugins:
   type: volume
   name: mattermost_client_plugins
+  # nocheck: nfs-false-data-loss  Reason: unpacked from the server-side plugin bundle at every activation; shared, replicas starting at once copy into one directory and the loser then serves 404 on the plugin routes
+  nfs: false
   mounts:
     - service: mattermost
       target: /mattermost/client/plugins

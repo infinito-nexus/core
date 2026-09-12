@@ -5,6 +5,9 @@
 # variant pinning every dynamic services.yml flag to true so the
 # matrix exercises the in-group_names branch of web-app-xwiki.
 - services:
+    litellm:
+      enabled: false
+      shared: false
     container_backup:
       enabled: true
     dashboard:
@@ -35,6 +38,9 @@
     tor:
       enabled: true
 - services:
+    litellm:
+      enabled: false
+      shared: false
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -66,6 +72,9 @@
     tor:
       enabled: true
 - services: # nocheck: variants-auth-isolation
+    litellm:
+      enabled: true
+      shared: true
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

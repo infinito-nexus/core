@@ -17,6 +17,7 @@
     KEYCLOAK_FIRSTNAME: "{{ item.value.firstname | default('') }}"
     KEYCLOAK_LASTNAME: "{{ item.value.lastname | default('') }}"
     KEYCLOAK_USER_ENABLED: "true"
+    KEYCLOAK_UIDNUMBER: "{{ item.value.uid }}"
   loop: >-
     {{
       lookup('users_non_reserved')

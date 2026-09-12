@@ -57,5 +57,23 @@ class TestBackupLegGating(unittest.TestCase):
         self.assertNotIn("svc-bkp-volume-2-local", children)
 
 
+class TestSandboxWorkerLabelling(unittest.TestCase):
+    def _workers(self, kata_enabled: object) -> tuple[str, ...]:
+        apps = {"an-app": {"services": {"kata": {"enabled": kata_enabled}}}}
+        with mock.patch.object(ei, "applications_for_round", return_value=apps):
+            return ei._sandbox_workers("an-app")
+
+    def test_a_sandboxed_app_labels_every_worker(self):
+        self.assertEqual(self._workers(True), ei._WORKERS)
+
+    def test_a_plain_app_leaves_one_worker_unlabelled(self):
+        self.assertEqual(self._workers(None), ei._WORKERS[-1:])
+        self.assertEqual(self._workers(False), ei._WORKERS[-1:])
+
+    def test_an_app_without_a_kata_service_leaves_one_worker(self):
+        with mock.patch.object(ei, "applications_for_round", return_value={}):
+            self.assertEqual(ei._sandbox_workers("absent"), ei._WORKERS[-1:])
+
+
 if __name__ == "__main__":
     unittest.main()

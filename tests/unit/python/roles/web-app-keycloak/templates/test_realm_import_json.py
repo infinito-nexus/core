@@ -120,6 +120,17 @@ class TestRealmImportJson(unittest.TestCase):
         client_ids = [c["clientId"] for c in realm["clients"]]
         self.assertNotIn(path_join([APP_URL, "saml/metadata"]), client_ids)
 
+    def test_the_declarative_profile_declares_uidnumber(self) -> None:
+        """Keycloak drops writes to an attribute the profile does not declare, and
+        the unmanaged-attribute policy is DISABLED by default, so an undeclared
+        uidNumber leaves the mattermost-id mapper with nothing to emit and the
+        OIDC callback fails on a user id of 0."""
+        realm = json.loads(render([]))
+        provider = realm["components"]["org.keycloak.userprofile.UserProfileProvider"]
+        profile = json.loads(provider[0]["config"]["kc.user.profile.config"][0])
+        declared = {attribute["name"] for attribute in profile["attributes"]}
+        self.assertIn("uidNumber", declared)
+
     def test_realm_is_valid_json_with_one_saml_app(self) -> None:
         realm = json.loads(render(["web-app-suitecrm"]))
         clients = {c["clientId"]: c for c in realm["clients"]}
@@ -136,6 +147,20 @@ class TestRealmImportJson(unittest.TestCase):
         realm = json.loads(render(["web-app-suitecrm"]))
         client = next(c for c in realm["clients"] if c.get("protocol") == "saml")
         self.assertEqual(client["defaultClientScopes"], [])
+
+    def test_the_allowed_origins_mapper_stays_out_of_the_access_token(self) -> None:
+        """The claim grows with every registered origin and rides along in
+        X-Forwarded-Access-Token, where an app server's header limit ends the
+        request; Keycloak's own CORS reads client.webOrigins, not the claim."""
+        realm = json.loads(render([]))
+        scope = next(s for s in realm["clientScopes"] if s["name"] == "web-origins")
+        mapper = next(
+            m
+            for m in scope["protocolMappers"]
+            if m["protocolMapper"] == "oidc-allowed-origins-mapper"
+        )
+        self.assertEqual(mapper["config"]["access.token.claim"], "false")
+        self.assertEqual(mapper["config"]["introspection.token.claim"], "true")
 
     def test_saml_client_maps_the_username_attribute_the_app_reads(self) -> None:
         realm = json.loads(render(["web-app-suitecrm"]))

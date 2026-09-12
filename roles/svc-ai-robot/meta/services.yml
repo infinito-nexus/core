@@ -1,0 +1,27 @@
+---
+robot:
+  modes:
+    host:
+      enabled: true
+    compose:
+      enabled: false
+    swarm:
+      enabled: false
+  min_storage: "100MB"
+  cpus: "0.2"
+  mem_reservation: "64m"
+  mem_limit: "256m"
+  pids_limit: 256
+  lifecycle: pre-alpha
+
+# nocheck: playwright-service-flag the embodied agent is the deployed workload of this role
+hermes:
+  bond: 1
+  enabled: "{{ 'web-app-hermes' in group_names }}"
+  shared: true # nocheck: dynamic-flag the selected agent is always the shared workload of the device
+
+# nocheck: playwright-service-flag the embodied agent is the deployed workload of this role
+openclaw:
+  bond: 0.1
+  enabled: "{{ 'web-app-openclaw' in group_names }}"
+  shared: true # nocheck: dynamic-flag the selected agent is always the shared workload of the device

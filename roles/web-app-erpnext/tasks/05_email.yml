@@ -1,5 +1,6 @@
 ---
 - name: "📌 apply outbound Email Account (Mailu SMTP; inbound IMAP deferred)"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   ansible.builtin.shell:
     cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
       container exec -i

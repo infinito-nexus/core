@@ -40,6 +40,10 @@
         | list
       }}
 
+- name: "🔍 Scope the preload to the whitelist's dependency closure"
+  ansible.builtin.set_fact:
+    _preload_closure: "{{ lookup('application_closure', lookup('deployment').whitelist) }}"
+
 - name: "🔌 Load shared service"
   include_tasks: load_service.yml
   vars:

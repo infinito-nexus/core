@@ -16,6 +16,7 @@
   delay: 5
   changed_when: false
   failed_when: false
+  when: ASYNC_ENABLED | bool
 
 - name: "🛑 Fail if any async job of {{ async_reap_label }} failed"
   vars:
@@ -24,4 +25,4 @@
     msg: >-
       {{ async_reap_label }}: {{ _broken | length }} async job(s) failed:
       {{ _broken | join(' || ') }}
-  when: _broken | length > 0
+  when: ASYNC_ENABLED | bool and _broken | length > 0

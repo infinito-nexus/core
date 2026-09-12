@@ -9,7 +9,8 @@ custom library install on top of the postgis/postgis base image
 filtered out). Each returned entry is a dict with:
   - extension: the extension name (matches the SQL identifier)
   - name:      the library/source name (used in the Dockerfile context)
-  - git_source: the upstream git repository to clone and build from
+  - apt_package: the PGDG package suffix, installed as
+                 postgresql-<major>-<apt_package>
 """
 
 from __future__ import annotations
@@ -26,7 +27,7 @@ if TYPE_CHECKING:
 _REGISTRY: dict[str, dict[str, str]] = {
     "vector": {
         "name": "pgvector",
-        "git_source": "https://github.com/pgvector/pgvector.git",
+        "apt_package": "pgvector",
     },
 }
 

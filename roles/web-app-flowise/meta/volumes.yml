@@ -4,11 +4,3 @@ flowise_data:
   mounts:
     - service: flowise
       target: /root/.flowise
-
-litellm_config:
-  type: config
-  source: "{{ [lookup('container', 'web-app-flowise', 'directories.config'), 'litellm.config.yaml'] | path_join }}"
-  mode: "0444"
-  mounts:
-    - service: litellm
-      target: /etc/litellm/config.yaml

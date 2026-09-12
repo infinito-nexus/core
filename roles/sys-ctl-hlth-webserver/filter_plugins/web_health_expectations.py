@@ -3,6 +3,7 @@ from collections.abc import Mapping
 from pathlib import Path
 
 from utils.roles.applications.config import get
+from utils.roles.applications.status_codes import DEFAULT_OK, codes_by_key
 
 # nocheck: project-root-import
 _BASE_DIR = str(Path(__file__).resolve().parents[3])
@@ -10,8 +11,6 @@ _MODULE_UTILS_DIR = str(Path(_BASE_DIR) / "utils")
 for _p in (_BASE_DIR, _MODULE_UTILS_DIR):
     if _p not in sys.path:
         sys.path.insert(0, _p)
-
-DEFAULT_OK = [200, 302, 301]
 
 
 def _to_list(x, *, allow_mapping: bool = True):
@@ -44,15 +43,6 @@ def _to_list(x, *, allow_mapping: bool = True):
         return out
 
     return []
-
-
-def _valid_http_code(x):
-    """Return int(x) if 100 <= code <= 599 else None."""
-    try:
-        v = int(x)
-    except (TypeError, ValueError):
-        return None
-    return v if 100 <= v <= 599 else None
 
 
 def _extract_redirect_sources(redirect_maps):
@@ -92,28 +82,6 @@ def _normalize_selection(group_names):
             "web_health_expectations: 'group_names' must be provided and non-empty"
         )
     return sel
-
-
-def _normalize_codes(x):
-    """
-    Accepts:
-      - single code (int or str)
-      - list/tuple/set of codes
-    Returns a de-duplicated list of valid ints (100..599) in original order.
-    """
-    if x is None:
-        return []
-    if isinstance(x, (list, tuple, set)):
-        out = []
-        seen = set()
-        for v in x:
-            c = _valid_http_code(v)
-            if c is not None and c not in seen:
-                seen.add(c)
-                out.append(c)
-        return out
-    c = _valid_http_code(x)
-    return [c] if c is not None else []
 
 
 def _apply_onion_deploy_view(per_app, applications, primary_domain, node_onion):
@@ -190,15 +158,9 @@ def web_health_expectations(
         )
         aliases = _to_list(aliases_raw, allow_mapping=True)
 
-        sc_raw = get(
-            applications, app_id, "server.status_codes", strict=False, default={}
+        sc_map = codes_by_key(
+            get(applications, app_id, "server.status_codes", strict=False, default={})
         )
-        sc_map = {}
-        if isinstance(sc_raw, Mapping):
-            for k, v in sc_raw.items():
-                codes = _normalize_codes(v)
-                if codes:
-                    sc_map[str(k)] = codes
 
         suppressed = set()
         services_raw = get(applications, app_id, "services", strict=False, default={})

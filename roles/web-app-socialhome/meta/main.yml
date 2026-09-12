@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Privacy-first social platform for households, federating peer-to-peer over WebRTC on an embedded SQLite store

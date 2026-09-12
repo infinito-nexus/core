@@ -1,0 +1,2 @@
+---
+# nocheck: info-media Self-written Infinito.Nexus backup role (svc-bkp-*) that snapshots host secrets to the local backup tree; no upstream product.

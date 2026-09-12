@@ -138,10 +138,10 @@ homeserver:
     retry_limit: 4
 
 appservice:
-    address: http://mautrix-whatsapp:29318
+    address: http://mautrix-whatsapp:{{ item.appservice_port }}
 
     hostname: 0.0.0.0
-    port: 29318
+    port: {{ item.appservice_port }}
 
     id: whatsapp
     bot:
@@ -152,8 +152,8 @@ appservice:
     ephemeral_events: true
     async_transactions: false
 
-    as_token: "This value is generated when generating the registration"
-    hs_token: "This value is generated when generating the registration"
+    as_token: "{{ lookup('config', application_id, 'secrets.credentials.mautrix_whatsapp_bridge_as_token') }}"
+    hs_token: "{{ lookup('config', application_id, 'secrets.credentials.mautrix_whatsapp_bridge_hs_token') }}"
 
 {% raw %}
     username_template: whatsapp_{{.}}

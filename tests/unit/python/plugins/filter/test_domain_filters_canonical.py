@@ -117,14 +117,14 @@ class TestDomainFilters(unittest.TestCase):
         import os
 
         prev = os.environ.get("DOMAIN")
-        os.environ["DOMAIN"] = "infinito.example"
+        os.environ["DOMAIN"] = "infinito.test"
         try:
             primary = (
                 "{{ lookup('env', 'DOMAIN') | default('infinito.localhost', true) }}"
             )
             apps = {"web-app-app1": {}}
             result = self.filter_module.canonical_domains_map(apps, primary)
-            self.assertEqual(result, {"web-app-app1": ["app1.infinito.example"]})
+            self.assertEqual(result, {"web-app-app1": ["app1.infinito.test"]})
         finally:
             if prev is None:
                 os.environ.pop("DOMAIN", None)

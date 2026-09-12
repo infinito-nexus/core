@@ -1,4 +1,5 @@
 ---
+# nocheck: info-media no official demo video
 logo:
   class: fa-solid fa-music
 homepage: https://www.funkwhale.audio/

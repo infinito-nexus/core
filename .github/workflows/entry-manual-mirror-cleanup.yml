@@ -36,12 +36,14 @@ on:
 
 permissions:
   contents: read
-  packages: write
 
 jobs:
   cleanup:
     name: 🗑️ Delete private GHCR mirror packages
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: ⬇️ Checkout

@@ -57,7 +57,7 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
     def test_primary_redirect_appended_when_both_domains_set(self):
         lm = self._make_lookup()
         variables = {
-            "DOMAIN_PRIMARY": "infinito.example",
+            "DOMAIN_PRIMARY": "infinito.test",
             "DOMAIN_HOMEPAGE": "infinito.nexus",
         }
         with self._patch_lookups(
@@ -65,28 +65,28 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
         ):
             result = lm.run(terms=[], variables=variables)[0]
         self.assertIn(
-            {"source": "infinito.example", "target": "infinito.nexus"},
+            {"source": "infinito.test", "target": "infinito.nexus"},
             result,
         )
 
     def test_primary_redirect_appended_even_when_rdr_domains_not_in_deployed(self):
         lm = self._make_lookup()
         variables = {
-            "DOMAIN_PRIMARY": "infinito.example",
+            "DOMAIN_PRIMARY": "infinito.test",
             "DOMAIN_HOMEPAGE": "infinito.nexus",
         }
         with self._patch_lookups(deployed=["web-opt-rdr-www"], current_play_apps={}):
             result = lm.run(terms=[], variables=variables)[0]
         self.assertEqual(
             result,
-            [{"source": "infinito.example", "target": "infinito.nexus"}],
+            [{"source": "infinito.test", "target": "infinito.nexus"}],
         )
 
     def test_primary_redirect_absent_when_primary_equals_homepage(self):
         lm = self._make_lookup()
         variables = {
-            "DOMAIN_PRIMARY": "infinito.example",
-            "DOMAIN_HOMEPAGE": "infinito.example",
+            "DOMAIN_PRIMARY": "infinito.test",
+            "DOMAIN_HOMEPAGE": "infinito.test",
         }
         with self._patch_lookups(
             deployed=["web-opt-rdr-domains"], current_play_apps={}
@@ -96,7 +96,7 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
 
     def test_primary_redirect_absent_when_domain_homepage_missing(self):
         lm = self._make_lookup()
-        variables = {"DOMAIN_PRIMARY": "infinito.example"}
+        variables = {"DOMAIN_PRIMARY": "infinito.test"}
         with self._patch_lookups(
             deployed=["web-opt-rdr-domains"], current_play_apps={}
         ):
@@ -167,7 +167,7 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
             }
         }
         variables = {
-            "DOMAIN_PRIMARY": "infinito.example",
+            "DOMAIN_PRIMARY": "infinito.test",
             "DOMAIN_HOMEPAGE": "infinito.nexus",
             "AUTO_BUILD_ALIASES": False,
             "redirect_domain_mappings": [
@@ -180,7 +180,7 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
             result = lm.run(terms=[], variables=variables)[0]
         sources = {entry["source"]: entry["target"] for entry in result}
         self.assertEqual(sources.get("legacy.example.com"), "current.example.com")
-        self.assertEqual(sources.get("infinito.example"), "infinito.nexus")
+        self.assertEqual(sources.get("infinito.test"), "infinito.nexus")
         self.assertEqual(sources.get("alt-foo.example.com"), "foo.example.com")
 
     def test_non_list_redirect_domain_mappings_treated_as_empty(self):
@@ -193,7 +193,7 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
     def test_non_mapping_applications_current_play_skipped(self):
         lm = self._make_lookup()
         variables = {
-            "DOMAIN_PRIMARY": "infinito.example",
+            "DOMAIN_PRIMARY": "infinito.test",
             "DOMAIN_HOMEPAGE": "infinito.nexus",
         }
         with self._patch_lookups(
@@ -202,7 +202,7 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
             result = lm.run(terms=[], variables=variables)[0]
         self.assertEqual(
             result,
-            [{"source": "infinito.example", "target": "infinito.nexus"}],
+            [{"source": "infinito.test", "target": "infinito.nexus"}],
         )
 
     def test_jinja_tagged_domain_primary_is_templated(self):
@@ -219,7 +219,7 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
         lm = LookupModule()
         lm._templar = _ResolvingTemplar(
             {
-                "{{ lookup('env','INFINITO_DOMAIN') }}": "infinito.example",
+                "{{ lookup('env','INFINITO_DOMAIN') }}": "infinito.test",
                 "{{ lookup('domain','web-app-dashboard') }}": "infinito.nexus",
             }
         )
@@ -235,7 +235,7 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
 
         self.assertEqual(
             result,
-            [{"source": "infinito.example", "target": "infinito.nexus"}],
+            [{"source": "infinito.test", "target": "infinito.nexus"}],
         )
         self.assertIn(
             "{{ lookup('env','INFINITO_DOMAIN') }}",
@@ -244,7 +244,7 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
 
     def _onion_variables(self, **overrides):
         variables = {
-            "DOMAIN_PRIMARY": "infinito.example",
+            "DOMAIN_PRIMARY": "infinito.test",
             "DOMAIN_HOMEPAGE": "dashboard.abcdefonion.onion",
             "group_names": ["svc-net-tor", "web-app-dashboard"],
             "applications": {
@@ -267,7 +267,7 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
             result,
             [
                 {
-                    "source": "infinito.example",
+                    "source": "infinito.test",
                     "target": "dashboard.abcdefonion.onion",
                 },
                 {
@@ -288,7 +288,7 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
             result,
             [
                 {
-                    "source": "infinito.example",
+                    "source": "infinito.test",
                     "target": "dashboard.abcdefonion.onion",
                 },
             ],
@@ -307,7 +307,7 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
             result,
             [
                 {
-                    "source": "infinito.example",
+                    "source": "infinito.test",
                     "target": "dashboard.abcdefonion.onion",
                 },
             ],
@@ -331,7 +331,7 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
             result = lm.run(terms=[], variables=variables)[0]
         self.assertEqual(
             result,
-            [{"source": "infinito.example", "target": "abcdefonion.onion"}],
+            [{"source": "infinito.test", "target": "abcdefonion.onion"}],
         )
 
     def test_onion_apex_node_value_templated(self):
@@ -374,7 +374,7 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
         lm._templar = _FailingTemplar()
         lm._loader = None
         variables = {
-            "DOMAIN_PRIMARY": "infinito.example",
+            "DOMAIN_PRIMARY": "infinito.test",
             "DOMAIN_HOMEPAGE": "infinito.nexus",
         }
         with self._patch_lookups(
@@ -383,7 +383,7 @@ class CurrentPlayRedirectDomainsLookupTests(unittest.TestCase):
             result = lm.run(terms=[], variables=variables)[0]
         self.assertEqual(
             result,
-            [{"source": "infinito.example", "target": "infinito.nexus"}],
+            [{"source": "infinito.test", "target": "infinito.nexus"}],
         )
 
 

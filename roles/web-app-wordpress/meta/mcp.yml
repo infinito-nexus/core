@@ -1,0 +1,36 @@
+---
+classification: plugin_server
+direction: server
+source_url: https://github.com/WordPress/mcp-adapter/tree/v0.5.0
+transport: streamable_http
+exposure: public
+auth: basic_auth
+auth_subject: service_account
+implementation: plugin
+credential:
+  owner: mcp-web-app-wordpress
+  source: token_store
+  key: web-app-wordpress
+endpoint:
+  service_key: wordpress
+  path: /wp-json/mcp/mcp-adapter-default-server
+  port_key: http
+  host_header: true
+limits:
+  request_bytes: 65536
+  response_bytes: 1048576
+  timeout_seconds: 15
+  concurrent_requests: 4
+  page_size: 20
+  result_items: 20
+  stream_seconds: 300
+tools:
+  read_probe:
+    tool: infinito-list-categories
+    arguments: {}
+  allowlist:
+    - infinito-get-post
+    - infinito-list-categories
+    - infinito-search-posts
+  read_only_default: true
+  mutating_tools_enabled: false

@@ -9,6 +9,7 @@ update:
   upstream_id: mautrix-whatsapp
 config:
   bridge_name: "whatsapp"
+  appservice_port: 29318
   database_username: "mautrix_whatsapp_bridge"
   database_name: "mautrix_whatsapp_bridge"
   database_password: "{{ lookup('config', 'web-app-matrix', 'secrets.credentials.mautrix_whatsapp_bridge_database_password', '') }}"

@@ -7,7 +7,7 @@
   delay: 6
   until: bbb_dockerize_pull.rc == 0
   changed_when: false
-- name: "🏷️ Tag dockerize as jwilder/dockerize:latest for the upstream script"
+- name: "🏷️ Tag dockerize so the upstream script finds it locally"
   command:
     cmd: "container tag {{ lookup('image', application_id, 'dockerize', tag_only=True) }} jwilder/dockerize:latest"
 - name: "📁 create compose.yml for bigbluebutton"

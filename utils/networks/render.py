@@ -13,8 +13,15 @@ discovered into the service_registry by ``discover_role_services``. Keys:
 * ``topology``: ``shared_net`` | ``default_net``. Absent = beacon-only (no attachment)
 * ``aliases``: list of DNS aliases. Default: ``[entity_name]`` for shared_net, ``[]`` for default_net
 * ``consumer``: optional override
-   * ``kind``: ``services_flags`` (default) | ``database`` | ``web_facing`` |
-      ``onion_sso``
+   * ``kind``: ``services_flags`` (default) | ``database`` | ``mcp_client``
+     | ``web_facing`` | ``onion_sso``. ``mcp_client`` admits a role only when
+     its ``mcp.direction`` is ``client`` or ``both`` AND it declares
+     ``services.<own-entity>.mcp_consumer: true`` without the provider
+     refusing it through ``mcp_consumer: false`` on that same entry, so a
+     provider's network carries the clients
+     it admitted rather than every client in the deployment. Being a client is
+     not an admission: without the second condition one admission anywhere
+     reaches every provider that opens its overlay.
    * ``key``: services.<key>.* lookup base. Default: provides or entity_name
    * ``flags``: list of flags to AND. Default: ``[enabled, shared]``
       (``services_flags`` only)
@@ -41,44 +48,22 @@ from utils.networks.attachments import (
     _coerce_bool,
     _compute_attachments,
     _is_consumer,
+    _own_shared_net_provider,
+    _shared_network_key,
+    _suppress_default,
 )
 
 __all__ = [
     "_coerce_bool",
     "_compute_attachments",
     "_is_consumer",
+    "_own_shared_net_provider",
+    "_suppress_default",
     "compute_external_network_roles",
     "render_compose_networks",
     "render_container_networks",
     "shared_network_compose_key",
 ]
-
-
-def _suppress_default(application_id: str) -> bool:
-    return application_id.startswith(("svc-db-", "svc-ai-"))
-
-
-def _own_shared_net_provider(
-    attachments: list[dict[str, Any]],
-    own_entity: str,
-    get_entity_name: Callable[[str], str],
-) -> bool:
-    return any(
-        att["is_provider"]
-        and att["topology"] == "shared_net"
-        and get_entity_name(att["role"]) == own_entity
-        for att in attachments
-    )
-
-
-def _shared_network_key(
-    attachments: list[dict[str, Any]],
-    own_entity: str,
-    get_entity_name: Callable[[str], str],
-) -> str:
-    if _own_shared_net_provider(attachments, own_entity, get_entity_name):
-        return own_entity
-    return "default"
 
 
 def shared_network_compose_key(
@@ -174,7 +159,7 @@ def render_compose_networks(
     is_own_shared_net_provider = (
         _shared_network_key(attachments, own_entity, get_entity_name) == own_entity
     )
-    if not _suppress_default(application_id):
+    if not _suppress_default(application_id, lookup_database):
         lines.append("  default:")
         if deployment_mode == "swarm":
             if not is_own_shared_net_provider and own_entity:
@@ -203,6 +188,9 @@ def render_compose_networks(
                 lines.append("      config:")
                 lines.append(f"        - subnet: {subnet}")
 
+    if len(lines) == 1:
+        return ""
+
     return "\n".join(lines) + "\n"
 
 
@@ -216,6 +204,7 @@ def render_container_networks(
     lookup_database: Callable[[str, str], Any],
     provider_self_alias: bool = True,
     node_local: bool = False,
+    own_network_only: bool = False,
 ) -> str:
     if node_local:
         deployment_mode = "compose"
@@ -225,6 +214,8 @@ def render_container_networks(
     lines: list[str] = ["networks:"]
     for att in attachments:
         if att["is_provider"] and att["topology"] == "default_net":
+            continue
+        if own_network_only and not att["is_provider"]:
             continue
         lines.append(f"  {get_entity_name(att['role'])}:")
         aliases = att["aliases"]
@@ -236,12 +227,20 @@ def render_container_networks(
         else:
             lines.append("    {}")
 
-    if not _suppress_default(application_id):
+    if own_network_only:
+        if len(lines) == 1:
+            return ""
+        return "\n" + "\n".join(lines)
+
+    if not _suppress_default(application_id, lookup_database):
         if default_aliases:
             lines.append("  default:")
             lines.append("    aliases:")
             lines.extend(f"      - {alias}" for alias in default_aliases)
         else:
             lines.append("  default:")
+
+    if len(lines) == 1:
+        return ""
 
     return "\n" + "\n".join(lines)

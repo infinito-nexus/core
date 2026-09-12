@@ -1,6 +1,7 @@
 # tests/unit/python/roles/sys-svc-compose-ca/files/test_compose_ca_inject.py
 import importlib.util
 import json
+import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -874,6 +875,53 @@ class TestComposeCaInject(unittest.TestCase):
             out.get("command"),
             ["sh", "-lc", 'exec "$$CHESS_ENTRYPOINT_INT"'],
         )
+
+    def test_render_override_points_the_replacing_vars_at_the_bundle(self):
+        """A host that has a CA bundle gets the verifying vars pointed at it.
+
+        SSL_CERT_FILE, CURL_CA_BUNDLE and REQUESTS_CA_BUNDLE replace the trust
+        store, so leaving them on the single root CA is what stops a container
+        from reaching any public HTTPS endpoint. NODE_EXTRA_CA_CERTS is
+        additive and stays on the root CA, and CA_TRUST_CERT stays single
+        because the anchor installers take one certificate.
+        """
+        services = {"svc": {"image": "img:1"}}
+        service_to_cmd = {"svc": ["docker", "compose", "-p", "p", "-f", "compose.yml"]}
+
+        with tempfile.TemporaryDirectory() as tmp:
+            ca_host = Path(tmp) / "root-ca.crt"
+            ca_host.write_text("root\n")
+            (Path(tmp) / "ca-bundle.crt").write_text("root\npublic\n")
+
+            with (
+                patch.object(self.m, "ensure_image_available"),
+                patch.object(self.m, "docker_image_inspect"),
+                patch.object(self.m, "docker_image_has_bin_sh"),
+            ):
+                doc = self.m.render_override(
+                    services,
+                    service_to_cmd,
+                    cwd=Path("/tmp"),
+                    env={},
+                    ca_host=str(ca_host),
+                    wrapper_host="/host/with-ca-trust.sh",
+                    ca_container=CA_CERT_CONTAINER,
+                    wrapper_container=CA_WRAPPER_CONTAINER,
+                    trust_name="infinito.local",
+                    wrap=False,
+                )
+
+            out = doc["services"]["svc"]
+            bundle_container = str(Path(CA_CERT_CONTAINER).parent / "ca-bundle.crt")
+            self.assertIn(
+                f"{Path(tmp) / 'ca-bundle.crt'}:{bundle_container}:ro", out["volumes"]
+            )
+            for key in ("SSL_CERT_FILE", "CURL_CA_BUNDLE", "REQUESTS_CA_BUNDLE"):
+                self.assertEqual(out["environment"].get(key), bundle_container)
+            self.assertEqual(
+                out["environment"].get("NODE_EXTRA_CA_CERTS"), CA_CERT_CONTAINER
+            )
+            self.assertEqual(out["environment"].get("CA_TRUST_CERT"), CA_CERT_CONTAINER)
 
     def test_render_override_no_wrapper_emits_env_and_mounts_only(self):
         """

@@ -1,0 +1,11 @@
+---
+enabled: "{{ lookup('config', 'web-app-xwiki', 'services.litellm.enabled') | bool }}"
+required: false
+mechanism: extension
+source: upstream
+bridges:
+  - litellm
+version: "0.7"
+group: ai-llm
+config:
+  id: org.xwiki.contrib.llm:application-ai-llm-models-ui

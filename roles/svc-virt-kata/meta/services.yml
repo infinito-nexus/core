@@ -1,0 +1,18 @@
+---
+kata:
+  modes:
+    host:
+      enabled: true
+    compose:
+      enabled: false
+    swarm:
+      enabled: false
+  bond: 1
+  enabled: true
+  shared: true
+  min_storage: "500MB"
+  cpus: "0.2"
+  mem_reservation: "64m"
+  mem_limit: "256m"
+  pids_limit: 256
+  lifecycle: beta

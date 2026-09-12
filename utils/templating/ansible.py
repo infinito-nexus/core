@@ -4,6 +4,7 @@ import contextlib
 import os
 import posixpath
 import re
+from collections.abc import Mapping, Sequence
 from typing import Any
 
 from ansible.errors import AnsibleError
@@ -14,6 +15,33 @@ try:
     from ansible._internal._datatag._tags import TrustedAsTemplate
 except Exception:
     TrustedAsTemplate = None
+
+
+def to_plain(obj: Any) -> Any:
+    """Convert Ansible/Jinja proxy types into plain Python so PyYAML can serialize."""
+
+    if obj is None:
+        return None
+
+    if isinstance(obj, str):
+        return str(obj)
+
+    if isinstance(obj, bool):
+        return bool(obj)
+
+    if isinstance(obj, int):
+        return int(obj)
+
+    if isinstance(obj, float):
+        return float(obj)
+
+    if isinstance(obj, Mapping):
+        return {str(to_plain(k)): to_plain(v) for k, v in obj.items()}
+
+    if isinstance(obj, Sequence) and not isinstance(obj, (str, bytes, bytearray)):
+        return [to_plain(x) for x in obj]
+
+    return str(obj)
 
 
 def _trust_as_template(s: str) -> Any:

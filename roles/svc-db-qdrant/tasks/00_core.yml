@@ -1,6 +1,22 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "🥾 For '{{ application_id }}': bootstrap the compose host once"
+  ansible.builtin.include_role:
+    name: sys-svc-compose
+    tasks_from: 00_core.yml
+  when: run_once_sys_svc_compose is not defined
+
+- name: "🔌 Stage the MCP adapter instance for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
+  vars:
+    mcp_adapter_instance_dir: "{{ QDRANT_MCP_INSTANCE_DIR }}"
+  when: QDRANT_MCP_ENABLED | bool
+
+- name: "🧱 Rebuild the MCP adapter of {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/rebuild.yml') }}"
+  when: QDRANT_MCP_ENABLED | bool
+
 - name: "🔧 Setup container network for {{ application_id }}"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
   vars:

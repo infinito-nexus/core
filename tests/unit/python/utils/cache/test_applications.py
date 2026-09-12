@@ -19,9 +19,15 @@ from pathlib import Path
 
 from utils.cache import _reset_cache_for_tests
 from utils.cache import applications as cache_apps
+from utils.cache.carrier import (
+    APPLICATIONS_RENDERED_FACT,
+    merged_applications_cache_key,
+)
+from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import (
     ROLE_DIR_META_ADDONS,
     ROLE_FILE_META_MAIN,
+    ROLE_FILE_META_MCP,
     ROLE_FILE_META_SERVICES,
     ROLE_FILE_META_USERS,
     ROLE_FILE_META_VARIANTS,
@@ -333,6 +339,71 @@ class TestGetMergedApplicationsRespectsOverrides(unittest.TestCase):
             )
 
 
+class TestGetMergedApplicationsCarrierFact(unittest.TestCase):
+    """The constructor renders once and parks the payload with its cache key in
+    `_INFINITO_APPLICATIONS_RENDERED`. A worker process whose in-process cache is
+    empty serves that payload when the key matches and renders only when it
+    does not.
+    """
+
+    def setUp(self) -> None:
+        _reset_cache_for_tests()
+
+    @staticmethod
+    def _variables() -> dict:
+        return {
+            "applications": {
+                "web-app-foo": {"services": {"foo": {"image": "override"}}}
+            }
+        }
+
+    def test_matching_key_serves_the_carried_payload_without_rendering(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_roles(Path(tmp))
+            variables = self._variables()
+            key = merged_applications_cache_key(variables, roles_dir=roles)
+            carried = {"web-app-foo": {"carried": True}}
+            variables[APPLICATIONS_RENDERED_FACT] = {
+                "key": [key[0], list(key[1])],
+                "applications": carried,
+            }
+            merged = cache_apps.get_merged_applications(
+                variables=variables, roles_dir=roles, templar=None
+            )
+            self.assertIs(merged, carried)
+
+    def test_stale_key_falls_back_to_a_fresh_render(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_roles(Path(tmp))
+            variables = self._variables()
+            key = merged_applications_cache_key(variables, roles_dir=roles)
+            variables[APPLICATIONS_RENDERED_FACT] = {
+                "key": [key[0], ["stale"] * len(key[1])],
+                "applications": {"web-app-foo": {"carried": True}},
+            }
+            merged = cache_apps.get_merged_applications(
+                variables=variables, roles_dir=roles, templar=None
+            )
+            self.assertNotIn("carried", merged["web-app-foo"])
+            self.assertEqual(
+                merged["web-app-foo"]["services"]["foo"]["image"], "override"
+            )
+
+    def test_malformed_carrier_is_ignored(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_roles(Path(tmp))
+            for carrier in ("not-a-mapping", {"key": "x", "applications": {}}, {}):
+                _reset_cache_for_tests()
+                variables = self._variables()
+                variables[APPLICATIONS_RENDERED_FACT] = carrier
+                merged = cache_apps.get_merged_applications(
+                    variables=variables, roles_dir=roles, templar=None
+                )
+                self.assertEqual(
+                    merged["web-app-foo"]["services"]["foo"]["image"], "override"
+                )
+
+
 class TestRecursiveMetaWalk(unittest.TestCase):
     """`_build_role_base_config` walks the whole `meta/` tree: every
     `meta/**/*.yml` lands at the matching nested path under
@@ -447,6 +518,138 @@ class TestApplicationsImportableWithoutAnsible(unittest.TestCase):
             msg=f"stderr=\n{result.stderr}\nstdout=\n{result.stdout}",
         )
         self.assertIn("OK", result.stdout)
+
+
+class TestDeriveMcpPresence(unittest.TestCase):
+    def setUp(self) -> None:
+        _reset_cache_for_tests()
+
+    @staticmethod
+    def _seed_pair(tmp: Path) -> Path:
+        roles = tmp / "roles"
+        _write(
+            roles / "web-app-prov" / ROLE_FILE_META_SERVICES,
+            """
+            prov:
+              image: prov
+              version: latest
+            cons:
+              mcp_consumer: true
+            """,
+        )
+        _write(
+            roles / "web-app-prov" / ROLE_FILE_META_MCP,
+            """
+            direction: server
+            """,
+        )
+        _write(
+            roles / "web-app-cons" / ROLE_FILE_META_SERVICES,
+            """
+            cons:
+              image: cons
+              version: latest
+              mcp_consumer: true
+            """,
+        )
+        _write(
+            roles / "web-app-cons" / ROLE_FILE_META_MCP,
+            """
+            direction: client
+            """,
+        )
+        return roles
+
+    def test_provider_resolves_to_its_admitted_consumers(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = self._seed_pair(Path(tmp))
+            defaults = cache_apps.get_application_defaults(roles_dir=roles)
+            self.assertEqual(
+                defaults["web-app-prov"]["mcp"]["enabled"],
+                "{{ 'web-app-cons' in group_names }}",
+            )
+            self.assertEqual(
+                defaults["web-app-prov"]["mcp"]["shared"],
+                defaults["web-app-prov"]["mcp"]["enabled"],
+            )
+
+    def test_provider_that_excludes_its_only_consumer_resolves_to_false(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = self._seed_pair(Path(tmp))
+            _write(
+                roles / "web-app-prov" / ROLE_FILE_META_SERVICES,
+                """
+                prov:
+                  image: prov
+                  version: latest
+                cons:
+                  mcp_consumer: false
+                """,
+            )
+            defaults = cache_apps.get_application_defaults(roles_dir=roles)
+            self.assertIs(defaults["web-app-prov"]["mcp"]["enabled"], False)
+
+    def test_configured_value_wins_over_the_derivation(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = self._seed_pair(Path(tmp))
+            _write(
+                roles / "web-app-prov" / ROLE_FILE_META_MCP,
+                """
+                direction: server
+                enabled: false
+                shared: false
+                """,
+            )
+            defaults = cache_apps.get_application_defaults(roles_dir=roles)
+            self.assertIs(defaults["web-app-prov"]["mcp"]["enabled"], False)
+
+    def test_every_variant_carries_the_derived_value(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = self._seed_pair(Path(tmp))
+            _write(
+                roles / "web-app-prov" / ROLE_FILE_META_VARIANTS,
+                """
+                - {}
+                - services:
+                    prov:
+                      image: prov-alt
+                """,
+            )
+            variants = cache_apps.get_variants(roles_dir=roles)["web-app-prov"]
+            self.assertEqual(len(variants), 2)
+            for variant in variants:
+                self.assertEqual(
+                    variant["mcp"]["enabled"],
+                    "{{ 'web-app-cons' in group_names }}",
+                )
+
+    def test_derivation_leaves_the_yaml_cache_untouched(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = self._seed_pair(Path(tmp))
+            mcp_path = roles / "web-app-prov" / ROLE_FILE_META_MCP
+            cache_apps.get_application_defaults(roles_dir=roles)
+            raw = load_yaml_any(str(mcp_path), default_if_missing={})
+            self.assertNotIn("enabled", raw)
+            self.assertNotIn("shared", raw)
+
+    def test_variant_override_wins_over_the_derivation(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = self._seed_pair(Path(tmp))
+            _write(
+                roles / "web-app-prov" / ROLE_FILE_META_VARIANTS,
+                """
+                - {}
+                - mcp:
+                    enabled: false
+                    shared: false
+                """,
+            )
+            variants = cache_apps.get_variants(roles_dir=roles)["web-app-prov"]
+            self.assertEqual(
+                variants[0]["mcp"]["enabled"],
+                "{{ 'web-app-cons' in group_names }}",
+            )
+            self.assertIs(variants[1]["mcp"]["enabled"], False)
 
 
 if __name__ == "__main__":

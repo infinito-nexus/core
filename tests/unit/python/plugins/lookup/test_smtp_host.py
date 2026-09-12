@@ -14,7 +14,7 @@ from ansible.errors import AnsibleError
 
 from . import PROJECT_ROOT
 
-RELAY = "mail.infinito.example"
+RELAY = "mail.infinito.test"
 MANAGER = "swarm-manager-01"
 
 

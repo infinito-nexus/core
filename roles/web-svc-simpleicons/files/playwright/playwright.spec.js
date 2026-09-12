@@ -24,7 +24,7 @@ function expectLandingPageText(body) {
 }
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
-const knownIconSlug = decodeDotenvQuotedValue(process.env.KNOWN_ICON_SLUG || "keycloak");
+const knownIconSlug = decodeDotenvQuotedValue(process.env.KNOWN_ICON_SLUG);
 
 test("simpleicons serves keycloak assets directly on its own domain", async ({ request }) => {
   expect(appBaseUrl, "APP_BASE_URL must be set in the Playwright env file").toBeTruthy();

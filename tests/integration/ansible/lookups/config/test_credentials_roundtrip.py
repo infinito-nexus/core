@@ -5,7 +5,7 @@
 ``applications.<app>.secrets.credentials``; every role then reads them through
 ``lookup('config', <app>, 'secrets.credentials.<key>')``. Nothing checked that
 the two agree on where the values live, which is exactly what the rename from
-``meta/schema.yml`` put at risk.
+``meta/secrets.yml`` put at risk.
 
 The second test guards the caching side of that seam: the assembled defaults
 must not reach into the YAML cache and truncate the schema every later reader

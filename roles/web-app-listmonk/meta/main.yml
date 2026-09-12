@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Self-hosted platform for newsletters and mailing lists with subscriber segmentation and campaign analytics

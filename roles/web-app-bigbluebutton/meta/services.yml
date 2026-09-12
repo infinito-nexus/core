@@ -153,6 +153,11 @@ apps-akka:
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-graphql-server:
+  healthcheck:
+    test: ["CMD", "curl", "-f", "http://localhost:8085/healthz"]
+    # nocheck: healthcheck-timing-override  curl against the graphql server, which does not answer inside the 5s default while it is still building its schema
+    timeout: 10s
+    retries: 5
   image: alangecker/bbb-docker-graphql-server
   version: "v3.0.23"
   enabled: false
@@ -201,6 +206,5 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
 
 # nocheck: playwright-service-flag
 tor:
-  bond: 0.5
   enabled: false # nocheck: dynamic-flag
   shared: false # nocheck: dynamic-flag

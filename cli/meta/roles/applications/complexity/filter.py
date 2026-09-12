@@ -27,7 +27,6 @@ from typing import Any
 
 Predicate = Callable[[dict[str, Any]], bool]
 
-_OPERATORS = ("%%", "==", "!=", "<=", ">=", "<", ">")
 _KEYWORDS = frozenset({"and", "or", "xor", "not"})
 _NUMBER_RE = re.compile(r"^-?\d+(?:\.\d+)?$")
 _TOKEN_RE = re.compile(

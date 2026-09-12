@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Self-hosted decentralized social network on the open AT Protocol, with its own Personal Data Server

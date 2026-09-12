@@ -1,2 +1,7 @@
 ---
 administrator: {}
+mcp-web-app-jellyfin:
+  firstname: Infinito
+  lastname: MCP
+  accounts: []
+  description: Account the Jellyfin MCP API key is minted for; it reads the library instead of the administrator

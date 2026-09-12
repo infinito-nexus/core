@@ -10,6 +10,7 @@ set -euo pipefail
 
 : "${MOODLE_CODE_DIR:?required}"
 : "${MOODLE_DATA_DIR:?required}"
+: "${MOODLE_LOCAL_CACHE_DIR:?required}"
 : "${MOODLE_SOURCE_DIR:?required}"
 : "${MOODLE_RUNTIME_USER:?required}"
 : "${MOODLE_VERSION_FILE:?required}"
@@ -19,6 +20,11 @@ MOODLE_BOOTSTRAP_LOCK="${MOODLE_CODE_DIR}/.bootstrap.lock"
 
 mkdir -p "${MOODLE_DATA_DIR}"
 chown -R "${MOODLE_RUNTIME_USER}:${MOODLE_RUNTIME_USER}" "${MOODLE_DATA_DIR}" || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+
+mkdir -p "${MOODLE_LOCAL_CACHE_DIR}"
+if [ "$(id -u)" -eq 0 ]; then
+  chown -R "${MOODLE_RUNTIME_USER}:${MOODLE_RUNTIME_USER}" "${MOODLE_LOCAL_CACHE_DIR}"
+fi
 
 moodle_bootstrap_code_dir() {
   if [ -f "${MOODLE_BOOTSTRAP_SENTINEL}" ]; then
@@ -33,6 +39,17 @@ moodle_bootstrap_code_dir() {
   touch "${MOODLE_BOOTSTRAP_SENTINEL}"
 }
 
+moodle_refresh_config() {
+	if [ ! -f "${MOODLE_SOURCE_DIR}/config.php" ]; then
+		return 0
+	fi
+	cp -f "${MOODLE_SOURCE_DIR}/config.php" "${MOODLE_CODE_DIR}/config.php"
+	if [ "$(id -u)" -eq 0 ]; then
+		chown "${MOODLE_RUNTIME_USER}:${MOODLE_RUNTIME_USER}" "${MOODLE_CODE_DIR}/config.php"
+		chmod 0640 "${MOODLE_CODE_DIR}/config.php"
+	fi
+}
+
 mkdir -p "${MOODLE_CODE_DIR}"
 while [ ! -f "${MOODLE_BOOTSTRAP_SENTINEL}" ]; do
   exec 9>>"${MOODLE_BOOTSTRAP_LOCK}"
@@ -43,6 +60,8 @@ while [ ! -f "${MOODLE_BOOTSTRAP_SENTINEL}" ]; do
   fi
   exec 9>&-
 done
+
+moodle_refresh_config
 
 if [ "$(id -u)" -eq 0 ] && [ "${1:-}" != "php-fpm" ]; then
   exec gosu "${MOODLE_RUNTIME_USER}" "$@"

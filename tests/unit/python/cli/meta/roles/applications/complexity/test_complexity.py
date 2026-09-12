@@ -944,15 +944,53 @@ class TestCoveredBy(unittest.TestCase):
         )
         self.assertEqual([m.covered_by for m in marked], [0, 0, 2, 0])
 
-    def test_variant_gt0_can_still_cover_other_roles(self) -> None:
+    def test_variant_gt0_covers_a_provider_it_pulls_at_zero(self) -> None:
         marked = _mark_covered(
             [
                 _row("Z", []),
                 _row("A", ["B"], variant=2),
                 _row("B", [], variant=0),
-            ]
+            ],
+            variant_counts={"B": 1},
         )
         self.assertEqual([m.covered_by for m in marked], [0, 0, 2])
+
+    def test_variant_gt0_does_not_cover_a_provider_with_that_variant(self) -> None:
+        marked = _mark_covered(
+            [
+                _row("Z", []),
+                _row("A", ["B"], variant=2),
+                _row("B", [], variant=0),
+            ],
+            variant_counts={"B": 5},
+        )
+        self.assertEqual([m.covered_by for m in marked], [0, 0, 0])
+
+    def test_variant_zero_covers_whatever_its_provider_count(self) -> None:
+        marked = _mark_covered(
+            [
+                _row("Z", []),
+                _row("A", ["B"], variant=0),
+                _row("B", [], variant=0),
+            ],
+            variant_counts={"B": 9},
+        )
+        self.assertEqual([m.covered_by for m in marked], [0, 0, 2])
+
+    def test_a_variant_that_overrides_a_provider_does_not_cover_it(self) -> None:
+        rows = [_row("A", ["B", "C"], variant=0), _row("B", []), _row("C", [])]
+        marked = _mark_covered(rows, {("A", 0): {"B"}})
+        self.assertEqual([m.covered_by for m in marked], [0, 0, 1])
+
+    def test_the_override_only_bars_the_provider_it_names(self) -> None:
+        rows = [_row("A", ["B"], variant=0), _row("B", [])]
+        marked = _mark_covered(rows, {("A", 0): {"C"}})
+        self.assertEqual([m.covered_by for m in marked], [0, 1])
+
+    def test_an_override_in_another_variant_leaves_coverage_alone(self) -> None:
+        rows = [_row("A", ["B"], variant=0), _row("B", [])]
+        marked = _mark_covered(rows, {("A", 2): {"B"}})
+        self.assertEqual([m.covered_by for m in marked], [0, 1])
 
 
 if __name__ == "__main__":

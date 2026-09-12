@@ -43,6 +43,7 @@ echo "=== Distro execution order: ${distro_arr[*]} ==="
 
 global_start="$(date +%s)"
 deadline="$((global_start + INFINITO_CI_DISTRO_BUDGET_SECONDS))"
+export INFINITO_CI_DISTRO_DEADLINE_EPOCH="${deadline}"
 echo "=== Global time budget: ${INFINITO_CI_DISTRO_BUDGET_SECONDS}s (deadline epoch=${deadline}) ==="
 
 max_seen=0

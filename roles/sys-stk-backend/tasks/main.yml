@@ -59,6 +59,19 @@
       include_tasks: "{{ lookup('path_absolute', 'roles/web-app-keycloak/tasks/sso_proxy.yml') }}"
   when: lookup('sso', application_id, 'is_proxy_gated') | bool
 
+- name: "📂 For '{{ application_id }}': re-own the compose handler topics before the flush"
+  ansible.builtin.include_role:
+    name: sys-svc-compose
+    tasks_from: none.yml
+    handlers_from: main
+
 - name: "🚿 flush compose and SSO proxy"
   meta: flush_handlers
   when: compose_handlers_flush | bool
+
+- name: "🔑 For '{{ application_id }}': realign a dedicated postgres"
+  include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-rdbms/tasks/utils/realign_dedicated_db.yml') }}"
+    apply:
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true

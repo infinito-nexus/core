@@ -34,8 +34,9 @@ What is left is :func:`available`, the rows one sweep can deploy. It is spent
 by :func:`chunk_count` blocks of :func:`chunk_size` rows. Because the
 orchestrator cannot generate a variable number of jobs, the block count is
 also capped by ``INFINITO_CI_MAX_CHUNKS``, the number of chunk blocks the
-workflow YAML actually declares; a sweep that would need more rows than those
-blocks hold leaves the rest to the next sweep's offset.
+workflow YAML actually declares (:func:`chunk_blocks`); a sweep that would
+need more rows than those blocks hold leaves the rest to the next sweep's
+offset.
 """
 
 from __future__ import annotations
@@ -190,10 +191,15 @@ def available(repo_root: Path | None = None) -> int:
     return max(limit - reserved_slots(repo_root) - entry_overhead(repo_root), 1)
 
 
+def chunk_blocks() -> int:
+    """Chunk blocks call-orchestrator.yml declares, the most a sweep may plan."""
+    return setting("INFINITO_CI_MAX_CHUNKS")
+
+
 def chunk_count(repo_root: Path | None = None) -> int:
     """Chunk blocks a sweep fills, capped by the blocks the YAML declares."""
     needed = math.ceil(available(repo_root) / chunk_size(repo_root))
-    return max(min(needed, setting("INFINITO_CI_MAX_CHUNKS")), 1)
+    return max(min(needed, chunk_blocks()), 1)
 
 
 def rows_per_sweep(repo_root: Path | None = None) -> int:
@@ -230,7 +236,7 @@ def render_matrix() -> str:
         ("job timeout (minutes)", job_timeout_minutes()),
         ("waves", waves()),
         ("chunk size", chunk_size()),
-        ("chunk blocks (INFINITO_CI_MAX_CHUNKS)", setting("INFINITO_CI_MAX_CHUNKS")),
+        ("chunk blocks (INFINITO_CI_MAX_CHUNKS)", chunk_blocks()),
         ("chunks filled", chunk_count()),
         ("rows per sweep", rows_per_sweep()),
     ]

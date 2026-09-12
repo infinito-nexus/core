@@ -60,7 +60,7 @@ make compose-deploy mode=reinstall apps=web-svc-mirror full_cycle=false
 
 ### Production
 
-Install Asset Mirror (Privacy Proxy) directly onto the target machine — clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):
+Install Asset Mirror (Privacy Proxy) directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):
 
 ```bash
 git clone https://github.com/infinito-nexus/core.git
@@ -70,6 +70,7 @@ make install
 source scripts/meta/env/load.sh
 
 APP=web-svc-mirror
+DOMAIN=<your-domain>
 TLS_MODE=self_signed
 SSH_PUBLIC_KEY="<your-ssh-public-key>"
 INVENTORY=inventories/production
@@ -77,7 +78,7 @@ infinito administration inventory provision "$INVENTORY" \
   --inventory-file "$INVENTORY/devices.yml" \
   --host localhost \
   --include "$APP" \
-  --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}"
+  --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}"
 infinito administration deploy dedicated "$INVENTORY/devices.yml" \
   --password-file "$INVENTORY/.password" \
   --diff -vv
@@ -90,6 +91,6 @@ infinito administration deploy dedicated "$INVENTORY/devices.yml" \
 
 ## Credits
 
-Implemented by **Kevin Veen-Birkenbach**.
+Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
 Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
 Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

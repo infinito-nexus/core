@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Web-based LDAP client for browsing, searching, and administering directory entries in LDAP servers

@@ -1,0 +1,2 @@
+---
+# nocheck: info-media Self-written infrastructure/glue role that generates Nginx (or Cloudflare) www-to-apex redirect config; no consumer-facing upstream product.

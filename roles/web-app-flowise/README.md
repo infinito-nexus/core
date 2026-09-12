@@ -15,6 +15,7 @@ The diagram places Flowise in the Infinito.Nexus cosmos: the components it deplo
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
+        dep_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
         dep_svc_ai_ollama["svc-ai-ollama 🐳🐝"]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
@@ -50,8 +51,11 @@ flowchart LR
         svc_container_backup["container_backup"]
     end
     subgraph dependents [Dependents]
-        dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]
+        dpt_svc_db_qdrant["svc-db-qdrant 🐳🐝"]
+        dpt_web_app_homeassistant["web-app-homeassistant 🐳🐝"]
+        dpt_web_app_prometheus["web-app-prometheus 🐳🐝"]
     end
+    dep_svc_ai_litellm -. "0..1" .-> svc_litellm
     dep_svc_ai_ollama -. "0..1" .-> svc_ollama
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_openldap -- "0..0" --> svc_ldap
@@ -66,8 +70,10 @@ flowchart LR
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_svc_css -. "0..1" .-> svc_css
     dep_web_svc_logout -. "0..1" .-> svc_logout
-    svc_logout -. "0..1" .-> dpt_web_app_nextcloud
-    linkStyle 2 stroke:red;
+    svc_logout -. "0..1" .-> dpt_svc_db_qdrant
+    svc_logout -. "0..1" .-> dpt_web_app_homeassistant
+    svc_logout -. "0..1" .-> dpt_web_app_prometheus
+    linkStyle 3 stroke:red;
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
@@ -79,6 +85,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 * Retrieval-augmented generation (RAG) with vector DBs (e.g., Qdrant)
 * Pluggable model backends via OpenAI-compatible API or direct Ollama
 * Keep data and prompts on your own infrastructure
+* **MCP client contract:** With an MCP server deployed alongside it, the role declares the MCP client side of the platform contract as an internal streamable-HTTP client with a read-only tool policy. The deploy registers every discovered provider in the instance-level `/api/v1/custom-mcp-servers` registry under an `infinito:` name, stores the bearer as an encrypted `CUSTOM_HEADERS` `authConfig`, authorizes each entry and compares the discovered tools against the provider's declared allowlist. `CUSTOM_MCP_PROTOCOL=sse` pins the deployment to URL-based MCP servers, so no flow can spawn a local stdio command. Reaching an MCP server whose URL resolves inside the container network requires `HTTP_SECURITY_CHECK=false` plus an `HTTP_DENY_LIST` that keeps loopback and the cloud-metadata addresses denied; both are rendered only while MCP servers are discovered, and the deploy proves the list is live by pointing a throwaway entry at each denied address. One managed Agentflow fixture calls a single named tool with fixed arguments and is executed on every deploy. Wiring a provider into a flow of your own stays an operator step.
 
 ## Quick Setup
 
@@ -100,19 +107,20 @@ Run the published image to provision the inventory and deploy Flowise to a manag
 ```bash
 APP=web-app-flowise
 HOST=<your-server>
+DOMAIN=<your-domain>
 TLS_MODE=self_signed
 SSH_PUBLIC_KEY="<your-ssh-public-key>"
 
 docker run --rm -it \
   -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  -e APP="$APP" -e HOST="$HOST" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
+  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
   ghcr.io/infinito-nexus/core/debian bash -c '
     INVENTORY=/etc/infinito.nexus/inventories/production
     infinito administration inventory provision "$INVENTORY" \
       --inventory-file "$INVENTORY/devices.yml" \
       --host "$HOST" \
       --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
+      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
     infinito administration deploy dedicated "$INVENTORY/devices.yml" \
       --password-file "$INVENTORY/.password" \
       --diff -vv'
@@ -124,6 +132,42 @@ docker run --rm -it \
 * Qdrant: [qdrant.tech](https://qdrant.tech)
 * LiteLLM: [litellm.ai](https://www.litellm.ai)
 * Ollama: [ollama.com](https://ollama.com)
+
+## MCP Client
+
+Flowise consumes MCP through the *Custom MCP* tool node, which is configured
+**inside a flow**. It exposes no instance-level registry API, so the role
+prepares the instance and leaves the per-flow wiring to the operator.
+
+### What the role does
+
+| Property | Value |
+| --- | --- |
+| Direction | `client` |
+| Transport | Streamable HTTP |
+| `CUSTOM_MCP_PROTOCOL` | `sse`, so no flow can spawn a local stdio command |
+| `HTTP_SECURITY_CHECK` | `false` while MCP servers are discovered |
+| `HTTP_DENY_LIST` | loopback and cloud-metadata addresses stay denied |
+
+Relaxing the security check is what lets a Custom MCP node reach a container
+hostname such as `http://baserow:80/mcp`; the deny list keeps loopback and the
+metadata endpoints unreachable.
+
+### What the role does not do
+
+It does not preregister servers and it ships no MCP Playwright spec, because
+neither has an instance-level surface to act on. Selecting a server inside a flow
+is a deliberate operator step.
+
+### Default state
+
+Off. `mcp.enabled` is false unless an MCP server role is part of the
+deployment.
+
+### How to disable
+
+Remove the MCP server roles, or pin `mcp.enabled: false` for this role.
+The security-check and deny-list overrides are then not rendered.
 
 ## Persona contract opt-outs
 

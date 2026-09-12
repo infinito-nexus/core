@@ -38,4 +38,6 @@ server
   {% endif %}
 
   {% include 'roles/web-app-prometheus/templates/nginx/locations.conf.j2' %}
+
+  {% include 'roles/sys-svc-proxy/templates/mcp/vhost.conf.j2' %}
 }

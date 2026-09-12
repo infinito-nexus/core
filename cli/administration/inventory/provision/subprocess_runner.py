@@ -7,10 +7,11 @@ def run_subprocess(
     cmd: list[str],
     capture_output: bool = False,
     env: dict[str, str] | None = None,
+    ok_returncodes: tuple[int, ...] = (0,),
 ) -> subprocess.CompletedProcess:
     """
     Run a subprocess command and either stream output or capture it.
-    Raise SystemExit on non-zero return code.
+    Raise SystemExit on a return code outside `ok_returncodes`.
     """
     if capture_output:
         result = subprocess.run(
@@ -19,7 +20,7 @@ def run_subprocess(
     else:
         result = subprocess.run(cmd, text=True, env=env, check=False)
 
-    if result.returncode != 0:
+    if result.returncode not in ok_returncodes:
         msg = f"Command failed: {' '.join(str(c) for c in cmd)}\n"
         if capture_output:
             msg += f"STDOUT:\n{result.stdout}\nSTDERR:\n{result.stderr}\n"

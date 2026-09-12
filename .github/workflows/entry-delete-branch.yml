@@ -15,13 +15,15 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  actions: write
   contents: read
 
 jobs:
   cancel-branch-runs:
     if: ${{ github.event.ref_type == 'branch' }}
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
     steps:
       - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0

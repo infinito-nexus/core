@@ -14,7 +14,7 @@ test("addon epubviewer: EPUB reader personal settings panel renders and reflects
   const page = await context.newPage();
 
   try {
-    await shared.loginToStandaloneNextcloudWithRetry(page);
+    await shared.loginToStandaloneNextcloud(page);
 
     const settingsUrl = new URL("settings/user/epubviewer", shared.env.nextcloudBaseUrl).toString();
     const response = await gotoOnion(page, settingsUrl, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });

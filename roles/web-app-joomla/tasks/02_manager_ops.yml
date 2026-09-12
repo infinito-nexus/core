@@ -1,4 +1,11 @@
 ---
+- name: "🔍 Resolve the node that holds '{{ JOOMLA_CONTAINER }}' and its local id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: JOOMLA
+    resolve_compose_cid: "{{ JOOMLA_CONTAINER_ADDRESS }}"
+
 - name: 📂 Include install routines
   include_tasks: "{{ joomla_step }}"
   loop:

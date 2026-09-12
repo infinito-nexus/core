@@ -20,5 +20,4 @@
     BUSYBOX_IMAGE: "{{ lookup('config', 'sys-svc-container', 'services.busybox.image') }}:{{ lookup('config', 'sys-svc-container', 'services.busybox.version') }}"
     NODE_IMAGE: "{{ '' if DEPLOYMENT_MODE == 'swarm' else lookup('config', 'sys-svc-container', 'services.node.image') ~ ':' ~ lookup('config', 'sys-svc-container',
       'services.node.version') }}"
-    DNS_IP: "{{ networks.internet.dns }}"
     DOMAIN: "{{ DOMAIN_PRIMARY }}"

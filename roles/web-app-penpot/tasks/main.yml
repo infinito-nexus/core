@@ -17,37 +17,7 @@
   ansible.builtin.meta: flush_handlers
 
 - name: "🥾 Bootstrap the Penpot administrator's local account"
-  when: IS_STACK_HOST | bool
-  block:
-    - name: "🥾 Bootstrap the Penpot administrator's local account (idempotent)"
-      when: PENPOT_NATIVE_LOGIN_ENABLED | bool
-      ansible.builtin.shell: >
-        container exec -i {{ PENPOT_BACKEND_CONTAINER_ADDRESS }}
-        python3 manage.py create-profile
-        -n {{ PENPOT_ADMIN_FULLNAME | quote }}
-        -e {{ PENPOT_ADMIN_EMAIL | quote }}
-        -p {{ PENPOT_ADMIN_PASSWORD | quote }}
-      register: penpot_admin_create
-      retries: 30
-      delay: 5
-      until: >-
-        penpot_admin_create.rc == 0 or
-        ('already exists' in (penpot_admin_create.stdout | default('') ~ penpot_admin_create.stderr | default('')))
-      changed_when: "'Created' in penpot_admin_create.stdout"
-      failed_when:
-        - penpot_admin_create.rc != 0
-        - "'already exists' not in (penpot_admin_create.stdout | default('') ~ penpot_admin_create.stderr | default(''))"
-      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-
-    - name: "🔧 Set the Penpot administrator's local password when the profile already exists"
-      ansible.builtin.shell: >
-        container exec -i {{ PENPOT_BACKEND_CONTAINER_ADDRESS }}
-        python3 manage.py update-profile
-        -e {{ PENPOT_ADMIN_EMAIL | quote }}
-        -p {{ PENPOT_ADMIN_PASSWORD | quote }}
-      when:
-        - PENPOT_NATIVE_LOGIN_ENABLED | bool
-        - "'already exists' in (penpot_admin_create.stdout | default('') ~ penpot_admin_create.stderr | default(''))"
-      register: penpot_admin_update
-      changed_when: "'Updated' in penpot_admin_update.stdout"
-      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  ansible.builtin.include_tasks: 01_administrator.yml
+  when:
+    - IS_STACK_HOST | bool
+    - PENPOT_NATIVE_LOGIN_ENABLED | bool

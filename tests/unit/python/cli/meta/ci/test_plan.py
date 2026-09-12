@@ -15,6 +15,7 @@ def _entry(
     identifier: str = "0",
     covered: str = "0",
     clone: bool = False,
+    instructions: str = "",
 ) -> dict:
     return {
         "apps": app,
@@ -23,7 +24,7 @@ def _entry(
         "tor": "true" if variant == "0" else "false",
         "disable": "",
         "priority": "true" if priority else "false",
-        "weight": "42",
+        "instructions": instructions,
         "id": identifier,
         "covered": covered,
         "clone": "true" if clone else "false",
@@ -67,6 +68,16 @@ class TestCells(unittest.TestCase):
         clone = plan._COLUMNS.index("clone")
         self.assertEqual(rows[0][clone], "")
         self.assertEqual(rows[-1][clone], to_emoji("clone"))
+
+    def test_the_instructions_column_names_the_mode_the_replay_runs_in(self) -> None:
+        entries = [
+            *_ENTRIES,
+            _entry("web-app-d", "0", "swarm", instructions="compose"),
+        ]
+        rows = plan.cells(entries, [_PRIORITY, _REGULAR])
+        column = plan._COLUMNS.index("instructions")
+        self.assertEqual(rows[0][column], "")
+        self.assertEqual(rows[-1][column], to_emoji("compose"))
 
     def test_the_mode_is_rendered_as_its_glyph(self) -> None:
         rows = plan.cells(_ENTRIES, [_PRIORITY, _REGULAR])

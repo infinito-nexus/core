@@ -13,6 +13,9 @@
     - (compose_mode_force | default('') or DEPLOYMENT_MODE) == 'compose'
     - lookup('database', application_id, 'enabled') | bool
 
+- name: "🔑 For '{{ application_id }}': realign a dedicated postgres"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-rdbms/tasks/utils/realign_dedicated_db.yml') }}"
+
 - name: "⏳ Wait until swarm tasks of '{{ application_id | get_entity_name }}' are running"
   ansible.builtin.script: "{{ lookup('path_absolute', 'roles/sys-svc-compose/files/shell/swarm/stack_ready.sh') }}"
   environment:

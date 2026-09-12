@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Clipboard manager with editable history, custom actions, and scripting support

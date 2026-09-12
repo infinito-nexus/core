@@ -1,0 +1,16 @@
+---
+classification: native_client
+direction: client
+source_url: https://hermes-agent.nousresearch.com/
+implementation: native
+supported_transports:
+  - streamable_http
+  - sse
+supported_auths:
+  - bearer_token
+  - app_password
+  - upstream_session
+  - basic_auth
+tools:
+  read_only_default: true
+  mutating_tools_enabled: false

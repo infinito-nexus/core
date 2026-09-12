@@ -22,6 +22,12 @@ nextcloud_system_config:
   - parameter: "trusted_domains 0"
     value: "{{ NEXTCLOUD_DOMAIN }}"
 
+  - parameter: "trusted_domains 1"
+    value: "{{ NEXTCLOUD_PROXY_SERVICE }}"
+
+  - parameter: "trusted_domains 2"
+    value: "{{ NEXTCLOUD_PROXY_DNS_NAME }}"
+
   - parameter: "overwrite.cli.url"
     value: "{{ NEXTCLOUD_URL }}"
 

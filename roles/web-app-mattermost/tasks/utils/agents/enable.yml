@@ -1,0 +1,20 @@
+---
+- name: "🧩 Mattermost | Activate the prepackaged Agents plugin"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ mattermost_agents_cid }}" # nocheck: container-exec-resolver
+      - /mattermost/bin/mmctl
+      - --local
+      - plugin
+      - enable
+      - "{{ MATTERMOST_MCP_PLUGIN_ID }}"
+  register: mattermost_agents_plugin_enable
+  retries: 60
+  delay: 5
+  until: mattermost_agents_plugin_enable.rc == 0
+  changed_when: false
+  delegate_to: "{{ mattermost_agents_node }}"
+  run_once: true

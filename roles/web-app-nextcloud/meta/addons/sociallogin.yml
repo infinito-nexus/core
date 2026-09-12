@@ -31,7 +31,7 @@ config:
       configkey: "custom_providers"
       configvalue:
         custom_oidc:
-          - name: "{{ lookup('domain','web-app-keycloak') }}"
+          - name: "{{ lookup('bounded_name', 'web-app-keycloak', 64 - 1 - 36) }}"
             title: "keycloak"
             style: "keycloak"
             authorizeUrl: "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
@@ -41,8 +41,10 @@ config:
             logoutUrl: "{{ OIDC.CLIENT.LOGOUT_URL }}"
             clientId: "{{ OIDC.CLIENT.ID }}"
             clientSecret: "{{ OIDC.CLIENT.SECRET }}"
-            scope: "openid"
-            groupsClaim: ""
+            scope: "openid {{ RBAC.GROUP.CLAIM }}"
+            groupsClaim: "{{ RBAC.GROUP.CLAIM }}"
+            groupMapping: >-
+              {{ { '/' ~ lookup('rbac_group_path', application_id=application_id, role='administrator'): 'admin' } }}
             defaultGroup: ""
     - appid: "sociallogin"
       configkey: "disable_notify_admins"

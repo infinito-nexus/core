@@ -6,7 +6,6 @@ DEPLOYMENT_MODE, and the `storage` mapping from the templating context.
 from __future__ import annotations
 
 import contextlib
-from collections.abc import Mapping, Sequence
 from typing import Any
 
 from ansible.errors import AnsibleError, AnsibleFilterError
@@ -28,33 +27,13 @@ from utils.roles.applications.mounts import (
     normalize_volumes_meta,
 )
 from utils.roles.applications.services.database import (
+    REALIGN_CONFIG_KEY,
     get_database_service_config,
     resolve_database_service_key,
 )
 from utils.roles.applications.services.sso import get_sso_config
 from utils.storage.nfs import swarm_nfs_backed
-from utils.templating.ansible import _trust_as_template
-
-
-def _to_plain(obj: Any) -> Any:
-    """Convert Ansible/Jinja proxy types into plain Python so PyYAML can serialize."""
-
-    if obj is None:
-        return None
-
-    if isinstance(obj, str):
-        return str(obj)
-
-    if isinstance(obj, (int, float, bool)):
-        return obj
-
-    if isinstance(obj, Mapping):
-        return {str(_to_plain(k)): _to_plain(v) for k, v in obj.items()}
-
-    if isinstance(obj, Sequence) and not isinstance(obj, (str, bytes, bytearray)):
-        return [_to_plain(x) for x in obj]
-
-    return str(obj)
+from utils.templating.ansible import _trust_as_template, to_plain
 
 
 def _resolve_database_volume_name(
@@ -220,10 +199,15 @@ def compose_volumes(
 
     if extra_volumes:
         volumes.update(extra_volumes)
-    if extra_configs:
-        configs.update(extra_configs)
-    if extra_secrets:
-        secrets.update(extra_secrets)
+    for section, extra in ((configs, extra_configs), (secrets, extra_secrets)):
+        for key, spec in (extra or {}).items():
+            named = spec
+            if isinstance(spec, dict) and spec.get("file") and not spec.get("name"):
+                named = {
+                    **spec,
+                    "name": _config_secret_name(role_entity, key, str(spec["file"])),
+                }
+            section[key] = named
 
     role_data = applications.get(application_id) or {}
     raw_meta_volumes = (
@@ -288,16 +272,63 @@ def compose_volumes(
             if isinstance(nfs_meta, dict):
                 vol_spec["x-infinito-nfs"] = dict(nfs_meta)
 
-    payload: dict[str, Any] = {"volumes": _to_plain(volumes)}
+    payload: dict[str, Any] = {"volumes": to_plain(volumes)}
     if configs:
-        payload["configs"] = _to_plain(configs)
+        payload["configs"] = to_plain(configs)
     if secrets:
-        payload["secrets"] = _to_plain(secrets)
+        payload["secrets"] = to_plain(secrets)
 
     return dump_yaml_str(payload).rstrip()
 
 
 class LookupModule(LookupBase):
+    def _with_database_realign(
+        self,
+        applications: dict[str, Any],
+        application_id: str,
+        vars_: dict[str, Any],
+        extra_configs: dict[str, Any] | None,
+    ) -> dict[str, Any] | None:
+        """Add the realignment statements an app's own mariadb reads at start.
+
+        Args:
+            applications: the merged applications mapping.
+            application_id: the app whose stack is being rendered.
+            vars_: the variables in scope for the lookup.
+            extra_configs: configs a caller already supplied.
+
+        The file lands as a config rather than a bind mount because a swarm task
+        may run on a node the source path does not exist on.
+
+        A role declaring two engines is left to ``compose_volumes``, which turns
+        the same ValueError into the message that says which one to drop.
+        """
+        try:
+            database_service_key = resolve_database_service_key(
+                applications, application_id
+            )
+        except ValueError:
+            return extra_configs
+        if database_service_key != "mariadb":
+            return extra_configs
+        if get_database_service_config(applications, application_id).get("shared"):
+            return extra_configs
+
+        source = lookup_loader.get(
+            "database", loader=self._loader, templar=getattr(self, "_templar", None)
+        ).run([application_id, "realign_sql"], variables=vars_)[0]
+        if not source:
+            return extra_configs
+
+        entity = get_entity_name(application_id)
+        return {
+            **(extra_configs or {}),
+            REALIGN_CONFIG_KEY: {
+                "name": _config_secret_name(entity, REALIGN_CONFIG_KEY, source),
+                "file": source,
+            },
+        }
+
     def run(
         self,
         terms: list[Any] | None,
@@ -366,7 +397,9 @@ class LookupModule(LookupBase):
             applications,
             application_id,
             extra_volumes=kwargs.get("extra_volumes"),
-            extra_configs=kwargs.get("extra_configs"),
+            extra_configs=self._with_database_realign(
+                applications, application_id, vars_, kwargs.get("extra_configs")
+            ),
             extra_secrets=kwargs.get("extra_secrets"),
             deployment_mode=str(deployment_mode).strip(),
             storage=storage,

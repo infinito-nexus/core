@@ -30,17 +30,14 @@ async function signInAsApiBot(page) {
 
   const apiRequest = page.context().request;
 
-  const seed = await apiRequest.get(`${zammadBaseUrl}/api/v1/getting_started`, {
+  // Exception: /api/v1/getting_started answers 403 since Zammad 7.0; signshow is the unauthenticated csrf seed.
+  const seed = await apiRequest.get(`${zammadBaseUrl}/api/v1/signshow`, {
     headers: { Accept: "application/json" },
     failOnStatusCode: true,
   });
-  let csrfToken = seed.headers()["csrf-token"];
+  const csrfToken = seed.headers()["csrf-token"];
   if (!csrfToken) {
-    const seedJson = await seed.json().catch(() => null);
-    csrfToken = seedJson?.csrf_token;
-  }
-  if (!csrfToken) {
-    throw new Error("could not lift csrf_token from getting_started");
+    throw new Error("could not lift the csrf token from signshow");
   }
 
   const signin = await apiRequest.post(`${zammadBaseUrl}/api/v1/signin`, {

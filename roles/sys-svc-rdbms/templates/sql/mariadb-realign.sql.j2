@@ -1,0 +1,2 @@
+ALTER USER IF EXISTS '{{ lookup('database', application_id, 'username') }}'@'%'
+  IDENTIFIED BY '{{ lookup('database', application_id, 'password') }}';

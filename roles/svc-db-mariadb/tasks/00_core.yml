@@ -43,7 +43,7 @@
       failed_when: false
       retries: 30
       delay: 5
-      until: mariadb_login_desired.rc == 0
+      until: mariadb_login_desired.rc == 0 or 'Access denied' in mariadb_login_desired.stderr
 
     - name: "✅ Ensure MariaDB root password matches desired value"
       include_tasks: 02_reset_root_password.yml

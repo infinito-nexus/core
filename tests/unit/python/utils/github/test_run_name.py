@@ -128,7 +128,6 @@ class DeclaredTemplateTests(unittest.TestCase):
         dispatched = {
             "chunk_gate": "true",
             "workspace": "true",
-            "instructions": "false",
             "filesystem": "ext4",
             "distros": "debian arch",
             "lifecycles": "stable",

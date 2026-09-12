@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
-import subprocess
+import tempfile
 import unittest
 import unittest.mock
+from pathlib import Path
+
+from ansible.errors import AnsibleError
 
 from cli.administration.inventory.credentials.vault import (
     _make_vault_scalar_from_text,
@@ -98,27 +101,46 @@ class TestVaultHandlerIntegration(unittest.TestCase):
     """Black-box coverage of the VaultHandler that ``to_vault_block``
     delegates to for plaintext encryption."""
 
-    def test_encrypt_string_success(self):
-        handler = VaultHandler("dummy_pw_file")
-        fake_output = "Encrypted data"
-        completed = subprocess.CompletedProcess(
-            args=["ansible-vault"], returncode=0, stdout=fake_output, stderr=""
-        )
-        with unittest.mock.patch("subprocess.run", return_value=completed) as proc_run:
-            result = handler.encrypt_string("plain_val", "name")
-            proc_run.assert_called_once()
-            self.assertEqual(result, fake_output)
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.password_file = Path(self._tmp.name) / "vault.pw"
+        self.password_file.write_text("unit-test-vault-password\n", encoding="utf-8")
+        self.handler = VaultHandler(str(self.password_file))
 
-    def test_encrypt_string_failure_raises(self):
-        handler = VaultHandler("dummy_pw_file")
-        completed = subprocess.CompletedProcess(
-            args=["ansible-vault"], returncode=1, stdout="", stderr="error"
+    def test_encrypt_string_round_trips_through_the_vault(self):
+        snippet = self.handler.encrypt_string("plain_val", "name")
+        body = "\n".join(line.strip() for line in snippet.splitlines()[1:])
+        self.assertEqual(self.handler._vault.decrypt(body).decode(), "plain_val")
+
+    def test_encrypt_string_keeps_the_layout_encrypt_leaves_unindents(self):
+        lines = self.handler.encrypt_string("plain_val", "name").splitlines()
+        self.assertEqual(
+            lines[0], "name: !vault |", "first line must stay the YAML key and tag"
         )
-        with (
-            unittest.mock.patch("subprocess.run", return_value=completed),
-            self.assertRaises(RuntimeError),
-        ):
-            handler.encrypt_string("plain_val", "name")
+        indents = {len(line) - len(line.lstrip()) for line in lines[1:]}
+        self.assertEqual(
+            indents, {10}, "encrypt_leaves strips a uniform body indent of 10"
+        )
+        self.assertEqual(lines[1].strip(), "$ANSIBLE_VAULT;1.1;AES256")
+
+    def test_values_that_look_like_flags_still_encrypt(self):
+        for value in ("-leading-dash", "--stdin-name"):
+            with self.subTest(value=value):
+                snippet = self.handler.encrypt_string(value, "k")
+                body = "\n".join(line.strip() for line in snippet.splitlines()[1:])
+                self.assertEqual(self.handler._vault.decrypt(body).decode(), value)
+
+    def test_missing_password_file_raises(self):
+        with self.assertRaises(AnsibleError):
+            VaultHandler("dummy_pw_file").encrypt_string("plain_val", "name")
+
+    def test_password_file_whitespace_is_stripped_like_ansible_does(self):
+        padded = Path(self._tmp.name) / "padded.pw"
+        padded.write_text("  unit-test-vault-password  \n", encoding="utf-8")
+        snippet = VaultHandler(str(padded)).encrypt_string("plain_val", "name")
+        body = "\n".join(line.strip() for line in snippet.splitlines()[1:])
+        self.assertEqual(self.handler._vault.decrypt(body).decode(), "plain_val")
 
 
 if __name__ == "__main__":  # pragma: no cover

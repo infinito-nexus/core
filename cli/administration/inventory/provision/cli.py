@@ -21,6 +21,7 @@ from .passwords import generate_random_password
 from .project import build_env_with_project_root, detect_project_root
 from .services_disabler import apply_services_disabled_from_env
 from .tor_node import apply_tor_node_onion
+from .users_generator import generate_user_passwords
 from .yaml_io import dump_yaml, load_yaml
 
 
@@ -236,6 +237,18 @@ def main(argv: list[str] | None = None) -> int:
         vault_password_file=vault_password_file,
         become_password=args.become_password,
     )
+
+    print(
+        f"[INFO] Pinning a password for every user the {len(application_ids)} "
+        "resolved applications declare..."
+    )
+    pinned = generate_user_passwords(
+        roles_dir=roles_dir,
+        application_ids=application_ids,
+        host_vars_file=host_vars_file,
+        vault_password_file=vault_password_file,
+    )
+    print(f"[INFO] Pinned {pinned} user password(s)")
 
     app_variants: dict[str, int] = {}
     if args.app_variants:

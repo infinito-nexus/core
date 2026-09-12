@@ -1,0 +1,91 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🛑 Refuse an unnamed sandbox tier"
+  ansible.builtin.assert:
+    that:
+      - groups['svc-virt-kata'] is defined
+    fail_msg: >-
+      Swarm drops the per-service runtime key, so a sandboxed workload can only
+      run where the node itself defaults to the sandbox runtime. Name those
+      nodes: declare an svc-virt-kata group in the inventory. Without it this
+      role runs on every host, every worker becomes a sandbox node, and the
+      rest of the platform is evacuated onto the stack host.
+  when: DEPLOYMENT_MODE == 'swarm'
+
+- name: "📦 Install the gVisor userspace kernel (runsc)"
+  get_url_retry:
+    url: "{{ SVC_VIRT_KATA_RUNSC_URL }}"
+    checksum: "sha512:{{ SVC_VIRT_KATA_RUNSC_URL }}.sha512"
+    dest: "{{ RUNSC_SHIM_BINARY }}"
+    mode: "0755"
+    owner: root
+    group: root
+  become: true
+
+- name: "🐳 Ensure the container daemon itself is installed"
+  ansible.builtin.include_role:
+    name: sys-svc-container
+
+- name: "🔧 Register the runtimes with the container daemon"
+  ansible.builtin.include_role:
+    name: sys-svc-container
+    tasks_from: daemon_config.yml
+
+- name: "🔄 Restart the container daemon onto the sandbox runtime"
+  meta: flush_handlers
+
+- name: "🔍 Read the runtime this node now defaults to"
+  ansible.builtin.command: >-
+    container info --format {{ '{{.DefaultRuntime}}' }}
+  register: svc_virt_kata_default_runtime
+  changed_when: false
+  when:
+    - DEPLOYMENT_MODE == 'swarm'
+    - not (IS_STACK_HOST | bool)
+
+- name: "🛑 Refuse a sandbox node that still defaults to the shared kernel"
+  ansible.builtin.assert:
+    that:
+      - (svc_virt_kata_default_runtime.stdout | trim) != 'runc'
+    fail_msg: >-
+      This node is about to be labelled {{ SANDBOX_NODE_LABEL }}=true, which
+      routes every sandboxed service here, but its daemon still defaults to
+      '{{ svc_virt_kata_default_runtime.stdout | trim }}'. Swarm drops the
+      per-service runtime key, so the label would promise an isolation the node
+      cannot deliver and the agents would run on the host kernel.
+  when:
+    - DEPLOYMENT_MODE == 'swarm'
+    - not (IS_STACK_HOST | bool)
+
+- name: "🏷️ Label this node as kata-capable"
+  ansible.builtin.command: >-
+    container node update --label-add {{ SANDBOX_NODE_LABEL }}=true
+    {{ ansible_facts['hostname'] }}
+  register: svc_virt_kata_label
+  changed_when: svc_virt_kata_label.rc == 0
+  delegate_to: "{{ STACK_HOST }}"
+  when:
+    - DEPLOYMENT_MODE == 'swarm'
+    - not (IS_STACK_HOST | bool)
+
+- name: "🔍 Read back the nodes that carry the sandbox label"
+  ansible.builtin.command: >-
+    container node ls --filter node.label={{ SANDBOX_NODE_LABEL }}=true --quiet
+  register: svc_virt_kata_labelled_nodes
+  changed_when: false
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  when: DEPLOYMENT_MODE == 'swarm'
+
+- name: "🛑 Refuse to promise isolation that no node can carry"
+  ansible.builtin.assert:
+    that:
+      - svc_virt_kata_labelled_nodes.stdout_lines | length > 0
+    fail_msg: >-
+      No node carries {{ SANDBOX_NODE_LABEL }}=true, so the placement constraint
+      of every sandboxed service matches nothing and the deploy would hang until
+      the convergence wait gives up. This role writes the label on every node it
+      runs on except the stack host, so put svc-virt-kata on at least one worker.
+  run_once: true
+  when: DEPLOYMENT_MODE == 'swarm'

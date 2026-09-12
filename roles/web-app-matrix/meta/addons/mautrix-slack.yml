@@ -9,6 +9,7 @@ update:
   upstream_id: mautrix-slack
 config:
   bridge_name: "slack"
+  appservice_port: 29335
   database_username: "mautrix_slack_bridge"
   database_name: "mautrix_slack_bridge"
   database_password: "{{ lookup('config', 'web-app-matrix', 'secrets.credentials.mautrix_slack_bridge_database_password', '') }}"

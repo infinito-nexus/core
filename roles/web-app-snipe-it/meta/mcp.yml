@@ -1,0 +1,41 @@
+---
+classification: adapter_server
+direction: server
+source_url: https://s.infinito.nexus/code
+transport: streamable_http
+exposure: internal
+auth: bearer_token
+auth_subject: service_account
+implementation: adapter
+credential:
+  owner: mcp-web-app-snipe-it
+  source: credentials
+  key: mcp_bearer
+endpoint:
+  service_key: snipeitmcp
+  path: /mcp
+  port_key: http
+adapter:
+  type: openapi_allowlist
+  upstream_api_version: v1
+  specification_path: roles/web-app-snipe-it/files/mcp/tools.json
+  specification_sha256: sha256:df8192bba2cb4c6152b00774cb5b8c001eaf3ad825aa04fb607406be449b2ad1
+limits:
+  request_bytes: 65536
+  response_bytes: 1048576
+  timeout_seconds: 15
+  concurrent_requests: 4
+  page_size: 100
+  result_items: 100
+  stream_seconds: 300
+tools:
+  read_probe:
+    tool: snipeit_get_license_summary
+    arguments: {}
+  allowlist:
+    - snipeit_get_asset
+    - snipeit_get_license_summary
+    - snipeit_search_assets
+  schema_sha256: sha256:2be4a919c8bb48856bef09101004818851add90d8d85fc7af5265343e8044766
+  read_only_default: true
+  mutating_tools_enabled: false

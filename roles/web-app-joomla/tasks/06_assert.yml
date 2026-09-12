@@ -1,5 +1,6 @@
 ---
 - name: "🧹 PHP lint configuration.php"
-  shell: >
-    container exec {{ JOOMLA_CONTAINER_ADDRESS }} php -l {{ JOOMLA_CONFIG_FILE }}
+  shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ JOOMLA_LOCAL_CID | quote }} php -l {{ JOOMLA_CONFIG_FILE }}
   changed_when: false
+  delegate_to: "{{ JOOMLA_HOST_NODE }}"

@@ -24,6 +24,7 @@ http
   proxy_cache_path {{ lookup('nginx','directories.cache.image') }} levels=1:2 keys_zone=imgcache:10m inactive=60m use_temp_path=off;
   server_names_hash_bucket_size 128;  # size of each bucket for server_name lookups (in bytes)
   server_names_hash_max_size    512;  # maximum total buckets for the server_name hash table
+{% include 'roles/sys-svc-proxy/templates/headers/buffers.conf.j2' %}
 {% if MODE_DEBUG | bool %}
   log_format debug '$host - $remote_addr [$time_local] '
                   '"$request" $status $body_bytes_sent '

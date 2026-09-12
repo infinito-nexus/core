@@ -90,6 +90,44 @@ class TestLoadUserDefs(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "Conflict for user 'shared'"):
                 cache_users._load_user_defs(roles)
 
+    def test_two_roles_register_a_token_for_the_same_user(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = Path(tmp) / "roles"
+            _write(
+                roles / "web-app-a" / ROLE_FILE_META_USERS,
+                """
+                administrator: {tokens: {web-app-a: ""}}
+                """,
+            )
+            _write(
+                roles / "web-app-b" / ROLE_FILE_META_USERS,
+                """
+                administrator: {tokens: {web-app-b: ""}}
+                """,
+            )
+            defs = cache_users._load_user_defs(roles)
+            self.assertEqual(
+                sorted(defs["administrator"]["tokens"]), ["web-app-a", "web-app-b"]
+            )
+
+    def test_the_same_token_key_with_two_values_still_conflicts(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = Path(tmp) / "roles"
+            _write(
+                roles / "web-app-a" / ROLE_FILE_META_USERS,
+                """
+                administrator: {tokens: {shared-app: from-a}}
+                """,
+            )
+            _write(
+                roles / "web-app-b" / ROLE_FILE_META_USERS,
+                """
+                administrator: {tokens: {shared-app: from-b}}
+                """,
+            )
+            with self.assertRaisesRegex(ValueError, "tokens.shared-app"):
+                cache_users._load_user_defs(roles)
+
 
 class TestBuildUsers(unittest.TestCase):
     def test_allocates_distinct_uids_for_users_without_explicit_uid(self):
@@ -272,7 +310,7 @@ class TestMaterializeBuiltinUserAliases(unittest.TestCase):
         }
         out = cache_users._materialize_builtin_user_aliases(
             users,
-            variables={"DOMAIN_PRIMARY": "infinito.example"},
+            variables={"DOMAIN_PRIMARY": "infinito.test"},
             templar=None,
         )
         self.assertEqual(out["sld"]["username"], "infinito")

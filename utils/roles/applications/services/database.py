@@ -7,6 +7,9 @@ if TYPE_CHECKING:
 
 RDBMS_SERVICE_KEYS = ("mariadb", "postgres")
 
+REALIGN_CONFIG_KEY = "database_realign"
+REALIGN_TARGET = "/etc/mysql/realign.sql"
+
 
 def _as_mapping(value: Any) -> dict[str, Any]:
     return value if isinstance(value, dict) else {}

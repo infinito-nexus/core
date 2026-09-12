@@ -179,12 +179,12 @@ class TestBuild(unittest.TestCase):
     def test_each_flavor_brings_its_own_timings(self):
         self.assertEqual("10s", block("curl", port=80)["timeout"])
         self.assertEqual("3s", block("nc", port=80)["timeout"])
-        self.assertEqual("120s", block("msmtp_curl", port=80)["start_period"])
+        self.assertEqual("20s", block("msmtp_curl", port=80)["timeout"])
 
     def test_the_service_entry_overrides_any_timing(self):
         got = block("curl", {"start_period": "20m", "retries": 9}, port=80)
         self.assertEqual(
-            ("20m", 9, "1m"), (got["start_period"], got["retries"], got["interval"])
+            ("20m", 9, "2m"), (got["start_period"], got["retries"], got["interval"])
         )
 
     def test_an_empty_flavor_takes_the_explicit_test_argv(self):
@@ -240,11 +240,11 @@ class TestBuild(unittest.TestCase):
         composed = block(["msmtp", "connect"], port=9000)
         self.assertEqual("15m", composed["start_period"])
         self.assertEqual("15m", block("connect", port=9000)["start_period"])
-        self.assertEqual("120s", block(["msmtp", "curl"], port=80)["start_period"])
-        self.assertEqual("30s", block("curl", port=80)["start_period"])
+        self.assertEqual("20s", block(["msmtp", "curl"], port=80)["timeout"])
+        self.assertEqual("10s", block("curl", port=80)["timeout"])
 
     def test_composing_takes_the_probes_interval(self):
-        self.assertEqual("1m", block(["msmtp", "curl"], port=80)["interval"])
+        self.assertEqual("2m", block(["msmtp", "curl"], port=80)["interval"])
 
     def test_http_status_inherits_the_request_builder_from_tcp(self):
         self.assertTrue(issubclass(HttpStatus, Tcp))

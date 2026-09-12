@@ -17,5 +17,7 @@ USER jenkins
 COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
 RUN jenkins-plugin-cli --plugin-file /usr/share/jenkins/ref/plugins.txt
 
+COPY mcp-api-token.groovy /usr/share/jenkins/ref/init.groovy.d/mcp-api-token.groovy.override
+
 ENTRYPOINT ["/usr/local/bin/java-with-ca-trust.sh"]
 CMD ["/usr/local/bin/jenkins.sh"]

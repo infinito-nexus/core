@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles

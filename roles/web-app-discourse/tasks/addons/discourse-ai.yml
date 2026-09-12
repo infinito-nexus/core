@@ -1,0 +1,46 @@
+---
+- name: "🔐 Verify the gateway contract for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
+
+- name: "🤖 Register the platform gateway as the Discourse AI model"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ DISCOURSE_CONTAINER }}" # nocheck: container-exec-resolver  the launcher names the container itself, so the bare name resolves in both modes
+      - rails
+      - r
+      - "{{ lookup('template', 'ai_gateway/register.rb.j2') }}"
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔎 Read the Discourse AI model back out of the running instance"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ DISCOURSE_CONTAINER }}" # nocheck: container-exec-resolver  the launcher names the container itself, so the bare name resolves in both modes
+      - rails
+      - r
+      - "{{ lookup('template', 'ai_gateway/verify.rb.j2') }}"
+  register: discourse_ai_readback
+  changed_when: false
+
+- name: "🛑 Refuse a Discourse AI surface that does not answer through the gateway"
+  ansible.builtin.assert:
+    that:
+      - "('ai_gateway_url=' ~ DISCOURSE_LITELLM_CHAT_ENDPOINT) in discourse_ai_readback.stdout_lines"
+      - "('ai_gateway_model=' ~ LITELLM_CHAT_MODEL) in discourse_ai_readback.stdout_lines"
+      - "'ai_gateway_provider=open_ai' in discourse_ai_readback.stdout_lines"
+      - "'ai_gateway_key_configured=true' in discourse_ai_readback.stdout_lines"
+      - "'ai_gateway_host_allowed=true' in discourse_ai_readback.stdout_lines"
+      - "'ai_gateway_default_bound=true' in discourse_ai_readback.stdout_lines"
+      - "'ai_gateway_bot_bound=true' in discourse_ai_readback.stdout_lines"
+      - "'ai_gateway_plugin_enabled=true' in discourse_ai_readback.stdout_lines"
+    fail_msg: >-
+      The Discourse AI model '{{ DISCOURSE_AI_LLM_DISPLAY_NAME }}' does not resolve to
+      {{ DISCOURSE_LITELLM_CHAT_ENDPOINT }} on model {{ LITELLM_CHAT_MODEL }} with a
+      non-empty virtual key, '{{ DISCOURSE_LITELLM_HOST }}' allowlisted in
+      allowed_internal_hosts and the row bound to ai_default_llm_model, so prompts
+      would either leave the deployment or hit a dead surface. Read back:
+      {{ discourse_ai_readback.stdout_lines }}

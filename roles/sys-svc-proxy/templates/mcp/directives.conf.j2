@@ -1,0 +1,4 @@
+  limit_req  zone={{ mcp_zone }}_req burst={{ mcp_limits.concurrent_requests }} nodelay;
+  limit_conn {{ mcp_zone }}_conn {{ mcp_limits.concurrent_requests }};
+  limit_req_status  429;
+  limit_conn_status 429;

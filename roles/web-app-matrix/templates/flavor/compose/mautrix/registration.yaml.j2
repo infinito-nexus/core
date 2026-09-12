@@ -1,0 +1,20 @@
+{% set bridge = lookup('template', lookup('path_absolute', 'roles/web-app-matrix/templates/flavor/compose/mautrix/' ~ item.bridge_name ~ '.config.yml.j2')) | from_yaml %}
+{% set appservice = bridge.appservice %}
+{% set domain = bridge.homeserver.domain | string | regex_escape %}
+{% set ghost = appservice.username_template.split('{{.}}') %}
+{{ {
+  'id': appservice.id,
+  'url': appservice.address,
+  'as_token': appservice.as_token,
+  'hs_token': appservice.hs_token,
+  'sender_localpart': '_bot_' ~ appservice.bot.username,
+  'rate_limited': false,
+  'namespaces': {
+    'users': [
+      {'regex': '^@' ~ (appservice.bot.username | regex_escape) ~ ':' ~ domain ~ '$', 'exclusive': true},
+      {'regex': '^@' ~ (ghost[0] | regex_escape) ~ '.*' ~ (ghost[1] | regex_escape) ~ ':' ~ domain ~ '$', 'exclusive': true},
+    ],
+  },
+  'de.sorunome.msc2409.push_ephemeral': appservice.ephemeral_events,
+  'receive_ephemeral': appservice.ephemeral_events,
+} | to_nice_yaml(indent=2) }}

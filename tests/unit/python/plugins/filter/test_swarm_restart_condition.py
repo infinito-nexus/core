@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import unittest
 
-from plugins.filter.swarm_restart_condition import (
+from plugins.filter.swarm.restart_condition import (
     FilterModule,
     swarm_restart_condition,
 )

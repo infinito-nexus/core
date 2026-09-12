@@ -44,6 +44,42 @@ def _cp(cmd, rc=0, stdout=b"", stderr=b""):
     return subprocess.CompletedProcess(cmd, rc, stdout, stderr)
 
 
+class InZoneProbeTests(unittest.TestCase):
+    """The probe is a shell one-liner, so run it: svc-net-tor keeps the onion
+    zone in a drop-in and leaves only a conf-dir pointer in the main file."""
+
+    def _zone(self, main: Path) -> str:
+        probe = _load()._INZONE_PROBE.replace("/etc/dnsmasq.conf", str(main))
+        inner = probe.split("rescue-probe.$(", 1)[1].rsplit(")", 1)[0]
+        proc = subprocess.run(
+            ["sh", "-c", inner], capture_output=True, text=True, check=False
+        )
+        return proc.stdout.strip()
+
+    def test_a_zone_in_a_drop_in_is_found(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            drop_ins = Path(tmp) / "dnsmasq.d"
+            drop_ins.mkdir()
+            (drop_ins / "tor-onion.conf").write_text(
+                "address=/abc123.onion/127.0.0.1\n", encoding="utf-8"
+            )
+            main = Path(tmp) / "dnsmasq.conf"
+            main.write_text(f"conf-dir={drop_ins},*.conf\n", encoding="utf-8")
+            self.assertEqual(self._zone(main), "abc123.onion")
+
+    def test_a_zone_in_the_main_file_still_wins(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            main = Path(tmp) / "dnsmasq.conf"
+            main.write_text("address=/infinito.test/192.0.2.1\n", encoding="utf-8")
+            self.assertEqual(self._zone(main), "infinito.test")
+
+    def test_a_config_without_a_zone_yields_nothing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            main = Path(tmp) / "dnsmasq.conf"
+            main.write_text("no-resolv\nserver=192.0.2.1\n", encoding="utf-8")
+            self.assertEqual(self._zone(main), "")
+
+
 class HelperTests(unittest.TestCase):
     def test_sanitize_replaces_unsafe_chars(self):
         mod = _load()

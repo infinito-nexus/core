@@ -5,6 +5,7 @@ Internal layout (one module per responsibility):
 * :mod:`.run`   — :func:`_run_deploy`, one deploy pass inside the container
 * :mod:`.drill` — :func:`_maybe_recover_drill`, backup/recover verification
 * :mod:`.purge` — :func:`_purge_app_entities`, inter-round entity cleanup
+* :mod:`.rotate` — :func:`_rotate_credentials`, inter-pass credential rotation
 * :mod:`.cli`   — :func:`add_parser` + :func:`handler`, arg parsing and the
   round/pass orchestration loop
 

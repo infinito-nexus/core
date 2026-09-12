@@ -22,7 +22,7 @@ from utils.roles.applications.mounts import (
     mount_when_passes,
     normalize_volumes_meta,
 )
-from utils.templating.ansible import _trust_as_template
+from utils.templating.ansible import _trust_as_template, to_plain
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -43,6 +43,37 @@ def _coerce_mode_int(value: Any) -> int:
     except ValueError as exc:
         raise AnsibleFilterError(
             f"container_volumes: mode {value!r} is not a valid octal: {exc}"
+        ) from exc
+
+
+_SIZE_UNITS = {"": 1, "b": 1, "k": 1024, "m": 1024**2, "g": 1024**3}
+
+
+def _coerce_size_bytes(value: Any) -> int:
+    """Return a tmpfs size as the byte count the long-form mount demands.
+
+    A declaration reads ``512m`` because that is how a human writes it and how
+    the short form accepts it. The long form takes an integer, and compose
+    rejects the string outright rather than parsing it, so the suffix has to be
+    resolved here.
+    """
+    if isinstance(value, bool):
+        raise AnsibleFilterError(
+            f"container_volumes: size must be an int or a size string, got bool: {value!r}"
+        )
+    if isinstance(value, int):
+        return value
+    text = str(value).strip().lower()
+    if not text:
+        raise AnsibleFilterError("container_volumes: size is empty")
+    number, unit = text[:-1], text[-1]
+    if unit.isdigit():
+        number, unit = text, ""
+    try:
+        return int(number) * _SIZE_UNITS[unit]
+    except (ValueError, KeyError) as exc:
+        raise AnsibleFilterError(
+            f"container_volumes: size {value!r} is not a byte count: {exc}"
         ) from exc
 
 
@@ -138,8 +169,13 @@ def container_volumes(
                     "type": "tmpfs",
                     "target": target,
                 }
+                tmpfs_options: dict[str, Any] = {}
                 if mount.get("size") is not None:
-                    tmpfs_entry["tmpfs"] = {"size": mount["size"]}
+                    tmpfs_options["size"] = _coerce_size_bytes(mount["size"])
+                if mount.get("mode") is not None:
+                    tmpfs_options["mode"] = _coerce_mode_int(mount["mode"])
+                if tmpfs_options:
+                    tmpfs_entry["tmpfs"] = tmpfs_options
                 volumes_block.append(tmpfs_entry)
 
             elif vtype == "config":
@@ -157,11 +193,11 @@ def container_volumes(
                 secrets_block.append(sec_ref)
 
     if extra_volumes:
-        volumes_block.extend(extra_volumes)
+        volumes_block.extend(to_plain(extra_volumes))
     if extra_configs:
-        configs_block.extend(extra_configs)
+        configs_block.extend(to_plain(extra_configs))
     if extra_secrets:
-        secrets_block.extend(extra_secrets)
+        secrets_block.extend(to_plain(extra_secrets))
 
     payload: dict[str, Any] = {}
     if volumes_block:

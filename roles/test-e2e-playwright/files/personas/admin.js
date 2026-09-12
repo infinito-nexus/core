@@ -11,8 +11,21 @@ const {
   assertUnauthenticatedLanding,
   assertCspInjections,
   runRoleInteraction,
+  hostnameOf,
   LOGIN_CONTROL_NAME,
 } = require("./utils");
+
+async function readCredentialRejection(page) {
+  const text = await page
+    .locator(
+      "[role='alert']:visible, .alert:visible, .error:visible, .v-alert:visible, [class*='error']:visible",
+    )
+    .first()
+    .innerText({ timeout: resolveTimeout(2_000) })
+    .catch(() => "");
+  const line = text.trim().split("\n")[0].slice(0, 200);
+  return /invalid|incorrect|wrong|failed|denied|do(es)? not match/i.test(line) ? line : "";
+}
 
 async function runAdminFlow(page, opts = {}) {
   if ((process.env.PERSONA_ADMINISTRATOR_BLOCKED || "").toLowerCase() === "true") {
@@ -163,7 +176,7 @@ async function runAdminFlow(page, opts = {}) {
       const fUrl = frame.url();
       if (!fUrl || fUrl === "about:blank") continue;
       if (/openid-connect\/auth|\/oauth2\/(?:start|sign_in|callback)/.test(fUrl)) continue;
-      if (canonicalDomain && fUrl.includes(canonicalDomain)) {
+      if (canonicalDomain && hostnameOf(fUrl) === canonicalDomain) {
         adminReachedAuthenticated = true;
         break;
       }
@@ -195,13 +208,16 @@ async function runAdminFlow(page, opts = {}) {
     }
   }
   if (!adminReachedAuthenticated) {
-    expect(
-      false,
+    const rejection = await readCredentialRejection(page);
+    const rejected =
+      `administrator's credential was rejected by the app on ${canonicalDomain}: "${rejection}". ` +
+      `The password typed here does not match what the app stores, so the role seeds it at install ` +
+      `and never re-applies it: a rotation between the sync and async pass leaves the app behind. `;
+    const unreached =
       `administrator did NOT reach an authenticated surface on ${canonicalDomain}. ` +
-        `Either the role's auth chain is broken or administrator legitimately has no OIDC-driven admin path here, ` +
-        `in which case the role MUST declare \`PERSONA_ADMINISTRATOR_BLOCKED=true\` in templates/playwright.env.j2. ` +
-        `Current URL: ${page.url()}.`,
-    ).toBe(true);
+      `Either the role's auth chain is broken or administrator legitimately has no OIDC-driven admin path here, ` +
+      `in which case the role MUST declare \`PERSONA_ADMINISTRATOR_BLOCKED=true\` in templates/playwright.env.j2. `;
+    expect(false, `${rejection ? rejected : unreached}Current URL: ${page.url()}.`).toBe(true);
     return;
   }
 

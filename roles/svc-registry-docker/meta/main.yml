@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes

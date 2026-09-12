@@ -1,4 +1,5 @@
 ---
+# nocheck: info-media no official demo video
 logo:
   class: fa-solid fa-house-signal
 homepage: https://github.com/social-home-io/socialhome

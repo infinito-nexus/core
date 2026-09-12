@@ -20,8 +20,13 @@ RUN rm -rf /var/lib/apt/lists/* \
     fi \
  && rm -rf /var/lib/apt/lists/*
 
-COPY entrypoint.sh /usr/local/bin/tor-entrypoint.sh
-RUN chmod 0755 /usr/local/bin/tor-entrypoint.sh
+ARG TOR_ENTRYPOINT_PATH
+ARG TOR_HEALTHCHECK_PATH
 
-ENTRYPOINT ["/usr/local/bin/tor-entrypoint.sh"]
+COPY entrypoint.sh ${TOR_ENTRYPOINT_PATH}
+COPY healthcheck.sh ${TOR_HEALTHCHECK_PATH}
+RUN chmod 0755 ${TOR_ENTRYPOINT_PATH} ${TOR_HEALTHCHECK_PATH} \
+ && ln -s ${TOR_ENTRYPOINT_PATH} /tor-entrypoint
+
+ENTRYPOINT ["/tor-entrypoint"]
 CMD ["-f", "/etc/tor/torrc"]

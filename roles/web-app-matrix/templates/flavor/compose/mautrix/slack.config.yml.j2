@@ -21,10 +21,10 @@ homeserver:
     retry_limit: 4
 
 appservice:
-    address: http://mautrix-slack:29335
+    address: http://mautrix-slack:{{ item.appservice_port }}
 
     hostname: 0.0.0.0
-    port: 29335
+    port: {{ item.appservice_port }}
 
     id: slack
     bot:
@@ -35,8 +35,8 @@ appservice:
     ephemeral_events: true
     async_transactions: false
 
-    as_token: "This value is generated when generating the registration"
-    hs_token: "This value is generated when generating the registration"
+    as_token: "{{ lookup('config', application_id, 'secrets.credentials.mautrix_slack_bridge_as_token') }}"
+    hs_token: "{{ lookup('config', application_id, 'secrets.credentials.mautrix_slack_bridge_hs_token') }}"
 
 {% raw %}
     username_template: slack_{{.}}
@@ -128,9 +128,3 @@ logging:
     writers:
         - type: stdout
           format: pretty-colored
-        - type: file
-          format: json
-          filename: ./logs/mautrix-slack.log
-          max_size: 100
-          max_backups: 10
-          compress: true

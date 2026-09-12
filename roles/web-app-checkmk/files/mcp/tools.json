@@ -1,0 +1,28 @@
+{
+  "checkmk_get_host_status": {
+    "description": "Return one host's monitoring status.",
+    "input_schema": {
+      "properties": {
+        "host": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "host"
+      ],
+      "type": "object"
+    },
+    "method": "GET",
+    "path": "/objects/host/{host}"
+  },
+  "checkmk_list_hosts": {
+    "description": "List the monitored hosts.",
+    "method": "GET",
+    "path": "/domain-types/host_config/collections/all"
+  },
+  "checkmk_list_services": {
+    "description": "List the monitored services this application may read.",
+    "method": "GET",
+    "path": "/domain-types/service/collections/all"
+  }
+}

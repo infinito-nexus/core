@@ -1,0 +1,55 @@
+---
+- name: "🔑 Register the MCP web service and mint its permanent token"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i --user {{ MOODLE_RUNTIME_USER }} \
+      -e MOODLE_CONFIG={{ MOODLE_CONFIG | quote }} \
+      -e MCP_SERVICE_NAME={{ MOODLE_MCP_EXTERNAL_SERVICE_NAME | quote }} \
+      -e MCP_SERVICE_SHORTNAME={{ MOODLE_MCP_EXTERNAL_SERVICE_SHORTNAME | quote }} \
+      -e MCP_SERVICE_FUNCTIONS={{ MOODLE_MCP_EXTERNAL_FUNCTIONS | join(',') | quote }} \
+      -e MCP_ACCOUNT_USERNAME={{ MOODLE_MCP_ACCOUNT_USERNAME | quote }} \
+      -e MCP_ACCOUNT_EMAIL={{ MOODLE_MCP_ACCOUNT_EMAIL | quote }} \
+      -e MCP_ACCOUNT_PASSWORD={{ MOODLE_MCP_ACCOUNT_PASSWORD | quote }} \
+      -e MCP_ROLE_SHORTNAME={{ MOODLE_MCP_ROLE_SHORTNAME | quote }} \
+      -e MCP_ROLE_NAME={{ MOODLE_MCP_ROLE_NAME | quote }} \
+      -e MCP_ROLE_CAPABILITIES={{ MOODLE_MCP_ROLE_CAPABILITIES | join(',') | quote }} \
+      {{ MOODLE_MCP_LOCAL_CID | quote }} php
+  args:
+    stdin: "{{ lookup('file', 'php/provision_mcp.php') }}"
+  register: moodle_mcp_provision
+  changed_when: false
+  delegate_to: "{{ MOODLE_MCP_HOST_NODE }}"
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔧 Take the minted token from the provisioning output"
+  ansible.builtin.set_fact:
+    moodle_mcp_token: "{{ moodle_mcp_provision.stdout_lines | last | trim }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  run_once: true
+
+- name: "🛑 Refuse a Moodle that issued no usable web-service token"
+  ansible.builtin.assert:
+    that:
+      - moodle_mcp_token is match('^[a-f0-9]{32}$')
+    fail_msg: >-
+      Moodle returned no web-service token, so every MCP client would be
+      configured with an empty bearer and fail at first use.
+
+- name: "🧹 Purge the Moodle caches so the MCP protocol takes effect"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_MCP_LOCAL_CID | quote }} \
+      php {{ MOODLE_CLI_DIR }}/purge_caches.php
+  changed_when: true
+  delegate_to: "{{ MOODLE_MCP_HOST_NODE }}"
+  run_once: true
+  notify: container-recreate
+
+- name: "💾 Persist the token so MCP clients can read it"
+  ansible.builtin.include_role:
+    name: sys-token-store
+    tasks_from: write.yml
+  vars:
+    sys_token_store_user_key: "{{ lookup('config', application_id, 'mcp.credential.owner') }}"
+    sys_token_store_app: "{{ application_id }}"
+    sys_token_store_token: "{{ moodle_mcp_token }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

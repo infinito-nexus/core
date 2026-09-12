@@ -33,6 +33,7 @@ const {
   assertUnauthenticatedLanding,
   assertCspInjections,
   runRoleInteraction,
+  hostnameOf,
   LOGIN_CONTROL_NAME,
 } = require("./utils");
 
@@ -128,7 +129,7 @@ async function runBiberFlow(page, opts = {}) {
       const fUrl = frame.url();
       if (!fUrl || fUrl === "about:blank") continue;
       if (/openid-connect\/auth|\/oauth2\/(?:start|sign_in|callback)/.test(fUrl)) continue;
-      if (canonicalDomain && fUrl.includes(canonicalDomain)) {
+      if (canonicalDomain && hostnameOf(fUrl) === canonicalDomain) {
         reachedAuthenticated = true;
         break;
       }

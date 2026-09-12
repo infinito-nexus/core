@@ -176,6 +176,34 @@ class TestContainerExtraHostsLookup(unittest.TestCase):
     def test_no_sources_at_all_emit_nothing(self):
         self.assertEqual(self._run(_sso_enabled=False, extra_hosts=[]), "")
 
+    def _run_entries(self, **overrides):
+        variables = {
+            "application_id": "web-app-discourse",
+            "_sso_enabled": True,
+            "_provider_domain": ONION,
+            "DEPLOYMENT_MODE": "compose",
+        }
+        variables.update(overrides)
+        return self.lookup.run(None, variables=variables, entries_only=True)
+
+    def test_entries_only_returns_the_raw_mappings(self):
+        self.assertEqual(
+            self._run_entries(),
+            ["host.docker.internal:host-gateway", f"{ONION}:host-gateway"],
+        )
+
+    def test_entries_only_follows_the_swarm_address(self):
+        self.assertEqual(
+            self._run_entries(
+                DEPLOYMENT_MODE="swarm",
+                ansible_facts={"default_ipv4": {"address": "10.0.0.7"}},
+            ),
+            ["host.docker.internal:host-gateway", f"{ONION}:10.0.0.7"],
+        )
+
+    def test_entries_only_is_empty_without_sso(self):
+        self.assertEqual(self._run_entries(_sso_enabled=False), [])
+
 
 if __name__ == "__main__":
     unittest.main()

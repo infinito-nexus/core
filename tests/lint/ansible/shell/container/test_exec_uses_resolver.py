@@ -96,10 +96,6 @@ _DIRECT_LOOKUP = re.compile(
 
 _VAR_REFERENCE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
-_DEFAULT_FLAG_VALUES_THAT_ARE_NOT_NAMES = frozenset(
-    {"-i", "-t", "-it", "-ti", "--interactive", "--tty"}
-)
-
 
 def _is_scan_target(rel_path: str) -> bool:
     if not rel_path.startswith("roles/"):

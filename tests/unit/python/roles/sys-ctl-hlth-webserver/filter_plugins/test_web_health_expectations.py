@@ -562,7 +562,7 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
     def _tor_app(self, canonical=None, status_codes=None, **tor):
         returns = {
             ("app-a", "domains.canonical"): (
-                ["a.infinito.example"] if canonical is None else canonical
+                ["a.infinito.test"] if canonical is None else canonical
             ),
         }
         if status_codes is not None:
@@ -575,7 +575,7 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         out = self.mod.web_health_expectations(
             apps,
             group_names=["app-a"],
-            primary_domain="infinito.example",
+            primary_domain="infinito.test",
             node_onion=self.ONION,
         )
         self.assertEqual(out, {f"a.{self.ONION}": [200, 302, 301]})
@@ -585,59 +585,57 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         out = self.mod.web_health_expectations(
             apps,
             group_names=["app-a"],
-            primary_domain="infinito.example",
+            primary_domain="infinito.test",
             node_onion=self.ONION,
         )
         self.assertEqual(
             out,
             {
-                "a.infinito.example": [200, 302, 301],
+                "a.infinito.test": [200, 302, 301],
                 f"a.{self.ONION}": [200, 302, 301],
             },
         )
 
     def test_onion_inherits_clearnet_status_codes(self):
         apps = self._tor_app(
-            canonical={"default": ["a.infinito.example"]},
+            canonical={"default": ["a.infinito.test"]},
             status_codes={"default": [301, 200]},
             exclusive=True,
         )
         out = self.mod.web_health_expectations(
             apps,
             group_names=["app-a"],
-            primary_domain="infinito.example",
+            primary_domain="infinito.test",
             node_onion=self.ONION,
         )
         self.assertEqual(out, {f"a.{self.ONION}": [301, 200]})
 
     def test_onion_disabled_app_stays_clearnet(self):
-        self._configure_returns(
-            {("app-a", "domains.canonical"): ["a.infinito.example"]}
-        )
+        self._configure_returns({("app-a", "domains.canonical"): ["a.infinito.test"]})
         apps = {"app-a": {"services": {"tor": {"enabled": False}}}}
         out = self.mod.web_health_expectations(
             apps,
             group_names=["app-a"],
-            primary_domain="infinito.example",
+            primary_domain="infinito.test",
             node_onion=self.ONION,
         )
-        self.assertEqual(out, {"a.infinito.example": [200, 302, 301]})
+        self.assertEqual(out, {"a.infinito.test": [200, 302, 301]})
 
     def test_onion_skipped_without_node_onion(self):
         apps = self._tor_app(exclusive=True)
         out = self.mod.web_health_expectations(
             apps,
             group_names=["app-a"],
-            primary_domain="infinito.example",
+            primary_domain="infinito.test",
             node_onion="",
         )
-        self.assertEqual(out, {"a.infinito.example": [200, 302, 301]})
+        self.assertEqual(out, {"a.infinito.test": [200, 302, 301]})
 
     # --------- Reverse-proxy bare apex gating ---------
 
     def _proxy_apex_app(self, **tor):
         self._configure_returns(
-            {("svc-prx-openresty", "domains.canonical"): ["infinito.example"]}
+            {("svc-prx-openresty", "domains.canonical"): ["infinito.test"]}
         )
         services = {"tor": {"enabled": True, **tor}} if tor else {}
         return {"svc-prx-openresty": {"services": services}}
@@ -646,7 +644,7 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         out = self.mod.web_health_expectations(
             self._proxy_apex_app(),
             group_names=["svc-prx-openresty"],
-            primary_domain="infinito.example",
+            primary_domain="infinito.test",
         )
         self.assertEqual(out, {})
 
@@ -654,15 +652,15 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         out = self.mod.web_health_expectations(
             self._proxy_apex_app(),
             group_names=["svc-prx-openresty", "web-opt-rdr-domains"],
-            primary_domain="infinito.example",
+            primary_domain="infinito.test",
         )
-        self.assertEqual(out, {"infinito.example": [200, 302, 301]})
+        self.assertEqual(out, {"infinito.test": [200, 302, 301]})
 
     def test_onion_apex_dropped_when_rdr_domains_not_deployed(self):
         out = self.mod.web_health_expectations(
             self._proxy_apex_app(exclusive=True),
             group_names=["svc-prx-openresty"],
-            primary_domain="infinito.example",
+            primary_domain="infinito.test",
             node_onion=self.ONION,
         )
         self.assertEqual(out, {})

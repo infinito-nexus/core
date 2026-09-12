@@ -1,0 +1,4 @@
+---
+canonical:
+  openclaw: claw.ai.{{ DOMAIN_PRIMARY }}
+aliases: []

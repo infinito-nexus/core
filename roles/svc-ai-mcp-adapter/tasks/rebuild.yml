@@ -1,0 +1,12 @@
+---
+# Rebuild the provider's adapter sidecar after its compose file exists.
+#
+# instance.yml stages the build context without notifying anything, so this is
+# what makes a changed policy.py or server.py reach the running sidecar.
+- name: "🧱 Rebuild the {{ application_id }} MCP adapter image"
+  ansible.builtin.debug:
+    msg: "MCP adapter build context staged for {{ application_id }}"
+  changed_when: true
+  notify:
+    - compose-build
+    - compose-up

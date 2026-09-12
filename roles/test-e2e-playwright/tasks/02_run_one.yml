@@ -144,30 +144,14 @@
     mode: "0644"
     directory_mode: "0755"
 
-- name: 📁 Create staging fixtures directory
-  ansible.builtin.file:
-    path: "{{ _playwright_stage_tests_dir }}/fixtures"
-    state: directory
-    mode: "0755"
-
-- name: 📋 Copy role Playwright binary fixtures into staging fixtures directory
-  ansible.builtin.copy:
-    src: "{{ item }}"
-    dest: "{{ _playwright_stage_tests_dir }}/fixtures/{{ item | basename }}"
-    mode: "0644"
-  with_fileglob:
-    - "{{ _playwright_files_dir }}/fixtures/*"
-
 - name: 📋 Copy shared Playwright helpers into staging tests directory
   ansible.builtin.copy:
-    src: "{{ lookup('path_absolute', 'roles/test-e2e-playwright/files', item) }}"
-    dest: "{{ _playwright_stage_tests_dir }}/{{ item }}"
+    src: "{{ item }}"
+    dest: "{{ _playwright_stage_tests_dir }}/{{ item | basename }}"
     mode: "0644"
-  loop:
-    - service-gating.js
-    - onion-test.js
-    - addon-gating.js
-    - timeouts.js
+  when: (item | basename) != 'playwright.config.js'
+  with_fileglob:
+    - "{{ lookup('path_absolute', 'roles/test-e2e-playwright/files') }}/*.js"
 
 - name: ✅ Ensure staging volume directory exists
   ansible.builtin.file:
@@ -179,7 +163,11 @@
   ansible.builtin.copy:
     dest: "{{ _playwright_stage_dir }}/.env"
     mode: "0644"
-    content: "{{ lookup('template', _playwright_env_template) }}"
+    content: |
+      {{ lookup('template', _playwright_env_template) }}
+      {% for name, value in TEST_E2E_PLAYWRIGHT_CONFIG_TIMEOUTS.items() %}
+      {{ name }}={{ value }}
+      {% endfor %}
   vars:
     application_id: "{{ application_id }}"
     domains: "{{ lookup('domains') }}"
@@ -248,9 +236,8 @@
         + ['-e', 'PLAYWRIGHT_PROXY=' ~ TEST_E2E_PLAYWRIGHT_PROXY]
         + ['-e', 'PLAYWRIGHT_WORKERS=' ~ test_e2e_playwright_workers]
         + ['-e', 'PLAYWRIGHT_FULLY_PARALLEL=' ~ TEST_E2E_PLAYWRIGHT_FULLY_PARALLEL]
-        + ['-e', 'PLAYWRIGHT_TEST_TIMEOUT=' ~ (TEST_E2E_PLAYWRIGHT_ONION_TEST_TIMEOUT if (TEST_E2E_PLAYWRIGHT_IS_ONION | bool) else test_e2e_playwright_test_timeout)]
         + ['-e', 'PLAYWRIGHT_TIMEOUT_FACTOR=' ~ TIMEOUT_FACTOR]
-        + ['-e', 'PLAYWRIGHT_NAVIGATION_TIMEOUT=' ~ (TEST_E2E_PLAYWRIGHT_ONION_NAVIGATION_TIMEOUT if (TEST_E2E_PLAYWRIGHT_IS_ONION | bool) else TEST_E2E_PLAYWRIGHT_NAVIGATION_TIMEOUT)]
+        + (['-e', 'PLAYWRIGHT_ONION_TIMEOUT_MULTIPLIER=' ~ TEST_E2E_PLAYWRIGHT_ONION_TIMEOUT_MULTIPLIER] if (TEST_E2E_PLAYWRIGHT_IS_ONION | bool) else [])
         + ['-v', _playwright_stage_dir ~ ':/e2e']
         + ['-v', _playwright_stage_dir ~ '/volume:/volume']
         + ['-v', _playwright_reports_dir ~ ':/reports']

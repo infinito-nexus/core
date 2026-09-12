@@ -93,7 +93,7 @@ def _request(url: str, repo: str, method: str, accept: str | None):
     unreachable (connection/timeout).
     """
     token: str | None = None
-    for _attempt in (0, 1):
+    for _ in (0, 1):
         headers = {"User-Agent": _UA}
         if accept:
             headers["Accept"] = accept

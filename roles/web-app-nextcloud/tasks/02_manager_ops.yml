@@ -51,6 +51,8 @@
   loop: "{{ NEXTCLOUD_PLUGIN_ITEMS }}"
   loop_control:
     loop_var: plugin_item
+    label: "{{ plugin_item.key }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   vars:
     plugin_key: "{{ plugin_item.key }}"
     plugin_value: "{{ plugin_item.value }}"
@@ -61,3 +63,7 @@
     file: 02_manager_ops/07_admin_identities.yml
     apply:
       delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
+
+- name: "🔌 Provision the MCP server surface"
+  include_tasks: utils/mcp.yml
+  when: NEXTCLOUD_MCP_ENABLED | bool

@@ -1,0 +1,36 @@
+---
+- name: "🔐 Verify the gateway contract for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
+
+- name: "🔎 MEDIAWIKI | Read back the configured AI provider and connection"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - --user
+      - "{{ MEDIAWIKI_USER }}"
+      - "{{ MEDIAWIKI_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - php
+      - "{{ [MEDIAWIKI_HTML_DIR, 'maintenance', 'run.php'] | path_join }}"
+      - getConfiguration
+      - --format=json
+      - --settings=wgAIEditingAssistantActiveProvider wgAIEditingAssistantActiveProviderConnection
+  register: mediawiki_ai_configuration
+  changed_when: false
+  run_once: true
+  delegate_to: "{{ MEDIAWIKI_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🛑 Refuse a MediaWiki AI provider that does not answer through the gateway"
+  ansible.builtin.assert:
+    that:
+      - (mediawiki_ai_configuration.stdout | from_json).wgAIEditingAssistantActiveProvider == MEDIAWIKI_LITELLM_PROVIDER
+      - ((mediawiki_ai_configuration.stdout | from_json).wgAIEditingAssistantActiveProviderConnection | from_json).url == LITELLM_OPENAI_BASE_LOCAL_URL
+      - ((mediawiki_ai_configuration.stdout | from_json).wgAIEditingAssistantActiveProviderConnection | from_json).model == LITELLM_CHAT_MODEL
+    fail_msg: >-
+      AIEditingAssistant still resolves provider
+      '{{ (mediawiki_ai_configuration.stdout | from_json).wgAIEditingAssistantActiveProvider }}'
+      to '{{ ((mediawiki_ai_configuration.stdout | from_json).wgAIEditingAssistantActiveProviderConnection | from_json).url }}'
+      with model '{{ ((mediawiki_ai_configuration.stdout | from_json).wgAIEditingAssistantActiveProviderConnection | from_json).model }}'
+      instead of {{ MEDIAWIKI_LITELLM_PROVIDER }} on {{ LITELLM_OPENAI_BASE_LOCAL_URL }}
+      with {{ LITELLM_CHAT_MODEL }}, so prompts would leave the deployment.

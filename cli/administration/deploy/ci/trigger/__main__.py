@@ -8,7 +8,9 @@ every other dispatch input is carried over (:func:`runs.carried_inputs`, read
 off the workflow itself), and the priority line names the exact selections that
 failed -- role, variant, deploy mode, onion state and distro -- rather than the
 roles they belong to. The filesystem is left to the rotation
-(:mod:`cli.administration.deploy.ci.selections` says why).
+(:mod:`cli.administration.deploy.ci.selections` says why). ``--chunk-gate`` is
+the one deliberate exception: it overrides the carried value so a retrigger can
+keep deploying past a failed chunk.
 """
 
 from __future__ import annotations
@@ -18,7 +20,8 @@ import sys
 
 from cli.administration.deploy.ci import gh, runs, selections
 from cli.meta.ci import matrix, query
-from utils.github.variant import pools, tor
+from utils.github import run_name
+from utils.github.variant import pools, selection, tor
 
 _WORKFLOW = "entry-manual-steer.yml"
 _ALL = "__ALL__"
@@ -32,20 +35,14 @@ def _fetch(run: str, repo: str) -> dict:
     return gh.fetch_run(gh.run_id_from_url(run), repo=gh.slug_from_url(run))
 
 
-def _resume_offset(source: dict, whitelist: str, config: dict[str, str]) -> str:
-    """Where the retrigger's regular line should start.
-
-    The source run walked the ranking until its budget ran out. Those rows
-    have a verdict already -- and the red ones return on the priority line --
-    so the regular line resumes behind them instead of redeploying the same
-    window. The ranking is recomputed under the retrigger's own configuration,
-    because that is the list the offset will be resolved against.
+def _ranking(whitelist: str, config: dict[str, str]) -> list[dict[str, str]]:
+    """The regular line the retrigger's own discovery would walk.
 
     The priority line is deliberately left out of that computation: it only
     blacklists rows from the regular query, and a token in it that no longer
     resolves would abort here, in a helper whose job is to save runner time.
     """
-    entries = matrix.entries_of(
+    return matrix.entries_of(
         modes=query.resolve_modes(config.get("mode") or query.ALL_MODES),
         whitelist="" if whitelist == _ALL else whitelist,
         priority="",
@@ -54,9 +51,6 @@ def _resume_offset(source: dict, whitelist: str, config: dict[str, str]) -> str:
         tor_mode=tor.resolve_tor_mode(config.get("tor")),
         distros=pools.resolve_distros(config.get("distros")),
         filesystems=pools.resolve_filesystems(config.get("filesystem")),
-    )
-    return selections.resume_offset(
-        entries, selections.deployed_selections(source["jobs"])
     )
 
 
@@ -82,10 +76,12 @@ def main(argv: list[str] | None = None) -> int:
         help=(
             "Re-trigger what was not green in the source run as the priority "
             "line, together with the priority entries that run never deployed "
-            "at all; the remaining roles follow once they succeed. Every mode "
-            "is read, and each failed job comes back as the exact selection "
-            "that failed -- variant, deploy mode and onion state included. A "
-            "leftover scope argument is accepted and ignored."
+            "at all; the remaining roles follow once they succeed, starting "
+            "behind the green stretch the run added to the offset it was "
+            "given. Every mode is read, and each failed job comes back as the "
+            "exact selection that failed -- variant, deploy mode and onion "
+            "state included. A leftover scope argument is accepted and "
+            "ignored."
         ),
     )
     group.add_argument(
@@ -112,12 +108,40 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help=(
             "With --failed: re-trigger only roles with a hard failure (❌), "
-            "not cancelled/aborted (🚫) or still-running (⏳)."
+            "not cancelled/aborted (🚫) or still-running (⏳). Those two never "
+            "reached a verdict, so the regular line owes them their turn "
+            "rather than the priority line owing them a place."
+        ),
+    )
+    p.add_argument(
+        "--roles-only",
+        action="store_true",
+        help=(
+            "With --failed: put the failed roles on the priority line by name, "
+            "letting the rotation assign the axes, instead of replaying the "
+            "exact combination each job failed in. Useful when so much is red "
+            "that covering the role matters more than reproducing the row. "
+            "Priority entries the source run never deployed keep their pins "
+            "either way -- that run holds no evidence against the axes they "
+            "named."
+        ),
+    )
+    p.add_argument(
+        "--chunk-gate",
+        choices=("true", "false"),
+        default=None,
+        help=(
+            "Override the carried chunk_gate input. 'false' keeps deploying "
+            "the remaining chunks after a failed one instead of stopping the "
+            "chain; 'true' stops at the first failed chunk. Omitted: the "
+            "source run's value, else the workflow default."
         ),
     )
     args = p.parse_args(argv)
     if args.strict and args.failed is None:
         p.error("--strict only applies with --failed")
+    if args.roles_only and args.failed is None:
+        p.error("--roles-only only applies with --failed")
 
     branch = gh.current_branch()
     repo = gh.resolve_repo()
@@ -137,6 +161,7 @@ def main(argv: list[str] | None = None) -> int:
 
     whitelist = ""
     priority = ""
+    priority_entries: set[str] = set()
     if args.apps is not None:
         apps = " ".join(args.apps.split())
         if not apps:
@@ -145,6 +170,8 @@ def main(argv: list[str] | None = None) -> int:
     elif args.failed is not None:
         statuses = runs.parse_role_statuses(source["jobs"])
         failed = selections.failed_selections(source["jobs"], strict=args.strict)
+        if args.roles_only:
+            failed = selections.collapse_to_roles(failed)
         untriggered = runs.untriggered_priority(
             runs.dispatched_priority(source, repo), statuses
         )
@@ -153,22 +180,35 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         if untriggered:
             print(f"Priority roles that never deployed: {' '.join(untriggered)}")
-        priority = " ".join(sorted(set(failed) | set(untriggered)))
+        priority_entries = set(failed) | set(untriggered)
     else:
         whitelist = _ALL
 
     config: dict[str, str] = {}
+    carried_offset = ""
     if source is not None:
+        logged = runs.inputs_from_jobs(source["jobs"], repo)
         config = runs.config_from_run(
-            source["displayTitle"],
-            runs.inputs_from_jobs(source["jobs"], repo),
+            source["displayTitle"], logged, jobs=source["jobs"]
+        )
+        carried_offset = logged.get("offset") or run_name.value_from_title(
+            source["displayTitle"], "offset"
         )
     carried_whitelist = config.pop("whitelist", "")
     if not whitelist and carried_whitelist:
         whitelist = carried_whitelist
+    if args.chunk_gate is not None:
+        config["chunk_gate"] = args.chunk_gate
 
     if args.failed is not None:
-        config["offset"] = _resume_offset(source, whitelist, config)
+        ranking = _ranking(whitelist, config)
+        priority = " ".join(sorted(priority_entries))
+        config["offset"] = selections.resume_offset(
+            ranking,
+            selections.proven_rows(source["jobs"]),
+            selection.parse_list(priority),
+            carried=carried_offset,
+        )
         if config["offset"]:
             print(f"Regular line resumes at: {config['offset']}")
         else:

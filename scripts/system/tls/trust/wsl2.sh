@@ -59,7 +59,7 @@ PS1_FILE="${WIN_TEMP}/infinito-hosts-setup.ps1"
 PS1_FILE_WIN="C:\\Users\\${WIN_USER}\\AppData\\Local\\Temp\\infinito-hosts-setup.ps1"
 HOSTS_FILE='C:\Windows\System32\drivers\etc\hosts'
 # nocheck: hardcoded-primary-domain  the marker is matched verbatim against what an earlier run wrote into the Windows hosts file; deriving it would orphan that block instead of replacing it
-MARKER='# infinito.example --- managed by infinito-nexus'
+MARKER='# infinito.test --- managed by infinito-nexus'
 
 # shellcheck disable=SC2016
 {

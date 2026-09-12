@@ -15,3 +15,8 @@ zammad-wizard-bypass-admin:
   lastname: Bypass
   accounts: []
   description: Local-password admin seeded by Zammad's auto_wizard.json to skip the setup wizard (NOT used at runtime)
+mcp-web-app-zammad:
+  firstname: Infinito
+  lastname: MCP
+  accounts: []
+  description: Account the Zammad MCP token belongs to; a read-only agent rather than the initial administrator

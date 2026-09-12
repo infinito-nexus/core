@@ -1,0 +1,27 @@
+---
+# Read the upstream credential the adapter is holding right now.
+#
+# A provider that mints its own secret hands it back once, so the deployment
+# cannot re-derive it. Reading it back is what lets a converged run keep the
+# working credential instead of minting a replacement and revoking the one the
+# sidecar is using.
+#
+# Param: mcp_upstream_key_path      env file the sidecar reads.
+# Sets:  MCP_UPSTREAM_CURRENT_KEY   the stored credential, or "" when none.
+- name: "🔍 Read the upstream credential file of {{ application_id }}"
+  ansible.builtin.slurp:
+    src: "{{ mcp_upstream_key_path }}"
+  register: mcp_upstream_current
+  failed_when: false
+  delegate_to: "{{ STACK_HOST }}"
+  become: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}" # nocheck: include-uniform-apply-keyword  the read runs on the stack host and the set_fact on the controller
+
+- name: "🔑 Publish the credential the {{ application_id }} adapter holds"
+  ansible.builtin.set_fact:
+    MCP_UPSTREAM_CURRENT_KEY: >-
+      {{ (mcp_upstream_current.content | b64decode).split('=', 1)[1] | trim
+         if mcp_upstream_current.content is defined
+         and '=' in (mcp_upstream_current.content | b64decode)
+         else '' }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

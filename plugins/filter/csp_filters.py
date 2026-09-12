@@ -1,11 +1,15 @@
 import base64
 import hashlib
+import re
 
 from ansible.errors import AnsibleFilterError
 
 from utils.domains.primary_domain import get_domain
 from utils.roles.applications.config import get
 from utils.tls_common import align_domain_to_consumer, is_onion_domain
+
+_ONION_PLAINTEXT = {"https": "http", "wss": "ws"}
+_ONION_SCHEME = re.compile(r"^(https|wss)(?=://)")
 
 
 def _aligned_url(domains, application_id, target_id, protocol):
@@ -417,7 +421,10 @@ class FilterModule:
                         toks = tokens_by_dir[directive]
                         if app_has_clearnet:
                             siblings = [
-                                t.replace(domain_primary, node_onion)
+                                _ONION_SCHEME.sub(
+                                    lambda m: _ONION_PLAINTEXT[m.group(1)],
+                                    t.replace(domain_primary, node_onion),
+                                )
                                 for t in toks
                                 if domain_primary in t
                             ]

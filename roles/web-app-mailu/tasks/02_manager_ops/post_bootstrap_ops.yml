@@ -18,7 +18,7 @@
     mailu_token_name: "{{ SOFTWARE_NAME ~ ' Token for ' ~ user_item.value.username }}"
     mailu_user_roles: "{{ user_item.value.roles | default([]) }}"
     mailu_user_accounts: "{{ user_item.value.accounts | default([]) }}"
-  loop: "{{ lookup('users') | dict2items }}"
+  loop: "{{ MAILU_USERS | dict2items }}"
   loop_control:
     loop_var: user_item
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

@@ -10,8 +10,9 @@ This package contains the in-process cache layers Infinito.Nexus uses to keep CL
 | [files.py](files.py) | The project tree's full path list (one walk per process) and per-file UTF-8 contents (`read_text`). Used by lint/integration tests and CLI tools that scan the repo. |
 | [base.py](base.py) | Cross-cutting helpers: filesystem constants (`PROJECT_ROOT`, `ROLES_DIR`, `DEFAULT_TOKENS_FILE`), `_deep_merge`, cache-key + content-fingerprint signatures, the cross-domain re-entry guard, and the templar-render machinery. The only ansible-coupled symbol is `_render_with_templar`, which lazy-imports its dependency. |
 | [applications.py](applications.py) | Per-app variants + defaults + `get_merged_applications`. **Strictly ansible-free at import time** so the GitHub Actions runner-host CLI path (`cli.administration.deploy.development.init` → `plan_dev_inventory_matrix` → `get_variants`) keeps working without ansible installed. |
+| [carrier.py](carrier.py) | The play-scoped carrier of the rendered applications payload: the fact name `_INFINITO_APPLICATIONS_RENDERED`, `merged_applications_cache_key`, and the reader `get_merged_applications` consults before it renders. |
 | [users/](users/) | User definitions, token store hydration, alias materialization, `get_user_defaults`, `get_merged_users` (package; `users/placeholders.py` substitutes `DOMAIN_PRIMARY` / `ORGANIZATION` / `SOFTWARE_NAME` ahead of the templar render pass). |
-| [domains.py](domains.py) | Canonical-domains map derived from the merged applications view: `get_merged_domains`. |
+| [domains.py](domains.py) | Canonical-domains map derived from the merged applications view: `get_merged_domains`. A read issued while the applications render is in progress (the re-entry guard is set) sees the unrendered view, so it is cached under its own key and never answers a later read. |
 | [`__init__.py`](__init__.py) | Owns the package-level `_reset_cache_for_tests()` orchestrator that clears every cache plus the shared fingerprint memo in one call. |
 
 ## When To Use Which 🎯
@@ -24,6 +25,8 @@ The layers are orthogonal: `yaml.py` caches "this file's parsed root", the `appl
 ## Lifetime 🕒
 
 Both layers are process-wide in-process caches. They intentionally do NOT track on-disk file mtimes; CLI tools are short-lived and the assumption "the on-disk file does not change while my process runs" holds. The single exception is `utils.cache.yaml.dump_yaml`, which writes through and evicts the cached entry for the path it just wrote so a tool that edits a file mid-run sees the new content on the next read.
+
+Inside a play the process boundary is the task: Ansible forks a fresh worker per task, so `_MERGED_APPLICATIONS_CACHE` starts empty in every worker. `get_merged_applications` therefore also accepts the play-scoped carrier fact `_INFINITO_APPLICATIONS_RENDERED` (payload plus cache key, parked once by the constructor stage) and serves it when the key matches. See [applications.md](../../docs/contributing/artefact/files/plugins/lookup/applications.md) for the contract.
 
 ## Test-Only Helpers 🧪
 

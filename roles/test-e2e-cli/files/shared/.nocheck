@@ -1,0 +1,1 @@
+# nocheck: role-files-layout - Shared CLI harness staged as one tree by run_one.yml; contract.sh feeds contract.py from the same directory, so the two languages cannot be split apart.

@@ -2,7 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 
-const moodleScopeName = decodeDotenvQuotedValue(process.env.MOODLE_OIDC_SCOPE_NAME || "moodle");
+const moodleScopeName = decodeDotenvQuotedValue(process.env.MOODLE_OIDC_SCOPE_NAME);
 
 exports.register = function (shared) {
   test.describe("moodle keycloak scope wiring (variant 0)", () => {

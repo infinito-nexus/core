@@ -42,4 +42,4 @@ redis_connection_url     = "{{ lookup('engine', 'redis', sso_proxy_application_i
 
 set_xauthrequest         = true
 pass_user_headers        = true
-pass_access_token        = true
+pass_access_token        = {{ lookup('sso', sso_proxy_application_id, 'oauth2_pass_access_token') | string | lower }}

@@ -190,7 +190,7 @@ class TestUsersLookup(unittest.TestCase):
 
         result = self.lookup.run(
             ["sld"],
-            variables={"domain": "auth.infinito.example"},
+            variables={"domain": "auth.infinito.test"},
             roles_dir=str(self._tmp / "roles"),
         )[0]
 

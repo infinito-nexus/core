@@ -1,0 +1,86 @@
+---
+# nocheck: playwright-service-flag
+homeassistant:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  bond: 1
+  enabled: true
+  shared: true
+  backup:
+    no_stop_required: true
+  image: ghcr.io/home-assistant/home-assistant
+  version: "2026.7"
+  name: homeassistant
+  min_storage: 823MB
+  cpus: "2.0"
+  mem_reservation: 1g
+  mem_limit: 2g
+  pids_limit: 2048
+  # nocheck: single-replica Home Assistant guards its config directory with a PID lock, so a second replica on the shared volume aborts with "Another Home Assistant instance is already running" and crash-loops; upstream supports no multi-instance mode
+  replicas: 1
+  ports:
+    local:
+      http: 8091
+    internal:
+      http: 8123
+  lifecycle: beta
+  proxy:
+    service_key: homeassistant
+
+# nocheck: sso, dynamic-flag, playwright-service-flag
+sso:
+  enabled: false
+  shared: false
+
+# nocheck: logout, dynamic-flag, playwright-service-flag
+logout:
+  enabled: false
+  shared: false
+
+# nocheck: playwright-service-flag
+dashboard:
+  bond: 1
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
+
+# nocheck: playwright-service-flag
+prometheus:
+  bond: 1
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
+
+# nocheck: playwright-service-flag
+# nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
+tor:
+  bond: 0.5
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: true # nocheck: dynamic-flag
+
+# nocheck: playwright-service-flag, dynamic-flag
+container_backup: # nocheck: bond-baseline
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true
+# nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
+openwebui:
+  bond: 0.5
+  enabled: "{{ 'web-app-openwebui' in group_names }}"
+  shared: "{{ 'web-app-openwebui' in group_names }}"
+# nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
+hermes:
+  bond: 0.5
+  enabled: "{{ 'web-app-hermes' in group_names }}"
+  shared: "{{ 'web-app-hermes' in group_names }}"
+# nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
+openclaw:
+  bond: 0.5
+  enabled: "{{ 'web-app-openclaw' in group_names }}"
+  shared: "{{ 'web-app-openclaw' in group_names }}"
+# nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
+flowise:
+  bond: 0.5
+  enabled: "{{ 'web-app-flowise' in group_names }}"
+  shared: "{{ 'web-app-flowise' in group_names }}"

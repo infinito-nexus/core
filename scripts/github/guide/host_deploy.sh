@@ -14,7 +14,10 @@ awk '/^### Production$/{p=1} p && /^```bash$/{c=1; next} c && /^```$/{exit} c' \
 	grep -vE '^git clone |^cd core$' >/tmp/host-deploy.sh
 test -s /tmp/host-deploy.sh
 
+# shellcheck source=/dev/null
+source scripts/meta/env/load.sh
 sed -i "s#<your-ssh-public-key>#ssh-ed25519 AAAA_TEST_DUMMY_KEY github-ci-dummy@infinito#" /tmp/host-deploy.sh
+sed -i "s#<your-domain>#${INFINITO_DOMAIN}#" /tmp/host-deploy.sh
 
 docker pull "${GUIDE_RUNTIME_IMAGE}"
 
@@ -41,14 +44,20 @@ BOOT_IMAGE="guide-boot:${GUIDE_ROLE}"
 docker commit "${PREP}" "${BOOT_IMAGE}" >/dev/null
 docker rm -f "${PREP}" >/dev/null 2>&1 || true # nocheck: shell-or-true -- cleanup of a possibly already-removed container
 
+python3 -c 'from pathlib import Path; from cli.administration.deploy.development.coredns import CoreDNSCorefileRenderer; CoreDNSCorefileRenderer(repo_root=Path(".")).render(show_preview=False)'
+docker compose up -d coredns
+GUIDE_NET="$(docker inspect -f '{{range $k, $v := .NetworkSettings.Networks}}{{$k}}{{end}}' "${INFINITO_RUNNER_PREFIX}-coredns")"
+
 CID="$(docker run -d --privileged --cgroupns=host \
+	--network "${GUIDE_NET}" --ip "${INFINITO_IP4}" --dns "${INFINITO_DNS_IP}" \
 	-v /sys/fs/cgroup:/sys/fs/cgroup:rw \
 	--tmpfs /run --tmpfs /run/lock \
+	-v /srv \
 	-v "${PWD}:${PWD}" \
 	--entrypoint /sbin/init \
 	"${BOOT_IMAGE}")"
 # shellcheck disable=SC2154
-trap 'rc=$?; if [ "${rc}" -ne 0 ]; then _rescue="${INFINITO_RESCUE_DIAGNOSTICS_BASE}/${INFINITO_DISTRO}/${GUIDE_ROLE}"; INFINITO_RESCUE_DIAGNOSTICS_DIR="${_rescue}" python3 utils/diagnostics/container.py "${GUIDE_ROLE}" "guide host boot failure" || true; bash scripts/tests/deploy/utils/rescue_index.sh "${_rescue}"; fi; docker rm -f "${CID}" >/dev/null 2>&1 || true; docker rmi -f "${BOOT_IMAGE}" >/dev/null 2>&1 || true' EXIT # nocheck: shell-or-true -- best-effort diagnostics + teardown in the EXIT trap
+trap 'rc=$?; if [ "${rc}" -ne 0 ]; then _rescue="${INFINITO_RESCUE_DIAGNOSTICS_BASE}/${INFINITO_DISTRO}/${GUIDE_ROLE}"; INFINITO_RESCUE_DIAGNOSTICS_DIR="${_rescue}" python3 utils/diagnostics/container.py "${GUIDE_ROLE}" "guide host boot failure" || true; bash scripts/tests/deploy/utils/rescue_index.sh "${_rescue}"; fi; docker rm -f -v "${CID}" >/dev/null 2>&1 || true; docker compose down >/dev/null 2>&1 || true; docker rmi -f "${BOOT_IMAGE}" >/dev/null 2>&1 || true' EXIT # nocheck: shell-or-true -- best-effort diagnostics + teardown in the EXIT trap
 
 for _ in $(seq 1 40); do
 	state="$(docker exec "${CID}" systemctl is-system-running 2>/dev/null || true)"

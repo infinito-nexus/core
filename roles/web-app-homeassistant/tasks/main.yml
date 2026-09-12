@@ -1,0 +1,5 @@
+---
+- include_tasks: 00_core.yml
+  when: run_once_web_app_homeassistant is not defined
+  vars:
+    application_id: web-app-homeassistant

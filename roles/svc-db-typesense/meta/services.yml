@@ -20,6 +20,9 @@ typesense:
   mem_reservation: 512m
   mem_limit: 1g
   pids_limit: 1024
+  healthcheck:
+    test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8108; printf \"GET /health HTTP/1.0\\r\\n\\r\\n\" >&3; grep -q \"200 OK\" <&3'"]
+    retries: 18
   ports:
     local:
       typesense: 8108

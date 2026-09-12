@@ -1,0 +1,22 @@
+---
+- name: "🩺 Ask the MCP endpoint whether the stored app password authenticates"
+  ansible.builtin.shell: |
+    # nocheck: container-exec-resolver
+    container exec {{ NEXTCLOUD_PROXY_LOCAL_CID | quote }} \
+      {{ lookup('timeout', 30) | curl }} -o /dev/null -w '%{http_code}' -X POST \
+      -H 'Host: {{ NEXTCLOUD_DOMAIN }}' \
+      -H 'Authorization: Bearer {{ nextcloud_mcp_token }}' \
+      -H 'Accept: application/json, text/event-stream' \
+      -H 'Content-Type: application/json' \
+      --data '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"infinito","version":"1"}}}' \
+      'http://127.0.0.1:{{ container_port }}{{ NEXTCLOUD_MCP_PATH }}'
+  args:
+    executable: /bin/bash
+  register: nextcloud_mcp_probe
+  retries: 30
+  delay: 10
+  until: nextcloud_mcp_probe.stdout in ['200', '401', '404']
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ NEXTCLOUD_PROXY_HOST_NODE }}"
+  run_once: true

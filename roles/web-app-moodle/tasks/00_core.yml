@@ -1,6 +1,10 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "🚦 Declare the MCP edge limits before the vhost references them"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-webserver-core/tasks/utils/mcp_edge_limits.yml') }}"
+  when: MOODLE_MCP_ENABLED | bool
+
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
     name: sys-stk-full

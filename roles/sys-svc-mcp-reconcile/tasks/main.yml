@@ -1,0 +1,32 @@
+---
+- name: "🔒 Stop excusing a provider whose credential never resolved"
+  ansible.builtin.set_fact:
+    MCP_RECONCILE_STRICT: true
+
+- name: "🔍 Find which MCP clients this deployment actually carries"
+  ansible.builtin.stat:
+    path: "{{ lookup('container', mcp_client.id, 'directories.instance') }}"
+  register: mcp_client_instances
+  loop: "{{ lookup('roles_with_service', 'mcp', topic='mcp', direction='client') }}"
+  loop_control:
+    loop_var: mcp_client
+    label: "{{ mcp_client.id }}"
+  changed_when: false
+  delegate_to: "{{ STACK_HOST }}"
+
+- name: "🔌 Reconcile every MCP client against the complete provider set"
+  ansible.builtin.include_tasks: "utils/reconcile_one.yml"
+  vars:
+    application_id: "{{ mcp_client.id }}"
+    domain: "{{ lookup('domain', mcp_client.id) }}"
+  loop: "{{ mcp_client_instances.results | selectattr('stat.exists') | map(attribute='mcp_client') | list }}"
+  loop_control:
+    loop_var: mcp_client
+    label: "{{ mcp_client.id }}"
+
+- name: "🚿 Flush what the clients notified while they were still bound"
+  ansible.builtin.meta: flush_handlers
+
+- name: "🔓 Stop being strict once the reconciliation is over"
+  ansible.builtin.set_fact:
+    MCP_RECONCILE_STRICT: false

@@ -122,12 +122,12 @@ class TestStableVariablesSignature(unittest.TestCase):
         sig = base._stable_variables_signature(
             {
                 "applications": {"web-app-x": {}},
-                "DOMAIN_PRIMARY": "infinito.example",
-                "SYSTEM_EMAIL_DOMAIN": "mail.infinito.example",
+                "DOMAIN_PRIMARY": "infinito.test",
+                "SYSTEM_EMAIL_DOMAIN": "mail.infinito.test",
             }
         )
-        self.assertEqual(sig[2], "infinito.example")
-        self.assertEqual(sig[3], "mail.infinito.example")
+        self.assertEqual(sig[2], "infinito.test")
+        self.assertEqual(sig[3], "mail.infinito.test")
 
 
 class TestTokensFileSignature(unittest.TestCase):

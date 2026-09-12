@@ -37,6 +37,25 @@ trusted_key_servers:
   - server_name: "matrix.org"
 admin_contact: 'mailto:{{ lookup('users', 'administrator').email }}'
 
+rc_joins:
+  local:
+    per_second: 0.1
+    burst_count: {{ MATRIX_SYNAPSE_LOGIN_BURST }}
+  remote:
+    per_second: 0.01
+    burst_count: {{ MATRIX_SYNAPSE_LOGIN_BURST }}
+
+rc_login:
+  address:
+    per_second: 0.17
+    burst_count: {{ MATRIX_SYNAPSE_LOGIN_BURST }}
+  account:
+    per_second: 0.17
+    burst_count: {{ MATRIX_SYNAPSE_LOGIN_BURST }}
+  failed_attempts:
+    per_second: 0.17
+    burst_count: {{ MATRIX_SYNAPSE_LOGIN_BURST }}
+
 {% set email = lookup('email', application_id) %}
 {% if email.enabled | bool %}
 email:

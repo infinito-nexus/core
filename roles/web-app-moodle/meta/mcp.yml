@@ -1,0 +1,37 @@
+---
+classification: plugin_server
+direction: server
+source_url: https://moodle.org/plugins/webservice_mcp
+transport: streamable_http
+exposure: public
+auth: bearer_token
+auth_subject: service_account
+implementation: plugin
+credential:
+  owner: mcp-web-app-moodle
+  source: token_store
+  key: web-app-moodle
+endpoint:
+  service_key: nginx
+  path: /webservice/mcp/server.php
+  port_key: http
+limits:
+  request_bytes: 65536
+  response_bytes: 1048576
+  timeout_seconds: 15
+  concurrent_requests: 4
+  page_size: 100
+  result_items: 500
+  stream_seconds: 300
+tools:
+  read_probe:
+    tool: core_course_get_courses
+    arguments: {}
+  allowlist:
+    - core_calendar_get_calendar_events
+    - core_course_get_courses
+    - core_enrol_get_users_courses
+    - core_user_get_users_by_field
+    - core_webservice_get_site_info
+  read_only_default: true
+  mutating_tools_enabled: false

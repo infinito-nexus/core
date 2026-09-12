@@ -41,15 +41,16 @@
 
 - name: 🩹 Patch Friendica local.config.php with updated DB credentials
   ansible.builtin.include_tasks:
-    file: 03_patch_config.yml
+    file: utils/patch/config.yml
     apply:
       notify: compose-up
   when: friendica_config_exists.rc == 0
+
 - name: ➕ Add Friendica Add Ons
-  include_tasks: 04_addons.yml
+  include_tasks: 03_addons.yml
 
 - name: "🎬 Bootstrap Friendica admin user (only when no LDAP provider provisions them)"
-  include_tasks: 05_user_bootstrap.yml
+  include_tasks: 04_user_bootstrap.yml
   when: not (FRIENDICA_LDAP_ENABLED | bool)
 
 - name: "📧 Verify the relay accepted Friendica's startup mail"

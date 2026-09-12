@@ -1,5 +1,6 @@
 ---
 - name: "➕ Add Keycloak OIDC Provider"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -i --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} \
       gitea admin auth add-oauth \
@@ -32,6 +33,7 @@
     oidc_source_id: "{{ oidc_source_id_raw.stdout }}"
 
 - name: "🔄 Update Keycloak OIDC Provider"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -i --user {{ GITEA_USER }} {{ GITEA_LOCAL_CID | quote }} \
       gitea admin auth update-oauth \

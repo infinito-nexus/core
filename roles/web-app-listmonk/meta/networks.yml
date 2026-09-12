@@ -1,3 +1,8 @@
 ---
 local:
   subnet: 192.168.27.0/24
+overlay:
+  modes: [compose, swarm]
+  topology: shared_net
+  consumer:
+    kind: mcp_client

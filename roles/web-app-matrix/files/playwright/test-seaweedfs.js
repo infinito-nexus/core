@@ -62,6 +62,13 @@ test("seaweedfs: an uploaded Matrix avatar is stored in the SeaweedFS bucket", a
       ).toBeAttached({ timeout: resolveTimeout(60_000) });
 
       const marker = `infinito-storage-check-${Date.now()}.png`;
+      const upload = appPage.waitForResponse(
+        (response) =>
+          /\/_matrix\/media\/(v3|r0)\/upload/.test(response.url()) &&
+          response.request().method() === "POST",
+        { timeout: resolveTimeout(120_000) },
+      );
+
       await fileInput.setInputFiles({
         name: marker,
         mimeType: "image/png",
@@ -71,9 +78,20 @@ test("seaweedfs: an uploaded Matrix avatar is stored in the SeaweedFS bucket", a
       const saveButton = appPage
         .getByRole("button", { name: /^(save|apply|upload|confirm)$/i })
         .first();
-      if (await saveButton.waitFor({ state: "visible", timeout: resolveTimeout(2_000) }).then(() => true).catch(() => false)) {
+      if (await saveButton.waitFor({ state: "visible", timeout: resolveTimeout(30_000) }).then(() => true).catch(() => false)) {
         await saveButton.click().catch(() => {});
       }
+
+      const response = await upload.catch(() => null);
+      expect(
+        response,
+        "Element never POSTed the avatar to /_matrix/media/*/upload, so nothing could reach the bucket; " +
+          "the settings flow did not complete rather than the object store failing",
+      ).not.toBeNull();
+      expect(
+        response.status(),
+        `Synapse rejected the avatar upload with HTTP ${response.status()}`,
+      ).toBeLessThan(300);
     },
   });
 });

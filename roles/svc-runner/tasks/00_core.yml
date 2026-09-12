@@ -5,6 +5,7 @@
   ansible.builtin.include_role:
     name: sys-svc-container
     tasks_from: 00_core.yml
+  when: run_once_sys_svc_container is not defined
 
 - name: 🔧 Tune kernel inotify limits for parallel runner containers
   ansible.posix.sysctl:
@@ -169,6 +170,7 @@
   ansible.builtin.include_role:
     name: sys-svc-compose
     tasks_from: 00_core.yml
+  when: run_once_sys_svc_compose is not defined
 
 - name: 📄 Render runner compose file
   template: # nocheck: stack-host-template (node-local runner: every node renders + deploys its own compose stack)

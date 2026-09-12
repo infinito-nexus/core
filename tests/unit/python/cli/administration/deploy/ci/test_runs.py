@@ -395,7 +395,6 @@ class TestConfigFromTitle(unittest.TestCase):
             "filesystem": "ext4",
             "chunk_gate": "false",
             "workspace": "true",
-            "instructions": "false",
         }
         self.assertEqual(runs.config_from_title(render(dispatched)), dispatched)
 
@@ -442,6 +441,90 @@ class TestConfigFromTitle(unittest.TestCase):
         title = render({"mode": "swarm"})
         self.assertNotIn("tor", runs.config_from_run(title, {}))
         self.assertNotIn("tor", runs.config_from_run(title))
+
+    def _suite_job(self, suite: str, conclusion: str) -> dict:
+        return {
+            "name": f"🎛️ Orchestrate CI (manual) / {runs.SUITE_JOB_IDS[suite]} / 📖 X",
+            "status": "completed",
+            "conclusion": conclusion,
+        }
+
+    def test_a_suite_the_source_run_passed_is_not_asked_for_again(self) -> None:
+        for suite in runs.SUITE_JOB_IDS:
+            with self.subTest(suite):
+                title = render({suite: "true"})
+                jobs = [self._suite_job(suite, "success")]
+                self.assertEqual(runs.config_from_run(title, jobs=jobs)[suite], "false")
+
+    def test_a_suite_that_failed_is_asked_for_again(self) -> None:
+        for suite in runs.SUITE_JOB_IDS:
+            with self.subTest(suite):
+                title = render({suite: "true"})
+                jobs = [self._suite_job(suite, "failure")]
+                self.assertEqual(runs.config_from_run(title, jobs=jobs)[suite], "true")
+
+    def test_a_suite_that_never_ran_is_asked_for_again(self) -> None:
+        """No job at all means it never started, which proves nothing."""
+        title = render({"workspace": "true"})
+        jobs = [{"name": "🧹 Lint", "status": "completed", "conclusion": "success"}]
+        self.assertEqual(runs.config_from_run(title, jobs=jobs)["workspace"], "true")
+
+    def test_a_shard_that_did_not_run_through_is_asked_for_again(self) -> None:
+        """Only a success retires the suite; every other outcome, a mid-run
+        force-cancel included, leaves it unproven."""
+        for conclusion in ("cancelled", "skipped", "timed_out"):
+            with self.subTest(conclusion):
+                title = render({"workspace": "true"})
+                jobs = [self._suite_job("workspace", conclusion)]
+                self.assertEqual(
+                    runs.config_from_run(title, jobs=jobs)["workspace"], "true"
+                )
+
+    def test_a_still_running_shard_is_asked_for_again(self) -> None:
+        title = render({"workspace": "true"})
+        jobs = [
+            {
+                "name": f"🎛️ Orchestrate CI (manual) / {runs.SUITE_JOB_IDS['workspace']}",
+                "status": "in_progress",
+                "conclusion": None,
+            }
+        ]
+        self.assertEqual(runs.config_from_run(title, jobs=jobs)["workspace"], "true")
+
+    def test_one_failing_shard_keeps_the_whole_suite(self) -> None:
+        title = render({"workspace": "true"})
+        jobs = [
+            self._suite_job("workspace", "success"),
+            self._suite_job("workspace", "failure"),
+        ]
+        self.assertEqual(runs.config_from_run(title, jobs=jobs)["workspace"], "true")
+
+    def test_a_suite_passed_on_the_auto_default_is_retired_too(self) -> None:
+        """``auto`` is the default every unattended run reaches the suite on,
+        and a ``--failed`` retrigger leaves the whitelist empty, which
+        call-orchestrator.yml still reads as global scope. Keeping ``auto``
+        would rerun a green suite on every retrigger of the chain."""
+        for suite in runs.SUITE_JOB_IDS:
+            with self.subTest(suite):
+                jobs = [self._suite_job(suite, "success")]
+                logged = {suite: "auto"}
+                config = runs.config_from_run(render({}), logged, jobs=jobs)
+                self.assertEqual(config[suite], "false")
+
+    def test_a_suite_passed_without_any_recorded_input_is_retired_too(self) -> None:
+        for suite in runs.SUITE_JOB_IDS:
+            with self.subTest(suite):
+                jobs = [self._suite_job(suite, "success")]
+                config = runs.config_from_run(render({}), {}, jobs=jobs)
+                self.assertEqual(config[suite], "false")
+
+    def test_a_suite_left_on_auto_that_failed_stays_on_auto(self) -> None:
+        for suite in runs.SUITE_JOB_IDS:
+            with self.subTest(suite):
+                jobs = [self._suite_job(suite, "failure")]
+                logged = {suite: "auto"}
+                config = runs.config_from_run(render({}), logged, jobs=jobs)
+                self.assertEqual(config[suite], "auto")
 
 
 if __name__ == "__main__":

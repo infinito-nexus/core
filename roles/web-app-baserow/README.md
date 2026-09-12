@@ -20,9 +20,12 @@ flowchart LR
         dep_svc_db_redis["svc-db-redis 🐳🐝"]
         dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
+        dep_web_app_hermes["web-app-hermes 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
+        dep_web_app_openclaw["web-app-openclaw 🐳🐝"]
+        dep_web_app_openwebui["web-app-openwebui 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
         dep_web_app_seaweedfs["web-app-seaweedfs 🐳🐝"]
         dep_web_svc_css["web-svc-css 💻"]
@@ -39,20 +42,28 @@ flowchart LR
         svc_minio["minio ❌"]
         svc_seaweedfs["seaweedfs"]
         svc_baserow["baserow"]
+        svc_baserowmcp["baserowmcp"]
         svc_css["css"]
         svc_javascript["javascript"]
         svc_prometheus["prometheus"]
         svc_tor["tor"]
         svc_container_backup["container_backup"]
+        svc_openwebui["openwebui"]
+        svc_hermes["hermes"]
+        svc_openclaw["openclaw"]
+        svc_flowise["flowise ❌"]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_postgres -. "0..1" .-> svc_postgres
     dep_svc_db_redis -. "0..1" .-> svc_redis
     dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
+    dep_web_app_hermes -. "0..1" .-> svc_hermes
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
     dep_web_app_matomo -. "0..1" .-> svc_matomo
+    dep_web_app_openclaw -. "0..1" .-> svc_openclaw
+    dep_web_app_openwebui -. "0..1" .-> svc_openwebui
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_app_seaweedfs -. "0..1" .-> svc_seaweedfs
     dep_web_svc_css -. "0..1" .-> svc_css
@@ -68,6 +79,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - **Dynamic Customization:** Adapt workflows and database structures to suit your specific needs.
 - **Scalable Architecture:** Efficiently handle increasing workloads while maintaining high performance.
 - **Robust API Integration:** Leverage a comprehensive API to extend functionalities and integrate with other systems.
+- **MCP Server:** Serve four read-only Baserow tools to AI clients through a bearer-guarded adapter sidecar that fronts the native SSE endpoint.
 
 ## Quick Setup
 
@@ -89,19 +101,20 @@ Run the published image to provision the inventory and deploy Baserow to a manag
 ```bash
 APP=web-app-baserow
 HOST=<your-server>
+DOMAIN=<your-domain>
 TLS_MODE=self_signed
 SSH_PUBLIC_KEY="<your-ssh-public-key>"
 
 docker run --rm -it \
   -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  -e APP="$APP" -e HOST="$HOST" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
+  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
   ghcr.io/infinito-nexus/core/debian bash -c '
     INVENTORY=/etc/infinito.nexus/inventories/production
     infinito administration inventory provision "$INVENTORY" \
       --inventory-file "$INVENTORY/devices.yml" \
       --host "$HOST" \
       --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
+      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
     infinito administration deploy dedicated "$INVENTORY/devices.yml" \
       --password-file "$INVENTORY/.password" \
       --diff -vv'
@@ -137,6 +150,90 @@ Configuration is controlled via `applications.<app>.bootstrap_admin.*`:
 - `username`
 - `email`
 - `password` (should come from vault/credentials)
+
+## MCP Server
+
+Baserow ships a native MCP server in the OSS backend, mounted on the ASGI root
+ahead of Django. Clients do not reach it. The role runs it as the *upstream* of
+a [`svc-ai-mcp-adapter`](../svc-ai-mcp-adapter/README.md) sidecar
+(`classification: adapter_server`), and the sidecar is the only MCP surface a
+consumer is given.
+
+The reason is the endpoint's own shape: Baserow's `MCPEndpoint` carries no
+scope column, so the endpoint key grants every tool the backend implements —
+including the three write tools — with no way to narrow it. The adapter is what
+narrows it, by serving four read tools and refusing every other name.
+
+### Topology
+
+```
+consumer ──Bearer──> baserowmcp (adapter) ──endpoint-key in URL──> baserow:80/mcp
+```
+
+| Property | Value |
+| --- | --- |
+| Client transport | `streamable_http` at `http://baserowmcp:<http>/mcp` |
+| Client auth | `Authorization: Bearer <credentials.mcp_bearer>` |
+| Upstream transport | HTTP+SSE (`adapter.upstream_transport: sse`) |
+| Upstream stream | `GET http://baserow:80/mcp/<endpoint-key>/sse` |
+| Upstream messages | `POST http://baserow:80/mcp/messages/?session_id=<id>` |
+
+The SSE session travels through the shared Redis channel layer, so the stream
+and the message POST may land on different replicas.
+
+### Auth
+
+Two credentials, in two directions.
+
+Client to adapter: `credentials.mcp_bearer`, owned by `mcp-web-app-baserow`.
+The adapter refuses any request that does not present it, so a caller on the
+container network is no longer implicitly trusted.
+
+Adapter to Baserow: the endpoint key, which Baserow reads from the URL *path*,
+not from a header. It reaches the sidecar as `ADAPTER_UPSTREAM_PATH_KEY` and is
+spliced in by `policy.upstream_url()`, so it never enters the rendered contract
+the sidecar advertises. The key is generated as `credentials.mcp_endpoint_key`
+(32 hex characters, matching the `varchar(32)` column). An unknown key answers
+`401 Endpoint not found.`.
+
+[`tasks/utils/mcp.yml`](./tasks/utils/mcp.yml) creates a dedicated non-superuser
+owner (`mcp@<canonical-domain>`, unusable password) plus its own workspace, and
+binds the endpoint to that pair.
+
+### Tools
+
+Served: `get_table_schema`, `list_databases`, `list_table_rows`, `list_tables`.
+
+Refused: the ten remaining tools Baserow 2.3.3 implements, listed under
+`tools.upstream_serves`. Three of them (`create_rows`, `update_rows`,
+`delete_rows`) are live upstream — the image carries no env var, setting or UI
+toggle that removes them, so `mutating_tools_enabled: false` is enforced by the
+adapter and by nothing in Baserow. The other seven are shipped disabled
+upstream and are listed so a version bump that enables one shows up as contract
+drift rather than as a silently widened surface.
+
+The four served schemas are pinned in
+[`files/mcp/tools.json`](./files/mcp/tools.json) and hashed into
+`tools.schema_sha256`; the adapter refuses to start when the two disagree.
+
+### Authorization subject
+
+`auth_subject: service_account`. A call arrives at Baserow as the endpoint owner
+regardless of who asked the client, and reaches only the one workspace that
+account owns. That is the second bound under the adapter's allowlist, not a
+substitute for it.
+
+### Default state
+
+Off. `mcp.enabled` is true only while an MCP client role is part of the
+deployment.
+
+### How to disable
+
+Remove the MCP client role, or pin `mcp.enabled: false` for this role in the
+inventory. The endpoint is then not provisioned, the sidecar is not deployed,
+and `BASEROW_EXTRA_PUBLIC_URLS` drops the MCP origin, so the image's Caddy layer
+stops routing `/mcp/*`.
 
 ## Security: SECRET_KEY
 

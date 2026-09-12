@@ -8,5 +8,7 @@ location ~* \.(jpg|jpeg|png|gif|webp|ico|svg)$ {
     proxy_cache_valid 404 1m;
     add_header X-Proxy-Cache $upstream_cache_status;
 
+    {% include 'roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2' %}
+
     {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
 }

@@ -1,4 +1,6 @@
 location {{ webserver_websocket_location }} {
+  {% include 'roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2' %}
+
   proxy_set_header      Host              $host;
   proxy_set_header      X-Real-IP         $remote_addr;
   proxy_set_header      X-Forwarded-For   $proxy_add_x_forwarded_for;

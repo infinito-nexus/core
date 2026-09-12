@@ -7,7 +7,6 @@ set -euo pipefail
 : "${BUSYBOX_IMAGE:?Missing Busybox image}"
 : "${NODE_IMAGE?Missing Node image; pass it empty to skip the getaddrinfo check}"
 
-: "${DNS_IP:?Missing env DNS_IP}"
 : "${DOMAIN:?Missing env DOMAIN}"
 
 SUBDOMAIN="foo.${DOMAIN}"
@@ -38,7 +37,7 @@ container info >/dev/null 2>&1 || fail "container info still failing after waiti
 
 section "Docker-in-Docker DNS (busybox: A + no SERVFAIL)"
 
-container run --rm --dns "${DNS_IP}" "${BUSYBOX_IMAGE}" sh -lc "
+container run --rm "${BUSYBOX_IMAGE}" sh -lc "
   set -e
 
   test_lookup_a() {
@@ -76,7 +75,7 @@ if [ -z "${NODE_IMAGE}" ]; then
 else
   section "Docker-in-Docker DNS (node/getaddrinfo)"
 
-  container run --rm --dns "${DNS_IP}" "${NODE_IMAGE}" sh -lc "
+  container run --rm "${NODE_IMAGE}" sh -lc "
     set -e
     node -e \"
       const dns = require('dns');

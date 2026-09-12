@@ -5,9 +5,7 @@
     dest: "{{ BLUESKY_SOCIAL_APP_DIR }}"
     version: "{{ BLUESKY_SOCIAL_APP_REF }}"
     force: true
-  notify:
-    - compose-up
-    - compose-build
+  register: bluesky_social_app_clone
 
 - name: 💪 Force BAPP_CONFIG_URL to same-origin /config
   ansible.builtin.replace:

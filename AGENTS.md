@@ -55,6 +55,14 @@ Whenever an operator types out something an existing alias (listed by `make alia
 
 Agents MUST write all transient files (downloaded logs, intermediate output, scratch artefacts) to `/tmp`. The set of writable paths is defined by `sandbox.filesystem.allowWrite` in [`.claude/settings.json`](.claude/settings.json); of those entries, `/tmp` is the designated path for agent scratch data. Other entries are reserved for their respective tooling and MUST NOT be repurposed for agent temp data. The repository working tree MUST NOT hold transient files.
 
+## Credentials in Agent Output 🔐
+
+Agents MUST read deploy logs by extracting the field they need (`msg`, `stderr`, a probe result). Printing a raw task block, `argv` list, or environment dump is **FORBIDDEN ⛔**, including via a line-range `sed`/`head` over one.
+
+A secret denylist such as `grep -v 'password|token|key'` does **NOT** count as protection: it is case-sensitive, and secrets also travel inside URL paths. Local deploys run with `MASK_CREDENTIALS_IN_LOGS` disabled, so `no_log` does not mask these tasks.
+
+When a credential must be compared, compute and compare digests inside the container; never emit the value. If a credential does reach the transcript, agents MUST say so in the same message and list it for rotation.
+
 ## Container-Owned Filesystem Entries 🐳
 
 Files produced by the containerized runner (e.g. `__pycache__/*.pyc` under `tests/`, build artefacts) are often owned by `nobody` or another in-container UID and cannot be removed from the host. When a host-level `rm`/`chmod`/edit fails with `Permission denied` on such paths, agents MUST run the cleanup via `make compose-exec` (see [compose.yml](compose.yml); the repo is mounted at `/opt/src/infinito`) and MUST NOT ask the operator which path to take.

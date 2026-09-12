@@ -43,6 +43,14 @@ nginx_conf:
     - service: proxy
       target: /etc/nginx/nginx.conf
 
+fpm_pool_conf:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-nextcloud', 'directories.volumes'), 'fpm-pool.conf' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: nextcloud
+      target: /usr/local/etc/php-fpm.d/zzz-infinito.conf
+
 infinito_conf:
   type: bind
   source: "{{ [ lookup('container', 'web-app-nextcloud', 'directories.volumes'), 'infinito' ] | path_join }}"

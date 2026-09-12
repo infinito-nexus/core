@@ -1,0 +1,114 @@
+{
+  "get_issue": {
+    "description": "Get issue.",
+    "input_schema": {
+      "properties": {},
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_job_log": {
+    "description": "Get job log.",
+    "input_schema": {
+      "properties": {},
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_mcp_server_version": {
+    "description": "Get mcp server version.",
+    "input_schema": {
+      "properties": {},
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_merge_request": {
+    "description": "Get merge request.",
+    "input_schema": {
+      "properties": {},
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_merge_request_commits": {
+    "description": "Get merge request commits.",
+    "input_schema": {
+      "properties": {},
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_merge_request_conflicts": {
+    "description": "Get merge request conflicts.",
+    "input_schema": {
+      "properties": {},
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_merge_request_diffs": {
+    "description": "Get merge request diffs.",
+    "input_schema": {
+      "properties": {},
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_merge_request_pipelines": {
+    "description": "Get merge request pipelines.",
+    "input_schema": {
+      "properties": {},
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_pipeline_jobs": {
+    "description": "Get pipeline jobs.",
+    "input_schema": {
+      "properties": {},
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_saved_view_work_items": {
+    "description": "Get saved view work items.",
+    "input_schema": {
+      "properties": {},
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_work_item_types": {
+    "description": "Get work item types.",
+    "input_schema": {
+      "properties": {},
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_workitem_notes": {
+    "description": "Get workitem notes.",
+    "input_schema": {
+      "properties": {},
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "search": {
+    "description": "Search.",
+    "input_schema": {
+      "properties": {},
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "search_labels": {
+    "description": "Search labels.",
+    "input_schema": {
+      "properties": {},
+      "type": "object"
+    },
+    "mutating": false
+  }
+}

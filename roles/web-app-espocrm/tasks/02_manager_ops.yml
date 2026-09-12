@@ -15,6 +15,14 @@
     - compose-up
     - compose-build
 
+- name: "🚀 Deploy '{{ ESPOCRM_SCRIPT_SIDECAR_HOST_ABS }}'"
+  copy:
+    src: "shell/{{ ESPOCRM_SCRIPT_SIDECAR_FILE }}"
+    dest: "{{ ESPOCRM_SCRIPT_SIDECAR_HOST_ABS }}"
+  notify:
+    - compose-up
+    - compose-build
+
 - name: "🐳 Docker Compose Up for '{{ application_id }}'"
   meta: flush_handlers
 
@@ -61,3 +69,15 @@
 
 - name: 🚿 Flush handlers to make DB available before password reset
   meta: flush_handlers
+
+- name: 🔑 Realign the administrator password EspoCRM persisted at install
+  ansible.builtin.shell: |
+    # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ ESPOCRM_LOCAL_CID | quote }} \
+      php command.php set-password {{ lookup('config', application_id, 'users.administrator.username') | quote }}
+  args:
+    stdin: "{{ lookup('config', application_id, 'secrets.credentials.administrator_password') }}"
+  register: espocrm_admin_password
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  changed_when: espocrm_admin_password.rc == 0
+  delegate_to: "{{ ESPOCRM_HOST_NODE }}"

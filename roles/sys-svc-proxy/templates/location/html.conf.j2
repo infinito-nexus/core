@@ -35,9 +35,9 @@ location {{location}}
   proxy_set_header Connection $connection_upgrade;
 
   proxy_connect_timeout     5s;
-  proxy_send_timeout        900s;
-  proxy_read_timeout        900s;
-  send_timeout              900s;
+  proxy_send_timeout        {{ webserver_proxy_send_timeout | default('900s') }};
+  proxy_read_timeout        {{ webserver_proxy_read_timeout | default('900s') }};
+  send_timeout              {{ webserver_send_timeout | default('900s') }};
   
   {% set proxy_lua_enabled = proxy_lua_enabled | default(true) | bool %}
   proxy_buffering           {{ 'on' if proxy_lua_enabled else 'off' }}; 

@@ -20,6 +20,7 @@ The diagram places Matrix in the Infinito.Nexus cosmos: the components it deploy
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
+        dep_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
         dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
@@ -35,6 +36,7 @@ flowchart LR
         dep_web_svc_logout["web-svc-logout 🐳🐝"]
     end
     subgraph role [web-app-matrix 🐳🐝]
+        svc_litellm["litellm"]
         svc_sso["sso"]
         svc_ldap["ldap"]
         svc_logout["logout"]
@@ -56,6 +58,7 @@ flowchart LR
     subgraph dependents [Dependents]
         dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]
     end
+    dep_svc_ai_litellm -. "0..1" .-> svc_litellm
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
     dep_svc_db_postgres -. "0..1" .-> svc_postgres
@@ -69,7 +72,7 @@ flowchart LR
     dep_web_svc_coturn -. "0..1" .-> svc_coturn
     dep_web_svc_css -. "0..1" .-> svc_css
     dep_web_svc_logout -. "0..1" .-> svc_logout
-    svc_sso -. "0..1" .-> dpt_web_app_nextcloud
+    svc_litellm -. "0..1" .-> dpt_web_app_nextcloud
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
@@ -102,19 +105,20 @@ Run the published image to provision the inventory and deploy Matrix to a manage
 ```bash
 APP=web-app-matrix
 HOST=<your-server>
+DOMAIN=<your-domain>
 TLS_MODE=self_signed
 SSH_PUBLIC_KEY="<your-ssh-public-key>"
 
 docker run --rm -it \
   -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  -e APP="$APP" -e HOST="$HOST" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
+  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
   ghcr.io/infinito-nexus/core/debian bash -c '
     INVENTORY=/etc/infinito.nexus/inventories/production
     infinito administration inventory provision "$INVENTORY" \
       --inventory-file "$INVENTORY/devices.yml" \
       --host "$HOST" \
       --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
+      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
     infinito administration deploy dedicated "$INVENTORY/devices.yml" \
       --password-file "$INVENTORY/.password" \
       --diff -vv'
@@ -163,10 +167,8 @@ flowchart TD
     end
     kc["keycloak_keycloak<br/>+ one-shot realm import job"]
 
-    role["web-app-matrix tasks"] -- "renders compose.yml,<br/>notify: swarm deploy" --> flush["meta: flush_handlers<br/>(before registration wait)"]
-    flush -- "docker stack deploy" --> stack
-    stack -- "writes mautrix/*/registration.yaml" --> role
-    role -- "waits for registration files" --> stack
+    role["web-app-matrix tasks"] -- "renders config/mautrix/*/{config,registration}.yaml<br/>and compose.yml, notify: swarm deploy" --> flush["meta: flush_handlers<br/>(before the Synapse wait)"]
+    flush -- "docker stack deploy<br/>(both files as secrets)" --> stack
 
     syn -- "OIDC discovery via<br/>--add-host issuer → subnet .1" --> prx
     prx -- "vhost auth.*" --> kc
@@ -186,8 +188,9 @@ The ansible flavor maps each true flag to the matching `matrix_<bridge>_enabled`
 The mautrix network bridges are declared in
 [`meta/addons/`](./meta/addons/) as `mechanism: bridge` addons
 (requirement 026, Decision 13). Each is `required: false` and **disabled by default**; its
-per-network DB password is referenced from
-[`meta/secrets.yml`](./meta/secrets.yml) `credentials:`, never inlined.
+per-network DB password and its appservice `as_token`/`hs_token` pair are referenced from
+[`meta/secrets.yml`](./meta/secrets.yml) `credentials:`, never inlined. The role renders each
+bridge's `config.yaml` and the matching Synapse `registration.yaml` from the same tokens.
 
 | Addon | Mechanism | Default state | Bridges |
 |-------|-----------|---------------|---------|

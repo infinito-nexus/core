@@ -54,6 +54,33 @@ class TestProblems(unittest.TestCase):
         self.assertEqual(errors, [])
         self.assertIn("web-app-gone", warnings[0])
 
+    def test_a_bare_role_the_run_discovers_is_silent(self) -> None:
+        self.assertEqual(_problems("web-app-a"), ([], []))
+
+    def test_a_bare_role_is_judged_on_existence_not_on_variant_zero(self) -> None:
+        rows = [{"name": "web-app-c", "variant": 4, "test_compose": True}]
+        with (
+            mock.patch.object(validate.query, "discover_rows", return_value=rows),
+            mock.patch.object(
+                validate, "get_variants", return_value={"web-app-c": [{"services": {}}]}
+            ),
+        ):
+            errors, warnings = validate.problems(
+                "web-app-c",
+                modes=("compose",),
+                tor_mode="auto",
+                distros=axes.DISTROS,
+                filesystems=axes.FILESYSTEMS,
+                lifecycles="",
+                label="priority",
+            )
+        self.assertEqual((errors, warnings), ([], []))
+
+    def test_a_warning_still_separates_a_missing_role_from_a_present_one(self) -> None:
+        _errors, warnings = _problems("web-app-a web-app-gone web-app-b")
+        self.assertEqual(len(warnings), 1)
+        self.assertIn("web-app-gone", warnings[0])
+
     def test_a_mode_the_row_does_not_offer_is_an_error(self) -> None:
         errors, _warnings = _problems("web-app-a#1@swarm+clearnet")
         self.assertIn("pinned mode 'swarm' is not available", errors[0])

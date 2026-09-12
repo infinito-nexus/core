@@ -63,9 +63,9 @@ homeserver:
     retry_limit: 4
 
 appservice:
-    address: http://mautrix-telegram:29317
+    address: http://mautrix-telegram:{{ item.appservice_port }}
     hostname: 0.0.0.0
-    port: 29317
+    port: {{ item.appservice_port }}
 
     id: telegram
     bot:
@@ -75,8 +75,8 @@ appservice:
 
     ephemeral_events: true
 
-    as_token: "This value is generated when generating the registration"
-    hs_token: "This value is generated when generating the registration"
+    as_token: "{{ lookup('config', application_id, 'secrets.credentials.mautrix_telegram_bridge_as_token') }}"
+    hs_token: "{{ lookup('config', application_id, 'secrets.credentials.mautrix_telegram_bridge_hs_token') }}"
 
     username_template: {% raw %}telegram_{{.}}{% endraw %}
 
@@ -189,9 +189,3 @@ logging:
     writers:
         - type: stdout
           format: pretty-colored
-        - type: file
-          format: json
-          filename: ./logs/bridge.log
-          max_size: 100
-          max_backups: 10
-          compress: false

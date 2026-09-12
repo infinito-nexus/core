@@ -60,9 +60,9 @@ jitsi_jicofo_container_network: host
 matrix_livekit_jwt_service_container_port: 8030
 
 {% set _synapse_extra_args = [] %}
-{% if (TLS_MODE | lower) == 'self_signed' %}
+{% if MATRIX_CA_INJECTED | bool %}
 {%   set _ = _synapse_extra_args.extend([
-        '--mount type=bind,src=' ~ CA_TRUST.cert_host ~ ',dst=' ~ MATRIX_CA_MOUNT_PATH ~ ',ro',
+        '--mount type=bind,src=' ~ CA_TRUST.bundle_host ~ ',dst=' ~ MATRIX_CA_MOUNT_PATH ~ ',ro',
         '-e SSL_CERT_FILE=' ~ MATRIX_CA_MOUNT_PATH,
         '-e REQUESTS_CA_BUNDLE=' ~ MATRIX_CA_MOUNT_PATH,
      ]) %}

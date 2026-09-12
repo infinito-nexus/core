@@ -18,6 +18,7 @@ The `applications` lookup is the ONLY supported runtime entry point for merged a
 | `lookup('applications')` | Full merged mapping keyed by `application_id`. |
 | `lookup('applications', '<application_id>')` | Merged entry for that application. Raises when missing. |
 | `lookup('applications', '<application_id>', default_value)` | Merged entry, or `default_value` when the entry is missing. |
+| `lookup('applications', carrier=True)` | `{"key": [...], "applications": {...}}`: the full mapping plus the cache key it is valid under. Reserved for the constructor's carrier task (see below). |
 
 ## Data Sources 📚
 
@@ -26,7 +27,19 @@ The lookup merges exactly two sources:
 1. **Defaults** discovered from each role's per-topic meta files: `roles/*/meta/server.yml`, `roles/*/meta/rbac.yml`, `roles/*/meta/services.yml`, `roles/*/meta/volumes.yml`, plus `roles/*/meta/secrets.yml` (post-`apply_schema()`). Variants from `roles/*/meta/variants.yml` deep-merge over the assembled per-role payload. See [layout.md](../../../../design/role/services/layout.md).
 2. **Overrides** supplied through the normal Ansible variable `applications` in inventory, group vars, host vars, or role vars.
 
-No intermediate merged `applications` fact exists. No other source is consulted.
+No other source is consulted.
+
+## Play-Scoped Carrier 🧊
+
+Ansible forks a fresh worker process for every task. The in-process cache inside `get_merged_applications` therefore never survives from one task to the next, and every task that touches the lookup would render the full tree again (about 16 to 23 seconds per task on a CI runner, measured on the workspace jobs).
+
+The constructor stage renders once through the [applications_carrier](../../../../../../plugins/action/applications_carrier.py) action and parks the result together with its cache key in the host fact `_INFINITO_APPLICATIONS_RENDERED` (the action calls `lookup('applications', carrier=True)`). Every later worker inherits that fact at fork time; `get_merged_applications` serves it whenever the key still matches and renders only when it does not (a changed `applications`, `users`, `DOMAIN_PRIMARY` or `SYSTEM_EMAIL_DOMAIN`).
+
+- The task sits in `tasks/stages/01_constructor.yml` after the `networks`, `design` and `service_provider` merges, after the `add_host` placements and after the token store, so the payload renders with the same `group_names`, `groups` and user records a role would see. Moving it earlier bakes stale values into the play.
+- The action masks its own result: the fact is the whole rendered tree with every application's credentials, so it never reaches a log regardless of `MASK_CREDENTIALS_IN_LOGS`.
+- User records inside the payload are the token store's state at render time. Readers of tokens captured later in the play MUST go through `lookup('users', ...)` or `lookup('config', <app>, 'users.<key>...')`, both of which read the users cache fresh.
+- The carrier is private to the lookup. Consumers MUST NOT read `_INFINITO_APPLICATIONS_RENDERED`; they keep going through `lookup('applications')`, which is what makes the carrier transparent.
+- The carrier is the only materialised merged view a play MAY hold. The rule against a top-level `applications` fact above is unchanged.
 
 ## Adding an Application Entry ➕
 
@@ -69,6 +82,7 @@ applications:
 |---|---|
 | [applications.py](../../../../../../plugins/lookup/applications.py) | Runtime entry point for the `applications` lookup. |
 | [applications.py (cache)](../../../../../../utils/cache/applications.py) | Shared aggregation helper that builds and caches defaults (`get_application_defaults`, `get_variants`, `get_merged_applications`). |
+| [carrier.py](../../../../../../utils/cache/carrier.py) | The play-scoped carrier: fact name, `merged_applications_cache_key`, and the reader that serves the carried payload. |
 | [test_applications.py](../../../../../../tests/unit/python/plugins/lookup/test_applications.py) | Unit tests covering the full-dict, single-entry, override, strict missing, and non-strict missing cases. |
 
 For the related users pattern see [users.md](users.md).

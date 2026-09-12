@@ -1,0 +1,4 @@
+---
+application_id: "web-app-litellm"
+domain: "{{ lookup('domain', application_id) }}"
+http_port: "{{ lookup('config', 'svc-ai-litellm', 'services.litellm.ports.local.http') }}"

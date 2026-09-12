@@ -1,0 +1,39 @@
+{
+  "zammad_get_ticket": {
+    "description": "Return one ticket.",
+    "input_schema": {
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "method": "GET",
+    "path": "/api/v1/tickets/{id}"
+  },
+  "zammad_list_organizations": {
+    "description": "List organizations.",
+    "method": "GET",
+    "path": "/api/v1/organizations"
+  },
+  "zammad_search_tickets": {
+    "description": "Search tickets.",
+    "input_schema": {
+      "properties": {
+        "query": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "type": "object"
+    },
+    "method": "GET",
+    "path": "/api/v1/tickets/search"
+  }
+}

@@ -11,8 +11,10 @@
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
+    # nocheck: healthcheck-timing-override  the image's own HEALTHCHECK supplies test, interval, timeout and retries; only the start window is corrected here
     healthcheck:
       start_period: {{ container_healthcheck_start_period }}
+      start_interval: 5s
 
   {% set service_name = KIX_FRONTEND_SERVICE %}
   {{ service_name }}:
@@ -33,8 +35,10 @@
       - BACKEND_API_URL=http://{{ KIX_BACKEND_SERVICE }}:{{ KIX_BACKEND_INTERNAL_PORT }}/api/v1
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
+    # nocheck: healthcheck-timing-override  the image's own HEALTHCHECK supplies test, interval, timeout and retries; only the start window is corrected here
     healthcheck:
       start_period: {{ container_healthcheck_start_period }}
+      start_interval: 5s
 
   {% set service_name = KIX_PROXY_SERVICE %}
   {{ service_name }}:

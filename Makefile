@@ -47,6 +47,11 @@ autoformat: install-lint
 autoformat-restage:
 	@bash scripts/git/autoformat_restage.sh "$(MAKE)" autoformat
 
+.PHONY: bond
+# Serve the role bond matrix, where editing a cell rewrites the role's bond.
+bond:
+	@"$${PYTHON}" -m cli.meta.roles.applications.bond $(args)
+
 .PHONY: bootstrap
 # Install dependencies and prepare the project.
 bootstrap: install setup
@@ -141,6 +146,35 @@ clean-sudo:
 	@echo "Removing ignored git files with sudo"
 	sudo git clean -fdX;
 
+.PHONY: compose-app-exec
+# Run a one-off command inside a deployed app container of the local compose stack.
+# Usage: make compose-app-exec app=<container> cmd="..."
+# Example: make compose-app-exec app=flowise cmd="wget -qO- http://localhost:3000/api/v1/ping"
+# Param app: container name of the deployed app.
+# Param cmd: shell command to run inside it.
+compose-app-exec:
+	@test -n '$(app)' || { echo 'usage: make compose-app-exec app=<container> cmd="..."'; exit 2; }
+	@app='$(app)' cmd='$(cmd)' bash scripts/tests/deploy/local/exec/app.sh
+
+.PHONY: compose-app-logs
+# Dump the logs of a deployed app container of the local compose stack.
+# Usage: make compose-app-logs app=<container> [tail=<lines>]
+# Example: make compose-app-logs app=litellm tail=80
+# Param app: container name of the deployed app.
+# Param tail: number of trailing lines (default: 200).
+compose-app-logs:
+	@test -n '$(app)' || { echo 'usage: make compose-app-logs app=<container> [tail=<lines>]'; exit 2; }
+	@app='$(app)' tail='$(tail)' bash scripts/tests/deploy/local/exec/logs.sh
+
+.PHONY: compose-app-restart
+# Restart a single deployed app container of the local compose stack.
+# Usage: make compose-app-restart app=<container>
+# Example: make compose-app-restart app=nextcloud
+# Param app: container name of the deployed app.
+compose-app-restart:
+	@test -n '$(app)' || { echo 'usage: make compose-app-restart app=<container>'; exit 2; }
+	@app='$(app)' bash scripts/tests/deploy/local/exec/restart.sh
+
 .PHONY: compose-deploy
 # Run the local deploy router.
 # Usage: make compose-deploy [mode=...] [apps=...] [purge=...] [type=...] [bundles=...] [disable=...] [full_cycle=...] [variant=...] [debug=...]
@@ -234,7 +268,7 @@ console:
 # Usage: make cosmos [role=<id>]
 # Param role: single role id (default: all roles)
 cosmos:
-	@"$${PYTHON}" -m cli.build.readme $(role) --update-cosmos
+	@"$${PYTHON}" -m cli.build.docs.readme $(role) --update-cosmos
 
 .PHONY: diagnose-disk-usage
 # Show disk and Docker resource usage to identify what to clean up.
@@ -248,11 +282,12 @@ diagnose-network:
 	@$(MAKE) compose-exec cmd="python3 -m cli.contributing.network.diagnose"
 
 .PHONY: docs
-# Regenerate generated documentation: role Cosmos diagrams, Quick Setup blocks, and the root-README roles index.
+# Regenerate generated documentation: role Cosmos diagrams, Quick Setup blocks, the root-README roles index, and the MCP audit report.
 docs:
 	@"$(MAKE)" cosmos
 	@"$(MAKE)" readme-generate quick_setup=true
 	@"$(MAKE)" readme-index
+	@"$(MAKE)" mcp-audit
 
 .PHONY: dotenv
 # Regenerate .env (SPOT) from default.env + runtime context.
@@ -387,6 +422,11 @@ install-system-python:
 install-venv: install-system-python
 	@bash scripts/install/venv.sh
 
+.PHONY: integration-matrix
+# Regenerate the role-by-role integration matrix from the roles and the curated edge map.
+integration-matrix:
+	@"$${PYTHON}" -m cli.build.docs.integration_matrix
+
 .PHONY: kernel-loop-load
 # Load the kernel loop driver the swarm backup DR drill needs.
 # Note: run this on the host; container environments have no modprobe.
@@ -408,6 +448,7 @@ lint: install-lint
 		lint-packages \
 		lint-php \
 		lint-playwright \
+		lint-php \
 		lint-python \
 		lint-ruby \
 		lint-shellcheck \
@@ -465,7 +506,6 @@ lint-packages: install-lint
 
 .PHONY: lint-php
 # Check that every PHP file parses, via `php -l`.
-# Note: provisions the PHP CLI explicitly; an absent interpreter is skipped.
 lint-php: install-lint
 	@bash scripts/install/wrapper.sh php
 	@bash scripts/lint/wrapper.sh php
@@ -483,7 +523,6 @@ lint-python: install-lint
 
 .PHONY: lint-ruby
 # Check that every Ruby file parses, via `ruby -c`.
-# Note: provisions the Ruby CLI explicitly; an absent interpreter is skipped.
 lint-ruby: install-lint
 	@bash scripts/install/wrapper.sh ruby
 	@bash scripts/lint/wrapper.sh ruby
@@ -499,6 +538,11 @@ lint-shellcheck: install-lint
 lint-sql: install-lint
 	@bash scripts/install/wrapper.sh sql
 	@bash scripts/lint/wrapper.sh sql
+
+.PHONY: mcp-audit
+# Regenerate the MCP audit report; test_mcp_audit_report fails when it drifts.
+mcp-audit:
+	@"$${PYTHON}" -m cli.build.docs.mcp_audit
 
 .PHONY: meta-list
 # Print the repository role list.
@@ -570,7 +614,7 @@ quality-high: quality lint
 .PHONY: readme-check
 # Verify every role README matches the schema template (writes nothing; fails if any would change).
 readme-check:
-	@"$${PYTHON}" -m cli.build.readme --check
+	@"$${PYTHON}" -m cli.build.docs.readme --check
 
 .PHONY: readme-generate
 # Generate/complete role README.md files from templates/roles/README.md.j2.tmpl.
@@ -580,13 +624,13 @@ readme-check:
 # Param cosmos: true regenerates only the Cosmos diagram
 # Param quick_setup: true regenerates only the Quick Setup section
 readme-generate:
-	@"$${PYTHON}" -m cli.build.readme $(role) $(if $(filter true,$(override)),--override) $(if $(filter true,$(cosmos)),--update-cosmos) $(if $(filter true,$(quick_setup)),--update-quick-setup)
+	@"$${PYTHON}" -m cli.build.docs.readme $(role) $(if $(filter true,$(override)),--override) $(if $(filter true,$(cosmos)),--update-cosmos) $(if $(filter true,$(quick_setup)),--update-quick-setup)
 
 .PHONY: readme-index
 # Regenerate the invokable-role overview table in the root README.md.
 # Param check: true verifies only and fails when the table is outdated
 readme-index:
-	@"$${PYTHON}" -m cli.build.readme.overview $(if $(filter true,$(check)),--check)
+	@"$${PYTHON}" -m cli.build.docs.readme.overview $(if $(filter true,$(check)),--check)
 
 .PHONY: requirements-archive
 # Archive fully-checked requirement files via pkgmgr (installs kpmx if missing).
@@ -743,13 +787,14 @@ SWARM_DISTROS = $(or $(distros),$${INFINITO_DISTRO:?})
 # Param distros: optional single distro the cluster runs on (default: INFINITO_DISTRO from .env).
 # Param variant: optional matrix variant index to deploy (default 0); a multi-variant app runs one cluster per swarm-zombie, so pick the round to validate.
 # Param disable: optional comma-separated provider keys removed from the test inventory (e.g. matomo,dashboard,prometheus,email,css).
-# Param name: optional cluster-id prefix for the container + network names (parallel/named clusters); release with the same name=.
+# Param name: optional cluster-id prefix for the container + network names; release with the same name=.
 # Param step_timeout: optional minute budget for the matrix-deploy step (default 690).
 # Note: Use `make swarm-exec` / `make swarm-shell` to inspect, `make swarm-down` to release.
 swarm-zombie: install-act
 	@test -n '$(app)' || { echo 'usage: make swarm-zombie app=<application_id> [distros=<distro>] [variant=<idx>] [name=<cluster-id>] [disable=<keys>]'; exit 2; }
 	@"$${PYTHON}" -m cli.meta.ci.validate --modes swarm --whitelist '$(app)#$(or $(variant),0)@swarm'
 	@SWARM_NAME='$(or $(name),$(app))' INFINITO_KEEP_SWARM_NODES=false bash scripts/tests/deploy/swarm/utils/clean/teardown.sh
+	@bash scripts/tests/deploy/swarm/utils/clean/lab_subnet.sh
 	@bash scripts/tests/deploy/act/down_act_outer.sh
 	@ACT_RM=false \
 	 ACT_BIND=true \

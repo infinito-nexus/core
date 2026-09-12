@@ -1,0 +1,14 @@
+---
+- name: "♻️ Bind the compose handlers to '{{ application_id }}' before it notifies"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/load/handlers.yml') }}"
+  vars:
+    handler_role_name: "sys-svc-compose"
+
+- name: "🔌 Reconcile '{{ application_id }}'"
+  ansible.builtin.include_role:
+    name: "{{ application_id }}"
+    tasks_from: utils/mcp.yml
+    public: false
+
+- name: "🚿 Flush what '{{ application_id }}' notified while it is still bound"
+  ansible.builtin.meta: flush_handlers

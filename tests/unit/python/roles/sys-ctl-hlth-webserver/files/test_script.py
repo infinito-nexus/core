@@ -131,7 +131,7 @@ class TestStandaloneCheckerScript(unittest.TestCase):
                 exp_json,
             ]
         )
-        self.assertEqual(exit_code, 2)
+        self.assertEqual(exit_code, 1)
         self.assertIn(
             "foo.example.org: ERROR: No expectations provided. Got 200.", output
         )

@@ -7,8 +7,8 @@ compose_mode_force: compose
 domain: "{{ lookup('domain',application_id) }}"
 http_port: "{{ lookup('config', application_id, 'services.bigbluebutton.ports.local.http') }}"
 
-BBB_REPOSITORY: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.repository') }}"
-BBB_REF: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ref') }}"
+BBB_REPOSITORY: "{{ lookup('config', 'web-app-bigbluebutton', 'services.' ~ ('web-app-bigbluebutton' | get_entity_name) ~ '.repository') }}"
+BBB_REF: "{{ lookup('config', 'web-app-bigbluebutton', 'services.' ~ ('web-app-bigbluebutton' | get_entity_name) ~ '.ref') }}"
 
 _BBB_COTURN_ROLE: "web-svc-coturn"
 

@@ -5,6 +5,7 @@ import unittest
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
 
 from . import PROJECT_ROOT
@@ -21,6 +22,8 @@ SHELL_KEY_RE = re.compile(r"^\s*(?:ansible\.builtin\.)?shell\s*:\s*(.*)$")
 STDIN_KEY_RE = re.compile(r"^\s*stdin\s*:\s*[|>]")
 
 QUOTE_CHARS = {"'", '"'}
+
+RULE = "password-quote"
 
 
 @dataclass(frozen=True)
@@ -119,7 +122,9 @@ def _mask_stdin_subblocks(block: str) -> str:
     return "\n".join(out)
 
 
-def _scan_shell_block(file_path: Path, start_line: int, block: str) -> list[Finding]:
+def _scan_shell_block(
+    file_path: Path, start_line: int, block: str, file_lines: list[str]
+) -> list[Finding]:
     findings: list[Finding] = []
     block = _mask_stdin_subblocks(block)
 
@@ -130,6 +135,11 @@ def _scan_shell_block(file_path: Path, start_line: int, block: str) -> list[Find
 
         rel_line = block.count("\n", 0, m.start())
         line_no = start_line + rel_line
+
+        if is_suppressed_at(file_lines, line_no, RULE) or is_suppressed_at(
+            file_lines, start_line, RULE
+        ):
+            continue
 
         snippet = "{{ " + " ".join(expr.split()) + " }}"
 
@@ -170,8 +180,9 @@ class TestPasswordQuoteInShellTasks(unittest.TestCase):
                 text = read_text(str(yml))
             except UnicodeDecodeError:
                 continue
+            lines = text.splitlines()
             for start_line, block in _collect_shell_blocks(text):
-                all_findings.extend(_scan_shell_block(yml, start_line, block))
+                all_findings.extend(_scan_shell_block(yml, start_line, block, lines))
 
         if all_findings:
             msg = "\n".join(f.format() for f in all_findings)
@@ -179,6 +190,11 @@ class TestPasswordQuoteInShellTasks(unittest.TestCase):
                 "Violations found in shell tasks (password expressions must use '| quote' "
                 "and must not be double-quoted):\n"
                 f"{msg}\n"
+                f"The token is matched anywhere in the expression, so a path or a "
+                f"filename carrying it trips this too. Suppress such a case with "
+                f"'# nocheck: {RULE} <reason>' on or above the task's shell: key -- "
+                f"not inside the scalar, where a folded block would turn the marker "
+                f"into a shell comment and swallow the rest of the command.\n"
             )
 
 

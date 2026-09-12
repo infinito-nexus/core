@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media Self-written infrastructure/glue role that owns the `css` service flag and redirects to the CDN; no upstream third-party product.
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream

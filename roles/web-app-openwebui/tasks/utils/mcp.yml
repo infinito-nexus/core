@@ -1,0 +1,20 @@
+---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: OPENWEBUI
+    resolve_compose_cid: "{{ OPENWEBUI_CONTAINER }}"
+
+- name: "🔧 Map every discovered MCP server to its role's mcp group"
+  ansible.builtin.set_fact:
+    openwebui_mcp_groups: >-
+      {{ openwebui_mcp_groups | default({})
+         | combine({item.id: '/' ~ lookup('rbac_group_path', application_id=item.id, role='mcp')}) }}
+  loop: "{{ OPENWEBUI_MCP_SERVERS }}"
+  loop_control:
+    label: "{{ item.id }}"
+
+- name: "🔌 Grant and persist the MCP tool servers this run discovered"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp_grants.yml"
+  when: OPENWEBUI_MCP_SERVERS | length > 0

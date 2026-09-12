@@ -14,3 +14,9 @@
   when:
     - IS_STACK_HOST | bool
     - lookup('database', application_id, 'shared')
+
+- name: "🤖 Bind the native AI surface to the platform gateway"
+  include_tasks: addons/discourse-ai.yml
+  when:
+    - IS_STACK_HOST | bool
+    - DISCOURSE_LITELLM_ENABLED | bool

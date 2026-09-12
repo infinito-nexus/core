@@ -1,0 +1,37 @@
+UPDATE agents_confighistory a
+   SET config = (
+         a.config::jsonb
+         || jsonb_build_object(
+              'services',
+              coalesce((
+                SELECT jsonb_agg(s)
+                  FROM jsonb_array_elements(
+                         CASE WHEN jsonb_typeof(a.config::jsonb -> 'services') = 'array'
+                              THEN a.config::jsonb -> 'services'
+                              ELSE '[]'::jsonb END
+                       ) AS s
+                 WHERE s ->> 'id' <> d.service ->> 'id'
+              ), '[]'::jsonb) || jsonb_build_array(d.service)
+            )
+         || jsonb_build_object(
+              'bots',
+              coalesce((
+                SELECT jsonb_agg(b)
+                  FROM jsonb_array_elements(
+                         CASE WHEN jsonb_typeof(a.config::jsonb -> 'bots') = 'array'
+                              THEN a.config::jsonb -> 'bots'
+                              ELSE '[]'::jsonb END
+                       ) AS b
+                 WHERE b ->> 'id' <> d.bot ->> 'id'
+              ), '[]'::jsonb) || CASE WHEN EXISTS (SELECT 1
+                                                     FROM agents_useragents u
+                                                    WHERE u.username = d.bot ->> 'name'
+                                                      AND u.deleteat = 0)
+                                      THEN '[]'::jsonb
+                                      ELSE jsonb_build_array(d.bot) END
+            )
+         || jsonb_build_object('defaultBotName', d.bot ->> 'name')
+       )::text
+  FROM (SELECT %(service)s::jsonb AS service,
+               %(bot)s::jsonb AS bot) AS d
+ WHERE a.active = true;

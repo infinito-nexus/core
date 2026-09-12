@@ -3,25 +3,25 @@ import unittest
 from plugins.filter.url.to_onion import to_onion_url
 
 NODE = "abc123def456ghij789klmno000pqrstuvwx111yz222abc333def444gh.onion"
-PRIMARY = "infinito.example"
+PRIMARY = "infinito.test"
 
 
 class TestToOnionUrl(unittest.TestCase):
     def test_subdomain_swapped_and_forced_http(self):
         self.assertEqual(
-            to_onion_url("https://auth.infinito.example/realms/x", NODE, PRIMARY),
+            to_onion_url("https://auth.infinito.test/realms/x", NODE, PRIMARY),
             f"http://auth.{NODE}/realms/x",
         )
 
     def test_bare_primary_becomes_node(self):
         self.assertEqual(
-            to_onion_url("https://infinito.example/", NODE, PRIMARY),
+            to_onion_url("https://infinito.test/", NODE, PRIMARY),
             f"http://{NODE}/",
         )
 
     def test_path_and_query_preserved(self):
         self.assertEqual(
-            to_onion_url("https://cdn.infinito.example/a/b.js?v=3", NODE, PRIMARY),
+            to_onion_url("https://cdn.infinito.test/a/b.js?v=3", NODE, PRIMARY),
             f"http://cdn.{NODE}/a/b.js?v=3",
         )
 
@@ -30,7 +30,7 @@ class TestToOnionUrl(unittest.TestCase):
         self.assertEqual(to_onion_url(url, NODE, PRIMARY), url)
 
     def test_noop_without_tor_node(self):
-        url = "https://auth.infinito.example/"
+        url = "https://auth.infinito.test/"
         self.assertEqual(to_onion_url(url, "", PRIMARY), url)
 
     def test_noop_on_empty_url(self):

@@ -44,9 +44,14 @@ existing_key: foo
             self.assertEqual(data["existing_key"], "foo")
             self.assertEqual(getattr(data["secret"], "tag", None), "!vault")
 
-            self.assertNotIn("DOMAIN_PRIMARY", data)
-            self.assertNotIn("TLS_ENABLED", data)
-            self.assertNotIn("networks", data)
+            baked = (
+                "must stay out of host_vars; it lives in group_vars or the "
+                "inventory vars-file so env-driven values propagate instead of "
+                "being silently overridden"
+            )
+            self.assertNotIn("DOMAIN_PRIMARY", data, f"DOMAIN_PRIMARY {baked}")
+            self.assertNotIn("TLS_ENABLED", data, f"TLS_ENABLED {baked}")
+            self.assertNotIn("networks", data, f"networks {baked}")
 
     def test_ensure_host_vars_file_sets_local_connection_for_localhost(self):
         yaml_rt = YAML(typ="rt")
@@ -142,7 +147,7 @@ ansible_become_password: !vault |
 """
 
             with patch(
-                "cli.administration.inventory.provision.host_vars.VaultHandler"
+                "cli.administration.inventory.provision.ruamel_io.VaultHandler"
             ) as vh:
                 inst = vh.return_value
                 inst.encrypt_string.return_value = vaulted_snippet

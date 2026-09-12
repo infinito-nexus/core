@@ -5,6 +5,8 @@ const { skipUnlessServiceEnabled } = require("./service-gating");
 const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLoginForm, runBiberFlow, runGuestFlow } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
+require("./test-mcp-guest").register();
+
 const baseUrl = normalizeBaseUrl(process.env.LIBRETRANSLATE_BASE_URL || "");
 const oidcIssuerUrl = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);

@@ -13,7 +13,10 @@ TOR_FLAVOR: "{{ lookup('config', application_id, 'services.tor.flavor') }}"
 TOR_TRANS_PORT: "{{ lookup('config', application_id, 'services.tor.ports.local.trans') }}"
 TOR_DNS_PORT: "{{ lookup('config', application_id, 'services.tor.ports.local.dns') }}"
 TOR_DNSMASQ_CONF: "/etc/dnsmasq.d/tor-onion.conf"
+TOR_DNSMASQ_DROPIN: "/etc/systemd/system/dnsmasq.service.d/infinito-restart.conf"
+# nocheck: host-local-fact  meta/services.yml pins this role to the manager, so the fact describes the node the hidden service forwards on
 TOR_CONTAINER_DNS_HOST: "{{ ansible_facts['docker0']['ipv4']['address'] | default('', true) }}"
+# nocheck: host-local-fact  meta/services.yml pins this role to the manager, so the fact describes the node the hidden service forwards on
 TOR_HS_BACKEND_HOST: "{{ ansible_facts['default_ipv4']['address'] if DEPLOYMENT_MODE == 'swarm' else (TOR_CONTAINER_DNS_HOST | ternary(TOR_CONTAINER_DNS_HOST, '127.0.0.1'))
   }}"
 
@@ -26,3 +29,11 @@ TOR_HS_SRC_DIR: "{{ lookup('path_absolute', '.onion-identity', 'hs') }}"
 
 TOR_INSTANCE_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
 TOR_ENTRYPOINT_HOST: "{{ [ TOR_INSTANCE_DIR, 'entrypoint.sh' ] | path_join }}"
+TOR_HEALTHCHECK_HOST: "{{ [ TOR_INSTANCE_DIR, 'healthcheck.sh' ] | path_join }}"
+TOR_ENTRYPOINT_PATH: "/usr/local/bin/tor-entrypoint.sh"
+TOR_HEALTHCHECK_PATH: "/usr/local/bin/tor-healthcheck.sh"
+TOR_RESTART_REQUIRED: >-
+  {{ (_tor_hs_keys is changed)
+     or (_tor_torrc is changed)
+     or (_tor_entrypoint is changed)
+     or (_tor_healthcheck is changed) }}

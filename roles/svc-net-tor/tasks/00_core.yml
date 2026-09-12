@@ -47,6 +47,14 @@
   become: true
   register: _tor_hs_keys
 
+- name: "📊 Re-gather the docker0 fact so torrc and dnsmasq bind the live bridge"
+  ansible.builtin.setup:
+    gather_subset:
+      - "!all"
+      - network
+    filter:
+      - ansible_docker0
+
 - name: "📝 Render torrc"
   ansible.builtin.template: # nocheck: stack-host-template (per-host torrc under DIR_VAR_LIB; tor is a node-local host-network sidecar)
     src: torrc.j2
@@ -74,6 +82,14 @@
   become: true
   register: _tor_entrypoint
 
+- name: "🩺 Stage the Tor container healthcheck into the build context"
+  stack_host_copy:
+    src: "{{ role_path }}/files/shell/healthcheck.sh"
+    dest: "{{ TOR_HEALTHCHECK_HOST }}"
+    mode: "0755"
+  become: true
+  register: _tor_healthcheck
+
 - name: "🧩 For '{{ application_id }}': Load sys-svc-compose"
   include_role:
     name: sys-svc-compose
@@ -90,7 +106,7 @@
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
     executable: /bin/bash
   become: true
-  when: DEPLOYMENT_MODE == 'compose' and ((_tor_hs_keys is changed) or (_tor_torrc is changed) or (_tor_entrypoint is changed))
+  when: DEPLOYMENT_MODE == 'compose' and (TOR_RESTART_REQUIRED | bool)
 
 - name: "🔄 Force Tor service redeploy to apply hidden-service key / torrc changes"
   ansible.builtin.command: >-
@@ -102,7 +118,7 @@
   when:
     - DEPLOYMENT_MODE == 'swarm'
     - IS_STACK_HOST | bool
-    - (_tor_hs_keys is changed) or (_tor_torrc is changed) or (_tor_entrypoint is changed)
+    - TOR_RESTART_REQUIRED | bool
 
 - name: "🧅 Wire the host-level transparent .onion egress router"
   include_tasks:

@@ -26,6 +26,12 @@
     - _sys_svc_rdbms_consumer_local | bool
     - _sys_svc_rdbms_compose_template.stat.exists
 
+- name: "🔑 Realign '{{ application_id }}' persisted password before the health gate"
+  ansible.builtin.include_tasks: "{{ _app_persisted_credentials }}"
+  vars:
+    _app_persisted_credentials: "{{ lookup('path_absolute', 'roles/' ~ application_id ~ '/tasks/utils/patch/db_credentials.yml') }}"
+  when: _app_persisted_credentials is exists
+
 - name: 🗄️ Central Database Logic
   block:
     - name: "✅ For '{{ application_id }}': Assert shared database provider was preloaded"

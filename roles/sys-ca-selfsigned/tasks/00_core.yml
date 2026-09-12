@@ -66,6 +66,13 @@
       Generated certificate does not appear to be a CA certificate (CA:TRUE missing).
       Please inspect {{ CA_ROOT.cert_host }}.
 
+- name: "🔎 CA | locate the distribution's public CA bundle"
+  become: true
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop: "{{ CA_BUNDLE_CANDIDATES }}"
+  register: _ca_public_bundle_candidates
+
 - name: "🔎 CA | stat host CA-trust bind-mount sources"
   become: true
   ansible.builtin.stat:
@@ -73,6 +80,7 @@
   loop:
     - "{{ BIN_CA_TRUST }}"
     - "{{ CA_TRUST.php_ini_host }}"
+    - "{{ CA_TRUST.bundle_host }}"
   register: _ca_trust_bind_sources
 
 - name: "🧹 CA | remove stray directory shadowing a CA-trust bind source"
@@ -86,6 +94,22 @@
   when:
     - item.stat.exists
     - item.stat.isdir
+
+- name: "📄 CA | build the trust bundle its readers name with no fallback"
+  become: true
+  ansible.builtin.shell: >-
+    cat {{ ([CA_ROOT.cert_host] + (_ca_public_bundle_candidates.results | selectattr('stat.exists') | map(attribute='item') | list)[:1]) | map('quote') | join(' ')
+    }}
+    > {{ CA_TRUST.bundle_host | quote }}
+  changed_when: true
+
+- name: "🔐 CA | enforce permissions (trust bundle)"
+  become: true
+  ansible.builtin.file:
+    path: "{{ CA_TRUST.bundle_host }}"
+    owner: root
+    group: root
+    mode: "0644"
 
 - name: "📦 CA | install trust helper script (SPOT) on host"
   become: true

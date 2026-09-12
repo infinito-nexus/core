@@ -1,0 +1,59 @@
+---
+- name: "🔑 Write the rotated owner password into the hub's auth store"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ HOMEASSISTANT_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - hass
+      - --script
+      - auth
+      - --config
+      - "{{ HOMEASSISTANT_CONFIG_DIR }}"
+      - change_password
+      - "{{ HOMEASSISTANT_ADMIN_USERNAME }}"
+      - "{{ HOMEASSISTANT_ADMIN_PASSWORD }}"
+  changed_when: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔄 Restart the hub so it reads the store it no longer has in memory"
+  ansible.builtin.command:
+    argv:
+      - container
+      - restart
+      - "{{ HOMEASSISTANT_LOCAL_CID }}" # nocheck: container-exec-resolver
+  changed_when: true
+
+- name: "🔑 Mint the long-lived token now that the hub accepts the rotated password"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - "HA_PORT={{ HOMEASSISTANT_PORT_INTERNAL }}"
+      - -e
+      - "HA_USERNAME={{ HOMEASSISTANT_ADMIN_USERNAME }}"
+      - -e
+      - "HA_PASSWORD={{ HOMEASSISTANT_ADMIN_PASSWORD }}"
+      - -e
+      - "HA_TOKEN_CLIENT_NAME={{ HOMEASSISTANT_TOKEN_CLIENT_NAME }}"
+      - -e
+      - "HA_SERVICE_USERNAME={{ HOMEASSISTANT_MCP_ACCOUNT_USERNAME }}"
+      - -e
+      - "HA_SERVICE_PASSWORD={{ HOMEASSISTANT_MCP_ACCOUNT_PASSWORD }}"
+      - -e
+      - "HA_SERVICE_NAME={{ HOMEASSISTANT_MCP_ACCOUNT_NAME }}"
+      - -e
+      - "HA_SERVICE_GROUP={{ HOMEASSISTANT_MCP_ACCOUNT_GROUP }}"
+      - "{{ HOMEASSISTANT_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - python3
+      - "-"
+    stdin: "{{ lookup('file', 'python/provision_mcp.py') }}"
+  register: homeassistant_provision
+  retries: 30
+  delay: 10
+  until: homeassistant_provision.rc == 0
+  changed_when: "'CHANGED' in homeassistant_provision.stdout"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

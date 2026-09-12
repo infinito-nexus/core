@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import unittest
-from unittest import mock
+import unittest.mock as mock
 
 from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader

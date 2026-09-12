@@ -1,5 +1,6 @@
 ---
 - name: "📦 Install core modules"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec {{ ODOO_LOCAL_CID | quote }}
     odoo -i {{ odoo_modules_to_install }}
@@ -22,6 +23,7 @@
   when: ODOO_OIDC_ENABLED | bool
   block:
     - name: "📦 Install auth_oauth module for OIDC support"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
         container exec {{ ODOO_LOCAL_CID | quote }}
         odoo -i auth_oauth
@@ -40,6 +42,7 @@
         or 'invalid module names' in (auth_oauth_install.stdout ~ auth_oauth_install.stderr)
 
     - name: "📦 Install auth_signup module for OAuth user auto-creation"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
         container exec {{ ODOO_LOCAL_CID | quote }}
         odoo -i auth_signup
@@ -58,6 +61,7 @@
         or 'invalid module names' in (auth_signup_install.stdout ~ auth_signup_install.stderr)
 
     - name: "📦 Install auth_oauth_https module for HTTPS redirect URI fix"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
         container exec {{ ODOO_LOCAL_CID | quote }}
         odoo -i auth_oauth_https
@@ -76,6 +80,7 @@
         or 'invalid module names' in (auth_oauth_https_install.stdout ~ auth_oauth_https_install.stderr)
 
 - name: "📦 Install auth_ldap module for LDAP support"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec {{ ODOO_LOCAL_CID | quote }}
     odoo -i auth_ldap

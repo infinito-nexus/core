@@ -19,7 +19,7 @@ _PHPUNIT_EXTENSIONS = ("dom", "mbstring", "xmlwriter")
 def ensure_php_toolchain() -> None:
     """Install the PHP interpreter, Composer and the extensions PHPUnit needs.
 
-    ``phpunit/phpunit ^11`` declares ``_PHPUNIT_EXTENSIONS`` as platform
+    ``phpunit/phpunit`` declares ``_PHPUNIT_EXTENSIONS`` as platform
     requirements and Composer refuses to resolve the vendor tree without them,
     so they are part of the toolchain rather than of the suite consuming it.
     A distro ships them as packages separate from the interpreter, which is why

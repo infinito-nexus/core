@@ -92,7 +92,7 @@ class TestDiskSpaceScript(TestCase):
             with contextlib.redirect_stdout(buffer), self.assertRaises(SystemExit):
                 SCRIPT_MODULE.main()
 
-        mock_exit.assert_called_once_with(2)
+        mock_exit.assert_called_once_with(1)
 
         output = buffer.getvalue()
         self.assertIn("Checking disk space usage...", output)

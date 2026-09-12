@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media Self-written web-svc glue role deploying the author's own universal-logout Flask/Nginx logout proxy; no third-party consumer product.
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Central logout proxy for single-action sign-out across all OIDC-connected apps, with Nginx snippets and a live status UI

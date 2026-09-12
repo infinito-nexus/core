@@ -7,7 +7,7 @@
     {{ lookup('compose_restart') }}
     logging:
       driver: journald
-    {{ lookup('container_volumes', service_name, extra_volumes=lookup('matrix_bridge_mounts')) | indent(4) }}
+    {{ lookup('container_volumes', service_name, extra_secrets=lookup('matrix_bridge_mounts', 'synapse')) | indent(4) }}
     environment:
       - SYNAPSE_SERVER_NAME={{ MATRIX_SYNAPSE_DOMAIN }}
       - SYNAPSE_REPORT_STATS=no
@@ -15,11 +15,7 @@
       - "{{ DOCKER_BIND_HOST }}:{{lookup('config', 'web-app-matrix', 'services.synapse.ports.local.http')}}:{{ container_port }}"
     {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
-{% set _synapse_bridge_deps = {} %}
-{% for item in MATRIX_BRIDGES %}
-{%   set _ = _synapse_bridge_deps.__setitem__('mautrix-' ~ item.bridge_name, {'condition': 'service_healthy'}) %}
-{% endfor %}
-    {{ lookup('container_depends_on', application_id, extra=_synapse_bridge_deps) | indent(4) }}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 {% set service_name = 'element' %}
   {{ service_name }}:
@@ -41,20 +37,20 @@
     {{ lookup('compose_only', 'container_name', 'matrix-' ~ item.bridge_name) }}
     image: "dock.mau.dev/mautrix/{{ item.bridge_name }}:latest"  # nocheck: container-image-lookup
     {{ lookup('compose_restart') }}
-    environment:
-      UID: "{{ MATRIX_SYNAPSE_UID }}"
-      GID: "{{ MATRIX_SYNAPSE_GID }}"
-    volumes: # nocheck: compose-inline-mount-section
-      - ./mautrix/{{ item.bridge_name }}:/data
+    user: "{{ MATRIX_SYNAPSE_UID }}:{{ MATRIX_SYNAPSE_GID }}"
+    command: ["/usr/bin/mautrix-{{ item.bridge_name }}", "--config", "{{ MATRIX_BRIDGE_CONFIG_TARGET }}", "--no-update"]
+    {{ lookup('container_volumes', service_name, extra_secrets=lookup('matrix_bridge_mounts', 'bridge', item.bridge_name)) | indent(4) }}
     healthcheck:
-      test: ["CMD-SHELL", "test -f {{ MATRIX_REGISTRATION_FILE_FOLDER }}registration.yaml || exit 1"]
-      interval: 15s
-      timeout: 10s
-      retries: 5
-      start_period: 5m
+      test: ["CMD", "curl", "--noproxy", "*", "-fsS", "http://127.0.0.1:{{ item.appservice_port }}/_matrix/mau/live"]
+      interval: 2m
+      timeout: 5s
+      retries: 3
+      start_period: 10m
+      start_interval: 5s
+    {{ lookup('container_depends_on', application_id, extra={'synapse': {'condition': 'service_healthy'}}) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 {% endfor %}
-{% if lookup('config', application_id, 'services.matrix.plugins.chatgpt') | bool %}
+{% if (lookup('config', application_id, 'services.matrix.plugins.chatgpt') | bool) and (MATRIX_CHATGPT_ACCESS_TOKEN | length > 0) %}
 {% set service_name = 'matrix-chatgpt-bot' %}
   {{ service_name }}:
 {% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
@@ -62,25 +58,26 @@
     {{ lookup('compose_only', 'container_name', "matrix-chatgpt") }}
     {{ lookup('container_image', application_id, 'matrix-chatgpt-bot') }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_depends_on', application_id, extra={'synapse': {'condition': 'service_healthy'}}) | indent(4) }}
     environment:
-      OPENAI_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.chatgpt_bridge_openai_api_key')}}"
+      OPENAI_API_KEY: "{{ MATRIX_CHATGPT_BRIDGE_API_KEY }}"
       CHATGPT_CONTEXT: 'thread'
-      CHATGPT_API_MODEL: 'gpt-3.5-turbo'
-      CHATGPT_REVERSE_PROXY: 'https://api.openai.com/v1/chat/completions'
+      CHATGPT_API_MODEL: "{{ MATRIX_CHATGPT_BRIDGE_MODEL }}"
+      CHATGPT_REVERSE_PROXY: "{{ MATRIX_CHATGPT_BRIDGE_ENDPOINT }}"
       CHATGPT_MAX_PROMPT_TOKENS: '3000'
       KEYV_BACKEND: 'file'
       KEYV_URL: ''
       KEYV_BOT_ENCRYPTION: 'false'
       KEYV_BOT_STORAGE: 'true'
-      MATRIX_HOMESERVER_URL: '{{ MATRIX_SYNAPSE_URL }}'
+      MATRIX_HOMESERVER_URL: '{{ MATRIX_SYNAPSE_LOCAL_URL }}'
       MATRIX_BOT_USERNAME: '@chatgptbot:{{ MATRIX_SERVER_NAME }}'
-      MATRIX_ACCESS_TOKEN: "{{ lookup('config', application_id, 'secrets.credentials.chatgpt_bridge_access_token', '') }}"
+      MATRIX_ACCESS_TOKEN: "{{ MATRIX_CHATGPT_ACCESS_TOKEN }}"
       MATRIX_BOT_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.chatgpt_bridge_user_password') }}"
       MATRIX_DEFAULT_PREFIX: '!chatgpt'
       MATRIX_DEFAULT_PREFIX_REPLY: 'false'
       MATRIX_WHITELIST: ':{{ MATRIX_SERVER_NAME }}'
       MATRIX_AUTOJOIN: 'true'
-      MATRIX_ENCRYPTION: 'true'
+      MATRIX_ENCRYPTION: '{{ MATRIX_CHATGPT_ENCRYPTION | lower }}'
       MATRIX_THREADS: 'true'
       MATRIX_PREFIX_DM: 'false'
       MATRIX_RICH_TEXT: 'true'

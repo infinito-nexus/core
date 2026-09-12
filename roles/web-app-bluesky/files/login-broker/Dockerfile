@@ -15,7 +15,7 @@ COPY package.json server.js ./
 USER node
 EXPOSE 8080
 
-HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+HEALTHCHECK --interval=2m --timeout=5s --retries=3 --start-period=10m --start-interval=5s \
     CMD wget -q -O - http://127.0.0.1:8080/healthz || exit 1
 
 CMD ["node", "server.js"]

@@ -235,7 +235,7 @@ def main(
                 errors += 1
 
     print("Finished restart procedure.")
-    return errors
+    return 1 if errors else 0
 
 
 if __name__ == "__main__":

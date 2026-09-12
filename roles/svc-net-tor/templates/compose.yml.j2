@@ -4,9 +4,11 @@
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       args:
-        TOR_BASE_IMAGE:   "{{ TOR_IMAGE }}"
-        TOR_BASE_VERSION: "{{ TOR_VERSION }}"
-        TOR_FLAVOR:       "{{ TOR_FLAVOR }}"
+        TOR_BASE_IMAGE:        "{{ TOR_IMAGE }}"
+        TOR_BASE_VERSION:      "{{ TOR_VERSION }}"
+        TOR_FLAVOR:            "{{ TOR_FLAVOR }}"
+        TOR_ENTRYPOINT_PATH:   "{{ TOR_ENTRYPOINT_PATH }}"
+        TOR_HEALTHCHECK_PATH:  "{{ TOR_HEALTHCHECK_PATH }}"
     {{ lookup('compose_only', 'container_name', TOR_CONTAINER) }}
     {{ lookup('container_image', application_id, 'tor') }}
     {% if DEPLOYMENT_MODE == 'swarm' %}
@@ -21,11 +23,12 @@
     {% endif %}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     healthcheck:
-      test: ["CMD", "tor", "--verify-config", "-f", "{{ lookup('volume', 'svc-net-tor', 'tor_torrc').target }}"]
-      interval: 60s
-      timeout: 10s
+      test: ["CMD", "{{ TOR_HEALTHCHECK_PATH }}", "{{ lookup('volume', 'svc-net-tor', 'tor_data').target }}"]
+      interval: 2m
+      timeout: 5s
       retries: 3
-      start_period: {{ '150s' if TOR_FLAVOR == 'chutney' else '10s' }}
+      start_period: 10m
+      start_interval: 5s
 
 {{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

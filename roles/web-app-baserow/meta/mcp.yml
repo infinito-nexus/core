@@ -1,0 +1,58 @@
+---
+classification: adapter_server
+direction: server
+source_url: https://baserow.io/user-docs/mcp-server # nocheck: url — page is live (HEAD+GET 200); baserow.io edge intermittently 404s CI runner IPs
+transport: streamable_http
+exposure: internal
+auth: bearer_token
+auth_subject: service_account
+implementation: adapter
+credential:
+  owner: mcp-web-app-baserow
+  source: credentials
+  key: mcp_bearer
+adapter:
+  type: mcp_passthrough
+  upstream_transport: sse
+  specification_path: roles/web-app-baserow/files/mcp/tools.json
+  specification_sha256: sha256:716effccfedbb6e83cacd489bf0c2cf8f318853f9b20bf8fd733db4e637ec144
+  upstream_path: /mcp
+endpoint:
+  service_key: baserowmcp
+  path: /mcp
+  port_key: http
+limits:
+  request_bytes: 65536
+  response_bytes: 1048576
+  timeout_seconds: 15
+  concurrent_requests: 4
+  page_size: 100
+  result_items: 100
+  stream_seconds: 300
+tools:
+  read_probe:
+    tool: list_databases
+    arguments: {}
+  allowlist:
+    - get_table_schema
+    - list_databases
+    - list_table_rows
+    - list_tables
+  upstream_serves:
+    - create_database
+    - create_fields
+    - create_rows
+    - create_table
+    - delete_fields
+    - delete_rows
+    - delete_table
+    - get_table_schema
+    - list_databases
+    - list_table_rows
+    - list_tables
+    - update_fields
+    - update_rows
+    - update_table
+  schema_sha256: sha256:f38460244b77a14edc1933fd29dd34b063256496a3bb5cc0506d0833d7d20be7
+  read_only_default: true
+  mutating_tools_enabled: false

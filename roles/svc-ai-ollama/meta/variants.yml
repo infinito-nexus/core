@@ -12,4 +12,6 @@
       enabled: true
     ollama:
       preload_models:
-        - smollm2:135m
+        - qwen2.5:0.5b
+      mem_reservation: 1g
+      mem_limit: 2g

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Recover NFS client mounts that live inside wedged act-swarm nfs-server
-# container mount namespaces. This is the escape hatch for a hard NFS loopback
-# mount whose server was killed before the client mount was detached.
+# Recover NFS client mounts that live inside wedged act-swarm container mount
+# namespaces. This is the escape hatch for a hard NFS loopback mount whose
+# server was killed before the client mount was detached.
 set -uo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../../../.." && pwd)"
@@ -21,9 +21,7 @@ _docker_ids() {
 	fi
 
 	if [ -n "${INFINITO_SWARM_TEST_LABEL:-}" ]; then
-		docker ps -aq \
-			--filter "label=${INFINITO_SWARM_TEST_LABEL}" \
-			--filter "name=nfs-server" 2>/dev/null
+		docker ps -aq --filter "label=${INFINITO_SWARM_TEST_LABEL}" 2>/dev/null
 	fi
 
 	docker ps -aq --filter "name=web-app-prometheus-nfs-server" 2>/dev/null
@@ -147,7 +145,7 @@ _force_reap_container() {
 
 containers="$(_docker_ids | sort -u | sed '/^$/d')"
 if [ -z "${containers}" ]; then
-	echo ">>> stale-nfs: no nfs-server containers found"
+	echo ">>> stale-nfs: no swarm-test containers found"
 	echo "    usage: make clean-stale-nfs [cid=<container-id-or-name>] [mount=/mnt/gtest]"
 	exit 0
 fi

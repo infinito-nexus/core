@@ -1,16 +1,17 @@
 ---
 - name: "⏳ Wait for Joomla files to exist"
-  shell: >
-    container exec {{ JOOMLA_CONTAINER_ADDRESS }} test -f /var/www/html/plugins/actionlog/joomla/joomla.xml
+  shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ JOOMLA_LOCAL_CID | quote }} test -f /var/www/html/plugins/actionlog/joomla/joomla.xml
   register: joomla_files
   changed_when: false
   retries: 60
   delay: 2
   until: joomla_files.rc == 0
+  delegate_to: "{{ JOOMLA_HOST_NODE }}"
 
 - name: "⏳ Wait for the image entrypoint to finish its own install"
-  shell: >
-    container exec {{ JOOMLA_CONTAINER_ADDRESS }}
+  shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ JOOMLA_LOCAL_CID | quote }}
     sh -c 'test -e {{ JOOMLA_INIT_READY_FILE }} || test -e {{ JOOMLA_CONFIG_FILE }}'
   register: joomla_entrypoint_done
   changed_when: false
@@ -18,20 +19,23 @@
   retries: 60
   delay: 5
   until: joomla_entrypoint_done.rc == 0
+  delegate_to: "{{ JOOMLA_HOST_NODE }}"
 
 - name: "🔎 Check for CLI installer"
-  shell: >
-    container exec {{ JOOMLA_CONTAINER_ADDRESS }} test -f {{ JOOMLA_INSTALLER_CLI_FILE }}
+  shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ JOOMLA_LOCAL_CID | quote }} test -f {{ JOOMLA_INSTALLER_CLI_FILE }}
   register: has_installer
   changed_when: false
   failed_when: false
+  delegate_to: "{{ JOOMLA_HOST_NODE }}"
 
 - name: "🔎 Check if Joomla is already installed"
-  shell: >
-    container exec {{ JOOMLA_CONTAINER_ADDRESS }} test -f {{ JOOMLA_CONFIG_FILE }}
+  shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ JOOMLA_LOCAL_CID | quote }} test -f {{ JOOMLA_CONFIG_FILE }}
   register: joomla_installed
   changed_when: false
   failed_when: false
+  delegate_to: "{{ JOOMLA_HOST_NODE }}"
 
 - name: "📦 Joomla CLI install (rm stub + install in one retry loop for image-init race)"
   ansible.builtin.command:
@@ -40,8 +44,8 @@
       - -lc
       - |
         set -o pipefail
-        container exec {{ JOOMLA_CONTAINER_ADDRESS }} rm -f "{{ JOOMLA_CONFIG_FILE }}"
-        exec container exec --user "{{ JOOMLA_WEB_USER }}" {{ JOOMLA_CONTAINER_ADDRESS }} \
+        container exec {{ JOOMLA_LOCAL_CID | quote }} rm -f "{{ JOOMLA_CONFIG_FILE }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        exec container exec --user "{{ JOOMLA_WEB_USER }}" {{ JOOMLA_LOCAL_CID | quote }} \
           php "{{ JOOMLA_INSTALLER_CLI_FILE }}" install \
           "--db-type={{ JOOMLA_DB_CONNECTOR }}" \
           "--db-host={{ lookup('database', application_id, 'host') }}" \
@@ -83,11 +87,13 @@
   when:
     - joomla_installed.rc != 0
     - has_installer.rc == 0
+  delegate_to: "{{ JOOMLA_HOST_NODE }}"
 
 - name: "💪 Force-remove installation folder (root)"
-  shell: >
-    container exec {{ JOOMLA_CONTAINER_ADDRESS }} rm -rf /var/www/html/installation
+  shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ JOOMLA_LOCAL_CID | quote }} rm -rf /var/www/html/installation
   changed_when: false
   when:
     - joomla_installed.rc != 0
     - has_installer.rc == 0
+  delegate_to: "{{ JOOMLA_HOST_NODE }}"

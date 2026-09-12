@@ -1,0 +1,41 @@
+---
+classification: adapter_server
+direction: server
+source_url: https://s.infinito.nexus/code
+transport: streamable_http
+exposure: internal
+auth: bearer_token
+auth_subject: service_account
+implementation: adapter
+credential:
+  owner: mcp-web-app-listmonk
+  source: credentials
+  key: mcp_bearer
+endpoint:
+  service_key: listmonkmcp
+  path: /mcp
+  port_key: http
+adapter:
+  type: openapi_allowlist
+  upstream_api_version: v1
+  specification_path: roles/web-app-listmonk/files/mcp/tools.json
+  specification_sha256: sha256:03a782f91253546c15a6649530a83e583a94b0d02f26057a53bef40d6050b714
+limits:
+  request_bytes: 65536
+  response_bytes: 1048576
+  timeout_seconds: 15
+  concurrent_requests: 4
+  page_size: 100
+  result_items: 100
+  stream_seconds: 300
+tools:
+  read_probe:
+    tool: listmonk_get_stats
+    arguments: {}
+  allowlist:
+    - listmonk_get_campaign
+    - listmonk_get_stats
+    - listmonk_list_campaigns
+  schema_sha256: sha256:3459dd13cfef868ed4de0123695292c8d75c8d3c612bef78fa8d5eaba297f06e
+  read_only_default: true
+  mutating_tools_enabled: false
