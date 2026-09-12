@@ -1,0 +1,139 @@
+---
+- name: "📇 Configure the OIDC auth method against Keycloak"
+  when: OPENBAO_SSO_ENABLED | bool
+  block:
+    - name: "🧩 Enable the OIDC auth method"
+      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec {{ OPENBAO_LOCAL_CID | quote }}
+        sh -c 'bao auth list -format=json | grep -q "oidc/" ||
+        { bao auth enable oidc && echo OPENBAO_CHANGED; }'
+      register: openbao_oidc_enable
+      changed_when: "'OPENBAO_CHANGED' in openbao_oidc_enable.stdout"
+      delegate_to: "{{ OPENBAO_HOST_NODE }}"
+
+    - name: "📇 Point the OIDC method at the Keycloak realm"
+      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+        bao write auth/oidc/config
+        oidc_discovery_url={{ OPENBAO_OIDC_ISSUER | quote }}
+        oidc_client_id={{ OPENBAO_OIDC_CLIENT_ID | quote }}
+        oidc_client_secret=-
+        default_role={{ OPENBAO_OIDC_DEFAULT_ROLE | quote }}
+      args:
+        stdin: "{{ OPENBAO_OIDC_CLIENT_SECRET }}"
+        stdin_add_newline: false
+      changed_when: false
+      delegate_to: "{{ OPENBAO_HOST_NODE }}"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+    - name: "📇 Configure the default OIDC role, which grants only the 'default' policy"
+      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec {{ OPENBAO_LOCAL_CID | quote }}
+        sh -c 'set -e;
+        p=auth/oidc/role/{{ OPENBAO_OIDC_DEFAULT_ROLE }};
+        before=$(bao read -format=json $p 2>/dev/null | grep -v request_id || true);
+        bao write $p role_type=oidc
+        user_claim={{ OPENBAO_OIDC_USER_CLAIM | quote }}
+        groups_claim={{ OPENBAO_OIDC_GROUPS_CLAIM | quote }}
+        oidc_scopes=openid,profile,email
+        token_policies=default
+        allowed_redirect_uris={{ OPENBAO_OIDC_REDIRECT_URIS | quote }} >/dev/null;
+        after=$(bao read -format=json $p | grep -v request_id);
+        [ "$before" = "$after" ] || echo OPENBAO_CHANGED'
+      register: openbao_oidc_role
+      changed_when: "'OPENBAO_CHANGED' in openbao_oidc_role.stdout"
+      delegate_to: "{{ OPENBAO_HOST_NODE }}"
+
+- name: "📇 Configure the LDAP auth method against svc-db-openldap"
+  when: OPENBAO_LDAP_ENABLED | bool
+  block:
+    - name: "🧩 Enable the LDAP auth method"
+      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec {{ OPENBAO_LOCAL_CID | quote }}
+        sh -c 'bao auth list -format=json | grep -q "ldap/" ||
+        { bao auth enable ldap && echo OPENBAO_CHANGED; }'
+      register: openbao_ldap_enable
+      changed_when: "'OPENBAO_CHANGED' in openbao_ldap_enable.stdout"
+      delegate_to: "{{ OPENBAO_HOST_NODE }}"
+
+    - name: "📇 Point the LDAP method at the directory"
+      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+        bao write auth/ldap/config
+        url={{ OPENBAO_LDAP_URL | quote }}
+        userdn={{ LDAP.DN.OU.USERS | quote }}
+        userattr={{ OPENBAO_LDAP_USER_ATTR | quote }}
+        groupdn={{ LDAP.DN.OU.ROLES | quote }}
+        groupattr=cn
+        binddn={{ LDAP.DN.ADMINISTRATOR.DATA | quote }}
+        bindpass=-
+        insecure_tls=false
+        starttls=false
+      args:
+        stdin: "{{ LDAP.BIND_CREDENTIAL }}"
+        stdin_add_newline: false
+      changed_when: false
+      delegate_to: "{{ OPENBAO_HOST_NODE }}"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔍 Read the auth mount accessors"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    bao auth list -format=json
+  register: openbao_auth_list
+  changed_when: false
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+
+- name: "🔧 Keep the auth mount table, keyed by mount path such as 'oidc/'"
+  ansible.builtin.set_fact:
+    openbao_auth_mounts: "{{ openbao_auth_list.stdout | from_json }}"
+
+- name: "👥 Upsert the external identity group per RBAC role"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'set -e;
+    p=identity/group/name/{{ item }};
+    before=$(bao read -field=policies $p 2>/dev/null || true);
+    bao write $p type=external policies={{ item | quote }} >/dev/null;
+    after=$(bao read -field=policies $p);
+    [ "$before" = "$after" ] || echo OPENBAO_CHANGED'
+  loop: "{{ OPENBAO_RBAC_ROLES }}"
+  register: openbao_identity_group
+  changed_when: "'OPENBAO_CHANGED' in openbao_identity_group.stdout"
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+
+- name: "🔍 Read the identity group ids"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    bao read -field=id identity/group/name/{{ item | quote }}
+  loop: "{{ OPENBAO_RBAC_ROLES }}"
+  register: openbao_group_ids
+  changed_when: false
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+
+- name: "🔗 Bind each Keycloak group path to its OpenBao identity group"
+  ansible.builtin.include_tasks:
+    file: utils/group_alias.yml
+    apply:
+      delegate_to: "{{ OPENBAO_HOST_NODE }}"
+  loop: "{{ openbao_group_ids.results }}"
+  loop_control:
+    loop_var: openbao_group
+  vars:
+    alias_mount: "oidc/"
+    alias_name: "/{{ lookup('rbac_group_path', application_id=application_id, role=openbao_group.item) }}"
+  when: OPENBAO_SSO_ENABLED | bool
+
+- name: "🔗 Bind each LDAP role group to its OpenBao identity group"
+  ansible.builtin.include_tasks:
+    file: utils/group_alias.yml
+    apply:
+      delegate_to: "{{ OPENBAO_HOST_NODE }}"
+  loop: "{{ openbao_group_ids.results }}"
+  loop_control:
+    loop_var: openbao_group
+  vars:
+    alias_mount: "ldap/"
+    # Rationale: the RBAC LDAP layout contract encodes the application into the group CN.
+    alias_name: "{{ application_id }}-{{ openbao_group.item }}"
+  when: OPENBAO_LDAP_ENABLED | bool

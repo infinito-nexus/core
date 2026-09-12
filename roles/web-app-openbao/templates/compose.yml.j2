@@ -1,0 +1,19 @@
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+  {% set service_update_order = 'stop-first' %}
+  {% set service_name = 'openbao' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, 'openbao') }}
+    {{ lookup('compose_only', 'container_name', OPENBAO_NAME) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_ports', ['openbao', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
+    # Exception: no -config here; the image entrypoint appends -config=/openbao/config itself.
+    command:
+      - "server"
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+
+{{ lookup('compose_volumes') }}
+
+{{ lookup('compose_networks') }}

@@ -1,0 +1,107 @@
+---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: openbao
+    resolve_output_prefix: OPENBAO
+    resolve_compose_cid: "{{ OPENBAO_NAME }}"
+
+- name: "⏳ Wait until the OpenBao API answers"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    bao status -format=json
+  register: openbao_status_raw
+  changed_when: false
+  retries: 30
+  delay: 5
+  until: openbao_status_raw.rc in [0, 2] or 'not yet initialized' in openbao_status_raw.stderr
+  failed_when: false
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+
+- name: "🔧 Determine whether OpenBao is already initialised"
+  ansible.builtin.set_fact:
+    openbao_initialized: >-
+      {{ (openbao_status_raw.stdout | from_json).initialized | default(false)
+         if (openbao_status_raw.stdout | default('') | trim) | length > 0
+         else false }}
+
+- name: "🔐 Initialise OpenBao (first deploy only)"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    bao operator init -format=json -recovery-shares=1 -recovery-threshold=1
+  register: openbao_init_raw
+  changed_when: openbao_init_raw.rc == 0
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: not (openbao_initialized | bool)
+
+- name: "🔧 Hold the bootstrap root token in memory only"
+  ansible.builtin.set_fact:
+    openbao_root_token: >-
+      {{ (openbao_init_raw.stdout | from_json).root_token }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: not (openbao_initialized | bool)
+
+- name: "⏳ Wait until the static seal has auto-unsealed the node"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    bao status -format=json
+  register: openbao_unsealed_raw
+  changed_when: false
+  retries: 30
+  delay: 5
+  until: >-
+    openbao_unsealed_raw.rc == 0
+    and not ((openbao_unsealed_raw.stdout | from_json).sealed | bool)
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+
+- name: "🔑 Bootstrap the Ansible AppRole and revoke the root token"
+  include_tasks: 02_auth.yml
+  when: not (openbao_initialized | bool)
+
+- name: "🔐 Log in with the Ansible AppRole"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    bao write -field=token auth/approle/login
+    role_id={{ OPENBAO_APPROLE_ROLE_ID | quote }} secret_id=-
+  args:
+    stdin: "{{ OPENBAO_APPROLE_SECRET_ID }}"
+    stdin_add_newline: false
+  register: openbao_approle_login
+  changed_when: false
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔧 Store the AppRole token in the container token helper"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    bao login -no-print -
+  args:
+    stdin: "{{ openbao_approle_login.stdout | trim }}"
+    stdin_add_newline: false
+  changed_when: false
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📜 Reconcile the secrets engine and the RBAC policies"
+  ansible.builtin.include_tasks:
+    file: 03_policies.yml
+    apply:
+      delegate_to: "{{ OPENBAO_HOST_NODE }}"
+
+- name: "📇 Configure the OIDC and LDAP auth methods"
+  include_tasks: 04_auth_methods.yml
+
+- name: "🏛 Configure the internal PKI"
+  ansible.builtin.include_tasks:
+    file: 05_pki.yml
+    apply:
+      delegate_to: "{{ OPENBAO_HOST_NODE }}"
+  when: OPENBAO_PKI_ENABLED | bool
+
+- name: "🧹 Drop the stored reconciliation token from the container"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'bao token revoke -self >/dev/null 2>&1; rm -f ~/.bao-token'
+  changed_when: false
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"

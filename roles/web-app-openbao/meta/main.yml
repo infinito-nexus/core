@@ -1,0 +1,36 @@
+---
+galaxy_info:
+  author: Evangelos Tsakoudis
+  description: Identity-based secrets, PKI and encryption manager with OIDC login, group-mapped policies and static-seal auto-unseal
+  license: Infinito.Nexus Community License (Non-Commercial)
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+  galaxy_tags:
+    - openbao
+    - vault
+    - secrets
+    - pki
+    - oidc
+    - sso
+    - ldap
+    - docker
+    - compose
+  issue_tracker_url: https://s.infinito.nexus/issues

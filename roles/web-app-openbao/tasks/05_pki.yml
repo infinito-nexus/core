@@ -1,0 +1,57 @@
+---
+- name: "🏛 Ensure the PKI secrets engine is mounted at '{{ OPENBAO_PKI_MOUNT }}'"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'bao secrets list -format=json | grep -q "\"{{ OPENBAO_PKI_MOUNT }}/\"" ||
+    { bao secrets enable -path={{ OPENBAO_PKI_MOUNT | quote }} pki && echo OPENBAO_CHANGED; }'
+  register: openbao_pki_mount
+  changed_when: "'OPENBAO_CHANGED' in openbao_pki_mount.stdout"
+
+- name: "🔍 Check whether the internal root CA already exists"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'bao read -field=certificate {{ OPENBAO_PKI_MOUNT }}/cert/ca 2>/dev/null | grep -q "BEGIN CERTIFICATE"'
+  register: openbao_pki_ca
+  changed_when: false
+  failed_when: false
+
+- name: "🏛 Generate the internal root CA"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    bao write -field=certificate {{ OPENBAO_PKI_MOUNT }}/root/generate/internal
+    common_name={{ ('Infinito.Nexus Internal CA (' ~ DOMAIN_PRIMARY ~ ')') | quote }}
+    issuer_name=infinito-root
+    ttl=87600h
+  changed_when: true
+  when: openbao_pki_ca.rc != 0
+
+- name: "🔗 Configure the CA and CRL distribution URLs"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'set -e;
+    p={{ OPENBAO_PKI_MOUNT }}/config/urls;
+    before=$(bao read -format=json $p 2>/dev/null | grep -v request_id || true);
+    bao write $p
+    issuing_certificates={{ OPENBAO_PKI_ISSUING_URL | quote }}
+    crl_distribution_points={{ OPENBAO_PKI_CRL_URL | quote }} >/dev/null;
+    after=$(bao read -format=json $p | grep -v request_id);
+    [ "$before" = "$after" ] || echo OPENBAO_CHANGED'
+  register: openbao_pki_urls
+  changed_when: "'OPENBAO_CHANGED' in openbao_pki_urls.stdout"
+
+- name: "📇 Configure the issuing role '{{ OPENBAO_PKI_ISSUING_ROLE }}'"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'set -e;
+    p={{ OPENBAO_PKI_MOUNT }}/roles/{{ OPENBAO_PKI_ISSUING_ROLE }};
+    before=$(bao read -format=json $p 2>/dev/null | grep -v request_id || true);
+    bao write $p
+    allowed_domains={{ DOMAIN_PRIMARY | quote }}
+    allow_subdomains=true
+    allow_bare_domains=true
+    max_ttl=2160h
+    ttl=720h >/dev/null;
+    after=$(bao read -format=json $p | grep -v request_id);
+    [ "$before" = "$after" ] || echo OPENBAO_CHANGED'
+  register: openbao_pki_role
+  changed_when: "'OPENBAO_CHANGED' in openbao_pki_role.stdout"

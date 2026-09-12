@@ -1,0 +1,9 @@
+---
+flags:
+  style-src:
+    unsafe-inline: true # nocheck: csp-unsafe  Reason: the OpenBao UI is an Ember SPA that sets element styles at runtime; script-src stays strict because the production build ships precompiled templates.
+  style-src-attr:
+    unsafe-inline: true # nocheck: csp-unsafe  Reason: same Ember runtime style attributes as style-src.
+whitelist:
+  connect-src:
+    - "data:"

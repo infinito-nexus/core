@@ -1,0 +1,22 @@
+---
+# Param: openbao_group - one entry of the registered group-id loop (item = role name, stdout = group id)
+# Param: alias_mount   - auth mount path, e.g. "oidc/" or "ldap/"
+# Param: alias_name    - identity-provider group name the claim will carry
+- name: "🔍 Read the existing alias of identity group '{{ openbao_group.item }}'"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    bao read -format=json identity/group/id/{{ openbao_group.stdout | trim | quote }}
+  register: openbao_group_read
+  changed_when: false
+
+- name: "🔗 Create the group alias '{{ alias_name }}' on mount '{{ alias_mount }}'"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    bao write identity/group-alias
+    name={{ alias_name | quote }}
+    mount_accessor={{ openbao_auth_mounts[alias_mount].accessor | quote }}
+    canonical_id={{ openbao_group.stdout | trim | quote }}
+  changed_when: true
+  when: >-
+    ((openbao_group_read.stdout | from_json).data.alias | default({})).name | default('')
+    != alias_name

@@ -1,0 +1,16 @@
+{% if 'web-app-openbao' in lookup('native_metrics_apps') %}
+  - name: openbao_seal
+    interval: 30s
+    rules:
+      - alert: OpenBaoSealed
+        expr: vault_core_active{job="openbao"} == 0 or absent(vault_core_active{job="openbao"})
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "OpenBao is sealed or unreachable"
+          description: >
+            OpenBao has not reported an active, unsealed core for more than 2 minutes.
+            Secrets, PKI issuance and machine logins are unavailable while it is sealed.
+            Check the container and confirm the static seal key reached its environment.
+{% endif %}

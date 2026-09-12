@@ -1,0 +1,50 @@
+---
+application_id: "web-app-openbao"
+container_port: "{{ lookup('config', application_id, 'services.openbao.ports.internal.http') }}"
+
+OPENBAO_NAME: "{{ lookup('config', application_id, 'services.openbao.name') }}"
+
+OPENBAO_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+OPENBAO_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
+OPENBAO_PKI_ENABLED: "{{ lookup('config', application_id, 'services.openbao.pki.enabled') }}"
+OPENBAO_LOG_LEVEL: "{{ lookup('config', application_id, 'services.openbao.log_level') }}"
+
+OPENBAO_BASE_URL: "{{ lookup('tls', application_id, 'url.base') | regex_replace('/+$', '') }}"
+
+OPENBAO_CONFIG_HOST: "{{ [lookup('container', application_id, 'directories.config'), 'openbao.hcl'] | path_join }}"
+OPENBAO_POLICY_DIR_HOST: "{{ [lookup('container', application_id, 'directories.config'), 'policies'] | path_join }}"
+OPENBAO_POLICY_DIR_DOCKER: "/openbao/policies"
+OPENBAO_DATA_DOCKER: "{{ lookup('volume', application_id, 'data').target }}"
+
+OPENBAO_SEAL_KEY: "{{ lookup('config', application_id, 'secrets.credentials.seal_key') }}"
+OPENBAO_APPROLE_ROLE_ID: "{{ lookup('config', application_id, 'secrets.credentials.approle_role_id') }}"
+OPENBAO_APPROLE_SECRET_ID: "{{ lookup('config', application_id, 'secrets.credentials.approle_secret_id') }}"
+
+OPENBAO_SEAL_KEY_ID: "infinito-1"
+OPENBAO_KV_MOUNT: "infinito"
+OPENBAO_ANSIBLE_APPROLE: "ansible"
+OPENBAO_PKI_MOUNT: "pki"
+OPENBAO_PKI_ISSUING_ROLE: "internal"
+OPENBAO_PKI_ISSUING_URL: "{{ OPENBAO_BASE_URL }}/v1/{{ OPENBAO_PKI_MOUNT }}/ca"
+OPENBAO_PKI_CRL_URL: "{{ OPENBAO_BASE_URL }}/v1/{{ OPENBAO_PKI_MOUNT }}/crl"
+
+OPENBAO_OIDC_ISSUER: "{{ OIDC.CLIENT.ISSUER_URL }}"
+OPENBAO_OIDC_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
+OPENBAO_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
+OPENBAO_OIDC_USER_CLAIM: "{{ OIDC.ATTRIBUTES.USERNAME }}"
+OPENBAO_OIDC_GROUPS_CLAIM: "groups"
+OPENBAO_OIDC_DEFAULT_ROLE: "default"
+
+OPENBAO_OIDC_REDIRECT_URIS: >-
+  {{ [
+       OPENBAO_BASE_URL ~ '/v1/auth/oidc/callback',
+       OPENBAO_BASE_URL ~ '/ui/vault/auth/oidc/oidc/callback'
+     ] | join(',') }}
+
+OPENBAO_LDAP_URL: "ldap://{{ LDAP.SERVER.DOMAIN }}:{{ LDAP.SERVER.PORT }}"
+OPENBAO_LDAP_USER_ATTR: "{{ LDAP.USER.ATTRIBUTES.ID }}"
+
+OPENBAO_RBAC_ROLES:
+  - administrator
+  - operator
+  - reader

@@ -1,0 +1,69 @@
+---
+- name: "🔐 Store the bootstrap root token in the container token helper"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    bao login -no-print -
+  args:
+    stdin: "{{ openbao_root_token }}"
+    stdin_add_newline: false
+  changed_when: false
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🧩 Enable the AppRole auth method"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'bao auth list -format=json | grep -q "approle/" || bao auth enable approle'
+  register: openbao_approle_enable
+  changed_when: openbao_approle_enable.rc == 0
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+
+- name: "📜 Write the ansible-admin policy the Ansible AppRole binds to"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    bao policy write ansible-admin {{ OPENBAO_POLICY_DIR_DOCKER }}/ansible-admin.hcl
+  changed_when: true
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+
+- name: "🧩 Create the Ansible AppRole"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    bao write auth/approle/role/{{ OPENBAO_ANSIBLE_APPROLE | quote }}
+    token_policies=ansible-admin
+    token_ttl=30m
+    token_max_ttl=1h
+    secret_id_num_uses=0
+    secret_id_ttl=0
+  changed_when: true
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+
+- name: "🔑 Pin the RoleID to the inventory value"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    bao write auth/approle/role/{{ OPENBAO_ANSIBLE_APPROLE | quote }}/role-id
+    role_id={{ OPENBAO_APPROLE_ROLE_ID | quote }}
+  changed_when: true
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+
+- name: "🔑 Pin the SecretID to the inventory value"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    bao write auth/approle/role/{{ OPENBAO_ANSIBLE_APPROLE | quote }}/custom-secret-id
+    secret_id=-
+  args:
+    stdin: "{{ OPENBAO_APPROLE_SECRET_ID }}"
+    stdin_add_newline: false
+  changed_when: true
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🧹 Revoke the bootstrap root token"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'bao token revoke -self && rm -f ~/.bao-token'
+  changed_when: true
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+
+- name: "🔓 Forget the root token"
+  ansible.builtin.set_fact:
+    openbao_root_token: ""

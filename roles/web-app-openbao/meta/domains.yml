@@ -1,0 +1,4 @@
+---
+canonical:
+  - openbao.{{ DOMAIN_PRIMARY }}
+aliases: []

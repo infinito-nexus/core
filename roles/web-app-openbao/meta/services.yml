@@ -1,0 +1,88 @@
+---
+# nocheck: seaweedfs-required - OpenBao keeps every secret, policy and PKI object in its own encrypted raft store on {{ lookup('volume', 'web-app-openbao', 'data').target }}; it has no S3/object-store surface.
+sso:
+  bond: 1
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
+  flavor: oidc
+ldap:
+  bond: 1
+  enabled: "{{ 'svc-db-openldap' in group_names }}"
+  shared: "{{ 'svc-db-openldap' in group_names }}"
+logout:
+  bond: 1
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
+dashboard:
+  bond: 1
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
+matomo:
+  bond: 1
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
+css:
+  bond: 1
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
+# nocheck: email, dynamic-flag - OpenBao has no outbound mail surface: it notifies nothing and owns no user mailboxes; audit trails leave through the logging stack.
+email:
+  bond: 1
+  enabled: false
+  shared: false
+prometheus:
+  bond: 1
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
+  native_metrics:
+    enabled: true
+    port: 8200
+openbao:
+  # nocheck: default-placement-manager  raft keeps its BoltDB store mmap'd with fsync durability, so it cannot live on NFS; the node is pinned in swarm to stay with its volume
+  placement: manager
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  cpus: 0.5
+  mem_reservation: 128m
+  mem_limit: 512m
+  pids_limit: 512
+  min_storage: 60MB
+  image: openbao/openbao
+  version: "2.6.2"
+  backup:
+    no_stop_required: false
+  # nocheck: single-replica  single-node raft: a second replica would need a real raft join/bootstrap flow, and two tasks against one BoltDB directory corrupt the store
+  replicas: 1
+  name: openbao
+  pki:
+    enabled: false
+  log_level: info
+  ports:
+    internal:
+      http: 8200
+    local:
+      http: 8081
+  healthcheck:
+    flavor: wget
+    # Exception: an uninitialised container must report healthy or the init task can never reach it.
+    path: "v1/sys/health?uninitcode=200&sealedcode=200&standbyok=true"
+  run_after:
+    - web-app-keycloak
+    - svc-db-openldap
+  lifecycle: alpha
+
+# nocheck: playwright-service-flag
+# nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
+tor:
+  bond: 0.5
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: true # nocheck: dynamic-flag
+
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

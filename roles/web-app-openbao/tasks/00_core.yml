@@ -1,0 +1,43 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🧩 load docker for {{ application_id }}"
+  include_role:
+    name: sys-stk-backend
+  vars:
+    compose_handlers_flush: false
+
+- name: "📄 Render the OpenBao server config and RBAC policies (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "openbao.hcl.j2"
+        dest: "{{ OPENBAO_CONFIG_HOST }}"
+        mode: "0644"
+      - src: "policies/ansible-admin.hcl.j2"
+        dest: "{{ [OPENBAO_POLICY_DIR_HOST, 'ansible-admin.hcl'] | path_join }}"
+        mode: "0644"
+      - src: "policies/administrator.hcl.j2"
+        dest: "{{ [OPENBAO_POLICY_DIR_HOST, 'administrator.hcl'] | path_join }}"
+        mode: "0644"
+      - src: "policies/operator.hcl.j2"
+        dest: "{{ [OPENBAO_POLICY_DIR_HOST, 'operator.hcl'] | path_join }}"
+        mode: "0644"
+      - src: "policies/reader.hcl.j2"
+        dest: "{{ [OPENBAO_POLICY_DIR_HOST, 'reader.hcl'] | path_join }}"
+        mode: "0644"
+
+- name: "🚿 flush handlers for '{{ application_id }}'"
+  meta: flush_handlers
+
+- name: "📂 Include role sys-stk-front-proxy for '{{ application_id }}'"
+  include_role:
+    name: sys-stk-front-proxy
+  vars:
+    domain: "{{ lookup('domain', application_id) }}"
+    http_port: "{{ lookup('config', application_id, 'services.openbao.ports.local.http') }}"
+
+- name: "🔐 Initialise, bootstrap and configure OpenBao for {{ application_id }}"
+  include_tasks: 01_init.yml
+  when: IS_STACK_HOST | bool
