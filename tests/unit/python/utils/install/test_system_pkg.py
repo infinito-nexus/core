@@ -41,6 +41,43 @@ class TestInstallPackageCandidates(unittest.TestCase):
         self.assertIn("DPkg::Lock::Timeout=600", commands[0])
         self.assertIn("DPkg::Lock::Timeout=600", commands[1])
 
+    def test_apt_refreshes_the_index_once_before_it_gives_up(self) -> None:
+        err = subprocess.CalledProcessError(returncode=1, cmd=["apt-get"])
+
+        def outcome(command: list[str]) -> None:
+            if "install" in command:
+                raise err
+
+        with mock.patch.object(system_pkg, "run_privileged", side_effect=outcome):
+            self.assertRaises(
+                RuntimeError,
+                system_pkg.install_package_candidates,
+                "apt-get",
+                ["ruby"],
+            )
+            commands = [
+                c.args[0] for c in system_pkg.run_privileged.call_args_list  # type: ignore[attr-defined]
+            ]
+        self.assertEqual(
+            ["update", "install", "update", "install"],
+            [("update" if "update" in c else "install") for c in commands],
+            "a mirror mid-sync serves a pool file the fetched index disagrees "
+            "with, and apt's own Acquire::Retries re-fetches that same pair; "
+            "the install must be offered a fresh index once (run 34653542922, "
+            "Hugo#0: 'File has unexpected size ... Mirror sync in progress?')",
+        )
+
+    def test_a_manager_without_an_index_does_not_install_twice(self) -> None:
+        err = subprocess.CalledProcessError(returncode=1, cmd=["pacman"])
+        with mock.patch.object(system_pkg, "run_privileged", side_effect=err) as priv:
+            self.assertRaises(
+                RuntimeError,
+                system_pkg.install_package_candidates,
+                "pacman",
+                ["ansible-core", "ansible"],
+            )
+        self.assertEqual(2, len(priv.call_args_list))
+
     def test_raises_when_all_candidates_fail(self) -> None:
         err = subprocess.CalledProcessError(returncode=1, cmd=["pacman"])
         with mock.patch.object(system_pkg, "run_privileged", side_effect=err):

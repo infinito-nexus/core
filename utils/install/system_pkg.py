@@ -75,6 +75,29 @@ def _install_one(manager: str, package: str) -> bool:
     return True
 
 
+def _try_candidates(
+    manager: str, packages: list[str], provides: str | None
+) -> tuple[bool, bool]:
+    """Install candidates until ``provides`` is callable.
+
+    Args:
+        manager: the detected package manager.
+        packages: candidate package names, most specific first.
+        provides: the command the caller needs.
+
+    Returns:
+        whether the caller's command is now callable, and whether any
+        candidate installed at all.
+    """
+    installed_any = False
+    for package in packages:
+        if _install_one(manager, package):
+            installed_any = True
+            if provides is None or shutil.which(provides) is not None:
+                return True, installed_any
+    return False, installed_any
+
+
 def install_package_candidates(
     manager: str, packages: list[str], provides: str | None = None
 ) -> None:
@@ -86,12 +109,12 @@ def install_package_candidates(
         provides: the command the caller needs.
     """
     _prepare_manager(manager)
-    installed_any = False
-    for package in packages:
-        if _install_one(manager, package):
-            installed_any = True
-            if provides is None or shutil.which(provides) is not None:
-                return
+    done, installed_any = _try_candidates(manager, packages, provides)
+    if not done and not installed_any and manager == "apt-get":
+        _prepare_manager(manager)
+        done, installed_any = _try_candidates(manager, packages, provides)
+    if done:
+        return
     if installed_any and provides is not None:
         raise RuntimeError(
             f"Installed {packages} via {manager} but {provides!r} is still not on "
