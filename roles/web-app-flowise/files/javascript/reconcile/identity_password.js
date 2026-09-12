@@ -29,6 +29,7 @@ const { Client } = require('pg')
 
 const email = process.env.FLOWISE_ADMIN_EMAIL
 const password = process.env.FLOWISE_ADMIN_PASSWORD
+// nocheck: env-default  bcrypt cost the script owns, no role renders it
 const rounds = parseInt(process.env.PASSWORD_SALT_HASH_ROUNDS || '10', 10)
 
 function fail(message) {
@@ -46,7 +47,7 @@ async function main() {
 
     const client = new Client({
         host: process.env.DATABASE_HOST,
-        port: parseInt(process.env.DATABASE_PORT || '5432', 10),
+        port: parseInt(process.env.DATABASE_PORT, 10),
         database: process.env.DATABASE_NAME,
         user: process.env.DATABASE_USER,
         password: process.env.DATABASE_PASSWORD

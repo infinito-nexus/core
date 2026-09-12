@@ -34,7 +34,7 @@ async function main() {
 
     const client = new Client({
         host: process.env.DB_POSTGRESDB_HOST,
-        port: parseInt(process.env.DB_POSTGRESDB_PORT || '5432', 10),
+        port: parseInt(process.env.DB_POSTGRESDB_PORT, 10),
         database: process.env.DB_POSTGRESDB_DATABASE,
         user: process.env.DB_POSTGRESDB_USER,
         password: process.env.DB_POSTGRESDB_PASSWORD
