@@ -34,6 +34,17 @@ fi
 HELPERS_SRC="${REPO_ROOT}/roles/test-e2e-playwright/files"
 PERSONAS_SRC="${HELPERS_SRC}/personas"
 PLAYWRIGHT_CONFIG_SRC="${HELPERS_SRC}/playwright.config.js"
+ROLE_VARS_SRC="${REPO_ROOT}/roles/test-e2e-playwright/vars/main.yml"
+
+mapfile -t CONFIG_TIMEOUT_ENV < <(
+	sed -n '/^TEST_E2E_PLAYWRIGHT_CONFIG_TIMEOUTS:/,/^[^[:space:]#]/p' "${ROLE_VARS_SRC}" |
+		grep -oE '^[[:space:]]+[A-Z][A-Z0-9_]+:' | tr -d ' :' | sed 's/$/=1/'
+)
+
+if [[ ${#CONFIG_TIMEOUT_ENV[@]} -eq 0 ]]; then
+	echo "lint-playwright: no timeouts read from ${ROLE_VARS_SRC}; every config load would throw" >&2
+	exit 2
+fi
 
 for asset in "${PERSONAS_SRC}" "${PLAYWRIGHT_CONFIG_SRC}"; do
 	if [[ ! -e "${asset}" ]]; then
@@ -125,7 +136,7 @@ lint_one_role() {
 
 	ln -sfn "${REPO_ROOT}/node_modules" "${stage_dir}/node_modules"
 
-	local stub_env=()
+	local stub_env=("${CONFIG_TIMEOUT_ENV[@]}")
 	local env_template="roles/${role}/templates/playwright.env.j2"
 	if [[ -f "${env_template}" ]]; then
 		local key
