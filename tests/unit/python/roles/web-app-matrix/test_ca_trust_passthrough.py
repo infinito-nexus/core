@@ -20,11 +20,13 @@ import re
 import unittest
 
 from utils.cache.files import read_text
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
 
-_MATRIX = PROJECT_ROOT / "roles/web-app-matrix/templates/flavor/ansible"
-_VARS = PROJECT_ROOT / "roles/web-app-matrix/vars/main.yml"
+_ROLE = PROJECT_ROOT / "roles/web-app-matrix"
+_MATRIX = _ROLE / "templates/flavor/ansible"
+_VARS = _ROLE / ROLE_FILE_VARS_MAIN
 _CA_GATE = "MATRIX_CA_INJECTED"
 
 _BOUND_BY_SYNAPSE = re.compile(r"src='?\s*~?\s*CA_TRUST\.(\w+)")
