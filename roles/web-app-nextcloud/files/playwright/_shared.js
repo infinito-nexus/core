@@ -52,7 +52,7 @@ function getNextcloudSocialLoginCandidates(target) {
   ];
 }
 
-async function loginToStandaloneNextcloud(adminPage, username = loginUsername, password = loginPassword) {
+async function attemptStandaloneNextcloudLogin(adminPage, username, password) {
   const loginUrl = new URL("login", nextcloudBaseUrl).toString();
   const usernameField = adminPage.getByRole("textbox", { name: nextcloudUsernameFieldPattern });
   const passwordField = adminPage.locator('input[name="password"], input[type="password"]').first();
@@ -180,13 +180,18 @@ async function logoutStandaloneNextcloud(adminPage) {
   await adminPage.waitForLoadState("networkidle", { timeout: resolveTimeout(45_000) }).catch(() => {});
 }
 
-async function loginToStandaloneNextcloudWithRetry(adminPage, username, password) {
+async function loginToStandaloneNextcloud(adminPage, username = loginUsername, password = loginPassword) {
   try {
-    await loginToStandaloneNextcloud(adminPage, username, password);
+    await attemptStandaloneNextcloudLogin(adminPage, username, password);
     return;
-  } catch {
+  } catch (first) {
     await adminPage.waitForTimeout(resolveTimeout(5_000));
-    await loginToStandaloneNextcloud(adminPage, username, password);
+    try {
+      await attemptStandaloneNextcloudLogin(adminPage, username, password);
+    } catch (second) {
+      second.message += `\n\nThe first attempt failed with: ${first.message}`;
+      throw second;
+    }
   }
 }
 
@@ -223,7 +228,6 @@ module.exports = {
   clickWithModalRetry,
   loginToStandaloneNextcloud,
   logoutStandaloneNextcloud,
-  loginToStandaloneNextcloudWithRetry,
   findFirstVisibleCandidate,
   runAdminFlow,
   runBiberFlow,

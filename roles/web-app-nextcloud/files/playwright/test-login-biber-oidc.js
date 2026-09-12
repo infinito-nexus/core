@@ -12,7 +12,7 @@ exports.register = function (shared) {
     const biberPage = await biberContext.newPage();
 
     try {
-      await shared.loginToStandaloneNextcloudWithRetry(biberPage, shared.env.biberUsername, shared.env.biberPassword);
+      await shared.loginToStandaloneNextcloud(biberPage, shared.env.biberUsername, shared.env.biberPassword);
 
       const shellState = await shared.waitForVisibleCandidate(
         biberPage,

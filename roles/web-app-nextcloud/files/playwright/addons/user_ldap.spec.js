@@ -25,7 +25,7 @@ test("addon user_ldap: biber authenticates via LDAP-backed native login", async 
   const page = await context.newPage();
 
   try {
-    await shared.loginToStandaloneNextcloudWithRetry(
+    await shared.loginToStandaloneNextcloud(
       page,
       shared.env.biberUsername,
       shared.env.biberPassword,

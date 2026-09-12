@@ -17,12 +17,7 @@ exports.register = function (shared) {
     const biberPage = await biberContext.newPage();
 
     try {
-      // `loginToStandaloneNextcloudWithRetry` retries once after a
-      // 5 s pause — the LDAP-first-login caveat (see
-      // roles/web-app-nextcloud/docs/LDAP.md) means biber's NC account
-      // is materialised lazily on first successful login, so the very
-      // first attempt for a non-admin persona can stall.
-      await shared.loginToStandaloneNextcloudWithRetry(
+      await shared.loginToStandaloneNextcloud(
         biberPage,
         shared.env.biberUsername,
         shared.env.biberPassword,
