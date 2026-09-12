@@ -56,7 +56,8 @@ class TestInstallPackageCandidates(unittest.TestCase):
                 ["ruby"],
             )
             commands = [
-                c.args[0] for c in system_pkg.run_privileged.call_args_list  # type: ignore[attr-defined]
+                c.args[0]
+                for c in system_pkg.run_privileged.call_args_list  # type: ignore[attr-defined]
             ]
         self.assertEqual(
             ["update", "install", "update", "install"],

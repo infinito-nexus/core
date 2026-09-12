@@ -8,7 +8,9 @@ from utils.cache.yaml import load_yaml_any
 
 WORKFLOWS = PROJECT_ROOT / ".github/workflows"
 ORCHESTRATOR = WORKFLOWS / "call-orchestrator.yml"
-_CALLS_ORCHESTRATOR = re.compile(r"uses:\s*\./\.github/workflows/call-orchestrator\.yml")
+_CALLS_ORCHESTRATOR = re.compile(
+    r"uses:\s*\./\.github/workflows/call-orchestrator\.yml"
+)
 _CALLED = re.compile(r"uses:\s*\./\.github/workflows/(call-[\w-]+\.yml)")
 DEDUPLICATING_BUILDS = ("call-images-build-ci.yml", "call-images-mirror-missing.yml")
 
