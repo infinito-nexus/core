@@ -137,6 +137,63 @@ class TestTorPortsLookup(unittest.TestCase):
         )
         self.assertEqual(ports, [389, 5432])
 
+    def test_exposed_public_forwards_the_public_group(self) -> None:
+        """The active mail provider's protocol ports ride the node onion."""
+        apps = {
+            "web-app-stalwart": {
+                "services": {
+                    "stalwart": {
+                        "exposed": "public",
+                        "ports": {
+                            "local": {"http": 8081},
+                            "public": {"smtp": 25, "smtps": 465, "imaps": 993},
+                        },
+                    }
+                }
+            }
+        }
+        self.assertEqual(
+            collect_exposed_ports(apps, ["web-app-stalwart"]), [25, 465, 993]
+        )
+
+    def test_exposed_public_does_not_leak_the_local_group(self) -> None:
+        """`public` replaces `local` — the reverse-proxied http port stays off the onion port list."""
+        apps = {
+            "a": {
+                "services": {
+                    "s": {
+                        "exposed": "public",
+                        "ports": {"local": {"http": 8081}, "public": {"smtps": 465}},
+                    }
+                }
+            }
+        }
+        self.assertEqual(collect_exposed_ports(apps, ["a"]), [465])
+
+    def test_exposed_true_still_never_forwards_public_ports(self) -> None:
+        """openldap's ldaps 636 must stay a non-forward: nothing listens on it in the exposed variant."""
+        apps = {
+            "svc-db-openldap": {
+                "services": {
+                    "openldap": {
+                        "exposed": True,
+                        "ports": {"local": {"ldap": 389}, "public": {"ldaps": 636}},
+                    }
+                }
+            }
+        }
+        self.assertEqual(collect_exposed_ports(apps, ["svc-db-openldap"]), [389])
+
+    def test_exposed_unknown_string_forwards_nothing(self) -> None:
+        apps = {
+            "a": {
+                "services": {
+                    "s": {"exposed": "everything", "ports": {"public": {"smtp": 25}}}
+                }
+            }
+        }
+        self.assertEqual(collect_exposed_ports(apps, ["a"]), [])
+
     def test_collect_exposed_ports_ignores_non_mappings(self) -> None:
         self.assertEqual(collect_exposed_ports({}, ["a"]), [])
         self.assertEqual(collect_exposed_ports(None, ["a"]), [])

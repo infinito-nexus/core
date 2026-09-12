@@ -10,6 +10,7 @@
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     healthcheck:
       start_period: {{ container_healthcheck_start_period }}
@@ -32,6 +33,7 @@
       - NOTIFICATION_URL=http://{{ KIX_FRONTEND_SERVICE }}:{{ KIX_FRONTEND_INTERNAL_PORT }}/notifications
       - BACKEND_API_URL=http://{{ KIX_BACKEND_SERVICE }}:{{ KIX_BACKEND_INTERNAL_PORT }}/api/v1
     {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     healthcheck:
       start_period: {{ container_healthcheck_start_period }}
@@ -44,6 +46,7 @@
     {{ lookup('depends_on', [KIX_BACKEND_SERVICE, KIX_FRONTEND_SERVICE]) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_ports', ['kix', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
 {{ lookup('compose_volumes') }}

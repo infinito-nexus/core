@@ -1,0 +1,27 @@
+---
+# Register the ClamAV container as a DATA-stage milter (idempotent by hostname).
+# Short timeouts + fail-open keep mail flowing while clamd warms up.
+# JMAP request bodies live in templates/jmap/*.json.j2.
+- name: "📖 List existing Stalwart milters"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: "{{ lookup('template', 'jmap/milter/get.json.j2') }}"
+
+- name: "🔍 Resolve existing ClamAV milter id (if any)"
+  ansible.builtin.set_fact:
+    stalwart_av_milter_id: >-
+      {{ (stalwart_jmap.methodResponses[0][1].list
+          | selectattr('hostname', 'equalto', STALWART_CLAMAV_HOST)
+          | map(attribute='id') | first) | default('') }}
+
+- name: "📁 Create the ClamAV milter"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: "{{ lookup('template', 'jmap/milter/create.json.j2') }}"
+  when: stalwart_av_milter_id | length == 0
+
+- name: "🔄 Update the ClamAV milter timeouts (fail-open on slow/cold clamd)"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: "{{ lookup('template', 'jmap/milter/update.json.j2') }}"
+  when: stalwart_av_milter_id | length > 0

@@ -24,8 +24,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ 'web-app-mailu' in group_names }}"
-  shared: "{{ 'web-app-mailu' in group_names }}"
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — Redis cache, no Playwright surface
 redis:
@@ -71,6 +71,7 @@ xwiki:
   run_after:
     - web-app-matomo
     - web-app-keycloak
+    - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
 # nocheck: playwright-service-flag — CSS consumer, no Playwright surface (provider: web-svc-css)

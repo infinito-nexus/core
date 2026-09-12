@@ -1,0 +1,152 @@
+---
+# nocheck: seaweedfs-required — object storage not implemented for this role
+sso:
+  bond: 1
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
+  flavor: oidc
+  oidc:
+    email_by_username: true
+    enable_user_creation: true
+    submission_via_relay: true
+    clients:
+      webui: stalwart-webui
+      webmail: stalwart-webmail
+logout:
+  bond: 1
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
+dashboard:
+  bond: 1
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
+matomo:
+  bond: 1
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true
+# nocheck: playwright-service-flag — self-provider
+stalwart:
+  bond: 1
+  enabled: true
+  shared: true
+  exposed: public
+  provides: email
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: default-placement-manager  mail edge at a known IP: MX A-record, PTR and SPF bind to the stack host IP (a floating task's egress IP breaks deliverability); the mail store is NFS-hostile and IS the app — same rationale as web-app-mailu
+  placement: manager
+  image: stalwartlabs/stalwart
+  version: "v0.16.12"
+  webui_version: "v1.0.5"
+  name: stalwart
+  backup:
+    project_hard_restart: true
+  migration:
+    import_mailu: false
+  # nocheck: min-storage-headroom  Reason: the mail store (maildir blobs, FTS index, queue) lives in this service's volumes and dwarfs the image transfer size
+  min_storage: 20GB
+  domain: "{{ lookup('email').domain }}"
+  ports:
+    local:
+      http: 8081
+    public:
+      smtp: 25
+      smtps: 465
+      pop3s: 995
+      imaps: 993
+      sieve: 4190
+    internal:
+      http: 8080
+      smtp: 25
+      smtps: 465
+      pop3s: 995
+      imaps: 993
+      sieve: 4190
+  run_after:
+    - web-app-matomo
+  lifecycle: beta
+  cpus: "1.0"
+  mem_reservation: 512m
+  mem_limit: 2g
+  pids_limit: 1024
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — legacy-provider pull for the migration scenario, no UI surface
+mailu:
+  bond: 1
+  enabled: false
+  shared: false
+# nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
+# nocheck: image-healthcheck — the container DOES get a probe: sys-svc-rdbms/templates/services/postgres.yml.j2 emits pg_isready with the real username, and this role's compose pulls that partial in through sys-svc-compose's base. Declaring one here instead would be dead config, since no template of this role renders it (container-healthcheck-unused). The checker only follows one include level, so it cannot see that partial.
+postgres:
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ ('svc-db-postgres' in group_names) and (DEPLOYMENT_MODE == 'compose') }}"
+  image: postgres
+  version: "17"
+  cpus: "0.8"
+  mem_reservation: 1g
+  mem_limit: 2g
+  pids_limit: 512
+# nocheck: dynamic-flag — role-local sub-component, always deployed with the stack
+# nocheck: playwright-service-flag — internal sub-component
+webmail:
+  bond: 1
+  enabled: true
+  shared: true
+  image: roundcube/roundcubemail
+  healthcheck:
+    flavor: curl
+  version: "1.7.2-apache"
+  cpus: "0.3"
+  mem_reservation: 256m
+  mem_limit: 1g
+  pids_limit: 512
+  ports:
+    local:
+      http: 8090
+    internal:
+      http: 80
+# nocheck: dynamic-flag — role-local sub-component, always deployed with the stack
+# nocheck: playwright-service-flag — antivirus milter, covered by role deploy test
+clamav:
+  enabled: true
+  shared: false
+  image: clamav/clamav
+  version: "1.5.3"
+  ports:
+    internal:
+      milter: 7357
+  cpus: "1.0"
+  mem_reservation: 1g
+  mem_limit: 3g
+  pids_limit: 512
+# nocheck: playwright-service-flag — verified by web-svc-css provider spec
+css:
+  bond: 1
+  enabled: "{{ 'web-svc-css' in group_names }}"
+  shared: "{{ 'web-svc-css' in group_names }}"
+prometheus:
+  bond: 1
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: variants-coverage — test_sso_variant_requires_tor forbids a variant pinning services.tor.enabled false, so the false polarity this rule asks for cannot exist
+tor:
+  bond: 0.5
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: true # nocheck: dynamic-flag
+# nocheck: playwright-service-flag — SMTP egress relay for .onion recipients, no UI surface
+# nocheck: variants-coverage — test_sso_variant_requires_tor forbids a variant pinning services.tor.enabled false, so the false polarity this rule asks for cannot exist
+# nocheck: bond-baseline — no variant pins this flag literally: the gateway follows svc-net-tor, which every variant now pins on
+# nocheck: dynamic-flag — gated on the onion (svc-net-tor), not on svc-net-tor-smtp itself: the gateway is a derived companion, never a standalone inventory group
+tor-smtp:
+  bond: 0.5
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: true # nocheck: dynamic-flag

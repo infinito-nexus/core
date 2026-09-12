@@ -24,18 +24,23 @@ def _as_bool(value: object) -> bool:
     return bool(value)
 
 
-def _collect_local_tcp_ports(port_categories: Any, into: set[int]) -> None:
-    """Add single-int TCP ports of the loopback-published ``ports.local`` group
-    only. An exposed service publishes just its local plaintext port to
-    127.0.0.1, so the onion HiddenServicePort must target that; forwarding a
-    ``public`` TLS port (e.g. ldaps 636) would be a dead loopback target (nothing
-    listens there in the exposed variant) and plaintext-into-TLS."""
+def _collect_group_tcp_ports(port_categories: Any, group: str, into: set[int]) -> None:
+    """Add single-int TCP ports of one ``ports.<group>`` category group.
+
+    ``exposed: true`` collects ``local`` only: an exposed service publishes just
+    its local plaintext port to 127.0.0.1, so the onion HiddenServicePort must
+    target that; forwarding its ``public`` TLS port (e.g. ldaps 636) would be a
+    dead loopback target (nothing listens there in the exposed variant) and
+    plaintext-into-TLS. ``exposed: public`` collects ``public`` instead, for a
+    service whose protocol ports genuinely bind the host (the active mail
+    provider's 25/465/993/...) and should ride the node onion as-is.
+    """
     if not isinstance(port_categories, dict):
         return
-    local = port_categories.get("local")
-    if not isinstance(local, dict):
+    entries = port_categories.get(group)
+    if not isinstance(entries, dict):
         return
-    for category, value in local.items():
+    for category, value in entries.items():
         if category in _UDP_ONLY_CATEGORIES:
             continue
         if isinstance(value, int):
@@ -81,11 +86,14 @@ def collect_exposed_ports(
 
     ``exposed`` is an explicit per-service opt-in (default false) that makes the
     service reachable over the node onion: its port gets a dedicated
-    ``HiddenServicePort``. Because ``applications`` is the variant-merged config
-    (base ``meta/services.yml`` deep-merged with the round's ``meta/variants.yml``
+    ``HiddenServicePort``. ``exposed: true`` forwards the service's ``ports.local``
+    group; ``exposed: public`` forwards ``ports.public`` instead, for a service
+    whose protocol ports bind the host directly (the active mail provider).
+    Because ``applications`` is the variant-merged config (base
+    ``meta/services.yml`` deep-merged with the round's ``meta/variants.yml``
     override), a service is forwarded only in the variant/config where it sets
-    ``exposed: true`` — which is exactly what lets the two DB variants be tested
-    over Tor (v0 exposed -> reachable, v1 not -> refused).
+    the flag — which is exactly what lets the two DB variants be tested over Tor
+    (v0 exposed -> reachable, v1 not -> refused).
     """
     ports: set[int] = set()
     deployed = set(deployed_roles)
@@ -98,9 +106,13 @@ def collect_exposed_ports(
         if not isinstance(services, dict):
             continue
         for entity in services.values():
-            if not isinstance(entity, dict) or not _as_bool(entity.get("exposed")):
+            if not isinstance(entity, dict):
                 continue
-            _collect_local_tcp_ports(entity.get("ports"), ports)
+            exposed = entity.get("exposed")
+            if isinstance(exposed, str) and exposed.strip().lower() == "public":
+                _collect_group_tcp_ports(entity.get("ports"), "public", ports)
+            elif _as_bool(exposed):
+                _collect_group_tcp_ports(entity.get("ports"), "local", ports)
     return sorted(ports)
 
 
@@ -114,8 +126,9 @@ class LookupModule(LookupBase):
     '127.0.0.1:<port>'}`` dicts, sorted by port. Two sources are unioned:
 
       * every ``ports.public`` TCP port of tor-enabled roles, and
-      * every port of a service that opts in with ``exposed: true`` (resolved
-        against the variant-merged applications view, so per-variant).
+      * every port of a service that opts in with ``exposed`` (resolved against
+        the variant-merged applications view, so per-variant): ``true`` forwards
+        its ``ports.local`` group, ``public`` its ``ports.public`` group.
 
     Public/exposed ports bind the host interface, so the loopback target reaches
     them from svc-net-tor's host-network container. Consumed by

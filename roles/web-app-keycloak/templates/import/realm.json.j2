@@ -791,9 +791,21 @@
       ]
     },
     {% include "clients/default.json.j2" %}
+{% for kc_client_app in KEYCLOAK_DECLARED_CLIENT_APPS %}
+    ,{% include 'roles/' ~ kc_client_app ~ '/templates/keycloak/clients.json.j2' %}
+{% endfor %}
 {% include "clients/saml.json.j2" %}
   ],
   "clientScopes": [
+    {
+      "name": "openid",
+      "description": "Marker scope so 'scope=openid' requests are valid and echoed back; some OIDC clients (e.g. Mattermost) require it. Carries no mappers.",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false"
+      }
+    },
     {
       "name": "role_list",
       "description": "SAML role list",

@@ -88,7 +88,6 @@
   delegate_to: "{{ MATTERMOST_KC_HOST_NODE }}"
   register: mm_kc_all_scopes
   changed_when: false
-  when: mm_kc_create_openid_scope is changed
 
 - name: "📋 Mattermost | Keycloak — list existing default client scopes"
   ansible.builtin.shell: >- # nocheck: container-exec-resolver  MATTERMOST_KC_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell

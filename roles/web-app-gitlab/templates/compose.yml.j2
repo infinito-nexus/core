@@ -20,6 +20,7 @@
   GITLAB_MIGRATIONS_SERVICE_NAME: {'condition': 'service_completed_successfully'},
 }) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
   {% set service_name = GITLAB_WORKHORSE_SERVICE_NAME %}
@@ -62,6 +63,7 @@
   GITLAB_WEBSERVICE_SERVICE_NAME: {'condition': 'service_started'},
 }) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
   {% set service_name = GITLAB_GITALY_SERVICE_NAME %}

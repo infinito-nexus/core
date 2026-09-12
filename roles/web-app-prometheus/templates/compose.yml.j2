@@ -68,6 +68,7 @@
       - "--path.rootfs={{ lookup('volume', 'web-app-prometheus', 'host_rootfs').target }}"
       - "--path.sysfs={{ lookup('volume', 'web-app-prometheus', 'host_sys').targets['node-exporter'] }}"
       - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+      - "--collector.textfile.directory={{ lookup('volume', 'web-app-prometheus', 'metrics_textfile').targets['node-exporter'] }}"
 
 {{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

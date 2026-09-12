@@ -473,8 +473,9 @@ class TestHandlerFullCycle(unittest.TestCase):
         interleave: round-0 sync, round-0 async, then round-1 sync,
         round-1 async. Every call carries the zero-based VARIANT_INDEX so
         consumers like the test-e2e-playwright role can namespace their
-        artifacts. Cleanup still runs once between rounds with the full
-        previous-round include."""
+        artifacts, plus PRIMARY_APPS so role-owned tests can tell a deploy
+        target from a pulled-in dependency. Cleanup still runs once between
+        rounds with the full previous-round include."""
         make_compose_mock.return_value = _make_compose_mock()
         plan_mock.return_value = [
             _entry(0, "/srv/inv-0", {"web-app-multi": 0}),
@@ -494,10 +495,24 @@ class TestHandlerFullCycle(unittest.TestCase):
         self.assertEqual(
             sequence,
             [
-                ("/srv/inv-0", {"VARIANT_INDEX": 0}),
-                ("/srv/inv-0", {"ASYNC_ENABLED": True, "VARIANT_INDEX": 0}),
-                ("/srv/inv-1", {"VARIANT_INDEX": 1}),
-                ("/srv/inv-1", {"ASYNC_ENABLED": True, "VARIANT_INDEX": 1}),
+                ("/srv/inv-0", {"VARIANT_INDEX": 0, "PRIMARY_APPS": ["web-app-multi"]}),
+                (
+                    "/srv/inv-0",
+                    {
+                        "ASYNC_ENABLED": True,
+                        "VARIANT_INDEX": 0,
+                        "PRIMARY_APPS": ["web-app-multi"],
+                    },
+                ),
+                ("/srv/inv-1", {"VARIANT_INDEX": 1, "PRIMARY_APPS": ["web-app-multi"]}),
+                (
+                    "/srv/inv-1",
+                    {
+                        "ASYNC_ENABLED": True,
+                        "VARIANT_INDEX": 1,
+                        "PRIMARY_APPS": ["web-app-multi"],
+                    },
+                ),
             ],
         )
         purge_mock.assert_called_once()
@@ -577,8 +592,15 @@ class TestHandlerFullCycle(unittest.TestCase):
         self.assertEqual(
             sequence,
             [
-                ("/srv/inv-1", {"VARIANT_INDEX": 1}),
-                ("/srv/inv-1", {"ASYNC_ENABLED": True, "VARIANT_INDEX": 1}),
+                ("/srv/inv-1", {"VARIANT_INDEX": 1, "PRIMARY_APPS": ["web-app-multi"]}),
+                (
+                    "/srv/inv-1",
+                    {
+                        "ASYNC_ENABLED": True,
+                        "VARIANT_INDEX": 1,
+                        "PRIMARY_APPS": ["web-app-multi"],
+                    },
+                ),
             ],
         )
         purge_mock.assert_not_called()

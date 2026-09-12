@@ -1,11 +1,16 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow , expectHstsWhenTls, gotoOnion } = require("./personas");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow , expectHstsWhenTls, gotoOnion, webmailSsoLogin, waitForEmailInMailbox, safeIsEnabled } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
+const webmailBaseUrl = normalizeBaseUrl(decodeDotenvQuotedValue(process.env.WEBMAIL_BASE_URL || ""));
+const adminEmail = decodeDotenvQuotedValue(process.env.ADMIN_EMAIL || "");
+const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
+const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
+const ssoEnabled = (process.env.SSO_SERVICE_ENABLED || "").toLowerCase() === "true";
 
 test.beforeEach(async ({ page }) => {
   expect(appBaseUrl, "APP_BASE_URL must be set").toBeTruthy();
@@ -33,6 +38,42 @@ test("GitLab returns HTML content under canonical domain", async ({ request }) =
     contentType.includes("text/html"),
     `Expected HTML content-type, got "${contentType}"`
   ).toBe(true);
+});
+
+// Outbound mail. `templates/config/smtp_settings.rb.j2` derives ActionMailer's
+// `tls:` from the provider's own declaration, and tls/starttls are mutually
+// exclusive there: implicit TLS on 465, or STARTTLS on the relay port, never
+// both. Getting it wrong does not fail the send — GitLab queues the mail and
+// reports success — so the only proof is reading the message back out of the
+// recipient's mailbox. GitLab only mails an address it knows, and the OmniAuth
+// sign-in is what creates the account, so the persona logs in once before asking.
+test("gitlab: a password-reset request is delivered to the recipient's mailbox", async ({ page }) => {
+  test.skip(!safeIsEnabled("email"), "no mail provider in this deploy");
+  test.skip(!ssoEnabled, "the administrator account is created by the first SSO login");
+  test.skip(!webmailBaseUrl, "the active mail provider serves no webmail vhost to read from");
+  expect(adminEmail, "ADMIN_EMAIL must be set").toBeTruthy();
+  expect(adminPassword, "ADMIN_PASSWORD must be set").toBeTruthy();
+
+  await runAdminFlow(page);
+
+  await gotoOnion(page, `${appBaseUrl}/users/password/new`);
+  await page.locator("input[type='email'], #user_email").first().fill(adminEmail);
+  await page.locator("input[type='submit'], button[type='submit']").first().click();
+  await expect(
+    page.locator("body"),
+    "GitLab must confirm it accepted the reset request"
+  ).toContainText(/recovery link|password recovery|reset|instructions|receive/i, {
+    timeout: resolveTimeout(30_000),
+  });
+
+  const mailbox = await page.context().newPage();
+  try {
+    await webmailSsoLogin(mailbox, adminUsername, adminPassword, webmailBaseUrl);
+    const row = await waitForEmailInMailbox(mailbox, webmailBaseUrl, "password", resolveTimeout(120_000));
+    await expect(row, "the reset mail must reach the mailbox").toBeVisible();
+  } finally {
+    await mailbox.close().catch(() => {});
+  }
 });
 
 // Persona scenarios.

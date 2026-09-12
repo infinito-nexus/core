@@ -1,0 +1,3 @@
+---
+# Param: NFSv4 minor versions ganesha offers to clients (comma-separated).
+SVC_STORAGE_NFS_SERVER_MINOR_VERSIONS: "0, 1, 2"

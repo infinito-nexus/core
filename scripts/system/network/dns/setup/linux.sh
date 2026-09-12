@@ -92,12 +92,19 @@ EOF
 	sudo systemctl enable dnsmasq --now
 	sudo systemctl restart dnsmasq
 
-	if command -v resolvectl >/dev/null 2>&1 && systemctl is-active --quiet systemd-resolved 2>/dev/null; then
-		echo ">>> Configuring systemd-resolved routing for ${DNS_DOMAIN}"
-		sudo resolvectl dns lo 127.0.0.1 || true           # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
-		sudo resolvectl domain lo "~${DNS_DOMAIN}" || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+	if systemctl is-active --quiet systemd-resolved 2>/dev/null; then
+		echo ">>> Routing ${DNS_DOMAIN} to dnsmasq via systemd-resolved drop-in: ${DNS_RESOLVED_DROPIN}"
+		sudo mkdir -p "$(dirname "${DNS_RESOLVED_DROPIN}")"
+		cat <<EOF | sudo tee "${DNS_RESOLVED_DROPIN}" >/dev/null
+# Attention: managed by infinito-nexus — routes ${DNS_DOMAIN} to local dnsmasq.
+# Edits are overwritten; remove it with \`make network-dns-remove\`.
+[Resolve]
+DNS=127.0.0.1
+Domains=~${DNS_DOMAIN}
+EOF
+		sudo systemctl restart systemd-resolved
 	else
-		echo ">>> systemd-resolved not active -> skipping resolvectl integration"
+		echo ">>> systemd-resolved not active -> skipping resolved integration"
 		echo ">>> NOTE: Ensure your system resolver uses 127.0.0.1 to query dnsmasq."
 	fi
 }

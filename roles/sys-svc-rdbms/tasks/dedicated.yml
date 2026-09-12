@@ -20,3 +20,4 @@
   when:
     - "'svc-bkp-volume-2-local' in group_names"
     - IS_STACK_HOST | bool
+    - lookup('database', _database_consumer_id, 'managed') | bool

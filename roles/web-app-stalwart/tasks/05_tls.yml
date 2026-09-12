@@ -1,0 +1,26 @@
+---
+# Deploy the platform TLS cert (cert.pem/key.pem) into Stalwart's cert dir and
+# register it for the mail listeners. x:Certificate references the mounted files
+# (validated format). SNI matches it to the domain automatically.
+- name: "🚀 Deploy the platform TLS certificate into Stalwart's cert dir"
+  include_role:
+    name: sys-ctl-mtn-cert-deploy
+  vars:
+    cert_deploy_remote_endpoints: >-
+      {{ (STALWART_PRODUCTION_HOST ~ ':465 ' ~ STALWART_PRODUCTION_HOST ~ ':993')
+         if STALWART_PRODUCTION_HOST | length > 0 else '' }}
+
+- name: "🔍 Check for an existing Stalwart certificate"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:Certificate/get', {'ids': none}, 'c0']]} | to_json }}
+
+- name: "🔧 Record whether the certificate still needs to be registered"
+  ansible.builtin.set_fact:
+    stalwart_cert_missing: "{{ (stalwart_jmap.methodResponses[0][1].list | length) == 0 }}"
+
+- name: "🔧 Register and activate the platform TLS certificate"
+  include_tasks: 05_tls/activate.yml
+  when: stalwart_cert_missing | bool

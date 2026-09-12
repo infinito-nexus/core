@@ -23,6 +23,8 @@ INFINITO_IMAGE_TAG: "{{ lookup('env', 'INFINITO_IMAGE_TAG') | default('latest', 
 INFINITO_GHCR_MIRROR_PREFIX: "{{ lookup('env', 'INFINITO_GHCR_MIRROR_PREFIX') | default('', true) }}"
 CA_CONTAINER_ENABLED: "{{ lookup('env', 'INFINITO_CONTAINER_CA_ENABLED') | bool }}"
 test_e2e_playwright_keep: "{{ lookup('env', 'INFINITO_PLAYWRIGHT_KEEP') | bool }}"
+MAIL_PRODUCTION_HOST: "{{ lookup('env', 'INFINITO_MAIL_PRODUCTION_HOST') | default('', true) }}"
+MAIL_PRODUCTION_RESOLVER: "{{ lookup('env', 'INFINITO_MAIL_PRODUCTION_RESOLVER') | default('', true) }}"
 SYS_TIMEOUT_CONTAINER_EXEC: "60min"
 networks:
   internet:
@@ -48,12 +50,13 @@ users:
     firstname: "Harry"
     lastname: "Beaver"
     website: "https://www.infinito.nexus/"
-    email: "biber@infinito.example"
+    email: "biber@{{ DOMAIN_PRIMARY }}"
     gpg: "DUMMY-GPG-KEY-NOT-SET"
     password: "VeryUnsecurePassword!1"
 
     uid: 10001
     gid: 10001
+    accounts: ["mailbox", "identity"]
     roles: []
     tokens: {}
     authorized_keys: []

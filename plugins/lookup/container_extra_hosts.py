@@ -73,6 +73,17 @@ class LookupModule(LookupBase):
         variables: dict[str, Any] | None = None,
         **kwargs: Any,
     ) -> list[str]:
+        """Render the pins this application needs to reach onion-hosted services.
+
+        Kwargs:
+          application_id: role whose pins to resolve; defaults to the play var.
+          extra_hosts:    additional `name:address` entries from the caller.
+          host_alias:     also pin `host.docker.internal` to the gateway.
+          docker_flags:   emit `--add-host=` flags for a `docker run` command
+                          line instead of a compose `extra_hosts:` block.
+
+        Returns a single-element list holding the rendered block, or [""].
+        """
         if terms:
             raise AnsibleError(
                 "container_extra_hosts lookup takes no positional terms; pass "
@@ -91,7 +102,7 @@ class LookupModule(LookupBase):
                 "pass application_id= explicitly"
             )
 
-        entries = self._sso_pins(application_id)
+        entries = self._sso_pins(application_id) + self._mail_pins(application_id)
         if _to_bool(self._render(kwargs.get("host_alias", False)), strict=False):
             entries.append(
                 f"{DOCKER_INTERNAL_HOST}:{self._gateway_address(DOCKER_INTERNAL_HOST)}"
@@ -100,6 +111,9 @@ class LookupModule(LookupBase):
         merged = list(dict.fromkeys(entries))
         if not merged:
             return [""]
+
+        if _to_bool(self._render(kwargs.get("docker_flags", False)), strict=False):
+            return ["\n".join(f"  - --add-host={entry}" for entry in merged)]
 
         lines = ["extra_hosts:"] + [f'  - "{entry}"' for entry in merged]
         return ["\n".join(lines)]
@@ -126,6 +140,35 @@ class LookupModule(LookupBase):
         return [
             f"{DOCKER_INTERNAL_HOST}:{HOST_GATEWAY}",
             f"{provider_host}:{self._gateway_address(provider_host)}",
+        ]
+
+    def _mail_pins(self, application_id: str) -> list[str]:
+        """The mail-provider pin, empty unless this is an onion node sending mail.
+
+        Args:
+            application_id: the role whose ``services.email`` gate decides.
+
+        The same unroutability as the SSO pin, one service down: an application
+        dials the relay by the provider's public name, which on an onion
+        deployment resolves only through Tor. ``sys-svc-mail-msmtp`` answers
+        that with a SOCKS proxy, but a client with no proxy setting at all --
+        Ruby's ``Net::SMTP``, so GitLab queues the mail and reports success
+        while nothing leaves -- has no other route to the relay.
+        """
+        if not bool(
+            self._lookup("config", application_id, "services.email.enabled", False)
+        ):
+            return []
+
+        mail_host = str(
+            (self._lookup("email", application_id) or {}).get("host") or ""
+        ).strip()
+        if not mail_host.endswith(".onion"):
+            return []
+
+        return [
+            f"{DOCKER_INTERNAL_HOST}:{HOST_GATEWAY}",
+            f"{mail_host}:{self._gateway_address(mail_host)}",
         ]
 
     def _caller_entries(self, extra_hosts: Any) -> list[str]:

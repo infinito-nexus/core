@@ -7,6 +7,12 @@
   vars:
     compose_handlers_flush: false
 
+- name: "📁 Ensure the node-exporter textfile directory exists"
+  ansible.builtin.file:
+    path: "{{ DIR_METRICS_TEXTFILE }}"
+    state: directory
+    mode: "0755"
+
 - name: "🚀 Deploy prometheus nginx http-block config"
   stack_host_template:
     src: "roles/web-app-prometheus/templates/nginx/prometheus.conf.j2"

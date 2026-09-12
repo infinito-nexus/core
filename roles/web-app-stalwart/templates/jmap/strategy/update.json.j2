@@ -1,0 +1,4 @@
+{
+  "using": ["urn:ietf:params:jmap:core", "urn:stalwart:jmap"],
+  "methodCalls": [["x:MtaOutboundStrategy/set", {"update": {"singleton": {"route": {{ stalwart_route_expr | to_json }} }}}, "c0"]]
+}

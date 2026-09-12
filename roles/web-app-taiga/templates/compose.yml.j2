@@ -28,6 +28,7 @@ build:
     {{ lookup('container_image', application_id, 'taiga', image='taigaio/taiga-back', version=TAIGA_VERSION) }}
 {% endif %}
     {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
       taiga:
     {{ lookup('container_depends_on', application_id, extra={
@@ -55,6 +56,7 @@ build:
     entrypoint: ["/taiga-back/docker/async_entrypoint.sh"]
 {% endif %}
     {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
       taiga:
     {{ lookup('container_depends_on', application_id, extra={
@@ -76,6 +78,7 @@ build:
       timeout: 5s
       retries: 5
       start_period: 20s
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
       taiga:
 
@@ -95,6 +98,7 @@ build:
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
 
     {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
       taiga:
 
@@ -109,6 +113,7 @@ build:
       timeout: 5s
       retries: 5
       start_period: 30s
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
       taiga:
     {{ lookup('depends_on', {TAIGA_EVENTS_RABBITMQ_SERVICE: 'service_started'}) }}
@@ -126,6 +131,7 @@ build:
       timeout: 5s
       retries: 5
       start_period: 20s
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
       taiga:
 
@@ -140,6 +146,7 @@ build:
       timeout: 5s
       retries: 5
       start_period: 20s
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
       taiga:
 
@@ -152,6 +159,7 @@ build:
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
 
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
       taiga:
     {{ lookup('depends_on', [TAIGA_FRONT_SERVICE, TAIGA_SERVICE, TAIGA_EVENTS_SERVICE]) }}
@@ -168,6 +176,7 @@ build:
   TAIGA_SERVICE: {'condition': 'service_started'},
 }) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
       taiga:
 {{ lookup('compose_volumes') }}

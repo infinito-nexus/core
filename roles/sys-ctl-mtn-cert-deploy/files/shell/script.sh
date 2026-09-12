@@ -1,7 +1,13 @@
 #!/bin/sh
 set -eu
 
+# Deploy renewed TLS material into a compose project's certs volume and
+# restart the services that consume it.
+#
 # Usage: script.sh <ssl_cert_source_dir> <docker_compose_instance_directory>
+#
+# Requires $compose_cmd: the compose wrapper base command, quoted as needed,
+# e.g. compose_cmd="compose --chdir /opt/compose/mailu --project mailu".
 if [ "$#" -ne 2 ]; then
   echo "Usage: $0 <ssl_cert_source_dir> <docker_compose_instance_directory>" >&2
   exit 1
@@ -56,18 +62,26 @@ restart_services=""
 for service in $services; do
   echo "Checking service: $service"
 
-  if sh -c "$compose_cmd -- exec -T \"$service\" which nginx" > /dev/null 2>&1; then
-    echo "Nginx found in service: $service"
+  container_id="$(sh -c "$compose_cmd -- ps -q \"$service\"" | head -n1)"
+  if [ -z "$container_id" ]; then
+    echo "No running container for service: $service, skipping."
+    continue
+  fi
+
+  if docker inspect --type container "$container_id" \
+      --format '{{range .Mounts}}{{println .Source}}{{end}}' \
+      | grep -qx "$docker_compose_cert_directory"; then
+    echo "Certificate mount found in service: $service"
     restart_services="$restart_services $service"
   else
-    echo "Nginx not found in service: $service, skipping."
+    echo "No certificate mount in service: $service, skipping."
   fi
 done
 
 if [ -n "$(echo "$restart_services" | tr -d ' ')" ]; then
-  echo "Restarting Nginx services to apply new certificates:${restart_services}"
+  echo "Restarting certificate-consuming services to apply new certificates:${restart_services}"
   # shellcheck disable=SC2086
   sh -c "$compose_cmd -- restart $restart_services" || exit 1
 else
-  echo "No Nginx instances found in any service. Nothing to restart."
+  echo "No certificate-consuming services found. Nothing to restart."
 fi

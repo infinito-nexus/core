@@ -50,5 +50,5 @@ path-style, are listed at the end.
 | `web-app-pretix` | Open-source pretix has no S3/object-store backend (local `MEDIA_ROOT` only; no django-storages/boto3, no config hook). |
 
 Roles with no object-store surface at all (e.g. `web-app-keycloak`, `web-app-matomo`,
-`web-app-pgadmin`, `web-app-phpmyadmin`, `web-app-yourls`, `web-app-mailu`) keep their
+`web-app-pgadmin`, `web-app-phpmyadmin`, `web-app-yourls`, `web-app-stalwart`) keep their
 `# nocheck: seaweedfs-required` exemption and are intentionally excluded.

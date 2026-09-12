@@ -9,6 +9,7 @@
     command: ["zammad-init"]
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
   {% set service_name = ZAMMAD_RAILS_SERVICE %}
@@ -20,6 +21,7 @@
     command: ["zammad-railsserver"]
     {{ lookup('depends_on', {ZAMMAD_INIT_SERVICE: 'service_completed_successfully'}, indent=4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
   {% set service_name = ZAMMAD_WEBSOCKET_SERVICE %}
@@ -30,6 +32,7 @@
     command: ["zammad-websocket"]
     {{ lookup('depends_on', {ZAMMAD_RAILS_SERVICE: 'service_started'}, indent=4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
   {% set service_name = ZAMMAD_SCHEDULER_SERVICE %}
@@ -40,6 +43,7 @@
     command: ["zammad-scheduler"]
     {{ lookup('depends_on', {ZAMMAD_RAILS_SERVICE: 'service_started'}, indent=4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
   {% set service_name = ZAMMAD_SEARCH_SERVICE %}
@@ -52,6 +56,7 @@
       - xpack.security.enabled=false
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
     {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
   {% if not (lookup('engine', 'memcached', application_id, 'shared') | bool) %}
@@ -61,6 +66,7 @@
     {{ lookup('compose_only', 'container_name', ZAMMAD_MEMCACHED_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     command: ["memcached", "-m", "256"]
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
   {% endif %}
 
@@ -79,6 +85,7 @@
     {{ lookup('depends_on', {ZAMMAD_RAILS_SERVICE: 'service_started', ZAMMAD_WEBSOCKET_SERVICE: 'service_started'}, indent=4) }}
     {{ lookup('container_ports', ['zammad', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
 {{ lookup('compose_volumes') }}

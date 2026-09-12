@@ -14,6 +14,7 @@
       interval: 10s
       timeout: 5s
       retries: 5
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
   {% set service_name = 'php' %}
@@ -25,6 +26,7 @@
     {{ lookup('container_depends_on', application_id, extra={
   'search': {'condition': 'service_started'},
 }) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
   {% set service_name = 'search' %}
@@ -37,6 +39,7 @@
       - plugins.security.disabled=true
       - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
 {{ lookup('compose_volumes') }}

@@ -1,0 +1,6 @@
+---
+# Named canonicals (first is the primary); `webmail` is the Roundcube vhost.
+canonical:
+  mail: "{{ ('legacy-stalwart-mail.' ~ DOMAIN_PRIMARY) if (MAIL_PROVIDER | default('web-app-stalwart', true)) == 'web-app-mailu' else ('mail.' ~ DOMAIN_PRIMARY) }}" # nocheck: spot-default  MAIL_PROVIDER is out of scope while this file renders (the role parked on the legacy name while it was the active provider), so the default must keep it owning `mail.`; it yields only when web-app-mailu is explicitly selected.
+  webmail: "webmail.{{ DOMAIN_PRIMARY }}"
+aliases: []

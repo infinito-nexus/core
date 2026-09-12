@@ -154,8 +154,10 @@ clean-sudo:
 # Param full_cycle: true | false — when true, also run the async update pass
 # Param variant: matrix round index to pin the redeploy to a specific variant
 # Param debug: true | false (default: from default.env)
+# Param skip_compile: true | false — skip the in-container entry.sh recompile (use when the venv is prebuilt)
 compose-deploy:
 	@$(if $(debug),INFINITO_DEBUG="$(debug)") \
+	 $(if $(skip_compile),INFINITO_SKIP_COMPILE="$(skip_compile)") \
 	 bash scripts/tests/deploy/local/deploy/main.sh
 
 .PHONY: compose-down
