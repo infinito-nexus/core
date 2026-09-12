@@ -94,6 +94,47 @@ class TestHandlerRegistrationOrder(unittest.TestCase):
         )
         self.assertGreater(rebuild, backend)
 
+    def test_bluesky_flushes_its_own_compose_handlers_before_the_front_proxy(
+        self,
+    ) -> None:
+        tasks = load_yaml_str(read_text(str(BLUESKY_CORE)))
+        rebuild = next(
+            index
+            for index, task in enumerate(tasks)
+            if {"compose-build", "compose-up"} <= set(task.get("notify") or [])
+        )
+        flush = next(
+            index
+            for index, task in enumerate(tasks)
+            if index > rebuild
+            and (
+                task.get("meta") == "flush_handlers"
+                or task.get("ansible.builtin.meta") == "flush_handlers"
+            )
+        )
+        proxy = next(
+            index
+            for index, task in enumerate(tasks)
+            if _role_include(task).get("name") == "sys-stk-front-proxy"
+        )
+        self.assertLess(
+            flush,
+            proxy,
+            "the front proxy pulls in svc-prx-openresty, which flushes; a "
+            "compose topic still pending there is run with openresty's "
+            "application_id and brings up its stack instead of this one",
+        )
+
+        loader = _role_include(tasks[flush - 1])
+        self.assertEqual(loader.get("name"), COMPOSE_OWNER)
+        self.assertEqual(
+            loader.get("handlers_from"),
+            "main",
+            "the handler resolves its chdir from application_id at flush "
+            "time, so the topics are re-owned here rather than left on "
+            "whatever value the play happens to carry",
+        )
+
     def test_the_notifier_bootstraps_the_compose_host_before_its_first_notify(
         self,
     ) -> None:

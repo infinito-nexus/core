@@ -44,6 +44,15 @@
      and (bluesky_social_app_clone is changed or bluesky_login_broker_copy is changed))
     or bluesky_pdsadmin_download is changed
 
+- name: "📂 Re-own the compose handler topics before the flush"
+  ansible.builtin.include_role:
+    name: sys-svc-compose
+    tasks_from: none.yml
+    handlers_from: main
+
+- name: "🚿 Flush the compose handlers while they still point at '{{ application_id }}'"
+  meta: flush_handlers
+
 - name: "📂 Include front proxy for {{ BLUESKY_API_DOMAIN }}:{{ BLUESKY_API_PORT }}"
   include_role:
     name: sys-stk-front-proxy
