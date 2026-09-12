@@ -83,10 +83,6 @@ on:
         type: boolean
         default: false
 
-concurrency:
-  group: infinito-test-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'workflow_dispatch' || github.ref != 'refs/heads/main' }}
-
 permissions:
   actions: read
   contents: read

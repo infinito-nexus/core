@@ -281,6 +281,12 @@ run being created and needs no runner. `entry-cancel-superseded.yml` is the
 fallback for the case where it does not, and carries no group of its own,
 because the run holding a group cannot be the run that frees it.
 
+A workflow the entries call declares no `concurrency` of its own: its jobs then
+belong to the entry's group, and the entry's `cancel-in-progress` reaches them.
+`call-images-build-ci.yml` and `call-images-mirror-missing.yml` still declare
+one, so a run whose only live job is theirs stays outside the entry's group and
+waits for the fallback.
+
 ## Scheduled and standalone
 
 ```mermaid
