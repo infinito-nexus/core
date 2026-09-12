@@ -29,6 +29,34 @@ function infinito_mcp_may_read() {
 }
 
 /**
+ * Refuse an MCP transport request the site cannot attribute to a user.
+ *
+ * The adapter gates JSON-RPC methods that touch an ability, but answers the
+ * `initialize` handshake to anyone, so the server and its protocol version are
+ * readable without a credential.
+ *
+ * Args:
+ *   $result:  the short-circuited response, or null while none was produced.
+ *   $server:  the REST server handling the request.
+ *   $request: the request being dispatched.
+ */
+function infinito_mcp_guard_transport( $result, $server, $request ) {
+	if ( null !== $result || is_user_logged_in() ) {
+		return $result;
+	}
+	if ( 0 !== strpos( ltrim( $request->get_route(), '/' ), 'mcp/' ) ) {
+		return $result;
+	}
+	return new WP_Error(
+		'infinito_mcp_unauthorized',
+		'Authentication is required to reach the MCP server.',
+		array( 'status' => 401 )
+	);
+}
+
+add_filter( 'rest_pre_dispatch', 'infinito_mcp_guard_transport', 10, 3 );
+
+/**
  * @param bool $available Whether core already considers them available.
  */
 function infinito_mcp_app_passwords_available( $available ) {
