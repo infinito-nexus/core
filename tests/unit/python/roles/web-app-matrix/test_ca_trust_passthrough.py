@@ -24,6 +24,8 @@ from utils.cache.files import read_text
 from . import PROJECT_ROOT
 
 _MATRIX = PROJECT_ROOT / "roles/web-app-matrix/templates/flavor/ansible"
+_VARS = PROJECT_ROOT / "roles/web-app-matrix/vars/main.yml"
+_CA_GATE = "MATRIX_CA_INJECTED"
 
 _BOUND_BY_SYNAPSE = re.compile(r"src='?\s*~?\s*CA_TRUST\.(\w+)")
 _PASSED_THROUGH = re.compile(
@@ -64,8 +66,35 @@ class TestCaTrustPassthrough(unittest.TestCase):
                 f"`- {{{{ CA_TRUST.{name} }}}}:{{{{ CA_TRUST.{name} }}}}:ro`"
                 for name in missing
             )
-            + " to the self_signed block.",
+            + " to the ca_injected block.",
         )
+
+    def test_the_ca_blocks_are_gated_by_the_predicate_that_provisions_them(
+        self,
+    ) -> None:
+        drift = (
+            "sys-svc-compose-ca provisions the CA material for exactly this "
+            "predicate, while TLS_MODE is global: on an onion deployment TLS "
+            "is off per app, the CA is never written, and compose bind-mounts "
+            "a path docker then creates as a directory. The restart once the "
+            "file appears fails with 'not a directory' (run 34653754175, "
+            "Matrix#1)"
+        )
+        self.assertIn(
+            f"{_CA_GATE}: \"{{{{ lookup('ca_injected', application_id) | bool }}}}\"",
+            read_text(str(_VARS)),
+            drift,
+        )
+        for name in ("services.yml.j2", "vars.yml.j2"):
+            with self.subTest(template=name):
+                template = read_text(str(_MATRIX / name))
+                gate = next(
+                    line
+                    for line in template.splitlines()
+                    if "CA_TRUST" in template and line.strip().startswith("{% if ")
+                    if _CA_GATE in line or "TLS_MODE" in line
+                )
+                self.assertIn(_CA_GATE, gate, drift)
 
 
 if __name__ == "__main__":  # pragma: no cover

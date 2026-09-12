@@ -85,6 +85,7 @@ MATRIX_CONFERENCING_ELEMENT_CALL: "{{ lookup('config', application_id, 'services
 
 MATRIX_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') | bool }}"
 
+MATRIX_CA_INJECTED: "{{ lookup('ca_injected', application_id) | bool }}"
 MATRIX_CA_MOUNT_PATH: "{{ CA_TRUST.cert_container }}"
 
 MATRIX_POSTGRES_HOST: "{{ lookup('database', application_id, 'host') }}"
