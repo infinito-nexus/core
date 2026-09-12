@@ -36,24 +36,33 @@
   ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_MCP_LOCAL_CID | quote }} \
       wp user application-password list {{ WORDPRESS_MCP_USERNAME | quote }} \
-        --field=name --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
+        --fields=uuid,name --format=json --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
   register: wordpress_mcp_app_passwords
   changed_when: false
   delegate_to: "{{ WORDPRESS_MCP_HOST_NODE }}"
   run_once: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
+- name: "🔧 Take the uuids wp-cli deletes that password by"
+  ansible.builtin.set_fact:
+    wordpress_mcp_credential_uuids: >-
+      {{ wordpress_mcp_app_passwords.stdout | from_json
+         | selectattr('name', 'equalto', WORDPRESS_MCP_APP_PASSWORD_NAME)
+         | map(attribute='uuid') | list }}
+  run_once: true
+
 - name: "🔑 Issue the application password MCP clients present"
   when: >-
     wordpress_mcp_token | length == 0
-    or WORDPRESS_MCP_APP_PASSWORD_NAME not in wordpress_mcp_app_passwords.stdout_lines
+    or wordpress_mcp_credential_uuids | length == 0
   block:
     - name: "🧹 Drop the application password the store cannot read back"
       ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
         container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_MCP_LOCAL_CID | quote }} \
           wp user application-password delete {{ WORDPRESS_MCP_USERNAME | quote }} \
-            --name={{ WORDPRESS_MCP_APP_PASSWORD_NAME | quote }} --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
-      when: WORDPRESS_MCP_APP_PASSWORD_NAME in wordpress_mcp_app_passwords.stdout_lines
+            {{ wordpress_mcp_credential_uuids | map('quote') | join(' ') }} \
+            --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
+      when: wordpress_mcp_credential_uuids | length > 0
       changed_when: true
       delegate_to: "{{ WORDPRESS_MCP_HOST_NODE }}"
       run_once: true
