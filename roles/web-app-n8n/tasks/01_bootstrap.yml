@@ -56,18 +56,18 @@
         or ('already setup' in (n8n_owner_setup.content | default('')))
     fail_msg: "n8n owner setup returned {{ n8n_owner_setup.status | default('n/a') }}: {{ n8n_owner_setup.content | default('') }}"
 
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: N8N
+    resolve_compose_cid: "{{ N8N_CONTAINER }}"
+
 - name: "🔐 Converge a rotated owner password n8n still rejects"
   when:
     - n8n_owner_probe.status in [401, 403]
     - "'already setup' in (n8n_owner_setup.content | default(''))"
   block:
-    - name: "🔍 Resolve {{ application_id }} hosting node + container id"
-      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
-      vars:
-        resolve_service_key: "{{ entity_name }}"
-        resolve_output_prefix: N8N
-        resolve_compose_cid: "{{ N8N_CONTAINER }}"
-
     - name: "🔐 Write the deployed owner password into n8n's user row"
       ansible.builtin.command:
         argv:
