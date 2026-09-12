@@ -13,7 +13,7 @@ socialhome:
   # nocheck: default-placement-manager  embedded sqlite in a node-local volume; no clustered storage
   placement: manager
   image: ghcr.io/social-home-io/socialhome
-  version: "2026.6.16"
+  version: "2026.9.11"
   ports:
     local:
       http: 8089
