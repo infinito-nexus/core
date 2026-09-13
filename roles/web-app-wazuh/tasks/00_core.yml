@@ -40,6 +40,23 @@
   when: IS_STACK_HOST | bool
   notify: compose-up
 
+# Exception: certs-entrypoint.sh / indexer-entrypoint.sh have no Jinja
+# substitutions, so they are files/ + copy: assets like roles.yml above,
+# rather than templates/ + template: ones. They land under
+# WAZUH_INSTANCE_DIR (not abs_role_path_by_application_id) because
+# `docker stack deploy` runs delegate_to: STACK_HOST — a controller-local
+# checkout path would not exist there.
+- name: "📋 Copy static Wazuh entrypoint scripts"
+  ansible.builtin.copy: # nocheck: stack-host-consumer (already gated by `when: IS_STACK_HOST | bool` below)
+    src: "shell/{{ item }}"
+    dest: "{{ [ WAZUH_INSTANCE_DIR, item ] | path_join }}"
+    mode: "0555"
+  loop:
+    - certs-entrypoint.sh
+    - indexer-entrypoint.sh
+  when: IS_STACK_HOST | bool
+  notify: compose-up
+
 # Exception: vm.max_map_count is not namespaced by the Linux kernel, so
 # setting it from inside a DinD sandbox would only affect the sandbox's own view, not the
 # real host the outer dockerd runs on. Skip the host-level change there;

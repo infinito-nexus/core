@@ -93,14 +93,14 @@ certs_generator_config:
       target: /config/certs.yml
 certs_generator_entrypoint:
   type: config
-  source: "{{ 'web-app-wazuh' | abs_role_path_by_application_id }}/files/shell/certs-entrypoint.sh"
+  source: "{{ [ lookup('container', 'web-app-wazuh', 'directories.instance'), 'certs-entrypoint.sh' ] | path_join }}"
   mode: "0555"
   mounts:
     - service: certs_generator
       target: &entrypoint_target /entrypoint.sh
 indexer_entrypoint:
   type: config
-  source: "{{ 'web-app-wazuh' | abs_role_path_by_application_id }}/files/shell/indexer-entrypoint.sh"
+  source: "{{ [ lookup('container', 'web-app-wazuh', 'directories.instance'), 'indexer-entrypoint.sh' ] | path_join }}"
   mode: "0555"
   mounts:
     - service: indexer
