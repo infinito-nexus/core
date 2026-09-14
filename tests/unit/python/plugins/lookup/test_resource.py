@@ -43,8 +43,9 @@ def _vars(**overrides):
 def _run(terms, variables=None, **kwargs):
     lookup = LookupModule()
     lookup._templar = None
-    with patch("plugins.lookup.resource.os.cpu_count", return_value=_CPUS), patch(
-        "plugins.lookup.resource.mem_total_mb", return_value=_MEM_MB
+    with (
+        patch("plugins.lookup.resource.os.cpu_count", return_value=_CPUS),
+        patch("plugins.lookup.resource.mem_total_mb", return_value=_MEM_MB),
     ):
         return lookup.run(terms, variables=variables or _vars(), **kwargs)
 
@@ -86,9 +87,10 @@ class TestResourceMeasurement(unittest.TestCase):
     def test_an_unusable_probe_raises(self) -> None:
         lookup = LookupModule()
         lookup._templar = None
-        with patch(
-            "plugins.lookup.resource.os.cpu_count", return_value=0
-        ), self.assertRaises(UnresolvableValueError) as caught:
+        with (
+            patch("plugins.lookup.resource.os.cpu_count", return_value=0),
+            self.assertRaises(UnresolvableValueError) as caught,
+        ):
             lookup.run(["host_cpus"], variables=_vars())
         self.assertIn("RESOURCE_HOST_CPUS_OVERRIDE", str(caught.exception))
 

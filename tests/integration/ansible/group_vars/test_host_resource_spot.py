@@ -47,8 +47,7 @@ class TestHostResourceSpot(unittest.TestCase):
         offenders = {
             name: value
             for name, value in _group_vars().items()
-            if name not in _OVERRIDE_KEYS
-            and not _LOOKUP_CALL.match(str(value).strip())
+            if name not in _OVERRIDE_KEYS and not _LOOKUP_CALL.match(str(value).strip())
         }
         self.assertEqual(
             offenders,

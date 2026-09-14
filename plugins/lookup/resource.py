@@ -259,9 +259,7 @@ class LookupModule(LookupBase):
         roles_dir = Path(kwargs.get("roles_dir") or Path.cwd() / "roles")
 
         keys = [str(term).strip() for term in terms]
-        containers = (
-            _container_count(vars_) if _SHARE_KEYS.intersection(keys) else None
-        )
+        containers = _container_count(vars_) if _SHARE_KEYS.intersection(keys) else None
         values = _build(vars_, roles_dir, containers)
 
         results: list[Any] = []

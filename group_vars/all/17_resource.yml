@@ -1,6 +1,6 @@
 ---
-RESOURCE_HOST_CPUS_OVERRIDE: ~ # Set to an integer in the inventory to pin the CPU count instead of measuring it
-RESOURCE_HOST_MEM_MB_OVERRIDE: ~ # Set to MiB in the inventory to pin the memory instead of measuring it
+RESOURCE_HOST_CPUS_OVERRIDE: # Set to an integer in the inventory to pin the CPU count instead of measuring it
+RESOURCE_HOST_MEM_MB_OVERRIDE: # Set to MiB in the inventory to pin the memory instead of measuring it
 
 RESOURCE_HOST_CPUS: "{{ lookup('resource', 'host_cpus') }}"
 
