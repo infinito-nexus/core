@@ -17,4 +17,4 @@ POSTGRES_WORK_MEM: "{{ lookup('resource', 'postgres_work_mem') }}"
 POSTGRES_MAINTENANCE_WORK_MEM: "{{ lookup('resource', 'postgres_maintenance_work_mem') }}"
 POSTGRES_DELAY: "{{ lookup('resource', 'postgres_delay') }}"
 
-TIMEOUT_FACTOR: "{{ lookup('resource', 'timeout_factor') }}"
+TIMEOUT_FACTOR: 1

@@ -21,7 +21,6 @@ _HOST_RESERVE_MEM = 4
 _PIDS_LIMIT = 512
 _POSTGRES_SUPERUSER_RESERVED_CONNECTIONS = 3
 _POSTGRES_DELAY = 2
-_TIMEOUT_FACTOR = 1
 
 _CONTAINER_PREFIX_REGEX = r"^(web-|svc-).*"
 
@@ -193,7 +192,6 @@ def _build(
         "postgres_maintenance_work_mem_mb": maintenance_work_mem_mb,
         "postgres_maintenance_work_mem": f"{maintenance_work_mem_mb}MB",
         "postgres_delay": _POSTGRES_DELAY,
-        "timeout_factor": _TIMEOUT_FACTOR,
     }
 
     if containers is not None:

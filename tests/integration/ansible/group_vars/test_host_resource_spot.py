@@ -35,6 +35,8 @@ _CONSUMERS = (
 
 _OVERRIDE_KEYS = ("RESOURCE_HOST_CPUS_OVERRIDE", "RESOURCE_HOST_MEM_MB_OVERRIDE")
 
+_PYTHON_READ_KEYS = ("TIMEOUT_FACTOR",)
+
 _LOOKUP_CALL = re.compile(r"^\{\{\s*lookup\(\s*['\"]resource['\"]\s*,.*\)\s*\}\}$")
 
 
@@ -44,10 +46,11 @@ def _group_vars() -> dict:
 
 class TestHostResourceSpot(unittest.TestCase):
     def test_every_constant_is_produced_by_the_lookup(self) -> None:
+        exempt = (*_OVERRIDE_KEYS, *_PYTHON_READ_KEYS)
         offenders = {
             name: value
             for name, value in _group_vars().items()
-            if name not in _OVERRIDE_KEYS and not _LOOKUP_CALL.match(str(value).strip())
+            if name not in exempt and not _LOOKUP_CALL.match(str(value).strip())
         }
         self.assertEqual(
             offenders,
@@ -56,6 +59,26 @@ class TestHostResourceSpot(unittest.TestCase):
             f"lookup('resource', '<key>'). Arithmetic here is a second place "
             f"the sizing can drift from the plugin. Found {offenders}.",
         )
+
+    def test_a_constant_read_from_python_stays_a_literal(self) -> None:
+        """A plugin reading a constant off `variables` sees it unrendered.
+
+        `plugins/lookup/timeout.py` takes `TIMEOUT_FACTOR` straight from the
+        play variables, where a plain dict read returns whatever string the
+        group_var holds. Routing such a constant through a lookup hands that
+        plugin `"{{ lookup(...) }}"` instead of a number, and the play dies on
+        the first task that scales a timeout.
+        """
+        group_vars = _group_vars()
+        for name in _PYTHON_READ_KEYS:
+            with self.subTest(constant=name):
+                value = group_vars.get(name)
+                self.assertIsInstance(
+                    value,
+                    (int, float),
+                    f"{name} is read from Python, which never renders Jinja, so "
+                    f"it MUST stay a literal number. Found {value!r}.",
+                )
 
     def test_the_overrides_stay_declared_and_unset(self) -> None:
         group_vars = _group_vars()
