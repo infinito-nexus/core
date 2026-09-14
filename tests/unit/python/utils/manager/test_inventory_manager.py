@@ -802,6 +802,11 @@ class TestSuppliedValueValidation(TestCase):
     def test_a_schema_declaring_neither_accepts_anything(self):
         validate_supplied_value("credentials.x", "anything", {"description": "free"})
 
+    def test_an_unrendered_template_is_not_a_value(self):
+        for value in ("{{ API.openai.api_key }}", "{% if x %}a{% endif %}"):
+            with self.subTest(value=value):
+                validate_supplied_value("credentials.api_key", value, self.SCHEMA)
+
 
 class TestProviderKeyPattern(TestCase):
     """The shipped provider-key pattern must outlive a vendor's format change.
@@ -825,9 +830,24 @@ class TestProviderKeyPattern(TestCase):
         "sk-proj-Ab Cd 1234567890 xyz",
     )
 
-    def _schema(self) -> dict:
+    def _credentials(self) -> dict:
         path = PROJECT_ROOT / "roles/svc-ai-litellm" / ROLE_FILE_META_SECRETS
-        return load_yaml_any(str(path))["credentials"]["openai_api_key"]
+        return load_yaml_any(str(path))["credentials"]
+
+    def _schema(self) -> dict:
+        return self._credentials()["openai_api_key"]
+
+    def test_every_declared_default_survives_its_own_schema(self):
+        """A default is written verbatim and read back as a supplied value.
+
+        Run 34883491022 died in every job because the provider keys' own
+        `{{ API.<vendor>.api_key }}` reached the pattern on the second read.
+        """
+        for key, schema in self._credentials().items():
+            if "default" not in schema:
+                continue
+            with self.subTest(key=key):
+                validate_supplied_value(f"credentials.{key}", schema["default"], schema)
 
     def test_every_known_provider_form_is_accepted(self):
         schema = self._schema()

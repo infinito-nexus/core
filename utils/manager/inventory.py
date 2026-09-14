@@ -35,6 +35,8 @@ _SCHEMA_TYPES: dict[str, type | tuple[type, ...]] = {
     "boolean": bool,
 }
 
+_UNRENDERED_TEMPLATE = re.compile(r"\{\{|\{%")
+
 
 def _is_credential_leaf(node: Any) -> bool:
     return isinstance(node, dict) and any(
@@ -55,8 +57,16 @@ def validate_supplied_value(full_key: str, value: Any, meta: dict[str, Any]) -> 
 
     Raises:
         SystemExit: the value contradicts the declared type or pattern.
+
+    Exception: a `default:` is written into the inventory verbatim, so on the
+    next read it arrives here as if an operator had typed it. Every default in
+    the repository is a Jinja reference, and a pattern describes the rendered
+    secret, not the template text that will produce it.
     """
     if value in ("", None):
+        return
+
+    if isinstance(value, str) and _UNRENDERED_TEMPLATE.search(value):
         return
 
     declared = meta.get("type")
