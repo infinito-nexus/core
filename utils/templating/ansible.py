@@ -8,6 +8,7 @@ from typing import Any
 
 from ansible.errors import AnsibleError
 
+from utils.cache.errors import is_unresolvable
 from utils.manager.value_generator import ValueGenerator
 
 try:
@@ -297,7 +298,9 @@ def _templar_render_preserve_type(templar: Any, s: str, variables: dict) -> Any:
             rendered = templar.template(_trust_as_template(s), fail_on_undefined=True)
         except TypeError:
             rendered = templar.template(_trust_as_template(s))
-        except Exception:
+        except Exception as exc:
+            if is_unresolvable(exc):
+                raise
             rendered = None
     finally:
         if prev_avail is not None and hasattr(templar, "available_variables"):
@@ -352,7 +355,9 @@ def _templar_render_best_effort(templar: Any, s: str, variables: dict) -> str:
             rendered = templar.template(trusted_input, fail_on_undefined=True)
         except TypeError:
             rendered = templar.template(trusted_input)
-        except Exception:
+        except Exception as exc:
+            if is_unresolvable(exc):
+                raise
             rendered = s
     finally:
         if prev_avail is not None and hasattr(templar, "available_variables"):
