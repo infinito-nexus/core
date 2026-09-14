@@ -1,13 +1,16 @@
 import base64
 import tempfile
 from pathlib import Path
+from typing import ClassVar
 from unittest import TestCase, main, mock
 
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 
+from utils.cache.files import PROJECT_ROOT
+from utils.cache.yaml import load_yaml_any
 from utils.handler.vault import VaultScalar
-from utils.manager.inventory import InventoryManager
+from utils.manager.inventory import InventoryManager, validate_supplied_value
 from utils.manager.value_generator import ValueGenerator
 from utils.roles.mapping import (
     ROLE_FILE_META_SECRETS,
@@ -758,6 +761,85 @@ class TestInventoryManagerVariant(TestCase):
                 )
                 cfg = mgr.load_role_config_by_path(role_path)
             self.assertEqual(cfg, {})
+
+
+class TestSuppliedValueValidation(TestCase):
+    """A schema that declares a shape must reject a value contradicting it.
+
+    Without this the declaration is decoration: the 192 `validation:` blocks
+    already in the role schemas are enforced nowhere, and a `regex` would have
+    joined them.
+    """
+
+    SCHEMA: ClassVar[dict[str, str]] = {
+        "type": "string",
+        "regex": "sk-[A-Za-z0-9]{4,}",
+    }
+
+    def test_a_matching_value_passes(self):
+        validate_supplied_value("credentials.api_key", "sk-abcd1234", self.SCHEMA)
+
+    def test_an_empty_value_is_not_configured_and_passes(self):
+        validate_supplied_value("credentials.api_key", "", self.SCHEMA)
+        validate_supplied_value("credentials.api_key", None, self.SCHEMA)
+
+    def test_a_value_failing_the_pattern_aborts(self):
+        with self.assertRaises(SystemExit):
+            validate_supplied_value("credentials.api_key", "nope", self.SCHEMA)
+
+    def test_a_partial_match_is_not_enough(self):
+        with self.assertRaises(SystemExit):
+            validate_supplied_value("credentials.api_key", "sk-ab!!", self.SCHEMA)
+
+    def test_a_value_of_the_wrong_type_aborts(self):
+        with self.assertRaises(SystemExit):
+            validate_supplied_value("credentials.port", 8080, {"type": "string"})
+
+    def test_an_unknown_declared_type_aborts(self):
+        with self.assertRaises(SystemExit):
+            validate_supplied_value("credentials.x", "v", {"type": "uuid"})
+
+    def test_a_schema_declaring_neither_accepts_anything(self):
+        validate_supplied_value("credentials.x", "anything", {"description": "free"})
+
+
+class TestProviderKeyPattern(TestCase):
+    """The shipped provider-key pattern must outlive a vendor's format change.
+
+    OpenAI moved from `sk-` to `sk-proj-` without notice. A schema that pinned
+    the prefix would reject a valid key and abort inventory creation, so the
+    pattern checks what a paste can get wrong instead.
+    """
+
+    ACCEPTED: ClassVar[tuple[str, ...]] = (
+        "sk-proj-AbCdEfGh1234567890xyz",
+        "sk-ant-api03-AbCdEfGh1234567890",
+        "sk-or-v1-AbCdEfGh1234567890abc",
+        "sk-AbCdEfGh1234567890legacyKey",
+        "some-future-format-2099-abcdef",
+    )
+    REJECTED: ClassVar[tuple[str, ...]] = (
+        "sk-proj-AbCdEfGh1234567890xyz\n",
+        "sk-short",
+        "<your-key-here>",
+        "sk-proj-Ab Cd 1234567890 xyz",
+    )
+
+    def _schema(self) -> dict:
+        path = PROJECT_ROOT / "roles/svc-ai-litellm" / ROLE_FILE_META_SECRETS
+        return load_yaml_any(str(path))["credentials"]["openai_api_key"]
+
+    def test_every_known_provider_form_is_accepted(self):
+        schema = self._schema()
+        for value in self.ACCEPTED:
+            with self.subTest(value=value):
+                validate_supplied_value("credentials.openai_api_key", value, schema)
+
+    def test_a_broken_paste_is_rejected(self):
+        schema = self._schema()
+        for value in self.REJECTED:
+            with self.subTest(value=value), self.assertRaises(SystemExit):
+                validate_supplied_value("credentials.openai_api_key", value, schema)
 
 
 if __name__ == "__main__":

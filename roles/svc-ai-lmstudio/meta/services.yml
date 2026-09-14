@@ -22,6 +22,8 @@ lmstudio:
   ports:
     internal:
       http: 1234
+  preload_models: "{{ AI_LOCAL_MODELS }}"
+  preload_async_time: 3600
   lifecycle: beta
 
 # nocheck: playwright-service-flag, dynamic-flag

@@ -30,7 +30,7 @@ from typing import TYPE_CHECKING
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.roles.mapping import ROLE_DIR_META_ADDONS, ROLE_FILE_META_SERVICES
 from utils.update.base import (
     is_semver,
     latest_semver,
@@ -148,43 +148,67 @@ def suppressed_ref_lines(config_path: Path) -> set[int]:
     return suppressed
 
 
+def _entries_of_file(
+    role_name: str, config_path: Path, entity_prefix: tuple[str, ...]
+) -> list[RepositoryRefEntry]:
+    """Return the unsuppressed semver ``(repository, ref)`` entries of one
+    declaration file.
+
+    Args:
+        role_name: role the file belongs to, carried into each entry.
+        config_path: YAML file to read.
+        entity_prefix: path segments prepended to the entity path, so an
+            addon's entries stay distinguishable from a service's.
+    """
+    data = load_yaml_any(str(config_path), default_if_missing=None)
+    if not isinstance(data, dict):
+        return []
+
+    ref_line_index: dict[str, list[int]] = {}
+    for line_no, ref_value in _ref_lines(read_text(str(config_path)).splitlines()):
+        ref_line_index.setdefault(ref_value, []).append(line_no)
+
+    suppressed = suppressed_ref_lines(config_path)
+    entries: list[RepositoryRefEntry] = []
+    for entity_path, repo, ref in walk_repo_ref_pairs(data, entity_prefix):
+        if not is_semver(ref):
+            continue
+        candidates = ref_line_index.get(ref) or []
+        if not candidates:
+            continue
+        line_no = candidates.pop(0)
+        if line_no in suppressed:
+            continue
+        entries.append(
+            RepositoryRefEntry(
+                role=role_name,
+                entity_path=entity_path,
+                repository=repo,
+                ref=ref,
+                config_path=config_path,
+                line=line_no,
+            )
+        )
+    return entries
+
+
 def collect_entries(repo_root: Path) -> list[RepositoryRefEntry]:
     """Return every semver-checkable ``(repository, ref)`` declaration
-    under ``roles/*/meta/services.yml`` whose ref is not suppressed."""
+    under ``roles/*/meta/services.yml`` and ``roles/*/meta/addons/*.yml``
+    whose ref is not suppressed."""
     roles_root = repo_root / "roles"
     entries: list[RepositoryRefEntry] = []
     for role_dir in sorted(p for p in roles_root.iterdir() if p.is_dir()):
         services_path = role_dir / ROLE_FILE_META_SERVICES
-        if not services_path.is_file():
-            continue
-        data = load_yaml_any(str(services_path), default_if_missing=None)
-        if not isinstance(data, dict):
-            continue
+        if services_path.is_file():
+            entries += _entries_of_file(role_dir.name, services_path, ())
 
-        raw = read_text(str(services_path))
-        ref_line_index: dict[str, list[int]] = {}
-        for line_no, ref_value in _ref_lines(raw.splitlines()):
-            ref_line_index.setdefault(ref_value, []).append(line_no)
-
-        suppressed = suppressed_ref_lines(services_path)
-        for entity_path, repo, ref in walk_repo_ref_pairs(data, ()):
-            if not is_semver(ref):
-                continue
-            candidates = ref_line_index.get(ref) or []
-            if not candidates:
-                continue
-            line_no = candidates.pop(0)
-            if line_no in suppressed:
-                continue
-            entries.append(
-                RepositoryRefEntry(
-                    role=role_dir.name,
-                    entity_path=entity_path,
-                    repository=repo,
-                    ref=ref,
-                    config_path=services_path,
-                    line=line_no,
-                )
+        addons_dir = role_dir / ROLE_DIR_META_ADDONS
+        if not addons_dir.is_dir():
+            continue
+        for addon_path in sorted(addons_dir.glob("*.yml")):
+            entries += _entries_of_file(
+                role_dir.name, addon_path, ("addons", addon_path.stem)
             )
     return entries
 

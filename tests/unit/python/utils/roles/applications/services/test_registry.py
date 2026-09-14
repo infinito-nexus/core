@@ -4,12 +4,15 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import dump_yaml_str
 from utils.roles.applications.services.registry import (
+    GROUP_GATED_CONSTANTS,
     ServiceRegistryError,
     build_service_registry_from_applications,
     detect_service_bucket,
     detect_service_channel,
+    is_explicit_truth,
     ordered_primary_service_entries,
     resolve_service_dependency_roles_from_config,
 )
@@ -333,6 +336,41 @@ class TestServiceRegistryOrdering(unittest.TestCase):
 
             with self.assertRaises(ServiceRegistryError):
                 ordered_primary_service_entries(registry, roles_dir)
+
+
+class TestExplicitTruth(unittest.TestCase):
+    """A flag may resolve a dependency through a group-gated constant.
+
+    The substring rule reads the role id out of the flag itself, so a SPOT
+    constant hides it. Roles referencing one keep their provider only while
+    the constant is registered.
+    """
+
+    def test_a_literal_true_resolves(self):
+        self.assertTrue(is_explicit_truth(True))
+
+    def test_the_in_group_names_form_resolves(self):
+        self.assertTrue(is_explicit_truth("{{ 'web-app-keycloak' in group_names }}"))
+
+    def test_every_registered_constant_resolves(self):
+        for constant in GROUP_GATED_CONSTANTS:
+            with self.subTest(constant=constant):
+                self.assertTrue(is_explicit_truth("{{ " + constant + " }}"))
+
+    def test_an_unregistered_jinja_expression_does_not_resolve(self):
+        self.assertFalse(
+            is_explicit_truth("{{ lookup('config', 'web-app-gitea', 'mcp.enabled') }}")
+        )
+
+    def test_a_literal_false_does_not_resolve(self):
+        self.assertFalse(is_explicit_truth(False))
+
+    def test_every_registered_constant_is_defined_in_group_vars(self):
+        group_vars = PROJECT_ROOT / "group_vars" / "all"
+        defined = "".join(read_text(str(path)) for path in group_vars.glob("*.yml"))
+        for constant in GROUP_GATED_CONSTANTS:
+            with self.subTest(constant=constant):
+                self.assertIn(f"{constant}:", defined)
 
 
 if __name__ == "__main__":

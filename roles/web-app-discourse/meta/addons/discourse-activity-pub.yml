@@ -1,6 +1,13 @@
 ---
-# nocheck: addons-variant-pinning: compiled into the image from services.discourse.plugins, so an addon-level disable saves no deploy time and only silences the spec
+# nocheck: addons-variant-pinning: compiled into the image from the addon's ref, so an addon-level disable saves no deploy time and only silences the spec
 enabled: true
 required: false
 mechanism: plugin
 source: upstream
+update:
+  monitored: true
+  catalog: discourse-meta
+  upstream_id: discourse-activity-pub
+config:
+  repository: https://github.com/discourse/discourse-activity-pub.git
+  ref: main

@@ -11,7 +11,32 @@ Repository variables are set under **Settings → Secrets and variables → Acti
 | `CI_SYNC_MAIN_SOURCE_REPOSITORY` | [entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml) | Syncs `main` from `infinito-nexus/core` before CI scope discovery | `<owner>/<repo>` to use another source, or `false`, empty, or the current repository to skip |
 | `CI_RUN_ON_MAIN` | [entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml) | Pushes to `main` skip CI | `true` to run CI on `main` pushes too |
 | `CI_ENABLE_AUTO_UPDATES` | [cron-update.yml](../../../../../.github/workflows/cron-update.yml), [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml) | Update jobs skipped; Dependabot PRs auto-closed | `true` to allow update PRs (workflow-driven and Dependabot) |
-| `INFINITO_PLAYWRIGHT_KEEP` | [call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml) | Playwright keeps trace, screenshot and video only when a test fails | `true` to keep them for every test (passing runs included) |
+| `PLAYWRIGHT_KEEP_ALL` | [call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml) | Playwright keeps trace, screenshot and video only when a test fails | `true` to keep them for every test (passing runs included); the workflow forwards it as `INFINITO_PLAYWRIGHT_KEEP` |
+| `API_OPENAI_KEY` | [call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml) | The gateway publishes no `openai/*` model, and the CLI test asserts their absence | An OpenAI key, to deploy and test the route |
+| `API_ANTHROPIC_KEY` | [call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml) | The gateway publishes no `anthropic/*` model | An Anthropic key |
+| `API_OPENROUTER_KEY` | [call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml) | The gateway publishes no `openrouter/auto` model | An OpenRouter key |
+
+## Provider keys: variable or secret? 🔑
+
+The three `API_*_KEY` entries are read as `${{ secrets.X || vars.X }}`, so a
+secret of the same name wins and the variable is the fallback. Prefer the
+secret: a repository **variable is not masked**, and the development inventory
+sets `MASK_CREDENTIALS_IN_LOGS: false`, so a key supplied as a variable can be
+printed by a task that echoes its own arguments.
+
+An unset key is not an error. The provider's route stays unpublished, the
+gateway serves whatever local backend the round deploys, and
+[the litellm CLI test](../../../../../roles/svc-ai-litellm/files/test/probe.py)
+asserts the absence rather than skipping.
+
+They travel as `INFINITO_API_OPENAI_KEY`, `INFINITO_API_ANTHROPIC_KEY` and
+`INFINITO_API_OPENROUTER_KEY` through the workflow `env:` block, the passthrough
+allowlist in [passthrough.py](../../../../../utils/env/handlers/passthrough.py),
+the `infinito` service environment in
+[compose.yml](../../../../../compose.yml), and land in `API.<provider>.api_key`
+in the development inventory, whose path is the SPOT behind
+`INFINITO_INVENTORY_VARS_FILE`. Skipping the compose forwarding makes them
+resolve to empty inside the container without any error.
 
 ## Cancelling in-progress runs 🛑
 

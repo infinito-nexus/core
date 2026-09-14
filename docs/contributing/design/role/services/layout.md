@@ -87,6 +87,8 @@ The unified schema supports:
 
 - **Nested keys.** Both flat and nested credential keys are accepted, so e.g. `recaptcha.key` and `recaptcha.secret` remain nested.
 - **`algorithm:` defaults to `plain`** when the field is omitted.
+- **`type:` (optional)** is one of `string`, `integer`, `boolean`. A supplied value of another type aborts inventory creation.
+- **`regex:` (optional)** is a pattern the supplied value MUST match in full (`re.fullmatch`). Anchors are implicit; `sk-[A-Za-z0-9]{16,}` needs no `^` or `$`.
 - **`default:` (optional)** is a Jinja string used as the credential's value when the inventory does not provide one.
   - `default:` is **NOT rendered at inventory creation time.** The literal Jinja string is written verbatim into the inventory so that referenced variables (`CAPTCHA.RECAPTCHA.KEY`, `lookup(...)`, …) resolve only at deploy/runtime when those variables are actually defined.
   - `default:` values are **NOT validated.** `validation:` only applies to user-provided values, so the schema default is exempt.
@@ -107,6 +109,58 @@ credentials:
       algorithm:   plain
       default:     "{{ CAPTCHA.RECAPTCHA.SECRET | default('') }}"
 ```
+
+### What is checked, and when 🔎
+
+`type:` and `regex:` are enforced by `validate_supplied_value()` in
+[inventory.py](../../../../../utils/manager/inventory.py) at inventory-creation
+time, on every path where a value arrives from outside:
+
+| Source | Checked |
+|---|---|
+| `--set applications.<app>.secrets.credentials.<path>=<value>` | yes |
+| A value already present in the inventory | yes |
+| The literal written from `default:` | no |
+| A value produced from `algorithm:` | no |
+
+A generated value is exempt because the algorithm that produced it is named by
+the same schema, and `generate_value()` takes no schema argument.
+
+An empty string means "not configured" and passes every check, which is what
+makes an optional provider key expressible: declare the shape, leave the value
+empty, and the consumer gates on emptiness.
+
+`validation.min_length` is declared in many role schemas but enforced nowhere.
+Do not read it as a guarantee.
+
+### Worked Example: an optional external key
+
+```yaml
+# roles/svc-ai-litellm/meta/secrets.yml
+credentials:
+  openai_api_key:
+    description: "OpenAI API key; empty leaves the openai/* models unpublished"
+    type:        "string"
+    regex:       "\\S{20,}"
+    default:     "{{ API.openai.api_key }}"
+```
+
+The `default:` points at the central `API` block in
+[group_vars/all/18_api.yml](../../../../../group_vars/all/18_api.yml), so an
+operator fills the provider in one place while the role keeps the shape the
+value must have.
+
+### Write a pattern for the paste, not for the vendor 🚫
+
+`regex:` MUST NOT pin a vendor's key prefix. OpenAI moved issuance from `sk-` to
+`sk-proj-` without notice, and Anthropic issues `sk-ant-api03-`; a schema that
+encoded either would reject a valid key and abort inventory creation, which is a
+hard failure for a value that was correct.
+
+Write the pattern against the mistakes a paste makes — a trailing newline, an
+embedded space, a truncated copy, a `<placeholder>` — and leave the provider's
+format alone. A key pasted into the wrong provider's slot is not caught here;
+it is caught at deploy time, where the route it publishes answers nothing.
 
 Flat schema entries keep the same shape:
 

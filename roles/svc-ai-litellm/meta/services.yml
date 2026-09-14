@@ -42,6 +42,6 @@ ollama:
 
 # nocheck: playwright-service-flag, dynamic-flag
 lmstudio:
-  bond: 1
+  bond: 0.5
   enabled: "{{ 'svc-ai-lmstudio' in group_names }}"
   shared: "{{ 'svc-ai-lmstudio' in group_names }}"

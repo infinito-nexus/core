@@ -11,10 +11,12 @@ from utils.cache.yaml import load_yaml
 _AI_VARS = Path(PROJECT_ROOT) / "group_vars" / "all" / "16_ai.yml"
 
 
-def _stub_lookup(preload_models):
+def _stub_lookup(preload_models, lmstudio_models):
     def lookup(kind, role, path, *args):
         if (kind, path) == ("config", "services.ollama.preload_models"):
             return preload_models
+        if (kind, path) == ("config", "services.lmstudio.preload_models"):
+            return lmstudio_models
         raise AssertionError(f"unexpected lookup({kind!r}, {role!r}, {path!r})")
 
     return lookup
@@ -38,13 +40,19 @@ class TestLitellmChatModel(unittest.TestCase):
         )
         cls.source = load_yaml(_AI_VARS)
 
-    def _render(self, name, *, roles, api_key, preload_models=()):
+    def _render(self, name, *, roles, api_key, preload_models=(), lmstudio_models=()):
         return (
             self.env.from_string(self.source[name])
             .render(
                 LITELLM_BACKEND_ROLES=list(roles),
-                OPENROUTER_API_KEY=api_key,
-                lookup=_stub_lookup(list(preload_models)),
+                AI_REMOTE_ALIASES=(["openrouter/auto"] if api_key else []),
+                lookup=_stub_lookup(
+                    [{"alias": alias, "name": alias} for alias in preload_models],
+                    [
+                        {"alias": alias, "name": f"{alias}-gguf"}
+                        for alias in lmstudio_models
+                    ],
+                ),
             )
             .strip()
         )
@@ -66,9 +74,34 @@ class TestLitellmChatModel(unittest.TestCase):
         self.assertEqual(served, "True")
 
     def test_lmstudio_wins_over_the_openrouter_fallback(self):
-        model, served = self._both(roles=["svc-ai-lmstudio"], api_key="")
-        self.assertEqual(model, "lmstudio/default")
+        model, served = self._both(
+            roles=["svc-ai-lmstudio"], api_key="", lmstudio_models=["qwen2.5:0.5b"]
+        )
+        self.assertEqual(model, "qwen2.5:0.5b")
         self.assertEqual(served, "True")
+
+    def test_lmstudio_without_a_preloaded_model_serves_nothing(self):
+        served = self._render(
+            "LITELLM_CHAT_MODEL_SERVED", roles=["svc-ai-lmstudio"], api_key=""
+        )
+        self.assertEqual(served, "False")
+
+    def test_both_backends_name_the_same_model(self):
+        alias = "qwen2.5:0.5b"
+        with_ollama = self._render(
+            "LITELLM_CHAT_MODEL",
+            roles=["svc-ai-ollama"],
+            api_key="",
+            preload_models=[alias],
+        )
+        with_lmstudio = self._render(
+            "LITELLM_CHAT_MODEL",
+            roles=["svc-ai-lmstudio"],
+            api_key="",
+            lmstudio_models=[alias],
+        )
+        self.assertEqual(with_ollama, with_lmstudio)
+        self.assertEqual(with_ollama, alias)
 
     def test_ollama_serves_its_first_non_embedding_model(self):
         model, served = self._both(
@@ -90,15 +123,19 @@ class TestLitellmChatModel(unittest.TestCase):
 
     def test_the_model_is_named_exactly_when_one_is_served(self):
         cases = (
-            (["web-app-mattermost"], "", ()),
-            (["web-app-mattermost"], "sk-test", ()),
-            (["svc-ai-lmstudio"], "", ()),
-            (["svc-ai-ollama"], "", ("llama3.2",)),
+            (["web-app-mattermost"], "", (), ()),
+            (["web-app-mattermost"], "sk-test", (), ()),
+            (["svc-ai-lmstudio"], "", (), ()),
+            (["svc-ai-lmstudio"], "", (), ("qwen2.5:0.5b",)),
+            (["svc-ai-ollama"], "", ("llama3.2",), ()),
         )
-        for roles, api_key, preload in cases:
-            with self.subTest(roles=roles, api_key=bool(api_key)):
+        for roles, api_key, preload, lmstudio in cases:
+            with self.subTest(roles=roles, api_key=bool(api_key), lmstudio=lmstudio):
                 model, served = self._both(
-                    roles=roles, api_key=api_key, preload_models=preload
+                    roles=roles,
+                    api_key=api_key,
+                    preload_models=preload,
+                    lmstudio_models=lmstudio,
                 )
                 self.assertEqual(bool(model), served == "True")
 

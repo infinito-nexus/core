@@ -1,6 +1,7 @@
 """Integration guard: every git-clone URL referenced inside a role
 (Dockerfile, tasks, templates, files) MUST be declared as a
-`repository:` value in that role's ``meta/services.yml``.
+`repository:` value in that role's ``meta/services.yml`` or in one of
+its ``meta/addons/<id>.yml`` files, which is where an addon pins itself.
 
 The same applies symmetrically to git refs: any `compose_repository_ref`
 or `--branch <ref>` (clone) value that ties to a declared
@@ -39,7 +40,7 @@ import unittest
 
 from utils.cache.files import iter_project_files, read_text
 from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.roles.mapping import ROLE_DIR_META_ADDONS, ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
 
@@ -106,18 +107,20 @@ class TestDeclaredInServices(unittest.TestCase):
         for role_dir in sorted(p for p in ROLES_DIR.iterdir() if p.is_dir()):
             role_name = role_dir.name
             services_path = role_dir / ROLE_FILE_META_SERVICES
-            declared = (
-                _collect_declared_repositories(services_path)
-                if services_path.is_file()
-                else set()
-            )
+            declaration_paths = [services_path]
+            declaration_paths += sorted((role_dir / ROLE_DIR_META_ADDONS).glob("*.yml"))
+            declared: set[str] = set()
+            for declaration_path in declaration_paths:
+                if declaration_path.is_file():
+                    declared |= _collect_declared_repositories(declaration_path)
+            declaration_names = {str(p) for p in declaration_paths}
 
             seen_paths: set[str] = set()
             for fpath in _iter_role_files(role_dir):
                 if fpath in seen_paths:
                     continue
                 seen_paths.add(fpath)
-                if fpath.endswith("/" + ROLE_FILE_META_SERVICES):
+                if fpath in declaration_names:
                     continue
                 try:
                     text = read_text(fpath)
@@ -140,7 +143,8 @@ class TestDeclaredInServices(unittest.TestCase):
                             f"{role_name}: {rel}:{line_no} "
                             f"references `{url}` but it is not declared "
                             f"as `repository:` in "
-                            f"{role_name}/{ROLE_FILE_META_SERVICES}"
+                            f"{role_name}/{ROLE_FILE_META_SERVICES} "
+                            f"or {role_name}/{ROLE_DIR_META_ADDONS}/"
                         )
 
         if offenders:

@@ -68,6 +68,46 @@ class TestApplicationsCarrierActionPlugin(unittest.TestCase):
         ):
             action.run(task_vars={})
 
+    def test_clear_drops_the_fact_without_rendering(self):
+        lookup = _FakeLookup({"key": ["roles", []], "applications": {}})
+        action = _make_action(_FakeTask(args={"clear": True}))
+        with (
+            patch(
+                "plugins.action.applications_carrier.ActionBase.run",
+                autospec=True,
+                return_value={},
+            ),
+            patch(
+                "plugins.action.applications_carrier.lookup_loader.get",
+                return_value=lookup,
+            ),
+        ):
+            result = action.run(task_vars={"applications": {}})
+
+        self.assertIsNone(result["ansible_facts"][APPLICATIONS_RENDERED_FACT])
+        self.assertFalse(result["changed"])
+        self.assertEqual(lookup.calls, [])
+
+    def test_clear_false_still_renders(self):
+        carrier = {"key": ["roles", ["a", "b", "c", "d"]], "applications": {"x": {}}}
+        lookup = _FakeLookup(carrier)
+        action = _make_action(_FakeTask(args={"clear": "no"}))
+        with (
+            patch(
+                "plugins.action.applications_carrier.ActionBase.run",
+                autospec=True,
+                return_value={},
+            ),
+            patch(
+                "plugins.action.applications_carrier.lookup_loader.get",
+                return_value=lookup,
+            ),
+        ):
+            result = action.run(task_vars={"applications": {}})
+
+        self.assertIs(result["ansible_facts"][APPLICATIONS_RENDERED_FACT], carrier)
+        self.assertEqual(len(lookup.calls), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

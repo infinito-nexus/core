@@ -120,6 +120,18 @@ def main(argv: list[str] | None = None) -> int:
         help="Application ids and user keys to leave untouched (e.g. administrator).",
     )
     parser.add_argument(
+        "--include",
+        nargs="*",
+        default=None,
+        help=(
+            "Application ids whose credentials rotate. Absent rotates every "
+            "application block in the file, which on a matrix inventory is "
+            "every mirror artefact too, not just the ids the round "
+            "provisioned. User passwords ignore this and always rotate in "
+            "full."
+        ),
+    )
+    parser.add_argument(
         "--app-variants",
         default=None,
         help="JSON object {app_id: variant_index}, as passed to provision.",
@@ -161,16 +173,26 @@ def main(argv: list[str] | None = None) -> int:
     if not application_ids:
         raise SystemExit(f"No applications block to rotate in {host_vars_file}")
 
+    credential_ids = None
+    if args.include is not None:
+        wanted = set(args.include)
+        credential_ids = [app_id for app_id in application_ids if app_id in wanted]
+        if not credential_ids:
+            raise SystemExit(f"--include matches no block in {host_vars_file}")
+
     if args.backup:
         print(f"[INFO] Pre-rotation copy: {_backup(host_vars_file)}")
 
     exclude = set(args.exclude)
     print(
         f"[INFO] Rotating credentials in {host_vars_file} "
-        f"({len(application_ids)} applications, excluding {sorted(exclude) or 'nothing'})"
+        f"({len(credential_ids or application_ids)} applications, "
+        f"{len(application_ids)} for users, "
+        f"excluding {sorted(exclude) or 'nothing'})"
     )
     rotated = reset_credentials(
         application_ids=application_ids,
+        credential_ids=credential_ids,
         roles_dir=(project_root / "roles").resolve(),
         host_vars_file=host_vars_file,
         vault_password_file=vault_password_file,

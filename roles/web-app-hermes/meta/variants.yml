@@ -10,7 +10,6 @@
       shared: true
     litellm:
       enabled: true
-      shared: true
     dashboard:
       enabled: true
       shared: true
@@ -34,7 +33,6 @@
       shared: true
     litellm:
       enabled: false
-      shared: false # nocheck: variants-static-override variant pins a literal off-switch
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override variant pins a literal off-switch
@@ -58,7 +56,6 @@
       shared: false # nocheck: variants-static-override variant pins a literal off-switch
     litellm:
       enabled: false
-      shared: false # nocheck: variants-static-override variant pins a literal off-switch
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override variant pins a literal off-switch

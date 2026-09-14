@@ -60,11 +60,11 @@ logout:
   enabled: false
   shared: false
 
-# nocheck: playwright-service-flag
+# nocheck: playwright-service-flag, dynamic-flag - the gateway is a single shared instance, never deployed per consumer
 litellm:
   bond: 1
-  enabled: "{{ ('svc-ai-litellm' in group_names) and (LITELLM_CHAT_MODEL_SERVED | bool) }}"
-  shared: "{{ 'svc-ai-litellm' in group_names }}"
+  enabled: "{{ LITELLM_USABLE }}"
+  shared: true
 
 dashboard:
   bond: 1

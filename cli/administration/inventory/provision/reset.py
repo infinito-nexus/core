@@ -117,13 +117,17 @@ def _drop_app_credentials(
     document: CommentedMap,
     exclude: set[str],
     pinned: dict[str, set[tuple[str, ...]]],
+    application_ids: list[str],
 ) -> int:
-    """Remove the generated credentials of every application in ``document``.
+    """Remove the generated credentials of the applications being rotated.
 
     Args:
         document: the host_vars document.
         exclude: application ids to leave untouched.
         pinned: per-application credential paths that must survive a rotation.
+        application_ids: the ids the caller regenerates afterwards. Passing a
+            narrower set here than the caller regenerates would drop
+            credentials nothing writes back.
 
     Returns:
         How many values were removed.
@@ -132,9 +136,12 @@ def _drop_app_credentials(
     if not isinstance(applications, CommentedMap):
         return 0
 
+    rotated = set(application_ids)
     dropped = 0
     for application_id, application in applications.items():
         if application_id in exclude or not isinstance(application, CommentedMap):
+            continue
+        if str(application_id) not in rotated:
             continue
         secrets = application.get(SECRETS_KEY)
         if not isinstance(secrets, CommentedMap):
@@ -194,6 +201,7 @@ def reset_credentials(
     exclude: set[str],
     workers: int = 4,
     app_variants: dict[str, int] | None = None,
+    credential_ids: list[str] | None = None,
 ) -> int:
     """Replace every generated credential in ``host_vars_file`` with a fresh one.
 
@@ -209,6 +217,9 @@ def reset_credentials(
         exclude: application ids and user keys to leave untouched.
         workers: worker threads for credentials generation.
         app_variants: variant index per app, as at provision time.
+        credential_ids: application ids whose credentials rotate; ``None``
+            rotates all of ``application_ids``. User passwords ignore it and
+            always resolve through the full ``application_ids``.
 
     Returns:
         How many values were rotated.
@@ -216,11 +227,12 @@ def reset_credentials(
     if not schema and not users:
         raise SystemExit("reset_credentials: pick at least one of schema, users")
 
+    rotated_ids = application_ids if credential_ids is None else credential_ids
     document = load_document(host_vars_file)
     dropped = 0
     if schema:
         dropped += _drop_app_credentials(
-            document, exclude, _pinned_credentials(roles_dir)
+            document, exclude, _pinned_credentials(roles_dir), rotated_ids
         )
     if users:
         dropped += _drop_user_passwords(document, roles_dir, application_ids, exclude)
@@ -228,7 +240,7 @@ def reset_credentials(
 
     if schema:
         generate_credentials_for_roles(
-            application_ids=application_ids,
+            application_ids=rotated_ids,
             roles_dir=roles_dir,
             host_vars_file=host_vars_file,
             vault_password_file=vault_password_file,

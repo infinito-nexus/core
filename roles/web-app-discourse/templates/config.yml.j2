@@ -29,7 +29,7 @@ params:
   #db_work_mem: "40MB"
 
   ## Which Git revision should this container use? (default: tests-passed)
-  #version: tests-passed
+  version: {{ DISCOURSE_VERSION }}
 
 env:
   LC_ALL:   "{{ DISCOURSE_LOCAL }}"
@@ -138,89 +138,16 @@ hooks:
         cmd:
 {% for plugin_name, plugin_config in DISCOURSE_PLUGINS.items() %}
 {% if plugin_config.enabled and plugin_config.source != 'bundled' %}
-          - git clone --depth=1 https://github.com/discourse/{{ plugin_name }}.git
+          - git clone --depth=1 --branch {{ plugin_config.config.ref }} {{ plugin_config.config.repository }}
 {% endif %}
 {% endfor %}
-
-{% if DISCOURSE_LDAP_ENABLED | bool %}
-          - git clone --depth=1 --branch {{ DISCOURSE_LDAP_AUTH_PLUGIN_REF }} {{ DISCOURSE_LDAP_AUTH_PLUGIN_REPOSITORY }}
-{% endif %}
 
 ## Any custom commands to run after building
 run:
   - exec: echo "Beginning of custom commands"
-  - exec: rails r "SiteSetting.force_https = {{ DISCOURSE_TLS_ENABLED | bool | string | lower }}"
 {% if DISCOURSE_TLS_SELFSIGNED_ENABLED | bool %}
   - exec: {{ BIN_CA_TRUST }}
 {% endif %}
-  ## If you want to set the 'From' email address for your first registration, uncomment and change:
-  ## After getting the first signup email, re-comment the line. It only needs to run once.
-  #- exec: rails r "SiteSetting.notification_email='info@unconfigured.discourse.org'"
-  - exec: rails r "SiteSetting.enable_local_logins = {{ DISCOURSE_LOCAL_LOGIN_ENABLED | bool | string | lower }}"
-{% if DISCOURSE_OIDC_ENABLED | bool %}
-  # Deactivate Default Login
-  - exec: rails r "SiteSetting.openid_connect_verbose_logging = {{ MODE_DEBUG | bool | string | lower }}"
-  - exec: rails r "SiteSetting.enable_passkeys = false" # https://meta.discourse.org/t/passwordless-login-using-passkeys/285589
-
-  - exec: rails r "SiteSetting.username_change_period = 0" # Deactivate changing of username
-
-  # OIDC Activation
-  - exec: rails r "SiteSetting.openid_connect_discovery_document = '{{OIDC.CLIENT.DISCOVERY_DOCUMENT}}'"
-  - exec: rails r "SiteSetting.openid_connect_client_id = '{{ OIDC.CLIENT.ID }}'"         
-  - exec: rails r "SiteSetting.openid_connect_client_secret = '{{ OIDC.CLIENT.SECRET }}'"
-  - exec: rails r "SiteSetting.openid_connect_enabled = true"
-  - exec: rails r "SiteSetting.openid_connect_rp_initiated_logout_redirect = '{{ DISCOURSE_OIDC_LOGOUT_REDIRECT_URL }}'"
-  - exec: rails r "SiteSetting.openid_connect_allow_association_change = false"
-  - exec: rails r "SiteSetting.openid_connect_rp_initiated_logout = true"
-
-  # ---- FinalDestination allowlist (IMPORTANT) ----
-  # Discourse blocks requests to internal/private IPs unless the host is allowlisted.
-  # Extract host from discovery document URL and append to allowed_internal_hosts.
-  - exec: >
-      rails r "url=SiteSetting.openid_connect_discovery_document.to_s.strip;
-      host=url.sub(%r{\Ahttps?://}i,'').split('/').first.to_s.strip;
-      host=host.split(':').first.to_s.strip;
-      list=SiteSetting.allowed_internal_hosts.to_s.split('|').map{|x| x.strip}.reject{|x| x.empty?};
-      if !host.empty? && host =~ /\A[a-z0-9.-]+\z/i && !list.include?(host)
-        list << host;
-        SiteSetting.allowed_internal_hosts = list.join('|');
-      end;
-      puts \"allowed_internal_hosts=#{SiteSetting.allowed_internal_hosts}\";"
-
-  # Clear OIDC discovery cache so the next login attempt refetches with the new allowlist
-  - exec: >
-      rails r "url=SiteSetting.openid_connect_discovery_document.to_s.strip;
-      key=\"openid-connect-discovery-#{url}\";
-      Discourse.cache.delete(key);
-      puts \"deleted_cache_key=#{key}\";"
-
-{% endif %}
-
-  # Activate Administrator User (always yes, non-interactive)
-  - exec: |
-      cat <<'EOF' | rake admin:create
-      {{ lookup('users', 'administrator').email }}
-      {{ lookup('users', 'administrator').password }}
-      {{ lookup('users', 'administrator').password }}
-      Y
-      Y
-      EOF
-
-  - exec: >
-      rails r "User.find_by_email('{{ lookup('users', 'administrator').email }}')&.update!(username: '{{ lookup('users', 'administrator').username }}')"
-
-{% if DISCOURSE_LDAP_ENABLED | bool %}
-{% for setting_key, setting_value in DISCOURSE_PLUGINS['discourse-ldap-auth'].config.site_settings.items() %}
-{% if setting_value is boolean %}
-  - exec: rails r "SiteSetting.{{ setting_key }} = {{ setting_value | string | lower }}"
-{% elif setting_value is string %}
-  - exec: rails r "SiteSetting.{{ setting_key }} = '{{ setting_value }}'"
-{% else %}
-  - exec: rails r "SiteSetting.{{ setting_key }} = {{ setting_value }}"
-{% endif %}
-{% endfor %}
-{% endif %}
-
   - exec: echo "End of custom commands"
 
 docker_args:

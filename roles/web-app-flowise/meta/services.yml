@@ -28,11 +28,11 @@ sso:
 ldap:
   enabled: false
   shared: false
-# nocheck: playwright-service-flag - shared gateway consumer; inference wiring is covered by the gateway role
+# nocheck: playwright-service-flag, dynamic-flag - shared gateway consumer; inference wiring is covered by the gateway role, and the gateway is a single shared instance
 litellm:
   bond: 1
-  enabled: "{{ ('svc-ai-litellm' in group_names) and (LITELLM_CHAT_MODEL_SERVED | bool) }}"
-  shared: "{{ 'svc-ai-litellm' in group_names }}"
+  enabled: "{{ LITELLM_USABLE }}"
+  shared: true
 # nocheck: playwright-service-flag - DB engine, covered by role-local integration tests
 qdrant:
   bond: 1

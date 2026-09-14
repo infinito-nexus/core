@@ -25,9 +25,9 @@
     - DISCOURSE_DATABASE_IS_SHARED | bool
     - DEPLOYMENT_MODE == 'compose'
 
-- name: 🔨 rebuild discourse
+- name: "🔨 {{ DISCOURSE_LAUNCHER_ACTION }} discourse"
   shell: >
-    ./launcher rebuild {{ DISCOURSE_CONTAINER }}
+    ./launcher {{ DISCOURSE_LAUNCHER_ACTION }} {{ DISCOURSE_CONTAINER }}
     {% if DOCKER_IN_CONTAINER | bool %}--skip-prereqs{% endif %}
   args:
     executable: /bin/bash

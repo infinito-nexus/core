@@ -7,7 +7,6 @@
 - services:
     litellm:
       enabled: false
-      shared: false
     container_backup:
       enabled: true
     dashboard:
@@ -40,7 +39,6 @@
 - services:
     litellm:
       enabled: false
-      shared: false
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -74,7 +72,6 @@
 - services: # nocheck: variants-auth-isolation
     litellm:
       enabled: true
-      shared: true
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

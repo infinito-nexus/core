@@ -50,11 +50,11 @@ sso:
       - "{{ lookup('rbac_group_path', application_id='web-app-openclaw', role='administrator') }}"
       - "{{ lookup('rbac_group_path', application_id='web-app-openclaw', role='mcp') }}"
 
-# nocheck: playwright-service-flag
+# nocheck: playwright-service-flag, dynamic-flag - the gateway is a single shared instance, never deployed per consumer
 litellm:
   bond: 1
-  enabled: "{{ ('svc-ai-litellm' in group_names) and (LITELLM_CHAT_MODEL_SERVED | bool) }}"
-  shared: "{{ 'svc-ai-litellm' in group_names }}"
+  enabled: "{{ LITELLM_USABLE }}"
+  shared: true
 
 logout:
   bond: 1

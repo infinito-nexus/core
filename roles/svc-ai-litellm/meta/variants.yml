@@ -7,8 +7,8 @@
       enabled: true
       shared: true
     lmstudio:
-      enabled: true
-      shared: true
+      enabled: false
+      shared: false
     postgres:
       shared: true
 
@@ -21,3 +21,14 @@
     lmstudio:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+
+- services:
+    ollama:
+      enabled: false
+      shared: false
+    lmstudio:
+      bond: 0.5
+      enabled: true
+      shared: true
+    postgres:
+      shared: true

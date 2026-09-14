@@ -28,6 +28,9 @@
       ansible.builtin.set_fact:
         networks: "{{ defaults_networks | combine(networks | default({}, true), recursive=True) }}"
 
+    - name: 🧊 Render the applications SPOT once for the merge block
+      applications_carrier: {}
+
     - name: "✅ Sanity check: all group_names must exist in applications"
       ansible.builtin.assert:
         that:
@@ -95,6 +98,10 @@
     - name: 🔀 Merge service_provider configuration
       ansible.builtin.set_fact:
         service_provider: "{{ defaults_service_provider | combine(service_provider | default({}, true), recursive=True) }}"
+
+    - name: 🧊 Drop the merge-block carrier so later stages re-render
+      applications_carrier:
+        clear: true
 
 - name: "💾 Persist {{ SOFTWARE_NAME }} version"
   ansible.builtin.include_role:

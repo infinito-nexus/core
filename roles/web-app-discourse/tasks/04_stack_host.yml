@@ -1,0 +1,11 @@
+---
+- name: "🔧 Setup '{{ application_id }}' network"
+  include_tasks: stack_host/01_network.yml
+  when: lookup('database', application_id, 'shared')
+
+- name: "🔑 Apply the credentials the bootstrap must not carry"
+  include_tasks: stack_host/02_credentials.yml
+
+- name: "🤖 Bind the native AI surface to the platform gateway"
+  include_tasks: addons/discourse-ai.yml
+  when: DISCOURSE_LITELLM_ENABLED | bool

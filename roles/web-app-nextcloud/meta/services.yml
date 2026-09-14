@@ -335,11 +335,11 @@ openwebui:
   bond: 0.5
   enabled: "{{ 'web-app-openwebui' in group_names }}"
   shared: "{{ 'web-app-openwebui' in group_names }}"
-# nocheck: playwright-service-flag: bridged litellm gateway partner, covered by partner role spec
+# nocheck: playwright-service-flag, dynamic-flag - bridged litellm gateway partner, covered by partner role spec, and a single shared instance
 litellm:
   bond: 0.5
-  enabled: "{{ ('svc-ai-litellm' in group_names) and (LITELLM_CHAT_MODEL_SERVED | bool) }}"
-  shared: "{{ 'svc-ai-litellm' in group_names }}"
+  enabled: "{{ LITELLM_USABLE }}"
+  shared: true
 # nocheck: playwright-service-flag: bridged mastodon partner, covered by partner role spec
 mastodon:
   bond: 0.5

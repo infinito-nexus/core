@@ -8,11 +8,12 @@
 
 - name: ⬇️ Pre-pull Ollama models
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i {{ OLLAMA_LOCAL_CID | quote }} ollama pull {{ model }}
+    container exec -i {{ OLLAMA_LOCAL_CID | quote }} ollama pull {{ model.alias }}
   register: pull_result
   loop: "{{ OLLAMA_PRELOAD_MODELS }}"
   loop_control:
     loop_var: model
+    label: "{{ model.alias }}"
   # rationale: async; model pulls run overlapped, results reaped below before playwright
   async: "{{ OLLAMA_PRELOAD_ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
   poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"

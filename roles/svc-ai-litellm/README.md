@@ -6,7 +6,7 @@
 
 ## Overview
 
-This role deploys LiteLLM as a shared gateway container in Compose and Swarm deployments, backed by the central PostgreSQL service. The gateway is headless: it binds its HTTP port on the container host and claims no domain of its own, and the browser-facing surface is published separately by the LiteLLM Admin UI. It renders the model list from the interchangeable local backends available on the host, Ollama and LM Studio, and adds an OpenRouter entry when an OpenRouter API key is configured. Once the gateway is up, it provisions one virtual key per consuming application through the gateway admin API.
+This role deploys LiteLLM as a shared gateway container in Compose and Swarm deployments, backed by the central PostgreSQL service. The gateway is headless: it binds its HTTP port on the container host and claims no domain of its own, and the browser-facing surface is published separately by the LiteLLM Admin UI. It renders the model list from the interchangeable local backends available on the host, Ollama and LM Studio, and adds the OpenAI, Anthropic and OpenRouter entries whose API key is configured. Once the gateway is up, it provisions one virtual key per consuming application through the gateway admin API.
 
 ## Cosmos
 
@@ -63,7 +63,8 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 ## Features
 
 - **OpenAI-compatible API:** One HTTP endpoint serves every model listed in the gateway configuration.
-- **Backend routing:** Model entries are generated for Ollama and LM Studio when those services run on the host, and for OpenRouter when its API key is set.
+- **Backend routing:** Model entries are generated for Ollama and LM Studio when those services run on the host, under the shared alias each model carries so a consumer names one model whichever local backend answers it.
+- **Remote providers:** OpenAI, Anthropic and OpenRouter each add their models when a key is configured. The keys are declared in `meta/secrets.yml` with the `type` and `regex` their value must satisfy, and default to the central `API.<provider>.api_key` entry; an unset key leaves that provider's routes unpublished.
 - **Per-consumer virtual keys:** Each consuming application receives its own virtual key, created through the gateway admin API under an alias naming that application.
 - **File-based model list:** The model list is mounted as a read-only config file, with database-stored model entries turned off.
 - **Managed credentials:** The gateway master key and the admin UI password are generated and kept as role credentials, and the admin UI username is the platform administrator name.

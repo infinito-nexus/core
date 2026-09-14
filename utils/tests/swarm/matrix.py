@@ -29,6 +29,7 @@ import time
 from utils import PROJECT_ROOT
 from utils.env.runtime import mem_available_mb, mem_stall_pct, mem_total_mb
 from utils.storage.constrained import host_storage_constrained
+from utils.tests.swarm.derive_includes import derive_includes
 from utils.tests.swarm.write.extras import ensure_swarm_keypairs
 
 _SWARM_DIR = PROJECT_ROOT / "scripts" / "tests" / "deploy" / "swarm"
@@ -167,11 +168,20 @@ def _write_extras(*, extras_path: str) -> int:
     )
 
 
-def _reset_credentials(*, inv_dir: str, round_variants: dict[str, int]) -> int:
+def _reset_credentials(
+    *, app_id: str, inv_dir: str, round_variants: dict[str, int]
+) -> int:
     """Regenerate the round's credentials so the update pass has to carry them.
 
     `administrator` stays exempt: its password is `ansible_become_password`,
     and rotating it would lock the deploy out of the nodes it manages.
+
+    The credential scope is `derive_includes`, the same source
+    `02_provision_inventory.sh` feeds provision's `--include`, so the gate
+    rotates the ids the round provisioned. A matrix host_vars file also holds
+    an application block per mirror artefact, and rotating those costs one
+    subprocess each for credentials provision never generated. Every declared
+    user password still rotates, so PASS 2 has to carry all of them.
     """
     return _run(
         [
@@ -184,6 +194,8 @@ def _reset_credentials(*, inv_dir: str, round_variants: dict[str, int]) -> int:
             os.environ["MGR"],
             "--schema",
             "--users",
+            "--include",
+            *derive_includes(app_id, variants=round_variants),
             "--app-variants",
             json.dumps(round_variants, sort_keys=True),
             "--mirror",
@@ -452,7 +464,9 @@ def main(argv: list[str] | None = None) -> int:
                 app_id=app_id, inv_dir=inv_root, extras_path=extras_path
             )
         if rc == 0:
-            rc = _reset_credentials(inv_dir=inv_root, round_variants=round_variants)
+            rc = _reset_credentials(
+                app_id=app_id, inv_dir=inv_root, round_variants=round_variants
+            )
         if rc == 0:
             rc = _deploy(
                 app_id=app_id,

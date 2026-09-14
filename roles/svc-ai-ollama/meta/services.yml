@@ -23,10 +23,7 @@ ollama:
   ports:
     internal:
       http: 11434
-  preload_models:
-    - llama3:latest
-    - mistral:latest
-    - nomic-embed-text:latest
+  preload_models: "{{ AI_LOCAL_MODELS }}"
   preload_async_time: 3600
   keep_alive: "-1"
   lifecycle: beta

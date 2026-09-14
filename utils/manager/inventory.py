@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import sys
 from typing import TYPE_CHECKING, Any
 
@@ -19,13 +20,71 @@ from utils.roles.mapping import ROLE_FILE_META_SECRETS, ROLE_FILE_VARS_MAIN
 if TYPE_CHECKING:
     from pathlib import Path
 
-_CREDENTIAL_LEAF_MARKERS = ("description", "algorithm", "validation", "default")
+_CREDENTIAL_LEAF_MARKERS = (
+    "description",
+    "algorithm",
+    "validation",
+    "default",
+    "type",
+    "regex",
+)
+
+_SCHEMA_TYPES: dict[str, type | tuple[type, ...]] = {
+    "string": str,
+    "integer": int,
+    "boolean": bool,
+}
 
 
 def _is_credential_leaf(node: Any) -> bool:
     return isinstance(node, dict) and any(
         marker in node for marker in _CREDENTIAL_LEAF_MARKERS
     )
+
+
+def validate_supplied_value(full_key: str, value: Any, meta: dict[str, Any]) -> None:
+    """Hold an operator-supplied credential to the schema it declares.
+
+    Only supplied values are checked: a generated one comes from the algorithm
+    the same schema names, and the generators take no schema argument.
+
+    Args:
+        full_key: dotted schema path, used in the failure message.
+        value: the value the operator supplied, empty meaning "not configured".
+        meta: the schema leaf, read for `type` and `regex`.
+
+    Raises:
+        SystemExit: the value contradicts the declared type or pattern.
+    """
+    if value in ("", None):
+        return
+
+    declared = meta.get("type")
+    if declared:
+        expected = _SCHEMA_TYPES.get(str(declared))
+        if expected is None:
+            print(
+                f"ERROR: '{full_key}' declares unknown type '{declared}'; "
+                f"known types are {', '.join(sorted(_SCHEMA_TYPES))}",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        if not isinstance(value, expected):
+            print(
+                f"ERROR: '{full_key}' is declared {declared} but the supplied "
+                f"value is {type(value).__name__}",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
+    pattern = meta.get("regex")
+    if pattern and not re.fullmatch(str(pattern), str(value)):
+        print(
+            f"ERROR: the value supplied for '{full_key}' does not match the "
+            f"pattern its schema declares: {pattern}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
 
 def _meta_role_config(role_path: Path) -> dict[str, Any]:
@@ -251,6 +310,9 @@ class InventoryManager:
           * `default:` (Jinja literal) is written verbatim and
             short-circuits algorithm-based generation. `validation:` is
             ignored for default-bearing entries.
+          * `type:` and `regex:` hold an operator-supplied value to the
+            shape the schema declares; a generated one is exempt because
+            the algorithm that produced it is named by the same schema.
           * Existing inventory values are preserved (no double-encryption,
             no overwrite of operator-supplied secrets).
         """
@@ -295,6 +357,7 @@ class InventoryManager:
 
         if "default" in meta:
             if isinstance(existing_value, str) and existing_value != "":
+                validate_supplied_value(full_key, existing_value, meta)
                 return
             dest[key] = meta["default"]
             return
@@ -306,7 +369,9 @@ class InventoryManager:
         if algorithm == "plain":
             if set_key in self.overrides:
                 plain = self.overrides[set_key]
+                validate_supplied_value(full_key, plain, meta)
             elif isinstance(existing_value, str) and existing_value != "":
+                validate_supplied_value(full_key, existing_value, meta)
                 return
             elif self.allow_empty_plain:
                 plain = ""

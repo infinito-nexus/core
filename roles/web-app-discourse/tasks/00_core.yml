@@ -9,14 +9,6 @@
 - name: "🔧 Setup '{{ application_id }}' docker"
   include_tasks: 02_docker.yml
 
-- name: "🔧 Setup '{{ application_id }}' network"
-  include_tasks: 04_network.yml
-  when:
-    - IS_STACK_HOST | bool
-    - lookup('database', application_id, 'shared')
-
-- name: "🤖 Bind the native AI surface to the platform gateway"
-  include_tasks: addons/discourse-ai.yml
-  when:
-    - IS_STACK_HOST | bool
-    - DISCOURSE_LITELLM_ENABLED | bool
+- name: "🖥️ Setup what only the stack host owns"
+  include_tasks: 04_stack_host.yml
+  when: IS_STACK_HOST | bool

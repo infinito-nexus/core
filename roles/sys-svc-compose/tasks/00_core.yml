@@ -44,3 +44,11 @@
     mode: "0755"
     owner: root
     group: root
+
+- name: "🛡️ Assert the NFS client mount is active on this swarm node"
+  ansible.builtin.command: "mountpoint -q {{ DIR_VAR_LIB }}"
+  changed_when: false
+  when:
+    - DEPLOYMENT_MODE == 'swarm'
+    - (storage.backend | default('local')) == 'nfs'
+    - (groups['svc-storage-nfs-server'] | default([])) | length > 0

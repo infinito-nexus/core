@@ -1,5 +1,21 @@
 ---
+- name: "🔨 Bootstrap the stack host image"
+  include_tasks: stack_host.yml
+  vars:
+    DISCOURSE_LAUNCHER_ACTION: rebuild
+  when: IS_STACK_HOST | bool
+  listen: rebuild-discourse
+
+- name: "📝 Record that the bootstrap already recreated the container"
+  ansible.builtin.set_fact:
+    DISCOURSE_REBUILT: true
+  listen: rebuild-discourse
+
 - name: "🖥️ Handle stack host"
   include_tasks: stack_host.yml
-  when: IS_STACK_HOST | bool
+  vars:
+    DISCOURSE_LAUNCHER_ACTION: start
+  when:
+    - IS_STACK_HOST | bool
+    - not DISCOURSE_REBUILT | bool
   listen: recreate-discourse

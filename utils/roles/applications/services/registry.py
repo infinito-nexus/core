@@ -28,10 +28,21 @@ def _normalized_name(value: Any) -> str:
     return value.strip()
 
 
+GROUP_GATED_CONSTANTS: tuple[str, ...] = ("LITELLM_USABLE",)
+"""Group_vars constants whose own definition carries an ``in group_names``
+gate, so a flag referencing one is dynamic even though its own text is not.
+
+A constant hides the role id the substring rule looks for, so every SPOT of
+this kind MUST be listed here or the roles referencing it silently drop their
+provider from the static closure.
+"""
+
+
 def is_explicit_truth(value: Any) -> bool:
     """A services.<key> flag (``enabled`` / ``shared``) MAY be true if it
-    is the literal Python ``True`` OR any string containing the substring
-    ``in group_names``. Negated and compound predicates
+    is the literal Python ``True``, any string containing the substring
+    ``in group_names``, or a string referencing a `GROUP_GATED_CONSTANTS`
+    entry. Negated and compound predicates
     (``"{{ 'X' not in group_names }}"``) match on purpose: they are true
     on some node shape, and the static closure is the co-deploy superset.
     Mirrors the substring test at
@@ -47,7 +58,11 @@ def is_explicit_truth(value: Any) -> bool:
     """
     if value is True:
         return True
-    return bool(isinstance(value, str) and "in group_names" in value)
+    if not isinstance(value, str):
+        return False
+    return "in group_names" in value or any(
+        constant in value for constant in GROUP_GATED_CONSTANTS
+    )
 
 
 def detect_service_channel(role_name: str) -> str:

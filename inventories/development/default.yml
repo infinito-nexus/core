@@ -35,6 +35,18 @@ design:
     colors:
       base: "#FFA500"
 
+AI_LOCAL_MODELS_CI:
+  - alias: qwen2.5:0.5b
+    name: qwen2.5-0.5b-instruct
+
+API:
+  openai:
+    api_key: "{{ lookup('env', 'INFINITO_API_OPENAI_KEY') }}"
+  anthropic:
+    api_key: "{{ lookup('env', 'INFINITO_API_ANTHROPIC_KEY') }}"
+  openrouter:
+    api_key: "{{ lookup('env', 'INFINITO_API_OPENROUTER_KEY') }}"
+
 OIDC_OVERRIDE:
   CLIENT:
     SECRET: VERYUNSAFESAMPLEPASSWORD1234

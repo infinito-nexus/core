@@ -11,7 +11,6 @@
     container_backup:
       enabled: true
     ollama:
-      preload_models:
-        - qwen2.5:0.5b
+      preload_models: "{{ AI_LOCAL_MODELS_CI }}"
       mem_reservation: 1g
       mem_limit: 2g

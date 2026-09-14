@@ -53,6 +53,10 @@ users:
       6e6577730a
   biber:
     password: VeryUnsecurePassword!1
+  keycloak-bot:
+    password: !vault |
+      $ANSIBLE_VAULT;1.1;AES256
+      626f740a
 """
 
 DECLARED_USERS = """\
@@ -63,6 +67,14 @@ newsletter:
   uid: 1002
 """
 
+KEYCLOAK_USERS = (
+    DECLARED_USERS
+    + """\
+keycloak-bot:
+  uid: 1003
+"""
+)
+
 
 class TestResetCredentials(unittest.TestCase):
     def setUp(self):
@@ -70,10 +82,14 @@ class TestResetCredentials(unittest.TestCase):
         self.addCleanup(shutil.rmtree, self.workdir, ignore_errors=True)
 
         self.roles_dir = self.workdir / "roles"
-        for application_id in ("web-app-a", "web-app-keycloak"):
+        declarations = {
+            "web-app-a": DECLARED_USERS,
+            "web-app-keycloak": KEYCLOAK_USERS,
+        }
+        for application_id, declared in declarations.items():
             users_file = self.roles_dir / application_id / ROLE_FILE_META_USERS
             users_file.parent.mkdir(parents=True, exist_ok=True)
-            users_file.write_text(DECLARED_USERS, encoding="utf-8")
+            users_file.write_text(declared, encoding="utf-8")
 
         self.host_vars_file = self.workdir / "host_vars" / "localhost.yml"
         self.host_vars_file.parent.mkdir(parents=True, exist_ok=True)
@@ -125,6 +141,32 @@ class TestResetCredentials(unittest.TestCase):
         self._reset(exclude={"administrator", "web-app-keycloak"})
         self.assertIn("database_password", self._credentials("web-app-keycloak"))
 
+    def test_an_application_outside_the_rotation_keeps_its_credentials(self):
+        """Dropping must not outrun regeneration.
+
+        The drop side walks the document while the generate side walks
+        `credential_ids`. A matrix host_vars file carries a block per mirror
+        artefact too, so a document-wide drop would delete credentials the
+        caller never writes back.
+        """
+        _, credentials, _ = self._reset(credential_ids=["web-app-a"])
+        self.assertIn("database_password", self._credentials("web-app-keycloak"))
+        self.assertNotIn("api_key", self._credentials("web-app-a"))
+        self.assertEqual(credentials.call_args.kwargs["application_ids"], ["web-app-a"])
+
+    def test_narrowing_the_credentials_still_rotates_every_user(self):
+        """A narrowed credential scope must not narrow the user passwords.
+
+        Both halves used to share one id list, so scoping the credentials to
+        the round silently stopped rotating the users of every other role.
+        """
+        _, _, users = self._reset(credential_ids=["web-app-a"])
+        self.assertNotIn("password", self._document()["users"]["keycloak-bot"])
+        self.assertEqual(
+            users.call_args.kwargs["application_ids"],
+            ["web-app-a", "web-app-keycloak"],
+        )
+
     def test_an_excluded_user_keeps_its_password(self):
         self._reset()
         users = self._document()["users"]
@@ -164,7 +206,7 @@ class TestResetCredentials(unittest.TestCase):
 
     def test_the_rotated_count_covers_both_sections(self):
         rotated, _, _ = self._reset()
-        self.assertEqual(rotated, 4)
+        self.assertEqual(rotated, 5)
 
     def test_rotating_nothing_aborts(self):
         with self.assertRaises(SystemExit):

@@ -6,8 +6,14 @@
 # encrypted) inventory; access ONLY via lookup('api', '<provider>.<key>').
 # nocheck: unused-var: consumed by the api lookup plugin (plugins/lookup/api.py) via lookup('api', ...), not referenced directly in YAML/Jinja.
 API:
+  anthropic:
+    api_key: ""
   cloudflare:
     api_token: ""
+  openai:
+    api_key: ""
+  openrouter:
+    api_key: ""
   telegram:
     bot_token: ""
     api_id: ""

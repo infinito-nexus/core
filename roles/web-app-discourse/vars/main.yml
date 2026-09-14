@@ -17,8 +17,7 @@ DISCOURSE_REDIS_PORT: "{{ lookup('engine', 'redis', application_id, 'port') }}"
 DISCOURSE_REDIS_PASSWORD: "{{ lookup('engine', 'redis', application_id, 'password') }}"
 DISCOURSE_REPOSITORY_URL: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.repository') }}"
 DISCOURSE_REF: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ref') }}"
-DISCOURSE_LDAP_AUTH_PLUGIN_REPOSITORY: "{{ lookup('config', application_id, 'addons.discourse-ldap-auth.config.repository') }}"
-DISCOURSE_LDAP_AUTH_PLUGIN_REF: "{{ lookup('config', application_id, 'addons.discourse-ldap-auth.config.ref') }}"
+DISCOURSE_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.application.ref') }}"
 
 DISCOURSE_DATABASE: "{{ lookup('database', application_id ) }}"
 DISCOURSE_DATABASE_TYPE: "{{ DISCOURSE_DATABASE.type }}"
@@ -29,6 +28,8 @@ DISCOURSE_REPOSITORY_DIR: "{{ lookup('container', application_id, 'directories.s
 DISCOURSE_CONTAINERS_DIR: "{{ [ DISCOURSE_REPOSITORY_DIR, 'containers' ] | path_join }}"
 
 DISCOURSE_APPLICATION_YML_DEST: "{{ [ DISCOURSE_CONTAINERS_DIR, DISCOURSE_CONTAINER ~ '.yml' ] | path_join }}"
+
+DISCOURSE_BOOTSTRAP_DIGEST_DEST: "{{ [ DISCOURSE_CONTAINERS_DIR, DISCOURSE_CONTAINER ~ '.bootstrap.sha256' ] | path_join }}"
 
 DISCOURSE_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 

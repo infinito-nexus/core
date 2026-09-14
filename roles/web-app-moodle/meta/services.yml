@@ -1,8 +1,9 @@
 ---
+# nocheck: dynamic-flag - the gateway is a single shared instance, never deployed per consumer
 litellm:
   bond: 0.5
-  enabled: "{{ ('svc-ai-litellm' in group_names) and (LITELLM_CHAT_MODEL_SERVED | bool) }}"
-  shared: "{{ 'svc-ai-litellm' in group_names }}"
+  enabled: "{{ LITELLM_USABLE }}"
+  shared: true
 # nocheck: seaweedfs-required — object storage not implemented for this role
 sso:
   bond: 1

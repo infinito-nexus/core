@@ -17,8 +17,12 @@ logger = logging.getLogger(__name__)
 class TestVariableDefinitions(unittest.TestCase):
     """
     Ensures that every Jinja2 variable used in templates/playbooks is defined
-    somewhere in the repository (direct var files, set_fact/vars blocks,
-    loop_var/register names, Jinja set/for definitions, and Jinja macro parameters).
+    somewhere in the repository (direct var files, the shipped inventories,
+    set_fact/vars blocks, loop_var/register names, Jinja set/for definitions,
+    and Jinja macro parameters).
+
+    The inventories count because the deploy CLI bakes them into host_vars, so
+    a `meta/variants.yml` entry resolves against them exactly like a group_var.
 
     If a variable is not defined, the test passes only if a corresponding
     fallback key exists (either "default_<var>" or "defaults_<var>").
@@ -32,6 +36,7 @@ class TestVariableDefinitions(unittest.TestCase):
         self.var_files: list[str] = []
         roles_prefix = str(Path(self.project_root) / "roles") + "/"
         group_vars_prefix = str(Path(self.project_root) / "group_vars" / "all") + "/"
+        inventory_prefix = str(Path(self.project_root) / "inventories") + "/"
 
         def _is_role_var_file(p: str) -> bool:
             if not p.startswith(roles_prefix):
@@ -40,9 +45,13 @@ class TestVariableDefinitions(unittest.TestCase):
             return len(parts) >= 3 and parts[1] in ("vars", "defaults")
 
         for p in iter_project_files(extensions=(".yml",)):
-            if _is_role_var_file(p) or (
-                p.startswith(group_vars_prefix)
-                and "/" not in p[len(group_vars_prefix) :]
+            if (
+                _is_role_var_file(p)
+                or (
+                    p.startswith(group_vars_prefix)
+                    and "/" not in p[len(group_vars_prefix) :]
+                )
+                or p.startswith(inventory_prefix)
             ):
                 self.var_files.append(p)
 

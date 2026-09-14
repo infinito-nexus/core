@@ -10,7 +10,6 @@
       shared: true
     litellm:
       enabled: true
-      shared: true
     logout:
       enabled: true
       shared: true
@@ -37,7 +36,6 @@
       shared: true
     litellm:
       enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
     logout:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -64,7 +62,6 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
     logout:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

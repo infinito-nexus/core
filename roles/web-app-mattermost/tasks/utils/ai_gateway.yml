@@ -107,7 +107,7 @@
       model {{ LITELLM_CHAT_MODEL }}), so prompts would leave the deployment,
       use a model the gateway does not serve, or carry a stale virtual key.
       An empty model means the gateway serves none: neither svc-ai-ollama nor
-      svc-ai-lmstudio is in this deployment and OPENROUTER_API_KEY is empty.
+      svc-ai-lmstudio is in this deployment and no remote provider key is set.
 
 - name: "🔎 Mattermost | Wait for the Agents plugin to provision its bot account"
   database_query:

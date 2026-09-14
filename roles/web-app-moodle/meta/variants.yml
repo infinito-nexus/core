@@ -38,7 +38,6 @@
       shared: true
     litellm:
       enabled: false
-      shared: false
     tor:
       enabled: true
 
@@ -83,7 +82,6 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
-      shared: false
     tor:
       enabled: true
     openwebui:
@@ -128,7 +126,6 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: true
-      shared: true
     tor:
       enabled: true
     openwebui:
