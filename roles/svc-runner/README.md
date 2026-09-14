@@ -183,7 +183,7 @@ python -m cli.administration.deploy.runner <hostname> \
 | `RUNNER_LABELS` | `self-hosted,linux,{{ RUNNER_DISTRIBUTION }}` | Comma-separated labels assigned to every runner instance. |
 | `RUNNER_INSTALL_DIR` | `/opt/github-runner` | Base installation directory; instances land in `<dir>/<N>/`. |
 | `RUNNER_USER` | `github-runner` | System user account that owns all runner files and processes. |
-| `RUNNER_COUNT` | auto (`ansible_processor_vcpus // RUNNER_CPUS`) | Number of runner instances; auto-scales to available CPU cores. |
+| `RUNNER_COUNT` | auto (`RESOURCE_HOST_CPUS // RUNNER_CPUS`) | Number of runner instances; auto-scales to available CPU cores. |
 | `RUNNER_CPUS` | `2` | CPU limit per runner instance (matches GitHub-hosted 2-core quota). |
 | `RUNNER_DOCKER_BASE` | `/mnt/docker` | Base path for per-instance Docker volume directories. |
 | `RUNNER_PROJECT_PREFIX` | `runner` | Prefix for per-instance Docker Compose project names and `INFINITO_RUNNER_PREFIX`. |
