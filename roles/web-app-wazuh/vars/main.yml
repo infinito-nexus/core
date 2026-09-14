@@ -58,15 +58,6 @@ WAZUH_RBAC_ADMIN_LDAP_CN: "{{ application_id }}-administrator"
 WAZUH_RBAC_ANALYST_LDAP_CN: "{{ application_id }}-security-analyst"
 WAZUH_RBAC_READONLY_LDAP_CN: "{{ application_id }}-readonly-auditor"
 
-# CI's front-proxy readiness probe (test-e2e-playwright/tasks/02_run_one.yml)
-# uses a shared 30-retry/5s-delay budget (~150s) by default, applied to every
-# role. Wazuh is the first role to override it: the indexer's own healthcheck
-# above already declares a 390s worst case (start_period 90s + 10x30s
-# retries) before it's considered healthy, and swarm mode has no
-# depends_on/service_healthy gating (container_depends_on.py strips
-# conditions to a bare name list there) - so the dashboard can start
-# concurrently with a still-booting indexer and needs its own bootstrap time
-# on top. 120x5s (600s/10min) covers the indexer's declared ceiling plus
-# margin for the dashboard's own boot and CI runner contention.
+# Overrides test-e2e-playwright's shared 30x5s (~150s) default: indexer's own healthcheck above is a 390s worst case, and swarm has no service_healthy gating, so 120x5s (600s) covers it plus dashboard boot margin.
 TEST_E2E_PLAYWRIGHT_WAIT_RETRIES: 120
 TEST_E2E_PLAYWRIGHT_WAIT_DELAY: 5
