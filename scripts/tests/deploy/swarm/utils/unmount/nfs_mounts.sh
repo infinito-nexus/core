@@ -5,6 +5,7 @@
 set -uo pipefail
 
 NFS_UNMOUNT_TIMEOUT="${NFS_UNMOUNT_TIMEOUT:-10s}"
+NFS_CONTAINER_TIMEOUT=90s
 
 if [ "$#" -eq 0 ]; then
 	exit 0
@@ -15,7 +16,7 @@ for container in "$@"; do
 	docker inspect "${container}" >/dev/null 2>&1 || continue
 
 	echo ">>> swarm-cleanup: detach NFS mounts inside ${container}"
-	if ! docker exec -e NFS_UNMOUNT_TIMEOUT="${NFS_UNMOUNT_TIMEOUT}" "${container}" sh -s <<'SH'; then
+	if ! timeout "${NFS_CONTAINER_TIMEOUT}" docker exec -e NFS_UNMOUNT_TIMEOUT="${NFS_UNMOUNT_TIMEOUT}" "${container}" sh -s <<'SH'; then
 set -eu
 
 mounts="$(
@@ -61,6 +62,6 @@ printf '%s\n' "${mounts}" | while IFS= read -r mount_point; do
 	fi
 done
 SH
-		echo "WARNING: could not inspect/unmount NFS mounts inside ${container}" >&2
+		echo "WARNING: could not inspect/unmount NFS mounts inside ${container} (gave up after ${NFS_CONTAINER_TIMEOUT})" >&2
 	fi
 done

@@ -22,6 +22,7 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 # nocheck: playwright-service-flag: shared provider entity; the app itself is covered by this role's own Playwright spec
 openwebui:
+  mcp_consumer: true
   modes:
     compose:
       enabled: true
@@ -35,7 +36,7 @@ openwebui:
   backup:
     no_stop_required: true
   image: ghcr.io/open-webui/open-webui
-  version: main
+  version: 0.11.0
   name: open-webui
   min_storage: 2026MB
   offline_mode: false
@@ -81,10 +82,11 @@ javascript:
   enabled: false # nocheck: dynamic-flag
   shared: true
 # nocheck: playwright-service-flag — AI backend, infrastructural
-ollama:
+litellm:
   bond: 1
-  enabled: "{{ 'svc-ai-ollama' in group_names }}"
-  shared: "{{ 'svc-ai-ollama' in group_names }}"
+  enabled: "{{ ('svc-ai-litellm' in group_names) and (LITELLM_CHAT_MODEL_SERVED | bool) }}"
+  shared: "{{ 'svc-ai-litellm' in group_names }}"
+
 email:
   bond: 1
   enabled: "{{ 'web-app-mailu' in group_names }}"

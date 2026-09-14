@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Central search and analytics engine with per-consumer index namespaces isolating tenants in a shared Docker deployment

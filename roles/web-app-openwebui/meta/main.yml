@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama

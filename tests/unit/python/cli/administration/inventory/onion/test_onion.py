@@ -1,7 +1,7 @@
 import tempfile
 import unittest
+import unittest.mock as mock
 from pathlib import Path
-from unittest import mock
 
 from cli.administration.inventory.onion import ensure_node_onion, identity_hs_dir
 

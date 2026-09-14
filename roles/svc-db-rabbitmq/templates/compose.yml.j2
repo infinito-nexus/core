@@ -11,14 +11,7 @@
     {% endif %}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
-    healthcheck:
-      test:
-        - "CMD-SHELL"
-        - "rabbitmq-diagnostics -q ping || exit 1"
-      interval: 10s
-      timeout: 5s
-      retries: 18
-      start_period: 60s
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
 
 {{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

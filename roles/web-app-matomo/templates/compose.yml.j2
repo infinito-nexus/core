@@ -10,15 +10,7 @@
         MATOMO_VERSION: "{{ lookup('config', application_id, 'services.' ~ MATOMO_SERVICE ~ '.version') }}"
     {{ lookup('container_ports', ['matomo', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
-    healthcheck:
-      test:
-        - CMD-SHELL
-        - |
-          code="$$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1/index.php || echo 000)"; [ "$$code" -ge 200 ] && [ "$$code" -lt 400 ]
-      interval: 10s
-      timeout: 5s
-      retries: 12
-      start_period: 180s
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 

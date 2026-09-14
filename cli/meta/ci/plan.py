@@ -15,6 +15,10 @@ sweep's budget (raise ``--offset`` to reach it), ✂️ cut as redundant coverag
 a clone or a row an earlier one already embeds, which no sweep deploys.
 ``--cli`` renders fixed-width terminal tables instead of Markdown.
 
+📖 marks the row that replays the role's README instructions after its deploy,
+and names the mode the replay runs in -- which is the guide's own, not the
+row's (:mod:`utils.roles.guide`).
+
 🆔 numbers the rows of this table, 1..n, and 🔰 names the 🆔 of the earlier row
 that already embeds this one -- empty when nothing does. A row with a 🔰 is
 redundant coverage: whatever it would prove, the row it points at proves first. 🐑 marks the other reason a row is cut: it
@@ -29,7 +33,7 @@ import sys
 
 from cli.meta.ci import matrix, query, slots
 from cli.meta.roles.applications.complexity.render import _dwidth
-from utils.github.variant import axes, pools, tor
+from utils.github.variant import axes, instructions, pools, tor
 from utils.roles.display import display_names
 from utils.symbol_glossary import to_emoji
 
@@ -49,7 +53,7 @@ _COLUMNS = (
     "tor",
     "triggered",
     "covered_by",
-    "weight",
+    "instructions",
     "clone",
 )
 _GLYPH = {"triggered": "enabled", "distro": "distros"}
@@ -98,7 +102,7 @@ def cells(
         positions.setdefault(entry.get("id", ""), str(counter))
     for counter, entry in enumerate(entries, start=1):
         chunk = _chunk_of(entry, plan)
-        if matrix.redundant(entry):
+        if instructions.redundant(entry):
             status, where = _CUT, ""
         elif chunk is None:
             status, where = _OFF, ""
@@ -118,7 +122,7 @@ def cells(
                 to_emoji("tor" if entry["tor"] == "true" else "clearnet"),
                 status,
                 positions.get(covered, covered) if covered not in ("", "0") else "",
-                entry["weight"],
+                to_emoji(entry["instructions"]) if entry["instructions"] else "",
                 to_emoji("clone") if entry.get("clone") == "true" else "",
             )
         )

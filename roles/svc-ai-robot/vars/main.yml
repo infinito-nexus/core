@@ -1,0 +1,9 @@
+---
+application_id: "svc-ai-robot"
+
+SVC_AI_ROBOT_AGENT_ROLE: >-
+  {{
+    'web-app-hermes'
+    if (lookup('config', application_id, 'services.hermes.enabled') | bool)
+    else ('web-app-openclaw' if (lookup('config', application_id, 'services.openclaw.enabled') | bool) else '')
+  }}

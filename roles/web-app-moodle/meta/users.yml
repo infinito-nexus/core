@@ -1,2 +1,10 @@
 ---
 administrator: {}
+mcp-web-app-moodle:
+  firstname: Infinito
+  lastname: MCP
+  accounts: []
+  password:
+    algorithm: strong_password
+    validation: "[^A-Za-z0-9]"
+  description: Account the Moodle web-service token is issued for; a token on the site administrator would bypass every capability check

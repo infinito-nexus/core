@@ -8,8 +8,7 @@
 {% endfor -%}
 {%- endmacro %}
 
--- Only process HTML responses
-if not ngx.ctx.is_html then
+if not (ngx.ctx.is_html or ngx.ctx.is_css) then
     return
 end
 
@@ -51,6 +50,10 @@ do
 end
 {% endif %}
 {% endif %}
+if ngx.ctx.is_css then
+    ngx.arg[1] = whole
+    return
+end
 {% set _cdn_base = lookup('tls', 'web-svc-cdn', 'url.base') | regex_replace('/+$', '') %}
 {% set _tor_node = lookup('config', 'svc-net-tor', 'services.tor.node', '') %}
 {% set _cdn_onion = _cdn_base | to_onion_url(_tor_node, DOMAIN_PRIMARY) %}

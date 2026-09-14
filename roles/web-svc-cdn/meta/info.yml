@@ -1,0 +1,2 @@
+---
+# nocheck: info-media Self-written infrastructure/asset-delivery role: wraps Nginx as an internal CDN serving static CSS/JS assets for other stack apps. No consumer-facing upstream product (Nginx is the underlying server, not the product this role is).

@@ -1,9 +1,14 @@
-import subprocess
-from typing import Any
+from __future__ import annotations
+
+from functools import cached_property
+from typing import TYPE_CHECKING, Any
 
 import yaml
 from yaml.dumper import SafeDumper
 from yaml.loader import SafeLoader
+
+if TYPE_CHECKING:
+    from ansible.parsing.vault import VaultLib
 
 
 class VaultScalar(str):
@@ -31,22 +36,25 @@ class VaultHandler:
     def __init__(self, vault_password_file: str):
         self.vault_password_file = vault_password_file
 
+    @cached_property
+    def _vault(self) -> VaultLib:
+        from ansible.parsing.dataloader import DataLoader
+        from ansible.parsing.vault import FileVaultSecret, VaultLib
+
+        secret = FileVaultSecret(filename=self.vault_password_file, loader=DataLoader())
+        secret.load()
+        return VaultLib([("default", secret)])
+
     def encrypt_string(self, value: str, name: str) -> str:
-        """Encrypt a string using ansible-vault."""
-        cmd = [
-            "ansible-vault",
-            "encrypt_string",
-            "--stdin-name",
-            name,
-            "--vault-password-file",
-            self.vault_password_file,
-        ]
-        proc = subprocess.run(
-            cmd, input=value, capture_output=True, text=True, check=False
-        )
-        if proc.returncode != 0:
-            raise RuntimeError(f"ansible-vault encrypt_string failed:\n{proc.stderr}")
-        return proc.stdout
+        """Return the ``name: !vault |`` snippet as ``ansible-vault`` lays it out.
+
+        Args:
+            value: plaintext to encrypt.
+            name: key the snippet is emitted under.
+        """
+        body = self._vault.encrypt(value).decode()
+        indented = "\n".join(f"          {line}" for line in body.splitlines())
+        return f"{name}: !vault |\n{indented}\n"
 
     def encrypt_leaves(self, branch: dict[str, Any], vault_pw: str):
         """Recursively encrypt all leaves (plain text values) under the credentials section."""

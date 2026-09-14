@@ -1,4 +1,5 @@
 ---
+# nocheck: config-volume-secret  Zammad's auto_wizard.json is consumed once at first boot and must carry the OIDC client secret inline; the wizard accepts no reference to a secret held elsewhere.
 zammad_storage:
   type: volume
   mounts:

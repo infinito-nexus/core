@@ -1,0 +1,19 @@
+---
+# Param: assert_isolated_container - name of the container that must not run under the shared kernel
+- name: "🔍 Read the runtime '{{ assert_isolated_container }}' actually got"
+  ansible.builtin.command: >- # nocheck: container-exec-resolver  runtime probe, the container name comes from the caller
+    container inspect --type container {{ assert_isolated_container }}
+    --format {{ '{{.HostConfig.Runtime}}' }}
+  register: assert_isolated_runtime
+  changed_when: false
+
+- name: "🛑 Refuse an agent running under the shared kernel"
+  ansible.builtin.assert:
+    that:
+      - (assert_isolated_runtime.stdout | trim) != 'runc'
+    fail_msg: >-
+      '{{ assert_isolated_container }}' runs under
+      '{{ assert_isolated_runtime.stdout | trim }}', which is the host kernel.
+      This container executes code the model wrote, so the deploy is refused
+      rather than left looking healthy. Check that svc-virt-kata installed the
+      isolating runtime on this host and that the daemon restarted onto it.

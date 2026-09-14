@@ -32,7 +32,14 @@ DISCOURSE_APPLICATION_YML_DEST: "{{ [ DISCOURSE_CONTAINERS_DIR, DISCOURSE_CONTAI
 
 DISCOURSE_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 
-# Exception: HOST_LL_CC is not available in the container; derive the locale from HOST_CS instead
+DISCOURSE_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') | bool }}"
+DISCOURSE_LITELLM_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') }}"
+DISCOURSE_LITELLM_NETWORK: "{{ 'svc-ai-litellm' | get_entity_name }}"
+DISCOURSE_LITELLM_HOST: "{{ LITELLM_OPENAI_BASE_LOCAL_URL | urlsplit('hostname') }}"
+DISCOURSE_LITELLM_CHAT_ENDPOINT: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}/chat/completions"
+DISCOURSE_AI_LLM_DISPLAY_NAME: "{{ lookup('config', application_id, 'addons.discourse-ai.config.display_name') }}"
+DISCOURSE_AI_MAX_PROMPT_TOKENS: "{{ lookup('config', application_id, 'addons.discourse-ai.config.max_prompt_tokens') | int }}"
+
 DISCOURSE_LOCAL: "C.{{ HOST_CS }}"
 
 DISCOURSE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"

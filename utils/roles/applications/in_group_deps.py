@@ -94,20 +94,31 @@ def _collect_reachable_roles(
         )
 
 
-def applications_if_group_and_all_deps(
+def reachable_roles(
     applications: dict[str, Any],
-    group_names: list[str],
+    seeds: list[str],
     *,
     project_root: str | None = None,
     roles_dir: str | None = None,
     service_registry: dict[str, Any] | None = None,
     meta_deps_resolver: MetaDepsResolver | None = None,
     blocked: frozenset[str] | set[str] | None = None,
-) -> dict[str, Any]:
+) -> set[str]:
+    """Return every role reachable from ``seeds`` through meta and service edges.
+
+    Args:
+        applications: the merged applications map.
+        seeds: role ids to start the traversal from.
+        project_root: repository root, used to derive ``roles_dir`` and registry.
+        roles_dir: roles directory, when it is not derived from ``project_root``.
+        service_registry: prebuilt registry, otherwise built from the inputs.
+        meta_deps_resolver: reads a role's ``meta/main.yml`` dependencies.
+        blocked: roles the traversal must not enter.
+    """
     if not isinstance(applications, dict):
         raise TypeError("'applications' must be a mapping")
-    if not isinstance(group_names, list):
-        raise TypeError("'group_names' must be a list")
+    if not isinstance(seeds, list):
+        raise TypeError("'seeds' must be a list")
     if not project_root and not roles_dir:
         raise ValueError("'project_root' or 'roles_dir' must be provided")
 
@@ -126,21 +137,42 @@ def applications_if_group_and_all_deps(
     elif not isinstance(service_registry, dict):
         raise ValueError("'service_registry' must be a mapping")
 
-    meta_deps_resolver = meta_deps_resolver or meta_deps_from_disk
+    resolver = meta_deps_resolver or meta_deps_from_disk
     blocked_roles = frozenset(blocked or ())
 
     included: set[str] = set()
-    for group in group_names:
+    for seed in seeds:
         _collect_reachable_roles(
-            group,
+            seed,
             applications,
             service_registry,
             roles_dir,
             included,
-            meta_deps_resolver,
+            resolver,
             blocked_roles,
         )
+    return included
 
+
+def applications_if_group_and_all_deps(
+    applications: dict[str, Any],
+    group_names: list[str],
+    *,
+    project_root: str | None = None,
+    roles_dir: str | None = None,
+    service_registry: dict[str, Any] | None = None,
+    meta_deps_resolver: MetaDepsResolver | None = None,
+    blocked: frozenset[str] | set[str] | None = None,
+) -> dict[str, Any]:
+    included = reachable_roles(
+        applications,
+        group_names,
+        project_root=project_root,
+        roles_dir=roles_dir,
+        service_registry=service_registry,
+        meta_deps_resolver=meta_deps_resolver,
+        blocked=blocked,
+    )
     return {
         key: cfg
         for key, cfg in applications.items()

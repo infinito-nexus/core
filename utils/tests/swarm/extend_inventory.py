@@ -32,7 +32,7 @@ from utils.cache.yaml import dump_yaml, load_yaml_any
 from utils.env.parser import parse_static_env
 from utils.roles.meta_lookup import get_role_placement
 from utils.tests.swarm.backup_repos import repo_placements
-from utils.tests.swarm.derive_includes import derive_includes
+from utils.tests.swarm.derive_includes import applications_for_round, derive_includes
 
 _DOCKER_VARS: dict[str, str] = {
     "ansible_connection": "docker",
@@ -77,6 +77,23 @@ def _placement_dep_groups(app_id: str) -> list[tuple[str, str]]:
     ]
 
 
+def _sandbox_workers(app_id: str) -> tuple[str, ...]:
+    """Return the workers that may carry the kata-capable label.
+
+    Args:
+        app_id: the round's primary application.
+
+    Returns:
+        Every worker when the app itself is sandboxed, otherwise one.
+    """
+    services = (applications_for_round().get(app_id) or {}).get("services") or {}
+    return (
+        _WORKERS
+        if ((services.get("kata") or {}).get("enabled")) is True
+        else _WORKERS[-1:]
+    )
+
+
 def main() -> int:
     if not os.environ.get("SWARM_NAME"):
         raise SystemExit("extend_inventory: SWARM_NAME is required (cluster id)")
@@ -85,6 +102,10 @@ def main() -> int:
 
     closure = derive_includes(app_id)
     group_hosts = _host_topology(app_id) + _placement_dep_groups(app_id)
+    if "svc-virt-kata" in closure:
+        group_hosts.extend(
+            ("svc-virt-kata", host) for host in (_MANAGER, *_sandbox_workers(app_id))
+        )
     group_hosts.extend(
         repo_placements(
             app_closure=closure,

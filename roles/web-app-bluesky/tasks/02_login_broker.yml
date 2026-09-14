@@ -10,6 +10,4 @@
     src: "{{ BLUESKY_BROKER_SRC_DIR }}/"
     dest: "{{ BLUESKY_BROKER_BUILD_CONTEXT }}/"
     mode: preserve
-  notify:
-    - compose-up
-    - compose-build
+  register: bluesky_login_broker_copy

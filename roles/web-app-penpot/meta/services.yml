@@ -94,7 +94,6 @@ backend:
   pids_limit: 512
   healthcheck:
     flavor: tcp
-    start_period: 5m
   ports:
     internal:
       http: 6060

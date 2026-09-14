@@ -44,6 +44,21 @@
     plugin_task_path: "{{ [role_path, 'tasks/addons', plugin_name  ~ '.yml' ] | path_join }}"
   when: plugin_enabled | bool
 
+- name: "⬇️ Get current 'permalink_structure'"
+  shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
+    wp option get permalink_structure --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+  register: wp_permalink_structure
+  changed_when: false
+  failed_when: false
+
+- name: "🔗 Set the permalink structure the /wp-json routes need"
+  shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
+    wp option update permalink_structure "{{ WORDPRESS_PERMALINK_STRUCTURE }}"
+    --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+  when: (wp_permalink_structure.stdout | trim) != WORDPRESS_PERMALINK_STRUCTURE
+
 - name: 🔍 Detect if WordPress is Multisite
   shell: >
     container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}

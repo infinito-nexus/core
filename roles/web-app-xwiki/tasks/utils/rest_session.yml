@@ -19,6 +19,7 @@
   changed_when: false
 
 - name: "🔧 XWIKI | Set REST write headers"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   set_fact:
     xwiki_rest_headers_write:
       Content-Type: "application/xml"

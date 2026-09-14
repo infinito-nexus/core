@@ -15,6 +15,7 @@ The diagram places MediaWiki in the Infinito.Nexus cosmos: the components it dep
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
+        dep_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_mariadb["svc-db-mariadb 🐳🐝"]
         dep_svc_net_tor["svc-net-tor 🐳🐝"]
@@ -27,6 +28,7 @@ flowchart LR
         dep_web_svc_logout["web-svc-logout 🐳🐝"]
     end
     subgraph role [web-app-mediawiki 🐳🐝]
+        svc_litellm["litellm"]
         svc_sso["sso"]
         svc_logout["logout"]
         svc_dashboard["dashboard"]
@@ -39,6 +41,7 @@ flowchart LR
         svc_tor["tor"]
         svc_container_backup["container_backup"]
     end
+    dep_svc_ai_litellm -. "0..1" .-> svc_litellm
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_mariadb -. "0..1" .-> svc_mariadb
     dep_svc_net_tor -. "0..1" .-> svc_tor
@@ -81,19 +84,20 @@ Run the published image to provision the inventory and deploy MediaWiki to a man
 ```bash
 APP=web-app-mediawiki
 HOST=<your-server>
+DOMAIN=<your-domain>
 TLS_MODE=self_signed
 SSH_PUBLIC_KEY="<your-ssh-public-key>"
 
 docker run --rm -it \
   -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  -e APP="$APP" -e HOST="$HOST" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
+  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
   ghcr.io/infinito-nexus/core/debian bash -c '
     INVENTORY=/etc/infinito.nexus/inventories/production
     infinito administration inventory provision "$INVENTORY" \
       --inventory-file "$INVENTORY/devices.yml" \
       --host "$HOST" \
       --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
+      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
     infinito administration deploy dedicated "$INVENTORY/devices.yml" \
       --password-file "$INVENTORY/.password" \
       --diff -vv'
@@ -101,12 +105,28 @@ docker run --rm -it \
 
 ## Addons
 
-This role ships its OIDC login stack as unified addons declared in [`meta/addons/`](meta/addons/). Both are MediaWiki extensions installed from upstream and gated on the `sso` service flag (`web-app-keycloak` co-deployed). The OIDC client secret is rendered through `templates/oidc.php.j2` and never inlined into the addon declaration.
+This role ships its OIDC login stack and its AI editing stack as unified addons declared in [`meta/addons/`](meta/addons/). All four are MediaWiki extensions installed from upstream at the `REL<major>_<minor>` branch matching the pinned image, and each is gated on a service flag. Secrets are rendered through the role's templates and never inlined into an addon declaration.
 
 | Addon | Mechanism | Default state | Bridges |
 |---|---|---|---|
 | PluggableAuth | extension | enabled when `services.sso.enabled` | none |
 | OpenIDConnect | extension | enabled when `services.sso.enabled` | `sso` |
+| VisualEditorPlus | extension | enabled when `services.litellm.enabled` | `litellm` |
+| AIEditingAssistant | extension | enabled when `services.litellm.enabled` | `litellm` |
+
+`meta/addons/` is also the download list: `MEDIAWIKI_EXT_NAMES` keeps only the addons whose `enabled` resolves true, so a deployment without the matching service never pulls that tarball or runs composer for it.
+
+## AI editing assistant
+
+With `services.litellm.enabled`, `templates/LocalSettings.php.j2` loads `VisualEditor` (bundled in the image), `VisualEditorPlus` and `AIEditingAssistant`, then points the extension's `open-ai` provider at the in-cluster gateway:
+
+- `$wgAIEditingAssistantActiveProvider` is `open-ai`.
+- `$wgAIEditingAssistantActiveProviderConnection` is the JSON object `{url, endpoint, model, secret}` built from `MEDIAWIKI_LITELLM_CONNECTION`; `url` is `LITELLM_OPENAI_BASE_LOCAL_URL` and `secret` is this role's own `credentials.litellm_api_key`. The braces are mandatory: a brace-free value is re-wrapped as `{"legacy": ...}` upstream and the provider falls back to the vendor endpoint at `api.openai.com`.
+- `$wgHTTPTimeout` is raised inside the same block because core's 25s is below a cold local model's first token.
+
+The wiring block sits behind a `file_exists` guard on `extensions/VisualEditorPlus/vendor/autoload.php`, because `LocalSettings.php` is rendered before the extensions are installed and `VisualEditorPlus` fatals until its composer step has run.
+
+[`tasks/utils/ai_gateway.yml`](tasks/utils/ai_gateway.yml) runs after `update.php`. It includes the shared gateway consumer contract, then reads both globals back out of the running container with `maintenance/run.php getConfiguration --format=json` and asserts the provider, the base URL and the model, so an unconfigured surface cannot reach a green deploy.
 
 ## Further Resources
 

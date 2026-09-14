@@ -13,6 +13,7 @@
     mode: "0755"
 
 - name: 📦 Install plugin credentials file
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   copy:
     dest: "{{ CERTBOT_CREDENTIALS_FILE }}"
     content: |

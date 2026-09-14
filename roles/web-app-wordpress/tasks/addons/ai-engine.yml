@@ -1,0 +1,4 @@
+---
+- name: "🖥️ WP AI Engine: stack-host container ops"
+  ansible.builtin.include_tasks: ai-engine-stack-host.yml
+  when: IS_STACK_HOST | bool

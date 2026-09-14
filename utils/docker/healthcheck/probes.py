@@ -12,6 +12,20 @@ from typing import Any, ClassVar
 CURL = ("curl",)
 CURL_NO_PROXY = ("--noproxy", "*")
 
+DEFAULT_INTERVAL = "2m"
+DEFAULT_TIMEOUT = "5s"
+DEFAULT_RETRIES = 3
+DEFAULT_START_PERIOD = "10m"
+DEFAULT_START_INTERVAL = "5s"
+
+TIMING_DEFAULTS: dict[str, object] = {
+    "interval": DEFAULT_INTERVAL,
+    "timeout": DEFAULT_TIMEOUT,
+    "retries": DEFAULT_RETRIES,
+    "start_period": DEFAULT_START_PERIOD,
+    "start_interval": DEFAULT_START_INTERVAL,
+}
+
 _HTTP_REQUEST = (
     "echo -e 'GET /{path} HTTP/1.1\\r\\nHost: localhost\\r\\n"
     "Connection: close\\r\\n\\r\\n' >&3"
@@ -53,10 +67,11 @@ class Probe:
     """Base for every flavor: timings plus the argv docker executes."""
 
     flavor: ClassVar[str] = ""
-    interval: ClassVar[str] = "30s"
-    timeout: ClassVar[str] = "5s"
-    retries: ClassVar[int] = 3
-    start_period: ClassVar[str] = "30s"
+    interval: ClassVar[str] = DEFAULT_INTERVAL
+    timeout: ClassVar[str] = DEFAULT_TIMEOUT
+    retries: ClassVar[int] = DEFAULT_RETRIES
+    start_period: ClassVar[str] = DEFAULT_START_PERIOD
+    start_interval: ClassVar[str] = DEFAULT_START_INTERVAL
 
     def __init__(self, **context: Any) -> None:
         self.port = context.get("port", "")
@@ -86,11 +101,24 @@ class Probe:
     def block(self, overrides: dict[str, Any]) -> dict[str, Any]:
         """Assemble the healthcheck mapping.
 
+        `start_interval` is the cadence while `start_period` is still running.
+        Without it a probe only fires every `interval`, so a service ready after
+        three seconds is reported healthy at the next tick -- 30s, or a minute
+        for the curl flavors -- and a stack converges no faster than its slowest
+        quantisation. It changes when the same probe runs, never what it tests.
+
+        `start_period` therefore bounds it: once the window closes the cadence
+        falls back to `interval`, so a service that becomes ready just after the
+        window pays a full tick anyway. The window has to outlast a realistic
+        boot, not merely a fast one, which is why it is measured in minutes
+        rather than sized to `interval`. It costs nothing while the container
+        works, only the time until a broken one is called unhealthy.
+
         Args:
             overrides: service level values that win over the flavor defaults.
         """
         block: dict[str, Any] = {"test": self.test()}
-        for key in ("interval", "timeout", "retries", "start_period"):
+        for key in ("interval", "timeout", "retries", "start_period", "start_interval"):
             block[key] = overrides.get(key, getattr(self, key))
         return block
 
@@ -116,7 +144,6 @@ class Curl(Probe):
     """
 
     flavor = "curl"
-    interval = "1m"
     timeout = "10s"
 
     def test(self) -> list[str]:
@@ -128,7 +155,6 @@ class Curl(Probe):
 
 class Wget(Probe):
     flavor = "wget"
-    interval = "1m"
     timeout = "10s"
 
     def test(self) -> list[str]:
@@ -145,7 +171,6 @@ class Http(Probe):
 
     flavor = "http"
     retries = 5
-    start_period = "20s"
 
     def test(self) -> list[str]:
         return [
@@ -197,7 +222,6 @@ class HttpStatus(Tcp):
 class Nc(Probe):
     flavor = "nc"
     timeout = "3s"
-    start_period = "10s"
 
     def test(self) -> list[str]:
         return ["CMD-SHELL", f"nc -z localhost {self.port} || exit 1"]
@@ -212,7 +236,6 @@ class Connect(Probe):
     """
 
     flavor = "connect"
-    interval = "1m"
     timeout = "20s"
     retries = 5
     start_period = "15m"

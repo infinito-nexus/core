@@ -1,0 +1,5 @@
+---
+coturnconsumer:
+  description: Long-Term Credential account a TURN client authenticates the relay with
+  username: coturnconsumer
+  accounts: []

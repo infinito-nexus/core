@@ -1,0 +1,2 @@
+---
+# nocheck: info-media Self-written pull-style SSH+rsync backup role (svc-bkp-*), custom Python/systemd glue with no consumer-facing upstream product.

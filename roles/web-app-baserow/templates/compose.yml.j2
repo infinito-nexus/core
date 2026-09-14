@@ -14,5 +14,35 @@
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
 
+  {% if BASEROW_MCP_ENABLED | bool %}
+  {% set service_name = 'baserowmcp' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'baserowmcp') }}
+    build:
+      context: {{ BASEROW_MCP_INSTANCE_DIR }}
+      dockerfile: Dockerfile
+      args:
+        MCP_ADAPTER_BASE_IMAGE: {{ lookup('config', application_id, 'services.baserowmcp.image') }}
+        MCP_ADAPTER_BASE_VERSION: "{{ lookup('config', application_id, 'services.baserowmcp.version') }}"
+    {{ lookup('compose_only', 'container_name', BASEROW_MCP_CONTAINER) }}
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      ADAPTER_CONTRACT: {{ BASEROW_MCP_CONTRACT | to_json | to_json | replace('$', '$$') }}
+      ADAPTER_BEARER: {{ BASEROW_MCP_BEARER | to_json }}
+      ADAPTER_PORT: "{{ BASEROW_MCP_PORT }}"
+      ADAPTER_UPSTREAM_PATH_KEY: {{ BASEROW_MCP_ENDPOINT_KEY | to_json }}
+      ADAPTER_UPSTREAM_PATH_SUFFIX: "sse"
+    expose:
+      - "{{ BASEROW_MCP_PORT }}"
+    {{ lookup('container_healthcheck', 'baserowmcp') | indent(4) }}
+    {{ lookup('container_networks', own_network_only=True, provider_self_alias=False) | indent(4) }}
+    {{ lookup('depends_on', {'baserow': 'service_healthy'}) }}
+  {% endif %}
+
 {{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

@@ -1,0 +1,6 @@
+---
+- name: "🚦 Declare the MCP rate and connection zones of {{ application_id }}"
+  stack_host_template:
+    src: "roles/sys-svc-proxy/templates/mcp/zones.conf.j2"
+    dest: "{{ [lookup('nginx', 'directories.configuration.global'), 'mcp-' ~ application_id ~ '.conf'] | path_join }}"
+  notify: restart-openresty

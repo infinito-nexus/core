@@ -13,12 +13,9 @@
     database_username: "{{ item.database_username }}"
     database_name: "{{ item.database_name }}"
   loop: "{{ MATRIX_BRIDGES }}"
-
-- name: 🐳 shut down compose project
-  command:
-    cmd: "{{ BIN_COMPOSE }} down"
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-  when: DEPLOYMENT_MODE == 'compose'
+  loop_control:
+    label: "{{ item.bridge_name }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🧹 cleanup project folder"
   file:
@@ -27,16 +24,32 @@
 
 - name: "📁 create bridge folders"
   file:
-    path: "{{ lookup('container', application_id, 'directories.instance') }}mautrix/{{ item.bridge_name }}"
+    path: "{{ [ MATRIX_BRIDGE_SOURCE_DIR, item.bridge_name ] | path_join }}"
     state: directory
     mode: "0755"
   loop: "{{ MATRIX_BRIDGES }}"
+  loop_control:
+    label: "{{ item.bridge_name }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: ➕ add multiple mautrix bridge configuration
   stack_host_template:
     src: "flavor/compose/mautrix/{{ item.bridge_name }}.config.yml.j2"
-    dest: "{{ lookup('container', application_id, 'directories.instance') }}mautrix/{{ item.bridge_name }}/config.yaml"
+    dest: "{{ [ MATRIX_BRIDGE_SOURCE_DIR, item.bridge_name, 'config.yaml' ] | path_join }}"
   loop: "{{ MATRIX_BRIDGES }}"
+  loop_control:
+    label: "{{ item.bridge_name }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  notify: compose-up
+
+- name: "➕ add the registration each bridge config implies"
+  stack_host_template:
+    src: "flavor/compose/mautrix/registration.yaml.j2"
+    dest: "{{ [ MATRIX_BRIDGE_SOURCE_DIR, item.bridge_name, 'registration.yaml' ] | path_join }}"
+  loop: "{{ MATRIX_BRIDGES }}"
+  loop_control:
+    label: "{{ item.bridge_name }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   notify: compose-up
 
 - name: ➕ add element configuration
@@ -72,46 +85,8 @@
   include_tasks: 03_compose_pull_and_up.yml
   when: DEPLOYMENT_MODE == 'compose'
 
-- name: "🚿 Flush handlers so the swarm stack deploys before the registration wait"
+- name: "🚿 Flush handlers so the stack deploys before the Synapse wait"
   meta: flush_handlers
-
-- name: ⏳ wait for registration files
-  wait_for:
-    path: "{{ lookup('container', application_id, 'directories.instance') }}mautrix/{{ item.bridge_name }}/registration.yaml"
-    state: present
-    timeout: "{{ lookup('timeout', 120) | int }}"
-  loop: "{{ MATRIX_BRIDGES }}"
-
-- name: "🔐 Make each bridge directory traversable for synapse"
-  file:
-    path: "{{ lookup('container', application_id, 'directories.instance') }}mautrix/{{ item.bridge_name }}"
-    state: directory
-    mode: "0755"
-  loop: "{{ MATRIX_BRIDGES }}"
-
-- name: "🔐 change file permissions"
-  file:
-    path: "{{ lookup('container', application_id, 'directories.instance') }}mautrix/{{ item.bridge_name }}/registration.yaml"
-    mode: "0755"
-  loop: "{{ MATRIX_BRIDGES }}"
-
-- name: "🔄 Restart synapse to load bridge registrations (compose mode)"
-  command:
-    cmd: "{{ BIN_COMPOSE }} restart synapse"
-    chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
-  changed_when: true
-  when:
-    - MATRIX_BRIDGES | length > 0
-    - DEPLOYMENT_MODE == 'compose'
-
-- name: "🔄 Restart synapse to load bridge registrations (swarm mode)"
-  ansible.builtin.command: "container service update --force {{ lookup('container_service', application_id, 'synapse') }}"
-  changed_when: true
-  timeout: "{{ lookup('timeout', 600) | int }}"
-  when:
-    - MATRIX_BRIDGES | length > 0
-    - DEPLOYMENT_MODE == 'swarm'
-    - IS_STACK_HOST | bool
 
 - name: ⏳ wait for Synapse client/versions endpoint
   uri_retry:
@@ -123,36 +98,26 @@
   delay: 2
   until: matrix_synapse_health.status == 200
 
-- name: 📁 create admin account
-  shell: >-
-    container exec -i {{ MATRIX_SYNAPSE_CONTAINER_ADDRESS }}
-    register_new_matrix_user
-    -u {{ MATRIX_ADMINISTRATOR_USERNAME | quote }}
-    -p {{ MATRIX_ADMINISTRATOR_PASSWORD | quote }}
-    -a -c {{ MATRIX_SYNAPSE_CONFIG_PATH_CONTAINER | quote }}
-    http://localhost:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}
-  register: matrix_create_admin
-  changed_when: matrix_create_admin.rc == 0
-  failed_when: >
-    matrix_create_admin.rc != 0 and
-    'User ID already taken' not in (matrix_create_admin.stdout + matrix_create_admin.stderr)
+- name: "✅ Wait until Synapse reaches every bridge as ready"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec {{ MATRIX_SYNAPSE_CONTAINER_ADDRESS }}
+      {{ 10 | curl(retries=0) }} --noproxy '*' -fS
+      http://mautrix-{{ item.bridge_name }}:{{ item.appservice_port }}/_matrix/mau/ready
+    executable: /bin/bash
+  loop: "{{ MATRIX_BRIDGES }}"
+  loop_control:
+    label: "{{ item.bridge_name }}"
+  register: matrix_bridge_ready
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  retries: 60
+  delay: 10
+  until: matrix_bridge_ready.rc == 0
+  changed_when: false
   when: IS_STACK_HOST | bool
 
-- name: 📁 create chatgpt bot
-  shell: >-
-    container exec -i {{ MATRIX_SYNAPSE_CONTAINER_ADDRESS }}
-    register_new_matrix_user
-    -u chatgptbot
-    -p {{ lookup('config', application_id, 'secrets.credentials.chatgpt_bridge_user_password') | quote }}
-    -a -c {{ MATRIX_SYNAPSE_CONFIG_PATH_CONTAINER | quote }}
-    http://localhost:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}
-  register: matrix_create_chatgptbot
-  changed_when: matrix_create_chatgptbot.rc == 0
-  failed_when: >
-    matrix_create_chatgptbot.rc != 0 and
-    'User ID already taken' not in (matrix_create_chatgptbot.stdout + matrix_create_chatgptbot.stderr)
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+- name: "👤 Provision what only the stack host owns (accounts, bridge token, compose)"
+  ansible.builtin.include_tasks: utils/stack_host_provisioning.yml
   when: IS_STACK_HOST | bool
 
 - name: "🔄 Flush all handlers after docker setup so they don't intervine with openresty"

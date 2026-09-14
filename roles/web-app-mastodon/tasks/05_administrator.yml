@@ -17,11 +17,15 @@
     --confirmed --role Owner"
   register: tootctl_create
   changed_when: tootctl_create.rc == 0
-  failed_when: >
-    tootctl_create.rc != 0
-    and
-    ("taken" not in tootctl_create.stderr | lower)
+  failed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+- name: 🛑 Refuse a tootctl error other than the account already existing
+  ansible.builtin.assert:
+    that:
+      - tootctl_create.rc == 0 or 'taken' in tootctl_create.stdout | lower or 'taken' in tootctl_create.stderr | lower
+    fail_msg: >-
+      bin/tootctl accounts create exited {{ tootctl_create.rc }} for the administrator
+      account without reporting the name as taken: {{ tootctl_create.stderr }}
 - name: 👍 Approve the administrator account in Mastodon
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -u root {{ MASTODON_LOCAL_CID | quote }} bash -c "bin/tootctl accounts modify {{ lookup('users', 'administrator').username }} --approve"

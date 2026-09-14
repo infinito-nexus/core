@@ -1,0 +1,6 @@
+---
+application_id: "svc-virt-kata"
+
+SVC_VIRT_KATA_RUNSC_VERSION: "20260714.0"
+SVC_VIRT_KATA_RUNSC_URL: >-
+  https://storage.googleapis.com/gvisor/releases/release/{{ SVC_VIRT_KATA_RUNSC_VERSION }}/{{ ansible_facts['architecture'] }}/runsc

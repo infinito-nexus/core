@@ -19,10 +19,11 @@
     {% endif %}
     healthcheck:
       test: ["CMD-SHELL", "redis-cli -a {{ REDIS_PASSWORD | quote }} --no-auth-warning ping | grep -q PONG"]
-      interval: 10s
+      interval: 2m
       timeout: 5s
       retries: 30
-      start_period: 30s
+      start_period: 10m
+      start_interval: 5s
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 

@@ -63,6 +63,9 @@ services:
       timeout: 3s
       retries: 60
       start_period: 120s
+    networks:
+      default:
+        ipv4_address: ${INFINITO_CACHE_PACKAGE_IP:?Run 'make dotenv' to generate the .env single source of truth}
     restart: unless-stopped
 
   package-cache-frontend:

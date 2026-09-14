@@ -94,7 +94,7 @@ def main(argv=None) -> int:
 
     if errors:
         print(f"Warning: {errors} domains responded with an unexpected status code.")
-    return errors
+    return 1 if errors else 0
 
 
 if __name__ == "__main__":

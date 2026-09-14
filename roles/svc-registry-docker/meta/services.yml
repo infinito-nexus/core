@@ -37,6 +37,5 @@ docker:
   lifecycle: beta
 # nocheck: dynamic-flag - locally built images are rebuildable, the backup consumer stays permanently off
 container_backup:
-  bond: 1
   enabled: false
   shared: true

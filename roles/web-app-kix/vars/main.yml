@@ -6,6 +6,7 @@ swarm_stack_converge_retries: 600
 
 KIX_PROXY_SERVICE: "proxy"
 KIX_BACKEND_SERVICE: "backend"
+KIX_CONFIG_VOLUME: "{{ lookup('volume', application_id, 'kix_config').name }}"
 KIX_FRONTEND_SERVICE: "frontend"
 
 KIX_PROXY_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ KIX_PROXY_SERVICE ~ '.name') }}"

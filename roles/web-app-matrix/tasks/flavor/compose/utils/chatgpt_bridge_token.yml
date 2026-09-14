@@ -1,0 +1,22 @@
+---
+- name: "🔑 Log the ChatGPT bridge bot in against Synapse"
+  uri_retry:
+    url: "http://127.0.0.1:{{ lookup('config', application_id, 'services.synapse.ports.local.http') }}/_matrix/client/v3/login"
+    method: POST
+    body_format: json
+    body:
+      type: m.login.password
+      identifier:
+        type: m.id.user
+        user: chatgptbot
+      password: "{{ lookup('config', application_id, 'secrets.credentials.chatgpt_bridge_user_password') }}"
+      initial_device_display_name: infinito-chatgpt-bridge
+    status_code: 200
+  register: matrix_chatgptbot_login
+  retries: 10
+  delay: 6
+  until: matrix_chatgptbot_login.status | default(0) == 200
+
+- name: "🔧 Publish the issued token to the bridge container env"
+  ansible.builtin.set_fact:
+    MATRIX_CHATGPT_ACCESS_TOKEN: "{{ matrix_chatgptbot_login.json.access_token }}"

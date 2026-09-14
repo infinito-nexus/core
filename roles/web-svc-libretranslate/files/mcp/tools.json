@@ -1,0 +1,12 @@
+{
+  "libretranslate_get_frontend_settings": {
+    "description": "Return the instance limits an agent must respect: character cap, suggestion and file-translation availability.",
+    "method": "GET",
+    "path": "/frontend/settings"
+  },
+  "libretranslate_list_languages": {
+    "description": "List the language pairs this instance can translate between.",
+    "method": "GET",
+    "path": "/languages"
+  }
+}

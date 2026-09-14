@@ -1,0 +1,2 @@
+---
+# nocheck: info-media Self-written infrastructure role that migrates Docker volumes between SSD/HDD and creates symlinks; no upstream product website.

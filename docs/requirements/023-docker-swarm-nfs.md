@@ -60,8 +60,9 @@ The implementation MUST keep a clean abstraction line between the render backend
 
 ### Docker volume integration
 
-- [x] NFS-backing is a **per-volume opt-in**, not per-service. Every volume declared in a role's `meta/volumes.yml` MAY carry a new optional `nfs: true` flag. The default is `nfs: false` (local Docker volume), so DB volumes, scratch volumes, and any volume with strict POSIX-locking / `fsync` semantics stay local unless explicitly opted in.
-- [x] When a service runs with `DEPLOYMENT_MODE: swarm` AND `storage.backend: nfs` AND a specific volume has `nfs: true`, that volume MUST be rendered with the NFS driver block:
+- [x] NFS-backing is derived from the role's placement, not declared per volume. An unpinned role's volumes MUST be rendered onto the shared export; a role pinned with `placement: manager` MUST keep its volumes node-local. A volume whose payload cannot tolerate NFS semantics opts out with `nfs: false` plus a justification.
+- [x] A role that runs no RDBMS of its own MUST NOT keep read-write state on an NFS-backed volume unless the payload is share-safe: pair `nfs: false` with a single replica or a manager pin, or externalise the state into a database.
+- [x] When a service runs with `DEPLOYMENT_MODE: swarm` AND `storage.backend: nfs` AND the role is not pinned, each of its volumes MUST be rendered with the NFS driver block:
 
   ```yaml
   volumes:

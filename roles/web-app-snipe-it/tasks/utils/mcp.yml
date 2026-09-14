@@ -1,0 +1,14 @@
+---
+- name: "🧱 Rebuild the MCP adapter of {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/rebuild.yml') }}"
+
+- name: "🚿 Flush compose handlers for {{ application_id }}"
+  ansible.builtin.meta: flush_handlers
+
+- name: "🔍 Read the upstream credential the {{ application_id }} adapter holds"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/current_key.yml') }}"
+  vars:
+    mcp_upstream_key_path: "{{ [SNIPEIT_MCP_INSTANCE_DIR, 'upstream.env'] | path_join }}"
+
+- name: "🔑 Converge the upstream token the adapter presents"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp_mint.yml"

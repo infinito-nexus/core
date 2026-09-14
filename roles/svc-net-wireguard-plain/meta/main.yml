@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU

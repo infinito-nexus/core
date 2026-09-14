@@ -1,6 +1,10 @@
 const { test, expect } = require("./onion-test");
 const { resolveTimeout } = require("./timeouts");
 
+// Synapse refills rc_login on its own clock, so the onion multiplier must not stretch these waits.
+const RC_LOGIN_DRAIN_MS = 120_000;
+const RC_LOGIN_REFILL_MS = 30_000;
+
 exports.register = function (shared) {
   test.describe("matrix DM", () => {
     test("administrator and biber can exchange a direct message in element", async ({ browser }) => {
@@ -30,11 +34,11 @@ exports.register = function (shared) {
       // test's state machine isn't forced to spend most of its deadline
       // cycling through consent↔M_LIMIT_EXCEEDED retries. Running the DM
       // test in isolation doesn't need this, but the extra wait is cheap.
-      await adminPage.waitForTimeout(resolveTimeout(120_000));
+      await adminPage.waitForTimeout(RC_LOGIN_DRAIN_MS);
       await shared.signInViaElement(adminPage, adminUsername, adminPassword, "administrator");
       // Same reasoning between admin and biber: two back-to-back SSO
       // logins easily exhaust rc_login. 30s lets the burst refill.
-      await adminPage.waitForTimeout(resolveTimeout(30_000));
+      await adminPage.waitForTimeout(RC_LOGIN_REFILL_MS);
       await shared.signInViaElement(biberPage, biberUsername, biberPassword, "biber");
 
       const marker = `hello-from-admin-${Date.now()}`;

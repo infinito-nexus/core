@@ -55,3 +55,4 @@
   register: _oidc_class
   changed_when: false
   failed_when: _oidc_class.rc != 0
+  when: MEDIAWIKI_OIDC_ENABLED | bool

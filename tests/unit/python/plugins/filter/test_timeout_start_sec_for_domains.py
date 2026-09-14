@@ -25,6 +25,41 @@ class TestTimeoutStartSecForDomains(unittest.TestCase):
         )
         self.assertEqual(result, 180)
 
+    def test_an_onion_domain_costs_its_own_rate(self):
+        result = _f()(
+            ["example.com", "abc.onion"],
+            include_www=False,
+            per_domain_seconds=25,
+            onion_per_domain_seconds=105,
+            overhead_seconds=30,
+            min_seconds=0,
+            max_seconds=3600,
+        )
+        self.assertEqual(result, 160)
+
+    def test_without_an_onion_rate_every_domain_costs_the_same(self):
+        result = _f()(
+            ["example.com", "abc.onion"],
+            include_www=False,
+            per_domain_seconds=25,
+            overhead_seconds=30,
+            min_seconds=0,
+            max_seconds=3600,
+        )
+        self.assertEqual(result, 80)
+
+    def test_the_onion_rate_covers_the_www_variant_too(self):
+        result = _f()(
+            ["abc.onion"],
+            include_www=True,
+            per_domain_seconds=25,
+            onion_per_domain_seconds=105,
+            overhead_seconds=30,
+            min_seconds=0,
+            max_seconds=3600,
+        )
+        self.assertEqual(result, 240)
+
     def test_no_www_min_clamp_applies(self):
         domains = {
             "canonical": ["example.com", "foo.bar"],

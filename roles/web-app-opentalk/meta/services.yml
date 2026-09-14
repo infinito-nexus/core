@@ -127,6 +127,11 @@ seaweedfs:
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'web-app-seaweedfs' in group_names }}"
 rabbit:
+  healthcheck:
+    test: ["CMD", "rabbitmq-diagnostics", "ping"]
+    # nocheck: healthcheck-timing-override  rabbitmq-diagnostics starts an Erlang CLI node, which does not finish inside the 5s default
+    timeout: 10s
+    retries: 5
   name: opentalk-rabbit
   image: rabbitmq
   version: 4.3.5
@@ -156,7 +161,6 @@ prometheus:
 
 # nocheck: playwright-service-flag
 tor:
-  bond: 0.5
   enabled: false # nocheck: dynamic-flag
   shared: false # nocheck: dynamic-flag
 # nocheck: dynamic-flag

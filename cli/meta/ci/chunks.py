@@ -58,7 +58,7 @@ def plan(
         priority: rows of the priority line, in query order.
         regular: rows of the regular line, in query order.
         size: rows one chunk may hold (``slots.chunk_size``).
-        blocks: chunk blocks the workflow declares (``slots.chunk_count``).
+        blocks: chunk blocks the workflow declares (``slots.chunk_blocks``).
         budget: rows the run job cap allows in total (``slots.available``).
         offset: how many regular rows to skip before filling the chunks. ``0``
             (the default) starts at the head of the ranking. A value past the

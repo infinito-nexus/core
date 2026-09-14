@@ -1,4 +1,5 @@
 ---
+# nocheck: config-volume-secret  The OpenTalk controller reads one controller.toml that carries the service API secret beside the non-secret settings; the controller has no separate secret source to point at instead.
 data:
   type: volume
   name: opentalk_data

@@ -30,8 +30,7 @@ decidim:
   healthcheck:
     flavor: curl
     path: up
-    interval: 10s
-    start_period: 180s
+    hostname: "{{ lookup('domain', 'web-app-decidim') }}"
   modes:
     compose:
       enabled: true

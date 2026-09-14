@@ -9,6 +9,7 @@ update:
   upstream_id: mautrix-signal
 config:
   bridge_name: "signal"
+  appservice_port: 29328
   database_username: "mautrix_signal_bridge"
   database_name: "mautrix_signal_bridge"
   database_password: "{{ lookup('config', 'web-app-matrix', 'secrets.credentials.mautrix_signal_bridge_database_password', '') }}"

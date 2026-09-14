@@ -210,7 +210,8 @@ while is_larger_than_maximum_backup_size(maximum_backup_size_percent, backup_dir
     )
     if delete_iteration(backup_dir, average_version_directories) == 0:
         print(
-            "No deletable backup versions left; the remaining usage is not backup-driven. Exiting."
+            "No deletable backup version left; every remaining version is the last "
+            "of its application. Exiting."
         )
         break
     itteration_counter += 1

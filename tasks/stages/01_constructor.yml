@@ -165,11 +165,12 @@
     service_loader_preloading: true
   changed_when: false
 
-- name: "🥾 Bootstrap NFS clients + registry (MUST precede Preload)"
+- name: "🥾 Bootstrap NFS clients + registry + sandbox runtimes (MUST precede Preload)"
   ansible.builtin.include_tasks: ./tasks/utils/setup/group.yml
   loop:
     - svc-storage
     - svc-registry
+    - svc-virt
   loop_control:
     loop_var: role_group
     label: "{{ role_group }}"
@@ -179,9 +180,17 @@
     name: sys-token-store
   when: run_once_sys_token_store is not defined
 
+- name: 🧊 Render the applications SPOT once and carry it into every task's worker
+  applications_carrier: {}
+
 - name: 🛠️ Preload shared services
   ansible.builtin.include_role:
     name: sys-service-loader
+
+- name: "📂 Close the service-loader preload context"
+  ansible.builtin.set_fact:
+    service_loader_preloading: false
+  changed_when: false
 
 - name: "🧩 Load base roles"
   ansible.builtin.include_tasks: ./tasks/utils/setup/group.yml

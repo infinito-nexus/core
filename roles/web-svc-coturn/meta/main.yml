@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Free and open-source TURN/STUN relay server for NAT traversal in WebRTC and real-time communication

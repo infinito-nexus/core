@@ -1,0 +1,16 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🛑 Refuse a device without an agent"
+  ansible.builtin.assert:
+    that:
+      - SVC_AI_ROBOT_AGENT_ROLE | length > 0
+    fail_msg: >-
+      {{ application_id }}: neither services.hermes nor services.openclaw is enabled, so this
+      device has no agent to embody. Put one of the agent roles into the deployment.
+
+- name: "📣 Report the embodied agent and its hardware grant"
+  ansible.builtin.debug:
+    msg: >-
+      {{ application_id }}: {{ SVC_AI_ROBOT_AGENT_ROLE }} embodies this device with
+      {{ ROBOT_DEVICE_ALLOWLIST | join(', ') }}

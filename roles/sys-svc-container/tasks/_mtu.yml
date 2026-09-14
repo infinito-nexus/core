@@ -3,7 +3,7 @@
   include_role:
     name: sys-pip-install
   vars:
-    package_name: automtu
+    package_name: "automtu==1.1.1"
     global_install: true
 
 - name: ✅ Ensure 'ip' and 'ping' commands are available for automtu

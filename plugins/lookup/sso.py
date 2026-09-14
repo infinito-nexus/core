@@ -8,6 +8,8 @@ API (STRICT):
   - {{ lookup('sso', application_id, 'flavor') }}          → str
   - {{ lookup('sso', application_id, 'enabled') }}         → bool
   - {{ lookup('sso', application_id, 'shared') }}          → bool
+  - {{ lookup('sso', application_id, 'logout_url') }}      → str, oauth2-proxy
+    sign-out wrapping OIDC.CLIENT.LOGOUT_URL when the app is proxy-gated
 
 Wraps ``utils.roles.applications.services.sso.get_sso_config`` so
 templates and tasks share one source of truth with Python callers
@@ -22,7 +24,7 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from utils.roles.applications.services.sso import get_sso_config
+from utils.roles.applications.services.sso import get_sso_config, logout_url
 
 
 class LookupModule(LookupBase):
@@ -51,6 +53,17 @@ class LookupModule(LookupBase):
 
         resolved = get_sso_config(applications, application_id)
 
+        if want == "logout_url":
+            if "OIDC" not in vars_:
+                raise AnsibleError(
+                    "sso: 'logout_url' needs OIDC in the templating context"
+                )
+            oidc = self._templar.template(vars_["OIDC"])
+            return [
+                logout_url(
+                    str(oidc["CLIENT"]["LOGOUT_URL"]), bool(resolved["is_proxy_gated"])
+                )
+            ]
         if want == "all":
             return [resolved]
         if want not in resolved:

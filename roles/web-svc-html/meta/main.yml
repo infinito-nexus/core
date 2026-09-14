@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media Self-written web-svc glue role: configures an Nginx vhost to serve static HTML over HTTPS with Let's Encrypt. Nginx/Let's Encrypt are dependencies, not the product this role represents; no consumer-facing upstream product website.
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"

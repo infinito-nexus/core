@@ -46,12 +46,15 @@ ENTRY_WORKFLOW = ".github/workflows/entry-manual-steer.yml"
 SELECTION_INPUTS = ("priority", "offset")
 """The two inputs a retrigger decides itself rather than carrying over.
 
-``priority`` IS the retrigger: it names what failed. ``offset`` follows from
-it -- the source run already has a verdict for everything up to where its
-budget ran out, so the regular line resumes behind that window
-(:func:`resume_offset`) instead of repeating it. Everything else is carried
-verbatim, including ``whitelist``, so a retrigger of a scoped run stays inside
-that scope instead of quietly widening to the whole repository."""
+``priority`` IS the retrigger: it names what failed. ``offset`` is recomputed
+rather than carried, but from the carried value up: the source run got a
+stretch behind its own offset green before its budget ran out, so the regular
+line resumes behind that stretch
+(:func:`cli.administration.deploy.ci.selections.resume_offset`) instead of
+repeating it, and never falls back behind where that run started. Everything
+else is carried verbatim, including ``whitelist``, so a retrigger of a scoped
+run stays inside that scope instead of quietly widening to the whole
+repository."""
 
 
 def dispatch_inputs() -> tuple[str, ...]:
@@ -84,7 +87,6 @@ CONFIG_INPUTS = (
     "filesystem",
     "chunk_gate",
     "workspace",
-    "instructions",
 )
 
 LOG_INPUTS = ("tor",)
@@ -370,7 +372,31 @@ def config_from_title(title: str) -> dict[str, str]:
     return {name: recorded[name] for name in CONFIG_INPUTS if name in recorded}
 
 
-def config_from_run(title: str, logged: dict[str, str] | None = None) -> dict[str, str]:
+SUITE_JOB_IDS = {"workspace": "test-workspace"}
+
+
+def suite_passed(jobs: list[dict], suite: str) -> bool:
+    """Whether every job of ``suite`` ('workspace') completed successfully.
+
+    Only a clean sweep of successes retires the suite. A shard that failed,
+    was cancelled, timed out or skipped did not run through, and a run that
+    holds no job for the suite at all never started it -- none of those is
+    evidence the suite is good, so the retrigger keeps asking for it.
+    """
+    job_id = SUITE_JOB_IDS[suite]
+    outcomes = [
+        _effective(job)
+        for job in jobs
+        if job_id in str(job.get("name", "")).split(" / ")[1:]
+    ]
+    return bool(outcomes) and all(outcome == "success" for outcome in outcomes)
+
+
+def config_from_run(
+    title: str,
+    logged: dict[str, str] | None = None,
+    jobs: list[dict] | None = None,
+) -> dict[str, str]:
     """Every input the source run was dispatched with, except the selection.
 
     The job log is the source: it records all inputs verbatim, including the
@@ -381,16 +407,32 @@ def config_from_run(title: str, logged: dict[str, str] | None = None) -> dict[st
     so the retrigger leaves it on that same default rather than pinning
     today's default into a run that never asked for it.
 
+    A suite is turned off only when every job of it came back green; one that
+    failed, was cancelled or never ran at all keeps it on the retrigger, so a
+    retrigger spends its runners on what is not yet proven.
+
+    What the source asked for does not enter that decision: the run's own jobs
+    are the evidence. A suite reached on the ``auto`` default is the common
+    case -- ``call-orchestrator.yml`` reads ``auto`` as global scope off the
+    ``whitelist`` alone, so a ``--failed`` retrigger, which puts its selection
+    on ``priority`` and leaves the whitelist empty, would run every green
+    suite again for as long as the retrigger chain lasts.
+
     Args:
         title: the source run's display title.
         logged: inputs read verbatim from a called job's log
             (:func:`inputs_from_jobs`).
+        jobs: the source run's jobs, which record the suites it already
+            passed (:func:`suite_passed`).
     """
     recorded = run_name.values_from_title(title)
     config = {
         name: (logged or {}).get(name) or recorded.get(name, "")
         for name in carried_inputs()
     }
+    for suite in SUITE_JOB_IDS:
+        if suite_passed(jobs or [], suite):
+            config = {**config, suite: "false"}
     return {name: value for name, value in config.items() if value}
 
 

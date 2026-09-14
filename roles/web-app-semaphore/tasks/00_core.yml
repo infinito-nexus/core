@@ -7,8 +7,12 @@
   vars:
     compose_handlers_flush: true
 
-- name: "👤 Provision the external OIDC administrator in Semaphore"
-  include_tasks: 01_oidc.yml
-  when:
-    - IS_STACK_HOST | bool
-    - SEMAPHORE_OIDC_ENABLED | bool
+- name: "🧑‍💼 Run the Semaphore account operations on the stack host"
+  when: IS_STACK_HOST | bool
+  block:
+    - name: "👤 Provision the external OIDC administrator in Semaphore"
+      include_tasks: 01_oidc.yml
+      when: SEMAPHORE_OIDC_ENABLED | bool
+
+    - name: "🔑 Carry the break-glass password into Semaphore on every deploy"
+      include_tasks: 02_breakglass.yml

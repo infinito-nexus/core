@@ -14,9 +14,23 @@ are emitted by their ``username`` attribute (dict key fallback) so the realm
 lookup in ensure_group_path_members.sh matches the created accounts. The
 implicit ``administrator`` role is auto-added for every RBAC application,
 matching the role-list contract.
+
+``APPLICATION_SCOPED_ROLES`` are the exception. Those names carry a distinct
+grant per application, so an unscoped ``roles`` entry would hand the user every
+deployed application's copy at once. They are read only from
+``application_roles``::
+
+    users:
+      alice:
+        application_roles:
+          web-app-baserow: [mcp]
+
+so granting ``mcp`` on one application grants it nowhere else.
 """
 
 from ansible.errors import AnsibleFilterError
+
+from utils.roles.rbac.scoped import granted_roles
 
 _IMPLICIT_ADMIN = "administrator"
 _AXIS_NONE = "none"
@@ -50,7 +64,7 @@ def _resolve_tenants(app_cfg, application_id):
     return tenants
 
 
-def _members_for_role(users, role_name):
+def _members_for_role(users, application_id, role_name):
     members = []
     for username, user_config in (users or {}).items():
         cfg = user_config or {}
@@ -58,8 +72,7 @@ def _members_for_role(users, role_name):
             continue
         if not cfg.get("password"):
             continue
-        user_roles = cfg.get("roles", []) or []
-        if role_name in user_roles:
+        if role_name in granted_roles(cfg, application_id):
             members.append(cfg.get("username", username))
     return members
 
@@ -116,7 +129,7 @@ def build_realm_rbac_groups(applications, users, group_root, group_names=None):
                     f"applications[{application_id}].rbac.roles.{role_name}."
                 )
 
-            members = _members_for_role(users, role_name)
+            members = _members_for_role(users, application_id, role_name)
 
             if effective_scope == _SCOPE_GLOBAL:
                 groups.append(

@@ -75,7 +75,7 @@ DRILL_START_TS="$(docker exec "${MGR}" date +%Y%m%d%H%M%S)"
 echo "==> [0/9] disarm the backup calendar timers for the duration of the drill"
 for _node in "${MGR}" "${WRK1}" "${WRK2}" "${NFS_SERVER}"; do
 	docker exec "${_node}" timeout 660 sh -c \
-		"systemctl stop 'svc-bkp-*.timer' 2>/dev/null; while systemctl is-active --quiet 'svc-bkp-*.service'; do sleep 5; done" # nocheck: shell-or-true -- a node without the timers installed has nothing to stop
+		"systemctl stop 'svc-bkp-*.timer' 2>/dev/null; while systemctl list-units --state=active --no-legend 'svc-bkp-*.service' 2>/dev/null | grep -q .; do sleep 5; done" # nocheck: shell-or-true -- a node without the timers installed has nothing to stop
 done
 
 echo "==> [1/9] seed markers (live NFS volume + manager secrets)"
@@ -258,7 +258,18 @@ if docker exec "${NFS_SERVER}" systemctl cat nfs-ganesha.service >/dev/null 2>&1
 else
 	NFS_UNIT=nfs-server
 fi
-docker exec "${NFS_SERVER}" timeout 240 systemctl try-restart "${NFS_UNIT}"
+docker exec "${NFS_SERVER}" timeout 240 systemctl try-restart "${NFS_UNIT}" || true # nocheck: shell-or-true -- the unit carries Restart=on-failure, so the end state below is the assertion, not this attempt
+for _i in $(seq 1 24); do
+	if docker exec "${NFS_SERVER}" systemctl is-active --quiet "${NFS_UNIT}"; then
+		break
+	fi
+	if [ "${_i}" -eq 24 ]; then
+		echo "FAILURE: ${NFS_UNIT} never became active after the backing-FS restore"
+		docker exec "${NFS_SERVER}" systemctl status --no-pager --lines=40 "${NFS_UNIT}" || true # nocheck: shell-or-true -- diagnostics for a failure that is already fatal
+		exit 1
+	fi
+	sleep 5
+done
 for _node in "${MGR}" "${WRK1}" "${WRK2}"; do
 	docker exec "${_node}" timeout 180 sh -c \
 		"umount -l '${DIR_VAR_LIB}' 2>/dev/null || true; mount '${DIR_VAR_LIB}'" # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error

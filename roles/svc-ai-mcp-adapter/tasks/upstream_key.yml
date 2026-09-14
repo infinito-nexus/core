@@ -1,0 +1,27 @@
+---
+# Hand a captured upstream credential to the adapter sidecar.
+#
+# Some providers mint their own API secret and return it exactly once, so the
+# value cannot exist when compose first renders. Writing it to an env file and
+# recreating the service is what delivers it: `compose up` resolves `env_file`
+# while creating the container, so the new value lands in its environment.
+# A restart would not, and re-rendering the template is not part of a flush.
+#
+# Param: mcp_upstream_key_path  env file the sidecar reads, on the stack host.
+# Param: mcp_upstream_key       credential the provider handed back.
+- name: "🔑 Write the upstream credential of {{ application_id }}"
+  ansible.builtin.copy:
+    content: "ADAPTER_UPSTREAM_KEY={{ mcp_upstream_key }}\n"
+    dest: "{{ mcp_upstream_key_path }}"
+    mode: "0600"
+  register: mcp_upstream_written
+  delegate_to: "{{ STACK_HOST }}"
+  become: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔄 Recreate the {{ application_id }} adapter with its upstream credential"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/rebuild.yml') }}"
+  when: mcp_upstream_written.changed
+
+- name: "🚿 Flush compose handlers for {{ application_id }}"
+  ansible.builtin.meta: flush_handlers

@@ -17,8 +17,6 @@ from utils.roles.applications.services.registry import (
     build_service_registry_from_applications,
 )
 
-_MISSING = object()
-
 
 def _service_entry(
     applications: dict[str, Any],

@@ -4,8 +4,8 @@ set -u
 : "${MAIL_TIMEOUT:?MAIL_TIMEOUT not set}"
 HOST="${HOSTNAME:-$(uname -n 2>/dev/null || echo unknown)}"
 
-attempts=12
-delay=12
+attempts=10
+delay=30
 
 for attempt in $(seq 1 "${attempts}"); do
   msmtp_err="$(
@@ -23,7 +23,7 @@ for attempt in $(seq 1 "${attempts}"); do
     69 | 75 | 124) ;;
     77)
       case "${msmtp_err}" in
-        *454* | *"Temporary authentication failure"*) ;;
+        *"server message: 4"* | *"Temporary authentication failure"*) ;;
         *) exit "${rc}" ;;
       esac
       ;;

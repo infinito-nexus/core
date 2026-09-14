@@ -81,24 +81,27 @@ future sticky sessions) is uniform across both modes.
 
 ## Volume model
 
-Storage backing is **per-volume opt-in**, declared on the volume itself.
-Default: `nfs: false` (local Docker volume).
+Storage backing is derived from the role's placement, not declared per
+volume. An unpinned role's volumes are rendered onto the shared export; a
+`placement: manager` role keeps them node-local.
 
-| Mode    | `storage.backend` | Per-volume `nfs` | Rendered as                            |
-| ------- | ----------------- | ---------------- | -------------------------------------- |
-| compose | any               | any              | local docker volume (today's shape)    |
-| swarm   | `nfs`             | `true`           | NFS driver block (multi-node accessible) |
-| swarm   | `nfs`             | `false`          | local + service pinned to single node  |
-| swarm   | `local`           | any              | local + service pinned to single node  |
+| Mode    | `storage.backend` | Role placement | Rendered as                              |
+| ------- | ----------------- | -------------- | ---------------------------------------- |
+| compose | any               | any            | local docker volume (today's shape)      |
+| swarm   | `nfs`             | unpinned       | NFS driver block (multi-node accessible) |
+| swarm   | `nfs`             | `manager`      | local docker volume, node-local          |
+| swarm   | `local`           | any            | local docker volume, node-local          |
 
-A service with any non-NFS volume under swarm mode MUST receive a
-`deploy.placement.constraints` rule pinning it to a single node. The
-deploy MUST NOT silently lose data on reschedule.
+A volume whose payload cannot tolerate NFS semantics opts out with
+`nfs: false` plus a justification, which keeps engine state local without
+pinning the whole role. The deploy MUST NOT silently lose data on
+reschedule.
 
-DB volumes (MariaDB, Postgres) are intentionally left at the
-`nfs: false` default. NFS for databases is documented in 023's
-Future Extensions as out of scope for v1 because of well-known
-locking / `fsync` semantics issues.
+State that several replicas would write to the same file needs more than
+node-local storage: pair `nfs: false` with a single replica or a manager
+pin, or externalise the state into a database. The
+`embedded-state-on-nfs` lint enforces this for roles that run no RDBMS of
+their own.
 
 ## Network model
 

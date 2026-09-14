@@ -7,6 +7,9 @@ return [
         '{{ host }}',
 {% endfor %}
     ],
+    'social_login_http_client' => [
+        'proxy' => '{{ NEXTCLOUD_TOR_SOCKS_PROXY }}',
+    ],
 ];
 {% else %}
 return [];

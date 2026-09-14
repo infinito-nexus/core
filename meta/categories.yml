@@ -280,6 +280,16 @@ roles:
       icon: "fas fa-network-wired"
       bootstrap: true
       invokable: true
+    virt:
+      title: "Sandboxed Runtimes"
+      hanzi: "沙箱" # Means "sandbox".
+      description: "Kernel-isolating container runtimes on the container host: Kata Containers microVMs and the gVisor userspace fallback."
+      icon: "fas fa-shield-halved"
+      bootstrap: true
+      modes:
+        compose: false
+        swarm: false
+      invokable: true
 
     runner:
       title: "CI Runner"

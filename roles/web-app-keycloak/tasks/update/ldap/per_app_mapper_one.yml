@@ -4,28 +4,6 @@
 # is delegated to a dedicated `.sh` under
 # `files/scripts/per_app_mapper/` so this YAML stays a thin orchestrator.
 
-- name: "🔍 per-app mapper [{{ kc_app_id }}]: resolve groups.path root group id"
-  ansible.builtin.script:
-    cmd: "files/shell/per_app_mapper/resolve_root_group_id.sh"
-    executable: /bin/bash
-  environment:
-    KC_CONTAINER: "{{ KEYCLOAK_TARGET_CONTAINER }}"
-    KC_REALM: "{{ KEYCLOAK_REALM }}"
-    KC_RBAC_ROOT_PATH: "/{{ KEYCLOAK_RBAC_GROUP_NAME | trim('/') }}"
-  register: per_app_root_id
-  changed_when: false
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-
-- name: "✅ per-app mapper [{{ kc_app_id }}]: assert root group was resolved"
-  ansible.builtin.assert:
-    that: (per_app_root_id.stdout | default('') | trim) | length > 0
-    fail_msg: "could not resolve /{{ KEYCLOAK_RBAC_GROUP_NAME | trim('/') }} group id"
-
-- name: "🔧 per-app mapper [{{ kc_app_id }}]: set root group id fact"
-  ansible.builtin.set_fact:
-    kc_root_group_id: "{{ (per_app_root_id.stdout | default('')) | trim }}"
-  changed_when: false
-
 - name: "✅ per-app mapper [{{ kc_app_id }}]: ensure Keycloak group exists"
   ansible.builtin.script:
     cmd: "files/shell/per_app_mapper/ensure_app_group.sh"

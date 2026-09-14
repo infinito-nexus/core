@@ -28,6 +28,7 @@ ollama:
     - mistral:latest
     - nomic-embed-text:latest
   preload_async_time: 3600
+  keep_alive: "-1"
   lifecycle: beta
 
 # nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer

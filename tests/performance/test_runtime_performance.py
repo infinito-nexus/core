@@ -52,8 +52,8 @@ def _simulate_ansible_variables(
     return {
         "applications": shared_applications,
         "users": shared_users,
-        "DOMAIN_PRIMARY": "infinito.example",
-        "SYSTEM_EMAIL_DOMAIN": "infinito.example",
+        "DOMAIN_PRIMARY": "infinito.test",
+        "SYSTEM_EMAIL_DOMAIN": "infinito.test",
         "group_names": [],
     }
 

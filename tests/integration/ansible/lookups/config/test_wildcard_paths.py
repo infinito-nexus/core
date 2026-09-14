@@ -9,7 +9,10 @@ against the same fallback chain the literal-path test uses.
 The classifier owns the rule "concat-pattern match → wildcard path
 keyed by `(role_id, wildcard_path)`". `role_id` resolves from the
 literal app argument when present, otherwise from the file's
-``roles/<role>/...`` location.
+``roles/<role>/...`` location -- and then only when that role declares
+an ``application_id`` of its own. A role that does not is rendering the
+template on another role's behalf, so its own defaults are the wrong
+thing to validate the path against.
 """
 
 import unittest
@@ -33,6 +36,7 @@ from ._validate import match_wildcard_path, match_wildcard_segment
 
 def _build_wildcard_paths(
     matches: Iterable[LookupMatch],
+    roles_with_application_id: frozenset[str],
 ) -> dict[tuple[str, str], list[tuple]]:
     out: dict[tuple[str, str], list[tuple]] = {}
     for m in matches:
@@ -45,8 +49,8 @@ def _build_wildcard_paths(
             role_id = m.app_literal
         else:
             role_id = role_id_from_path(m.file)
-        if role_id is None:
-            continue
+            if role_id is None or role_id not in roles_with_application_id:
+                continue
         out.setdefault((role_id, wildcard_path), []).append((m.file, m.lineno))
     return out
 
@@ -55,7 +59,9 @@ class TestWildcardPaths(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.ctx = get_context()
-        cls.wildcard_paths = _build_wildcard_paths(iter_matches())
+        cls.wildcard_paths = _build_wildcard_paths(
+            iter_matches(), cls.ctx.roles_with_application_id
+        )
 
     def test_wildcard_paths(self):
         if not self.wildcard_paths:

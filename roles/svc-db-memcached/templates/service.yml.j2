@@ -9,9 +9,12 @@
       - memcached
       - -m
       - "64"
-    healthcheck:
+    # nocheck: container-healthcheck-literal  probes every second, so the SPOT's 5s start cadence would report healthy later than this block already does
+    healthcheck: # nocheck: healthcheck-timing-override, healthcheck-start-period-covers-interval  a swarm-init gate that must clear in seconds, so it runs without a start window rather than inside one
       test: ["CMD-SHELL", "printf 'version\\r\\n' | nc -w 1 127.0.0.1 11211 | grep -q VERSION"]
+      # nocheck: healthcheck-timing-override  probes every second on purpose, which is why start_interval is left off
       interval: 1s
+      # nocheck: healthcheck-timing-override  a one second nc round trip needs no five
       timeout: 3s
       retries: 30
     networks:  # nocheck: networks-literal  local sidecar inside consumer stack, default-only attachment
@@ -26,4 +29,7 @@
 {% if DEPLOYMENT_MODE == 'compose' %}
 {{ include_resource_for('memcached') }}
 {% endif %}
+{% set service_name = 'memcached' %}
+{% set service_replicas_forced = 1 %}
+{% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
 {{ "\n" }}

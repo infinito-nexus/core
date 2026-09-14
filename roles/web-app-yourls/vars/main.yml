@@ -5,6 +5,7 @@ entity_name: "{{ application_id | get_entity_name }}"
 
 YOURLS_USER: "{{ lookup('config', application_id, 'users.administrator.username') }}"
 YOURLS_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.administrator_password') }}"
+YOURLS_COOKIE_KEY: "{{ lookup('config', application_id, 'secrets.credentials.cookie_key') }}"
 YOURLS_VERSION: "{{ lookup('config', application_id, 'services.yourls.version') }}"
 YOURLS_IMAGE: "{{ lookup('config', application_id, 'services.yourls.image') }}"
 YOURLS_CONTAINER: "{{ lookup('config', application_id, 'services.yourls.name') }}"

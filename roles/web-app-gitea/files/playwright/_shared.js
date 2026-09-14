@@ -15,6 +15,10 @@ function healthzReadyUrl() {
   return `${gitEaBaseUrl.replace(/\/$/, "")}/healthz/ready`;
 }
 
+function mcpEndpointUrl() {
+  return `${gitEaBaseUrl.replace(/\/$/, "")}/mcp`;
+}
+
 function beforeEach() {
   expect(gitEaBaseUrl, "GITEA_BASE_URL must be set in the Playwright env file").toBeTruthy();
 }
@@ -22,6 +26,7 @@ function beforeEach() {
 module.exports = {
   env: { gitEaBaseUrl },
   healthzReadyUrl,
+  mcpEndpointUrl,
   runAdminFlow,
   runBiberFlow,
   runGuestFlow,

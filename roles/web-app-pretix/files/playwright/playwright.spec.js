@@ -4,6 +4,8 @@ const { resolveTimeout } = require("./timeouts");
 const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow , expectHstsWhenTls, gotoOnion } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
+require("./test-mcp-guest").register();
+
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
 

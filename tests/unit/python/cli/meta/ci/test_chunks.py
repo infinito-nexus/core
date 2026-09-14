@@ -53,6 +53,12 @@ class TestPlan(unittest.TestCase):
         self.assertEqual([len(c) for c in plan], [5, 80, 80])
         self.assertEqual(plan[0], list(range(5)))
 
+    def test_a_spare_block_spends_what_a_short_priority_chunk_leaves(self) -> None:
+        plan = chunks.plan(
+            list(range(9)), list(range(100, 400)), size=80, blocks=4, budget=210
+        )
+        self.assertEqual([len(c) for c in plan], [9, 80, 80, 41])
+
     def test_the_seam_chunk_is_never_topped_up_with_regular_rows(self) -> None:
         plan = chunks.plan(
             list(range(5)),

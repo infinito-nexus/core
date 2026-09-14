@@ -147,6 +147,7 @@ def main(argv: list[str] | None = None) -> int:
         )
     except ValueError as exc:
         parser.error(str(exc))
+        return 2
     return _local(cmd, args.target, args.preview)
 
 

@@ -12,7 +12,7 @@
  *
  *   `performKeycloakLogin(page, username, password, canonicalDomain)`
  *     Calls `performKeycloakLoginForm` and additionally polls the
- *     page URL until it contains `canonicalDomain`, asserting the
+ *     page URL until its hostname is `canonicalDomain`, asserting the
  *     OAuth2-Proxy / app callback completes.
  *
  *   `performKeycloakLoginExpectingDenial(page, username, password, canonicalDomain)`
@@ -27,15 +27,29 @@
 
 const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("../../timeouts");
+const { hostnameOf } = require("./dom");
 
 // SPOT for the role-side OIDC adapter readiness contract. A role whose
 // `templates/javascript/oidc.js.j2` wraps its Login link in a JS click
 // handler (e.g. `keycloak.login()` with PKCE) MUST set this flag on
-// `window` after the click interceptor is wired, so persona helpers can
-// click the link without racing the adapter.
+// `window` to `false` before the Login link renders and to `true` after
+// the click interceptor is wired, so persona helpers can click the link
+// without racing the adapter.
 const OIDC_LOGIN_READY_FLAG = "__oidcLoginReady";
 
 const OIDC_TRIGGER_NAME = /sso|openid|single[\s-]?sign/i;
+
+// Keycloak's end-session URL also contains `openid-connect`; a page that
+// renders a hidden Logout item before its Login link would otherwise pin
+// `.first()` to the hidden Logout item until the probe times out.
+const OIDC_ENTRY_SELECTOR = [
+  "a[href*='openid_connect' i]:not([href*='logout' i])",
+  "a[href*='openid-connect' i]:not([href*='logout' i])",
+  "a[href*='/auth/auth/' i]:not([href*='logout' i])",
+  "form[action*='openid' i] button",
+  "a[data-testid*='oidc' i]",
+  "button[data-testid*='oidc' i]",
+].join(", ");
 
 async function performKeycloakLoginForm(target, username, password) {
   const usernameField = target
@@ -62,19 +76,19 @@ async function performKeycloakLogin(page, username, password, canonicalDomain) {
   await performKeycloakLoginForm(page, username, password);
 
   await expect
-    .poll(() => page.url(), {
+    .poll(() => hostnameOf(page.url()), {
       timeout: resolveTimeout(60_000),
       message: `Expected redirect back to ${canonicalDomain} after Keycloak login`,
     })
-    .toContain(canonicalDomain);
+    .toBe(canonicalDomain);
 }
 
 // Click a role's in-app Login link to start the OIDC chain. Waits for
 // the role's adapter to signal readiness (OIDC_LOGIN_READY_FLAG) before
 // clicking, so the click hits the JS-wrapped handler (which stores
 // PKCE state) and not the raw `href` (which would skip PKCE and break
-// the post-login token exchange on PKCE-enforced clients). The 15s
-// fallback covers roles whose Login link is purely static. Returns the
+// the post-login token exchange on PKCE-enforced clients). Roles that
+// never declare the flag only wait for the page's load event. Returns the
 // Page that reached `openid-connect/auth` — the opener, or the popup for
 // roles that hand the IdP off via `window.open` — else null.
 //
@@ -88,11 +102,7 @@ async function performKeycloakLogin(page, username, password, canonicalDomain) {
 // flow instead of the role's own auth chain.
 async function clickOidcLoginLink(page, strictLink, looseLink) {
   for (let attempt = 0; attempt < 2; attempt += 1) {
-    let oidcLink = page
-      .locator(
-        "a[href*='openid_connect' i], a[href*='openid-connect' i], a[href*='/auth/auth/' i], form[action*='openid' i] button, a[data-testid*='oidc' i], button[data-testid*='oidc' i]",
-      )
-      .first();
+    let oidcLink = page.locator(OIDC_ENTRY_SELECTOR).first();
     if (attempt > 0) {
       oidcLink = oidcLink
         .or(page.getByRole("button", { name: OIDC_TRIGGER_NAME }))
@@ -120,9 +130,10 @@ async function clickOidcLoginLink(page, strictLink, looseLink) {
       }
     }
 
+    await page.waitForLoadState("load", { timeout: resolveTimeout(15_000) }).catch(() => {});
     await page
       .waitForFunction(
-        (flag) => window[flag] === true,
+        (flag) => window[flag] !== false,
         OIDC_LOGIN_READY_FLAG,
         { timeout: resolveTimeout(15_000) },
       )
@@ -157,7 +168,7 @@ async function performKeycloakLoginExpectingDenial(page, username, password, can
       await page.content().catch(() => ""),
     ) ||
     /openid-connect\/auth/.test(finalUrl) ||
-    !finalUrl.includes(canonicalDomain);
+    hostnameOf(finalUrl) !== canonicalDomain;
 
   expect(
     denied,

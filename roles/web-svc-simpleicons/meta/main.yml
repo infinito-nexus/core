@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use

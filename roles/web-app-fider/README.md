@@ -28,9 +28,12 @@ flowchart LR
         dep_svc_db_redis["svc-db-redis 🐳🐝"]
         dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
+        dep_web_app_hermes["web-app-hermes 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_mailu["web-app-mailu 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
+        dep_web_app_openclaw["web-app-openclaw 🐳🐝"]
+        dep_web_app_openwebui["web-app-openwebui 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
         dep_web_app_seaweedfs["web-app-seaweedfs 🐳🐝"]
         dep_web_svc_css["web-svc-css 💻"]
@@ -49,15 +52,23 @@ flowchart LR
         svc_javascript["javascript"]
         svc_prometheus["prometheus"]
         svc_seaweedfs["seaweedfs"]
+        svc_fidermcp["fidermcp"]
         svc_tor["tor"]
+        svc_openwebui["openwebui"]
+        svc_hermes["hermes"]
+        svc_openclaw["openclaw"]
+        svc_flowise["flowise ❌"]
     end
     dep_svc_db_postgres -. "0..1" .-> svc_postgres
     dep_svc_db_redis -. "0..1" .-> svc_redis
     dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
+    dep_web_app_hermes -. "0..1" .-> svc_hermes
     dep_web_app_keycloak -. "0..1" .-> svc_sso
     dep_web_app_mailu -. "0..1" .-> svc_email
     dep_web_app_matomo -. "0..1" .-> svc_matomo
+    dep_web_app_openclaw -. "0..1" .-> svc_openclaw
+    dep_web_app_openwebui -. "0..1" .-> svc_openwebui
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
     dep_web_app_seaweedfs -. "0..1" .-> svc_seaweedfs
     dep_web_svc_css -. "0..1" .-> svc_css
@@ -94,19 +105,20 @@ Run the published image to provision the inventory and deploy Fider to a managed
 ```bash
 APP=web-app-fider
 HOST=<your-server>
+DOMAIN=<your-domain>
 TLS_MODE=self_signed
 SSH_PUBLIC_KEY="<your-ssh-public-key>"
 
 docker run --rm -it \
   -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  -e APP="$APP" -e HOST="$HOST" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
+  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
   ghcr.io/infinito-nexus/core/debian bash -c '
     INVENTORY=/etc/infinito.nexus/inventories/production
     infinito administration inventory provision "$INVENTORY" \
       --inventory-file "$INVENTORY/devices.yml" \
       --host "$HOST" \
       --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
+      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
     infinito administration deploy dedicated "$INVENTORY/devices.yml" \
       --password-file "$INVENTORY/.password" \
       --diff -vv'

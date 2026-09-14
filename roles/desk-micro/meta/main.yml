@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Terminal-based text editor with modern keybindings and syntax highlighting for Pacman-based workstations

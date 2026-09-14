@@ -1,0 +1,10 @@
+llm = LlmModel.find_by(display_name: '{{ DISCOURSE_AI_LLM_DISPLAY_NAME }}')
+hosts = SiteSetting.allowed_internal_hosts.to_s.split('|').map(&:strip)
+puts "ai_gateway_url=#{llm&.url}"
+puts "ai_gateway_model=#{llm&.name}"
+puts "ai_gateway_provider=#{llm&.provider}"
+puts "ai_gateway_key_configured=#{llm.present? && llm.api_key.to_s.length > 0}"
+puts "ai_gateway_host_allowed=#{hosts.include?('{{ DISCOURSE_LITELLM_HOST }}')}"
+puts "ai_gateway_default_bound=#{llm.present? && SiteSetting.ai_default_llm_model.to_s == llm.id.to_s}"
+puts "ai_gateway_bot_bound=#{llm.present? && LlmModel.enabled_chat_bot_ids.include?(llm.id)}"
+puts "ai_gateway_plugin_enabled=#{SiteSetting.discourse_ai_enabled}"

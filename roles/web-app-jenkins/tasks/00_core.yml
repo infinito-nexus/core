@@ -1,0 +1,44 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🔌 Stage the MCP adapter instance for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
+  vars:
+    mcp_adapter_instance_dir: "{{ JENKINS_MCP_INSTANCE_DIR }}"
+    mcp_adapter_upstream_key: true
+  when: JENKINS_MCP_ENABLED | bool
+
+- name: "🧩 load docker, db and proxy for {{ application_id }}"
+  include_role:
+    name: sys-stk-full
+
+- name: "📄 Render Jenkins JCasC config"
+  stack_host_template:
+    src: casc.yaml.j2
+    dest: "{{ JENKINS_CASC_FILE }}"
+    mode: "0644"
+  notify:
+    - compose-up
+  when: IS_STACK_HOST | bool
+
+- name: "🎬 Stage Jenkins build-context sidecar files into the compose dir"
+  stack_host_copy:
+    src: "{{ item }}"
+    dest: "{{ [ lookup('container', application_id, 'directories.instance'), item | basename ] | path_join }}"
+    mode: "0644"
+  loop:
+    - plugins.txt
+    - mcp-api-token.groovy
+    - "{{ lookup('path_absolute', 'roles/sys-ca-selfsigned/files/shell/java-with-ca-trust.sh') }}"
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "🔄 Start the controller before talking to its API"
+  meta: flush_handlers
+
+- name: "🔌 Provision the MCP server surface"
+  ansible.builtin.include_tasks: utils/mcp.yml
+  when:
+    - JENKINS_MCP_ENABLED | bool
+    - IS_STACK_HOST | bool

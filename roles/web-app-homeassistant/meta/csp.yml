@@ -1,0 +1,7 @@
+---
+flags:
+  script-src-elem:
+    unsafe-inline: true # nocheck: csp-unsafe  Reason: the frontend index document boots the panel from an inline module script, so the dashboard stays blank without it; TODO: pin the payload by hash instead
+whitelist:
+  font-src: []
+  connect-src: []

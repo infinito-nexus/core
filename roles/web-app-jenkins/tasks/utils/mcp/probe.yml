@@ -1,0 +1,13 @@
+---
+- name: "🩺 Ask Jenkins whether the stored API token still authenticates"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ JENKINS_LOCAL_CID | quote }} \
+      {{ lookup('timeout', 30) | curl(5, 0) }} -f -o /dev/null \
+        -u {{ (JENKINS_MCP_USERNAME ~ ':' ~ jenkins_mcp_token) | quote }} \
+        {{ JENKINS_MCP_IDENTITY_URL | quote }}
+  register: jenkins_mcp_token_probe
+  changed_when: false
+  failed_when: false
+  delegate_to: "{{ JENKINS_HOST_NODE }}"
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

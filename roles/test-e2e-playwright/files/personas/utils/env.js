@@ -75,16 +75,22 @@ async function gotoOnion(page, url, opts = {}) {
 }
 
 /**
- * Tor-resilient `request.get` for the standalone APIRequestContext fixture.
- * Its SOCKS CONNECT goes through the bundled `socks` client whose 30s connect
- * cap is not configurable, so a cold onion circuit fails the request no matter
- * how large the request timeout is. Retries only transient proxy/socket
- * errors; clearnet URLs get a single attempt and real HTTP failures re-throw.
+ * Tor-resilient `request.fetch` for any APIRequestContext (the standalone
+ * fixture or `context.request`); `opts.method` picks the verb. Its SOCKS
+ * CONNECT goes through the bundled `socks` client whose 30s connect cap is not
+ * configurable, so a cold onion circuit fails the request no matter how large
+ * the request timeout is. Retries only transient proxy/socket errors; clearnet
+ * URLs get a single attempt and real HTTP failures re-throw. `apiGetOnion` is
+ * the GET shorthand.
  */
 const _API_TRANSIENT_RE =
-  /Proxy connection timed out|Socket closed|socket hang up|ECONNRESET|ETIMEDOUT|ECONNREFUSED|ENOTFOUND/i;
+  /Proxy connection timed out|Socks5 proxy rejected connection|Socket closed|socket hang up|ECONNRESET|ETIMEDOUT|ECONNREFUSED|ENOTFOUND/i;
 
-async function apiGetOnion(request, url, opts = {}) {
+function apiGetOnion(request, url, opts = {}) {
+  return apiFetchOnion(request, url, { ...opts, method: "GET" });
+}
+
+async function apiFetchOnion(request, url, opts = {}) {
   const isRelative = /^\/(?!\/)/.test(url);
   const isOnion =
     /\.onion(?::\d+)?(?:\/|$|\?)/i.test(url) || (isRelative && isOnionCanonical());
@@ -92,7 +98,7 @@ async function apiGetOnion(request, url, opts = {}) {
   let lastErr;
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
-      return await request.get(url, opts);
+      return await request.fetch(url, opts);
     } catch (err) {
       lastErr = err;
       if (attempt >= attempts || !_API_TRANSIENT_RE.test(String(err && err.message))) {
@@ -139,6 +145,7 @@ module.exports = {
   isOnionCanonical,
   gotoOnion,
   apiGetOnion,
+  apiFetchOnion,
   safeSkipUnlessEnabled,
   safeIsEnabled,
 };

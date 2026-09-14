@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Terminal emulator for the GNOME desktop, giving command-line access on Arch Linux workstations

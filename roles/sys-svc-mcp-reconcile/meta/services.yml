@@ -1,0 +1,4 @@
+---
+# nocheck: required-by-coverage  invoked directly from the server stage, not consumed as a service
+svc-mcp-reconcile:
+  lifecycle: beta

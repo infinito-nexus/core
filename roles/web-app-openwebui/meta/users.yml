@@ -1,0 +1,8 @@
+---
+administrator: {}
+openwebui-api-bot:
+  username: openwebui-api-bot
+  firstname: Infinito
+  lastname: API Bot
+  accounts: []
+  description: API-only administrator used to provision MCP tool-server access grants (NOT an OIDC user)

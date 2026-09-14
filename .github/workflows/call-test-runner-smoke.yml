@@ -17,10 +17,6 @@ on:
         default: ""
         type: string
 
-concurrency:
-  group: runner-smoke-${{ github.ref }}
-  cancel-in-progress: true
-
 permissions:
   contents: read
   packages: read

@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media Self-written privacy-proxy glue role; no third-party consumer product website or demo video.
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: "Nginx-based privacy proxy that mirrors whitelisted third-party assets under a first-party domain"

@@ -1,0 +1,41 @@
+---
+classification: adapter_server
+direction: server
+source_url: https://s.infinito.nexus/code
+transport: streamable_http
+exposure: internal
+auth: bearer_token
+auth_subject: service_account
+implementation: adapter
+credential:
+  owner: mcp-web-app-zammad
+  source: credentials
+  key: mcp_bearer
+endpoint:
+  service_key: zammadmcp
+  path: /mcp
+  port_key: http
+adapter:
+  type: openapi_allowlist
+  upstream_api_version: v1
+  specification_path: roles/web-app-zammad/files/mcp/tools.json
+  specification_sha256: sha256:093becf8fef9d391372ff2bec2bc9a9b9c9ec57796ef6b5502c7bbaee6af82cf
+limits:
+  request_bytes: 65536
+  response_bytes: 1048576
+  timeout_seconds: 15
+  concurrent_requests: 4
+  page_size: 100
+  result_items: 100
+  stream_seconds: 300
+tools:
+  read_probe:
+    tool: zammad_list_organizations
+    arguments: {}
+  allowlist:
+    - zammad_get_ticket
+    - zammad_list_organizations
+    - zammad_search_tickets
+  schema_sha256: sha256:68c48fc5d8e6ab0d705c2d773518f70c65f65ec9942a3bdeab6946d565ef9ed8
+  read_only_default: true
+  mutating_tools_enabled: false

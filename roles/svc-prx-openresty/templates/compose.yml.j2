@@ -30,11 +30,7 @@
     {% endif %}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     command: ["openresty", "-g", "daemon off;"]
-    healthcheck:
-      test: ["CMD", "openresty", "-t", "-q"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
 
 {{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

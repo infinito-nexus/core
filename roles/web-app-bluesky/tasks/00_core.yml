@@ -20,13 +20,10 @@
   ansible.builtin.include_tasks: "03_pds.yml"
 
 - name: "🧹 Heal oauth2-proxy cfg bind-mount (if it became a directory in a prior deploy)"
-  ansible.builtin.shell: >-
-    if [ -d "{{ BLUESKY_SSO_PROXY_CFG_PATH }}" ]; then
-      container stop "{{ BLUESKY_SSO_PROXY_CONTAINER }}" 2>/dev/null || true;
-      rm -rf "{{ BLUESKY_SSO_PROXY_CFG_PATH }}";
-    fi
-  args:
-    executable: /bin/bash
+  ansible.builtin.script: "{{ role_path }}/files/shell/heal_sso_proxy_cfg.sh"
+  environment:
+    SSO_PROXY_CFG_PATH: "{{ BLUESKY_SSO_PROXY_CFG_PATH }}"
+    SSO_PROXY_CONTAINER: "{{ BLUESKY_SSO_PROXY_CONTAINER }}"
   changed_when: false
 
 - name: "📂 include sys-stk-backend role"
@@ -34,6 +31,27 @@
     name: sys-stk-backend
   vars:
     compose_handlers_flush: false
+
+- name: "🧱 Rebuild the stack when the pre-compose staging changed a build context"
+  ansible.builtin.debug:
+    msg: "Pre-compose build context changed for {{ application_id }}"
+  changed_when: true
+  notify:
+    - compose-build
+    - compose-up
+  when: >-
+    (BLUESKY_WEB_ENABLED | bool
+     and (bluesky_social_app_clone is changed or bluesky_login_broker_copy is changed))
+    or bluesky_pdsadmin_download is changed
+
+- name: "📂 Re-own the compose handler topics before the flush"
+  ansible.builtin.include_role:
+    name: sys-svc-compose
+    tasks_from: none.yml
+    handlers_from: main
+
+- name: "🚿 Flush the compose handlers while they still point at '{{ application_id }}'"
+  meta: flush_handlers
 
 - name: "📂 Include front proxy for {{ BLUESKY_API_DOMAIN }}:{{ BLUESKY_API_PORT }}"
   include_role:

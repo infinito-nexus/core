@@ -1,0 +1,11 @@
+---
+enabled: "{{ lookup('config', 'web-app-mediawiki', 'services.litellm.enabled') | bool }}"
+required: true
+mechanism: extension
+source: upstream
+bridges:
+  - litellm
+update:
+  monitored: true
+  catalog: mediawiki-extension
+  upstream_id: AIEditingAssistant

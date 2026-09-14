@@ -74,16 +74,16 @@ class TestDomainList(unittest.TestCase):
             )
 
             with patch.object(domain_list, "ROLES_DIR", roles_dir):
-                domains = domain_list.list_application_domains("infinito.example")
+                domains = domain_list.list_application_domains("infinito.test")
 
             self.assertEqual(
                 domains,
                 sorted(
                     [
-                        "api.s3.infinito.example",
-                        "console.s3.infinito.example",
-                        "dashboard.infinito.example",
-                        "test.infinito.example",
+                        "api.s3.infinito.test",
+                        "console.s3.infinito.test",
+                        "dashboard.infinito.test",
+                        "test.infinito.test",
                     ]
                 ),
             )
@@ -109,7 +109,7 @@ class TestDomainList(unittest.TestCase):
 
             with patch.object(domain_list, "ROLES_DIR", roles_dir):
                 domains = domain_list.list_application_domains(
-                    "infinito.example",
+                    "infinito.test",
                     include_aliases=True,
                     include_www=True,
                 )
@@ -117,10 +117,10 @@ class TestDomainList(unittest.TestCase):
             self.assertEqual(
                 domains,
                 [
-                    "dashboard.infinito.example",
-                    "test.infinito.example",
-                    "www.dashboard.infinito.example",
-                    "www.test.infinito.example",
+                    "dashboard.infinito.test",
+                    "test.infinito.test",
+                    "www.dashboard.infinito.test",
+                    "www.test.infinito.test",
                 ],
             )
 
@@ -130,9 +130,9 @@ class TestDomainList(unittest.TestCase):
             roles_dir.mkdir()
 
             with patch.object(domain_list, "ROLES_DIR", roles_dir):
-                domains = domain_list.list_application_domains("infinito.example")
+                domains = domain_list.list_application_domains("infinito.test")
 
-            self.assertEqual(domains, ["test.infinito.example"])
+            self.assertEqual(domains, ["test.infinito.test"])
 
     def test_list_application_domains_raises_on_collisions(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -154,7 +154,7 @@ class TestDomainList(unittest.TestCase):
                 patch.object(domain_list, "ROLES_DIR", roles_dir),
                 self.assertRaises(AnsibleError),
             ):
-                domain_list.list_application_domains("infinito.example")
+                domain_list.list_application_domains("infinito.test")
 
 
 if __name__ == "__main__":

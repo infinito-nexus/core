@@ -13,6 +13,7 @@
     domain_apex: "{{ domain }}"
 
 - name: "🔍 Cloudflare: Lookup zone id for {{ cf_zone_name }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   uri_retry:
     url: "https://api.cloudflare.com/client/v4/zones?name={{ cf_zone_name }}"
     method: GET
@@ -50,6 +51,7 @@
     state: present
 
 - name: "📋 Cloudflare Rulesets: list dynamic redirect rulesets"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   uri_retry:
     url: "https://api.cloudflare.com/client/v4/zones/{{ cf_zone_id }}/rulesets?phase=http_request_dynamic_redirect"
     method: GET
@@ -85,6 +87,7 @@
           preserve_query_string: true
 
 - name: "🔄 Update existing dynamic redirect ruleset (PUT)"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   when: cf_redirect_ruleset_id | length > 0
   vars:
     existing_rules: "{{ cf_redirect_ruleset.rules | default([]) }}"
@@ -112,6 +115,7 @@
   changed_when: cf_ruleset_update.status in [200]
 
 - name: "📁 Create dynamic redirect ruleset (POST)"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   when: cf_redirect_ruleset_id | length == 0
   uri_retry:
     url: "https://api.cloudflare.com/client/v4/zones/{{ cf_zone_id }}/rulesets"

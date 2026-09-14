@@ -12,7 +12,7 @@ Enforced (hard fail) rules
    from the template ``templates/roles/README.md.j2.tmpl`` (the H2s it emits
    with no optional context): ``## Description``, ``## Overview``,
    ``## Cosmos``, ``## Features`` and ``## Credits``. The template is the
-   single source of truth; ``cli.build.readme.schema`` reads it.
+   single source of truth; ``cli.build.docs.readme.schema`` reads it.
 3. **Section order.** Those required H2s MUST appear in the template order
    (extra H2s MAY be interleaved between them), and ``## Credits`` MUST be
    the last H2 heading in the file.
@@ -52,9 +52,9 @@ from typing import TYPE_CHECKING
 
 import yaml as _yaml
 
-from cli.build.readme import schema
-from cli.build.readme.generate import _app_name, _managed_blocks
-from cli.build.readme.sections import parse_readme
+from cli.build.docs.readme import schema
+from cli.build.docs.readme.generate import _app_name, _managed_blocks
+from cli.build.docs.readme.sections import parse_readme
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_META_MAIN

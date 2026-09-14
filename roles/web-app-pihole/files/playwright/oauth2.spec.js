@@ -45,9 +45,11 @@ test("administrator: can log in via SSO and access pihole", async ({ page }) => 
   await gotoOnion(page, `${expectedPiholeBaseUrl}/`);
   await expect.poll(() => page.url(), { timeout: resolveTimeout(30_000) }).toContain(expectedOidcAuthUrl);
   await performOidcLogin(page, adminUsername, adminPassword);
+  await expect.poll(() => page.url(), { timeout: resolveTimeout(60_000) }).toContain(expectedPiholeBaseUrl);
+  await page.waitForURL(url => !url.toString().includes("/oauth2/callback"), { timeout: resolveTimeout(30_000) }).catch(() => {});
   await page.waitForLoadState("networkidle", { timeout: resolveTimeout(60_000) }).catch(() => {});
   expect(page.url()).not.toContain(expectedOidcAuthUrl);
-  await expect(page.locator("body")).toBeVisible();
+  expect(page.url()).not.toContain("/oauth2/callback");
 });
 
 test("biber: is denied access to pihole admin panel", async ({ page }) => {
@@ -57,17 +59,24 @@ test("biber: is denied access to pihole admin panel", async ({ page }) => {
   await gotoOnion(page, `${expectedPiholeBaseUrl}/`);
   await expect.poll(() => page.url(), { timeout: resolveTimeout(30_000) }).toContain(expectedOidcAuthUrl);
   await performOidcLogin(page, biberUsername, biberPassword);
-  await page.waitForURL(url => !url.toString().includes("/oauth2/callback"), { timeout: resolveTimeout(30_000) }).catch(() => {});
   await page.waitForLoadState("networkidle", { timeout: resolveTimeout(30_000) }).catch(() => {});
 
-  const bodyText = await page.locator("body").textContent({ timeout: resolveTimeout(15_000) }).catch(() => "");
-  const currentUrl = page.url();
-  expect(
-    bodyText.includes("403") || bodyText.toLowerCase().includes("forbidden") ||
-    bodyText.toLowerCase().includes("access denied") || bodyText.toLowerCase().includes("you do not have permission") ||
-    currentUrl.includes(expectedOidcAuthUrl) || currentUrl.includes("/oauth2/callback"),
-    `Expected biber to be denied. URL: ${currentUrl}`
-  ).toBeTruthy();
+  const deniedNow = async () => {
+    const body = await page.locator("body").textContent({ timeout: resolveTimeout(15_000) }).catch(() => "");
+    const text = (body || "").toLowerCase();
+    const url = page.url();
+    if (text.includes("access denied") || text.includes("you do not have permission")) return "denied";
+    if (url.includes(expectedOidcAuthUrl)) return "denied";
+    if (url.includes("/oauth2/callback")) return "still handing off";
+    return `reached ${url}`;
+  };
+
+  await expect
+    .poll(deniedNow, {
+      timeout: resolveTimeout(30_000),
+      message: "biber must not reach the pihole admin panel",
+    })
+    .toBe("denied");
 });
 
 test("administrator: can log out via logout button", async ({ page }) => {

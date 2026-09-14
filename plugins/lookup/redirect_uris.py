@@ -57,8 +57,9 @@ def build_redirect_uris(
     wildcard: str = DEFAULT_WILDCARD,
     features: Iterable[str] = DEFAULT_FEATURES,
     dedup: bool = True,
+    deployed: Iterable[str] | None = None,
 ) -> list[str]:
-    """Registered redirect URIs for every SSO consumer, one per domain.
+    """Registered redirect URIs for every deployed SSO consumer, one per domain.
 
     Args:
         domains: app_id -> domain, list of domains, or nested mapping of those.
@@ -69,14 +70,19 @@ def build_redirect_uris(
         wildcard: suffix appended to every URI.
         features: config paths ORed together to decide whether an app gets a URI.
         dedup: drop repeated URIs, preserving first-seen order.
+        deployed: application ids this play deploys (``group_names``); an app
+            outside it gets no URI. None registers every app in ``domains``.
     """
     if not isinstance(domains, dict):
         raise AnsibleError(
             "redirect_uris: 'domains' must be a dict mapping app_id -> domain or list of domains"
         )
 
+    deployed_ids = None if deployed is None else set(deployed)
     uris: list[str] = []
     for app_id, domain_value in domains.items():
+        if deployed_ids is not None and app_id not in deployed_ids:
+            continue
         try:
             has_feature = any(
                 bool(get(applications, app_id, f, False)) for f in features
@@ -113,9 +119,10 @@ class LookupModule(LookupBase):
         {{ lookup('redirect_uris', wildcard='/cb') }}
 
     Returns the redirect URIs Keycloak must whitelist: one per domain of every
-    application whose config enables SSO. Each URI's scheme is resolved for the
-    CONSUMER -- its own ``server.tls.enabled`` over the global ``TLS_ENABLED``,
-    and always plaintext for an .onion -- never from Keycloak's own TLS state.
+    application this play deploys (``group_names``) whose config enables SSO.
+    Each URI's scheme is resolved for the CONSUMER -- its own
+    ``server.tls.enabled`` over the global ``TLS_ENABLED``, and always
+    plaintext for an .onion -- never from Keycloak's own TLS state.
 
     - parameters:
         wildcard: suffix appended to every URI (default '/*')
@@ -135,6 +142,8 @@ class LookupModule(LookupBase):
         variables = variables or getattr(self._templar, "available_variables", {}) or {}
         if "TLS_ENABLED" not in variables:
             raise AnsibleError("redirect_uris: TLS_ENABLED is not defined.")
+        if "group_names" not in variables:
+            raise AnsibleError("redirect_uris: group_names is not defined.")
 
         loader = getattr(self, "_loader", None)
         templar = getattr(self, "_templar", None)
@@ -154,5 +163,6 @@ class LookupModule(LookupBase):
                 wildcard=kwargs.get("wildcard", DEFAULT_WILDCARD),
                 features=features,
                 dedup=bool(kwargs.get("dedup", True)),
+                deployed=variables["group_names"],
             )
         ]

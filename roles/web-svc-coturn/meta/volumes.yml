@@ -1,4 +1,5 @@
 ---
+# nocheck: embedded-state-on-nfs runs with --static-auth-secret and no --userdb, so no SQLite store is opened here
 data:
   name: coturn_data
   type: volume

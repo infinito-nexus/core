@@ -6,7 +6,7 @@ Use Ubuntu 24.04 with [Docker Desktop WSL2 integration](https://docs.docker.com/
 Keep these WSL2 specifics in mind:
 
 - Trust the generated [CA](https://en.wikipedia.org/wiki/Certificate_authority) in Windows, not only inside WSL2.
-- If `*.infinito.example` does not resolve correctly, check Windows-side [DNS](https://en.wikipedia.org/wiki/Domain_Name_System) or hosts configuration.
+- If `*.infinito.test` does not resolve correctly, check Windows-side [DNS](https://en.wikipedia.org/wiki/Domain_Name_System) or hosts configuration.
 - If container or security setup behaves differently than on Linux, the WSL2 guide covers the usual [Docker Buildx](https://docs.docker.com/reference/cli/docker/buildx/), [DNS](https://en.wikipedia.org/wiki/Domain_Name_System), and [AppArmor](https://en.wikipedia.org/wiki/AppArmor)-related workarounds.
 
 More information and detailed instructions [here](https://s.infinito.nexus/wsl2env).

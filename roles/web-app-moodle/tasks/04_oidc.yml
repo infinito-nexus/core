@@ -22,6 +22,7 @@
   failed_when: false
 
 - name: "🔧 Set Moodle OIDC configuration via CLI"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   loop:
     - { name: "idptype", value: 3 }
     - { name: "clientauthmethod", value: 1 }

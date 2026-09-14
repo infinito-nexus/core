@@ -1,0 +1,37 @@
+{
+  "gateway": {
+    "mode": "local",
+    "controlUi": {
+      "allowedOrigins": [{{ OPENCLAW_URL | to_json }}]
+    }
+  }{% if OPENCLAW_LITELLM_ENABLED | bool %},
+  "agents": {
+    "defaults": {
+      "model": {"primary": {{ (OPENCLAW_LITELLM_PROVIDER ~ '/' ~ OPENCLAW_LITELLM_MODEL) | to_json }}}
+    }
+  },
+  "models": {
+    "providers": {
+      {{ OPENCLAW_LITELLM_PROVIDER | to_json }}: {
+        "baseUrl": {{ OPENCLAW_LITELLM_BASE_URL | to_json }},
+        "apiKey": {{ OPENCLAW_LITELLM_API_KEY | to_json }},
+        "api": "openai-completions",
+        "models": [{"id": {{ OPENCLAW_LITELLM_MODEL | to_json }}, "name": {{ OPENCLAW_LITELLM_MODEL | to_json }}}]
+      }
+    }
+  }
+{% endif %}{% set renderable = OPENCLAW_MCP_SERVERS | mcp_renderable_servers %}{% if renderable | length > 0 %},
+  "mcp": {
+    "servers": {
+{% for server in renderable %}{% set callable_tools = server.tools | reject('in', server.mutating | default([])) | list %}
+      {{ server.id | to_json }}: {
+        "url": {{ server.url | to_json }},
+        "transport": {{ server.transport | to_json }},
+        "headers": {"Authorization": {{ server | mcp_authorization | to_json }}},
+        "toolFilter": {"include": {{ callable_tools | to_json }}}
+      }{{ "," if not loop.last }}
+{% endfor %}
+    }
+  }
+{% endif %}
+}

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from unittest import mock
 
 from ansible.errors import AnsibleError
 
@@ -83,6 +84,18 @@ class TestBuildRedirectUris(unittest.TestCase):
             ],
         )
 
+    def test_only_deployed_consumers_are_registered(self):
+        domains = {"deployed": "a.example.org", "parked": "b.example.org"}
+        result = build_redirect_uris(
+            domains, {"deployed": SSO, "parked": SSO}, True, deployed=["deployed"]
+        )
+        self.assertEqual(result, ["https://a.example.org/*"])
+
+    def test_no_deployment_scope_registers_every_consumer(self):
+        domains = {"one": "a.example.org", "two": "b.example.org"}
+        result = build_redirect_uris(domains, {"one": SSO, "two": SSO}, True)
+        self.assertEqual(result, ["https://a.example.org/*", "https://b.example.org/*"])
+
     def test_invalid_domains_type_raises(self):
         with self.assertRaises(AnsibleError):
             build_redirect_uris(["not-a-dict"], {}, True)  # type: ignore[arg-type]
@@ -104,6 +117,31 @@ class TestRedirectUrisLookup(unittest.TestCase):
     def test_missing_tls_enabled_raises(self):
         with self.assertRaises(AnsibleError):
             self.lookup.run([], variables={})
+
+    def test_missing_group_names_raises(self):
+        with self.assertRaises(AnsibleError):
+            self.lookup.run([], variables={"TLS_ENABLED": True})
+
+    def test_group_names_scope_the_registered_consumers(self):
+        class _Stub:
+            def __init__(self, payload):
+                self.payload = payload
+
+            def run(self, terms, variables=None, **kwargs):
+                return [self.payload]
+
+        payloads = {
+            "domains": _Stub({"deployed": "a.example.org", "parked": "b.example.org"}),
+            "applications": _Stub({"deployed": SSO, "parked": SSO}),
+        }
+        with mock.patch(
+            "plugins.lookup.redirect_uris.lookup_loader.get",
+            side_effect=lambda name, **kwargs: payloads[name],
+        ):
+            result = self.lookup.run(
+                [], variables={"TLS_ENABLED": True, "group_names": ["deployed"]}
+            )
+        self.assertEqual(result, [["https://a.example.org/*"]])
 
 
 if __name__ == "__main__":

@@ -141,6 +141,23 @@ def _force_shared_db_view(applications: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
+def applications_for_round(
+    variants: dict[str, int] | None = None,
+) -> dict[str, Any]:
+    """Return the round's application configs with its variants applied.
+
+    Args:
+        variants: active ``{app_id: variant_index}`` map; ``None`` falls back
+            to ``INFINITO_APP_VARIANTS``.
+
+    Returns:
+        Application id to its config for this round.
+    """
+    return _applications_for_active_variants(
+        get_merged_applications(roles_dir=str(_ROLES_DIR)), variants
+    )
+
+
 def derive_includes(
     app_id: str, *, variants: dict[str, int] | None = None
 ) -> list[str]:

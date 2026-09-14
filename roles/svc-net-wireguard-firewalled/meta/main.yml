@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media Self-written glue role that adapts iptables/NAT masquerading rules for a WireGuard client behind NAT; no consumer-facing upstream product website.
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall

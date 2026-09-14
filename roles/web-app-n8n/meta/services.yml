@@ -6,9 +6,13 @@ sso:
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oauth2
   oauth2:
+    pass_access_token: true
     origin:
       host: n8n
       port: 5678
+    allowed_groups:
+      - "{{ lookup('rbac_group_path', application_id='web-app-n8n', role='administrator') }}"
+      - "{{ lookup('rbac_group_path', application_id='web-app-n8n', role='mcp') }}"
 email:
   bond: 1
   enabled: "{{ 'web-app-mailu' in group_names }}"
@@ -47,11 +51,14 @@ tor:
   bond: 0.5
   enabled: "{{ 'svc-net-tor' in group_names }}"
   shared: true # nocheck: dynamic-flag
+# nocheck: playwright-service-flag  self-provider
 n8n:
+  enabled: true
+  shared: true
+  bond: 1
   healthcheck:
     flavor: wget
-    path: healthz
-    start_period: 5m
+    path: healthz/readiness
   modes:
     compose:
       enabled: true
@@ -60,7 +67,7 @@ n8n:
   backup:
     no_stop_required: false
   image: docker.n8n.io/n8nio/n8n
-  version: "1.95.3"
+  version: "1.100.1"
   name: n8n
   min_storage: 422MB
   cpus: "1.0"
@@ -86,3 +93,28 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+litellm:
+  bond: 0.5
+  enabled: "{{ ('svc-ai-litellm' in group_names) and (LITELLM_CHAT_MODEL_SERVED | bool) }}"
+  shared: "{{ 'svc-ai-litellm' in group_names }}"
+# nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
+openwebui:
+  bond: 0.5
+  enabled: "{{ 'web-app-openwebui' in group_names }}"
+  shared: "{{ 'web-app-openwebui' in group_names }}"
+# nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
+hermes:
+  bond: 0.5
+  enabled: "{{ 'web-app-hermes' in group_names }}"
+  shared: "{{ 'web-app-hermes' in group_names }}"
+# nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
+openclaw:
+  bond: 0.5
+  enabled: "{{ 'web-app-openclaw' in group_names }}"
+  shared: "{{ 'web-app-openclaw' in group_names }}"
+# nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
+# nocheck: dynamic-flag  the entry refuses this client, so the link is off on every host and no group_names gate can decide it
+flowise:
+  enabled: false
+  shared: false
+  mcp_consumer: false

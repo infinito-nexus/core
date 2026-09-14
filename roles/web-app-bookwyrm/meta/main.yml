@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse

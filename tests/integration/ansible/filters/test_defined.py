@@ -78,6 +78,7 @@ BUILTIN_FILTERS: set[str] = {
     "zip",
     "regex_search",
     "regex_replace",
+    "regex_escape",
     "bool",
     "type_debug",
     "json_query",

@@ -1,4 +1,5 @@
 import os
+import socket
 import subprocess
 import tempfile
 import unittest
@@ -15,9 +16,20 @@ VOL_B = "b" * 64
 CONTAINER_STUB = """#!/usr/bin/env bash
 if [ "$1" = "volume" ] && [ "$2" = "ls" ]; then
 \tif [[ "$*" == *"driver=local"* ]]; then
+\t\tif [ -n "$STUB_NFS_VOLUMES" ]; then
+\t\t\tprintf '%s\\n' $STUB_NFS_VOLUMES
+\t\tfi
 \t\texit 0
 \tfi
 \tprintf '%s\\n' $STUB_VOLUMES
+\texit 0
+fi
+if [ "$1" = "volume" ] && [ "$2" = "inspect" ]; then
+\tcase "$*" in
+\t\t*Options.type*) printf 'nfs\\n' ;;
+\t\t*Options.device*) printf ':/export\\n' ;;
+\t\t*Options.o*) printf 'addr=127.0.0.1\\n' ;;
+\tesac
 \texit 0
 fi
 if [ "$1" = "ps" ]; then
@@ -43,7 +55,9 @@ exit 0
 
 
 class TestHlthVolumesScript(unittest.TestCase):
-    def run_script(self, *, volumes, containers, mounts, running=None, whitelist=""):
+    def run_script(
+        self, *, volumes, containers, mounts, running=None, whitelist="", nfs=()
+    ):
         """Run the health script against a stubbed container CLI.
 
         Args:
@@ -53,6 +67,8 @@ class TestHlthVolumesScript(unittest.TestCase):
             running: volume name -> the subset of those ids still running; a
                 volume absent here has no running container left.
             whitelist: value for the script's only positional argument.
+            nfs: nfs-backed volume names; their server is 127.0.0.1, whose
+                port 2049 refuses the connection in the test environment.
 
         Returns:
             Tuple of the exit code and stdout.
@@ -66,6 +82,7 @@ class TestHlthVolumesScript(unittest.TestCase):
             env = dict(os.environ)
             env["PATH"] = f"{bin_dir}{os.pathsep}{env['PATH']}"
             env["STUB_VOLUMES"] = " ".join(volumes)
+            env["STUB_NFS_VOLUMES"] = " ".join(nfs)
             for volume, ids in containers.items():
                 env[f"STUB_CONTAINERS_{volume}"] = ids
                 env[f"STUB_RUNNING_{volume}"] = running.get(volume, "")
@@ -123,6 +140,30 @@ class TestHlthVolumesScript(unittest.TestCase):
         code, out = self.run_script(volumes=[VOL_B], containers={}, mounts={})
         self.assertEqual(code, 1)
         self.assertIn("is not used by any container", out)
+
+    def test_an_unreachable_nfs_server_fails_the_probe(self):
+        code, _ = self.run_script(
+            volumes=[VOL_B],
+            containers={},
+            mounts={},
+            whitelist=VOL_B,
+            nfs=[VOL_A],
+        )
+        self.assertEqual(code, 1)
+
+    def test_a_listening_nfs_port_passes(self):
+        with socket.socket() as server:
+            server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            server.bind(("127.0.0.1", 2049))
+            server.listen(1)
+            code, _ = self.run_script(
+                volumes=[VOL_B],
+                containers={},
+                mounts={},
+                whitelist=VOL_B,
+                nfs=[VOL_A],
+            )
+        self.assertEqual(code, 0)
 
 
 if __name__ == "__main__":

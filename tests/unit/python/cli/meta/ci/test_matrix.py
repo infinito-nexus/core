@@ -31,7 +31,7 @@ class TestChunksOf(unittest.TestCase):
     def _chunks(self, entries: list[dict], *, size: int) -> list[list[dict]]:
         with (
             mock.patch.object(matrix.slots, "chunk_size", return_value=size),
-            mock.patch.object(matrix.slots, "chunk_count", return_value=4),
+            mock.patch.object(matrix.slots, "chunk_blocks", return_value=4),
             mock.patch.object(matrix.slots, "available", return_value=99),
         ):
             return matrix.chunks_of(entries, 0)
@@ -58,6 +58,26 @@ class TestChunksOf(unittest.TestCase):
             [chunk[0]["apps"] for chunk in chunks], ["web-app-z", "web-app-a"]
         )
 
+    def test_a_short_priority_chunk_leaves_the_regular_rows_a_spare_block(
+        self,
+    ) -> None:
+        entries = [_entry("web-app-p", "0", "compose", priority=True)] + [
+            _entry(f"web-app-{index:02d}", "0", "compose") for index in range(20)
+        ]
+        with (
+            mock.patch.object(matrix.slots, "chunk_size", return_value=10),
+            mock.patch.object(matrix.slots, "chunk_count", return_value=2),
+            mock.patch.object(matrix.slots, "chunk_blocks", return_value=3),
+            mock.patch.object(matrix.slots, "available", return_value=21),
+        ):
+            chunks = matrix.chunks_of(entries, 0)
+        self.assertEqual(
+            [len(chunk) for chunk in chunks],
+            [1, 10, 10],
+            "the split must get every declared block, not only the ones the "
+            "budget fills, or the rows a short priority chunk leaves go unplanned",
+        )
+
     def test_priority_chunks_are_sorted_on_their_own(self) -> None:
         entries = [
             _entry("web-app-z", "0", "compose", priority=True),
@@ -80,7 +100,7 @@ class TestRedundant(unittest.TestCase):
     def _chunked(self, entries: list[dict]) -> list[dict]:
         with (
             mock.patch.object(matrix.slots, "chunk_size", return_value=10),
-            mock.patch.object(matrix.slots, "chunk_count", return_value=4),
+            mock.patch.object(matrix.slots, "chunk_blocks", return_value=4),
             mock.patch.object(matrix.slots, "available", return_value=99),
         ):
             return [row for chunk in matrix.chunks_of(entries, 0) for row in chunk]

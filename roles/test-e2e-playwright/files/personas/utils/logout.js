@@ -37,6 +37,7 @@ const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("../../timeouts");
 
 const LOGOUT_NAME_RE = /log\s*out|sign\s*out|sign-out|abmelden/i;
+const KEYCLOAK_LOGOUT_URL_RE = /\/protocol\/openid-connect\/logout/i;
 const ACCOUNT_MENU_NAME_RE = /(account|\bprofile\b|user.?menu|^menu$|signed\s*in)/i;
 
 async function clickFirstVisible(loc) {
@@ -86,14 +87,31 @@ function menuTriggerCandidatesOn(scope) {
   ];
 }
 
-async function waitForAnyLogoutCandidate(page, timeoutMs = resolveTimeout(30_000)) {
-  // Returns true on the first visible logout-shaped element OR menu trigger
-  // (Account/Profile). Async-rendered post-login UIs (e.g. dashboard's
-  // CDN-loaded keycloak-js + token exchange) routinely exceed 10s before
-  // the Account dropdown is even visible — bumped from 10s to 30s.
+const POLL_INTERVAL_MS = 250;
+
+async function waitForLogoutControl(page, timeoutMs) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
-    for (const loc of [...logoutCandidatesOn(page), ...menuTriggerCandidatesOn(page)]) {
+    for (const loc of logoutCandidatesOn(page)) {
+      const count = await loc.count().catch(() => 0);
+      for (let i = 0; i < count; i++) {
+        if (await loc.nth(i).isVisible().catch(() => false)) return true;
+      }
+    }
+    await page.waitForTimeout(POLL_INTERVAL_MS);
+  }
+  return false;
+}
+
+async function waitForAnyLogoutCandidate(page, timeoutMs = resolveTimeout(30_000), extraCandidates = []) {
+  // Returns true on the first visible logout-shaped element, menu trigger
+  // (Account/Profile) or extra candidate. Async-rendered post-login UIs
+  // (e.g. dashboard's CDN-loaded keycloak-js + token exchange) routinely
+  // exceed 10s before the Account dropdown is even visible; bumped from
+  // 10s to 30s.
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    for (const loc of [...logoutCandidatesOn(page), ...menuTriggerCandidatesOn(page), ...extraCandidates]) {
       const count = await loc.count().catch(() => 0);
       for (let i = 0; i < count; i++) {
         const cand = loc.nth(i);
@@ -102,7 +120,7 @@ async function waitForAnyLogoutCandidate(page, timeoutMs = resolveTimeout(30_000
         }
       }
     }
-    await page.waitForTimeout(resolveTimeout(250));
+    await page.waitForTimeout(POLL_INTERVAL_MS);
   }
   return false;
 }
@@ -122,7 +140,7 @@ async function tryLogoutViaMenus(page) {
       tried.add(key);
       await trigger.click({ timeout: resolveTimeout(5_000) }).catch(() => {});
       // Give the dropdown / popover time to render its items.
-      await page.waitForTimeout(resolveTimeout(1_500));
+      await waitForLogoutControl(page, resolveTimeout(1_500));
       if (await tryLogoutFrom(page)) {
         await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
         return true;
@@ -135,10 +153,14 @@ async function tryLogoutViaMenus(page) {
   return false;
 }
 
-async function openAccountSettings(page) {
-  const links = page.locator(
+function settingsLinksOn(scope) {
+  return scope.locator(
     "a[href^='/'][href*='setting' i], a[href^='/'][href*='preference' i], a[href^='/'][href*='einstellung' i]",
   );
+}
+
+async function openAccountSettings(page) {
+  const links = settingsLinksOn(page);
   const count = await links.count().catch(() => 0);
   for (let i = 0; i < count; i++) {
     const link = links.nth(i);
@@ -157,11 +179,20 @@ async function openAccountSettings(page) {
  * without it the Keycloak SSO session — and every app session — survives.
  */
 async function confirmKeycloakLogoutIfPrompted(page) {
-  if (!/\/protocol\/openid-connect\/logout/i.test(page.url())) return;
+  if (!KEYCLOAK_LOGOUT_URL_RE.test(page.url())) return;
   const confirmBtn = page
     .locator("#kc-logout, form[action*='logout-confirm'] input[type='submit'], form[action*='logout-confirm'] button")
     .first();
-  if (await confirmBtn.waitFor({ state: "visible", timeout: resolveTimeout(2_000) }).then(() => true).catch(() => false)) {
+  const prompted = await Promise.race([
+    confirmBtn.waitFor({ state: "visible", timeout: resolveTimeout(2_000) }).then(() => true),
+    page
+      .waitForURL((url) => !KEYCLOAK_LOGOUT_URL_RE.test(url.href), {
+        waitUntil: "commit",
+        timeout: resolveTimeout(2_000),
+      })
+      .then(() => false),
+  ]).catch(() => false);
+  if (prompted) {
     await confirmBtn.click({ timeout: resolveTimeout(10_000) }).catch(() => {});
     await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
   }
@@ -170,9 +201,8 @@ async function confirmKeycloakLogoutIfPrompted(page) {
 async function inAppLogout(page) {
   await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
 
-  await waitForAnyLogoutCandidate(page);
-  await page.waitForTimeout(resolveTimeout(3_000));
-  await waitForAnyLogoutCandidate(page);
+  await waitForLogoutControl(page, resolveTimeout(3_000));
+  await waitForAnyLogoutCandidate(page, resolveTimeout(30_000), [settingsLinksOn(page)]);
 
   if (await tryLogoutFrom(page)) {
     await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
@@ -222,4 +252,4 @@ async function inAppLogout(page) {
   expect.soft(false, "no in-app logout control reachable on the current authenticated surface").toBe(true);
 }
 
-module.exports = { inAppLogout, confirmKeycloakLogoutIfPrompted };
+module.exports = { inAppLogout, confirmKeycloakLogoutIfPrompted, waitForLogoutControl };

@@ -1,0 +1,31 @@
+---
+lmstudio:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  bond: 1
+  enabled: true
+  shared: true
+  backup:
+    no_stop_required: true
+  image: lmstudio/llmster-preview
+  version: cpu
+  name: lmstudio
+  platform_arch: x86_64
+  min_storage: 588MB
+  cpus: "4.0"
+  mem_reservation: 6g
+  mem_limit: 8g
+  pids_limit: 2048
+  ports:
+    internal:
+      http: 1234
+  lifecycle: beta
+
+# nocheck: playwright-service-flag, dynamic-flag
+container_backup: # nocheck: bond-baseline
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true

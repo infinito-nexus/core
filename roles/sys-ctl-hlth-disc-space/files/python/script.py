@@ -49,7 +49,7 @@ def main():
             print(f"WARNING: {usage}% exceeds the limit of {threshold}%.")
             errors += 1
 
-    sys.exit(errors)
+    sys.exit(1 if errors else 0)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,52 @@
+---
+classification: adapter_server
+direction: server
+source_url: https://docs.nextcloud.com/server/latest/admin_manual/ai/app_context_agent.html
+transport: streamable_http
+exposure: internal
+auth: bearer_token
+auth_subject: service_account
+implementation: adapter
+credential:
+  owner: mcp-web-app-nextcloud
+  source: credentials
+  key: mcp_bearer
+adapter:
+  type: mcp_passthrough
+  upstream_transport: streamable_http
+  specification_path: roles/web-app-nextcloud/files/mcp/tools.json
+  specification_sha256: sha256:1b9a603d452bf350bdc36fdc0f64b5fda82e01bb6a0cbbdf3dc9e400831474ab
+  upstream_path: /index.php/apps/app_api/proxy/context_agent/mcp/
+endpoint:
+  service_key: contextagentmcp
+  path: /mcp
+  port_key: http
+limits:
+  request_bytes: 65536
+  response_bytes: 1048576
+  timeout_seconds: 15
+  concurrent_requests: 4
+  page_size: 100
+  result_items: 500
+  stream_seconds: 300
+tools:
+  read_probe:
+    tool: find_details_of_current_user
+    arguments: {}
+  allowlist:
+    - find_details_of_current_user
+    - find_free_time_slot_in_calendar
+    - find_person_in_contacts
+    - find_person_in_users
+    - get_file_content
+    - get_file_content_by_file_link
+    - get_folder_tree
+    - list_calendars
+    - list_tasks
+  categories:
+    - calendar
+    - contacts
+    - files
+  schema_sha256: sha256:3c1ad73136e3985d4884a83582bb39da051ef323eb4a9f8109558e17b6ccbdab
+  read_only_default: true
+  mutating_tools_enabled: false

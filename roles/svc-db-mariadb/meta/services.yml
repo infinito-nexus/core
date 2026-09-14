@@ -22,6 +22,9 @@ mariadb:
   mem_limit: 4g
   pids_limit: 1024
   exposed: false
+  healthcheck:
+    test: ["CMD-SHELL", "healthcheck.sh --su-mysql --connect --innodb_initialized"]
+    retries: 18
   ports:
     local:
       mariadb: 3306

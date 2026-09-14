@@ -12,7 +12,10 @@ sample_once() {
 }
 
 zone_probe_name() {
-	zone="$(sed -n 's|^[[:space:]]*address=/\([^/]*\)/.*|\1|p' "${1}" 2>/dev/null | head -n1)"
+	dirs="$(sed -n 's|^[[:space:]]*conf-dir=\([^,[:space:]]*\).*|\1|p' "${1}" 2>/dev/null)"
+	# shellcheck disable=SC2086  # a dnsmasq conf-dir path carries no whitespace
+	zone="$(grep -rhs '^[[:space:]]*address=/' "${1}" ${dirs} |
+		sed -n 's|^[[:space:]]*address=/\([^/]*\)/.*|\1|p' | head -n1)"
 	[ -n "${zone}" ] || return 0
 	printf 'rescue-probe.%s' "${zone}"
 }

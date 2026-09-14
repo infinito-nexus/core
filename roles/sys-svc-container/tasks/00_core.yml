@@ -43,6 +43,12 @@
   include_tasks: "02_docker_in_docker.yml"
   when: DOCKER_IN_CONTAINER | bool
 
+- name: 🔧 Configure docker daemon on a bare host that needs sandbox runtimes
+  include_tasks: "daemon_config.yml"
+  when:
+    - not (DOCKER_IN_CONTAINER | bool)
+    - "'svc-virt-kata' in group_names"
+
 - name: 🔄 Restart and enable docker service
   meta: flush_handlers
 

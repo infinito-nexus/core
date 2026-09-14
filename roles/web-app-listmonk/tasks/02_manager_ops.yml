@@ -11,6 +11,7 @@
   include_tasks: "01_database.yml"
 
 - name: 🔨 Build OIDC settings JSON
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   set_fact:
     oidc_settings_json: >-
       {{ {
@@ -30,6 +31,16 @@
     EOSQL
   args:
     executable: /bin/bash
+
+- name: 🔑 Realign the administrator password Listmonk persisted at install
+  ansible.builtin.shell:
+    cmd: >-
+      {{ LISTMONK_EXEC_DATABASE }} -v ON_ERROR_STOP=1
+      -v pw={{ lookup('config', application_id, 'secrets.credentials.administrator_password') | quote }}
+    stdin: "{{ lookup('file', 'sql/realign_admin_credential.sql') }}"
+  register: listmonk_admin_password
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  changed_when: "'UPDATE 1' in listmonk_admin_password.stdout"
 
 - name: 📌 Apply all Listmonk settings
   shell: |

@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media Self-written marker/tag role with no tasks; just flags a host as the Docker Swarm manager for the inventory validator. Not a third-party product.
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node

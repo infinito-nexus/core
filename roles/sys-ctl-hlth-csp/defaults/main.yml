@@ -10,3 +10,9 @@ HEALTH_CSP_IMAGE: "{{ lookup('config', 'sys-ctl-hlth-csp', 'services.csp-checker
 
 # If true, pull the image on each run (safe but slower)
 HEALTH_CSP_ALWAYS_PULL: false
+
+# Navigation budget in milliseconds a clearnet vhost gets; mirrors the checker's own default
+HEALTH_CSP_TIMEOUT_MS: 20000
+
+# Seconds added per vhost on top of its navigation budget when sizing TimeoutStartSec
+HEALTH_CSP_DOMAIN_RESERVE_SECONDS: 5

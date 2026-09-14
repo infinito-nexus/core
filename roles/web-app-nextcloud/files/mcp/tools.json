@@ -1,0 +1,146 @@
+{
+  "find_details_of_current_user": {
+    "description": "Find the current user's personal information.",
+    "input_schema": {
+      "properties": {},
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "find_free_time_slot_in_calendar": {
+    "description": "Find a time slot in which every participant is free.",
+    "input_schema": {
+      "properties": {
+        "end_time": {
+          "description": "End of the range to search, as YYYY-MM-DD. Defaults to seven days after start_time.",
+          "type": "string"
+        },
+        "participants": {
+          "description": "Email addresses of the participants to find a common slot for.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "slot_duration": {
+          "description": "Length of the slot in hours. Defaults to one hour.",
+          "type": "number"
+        },
+        "start_time": {
+          "description": "Start of the range to search, as YYYY-MM-DD. Defaults to now.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "participants"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "find_person_in_contacts": {
+    "description": "Find a person's contact details by name, returning email, phone and address.",
+    "input_schema": {
+      "properties": {
+        "name": {
+          "description": "The name to search the address book for.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "find_person_in_users": {
+    "description": "Search the instance's users and return their user IDs.",
+    "input_schema": {
+      "properties": {
+        "search_term": {
+          "description": "The term to find the user by.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "search_term"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_file_content": {
+    "description": "Return the content of one file.",
+    "input_schema": {
+      "properties": {
+        "file_path": {
+          "description": "Path of the file inside the user's Files.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "file_path"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_file_content_by_file_link": {
+    "description": "Return the content of one file addressed by an internal Nextcloud link.",
+    "input_schema": {
+      "properties": {
+        "file_url": {
+          "description": "Internal file URL, for example https://host/index.php/f/12345.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "file_url"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_folder_tree": {
+    "description": "List the files the user holds in Nextcloud Files as a folder tree.",
+    "input_schema": {
+      "properties": {
+        "depth": {
+          "description": "Depth of the returned tree.",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "depth"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "list_calendars": {
+    "description": "List every existing calendar by name.",
+    "input_schema": {
+      "properties": {},
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "list_tasks": {
+    "description": "List tasks from the calendars, optionally narrowed by calendar and status.",
+    "input_schema": {
+      "properties": {
+        "calendar_name": {
+          "description": "Name of the calendar to list from, as returned by list_calendars. Omit to list from all.",
+          "type": "string"
+        },
+        "filter_status": {
+          "description": "One of NEEDS-ACTION, COMPLETED, IN-PROCESS or CANCELLED.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "mutating": false
+  }
+}

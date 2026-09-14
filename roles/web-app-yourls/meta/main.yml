@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Self-hosted URL shortener for creating, tracking, and managing short links with built-in click analytics

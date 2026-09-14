@@ -83,7 +83,8 @@ against those runs say so inline.
   `container_extra_hosts` lookup yet (fix is the same one-line lookup,
   apply on CI evidence): wordpress (daggerhart plugin) and mediawiki
   (PluggableAuth) are structurally identical PHP in-app plugins (high
-  likelihood); discourse, jenkins, jira, confluence, odoo, openwebui,
+  likelihood); discourse is now confirmed and pinned (run 33445831564, job
+  Nextcloud#7); jenkins, jira, confluence, odoo, openwebui,
   pretix, zammad, semaphore, jellyfin, listmonk, xwiki, mastodon consume the
   issuer server-side too (unverified network path). oauth2-proxy-based apps
   are NOT affected (proven green: prometheus admin SSO). Two names have left

@@ -1,3 +1,4 @@
 ---
 # default vhost flavour
 webserver_vhost_flavour: "basic" # valid: basic, ws_generic
+front_proxy_stale_config_status_codes: [-1, 404]

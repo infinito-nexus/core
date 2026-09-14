@@ -11,5 +11,4 @@ HETZNER_ROBOT_BASE_URL: "https://robot-ws.your-server.de"
 hetzner_async_enabled: "{{ ASYNC_ENABLED | bool }}"
 hetzner_async_time: "{{ ASYNC_TIME }}"
 hetzner_async_poll: "{{ ASYNC_POLL }}"
-hetzner_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 rdns_records: []

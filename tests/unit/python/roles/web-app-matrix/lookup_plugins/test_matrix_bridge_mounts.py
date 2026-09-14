@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import importlib.util
 import unittest
-import unittest.mock as mock
 
 from ansible.errors import AnsibleError
 
@@ -28,17 +27,12 @@ class _DummyTemplar:
         return value
 
 
-class _FakeContainerLookup:
-    def run(self, terms, variables=None, **kwargs):
-        assert terms == ["web-app-matrix", "directories.instance"], terms
-        return ["/opt/instances/matrix/"]
-
-
 def _vars(**extra):
     base = {
-        "application_id": "web-app-matrix",
         "MATRIX_BRIDGES": [{"bridge_name": "meta"}, {"bridge_name": "signal"}],
-        "MATRIX_REGISTRATION_FILE_FOLDER": "/data/",
+        "MATRIX_BRIDGE_SOURCE_DIR": "/opt/instances/matrix/config/mautrix",
+        "MATRIX_BRIDGE_CONFIG_TARGET": "/config/config.yaml",
+        "MATRIX_REGISTRATION_FILE_FOLDER": "/registrations/",
     }
     base.update(extra)
     return base
@@ -49,50 +43,90 @@ class TestMatrixBridgeMounts(unittest.TestCase):
     def setUpClass(cls):
         cls.module = _load_module()
 
-    def _make(self, variables):
+    def _run(self, terms, vars_=None):
+        vars_ = _vars() if vars_ is None else vars_
         lm = self.module.LookupModule()
-        lm._templar = _DummyTemplar(variables)
+        lm._templar = _DummyTemplar(vars_)
         lm._loader = None
-        return lm
+        return lm.run(terms, variables=vars_)
 
-    def _run(self, vars_):
-        lm = self._make(vars_)
-        with mock.patch.object(self.module, "lookup_loader") as loader_mock:
-            loader_mock.get.return_value = _FakeContainerLookup()
-            return lm.run([], variables=vars_)
-
-    def test_one_mount_per_bridge(self):
-        result = self._run(_vars())
+    def test_stack_declares_both_files_of_every_bridge(self):
         self.assertEqual(
-            result,
+            self._run(["stack"]),
+            [
+                {
+                    "mautrix_meta_config": {
+                        "file": "/opt/instances/matrix/config/mautrix/meta/config.yaml"
+                    },
+                    "mautrix_meta_registration": {
+                        "file": "/opt/instances/matrix/config/mautrix/meta/registration.yaml"
+                    },
+                    "mautrix_signal_config": {
+                        "file": "/opt/instances/matrix/config/mautrix/signal/config.yaml"
+                    },
+                    "mautrix_signal_registration": {
+                        "file": "/opt/instances/matrix/config/mautrix/signal/registration.yaml"
+                    },
+                }
+            ],
+        )
+
+    def test_synapse_mounts_one_registration_per_bridge(self):
+        self.assertEqual(
+            self._run(["synapse"]),
             [
                 [
-                    "/opt/instances/matrix/mautrix/meta:/data/mautrix-meta:ro",
-                    "/opt/instances/matrix/mautrix/signal:/data/mautrix-signal:ro",
+                    {
+                        "source": "mautrix_meta_registration",
+                        "target": "/registrations/mautrix-meta/registration.yaml",
+                        "mode": 0o444,
+                    },
+                    {
+                        "source": "mautrix_signal_registration",
+                        "target": "/registrations/mautrix-signal/registration.yaml",
+                        "mode": 0o444,
+                    },
                 ]
             ],
         )
 
-    def test_no_bridges_yields_empty_list(self):
-        result = self._run(_vars(MATRIX_BRIDGES=[]))
-        self.assertEqual(result, [[]])
+    def test_bridge_mounts_only_its_own_config(self):
+        self.assertEqual(
+            self._run(["bridge", "signal"]),
+            [
+                [
+                    {
+                        "source": "mautrix_signal_config",
+                        "target": "/config/config.yaml",
+                        "mode": 0o444,
+                    }
+                ]
+            ],
+        )
 
-    def test_terms_raise(self):
-        lm = self._make(_vars())
+    def test_no_bridges_declares_nothing(self):
+        vars_ = _vars(MATRIX_BRIDGES=[])
+        self.assertEqual(self._run(["stack"], vars_), [{}])
+        self.assertEqual(self._run(["synapse"], vars_), [[]])
+
+    def test_unknown_view_raises(self):
+        for terms in ([], ["x"]):
+            with self.assertRaises(AnsibleError):
+                self._run(terms)
+
+    def test_bridge_that_is_not_enabled_raises(self):
         with self.assertRaises(AnsibleError):
-            lm.run(["x"], variables=_vars())
+            self._run(["bridge", "whatsapp"])
 
     def test_missing_bridges_raises(self):
         vars_ = _vars()
         del vars_["MATRIX_BRIDGES"]
-        lm = self._make(vars_)
         with self.assertRaises(AnsibleError):
-            lm.run([], variables=vars_)
+            self._run(["stack"], vars_)
 
     def test_non_list_bridges_raises(self):
-        lm = self._make(_vars(MATRIX_BRIDGES="meta"))
         with self.assertRaises(AnsibleError):
-            lm.run([], variables=_vars(MATRIX_BRIDGES="meta"))
+            self._run(["stack"], _vars(MATRIX_BRIDGES="meta"))
 
 
 if __name__ == "__main__":

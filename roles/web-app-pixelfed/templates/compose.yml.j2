@@ -22,12 +22,7 @@
       AUTORUN_ENABLED: "false"
     {{ lookup('container_volumes', service_name) | indent(4) }}
     entrypoint: "{{ PIXELFED_WORKER_ENTRYPOINT_DOCKER }}"
-    healthcheck:
-      test: test ! -e /var/www/storage/.docker.init || (php artisan horizon:status | grep running)
-      interval: 60s
-      timeout: 5s
-      retries: 5
-      start_period: 300s
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_depends_on', application_id, extra={
   'pixelfed': {'condition': 'service_started'},
 }) | indent(4) }}

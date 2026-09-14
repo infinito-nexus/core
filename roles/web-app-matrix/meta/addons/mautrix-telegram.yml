@@ -9,6 +9,7 @@ update:
   upstream_id: mautrix-telegram
 config:
   bridge_name: "telegram"
+  appservice_port: 29317
   database_username: "mautrix_telegram_bridge"
   database_name: "mautrix_telegram_bridge"
   database_password: "{{ lookup('config', 'web-app-matrix', 'secrets.credentials.mautrix_telegram_bridge_database_password', '') }}"

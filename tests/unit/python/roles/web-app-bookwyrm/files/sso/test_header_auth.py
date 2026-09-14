@@ -9,7 +9,7 @@ from unittest.mock import MagicMock
 from . import PROJECT_ROOT
 
 MODULE_PATH = PROJECT_ROOT / "roles/web-app-bookwyrm/files/sso/header_auth.py"
-DOMAIN = "book.infinito.example"
+DOMAIN = "book.infinito.test"
 
 
 class _FakeMiddlewareBase:

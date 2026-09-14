@@ -33,6 +33,7 @@ flowchart TB
             chunk0["test-deploy-chunk-0"]
             chunk0 --> chunk1["test-deploy-chunk-1"]
             chunk1 --> chunk2["test-deploy-chunk-2"]
+            chunk2 --> chunk3["test-deploy-chunk-3"]
         end
 
         lintwf --> chain
@@ -47,15 +48,12 @@ flowchart TB
         instmake["test-install-make.yml"]
         instpkgmgr["test-install-pkgmgr.yml"]
         mirror --> devenv["test-workspace: test-workspace.yml"]
-        buildci --> testguide["test-instructions.yml"]
-        mirror --> testguide
 
         chain --> donegate["done"]
         smoke --> donegate
         instmake --> donegate
         instpkgmgr --> donegate
         devenv --> donegate
-        testguide --> donegate
     end
 
     chunk0 --> deploy["call-test-deploy.yml"]
@@ -102,8 +100,11 @@ the whole list instead of re-testing the same head forever.
 GitHub Actions cannot generate a variable number of jobs, so the chunk blocks
 are written out in the orchestrator. `INFINITO_CI_MAX_CHUNKS` must equal how
 many exist there — `slots` plans a sweep against that key, and a sweep planned
-larger than the chain silently drops its tail. Blocks whose slice comes back
-empty skip themselves and cost nothing.
+larger than the chain silently drops its tail. Declare one block more than
+`available` fills (`ceil(available / chunk size) + 1`): the split receives
+every declared block, so after a short priority chunk the regular rows still
+fill the rest of the budget. Blocks whose slice comes back empty skip
+themselves and cost nothing.
 
 Run `python -m cli.meta.ci.slots --matrix` to see the whole budget.
 
@@ -258,7 +259,10 @@ failed chunk:
 `skipped` counts as passed, so an empty chunk never blocks the chain. After
 fixing what broke a sweep, `resume_from_chunk` re-enters at that index instead
 of re-running the green chunks. Both are inputs on `entry-manual-steer.yml`;
-the other entry points take the defaults.
+the other entry points take the defaults. A retrigger carries the source run's
+`chunk_gate` over unless `infinito administration deploy ci trigger
+--chunk-gate false` overrides it; the `i8ciallon` alias is `i8ciall` with that
+override, for sweeps that should report every chunk before anyone looks.
 
 ## Cancellation
 
@@ -277,6 +281,12 @@ run being created and needs no runner. `entry-cancel-superseded.yml` is the
 fallback for the case where it does not, and carries no group of its own,
 because the run holding a group cannot be the run that frees it.
 
+A workflow the entries call declares no `concurrency` of its own: its jobs then
+belong to the entry's group, and the entry's `cancel-in-progress` reaches them.
+`call-images-build-ci.yml` and `call-images-mirror-missing.yml` still declare
+one, so a run whose only live job is theirs stays outside the entry's group and
+waits for the fallback.
+
 ## Scheduled and standalone
 
 ```mermaid
@@ -294,7 +304,6 @@ flowchart TB
     relhighest -.->|"gh workflow run"| relver["release-version.yml"]
     relver --> imgbuildci["images-build-ci.yml"]
     manual["workflow_dispatch"] --> mirrorcleanup["images-mirror-cleanup.yml"]
-    manual --> deploywf["test-instructions.yml: run a role README Production command"]
 ```
 
 Also manually dispatchable: `cron-images-mirror-all.yml`, `cron-images-cleanup-ci.yml`,

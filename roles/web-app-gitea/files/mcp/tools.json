@@ -1,0 +1,834 @@
+{
+  "attachment_read": {
+    "description": "Read issue/comment attachments: list metadata, get metadata, or download content.",
+    "input_schema": {
+      "properties": {
+        "attachment_id": {
+          "description": "required for get and for download when attachment_uuid is not provided",
+          "type": "number"
+        },
+        "attachment_uuid": {
+          "description": "attachment UUID for direct download path lookup",
+          "type": "string"
+        },
+        "comment_id": {
+          "description": "required for comment attachment list/get or comment-scoped metadata lookup",
+          "type": "number"
+        },
+        "issue_number": {
+          "description": "required for issue attachment list/get or issue-scoped metadata lookup",
+          "type": "number"
+        },
+        "method": {
+          "enum": [
+            "list",
+            "get",
+            "download"
+          ],
+          "type": "string"
+        },
+        "output_path": {
+          "description": "write the attachment to this exact path",
+          "type": "string"
+        },
+        "owner": {
+          "description": "repo owner",
+          "type": "string"
+        },
+        "repo": {
+          "description": "repo name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "method",
+        "owner",
+        "repo"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_commit": {
+    "description": "Get details for a single commit in a repository by its SHA.",
+    "input_schema": {
+      "properties": {
+        "owner": {
+          "description": "repo owner",
+          "type": "string"
+        },
+        "repo": {
+          "description": "repo name",
+          "type": "string"
+        },
+        "sha": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "owner",
+        "repo",
+        "sha"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_dir_contents": {
+    "description": "List the entries (files and subdirectories) in a repository directory at a given ref (branch, tag, or commit SHA).",
+    "input_schema": {
+      "properties": {
+        "owner": {
+          "description": "repo owner",
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "ref": {
+          "description": "branch, tag, or commit SHA",
+          "type": "string"
+        },
+        "repo": {
+          "description": "repo name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "owner",
+        "repo",
+        "ref",
+        "path"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_file_contents": {
+    "description": "Get file content and metadata",
+    "input_schema": {
+      "properties": {
+        "owner": {
+          "description": "repo owner",
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "ref": {
+          "description": "branch, tag, or commit SHA",
+          "type": "string"
+        },
+        "repo": {
+          "description": "repo name",
+          "type": "string"
+        },
+        "withLines": {
+          "description": "return numbered lines",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "owner",
+        "repo",
+        "ref",
+        "path"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_latest_release": {
+    "description": "Get the most recent published (non-draft) release in a repository.",
+    "input_schema": {
+      "properties": {
+        "owner": {
+          "description": "repo owner",
+          "type": "string"
+        },
+        "repo": {
+          "description": "repo name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "owner",
+        "repo"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_me": {
+    "description": "Get current user",
+    "input_schema": {
+      "properties": {},
+      "required": [],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_release": {
+    "description": "Get a release by ID",
+    "input_schema": {
+      "properties": {
+        "id": {
+          "type": "number"
+        },
+        "owner": {
+          "description": "repo owner",
+          "type": "string"
+        },
+        "repo": {
+          "description": "repo name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "owner",
+        "repo",
+        "id"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_repository_tree": {
+    "description": "Get the file tree of a repository at a given ref (SHA, branch, or tag), optionally recursively.",
+    "input_schema": {
+      "properties": {
+        "owner": {
+          "description": "repo owner",
+          "type": "string"
+        },
+        "page": {
+          "default": 1,
+          "description": "page",
+          "type": "number"
+        },
+        "per_page": {
+          "default": 30,
+          "description": "results per page",
+          "type": "number"
+        },
+        "recursive": {
+          "type": "boolean"
+        },
+        "repo": {
+          "description": "repo name",
+          "type": "string"
+        },
+        "tree_sha": {
+          "description": "SHA, branch, or tag",
+          "type": "string"
+        }
+      },
+      "required": [
+        "owner",
+        "repo",
+        "tree_sha"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_tag": {
+    "description": "Get details for a single tag in a repository by name.",
+    "input_schema": {
+      "properties": {
+        "owner": {
+          "description": "repo owner",
+          "type": "string"
+        },
+        "repo": {
+          "description": "repo name",
+          "type": "string"
+        },
+        "tag_name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "owner",
+        "repo",
+        "tag_name"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "get_user_orgs": {
+    "description": "List current user's organizations",
+    "input_schema": {
+      "properties": {
+        "page": {
+          "default": 1,
+          "description": "page",
+          "type": "number"
+        },
+        "per_page": {
+          "default": 30,
+          "description": "results per page",
+          "type": "number"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "issue_read": {
+    "description": "Read issue: details, comments, or labels.",
+    "input_schema": {
+      "properties": {
+        "issue_number": {
+          "type": "number"
+        },
+        "method": {
+          "enum": [
+            "get",
+            "get_comments",
+            "get_labels"
+          ],
+          "type": "string"
+        },
+        "owner": {
+          "description": "repo owner",
+          "type": "string"
+        },
+        "repo": {
+          "description": "repo name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "method",
+        "owner",
+        "repo",
+        "issue_number"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "list_branches": {
+    "description": "List all branches in a repository, paginated.",
+    "input_schema": {
+      "properties": {
+        "owner": {
+          "description": "repo owner",
+          "type": "string"
+        },
+        "page": {
+          "default": 1,
+          "description": "page",
+          "type": "number"
+        },
+        "per_page": {
+          "default": 30,
+          "description": "results per page",
+          "type": "number"
+        },
+        "repo": {
+          "description": "repo name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "owner",
+        "repo"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "list_commits": {
+    "description": "List commits in a repository, optionally starting from a specific branch or SHA and filtered to commits touching a given file path.",
+    "input_schema": {
+      "properties": {
+        "owner": {
+          "description": "repo owner",
+          "type": "string"
+        },
+        "page": {
+          "default": 1,
+          "description": "page",
+          "minimum": 1,
+          "type": "number"
+        },
+        "path": {
+          "description": "only commits touching this path",
+          "type": "string"
+        },
+        "per_page": {
+          "default": 30,
+          "description": "results per page",
+          "minimum": 1,
+          "type": "number"
+        },
+        "repo": {
+          "description": "repo name",
+          "type": "string"
+        },
+        "sha": {
+          "description": "starting SHA or branch",
+          "type": "string"
+        }
+      },
+      "required": [
+        "owner",
+        "repo"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "list_issues": {
+    "description": "List issues in a repository (or pull requests, via the 'type' filter), filterable by state, labels, milestones, and update time range.",
+    "input_schema": {
+      "properties": {
+        "before": {
+          "description": "updated before ISO 8601",
+          "type": "string"
+        },
+        "labels": {
+          "description": "label name filter",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "milestones": {
+          "description": "milestone name or ID filter",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "owner": {
+          "description": "repo owner",
+          "type": "string"
+        },
+        "page": {
+          "default": 1,
+          "description": "page",
+          "type": "number"
+        },
+        "per_page": {
+          "default": 30,
+          "description": "results per page",
+          "type": "number"
+        },
+        "repo": {
+          "description": "repo name",
+          "type": "string"
+        },
+        "since": {
+          "description": "updated after ISO 8601",
+          "type": "string"
+        },
+        "state": {
+          "default": "all",
+          "type": "string"
+        },
+        "type": {
+          "description": "issues or pulls",
+          "enum": [
+            "issues",
+            "pulls"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "owner",
+        "repo"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "list_my_repos": {
+    "description": "List repositories owned by the authenticated user.",
+    "input_schema": {
+      "properties": {
+        "page": {
+          "default": 1,
+          "description": "page",
+          "minimum": 1,
+          "type": "number"
+        },
+        "per_page": {
+          "default": 30,
+          "description": "results per page",
+          "minimum": 1,
+          "type": "number"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "list_org_repos": {
+    "description": "List repositories belonging to an organization.",
+    "input_schema": {
+      "properties": {
+        "org": {
+          "type": "string"
+        },
+        "page": {
+          "default": 1,
+          "description": "page",
+          "minimum": 1,
+          "type": "number"
+        },
+        "per_page": {
+          "default": 100,
+          "description": "results per page",
+          "minimum": 1,
+          "type": "number"
+        }
+      },
+      "required": [
+        "org"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "list_pull_requests": {
+    "description": "List pull requests in a repository, filterable by state and milestone, with configurable sort order (e.g. recently updated, most commented).",
+    "input_schema": {
+      "properties": {
+        "milestone": {
+          "type": "number"
+        },
+        "owner": {
+          "description": "repo owner",
+          "type": "string"
+        },
+        "page": {
+          "default": 1,
+          "description": "page",
+          "type": "number"
+        },
+        "per_page": {
+          "default": 30,
+          "description": "results per page",
+          "type": "number"
+        },
+        "repo": {
+          "description": "repo name",
+          "type": "string"
+        },
+        "sort": {
+          "default": "recentupdate",
+          "enum": [
+            "oldest",
+            "recentupdate",
+            "leastupdate",
+            "mostcomment",
+            "leastcomment",
+            "priority"
+          ],
+          "type": "string"
+        },
+        "state": {
+          "default": "all",
+          "enum": [
+            "open",
+            "closed",
+            "all"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "owner",
+        "repo"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "list_releases": {
+    "description": "List releases in a repository, optionally filtered to drafts or pre-releases.",
+    "input_schema": {
+      "properties": {
+        "is_draft": {
+          "type": "boolean"
+        },
+        "is_pre_release": {
+          "type": "boolean"
+        },
+        "owner": {
+          "description": "repo owner",
+          "type": "string"
+        },
+        "page": {
+          "default": 1,
+          "description": "page",
+          "minimum": 1,
+          "type": "number"
+        },
+        "per_page": {
+          "default": 20,
+          "description": "results per page",
+          "minimum": 1,
+          "type": "number"
+        },
+        "repo": {
+          "description": "repo name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "owner",
+        "repo"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "list_tags": {
+    "description": "List all tags in a repository, paginated.",
+    "input_schema": {
+      "properties": {
+        "owner": {
+          "description": "repo owner",
+          "type": "string"
+        },
+        "page": {
+          "default": 1,
+          "description": "page",
+          "minimum": 1,
+          "type": "number"
+        },
+        "per_page": {
+          "default": 20,
+          "description": "results per page",
+          "minimum": 1,
+          "type": "number"
+        },
+        "repo": {
+          "description": "repo name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "owner",
+        "repo"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "pull_request_read": {
+    "description": "Read pull request: details, diff, changed files, head commit status, reviews, review comments.",
+    "input_schema": {
+      "properties": {
+        "binary": {
+          "description": "include binary diff",
+          "type": "boolean"
+        },
+        "method": {
+          "enum": [
+            "get",
+            "get_diff",
+            "get_files",
+            "get_status",
+            "get_reviews",
+            "get_review",
+            "get_review_comments"
+          ],
+          "type": "string"
+        },
+        "owner": {
+          "description": "repo owner",
+          "type": "string"
+        },
+        "page": {
+          "default": 1,
+          "description": "page",
+          "type": "number"
+        },
+        "per_page": {
+          "default": 30,
+          "description": "results per page",
+          "type": "number"
+        },
+        "pull_number": {
+          "type": "number"
+        },
+        "repo": {
+          "description": "repo name",
+          "type": "string"
+        },
+        "review_id": {
+          "description": "for 'get_review'; optional for 'get_review_comments', omit to list all",
+          "type": "number"
+        }
+      },
+      "required": [
+        "method",
+        "owner",
+        "repo",
+        "pull_number"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "search_issues": {
+    "description": "Search issues and PRs across repositories",
+    "input_schema": {
+      "properties": {
+        "labels": {
+          "description": "comma-separated",
+          "type": "string"
+        },
+        "owner": {
+          "description": "filter by owner",
+          "type": "string"
+        },
+        "page": {
+          "default": 1,
+          "description": "page",
+          "type": "number"
+        },
+        "per_page": {
+          "default": 30,
+          "description": "results per page",
+          "type": "number"
+        },
+        "query": {
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "open",
+            "closed",
+            "all"
+          ],
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "issues",
+            "pulls"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "search_org_teams": {
+    "description": "Search for teams within an organization by name, optionally including each team's description in the results.",
+    "input_schema": {
+      "properties": {
+        "includeDescription": {
+          "type": "boolean"
+        },
+        "org": {
+          "type": "string"
+        },
+        "page": {
+          "default": 1,
+          "description": "page",
+          "type": "number"
+        },
+        "per_page": {
+          "default": 30,
+          "description": "results per page",
+          "type": "number"
+        },
+        "query": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "org",
+        "query"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "search_repos": {
+    "description": "Search for repositories by keyword, with filters for topic/description matching, owner, visibility, archived status, and sort order.",
+    "input_schema": {
+      "properties": {
+        "isArchived": {
+          "type": "boolean"
+        },
+        "isPrivate": {
+          "type": "boolean"
+        },
+        "keywordInDescription": {
+          "type": "boolean"
+        },
+        "keywordIsTopic": {
+          "type": "boolean"
+        },
+        "order": {
+          "type": "string"
+        },
+        "ownerID": {
+          "type": "number"
+        },
+        "page": {
+          "default": 1,
+          "description": "page",
+          "type": "number"
+        },
+        "per_page": {
+          "default": 30,
+          "description": "results per page",
+          "type": "number"
+        },
+        "query": {
+          "type": "string"
+        },
+        "sort": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "search_users": {
+    "description": "Search for Gitea users by username or full name.",
+    "input_schema": {
+      "properties": {
+        "page": {
+          "default": 1,
+          "description": "page",
+          "type": "number"
+        },
+        "per_page": {
+          "default": 30,
+          "description": "results per page",
+          "type": "number"
+        },
+        "query": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  }
+}

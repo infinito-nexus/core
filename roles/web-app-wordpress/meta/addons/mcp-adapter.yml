@@ -1,0 +1,10 @@
+---
+enabled: "{{ lookup('config', 'web-app-wordpress', 'mcp.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: upstream
+version: v0.5.0
+update:
+  monitored: true
+  catalog: github-releases
+  upstream_id: WordPress/mcp-adapter

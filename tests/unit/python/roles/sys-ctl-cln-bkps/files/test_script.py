@@ -178,8 +178,9 @@ class TestSysCtlClnBkpsScript(unittest.TestCase):
             )
 
         self.assertIn("contains the last version of the backup. Skipped.", out)
-        self.assertIn("No deletable backup versions left", out)
+        self.assertIn("No deletable backup version", out)
         self.assertIn("Cleaning up finished.", out)
+        self.assertIn("Delete Iteration: 1", out)
         self.assertNotIn("Delete Iteration: 2", out)
         rmtree_mock.assert_not_called()
 

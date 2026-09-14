@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Local-first cross-platform desktop password manager storing credentials in an encrypted KeePass-format database

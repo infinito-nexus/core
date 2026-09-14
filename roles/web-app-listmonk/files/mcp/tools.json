@@ -1,0 +1,28 @@
+{
+  "listmonk_get_campaign": {
+    "description": "Return one campaign.",
+    "input_schema": {
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "method": "GET",
+    "path": "/api/campaigns/{id}"
+  },
+  "listmonk_get_stats": {
+    "description": "Return the dashboard counters.",
+    "method": "GET",
+    "path": "/api/dashboard/counts"
+  },
+  "listmonk_list_campaigns": {
+    "description": "List campaigns.",
+    "method": "GET",
+    "path": "/api/campaigns"
+  }
+}

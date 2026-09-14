@@ -27,7 +27,7 @@
       - "NEW_EMAIL={{ lookup('users', 'administrator').email }}"
       - -e
       - "NEW_PASSWORD_B64={{ lookup('users', 'administrator').password | b64encode }}"
-      - "{{ BBB_GREENLIGHT_CONTAINER_ADDRESS | quote }}" # nocheck: container-address-quote compose_mode_force role
+      - "{{ BBB_GREENLIGHT_CONTAINER_ADDRESS | quote }}" # nocheck: container-address-quote, container-address-needs-shell  compose_mode_force role, so the lookup can only yield a bare name
       - bash
       - -lc
       - "bundle exec rails runner -"

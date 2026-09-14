@@ -35,6 +35,7 @@ mariadb:
 joomla:
   healthcheck:
     flavor: curl
+    # nocheck: healthcheck-timing-override  boots slower than the ten minute window; the value predates this default and has not been measured against it
     start_period: 15m
   modes:
     compose:

@@ -1,0 +1,34 @@
+---
+- name: "🔎 Check the MCP plugin is baked into the image"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec --user root {{ MOODLE_MCP_LOCAL_CID | quote }} \
+      test -d {{ MOODLE_MCP_PLUGIN_SOURCE_DIR | quote }}
+  register: moodle_mcp_plugin_source
+  changed_when: false
+  failed_when: false
+  delegate_to: "{{ MOODLE_MCP_HOST_NODE }}"
+  run_once: true
+
+- name: "🛑 Refuse a Moodle image built without the MCP plugin"
+  ansible.builtin.assert:
+    that:
+      - moodle_mcp_plugin_source.rc == 0
+    fail_msg: >-
+      {{ MOODLE_MCP_PLUGIN_SOURCE_DIR }} is missing, so the image carries no
+      webservice_mcp plugin and the MCP endpoint cannot exist.
+
+- name: "📋 Sync the MCP plugin into the bootstrapped code volume"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_MCP_LOCAL_CID | quote }} \
+      cp -aT {{ MOODLE_MCP_PLUGIN_SOURCE_DIR | quote }} {{ MOODLE_MCP_PLUGIN_DIR | quote }}
+  changed_when: false
+  delegate_to: "{{ MOODLE_MCP_HOST_NODE }}"
+  run_once: true
+
+- name: "▶️ Install the MCP plugin database records"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_MCP_LOCAL_CID | quote }} \
+      php {{ MOODLE_CLI_DIR }}/upgrade.php --non-interactive
+  changed_when: false
+  delegate_to: "{{ MOODLE_MCP_HOST_NODE }}"
+  run_once: true

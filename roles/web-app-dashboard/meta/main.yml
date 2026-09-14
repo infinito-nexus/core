@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media Self-written in-house dashboard/portfolio UI ("PortUI") authored by the project maintainer (issue tracker points to his own kevinveenbirkenbach/portfolio repo); no third-party upstream product.
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Self-hosted portal for unified access to all deployed applications via a customizable tile and menu interface

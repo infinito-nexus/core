@@ -10,6 +10,8 @@ _STATUS_CACHE: dict[tuple, dict[str, list[str]]] = {}
 
 _EPHEMERAL_RUNTIMES = frozenset({"act", "github"})
 
+_IMPLICIT_GROUPS = frozenset({"all", "ungrouped"})
+
 
 def _reset_cache_for_tests() -> None:
     _STATUS_CACHE.clear()
@@ -34,8 +36,13 @@ class LookupModule(LookupBase):
 
         whitelist = _coerce_to_list(vars_.get("APPLICATIONS_WHITELIST"))
         groups = _coerce_to_list(vars_.get("group_names"))
+        inventory = sorted(
+            name
+            for name, hosts in (vars_.get("groups") or {}).items()
+            if hosts and name not in _IMPLICIT_GROUPS
+        )
         runtime = str(vars_.get("RUNTIME", "")).strip().lower()
-        key = (tuple(whitelist), tuple(groups), runtime)
+        key = (tuple(whitelist), tuple(groups), tuple(inventory), runtime)
 
         cached = _STATUS_CACHE.get(key)
         if cached is not None:
@@ -47,6 +54,7 @@ class LookupModule(LookupBase):
             "whitelist": whitelist,
             "running": list(running),
             "groups": groups,
+            "inventory": inventory,
             "deployed": deployed,
             "runtime": runtime,
             "all": list(list_invokable_app_ids()),

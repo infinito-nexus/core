@@ -1,3 +1,4 @@
 ---
+# nocheck: info-media Self-written web-svc glue role deploying the author's own universal-logout Flask/Nginx logout proxy; no third-party consumer product.
 logo:
   class: fa fa-sign-out-alt

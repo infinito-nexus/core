@@ -1,0 +1,7 @@
+---
+# nocheck: embedded-state-on-nfs model blobs written once on pull and read back afterwards
+lmstudio_data:
+  type: volume
+  mounts:
+    - service: lmstudio
+      target: /root/.lmstudio

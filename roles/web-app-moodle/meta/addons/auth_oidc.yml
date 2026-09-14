@@ -1,0 +1,12 @@
+---
+enabled: "{{ lookup('config', 'web-app-moodle', 'services.sso.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: upstream
+version: "v4.5.8"
+bridges:
+  - sso
+update:
+  monitored: true
+  catalog: github-releases
+  upstream_id: microsoft/moodle-auth_oidc

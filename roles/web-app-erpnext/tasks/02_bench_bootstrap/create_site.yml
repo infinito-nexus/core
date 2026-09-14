@@ -1,5 +1,6 @@
 ---
 - name: "📦 bench new-site --install-app erpnext '{{ ERPNEXT_SITE_NAME }}'"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   ansible.builtin.shell: |
     set -euo pipefail
     # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node

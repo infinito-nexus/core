@@ -68,7 +68,11 @@ _RULE = "playwright-service-gate"
 _ENV_TEMPLATE_REL = "templates/playwright.env.j2"  # nocheck: role-file-spot
 _SPEC_FILE_REL = ROLE_FILE_PLAYWRIGHT_SPEC
 _SHARED_PERSONAS_DIR = "roles/test-e2e-playwright/files/personas"
+_SHARED_HARNESS_DIR = "roles/test-e2e-playwright/files"
 _PERSONA_RUNNERS: tuple[str, ...] = ("runGuestFlow", "runBiberFlow", "runAdminFlow")
+
+_LOCAL_REQUIRE_RE = re.compile(r"""require\(\s*['"]\./([A-Za-z0-9_.-]+)['"]\s*\)""")
+_BLOCK_COMMENT_RE = re.compile(r"/\*.*?\*/", re.DOTALL)
 
 _FLAG_LINE_RE = re.compile(r"^\s*([A-Z][A-Z0-9_]*)_SERVICE_ENABLED\s*=")
 _HELPER_CALL_RE = re.compile(
@@ -111,10 +115,27 @@ def _gated_roots_in_spec(spec_path: Path) -> set[str]:
     inside the shared personas directory count as consumed by the spec
     too — every persona scenario fully drives the underlying
     `skipUnlessServiceEnabled('...')` chain via shared helpers.
+
+    A `require("./<name>")` that resolves to a module of the shared
+    harness rather than to a sibling counts the same way: the harness is
+    staged flat into the role's own test directory, so a gate declared
+    there is the very call the spec makes. Its block comments are stripped
+    first: `service-gating.js` documents its own contract with literal
+    `isServiceEnabled("sso")` / `isServiceDisabledReason("email")` examples,
+    and crediting those would exempt EMAIL, SSO and OICD for every role that
+    requires it.
     """
     spec_dir_texts = [
         read_text(str(js_path)) for js_path in sorted(spec_path.parent.glob("*.js"))
     ]
+    for name in {m for text in spec_dir_texts for m in _LOCAL_REQUIRE_RE.findall(text)}:
+        harness_path = (
+            PROJECT_ROOT / _SHARED_HARNESS_DIR / f"{name.removesuffix('.js')}.js"
+        )
+        if harness_path.is_file():
+            spec_dir_texts.append(
+                _BLOCK_COMMENT_RE.sub("", read_text(str(harness_path)))
+            )
     combined_text = "\n".join(spec_dir_texts)
     roots: set[str] = {
         _service_to_env_key_root(name)

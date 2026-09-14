@@ -1,0 +1,39 @@
+{
+  "snipeit_get_asset": {
+    "description": "Return one asset.",
+    "input_schema": {
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "method": "GET",
+    "path": "/api/v1/hardware/{id}"
+  },
+  "snipeit_get_license_summary": {
+    "description": "Return the license summary.",
+    "method": "GET",
+    "path": "/api/v1/licenses"
+  },
+  "snipeit_search_assets": {
+    "description": "Search the asset inventory.",
+    "input_schema": {
+      "properties": {
+        "search": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "search"
+      ],
+      "type": "object"
+    },
+    "method": "GET",
+    "path": "/api/v1/hardware"
+  }
+}

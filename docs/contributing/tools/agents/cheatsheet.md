@@ -27,6 +27,8 @@ from its procedure file. Run `make install-skills` to (re)install them.
 | Running the quality gate (`make quality`) to green | `i8-quality` |
 | Running the full gate (`make quality-high`: quality plus every lint) to green | `i8-quality-high` |
 | Cleaning up code, docs, or roles after a change | `i8-refactor` |
+| Checking a branch out into a parallel worktree | `i8-worktree-create` |
+| Releasing a parallel worktree and its slot | `i8-worktree-down` |
 | A GitHub Actions / CI run failed and needs triage | `triage` |
 | A local deploy is failing on the host | `i8-debug-local` |
 | Inspecting a `*.log` or `*job-logs.txt` file dropped in the workdir | `i8-debug-log` |

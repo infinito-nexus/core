@@ -1,0 +1,2 @@
+---
+# nocheck: info-media Self-written backup infrastructure role (svc-bkp-*); wraps the author's own baudolo/backup-docker-to-local glue, no third-party consumer product website.

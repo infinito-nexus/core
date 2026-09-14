@@ -15,6 +15,7 @@ The diagram places Discourse in the Infinito.Nexus cosmos: the components it dep
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
+        dep_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
         dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
@@ -30,6 +31,7 @@ flowchart LR
         dep_web_svc_logout["web-svc-logout 🐳🐝"]
     end
     subgraph role [web-app-discourse 🐳🐝]
+        svc_litellm["litellm"]
         svc_asset["asset"]
         svc_sso["sso"]
         svc_ldap["ldap ❌"]
@@ -49,6 +51,7 @@ flowchart LR
         dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]
         dpt_web_app_wordpress["web-app-wordpress 🐳🐝"]
     end
+    dep_svc_ai_litellm -. "0..1" .-> svc_litellm
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_openldap -- "0..0" --> svc_ldap
     dep_svc_db_postgres -. "0..1" .-> svc_postgres
@@ -62,9 +65,9 @@ flowchart LR
     dep_web_svc_asset -. "0..1" .-> svc_asset
     dep_web_svc_css -. "0..1" .-> svc_css
     dep_web_svc_logout -. "0..1" .-> svc_logout
-    svc_asset -. "0..1" .-> dpt_web_app_nextcloud
-    svc_asset -. "0..1" .-> dpt_web_app_wordpress
-    linkStyle 1 stroke:red;
+    svc_litellm -. "0..1" .-> dpt_web_app_nextcloud
+    svc_litellm -. "0..1" .-> dpt_web_app_wordpress
+    linkStyle 2 stroke:red;
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
@@ -97,19 +100,20 @@ Run the published image to provision the inventory and deploy Discourse to a man
 ```bash
 APP=web-app-discourse
 HOST=<your-server>
+DOMAIN=<your-domain>
 TLS_MODE=self_signed
 SSH_PUBLIC_KEY="<your-ssh-public-key>"
 
 docker run --rm -it \
   -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  -e APP="$APP" -e HOST="$HOST" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
+  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
   ghcr.io/infinito-nexus/core/debian bash -c '
     INVENTORY=/etc/infinito.nexus/inventories/production
     infinito administration inventory provision "$INVENTORY" \
       --inventory-file "$INVENTORY/devices.yml" \
       --host "$HOST" \
       --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
+      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
     infinito administration deploy dedicated "$INVENTORY/devices.yml" \
       --password-file "$INVENTORY/.password" \
       --diff -vv'

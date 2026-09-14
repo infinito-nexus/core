@@ -1,0 +1,14 @@
+---
+homeassistant_config:
+  type: volume
+  mounts:
+    - service: homeassistant
+      target: /config
+
+homeassistant_configuration:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-homeassistant', 'directories.config'), 'configuration.yaml' ] | path_join }}"
+  mode: "0644"
+  mounts:
+    - service: homeassistant
+      target: /config/configuration.yaml

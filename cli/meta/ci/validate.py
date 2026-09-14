@@ -50,6 +50,13 @@ def problems(
 ) -> tuple[list[str], list[str]]:
     """Every reason the tokens of one input cannot deploy on this branch.
 
+    A token that narrows nothing beyond the role name is answered by existence:
+    it asks for the role in whatever axes the rotation picks, so any discovered
+    row satisfies it. Rows are keyed by ``(name, variant)`` and a variant is an
+    int, so looking such a token up variant-first can only miss, which reported
+    every collapsed priority entry as matching nothing and left a role that
+    really had no row indistinguishable from one with a full set.
+
     Args:
         tokens: the raw ``whitelist``/``priority`` value.
         modes: the run's selected deploy modes.
@@ -72,11 +79,19 @@ def problems(
             modes, whitelist=selection.names(pins), lifecycles=lifecycles
         )
     }
+    discovered_apps = {app for app, _variant in rows}
     declared = get_variants()
     errors: list[str] = []
     warnings: list[str] = []
     for pin in pins:
         token = selection.describe(pin)
+        if not pin.pinned:
+            if pin.app not in discovered_apps:
+                warnings.append(
+                    f"{label}: {token!r} matches no discovered row "
+                    f"(no row in this run's mode and lifecycle envelope)"
+                )
+            continue
         variants = pin.variants or (None,)
         for variant in variants:
             offered = rows.get((pin.app, variant))

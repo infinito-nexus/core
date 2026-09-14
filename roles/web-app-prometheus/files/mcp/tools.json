@@ -1,0 +1,51 @@
+{
+  "prometheus_get_targets": {
+    "description": "List the scrape targets and their health.",
+    "method": "GET",
+    "path": "/api/v1/targets"
+  },
+  "prometheus_query": {
+    "description": "Run one instant PromQL query.",
+    "input_schema": {
+      "properties": {
+        "query": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "type": "object"
+    },
+    "method": "GET",
+    "path": "/api/v1/query"
+  },
+  "prometheus_query_range": {
+    "description": "Run one PromQL query over a time range.",
+    "input_schema": {
+      "properties": {
+        "end": {
+          "type": "string"
+        },
+        "query": {
+          "type": "string"
+        },
+        "start": {
+          "type": "string"
+        },
+        "step": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "query",
+        "start",
+        "end",
+        "step"
+      ],
+      "type": "object"
+    },
+    "method": "GET",
+    "path": "/api/v1/query_range"
+  }
+}

@@ -1,0 +1,27 @@
+---
+- name: "🩺 List the MCP tools with the minted bearer"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ MOODLE_MCP_LOCAL_CID | quote }} \
+      {{ lookup('timeout', 30) | curl(5, 0) }} -f \
+        -X POST \
+        -H 'Content-Type: application/json' \
+        -H 'Accept: application/json' \
+        -H {{ ('Authorization: Bearer ' ~ moodle_mcp_token) | quote }} \
+        --data-binary {{ MOODLE_MCP_TOOLS_LIST_PAYLOAD | to_json | quote }} \
+        {{ MOODLE_MCP_URL | quote }}
+  register: moodle_mcp_tools_probe
+  changed_when: false
+  retries: 30
+  delay: 2
+  until: moodle_mcp_tools_probe.rc == 0 and '"tools"' in moodle_mcp_tools_probe.stdout
+  delegate_to: "{{ MOODLE_MCP_HOST_NODE }}"
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🛑 Refuse an MCP surface that exposes no tool"
+  ansible.builtin.assert:
+    that:
+      - (moodle_mcp_tools_probe.stdout | from_json).result.tools | length > 0
+    fail_msg: >-
+      {{ MOODLE_MCP_URL }} answered the bearer but listed no tool, so every MCP
+      client would connect to an empty surface.

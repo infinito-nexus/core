@@ -5,6 +5,7 @@ This directory contains scripts that install and bootstrap host-side tooling use
 - 📦 Install Python, Ansible, and lint dependencies for supported environments
 - 🐧 Install ad-hoc APT packages for CI and workflow jobs via `apt.sh`
 - 📦 Build and install distro package metadata via `package.sh` (Arch/Debian/Ubuntu/Fedora)
+- 🪞 Point an Ubuntu image's apt sources at `INFINITO_APT_UBUNTU_MIRRORS` via `apt-mirrors.sh`, run first in the image build: apt tries the mirrors in list order and moves on when one fails or stays silent for 10 s; images of other distros are left untouched
 - 🏖️ Install OS-level Claude Code sandbox dependencies (`bubblewrap`, `socat`) via `sandbox.sh`, covering Debian, Ubuntu, Fedora, CentOS/RHEL/Rocky/Alma, and Arch; also exposed as `make install-agent`
 - 🧊 Install the ext4, btrfs and zfs userlands via `filesystem.sh` (distro packages, EPEL for btrfs on CentOS, the AUR PKGBUILD for zfs on Arch, the zfsonlinux repository on Fedora/CentOS); the kernel side comes from the host
 - 🐍 Bootstrap virtual environments and editable project dependencies

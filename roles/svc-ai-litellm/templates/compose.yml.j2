@@ -1,0 +1,19 @@
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+
+  {% set service_name = 'litellm' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'litellm') }}
+    {{ lookup('compose_only', 'container_name', LITELLM_CONTAINER) }}
+    {{ lookup('container_ports', ['litellm', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    command: >
+      --host 0.0.0.0
+      --port {{ LITELLM_PORT }}
+      --config {{ LITELLM_CONFIG_PATH_DOCKER }}
+    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+
+{{ lookup('compose_networks') }}
+
+{{ lookup('compose_volumes') }}

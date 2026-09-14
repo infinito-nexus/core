@@ -12,7 +12,7 @@ test("addon drawio: app installed + enabled (registered in OC.appswebroots)", as
   const page = await context.newPage();
 
   try {
-    await shared.loginToStandaloneNextcloudWithRetry(page);
+    await shared.loginToStandaloneNextcloud(page);
 
     await gotoOnion(page, new URL("apps/files/", shared.env.nextcloudBaseUrl).toString(), {
       waitUntil: "domcontentloaded",

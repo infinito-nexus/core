@@ -39,6 +39,5 @@ cache:
   lifecycle: beta
 # nocheck: dynamic-flag - pull-through cache content is re-fetchable, the backup consumer stays permanently off
 container_backup:
-  bond: 1
   enabled: false
   shared: true

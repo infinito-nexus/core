@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media Self-written system-maintenance glue role that refreshes the package index and upgrades installed packages by dispatching to native OS package managers (apt/pacman/dnf); no single upstream product website.
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: System-maintenance role for refreshing the package index and upgrading installed packages via the OS package manager

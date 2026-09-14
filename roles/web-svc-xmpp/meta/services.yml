@@ -19,6 +19,7 @@ ldap:
 xmpp:
   healthcheck:
     test: ["CMD", "ejabberdctl", "status"]
+    # nocheck: healthcheck-timing-override  ejabberdctl starts an Erlang CLI node, which does not finish inside the 5s default
     timeout: 10s
     retries: 20
   modes:

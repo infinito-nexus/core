@@ -1,0 +1,2 @@
+---
+# nocheck: info-media Self-written storage infrastructure role that installs the distro NFS kernel server and manages /etc/exports ACLs for the swarm; NFS is a kernel protocol, not a consumer-facing upstream product.

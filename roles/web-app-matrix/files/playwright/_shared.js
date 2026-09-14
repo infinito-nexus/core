@@ -22,6 +22,8 @@ const biberUsername = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
 const biberPassword = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
 const oidcServiceEnabled = isServiceEnabled("sso");
+// Synapse refills rc_login on its own clock, so the onion multiplier must not stretch this wait.
+const RC_LOGIN_COOLDOWN_MS = 45_000;
 
 function attachDiagnostics(page) {
   const consoleErrors = [];
@@ -240,7 +242,7 @@ async function signInViaElementOidc(page, username, password, personaLabel) {
     // requires a few seconds per slot. Wait 45s to leave margin — clicking
     // "Try again" sooner just re-triggers M_LIMIT_EXCEEDED and burns the
     // next burst slot, extending the outage.
-    await page.waitForTimeout(resolveTimeout(45_000));
+    await page.waitForTimeout(RC_LOGIN_COOLDOWN_MS);
     const tryAgain = rateLimitDialog.getByRole("button", { name: /^try again$/i }).first();
     await tryAgain.click({ timeout: resolveTimeout(5_000) }).catch(() => {});
     return true;

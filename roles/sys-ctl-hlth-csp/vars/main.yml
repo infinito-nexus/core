@@ -1,5 +1,8 @@
 ---
 system_service_id: sys-ctl-hlth-csp
+HEALTH_CSP_ONION_TIMEOUT_MS: "{{ (HEALTH_CSP_TIMEOUT_MS | int) * (lookup('config', 'svc-net-tor', 'services.tor.timeout_multipliers')[lookup('config', 'svc-net-tor',
+  'services.tor.flavor')] | int) }}"
+HEALTH_CSP_ONION_DOMAIN_SECONDS: "{{ ((HEALTH_CSP_ONION_TIMEOUT_MS | int) // 1000) + (HEALTH_CSP_DOMAIN_RESERVE_SECONDS | int) }}"
 HEALTH_CSP_SKIP_DOMAINS: >-
   {{ (
        lookup('csp_skip_domains', group_names=lookup('deployment').deployed)

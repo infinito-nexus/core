@@ -1,0 +1,38 @@
+---
+# Admission checks for embodied mode, included by the agent role BEFORE it
+# deploys. They cannot live in svc-ai-robot's own tasks: the agent is a shared
+# service, so sys-service-loader preloads it in the constructor stage while the
+# svc-ai group only runs at the following step, which would put every check
+# behind the deployment it is meant to prevent.
+#
+# Param: admit_agent_role - role id of the agent being embodied
+- name: "🛑 Refuse a blanket device grant"
+  ansible.builtin.assert:
+    that:
+      - ROBOT_DEVICE_ALLOWLIST | length > 0
+    fail_msg: >-
+      svc-ai-robot: ROBOT_DEVICE_ALLOWLIST is empty. Privileged mode is opt-in and explicit:
+      list every device the agent may drive (e.g. /dev/gpiomem, /dev/i2c-1, /dev/video0).
+      An empty list means deny-all, so there is nothing to deploy.
+
+- name: "🔍 Collect the applications sharing this device"
+  ansible.builtin.set_fact:
+    _admit_foreign_apps: >-
+      {{
+        group_names
+        | select('match', '^web-app-')
+        | reject('equalto', admit_agent_role)
+        | list
+      }}
+  changed_when: false
+
+- name: "🛑 Refuse privileged hardware access on a shared device"
+  ansible.builtin.assert:
+    that:
+      - _admit_foreign_apps | length == 0
+      - (groups['svc-swarm-node'] | default([])) | length <= 1
+    fail_msg: >-
+      svc-ai-robot grants {{ admit_agent_role }} direct hardware access, so it MUST own a
+      dedicated, single-tenant, network-segmented device. This host also runs
+      {{ _admit_foreign_apps | join(', ') or 'a multi-node swarm' }}. Move the robot to its own
+      device instead of widening the blast radius of the cluster.

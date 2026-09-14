@@ -1,0 +1,2 @@
+---
+# No hook logic required: files/build/install/auth-oidc.sh installs the plugin into the image and tasks/04_oidc.yml configures it, included by tasks/01_manager_ops.yml on MOODLE_OIDC_ENABLED, the same services.sso.enabled flag this addon's enabled expression reads. Coupling is verified by files/playwright/addons/auth_oidc.spec.js.

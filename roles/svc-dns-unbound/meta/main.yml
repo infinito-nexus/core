@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Central recursive/forwarding DNSSEC resolver on a static IP for consumer stacks to target as their DNS

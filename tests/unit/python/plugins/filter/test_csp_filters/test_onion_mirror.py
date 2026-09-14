@@ -4,7 +4,7 @@ import unittest
 from plugins.filter.csp_filters import FilterModule
 
 NODE = "ndck3kzcxbcem2oskbhytxwevvpzwn7j5dj6q36vbijyrnw3rjf2heqd.onion"
-PRIMARY = "infinito.example"
+PRIMARY = "infinito.test"
 
 
 class TestCspOnionMirror(unittest.TestCase):
@@ -44,6 +44,19 @@ class TestCspOnionMirror(unittest.TestCase):
         )
         self.assertIn("*." + PRIMARY, frame)
         self.assertIn("*." + NODE, frame)
+
+    def test_onion_sibling_of_a_tls_token_is_plaintext(self):
+        domains = {
+            "web-svc-cdn": ["cdn." + PRIMARY],
+            "app1": ["app1." + PRIMARY, "app1." + NODE],
+        }
+        header = self.filter.build_csp_header(
+            copy.deepcopy(self.apps), "app1", domains, "https", domain_primary=PRIMARY
+        )
+        connect = self._tokens(header, "connect-src")
+        self.assertIn("https://cdn." + PRIMARY, connect)
+        self.assertIn("http://cdn." + NODE, connect)
+        self.assertNotIn("https://cdn." + NODE, connect)
 
     def test_exclusive_replaces_clearnet_with_onion(self):
         frame = self._tokens(self._header({"app1": ["app1." + NODE]}), "frame-src")

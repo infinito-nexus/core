@@ -3,6 +3,8 @@ set -euo pipefail
 
 : "${STACK:?STACK env var is required}"
 : "${FATAL_GRACE:?FATAL_GRACE env var is required}"
+: "${DEPLOY_SINCE:=}"
+: "${DEPLOYED_SERVICES:=}"
 
 is_completed_oneshot() {
 	local ps
@@ -32,8 +34,6 @@ report_tasks() {
 	report_task_states "$1"
 }
 
-# Exception: `docker service ps` renders CurrentState as prose ("Preparing 3 minutes ago"), which
-# cannot distinguish an image still extracting from a task idling on something else.
 report_task_states() {
 	local ids inspect
 	if ! ids=$(timeout 15 docker service ps --no-trunc --format '{{.ID}}' "$1" 2>/dev/null); then
@@ -80,8 +80,96 @@ has_fatal_task() {
 	' <<<"$ps"
 }
 
+inspect_update_states() {
+	timeout 15 docker service inspect \
+		--format '{{.Spec.Name}} {{if .UpdateStatus}}{{.UpdateStatus.State}}{{else}}none{{end}} {{with .UpdateStatus}}{{with .StartedAt}}{{.Unix}}{{else}}-{{end}}{{else}}-{{end}}' \
+		"$@" 2>/dev/null && return 0
+	timeout 15 docker service inspect \
+		--format '{{.Spec.Name}} {{if .UpdateStatus}}{{.UpdateStatus.State}}{{else}}none{{end}} -' \
+		"$@" 2>/dev/null
+}
+
+started_before_deploy() {
+	case "${DEPLOY_SINCE}${1}" in
+	'' | *[!0-9]*) return 1 ;;
+	esac
+	[ "$1" -lt "$DEPLOY_SINCE" ]
+}
+
+deploy_touched() {
+	case " ${DEPLOYED_SERVICES} " in
+	*" $1 "*) return 0 ;;
+	*) return 1 ;;
+	esac
+}
+
+running_current_spec() {
+	local states
+	states=$(timeout 15 docker service ps "$1" \
+		--filter desired-state=running \
+		--format '{{.CurrentState}}' 2>/dev/null) || return 1
+	printf '%s\n' "$states" | awk '/^Running/ { n++ } END { print n + 0 }'
+}
+
 if ! services=$(timeout 15 docker stack services --format '{{.Name}} {{.Replicas}}' "$STACK"); then
 	echo "not converged: docker stack services failed or timed out for ${STACK}" >&2
+	exit 1
+fi
+
+mapfile -t service_names < <(printf '%s\n' "$services" | awk 'NF {print $1}')
+latched=""
+updating=""
+unknown=""
+if [ ${#service_names[@]} -gt 0 ]; then
+	if ! update_states=$(inspect_update_states "${service_names[@]}"); then
+		sleep 2
+		if ! update_states=$(inspect_update_states "${service_names[@]}"); then
+			echo "not converged: docker service inspect failed or timed out twice for ${STACK}" >&2
+			exit 1
+		fi
+	fi
+	while read -r name state started; do
+		[ -n "$name" ] || continue
+		if [ "$state" = "completed" ] && started_before_deploy "$started" &&
+			deploy_touched "$name"; then
+			updating="${updating} ${name}(pending)"
+			continue
+		fi
+		case "$state" in
+		none | completed) ;;
+		paused | rollback_paused | rollback_started | rollback_completed)
+			latched="${latched} ${name}(${state})"
+			;;
+		updating)
+			updating="${updating} ${name}(${state})"
+			;;
+		*)
+			unknown="${unknown} ${name}(${state})"
+			;;
+		esac
+	done <<<"$update_states"
+fi
+
+if [ -n "$latched" ]; then
+	echo "update latched:${latched}; it cannot leave this state without another stack deploy" >&2
+	printf '%s\n' "$latched" | tr ' ' '\n' | sed 's/(.*//' | while read -r svc; do
+		[ -n "$svc" ] || continue
+		report_tasks "$svc"
+	done
+	exit 2
+fi
+
+if [ -n "$unknown" ]; then
+	echo "not converged: unrecognised update state, treated as in flight:${unknown}" >&2
+	updating="${updating}${unknown}"
+fi
+
+if [ -n "$updating" ]; then
+	echo "not converged: rolling update still in flight:${updating}" >&2
+	printf '%s\n' "$updating" | tr ' ' '\n' | sed 's/(.*//' | while read -r svc; do
+		[ -n "$svc" ] || continue
+		report_tasks "$svc"
+	done
 	exit 1
 fi
 
@@ -89,7 +177,8 @@ not_running=""
 while read -r name reps; do
 	[ -n "$name" ] || continue
 	if awk -v r="$reps" 'BEGIN { split(r, a, "/"); exit (a[1] == a[2]) ? 0 : 1 }'; then
-		continue
+		desired=$(awk -v r="$reps" 'BEGIN { split(r, a, "/"); print a[2] }')
+		[ "$(running_current_spec "$name")" = "$desired" ] && continue
 	fi
 	is_completed_oneshot "$name" && continue
 	not_running="$not_running $name"
@@ -109,4 +198,11 @@ if [ -n "$not_running" ]; then
 		exit 2
 	fi
 	exit 1
+fi
+
+printf '%s\n' "$services" | sed 's/^/  converged: /' >&2
+if [ ${#service_names[@]} -gt 0 ]; then
+	for svc in "${service_names[@]}"; do
+		report_task_states "$svc"
+	done
 fi

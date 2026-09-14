@@ -53,9 +53,10 @@ const { URL } = require("node:url");
 // --- Configuration --------------------------------------------------
 
 const CONFIG = {
-  listenPort: parseInt(process.env.BROKER_PORT || "8080", 10),
+  listenPort: parseInt(process.env.BROKER_PORT, 10),
   socialAppUrl: requireEnv("SOCIAL_APP_URL"),
   pdsUrl: requireEnv("PDS_URL"),
+  // nocheck: env-default  falls through to a required lookup, not to a literal
   pdsInternalUrl: process.env.PDS_INTERNAL_URL || requireEnv("PDS_URL"),
   pdsHandleDomain: requireEnv("PDS_HANDLE_DOMAIN"),
   pdsInviteCode: process.env.PDS_INVITE_CODE || "",
@@ -66,9 +67,11 @@ const CONFIG = {
   // first-deploy path but a recovery is impossible.
   pdsAdminPassword: process.env.PDS_ADMIN_PASSWORD || "",
   encryptionKey: decodeKey(requireEnv("BLUESKY_BRIDGE_ENCRYPTION_KEY")),
+  // nocheck: env-default  the broker owns its own cookie, no role renders it
   handoffCookieName: process.env.HANDOFF_COOKIE_NAME || "bsky_handoff_done",
+  // nocheck: env-default  the broker owns its own cookie, no role renders it
   handoffCookieMaxAgeSec: parseInt(process.env.HANDOFF_COOKIE_MAX_AGE || "3300", 10),
-  insecureTls: (process.env.INSECURE_TLS || "false").toLowerCase() === "true",
+  insecureTls: (process.env.INSECURE_TLS || "").toLowerCase() === "true",
   logoutPath: "/sso/logout"
 };
 

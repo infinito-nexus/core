@@ -9,8 +9,8 @@ LITTLEJS_HEADLINE: "LittleJS Playground"
 LITTLEJS_TITLE: "{{ LITTLEJS_HEADLINE }} – {{ DOMAIN_PRIMARY | upper }}"
 
 # Clone coordinates — SPOT in meta/services.yml
-LITTLEJS_REPOSITORY: "{{ lookup('config', application_id, 'services.littlejs.repository') }}"
-LITTLEJS_REF: "{{ lookup('config', application_id, 'services.littlejs.ref') }}"
+LITTLEJS_REPOSITORY: "{{ lookup('config', 'web-app-littlejs', 'services.littlejs.repository') }}"
+LITTLEJS_REF: "{{ lookup('config', 'web-app-littlejs', 'services.littlejs.ref') }}"
 # Human-readable upstream link for nav_bottom.html (strip .git suffix)
 LITTLEJS_REPOSITORY_BASE: "{{ LITTLEJS_REPOSITORY | regex_replace('\\.git$', '') }}"
 

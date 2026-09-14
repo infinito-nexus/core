@@ -1,0 +1,70 @@
+{
+  "get_table_schema": {
+    "description": "Get the field schema for one or more tables.",
+    "input_schema": {
+      "properties": {
+        "table_ids": {
+          "description": "List of table IDs to get the schema for.",
+          "items": {
+            "type": "integer"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "table_ids"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "list_databases": {
+    "description": "List all databases in the workspace. Use this to discover database IDs before listing tables.",
+    "input_schema": {
+      "properties": {},
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "list_table_rows": {
+    "description": "List rows from a table with optional search and pagination. Returns rows with user-facing field names as keys.",
+    "input_schema": {
+      "properties": {
+        "page": {
+          "description": "Page number (1-based).",
+          "type": "integer"
+        },
+        "search": {
+          "description": "Optional search term to filter rows.",
+          "type": "string"
+        },
+        "size": {
+          "description": "Maximum number of rows to return.",
+          "type": "integer"
+        },
+        "table_id": {
+          "description": "The ID of the table to list rows from.",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "table_id"
+      ],
+      "type": "object"
+    },
+    "mutating": false
+  },
+  "list_tables": {
+    "description": "List all tables in the workspace, optionally filtered by database.",
+    "input_schema": {
+      "properties": {
+        "database_id": {
+          "description": "If provided, only return tables from this database.",
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "mutating": false
+  }
+}

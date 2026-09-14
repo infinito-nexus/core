@@ -54,28 +54,28 @@ class TestSubstitutePrimaryDomainPlaceholder(unittest.TestCase):
         users = _user_dict(email="admin@{{ DOMAIN_PRIMARY }}")
         out = substitute_primary_domain_placeholder(
             users,
-            {"DOMAIN_PRIMARY": "infinito.example"},
-            templar=_StubTemplar({"DOMAIN_PRIMARY": "infinito.example"}),
+            {"DOMAIN_PRIMARY": "infinito.test"},
+            templar=_StubTemplar({"DOMAIN_PRIMARY": "infinito.test"}),
         )
-        self.assertEqual(out["administrator"]["email"], "admin@infinito.example")
+        self.assertEqual(out["administrator"]["email"], "admin@infinito.test")
 
     def test_extracts_host_from_url(self) -> None:
         users = _user_dict(email="admin@{{ DOMAIN_PRIMARY }}")
         out = substitute_primary_domain_placeholder(
             users,
-            {"DOMAIN_PRIMARY": "https://infinito.example/path"},
-            templar=_StubTemplar({"DOMAIN_PRIMARY": "https://infinito.example/path"}),
+            {"DOMAIN_PRIMARY": "https://infinito.test/path"},
+            templar=_StubTemplar({"DOMAIN_PRIMARY": "https://infinito.test/path"}),
         )
-        self.assertEqual(out["administrator"]["email"], "admin@infinito.example")
+        self.assertEqual(out["administrator"]["email"], "admin@infinito.test")
 
     def test_strips_port(self) -> None:
         users = _user_dict(email="admin@{{ DOMAIN_PRIMARY }}")
         out = substitute_primary_domain_placeholder(
             users,
-            {"DOMAIN_PRIMARY": "infinito.example:8443"},
-            templar=_StubTemplar({"DOMAIN_PRIMARY": "infinito.example:8443"}),
+            {"DOMAIN_PRIMARY": "infinito.test:8443"},
+            templar=_StubTemplar({"DOMAIN_PRIMARY": "infinito.test:8443"}),
         )
-        self.assertEqual(out["administrator"]["email"], "admin@infinito.example")
+        self.assertEqual(out["administrator"]["email"], "admin@infinito.test")
 
     def test_returns_unchanged_when_var_missing(self) -> None:
         users = _user_dict(email="admin@{{ DOMAIN_PRIMARY }}")
@@ -95,16 +95,16 @@ class TestSubstitutePrimaryDomainPlaceholder(unittest.TestCase):
             users,
             {
                 "DOMAIN_PRIMARY": "{{ SOFTWARE_DOMAIN }}",
-                "SOFTWARE_DOMAIN": "infinito.example",
+                "SOFTWARE_DOMAIN": "infinito.test",
             },
             templar=_StubTemplar(
                 {
                     "DOMAIN_PRIMARY": "{{ SOFTWARE_DOMAIN }}",
-                    "SOFTWARE_DOMAIN": "infinito.example",
+                    "SOFTWARE_DOMAIN": "infinito.test",
                 }
             ),
         )
-        self.assertEqual(out["administrator"]["email"], "admin@infinito.example")
+        self.assertEqual(out["administrator"]["email"], "admin@infinito.test")
 
     def test_walks_nested_structures(self) -> None:
         users = {
@@ -119,13 +119,13 @@ class TestSubstitutePrimaryDomainPlaceholder(unittest.TestCase):
         }
         out = substitute_primary_domain_placeholder(
             users,
-            {"DOMAIN_PRIMARY": "infinito.example"},
-            templar=_StubTemplar({"DOMAIN_PRIMARY": "infinito.example"}),
+            {"DOMAIN_PRIMARY": "infinito.test"},
+            templar=_StubTemplar({"DOMAIN_PRIMARY": "infinito.test"}),
         )
         nested = out["administrator"]
-        self.assertEqual(nested["addresses"][0], "admin@infinito.example")
-        self.assertEqual(nested["addresses"][1]["alt"], "root@infinito.example")
-        self.assertEqual(nested["primary"], ("primary@infinito.example",))
+        self.assertEqual(nested["addresses"][0], "admin@infinito.test")
+        self.assertEqual(nested["addresses"][1]["alt"], "root@infinito.test")
+        self.assertEqual(nested["primary"], ("primary@infinito.test",))
 
 
 class TestSubstituteScalarPlaceholders(unittest.TestCase):

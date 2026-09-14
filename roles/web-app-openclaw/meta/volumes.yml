@@ -1,0 +1,14 @@
+---
+openclaw_data:
+  type: volume
+  mounts:
+    - service: openclaw
+      target: /home/node/.openclaw
+
+openclaw_config:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-openclaw', 'directories.config'), 'openclaw.json' ] | path_join }}"
+  mode: "0644"
+  mounts:
+    - service: openclaw
+      target: /home/node/.openclaw/openclaw.json

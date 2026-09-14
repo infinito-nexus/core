@@ -1,8 +1,19 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "🔐 Verify the gateway contract for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
+  when: OPENWEBUI_LITELLM_ENABLED | bool
+
 - name: "🧩 load docker, proxy for '{{ application_id }}'"
   include_role:
     name: sys-stk-full
   vars:
     compose_repository_pull: false
+
+- name: "🚿 Flush compose handlers for {{ application_id }}"
+  ansible.builtin.meta: flush_handlers
+
+- name: "🔌 Provision MCP tool-server access grants"
+  ansible.builtin.include_tasks: utils/mcp.yml
+  when: OPENWEBUI_MCP_SERVERS | length > 0

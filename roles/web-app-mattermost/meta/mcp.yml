@@ -1,0 +1,186 @@
+---
+classification: adapter_server
+direction: server
+source_url: https://github.com/mattermost/mattermost-plugin-agents/blob/master/mcpserver/README.md
+transport: streamable_http
+exposure: internal
+auth: bearer_token
+auth_subject: service_account
+implementation: adapter
+credential:
+  owner: mcp-web-app-mattermost
+  source: credentials
+  key: mcp_bearer
+adapter:
+  type: mcp_passthrough
+  specification_path: roles/web-app-mattermost/files/mcp/tools.json
+  specification_sha256: sha256:b06c02b100fa8d959d3e4d9fca42682df943967f6bf2de2c66f7031d5a6b823f
+  upstream_path: /plugins/mattermost-ai/mcp-server/mcp
+endpoint:
+  service_key: mattermostmcp
+  path: /mcp
+  port_key: http
+limits:
+  request_bytes: 65536
+  response_bytes: 1048576
+  timeout_seconds: 15
+  concurrent_requests: 4
+  page_size: 100
+  result_items: 100
+  stream_seconds: 300
+tools:
+  read_probe:
+    tool: get_user_channels
+    arguments: {}
+  schema_sha256: sha256:24872026324af9402aca15cad57d058a408582fbea677af02ce474fd5d7edb28
+  allowlist:
+    - get_channel_info
+    - get_channel_members
+    - get_team_info
+    - get_team_members
+    - get_user_channels
+    - list_agents
+    - read_channel
+    - read_file
+    - read_post
+    - search_posts
+    - search_users
+  writer_allowlist:
+    - add_channel_member
+    - create_channel
+    - create_post
+    - dm
+    - get_channel_info
+    - get_channel_members
+    - get_team_info
+    - get_team_members
+    - get_user_channels
+    - group_message
+    - list_agents
+    - read_channel
+    - read_file
+    - read_post
+    - search_posts
+    - search_users
+  upstream_serves:
+    - acknowledge_post
+    - add_channel_member
+    - add_channel_members
+    - add_reaction
+    - add_team_member
+    - add_team_members
+    - archive_channel
+    - convert_channel_privacy
+    - create_channel
+    - create_channel_bookmark
+    - create_post
+    - create_scheduled_post
+    - delete_channel_bookmark
+    - delete_post
+    - delete_scheduled_post
+    - dm
+    - get_bot
+    - get_bulk_reactions
+    - get_channel_groups
+    - get_channel_info
+    - get_channel_member
+    - get_channel_member_counts
+    - get_channel_members
+    - get_channel_members_by_ids
+    - get_channel_members_by_status
+    - get_channel_moderations
+    - get_channel_stats
+    - get_channel_unread
+    - get_dm_common_teams
+    - get_file_info
+    - get_file_link
+    - get_group_info
+    - get_me
+    - get_mentions
+    - get_new_users_in_team
+    - get_post_files
+    - get_post_info
+    - get_post_reactions
+    - get_posts_around_unread
+    - get_role
+    - get_team_groups
+    - get_team_info
+    - get_team_member
+    - get_team_members
+    - get_team_stats
+    - get_threads
+    - get_unread_counts
+    - get_user
+    - get_user_by_email
+    - get_user_by_username
+    - get_user_channel_memberships
+    - get_user_channels
+    - get_user_cpa_values
+    - get_user_custom_status
+    - get_user_groups
+    - get_user_stats
+    - get_user_status
+    - get_user_teams
+    - get_users_by_ids
+    - get_users_by_usernames
+    - get_users_in_group_channels
+    - get_users_in_team
+    - get_users_not_in_channel
+    - get_users_not_in_team
+    - get_users_statuses
+    - group_message
+    - invite_users_to_team
+    - invite_users_to_team_and_channels
+    - list_agents
+    - list_archived_channels
+    - list_bots
+    - list_channel_bookmarks
+    - list_cpa_fields
+    - list_custom_emoji
+    - list_groups
+    - list_incoming_webhooks
+    - list_outgoing_webhooks
+    - list_pinned_posts
+    - list_saved_posts
+    - list_scheduled_posts
+    - list_sidebar_categories
+    - list_team_channels
+    - mark_channel_read
+    - mark_channels_viewed
+    - mark_post_unread
+    - pin_post
+    - read_channel
+    - read_file
+    - read_post
+    - remove_channel_member
+    - remove_reaction
+    - remove_team_member
+    - restore_channel
+    - save_post
+    - search_channels
+    - search_custom_emoji
+    - search_files
+    - search_posts
+    - search_teams
+    - search_users
+    - search_users_in_channel
+    - search_users_in_team
+    - set_channel_favorite
+    - set_channel_mute
+    - set_dnd
+    - set_post_reminder
+    - set_status
+    - set_thread_follow
+    - unpin_post
+    - update_channel
+    - update_channel_bookmark
+    - update_channel_member_roles
+    - update_channel_notify_props
+    - update_post
+    - update_scheduled_post
+    - update_team
+    - update_team_member_roles
+    - update_user
+    - upload_file
+  read_only_default: true
+  mutating_tools_enabled: false

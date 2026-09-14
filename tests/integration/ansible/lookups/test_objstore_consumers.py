@@ -42,8 +42,8 @@ def _variables(applications: dict, group_names: list[str]) -> dict:
     return {
         "applications": applications,
         "users": {},
-        "DOMAIN_PRIMARY": "infinito.example",
-        "SYSTEM_EMAIL_DOMAIN": "infinito.example",
+        "DOMAIN_PRIMARY": "infinito.test",
+        "SYSTEM_EMAIL_DOMAIN": "infinito.test",
         "DIR_COMPOSITIONS": "/opt/compose/",
         "group_names": list(group_names),
     }

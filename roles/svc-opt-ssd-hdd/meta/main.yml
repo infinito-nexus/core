@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media Self-written infrastructure role that migrates Docker volumes between SSD/HDD and creates symlinks; no upstream product website.
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Tiering role placing Docker volumes on SSD or HDD by workload type, with symlinks keeping paths consistent

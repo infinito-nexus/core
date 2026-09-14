@@ -68,6 +68,15 @@
     "permissions": {"view": ["admin","user"], "edit": ["admin","user"]},
     "group": "user-metadata",
     "multivalued": true
+  },
+  {
+    "name": "uidNumber",
+    "displayName": "POSIX uid",
+    "validations": {"integer": {}},
+    "annotations": {},
+    "permissions": {"view": ["admin","user"], "edit": ["admin"]},
+    "group": "user-metadata",
+    "multivalued": false
   }
 ] %}
 {% set user_profile = {

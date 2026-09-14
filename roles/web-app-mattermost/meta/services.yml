@@ -30,6 +30,12 @@ postgres:
   shared: "{{ 'svc-db-postgres' in group_names }}"
 # nocheck: playwright-service-flag: shared provider entity; the app itself is covered by this role's own Playwright spec
 mattermost:
+  healthcheck:
+    test: ["CMD", "/mattermost/bin/mmctl", "--local", "system", "status"]
+    # nocheck: healthcheck-timing-override  mmctl spawns a binary and talks to the local socket, so it does not belong on a 30s steady-state loop
+    interval: 1m
+    # nocheck: healthcheck-timing-override  spawning that binary does not finish inside the 5s default
+    timeout: 10s
   modes:
     compose:
       enabled: true
@@ -107,3 +113,49 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+litellm:
+  bond: 0.5
+  enabled: "{{ ('svc-ai-litellm' in group_names) and (LITELLM_CHAT_MODEL_SERVED | bool) }}"
+  shared: "{{ 'svc-ai-litellm' in group_names }}"
+# nocheck: playwright-service-flag  internal adapter sidecar, covered by the role's MCP spec
+# nocheck: dockerfile-custom  the Dockerfile is owned by svc-ai-mcp-adapter and staged per instance, so every adapter-backed provider shares one audited build
+# nocheck: dynamic-flag  the sidecar tracks this role's own mcp flag, not another role's presence; a group_names expression would decide its exposure from an unrelated deployment
+mattermostmcp:
+  enabled: "{{ lookup('config', 'web-app-mattermost', 'mcp.enabled') | bool }}"
+  shared: false
+  image: python
+  # nocheck: docker-version  base of the self-built stdlib adapter, not the served application
+  version: "3.13.15-slim"
+  custom: true
+  name: mattermostmcp
+  cpus: "0.25"
+  mem_reservation: 16m
+  mem_limit: 24m
+  pids_limit: 64
+  healthcheck:
+    flavor: http_status
+    path: health
+  ports:
+    internal:
+      http: 8080
+# nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
+openwebui:
+  bond: 0.5
+  enabled: "{{ 'web-app-openwebui' in group_names }}"
+  shared: "{{ 'web-app-openwebui' in group_names }}"
+# nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
+hermes:
+  bond: 0.5
+  enabled: "{{ 'web-app-hermes' in group_names }}"
+  shared: "{{ 'web-app-hermes' in group_names }}"
+# nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
+openclaw:
+  bond: 0.5
+  enabled: "{{ 'web-app-openclaw' in group_names }}"
+  shared: "{{ 'web-app-openclaw' in group_names }}"
+# nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
+# nocheck: dynamic-flag  the entry refuses this client, so the link is off on every host and no group_names gate can decide it
+flowise:
+  enabled: false
+  shared: false
+  mcp_consumer: false

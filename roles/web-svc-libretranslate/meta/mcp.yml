@@ -1,0 +1,40 @@
+---
+classification: adapter_server
+direction: server
+source_url: https://s.infinito.nexus/code
+transport: streamable_http
+exposure: internal
+auth: bearer_token
+auth_subject: service_account
+implementation: adapter
+credential:
+  owner: mcp-web-svc-libretranslate
+  source: credentials
+  key: mcp_bearer
+endpoint:
+  service_key: libretranslatemcp
+  path: /mcp
+  port_key: http
+adapter:
+  type: openapi_allowlist
+  upstream_api_version: v1
+  specification_path: roles/web-svc-libretranslate/files/mcp/tools.json
+  specification_sha256: sha256:9498cfaaeb29543f8497a1deb0facf3b6303443d92a4bdc3caf1a782309a6cbc
+limits:
+  request_bytes: 65536
+  response_bytes: 1048576
+  timeout_seconds: 15
+  concurrent_requests: 4
+  page_size: 100
+  result_items: 100
+  stream_seconds: 300
+tools:
+  read_probe:
+    tool: libretranslate_list_languages
+    arguments: {}
+  allowlist:
+    - libretranslate_get_frontend_settings
+    - libretranslate_list_languages
+  schema_sha256: sha256:fcd22e47d975583dfe838de76380b48c69ae1a322e332047fadaadbad45adab3
+  read_only_default: true
+  mutating_tools_enabled: false

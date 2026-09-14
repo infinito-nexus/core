@@ -1,26 +1,26 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🧩 load docker and db for {{ application_id }}"
-  include_role:
-    name: sys-stk-backend
-  vars:
-    compose_handlers_flush: false
+- name: "🔐 Verify the gateway contract for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
+  when: FLOWISE_LITELLM_ENABLED | bool
 
-- name: "📄 Render Flowise LiteLLM config (local + swarm peers)"
+- name: "📦 Stage the {{ application_id }} build context"
   ansible.builtin.include_tasks:
     file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
   vars:
     role_templates:
-      - src: "litellm.config.yaml.j2"
-        dest: "{{ FLOWISE_LITELLM_CONFIG_PATH_HOST }}"
+      - src: "{{ lookup('path_absolute', 'roles/web-app-flowise/files/Dockerfile') }}"
+        dest: "{{ [FLOWISE_BUILD_DIR, 'Dockerfile'] | path_join }}"
+        mode: "0644"
+        notify: []
 
-- name: "🚿 flush handlers of compose"
-  meta: flush_handlers
-
-- name: "📂 Include role sys-stk-front-proxy for '{{ application_id }}'"
+- name: "🧩 For '{{ application_id }}': load docker, db and proxy"
   include_role:
-    name: sys-stk-front-proxy
+    name: sys-stk-full
   vars:
-    domain: "{{ lookup('domain',application_id) }}"
-    http_port: "{{ lookup('config', application_id, 'services.flowise.ports.local.http') }}"
+    compose_handlers_flush: true
+
+- name: "🔌 Reconcile the MCP server registry"
+  ansible.builtin.include_tasks: utils/mcp.yml
+  when: FLOWISE_MCP_SERVERS | length > 0

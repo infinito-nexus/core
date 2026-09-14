@@ -1,4 +1,5 @@
 ---
+# nocheck: embedded-state-on-nfs generated asset cache; the authoritative state lives in LDAP
 data:
   type: volume
   name: fusiondirectory_data

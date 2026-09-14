@@ -65,6 +65,53 @@ jobs:
           UPDATE_BASE_BRANCH: main
         run: bash scripts/github/update/open/role_prs.sh roles
 
+  update-pip-pins:
+    name: 🐍 Update pinned pip requirements
+    if: vars.CI_ENABLE_AUTO_UPDATES == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout
+        uses: actions/checkout@v7.0.0
+        with:
+          ref: main
+
+      - name: 🔧 Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: 📦 Install update dependencies
+        run: bash scripts/github/update/install_python.sh
+
+      - name: 🔄 Update pinned pip requirements
+        run: bash scripts/github/update/pip_pins.sh
+
+      - name: 🔎 Check for changes
+        id: diff
+        run: bash scripts/github/resolve/check_git_changes.sh roles
+
+      - name: ⚙️ Generate app token
+        if: steps.diff.outputs.changed == 'true'
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ secrets.BOT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.BOT_APP_PRIVATE_KEY }}
+
+      - name: 📂 Open PR if pip pins changed
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+          UPDATE_BRANCH_PREFIX: update/pip-pins
+          UPDATE_COMMIT_MESSAGE: "update(pip): update pinned pip requirements"
+          UPDATE_PR_TITLE: "update(pip): update pinned pip requirements"
+          UPDATE_PR_BODY: "Automated update of exact pip pins in `roles/**/*.yml`."
+          UPDATE_BASE_BRANCH: main
+        run: bash scripts/github/update/open/role_prs.sh roles
+
   update-repository-refs:
     name: 🌿 Update repository refs
     if: vars.CI_ENABLE_AUTO_UPDATES == 'true'

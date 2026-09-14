@@ -1,4 +1,8 @@
 ---
+litellm:
+  bond: 0.5
+  enabled: "{{ ('svc-ai-litellm' in group_names) and (LITELLM_CHAT_MODEL_SERVED | bool) }}"
+  shared: "{{ 'svc-ai-litellm' in group_names }}"
 # nocheck: seaweedfs-required - object storage not implemented for this role
 sso:
   bond: 1
@@ -68,7 +72,7 @@ zammad:
   # nocheck: default-placement-manager  embedded elasticsearch engine state; node-local in swarm
   placement: manager
   image: ghcr.io/zammad/zammad
-  version: "6.5.0"
+  version: "7.1.2"
   name: zammad-railsserver
   min_storage: 520MB
   proxy:
@@ -157,3 +161,42 @@ container_backup: # nocheck: bond-baseline backup host joins outside the variant
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
+# nocheck: playwright-service-flag  internal adapter sidecar, covered by the role's MCP guest spec
+# nocheck: dockerfile-custom  the Dockerfile is owned by svc-ai-mcp-adapter and staged per instance, so every adapter-backed provider shares one audited build
+# nocheck: dynamic-flag  the sidecar tracks this role's own mcp flag, not another role's presence; a group_names expression would decide its exposure from an unrelated deployment
+zammadmcp:
+  enabled: "{{ lookup('config', 'web-app-zammad', 'mcp.enabled') | bool }}"
+  shared: false
+  image: python
+  # nocheck: docker-version  base of the self-built stdlib adapter, not the served application
+  version: "3.13.15-slim"
+  custom: true
+  name: zammadmcp
+  cpus: "0.25"
+  mem_reservation: 16m
+  mem_limit: 24m
+  pids_limit: 64
+  ports:
+    internal:
+      http: 8080
+# nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
+openwebui:
+  bond: 0.5
+  enabled: "{{ 'web-app-openwebui' in group_names }}"
+  shared: "{{ 'web-app-openwebui' in group_names }}"
+# nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
+hermes:
+  bond: 0.5
+  enabled: "{{ 'web-app-hermes' in group_names }}"
+  shared: "{{ 'web-app-hermes' in group_names }}"
+# nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
+openclaw:
+  bond: 0.5
+  enabled: "{{ 'web-app-openclaw' in group_names }}"
+  shared: "{{ 'web-app-openclaw' in group_names }}"
+# nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
+# nocheck: dynamic-flag  the entry refuses this client, so the link is off on every host and no group_names gate can decide it
+flowise:
+  enabled: false
+  shared: false
+  mcp_consumer: false

@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Federated chess server for playing and following rule-validated games over ActivityPub across the Fediverse

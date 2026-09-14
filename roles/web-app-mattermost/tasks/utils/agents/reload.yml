@@ -1,0 +1,19 @@
+---
+- name: "🧩 Mattermost | Deactivate the Agents plugin so it drops its cached config"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ mattermost_agents_cid }}" # nocheck: container-exec-resolver
+      - /mattermost/bin/mmctl
+      - --local
+      - plugin
+      - disable
+      - "{{ MATTERMOST_MCP_PLUGIN_ID }}"
+  changed_when: true
+  delegate_to: "{{ mattermost_agents_node }}"
+  run_once: true
+
+- name: "🧩 Mattermost | Reactivate the Agents plugin to ensure its bots"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/agents/enable.yml"

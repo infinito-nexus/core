@@ -11,6 +11,8 @@ from ansible.plugins.lookup import LookupBase
 from utils.manager.credential_key import OVERRIDE_SECTION
 from utils.roles.applications.config import get
 from utils.roles.applications.services.database import (
+    REALIGN_CONFIG_KEY,
+    REALIGN_TARGET,
     get_database_service_config,
     resolve_database_service_key,
 )
@@ -102,6 +104,9 @@ class LookupModule(LookupBase):
                 "password": "",
                 "port": "",
                 "env": "",
+                "realign_sql": "",
+                "realign_target": REALIGN_TARGET,
+                "realign_config": REALIGN_CONFIG_KEY,
                 "initdb_dir": "",
                 "build_dir": "",
                 "url_jdbc": "",
@@ -190,6 +195,7 @@ class LookupModule(LookupBase):
 
         env_dir = f"{path_instances}{get_entity_name(consumer_id)}/.env/"
         env = f"{env_dir}{dbtype}.env"
+        realign_sql = f"{env_dir}{dbtype}-realign.sql"
         initdb_dir = f"{path_instances}{get_entity_name(consumer_id)}/.initdb.d/"
         build_dir = f"{path_instances}{get_entity_name(consumer_id)}/.postgres-build/"
 
@@ -251,6 +257,9 @@ class LookupModule(LookupBase):
             "password": password,
             "port": port,
             "env": env,
+            "realign_sql": realign_sql,
+            "realign_target": REALIGN_TARGET,
+            "realign_config": REALIGN_CONFIG_KEY,
             "initdb_dir": initdb_dir,
             "build_dir": build_dir,
             "url_jdbc": url_jdbc,

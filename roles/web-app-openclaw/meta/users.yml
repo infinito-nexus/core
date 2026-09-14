@@ -1,0 +1,4 @@
+---
+openclaw:
+  description: Platform account the OpenClaw agent employee acts as. Non-privileged by design, with its own mailbox. Override the `openclaw` key through the
+    inventory `users` variable to point the agent at an account that already exists instead.

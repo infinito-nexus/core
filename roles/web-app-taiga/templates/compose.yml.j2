@@ -13,12 +13,7 @@ build:
     {{ lookup('compose_only', 'container_name', TAIGA_CONTAINER) }}
     hostname:       {{ TAIGA_HOSTNAME }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    healthcheck:
-      test: ["CMD", "python", "-c", "import socket; socket.create_connection(('127.0.0.1',8000),5).close()"]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-      start_period: 40s
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
 {% if TAIGA_PLUGINS_ENABLED | bool %}
 {{ TAIGA_BACKEND_AUTH_BUILD_PROPS | indent(4, true) }}
     entrypoint: ["/bin/sh", "-c"]
@@ -39,12 +34,7 @@ build:
   {{ service_name }}:
     {{ lookup('compose_only', 'container_name', TAIGA_CONTAINER ~ '-' ~ service_name) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    healthcheck:
-      test: ["CMD-SHELL", "tr '\\0' ' ' </proc/1/cmdline | grep -qi celery"]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-      start_period: 60s
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
 {% if TAIGA_PLUGINS_ENABLED | bool %}
 {{ TAIGA_BACKEND_AUTH_BUILD_PROPS | indent(4, true) }}
     entrypoint: ["/bin/sh", "-c"]
@@ -70,12 +60,7 @@ build:
     hostname: "{{ TAIGA_ASYNC_RABBITMQ_SERVICE }}"
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
       taiga:
 
@@ -103,12 +88,7 @@ build:
     {{ lookup('compose_only', 'container_name', TAIGA_CONTAINER ~ '-' ~ service_name) }}
     {{ lookup('container_image', application_id, 'events') }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    healthcheck:
-      test: ["CMD-SHELL", "nc -z 127.0.0.1 8888"]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
       taiga:
     {{ lookup('depends_on', {TAIGA_EVENTS_RABBITMQ_SERVICE: 'service_started'}) }}
@@ -120,12 +100,7 @@ build:
     hostname: {{ service_name }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
       taiga:
 
@@ -134,12 +109,7 @@ build:
     {{ lookup('compose_only', 'container_name', TAIGA_CONTAINER ~ '-' ~ service_name) }}
     {{ lookup('container_image', application_id, 'protected') }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    healthcheck:
-      test: ["CMD", "python", "-c", "import socket; socket.create_connection(('127.0.0.1',8003),5).close()"]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
       taiga:
 

@@ -1,29 +1,29 @@
 ---
 # Exception logic only: the generic loader writes the Service URL (config SPOT),
-# but the Flowise backend exposes its OpenAI-compatible API through LiteLLM,
-# whose /v1 endpoint is protected by the deployer-owned master key
-# (web-app-flowise credentials.llm_master_key). That partner-side credential
-# must be fetched and written into integration_openai api_key here; the loader
-# cannot derive it.
-- name: 🔍 Resolve Flowise/LiteLLM backend selection for integration_openai
+# but the LiteLLM gateway's /v1 endpoint is guarded by a per-consumer virtual
+# key (this role's credentials.litellm_api_key). That credential must be
+# written into integration_openai api_key here; the loader cannot derive it.
+- name: 🔍 Resolve LiteLLM backend selection for integration_openai
   set_fact:
-    nextcloud_openai_use_flowise: "{{ ('web-app-flowise' in group_names) and ('web-app-openwebui' not in group_names) }}"
+    nextcloud_openai_use_litellm: "{{ ('svc-ai-litellm' in group_names) and ('web-app-openwebui' not in group_names) }}"
   changed_when: false
 
-- name: 🔍 Resolve Flowise LiteLLM master key for integration_openai api_key
-  set_fact:
-    nextcloud_openai_flowise_api_key: "{{ lookup('config', 'web-app-flowise', 'secrets.credentials.llm_master_key', '') }}"
-  changed_when: false
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  when: nextcloud_openai_use_flowise | bool
+- name: 🔑 Bind integration_openai to the LiteLLM gateway
+  when: nextcloud_openai_use_litellm | bool
+  block:
+    - name: "🔐 Verify the gateway contract for {{ application_id }}"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
 
-- name: 🔧 Provision integration_openai api_key for the Flowise/LiteLLM backend
-  shell: >
-    {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:set integration_openai api_key
-    --value={{ nextcloud_openai_flowise_api_key | quote }}
-  register: nextcloud_openai_set_api_key
-  changed_when: nextcloud_openai_set_api_key.stdout is search(' set to ')
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  when:
-    - nextcloud_openai_use_flowise | bool
-    - (nextcloud_openai_flowise_api_key | default('')) | length > 0
+    - name: 🔍 Resolve LiteLLM virtual key for integration_openai api_key
+      set_fact:
+        nextcloud_openai_litellm_api_key: "{{ lookup('config', 'web-app-nextcloud', 'secrets.credentials.litellm_api_key') }}"
+      changed_when: false
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+    - name: 🔧 Provision integration_openai api_key for the LiteLLM gateway backend
+      shell: >
+        {{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:set integration_openai api_key
+        --value '{{ nextcloud_openai_litellm_api_key }}'
+      register: nextcloud_openai_set_api_key
+      changed_when: nextcloud_openai_set_api_key.stdout is search(' set to ')
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

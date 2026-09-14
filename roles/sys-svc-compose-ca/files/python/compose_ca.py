@@ -516,6 +516,21 @@ def _cache_frontend_ca_host() -> str:
     return ""
 
 
+def _trust_bundle_host(ca_host: str) -> str:
+    """Host path of the CA bundle sys-ca-selfsigned builds beside the root CA, or ''.
+
+    SSL_CERT_FILE, CURL_CA_BUNDLE and REQUESTS_CA_BUNDLE replace the trust
+    store rather than extend it, so a container pointed at the root CA alone
+    cannot verify a public certificate. Returning '' when the bundle is absent
+    keeps a host that has not built one yet on the previous behaviour instead
+    of binding a missing path, which Docker would materialise as a directory.
+    """
+    bundle = Path(ca_host).parent / "ca-bundle.crt"
+    if bundle.is_file() and bundle.stat().st_size > 0:
+        return str(bundle)
+    return ""
+
+
 def render_override(
     services: dict[str, Any],
     service_to_compose_cmd: dict[str, list[str]],
@@ -552,6 +567,7 @@ def render_override(
     """
     out_services: dict[str, Any] = {}
     extra_ca_host = _cache_frontend_ca_host()
+    bundle_host = _trust_bundle_host(ca_host)
 
     image_meta = gather_image_meta(
         sorted(
@@ -586,6 +602,12 @@ def render_override(
             "CURL_CA_BUNDLE": ca_container,
             "NODE_EXTRA_CA_CERTS": ca_container,
         }
+        if bundle_host:
+            bundle_container = str(Path(ca_container).parent / Path(bundle_host).name)
+            volumes.append(f"{bundle_host}:{bundle_container}:ro")
+            environment["SSL_CERT_FILE"] = bundle_container
+            environment["REQUESTS_CA_BUNDLE"] = bundle_container
+            environment["CURL_CA_BUNDLE"] = bundle_container
         if extra_ca_host:
             extra_ca_container = str(Path(ca_container).parent / "ca-trust-extra.crt")
             volumes.append(f"{extra_ca_host}:{extra_ca_container}:ro")

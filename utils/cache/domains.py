@@ -12,6 +12,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from .base import (
+    _RENDER_GUARD,
     _cache_key,
     _resolve_roles_dir,
     _stable_variables_signature,
@@ -136,7 +137,11 @@ def get_merged_domains(
     (canonical/aliases) and flow through the regular applications-merge
     pipeline.
 
-    Cached keyed on (roles_dir, variables_signature).
+    Cached keyed on (roles_dir, variables_signature, render_state). A read
+    issued while the applications render is in progress sees the unrendered
+    tree, whose service flags are still Jinja strings; its map is cached under
+    its own key so the render's own call sites reuse it without it ever being
+    served as the finished map.
     """
     from plugins.filter.canonical_domains_map import (
         FilterModule as _CanonicalDomainsFilter,
@@ -150,6 +155,7 @@ def get_merged_domains(
     cache_key = (
         _cache_key(resolved_roles_dir),
         _stable_variables_signature(variables),
+        bool(getattr(_RENDER_GUARD, "applications", False)),
     )
     cached = _MERGED_DOMAINS_CACHE.get(cache_key)
     if cached is not None:

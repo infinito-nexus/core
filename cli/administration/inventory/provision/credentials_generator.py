@@ -11,10 +11,10 @@ from ruamel.yaml.comments import CommentedMap
 from cli.administration.inventory.credentials.emit import (
     credentials_map,
     declared_credentials,
-    ensure_map,
 )
 
 from .role_resolver import resolve_role_path
+from .ruamel_io import dump_document, ensure_map, load_document
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -127,22 +127,7 @@ def generate_credentials_for_roles(
     if not snippets:
         return
 
-    yaml_rt = YAML(typ="rt")
-    yaml_rt.preserve_quotes = True
-
-    if host_vars_file.exists():
-        with host_vars_file.open("r", encoding="utf-8") as f:
-            doc = yaml_rt.load(f)
-        if doc is None:
-            doc = CommentedMap()
-    else:
-        doc = CommentedMap()
-
-    if not isinstance(doc, CommentedMap):
-        tmp = CommentedMap()
-        for k, v in dict(doc).items():
-            tmp[k] = v
-        doc = tmp
+    doc = load_document(host_vars_file)
 
     for snippet in snippets:
         apps_snip = snippet.get("applications", {}) or {}
@@ -170,6 +155,4 @@ def generate_credentials_for_roles(
         ):
             doc["ansible_become_password"] = snippet["ansible_become_password"]
 
-    host_vars_file.parent.mkdir(parents=True, exist_ok=True)
-    with host_vars_file.open("w", encoding="utf-8") as f:
-        yaml_rt.dump(doc, f)
+    dump_document(host_vars_file, doc)

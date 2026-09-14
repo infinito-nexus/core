@@ -1,0 +1,2 @@
+---
+# nocheck: info-media Self-written GNOME desktop config/glue role: activates GNOME Shell extensions via gsettings and installs the author's own CLI (cli-gnome-extension-manager). No distinct third-party product website.

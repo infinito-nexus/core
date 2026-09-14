@@ -5,6 +5,7 @@ const { decodeDotenvQuotedValue, gotoOnion, performKeycloakLoginForm, runAdminFl
 const { isServiceEnabled } = require("./service-gating");
 
 require("./test-seaweedfs");
+require("./test-mcp-guest").register();
 
 test.use({
   ignoreHTTPSErrors: true

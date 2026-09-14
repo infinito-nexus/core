@@ -27,6 +27,7 @@ from cli.administration.inventory.provision.services_disabler import (
 
 from .drill import _maybe_recover_drill
 from .purge import _purge_app_entities
+from .rotate import _rotate_credentials
 from .run import _run_deploy
 
 
@@ -194,6 +195,9 @@ def handler(args: argparse.Namespace) -> int:
 
         if bool(args.full_cycle):
             _maybe_recover_drill(compose, plan_index)
+            _rotate_credentials(
+                compose, inventory_dir=inv_dir, round_variants=round_variants
+            )
             print(f"=== {pass_label} PASS 2 (async) ===")
             rc = run_pass({"ASYNC_ENABLED": True, "VARIANT_INDEX": round_index})
             if rc != 0:

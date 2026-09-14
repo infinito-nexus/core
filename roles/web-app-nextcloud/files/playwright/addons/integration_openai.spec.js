@@ -9,7 +9,7 @@ test.use({ ignoreHTTPSErrors: true });
 const expectApiKey =
   String(process.env.INTEGRATION_OPENAI_EXPECT_API_KEY || "").toLowerCase() === "true";
 
-test("integration integration_openai: Nextcloud is configured and coupled to the openwebui/flowise backend", async ({ browser }) => {
+test("integration integration_openai: Nextcloud is configured and coupled to the openwebui/litellm backend", async ({ browser }) => {
   skipUnlessAddonEnabled("integration_openai");
   test.setTimeout(resolveTimeout(120_000));
 
@@ -43,19 +43,19 @@ test("integration integration_openai: Nextcloud is configured and coupled to the
     const configuredUrl = ((await serviceUrlField.inputValue().catch(() => "")) || "").trim();
     expect(
       configuredUrl.length,
-      "the Service URL must be populated from config:app:set so the openwebui/flowise partner endpoint is wired"
+      "the Service URL must be populated from config:app:set so the openwebui/litellm partner endpoint is wired"
     ).toBeGreaterThan(0);
 
     expect(
       configuredUrl,
-      "the Service URL must be a valid http(s) URL pointing at the OpenAI-compatible AI backend (web-app-openwebui / web-app-flowise base URL)"
+      "the Service URL must be a valid http(s) URL pointing at the OpenAI-compatible AI backend (web-app-openwebui base URL or the svc-ai-litellm in-cluster endpoint)"
     ).toMatch(/^https?:\/\/.+/i);
 
     const configuredHost = new URL(configuredUrl).host;
     expect(
       configuredHost,
-      "the Service URL host must be the AI backend partner (openwebui chat.ai.* or flowise flow.ai.*), proving the config:app:set actually wired the partner endpoint rather than a placeholder"
-    ).toMatch(/^(chat|flow)\.ai\./i);
+      "the Service URL host must be the AI backend partner (openwebui chat.ai.* or the in-cluster litellm gateway), proving the config:app:set actually wired the partner endpoint rather than a placeholder"
+    ).toMatch(/^(chat\.ai\.|litellm(:\d+)?$)/i);
     expect(
       configuredHost,
       "the Service URL must point at the partner backend, distinct from the Nextcloud host — proving real cross-host coupling, not a self-pointing/unconfigured value"
@@ -74,7 +74,7 @@ test("integration integration_openai: Nextcloud is configured and coupled to the
       const configuredApiKey = ((await apiKeyField.inputValue().catch(() => "")) || "").trim();
       expect(
         configuredApiKey.length,
-        "the API key must be provisioned (config:app:set integration_openai api_key) so the Flowise/LiteLLM master-key-protected /v1 endpoint authenticates instead of returning 401"
+        "the API key must be provisioned (config:app:set integration_openai api_key) so the virtual-key-protected svc-ai-litellm /v1 endpoint authenticates instead of returning 401"
       ).toBeGreaterThan(0);
     }
   } finally {

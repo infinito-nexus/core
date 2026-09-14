@@ -1,0 +1,41 @@
+---
+classification: adapter_server
+direction: server
+source_url: https://s.infinito.nexus/code
+transport: streamable_http
+exposure: internal
+auth: bearer_token
+auth_subject: service_account
+implementation: adapter
+credential:
+  owner: mcp-web-app-prometheus
+  source: credentials
+  key: mcp_bearer
+endpoint:
+  service_key: prometheusmcp
+  path: /mcp
+  port_key: http
+adapter:
+  type: openapi_allowlist
+  upstream_api_version: v1
+  specification_path: roles/web-app-prometheus/files/mcp/tools.json
+  specification_sha256: sha256:a57243126b499a407f4630ceabe738677d199de8d89d27aec39299904cb603f1
+limits:
+  request_bytes: 65536
+  response_bytes: 1048576
+  timeout_seconds: 15
+  concurrent_requests: 4
+  page_size: 100
+  result_items: 100
+  stream_seconds: 300
+tools:
+  read_probe:
+    tool: prometheus_get_targets
+    arguments: {}
+  allowlist:
+    - prometheus_get_targets
+    - prometheus_query
+    - prometheus_query_range
+  schema_sha256: sha256:08fe8ce18b8eb0e2268401294a58ca56c6ed0670693075e228603d156ba75538
+  read_only_default: true
+  mutating_tools_enabled: false

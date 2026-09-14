@@ -1,0 +1,56 @@
+---
+- name: "🔍 Read the MCP token this instance already issued"
+  ansible.builtin.set_fact:
+    gitlab_mcp_token: "{{ lookup('mcp_credential', application_id) }}"
+
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ GITLAB_WEBSERVICE_SERVICE_NAME }}"
+    resolve_output_prefix: GITLAB_MCP
+    resolve_compose_cid: "{{ lookup('container_address', application_id, GITLAB_WEBSERVICE_SERVICE_NAME) }}"
+
+- name: "🩺 Check the stored token against the running instance"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/probe.yml"
+  when: gitlab_mcp_token | length > 0
+
+- name: "🔑 Mint the MCP token and persist it"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/provision.yml"
+  when: gitlab_mcp_token | length == 0 or gitlab_mcp_probe.rc | default(1) != 0
+
+- name: "🩺 Re-check the freshly minted token"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/mcp/probe.yml"
+  when: gitlab_mcp_probe is not defined or gitlab_mcp_probe.rc != 0
+
+- name: "🛑 Refuse an instance whose MCP token every client would be rejected with"
+  ansible.builtin.assert:
+    that:
+      - gitlab_mcp_probe.rc == 0
+    fail_msg: >-
+      The instance rejected the token stored for {{ application_id }}, so every
+      MCP client would be configured with a bearer {{ GITLAB_MCP_PATH }} answers
+      401 to.
+
+- name: "🛑 Refuse an instance that authenticates but advertises no MCP tool"
+  ansible.builtin.assert:
+    that:
+      - "'tools=' in (gitlab_mcp_probe.stdout | default(''))"
+      - "'tools=0' not in (gitlab_mcp_probe.stdout | default(''))"
+    fail_msg: >-
+      {{ GITLAB_MCP_PATH }} accepted the token but advertised no tool. The
+      endpoint needs no licence tier: CE gates it on the instance setting
+      'mcp_server_enabled', which defaults to true. An empty tool list
+      therefore means that setting was turned off on this instance, or the
+      token carries no 'mcp' scope.
+
+- name: "🔑 Hand the minted upstream token to the adapter"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/upstream_key.yml') }}"
+  vars:
+    mcp_upstream_key_path: "{{ [GITLAB_MCP_INSTANCE_DIR, 'upstream.env'] | path_join }}"
+    mcp_upstream_key: "{{ lookup('mcp_credential', application_id) }}"
+
+- name: "🧱 Rebuild the MCP adapter of {{ application_id }} now the bearer exists"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/rebuild.yml') }}"
+
+- name: "🚿 Flush compose handlers for {{ application_id }}"
+  ansible.builtin.meta: flush_handlers

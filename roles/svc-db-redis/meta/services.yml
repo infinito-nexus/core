@@ -34,6 +34,5 @@ tor:
 
 # nocheck: dynamic-flag - the redis volume is backup-disabled ephemeral cache state, the backup consumer stays permanently off
 container_backup:
-  bond: 1
   enabled: false
   shared: true

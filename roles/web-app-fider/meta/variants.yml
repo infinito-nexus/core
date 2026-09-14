@@ -35,6 +35,15 @@
       shared: true
     tor:
       enabled: true
+    openwebui:
+      enabled: true
+      shared: true
+    hermes:
+      enabled: true
+      shared: true
+    openclaw:
+      enabled: true
+      shared: true
 - services:
     dashboard:
       enabled: false
@@ -66,3 +75,12 @@
       shared: false
     tor:
       enabled: true
+    openwebui:
+      enabled: false
+      shared: false
+    hermes:
+      enabled: false
+      shared: false
+    openclaw:
+      enabled: false
+      shared: false

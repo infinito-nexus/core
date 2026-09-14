@@ -122,6 +122,25 @@ function skipUnlessServiceEnabled(name) {
 }
 
 /**
+ * Skip the current test unless the named service is disabled, so a spec can
+ * assert what a switched-off service must NOT do:
+ *
+ *   test("the endpoint is gone while mcp is off", async ({ page }) => {
+ *     skipUnlessServiceDisabled("mcp");
+ *     // assert absence below
+ *   });
+ *
+ * Without this the disabled state is never asserted at all: every gated spec
+ * skips itself when the flag is false, so a surface that kept serving after
+ * being switched off looks exactly like one that was never deployed.
+ */
+function skipUnlessServiceDisabled(name) {
+  if (isServiceEnabled(name)) {
+    test.skip(true, `${envKey(name)}=true`);
+  }
+}
+
+/**
  * Legacy wrapper kept for compatibility with callers that were written
  * against the wrap-style API. New code SHOULD use
  * `skipUnlessServiceEnabled` at the top of the test body instead.
@@ -142,5 +161,6 @@ module.exports = {
   isServiceEnabled,
   isServiceDisabledReason,
   requireService,
+  skipUnlessServiceDisabled,
   skipUnlessServiceEnabled,
 };

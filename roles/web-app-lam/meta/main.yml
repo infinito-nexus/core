@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: "Web interface for administering LDAP directories: managing users, groups, and other directory objects"

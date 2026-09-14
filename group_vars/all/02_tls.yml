@@ -26,6 +26,8 @@ CA_ROOT:
     CN: "{{ (DOMAIN_PRIMARY ~ ' Root CA') if ((DOMAIN_PRIMARY ~ ' Root CA') | length <= 64) else DOMAIN_PRIMARY }}"
 CA_TRUST:
   cert_host: "{{ CA_ROOT.cert_host }}"
+  bundle_host: "{{ [CA_ROOT.base_dir, 'ca-bundle.crt'] | path_join }}"
+  inject_bundle_container: "/tmp/infinito/ca/ca-bundle.crt"
   cert_container: "/etc/ssl/certs/infinito-ca.pem"
   trust_name: "{{ DOMAIN_PRIMARY | lower }}"
   wrapper_host: "{{ BIN_CA_TRUST }}"

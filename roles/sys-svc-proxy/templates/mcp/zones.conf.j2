@@ -1,0 +1,4 @@
+{% set mcp_limits = lookup('config', application_id, 'mcp.limits') %}
+{% set mcp_zone = 'mcp_' ~ (application_id | replace('-', '_')) %}
+limit_req_zone  $binary_remote_addr zone={{ mcp_zone }}_req:10m rate={{ mcp_limits.concurrent_requests }}r/s;
+limit_conn_zone $binary_remote_addr zone={{ mcp_zone }}_conn:10m;

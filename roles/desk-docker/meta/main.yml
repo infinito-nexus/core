@@ -1,5 +1,4 @@
 ---
-# nocheck: info-media no official demo video
 galaxy_info:
   author: Kevin Veen-Birkenbach
   description: Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use

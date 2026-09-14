@@ -8,9 +8,16 @@ scaling and flakes over onion while passing on clearnet.
 
 Forbidden (raw milliseconds)          Required (scaled)
     ``timeout: 30_000``                   ``timeout: resolveTimeout(30_000)``
+    ``timeout: SOME_TIMEOUT_MS``          ``timeout: resolveTimeout(SOME_TIMEOUT_MS)``
     ``waitForTimeout(500)``               ``waitForTimeout(resolveTimeout(500))``
     ``test.setTimeout(120_000)``          ``test.setTimeout(resolveTimeout(120_000))``
     ``setTimeout(resolve, 250)``          ``setTimeout(resolve, resolveTimeout(250))``
+
+An upper bound must scale, so ``timeout:`` rejects a CONSTANT_CASE name as well
+as a digit: a literal keeps bypassing the helper when it hides behind a name.
+A poll interval is the opposite — scaling one makes a slow target notice its
+element LATER, not sooner — so ``waitForTimeout``/``setTimeout`` accept a named
+unscaled interval, which is why they are matched on a leading digit only.
 
 Scope: role specs + companions under ``roles/*/files/playwright/`` and the
 shared persona flows/utilities under ``roles/test-e2e-playwright/files/``. The
@@ -38,6 +45,7 @@ _STRING = re.compile(
 
 _RAW_TIMEOUT = re.compile(
     r"\btimeout:\s*[0-9]"
+    r"|\btimeout:\s*[A-Z][A-Z0-9_]+\b"
     r"|\bwaitForTimeout\(\s*[0-9]"
     r"|\bsetTimeout\(\s*[0-9]"
     r"|\bsetTimeout\(\s*[^,()]+,\s*[0-9]"
