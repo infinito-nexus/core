@@ -26,7 +26,7 @@ dependencies = [
 
 [project.optional-dependencies]
 deploy = [
-  "ansible",
+  "ansible==14.4.0",
   "colorscheme-generator @ https://github.com/kevinveenbirkenbach/colorscheme-generator/archive/refs/tags/v0.3.0.zip",
   "tld",
   "passlib",
