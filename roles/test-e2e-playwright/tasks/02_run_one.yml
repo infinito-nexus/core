@@ -179,8 +179,8 @@
     validate_certs: false
     follow_redirects: none
   register: _wait_result
-  retries: "{{ TEST_E2E_PLAYWRIGHT_WAIT_RETRIES }}"
-  delay: "{{ TEST_E2E_PLAYWRIGHT_WAIT_DELAY }}"
+  retries: "{{ test_e2e_playwright_wait_retries }}"
+  delay: "{{ test_e2e_playwright_wait_delay }}"
   until: >-
     _wait_result.status is defined and
     _wait_result.status | int >= 100 and
