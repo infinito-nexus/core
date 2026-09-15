@@ -91,14 +91,15 @@
 # services.<entity>.ports.internal.<kind> unless proxy_internal_port is
 # passed explicitly - and "wazuh" (like bluesky's own holder entity) has no
 # ports of its own, so it hard-fails there unless service_key/internal_port
-# are pointed at "console" explicitly, same as bluesky points its own
-# per-domain includes at api/web/view.
+# are pointed at the dashboard sub-entity explicitly, same as bluesky points
+# its own per-domain includes at api/web/view.
 - name: "📂 Include front proxy for {{ application_id }}"
   include_role:
     name: sys-stk-front-proxy
   vars:
     http_port: "{{ WAZUH_DASHBOARD_HTTP_PORT }}"
-    webserver_proxy_service_key: "{{ 'console' if DEPLOYMENT_MODE == 'swarm' else (application_id | get_entity_name) }}"
+    # Swarm DNS is the compose service key ("dashboard"), not the meta/services.yml entity key ("console") - see compose.yml.j2's service_name comment.
+    webserver_proxy_service_key: "{{ 'dashboard' if DEPLOYMENT_MODE == 'swarm' else (application_id | get_entity_name) }}"
     proxy_internal_port: "{{ lookup('config', application_id, 'services.console.ports.internal.http') if DEPLOYMENT_MODE == 'swarm' else '' }}"
 
 # Exception: securityadmin.sh (below) is what actually pushes this role's
