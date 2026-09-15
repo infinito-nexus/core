@@ -30,6 +30,10 @@ test_e2e_playwright_run_timeout: 3600
 
 test_e2e_playwright_test_timeout: 300000
 
+# Front-proxy readiness probe (test-e2e-playwright/tasks/02_run_one.yml); role-overridable via each app's vars/main.yml.
+test_e2e_playwright_wait_retries: 30
+test_e2e_playwright_wait_delay: 5
+
 test_e2e_playwright_workers: "{{ lookup('playwright_workers') }}"
 
 TEST_E2E_PLAYWRIGHT_GLOBAL_TIMEOUT_BUFFER: 60
