@@ -43,6 +43,11 @@ install_venv() {
 	echo "🎯 Venv python target : ${venv_python}"
 	echo
 
+	if [[ -x "${venv_python}" ]]; then
+		echo "→ Virtualenv already exists"
+		return 0
+	fi
+
 	local venv_parent
 	venv_parent="$(dirname "${VENV}")"
 	if [[ -n "${VIRTUAL_ENV:-}" && "${VIRTUAL_ENV}" == "${VENV}" ]]; then
@@ -56,13 +61,9 @@ install_venv() {
 		sudo chown "${USER:-$(whoami)}" "${venv_parent}"
 	fi
 
-	if [[ ! -x "${venv_python}" ]]; then
-		echo "→ Creating virtualenv ${VENV}"
-		"${bootstrap_python}" -m venv "${VENV}"
-		echo "✅ Virtualenv created"
-	else
-		echo "→ Virtualenv already exists"
-	fi
+	echo "→ Creating virtualenv ${VENV}"
+	"${bootstrap_python}" -m venv "${VENV}"
+	echo "✅ Virtualenv created"
 }
 
 install_venv

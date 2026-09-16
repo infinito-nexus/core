@@ -19,6 +19,8 @@ source "${script_dir}/../meta/env/load.sh"
 ghcr_owner="$(scripts/meta/resolve/repository/owner.sh)"
 repo_name="$("${script_dir}/../meta/resolve/repository/name.sh")"
 
+cache_ref="ghcr.io/${ghcr_owner}/${repo_name}/${MATRIX_DISTRO}:buildcache"
+
 max_attempts="${MAX_ATTEMPTS:-7}"
 retry_delay_seconds="${RETRY_DELAY_SECONDS:-20}"
 attempt=1
@@ -46,8 +48,8 @@ while true; do
 		--build-arg "INFINITO_PYTHON_INSTALL_SCRIPT=${INFINITO_PYTHON_INSTALL_SCRIPT:?source scripts/meta/env/load.sh}" \
 		--build-arg "INFINITO_DOCKER_CLI_INSTALL_SCRIPT=${INFINITO_DOCKER_CLI_INSTALL_SCRIPT:?source scripts/meta/env/load.sh}" \
 		"${nix_arg[@]}" \
-		--cache-from "type=gha,scope=${repo_name}-${MATRIX_DISTRO}" \
-		--cache-to "type=gha,mode=max,scope=${repo_name}-${MATRIX_DISTRO}" \
+		--cache-from "type=registry,ref=${cache_ref}" \
+		--cache-to "type=registry,mode=max,ref=${cache_ref}" \
 		"${BUILD_CONTEXT_DIR}"; then
 		echo "Build & push succeeded on attempt ${attempt}/${max_attempts}."
 		break

@@ -26,6 +26,24 @@ RUN set -euo pipefail; \
     echo 'accept-flake-config = true' >> /etc/nix/nix.conf; \
   fi
 
+COPY default.env ${INFINITO_SRC_DIR}/default.env
+COPY scripts/install ${INFINITO_SRC_DIR}/scripts/install
+COPY roles/dev-python/files/shell ${INFINITO_SRC_DIR}/roles/dev-python/files/shell
+COPY requirements ${INFINITO_SRC_DIR}/requirements
+COPY utils/__init__.py ${INFINITO_SRC_DIR}/utils/__init__.py
+COPY utils/install/__init__.py ${INFINITO_SRC_DIR}/utils/install/__init__.py
+COPY utils/install/collections.py ${INFINITO_SRC_DIR}/utils/install/collections.py
+
+# hadolint ignore=DL3008,DL3033,DL3041,SC1090,SC3040
+RUN set -euo pipefail; \
+  source <(grep -hE '^INFINITO_PYTHON_INSTALL_SCRIPT=' "${INFINITO_SRC_DIR}/default.env"); \
+  /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_PYTHON_INSTALL_SCRIPT:?}" ensure; \
+  VENV="${INFINITO_VENV_DIR}" bash "${INFINITO_SRC_DIR}/scripts/install/venv.sh"; \
+  ${PIP} install --upgrade pip setuptools wheel; \
+  ${PIP} install ansible PyYAML; \
+  ANSIBLE_COLLECTIONS_DIR="${HOME}/.ansible/collections" \
+    bash "${INFINITO_SRC_DIR}/scripts/install/ansible.sh"
+
 COPY . ${INFINITO_SRC_DIR}
 
 # hadolint ignore=DL3008,DL3033,DL3041,SC1090

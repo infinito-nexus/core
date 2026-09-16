@@ -1,0 +1,80 @@
+name: "⚖️ Source benchmark"
+run-name: "${{ github.event_name == 'schedule' && '⏰ ' || '' }}⚖️ Benchmark collection sources"
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: collection-source-${{ github.repository }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  benchmark-collection-sources:
+    name: ⚖️ Time Galaxy against the git fallback
+    if: vars.CI_ENABLE_AUTO_UPDATES == 'true'
+    runs-on: ubuntu-latest
+    env:
+      HISTORY_PATH: build/collection-source-history.json
+    steps:
+      - name: ⬇️ Checkout
+        uses: actions/checkout@v7.0.0
+        with:
+          ref: main
+
+      - name: 🔧 Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: 📦 Install project with the deploy extra
+        env:
+          PYTHON: python3
+        run: bash scripts/install/python.sh deploy
+
+      - name: ♻️ Restore the sample history from the last run
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HISTORY_WORKFLOW: cron-collection-source.yml
+        run: bash scripts/github/update/restore_collection_history.sh
+
+      - name: ⏱️ Time both collection sources
+        run: bash scripts/github/update/collection_source.sh --history "${HISTORY_PATH}"
+
+      - name: 💾 Keep the sample history for the next run
+        uses: actions/upload-artifact@v7
+        with:
+          name: collection-source-history
+          path: ${{ env.HISTORY_PATH }}
+          retention-days: 90
+
+      - name: 🔎 Check for changes
+        id: diff
+        run: bash scripts/github/resolve/check_git_changes.sh default.env
+
+      - name: ⚙️ Generate app token
+        if: steps.diff.outputs.changed == 'true'
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ secrets.BOT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.BOT_APP_PRIVATE_KEY }}
+
+      - name: 📂 Open PR if the preferred source changed
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+          UPDATE_BRANCH_PREFIX: update/collection-source
+          UPDATE_COMMIT_MESSAGE: "update(galaxy): retune the preferred collection source"
+          UPDATE_PR_TITLE: "update(galaxy): retune the preferred collection source"
+          UPDATE_PR_BODY: "Automated retune of `INFINITO_ANSIBLE_COLLECTIONS_SOURCE` in `default.env`. The preferred source's median install time reached at least 3x the other's over the last 12 daily samples; a failed install counts as worse than any duration."
+          UPDATE_BASE_BRANCH: main
+        run: bash scripts/github/update/open/pr.sh default.env

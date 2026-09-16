@@ -161,14 +161,12 @@ jobs:
           && needs.lint.result == 'success'
           && needs.test.result == 'success'
           && needs.build-ci-images.result == 'success'
-          && needs.images-mirror-missing.result == 'success'
-          && needs.test-dns.result == 'success' }}
+          && needs.images-mirror-missing.result == 'success' }}
     needs:
       - lint
       - test
       - build-ci-images
       - images-mirror-missing
-      - test-dns
       - validate-selection
     uses: ./.github/workflows/call-test-deploy.yml
     with:
@@ -192,7 +190,6 @@ jobs:
           && needs.test.result == 'success'
           && needs.build-ci-images.result == 'success'
           && needs.images-mirror-missing.result == 'success'
-          && needs.test-dns.result == 'success'
           && (!inputs.chunk_gate
               || contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-0.result)) }}
     needs:
@@ -200,7 +197,7 @@ jobs:
       - test
       - build-ci-images
       - images-mirror-missing
-      - test-dns
+      - validate-selection
       - test-deploy-chunk-0
     uses: ./.github/workflows/call-test-deploy.yml
     with:
@@ -224,7 +221,6 @@ jobs:
           && needs.test.result == 'success'
           && needs.build-ci-images.result == 'success'
           && needs.images-mirror-missing.result == 'success'
-          && needs.test-dns.result == 'success'
           && (!inputs.chunk_gate
               || (contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-0.result)
                   && contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-1.result))) }}
@@ -233,7 +229,7 @@ jobs:
       - test
       - build-ci-images
       - images-mirror-missing
-      - test-dns
+      - validate-selection
       - test-deploy-chunk-0
       - test-deploy-chunk-1
     uses: ./.github/workflows/call-test-deploy.yml
@@ -258,7 +254,6 @@ jobs:
           && needs.test.result == 'success'
           && needs.build-ci-images.result == 'success'
           && needs.images-mirror-missing.result == 'success'
-          && needs.test-dns.result == 'success'
           && (!inputs.chunk_gate
               || (contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-0.result)
                   && contains(fromJSON('["success","skipped"]'), needs.test-deploy-chunk-1.result)
@@ -268,7 +263,7 @@ jobs:
       - test
       - build-ci-images
       - images-mirror-missing
-      - test-dns
+      - validate-selection
       - test-deploy-chunk-0
       - test-deploy-chunk-1
       - test-deploy-chunk-2

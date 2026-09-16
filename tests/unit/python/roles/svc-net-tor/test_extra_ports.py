@@ -49,6 +49,16 @@ class _DerivedPorts:
         return [self.entries]
 
 
+class _Templar:
+    """Resolves a group_var reference the way the play's templar does."""
+
+    def __init__(self, rendered: Any):
+        self.rendered = rendered
+
+    def template(self, _value):
+        return self.rendered
+
+
 class TestExtraPorts(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
@@ -62,6 +72,26 @@ class TestExtraPorts(unittest.TestCase):
             self.module.lookup_loader, "get", return_value=_DerivedPorts(derived)
         ):
             return lookup.run([], variables={**ENABLED, **variables})[0]
+
+    def test_a_flag_that_arrives_as_template_text_is_still_read(self) -> None:
+        lookup = self.module.LookupModule()
+        lookup._templar = _Templar(True)
+        lookup._loader = None
+        variables = dict.fromkeys(
+            ENABLED,
+            "{{ lookup('config', application_id, 'services.tor.forwards.x') | bool }}",
+        )
+        with mock.patch.object(
+            self.module.lookup_loader, "get", return_value=_DerivedPorts([])
+        ):
+            ports = lookup.run([], variables=variables)[0]
+        self.assertIn(
+            HTTP_ENTRY,
+            ports,
+            "group vars reach a lookup unrendered, so the flag arrives as its own "
+            "template text; reading it without templating aborts the torrc render "
+            "on every tor row",
+        )
 
     def test_http_is_forwarded_without_the_proxy_in_the_inventory(self) -> None:
         self.assertIn(

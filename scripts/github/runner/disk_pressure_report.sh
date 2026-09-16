@@ -14,6 +14,8 @@ echo "Runner: $(uname -a)"
 echo
 df -h
 echo
+free -h
+echo
 docker version || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 echo
 docker system df || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error

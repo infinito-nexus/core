@@ -16,30 +16,58 @@ INSTALL_TIMEOUT=15m
 GALAXY_REQ="requirements/requirements.galaxy.yml"
 GIT_REQ="requirements/requirements.git.yml"
 
-while true; do
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+cd "${REPO_ROOT}"
+
+if [[ -z "${INFINITO_ANSIBLE_COLLECTIONS_SOURCE:-}" ]]; then
+	# shellcheck source=/dev/null
+	source <(grep -E '^INFINITO_ANSIBLE_COLLECTIONS_SOURCE=' default.env)
+fi
+
+: "${INFINITO_ANSIBLE_COLLECTIONS_SOURCE:?not declared in default.env}"
+
+case "${INFINITO_ANSIBLE_COLLECTIONS_SOURCE}" in
+galaxy) SOURCE_ORDER=("Galaxy:${GALAXY_REQ}" "Git:${GIT_REQ}") ;;
+git) SOURCE_ORDER=("Git:${GIT_REQ}" "Galaxy:${GALAXY_REQ}") ;;
+*)
+	echo "❌ INFINITO_ANSIBLE_COLLECTIONS_SOURCE must be 'galaxy' or 'git'," \
+		"got '${INFINITO_ANSIBLE_COLLECTIONS_SOURCE}'" >&2
+	exit 2
+	;;
+esac
+
+if MISSING="$("${PYTHON}" -m utils.install.collections "${GALAXY_REQ}" "${ANSIBLE_COLLECTIONS_DIR}")"; then
+	echo "✅ Every pinned collection is already installed"
+	echo "🎉 All collections are ready"
+	exit 0
+fi
+echo "→ Not satisfied yet: ${MISSING}"
+
+installed=0
+while ((installed == 0)); do
 	echo "▶️  Attempt ${ATTEMPT}/${MAX_ATTEMPTS}"
 
-	echo "🌐 Trying Galaxy source (${GALAXY_REQ})…"
-	if timeout --foreground "${INSTALL_TIMEOUT}" \
-		"${PYTHON}" -m ansible.cli.galaxy collection install \
-		-r "${GALAXY_REQ}" \
-		-p "${ANSIBLE_COLLECTIONS_DIR}" \
-		--force-with-deps; then
+	for entry in "${SOURCE_ORDER[@]}"; do
+		label="${entry%%:*}"
+		req="${entry#*:}"
 
-		echo "✅ Collections installed successfully via Galaxy on attempt ${ATTEMPT}"
-		break
-	fi
+		echo "🌐 Trying ${label} source (${req})…"
+		if timeout --foreground "${INSTALL_TIMEOUT}" \
+			"${PYTHON}" -m ansible.cli.galaxy collection install \
+			-r "${req}" \
+			-p "${ANSIBLE_COLLECTIONS_DIR}" \
+			--force-with-deps; then
 
-	echo "⚠️  Galaxy install failed on attempt ${ATTEMPT}"
+			echo "✅ Collections installed successfully via ${label} on attempt ${ATTEMPT}"
+			installed=1
+			break
+		fi
 
-	echo "🔁 Falling back to Git source (${GIT_REQ})…"
-	if timeout --foreground "${INSTALL_TIMEOUT}" \
-		"${PYTHON}" -m ansible.cli.galaxy collection install \
-		-r "${GIT_REQ}" \
-		-p "${ANSIBLE_COLLECTIONS_DIR}" \
-		--force-with-deps; then
+		echo "⚠️  ${label} install failed on attempt ${ATTEMPT}"
+	done
 
-		echo "✅ Collections installed successfully via Git fallback on attempt ${ATTEMPT}"
+	if ((installed == 1)); then
 		break
 	fi
 

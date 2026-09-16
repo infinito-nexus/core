@@ -41,34 +41,12 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  prepare:
-    name: 📋 Build Matrix
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.out.outputs.matrix }}
-      image_tag: ${{ steps.out.outputs.image_tag }}
-    steps:
-      - uses: actions/checkout@v7.0.0
-
-      - name: 📦 Install jq
-        run: ./scripts/install/apt.sh jq
-
-      - name: 🧮 Compute matrix JSON
-        id: out
-        run: scripts/github/runner/images_build_outputs.sh "${{ inputs.distros }}" "${{ inputs.image_tag }}"
-
   build:
-    name: 🏗️ Build (${{ matrix.distro }})
-    needs: prepare
+    name: 💿 Image
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-
-    strategy:
-      fail-fast: false
-      matrix:
-        distro: ${{ fromJson(needs.prepare.outputs.matrix) }}
 
     steps:
       - name: ⬇️ Checkout trusted workflow repo (helpers)
@@ -85,6 +63,13 @@ jobs:
           path: _src
           persist-credentials: false
           allow-unsafe-pr-checkout: ${{ inputs.allow_unsafe_checkout }}
+
+      - name: 📦 Install jq
+        run: ./scripts/install/apt.sh jq
+
+      - name: 🧮 Compute the distro list and image tag
+        id: out
+        run: scripts/github/runner/images_build_outputs.sh "${{ inputs.distros }}" "${{ inputs.image_tag }}"
 
       - name: 💽 Disk pressure (start)
         shell: bash
@@ -128,19 +113,28 @@ jobs:
           set -euo pipefail
           echo "owner=$(scripts/meta/resolve/repository/owner.sh)" >> "$GITHUB_OUTPUT"
 
-      - name: 🔨 Build & push (retry 7x, 20s)
+      - name: 🔨 Build & push every distro (retry 7x, 20s)
         if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) }}
         shell: bash
         env:
           GITHUB_REPOSITORY_OWNER: ${{ steps.owner.outputs.owner }}
           BUILD_CONTEXT_DIR: _src
-          MATRIX_DISTRO: ${{ matrix.distro }}
-          IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
+          INFINITO_DISTROS: ${{ join(fromJson(steps.out.outputs.matrix), ' ') }}
+          IMAGE_TAG: ${{ steps.out.outputs.image_tag }}
           USE_NIX_TOKEN: ${{ !(github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository) }}
           NIX_GITHUB_TOKEN: ${{ github.token }}
           MAX_ATTEMPTS: "7"
           RETRY_DELAY_SECONDS: "20"
-        run: ./scripts/image/push.sh
+        run: ./scripts/image/push_all.sh
+
+      - name: 📤 Upload per-distro build logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: image-build-logs
+          path: build/image-logs/
+          retention-days: 7
+          if-no-files-found: ignore
 
       - name: 💽 Disk pressure (post-build)
         if: always()

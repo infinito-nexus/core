@@ -28,11 +28,31 @@ from ansible.errors import AnsibleError
 from ansible.module_utils.parsing.convert_bool import boolean
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
+from ansible.template import trust_as_template
 
 FLAGGED_PORTS: tuple[tuple[str, int], ...] = (
     ("TOR_ONION_SSH_ENABLED", 22),
     ("TOR_ONION_HTTP_ENABLED", 80),
 )
+
+
+def _flag(templar: Any, name: str, value: Any) -> bool:
+    """A declared flag as a boolean, with its Jinja resolved first.
+
+    Args:
+        templar: the lookup's templar, or None when it has none.
+        name: the variable the flag came from, for the error message.
+        value: whatever the variable holds; group vars reach a lookup
+            unrendered, so a reference arrives as its own template text.
+    """
+    if isinstance(value, str) and "{{" in value and templar is not None:
+        value = templar.template(trust_as_template(value))
+    try:
+        return boolean(value)
+    except TypeError as exc:
+        raise AnsibleError(
+            f"lookup('tor_extra_ports'): {name} is not a boolean: {value!r}"
+        ) from exc
 
 
 def _entry(port: int) -> dict[str, Any]:
@@ -61,7 +81,7 @@ class LookupModule(LookupBase):
         for name, port in FLAGGED_PORTS:
             if name not in variables:
                 raise AnsibleError(f"lookup('tor_extra_ports'): {name} is not defined")
-            if boolean(variables[name]):
+            if _flag(getattr(self, "_templar", None), name, variables[name]):
                 entries.append(_entry(port))
 
         derived = lookup_loader.get(

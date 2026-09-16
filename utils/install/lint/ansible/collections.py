@@ -8,16 +8,13 @@ import time
 from pathlib import Path
 
 from utils.cache import PROJECT_ROOT
+from utils.install.collections import unsatisfied
 from utils.install.primitives import log, warn
 
 _MAX_ATTEMPTS = 5
 
 
-def _collection_present(base_dir: Path, namespace: str, name: str) -> bool:
-    return (base_dir / "ansible_collections" / namespace / name).is_dir()
-
-
-def _galaxy_install(requirements_file: str, base_dir: Path) -> bool:
+def _galaxy_install(requirements_file: Path, base_dir: Path) -> bool:
     try:
         subprocess.run(
             [
@@ -25,7 +22,7 @@ def _galaxy_install(requirements_file: str, base_dir: Path) -> bool:
                 "collection",
                 "install",
                 "-r",
-                requirements_file,
+                str(requirements_file),
                 "-p",
                 str(base_dir),
                 "--force-with-deps",
@@ -39,21 +36,13 @@ def _galaxy_install(requirements_file: str, base_dir: Path) -> bool:
 
 def ensure() -> None:
     collections_base_dir = Path("~/.ansible/collections").expanduser()
-    missing: list[str] = []
+    repo_root = Path(PROJECT_ROOT)
+    req_galaxy = repo_root / "requirements" / "requirements.galaxy.yml"
+    req_git = repo_root / "requirements" / "requirements.git.yml"
 
-    if not _collection_present(collections_base_dir, "community", "general"):
-        missing.append("community.general")
-    if not _collection_present(collections_base_dir, "hetzner", "hcloud"):
-        missing.append("hetzner.hcloud")
-    if not _collection_present(collections_base_dir, "kewlfft", "aur"):
-        missing.append("kewlfft.aur")
-
+    missing = unsatisfied(req_galaxy, collections_base_dir)
     if not missing:
         return
-
-    repo_root = Path(PROJECT_ROOT)
-    req_galaxy = str(repo_root / "requirements" / "requirements.galaxy.yml")
-    req_git = str(repo_root / "requirements" / "requirements.git.yml")
 
     attempt = 1
     while True:

@@ -43,9 +43,22 @@ run_one() {
 	docker exec "${name}" bash -lc 'exec "${INFINITO_SRC_DIR}/scripts/tests/dns/inside.sh"'
 }
 
+stamp() {
+	local distro="$1"
+	local line
+	while IFS= read -r line; do
+		printf '[%s][%(%H:%M:%S)T] %s\n' "${distro}" -1 "${line}"
+	done
+}
+
+echo "🌐 Testing DNS on ${#distros[@]} distro(s) concurrently: ${distros[*]}"
+
 declare -A pid
 for d in "${distros[@]}"; do
-	run_one "${d}" >"/tmp/dns-${d}.log" 2>&1 &
+	(
+		set -o pipefail
+		run_one "${d}" 2>&1 | stamp "${d}" | tee "/tmp/dns-${d}.log"
+	) &
 	pid["${d}"]=$!
 done
 
@@ -53,12 +66,12 @@ rc_total=0
 for d in "${distros[@]}"; do
 	rc=0
 	wait "${pid[${d}]}" || rc=$?
-	echo "::group::DNS ${d} (exit ${rc})"
-	cat "/tmp/dns-${d}.log"
-	echo "::endgroup::"
 	if [[ "${rc}" -ne 0 ]]; then
+		echo "❌ ${d} (exit ${rc})"
 		echo "::error::DNS test failed for ${d}"
 		rc_total=1
+	else
+		echo "✅ ${d}"
 	fi
 	docker rm -f "dns-dind-${d}" >/dev/null 2>&1 || true # nocheck: shell-or-true -- cleanup of a possibly already-removed container
 done

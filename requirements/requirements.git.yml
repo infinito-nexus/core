@@ -3,34 +3,34 @@ collections:
   - name: ansible.posix
     source: https://github.com/ansible-collections/ansible.posix.git
     type: git
-    version: main
+    version: 2.2.2
 
   - name: ansible.mysql
     source: https://github.com/ansible-collections/ansible.mysql.git
     type: git
-    version: main
+    version: 5.2.0
 
   - name: kewlfft.aur
     source: https://github.com/kewlfft/ansible-aur.git
     type: git
-    version: master
+    version: 7affd00193b03bf820ebcd8b13dfa81aab59803e
 
   - name: community.general
     source: https://github.com/ansible-collections/community.general.git
     type: git
-    version: main
+    version: 13.4.0
 
   - name: community.docker
     source: https://github.com/ansible-collections/community.docker.git
     type: git
-    version: main
+    version: 5.3.0
 
   - name: community.library_inventory_filtering_v1
     source: https://github.com/ansible-collections/community.library_inventory_filtering.git
     type: git
-    version: stable-1
+    version: 1.1.5
 
   - name: hetzner.hcloud
     source: https://github.com/ansible-collections/hetzner.hcloud.git
     type: git
-    version: main
+    version: 7.0.1
