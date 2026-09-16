@@ -28,6 +28,9 @@ rabbitmq:
       rabbitmq: 5672
     internal:
       rabbitmq: 5672
+    onion:
+      # nocheck: onion-flag  AMQP carries the apps' own worker queues; a broker reachable off the node would let anyone enqueue jobs
+      rabbitmq: false
   lifecycle: beta
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
 tor:

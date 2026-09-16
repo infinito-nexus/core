@@ -6,9 +6,9 @@
     {{ lookup('container_image', application_id, 'unbound') }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {% if DEPLOYMENT_MODE == 'compose' and not (DOCKER_IN_CONTAINER | bool) %}
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ UNBOUND_PORT }}:53/udp"  # nocheck: compose-ports-must-use-container-ports
-      - "{{ DOCKER_BIND_HOST }}:{{ UNBOUND_PORT }}:53/tcp"  # nocheck: compose-ports-must-use-container-ports
+    {{ lookup('container_ports',
+              {'service': 'unbound', 'protocol': 'unbound', 'ip': DOCKER_BIND_HOST,
+               'transport': ['udp', 'tcp']}) | indent(4) }}
     {% endif %}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     networks:  # nocheck: networks-literal  static-IP resolver on its own engine overlay so consumers can point dns: at it

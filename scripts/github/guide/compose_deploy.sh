@@ -16,4 +16,5 @@ test -s /tmp/run.sh
 source scripts/meta/env/load.sh
 sed -i "s#<your-ssh-public-key>#ssh-ed25519 AAAA_TEST_DUMMY_KEY github-ci-dummy@infinito#" /tmp/run.sh
 sed -i "s#<your-domain>#${INFINITO_DOMAIN}#" /tmp/run.sh
+sed -i "s#<your-clearnet-resolver>#${INFINITO_DNS_IP}#" /tmp/run.sh
 docker exec -i "${INFINITO_CONTAINER}" bash -s </tmp/run.sh

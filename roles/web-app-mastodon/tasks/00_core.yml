@@ -6,7 +6,7 @@
     name: sys-stk-front-proxy
   loop: "{{ lookup('domains', 'web-app-mastodon') }}"
   loop_control:
-    loop_var: domain
+    loop_var: domain # nocheck: loop-var-shadow  sys-stk-front-proxy takes the vhost through this name, see its tasks/main.yml front_proxy_domain
   vars:
     http_port: "{{ lookup('config', application_id, 'services.mastodon.ports.local.http') }}"
     webserver_websocket_location: "/api/v1/streaming"

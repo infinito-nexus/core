@@ -1,0 +1,32 @@
+---
+- name: "📦 Firewall | Install nftables"
+  become: true
+  package_install:
+    id: nftables
+
+- name: "📁 Firewall | Ensure the fragment directory exists"
+  become: true
+  ansible.builtin.file:
+    path: "{{ FIREWALL_FRAGMENT_DIR }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: "🧱 Firewall | Install the ruleset every fragment is loaded from"
+  become: true
+  ansible.builtin.template: # nocheck: stack-host-template  per-host packet filter: every host carrying rules needs the ruleset, not only the stack host
+    src: main.nft.j2
+    dest: "{{ FIREWALL_MAIN_CONF }}"
+    owner: root
+    group: root
+    mode: "0640"
+    backup: true
+
+- name: "🚀 Firewall | Arm the ruleset for boot without touching the live one"
+  become: true
+  ansible.builtin.systemd_service:
+    name: "{{ FIREWALL_SERVICE }}"
+    enabled: true
+
+- include_tasks: utils/once/flag.yml

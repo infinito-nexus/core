@@ -6,13 +6,40 @@ TOR_IMAGE: "{{ lookup('config', application_id, 'services.tor.image') }}"
 TOR_VERSION: "{{ lookup('config', application_id, 'services.tor.version') }}"
 TOR_CONTAINER: "{{ lookup('config', application_id, 'services.tor.name') }}"
 
-TOR_SOCKS_PORT: "{{ lookup('config', application_id, 'services.tor.ports.local.socks') }}"
 TOR_NODE_ONION: "{{ lookup('config', application_id, 'services.tor.node', '') }}"
 TOR_USE_ENTRY_GUARDS: "{{ lookup('config', application_id, 'services.tor.use_entry_guards') | bool }}"
 TOR_FLAVOR: "{{ lookup('config', application_id, 'services.tor.flavor') }}"
+TOR_ONION_SSH_ENABLED: "{{ lookup('config', application_id, 'services.tor.forwards.ssh') | bool }}"
+TOR_ONION_HTTP_ENABLED: "{{ lookup('config', application_id, 'services.tor.forwards.http') | bool }}"
+TOR_ONION_EXTRA_PORTS: "{{ lookup('tor_extra_ports') }}"
+TOR_EGRESS_ROUTER_ENABLED: "{{ lookup('config', application_id, 'services.tor.egress.enabled') | bool }}"
+TOR_EGRESS_VIRTUAL_NET_IPV4: "{{ NETWORK_TOR_VIRTUAL_CIDR }}"
 TOR_TRANS_PORT: "{{ lookup('config', application_id, 'services.tor.ports.local.trans') }}"
 TOR_DNS_PORT: "{{ lookup('config', application_id, 'services.tor.ports.local.dns') }}"
+TOR_SOCKS_PORT: "{{ lookup('config', application_id, 'services.tor.ports.local.socks') }}"
+TOR_DNSMASQ_PORT: "{{ NETWORK_DNS_PORT }}"
 TOR_DNSMASQ_CONF: "/etc/dnsmasq.d/tor-onion.conf"
+
+TOR_EGRESS_GUARDED_PORTS:
+  - port: "{{ TOR_TRANS_PORT }}"
+    protocol: tcp
+    admitted: containers
+  - port: "{{ TOR_DNS_PORT }}"
+    protocol: tcp
+    admitted: containers
+  - port: "{{ TOR_DNS_PORT }}"
+    protocol: udp
+    admitted: containers
+  - port: "{{ TOR_SOCKS_PORT }}"
+    protocol: tcp
+    admitted: internal
+  - port: "{{ TOR_DNSMASQ_PORT }}"
+    protocol: tcp
+    admitted: internal
+  - port: "{{ TOR_DNSMASQ_PORT }}"
+    protocol: udp
+    admitted: internal
+TOR_EGRESS_CLIENT_CIDRS: "{{ lookup('tor_egress_clients') }}"
 TOR_DNSMASQ_DROPIN: "/etc/systemd/system/dnsmasq.service.d/infinito-restart.conf"
 # nocheck: host-local-fact  meta/services.yml pins this role to the manager, so the fact describes the node the hidden service forwards on
 TOR_CONTAINER_DNS_HOST: "{{ ansible_facts['docker0']['ipv4']['address'] | default('', true) }}"

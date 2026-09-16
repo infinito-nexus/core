@@ -76,6 +76,9 @@ gitea:
       http: 8002
     public:
       ssh: 2201
+    onion:
+      # nocheck: onion-flag  git over the onion runs on the HTTP transport the proxy already serves on port 80; a second sshd on the onion would need its own host key policy
+      ssh: false
   run_after:
     - web-app-matomo
     - web-app-keycloak

@@ -21,26 +21,49 @@
 
 - name: ✅ Ensure systemd user directory exists
   file:
-    path: "$HOME/.config/systemd/user"
+    path: "{{ DIR_SYSTEM_SERVICE_USER }}"
     state: directory
     mode: "0700"
   become: false
 
-- name: 🚀 Deploy ssh-agent systemd unit file
-  template: # nocheck: stack-host-template (per-host/user workstation systemd unit)
-    src: ssh-agent.service.j2
-    dest: "$HOME/.config/systemd/user/ssh-agent.service"
-    mode: "0644"
+- name: 🔍 Look for the unversioned ssh-agent unit
+  stat:
+    path: "{{ desk_ssh_legacy_unit }}"
+  register: desk_ssh_legacy_unit_state
   become: false
 
-- name: 🟢 Enable and start ssh-agent service
-  systemd:
-    name: ssh-agent.service
-    scope: user
-    enabled: true
-    state: started
-    daemon_reload: true
-  become: false
+- name: 🧹 Retire the unversioned ssh-agent unit
+  block:
+    - name: 🛑 Stop and disable the unversioned ssh-agent unit
+      systemd:
+        name: "{{ desk_ssh_legacy_unit | basename }}"
+        scope: user
+        state: stopped
+        enabled: false
+      become: false
+
+    - name: 🗑️ Delete the unversioned ssh-agent unit
+      file:
+        path: "{{ desk_ssh_legacy_unit }}"
+        state: absent
+      become: false
+  when: desk_ssh_legacy_unit_state.stat.exists
+
+- name: 🚀 Deploy ssh-agent systemd unit file
+  include_role:
+    name: sys-service
+  vars:
+    system_service_scope: user
+    system_service_copy_files: false
+    system_service_state: started
+    system_service_tpl_on_failure: ""
+    system_service_tpl_type: simple
+    system_service_tpl_runtime: ""
+    system_service_tpl_before: default.target
+    system_service_tpl_wanted_by: default.target
+    system_service_tpl_environment:
+      - "SSH_AUTH_SOCK=%t/ssh-agent.socket"
+    system_service_tpl_exec_start: "/usr/bin/ssh-agent -D -a $SSH_AUTH_SOCK"
 
 - name: ✅ Ensure ~/.profile exists with common environment
   lineinfile:

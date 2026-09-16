@@ -1,9 +1,10 @@
 #!/bin/sh
+{# nocheck: shell-template  grandfathered, values only: the backup directory and the repository list #}
 
 # log command
 if [ -n "$SSH_ORIGINAL_COMMAND" ]
 then
-  echo "`/bin/date`: $SSH_ORIGINAL_COMMAND" | systemd-cat -t "ssh-wrapper.sh"
+  echo "$(/bin/date): $SSH_ORIGINAL_COMMAND" | systemd-cat -t "ssh-wrapper.sh"
 fi
 
 get_hashed_machine_id="sha256sum /etc/machine-id";

@@ -7,10 +7,9 @@ server:
   do-udp: yes
   do-tcp: yes
   do-daemonize: no
-  access-control: 127.0.0.0/8 allow
-  access-control: 10.0.0.0/8 allow
-  access-control: 172.16.0.0/12 allow
-  access-control: 192.168.0.0/16 allow
+{% for _cidr in NETWORK_INTERNAL_CIDRS %}
+  access-control: {{ _cidr }} allow
+{% endfor %}
   directory: "{{ lookup('volume', 'svc-dns-unbound', 'data').target }}"
   username: unbound
   auto-trust-anchor-file: trusted-key.key
@@ -18,6 +17,9 @@ server:
   hide-identity: yes
   hide-version: yes
   cache-min-ttl: 300
+{% if UNBOUND_ONION_FORWARD_ADDR | length > 0 %}
+  domain-insecure: "onion."
+{% endif %}
 
 remote-control:
   control-enable: yes
@@ -29,4 +31,10 @@ forward-zone:
 {% for resolver in NETWORK_PUBLIC_DNS_RESOLVERS %}
   forward-addr: {{ resolver }}
 {% endfor %}
+{% endif %}
+{% if UNBOUND_ONION_FORWARD_ADDR | length > 0 %}
+
+forward-zone:
+  name: "onion."
+  forward-addr: {{ UNBOUND_ONION_FORWARD_ADDR }}
 {% endif %}

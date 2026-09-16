@@ -24,6 +24,13 @@ class _DummyTemplar:
         self.available_variables = available_variables or {}
 
 
+def _app(service_enabled, domain="filer.example.com"):
+    return {
+        "server": {"domains": {"canonical": {"filer": domain}}},
+        "services": {"filer": {"enabled": service_enabled, "domains": ["filer"]}},
+    }
+
+
 class CspSkipDomainsLookupTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -45,88 +52,46 @@ class CspSkipDomainsLookupTests(unittest.TestCase):
     def test_empty_applications_returns_empty_list(self):
         self.assertEqual(self._run({}), [])
 
-    def test_app_with_status_code_ge_400_skips_canonical_and_aliases(self):
-        apps = {
-            "web-app-bridgy": {
-                "domains": {
-                    "canonical": ["bridgy.example.com"],
-                    "aliases": ["fed.example.com"],
-                },
-                "server": {
-                    "status_codes": {"default": [200, 404]},
-                },
-            }
-        }
-        self.assertEqual(self._run(apps), ["bridgy.example.com", "fed.example.com"])
+    def test_non_mapping_applications_returns_empty(self):
+        self.assertEqual(self._run([]), [])
 
-    def test_app_without_status_code_ge_400_is_not_skipped(self):
+    def test_a_disabled_service_hides_its_canonical_domain(self):
+        self.assertEqual(
+            self._run({"web-app-seaweedfs": _app(False)}),
+            ["filer.example.com"],
+        )
+
+    def test_an_enabled_service_keeps_its_domain_under_probe(self):
+        self.assertEqual(self._run({"web-app-seaweedfs": _app(True)}), [])
+
+    def test_a_service_without_domains_is_ignored(self):
         apps = {
             "web-app-foo": {
-                "domains": {"canonical": ["foo.example.com"]},
-                "server": {
-                    "status_codes": {"default": [200]},
-                },
+                "server": {"domains": {"canonical": {"web": "foo.example.com"}}},
+                "services": {"worker": {"enabled": False}},
             }
         }
         self.assertEqual(self._run(apps), [])
 
-    def test_app_without_status_codes_field_is_not_skipped(self):
-        apps = {"web-app-foo": {"domains": {"canonical": ["foo.example.com"]}}}
-        self.assertEqual(self._run(apps), [])
-
-    def test_group_names_selection_filters_apps(self):
+    def test_the_selection_filters_which_apps_are_inspected(self):
         apps = {
-            "web-app-bridgy": {
-                "domains": {"canonical": ["bridgy.example.com"]},
-                "server": {
-                    "status_codes": {"default": [404]},
-                },
-            },
-            "web-app-other": {
-                "domains": {"canonical": ["other.example.com"]},
-                "server": {
-                    "status_codes": {"default": [404]},
-                },
-            },
+            "web-app-a": _app(False, "a.example.com"),
+            "web-app-b": _app(False, "b.example.com"),
         }
         self.assertEqual(
-            self._run(apps, group_names=["web-app-bridgy"]),
-            ["bridgy.example.com"],
+            self._run(apps, group_names=["web-app-a"]),
+            ["a.example.com"],
         )
 
     def test_group_names_csv_string_is_accepted(self):
         apps = {
-            "a": {
-                "domains": {"canonical": ["a.example.com"]},
-                "server": {
-                    "status_codes": {"default": [404]},
-                },
-            },
-            "b": {
-                "domains": {"canonical": ["b.example.com"]},
-                "server": {
-                    "status_codes": {"default": [404]},
-                },
-            },
+            "web-app-a": _app(False, "a.example.com"),
+            "web-app-b": _app(False, "b.example.com"),
         }
         self.assertEqual(
-            self._run(apps, group_names="a,b"),
+            self._run(apps, group_names="web-app-a,web-app-b"),
             ["a.example.com", "b.example.com"],
         )
-
-    def test_non_4xx_codes_dont_count(self):
-        apps = {
-            "web-app-foo": {
-                "domains": {"canonical": ["foo.example.com"]},
-                "server": {
-                    "status_codes": {"default": [200, 301, 302]},
-                },
-            }
-        }
-        self.assertEqual(self._run(apps), [])
-
-    def test_non_mapping_applications_returns_empty(self):
-        self.assertEqual(self._run([]), [])
 
 
 if __name__ == "__main__":

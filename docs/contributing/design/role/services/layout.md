@@ -213,6 +213,8 @@ All port data lives under `<entity>.ports` in `meta/services.yml` (no `ports:` s
       relay:                          # for port-ranges (coturn, BBB, nextcloud TURN)
         start: <int>
         end:   <int>
+    onion:
+      <category>: <bool>              # forward this category over the node onion
 ```
 
 ### `internal` / `local` / `public` Split 🧭
@@ -222,6 +224,7 @@ All port data lives under `<entity>.ports` in `meta/services.yml` (no `ports:` s
 | `internal` | **Internal container port.** Lives inside the container's network namespace, addressed by other containers on the same role-local network. NOT a host-bound port. Multiple roles MAY legitimately declare the same value (e.g. several nginx-based apps with `internal: { http: 80 }`). |
 | `local`    | **Localhost-bound host port.** Bound on `127.0.0.1` and only reachable through the front-proxy / SSH tunnels. The OS-level binding namespace is shared across all roles, so `local` values MUST be unique across the whole repo. |
 | `public`   | **Public-facing host port.** Bound on `0.0.0.0` and exposed to the public internet (or to whatever the operator's firewall allows). Same uniqueness rule as `local`. |
+| `onion`    | **Onion opt-in, not a port.** A category-keyed map of booleans naming which of the entity's own categories get a `HiddenServicePort` on the node onion. It declares no numbers: the port is read from `local` when the category is declared there and from `public` otherwise, matching what `container_ports` publishes. Collision detection ignores it. |
 
 ### Always Category-Keyed Maps 🗂️
 
@@ -255,6 +258,34 @@ coturn:
         start: 20000
         end:   39999
 ```
+
+### `onion` Forwarding Opt-In 🧅
+
+`ports.onion` names the categories that answer on the node onion. Only the named
+categories are forwarded.
+
+The flag is mandatory, enforced by [test_onion_port_flag.py](../../../../../tests/lint/ansible/services/test_onion_port_flag.py):
+every category declared under `local` or `public` needs a `true` or a `false`,
+and every `false` needs `# nocheck: onion-flag` plus the reason it is false.
+Four groups are settled centrally instead and take no flag: the categories a
+hidden service cannot carry (`relay`, `media`, `stun_turn`, `stun_turn_tls`),
+the proxy-fronted `http`, `sso` and `websocket`, the implicit-TLS variants
+(`smtps`, `imaps`, `pop3s`, `ldaps`), and any entity that already answers the
+question through `exposed:`.
+
+```yaml
+mailu:
+  ports:
+    public:
+      smtp:   25
+      smtps:  465
+      imap:   143
+    onion:
+      smtp: true          # 25 gets a HiddenServicePort; 465 and 143 do not
+```
+
+The forward is per-variant: `meta/variants.yml` may drop the flag, and the role
+then loses the `HiddenServicePort` in that variant.
 
 ### Multi-Entity Roles 🎛️
 

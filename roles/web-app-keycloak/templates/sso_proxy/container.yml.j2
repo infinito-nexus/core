@@ -8,6 +8,7 @@
     labels:
       infinito.sso-proxy.config-sha256: "{{ lookup('template', lookup('path_absolute', 'roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2'), template_vars={'sso_proxy_application_id': application_id}) | hash('sha256') }}"
     ports:
+      # nocheck: compose-ports-must-use-container-ports  the published port belongs to the consuming role's own entity and the container port to web-app-keycloak's sso_proxy, so the mapping spans two application_ids and no single container_ports call can read both
       - {{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.' ~ (application_id | get_entity_name) ~ '.ports.local.sso') }}:{{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.ports.internal.http') }}/tcp
     volumes:
       - "{{ lookup('container', application_id, 'directories.volumes') }}{{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.configuration_file') }}:/oauth2-proxy.cfg"

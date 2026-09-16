@@ -29,7 +29,7 @@ import time
 from utils import PROJECT_ROOT
 from utils.env.runtime import mem_available_mb, mem_stall_pct, mem_total_mb
 from utils.storage.constrained import host_storage_constrained
-from utils.tests.swarm.derive_includes import derive_includes
+from utils.tests.swarm.derive_includes import derive_includes, variant_scope
 from utils.tests.swarm.write.extras import ensure_swarm_keypairs
 
 _SWARM_DIR = PROJECT_ROOT / "scripts" / "tests" / "deploy" / "swarm"
@@ -385,7 +385,7 @@ def main(argv: list[str] | None = None) -> int:
         round_index,
         inv_dir,
         round_variants,
-        round_include,
+        _round_include,
         round_purge_set,
     ) in enumerate(plan):
         inv_root = inv_dir.rstrip("/")
@@ -397,7 +397,7 @@ def main(argv: list[str] | None = None) -> int:
 
         variant_payloads = _resolve_variant_payloads(
             roles_dir=_ROLES_DIR,
-            include=round_include,
+            include=variant_scope(app_id, variants=round_variants),
             active_variants=round_variants,
         )
         from utils.tests.swarm.backup_repos import backup_provider_ips

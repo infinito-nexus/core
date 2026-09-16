@@ -11,6 +11,12 @@ from utils.cache.yaml import load_yaml
 _AI_VARS = Path(PROJECT_ROOT) / "group_vars" / "all" / "16_ai.yml"
 
 
+def _ansible_bool(value):
+    if isinstance(value, str):
+        return value.strip().lower() in ("true", "yes", "on", "1")
+    return bool(value)
+
+
 def _stub_lookup(preload_models, lmstudio_models):
     def lookup(kind, role, path, *args):
         if (kind, path) == ("config", "services.ollama.preload_models"):
@@ -38,6 +44,7 @@ class TestLitellmChatModel(unittest.TestCase):
         cls.env.tests["search"] = lambda value, pattern: bool(
             re.search(pattern, str(value))
         )
+        cls.env.filters["bool"] = _ansible_bool
         cls.source = load_yaml(_AI_VARS)
 
     def _render(self, name, *, roles, api_key, preload_models=(), lmstudio_models=()):
@@ -45,6 +52,8 @@ class TestLitellmChatModel(unittest.TestCase):
             self.env.from_string(self.source[name])
             .render(
                 LITELLM_BACKEND_ROLES=list(roles),
+                LITELLM_OLLAMA_BACKEND=str("svc-ai-ollama" in roles),
+                LITELLM_LMSTUDIO_BACKEND=str("svc-ai-lmstudio" in roles),
                 AI_REMOTE_ALIASES=(["openrouter/auto"] if api_key else []),
                 lookup=_stub_lookup(
                     [{"alias": alias, "name": alias} for alias in preload_models],

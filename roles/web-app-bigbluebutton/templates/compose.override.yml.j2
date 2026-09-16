@@ -90,12 +90,12 @@ services:
 {% set service_name = 'coturn' %}
   {{ service_name }}:
     {{ lookup('container_volumes', service_name) | indent(4) }}
-    ports:
-      - "{{ BBB_TURN_PORT }}:{{ BBB_TURN_PORT }}/udp"
-      - "{{ BBB_TURN_PORT }}:{{ BBB_TURN_PORT }}/tcp"
-      - "{{ BBB_STUN_PORT }}:{{ BBB_STUN_PORT }}/udp"
-      - "{{ BBB_STUN_PORT }}:{{ BBB_STUN_PORT }}/tcp"
-      - "{{ BBB_RELAY_PORT_RANGE }}/udp"
+    {{ lookup('container_ports',
+              {'service': 'bigbluebutton', 'protocol': 'stun_turn',
+               'transport': ['udp', 'tcp'], 'container': 'same'},
+              {'service': 'bigbluebutton', 'protocol': 'relay',
+               'transport': 'udp', 'container': 'same',
+               'publish': 'ephemeral'}) | indent(4) }}
     command: >-
       --use-auth-secret
       --static-auth-secret=${TURN_SECRET}

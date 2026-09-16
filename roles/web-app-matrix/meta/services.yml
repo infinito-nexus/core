@@ -55,6 +55,9 @@ synapse:
       http: 8021
     public:
       federation: 8448
+    onion:
+      # nocheck: onion-flag  federation is dialled by clearnet homeservers resolving this server_name; serving it on the onion needs an onion server_name, which is a different deployment
+      federation: false
   min_storage: 311MB
   cpus: "1.5"
   mem_reservation: "1g"

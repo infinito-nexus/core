@@ -1,0 +1,15 @@
+---
+application_id: svc-net-firewall
+
+FIREWALL_MAIN_CONF_BY_OS_FAMILY:
+  Archlinux: "/etc/nftables.conf"
+  Debian: "/etc/nftables.conf"
+  RedHat: "/etc/sysconfig/nftables.conf"
+
+FIREWALL_MAIN_CONF: "{{ FIREWALL_MAIN_CONF_BY_OS_FAMILY[ansible_facts['os_family']] }}"
+FIREWALL_FRAGMENT_DIR: "/etc/nftables.d"
+FIREWALL_SERVICE: "nftables.service"
+FIREWALL_FRAGMENT_SRC: "templates/nftables.conf.j2"
+FIREWALL_FRAGMENT_ROLE: "{{ ansible_parent_role_names | default([]) | first | default('') }}"
+FIREWALL_FRAGMENT_FILE: "{{ [ FIREWALL_FRAGMENT_DIR, FIREWALL_FRAGMENT_ROLE ~ '.conf' ] | path_join }}"
+FIREWALL_TABLE: "infinito_{{ FIREWALL_FRAGMENT_ROLE | regex_replace('[^a-zA-Z0-9]', '_') }}"

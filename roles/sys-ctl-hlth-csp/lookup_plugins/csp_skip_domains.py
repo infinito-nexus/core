@@ -32,21 +32,6 @@ def _to_list(x: Any) -> list[str]:
     return []
 
 
-def _has_code_ge_400(codes: Any) -> bool:
-    if codes is None:
-        return False
-    if not isinstance(codes, (list, tuple, set)):
-        codes = [codes]
-    for c in codes:
-        try:
-            n = int(c)
-        except (TypeError, ValueError):
-            continue
-        if n >= 400:
-            return True
-    return False
-
-
 def _selection_from(group_names: Any) -> set[str]:
     if isinstance(group_names, (list, set, tuple)):
         return {str(x) for x in group_names if str(x)}
@@ -58,11 +43,7 @@ def _selection_from(group_names: Any) -> set[str]:
 class LookupModule(LookupBase):
     """Return domains the CSP probe should skip.
 
-    Skips canonical + alias domains of every selected application whose
-    ``server.status_codes.default`` declares any HTTP code >= 400
-    (e.g. federation-only roles that legitimately serve 4xx at ``/``).
-
-    Additionally skips canonical domains owned by a disabled service: a
+    Skips canonical domains owned by a disabled service: a
     service entry may declare ``domains: [<canonical key>, ...]``; when its
     ``enabled`` resolves falsy those canonicals get no vhost (e.g. the
     seaweedfs filer/master frontend on an onion node), so probing them can
@@ -118,37 +99,7 @@ class LookupModule(LookupBase):
 
         skip: set[str] = set()
         for app_id in applications:
-            if selection and app_id not in selection:
-                continue
-
-            skip |= self._service_disabled_domains(applications, app_id)
-
-            default = get(
-                applications,
-                app_id,
-                "server.status_codes.default",
-                strict=False,
-                default=None,
-            )
-            if not _has_code_ge_400(default):
-                continue
-
-            canonical = get(
-                applications,
-                app_id,
-                "domains.canonical",
-                strict=False,
-                default=[],
-            )
-            aliases = get(
-                applications,
-                app_id,
-                "domains.aliases",
-                strict=False,
-                default=[],
-            )
-            for d in _to_list(canonical) + _to_list(aliases):
-                if d:
-                    skip.add(d)
+            if not selection or app_id in selection:
+                skip |= self._service_disabled_domains(applications, app_id)
 
         return [sorted(skip)]

@@ -34,6 +34,9 @@ docker:
       registry: 5000
     internal:
       registry: 5000
+    onion:
+      # nocheck: onion-flag  the registry accepts unauthenticated pushes from the node that builds into it, so its reach must stay the node
+      registry: false
   lifecycle: beta
 # nocheck: dynamic-flag - locally built images are rebuildable, the backup consumer stays permanently off
 container_backup:

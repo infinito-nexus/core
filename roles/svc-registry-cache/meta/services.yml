@@ -34,6 +34,9 @@ cache:
       registry: 5001
     internal:
       registry: 5000
+    onion:
+      # nocheck: onion-flag  the pull-through mirror exists to serve this node's own image pulls; publishing it would relay Docker Hub for strangers
+      registry: false
   proxy:
     remote_url: "https://registry-1.docker.io" # nocheck: url
   lifecycle: beta

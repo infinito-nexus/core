@@ -28,10 +28,11 @@
 - name: "🔧 setup systemctl '{{ system_service_id }}'"
   template: # nocheck: stack-host-template (per-host systemd service unit)
     src: "{{ system_service_template_src }}"
-    dest: "{{ [ DIR_SYSTEM_SERVICE, system_service_name ] | path_join }}"
-    owner: root
-    group: root
+    dest: "{{ [ system_service_unit_dir, system_service_name ] | path_join }}"
+    owner: "{{ system_service_unit_owner }}"
+    group: "{{ system_service_unit_owner }}"
     mode: "0644"
+  become: "{{ system_service_unit_become }}"
   notify: "{{ 'reload-system-daemon' if system_service_is_template | bool else 'refresh-systemctl-service' }}"
 
 - name: 🔄 refresh systemctl service when SYS_SERVICE_ALL_ENABLE

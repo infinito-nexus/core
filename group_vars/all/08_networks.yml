@@ -5,16 +5,23 @@ NETWORK_PUBLIC_DNS_RESOLVERS:
   - 8.8.8.8 # nocheck: hardcoded-dns-resolver
   - 1.0.0.1 # nocheck: hardcoded-dns-resolver
 NETWORK_DOCKER_EMBEDDED_DNS_RESOLVER: "127.0.0.11" # nocheck: hardcoded-dns-resolver
+NETWORK_DNS_PORT: 53 # Well-known resolver port a host DNS listener binds
 NETWORK_DOCKER_DNS_NGINX_DIRECTIVE: "resolver {{ NETWORK_DOCKER_EMBEDDED_DNS_RESOLVER }} valid=30s ipv6={{ NETWORK_IPV6_ENABLED | on_off }};"
-NETWORK_TRUSTED_PROXY_CIDRS:
-  - 127.0.0.1
-  - "::1"
-  - 10.0.0.0/8
-  - 172.16.0.0/12
-  - 192.168.0.0/16
+NETWORK_LOOPBACK_CIDR: "127.0.0.0/8"
+NETWORK_PRIVATE_CIDRS:
+  class_a: "10.0.0.0/8"
+  class_b: "172.16.0.0/12"
+  class_c: "192.168.0.0/16"
+NETWORK_INTERNAL_CIDRS: "{{ [NETWORK_LOOPBACK_CIDR] + (NETWORK_PRIVATE_CIDRS.values() | list) }}"
+NETWORK_ROLE_SUBNET_POOL: "{{ NETWORK_PRIVATE_CIDRS.class_c }}"
+NETWORK_ROLE_SUBNET_EXCEPTION_ROLES:
+  - web-app-bigbluebutton
+NETWORK_SWARM_GWBRIDGE_POOL: "{{ NETWORK_PRIVATE_CIDRS.class_b }}"
+NETWORK_TRUSTED_PROXY_CIDRS: "{{ ['127.0.0.1', '::1'] + (NETWORK_PRIVATE_CIDRS.values() | list) }}"
 NETWORK_DOCKER_ADDRESS_POOLS:
   - base: "10.208.0.0/12"
     size: 24
+NETWORK_TOR_VIRTUAL_CIDR: "10.240.0.0/12" # Range tor answers for .onion instead of routing; must not overlap the pool above
 NETWORK_CONTAINER_BRIDGE_RESOLVER: false
 NETWORK_NESTED_DOCKER_BIP: "192.168.67.1/24"
 NETWORK_NESTED_DOCKER_ADDRESS_POOLS:
@@ -82,6 +89,12 @@ PORT_BANDS: # nocheck: unused-var  # consumed by the port-allocation plugin outs
       start: 9053
       end: 9053
   public:
+    http:
+      start: 80
+      end: 80
+    https:
+      start: 443
+      end: 443
     ssh:
       start: 2201
       end: 2299

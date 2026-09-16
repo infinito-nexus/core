@@ -44,7 +44,7 @@
       ansible.builtin.include_tasks: run_one.yml
       loop: "{{ _cli_apps }}"
       loop_control:
-        loop_var: application_id
+        loop_var: application_id # nocheck: loop-var-shadow  the item IS the role id, so run_one reads the same value the tested role declares
         label: "{{ application_id }}"
 
     - name: ✅ Fail if there were CLI test failures

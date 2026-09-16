@@ -26,6 +26,11 @@ tor: # nocheck: category-modes
   node: ""
   use_entry_guards: true
   flavor: public
+  forwards:
+    ssh: true
+    http: true
+  egress:
+    enabled: true
   timeout_multipliers:
     chutney: 2
     public: 5
@@ -34,9 +39,16 @@ tor: # nocheck: category-modes
       socks: 9050
       trans: 9040
       dns: 9053
+    onion:
+      # nocheck: onion-flag  a SOCKS port anyone can reach is an open proxy, and SocksPolicy cannot refuse it because the forward arrives from the node's own address
+      socks: false
+      # nocheck: onion-flag  the transparent port takes its destination from the caller's routing, which an onion client does not share
+      trans: false
+      # nocheck: onion-flag  publishing the resolver would answer recursive queries for anyone holding the onion address
+      dns: false
   min_storage: 100MB
   cpus: "0.25"
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 128
-  lifecycle: alpha
+  lifecycle: beta

@@ -33,7 +33,6 @@ BBB_STUN_PORT: "{{ lookup('config', application_id, 'services.bigbluebutton.port
   'services.coturn.ports.public.stun_turn_tls') }}"
 BBB_RELAY_PORT_START: "{{ lookup('config', application_id, 'services.bigbluebutton.ports.public.relay.start') }}"
 BBB_RELAY_PORT_END: "{{ lookup('config', application_id, 'services.bigbluebutton.ports.public.relay.end') }}"
-BBB_RELAY_PORT_RANGE: "{{ BBB_RELAY_PORT_START }}-{{ BBB_RELAY_PORT_END }}"
 
 BBB_COLLABORA_ENABLED: "{{ not (lookup('config',application_id, 'services.collabora.shared')) }}"
 BBB_COLLABORA_PORT: "{{ lookup('config', 'web-svc-collabora', 'services.collabora.ports.internal.http') }}"

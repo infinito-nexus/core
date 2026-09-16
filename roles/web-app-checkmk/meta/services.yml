@@ -83,6 +83,9 @@ checkmk:
       http: 8087
       sso: 16509
       agent: 8500
+    onion:
+      # nocheck: onion-flag  the monitoring server dials its agents, so nothing connects inward here, and the agent speaks no authentication of its own
+      agent: false
   run_after:
     - web-app-keycloak
     - svc-db-openldap

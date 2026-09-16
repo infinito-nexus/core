@@ -5,6 +5,7 @@ DIR_SCRIPTS_ROOT: "/opt/scripts/"
 DIR_SCRIPTS_SYSTEMCTL: "{{ [ DIR_SCRIPTS_ROOT, 'systemctl' ] | path_join }}"
 DIR_COMPOSITIONS: "/opt/compose/"
 DIR_SYSTEM_SERVICE: "/etc/systemd/system"
+DIR_SYSTEM_SERVICE_USER: "$HOME/.config/systemd/user"
 DIR_COMPOSE_PULL_LOCK: "/run/ansible/compose-pull/"
 
 DIR_BIN: "/usr/bin"

@@ -1,33 +1,67 @@
-"""Lookup `container_ports`: build a compose ``ports:`` publish block from
-``[service_name, protocol]`` or ``[service_name, protocol, host_ip]`` terms.
+"""Lookup `container_ports`: build a compose ``ports:`` block from declared ports.
 
-Single SPOT replacing the repeated, verbose port lookups. Each term is a
-two- or three-element list; pass one or more. The optional third element is
-the host IP to bind that port to; omit it to publish on every interface:
+Single SPOT for every published port in the repo. A term is either the short
+list form or the dict form; pass one or more.
+
+List form, unchanged::
 
     {{ lookup('container_ports',
               ['gitea', 'http', DOCKER_BIND_HOST],
               ['gitea', 'ssh']) | indent(4) }}
 
-produces
+produces::
 
     ports:
-      - "<DOCKER_BIND_HOST>:<services.gitea.ports.local.http>:<services.gitea.ports.internal.http>"
+      - "<DOCKER_BIND_HOST>:<services.gitea.ports.local.http>:<...internal.http>"
       - "<services.gitea.ports.public.ssh>:<services.gitea.ports.internal.ssh>"
 
-Per term the published (host) port is ``services.<svc>.ports.local.<proto>``
-when declared, else ``services.<svc>.ports.public.<proto>``; the container
-port is always ``services.<svc>.ports.internal.<proto>``. A third element
-prefixes ``<host_ip>:``; without it the port binds to all interfaces. This
-makes every mapping expressible, including binds to a specific public IP
-(e.g. ``['mailu', 'smtp', MAILU_IP4_PUBLIC]``).
+The published (host) port is ``ports.local.<proto>`` when declared, else
+``ports.public.<proto>``; the container port is ``ports.internal.<proto>``.
 
-``application_id`` is read from the play variables unless given as ``application_id=``.
+Dict form, for the shapes the list form cannot express::
+
+    {{ lookup('container_ports',
+              {'service': 'coturn', 'protocol': 'stun_turn',
+               'transport': ['udp', 'tcp'], 'container': 'same'},
+              {'service': 'coturn', 'protocol': 'relay', 'transport': 'udp',
+               'container': 'same'},
+              {'service': 'openresty', 'protocol': 'http', 'mode': 'host'},
+              {'service': 'funkwhale', 'protocol': 'api',
+               'publish': 'ephemeral'}) | indent(4) }}
+
+Keys:
+
+``service``, ``protocol``
+    Required, as in the list form.
+``ip``
+    Host address to bind to; omit to publish on every interface.
+``transport``
+    ``tcp``, ``udp``, or a list of both. One list item per transport. Omit for
+    compose's own default, which publishes no suffix.
+``container``
+    ``internal`` (default) reads ``ports.internal.<proto>``; ``same`` reuses the
+    published port, for services that cannot remap (STUN/TURN, media relays).
+``mode``
+    ``ingress`` (default) emits the short ``"host:published:container"`` string;
+    ``host`` emits the long block with ``mode: host``, which is what an edge
+    role needs in swarm so the client address survives the hop.
+``publish``
+    ``ephemeral`` publishes the container port on a host port docker picks, for
+    a service addressed only through the compose network.
+
+A declared value that is a ``{start, end}`` mapping renders as ``start-end`` on
+both sides, so a relay range needs no special term.
+
+``application_id`` is read from the play variables unless given as
+``application_id=``. ``key='expose'`` names the block instead of ``ports``, for
+Discourse's launcher file, whose ``expose:`` list is what becomes ``docker run
+-p`` there.
 """
 
 from __future__ import annotations
 
 import contextlib
+from collections.abc import Mapping
 from typing import Any
 
 from ansible.errors import AnsibleError
@@ -37,9 +71,113 @@ from ansible.template import trust_as_template
 
 from utils.roles.applications.config import get
 
+_TERM_KEYS = frozenset(
+    {"service", "protocol", "ip", "transport", "container", "mode", "publish"}
+)
+_TRANSPORTS = ("tcp", "udp")
+_CONTAINER_SOURCES = ("internal", "same")
+_MODES = ("ingress", "host")
+
 
 def _as_str(value: Any) -> str:
     return "" if value is None else str(value).strip()
+
+
+def _rendered(value: Any) -> str:
+    """A declared port value as compose writes it, ranges included."""
+    if isinstance(value, Mapping):
+        start, end = value.get("start"), value.get("end")
+        if start is None or end is None:
+            return ""
+        return f"{_as_str(start)}-{_as_str(end)}"
+    return _as_str(value)
+
+
+def _transports_of(term: Mapping) -> list[str]:
+    declared = term.get("transport")
+    if declared is None:
+        return [""]
+    wanted = [declared] if isinstance(declared, str) else list(declared)
+    for transport in wanted:
+        if transport not in _TRANSPORTS:
+            raise AnsibleError(
+                f"container_ports: transport must be one of {_TRANSPORTS}, "
+                f"got {transport!r}"
+            )
+    return wanted
+
+
+def _normalised(term: Any) -> dict[str, Any]:
+    """One term as a dict, accepting the legacy list form."""
+    if isinstance(term, (list, tuple)):
+        if len(term) not in (2, 3):
+            raise AnsibleError(
+                "container_ports: a list term must be [service_name, protocol] "
+                f"or [service_name, protocol, host_ip], got {term!r}"
+            )
+        term = {
+            "service": term[0],
+            "protocol": term[1],
+            **({"ip": term[2]} if len(term) == 3 else {}),
+        }
+    if not isinstance(term, Mapping):
+        raise AnsibleError(
+            f"container_ports: each term must be a list or a mapping, got {term!r}"
+        )
+    unknown = set(term) - _TERM_KEYS
+    if unknown:
+        raise AnsibleError(
+            f"container_ports: unknown term key(s) {sorted(unknown)}; "
+            f"valid keys are {sorted(_TERM_KEYS)}"
+        )
+    normalised = {
+        "service": _as_str(term.get("service")),
+        "protocol": _as_str(term.get("protocol")),
+        "ip": _as_str(term.get("ip")),
+        "transport": term.get("transport"),
+        "container": _as_str(term.get("container")) or "internal",
+        "mode": _as_str(term.get("mode")) or "ingress",
+        "publish": _as_str(term.get("publish")),
+    }
+    if not normalised["service"] or not normalised["protocol"]:
+        raise AnsibleError("container_ports: service and protocol must be non-empty")
+    if normalised["container"] not in _CONTAINER_SOURCES:
+        raise AnsibleError(
+            f"container_ports: container must be one of {_CONTAINER_SOURCES}, "
+            f"got {normalised['container']!r}"
+        )
+    if normalised["mode"] not in _MODES:
+        raise AnsibleError(
+            f"container_ports: mode must be one of {_MODES}, got {normalised['mode']!r}"
+        )
+    if normalised["publish"] and normalised["publish"] != "ephemeral":
+        raise AnsibleError(
+            "container_ports: publish accepts only 'ephemeral', "
+            f"got {normalised['publish']!r}"
+        )
+    if normalised["mode"] == "host" and normalised["ip"]:
+        raise AnsibleError(
+            "container_ports: mode 'host' binds the node's own interface and "
+            "takes no ip"
+        )
+    return normalised
+
+
+def _short_line(term: Mapping, published: str, container: str, transport: str) -> str:
+    suffix = f"/{transport}" if transport else ""
+    if term["publish"] == "ephemeral":
+        return f'  - "{container}{suffix}"'
+    head = f"{term['ip']}:" if term["ip"] else ""
+    return f'  - "{head}{published}:{container}{suffix}"'
+
+
+def _host_lines(published: str, container: str, transport: str) -> list[str]:
+    return [
+        f"  - target: {container}",
+        f"    published: {published}",
+        f"    protocol: {transport or 'tcp'}",
+        "    mode: host",
+    ]
 
 
 class LookupModule(LookupBase):
@@ -58,22 +196,9 @@ class LookupModule(LookupBase):
         if not terms:
             raise AnsibleError(
                 "lookup('container_ports', [service_name, protocol[, host_ip]], ...) "
-                "expects one or more [service_name, protocol] terms"
+                "expects one or more terms"
             )
-        triples: list[tuple[str, str, str]] = []
-        for term in terms:
-            if not (isinstance(term, (list, tuple)) and len(term) in (2, 3)):
-                raise AnsibleError(
-                    "container_ports: each term must be a [service_name, protocol] "
-                    f"or [service_name, protocol, host_ip] list, got {term!r}"
-                )
-            service, protocol = _as_str(term[0]), _as_str(term[1])
-            host = _as_str(term[2]) if len(term) == 3 else ""
-            if not service or not protocol:
-                raise AnsibleError(
-                    "container_ports: service_name and protocol must be non-empty"
-                )
-            triples.append((service, protocol, host))
+        parsed = [_normalised(term) for term in terms]
 
         templar = getattr(self, "_templar", None)
         variables = variables or getattr(self._templar, "available_variables", {}) or {}
@@ -96,7 +221,7 @@ class LookupModule(LookupBase):
         ).run([], variables=variables)[0]
 
         def _port(service: str, scope: str, protocol: str, *, required: bool) -> str:
-            value = _as_str(
+            value = _rendered(
                 get(
                     applications=applications,
                     application_id=application_id,
@@ -112,14 +237,24 @@ class LookupModule(LookupBase):
                 )
             return value
 
-        lines = ["ports:"]
-        for service, protocol, host in triples:
-            internal = _port(service, "internal", protocol, required=True)
-            published = _port(service, "local", protocol, required=False) or _port(
-                service, "public", protocol, required=True
+        block_key = _as_str(kwargs.get("key")) or "ports"
+        if block_key not in ("ports", "expose"):
+            raise AnsibleError(
+                f"container_ports: key must be 'ports' or 'expose', got {block_key!r}"
             )
-            if host:
-                lines.append(f'  - "{host}:{published}:{internal}"')
+        lines = [f"{block_key}:"]
+        for term in parsed:
+            service, protocol = term["service"], term["protocol"]
+            published = _port(service, "local", protocol, required=False) or _port(
+                service, "public", protocol, required=term["publish"] != "ephemeral"
+            )
+            if term["container"] == "same":
+                container = published
             else:
-                lines.append(f'  - "{published}:{internal}"')
+                container = _port(service, "internal", protocol, required=True)
+            for transport in _transports_of(term):
+                if term["mode"] == "host":
+                    lines.extend(_host_lines(published, container, transport))
+                else:
+                    lines.append(_short_line(term, published, container, transport))
         return ["\n".join(lines)]

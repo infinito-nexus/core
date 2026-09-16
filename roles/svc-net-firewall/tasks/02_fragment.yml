@@ -1,0 +1,43 @@
+---
+- name: "🔍 Firewall | Resolve the fragment of '{{ FIREWALL_FRAGMENT_ROLE }}'"
+  ansible.builtin.set_fact:
+    firewall_fragment_src: >-
+      {{ lookup('first_found',
+           {
+             'files': [ FIREWALL_FRAGMENT_SRC ],
+             'paths': [ lookup('path_absolute', 'roles', FIREWALL_FRAGMENT_ROLE) ]
+           }
+         ) }}
+    firewall_loaded_table: "{{ FIREWALL_TABLE }}"
+
+- name: "🧱 Firewall | Stage the ruleset of '{{ FIREWALL_FRAGMENT_ROLE }}'"
+  become: true
+  ansible.builtin.template: # nocheck: stack-host-template  per-host packet filter: every host carrying the rules needs the fragment, not only the stack host
+    src: "{{ firewall_fragment_src }}"
+    dest: "{{ FIREWALL_FRAGMENT_FILE }}"
+    owner: root
+    group: root
+    mode: "0640"
+    validate: "nft -c -f %s"
+
+- name: "🚀 Firewall | Load the ruleset of '{{ FIREWALL_FRAGMENT_ROLE }}'"
+  become: true
+  ansible.builtin.command:
+    argv: [nft, -f, "{{ FIREWALL_FRAGMENT_FILE }}"]
+  changed_when: true
+
+- name: "🔍 Firewall | Read back the table of '{{ FIREWALL_FRAGMENT_ROLE }}'"
+  become: true
+  ansible.builtin.command:
+    argv: [nft, list, table, inet, "{{ FIREWALL_TABLE }}"]
+  register: firewall_loaded_ruleset
+  changed_when: false
+
+- name: "✅ Firewall | Refuse a table that carries no chain"
+  ansible.builtin.assert:
+    that:
+      - "'chain ' in firewall_loaded_ruleset.stdout"
+    fail_msg: >-
+      {{ FIREWALL_FRAGMENT_ROLE }} loaded {{ FIREWALL_TABLE }} but the table
+      holds no chain, so nothing it declares is hooked into the packet path.
+      A table that exists is not a rule that runs.

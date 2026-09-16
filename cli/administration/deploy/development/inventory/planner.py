@@ -103,11 +103,10 @@ def plan_dev_inventory_matrix(
         round_include = per_variant_includes[round_index]
 
         round_variants = dict(primary_round_variants)
-        for dep in round_include:
+        for dep, dep_variants in variants_per_app.items():
             if dep in round_variants:
                 continue
-            dep_variants = variants_per_app.get(dep) or [{}]
-            dep_count = max(1, len(dep_variants))
+            dep_count = max(1, len(dep_variants or [{}]))
             round_variants[dep] = round_index if round_index < dep_count else 0
 
         inv_dir = f"{base}-{round_index}" if total_rounds > 1 else base

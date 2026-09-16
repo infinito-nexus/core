@@ -35,7 +35,8 @@
       - /run
       - /run/lock
       - /tmp
-    ports:
-      - "{{ DOCKER_BIND_HOST }}:{{ MATRIX_SYNAPSE_PORT }}:8008"
+    {{ lookup('container_ports', ['synapse', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+      # nocheck: compose-ports-must-use-container-ports  matrix-docker-ansible-deploy fixes element on 8080 while this repo declares element.ports.internal.http 80; the two disagree and the playbook owns the container
       - "{{ DOCKER_BIND_HOST }}:{{ MATRIX_ELEMENT_PORT }}:8080"
+      # nocheck: compose-ports-must-use-container-ports  the upstream playbook serves federation on 8048 and no ports.internal.federation is declared for it
       - "{{ DOCKER_BIND_HOST }}:{{ MATRIX_FEDERATION_PORT }}:8048"

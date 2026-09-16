@@ -175,9 +175,9 @@ def handler(args: argparse.Namespace) -> int:
 
     if len(plan) == 1:
         _, inv_dir, round_variants, include_R, _purge_set = plan[0]
-        non_zero = {a: i for a, i in round_variants.items() if i}
-        suffix = f" variants={non_zero}" if non_zero else ""
         shown = built_includes.get(inv_dir, include_R)
+        non_zero = {a: i for a, i in round_variants.items() if i and a in shown}
+        suffix = f" variants={non_zero}" if non_zero else ""
         print(
             f">>> Inventory initialized at {inv_dir} "
             f"(include={','.join(shown)} "
@@ -189,8 +189,8 @@ def handler(args: argparse.Namespace) -> int:
             f"(primary_apps={','.join(primary_apps)}):"
         )
         for round_index, inv_dir, round_variants, include_R, _purge_set in plan:
-            non_zero = {a: i for a, i in round_variants.items() if i}
             shown = built_includes.get(inv_dir, include_R)
+            non_zero = {a: i for a, i in round_variants.items() if i and a in shown}
             print(
                 f"    [round {round_index}] {inv_dir} "
                 f"include={','.join(shown)} "

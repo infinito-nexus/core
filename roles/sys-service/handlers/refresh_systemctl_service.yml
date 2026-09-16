@@ -2,9 +2,10 @@
 - name: "🔧 Enable systemctl service"
   systemd:
     name: "{{ system_service_name }}"
+    scope: "{{ system_service_scope }}"
     enabled: true
     daemon_reload: true
-  become: true
+  become: "{{ system_service_unit_become }}"
   # rationale: async; opt-out per caller, a role that reads the unit state sets system_service_force_linear_sync
   async: "{{ system_service_async }}"
   poll: "{{ system_service_poll }}"
@@ -12,8 +13,9 @@
 - name: "🔧 Set systemctl service state"
   systemd:
     name: "{{ system_service_name }}"
+    scope: "{{ system_service_scope }}"
     state: "{{ system_service_state }}"
-  become: true
+  become: "{{ system_service_unit_become }}"
   # rationale: async; the Result gate below only runs meaningfully for callers that set system_service_force_linear_sync
   async: "{{ system_service_async }}"
   poll: "{{ system_service_poll }}"
@@ -23,28 +25,14 @@
 
 - name: 🔍 sys-service | Read unit Result (oneshot-safe)
   ansible.builtin.command:
-    argv:
-      - systemctl
-      - --no-pager
-      - show
-      - -p
-      - Result
-      - --value
-      - "{{ system_service_name }}"
+    argv: "{{ system_service_systemctl_show + ['Result', system_service_name] }}"
   register: system_service_result
   changed_when: false
   failed_when: false
 
 - name: 🔍 sys-service | Read unit ExecMainStatus (oneshot-safe)
   ansible.builtin.command:
-    argv:
-      - systemctl
-      - --no-pager
-      - show
-      - -p
-      - ExecMainStatus
-      - --value
-      - "{{ system_service_name }}"
+    argv: "{{ system_service_systemctl_show + ['ExecMainStatus', system_service_name] }}"
   register: system_service_exec_status
   changed_when: false
   failed_when: false

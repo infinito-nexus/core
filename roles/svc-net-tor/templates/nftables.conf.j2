@@ -1,0 +1,52 @@
+{# Loaded by roles/svc-net-firewall into {{ FIREWALL_TABLE }}. #}
+table inet {{ FIREWALL_TABLE }}
+delete table inet {{ FIREWALL_TABLE }}
+table inet {{ FIREWALL_TABLE }} {
+  set containers {
+    type ipv4_addr
+    flags interval
+    elements = { {{ TOR_EGRESS_CLIENT_CIDRS | join(', ') }} }
+  }
+
+  set internal {
+    type ipv4_addr
+    flags interval
+    elements = { {{ NETWORK_INTERNAL_CIDRS | join(', ') }} }
+  }
+
+{% set _tcp_guarded = TOR_EGRESS_GUARDED_PORTS | selectattr('protocol', 'equalto', 'tcp') | map(attribute='port') | unique | list %}
+{% set _udp_guarded = TOR_EGRESS_GUARDED_PORTS | selectattr('protocol', 'equalto', 'udp') | map(attribute='port') | unique | list %}
+  chain guard {
+{% for entry in TOR_EGRESS_GUARDED_PORTS %}
+    ip saddr != @{{ entry.admitted }} {{ entry.protocol }} dport {{ entry.port }} drop
+{% endfor %}
+{% if _tcp_guarded | length > 0 %}
+    fib saddr . iif oif missing tcp dport { {{ _tcp_guarded | join(', ') }} } drop
+{% endif %}
+{% if _udp_guarded | length > 0 %}
+    fib saddr . iif oif missing udp dport { {{ _udp_guarded | join(', ') }} } drop
+{% endif %}
+  }
+
+  chain input {
+    type filter hook input priority -10; policy accept;
+    jump guard
+  }
+
+  chain forward {
+    type filter hook forward priority -10; policy accept;
+    jump guard
+  }
+
+  chain output {
+    type nat hook output priority -150; policy accept;
+    ip daddr {{ TOR_EGRESS_VIRTUAL_NET_IPV4 }} meta l4proto tcp redirect to :{{ TOR_TRANS_PORT }}
+  }
+{% if TOR_CONTAINER_DNS_HOST | length > 0 %}
+
+  chain prerouting {
+    type nat hook prerouting priority -150; policy accept;
+    ip daddr {{ TOR_EGRESS_VIRTUAL_NET_IPV4 }} meta l4proto tcp dnat ip to {{ TOR_CONTAINER_DNS_HOST }}:{{ TOR_TRANS_PORT }}
+  }
+{% endif %}
+}

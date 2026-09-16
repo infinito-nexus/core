@@ -4,6 +4,12 @@ UNIT_SUFFIX_REMOVER_PACKAGE: "unsure"
 system_service_name: "{{ lookup('unit_name', system_service_id) }}"
 system_service_is_template: "{{ system_service_id.endswith('@') }}"
 
+system_service_scope: "system" # 'system' for root units, 'user' for per-login units
+system_service_unit_dir: "{{ DIR_SYSTEM_SERVICE if system_service_scope == 'system' else DIR_SYSTEM_SERVICE_USER }}"
+system_service_unit_owner: "{{ 'root' if system_service_scope == 'system' else omit }}"
+system_service_unit_become: "{{ system_service_scope == 'system' }}"
+system_service_systemctl_show: "{{ ['systemctl'] + (['--user'] if system_service_scope == 'user' else []) + ['--no-pager', 'show', '--value', '-p'] }}"
+
 system_service_role_name: "{{ system_service_id | regex_replace('@','') }}"
 system_service_role_dir: "{{ lookup('path_absolute', 'roles', system_service_role_name) }}"
 system_service_script_dir: "{{ [ DIR_SCRIPTS_SYSTEMCTL, system_service_id ] | path_join }}"
@@ -25,7 +31,12 @@ system_service_script_inter: "{{ '/bin/bash' if system_service_script_type == 's
 system_service_script_exec: "{{ system_service_script_inter }} {{ system_service_id | get_service_script_path( system_service_script_type ) }}"
 
 system_service_tpl_on_failure: "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }}"
+system_service_tpl_after: ""
+system_service_tpl_before: ""
+system_service_tpl_wants: ""
 system_service_tpl_type: "oneshot"
+system_service_tpl_remain_after_exit: ""
+system_service_tpl_wanted_by: "" # Empty installs no [Install] section, which leaves the unit static
 system_service_tpl_environment: [] # Environment variables
 system_service_tpl_runtime: "{{ '' if system_service_tpl_type == 'oneshot' else SYS_SERVICE_DEFAULT_RUNTIME }}"
 system_service_tpl_exec_start_pre: ""

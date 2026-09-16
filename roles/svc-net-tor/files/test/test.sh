@@ -99,4 +99,7 @@ for domain in "${domains[@]}"; do
 done
 
 echo "[INFO] ${#domains[@]} probed, ${failed} failed"
+
+"$(dirname "${BASH_SOURCE[0]}")/onion_ports.py" || failed=$((failed + 1))
+
 [[ "${failed}" -eq 0 ]]

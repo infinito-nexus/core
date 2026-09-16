@@ -1,4 +1,5 @@
 #!/bin/bash
+{# nocheck: shell-template  grandfathered, values only: the provider list and two paths #}
 # Pulls the remote backups from multiple hosts
 
 hosts="{{ DOCKER_BACKUP_REMOTE_2_LOCAL_BACKUP_PROVIDERS | join(' ') }}"

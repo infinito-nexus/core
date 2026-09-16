@@ -1,0 +1,27 @@
+---
+galaxy_info:
+  author: Kevin Veen-Birkenbach
+  description: nftables packet filter whose rules each role owns as its own table, replaced atomically and reloaded at boot
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  license: Infinito.Nexus Community License (Non-Commercial)
+  min_ansible_version: "2.9"
+  galaxy_tags:
+    - firewall
+    - nftables
+    - netfilter
+    - security
+  issue_tracker_url: https://s.infinito.nexus/issues
+  platforms:
+    - name: ArchLinux
+      versions: [all]
+    - name: Debian
+      versions: [all]
+    - name: EL
+      versions: [all]
+    - name: Fedora
+      versions: [all]
+    - name: Ubuntu
+      versions: [all]
+dependencies: []

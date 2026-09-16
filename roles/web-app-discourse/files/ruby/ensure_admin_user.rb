@@ -7,9 +7,7 @@ password = ENV.fetch("DISCOURSE_ADMIN_PASSWORD")
 
 user = User.find_by_email(email) || User.new(email: email)
 user.username = username
-user.password = password
-user.save!
-
+user.password = password unless user.confirm_password?(password)
 user.active = true
 user.save!
 

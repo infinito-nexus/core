@@ -14,15 +14,9 @@
     {{ lookup('compose_only', 'container_name', OPENRESTY_CONTAINER) }}
     {{ lookup('container_image', application_id, 'openresty') }}
     {% if DEPLOYMENT_MODE == 'swarm' %}
-    ports:
-      - target: 80
-        published: 80
-        protocol: tcp
-        mode: host
-      - target: 443
-        published: 443
-        protocol: tcp
-        mode: host
+    {{ lookup('container_ports',
+              {'service': 'openresty', 'protocol': 'http', 'mode': 'host'},
+              {'service': 'openresty', 'protocol': 'https', 'mode': 'host'}) | indent(4) }}
     {{ lookup('container_extra_hosts', extra_hosts=['host.docker.internal:host-gateway']) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {% else %}

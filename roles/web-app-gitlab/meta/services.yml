@@ -63,6 +63,9 @@ gitlab:
     internal:
       http: 8181
       ssh: 2222
+    onion:
+      # nocheck: onion-flag  GitLab Shell is published for clearnet git clients and authenticates them against the internal API by host key; onion clients clone over the HTTP transport on port 80 instead
+      ssh: false
   proxy:
     service_key: workhorse
   run_after:

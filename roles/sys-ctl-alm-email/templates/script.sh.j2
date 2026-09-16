@@ -1,4 +1,5 @@
 #!/bin/bash
+{# nocheck: shell-template  grandfathered, values only: the mail envelope, charset and timeout #}
 set -u
 # Reverse systemd escaping for human-readable mail subject/body
 friendly="$(systemd-escape --unescape "$1")"

@@ -1,5 +1,19 @@
 ---
-- name: 🔧 adapt iptable rules
-  shell: iptables -A FORWARD -i wg0-client -j ACCEPT && iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+- name: "🧱 Accept forwarded traffic from the wireguard client"
+  become: true
+  ansible.builtin.iptables:
+    chain: FORWARD
+    in_interface: "{{ WIREGUARD_CLIENT_INTERFACE }}"
+    jump: ACCEPT
+    state: present
+
+- name: "🧱 Masquerade the client behind the uplink address"
+  become: true
+  ansible.builtin.iptables:
+    table: nat
+    chain: POSTROUTING
+    out_interface: "{{ WIREGUARD_UPLINK_INTERFACE }}"
+    jump: MASQUERADE
+    state: present
 
 - include_tasks: utils/once/flag.yml

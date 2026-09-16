@@ -8,7 +8,7 @@ This role adapts iptables rules to enable proper connectivity for a WireGuard cl
 
 Optimized for environments with network address translation (NAT), this role:
 
-- Executes shell commands to modify iptables rules.
+- Installs its iptables rules through Ansible's `iptables` module, so a redeploy converges instead of appending a duplicate.
 - Allows traffic from the WireGuard client interface (e.g. `wg0-client`) and sets up NAT masquerading on the external interface (e.g. `eth0`).
 - Works as an extension to the native WireGuard client role.
 

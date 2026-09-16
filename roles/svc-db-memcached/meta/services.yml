@@ -28,6 +28,9 @@ memcached:
       memcached: 11211
     internal:
       memcached: 11211
+    onion:
+      # nocheck: onion-flag  the session cache speaks an unauthenticated text protocol and is read only by app containers on the role network
+      memcached: false
   lifecycle: beta
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
 tor:

@@ -75,11 +75,13 @@
     init: true
     {% if NEXTCLOUD_HPB_NETWORK_MODE == 'bridge' %}
     {% if NEXTCLOUD_HPB_TURN_ONBOARD_ENABLED | bool and NEXTCLOUD_HPB_TURN_ONBOARD_PUBLISH_PORTS | bool %}
-    ports:
-      - {{ NEXTCLOUD_HPB_TURN_ONBOARD_BIND_HOST }}:{{ NEXTCLOUD_HPB_TURN_ONBOARD_PORT }}:{{ NEXTCLOUD_HPB_TURN_ONBOARD_PORT }}/tcp # nocheck: compose-ports-must-use-container-ports
-      - {{ NEXTCLOUD_HPB_TURN_ONBOARD_BIND_HOST }}:{{ NEXTCLOUD_HPB_TURN_ONBOARD_PORT }}:{{ NEXTCLOUD_HPB_TURN_ONBOARD_PORT }}/udp # nocheck: compose-ports-must-use-container-ports
-      - {{ NEXTCLOUD_HPB_TURN_ONBOARD_BIND_HOST }}:{{ NEXTCLOUD_HPB_TURN_ONBOARD_RELAY_PORT_START }}-{{ NEXTCLOUD_HPB_TURN_ONBOARD_RELAY_PORT_END }}:{{ NEXTCLOUD_HPB_TURN_ONBOARD_RELAY_PORT_START }}-{{ NEXTCLOUD_HPB_TURN_ONBOARD_RELAY_PORT_END }}/udp # nocheck: compose-ports-must-use-container-ports
-      - {{ NEXTCLOUD_HPB_TURN_ONBOARD_BIND_HOST }}:{{ NEXTCLOUD_HPB_TURN_ONBOARD_RELAY_PORT_START }}-{{ NEXTCLOUD_HPB_TURN_ONBOARD_RELAY_PORT_END }}:{{ NEXTCLOUD_HPB_TURN_ONBOARD_RELAY_PORT_START }}-{{ NEXTCLOUD_HPB_TURN_ONBOARD_RELAY_PORT_END }}/tcp # nocheck: compose-ports-must-use-container-ports
+    {{ lookup('container_ports',
+              {'service': 'nextcloud', 'protocol': 'stun_turn',
+               'ip': NEXTCLOUD_HPB_TURN_ONBOARD_BIND_HOST,
+               'transport': ['tcp', 'udp'], 'container': 'same'},
+              {'service': 'nextcloud', 'protocol': 'relay',
+               'ip': NEXTCLOUD_HPB_TURN_ONBOARD_BIND_HOST,
+               'transport': ['udp', 'tcp'], 'container': 'same'}) | indent(4) }}
     {% endif %}
     expose:
       - "{{ container_port }}"

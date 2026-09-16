@@ -1,0 +1,16 @@
+---
+# nocheck: playwright-service-flag  host packet filter, no container and no web surface
+firewall:
+  modes:
+    host:
+      enabled: true
+    compose:
+      enabled: false
+    swarm:
+      enabled: false
+  lifecycle: beta
+  min_storage: "50MB"
+  cpus: "0.1"
+  mem_reservation: "32m"
+  mem_limit: "64m"
+  pids_limit: 64

@@ -6,7 +6,10 @@ This directory contains the [Ansible](https://docs.ansible.com/ansible/latest/pl
 
 Variables in this directory MUST apply across all hosts and all roles. Typical examples are the software identity, deployment toggles, domain defaults, the central network and port registries, OIDC and LDAP endpoints, design tokens, and resource defaults.
 
-Role-specific configuration MUST NOT live here. Such values belong in the corresponding role under `roles/<role>/config/main.yml` or `roles/<role>/vars/main.yml`.
+Role-specific configuration MUST NOT live here, even when only one role reads it today. Such values belong in the corresponding role:
+
+- `roles/<role>/meta/services.yml` for anything an operator may override, because the inventory's `applications.<role>` block is deep-merged on top of it and `lookup('config', application_id, '<path>')` reads the result.
+- `roles/<role>/vars/main.yml` for values derived from that configuration, and for those the role fixes. Role vars outrank inventory variables, so a value placed here cannot be overridden per host.
 
 ## File naming and load order 🔢
 

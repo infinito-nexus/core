@@ -337,5 +337,71 @@ class TestOnionDomainInjection(unittest.TestCase):
         self.assertEqual(out["web-app-x"], ["infinito.test", self.ONION])
 
 
+class TestOnionFlagsAreRendered(unittest.TestCase):
+    """`services.tor.*` reaches this map as Jinja in 99 of the 105 roles that
+    declare it, and as its own source text whenever the applications render is
+    still in flight. Reading that text as a boolean answers False and drops the
+    onion domains for every app, which is what froze a clearnet asset URL into
+    the applications payload of run 34922994823.
+    """
+
+    ONION = TestOnionDomainInjection.ONION
+    JINJA_ON = "{{ 'svc-net-tor' in group_names }}"
+
+    _apps = TestOnionDomainInjection._apps
+
+    def _templar(self, **variables):
+        from ansible.parsing.dataloader import DataLoader
+        from ansible.template import Templar
+
+        templar = Templar(loader=DataLoader(), variables=dict(variables))
+        templar.available_variables = dict(variables)
+        return templar
+
+    def _inject(self, apps, **variables):
+        return cache_domains._inject_onion_domains(
+            {"web-app-x": ["x.infinito.test"]},
+            apps,
+            "infinito.test",
+            self.ONION,
+            templar=self._templar(**variables),
+            variables=dict(variables),
+        )
+
+    def test_a_templated_enabled_flag_still_injects_the_onion(self):
+        out = self._inject(
+            self._apps(enabled=self.JINJA_ON),
+            group_names=["svc-net-tor", "web-app-x"],
+        )
+
+        self.assertEqual(out["web-app-x"], ["x.infinito.test", f"x.{self.ONION}"])
+
+    def test_a_templated_flag_resolving_false_leaves_the_clearnet_domain(self):
+        out = self._inject(self._apps(enabled=self.JINJA_ON), group_names=["web-app-x"])
+
+        self.assertEqual(out["web-app-x"], ["x.infinito.test"])
+
+    def test_templated_exclusive_replaces_the_clearnet_domain(self):
+        out = self._inject(
+            self._apps(enabled=self.JINJA_ON, exclusive=self.JINJA_ON),
+            group_names=["svc-net-tor", "web-app-x"],
+        )
+
+        self.assertEqual(out["web-app-x"], [f"x.{self.ONION}"])
+
+    def test_a_flag_that_cannot_be_rendered_is_an_error(self):
+        """Without a templar the text cannot resolve, and answering False
+        would drop the onion domains without saying so."""
+        with self.assertRaisesRegex(ValueError, "services.tor.enabled"):
+            cache_domains._inject_onion_domains(
+                {"web-app-x": ["x.infinito.test"]},
+                self._apps(enabled=self.JINJA_ON),
+                "infinito.test",
+                self.ONION,
+                templar=None,
+                variables={"group_names": ["svc-net-tor"]},
+            )
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -25,6 +25,9 @@ elasticsearch:
       elasticsearch: 9200
     internal:
       elasticsearch: 9200
+    onion:
+      # nocheck: onion-flag  the index is queried by the search backends of the apps sharing this stack, never by a client off the node
+      elasticsearch: false
   lifecycle: beta
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
 tor:

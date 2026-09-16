@@ -1,5 +1,5 @@
 ---
-enabled: "{{ (lookup('api', 'jira.client_id') | length > 0) and (lookup('api', 'jira.client_secret') | length > 0) }}"
+enabled: "{{ lookup('api_enabled', 'jira') }}"
 required: true
 mechanism: plugin
 source: upstream

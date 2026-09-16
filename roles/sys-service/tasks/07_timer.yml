@@ -1,4 +1,14 @@
 ---
+- name: 🛑 Fail if a timer is asked for outside the system scope
+  assert:
+    that:
+      - system_service_scope == 'system'
+    fail_msg: >-
+      '{{ system_service_id }}' asks for a timer in the '{{ system_service_scope }}'
+      scope, but sys-timer writes into {{ DIR_SYSTEM_SERVICE }} and drives the unit
+      in the system scope, so the timer would look for a service that only exists
+      for the user.
+
 - name: 🛑 Fail if system_service_id contains "@"
   assert:
     that:

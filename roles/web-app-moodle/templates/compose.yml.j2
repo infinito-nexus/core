@@ -40,8 +40,7 @@
     {{ lookup('compose_only', 'container_name', MOODLE_NGINX_CONTAINER) }}
     {{ lookup('container_image', application_id, 'nginx') }}
     {{ lookup('depends_on', {'moodle': 'service_healthy'}) }}
-    ports:
-      - {{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.moodle.ports.local.http') }}:{{ MOODLE_NGINX_PORT }}
+    {{ lookup('container_ports', ['moodle', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('compose_restart') }}
     {{ lookup('container_networks') | indent(4) }}

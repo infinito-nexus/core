@@ -61,6 +61,13 @@ mailu:
       imap: 143
       imaps: 993
       sieve: 4190
+    onion:
+      smtp: true
+      submission: true
+      imap: true
+      pop3: true
+      # nocheck: onion-flag  ManageSieve edits server-side filters, which is administration rather than the sending and receiving the onion transport is for
+      sieve: false
   proxy:
     service_key: front
   run_after:

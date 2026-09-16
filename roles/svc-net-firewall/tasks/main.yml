@@ -1,0 +1,8 @@
+---
+- name: "🧱 Firewall | Prepare the host ruleset"
+  ansible.builtin.include_tasks: 01_host.yml
+  when: run_once_svc_net_firewall is not defined
+
+- name: "🧱 Firewall | Apply the ruleset of '{{ FIREWALL_FRAGMENT_ROLE }}'"
+  ansible.builtin.include_tasks: 02_fragment.yml
+  when: FIREWALL_FRAGMENT_ROLE | length > 0

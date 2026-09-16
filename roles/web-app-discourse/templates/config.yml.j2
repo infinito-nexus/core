@@ -15,8 +15,7 @@ templates:
 ## which TCP/IP ports should this container expose?
 ## If you want Discourse to share a port with another webserver like Apache or nginx,
 ## see https://meta.discourse.org/t/17247 for details
-expose:
-  - "{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.discourse.ports.local.http') }}:80"   # http
+{{ lookup('container_ports', ['discourse', 'http', DOCKER_BIND_HOST], key='expose') }}
 
 params:
   db_default_text_search_config: "pg_catalog.english"

@@ -1,0 +1,28 @@
+---
+- name: "🩺 Dump the LM Studio transfer record"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ LMSTUDIO_LOCAL_CID | quote }}
+    cat /root/.lmstudio/.internal/single-downloads-info.json
+  register: lmstudio_transfer_record
+  changed_when: false
+  failed_when: false
+  delegate_to: "{{ LMSTUDIO_HOST_NODE }}"
+
+- name: "🩺 Report the LM Studio transfer record"
+  ansible.builtin.debug:
+    var: lmstudio_transfer_record.stdout
+
+- name: "♻️ Restart LM Studio to release the wedged transfer"
+  ansible.builtin.command: container restart {{ LMSTUDIO_LOCAL_CID }}
+  changed_when: true
+  delegate_to: "{{ LMSTUDIO_HOST_NODE }}"
+
+- name: "🔍 Re-resolve the {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: LMSTUDIO
+    resolve_compose_cid: "{{ LMSTUDIO_CONTAINER }}"
+
+- name: "⬇️ Preload the LM Studio models (after the restart)"
+  ansible.builtin.include_tasks: utils/preload.yml

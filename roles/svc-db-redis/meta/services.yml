@@ -25,6 +25,9 @@ redis:
       redis: 6379
     internal:
       redis: 6379
+    onion:
+      # nocheck: onion-flag  the shared cache and queue runs without AUTH inside the stack, so its reachability must stay bounded by the role network
+      redis: false
   lifecycle: beta
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
 tor:

@@ -7,8 +7,8 @@ declared ``ports.local`` / ``ports.public`` (host) and ``ports.internal``
 (container) values, so the published and container ports stay one source
 of truth:
 
-    {{ lookup('container_ports', ['gitea', 'http'], ['gitea', 'ssh'],
-              ip=DOCKER_BIND_HOST) | indent(4) }}
+    {{ lookup('container_ports', ['gitea', 'http', DOCKER_BIND_HOST],
+              ['gitea', 'ssh']) | indent(4) }}
 
 Hand-writing the mapping
 ``- "{{ ... }}:{{ lookup('config', ..., 'services.<e>.ports.local.<k>') }}:..."``
@@ -37,31 +37,94 @@ from . import PROJECT_ROOT
 
 _RULE = "compose-ports-must-use-container-ports"
 
-_PORT_SEGMENT = re.compile(r"\A(?:\{\{.*\}\}|[\d.]+|\d+/(?:tcp|udp))\Z")
+_PORT_SEGMENT = re.compile(
+    r"\A(?:\{\{.*\}\}|\$\{[^}]*\}|[\d.]+|[\d-]+)(?:/(?:tcp|udp))?\Z",
+)
 
-_LIST_ITEM = re.compile(r'-\s*"([^"]*)"')
+_LIST_ITEM = re.compile(r"""-\s*["']?(.*?)["']?\s*(?:\#.*)?\Z""")
+
+_LONG_SYNTAX_KEY = re.compile(r"\A-?\s*(?:target|published|mode|protocol):")
+
+_BLOCK_KEY = re.compile(r"\A(ports|expose):\s*(.*)\Z")
 
 _PAIR = re.compile(r"\[\s*'([\w-]+)'\s*,\s*'([\w-]+)'\s*\]")
 
 
 def _is_scan_target(rel_path: str) -> bool:
-    if not rel_path.startswith("roles/") or "/templates/" not in rel_path:
-        return False
-    name = Path(rel_path).name
-    return name.endswith(".yml.j2") and "compose" in name
+    """Every role template that can carry a compose ``ports:`` block.
+
+    ``compose.yml.j2`` and its ``compose.<flavor>.yml.j2`` siblings, plus the
+    ``*.yml.j2`` fragments they include: a mapping hand-written in an included
+    file publishes exactly the same port as one written inline.
+    """
+    return (
+        rel_path.startswith("roles/")
+        and "/templates/" in rel_path
+        and rel_path.endswith(".yml.j2")
+    )
 
 
-def _is_raw_port_mapping(line: str) -> bool:
+def _is_raw_port_mapping(line: str, *, mapping_only: bool = False) -> bool:
+    """Whether *line* publishes a port by hand, quoted or not.
+
+    ``mapping_only`` drops the single-segment form. Under ``expose:`` that form
+    names a container port for documentation and publishes nothing, so only a
+    ``host:container`` mapping there is a publication.
+    """
     match = _LIST_ITEM.match(line.strip())
     if match is None:
         return False
-    inner = match.group(1)
-    if "=" in inner:
+    inner = match.group(1).strip()
+    if not inner or "=" in inner:
         return False
-    segments = inner.split(":")
-    return len(segments) >= 2 and all(
-        _PORT_SEGMENT.match(segment.strip()) for segment in segments
-    )
+    segments = [segment.strip() for segment in inner.split(":")]
+    if not all(_PORT_SEGMENT.match(segment) for segment in segments):
+        return False
+    if len(segments) >= 2:
+        return True
+    return not mapping_only and bool(_PORT_SEGMENT.match(inner))
+
+
+def _raw_port_lines(lines: list[str]) -> list[int]:
+    """1-based line numbers that publish a port by hand.
+
+    The block is tracked by the indentation of its ``ports:`` / ``expose:`` key
+    rather than by the next key seen. Keying on the next line closed the block
+    on anything shaped like a key, which the long-syntax members ``target:``,
+    ``published:``, ``protocol:`` and ``mode:`` are, so the block could never
+    end while it was being read; blank, comment and ``{% %}`` lines equally have
+    no say in where a YAML block ends.
+    """
+    found: list[int] = []
+    block_indent: int | None = None
+    mapping_only = False
+    for number, line in enumerate(lines, start=1):
+        stripped = line.strip()
+        if not stripped or stripped.startswith(("#", "{%")):
+            continue
+        indent = len(line) - len(line.rstrip("\n").lstrip())
+        if (
+            block_indent is not None
+            and indent <= block_indent
+            and not stripped.startswith("- ")
+        ):
+            block_indent = None
+        if block_indent is None:
+            opener = _BLOCK_KEY.match(stripped)
+            if opener:
+                block_indent = indent
+                mapping_only = opener.group(1) == "expose"
+                inline = opener.group(2).strip().strip("[]")
+                if inline and _is_raw_port_mapping(
+                    "- " + inline, mapping_only=mapping_only
+                ):
+                    found.append(number)
+            continue
+        if _LONG_SYNTAX_KEY.match(stripped) or _is_raw_port_mapping(
+            line, mapping_only=mapping_only
+        ):
+            found.append(number)
+    return found
 
 
 class TestComposePortsUseContainerPortsLookup(unittest.TestCase):
@@ -75,27 +138,11 @@ class TestComposePortsUseContainerPortsLookup(unittest.TestCase):
             if not _is_scan_target(rel):
                 continue
             lines = content.splitlines()
-            in_ports_block = False
-            for idx, line in enumerate(lines):
-                stripped = line.strip()
-                if not stripped:
-                    continue
-                if stripped.startswith("- "):
-                    if (
-                        in_ports_block
-                        and _is_raw_port_mapping(line)
-                        and not is_suppressed_at(
-                            lines, idx + 1, _RULE, mode="same-or-above"
-                        )
-                    ):
-                        findings.append((rel, idx + 1, stripped))
-                    continue
-                if stripped.startswith("{{"):
-                    in_ports_block = "container_ports" in stripped
-                    continue
-                key = re.match(r"[\w-]+:", stripped)
-                if key:
-                    in_ports_block = key.group(0) == "ports:"
+            findings.extend(
+                (rel, number, lines[number - 1].strip())
+                for number in _raw_port_lines(lines)
+                if not is_suppressed_at(lines, number, _RULE, mode="same-or-above")
+            )
 
         if findings:
             formatted = "\n".join(
@@ -107,8 +154,8 @@ class TestComposePortsUseContainerPortsLookup(unittest.TestCase):
                 "Build the `ports:` block with the container_ports lookup instead, "
                 "so the published (local/public) and container (internal) ports stay "
                 "a single declared source of truth:\n\n"
-                "    {{ lookup('container_ports', ['<svc>', '<proto>'],\n"
-                "              ip=DOCKER_BIND_HOST) | indent(4) }}\n\n"
+                "    {{ lookup('container_ports',\n"
+                "              ['<svc>', '<proto>', DOCKER_BIND_HOST]) | indent(4) }}\n\n"
                 "One ['<svc>', '<proto>'] pair per published port; the lookup reads "
                 "ports.local/public for the host side and ports.internal for the "
                 "container side. Mark with "

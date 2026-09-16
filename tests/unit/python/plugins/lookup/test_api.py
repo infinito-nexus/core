@@ -90,9 +90,19 @@ class TestApiLookup(unittest.TestCase):
             self.lookup.run(["cloudflare.api_token"], variables={"API": "nope"})
         self.assertIn("mapping", str(ctx.exception))
 
-    def test_missing_api_global_raises_unknown_key(self):
+    def test_missing_api_global_falls_back_to_the_declaration(self):
+        self.assertEqual(self.lookup.run(["cloudflare.api_token"], variables={})[0], "")
+
+    def test_a_provider_the_scope_omits_still_resolves(self):
+        out = self.lookup.run(
+            ["github.client_id"],
+            variables={"API": {"cloudflare": {"api_token": "cf"}}},
+        )
+        self.assertEqual(out, [""])
+
+    def test_an_undeclared_provider_still_raises(self):
         with self.assertRaises(AnsibleError):
-            self.lookup.run(["cloudflare.api_token"], variables={})
+            self.lookup.run(["nope.api_key"], variables=self.vars)
 
     def test_templar_resolves_jinja_values(self):
         self.lookup._templar = _FakeTemplar(mapping={"{{ vault_cf }}": "secret-cf"})

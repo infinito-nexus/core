@@ -5,7 +5,7 @@ window.addEventListener("DOMContentLoaded", function () {
         // Rename if Mattermost ever renders the GitLab button natively
         document.querySelectorAll("a[href*='/oauth/gitlab/']").forEach(function (el) {
             if (el.textContent.trim() === "GitLab") {
-                el.textContent = "SSO with Infinito.Nexus";
+                el.textContent = "SSO with {{ SOFTWARE_NAME }}";
             }
         });
 
@@ -19,7 +19,7 @@ window.addEventListener("DOMContentLoaded", function () {
 
         var a = document.createElement("a");
         a.href = "/oauth/gitlab/login";
-        a.textContent = "SSO with Infinito.Nexus";
+        a.textContent = "SSO with {{ SOFTWARE_NAME }}";
         a.className = "btn btn-primary login-body-card-form-button-submit large";
         a.style.cssText = "display:flex;align-items:center;justify-content:center;width:100%;box-sizing:border-box;margin:20px 0 0 0;";
         btn.parentNode.insertBefore(a, btn.nextSibling);

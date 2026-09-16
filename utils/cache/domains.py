@@ -32,6 +32,54 @@ def _as_bool(value: Any) -> bool:
     return bool(value)
 
 
+def _resolved_flag(
+    value: Any,
+    *,
+    app: str,
+    name: str,
+    templar: Any,
+    variables: Any,
+    apps: Any,
+) -> bool:
+    """A tor service flag as a boolean, never as the text of its own template.
+
+    ``services.tor.*`` is declared as Jinja in 99 of the 105 roles that carry
+    it. When this map is built from an applications tree that is still being
+    rendered (``utils.cache.applications`` returns the raw tree while its own
+    render is in flight) the flag arrives as its source text, which every
+    boolean coercion reads as False. The onion injection would then silently
+    not happen and the clearnet domain would be frozen into whatever value the
+    render was producing.
+
+    Args:
+        value: the declared flag, rendered or not.
+        app: application id, for the error message.
+        name: flag name under ``services.tor``, for the error message.
+        templar: templar to render with; ``None`` renders nothing.
+        variables: scope the template resolves against.
+        apps: applications tree seeded into the nested render.
+
+    Returns:
+        The flag as a boolean.
+
+    Raises:
+        ValueError: the flag still carries template text after rendering.
+    """
+    if isinstance(value, str) and ("{{" in value or "{%" in value):
+        from utils.cache.base import _render_with_templar
+
+        value = _render_with_templar(
+            value, templar=templar, variables=variables, raw_applications=apps
+        )
+    if isinstance(value, str) and ("{{" in value or "{%" in value):
+        raise ValueError(
+            f"get_merged_domains: '{app}' services.tor.{name} stayed template "
+            f"text ({value!r}). Reading it as a boolean would drop the onion "
+            "domains without saying so."
+        )
+    return _as_bool(value)
+
+
 def _onion_of(domain: str, primary: str, node_onion: str) -> str | None:
     """Return ``domain`` with the clearnet ``primary`` suffix swapped for the
     node onion, or None when the domain is not under ``primary``."""
@@ -48,6 +96,9 @@ def _inject_onion_domains(
     apps: dict[str, Any],
     primary: str,
     node_onion: str,
+    *,
+    templar: Any = None,
+    variables: Any = None,
 ) -> dict[str, Any]:
     """Add ``<sub>.<node-onion>`` domains for apps opting into onion routing.
 
@@ -63,21 +114,38 @@ def _inject_onion_domains(
     )
 
     registry = build_service_registry_from_applications(apps)
+
+    def _flag(value: Any, app: str, name: str) -> bool:
+        return _resolved_flag(
+            value,
+            app=app,
+            name=name,
+            templar=templar,
+            variables=variables,
+            apps=apps,
+        )
+
     out: dict[str, Any] = {}
     for app, domains in merged.items():
         tor = ((apps.get(app) or {}).get("services") or {}).get("tor") or {}
-        if not isinstance(domains, (list, dict)) or not _as_bool(tor.get("enabled")):
+        if not isinstance(domains, (list, dict)) or not _flag(
+            tor.get("enabled"), app, "enabled"
+        ):
             out[app] = domains
             continue
-        exclusive = _as_bool(
+        exclusive = _flag(
             resolve_service_config(
                 apps, app, "tor", "exclusive", default=False, service_registry=registry
-            )
+            ),
+            app,
+            "exclusive",
         )
-        is_primary = _as_bool(
+        is_primary = _flag(
             resolve_service_config(
                 apps, app, "tor", "primary", default=False, service_registry=registry
-            )
+            ),
+            app,
+            "primary",
         )
         if isinstance(domains, dict):
             out[app] = _inject_onion_into_dict(
@@ -141,7 +209,9 @@ def get_merged_domains(
     issued while the applications render is in progress sees the unrendered
     tree, whose service flags are still Jinja strings; its map is cached under
     its own key so the render's own call sites reuse it without it ever being
-    served as the finished map.
+    served as the finished map. The tor flags are rendered before they are
+    read (``_resolved_flag``), so that mid-render map carries the same onion
+    domains the finished one does.
     """
     from plugins.filter.canonical_domains_map import (
         FilterModule as _CanonicalDomainsFilter,
@@ -200,7 +270,14 @@ def get_merged_domains(
     node_onion = str(_render_raw(node_raw or "", "services.tor.node") or "").strip()
     group_names = variables.get("group_names") or []
     if node_onion and "svc-net-tor" in group_names:
-        merged = _inject_onion_domains(merged, apps, str(primary_domain), node_onion)
+        merged = _inject_onion_domains(
+            merged,
+            apps,
+            str(primary_domain),
+            node_onion,
+            templar=templar,
+            variables=variables,
+        )
 
     _MERGED_DOMAINS_CACHE[cache_key] = merged
     return merged

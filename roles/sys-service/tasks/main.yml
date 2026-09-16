@@ -6,7 +6,9 @@
   when: run_once_sys_service is defined
 
 - include_tasks: 00_core.yml
-  when: run_once_sys_service is not defined
+  when:
+    - run_once_sys_service is not defined
+    - system_service_scope == 'system'
 
 - name: "▶️ Execute service routines for '{{ system_service_id }}'"
   block:

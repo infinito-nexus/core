@@ -1,19 +1,18 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
-
-if TYPE_CHECKING:
-    from pathlib import Path
+from typing import Any
 
 from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from utils.cache.base import _resolve_roles_dir
-from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_META_SERVICES
+UDP_ONLY_CATEGORIES = frozenset({"relay", "media", "stun_turn", "stun_turn_tls"})
+"""Categories a hidden service cannot carry.
 
-_UDP_ONLY_CATEGORIES = frozenset({"relay", "media"})
+``relay`` and ``media`` are UDP. ``stun_turn`` and its TLS variant do speak TCP,
+but the allocation they hand out is a UDP relay address the onion client can
+never receive on, so forwarding the signalling port buys nothing.
+"""
 
 
 def _as_bool(value: object) -> bool:
@@ -22,6 +21,10 @@ def _as_bool(value: object) -> bool:
     if isinstance(value, str):
         return value.strip().lower() in ("true", "1", "yes", "on")
     return bool(value)
+
+
+def _mapping(value: object) -> dict[str, Any]:
+    return value if isinstance(value, dict) else {}
 
 
 def _collect_local_tcp_ports(port_categories: Any, into: set[int]) -> None:
@@ -36,37 +39,57 @@ def _collect_local_tcp_ports(port_categories: Any, into: set[int]) -> None:
     if not isinstance(local, dict):
         return
     for category, value in local.items():
-        if category in _UDP_ONLY_CATEGORIES:
+        if category in UDP_ONLY_CATEGORIES:
             continue
         if isinstance(value, int):
             into.add(value)
 
 
-def collect_public_ports(
+def collect_onion_ports(
+    applications: dict[str, Any],
     deployed_roles: list[str],
-    roles_dir: Path,
 ) -> list[int]:
-    """Single-int TCP ``ports.public`` entries of the deployed roles, sorted."""
+    """Single-int TCP ports a deployed role asks for by name under ``ports.onion``.
+
+    ``ports.onion`` is a category-keyed map of booleans alongside ``internal`` /
+    ``local`` / ``public``: it names which of a service's already-declared ports
+    should answer on the node onion, and nothing else. The port number comes
+    from ``ports.local`` when that category is declared there and from
+    ``ports.public`` otherwise, which is the precedence ``container_ports``
+    publishes by, so the forward always targets the port the service is actually
+    reachable on.
+
+    Naming the category is what makes this safe. Sweeping ``ports.public``
+    wholesale forwards ports the deployment never publishes -- ldaps 636 is
+    declared next to ``network.public: false``, and Mailu's implicit-TLS ports
+    are dropped from the publish list whenever TLS is off, which an onion
+    deployment always is.
+    """
     ports: set[int] = set()
-    for role in deployed_roles:
-        services_yml = roles_dir / role / ROLE_FILE_META_SERVICES
-        if not services_yml.is_file():
+    deployed = set(deployed_roles)
+    if not isinstance(applications, dict):
+        return []
+    for app_id, cfg in applications.items():
+        if app_id not in deployed:
             continue
-        data = load_yaml_any(str(services_yml), default_if_missing={})
-        if not isinstance(data, dict):
+        services = (cfg or {}).get("services") if isinstance(cfg, dict) else None
+        if not isinstance(services, dict):
             continue
-        tor = data.get("tor")
-        if not (isinstance(tor, dict) and _as_bool(tor.get("enabled"))):
-            continue
-        for entity in data.values():
+        for entity in services.values():
             if not isinstance(entity, dict):
                 continue
-            public = (entity.get("ports") or {}).get("public")
-            if not isinstance(public, dict):
+            declared = entity.get("ports")
+            if not isinstance(declared, dict):
                 continue
-            for category, value in public.items():
-                if category in _UDP_ONLY_CATEGORIES:
+            wanted = declared.get("onion")
+            if not isinstance(wanted, dict):
+                continue
+            local = _mapping(declared.get("local"))
+            public = _mapping(declared.get("public"))
+            for category, flag in wanted.items():
+                if category in UDP_ONLY_CATEGORIES or not _as_bool(flag):
                     continue
+                value = local.get(category, public.get(category))
                 if isinstance(value, int):
                     ports.add(value)
     return sorted(ports)
@@ -111,16 +134,18 @@ class LookupModule(LookupBase):
 
     Returns the HiddenServicePort mappings for the roles in the current deploy
     (``group_names``): a list of ``{'onion_port': <port>, 'target':
-    '127.0.0.1:<port>'}`` dicts, sorted by port. Two sources are unioned:
+    '127.0.0.1:<port>'}`` dicts, sorted by port. Two opt-ins are unioned:
 
-      * every ``ports.public`` TCP port of tor-enabled roles, and
-      * every port of a service that opts in with ``exposed: true`` (resolved
-        against the variant-merged applications view, so per-variant).
+      * every port a service names under ``ports.onion`` in meta/services.yml,
+        and
+      * every port of a service that opts in with ``exposed: true``.
 
-    Public/exposed ports bind the host interface, so the loopback target reaches
-    them from svc-net-tor's host-network container. Consumed by
-    ``TOR_ONION_EXTRA_PORTS`` (group_vars/all/19_tor.yml) and rendered as
-    ``HiddenServicePort`` lines in svc-net-tor's torrc.
+    Both are read from the variant-merged applications view, so a variant that
+    drops the opt-in drops the forward with it. The published port binds the
+    host interface, so the loopback target reaches it from svc-net-tor's
+    host-network container. Composed with the flagged forwards by
+    ``lookup('tor_extra_ports')`` and rendered as ``HiddenServicePort`` lines in
+    svc-net-tor's torrc.
     """
 
     def run(
@@ -138,17 +163,15 @@ class LookupModule(LookupBase):
             group_names = []
         deployed = [str(g) for g in group_names]
 
-        roles_dir = _resolve_roles_dir(roles_dir=kwargs.get("roles_dir"))
-        ports = set(collect_public_ports(deployed, roles_dir))
-
         try:
             applications = lookup_loader.get(
                 "applications",
                 loader=getattr(self, "_loader", None),
                 templar=getattr(self, "_templar", None),
             ).run([], variables=variables, roles_dir=kwargs.get("roles_dir"))[0]
-        except Exception:  # noqa: BLE001  no merged view -> exposed ports simply unavailable
+        except Exception:  # noqa: BLE001  no merged view -> no ports to forward
             applications = {}
+        ports = set(collect_onion_ports(applications, deployed))
         ports.update(collect_exposed_ports(applications, deployed))
 
         return [

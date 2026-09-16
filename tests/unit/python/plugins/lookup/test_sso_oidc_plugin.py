@@ -66,9 +66,28 @@ class OidcFlavorLookupTests(unittest.TestCase):
         self._patcher = mock.patch.object(self.mod, "lookup_loader")
         self._loader_mock = self._patcher.start()
         self._stub_payload = None
-        self._loader_mock.get.return_value = mock.MagicMock(
-            run=lambda *_a, **_k: [self._stub_payload]
-        )
+        self._loader_mock.get.side_effect = self._stub_lookup
+
+    def _stub_lookup(self, name, *_args, **_kwargs):
+        """Stand in for the lookups the plugin consumes.
+
+        ``config`` resolves a dotted path against the payload the way
+        ``lookup('config', app, path, default)`` does with a default supplied;
+        anything else answers with the payload itself.
+        """
+        if name == "config":
+            return mock.MagicMock(
+                run=lambda terms, **_kw: [self._stub_config(*terms)],
+            )
+        return mock.MagicMock(run=lambda *_a, **_kw: [self._stub_payload])
+
+    def _stub_config(self, application_id, config_path, default=None):
+        node = (self._stub_payload or {}).get(application_id)
+        for part in str(config_path).split("."):
+            if not isinstance(node, dict) or part not in node:
+                return default
+            node = node[part]
+        return node
 
     def tearDown(self):
         self._patcher.stop()

@@ -60,6 +60,10 @@
             '--skip-domain ' ~ (HEALTH_CSP_SKIP_DOMAINS | join(' ')),
             ''
           ),
+          (HEALTH_CSP_ACCEPT_STATUS | length > 0) | ternary(
+            '--accept-status ' ~ (HEALTH_CSP_ACCEPT_STATUS | join(' ')),
+            ''
+          ),
           (lookup('config', 'svc-net-tor', 'services.tor.node', '') | length > 0) | ternary(
             '--tor-proxy=socks5://' ~ lookup('tor_socks')
             ~ ' --onion-timeout=' ~ HEALTH_CSP_ONION_TIMEOUT_MS,

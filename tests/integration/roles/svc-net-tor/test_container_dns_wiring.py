@@ -1,5 +1,6 @@
 import unittest
 
+from ansible.module_utils.parsing.convert_bool import boolean as ansible_boolean
 from jinja2 import Environment, FileSystemLoader
 
 from tests.integration.roles import PROJECT_ROOT
@@ -143,9 +144,24 @@ class TestStaticBindSurvivesBoot(unittest.TestCase):
         names = [t.get("name") for t in tasks]
         start = next(t for t in tasks if t.get("name") == START_TASK)
         self.assertLess(names.index(DROPIN_BLOCK), names.index(START_TASK))
+
+        reload_expression = start["ansible.builtin.systemd"]["daemon_reload"]
+        env = Environment(autoescape=False)  # noqa: S701 - renders a boolean, not markup
+        env.filters["bool"] = ansible_boolean
+        env.tests["changed"] = lambda result: bool(result.get("changed", False))
+
         self.assertEqual(
-            start["ansible.builtin.systemd"]["daemon_reload"],
-            "{{ _tor_dnsmasq_dropin is changed }}",
+            env.from_string(reload_expression).render(
+                TOR_DNSMASQ_OWNS_LISTENER=True, _tor_dnsmasq_dropin={"changed": True}
+            ),
+            "True",
+            "a rewritten drop-in has to reach systemd before the unit restarts",
+        )
+        self.assertEqual(
+            env.from_string(reload_expression).render(TOR_DNSMASQ_OWNS_LISTENER=False),
+            "False",
+            "the drop-in task is gated on owning the listener, so the reload "
+            "expression must not reach for its register when it was skipped",
         )
 
     def test_the_bridge_fact_is_live_before_anything_binds_it(self):

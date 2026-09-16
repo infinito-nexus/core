@@ -18,7 +18,7 @@
   ansible.builtin.include_tasks: 02_run_one.yml
   loop: "{{ TEST_E2E_PLAYWRIGHT_APPS }}"
   loop_control:
-    loop_var: application_id
+    loop_var: application_id # nocheck: loop-var-shadow  the item IS the role id, so 02_run_one reads the same value the tested role's own vars declare
     label: "{{ application_id }}"
 
 - name: 🔁 Stash first-pass failures for one flake retry
@@ -31,7 +31,7 @@
   ansible.builtin.include_tasks: 02_run_one.yml
   loop: "{{ _playwright_retry_roles | default([]) }}"
   loop_control:
-    loop_var: application_id
+    loop_var: application_id # nocheck: loop-var-shadow  same loop body, same identity between item and role id
     label: "{{ application_id }} (retry)"
 
 - name: 🛑 Fail if there were Playwright failures

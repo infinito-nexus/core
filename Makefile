@@ -808,7 +808,7 @@ swarm-zombie: install-act
 	 ACT_WORKFLOW=.github/workflows/call-test-deploy.yml \
 	 ACT_JOB=deploy \
 	 ACT_MATRIX="apps:$(app);variant:$(or $(variant),0);mode:swarm" \
-	 ACT_INPUTS="whitelist=$(app) distros=$(SWARM_DISTROS) index=0 sweep=0 modes=swarm disable=$(disable)" \
+	 ACT_INPUTS="whitelist=$(app)#$(or $(variant),0)@swarm distros=$(SWARM_DISTROS) index=0 sweep=0 modes=swarm disable=$(disable)" \
 	 bash scripts/tests/deploy/act/workflow.sh
 
 .PHONY: system-purge

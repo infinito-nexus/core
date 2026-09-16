@@ -8,7 +8,7 @@
    1) Configuration (filled by Jinja/Ansible)
    ======================= */
 const KC_CONFIG = {
-  url: "{{ OIDC.URL }}",                 // e.g. https://auth.infinito.nexus
+  url: "{{ OIDC.URL }}",                 // e.g. https://auth.{{ SOFTWARE_DOMAIN }}
   realm: "{{ OIDC.CLIENT.REALM }}",      // e.g. cymais.cloud
   clientId: "{{ OIDC.CLIENT.ID }}",      // e.g. cymais.cloud
   redirectUri: "{{ DASHBOARD_APP_BASE_URL }}",   // canonical app URL for login/logout round-trips

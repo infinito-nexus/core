@@ -6,9 +6,6 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from utils.roles.applications.config import get
-from utils.roles.applications.services.sso import get_sso_config
-
 _APPLICATION_ID = "web-app-nextcloud"
 
 
@@ -40,33 +37,18 @@ class LookupModule(LookupBase):
         templar = getattr(self, "_templar", None)
         variables = variables or getattr(self._templar, "available_variables", {}) or {}
 
-        applications = lookup_loader.get(
-            "applications", loader=self._loader, templar=templar
-        ).run([], variables=variables)[0]
+        config = lookup_loader.get("config", loader=self._loader, templar=templar)
 
-        if not get_sso_config(applications, _APPLICATION_ID)["is_enabled"]:
+        def _setting(path: str, default: Any) -> Any:
+            return config.run([_APPLICATION_ID, path, default], variables=variables)[0]
+
+        if not bool(_setting("services.sso.enabled", False)):
             return [""]
 
-        explicit = get(
-            applications=applications,
-            application_id=_APPLICATION_ID,
-            config_path="services.sso.oidc.plugin",
-            strict=False,
-            default=None,
-            skip_missing_app=True,
-        )
+        explicit = _setting("services.sso.oidc.plugin", None)
         if isinstance(explicit, str) and explicit.strip():
             return [explicit.strip()]
 
-        ldap_enabled = bool(
-            get(
-                applications=applications,
-                application_id=_APPLICATION_ID,
-                config_path="services.ldap.enabled",
-                strict=False,
-                default=False,
-                skip_missing_app=True,
-            )
-        )
+        ldap_enabled = bool(_setting("services.ldap.enabled", False))
 
         return ["oidc_login" if ldap_enabled else "sociallogin"]

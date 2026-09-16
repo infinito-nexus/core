@@ -125,7 +125,9 @@
     file: router.yml
     apply:
       become: true
-  when: TOR_EGRESS_ROUTER_ENABLED | bool
+  when:
+    - TOR_EGRESS_ROUTER_ENABLED | bool
+    - DEPLOYMENT_MODE == 'compose' or (IS_STACK_HOST | bool)
 
 - name: "🧅 Verify the node onion is reachable"
   ansible.builtin.include_tasks: onion_reach.yml

@@ -5,13 +5,16 @@ from typing import Any
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
+from utils.api import resolve_api
+
 
 class LookupModule(LookupBase):
     """
     lookup('api', '<provider>.<key>')  e.g. lookup('api', 'github.client_id')
 
     Single point of truth for proprietary / external API credentials. Resolves a
-    dotted path against the global ``API`` mapping (group_vars/all/18_api.yml).
+    dotted path against the effective ``API`` mapping: the declaration in
+    group_vars/all/18_api.yml with the calling scope's override merged over it.
     Routing every access through this plugin keeps one place to change how
     proprietary API credentials are sourced (vault, env, secret manager, a
     different provider abstraction) without touching the call sites.
@@ -31,11 +34,10 @@ class LookupModule(LookupBase):
         if not path:
             raise AnsibleError("lookup('api'): empty key path.")
 
-        api = variables.get("API", {})
-        if templar is not None:
-            api = templar.template(api)
-        if not isinstance(api, dict):
-            raise AnsibleError("lookup('api'): global 'API' is not a mapping.")
+        try:
+            api = resolve_api(variables, templar=templar)
+        except TypeError as error:
+            raise AnsibleError(f"lookup('api'): {error}") from error
 
         node: Any = api
         for part in path.split("."):

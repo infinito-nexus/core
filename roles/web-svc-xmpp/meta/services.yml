@@ -38,6 +38,11 @@ xmpp:
     public:
       c2s: 5222
       s2s: 5269
+    onion:
+      # nocheck: onion-flag  onion clients reach the same sessions over the BOSH and websocket endpoints the proxy serves on port 80
+      c2s: false
+      # nocheck: onion-flag  server-to-server dials clearnet peers that resolve this domain in DNS, which an onion address does not answer
+      s2s: false
     internal:
       http: 5280
       c2s: 5222

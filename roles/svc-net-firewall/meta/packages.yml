@@ -1,0 +1,8 @@
+---
+nftables:
+  Archlinux:
+    - nftables
+  Debian:
+    - nftables
+  RedHat:
+    - nftables

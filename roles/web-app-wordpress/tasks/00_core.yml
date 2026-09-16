@@ -10,7 +10,7 @@
     name: sys-stk-front-proxy
   loop: "{{ WORDPRESS_DOMAINS }}"
   loop_control:
-    loop_var: domain
+    loop_var: domain # nocheck: loop-var-shadow  sys-stk-front-proxy takes the vhost through this name, see its tasks/main.yml front_proxy_domain
   vars:
     webserver_extra_configuration: "client_max_body_size {{ WORDPRESS_MAX_UPLOAD_SIZE }};"
     http_port: "{{ lookup('config', application_id, 'services.wordpress.ports.local.http') }}"

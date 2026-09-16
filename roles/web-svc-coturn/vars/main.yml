@@ -11,7 +11,6 @@ COTURN_STUN_TURN_PORT: "{{ lookup('config', application_id, 'services.coturn.por
 COTURN_STUN_TURN_PORT_TLS: "{{ lookup('config', application_id, 'services.coturn.ports.public.stun_turn_tls') }}"
 COTURN_RELAY_PORT_START: "{{ lookup('config', application_id, 'services.coturn.ports.public.relay.start') }}"
 COTURN_RELAY_PORT_END: "{{ lookup('config', application_id, 'services.coturn.ports.public.relay.end') }}"
-COTURN_RELAY_PORT_RANGE: "{{ COTURN_RELAY_PORT_START }}-{{ COTURN_RELAY_PORT_END }}"
 
 COTURN_USER_NAME: "{{ lookup('users', 'coturnconsumer').username }}"
 COTURN_USER_PASSWORD: "{{ lookup('users', 'coturnconsumer').password }}"

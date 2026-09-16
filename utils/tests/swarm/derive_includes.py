@@ -193,6 +193,21 @@ def derive_includes(
     return sorted(found)
 
 
+def variant_scope(app_id: str, *, variants: dict[str, int] | None = None) -> list[str]:
+    """Deployed roles for APP_ID that must carry their own variant config.
+
+    Args:
+        app_id: role whose closure is resolved.
+        variants: active ``{app_id: variant_index}`` map, as ``derive_includes``.
+    """
+    explicit = set(_EXPLICIT_INCLUDES) - {app_id}
+    return [
+        role
+        for role in derive_includes(app_id, variants=variants)
+        if role not in explicit
+    ]
+
+
 def _disabled_provider_roles(service_registry: dict[str, Any]) -> set[str]:
     """Provider roles the ``disable`` env removes from the closure, so the
     swarm include set matches what the provision-time services_disabler

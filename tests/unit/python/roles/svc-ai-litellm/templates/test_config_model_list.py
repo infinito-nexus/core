@@ -28,6 +28,12 @@ OLLAMA_URL = "http://ollama:11434"
 LMSTUDIO_URL = "http://lmstudio:1234"
 
 
+def _ansible_bool(value):
+    if isinstance(value, str):
+        return value.strip().lower() in ("true", "yes", "on", "1")
+    return bool(value)
+
+
 def _stub_lookup(ollama_models, lmstudio_models):
     def lookup(kind, role, path, *args):
         if (kind, path) == ("config", "services.ollama.preload_models"):
@@ -66,14 +72,11 @@ def render(*, ollama=(), lmstudio=(), keys=None):
         lmstudio: preload entries svc-ai-lmstudio declares; empty means not deployed.
         keys: env-name -> provider key for the remote backends.
     """
-    group_names = ["svc-ai-litellm"]
-    if ollama:
-        group_names.append("svc-ai-ollama")
-    if lmstudio:
-        group_names.append("svc-ai-lmstudio")
     env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - YAML, not markup
+    env.filters["bool"] = _ansible_bool
     rendered = env.from_string(read_text(str(TEMPLATE))).render(
-        group_names=group_names,
+        LITELLM_OLLAMA_BACKEND=str(bool(ollama)),
+        LITELLM_LMSTUDIO_BACKEND=str(bool(lmstudio)),
         lookup=_stub_lookup(list(ollama), list(lmstudio)),
         OLLAMA_BASE_LOCAL_URL=OLLAMA_URL,
         LMSTUDIO_BASE_LOCAL_URL=LMSTUDIO_URL,

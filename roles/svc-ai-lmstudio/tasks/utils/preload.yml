@@ -1,0 +1,34 @@
+---
+- name: ⬇️ Pre-pull LM Studio models
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ LMSTUDIO_LOCAL_CID | quote }} lms get --yes --gguf {{ model.source | quote }}
+  register: lmstudio_pull_result
+  loop: "{{ LMSTUDIO_PRELOAD_MODELS }}"
+  loop_control:
+    loop_var: model
+    label: "{{ model.alias }}"
+  # rationale: async; the reap below reads every job back before the play continues, so no model is still downloading when playwright starts
+  async: "{{ LMSTUDIO_PRELOAD_ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
+  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  retries: "{{ 0 if ASYNC_ENABLED | bool else 1 }}"
+  delay: 15
+  until: >
+    (lmstudio_pull_result.rc | default(0)) == 0 or
+    ('already downloaded' in (lmstudio_pull_result.stdout | default('')))
+  changed_when: false
+  failed_when: >-
+    (lmstudio_pull_result.failed | default(false))
+    and 'already downloaded' not in ((lmstudio_pull_result.stdout | default('')) ~ (lmstudio_pull_result.stderr | default('')))
+  delegate_to: "{{ LMSTUDIO_HOST_NODE }}"
+
+- name: "⏳ Reap the LM Studio model pre-pulls"
+  ansible.builtin.include_tasks:
+    file: utils/async/reap.yml
+    apply:
+      delegate_to: "{{ LMSTUDIO_HOST_NODE }}"
+  vars:
+    async_reap_jobs: "{{ lmstudio_pull_result.results | default([]) }}"
+    async_reap_label: "LM Studio model pre-pull"
+    async_reap_tolerate:
+      - "already downloaded"
+    ASYNC_TIME: "{{ LMSTUDIO_PRELOAD_ASYNC_TIME }}"

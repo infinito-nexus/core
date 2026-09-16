@@ -1,6 +1,16 @@
 [Unit]
 Description={{ SOFTWARE_NAME }} - Service for role '{{ system_service_id }}'
-{{ system_service_tpl_on_failure | systemd_directive('OnFailure') }}
+{% for key, val in [
+  ('OnFailure', system_service_tpl_on_failure),
+  ('After',     system_service_tpl_after),
+  ('Before',    system_service_tpl_before),
+  ('Wants',     system_service_tpl_wants),
+] %}
+{% set directive = val | systemd_directive(key) %}
+{% if directive %}
+{{ directive }}
+{% endif %}
+{% endfor %}
 StartLimitIntervalSec=60
 StartLimitBurst=3
 OnFailureJobMode=replace-irreversibly
@@ -10,13 +20,21 @@ Type={{ system_service_tpl_type }}
 {% for _environment in system_service_tpl_environment %}
 Environment={{ _environment }}
 {% endfor %}
-
 {% for key, val in [
+  ('RemainAfterExit', system_service_tpl_remain_after_exit),
   ('TimeoutStartSec', system_service_tpl_timeout_start_sec),
   ('ExecStartPre',    system_service_tpl_exec_start_pre),
   ('ExecStart',       system_service_tpl_exec_start),
   ('ExecStartPost',   system_service_tpl_exec_start_post),
   ('RuntimeMaxSec',   system_service_tpl_runtime),
 ] %}
-{{ val | systemd_directive(key) }}
+{% set directive = val | systemd_directive(key) %}
+{% if directive %}
+{{ directive }}
+{% endif %}
 {% endfor %}
+{% if system_service_tpl_wanted_by | length > 0 %}
+
+[Install]
+WantedBy={{ system_service_tpl_wanted_by }}
+{% endif %}

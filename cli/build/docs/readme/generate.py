@@ -70,6 +70,19 @@ def _app_name(preamble: str, role_name: str) -> str:
     return entity.replace("-", " ").title()
 
 
+def _needs_clearnet_resolver(role_dir) -> bool:
+    """Whether the role refuses to deploy without ``networks.internet.dns``.
+
+    Only the inventories under ``inventories/development/`` set that value, so a
+    role asserting it has to name it in the block an operator copies, or the
+    documented deploy aborts on the assert.
+    """
+    return any(
+        "networks.internet.dns" in read_text(str(path))
+        for path in sorted((role_dir / "tasks").rglob("*.yml"))
+    )
+
+
 def _base_context(role_dir, role_name: str, app_name: str, *, invokable: bool) -> dict:
     return {
         "application_id": role_name,
@@ -84,6 +97,7 @@ def _base_context(role_dir, role_name: str, app_name: str, *, invokable: bool) -
         "application_author": _role_author(role_dir),
         "application_author_url": author_urls().get(_role_author(role_dir)),
         "application_is_host": not role_has_stack(role_dir),
+        "application_needs_clearnet_resolver": _needs_clearnet_resolver(role_dir),
         "cosmos_mermaid": derive_cosmos_mermaid(role_dir, role_name),
         "cosmos_legend": _cosmos_legend(),
     }

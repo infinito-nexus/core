@@ -21,6 +21,15 @@
       - src: "config.yaml.j2"
         dest: "{{ LITELLM_CONFIG_PATH_HOST }}"
 
+- name: "🧮 Freeze the routing contract the CLI test asserts against"
+  ansible.builtin.set_fact:
+    LITELLM_TEST_CONTRACT:
+      ollama: "{{ LITELLM_OLLAMA_BACKEND | bool }}"
+      lmstudio: "{{ LITELLM_LMSTUDIO_BACKEND | bool }}"
+      served: "{{ LITELLM_CHAT_MODEL_SERVED | bool }}"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
 - name: "🔧 Setup container network for {{ application_id }}"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
   vars:

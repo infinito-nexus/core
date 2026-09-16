@@ -18,13 +18,23 @@
     {{ lookup('compose_only', 'container_name', COTURN_CONTAINER) }}
     network_mode: {{ COTURN_NETWORK_MODE }}
     {% if COTURN_NETWORK_MODE == 'bridge' %}
-    ports:
-      - "{{ COTURN_STUN_TURN_PORT }}:{{ COTURN_STUN_TURN_PORT }}/udp"  # nocheck: compose-ports-must-use-container-ports
-      - "{{ COTURN_STUN_TURN_PORT }}:{{ COTURN_STUN_TURN_PORT }}/tcp"  # nocheck: compose-ports-must-use-container-ports
-      {% if COTURN_TLS_ENABLED| bool %}
-      - "{{ COTURN_STUN_TURN_PORT_TLS }}:{{ COTURN_STUN_TURN_PORT_TLS }}/tcp"  # nocheck: compose-ports-must-use-container-ports
-      {% endif %}
-      - "{{ COTURN_RELAY_PORT_RANGE }}/udp"  # nocheck: compose-ports-must-use-container-ports
+    {% if COTURN_TLS_ENABLED | bool %}
+    {{ lookup('container_ports',
+              {'service': 'coturn', 'protocol': 'stun_turn',
+               'transport': ['udp', 'tcp'], 'container': 'same'},
+              {'service': 'coturn', 'protocol': 'stun_turn_tls',
+               'transport': 'tcp', 'container': 'same'},
+              {'service': 'coturn', 'protocol': 'relay',
+               'transport': 'udp', 'container': 'same',
+               'publish': 'ephemeral'}) | indent(4) }}
+    {% else %}
+    {{ lookup('container_ports',
+              {'service': 'coturn', 'protocol': 'stun_turn',
+               'transport': ['udp', 'tcp'], 'container': 'same'},
+              {'service': 'coturn', 'protocol': 'relay',
+               'transport': 'udp', 'container': 'same',
+               'publish': 'ephemeral'}) | indent(4) }}
+    {% endif %}
     {{ lookup('container_networks') | indent(4) }}
     {% endif %}
     {{ lookup('container_volumes', service_name) | indent(4) }}

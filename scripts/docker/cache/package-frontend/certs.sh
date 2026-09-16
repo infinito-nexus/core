@@ -19,6 +19,11 @@ fi
 : "${INFINITO_CACHE_PACKAGE_FRONTEND_INIT_IMAGE:?Source scripts/meta/env/load.sh first}"
 ALPINE_IMAGE="${INFINITO_CACHE_PACKAGE_FRONTEND_INIT_IMAGE}"
 
+if ! MAX_ATTEMPTS=3 RETRY_DELAY_SECONDS=10 \
+	"${REPO_ROOT}/scripts/github/runner/pull_with_retry.sh" "${ALPINE_IMAGE}"; then
+	echo "[package-frontend-certs] could not pull ${ALPINE_IMAGE}; falling back to a cached copy" >&2
+fi
+
 exec docker run --rm \
 	-v "${INFINITO_CACHE_PACKAGE_FRONTEND_CA_DIR}:/ca" \
 	-v "${INFINITO_CACHE_PACKAGE_FRONTEND_CERTS_DIR}:/certs" \
