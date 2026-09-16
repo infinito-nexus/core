@@ -16,6 +16,9 @@ WAZUH_DASHBOARD_CONTAINER: "{{ lookup('config', application_id, 'services.consol
 WAZUH_DASHBOARD_HTTP_PORT: "{{ lookup('config', application_id, 'services.console.ports.local.http') }}"
 WAZUH_DASHBOARD_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.console.ports.internal.http') }}"
 
+# Onion sibling of the clearnet domain when svc-net-tor is deployed (tasks/00_core.yml's second front-proxy include, README.md's "Tor / Onion Reachability"); empty string otherwise.
+WAZUH_DASHBOARD_ONION_DOMAIN: "{{ (lookup('tls', application_id, 'domains.all') | select('search', '\\.onion$') | list | first) | default('') }}"
+
 WAZUH_CERTS_GENERATOR_CONTAINER: "{{ lookup('config', application_id, 'services.certs_generator.name') }}"
 
 # Host-side bind-mount roots (instance dir is unique per role deploy)
@@ -36,7 +39,6 @@ WAZUH_INDEXER_INTERNAL_API_URL: "https://{{ DOCKER_REACH_HOST }}:{{ WAZUH_INDEXE
 # Auth integrations
 WAZUH_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
 WAZUH_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') | bool }}"
-WAZUH_DASHBOARD_BASE_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 
 # Credentials (meta/secrets.yml); the indexer's internal_users.yml needs a bcrypt HASH of each plaintext, computed here via `bcrypt_hash` (plugins/filter/bcrypt_hash.py, not Ansible's broken `password_hash('bcrypt')`) so every consumer resolves the same source-of-truth variable.
 WAZUH_INDEXER_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.indexer_admin_password') }}"
