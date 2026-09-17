@@ -1,6 +1,6 @@
-{% if lookup('tls', application_id, 'enabled') | bool %}
-listen {{ lookup('tls', application_id, 'ports.web') }} ssl;
-listen [::]:{{ lookup('tls', application_id, 'ports.web') }} ssl;
+{% if lookup('tls', domain | default(application_id), 'enabled') | bool %}
+listen {{ lookup('tls', domain | default(application_id), 'ports.web') }} ssl;
+listen [::]:{{ lookup('tls', domain | default(application_id), 'ports.web') }} ssl;
 http2 on;
 
 ssl_protocols TLSv1.2 TLSv1.3;
@@ -19,6 +19,6 @@ ssl_stapling_verify on;
 {% include 'roles/sys-front-tls/templates/ssl_credentials.j2' %}
 
 {% else %}
-listen {{ lookup('tls', application_id, 'ports.web') }};
-listen [::]:{{ lookup('tls', application_id, 'ports.web') }};
+listen {{ lookup('tls', domain | default(application_id), 'ports.web') }};
+listen [::]:{{ lookup('tls', domain | default(application_id), 'ports.web') }};
 {% endif %}
