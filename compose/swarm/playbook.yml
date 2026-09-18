@@ -134,7 +134,7 @@
       timeout: 30
       when: lab_is_mgr or inventory_hostname in [lab_nfs, lab_backup]
 
-    - name: own the whole dnsmasq config (fedora and centos ship local-service, which implies bind-interfaces and dnsmasq refuses next to our bind-dynamic)
+    - name: own the whole dnsmasq config (the packaging appends --local-service unconditionally and only an interface, except-interface, listen-address or auth-server directive resets it; without that reset a failed interface re-enumeration empties dnsmasq's local-subnet list and it rejects every query, loopback included, until an address event rebuilds it)
       template: # nocheck: stack-host-template - lab node system config, every DNS node writes its own /etc/dnsmasq.conf and IS_STACK_HOST does not exist in this play
         src: dnsmasq.conf.j2
         dest: /etc/dnsmasq.conf

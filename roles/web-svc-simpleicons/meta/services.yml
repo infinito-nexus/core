@@ -40,7 +40,7 @@ simpleicons:
   enabled: true
   shared: true
   image: node
-  version: 26-bookworm
+  version: 26-slim
   local_image: simpleicons-server
   local_version: latest
   min_storage: 612MB

@@ -46,7 +46,7 @@ postmarks:
     swarm:
       enabled: true
   image: node
-  version: 26-bookworm
+  version: 26-slim
   custom: true
   name: web-app-postmarks
   repository: https://github.com/ckolderup/postmarks.git

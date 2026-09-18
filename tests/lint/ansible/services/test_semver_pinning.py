@@ -59,6 +59,7 @@ from utils.annotations.message import warning as gha_warning
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
+from utils.docker.image.pin import is_digest
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.update.base import is_semver
 
@@ -69,6 +70,7 @@ if TYPE_CHECKING:
 
 
 _DOCKER_RULE = "docker-version"
+_DIGEST_RULE = "docker-digest"
 _REPO_RULE = "repository-version"
 
 _DOCKER_TITLE = "Non-semver Docker image version"
@@ -176,7 +178,7 @@ class TestSemverPinning(unittest.TestCase):
                     line_no = _locate_value_line(
                         lines, "version", value, used_version_lines
                     )
-                    rule = _DOCKER_RULE
+                    rule = _DIGEST_RULE if is_digest(value) else _DOCKER_RULE
                     title = _DOCKER_TITLE
                     category: type[Warning] = NonSemverImageVersionWarning
                     key_label = "version"
@@ -208,10 +210,10 @@ class TestSemverPinning(unittest.TestCase):
 
         if findings_emitted:
             print(
-                "\n💡 Non-semver pins: suppress with "
-                "'# nocheck: docker-version' (above or on the `version:` line) "
-                "or '# nocheck: repository-version' (above or on the `ref:` "
-                "line) when the non-semver pin is intentional.",
+                "\n💡 Non-semver pins: a digest is the preferred fallback and "
+                "declares itself with '# nocheck: docker-digest'; a general "
+                "tag uses '# nocheck: docker-version' and a general git ref "
+                "'# nocheck: repository-version', above or on the pinned line.",
                 flush=True,
             )
 

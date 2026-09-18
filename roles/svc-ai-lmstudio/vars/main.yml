@@ -6,3 +6,7 @@ LMSTUDIO_CONTAINER: "{{ lookup('config', application_id, 'services.lmstudio.name
 LMSTUDIO_PORT: "{{ lookup('config', application_id, 'services.lmstudio.ports.internal.http') }}"
 LMSTUDIO_PRELOAD_MODELS: "{{ lookup('config', application_id, 'services.lmstudio.preload_models') }}"
 LMSTUDIO_PRELOAD_ASYNC_TIME: "{{ lookup('config', application_id, 'services.lmstudio.preload_async_time') }}"
+LMSTUDIO_CONFIG_DIR: "{{ lookup('container', application_id, 'directories.config') }}"
+LMSTUDIO_MODEL_CACHE_DIR: "{{ [ LMSTUDIO_CONFIG_DIR, 'models' ] | path_join }}"
+LMSTUDIO_HOME_DIR: "{{ lookup('volume', application_id, 'lmstudio_data').target }}"
+LMSTUDIO_MODELS_DIR: "{{ [ LMSTUDIO_HOME_DIR, 'models' ] | path_join }}"

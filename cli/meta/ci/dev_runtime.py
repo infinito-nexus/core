@@ -28,7 +28,7 @@ def image_label(image: str) -> str:
     """Shorten a dev-runtime image to its last two registry segments.
 
     ``quay.io/centos/centos:latest`` becomes ``centos:latest``; a two-segment
-    image such as ``debian:bookworm`` is returned unchanged.
+    image such as ``debian:13`` is returned unchanged.
 
     Args:
         image: full image reference.

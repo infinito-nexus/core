@@ -18,7 +18,7 @@ ARG BRIDGY_REF
 
 RUN rm -rf /var/lib/apt/lists/* && \
     apt-get -o Acquire::Retries=3 update && apt-get -o Acquire::Retries=3 install -y --no-install-recommends \
-    git build-essential curl ca-certificates && \
+    git build-essential pkg-config autoconf automake libtool curl ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

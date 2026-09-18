@@ -197,6 +197,7 @@ talk:
   shared: "{{ 'web-svc-coturn' in group_names }}"
   name: nextcloud-talk
   image: nextcloud/aio-talk
+  # nocheck: docker-version -- all 174 tags upstream publishes are AIO build stamps, none is a version
   version: latest
   backup:
     no_stop_required: false
@@ -271,6 +272,7 @@ talk_recording:
   shared: false
   name: nextcloud-talk-recording
   image: nextcloud/aio-talk-recording
+  # nocheck: docker-version -- all 104 tags upstream publishes are AIO build stamps, none is a version
   version: latest
   backup:
     no_stop_required: true

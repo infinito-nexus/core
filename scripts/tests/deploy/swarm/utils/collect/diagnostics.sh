@@ -144,6 +144,20 @@ for node in "${MGR}" "${WRK1}" "${WRK2}" "${NFS_SERVER}"; do
 	dexec "${node}" sh -c "ss -lunp 2>/dev/null; ss -lntp 2>/dev/null" || echo "(ss unavailable)"
 	echo "--- dnsmasq journal ---"
 	dexec "${node}" sh -c "journalctl -u dnsmasq --no-pager 2>&1" || echo "(journalctl unavailable)"
+	echo "--- dnsmasq command line ---"
+	# shellcheck disable=SC2016
+	dexec "${node}" sh -c 'pid=$(systemctl show -p MainPID --value dnsmasq 2>/dev/null)
+if [ -n "${pid}" ] && [ "${pid}" != "0" ] && [ -r "/proc/${pid}/cmdline" ]; then
+  tr "\000" "\n" < "/proc/${pid}/cmdline"
+else
+  echo "(dnsmasq has no readable MainPID)"
+fi' || echo "(dnsmasq cmdline unavailable)"
+	echo "--- dnsmasq startup wiring ---"
+	dexec "${node}" sh -c 'cat /etc/default/dnsmasq 2>&1 || echo "(no /etc/default/dnsmasq)"'
+	dexec "${node}" sh -c "systemctl cat dnsmasq 2>&1" || echo "(systemctl cat unavailable)"
+	echo "--- dnsmasq config on disk ---"
+	dexec "${node}" sh -c 'cat /etc/dnsmasq.conf 2>&1 || echo "(no /etc/dnsmasq.conf)"'
+	dexec "${node}" sh -c 'ls -l /etc/dnsmasq.d 2>&1 || echo "(no /etc/dnsmasq.d)"'
 	echo "--- addresses ---"
 	dexec "${node}" ip -4 addr show
 	echo "--- nat rules ---"

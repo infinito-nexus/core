@@ -25,6 +25,8 @@ AI_LOCAL_MODELS:
   - alias: qwen2.5:0.5b
     name: qwen2.5-0.5b-instruct
     source: https://huggingface.co/lmstudio-community/Qwen2.5-0.5B-Instruct-GGUF
+    file: Qwen2.5-0.5B-Instruct-Q8_0.gguf
+    sha256: "1d96e30253a76970864323987e3e77eeaf170312952fd61d18d343c25cfd6e52"
 
 AI_REMOTE_ALIASES: >-
   {{ ['openai/gpt-4o-mini'] * (lookup('api_enabled', 'openai') | int)

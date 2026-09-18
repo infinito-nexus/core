@@ -219,7 +219,7 @@ probe_did_inner_build() {
 
 	tmpdir="$(mktemp -d)"
 	cat >"${tmpdir}/Dockerfile" <<-'EOF'
-		FROM debian:bookworm-slim
+		FROM debian:13-slim
 		RUN apt-get update -o Acquire::http::No-Cache=true
 	EOF
 	tag="cache-did-probe-$$"

@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from utils.cache.yaml import load_yaml_any as _load_yaml_cached
+from utils.docker.image.pin import pull_reference
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 if TYPE_CHECKING:
@@ -146,7 +147,7 @@ def docker_hub_source(image: str, version: str) -> str:
     if "/" not in base:
         base = f"library/{base}"
 
-    return f"docker.io/{base}:{version}"
+    return pull_reference(f"docker.io/{base}", version)
 
 
 def image_source(image: str, version: str) -> str:
@@ -166,7 +167,7 @@ def image_source(image: str, version: str) -> str:
     if registry == "docker.io" and "/" not in base:
         base = f"library/{base}"
 
-    return f"{registry}/{base}:{version}"
+    return pull_reference(f"{registry}/{base}", version)
 
 
 def canonical_image_name(image: str) -> str:

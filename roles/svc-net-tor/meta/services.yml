@@ -20,7 +20,7 @@ tor: # nocheck: category-modes
   exclusive: true
   primary: true
   image: debian
-  version: trixie-slim
+  version: 13.6-slim
   custom: true
   name: tor
   node: ""

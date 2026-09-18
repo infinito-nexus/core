@@ -6,6 +6,12 @@
     resolve_output_prefix: LMSTUDIO
     resolve_compose_cid: "{{ LMSTUDIO_CONTAINER }}"
 
+- name: "🌱 Seed the models from the node cache before preloading"
+  ansible.builtin.include_tasks:
+    file: utils/seed.yml
+    apply:
+      delegate_to: "{{ LMSTUDIO_HOST_NODE }}"
+
 - name: "⬇️ Preload the LM Studio models"
   block:
     - name: "⬇️ Preload the LM Studio models (first pass)"

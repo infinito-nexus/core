@@ -11,7 +11,7 @@ memcached:
   enabled: true
   shared: true
   image: memcached
-  version: alpine
+  version: 1.6.45-alpine
   name: memcached
   min_storage: 206MB
   backup:

@@ -112,6 +112,7 @@ jobs:
         run: |
           set -euo pipefail
           echo "owner=$(scripts/meta/resolve/repository/owner.sh)" >> "$GITHUB_OUTPUT"
+          echo "name=$(scripts/meta/resolve/repository/name.sh)" >> "$GITHUB_OUTPUT"
 
       - name: 🔨 Build & push every distro (retry 7x, 20s)
         if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) }}
@@ -126,6 +127,18 @@ jobs:
           MAX_ATTEMPTS: "7"
           RETRY_DELAY_SECONDS: "20"
         run: ./scripts/image/push_all.sh
+
+      - name: ⏳ Assert every distro image is in the registry
+        shell: bash
+        env:
+          REGISTRY: ghcr.io
+          OWNER: ${{ steps.owner.outputs.owner }}
+          REPO_PREFIX: ${{ steps.owner.outputs.name }}
+          CI_TAG: ${{ steps.out.outputs.image_tag }}
+          INFINITO_DISTROS: ${{ join(fromJson(steps.out.outputs.matrix), ' ') }}
+          WAIT_ATTEMPTS: "90"
+          WAIT_SLEEP_SECONDS: "10"
+        run: ./scripts/meta/wait/ci_images.sh
 
       - name: 📤 Upload per-distro build logs
         if: always()

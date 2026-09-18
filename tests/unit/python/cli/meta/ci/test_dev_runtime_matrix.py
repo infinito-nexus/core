@@ -7,7 +7,7 @@ import unittest
 from cli.meta.ci.dev_runtime import image_label, workspace_matrix
 from utils.symbol_glossary import to_emoji
 
-IMAGES = ["debian:bookworm", "fedora:latest", "ubuntu:latest", "quay.io/centos:latest"]
+IMAGES = ["debian:13", "fedora:latest", "ubuntu:latest", "quay.io/centos:latest"]
 
 
 class TestWorkspaceMatrix(unittest.TestCase):
@@ -55,7 +55,7 @@ class TestWorkspaceMatrix(unittest.TestCase):
     def test_a_label_keeps_only_the_last_two_segments(self) -> None:
         self.assertEqual(image_label("quay.io/centos/centos:latest"), "centos:latest")
         self.assertEqual(image_label("manjarolinux/base"), "manjarolinux/base")
-        self.assertEqual(image_label("debian:bookworm"), "debian:bookworm")
+        self.assertEqual(image_label("debian:13"), "debian:13")
         self.assertEqual(image_label("ghcr.io/foo/bar/baz:1.2"), "baz:1.2")
         self.assertEqual(image_label("plainname"), "plainname")
 

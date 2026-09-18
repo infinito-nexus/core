@@ -31,7 +31,7 @@ openresty:
   mem_reservation: 1g
   mem_limit: 2g
   image: openresty/openresty
-  version: alpine
+  version: 1.31.1.1-alpine
   custom: true
   lifecycle: beta
   pids_limit: 256

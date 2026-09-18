@@ -1,0 +1,33 @@
+---
+- name: "📁 Create the model cache directory on the hosting node"
+  ansible.builtin.file:
+    path: "{{ LMSTUDIO_MODEL_CACHE_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: "⬇️ Warm the model cache on the node, best effort"
+  get_url_retry:
+    url: "{{ model.source }}/resolve/main/{{ model.file }}"
+    dest: "{{ LMSTUDIO_MODEL_CACHE_DIR }}/{{ model.file }}"
+    checksum: "sha256:{{ model.sha256 }}"
+    mode: "0644"
+  loop: "{{ LMSTUDIO_PRELOAD_MODELS }}"
+  loop_control:
+    loop_var: model
+    label: "{{ model.file }}"
+  changed_when: false
+  failed_when: false
+
+- name: "📋 Hand a warmed model to LM Studio, best effort"
+  ansible.builtin.script: shell/import.sh
+  environment:
+    LMSTUDIO_LOCAL_CID: "{{ LMSTUDIO_LOCAL_CID }}"
+    MODEL_FILE: "{{ LMSTUDIO_MODEL_CACHE_DIR }}/{{ model.file }}"
+    MODEL_USER_REPO: "{{ model.source | regex_replace('^https://huggingface\\.co/', '') }}"
+    MODELS_DIR: "{{ LMSTUDIO_MODELS_DIR }}"
+  loop: "{{ LMSTUDIO_PRELOAD_MODELS }}"
+  loop_control:
+    loop_var: model
+    label: "{{ model.file }}"
+  changed_when: false
+  failed_when: false

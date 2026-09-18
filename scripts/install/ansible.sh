@@ -42,6 +42,11 @@ if MISSING="$("${PYTHON}" -m utils.install.collections "${GALAXY_REQ}" "${ANSIBL
 	echo "🎉 All collections are ready"
 	exit 0
 fi
+if [ -z "${MISSING}" ]; then
+	echo "❌ The collection check exited non-zero without naming a collection," \
+		"so it crashed rather than finding work; see its traceback above" >&2
+	exit 3
+fi
 echo "→ Not satisfied yet: ${MISSING}"
 
 installed=0

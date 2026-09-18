@@ -59,7 +59,7 @@ bookwyrm:
   image: python
   # TODO: bump when upstream Bookwyrm declares support for Python >= 3.12 in requirements.txt
   # nocheck: docker-version
-  version: 3.11-bookworm
+  version: 3.11-slim
   custom: true
   repository: https://github.com/bookwyrm-social/bookwyrm.git
   ref: v0.9.3

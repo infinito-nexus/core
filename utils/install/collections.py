@@ -1,7 +1,11 @@
 """Compare the pinned Galaxy requirements against what is on disk.
 
 Imported by the lint bootstrap, which runs on a bare interpreter before any
-dependency is installed, so this module stays on the standard library. The
+dependency is installed, so this module stays on the standard library. It also
+stays inside its own package: the Dockerfile copies it into the image beside
+``utils/__init__.py`` and ``utils/install/__init__.py`` and nothing else, so
+importing any other ``utils`` submodule raises ``ModuleNotFoundError`` in the
+layer that runs it. The
 requirements files it reads are this repository's own and hold one shape:
 a ``collections:`` list of ``- name:`` entries with an optional ``version:``.
 A line that does not match that shape leaves the entry unpinned, which the
@@ -14,8 +18,6 @@ import json
 import re
 import sys
 from pathlib import Path
-
-from utils.cache.files import read_text
 
 _NAME = re.compile(r"^\s*-\s+name:\s*(?P<name>[A-Za-z0-9_.]+)\s*(?:#.*)?$")
 _VERSION = re.compile(
@@ -31,9 +33,10 @@ def declared_pins(requirements_file: Path) -> list[tuple[str, str | None]]:
     """
     pins: list[tuple[str, str | None]] = []
     try:
-        lines = read_text(str(requirements_file)).splitlines()
+        raw = requirements_file.read_text(encoding="utf-8")  # nocheck: cache-read
     except OSError:
         return pins
+    lines = raw.splitlines()
 
     for line in lines:
         name_match = _NAME.match(line)
@@ -59,7 +62,8 @@ def _installed_version(collections_dir: Path, namespace: str, name: str) -> str 
         collections_dir / "ansible_collections" / namespace / name / "MANIFEST.json"
     )
     try:
-        payload = json.loads(read_text(str(manifest)))
+        raw = manifest.read_text(encoding="utf-8")  # nocheck: cache-read
+        payload = json.loads(raw)
     except (OSError, ValueError):
         return None
     version = payload.get("collection_info", {}).get("version")

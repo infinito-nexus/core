@@ -111,12 +111,34 @@ class TestStableVariablesSignature(unittest.TestCase):
     def test_empty_variables_collapses_to_canonical_tuple(self):
         self.assertEqual(
             base._stable_variables_signature(None),
-            ("0", "0", "", ""),
+            ("0", "0", "", "", ""),
         )
         self.assertEqual(
             base._stable_variables_signature({}),
-            ("0", "0", "", ""),
+            ("0", "0", "", "", ""),
         )
+
+    def test_two_hosts_of_one_play_do_not_share_a_key(self):
+        shared = {"applications": {"web-app-pretix": {}}, "DOMAIN_PRIMARY": "x.test"}
+        member = base._stable_variables_signature(
+            {**shared, "group_names": ["web-app-pretix", "svc-db-postgres"]}
+        )
+        outsider = base._stable_variables_signature(
+            {**shared, "group_names": ["web-app-pretix"]}
+        )
+
+        self.assertNotEqual(
+            member,
+            outsider,
+            "a service flag may read group_names, so one host's payload must "
+            "never answer for a host whose groups differ",
+        )
+
+    def test_group_order_does_not_split_the_key(self):
+        first = base._stable_variables_signature({"group_names": ["a", "b"]})
+        second = base._stable_variables_signature({"group_names": ["b", "a"]})
+
+        self.assertEqual(first, second)
 
     def test_includes_domain_primary_and_email_domain_strings(self):
         sig = base._stable_variables_signature(

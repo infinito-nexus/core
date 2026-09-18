@@ -47,7 +47,7 @@ bridgy-fed:
     swarm:
       enabled: true
   image: python
-  version: 3.14-bookworm
+  version: 3.14-slim
   name: web-app-bridgy-fed
   repository: https://github.com/snarfed/bridgy-fed.git
   # nocheck: repository-version -- upstream publishes no tags, so the pin is a commit

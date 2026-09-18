@@ -34,6 +34,7 @@ mig:
     swarm:
       enabled: true
   image: ghcr.io/kevinveenbirkenbach/infinito-mig
+  # nocheck: docker-version -- this registry carries exactly 1 tag; the image is built from this project and has no release line yet
   version: latest
   name: mig
   min_storage: 1224MB

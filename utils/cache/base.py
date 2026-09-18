@@ -105,15 +105,24 @@ def _stable_variables_signature(variables: Mapping[str, Any] | None) -> tuple:
     """Build a content-based cache signature from the subset of `variables`
     that influences the merged applications/users payload.
 
+    `group_names` belongs in the key because a service flag may be written as
+    `{{ '<role>' in group_names }}`, so two hosts of one play render different
+    payloads from identical host_vars. Ansible forks its workers, so a payload
+    rendered in the strategy's main process for one host is inherited by every
+    later worker; without this component that payload answers for hosts whose
+    groups say otherwise.
+
     See `_fingerprint_mapping` for why id()-only keys don't work reliably.
     """
     if not variables:
-        return ("0", "0", "", "")
+        return ("0", "0", "", "", "")
+    groups = variables.get("group_names")
     return (
         _fingerprint_mapping(variables.get("applications")),
         _fingerprint_mapping(variables.get("users")),
         str(variables.get("DOMAIN_PRIMARY") or ""),
         str(variables.get("SYSTEM_EMAIL_DOMAIN") or ""),
+        ",".join(sorted(str(group) for group in groups)) if groups else "",
     )
 
 

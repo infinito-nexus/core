@@ -31,7 +31,7 @@ coturn:
   lifecycle: beta
 gateway:
   image: nginx
-  version: alpine
+  version: 1.31.6-alpine
   cpus: "0.3"
   mem_reservation: 256m
   mem_limit: 512m

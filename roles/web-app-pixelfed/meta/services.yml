@@ -49,7 +49,7 @@ pixelfed:
   shared: true
   enabled: true # nocheck: dynamic-flag
   image: zknt/pixelfed
-  version: latest
+  version: "20260917"
   name: pixelfed
   min_storage: 588MB
   backup:

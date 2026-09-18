@@ -12,7 +12,7 @@ openldap:
   shared: true
   provides: ldap
   image: debian
-  version: bookworm-slim
+  version: 12.15-slim
   custom: true
   name: openldap
   min_storage: 229MB

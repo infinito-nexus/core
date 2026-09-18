@@ -55,3 +55,34 @@ from utils.cache.domains import get_merged_domains
 # Tests
 from utils.cache import _reset_cache_for_tests
 ```
+
+## Schema 🗺️
+
+```mermaid
+flowchart TD
+    decl["meta/services.yml<br/>a flag reading group_names<br/>114 role files"]
+    ctor["01_constructor.yml:191<br/>applications_carrier"]
+    fact["_INFINITO_APPLICATIONS_RENDERED<br/>per-host fact"]
+    lookup["lookup('database', ...)<br/>and every applications consumer"]
+    key["base.py:103<br/>_stable_variables_signature"]
+    proc["_MERGED_APPLICATIONS_CACHE<br/>process-global dict"]
+    render["base.py:198<br/>_render_with_templar"]
+    consumer["database.py:121<br/>central_enabled = shared"]
+    name["postgres_postgres<br/>vs pretix_database"]
+
+    decl -->|"read by"| render
+    ctor -->|"parks"| fact
+    lookup -->|"computes"| key
+    key -->|"1. looked up in"| proc
+    proc -->|"2. miss: falls back to"| fact
+    fact -->|"3. miss: renders"| render
+    render -->|"substitutes group_names,<br/>then stores under key"| proc
+    render --> consumer
+    consumer -->|"selects"| name
+
+    proc -.->|"TRIP-WIRE: read BEFORE the<br/>host's own fact, so an inherited<br/>entry outranks it"| fact
+    render -.->|"TRIP-WIRE: main process renders<br/>task names for one host; forked<br/>workers inherit that entry"| proc
+    key -.->|"TRIP-WIRE: carrier.py:68 stringifies<br/>only one side, so a non-scalar key<br/>part silently never matches again"| fact
+```
+
+The key covers `group_names`. `domains.py` derives from the applications view and shares that dependency; `users` reads `group_names` nowhere.

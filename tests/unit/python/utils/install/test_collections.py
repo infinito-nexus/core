@@ -1,4 +1,6 @@
 import json
+import re
+import shutil
 import subprocess
 import sys
 import unittest
@@ -6,8 +8,46 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from utils import PROJECT_ROOT
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.install.collections import declared_pins, unsatisfied
+
+_DOCKERFILE = PROJECT_ROOT / "Dockerfile"
+_COPY = re.compile(r"^COPY\s+(?P<source>\S+)\s+\$\{INFINITO_SRC_DIR\}/(?P<target>\S+)$")
+
+
+def _materialise_image_slice(destination: Path) -> None:
+    """Reproduce what the image holds when it first runs the collection check.
+
+    The Dockerfile copies a handful of paths, runs ``scripts/install/ansible.sh``
+    against them, and only afterwards copies the rest of the tree. Anything
+    ``utils.install.collections`` imports beyond that slice is absent in the
+    layer that executes it, which no import inside a full checkout can show.
+    The list is read from the Dockerfile rather than restated here, so a COPY
+    added or dropped moves this probe with it.
+
+    The caller must run the slice under ``python -S``. This repository installs
+    ``utils`` into site-packages, so without it the interpreter resolves every
+    submodule from the checkout however the slice is built, and the probe
+    passes on a module that cannot import inside the image.
+
+    Args:
+        destination: an empty directory to build the slice in.
+    """
+    for line in read_text(str(_DOCKERFILE)).splitlines():
+        if line.startswith("COPY . "):
+            return
+        match = _COPY.match(line.strip())
+        if not match:
+            continue
+        source = PROJECT_ROOT / match.group("source")
+        target = destination / match.group("target")
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if source.is_dir():
+            shutil.copytree(source, target, dirs_exist_ok=True)
+        else:
+            shutil.copy2(source, target)
+
 
 _REQUIREMENTS = (
     PROJECT_ROOT / "requirements" / "requirements.galaxy.yml",
@@ -87,6 +127,47 @@ class TestAgainstPyYAML(unittest.TestCase):
         )
 
         self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("community.general", result.stdout)
+
+    def test_the_checker_runs_on_the_slice_the_dockerfile_copies(self):
+        tmp = TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        slice_root = Path(tmp.name)
+        _materialise_image_slice(slice_root)
+        requirements = slice_root / "requirements" / "requirements.galaxy.yml"
+        self.assertTrue(
+            requirements.is_file(),
+            "the Dockerfile stopped copying requirements/ before the ansible "
+            "install layer; this probe needs it to have something to check",
+        )
+
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-S",
+                "-m",
+                "utils.install.collections",
+                str(requirements),
+                str(slice_root / "collections"),
+            ],
+            cwd=str(slice_root),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertNotIn(
+            "ModuleNotFoundError",
+            result.stderr,
+            "utils.install.collections reached for a module the image layer "
+            "that runs it does not hold; keep it on the standard library",
+        )
+        self.assertEqual(
+            result.returncode,
+            1,
+            f"an empty collections dir satisfies nothing, so the checker owes "
+            f"exit 1 and a list; stderr: {result.stderr}",
+        )
         self.assertIn("community.general", result.stdout)
 
 

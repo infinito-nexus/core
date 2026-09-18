@@ -11,6 +11,7 @@ lmstudio:
   backup:
     no_stop_required: true
   image: lmstudio/llmster-preview
+  # nocheck: docker-version -- the repository publishes 2 tags and neither is a version; 'cpu' selects the backend, not a release
   version: cpu
   name: lmstudio
   platform_arch: x86_64

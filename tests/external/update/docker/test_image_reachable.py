@@ -17,6 +17,7 @@ import unittest
 
 from utils.annotations.message import warning
 from utils.docker.image.discovery import iter_role_images, load_yaml
+from utils.docker.image.pin import pull_reference
 from utils.docker.registry import manifest_exists
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.update.base import resolve_max_fetch_workers
@@ -26,6 +27,10 @@ from . import PROJECT_ROOT
 
 def _pull_image(ref) -> str:
     return ref.name if ref.registry == "docker.io" else f"{ref.registry}/{ref.name}"
+
+
+def _display(ref) -> str:
+    return pull_reference(_pull_image(ref), ref.version)
 
 
 class TestDockerImageReachable(unittest.TestCase):
@@ -57,7 +62,7 @@ class TestDockerImageReachable(unittest.TestCase):
 
         for ref in indeterminate:
             warning(
-                f"{ref.role}/{ref.service}: {_pull_image(ref)}:{ref.version} "
+                f"{ref.role}/{ref.service}: {_display(ref)} "
                 f"could not be verified (network / auth / rate-limit)",
                 title="🔍 Unverified Docker image",
                 file=f"roles/{ref.role}/{ROLE_FILE_META_SERVICES}",
@@ -65,12 +70,12 @@ class TestDockerImageReachable(unittest.TestCase):
 
         if missing:
             lines = "\n".join(
-                f"  {ref.role}/{ref.service}: {_pull_image(ref)}:{ref.version}"
+                f"  {ref.role}/{ref.service}: {_display(ref)}"
                 for ref in sorted(missing, key=lambda r: (r.role, r.service))
             )
             self.fail(
-                "These pinned Docker image:version tags do not exist in their "
-                f"registry (HTTP 404):\n{lines}"
+                "These pinned Docker images do not exist in their registry "
+                f"(HTTP 404):\n{lines}"
             )
 
     def test_incomplete_image_version_pairs_warn(self) -> None:

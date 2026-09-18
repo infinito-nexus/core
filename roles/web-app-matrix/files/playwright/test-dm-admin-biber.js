@@ -97,28 +97,31 @@ exports.register = function (shared) {
       await adminPage.keyboard.type(bootstrap);
       await adminPage.keyboard.press("Enter");
 
-      // Biber: wait for admin's invite to propagate, then accept. The flow
-      // mirrors Element's invite UX: (1) click the sidebar tile for admin's
-      // invite (the tile renders with admin's display name but no standalone
-      // Accept button), then (2) click the primary accept action in the invite
-      // view (modern Element labels this "Start chatting" for DMs; older
-      // builds / non-DM invites use "Accept" / "Join"). MUST NOT match
-      // "Decline" / "Decline and block".
       await expect
         .poll(async () => {
           return await biberPage.evaluate(() => {
-            // Step 1: open the invite.
+            const sections = document.querySelectorAll(
+              'button[aria-expanded="false"][aria-label^="Toggle "]',
+            );
+            for (const section of sections) {
+              section.click();
+            }
+
+            // Not scoped to a row wrapper: the list is virtualised and 1.12.27
+            // renders no role=row, aria-level or aria-expanded at all.
             const roomTiles = document.querySelectorAll(
-              "[role='treeitem'], [role='option'], .mx_RoomTile, [data-testid^='room-tile']",
+              'button[aria-label^="Open room"]',
             );
             for (const tile of roomTiles) {
-              const text = (tile.textContent || "").trim();
-              if (/administrator/i.test(text)) {
+              const name = `${tile.getAttribute("aria-label") || ""} ${tile.textContent || ""}`;
+              if (/administrator/i.test(name)) {
                 tile.click();
                 break;
               }
             }
-            // Step 2: click accept.
+
+            // Anchored: "Decline and block" contains an accept-looking word and
+            // clicking it destroys the invite.
             const acceptCandidates = document.querySelectorAll(
               "button, a, [role='button']",
             );
@@ -128,9 +131,6 @@ exports.register = function (shared) {
                 b.click();
               }
             }
-            // Success: invite accepted when the room timeline renders a
-            // message composer for biber (only appears once membership is
-            // `join`). Use the same composer signature as admin's side.
             return !!document.querySelector(
               "div[role='textbox'][contenteditable='true'], textarea[aria-label*='message' i]",
             );

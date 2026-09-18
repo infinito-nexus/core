@@ -4,3 +4,10 @@ whitelist:
     - "blob:"
   script-src:
     - "blob:"
+  style-src-elem:
+    - https://fonts.googleapis.com # nocheck: external-cdn,url
+  font-src:
+    - https://fonts.gstatic.com # nocheck: external-cdn,url
+flags:
+  script-src-elem:
+    unsafe-inline: true # nocheck: csp-unsafe  Reason: the served document carries an inline script of its own at line 38, which csp-checker reports and hlth-csp then fails on

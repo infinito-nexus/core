@@ -129,8 +129,8 @@ class TestStableVariablesSignature(unittest.TestCase):
         _reset_cache_for_tests()
 
     def test_empty_variables_returns_sentinel(self):
-        self.assertEqual(_stable_variables_signature(None), ("0", "0", "", ""))
-        self.assertEqual(_stable_variables_signature({}), ("0", "0", "", ""))
+        self.assertEqual(_stable_variables_signature(None), ("0", "0", "", "", ""))
+        self.assertEqual(_stable_variables_signature({}), ("0", "0", "", "", ""))
 
     def test_captures_key_subset(self):
         sig = _stable_variables_signature(

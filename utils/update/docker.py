@@ -19,6 +19,7 @@ import re
 import time
 import urllib.error
 import urllib.request
+from collections import defaultdict
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from urllib.parse import quote, urlencode
@@ -342,7 +343,53 @@ def find_outdated_updates(repo_root: Path) -> list[DockerImageVersionUpdate]:
         if latest and version_key(entry.version) < version_key(latest):
             updates.append(DockerImageVersionUpdate(entry=entry, latest=latest))
 
-    return updates
+    return _held_to_release_groups(updates, image_tags)
+
+
+def _held_to_release_groups(
+    updates: list[DockerImageVersionUpdate], image_tags: dict[str, list[str]]
+) -> list[DockerImageVersionUpdate]:
+    """Hold every member of a release group to the newest tag all of them
+    publish.
+
+    Several images of one role that currently sit on the same version are one
+    product released together (the four Jitsi components, the six GitLab CNG
+    images). Upstream does not push them atomically, so a run that lands in the
+    window between the first and the last push would raise the ones already
+    there and leave the rest behind, deploying a mixed set.
+
+    Args:
+        updates: the per-entry candidates, before grouping.
+        image_tags: every tag fetched per image, keyed as in the caller.
+
+    Returns:
+        The updates, each group lowered to its common newest tag, and dropped
+        entirely where the group shares no newer tag at all.
+    """
+    groups: dict[tuple[str, str], list[DockerImageVersionUpdate]] = defaultdict(list)
+    for update in updates:
+        groups[(update.entry.role, update.entry.version)].append(update)
+
+    held: list[DockerImageVersionUpdate] = []
+    for group in groups.values():
+        if len(group) == 1:
+            held.extend(group)
+            continue
+        shared = set.intersection(
+            *(set(image_tags.get(update.entry.image, [])) for update in group)
+        )
+        current = group[0].entry.version
+        common = latest_semver(
+            sorted(shared), version_depth(current), version_flavor(current)
+        )
+        if not common or version_key(current) >= version_key(common):
+            continue
+        held.extend(
+            DockerImageVersionUpdate(entry=update.entry, latest=common)
+            for update in group
+        )
+
+    return held
 
 
 def update_config_versions(config_path: Path, service_versions: dict[str, str]) -> bool:

@@ -30,7 +30,7 @@ build:
   # nocheck: single-replica  one-shot npm-mirror build writing the shared served root; parallel replicas would race and duplicate work
   replicas: 1
   image: node
-  version: "26-bookworm"
+  version: "26-slim"
   cpus: "1.0"
   mem_reservation: 128m
   mem_limit: 256m

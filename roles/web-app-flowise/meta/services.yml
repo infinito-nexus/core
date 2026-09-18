@@ -60,12 +60,12 @@ flowise:
     no_stop_required: false
   image: node
   # nocheck: docker-version
-  version: "24-bookworm-slim"
+  version: "24-slim"
   npm_version: 3.1.4
   sqlite_version: 12.11.1
   custom: true
   name: flowise
-  # nocheck: min-storage-headroom  Reason: the deployed image is built here from node:24-bookworm-slim and measures 4.8 GB, so the base image transfer is not its footprint
+  # nocheck: min-storage-headroom  Reason: the deployed image is built here from node:24-slim and measures 4.8 GB, so the base image transfer is not its footprint
   min_storage: 6GB
   cpus: "1.0"
   mem_reservation: 1g

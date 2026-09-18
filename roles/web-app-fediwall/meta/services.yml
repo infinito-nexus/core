@@ -52,7 +52,7 @@ fediwall:
     swarm:
       enabled: true
   image: nginx
-  version: alpine
+  version: 1.31.6-alpine
   custom: true
   upstream:
     version: "1.4.0"

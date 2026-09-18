@@ -46,7 +46,7 @@ distros:
   debian:
     slug: debian
     family: Debian
-    dev_runtime_image: debian:bookworm
+    dev_runtime_image: debian:13
     galaxy_platform: Debian
   ubuntu:
     slug: ubuntu
