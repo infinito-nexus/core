@@ -57,7 +57,9 @@ RUN set -euo pipefail; \
   /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_INTERPRETERS_INSTALL_SCRIPT:?}"
 
 RUN set -euo pipefail; \
-  systemctl mask systemd-firstboot.service first-boot-complete.target || true; \
+  systemctl mask systemd-firstboot.service first-boot-complete.target \
+    systemd-binfmt.service proc-sys-fs-binfmt_misc.automount \
+    proc-sys-fs-binfmt_misc.mount || true; \
   systemd-machine-id-setup || true
 
 ENV container=docker
