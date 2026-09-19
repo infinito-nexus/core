@@ -35,7 +35,7 @@ for d in "${distros[@]}"; do
 		-e NIX_CONFIG="${NIX_CONFIG}" \
 		-e INFINITO_VENV_DIR="${INFINITO_VENV_DIR}" \
 		-v "${src}:/root/Repositories/github.com/kevinveenbirkenbach/infinito-nexus" \
-		"ghcr.io/kevinveenbirkenbach/pkgmgr-${d}:stable" \
+		"ghcr.io/kevinveenbirkenbach/pkgmgr-${d}:latest" \
 		bash -lc '
 			set -euo pipefail
 			make -C "/root/Repositories/github.com/kevinveenbirkenbach/infinito-nexus" install-system-python
