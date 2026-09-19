@@ -2,6 +2,7 @@
 
 Usage:
   python -m cli.meta.ci.plan [--distros "debian"] [--filesystem "zfs"]
+      [--architectures "arm64"]
       [--whitelist "..."] [--priority "..."] [--modes auto]
       [--lifecycles "..."] [--sweep N] [--cli]
 
@@ -50,13 +51,14 @@ _COLUMNS = (
     "mode",
     "distro",
     "filesystem",
+    "architecture",
     "tor",
     "triggered",
     "covered_by",
     "instructions",
     "clone",
 )
-_GLYPH = {"triggered": "enabled", "distro": "distros"}
+_GLYPH = {"triggered": "enabled", "distro": "distros", "architecture": "architectures"}
 _HEADERS = tuple(
     f"{to_emoji(_GLYPH.get(key, key))} {key.replace('_', ' ').capitalize()}"
     for key in _COLUMNS
@@ -79,6 +81,7 @@ def _key(entry: dict[str, str]) -> tuple[str, ...]:
         entry["tor"],
         entry["distro"],
         entry["filesystem"],
+        entry["architecture"],
     )
 
 
@@ -119,6 +122,7 @@ def cells(
                 to_emoji(entry["mode"]),
                 to_emoji(entry["distro"]),
                 to_emoji(entry["filesystem"]),
+                to_emoji(entry["architecture"]),
                 to_emoji("tor" if entry["tor"] == "true" else "clearnet"),
                 status,
                 positions.get(covered, covered) if covered not in ("", "0") else "",
@@ -178,6 +182,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--sweep", type=int, default=None)
     parser.add_argument("--tor", default=None)
     parser.add_argument("--filesystem", default="")
+    parser.add_argument("--architectures", default="")
     parser.add_argument("--offset", default=None)
     parser.add_argument("--cli", action="store_true")
     args = parser.parse_args(argv)
@@ -196,6 +201,7 @@ def main(argv: list[str] | None = None) -> int:
         tor_mode=tor.resolve_tor_mode(args.tor),
         distros=pools.resolve_distros(args.distros),
         filesystems=pools.resolve_filesystems(args.filesystem),
+        architectures=pools.resolve_architectures(args.architectures),
     )
     plan = matrix.chunks_of(entries, matrix.resolve_offset(args.offset))
     rows = cells(entries, plan)

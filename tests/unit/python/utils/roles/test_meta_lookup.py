@@ -18,6 +18,7 @@ from tempfile import TemporaryDirectory
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.roles.meta_lookup import (
     MetaServicesShapeError,
+    get_role_architectures,
     get_role_lifecycle,
     get_role_placement,
     get_role_run_after,
@@ -267,6 +268,69 @@ class TestMetaLookup(unittest.TestCase):
         )
         with self.assertRaises(MetaServicesShapeError):
             get_role_skip(role_dir, role_name="web-app-broken")
+
+
+class TestRoleArchitectures(unittest.TestCase):
+    """``meta/services.yml`` narrows which hardware a role can deploy on."""
+
+    def setUp(self) -> None:
+        self._tmp = TemporaryDirectory()
+        self.fx = _RoleFixtures(Path(self._tmp.name))
+        self.addCleanup(self._tmp.cleanup)
+
+    def test_a_declared_subset_is_returned(self) -> None:
+        role_dir = self.fx.write(
+            "web-app-amd-only",
+            """
+            amd-only:
+              architectures:
+                - amd64
+            """,
+        )
+        self.assertEqual(
+            get_role_architectures(role_dir, role_name="web-app-amd-only"),
+            ["amd64"],
+        )
+
+    def test_no_declaration_means_the_role_takes_whatever_the_run_assigns(
+        self,
+    ) -> None:
+        role_dir = self.fx.write(
+            "web-app-open",
+            """
+            open:
+              lifecycle: beta
+            """,
+        )
+        self.assertEqual(get_role_architectures(role_dir, role_name="web-app-open"), [])
+
+    def test_a_missing_services_file_means_no_declaration(self) -> None:
+        role_dir = Path(self._tmp.name) / "web-app-bare"
+        (role_dir / "meta").mkdir(parents=True, exist_ok=True)
+        self.assertEqual(get_role_architectures(role_dir, role_name="web-app-bare"), [])
+
+    def test_an_unknown_architecture_raises(self) -> None:
+        role_dir = self.fx.write(
+            "web-app-typo",
+            """
+            typo:
+              architectures:
+                - amd65
+            """,
+        )
+        with self.assertRaises(MetaServicesShapeError):
+            get_role_architectures(role_dir, role_name="web-app-typo")
+
+    def test_an_empty_list_raises_instead_of_dropping_every_row(self) -> None:
+        role_dir = self.fx.write(
+            "web-app-empty",
+            """
+            empty:
+              architectures: []
+            """,
+        )
+        with self.assertRaises(MetaServicesShapeError):
+            get_role_architectures(role_dir, role_name="web-app-empty")
 
 
 if __name__ == "__main__":

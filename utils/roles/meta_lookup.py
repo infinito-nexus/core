@@ -28,6 +28,7 @@ from pathlib import Path
 import yaml
 
 from utils.cache.yaml import load_yaml_any
+from utils.github.variant.pools import ARCHITECTURES
 from utils.roles.entity.name import get_entity_name
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_TESTS
 
@@ -228,6 +229,43 @@ def get_role_test_skips(role: PathLike, *, role_name: str | None = None) -> list
             f"(expected a list drawn from {MODES})."
         )
     return [str(m) for m in raw]
+
+
+def get_role_architectures(
+    role: PathLike, *, role_name: str | None = None
+) -> list[str]:
+    """Return the CPU architectures the role can be deployed on, or ``[]`` when
+    it declares none and takes whatever the CI rotation assigns.
+
+    The SPOT is ``meta/services.yml.<primary_entity>.architectures``, next to
+    ``modes``: both state what the role CAN do, which is why the deploy matrix
+    narrows a row by them. ``meta/tests.yml`` is the other kind of statement -
+    what CI should skip exercising - and an image that exists for one
+    architecture only is not a testing preference.
+
+    Raises:
+        MetaServicesShapeError: the key is present but not a non-empty list of
+            known architectures. An unknown value has to abort rather than
+            narrow the row to nothing, which would drop the role out of the
+            matrix while every run stayed green.
+    """
+    role_dir, name = _resolve_role(role, role_name)
+    primary = _primary_entry(name, _read_meta_services(role_dir))
+    if primary is None:
+        return []
+    raw = primary.get("architectures")
+    if raw is None:
+        return []
+    if (
+        not isinstance(raw, list)
+        or not raw
+        or any(value not in ARCHITECTURES for value in raw)
+    ):
+        raise MetaServicesShapeError(
+            f"Invalid architectures in meta/services.yml for role '{name}': "
+            f"{raw!r} (expected a non-empty list drawn from {ARCHITECTURES})."
+        )
+    return [str(value) for value in raw]
 
 
 def get_role_placement(role: PathLike, *, role_name: str | None = None) -> str | None:

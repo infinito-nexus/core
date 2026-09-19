@@ -52,6 +52,11 @@ on:
         required: false
         type: string
         default: ""
+      architectures:
+        description: "🏗️ Architecture pool the deploy matrix spreads its rows over (amd64, arm64). Empty: both."
+        required: false
+        type: string
+        default: ""
       image_wait_attempts:
         description: "Polling attempts for waiting on prebuilt or mirrored images"
         required: false
@@ -99,6 +104,7 @@ jobs:
       tor: ${{ inputs.tor }}
       distros: ${{ inputs.distros }}
       filesystem: ${{ inputs.filesystem }}
+      architectures: ${{ inputs.architectures }}
       lifecycles: ${{ inputs.lifecycles }}
       fork_prereqs: true
       trusted_pr: ${{ inputs.trusted_pr }}
@@ -130,6 +136,7 @@ jobs:
     uses: ./.github/workflows/call-images-build-ci.yml
     with:
       distros: "arch debian ubuntu fedora centos"
+      architectures: ${{ inputs.architectures }}
       concurrency_channel: ci-orchestrator-build-consumer
     secrets: inherit
 
@@ -179,6 +186,7 @@ jobs:
       lifecycles: ${{ inputs.lifecycles }}
       modes: ${{ inputs.mode }}
       filesystem: ${{ inputs.filesystem }}
+      architectures: ${{ inputs.architectures }}
       tor: ${{ inputs.tor }}
 
   test-deploy-chunk-1:
@@ -210,6 +218,7 @@ jobs:
       lifecycles: ${{ inputs.lifecycles }}
       modes: ${{ inputs.mode }}
       filesystem: ${{ inputs.filesystem }}
+      architectures: ${{ inputs.architectures }}
       tor: ${{ inputs.tor }}
 
   test-deploy-chunk-2:
@@ -243,6 +252,7 @@ jobs:
       lifecycles: ${{ inputs.lifecycles }}
       modes: ${{ inputs.mode }}
       filesystem: ${{ inputs.filesystem }}
+      architectures: ${{ inputs.architectures }}
       tor: ${{ inputs.tor }}
 
   test-deploy-chunk-3:
@@ -278,6 +288,7 @@ jobs:
       lifecycles: ${{ inputs.lifecycles }}
       modes: ${{ inputs.mode }}
       filesystem: ${{ inputs.filesystem }}
+      architectures: ${{ inputs.architectures }}
       tor: ${{ inputs.tor }}
 
   test-runner-smoke:

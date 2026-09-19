@@ -1,8 +1,12 @@
 """Turn a run's deploy jobs back into selection tokens.
 
 A deploy job title carries the whole row it deployed -- role, variant, mode,
-onion state, distro, filesystem -- and :mod:`utils.github.variant.selection`
-is the grammar that writes it back down.
+onion state, distro, filesystem, architecture -- and
+:mod:`utils.github.variant.selection` is the grammar that writes it back down.
+
+The architecture is replayed like the distro rather than left to the rotation:
+it is the machine the job ran on, not a preference the deploy may fall back
+from, so the title states what it actually was.
 
 The filesystem is the one axis a token built here leaves out. The title states
 the kind the matrix *assigned*, which a deploy is allowed to fall back from
@@ -63,6 +67,7 @@ def failed_selections(jobs: list[dict], *, strict: bool = False) -> list[str]:
                     label.mode,
                     label.tor,
                     label.distro or None,
+                    architecture=label.architecture or None,
                 )
             )
         )

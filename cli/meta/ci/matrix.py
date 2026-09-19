@@ -3,7 +3,7 @@
 Usage:
   python -m cli.meta.ci.matrix --index N [--sweep S] [--modes auto]
       [--whitelist "..."] [--priority "..."] [--lifecycles "..."] [--tor auto]
-      [--distros "..."] [--filesystem "..."]
+      [--distros "..."] [--filesystem "..."] [--architectures "..."]
 
 This is the pipeline the deploy jobs discover through, and the single place
 the run's shape is decided:
@@ -15,8 +15,8 @@ the run's shape is decided:
    Concatenated, they are the sweep's ordered candidate list. Both lists are
    selection tokens (:mod:`utils.github.variant.selection`): what a token pins
    narrows the row, what it leaves open the line decides as it always did.
-2. Every row is assigned its deploy mode, tor state, distro and filesystem by
-   its position in that list (:mod:`utils.github.variant.axes`).
+2. Every row is assigned its deploy mode, tor state, distro, filesystem and
+   CPU architecture by its position in that list (:mod:`utils.github.variant.axes`).
 3. The list is cut into serial chunks with a hard boundary at the
    priority/regular seam (:mod:`cli.meta.ci.chunks`), sized by the run's job
    and queue budget (:mod:`cli.meta.ci.slots`).
@@ -91,6 +91,7 @@ def entries_of(
     tor_mode: str,
     distros: tuple[str, ...],
     filesystems: tuple[str, ...],
+    architectures: tuple[str, ...] = pools.ARCHITECTURES,
 ) -> list[dict[str, str]]:
     """Every candidate row of the sweep, axes assigned, in global order."""
     return axes.assign(
@@ -104,6 +105,7 @@ def entries_of(
         tor_mode=tor_mode,
         distros=distros,
         filesystems=filesystems,
+        architectures=architectures,
         variants_per_app=get_variants(),
     )
 
@@ -186,6 +188,7 @@ def build_sweep(
     tor_mode: str,
     distros: tuple[str, ...],
     filesystems: tuple[str, ...],
+    architectures: tuple[str, ...] = pools.ARCHITECTURES,
     offset: int = 0,
 ) -> list[list[dict[str, str]]]:
     """Every chunk of the sweep, priority blocks first."""
@@ -199,6 +202,7 @@ def build_sweep(
             tor_mode=tor_mode,
             distros=distros,
             filesystems=filesystems,
+            architectures=architectures,
         ),
         offset,
     )
@@ -217,6 +221,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--tor", default=None)
     parser.add_argument("--distros", default="")
     parser.add_argument("--filesystem", default="")
+    parser.add_argument("--architectures", default="")
     parser.add_argument("--offset", default=None)
     args = parser.parse_args(argv)
 
@@ -234,6 +239,7 @@ def main(argv: list[str] | None = None) -> int:
         tor_mode=tor.resolve_tor_mode(args.tor),
         distros=pools.resolve_distros(args.distros),
         filesystems=pools.resolve_filesystems(args.filesystem),
+        architectures=pools.resolve_architectures(args.architectures),
         offset=resolve_offset(args.offset),
     )
     chunk = plan[args.index] if 0 <= args.index < len(plan) else []

@@ -28,5 +28,5 @@ jobs:
             echo "${key}=${value}" >> "$GITHUB_ENV"
           done
 
-      - name: 📦 Install & test in every pkgmgr virgin container (parallel)
+      - name: 📦 Install & test in every distribution base container (parallel)
         run: ./scripts/tests/install/make.sh

@@ -30,6 +30,7 @@ def _entry(
         "clone": "true" if clone else "false",
         "distro": "debian",
         "filesystem": "zfs",
+        "architecture": "arm64",
         "label": f"{to_emoji(mode)}{app} {variant}",
     }
 
@@ -130,6 +131,11 @@ class TestCells(unittest.TestCase):
         filesystem = plan._COLUMNS.index("filesystem")
         self.assertTrue(all(row[distro] == to_emoji("debian") for row in rows))
         self.assertTrue(all(row[filesystem] == to_emoji("zfs") for row in rows))
+
+    def test_every_row_carries_its_architecture_glyph(self) -> None:
+        rows = plan.cells(_ENTRIES, [_PRIORITY, _REGULAR])
+        architecture = plan._COLUMNS.index("architecture")
+        self.assertTrue(all(row[architecture] == to_emoji("arm64") for row in rows))
 
 
 class TestRender(unittest.TestCase):

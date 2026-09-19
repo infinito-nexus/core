@@ -12,7 +12,7 @@ from cli.administration.deploy.ci.trigger import __main__ as trigger
 from cli.meta.ci import matrix
 from tests.utils.ci.job_names import deploy_job_name
 from tests.utils.ci.run_name import render
-from utils.github.variant.pools import DISTROS, FILESYSTEMS
+from utils.github.variant.pools import ARCHITECTURES, DISTROS, FILESYSTEMS
 
 
 def _job(mode: str, app: str, conclusion: str) -> dict:
@@ -39,9 +39,11 @@ _JOBS = [
     _job("swarm", "web-app-y", "success"),
 ]
 
-_AXES = f"%{DISTROS[0]}"
-"""The distro glyph _JOBS carry, spelled back out as ASCII. The filesystem is
-deliberately absent: a title states the assigned kind, not the effective one."""
+_AXES = f"%{DISTROS[0]}:{ARCHITECTURES[0]}"
+"""The distro and architecture glyphs _JOBS carry, spelled back out as ASCII.
+The filesystem is deliberately absent: a title states the assigned kind, not
+the effective one, while the architecture is the machine the job really ran
+on."""
 
 _FAILED_TOKENS = (
     f"web-app-x#0,1@swarm+clearnet{_AXES} web-app-y#0,1@compose+clearnet{_AXES}"

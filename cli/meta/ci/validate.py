@@ -3,6 +3,7 @@
 Usage:
   python -m cli.meta.ci.validate [--whitelist "..."] [--priority "..."]
       [--modes auto] [--tor auto] [--distros "..."] [--filesystem "..."]
+      [--architectures "..."]
       [--lifecycles "..."]
 
 A selection token names a row that has to exist *on this branch*
@@ -20,7 +21,8 @@ What makes a token bad, in the order this checks it:
 * it pins a variant the role does not declare (any more): the usual case is a
   list carried over from an older run whose variants have since been renumbered;
 * it pins a mode the row cannot take, an onion state the row, the mode or the
-  run's own tor axis rules out, or a distro or filesystem the run's own pool
+  run's own tor axis rules out, or a distro, filesystem or architecture the
+  run's own pool
   does not hold.
 
 A bare role name that matches nothing is reported too, but as a warning: the
@@ -45,6 +47,7 @@ def problems(
     tor_mode: str,
     distros: tuple[str, ...],
     filesystems: tuple[str, ...],
+    architectures: tuple[str, ...] = pools.ARCHITECTURES,
     lifecycles: str,
     label: str,
 ) -> tuple[list[str], list[str]]:
@@ -63,6 +66,8 @@ def problems(
         tor_mode: the run's tor axis.
         distros: the distro pool the run draws from.
         filesystems: the filesystem pool the run draws from.
+        architectures: the CPU architecture pool the run draws from; a role
+            that declares its own narrows it further.
         lifecycles: the run's lifecycle envelope.
         label: the input's name, for the messages.
 
@@ -114,10 +119,12 @@ def problems(
                     pin_tor=pin.tor,
                     pin_distro=pin.distro,
                     pin_filesystem=pin.filesystem,
+                    pin_architecture=pin.architecture,
                     capable=tor.tor_capable(pin.app, variant, declared),
                     tor_mode=tor_mode,
                     distros=distros,
                     filesystems=filesystems,
+                    architectures=axes.row_architectures(pin.app, architectures),
                 )
             except SystemExit as refusal:
                 errors.append(f"{label}: {token!r} {str(refusal).split(': ', 1)[-1]}")
@@ -134,6 +141,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--tor", default=None)
     parser.add_argument("--distros", default="")
     parser.add_argument("--filesystem", default="")
+    parser.add_argument("--architectures", default="")
     parser.add_argument("--lifecycles", default="")
     args = parser.parse_args(argv)
 
@@ -141,6 +149,7 @@ def main(argv: list[str] | None = None) -> int:
     tor_mode = tor.resolve_tor_mode(args.tor)
     distros = pools.resolve_distros(args.distros)
     filesystems = pools.resolve_filesystems(args.filesystem)
+    architectures = pools.resolve_architectures(args.architectures)
 
     errors: list[str] = []
     warnings: list[str] = []
@@ -151,6 +160,7 @@ def main(argv: list[str] | None = None) -> int:
             tor_mode=tor_mode,
             distros=distros,
             filesystems=filesystems,
+            architectures=architectures,
             lifecycles=args.lifecycles,
             label=label,
         )
