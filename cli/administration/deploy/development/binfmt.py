@@ -9,7 +9,12 @@ import subprocess
 PROBE_IMAGE = "alpine:3"
 INSTALLER_IMAGE = "tonistiigi/binfmt"
 
-_HOST_ALIASES = {"x86_64": "amd64", "amd64": "amd64", "aarch64": "arm64", "arm64": "arm64"}
+_HOST_ALIASES = {
+    "x86_64": "amd64",
+    "amd64": "amd64",
+    "aarch64": "arm64",
+    "arm64": "arm64",
+}
 
 
 def host_architecture() -> str:
@@ -20,7 +25,15 @@ def host_architecture() -> str:
 def _can_execute(architecture: str) -> bool:
     return (
         subprocess.run(
-            ["docker", "run", "--rm", "--platform", f"linux/{architecture}", PROBE_IMAGE, "true"],
+            [
+                "docker",
+                "run",
+                "--rm",
+                "--platform",
+                f"linux/{architecture}",
+                PROBE_IMAGE,
+                "true",
+            ],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             check=False,
@@ -32,7 +45,12 @@ def _can_execute(architecture: str) -> bool:
 def ensure(platform_ref: str | None = None) -> None:
     """No-op when nothing is pinned or it is the host's own; raises SystemExit
     when the handler cannot be registered."""
-    pinned = (platform_ref if platform_ref is not None else os.environ.get("INFINITO_DOCKER_PLATFORM", "")).strip()
+    raw = (
+        platform_ref
+        if platform_ref is not None
+        else os.environ.get("INFINITO_DOCKER_PLATFORM")
+    )
+    pinned = (raw or "").strip()
     if not pinned:
         return
 
@@ -42,7 +60,15 @@ def ensure(platform_ref: str | None = None) -> None:
 
     print(f">>> Registering binfmt emulation for {pinned}")
     subprocess.run(
-        ["docker", "run", "--privileged", "--rm", INSTALLER_IMAGE, "--install", architecture],
+        [
+            "docker",
+            "run",
+            "--privileged",
+            "--rm",
+            INSTALLER_IMAGE,
+            "--install",
+            architecture,
+        ],
         stdout=subprocess.DEVNULL,
         check=False,
     )
