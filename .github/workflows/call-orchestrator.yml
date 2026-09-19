@@ -37,6 +37,11 @@ on:
         required: false
         type: string
         default: "0"
+      chunk_size:
+        description: "📦 Rows one chunk holds. Empty or 0 derives it from the runner slots a chunk may assume and the waves the queue window affords. Typed string for the same reason as resume_from_chunk."
+        required: false
+        type: string
+        default: "0"
       resume_from_chunk:
         description: "⏭️ Skip every chunk below this index. Use to continue a sweep after fixing what broke it, instead of re-running the green chunks. Typed string, not number: a workflow_dispatch number input reaches the caller as a string, and handing that to a number-typed workflow_call input makes GitHub reject the job before it is created."
         required: false
@@ -181,6 +186,7 @@ jobs:
       index: "0"
       sweep: ${{ inputs.sweep != '' && inputs.sweep || github.run_number }}
       offset: ${{ inputs.offset }}
+      chunk_size: ${{ inputs.chunk_size }}
       whitelist: ${{ inputs.whitelist }}
       priority: ${{ inputs.priority }}
       lifecycles: ${{ inputs.lifecycles }}
@@ -213,6 +219,7 @@ jobs:
       index: "1"
       sweep: ${{ inputs.sweep != '' && inputs.sweep || github.run_number }}
       offset: ${{ inputs.offset }}
+      chunk_size: ${{ inputs.chunk_size }}
       whitelist: ${{ inputs.whitelist }}
       priority: ${{ inputs.priority }}
       lifecycles: ${{ inputs.lifecycles }}
@@ -247,6 +254,7 @@ jobs:
       index: "2"
       sweep: ${{ inputs.sweep != '' && inputs.sweep || github.run_number }}
       offset: ${{ inputs.offset }}
+      chunk_size: ${{ inputs.chunk_size }}
       whitelist: ${{ inputs.whitelist }}
       priority: ${{ inputs.priority }}
       lifecycles: ${{ inputs.lifecycles }}
@@ -283,6 +291,7 @@ jobs:
       index: "3"
       sweep: ${{ inputs.sweep != '' && inputs.sweep || github.run_number }}
       offset: ${{ inputs.offset }}
+      chunk_size: ${{ inputs.chunk_size }}
       whitelist: ${{ inputs.whitelist }}
       priority: ${{ inputs.priority }}
       lifecycles: ${{ inputs.lifecycles }}

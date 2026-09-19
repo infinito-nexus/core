@@ -5,6 +5,27 @@
     state: directory
     mode: "0755"
 
+- name: "🗄️ Measure the free space the models have to fit into"
+  ansible.builtin.command: "df -P -B1 {{ LMSTUDIO_MODEL_CACHE_DIR | quote }}"
+  register: lmstudio_cache_space
+  changed_when: false
+
+- name: "🛑 Refuse to fetch models the hosting node cannot hold"
+  vars:
+    _free: "{{ lmstudio_cache_space.stdout_lines[1].split()[3] | int }}"
+    _required: "{{ LMSTUDIO_PRELOAD_REQUIRED_BYTES | int }}"
+  ansible.builtin.fail:
+    msg: >-
+      The declared LM Studio models need {{ (_required | int / 1024 / 1024 / 1024)
+      | round(1) }} GiB on {{ LMSTUDIO_HOST_NODE }} but only {{ (_free | int / 1024
+      / 1024 / 1024) | round(1) }} GiB is free. That is
+      {{ LMSTUDIO_PRELOAD_COPIES_ON_DISK }} times the
+      {{ (LMSTUDIO_PRELOAD_BYTES | int / 1024 / 1024 / 1024) | round(1) }} GiB the
+      models declare, because the node cache, the staging copy inside the container
+      and the models volume all exist at once during the import. Shrink
+      AI_LOCAL_MODELS in group_vars/all/16_ai.yml or give the node more disk.
+  when: _free | int < _required | int
+
 - name: "⬇️ Warm the model cache on the node, best effort"
   get_url_retry:
     url: "{{ model.source }}/resolve/main/{{ model.file }}"
@@ -18,7 +39,19 @@
   changed_when: false
   failed_when: false
 
-- name: "📋 Hand a warmed model to LM Studio, best effort"
+- name: "🪞 Warm the model cache from a mirror when the source stayed silent"
+  get_url_retry:
+    url: "{{ item.1 }}/resolve/main/{{ item.0.file }}"
+    dest: "{{ LMSTUDIO_MODEL_CACHE_DIR }}/{{ item.0.file }}"
+    checksum: "sha256:{{ item.0.sha256 }}"
+    mode: "0644"
+  loop: "{{ LMSTUDIO_PRELOAD_MODELS | subelements('mirrors', skip_missing=True) }}"
+  loop_control:
+    label: "{{ item.0.file }} from {{ item.1 }}"
+  changed_when: false
+  failed_when: false
+
+- name: "📋 Hand the warmed model to LM Studio"
   ansible.builtin.script: shell/import.sh
   environment:
     LMSTUDIO_LOCAL_CID: "{{ LMSTUDIO_LOCAL_CID }}"
@@ -30,4 +63,3 @@
     loop_var: model
     label: "{{ model.file }}"
   changed_when: false
-  failed_when: false

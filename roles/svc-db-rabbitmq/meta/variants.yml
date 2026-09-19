@@ -2,6 +2,3 @@
 - services:
     tor:
       enabled: true
-- services:
-    tor:
-      enabled: true

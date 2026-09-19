@@ -36,7 +36,7 @@ fider:
     swarm:
       enabled: true
   image: getfider/fider
-  version: v0.36.0
+  version: stable # nocheck: docker-version  upstream released v0.36.1 on GitHub but never pushed that tag; its build ships only as `stable`, and v0.36.0 predates ALLOW_PRIVATE_NETWORK_TARGETS, without which the OAuth token exchange against an internally resolving Keycloak is refused. TODO: pin the semver tag once upstream publishes one.
   name: fider
   min_storage: 400MB
   backup:

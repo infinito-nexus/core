@@ -13,21 +13,21 @@ flowchart TB
     pr["pull_request: opened, synchronize, reopened, ready_for_review"] --> eprc["entry-pr-change-orchestrate.yml"]
     dispatch["workflow_dispatch"] --> eman["entry-manual-steer.yml"]
 
-    epl --> orch["ci-orchestrator.yml"]
-    epl -->|"version tag on main"| relv["release-version.yml"]
+    epl --> orch["call-orchestrator.yml"]
+    epl -->|"version tag on main"| relv["call-release-version.yml"]
     eprc --> orch
-    eprc -->|"fork PRs: privileged prebuild"| imgbuild["images-build-ci.yml"]
-    eprc -->|"fork PRs: privileged prebuild"| imgmirror["images-mirror-missing.yml"]
+    eprc -->|"fork PRs: privileged prebuild"| imgbuild["call-images-build-ci.yml"]
+    eprc -->|"fork PRs: privileged prebuild"| imgmirror["call-images-mirror-missing.yml"]
     eman --> orch
 
-    subgraph orchestrator["ci-orchestrator.yml jobs"]
+    subgraph orchestrator["call-orchestrator.yml jobs"]
         waitfork["wait-fork-prereq-run"] --> forkready["fork-prereqs-ready"]
 
-        lintwf["lint.yml: make lint + hadolint"]
-        testwf["test.yml: make test"]
+        lintwf["call-lint.yml: make lint + hadolint"]
+        testwf["call-test.yml: make test"]
         codeql["cron-security-codeql.yml"]
-        buildci["build-ci-images: images-build-ci.yml"] --> dns["test-dns.yml"]
-        mirror["images-mirror-missing.yml"]
+        buildci["build-ci-images: call-images-build-ci.yml"] --> dns["call-test-dns.yml"]
+        mirror["call-images-mirror-missing.yml"]
 
         subgraph chain["serial chunk chain"]
             chunk0["test-deploy-chunk-0"]
@@ -42,12 +42,12 @@ flowchart TB
         mirror --> chain
         buildci --> chain
 
-        chunk0 --> smoke["test-runner-smoke.yml"]
+        chunk0 --> smoke["call-test-runner-smoke.yml"]
         chain --> report["report-main-failures"]
 
-        instmake["test-install-make.yml"]
-        instpkgmgr["test-install-pkgmgr.yml"]
-        mirror --> devenv["test-workspace: test-workspace.yml"]
+        instmake["call-test-install-make.yml"]
+        instpkgmgr["call-test-install-pkgmgr.yml"]
+        mirror --> devenv["test-workspace: call-test-workspace.yml"]
 
         chain --> donegate["done"]
         smoke --> donegate
@@ -333,12 +333,12 @@ flowchart TB
     pushmain["push: main"] --> updatewf
     prtarget["pull_request_target: opened, reopened"] --> depclose["entry-pr-open-dependabot-close.yml"]
 
-    relhighest -.->|"gh workflow run"| relver["release-version.yml"]
-    relver --> imgbuildci["images-build-ci.yml"]
-    manual["workflow_dispatch"] --> mirrorcleanup["images-mirror-cleanup.yml"]
+    relhighest -.->|"gh workflow run"| relver["call-release-version.yml"]
+    relver --> imgbuildci["call-images-build-ci.yml"]
+    manual["workflow_dispatch"] --> mirrorcleanup["entry-manual-mirror-cleanup.yml"]
 ```
 
 Also manually dispatchable: `cron-images-mirror-all.yml`, `cron-images-cleanup-ci.yml`,
 `cron-cleanup-stale.yml`, `cron-update.yml`, `cron-release-highest.yml`, `call-release-version.yml`,
 `call-lint.yml`, `call-test.yml`, `call-test-dns.yml`,
-`test-workspace.yml`, `test-runner-smoke.yml`.
+`call-test-workspace.yml`, `call-test-runner-smoke.yml`.

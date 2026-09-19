@@ -2,6 +2,11 @@
 - name: ⬇️ Pre-pull LM Studio models
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -i {{ LMSTUDIO_LOCAL_CID | quote }} lms get --yes --gguf {{ model.source | quote }}
+  environment:
+    CONTAINER_EXEC_TIMEOUT: >-
+      {{ [ LMSTUDIO_PRELOAD_FLOOR_SECONDS | int,
+           ((model.bytes | int) / (LMSTUDIO_PRELOAD_MIN_BYTES_PER_SECOND | int))
+           | round(0, 'ceil') | int ] | max }}
   register: lmstudio_pull_result
   loop: "{{ LMSTUDIO_PRELOAD_MODELS }}"
   loop_control:

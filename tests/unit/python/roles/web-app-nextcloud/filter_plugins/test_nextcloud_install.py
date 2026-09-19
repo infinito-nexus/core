@@ -12,6 +12,11 @@ SOCKS_ERROR = (
     "for https://garm3.nextcloud.com/api/v1/apps.json"
 )
 TIMEOUT_ERROR = "cURL error 28: Connection timed out after 120002 milliseconds"
+ARTIFACT_404 = (
+    "Error: Client error: `GET https://github.com/ONLYOFFICE/onlyoffice-nextcloud"
+    "/releases/download/v10.2.0/onlyoffice.tar.gz` resulted in a "
+    "`404 Not Found` response:\nNot Found"
+)
 
 
 def _load_module(rel_path: str, name: str):
@@ -53,6 +58,11 @@ class TestNextcloudInstallStatus(unittest.TestCase):
 
     def test_a_timed_out_fetch_is_not_an_absent_release(self):
         status = _status(stdout=APPSTORE_MISS, stderr=TIMEOUT_ERROR)
+        self.assertFalse(status["unavailable"])
+        self.assertFalse(_tolerated(status))
+
+    def test_an_advertised_release_whose_artifact_is_gone_stays_fatal(self):
+        status = _status(stdout=ARTIFACT_404)
         self.assertFalse(status["unavailable"])
         self.assertFalse(_tolerated(status))
 

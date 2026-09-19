@@ -188,6 +188,36 @@ class TestApplyServicesDisabled(unittest.TestCase):
         dump_yaml(role_dir / ROLE_FILE_META_SERVICES, services)
         dump_yaml(role_dir / ROLE_FILE_VARS_MAIN, {"application_id": role_name})
 
+    def test_a_role_without_shared_in_its_contract_does_not_get_one(self):
+        self._write_host_vars(
+            {"applications": {"web-svc-cdn": {"services": {"dashboard": {}}}}}
+        )
+        self._make_role("web-svc-cdn", {"dashboard": {"enabled": False}})
+
+        apply_services_disabled(self.host_vars, ["dashboard"], self.roles_dir)
+
+        service = self._read_host_vars()["applications"]["web-svc-cdn"]["services"][
+            "dashboard"
+        ]
+        self.assertEqual(False, service["enabled"])
+        self.assertNotIn("shared", service)
+
+    def test_a_role_declaring_both_toggles_still_gets_both(self):
+        self._write_host_vars(
+            {"applications": {"web-app-nextcloud": {"services": {"dashboard": {}}}}}
+        )
+        self._make_role(
+            "web-app-nextcloud", {"dashboard": {"enabled": True, "shared": True}}
+        )
+
+        apply_services_disabled(self.host_vars, ["dashboard"], self.roles_dir)
+
+        service = self._read_host_vars()["applications"]["web-app-nextcloud"][
+            "services"
+        ]["dashboard"]
+        self.assertEqual(False, service["enabled"])
+        self.assertEqual(False, service["shared"])
+
     def test_disables_service_in_host_vars_and_removes_from_inventory(self):
         self._write_host_vars(
             {

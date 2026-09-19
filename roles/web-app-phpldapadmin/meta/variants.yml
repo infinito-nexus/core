@@ -52,24 +52,3 @@
       shared: false
     tor:
       enabled: true
-- services:
-    sso:
-      enabled: false
-      shared: false
-    css:
-      enabled: false
-      shared: false
-    dashboard:
-      enabled: false
-      shared: false
-    logout:
-      enabled: false
-      shared: false
-    matomo:
-      enabled: false
-      shared: false
-    prometheus:
-      enabled: false
-      shared: false
-    tor:
-      enabled: true

@@ -51,6 +51,7 @@ BUILTIN_FILTERS: set[str] = {
     "sort",
     "string",
     "striptags",
+    "subelements",
     "sum",
     "title",
     "trim",

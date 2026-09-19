@@ -18,6 +18,11 @@ NEXTCLOUD_OIDC_HOST: "{{ lookup('tls', 'web-app-keycloak', 'domain') }}"
 NEXTCLOUD_TOR_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') }}"
 
 NEXTCLOUD_PLUGIN_ITEMS: "{{ lookup('config', application_id, 'addons') | dict2items }}"
+NEXTCLOUD_PINNED_PLUGINS: >-
+  {{ NEXTCLOUD_PLUGIN_ITEMS
+     | selectattr('value.config.archive', 'defined')
+     | selectattr('value.enabled', 'true')
+     | map(attribute='key') | list }}
 NEXTCLOUD_PLUGINS_ENABLED: "{{ lookup('config', application_id, 'services.nextcloud.plugins_enabled') }}"
 NEXTCLOUD_USER_LDAP_ENABLED: "{{ lookup('config', application_id, 'addons.user_ldap.enabled') }}"
 NEXTCLOUD_LDAP_CONFIG_PREFIX: "s01"
@@ -221,7 +226,9 @@ NEXTCLOUD_DOCKER_USER: "www-data"
 NEXTCLOUD_FPM_PORT: "{{ lookup('config', application_id, 'services.nextcloud.ports.internal.fpm') }}"
 
 NEXTCLOUD_INTERNAL_OCC_COMMAND: "{{ [ NEXTCLOUD_DOCKER_WORK_DIRECTORY, 'occ'] | path_join }}"
+NEXTCLOUD_APPS_DIRECTORY: "{{ [ NEXTCLOUD_DOCKER_WORK_DIRECTORY, 'custom_apps'] | path_join }}"
 NEXTCLOUD_DOCKER_EXEC: "container exec -u {{ NEXTCLOUD_DOCKER_USER }} {{ NEXTCLOUD_LOCAL_CID | quote }}" # nocheck: container-exec-resolver  NEXTCLOUD_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
 NEXTCLOUD_DOCKER_EXEC_OCC: "{{ NEXTCLOUD_DOCKER_EXEC }} {{ NEXTCLOUD_INTERNAL_OCC_COMMAND }}"
+NEXTCLOUD_DOCKER_EXEC_INTERACTIVE: "container exec -i -u {{ NEXTCLOUD_DOCKER_USER }} {{ NEXTCLOUD_LOCAL_CID | quote }}" # nocheck: container-exec-resolver  NEXTCLOUD_LOCAL_CID resolved at delegate_to runtime, as for NEXTCLOUD_DOCKER_EXEC
 
 NEXTCLOUD_REDIS_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'redis') }}"

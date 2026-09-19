@@ -29,5 +29,6 @@ fi
 # nocheck: container-cp - MODEL_FILE is fetched on the node this script runs on
 container cp "${MODEL_FILE}" "${ADDRESS}:/tmp/${BASE}"
 
-container exec "$ADDRESS" lms import "/tmp/${BASE}" --yes --user-repo "${MODEL_USER_REPO}"
+printf 'y\n' | container exec -i "$ADDRESS" lms import "/tmp/${BASE}" --yes --copy --user-repo "${MODEL_USER_REPO}"
+container exec "$ADDRESS" rm -f "/tmp/${BASE}"
 echo "IMPORTED:${BASE}"

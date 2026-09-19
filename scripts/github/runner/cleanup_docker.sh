@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Cleanup pass for the Docker / buildx state on a GitHub-hosted runner.
-# Used by images-build-ci.yml as the always-on tail of the build job to
+# Used by call-images-build-ci.yml as the always-on tail of the build job to
 # free disk before the runner is reused (or recycled).
 set -euo pipefail
 

@@ -21,6 +21,11 @@ on:
         required: false
         type: string
         default: "0"
+      chunk_size:
+        description: "Rows one chunk holds; 0 derives it from the runner slots and the queue window."
+        required: false
+        type: string
+        default: "0"
       whitelist:
         description: "Optional space-separated whitelist of app ids"
         required: false
@@ -200,12 +205,14 @@ jobs:
           INFINITO_CI_SWEEP: ${{ inputs.sweep }}
           INFINITO_CI_CHUNK: ${{ inputs.index }}
           INFINITO_CI_OFFSET: ${{ inputs.offset }}
+          INFINITO_CI_CHUNK_SIZE: ${{ inputs.chunk_size }}
         run: ./scripts/github/resolve/output_apps.sh
 
       - name: 🗺️ Render the plan into the run summary
         shell: bash
         env:
           INFINITO_CI_SWEEP: ${{ inputs.sweep }}
+          INFINITO_CI_CHUNK_SIZE: ${{ inputs.chunk_size }}
           PLAN_DISTROS: ${{ inputs.distros }}
           PLAN_FILESYSTEM: ${{ inputs.filesystem }}
           PLAN_ARCHITECTURES: ${{ inputs.architectures }}

@@ -10,6 +10,7 @@ update:
   catalog: nextcloud-appstore
   upstream_id: onlyoffice
 config:
+  archive: "https://github.com/ONLYOFFICE/onlyoffice-nextcloud/releases/download/v10.1.2/onlyoffice.tar.gz"
   incompatible_plugins:
     - richdocuments
     - fileslibreofficeedit

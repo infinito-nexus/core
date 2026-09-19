@@ -113,7 +113,7 @@ class TestDistrosSpot(unittest.TestCase):
         ref = _MATRIX_REF_RE.match(str(axis))
         self.assertIsNotNone(
             ref,
-            f"test-workspace.yml must derive its matrix from {FILE_META_DISTROS} "
+            f"call-test-workspace.yml must derive its matrix from {FILE_META_DISTROS} "
             f"via fromJson(needs.<job>.outputs.<name>), got {axis!r}.",
         )
         resolver_id, output_name = ref.groups()

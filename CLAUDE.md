@@ -41,6 +41,12 @@ Anything else — restating code, section banners, "Note that …", step narrati
 - For ANY non-trivial command (test runs, deploys, long pipelines), you MUST stream the FULL output to a file under `/tmp/` via `… 2>&1 | tee /tmp/<name>.log` and grep / inspect that file repeatedly instead of re-running the command. Reason: re-running `make test` to "find the failure I just lost" costs 2 minutes per cycle; grepping the saved log costs milliseconds.
 - Default the filename to a meaningful slug + monotonically increasing index (`/tmp/make-test-<slug>-<N>.log`, `/tmp/act-<slug>-<N>.log`) so you can compare runs.
 - Tell the operator the exact `tail -f /tmp/<name>.log` command for background runs, per the existing rule.
+- That pipe **destroys the exit status**: `make test | tee` reports `tee`'s success even when make ends with `Error 2`. You MUST judge such a run by its `📊 per-target wall-clock` table and its `FAILED TARGETS:` line, never by the exit code.
+
+## CI evidence 📊
+
+- A job's green conclusion is **NOT** evidence for a specific change. Before citing a run as proof, you MUST locate the line in that job's log where the change executed: a Playwright spec's `✓` (a leading `-` means the spec was skipped), the env var inside the container, or the command text of an `if:`-gated step. If the string is absent, report the run as silent on the change, not as supporting it.
+- A green run on the fork does not speak for `infinito-nexus/core`. Tags do not follow a fork, and repository variables differ, so a step gated on either never runs there. Check the repository whose failure you are claiming to have fixed.
 
 ## Pushing 🚢
 

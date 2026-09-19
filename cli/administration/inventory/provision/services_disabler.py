@@ -86,6 +86,21 @@ def find_roles_with_service(service_name: str, roles_dir: Path) -> set[str]:
     return role_ids
 
 
+def _declared_toggles(app_id: str, svc_name: str, roles_dir: Path) -> list[str]:
+    """The toggles this role's contract carries for this service, in file order.
+
+    `compare_application_keys` rejects any host_vars key the role contract does
+    not declare, so writing a toggle the role never had turns a `disable=` run
+    into an inventory the validator refuses. 34 service blocks declare
+    `enabled` without `shared`.
+    """
+    services = _load_yaml_mapping_tolerant(roles_dir / app_id / ROLE_FILE_META_SERVICES)
+    entry = services.get(svc_name) if services else None
+    if not isinstance(entry, dict):
+        return []
+    return [flag for flag in ("enabled", "shared") if flag in entry]
+
+
 def find_provider_roles(services: list[str], roles_dir: Path) -> dict[str, str]:
     """
     Return mapping of service_name -> application_id for the provider role of each
@@ -204,17 +219,19 @@ def apply_services_disabled(
                 svc_map = CommentedMap()
                 app_data["services"] = svc_map
 
+            flags = _declared_toggles(app_id, svc_name, roles_dir)
+            if not flags:
+                continue
+
             svc = svc_map.get(svc_name)
             if not isinstance(svc, CommentedMap):
                 svc = CommentedMap()
                 svc_map[svc_name] = svc
-            svc["enabled"] = False
-            svc["shared"] = False
+            for flag in flags:
+                svc[flag] = False
             changed = True
-            print(
-                f"[INFO] disable: {app_id}.services.{svc_name} "
-                "→ enabled=false, shared=false"
-            )
+            written = ", ".join(f"{flag}=false" for flag in flags)
+            print(f"[INFO] disable: {app_id}.services.{svc_name} → {written}")
 
     if changed:
         with host_vars_file.open("w", encoding="utf-8") as f:

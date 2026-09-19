@@ -33,7 +33,7 @@ else
     echo "OK: ${online_count} runner(s) online on GitHub (${RUNNER_GITHUB_OWNER}/${RUNNER_GITHUB_REPO})"
 fi
 
-echo "Dispatching test-runner-smoke.yml against ref=${RUNNER_GIT_REF}..."
+echo "Dispatching call-test-runner-smoke.yml against ref=${RUNNER_GIT_REF}..."
 dispatch_time=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
 dispatch_http=$(${CURL} -sf -o /dev/null -w "%{http_code}" \

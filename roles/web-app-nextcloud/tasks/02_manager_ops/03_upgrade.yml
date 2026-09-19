@@ -22,6 +22,30 @@
   retries: 2
   delay: 3
   until: occ_app_update.rc == 0
+  when: NEXTCLOUD_PINNED_PLUGINS | length == 0
+
+- name: 🔍 Nextcloud | List the apps the appstore offers an update for
+  shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} app:update --all --showonly"
+  register: occ_app_updatable
+  changed_when: false
+  retries: 2
+  delay: 3
+  until: occ_app_updatable.rc == 0
+  when: NEXTCLOUD_PINNED_PLUGINS | length > 0
+
+- name: 🔄 Nextcloud | App update, leaving the pinned releases alone
+  shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} app:update {{ item | quote }}"
+  register: occ_app_update_unpinned
+  changed_when: "'No apps found for update' not in occ_app_update_unpinned.stdout"
+  retries: 2
+  delay: 3
+  until: occ_app_update_unpinned.rc == 0
+  when: NEXTCLOUD_PINNED_PLUGINS | length > 0
+  loop: >-
+    {{ occ_app_updatable.stdout_lines | default([])
+       | select('search', ' new version available')
+       | map('regex_replace', ' new version available.*$', '')
+       | difference(NEXTCLOUD_PINNED_PLUGINS) }}
 
 - name: ➕ Nextcloud | Add missing columns
   shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} db:add-missing-columns"

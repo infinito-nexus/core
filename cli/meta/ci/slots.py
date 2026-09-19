@@ -142,7 +142,15 @@ def waves(repo_root: Path | None = None) -> int:
 
 
 def chunk_size(repo_root: Path | None = None) -> int:
-    """Rows one chunk may hold before its tail risks the queue cancel."""
+    """Rows one chunk may hold before its tail risks the queue cancel.
+
+    ``INFINITO_CI_CHUNK_SIZE`` takes precedence when set; 0 derives the value
+    from the runner slots a chunk may assume and the waves the queue window
+    affords.
+    """
+    override = setting("INFINITO_CI_CHUNK_SIZE")
+    if override > 0:
+        return override
     return setting("INFINITO_CI_CONCURRENCY") * waves(repo_root)
 
 

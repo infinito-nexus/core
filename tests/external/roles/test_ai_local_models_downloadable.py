@@ -52,11 +52,22 @@ def _download_url(entry: dict) -> str:
     return f"{entry['source'].rstrip('/')}/resolve/main/{entry['file']}"
 
 
+def _mirror_urls(entry: dict) -> list[str]:
+    """Every extra base a deploy falls back to, in declaration order."""
+    mirrors = entry.get("mirrors") or []
+    return [
+        f"{str(base).rstrip('/')}/resolve/main/{entry['file']}"
+        for base in mirrors
+        if isinstance(base, str)
+    ]
+
+
 def _upstream_digests(repo_path: str) -> tuple[str, object]:
     """Return (kind, payload) with kind one of ok, warn, unverified.
 
-    On ``ok`` the payload maps each published file name to its sha256, which is
-    what the pin is compared against without transferring the file itself.
+    On ``ok`` the payload maps each published file name to its sha256 and byte
+    count, which is what the pin is compared against without transferring the
+    file itself.
     """
     url = f"{_HUGGINGFACE_PREFIX}api/models/{repo_path}"
     try:
@@ -84,8 +95,9 @@ def _upstream_digests(repo_path: str) -> tuple[str, object]:
             continue
         name = sibling.get("rfilename")
         digest = (sibling.get("lfs") or {}).get("sha256")
+        size = (sibling.get("lfs") or {}).get("size") or sibling.get("size")
         if isinstance(name, str) and isinstance(digest, str):
-            digests[name] = digest
+            digests[name] = {"sha256": digest, "size": size}
     return "ok", digests
 
 
@@ -130,6 +142,9 @@ class TestAiLocalModelsDownloadable(unittest.TestCase):
                 unpinned.append(f"{alias}: 'file' is missing")
             if not isinstance(digest, str) or not _SHA256.match(digest):
                 unpinned.append(f"{alias}: 'sha256' is not 64 hex characters")
+            size = entry.get("bytes")
+            if not isinstance(size, int) or size <= 0:
+                unpinned.append(f"{alias}: 'bytes' is not a positive integer")
 
         self.assertFalse(
             unpinned,
@@ -183,10 +198,17 @@ class TestAiLocalModelsDownloadable(unittest.TestCase):
                 mismatched.append(
                     f"{alias}: {repo_path} no longer publishes {entry['file']}"
                 )
-            elif published != entry["sha256"]:
+                continue
+            if published["sha256"] != entry["sha256"]:
                 mismatched.append(
-                    f"{alias}: {entry['file']} is {published} upstream, "
+                    f"{alias}: {entry['file']} is {published['sha256']} upstream, "
                     f"pinned as {entry['sha256']}"
+                )
+            pinned_size = entry.get("bytes")
+            if published["size"] is not None and published["size"] != pinned_size:
+                mismatched.append(
+                    f"{alias}: {entry['file']} is {published['size']} bytes "
+                    f"upstream, pinned as {pinned_size}"
                 )
 
         self.assertFalse(
@@ -195,6 +217,38 @@ class TestAiLocalModelsDownloadable(unittest.TestCase):
             f"what upstream publishes. Update 'file' and 'sha256' to the value "
             f"the repository serves today:\n"
             + "\n".join(f"  {line}" for line in mismatched),
+        )
+
+    def test_every_declared_mirror_still_serves_the_file(self) -> None:
+        targets = [
+            (str(entry.get("alias") or "<no alias>"), url)
+            for entry in _models()
+            for url in _mirror_urls(entry)
+        ]
+        if not targets:
+            self.skipTest(f"{_AI_VARS_FILE} declares no model mirror")
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=_MAX_WORKERS) as pool:
+            answers = list(pool.map(_reachable, [url for _, url in targets]))
+
+        broken = []
+        for (alias, url), (kind, detail) in zip(targets, answers, strict=True):
+            if kind == "ok":
+                continue
+            if kind == "unverified":
+                warning(
+                    f"{alias}: mirror {url} was not checked ({detail})",
+                    title="Model mirror unverified",
+                    file=_AI_VARS_FILE,
+                )
+                continue
+            broken.append(f"{alias}: mirror {url} answered {detail}")
+
+        self.assertFalse(
+            broken,
+            f"{len(broken)} declared mirror(s) no longer serve the pinned file, so "
+            "they add no redundancy. Drop the entry or point it at a copy that "
+            "answers:\n" + "\n".join(f"  {line}" for line in broken),
         )
 
 

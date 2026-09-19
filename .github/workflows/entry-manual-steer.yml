@@ -63,6 +63,11 @@ on:
         required: false
         default: "0"
         type: string
+      chunk_size:
+        description: "📦 Rows one chunk holds. Empty: derive it from slots and queue window"
+        required: false
+        default: ""
+        type: string
       chunk_gate:
         description: "🛑 Stop the chunk chain at its first failed chunk"
         required: false
@@ -112,6 +117,7 @@ jobs:
       priority: ${{ inputs.priority }}
       sweep: ${{ inputs.sweep }}
       offset: ${{ inputs.offset }}
+      chunk_size: ${{ inputs.chunk_size != '' && inputs.chunk_size || '0' }}
       chunk_gate: ${{ inputs.chunk_gate }}
       filesystem: ${{ inputs.filesystem }}
       architectures: ${{ inputs.architectures }}

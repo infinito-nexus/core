@@ -4,6 +4,24 @@
   ansible.builtin.set_fact:
     plugin_incompatible: "{{ plugin_value.config.incompatible_plugins | default(plugin_value.incompatible_plugins | default([])) }}"
     plugin_mandatory: "{{ plugin_value.config.mandatory | default(plugin_value.mandatory | default(false)) }}"
+    plugin_archive: "{{ plugin_value.config.archive | default(plugin_value.archive | default('')) }}"
+  changed_when: false
+
+- name: "⬇️ Stage the pinned {{ plugin_key }} release on the node"
+  get_url_retry:
+    url: "{{ plugin_archive }}"
+    dest: "/tmp/nextcloud-plugin-{{ plugin_key }}.tar.gz"
+    mode: "0644"
+  when: plugin_archive | length > 0
+
+- name: "📦 Unpack the pinned {{ plugin_key }} release so occ finds it installed"
+  ansible.builtin.shell: >-
+    cat /tmp/nextcloud-plugin-{{ plugin_key }}.tar.gz
+    | {{ NEXTCLOUD_DOCKER_EXEC_INTERACTIVE }}
+    tar -xzf - -C {{ NEXTCLOUD_APPS_DIRECTORY | quote }}
+  args:
+    executable: /bin/bash
+  when: plugin_archive | length > 0
   changed_when: false
 
 - name: "🔴 Disable incompatible plugins for {{ plugin_key }} (batched shell, no async)"
