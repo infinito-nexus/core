@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from . import (
     act_platform_image,
+    docker_platform,
     gha_passthrough,
     github_repository_owner,
     nix_config,
@@ -54,6 +55,7 @@ from .infinito.worker import fetch as worker_fetch
 
 ORDERED_HANDLERS = [
     passthrough,
+    docker_platform,
     distros,
     dir_var_lib,
     dir_backups,
