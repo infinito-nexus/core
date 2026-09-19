@@ -455,7 +455,6 @@ lint: install-lint
 		lint-packages \
 		lint-php \
 		lint-playwright \
-		lint-php \
 		lint-python \
 		lint-ruby \
 		lint-shellcheck \

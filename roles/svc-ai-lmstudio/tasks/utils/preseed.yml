@@ -1,0 +1,118 @@
+---
+- name: "📁 Create the shared model store before the daemons start"
+  ansible.builtin.file:
+    path: "{{ LMSTUDIO_SHARED_MODELS_PATH }}/{{ model.repo }}"
+    state: directory
+    mode: "0755"
+  loop: "{{ LMSTUDIO_PRELOAD_MODELS }}"
+  loop_control:
+    loop_var: model
+    label: "{{ model.file }}"
+
+- name: "📁 Create the staging directory beside the model store"
+  ansible.builtin.file:
+    path: "{{ LMSTUDIO_SHARED_STAGING_PATH }}"
+    state: directory
+    mode: "0755"
+
+- name: "🔍 Read what the shared model store already holds"
+  ansible.builtin.stat:
+    path: "{{ LMSTUDIO_SHARED_MODELS_PATH }}/{{ model.repo }}/{{ model.file }}"
+    checksum_algorithm: sha256
+  register: lmstudio_present
+  changed_when: false
+  loop: "{{ LMSTUDIO_PRELOAD_MODELS }}"
+  loop_control:
+    loop_var: model
+    label: "{{ model.file }}"
+
+- name: "🗄️ Measure the free space the shared model store offers"
+  ansible.builtin.command: "df -P -B1 {{ LMSTUDIO_SHARED_MODELS_PATH | quote }}"
+  register: lmstudio_export_space
+  changed_when: false
+
+- name: "🛑 Refuse to fetch models the shared store cannot hold"
+  vars:
+    _free: "{{ lmstudio_export_space.stdout_lines[1].split()[3] | int }}"
+    _absent: >-
+      {{ lmstudio_present.results
+         | rejectattr('stat.exists')
+         | map(attribute='model.bytes') | map('int') | sum }}
+    _required: "{{ (_absent | int) + (LMSTUDIO_PRELOAD_LARGEST_BYTES | int) }}"
+  ansible.builtin.fail:
+    msg: >-
+      The shared model store on {{ LMSTUDIO_NFS_SERVER }} has
+      {{ (_free | int / 1024 / 1024 / 1024) | round(1) }} GiB free but needs
+      {{ (_required | int / 1024 / 1024 / 1024) | round(1) }} GiB: it is missing
+      {{ (_absent | int / 1024 / 1024 / 1024) | round(1) }} GiB of declared models,
+      plus {{ (LMSTUDIO_PRELOAD_LARGEST_BYTES | int / 1024 / 1024 / 1024) | round(1) }}
+      GiB for the largest one while it stages. Shrink AI_LOCAL_MODELS in
+      group_vars/all/16_ai.yml or grow the export.
+  when: _free | int < _required | int
+
+- name: "⬇️ Fetch the models into the shared store"
+  get_url_retry:
+    url: "{{ model.url }}"
+    dest: "{{ LMSTUDIO_SHARED_MODELS_PATH }}/{{ model.repo }}/{{ model.file }}"
+    tmp_dest: "{{ LMSTUDIO_SHARED_STAGING_PATH }}"
+    checksum: "sha256:{{ model.sha256 }}"
+    mode: "0644"
+  loop: "{{ LMSTUDIO_PRELOAD_MODELS }}"
+  loop_control:
+    loop_var: model
+    label: "{{ model.file }}"
+  register: lmstudio_fetch
+  changed_when: false
+  failed_when: false
+
+- name: "🪞 Fetch from a mirror when the source did not deliver"
+  get_url_retry:
+    url: "{{ item.1 }}"
+    dest: "{{ LMSTUDIO_SHARED_MODELS_PATH }}/{{ item.0.repo }}/{{ item.0.file }}"
+    tmp_dest: "{{ LMSTUDIO_SHARED_STAGING_PATH }}"
+    checksum: "sha256:{{ item.0.sha256 }}"
+    mode: "0644"
+  loop: "{{ LMSTUDIO_PRELOAD_MODELS | subelements('mirrors', skip_missing=True) }}"
+  loop_control:
+    label: "{{ item.0.file }} from {{ item.1 }}"
+  register: lmstudio_fetch_mirror
+  changed_when: false
+  failed_when: false
+
+- name: "🔍 Read back what the shared model store now holds"
+  ansible.builtin.stat:
+    path: "{{ LMSTUDIO_SHARED_MODELS_PATH }}/{{ model.repo }}/{{ model.file }}"
+    checksum_algorithm: sha256
+  register: lmstudio_seeded
+  changed_when: false
+  loop: "{{ LMSTUDIO_PRELOAD_MODELS }}"
+  loop_control:
+    loop_var: model
+    label: "{{ model.file }}"
+
+- name: "🛑 Fail when no source delivered a declared model"
+  vars:
+    _missing: >-
+      {{ lmstudio_seeded.results
+         | rejectattr('stat.exists')
+         | map(attribute='model.file') | list }}
+    _said: >-
+      {{ (lmstudio_fetch.results | map(attribute='msg') | select | list)
+         + (lmstudio_fetch_mirror.results | default([]) | map(attribute='msg') | select | list) }}
+  ansible.builtin.fail:
+    msg: >-
+      The shared model store on {{ LMSTUDIO_NFS_SERVER }} is missing
+      {{ _missing | join(', ') }}. What the sources answered:
+      {{ _said | join(' | ') }}
+  when: _missing | length > 0
+
+- name: "🛑 Fail when a seeded model does not match its checksum"
+  ansible.builtin.fail:
+    msg: >-
+      {{ item.model.file }} in the shared model store on {{ LMSTUDIO_NFS_SERVER }}
+      hashes to {{ item.stat.checksum }}, but AI_LOCAL_MODELS declares
+      {{ item.model.sha256 }}.
+  loop: "{{ lmstudio_seeded.results | selectattr('stat.exists') | list }}"
+  loop_control:
+    label: "{{ item.model.file }}"
+  when: item.stat.checksum != item.model.sha256

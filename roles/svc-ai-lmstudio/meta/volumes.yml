@@ -1,7 +1,17 @@
 ---
-# nocheck: embedded-state-on-nfs model blobs written once on pull and read back afterwards
 lmstudio_data:
   type: volume
+  name: lmstudio_data
+  # nocheck: nfs-false-data-loss  Reason: per-daemon state LM Studio rewrites in place (lms-key-2, settings.json, extensions/plugins, bin/lms, server-logs), regenerated on every start; the models it indexes live in lmstudio_models
+  nfs: false
   mounts:
     - service: lmstudio
       target: /root/.lmstudio
+
+# nocheck: embedded-state-on-nfs content-addressed model blobs only; every writer fetches against the sha256 AI_LOCAL_MODELS declares and the play fails unless the store reads back at that digest, so concurrent writers of one file write identical bytes
+lmstudio_models:
+  type: volume
+  name: lmstudio_models
+  mounts:
+    - service: lmstudio
+      target: /root/.lmstudio/models

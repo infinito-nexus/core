@@ -194,8 +194,7 @@ def _build_usage_indices(repo_root: Path) -> tuple[set[str], set[str], set[str]]
 
     Routes every read through the project's cached helpers:
     * ``iter_project_files_with_content`` walks the path list once
-      per process (``lru_cache(maxsize=1)`` on `_all_project_files`)
-      and reads each file via the cached ``read_text``;
+      per process and reads each file via the cached ``read_text``;
     * ``load_yaml_any`` parses each YAML file once per
       ``(path, mtime, size)`` signature and reuses the parsed
       structure on every later call in the same process — no

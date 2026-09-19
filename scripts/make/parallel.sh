@@ -14,6 +14,12 @@ if [[ $# -eq 0 ]]; then
 	exit 2
 fi
 
+duplicates="$(printf '%s\n' "$@" | sort | uniq -d)"
+if [[ -n "${duplicates}" ]]; then
+	echo "scripts/make/parallel.sh: duplicate target(s): ${duplicates//$'\n'/ }; each table here is keyed by target name, so a repeat overwrites the first run's exit code and log" >&2 # nocheck: self-path-reference
+	exit 2
+fi
+
 # shellcheck source=scripts/meta/env/load.sh
 source scripts/meta/env/load.sh
 

@@ -35,7 +35,7 @@ if "${PYTHON}" -c 'import pytest, xdist' >/dev/null 2>&1; then
 	# the exact set `unittest discover` runs. PYTHONDONTWRITEBYTECODE keeps
 	# namespace probing from dropping __pycache__ into roles/.
 	mkdir -p build/test-reports
-	PYTHONDONTWRITEBYTECODE=1 "${PYTHON}" -m pytest "${_suite_dir}" -q -n auto -rP -p no:cacheprovider \
+	PYTHONDONTWRITEBYTECODE=1 "${PYTHON}" -m pytest "${_suite_dir}" -q -n auto --dist loadscope -rP -p no:cacheprovider \
 		--import-mode=importlib \
 		--junitxml="${_junit_report}" \
 		-o consider_namespace_packages=true \

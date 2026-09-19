@@ -164,5 +164,33 @@ class TestReset(_ProjectRootFixture, unittest.TestCase):
         self.assertEqual(read_text(str(self.root / "x.txt")), "v1-changed")
 
 
+class TestWalkIsKeyedOnTheRoot(_ProjectRootFixture, unittest.TestCase):
+    def test_a_second_root_is_walked_rather_than_answered_from_the_first(
+        self,
+    ) -> None:
+        _touch(self.root / "first.txt", "a")
+        self.assertEqual(
+            {str(self.root / "first.txt")},
+            set(iter_project_files()),
+        )
+
+        with TemporaryDirectory() as other:
+            other_root = Path(other)
+            _touch(other_root / "second.txt", "b")
+            with patch.object(files_module, "PROJECT_ROOT", other_root):
+                self.assertEqual(
+                    {str(other_root / "second.txt")},
+                    set(iter_project_files()),
+                    "the walk answered for the previous root, so a test that "
+                    "points PROJECT_ROOT at a fixture silently sweeps the real "
+                    "repository instead",
+                )
+
+        self.assertEqual(
+            {str(self.root / "first.txt")},
+            set(iter_project_files()),
+        )
+
+
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()

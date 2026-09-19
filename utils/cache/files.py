@@ -54,15 +54,14 @@ _DEFAULT_SKIP_DIRS: frozenset[str] = frozenset(
 )
 
 
-@lru_cache(maxsize=1)
-def _all_project_files() -> tuple[str, ...]:
-    """One-shot filesystem walk from PROJECT_ROOT.
+@lru_cache(maxsize=4)
+def _all_project_files(root_str: str) -> tuple[str, ...]:
+    """One-shot filesystem walk from *root_str*.
 
     Returns absolute paths as a tuple (immutable → safe to cache).
     Pruned at walk-time by `_DEFAULT_SKIP_DIRS`, since those dirs are never
     relevant for any project-tree test and descending into them is pure waste.
     """
-    root_str = str(PROJECT_ROOT)
     paths: list[str] = []
     for dirpath, dirnames, filenames in os.walk(root_str, topdown=True):
         dirnames[:] = [d for d in dirnames if d not in _DEFAULT_SKIP_DIRS]
@@ -87,7 +86,7 @@ def iter_project_files(
             ``exclude_dirs=("docs",)`` skips any file whose path contains a
             ``docs`` segment.
     """
-    all_files = _all_project_files()
+    all_files = _all_project_files(str(PROJECT_ROOT))
     tests_prefix = str(Path(str(PROJECT_ROOT)) / "tests") + os.sep
     ext_lower = tuple(e.lower() for e in extensions) if extensions else None
     exclude_dirs_set = set(exclude_dirs) if exclude_dirs else None

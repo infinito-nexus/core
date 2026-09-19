@@ -8,12 +8,15 @@ LMSTUDIO_PRELOAD_MODELS: "{{ lookup('config', application_id, 'services.lmstudio
 LMSTUDIO_PRELOAD_ASYNC_TIME: "{{ lookup('config', application_id, 'services.lmstudio.preload_async_time') }}"
 LMSTUDIO_PRELOAD_FLOOR_SECONDS: "{{ lookup('config', application_id, 'services.lmstudio.preload_floor_seconds') }}"
 LMSTUDIO_PRELOAD_MIN_BYTES_PER_SECOND: "{{ lookup('config', application_id, 'services.lmstudio.preload_min_bytes_per_second') }}"
-LMSTUDIO_PRELOAD_BYTES: >-
-  {{ LMSTUDIO_PRELOAD_MODELS | map(attribute='bytes') | map('int') | sum }}
-LMSTUDIO_PRELOAD_COPIES_ON_DISK: 3
-LMSTUDIO_PRELOAD_REQUIRED_BYTES: >-
-  {{ (LMSTUDIO_PRELOAD_BYTES | int) * (LMSTUDIO_PRELOAD_COPIES_ON_DISK | int) }}
-LMSTUDIO_CONFIG_DIR: "{{ lookup('container', application_id, 'directories.config') }}"
-LMSTUDIO_MODEL_CACHE_DIR: "{{ [ LMSTUDIO_CONFIG_DIR, 'models' ] | path_join }}"
-LMSTUDIO_HOME_DIR: "{{ lookup('volume', application_id, 'lmstudio_data').target }}"
-LMSTUDIO_MODELS_DIR: "{{ [ LMSTUDIO_HOME_DIR, 'models' ] | path_join }}"
+LMSTUDIO_PRELOAD_LARGEST_BYTES: >-
+  {{ LMSTUDIO_PRELOAD_MODELS | map(attribute='bytes') | map('int') | max }}
+LMSTUDIO_MODELS_TARGET: "{{ lookup('volume', application_id, 'lmstudio_models').target }}"
+LMSTUDIO_NFS_SERVER: "{{ (groups['svc-storage-nfs-server'] | default([]))[0] | default(inventory_hostname) }}"
+LMSTUDIO_SHARED_MODELS_PATH: "{{ [ STORAGE_NFS_STATE_PATH, lookup('volume', application_id, 'lmstudio_models').name ] | path_join }}"
+LMSTUDIO_SHARED_STAGING_PATH: "{{ [ STORAGE_NFS_STATE_PATH, '.lmstudio-staging' ] | path_join }}"
+LMSTUDIO_PRESEED_ENABLED: >-
+  {{ (DEPLOYMENT_MODE == 'swarm')
+     and (storage.backend == 'nfs')
+     and ((groups['svc-storage-nfs-server'] | default([])) | length > 0)
+     and (lookup('volume', application_id, 'lmstudio_models').nfs is not false)
+     and (application_id not in lookup('roles_with_placement', 'manager')) }}

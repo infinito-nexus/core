@@ -1,0 +1,29 @@
+---
+- name: "🔧 Resolve the swarm service name of '{{ entity_name }}'"
+  ansible.builtin.set_fact:
+    lmstudio_service_name: "{{ lookup('container_service', application_id, entity_name) if DEPLOYMENT_MODE == 'swarm' else '' }}"
+
+- name: "⏳ Wait until every LM Studio task has converged"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/wait_converged.yml') }}"
+  vars:
+    wait_service_key: "{{ entity_name }}"
+    wait_service_name: "{{ lmstudio_service_name }}"
+
+- name: "🔍 List every node that runs an LM Studio task"
+  ansible.builtin.shell: |
+    container service ps {{ lmstudio_service_name | quote }} \
+      --filter desired-state=running \
+      --format '{{ "{{.Node}}" }}' | sort -u
+  register: lmstudio_node_scan
+  changed_when: false
+  retries: 30
+  delay: 2
+  until: (lmstudio_node_scan.stdout | trim) | length > 0
+  delegate_to: "{{ STACK_HOST }}"
+  when: DEPLOYMENT_MODE == 'swarm'
+
+- name: "🔧 Set the LM Studio hosting nodes"
+  ansible.builtin.set_fact:
+    LMSTUDIO_HOST_NODES: >-
+      {{ (lmstudio_node_scan.stdout_lines | map('trim') | select | list)
+         if DEPLOYMENT_MODE == 'swarm' else [inventory_hostname] }}

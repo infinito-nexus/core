@@ -19,11 +19,11 @@
   delay: 15
   until: >
     (lmstudio_pull_result.rc | default(0)) == 0 or
-    ('already downloaded' in (lmstudio_pull_result.stdout | default('')))
+    ('You already have this model' in (lmstudio_pull_result.stderr | default('')))
   changed_when: false
   failed_when: >-
     (lmstudio_pull_result.failed | default(false))
-    and 'already downloaded' not in ((lmstudio_pull_result.stdout | default('')) ~ (lmstudio_pull_result.stderr | default('')))
+    and 'You already have this model' not in ((lmstudio_pull_result.stdout | default('')) ~ (lmstudio_pull_result.stderr | default('')))
   delegate_to: "{{ LMSTUDIO_HOST_NODE }}"
 
 - name: "⏳ Reap the LM Studio model pre-pulls"
@@ -35,5 +35,5 @@
     async_reap_jobs: "{{ lmstudio_pull_result.results | default([]) }}"
     async_reap_label: "LM Studio model pre-pull"
     async_reap_tolerate:
-      - "already downloaded"
+      - "You already have this model"
     ASYNC_TIME: "{{ LMSTUDIO_PRELOAD_ASYNC_TIME }}"

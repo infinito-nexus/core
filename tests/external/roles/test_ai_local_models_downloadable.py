@@ -41,25 +41,26 @@ def _models() -> list[dict]:
     return [entry for entry in (entries or []) if isinstance(entry, dict)]
 
 
-def _repo_path(source: str) -> str:
-    """Return ``user/repo`` for a HuggingFace source, else the empty string."""
-    if not source.startswith(_HUGGINGFACE_PREFIX):
+def _repo_path(entry: dict) -> str:
+    """Return the HuggingFace ``user/repo`` this entry pins, else empty.
+
+    Args:
+        entry: one AI_LOCAL_MODELS declaration.
+    """
+    url = str(entry.get("url") or "")
+    if not url.startswith(_HUGGINGFACE_PREFIX):
         return ""
-    return source[len(_HUGGINGFACE_PREFIX) :].strip("/")
+    return str(entry.get("repo") or "").strip("/")
 
 
 def _download_url(entry: dict) -> str:
-    return f"{entry['source'].rstrip('/')}/resolve/main/{entry['file']}"
+    return str(entry["url"])
 
 
 def _mirror_urls(entry: dict) -> list[str]:
-    """Every extra base a deploy falls back to, in declaration order."""
+    """Every extra URL a deploy falls back to, in declaration order."""
     mirrors = entry.get("mirrors") or []
-    return [
-        f"{str(base).rstrip('/')}/resolve/main/{entry['file']}"
-        for base in mirrors
-        if isinstance(base, str)
-    ]
+    return [str(url) for url in mirrors if isinstance(url, str)]
 
 
 def _upstream_digests(repo_path: str) -> tuple[str, object]:
@@ -133,11 +134,14 @@ class TestAiLocalModelsDownloadable(unittest.TestCase):
         unpinned = []
         for entry in models:
             alias = str(entry.get("alias") or "<no alias>")
-            source = entry.get("source")
+            url = entry.get("url")
+            repo = entry.get("repo")
             file_name = entry.get("file")
             digest = entry.get("sha256")
-            if not isinstance(source, str) or not urlsplit(source).scheme:
-                unpinned.append(f"{alias}: 'source' is not an absolute URL")
+            if not isinstance(url, str) or not urlsplit(url).scheme:
+                unpinned.append(f"{alias}: 'url' is not an absolute URL")
+            if not isinstance(repo, str) or len(repo.strip("/").split("/")) != 2:
+                unpinned.append(f"{alias}: 'repo' is not '<publisher>/<repo>'")
             if not isinstance(file_name, str) or not file_name:
                 unpinned.append(f"{alias}: 'file' is missing")
             if not isinstance(digest, str) or not _SHA256.match(digest):
@@ -149,21 +153,21 @@ class TestAiLocalModelsDownloadable(unittest.TestCase):
         self.assertFalse(
             unpinned,
             f"{len(unpinned)} model declaration(s) in {_AI_VARS_FILE} cannot be "
-            f"fetched with a checksum. Each entry needs 'source', 'file' and "
-            f"'sha256':\n" + "\n".join(f"  {line}" for line in unpinned),
+            f"fetched with a checksum. Each entry needs 'url', 'repo', 'file' "
+            f"and 'sha256':\n" + "\n".join(f"  {line}" for line in unpinned),
         )
 
     def test_every_pin_matches_what_upstream_serves(self) -> None:
         models = [
             entry
             for entry in _models()
-            if isinstance(entry.get("source"), str)
+            if isinstance(entry.get("url"), str)
             and isinstance(entry.get("file"), str)
             and isinstance(entry.get("sha256"), str)
         ]
         self.assertTrue(models, f"{_AI_VARS_FILE} declares no pinned model")
 
-        repo_paths = [_repo_path(entry["source"]) for entry in models]
+        repo_paths = [_repo_path(entry) for entry in models]
         with concurrent.futures.ThreadPoolExecutor(max_workers=_MAX_WORKERS) as pool:
             api = list(pool.map(_upstream_digests, repo_paths))
             reach = list(pool.map(_reachable, [_download_url(e) for e in models]))

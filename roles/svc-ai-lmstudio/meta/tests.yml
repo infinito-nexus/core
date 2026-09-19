@@ -1,0 +1,4 @@
+---
+cli:
+  container_service_key: lmstudio
+  timeout: 900
