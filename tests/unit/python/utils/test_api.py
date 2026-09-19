@@ -1,6 +1,6 @@
 import unittest
 
-from utils.api import declared_api, provider_enabled, resolve_api
+from utils.cache.api import declared_api, provider_enabled, resolve_api
 
 
 class TestResolveApi(unittest.TestCase):
