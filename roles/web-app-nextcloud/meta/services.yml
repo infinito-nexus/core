@@ -62,7 +62,7 @@ nextcloud:
       enabled: true
   name: nextcloud
   image: nextcloud
-  version: 34-fpm-alpine
+  version: 35-fpm-alpine
   custom: true
   min_storage: 553MB
   backup:
@@ -108,7 +108,7 @@ proxy:
     flavor: curl
     start_period: 20m
   image: nginx
-  version: 1.31.5-alpine
+  version: 1.31.6-alpine
   backup:
     no_stop_required: true
   cpus: "0.5"
