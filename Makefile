@@ -52,6 +52,13 @@ autoformat-restage:
 bond:
 	@"$${PYTHON}" -m cli.meta.roles.applications.bond $(args)
 
+.PHONY: binfmt
+# Make an architecture executable here through emulation.
+# Param arch: amd64 | arm64 (default: the platform in INFINITO_DOCKER_PLATFORM)
+binfmt:
+	@"$${PYTHON}" -m cli.administration.deploy.development binfmt \
+		$(if $(arch),--architecture "$(arch)")
+
 .PHONY: bootstrap
 # Install dependencies and prepare the project.
 bootstrap: install setup
@@ -780,6 +787,7 @@ swarm-shell:
 	@SWARM_NAME='$(name)' node='$(node)' bash scripts/tests/deploy/act/shell_node.sh
 
 SWARM_DISTROS = $(or $(distros),$${INFINITO_DISTRO:?})
+SWARM_ARCH = $(or $(arch),$(shell bash scripts/meta/resolve/architecture.sh))
 
 .PHONY: swarm-zombie
 # Run a swarm matrix-app test and leave the cluster alive afterwards for post-mortem inspection.
@@ -788,6 +796,7 @@ SWARM_DISTROS = $(or $(distros),$${INFINITO_DISTRO:?})
 # Param variant: optional matrix variant index to deploy (default 0); a multi-variant app runs one cluster per swarm-zombie, so pick the round to validate.
 # Param disable: optional comma-separated provider keys removed from the test inventory (e.g. matomo,dashboard,prometheus,email,css).
 # Param name: optional cluster-id prefix for the container + network names; release with the same name=.
+# Param arch: architecture the cluster deploys on, amd64 | arm64 (default: the host's own).
 # Param step_timeout: optional minute budget for the matrix-deploy step (default 690).
 # Note: Use `make swarm-exec` / `make swarm-shell` to inspect, `make swarm-down` to release.
 swarm-zombie: install-act
@@ -804,11 +813,13 @@ swarm-zombie: install-act
 	 disable=$(disable); \
 	 SWARM_NAME=$(or $(name),$(app)); \
 	 INFINITO_SWARM_STEP_TIMEOUT_MINUTES=$(or $(step_timeout),690); \
-	 INFINITO_DISTROS=$(SWARM_DISTROS)" \
+	 INFINITO_DISTROS=$(SWARM_DISTROS); \
+	 INFINITO_ARCHITECTURES=$(SWARM_ARCH); \
+	 INFINITO_ARCHITECTURE=$(SWARM_ARCH)" \
 	 ACT_WORKFLOW=.github/workflows/call-test-deploy.yml \
 	 ACT_JOB=deploy \
 	 ACT_MATRIX="apps:$(app);variant:$(or $(variant),0);mode:swarm" \
-	 ACT_INPUTS="whitelist=$(app)#$(or $(variant),0)@swarm distros=$(SWARM_DISTROS) index=0 sweep=0 modes=swarm disable=$(disable)" \
+	 ACT_INPUTS="whitelist=$(app)#$(or $(variant),0)@swarm distros=$(SWARM_DISTROS) index=0 sweep=0 modes=swarm disable=$(disable) architectures=$(SWARM_ARCH)" \
 	 bash scripts/tests/deploy/act/workflow.sh
 
 .PHONY: system-purge

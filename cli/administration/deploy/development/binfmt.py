@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import os
 import platform
 import subprocess
@@ -78,3 +79,21 @@ def ensure(platform_ref: str | None = None) -> None:
             f"linux/{architecture} still cannot execute after registering a handler. "
             "Check whether this host permits --privileged containers."
         )
+
+
+def add_parser(sub: argparse._SubParsersAction) -> None:
+    p = sub.add_parser(
+        "binfmt", help="Make an architecture executable here through emulation."
+    )
+    p.add_argument(
+        "--architecture",
+        default="",
+        help="amd64 | arm64; empty takes the platform from INFINITO_DOCKER_PLATFORM.",
+    )
+    p.set_defaults(_handler=handler)
+
+
+def handler(args: argparse.Namespace) -> int:
+    named = args.architecture.strip()
+    ensure(f"linux/{named}" if named else None)
+    return 0

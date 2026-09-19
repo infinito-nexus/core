@@ -43,6 +43,7 @@ def _build_parser(base_pkg: str) -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="command", required=True)
 
     command_names = [
+        "binfmt",
         "up",
         "down",
         "stop",
