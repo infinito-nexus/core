@@ -12,7 +12,7 @@ openldap:
   shared: true
   provides: ldap
   image: debian
-  version: 12.15-slim
+  version: 13.7-slim
   custom: true
   name: openldap
   min_storage: 229MB
