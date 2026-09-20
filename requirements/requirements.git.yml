@@ -33,4 +33,4 @@ collections:
   - name: hetzner.hcloud
     source: https://github.com/ansible-collections/hetzner.hcloud.git
     type: git
-    version: 7.0.1
+    version: 7.1.0

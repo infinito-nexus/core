@@ -96,7 +96,7 @@ controller:
 livekit:
   name: opentalk-livekit
   image: livekit/livekit-server
-  version: v1.13.6
+  version: v1.13.7
   min_storage: 238MB
   cpus: "2.0"
   mem_reservation: 512m
@@ -134,7 +134,7 @@ rabbit:
     retries: 5
   name: opentalk-rabbit
   image: rabbitmq
-  version: 4.3.5
+  version: 4.3.6
   min_storage: 314MB
   cpus: "0.5"
   mem_reservation: 256m

@@ -1,5 +1,5 @@
 Name:           infinito-nexus
-Version:        13.0.0
+Version:        14.0.0
 Release:        1%{?dist}
 Summary:        Meta package for Infinito.Nexus host dependencies
 
@@ -58,6 +58,148 @@ install -d %{buildroot}%{_docdir}/%{name}
 %doc %{_docdir}/%{name}/DEPENDENCIES
 
 %changelog
+* Sat Sep 19 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 14.0.0-1
+- **For Users**
+
+- * **AI assistance inside the applications you already run.** A gateway role,
+-   *svc-ai-litellm*, fronts OpenAI, Anthropic and OpenRouter from declared keys, with
+-   *svc-ai-ollama* and the new *svc-ai-lmstudio* serving local models from one shared
+-   catalogue, so inference can stay inside the deployment. Sixteen applications use it for
+-   their own built-in AI features instead of calling a vendor directly: WordPress AI Engine,
+-   MediaWiki AIEditingAssistant, Moodle's AI subsystem, Zammad Smart Assist, the xWiki LLM
+-   extension, Discourse AI, the Matrix ChatGPT bridge, Nextcloud, Mattermost Agents, n8n,
+-   Open WebUI and Flowise. The gateway's admin UI signs in through Keycloak. See
+-   [svc-ai-litellm](roles/svc-ai-litellm/README.md) and
+-   [svc-ai-lmstudio](roles/svc-ai-lmstudio/README.md).
+
+- * **Your tools reachable from your assistants.** About twenty applications now speak MCP.
+-   Gitea, GitLab, Mattermost, Nextcloud, n8n, Baserow, Jenkins, Home Assistant, Moodle,
+-   Snipe-IT and WordPress serve their own endpoints; ten more get one through a locked-down
+-   sidecar. Open WebUI, Flowise and the agents discover what the deployment offers and
+-   register it automatically. Access is bounded rather than assumed: blocked paths are
+-   declared, every served path is gated, tools a provider calls mutating are withheld,
+-   reader and writer roles are separate, and each provider authenticates callers as its own
+-   service account. See [svc-ai-mcp-adapter](roles/svc-ai-mcp-adapter/README.md).
+
+- * **Agents as employees, with a kernel between them and the host.** *web-app-hermes* and
+-   *web-app-openclaw* deploy agents behind the single sign-on gate, wired to the gateway's
+-   models and to the MCP servers discovery hands them, each proving on deploy that it can
+-   actually reach them. *svc-virt-kata* runs that tier under a kernel-isolating container
+-   runtime, and *svc-ai-robot* embodies an agent on a dedicated device. Every sandboxed
+-   agent acts as its own platform account rather than borrowing yours. See
+-   [web-app-hermes](roles/web-app-hermes/README.md),
+-   [web-app-openclaw](roles/web-app-openclaw/README.md) and
+-   [svc-virt-kata](roles/svc-virt-kata/README.md).
+
+- * **Home automation joins the platform.** *web-app-homeassistant* deploys the automation
+-   hub, exposes it as an MCP server so agents can drive it, persists the token it mints, and
+-   is reachable over tor. See [web-app-homeassistant](roles/web-app-homeassistant/README.md).
+
+- * **Changing a password changes it everywhere.** A user declares how its password must be
+-   generated, the inventory pins one for every declared user, a new generator produces
+-   API-key shapes, the deploy rotates credentials between its two passes, and a reset command
+-   exists. Applications that persist an administrator password at install now realign it when
+-   the declared one changes: Nextcloud, Moodle, EspoCRM, Jellyfin, Listmonk, Discourse,
+-   Checkmk, xWiki, n8n, Matrix and the dedicated MariaDB and Postgres engines. Checkmk keeps
+-   a 401 fatal so a wrong password cannot lock the account out.
+
+- * **Onions, firewall and name resolution.** *svc-net-firewall* owns the packet filter as one
+-   nftables table per role. Tor carries mail to a .onion in both deploy modes, rejects forged
+-   sources on the guarded ports, and binds its dnsmasq listeners statically so a failed
+-   re-enumeration can no longer drop every one of them. The deployment declares its own
+-   address space once, the egress range moved out of the Docker pool, and the container
+-   resolver follows the live bridge instead of a guessed address. Every host-bound port
+-   requires an explicit onion decision. See
+-   [svc-net-firewall](roles/svc-net-firewall/README.md).
+
+- * **Application fixes you will notice.** Nextcloud installs an OnlyOffice release upstream
+-   actually published, keeps social login working over tor, and makes its OIDC account an
+-   administrator. Element shows invites again through the new room list. Moodle survives the
+-   container roll during installation. Mattermost keeps its configuration in Postgres instead
+-   of on a shared volume, and its plugin tree is per node. GitLab creates the default
+-   organization a headless install never gets. Jellyfin waits for health before driving the
+-   setup wizard. Keycloak registers redirect URIs only for the apps a play deploys, keeps the
+-   allowed-origins claim out of the access token, and no longer caches LDAP federation past a
+-   fresh grant. The platform's own health mail no longer eats the sender quota.
+
+- * **Operating a deployment.** New make targets reach a single deployed application:
+-   *compose-app-exec*, *compose-app-logs* and *compose-app-restart*. Diagnostics collect the
+-   logs an application writes to a file, including from busybox containers. Health probes use
+-   a fast start cadence with a window that outlasts a real boot, so a slow starter is no
+-   longer reaped. The CSP health check accepts a status code a vhost declares instead of
+-   dropping the vhost, and gives onion vhosts a navigation budget Tor can meet.
+
+- **For Developers**
+
+- * **MCP is declared, not wired.** A role states an *mcp* block in *meta/services.yml*, and
+-   the vocabulary, discovery and rendering layer derives endpoints, clients, credentials and
+-   network edges from it. A client-provider pairing is declared once, on the provider;
+-   *sys-svc-mcp-reconcile* converges clients from the complete provider set; a refused pairing
+-   is expressed as off rather than gated at the call site; and *svc-ai-mcp-adapter* is a
+-   reusable per-provider sidecar rather than a standalone application. The contract is proven
+-   on deploy, including refusal on *initialize* and the tool inventory itself. The design,
+-   its delegation rules and a machine-checkable audit live under
+-   [docs/contributing/design/role/services/mcp.md](docs/contributing/design/role/services/mcp.md).
+
+- * **Registry and variant changes.** A variant can dictate the configuration of the providers
+-   it pulls in, and an MCP round decides for itself what it carries, which is the breaking
+-   change in this release. Fifteen moving pins gained names the registry can order, every MCP
+-   provider is registered as a shared service, *meta/schema.yml* finished its rename to
+-   *meta/secrets.yml*, role scripts are sorted into per-language folders, and *meta/addons* is
+-   now an accepted declaration site for pins and plugins.
+
+- * **Lints that fail closed.** Five properties that used to pass silently now fail. The PHP
+-   and Ruby that roles ship are syntax-checked, and so are shell scripts that ship as Jinja
+-   templates. *sys-service* owns every systemd unit a role installs. Healthcheck timings are
+-   judged against what the base image was measured to hold, a variable-free healthcheck
+-   belongs in *meta/services.yml*, an unenforceable NFS state layout fails at author time, a
+-   sandboxed role cannot be pinned to the manager, credentials are kept out of volumes
+-   declared non-secret, *no_log* is required on every task carrying one and forbidden in the
+-   test roles, and a JavaScript default for an unset environment variable is rejected.
+
+- * **Pins that cannot age unnoticed.** Image pins are classified and pull references built
+-   from the class, a moving tag declares itself with the marker it already carries, and a
+-   role's images move as one release or not at all. The updater reads addon declarations,
+-   orders vendor patch counters and five-component versions, reads a release line written
+-   before the number as a family, and now also watches pinned pip requirements and Ansible
+-   collections. Seven roles moved off the Debian codename base onto slim, and one Ubuntu
+-   mirror list with failover, a short timeout and a health test serves both the package cache
+-   and the image builds. *js-yaml* was lifted to 4.3.2 for GHSA-2883-xcg3-v3hh.
+
+- * **CI selects, resumes and proves.** A fourth deploy chunk stops a short priority chunk
+-   stranding budget, a manual run can set the chunk size the formula would derive, and a
+-   retrigger can override the chunk gate. Retriggering works by role and by what never got a
+-   verdict, resumes behind the green window rather than the deployed one, retires suites the
+-   source run already passed, and cancels the run before retriggering its failed roles. Each
+-   role's README instructions are replayed on its smallest deploy row, in the mode its
+-   *services.yml* declares. Distro images build concurrently on one runner, the matrix job
+-   folds into the image job, and the deploy chunks no longer wait on the DNS test.
+
+- * **Swarm, measured rather than assumed.** The deploy waits for its own update instead of
+-   guessing after it, refuses to call a stack converged while it is still updating, survives a
+-   task that failed and came back, reports what converged rather than only what did not, and
+-   says why the convergence probe refused. Placement is constrained to a role's declared
+-   platform arch, redis and memcached sidecars get a deploy block, and a run-once service no
+-   longer strands the stack deploy waiting for a replica it never has. The rescue dump
+-   captures the contents of the state volumes. In the test lab, workers are labelled
+-   kata-capable only when the app is sandboxed, NFS detaches before the node containers die,
+-   and the sandbox tier gets a second node.
+
+- * **Faster gates.** Per-host setup runs once per host instead of once per application, a
+-   role's volumes are answered from its own file instead of a whole-tree build, the Keycloak
+-   RBAC root group resolves once rather than once per app, the Playwright fixture copy the
+-   tree copy already made is dropped, logout helpers wait for a control instead of sleeping,
+-   and the OIDC login helper stops waiting out probes that cannot match. Onion timeouts scale
+-   by tor flavor instead of a flat multiplier, and every Playwright timeout has one source.
+
+- * **Documentation and agent instructions.** Six new requirement documents cover the LLM
+-   gateway and model backends, agent employees, Home Assistant, the robot role, the MCP proxy
+-   expansion and native AI gateway integration. The MCP design docs are nested under their own
+-   folder with an audit the lints can check. The role README template asks the reader for a
+-   domain the deployment can resolve, enforces consistent Credits attribution, and drops the em
+-   dash. Documentation generators are gathered under *cli/build/docs*, and a new CLI edits role
+-   bonds in a matrix instead of hunting through files.
+
 * Wed Aug 26 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 13.0.0-1
 - * **Tor as a first-class deployment axis.** The new *svc-net-tor* role routes onion
 -   names through Tor via DNS instead of per-app proxies, offers a chutney flavor for

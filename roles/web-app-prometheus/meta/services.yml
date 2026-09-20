@@ -79,7 +79,7 @@ alertmanager:
     flavor: wget
     path: -/healthy
   image: prom/alertmanager # nocheck: volumes-path-single-spot: the repository path of an image name, not a mount target
-  version: v0.34.0
+  version: v0.34.1
   name: prometheus-alertmanager
   cpus: "0.25"
   mem_reservation: 64m
