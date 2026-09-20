@@ -1,4 +1,5 @@
 alias i8='infinito' # the infinito CLI
+alias i8bi='m binfmt'
 alias i8bo='m bootstrap'
 alias i8bond='m bond'
 alias i8bu='m build'

@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
-import argparse
 import os
 import platform
 import subprocess
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import argparse
 
 PROBE_IMAGE = "alpine:3"
 INSTALLER_IMAGE = "tonistiigi/binfmt"

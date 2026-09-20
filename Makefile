@@ -47,17 +47,17 @@ autoformat: install-lint
 autoformat-restage:
 	@bash scripts/git/autoformat_restage.sh "$(MAKE)" autoformat
 
-.PHONY: bond
-# Serve the role bond matrix, where editing a cell rewrites the role's bond.
-bond:
-	@"$${PYTHON}" -m cli.meta.roles.applications.bond $(args)
-
 .PHONY: binfmt
 # Make an architecture executable here through emulation.
 # Param arch: amd64 | arm64 (default: the platform in INFINITO_DOCKER_PLATFORM)
 binfmt:
 	@"$${PYTHON}" -m cli.administration.deploy.development binfmt \
 		$(if $(arch),--architecture "$(arch)")
+
+.PHONY: bond
+# Serve the role bond matrix, where editing a cell rewrites the role's bond.
+bond:
+	@"$${PYTHON}" -m cli.meta.roles.applications.bond $(args)
 
 .PHONY: bootstrap
 # Install dependencies and prepare the project.
