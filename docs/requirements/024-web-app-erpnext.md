@@ -301,7 +301,7 @@ The agent MUST execute this requirement **autonomously**. Open clarifications on
 
 - The agent MUST NOT create any git commit until every Acceptance Criterion in this document is checked off (`- [x]`).
 - A single commit (or a tight, related sequence) lands the whole role addition; no half-scaffolded intermediate commits.
-- When all ACs are met, `make test` is green, and the three variants deploy cleanly, the agent instructs the operator to run `git-sign-push` outside the sandbox (per [CLAUDE.md](../../CLAUDE.md)). The agent MUST NOT push.
+- When all ACs are met, `make test` is green, and the three variants deploy cleanly, the agent instructs the operator to run `git-sign-push` outside the sandbox (per [AGENTS.md](../../AGENTS.md)). The agent MUST NOT push.
 
 ## Context
 

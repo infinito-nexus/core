@@ -6,7 +6,7 @@ The branch prefix MUST match the type of change. The [PR workflow](pull-request.
 
 | Branch prefix | Scope | Matching files | CI behavior |
 |---|---|---|---|
-| `agent` | Changes to agent instructions or prompts | `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `docs/agents/*` | Skips [orchestrator](../../../../.github/workflows/call-orchestrator.yml), finishes green through the lightweight scope gate. |
+| `agent` | Changes to agent instructions or prompts | `AGENTS.md`, `roles/<role>/AGENTS.md`, `docs/agents/*` | Skips [orchestrator](../../../../.github/workflows/call-orchestrator.yml), finishes green through the lightweight scope gate. |
 | `documentation` | Documentation-only changes | `**/*.md`, `**/*.rst` (outside agent paths) | Skips [orchestrator](../../../../.github/workflows/call-orchestrator.yml), finishes green through the lightweight scope gate. |
 | `feature` | New features or enhancements | `*` | Runs the full [orchestrator](../../../../.github/workflows/call-orchestrator.yml) pipeline. |
 | `fix` | Bug fixes | `*` | Runs the full [orchestrator](../../../../.github/workflows/call-orchestrator.yml) pipeline. |

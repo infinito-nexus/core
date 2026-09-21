@@ -13,6 +13,7 @@ from utils.cache.yaml import dump_yaml
 from utils.roles.mapping import (
     ROLE_FILE_META_MAIN,
     ROLE_FILE_META_SERVICES,
+    ROLE_FILE_META_VARIANTS,
     ROLE_FILE_VARS_MAIN,
 )
 
@@ -35,6 +36,22 @@ def _write_run_after(root: Path, role: str, run_after: list[str]) -> None:
     dump_yaml(
         root / "roles" / role / ROLE_FILE_META_SERVICES,
         {role: {"run_after": run_after}},
+    )
+
+
+def _write_sso_consumer(root: Path, role: str, variants: list[bool]) -> None:
+    """A role consuming shared `sso`, with one variant per `variants` entry
+    that either keeps the consumption or switches it off."""
+    dump_yaml(
+        root / "roles" / role / ROLE_FILE_META_SERVICES,
+        {role: {}, "sso": {"enabled": True, "shared": True, "flavor": "oidc"}},
+    )
+    dump_yaml(
+        root / "roles" / role / ROLE_FILE_META_VARIANTS,
+        [
+            {"services": {"sso": {"enabled": consumes, "shared": consumes}}}
+            for consumes in variants
+        ],
     )
 
 
@@ -103,6 +120,59 @@ class TestAffected(unittest.TestCase):
                 got = affected_main.affected_roles(["web-app-keycloak"])
                 self.assertIn("web-app-keycloak", got)
                 self.assertIn("web-app-consumer", got)
+
+    def test_only_the_variants_reaching_the_seed_are_kept(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            _mk_app_role(root, "web-app-keycloak", "keycloak")
+            _mk_app_role(root, "web-app-consumer", "consumer")
+            _write_sso_consumer(root, "web-app-consumer", [True, False, True])
+
+            with patch.object(repo_paths, "PROJECT_ROOT", root):
+                got = affected_main.affected_selection(["web-app-keycloak"])
+            self.assertIn("web-app-consumer#0,2", got)
+
+    def test_a_role_whose_variants_all_reach_the_seed_stays_bare(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            _mk_app_role(root, "web-app-keycloak", "keycloak")
+            _mk_app_role(root, "web-app-consumer", "consumer")
+            _write_sso_consumer(root, "web-app-consumer", [True, True])
+
+            with patch.object(repo_paths, "PROJECT_ROOT", root):
+                got = affected_main.affected_selection(["web-app-keycloak"])
+            self.assertIn("web-app-consumer", got)
+
+    def test_the_narrowing_follows_a_parents_variant_one_generation_up(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            _mk_app_role(root, "web-app-keycloak", "keycloak")
+            _mk_app_role(root, "web-app-matomo", "matomo")
+            _mk_app_role(root, "web-app-consumer", "consumer")
+            _write_sso_consumer(root, "web-app-matomo", [True, False])
+            dump_yaml(
+                root / "roles" / "web-app-consumer" / ROLE_FILE_META_SERVICES,
+                {"consumer": {}, "matomo": {"enabled": True, "shared": True}},
+            )
+            dump_yaml(
+                root / "roles" / "web-app-consumer" / ROLE_FILE_META_VARIANTS,
+                [{"services": {"matomo": {"enabled": True, "shared": True}}}] * 2,
+            )
+
+            with patch.object(repo_paths, "PROJECT_ROOT", root):
+                got = affected_main.affected_selection(["web-app-keycloak"])
+            self.assertIn("web-app-consumer#0", got)
+
+    def test_a_seed_keeps_every_variant_of_its_own_role(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            _mk_app_role(root, "web-app-keycloak", "keycloak")
+            _mk_app_role(root, "web-app-consumer", "consumer")
+            _write_sso_consumer(root, "web-app-consumer", [True, False])
+
+            with patch.object(repo_paths, "PROJECT_ROOT", root):
+                got = affected_main.affected_selection(["web-app-consumer"])
+            self.assertEqual(got, ["web-app-consumer"])
 
     def test_unknown_role_raises(self) -> None:
         with tempfile.TemporaryDirectory() as td:

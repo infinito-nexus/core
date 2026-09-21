@@ -230,7 +230,7 @@ The agent MUST execute this requirement **autonomously** once Proposed Decisions
 ## Commit Policy
 
 - Single commit (or a tight, related sequence) lands the whole ansible-flavor addition; no half-scaffolded intermediate commits.
-- When all ACs are checked off, `make test` is green, and the four variants deploy cleanly, the agent instructs the operator to run `git-sign-push` outside the sandbox (per [CLAUDE.md](../../CLAUDE.md)). The agent MUST NOT push.
+- When all ACs are checked off, `make test` is green, and the four variants deploy cleanly, the agent instructs the operator to run `git-sign-push` outside the sandbox (per [AGENTS.md](../../AGENTS.md)). The agent MUST NOT push.
 
 ## Context
 

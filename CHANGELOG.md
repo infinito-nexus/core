@@ -1,5 +1,57 @@
 # Changelog
 
+## [14.1.0] - 2026-09-21
+
+**[14.1.0] - 2026-09-21**
+
+**For Users**
+
+* **Local models reach the gateway again.** Upstream re-pushed the *svc-ai-lmstudio* CPU
+  image with a server that listens on loopback only, so the role stayed green while litellm
+  could not connect and the AI features of Mattermost, Matrix, xWiki, Moodle and Zammad
+  failed their warm-up. The server binds the container network again and stays unpublished.
+  The model preload now waits until the daemon has finished starting, so a slow host no
+  longer ends up with a daemon that fails every later model load, and the readiness probe
+  is capped per attempt so a silent peer cannot hang it. See
+  [svc-ai-lmstudio](roles/svc-ai-lmstudio/README.md).
+
+**For Developers**
+
+* **CI deploys only the variants a change reaches.** An image bump in a provider no longer
+  redeploys the variants of its consumers that switch that provider off. The diff-derived
+  whitelist, used by the weekly update PRs, Dependabot and every other diff-driven run,
+  narrows each affected role to the variants whose round closure still reaches a changed
+  role, emitted as *role#0,2* selection tokens. A changed role and a role reached only
+  through *run_after* keep every variant. A pinned token naming a role that discovery does
+  not return now warns instead of aborting the run; role names are still checked against
+  *roles/* before the run starts.
+
+* **One instruction file for every agent.** *AGENTS.md* now holds every agent rule, and
+  *CLAUDE.md* and *GEMINI.md* are gone. The rules they carried bind every runtime anyway,
+  and the PR templates, scope tables, requirement documents and docs that named the old
+  files now name *AGENTS.md*.
+
+* Image and dependency version jumps (net since 14.0.0):
+  * *svc-ai-ollama*: 0.34.0 to 0.34.2
+  * *svc-net-tor* (Debian base): 13.6-slim to 13.7-slim
+  * *web-app-baserow*: 2.3.3 to 2.3.4
+  * *web-app-erpnext*: v16.34.2 to v16.35.0
+  * *web-app-funkwhale* (front, api): 2.0.10 to 2.0.11
+  * *web-app-jitsi* (web, prosody, jicofo, jvb): stable-9646 to stable-11031
+  * *web-app-keycloak*: 26.7.3 to 26.7.4
+  * *web-app-opentalk* (LiveKit): v1.13.6 to v1.13.7
+  * *web-app-opentalk* (RabbitMQ): 4.3.5 to 4.3.6
+  * *web-app-peertube*: v8.2.4 to v8.3.0
+  * *web-app-pihole*: 2026.07.2 to 2026.09.0
+  * *web-app-prometheus* (Alertmanager): v0.34.0 to v0.34.1
+  * Ansible collection *hetzner.hcloud*: 7.0.1 to 7.1.0
+  * *ruff* (dev): 0.16.6 to 0.16.7
+
+**Contributors**
+
+* [Kevin Veen-Birkenbach](https://veen.world): LM Studio reachability and startup,
+  variant-narrowed CI selection, the single agent instruction file, and version maintenance
+
 ## [14.0.0] - 2026-09-19
 
 **For Users**
@@ -142,6 +194,62 @@
   domain the deployment can resolve, enforces consistent Credits attribution, and drops the em
   dash. Documentation generators are gathered under *cli/build/docs*, and a new CLI edits role
   bonds in a matrix instead of hunting through files.
+
+* Image and dependency version jumps (net since 13.0.0):
+  * *svc-ai-ollama*: 0.32.15 to 0.34.0
+  * *svc-db-elasticsearch*: 9.5.2 to 9.5.3
+  * *svc-db-qdrant*: v1.19.0 to v1.19.1
+  * *sys-ctl-hlth-csp* (csp-checker): 2.2.1 to 3.0.4
+  * *sys-lint* (shfmt): v3.13.1 to v3.14.1
+  * *test-e2e-playwright*: v1.62.1-noble to v1.63.0-noble
+  * *web-app-bluesky* (view): 1.131.1 to 1.132.0
+  * *web-app-bookwyrm*: v0.9.2 to v0.9.3
+  * *web-app-confluence*: 10.2.15 to 10.2.18
+  * *web-app-dashboard*: 2.0.0 to 2.1.3
+  * *web-app-erpnext*: v16.32.3 to v16.34.2
+  * *web-app-espocrm*: 10.0.6 to 10.0.8
+  * *web-app-funkwhale*: 2.0.9 to 2.0.10
+  * *web-app-gitea*: 1.27.2 to 1.27.3
+  * *web-app-gitlab* (webservice, sidekiq, workhorse, gitaly, shell, rails): v19.3.0 to v19.3.2
+  * *web-app-jira*: 11.3.10 to 11.3.11
+  * *web-app-keycloak*: 26.7.2 to 26.7.3
+  * *web-app-matrix* (Synapse): v1.159.0 to v1.160.0
+  * *web-app-matrix* (Element): v1.12.26 to v1.12.28
+  * *web-app-mattermost*: 11.10.1 to 11.11.0
+  * *web-app-n8n*: 1.95.3 to 1.100.1
+  * *web-app-nextcloud* (proxy): 1.31.3-alpine to 1.31.5-alpine
+  * *web-app-opentalk* (LiveKit): v1.13.5 to v1.13.6
+  * *web-app-opentalk* (RabbitMQ): 4.3.4 to 4.3.5
+  * *web-app-penpot* (frontend, backend, exporter): 2.17.1 to 2.17.2
+  * *web-app-seaweedfs*: 4.44 to 4.46
+  * *web-app-semaphore*: v2.19.8 to v2.19.14
+  * *web-app-socialhome*: 2026.6.16 to 2026.9.18
+  * *web-app-yourls*: 1.10.4-apache to 1.10.6-apache
+  * *web-app-zammad*: 6.5.0 to 7.1.2
+  * *web-svc-coturn*: 4.17.2 to 4.18.0
+
+* Moving tags that now carry a release, one per role: *web-app-discourse* master to
+  v2026.8.0, *web-app-jenkins* lts to 2.568.3-lts, *web-app-openwebui* main to 0.11.0,
+  *web-app-pretix* stable to 2026.7.0, *web-app-xwiki* lts-postgres-tomcat to
+  17.10.13-postgres-tomcat, *web-app-pixelfed* latest to 20260917, *web-app-matrix* (upstream
+  playbook ref) master to a commit pin, *svc-db-memcached* alpine to 1.6.45-alpine,
+  *svc-db-redis* alpine to 8.10.1-alpine, *svc-prx-openresty* alpine to 1.31.1.1-alpine,
+  *svc-runner* (BuildKit) buildx-stable-1 to v0.33.0, *web-app-bigbluebutton* (dockerize)
+  latest to v0.15.1, and the nginx sidecars of *web-app-fediwall*, *web-app-littlejs*,
+  *web-app-taiga* and *web-svc-coturn* to 1.31.6-alpine. The Debian codename bases became numeric slim tags in
+  *svc-db-openldap* (12.15-slim), *svc-net-tor* (13.6-slim), *web-app-bookwyrm*,
+  *web-app-bridgy-fed*, *web-app-postmarks*, *web-app-roulette-wheel*, *web-svc-cdn* and
+  *web-svc-simpleicons*, and *web-app-flowise* is built from node 24-slim instead of pulled
+  (Flowise itself stays at 3.1.4).
+
+**Contributors**
+
+* [Kevin Veen-Birkenbach](https://veen.world): LLM gateway and model backends, the declared
+  MCP layer and its sidecar, agent employees and the kernel-isolated tier, Home Assistant,
+  credential declaration and rotation, firewall/tor/DNS ownership, variant-dictated provider
+  configuration, the fail-closed lints, CI selection and resume, swarm convergence, and
+  version maintenance
+* [Prageeth Panicker](https://github.com/pragepani): .ansible cache directory ignored
 
 ## [13.0.0] - 2026-08-26
 

@@ -68,7 +68,7 @@ pihole:
     swarm:
       enabled: false
   image: pihole/pihole
-  version: "2026.07.2"
+  version: "2026.09.0"
   upstream_dns: "{{ NETWORK_PUBLIC_DNS_RESOLVERS }}"
   cpus: "0.5"
   mem_reservation: "128m"

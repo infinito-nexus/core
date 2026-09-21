@@ -14,8 +14,8 @@ from collections.abc import Mapping, Sequence
 from typing import Any
 
 from utils.cache.applications import get_variant_overrides_only
-
-from .nested_overrides import apply_topic, collect_provider_overrides
+from utils.roles.applications.topics import apply_topic
+from utils.roles.applications.variants import collect_provider_overrides
 
 
 def _resolve_variant_payloads(

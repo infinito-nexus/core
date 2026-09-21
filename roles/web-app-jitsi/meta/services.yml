@@ -53,7 +53,7 @@ jitsi:
     swarm:
       enabled: true
   image: jitsi/web
-  version: "stable-9646"
+  version: "stable-11031"
   min_storage: 315MB
   # nocheck: default-placement-manager  meta/volumes.yml uses type:bind config dirs staged on the stack host; a worker-scheduled task lacks the source paths (unpinning requires migrating them to nfs-backed named volumes)
   placement: manager
@@ -87,7 +87,7 @@ prosody:
     port_key: http
   name: jitsi-prosody
   image: jitsi/prosody
-  version: "stable-9646"
+  version: "stable-11031"
   ports:
     internal:
       xmpp: 5222
@@ -102,7 +102,7 @@ prosody:
 jicofo:
   name: jitsi-jicofo
   image: jitsi/jicofo
-  version: "stable-9646"
+  version: "stable-11031"
   cpus: "1.0"
   mem_reservation: 512m
   mem_limit: 1g
@@ -112,7 +112,7 @@ jicofo:
 jvb:
   name: jitsi-jvb
   image: jitsi/jvb
-  version: "stable-9646"
+  version: "stable-11031"
   cpus: "2.0"
   mem_reservation: 1g
   mem_limit: 2g

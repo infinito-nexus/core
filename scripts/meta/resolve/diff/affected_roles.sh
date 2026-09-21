@@ -21,7 +21,11 @@
 #                                        (resolver exit 2), OR
 #                                      * the resolver itself errors out
 #                                        (any other non-zero exit).
-#   <role-id> [<role-id> ...]        restricted deploy set (whitelist).
+#   <token> [<token> ...]            restricted deploy set (whitelist).
+#                                    A token is a role id, narrowed to the
+#                                    variants that reach a seed where not all
+#                                    of them do (`web-app-x#0,2`, see
+#                                    utils.github.variant.selection).
 #
 # Pre-conditions:
 #   - The host Python interpreter referenced by ${PYTHON:-python3} has the

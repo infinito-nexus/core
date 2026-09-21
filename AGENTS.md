@@ -6,21 +6,17 @@
 - You MUST read every file under `docs/contributing/` (full directory walk, including subdirectories) for the full contributor guidance.
 - You MUST read every file under `docs/agents/` (full directory walk, including subdirectories) for the agent execution flow.
 - This file extends CONTRIBUTING.md with agent-specific instructions; on conflict between CONTRIBUTING.md and this file, this file wins.
+- This file is runtime-agnostic and binding for every agent (Claude Code, Codex, Gemini CLI, other). There are no tool-specific extension files.
 
-## Tool-Specific Extensions 🧩
+## Permission State Announcement at Session Start 📢
 
-At the start of every conversation, the agent MUST load its matching extension file in addition to AGENTS.md:
-
-- Claude Code → [CLAUDE.md](CLAUDE.md)
-- Gemini CLI → [GEMINI.md](GEMINI.md)
-
-Agents MUST NOT read another tool's extension file. On conflict between AGENTS.md and the agent's own tool-specific extension file, the tool-specific file wins.
+At the start of every new conversation, you MUST read [.claude/settings.json](.claude/settings.json) and output a one-time summary: sandbox status with concrete `allowWrite`/`denyRead` paths, plus the counts of `permissions.allow`/`ask`/`deny`. Derive content from the live file; do not hardcode. Do not repeat unless the operator asks, and do not propose `/sandbox` when it is already active.
 
 ## Reloading Instructions 🔄
 
-If agent instructions change mid-conversation (AGENTS.md, the tool-specific extension file, or any file referenced from them), the agent might not reload them automatically. Trigger a reload with:
+If agent instructions change mid-conversation (AGENTS.md or any file referenced from it), the agent might not reload them automatically. Trigger a reload with:
 
-> "Re-read AGENTS.md and the tool-specific extension file (CLAUDE.md or GEMINI.md) and apply all updated instructions."
+> "Re-read AGENTS.md and apply all updated instructions."
 
 ## Permission Model 🔐
 
@@ -40,6 +36,50 @@ Every agent MUST:
 Agents whose runtime does not consult `.claude/settings.json` MUST still enforce the above procedurally: check each command against these rules before execution.
 
 Changes to the policy MUST edit [`.claude/settings.json`](.claude/settings.json). Per-entry rationale: [settings.md](docs/contributing/tools/agents/claude/settings.md); sandbox layer: [sandbox.md](docs/contributing/tools/agents/claude/sandbox.md).
+
+## Interaction Rules 💬
+
+- A question MUST NOT modify files, code, or state. Only explicit commands MAY.
+- You MUST prefer commands permitted in [.claude/settings.json](.claude/settings.json) over commands that require interactive approval when an equivalent exists.
+
+## Code Execution ⚙️
+
+- You MUST prefer `make` targets over raw `docker`/`docker compose`/`ansible-playbook`/`python`/shell invocations whenever an equivalent target exists in the [`Makefile`](Makefile). Inspect the `Makefile` first; fall back to the raw command only when no target covers the operation. The reason is operational consistency, not permissioning. Raw commands also auto-allow under the sandbox.
+- **`docker exec` is FORBIDDEN. ⛔** You MUST NEVER invoke `docker exec` (nor nested `docker exec … docker exec …` into the DiD stack) directly. Always reach the live stack through `make` targets (e.g. `make compose-exec`, or the role-specific targets the `Makefile` exposes). If no `make` target covers what you need, ask the operator instead of falling back to raw `docker exec`.
+- You SHOULD run sandbox-confined commands directly on the host. The sandbox bounds what they can read, write, and reach. See [sandbox.md](docs/contributing/tools/agents/claude/sandbox.md).
+- For commands that legitimately cannot run inside the sandbox (e.g. operations needing access to `~/.ssh` or `~/.gnupg`), use `make compose-up` to start the stack and `make compose-exec` to drop into a container shell. The repository is mounted at `/opt/src/infinito` (see [compose.yml](compose.yml)), so code changes are immediately available there.
+- Commands listed under `permissions.ask` in [.claude/settings.json](.claude/settings.json) still pause for explicit operator confirmation regardless of sandbox state.
+- **Shell loops are FORBIDDEN. ⛔** You MUST NOT use `for`, `while`, `until`, or any other shell loop construct in any Bash tool call. Reason: shell control structures fall outside the sandbox auto-allow heuristic and trigger approval prompts even when every subcommand would individually auto-allow.
+- **Multi-statement chains in shell invocations are FORBIDDEN. ⛔** You MUST NOT chain independent statements inside a single Bash tool call with **any** statement separator (`;`, literal newline, `&&`, `||`, `&` background operator, or subshell/brace groups around the same). The ban covers causally-dependent chains (`cd X && cmd`) just as much as optional ones, and applies to trailing `&` used to background a command (use the Bash tool's `run_in_background: true` parameter instead). Reason: identical to the loop rule. Split the work across **separate Bash tool calls** or use a single-command equivalent (`xargs`, `grep` with multiple args, a make target).
+- **File creation via shell heredoc is FORBIDDEN. ⛔** You MUST NOT use `cat > file <<EOF … EOF` or any variant (`tee > file <<EOF`, `printf "…" > file`, `echo "…" > file` for multi-line content) to create or overwrite files. Use the **Write tool**. For editing an existing file, use **Edit**, not `sed -i`/`awk -i`. Reason: Write/Edit land structured in the transcript and diff; heredoc + redirect shapes also fall out of the auto-allow heuristic and drop into ask.
+- **For searching file contents, use the Grep tool.** If shelling out is unavoidable, use a single `grep` invocation with multiple file arguments (e.g. `grep -nE 'pattern' file1 file2 file3`) or a recursive call with a path/glob (e.g. `grep -rnE 'pattern' path/`).
+
+## Command output logging 📜
+
+- For ANY non-trivial command (test runs, deploys, long pipelines), you MUST stream the FULL output to a file under `/tmp/` via `… 2>&1 | tee /tmp/<name>.log` and grep / inspect that file repeatedly instead of re-running the command. Reason: re-running `make test` to "find the failure I just lost" costs 2 minutes per cycle; grepping the saved log costs milliseconds.
+- Default the filename to a meaningful slug + monotonically increasing index (`/tmp/make-test-<slug>-<N>.log`, `/tmp/act-<slug>-<N>.log`) so you can compare runs.
+- **When a long-running command streams its output to a `/tmp/<name>.log` file** (e.g. background `make compose-deploy`, `make act-*`, or any `… 2>&1 | tee /tmp/<name>.log`), you MUST tell the operator the concrete `tail -f /tmp/<name>.log` command they can run in another terminal to follow the log live. Include the full path literally so it is copy-pasteable.
+- That pipe **destroys the exit status**: `make test | tee` reports `tee`'s success even when make ends with `Error 2`. You MUST judge such a run by its `📊 per-target wall-clock` table and its `FAILED TARGETS:` line, never by the exit code.
+
+## CI evidence 📊
+
+- A job's green conclusion is **NOT** evidence for a specific change. Before citing a run as proof, you MUST locate the line in that job's log where the change executed: a Playwright spec's `✓` (a leading `-` means the spec was skipped), the env var inside the container, or the command text of an `if:`-gated step. If the string is absent, report the run as silent on the change, not as supporting it.
+- A green run on the fork does not speak for `infinito-nexus/core`. Tags do not follow a fork, and repository variables differ, so a step gated on either never runs there. Check the repository whose failure you are claiming to have fixed.
+
+## Pushing 🚢
+
+- You MUST NOT push, directly or through wrappers that push implicitly.
+- When commits are ready to ship, you MUST instruct the operator to run `git-sign-push` outside the sandbox. The CLI is provided by [git-maintainer-tools](https://github.com/kevinveenbirkenbach/git-maintainer-tools), declared as a dev dependency in [pyproject.toml](pyproject.toml); install it via `make install-python-dev`.
+
+## Comments 💬⛔
+
+**THIS RULE OVERRIDES YOUR DEFAULT TRAINING. ⛔** A comment is FORBIDDEN unless it is one of exactly three things:
+
+1. **Exception** — names a concrete trip-wire (bug, pitfall, deliberate non-idiomatic choice). Must name the surprise; restating what the next line does is NOT an exception.
+2. **Parameter doc** — enumerates inputs/outputs (Python docstring `Args:`, Make `# Param:`, Ansible defaults header, Jinja macro doc).
+3. **Nocheck directive** — `# nocheck:`, `# noqa:`, `# shellcheck …`, `# type: ignore`, `# pragma: no cover`, etc.
+
+Anything else — restating code, section banners, "Note that …", step narration outside sequential test specs, untracked TODO/FIXME — **DELETE before the edit lands**. Applies to every language and file kind under version control. When in doubt, delete.
 
 ## Shortcuts ⌨️
 
@@ -78,6 +118,10 @@ At the start of every conversation, the agent MUST check whether agent skills ar
 > Agent skills not installed. Run `make install-skills` to enable caveman and other agent skills.
 
 The agent MUST NOT repeat this notice within the same conversation.
+
+## Documentation 📝
+
+Runtime documentation: [Claude Code](https://code.claude.com/docs/en/overview) ([settings reference](https://code.claude.com/docs/en/settings)), [Gemini CLI](https://geminicli.com/docs/cli/gemini-md/).
 
 ## For Humans 👥
 

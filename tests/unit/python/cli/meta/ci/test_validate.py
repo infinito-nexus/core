@@ -54,6 +54,11 @@ class TestProblems(unittest.TestCase):
         self.assertEqual(errors, [])
         self.assertIn("web-app-gone", warnings[0])
 
+    def test_a_pinned_role_the_run_never_discovers_only_warns(self) -> None:
+        errors, warnings = _problems("web-app-gone#0,2")
+        self.assertEqual(errors, [])
+        self.assertIn("web-app-gone", warnings[0])
+
     def test_a_bare_role_the_run_discovers_is_silent(self) -> None:
         self.assertEqual(_problems("web-app-a"), ([], []))
 

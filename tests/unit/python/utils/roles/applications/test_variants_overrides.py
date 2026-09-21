@@ -1,4 +1,4 @@
-"""Unit tests for `cli.administration.deploy.development.inventory.nested_overrides`.
+"""Unit tests for `utils.roles.applications.variants`' provider overrides.
 
 The service registry is stubbed: what matters is which role a claim is
 attributed to, not how a service key resolves to its provider.
@@ -9,7 +9,7 @@ from __future__ import annotations
 import unittest
 from unittest.mock import patch
 
-from cli.administration.deploy.development.inventory.nested_overrides import (
+from utils.roles.applications.variants import (
     NestedOverrideConflictError,
     collect_provider_overrides,
 )
@@ -19,10 +19,7 @@ _REGISTRY = {
     "gitea": {"role": "web-app-gitea"},
 }
 
-_PATCH = (
-    "cli.administration.deploy.development.inventory.nested_overrides"
-    ".build_service_registry_from_roles_dir"
-)
+_PATCH = "utils.roles.applications.variants.build_service_registry_from_roles_dir"
 
 
 class TestCollectProviderOverrides(unittest.TestCase):

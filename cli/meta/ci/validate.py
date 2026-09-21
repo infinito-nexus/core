@@ -16,8 +16,6 @@ here instead, and the exit code gates the run.
 What makes a token bad, in the order this checks it:
 
 * it does not parse, or names a mode or onion state that does not exist;
-* it names a role the discovery query does not return -- a typo, a role
-  outside the run's lifecycle envelope, or a role that no longer exists;
 * it pins a variant the role does not declare (any more): the usual case is a
   list carried over from an older run whose variants have since been renumbered;
 * it pins a mode the row cannot take, an onion state the row, the mode or the
@@ -25,8 +23,12 @@ What makes a token bad, in the order this checks it:
   run's own pool
   does not hold.
 
-A bare role name that matches nothing is reported too, but as a warning: the
-diff-derived whitelist legitimately names roles the envelope filters out.
+A token naming a role the discovery query does not return at all is reported
+too, but as a warning, whether or not it pins axes: the diff-derived whitelist
+legitimately names roles the envelope filters out, and it pins the variants a
+change reaches. Role names themselves are checked against `roles/` before the
+run starts (scripts/github/resolve/effective_whitelist.sh), so a typo is caught
+there rather than swallowed here.
 """
 
 from __future__ import annotations
@@ -90,12 +92,13 @@ def problems(
     warnings: list[str] = []
     for pin in pins:
         token = selection.describe(pin)
+        if pin.app not in discovered_apps:
+            warnings.append(
+                f"{label}: {token!r} matches no discovered row "
+                f"(no row in this run's mode and lifecycle envelope)"
+            )
+            continue
         if not pin.pinned:
-            if pin.app not in discovered_apps:
-                warnings.append(
-                    f"{label}: {token!r} matches no discovered row "
-                    f"(no row in this run's mode and lifecycle envelope)"
-                )
             continue
         variants = pin.variants or (None,)
         for variant in variants:

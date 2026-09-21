@@ -6,96 +6,22 @@ to this path — the `CombinedResolver` walks `dependencies` and
 evaluated at deploy time against `group_names`. `run_after` is NOT
 followed for inclusion (it is a pure ordering hint), so a variant that
 disables a service does not get the provider re-added through the
-ordering edge. This module owns the two helpers that path needs and
-nothing else; the variant-only path lives in `.variants`.
+ordering edge. This module owns the include resolution that path needs
+and nothing else; the round's variant-merged services maps come from
+`utils.roles.applications.variants`, which the CI selection resolves its
+closure from as well.
 """
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping, Sequence
-from pathlib import Path
+from typing import TYPE_CHECKING
 
-from utils.cache.applications import get_variants
-from utils.cache.base import _deep_merge
-from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.roles.applications.variants import services_overrides_for_round
 
-from .nested_overrides import apply_topic, collect_provider_overrides
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
 
-
-def _build_services_overrides_for_round(
-    *,
-    roles_dir: str,
-    round_index: int,
-    primary_app_variants: Mapping[str, int],
-) -> dict[str, dict]:
-    """For every role with `meta/variants.yml`, return the services map
-    that results from merging the round's variant payload onto the
-    role's on-disk `meta/services.yml`.
-
-    Apps in `primary_app_variants` use the supplied (already clamped)
-    index. Other roles with their own variants clamp `round_index` to
-    their own variant count. Roles without variants are absent from the
-    result so the resolver falls through to its disk-read path.
-
-    The merged map is what the inventory ALSO bakes into host_vars, so
-    feeding the same dict into `CombinedResolver(services_overrides=...)`
-    eliminates the topology-vs-host_vars drift that variant-blind
-    resolution produced.
-    """
-    variants_per_app = get_variants(roles_dir=roles_dir)
-    overrides: dict[str, dict] = {}
-    roles_path = Path(roles_dir)
-    for role_name, variant_list in variants_per_app.items():
-        if not variant_list:
-            continue
-        variant_count = max(1, len(variant_list))
-        if role_name in primary_app_variants:
-            idx = primary_app_variants[role_name]
-        else:
-            idx = round_index if round_index < variant_count else 0
-        if not 0 <= idx < len(variant_list):
-            idx = 0
-        variant_payload = variant_list[idx] if variant_list else {}
-        if not isinstance(variant_payload, Mapping):
-            variant_payload = {}
-        variant_services = variant_payload.get("services", {})
-        if not isinstance(variant_services, Mapping):
-            continue
-        services_path = roles_path / role_name / ROLE_FILE_META_SERVICES
-        if not services_path.exists():
-            continue
-        try:
-            base_services = load_yaml_any(services_path) or {}
-        except Exception:  # noqa: S112  best-effort iteration over role files; skip malformed input
-            continue
-        if not isinstance(base_services, Mapping):
-            continue
-        merged = _deep_merge(dict(base_services), dict(variant_services))
-        if isinstance(merged, dict):
-            overrides[role_name] = merged
-    _apply_nested_service_maps(overrides, roles_dir=roles_dir)
-    return overrides
-
-
-def _apply_nested_service_maps(overrides: dict[str, dict], *, roles_dir: str) -> None:
-    """Replace a pulled-in provider's services map with what the round demands.
-
-    Only the ``services`` topic reaches this path: the closure walks service
-    edges, so the other config topics a variant may override are the inventory
-    bake's business.
-
-    Args:
-        overrides: ``{role: services map}``, mutated in place.
-        roles_dir: roles directory the service registry is built from.
-    """
-    payloads = {role: {"services": services} for role, services in overrides.items()}
-    for provider, topics in collect_provider_overrides(
-        payloads, roles_dir=roles_dir
-    ).items():
-        if "services" not in topics:
-            continue
-        overrides[provider] = apply_topic(overrides.get(provider), topics["services"])
+_build_services_overrides_for_round = services_overrides_for_round
 
 
 def _resolve_round_include(

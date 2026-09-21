@@ -230,6 +230,11 @@ class TestApply(unittest.TestCase):
     def test_a_bare_role_that_matches_nothing_is_tolerated(self) -> None:
         self.assertEqual(selection.apply(_ROWS, selection.parse_list("web-app-c")), [])
 
+    def test_a_pin_on_an_undiscovered_role_is_tolerated_like_a_bare_one(self) -> None:
+        self.assertEqual(
+            selection.apply(_ROWS, selection.parse_list("web-app-c#0,2")), []
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

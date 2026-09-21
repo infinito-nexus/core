@@ -15,7 +15,9 @@
 #   PR_BODY         PR body markdown (only read on the subset path).
 #
 # Outputs (GITHUB_OUTPUT):
-#   whitelist=<role-id ...|__ALL__>
+#   whitelist=<selection token ...|__ALL__>
+#             a token is a role id, variant-narrowed to `<role>#0,2` where
+#             only some of the role's variants reach the change.
 
 set -euo pipefail
 

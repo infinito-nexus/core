@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "infinito-nexus"
-version = "14.0.0"
+version = "14.1.0"
 description = "Infinito.Nexus"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -33,7 +33,7 @@ deploy = [
   "requests",
 ]
 dev = [
-  "ruff==0.16.6",
+  "ruff==0.16.7",
   "import-linter",
   "pre-commit",
   "git-maintainer-tools",

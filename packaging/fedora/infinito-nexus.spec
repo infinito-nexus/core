@@ -1,5 +1,5 @@
 Name:           infinito-nexus
-Version:        14.0.0
+Version:        14.1.0
 Release:        1%{?dist}
 Summary:        Meta package for Infinito.Nexus host dependencies
 
@@ -58,6 +58,57 @@ install -d %{buildroot}%{_docdir}/%{name}
 %doc %{_docdir}/%{name}/DEPENDENCIES
 
 %changelog
+* Mon Sep 21 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 14.1.0-1
+- **[14.1.0] - 2026-09-21**
+
+- **For Users**
+
+- * **Local models reach the gateway again.** Upstream re-pushed the *svc-ai-lmstudio* CPU
+-   image with a server that listens on loopback only, so the role stayed green while litellm
+-   could not connect and the AI features of Mattermost, Matrix, xWiki, Moodle and Zammad
+-   failed their warm-up. The server binds the container network again and stays unpublished.
+-   The model preload now waits until the daemon has finished starting, so a slow host no
+-   longer ends up with a daemon that fails every later model load, and the readiness probe
+-   is capped per attempt so a silent peer cannot hang it. See
+-   [svc-ai-lmstudio](roles/svc-ai-lmstudio/README.md).
+
+- **For Developers**
+
+- * **CI deploys only the variants a change reaches.** An image bump in a provider no longer
+-   redeploys the variants of its consumers that switch that provider off. The diff-derived
+-   whitelist, used by the weekly update PRs, Dependabot and every other diff-driven run,
+-   narrows each affected role to the variants whose round closure still reaches a changed
+-   role, emitted as *role#0,2* selection tokens. A changed role and a role reached only
+-   through *run_after* keep every variant. A pinned token naming a role that discovery does
+-   not return now warns instead of aborting the run; role names are still checked against
+-   *roles/* before the run starts.
+
+- * **One instruction file for every agent.** *AGENTS.md* now holds every agent rule, and
+-   *CLAUDE.md* and *GEMINI.md* are gone. The rules they carried bind every runtime anyway,
+-   and the PR templates, scope tables, requirement documents and docs that named the old
+-   files now name *AGENTS.md*.
+
+- * Image and dependency version jumps (net since 14.0.0):
+-   * *svc-ai-ollama*: 0.34.0 to 0.34.2
+-   * *svc-net-tor* (Debian base): 13.6-slim to 13.7-slim
+-   * *web-app-baserow*: 2.3.3 to 2.3.4
+-   * *web-app-erpnext*: v16.34.2 to v16.35.0
+-   * *web-app-funkwhale* (front, api): 2.0.10 to 2.0.11
+-   * *web-app-jitsi* (web, prosody, jicofo, jvb): stable-9646 to stable-11031
+-   * *web-app-keycloak*: 26.7.3 to 26.7.4
+-   * *web-app-opentalk* (LiveKit): v1.13.6 to v1.13.7
+-   * *web-app-opentalk* (RabbitMQ): 4.3.5 to 4.3.6
+-   * *web-app-peertube*: v8.2.4 to v8.3.0
+-   * *web-app-pihole*: 2026.07.2 to 2026.09.0
+-   * *web-app-prometheus* (Alertmanager): v0.34.0 to v0.34.1
+-   * Ansible collection *hetzner.hcloud*: 7.0.1 to 7.1.0
+-   * *ruff* (dev): 0.16.6 to 0.16.7
+
+- **Contributors**
+
+- * [Kevin Veen-Birkenbach](https://veen.world): LM Studio reachability and startup,
+-   variant-narrowed CI selection, the single agent instruction file, and version maintenance
+
 * Sat Sep 19 2026 Kevin Veen-Birkenbach <kevin@veen.world> - 14.0.0-1
 - **For Users**
 

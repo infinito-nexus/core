@@ -209,7 +209,7 @@ Execute autonomously; open a clarification only when a decision is genuinely amb
 
 - No git commit until every Acceptance Criterion is checked off (`- [x]`).
 - A single commit (or a tight related sequence) lands the whole role addition.
-- When all ACs are met and the variants deploy cleanly, instruct the operator to run `git-sign-push` outside the sandbox (per [CLAUDE.md](../../CLAUDE.md)). The agent MUST NOT push.
+- When all ACs are met and the variants deploy cleanly, instruct the operator to run `git-sign-push` outside the sandbox (per [AGENTS.md](../../AGENTS.md)). The agent MUST NOT push.
 
 ## Context
 

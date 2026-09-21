@@ -10,8 +10,13 @@ Usage:
   python -m cli.meta.roles.applications.resolution.affected --changed-roles ROLE [ROLE ...]
 
 Output:
-  Whitespace-separated, sorted list of affected role names (single line),
-  including the seed roles themselves.
+  Whitespace-separated, sorted list of selection tokens (single line),
+  including the seed roles themselves. A role whose variants do not all
+  reach a seed is narrowed to the ones that do (``role#0,2``,
+  :mod:`utils.github.variant.selection`): a variant that switches its
+  provider off does not inherit the seed's change, so deploying it verifies
+  nothing. The narrowing is transitive over the whole chain, because each
+  round's closure is walked on that round's variant-merged services maps.
 
 Exit codes:
   0  Success. The closure was computed and printed.
@@ -38,9 +43,13 @@ from cli.meta.roles.applications.resolution.combined.role_introspection import (
     has_application_id,
     load_run_after,
 )
+from utils.cache.applications import get_variants
+from utils.roles.applications.variants import services_overrides_for_round
+from utils.roles.display import VARIANT_SEPARATOR
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Sequence
+    from pathlib import Path
 
 EXIT_NON_MODELLABLE_SEED = 2
 
@@ -122,12 +131,85 @@ def affected_roles(changed: Iterable[str]) -> list[str]:
     return sorted(affected)
 
 
+def _round_resolvers(roles_path: Path, rounds: int) -> list[CombinedResolver]:
+    """One resolver per deploy round, each walking that round's
+    variant-merged services maps.
+
+    The maps are built by the same helper
+    (:func:`utils.roles.applications.variants.services_overrides_for_round`)
+    the matrix planner feeds its rounds from, so the topology this reads is
+    the topology round ``i`` deploys -- including every pulled-in role's own
+    variant, which is what carries the narrowing across generations.
+    ``run_after`` is not followed, for the reason the planner does not follow
+    it either: an ordering hint would re-add a provider the variant switched
+    off.
+    """
+    return [
+        CombinedResolver(
+            services_overrides=services_overrides_for_round(
+                roles_dir=str(roles_path),
+                round_index=index,
+                primary_app_variants={},
+            ),
+            follow_run_after=False,
+        )
+        for index in range(rounds)
+    ]
+
+
+def _pinned(
+    role: str, seeds: set[str], resolvers: Sequence[CombinedResolver], count: int
+) -> str:
+    """*role*, narrowed to the variants whose own closure reaches a seed.
+
+    Returns the bare role id whenever the narrowing cannot be trusted: no
+    variant reaching a seed means the role is affected through an edge the
+    round closure does not model (a ``run_after`` hint, or a resolution the
+    variant merge refused), and verifying none of it is worse than verifying
+    all of it.
+    """
+    try:
+        hits = [
+            index
+            for index in range(count)
+            if seeds.intersection(resolvers[index].resolve(role))
+        ]
+    except CombinedResolutionError:
+        return role
+    if not hits or len(hits) == count:
+        return role
+    return role + VARIANT_SEPARATOR + ",".join(str(index) for index in hits)
+
+
+def affected_selection(changed: Iterable[str]) -> list[str]:
+    """:func:`affected_roles` as selection tokens, variant-narrowed.
+
+    A seed role keeps every variant: its own files changed, so each of them
+    has to redeploy regardless of which providers it pulls.
+    """
+    seeds: set[str] = {r.strip() for r in changed if r and r.strip()}
+    affected = affected_roles(changed)
+    variants = get_variants(roles_dir=str(roles_dir()))
+    counts = {role: len(variants.get(role) or ()) for role in affected}
+    rounds = max(counts.values(), default=0)
+    if rounds < 2:
+        return affected
+    resolvers = _round_resolvers(roles_dir(), rounds)
+    return [
+        role
+        if role in seeds or counts[role] < 2
+        else _pinned(role, seeds, resolvers, counts[role])
+        for role in affected
+    ]
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
             "Print all roles whose transitive prerequisite closure "
             "(run_after + dependencies + services) contains any of the "
-            "given seed roles. Seed roles themselves are included."
+            "given seed roles, each narrowed to the variants that reach one. "
+            "Seed roles themselves are included, with every variant."
         )
     )
     parser.add_argument(
@@ -137,7 +219,7 @@ def main() -> None:
         help="Seed role names (folder names under ./roles).",
     )
     args = parser.parse_args()
-    print(" ".join(affected_roles(args.changed_roles)))
+    print(" ".join(affected_selection(args.changed_roles)))
 
 
 if __name__ == "__main__":

@@ -5,8 +5,8 @@ Briefly describe the change to the agent instruction files and the expected effe
 Examples:
 
 * Add a new repository rule to `AGENTS.md`
-* Fix contradictory guidance between `AGENTS.md` and `CLAUDE.md`
-* Improve instruction clarity for `GEMINI.md`
+* Fix contradictory guidance between `AGENTS.md` and `docs/agents/*`
+* Improve instruction clarity for `AGENTS.md`
 
 ---
 
@@ -24,8 +24,8 @@ Select the primary intent of this PR:
 List the touched agent instruction files.
 
 * [ ] `AGENTS.md`
-* [ ] `CLAUDE.md`
-* [ ] `GEMINI.md`
+* [ ] `roles/<role>/AGENTS.md`
+* [ ] `docs/agents/*`
 
 Additional notes:
 
@@ -61,7 +61,7 @@ Key points:
 Describe how the instruction change was validated.
 
 * [ ] Conflicting or ambiguous guidance checked
-* [ ] Consistency between `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` verified
+* [ ] Consistency between `AGENTS.md`, `roles/<role>/AGENTS.md`, and `docs/agents/*` verified
 * [ ] Examples, workflows, or affected contributor paths reviewed
 
 ---

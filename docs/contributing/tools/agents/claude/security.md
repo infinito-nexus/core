@@ -72,7 +72,7 @@ The `Bash(*)` allow lets the agent run any Makefile target without prompting. Th
 
 ## Assumption 8: Shell control-flow loops are never necessary 🔁
 
-[CLAUDE.md](../../../../../CLAUDE.md) forbids `for` / `while` / `until` loops in Bash invocations, and `Bash(for *)` / `Bash(while *)` / `Bash(until *)` are in `deny` to enforce the rule. Every task has a flat-form equivalent: a single `grep` with multiple file arguments, `xargs`, a recursive glob, or a dedicated tool.
+[AGENTS.md](../../../../../AGENTS.md) forbids `for` / `while` / `until` loops in Bash invocations, and `Bash(for *)` / `Bash(while *)` / `Bash(until *)` are in `deny` to enforce the rule. Every task has a flat-form equivalent: a single `grep` with multiple file arguments, `xargs`, a recursive glob, or a dedicated tool.
 
 **Why this matters:** Loops can hide destructive operations (for example `for f in $(ls); do rm "$f"; done`) behind a single approval step. The deny rule converts a rule violation into a hard failure, so the agent receives concrete feedback and refactors to the flat form.
 

@@ -294,14 +294,24 @@ def apply(
         plus a rotation-picked one on top.
 
     Raises:
-        SystemExit: a token that pins something matched no row at all. Silently
-            deploying nothing is how a mistyped variant index turns into a
-            green run that tested nothing.
+        SystemExit: a token pins a variant of a role the query DID return, and
+            no row carries that variant. Silently deploying nothing is how a
+            mistyped variant index turns into a green run that tested nothing.
+
+            A token whose role the query returned nothing for is let through
+            instead: the diff-derived whitelist legitimately names roles the
+            run's mode and lifecycle envelope filters out, and since that
+            resolver now pins the variants a change actually reaches, such a
+            token would otherwise abort every chunk of the run. Role names are
+            checked against `roles/` before the run starts
+            (scripts/github/resolve/effective_whitelist.sh), so a typo is still
+            caught -- one layer earlier.
     """
     if not pins:
         return [dict(row) for row in rows]
     kept: list[dict[str, Any]] = []
     matched: set[int] = set()
+    discovered = {row["name"] for row in rows}
     for row in rows:
         hits = [
             (index, pin)
@@ -327,7 +337,7 @@ def apply(
                 }
             )
     for index, pin in enumerate(pins):
-        if index not in matched and pin.pinned:
+        if index not in matched and pin.pinned and pin.app in discovered:
             raise SystemExit(
                 f"selection {describe(pin)!r} matches no discovered row; "
                 f"check the variant index and the run's lifecycle/mode filters"

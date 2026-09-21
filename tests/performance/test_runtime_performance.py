@@ -97,7 +97,7 @@ class TestRuntimeLookupPerformance(unittest.TestCase):
         hit the cache and stay under theirs.
 
         Using a single for-loop here is test-code-only and not production code
-        generating files/tasks; the CLAUDE.md shell-loop ban does not apply.
+        generating files/tasks; the AGENTS.md shell-loop ban does not apply.
         """
         warm = _simulate_ansible_variables(self.shared_applications, self.shared_users)
         t0 = time.process_time()
