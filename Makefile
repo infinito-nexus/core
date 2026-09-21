@@ -294,7 +294,6 @@ docs:
 	@"$(MAKE)" cosmos
 	@"$(MAKE)" readme-generate quick_setup=true
 	@"$(MAKE)" readme-index
-	@"$(MAKE)" mcp-audit
 
 .PHONY: dotenv
 # Regenerate .env (SPOT) from default.env + runtime context.
@@ -544,11 +543,6 @@ lint-shellcheck: install-lint
 lint-sql: install-lint
 	@bash scripts/install/wrapper.sh sql
 	@bash scripts/lint/wrapper.sh sql
-
-.PHONY: mcp-audit
-# Regenerate the MCP audit report; test_mcp_audit_report fails when it drifts.
-mcp-audit:
-	@"$${PYTHON}" -m cli.build.docs.mcp_audit
 
 .PHONY: meta-list
 # Print the repository role list.

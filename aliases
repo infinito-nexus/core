@@ -77,7 +77,6 @@ alias i8mativas='i8mativ -s' # variant with symbols
 alias i8mativaso='clear && i8maal' # clear + deploy matrix of every deployable variant, in CI query order
 alias i8matiw='i8matis --sort "desc weight"' # complexity matrix, symbols, heaviest roles first
 alias i8matix='infinito meta roles applications complexity' # deploy matrix / complexity overview
-alias i8mcau='m mcp-audit'
 alias i8me='m meta-list'
 alias i8memi='m meta-mig'
 alias i8mete='m meta-tree'
