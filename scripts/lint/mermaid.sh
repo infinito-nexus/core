@@ -34,9 +34,7 @@ provision_browser() {
 }
 
 if ! deps_output="$(provision_browser)"; then
-	# Exception: a cut-off install leaves a browser folder without its executable, and puppeteer refuses every later install until the cache is cleared.
-	npx --yes puppeteer browsers clear >/dev/null 2>&1 ||
-		echo "Warning: clearing the puppeteer browser cache failed." >&2
+	rm -rf "${PUPPETEER_CACHE_DIR:-${HOME}/.cache/puppeteer}/chrome-headless-shell"
 	if ! deps_output="$(provision_browser)"; then
 		printf 'Warning: chrome-headless-shell provisioning failed; mermaid rendering may fail:\n%s\n' \
 			"${deps_output}" >&2
