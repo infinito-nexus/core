@@ -9,10 +9,8 @@ DASHBOARD_APP="web-app-dashboard"
 MATOMO_APP="web-app-matomo"
 MARIADB_APP="svc-db-mariadb"
 POSTGRES_APP="svc-db-postgres"
-DASHBOARD_URL="https://dashboard.infinito.test"
-MATOMO_URL="https://matomo.infinito.test"
 
-: "${DASHBOARD_APP}" "${MATOMO_APP}" "${MARIADB_APP}" "${POSTGRES_APP}" "${DASHBOARD_URL}" "${MATOMO_URL}"
+: "${DASHBOARD_APP}" "${MATOMO_APP}" "${MARIADB_APP}" "${POSTGRES_APP}"
 
 UTILS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${UTILS_DIR}/../../../.." && pwd)"
@@ -56,6 +54,11 @@ load_repo_env() {
 
 load_repo_env
 ensure_git_safe_directory
+
+DASHBOARD_URL="https://dashboard.${INFINITO_DOMAIN:?load_repo_env did not provide INFINITO_DOMAIN}"
+MATOMO_URL="https://matomo.${INFINITO_DOMAIN:?load_repo_env did not provide INFINITO_DOMAIN}"
+
+: "${DASHBOARD_URL}" "${MATOMO_URL}"
 
 # Print the generated inventory and host_vars for debugging and verification.
 #
