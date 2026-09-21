@@ -86,7 +86,7 @@ install_apt() {
 }
 
 install_pacman() {
-	retry pacman -Sy --noconfirm --needed base-devel git e2fsprogs btrfs-progs
+	retry pacman -Syu --noconfirm --needed base-devel git e2fsprogs btrfs-progs
 
 	if ! id "${AUR_BUILDER}" >/dev/null 2>&1; then
 		useradd -m -s /bin/bash "${AUR_BUILDER}"
