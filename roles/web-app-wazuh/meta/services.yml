@@ -119,6 +119,28 @@ manager:
       # Exception: Wazuh API, consumed internally by wazuh.dashboard over the role's docker network. Never published to the host.
       api: 55000
 indexer:
+  # Exception: securityadmin.sh (tasks/01_securityadmin.yml) is what actually
+  # pushes this role's own credentials into the security index - it
+  # authenticates via the admin client certificate
+  # (plugins.security.authcz.admin_dn), not a username/password. Until
+  # securityadmin.sh has run, the 'admin' user's real bcrypt hash is not
+  # guaranteed to be live, so gating this healthcheck on that same password
+  # creates a chicken-and-egg deadlock (confirmed against a live deploy: the
+  # healthcheck itself blocks the ordering that would let securityadmin.sh
+  # ever run). This healthcheck only needs to prove the security plugin has
+  # loaded enough to answer HTTPS requests at all; a 401 is exactly that
+  # proof.
+  healthcheck:
+    test:
+      - "CMD-SHELL"
+      - "curl -s -o /dev/null -w '%{http_code}' -k https://localhost:{{ lookup('config', 'web-app-wazuh', 'services.indexer.ports.internal.http') }}/_cluster/health | grep -Eq '^(200|401)$$'"
+    # nocheck: healthcheck-timing-override  manager and dashboard depend_on indexer with condition: service_healthy (see compose.yml.j2); the curl flavor's 2m cadence would leave both blocked for minutes past the point the indexer is actually ready.
+    interval: 30s
+    # nocheck: healthcheck-timing-override  the -k https probe against the security plugin can take longer than the 5s default while the TLS handshake completes during startup.
+    timeout: 10s
+    retries: 10
+    # nocheck: healthcheck-timing-override  covers the indexer's real boot without waiting out the curl flavor's 10m default, which would otherwise stall manager/dashboard's startup order far longer than the indexer actually needs.
+    start_period: 90s
   image: wazuh/wazuh-indexer
   version: "4.14.6"
   # Exception: dotted, see the "manager" entity comment above for why.
@@ -138,7 +160,7 @@ indexer:
       # Exception: localhost-only (never public): lets the Ansible control
       # node's wait_for health-gate reach the indexer before the dashboard
       # starts and before securityadmin.sh runs, without exposing 9200 externally.
-      http: 8081
+      http: 8093
 # Exception: named "console", not "dashboard": the file root already has a
 # "dashboard" key for the platform's web-app-dashboard tile-integration
 # service bond above. Reusing "dashboard" here for the wazuh.dashboard
@@ -163,7 +185,7 @@ console:
       # front-proxy terminates TLS at the edge, same as every other web-app role.
       http: 5601
     local:
-      http: 8090
+      http: 8094
 
 # Exception: exclusive is pinned false here, deviating from web-app-semaphore/
 # web-app-flowise, which both omit it and so inherit svc-net-tor's provider
