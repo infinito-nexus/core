@@ -148,7 +148,7 @@ roles_mapping_yml:
     - service: indexer
       target: /usr/share/wazuh-indexer/config/opensearch-security/roles_mapping.yml
 opensearch_dashboards_yml:
-  type: config
+  type: secret
   source: "{{ [ lookup('container', 'web-app-wazuh', 'directories.instance'), 'opensearch_dashboards.yml' ] | path_join }}"
   mode: "0444"
   mounts:
