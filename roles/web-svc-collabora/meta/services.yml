@@ -30,7 +30,7 @@ collabora:
   # coolconfig or a shell (CollaboraOnline/online#16021) — every `docker exec`
   # fails. Unpin once the systemplate tasks are migrated to --use-env-vars
   # configuration or upstream restores the tooling.
-  version: "26.04.2.1.1"
+  version: "26.04.4.1.1"
   name: collabora
   min_storage: 734MB
   cpus: 2
