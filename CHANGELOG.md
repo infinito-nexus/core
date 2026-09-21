@@ -2,8 +2,6 @@
 
 ## [14.1.0] - 2026-09-21
 
-**[14.1.0] - 2026-09-21**
-
 **For Users**
 
 * **Local models reach the gateway again.** Upstream re-pushed the *svc-ai-lmstudio* CPU
