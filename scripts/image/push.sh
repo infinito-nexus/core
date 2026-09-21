@@ -4,7 +4,7 @@ set -euo pipefail
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 : "${MATRIX_DISTRO:?Missing MATRIX_DISTRO}"
-IMAGE_ARCH="${IMAGE_ARCH:-$("${script_dir}/../meta/resolve/architecture.sh")}"
+IMAGE_ARCHITECTURES="${IMAGE_ARCHITECTURES:-$("${script_dir}/../meta/resolve/architecture.sh")}"
 export INFINITO_DISTRO="${MATRIX_DISTRO}"
 
 # shellcheck source=scripts/meta/env/load.sh
@@ -23,7 +23,8 @@ export INFINITO_PARENT_IMAGE
 ghcr_owner="$(scripts/meta/resolve/repository/owner.sh)"
 repo_name="$("${script_dir}/../meta/resolve/repository/name.sh")"
 
-cache_ref="ghcr.io/${ghcr_owner}/${repo_name}/${MATRIX_DISTRO}:buildcache-${IMAGE_ARCH}"
+cache_ref="ghcr.io/${ghcr_owner}/${repo_name}/${MATRIX_DISTRO}:buildcache"
+platforms="linux/${IMAGE_ARCHITECTURES// /,linux/}"
 
 max_attempts="${MAX_ATTEMPTS:-7}"
 retry_delay_seconds="${RETRY_DELAY_SECONDS:-20}"
@@ -43,7 +44,8 @@ while true; do
 	if docker buildx build \
 		--file "${BUILD_CONTEXT_DIR}/Dockerfile" \
 		--push \
-		--tag "ghcr.io/${ghcr_owner}/${repo_name}/${MATRIX_DISTRO}:${IMAGE_TAG}-${IMAGE_ARCH}" \
+		--platform "${platforms}" \
+		--tag "ghcr.io/${ghcr_owner}/${repo_name}/${MATRIX_DISTRO}:${IMAGE_TAG}" \
 		--label "org.opencontainers.image.source=https://github.com/${GITHUB_REPOSITORY}" \
 		--build-arg "INFINITO_PARENT_IMAGE=${INFINITO_PARENT_IMAGE}" \
 		--build-arg "INFINITO_SRC_DIR=${INFINITO_SRC_DIR}" \

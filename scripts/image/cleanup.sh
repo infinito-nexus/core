@@ -20,10 +20,6 @@ Deletes GHCR container package versions that are:
 - AND are not referenced by active GitHub Actions runs in the repository
 So versions with any non-ci tag (e.g. latest, v1.2.3) are preserved.
 
-A protected 'ci-<sha>' also protects its 'ci-<sha>-<architecture>' children: the
-plain tag is an index pointing at those manifests, so deleting a child leaves the
-protected tag unpullable on that platform.
-
 Robust for USER and ORG owners:
 - Tries /orgs/<OWNER>/... first, falls back to /users/<OWNER>/...
 
@@ -271,26 +267,6 @@ resolve_active_pr_merge_tags() {
 	done <<<"${pr_numbers}"
 }
 
-architecture_suffixes() {
-	"${PYTHON:-python3}" -m cli.meta.ci.architectures "" |
-		jq -r '.[] | "-\(.)"'
-}
-
-expand_architecture_tags() {
-	local suffixes
-	mapfile -t suffixes < <(architecture_suffixes)
-
-	local tag
-	local suffix
-	while read -r tag; do
-		[[ -n "${tag}" ]] || continue
-		printf '%s\n' "${tag}"
-		for suffix in "${suffixes[@]}"; do
-			printf '%s%s\n' "${tag}" "${suffix}"
-		done
-	done
-}
-
 collect_protected_ci_tags() {
 	local active_runs_json="$1"
 
@@ -302,7 +278,6 @@ collect_protected_ci_tags() {
 		resolve_active_pr_merge_tags "${active_runs_json}"
 	} |
 		awk 'NF' |
-		expand_architecture_tags |
 		sort -u |
 		jq -Rsc '
 			split("\n")
