@@ -2,14 +2,14 @@
   footer:
     children:
 
-{% if "web-app-sphinx" in group_names %}   
+{% if "web-app-docs" in group_names %}
 
     - name: Documentation
       description: Access our comprehensive documentation and support resources to help you get the most out of the software.
       icon:
         class: fas fa-book
-      url: {{ lookup('tls', 'web-app-sphinx', 'url.base') }}
-      iframe: {{ lookup('config','web-app-sphinx', 'services.dashboard.enabled') }}
+      url: {{ lookup('tls', 'web-app-docs', 'url.base') }}
+      iframe: {{ lookup('config','web-app-docs', 'services.dashboard.enabled') }}
 
 {% endif %}
 

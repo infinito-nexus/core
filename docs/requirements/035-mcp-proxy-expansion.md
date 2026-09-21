@@ -501,7 +501,7 @@ These UIs expose identity or database administration rather than a bounded appli
 **`duplicate_owner` (1):** `web-app-litellm`.
 This role is only the UI of the separately classified LiteLLM service role, which owns any future MCP gateway contract.
 
-**`no_remote_surface` (24):** `svc-ai-ollama`, `svc-ai-robot`, `web-app-chess`, `web-app-dashboard`, `web-app-fediwall`, `web-app-hugo`, `web-app-littlejs`, `web-app-mig`, `web-app-mini-qr`, `web-app-navigator`, `web-app-roulette-wheel`, `web-app-sphinx`, `web-opt-rdr-domains`, `web-opt-rdr-www`, `web-svc-asset`, `web-svc-cdn`, `web-svc-coturn`, `web-svc-css`, `web-svc-file`, `web-svc-html`, `web-svc-legal`, `web-svc-logout`, `web-svc-mirror`, `web-svc-simpleicons`.
+**`no_remote_surface` (24):** `svc-ai-ollama`, `svc-ai-robot`, `web-app-chess`, `web-app-dashboard`, `web-app-docs`, `web-app-fediwall`, `web-app-hugo`, `web-app-littlejs`, `web-app-mig`, `web-app-mini-qr`, `web-app-navigator`, `web-app-roulette-wheel`, `web-opt-rdr-domains`, `web-opt-rdr-www`, `web-svc-asset`, `web-svc-cdn`, `web-svc-coturn`, `web-svc-css`, `web-svc-file`, `web-svc-html`, `web-svc-legal`, `web-svc-logout`, `web-svc-mirror`, `web-svc-simpleicons`.
 These roles have no independently useful authenticated remote action contract at the pinned implementation.
 Static published content MAY later be consumed through one owning application's bounded `resource_readonly` adapter, but a new MCP sidecar that merely reimplements a static site's behavior does not count as integration.
 Model tool calling in Ollama does not by itself make Ollama an MCP client or server.

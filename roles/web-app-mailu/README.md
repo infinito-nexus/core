@@ -67,7 +67,7 @@ flowchart LR
         dpt_web_app_confluence["web-app-confluence 🐳🐝"]
         dpt_web_app_decidim["web-app-decidim 🐳🐝"]
         dpt_web_app_discourse["web-app-discourse 🐳🐝"]
-        dpt_web_app_erpnext["web-app-erpnext 🐳🐝"]
+        dpt_web_app_docs["web-app-docs 🐳🐝"]
         dpt_more["..."]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
@@ -92,8 +92,8 @@ flowchart LR
     svc_mailu -- "0..0" --> dpt_web_app_confluence
     svc_mailu -. "0..1" .-> dpt_web_app_decidim
     svc_mailu -. "0..1" .-> dpt_web_app_discourse
-    svc_mailu -. "0..1" .-> dpt_web_app_erpnext
-    linkStyle 17,19 stroke:red;
+    svc_mailu -- "0..0" --> dpt_web_app_docs
+    linkStyle 17,19,22 stroke:red;
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.

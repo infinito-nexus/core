@@ -74,6 +74,7 @@ See [Docs README](artefact/files/docs/readme_md.md) for the purpose, scope, and 
 
 ### Sphinx 📚
 
+- The Sphinx configuration, extensions and generators live in [web-app-docs](../../roles/web-app-docs/). Deploy that role to build and serve the site.
 - The root `index.rst` uses a `:glob:` toctree (`docs/**`) to automatically include every documentation page.
 - Sphinx indexing SHOULD happen automatically through that root `:glob:` toctree.
 - You SHOULD avoid creating or maintaining manual per-directory indexes when automatic indexing already covers the same pages.

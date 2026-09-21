@@ -39,6 +39,10 @@ dev = [
   "git-maintainer-tools",
   "pytest>=9.1",
   "pytest-xdist",
+  "myst-parser",
+  "pathspec",
+  "sphinx",
+  "sphinxawesome-theme",
 ]
 
 [project.scripts]

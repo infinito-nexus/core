@@ -1,0 +1,21 @@
+---
+- name: "🧩 load docker, proxy for '{{ application_id }}'"
+  include_role:
+    name: sys-stk-full
+  vars:
+    compose_handlers_flush: false
+
+- name: "🎬 Stage the Sphinx tooling into the build context of '{{ application_id }}'"
+  stack_host_copy:
+    src: "{{ item }}/"
+    dest: "{{ [DOCS_TOOLING_DIR, item] | path_join }}/"
+    directory_mode: "0755"
+  loop:
+    - python
+    - javascript
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "🚿 Flush compose handlers for '{{ application_id }}'"
+  ansible.builtin.meta: flush_handlers
