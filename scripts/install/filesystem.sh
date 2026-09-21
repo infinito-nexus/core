@@ -26,6 +26,11 @@
 #     userland is in: leaving it enabled means the next `dnf upgrade` finds a
 #     newer zfs whose kmod dependency the dummy no longer satisfies, and the
 #     whole DKMS pull returns at deploy time rather than at build time.
+#     zfsonlinux publishes Fedora binaries for x86_64 only, so on any other
+#     architecture the zfs source RPM from the same release is rebuilt instead.
+#     Its build dependencies include the protected systemd, which `dnf remove`
+#     refuses to touch, so they are marked as dependencies and autoremoved once
+#     the userland holds on to whatever it still needs.
 #   * Debian keeps zfsutils-linux in contrib, which the base image does not
 #     enable. Without the extra source apt reports no installation candidate.
 #   * Arch has no zfs userland in core/extra. archzfs publishes a prebuilt
@@ -138,6 +143,47 @@ release_install() {
 	return 1
 }
 
+# Param: $1 directory the zfs source RPM is downloaded into
+# Output: path of the downloaded source RPM
+download_zfs_source() {
+	local dir="$1" srpm
+
+	rm -rf "${dir}"
+	mkdir -p "${dir}"
+	retry dnf download --srpm --enablerepo=zfs-source --destdir="${dir}" zfs >&2
+	srpm="$(find "${dir}" -maxdepth 1 -name 'zfs-*.src.rpm' | head -n1)"
+	if [ -z "${srpm}" ]; then
+		log "ERROR: the zfs-source repository offers no zfs source RPM" >&2
+		return 1
+	fi
+	printf '%s\n' "${srpm}"
+}
+
+# Param: $1 zfs source RPM to rebuild for the running architecture
+# Param: $2 sorted package names installed before any zfs build tooling
+install_zfs_from_source() {
+	local srpm="$1" before="$2" topdir=/tmp/zfs-rebuild
+	local -a added runtime
+
+	retry dnf install -y dnf5-plugins
+	retry dnf builddep -y "${srpm}"
+	mapfile -t added < <(rpm -qa --qf '%{NAME}\n' | sort | comm -13 "${before}" -)
+
+	rm -rf "${topdir}"
+	rpmbuild --define "_topdir ${topdir}" --rebuild "${srpm}"
+
+	mapfile -t runtime < <(find "${topdir}/RPMS" -name '*.rpm' \
+		! -name '*-debug*' ! -name '*-devel-*' ! -name 'zfs-test*' \
+		! -name 'zfs-dracut*' ! -name 'python3-pyzfs*' ! -name 'pam_zfs_key*' \
+		! -name 'zfs-dkms*' ! -name 'zfs-kmod*')
+	retry dnf install -y "${runtime[@]}"
+
+	log "dropping ${#added[@]} build dependencies of the zfs rebuild"
+	dnf mark -y dependency "${added[@]}"
+	dnf autoremove -y
+	rm -rf "${topdir}" "$(dirname "${srpm}")"
+}
+
 install_dnf() {
 	install_dnf_native
 
@@ -146,14 +192,17 @@ install_dnf() {
 	*) retry release_install epel "${ZFS_RELEASE_EL}" ;;
 	esac
 
-	local zfs_version
+	local zfs_version source_rpm=""
 	zfs_version="$(dnf --quiet repoquery --qf '%{version}\n' zfs | sort -V | tail -n1)"
 	if [ -z "${zfs_version}" ]; then
-		log "ERROR: the zfs-release repository offers no zfs package"
-		return 1
+		log "the zfs repository carries no $(uname -m) build; rebuilding its source RPM"
+		source_rpm="$(download_zfs_source /tmp/zfs-source)"
+		zfs_version="$(rpm -qp --qf '%{version}' "${source_rpm}")"
 	fi
-	log "zfs userland offered by the repository: ${zfs_version}"
+	log "zfs userland version: ${zfs_version}"
 
+	local before=/tmp/zfs-packages-before
+	rpm -qa --qf '%{NAME}\n' | sort >"${before}"
 	if ! command -v rpmbuild >/dev/null 2>&1; then
 		retry dnf install -y rpm-build
 	fi
@@ -180,7 +229,11 @@ SPEC
 
 	rpmbuild --define "_topdir ${topdir}" -bb "${topdir}/SPECS/zfs-kmod-container.spec"
 	dnf install -y "${topdir}"/RPMS/noarch/zfs-kmod-container-*.rpm
-	retry dnf install -y zfs
+	if [ -n "${source_rpm}" ]; then
+		install_zfs_from_source "${source_rpm}" "${before}"
+	else
+		retry dnf install -y zfs
+	fi
 
 	if rpm -qa 'kernel-devel*' 'kernel-debug*' 'zfs-dkms' | grep -q .; then
 		log "ERROR: the transaction pulled kernel or DKMS packages, so the dummy did not take"
@@ -189,7 +242,7 @@ SPEC
 	fi
 
 	dnf remove -y zfs-release
-	rm -rf "${topdir}"
+	rm -rf "${topdir}" "${before}"
 	dnf clean all
 }
 
