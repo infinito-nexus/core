@@ -10,6 +10,9 @@ export INFINITO_DISTRO="${MATRIX_DISTRO}"
 # shellcheck source=scripts/meta/env/load.sh
 source "${script_dir}/../meta/env/load.sh"
 
+INFINITO_PARENT_IMAGE="$("${script_dir}/../meta/resolve/image/parent.sh")"
+export INFINITO_PARENT_IMAGE
+
 : "${BUILD_CONTEXT_DIR:?Missing BUILD_CONTEXT_DIR}"
 : "${IMAGE_TAG:?Missing IMAGE_TAG}"
 : "${GITHUB_REPOSITORY:?Missing GITHUB_REPOSITORY}"
