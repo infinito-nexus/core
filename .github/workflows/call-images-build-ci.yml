@@ -149,7 +149,7 @@ jobs:
           echo "owner=$(scripts/meta/resolve/repository/owner.sh)" >> "$GITHUB_OUTPUT"
           echo "name=$(scripts/meta/resolve/repository/name.sh)" >> "$GITHUB_OUTPUT"
 
-      - name: 🔨 Build & push every distro for ${{ matrix.architecture }} by digest (retry 7x, 20s)
+      - name: 🔨 Build & push every distro by digest (retry 7x, 20s)
         if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) }}
         shell: bash
         env:
