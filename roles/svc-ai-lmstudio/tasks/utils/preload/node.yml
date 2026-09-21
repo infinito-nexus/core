@@ -4,7 +4,7 @@
 
 - name: "⏳ Wait until the LM Studio daemon has finished starting on '{{ lmstudio_node }}'"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec {{ LMSTUDIO_LOCAL_CID | quote }} curl -fsS -o /dev/null http://127.0.0.1:{{ LMSTUDIO_PORT }}/lmstudio-greeting
+    container exec {{ LMSTUDIO_LOCAL_CID | quote }} {{ 10 | curl(retries=0) }} -fS -o /dev/null http://127.0.0.1:{{ LMSTUDIO_PORT }}/lmstudio-greeting
   register: lmstudio_daemon_ready
   changed_when: false
   retries: 60
