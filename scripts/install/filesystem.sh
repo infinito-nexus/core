@@ -26,8 +26,11 @@
 #     userland is in: leaving it enabled means the next `dnf upgrade` finds a
 #     newer zfs whose kmod dependency the dummy no longer satisfies, and the
 #     whole DKMS pull returns at deploy time rather than at build time.
-#     zfsonlinux publishes Fedora binaries for x86_64 only, so on any other
-#     architecture the zfs source RPM from the same release is rebuilt instead.
+#     zfsonlinux publishes Fedora and EL binaries for x86_64 only, and on any
+#     other architecture the binary repository has no metadata at all: dnf5
+#     skips it, dnf4 aborts every transaction that loads it. There the zfs
+#     source RPM from the same release is rebuilt instead, with the binary
+#     repository disabled and zfs-release gone before any further dnf call.
 #     Its build dependencies include the protected systemd, which `dnf remove`
 #     refuses to touch, so they are marked as dependencies and autoremoved once
 #     the userland holds on to whatever it still needs.
@@ -150,7 +153,12 @@ download_zfs_source() {
 
 	rm -rf "${dir}"
 	mkdir -p "${dir}"
-	retry dnf download --srpm --enablerepo=zfs-source --destdir="${dir}" zfs >&2
+	if command -v dnf5 >/dev/null 2>&1; then
+		retry dnf install -y --disablerepo=zfs dnf5-plugins >&2
+	else
+		retry dnf install -y --disablerepo=zfs dnf-plugins-core >&2
+	fi
+	retry dnf download --source --disablerepo=zfs --enablerepo=zfs-source --destdir="${dir}" zfs >&2
 	srpm="$(find "${dir}" -maxdepth 1 -name 'zfs-*.src.rpm' | head -n1)"
 	if [ -z "${srpm}" ]; then
 		log "ERROR: the zfs-source repository offers no zfs source RPM" >&2
@@ -163,10 +171,12 @@ download_zfs_source() {
 # Param: $2 sorted package names installed before any zfs build tooling
 install_zfs_from_source() {
 	local srpm="$1" before="$2" topdir=/tmp/zfs-rebuild
-	local -a added runtime
+	local -a added runtime crb=()
 
-	retry dnf install -y dnf5-plugins
-	retry dnf builddep -y "${srpm}"
+	if [ "${ID:-}" != fedora ]; then
+		crb=(--enablerepo=crb)
+	fi
+	retry dnf builddep -y "${crb[@]}" "${srpm}"
 	mapfile -t added < <(rpm -qa --qf '%{NAME}\n' | sort | comm -13 "${before}" -)
 
 	rm -rf "${topdir}"
@@ -179,7 +189,11 @@ install_zfs_from_source() {
 	retry dnf install -y "${runtime[@]}"
 
 	log "dropping ${#added[@]} build dependencies of the zfs rebuild"
-	dnf mark -y dependency "${added[@]}"
+	if command -v dnf5 >/dev/null 2>&1; then
+		dnf mark -y dependency "${added[@]}"
+	else
+		dnf mark remove "${added[@]}"
+	fi
 	dnf autoremove -y
 	rm -rf "${topdir}" "$(dirname "${srpm}")"
 }
@@ -192,17 +206,17 @@ install_dnf() {
 	*) retry release_install epel "${ZFS_RELEASE_EL}" ;;
 	esac
 
-	local zfs_version source_rpm=""
-	zfs_version="$(dnf --quiet repoquery --qf '%{version}\n' zfs | sort -V | tail -n1)"
+	local zfs_version source_rpm="" before=/tmp/zfs-packages-before
+	rpm -qa --qf '%{NAME}\n' | sort >"${before}"
+	zfs_version="$(dnf --quiet --setopt=zfs.skip_if_unavailable=True repoquery --qf '%{version}\n' zfs | sort -V | tail -n1)"
 	if [ -z "${zfs_version}" ]; then
 		log "the zfs repository carries no $(uname -m) build; rebuilding its source RPM"
 		source_rpm="$(download_zfs_source /tmp/zfs-source)"
 		zfs_version="$(rpm -qp --qf '%{version}' "${source_rpm}")"
+		dnf remove -y --disablerepo=zfs zfs-release
 	fi
 	log "zfs userland version: ${zfs_version}"
 
-	local before=/tmp/zfs-packages-before
-	rpm -qa --qf '%{NAME}\n' | sort >"${before}"
 	if ! command -v rpmbuild >/dev/null 2>&1; then
 		retry dnf install -y rpm-build
 	fi
@@ -233,6 +247,7 @@ SPEC
 		install_zfs_from_source "${source_rpm}" "${before}"
 	else
 		retry dnf install -y zfs
+		dnf remove -y zfs-release
 	fi
 
 	if rpm -qa 'kernel-devel*' 'kernel-debug*' 'zfs-dkms' | grep -q .; then
@@ -241,7 +256,6 @@ SPEC
 		return 1
 	fi
 
-	dnf remove -y zfs-release
 	rm -rf "${topdir}" "${before}"
 	dnf clean all
 }
