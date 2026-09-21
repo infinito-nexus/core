@@ -1,6 +1,24 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+# Exception: loaded here, before any notify: compose-up below, rather than
+# in its previous position further down this file - sys-svc-compose (loaded
+# by sys-stk-backend) is what actually defines the compose-up handler via
+# `listen:`, and Ansible's dynamic include_role registers a listen: topic
+# into the play only once that include has executed. A notify: firing
+# earlier in the same file hard-fails immediately ("requested handler
+# 'compose-up' was not found...") rather than at flush time - confirmed via
+# a minimal ansible-playbook reproduction, not deferred like a static
+# roles: list. This was previously masked whenever web-app-keycloak (also
+# compose-based, and run_after-ordered before this role) happened to be on
+# the same host and had already registered the handler; an isolated
+# single-role deploy has nothing else to register it first.
+- name: "🧩 load docker for {{ application_id }}"
+  include_role:
+    name: sys-stk-backend
+  vars:
+    compose_handlers_flush: false
+
 - name: "📁 Ensure {{ WAZUH_CERTS_DIR_HOST }} exists for the cert-generator bind mount"
   ansible.builtin.file:
     path: "{{ WAZUH_CERTS_DIR_HOST }}"
@@ -74,12 +92,6 @@
     reload: true
     sysctl_file: "{{ WAZUH_SYSCTL_CONF }}"
   when: not (DOCKER_IN_CONTAINER | bool)
-
-- name: "🧩 load docker for {{ application_id }}"
-  include_role:
-    name: sys-stk-backend
-  vars:
-    compose_handlers_flush: false
 
 # Exception: the primary/metadata entity ("wazuh") carries no ports, so
 # sys-stk-full (which derives http_port from services.<get_entity_name(role)>.ports.local.http)
