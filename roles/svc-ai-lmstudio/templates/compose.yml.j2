@@ -7,6 +7,8 @@
     {{ lookup('compose_only', 'container_name', LMSTUDIO_CONTAINER) }}
     expose:
       - "{{ LMSTUDIO_PORT }}"
+    environment:
+      LMS_SERVER_HOST: "0.0.0.0"
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 

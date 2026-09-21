@@ -30,8 +30,10 @@ json_items() {
 	python3 -c 'import json,sys; [print(x) for x in json.loads(sys.argv[1])]' "$1"
 }
 
+server_url=""
+
 serves_model() {
-	in_container curl -fsS --connect-timeout 5 --max-time 30 "http://127.0.0.1:${LMSTUDIO_PORT}/v1/models" 2>/dev/null |
+	in_container curl -fsS --connect-timeout 5 --max-time 30 "${server_url}/v1/models" 2>/dev/null |
 		python3 -c 'import json,sys; d=json.load(sys.stdin); print("\n".join(m.get("id","") for m in d.get("data",[])))' 2>/dev/null |
 		grep -qxF "$1"
 }
@@ -78,7 +80,13 @@ for i in "${!blobs[@]}"; do
 	echo "[OK]   ${blobs[$i]} present and matching"
 done
 
-echo "=== 3. the daemon serves every declared model ==="
+echo "=== 3. the daemon serves every declared model on its network address ==="
+address="$(in_container hostname -I | tr ' ' '\n' | grep -m1 -E '^[0-9]+(\.[0-9]+){3}$')"
+if [ -z "${address}" ]; then
+	echo "[FAIL] hostname -I reported no IPv4 address inside the container" >&2
+	exit 1
+fi
+server_url="http://${address}:${LMSTUDIO_PORT}"
 mapfile -t models < <(json_items "${LMSTUDIO_EXPECTED_MODELS}")
 for model in "${models[@]}"; do
 	attempt=1
@@ -91,8 +99,13 @@ for model in "${models[@]}"; do
 		[ "${attempt}" -le "${RETRIES}" ] && sleep "${SLEEP_SECONDS}"
 	done
 	if [ "${attempt}" -gt "${RETRIES}" ]; then
-		echo "[FAIL] ${model} is on disk but /v1/models never listed it" >&2
-		echo "       the daemon did not index the store it was given at startup" >&2
+		if ! in_container curl -fsS --connect-timeout 5 --max-time 30 -o /dev/null "${server_url}/v1/models"; then
+			echo "[FAIL] ${server_url} does not answer" >&2
+			echo "       other containers cannot reach the server; check that LMS_SERVER_HOST binds it beyond loopback" >&2
+		else
+			echo "[FAIL] ${model} is on disk but /v1/models never listed it" >&2
+			echo "       the daemon did not index the store it was given at startup" >&2
+		fi
 		failed=1
 	fi
 done
