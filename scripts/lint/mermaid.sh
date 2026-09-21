@@ -29,9 +29,18 @@ if command -v apt-get >/dev/null 2>&1; then
 		echo "Warning: apt-get update failed; chrome's shared libs may stay unresolved." >&2
 fi
 
-if ! deps_output="$(npx --yes puppeteer browsers install chrome-headless-shell --install-deps 2>&1)"; then
-	printf 'Warning: chrome-headless-shell provisioning failed; mermaid rendering may fail:\n%s\n' \
-		"${deps_output}" >&2
+provision_browser() {
+	timeout 900 npx --yes puppeteer browsers install chrome-headless-shell --install-deps 2>&1
+}
+
+if ! deps_output="$(provision_browser)"; then
+	# Exception: a cut-off install leaves a browser folder without its executable, and puppeteer refuses every later install until the cache is cleared.
+	npx --yes puppeteer browsers clear >/dev/null 2>&1 ||
+		echo "Warning: clearing the puppeteer browser cache failed." >&2
+	if ! deps_output="$(provision_browser)"; then
+		printf 'Warning: chrome-headless-shell provisioning failed; mermaid rendering may fail:\n%s\n' \
+			"${deps_output}" >&2
+	fi
 fi
 
 workdir="$(mktemp -d)"
