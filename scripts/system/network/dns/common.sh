@@ -7,7 +7,6 @@ DNS_HOSTS_FILE="${INFINITO_DNS_HOSTS_FILE}"
 DNS_HOSTS_BLOCK_BEGIN="# BEGIN infinito-dns-fallback"
 DNS_HOSTS_BLOCK_END="# END infinito-dns-fallback"
 DNS_HOSTS_GENERATOR="${DNS_PROJECT_ROOT}/cli/meta/domains/__main__.py"
-DNS_HOSTS_FALLBACK_DEFAULT_RAW="${DNS_DOMAIN} dashboard.${DNS_DOMAIN} matomo.${DNS_DOMAIN}"
 
 # shellcheck disable=SC2034
 DNS_NM_CONF="/etc/NetworkManager/conf.d/00-infinito-dnsmasq.conf"
@@ -61,14 +60,14 @@ dns_read_hosts_fallback_entries_from_raw() {
 }
 
 dns_read_generated_hosts_fallback_entries() {
-	local output
+	local domain="$1" output
 
 	if ! command -v python3 >/dev/null 2>&1 || [[ ! -f "${DNS_HOSTS_GENERATOR}" ]]; then
 		return 1
 	fi
 
 	if ! output="$(
-		DOMAIN="${DNS_DOMAIN}" PYTHONPATH="${DNS_PROJECT_ROOT}" python3 -m cli.meta.domains --domain-primary "${DNS_DOMAIN}" --alias --www
+		DOMAIN="${domain}" PYTHONPATH="${DNS_PROJECT_ROOT}" python3 -m cli.meta.domains --domain-primary "${domain}" --alias --www
 	)"; then
 		echo ">>> Failed to generate DNS hosts from role configs; using static fallback." >&2
 		return 1
@@ -82,17 +81,70 @@ dns_read_generated_hosts_fallback_entries() {
 	printf '%s\n' "${output}" | dns_normalize_hosts_entries
 }
 
+dns_env_value() {
+	awk -v key="$2" 'index($0, key "=") == 1 { value = substr($0, length(key) + 2) } END { gsub(/"/, "", value); print value }' "$1"
+}
+
+dns_checkout_stacks() {
+	local listing path domain ip
+
+	if ! listing="$(git -C "${DNS_PROJECT_ROOT}" worktree list --porcelain 2>/dev/null)"; then
+		listing="worktree ${DNS_PROJECT_ROOT}"
+	fi
+
+	while IFS= read -r path; do
+		if [[ ! -f "${path}/.env" ]]; then
+			continue
+		fi
+		domain="$(dns_env_value "${path}/.env" INFINITO_DOMAIN)"
+		ip="$(dns_env_value "${path}/.env" INFINITO_BIND_IP)"
+		if [[ "${domain}" == *".${DNS_DOMAIN}" && -n "${ip}" ]]; then
+			printf '%s %s %s\n' "${domain}" "${ip}" "${path}"
+		fi
+	done < <(printf '%s\n' "${listing}" | awk 'index($0, "worktree ") == 1 { print substr($0, 10) }')
+}
+
+# Param: none. Output: one "<INFINITO_DOMAIN> <INFINITO_BIND_IP>" line per checkout whose .env places its stack below INFINITO_DNS_DOMAIN; exits 2 when two checkouts claim one domain.
+dns_stacks() {
+	dns_checkout_stacks | awk '
+		$1 in ip && ip[$1] != $2 {
+			printf "ERROR: %s is claimed by %s and %s\n", $1, path[$1], $3 > "/dev/stderr"
+			exit 2
+		}
+		!($1 in ip) { ip[$1] = $2; path[$1] = $3; print $1, $2 }
+	'
+}
+
+dns_stack_dnsmasq_lines() {
+	dns_stacks | awk '{ printf "address=/%s/%s\nlocal=/%s/\n", $1, $2, $1 }'
+}
+
+dns_dnsmasq_config() {
+	cat <<EOF
+address=/${DNS_DOMAIN}/127.0.0.1
+address=/${DNS_DOMAIN}/::1
+EOF
+	dns_stack_dnsmasq_lines
+}
+
+dns_hosts_fallback_lines() {
+	local domain ip
+
+	if [[ -n "${INFINITO_DNS_HOSTS:-}" ]]; then                                               # nocheck: infinito-dns-hosts-optional
+		dns_read_hosts_fallback_entries_from_raw "${INFINITO_DNS_HOSTS}" | sed 's/^/127.0.0.1 /' # nocheck: infinito-dns-hosts-optional
+		return
+	fi
+
+	dns_stacks | while read -r domain ip; do
+		{
+			dns_read_generated_hosts_fallback_entries "${domain}" ||
+				dns_read_hosts_fallback_entries_from_raw "${domain} dashboard.${domain} matomo.${domain}"
+		} | sed "s/^/${ip} /"
+	done
+}
+
 dns_read_hosts_fallback_entries() {
-	if [[ -n "${INFINITO_DNS_HOSTS:-}" ]]; then                       # nocheck: infinito-dns-hosts-optional
-		dns_read_hosts_fallback_entries_from_raw "${INFINITO_DNS_HOSTS}" # nocheck: infinito-dns-hosts-optional
-		return
-	fi
-
-	if dns_read_generated_hosts_fallback_entries; then
-		return
-	fi
-
-	dns_read_hosts_fallback_entries_from_raw "${DNS_HOSTS_FALLBACK_DEFAULT_RAW}"
+	dns_hosts_fallback_lines | awk '{ print $2 }'
 }
 
 dns_rewrite_hosts_file() {
@@ -132,9 +184,7 @@ dns_write_hosts_fallback() {
 			printf '\n'
 		fi
 		printf '%s\n' "${DNS_HOSTS_BLOCK_BEGIN}"
-		while IFS= read -r host; do
-			printf '127.0.0.1 %s\n' "${host}"
-		done < <(dns_read_hosts_fallback_entries)
+		dns_hosts_fallback_lines
 		printf '%s\n' "${DNS_HOSTS_BLOCK_END}"
 	} >"${tmp}"
 
