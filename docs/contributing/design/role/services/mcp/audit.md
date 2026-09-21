@@ -13,7 +13,7 @@ not the version the MCP surface was verified against.
 | role | version | source | transport | auth | subject | scope | tools | implementation | consumers | blocker |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `svc-db-qdrant` | v1.19.1 | [link](https://s.infinito.nexus/code) | streamable_http | bearer_token | service_account (`mcp-svc-db-qdrant`) | read-only | 2 | adapter | `web-app-flowise`, `web-app-hermes`, `web-app-openclaw`, `web-app-openwebui` | — |
-| `web-app-baserow` | 2.3.3 | [link](https://baserow.io/user-docs/mcp-server) | streamable_http | bearer_token | service_account (`mcp-web-app-baserow`) | read-only | 4 | adapter | `web-app-hermes`, `web-app-openclaw`, `web-app-openwebui` | — |
+| `web-app-baserow` | 2.3.4 | [link](https://baserow.io/user-docs/mcp-server) | streamable_http | bearer_token | service_account (`mcp-web-app-baserow`) | read-only | 4 | adapter | `web-app-hermes`, `web-app-openclaw`, `web-app-openwebui` | — |
 | `web-app-checkmk` | 2.4.0p32 | [link](https://s.infinito.nexus/code) | streamable_http | bearer_token | service_account (`mcp-web-app-checkmk`) | read-only | 3 | adapter | `web-app-hermes`, `web-app-openclaw`, `web-app-openwebui` | — |
 | `web-app-fider` | stable | [link](https://s.infinito.nexus/code) | streamable_http | bearer_token | service_account (`mcp-web-app-fider`) | read-only | 3 | adapter | `web-app-hermes`, `web-app-openclaw`, `web-app-openwebui` | — |
 | `web-app-flowise` | 24-slim | [link](https://github.com/FlowiseAI/Flowise/tree/flowise%403.1.4/packages/server/src/routes/custom-mcp-servers) | — | — | — | read-only | — | native | — | — |
