@@ -32,13 +32,6 @@ buildkit:
   image: moby/buildkit
   version: "v0.33.0"
 # nocheck: dynamic-flag
-binfmt:
-  enabled: false
-  shared: false
-  image: tonistiigi/binfmt
-  # nocheck: docker-version
-  version: "qemu-v10.2.3"
-# nocheck: dynamic-flag
 act-runner:
   enabled: false
   shared: false

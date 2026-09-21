@@ -21,7 +21,6 @@ flowchart LR
     subgraph role [svc-runner 🐳🐝]
         svc_runner["runner"]
         svc_buildkit["buildkit ❌"]
-        svc_binfmt["binfmt ❌"]
         svc_act_runner["act-runner ❌"]
     end
 ```

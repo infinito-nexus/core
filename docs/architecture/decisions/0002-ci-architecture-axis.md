@@ -59,13 +59,13 @@ machine, not just a value the job applies to itself.
   state a capability rather than a testing preference. The row draws from the
   intersection with the run's pool; an empty intersection aborts the matrix.
 
-- **CI images are built in one job, one image per distro for every
-  architecture.** [push.sh](../../../scripts/image/push.sh) passes the whole
-  pool to a single `docker buildx build --platform`, so the plain `<tag>` is a
-  manifest list from the start and no per-architecture tag exists. The job runs
-  on an amd64 runner and executes the other architectures through the QEMU
-  handlers `tonistiigi/binfmt` registers. Every consumer pulls the plain tag
-  and gets the image matching its machine.
+- **CI images are built natively per architecture and published as one tag per
+  distro.** Each architecture builds on its own runner, and
+  [push.sh](../../../scripts/image/push.sh) pushes the result by digest only, so
+  no per-architecture tag exists.
+  [manifest_all.sh](../../../scripts/image/manifest_all.sh) then publishes the
+  plain `<tag>` as a manifest list over every architecture's digest. Every
+  consumer pulls the plain tag and gets the image matching its machine.
 
 - **It is part of a row's identity.** The glyph is in the job label, the value
   in the artifact name, the column in the plan table, and `:arm64` narrows a
@@ -81,7 +81,7 @@ flowchart LR
     E --> T["artifact name"]
     R --> V["assert_architecture.sh<br/>uname -m must agree"]
     L --> F["parse_label → retrigger token<br/>role#0:arm64"]
-    B["images build<br/>one job, every platform"] --> M["manifest list<br/>one tag, both machines"]
+    B["images build<br/>one native job per architecture, pushed by digest"] --> M["manifest list<br/>one tag, both machines"]
     M --> R
 ```
 
@@ -92,10 +92,9 @@ flowchart LR
 - A role whose upstream images are amd64-only must say so in
   `meta/services.yml`, or half its rows fail on the image pull. That failure is
   loud and names the role, which is the intended way to discover the gap.
-- The CI image build stays one job, but every foreign-architecture layer runs
-  under emulation. A cold arm64 layer that compiles (the zfs userland on Arch
-  and Fedora) takes several times its native duration; the shared build cache
-  tag holds both platforms, so only changed layers pay it.
+- The CI image build is one job per architecture plus a merge job. It does not
+  grow in wall clock, because the architectures build in parallel on their own
+  runners, and each keeps its own build cache tag.
 - The plain image tag becomes a manifest list. Anything that inspects the tag
   expecting a single image manifest sees an index instead.
 - arm64 runner capacity becomes a dependency of the deploy matrix. A pool
@@ -107,7 +106,8 @@ flowchart LR
 |---|---|
 | Keep a run-wide architecture chosen by an input | One sweep proves one architecture and claims nothing about the other, which is the defect 0001 was written against. |
 | Make the architecture the slowest odometer digit | A role with few rows would never leave its first architecture, and per-role spread is the point of the axis. |
-| Build each architecture natively on its own runner and merge the tags | Two jobs per build and a per-architecture tag next to every image, which the registry cleanup then had to protect as children of the plain tag. |
+| Build every architecture in one job through QEMU emulation | Tried and measured: the image job went from under ten minutes to over two hours, because every arm64 layer after `COPY .` reruns emulated on each commit. |
+| Push a `<tag>-<arch>` per architecture and merge those tags | A second tag next to every image, which the registry cleanup then has to protect as children of the plain tag. Pushing by digest gives the same manifest list without it. |
 | Let the deploy job pick its own architecture | It cannot: the CPU comes with the runner, which is chosen before the job starts. |
 | Trust the runner label instead of asserting `uname -m` | A label that silently stops resolving to arm64 turns the whole axis into a green lie. |
 
