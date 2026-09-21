@@ -2,6 +2,16 @@
 - name: "🔍 Resolve the container before preloading on '{{ lmstudio_node }}'"
   ansible.builtin.include_tasks: utils/cid.yml
 
+- name: "⏳ Wait until the LM Studio daemon has finished starting on '{{ lmstudio_node }}'"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ LMSTUDIO_LOCAL_CID | quote }} curl -fsS -o /dev/null http://127.0.0.1:{{ LMSTUDIO_PORT }}/lmstudio-greeting
+  register: lmstudio_daemon_ready
+  changed_when: false
+  retries: 60
+  delay: 5
+  until: lmstudio_daemon_ready.rc == 0
+  delegate_to: "{{ lmstudio_node }}"
+
 - name: "🗄️ Measure the space the model store offers on '{{ lmstudio_node }}'"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec {{ LMSTUDIO_LOCAL_CID | quote }} df -P -B1 {{ LMSTUDIO_MODELS_TARGET | quote }}
