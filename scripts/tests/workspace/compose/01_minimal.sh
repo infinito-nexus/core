@@ -28,9 +28,12 @@ assert_caches_used "${CACHE_BEFORE}" "${CACHE_AFTER}"
 echo "Trusting the local CA certificate so HTTPS endpoints are reachable from the host."
 make network-trust-ca
 
+dashboard_url="$(stack_url dashboard)"
+matomo_url="$(stack_url matomo)"
+
 echo "Verifying the dashboard is reachable (matomo was disabled, not the dashboard itself)."
-assert_http_status 200 "${DASHBOARD_URL}"
+assert_http_status 200 "${dashboard_url}"
 
 echo "Verifying matomo is not reachable because it was excluded from the inventory."
 # Exception: Expect 000 because curl aborts in TLS before HTTP when the excluded hostname is missing from the certificate SANs.
-assert_http_status 000 "${MATOMO_URL}"
+assert_http_status 000 "${matomo_url}"

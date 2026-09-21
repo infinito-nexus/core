@@ -55,10 +55,11 @@ load_repo_env() {
 load_repo_env
 ensure_git_safe_directory
 
-DASHBOARD_URL="https://dashboard.${INFINITO_DOMAIN:?load_repo_env did not provide INFINITO_DOMAIN}"
-MATOMO_URL="https://matomo.${INFINITO_DOMAIN:?load_repo_env did not provide INFINITO_DOMAIN}"
-
-: "${DASHBOARD_URL}" "${MATOMO_URL}"
+# Param: $1 subdomain under the stack domain, e.g. dashboard
+# Output: its https URL
+stack_url() {
+	printf 'https://%s.%s\n' "$1" "${INFINITO_DOMAIN:?load_repo_env did not provide INFINITO_DOMAIN}"
+}
 
 # Print the generated inventory and host_vars for debugging and verification.
 #
