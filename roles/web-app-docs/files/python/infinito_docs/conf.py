@@ -48,8 +48,8 @@ source_suffix = {
 
 extensions = [
     "myst_parser",
-    "infinito_docs.extensions.local_file_headings",
-    "infinito_docs.extensions.local_subfolders",
+    "infinito_docs.extensions.local.file_headings",
+    "infinito_docs.extensions.local.subfolders",
     "infinito_docs.extensions.roles_overview",
     "infinito_docs.extensions.markdown_include",
     "infinito_docs.extensions.parallel_postprocess",

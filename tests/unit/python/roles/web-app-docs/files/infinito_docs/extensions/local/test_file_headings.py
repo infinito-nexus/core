@@ -14,7 +14,7 @@ if _TOOLING not in sys.path:
     sys.path.insert(0, _TOOLING)
 
 local_file_headings = importlib.import_module(
-    "infinito_docs.extensions.local_file_headings"
+    "infinito_docs.extensions.local.file_headings"
 )
 
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-from .nav_utils import (
+from infinito_docs.extensions.nav_utils import (
     DEFAULT_MAX_NAV_DEPTH,
     MAX_HEADING_LEVEL,
     extract_headings_from_file,

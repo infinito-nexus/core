@@ -13,7 +13,7 @@ _TOOLING = str(PROJECT_ROOT / "roles" / "web-app-docs" / "files" / "python")
 if _TOOLING not in sys.path:
     sys.path.insert(0, _TOOLING)
 
-local_subfolders = importlib.import_module("infinito_docs.extensions.local_subfolders")
+local_subfolders = importlib.import_module("infinito_docs.extensions.local.subfolders")
 
 
 def _tree(root: Path) -> None:

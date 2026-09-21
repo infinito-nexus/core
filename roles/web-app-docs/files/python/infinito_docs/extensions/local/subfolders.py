@@ -4,7 +4,10 @@ import copy
 from functools import cache
 from pathlib import Path
 
-from .nav_utils import MAX_HEADING_LEVEL, extract_headings_from_file
+from infinito_docs.extensions.nav_utils import (
+    MAX_HEADING_LEVEL,
+    extract_headings_from_file,
+)
 
 CANDIDATES = ("index.rst", "readme.md", "main.rst")
 
