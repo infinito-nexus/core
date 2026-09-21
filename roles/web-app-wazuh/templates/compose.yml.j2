@@ -81,25 +81,7 @@
     {{ lookup('container_depends_on', application_id, extra={
   'certs_generator': {'condition': 'service_completed_successfully'},
 }) | indent(4) }}
-{# Exception: securityadmin.sh (tasks/01_securityadmin.yml) is what actually
-   pushes this role's own credentials into the security index - it
-   authenticates via the admin client certificate
-   (plugins.security.authcz.admin_dn), not a username/password. Until
-   securityadmin.sh has run, the 'admin' user's real bcrypt hash is not
-   guaranteed to be live, so gating this healthcheck on that same password
-   creates a chicken-and-egg deadlock (confirmed against a live deploy: the
-   healthcheck itself blocks the ordering that would let securityadmin.sh
-   ever run). This healthcheck only needs to prove the security plugin has
-   loaded enough to answer HTTPS requests at all; a 401 is exactly that
-   proof. #}
-    healthcheck:
-      test:
-        - "CMD-SHELL"
-        - "curl -s -o /dev/null -w '%{http_code}' -k https://localhost:{{ WAZUH_INDEXER_INTERNAL_PORT }}/_cluster/health | grep -Eq '^(200|401)$$'"
-      interval: 30s
-      timeout: 10s
-      retries: 10
-      start_period: 90s
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
 
 {# Exception: the compose SERVICE key stays "dashboard" (meta/services.yml's
    own "dashboard" key is already taken by the platform's web-app-dashboard
