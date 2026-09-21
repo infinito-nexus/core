@@ -45,14 +45,12 @@ flowchart TB
         chunk0 --> smoke["call-test-runner-smoke.yml"]
         chain --> report["report-main-failures"]
 
-        instmake["call-test-install-make.yml"]
-        instpkgmgr["call-test-install-pkgmgr.yml"]
+        install["call-test-install.yml"]
         mirror --> devenv["test-workspace: call-test-workspace.yml"]
 
         chain --> donegate["done"]
         smoke --> donegate
-        instmake --> donegate
-        instpkgmgr --> donegate
+        install --> donegate
         devenv --> donegate
     end
 
