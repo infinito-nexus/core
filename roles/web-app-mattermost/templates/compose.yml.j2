@@ -3,6 +3,11 @@
   {% set service_name = 'mattermost' %}
   {{ service_name }}:
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
+      args:
+        MATTERMOST_BASE_IMAGE: "{{ MATTERMOST_BASE_IMAGE }}"
+        MATTERMOST_BASE_VERSION: "{{ MATTERMOST_BASE_VERSION }}"
+        MATTERMOST_VERSION: "{{ MATTERMOST_VERSION }}"
     {{ lookup('container_image', application_id, 'mattermost') }}
     {{ lookup('compose_only', 'container_name', MATTERMOST_CONTAINER) }}
     {{ lookup('container_ports', ['mattermost', 'http', DOCKER_BIND_HOST]) | indent(4) }}

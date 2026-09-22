@@ -1,6 +1,28 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "🥾 Bootstrap the compose host once before staging the build context"
+  ansible.builtin.include_role:
+    name: sys-svc-compose
+    tasks_from: 00_core.yml
+  when: run_once_sys_svc_compose is not defined
+
+- name: "📁 Create the build context of '{{ application_id }}'"
+  ansible.builtin.file:
+    path: "{{ MATTERMOST_BUILD_DIR }}"
+    state: directory
+    mode: "0755"
+  when: IS_STACK_HOST | bool
+
+- name: "📦 Stage the Mattermost installer into the build context"
+  stack_host_copy:
+    src: shell/install.sh
+    dest: "{{ [MATTERMOST_BUILD_DIR, 'install.sh'] | path_join }}"
+    mode: "0755"
+  notify:
+    - compose-build
+    - compose-up
+
 - name: "🔌 Stage the MCP adapter instance for {{ application_id }}"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
   vars:
