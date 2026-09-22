@@ -336,6 +336,19 @@ fix-dockerignore:
 help:
 	@bash scripts/make/help.sh $(target)
 
+.PHONY: i18n-extract
+# Merge the translatable strings of core and the documentation into the gettext catalogs under locale/.
+# Param domain: core | docs (empty: both)
+i18n-extract:
+	@"$${PYTHON}" -m cli.build.i18n extract $(if $(domain),--domain "$(domain)")
+
+.PHONY: i18n-translate
+# Machine-translate the empty and fuzzy entries of one catalog domain with a short-lived LibreTranslate container.
+# Param domain: core | docs
+# Param languages: comma-separated ISO 639-1 codes (empty: every language LibreTranslate supports)
+i18n-translate:
+	@"$${PYTHON}" -m cli.build.i18n translate --domain "$(domain)" $(if $(languages),--languages "$(languages)")
+
 .PHONY: install
 # Install all runtime dependencies.
 # Note: incremental via a stamp file (see scripts/install/all.sh).
