@@ -1,0 +1,8 @@
+---
+cursor:
+  Archlinux:
+    source: aur
+    names:
+      - cursor-bin
+  Debian: [] # nocheck: empty - Cursor ships only as a vendor AppImage and deb outside any Debian or Ubuntu archive; TODO: install the vendor build through a build source once its signature is pinned
+  RedHat: [] # nocheck: empty - Cursor ships no rpm and is carried by neither Fedora nor EPEL; TODO: install the vendor AppImage through a build source once its signature is pinned

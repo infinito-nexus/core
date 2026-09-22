@@ -1,0 +1,16 @@
+---
+- name: ✅ Ensure npm is installed
+  package_install:
+    id: npm
+
+- name: 📦 install the claude coding agent
+  ansible.builtin.command:
+    cmd: npm install -g {{ agnt_claude_package }}
+  register: agnt_claude_install
+  changed_when: "'added' in agnt_claude_install.stdout or 'changed' in agnt_claude_install.stdout"
+
+- name: 🔑 Point the agent at the model gateway
+  ansible.builtin.include_tasks: 01_gateway.yml
+  when: agnt_claude_configured | bool
+
+- include_tasks: utils/once/flag.yml

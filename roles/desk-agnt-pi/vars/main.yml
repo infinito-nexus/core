@@ -1,0 +1,9 @@
+---
+application_id: desk-agnt-pi
+agnt_pi_package: "@earendil-works/pi-coding-agent"
+agnt_pi_home: "/home/{{ lookup('users', WORKSTATION_USER).username }}"
+agnt_pi_models_path: "{{ [agnt_pi_home, '.pi', 'agent', 'models.json'] | path_join }}"
+agnt_pi_gateway_url: "{{ lookup('config', application_id, 'services.agnt-pi.gateway_url') }}"
+agnt_pi_models: "{{ lookup('config', application_id, 'services.agnt-pi.models') }}"
+agnt_pi_gateway_key: "{{ lookup('config', application_id, 'secrets.credentials.gateway_key') }}"
+agnt_pi_configured: "{{ (agnt_pi_gateway_url | length > 0) and (agnt_pi_gateway_key | length > 0) and (agnt_pi_models | length > 0) }}"

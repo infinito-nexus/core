@@ -1,0 +1,8 @@
+---
+- block:
+    - name: 📦 install cursor
+      package_install:
+        id: cursor
+
+    - include_tasks: utils/once/flag.yml
+  when: run_once_desk_agnt_cursor is not defined

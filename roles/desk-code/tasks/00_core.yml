@@ -1,0 +1,28 @@
+---
+- name: "🛑 Refuse a flavor the role does not carry"
+  ansible.builtin.assert:
+    that:
+      - code_flavor in code_flavors
+    fail_msg: "services.code.flavor is '{{ code_flavor }}'; carried flavors are {{ code_flavors.keys() | list | join(', ') }}."
+    quiet: true
+
+- name: "🧹 Remove the flavors that conflict with {{ code_flavor }}"
+  package_install:
+    id: "{{ item }}"
+    state: absent
+  loop: "{{ code_conflicting_flavors }}"
+
+- name: "📦 install {{ code_flavor }}"
+  package_install:
+    id: "{{ code_flavor }}"
+
+- name: "🧩 Install the extension of an agent this host deploys"
+  ansible.builtin.command:
+    cmd: "{{ code_binary }} --install-extension {{ item }} --force"
+  become: false
+  become_user: "{{ lookup('users', WORKSTATION_USER).username }}"
+  register: code_extension
+  changed_when: "'successfully installed' in (code_extension.stdout | lower)"
+  loop: "{{ code_wanted_extensions }}"
+
+- include_tasks: utils/once/flag.yml

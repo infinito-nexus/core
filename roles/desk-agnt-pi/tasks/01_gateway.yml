@@ -1,0 +1,34 @@
+---
+- name: 📁 Ensure the agent's configuration directory exists
+  ansible.builtin.file:
+    path: "{{ agnt_pi_models_path | dirname }}"
+    state: directory
+    owner: "{{ lookup('users', WORKSTATION_USER).username }}"
+    group: "{{ lookup('users', WORKSTATION_USER).username }}"
+    mode: "0700"
+
+- name: 🔎 Look for models the user already keeps
+  ansible.builtin.stat:
+    path: "{{ agnt_pi_models_path }}"
+  register: agnt_pi_models_stat
+
+- name: 📖 Read the models the user already keeps
+  ansible.builtin.slurp:
+    src: "{{ agnt_pi_models_path }}"
+  register: agnt_pi_models_slurp
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: agnt_pi_models_stat.stat.exists
+
+- name: 🧊 Carry the user's models into the template
+  ansible.builtin.set_fact:
+    agnt_pi_existing_models: "{{ (agnt_pi_models_slurp.content | b64decode | from_json) if agnt_pi_models_stat.stat.exists else {} }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: 🔐 Write the merged model registry
+  ansible.builtin.template: # nocheck: stack-host-template (workstation role; the file belongs to the local user and there is no compose stack to gate on)
+    src: models.json.j2
+    dest: "{{ agnt_pi_models_path }}"
+    owner: "{{ lookup('users', WORKSTATION_USER).username }}"
+    group: "{{ lookup('users', WORKSTATION_USER).username }}"
+    mode: "0600"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
