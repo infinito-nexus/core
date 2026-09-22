@@ -3,6 +3,12 @@
   {% set service_name = 'lmstudio' %}
   {{ service_name }}:
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
+      args:
+        LMSTUDIO_IMAGE: "{{ LMSTUDIO_IMAGE }}"
+        LMSTUDIO_VERSION: "{{ LMSTUDIO_VERSION }}"
+        LMSTUDIO_APP_VERSION: "{{ LMSTUDIO_APP_VERSION }}"
+        LMSTUDIO_PORT: "{{ LMSTUDIO_PORT }}"
     {{ lookup('container_image', application_id, 'lmstudio') }}
     {{ lookup('compose_only', 'container_name', LMSTUDIO_CONTAINER) }}
     expose:
@@ -10,6 +16,7 @@
     environment:
       LMS_SERVER_HOST: "0.0.0.0"
     {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
 {{ lookup('compose_networks') }}

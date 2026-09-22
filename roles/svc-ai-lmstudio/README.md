@@ -33,12 +33,12 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 ## Features
 
 - **OpenAI-compatible endpoint:** The headless server answers `/v1` requests on port 1234 inside the container network.
-- **CPU inference:** The role pins the CPU build of the upstream image and passes no GPU device into the container.
+- **CPU inference:** The role builds its own image from the pinned llmster release for the host's architecture, amd64 or arm64, keeps only the CPU llama.cpp engine and passes no GPU device into the container.
 - **Persistent model store:** A named volume mounted at `/root/.lmstudio` keeps downloaded models and server settings across redeploys.
 - **Preloaded models:** Every entry of `services.lmstudio.preload_models` is downloaded on the hosting node with `lms get --gguf`, overlapped and reaped like the Ollama pre-pull. Each entry carries the `source` repository to download, the `name` LM Studio indexes that repository under and the gateway addresses it by, and the `alias` the gateway publishes it as. `source` is a full Hugging Face URL, never a search term: a search term resolves to whichever model the catalogue lists first.
 - **Loading:** The pre-pull downloads without loading. LM Studio serves with just-in-time loading, so the first `/v1/chat/completions` naming a `name` loads that model; the gateway's warm task issues that first request at deploy time.
 - **Gateway backend:** The LiteLLM Gateway publishes those aliases, which are the names Ollama serves too, so the same model name routes to whichever local backend a deployment runs.
-- **Bounded resources:** The container is capped at 4 CPUs, 8 GB of memory and 2048 processes, and the role declares a minimum of 588 MB free storage for the image; downloaded models grow the volume beyond that.
+- **Bounded resources:** The container is capped at 4 CPUs, 8 GB of memory and 2048 processes, and the role declares a minimum of 4 GB free storage for building the image; downloaded models grow the volume beyond that.
 - **Backup integration:** Backup Docker Volumes snapshots the model volume when that role is present, without stopping the container.
 
 ## Quick Setup
