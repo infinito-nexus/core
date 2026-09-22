@@ -86,6 +86,10 @@ litellm:
   bond: 1
   enabled: "{{ LITELLM_USABLE }}"
   shared: true
+agent-broker:
+  bond: 1
+  enabled: "{{ 'svc-ai-agent-broker' in group_names }}"
+  shared: "{{ 'svc-ai-agent-broker' in group_names }}"
 
 email:
   bond: 1

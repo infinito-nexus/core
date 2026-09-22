@@ -10,6 +10,17 @@ OPENWEBUI_ENABLE_API_KEYS: "{{ lookup('config', application_id, 'services.openwe
 OPENWEBUI_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 OPENWEBUI_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') }}"
 OPENWEBUI_LITELLM_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') }}"
+OPENWEBUI_AGENT_BROKER_ENABLED: "{{ lookup('config', application_id, 'services.agent-broker.enabled') }}"
+OPENWEBUI_AGENT_BROKER_URL: "http://{{ 'svc-ai-agent-broker' | get_entity_name }}:{{ lookup('config', 'svc-ai-agent-broker', 'services.agent-broker.ports.internal.http')
+  }}/v1"
+OPENWEBUI_AGENT_BROKER_KEY: "{{ lookup('config', 'svc-ai-agent-broker', 'secrets.credentials.api_key') }}"
+OPENWEBUI_AGENT_BROKER_TIMEOUT: "{{ lookup('config', 'svc-ai-agent-broker', 'services.agent-broker.request_timeout') }}"
+OPENWEBUI_AGENT_MODELS:
+  hermes: "/{{ lookup('rbac_group_path', application_id='web-app-hermes', role='agent-user') }}"
+  openclaw: "/{{ lookup('rbac_group_path', application_id='web-app-openclaw', role='agent-user') }}"
+OPENWEBUI_OPENAI_CONNECTIONS: >-
+  {{ ([{'url': LITELLM_BASE_LOCAL_URL ~ '/v1', 'key': OPENWEBUI_LITELLM_API_KEY}] if (OPENWEBUI_LITELLM_ENABLED | bool) else [])
+     + ([{'url': OPENWEBUI_AGENT_BROKER_URL, 'key': OPENWEBUI_AGENT_BROKER_KEY}] if (OPENWEBUI_AGENT_BROKER_ENABLED | bool) else []) }}
 OPENWEBUI_SECRET_KEY: "{{ lookup('config', application_id, 'secrets.credentials.webui_secret_key') }}"
 OPENWEBUI_MCP_SERVERS: "{{ MCP_DISCOVERED_SERVERS if (lookup('config', application_id, 'mcp.enabled') | bool) else [] }}"
 OPENWEBUI_MCP_GROUP_OWNER: "openwebui-mcp-groups"

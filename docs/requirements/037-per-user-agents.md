@@ -24,7 +24,7 @@ As a platform user with agent access, I want Open WebUI to start my own Hermes o
 
 ### Model visibility
 
-With the broker deployed, Open WebUI runs with `BYPASS_MODEL_ACCESS_CONTROL=false`. A deploy-time step grants every LiteLLM model public read access and each agent model read access for its `agent-user` group only.
+With the broker deployed, Open WebUI runs with `BYPASS_MODEL_ACCESS_CONTROL=false`. A deploy-time step grants every LiteLLM model public read access and each agent model read access for its `agent-user` group only. A `svc-ai-litellm` deploy repeats that step in a running Open WebUI, so a model added to the gateway is visible to every user without an Open WebUI deploy.
 
 ### Agent container
 
@@ -68,6 +68,7 @@ The broker reaches the container engine only through a filtered unix socket in a
 
 - [ ] `web-app-hermes` and `web-app-openclaw` each declare the RBAC role `agent-user`, which provisions a Keycloak group.
 - [ ] Open WebUI lists `hermes` and `openclaw` only to a user in the matching group, while every LiteLLM model stays visible to all users.
+- [ ] A model added to LiteLLM becomes visible to all Open WebUI users after a `svc-ai-litellm` deploy alone.
 - [ ] A direct call to the broker for a user outside the group gets HTTP 403 and creates no container.
 - [ ] A request with a wrong or missing broker key gets HTTP 401.
 

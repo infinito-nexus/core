@@ -63,3 +63,13 @@
   when:
     - IS_STACK_HOST | bool
     - LITELLM_CONSUMER_KEYS | length > 0
+
+- name: "🔁 Publish the current gateway models in Open WebUI"
+  ansible.builtin.include_role:
+    name: web-app-openwebui
+    tasks_from: utils/refresh_model_grants.yml
+  vars:
+    application_id: web-app-openwebui
+  when:
+    - "'web-app-openwebui' in group_names"
+    - lookup('config', 'web-app-openwebui', 'services.agent-broker.enabled') | bool

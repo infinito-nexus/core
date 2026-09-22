@@ -15,6 +15,7 @@ The diagram places Open WebUI in the Infinito.Nexus cosmos: the components it de
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
+        dep_svc_ai_agent_broker["svc-ai-agent-broker 🐳🐝"]
         dep_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
@@ -41,6 +42,7 @@ flowchart LR
         svc_css["css"]
         svc_javascript["javascript"]
         svc_litellm["litellm"]
+        svc_agent_broker["agent-broker"]
         svc_email["email"]
         svc_prometheus["prometheus"]
         svc_tor["tor"]
@@ -61,6 +63,7 @@ flowchart LR
         dpt_web_app_moodle["web-app-moodle 🐳🐝"]
         dpt_more["..."]
     end
+    dep_svc_ai_agent_broker -. "0..1" .-> svc_agent_broker
     dep_svc_ai_litellm -. "0..1" .-> svc_litellm
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
@@ -97,6 +100,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 * Optional **offline mode** for air-gapped environments
 * File/paste input for summaries and extraction (model dependent)
 * Suitable for teams: predictable, private, reproducible
+* With `svc-ai-agent-broker` deployed, lists `hermes` and `openclaw` only to members of the matching `agent-user` group and grants every LiteLLM model to all users; a `svc-ai-litellm` deploy re-grants the gateway models in a running Open WebUI
 
 ## Quick Setup
 

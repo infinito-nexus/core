@@ -18,4 +18,5 @@ require("./test-mcp-servers").register(shared);
 require("./test-mcp-bridge").register(shared);
 require("./test-mcp-non-member").register(shared);
 require("./test-mcp-grant-via-lam").register(shared);
+require("./test-agent-broker").register(shared);
 require("./test-seaweedfs");
