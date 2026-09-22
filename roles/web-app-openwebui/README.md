@@ -8,6 +8,17 @@
 
 End users access a web page, pick a model, and start chatting. Conversations remain on your servers. Admins can enable strict offline behavior so no external network calls occur. The UI can also point at OpenAI-compatible endpoints if needed.
 
+Document extraction (`svc-ai-tika`), web search (`svc-ai-searxng`) and the code interpreter (`svc-ai-jupyter`) are wired but off by default. Deploying those roles is not enough: each is a `services.<name>` flag on this role, and only that flag both attaches Open WebUI to the provider's network and renders the matching environment block. Turning all three on adds 3.5 GB of memory limit to the closure that every role reaches through Open WebUI, which is more than the variant budget in `tests/integration/roles/meta/variants/test_resource_budget.py` has left, so the choice stays with the operator:
+
+```yaml
+applications:
+  web-app-openwebui:
+    services:
+      tika: { enabled: true, shared: true }
+      searxng: { enabled: true, shared: true }
+      jupyter: { enabled: true, shared: true }
+```
+
 ## Cosmos
 
 The diagram places Open WebUI in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
@@ -19,6 +30,7 @@ flowchart LR
         dep_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
         dep_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻"]
         dep_svc_db_openldap["svc-db-openldap 🐳🐝"]
+        dep_svc_db_qdrant["svc-db-qdrant 🐳🐝"]
         dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_dashboard["web-app-dashboard 🐳🐝"]
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
@@ -43,6 +55,10 @@ flowchart LR
         svc_javascript["javascript"]
         svc_litellm["litellm"]
         svc_agent_broker["agent-broker"]
+        svc_qdrant["qdrant"]
+        svc_tika["tika ❌"]
+        svc_searxng["searxng ❌"]
+        svc_jupyter["jupyter ❌"]
         svc_email["email"]
         svc_prometheus["prometheus"]
         svc_tor["tor"]
@@ -67,6 +83,7 @@ flowchart LR
     dep_svc_ai_litellm -. "0..1" .-> svc_litellm
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_db_openldap -. "0..1" .-> svc_ldap
+    dep_svc_db_qdrant -. "0..1" .-> svc_qdrant
     dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_dashboard -. "0..1" .-> svc_dashboard
     dep_web_app_keycloak -. "0..1" .-> svc_sso
@@ -101,6 +118,8 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 * File/paste input for summaries and extraction (model dependent)
 * Suitable for teams: predictable, private, reproducible
 * With `svc-ai-agent-broker` deployed, lists `hermes` and `openclaw` only to members of the matching `agent-user` group and grants every LiteLLM model to all users; a `svc-ai-litellm` deploy re-grants the gateway models in a running Open WebUI
+* Retrieval, web search and code execution come from platform services (`svc-ai-tika`, `svc-ai-searxng`, `svc-ai-jupyter`, `svc-db-qdrant`) rather than from a third-party API, each switched on per deployment
+* `services.openwebui.embedding_model`, `.image_model`, `.speech_to_text_model` and `.text_to_speech_model` route embeddings, images, speech recognition and speech synthesis through the gateway; an embedding model set here also replaces the sentence-transformer the image otherwise downloads from Hugging Face on first start
 
 ## Quick Setup
 

@@ -1,0 +1,26 @@
+---
+# nocheck: playwright-service-flag - internal search backend consumed over the container network
+searxng:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  bond: 1
+  enabled: true
+  shared: true
+  image: searxng/searxng
+  version: 2026.9.22-2ed96e6fc
+  name: searxng
+  healthcheck:
+    flavor: http
+    path: healthz
+  min_storage: 500MB
+  cpus: "0.5"
+  mem_reservation: 128m
+  mem_limit: 512m
+  pids_limit: 256
+  ports:
+    internal:
+      http: 8080
+  lifecycle: alpha

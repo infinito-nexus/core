@@ -38,6 +38,7 @@ flowchart LR
     end
     subgraph dependents [Dependents]
         dpt_web_app_flowise["web-app-flowise 🐳🐝"]
+        dpt_web_app_openwebui["web-app-openwebui 🐳🐝"]
     end
     dep_svc_bkp_volume_2_local -. "0..1" .-> svc_container_backup
     dep_svc_net_tor -. "0..1" .-> svc_tor
@@ -46,6 +47,7 @@ flowchart LR
     dep_web_app_openclaw -. "0..1" .-> svc_openclaw
     dep_web_app_openwebui -. "0..1" .-> svc_openwebui
     svc_qdrant -. "0..1" .-> dpt_web_app_flowise
+    svc_qdrant -. "0..1" .-> dpt_web_app_openwebui
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.

@@ -30,6 +30,9 @@
     agent-broker:
       enabled: true
       shared: true
+    qdrant:
+      enabled: true
+      shared: true
     prometheus:
       enabled: true
       shared: true
@@ -66,6 +69,9 @@
     litellm:
       enabled: false
     agent-broker:
+      enabled: false
+      shared: false
+    qdrant:
       enabled: false
       shared: false
     prometheus:
@@ -107,6 +113,9 @@
     litellm:
       enabled: false
     agent-broker:
+      enabled: false
+      shared: false
+    qdrant:
       enabled: false
       shared: false
     prometheus:
