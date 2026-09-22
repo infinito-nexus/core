@@ -9,13 +9,13 @@ plugins_dir=/mattermost/prepackaged_plugins
 groupadd --gid 2000 mattermost
 useradd --uid 2000 --gid 2000 --comment "" --home-dir /mattermost mattermost
 
-curl -fsSL --retry 3 --connect-timeout 30 --max-time 900 \
+curl -fsSL --retry 3 --retry-all-errors --retry-delay 2 --connect-timeout 30 --max-time 900 \
 	"https://releases.mattermost.com/${version}/mattermost-team-${version}-linux-${arch}.tar.gz" |
 	tar -xz -C /
 
 if [[ ! -d "${plugins_dir}" ]]; then
 	listed="$(
-		curl -fsSL --retry 3 --connect-timeout 30 --max-time 300 \
+		curl -fsSL --retry 3 --retry-all-errors --retry-delay 2 --connect-timeout 30 --max-time 300 \
 			"https://raw.githubusercontent.com/mattermost/mattermost/v${version}/server/Makefile" |
 			sed -n -E 's/^PLUGIN_PACKAGES \+= (mattermost-plugin-[^ ]+)$/\1/p'
 	)"
@@ -26,7 +26,7 @@ if [[ ! -d "${plugins_dir}" ]]; then
 	mkdir "${plugins_dir}"
 	while read -r plugin; do
 		for file in "${plugin}-linux-${arch}.tar.gz" "${plugin}-linux-${arch}.tar.gz.sig"; do
-			curl -fsSL --retry 3 --connect-timeout 30 --max-time 900 -o "${plugins_dir}/${file}" \
+			curl -fsSL --retry 3 --retry-all-errors --retry-delay 2 --connect-timeout 30 --max-time 900 -o "${plugins_dir}/${file}" \
 				"https://plugins.releases.mattermost.com/release/${file}"
 		done
 	done <<<"${listed}"
