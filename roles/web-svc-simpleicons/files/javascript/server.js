@@ -9,10 +9,11 @@ const docsUrl = process.env.DOCS_URL;
 const organization = process.env.ORGANIZATION;
 
 function getExportName(slug) {
-  return 'si' + slug
+  const name = slug
     .split('-')
     .map(part => part[0].toUpperCase() + part.slice(1))
     .join('');
+  return `si${name}`;
 }
 
 app.get('/', (req, res) => {
