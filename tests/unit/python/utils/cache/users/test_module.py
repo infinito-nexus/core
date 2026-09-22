@@ -225,9 +225,16 @@ class TestMergeUsers(unittest.TestCase):
             {
                 "invuser": {"username": "invuser"},
                 "invbot": {"username": "invbot", "roles": ["bot"]},
-                "pinned": {"username": "pinned", "accounts": [], "forward": "x"},
+                "pinned": {
+                    "username": "pinned",
+                    "accounts": [],
+                    "forward": "x",
+                    "email": "pinned@example.org",
+                },
             }
         )
+        self.assertEqual(merged["invuser"]["email"], "invuser@{{ DOMAIN_PRIMARY }}")
+        self.assertEqual(merged["pinned"]["email"], "pinned@example.org")
         self.assertEqual(merged["invuser"]["accounts"], ["identity"])
         self.assertEqual(merged["invuser"]["forward"], "")
         self.assertEqual(merged["invbot"]["accounts"], ["mailbox", "identity"])
