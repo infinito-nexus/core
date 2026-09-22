@@ -203,7 +203,8 @@ entity, next to `modes`:
     - amd64
 ```
 
-The row then draws from that intersection instead of the run's whole pool. A
+The row then draws from that intersection instead of the run's whole pool, and
+so does every row whose transitive service closure contains that role. A
 role and a run that permit nothing in common abort the matrix rather than
 dropping the row.
 

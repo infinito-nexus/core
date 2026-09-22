@@ -196,7 +196,9 @@ def check_pins(
     )
 
 
-def row_architectures(app: str, run_pool: Sequence[str]) -> tuple[str, ...]:
+def row_architectures(
+    app: str, run_pool: Sequence[str], services: Sequence[str] = ()
+) -> tuple[str, ...]:
     """The architectures one role's rows may draw from this run.
 
     A role that declares none takes the run's whole pool, which is what
@@ -207,6 +209,8 @@ def row_architectures(app: str, run_pool: Sequence[str]) -> tuple[str, ...]:
     Args:
         app: role id, read for its ``meta/services.yml`` declaration.
         run_pool: what the run permits, already narrowed by its own input.
+        services: the row's transitive service closure, each narrowing the
+            row like the role's own declaration.
 
     Raises:
         SystemExit: the role and the run permit nothing in common. Dropping
@@ -214,16 +218,19 @@ def row_architectures(app: str, run_pool: Sequence[str]) -> tuple[str, ...]:
             deployed, and picking one anyway would deploy it on hardware one
             of the two sides ruled out.
     """
-    declared = get_role_architectures(app)
-    if not declared:
-        return tuple(run_pool)
-    allowed = tuple(value for value in run_pool if value in declared)
+    allowed = tuple(run_pool)
+    declarations: list[str] = []
+    for role in (app, *services):
+        declared = get_role_architectures(role)
+        if declared:
+            declarations.append(f"{role} ({', '.join(declared)})")
+            allowed = tuple(value for value in allowed if value in declared)
     if not allowed:
         raise SystemExit(
-            f"{app}: meta/services.yml declares architectures "
-            f"{', '.join(declared)}, and this run permits "
+            f"{app}: meta/services.yml declares architectures for "
+            f"{'; '.join(declarations)}, and this run permits "
             f"{', '.join(run_pool) or 'none'}. Widen the run's architecture "
-            f"pool or the role's declaration."
+            f"pool or the declarations."
         )
     return allowed
 
@@ -311,7 +318,9 @@ def assign(
         pin_distro = row.get("pin_distro")
         pin_filesystem = row.get("pin_filesystem")
         pin_architecture = row.get("pin_architecture")
-        offered_architectures = row_architectures(app, architectures)
+        offered_architectures = row_architectures(
+            app, architectures, row.get("services", ())
+        )
         check_pins(
             app,
             variant_csv,

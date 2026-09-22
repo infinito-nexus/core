@@ -57,7 +57,9 @@ machine, not just a value the job applies to itself.
 - **A role may narrow the pool.** `meta/services.yml.<primary_entity>
   .architectures` lists what the role can run on, next to `modes`, because both
   state a capability rather than a testing preference. The row draws from the
-  intersection with the run's pool; an empty intersection aborts the matrix.
+  intersection of the run's pool with the declarations of the role and of every
+  service in its transitive closure, because the deploy pulls those in too; an
+  empty intersection aborts the matrix.
 
 - **CI images are built natively per architecture and published as one tag per
   distro.** Each architecture builds on its own runner, and

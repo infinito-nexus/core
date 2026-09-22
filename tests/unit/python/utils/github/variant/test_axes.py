@@ -665,6 +665,22 @@ class TestArchitectureAxis(unittest.TestCase):
             )
         self.assertEqual({entry["architecture"] for entry in entries}, {"arm64"})
 
+    def test_a_service_in_the_closure_narrows_the_row_like_the_role(self) -> None:
+        rows = [
+            {**_row("web-app-b", index, ("compose",)), "services": ["svc-db-x"]}
+            for index in range(4)
+        ]
+        declared = {"svc-db-x": ["amd64"]}
+        with mock.patch.object(
+            axes,
+            "get_role_architectures",
+            side_effect=lambda role: declared.get(role, []),
+        ):
+            entries = _assign(
+                rows, sweep=0, tor_mode="disabled", variants_per_app=_VARIANTS
+            )
+        self.assertEqual({entry["architecture"] for entry in entries}, {"amd64"})
+
     def test_a_role_and_run_that_permit_nothing_in_common_abort(self) -> None:
         rows = [_row("web-app-b", 0, ("compose",))]
         with (
