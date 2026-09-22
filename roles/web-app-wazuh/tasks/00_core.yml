@@ -75,6 +75,26 @@
   when: IS_STACK_HOST | bool
   notify: compose-up
 
+# Exception: flushes here, right after the last notify: compose-up above,
+# instead of waiting for sys-stk-front-proxy's own later flush. compose-up
+# (sys-svc-compose/handlers/compose.yml) resolves its chdir from
+# application_id fresh at the moment it actually runs, not at notify time.
+# application_id here comes from this role's own vars/main.yml (a role var),
+# and many other roles reached later in this same play establish their OWN
+# identity via `set_fact: application_id: <themselves>` in their tasks/main.yml
+# (svc-db-openldap, web-app-gitlab, and dozens more all do this) - set_fact
+# outranks role vars in Ansible's precedence, so once any of those run, this
+# role's OWN application_id is permanently shadowed for the rest of the play.
+# sys-stk-front-proxy (included below) reaches exactly such roles via its own
+# dependency chain before it flushes; confirmed via a minimal repro that a
+# deferred flush after that point resolves compose-up's chdir against
+# whichever role ran last, not the role that actually notified it. Flushing
+# immediately, before any of that chain runs, is what keeps application_id
+# correct for this handler. Nothing between here and sys-stk-front-proxy
+# needs the containers already running, so it is safe to bring them up now.
+- name: "🔄 Flush compose-up before front-proxy can shadow application_id"
+  ansible.builtin.meta: flush_handlers
+
 # Exception: vm.max_map_count is not namespaced by the Linux kernel, so
 # setting it from inside a DinD sandbox would only affect the sandbox's own view, not the
 # real host the outer dockerd runs on. Skip the host-level change there;
