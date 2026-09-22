@@ -11,6 +11,7 @@ Environment:
     LITELLM_URL:              gateway base URL.
     LITELLM_KEY:              the broker's own gateway key.
     AGENT_MODEL:              model alias agents are configured with.
+    AGENT_CONTEXT:            context window of that model in tokens; empty leaves it to the agent.
     AGENT_PLATFORMS:          JSON platform name -> spec.
     KEYCLOAK_URL:             Keycloak base URL.
     KEYCLOAK_REALM:           realm of the platform users.
@@ -65,6 +66,7 @@ AGENTS = Agents(
     broker_alias=ENV["BROKER_ALIAS"],
     relay_url=f"http://{ENV['BROKER_ALIAS']}:{PORT}/llm/v1",
     model=ENV["AGENT_MODEL"],
+    context=int(ENV["AGENT_CONTEXT"] or 0),
     idle_stop=ENV["IDLE_STOP"].lower() == "true",
     idle_seconds=int(ENV["IDLE_MINUTES"]) * 60,
     max_running=int(ENV["MAX_RUNNING"]),

@@ -100,6 +100,27 @@ class TestOllamaOnly(unittest.TestCase):
         self.assertEqual(published[SHARED["alias"]]["api_base"], OLLAMA_URL)
 
 
+class TestContextWindow(unittest.TestCase):
+    def test_a_declared_window_reaches_ollama_and_the_model_info(self) -> None:
+        config = render(ollama=[{**SHARED, "context": 32768}])
+        entry = (config.get("model_list") or [])[0]
+        self.assertEqual(entry["litellm_params"]["num_ctx"], 32768)
+        self.assertEqual(entry["model_info"]["max_input_tokens"], 32768)
+
+    def test_a_remote_model_publishes_its_window_without_num_ctx(self) -> None:
+        config = render(
+            keys={"openrouter": "sk-or"}, remote_models=[{**BONSAI, "context": 128000}]
+        )
+        entry = (config.get("model_list") or [])[0]
+        self.assertEqual(entry["model_info"]["max_input_tokens"], 128000)
+        self.assertNotIn("num_ctx", entry["litellm_params"])
+
+    def test_a_model_without_a_window_publishes_none(self) -> None:
+        entry = (render(ollama=[SHARED]).get("model_list") or [])[0]
+        self.assertNotIn("num_ctx", entry["litellm_params"])
+        self.assertNotIn("model_info", entry)
+
+
 class TestLmstudioOnly(unittest.TestCase):
     def test_the_alias_is_published_against_the_lmstudio_name(self) -> None:
         published = routes(render(lmstudio=[SHARED, LMSTUDIO_ONLY]))

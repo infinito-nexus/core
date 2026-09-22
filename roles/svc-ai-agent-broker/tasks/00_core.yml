@@ -8,6 +8,14 @@
 - name: "🔐 Verify the gateway contract for {{ application_id }}"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
 
+- name: "🛑 Refuse an agent model the gateway never resolved"
+  ansible.builtin.assert:
+    that:
+      - AGENT_BROKER_MODEL | length > 0
+      - AGENT_BROKER_MODEL is not search('[{][{]')
+    fail_msg: "services.agent-broker.agents.model resolved to '{{ AGENT_BROKER_MODEL }}'; every agent would ask the gateway for it."
+    quiet: true
+
 - name: "🛡️ Install the isolating runtime every agent runs under"
   ansible.builtin.include_role:
     name: svc-virt-kata

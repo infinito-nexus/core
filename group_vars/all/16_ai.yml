@@ -23,6 +23,7 @@ LITELLM_LMSTUDIO_BACKEND: >-
 
 AI_LOCAL_MODELS:
   - alias: qwen2.5:0.5b
+    context: 32768
     name: qwen2.5-0.5b-instruct
     repo: lmstudio-community/Qwen2.5-0.5B-Instruct-GGUF
     url: https://huggingface.co/lmstudio-community/Qwen2.5-0.5B-Instruct-GGUF/resolve/main/Qwen2.5-0.5B-Instruct-Q8_0.gguf
@@ -30,6 +31,10 @@ AI_LOCAL_MODELS:
     file: Qwen2.5-0.5B-Instruct-Q8_0.gguf
     sha256: "1d96e30253a76970864323987e3e77eeaf170312952fd61d18d343c25cfd6e52"
     bytes: 531068224
+
+AI_MODEL_CONTEXTS: >-
+  {{ (AI_LOCAL_MODELS + (lookup('config', 'svc-ai-litellm', 'services.litellm.remote_models')))
+     | selectattr('context', 'defined') | list | items2dict(key_name='alias', value_name='context') }}
 
 AI_REMOTE_ALIASES: >-
   {{ lookup('config', 'svc-ai-litellm', 'services.litellm.remote_models')

@@ -11,6 +11,8 @@ AGENT_BROKER_BASE_VERSION: "{{ lookup('config', application_id, 'services.agent-
 AGENT_BROKER_BUILD_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
 AGENT_BROKER_REQUEST_TIMEOUT: "{{ lookup('config', application_id, 'services.agent-broker.request_timeout') }}"
 AGENT_BROKER_AGENTS: "{{ lookup('config', application_id, 'services.agent-broker.agents') }}"
+AGENT_BROKER_MODEL: "{{ AGENT_BROKER_AGENTS.model }}"
+AGENT_BROKER_CONTEXT: "{{ AI_MODEL_CONTEXTS[AGENT_BROKER_MODEL] | default('', true) }}"
 AGENT_BROKER_RUNTIME: "{{ SANDBOX_RUNTIME }}"
 AGENT_BROKER_CONSTRAINT: "node.labels.{{ SANDBOX_NODE_LABEL }} == true"
 AGENT_SOCKET_PROXY_NAME: "{{ lookup('config', application_id, 'services.socket-proxy.name') }}"

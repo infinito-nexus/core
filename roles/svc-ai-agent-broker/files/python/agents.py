@@ -29,21 +29,24 @@ def agent_name(platform, owner):
     return f"agent-{platform}-{digest}"
 
 
-def hermes_config(model, relay_url, key):
-    return "\n".join(
-        [
-            "model:",
-            f"  default: {json.dumps(model)}",
-            "  provider: custom",
-            f"  base_url: {json.dumps(relay_url)}",
-            f"  api_key: {json.dumps(key)}",
-            "mcp_servers: {}",
-            "",
-        ]
-    )
+def hermes_config(model, relay_url, key, context):
+    lines = [
+        "model:",
+        f"  default: {json.dumps(model)}",
+        "  provider: custom",
+        f"  base_url: {json.dumps(relay_url)}",
+        f"  api_key: {json.dumps(key)}",
+    ]
+    if context:
+        lines.append(f"  context_length: {context}")
+    lines += ["mcp_servers: {}", ""]
+    return "\n".join(lines)
 
 
-def openclaw_config(model, relay_url, key):
+def openclaw_config(model, relay_url, key, context):
+    entry = {"id": model, "name": model}
+    if context:
+        entry["contextWindow"] = context
     return json.dumps(
         {
             "gateway": {
@@ -57,7 +60,7 @@ def openclaw_config(model, relay_url, key):
                         "baseUrl": relay_url,
                         "apiKey": key,
                         "api": "openai-completions",
-                        "models": [{"id": model, "name": model}],
+                        "models": [entry],
                     }
                 }
             },
@@ -90,6 +93,7 @@ class Agents:
         broker_alias: name agents resolve the broker by.
         relay_url: base URL agents send model calls to.
         model: model alias every agent asks the relay for.
+        context: context window of that model in tokens; 0 leaves it to the agent.
         idle_stop: whether idle agents are stopped.
         idle_seconds: idle time before a stop.
         max_running: bound on concurrently running agents.
@@ -105,6 +109,7 @@ class Agents:
         broker_alias,
         relay_url,
         model,
+        context,
         idle_stop,
         idle_seconds,
         max_running,
@@ -117,6 +122,7 @@ class Agents:
         self.broker_alias = broker_alias
         self.relay_url = relay_url
         self.model = model
+        self.context = context
         self.idle_stop = idle_stop
         self.idle_seconds = idle_seconds
         self.max_running = max_running
@@ -136,7 +142,9 @@ class Agents:
         name = agent_name(platform, owner)
         entrypoint, cmd = self.engine.image_config(platform_spec["image"])
         command = list(platform_spec["command"]) or cmd
-        config = CONFIG_RENDERERS[platform](self.model, self.relay_url, key)
+        config = CONFIG_RENDERERS[platform](
+            self.model, self.relay_url, key, self.context
+        )
         env = [f"{k}={v}" for k, v in sorted(platform_spec["env"].items())]
         env += [
             f"{platform_spec['key_env']}={key}",

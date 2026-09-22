@@ -11,6 +11,11 @@ model_list:{{ ' []' if not has_backend else '' }}
       rpm: 1000
       max_tokens: {{ LITELLM_MAX_OUTPUT_TOKENS }}
       timeout: {{ LITELLM_UPSTREAM_TIMEOUT }}
+{% if _model.context is defined %}
+      num_ctx: {{ _model.context }}
+    model_info:
+      max_input_tokens: {{ _model.context }}
+{% endif %}
 {% endfor %}
 {% for _model in _lmstudio_models if _model.alias not in (_ollama_models | map(attribute='alias') | list) %}
   - model_name: "{{ _model.alias }}"
@@ -29,6 +34,10 @@ model_list:{{ ' []' if not has_backend else '' }}
       api_key: os.environ/{{ _model.provider | upper }}_API_KEY
       max_tokens: {{ LITELLM_MAX_OUTPUT_TOKENS }}
       timeout: {{ LITELLM_UPSTREAM_TIMEOUT }}
+{% if _model.context is defined %}
+    model_info:
+      max_input_tokens: {{ _model.context }}
+{% endif %}
 {% endfor %}
 
 litellm_settings:

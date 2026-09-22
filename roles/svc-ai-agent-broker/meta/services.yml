@@ -28,6 +28,7 @@ agent-broker:
       http: 8080
   request_timeout: 1800
   agents:
+    model: "{{ LITELLM_CHAT_MODEL }}"
     idle_stop: true
     idle_minutes: 30
     max_running: 20
