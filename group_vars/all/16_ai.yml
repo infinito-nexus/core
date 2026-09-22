@@ -32,9 +32,12 @@ AI_LOCAL_MODELS:
     bytes: 531068224
 
 AI_REMOTE_ALIASES: >-
-  {{ ['openai/gpt-4o-mini'] * (lookup('api_enabled', 'openai') | int)
-     + ['anthropic/claude-sonnet-4-5'] * (lookup('api_enabled', 'anthropic') | int)
-     + ['openrouter/auto'] * (lookup('api_enabled', 'openrouter') | int) }}
+  {{ lookup('config', 'svc-ai-litellm', 'services.litellm.remote_models')
+     | selectattr('provider', 'in',
+         ['openai'] * (lookup('api_enabled', 'openai') | int)
+         + ['anthropic'] * (lookup('api_enabled', 'anthropic') | int)
+         + ['openrouter'] * (lookup('api_enabled', 'openrouter') | int))
+     | map(attribute='alias') | list }}
 
 LITELLM_CHAT_MODEL: "{{ (lookup('config', 'svc-ai-ollama', 'services.ollama.preload_models') | map(attribute='alias') | reject('search', 'embed') | list | first |
   default('')) if 'svc-ai-ollama' in LITELLM_BACKEND_ROLES else ((lookup('config', 'svc-ai-lmstudio', 'services.lmstudio.preload_models') | map(attribute='alias')

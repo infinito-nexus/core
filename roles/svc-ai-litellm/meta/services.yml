@@ -15,6 +15,16 @@ litellm:
   name: litellm
   max_output_tokens: 512
   upstream_timeout: 240
+  remote_models:
+    - alias: openai/gpt-4o-mini
+      model: openai/gpt-4o-mini
+      provider: openai
+    - alias: anthropic/claude-sonnet-4-5
+      model: anthropic/claude-sonnet-4-5
+      provider: anthropic
+    - alias: openrouter/auto
+      model: openrouter/openrouter/auto
+      provider: openrouter
   min_storage: 1022MB
   cpus: "2.0"
   mem_reservation: 1g

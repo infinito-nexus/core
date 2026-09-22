@@ -13,6 +13,16 @@
     database_consumer_id: "{{ application_id }}"
   when: lookup('database', application_id, 'enabled') | bool
 
+- name: "🛑 Refuse a remote model whose provider has no key slot"
+  ansible.builtin.assert:
+    that:
+      - LITELLM_REMOTE_MODELS | map(attribute='provider') | difference(LITELLM_PROVIDER_KEYS | list) | length == 0
+    fail_msg: >-
+      services.litellm.remote_models names provider(s)
+      {{ LITELLM_REMOTE_MODELS | map(attribute='provider') | difference(LITELLM_PROVIDER_KEYS | list) | unique | join(', ') }};
+      known providers are {{ LITELLM_PROVIDER_KEYS | list | join(', ') }}.
+    quiet: true
+
 - name: "📄 Render LiteLLM gateway config (local + swarm peers)"
   ansible.builtin.include_tasks:
     file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"

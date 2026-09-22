@@ -14,11 +14,22 @@ import unittest
 import yaml
 from jinja2 import Environment, StrictUndefined
 
+from plugins.filter.merge.with_defaults import merge_with_defaults
 from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
 
 TEMPLATE = PROJECT_ROOT / "roles/svc-ai-litellm/templates/config.yaml.j2"
+REMOTE_MODELS = load_yaml(
+    PROJECT_ROOT / "roles/svc-ai-litellm" / ROLE_FILE_META_SERVICES
+)["litellm"]["remote_models"]
+BONSAI = {
+    "alias": "openrouter/ternary-bonsai-2-27b",
+    "model": "openrouter/prism-ml/ternary-bonsai-2-27b",
+    "provider": "openrouter",
+}
 
 SHARED = {"alias": "qwen2.5:0.5b", "name": "qwen2.5-0.5b-instruct"}
 OLLAMA_ONLY = {"alias": "llama3:latest", "name": "llama-3.2-3b-instruct"}
@@ -45,32 +56,14 @@ def _stub_lookup(ollama_models, lmstudio_models):
     return lookup
 
 
-REMOTE_BACKENDS = (
-    ("openai/gpt-4o-mini", "openai/gpt-4o-mini", "OPENAI_API_KEY"),
-    ("anthropic/claude-sonnet-4-5", "anthropic/claude-sonnet-4-5", "ANTHROPIC_API_KEY"),
-    ("openrouter/auto", "openrouter/openrouter/auto", "OPENROUTER_API_KEY"),
-)
-
-
-def _remote(keys):
-    """The LITELLM_REMOTE_BACKENDS list vars/main.yml builds, with these keys.
-
-    Args:
-        keys: env-name -> key value; a provider absent from it stays unkeyed.
-    """
-    return [
-        {"alias": alias, "model": model, "env": env, "key": keys.get(env, "")}
-        for alias, model, env in REMOTE_BACKENDS
-    ]
-
-
-def render(*, ollama=(), lmstudio=(), keys=None):
+def render(*, ollama=(), lmstudio=(), keys=None, remote_models=REMOTE_MODELS):
     """The rendered config as a parsed mapping.
 
     Args:
         ollama: preload entries svc-ai-ollama declares; empty means not deployed.
         lmstudio: preload entries svc-ai-lmstudio declares; empty means not deployed.
-        keys: env-name -> provider key for the remote backends.
+        keys: provider -> key value; a provider absent from it stays unkeyed.
+        remote_models: the services.litellm.remote_models list in effect.
     """
     env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - YAML, not markup
     env.filters["bool"] = _ansible_bool
@@ -82,7 +75,8 @@ def render(*, ollama=(), lmstudio=(), keys=None):
         LMSTUDIO_BASE_LOCAL_URL=LMSTUDIO_URL,
         LITELLM_MAX_OUTPUT_TOKENS=512,
         LITELLM_UPSTREAM_TIMEOUT=60,
-        LITELLM_REMOTE_BACKENDS=_remote(keys or {}),
+        LITELLM_REMOTE_MODELS=list(remote_models),
+        LITELLM_KEYED_PROVIDERS=[name for name, key in (keys or {}).items() if key],
     )
     return yaml.safe_load(
         rendered
@@ -142,7 +136,7 @@ class TestNoBackend(unittest.TestCase):
         self.assertEqual(render()["model_list"], [])
 
     def test_one_provider_key_alone_publishes_its_route(self) -> None:
-        published = routes(render(keys={"OPENROUTER_API_KEY": "sk-or-test"}))
+        published = routes(render(keys={"openrouter": "sk-or-test"}))
         self.assertEqual(set(published), {"openrouter/auto"})
         self.assertEqual(
             published["openrouter/auto"]["api_key"], "os.environ/OPENROUTER_API_KEY"
@@ -150,19 +144,48 @@ class TestNoBackend(unittest.TestCase):
 
     def test_each_keyed_provider_gets_its_own_route(self) -> None:
         published = routes(
-            render(
-                keys={
-                    "OPENAI_API_KEY": "sk-test",
-                    "ANTHROPIC_API_KEY": "sk-ant-test",
-                }
-            )
+            render(keys={"openai": "sk-test", "anthropic": "sk-ant-test"})
         )
         self.assertEqual(
             set(published), {"openai/gpt-4o-mini", "anthropic/claude-sonnet-4-5"}
         )
 
     def test_an_unkeyed_provider_publishes_nothing(self) -> None:
-        self.assertEqual(render(keys={"OPENAI_API_KEY": ""})["model_list"], [])
+        self.assertEqual(render(keys={"openai": ""})["model_list"], [])
+
+
+class TestConfiguredRemoteModels(unittest.TestCase):
+    def test_an_added_model_shares_its_provider_key(self) -> None:
+        published = routes(
+            render(
+                keys={"openrouter": "sk-or-test"},
+                remote_models=[*REMOTE_MODELS, BONSAI],
+            )
+        )
+        self.assertEqual(set(published), {"openrouter/auto", BONSAI["alias"]})
+        self.assertEqual(published[BONSAI["alias"]]["model"], BONSAI["model"])
+        self.assertEqual(
+            published[BONSAI["alias"]]["api_key"], "os.environ/OPENROUTER_API_KEY"
+        )
+
+    def test_an_inventory_list_replaces_the_defaults(self) -> None:
+        merged = merge_with_defaults(
+            {
+                "svc-ai-litellm": {
+                    "services": {"litellm": {"remote_models": REMOTE_MODELS}}
+                }
+            },
+            {"svc-ai-litellm": {"services": {"litellm": {"remote_models": [BONSAI]}}}},
+        )
+        published = routes(
+            render(
+                keys={"openrouter": "sk-or-test"},
+                remote_models=merged["svc-ai-litellm"]["services"]["litellm"][
+                    "remote_models"
+                ],
+            )
+        )
+        self.assertEqual(set(published), {BONSAI["alias"]})
 
 
 if __name__ == "__main__":

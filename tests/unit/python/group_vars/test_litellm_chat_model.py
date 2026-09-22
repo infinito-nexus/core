@@ -1,3 +1,4 @@
+import ast
 import re
 import unittest
 from pathlib import Path
@@ -147,6 +148,45 @@ class TestLitellmChatModel(unittest.TestCase):
                     lmstudio_models=lmstudio,
                 )
                 self.assertEqual(bool(model), served == "True")
+
+
+class TestAiRemoteAliases(unittest.TestCase):
+    models: ClassVar[list]
+    template: ClassVar[str]
+
+    @classmethod
+    def setUpClass(cls):
+        cls.models = [
+            {"alias": "openrouter/auto", "provider": "openrouter"},
+            {"alias": "openrouter/ternary-bonsai-2-27b", "provider": "openrouter"},
+            {"alias": "openai/gpt-4o-mini", "provider": "openai"},
+        ]
+        cls.template = load_yaml(_AI_VARS)["AI_REMOTE_ALIASES"]
+
+    def _render(self, enabled):
+        models = self.models
+
+        def lookup(kind, *terms):
+            if kind == "config":
+                self.assertEqual(
+                    terms, ("svc-ai-litellm", "services.litellm.remote_models")
+                )
+                return models
+            if kind == "api_enabled":
+                return terms[0] in enabled
+            raise AssertionError(f"unexpected lookup({kind!r}, {terms!r})")
+
+        env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - renders a Python list literal, not markup
+        return ast.literal_eval(env.from_string(self.template).render(lookup=lookup))
+
+    def test_every_model_of_an_enabled_provider_is_listed(self):
+        self.assertEqual(
+            self._render({"openrouter"}),
+            ["openrouter/auto", "openrouter/ternary-bonsai-2-27b"],
+        )
+
+    def test_no_enabled_provider_lists_nothing(self):
+        self.assertEqual(self._render(set()), [])
 
 
 if __name__ == "__main__":

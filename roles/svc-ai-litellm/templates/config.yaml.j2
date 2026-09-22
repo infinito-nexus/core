@@ -1,6 +1,6 @@
 {% set _ollama_models = lookup('config', 'svc-ai-ollama', 'services.ollama.preload_models') if LITELLM_OLLAMA_BACKEND | bool else [] %}
 {% set _lmstudio_models = lookup('config', 'svc-ai-lmstudio', 'services.lmstudio.preload_models') if LITELLM_LMSTUDIO_BACKEND | bool else [] %}
-{% set _remote_models = LITELLM_REMOTE_BACKENDS | selectattr('key') | list %}
+{% set _remote_models = LITELLM_REMOTE_MODELS | selectattr('provider', 'in', LITELLM_KEYED_PROVIDERS) | list %}
 {% set has_backend = _ollama_models or _lmstudio_models or _remote_models %}
 model_list:{{ ' []' if not has_backend else '' }}
 {% for _model in _ollama_models %}
@@ -22,11 +22,11 @@ model_list:{{ ' []' if not has_backend else '' }}
       max_tokens: {{ LITELLM_MAX_OUTPUT_TOKENS }}
       timeout: {{ LITELLM_UPSTREAM_TIMEOUT }}
 {% endfor %}
-{% for _backend in _remote_models %}
-  - model_name: "{{ _backend.alias }}"
+{% for _model in _remote_models %}
+  - model_name: "{{ _model.alias }}"
     litellm_params:
-      model: "{{ _backend.model }}"
-      api_key: os.environ/{{ _backend.env }}
+      model: "{{ _model.model }}"
+      api_key: os.environ/{{ _model.provider | upper }}_API_KEY
       max_tokens: {{ LITELLM_MAX_OUTPUT_TOKENS }}
       timeout: {{ LITELLM_UPSTREAM_TIMEOUT }}
 {% endfor %}
