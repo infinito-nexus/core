@@ -464,11 +464,11 @@ An upstream path exists or is claimed, and something concrete stops it here. Eac
 | `web-app-penpot` | `interactive_browser_session` | The server needs an active browser tab and plugin connection, and can execute powerful design-context operations. |
 | `web-app-shopware` | `version_unverified` | The pinned 6.7.8.2 predates the experimental native `/api/_mcp` server. |
 
-### adapter_candidate (37)
+### adapter_candidate (38)
 
 An adapter could reach these, and none has been curated yet. The five that used to sit under "current MCP metadata requiring revalidation" are here because that revalidation found no shipped surface to revalidate.
 
-`svc-db-typesense`, `web-app-akaunting`, `web-app-bigbluebutton`, `web-app-bluesky`, `web-app-bookwyrm`, `web-app-bridgy-fed`, `web-app-confluence`, `web-app-decidim`, `web-app-espocrm`, `web-app-friendica`, `web-app-funkwhale`, `web-app-jira`, `web-app-jitsi`, `web-app-joomla`, `web-app-kix`, `web-app-magento`, `web-app-mailu`, `web-app-mastodon`, `web-app-matrix`, `web-app-mediawiki`, `web-app-minio`, `web-app-mobilizon`, `web-app-opencloud`, `web-app-openproject`, `web-app-opentalk`, `web-app-peertube`, `web-app-pihole`, `web-app-pixelfed`, `web-app-postmarks`, `web-app-seaweedfs`, `web-app-semaphore`, `web-app-socialhome`, `web-app-suitecrm`, `web-app-taiga`, `web-app-xwiki`, `web-app-yourls`, `web-svc-xmpp`.
+`svc-db-typesense`, `web-app-akaunting`, `web-app-bigbluebutton`, `web-app-bluesky`, `web-app-bookwyrm`, `web-app-bridgy-fed`, `web-app-confluence`, `web-app-decidim`, `web-app-espocrm`, `web-app-friendica`, `web-app-funkwhale`, `web-app-jira`, `web-app-jitsi`, `web-app-joomla`, `web-app-kix`, `web-app-magento`, `web-app-mailu`, `web-app-mastodon`, `web-app-matrix`, `web-app-mediawiki`, `web-app-minio`, `web-app-mobilizon`, `web-app-opencloud`, `web-app-openproject`, `web-app-opentalk`, `web-app-peertube`, `web-app-pihole`, `web-app-pixelfed`, `web-app-postmarks`, `web-app-seaweedfs`, `web-app-semaphore`, `web-app-socialhome`, `web-app-suitecrm`, `web-app-taiga`, `web-app-xwiki`, `web-app-yourls`, `web-svc-api`, `web-svc-xmpp`.
 
 ### enabler (2)
 
