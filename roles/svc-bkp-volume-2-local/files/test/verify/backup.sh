@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Verify the newest backup generation is stored, non-empty, and dumped where a
 # dump was owed: a volume counts as payload with a files/ tree or a non-empty
-# sql dump, and a volume the run recorded as a database must carry the dump.
+# sql dump, and a volume the run recorded as a database must carry the dump
+# unless its provider has no consumer on this host.
 # The generation's own manifest is the authority; a generation written before
 # baudolo wrote one is judged by the engine's on-disk footprint instead.
 # Requires REPO_DIR/NEWEST_GENERATION/BKP_TEST_REPO_ROOT from test.sh.
@@ -11,6 +12,7 @@ set -euo pipefail
 : "${NEWEST_GENERATION:?}"
 : "${BKP_TEST_REPO_ROOT:?}"
 : "${BKP_TEST_PYTHON:?}"
+: "${BKP_TEST_CONSUMERLESS_DB_VOLUMES?}"
 
 GEN_DIR="${REPO_DIR}/${NEWEST_GENERATION}"
 
@@ -39,6 +41,19 @@ engine_of() {
     return 1
 }
 
+read -r -a CONSUMERLESS <<< "${BKP_TEST_CONSUMERLESS_DB_VOLUMES}"
+
+owe_dump() {
+    local volume="$1" engine="$2" idle
+    for idle in "${CONSUMERLESS[@]}"; do
+        if [[ "${idle}" == "${volume}" ]]; then
+            echo "NOTE: ${volume} (${engine}) belongs to a database provider no deployed app consumes; nothing owes a dump"
+            return 0
+        fi
+    done
+    UNDUMPED+=("${volume} (${engine})")
+}
+
 MANIFEST_LINES=""
 if MANIFEST_LINES="$(PYTHONPATH="${BKP_TEST_REPO_ROOT}" "${BKP_TEST_PYTHON}" -m utils.recovery.manifest "${GEN_DIR}")"; then
     FROM_MANIFEST=true
@@ -61,14 +76,14 @@ for vol_dir in "${VOLUME_DIRS[@]}"; do
     if [[ "${FROM_MANIFEST}" == "false" ]] \
         && engine="$(engine_of "${vol_dir}/files")" \
         && [[ -z "${has_sql}" ]]; then
-        UNDUMPED+=("${vol_dir##*/} (${engine})")
+        owe_dump "${vol_dir##*/}" "${engine}"
     fi
 done
 
 if [[ "${FROM_MANIFEST}" == "true" ]] && [[ -n "${MANIFEST_LINES}" ]]; then
     while IFS=$'\t' read -r volume engine; do
         if [[ -n "${volume}" ]]; then
-            UNDUMPED+=("${volume} (${engine})")
+            owe_dump "${volume}" "${engine}"
         fi
     done <<< "${MANIFEST_LINES}"
 fi

@@ -7,7 +7,8 @@ breaks.
 
 Allowed forms:
 
-* ``KEY=value`` (unquoted; spaces are fine in env-file syntax)
+* ``KEY=value`` (unquoted; only for values without whitespace, because a
+  CLI ``test.env`` is sourced by bash and ``KEY=a b`` runs ``b``)
 * ``KEY={{ ... | dotenv_quote }}`` (explicit escape that produces the
   correctly escaped value for both modes)
 
@@ -76,9 +77,11 @@ class TestEnvFileTemplateNoLiteralQuotes(unittest.TestCase):
                 "double quotes. compose strips them, swarm preserves them "
                 'literally - the container sees `KEY="value"` instead of '
                 "`KEY=value` and `int()` / URL parsers break.\n\n"
-                "Fix: drop the surrounding quotes (env-file syntax allows "
-                "spaces unquoted), or use `KEY={{ ... | dotenv_quote }}` "
-                "for values with shell metachars / dollars. Mark with "
+                "Fix: drop the surrounding quotes when the value never holds "
+                "whitespace, shell metachars or dollars; otherwise use "
+                "`KEY={{ ... | dotenv_quote }}`. Never drop them from a value "
+                "with spaces in a CLI `test.env`: test-e2e-cli sources it with "
+                "bash, where `KEY=a b` runs `b` instead of assigning. Mark with "
                 "`# nocheck: env-file-literal-quoted-value` only when the "
                 "consumer specifically needs the literal quotes (very rare).\n\n"
                 f"Offending lines:\n{formatted}"

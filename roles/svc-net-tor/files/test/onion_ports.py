@@ -40,12 +40,15 @@ Env (rendered into test.env from templates/test.env.j2):
 from __future__ import annotations
 
 import os
+import secrets
 import socket
 import sys
 import time
 
-_GREETING_NO_AUTH = b"\x05\x01\x00"
-_GREETING_OK = b"\x05\x00"
+_GREETING_USER_PASS = b"\x05\x01\x02"
+_GREETING_OK = b"\x05\x02"
+_AUTH_VERSION = 0x01
+_AUTH_OK = b"\x01\x00"
 _CONNECT_TO_DOMAIN = b"\x05\x01\x00\x03"
 _REPLY_SUCCESS = 0x00
 
@@ -62,8 +65,16 @@ def _required(name: str, hint: str) -> str:
 
 
 def connect_through_socks(proxy: str, host: str, port: int, timeout: float) -> None:
-    """Open a SOCKS5 CONNECT to ``host:port`` and raise when it is refused."""
+    """Open a SOCKS5 CONNECT to ``host:port`` and raise when it is refused.
+
+    Every call authenticates with fresh random credentials. Tor accepts any and,
+    under its default IsolateSOCKSAuth, builds a separate rendezvous circuit for
+    each. Tor never moves an onion stream off the rendezvous circuit it attached
+    to, so a retry sharing the credentials of the failed attempt would wait on
+    the same dead circuit again.
+    """
     proxy_host, _, proxy_port = proxy.rpartition(":")
+    token = secrets.token_hex(8).encode()
     try:
         sock = socket.create_connection((proxy_host, int(proxy_port)), timeout=timeout)
     except OSError as error:
@@ -72,9 +83,14 @@ def connect_through_socks(proxy: str, host: str, port: int, timeout: float) -> N
     with sock:
         sock.settimeout(timeout)
         try:
-            sock.sendall(_GREETING_NO_AUTH)
+            sock.sendall(_GREETING_USER_PASS)
             if sock.recv(2) != _GREETING_OK:
-                raise ProbeError("socks proxy refused the no-auth method")
+                raise ProbeError("socks proxy refused the username/password method")
+            sock.sendall(
+                bytes([_AUTH_VERSION, len(token)]) + token + bytes([len(token)]) + token
+            )
+            if sock.recv(2) != _AUTH_OK:
+                raise ProbeError("socks proxy rejected the isolation credentials")
             target = host.encode()
             sock.sendall(
                 _CONNECT_TO_DOMAIN
