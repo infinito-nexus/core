@@ -6,3 +6,9 @@ config:
   mounts:
     - service: dashboard
       target: /app/config.yaml
+i18n_content:
+  type: bind
+  source: "{{ [lookup('container', 'web-app-dashboard', 'directories.volumes'), 'i18n-content'] | path_join }}"
+  mounts:
+    - service: dashboard
+      target: /app/i18n/content

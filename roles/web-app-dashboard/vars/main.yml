@@ -21,6 +21,7 @@ DASHBOARD_LOCATION_SILENT_CHECK: "/silent-check-sso.html"
 DASHBOARD_CONFIG_YML_SRC_FILE: "config.yaml.j2"
 DASHBOARD_CONFIG_INV_PATH: "{{ [ inventory_dir, 'files', inventory_hostname ,'docker', DASHBOARD_APPLICATION_ID, DASHBOARD_CONFIG_YML_SRC_FILE] | path_join }}"
 DASHBOARD_CONFIG_YML_DEST: "{{ [ lookup('container', DASHBOARD_APPLICATION_ID, 'directories.volumes'), 'config.yaml' ] | path_join }}"
+DASHBOARD_I18N_CONTENT_DIR: "{{ [ lookup('container', DASHBOARD_APPLICATION_ID, 'directories.volumes'), 'i18n-content' ] | path_join }}"
 
 DASHBOARD_APP_BASE_URL: "{{ lookup('tls', DASHBOARD_APPLICATION_ID, 'url.base') | regex_replace('/+$', '') }}/"
 DASHBOARD_KEYCLOAK_LOGIN_URL: >-

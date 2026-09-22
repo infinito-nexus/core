@@ -53,6 +53,24 @@
       - src: "{{ DASHBOARD_CONFIG_INV_PATH if config_file.stat.exists else DASHBOARD_CONFIG_YML_SRC_FILE }}"
         dest: "{{ DASHBOARD_CONFIG_YML_DEST }}"
 
+- name: "🌐 Load the port-ui content catalogs from the core translations"
+  set_fact:
+    dashboard_i18n_content: "{{ lookup('i18n_content', 'role:', 'menu:') }}"
+
+- name: "📁 Ensure the port-ui content catalog directory exists"
+  ansible.builtin.file:
+    path: "{{ DASHBOARD_I18N_CONTENT_DIR }}"
+    state: directory
+    mode: "0755"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
+- name: "🌐 Render the port-ui content catalogs (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates: "{{ dashboard_i18n_content | i18n_content_templates(DASHBOARD_I18N_CONTENT_DIR, 'i18n-content.yaml.j2') }}"
+
 - name: 🧩 Load rendered dashboard config before first compose start
   slurp:
     src: "{{ DASHBOARD_CONFIG_YML_DEST }}"
