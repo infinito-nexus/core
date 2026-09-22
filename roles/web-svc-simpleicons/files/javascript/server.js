@@ -3,9 +3,10 @@ import * as icons from 'simple-icons';
 import sharp from 'sharp';
 
 const app = express();
-const port = {{ container_port }};
+const port = Number(process.env.PORT);
+const docsUrl = process.env.DOCS_URL;
+const organization = process.env.ORGANIZATION;
 
-// Helper: convert 'nextcloud' → 'siNextcloud'
 function getExportName(slug) {
   return 'si' + slug
     .split('-')
@@ -14,20 +15,15 @@ function getExportName(slug) {
 }
 
 app.get('/', (req, res) => {
-  {% if 'web-app-docs' in group_names %}
-  res.redirect('{{ lookup("tls", "web-app-docs", "url.base") }}{{ application_id | rel_role_path_by_application_id }}/README.html');
-  {% else %}
+  if (docsUrl) {
+    return res.redirect(docsUrl);
+  }
   res
     .status(200)
     .type('text/plain; charset=utf-8')
-    .send(
-      `simpleicons.org\n` +
-      `provided by {{ ORGANIZATION }}\n`
-    );
-  {% endif %}
+    .send(`simpleicons.org\nprovided by ${organization}\n`);
 });
 
-// GET /:slug.svg
 app.get('/:slug.svg', (req, res) => {
   const slug = req.params.slug.toLowerCase();
   const exportName = getExportName(slug);
@@ -41,7 +37,6 @@ app.get('/:slug.svg', (req, res) => {
   res.send(icon.svg);
 });
 
-// GET /:slug.png?size=...
 app.get('/:slug.png', async (req, res) => {
   const slug = req.params.slug.toLowerCase();
   const size = parseInt(req.query.size, 10) || 128;
