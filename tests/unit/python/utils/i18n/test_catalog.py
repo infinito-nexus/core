@@ -80,7 +80,7 @@ class TestTranslations(unittest.TestCase):
             path = Path(tmp) / "core.po"
             path.write_text(old_header, encoding="utf-8")
             write_catalog(path, read_catalog(path))
-            text = path.read_text(encoding="utf-8")
+            text = path.read_text()  # nocheck: cache-read  written by this test
 
         for expected in (
             "Kevin Veen-Birkenbach <kevinveenbirkenbach@infinito.nexus>",
