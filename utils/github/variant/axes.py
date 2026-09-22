@@ -209,7 +209,7 @@ def row_architectures(
     Args:
         app: role id, read for its ``meta/services.yml`` declaration.
         run_pool: what the run permits, already narrowed by its own input.
-        services: the row's transitive service closure, each narrowing the
+        services: the roles the row's variant deploys, each narrowing the
             row like the role's own declaration.
 
     Raises:

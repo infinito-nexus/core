@@ -192,5 +192,32 @@ class TestCandidates(unittest.TestCase):
         self.assertEqual(discovered.call_args.kwargs["blacklist"], "web-app-b")
 
 
+class TestWithDeployedServices(unittest.TestCase):
+    def setUp(self) -> None:
+        matrix.deployed_rounds.cache_clear()
+        self.addCleanup(matrix.deployed_rounds.cache_clear)
+
+    def test_each_variant_takes_the_apps_its_own_round_deploys(self) -> None:
+        plan = [
+            (0, "plan-0", {}, ("web-app-a", "svc-db-postgres"), ()),
+            (1, "plan-1", {}, ("web-app-a", "svc-ai-lmstudio"), ()),
+        ]
+        with mock.patch.object(
+            matrix, "plan_dev_inventory_matrix", return_value=plan
+        ) as planner:
+            rows = [
+                matrix.with_deployed_services(
+                    {"name": "web-app-a", "variant": variant, "services": ["x"]}
+                )
+                for variant in (0, 1)
+            ]
+
+        self.assertEqual(
+            [row["services"] for row in rows],
+            [("web-app-a", "svc-db-postgres"), ("web-app-a", "svc-ai-lmstudio")],
+        )
+        planner.assert_called_once()
+
+
 if __name__ == "__main__":
     unittest.main()

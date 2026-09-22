@@ -29,12 +29,17 @@ passing state between them.
 from __future__ import annotations
 
 import argparse
+import functools
 import json
 import os
 import sys
 
+from cli.administration.deploy.development.inventory.planner import (
+    plan_dev_inventory_matrix,
+)
 from cli.meta.ci import chunks, query, slots
 from utils.cache.applications import get_variants
+from utils.cache.files import PROJECT_ROOT
 from utils.github.variant import axes, instructions, pools, selection, tor
 from utils.roles.display import display_names
 
@@ -81,6 +86,24 @@ def candidates(
     return [{**row, "modes": query.row_modes(row, modes)} for row in rows]
 
 
+@functools.cache
+def deployed_rounds(app: str) -> tuple[tuple[str, ...], ...]:
+    """The apps each variant round of *app* deploys."""
+    return tuple(
+        include
+        for _index, _dir, _variants, include, _purge in plan_dev_inventory_matrix(
+            roles_dir=str(PROJECT_ROOT / "roles"),
+            primary_apps=[app],
+            base_inventory_dir="plan",
+        )
+    )
+
+
+def with_deployed_services(row: dict) -> dict:
+    """*row* with ``services`` narrowed to what its variant deploys."""
+    return {**row, "services": deployed_rounds(row["name"])[row.get("variant") or 0]}
+
+
 def entries_of(
     *,
     modes: tuple[str, ...],
@@ -95,12 +118,15 @@ def entries_of(
 ) -> list[dict[str, str]]:
     """Every candidate row of the sweep, axes assigned, in global order."""
     return axes.assign(
-        candidates(
-            modes=modes,
-            whitelist=whitelist,
-            priority=priority,
-            lifecycles=lifecycles,
-        ),
+        [
+            with_deployed_services(row)
+            for row in candidates(
+                modes=modes,
+                whitelist=whitelist,
+                priority=priority,
+                lifecycles=lifecycles,
+            )
+        ],
         sweep=sweep,
         tor_mode=tor_mode,
         distros=distros,

@@ -204,7 +204,7 @@ entity, next to `modes`:
 ```
 
 The row then draws from that intersection instead of the run's whole pool, and
-so does every row whose transitive service closure contains that role. A
+so does every row whose variant deploys that role, as the deploy planner resolves it. A
 role and a run that permit nothing in common abort the matrix rather than
 dropping the row.
 
