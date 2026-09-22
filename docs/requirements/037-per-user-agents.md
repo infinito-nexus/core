@@ -43,52 +43,61 @@ With the broker deployed, Open WebUI runs with `BYPASS_MODEL_ACCESS_CONTROL=fals
 
 | Key | Meaning |
 |---|---|
+| `model` | model alias every agent is configured with; defaults to the gateway's chat model |
 | `idle_stop` | `true` stops an agent after `idle_minutes` without a request; `false` keeps it running |
 | `idle_minutes` | idle time before a stop |
 | `max_running` | upper bound of concurrently running agents; a request beyond it gets HTTP 503 |
 | `start_timeout` | seconds an agent gets to answer its health endpoint |
 | `access_cache_seconds` | how long a Keycloak membership answer is reused |
 
-A stopped agent is started again on the next request with its volume re-attached. When a caller has lost the `agent-user` group, the broker refuses the request and stops that caller's running agent.
+A stopped agent is started again on the next request with its volume re-attached. An agent serving a request is never stopped, and the idle time is re-read under the agent's lock before the stop. When a caller has lost the `agent-user` group, the broker refuses the request and stops that caller's running agent.
+
+### Context window
+
+A model that serves agents declares its context window in tokens: `context` on an `AI_LOCAL_MODELS` entry or on a `services.litellm.remote_models` entry. LiteLLM sends it to Ollama as `num_ctx` and publishes it as `model_info.max_input_tokens`, and the broker writes it into the agent config as Hermes `model.context_length` and OpenClaw `contextWindow`. Without it Ollama truncates the agent's prompt to its own default window and the agents assume windows of their own.
 
 ### Container API
 
-The broker reaches the container engine only through a filtered unix socket in a volume it shares with the socket proxy; the proxy has no network. The proxy admits only the container, service, task, network, volume and image calls the broker makes, refuses every other method and path including exec and delete, and rejects any host bind mount. The image, runtime, limits and mounts of an agent are fixed by the broker, never taken from the request.
+The broker reaches the container engine only through a filtered unix socket in a volume it shares with the socket proxy. The proxy serves no TCP port; in compose it also runs with `network_mode: none`, while a swarm task carries the stack's default overlay attachment. The proxy admits only the container, service, task, network, volume and image calls the broker makes, and refuses every other method and path, including exec and delete. The image, runtime, limits and mounts of an agent are fixed by the broker, never taken from the request.
+
+The proxy filters methods and paths, not request bodies. `POST /volumes/create` stays on the allowlist because the broker creates a volume per agent, and a local-driver volume with `o=bind,device=/` is a host bind mount that arrives as a volume. Fields such as `Privileged`, `PidMode` or `CapAdd` on `containers/create` are likewise unfiltered. The isolation therefore holds against a compromised **agent**, which reaches no socket at all, not against a compromised **broker**.
 
 ## Acceptance Criteria
 
 ### Role and configuration
 
 - [ ] `svc-ai-agent-broker` deploys in compose and swarm mode and passes the repository lint suite.
-- [ ] The `agent-broker.agents` keys are read from `meta/services.yml` and an inventory override changes the broker's behaviour.
-- [ ] The socket proxy refuses `POST /containers/{id}/exec` and a container create with a host bind mount.
-- [ ] The socket proxy has no network and serves the engine only on the unix socket shared with the broker.
+- [x] The `agent-broker.agents` keys reach the running broker from `meta/services.yml`, so an inventory override changes its behaviour.
+- [x] The socket proxy refuses `POST /containers/{id}/exec`, a container or service create carrying a host bind mount, and `DELETE /containers/{id}`.
+- [x] The socket proxy serves the engine on the unix socket shared with the broker and publishes no port; in compose it runs with `network_mode: none`.
 
 ### Access control
 
-- [ ] `web-app-hermes` and `web-app-openclaw` each declare the RBAC role `agent-user`, which provisions a Keycloak group.
-- [ ] Open WebUI lists `hermes` and `openclaw` only to a user in the matching group, while every LiteLLM model stays visible to all users.
-- [ ] A model added to LiteLLM becomes visible to all Open WebUI users after a `svc-ai-litellm` deploy alone.
-- [ ] A direct call to the broker for a user outside the group gets HTTP 403 and creates no container.
-- [ ] A request with a wrong or missing broker key gets HTTP 401.
+- [x] `web-app-hermes` and `web-app-openclaw` each declare the RBAC role `agent-user`, which provisions a Keycloak group.
+- [x] Open WebUI lists `hermes` and `openclaw` only to a user in the matching group, while every LiteLLM model stays visible to all users.
+- [x] A model added to LiteLLM becomes visible to all Open WebUI users after a `svc-ai-litellm` deploy alone.
+- [x] A direct call to the broker for a user outside the group gets HTTP 403 and creates no container.
+- [x] A request with a wrong or missing broker key gets HTTP 401.
 
 ### Agent lifecycle
 
-- [ ] The first prompt of an entitled user creates exactly one agent for that user and platform and returns the agent's answer in Open WebUI.
-- [ ] A second prompt from the same user reuses the same agent.
-- [ ] With `idle_stop: true` an idle agent is stopped after `idle_minutes` and started again by the next prompt with its state intact.
-- [ ] With `idle_stop: false` an agent keeps running.
+- [x] The first prompt of an entitled user creates exactly one agent for that user and platform and returns the agent's answer in Open WebUI.
+- [x] A second prompt from the same user reuses the same agent without restarting it.
+- [x] A stopped agent is started again by the next prompt, keeps its container and its state.
+- [x] With `idle_stop: true` the sweep stops an agent that has been idle for `idle_minutes`, and never one that is serving a request or was just used.
+- [x] With `idle_stop: false` the sweep stops nothing.
 
 ### Isolation
 
-- [ ] Two users get two different containers, volumes, networks and bearer keys.
-- [ ] An agent inspected on the engine runs under the isolating runtime, not `runc`.
-- [ ] A file written by one user's agent is not visible to the other user's agent.
-- [ ] One agent cannot reach the other agent's network address.
+- [x] Two users get two different containers, volumes, networks and bearer keys.
+- [x] An agent inspected on the engine runs under the isolating runtime, not `runc`.
+- [x] A file written by one user's agent is not visible to the other user's agent.
+- [x] One agent cannot reach the other agent's network address.
 
 ### Tests
 
-- [ ] `web-app-openwebui` ships a Playwright spec that logs in as `biber` without `agent-user` and asserts that neither agent model is listed or answers.
-- [ ] The same spec grants `biber` the `agent-user` groups, logs in again and asserts an answer from `hermes` and from `openclaw` through Open WebUI.
-- [ ] `svc-ai-agent-broker` ships a CLI test that proves the broker-key refusal, the RBAC refusal, two distinct agents under the isolating runtime, file isolation and network isolation on the engine.
-- [ ] The same CLI test proves from the broker's `relay` events that a `hermes` and an `openclaw` agent each got a model answer from LiteLLM, independent of what the model wrote.
+- [x] `web-app-openwebui` ships a Playwright spec that logs in as `biber` without `agent-user` and asserts that neither agent model is listed or answers, while every served gateway model is listed.
+- [x] The same spec grants `biber` the `agent-user` groups, logs in again and asserts an answer from `hermes` and from `openclaw` through Open WebUI.
+- [x] `svc-ai-agent-broker` ships a CLI test that proves the broker-key refusal, the RBAC refusal, two distinct agents under the isolating runtime, file isolation and network isolation on the engine.
+- [x] The same CLI test proves from the broker's `relay` events that a `hermes` and an `openclaw` agent each got a model answer from LiteLLM, independent of what the model wrote.
+- [x] Unit tests cover the idle sweep: it stops an idle agent, skips one that is serving a request or was just used, and does nothing while `idle_stop` is false.
