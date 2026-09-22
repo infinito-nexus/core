@@ -1,0 +1,75 @@
+---
+# Break-glass: mint a root token from the recovery key, then hand to 02_auth.yml
+# to re-pin the AppRole to the inventory values. Reached only when neither the
+# credentials this deploy was handed nor the recorded ones are accepted.
+#
+# Each protocol step runs through the bao CLI and Ansible parses the result: the
+# token comes back XOR-wrapped with a one-time password and the image carries
+# neither python nor jq to unwrap it in-container.
+
+- name: "🧹 Cancel any root generation left in progress"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    bao operator generate-root -cancel
+  changed_when: false
+  failed_when: false
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+
+- name: "🎲 Generate the one-time password the root token is wrapped with"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    bao operator generate-root -generate-otp
+  register: openbao_root_otp
+  changed_when: false
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🚑 Begin root generation"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    bao operator generate-root -format=json
+    -init -otp={{ openbao_root_otp.stdout | trim | quote }}
+  register: openbao_root_attempt
+  changed_when: true
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔑 Authorise the attempt with the recovery key"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    bao operator generate-root -format=json
+    -nonce={{ (openbao_root_attempt.stdout | from_json).nonce | quote }} -
+  args:
+    stdin: "{{ OPENBAO_RECOVERY_KEY }}"
+    stdin_add_newline: false
+  register: openbao_root_update
+  changed_when: true
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🛑 Fail when the recovery key did not complete root generation"
+  ansible.builtin.fail:
+    msg: >-
+      The recovery key held for {{ application_id }} was rejected. Neither
+      AppRole is accepted either, so this instance has no administrative path
+      left and must be rebuilt from its volume backup plus the seal key.
+  when: not ((openbao_root_update.stdout | from_json).complete | default(false) | bool)
+
+- name: "🔓 Unwrap the generated root token"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    bao operator generate-root
+    -decode={{ (openbao_root_update.stdout | from_json).encoded_token | quote }}
+    -otp={{ openbao_root_otp.stdout | trim | quote }}
+  register: openbao_root_decoded
+  changed_when: false
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔧 Hold the generated root token in memory only"
+  ansible.builtin.set_fact:
+    openbao_root_token: "{{ openbao_root_decoded.stdout | trim }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔑 Rebuild the Ansible AppRole from the inventory credentials"
+  ansible.builtin.include_tasks: ../02_auth.yml

@@ -1,0 +1,9 @@
+  - job_name: "openbao"
+    scheme: http
+    metrics_path: /v1/sys/metrics
+    params:
+      format: ["prometheus"]
+    static_configs:
+      - targets: ["{{ native_prometheus_application_id | native_metrics_target(lookup('applications')) }}"]
+        labels:
+          app: "{{ native_prometheus_application_id }}"

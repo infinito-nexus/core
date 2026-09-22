@@ -30,14 +30,22 @@ PROBE = _load_probe()
 class _FakeSocks(threading.Thread):
     """A one-shot SOCKS5 proxy that replies with a scripted CONNECT code."""
 
-    def __init__(self, reply_code: int | None, greeting: bytes = b"\x05\x00") -> None:
+    def __init__(
+        self,
+        reply_code: int | None,
+        greeting: bytes = b"\x05\x02",
+        auth_reply: bytes = b"\x01\x00",
+    ) -> None:
         super().__init__(daemon=True)
         self._reply_code = reply_code
         self._greeting = greeting
+        self._auth_reply = auth_reply
         self._server = socket.socket()
         self._server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self._server.bind(("127.0.0.1", 0))
         self._server.listen(1)
+        self.offered = b""
+        self.auth = b""
         self.request = b""
 
     @property
@@ -47,16 +55,19 @@ class _FakeSocks(threading.Thread):
 
     def run(self) -> None:
         conn, _ = self._server.accept()
-        with conn:
-            conn.recv(3)
+        with self._server, conn:
+            self.offered = conn.recv(3)
             conn.sendall(self._greeting)
-            if self._greeting != b"\x05\x00":
+            if self._greeting != b"\x05\x02":
+                return
+            self.auth = conn.recv(512)
+            conn.sendall(self._auth_reply)
+            if self._auth_reply != b"\x01\x00":
                 return
             self.request = conn.recv(512)
             if self._reply_code is None:
                 return
             conn.sendall(bytes([0x05, self._reply_code, 0x00, 0x01]))
-        self._server.close()
 
 
 class TestConnectThroughSocks(unittest.TestCase):
@@ -74,6 +85,36 @@ class TestConnectThroughSocks(unittest.TestCase):
             proxy.request.endswith((25).to_bytes(2, "big")),
             "the port must travel big-endian in the last two bytes",
         )
+
+    def test_every_attempt_isolates_itself_with_fresh_credentials(self) -> None:
+        seen: list[bytes] = []
+        for _ in range(2):
+            proxy = _FakeSocks(reply_code=0x00)
+            proxy.start()
+            PROBE.connect_through_socks(proxy.endpoint, "example.onion", 80, 5)
+            proxy.join(timeout=5)
+            self.assertEqual(
+                proxy.offered,
+                b"\x05\x01\x02",
+                "only username/password may be offered, or Tor may pick no-auth "
+                "and put the attempt on the shared circuit",
+            )
+            self.assertEqual(
+                proxy.auth[0], 0x01, f"bad RFC 1929 version: {proxy.auth!r}"
+            )
+            seen.append(proxy.auth)
+        self.assertNotEqual(
+            seen[0],
+            seen[1],
+            "a retry that reuses the credentials reuses the dead rendezvous circuit",
+        )
+
+    def test_rejected_credentials_fail(self) -> None:
+        proxy = _FakeSocks(reply_code=None, auth_reply=b"\x01\x01")
+        proxy.start()
+        with self.assertRaises(PROBE.ProbeError) as raised:
+            PROBE.connect_through_socks(proxy.endpoint, "example.onion", 25, 5)
+        self.assertIn("credentials", str(raised.exception))
 
     def test_a_refusal_reply_fails(self) -> None:
         proxy = _FakeSocks(reply_code=0x05)

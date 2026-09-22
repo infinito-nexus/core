@@ -1,0 +1,8 @@
+---
+roles:
+  administrator:
+    description: OpenBao administrator (policy, auth-method and mount management)
+  operator:
+    description: OpenBao operator (read/write on the application secret paths)
+  reader:
+    description: OpenBao reader (read-only on the application secret paths)

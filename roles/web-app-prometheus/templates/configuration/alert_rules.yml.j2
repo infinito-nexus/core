@@ -76,3 +76,8 @@ groups:
           description: >
             Prometheus target {{ '{{' }} $labels.instance {{ '}}' }} (job: {{ '{{' }} $labels.job {{ '}}' }})
             has been unreachable for more than 5 minutes.
+
+{% for alert_rules_role_id in lookup('alert_rule_roles') %}
+{% include 'roles/' + alert_rules_role_id + '/templates/prometheus/alert_rules.yml.j2' %}
+
+{% endfor %}

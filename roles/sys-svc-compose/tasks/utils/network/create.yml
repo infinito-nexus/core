@@ -39,6 +39,8 @@
       - "com.docker.compose.network={{ lookup('shared_network_key', network_role_id) }}"
       - --label
       - "com.docker.compose.project={{ network_role_id | get_entity_name }}"
+      - --label
+      - "com.docker.stack.namespace={{ network_role_id | get_entity_name }}"
       - "{{ network_role_id | get_entity_name }}"
   when:
     - (SWARM_CLUSTER_AVAILABLE | bool) and not (lookup('config', network_role_id, 'networks.local.force_bridge', false) | bool)

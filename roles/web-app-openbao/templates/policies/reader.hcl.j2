@@ -1,0 +1,23 @@
+path "{{ OPENBAO_KV_MOUNT }}/data/*" {
+  capabilities = ["read"]
+}
+
+path "{{ OPENBAO_KV_MOUNT }}/metadata/*" {
+  capabilities = ["read", "list"]
+}
+
+path "sys/health" {
+  capabilities = ["read"]
+}
+
+path "sys/seal-status" {
+  capabilities = ["read"]
+}
+
+path "sys/internal/ui/mounts" {
+  capabilities = ["read"]
+}
+
+path "sys/internal/ui/mounts/*" {
+  capabilities = ["read"]
+}
