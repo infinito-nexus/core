@@ -1,0 +1,54 @@
+---
+# Re-pin the AppRole to the credentials this deploy was handed, then record what
+# was applied. The AppRole rotates per deploy, so the state file is what lets the
+# next one authenticate before it re-pins in turn. The seal key is pinned and
+# normally repeats; it is recorded for the deploy after an operator changes it.
+- name: "🔑 Re-pin the RoleID to the value this deploy was handed"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    bao write auth/approle/role/{{ OPENBAO_ANSIBLE_APPROLE | quote }}/role-id
+    role_id={{ OPENBAO_APPROLE_ROLE_ID | quote }}
+  changed_when: true
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+
+- name: "🔑 Register the SecretID this deploy was handed"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    bao write auth/approle/role/{{ OPENBAO_ANSIBLE_APPROLE | quote }}/custom-secret-id
+    secret_id=-
+  args:
+    stdin: "{{ OPENBAO_APPROLE_SECRET_ID }}"
+    stdin_add_newline: false
+  changed_when: true
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: OPENBAO_SECRET_ID_ROTATING | bool
+
+- name: "🧹 Destroy the SecretID the previous deploy applied"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    bao write auth/approle/role/{{ OPENBAO_ANSIBLE_APPROLE | quote }}/secret-id/destroy
+    secret_id=-
+  args:
+    stdin: "{{ OPENBAO_SECRET_ID_REGISTERED }}"
+    stdin_add_newline: false
+  changed_when: true
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: OPENBAO_SECRET_ID_ROTATING | bool
+
+- name: "💾 Record the credentials this deploy applied"
+  ansible.builtin.copy:
+    content: "{{ openbao_applied_now | to_nice_json }}\n"
+    dest: "{{ OPENBAO_APPLIED_STATE_HOST }}"
+    owner: root
+    group: root
+    mode: "0600"
+  vars:
+    openbao_applied_now:
+      seal_key: "{{ OPENBAO_SEAL_KEY }}"
+      approle_role_id: "{{ OPENBAO_APPROLE_ROLE_ID }}"
+      approle_secret_id: "{{ OPENBAO_APPROLE_SECRET_ID }}"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

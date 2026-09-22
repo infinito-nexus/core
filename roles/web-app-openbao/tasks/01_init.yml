@@ -1,0 +1,193 @@
+---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: openbao
+    resolve_output_prefix: OPENBAO
+    resolve_compose_cid: "{{ OPENBAO_NAME }}"
+
+- name: "⏳ Wait until the OpenBao API answers"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    bao status -format=json
+  register: openbao_status_raw
+  changed_when: false
+  retries: 30
+  delay: 5
+  until: openbao_status_raw.rc in [0, 2] or 'not yet initialized' in openbao_status_raw.stderr
+  failed_when: false
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+
+- name: "🔧 Determine whether OpenBao is already initialised"
+  ansible.builtin.set_fact:
+    openbao_initialized: >-
+      {{ (openbao_status_raw.stdout | from_json).initialized | default(false)
+         if (openbao_status_raw.stdout | default('') | trim) | length > 0
+         else false }}
+
+- name: "🔐 Initialise OpenBao and keep what only the first deploy ever sees"
+  when: not (openbao_initialized | bool)
+  block:
+    - name: "🔐 Initialise OpenBao (first deploy only)"
+      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec {{ OPENBAO_LOCAL_CID | quote }}
+        bao operator init -format=json -recovery-shares=1 -recovery-threshold=1
+      register: openbao_init_raw
+      changed_when: openbao_init_raw.rc == 0
+      delegate_to: "{{ OPENBAO_HOST_NODE }}"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+    - name: "🔧 Hold the bootstrap root token in memory only"
+      ansible.builtin.set_fact:
+        openbao_root_token: >-
+          {{ (openbao_init_raw.stdout | from_json).root_token }}
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+    - name: "💾 Persist the recovery key through sys-token-store"
+      ansible.builtin.include_role:
+        name: sys-token-store
+        tasks_from: write.yml
+      vars:
+        sys_token_store_user_key: "{{ OPENBAO_RECOVERY_USER_KEY }}"
+        sys_token_store_app: "{{ OPENBAO_RECOVERY_TOKEN_APP }}"
+        sys_token_store_token: >-
+          {{ (openbao_init_raw.stdout | from_json).recovery_keys_b64 | first }}
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "⏳ Wait until the static seal has auto-unsealed the node"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    bao status -format=json
+  register: openbao_unsealed_raw
+  changed_when: false
+  retries: 30
+  delay: 5
+  until: >-
+    openbao_unsealed_raw.rc == 0
+    and not ((openbao_unsealed_raw.stdout | from_json).sealed | bool)
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+
+- name: "🔑 Bootstrap the Ansible AppRole and revoke the root token"
+  include_tasks: 02_auth.yml
+  when: not (openbao_initialized | bool)
+
+- name: "🧩 Load the recovery key from the platform token store"
+  ansible.builtin.include_role:
+    name: sys-token-store
+    tasks_from: 01_load.yml
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔐 Log in with the Ansible AppRole"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    bao write -field=token auth/approle/login
+    role_id={{ OPENBAO_APPROLE_ROLE_ID | quote }} secret_id=-
+  args:
+    stdin: "{{ OPENBAO_APPROLE_SECRET_ID }}"
+    stdin_add_newline: false
+  register: openbao_approle_login
+  changed_when: false
+  failed_when: false
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔐 Log in with the AppRole the previous deploy applied"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    bao write -field=token auth/approle/login
+    role_id={{ OPENBAO_APPLIED.approle_role_id | quote }} secret_id=-
+  args:
+    stdin: "{{ OPENBAO_APPLIED.approle_secret_id }}"
+    stdin_add_newline: false
+  register: openbao_approle_login_previous
+  changed_when: false
+  failed_when: false
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when:
+    - openbao_approle_login.rc != 0
+    - OPENBAO_APPLIED.approle_role_id is defined
+
+- name: "🚑 Rebuild the AppRole from the recovery key when neither login is accepted"
+  when:
+    - openbao_approle_login.rc != 0
+    - (openbao_approle_login_previous.rc | default(1)) != 0
+    - (OPENBAO_RECOVERY_KEY | trim) | length > 0
+  block:
+    - name: "🚑 Mint a root token and re-pin the AppRole"
+      ansible.builtin.include_tasks: utils/recover.yml
+
+    - name: "🔐 Log in with the rebuilt AppRole"
+      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+        bao write -field=token auth/approle/login
+        role_id={{ OPENBAO_APPROLE_ROLE_ID | quote }} secret_id=-
+      args:
+        stdin: "{{ OPENBAO_APPROLE_SECRET_ID }}"
+        stdin_add_newline: false
+      register: openbao_approle_login_recovered
+      changed_when: false
+      failed_when: false
+      delegate_to: "{{ OPENBAO_HOST_NODE }}"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔧 Keep whichever AppRole login succeeded"
+  ansible.builtin.set_fact:
+    openbao_approle_token: >-
+      {{ openbao_approle_login.stdout
+         if openbao_approle_login.rc == 0
+         else (openbao_approle_login_previous.stdout
+               if (openbao_approle_login_previous.rc | default(1)) == 0
+               else openbao_approle_login_recovered.stdout | default('')) }}
+    openbao_secret_id_registered: >-
+      {{ OPENBAO_APPROLE_SECRET_ID
+         if (openbao_approle_login.rc == 0
+             or (openbao_approle_login_recovered.rc | default(1)) == 0)
+         else OPENBAO_APPLIED.approle_secret_id | default('') }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🛑 Fail when no AppRole and no recovery key are accepted"
+  ansible.builtin.fail:
+    msg: >-
+      Neither the AppRole credentials from the inventory, nor the ones recorded
+      in {{ OPENBAO_APPLIED_STATE_HOST }}, nor a recovery key in the platform
+      token store were accepted. The instance can only be recovered from its
+      volume backup plus the matching seal key.
+  when: (openbao_approle_token | trim) | length == 0
+
+- name: "🔧 Store the AppRole token in the container token helper"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    bao login -no-print -
+  args:
+    stdin: "{{ openbao_approle_token | trim }}"
+    stdin_add_newline: false
+  changed_when: false
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📜 Reconcile the secrets engine and the RBAC policies"
+  ansible.builtin.include_tasks:
+    file: 03_policies.yml
+    apply:
+      delegate_to: "{{ OPENBAO_HOST_NODE }}"
+
+- name: "📇 Configure the OIDC and LDAP auth methods"
+  include_tasks: 04_auth_methods.yml
+
+- name: "🏛 Configure the internal PKI"
+  ansible.builtin.include_tasks:
+    file: 05_pki.yml
+    apply:
+      delegate_to: "{{ OPENBAO_HOST_NODE }}"
+  when: OPENBAO_PKI_ENABLED | bool
+
+- name: "♻️ Re-pin the AppRole and record what this deploy applied"
+  ansible.builtin.include_tasks: 06_rotate.yml
+
+- name: "🧹 Drop the stored reconciliation token from the container"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'bao token revoke -self >/dev/null 2>&1; rm -f ~/.bao-token'
+  changed_when: false
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"

@@ -138,6 +138,29 @@ function safeIsEnabled(name) {
   }
 }
 
+/**
+ * Video-recording options for a hand-built browser context.
+ *
+ * Playwright applies the project's `use.video` setting only to the context the
+ * `page` fixture provides, so a context from `browser.newContext()` records
+ * nothing and its spec reaches the artefact with a trace but no video. Spread
+ * the result into the `newContext` options to follow the project setting.
+ *
+ * Args:
+ *   testInfo: the spec's TestInfo; supplies the per-test output directory and
+ *     the resolved project config.
+ *
+ * Returns:
+ *   `{ recordVideo: { dir } }` when the project asks for video, else `{}`.
+ */
+function recordVideoOptions(testInfo) {
+  const configured = testInfo?.project?.use?.video;
+  const mode =
+    configured && typeof configured === "object" ? configured.mode : configured;
+  if (!mode || mode === "off") return {};
+  return { recordVideo: { dir: testInfo.outputDir } };
+}
+
 module.exports = {
   decodeDotenvQuoted,
   normalizeUrl,
@@ -148,4 +171,5 @@ module.exports = {
   apiFetchOnion,
   safeSkipUnlessEnabled,
   safeIsEnabled,
+  recordVideoOptions,
 };

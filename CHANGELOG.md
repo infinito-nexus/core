@@ -1,5 +1,56 @@
 # Changelog
 
+## [14.2.0] - 2026-09-22
+
+**For Users**
+
+* **Secrets management with OpenBao.** The new *web-app-openbao* role deploys OpenBao at
+  *openbao.<domain>*. It stores application credentials, API keys and machine identities.
+  People sign in through Keycloak, or through LDAP when OpenLDAP is deployed. Their
+  *administrator*, *operator* or *reader* group decides what they can reach, and signing in
+  without one of those groups grants only the default policy. Services and automation use
+  their own AppRole identities, whose credentials change on every deploy, and no root token
+  is kept after the first deploy. A recovery key kept in the token store lets a later deploy
+  get back in if those credentials are lost. A static seal unseals the node on its own after
+  every restart. An internal PKI can be switched on, and Prometheus alerts when the node is
+  sealed or unreachable. The seal key lives only in the encrypted inventory, and a backup of
+  the store cannot be read without it, so back up the inventory together with the volume.
+  See [web-app-openbao](roles/web-app-openbao/README.md).
+
+* **LDAP import, export and Multi edit finish again in LAM.** The Content Security Policy
+  blocked the inline script that checks on LAM's background jobs, so these tools stayed
+  "in progress" forever. That script is allowed again.
+
+* **Swarm deploys no longer abort on a network that already exists.** Some networks are
+  created before their application's stack, as Prometheus does for every application it
+  scrapes. Those networks now carry the stack label, so the application's own deploy uses
+  the existing network instead of failing with "network with name <entity> already exists".
+
+**For Developers**
+
+* **Alert rules live in the role that owns the metric.** A role ships its Prometheus rules
+  in *templates/prometheus/alert_rules.yml.j2*. The new *alert_rule_roles* lookup includes
+  them only for roles that Prometheus actually scrapes, so a rules file needs no activation
+  check of its own. It must start at the *groups:* item level. OpenBao's seal alert is the
+  first rule to use it.
+
+* **Video for hand-built Playwright contexts.** A context created with
+  *browser.newContext()* ignored the project's video setting, so its artefact had a trace
+  but no video. Spread *recordVideoOptions(testInfo)* from *personas/utils/env.js* into the
+  context options to record one.
+
+* Image and dependency version jumps (net since 14.1.0):
+  * *web-app-pgadmin*: 9.17 to 9.18
+
+**Contributors**
+
+* [Evangelos Tsakoudis](https://evangelostsak.com): the OpenBao role with its seal,
+  credential rotation, recovery and RBAC end-to-end suite, role-local Prometheus alert
+  rules, and the LAM and swarm network fixes that work uncovered
+* [Alejandro Roman Ibanez](https://github.com/AlejandroRomanIbanez): video recording for
+  hand-built Playwright contexts
+* [Kevin Veen-Birkenbach](https://veen.world): review and version maintenance
+
 ## [14.1.0] - 2026-09-21
 
 **For Users**
