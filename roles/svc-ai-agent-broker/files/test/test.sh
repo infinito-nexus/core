@@ -91,6 +91,7 @@ relayed() {
 		grep -qF "\"event\": \"relay\", \"owner\": \"$2\", \"platform\": \"$3\", \"path\": \"/v1/chat/completions\", \"status\": 200"
 }
 
+# shellcheck disable=SC2329,SC2317 # reached through the EXIT trap below, which shellcheck does not follow.
 cleanup() {
 	kc_membership "${USER_A_NAME}" DELETE "${AGENT_GROUP_PATH}"
 	kc_membership "${USER_B_NAME}" DELETE "${AGENT_GROUP_PATH}"
@@ -177,7 +178,9 @@ done
 	fail "both owners share one container"
 volume_a="$(container docker inspect --type container -f '{{range .Mounts}}{{.Name}}{{end}}' "${NAME_A}")"
 volume_b="$(container docker inspect --type container -f '{{range .Mounts}}{{.Name}}{{end}}' "${NAME_B}")"
-[ -n "${volume_a}" ] && [ "${volume_a}" != "${volume_b}" ] || fail "the owners share a volume (${volume_a} / ${volume_b})"
+if [ -z "${volume_a}" ] || [ "${volume_a}" = "${volume_b}" ]; then
+	fail "the owners share a volume (${volume_a} / ${volume_b})"
+fi
 
 # nocheck: container-exec-resolver  agent container named by the broker
 container exec "${NAME_A}" sh -c "echo isolated > '${AGENT_DATA_DIR}/cli-isolation-marker'" || fail "could not write the marker in ${NAME_A}"
