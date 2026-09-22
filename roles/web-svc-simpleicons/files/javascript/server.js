@@ -1,3 +1,4 @@
+// nocheck: mirrored-unit-test - a standalone Express server whose module body binds a port and reads the container environment at import
 import express from 'express';
 import * as icons from 'simple-icons';
 import sharp from 'sharp';
