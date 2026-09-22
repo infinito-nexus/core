@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
+const { skipUnlessServiceEnabled } = require("./service-gating");
 const { assertCspMetaParity, assertCspResponseHeader, decodeDotenvQuotedValue, expectNoCspViolations, gotoOnion, installCspViolationObserver, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
@@ -270,6 +271,23 @@ test("normal-realm biber logs in through account interface and logs out", async 
 // Persona scenarios.
 // Bodies live in the shared persona helpers under
 // roles/test-e2e-playwright/files/personas/{guest,biber,admin}.js.
+
+test("the logout panel carries the German catalogue from the core translations", async ({ page }) => {
+  skipUnlessServiceEnabled("javascript");
+  const expected = JSON.parse(decodeDotenvQuotedValue(process.env.LOGOUT_PANEL_DE_JSON || "") || "{}");
+  expect(expected.checking, "LOGOUT_PANEL_DE_JSON must carry the German logout strings").toBeTruthy();
+  const realmName = decodeDotenvQuotedValue(process.env.KEYCLOAK_REALM_NAME || "");
+  await gotoOnion(page, `${appBaseUrl}/realms/${realmName}/protocol/openid-connect/logout`);
+  await expect
+    .poll(() => page.evaluate(() => Boolean(window.__INFINITO_LOGOUT__)), {
+      message: "Expected the logout panel to load on the logout page",
+      timeout: resolveTimeout(30_000),
+    })
+    .toBe(true);
+  const catalogue = await page.evaluate(() => window.__INFINITO_LOGOUT__.i18n);
+  expect(catalogue.de, "Expected the German strings of core.po in the served panel").toEqual(expected);
+  await expect(page.locator("#infinito-logout-status")).toBeVisible({ timeout: resolveTimeout(30_000) });
+});
 
 test("guest: public-landing → auth chain → never authenticated", async ({ page }) => {
   await runGuestFlow(page);

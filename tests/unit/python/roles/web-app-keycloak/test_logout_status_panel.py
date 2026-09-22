@@ -41,6 +41,8 @@ from pathlib import Path
 from plugins.filter.text_filters import to_one_liner
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml
+from utils.i18n.extract import logout_context
+from utils.i18n.keyed import keyed_catalogue
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-keycloak"
@@ -304,7 +306,10 @@ def _collapsed_panel() -> str:
     :return: the one-lined script with both lookups resolved - the logout
         origin and the real translation catalogue
     """
-    catalogue = json.dumps(load_yaml(CATALOGUE_FILE), ensure_ascii=False)
+    catalogue = json.dumps(
+        keyed_catalogue(PROJECT_ROOT, logout_context, load_yaml(CATALOGUE_FILE)),
+        ensure_ascii=False,
+    )
     prelude = (
         "window.__INFINITO_LOGOUT__ = {"
         f"origin: {json.dumps(ORIGIN)}, i18n: {catalogue}"

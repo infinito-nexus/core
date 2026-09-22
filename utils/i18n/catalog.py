@@ -10,6 +10,14 @@ from typing import TYPE_CHECKING
 from babel.messages.catalog import Catalog
 from babel.messages.pofile import read_po, write_po
 
+from utils.software import (
+    SOFTWARE_AUTHOR,
+    SOFTWARE_CONTACT,
+    SOFTWARE_EMAIL,
+    SOFTWARE_LICENSE,
+    SOFTWARE_URL,
+)
+
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
@@ -17,6 +25,14 @@ LOCALE_DIR = Path("locale")
 PROJECT = "infinito-nexus"
 MACHINE_TRANSLATION = "libretranslate"
 STAMP = datetime.datetime(2026, 1, 1, tzinfo=datetime.UTC)
+CONTACT = f"{SOFTWARE_AUTHOR} <{SOFTWARE_EMAIL}>"
+HEADER = f"""\
+# Translations template for PROJECT.
+# Copyright (C) YEAR ORGANIZATION
+# This file is distributed under the {SOFTWARE_LICENSE}.
+# {CONTACT}, YEAR.
+# {SOFTWARE_URL}
+#"""
 
 
 def catalog_path(root: Path, code: str, domain: str) -> Path:
@@ -96,6 +112,11 @@ def render(catalog: Catalog) -> bytes:
     catalog.creation_date = STAMP
     catalog.revision_date = STAMP
     catalog.fuzzy = False
+    catalog.header_comment = HEADER
+    catalog.copyright_holder = SOFTWARE_AUTHOR
+    catalog.msgid_bugs_address = SOFTWARE_CONTACT
+    catalog.last_translator = CONTACT
+    catalog.language_team = CONTACT
     buffer = io.BytesIO()
     write_po(buffer, catalog, width=0, sort_output=True, ignore_obsolete=True)
     return buffer.getvalue()

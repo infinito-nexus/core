@@ -63,6 +63,41 @@ class TestWrite(unittest.TestCase):
 
 
 class TestTranslations(unittest.TestCase):
+    def test_every_written_catalog_names_the_author_and_no_placeholder(self):
+        old_header = (
+            "# German translations for infinito-nexus.\n"
+            "# Copyright (C) 2026 ORGANIZATION\n"
+            "# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.\n"
+            "#\n"
+            'msgid ""\n'
+            'msgstr ""\n'
+            '"Report-Msgid-Bugs-To: EMAIL@ADDRESS\\n"\n'
+            '"Last-Translator: FULL NAME <EMAIL@ADDRESS>\\n"\n'
+            '"Language-Team: de <LL@li.org>\\n"\n'
+            '"Language: de\\n"\n'
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "core.po"
+            path.write_text(old_header, encoding="utf-8")
+            write_catalog(path, read_catalog(path))
+            text = path.read_text(encoding="utf-8")
+
+        for expected in (
+            "Kevin Veen-Birkenbach <kevinveenbirkenbach@infinito.nexus>",
+            "https://infinito.nexus",
+            "Report-Msgid-Bugs-To: contact@infinito.nexus",
+            "# This file is distributed under the Infinito.Nexus Community License (Non-Commercial).",
+        ):
+            self.assertIn(expected, text)
+        for placeholder in (
+            "ORGANIZATION",
+            "FIRST AUTHOR",
+            "EMAIL@ADDRESS",
+            "FULL NAME",
+            "LL@li.org",
+        ):
+            self.assertNotIn(placeholder, text)
+
     def test_only_final_translations_are_usable(self):
         catalog = merge(
             build_template([("a", "Done"), ("b", "Fuzzy"), ("c", "Empty")], "core"),

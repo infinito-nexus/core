@@ -11,10 +11,10 @@
     box.style.cssText = "max-width:34rem;margin:1.5rem auto;padding:1rem 1.25rem;border:1px solid rgba(0,0,0,.15);border-left:5px solid #9b2226;border-radius:.5rem;background:rgba(255,255,255,.94);color:#222;font:14px/1.6 system-ui,sans-serif;text-align:start";
     var line = box.appendChild(document.createElement("p"));
     line.style.cssText = "margin:0;font-weight:700;color:#9b2226";
-    line.textContent = {{ catalogue.en.no_check | to_json }};
+    line.textContent = {{ catalogue.no_check | to_json }};
     var note = box.appendChild(document.createElement("p"));
     note.style.cssText = "margin:.1rem 0 0";
-    note.textContent = {{ catalogue.en.no_check_hint | to_json }};
+    note.textContent = {{ catalogue.no_check_hint | to_json }};
     (document.querySelector("#kc-content-wrapper") || document.body).appendChild(box);
   }
 
