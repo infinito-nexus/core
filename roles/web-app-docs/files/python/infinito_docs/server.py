@@ -6,6 +6,7 @@ Environment:
     DOCS_BUILD_JOBS: parallel Sphinx processes per build.
     DOCS_FETCH_INTERVAL: seconds between two fetches of new commits and tags.
     DOCS_PORT: port to listen on.
+    DOCS_SNAPSHOT_DIR: the deployed working tree, served as version ``deployed``.
 """
 
 from __future__ import annotations
@@ -102,8 +103,20 @@ class DocsHandler(SimpleHTTPRequestHandler):
             self._send(HTTPStatus.OK, "application/json", body, head)
         elif path == "/_docs/versions.js":
             self._file(SCRIPT, head)
+        elif path.startswith("/api/languages/"):
+            self._languages(path.removeprefix("/api/languages/"), head)
         else:
             self._version(path, head)
+
+    def _languages(self, version, head):
+        if version not in self.library.versions():
+            self.send_error(HTTPStatus.NOT_FOUND)
+            return
+        known, built = self.library.languages(version)
+        languages = [{"code": "en", "native": known.get("en", "English")}]
+        languages += [{"code": code, "native": known[code]} for code in built]
+        body = json.dumps({"version": version, "languages": languages}).encode("utf-8")
+        self._send(HTTPStatus.OK, "application/json", body, head)
 
     def _version(self, path, head):
         version, slash, rest = path.lstrip("/").partition("/")
@@ -115,10 +128,25 @@ class DocsHandler(SimpleHTTPRequestHandler):
             self.library.request(version)
             body = BUILDING.format(version=html.escape(version))
             self._page(HTTPStatus.ACCEPTED, f"Building {version}", body, head)
+        elif (code := rest.partition("/")[0]) in self.library.languages(version)[0]:
+            self._translation(version, code, path, head)
         elif (target := self.library.resolve(version, rest)) is None:
             self._redirect(f"/{version}/")
         elif target.name == "index.html" and rest and not rest.endswith(("/", ".html")):
             self._redirect(f"/{version}/{rest}/")
+        else:
+            self._file(target, head)
+
+    def _translation(self, version, code, path, head):
+        rest = path.lstrip("/").partition("/")[2].partition("/")[2]
+        if not self.library.translation_servable(version, code):
+            self.send_error(HTTPStatus.NOT_FOUND)
+        elif (not rest and not path.endswith("/")) or (
+            target := self.library.resolve_translation(version, code, rest)
+        ) is None:
+            self._redirect(f"/{version}/{code}/")
+        elif target.name == "index.html" and rest and not rest.endswith(("/", ".html")):
+            self._redirect(f"/{version}/{code}/{rest}/")
         else:
             self._file(target, head)
 
@@ -129,6 +157,7 @@ def main():
         os.environ["DOCS_DATA_DIR"],
         int(os.environ["DOCS_BUILD_JOBS"]),
         PACKAGE_DIR,
+        os.environ["DOCS_SNAPSHOT_DIR"],
     )
     threading.Thread(
         target=library.run_builder,

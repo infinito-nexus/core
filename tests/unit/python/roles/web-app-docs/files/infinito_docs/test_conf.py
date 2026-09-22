@@ -32,7 +32,7 @@ class _App:
 class TestConf(unittest.TestCase):
     def test_every_local_extension_resolves(self) -> None:
         local = [name for name in conf.extensions if name.startswith("infinito_docs.")]
-        self.assertEqual(len(local), 5)
+        self.assertEqual(len(local), 6)
         for name in local:
             self.assertTrue(hasattr(importlib.import_module(name), "setup"), name)
 

@@ -31,7 +31,7 @@ class TestServer(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls._tmp = TemporaryDirectory()
         data = Path(cls._tmp.name)
-        cls.library = library.Library("unused", data, 1, data)
+        cls.library = library.Library("unused", data, 1, data, data / "no-snapshot")
         cls.library.refs = lambda: ("abc123", ["v1.0.0"])
         site = data / "sites" / "latest"
         (site / "html" / "docs").mkdir(parents=True)

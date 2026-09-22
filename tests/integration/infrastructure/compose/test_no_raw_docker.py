@@ -27,6 +27,7 @@ class Finding:
 
 WHITELIST_SUFFIXES: tuple[str, ...] = (
     ".md",
+    ".po",
     ".js",
     ".json",
     ".png",

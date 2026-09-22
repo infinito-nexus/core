@@ -20,6 +20,7 @@ RUN pip install --no-cache-dir \
 
 COPY ./sphinx/python/ /app/
 COPY ./sphinx/javascript/ /app/infinito_docs/assets/js/
+ADD ./sphinx/snapshot.tar.gz /snapshot/
 
 ENV PYTHONPATH=/app
 WORKDIR /app

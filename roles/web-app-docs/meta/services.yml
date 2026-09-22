@@ -30,8 +30,8 @@ docs:
   source_repository: "{{ SOFTWARE_REPOSITORY }}"
   fetch_interval: 900
   build_jobs: 2
-  # nocheck: min-storage-headroom  Reason: the image built on the python base (1.1 GB), the latest site (2.3 GB) and the scratch of a running build (2.4 GB); every further version opened adds about 2.3 GB
-  min_storage: 6GB
+  # nocheck: min-storage-headroom  Reason: the image built on the python base (1.1 GB), the English sites of the deployed working tree and of the latest commit (2.3 GB each), one translated site of each (about 2 GB each, built without _sources) and the scratch of a running build (2.4 GB); every further version or translated language opened adds about 2.3 GB
+  min_storage: 13GB
   backup:
     no_stop_required: true
   name: docs

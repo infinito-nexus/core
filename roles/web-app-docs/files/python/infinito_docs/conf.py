@@ -30,7 +30,9 @@ lexers["j2"] = DjangoLexer()
 exclude_patterns = ["docs/build", "venv", "venv/**"]
 
 html_theme = "sphinxawesome_theme"
-html_sidebars = {"**": ["logo.html", "versions.html", "structure.html"]}
+html_sidebars = {
+    "**": ["logo.html", "versions.html", "languages.html", "structure.html"]
+}
 html_context = {"docs_version": os.environ.get("DOCS_VERSION", "")}
 html_favicon = "assets/img/favicon.ico"
 html_theme_options = {
@@ -53,11 +55,16 @@ extensions = [
     "infinito_docs.extensions.roles_overview",
     "infinito_docs.extensions.markdown_include",
     "infinito_docs.extensions.parallel_postprocess",
+    "infinito_docs.extensions.untranslated_yaml",
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
 ]
 
 autosummary_generate = True
+
+locale_dirs = ["locale"]
+gettext_compact = "docs"
+gettext_location = False
 
 myst_enable_extensions = ["colon_fence"]
 

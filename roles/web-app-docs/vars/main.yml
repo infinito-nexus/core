@@ -13,3 +13,36 @@ DOCS_BUILD_JOBS: "{{ lookup('config', application_id, 'services.docs.build_jobs'
 DOCS_PORT: "{{ lookup('config', application_id, 'services.docs.ports.internal.http') }}"
 DOCS_DATA_DIR: "/data"
 DOCS_TOOLING_DIR: "{{ [ lookup('container', application_id, 'directories.instance'), 'sphinx' ] | path_join }}"
+DOCS_SNAPSHOT_DIR: "/snapshot"
+DOCS_SNAPSHOT_PATHS:
+  - AGENTS.md
+  - CHANGELOG.md
+  - CODE_OF_CONDUCT.md
+  - CONTRIBUTING.md
+  - LICENSE.md
+  - README.md
+  - SECURITY.md
+  - SUPPORT.md
+  - TODO.md
+  - ansible.cfg
+  - assets
+  - cli
+  - default.env
+  - docs
+  - group_vars
+  - index.rst
+  - inventories/bundles
+  - inventories/development
+  - library
+  - locale
+  - meta
+  - playbook.yml
+  - plugins
+  - pyproject.toml
+  - roles
+  - scripts
+  - skills
+  - tasks
+  - templates
+  - tests
+  - utils

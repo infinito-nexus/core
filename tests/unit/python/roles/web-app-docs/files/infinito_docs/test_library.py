@@ -9,6 +9,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
+from utils.cache.files import read_text
+
 from . import PROJECT_ROOT
 
 _TOOLING = str(PROJECT_ROOT / "roles" / "web-app-docs" / "files" / "python")
@@ -113,7 +115,9 @@ class TestLibrary(unittest.TestCase):
         self._tmp.cleanup()
 
     def _replica(self):
-        return library.Library(str(self.repo), self.data, 1, self.package)
+        return library.Library(
+            str(self.repo), self.data, 1, self.package, self.data / "no-snapshot"
+        )
 
     def _site(self, version: str, name: str) -> str:
         page = self.library.sites / version / "html" / name
@@ -140,6 +144,50 @@ class TestLibrary(unittest.TestCase):
         self.assertEqual(self._state(self.library, "v1.0.0")["state"], "missing")
         self.assertIsNone(self.library.next_queued())
         self.assertFalse(list(self.library.scratch.iterdir()))
+
+    def test_deployed_is_built_from_the_snapshot_and_stays_unlisted(self) -> None:
+        snapshot = self.data / "snapshot"
+        snapshot.mkdir(parents=True)
+        (snapshot / "VERSION").write_text("working tree", encoding="utf-8")
+        shelf = library.Library(str(self.repo), self.data, 1, self.package, snapshot)
+
+        shelf.request("deployed")
+        shelf.build("deployed")
+
+        self.assertEqual(self._site("deployed", "version.txt"), "working tree")
+        self.assertEqual(shelf.built_ref("deployed"), shelf.snapshot_ref())
+        self.assertIn("deployed", shelf.versions())
+        self.assertNotIn("deployed", [entry["name"] for entry in shelf.status()])
+        shelf.request("deployed")
+        self.assertFalse((shelf.queue / "deployed").exists())
+
+    def test_every_translated_language_gets_its_own_site(self) -> None:
+        (self.repo / "meta").mkdir()
+        (self.repo / "meta" / "languages.yml").write_text(
+            "en:\n  native: English\nde:\n  native: Deutsch\nfr:\n  native: Français\n",
+            encoding="utf-8",
+        )
+        for code, translation in (("de", "Hallo"), ("fr", "")):
+            catalog = self.repo / "locale" / code / "LC_MESSAGES" / "docs.po"
+            catalog.parent.mkdir(parents=True)
+            catalog.write_text(
+                f'msgid ""\nmsgstr ""\n"Language: {code}\\n"\n\nmsgid "Hello"\nmsgstr "{translation}"\n',
+                encoding="utf-8",
+            )
+        _commit(self.repo, "translated")
+        self.library.fetch()
+
+        self.library.build("latest")
+
+        known, built = self.library.languages("latest")
+        self.assertEqual(sorted(known), ["de", "en", "fr"])
+        self.assertEqual(built, ["de"])
+        self.assertTrue(self.library.translation_servable("latest", "de"))
+        page = self.library.resolve_translation("latest", "de", "docs/")
+        self.assertEqual(read_text(str(page)), "docs")
+        self.assertIsNone(
+            self.library.resolve_translation("latest", "de", "../../etc/passwd")
+        )
 
     def test_tag_is_built_from_its_own_commit_and_only_once(self) -> None:
         self.library.request("v1.0.0")
@@ -228,7 +276,7 @@ class TestLibrary(unittest.TestCase):
 class TestBeforeTheFirstFetch(unittest.TestCase):
     def test_latest_is_offered_as_fetching_and_nothing_is_queued(self) -> None:
         with TemporaryDirectory() as td:
-            shelf = library.Library("unused", Path(td), 1, Path(td))
+            shelf = library.Library("unused", Path(td), 1, Path(td), Path(td) / "none")
 
             shelf.request("latest")
 
@@ -239,49 +287,6 @@ class TestBeforeTheFirstFetch(unittest.TestCase):
                 ("latest", "queued", "fetching"),
             )
             self.assertIsNone(shelf.next_queued())
-
-
-class TestProgress(unittest.TestCase):
-    def test_sphinx_phases_map_onto_one_rising_bar(self) -> None:
-        lines = [
-            "Running Sphinx v9.1.0",
-            "reading sources... [ 50%] a .. b",
-            "writing output... [100%] c",
-            "reading sources... [100%] late line",
-            "postprocess html... [ 50%] /out/html/x.html",
-        ]
-        progress, seen = 0, []
-        for line in lines:
-            progress = library.progress_of(line, progress)
-            seen.append(progress)
-
-        self.assertEqual(seen, [0, 25, 60, 60, 79])
-
-    def test_generators_run_in_order_without_the_checkout_on_sys_path(self) -> None:
-        commands = library.generate_commands(Path("/w/src"))
-
-        self.assertEqual(
-            commands[0],
-            [
-                "sphinx-apidoc",
-                "-f",
-                "-o",
-                "/w/src/generated/modules",
-                "/w/src",
-                "/w/src/tests",
-            ],
-        )
-        self.assertEqual(
-            [command[3] for command in commands[1:]],
-            [
-                "infinito_docs.generators.yaml_index",
-                "infinito_docs.generators.ansible_roles",
-                "infinito_docs.generators.index",
-                "infinito_docs.generators.roles_overview",
-                "infinito_docs.generators.readmes",
-            ],
-        )
-        self.assertTrue(all(command[1] == "-P" for command in commands[1:]))
 
 
 if __name__ == "__main__":

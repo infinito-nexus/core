@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import fcntl
+import hashlib
 import json
 import os
 import re
@@ -12,100 +13,48 @@ import threading
 import time
 from pathlib import Path
 
+from babel.messages.pofile import read_po
+
+from infinito_docs.commands import generate_commands, progress_of
+from utils.cache.yaml import load_yaml_str
+
 LATEST = "latest"
+DEPLOYED = "deployed"
 LOG_TAIL = 40
 POLL_SECONDS = 2
 REFS_TTL_SECONDS = 10
 TAG = re.compile(r"^v(\d+)\.(\d+)\.(\d+)$")
 
-_STEP = re.compile(
-    r"^(reading sources|writing output|postprocess html)\.\.\. \[\s*(\d+)%\]"
-)
-_SPAN = {
-    "reading sources": (10, 40),
-    "writing output": (40, 60),
-    "postprocess html": (60, 99),
-}
 
-
-def _generator(name, *args):
-    return [
-        sys.executable,
-        "-P",
-        "-m",
-        f"infinito_docs.generators.{name}",
-        *(str(arg) for arg in args),
-    ]
-
-
-def generate_commands(src):
-    """Return the commands that prepare ``src`` for ``sphinx-build``.
+def translated_languages(src):
+    """Return the languages of ``src`` and those its ``docs`` catalogs translate.
 
     Args:
         src: checkout of the version to document.
 
     Returns:
-        argv lists, in the order they must run.
+        ``(known, translated)``: every language of ``meta/languages.yml``
+        mapped to its native name, and the codes whose ``docs.po`` holds at
+        least one translation.
     """
-    generated = src / "generated"
-    return [
-        [
-            "sphinx-apidoc",
-            "-f",
-            "-o",
-            str(generated / "modules"),
-            str(src),
-            str(src / "tests"),
-        ],
-        _generator(
-            "yaml_index",
-            "--source-dir",
-            src,
-            "--output-file",
-            generated / "yaml_index.rst",
-        ),
-        _generator(
-            "ansible_roles",
-            "--roles-dir",
-            src / "roles",
-            "--output-dir",
-            generated / "roles",
-        ),
-        _generator(
-            "index",
-            "--roles-dir",
-            generated / "roles",
-            "--output-file",
-            src / "roles" / "ansible_role_glosar.rst",
-            "--caption",
-            "Ansible Role Glossary",
-        ),
-        _generator(
-            "roles_overview",
-            "--roles-dir",
-            src / "roles",
-            "--output-file",
-            generated / "roles_overview.json",
-        ),
-        _generator("readmes", "--generated-dir", generated),
-    ]
-
-
-def progress_of(line, current):
-    """Return the overall build progress after one line of Sphinx output.
-
-    Args:
-        line: a line of ``sphinx-build`` output.
-        current: progress before this line, in percent.
-
-    Returns:
-        The new progress in percent; it never moves backwards.
-    """
-    match = _STEP.match(line)
-    if not match:
-        return current
-    start, end = _SPAN[match.group(1)]
-    return max(current, start + (end - start) * int(match.group(2)) // 100)
+    languages_file = src / "meta" / "languages.yml"
+    if not languages_file.is_file():
+        return {}, []
+    known = {
+        str(code): str((entry or {}).get("native", code))
+        for code, entry in (
+            load_yaml_str(languages_file.read_text(encoding="utf-8")) or {}
+        ).items()
+    }
+    translated = []
+    for code in sorted(known):
+        catalog = src / "locale" / code / "LC_MESSAGES" / "docs.po"
+        if not catalog.is_file():
+            continue
+        with catalog.open("rb") as handle:
+            if any(m.id and m.string and not m.fuzzy for m in read_po(handle)):
+                translated.append(code)
+    return known, translated
 
 
 def _write_json(path, payload):
@@ -122,19 +71,23 @@ class Library:
         data_dir: shared volume holding mirror, queue, states, scratch and sites.
         jobs: parallel Sphinx processes per build.
         package_dir: the ``infinito_docs`` package directory.
+        snapshot_dir: the deployed working tree, built as version ``deployed``.
     """
 
-    def __init__(self, repository, data_dir, jobs, package_dir):
+    def __init__(self, repository, data_dir, jobs, package_dir, snapshot_dir):
         data = Path(data_dir)
         self.repository = repository
         self.mirror = data / "repo.git"
         self.sites = data / "sites"
+        self.translations = data / "translations"
         self.queue = data / "queue"
         self.states = data / "states"
         self.scratch = data / "work"
         self.lock_file = data / "builder.lock"
         self.jobs = jobs
         self.package_dir = Path(package_dir)
+        self.snapshot = Path(snapshot_dir)
+        self._snapshot_ref = ""
         self._refs = ("", [])
         self._refs_read = 0.0
         self._lock = threading.Lock()
@@ -180,7 +133,20 @@ class Library:
             self._refs_read = 0.0
 
     def versions(self):
-        return [LATEST, *self.refs()[1]]
+        deployed = [DEPLOYED] if self.snapshot.is_dir() else []
+        return [LATEST, *self.refs()[1], *deployed]
+
+    def snapshot_ref(self):
+        """Return the content digest of the deployed working tree."""
+        if not self._snapshot_ref:
+            digest = hashlib.sha256()
+            for path in sorted(p for p in self.snapshot.rglob("*") if p.is_file()):
+                digest.update(
+                    str(path.relative_to(self.snapshot)).encode("utf-8") + b"\0"
+                )
+                digest.update(path.read_bytes())
+            self._snapshot_ref = digest.hexdigest()
+        return self._snapshot_ref
 
     def built_ref(self, version):
         stamp = self.sites / version / "ref"
@@ -190,7 +156,7 @@ class Library:
         return (self.sites / version / "html" / "index.html").is_file()
 
     def _current(self, version, head):
-        wanted = head if version == LATEST else version
+        wanted = {LATEST: head, DEPLOYED: self.snapshot_ref()}.get(version, version)
         return self.servable(version) and self.built_ref(version) == wanted
 
     def _state(self, version):
@@ -239,7 +205,7 @@ class Library:
             version: ``latest`` or a release tag.
         """
         head, _ = self.refs()
-        if not head or self._current(version, head):
+        if (not head and version != DEPLOYED) or self._current(version, head):
             return
         self.queue.mkdir(parents=True, exist_ok=True)
         (self.queue / version).touch(exist_ok=True)
@@ -292,6 +258,8 @@ class Library:
     def run_builder(self, interval):
         while not self.acquire_builder():
             time.sleep(POLL_SECONDS)
+        if self.snapshot.is_dir():
+            self.request(DEPLOYED)
         next_fetch = 0.0
         while True:
             if time.monotonic() >= next_fetch:
@@ -317,7 +285,39 @@ class Library:
             The file inside the version's site, or ``None`` when the site has
             no such file or the path escapes it.
         """
-        root = (self.sites / version / "html").resolve()
+        return self._resolve(self.sites / version / "html", rest)
+
+    def languages(self, version):
+        """Return the languages of ``version`` and the ones with a built site.
+
+        Args:
+            version: ``latest`` or a release tag.
+
+        Returns:
+            ``(known, built)``: every language code of the version mapped to
+            its native name, and the codes whose translated site is servable.
+        """
+        try:
+            known = json.loads(
+                (self.translations / version / "languages.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+        except (OSError, ValueError):
+            return {}, []
+        built = [
+            code for code in sorted(known) if self.translation_servable(version, code)
+        ]
+        return known, built
+
+    def translation_servable(self, version, code):
+        return (self.translations / version / code / "html" / "index.html").is_file()
+
+    def resolve_translation(self, version, code, rest):
+        return self._resolve(self.translations / version / code / "html", rest)
+
+    def _resolve(self, site, rest):
+        root = site.resolve()
         target = (root / rest).resolve()
         if target != root and root not in target.parents:
             return None
@@ -350,14 +350,14 @@ class Library:
             version: ``latest`` or a release tag.
         """
         self._forget_refs()
-        head, tags = self.refs()
-        if version != LATEST and version not in tags:
+        head, _ = self.refs()
+        if version not in self.versions():
             (self.queue / version).unlink(missing_ok=True)
             return
         if self._current(version, head):
             (self.queue / version).unlink(missing_ok=True)
             return
-        ref = head if version == LATEST else version
+        ref = {LATEST: head, DEPLOYED: self.snapshot_ref()}.get(version, version)
         work = self.scratch / version
         src, conf, out = work / "src", work / "conf", work / "out"
         tooling = str(self.package_dir.parent)
@@ -365,11 +365,14 @@ class Library:
         try:
             self._save_state(version, **state)
             shutil.rmtree(work, ignore_errors=True)
-            src.mkdir(parents=True)
-            archive = work / "src.tar"
-            self._git("archive", "--format=tar", "-o", str(archive), ref)
-            with tarfile.open(archive) as tar:
-                tar.extractall(src, filter="data")
+            if version == DEPLOYED:
+                shutil.copytree(self.snapshot, src)
+            else:
+                src.mkdir(parents=True)
+                archive = work / "src.tar"
+                self._git("archive", "--format=tar", "-o", str(archive), ref)
+                with tarfile.open(archive) as tar:
+                    tar.extractall(src, filter="data")
 
             shutil.copytree(self.package_dir, conf)
             if (src / "assets" / "img").is_dir():
@@ -410,6 +413,37 @@ class Library:
                 work,
             )
             self._publish(version, out / "html", ref)
+            known, translated = translated_languages(src)
+            (self.translations / version).mkdir(parents=True, exist_ok=True)
+            _write_json(self.translations / version / "languages.json", known)
+            for code in translated:
+                state["phase"] = f"translate {code}"
+                self._save_state(version, **state)
+                target = work / f"out-{code}"
+                self._run(
+                    version,
+                    state,
+                    [
+                        "sphinx-build",
+                        "-M",
+                        "html",
+                        str(src),
+                        str(target),
+                        "-c",
+                        str(conf),
+                        "-j",
+                        str(self.jobs),
+                        "-D",
+                        f"language={code}",
+                        "-D",
+                        "html_copy_source=0",
+                    ],
+                    sphinx_env,
+                    work,
+                )
+                self._publish_site(
+                    self.translations / version, code, target / "html", ref
+                )
             self._save_state(version, state="ready", phase="", progress=100, log=[])
         except (OSError, subprocess.CalledProcessError, tarfile.TarError) as exc:
             state["log"] = [*state["log"][-(LOG_TAIL - 1) :], str(exc)]
@@ -419,9 +453,12 @@ class Library:
             shutil.rmtree(work, ignore_errors=True)
 
     def _publish(self, version, html, ref):
-        staging = self.sites / f".{version}.new"
-        retired = self.sites / f".{version}.old"
-        target = self.sites / version
+        self._publish_site(self.sites, version, html, ref)
+
+    def _publish_site(self, parent, name, html, ref):
+        staging = parent / f".{name}.new"
+        retired = parent / f".{name}.old"
+        target = parent / name
         shutil.rmtree(staging, ignore_errors=True)
         shutil.rmtree(retired, ignore_errors=True)
         staging.mkdir(parents=True)
