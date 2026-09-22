@@ -1,0 +1,71 @@
+---
+application_id: "svc-ai-agent-broker"
+entity_name: "{{ application_id | get_entity_name }}"
+
+AGENT_BROKER_CONTAINER: "{{ lookup('config', application_id, 'services.agent-broker.name') }}"
+AGENT_BROKER_PORT: "{{ lookup('config', application_id, 'services.agent-broker.ports.internal.http') }}"
+AGENT_BROKER_KEY: "{{ lookup('config', application_id, 'secrets.credentials.api_key') }}"
+AGENT_BROKER_LITELLM_KEY: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') }}"
+AGENT_BROKER_BASE_IMAGE: "{{ lookup('config', application_id, 'services.agent-broker.image') }}"
+AGENT_BROKER_BASE_VERSION: "{{ lookup('config', application_id, 'services.agent-broker.version') }}"
+AGENT_BROKER_BUILD_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
+AGENT_BROKER_REQUEST_TIMEOUT: "{{ lookup('config', application_id, 'services.agent-broker.request_timeout') }}"
+AGENT_BROKER_AGENTS: "{{ lookup('config', application_id, 'services.agent-broker.agents') }}"
+AGENT_BROKER_RUNTIME: "{{ SANDBOX_RUNTIME }}"
+AGENT_BROKER_CONSTRAINT: "node.labels.{{ SANDBOX_NODE_LABEL }} == true"
+AGENT_SOCKET_PROXY_NAME: "{{ lookup('config', application_id, 'services.socket-proxy.name') }}"
+AGENT_ENGINE_SOCKET: "{{ [lookup('volume', application_id, 'engine_socket').target, 'engine.sock'] | path_join }}"
+
+AGENT_BROKER_PLATFORMS:
+  hermes:
+    group: "/{{ lookup('rbac_group_path', application_id='web-app-hermes', role='agent-user') }}"
+    image: "{{ lookup('image', 'web-app-hermes', 'hermes') }}"
+    port: "{{ lookup('config', 'web-app-hermes', 'services.hermes.ports.internal.http') }}"
+    health: /health
+    data: "{{ lookup('volume', 'web-app-hermes', 'hermes_data').target }}"
+    config_path: "{{ lookup('volume', 'web-app-hermes', 'hermes_config').target }}"
+    command: ["gateway"]
+    user: ""
+    key_env: API_SERVER_KEY
+    request_model: hermes-agent
+    env:
+      HERMES_SKIP_CONFIG_MIGRATION: "true"
+      API_SERVER_ENABLED: "true"
+      API_SERVER_HOST: "0.0.0.0"
+      API_SERVER_PORT: "{{ lookup('config', 'web-app-hermes', 'services.hermes.ports.internal.http') }}"
+      TZ: "{{ HOST_TIMEZONE }}"
+    cpus: "{{ lookup('config', 'web-app-hermes', 'services.hermes.cpus') }}"
+    mem_limit: "{{ lookup('config', 'web-app-hermes', 'services.hermes.mem_limit') | upper | human_to_bytes }}"
+    mem_reservation: "{{ lookup('config', 'web-app-hermes', 'services.hermes.mem_reservation') | upper | human_to_bytes }}"
+    pids_limit: "{{ lookup('config', 'web-app-hermes', 'services.hermes.pids_limit') }}"
+  openclaw:
+    group: "/{{ lookup('rbac_group_path', application_id='web-app-openclaw', role='agent-user') }}"
+    image: "{{ lookup('image', 'web-app-openclaw', 'openclaw') }}"
+    port: "{{ lookup('config', 'web-app-openclaw', 'services.openclaw.ports.internal.http') }}"
+    health: /healthz
+    data: "{{ lookup('volume', 'web-app-openclaw', 'openclaw_data').target }}"
+    config_path: "{{ lookup('volume', 'web-app-openclaw', 'openclaw_config').target }}"
+    command:
+      - node
+      - dist/index.js
+      - gateway
+      - run
+      - --bind
+      - lan
+      - --port
+      - "{{ lookup('config', 'web-app-openclaw', 'services.openclaw.ports.internal.http') }}"
+    user: "0:0"
+    key_env: OPENCLAW_GATEWAY_TOKEN
+    request_model: openclaw
+    env:
+      HOME: /home/node
+      OPENCLAW_HOME: /home/node
+      OPENCLAW_CONFIG_DIR: "{{ lookup('volume', 'web-app-openclaw', 'openclaw_data').target }}"
+      OPENCLAW_STATE_DIR: "{{ lookup('volume', 'web-app-openclaw', 'openclaw_data').target }}"
+      OPENCLAW_CONFIG_PATH: "{{ lookup('volume', 'web-app-openclaw', 'openclaw_config').target }}"
+      OPENCLAW_WORKSPACE_DIR: "{{ [lookup('volume', 'web-app-openclaw', 'openclaw_data').target, 'workspace'] | path_join }}"
+      TZ: "{{ HOST_TIMEZONE }}"
+    cpus: "{{ lookup('config', 'web-app-openclaw', 'services.openclaw.cpus') }}"
+    mem_limit: "{{ lookup('config', 'web-app-openclaw', 'services.openclaw.mem_limit') | upper | human_to_bytes }}"
+    mem_reservation: "{{ lookup('config', 'web-app-openclaw', 'services.openclaw.mem_reservation') | upper | human_to_bytes }}"
+    pids_limit: "{{ lookup('config', 'web-app-openclaw', 'services.openclaw.pids_limit') }}"

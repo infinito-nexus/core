@@ -1,0 +1,54 @@
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+
+  {% set service_name = 'agent-broker' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'agent-broker') }}
+    build:
+      context: {{ AGENT_BROKER_BUILD_DIR }}
+      dockerfile: Dockerfile
+      args:
+        AGENT_BROKER_BASE_IMAGE: {{ AGENT_BROKER_BASE_IMAGE }}
+        AGENT_BROKER_BASE_VERSION: "{{ AGENT_BROKER_BASE_VERSION }}"
+    {{ lookup('compose_only', 'container_name', AGENT_BROKER_CONTAINER) }}
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    expose:
+      - "{{ AGENT_BROKER_PORT }}"
+    {{ lookup('depends_on', {'socket-proxy': 'service_healthy'}) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+
+  {% set service_name = 'socket-proxy' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'socket-proxy') }}
+    {{ lookup('compose_only', 'container_name', AGENT_SOCKET_PROXY_NAME) }}
+    {{ lookup('compose_only', 'network_mode', 'none') }}
+    user: "0:0"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    command:
+      - "-loglevel=info"
+      - "-proxysocketendpoint={{ AGENT_ENGINE_SOCKET }}"
+      - "-proxysocketendpointfilemode=0666"
+      - "-allowhealthcheck"
+      - "-allowbindmountfrom=/nonexistent"
+      - "-allowGET=^(/v[0-9.]+)?/(_ping|version|containers/json|containers/[^/]+/json|images/.+/json|networks|networks/[^/]+|services|services/[^/]+|tasks)$"
+      - "-allowPOST=^(/v[0-9.]+)?/(images/create|volumes/create|networks/create|networks/[^/]+/connect|containers/create|containers/[^/]+/(start|stop)|services/create|services/[^/]+/update)$"
+      - "-watchdoginterval=3600"
+      - "-stoponwatchdog"
+      - "-shutdowngracetime=5"
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
+
+{{ lookup('compose_networks') }}
+
+{{ lookup('compose_volumes') }}

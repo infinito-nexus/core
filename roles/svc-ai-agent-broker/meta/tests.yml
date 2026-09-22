@@ -1,0 +1,4 @@
+---
+cli:
+  timeout: 2400
+  container_service_key: agent-broker
