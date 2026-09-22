@@ -64,7 +64,7 @@
 Clone, set up the workstation, and deploy {{ application_name }} onto the local stack:
 
 ```bash
-git clone https://github.com/infinito-nexus/core.git
+git clone {{ software_repository }}
 cd core
 make onboard
 make compose-deploy mode=reinstall apps={{ application_id }} full_cycle=false
@@ -76,7 +76,7 @@ make compose-deploy mode=reinstall apps={{ application_id }} full_cycle=false
 Install {{ application_name }} directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):
 
 ```bash
-git clone https://github.com/infinito-nexus/core.git
+git clone {{ software_repository }}
 cd core
 bash scripts/install/package.sh
 make install

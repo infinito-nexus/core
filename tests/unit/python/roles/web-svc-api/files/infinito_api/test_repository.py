@@ -8,6 +8,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from utils.roles.mapping import ROLE_FILE_TASKS_MAIN
+from utils.software import SOFTWARE_REPOSITORY
 
 from . import PROJECT_ROOT
 
@@ -16,8 +17,6 @@ if _TOOLING not in sys.path:
     sys.path.insert(0, _TOOLING)
 
 repository = importlib.import_module("infinito_api.repository")
-
-SOURCE = "https://github.com/infinito-nexus/core.git"
 
 
 def _snapshot(root: Path) -> Path:
@@ -36,7 +35,9 @@ def _snapshot(root: Path) -> Path:
 def _open(root: Path, forks: str = "off"):
     data = root / "data"
     data.mkdir(exist_ok=True)
-    repo = repository.Repository(data / "repo.git", SOURCE, forks, _snapshot(root))
+    repo = repository.Repository(
+        data / "repo.git", SOFTWARE_REPOSITORY, forks, _snapshot(root)
+    )
     repo.initialize()
     return repo
 
@@ -129,7 +130,10 @@ class TestRepository(unittest.TestCase):
 
     def test_forks_come_from_the_setting_and_skip_malformed_names(self) -> None:
         listed = repository.Repository(
-            self.root / "x.git", SOURCE, "alice/core bob/fork evil/../x", self.root
+            self.root / "x.git",
+            SOFTWARE_REPOSITORY,
+            "alice/core bob/fork evil/../x",
+            self.root,
         )
 
         self.assertEqual(self.repo.discover_forks(), {})

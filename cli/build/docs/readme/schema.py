@@ -16,6 +16,7 @@ import jinja2
 
 from cli.build.docs.readme.sections import h2_titles
 from utils.cache.files import PROJECT_ROOT
+from utils.software import SOFTWARE_REPOSITORY
 
 TEMPLATE_DIR = PROJECT_ROOT / "templates" / "roles"
 TEMPLATE_NAME = "README.md.j2.tmpl"
@@ -29,6 +30,7 @@ _REQUIRED_CTX: dict = {
     "application_features": [{"name": "Example", "description": "An example feature."}],
     "application_author": "Kevin Veen-Birkenbach",
     "cosmos_mermaid": 'flowchart LR\n    a["a"] --> b["b"]',
+    "software_repository": SOFTWARE_REPOSITORY,
 }
 
 _OPTIONAL_CTX: dict = {

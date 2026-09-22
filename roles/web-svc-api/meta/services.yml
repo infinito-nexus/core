@@ -41,7 +41,7 @@ api:
   version: 3.13-slim
   custom: true
   name: api
-  source_repository: https://github.com/infinito-nexus/core.git
+  source_repository: "{{ SOFTWARE_REPOSITORY }}"
   forks: auto
   fetch_interval: 900
   # nocheck: min-storage-headroom  Reason: the image built on the python base (1.1 GB) and the bare repository of core and its forks (about 300 MB)

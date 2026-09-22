@@ -11,6 +11,8 @@ from tempfile import TemporaryDirectory
 from babel.messages.catalog import Catalog
 from babel.messages.pofile import write_po
 
+from utils.software import SOFTWARE_REPOSITORY
+
 from . import PROJECT_ROOT
 
 _TOOLING = str(PROJECT_ROOT / "roles" / "web-svc-api" / "files" / "python")
@@ -69,7 +71,7 @@ class TestTranslations(unittest.TestCase):
         (root / "data").mkdir()
         self.repo = repository.Repository(
             root / "data" / "repo.git",
-            "https://github.com/infinito-nexus/core.git",
+            SOFTWARE_REPOSITORY,
             "off",
             snapshot,
         )

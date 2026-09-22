@@ -27,7 +27,7 @@ docs:
   image: python
   version: 3.13-slim
   custom: true
-  source_repository: https://github.com/infinito-nexus/core.git
+  source_repository: "{{ SOFTWARE_REPOSITORY }}"
   fetch_interval: 900
   build_jobs: 2
   # nocheck: min-storage-headroom  Reason: the image built on the python base (1.1 GB), the latest site (2.3 GB) and the scratch of a running build (2.4 GB); every further version opened adds about 2.3 GB

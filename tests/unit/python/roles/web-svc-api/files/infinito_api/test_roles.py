@@ -13,6 +13,7 @@ from utils.roles.mapping import (
     ROLE_FILE_META_SERVICES,
     ROLE_FILE_VARS_MAIN,
 )
+from utils.software import SOFTWARE_REPOSITORY
 
 from . import PROJECT_ROOT
 
@@ -79,7 +80,7 @@ class TestRoleData(unittest.TestCase):
         (root / "data").mkdir()
         self.repo = repository.Repository(
             root / "data" / "repo.git",
-            "https://github.com/infinito-nexus/core.git",
+            SOFTWARE_REPOSITORY,
             "off",
             snapshot,
         )
