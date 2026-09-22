@@ -15,6 +15,10 @@
 {% else %}
     {{ lookup('container_image', 'svc-db-postgres', 'postgres', image=lookup('database', application_id, 'image'), version=lookup('database', application_id, 'version')) }}
 {% endif %}
+    command:
+      - "postgres"
+      - "-c"
+      - "max_locks_per_transaction={{ POSTGRES_MAX_LOCKS_PER_TRANSACTION }}"
     env_file:
       - {{ lookup('database', application_id, 'env') }}
     {{ lookup('compose_restart') }}

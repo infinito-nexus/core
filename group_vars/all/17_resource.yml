@@ -15,6 +15,7 @@ POSTGRES_SUPERUSER_RESERVED_CONNECTIONS: "{{ lookup('resource', 'postgres_superu
 POSTGRES_SHARED_BUFFERS: "{{ lookup('resource', 'postgres_shared_buffers') }}"
 POSTGRES_WORK_MEM: "{{ lookup('resource', 'postgres_work_mem') }}"
 POSTGRES_MAINTENANCE_WORK_MEM: "{{ lookup('resource', 'postgres_maintenance_work_mem') }}"
+POSTGRES_MAX_LOCKS_PER_TRANSACTION: "{{ lookup('resource', 'postgres_max_locks_per_transaction') }}"
 POSTGRES_DELAY: "{{ lookup('resource', 'postgres_delay') }}"
 
 TIMEOUT_FACTOR: 1
