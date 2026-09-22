@@ -13,7 +13,7 @@
     that:
       - (LITELLM_BASE_LOCAL_URL | urlsplit('scheme')) == 'http'
       - "'.' not in (LITELLM_BASE_LOCAL_URL | urlsplit('hostname'))"
-      - (LITELLM_BASE_LOCAL_URL | urlsplit('hostname')) != lookup('domain', application_id)
+      - (application_id not in lookup('domains')) or ((LITELLM_BASE_LOCAL_URL | urlsplit('hostname')) != lookup('domain', application_id))
       - (LITELLM_BASE_LOCAL_URL | urlsplit('port') | int) == (lookup('config', 'svc-ai-litellm', 'services.litellm.ports.internal.http') | int)
     fail_msg: >-
       {{ application_id }} would send inference traffic to
