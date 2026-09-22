@@ -140,12 +140,22 @@
 # 401 proves the security plugin has loaded and is answering HTTPS
 # requests, which is everything this gate needs before securityadmin.sh
 # can run against it.
+# Exception: until: is required, not optional polish - uri_retry (plugins/action/uri_retry.py)
+# only skips its OWN internal retry loop when until: is present; without it, Ansible
+# core's retry-until mechanism (which activates on retries: alone, independent of
+# until:) wraps the plugin's already-retrying run(), nesting two nearly-identical
+# loops (confirmed via a minimal repro against the real plugin: 16 real HTTP requests
+# for retries: 3 without until:, vs the intended 4 with it - (retries+1)^2 vs retries+1).
+# status_code: [200, 401] already IS the success condition the uri module enforces
+# (anything else sets failed: true), so until: just needs to check that result.
 - name: "⏳ Wait for Wazuh indexer to answer HTTPS requests (security plugin loaded)"
   uri_retry:
     url: "{{ WAZUH_INDEXER_INTERNAL_API_URL }}/_cluster/health"
     method: GET
     validate_certs: false
     status_code: [200, 401]
+  register: wazuh_indexer_ready
+  until: wazuh_indexer_ready is succeeded
   retries: 60
   delay: 5
 
