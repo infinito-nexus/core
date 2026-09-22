@@ -42,7 +42,7 @@ simpleicons:
   image: node
   version: 26-slim
   local_image: simpleicons-server
-  local_version: latest
+  local_tag: latest
   min_storage: 612MB
   cpus: 0.5
   mem_reservation: 128m

@@ -49,6 +49,12 @@ suitecrm:
   version: 8.2-apache
   custom: true
   app_version: 8.9.1
+  update:
+    key: app_version
+    type: git_tags
+    repository: https://github.com/salesagility/SuiteCRM-Core.git
+    match: "v"
+    strip: true
   name: suitecrm
   min_storage: 376MB
   cpus: 1.5

@@ -33,6 +33,7 @@ mailu:
   enabled: true # nocheck: dynamic-flag
   shared: true
   provides: email
+  # nocheck: unwatched-version  Reason: Mailu ships its images under the release-series tag while its git tags are patch level (2024.06.58), so the series is the pin and moves only on a deliberate migration
   version: "2024.06"
   name: mailu
   backup:

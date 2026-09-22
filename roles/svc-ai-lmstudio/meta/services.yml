@@ -17,6 +17,11 @@ lmstudio:
   version: "22.04"
   custom: true
   app_version: 0.0.25-1
+  update:
+    key: app_version
+    type: http_regex
+    url: https://lmstudio.ai/install.sh
+    pattern: 'APP_VERSION="([0-9][0-9.-]*)"'
   name: lmstudio
   # nocheck: min-storage-headroom  Reason: the build holds the llmster release archive (1.3 GB on arm64) beside its 2.3 GB extraction until the GPU backends are trimmed; the finished image keeps 1.4 GB on arm64
   min_storage: 4GB

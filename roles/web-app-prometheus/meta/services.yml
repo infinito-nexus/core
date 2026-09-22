@@ -107,6 +107,9 @@ blackbox-exporter:
 cadvisor:
   image: gcr.io/cadvisor/cadvisor
   version: v0.52.1
+  update:
+    type: registry_tags
+    image: gcr.io/cadvisor/cadvisor
   name: prometheus-cadvisor
   cpus: "0.25"
   mem_reservation: 128m
