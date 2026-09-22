@@ -5,6 +5,9 @@
 # variant pinning every dynamic services.yml flag to true so the
 # matrix exercises the in-group_names branch of web-app-mig.
 - services:
+    api:
+      enabled: true
+      shared: true
     dashboard:
       enabled: true
       shared: true
@@ -22,6 +25,9 @@
     tor:
       enabled: true
 - services:
+    api:
+      enabled: false
+      shared: false
     dashboard:
       enabled: false
       shared: false

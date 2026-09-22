@@ -23,6 +23,7 @@ flowchart LR
         dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
+        dep_web_svc_api["web-svc-api 🐳🐝"]
         dep_web_svc_css["web-svc-css 💻"]
     end
     subgraph role [web-app-mig 🐳🐝]
@@ -32,6 +33,7 @@ flowchart LR
         svc_matomo["matomo"]
         svc_redis["redis"]
         svc_mig["mig"]
+        svc_api["api"]
         svc_css["css"]
         svc_prometheus["prometheus"]
         svc_tor["tor"]
@@ -42,6 +44,7 @@ flowchart LR
     dep_web_app_keycloak -- "0..0" --> svc_sso
     dep_web_app_matomo -. "0..1" .-> svc_matomo
     dep_web_app_prometheus -. "0..1" .-> svc_prometheus
+    dep_web_svc_api -. "0..1" .-> svc_api
     dep_web_svc_css -. "0..1" .-> svc_css
     linkStyle 3 stroke:red;
 ```
