@@ -28,7 +28,7 @@
     volumes:
       - type:   volume
         source: database
-        target: /var/lib/postgresql/data
+        target: /var/lib/postgresql
 {% if _extensions | length > 0 %}
       - type:   bind
         source: {{ lookup('database', application_id, 'initdb_dir') }}
