@@ -3,11 +3,13 @@
 Usage:
   python -m cli.build.i18n extract [--domain core|docs]
   python -m cli.build.i18n translate --domain core|docs [--languages de,fr]
+  python -m cli.build.i18n languages [--domain core|docs]
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import sys
 
@@ -20,7 +22,12 @@ from utils.i18n.catalog import (
     write_catalog,
 )
 from utils.i18n.extract import core_messages, docs_template
-from utils.i18n.languages import DOMAINS, domain_languages, load_languages
+from utils.i18n.languages import (
+    DOMAINS,
+    domain_languages,
+    load_languages,
+    translatable,
+)
 from utils.i18n.libretranslate import (
     READY_TIMEOUT_SECONDS,
     LibreTranslate,
@@ -33,14 +40,14 @@ CHUNK_SIZE = 500
 
 
 def extract(domains: list[str]) -> int:
-    languages = load_languages(PROJECT_ROOT)
+    loaded = load_languages(PROJECT_ROOT)
     for domain in domains:
         if domain == "core":
             template = build_template(core_messages(PROJECT_ROOT), domain)
         else:
             template = docs_template(PROJECT_ROOT, os.cpu_count())
         changed = 0
-        for code in domain_languages(languages, domain):
+        for code in domain_languages(loaded, domain):
             path = catalog_path(PROJECT_ROOT, code, domain)
             existing = read_catalog(path) if path.is_file() else None
             changed += write_catalog(path, merge(template, existing, code))
@@ -48,13 +55,15 @@ def extract(domains: list[str]) -> int:
     return 0
 
 
+def languages(domains: list[str]) -> int:
+    loaded = load_languages(PROJECT_ROOT)
+    codes = sorted({code for d in domains for code in translatable(loaded, d)})
+    print(json.dumps(codes))
+    return 0
+
+
 def translate(domain: str, requested: list[str]) -> int:
-    languages = load_languages(PROJECT_ROOT)
-    supported = [
-        code
-        for code in domain_languages(languages, domain)
-        if languages[code]["libretranslate"]
-    ]
+    supported = translatable(load_languages(PROJECT_ROOT), domain)
     unsupported = sorted(set(requested) - set(supported))
     if unsupported:
         print(f"LibreTranslate does not support {unsupported}", file=sys.stderr)
@@ -105,9 +114,15 @@ def main() -> int:
         default="",
         help="Comma-separated ISO 639-1 codes; empty for every supported language.",
     )
+    languages_parser = commands.add_parser(
+        "languages", help="Print the machine-translatable codes as a JSON array."
+    )
+    languages_parser.add_argument("--domain", choices=DOMAINS)
     args = parser.parse_args()
     if args.command == "extract":
         return extract([args.domain] if args.domain else list(DOMAINS))
+    if args.command == "languages":
+        return languages([args.domain] if args.domain else list(DOMAINS))
     return translate(args.domain, [c for c in args.languages.split(",") if c])
 
 

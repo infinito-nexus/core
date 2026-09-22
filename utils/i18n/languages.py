@@ -35,3 +35,17 @@ def domain_languages(languages: dict[str, dict], domain: str) -> list[str]:
             code for code, entry in languages.items() if entry["libretranslate"]
         )
     raise ValueError(f"unknown domain: {domain}")
+
+
+def translatable(languages: dict[str, dict], domain: str) -> list[str]:
+    """Return the codes of ``domain`` LibreTranslate can machine-translate.
+
+    Args:
+        languages: the mapping returned by ``load_languages``.
+        domain: gettext domain.
+    """
+    return [
+        code
+        for code in domain_languages(languages, domain)
+        if languages[code]["libretranslate"]
+    ]
