@@ -46,9 +46,31 @@ class FakeEngine:
         return {"Id": "abc", "Name": "/agent", "HostConfig": {"Runtime": self.runtime}}
 
 
-def make_agents(context=0):
+class FakeBackend:
+    def __init__(self, details):
+        self.details = details
+        self.stopped = []
+
+    def list_agents(self):
+        return list(self.details.values())
+
+    def find(self, name):
+        return self.details.get(name)
+
+    def is_running(self, detail):
+        return detail["running"]
+
+    def started_at(self, detail):
+        return detail["started_at"]
+
+    def stop(self, detail):
+        self.stopped.append(detail["Name"].lstrip("/"))
+        detail["running"] = False
+
+
+def make_agents(backend=None, idle_stop=True, context=0):
     return agents.Agents(
-        backend=None,
+        backend=backend,
         engine=FakeEngine(),
         platforms=PLATFORMS,
         self_container="self",
@@ -56,7 +78,7 @@ def make_agents(context=0):
         relay_url="http://agent-broker:8080/llm/v1",
         model="qwen2.5:0.5b",
         context=context,
-        idle_stop=True,
+        idle_stop=idle_stop,
         idle_seconds=60,
         max_running=2,
         start_timeout=10,
@@ -123,6 +145,41 @@ class TestContextWindow(unittest.TestCase):
         self.assertNotIn(
             "contextWindow", openclaw["models"]["providers"]["broker"]["models"][0]
         )
+
+
+class TestReap(unittest.TestCase):
+    def detail(self, name, running=True, started="2020-01-01T00:00:00.000000000Z"):
+        return {"Name": f"/{name}", "running": running, "started_at": started}
+
+    def test_an_idle_agent_is_stopped(self):
+        backend = FakeBackend({"agent-hermes-1": self.detail("agent-hermes-1")})
+        make_agents(backend).reap()
+        self.assertEqual(backend.stopped, ["agent-hermes-1"])
+
+    def test_idle_stop_false_stops_nothing(self):
+        backend = FakeBackend({"agent-hermes-1": self.detail("agent-hermes-1")})
+        make_agents(backend, idle_stop=False).reap()
+        self.assertEqual(backend.stopped, [])
+
+    def test_an_agent_serving_a_request_survives_its_idle_time(self):
+        backend = FakeBackend({"agent-hermes-1": self.detail("agent-hermes-1")})
+        broker = make_agents(backend)
+        broker._busy["agent-hermes-1"] = 1
+        broker.reap()
+        self.assertEqual(backend.stopped, [])
+
+    def test_a_prompt_that_lands_during_the_sweep_keeps_the_agent(self):
+        backend = FakeBackend({"agent-hermes-1": self.detail("agent-hermes-1")})
+        broker = make_agents(backend)
+        original = broker._lock_for
+
+        def touch_then_lock(name):
+            broker.end(name)
+            return original(name)
+
+        broker._lock_for = touch_then_lock
+        broker.reap()
+        self.assertEqual(backend.stopped, [])
 
 
 class TestSpec(unittest.TestCase):

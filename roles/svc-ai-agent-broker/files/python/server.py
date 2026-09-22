@@ -204,13 +204,17 @@ class Handler(BaseHTTPRequestHandler):
         payload["user"] = owner
         target = urllib.parse.urlsplit(address)
         log("forward", platform=platform, owner=owner)
-        self._proxy(
-            target.hostname,
-            target.port,
-            "/v1/chat/completions",
-            json.dumps(payload).encode(),
-            {"Content-Type": "application/json", "Authorization": f"Bearer {key}"},
-        )
+        name = AGENTS.begin(platform, owner)
+        try:
+            self._proxy(
+                target.hostname,
+                target.port,
+                "/v1/chat/completions",
+                json.dumps(payload).encode(),
+                {"Content-Type": "application/json", "Authorization": f"Bearer {key}"},
+            )
+        finally:
+            AGENTS.end(name)
 
     def _relay(self):
         entry = AGENTS.owner_of_key(bearer(self.headers))

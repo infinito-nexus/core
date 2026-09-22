@@ -129,6 +129,7 @@ class Agents:
         self.start_timeout = start_timeout
         self._locks = {}
         self._locks_guard = threading.Lock()
+        self._busy = {}
         self._last_used = {}
         self._keys = {}
         self._agent_models = {}
@@ -265,29 +266,50 @@ class Agents:
                 self._remember(detail)
         return self._keys.get(key)
 
+    def begin(self, platform, owner):
+        name = agent_name(platform, owner)
+        with self._locks_guard:
+            self._busy[name] = self._busy.get(name, 0) + 1
+        return name
+
+    def end(self, name):
+        with self._locks_guard:
+            self._busy[name] = max(self._busy.get(name, 1) - 1, 0)
+            self._last_used[name] = time.monotonic()
+
     def stop_owner(self, platform, owner):
         detail = self.backend.find(agent_name(platform, owner))
         if detail is not None and self.backend.is_running(detail):
             self.backend.stop(detail)
 
+    def _idle_seconds_of(self, name, detail):
+        last = self._last_used.get(name)
+        if last is not None:
+            return time.monotonic() - last
+        return time.time() - _parse_time(self.backend.started_at(detail))
+
     def reap(self):
         if not self.idle_stop:
             return
-        now = time.monotonic()
-        wall = time.time()
         for detail in self.backend.list_agents():
             if not self.backend.is_running(detail):
                 continue
             name = detail.get("Name", "").lstrip("/") or (detail.get("Spec") or {}).get(
                 "Name", ""
             )
-            last = self._last_used.get(name)
-            idle = (
-                now - last
-                if last is not None
-                else wall - _parse_time(self.backend.started_at(detail))
-            )
-            if idle >= self.idle_seconds:
-                with self._lock_for(name):
-                    self.backend.stop(detail)
-                    self._last_used.pop(name, None)
+            if (
+                self._busy.get(name)
+                or self._idle_seconds_of(name, detail) < self.idle_seconds
+            ):
+                continue
+            with self._lock_for(name):
+                current = self.backend.find(name)
+                if current is None or not self.backend.is_running(current):
+                    continue
+                if (
+                    self._busy.get(name)
+                    or self._idle_seconds_of(name, current) < self.idle_seconds
+                ):
+                    continue
+                self.backend.stop(current)
+                self._last_used.pop(name, None)
