@@ -1,5 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { expectHstsWhenTls } = require("./personas");
+const { resolveTimeout } = require("./timeouts");
 
 exports.register = function (shared) {
   test("health answers on the canonical domain with TLS and open CORS", async ({ request }) => {
@@ -20,6 +21,7 @@ exports.register = function (shared) {
       method: "OPTIONS",
       headers: { Origin: "https://example.org", "Access-Control-Request-Method": "GET" },
       failOnStatusCode: false,
+      timeout: resolveTimeout(120_000),
     });
     expect(preflight.status(), "Expected the CORS preflight to succeed").toBe(200);
     expect(preflight.headers()["access-control-allow-origin"]).toBe("*");

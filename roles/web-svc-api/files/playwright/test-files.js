@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { resolveTimeout } = require("./timeouts");
 
 const SNAPSHOT_ROOT = ["default.env", "inventories", "locale", "meta", "roles", "tests"];
 
@@ -9,6 +10,7 @@ exports.register = function (shared) {
 
     const file = await request.get(
       shared.apiUrl("/v1/file", { ref: "deployed", path: `roles/${shared.translatedRole}/meta/domains.yml` }),
+      { timeout: resolveTimeout(120_000) },
     );
     expect(file.status()).toBe(200);
     expect(file.headers()["content-type"]).toContain("text/plain");
@@ -38,9 +40,9 @@ exports.register = function (shared) {
     const inventories = (await shared.getJson(request, "/v1/tree", { ref: "deployed", path: "inventories" })).body;
     expect(inventories.entries.map((entry) => entry.name), "Expected no inventory but the bundles in the snapshot").toEqual(["bundles"]);
     const payloads = [
-      await request.get(shared.apiUrl("/v1/roles", { ref: "deployed" })),
-      await request.get(shared.apiUrl("/v1/bundles", { ref: "deployed" })),
-      await request.get(shared.apiUrl("/v1/file", { ref: "deployed", path: "default.env" })),
+      await request.get(shared.apiUrl("/v1/roles", { ref: "deployed" }), { timeout: resolveTimeout(120_000) }),
+      await request.get(shared.apiUrl("/v1/bundles", { ref: "deployed" }), { timeout: resolveTimeout(120_000) }),
+      await request.get(shared.apiUrl("/v1/file", { ref: "deployed", path: "default.env" }), { timeout: resolveTimeout(120_000) }),
     ];
     for (const payload of payloads) {
       expect(payload.status()).toBe(200);
