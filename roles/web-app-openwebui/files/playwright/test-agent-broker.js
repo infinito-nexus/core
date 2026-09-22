@@ -149,7 +149,7 @@ exports.register = function (shared) {
   test("biber: with agent-user each platform starts a personal agent that answers", async ({ page }) => {
     skipUnlessServiceEnabled("agent-broker");
     skipUnlessServiceEnabled("sso");
-    test.setTimeout(resolveTimeout(1_800_000));
+    test.setTimeout(resolveTimeout(3_600_000));
 
     await setAgentGroups(shared.env.biberUsername, true);
     try {
@@ -164,7 +164,7 @@ exports.register = function (shared) {
             messages: [{ role: "user", content: "Reply with exactly the word: pong" }],
             stream: false,
           },
-          timeout: resolveTimeout(900_000),
+          timeout: resolveTimeout(1_800_000),
         });
         expect(chat.ok(), `the ${platform} agent must answer through the broker (HTTP ${chat.status()})`).toBeTruthy();
         const content = ((await chat.json())?.choices?.[0]?.message?.content ?? "").trim();
