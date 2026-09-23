@@ -36,8 +36,7 @@ from utils.i18n.languages import (
 from utils.i18n.libretranslate import (
     READY_TIMEOUT_SECONDS,
     LibreTranslate,
-    container,
-    pinned_image,
+    server,
 )
 from utils.i18n.translate import apply, damaged, discard, pending
 
@@ -124,7 +123,7 @@ def translate(domain: str, requested: list[str]) -> int:
         print(f"{domain}: nothing to translate")
         return 0
     threads = os.cpu_count() or 1
-    with container(pinned_image(PROJECT_ROOT), codes, threads) as url:
+    with server(PROJECT_ROOT, codes, threads) as url:
         client = LibreTranslate(url, threads)
         client.wait(codes, READY_TIMEOUT_SECONDS)
         for code in codes:

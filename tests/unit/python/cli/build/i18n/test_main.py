@@ -44,8 +44,7 @@ class TestTranslate(unittest.TestCase):
         )
         with (
             mock.patch.object(cli, "PROJECT_ROOT", self.root),
-            mock.patch.object(cli, "pinned_image", return_value="lt:1"),
-            mock.patch.object(cli, "container", started),
+            mock.patch.object(cli, "server", started),
             mock.patch.object(cli, "LibreTranslate", client),
         ):
             return cli.translate("core", []), started

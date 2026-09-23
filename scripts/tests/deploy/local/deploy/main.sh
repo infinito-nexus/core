@@ -25,6 +25,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../../.." && pwd)"
 cd "${REPO_ROOT}"
 
+mkdir -p build
+echo $$ >build/deploy.pid
+
 MODE="${mode:-initialize}" # nocheck: deploy router knob; routes to apps/<verb>/ subscripts
 PURGE="${purge:-false}"    # nocheck: deploy router knob; gates entity pre-purge
 
