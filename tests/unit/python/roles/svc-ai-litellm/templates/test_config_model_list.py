@@ -9,11 +9,13 @@ template is rendered here rather than read.
 
 from __future__ import annotations
 
+import json
 import unittest
 
 import yaml
 from jinja2 import Environment, StrictUndefined
 
+from plugins.filter.litellm.model_routes import litellm_model_routes
 from plugins.filter.merge.with_defaults import merge_with_defaults
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml
@@ -29,6 +31,13 @@ BONSAI = {
     "alias": "openrouter/ternary-bonsai-2-27b",
     "model": "openrouter/prism-ml/ternary-bonsai-2-27b",
     "provider": "openrouter",
+}
+
+MOCK = {
+    "alias": "mock/deterministic",
+    "provider": "mock",
+    "context": 131072,
+    "response": "pong",
 }
 
 SHARED = {"alias": "qwen2.5:0.5b", "name": "qwen2.5-0.5b-instruct"}
@@ -67,6 +76,8 @@ def render(*, ollama=(), lmstudio=(), keys=None, remote_models=REMOTE_MODELS):
     """
     env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - YAML, not markup
     env.filters["bool"] = _ansible_bool
+    env.filters["to_json"] = json.dumps
+    env.filters["litellm_model_routes"] = litellm_model_routes
     rendered = env.from_string(read_text(str(TEMPLATE))).render(
         LITELLM_OLLAMA_BACKEND=str(bool(ollama)),
         LITELLM_LMSTUDIO_BACKEND=str(bool(lmstudio)),
@@ -207,6 +218,17 @@ class TestConfiguredRemoteModels(unittest.TestCase):
             )
         )
         self.assertEqual(set(published), {BONSAI["alias"]})
+
+
+class TestMockModels(unittest.TestCase):
+    """A mock is declared like any other model; the routing shape is the filter's."""
+
+    def test_a_response_carrying_yaml_punctuation_survives_the_render(self) -> None:
+        awkward = {**MOCK, "response": 'a: b\n"c" #d'}
+        published = routes(
+            render(keys={"mock": "none-needed"}, remote_models=[awkward])
+        )
+        self.assertEqual(published[MOCK["alias"]]["mock_response"], awkward["response"])
 
 
 if __name__ == "__main__":

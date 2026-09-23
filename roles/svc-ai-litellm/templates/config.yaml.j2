@@ -1,42 +1,21 @@
-{% set _ollama_models = lookup('config', 'svc-ai-ollama', 'services.ollama.preload_models') if LITELLM_OLLAMA_BACKEND | bool else [] %}
-{% set _lmstudio_models = lookup('config', 'svc-ai-lmstudio', 'services.lmstudio.preload_models') if LITELLM_LMSTUDIO_BACKEND | bool else [] %}
-{% set _remote_models = LITELLM_REMOTE_MODELS | selectattr('provider', 'in', LITELLM_KEYED_PROVIDERS) | list %}
-{% set has_backend = _ollama_models or _lmstudio_models or _remote_models %}
-model_list:{{ ' []' if not has_backend else '' }}
-{% for _model in _ollama_models %}
-  - model_name: "{{ _model.alias }}"
+{% set _routes = (lookup('config', 'svc-ai-ollama', 'services.ollama.preload_models') if LITELLM_OLLAMA_BACKEND | bool else [])
+  | litellm_model_routes(
+      (lookup('config', 'svc-ai-lmstudio', 'services.lmstudio.preload_models') if LITELLM_LMSTUDIO_BACKEND | bool else []),
+      (LITELLM_REMOTE_MODELS | selectattr('provider', 'in', LITELLM_KEYED_PROVIDERS) | list),
+      ollama_url=OLLAMA_BASE_LOCAL_URL,
+      lmstudio_url=LMSTUDIO_BASE_LOCAL_URL,
+      max_tokens=LITELLM_MAX_OUTPUT_TOKENS,
+      timeout=LITELLM_UPSTREAM_TIMEOUT) %}
+model_list:{{ ' []' if not _routes else '' }}
+{% for _route in _routes %}
+  - model_name: {{ _route.alias | to_json }}
     litellm_params:
-      model: "ollama/{{ _model.alias }}"
-      api_base: {{ OLLAMA_BASE_LOCAL_URL }}
-      rpm: 1000
-      max_tokens: {{ LITELLM_MAX_OUTPUT_TOKENS }}
-      timeout: {{ LITELLM_UPSTREAM_TIMEOUT }}
-{% if _model.context is defined %}
-      num_ctx: {{ _model.context }}
-    model_info:
-      max_input_tokens: {{ _model.context }}
-{% endif %}
+{% for _key, _value in _route.params.items() %}
+      {{ _key }}: {{ _value | to_json }}
 {% endfor %}
-{% for _model in _lmstudio_models if _model.alias not in (_ollama_models | map(attribute='alias') | list) %}
-  - model_name: "{{ _model.alias }}"
-    litellm_params:
-      model: "openai/{{ _model.name }}"
-      api_base: {{ LMSTUDIO_BASE_LOCAL_URL }}/v1
-      api_key: lm-studio
-      rpm: 1000
-      max_tokens: {{ LITELLM_MAX_OUTPUT_TOKENS }}
-      timeout: {{ LITELLM_UPSTREAM_TIMEOUT }}
-{% endfor %}
-{% for _model in _remote_models %}
-  - model_name: "{{ _model.alias }}"
-    litellm_params:
-      model: "{{ _model.model }}"
-      api_key: os.environ/{{ _model.provider | upper }}_API_KEY
-      max_tokens: {{ LITELLM_MAX_OUTPUT_TOKENS }}
-      timeout: {{ LITELLM_UPSTREAM_TIMEOUT }}
-{% if _model.context is defined %}
+{% if _route.context %}
     model_info:
-      max_input_tokens: {{ _model.context }}
+      max_input_tokens: {{ _route.context }}
 {% endif %}
 {% endfor %}
 
