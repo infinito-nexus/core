@@ -3,4 +3,7 @@ ARG LIBRETRANSLATE_VERSION
 FROM ${LIBRETRANSLATE_IMAGE}:${LIBRETRANSLATE_VERSION}
 
 ARG LIBRETRANSLATE_LOAD_ONLY
-RUN ./venv/bin/python scripts/install_models.py --load_only_lang_codes "${LIBRETRANSLATE_LOAD_ONLY}"
+RUN if [ -n "${LIBRETRANSLATE_LOAD_ONLY}" ]; then \
+      set -- --load_only_lang_codes "${LIBRETRANSLATE_LOAD_ONLY}"; \
+    fi; \
+    ./venv/bin/python scripts/install_models.py "$@"

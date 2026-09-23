@@ -16,3 +16,10 @@
 
 - name: "🚿 Flush compose handlers for {{ application_id }}"
   ansible.builtin.meta: flush_handlers
+
+- name: "🎮 Verify the GPU reached {{ application_id }}"
+  ansible.builtin.include_tasks: utils/assert_gpu.yml
+  when:
+    - LIBRETRANSLATE_GPU | bool
+    - sys_svc_container_nvidia_device is defined
+    - sys_svc_container_nvidia_device.stat.exists
