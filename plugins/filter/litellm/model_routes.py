@@ -12,7 +12,9 @@ backend outranks the later.
 """
 
 
-def _local_route(alias, model, api_base, *, max_tokens, timeout, context, api_key=None):
+def _local_route(
+    alias, model, api_base, *, max_tokens, timeout, context, traits, api_key=None
+):
     params = {
         "model": model,
         "api_base": api_base,
@@ -24,7 +26,7 @@ def _local_route(alias, model, api_base, *, max_tokens, timeout, context, api_ke
         params["api_key"] = api_key
     if context:
         params["num_ctx"] = context
-    return {"alias": alias, "params": params, "context": context}
+    return {"alias": alias, "params": params, "context": context, "traits": traits}
 
 
 def litellm_model_routes(
@@ -37,8 +39,9 @@ def litellm_model_routes(
     max_tokens,
     timeout,
     mock_provider,
+    router_alias=None,
 ):
-    """Every model LiteLLM publishes, as ``{alias, params, context}``.
+    """Every model LiteLLM publishes, as ``{alias, params, context, traits}``.
 
     Args:
         ollama_models: preload entries svc-ai-ollama serves; empty when it is
@@ -55,9 +58,16 @@ def litellm_model_routes(
         timeout: upstream timeout every calling route carries.
         mock_provider: the provider name that marks a mock, passed in rather
             than hardcoded so this and the Ansible side cannot drift apart.
+        router_alias: when given and at least one route exists, one further
+            route under that alias. The pre-call hook rewrites it to whichever
+            route can serve the request, so this entry exists to make the alias
+            listable and MUST never answer: it raises, because a router that
+            silently served the default would hide its own failure behind a
+            plausible reply.
 
     Returns:
-        The routes in publication order: Ollama, then LM Studio, then declared.
+        The routes in publication order: Ollama, then LM Studio, then declared,
+        then the router alias.
     """
     routes = []
     served = set()
@@ -73,6 +83,7 @@ def litellm_model_routes(
                 max_tokens=max_tokens,
                 timeout=timeout,
                 context=model.get("context"),
+                traits=model.get("traits"),
             )
         )
 
@@ -89,6 +100,7 @@ def litellm_model_routes(
                 max_tokens=max_tokens,
                 timeout=timeout,
                 context=model.get("context"),
+                traits=model.get("traits"),
                 api_key="lm-studio",
             )
         )
@@ -110,7 +122,28 @@ def litellm_model_routes(
                 "max_tokens": max_tokens,
                 "timeout": timeout,
             }
-        routes.append({"alias": alias, "params": params, "context": context})
+        routes.append(
+            {
+                "alias": alias,
+                "params": params,
+                "context": context,
+                "traits": model.get("traits"),
+            }
+        )
+
+    if router_alias and routes:
+        routes.append(
+            {
+                "alias": router_alias,
+                "params": {
+                    "model": f"openai/{router_alias}",
+                    "api_key": router_alias,
+                    "mock_response": "litellm.InternalServerError",
+                },
+                "context": None,
+                "traits": None,
+            }
+        )
 
     return routes
 

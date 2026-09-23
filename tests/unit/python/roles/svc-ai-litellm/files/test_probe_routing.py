@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import importlib.util
 import unittest
+from typing import ClassVar
 
 from . import PROJECT_ROOT
 
@@ -210,6 +211,87 @@ class TestNoBackendDeployment(unittest.TestCase):
 
     def test_the_chat_model_is_not_demanded_when_nothing_serves_it(self) -> None:
         self.assertEqual(verdict(chat_model=ALIAS), [])
+
+
+class TestRouterAlias(unittest.TestCase):
+    """The router alias is served by no backend, so it is accounted separately."""
+
+    def test_a_served_router_alias_is_not_read_as_an_unbacked_route(self) -> None:
+        self.assertEqual(
+            verdict(
+                served={ALIAS, "auto"},
+                expected=[ALIAS, "auto"],
+                chat_model=ALIAS,
+                chat_model_served=True,
+                ollama_enabled=True,
+                router_alias="auto",
+            ),
+            [],
+        )
+
+    def test_a_declared_router_alias_the_gateway_withholds_fails(self) -> None:
+        failures = verdict(
+            served={ALIAS},
+            expected=[ALIAS],
+            chat_model=ALIAS,
+            chat_model_served=True,
+            ollama_enabled=True,
+            router_alias="auto",
+        )
+        self.assertTrue(
+            any("router alias 'auto'" in failure for failure in failures), failures
+        )
+
+
+class TestRouteVerdict(unittest.TestCase):
+    """An answer is only evidence of routing when it names a model that fits."""
+
+    WINDOWS: ClassVar[dict] = {"small": 4096, "medium": 16384, "large": 65536}
+
+    def verdict(self, served, needed=5461):
+        return probe.route_verdict("auto", self.WINDOWS, served, needed)
+
+    def test_a_model_whose_window_holds_the_prompt_passes(self) -> None:
+        self.assertEqual(self.verdict("medium"), "")
+
+    def test_answering_as_the_alias_itself_fails(self) -> None:
+        self.assertIn("did not rewrite", self.verdict("auto"))
+
+    def test_naming_no_model_fails(self) -> None:
+        self.assertIn("without naming a model", self.verdict(""))
+
+    def test_a_window_too_small_for_the_prompt_fails(self) -> None:
+        self.assertIn("did not exclude it", self.verdict("small"))
+
+    def test_an_undeclared_window_is_not_second_guessed(self) -> None:
+        self.assertEqual(self.verdict("openrouter/auto"), "")
+
+    def test_a_provider_prefixed_answer_is_matched_to_its_window(self) -> None:
+        self.assertIn(
+            "did not exclude it",
+            self.verdict("ollama/small"),
+            "litellm names the resolved model, not the alias, so a literal "
+            "lookup would miss the window and pass every answer",
+        )
+
+    def test_a_provider_prefixed_answer_that_fits_passes(self) -> None:
+        self.assertEqual(self.verdict("ollama/large"), "")
+
+
+class TestOversizedPrompt(unittest.TestCase):
+    """The prompt has to clear the smallest window by the hook's own estimate."""
+
+    def test_the_demand_exceeds_the_window_it_targets(self) -> None:
+        _, needed = probe.oversized_prompt(4096)
+        self.assertGreater(needed, 4096)
+
+    def test_the_demand_stays_inside_the_next_window_up(self) -> None:
+        _, needed = probe.oversized_prompt(4096)
+        self.assertLess(needed, 16384)
+
+    def test_the_prompt_is_as_long_as_the_demand_claims(self) -> None:
+        prompt, needed = probe.oversized_prompt(4096)
+        self.assertGreaterEqual(len(prompt) // 3, needed)
 
 
 if __name__ == "__main__":

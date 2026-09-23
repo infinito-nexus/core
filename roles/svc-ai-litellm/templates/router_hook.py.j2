@@ -1,0 +1,182 @@
+"""Pick the model that can serve a request, before the proxy dispatches it.
+
+LiteLLM loads this through ``get_instance_fn``, which resolves
+``router_hook.instance`` against the directory of ``config.yaml``, so the file
+lives beside it in the container and the image stays the upstream one.
+
+The demand side is estimated. The supply side is read off LiteLLM's own model
+catalog, which ships 1595 entries in the image and carries the context window,
+the vision and tool support and the per-token price of every model it knows. A
+route may override any of that through ``model_info.traits`` for a model the
+catalog does not know, and nothing here probes a backend.
+"""
+
+from __future__ import annotations
+
+import litellm
+from litellm.integrations.custom_logger import CustomLogger
+
+ROUTER_ALIAS = {{ LITELLM_ROUTER_ALIAS | to_json }}
+
+# Exception: errs high on purpose. An under-estimate routes to a model whose
+# context cannot hold the prompt and fails at the backend, after the choice is
+# already made and the cheaper candidates are gone.
+CHARS_PER_TOKEN = 3
+IMAGE_PARTS = ("image_url", "input_image")
+# Exception: larger than any real per-token price, so a paid model the catalog
+# does not price sorts behind every one it does, and behind anything local.
+UNPRICED_REMOTE_COST = 1.0
+
+
+def summarize(data):
+    """What the request demands, in the terms a route declares.
+
+    Args:
+        data: the OpenAI-shaped request body the proxy received.
+
+    Returns:
+        ``{input_tokens, vision, tools, max_output}``.
+    """
+    characters = 0
+    vision = False
+    for message in data.get("messages") or []:
+        content = message.get("content")
+        if isinstance(content, str):
+            characters += len(content)
+            continue
+        for part in content or []:
+            if not isinstance(part, dict):
+                continue
+            if part.get("type") in IMAGE_PARTS:
+                vision = True
+            else:
+                characters += len(part.get("text") or "")
+    return {
+        "input_tokens": -(-characters // CHARS_PER_TOKEN),
+        "vision": vision,
+        "tools": bool(data.get("tools") or data.get("functions")),
+        "max_output": int(data.get("max_tokens") or 0),
+    }
+
+
+def _catalogued(model, catalog):
+    """The catalog entry for *model*, trying the prefixed and the bare key.
+
+    ``ollama/llama3`` is a key as it stands, ``openai/gpt-4o-mini`` is filed
+    under ``gpt-4o-mini``, and a local tag or a mock is in neither.
+    """
+    for key in (model, model.split("/", 1)[-1]):
+        found = catalog.get(key)
+        if isinstance(found, dict):
+            return found
+    return {}
+
+
+def _fallback_cost(params):
+    if params.get("mock_response") is not None or params.get("api_base"):
+        return 0.0
+    return UNPRICED_REMOTE_COST
+
+
+def capabilities(entry, catalog):
+    """What a route can do: the catalog's facts, overridden by declarations.
+
+    Args:
+        entry: one ``model_list`` entry.
+        catalog: ``litellm.model_cost`` or a stand-in keyed the same way.
+
+    Returns:
+        ``{context, vision, tools, max_output, cost}``. A capability neither
+        catalogued nor declared counts as absent, a limit as unbounded, and a
+        price as free for anything local or mocked.
+    """
+    params = entry.get("litellm_params") or {}
+    info = entry.get("model_info") or {}
+    known = _catalogued(params.get("model") or "", catalog)
+    caps = {
+        "context": info.get("max_input_tokens") or known.get("max_input_tokens"),
+        "vision": bool(known.get("supports_vision")),
+        "tools": bool(known.get("supports_function_calling")),
+        "max_output": known.get("max_output_tokens"),
+        "cost": known.get("input_cost_per_token", _fallback_cost(params)),
+    }
+    caps.update(
+        {key: value for key, value in (info.get("traits") or {}).items() if key in caps}
+    )
+    return caps
+
+
+def eligible(deployments, need, exclude, catalog):
+    """The routes that can serve this request, in publication order.
+
+    Args:
+        deployments: the proxy's own ``model_list`` entries.
+        need: the mapping ``summarize`` returned.
+        exclude: the alias the request named, so the router never picks itself.
+        catalog: the model catalog ``capabilities`` reads.
+
+    Returns:
+        The surviving entries, each carrying its resolved capabilities under
+        ``_caps`` so the decider does not resolve them again.
+    """
+    survivors = []
+    for entry in deployments or []:
+        alias = entry.get("model_name")
+        if not alias or alias == exclude:
+            continue
+        caps = capabilities(entry, catalog)
+        context = caps["context"]
+        if context and need["input_tokens"] + need["max_output"] > int(context):
+            continue
+        if need["vision"] and not caps["vision"]:
+            continue
+        if need["tools"] and not caps["tools"]:
+            continue
+        output_cap = caps["max_output"]
+        if need["max_output"] and output_cap and need["max_output"] > int(output_cap):
+            continue
+        survivors.append({**entry, "_caps": caps})
+    return survivors
+
+
+def decide(candidates):
+    """The cheapest per-token price, ties broken by alias so a rerun repeats."""
+    return min(
+        candidates, key=lambda entry: (entry["_caps"]["cost"], entry["model_name"])
+    )["model_name"]
+
+
+class SystemOneRouter(CustomLogger):
+    """Rewrites the router alias to a model that can actually serve it.
+
+    Every path that cannot route returns a string, which the proxy turns into a
+    RejectedRequestError carrying that text. Answering from some default
+    instead would hide a broken router behind a plausible reply, and the alias
+    exists precisely so callers do not have to know which model answered.
+    """
+
+    async def async_pre_call_hook(self, user_api_key_dict, cache, data, call_type):  # noqa: ARG002 - LiteLLM hook signature
+        if data.get("model") != ROUTER_ALIAS:
+            return None
+        from litellm.proxy.proxy_server import llm_router
+
+        if llm_router is None:
+            return (
+                f"'{ROUTER_ALIAS}' cannot route: the proxy has no router, so no "
+                f"model list is available to choose from"
+            )
+        need = summarize(data)
+        candidates = eligible(
+            llm_router.model_list, need, ROUTER_ALIAS, litellm.model_cost
+        )
+        if not candidates:
+            return (
+                f"'{ROUTER_ALIAS}' cannot route: no served model can take about "
+                f"{need['input_tokens']} input plus {need['max_output']} output "
+                f"tokens with vision={need['vision']} tools={need['tools']}"
+            )
+        data["model"] = decide(candidates)
+        return data
+
+
+instance = SystemOneRouter()

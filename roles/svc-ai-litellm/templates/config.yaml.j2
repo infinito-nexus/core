@@ -6,7 +6,8 @@
       lmstudio_url=LMSTUDIO_BASE_LOCAL_URL,
       max_tokens=LITELLM_MAX_OUTPUT_TOKENS,
       timeout=LITELLM_UPSTREAM_TIMEOUT,
-      mock_provider=AI_MOCK_PROVIDER) %}
+      mock_provider=AI_MOCK_PROVIDER,
+      router_alias=LITELLM_ROUTER_ALIAS) %}
 model_list:{{ ' []' if not _routes else '' }}
 {% for _route in _routes %}
   - model_name: {{ _route.alias | to_json }}
@@ -14,14 +15,25 @@ model_list:{{ ' []' if not _routes else '' }}
 {% for _key, _value in _route.params.items() %}
       {{ _key }}: {{ _value | to_json }}
 {% endfor %}
-{% if _route.context %}
+{% if _route.context or _route.traits %}
     model_info:
+{% if _route.context %}
       max_input_tokens: {{ _route.context }}
+{% endif %}
+{% if _route.traits %}
+      traits:
+{% for _trait, _value in _route.traits.items() %}
+        {{ _trait }}: {{ _value | to_json }}
+{% endfor %}
+{% endif %}
 {% endif %}
 {% endfor %}
 
 litellm_settings:
   drop_params: true
+{% if LITELLM_ROUTER_ALIAS %}
+  callbacks: ["router_hook.instance"]
+{% endif %}
 
 general_settings:
   master_key: os.environ/LITELLM_MASTER_KEY

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import unittest
+from pathlib import Path
 
 import yaml
 from jinja2 import Environment, StrictUndefined
@@ -19,7 +20,7 @@ from plugins.filter.litellm.model_routes import litellm_model_routes
 from plugins.filter.merge.with_defaults import merge_with_defaults
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml
-from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_VOLUMES
 
 from . import PROJECT_ROOT
 
@@ -65,7 +66,9 @@ def _stub_lookup(ollama_models, lmstudio_models):
     return lookup
 
 
-def render(*, ollama=(), lmstudio=(), keys=None, remote_models=REMOTE_MODELS):
+def render(
+    *, ollama=(), lmstudio=(), keys=None, remote_models=REMOTE_MODELS, router_alias=""
+):
     """The rendered config as a parsed mapping.
 
     Args:
@@ -73,6 +76,8 @@ def render(*, ollama=(), lmstudio=(), keys=None, remote_models=REMOTE_MODELS):
         lmstudio: preload entries svc-ai-lmstudio declares; empty means not deployed.
         keys: provider -> key value; a provider absent from it stays unkeyed.
         remote_models: the services.litellm.remote_models list in effect.
+        router_alias: the router's alias; empty publishes no router route, which
+            is what every case that predates the router expects.
     """
     env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - YAML, not markup
     env.filters["bool"] = _ansible_bool
@@ -90,6 +95,7 @@ def render(*, ollama=(), lmstudio=(), keys=None, remote_models=REMOTE_MODELS):
         LITELLM_REMOTE_MODELS=list(remote_models),
         LITELLM_SERVED_PROVIDERS=[name for name, key in (keys or {}).items() if key]
         + [MOCK["provider"]],
+        LITELLM_ROUTER_ALIAS=router_alias,
     )
     return yaml.safe_load(
         rendered
@@ -239,6 +245,99 @@ class TestMockModels(unittest.TestCase):
         awkward = {**MOCK, "response": 'a: b\n"c" #d'}
         published = routes(render(remote_models=[awkward]))
         self.assertEqual(published[MOCK["alias"]]["mock_response"], awkward["response"])
+
+
+class TestRouterAlias(unittest.TestCase):
+    """The router is one more alias, and the hook is what makes it mean anything."""
+
+    def test_no_alias_publishes_no_router_route(self) -> None:
+        self.assertNotIn("auto", routes(render(ollama=[SHARED])))
+
+    def test_the_alias_is_published_beside_every_other_route(self) -> None:
+        published = routes(render(ollama=[SHARED, OLLAMA_ONLY], router_alias="auto"))
+        self.assertEqual(
+            set(published), {SHARED["alias"], OLLAMA_ONLY["alias"], "auto"}
+        )
+
+    def test_the_alias_raises_rather_than_serving_a_default(self) -> None:
+        published = routes(render(ollama=[SHARED, OLLAMA_ONLY], router_alias="auto"))
+        self.assertEqual(
+            published["auto"]["mock_response"],
+            "litellm.InternalServerError",
+            "the hook rewrites this alias before it is ever routed, so reaching "
+            "the entry at all means the router did not run; answering from some "
+            "default would hide that behind a plausible reply",
+        )
+
+    def test_the_alias_carries_no_backend_of_its_own(self) -> None:
+        published = routes(render(ollama=[SHARED], router_alias="auto"))
+        self.assertNotIn(
+            "api_base",
+            published["auto"],
+            "pointing the alias at a backend is what made a broken router look "
+            "like a working one",
+        )
+
+    def test_an_empty_model_list_publishes_no_router_route(self) -> None:
+        self.assertEqual(render(router_alias="auto")["model_list"], [])
+
+
+class TestTraits(unittest.TestCase):
+    """What the hook filters on has to survive the render."""
+
+    def test_declared_traits_reach_the_model_info(self) -> None:
+        traits = {"vision": True, "tools": True, "cost_tier": 3}
+        config = render(
+            keys={"openrouter": "sk-or"}, remote_models=[{**BONSAI, "traits": traits}]
+        )
+        entry = (config.get("model_list") or [])[0]
+        self.assertEqual(entry["model_info"]["traits"], traits)
+
+    def test_a_backend_model_carries_its_traits(self) -> None:
+        config = render(ollama=[{**SHARED, "traits": {"tools": True}}])
+        entry = (config.get("model_list") or [])[0]
+        self.assertEqual(entry["model_info"]["traits"], {"tools": True})
+
+    def test_a_model_without_traits_publishes_none(self) -> None:
+        entry = (render(ollama=[SHARED]).get("model_list") or [])[0]
+        self.assertNotIn("model_info", entry)
+
+    def test_traits_and_a_context_window_coexist(self) -> None:
+        config = render(
+            ollama=[{**SHARED, "context": 32768, "traits": {"tools": True}}]
+        )
+        info = (config.get("model_list") or [])[0]["model_info"]
+        self.assertEqual(info["max_input_tokens"], 32768)
+        self.assertEqual(info["traits"], {"tools": True})
+
+
+class TestHookRegistration(unittest.TestCase):
+    """The callback string and the mounted file are one name in two files."""
+
+    def _mounted_module(self) -> str:
+        volumes = load_yaml(
+            PROJECT_ROOT / "roles/svc-ai-litellm" / ROLE_FILE_META_VOLUMES
+        )
+        target = volumes["litellm_router_hook"]["mounts"][0]["target"]
+        return Path(target).stem
+
+    def test_the_callback_names_the_file_the_role_mounts(self) -> None:
+        settings = render(ollama=[SHARED], router_alias="auto")["litellm_settings"]
+        self.assertEqual(
+            settings["callbacks"],
+            [f"{self._mounted_module()}.instance"],
+            "get_instance_fn resolves the callback against the config file's "
+            "directory, so renaming the mount target without the callback "
+            "leaves the proxy unable to start, at the next deploy and not here",
+        )
+
+    def test_without_a_router_alias_no_callback_is_loaded(self) -> None:
+        self.assertNotIn(
+            "callbacks",
+            render(ollama=[SHARED])["litellm_settings"],
+            "a gateway that publishes no router alias must not make the hook a "
+            "condition of starting its proxy",
+        )
 
 
 if __name__ == "__main__":

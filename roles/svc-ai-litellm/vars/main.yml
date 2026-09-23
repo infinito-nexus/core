@@ -7,6 +7,8 @@ LITELLM_PORT: "{{ lookup('config', application_id, 'services.litellm.ports.inter
 LITELLM_MASTER_KEY: "{{ lookup('config', application_id, 'secrets.credentials.master_key') }}"
 LITELLM_MAX_OUTPUT_TOKENS: "{{ lookup('config', application_id, 'services.litellm.max_output_tokens') }}"
 LITELLM_UPSTREAM_TIMEOUT: "{{ lookup('config', application_id, 'services.litellm.upstream_timeout') }}"
+LITELLM_ROUTER_ALIAS: "{{ lookup('config', application_id, 'services.litellm.router_alias') }}"
+LITELLM_ROUTER_HOOK_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'router_hook.py' ] | path_join }}"
 LITELLM_CONFIG_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'config.yaml' ] | path_join }}"
 LITELLM_CONFIG_PATH_DOCKER: "{{ lookup('volume', application_id, 'litellm_config').target }}"
 LITELLM_PROVIDER_KEYS:

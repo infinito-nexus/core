@@ -29,6 +29,8 @@
     file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
   vars:
     role_templates:
+      - src: "router_hook.py.j2"
+        dest: "{{ LITELLM_ROUTER_HOOK_PATH_HOST }}"
       - src: "config.yaml.j2"
         dest: "{{ LITELLM_CONFIG_PATH_HOST }}"
 

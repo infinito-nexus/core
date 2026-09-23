@@ -15,6 +15,7 @@ litellm:
   name: litellm
   max_output_tokens: 512
   upstream_timeout: 240
+  router_alias: auto
   remote_models:
     - alias: openai/gpt-4o-mini
       model: openai/gpt-4o-mini
