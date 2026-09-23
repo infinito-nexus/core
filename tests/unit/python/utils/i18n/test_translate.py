@@ -5,9 +5,11 @@ import unittest
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import ClassVar
 
+from babel.messages.catalog import Catalog
+
 from utils.i18n.catalog import MACHINE_TRANSLATION, build_template, merge
 from utils.i18n.libretranslate import LibreTranslate
-from utils.i18n.translate import apply, pending
+from utils.i18n.translate import apply, damaged, pending
 
 TOKEN = re.compile(r'<x id="\d+"></x>')
 
@@ -106,6 +108,39 @@ class TestTranslate(unittest.TestCase):
         )
         self.assertEqual(discarded, 1)
         self.assertFalse(catalog.get("lossy {count} items", context="lossy").string)
+
+
+class TestDamagedMarkup(unittest.TestCase):
+    """A bracket added or dropped beside a protected span leaves every span intact."""
+
+    def _catalog(self, source: str, translation: str):
+        catalog = Catalog(locale="de")
+        catalog.add(source, translation)
+        return catalog
+
+    def test_an_added_bracket_is_damage(self):
+        catalog = self._catalog(
+            "See [the guide](docs/guide.md) first.",
+            "Siehe [den Leitfaden]](docs/guide.md) zuerst.",
+        )
+
+        self.assertEqual(len(damaged(catalog)), 1)
+
+    def test_a_dropped_bracket_is_damage(self):
+        catalog = self._catalog(
+            "![Logo](assets/img/logo.png)",
+            "!Logo](assets/img/logo.png)",
+        )
+
+        self.assertEqual(len(damaged(catalog)), 1)
+
+    def test_an_intact_translation_is_not_damage(self):
+        catalog = self._catalog(
+            "See [the guide](docs/guide.md) first.",
+            "Siehe [den Leitfaden](docs/guide.md) zuerst.",
+        )
+
+        self.assertEqual(damaged(catalog), [])
 
 
 if __name__ == "__main__":

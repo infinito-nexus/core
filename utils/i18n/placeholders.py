@@ -13,6 +13,7 @@ PROTECTED = re.compile(
     r"|`[^`]+`_{0,2}"
     r"|\{\{.+?\}\}"
     r"|\{%.+?%\}"
+    r"|\{\{.*"
     r"|\{[A-Za-z_]\w*\}"
     r"|%\([A-Za-z_]\w*\)[sdif]"
     r"|%[sdif]"
@@ -23,7 +24,46 @@ PROTECTED = re.compile(
     r"|(?<![\w/@.-])[\w.-]+/[\w.@+-]*\.[A-Za-z]\w{0,7}\b"
     r"|\b[A-Za-z]\w*(?:\.[A-Za-z]\w+)+"
     r"|\b[A-Za-z]\w*_\w+"
+    r"|\"[\w.-]*(?:<[^>\s]*>[\w.-]*)*\"|'[\w.-]*(?:<[^>\s]*>[\w.-]*)*'"
+    r"|\d+(?:[.,]\d+)*"
+    r"|\*\*|\*|`|\[|\]|\{|\}|\(|\)|\""
 )
+MARKUP = "[]`*{}()\""
+EMPHASIS = re.compile(r"(\*\*)[ \t]*([^\s]|[^\s].*?[^\s])[ \t]*\1", re.DOTALL)
+
+
+def resegment(restored: str, spans: tuple[str, ...], source: str) -> str:
+    """Put back the sentence boundary a translator dropped behind a protected span.
+
+    Args:
+        restored: the translation with every protected span put back.
+        spans: the protected spans of the source.
+        source: the source message, which holds the boundary that went missing.
+    """
+    for span in spans:
+        start = source.find(span)
+        if start < 0:
+            continue
+        boundary = source[start + len(span) : start + len(span) + 2]
+        if len(boundary) != 2 or boundary[0] not in ".,;:" or not boundary[1].isspace():
+            continue
+        follows = restored.find(span) + len(span)
+        if follows > len(span) - 1 and restored[follows : follows + 1].isalpha():
+            restored = restored[:follows] + boundary[0] + " " + restored[follows:]
+    return restored
+
+
+def tighten(restored: str) -> str:
+    """Return ``restored`` with the whitespace a translator set inside emphasis removed.
+
+    Args:
+        restored: the translation with every protected span put back.
+    """
+    return EMPHASIS.sub(
+        lambda pair: pair.group(1) + pair.group(2) + pair.group(1), restored
+    )
+
+
 TOKEN = re.compile(r'<x id="(\d+)"\s*/?>(?:\s*</x>)?')
 
 
@@ -96,7 +136,7 @@ def unmask(translated: str, masked: Masked, source: str) -> str | None:
         seen.append(index)
         position = match.end()
     pieces.append(html.unescape(translated[position:]))
-    restored = "".join(pieces).strip()
+    restored = resegment(tighten("".join(pieces).strip()), masked.spans, source)
     if sorted(seen) != list(range(len(masked.spans))):
         return None
     if not restored or protected_spans(restored) != protected_spans(source):

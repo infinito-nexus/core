@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections import Counter
 from typing import TYPE_CHECKING
 
 from utils.i18n.catalog import MACHINE_TRANSLATION
@@ -9,6 +10,17 @@ from utils.i18n.placeholders import protected_spans
 
 if TYPE_CHECKING:
     from babel.messages.catalog import Catalog, Message
+
+STRUCTURE = "[]{}`*()"
+
+
+def structure(text: str) -> Counter:
+    """Return the markup characters of ``text`` with their multiplicity.
+
+    Args:
+        text: a source message or its translation.
+    """
+    return Counter(character for character in text if character in STRUCTURE)
 
 
 def pending(catalog: Catalog) -> list[Message]:
@@ -27,11 +39,13 @@ def pending(catalog: Catalog) -> list[Message]:
 
 
 def damaged(catalog: Catalog) -> list[Message]:
-    """Return the entries whose translation altered a protected span.
+    """Return the entries whose translation altered a protected span or the markup around it.
 
     A tightened protection rule turns silently corrupted translations - a
     rewritten path, a dissolved markdown target - into entries this reports,
-    so the next translation run redoes them.
+    so the next translation run redoes them. The markup comparison catches
+    what masking cannot: a bracket the translator added or dropped next to a
+    protected span leaves every span intact and still breaks the link.
 
     Args:
         catalog: a language catalog.
@@ -42,7 +56,10 @@ def damaged(catalog: Catalog) -> list[Message]:
         if isinstance(message.id, str)
         and message.id
         and message.string
-        and protected_spans(str(message.string)) != protected_spans(message.id)
+        and (
+            protected_spans(str(message.string)) != protected_spans(message.id)
+            or structure(str(message.string)) != structure(message.id)
+        )
     ]
 
 

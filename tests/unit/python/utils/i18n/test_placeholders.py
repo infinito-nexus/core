@@ -1,6 +1,6 @@
 import unittest
 
-from utils.i18n.placeholders import mask, unmask
+from utils.i18n.placeholders import MARKUP, TOKEN, mask, resegment, tighten, unmask
 
 
 class TestMaskRoundTrip(unittest.TestCase):
@@ -75,7 +75,11 @@ class TestPathsStayIntact(unittest.TestCase):
 
         self.assertIn("(assets/img/logo.png)", masked.spans)
         self.assertEqual(
-            unmask('![<x id="0"></x> Logo]<x id="1"></x>', masked, source),
+            unmask(
+                '!<x id="0"></x><x id="1"></x> Logo<x id="2"></x><x id="3"></x>',
+                masked,
+                source,
+            ),
             source,
         )
 
@@ -92,7 +96,8 @@ class TestPathsStayIntact(unittest.TestCase):
     def test_prose_with_a_slash_stays_translatable(self):
         source = "'enabled' is missing/undefined (treated as active)"
 
-        self.assertEqual(mask(source).spans, ())
+        self.assertNotIn("missing/undefined", mask(source).spans)
+        self.assertIn("missing/undefined", mask(source).text)
 
 
 class TestIdentifiersStayIntact(unittest.TestCase):
@@ -117,6 +122,138 @@ class TestIdentifiersStayIntact(unittest.TestCase):
         source = "The deploy writes a file to the host and then restarts it."
 
         self.assertEqual(mask(source).spans, ())
+
+    def test_a_jinja_fragment_without_its_closing_braces_is_masked(self):
+        masked = mask("# Mixed conditions. {{ lookup('depends_on', {DB: 'ser")
+
+        self.assertEqual(masked.spans, ("{{ lookup('depends_on', {DB: 'ser",))
+
+
+class TestNoMarkupReachesTheTranslator(unittest.TestCase):
+    """Whatever the construct, the text handed over carries no markup to reformat."""
+
+    def _leaked(self, source: str) -> list[str]:
+        rest = TOKEN.sub("", mask(source).text)
+        return [character for character in rest if character in MARKUP]
+
+    def test_bold_around_prose_hands_over_the_prose_alone(self):
+        self.assertEqual(self._leaked("**Clean up** the stale files."), [])
+
+    def test_a_link_labelled_with_code_hands_over_no_bracket(self):
+        source = "Dashboards behind [`web-app-keycloak`](../roles/kc/) are public."
+
+        self.assertEqual(self._leaked(source), [])
+
+    def test_an_unpaired_backtick_is_handed_over_masked(self):
+        self.assertEqual(self._leaked("A stray ` backtick in prose."), [])
+
+    def test_prose_survives_the_delimiter_masking(self):
+        masked = mask("**Clean up** the stale files.")
+
+        self.assertIn("Clean up", masked.text)
+
+
+class TestEmphasisStaysTight(unittest.TestCase):
+    """Markdown renders no emphasis when a space follows the opening delimiter."""
+
+    def test_a_space_after_the_opener_is_dropped(self):
+        self.assertEqual(tighten("** Hinzugefügt**"), "**Hinzugefügt**")
+
+    def test_a_space_before_the_closer_is_dropped_next_to_a_spaced_opener(self):
+        self.assertEqual(
+            tighten("Wählen Sie **Custom Token **"), "Wählen Sie **Custom Token**"
+        )
+
+    def test_a_bullet_list_keeps_its_space(self):
+        self.assertEqual(
+            tighten("* Punkt eins mit *kursiv*"), "* Punkt eins mit *kursiv*"
+        )
+
+    def test_tight_emphasis_is_left_alone(self):
+        self.assertEqual(
+            tighten("**Fett** und `code` hier"), "**Fett** und `code` hier"
+        )
+
+
+class TestSentenceBoundariesSurvive(unittest.TestCase):
+    """A translator reads a trailing token as sentence-final and swallows what follows."""
+
+    def test_a_dropped_full_stop_behind_a_span_comes_back(self):
+        restored = resegment(
+            "fallen zurück zu `created_at`Ein Wiederholungslauf",
+            ("`created_at`",),
+            "fall back to `created_at`. A re-run keeps it",
+        )
+
+        self.assertEqual(restored, "fallen zurück zu `created_at`. Ein Wiederholungslauf")
+
+    def test_a_translation_that_kept_the_boundary_is_left_alone(self):
+        restored = resegment(
+            "nutze `code` normal weiter", ("`code`",), "use `code` normally here"
+        )
+
+        self.assertEqual(restored, "nutze `code` normal weiter")
+
+    def test_a_span_ending_the_sentence_is_left_alone(self):
+        restored = resegment("Ende mit `code`.", ("`code`",), "ends with `code`.")
+
+        self.assertEqual(restored, "Ende mit `code`.")
+
+
+class TestQuotedLiteralsStayIntact(unittest.TestCase):
+    """A quoted identifier is a value, not a word: translating it changes what it names."""
+
+    def test_a_single_quoted_identifier_is_masked(self):
+        masked = mask("**galaxy_tags**: ['assets', 'nginx', 'static']")
+
+        self.assertIn("'assets'", masked.spans)
+        self.assertIn("'static'", masked.spans)
+
+    def test_a_double_quoted_key_is_masked(self):
+        masked = mask('"app1": {"in_roles": False}')
+
+        self.assertIn('"in_roles"', masked.spans)
+
+    def test_an_apostrophe_in_prose_is_left_alone(self):
+        source = "The role doesn't recreate what it didn't change."
+
+        self.assertEqual(mask(source).spans, ())
+
+    def test_a_quoted_sentence_stays_translatable(self):
+        masked = mask('"Re-read the manual and apply every update."')
+
+        self.assertIn("Re-read the manual", masked.text)
+
+    def test_a_bare_double_quote_never_reaches_the_translator(self):
+        source = '"epoch"        -> returns "<mtime>"'
+
+        self.assertNotIn('"', TOKEN.sub("", mask(source).text))
+
+    def test_an_english_contraction_keeps_its_apostrophe(self):
+        masked = mask("Cloudflare's runtime and the agent's sandbox.")
+
+        self.assertIn("Cloudflare's", masked.text)
+
+
+class TestNumbersStayIntact(unittest.TestCase):
+    """A translator that renumbers a version documents an upgrade that never happened."""
+
+    def test_a_version_pair_is_masked(self):
+        masked = mask("*web-app-pgadmin*: 9.17 to 9.18")
+
+        self.assertIn("9.17", masked.spans)
+        self.assertIn("9.18", masked.spans)
+
+    def test_a_resource_figure_is_masked(self):
+        masked = mask("capped at 4 CPUs and 8 GB of memory")
+
+        self.assertIn("4", masked.spans)
+        self.assertIn("8", masked.spans)
+
+    def test_no_digit_reaches_the_translator(self):
+        rest = TOKEN.sub("", mask("Wait 30 seconds, then retry 3 times.").text)
+
+        self.assertFalse(any(character.isdigit() for character in rest))
 
 
 if __name__ == "__main__":
