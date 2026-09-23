@@ -112,24 +112,9 @@ services:
       package-cache-frontend:
         condition: service_healthy
         required: false
-    environment:
-      INFINITO_CACHE_PACKAGE_FRONTEND_IP: ${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}
-    extra_hosts:
-      # Exception: /etc/hosts is used because coredns can't resolve the container names.
-      - "infinito-registry-cache:${INFINITO_CACHE_REGISTRY_IP:?Run 'make dotenv' to generate the .env single source of truth}"
-      - "deb.debian.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
-      - "archive.ubuntu.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
-      - "security.ubuntu.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
-      - "pypi.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
-      - "files.pythonhosted.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
-      - "registry.npmjs.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
-      - "rubygems.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
-      - "index.rubygems.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
-      - "repo.packagist.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
-      - "proxy.golang.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
-      - "dl-cdn.alpinelinux.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
-      - "raw.githubusercontent.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
-      - "codeload.github.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
+    extends:
+      file: compose/cache-consumer.yml
+      service: cache-consumer
     volumes:
       - type: bind
         source: ${INFINITO_CACHE_REGISTRY_CA_HOST_PATH:?Run 'make dotenv' to generate the .env single source of truth}

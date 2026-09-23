@@ -1,0 +1,22 @@
+---
+# Cache wiring shared by every runner, consumed through `extends`.
+
+services:
+  cache-consumer:
+    environment:
+      INFINITO_CACHE_PACKAGE_FRONTEND_IP: ${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}
+    extra_hosts:
+      - "infinito-registry-cache:${INFINITO_CACHE_REGISTRY_IP:?Run 'make dotenv' to generate the .env single source of truth}"
+      - "deb.debian.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+      - "archive.ubuntu.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+      - "security.ubuntu.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+      - "pypi.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+      - "files.pythonhosted.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+      - "registry.npmjs.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+      - "rubygems.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+      - "index.rubygems.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+      - "repo.packagist.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+      - "proxy.golang.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+      - "dl-cdn.alpinelinux.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+      - "raw.githubusercontent.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+      - "codeload.github.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"

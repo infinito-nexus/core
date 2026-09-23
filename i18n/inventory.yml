@@ -1,0 +1,15 @@
+---
+# Host vars the i18n runner deploys web-svc-libretranslate with.
+
+TLS_MODE: self_signed
+
+applications:
+  web-svc-libretranslate:
+    server:
+      tls:
+        mode: self_signed
+    services:
+      libretranslate:
+        cpus: "{{ lookup('resource', 'avail_cpus') }}"
+        mem_limit: "{{ lookup('resource', 'mem_limit') }}"
+        pids_limit: 4096

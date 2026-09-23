@@ -61,6 +61,13 @@ services:
     mem_limit: ${INFINITO_MEM_LIMIT:?Run 'make dotenv' to generate the .env single source of truth}
     memswap_limit: ${INFINITO_MEMSWAP_LIMIT:?Run 'make dotenv' to generate the .env single source of truth}
     cpus: ${INFINITO_CPUS:?Run 'make dotenv' to generate the .env single source of truth}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: ${INFINITO_GPU_COUNT:?Run 'make dotenv' to generate the .env single source of truth}
+              capabilities: [gpu]
     <<: *ci_defaults
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
