@@ -73,11 +73,16 @@ class TestPathsStayIntact(unittest.TestCase):
         source = "![Infinito.Nexus Logo](assets/img/logo.png)"
         masked = mask(source)
 
-        self.assertIn("](assets/img/logo.png)", masked.spans)
+        self.assertIn("(assets/img/logo.png)", masked.spans)
         self.assertEqual(
-            unmask('![<x id="0"></x> Logo<x id="1"></x>', masked, source),
+            unmask('![<x id="0"></x> Logo]<x id="1"></x>', masked, source),
             source,
         )
+
+    def test_a_markdown_bracket_stays_balanced_for_the_translator(self):
+        masked = mask("Generates a new [RSA 4096-bit](https://example.org/a_(b)) key.")
+
+        self.assertEqual(masked.text.count("["), masked.text.count("]"))
 
     def test_a_repository_path_is_masked_whole(self):
         masked = mask("See utils/i18n/placeholders.py for it.")

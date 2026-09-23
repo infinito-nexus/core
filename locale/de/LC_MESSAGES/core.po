@@ -286,7 +286,7 @@ msgstr "Gemeinschaft"
 # libretranslate
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
-msgstr ""
+msgstr "Composable HTML-Injection-Rollen (CSS, JS, Logout Interceptor, Analytics, Dashboard iframe) für Nginx/OpenResty via sub_filter/Lua mit CDN-gestützten Assets."
 
 # libretranslate
 msgctxt "role:sys-stk-full:description"
@@ -694,7 +694,7 @@ msgstr "Generische Rolle Installation der doli CLI und Anwendung dotfile symlink
 # libretranslate
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
-msgstr ""
+msgstr "Global JavaScript Injection Layer für NGINX HTML-Antworten über sub_filter, mit CSP Hashing"
 
 # libretranslate
 msgctxt "role:sys-front-inj-css:description"
@@ -771,9 +771,10 @@ msgctxt "role:user-root:description"
 msgid "Host-level role provisioning a root RSA 4096-bit SSH key pair for secure automated administrative access"
 msgstr "Rollenbereitstellung auf Hostebene für ein Root RSA 4096-Bit SSH-Schlüsselpaar für sicheren automatisierten administrativen Zugriff"
 
+# libretranslate
 msgctxt "role:web-app-openbao:description"
 msgid "Identity-based secrets, PKI and encryption manager with OIDC login, group-mapped policies and static-seal auto-unseal"
-msgstr ""
+msgstr "Identitätsbasierte Geheimnisse, PKI und Verschlüsselungsmanager mit OIDC-Login, Gruppen-Mapped-Polics und Static-Seal Auto-Unseal"
 
 # libretranslate
 msgctxt "role:svc-db-redis:description"
@@ -998,7 +999,7 @@ msgstr "Networking-Helfer für iptables Forwarding und NAT-Masquerading eines Wi
 # libretranslate
 msgctxt "role:sys-front-inj-logout:description"
 msgid "Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
-msgstr ""
+msgstr "Nginx sub_filter JavaScript-Injection-Umleitung aller Anmeldeaktionen auf einen zentralen OIDC-Single-Sign-Out-Endpunkt"
 
 # libretranslate
 msgctxt "role:web-svc-cdn:description"
@@ -1263,7 +1264,7 @@ msgstr "Bereitstellung der Rolle für ein Workstation-Login-Konto mit seinen She
 # libretranslate
 msgctxt "role:user:description"
 msgid "Provisioning role for per-user environment setup, managing shell dotfiles and SSH authorized_keys"
-msgstr ""
+msgstr "Bereitstellungsrolle für die Einrichtung einer Benutzerumgebung, die Verwaltung von Shell-Dotfiles und SSH authorized_keys"
 
 # libretranslate
 msgctxt "category:svc.prx:title"
