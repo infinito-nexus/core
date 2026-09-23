@@ -7,6 +7,12 @@
     tasks_from: 00_core.yml
   when: run_once_sys_svc_compose is not defined
 
+- name: "🧩 load docker, db and proxy for {{ application_id }}"
+  include_role:
+    name: sys-stk-full
+  vars:
+    compose_handlers_flush: false
+
 - name: "📁 Create the build context of '{{ application_id }}'"
   ansible.builtin.file:
     path: "{{ MATTERMOST_BUILD_DIR }}"
@@ -36,11 +42,8 @@
     state: absent
   notify: restart-openresty
 
-- name: "🧩 load docker, db and proxy for {{ application_id }}"
-  include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: true
+- name: "🚿 Flush compose handlers for '{{ application_id }}'"
+  ansible.builtin.meta: flush_handlers
 
 - name: "🖥️ Mattermost stack-host post-deploy"
   when: IS_STACK_HOST | bool
