@@ -160,7 +160,7 @@ indexer:
       # Exception: localhost-only (never public): lets the Ansible control
       # node's wait_for health-gate reach the indexer before the dashboard
       # starts and before securityadmin.sh runs, without exposing 9200 externally.
-      http: 8093
+      http: 8095
 # Exception: named "console", not "dashboard": the file root already has a
 # "dashboard" key for the platform's web-app-dashboard tile-integration
 # service bond above. Reusing "dashboard" here for the wazuh.dashboard
