@@ -16,16 +16,22 @@ The diagram places Agent Broker in the Infinito.Nexus cosmos: the components it 
 flowchart LR
     subgraph deps [Dependencies]
         dep_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
+        dep_web_app_hermes["web-app-hermes 🐳🐝"]
+        dep_web_app_openclaw["web-app-openclaw 🐳🐝"]
     end
     subgraph role [svc-ai-agent-broker 🐳🐝]
         svc_agent_broker["agent-broker"]
         svc_socket_proxy["socket-proxy"]
         svc_litellm["litellm"]
+        svc_hermes["hermes"]
+        svc_openclaw["openclaw"]
     end
     subgraph dependents [Dependents]
         dpt_web_app_openwebui["web-app-openwebui 🐳🐝"]
     end
     dep_svc_ai_litellm -- "1:1" --> svc_litellm
+    dep_web_app_hermes -- "1:1" --> svc_hermes
+    dep_web_app_openclaw -- "1:1" --> svc_openclaw
     svc_agent_broker -. "0..1" .-> dpt_web_app_openwebui
 ```
 
@@ -38,7 +44,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - **Isolation:** Every agent runs in its own container or single-replica service under the isolating runtime, with its own volume, its own network whose only other member is the broker, and its own bearer key; an agent that would start under `runc` is stopped and refused.
 - **Restricted engine access:** The broker reaches the container engine only through a filtered unix socket in a volume shared with the socket proxy, which publishes no port and runs with `network_mode: none` in compose. The proxy admits only the container, service, task, network, volume and image calls the broker makes, and refuses every other method and path, including exec and delete. It filters methods and paths, not request bodies: `volumes/create` stays open for the per-agent volume, so the isolation holds against a compromised agent, which reaches no socket at all, not against a compromised broker.
 - **Lifecycle settings:** `agents.idle_stop`, `agents.idle_minutes`, `agents.max_running`, `agents.start_timeout` and `agents.access_cache_seconds` in `meta/services.yml` control idle stops, the running-agent bound, the start wait and the membership cache; an inventory overrides them under `applications.svc-ai-agent-broker.services.agent-broker.agents`. An agent serving a request is never swept.
-- **Model and context:** `agents.model` names the gateway alias every agent runs on and defaults to the gateway's chat model, so agents can run on a larger model than Open WebUI's default. The context window of that alias comes from the model's `context` in the inventory and is written into the agent config as Hermes `model.context_length` and OpenClaw `contextWindow`. An agent prompt runs to tens of thousands of tokens, so a CPU-only local model spends minutes per turn on it; point `agents.model` at a remote model for interactive use.
+- **Model and context:** `agents.model` names the gateway alias every agent runs on and defaults to the gateway's chat model, so agents can run on a larger model than Open WebUI's default. The context window of that alias comes from the model's `context` in the inventory and is written into the agent config as Hermes `model.context_length` and OpenClaw `contextWindow`. An agent prompt runs to tens of thousands of tokens, so a CPU-only local model spends minutes per turn on it; point `agents.model` at a remote model for interactive use. Hermes refuses a window below 64000 tokens and answers HTTP 500 on every prompt, so the deploy stops when the selected alias declares less. An alias that declares no window is reported instead, because an agent that does not know its window runs.
 - **Model relay:** Agents call `http://agent-broker:<port>/llm/v1` with their own key; the broker forwards the call to LiteLLM with the broker's virtual key, sets the OpenAI `user` field to the owner and logs a JSON `relay` event with owner, platform, path and upstream status.
 
 ## Quick Setup

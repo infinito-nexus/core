@@ -18,8 +18,8 @@
 
 - name: "🧊 Collect the context minimums this host has to satisfy"
   ansible.builtin.set_fact:
-    AGENT_BROKER_CONTEXT_MINIMUMS: "{{ AGENT_BROKER_PLATFORMS | dict2items | selectattr('value.min_context', 'defined') | selectattr('value.role', 'in', group_names) |
-      list }}"
+    AGENT_BROKER_CONTEXT_MINIMUMS: "{{ AGENT_BROKER_PLATFORMS | dict2items | selectattr('value.min_context', 'defined') | selectattr('value.role', 'in', group_names)
+      | list }}"
 
 - name: "🛑 Refuse an agent model whose declared context is below a platform's minimum"
   ansible.builtin.assert:
@@ -35,8 +35,8 @@
 
 - name: "⚠️ Report a context minimum this deploy cannot prove"
   ansible.builtin.debug:
-    msg: "{{ item.key }} requires {{ item.value.min_context }} tokens and '{{ AGENT_BROKER_MODEL }}' declares no context, so nothing here can tell whether the model is
-      large enough. Declare the model's context to make this checkable."
+    msg: "{{ item.key }} requires {{ item.value.min_context }} tokens and '{{ AGENT_BROKER_MODEL }}' declares no context, so nothing here can tell whether the model
+      is large enough. Declare the model's context to make this checkable."
   when: (AGENT_BROKER_CONTEXT | string | length) == 0
   loop: "{{ AGENT_BROKER_CONTEXT_MINIMUMS }}"
   loop_control:

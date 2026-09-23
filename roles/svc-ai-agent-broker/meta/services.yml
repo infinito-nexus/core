@@ -36,7 +36,7 @@ agent-broker:
     access_cache_seconds: 60
   run_after:
     - svc-ai-litellm
-  lifecycle: alpha
+  lifecycle: beta
 
 # nocheck: shared
 # nocheck: dynamic-flag
@@ -54,6 +54,16 @@ socket-proxy:
     test: ["CMD", "./healthcheck"]
 # nocheck: playwright-service-flag, dynamic-flag  every agent call is relayed through the gateway, so the broker never runs without it
 litellm:
+  bond: 1
+  enabled: true
+  shared: true
+# nocheck: playwright-service-flag, dynamic-flag
+hermes:
+  bond: 1
+  enabled: true
+  shared: true
+# nocheck: playwright-service-flag, dynamic-flag
+openclaw:
   bond: 1
   enabled: true
   shared: true
