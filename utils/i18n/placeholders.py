@@ -28,7 +28,7 @@ PROTECTED = re.compile(
     r"|\d+(?:[.,]\d+)*"
     r"|\*\*|\*|`|\[|\]|\{|\}|\(|\)|\""
 )
-MARKUP = "[]`*{}()\""
+MARKUP = '[]`*{}()"'
 EMPHASIS = re.compile(r"(\*\*)[ \t]*([^\s]|[^\s].*?[^\s])[ \t]*\1", re.DOTALL)
 
 

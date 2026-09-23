@@ -21,7 +21,12 @@ def _maybe_recover_drill(compose, plan_index: int) -> None:
         return
     print("=== recover drill (backup/recover verification between passes) ===")
     drill_script = (
-        container_repo_root() / "scripts" / "tests" / "deploy" / "ci" / "recover_drill.sh"
+        container_repo_root()
+        / "scripts"
+        / "tests"
+        / "deploy"
+        / "ci"
+        / "recover_drill.sh"
     )
     compose.exec(
         ["bash", str(drill_script)],

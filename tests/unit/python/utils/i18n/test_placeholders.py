@@ -185,7 +185,9 @@ class TestSentenceBoundariesSurvive(unittest.TestCase):
             "fall back to `created_at`. A re-run keeps it",
         )
 
-        self.assertEqual(restored, "fallen zurück zu `created_at`. Ein Wiederholungslauf")
+        self.assertEqual(
+            restored, "fallen zurück zu `created_at`. Ein Wiederholungslauf"
+        )
 
     def test_a_translation_that_kept_the_boundary_is_left_alone(self):
         restored = resegment(
