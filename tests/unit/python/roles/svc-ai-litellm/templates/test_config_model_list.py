@@ -88,7 +88,9 @@ def render(*, ollama=(), lmstudio=(), keys=None, remote_models=REMOTE_MODELS):
         LITELLM_MAX_OUTPUT_TOKENS=512,
         LITELLM_UPSTREAM_TIMEOUT=60,
         LITELLM_REMOTE_MODELS=list(remote_models),
-        LITELLM_KEYED_PROVIDERS=[name for name, key in (keys or {}).items() if key],
+        LITELLM_SERVED_PROVIDERS=[
+            name for name, key in (keys or {}).items() if key
+        ],
     )
     return yaml.safe_load(
         rendered

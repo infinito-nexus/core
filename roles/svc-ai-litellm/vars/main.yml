@@ -14,6 +14,8 @@ LITELLM_PROVIDER_KEYS:
   anthropic: "{{ lookup('config', application_id, 'secrets.credentials.anthropic_api_key') }}"
   openrouter: "{{ lookup('config', application_id, 'secrets.credentials.openrouter_api_key') }}"
 LITELLM_KEYED_PROVIDERS: "{{ LITELLM_PROVIDER_KEYS | dict2items | selectattr('value') | map(attribute='key') | list }}"
+
+LITELLM_SERVED_PROVIDERS: "{{ LITELLM_KEYED_PROVIDERS + [AI_MOCK_PROVIDER] }}"
 LITELLM_REMOTE_MODELS: "{{ lookup('config', application_id, 'services.litellm.remote_models') }}"
 LITELLM_UI_ROLE: "web-app-litellm"
 LITELLM_UI_SSO: "{{ (LITELLM_UI_ROLE in group_names) and (lookup('sso', LITELLM_UI_ROLE, 'is_oidc_native') | bool) }}"

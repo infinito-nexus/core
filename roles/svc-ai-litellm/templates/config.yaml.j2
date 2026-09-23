@@ -1,7 +1,7 @@
 {% set _routes = (lookup('config', 'svc-ai-ollama', 'services.ollama.preload_models') if LITELLM_OLLAMA_BACKEND | bool else [])
   | litellm_model_routes(
       (lookup('config', 'svc-ai-lmstudio', 'services.lmstudio.preload_models') if LITELLM_LMSTUDIO_BACKEND | bool else []),
-      (LITELLM_REMOTE_MODELS | selectattr('provider', 'in', LITELLM_KEYED_PROVIDERS) | list),
+      (LITELLM_REMOTE_MODELS | selectattr('provider', 'in', LITELLM_SERVED_PROVIDERS) | list),
       ollama_url=OLLAMA_BASE_LOCAL_URL,
       lmstudio_url=LMSTUDIO_BASE_LOCAL_URL,
       max_tokens=LITELLM_MAX_OUTPUT_TOKENS,
