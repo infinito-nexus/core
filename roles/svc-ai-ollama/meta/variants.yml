@@ -10,8 +10,7 @@
 # Variant 0 runs the round that every other role's variant 0 runs with, so it
 # preloads nothing: the gateway then serves its deterministic mock and no row
 # pays for pulling or running a model. Variant 1 preloads for real and is the
-# round that proves this role actually serves, which is also why it needs the
-# memory a loaded model wants.
+# round that proves this role actually serves.
 
 - services:
     container_backup:
