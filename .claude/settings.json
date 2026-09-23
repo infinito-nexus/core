@@ -497,6 +497,7 @@
       "Bash(git -c *)",
       "Bash(git branch -D*)",
       "Bash(git clean*)",
+      "Bash(git commit *--amend*)",
       "Bash(git push*)",
       "Bash(git reset --hard*)",
       "Bash(git send-pack*)",
