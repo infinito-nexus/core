@@ -1,0 +1,7 @@
+---
+application_id: desk-laya
+laya_version: "1.6.0"
+laya_appimage_url: "https://github.com/aayushch/laya/releases/download/v{{ laya_version }}/Laya_{{ laya_version }}_amd64.AppImage"
+laya_appimage_checksum: "sha256:acdae347736bbeff540b227f131de7c837cb9e2839d7fc93dd1c96d04dafae11"
+laya_appimage_path: "/opt/laya/Laya-{{ laya_version }}.AppImage"
+laya_binary_path: /usr/local/bin/laya
