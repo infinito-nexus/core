@@ -39,14 +39,21 @@ AI_MODEL_CONTEXTS: >-
 AI_REMOTE_ALIASES: >-
   {{ lookup('config', 'svc-ai-litellm', 'services.litellm.remote_models')
      | selectattr('provider', 'in',
-         ['openai'] * (lookup('api_enabled', 'openai') | int)
+         ['mock']
+         + ['openai'] * (lookup('api_enabled', 'openai') | int)
          + ['anthropic'] * (lookup('api_enabled', 'anthropic') | int)
          + ['openrouter'] * (lookup('api_enabled', 'openrouter') | int))
      | map(attribute='alias') | list }}
 
-LITELLM_CHAT_MODEL: "{{ (lookup('config', 'svc-ai-ollama', 'services.ollama.preload_models') | map(attribute='alias') | reject('search', 'embed') | list | first |
-  default('')) if 'svc-ai-ollama' in LITELLM_BACKEND_ROLES else ((lookup('config', 'svc-ai-lmstudio', 'services.lmstudio.preload_models') | map(attribute='alias')
-  | reject('search', 'embed') | list | first | default('')) if 'svc-ai-lmstudio' in LITELLM_BACKEND_ROLES else (AI_REMOTE_ALIASES | first | default(''))) }}"
+AI_MOCK_ALIASES: >-
+  {{ lookup('config', 'svc-ai-litellm', 'services.litellm.remote_models')
+     | selectattr('provider', 'eq', 'mock') | map(attribute='alias') | list }}
+
+LITELLM_CHAT_MODEL: "{{ (((lookup('config', 'svc-ai-ollama', 'services.ollama.preload_models') | map(attribute='alias') | reject('search', 'embed') | list) if 'svc-ai-ollama'
+  in LITELLM_BACKEND_ROLES else []) + ((lookup('config', 'svc-ai-lmstudio', 'services.lmstudio.preload_models') | map(attribute='alias') | reject('search', 'embed')
+  | list) if 'svc-ai-lmstudio' in LITELLM_BACKEND_ROLES else []) + AI_REMOTE_ALIASES) | first | default('') }}"
+
+AI_AGENT_MODEL: "{{ AI_MOCK_ALIASES | first | default(LITELLM_CHAT_MODEL, true) }}"
 
 LITELLM_CHAT_MODEL_SERVED: >-
   {{ ((LITELLM_OLLAMA_BACKEND | bool)

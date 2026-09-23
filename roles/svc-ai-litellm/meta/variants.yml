@@ -1,6 +1,13 @@
 ---
 # Matrix-deploy variant overrides for this role.
 # See docs/contributing/artefact/files/role/variants.md for the file format.
+#
+# The deterministic mock is declared in every variant: it needs no key, costs no
+# wall clock, and the agent broker runs its agents on it in every round so the
+# broker never waits on inference to reach a verdict. Whether a real model is
+# LOADED is decided in the backend roles' own variants, because preload_models
+# belongs to svc-ai-ollama and svc-ai-lmstudio, not to this role's consumer
+# flags. With nothing preloaded the chat model falls through to the mock here.
 
 - services:
     ollama:
@@ -11,16 +18,28 @@
       shared: false
     postgres:
       shared: true
+    litellm:
+      remote_models:
+        - alias: mock/deterministic
+          provider: mock
+          response: "pong"
+          context: 131072
 
 - services:
     postgres:
       shared: false
     ollama:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      enabled: true
+      shared: true
     lmstudio:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    litellm:
+      remote_models:
+        - alias: mock/deterministic
+          provider: mock
+          response: "pong"
+          context: 131072
 
 - services:
     ollama:
@@ -32,3 +51,9 @@
       shared: true
     postgres:
       shared: true
+    litellm:
+      remote_models:
+        - alias: mock/deterministic
+          provider: mock
+          response: "pong"
+          context: 131072

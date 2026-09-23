@@ -6,6 +6,20 @@
 # variant changed. Apps with fewer variants stay on variant 0 in the
 # extra rounds.
 # See docs/contributing/artefact/files/role/variants.md for the file format.
+#
+# Variant 0 runs the round that every other role's variant 0 runs with, so it
+# preloads nothing: the gateway then serves its deterministic mock and no row
+# pays for pulling or running a model. Variant 1 preloads for real and is the
+# round that proves this role actually serves, which is also why it needs the
+# memory a loaded model wants.
+
+- services:
+    container_backup:
+      enabled: true
+    ollama:
+      mem_reservation: 1g
+      mem_limit: 2g
+      preload_models: []
 
 - services:
     container_backup:

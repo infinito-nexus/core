@@ -48,14 +48,27 @@ class TestLitellmChatModel(unittest.TestCase):
         cls.env.filters["bool"] = _ansible_bool
         cls.source = load_yaml(_AI_VARS)
 
-    def _render(self, name, *, roles, api_key, preload_models=(), lmstudio_models=()):
+    def _render(
+        self,
+        name,
+        *,
+        roles,
+        api_key,
+        preload_models=(),
+        lmstudio_models=(),
+        remote_aliases=None,
+    ):
         return (
             self.env.from_string(self.source[name])
             .render(
                 LITELLM_BACKEND_ROLES=list(roles),
                 LITELLM_OLLAMA_BACKEND=str("svc-ai-ollama" in roles),
                 LITELLM_LMSTUDIO_BACKEND=str("svc-ai-lmstudio" in roles),
-                AI_REMOTE_ALIASES=(["openrouter/auto"] if api_key else []),
+                AI_REMOTE_ALIASES=(
+                    list(remote_aliases)
+                    if remote_aliases is not None
+                    else (["openrouter/auto"] if api_key else [])
+                ),
                 lookup=_stub_lookup(
                     [{"alias": alias, "name": alias} for alias in preload_models],
                     [
@@ -82,6 +95,43 @@ class TestLitellmChatModel(unittest.TestCase):
         model, served = self._both(roles=["web-app-mattermost"], api_key="sk-test")
         self.assertEqual(model, "openrouter/auto")
         self.assertEqual(served, "True")
+
+    def test_a_declared_mock_answers_when_no_backend_preloaded_anything(self):
+        model = self._render(
+            "LITELLM_CHAT_MODEL",
+            roles=["svc-ai-ollama"],
+            api_key="",
+            preload_models=[],
+            remote_aliases=["mock/deterministic"],
+        )
+        self.assertEqual(
+            model,
+            "mock/deterministic",
+            "a CI round that deploys the backend without preloading must fall to the mock",
+        )
+
+    def test_a_preloaded_model_wins_over_the_mock(self):
+        model = self._render(
+            "LITELLM_CHAT_MODEL",
+            roles=["svc-ai-ollama"],
+            api_key="",
+            preload_models=["qwen2.5:0.5b"],
+            remote_aliases=["mock/deterministic"],
+        )
+        self.assertEqual(
+            model,
+            "qwen2.5:0.5b",
+            "the round that loads a real model must prove that model, not the mock",
+        )
+
+    def test_without_a_mock_the_chain_is_unchanged(self):
+        self.assertEqual(
+            self._render(
+                "LITELLM_CHAT_MODEL", roles=["web-app-mattermost"], api_key="sk-test"
+            ),
+            "openrouter/auto",
+            "production declares no mock, so it must resolve exactly as before",
+        )
 
     def test_lmstudio_wins_over_the_openrouter_fallback(self):
         model, served = self._both(
