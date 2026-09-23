@@ -1,6 +1,10 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- include_tasks: utils/load/handlers.yml
+  vars:
+    handler_role_name: "sys-svc-compose"
+
 - name: "📄 Render the search engine settings (local + swarm peers)"
   ansible.builtin.include_tasks:
     file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
