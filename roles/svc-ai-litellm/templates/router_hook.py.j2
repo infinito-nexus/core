@@ -13,10 +13,28 @@ catalog does not know, and nothing here probes a backend.
 
 from __future__ import annotations
 
+import re
+
 import litellm
 from litellm.integrations.custom_logger import CustomLogger
 
 ROUTER_ALIAS = {{ LITELLM_ROUTER_ALIAS | to_json }}
+REMOTE_FALLBACK = {{ 'True' if LITELLM_ROUTER_REMOTE_FALLBACK | bool else 'False' }}
+ROUTER_WEIGHTS = {{ LITELLM_ROUTER_WEIGHTS | to_json }}
+
+# Exception: structured secret prefixes only. A pattern like `password=` would
+# match prose and teach callers to ignore the refusal; these forms do not occur
+# by accident. This is a second lock, not the guarantee: the guarantee is that
+# `local_reason` drops every remote candidate before any weight is applied.
+SECRET_SHAPES = re.compile(
+    r"-----BEGIN [A-Z ]*PRIVATE KEY-----"
+    r"|\bsk-[A-Za-z0-9_-]{20,}"
+    r"|\bgh[pousr]_[A-Za-z0-9]{20,}"
+    r"|\bgithub_pat_[A-Za-z0-9_]{20,}"
+    r"|\bAKIA[A-Z0-9]{16}\b"
+    r"|\bxox[baprs]-[A-Za-z0-9-]{10,}"
+    r"|\bAIza[A-Za-z0-9_-]{35}\b"
+)
 
 # Exception: errs high on purpose. An under-estimate routes to a model whose
 # context cannot hold the prompt and fails at the backend, after the choice is
@@ -72,10 +90,54 @@ def _catalogued(model, catalog):
     return {}
 
 
-def _fallback_cost(params):
-    if params.get("mock_response") is not None or params.get("api_base"):
-        return 0.0
-    return UNPRICED_REMOTE_COST
+def is_local(params):
+    """Whether this deployment serves the route itself.
+
+    An ``api_base`` points at a backend of this deployment and a
+    ``mock_response`` never leaves the proxy. Anything else reaches a third
+    party, which is why this is read twice: once as the factor the operator
+    weights, and once as the filter that no weight can reach.
+    """
+    return params.get("mock_response") is not None or bool(params.get("api_base"))
+
+
+def request_text(data):
+    """Everything the caller wrote, as one string."""
+    parts = []
+    for message in data.get("messages") or []:
+        content = message.get("content")
+        if isinstance(content, str):
+            parts.append(content)
+            continue
+        for part in content or []:
+            if isinstance(part, dict) and part.get("text"):
+                parts.append(str(part["text"]))
+    return "\n".join(parts)
+
+
+def carries_secret(data):
+    """Whether the request shows a structured secret."""
+    return bool(SECRET_SHAPES.search(request_text(data)))
+
+
+def local_reason(data, deployments, catalog):
+    """Why this request must stay local, or the empty string.
+
+    Returns empty when no local route is deployed at all, because then there is
+    nothing to keep it on and refusing would only turn a working request into
+    an error without protecting anything.
+    """
+    if not any(
+        capabilities(entry, catalog)["local"]
+        for entry in deployments or []
+        if entry.get("model_name") not in (None, ROUTER_ALIAS)
+    ):
+        return ""
+    if carries_secret(data):
+        return "the request shows a structured secret"
+    if not REMOTE_FALLBACK:
+        return "services.litellm.router_remote_fallback is off"
+    return ""
 
 
 def capabilities(entry, catalog):
@@ -86,19 +148,24 @@ def capabilities(entry, catalog):
         catalog: ``litellm.model_cost`` or a stand-in keyed the same way.
 
     Returns:
-        ``{context, vision, tools, max_output, cost}``. A capability neither
-        catalogued nor declared counts as absent, a limit as unbounded, and a
-        price as free for anything local or mocked.
+        ``{context, vision, tools, max_output, cost, local, speed}``. A
+        capability neither catalogued nor declared counts as absent, a limit as
+        unbounded, and a price as free for anything local or mocked. ``speed``
+        is output tokens per second; no catalogue carries one, so it is zero
+        until the deploy measures it or a route declares it.
     """
     params = entry.get("litellm_params") or {}
     info = entry.get("model_info") or {}
     known = _catalogued(params.get("model") or "", catalog)
+    local = is_local(params)
     caps = {
         "context": info.get("max_input_tokens") or known.get("max_input_tokens"),
         "vision": bool(known.get("supports_vision")),
         "tools": bool(known.get("supports_function_calling")),
         "max_output": known.get("max_output_tokens"),
-        "cost": known.get("input_cost_per_token", _fallback_cost(params)),
+        "cost": known.get("input_cost_per_token", 0.0 if local else UNPRICED_REMOTE_COST),
+        "local": local,
+        "speed": 0.0,
     }
     caps.update(
         {key: value for key, value in (info.get("traits") or {}).items() if key in caps}
@@ -139,10 +206,60 @@ def eligible(deployments, need, exclude, catalog):
     return survivors
 
 
-def decide(candidates):
-    """The cheapest per-token price, ties broken by alias so a rerun repeats."""
+def _spread(values):
+    """The low and high of *values*, for scaling one factor against another."""
+    numbers = [float(value) for value in values]
+    return min(numbers), max(numbers)
+
+
+def _scaled(value, spread, *, higher_is_better):
+    """*value* as 0..1 within *spread*, where 1 is always the better end.
+
+    A spread of zero means the factor cannot separate this candidate set, so
+    every route scores 1 and the factor drops out instead of deciding on a
+    rounding artefact.
+    """
+    low, high = spread
+    if high == low:
+        return 1.0
+    position = (float(value) - low) / (high - low)
+    return position if higher_is_better else 1.0 - position
+
+
+def score(entry, spreads, weights):
+    """How well a route serves the operator's stated priorities, 0..1 each.
+
+    Each factor is scaled inside the candidate set rather than against an
+    absolute, because the units do not compare: a per-token price is a
+    millionth of a cent and a speed is tens of tokens per second.
+    """
+    caps = entry["_caps"]
+    return (
+        float(weights.get("locality", 0.0)) * (1.0 if caps["local"] else 0.0)
+        + float(weights.get("cost", 0.0))
+        * _scaled(caps["cost"], spreads["cost"], higher_is_better=False)
+        + float(weights.get("speed", 0.0))
+        * _scaled(caps["speed"], spreads["speed"], higher_is_better=True)
+    )
+
+
+def decide(candidates, weights=None):
+    """The highest scoring route, ties broken by alias so a rerun repeats.
+
+    Weights come from ``services.litellm.router_weights`` and say how much each
+    factor matters, not whether it may be overruled. Confidentiality is not in
+    here: a request that must stay local was already restricted before this
+    ran, because a weight is a preference and a credential leaving the cluster
+    is not something a preference should be able to buy.
+    """
+    weights = ROUTER_WEIGHTS if weights is None else weights
+    spreads = {
+        "cost": _spread(entry["_caps"]["cost"] for entry in candidates),
+        "speed": _spread(entry["_caps"]["speed"] for entry in candidates),
+    }
     return min(
-        candidates, key=lambda entry: (entry["_caps"]["cost"], entry["model_name"])
+        candidates,
+        key=lambda entry: (-score(entry, spreads, weights), entry["model_name"]),
     )["model_name"]
 
 
@@ -169,12 +286,22 @@ class SystemOneRouter(CustomLogger):
         candidates = eligible(
             llm_router.model_list, need, ROUTER_ALIAS, litellm.model_cost
         )
+        demand = (
+            f"about {need['input_tokens']} input plus {need['max_output']} "
+            f"output tokens with vision={need['vision']} tools={need['tools']}"
+        )
         if not candidates:
-            return (
-                f"'{ROUTER_ALIAS}' cannot route: no served model can take about "
-                f"{need['input_tokens']} input plus {need['max_output']} output "
-                f"tokens with vision={need['vision']} tools={need['tools']}"
-            )
+            return f"'{ROUTER_ALIAS}' cannot route: no served model can take {demand}"
+
+        reason = local_reason(data, llm_router.model_list, litellm.model_cost)
+        if reason:
+            candidates = [entry for entry in candidates if entry["_caps"]["local"]]
+            if not candidates:
+                return (
+                    f"'{ROUTER_ALIAS}' cannot route: {reason}, and no local model "
+                    f"can take {demand}. A remote model could, so either shrink "
+                    f"the request or set services.litellm.router_remote_fallback"
+                )
         data["model"] = decide(candidates)
         return data
 

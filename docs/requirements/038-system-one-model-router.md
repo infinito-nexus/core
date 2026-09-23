@@ -10,7 +10,7 @@ As a consumer of the Infinito.Nexus LLM gateway, I want to send a prompt to one 
 
 That choice is wrong in two directions at once. A prompt that needs a large context window reaches a model that cannot hold it, which is how [`web-app-hermes`](../../roles/web-app-hermes/) answers HTTP 500 when the agent model declares fewer than 64000 tokens. And a one-line factual question reaches whatever the deploy happened to pick, which is usually the largest model available.
 
-Daniel Kahneman's split names the shape. The models behind the gateway are System II: slow, general, token-generating. What is missing is System I: fast, typed, no generation, deciding which System II model answers. TypeSafe released [Jev](https://en.wikipedia.org/wiki/Jev_(AI_model)) on 2026-09-15 as a model of exactly that kind, and [jev-router](https://github.com/prismhq/jev-router) wires one into LiteLLM as a pre-call hook. This requirement takes that shape and keeps the decision deterministic; decision 7 records why.
+Daniel Kahneman's split names the shape. The models behind the gateway are System II: slow, general, token-generating. What is missing is System I: fast, typed, no generation, deciding which System II model answers. TypeSafe released [Jev](https://en.wikipedia.org/wiki/Jev_(AI_model)) on 2026-09-15 as a model of exactly that kind, and [jev-router](https://github.com/prismhq/jev-router) wires one into LiteLLM as a pre-call hook. This requirement takes that shape and keeps the decision deterministic; decision 8 records why.
 
 This is the **routing plane**. The model plane is [031](031-llm-gateway-model-backends.md), the tool plane is [025](025-mcp-role-integration.md), and the agent fleet that benefits most is [032](032-agent-employees-firecracker.md).
 
@@ -42,11 +42,21 @@ These choices are settled at requirement creation time and bound the implementat
 
    Variant 0 preloads nothing and the gateway serves its mock, so none of this costs anything in the rounds that are not about serving.
 
-7. **The decision is deterministic, and a learned decision model is out of scope.** Among the routes that survive the filter, the cheapest per-token price wins and a tie is broken by alias, so the same request returns the same model twice. No inference runs, nothing is downloaded, and the CI rows mean the same thing as production.
+7. **A request stays inside the deployment while a local model can serve it.** A prompt can carry a credential, so locality is its own rank above price rather than a consequence of local models happening to be free. `services.litellm.router_remote_fallback` defaults to `false`: while any local route is deployed, a request no local model can take is refused with its reason instead of reaching a third party, and the refusal names the switch that would allow it. With no local route deployed the rule does not apply, because there would be nothing to hold the request on.
+
+   A structured secret in the prompt forces the same restriction even when the switch is on. Only unambiguous shapes count (PEM headers, `sk-`, `ghp_`, `github_pat_`, `AKIA`, `xox[bapsr]-`, `AIza`); a pattern like `password=` would match prose and teach callers to click past the refusal. This is a second lock and not the guarantee, because any such pattern has false negatives. The guarantee is that this restriction is a filter applied before any ranking: a restricted request has no remote candidate left to rank, whatever weight locality carries in decision 9.
+
+8. **The decision is deterministic, and a learned decision model is out of scope.** Among the routes that survive the filter, each is scored on the factors of decision 9 and the highest scorer wins, with the alias breaking a tie. The same request therefore returns the same model twice. No inference runs, nothing is downloaded, and the CI rows mean the same thing as production.
 
    A System One *model* in place of that rule was weighed and rejected. The open reproductions of Jev, [jeff](https://github.com/logan-markewich/jeff) on a 400M GLiFormer, [open-alternative-jev](https://github.com/ikermoel/open-alternative-jev) on any open-weights model, and OpenJev on DiffusionGemma 26B-A4B, were all published in the week after 2026-09-15, none ships a container image, and none has been observed answering. Against that cost stands a thin benefit: the filter in decision 5 is what removes the models that cannot serve the request, and what it leaves in this deployment is one to three candidates. A model that chooses between two models both able to answer buys accuracy nobody can measure, while adding a container, a checkpoint, an unverified wire format and a second thing that can be down when the gateway starts. It also breaks the property that makes a green CI row speak for production, because a different decider on different hardware picks a different System II model.
 
    The point to revisit this is when the candidate set is routinely large, which means many keyed providers or many local models, not when a second implementation appears.
+
+9. **How much each factor counts is a number in `services.yml`, between 0 and 1.** `services.litellm.router_weights` carries one weight per factor: `locality`, `cost` and `speed`. Each factor is scaled to 0..1 *inside the candidate set* before its weight applies, because the raw units do not compare - a per-token price is a millionth of a cent and a rate is tens of tokens per second. A factor whose value is identical across the set scores every route 1 and therefore decides nothing, rather than ranking on a rounding artefact.
+
+   The shipped weights are `locality: 1.0`, `cost: 0.6`, `speed: 0.4`, and the constraint behind them is that locality is at least the sum of the others, so no combination of price and speed outscores staying in the cluster. That is a preference, not the protection: decision 7's restriction removes remote candidates before this runs, which is why a weighting that sends everything to the cheapest provider still cannot send a credential there.
+
+   Weights are a preference because the operator is the only one who knows what this deployment is for. A cluster whose local models are toys wants `speed` high; a cluster billing a provider per token wants `cost` high; a cluster handling client data leaves `locality` where it is. Encoding one of those as the rule would be this project guessing.
 
 ## Component Roles
 
@@ -67,7 +77,9 @@ flowchart TB
         hook["pre-call hook<br/>summarize request"]
         caps["capabilities()<br/>litellm.model_cost + declared traits"]
         elig["eligible()<br/>drop what cannot serve it"]
-        dec["decide()<br/>cheapest, ties by alias"]
+        keep["local_reason()<br/>drop remote when it must stay in"]
+        dec["decide()<br/>weighted score, ties by alias"]
+        weights["router_weights<br/>locality, cost, speed"]
     end
 
     subgraph sys2["System II candidates"]
@@ -75,7 +87,8 @@ flowchart TB
         remote["external provider"]
     end
 
-    consumer --> hook --> caps --> elig --> dec
+    consumer --> hook --> caps --> elig --> keep --> dec
+    weights --> dec
     dec -->|chosen alias| sys2
     small & remote -->|completion| consumer
 ```
@@ -91,6 +104,11 @@ flowchart TB
 | A request whose demands exceed a model's capabilities never reaches it | [test_router_hook.py](../../tests/unit/python/roles/svc-ai-litellm/templates/test_router_hook.py), against an injected catalog |
 | A declaration wins over the catalog, and an uncatalogued route claims nothing | the same test |
 | The decision repeats for the same request | the same test |
+| A request stays local while a local model can serve it, switch or not | the same test, over the switch and over a prompt carrying a secret |
+| Speed decides among equal-cost routes, and unknown does not count as fast | the same test |
+| Each factor carries the weight `services.yml` gives it, and a zero weight removes it | the same test, rendering the hook with the shipped weights and with a single-factor one |
+| No weighting sends a restricted request out of the cluster | the same test, weighting speed alone with the fallback switch on |
+| The shipped weights keep locality worth at least the other factors combined | the same test, reading them out of [meta/services.yml](../../roles/svc-ai-litellm/meta/services.yml) rather than repeating them |
 | The alias is served and is not read as a route without a backend | [probe.py](../../roles/svc-ai-litellm/files/test/probe.py), run on every gateway deploy |
 | The alias routes rather than falling back, proven by the model that answers | [probe.py](../../roles/svc-ai-litellm/files/test/probe.py), on every gateway deploy that serves more than one declared window |
 | A consumer selecting `auto` receives a completion | [test-system-one-router.js](../../roles/web-app-openwebui/files/playwright/test-system-one-router.js) |
@@ -104,6 +122,7 @@ flowchart TB
 - [x] The hook excludes a candidate whose capabilities cannot serve the request (context window, vision, tools, output length), reading them from LiteLLM's catalog and letting a declared `traits` mapping override it.
 - [x] A model entry declares none of what the catalog already states, and a route's price follows from whether it is local, mocked or keyed.
 - [x] The same request picks the same model twice, with no inference and no download on any path.
+- [x] Every routing factor carries a 0..1 weight in `services.litellm.router_weights`, a zero weight removes the factor, and no weighting lets a restricted request reach a remote model.
 - [x] The routing probe treats the alias as served rather than as a route without a backend, and fails when the gateway withholds it.
 - [ ] A request naming `auto` returns a completion whose served model is one of the eligible candidates, verified through the gateway with a consumer virtual key. The CLI probe sends a prompt the smallest declared window cannot hold and fails when the answer names the alias itself or a model whose window is too small.
 - [ ] A Playwright spec verifies that selecting `auto` in Open WebUI returns an answer.

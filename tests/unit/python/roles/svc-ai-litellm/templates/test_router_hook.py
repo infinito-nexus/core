@@ -17,15 +17,22 @@ import sys
 import types
 import unittest
 from pathlib import Path
+from typing import ClassVar
 
 from jinja2 import Environment, StrictUndefined
 
 from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
 
 TEMPLATE = PROJECT_ROOT / "roles/svc-ai-litellm/templates/router_hook.py.j2"
 ALIAS = "auto"
+
+SHIPPED_WEIGHTS = load_yaml(
+    PROJECT_ROOT / "roles/svc-ai-litellm" / ROLE_FILE_META_SERVICES
+)["litellm"]["router_weights"]
 
 CATALOG = {
     "gpt-4o-mini": {
@@ -63,13 +70,16 @@ def _stub_litellm():
     sys.modules["litellm.integrations.custom_logger"] = custom_logger
 
 
-def load():
+def load(*, remote_fallback=False, weights=None):
     """The rendered hook, imported as the container would import it."""
     _stub_litellm()
     env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - Python source, not markup
     env.filters["to_json"] = json.dumps
+    env.filters["bool"] = bool
     source = env.from_string(read_text(str(TEMPLATE))).render(
         LITELLM_ROUTER_ALIAS=ALIAS,
+        LITELLM_ROUTER_REMOTE_FALLBACK=remote_fallback,
+        LITELLM_ROUTER_WEIGHTS=SHIPPED_WEIGHTS if weights is None else weights,
     )
     module = types.ModuleType("router_hook_under_test")
     module.__file__ = str(Path(TEMPLATE).with_suffix(""))
@@ -244,6 +254,70 @@ class TestEligible(HookCase, unittest.TestCase):
         )
 
 
+class TestLocalOnly(HookCase, unittest.TestCase):
+    """A prompt can carry a credential, so it stays in the cluster by default."""
+
+    BIG: ClassVar[dict] = {"model": ALIAS, "messages": [{"content": "x" * 30000}]}
+    SECRET: ClassVar[dict] = {
+        "model": ALIAS,
+        "messages": [{"content": "deploy with sk-abcdefghijklmnopqrstuvwxyz012345"}],
+    }
+
+    def route(self, hook, data, routes):
+        import asyncio
+
+        proxy = types.ModuleType("litellm.proxy.proxy_server")
+        proxy.llm_router = types.SimpleNamespace(model_list=routes)
+        sys.modules["litellm.proxy"] = types.ModuleType("litellm.proxy")
+        sys.modules["litellm.proxy.proxy_server"] = proxy
+        return asyncio.run(
+            hook.instance.async_pre_call_hook(None, None, dict(data), "completion")
+        )
+
+    def test_a_secret_shape_is_recognised(self) -> None:
+        self.assertTrue(self.hook.carries_secret(self.SECRET))
+
+    def test_ordinary_prose_is_not(self) -> None:
+        self.assertFalse(
+            self.hook.carries_secret(
+                {"messages": [{"content": "my password is weak"}]}
+            ),
+            "a pattern that matches prose teaches callers to ignore the refusal",
+        )
+
+    def test_with_no_local_route_deployed_remote_is_fine(self) -> None:
+        verdict = self.route(self.hook, self.SECRET, [remote("r", context=99999)])
+        self.assertEqual(verdict["model"], "r")
+
+    def test_a_secret_is_refused_when_no_local_route_can_take_it(self) -> None:
+        routes = [local("tiny", context=10), remote("big", context=99999)]
+        verdict = self.route(self.hook, self.SECRET, routes)
+        self.assertIsInstance(verdict, str)
+        self.assertIn("structured secret", verdict)
+
+    def test_a_secret_stays_local_when_a_local_route_can_take_it(self) -> None:
+        routes = [local("home", context=99999), remote("big", context=99999)]
+        self.assertEqual(self.route(self.hook, self.SECRET, routes)["model"], "home")
+
+    def test_by_default_a_big_prompt_does_not_leave_the_cluster(self) -> None:
+        routes = [local("tiny", context=10), remote("big", context=99999)]
+        verdict = self.route(self.hook, self.BIG, routes)
+        self.assertIsInstance(verdict, str)
+        self.assertIn("router_remote_fallback", verdict)
+
+    def test_the_switch_lets_a_big_prompt_reach_a_remote_model(self) -> None:
+        hook = load(remote_fallback=True)
+        routes = [local("tiny", context=10), remote("big", context=99999)]
+        self.assertEqual(self.route(hook, self.BIG, routes)["model"], "big")
+
+    def test_the_switch_does_not_unlock_a_secret(self) -> None:
+        hook = load(remote_fallback=True)
+        routes = [local("tiny", context=10), remote("big", context=99999)]
+        verdict = self.route(hook, self.SECRET, routes)
+        self.assertIsInstance(verdict, str)
+        self.assertIn("structured secret", verdict)
+
+
 class TestLoudFailure(HookCase, unittest.TestCase):
     """A router that cannot route says so; it never answers from a default.
 
@@ -299,11 +373,134 @@ class TestDecider(HookCase, unittest.TestCase):
         routes = [remote("paid", model="openai/gpt-4o-mini"), local("home")]
         self.assertEqual(self.hook.decide(self.eligible(routes)), "home")
 
+    def test_a_local_model_wins_even_when_a_remote_one_is_cheaper(self) -> None:
+        routes = [
+            remote("free-tier", traits={"cost": 0.0}),
+            local("home", traits={"cost": 9.9}),
+        ]
+        self.assertEqual(
+            self.hook.decide(self.eligible(routes)),
+            "home",
+            "a prompt can carry a credential, so locality outranks price; "
+            "letting cost decide made the guarantee an accident of local "
+            "models happening to be free",
+        )
+
+    def test_a_mock_counts_as_local(self) -> None:
+        routes = [remote("paid", model="openai/gpt-4o-mini"), mock("mock/x")]
+        self.assertEqual(self.hook.decide(self.eligible(routes)), "mock/x")
+
+    def test_remote_is_reached_only_when_no_local_route_survives(self) -> None:
+        need = {**self.need, "input_tokens": 9000}
+        routes = [
+            local("tiny", context=4096),
+            remote("big", model="openai/gpt-4o-mini"),
+        ]
+        self.assertEqual(self.hook.decide(self.eligible(routes, need)), "big")
+
+    def test_among_equal_cost_the_faster_declared_route_wins(self) -> None:
+        routes = [
+            local("slow", traits={"speed": 12}),
+            local("fast", traits={"speed": 90}),
+        ]
+        self.assertEqual(self.hook.decide(self.eligible(routes)), "fast")
+
+    def test_a_declared_speed_beats_an_undeclared_one(self) -> None:
+        routes = [local("aaa"), local("zzz", traits={"speed": 1})]
+        self.assertEqual(
+            self.hook.decide(self.eligible(routes)),
+            "zzz",
+            "unknown is not fast; without this the alphabetically first route "
+            "would win on a property nobody measured",
+        )
+
+    def test_speed_does_not_buy_a_remote_route(self) -> None:
+        routes = [
+            remote("quick", model="openai/gpt-4o-mini", traits={"speed": 999}),
+            local("home"),
+        ]
+        self.assertEqual(self.hook.decide(self.eligible(routes)), "home")
+
     def test_a_tie_is_broken_by_alias_so_a_rerun_repeats(self) -> None:
         routes = [local("b"), local("a")]
         first = self.hook.decide(self.eligible(routes))
         second = self.hook.decide(self.eligible(list(reversed(routes))))
         self.assertEqual((first, second), ("a", "a"))
+
+
+class TestWeights(HookCase, unittest.TestCase):
+    """Each factor carries the importance services.yml gives it, 0 to 1.
+
+    A weight moves a preference, never a permission. The locality filter runs
+    before the score and is not reachable from here, which is why a weighting
+    that would send everything to the cheapest provider still cannot send a
+    credential there.
+    """
+
+    SPEED_ONLY: ClassVar[dict] = {"locality": 0.0, "cost": 0.0, "speed": 1.0}
+    COST_ONLY: ClassVar[dict] = {"locality": 0.0, "cost": 1.0, "speed": 0.0}
+
+    def test_the_render_carries_the_shipped_weights(self) -> None:
+        self.assertEqual(self.hook.ROUTER_WEIGHTS, SHIPPED_WEIGHTS)
+
+    def test_the_shipped_weights_keep_locality_decisive(self) -> None:
+        self.assertGreaterEqual(
+            SHIPPED_WEIGHTS["locality"],
+            SHIPPED_WEIGHTS["cost"] + SHIPPED_WEIGHTS["speed"],
+            "every other factor together must not outscore locality, or the "
+            "shipped default stops being the safest one",
+        )
+
+    def test_speed_alone_reaches_past_a_slow_local_model(self) -> None:
+        routes = [
+            local("home", traits={"speed": 5}),
+            remote("quick", model="openai/gpt-4o-mini", traits={"speed": 200}),
+        ]
+        self.assertEqual(
+            self.hook.decide(self.eligible(routes), self.SPEED_ONLY), "quick"
+        )
+
+    def test_the_same_pair_stays_local_at_the_shipped_weights(self) -> None:
+        routes = [
+            local("home", traits={"speed": 5}),
+            remote("quick", model="openai/gpt-4o-mini", traits={"speed": 200}),
+        ]
+        self.assertEqual(self.hook.decide(self.eligible(routes)), "home")
+
+    def test_a_zero_weight_removes_the_factor(self) -> None:
+        routes = [
+            remote("pricey", model="anthropic/claude-sonnet-4-5", traits={"speed": 99}),
+            remote("cheap", model="openai/gpt-4o-mini", traits={"speed": 1}),
+        ]
+        self.assertEqual(
+            self.hook.decide(self.eligible(routes), self.COST_ONLY), "cheap"
+        )
+        self.assertEqual(
+            self.hook.decide(self.eligible(routes), self.SPEED_ONLY), "pricey"
+        )
+
+    def test_a_factor_that_cannot_separate_decides_nothing(self) -> None:
+        routes = [local("b", traits={"speed": 7}), local("a", traits={"speed": 7})]
+        self.assertEqual(
+            self.hook.decide(self.eligible(routes), self.SPEED_ONLY),
+            "a",
+            "an identical speed across the set must fall through to the alias "
+            "rather than rank on a rounding artefact",
+        )
+
+    def test_no_weighting_sends_a_secret_out_of_the_cluster(self) -> None:
+        hook = load(remote_fallback=True, weights=self.SPEED_ONLY)
+        routes = [
+            local("home", context=99999, traits={"speed": 1}),
+            remote("quick", context=99999, traits={"speed": 999}),
+        ]
+        verdict = TestLocalOnly.route(self, hook, TestLocalOnly.SECRET, routes)
+        self.assertEqual(
+            verdict["model"],
+            "home",
+            "the locality filter runs before the score, so a weight cannot buy "
+            "a credential a trip to a provider",
+        )
 
 
 if __name__ == "__main__":
