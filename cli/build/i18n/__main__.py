@@ -4,6 +4,7 @@ Usage:
   python -m cli.build.i18n extract [--domain core|docs]
   python -m cli.build.i18n translate --domain core|docs [--languages de,fr]
   python -m cli.build.i18n languages [--domain core|docs]
+  python -m cli.build.i18n prune [--domain core|docs] [--languages de,fr]
 """
 
 from __future__ import annotations
@@ -34,7 +35,7 @@ from utils.i18n.libretranslate import (
     container,
     pinned_image,
 )
-from utils.i18n.translate import apply, pending
+from utils.i18n.translate import apply, damaged, discard, pending
 
 CHUNK_SIZE = 500
 
@@ -62,6 +63,27 @@ def languages(domains: list[str]) -> int:
     return 0
 
 
+def prune(domains: list[str], requested: list[str]) -> int:
+    loaded = load_languages(PROJECT_ROOT)
+    for domain in domains:
+        codes = requested or domain_languages(loaded, domain)
+        cleared = 0
+        for code in sorted(codes):
+            path = catalog_path(PROJECT_ROOT, code, domain)
+            if not path.is_file():
+                continue
+            catalog = read_catalog(path)
+            broken = damaged(catalog)
+            if not broken:
+                continue
+            discard(broken)
+            write_catalog(path, catalog)
+            cleared += len(broken)
+            print(f"{domain}/{code}: {len(broken)} damaged translations cleared")
+        print(f"{domain}: {cleared} translations cleared")
+    return 0
+
+
 def translate(domain: str, requested: list[str]) -> int:
     supported = translatable(load_languages(PROJECT_ROOT), domain)
     unsupported = sorted(set(requested) - set(supported))
@@ -76,7 +98,7 @@ def translate(domain: str, requested: list[str]) -> int:
     if not codes:
         print(f"{domain}: nothing to translate")
         return 0
-    threads = os.cpu_count()
+    threads = os.cpu_count() or 1
     with container(pinned_image(PROJECT_ROOT), codes, threads) as url:
         client = LibreTranslate(url, threads)
         client.wait(codes, READY_TIMEOUT_SECONDS)
@@ -89,9 +111,7 @@ def translate(domain: str, requested: list[str]) -> int:
                 chunk = todo[start : start + CHUNK_SIZE]
                 discarded += apply(chunk, client.translate([m.id for m in chunk], code))
                 write_catalog(path, catalog)
-                print(
-                    f"{domain}/{code}: {start + len(chunk)}/{len(todo)}", flush=True
-                )
+                print(f"{domain}/{code}: {start + len(chunk)}/{len(todo)}", flush=True)
             print(
                 f"{domain}/{code}: {len(todo) - discarded} translated, "
                 f"{discarded} discarded",
@@ -118,11 +138,25 @@ def main() -> int:
         "languages", help="Print the machine-translatable codes as a JSON array."
     )
     languages_parser.add_argument("--domain", choices=DOMAINS)
+    prune_parser = commands.add_parser(
+        "prune", help="Empty translations that altered a protected span."
+    )
+    prune_parser.add_argument("--domain", choices=DOMAINS)
+    prune_parser.add_argument(
+        "--languages",
+        default="",
+        help="Comma-separated ISO 639-1 codes; empty for every language.",
+    )
     args = parser.parse_args()
     if args.command == "extract":
         return extract([args.domain] if args.domain else list(DOMAINS))
     if args.command == "languages":
         return languages([args.domain] if args.domain else list(DOMAINS))
+    if args.command == "prune":
+        return prune(
+            [args.domain] if args.domain else list(DOMAINS),
+            [c for c in args.languages.split(",") if c],
+        )
     return translate(args.domain, [c for c in args.languages.split(",") if c])
 
 

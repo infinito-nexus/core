@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from utils.i18n.catalog import MACHINE_TRANSLATION
+from utils.i18n.placeholders import protected_spans
 
 if TYPE_CHECKING:
     from babel.messages.catalog import Catalog, Message
@@ -23,6 +24,37 @@ def pending(catalog: Catalog) -> list[Message]:
         and message.id
         and (not message.string or message.fuzzy)
     ]
+
+
+def damaged(catalog: Catalog) -> list[Message]:
+    """Return the entries whose translation altered a protected span.
+
+    A tightened protection rule turns silently corrupted translations - a
+    rewritten path, a dissolved markdown target - into entries this reports,
+    so the next translation run redoes them.
+
+    Args:
+        catalog: a language catalog.
+    """
+    return [
+        message
+        for message in catalog
+        if isinstance(message.id, str)
+        and message.id
+        and message.string
+        and protected_spans(str(message.string)) != protected_spans(message.id)
+    ]
+
+
+def discard(messages: list[Message]) -> None:
+    """Empty the translation of every entry, so it becomes pending again.
+
+    Args:
+        messages: entries returned by ``damaged``.
+    """
+    for message in messages:
+        message.string = ""
+        message.flags.discard("fuzzy")
 
 
 def apply(messages: list[Message], results: list[str | None]) -> int:

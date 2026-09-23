@@ -68,5 +68,27 @@ class TestMaskRejects(unittest.TestCase):
         self.assertIsNone(unmask("Satz mit {extra}.", mask(source), source))
 
 
+class TestPathsStayIntact(unittest.TestCase):
+    def test_a_markdown_target_and_its_path_survive_translation(self):
+        source = "![Infinito.Nexus Logo](assets/img/logo.png)"
+        masked = mask(source)
+
+        self.assertIn("](assets/img/logo.png)", masked.spans)
+        self.assertEqual(
+            unmask('![<x id="0"></x> Logo<x id="1"></x>', masked, source),
+            source,
+        )
+
+    def test_a_repository_path_is_masked_whole(self):
+        masked = mask("See roles/web-app-X/templates/compose.yml.j2 for it.")
+
+        self.assertIn("roles/web-app-X/templates/compose.yml.j2", masked.spans)
+
+    def test_prose_with_a_slash_stays_translatable(self):
+        source = "'enabled' is missing/undefined (treated as active)"
+
+        self.assertEqual(mask(source).spans, ())
+
+
 if __name__ == "__main__":
     unittest.main()
