@@ -25,6 +25,7 @@ SERVICES_FILE = Path("roles") / "web-svc-libretranslate" / ROLE_FILE_META_SERVIC
 CONTAINER_PORT = 5000
 MODELS_VOLUME = "infinito-i18n-libretranslate"
 MODELS_TARGET = "/home/libretranslate/.local"
+CUDA_SUFFIX = "-cuda"
 BATCH_SIZE = 20
 POLL_SECONDS = 5
 READY_TIMEOUT_SECONDS = 3600
@@ -41,6 +42,17 @@ def pinned_image(root: Path) -> str:
     return f"{service['image']}:{service['version']}"
 
 
+def accelerated() -> bool:
+    """Return whether Docker can hand an NVIDIA GPU to a container."""
+    runtimes = subprocess.run(
+        ["docker", "info", "--format", "{{json .Runtimes}}"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    return "nvidia" in runtimes.stdout
+
+
 @contextmanager
 def container(image: str, codes: list[str], threads: int) -> Iterator[str]:
     """Run LibreTranslate for ``codes`` and remove the container afterwards.
@@ -54,28 +66,27 @@ def container(image: str, codes: list[str], threads: int) -> Iterator[str]:
         The base URL of the running server.
     """
     name = f"infinito-i18n-libretranslate-{os.getpid()}"
-    subprocess.run(
-        [
-            "docker",
-            "run",
-            "--detach",
-            "--name",
-            name,
-            "--publish",
-            f"127.0.0.1::{CONTAINER_PORT}",
-            "--volume",
-            f"{MODELS_VOLUME}:{MODELS_TARGET}",
-            "--env",
-            f"LT_LOAD_ONLY={','.join([SOURCE_LANGUAGE, *codes])}",
-            "--env",
-            "LT_UPDATE_MODELS=true",
-            "--env",
-            f"LT_THREADS={threads}",
-            image,
-        ],
-        check=True,
-        capture_output=True,
-    )
+    command = [
+        "docker",
+        "run",
+        "--detach",
+        "--name",
+        name,
+        "--publish",
+        f"127.0.0.1::{CONTAINER_PORT}",
+        "--volume",
+        f"{MODELS_VOLUME}:{MODELS_TARGET}",
+        "--env",
+        f"LT_LOAD_ONLY={','.join([SOURCE_LANGUAGE, *codes])}",
+        "--env",
+        "LT_UPDATE_MODELS=true",
+        "--env",
+        f"LT_THREADS={threads}",
+    ]
+    if accelerated():
+        command += ["--gpus", "all"]
+        image = f"{image}{CUDA_SUFFIX}"
+    subprocess.run([*command, image], check=True, capture_output=True)
     try:
         mapping = subprocess.run(
             ["docker", "port", name, f"{CONTAINER_PORT}/tcp"],
