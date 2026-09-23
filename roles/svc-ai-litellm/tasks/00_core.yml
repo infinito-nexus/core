@@ -16,11 +16,12 @@
 - name: "🛑 Refuse a remote model whose provider has no key slot"
   ansible.builtin.assert:
     that:
-      - LITELLM_REMOTE_MODELS | map(attribute='provider') | difference(LITELLM_PROVIDER_KEYS | list) | length == 0
+      - LITELLM_REMOTE_MODELS | map(attribute='provider') | difference((LITELLM_PROVIDER_KEYS | list) + [AI_MOCK_PROVIDER]) | length == 0
     fail_msg: >-
       services.litellm.remote_models names provider(s)
-      {{ LITELLM_REMOTE_MODELS | map(attribute='provider') | difference(LITELLM_PROVIDER_KEYS | list) | unique | join(', ') }};
-      known providers are {{ LITELLM_PROVIDER_KEYS | list | join(', ') }}.
+      {{ LITELLM_REMOTE_MODELS | map(attribute='provider') | difference((LITELLM_PROVIDER_KEYS | list) + [AI_MOCK_PROVIDER]) | unique | join(', ') }};
+      known providers are {{ ((LITELLM_PROVIDER_KEYS | list) + [AI_MOCK_PROVIDER]) | join(', ') }}. A model served by
+      '{{ AI_MOCK_PROVIDER }}' answers from its own declared response and needs no key.
     quiet: true
 
 - name: "📄 Render LiteLLM gateway config (local + swarm peers)"

@@ -84,6 +84,7 @@ def render(*, ollama=(), lmstudio=(), keys=None, remote_models=REMOTE_MODELS):
         lookup=_stub_lookup(list(ollama), list(lmstudio)),
         OLLAMA_BASE_LOCAL_URL=OLLAMA_URL,
         LMSTUDIO_BASE_LOCAL_URL=LMSTUDIO_URL,
+        AI_MOCK_PROVIDER=MOCK["provider"],
         LITELLM_MAX_OUTPUT_TOKENS=512,
         LITELLM_UPSTREAM_TIMEOUT=60,
         LITELLM_REMOTE_MODELS=list(remote_models),

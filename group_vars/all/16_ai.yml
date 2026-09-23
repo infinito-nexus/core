@@ -36,10 +36,12 @@ AI_MODEL_CONTEXTS: >-
   {{ (AI_LOCAL_MODELS + (lookup('config', 'svc-ai-litellm', 'services.litellm.remote_models')))
      | selectattr('context', 'defined') | list | items2dict(key_name='alias', value_name='context') }}
 
+AI_MOCK_PROVIDER: mock
+
 AI_REMOTE_ALIASES: >-
   {{ lookup('config', 'svc-ai-litellm', 'services.litellm.remote_models')
      | selectattr('provider', 'in',
-         ['mock']
+         [AI_MOCK_PROVIDER]
          + ['openai'] * (lookup('api_enabled', 'openai') | int)
          + ['anthropic'] * (lookup('api_enabled', 'anthropic') | int)
          + ['openrouter'] * (lookup('api_enabled', 'openrouter') | int))
@@ -47,7 +49,7 @@ AI_REMOTE_ALIASES: >-
 
 AI_MOCK_ALIASES: >-
   {{ lookup('config', 'svc-ai-litellm', 'services.litellm.remote_models')
-     | selectattr('provider', 'eq', 'mock') | map(attribute='alias') | list }}
+     | selectattr('provider', 'eq', AI_MOCK_PROVIDER) | map(attribute='alias') | list }}
 
 LITELLM_CHAT_MODEL: "{{ (((lookup('config', 'svc-ai-ollama', 'services.ollama.preload_models') | map(attribute='alias') | reject('search', 'embed') | list) if 'svc-ai-ollama'
   in LITELLM_BACKEND_ROLES else []) + ((lookup('config', 'svc-ai-lmstudio', 'services.lmstudio.preload_models') | map(attribute='alias') | reject('search', 'embed')

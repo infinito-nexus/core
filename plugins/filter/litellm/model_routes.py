@@ -11,8 +11,6 @@ names, so a locally served model outranks a declared one, and the earlier
 backend outranks the later.
 """
 
-MOCK_PROVIDER = "mock"
-
 
 def _local_route(alias, model, api_base, *, max_tokens, timeout, context, api_key=None):
     params = {
@@ -38,6 +36,7 @@ def litellm_model_routes(
     lmstudio_url,
     max_tokens,
     timeout,
+    mock_provider,
 ):
     """Every model LiteLLM publishes, as ``{alias, params, context}``.
 
@@ -54,6 +53,8 @@ def litellm_model_routes(
         lmstudio_url: base URL of the LM Studio API, without the ``/v1`` suffix.
         max_tokens: output bound every route carries.
         timeout: upstream timeout every calling route carries.
+        mock_provider: the provider name that marks a mock, passed in rather
+            than hardcoded so this and the Ansible side cannot drift apart.
 
     Returns:
         The routes in publication order: Ollama, then LM Studio, then declared.
@@ -95,10 +96,10 @@ def litellm_model_routes(
     for model in declared_models or []:
         alias = model["alias"]
         context = model.get("context")
-        if model.get("provider") == MOCK_PROVIDER:
+        if model.get("provider") == mock_provider:
             params = {
                 "model": f"openai/{alias}",
-                "api_key": MOCK_PROVIDER,
+                "api_key": mock_provider,
                 "mock_response": model["response"],
                 "max_tokens": max_tokens,
             }

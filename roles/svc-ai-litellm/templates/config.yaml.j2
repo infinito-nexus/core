@@ -5,7 +5,8 @@
       ollama_url=OLLAMA_BASE_LOCAL_URL,
       lmstudio_url=LMSTUDIO_BASE_LOCAL_URL,
       max_tokens=LITELLM_MAX_OUTPUT_TOKENS,
-      timeout=LITELLM_UPSTREAM_TIMEOUT) %}
+      timeout=LITELLM_UPSTREAM_TIMEOUT,
+      mock_provider=AI_MOCK_PROVIDER) %}
 model_list:{{ ' []' if not _routes else '' }}
 {% for _route in _routes %}
   - model_name: {{ _route.alias | to_json }}

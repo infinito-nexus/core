@@ -227,7 +227,11 @@ class TestAiRemoteAliases(unittest.TestCase):
             raise AssertionError(f"unexpected lookup({kind!r}, {terms!r})")
 
         env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - renders a Python list literal, not markup
-        return ast.literal_eval(env.from_string(self.template).render(lookup=lookup))
+        return ast.literal_eval(
+            env.from_string(self.template).render(
+                lookup=lookup, AI_MOCK_PROVIDER="mock"
+            )
+        )
 
     def test_every_model_of_an_enabled_provider_is_listed(self):
         self.assertEqual(

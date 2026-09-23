@@ -31,6 +31,7 @@ def routes(ollama=(), lmstudio=(), declared=()):
         lmstudio_url=LMSTUDIO_URL,
         max_tokens=512,
         timeout=60,
+        mock_provider=MOCK["provider"],
     )
 
 
