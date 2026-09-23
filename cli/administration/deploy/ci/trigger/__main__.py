@@ -19,7 +19,7 @@ import argparse
 import sys
 
 from cli.administration.deploy.ci import gh, runs, selections
-from cli.meta.ci import matrix, query
+from cli.meta.ci import matrix, query, validate
 from utils.github import run_name
 from utils.github.variant import pools, selection, tor
 
@@ -52,6 +52,53 @@ def _ranking(whitelist: str, config: dict[str, str]) -> list[dict[str, str]]:
         distros=pools.resolve_distros(config.get("distros")),
         filesystems=pools.resolve_filesystems(config.get("filesystem")),
     )
+
+
+def _refused(whitelist: str, priority: str, config: dict[str, str]) -> bool:
+    """Whether the selection cannot deploy on this branch, reported in full.
+
+    ``call-orchestrator.yml`` already runs the same check as its first job and
+    every other job needs it, so a bad token never reaches a chunk. What it
+    does reach is the branch's concurrency group, which
+    ``entry-manual-steer.yml`` declares with ``cancel-in-progress``: dispatching
+    a run that cannot survive validation first **cancels the run currently in
+    flight** on that branch. That is the cost this refusal exists to avoid, not
+    the deploy minutes.
+
+    Warnings are printed and do not refuse: a whitelist legitimately names
+    roles the lifecycle envelope filters out.
+
+    Args:
+        whitelist: the whitelist input, empty for the diff or the all-sentinel.
+        priority: the priority line as dispatched.
+        config: the dispatch inputs the axes are resolved from.
+    """
+    errors: list[str] = []
+    warnings: list[str] = []
+    for label, tokens in (("whitelist", whitelist), ("priority", priority)):
+        found, warned = validate.problems(
+            tokens,
+            modes=query.resolve_modes(config.get("mode") or query.ALL_MODES),
+            tor_mode=tor.resolve_tor_mode(config.get("tor")),
+            distros=pools.resolve_distros(config.get("distros")),
+            filesystems=pools.resolve_filesystems(config.get("filesystem")),
+            lifecycles=config.get("lifecycles", ""),
+            label=label,
+        )
+        errors += found
+        warnings += warned
+    for warning in warnings:
+        print(f"warning: {warning}")
+    for error in errors:
+        print(f"error: {error}", file=sys.stderr)
+    if errors:
+        print(
+            f"\n{len(errors)} unusable selection(s); not dispatching. The run "
+            "would cancel the one currently in flight on this branch and then "
+            "fail its own validation job.",
+            file=sys.stderr,
+        )
+    return bool(errors)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -137,11 +184,62 @@ def main(argv: list[str] | None = None) -> int:
             "source run's value, else the workflow default."
         ),
     )
+    p.add_argument(
+        "--priority",
+        default=None,
+        metavar='"role#0@compose+clearnet%debian ..."',
+        help=(
+            "Lead the run with these selection tokens. Unlike --failed, which "
+            "derives them from a run's verdicts, this states them: a "
+            "verification run names the combination it wants to see, axis by "
+            "axis. Composes with --apps; --failed builds its own line."
+        ),
+    )
+    p.add_argument(
+        "--workspace",
+        choices=("auto", "true", "false"),
+        default=None,
+        help=(
+            "Override the carried workspace input. 'false' leaves the "
+            "workspace test out, which a run that only has to reach a deploy "
+            "verdict does not need."
+        ),
+    )
+    p.add_argument(
+        "--mode",
+        choices=("auto", "host", "compose", "swarm"),
+        default=None,
+        help="Override the carried deploy mode pool.",
+    )
+    p.add_argument(
+        "--tor",
+        choices=("auto", "enforced", "exclusive", "disabled"),
+        default=None,
+        help="Override the carried tor axis.",
+    )
+    p.add_argument(
+        "--distros",
+        default=None,
+        metavar='"debian arch"',
+        help="Override the carried distro pool.",
+    )
+    p.add_argument(
+        "--filesystem",
+        default=None,
+        metavar='"ext4 btrfs"',
+        help=(
+            "Override the carried filesystem pool. A pool of exactly one is a "
+            "human naming the kind, so a host whose kernel cannot serve it "
+            "fails the row instead of substituting one."
+        ),
+    )
     args = p.parse_args(argv)
     if args.strict and args.failed is None:
         p.error("--strict only applies with --failed")
     if args.roles_only and args.failed is None:
         p.error("--roles-only only applies with --failed")
+    if args.priority is not None and args.failed is not None:
+        p.error("--priority and --failed both build the priority line")
 
     branch = gh.current_branch()
     repo = gh.resolve_repo()
@@ -197,8 +295,22 @@ def main(argv: list[str] | None = None) -> int:
     carried_whitelist = config.pop("whitelist", "")
     if not whitelist and carried_whitelist:
         whitelist = carried_whitelist
-    if args.chunk_gate is not None:
-        config["chunk_gate"] = args.chunk_gate
+    for name, value in (
+        ("chunk_gate", args.chunk_gate),
+        ("workspace", args.workspace),
+        ("mode", args.mode),
+        ("tor", args.tor),
+        ("distros", args.distros),
+        ("filesystem", args.filesystem),
+    ):
+        if value is not None:
+            config[name] = value
+
+    if args.priority is not None:
+        priority_entries = set(args.priority.split())
+        if not priority_entries:
+            p.error("--priority was empty")
+        priority = " ".join(sorted(priority_entries))
 
     if args.failed is not None:
         ranking = _ranking(whitelist, config)
@@ -213,6 +325,9 @@ def main(argv: list[str] | None = None) -> int:
             print(f"Regular line resumes at: {config['offset']}")
         else:
             config.pop("offset")
+
+    if _refused(whitelist if whitelist != _ALL else "", priority, config):
+        return 1
 
     if priority:
         label = f"priority {priority}, then the remaining roles"
