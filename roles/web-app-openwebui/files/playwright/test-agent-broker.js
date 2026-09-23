@@ -23,14 +23,21 @@ async function keycloakAdmin() {
   return { api, headers };
 }
 
-async function setAgentGroups(username, member) {
+/**
+ * Put one user into, or take it out of, the named agent groups.
+ *
+ * Args:
+ *   username: the Keycloak username to change.
+ *   membership: group path -> whether the user must end up a member.
+ */
+async function applyAgentGroups(username, membership) {
   const { api, headers } = await keycloakAdmin();
   try {
     const users = await (
       await api.get(`${kcBaseUrl}/admin/realms/${kcRealm}/users?username=${encodeURIComponent(username)}&exact=true`, { headers })
     ).json();
     expect(users, `Keycloak user ${username} must exist`).toHaveLength(1);
-    for (const path of Object.values(agentGroups())) {
+    for (const [path, member] of Object.entries(membership)) {
       const groupResp = await api.get(`${kcBaseUrl}/admin/realms/${kcRealm}/group-by-path${path}`, { headers });
       expect(groupResp.ok(), `Keycloak group ${path} must exist (HTTP ${groupResp.status()})`).toBeTruthy();
       const url = `${kcBaseUrl}/admin/realms/${kcRealm}/users/${users[0].id}/groups/${(await groupResp.json()).id}`;
@@ -40,6 +47,28 @@ async function setAgentGroups(username, member) {
   } finally {
     await api.dispose();
   }
+}
+
+async function setAgentGroups(username, member) {
+  await applyAgentGroups(
+    username,
+    Object.fromEntries(Object.values(agentGroups()).map((path) => [path, member])),
+  );
+}
+
+/**
+ * Leave the user in exactly one platform's agent group.
+ *
+ * Args:
+ *   username: the Keycloak username to change.
+ *   granted: the platform whose group the user keeps; every other is removed.
+ */
+async function grantOnlyAgentGroup(username, granted) {
+  const groups = agentGroups();
+  await applyAgentGroups(
+    username,
+    Object.fromEntries(Object.entries(groups).map(([platform, path]) => [path, platform === granted])),
+  );
 }
 
 async function openwebuiSession(shared, page) {
@@ -98,6 +127,29 @@ async function dropAgentMemberships(adminPage, admin, userId) {
       data: { user_ids: [userId] },
     });
     expect(removed.ok(), `the administrator must remove ${userId} from ${group.name} (HTTP ${removed.status()})`).toBeTruthy();
+  }
+}
+
+/**
+ * Run work inside a browser context that has just signed biber in.
+ *
+ * A membership change only reaches Open WebUI through a fresh OIDC sign-in, so
+ * every step of the per-group walk needs its own context rather than a reused
+ * token that still carries the previous groups claim.
+ *
+ * Args:
+ *   page: any page; its browser opens the new context.
+ *   shared: the role's shared spec helpers.
+ *   work: async (biberPage, session) => result.
+ */
+async function asBiber(page, shared, work) {
+  const context = await page.context().browser().newContext({ ignoreHTTPSErrors: true });
+  try {
+    const biberPage = await context.newPage();
+    const session = await openwebuiSession(shared, biberPage);
+    return await work(biberPage, session);
+  } finally {
+    await context.close();
   }
 }
 
@@ -173,5 +225,58 @@ exports.register = function (shared) {
     } finally {
       await setAgentGroups(shared.env.biberUsername, false);
     }
+  });
+
+  test("biber: each agent-user group grants exactly its own platform, and revoking it takes that platform away", async ({ page }) => {
+    skipUnlessServiceEnabled("agent-broker");
+    skipUnlessServiceEnabled("sso");
+    test.setTimeout(resolveTimeout(3_600_000));
+
+    const platforms = Object.keys(agentGroups());
+    expect(platforms.length, "the broker must offer at least one platform to walk").toBeGreaterThan(0);
+
+    try {
+      for (const granted of platforms) {
+        await grantOnlyAgentGroup(shared.env.biberUsername, granted);
+        await asBiber(page, shared, async (biberPage, session) => {
+          const models = await listedModels(biberPage, session, "/api/models?refresh=true");
+          expect(models, `${granted} must be listed while biber holds only its group`).toContain(granted);
+          const answered = await biberPage.request.post(`${session.base}/api/chat/completions`, {
+            headers: session.headers,
+            data: { model: granted, messages: [{ role: "user", content: "ping" }], stream: false },
+            timeout: resolveTimeout(1_800_000),
+          });
+          expect(answered.ok(), `the ${granted} agent must answer while its group is held (HTTP ${answered.status()})`).toBeTruthy();
+
+          for (const withheld of platforms.filter((platform) => platform !== granted)) {
+            expect(models, `${withheld} must stay hidden while biber holds only the ${granted} group`).not.toContain(withheld);
+            const refused = await biberPage.request.post(`${session.base}/api/chat/completions`, {
+              headers: session.headers,
+              data: { model: withheld, messages: [{ role: "user", content: "ping" }], stream: false },
+              failOnStatusCode: false,
+            });
+            expect(refused.ok(), `${withheld} must stay refused while biber holds only the ${granted} group (HTTP ${refused.status()})`).toBeFalsy();
+          }
+        });
+      }
+    } finally {
+      await setAgentGroups(shared.env.biberUsername, false);
+    }
+
+    const lastGranted = platforms[platforms.length - 1];
+    await asBiber(page, shared, async (biberPage, session) => {
+      const biberId = await sessionUserId(biberPage, session);
+      await asAdministrator(biberPage, shared, (adminPage, admin) => dropAgentMemberships(adminPage, admin, biberId));
+    });
+    await asBiber(page, shared, async (biberPage, session) => {
+      const models = await listedModels(biberPage, session, "/api/models?refresh=true");
+      expect(models, `${lastGranted} must disappear once its group is revoked`).not.toContain(lastGranted);
+      const refused = await biberPage.request.post(`${session.base}/api/chat/completions`, {
+        headers: session.headers,
+        data: { model: lastGranted, messages: [{ role: "user", content: "ping" }], stream: false },
+        failOnStatusCode: false,
+      });
+      expect(refused.ok(), `${lastGranted} must be refused once its group is revoked (HTTP ${refused.status()})`).toBeFalsy();
+    });
   });
 };

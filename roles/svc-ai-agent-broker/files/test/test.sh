@@ -12,6 +12,7 @@
 #   AGENT_KEY_ENV                 env var an agent carries its bearer key in
 #   AGENT_MODEL                   model alias the broker configures agents with
 #   AGENT_OPENCLAW_GROUP_PATH     Keycloak path of the openclaw agent-user group
+#   AGENT_PLATFORMS_OFFERED       platforms the broker serves with this model
 #   DEPLOYMENT_MODE               compose or swarm
 #   IDLE_STOP, IDLE_MINUTES       lifecycle settings the broker must run with
 #   MAX_RUNNING                   bound on concurrently running agents
@@ -26,6 +27,18 @@ BROKER_KEY="$(printf '%s' "${AGENT_BROKER_KEY_B64}" | base64 -d)"
 OWNER_A="cli-isolation-a"
 OWNER_B="cli-isolation-b"
 FAILED=0
+
+for required in hermes openclaw; do
+	case " ${AGENT_PLATFORMS_OFFERED} " in
+	*" ${required} "*) ;;
+	*)
+		echo "[FAIL] ${required} is not offered by this deploy, which serves '${AGENT_PLATFORMS_OFFERED}'." >&2
+		echo "       The broker withholds a platform whose context minimum '${AGENT_MODEL}' misses," >&2
+		echo "       so point services.agent-broker.agents.model at a model that satisfies it." >&2
+		exit 1
+		;;
+	esac
+done
 
 fail() {
 	echo "[FAIL] $*" >&2
