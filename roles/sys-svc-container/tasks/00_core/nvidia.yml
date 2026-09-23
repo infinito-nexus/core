@@ -1,11 +1,27 @@
 ---
 - name: "🔑 Fetch the NVIDIA container toolkit apt key"
-  ansible.builtin.get_url:
+  get_url_retry:
     url: https://nvidia.github.io/libnvidia-container/gpgkey
     dest: /etc/apt/keyrings/nvidia-container-toolkit.asc
     owner: root
     group: root
     mode: "0644"
+
+- name: "🔍 Find rival NVIDIA container toolkit apt sources"
+  ansible.builtin.find:
+    paths: /etc/apt/sources.list.d
+    contains: .*libnvidia-container.*
+    excludes: nvidia-container-toolkit.list
+  register: sys_svc_container_nvidia_rivals
+
+- name: "🧹 Drop rival NVIDIA container toolkit apt sources"
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ sys_svc_container_nvidia_rivals.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+  register: sys_svc_container_nvidia_rivals_dropped
 
 - name: "🔧 Configure the NVIDIA container toolkit apt repository"
   ansible.builtin.copy:
@@ -18,26 +34,21 @@
     mode: "0644"
   register: sys_svc_container_nvidia_repo_file
 
-- name: "📦 Refresh the apt cache and install the NVIDIA container toolkit"
+- name: "🔄 Update apt cache after the NVIDIA repo change"
+  ansible.builtin.apt: # nocheck: dynamic-package - apt repository and cache setup, not a package install
+    update_cache: true
+  when: >-
+    sys_svc_container_nvidia_repo_file is changed
+    or sys_svc_container_nvidia_rivals_dropped is changed
+  register: sys_svc_container_nvidia_cache
+  until: sys_svc_container_nvidia_cache is succeeded
   retries: 5
   delay: 15
-  block:
-    - name: "🔄 Update apt cache after the NVIDIA repo change"
-      ansible.builtin.apt: # nocheck: dynamic-package - apt repository and cache setup, not a package install
-        update_cache: true
-      when: sys_svc_container_nvidia_repo_file is changed
-      register: sys_svc_container_nvidia_cache
-      until: sys_svc_container_nvidia_cache is succeeded
 
-    - name: "📦 Install the NVIDIA container toolkit"
-      package_install:
-        id: nvidia-container-toolkit
-      register: sys_svc_container_nvidia_install
-      until: sys_svc_container_nvidia_install is succeeded
-
-- name: "🔧 Register the NVIDIA runtime with the container manager"
-  ansible.builtin.command:
-    cmd: nvidia-ctk runtime configure --runtime=docker
-  register: sys_svc_container_nvidia_runtime
-  changed_when: "'Wrote updated config' in sys_svc_container_nvidia_runtime.stderr"
-  notify: container-manager-restart
+- name: "📦 Install the NVIDIA container toolkit"
+  package_install:
+    id: nvidia-container-toolkit
+  register: sys_svc_container_nvidia_install
+  until: sys_svc_container_nvidia_install is succeeded
+  retries: 5
+  delay: 15

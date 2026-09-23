@@ -1,3 +1,5 @@
 services:
   infinito:
     gpus: all
+  i18n:
+    gpus: all
