@@ -1,0 +1,3 @@
+services:
+  infinito:
+    gpus: all

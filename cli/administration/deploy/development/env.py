@@ -1,10 +1,22 @@
 from __future__ import annotations
 
 import os
+import subprocess
 
 from utils.distros import distro_names
 
 VALID_DISTROS: tuple[str, ...] = distro_names()
+
+
+def gpu_runtime_available() -> bool:
+    """Return whether docker can hand an NVIDIA GPU to a container."""
+    registered = subprocess.run(
+        ["docker", "info", "--format", "{{json .Runtimes}}"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    return "nvidia" in registered.stdout
 
 
 def compose_file_args() -> list[str]:
@@ -27,6 +39,8 @@ def compose_file_args() -> list[str]:
             out += ["-f", "compose/cache.shared.override.yml"]
     if (os.environ.get("INFINITO_PUBLISH_PORTS") or "").strip().lower() == "false":
         out += ["-f", "compose/noports.override.yml"]
+    if gpu_runtime_available():
+        out += ["-f", "compose/gpu.override.yml"]
     return out
 
 

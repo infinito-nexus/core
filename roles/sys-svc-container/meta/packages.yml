@@ -23,6 +23,20 @@ docker-cli:
     repo:
       managed_externally: sys-svc-container configures the download.docker.com repository per distro before installing
 
+nvidia-container-toolkit:
+  Archlinux:
+    - nvidia-container-toolkit
+  Debian:
+    names:
+      - nvidia-container-toolkit
+    repo:
+      managed_externally: sys-svc-container configures the nvidia.github.io repository before installing
+  RedHat:
+    names:
+      - nvidia-container-toolkit
+    repo:
+      managed_externally: sys-svc-container configures the nvidia.github.io repository before installing
+
 iproute:
   Archlinux:
     - iproute2
