@@ -10,6 +10,7 @@ As a platform user with agent access, I want Open WebUI to start my own Hermes o
 - `web-app-hermes` and `web-app-openclaw` each gain the RBAC role `agent-user` and keep their existing shared instance unchanged.
 - `web-app-openwebui` gains a second OpenAI connection pointing at the broker, forwards the caller's identity and restricts each agent model to its group.
 - Compose and swarm are both supported.
+- `svc-ai-robot` stays out of the platform list. It runs the same agent in embodied mode, which means it drops the isolating runtime on purpose and hands the container the host devices it is meant to drive. A broker platform is defined by the opposite: `runsc`, no host device, no host mount. Serving an embodied agent per user would either break that invariant or ship a robot that cannot reach its hardware.
 
 ## Design
 
