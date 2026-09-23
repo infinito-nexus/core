@@ -80,12 +80,36 @@ class TestPathsStayIntact(unittest.TestCase):
         )
 
     def test_a_repository_path_is_masked_whole(self):
-        masked = mask("See roles/web-app-X/templates/compose.yml.j2 for it.")
+        masked = mask("See utils/i18n/placeholders.py for it.")
 
-        self.assertIn("roles/web-app-X/templates/compose.yml.j2", masked.spans)
+        self.assertIn("utils/i18n/placeholders.py", masked.spans)
 
     def test_prose_with_a_slash_stays_translatable(self):
         source = "'enabled' is missing/undefined (treated as active)"
+
+        self.assertEqual(mask(source).spans, ())
+
+
+class TestIdentifiersStayIntact(unittest.TestCase):
+    def test_an_underscored_identifier_is_masked_whole(self):
+        masked = mask("Set application_id before the first run.")
+
+        self.assertEqual(masked.spans, ("application_id",))
+
+    def test_a_screaming_identifier_keeps_every_underscore(self):
+        source = "X_CONTAINER_ADDRESS: \"{{ lookup('container_address', x) }}\""
+        masked = mask(source)
+
+        self.assertIn("X_CONTAINER_ADDRESS", masked.spans)
+        self.assertIn("{{ lookup('container_address', x) }}", masked.spans)
+
+    def test_a_jinja_statement_is_masked_whole(self):
+        masked = mask("Wrap it in {% if enabled %} to gate the block.")
+
+        self.assertIn("{% if enabled %}", masked.spans)
+
+    def test_prose_without_an_underscore_stays_translatable(self):
+        source = "The deploy writes a file to the host and then restarts it."
 
         self.assertEqual(mask(source).spans, ())
 
