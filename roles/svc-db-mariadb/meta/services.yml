@@ -10,7 +10,7 @@ mariadb:
   bond: 1
   enabled: true
   shared: true
-  version: "12.3"
+  version: "13.0"
   custom: true
   image: mariadb
   name: mariadb
