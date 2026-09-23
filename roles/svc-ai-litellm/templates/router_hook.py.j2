@@ -22,10 +22,6 @@ ROUTER_ALIAS = {{ LITELLM_ROUTER_ALIAS | to_json }}
 REMOTE_FALLBACK = {{ 'True' if LITELLM_ROUTER_REMOTE_FALLBACK | bool else 'False' }}
 ROUTER_WEIGHTS = {{ LITELLM_ROUTER_WEIGHTS | to_json }}
 
-# Exception: structured secret prefixes only. A pattern like `password=` would
-# match prose and teach callers to ignore the refusal; these forms do not occur
-# by accident. This is a second lock, not the guarantee: the guarantee is that
-# `local_reason` drops every remote candidate before any weight is applied.
 SECRET_SHAPES = re.compile(
     r"-----BEGIN [A-Z ]*PRIVATE KEY-----"
     r"|\bsk-[A-Za-z0-9_-]{20,}"
@@ -36,13 +32,8 @@ SECRET_SHAPES = re.compile(
     r"|\bAIza[A-Za-z0-9_-]{35}\b"
 )
 
-# Exception: errs high on purpose. An under-estimate routes to a model whose
-# context cannot hold the prompt and fails at the backend, after the choice is
-# already made and the cheaper candidates are gone.
 CHARS_PER_TOKEN = 3
 IMAGE_PARTS = ("image_url", "input_image")
-# Exception: larger than any real per-token price, so a paid model the catalog
-# does not price sorts behind every one it does, and behind anything local.
 UNPRICED_REMOTE_COST = 1.0
 
 
