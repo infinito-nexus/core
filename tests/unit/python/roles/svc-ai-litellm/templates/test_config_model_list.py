@@ -88,9 +88,8 @@ def render(*, ollama=(), lmstudio=(), keys=None, remote_models=REMOTE_MODELS):
         LITELLM_MAX_OUTPUT_TOKENS=512,
         LITELLM_UPSTREAM_TIMEOUT=60,
         LITELLM_REMOTE_MODELS=list(remote_models),
-        LITELLM_SERVED_PROVIDERS=[
-            name for name, key in (keys or {}).items() if key
-        ],
+        LITELLM_SERVED_PROVIDERS=[name for name, key in (keys or {}).items() if key]
+        + [MOCK["provider"]],
     )
     return yaml.safe_load(
         rendered
@@ -226,11 +225,19 @@ class TestConfiguredRemoteModels(unittest.TestCase):
 class TestMockModels(unittest.TestCase):
     """A mock is declared like any other model; the routing shape is the filter's."""
 
+    def test_the_mock_is_published_although_no_provider_holds_a_key(self) -> None:
+        published = routes(render(remote_models=[MOCK]))
+        self.assertEqual(
+            set(published),
+            {MOCK["alias"]},
+            "an empty model_list makes the gateway answer 400 for the chat model "
+            "while every name-level variable still resolves to it",
+        )
+        self.assertEqual(published[MOCK["alias"]]["mock_response"], MOCK["response"])
+
     def test_a_response_carrying_yaml_punctuation_survives_the_render(self) -> None:
         awkward = {**MOCK, "response": 'a: b\n"c" #d'}
-        published = routes(
-            render(keys={"mock": "none-needed"}, remote_models=[awkward])
-        )
+        published = routes(render(remote_models=[awkward]))
         self.assertEqual(published[MOCK["alias"]]["mock_response"], awkward["response"])
 
 
