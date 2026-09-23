@@ -18,7 +18,7 @@ AGENT_BROKER_CONSTRAINT: "node.labels.{{ SANDBOX_NODE_LABEL }} == true"
 AGENT_SOCKET_PROXY_NAME: "{{ lookup('config', application_id, 'services.socket-proxy.name') }}"
 AGENT_ENGINE_SOCKET: "{{ [lookup('volume', application_id, 'engine_socket').target, 'engine.sock'] | path_join }}"
 
-AGENT_BROKER_PLATFORMS:
+AGENT_BROKER_PLATFORMS_DECLARED:
   hermes:
     group: "/{{ lookup('rbac_group_path', application_id='web-app-hermes', role='agent-user') }}"
     image: "{{ lookup('image', 'web-app-hermes', 'hermes') }}"
@@ -28,7 +28,6 @@ AGENT_BROKER_PLATFORMS:
     config_path: "{{ lookup('volume', 'web-app-hermes', 'hermes_config').target }}"
     command: ["gateway"]
     user: ""
-    role: web-app-hermes
     key_env: API_SERVER_KEY
     request_model: hermes-agent
     min_context: "{{ lookup('config', 'web-app-hermes', 'services.hermes.min_context') }}"
@@ -73,3 +72,8 @@ AGENT_BROKER_PLATFORMS:
     mem_limit: "{{ lookup('config', 'web-app-openclaw', 'services.openclaw.mem_limit') | upper | human_to_bytes }}"
     mem_reservation: "{{ lookup('config', 'web-app-openclaw', 'services.openclaw.mem_reservation') | upper | human_to_bytes }}"
     pids_limit: "{{ lookup('config', 'web-app-openclaw', 'services.openclaw.pids_limit') }}"
+
+AGENT_BROKER_PLATFORMS_REFUSED: "{{ (AGENT_BROKER_PLATFORMS_DECLARED | dict2items | selectattr('value.min_context', 'defined') | selectattr('value.min_context', 'gt',
+  AGENT_BROKER_CONTEXT | int) | map(attribute='key') | list) if (AGENT_BROKER_CONTEXT | string | length) > 0 else [] }}"
+
+AGENT_BROKER_PLATFORMS: "{{ AGENT_BROKER_PLATFORMS_DECLARED | dict2items | rejectattr('key', 'in', AGENT_BROKER_PLATFORMS_REFUSED) | items2dict }}"
