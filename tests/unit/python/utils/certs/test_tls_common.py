@@ -133,6 +133,38 @@ class TestTlsCommon(unittest.TestCase):
                 "x", domains=self.domains, forced_mode="invalid", err_prefix="t"
             )
 
+    def test_resolve_term_clearnet_domain_swapped_to_onion_keeps_clearnet(self):
+        domains = {"svc-prx-openresty": ["abc.onion"]}
+        applications = {
+            "svc-prx-openresty": {"domains": {"canonical": ["infinito.test"]}}
+        }
+        app_id, primary = resolve_term(
+            "infinito.test",
+            domains=domains,
+            applications=applications,
+            forced_mode="auto",
+            err_prefix="t",
+        )
+        self.assertEqual(app_id, "svc-prx-openresty")
+        self.assertEqual(primary, "infinito.test")
+        self.assertTrue(resolve_enabled({}, True, primary_domain=primary))
+
+    def test_resolve_term_alias_without_onion_swap_keeps_canonical(self):
+        domains = {"web-app-x": ["x.example"]}
+        applications = {
+            "web-app-x": {
+                "domains": {"canonical": ["x.example"], "aliases": ["old.example"]}
+            }
+        }
+        _, primary = resolve_term(
+            "old.example",
+            domains=domains,
+            applications=applications,
+            forced_mode="auto",
+            err_prefix="t",
+        )
+        self.assertEqual(primary, "x.example")
+
     def test_resolve_enabled_and_mode(self):
         app = {}
         self.assertTrue(resolve_enabled(app, True))
