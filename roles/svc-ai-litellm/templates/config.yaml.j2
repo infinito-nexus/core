@@ -10,21 +10,26 @@
       router_alias=LITELLM_ROUTER_ALIAS) %}
 model_list:{{ ' []' if not _routes else '' }}
 {% for _route in _routes %}
+{% set _traits = _route.traits or {} %}
+{% set _speed = _route.alias in LITELLM_MEASURED_SPEED and 'speed' not in _traits %}
   - model_name: {{ _route.alias | to_json }}
     litellm_params:
 {% for _key, _value in _route.params.items() %}
       {{ _key }}: {{ _value | to_json }}
 {% endfor %}
-{% if _route.context or _route.traits %}
+{% if _route.context or _traits or _speed %}
     model_info:
 {% if _route.context %}
       max_input_tokens: {{ _route.context }}
 {% endif %}
-{% if _route.traits %}
+{% if _traits or _speed %}
       traits:
-{% for _trait, _value in _route.traits.items() %}
+{% for _trait, _value in _traits.items() %}
         {{ _trait }}: {{ _value | to_json }}
 {% endfor %}
+{% if _speed %}
+        speed: {{ LITELLM_MEASURED_SPEED[_route.alias] | to_json }}
+{% endif %}
 {% endif %}
 {% endif %}
 {% endfor %}

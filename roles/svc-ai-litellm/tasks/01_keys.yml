@@ -49,3 +49,9 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   delegate_to: "{{ LITELLM_HOST_NODE }}"
   when: LITELLM_CHAT_MODEL_SERVED | bool
+
+- name: "⏱️ Rank the served models on measured generation speed"
+  ansible.builtin.include_tasks: 02_speed.yml
+  when:
+    - LITELLM_ROUTER_ALIAS | length > 0
+    - LITELLM_CHAT_MODEL_SERVED | bool

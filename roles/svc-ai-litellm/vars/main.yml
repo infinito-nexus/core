@@ -10,7 +10,11 @@ LITELLM_UPSTREAM_TIMEOUT: "{{ lookup('config', application_id, 'services.litellm
 LITELLM_ROUTER_ALIAS: "{{ lookup('config', application_id, 'services.litellm.router_alias') }}"
 LITELLM_ROUTER_REMOTE_FALLBACK: "{{ lookup('config', application_id, 'services.litellm.router_remote_fallback') }}"
 LITELLM_ROUTER_WEIGHTS: "{{ lookup('config', application_id, 'services.litellm.router_weights') }}"
+LITELLM_ROUTER_SPEED_SAMPLES: "{{ lookup('config', application_id, 'services.litellm.router_speed_samples') }}"
+LITELLM_ROUTER_SPEED_TIMEOUT: "{{ lookup('config', application_id, 'services.litellm.router_speed_timeout') }}"
+LITELLM_ROUTER_SPEED_REMEASURE: "{{ lookup('config', application_id, 'services.litellm.router_speed_remeasure') }}"
 LITELLM_ROUTER_HOOK_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'router_hook.py' ] | path_join }}"
+LITELLM_SPEED_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'measured_speed.json' ] | path_join }}"
 LITELLM_CONFIG_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'config.yaml' ] | path_join }}"
 LITELLM_CONFIG_PATH_DOCKER: "{{ lookup('volume', application_id, 'litellm_config').target }}"
 LITELLM_PROVIDER_KEYS:

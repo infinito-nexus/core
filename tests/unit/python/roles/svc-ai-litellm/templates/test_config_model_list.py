@@ -67,7 +67,13 @@ def _stub_lookup(ollama_models, lmstudio_models):
 
 
 def render(
-    *, ollama=(), lmstudio=(), keys=None, remote_models=REMOTE_MODELS, router_alias=""
+    *,
+    ollama=(),
+    lmstudio=(),
+    keys=None,
+    remote_models=REMOTE_MODELS,
+    router_alias="",
+    measured_speed=None,
 ):
     """The rendered config as a parsed mapping.
 
@@ -78,6 +84,8 @@ def render(
         remote_models: the services.litellm.remote_models list in effect.
         router_alias: the router's alias; empty publishes no router route, which
             is what every case that predates the router expects.
+        measured_speed: alias -> tokens per second from the last deploy's
+            measurement; empty means nothing has been measured yet.
     """
     env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - YAML, not markup
     env.filters["bool"] = _ansible_bool
@@ -96,6 +104,7 @@ def render(
         LITELLM_SERVED_PROVIDERS=[name for name, key in (keys or {}).items() if key]
         + [MOCK["provider"]],
         LITELLM_ROUTER_ALIAS=router_alias,
+        LITELLM_MEASURED_SPEED=measured_speed or {},
     )
     return yaml.safe_load(
         rendered
@@ -309,6 +318,43 @@ class TestTraits(unittest.TestCase):
         info = (config.get("model_list") or [])[0]["model_info"]
         self.assertEqual(info["max_input_tokens"], 32768)
         self.assertEqual(info["traits"], {"tools": True})
+
+
+class TestMeasuredSpeed(unittest.TestCase):
+    """A rate has no catalogue, so the deploy measures it and renders it back."""
+
+    def _entry(self, **kwargs):
+        return (render(ollama=[SHARED], **kwargs).get("model_list") or [])[0]
+
+    def test_a_measured_rate_becomes_a_trait(self) -> None:
+        alias = self._entry()["model_name"]
+        entry = self._entry(measured_speed={alias: 41.7})
+        self.assertEqual(entry["model_info"]["traits"], {"speed": 41.7})
+
+    def test_a_measured_rate_joins_the_declared_traits(self) -> None:
+        config = render(
+            ollama=[{**SHARED, "traits": {"tools": True}}],
+            measured_speed={SHARED["alias"]: 41.7},
+        )
+        traits = (config.get("model_list") or [])[0]["model_info"]["traits"]
+        self.assertEqual(traits, {"tools": True, "speed": 41.7})
+
+    def test_a_declared_rate_outranks_the_measured_one(self) -> None:
+        config = render(
+            ollama=[{**SHARED, "traits": {"speed": 5}}],
+            measured_speed={SHARED["alias"]: 41.7},
+        )
+        traits = (config.get("model_list") or [])[0]["model_info"]["traits"]
+        self.assertEqual(
+            traits,
+            {"speed": 5},
+            "a declaration is the operator overriding the measurement, so the "
+            "measurement must not overwrite it back on the next deploy",
+        )
+
+    def test_a_rate_for_a_model_that_is_gone_publishes_nothing(self) -> None:
+        entry = self._entry(measured_speed={"a-model-nobody-serves": 41.7})
+        self.assertNotIn("model_info", entry)
 
 
 class TestHookRegistration(unittest.TestCase):

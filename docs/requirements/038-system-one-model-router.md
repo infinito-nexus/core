@@ -58,6 +58,18 @@ These choices are settled at requirement creation time and bound the implementat
 
    Weights are a preference because the operator is the only one who knows what this deployment is for. A cluster whose local models are toys wants `speed` high; a cluster billing a provider per token wants `cost` high; a cluster handling client data leaves `locality` where it is. Encoding one of those as the rule would be this project guessing.
 
+10. **Speed is measured at deploy time, not declared, and only for a model that has no rate yet.** A rate is a property of this machine under this load, not of the model, so no catalogue carries one and a hand-written number in `services.yml` would be a guess that rots. After the gateway is warm, [measure_speed.py](../../roles/svc-ai-litellm/files/python/measure_speed.py) asks it which models it serves and sends `services.litellm.router_speed_samples` (12) requests to each unranked one, discarding the first as a cold load and taking the median of the rest as output tokens per second.
+
+    A model that already carries a rate is not measured at all. Re-measuring everything on every deploy would send traffic whose result the tolerance below discards anyway, and that traffic is the entire live surface of this step: it is what can hang, what can fail the deploy, and what the deploy waits for. `services.litellm.router_speed_remeasure` discards the stored numbers once, for the case where the hardware under them changed.
+
+    The result is stored on the stack host and rendered back into `model_info.traits.speed` on the same deploy, so the gateway restarts once with the numbers it just produced. A re-measured rate that moved less than 10% keeps its stored value, because no two runs measure the same machine and an unclamped result would restart the gateway for nothing. A model the measurement could not reach keeps its stored rate rather than losing it, so one bad minute does not unrank a model against its peers.
+
+    Two budgets bound the step. A measured request may take `services.litellm.router_speed_timeout` (60s); the discarded first request gets `services.litellm.upstream_timeout` instead, because it pays the model load and holding it to the sample budget would time out exactly the models worth measuring. A request that exceeds its budget raises, which abandons that model rather than the deploy.
+
+    Every matrix variant overrides the sample count to 1. At that setting the single sample is kept rather than discarded as cold, because what a CI round proves is that the measurement, the store and the re-render ran, not what the rate was on a shared runner.
+
+    A declared `traits.speed` still wins, because a declaration is the operator overriding the measurement and the next deploy must not overwrite it back.
+
 ## Component Roles
 
 The router sits inside the gateway. No consumer learns a second endpoint.
@@ -80,6 +92,7 @@ flowchart TB
         keep["local_reason()<br/>drop remote when it must stay in"]
         dec["decide()<br/>weighted score, ties by alias"]
         weights["router_weights<br/>locality, cost, speed"]
+        rates["measure_speed.py<br/>12 requests per model at deploy"]
     end
 
     subgraph sys2["System II candidates"]
@@ -89,6 +102,7 @@ flowchart TB
 
     consumer --> hook --> caps --> elig --> keep --> dec
     weights --> dec
+    rates -->|traits.speed| caps
     dec -->|chosen alias| sys2
     small & remote -->|completion| consumer
 ```
@@ -109,6 +123,10 @@ flowchart TB
 | Each factor carries the weight `services.yml` gives it, and a zero weight removes it | the same test, rendering the hook with the shipped weights and with a single-factor one |
 | No weighting sends a restricted request out of the cluster | the same test, weighting speed alone with the fallback switch on |
 | The shipped weights keep locality worth at least the other factors combined | the same test, reading them out of [meta/services.yml](../../roles/svc-ai-litellm/meta/services.yml) rather than repeating them |
+| A measured rate reaches `traits.speed`, and a declared one outranks it | [test_config_model_list.py](../../tests/unit/python/roles/svc-ai-litellm/templates/test_config_model_list.py) |
+| The cold first sample is discarded, one slow sample does not move the median, and an unreachable model keeps its rate | [test_measure_speed.py](../../tests/unit/python/roles/svc-ai-litellm/files/test_measure_speed.py) |
+| A model that already carries a rate sends no request, and the remeasure switch sends them again | the same test |
+| The cold first request gets the longer budget, and a single-sample run keeps its one measurement | the same test |
 | The alias is served and is not read as a route without a backend | [probe.py](../../roles/svc-ai-litellm/files/test/probe.py), run on every gateway deploy |
 | The alias routes rather than falling back, proven by the model that answers | [probe.py](../../roles/svc-ai-litellm/files/test/probe.py), on every gateway deploy that serves more than one declared window |
 | A consumer selecting `auto` receives a completion | [test-system-one-router.js](../../roles/web-app-openwebui/files/playwright/test-system-one-router.js) |
@@ -123,6 +141,7 @@ flowchart TB
 - [x] A model entry declares none of what the catalog already states, and a route's price follows from whether it is local, mocked or keyed.
 - [x] The same request picks the same model twice, with no inference and no download on any path.
 - [x] Every routing factor carries a 0..1 weight in `services.litellm.router_weights`, a zero weight removes the factor, and no weighting lets a restricted request reach a remote model.
+- [ ] The deploy sends `services.litellm.router_speed_samples` requests to each served model, and the measured rates reach `model_info.traits.speed` in the rendered config on the same deploy.
 - [x] The routing probe treats the alias as served rather than as a route without a backend, and fails when the gateway withholds it.
 - [ ] A request naming `auto` returns a completion whose served model is one of the eligible candidates, verified through the gateway with a consumer virtual key. The CLI probe sends a prompt the smallest declared window cannot hold and fails when the answer names the alias itself or a model whose window is too small.
 - [ ] A Playwright spec verifies that selecting `auto` in Open WebUI returns an answer.

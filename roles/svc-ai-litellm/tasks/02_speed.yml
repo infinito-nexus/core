@@ -1,0 +1,31 @@
+---
+- name: "⏱️ Measure how fast each served model generates"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i -e LITELLM_MK={{ LITELLM_MASTER_KEY | quote }} -e LITELLM_PORT={{ LITELLM_PORT | quote }} -e LITELLM_SAMPLES={{ LITELLM_ROUTER_SPEED_SAMPLES | quote }} -e LITELLM_TIMEOUT={{ LITELLM_ROUTER_SPEED_TIMEOUT | quote }} -e LITELLM_WARMUP={{ LITELLM_UPSTREAM_TIMEOUT | quote }} -e LITELLM_EXCLUDE={{ LITELLM_ROUTER_ALIAS | quote }} -e LITELLM_REMEASURE={{ LITELLM_ROUTER_SPEED_REMEASURE | bool | ternary('1', '') | quote }} -e LITELLM_PREVIOUS={{ LITELLM_MEASURED_SPEED | to_json | quote }} {{ LITELLM_LOCAL_CID | quote }} python3 -c {{ lookup('file', lookup('path_absolute', 'roles/svc-ai-litellm/files/python/measure_speed.py')) | quote }}
+  register: litellm_speed_result
+  retries: 3
+  delay: 5
+  until: litellm_speed_result.rc == 0
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ LITELLM_HOST_NODE }}"
+
+- name: "📈 Store the measured rates for the next deploy"
+  ansible.builtin.copy:
+    content: "{{ litellm_speed_result.stdout }}\n"
+    dest: "{{ LITELLM_SPEED_PATH_HOST }}"
+    mode: "0644"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
+- name: "🧮 Rank the gateway on the rates just measured"
+  ansible.builtin.set_fact:
+    LITELLM_MEASURED_SPEED: "{{ litellm_speed_result.stdout | from_json }}"
+
+- name: "📄 Re-render the gateway config with the measured rates"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "config.yaml.j2"
+        dest: "{{ LITELLM_CONFIG_PATH_HOST }}"

@@ -24,6 +24,25 @@
       '{{ AI_MOCK_PROVIDER }}' answers from its own declared response and needs no key.
     quiet: true
 
+- name: "🔍 Look for the rates the last deploy measured"
+  ansible.builtin.stat:
+    path: "{{ LITELLM_SPEED_PATH_HOST }}"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  register: litellm_speed_file
+
+- name: "📥 Read the rates the last deploy measured"
+  ansible.builtin.slurp:
+    src: "{{ LITELLM_SPEED_PATH_HOST }}"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  register: litellm_speed_stored
+  when: litellm_speed_file.stat.exists
+
+- name: "🧮 Rank this render on those rates"
+  ansible.builtin.set_fact:
+    LITELLM_MEASURED_SPEED: "{{ (litellm_speed_stored.content | b64decode | from_json) if litellm_speed_file.stat.exists else {} }}"
+
 - name: "📄 Render LiteLLM gateway config (local + swarm peers)"
   ansible.builtin.include_tasks:
     file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"

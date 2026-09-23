@@ -19,6 +19,7 @@
     postgres:
       shared: true
     litellm:
+      router_speed_samples: 1
       remote_models:
         - alias: mock/deterministic
           provider: mock
@@ -35,6 +36,7 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
+      router_speed_samples: 1
       remote_models:
         - alias: mock/deterministic
           provider: mock
@@ -52,6 +54,7 @@
     postgres:
       shared: true
     litellm:
+      router_speed_samples: 1
       remote_models:
         - alias: mock/deterministic
           provider: mock
