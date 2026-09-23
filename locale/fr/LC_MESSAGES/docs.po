@@ -291,7 +291,7 @@ msgstr ""
 msgid "**A probe for every container.** Health checks are composed from prefixes and are mandatory: every declared image either carries a probe or states why it cannot have one, enforced from both sides. Probes hit the port the container actually binds, no longer derive an HTTP Host from a kernel hostname, and are defined once instead of per proxy. Rescue diagnostics pin the dnsmasq listener loss to its moment, sample what the resolver answers rather than just its socket, probe the daemon.json upstreams, and record the whole boot instead of the last 10 000 lines."
 msgstr ""
 
-msgid "**A role may narrow the pool.** `meta/services.yml.<primary_entity> .architectures` lists what the role can run on, next to `modes`, because both state a capability rather than a testing preference. The row draws from the intersection of the run's pool with the declarations of the role and of every service in its transitive closure, because the deploy pulls those in too; an empty intersection aborts the matrix."
+msgid "**A role may narrow the pool.** `meta/services.yml.<primary_entity> .architectures` lists what the role can run on, next to `modes`, because both state a capability rather than a testing preference. The row draws from the intersection of the run's pool with the declarations of the role and of every role the deploy planner brings up for that variant, because the deploy pulls those in too; an empty intersection aborts the matrix."
 msgstr ""
 
 msgid "**AACS & BD+ Support**"
@@ -428,6 +428,15 @@ msgstr ""
 msgid "**Agile Boards & Scrum/Kanban Integration:** Manage agile projects using Scrum or Kanban boards, track progress through sprints, and maintain a clear overview of work in progress."
 msgstr ""
 
+msgid "**Alert rules live in the role that owns the metric.** A role ships its Prometheus rules in *templates/prometheus/alert_rules.yml.j2*. The new *alert_rule_roles* lookup includes them only for roles that Prometheus actually scrapes, so a rules file needs no activation check of its own. It must start at the *groups:* item level. OpenBao's seal alert is the first rule to use it."
+msgstr ""
+
+msgid "**Alert rules ship with the role.** ``templates/prometheus/alert_rules.yml.j2`` is discovered by the ``alert_rule_roles`` lookup, which returns only roles that are actually scraped, so the fragment carries no activation guard of its own. It must start at the ``groups:`` item level."
+msgstr ""
+
+msgid "**Alert rules ship with the role.** `templates/prometheus/alert_rules.yml.j2` is discovered by the `alert_rule_roles` lookup, which returns only roles that are actually scraped, so the fragment carries no activation guard of its own. It must start at the `groups:` item level."
+msgstr ""
+
 msgid "**Alerting Support:** Works with the [`sys-ctl-alm-compose`](../sys-ctl-alm-compose/README.md) role for failure notifications."
 msgstr ""
 
@@ -491,6 +500,9 @@ msgid "**Anonymous Volume Cleanup:** Integrates with `sys-ctl-cln-anon-volumes` 
 msgstr ""
 
 msgid "**Anonymous Volume Detection:** Identifies volumes with 64-character IDs not attached to any container."
+msgstr ""
+
+msgid "**Ansible authenticates via AppRole with caller-set ids.** First init uses the root token in memory only, enables AppRole, writes the inventory-generated `role_id` and `secret_id` through `role-id` / `custom-secret-id`, then revokes the root token. Later deploys log in with those inventory credentials."
 msgstr ""
 
 msgid "**Ansible meta `dependencies:`** from each role's `meta/main.yml`."
@@ -682,6 +694,9 @@ msgstr ""
 msgid "**Automated provisioning:** Configured by Ansible without manual steps."
 msgstr ""
 
+msgid "**Automated provisioning:** Configured by Ansible without manual steps; no Keycloak client or OpenBao path has to be created by hand."
+msgstr ""
+
 msgid "**Automatic HTTPS Certificates:** Handles secure certificate issuance via Let's Encrypt."
 msgstr ""
 
@@ -719,6 +734,12 @@ msgid "**Automatic registration:** The runner container fetches a short-lived Gi
 msgstr ""
 
 msgid "**Automatic registration:** The runner container fetches a short-lived GitHub registration token from the API at startup using ``RUNNER_API_TOKEN``."
+msgstr ""
+
+msgid "**Automatic unsealing:** A ``static`` seal reads a 32-byte key from the encrypted inventory, so the node unseals itself on every container restart."
+msgstr ""
+
+msgid "**Automatic unsealing:** A `static` seal reads a 32-byte key from the encrypted inventory, so the node unseals itself on every container restart."
 msgstr ""
 
 msgid "**Automatically updated:** the ``update-repository-refs`` job bumps the pins to the newest semver tag and opens a pull request."
@@ -814,7 +835,13 @@ msgstr ""
 msgid "**Bootstrap Volume Exclusion:** Ignores known bootstrap volumes (e.g., ``/var/www/bootstrap``)."
 msgstr ""
 
+msgid "**Bootstrap leaves no stored root token.** The first deploy holds it in memory, pins both AppRole halves to inventory values, then revokes it. Tokens reach the CLI through stdin and the container token helper, never through process arguments, and the helper file is removed at the end of the run."
+msgstr ""
+
 msgid "**Bootstrap-styled interface**: clean, minimalistic, and responsive layout."
+msgstr ""
+
+msgid "**Both deployment modes are supported** (`modes.compose.enabled: true`, `modes.swarm.enabled: true`), with swarm running a single node pinned to the manager."
 msgstr ""
 
 msgid "**Both** auth plugins: `jellyfin-plugin-ldapauth` (central OpenLDAP, all clients) **and** `9p4/jellyfin-plugin-sso` (Keycloak OIDC, web one-click)."
@@ -826,7 +853,7 @@ msgstr ""
 msgid "**Bounded ranges:** A tool whose schema declares `start`, `end` and `step` has its point count checked against `result_items` and is refused with the smallest step that fits, so the upstream never scans a range whose result the adapter would discard."
 msgstr ""
 
-msgid "**Bounded resources:** The container is capped at 4 CPUs, 8 GB of memory and 2048 processes, and the role declares a minimum of 588 MB free storage for the image; downloaded models grow the volume beyond that."
+msgid "**Bounded resources:** The container is capped at 4 CPUs, 8 GB of memory and 2048 processes, and the role declares a minimum of 4 GB free storage for building the image; downloaded models grow the volume beyond that."
 msgstr ""
 
 msgid "**Break-glass ``cmkadmin``:** Seeded on first run via ``CMK_PASSWORD`` and re-converged onto the running site on every deploy; reachable via the local login form only when the SSO gate is absent."
@@ -955,10 +982,22 @@ msgstr ""
 msgid "**CLEANUP_FAILED_BACKUPS_FORCE_KEEP**"
 msgstr ""
 
+msgid "**CLI OIDC login (`bao login -method=oidc`, `http://localhost:8250/oidc/callback`) is out of scope.**"
+msgstr ""
+
+msgid "**CLI OIDC login is out of scope.** ``redirect_uris`` registers ``https://<domain>/*``, covering UI and API callbacks but not the CLI’s ``http://localhost:8250/oidc/callback``. Use AppRole for non-interactive access."
+msgstr ""
+
+msgid "**CLI OIDC login is out of scope.** `redirect_uris` registers `https://<domain>/*`, covering UI and API callbacks but not the CLI's `http://localhost:8250/oidc/callback`. Use AppRole for non-interactive access."
+msgstr ""
+
 msgid "**CNG multi-service deployment:** webservice, sidekiq, workhorse, gitaly, gitlab-shell and a migrations one-shot from unmodified upstream images."
 msgstr ""
 
-msgid "**CPU inference:** The role pins the CPU build of the upstream image and passes no GPU device into the container."
+msgid "**CPU inference:** The role builds its own image from the pinned llmster release for the host's architecture, amd64 or arm64, keeps only the CPU llama.cpp engine and passes no GPU device into the container."
+msgstr ""
+
+msgid "**CPU inference:** The role builds its own image from the pinned llmster release for the host’s architecture, amd64 or arm64, keeps only the CPU llama.cpp engine and passes no GPU device into the container."
 msgstr ""
 
 msgid "**CPU transcoding only** (no GPU passthrough)."
@@ -1989,6 +2028,9 @@ msgstr ""
 msgid "**Description:** Host-level role provisioning a root RSA 4096-bit SSH key pair for secure automated administrative access"
 msgstr ""
 
+msgid "**Description:** Identity-based secrets, PKI and encryption manager with OIDC login, group-mapped policies and static-seal auto-unseal"
+msgstr ""
+
 msgid "**Description:** In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
 msgstr ""
 
@@ -2613,6 +2655,14 @@ msgstr ""
 msgid "**Distro-aware packages:** Installs `nfs-common` on Debian/Ubuntu, `nfs-utils` on Arch / RHEL / Fedora / Alpine."
 msgstr ""
 
+#, python-brace-format
+msgid "**Do not alert on ``vault_core_unsealed``.** OpenBao keeps Vault’s metric namespace, and a healthy unsealed node emits ``vault_core_unsealed{cluster=\"\"} 0``, so an alert on ``== 0`` fires permanently. Use ``/v1/sys/health`` (503 while sealed); ``vault_core_active{cluster=\"…\"} == 1`` corroborates."
+msgstr ""
+
+#, python-brace-format
+msgid "**Do not alert on `vault_core_unsealed`.** OpenBao keeps Vault's metric namespace, and a healthy unsealed node emits `vault_core_unsealed{cluster=\"\"} 0`, so an alert on `== 0` fires permanently. Use `/v1/sys/health` (503 while sealed); `vault_core_active{cluster=\"…\"} == 1` corroborates."
+msgstr ""
+
 msgid "**Docker Compose Integration:**"
 msgstr ""
 
@@ -2983,6 +3033,12 @@ msgid "**Every MCP implementation ships a Playwright test.** Each role that gain
 msgstr ""
 
 msgid "**Every addon ships a Playwright test.** Each addon with a user-facing surface MUST add a matching Playwright spec under `roles/<role>/files/playwright/` that exercises that addon's behaviour (e.g. an `ldapauth`/`sociallogin` login path, a `wp-discourse` round-trip, an enabled Odoo module's UI entry point). Desktop roles (`desk-*`) drive no web surface a Playwright test could exercise and therefore NEVER ship addon specs — the lint forbids spec files under `desk-*` roles. For every web-facing role there is no per-addon exemption: an addon is considered migrated only once its Playwright spec is present and green. Cross-role integration specs (proving two roles are actually connected) run under a dedicated **integration-pair deploy variant** that co-deploys both partner roles, and are added incrementally as each ✅ pair is wired rather than all upfront."
+msgstr ""
+
+msgid "**Every deploy rotates the AppRole.** The ``role_id``/``secret_id`` a run is handed are not the ones the running instance holds. ``tasks/01_init.yml`` tries the inventory pair, falls back to the pair recorded in ``.applied.json``, then ``tasks/06_rotate.yml`` re-pins to this run’s values and destroys the old SecretID. The record is written last, so a run that dies partway leaves the previous generation intact. ``custom-secret-id`` is **not** idempotent — re-writing a held SecretID answers ``500`` — so the swap is gated on the value having changed."
+msgstr ""
+
+msgid "**Every deploy rotates the AppRole.** The `role_id`/`secret_id` a run is handed are not the ones the running instance holds. `tasks/01_init.yml` tries the inventory pair, falls back to the pair recorded in `.applied.json`, then `tasks/06_rotate.yml` re-pins to this run's values and destroys the old SecretID. The record is written last, so a run that dies partway leaves the previous generation intact. `custom-secret-id` is **not** idempotent — re-writing a held SecretID answers `500` — so the swap is gated on the value having changed."
 msgstr ""
 
 msgid "**Every mounted volume is discarded**, not only the backed-up ones. A volume declared `backup: false` claims to be disposable; a drill that spares it never tests the claim. If its service cannot rebuild it, the health gate goes red — that is the finding, not a false alarm. The single exception is the data directory of an engine whose dump is about to be replayed: it carries the database and its role, which the deploy creates and the container does not, so wiping it would leave `baudolo-restore --empty -d <db>` with nothing to connect to and the drill would fail at itself instead of at a defect."
@@ -3378,6 +3434,12 @@ msgstr ""
 msgid "**Group revocation is not reliable, in both directions.** Open WebUI removes a user from a synced group only while the groups claim is non-empty, so a user who loses their last role keeps stale membership until a later login carries a non-empty claim. Conversely, a non-empty claim removes the user from *every* local group the claim does not name, including groups an administrator created by hand. Reconciling either from the deploy would mean a second writer for group membership, competing with the login-time sync and able to evict accounts the platform’s own user list does not know about, so both are left to an external reconciler or an upstream fix."
 msgstr ""
 
+msgid "**Group-mapped RBAC:** The Keycloak ``groups`` claim binds to OpenBao external identity groups carrying the ``administrator``, ``operator`` and ``reader`` policies. Authenticating on its own grants only ``default``."
+msgstr ""
+
+msgid "**Group-mapped RBAC:** The Keycloak `groups` claim binds to OpenBao external identity groups carrying the `administrator`, `operator` and `reader` policies. Authenticating on its own grants only `default`."
+msgstr ""
+
 msgid "**Guest MCP probe:** A Playwright spec asserts that an unauthenticated request to the MCP endpoint is never answered with a 2xx."
 msgstr ""
 
@@ -3693,6 +3755,9 @@ msgstr ""
 msgid "**Improved user management:** A unified *user_key* model provides clearer and more robust user and permission handling across all roles."
 msgstr ""
 
+msgid "**In-container configuration** follows [`svc-db-elasticsearch/tasks/01_init.yml`](../../roles/svc-db-elasticsearch/tasks/01_init.yml): a shell exec into the container where the credential arrives through a container env var, never through Ansible's process arguments, guarded by `no_log: \"{{ MASK_CREDENTIALS_IN_LOGS | bool }}\"`."
+msgstr ""
+
 msgid "**Include Vars** in the specified order."
 msgstr ""
 
@@ -3977,6 +4042,12 @@ msgstr ""
 msgid "**Keycloak OIDC (web)** - one-click web sign-in via the ```jellyfin-plugin-sso`` <https://github.com/9p4/jellyfin-plugin-sso>`__ plugin against the platform Keycloak."
 msgstr ""
 
+msgid "**Keycloak OIDC login:** The ``jwt``/``oidc`` auth method is configured against the platform Keycloak, so users sign in with their existing Infinito.Nexus identity. Logout integrates with ``web-svc-logout``."
+msgstr ""
+
+msgid "**Keycloak OIDC login:** The `jwt`/`oidc` auth method is configured against the platform Keycloak, so users sign in with their existing Infinito.Nexus identity. Logout integrates with `web-svc-logout`."
+msgstr ""
+
 msgid "**Keycloak SSO:** Fronted by the platform oauth2-proxy gate; the authenticated user is passed to Checkmk via the trusted `X-Remote-User` header (`auth_by_http_header`), so no second login prompt appears."
 msgstr ""
 
@@ -4003,10 +4074,19 @@ msgstr ""
 msgid "**LDAP Authentication:** Enterprise directory integration via OpenLDAP for organizations using traditional directory services."
 msgstr ""
 
+msgid "**LDAP auth is included, behind the `ldap` service flag**, mapping the same LDAP role groups to the same three policies; OIDC stays the default."
+msgstr ""
+
 msgid "**LDAP direct-bind variant:** ``meta/variants.yml`` V3 wires prosody’s ``mod_auth_ldap2`` against ``svc-db-openldap`` for a non-OIDC LDAP-only deploy."
 msgstr ""
 
 msgid "**LDAP direct-bind variant:** `meta/variants.yml` V3 wires prosody's `mod_auth_ldap2` against `svc-db-openldap` for a non-OIDC LDAP-only deploy."
+msgstr ""
+
+msgid "**LDAP fallback:** When ``svc-db-openldap`` is deployed, the ``ldap`` auth method is enabled as a second login path, mapping the same role groups to the same policies. OIDC remains the default."
+msgstr ""
+
+msgid "**LDAP fallback:** When `svc-db-openldap` is deployed, the `ldap` auth method is enabled as a second login path, mapping the same role groups to the same policies. OIDC remains the default."
 msgstr ""
 
 msgid "**LDAP federation** — when ``svc-db-openldap`` is present, Frappe’s LDAP Settings doctype is auto-configured. End-to-end LDAP login (auto-create Frappe user from LDAP bind) is deferred to a follow-up requirement; v1 ships the Settings doctype only. The LDAP-login Playwright specs are intentionally absent for v1."
@@ -4019,6 +4099,9 @@ msgid "**LDAP federation:** When ``svc-db-openldap`` is present, Zammad authenti
 msgstr ""
 
 msgid "**LDAP federation:** When `svc-db-openldap` is present, Zammad authenticates and provisions accounts against the central LDAP."
+msgstr ""
+
+msgid "**LDAP import, export and Multi edit finish again in LAM.** The Content Security Policy blocked the inline script that checks on LAM's background jobs, so these tools stayed \"in progress\" forever. That script is allowed again."
 msgstr ""
 
 msgid "**LDAP login:** When ``svc-db-openldap`` is present, Semaphore’s login form binds against the central OpenLDAP directory (``SEMAPHORE_LDAP_*``). With LDAP enabled the form is LDAP-only; there is no local-password fallback."
@@ -4096,6 +4179,9 @@ msgstr ""
 msgid "**Lexicon source of truth for geo/time.** Mobilizon uses PostGIS + its own TZ handling; the lexicon calendar event carries its own location/time fields. The bridge needs an explicit, documented field mapping (start/end/tz/location/title/description/url) — incomplete mapping = silent data loss."
 msgstr ""
 
+msgid "**Lifecycle on merge is `alpha`.**"
+msgstr ""
+
 msgid "**Lifecycle promotions:** *web-app-checkmk*, *web-app-jellyfin*, *web-app-n8n*, *svc-registry-docker* and *svc-registry-cache* advance to *beta*."
 msgstr ""
 
@@ -4112,6 +4198,9 @@ msgid "**Lints that fail closed.** Five properties that used to pass silently no
 msgstr ""
 
 msgid "**List Users:**"
+msgstr ""
+
+msgid "**Listener runs `tls_disable = true`; TLS terminates at `sys-svc-proxy`.**"
 msgstr ""
 
 msgid "**LittleJS** is a self-hosted web application that bundles the LittleJS engine, its official examples, and a minimal Infinito.Nexus launcher UI. It provides a simple, tile-based overview of demos and games, allowing you to quickly explore LittleJS examples directly in your browser."
@@ -4242,6 +4331,9 @@ msgstr ""
 msgid "**MTU Configuration:** Deploys a template-based script to set the MTU on all defined internet interfaces."
 msgstr ""
 
+msgid "**Machine identity:** AppRole is configured independently of human login, so services and automation use their own identities and short-lived tokens instead of a shared administrator token."
+msgstr ""
+
 msgid "**Made Snipe-IT admin bootstrap idempotent** and treated known *users_groups* duplicate constraint errors as non-fatal while keeping strict failure handling for other cases"
 msgstr ""
 
@@ -4315,6 +4407,9 @@ msgid "**Matrix**: `#public:infinito.nexus` for general community discussion."
 msgstr ""
 
 msgid "**Meeting Recordings:** A dedicated recorder consumes recording jobs from the RabbitMQ queue and stores MP4 archives in MinIO."
+msgstr ""
+
+msgid "**Metrics via `unauthenticated_metrics_access = true`** on the internal listener, scraped on the internal container port over the role-local docker network only — never through the proxy, never public."
 msgstr ""
 
 msgid "**Migrated compose files** from *docker-compose.yml* to *compose.yml*, including override and CA override variants, and unified compose-related configuration keys"
@@ -4432,6 +4527,12 @@ msgid "**Monitoring** You can follow logs in real time with ``journalctl -f``."
 msgstr ""
 
 msgid "**Monitoring, Alerting & Analytics** 📊 Built-in system, application, and security monitoring with multi-channel notifications."
+msgstr ""
+
+msgid "**Monitoring:** Prometheus scrapes `/v1/sys/metrics` on the role-local network. A sealed node is detected from `/v1/sys/health`, which answers 503 while sealed and 200 once unsealed."
+msgstr ""
+
+msgid "**Monitoring:** Prometheus scrapes ``/v1/sys/metrics`` on the role-local network. A sealed node is detected from ``/v1/sys/health``, which answers 503 while sealed and 200 once unsealed."
 msgstr ""
 
 msgid "**More reliable Git configuration:** Git setup now works consistently for workstation users without broken or implicit dependencies."
@@ -4572,6 +4673,12 @@ msgstr ""
 msgid "**Native OIDC SSO:** Semaphore renders its own “Sign in with Keycloak” button via ``SEMAPHORE_OIDC_PROVIDERS``; the Keycloak client is auto-provisioned by ``web-app-keycloak``."
 msgstr ""
 
+msgid "**Native OIDC flavor** (`services.sso.flavor: oidc`), not the oauth2-proxy gate: OpenBao speaks OIDC itself, so it follows [`web-app-semaphore`](../../roles/web-app-semaphore/) rather than [`web-app-openproject`](../../roles/web-app-openproject/)."
+msgstr ""
+
+msgid "**Native Prometheus metrics** via the `services.prometheus.native_metrics` + `templates/prometheus.yml.j2` contract already used by [`web-app-gitea`](../../roles/web-app-gitea/templates/prometheus.yml.j2), scraped on the internal container port over the role-local docker network."
+msgstr ""
+
 msgid "**Native in all editions** (incl. Raw): LDAP \"connections\" sync users, contact groups, roles."
 msgstr ""
 
@@ -4660,6 +4767,9 @@ msgid "**No external database** - self-contained SQLite under `/config`."
 msgstr ""
 
 msgid "**No external database** - self-contained SQLite under ``/config``."
+msgstr ""
+
+msgid "**No external database.** OpenBao's integrated raft storage owns all state on one persistent volume."
 msgstr ""
 
 msgid "**No external database:** Self-contained on a single persistent volume."
@@ -4974,6 +5084,12 @@ msgstr ""
 msgid "**Optional Tag Pinning** (e.g. ``stable``)"
 msgstr ""
 
+msgid "**Optional internal PKI:** A service flag mounts the ``pki`` engine with an internal root CA and an issuing role."
+msgstr ""
+
+msgid "**Optional internal PKI:** A service flag mounts the `pki` engine with an internal root CA and an issuing role."
+msgstr ""
+
 msgid "**Optional public domains:** extra clearnet domains added to an app keep their own TLS flavor and deploy alongside the onion."
 msgstr ""
 
@@ -5025,6 +5141,9 @@ msgstr ""
 msgid "**PDS unreachable:** the broker bubbles up the createAccount or createSession failure and the user sees an HTML error page on the handoff route. Re-trying the visit after PDS recovery completes the handoff."
 msgstr ""
 
+msgid "**PKI engine ships behind a flag, default off.** When on, the play mounts `pki`, generates an internal root CA and one issuing role."
+msgstr ""
+
 msgid "**Package installation** of `NGINX` and `NGINX-mod-stream`."
 msgstr ""
 
@@ -5047,6 +5166,14 @@ msgid "**Parameter doc** — enumerates inputs/outputs (Python docstring `Args:`
 msgstr ""
 
 msgid "**Pass**: `make compose-playwright role=<role>` exits `0` AND every MUST in [Contributing `playwright.spec.js`](../../../contributing/artefact/files/role/playwright.specs.js.md) holds for the resulting run."
+msgstr ""
+
+#, python-brace-format
+msgid "**Paths that look wrong and are not.** Policies mount at `/openbao/policies/`, because OpenBao parses *every* file under `-config` as server configuration. Storage is `/openbao/file`, not `/openbao/data`: the image pre-chowns only `/openbao/{config,logs,file}` for the non-root `openbao` user, so a volume elsewhere lands root-owned and raft cannot write. `command:` is just `server` — the entrypoint appends `-config` itself, and passing it duplicates the flag."
+msgstr ""
+
+#, python-brace-format
+msgid "**Paths that look wrong and are not.** Policies mount at ``/openbao/policies/``, because OpenBao parses *every* file under ``-config`` as server configuration. Storage is ``/openbao/file``, not ``/openbao/data``: the image pre-chowns only ``/openbao/{config,logs,file}`` for the non-root ``openbao`` user, so a volume elsewhere lands root-owned and raft cannot write. ``command:`` is just ``server`` — the entrypoint appends ``-config`` itself, and passing it duplicates the flag."
 msgstr ""
 
 msgid "**Per-Consumer Isolation:** Each consumer gets a role and user scoped to its own `<entity>-*` index namespace."
@@ -5334,6 +5461,12 @@ msgid "**RBAC group mapping:** Map Keycloak group paths onto Joomla's built-in `
 msgstr ""
 
 msgid "**RBAC group mapping:** Map Keycloak group paths onto Joomla’s built-in ``Super Users``, ``Editor``, and ``Registered`` user groups inside the plugin."
+msgstr ""
+
+msgid "**RBAC roles are `administrator` / `operator` / `reader`.**"
+msgstr ""
+
+msgid "**RBAC** via [`meta/rbac.yml`](../contributing/design/iam/rbac.md) + the `rbac_group_path` lookup, so the Keycloak `groups` claim arrives as `/roles/web-app-openbao/<role>` and OpenBao binds those paths to policies."
 msgstr ""
 
 msgid "**RBAC** — only users in the ``web-app-pihole-administrator`` group can access the dashboard"
@@ -5756,6 +5889,9 @@ msgstr ""
 msgid "**Script Cloning:** Retrieves the latest swapfile creation script from a Git repository."
 msgstr ""
 
+msgid "**Seal is `seal \"static\"`** with a 32-byte key generated by the repo credential generator into the ansible-vault-encrypted inventory and injected as `env://OPENBAO_SEAL_KEY`."
+msgstr ""
+
 msgid "**Seamless Collaboration:** Collaborate in real time with team members, ensuring smooth data sharing and project management."
 msgstr ""
 
@@ -5778,6 +5914,9 @@ msgid "**Seamless Integration:** Provides a stable and secure browsing setup as 
 msgstr ""
 
 msgid "**Seamless NGINX Reload:** Reloads the NGINX service automatically after successful renewals."
+msgstr ""
+
+msgid "**Secrets management with OpenBao.** The new *web-app-openbao* role deploys OpenBao at *openbao.<domain>*. It stores application credentials, API keys and machine identities. People sign in through Keycloak, or through LDAP when OpenLDAP is deployed. Their *administrator*, *operator* or *reader* group decides what they can reach, and signing in without one of those groups grants only the default policy. Services and automation use their own AppRole identities, whose credentials change on every deploy, and no root token is kept after the first deploy. A recovery key kept in the token store lets a later deploy get back in if those credentials are lost. A static seal unseals the node on its own after every restart. An internal PKI can be switched on, and Prometheus alerts when the node is sealed or unreachable. The seal key lives only in the encrypted inventory, and a backup of the store cannot be read without it, so back up the inventory together with the volume. See [web-app-openbao](roles/web-app-openbao/README.md)."
 msgstr ""
 
 msgid "**Secrets reuse the credentials mechanism.** MCP tokens, app-passwords, and OAuth client secrets are declared in each role's [`meta/secrets.yml`](../../roles/web-app-baserow/meta/secrets.yml) `credentials:` block and read via `lookup('config', application_id, 'secrets.credentials.<name>')`. No new secret store is introduced."
@@ -6119,6 +6258,9 @@ msgstr ""
 msgid "**Status:** accepted"
 msgstr ""
 
+msgid "**Storage backend is `raft`** (integrated storage), single node, on one persistent volume."
+msgstr ""
+
 msgid "**Stream proxy support**: includes ``stream`` block for TCP/UDP proxies."
 msgstr ""
 
@@ -6191,10 +6333,19 @@ msgstr ""
 msgid "**Swarm default runtime:** `docker stack deploy` drops the per-service `runtime:` key, so a swarm worker carries the sandbox as its daemon-wide `default-runtime` instead. The stack host keeps the shared kernel for the platform's own services."
 msgstr ""
 
+msgid "**Swarm deploys no longer abort on a network that already exists.** Some networks are created before their application's stack, as Prometheus does for every application it scrapes. Those networks now carry the stack label, so the application's own deploy uses the existing network instead of failing with \"network with name <entity> already exists\"."
+msgstr ""
+
 msgid "**Swarm parity via node-default runtime.** `docker stack deploy` ignores the compose `runtime:` key. The isolating runtime is therefore installed and set as the daemon-wide default on placement-labelled agent nodes; the agent services are pinned there via placement constraint, and every other service is kept off those nodes by the inverse constraint, because a node-wide default runtime applies to whatever is scheduled on it. Compose mode uses the compose `runtime:` key directly on the same image. Both modes MUST reach a running isolated agent, and the deploy MUST refuse to label a node whose daemon still defaults to the shared kernel. A dedicated provisioning role (`svc-virt-kata`) installs the runtime, re-renders the daemon configuration, and labels the node."
 msgstr ""
 
 msgid "**Swarm, measured rather than assumed.** The deploy waits for its own update instead of guessing after it, refuses to call a stack converged while it is still updating, survives a task that failed and came back, reports what converged rather than only what did not, and says why the convergence probe refused. Placement is constrained to a role's declared platform arch, redis and memcached sidecars get a deploy block, and a run-once service no longer strands the stack deploy waiting for a replica it never has. The rescue dump captures the contents of the state volumes. In the test lab, workers are labelled kata-capable only when the app is sandboxed, NFS detaches before the node containers die, and the sandbox tier gets a second node."
+msgstr ""
+
+msgid "**Swarm:** single replica, ``placement: manager``, ``nfs: false`` on the raft volume, ``service_update_order = stop-first``. Raft’s BoltDB store is mmap + ``fsync`` based, so it must stay node-local and must never have two tasks writing one directory."
+msgstr ""
+
+msgid "**Swarm:** single replica, `placement: manager`, `nfs: false` on the raft volume, `service_update_order = stop-first`. Raft's BoltDB store is mmap + `fsync` based, so it must stay node-local and must never have two tasks writing one directory."
 msgstr ""
 
 msgid "**Symbolic Link Creation:** Maintains consistent access paths after migration."
@@ -6347,6 +6498,12 @@ msgstr ""
 msgid "**Tenant bootstrap:** calls Fider’s ``POST /_api/tenants`` API to create the initial tenant."
 msgstr ""
 
+msgid "**Test notes.** The RBAC tiers are proven by moving ``biber`` through the groups with LAM’s Multi edit tool and asserting both the grant and the revoke, rather than by dedicated accounts. ``/ui/vault/logout`` does not end a session — the Ember app restores its token from browser storage — so use the UI’s own logout control when the session must actually be gone."
+msgstr ""
+
+msgid "**Test notes.** The RBAC tiers are proven by moving `biber` through the groups with LAM's Multi edit tool and asserting both the grant and the revoke, rather than by dedicated accounts. `/ui/vault/logout` does not end a session — the Ember app restores its token from browser storage — so use the UI's own logout control when the session must actually be gone."
+msgstr ""
+
 msgid "**Testing and documentation tooling.** New *test-e2e-cli* exercises the command-line interface end to end. Lint and test jobs publish per-target and per-test summaries, failed target logs are replayed after the summary, and the complexity matrix shows whether a role already exists on *origin/main*. Generated role READMEs now provide consistent status tables, quick-start instructions and dependency diagrams."
 msgstr ""
 
@@ -6420,10 +6577,25 @@ msgstr ""
 msgid "**The pools are narrowable per run.** The `distros` and `filesystem` inputs default to empty, which means every declared value. Narrowing is for chasing one distribution or one filesystem."
 msgstr ""
 
+msgid "**The raft volume is `nfs: false` and the service carries `placement: manager`.**"
+msgstr ""
+
+msgid "**The recovery key is the way back in.** ``bao operator init`` issues it once and nothing reissues it, which is what makes it useful — it is the only authority here that does not rotate. It is persisted through ``sys-token-store`` (``DIR_SECRETS``, backed up, and it survives both ``MODE_RESET`` and a replaced manager, each of which takes ``.applied.json`` with it). When neither the inventory AppRole nor the recorded one is accepted, ``tasks/utils/recover.yml`` mints a root token from it and re-pins the AppRole. It cannot decrypt the store — only the seal key can — so it is not a substitute for backing up the inventory."
+msgstr ""
+
+msgid "**The recovery key is the way back in.** `bao operator init` issues it once and nothing reissues it, which is what makes it useful — it is the only authority here that does not rotate. It is persisted through `sys-token-store` (`DIR_SECRETS`, backed up, and it survives both `MODE_RESET` and a replaced manager, each of which takes `.applied.json` with it). When neither the inventory AppRole nor the recorded one is accepted, `tasks/utils/recover.yml` mints a root token from it and re-pins the AppRole. It cannot decrypt the store — only the seal key can — so it is not a substitute for backing up the inventory."
+msgstr ""
+
 msgid "**The role tree is the audit.** Every fact about a role's MCP surface lives in its own `meta/services.yml`; no separate artifact duplicates it."
 msgstr ""
 
 msgid "**The runtime identity differs.** act sets `ACT=true`, so `detect_gha_act()` in [runtime.py](../../../../utils/env/runtime.py) resolves `INFINITO_RUNNING_ON_GITHUB=false` where a real runner resolves `true`. Anything keyed off that fact behaves differently, and act cannot prove a fix to it either way."
+msgstr ""
+
+msgid "**The seal key is the whole ballgame.** The ``static`` seal wraps the raft root key with ``secrets.credentials.seal_key``, injected as ``env://OPENBAO_SEAL_KEY``. A backup of the raft volume is **undecryptable without it**, and ``svc-bkp-secrets-2-local`` does not cover it — the encrypted inventory is its only home, so back the inventory up accordingly. It is pinned ``rotatable: false``: the static seal carries one generation of slack, and spending that every deploy makes any skipped generation unrecoverable. Rotate it deliberately by changing the inventory value; ``openbao.hcl.j2`` then emits the ``previous_key``/``previous_key_id`` pair, the node unseals with the old key and rewraps to the new one."
+msgstr ""
+
+msgid "**The seal key is the whole ballgame.** The `static` seal wraps the raft root key with `secrets.credentials.seal_key`, injected as `env://OPENBAO_SEAL_KEY`. A backup of the raft volume is **undecryptable without it**, and `svc-bkp-secrets-2-local` does not cover it — the encrypted inventory is its only home, so back the inventory up accordingly. It is pinned `rotatable: false`: the static seal carries one generation of slack, and spending that every deploy makes any skipped generation unrecoverable. Rotate it deliberately by changing the inventory value; `openbao.hcl.j2` then emits the `previous_key`/`previous_key_id` pair, the node unseals with the old key and rewraps to the new one."
 msgstr ""
 
 msgid "**The version has to fit.** The dump states which server it came out of, in its own header — `-- Dumped from database version 17.11` for postgres, `-- Server version\\t11.8.8-MariaDB` for mariadb. That is compared against the running engine before the pre-clean touches anything. Restoring forward across a major version is the upgrade path and stays allowed; backward is refused, because a newer dump uses syntax an older server rejects and the schema would already be dropped by then. The version is deliberately not kept in `databases.csv`: that file is written at seed time and would state the version deployed back then, not the one the dump came from — and a generation copied to another host carries its header along, a csv row does not."
@@ -6704,6 +6876,9 @@ msgstr ""
 msgid "**Vhost isolation** one virtual host per consumer."
 msgstr ""
 
+msgid "**Video for hand-built Playwright contexts.** A context created with *browser.newContext()* ignored the project's video setting, so its artefact had a trace but no video. Spread *recordVideoOptions(testInfo)* from *personas/utils/env.js* into the context options to record one."
+msgstr ""
+
 msgid "**Visual workflow editor:** Drag-and-drop canvas with 400+ built-in integrations."
 msgstr ""
 
@@ -6974,7 +7149,7 @@ msgstr ""
 msgid "**`no_remote_surface` (24):** `svc-ai-ollama`, `svc-ai-robot`, `web-app-chess`, `web-app-dashboard`, `web-app-docs`, `web-app-fediwall`, `web-app-hugo`, `web-app-littlejs`, `web-app-mig`, `web-app-mini-qr`, `web-app-navigator`, `web-app-roulette-wheel`, `web-opt-rdr-domains`, `web-opt-rdr-www`, `web-svc-asset`, `web-svc-cdn`, `web-svc-coturn`, `web-svc-css`, `web-svc-file`, `web-svc-html`, `web-svc-legal`, `web-svc-logout`, `web-svc-mirror`, `web-svc-simpleicons`. These roles have no independently useful authenticated remote action contract at the pinned implementation. Static published content MAY later be consumed through one owning application's bounded `resource_readonly` adapter, but a new MCP sidecar that merely reimplements a static site's behavior does not count as integration. Model tool calling in Ollama does not by itself make Ollama an MCP client or server."
 msgstr ""
 
-msgid "**`privileged_control_plane` (24):** `svc-bkp-local-2-device`, `svc-bkp-nfs-2-local`, `svc-bkp-remote-2-local`, `svc-bkp-secrets-2-local`, `svc-bkp-volume-2-local`, `svc-dns-unbound`, `svc-net-firewall`, `svc-net-tor`, `svc-net-wireguard-core`, `svc-net-wireguard-firewalled`, `svc-net-wireguard-plain`, `svc-opt-keyboard-color`, `svc-opt-ssd-hdd`, `svc-opt-swapfile`, `svc-prx-openresty`, `svc-registry-cache`, `svc-registry-docker`, `svc-runner`, `svc-storage-nfs-client`, `svc-storage-nfs-server`, `svc-swarm-manager`, `svc-swarm-node`, `svc-virt-kata`, `update`. These roles can recover secrets, alter routing or host state, run code, change deployment state, or reach storage/control-plane sockets; they require a separate audited operations gateway and human approval rather than general-purpose application MCP."
+msgid "**`privileged_control_plane` (25):** `svc-bkp-local-2-device`, `svc-bkp-nfs-2-local`, `svc-bkp-remote-2-local`, `svc-bkp-secrets-2-local`, `svc-bkp-volume-2-local`, `svc-dns-unbound`, `svc-net-firewall`, `svc-net-tor`, `svc-net-wireguard-core`, `svc-net-wireguard-firewalled`, `svc-net-wireguard-plain`, `svc-opt-keyboard-color`, `svc-opt-ssd-hdd`, `svc-opt-swapfile`, `svc-prx-openresty`, `svc-registry-cache`, `svc-registry-docker`, `svc-runner`, `svc-storage-nfs-client`, `svc-storage-nfs-server`, `svc-swarm-manager`, `svc-swarm-node`, `svc-virt-kata`, `update`, `web-app-openbao`. These roles can recover secrets, alter routing or host state, run code, change deployment state, or reach storage/control-plane sockets; they require a separate audited operations gateway and human approval rather than general-purpose application MCP."
 msgstr ""
 
 #, python-brace-format
@@ -6982,6 +7157,9 @@ msgid "**`regex:` (optional)** is a pattern the supplied value MUST match in ful
 msgstr ""
 
 msgid "**`scheduler`** — periodic-job dispatcher (`bench schedule`)"
+msgstr ""
+
+msgid "**`service_update_order = 'stop-first'`** is set in the role's compose template."
 msgstr ""
 
 msgid "**`shared_engine_isolation` (4):** `svc-db-memcached`, `svc-db-openldap`, `svc-db-postgres`, `svc-db-rabbitmq`. A generic endpoint would bypass application and tenant authorization on a shared engine. Any future exception requires a provider-application-specific account, namespace/database/schema/queue restriction, fixed named operations, and no engine administrator credential."
@@ -7390,6 +7568,9 @@ msgid "**description**: Host-level provisioning for exposing the project's pypro
 msgstr ""
 
 msgid "**description**: Host-level role provisioning a root RSA 4096-bit SSH key pair for secure automated administrative access"
+msgstr ""
+
+msgid "**description**: Identity-based secrets, PKI and encryption manager with OIDC login, group-mapped policies and static-seal auto-unseal"
 msgstr ""
 
 msgid "**description**: In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
@@ -8535,6 +8716,9 @@ msgstr ""
 msgid "**galaxy_tags**: ['onlyoffice', 'documentserver', 'docker', 'nginx', 'office', 'wopi', 'nextcloud']"
 msgstr ""
 
+msgid "**galaxy_tags**: ['openbao', 'vault', 'secrets', 'pki', 'oidc', 'sso', 'ldap', 'docker', 'compose']"
+msgstr ""
+
 msgid "**galaxy_tags**: ['opencloud', 'docker', 'oidc', 'ldap', 'cloud', 'files', 'collaboration', 'web']"
 msgstr ""
 
@@ -9152,6 +9336,9 @@ msgstr ""
 msgid "*roles/sys-lint* pins the GitHub-release tools: actionlint v1.7.12, hadolint v2.15.1, shfmt v3.13.1"
 msgstr ""
 
+msgid "*row* with ``services`` narrowed to what its variant deploys."
+msgstr ""
+
 msgid "*ruff* (dev): 0.16.6 to 0.16.7"
 msgstr ""
 
@@ -9469,6 +9656,9 @@ msgid "*web-app-penpot*: 2.16.2 to 2.17.1 (frontend, backend, exporter)"
 msgstr ""
 
 msgid "*web-app-pgadmin*: 9.16 to 9.17"
+msgstr ""
+
+msgid "*web-app-pgadmin*: 9.17 to 9.18"
 msgstr ""
 
 msgid "*web-app-pihole*: 2026.06.0 to 2026.07.2"
@@ -9792,6 +9982,9 @@ msgstr ""
 msgid "032 - Kernel-Isolated AI Agent Employees with Flowise Supervisor"
 msgstr ""
 
+msgid "032 - OpenBao Secrets Manager with Keycloak OIDC, RBAC Policies and Static-Seal Auto-Unseal"
+msgstr ""
+
 msgid "033 - Home Assistant Role with MCP Server Surface"
 msgstr ""
 
@@ -9814,6 +10007,9 @@ msgid "039 - Core i18n Consumers"
 msgstr ""
 
 msgid "1"
+msgstr ""
+
+msgid "1 when the catalog changed on disk, 0 otherwise."
 msgstr ""
 
 msgid "1-indexed line of the pin."
@@ -10483,6 +10679,9 @@ msgstr ""
 msgid "A block device (remote path under ``/dev/``) is recovered on the host over ssh (the host must carry the repo checkout), then the restored backup tree is rsync-pulled. An image file is rsync-pulled and recovered locally. Either way the result is a local backup root the caller then recovers from."
 msgstr ""
 
+msgid "A block naming a key the entity does not carry, or a type the resolver does not know, would otherwise pin nothing and say nothing."
+msgstr ""
+
 msgid "A block that only one side has is usually a feature the other never had. Check whether it was superseded before dropping it — grep for its variables."
 msgstr ""
 
@@ -10562,6 +10761,9 @@ msgid "A confirmed hit is cached on disk. The probe stays on the upstream regist
 msgstr ""
 
 msgid "A constant hides the role id the substring rule looks for, so every SPOT of this kind MUST be listed here or the roles referencing it silently drop their provider from the static closure."
+msgstr ""
+
+msgid "A consumer is a deployed role whose merged config enables a shared database of the provider's engine; a role with a dedicated database brings its own volume and is no consumer of the provider. A provider without a consumer holds only the databases its engine creates for itself, so no databases.csv row names it and baudolo records its volume undumped."
 msgstr ""
 
 msgid "A consumer user named `<entity>` is restricted to keys matching `<entity>:*`."
@@ -10763,9 +10965,6 @@ msgstr ""
 msgid "A local deploy is failing on the host"
 msgstr ""
 
-msgid "A local deploy runs from a working tree that is often uncommitted. The ref `deployed` MUST be the snapshot of that working tree, or the API of a local iteration serves data that is not what was deployed."
-msgstr ""
-
 msgid "A location not starting with ``/`` is a remote ``[user@]host:/path``."
 msgstr ""
 
@@ -10860,6 +11059,9 @@ msgid "A personal digital sovereignty stack for individuals controlling their ow
 msgstr ""
 
 msgid "A pin MUST be a quoted string, never an unquoted number. `\"\"` tracks the app default."
+msgstr ""
+
+msgid "A pin the Docker updater (`image` + `version`) and the repository updater (`repository` + `ref`) do not reach names its upstream next to itself:"
 msgstr ""
 
 msgid "A pinned, isolated upstream sidecar."
@@ -11282,6 +11484,9 @@ msgstr ""
 msgid "A term unknown to the play-local registry (no app in the play declares it) falls back to the role-wide static registry read from roles_dir, the same source the sys-service-loader iterates. Such a key resolves with its provider role and all deployment flags computed against the play (typically all false). Only a term unknown to BOTH registries raises."
 msgstr ""
 
+msgid "A tightened protection rule turns silently corrupted translations - a rewritten path, a dissolved markdown target - into entries this reports, so the next translation run redoes them. The markup comparison catches what masking cannot: a bracket the translator added or dropped next to a protected span leaves every span intact and still breaks the link."
+msgstr ""
+
 msgid "A tiny boolean filter language over :class:`ComplexityRow` fields."
 msgstr ""
 
@@ -11468,6 +11673,9 @@ msgid "Accepts a `false` under `ports.onion`. The marker MUST carry a reason nam
 msgstr ""
 
 msgid "Accepts a display name with or without its variant suffix, and a raw role id unchanged -- job names from runs that predate the display names still parse."
+msgstr ""
+
+msgid "Accepts a semver pin that no updater bumps. The marker MUST carry a reason naming why the version stays where it is."
 msgstr ""
 
 msgid "Accepts any safe-dumpable Python structure (dict, list of dicts, scalar). The next `load_yaml*` call for `path` will parse the just-written file and refill the cache, which is what callers expect when a CLI tool or test fixture edits a file mid-run."
@@ -13186,6 +13394,9 @@ msgstr ""
 msgid "AppArmor Administration 🛡️"
 msgstr ""
 
+msgid "AppRole custom ids"
+msgstr ""
+
 msgid "Append a list entry for the new variant. For every dynamic service-key variant 0 enables, the new entry MUST either keep it on (re-pin `enabled: true, shared: true`) or explicitly disable it (`enabled: false, shared: false`). Add the variant-specific overrides that justify the new entry."
 msgstr ""
 
@@ -13450,9 +13661,6 @@ msgstr ""
 msgid "As a contributor, I want a requirements template so that new requirements are consistent and machine-readable."
 msgstr ""
 
-msgid "As a developer of an app that builds on Infinito.Nexus (infinito-nexus-gui, meta-infinite-graph), I want one public REST API that serves the role data, the repository history and the translations of core for every ref of core and its forks, so that my app reads core only over HTTP instead of mounting, cloning or parsing the repository itself."
-msgstr ""
-
 msgid "As a developer, I want to run the Infinito.Nexus CI on a dedicated server so that the deploy + test cycle is no longer bound by local hardware restrictions."
 msgstr ""
 
@@ -13505,6 +13713,9 @@ msgid "As a server, each managed MCP Server Trigger workflow MUST:"
 msgstr ""
 
 msgid "As a visitor of an Infinito.Nexus deployment, I want the documentation, the universal logout panel and the dashboard to speak my language from the core gettext catalogs, and I want browser apps such as MIG to be allowed to read the API, so that every surface core renders follows the same translations."
+msgstr ""
+
+msgid "As an Infinito.Nexus administrator, I want [OpenBao](https://github.com/openbao/openbao) deployed as a `web-app-openbao` role with Keycloak OIDC login, group-mapped policies, persistent storage, automatic unsealing, backup and monitoring, so that infrastructure secrets, application credentials, certificates and tokens can be stored and retrieved centrally without distributing static secrets across systems."
 msgstr ""
 
 msgid "As an operator of a self-hosted deployment, I want every role whose application ships a native AI feature to reach the platform's own LiteLLM gateway instead of a third-party provider, so that prompts, documents and telemetry never leave the deployment and one credential rotation covers every application."
@@ -13681,6 +13892,9 @@ msgstr ""
 msgid "Auto-provisioning: enabled via `PROXY_AUTOPROVISION_ACCOUNTS=true`"
 msgstr ""
 
+msgid "Auto-seal semantics"
+msgstr ""
+
 msgid "Automate Keycloak OIDC setup"
 msgstr ""
 
@@ -13855,6 +14069,9 @@ msgstr ""
 msgid "Backup"
 msgstr ""
 
+msgid "Backup & restore"
+msgstr ""
+
 msgid "Backup & restore (operator command, v1)"
 msgstr ""
 
@@ -13879,10 +14096,19 @@ msgstr ""
 msgid "Backup and Recover Schema (svc-bkp-* role family)"
 msgstr ""
 
+msgid "Backup and restore"
+msgstr ""
+
 msgid "Backup hook in v1: **documented as an operator command in the role README**. `bench --site {{ canonical_domain }} backup --with-files` is the documented manual command; the central MariaDB volume is already covered by the standard `svc-bkp-` driver and Frappe site-files are persisted on a named volume that the existing backup driver also covers. Adding a `pre_backup_hook` schema to `svc-bkp-` for in-flight `bench backup` is deferred to a follow-up requirement."
 msgstr ""
 
 msgid "Backup to External Device"
+msgstr ""
+
+msgid "Backups run through ``svc-bkp-volume-2-local`` with ``backup.no_stop_required: false``, so the container is quiesced for a consistent copy of the raft volume. To restore:"
+msgstr ""
+
+msgid "Backups run through `svc-bkp-volume-2-local` with `backup.no_stop_required: false`, so the container is quiesced for a consistent copy of the raft volume. To restore:"
 msgstr ""
 
 msgid "Backwards-compat shim: defer to :func:`print_dir_overview`. Returns True when the directory exists, False otherwise."
@@ -14035,6 +14261,9 @@ msgid "Before every redeploy you MUST fully resolve the failure in swarm and rea
 msgstr ""
 
 msgid "Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), the target role's `AGENTS.md` when present, [CONTRIBUTING.md](../../CONTRIBUTING.md), and the repository's agent and contributor guidance. Any upstream capability MUST be verified against the exact image tag, source tag, or commit selected by the implementation; current documentation or a newer upstream release is not evidence for the deployed pin."
+msgstr ""
+
+msgid "Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Compose Loop](../agents/action/iteration/compose.md), [Swarm Loop](../agents/action/iteration/swarm.md), [deployment-modes.md](../contributing/design/deployment-modes.md), the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md), and the IAM pages [common.md](../contributing/design/iam/common.md), [oidc.md](../contributing/design/iam/oidc.md) and [rbac.md](../contributing/design/iam/rbac.md)."
 msgstr ""
 
 msgid "Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Role Loop](../agents/action/iteration/compose.md) and the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md)."
@@ -14651,6 +14880,9 @@ msgstr ""
 msgid "Build hosts"
 msgstr ""
 
+msgid "Build in this order, verifying each stage against the running container before moving on: storage and static seal first (nothing else is testable until the instance auto-unseals), then init plus the AppRole bootstrap and root-token revocation, then policies, then OIDC, then LDAP, then metrics, then PKI behind its flag, then the Playwright specs."
+msgstr ""
+
 msgid "Build mapping: SAN -> list of entries entry = {"
 msgstr ""
 
@@ -15053,6 +15285,9 @@ msgstr ""
 msgid "CLI entry point package for Docker image version updates."
 msgstr ""
 
+msgid "CLI entry point package for declared version-source updates."
+msgstr ""
+
 msgid "CLI entry point package for git repository ref updates."
 msgstr ""
 
@@ -15311,6 +15546,9 @@ msgid "Case"
 msgstr ""
 
 msgid "Catalog discovery MUST be bounded by explicit adapters and curated relevance rules. The test MUST NOT warn for every package in broad public marketplaces such as the full WordPress plugin directory."
+msgstr ""
+
+msgid "Catalog extraction and machine translation for the per-language runners of `🌐 Translate catalogs`."
 msgstr ""
 
 msgid "Catalog 📚"
@@ -16201,6 +16439,9 @@ msgstr ""
 msgid "Clone, set up the workstation, and deploy Open WebUI onto the local stack:"
 msgstr ""
 
+msgid "Clone, set up the workstation, and deploy OpenBao onto the local stack:"
+msgstr ""
+
 msgid "Clone, set up the workstation, and deploy OpenClaw onto the local stack:"
 msgstr ""
 
@@ -16403,6 +16644,9 @@ msgid "Closest in-repo analogue for layout: [`roles/web-app-odoo/`](../../roles/
 msgstr ""
 
 msgid "Closest in-repo analogue: [`roles/web-app-openproject/`](../../roles/web-app-openproject/) (oauth2 + header SSO + LDAP)"
+msgstr ""
+
+msgid "Closest in-repo analogue: [`roles/web-app-semaphore/`](../../roles/web-app-semaphore/) (native OIDC + LDAP, no oauth2 gate)"
 msgstr ""
 
 msgid "Closest in-repo layout analogue: [`roles/web-app-openproject/`](../../roles/web-app-openproject/)"
@@ -16861,6 +17105,9 @@ msgstr ""
 msgid "Conferencing"
 msgstr ""
 
+msgid "Confidential client; three redirect URIs: `/v1/auth/oidc/callback` (API), `/ui/vault/auth/oidc/oidc/callback` (UI), `http://localhost:8250/oidc/callback` (CLI). Configured through `auth/oidc/config` + `auth/oidc/role/<name>`."
+msgstr ""
+
 msgid "Config"
 msgstr ""
 
@@ -16952,6 +17199,12 @@ msgid "Configures the Playwright test environment. See [Contributing `playwright
 msgstr ""
 
 msgid "Configures the logout domains dynamically based on application inventory and features using custom Ansible filters."
+msgstr ""
+
+msgid "Confirm the inventory still holds the original ``seal_key`` — a different key makes the restored store unreadable."
+msgstr ""
+
+msgid "Confirm the inventory still holds the original `seal_key` — a different key makes the restored store unreadable."
 msgstr ""
 
 msgid "Confirm the repository is public (private repositories require additional package visibility configuration)."
@@ -17373,9 +17626,6 @@ msgstr ""
 msgid "Core Principles"
 msgstr ""
 
-msgid "Core currently has 9 public forks. Discovery needs no token at one call per fetch interval."
-msgstr ""
-
 msgid "Core developer workflow (`make install`, `make setup`)"
 msgstr ""
 
@@ -17664,6 +17914,9 @@ msgid "Cross-link the variable from the relevant workflow page when it exists on
 msgstr ""
 
 msgid "Cross-linking"
+msgstr ""
+
+msgid "Cross-mode parity is the gate for Decision #11: run the compose loop first, then the swarm loop, then the round-trip sweep per [roundtrip.md](../agents/action/iteration/roundtrip.md). The role is not done until it is green in both."
 msgstr ""
 
 msgid "Cross-reference every collected entry against ``git ls-remote --tags`` and return the entries whose ref is older than the latest semver tag with the same depth and flavor."
@@ -18047,6 +18300,9 @@ msgstr ""
 
 #, python-brace-format
 msgid "Declare the image at the file root of `meta/services.yml` → `<service>.{image,version}`:"
+msgstr ""
+
+msgid "Declared version sources"
 msgstr ""
 
 msgid "Declares Ansible Galaxy info and `dependencies:`. No project-internal `run_after:` / `lifecycle:` (those live on the primary entity in `meta/services.yml`)."
@@ -18450,6 +18706,9 @@ msgid "Deployment Modes 🚢"
 msgstr ""
 
 msgid "Deployment check  : app ID must appear in group_names. Channel check     : app must declare services.prometheus.communication.channel: true"
+msgstr ""
+
+msgid "Deployment modes (Decisions #11, #12, #13)"
 msgstr ""
 
 msgid "Deployment roles and programs MUST work on all five distributions listed above."
@@ -19244,6 +19503,9 @@ msgstr ""
 msgid "Docker Hub access token"
 msgstr ""
 
+msgid "Docker Hub reference."
+msgstr ""
+
 msgid "Docker Hub username"
 msgstr ""
 
@@ -19287,6 +19549,9 @@ msgid "Docker compose stores that key in the ``com.docker.compose.network`` labe
 msgstr ""
 
 msgid "Docker defaults to MTU 1500. If the host outbound interface uses a smaller MTU (e.g. due to VPN, tunnels, or jumbo-frame negotiation failure), packets MAY be dropped or fragmented and TLS handshakes time out mid-flight (see the diagnose tool's classic-failure shape above)."
+msgstr ""
+
+msgid "Docker defaults to stop-first, but a rolling update that ever started a second task against the same raft directory would corrupt the store, so the role states it explicitly rather than inheriting it. Precedent: [`svc-prx-openresty`](../../roles/svc-prx-openresty/templates/compose.yml.j2)."
 msgstr ""
 
 msgid "Docker docs: <https://docs.checkmk.com/latest/en/introduction_docker.html>"
@@ -19460,6 +19725,9 @@ msgid "Draw only what the role metadata declares; do not invent services. Mermai
 msgstr ""
 
 msgid "Draw the axes at random per row"
+msgstr ""
+
+msgid "Drive that whole sequence on compose, then re-run it on swarm before claiming any criterion done. Use `lookup('container_address', ...)` from the first init task rather than retro-fitting it — a compose-only `container exec <name>` works locally and then fails on every swarm task, which is the expensive way to discover Decision #11."
 msgstr ""
 
 msgid "Drives `baudolo-snapshot`, the launcher that decides per run whether baudolo may capture the volumes from a filesystem snapshot instead of copying the live tree. That decision reads mountinfo, inode numbers and `btrfs subvolume list`, so it cannot be answered by a unit test — it needs a filesystem that really exists."
@@ -19949,6 +20217,9 @@ msgid "Empty string (`''`)"
 msgstr ""
 
 msgid "Empty string (``''``)"
+msgstr ""
+
+msgid "Empty the translation of every entry, so it becomes pending again."
 msgstr ""
 
 msgid "Empty tokens are rejected"
@@ -20482,9 +20753,6 @@ msgstr ""
 msgid "Every consumer speaks only the gateway `/v1`; the gateway is the single place backends are wired."
 msgstr ""
 
-msgid "Every data endpoint takes a required `ref`: `deployed`, a commit SHA, a branch or tag of core, or `<owner>:<branch or tag>` of a fork."
-msgstr ""
-
 msgid "Every declared backend has a `model_list` branch"
 msgstr ""
 
@@ -20669,6 +20937,9 @@ msgstr ""
 msgid "Every stack has its own domain below it (`INFINITO_DOMAIN`): the primary checkout is `main.infinito.test`, a worktree from `make worktree-up` is its branch lowercased with every character outside `a-z0-9_-` replaced by `-` (`feature/store-i18n` → `feature-store-i18n.infinito.test`). `linux.sh` routes each stack's domain to that checkout's `INFINITO_BIND_IP`, read from the `.env` of every `git worktree list` entry. Re-run `make network-dns-setup` after creating or removing a worktree."
 msgstr ""
 
+msgid "Every stateful role in the repo keeps both modes on; only host-level and infrastructure roles disable swarm. See [deployment-modes.md](../contributing/design/deployment-modes.md)."
+msgstr ""
+
 msgid "Every sweep exercises both architectures across the catalogue instead of proving amd64 and claiming nothing, at no extra job count."
 msgstr ""
 
@@ -20847,6 +21118,9 @@ msgid "Execute autonomously after the Open Questions are resolved. Verify the pl
 msgstr ""
 
 msgid "Execute autonomously; open a clarification only when a decision is genuinely ambiguous and blocking."
+msgstr ""
+
+msgid "Execute autonomously; the Confirmed Decisions are settled. Scaffold from [`roles/web-app-semaphore/`](../../roles/web-app-semaphore/) for the native-OIDC + LDAP + Prometheus shape, and from [`roles/svc-db-elasticsearch/tasks/01_init.yml`](../../roles/svc-db-elasticsearch/tasks/01_init.yml) for the in-container configuration pattern that keeps credentials out of process arguments."
 msgstr ""
 
 msgid "Execute inside the infinito container."
@@ -21505,6 +21779,9 @@ msgid "Filter `swarm_restart_condition`: map a compose-style ``docker_restart_po
 msgstr ""
 
 msgid "Filter and order the collected service rows by their numeric/scalar fields (bond, depth, the resource columns) and by service/role."
+msgstr ""
+
+msgid "Filtering on activation here rather than inside each fragment is what keeps the fragments free of boilerplate. A rule that fires on a series nothing scrapes is worse than no rule: it alerts on ``absent()`` forever."
 msgstr ""
 
 msgid "Filters by prefix."
@@ -22925,6 +23202,9 @@ msgstr ""
 msgid "GitHub governance guides 🛡️"
 msgstr ""
 
+msgid "GitHub i18n Helpers 🌐"
+msgstr ""
+
 msgid "GitHub user or org the runners register with."
 msgstr ""
 
@@ -23097,6 +23377,9 @@ msgstr ""
 msgid "Group filter: `(objectclass=groupOfNames)`"
 msgstr ""
 
+msgid "Group mapping"
+msgstr ""
+
 msgid "Group name must match the role directory name exactly."
 msgstr ""
 
@@ -23234,6 +23517,9 @@ msgid "Hardened Docker and systemd restarts with non-blocking logic, timeouts, a
 msgstr ""
 
 msgid "Hardware blockers"
+msgstr ""
+
+msgid "Hash the build sections of a rendered compose file."
 msgstr ""
 
 msgid "Haskell toolchain is never needed; safe to remove"
@@ -23412,6 +23698,9 @@ msgid "Home path and ownership are based on `user_username`"
 msgstr ""
 
 msgid "Homepage domain is resolved automatically (Dashboard domain is preferred if present)"
+msgstr ""
+
+msgid "Honest for a brand-new role using a non-default seal. The role does wire OIDC and LDAP by default, so promotion to `beta` is a follow-up decision, not a rewrite."
 msgstr ""
 
 msgid "Honours ``INFINITO_ENV_LOADED=1`` and returns immediately when set."
@@ -23844,6 +24133,9 @@ msgid "Identity providers: separate scope"
 msgstr ""
 
 msgid "Identity, Authorization, and Credential Requirements"
+msgstr ""
+
+msgid "Identity-based secrets, PKI and encryption manager with OIDC login, group-mapped policies and static-seal auto-unseal"
 msgstr ""
 
 msgid "If CI fails, follow a clean debugging workflow:"
@@ -24291,6 +24583,9 @@ msgid "Image and dependency version jumps (net since 13.0.0):"
 msgstr ""
 
 msgid "Image and dependency version jumps (net since 14.0.0):"
+msgstr ""
+
+msgid "Image and dependency version jumps (net since 14.1.0):"
 msgstr ""
 
 msgid "Image artefact guidance 🖼️"
@@ -25487,6 +25782,9 @@ msgstr ""
 msgid "Installs the module where it is packaged separately (Debian family) and no-ops where it ships inside systemd (Arch, RedHat)"
 msgstr ""
 
+msgid "Installs the package with the `dev` extra, which carries Sphinx for the `docs` extraction."
+msgstr ""
+
 msgid "Installs the python-pip package using [pacman](https://wiki.archlinux.org/title/Pacman)."
 msgstr ""
 
@@ -26131,6 +26429,9 @@ msgstr ""
 msgid "JWKS endpoint, equal to discovery `jwks_uri`"
 msgstr ""
 
+msgid "JWT/OIDC auth: <https://openbao.org/docs/auth/jwt/>"
+msgstr ""
+
 msgid "Java"
 msgstr ""
 
@@ -26389,6 +26690,9 @@ msgstr ""
 msgid "Keeps Semaphore's API/runner token flow and its native auth UX, and lets LDAP coexist."
 msgstr ""
 
+msgid "Keeps alert rules at the role that owns the metric instead of collecting them in web-app-prometheus: a role declares what \"unhealthy\" means for itself, and the Prometheus role only concatenates what the play enabled."
+msgstr ""
+
 msgid "Keeps the upstream playbook auditable (every consumer sees the exact SHA); avoids carrying the ~10MB upstream tree in this repo."
 msgstr ""
 
@@ -26500,6 +26804,9 @@ msgstr ""
 msgid "Keycloak group → ERPNext role mapping target tiers: `roles/web-app-erpnext/administrator` → Frappe `System Manager`, `roles/web-app-erpnext/manager` → Frappe `Sales User` + `Purchase User` + `Stock User` + `Accounts User`, default → Frappe `Customer`. **v1 scope split:** the path-to-roles map is persisted at deploy time by `apply/oidc_settings.py` (writes JSON to `frappe.db.set_default(\"erpnext_oidc_group_role_map\", …)`). Per-login reconciliation into Frappe role records still requires a custom Frappe app shipping a `hooks.py` `on_session_creation` callback — that piece is **deferred to a follow-up requirement**."
 msgstr ""
 
+msgid "Keycloak provider guide: <https://openbao.org/docs/auth/jwt/oidc-providers/keycloak/>"
+msgstr ""
+
 msgid "Keycloak realm issuer URL."
 msgstr ""
 
@@ -26551,6 +26858,9 @@ msgid "LDAP & SSO Notes"
 msgstr ""
 
 msgid "LDAP (Decision #3)"
+msgstr ""
+
+msgid "LDAP (Decision #5)"
 msgstr ""
 
 msgid "LDAP (V3 + V1 dual)"
@@ -27211,6 +27521,9 @@ msgid "Log in to the Keycloak admin console as the platform super administrator.
 msgstr ""
 
 msgid "Log into your [Cloudflare dashboard](https://dash.cloudflare.com)."
+msgstr ""
+
+msgid "Logging"
 msgstr ""
 
 msgid "Logging, sudo wrapping, PATH mutation, and stdlib-based URL download."
@@ -27938,6 +28251,9 @@ msgstr ""
 msgid "Matches the `atmo.rsvp` brand and avoids colliding with Mobilizon's `event.{{ DOMAIN_PRIMARY }}`. Both can coexist as distinct event surfaces."
 msgstr ""
 
+msgid "Matches the beta-lifecycle IAM rule and leaves a login path when Keycloak is unavailable — which matters more for a secrets store than for a normal app."
+msgstr ""
+
 msgid "Matches the convention used by web-app-erpnext / web-app-zammad / web-app-odoo."
 msgstr ""
 
@@ -28123,6 +28439,9 @@ msgstr ""
 msgid "Merge commits ARE allowed"
 msgstr ""
 
+msgid "Merge the adopted template into one language catalog."
+msgstr ""
+
 msgid "Merge two lists of dicts on a given key. - list1, list2: each must be a List[Dict] - key_name: the field to match on If both lists contain an item with the same key_name value, their dictionaries are merged (fields from list2 overwrite or add to list1)."
 msgstr ""
 
@@ -28139,6 +28458,12 @@ msgid "Merged entry, or `default_value` when the entry is missing."
 msgstr ""
 
 msgid "Merges a pull request via API, bypassing the `gh pr merge` confirmation flow. Merges are destructive to branch state and trigger downstream CI/deploys."
+msgstr ""
+
+msgid "Merges the source strings of both domains into every catalog under `locale/`."
+msgstr ""
+
+msgid "Merges the source strings of the `core` and `docs` domains into `locale/`, then machine-translates what a pull request leaves empty or fuzzy, one runner per language LibreTranslate supports. Each runner opens its own PR against the head branch of the triggering PR. Gated behind the `CI_ENABLE_AUTO_TRANSLATIONS` repository variable, see [configuration.md](configuration.md); pull requests from a fork are skipped. Requires the `BOT_APP_CLIENT_ID` and `BOT_APP_PRIVATE_KEY` repository secrets, see [secrets.md](secrets.md)."
 msgstr ""
 
 msgid "Merges, in order:"
@@ -28163,6 +28488,9 @@ msgid "Metadata required by the Infinito Deployer (title, description, logo, etc
 msgstr ""
 
 msgid "Method"
+msgstr ""
+
+msgid "Metrics"
 msgstr ""
 
 msgid "Migrate `web-app-friendica` as the first end-to-end slice (addon list + bridge resolution + task rewire) and prove deploy parity."
@@ -28426,6 +28754,9 @@ msgid "Modules 🧭"
 msgstr ""
 
 msgid "Monitor link performance and track click data to gain valuable insights into user engagement."
+msgstr ""
+
+msgid "Monitoring (Decision #8)"
 msgstr ""
 
 msgid "Monitoring nodes,"
@@ -28711,6 +29042,9 @@ msgid "Name of the application/role to check."
 msgstr ""
 
 msgid "Name of the package to install/update"
+msgstr ""
+
+msgid "Name the data volume of every database provider on this host nobody consumes."
 msgstr ""
 
 msgid "Name the databases a cluster dump recreates."
@@ -29347,6 +29681,9 @@ msgstr ""
 msgid "OIDC -> RBAC mapping (infinito-oidc-rbac-mapper.php) 🎫"
 msgstr ""
 
+msgid "OIDC / Keycloak"
+msgstr ""
+
 msgid "OIDC / Keycloak: <https://docs.semaphoreui.com/administration-guide/openid/keycloak/>"
 msgstr ""
 
@@ -29777,7 +30114,7 @@ msgstr ""
 msgid "One table per role is what makes the rules composable. A fragment replaces its own table and touches no other, so two roles on one host neither overwrite nor merge into each other, and a broken fragment fails alone instead of freezing everyone’s rules."
 msgstr ""
 
-msgid "One translation per source; ``None`` where the request failed or the translation damaged a protected span."
+msgid "One translation per source; ``None`` where the server rejected the request or the translation damaged a protected span."
 msgstr ""
 
 msgid "One-level-deep entry under a cli/ directory."
@@ -29998,6 +30335,12 @@ msgid "Open-source, self-hosted team messaging platform for real-time collaborat
 msgstr ""
 
 msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
+msgstr ""
+
+msgid "OpenBao"
+msgstr ""
+
+msgid "OpenBao auto-unseals on every restart, so deploy and redeploy stay idempotent and no OpenBao-generated key material has to be written back into the inventory. The inventory is the \"existing source of trust\" upstream's caveat asks for."
 msgstr ""
 
 msgid "OpenClaw"
@@ -30663,6 +31006,9 @@ msgid "PHP toolchain provisioning for the PHP unit suite."
 msgstr ""
 
 msgid "PKGMGR will now be pulled again"
+msgstr ""
+
+msgid "PKI (Decision #4)"
 msgstr ""
 
 msgid "POST"
@@ -32016,6 +32362,9 @@ msgstr ""
 msgid "Proves only that the port accepts a TCP connection."
 msgstr ""
 
+msgid "Proves the architecture supports the PKI story without mounting an unused CA that would still need backup, rotation and monitoring from day one."
+msgstr ""
+
 msgid "Provide **one-stop, idempotent domain provisioning** for NGINX-based homelabs or small production environments."
 msgstr ""
 
@@ -32181,7 +32530,7 @@ msgstr ""
 msgid "Public Channels 🌐"
 msgstr ""
 
-msgid "Public REST API serving the role data, repository history and translations of Infinito.Nexus for every ref of core and its forks"
+msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
 msgstr ""
 
 msgid "Public access or restricted user token; no shelf, review, follow, or federation mutation"
@@ -32200,6 +32549,9 @@ msgid "Public domain"
 msgstr ""
 
 msgid "Public exposure"
+msgstr ""
+
+msgid "Public exposure stays TLS-only as the story requires, nothing is skip-verified, and the plaintext hop never leaves the per-role docker network. Consistent with every other `web-app-*` role."
 msgstr ""
 
 msgid "Public functions SHOULD use concise names (e.g. `get`) and rely on module-qualified access at call sites (`config.get(...)`) for clarity."
@@ -32266,6 +32618,9 @@ msgid "Pull Request 🔀"
 msgstr ""
 
 msgid "Pull Requests"
+msgstr ""
+
+msgid "Pull requests against `main` open no translation PRs"
 msgstr ""
 
 msgid "Pulling a sibling feature branch and merging it into the current one"
@@ -32376,6 +32731,9 @@ msgstr ""
 msgid "Put a file in this directory only when the behavior it implements is part of the security or integration contract of this role and MUST remain in effect for every request. Everyday feature plugins SHOULD stay in normal `wp-content/plugins/` and be managed through [05_enable_plugin.yml](../../tasks/05_enable_plugin.yml) so operators can disable them per site if needed."
 msgstr ""
 
+msgid "Put back the sentence boundary a translator dropped behind a protected span."
+msgstr ""
+
 msgid "Put shared fixed values in one canonical source and reference them everywhere else."
 msgstr ""
 
@@ -32433,6 +32791,9 @@ msgstr ""
 msgid "Quality"
 msgstr ""
 
+msgid "Quality & documentation"
+msgstr ""
+
 msgid "Quality debt compounds if ignored."
 msgstr ""
 
@@ -32464,6 +32825,9 @@ msgid "RAM"
 msgstr ""
 
 msgid "RBAC"
+msgstr ""
+
+msgid "RBAC / policies (Decision #6)"
 msgstr ""
 
 msgid "RBAC Group-Path Tests 🛡️"
@@ -32530,6 +32894,9 @@ msgid "RUNTIME (explicit override)"
 msgstr ""
 
 msgid "RabbitMQ"
+msgstr ""
+
+msgid "Raft's BoltDB store is mmap + `fsync` based, so it hits exactly the locking and `fsync` semantics that keep the database engines off NFS. The deployment-modes volume model requires a placement constraint for any non-NFS volume under swarm, so the data cannot be lost on a reschedule. Same shape as [`svc-db-postgres`](../../roles/svc-db-postgres/) and the other engines."
 msgstr ""
 
 msgid "Raft-quorum HA (3+)"
@@ -32779,6 +33146,9 @@ msgstr ""
 msgid "Read the superuser of every instance that is dumped as a whole."
 msgstr ""
 
+msgid "Read the template once per worker process instead of once per language."
+msgstr ""
+
 msgid "Read 📖"
 msgstr ""
 
@@ -32818,6 +33188,9 @@ msgstr ""
 msgid "Reading a failure 🔍"
 msgstr ""
 
+msgid "Reading it at call time keeps the module importable without the environment, which autodoc needs to reach the docstrings below."
+msgstr ""
+
 msgid "Reading or mutating Actions environments."
 msgstr ""
 
@@ -32840,6 +33213,9 @@ msgid "Reading the result"
 msgstr ""
 
 msgid "Reading, merging and writing the gettext catalogs under ``locale/``."
+msgstr ""
+
+msgid "Reads"
 msgstr ""
 
 msgid "Reads 'applications' and 'group_names' from Ansible variables and discovers service providers from the role-local services metadata."
@@ -33025,6 +33401,12 @@ msgid "Recursively yield all existing files (of any kind, including directories)
 msgstr ""
 
 msgid "Red Hat"
+msgstr ""
+
+msgid "Redeploy the role. The static seal unseals the restored store automatically; verify with `/v1/sys/seal-status` (`sealed: false`) and read back a known secret."
+msgstr ""
+
+msgid "Redeploy the role. The static seal unseals the restored store automatically; verify with ``/v1/sys/seal-status`` (``sealed: false``) and read back a known secret."
 msgstr ""
 
 msgid "Redeploy the selected applications against the already-initialized local inventory. The flow does not bring the development stack down or up and does not purge entities, so it MUST be preceded by a successful run from [initialize/](../initialize/README.md) or [reinstall/](../reinstall/README.md)."
@@ -34140,6 +34522,9 @@ msgstr ""
 msgid "Resolve transitive prerequisites for an application: walk `run_after`, `dependencies`, and the combined closure used by the deploy planner, and report which roles are affected by a change."
 msgstr ""
 
+msgid "Resolve version pins that declare their own upstream source."
+msgstr ""
+
 msgid "Resolved CI instability caused by incomplete Docker cleanup between distro runs"
 msgstr ""
 
@@ -34206,9 +34591,6 @@ msgstr ""
 msgid "Respawn only on non-zero exit. Swarm has no separate max-restarts knob on the condition itself; the ``:N`` suffix is dropped because swarm carries the same idea via ``restart_policy.max_attempts``."
 msgstr ""
 
-msgid "Responses for a commit SHA are immutable and cached by SHA."
-msgstr ""
-
 msgid "Responsibilities"
 msgstr ""
 
@@ -34240,6 +34622,12 @@ msgid "Restore procedure for an NFS-backed volume: either restore the export sub
 msgstr ""
 
 msgid "Restore procedure for an NFS-backed volume: either restore the export subdirectory via `svc-bkp-nfs-2-local`'s `recover.py`, or run this role's `recover.py volume` while something holds the volume mounted - it refuses an unmounted backing store, because the rsync would land on the node disk under the bare mountpoint and be shadowed by the real export on the next mount. The DR drill proves the mounted path once per swarm run: it mounts the export at the volume's mountpoint with the volume's own driver options, restores through it, and asserts the marker on the server's disk."
+msgstr ""
+
+msgid "Restore the ``openbao_data`` volume from the backup generation."
+msgstr ""
+
+msgid "Restore the `openbao_data` volume from the backup generation."
 msgstr ""
 
 msgid "Restore the databases with the `--databases` mode above **while the project is still down**, then start it again; on swarm, NFS-backed volumes are restored via `svc-bkp-nfs-2-local`'s `recover.py` instead (see below)."
@@ -34445,6 +34833,9 @@ msgstr ""
 msgid "Return ``plain`` as a parsed ``!vault`` node ready to assign."
 msgstr ""
 
+msgid "Return ``restored`` with the whitespace a translator set inside emphasis removed."
+msgstr ""
+
 msgid "Return ``round(base * factor)`` as an int."
 msgstr ""
 
@@ -34540,6 +34931,9 @@ msgstr ""
 msgid "Return a sorted list of deployed application IDs that satisfy all of:"
 msgstr ""
 
+msgid "Return a sorted list of role IDs whose Prometheus alert rules belong in this deploy: every role that ships a template at ``roles/<role_id>/templates/prometheus/alert_rules.yml.j2`` and is actually scraped, i.e. appears in ``native_metrics_apps``."
+msgstr ""
+
 msgid "Return a template catalog holding ``messages``."
 msgstr ""
 
@@ -34576,10 +34970,19 @@ msgstr ""
 msgid "Return every archive file under *archive_dir* sorted descending by filename. Returns ``[]`` when the directory does not exist."
 msgstr ""
 
+msgid "Return every capture of *pattern* in the body of *url*."
+msgstr ""
+
 msgid "Return every declared addon across all roles' ``meta/addons/*.yml``."
 msgstr ""
 
+msgid "Return every declared source that moved ahead of its pin."
+msgstr ""
+
 msgid "Return every declared username with the password policy it asks for."
+msgstr ""
+
+msgid "Return every declared version source that is not suppressed."
 msgstr ""
 
 msgid "Return every dotted key path reachable from a nested mapping."
@@ -34597,6 +35000,9 @@ msgstr ""
 msgid "Return every message of the ``core`` domain."
 msgstr ""
 
+msgid "Return every published version of an npm *package*."
+msgstr ""
+
 msgid "Return every released version of ``package``, empty when PyPI is unreachable."
 msgstr ""
 
@@ -34609,6 +35015,9 @@ msgstr ""
 msgid "Return every semver-checkable ``(repository, ref)`` declaration under ``roles/*/meta/services.yml`` and ``roles/*/meta/addons/*.yml`` whose ref is not suppressed."
 msgstr ""
 
+msgid "Return every upstream version the entry's declared source offers."
+msgstr ""
+
 msgid "Return every usable translation of ``catalog``."
 msgstr ""
 
@@ -34619,6 +35028,12 @@ msgid "Return human-readable conflicts when `disable` disagrees with the existin
 msgstr ""
 
 msgid "Return mapping of service_name -> application_id for the provider role of each requested service. Resolution goes through the canonical service registry, so ``provides:`` aliases (e.g. ``mailu.provides: email``) and shared entity-name services are both recognized."
+msgstr ""
+
+msgid "Return one message per ``update:`` block that cannot be resolved."
+msgstr ""
+
+msgid "Return one update per entry whose source offers a newer version."
 msgstr ""
 
 msgid "Return one update per pin that PyPI has moved past."
@@ -34656,6 +35071,9 @@ msgid "Return the CPU architectures the role can be deployed on, or ``[]`` when 
 msgstr ""
 
 msgid "Return the DNS label of the stack that runs from ``repo_root``."
+msgstr ""
+
+msgid "Return the Docker Hub tags of *image* whose name contains *match*."
 msgstr ""
 
 msgid "Return the H1 heading text of ``<folder>/README.md`` with any trailing emoji preserved. Returns ``None`` when the file is missing or its first non-blank line is not an H1 heading."
@@ -34733,6 +35151,9 @@ msgstr ""
 msgid "Return the client application ids a provider admits, sorted."
 msgstr ""
 
+msgid "Return the codes of ``domain`` LibreTranslate can machine-translate."
+msgstr ""
+
 msgid "Return the codes that carry a catalog of ``domain``."
 msgstr ""
 
@@ -34773,6 +35194,9 @@ msgid "Return the engine-wide key a data-owning qdrant consumer presents."
 msgstr ""
 
 msgid "Return the entries of ``catalog`` that still need a translation."
+msgstr ""
+
+msgid "Return the entries whose translation altered a protected span or the markup around it."
 msgstr ""
 
 msgid "Return the extensions the php CLI currently loads, lower-cased."
@@ -34817,6 +35241,9 @@ msgstr ""
 msgid "Return the longest dot-delimited DNS suffix shared by every domain. A single-domain input returns that domain unchanged, so single-domain apps keep their exact host while a multi-domain app (e.g. filer/master/api under one base) collapses to the shared parent that a session cookie can span across all of them."
 msgstr ""
 
+msgid "Return the markup characters of ``text`` with their multiplicity."
+msgstr ""
+
 msgid "Return the mirror repository for *image*, or ``None`` when unresolvable."
 msgstr ""
 
@@ -34854,6 +35281,9 @@ msgid "Return the protected spans of ``text`` with their multiplicity."
 msgstr ""
 
 msgid "Return the provider's declared secret and the owner it belongs to."
+msgstr ""
+
+msgid "Return the repository root inside the deploy container."
 msgstr ""
 
 msgid "Return the resolver list for the container runtime, most specific first."
@@ -34913,6 +35343,9 @@ msgstr ""
 msgid "Return the set of role types declared by *role_dir*'s markers."
 msgstr ""
 
+msgid "Return the sha256 of every service's ``build`` section."
+msgstr ""
+
 msgid "Return the sorted list of ``(start, end)`` relay ranges in use."
 msgstr ""
 
@@ -34934,6 +35367,9 @@ msgstr ""
 msgid "Return the summed min_storage of app_ids and their transitive dependencies."
 msgstr ""
 
+msgid "Return the tags of *image* from its registry's v2 API."
+msgstr ""
+
 msgid "Return the template of the ``docs`` domain, built from a copy of the working tree."
 msgstr ""
 
@@ -34947,6 +35383,12 @@ msgid "Return type"
 msgstr ""
 
 msgid "Return what *app_id* declares for *domain*, or an empty list."
+msgstr ""
+
+msgid "Return what a role-local updater prints for its pin."
+msgstr ""
+
+msgid "Return whether Docker can hand an NVIDIA GPU to a container."
 msgstr ""
 
 msgid "Return whether ``text`` holds any letter outside its protected spans."
@@ -35306,6 +35748,9 @@ msgid "Rewrite each ``<service>.version:`` value in ``meta/services.yml``."
 msgstr ""
 
 msgid "Rewrite each pin to its latest version and return the files changed."
+msgstr ""
+
+msgid "Rewrite every pin to its newer version and return the changed files."
 msgstr ""
 
 msgid "Rewrite specific ``ref:`` lines in *config_path*. *line_to_new_ref* maps the 1-indexed line number to the desired new value."
@@ -35751,6 +36196,9 @@ msgstr ""
 msgid "Routing & TLS"
 msgstr ""
 
+msgid "Routing & TLS (Decision #9)"
+msgstr ""
+
 msgid "Routing, health & networking (`meta/server.yml`)"
 msgstr ""
 
@@ -35872,6 +36320,9 @@ msgid "Run `make test` — all linting and unit tests must pass before deploy."
 msgstr ""
 
 msgid "Run `python -m cli.contributing.network.diagnose` to print a structured DNS / TCP / TLS / PMTU report (IPv4 + IPv6) plus interface MTU, `/etc/resolv.conf`, `/etc/hosts`, proxy env vars, and CA bundle summaries from inside the running infinito container. Exposed as `make diagnose-network`."
+msgstr ""
+
+msgid "Run `python -m cli.contributing.update.source --dry-run` to list pending bumps; the `update-version-sources` job of `.github/workflows/cron-update.yml` opens the PRs, and `tests/external/update/source/` warns about them."
 msgstr ""
 
 msgid "Run `python -m cli.meta.ci.slots --matrix` to see the whole budget."
@@ -36136,6 +36587,9 @@ msgid "Run the published image to provision the inventory and deploy OnlyOffice 
 msgstr ""
 
 msgid "Run the published image to provision the inventory and deploy Open WebUI to a managed server (the mounted volume persists the inventory):"
+msgstr ""
+
+msgid "Run the published image to provision the inventory and deploy OpenBao to a managed server (the mounted volume persists the inventory):"
 msgstr ""
 
 msgid "Run the published image to provision the inventory and deploy OpenClaw to a managed server (the mounted volume persists the inventory):"
@@ -36925,6 +37379,15 @@ msgstr ""
 msgid "Scripts 🧰"
 msgstr ""
 
+msgid "Seal concepts (recovery keys vs unseal keys): <https://openbao.org/docs/concepts/seal/>"
+msgstr ""
+
+msgid "Seal types"
+msgstr ""
+
+msgid "Seal, init & bootstrap (Decisions #1, #2)"
+msgstr ""
+
 msgid "Seamless injection via NGINX ``sub_filter`` on ``</head>``."
 msgstr ""
 
@@ -36983,6 +37446,9 @@ msgid "Secrets MUST be sent in authenticated headers or a supported secret refer
 msgstr ""
 
 msgid "Secrets are NOT available in `pull_request` workflows triggered by forks. This is a GitHub security restriction. The mirror and image build run via `pull_request_target` instead:"
+msgstr ""
+
+msgid "Secrets engine & machine identity"
 msgstr ""
 
 msgid "Secrets 📋"
@@ -38120,6 +38586,9 @@ msgstr ""
 msgid "Skips probing the literal HTTP(S) URL. Use for CDN roots and API base URLs that 4xx without a path."
 msgstr ""
 
+msgid "Skips the live update warning for a pin that declares its upstream in an `update:` block."
+msgstr ""
+
 msgid "Slack"
 msgstr ""
 
@@ -38163,6 +38632,9 @@ msgid "Smoke: visit `https://media.{{ DOMAIN_PRIMARY }}/` → Jellyfin loads →
 msgstr ""
 
 msgid "Smoke: visit `https://monitoring.{{ DOMAIN_PRIMARY }}/` → (SSO) Keycloak chain → Checkmk GUI; open Setup (admin); confirm an LDAP user resolves."
+msgstr ""
+
+msgid "Smoke: visit `https://openbao.{{ DOMAIN_PRIMARY }}/` → Keycloak chain → OpenBao UI; write and read a KV secret; `docker compose restart` and confirm the instance comes back unsealed."
 msgstr ""
 
 msgid "Snipe-IT is entered through a trusted-header bridge: the oauth2-proxy authenticates against Keycloak and Snipe-IT's `loginViaRemoteUser()` mints a native session for the matching `users.username` row (see [`files/php/apply/sso_config.php`](./files/php/apply/sso_config.php)). The gate declares no `allowed_groups`, so `biber` passes the proxy — but the role provisions only the administrator account ([`tasks/03_admin.yml`](./tasks/03_admin.yml)), so the header carries a username Snipe-IT does not know and the visitor falls back to the native login form. [`templates/playwright.env.j2`](./templates/playwright.env.j2) therefore declares `PERSONA_BIBER_BLOCKED=true`, while the `administrator` persona stays live (`PERSONA_ADMINISTRATOR_BLOCKED=false`) and exercises the full bridge end to end."
@@ -38552,6 +39024,9 @@ msgstr ""
 msgid "Static scripts (shell, Python, binaries) belong in `roles/<role>/files/<name>.<ext>` and are invoked via `ansible.builtin.script` or `command`."
 msgstr ""
 
+msgid "Static seal: <https://openbao.org/docs/configuration/seal/static/>"
+msgstr ""
+
 msgid "Static site generator building HTML from an upstream Git repository at build time and serving it via nginx"
 msgstr ""
 
@@ -38693,6 +39168,9 @@ msgstr ""
 msgid "Storage"
 msgstr ""
 
+msgid "Storage & persistence (Decision #3)"
+msgstr ""
+
 msgid "Storage & scalability"
 msgstr ""
 
@@ -38826,9 +39304,6 @@ msgid "Structure 📐"
 msgstr ""
 
 msgid "Structure 🗂️"
-msgstr ""
-
-msgid "Structured endpoints return role data, categories and bundles; `lang` and `Accept-Language` translate descriptions and category texts from the catalogs of the ref, or of `deployed` when the ref has none. Generic tree and file endpoints return any path of a ref, so consumers that read raw files need no clone."
 msgstr ""
 
 msgid "Style"
@@ -39729,6 +40204,9 @@ msgstr ""
 msgid "Take a deploy job title apart."
 msgstr ""
 
+msgid "Takes a caller-supplied 32-byte AES-256-GCM-96 key via `current_key`, accepting a literal value or an `env://` / `file://` reference, plus a `current_key_id`. Upstream caveat: recommended only where an existing source of trust already holds the key."
+msgstr ""
+
 msgid "Takes a list of extension names and returns the subset that needs a custom library install on top of the official postgres base image (the contrib extensions bloom, pg_trgm and unaccent are already in the base — those are filtered out). Each returned entry is a dict with:"
 msgstr ""
 
@@ -40325,6 +40803,9 @@ msgstr ""
 msgid "The Docker MariaDB Role offers an easy and efficient way to deploy a MariaDB server inside a Docker container. Manage your data securely and effectively, making it ideal for production or local development."
 msgstr ""
 
+msgid "The Docker updater watches ``image`` plus ``version``, the repository updater ``repository`` plus ``ref``. A pin outside both - an ``app_version``, a ``release``, a tag in a registry neither updater speaks - declares where its upstream lives::"
+msgstr ""
+
 msgid "The Docker-SimpleIcons role streamlines the deployment and management of a simple, efficient icon server. It helps you:"
 msgstr ""
 
@@ -40422,6 +40903,9 @@ msgstr ""
 msgid "The OIDC client used by the application has the `groups` client scope attached as a **default** scope (not optional). The design note in [RBAC design](../../contributing/design/iam/rbac.md) explains why."
 msgstr ""
 
+msgid "The OIDC group path `/roles/web-app-openbao/<role>` already namespaces by application, so an `openbao-` prefix would be redundant, and the repo's other `meta/rbac.yml` files use bare role names."
+msgstr ""
+
 msgid "The OIDC login + RBAC paths are covered by ``test-admin-oidc-login.js`` / ``test-rbac-roles.js``, the Discourse round-trip by ``test-discourse-roundtrip.js``."
 msgstr ""
 
@@ -40429,6 +40913,9 @@ msgid "The OIDC login + RBAC paths are covered by `test-admin-oidc-login.js` / `
 msgstr ""
 
 msgid "The OIDC login entry points (`oidc_login`, `sociallogin`, `user_oidc`) are mandatory because they gate SSO login: when one of them is the selected flavor and the system hides the native login form, an un-installed OIDC app leaves the instance with no usable login path. Failing at install time surfaces the version-pin mismatch immediately rather than as a downstream login timeout in the Playwright e2e suite."
+msgstr ""
+
+msgid "The OIDC role's `groups_claim` (JSON-pointer capable) names the claim holding the user's groups; those values resolve against identity groups of `type=external` via group aliases on the auth mount, which carry the policies."
 msgstr ""
 
 msgid "The OIDC username claim is paired with the LDAP login attribute by design. See [ldap.md](ldap.md) for the LDAP-side rule."
@@ -40845,6 +41332,9 @@ msgstr ""
 msgid "The `rbac_group_path` lookup plugin is the only sanctioned producer of OIDC group paths in this repository. Tests in this directory MUST cover invariants that protect that contract: callsite shape, role declaration consistency, and the ban on inline `[RBAC.GROUP.NAME, ...] | path_join` constructions introduced by requirement 005."
 msgstr ""
 
+msgid "The `redirect_uris` lookup generates `https://<domain>/*` per SSO consumer, which covers the UI and API callbacks but not a localhost one. Machine access goes through AppRole (Decision #2) instead. Documented as a limitation in the README."
+msgstr ""
+
 msgid "The `sandbox.autoAllowBashIfSandboxed: true` flag is retained as belt-and-suspenders. If `Bash(*)` were ever removed, the sandbox auto-allow would still cover the common shapes, but it is no longer the primary gate."
 msgstr ""
 
@@ -41031,6 +41521,9 @@ msgid "The application ships no logout control at ``2026.6.16``, so the Playwrig
 msgstr ""
 
 msgid "The application_id to match."
+msgstr ""
+
+msgid "The apps each variant round of *app* deploys."
 msgstr ""
 
 msgid "The appview is useful without the bridge; the bridge is useless without both endpoints. Separable lifecycle, separable failure domain."
@@ -41329,9 +41822,6 @@ msgid "The consumer role's spec does NOT exercise the dashboard tile. `web-app-d
 msgstr ""
 
 msgid "The consumer's ``services.<engine>`` block (or empty)."
-msgstr ""
-
-msgid "The container keeps one bare git repository: branches and tags of core, the branches and tags of every fork under `refs/forks/<owner>/`, and the deployed snapshot committed at start under `refs/deployed`. A background loop fetches on the configured interval."
 msgstr ""
 
 msgid "The container name and DNS alias within the `central_mariadb` network. Used by other services (like Moodle) to connect."
@@ -41919,6 +42409,9 @@ msgid "The diagram places OnlyOffice in the Infinito.Nexus cosmos: the component
 msgstr ""
 
 msgid "The diagram places Open WebUI in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
+msgstr ""
+
+msgid "The diagram places OpenBao in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
 msgstr ""
 
 msgid "The diagram places OpenClaw in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
@@ -42959,6 +43452,9 @@ msgstr ""
 msgid "The merged map is what the inventory ALSO bakes into host_vars, so feeding the same dict into `CombinedResolver(services_overrides=...)` eliminates the topology-vs-host_vars drift that variant-blind resolution produced."
 msgstr ""
 
+msgid "The metrics endpoint needs a server-generated token that cannot be pre-seeded into a static scrape config from the inventory. Same pattern as `web-app-gitea`. Gives the `openbao_core_unsealed` gauge."
+msgstr ""
+
 msgid "The minimum env set for any spec following the persona flows is `APP_BASE_URL`, `CANONICAL_DOMAIN`, and `LOGOUT_URL`. `DASHBOARD_BASE_URL` is rendered only by the dashboard role's own spec, because consumer personas enter at `APP_BASE_URL` directly. Specs that gate on auth additionally read at least one of `OIDC_ISSUER_URL`, `KEYCLOAK_BASE_URL`, plus the persona credentials `ADMIN_USERNAME` / `ADMIN_PASSWORD` and `BIBER_USERNAME` / `BIBER_PASSWORD`. Specs that exercise integrations (Matomo, Discourse, Email, Prometheus, …) read the integration-specific keys defined in [Agent `playwright.env.j2`](../../../../agents/files/role/playwright.env.j2.md)."
 msgstr ""
 
@@ -43142,6 +43638,9 @@ msgstr ""
 msgid "The password is passed via environment variables (robust with special characters)."
 msgstr ""
 
+msgid "The path ``INFINITO_SRC_DIR`` names."
+msgstr ""
+
 msgid "The per-category port ranges that the suggester proposes from and that the lint check enforces live as a single `PORT_BANDS` map in [08_networks.yml](../../../../../group_vars/all/08_networks.yml). Suggesters and lint pick up new entries automatically, with no second registration step. See `cli contributing network ports suggest` in [port.md](../../../tools/network/port.md)."
 msgstr ""
 
@@ -43245,6 +43744,9 @@ msgid "The point is to make the safe path the natural path."
 msgstr ""
 
 msgid "The point: an assistant with real reach into the home, but the agent runtime stays isolated and the Pi host stays untouched. Capabilities come through MCP tools, not host access."
+msgstr ""
+
+msgid "The policy `.hcl` templates are rendered to the host config directory and mounted at `/openbao/policies/`, deliberately **outside** `/openbao/config/`: the server parses every file in its config directory as server configuration, so a policy file there breaks startup."
 msgstr ""
 
 msgid "The pool's ``size`` bounds the slice docker hands the bridge, so the gateway is derived from that slice rather than from the enclosing supernet - they agree only while the pool starts on a slice boundary."
@@ -43557,6 +44059,9 @@ msgid "The renderable path"
 msgstr ""
 
 msgid "The rendered `Corefile` is build artefact and MUST stay in `.gitignore`."
+msgstr ""
+
+msgid "The rendered fragment MUST start at the ``groups:`` item level (two-space indented ``- name: <group>`` entries), because it is concatenated into the single ``groups:`` list of the Prometheus rule file."
 msgstr ""
 
 msgid "The replay is a second deploy on the same runner, so the row it picks must be one the guide can actually deploy: the README has to carry a Production block, and the guide's own mode (``compose`` for a role that ships a stack, ``host`` for one installed onto the machine) has to be a mode the role runs and tests."
@@ -43978,7 +44483,7 @@ msgstr ""
 msgid "The row has to run in the guide's own mode. The replay is a second deploy on the same runner, so hanging it on a swarm row would ask that runner to bring a compose stack up beside a swarm one. Only rows in that mode count as deployed here either, so the variant search cannot settle on one that this sweep runs in swarm alone."
 msgstr ""
 
-msgid "The row then draws from that intersection instead of the run's whole pool, and so does every row whose transitive service closure contains that role. A role and a run that permit nothing in common abort the matrix rather than dropping the row."
+msgid "The row then draws from that intersection instead of the run's whole pool, and so does every row whose variant deploys that role, as the deploy planner resolves it. A role and a run that permit nothing in common abort the matrix rather than dropping the row."
 msgstr ""
 
 msgid "The rows the source run proved, as ``role#variant``, axes dropped."
@@ -44322,6 +44827,9 @@ msgstr ""
 msgid "The slug comes from :func:`axes.artifact_slug`, the same call the matrix entry carries into the workflow, so the name this looks for and the name CI uploads cannot drift apart."
 msgstr ""
 
+msgid "The software's identity: its repository, read from the group_vars SPOT, its author and address."
+msgstr ""
+
 msgid "The source code of this software is publicly available for transparency, learning, and private use."
 msgstr ""
 
@@ -44479,9 +44987,6 @@ msgid "The translatable core strings are `galaxy_info.description` in every `rol
 msgstr ""
 
 msgid "The translatable strings core ships, keyed by the ``msgctxt`` of their source."
-msgstr ""
-
-msgid "The trees of forks are untrusted. The API MUST only read them as data: YAML through a safe loader, catalogs through Babel, never import or execute their code."
 msgstr ""
 
 msgid "The trigger is **group membership**, not a per-role flag."
@@ -45367,6 +45872,9 @@ msgstr ""
 msgid "This directory contains the shared environment bootstrap layer for Infinito.Nexus scripts. ✨"
 msgstr ""
 
+msgid "This directory contains the shell helpers that [entry-pr-translate.yml](../../../.github/workflows/entry-pr-translate.yml) calls: resolving the languages LibreTranslate supports into the job matrix, merging the source strings of the `core` and `docs` domains into `locale/`, and machine-translating one language per runner."
+msgstr ""
+
 msgid "This directory contains variable definition files for the `svc-db-mariadb` Ansible role. It centralizes all configurable values related to MariaDB deployment and can be adjusted without modifying task logic."
 msgstr ""
 
@@ -45882,16 +46390,13 @@ msgstr ""
 msgid "This repository uses several test and validation types:"
 msgstr ""
 
-msgid "This requirement adds the role `web-svc-api` at `api.{{ DOMAIN_PRIMARY }}`. It serves the catalogs of [037 - Gettext Catalogs with LibreTranslate Autotranslation](037-gettext-catalogs-libretranslate.md). Browser consumers are wired up in [039 - Core i18n Consumers](039-core-i18n-consumers.md); the consumer repositories switch to the API afterwards."
-msgstr ""
-
 msgid "This requirement closes that gap consistently across the role tree rather than role by role."
 msgstr ""
 
 msgid "This requirement covers requirement and design work only. It does not authorize enabling a new MCP endpoint, upgrading an application, installing an upstream plugin, or widening a credential in the same change that introduces this document."
 msgstr ""
 
-msgid "This requirement covers the catalogs, their extraction, their machine translation and their validation. Serving the catalogs is [038 - web-svc-api](038-web-svc-api.md); consuming them inside core roles is [039 - Core i18n Consumers](039-core-i18n-consumers.md). The consumer repositories (infinito-nexus-gui, meta-infinite-graph, portfolio) keep their own interface strings in their own gettext catalogs and switch only after 037 to 039 are green."
+msgid "This requirement covers the catalogs, their extraction, their machine translation and their validation. Serving the catalogs is [038 - web-svc-api](README.md#archive); consuming them inside core roles is [039 - Core i18n Consumers](039-core-i18n-consumers.md). The consumer repositories (infinito-nexus-gui, meta-infinite-graph, portfolio) keep their own interface strings in their own gettext catalogs and switch only after 037 to 039 are green."
 msgstr ""
 
 msgid "This requirement covers two related but separable deliverables:"
@@ -45900,7 +46405,7 @@ msgstr ""
 msgid "This requirement extends [025 - MCP Role Integration](025-mcp-role-integration.md). Requirement 025 defines the initial MCP metadata and the first Open WebUI integration; this requirement defines the exhaustive role audit, proxy and workflow-adapter contract, client reconciliation, and the conditions under which the remaining roles may be integrated."
 msgstr ""
 
-msgid "This requirement moves the core roles that render translated text onto the catalogs of [037 - Gettext Catalogs with LibreTranslate Autotranslation](037-gettext-catalogs-libretranslate.md) and opens the API of [038 - web-svc-api](038-web-svc-api.md) to browser consumers. The consumer repositories change afterwards and are not part of this requirement."
+msgid "This requirement moves the core roles that render translated text onto the catalogs of [037 - Gettext Catalogs with LibreTranslate Autotranslation](037-gettext-catalogs-libretranslate.md) and opens the API of [038 - web-svc-api](README.md#archive) to browser consumers. The consumer repositories change afterwards and are not part of this requirement."
 msgstr ""
 
 msgid "This restore path also restarts `docker.service` and then calls `make network-refresh`, so the running Infinito development stack is recreated when one is active and the restored setting reaches fresh container network namespaces."
@@ -46294,6 +46799,12 @@ msgid "This role deploys Moodle using Docker, automating the setup of both the M
 msgstr ""
 
 msgid "This role deploys Ollama as a local model server using Docker Compose. It integrates with Open WebUI for chat and Flowise for AI workflow automation, and configures local model caching so models can be reused across sessions or run fully offline."
+msgstr ""
+
+msgid "This role deploys OpenBao as an Infinito.Nexus application at ``openbao.<domain>``, behind the platform’s HTTPS reverse proxy. Humans sign in through Keycloak with OIDC and receive exactly the privileges their RBAC group grants; machines authenticate separately through AppRole. State lives in OpenBao’s own raft store on a persistent volume, and a static seal auto-unseals the node on every restart so no operator has to intervene after a redeploy."
+msgstr ""
+
+msgid "This role deploys OpenBao as an Infinito.Nexus application at `openbao.<domain>`, behind the platform's HTTPS reverse proxy. Humans sign in through Keycloak with OIDC and receive exactly the privileges their RBAC group grants; machines authenticate separately through AppRole. State lives in OpenBao's own raft store on a persistent volume, and a static seal auto-unseals the node on every restart so no operator has to intervene after a redeploy."
 msgstr ""
 
 msgid "This role deploys OpenClaw as a gateway container behind the reverse proxy on its own canonical domain. Its compose service is pinned to the isolating runtime that the Kata & gVisor role selects for the host, its gateway configuration file is rendered from the role, and its state directory is kept in a persistent volume. Access is fronted by an OAuth2 proxy with Keycloak sign-in when Keycloak is part of the deployment."
@@ -47411,6 +47922,9 @@ msgstr ""
 msgid "Translate one space-separated list between role ids and display names."
 msgstr ""
 
+msgid "Translates the empty and fuzzy entries of one language in both domains."
+msgstr ""
+
 msgid "Transparent Docker Hub mirror via ``registry:2``\\ ’s built-in proxy mode."
 msgstr ""
 
@@ -48084,6 +48598,9 @@ msgstr ""
 msgid "Upstream repo: <https://github.com/Checkmk/checkmk>"
 msgstr ""
 
+msgid "Upstream repo: <https://github.com/openbao/openbao>"
+msgstr ""
+
 msgid "Upstream repo: <https://github.com/semaphoreui/semaphore>"
 msgstr ""
 
@@ -48093,10 +48610,16 @@ msgstr ""
 msgid "Upstream site: <https://jellyfin.org>"
 msgstr ""
 
+msgid "Upstream story: [OpenProject #628](https://project.infinito.nexus/work_packages/628) — *Integrate OpenBao into Infinito.Nexus*. Implementing PR: [infinito-nexus/core#611](https://github.com/infinito-nexus/core/pull/611)."
+msgstr ""
+
 msgid "Upstream stream"
 msgstr ""
 
 msgid "Upstream transport"
+msgstr ""
+
+msgid "Upstream-recommended, keeps the door open for the HA follow-up story, and needs no external database."
 msgstr ""
 
 msgid "Upstream: [Penpot Official Website](https://penpot.app/)"
@@ -48981,6 +49504,9 @@ msgstr ""
 msgid "Verify `AUTHORIZED` status and the exact expected tool names and schema hash."
 msgstr ""
 
+msgid "Verify every OpenBao path, config key and CLI flag against the pinned `2.6.2` image before claiming a criterion done — the seal, AppRole and health-parameter facts in this document were read from upstream `main`, and `2.6.2` is what actually ships."
+msgstr ""
+
 msgid "Verify every item in [Preconditions](#preconditions). If any fails, exit this page and follow [Compose Loop](compose.md)."
 msgstr ""
 
@@ -49003,6 +49529,9 @@ msgid "Verify the exact project-owned package, image pin, endpoint auth, dedicat
 msgstr ""
 
 msgid "Verify the workflow has `packages: write` in its `permissions` block."
+msgstr ""
+
+msgid "Version"
 msgstr ""
 
 msgid "Version release workflows"
@@ -49343,6 +49872,9 @@ msgid "Web-app-nextcloud Role"
 msgstr ""
 
 msgid "Web-app-odoo Role"
+msgstr ""
+
+msgid "Web-app-openbao Role"
 msgstr ""
 
 msgid "Web-app-openclaw Role"
@@ -49871,6 +50403,9 @@ msgstr ""
 msgid "When keeping an intentionally retained outdated version pin, you MUST document the exception at the pin site with a local `TODO` comment in the file's normal comment style (`#todo`, `# TODO`, or similar) and explain why it remains pinned so the root cause stays visible until it can be fixed."
 msgstr ""
 
+msgid "When met and `make quality` is green, instruct the operator to run `git-sign-push` outside the sandbox. The agent MUST NOT push."
+msgstr ""
+
 msgid "When met and `make test` is green, instruct the operator to run `git-sign-push` outside the sandbox. The agent MUST NOT push."
 msgstr ""
 
@@ -50361,6 +50896,9 @@ msgstr ""
 msgid "With `services.litellm.enabled`, `templates/LocalSettings.php.j2` loads `VisualEditor` (bundled in the image), `VisualEditorPlus` and `AIEditingAssistant`, then points the extension's `open-ai` provider at the in-cluster gateway:"
 msgstr ""
 
+msgid "With any auto-seal configured, `bao operator init` yields **recovery keys, not unseal keys**, and the node unseals itself on every restart by asking the seal to decrypt the root key. Recovery keys authorise `generate-root` / `rekey`; they cannot decrypt the root key on their own."
+msgstr ""
+
 msgid "With automated setup, update handling, variable management, and plugin-based authentication, this role simplifies the deployment and maintenance of your Shopware instance."
 msgstr ""
 
@@ -50626,6 +51164,9 @@ msgid "Writes ``@  A`` → ``networks.internet.ip4``"
 msgstr ""
 
 msgid "Writes ``@ AAAA`` → ``networks.internet.ip6`` (only if global and present)"
+msgstr ""
+
+msgid "Writes the machine-translatable ISO 639-1 codes to `GITHUB_OUTPUT` as a JSON array."
 msgstr ""
 
 msgid "Writes the output atomically (tmp -> rename)"
@@ -51607,6 +52148,9 @@ msgstr ""
 msgid "Zero the variable — all CI reverts to GitHub-hosted runners."
 msgstr ""
 
+msgid "Zero write-back and no permanently stored root token, satisfying \"minimize the requirement for permanently stored bootstrap credentials\"."
+msgstr ""
+
 msgid "Zero-pad each numeric component of *version* to three digits."
 msgstr ""
 
@@ -51748,9 +52292,6 @@ msgstr ""
 msgid "[ ] A request to a model alias backed by `svc-ai-lmstudio` returns a completion through the gateway. **Blocked:** see [Backend blockers](#backend-blockers)."
 msgstr ""
 
-msgid "[ ] A role that enables the `api` service gets the web-svc-api origin in its `connect-src`, and a role without it does not."
-msgstr ""
-
 msgid "[ ] A role that ships BOTH `oidc.enabled` and `ldap.enabled` scenarios MUST keep them as **separate** test bodies. Combining the two flags in a single scenario is forbidden. The matrix-deploy variants exist precisely to drive each branch in isolation, and bundling them defeats the variant matrix."
 msgstr ""
 
@@ -51761,6 +52302,10 @@ msgid "[ ] A run with `disable=oidc,ldap` MUST report every biber scenario as `s
 msgstr ""
 
 msgid "[ ] A run with `disable=oidc` (LDAP-only mode) MUST produce at least one `passed` LDAP scenario per role marked above as in-scope, never an empty-skip pass."
+msgstr ""
+
+#, python-brace-format
+msgid "[ ] A sealed instance is detectable: `/v1/sys/health` returns 503 (asserted by `test-seal-status.js`) and an alert rule fires on that condition. *An `OpenBaoSealed` alert now ships with the role itself, in `templates/prometheus/alert_rules.yml.j2`, which the `alert_rule_roles` lookup concatenates into the Prometheus rule file. The health-code contract is asserted by the spec suite and the healthy path was confirmed live (200 in both compose and swarm), but the **firing** condition was never observed — that needs an instance deliberately sealed, which the AppRole-only admin model makes awkward to arrange in a test.* **Correction from implementation:** OpenBao keeps Vault's metric namespace, so the gauge is `vault_core_unsealed`, not `openbao_core_unsealed` — and it is unusable as an alert source here: on a healthy, demonstrably unsealed node it is emitted as `vault_core_unsealed{cluster=\"\"} 0`, so `== 0` would fire permanently. Use the health endpoint as the primary signal, with `vault_core_active{cluster=\"…\"} == 1` as the metric-side corroboration. The alert rule itself is still outstanding."
 msgstr ""
 
 msgid "[ ] ActivityPub → AT Protocol direction (blocked on Open Question 3: AT write identity)."
@@ -51824,9 +52369,6 @@ msgid "[ ] An end-to-end backup verification is part of the pilot: a [svc-bkp-vo
 msgstr ""
 
 msgid "[ ] An install-failure test proves that a failing `required: true` addon hard-fails the play, while a failing `required: false` addon emits a warning, is skipped, and the play continues."
-msgstr ""
-
-msgid "[ ] An invalid ref or path is answered with 400, and an unknown ref, role, language or path with 404."
 msgstr ""
 
 msgid "[ ] Any role whose `meta/services.yml` declares `ldap.enabled` (literal `true` or the dynamic `\"{{ 'svc-db-openldap' in group_names }}\"` form per [test_dynamic_flags.py](../../tests/integration/roles/meta/services/test_dynamic_flags.py)) AND ships an authenticated Playwright spec MUST include at least one scenario that drives the role's **LDAP-bind login path** end-to-end. The test MUST NOT route through Keycloak: it MUST hit whatever in-app LDAP auth surface the role exposes (Joomla core LDAP plugin, Jenkins LDAP security realm, OpenCloud LDAP basic-auth driver, Mattermost AD/LDAP login, etc.)."
@@ -51922,9 +52464,6 @@ msgstr ""
 msgid "[ ] Every documentation page offers a language switcher that lists English and every language built for that version, and switching keeps the page path."
 msgstr ""
 
-msgid "[ ] Every response carries `Access-Control-Allow-Origin: *`, and the API accepts no method other than `GET`, `HEAD` and `OPTIONS`."
-msgstr ""
-
 msgid "[ ] Every role that satisfies the policy above MUST declare `BIBER_USERNAME` and `BIBER_PASSWORD` (via `lookup('users', 'biber')`) in its `roles/<role>/templates/playwright.env.j2`. The [test_playwright_env_keys_used.py](../../tests/lint/ansible/roles/web-app/playwright/test_env_keys_used.py) lint MUST stay green: any declared `BIBER_*` key MUST be consumed by the role's spec or by a shared helper under `roles/test-e2e-playwright/files/`."
 msgstr ""
 
@@ -51995,13 +52534,13 @@ msgstr ""
 msgid "[ ] Logout flow tested"
 msgstr ""
 
+msgid "[ ] Logout terminates the OpenBao session and integrates with the `logout` service when enabled. *The integration half is done and verified: the deploy activates the logout proxy for the openbao vhost, injects the universal-logout code with its CSP hash, and includes openbao in `LOGOUT_DOMAINS`. The termination half is **not** asserted, and an attempt to assert it surfaced a finding now recorded in the README — navigating to `/ui/vault/logout` leaves the session intact (the UI returns to `/ui/vault/secrets`, since the Ember app restores its token from browser storage). Proving termination needs the UI's own logout control driven from an authenticated session, which the persona blocks make awkward; the assertion was reverted rather than left failing.*"
+msgstr ""
+
 msgid "[ ] Matomo"
 msgstr ""
 
 msgid "[ ] No relevant security impact"
-msgstr ""
-
-msgid "[ ] No response for `deployed` contains a credential of the deployment."
 msgstr ""
 
 msgid "[ ] No role MAY ship a role-local `<ROLE>_LDAP_ENABLED` env key as a workaround for the helper. The [test_playwright_env_keys_used.py](../../tests/lint/ansible/roles/web-app/playwright/test_env_keys_used.py) lint MUST stay green: any custom flag that survives must be consumed by the spec, otherwise it is dead config."
@@ -52085,9 +52624,6 @@ msgstr ""
 msgid "[ ] The LDAP scenario MUST exercise BOTH the canonical admin user and the canonical non-admin RBAC user `biber` (per [017](017-playwright-biber-rbac-coverage.md)). A role that only asserts the admin path under LDAP MUST flag the biber follow-up in its README until it is added."
 msgstr ""
 
-msgid "[ ] The Playwright spec of `web-svc-api` covers every criterion above against the live stack."
-msgstr ""
-
 msgid "[ ] The Playwright specs of web-app-docs, web-app-keycloak and web-app-dashboard cover the German page, the German logout panel and the German dashboard."
 msgstr ""
 
@@ -52125,9 +52661,6 @@ msgstr ""
 msgid "[ ] The compose stack reaches a steady running state across all three variants."
 msgstr ""
 
-msgid "[ ] The dashboard at `/de/` shows the German translation of at least one card description and one menu category."
-msgstr ""
-
 msgid "[ ] The deploy succeeds in **both** compose and swarm iteration loops (swarm/compose parity rule), `make autoformat` + `make test` green."
 msgstr ""
 
@@ -52149,13 +52682,7 @@ msgstr ""
 msgid "[ ] The implementation follows the Definition of Done, and the contribution guidelines in [CONTRIBUTING.md](../../CONTRIBUTING.md) were considered and applied during implementation."
 msgstr ""
 
-msgid "[ ] The logout panel takes the text direction of every language from `meta/languages.yml`."
-msgstr ""
-
 msgid "[ ] The matrix axes contain the entity name of **every** `web-app-*` and `web-svc-*` role; a role added later forces a matrix regeneration."
-msgstr ""
-
-msgid "[ ] The role `web-svc-api` enables compose and swarm mode, and a compose deploy serves `https://api.infinito.test/v1/health` with HTTP 200."
 msgstr ""
 
 msgid "[ ] The role comes up green in both compose and swarm modes."
@@ -52165,9 +52692,6 @@ msgid "[ ] The role emits a `Content-Security-Policy` header on the canonical su
 msgstr ""
 
 msgid "[ ] The role's `Content-Security-Policy` response header is emitted on the canonical front page and lists any enabled injector hosts."
-msgstr ""
-
-msgid "[ ] The same role request answers for `deployed`, a release tag, the commit SHA of that tag and a branch of a fork."
 msgstr ""
 
 msgid "[ ] The scheduled update workflow opens or refreshes an update pull request when addon versions can be bumped or when relevant new addon entries can be added."
@@ -52395,30 +52919,6 @@ msgstr ""
 msgid "[ ] `CMK_SITE_ID`, `CMK_PASSWORD` (from a rendered credential), `TZ` seed the site + `cmkadmin` on first run; the stack reaches a steady running state on one persistent volume."
 msgstr ""
 
-msgid "[ ] `GET /v1/categories?ref=<ref>` returns the category tree, and `GET /v1/bundles?ref=<ref>` returns every bundle with title, description, logo, tags, categories and role ids."
-msgstr ""
-
-msgid "[ ] `GET /v1/languages?ref=deployed` lists the 184 languages with name, native name, direction and the share of translated `core` messages, and `GET /v1/catalogs/core/<code>?ref=<ref>` returns that catalog as JSON."
-msgstr ""
-
-msgid "[ ] `GET /v1/log?ref=<ref>` returns the commits of that ref with SHA, parents, date and message, bounded by `since`, `until` and `limit`."
-msgstr ""
-
-msgid "[ ] `GET /v1/repositories` lists core with its branches and tags, and every discovered fork with its branches and tags, each ref with commit SHA and date."
-msgstr ""
-
-msgid "[ ] `GET /v1/roles/<role>?ref=deployed` returns the parsed content of every `meta/*.yml` of the role, its `vars/main.yml` and its README title."
-msgstr ""
-
-msgid "[ ] `GET /v1/roles?ref=deployed` returns every role of the deployed working tree with id, title, description, categories and the invokable flag."
-msgstr ""
-
-msgid "[ ] `GET /v1/todos?ref=<ref>` returns the TODO and FIXME markers of that ref with path, line and text."
-msgstr ""
-
-msgid "[ ] `GET /v1/tree?ref=<ref>&path=<dir>` lists a directory and `GET /v1/file?ref=<ref>&path=<file>` returns a file of that ref."
-msgstr ""
-
 msgid "[ ] `README.md` documents edition + bump policy, the oauth2-proxy+header-auth+LDAP model, the site-path routing, the agent-receiver decision, and the no-external-DB design."
 msgstr ""
 
@@ -52461,25 +52961,19 @@ msgstr ""
 msgid "[ ] `files/playwright/test-login-oidc-biber.js` and `test-login-oidc-administrator.js`: OIDC personas reach an authenticated surface, drive a role-specific interaction (e.g. open the Projects list / admin Users panel), and log out to a verified unauthenticated landing. Gated on `skipUnlessServiceEnabled('sso')`."
 msgstr ""
 
-msgid "[ ] `lang=de` and `Accept-Language: de` return the German description of a role whose description has a German translation, and the response names the language it used."
-msgstr ""
-
-msgid "[ ] `logout_i18n.yml` holds only the English source strings, and the logout panel reads every other language from `core.po`."
-msgstr ""
-
 msgid "[ ] `lookup('tls', '<x>.onion')` → http/disabled/80, no ACME attempted; app vhosts serve onion `server_name`s on `:80`; every app reachable at `<sub>.<NODE_ONION>.onion` through `HiddenServicePort 80 → 127.0.0.1:80`."
 msgstr ""
 
 msgid "[ ] `make compose-deploy` is green for web-app-docs, web-app-keycloak, web-app-dashboard and web-app-mig."
 msgstr ""
 
-msgid "[ ] `make compose-deploy` is green for web-svc-api."
-msgstr ""
-
 msgid "[ ] `make compose-playwright role=web-app-semaphore` exits `0` with no stub tests and a clean logged-out final state per the contract."
 msgstr ""
 
 msgid "[ ] `make i18n-translate domain=docs languages=de` fills every `msgstr` of the German `docs.po`."
+msgstr ""
+
+msgid "[ ] `make swarm-playwright role=web-app-openbao` passes the same specs as the compose run. *Not run: `swarm-playwright` requires the staging directory a completed deploy creates, and the `swarm-zombie` drill was cut short by the runner budget on this machine before its Playwright step. What the specs assert was instead verified directly against the live swarm service — `/v1/sys/health` returns `initialized: true, sealed: false`, and `/v1/sys/metrics` through the proxy returns **403** on the onion vhost — but the spec suite itself still needs one full swarm run.*"
 msgstr ""
 
 msgid "[ ] `make test` green tree-wide."
@@ -52510,9 +53004,6 @@ msgid "[ ] `meta/variants.yml` defines three variants (V1 all auth on, V2 all-fa
 msgstr ""
 
 msgid "[ ] `meta/variants.yml` defines three variants (V1 sso+ldap, V2 all-false, V3 ldap-only); all deploy cleanly on a fresh box."
-msgstr ""
-
-msgid "[ ] `min_storage` of web-app-docs states the storage of the English site plus the translated sites."
 msgstr ""
 
 msgid "[ ] `monitoring.{{ DOMAIN_PRIMARY }}` resolves through `sys-svc-proxy` (and, when SSO is on, the oauth2-proxy gate) to the Checkmk site Apache; `GET /<site>/check_mk/` returns the Checkmk login/GUI."
@@ -52560,13 +53051,7 @@ msgstr ""
 msgid "[ ] oauth2-proxy `email_domains` matches provisioned `@<NODE_ONION>.onion` users; `LDAP_DN_BASE` + CA identity resolve consistently."
 msgstr ""
 
-msgid "[ ] web-app-dashboard mounts one port-ui content catalog per language that has a translated dashboard string, generated from `core.po` at deploy time."
-msgstr ""
-
 msgid "[ ] web-app-docs builds the deployed working tree as the unlisted version `deployed`, because the git mirror only holds what is pushed to `main`."
-msgstr ""
-
-msgid "[ ] web-app-mig enables the `api` service when web-svc-api is deployed and renders the API base URL into its environment."
 msgstr ""
 
 msgid "[ ] ☑️ cells (infinito-native service flags already declared in `meta/services.yml`) are NOT re-declared as `meta/addons/` addons; they remain service integrations, and only ✅/🪙 cells become new addons."
@@ -52625,6 +53110,12 @@ msgid "[--modes auto] [--tor auto] [--distros \"...\"] [--filesystem \"...\"] [-
 msgstr ""
 
 msgid "[--whitelist \"...\"] [--priority \"...\"] [--lifecycles \"...\"] [--tor auto] [--distros \"...\"] [--filesystem \"...\"] [--architectures \"...\"]"
+msgstr ""
+
+msgid "[/sys/health](https://openbao.org/api-docs/system/health/), [`api/sys_health.go`](https://github.com/openbao/openbao/blob/main/api/sys_health.go)"
+msgstr ""
+
+msgid "[/sys/metrics](https://openbao.org/api-docs/system/metrics/)"
 msgstr ""
 
 msgid "[0.1.0] - 2025-12-09"
@@ -52936,6 +53427,9 @@ msgstr ""
 msgid "[14.1.0] - 2026-09-21"
 msgstr ""
 
+msgid "[14.2.0] - 2026-09-22"
+msgstr ""
+
 msgid "[2.0.0] - 2026-02-08"
 msgstr ""
 
@@ -53111,6 +53605,9 @@ msgid "[Akaunting](roles/web-app-akaunting/)"
 msgstr ""
 
 msgid "[Alejandro Roman Ibanez](https://github.com/AlejandroRomanIbanez): self-hosted containerised CI runners"
+msgstr ""
+
+msgid "[Alejandro Roman Ibanez](https://github.com/AlejandroRomanIbanez): video recording for hand-built Playwright contexts"
 msgstr ""
 
 msgid "[Alejandro Roman](https://github.com/AlejandroRomanIbanez)"
@@ -53312,6 +53809,9 @@ msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design
 msgstr ""
 
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [MariaDB](roles/svc-db-mariadb/), [Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Redis](roles/svc-db-redis/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
+msgstr ""
+
+msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Keycloak](roles/web-app-keycloak/), [Matomo](roles/web-app-matomo/), [OpenLDAP](roles/svc-db-openldap/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
 msgstr ""
 
 msgid "[Backup Docker Volumes](roles/svc-bkp-volume-2-local/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [MariaDB](roles/svc-db-mariadb/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/), [Universal Logout](roles/web-svc-logout/)"
@@ -53658,6 +54158,9 @@ msgstr ""
 msgid "[Docker Health Checks Documentation](https://docs.docker.com/engine/reference/run/#healthcheck)"
 msgstr ""
 
+msgid "[Docker Hub tags](https://hub.docker.com/r/openbao/openbao)"
+msgstr ""
+
 msgid "[Docker Hub](https://hub.docker.com/r/checkmk/check-mk-raw/), [Docker docs](https://docs.checkmk.com/latest/en/introduction_docker.html)"
 msgstr ""
 
@@ -53722,6 +54225,9 @@ msgid "[EspoCRM](roles/web-app-espocrm/)"
 msgstr ""
 
 msgid "[Evangelos Tsakoudis](https://evangelostsak.com): Penpot role and its end-to-end test suite"
+msgstr ""
+
+msgid "[Evangelos Tsakoudis](https://evangelostsak.com): the OpenBao role with its seal, credential rotation, recovery and RBAC end-to-end suite, role-local Prometheus alert rules, and the LAM and swarm network fixes that work uncovered"
 msgstr ""
 
 msgid "[Evangelos Tsakoudis](https://github.com/evangelostsak)"
@@ -53943,6 +54449,9 @@ msgstr ""
 msgid "[Issue Tracker](https://s.infinito.nexus/issues)"
 msgstr ""
 
+msgid "[JWT/OIDC auth](https://openbao.org/docs/auth/jwt/)"
+msgstr ""
+
 msgid "[Jellyfin website](https://jellyfin.org)"
 msgstr ""
 
@@ -54076,6 +54585,9 @@ msgid "[Kevin Veen-Birkenbach](https://veen.world): object-store service, truste
 msgstr ""
 
 msgid "[Kevin Veen-Birkenbach](https://veen.world): per-role update PRs, fork-PR CI hardening, buildx retry, cleanup-workflow fixes and version maintenance"
+msgstr ""
+
+msgid "[Kevin Veen-Birkenbach](https://veen.world): review and version maintenance"
 msgstr ""
 
 msgid "[Kevin Veen-Birkenbach](https://veen.world): trusted-fork-PR flow, fork main sync, package-changelog generator and packaging lint, cleanup automation"
@@ -54465,6 +54977,15 @@ msgstr ""
 msgid "[Open a Pull Request with the right template](docs/contributing/artefact/git/pull-request.md)."
 msgstr ""
 
+msgid "[OpenBao](https://openbao.org/) is an identity-based secrets and encryption manager governed by the Linux Foundation. It stores application credentials, API keys, service and database credentials, automation and agent identities, short-lived tokens and encryption keys behind a policy engine, and can act as an internal certificate authority."
+msgstr ""
+
+msgid "[OpenBao](https://openbao.org/) is the Linux-Foundation-governed fork of HashiCorp Vault: an identity-based secrets and encryption manager with a KV store, a PKI engine, pluggable auth methods and a built-in web UI."
+msgstr ""
+
+msgid "[OpenBao](roles/web-app-openbao/)"
+msgstr ""
+
 msgid "[OpenClaw](https://openclaw.ai/) is an open-source personal AI agent that runs on hardware you control. It ships a gateway process with a browser Control UI next to its CLI and TUI, keeps persistent memory and a workspace on disk, and performs browser and filesystem tasks inside its own sandbox."
 msgstr ""
 
@@ -54679,6 +55200,9 @@ msgid "[Redis ACL documentation](https://redis.io/docs/latest/operate/oss_and_st
 msgstr ""
 
 msgid "[Redis](roles/svc-db-redis/)"
+msgstr ""
+
+msgid "[Releases](https://github.com/openbao/openbao/releases)"
 msgstr ""
 
 msgid "[Relevant Issue Tracker](https://github.com/friendica/friendica/issues)"
@@ -55716,6 +56240,12 @@ msgstr ""
 msgid "[entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml): `🚫 Dependabot: Close while auto-updates disabled`"
 msgstr ""
 
+msgid "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml)"
+msgstr ""
+
+msgid "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml): `🌐 Translate catalogs`"
+msgstr ""
+
 msgid "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml)"
 msgstr ""
 
@@ -55729,6 +56259,9 @@ msgid "[env-vars](https://semaphoreui.com/docs/admin-guide/configuration/env-var
 msgstr ""
 
 msgid "[external.md](../docs/contributing/actions/testing/external.md)"
+msgstr ""
+
+msgid "[extract.sh](extract.sh)"
 msgstr ""
 
 msgid "[federationtester.matrix.org](https://federationtester.matrix.org/)"
@@ -55758,6 +56291,9 @@ msgstr ""
 msgid "[hugomods/hugo Docker images](https://hub.docker.com/r/hugomods/hugo)"
 msgstr ""
 
+msgid "[i18n/](i18n/)"
+msgstr ""
+
 msgid "[image_discovery.py](../../../../../utils/docker/image/discovery.py) enumerates all role images from both sources above. It is used by the mirror pipeline (`cli/contributing/mirror/`) and the external version-check test ([`tests/external/update/docker/test_image_versions.py`](../../../../../tests/external/update/docker/test_image_versions.py))."
 msgstr ""
 
@@ -55780,6 +56316,9 @@ msgid "[init.py](../../../cli/administration/deploy/development/init.py)"
 msgstr ""
 
 msgid "[inj_enabled.py](../../../../../roles/sys-front-inj-all/filter_plugins/inj_enabled.py)"
+msgstr ""
+
+msgid "[install_python.sh](install_python.sh)"
 msgstr ""
 
 msgid "[instructions.md](instructions.md): how the role README's Production block is replayed inside a deploy row."
@@ -55813,6 +56352,12 @@ msgid "[ipv6/](ipv6/) for IPv6 enable/restore helpers"
 msgstr ""
 
 msgid "[jinja.py](jinja.py)"
+msgstr ""
+
+msgid "[keycloak.mdx](https://github.com/openbao/openbao/blob/main/website/content/docs/auth/jwt/oidc-providers/keycloak.mdx)"
+msgstr ""
+
+msgid "[languages.sh](languages.sh)"
 msgstr ""
 
 msgid "[layout.md](../../design/role/services/layout.md) describes the per-entity `ports` shape."
@@ -56099,6 +56644,12 @@ msgstr ""
 msgid "[scripts/](../../../scripts/)"
 msgstr ""
 
+msgid "[seal concepts](https://openbao.org/docs/concepts/seal/)"
+msgstr ""
+
+msgid "[seal stanza](https://openbao.org/docs/configuration/seal/)"
+msgstr ""
+
 msgid "[secrets.md](secrets.md): repository secrets that workflows consume, and the failure mode when they are missing."
 msgstr ""
 
@@ -56127,6 +56678,9 @@ msgid "[shellcheck](https://github.com/koalaman/shellcheck)"
 msgstr ""
 
 msgid "[sshd_config manual](https://man7.org/linux/man-pages/man5/sshd_config.5.html)"
+msgstr ""
+
+msgid "[static seal](https://openbao.org/docs/configuration/seal/static/)"
 msgstr ""
 
 msgid "[svc-db-openldap](../../../../roles/svc-db-openldap/)"
@@ -56468,6 +57022,12 @@ msgstr ""
 msgid "[test_variants_shared_false_once.py](../../../../tests/lint/ansible/services/test_variants_shared_false_once.py)"
 msgstr ""
 
+msgid "[test_version_pins_are_watched.py](../../../../tests/lint/repository/test_version_pins_are_watched.py)"
+msgstr ""
+
+msgid "[test_version_sources.py](../../../../tests/external/update/source/test_version_sources.py)"
+msgstr ""
+
 msgid "[testing.md](../actions/testing.md)"
 msgstr ""
 
@@ -56487,6 +57047,9 @@ msgid "[the mapping CLI](../../../../cli/meta/roles/mapping/__main__.py) renders
 msgstr ""
 
 msgid "[tls/](tls/) for CA trust helpers"
+msgstr ""
+
+msgid "[translate.sh](translate.sh)"
 msgstr ""
 
 msgid "[type.py](../../../../utils/roles/type.py) consumes the same schema. It walks every entry flagged `marker: True` in `ROLE_FILES` and adds the surrounding type to a role's type set whenever the marker's dotted path resolves to a non-empty value in the role's file. A role MAY belong to several types simultaneously (an application that also ships a systemd unit declares both `application_id` and `system_service_id`); `get_role_types` returns the full set."
@@ -56544,9 +57107,6 @@ msgid "[web-app-discourse](../../roles/web-app-discourse/)"
 msgstr ""
 
 msgid "[web-app-discourse](../../roles/web-app-discourse/): the `hosted_only` classification is stale. The project-owned server is a pinned HTTP-sidecar candidate that MUST run read-only by default with a restricted User API key and separate client-facing authentication."
-msgstr ""
-
-msgid "[web-app-docs](../../roles/web-app-docs/files/python/infinito_docs/library.py) already keeps a git mirror and reads trees through `git archive`. The API follows its role layout: a role-local `files/Dockerfile` built at deploy time and the application under `files/python/`."
 msgstr ""
 
 msgid "[web-app-docs](../../roles/web-app-docs/files/python/infinito_docs/library.py) builds each version on demand from a git mirror: `git archive` of the ref, the generators, then one `sphinx-build -M html`. Its [server](../../roles/web-app-docs/files/python/infinito_docs/server.py) routes `/<version>/<rest>`. Sphinx reads `locale/<code>/LC_MESSAGES/docs.po` when `language` and `locale_dirs` are set, and compiles it with Babel."
@@ -56690,6 +57250,9 @@ msgstr ""
 msgid "[x] A **separate** OIDC login scenario and LDAP login scenario exist (not combined into one test body) per [018](018-playwright-ldap-coverage.md)."
 msgstr ""
 
+msgid "[x] A KV v2 secrets engine is mounted at a configurable path; the mount path is an Infinito.Nexus variable, not a literal in a task. (`OPENBAO_KV_MOUNT`, mounted at `infinito`.)"
+msgstr ""
+
 msgid "[x] A Playwright spec (or equivalent test) verifies a completion round-trips through the gateway."
 msgstr ""
 
@@ -56700,6 +57263,9 @@ msgid "[x] A Playwright spec per role proves the configured surface answers a pr
 msgstr ""
 
 msgid "[x] A `docs/requirements/` directory exists."
+msgstr ""
+
+msgid "[x] A `reader` is denied a write to an application secret path, and denied read on a path outside their policy, with a 403 from OpenBao. Verified with a token actually bound to `reader` (minted through an application AppRole, since the revoked root and the child-policy-subset rule make token creation from `ansible-admin` impossible by design): read on its own path returned the value, `kv put` returned `403 permission denied`, and `read sys/auth` returned `403 permission denied`."
 msgstr ""
 
 msgid "[x] A `storage` block is added to `group_vars` with the shape:"
@@ -56790,6 +57356,15 @@ msgstr ""
 msgid "[x] A preflight probes `/dev/kvm` and each runtime binary, selects the strongest one installed, and logs the choice with an actionable line."
 msgstr ""
 
+msgid "[x] A restarted container comes back **unsealed with no operator action** (`/v1/sys/seal-status` reports `sealed: false`). Asserted by `test-seal-status.js` (`sealed: false`, `recovery_seal: true`) after the deploy recreated the container; the play's own \"wait until the static seal has auto-unsealed\" step gates every later task on it."
+msgstr ""
+
+msgid "[x] A restore procedure is documented and executed once end to end: restore the volume, redeploy, and confirm the instance auto-unseals and a previously stored secret is still readable. Drill run on the variant-2 stack: container quiesced, `openbao_data` archived (33 MB), the live volume **wiped to zero entries**, restored from the archive, and restarted — OpenBao came back `initialized: true, sealed: false` with the secret, the PKI root CA and all five policies recovered. This also confirms the documented dependency: the restored store is only readable because the seal key in the inventory was unchanged."
+msgstr ""
+
+msgid "[x] A role that enables the `api` service gets the web-svc-api origin in its `connect-src`, and a role without it does not."
+msgstr ""
+
 msgid "[x] A role that runs no RDBMS of its own MUST NOT keep read-write state on an NFS-backed volume unless the payload is share-safe: pair `nfs: false` with a single replica or a manager pin, or externalise the state into a database."
 msgstr ""
 
@@ -56805,7 +57380,19 @@ msgstr ""
 msgid "[x] A schema test verifies that `enabled` may be omitted, defaults to `false` for optional addons, defaults to true for `required: true`, and rejects `required: true` with `enabled: false`."
 msgstr ""
 
+msgid "[x] A second deploy authenticates purely with the AppRole credentials and reconciles policies, auth methods and mounts idempotently (`changed=0` on an unchanged re-run). AppRole-only re-authentication was verified across consecutive deploys after the root token was revoked. `changed=0` now holds: the reconciliation tasks derive `changed_when` from real state (read-before/read-after around each write; a marker on the enable-branch of each `… || enable` guard), and on the third consecutive identical run **no `web-app-openbao` task reported changed**. Two bugs were found and fixed while measuring this: `grep -q … || enable` returns rc 0 in *both* branches, so `changed_when: rc == 0` fired unconditionally; and `bao read -format=json` embeds a per-request `request_id`, so a naive before/after compare could never match."
+msgstr ""
+
+msgid "[x] A secret is created and read back through an authenticated session, and the round-trip is asserted by the test suite. Verified against the live instance via an AppRole session: `bao kv put infinito/probe` followed by `bao kv get` returned the written value."
+msgstr ""
+
 msgid "[x] A service-health check verifies every deployed stack reports `replicas: N/N` for the configured replica count."
+msgstr ""
+
+msgid "[x] A spec asserts the RBAC denial from the criteria above (a non-member gets no administrative surface)."
+msgstr ""
+
+msgid "[x] A spec covers every RBAC tier, not only the denial: `biber` starts in no group and reaches no privileged surface, then an administrator adds him to each of the three RBAC groups in turn through LAM, and after every change he logs in again and the spec asserts the policy set and the capability that tier is meant to grant — the operator writes an application secret where the reader gets 403, the reader still reads it back, and only the administrator reads an ACL policy definition. Removing him between rounds proves the revoke as well as the grant. **Correction from implementation:** this was first built with two dedicated accounts, `baooperator` and `baoreader`, which deployed and joined their groups correctly but returned 403 on every LDAP bind — a user declared without an explicit `password` inherits the `strong_password` fallback, which `utils/templating/ansible.py` re-evaluates through `secrets.choice` on each render with nothing persisted, so `ldap_passwd` and `playwright.env` could receive different strings. Moving `biber` between the groups drops both accounts, needs no password workaround, and covers strictly more: the static members could only ever show a steady state, never a grant or a revoke taking effect. Building it also surfaced a defect in `web-app-lam`: `meta/csp.yml` set `script-src-elem.unsafe-inline: false`, which blocked the inline script LAM renders to drive its asynchronous tools, so LDAP import/export and Multi edit posted their job, displayed `Status: in progress` and never polled it — broken for every user, not just the spec."
 msgstr ""
 
 msgid "[x] A test asserts that every role declaring a served surface gates it on the role's MCP-enabled flag, so switching MCP off removes the endpoint rather than leaving it reachable."
@@ -56815,6 +57402,12 @@ msgid "[x] A test discovers every role with a literal `application_id` and prove
 msgstr ""
 
 msgid "[x] A unit-level test covers the CLI parameter parsing (required vs. optional parameters, the output-stream-file default, and the `roles` normalisation)."
+msgstr ""
+
+msgid "[x] A user logs in at `https://openbao.{{ DOMAIN_PRIMARY }}/` through the Keycloak chain and lands authenticated in the OpenBao UI. (`test-oidc-login.js`, 6.5 s.)"
+msgstr ""
+
+msgid "[x] A user who authenticates successfully but belongs to **no** OpenBao role group receives only the `default` policy and reaches no administrative surface. (`test-ldap-login.js` asserts biber receives neither `administrator` nor `operator`.)"
 msgstr ""
 
 msgid "[x] A volume-health check verifies that every NFS-backed mount declared in inventory is reachable from every swarm node."
@@ -56841,6 +57434,9 @@ msgstr ""
 msgid "[x] Among the hosts in `svc-swarm-node`, the cluster manager is identified by membership in the additional group `svc-swarm-manager`. Exactly one host MUST be a member of `svc-swarm-manager` in v1; all other `svc-swarm-node` members join as workers. A deploy with zero or more-than-one manager MUST fail at inventory-validation time, not at runtime."
 msgstr ""
 
+msgid "[x] An LDAP user in the `administrator` role group logs in through the `ldap` auth method and receives the `administrator` policy. (`test-ldap-login.js`, asserts `auth.policies` contains `administrator`.)"
+msgstr ""
+
 msgid "[x] An agent guide explains how to process requirements (see [requirements.md](../agents/action/requirements.md))."
 msgstr ""
 
@@ -56863,6 +57459,9 @@ msgid "[x] Both agent roles run under the isolating runtime, and the deploy fail
 msgstr ""
 
 msgid "[x] Both agents reach inference only through the [031](031-llm-gateway-model-backends.md) gateway (BYO-model config points at `/v1`); switching a backend is a gateway config change, no agent redeploy."
+msgstr ""
+
+msgid "[x] Both flag states are covered by `meta/variants.yml`."
 msgstr ""
 
 msgid "[x] Both the canonical admin persona and the non-admin RBAC persona `biber` are exercised per [017](017-playwright-biber-rbac-coverage.md)."
@@ -56925,6 +57524,9 @@ msgstr ""
 msgid "[x] Every fixture (sample page, sample image, admin credentials) is created inside the workflow run — no external state, no flaky network dependency."
 msgstr ""
 
+msgid "[x] Every in-container configuration task reaches the container through [`resolve_host_cid.yml`](../../roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml) — `container exec <resolved CID>` under `ansible.builtin.shell`, delegated to the resolved `_HOST_NODE` — so the init, auth and policy tasks work unchanged under swarm. This supersedes the `lookup('container_address', …)` mechanism first named here: that lookup resolves only the container id and refuses to run on a non-manager node, whereas the resolver also yields the hosting node and waits for swarm convergence, which the init step needs anyway before `bao operator init`."
+msgstr ""
+
 msgid "[x] Every integrated MCP role (server or client) ships a matching Playwright spec under `roles/<role>/files/playwright/` covering its MCP surface, and that spec is green before the role's Acceptance Criterion is marked complete. Held by [test_mcp_playwright_coverage.py](../../tests/lint/ansible/services/test_mcp_playwright_coverage.py), which derives the enabled surfaces from `meta/mcp.yml` and requires a serving role to name the anonymous probe and a consuming role to name either its server list or its own refusal."
 msgstr ""
 
@@ -56953,6 +57555,9 @@ msgid "[x] Existing compose-flavor tasks land under `tasks/flavor/compose/` with
 msgstr ""
 
 msgid "[x] Export ACLs restrict access to the swarm node IPs declared in inventory; an unrelated host MUST NOT be able to mount the export."
+msgstr ""
+
+msgid "[x] First deploy runs `bao operator init` exactly once; a second deploy against an already-initialised instance detects that state and does not re-init. Confirmed across three consecutive deploys."
 msgstr ""
 
 msgid "[x] Flowise 3.1.4 is reconciled through `/api/v1/custom-mcp-servers`, registers only Streamable HTTP providers, stores headers encrypted, authorizes each entry, and verifies exact tool names and schemas. The reconciler refuses to register a provider whose declared transport is not the one the role declares, stores the bearer as a `CUSTOM_HEADERS` `authConfig` Flowise encrypts at rest, and authorizes every entry. Name verification was vacuous until now, because the desired entry hardcoded an empty tool list; it compares against the provider's declared allowlist. The schema half is enforced where the schema contract lives: the adapter serving those tools pins `tools.schema_sha256` and calls `policy.assert_no_drift` at startup, so a changed schema fails the provider rather than being re-checked from a client that cannot see the contract file."
@@ -57016,6 +57621,9 @@ msgstr ""
 msgid "[x] MDAD's bundled traefik is disabled in the rendered inventory."
 msgstr ""
 
+msgid "[x] Machine access is configured independently of the human OIDC path: the AppRole auth method exists with its own policy, and an application AppRole can obtain a token without any human login and without the Ansible AppRole's credentials. Verified: `bao auth list` shows `approle/` alongside the human `ldap/` (and `oidc/` when SSO is on), and a provisioned `probe-reader` AppRole logged in and received a `reader`-scoped token with no human involvement."
+msgstr ""
+
 msgid "[x] Mutating MCP tools are blocked by enforceable upstream scopes or a `tools/call` policy allowlist. A `mutating_tools_enabled: false` metadata value without runtime enforcement does not satisfy this criterion. Adapter-backed surfaces are covered by the adapter, which refuses an unnamed tool and refuses a mutating one while mutations are off, on `tools/call` itself rather than at load time. Two of the enabled native surfaces carry a real upstream scope: Moodle's token reaches only the five read functions its external service lists, behind a role holding one capability, and Home Assistant's account is pinned to the read-only group on every run rather than only at creation. Two do not, and auditing them is what closed this criterion. Baserow's `MCPEndpoint` model carries `name`, `key`, `created`, `user` and `workspace` and no scope of any kind, while `CoreHandler.create_workspace` makes the endpoint's owner a workspace administrator, so its declared `create_rows`, `update_rows` and `delete_rows` were served and callable under a declaration that said mutations were off. Nextcloud's app password is likewise bounded only by its own account. The gap is closed at the one place that is enforceable for a native server: a surface now names its mutating tools, every client's include list is the allowlist minus that set, and no admitted client is offered a tool the provider calls mutating. Both agents needed the include list itself first: Hermes registers every tool when `tools.include` is absent, which it documents as its backward-compatible default, and OpenClaw's `toolFilter` was never written at all."
 msgstr ""
 
@@ -57028,6 +57636,9 @@ msgstr ""
 msgid "[x] Native local email/password login is **off** under OIDC (`disable-login-with-password` forces users through SSO) and **on** otherwise, derived from the `sso` service flag (variant-aware); when on, the role bootstraps a local password for the `administrator` profile via the backend PREPL (`enable-prepl-server`) in `tasks/main.yml`, and the bootstrap is skipped under OIDC."
 msgstr ""
 
+msgid "[x] Neither the root token, the recovery keys, the seal key nor the AppRole `secret_id` appear in the output of a normal `-v` deploy run: every task touching them carries `no_log: \"{{ MASK_CREDENTIALS_IN_LOGS | bool }}\"`."
+msgstr ""
+
 msgid "[x] New `test-bridge-roster.js` lists enabled bridges via Synapse admin API and asserts that every `services.matrix.plugins.<bridge>=true` entry has a live appservice record."
 msgstr ""
 
@@ -57035,6 +57646,12 @@ msgid "[x] New `test-element-call.js` opens a room and triggers the Element Call
 msgstr ""
 
 msgid "[x] No MCP server role adds a browser `csp` `connect-src` entry unless a browser-side MCP fetch is required and documented in the role README."
+msgstr ""
+
+msgid "[x] No OpenBao state is written into the container's ephemeral layer: the data directory is the only writable state path and it is the mounted volume."
+msgstr ""
+
+msgid "[x] No TLS verification is disabled anywhere in the role (`insecure`, `skip_verify`, `-k` and equivalents are absent; the LDAP auth method is configured with `insecure_tls=false`)."
 msgstr ""
 
 msgid "[x] No `pre_backup_hook` schema is introduced in `svc-bkp-*` here; that is deferred to a follow-up requirement."
@@ -57050,6 +57667,9 @@ msgid "[x] No fatal failures in matrix r3 (all PLAY RECAPs `failed=0`; Playwrigh
 msgstr ""
 
 msgid "[x] No role in the confirmed table retains a default that sends requests to a third-party provider when the gateway is enabled."
+msgstr ""
+
+msgid "[x] No task or template deliberately logs a token, a seal key or a secret value."
 msgstr ""
 
 msgid "[x] Node labels declared for a host in inventory are applied to the joining node (`docker node update --label-add`)."
@@ -57091,6 +57711,9 @@ msgstr ""
 msgid "[x] Open WebUI with `ENABLE_PERSISTENT_CONFIG=false` restores the exact desired connection state and group grants after a process restart without a full reinstall."
 msgstr ""
 
+msgid "[x] OpenBao logs reach the standard Infinito.Nexus logging mechanism like every other compose service, at a configurable log level. The server logs to stdout like any compose service; the level is `services.openbao.log_level` (default `info`), rendered into the config as `log_level`. The image's own `/openbao/logs` volume is declared as `openbao_logs` so audit output has a named, backed-up home rather than an anonymous volume."
+msgstr ""
+
 msgid "[x] Ordinary Flowise users cannot use MCP or another HTTP node to reach loopback, metadata endpoints, the container control plane, or unrelated internal services; globally disabling the SSRF check alone fails this criterion. `checkDenyList` resolves a hostname and tests every resolved address, and the built-in list denies all of RFC1918, so reaching any provider on a container network is impossible while the built-in list applies. Upstream's switch is not an off switch: with `HTTP_SECURITY_CHECK=false` the deny list becomes exactly `HTTP_DENY_LIST` instead of the built-in one merged with it. The role therefore sets the switch and supplies a list that still denies loopback, link-local, cloud metadata, multicast and reserved space, which is the \"not alone\" this criterion demands. Unrelated internal services are held out by network membership rather than by the list, the same boundary the adapter isolation probe asserts. Configuration alone proves nothing, so the deploy points a throwaway registry entry at loopback and at the metadata address and fails unless Flowise refuses both."
 msgstr ""
 
@@ -57117,6 +57740,10 @@ msgid "[x] Providers declare explicit allowed consumers, clients declare support
 msgstr ""
 
 msgid "[x] Public MCP exposure enforces proxy routing, TLS, request-size, response-size, timeout, concurrency, stream-duration, and rate limits with explicit tested values. **Partly done, and auditing which limits were real found two that were not.** Every role declares seven limits and the adapter validates all seven at contract load, but only five were ever applied: request size, response size, timeout, page size and result items. `concurrent_requests` and `stream_seconds` appeared nowhere except the required-key list. `concurrent_requests` is now enforced, because `ThreadingHTTPServer` starts a thread per connection and asks no contract, so the surplus is refused with `too_many_concurrent_requests` rather than queued, and the slot is given back on the failure path as well as the success path. `stream_seconds` has nothing to bound inside the adapter, which reads a size-capped body and holds no stream open; it belongs at the edge, on the surfaces that do stream. What remains is the edge itself: nothing in the deployment applies any of these at the reverse proxy, and the repository has no rate or connection limiting at all, so the two enabled public surfaces reach their upstream with only the platform's global defaults. **The edge now applies them.** [`templates/mcp/zones.conf.j2`](../../roles/sys-svc-proxy/templates/mcp/zones.conf.j2) renders one `limit_req_zone` and one `limit_conn_zone` per role, and [`tasks/utils/mcp_edge_limits.yml`](../../roles/sys-svc-webserver-core/tasks/utils/mcp_edge_limits.yml) writes them as `mcp-<app>.conf` into the http-level include directory, in the shape `web-app-prometheus` already uses for `lua_shared_dict`. The file is per role and written by the role that owns the surface, so a later round deploying a different application cannot drop another application's zones — a single round-scoped file would have. [`templates/mcp/vhost.conf.j2`](../../roles/sys-svc-proxy/templates/mcp/vhost.conf.j2) then decides what the application's own vhost does with the declared `mcp.endpoint.path`. A surface that is `enabled` and `exposure: public` gets a location carrying the four `limit_*` directives, with `request_bytes` as `client_max_body_size`, `timeout_seconds` as `proxy_send_timeout` and `stream_seconds` as `proxy_read_timeout` and `send_timeout`, which are now parameters of the shared location snippet rather than the fixed `900s` it hard-coded. That is where `stream_seconds` finally bites: the adapter holds no stream, the proxy does."
+msgstr ""
+
+#, python-brace-format
+msgid "[x] Raft integrated storage is configured with its data directory on the named volume declared in `meta/volumes.yml`. Rendered config: `storage \"raft\" { path = \"/openbao/file\" }`, backed by the `openbao_data` volume."
 msgstr ""
 
 msgid "[x] Reconciliation owns only deterministically named resources, fails on duplicates, and preserves human-created resources. The ownership marker is per client, because the name is not always free: Flowise registry entries are `infinito:<provider-application-id>`, Open WebUI groups carry the RBAC group path Keycloak also issues, and n8n uses its configured workflow name."
@@ -57179,13 +57806,28 @@ msgstr ""
 msgid "[x] The Frappe `Administrator` user is seeded by `bench new-site --admin-password=$ERPNEXT_INITIAL_ADMIN_PASSWORD`; the `test-login-native-administrator.js` Playwright spec exercises the break-glass local login in every variant (passed in matrix r3)."
 msgstr ""
 
+msgid "[x] The Keycloak client is provisioned automatically through the existing client-import path; no manual Keycloak setup is required."
+msgstr ""
+
 msgid "[x] The MCP endpoint is authenticated; an unauthenticated probe is rejected, and the credential lives in the platform token store — `meta/mcp.yml` `credential.source: token_store`, written by `sys-token-store` — never in a README, an env file or a Playwright trace. *(Revised: 025 and 035 moved MCP bearers out of `meta/secrets.yml` into the token store after this criterion was written.)*"
 msgstr ""
 
 msgid "[x] The README prominently warns that physical hardware safety (e-stop, motion/current limits, fail-safe wiring) is the operator's responsibility and out of platform scope; the role claims no safety guarantee it does not enforce."
 msgstr ""
 
+msgid "[x] The README states explicitly that the volume backup is **worthless without the seal key**, that the seal key's authoritative home is the encrypted inventory (it is not covered by `svc-bkp-secrets-2-local`, whose sources are `DIR_SECRETS`, the CA and the ACME material), and what the recovery keys can and cannot do."
+msgstr ""
+
+msgid "[x] The README states the consequence of Decision #2 that surfaced during implementation: because the root token is revoked and the recovery keys are **not** persisted (persisting them would be the write-back the AppRole bootstrap exists to avoid), the Ansible AppRole is the *only* administrative path into the instance. Losing or out-of-band-changing those credentials means rebuilding from the volume backup plus the seal key."
+msgstr ""
+
 msgid "[x] The [`roles_with_service`](../../plugins/lookup/roles_with_service.py) lookup, extended for `direction in [server, both]` and endpoint metadata, returns the connection data client roles need for enabled shared MCP server roles, without adding a generated repository-wide application dictionary."
+msgstr ""
+
+msgid "[x] The `container_backup` service is wired with `backup.no_stop_required: false`, so the container is quiesced for a consistent copy of the raft volume."
+msgstr ""
+
+msgid "[x] The `seal \"static\"` stanza reads its key via `env://OPENBAO_SEAL_KEY`; the key is a `meta/secrets.yml` credential and never appears literally in a template, a task argument or a committed file."
 msgstr ""
 
 msgid "[x] The `test-e2e-playwright` role stages `files/playwright/` recursively and discovers specs recursively, so `files/playwright/addons/*.spec.js` are staged and run."
@@ -57209,6 +57851,12 @@ msgstr ""
 msgid "[x] The compose flavor's deprecated status is surfaced in `roles/web-app-matrix/README.md` (lifecycle/`meta/info.yml::deprecated` is not part of the schema; the deprecation contract lives in the README and the `tasks/main.yml` dispatch comment)."
 msgstr ""
 
+msgid "[x] The container healthcheck uses `sealedcode=200&uninitcode=200` so a freshly created, not-yet-initialised container becomes healthy enough for the init task to run, while the monitoring probe keeps the strict codes. Both halves asserted by `test-seal-status.js`; the deploy's init step only ran because the pre-init container reported healthy."
+msgstr ""
+
+msgid "[x] The dashboard at `/de/` shows the German translation of at least one card description and one menu category."
+msgstr ""
+
 msgid "[x] The declarative user configuration can assign `mcp` to one application without assigning it to any other application."
 msgstr ""
 
@@ -57230,13 +57878,41 @@ msgstr ""
 msgid "[x] The gateway rejects unauthenticated requests; each consumer authenticates with its own LiteLLM virtual key, and revoking one key blocks only that consumer."
 msgstr ""
 
+msgid "[x] The generated redirect URIs cover both `/v1/auth/oidc/callback` and `/ui/vault/auth/oidc/oidc/callback` (the `redirect_uris` wildcard), and the OpenBao OIDC role's `allowed_redirect_uris` lists them explicitly. Proven by probing `auth/oidc/oidc/auth_url`: the UI callback returns a signed Keycloak URL while a non-listed URI returns `auth_url n/a`."
+msgstr ""
+
+msgid "[x] The group→policy mapping is driven by `lookup('rbac_group_path', application_id='web-app-openbao', role='<role>')`; no group path is assembled inline."
+msgstr ""
+
+msgid "[x] The image is pinned to `openbao/openbao:2.6.2` (no `:latest`, no `v` prefix)."
+msgstr ""
+
+msgid "[x] The listener runs with `tls_disable = true` and is reachable only on the role-local docker network and the localhost-bound `ports.local.http`; it is not bound on `0.0.0.0` of the host."
+msgstr ""
+
+msgid "[x] The logout panel takes the text direction of every language from `meta/languages.yml`."
+msgstr ""
+
+#, python-brace-format
+msgid "[x] The metrics endpoint is not reachable through `sys-svc-proxy` from outside the role-local docker network. It **was** publicly readable (HTTP 200 through the proxy) until a `location = /v1/sys/metrics { deny all; }` was added in the role's `templates/proxy.conf.j2`; `test-rbac-denial.js` now asserts the endpoint never answers 200 on the public surface."
+msgstr ""
+
 msgid "[x] The native `mcp_server` integration is enabled and declared in `meta/services.yml` as `direction: server`, `implementation: native`, `transport: streamable_http`, conforming to the [025](025-mcp-role-integration.md) schema and lint."
 msgstr ""
 
 msgid "[x] The operational metadata stays role-local: authoritative source, transport, authentication, real credential subject, read/write scope, tool allowlist, proposed implementation, selected consumers, and blocker all live in the role's own `meta/mcp.yml`, and [test_mcp_schema.py](../../tests/lint/ansible/services/test_mcp_schema.py) enforces their shape there. A generated report aggregating them was removed: scope and credential subject were identical for every role, so the table restated its sources instead of deriving anything from them."
 msgstr ""
 
+msgid "[x] The play enables AppRole, sets the Ansible `role_id` and `secret_id` from the inventory credentials via `role-id` / `custom-secret-id`, and **revokes the root token before the play ends**; `bao token lookup` on the old root token fails afterwards."
+msgstr ""
+
+msgid "[x] The raft volume is declared `nfs: false` with a `# nocheck: nfs-false-data-loss` reason; no OpenBao state is placed on an NFS-backed volume in any mode."
+msgstr ""
+
 msgid "[x] The role declares menu tags: `design`, `penpot`, `prototyping`, `collaboration`, `ui-ux`, `figma-alternative`."
+msgstr ""
+
+msgid "[x] The role emits a `Content-Security-Policy` header on the canonical surface, and the OpenBao UI renders without CSP violations under it. (`test-guest-persona.js` asserts the CSP injections; the UI renders and the in-page `fetch` to `/v1/...` is not blocked.)"
 msgstr ""
 
 msgid "[x] The role exposes stack-management primitives (`deploy`, `update`, `remove`) consumable by the deploy pipeline of any role rendering a swarm stack."
@@ -57266,13 +57942,22 @@ msgstr ""
 msgid "[x] The role service design docs link to the MCP contract and explain why stdio MCP is not enabled in deployed web roles by default."
 msgstr ""
 
+msgid "[x] The role uses no node-local `force_bridge` network, so the swarm Prometheus can reach the native-metrics target (the `native_metrics_apps` lookup gates `force_bridge` apps out of the scrape). Confirmed by the deploy pre-creating both the overlay and bridge networks for `web-app-openbao` from `web-app-prometheus`."
+msgstr ""
+
 msgid "[x] The role's `README.md` documents the runner's purpose, the CLI entry point, and how to invoke it end-to-end."
+msgstr ""
+
+msgid "[x] The role's compose template sets `service_update_order = 'stop-first'`, so a swarm rolling update never runs two tasks against the same raft directory. Confirmed on the live cluster: the service's `UpdateConfig.Order` is `stop-first` with `Replicas 1`."
 msgstr ""
 
 msgid "[x] The runner choice is fixed to GitHub-hosted DinD for reproducibility — every PR run is identical and depends on no self-hosted infrastructure. Migrating to a self-hosted runner (e.g. [014](014-svc-runner-ci.md)) is a Future Extension, not part of this requirement."
 msgstr ""
 
 msgid "[x] The script accepts the following parameters:"
+msgstr ""
+
+msgid "[x] The service carries `placement: manager` with the raft/NFS reason in its `# nocheck: default-placement-manager` comment, so the swarm task cannot be rescheduled away from its volume. Confirmed on the live cluster: `docker service inspect openbao_openbao` reports `Placement.Constraints [\"node.role == manager\"]`."
 msgstr ""
 
 msgid "[x] The stack includes a Penpot **backend** container."
@@ -57287,7 +57972,16 @@ msgstr ""
 msgid "[x] The stack is rendered with **one `docker stack` per role** (consistent with today's one-compose-project-per-role model). Granular `docker stack deploy / update / rm` operations per role MUST be possible. A single global stack across all Infinito services is explicitly rejected."
 msgstr ""
 
+msgid "[x] The stack reaches a steady running state in every variant, and `make quality` is green tree-wide. `make quality` (docs + autoformat + the four suites) passes end to end — `test-external`, `test-integration`, `test-lint` and `test-unit` all green. All three variants reach a steady running state with `failed=0`."
+msgstr ""
+
 msgid "[x] The supported catalog adapters are documented and bounded so broad marketplaces do not produce unreviewable warning noise."
+msgstr ""
+
+msgid "[x] The three baseline personas are covered per the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md): `guest` (never reaches an authenticated surface), `biber`, `administrator`, each in its own `test-*.js` module aggregated by `playwright.spec.js`, with SSO/LDAP steps guarded by `skipUnlessServiceEnabled`. `guest` runs live; `biber` and `administrator` are blocked with `PERSONA_*_BLOCKED` under the contract's documented escape, each carrying a `# nocheck: persona-block-rationale` naming the role property that forces it — biber holds no OpenBao RBAC group by design, and the shared persona helper cannot drive OpenBao's method-select + popup + `postMessage` login. The administrator's OIDC journey is asserted instead by `test-oidc-login.js`, and biber's denial by `test-ldap-login.js`."
+msgstr ""
+
+msgid "[x] The user identifier is templated from `{{ OIDC.ATTRIBUTES.USERNAME }}`; the literal `preferred_username` does not appear in the role."
 msgstr ""
 
 msgid "[x] The vhost configures WebSocket upgrade so real-time collaboration (live cursors, comments) works (handled by the shared proxy template)."
@@ -57305,7 +57999,19 @@ msgstr ""
 msgid "[x] The workflow drains the node currently running the MediaWiki container, waits for the swarm scheduler to migrate the container to another node, then asserts:"
 msgstr ""
 
+msgid "[x] This requirement is cross-linked from the implementing PR, and the PR is cross-linked back from here. Implementing PR: [infinito-nexus/core#611](https://github.com/infinito-nexus/core/pull/611)."
+msgstr ""
+
 msgid "[x] This template file exists as `000-template.md`."
+msgstr ""
+
+msgid "[x] Three OpenBao policies of the same names exist, written from templates, following least privilege: `reader` has read-only capability on the application secret paths, `operator` adds create/update/delete there, and only `administrator` may touch `sys/policies`, `sys/auth` and `sys/mounts`."
+msgstr ""
+
+msgid "[x] Tokens issued to machine identities carry a finite TTL; no non-expiring shared administrator token is created. The Ansible AppRole issues `token_ttl` 1800 s with `token_max_ttl` 3600 s, and the root token is revoked at bootstrap."
+msgstr ""
+
+msgid "[x] Under swarm, a service update (`docker service update --force`) leaves a previously written secret readable and the instance auto-unsealed. The swarm service runs from the named `openbao_data` volume with `stop-first` ordering and `replicas: 1`, and reports `initialized: true, sealed: false` after converging; both volumes are named (`openbao_data`, `openbao_logs`), so no state rides on an anonymous volume that a reschedule could strand."
 msgstr ""
 
 msgid "[x] Unit or integration tests validate the MCP service schema and reject unsafe defaults."
@@ -57336,6 +58042,9 @@ msgid "[x] When `services.mariadb.shared=true` (V1 + matching `group_names`), Fr
 msgstr ""
 
 msgid "[x] When `svc-db-openldap` is in `group_names`, Frappe's LDAP Settings doctype is auto-configured by `tasks/05_ldap.yml` via `files/scripts/apply/ldap_source.py`. End-to-end LDAP-login (auto-create Frappe user from LDAP bind on first sign-in) is **deferred to a follow-up requirement** — needs additional Frappe-side attribute mapping + user-creation hooks; documented in README. The corresponding Playwright login specs (`test-login-via-ldap-*`) are intentionally absent in v1."
+msgstr ""
+
+msgid "[x] When `svc-db-openldap` is in `group_names`, the `ldap` auth method is enabled and reads its attribute names, DNs and URI from `LDAP.*` only."
 msgstr ""
 
 msgid "[x] When `svc-db-postgres` is in `group_names`, the rendered MDAD inventory points Synapse + all enabled bridges at the central postgres host alias with the central root credential; no in-stack postgres container is spawned by MDAD."
@@ -57387,6 +58096,9 @@ msgid "[x] Where KVM is unavailable (e.g. local `act` through DinD), the agent r
 msgstr ""
 
 msgid "[x] With `services.mcp.enabled=true`, the role's uptime/status-code check still passes, proving the authenticated MCP path does not regress health monitoring."
+msgstr ""
+
+msgid "[x] With the flag on, the play mounts `pki`, generates an internal root CA and one issuing role, and a service certificate can be issued from it. Verified on the variant-2 deploy: `pki/` mounted, root CA present, role `internal` configured (`allow_subdomains`, `max_ttl` 7776000), and `pki/issue/internal` returned a real certificate (serial `55:29:af:de:89:2f:15:0a:…`)."
 msgstr ""
 
 msgid "[x] WordPress, Discourse, Odoo, Hermes, OpenClaw, Flowise, and the 11 missing upstream-path roles are reclassified exactly as required above before their old status is considered complete."
@@ -57462,7 +58174,13 @@ msgstr ""
 msgid "[x] `--help` documents every parameter above, including the default value of the output stream file, in the same style as [cli/administration/deploy/dedicated/command.py](../../cli/administration/deploy/runner/command.py)."
 msgstr ""
 
+msgid "[x] `README.md` documents the static-seal model and its trust assumption, the bootstrap and root-token revocation flow, the RBAC mapping, the PKI flag, the backup/restore procedure including the seal-key caveat, and the CLI-OIDC-login limitation from Decision #10. It additionally records two traps found during implementation: the `/openbao/file` ownership requirement and why `vault_core_unsealed` must not be used for alerting."
+msgstr ""
+
 msgid "[x] `apply/api_bot.py` sets `setup_complete=1` on the `System Settings` doctype + writes the global default; verified in matrix r3."
+msgstr ""
+
+msgid "[x] `auth/oidc/config` is written from `OIDC.CLIENT.*` values only — no hardcoded realm name, issuer URL, endpoint or claim string anywhere in the role."
 msgstr ""
 
 msgid "[x] `auth: oidc` is rejected by static client renderers until a real acquisition, refresh, audience, expiry, and revocation flow is implemented and tested."
@@ -57474,16 +58192,31 @@ msgstr ""
 msgid "[x] `bench install-app erpnext` runs as part of `bench new-site --install-app erpnext` in `tasks/03_bench_bootstrap.yml`; the long-lived Frappe containers are restarted afterwards so their cached app set picks up the new install (otherwise `/login` serves HTTP 500 from a stale app cache)."
 msgstr ""
 
+msgid "[x] `cluster_addr` renders identically in both modes and is not derived from the container name (see the [listener/seal schema note](#templatesopenbaohclj2-shape)). Confirmed in the rendered config in **both** modes: compose and the swarm task both carry `cluster_addr = \"http://127.0.0.1:8201\"`, with raft `path = /openbao/file` and `node_id = openbao-1`."
+msgstr ""
+
 msgid "[x] `deploy.replicas` defaults to `len(groups[application_id])` so the swarm scheduler is told how many replicas the inventory declares. A per-service `replicas` field in `meta/services.yml` overrides that for cases where the operator wants a different replica count than the host count."
 msgstr ""
 
 msgid "[x] `deploy.update_config` is taken from a per-role variable with documented defaults `parallelism: 1`, `delay: 10s`."
 msgstr ""
 
+msgid "[x] `docker compose down && up` (container recreated, volume retained) leaves a previously written secret readable. Verified by restarting the container on the variant-2 stack: it came back `initialized: true, sealed: false` with no operator action, and the pre-restart secret, the PKI root CA and all five policies were still present."
+msgstr ""
+
 msgid "[x] `docs/requirements/027-integration-matrix.md` lists the AI surface of every role in the confirmed table."
 msgstr ""
 
+msgid "[x] `git grep` finds no root token, recovery key or seal key value in the repository."
+msgstr ""
+
 msgid "[x] `implementation: sidecar` or `external` MCP containers attach to the role's existing `networks.local` subnet and add no new top-level network."
+msgstr ""
+
+msgid "[x] `logout_i18n.yml` holds only the English source strings, and the logout panel reads every other language from `core.po`."
+msgstr ""
+
+msgid "[x] `make compose-playwright role=web-app-openbao` exits 0 with no stub tests and a clean logged-out final state. Latest deploy run: **13 passed, 2 skipped, 0 failed (30.8 s)**, no retries."
 msgstr ""
 
 msgid "[x] `make i18n-extract` writes `locale/<code>/LC_MESSAGES/core.po` for all 183 non-English languages, holding every role description, category title and description, dashboard menu label and logout panel string under the `msgctxt` of its source."
@@ -57516,6 +58249,10 @@ msgstr ""
 msgid "[x] `meta/languages.yml` lists exactly the 184 ISO 639-1 languages, each with English name, native name and direction `ltr` or `rtl`."
 msgstr ""
 
+#, python-brace-format
+msgid "[x] `meta/rbac.yml` declares `administrator`, `operator` and `reader`; the LDAP groups and the Keycloak group tree are provisioned by the existing RBAC machinery. Deploy created `cn=web-app-openbao-{administrator,operator,reader},ou=roles,…` plus the `ldap-roles-web-app-openbao` Keycloak mapper."
+msgstr ""
+
 msgid "[x] `meta/secrets.yml` defines the role's configurable variables."
 msgstr ""
 
@@ -57526,6 +58263,9 @@ msgid "[x] `meta/services.yml` declares every container service and a `lifecycle
 msgstr ""
 
 msgid "[x] `meta/services.yml` pins `frappe/erpnext` to a concrete stable v15.x semver (no `:latest`, no `:edge`, no v14, no v16)."
+msgstr ""
+
+msgid "[x] `meta/variants.yml` covers the `sso`, `ldap` and `pki` axes, and every variant deploys cleanly on a fresh box. All three verified by `mode=reinstall` on a purged host: variant 0 (all services on) **13 passed / 2 skipped**, variant 2 (LDAP + PKI, SSO off) **13 passed / 2 skipped** with live PKI issuance, and variant 1 (all services off) **9 passed / 6 skipped** — each with `failed=0` in the play recap. The larger skip count in variant 1 is correct: with SSO and LDAP both off, the OIDC and LDAP specs have no surface to exercise."
 msgstr ""
 
 msgid "[x] `meta/variants.yml` declares the matrix-deploy variants (see **Variants** below)."
@@ -57549,7 +58289,19 @@ msgstr ""
 msgid "[x] `meta/volumes.yml` declares the role's named volumes."
 msgstr ""
 
+msgid "[x] `min_storage` of web-app-docs states the storage of the English site plus the translated sites."
+msgstr ""
+
+msgid "[x] `modes.compose.enabled` and `modes.swarm.enabled` are both `true`, and the role deploys green in **both** modes. Swarm verified on a live `swarm-zombie` cluster (manager + 2 workers + backup node + NFS server): `openbao_openbao` converged `1/1` alongside Keycloak, OpenLDAP, OpenResty, Postgres and Tor, and the service reports `initialized: true, sealed: false, recovery_seal: true, storage_type: raft` — so the static seal, init and AppRole bootstrap all work unchanged under swarm."
+msgstr ""
+
 msgid "[x] `next.erp.{{ DOMAIN_PRIMARY }}` resolves through `sys-svc-proxy` to the ERPNext Nginx frontend and returns HTTP 200 on `GET /` with a Frappe-served HTML body (verified in matrix r3 across all three variants; CSP `unsafe-eval` added to satisfy Frappe's `eval()` use)."
+msgstr ""
+
+msgid "[x] `openbao.{{ DOMAIN_PRIMARY }}` resolves through `sys-svc-proxy` to the OpenBao listener; `GET /` returns the OpenBao UI over HTTPS. (`test-baseline.js`; in the tor-enabled variants the canonical family is the onion, so the surface is `http://openbao.<onion>`.)"
+msgstr ""
+
+msgid "[x] `ports.local.http` and `networks.local.subnet` are allocated with `cli contributing network ports suggest` / `address suggest`, not hand-picked, and collide with no existing role. Allocated `8081` (gap-first) and `192.168.221.0/24` (a new umbrella; every established `/24` was taken)."
 msgstr ""
 
 msgid "[x] `roles/web-app-erpnext/README.md` documents restore (the inverse `bench --site … restore` + central-MariaDB import path)."
@@ -57579,10 +58331,19 @@ msgstr ""
 msgid "[x] `roles/web-app-matrix/README.md` documents the two flavors, the MDAD ref bump path, the bridge-enablement matrix, the deprecation window for the compose flavor, and the new Playwright specs."
 msgstr ""
 
+msgid "[x] `roles/web-app-openbao/` exists per the [Target Schema](#role-layout), and every `meta/*.yml` passes the role-meta lint."
+msgstr ""
+
 msgid "[x] `roles/web-app-penpot/README.md` documents the role's purpose, configuration, and the S3 future option."
 msgstr ""
 
 msgid "[x] `services.matrix.conferencing.element_call=true` flips the matching MDAD knobs (`matrix_element_call_enabled` plus the LiveKit/Jitsi backing knobs)."
+msgstr ""
+
+msgid "[x] `services.openbao.pki.enabled` defaults to `false` and nothing PKI-related is mounted in that state. (The PKI include is reached and skipped in variant 0.)"
+msgstr ""
+
+msgid "[x] `services.prometheus.native_metrics.enabled: true` and `templates/prometheus.yml.j2` exist; Prometheus scrapes `/v1/sys/metrics?format=prometheus` on the internal container port and the target reports `up`. Verified against the Prometheus targets API: job `openbao`, `scrapeUrl http://openbao:8200/v1/sys/metrics?format=prometheus`, `health: \"up\"`, `lastError: \"\"`."
 msgstr ""
 
 msgid "[x] `svc-ai-litellm` is headless (no admin UI, no public domain); a separate `web-app-litellm` role serves the admin UI behind proxy + SSO, and deploying it forces `svc-ai-litellm` to `enabled: true` + `shared: true`, while the gateway deploys and runs without the UI role."
@@ -57606,6 +58367,9 @@ msgstr ""
 msgid "[x] `templates/playwright.env.j2` emits the standard service-flag set per [019 Rule 6](README.md#archive); unused flags carry `# nocheck: playwright-service-gate` markers with documented rationale."
 msgstr ""
 
+msgid "[x] `templates/playwright.env.j2` exposes every env var the specs read. (Enforced by `test_env_keys_used.py`, which also fails on a declared-but-unread key.)"
+msgstr ""
+
 msgid "[x] `web-app-flowise` is refactored to consume `svc-ai-litellm`; its role-local LiteLLM config, compose service, and env are removed, no duplicated LiteLLM deployment remains, and Flowise stays green."
 msgstr ""
 
@@ -57626,6 +58390,12 @@ msgid "[x] openresty's existing per-app `upstream <service> { server <host>:<por
 msgstr ""
 
 msgid "[x] v1 scope is single-manager. Multi-manager Raft-quorum HA (3+ managers) is explicitly out of scope for this requirement and tracked under [Future Extensions](#future-extensions)."
+msgstr ""
+
+msgid "[x] web-app-dashboard mounts one port-ui content catalog per language that has a translated dashboard string, generated from `core.po` at deploy time."
+msgstr ""
+
+msgid "[x] web-app-mig enables the `api` service when web-svc-api is deployed and renders the API base URL into its environment."
 msgstr ""
 
 msgid "[yaml.py](yaml.py)"
@@ -58306,6 +59076,9 @@ msgstr ""
 msgid "[🌐](https://ollama.com/) [🛠️](roles/svc-ai-ollama/README.md#quick-setup)"
 msgstr ""
 
+msgid "[🌐](https://openbao.org/) [🎬](https://www.youtube.com/watch?v=hPBT-kSS-68) [🛠️](roles/web-app-openbao/README.md#quick-setup)"
+msgstr ""
+
 msgid "[🌐](https://openclaw.ai/) [🛠️](roles/web-app-openclaw/README.md#quick-setup)"
 msgstr ""
 
@@ -58871,6 +59644,12 @@ msgstr ""
 msgid "`/settings/admin/talk#turn_server`"
 msgstr ""
 
+msgid "`/sys/health`: <https://openbao.org/api-docs/system/health/>"
+msgstr ""
+
+msgid "`/sys/metrics`: <https://openbao.org/api-docs/system/metrics/>"
+msgstr ""
+
 msgid "`/tmp/infinito-runner-deploy.log`"
 msgstr ""
 
@@ -58908,6 +59687,9 @@ msgid "`172.30.N.0/24`"
 msgstr ""
 
 msgid "`1`"
+msgstr ""
+
+msgid "`2.6.2`, released 2026-08-18, is the newest non-prerelease."
 msgstr ""
 
 msgid "`2`"
@@ -59184,6 +59966,9 @@ msgstr ""
 msgid "`CI=true` disables the package cache (flaky in nested containers)."
 msgstr ""
 
+msgid "`CI_ENABLE_AUTO_TRANSLATIONS`"
+msgstr ""
+
 msgid "`CI_ENABLE_AUTO_UPDATES == 'true'`"
 msgstr ""
 
@@ -59448,6 +60233,13 @@ msgid "`FusionDirectory <https://www.fusiondirectory.org/>`__ is a web-based LDA
 msgstr ""
 
 msgid "`FusionDirectory Official Website <https://www.fusiondirectory.org/>`__"
+msgstr ""
+
+msgid "`GET /v1/sys/health` returns **503 when sealed** and 501 when uninitialised. The query params `sealedcode`, `uninitcode`, `standbyok` override those codes per request."
+msgstr ""
+
+#, python-brace-format
+msgid "`GET /v1/sys/metrics?format=prometheus`. Normally token-gated; a listener with `telemetry { unauthenticated_metrics_access = true }` exposes it without a token on that listener only."
 msgstr ""
 
 msgid "`GET http://baserow:80/mcp/<endpoint-key>/sse`"
@@ -60326,6 +61118,9 @@ msgstr ""
 msgid "`Open PR if … changed` step"
 msgstr ""
 
+msgid "`OpenBao <https://openbao.org/>`__ is an identity-based secrets and encryption manager governed by the Linux Foundation. It stores application credentials, API keys, service and database credentials, automation and agent identities, short-lived tokens and encryption keys behind a policy engine, and can act as an internal certificate authority."
+msgstr ""
+
 msgid "`OpenClaw <https://openclaw.ai/>`__ is an open-source personal AI agent that runs on hardware you control. It ships a gateway process with a browser Control UI next to its CLI and TUI, keeps persistent memory and a workspace on disk, and performs browser and filesystem tasks inside its own sandbox."
 msgstr ""
 
@@ -60396,6 +61191,9 @@ msgid "`PLAYWRIGHT_KEEP_ALL`"
 msgstr ""
 
 msgid "`PMTU`"
+msgstr ""
+
+msgid "`POST auth/approle/role/<name>/role-id` accepts a caller-supplied `role_id` (`logical.UpdateOperation`), and `POST auth/approle/role/<name>/custom-secret-id` accepts a caller-supplied `secret_id`. Both verified in [`path_role.go`](https://github.com/openbao/openbao/blob/main/internal/builtin/credential/approle/path_role.go) (lines 889 and 1243)."
 msgstr ""
 
 msgid "`POST http://baserow:80/mcp/messages/?session_id=<id>`"
@@ -61877,6 +62675,9 @@ msgstr ""
 msgid "``key_host`` (string): host path to Root CA private key"
 msgstr ""
 
+msgid "``key`` names the pinned key and defaults to ``version``; an entity with several pins declares a list of such blocks. The types are ``git_tags`` (repository), ``registry_tags`` (image), ``npm`` (package), ``http_regex`` (url, pattern) and ``script`` (path, run with the current version and printing the latest one)."
+msgstr ""
+
 msgid "``key``: services.<key>.* lookup base. Default: provides or entity_name"
 msgstr ""
 
@@ -61975,6 +62776,9 @@ msgid "``mandatory`` (default ``False``): the file (or dotted-path entry) MUST b
 msgstr ""
 
 msgid "``master.seaweedfs.s3.*`` serves the master web UI behind the same admin-only oauth2-proxy."
+msgstr ""
+
+msgid "``match`` keeps only the versions carrying that prefix, and ``strip`` removes it again, so a pin without the upstream's ``v`` stays without it."
 msgstr ""
 
 msgid "``matomo``"
@@ -62681,6 +63485,9 @@ msgstr ""
 msgid "`algorithm:` defaults to `plain` when omitted."
 msgstr ""
 
+msgid "`alicloudkms`, `awskms`, `azurekeyvault`, `gcpckms`, `kmip`, `ocikms`, `ovhcloud`, `pkcs11`, **`static`**, `tcloudpublic`, `transit`. From v2.7.0 many become external plugins; `static` and `transit` stay built in."
+msgstr ""
+
 msgid "`all.sh`"
 msgstr ""
 
@@ -63133,6 +63940,9 @@ msgid "`cliconf`, `httpapi`, `netconf` 🖧🌐🛰️"
 msgstr ""
 
 msgid "`client`"
+msgstr ""
+
+msgid "`cluster_addr` MUST NOT be built from the container name. Compose sets `container_name:` explicitly, but swarm names every task `<stack>_<key>.<slot>.<taskid>`, so a container-name-derived address renders differently per mode. With `replicas: 1` the node only ever advertises to itself, so a loopback cluster address is mode-independent; the HA follow-up story revisits it."
 msgstr ""
 
 msgid "`cn`"
@@ -64090,6 +64900,9 @@ msgstr ""
 msgid "`git commit*`"
 msgstr ""
 
+msgid "`git ls-remote --tags`"
+msgstr ""
+
 msgid "`git push --force*`"
 msgstr ""
 
@@ -64121,6 +64934,9 @@ msgid "`git@github.com:<user>/infinito-nexus-core.git`"
 msgstr ""
 
 msgid "`git@github.com:infinito-nexus/core.git`"
+msgstr ""
+
+msgid "`git_tags`"
 msgstr ""
 
 msgid "`github-runner`"
@@ -64234,6 +65050,9 @@ msgstr ""
 msgid "`http://nginx:80/webservice/mcp/server.php` on the shared MCP overlay"
 msgstr ""
 
+msgid "`http_regex`"
+msgstr ""
+
 msgid "`httpapi_plugins/`"
 msgstr ""
 
@@ -64316,6 +65135,9 @@ msgid "`if_missing` (default)"
 msgstr ""
 
 msgid "`image-healthcheck`"
+msgstr ""
+
+msgid "`image`"
 msgstr ""
 
 msgid "`image` MUST be the image name as it appears in a `docker pull` command, without the tag."
@@ -64457,6 +65279,9 @@ msgid "`key_bits` (int): RSA key size"
 msgstr ""
 
 msgid "`key_host` (string): host path to Root CA private key"
+msgstr ""
+
+msgid "`key` names the pinned key and defaults to `version`; an entity with several pins declares a list of such blocks. Types:"
 msgstr ""
 
 msgid "`kix_search_tickets`, `kix_get_ticket`, `kix_list_organizations`"
@@ -64793,6 +65618,9 @@ msgid "`mastodon_get_profile`, `mastodon_search_public`, `mastodon_get_timeline`
 msgstr ""
 
 msgid "`mastodon`, `pixelfed`, `friendica`, `socialhome`, `bookwyrm`, `mobilizon`, `funkwhale`, `bluesky`, `bridgy-fed`, `jellyfin` ship no configurable AI surface"
+msgstr ""
+
+msgid "`match` keeps only the versions carrying that prefix (and filters server-side on Docker Hub), `strip: true` removes it again so a pin without the upstream's `v` stays without it."
 msgstr ""
 
 msgid "`matomo-track`"
@@ -65188,6 +66016,9 @@ msgstr ""
 msgid "`openapi_allowlist`: a checked-in, versioned, hash-pinned API description plus explicit operation identifiers;"
 msgstr ""
 
+msgid "`openbao/openbao` on Docker Hub. Tags carry **no `v` prefix** (`2.6.2`, not `v2.6.2`), unlike the GitHub release names."
+msgstr ""
+
 msgid "`openclaw.json`"
 msgstr ""
 
@@ -65233,6 +66064,9 @@ msgstr ""
 msgid "`package_notify`"
 msgstr ""
 
+msgid "`package`"
+msgstr ""
+
 msgid "`packaging/arch/`"
 msgstr ""
 
@@ -65267,6 +66101,9 @@ msgid "`password`"
 msgstr ""
 
 msgid "`password` (should come from vault/credentials)"
+msgstr ""
+
+msgid "`path`"
 msgstr ""
 
 msgid "`paths.py`"
@@ -65327,6 +66164,9 @@ msgid "`pixelfed_get_profile`, `pixelfed_search_public`, `pixelfed_get_timeline`
 msgstr ""
 
 msgid "`pkgmgr-deprecated`"
+msgstr ""
+
+msgid "`pki` is inlined under the primary entity, not declared as a service key: it is a role-local feature toggle with no provider role, so a `pki:` service key would fail service resolution."
 msgstr ""
 
 msgid "`plan_dev_inventory_matrix` → `_resolve_round_include` runs `CombinedResolver(follow_run_after=False)` over each primary app and unions the results."
@@ -65509,6 +66349,9 @@ msgstr ""
 msgid "`rabbitmqctl management documentation <https://www.rabbitmq.com/docs/cli>`__"
 msgstr ""
 
+msgid "`random_hex_32` yields 64 hex characters = exactly the 32 bytes the static seal requires, with no prefix to strip at render time (unlike `base64_prefixed_32`, which prepends `base64:`)."
+msgstr ""
+
 msgid "`raw-docker`"
 msgstr ""
 
@@ -65549,6 +66392,9 @@ msgid "`registry-cache` MITM via `HTTP_PROXY` env on `dockerd`"
 msgstr ""
 
 msgid "`registry.npmjs.org`"
+msgstr ""
+
+msgid "`registry_tags`"
 msgstr ""
 
 msgid "`registry`"
@@ -65803,6 +66649,9 @@ msgstr ""
 msgid "`scope.sh` resolves whether a Pull Request is agents-only, documentation-only, or full scope"
 msgstr ""
 
+msgid "`script`"
+msgstr ""
+
 msgid "`scripts/install/package.sh` builds and installs the local package for the current distro (Arch, Debian/Ubuntu, Fedora), so dependency resolution is performed by the distro package manager from package metadata."
 msgstr ""
 
@@ -65813,6 +66662,9 @@ msgid "`scripts/tests/deploy/distros.sh`"
 msgstr ""
 
 msgid "`scripts/tests/deploy/local/exec/container.sh` is a direct-entry shell script example."
+msgstr ""
+
+msgid "`seal \"static\"`"
 msgstr ""
 
 msgid "`seaweedfs-required`"
@@ -66352,6 +67204,9 @@ msgstr ""
 msgid "`templates/javascript.js.j2` or `files/javascript.js`"
 msgstr ""
 
+msgid "`templates/openbao.hcl.j2` shape"
+msgstr ""
+
 msgid "`templates/package.json.j2`: `@playwright/test` version derived from `meta/services.yml.playwright.version`"
 msgstr ""
 
@@ -66525,6 +67380,9 @@ msgstr ""
 msgid "`true` to keep them for every test (passing runs included); the workflow forwards it as `INFINITO_PLAYWRIGHT_KEEP`"
 msgstr ""
 
+msgid "`true` to machine-translate the entries a PR leaves empty or fuzzy, one PR per language"
+msgstr ""
+
 msgid "`true` to run CI on `main` pushes too"
 msgstr ""
 
@@ -66532,6 +67390,9 @@ msgid "`type:` and `regex:` are enforced by `validate_supplied_value()` in [inve
 msgstr ""
 
 msgid "`type:` and `regex:` hold an operator-supplied value to the shape the schema declares; a generated one is exempt because the algorithm that produced it is named by the same schema."
+msgstr ""
+
+msgid "`type`"
 msgstr ""
 
 msgid "`type` is one of `openapi_allowlist`, `graphql_allowlist`, `named_query`, `s3_prefix`, `prometheus_readonly`, `n8n_workflow`, `resource_readonly`. `graphql_allowlist`, `named_query`, `s3_prefix` and `resource_readonly` additionally require a non-empty `adapter.scope` naming the exact buckets, prefixes, collections or queries reachable. `openapi_allowlist` and `graphql_allowlist` require a checked-in `specification_path` under the role's own `files/`."
@@ -66564,6 +67425,9 @@ msgstr ""
 msgid "`unused-var`"
 msgstr ""
 
+msgid "`unwatched-version`"
+msgstr ""
+
 msgid "`update.sh`"
 msgstr ""
 
@@ -66592,6 +67456,9 @@ msgid "`upstream` / `bundled` / `vendored` / `built`."
 msgstr ""
 
 msgid "`url`"
+msgstr ""
+
+msgid "`url`, `pattern`"
 msgstr ""
 
 msgid "`user_key`"
@@ -66724,6 +67591,9 @@ msgid "`verified-in-container: <command run> → <observed success>`"
 msgstr ""
 
 msgid "`verify/backup.sh`"
+msgstr ""
+
+msgid "`version-source`"
 msgstr ""
 
 msgid "`version_unverified`"
@@ -67338,6 +68208,9 @@ msgstr ""
 msgid "a role's ``roles/<role>/meta/packages.yml`` holds what only that role installs."
 msgstr ""
 
+msgid "a role-local script printing versions"
+msgstr ""
+
 msgid "a row of :func:`cli.meta.ci.matrix.entries_of`."
 msgstr ""
 
@@ -67715,6 +68588,9 @@ msgstr ""
 msgid "auto (`pull_request` & `pull_request_target`: opened, synchronize, reopened, ready_for_review, labeled)"
 msgstr ""
 
+msgid "auto (`pull_request` against `main`: opened, synchronize, reopened)"
+msgstr ""
+
 msgid "auto (`push` except `main`, `pull_request_target`: opened, synchronize, reopened, ready_for_review, labeled)"
 msgstr ""
 
@@ -67881,6 +68757,9 @@ msgid "capable"
 msgstr ""
 
 msgid "carriage return ->"
+msgstr ""
+
+msgid "catalog domain the worker merges into."
 msgstr ""
 
 msgid "catalog of the current sources."
@@ -68403,6 +69282,9 @@ msgid "cli.contributing.update.pip package"
 msgstr ""
 
 msgid "cli.contributing.update.repository package"
+msgstr ""
+
+msgid "cli.contributing.update.source package"
 msgstr ""
 
 msgid "cli.core package"
@@ -69197,6 +70079,9 @@ msgstr ""
 msgid "ensure CI vault password file"
 msgstr ""
 
+msgid "entries returned by ``damaged``."
+msgstr ""
+
 msgid "entries returned by ``pending``."
 msgstr ""
 
@@ -69668,9 +70553,6 @@ msgstr ""
 msgid "index/alias namespace"
 msgstr ""
 
-msgid "infinito-nexus-gui reads core from a volume seeded with the whole repository: the output of `cli.meta.roles.applications.invokable` and `.all`, `inventories/bundles/*/*/inventory.yml`, every `roles/<role>/meta/*.yml`, the first heading of every `README.md`, and [categories.yml](../../meta/categories.yml). It lists core versions through the GitHub API."
-msgstr ""
-
 msgid "infrastructure and static roles"
 msgstr ""
 
@@ -70083,9 +70965,6 @@ msgid "merged applications view, used for feature gating and for each consumer's
 msgstr ""
 
 msgid "meta dependencies"
-msgstr ""
-
-msgid "meta-infinite-graph reads the same role files through nginx directory listings of bind mounts (`roles/`, `meta/`, `tests/`, `default.env`), including the role Playwright files and templates. It clones core and its forks at startup (`MIG_GIT_FORKS=auto` asks the GitHub forks endpoint), and its `git.py` serves the ref catalog, the commit log, checkouts of past commits and a TODO scan."
 msgstr ""
 
 msgid "meta/info.yml, omitted when absent) and 🛠️ the role README's Quick Setup section."
@@ -70538,6 +71417,9 @@ msgstr ""
 msgid "path can be:"
 msgstr ""
 
+msgid "path of the template the pool hands to its workers."
+msgstr ""
+
 msgid "path segment separating mirrored images from own images."
 msgstr ""
 
@@ -70716,6 +71598,9 @@ msgstr ""
 msgid "plugins.filter.docker package"
 msgstr ""
 
+msgid "plugins.filter.docker.build\\_digest module"
+msgstr ""
+
 msgid "plugins.filter.docker.network\\_noop module"
 msgstr ""
 
@@ -70878,6 +71763,9 @@ msgstr ""
 msgid "plugins.lookup.addon\\_env\\_flags module"
 msgstr ""
 
+msgid "plugins.lookup.alert\\_rule\\_roles module"
+msgstr ""
+
 msgid "plugins.lookup.api module"
 msgstr ""
 
@@ -70993,6 +71881,9 @@ msgid "plugins.lookup.current\\_play\\_redirect\\_domains module"
 msgstr ""
 
 msgid "plugins.lookup.database module"
+msgstr ""
+
+msgid "plugins.lookup.database\\_consumerless\\_volumes module"
 msgstr ""
 
 msgid "plugins.lookup.depends\\_on module"
@@ -71394,6 +72285,9 @@ msgstr ""
 msgid "recovery"
 msgstr ""
 
+msgid "reference including the registry host, e.g. ``gcr.io/cadvisor/cadvisor``."
+msgstr ""
+
 msgid "reinstall"
 msgstr ""
 
@@ -71449,6 +72343,9 @@ msgid "repo-wide grep"
 msgstr ""
 
 msgid "repo/name:tag   -> (repo/name, :tag) repo/name@sha.. -> (repo/name, @sha..) repo/name       -> (repo/name, \"\")"
+msgstr ""
+
+msgid "repository root and the ISO 639-1 code of the catalog."
 msgstr ""
 
 msgid "repository root holding the ``requirements`` directory."
@@ -71613,10 +72510,16 @@ msgstr ""
 msgid "role the network belongs to."
 msgstr ""
 
+msgid "role the script belongs to."
+msgstr ""
+
 msgid "role the volume belongs to; a manager-pinned role or one forcing a non-swarm mode keeps its volumes node-local."
 msgstr ""
 
 msgid "role whose closure is resolved."
+msgstr ""
+
+msgid "role-relative path of the script."
 msgstr ""
 
 msgid "role: e.g. ``svc-db-postgres`` service: e.g. ``postgres`` name: canonical image name without registry, e.g. ``postgis/postgis`` version: e.g. ``17-3.5`` source: full pull ref, e.g. ``docker.io/library/postgres:16`` registry: source registry hostname, e.g. ``docker.io``, ``quay.io`` source_file: role-relative file the ref was read from"
@@ -72081,6 +72984,9 @@ msgstr ""
 msgid "subscribes to the AT firehose / Jetstream, filtered to collections `community.lexicon.calendar.event` and `community.lexicon.calendar.rsvp`;"
 msgstr ""
 
+msgid "substring the registry filters on, reaching tags beyond the first pages of the unfiltered listing."
+msgstr ""
+
 msgid "substrings that mark an answer as an accepted no-op."
 msgstr ""
 
@@ -72474,6 +73380,9 @@ msgstr ""
 msgid "the filesystem pool the run draws from."
 msgstr ""
 
+msgid "the first capture group of each match"
+msgstr ""
+
 msgid "the fix was logically inferred from a previous deploy's evidence,"
 msgstr ""
 
@@ -72573,6 +73482,9 @@ msgstr ""
 msgid "the notation is malformed, carries host bits, or the network     is too small to hold a gateway."
 msgstr ""
 
+msgid "the npm registry"
+msgstr ""
+
 msgid "the operator-selected roots (already `disable`-filtered)."
 msgstr ""
 
@@ -72604,6 +73516,9 @@ msgid "the probe context; needs ``email_enabled`` to do anything, plus ``domain`
 msgstr ""
 
 msgid "the project-wide service registry."
+msgstr ""
+
+msgid "the protected spans of the source."
 msgstr ""
 
 msgid "the protected spans, indexed by token id."
@@ -72645,10 +73560,16 @@ msgstr ""
 msgid "the registered shell result of the deploy."
 msgstr ""
 
+msgid "the registry's v2 tag list"
+msgstr ""
+
 msgid "the regular line in ranking order."
 msgstr ""
 
 msgid "the regular line of the retrigger's own discovery, in ranking order."
+msgstr ""
+
+msgid "the rendered compose file."
 msgstr ""
 
 msgid "the rendered config is mounted INTO a container rather than read by the host's own msmtp."
@@ -72714,6 +73635,9 @@ msgstr ""
 msgid "the roles resolved into this inventory."
 msgstr ""
 
+msgid "the roles the row's variant deploys, each narrowing the row like the role's own declaration."
+msgstr ""
+
 msgid "the role’s ```playwright.env.j2`` <./templates/playwright.env.j2>`__ MUST NOT carry stale ``BIBER_USERNAME`` / ``BIBER_PASSWORD`` keys (the lint at ```test_env_keys_used.py`` <../../tests/lint/ansible/roles/web-app/playwright/test_env_keys_used.py>`__ enforces this);"
 msgstr ""
 
@@ -72734,9 +73658,6 @@ msgid "the round-trip document to serialise."
 msgstr ""
 
 msgid "the row's index in the global discovery order."
-msgstr ""
-
-msgid "the row's transitive service closure, each narrowing the row like the role's own declaration."
 msgstr ""
 
 msgid "the row's variant index; ``None`` for a role declaring none."
@@ -72784,6 +73705,9 @@ msgstr ""
 msgid "the secret to encrypt."
 msgstr ""
 
+msgid "the server is unreachable; every further request would     fail too, so the run stops instead of discarding the rest."
+msgstr ""
+
 msgid "the service runs embedded inside that app's own compose stack rather than centrally. Mutually exclusive with the shared/required axis when enabled is True."
 msgstr ""
 
@@ -72803,6 +73727,9 @@ msgid "the source currently tried first."
 msgstr ""
 
 msgid "the source in force when the comparison ran."
+msgstr ""
+
+msgid "the source message, which holds the boundary that went missing."
 msgstr ""
 
 msgid "the source message."
@@ -72847,6 +73774,9 @@ msgstr ""
 msgid "the top-level key inside that role's services file."
 msgstr ""
 
+msgid "the translation with every protected span put back."
+msgstr ""
+
 msgid "the unprefixed fact name."
 msgstr ""
 
@@ -72887,6 +73817,9 @@ msgid "the vault password file."
 msgstr ""
 
 msgid "the version both files pin today."
+msgstr ""
+
+msgid "the version currently pinned, passed as the first argument."
 msgstr ""
 
 msgid "the whole drill for one distro; collect + teardown run from its `EXIT` trap"
@@ -73013,6 +73946,9 @@ msgid "upstream git URL taken from the git requirements file."
 msgstr ""
 
 msgid "upstream repository without the registry, e.g. ``postgis/postgis``."
+msgstr ""
+
+msgid "upstream source"
 msgstr ""
 
 msgid "usable cores."
@@ -73750,6 +74686,9 @@ msgstr ""
 msgid "utils.sizes module"
 msgstr ""
 
+msgid "utils.software module"
+msgstr ""
+
 msgid "utils.storage package"
 msgstr ""
 
@@ -73832,6 +74771,9 @@ msgid "utils.update.pip module"
 msgstr ""
 
 msgid "utils.update.repository module"
+msgstr ""
+
+msgid "utils.update.source module"
 msgstr ""
 
 msgid "utils.yaml\\_bootstrap module"
@@ -74042,6 +74984,9 @@ msgstr ""
 msgid "when present (role provides it)"
 msgstr ""
 
+msgid "when set and the registry can filter server-side, the substring every returned tag carries."
+msgstr ""
+
 msgid "when the graph does not resolve, naming the cycle and the     roles left unsorted so the failure is actionable."
 msgstr ""
 
@@ -74157,6 +75102,10 @@ msgstr ""
 
 #, python-format
 msgid "{% for entry in lookup('container_extra_hosts',"
+msgstr ""
+
+#, python-brace-format, python-format
+msgid "{% for role_id in lookup('alert_rule_roles') %} {% include 'roles/' + role_id + '/templates/prometheus/alert_rules.yml.j2' %} {% endfor %}"
 msgstr ""
 
 #, python-brace-format, python-format
