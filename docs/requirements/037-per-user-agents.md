@@ -57,6 +57,8 @@ A stopped agent is started again on the next request with its volume re-attached
 
 A model that serves agents declares its context window in tokens: `context` on an `AI_LOCAL_MODELS` entry or on a `services.litellm.remote_models` entry. LiteLLM sends it to Ollama as `num_ctx` and publishes it as `model_info.max_input_tokens`, and the broker writes it into the agent config as Hermes `model.context_length` and OpenClaw `contextWindow`. Without it Ollama truncates the agent's prompt to its own default window and the agents assume windows of their own.
 
+A platform may refuse a window it considers too small. Hermes requires 64000 tokens and answers `HTTP 500` with "below the minimum 64,000 required by Hermes Agent" for anything less, so `web-app-hermes` declares `services.hermes.min_context` and the broker refuses to deploy when the selected model declares less. The check covers the platforms this host actually deploys, and a model that declares no window at all is reported rather than refused: an agent that does not know its window runs, so refusing that configuration would stop a deployment that works today.
+
 ### Container API
 
 The broker reaches the container engine only through a filtered unix socket in a volume it shares with the socket proxy. The proxy serves no TCP port; in compose it also runs with `network_mode: none`, while a swarm task carries the stack's default overlay attachment. The proxy admits only the container, service, task, network, volume and image calls the broker makes, and refuses every other method and path, including exec and delete. The image, runtime, limits and mounts of an agent are fixed by the broker, never taken from the request.

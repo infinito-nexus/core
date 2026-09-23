@@ -28,8 +28,10 @@ AGENT_BROKER_PLATFORMS:
     config_path: "{{ lookup('volume', 'web-app-hermes', 'hermes_config').target }}"
     command: ["gateway"]
     user: ""
+    role: web-app-hermes
     key_env: API_SERVER_KEY
     request_model: hermes-agent
+    min_context: "{{ lookup('config', 'web-app-hermes', 'services.hermes.min_context') }}"
     env:
       HERMES_SKIP_CONFIG_MIGRATION: "true"
       API_SERVER_ENABLED: "true"
