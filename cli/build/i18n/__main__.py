@@ -13,12 +13,16 @@ import argparse
 import json
 import os
 import sys
+import tempfile
+from concurrent.futures import ProcessPoolExecutor
+from pathlib import Path
 
 from utils.cache.files import PROJECT_ROOT
 from utils.i18n.catalog import (
+    adopt_template,
     build_template,
     catalog_path,
-    merge,
+    merge_adopted,
     read_catalog,
     write_catalog,
 )
@@ -38,6 +42,20 @@ from utils.i18n.libretranslate import (
 from utils.i18n.translate import apply, damaged, discard, pending
 
 CHUNK_SIZE = 500
+SPHINX_JOBS_FLOOR = 2
+
+
+def sphinx_jobs() -> int:
+    """Return the parallel Sphinx processes the cores left over can carry.
+
+    Returns:
+        Job count, never below ``SPHINX_JOBS_FLOOR``.
+    """
+    try:
+        usable = len(os.sched_getaffinity(0))
+    except (AttributeError, OSError):
+        usable = os.cpu_count() or 1
+    return max(SPHINX_JOBS_FLOOR, min(usable, round(usable - os.getloadavg()[0])))
 
 
 def extract(domains: list[str]) -> int:
@@ -46,12 +64,19 @@ def extract(domains: list[str]) -> int:
         if domain == "core":
             template = build_template(core_messages(PROJECT_ROOT), domain)
         else:
-            template = docs_template(PROJECT_ROOT, os.cpu_count())
-        changed = 0
-        for code in domain_languages(loaded, domain):
-            path = catalog_path(PROJECT_ROOT, code, domain)
-            existing = read_catalog(path) if path.is_file() else None
-            changed += write_catalog(path, merge(template, existing, code))
+            template = docs_template(PROJECT_ROOT, sphinx_jobs())
+        codes = list(domain_languages(loaded, domain))
+        with tempfile.TemporaryDirectory(prefix="infinito-i18n-pot-") as scratch:
+            pot = Path(scratch) / f"{domain}.pot"
+            write_catalog(pot, template)
+            with ProcessPoolExecutor(
+                max_workers=min(len(codes), os.cpu_count() or 1),
+                initializer=adopt_template,
+                initargs=(str(pot), domain),
+            ) as pool:
+                changed = sum(
+                    pool.map(merge_adopted, [(PROJECT_ROOT, code) for code in codes])
+                )
         print(f"{domain}: {len(template)} messages, {changed} catalogs changed")
     return 0
 

@@ -162,3 +162,34 @@ def translations(catalog: Catalog) -> dict[tuple[str | None, str], str]:
         and message.string
         and not message.fuzzy
     }
+
+
+_TEMPLATE: Catalog | None = None
+_DOMAIN = ""
+
+
+def adopt_template(pot: str, domain: str) -> None:
+    """Read the template once per worker process instead of once per language.
+
+    Args:
+        pot: path of the template the pool hands to its workers.
+        domain: catalog domain the worker merges into.
+    """
+    global _TEMPLATE, _DOMAIN  # noqa: PLW0603 - a process pool shares state this way
+    _TEMPLATE = read_catalog(Path(pot))
+    _DOMAIN = domain
+
+
+def merge_adopted(root_and_code: tuple[Path, str]) -> int:
+    """Merge the adopted template into one language catalog.
+
+    Args:
+        root_and_code: repository root and the ISO 639-1 code of the catalog.
+
+    Returns:
+        1 when the catalog changed on disk, 0 otherwise.
+    """
+    root, code = root_and_code
+    path = catalog_path(root, code, _DOMAIN)
+    existing = read_catalog(path) if path.is_file() else None
+    return write_catalog(path, merge(_TEMPLATE, existing, code))
