@@ -111,6 +111,53 @@ def tighten(restored: str) -> str:
     )
 
 
+TERMINATORS = ".!?"
+RUN_OF_SPACES = re.compile(r"[ \t]{2,}")
+
+
+def collapse(restored: str, source: str) -> str:
+    """Return ``restored`` without the space runs the translator opened.
+
+    A run the source carries itself is left alone, because an aligned block in a
+    code sample means its spacing.
+
+    Args:
+        restored: the translation with every protected span put back.
+        source: the source message.
+    """
+    if "  " in source or "\t" in source:
+        return restored
+    return RUN_OF_SPACES.sub(" ", restored)
+
+
+def terminate(restored: str, source: str) -> str:
+    """Return ``restored`` with the sentence end the translator lost.
+
+    A closing bracket that moves in front of a protected span takes the full
+    stop behind it with it, which leaves the sentence running on.
+
+    Args:
+        restored: the translation with every protected span put back.
+        source: the source message.
+    """
+    end = source.rstrip()[-1:]
+    if end not in TERMINATORS or restored.rstrip().endswith(tuple(TERMINATORS)):
+        return restored
+    return restored.rstrip() + end
+
+
+def recapitalise(restored: str, source: str) -> str:
+    """Return ``restored`` with the capital its opening word lost.
+
+    Args:
+        restored: the translation with every protected span put back.
+        source: the source message.
+    """
+    if not source[:1].isupper() or not restored[:1].islower():
+        return restored
+    return restored[0].upper() + restored[1:]
+
+
 TOKEN = re.compile(r'<x id="(\d+)"\s*/?>(?:\s*</x>)?')
 
 
@@ -200,6 +247,7 @@ def unmask(translated: str, masked: Masked, source: str) -> str | None:
         position = match.end()
     pieces.append(html.unescape(translated[position:]))
     restored = resegment(tighten("".join(pieces).strip()), masked.spans, source)
+    restored = recapitalise(terminate(collapse(restored, source), source), source)
     if sorted(seen) != list(range(len(masked.spans))):
         return None
     if not restored or protected_spans(restored) != protected_spans(source):

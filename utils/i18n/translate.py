@@ -12,6 +12,25 @@ if TYPE_CHECKING:
     from babel.messages.catalog import Catalog, Message
 
 STRUCTURE = "[]{}`*()"
+TRUNCATION_FLOOR = 120
+TRUNCATION_RATIO = 0.5
+
+
+def truncated(source: str, translation: str) -> bool:
+    """Return whether ``translation`` kept too little of ``source`` to be one.
+
+    The floor keeps a short entry out: ``Situation`` becomes ``Lage`` and loses
+    half its characters while saying the same thing. A passage past it that
+    comes back halved has dropped a clause.
+
+    Args:
+        source: the source message.
+        translation: what came back for it.
+    """
+    return (
+        len(source) > TRUNCATION_FLOOR
+        and len(translation) < len(source) * TRUNCATION_RATIO
+    )
 
 
 def structure(text: str) -> Counter:
@@ -59,6 +78,7 @@ def damaged(catalog: Catalog) -> list[Message]:
         and (
             protected_spans(str(message.string)) != protected_spans(message.id)
             or missing_names(message.id, str(message.string))
+            or truncated(message.id, str(message.string))
             or structure(str(message.string)) != structure(message.id)
         )
     ]
