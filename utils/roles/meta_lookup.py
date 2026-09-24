@@ -149,6 +149,32 @@ DEPLOY_MODES: tuple[str, ...] = ("compose", "swarm")
 """The stack deploy modes the CI test-deploy matrix (get_role_skip) covers."""
 
 
+def get_role_declared_modes(
+    role: PathLike, *, role_name: str | None = None
+) -> tuple[str, ...]:
+    """Return the deploy modes the role names under ``modes``, in ``MODES``
+    order, regardless of their ``enabled`` value.
+
+    Empty when the role declares no ``modes`` block, which leaves the caller
+    on its own default. A role that names a mode its stack shape would not
+    imply (an injector asking for compose) is stating an intent, so the
+    declaration outranks the shape.
+    """
+    role_dir, name = _resolve_role(role, role_name)
+    primary = _primary_entry(name, _read_meta_services(role_dir))
+    if primary is None:
+        return ()
+    modes = primary.get("modes")
+    if modes is None:
+        return ()
+    if not isinstance(modes, dict):
+        raise MetaServicesShapeError(
+            f"Invalid modes type in meta/services.yml for role '{name}': "
+            f"expected mapping, got {type(modes).__name__}."
+        )
+    return tuple(mode for mode in MODES if mode in modes)
+
+
 def get_role_mode_enabled(
     role: PathLike, *, mode: str, role_name: str | None = None
 ) -> bool:
