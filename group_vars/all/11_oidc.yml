@@ -54,4 +54,3 @@ defaults_oidc:
     CLI_CLIENT_ID: "admin-cli"
 
 OIDC: "{{ defaults_oidc | combine(OIDC_OVERRIDE | default({}, true), recursive=True) }}"
-
