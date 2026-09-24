@@ -1,4 +1,4 @@
-# svc-ai-jeff
+# Jeff
 
 ## Description
 
@@ -12,7 +12,7 @@ Upstream ships a `pyproject.toml` and no container image, so the role builds one
 
 ## Cosmos
 
-The diagram places svc-ai-jeff in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
+The diagram places Jeff in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
 
 ```mermaid
 flowchart LR
@@ -49,7 +49,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 
 ### Development
 
-Clone, set up the workstation, and deploy svc-ai-jeff onto the local stack:
+Clone, set up the workstation, and deploy Jeff onto the local stack:
 
 ```bash
 git clone https://github.com/infinito-nexus/core.git
@@ -60,7 +60,7 @@ make compose-deploy mode=reinstall apps=svc-ai-jeff full_cycle=false
 
 ### Production
 
-Run the published image to provision the inventory and deploy svc-ai-jeff to a managed server (the mounted volume persists the inventory):
+Run the published image to provision the inventory and deploy Jeff to a managed server (the mounted volume persists the inventory):
 
 ```bash
 APP=svc-ai-jeff
