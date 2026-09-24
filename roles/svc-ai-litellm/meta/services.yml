@@ -17,10 +17,16 @@ litellm:
   upstream_timeout: 240
   router_alias: auto
   router_remote_fallback: false
+  # nocheck: dynamic-flag
+  router_strategy: "{{ 'system_one' if (lookup('config', 'svc-ai-litellm', 'services.jeff.enabled') | bool) else 'weighted' }}"
   router_weights:
     locality: 1.0
-    cost: 0.6
-    speed: 0.4
+    cost: 0.4
+    speed: 0.25
+    caching: 0.15
+    throughput: 0.1
+  router_min_chars_per_token: 2
+  router_state_chars: 512
   router_speed_samples: 12
   router_speed_timeout: 60
   router_speed_remeasure: false
@@ -52,6 +58,13 @@ postgres:
   bond: 1
   enabled: true # nocheck: dynamic-flag
   shared: "{{ 'svc-db-postgres' in group_names }}"
+
+# nocheck: playwright-service-flag, dynamic-flag
+# nocheck: gateway-backend-registered  Reason: jeff decides which model answers, it is not one; the router hook calls /v1/systemone, no model alias resolves to it
+jeff:
+  bond: 0.5
+  enabled: "{{ 'svc-ai-jeff' in group_names }}"
+  shared: "{{ 'svc-ai-jeff' in group_names }}"
 
 # nocheck: playwright-service-flag, dynamic-flag
 ollama:

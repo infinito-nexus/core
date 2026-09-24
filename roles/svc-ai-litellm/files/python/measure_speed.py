@@ -13,7 +13,6 @@ The result is a per-model median of output tokens per second, printed as JSON
 for the deploy to store and render back into ``model_info.traits.speed``.
 
 Environment:
-    LITELLM_MK:        master key the gateway accepts.
     LITELLM_PORT:      port the gateway listens on inside its own container.
     LITELLM_SAMPLES:   requests per model; above one, the first is discarded.
     LITELLM_TIMEOUT:   seconds one measured request may take.
@@ -37,7 +36,7 @@ import time
 import urllib.error
 import urllib.request
 
-MASTER_KEY = os.environ["LITELLM_MK"]
+MASTER_KEY = os.environ["LITELLM_MASTER_KEY"]
 PORT = os.environ["LITELLM_PORT"]
 SAMPLES = int(os.environ["LITELLM_SAMPLES"])
 TIMEOUT = float(os.environ["LITELLM_TIMEOUT"])
@@ -100,24 +99,23 @@ def sample(model, timeout):
 
 
 def measure(model):
-    """The median rate over the samples, discarding the first as a cold load.
+    """The median rate over ``LITELLM_SAMPLES`` calls, after one warm-up call.
 
     A backend that has never answered this model pays its load cost on the
     first call, which is not the rate a later caller will see, and that call
     gets the longer budget for the same reason. The median then absorbs
     whatever else the machine was doing during one sample.
 
-    A single-sample run keeps its one measurement rather than discarding it and
-    returning nothing: at that setting the number is worth less than the proof
-    that the path ran at all.
+    The warm-up is setup, not a sample, so it is discarded at every setting.
+    Counting it as one would make a one-sample run report load time, which
+    ranks a small model below a larger one and routes on the inversion.
     """
-    warmup = 1 if SAMPLES > 1 else 0
-    rates = []
-    for index in range(SAMPLES):
-        cold = index < warmup
-        rate = sample(model, WARMUP_TIMEOUT if cold else TIMEOUT)
-        if rate is not None and not cold:
-            rates.append(rate)
+    sample(model, WARMUP_TIMEOUT)
+    rates = [
+        rate
+        for rate in (sample(model, TIMEOUT) for _ in range(SAMPLES))
+        if rate is not None
+    ]
     return statistics.median(rates) if rates else None
 
 

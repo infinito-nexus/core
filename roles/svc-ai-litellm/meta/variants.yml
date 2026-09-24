@@ -35,6 +35,10 @@
     lmstudio:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    jeff:
+      enabled: true
+      shared: true
+      flavor: torch
     litellm:
       router_speed_samples: 1
       remote_models:
@@ -53,6 +57,12 @@
       shared: true
     postgres:
       shared: true
+    jeff:
+      enabled: true
+      shared: true
+      flavor: onnx
+      mem_reservation: 512m
+      mem_limit: 1g
     litellm:
       router_speed_samples: 1
       remote_models:
@@ -60,3 +70,11 @@
           provider: mock
           response: "pong"
           context: 131072
+        - alias: mock/medium
+          provider: mock
+          response: "pong"
+          context: 16384
+        - alias: mock/small
+          provider: mock
+          response: "pong"
+          context: 4096

@@ -26,7 +26,7 @@ SAMPLE_TIMEOUT = 60.0
 WARMUP_TIMEOUT = 240.0
 
 ENVIRONMENT = {
-    "LITELLM_MK": "sk-master-key",
+    "LITELLM_MASTER_KEY": "sk-master-key",
     "LITELLM_PORT": "4000",
     "LITELLM_SAMPLES": "12",
     "LITELLM_TIMEOUT": str(SAMPLE_TIMEOUT),
@@ -108,10 +108,19 @@ class TestMeasureSpeed(unittest.TestCase):
         gateway = Gateway(["m"], {"m": [2.0]}, tokens=60)
         self.assertEqual(run(gateway)["m"], 30.0)
 
-    def test_it_sends_the_configured_number_of_requests(self) -> None:
+    def test_it_sends_the_configured_number_of_requests_plus_one_warm_up(self) -> None:
         gateway = Gateway(["m"], {"m": [2.0]})
         run(gateway, LITELLM_SAMPLES="12")
-        self.assertEqual(gateway.calls["m"], 12)
+        self.assertEqual(gateway.calls["m"], 13)
+
+    def test_a_single_sample_run_still_discards_the_cold_load(self) -> None:
+        gateway = Gateway(["m"], {"m": [600.0, 2.0]}, tokens=60)
+        self.assertEqual(
+            run(gateway, LITELLM_SAMPLES="1")["m"],
+            30.0,
+            "a one-sample run that kept its cold load would report load time as "
+            "a rate, ranking a small model below a larger one",
+        )
 
     def test_the_cold_first_sample_is_discarded(self) -> None:
         gateway = Gateway(["m"], {"m": [600.0, 2.0]}, tokens=60)
@@ -186,7 +195,7 @@ class TestOnlyUnrankedIsMeasured(unittest.TestCase):
     def test_the_remeasure_switch_sends_the_requests_again(self) -> None:
         gateway = Gateway(["m"], {"m": [2.0]}, tokens=60)
         run(gateway, LITELLM_PREVIOUS=json.dumps(self.STORED), LITELLM_REMEASURE="1")
-        self.assertEqual(gateway.calls["m"], 12)
+        self.assertEqual(gateway.calls["m"], 13)
 
 
 class TestRemeasuring(unittest.TestCase):

@@ -1,13 +1,12 @@
 ---
 - name: "⏱️ Measure how fast each served model generates"
   ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i -e LITELLM_MK={{ LITELLM_MASTER_KEY | quote }} -e LITELLM_PORT={{ LITELLM_PORT | quote }} -e LITELLM_SAMPLES={{ LITELLM_ROUTER_SPEED_SAMPLES | quote }} -e LITELLM_TIMEOUT={{ LITELLM_ROUTER_SPEED_TIMEOUT | quote }} -e LITELLM_WARMUP={{ LITELLM_UPSTREAM_TIMEOUT | quote }} -e LITELLM_EXCLUDE={{ LITELLM_UNRANKED_ALIASES | quote }} -e LITELLM_REMEASURE={{ LITELLM_ROUTER_SPEED_REMEASURE | bool | ternary('1', '') | quote }} -e LITELLM_PREVIOUS={{ LITELLM_MEASURED_SPEED | to_json | quote }} {{ LITELLM_LOCAL_CID | quote }} python3 -c {{ lookup('file', lookup('path_absolute', 'roles/svc-ai-litellm/files/python/measure_speed.py')) | quote }}
+    container exec -i -e LITELLM_PORT={{ LITELLM_PORT | quote }} -e LITELLM_SAMPLES={{ LITELLM_ROUTER_SPEED_SAMPLES | quote }} -e LITELLM_TIMEOUT={{ LITELLM_ROUTER_SPEED_TIMEOUT | quote }} -e LITELLM_WARMUP={{ LITELLM_UPSTREAM_TIMEOUT | quote }} -e LITELLM_EXCLUDE={{ LITELLM_UNRANKED_ALIASES | quote }} -e LITELLM_REMEASURE={{ LITELLM_ROUTER_SPEED_REMEASURE | bool | ternary('1', '') | quote }} -e LITELLM_PREVIOUS={{ LITELLM_MEASURED_SPEED | to_json | quote }} {{ LITELLM_LOCAL_CID | quote }} python3 -c {{ lookup('file', lookup('path_absolute', 'roles/svc-ai-litellm/files/python/measure_speed.py')) | quote }}
   register: litellm_speed_result
   retries: 3
   delay: 5
   until: litellm_speed_result.rc == 0
   changed_when: false
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   delegate_to: "{{ LITELLM_HOST_NODE }}"
 
 - name: "📈 Store the measured rates for the next deploy"

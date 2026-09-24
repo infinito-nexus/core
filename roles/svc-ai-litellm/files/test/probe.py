@@ -6,7 +6,8 @@ the litellm app, not a test toolchain.
 
 Env (rendered into test.env from templates/test.env.j2):
     PORT               gateway http port inside the container
-    MASTER_KEY         gateway master key
+    LITELLM_MASTER_KEY gateway master key, read from the gateway's own
+                       environment rather than passed in
     CHAT_MODEL         the model every consumer asks for (LITELLM_CHAT_MODEL)
     CHAT_MODEL_SERVED  true|false, whether a backend can answer it
     EXPECTED_MODELS    JSON list the config template published
@@ -17,6 +18,8 @@ Env (rendered into test.env from templates/test.env.j2):
                        (OpenAI, Anthropic, OpenRouter)
     OLLAMA_ENABLED     true|false
     LMSTUDIO_ENABLED   true|false
+    MIN_CHARS_PER_TOKEN the hook's own characters-per-token floor, so the probe
+                       sizes its prompt against the number the hook will use
     RETRIES            completion attempts (default 10)
     SLEEP_SECONDS      wait between attempts (default 6)
 """
@@ -138,11 +141,13 @@ def _completion(
     retries: int,
     pause: float,
     prompt: str = "Reply with the word pong.",
-) -> tuple[str, str]:
-    """The answer and the model that produced it.
+) -> tuple[str, str, int]:
+    """The answer, the model that produced it, and the tokens it counted.
 
-    The second half is what makes a router observable: the request names an
-    alias, the response names whatever the pre-call hook rewrote it to.
+    The second element is what makes a router observable: the request names an
+    alias, the response names whatever the pre-call hook rewrote it to. The
+    third is the backend's own prompt token count, the only number here that
+    does not come from this deployment's own declarations.
     """
     last_error = "no attempt ran"
     for attempt in range(1, retries + 1):
@@ -160,13 +165,23 @@ def _completion(
             choices = completion.get("choices") or [{}]
             answer = (choices[0].get("message", {}).get("content") or "").strip()
             if answer:
-                return answer, str(completion.get("model") or "")
+                usage = completion.get("usage") or {}
+                return (
+                    answer,
+                    str(completion.get("model") or ""),
+                    int(usage.get("prompt_tokens") or 0),
+                )
             last_error = "empty content"
+        except urllib.error.HTTPError as exc:
+            last_error = f"HTTP {exc.code}: {exc.read().decode(errors='replace')[:400]}"
         except (urllib.error.URLError, TimeoutError, ValueError) as exc:
             last_error = f"{type(exc).__name__}: {exc}"
         if attempt < retries:
             time.sleep(pause)
     raise RuntimeError(last_error)
+
+
+TRUNCATION_RATIO = 0.9
 
 
 def _declared_window(windows: dict, served: str):
@@ -184,7 +199,12 @@ def _declared_window(windows: dict, served: str):
 
 
 def route_verdict(
-    router_alias: str, windows: dict, served: str, needed_tokens: int
+    router_alias: str,
+    windows: dict,
+    served: str,
+    needed_tokens: int,
+    counted_tokens: int = 0,
+    sent_tokens: int = 0,
 ) -> str:
     """Why this answer does not prove the router worked, or the empty string.
 
@@ -193,6 +213,14 @@ def route_verdict(
         windows: alias -> declared context window, for the routes that declare one.
         served: the model the response named.
         needed_tokens: what the prompt demands, as the hook would estimate it.
+        counted_tokens: what the backend evaluated, from ``usage.prompt_tokens``.
+            Every other number here is this deployment's own declaration, so
+            this is the only one that can contradict them.
+        sent_tokens: what the prompt really costs. Exact rather than estimated,
+            because ``"x "`` is one token on every tokenizer served here, and a
+            backend that reports fewer truncated the prompt instead of refusing
+            it. A declared window above the model's trained one is answered
+            that way, so comparing against the window would miss it.
 
     Returns:
         One message, empty when the answer is a legitimate routing outcome.
@@ -211,18 +239,29 @@ def route_verdict(
             f"'{served}', whose declared window is {window}; the eligibility filter "
             f"did not exclude it"
         )
+    if counted_tokens and counted_tokens < sent_tokens * TRUNCATION_RATIO:
+        return (
+            f"'{served}' evaluated {counted_tokens} prompt tokens of the "
+            f"{sent_tokens} sent; the backend silently dropped the rest rather "
+            f"than refusing, so the answer is not the answer to this prompt"
+        )
     return ""
 
 
-def oversized_prompt(smallest_window: int) -> tuple[str, int]:
+def oversized_prompt(smallest_window: int, chars_per_token: int) -> tuple[str, int]:
     """A prompt no route with *smallest_window* can hold, and its token demand.
 
-    The hook estimates three characters per token and errs high, so four
-    characters per token clears the smallest window whichever constant it
-    carries, while staying far inside the next one up.
+    Args:
+        smallest_window: the narrowest window any published route declares.
+        chars_per_token: the hook's own floor, passed in rather than repeated,
+            so the demand this returns is the one the hook will compute.
+
+    Returns:
+        The prompt and the tokens it demands. ``"x "`` costs one token per two
+        characters on every tokenizer here, so the floor is exact for it.
     """
     characters = smallest_window * 4
-    return "x " * (characters // 2), characters // 3
+    return "x " * (characters // 2), characters // chars_per_token
 
 
 def _probe_router(
@@ -242,9 +281,9 @@ def _probe_router(
     """
     failures: list[str] = []
     smallest = min(windows.values())
-    prompt, needed = oversized_prompt(smallest)
+    prompt, needed = oversized_prompt(smallest, int(os.environ["MIN_CHARS_PER_TOKEN"]))
     try:
-        answer, served = _completion(
+        answer, served, counted = _completion(
             base, key, router_alias, retries, pause, prompt=prompt
         )
     except RuntimeError as exc:
@@ -254,19 +293,22 @@ def _probe_router(
                 f"tokens after {retries} attempts; last failure: {exc}"
             )
         ]
-    verdict = route_verdict(router_alias, windows, served, needed)
+    verdict = route_verdict(
+        router_alias, windows, served, needed, counted, len(prompt) // 2
+    )
     if verdict:
         failures.append(verdict)
     else:
         print(
             f"[OK]   '{router_alias}' routed about {needed} tokens to '{served}' "
-            f"(window {windows.get(served, 'undeclared')}), answered: {answer[:40]}"
+            f"(window {_declared_window(windows, served) or 'undeclared'}, "
+            f"{counted} counted), answered: {answer[:40]}"
         )
     return failures
 
 
 def main() -> int:
-    key = os.environ["MASTER_KEY"]
+    key = os.environ["LITELLM_MASTER_KEY"]
     base = f"http://127.0.0.1:{os.environ['PORT']}"
     chat_model = os.environ["CHAT_MODEL"].strip()
     chat_model_served = os.environ["CHAT_MODEL_SERVED"] == "true"
@@ -291,7 +333,7 @@ def main() -> int:
 
     if chat_model_served and not failures:
         try:
-            answer, _ = _completion(base, key, chat_model, retries, pause)
+            answer, _, _ = _completion(base, key, chat_model, retries, pause)
             print(f"[OK]   '{chat_model}' answered: {answer[:60]}")
         except RuntimeError as exc:
             failures.append(

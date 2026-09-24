@@ -4,16 +4,31 @@ LiteLLM loads this through ``get_instance_fn``, which resolves
 ``router_hook.instance`` against the directory of ``config.yaml``, so the file
 lives beside it in the container and the image stays the upstream one.
 
-The demand side is estimated. The supply side is read off LiteLLM's own model
-catalog, which ships 1595 entries in the image and carries the context window,
-the vision and tool support and the per-token price of every model it knows. A
-route may override any of that through ``model_info.traits`` for a model the
-catalog does not know, and nothing here probes a backend.
+The demand side is estimated from the request body. The supply side is read off
+LiteLLM's own model catalog, which ships 1595 entries in the image carrying the
+context window, the modality and tool support, the per-token prices and the
+deprecation date of every model it knows. A route may override any of that
+through ``model_info.traits``, and nothing here probes a backend.
+
+Two polarities govern the filters, and mixing them up routes silently wrong:
+
+* A capability the request *demands* must be proven. Vision, tools, a response
+  schema, PDF or audio input are catalogued wherever they exist, so an absent
+  flag means absent support and the route is dropped only when the request asks
+  for it.
+* A *disqualifier* acts on explicit evidence only. Most entries carry no
+  ``supports_system_messages`` and local tags are catalogued not at all, so
+  treating silence as denial would drop nearly every route. A model is
+  therefore excluded only when the catalog states a non-chat mode, denies
+  system messages outright, or gives a deprecation date already past.
 """
 
 from __future__ import annotations
 
+import json
 import re
+import urllib.request
+from datetime import date
 
 import litellm
 from litellm.integrations.custom_logger import CustomLogger
@@ -21,6 +36,13 @@ from litellm.integrations.custom_logger import CustomLogger
 ROUTER_ALIAS = {{ LITELLM_ROUTER_ALIAS | to_json }}
 REMOTE_FALLBACK = {{ 'True' if LITELLM_ROUTER_REMOTE_FALLBACK | bool else 'False' }}
 ROUTER_WEIGHTS = {{ LITELLM_ROUTER_WEIGHTS | to_json }}
+ROUTER_STRATEGY = {{ LITELLM_ROUTER_STRATEGY | to_json }}
+JEFF_URL = {{ LITELLM_JEFF_URL | to_json }}
+JEFF_KEY = {{ LITELLM_JEFF_KEY | to_json }}
+JEFF_MODEL = {{ LITELLM_JEFF_MODEL | to_json }}
+JEFF_TIMEOUT = {{ LITELLM_JEFF_TIMEOUT | int }}
+JEFF_QUESTION = "route"
+JEFF_MAX_STATE_CHARS = {{ LITELLM_ROUTER_STATE_CHARS | int }}
 
 SECRET_SHAPES = re.compile(
     r"-----BEGIN [A-Z ]*PRIVATE KEY-----"
@@ -31,10 +53,16 @@ SECRET_SHAPES = re.compile(
     r"|\bxox[baprs]-[A-Za-z0-9-]{10,}"
     r"|\bAIza[A-Za-z0-9_-]{35}\b"
 )
+ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
-CHARS_PER_TOKEN = 3
+MIN_CHARS_PER_TOKEN = {{ LITELLM_ROUTER_MIN_CHARS_PER_TOKEN | int }}
 IMAGE_PARTS = ("image_url", "input_image")
+AUDIO_PARTS = ("input_audio", "audio_url")
+DOCUMENT_PARTS = ("file", "input_file", "document")
+SYSTEM_ROLES = ("system", "developer")
 UNPRICED_REMOTE_COST = 1.0
+NOMINAL_OUTPUT_TOKENS = 512
+CHAT_MODES = ("chat", "responses", None)
 
 
 def summarize(data):
@@ -44,11 +72,20 @@ def summarize(data):
         data: the OpenAI-shaped request body the proxy received.
 
     Returns:
-        ``{input_tokens, vision, tools, max_output}``.
+        A mapping with the estimated ``input_tokens`` and ``max_output`` plus
+        one flag per capability the body asks for.
     """
     characters = 0
-    vision = False
+    need = {
+        "vision": False,
+        "audio": False,
+        "documents": False,
+        "images": 0,
+        "system": False,
+    }
     for message in data.get("messages") or []:
+        if message.get("role") in SYSTEM_ROLES:
+            need["system"] = True
         content = message.get("content")
         if isinstance(content, str):
             characters += len(content)
@@ -56,16 +93,29 @@ def summarize(data):
         for part in content or []:
             if not isinstance(part, dict):
                 continue
-            if part.get("type") in IMAGE_PARTS:
-                vision = True
+            kind = part.get("type")
+            if kind in IMAGE_PARTS:
+                need["vision"] = True
+                need["images"] += 1
+            elif kind in AUDIO_PARTS:
+                need["audio"] = True
+            elif kind in DOCUMENT_PARTS:
+                need["documents"] = True
             else:
                 characters += len(part.get("text") or "")
-    return {
-        "input_tokens": -(-characters // CHARS_PER_TOKEN),
-        "vision": vision,
-        "tools": bool(data.get("tools") or data.get("functions")),
-        "max_output": int(data.get("max_tokens") or 0),
-    }
+    response_format = data.get("response_format") or {}
+    need.update(
+        {
+            "input_tokens": -(-characters // MIN_CHARS_PER_TOKEN),
+            "max_output": int(data.get("max_tokens") or 0),
+            "tools": bool(data.get("tools") or data.get("functions")),
+            "tool_choice": data.get("tool_choice") not in (None, "none"),
+            "parallel_tools": bool(data.get("parallel_tool_calls")),
+            "schema": response_format.get("type")
+            in ("json_schema", "json_object"),
+        }
+    )
+    return need
 
 
 def _catalogued(model, catalog):
@@ -90,6 +140,80 @@ def is_local(params):
     weights, and once as the filter that no weight can reach.
     """
     return params.get("mock_response") is not None or bool(params.get("api_base"))
+
+
+def _deprecated(entry, today=None):
+    """Whether the catalog gives a deprecation date already past.
+
+    The catalog ships a ``sample_spec`` documentation stub whose date field is
+    prose, so only an ISO value counts and anything else reads as undated.
+    """
+    value = str(entry.get("deprecation_date") or "")
+    if not ISO_DATE.match(value):
+        return False
+    return value < (today or date.today().isoformat())
+
+
+def capabilities(entry, catalog, today=None):
+    """What a route can do: the catalog's facts, overridden by declarations.
+
+    Args:
+        entry: one ``model_list`` entry.
+        catalog: ``litellm.model_cost`` or a stand-in keyed the same way.
+        today: the ISO date deprecation is measured against.
+
+    Returns:
+        A mapping of every capability, limit and price the filters and the
+        strategies read. A demanded capability counts as absent unless proven;
+        a disqualifier counts as harmless unless the catalog states it.
+    """
+    params = entry.get("litellm_params") or {}
+    info = entry.get("model_info") or {}
+    known = _catalogued(params.get("model") or "", catalog)
+    local = is_local(params)
+    caps = {
+        "context": info.get("max_input_tokens") or known.get("max_input_tokens"),
+        "max_output": known.get("max_output_tokens"),
+        "vision": bool(known.get("supports_vision")),
+        "tools": bool(known.get("supports_function_calling")),
+        "tool_choice": bool(known.get("supports_tool_choice")),
+        "parallel_tools": bool(known.get("supports_parallel_function_calling")),
+        "schema": bool(known.get("supports_response_schema")),
+        "documents": bool(known.get("supports_pdf_input")),
+        "audio": bool(known.get("supports_audio_input")),
+        "images": known.get("max_images_per_prompt"),
+        "system": known.get("supports_system_messages") is not False,
+        "servable": known.get("mode") in CHAT_MODES or not known,
+        "deprecated": _deprecated(known, today),
+        "input_cost": known.get(
+            "input_cost_per_token", 0.0 if local else UNPRICED_REMOTE_COST
+        ),
+        "output_cost": known.get(
+            "output_cost_per_token", 0.0 if local else UNPRICED_REMOTE_COST
+        ),
+        "caching": bool(known.get("supports_prompt_caching")),
+        "throughput": known.get("tpm") or 0,
+        "local": local,
+        "speed": 0.0,
+    }
+    caps.update(
+        {key: value for key, value in (info.get("traits") or {}).items() if key in caps}
+    )
+    return caps
+
+
+def expected_cost(caps, need):
+    """What this route would bill for this request, input plus output.
+
+    Ranking on the input price alone reads the cheaper half of the bill: an
+    output token commonly costs several times an input one, and a short prompt
+    with a long answer inverts the order the input price suggests.
+    """
+    output_tokens = need["max_output"] or NOMINAL_OUTPUT_TOKENS
+    return (
+        float(caps["input_cost"]) * need["input_tokens"]
+        + float(caps["output_cost"]) * output_tokens
+    )
 
 
 def request_text(data):
@@ -131,40 +255,30 @@ def local_reason(data, deployments, catalog):
     return ""
 
 
-def capabilities(entry, catalog):
-    """What a route can do: the catalog's facts, overridden by declarations.
-
-    Args:
-        entry: one ``model_list`` entry.
-        catalog: ``litellm.model_cost`` or a stand-in keyed the same way.
-
-    Returns:
-        ``{context, vision, tools, max_output, cost, local, speed}``. A
-        capability neither catalogued nor declared counts as absent, a limit as
-        unbounded, and a price as free for anything local or mocked. ``speed``
-        is output tokens per second; no catalogue carries one, so it is zero
-        until the deploy measures it or a route declares it.
-    """
-    params = entry.get("litellm_params") or {}
-    info = entry.get("model_info") or {}
-    known = _catalogued(params.get("model") or "", catalog)
-    local = is_local(params)
-    caps = {
-        "context": info.get("max_input_tokens") or known.get("max_input_tokens"),
-        "vision": bool(known.get("supports_vision")),
-        "tools": bool(known.get("supports_function_calling")),
-        "max_output": known.get("max_output_tokens"),
-        "cost": known.get("input_cost_per_token", 0.0 if local else UNPRICED_REMOTE_COST),
-        "local": local,
-        "speed": 0.0,
-    }
-    caps.update(
-        {key: value for key, value in (info.get("traits") or {}).items() if key in caps}
-    )
-    return caps
+def serves(caps, need):
+    """Whether one route can take this request, or the reason it cannot."""
+    context = caps["context"]
+    if context and need["input_tokens"] + need["max_output"] > int(context):
+        return "its context window is too small"
+    output_cap = caps["max_output"]
+    if need["max_output"] and output_cap and need["max_output"] > int(output_cap):
+        return "it caps the output below the request"
+    for demand in ("vision", "audio", "documents", "tools", "tool_choice",
+                   "parallel_tools", "schema"):
+        if need[demand] and not caps[demand]:
+            return f"it does not support {demand.replace('_', ' ')}"
+    if need["images"] and caps["images"] and need["images"] > int(caps["images"]):
+        return "it takes fewer images than the request carries"
+    if need["system"] and not caps["system"]:
+        return "it does not take system messages"
+    if not caps["servable"]:
+        return "it is not a chat model"
+    if caps["deprecated"]:
+        return "it is past its deprecation date"
+    return ""
 
 
-def eligible(deployments, need, exclude, catalog):
+def eligible(deployments, need, exclude, catalog, today=None):
     """The routes that can serve this request, in publication order.
 
     Args:
@@ -172,28 +286,23 @@ def eligible(deployments, need, exclude, catalog):
         need: the mapping ``summarize`` returned.
         exclude: the alias the request named, so the router never picks itself.
         catalog: the model catalog ``capabilities`` reads.
+        today: the ISO date deprecation is measured against.
 
     Returns:
         The surviving entries, each carrying its resolved capabilities under
-        ``_caps`` so the decider does not resolve them again.
+        ``_caps`` and this request's expected price under ``_cost``.
     """
     survivors = []
     for entry in deployments or []:
         alias = entry.get("model_name")
         if not alias or alias == exclude:
             continue
-        caps = capabilities(entry, catalog)
-        context = caps["context"]
-        if context and need["input_tokens"] + need["max_output"] > int(context):
+        caps = capabilities(entry, catalog, today)
+        if serves(caps, need):
             continue
-        if need["vision"] and not caps["vision"]:
-            continue
-        if need["tools"] and not caps["tools"]:
-            continue
-        output_cap = caps["max_output"]
-        if need["max_output"] and output_cap and need["max_output"] > int(output_cap):
-            continue
-        survivors.append({**entry, "_caps": caps})
+        survivors.append(
+            {**entry, "_caps": caps, "_cost": expected_cost(caps, need)}
+        )
     return survivors
 
 
@@ -221,20 +330,23 @@ def score(entry, spreads, weights):
     """How well a route serves the operator's stated priorities, 0..1 each.
 
     Each factor is scaled inside the candidate set rather than against an
-    absolute, because the units do not compare: a per-token price is a
-    millionth of a cent and a speed is tens of tokens per second.
+    absolute, because the units do not compare: a price is a fraction of a
+    cent, a rate is tens of tokens per second and a quota is millions.
     """
     caps = entry["_caps"]
     return (
         float(weights.get("locality", 0.0)) * (1.0 if caps["local"] else 0.0)
         + float(weights.get("cost", 0.0))
-        * _scaled(caps["cost"], spreads["cost"], higher_is_better=False)
+        * _scaled(entry["_cost"], spreads["cost"], higher_is_better=False)
         + float(weights.get("speed", 0.0))
         * _scaled(caps["speed"], spreads["speed"], higher_is_better=True)
+        + float(weights.get("caching", 0.0)) * (1.0 if caps["caching"] else 0.0)
+        + float(weights.get("throughput", 0.0))
+        * _scaled(caps["throughput"], spreads["throughput"], higher_is_better=True)
     )
 
 
-def decide(candidates, weights=None):
+def decide_weighted(candidates, weights):
     """The highest scoring route, ties broken by alias so a rerun repeats.
 
     Weights come from ``services.litellm.router_weights`` and say how much each
@@ -243,15 +355,119 @@ def decide(candidates, weights=None):
     ran, because a weight is a preference and a credential leaving the cluster
     is not something a preference should be able to buy.
     """
-    weights = ROUTER_WEIGHTS if weights is None else weights
     spreads = {
-        "cost": _spread(entry["_caps"]["cost"] for entry in candidates),
+        "cost": _spread(entry["_cost"] for entry in candidates),
         "speed": _spread(entry["_caps"]["speed"] for entry in candidates),
+        "throughput": _spread(entry["_caps"]["throughput"] for entry in candidates),
     }
     return min(
         candidates,
         key=lambda entry: (-score(entry, spreads, weights), entry["model_name"]),
     )["model_name"]
+
+
+def headroom(entry, need):
+    """How much context this route would leave unused on this request.
+
+    A route whose window is unknown sorts last rather than first: no window
+    means no evidence of fit, and reading it as unlimited would hand every
+    request to the least described route.
+    """
+    context = entry["_caps"]["context"]
+    if not context:
+        return float("inf")
+    return int(context) - (need["input_tokens"] + need["max_output"])
+
+
+def describe(entry, need):
+    """One line telling the decider what this route is, in its own terms."""
+    caps = entry["_caps"]
+    window = caps["context"] or "unstated"
+    place = "runs in this cluster" if caps["local"] else "runs at a provider"
+    room = headroom(entry, need)
+    fit = "unknown headroom" if room == float("inf") else f"{int(room)} tokens spare"
+    return f"{place}, context window {window}, {fit}"
+
+
+def ask_jeff(text, candidates, need):
+    """Put the routing choice to jeff as one typed choice question.
+
+    jeff answers typed questions rather than generating, so the candidates
+    become the options of a single ``choice`` and the prompt becomes the state
+    it classifies. Returns ``(alias, confidence)``.
+
+    Raises:
+        OSError: when jeff cannot be reached.
+        ValueError: when jeff answers a shape or an option this router did not
+            offer, which must not be read as a route.
+    """
+    payload = {
+        "state": text[:JEFF_MAX_STATE_CHARS],
+        "model": JEFF_MODEL,
+        "questions": {
+            JEFF_QUESTION: {
+                "type": "choice",
+                "instructions": (
+                    "Which of these models should answer the request? Prefer "
+                    "the smallest one that can serve it well."
+                ),
+                "criteria": {
+                    entry["model_name"]: describe(entry, need) for entry in candidates
+                },
+            }
+        },
+    }
+    request = urllib.request.Request(
+        f"{JEFF_URL}/v1/systemone",
+        data=json.dumps(payload).encode(),
+        headers={
+            "Authorization": f"Bearer {JEFF_KEY}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+    with urllib.request.urlopen(request, timeout=JEFF_TIMEOUT) as response:  # noqa: S310 configured internal origin
+        body = json.loads(response.read())
+    answer = (body.get("answers") or {}).get(JEFF_QUESTION) or {}
+    alias = answer.get("choice")
+    offered = {entry["model_name"] for entry in candidates}
+    if alias not in offered:
+        raise ValueError(f"jeff chose {alias!r}, which was not among {sorted(offered)}")
+    return alias, float(answer.get("confidence") or 0.0)
+
+
+def decide_system_one(candidates, need, text):
+    """The route jeff picks for this prompt.
+
+    The weighted strategy ranks on standing preferences and stops reading the
+    prompt once the filter has run. This one hands the prompt and the surviving
+    candidates to a System One model, which answers a typed choice without
+    generating. jeff being unreachable is not routed around: the caller named
+    an alias precisely so it would not have to know which model answered, and
+    quietly substituting a different decider would make that answer mean
+    something else.
+    """
+    alias, _confidence = ask_jeff(text, candidates, need)
+    return alias
+
+
+def decide(candidates, need, text="", weights=None, strategy=None):
+    """Dispatch to the configured strategy.
+
+    Args:
+        candidates: the surviving entries from ``eligible``.
+        need: the mapping ``summarize`` returned.
+        text: what the caller wrote, which only ``system_one`` reads.
+        weights: the weighted strategy's factor weights.
+        strategy: ``system_one`` or ``weighted``.
+
+    Returns:
+        The winning alias.
+    """
+    strategy = ROUTER_STRATEGY if strategy is None else strategy
+    if strategy == "system_one":
+        return decide_system_one(candidates, need, text)
+    return decide_weighted(candidates, ROUTER_WEIGHTS if weights is None else weights)
 
 
 class SystemOneRouter(CustomLogger):
@@ -279,7 +495,9 @@ class SystemOneRouter(CustomLogger):
         )
         demand = (
             f"about {need['input_tokens']} input plus {need['max_output']} "
-            f"output tokens with vision={need['vision']} tools={need['tools']}"
+            f"output tokens with vision={need['vision']} tools={need['tools']} "
+            f"schema={need['schema']} audio={need['audio']} "
+            f"documents={need['documents']}"
         )
         if not candidates:
             return f"'{ROUTER_ALIAS}' cannot route: no served model can take {demand}"
@@ -293,7 +511,15 @@ class SystemOneRouter(CustomLogger):
                     f"can take {demand}. A remote model could, so either shrink "
                     f"the request or set services.litellm.router_remote_fallback"
                 )
-        data["model"] = decide(candidates)
+        try:
+            data["model"] = decide(candidates, need, request_text(data))
+        except (OSError, ValueError) as error:
+            return (
+                f"'{ROUTER_ALIAS}' cannot route: the {ROUTER_STRATEGY} strategy "
+                f"could not reach a decision ({type(error).__name__}: {error}). "
+                f"Answering from a substitute decider would make the alias mean "
+                f"something the caller did not ask for"
+            )
         return data
 
 

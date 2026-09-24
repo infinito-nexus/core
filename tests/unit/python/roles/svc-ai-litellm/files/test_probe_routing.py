@@ -6,6 +6,9 @@ import importlib.util
 import unittest
 from typing import ClassVar
 
+from utils.cache.yaml import load_yaml
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
+
 from . import PROJECT_ROOT
 
 MODULE_PATH = PROJECT_ROOT / "roles/svc-ai-litellm/files/test/probe.py"
@@ -248,8 +251,31 @@ class TestRouteVerdict(unittest.TestCase):
 
     WINDOWS: ClassVar[dict] = {"small": 4096, "medium": 16384, "large": 65536}
 
-    def verdict(self, served, needed=5461):
-        return probe.route_verdict("auto", self.WINDOWS, served, needed)
+    def verdict(self, served, needed=5461, counted=0, sent=0):
+        return probe.route_verdict("auto", self.WINDOWS, served, needed, counted, sent)
+
+    def test_a_backend_that_evaluated_less_than_was_sent_fails(self) -> None:
+        self.assertIn(
+            "silently dropped the rest",
+            self.verdict("medium", counted=4098, sent=8192),
+            "ollama truncates a prompt past the trained window instead of "
+            "refusing it, and reports only the tokens it kept, so the declared "
+            "window cannot show the loss",
+        )
+
+    def test_a_backend_that_evaluated_everything_passes(self) -> None:
+        self.assertEqual(self.verdict("large", counted=8227, sent=8192), "")
+
+    def test_a_backend_that_reports_no_usage_is_not_accused(self) -> None:
+        self.assertEqual(self.verdict("large", counted=0, sent=8192), "")
+
+    def test_a_tokenizer_disagreeing_by_a_few_tokens_is_not_truncation(self) -> None:
+        self.assertEqual(
+            self.verdict("large", counted=8185, sent=8192),
+            "",
+            "a mock counts its own prompt and a chat template shifts the total "
+            "either way, so an exact comparison would fail a healthy route",
+        )
 
     def test_a_model_whose_window_holds_the_prompt_passes(self) -> None:
         self.assertEqual(self.verdict("medium"), "")
@@ -278,20 +304,31 @@ class TestRouteVerdict(unittest.TestCase):
         self.assertEqual(self.verdict("ollama/large"), "")
 
 
+SHIPPED_MIN_CHARS_PER_TOKEN = load_yaml(
+    PROJECT_ROOT / "roles/svc-ai-litellm" / ROLE_FILE_META_SERVICES
+)["litellm"]["router_min_chars_per_token"]
+
+
 class TestOversizedPrompt(unittest.TestCase):
-    """The prompt has to clear the smallest window by the hook's own estimate."""
+    """The prompt has to clear the smallest window by the hook's own floor."""
 
     def test_the_demand_exceeds_the_window_it_targets(self) -> None:
-        _, needed = probe.oversized_prompt(4096)
+        _, needed = probe.oversized_prompt(4096, SHIPPED_MIN_CHARS_PER_TOKEN)
         self.assertGreater(needed, 4096)
 
     def test_the_demand_stays_inside_the_next_window_up(self) -> None:
-        _, needed = probe.oversized_prompt(4096)
-        self.assertLess(needed, 16384)
+        _, needed = probe.oversized_prompt(4096, SHIPPED_MIN_CHARS_PER_TOKEN)
+        self.assertLess(needed, 65536)
 
-    def test_the_prompt_is_as_long_as_the_demand_claims(self) -> None:
-        prompt, needed = probe.oversized_prompt(4096)
-        self.assertGreaterEqual(len(prompt) // 3, needed)
+    def test_the_demand_matches_what_the_prompt_really_tokenizes_to(self) -> None:
+        prompt, needed = probe.oversized_prompt(4096, SHIPPED_MIN_CHARS_PER_TOKEN)
+        self.assertGreaterEqual(
+            needed,
+            len(prompt) // 2,
+            "'x ' costs one token per two characters on every tokenizer served "
+            "here, so a demand computed on a larger divisor understates the "
+            "prompt and admits a model that cannot hold it",
+        )
 
 
 if __name__ == "__main__":

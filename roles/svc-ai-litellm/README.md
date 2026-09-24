@@ -15,6 +15,7 @@ The diagram places LiteLLM Gateway in the Infinito.Nexus cosmos: the components 
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
+        dep_svc_ai_jeff["svc-ai-jeff 🐳🐝"]
         dep_svc_ai_lmstudio["svc-ai-lmstudio 🐳🐝"]
         dep_svc_ai_ollama["svc-ai-ollama 🐳🐝"]
         dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
@@ -22,6 +23,7 @@ flowchart LR
     subgraph role [svc-ai-litellm 🐳🐝]
         svc_litellm["litellm"]
         svc_postgres["postgres"]
+        svc_jeff["jeff"]
         svc_ollama["ollama"]
         svc_lmstudio["lmstudio"]
     end
@@ -40,6 +42,7 @@ flowchart LR
         dpt_web_app_openclaw["web-app-openclaw 🐳🐝"]
         dpt_more["..."]
     end
+    dep_svc_ai_jeff -. "0..1" .-> svc_jeff
     dep_svc_ai_lmstudio -. "0..1" .-> svc_lmstudio
     dep_svc_ai_ollama -. "0..1" .-> svc_ollama
     dep_svc_db_postgres -. "0..1" .-> svc_postgres

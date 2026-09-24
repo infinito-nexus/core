@@ -21,9 +21,6 @@
 # Order is load-bearing. The CLI probe sizes its prompt off the smallest
 # declared window, so whichever model holds that window is the one the request
 # must exclude, and the model answering instead is what shows the filter ran.
-# smollm2:135m is deliberately not that entry: 8dbdd31b22 measured it running
-# to n_gen=22011 with context shifts at n_left=4091, and a route's max_tokens
-# is a default a consumer can override, not a cap.
 
 - services:
     container_backup:
@@ -43,6 +40,6 @@
         - alias: qwen2.5:0.5b
           context: 4096
         - alias: smollm2:135m
-          context: 16384
+          context: 8192
         - alias: llama3.2:1b
           context: 65536
