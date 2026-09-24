@@ -17,12 +17,14 @@ flowchart LR
     subgraph deps [Dependencies]
         dep_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
         dep_web_app_hermes["web-app-hermes 🐳🐝"]
+        dep_web_app_keycloak["web-app-keycloak 🐳🐝"]
         dep_web_app_openclaw["web-app-openclaw 🐳🐝"]
     end
     subgraph role [svc-ai-agent-broker 🐳🐝]
         svc_agent_broker["agent-broker"]
         svc_socket_proxy["socket-proxy"]
         svc_litellm["litellm"]
+        svc_sso["sso"]
         svc_hermes["hermes"]
         svc_openclaw["openclaw"]
     end
@@ -31,6 +33,7 @@ flowchart LR
     end
     dep_svc_ai_litellm -- "1:1" --> svc_litellm
     dep_web_app_hermes -- "1:1" --> svc_hermes
+    dep_web_app_keycloak -- "1:1" --> svc_sso
     dep_web_app_openclaw -- "1:1" --> svc_openclaw
     svc_agent_broker -. "0..1" .-> dpt_web_app_openwebui
 ```

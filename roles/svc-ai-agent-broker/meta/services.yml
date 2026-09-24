@@ -58,6 +58,12 @@ litellm:
   bond: 1
   enabled: true
   shared: true
+# nocheck: playwright-service-flag, dynamic-flag  the broker authorizes every request against Keycloak group paths and has no LDAP or no-auth path, so a group_names gate would only defer the failure to runtime
+sso:
+  bond: 1
+  enabled: true
+  shared: true
+  flavor: oidc
 # nocheck: playwright-service-flag, dynamic-flag
 hermes:
   bond: 1
