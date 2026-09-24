@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
+"""Report every filesystem a cleanup could still reclaim space on.
+
+MIN_SIZE_KIB keeps the container runtimes out: the NVIDIA toolkit mounts a
+4 KiB tmpfs per CDI hook holding one file, which reads 100% on every GPU host
+and which no cleanup can ever change.
+"""
+
 import argparse
 import subprocess
 import sys
 
-# The NVIDIA container toolkit mounts a 4 KiB tmpfs per CDI hook holding one
-# file, so it reads 100% on every GPU host and no cleanup can ever change that.
 MIN_SIZE_KIB = 64 * 1024
 
 
