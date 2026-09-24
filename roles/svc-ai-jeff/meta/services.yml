@@ -34,4 +34,4 @@ jeff:
   ports:
     internal:
       http: 8000
-  lifecycle: pre-alpha
+  lifecycle: beta
