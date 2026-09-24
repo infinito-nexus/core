@@ -344,12 +344,19 @@ help:
 i18n-extract:
 	@"$${PYTHON}" -m cli.build.i18n extract $(if $(domain),--domain "$(domain)")
 
+.PHONY: i18n-prune
+# Empty the translations that altered a protected span so the next i18n-translate redoes them.
+# Param domain: core | docs (empty: both)
+# Param languages: comma-separated ISO 639-1 codes (empty: every language)
+i18n-prune:
+	@"$${PYTHON}" -m cli.build.i18n prune $(if $(domain),--domain "$(domain)") $(if $(languages),--languages "$(languages)")
+
 .PHONY: i18n-translate
-# Machine-translate the empty and fuzzy entries of one catalog domain with a short-lived LibreTranslate container.
-# Param domain: core | docs
+# Machine-translate the empty and fuzzy entries of the gettext catalogs, deploying the i18n LibreTranslate runner when it does not answer.
+# Param domain: core | docs (empty: both)
 # Param languages: comma-separated ISO 639-1 codes (empty: every language LibreTranslate supports)
 i18n-translate:
-	@"$${PYTHON}" -m cli.build.i18n translate --domain "$(domain)" $(if $(languages),--languages "$(languages)")
+	@"$${PYTHON}" -m cli.build.i18n translate $(if $(domain),--domain "$(domain)") $(if $(languages),--languages "$(languages)")
 
 .PHONY: i18n-tune
 # Measure the fastest LibreTranslate client settings on this host and record them for `make dotenv`.
