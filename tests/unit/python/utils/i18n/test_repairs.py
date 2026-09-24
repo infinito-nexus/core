@@ -9,7 +9,14 @@ from __future__ import annotations
 
 import unittest
 
-from utils.i18n.placeholders import collapse, mask, recapitalise, terminate, unmask
+from utils.i18n.placeholders import (
+    collapse,
+    mask,
+    recapitalise,
+    resegment,
+    terminate,
+    unmask,
+)
 from utils.i18n.translate import truncated
 
 
@@ -101,6 +108,26 @@ class TestUnmaskAppliesTheRepairs(unittest.TestCase):
         )
 
         self.assertEqual(restored, "Alle `alpha` Kriterien.")
+
+
+class TestResegmentLeavesNamesAlone(unittest.TestCase):
+    def test_a_suffixed_name_keeps_its_word(self) -> None:
+        source = "Adapter to Baserow: the endpoint key"
+
+        self.assertEqual(
+            resegment("Baserowo-r shathe", mask(source).spans, source),
+            "Baserowo-r shathe",
+        )
+
+    def test_a_swallowed_boundary_behind_a_delimiter_is_still_put_back(self) -> None:
+        source = "See `compose.yml`. The next sentence."
+
+        self.assertEqual(
+            resegment(
+                "Siehe `compose.yml`Der naechste Satz.", mask(source).spans, source
+            ),
+            "Siehe `compose.yml`. Der naechste Satz.",
+        )
 
 
 class TestTruncated(unittest.TestCase):

@@ -82,12 +82,21 @@ EMPHASIS = re.compile(r"(\*\*)[ \t]*([^\s]|[^\s].*?[^\s])[ \t]*\1", re.DOTALL)
 def resegment(restored: str, spans: tuple[str, ...], source: str) -> str:
     """Put back the sentence boundary a translator dropped behind a protected span.
 
+    A name is skipped. Every other protected span ends in a delimiter, so a
+    letter right behind it can only be the text the boundary was lost from, but
+    a name ends in a word character and an agglutinative language suffixes it:
+    ``Baserow`` is found inside the Bengali ``Baserowo`` and the punctuation
+    would land inside the word.
+
     Args:
         restored: the translation with every protected span put back.
         spans: the protected spans of the source.
         source: the source message, which holds the boundary that went missing.
     """
+    named = {source[start:end] for start, end in names.spans(source)}
     for span in spans:
+        if span in named:
+            continue
         start = source.find(span)
         if start < 0:
             continue
