@@ -65,7 +65,7 @@ class TestTranslate(unittest.TestCase):
             self.client.wait(["xx"], timeout=0)
 
     def test_requests_html_from_english_into_the_target(self):
-        self.assertEqual(self.client.translate(["Hello"], "de"), ["DE Hello"])
+        self.assertEqual(self.client.translate(["Hello"], "de").values, ["DE Hello"])
         self.assertEqual(
             {
                 key: FakeLibreTranslate.requests[0][key]
@@ -94,7 +94,9 @@ class TestTranslate(unittest.TestCase):
         changed.flags.add("fuzzy")
 
         todo = pending(catalog)
-        discarded = apply(todo, self.client.translate([m.id for m in todo], "de"))
+        discarded = apply(
+            todo, self.client.translate([m.id for m in todo], "de").values
+        )
 
         human = catalog.get("Kept by a person", context="human")
         self.assertEqual((human.string, human.user_comments), ("Von Hand", []))
