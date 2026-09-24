@@ -10,6 +10,17 @@
   include_role:
     name: sys-stk-full
 
+- name: "📦 Stage the model prefetch of {{ application_id }}"
+  ansible.builtin.copy:
+    src: prefetch_models.py
+    dest: "{{ [lookup('container', application_id, 'directories.instance'), 'prefetch_models.py'] | path_join }}"
+    mode: "0644"
+  delegate_to: "{{ STACK_HOST }}"
+  become: true
+  notify:
+    - compose-build
+    - compose-up
+
 - name: "🧱 Rebuild the MCP adapter of {{ application_id }}"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/rebuild.yml') }}"
   when: LIBRETRANSLATE_MCP_ENABLED | bool
