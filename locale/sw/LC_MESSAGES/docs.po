@@ -9097,7 +9097,7 @@ msgstr ""
 msgid "**mobilizon**"
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "**mode** -- which of ``compose``/``swarm``/``host`` the row deploys in, drawn from the modes the role actually offers. In practice that is at most two: swarm requires the role to ship its own stack, host requires it not to. ``(position + sweep) % len(offered)`` therefore flips a row between its two modes on consecutive sweeps."
 msgstr ""
 
@@ -14252,11 +14252,11 @@ msgstr ""
 msgid "Before any implementation work, the agent MUST read [AGENTS.md](../../AGENTS.md) and follow it, then [Role Loop](../agents/action/iteration/compose.md) and the [Playwright spec contract](../contributing/artefact/files/role/playwright.specs.js.md)."
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "Before every redeploy you MUST fully resolve the failure and reach at least **95% confidence that your fix actually fixes it**. That confidence MUST come from in-container inspection (`make compose-exec` / `make compose-inner-run`): reproduce the failure, walk the fix path, and confirm the corrected behaviour. Never redeploy on a guess."
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "Before every redeploy you MUST fully resolve the failure in swarm and reach at least **95% confidence that your fix actually fixes it**. That confidence MUST come from inspecting the live cluster in-container: reproduce the failure, walk the fix path, and confirm the corrected behaviour on the running services. Never redeploy on a guess — a swarm redeploy costs tens of minutes."
 msgstr ""
 
@@ -14317,31 +14317,31 @@ msgstr ""
 msgid "Before you start a Compose Loop on a matrix-variant role, you MUST decide if the iteration targets the FULL matrix (validates every variant) or ONE specific variant (focused debug). State the choice explicitly before the first deploy."
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "Begin by clarifying every open requirement with the `active-listening` skill (escalating any root-cause or design question you are not ~99% sure of to the `dialectic` skill), then work under the `robot` skill."
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "Begin by clarifying every open requirement with the `active-listening` skill (escalating any root-cause or design question you are not ~99% sure of to the `dialectic` skill), then work under the `robot` skill. Ask upfront whether to scope changes to the Playwright spec files only, or also to any other files that cause the tests to fail."
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "Begin by clarifying every open requirement with the `active-listening` skill (escalating any root-cause or design question you are not ~99% sure of to the `dialectic` skill), then work under the `robot` skill. Completion gate: the role is green end-to-end in compose; for a full web-app change also drive it through swarm via the `i8-iterate-swarm` skill until green in BOTH modes."
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "Begin by clarifying every open requirement with the `active-listening` skill (escalating any root-cause or design question you are not ~99% sure of to the `dialectic` skill), then work under the `robot` skill. Completion gate: the role is green end-to-end in swarm; for a full web-app change also drive it through compose via the `i8-iterate-compose` skill until green in BOTH modes."
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "Begin by clarifying every open requirement with the `active-listening` skill (escalating any root-cause or design question you are not ~99% sure of to the `dialectic` skill), then work under the `robot` skill. Every 15 minutes verify the container is still running and not hanging. Done only when every role is green in compose AND swarm."
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "Begin by clarifying every open requirement with the `active-listening` skill (escalating any root-cause or design question you are not ~99% sure of to the `dialectic` skill), then work under the `robot` skill. The gate is finished only when `make quality` passes clean."
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "Begin by clarifying every open requirement with the `active-listening` skill, escalating any root-cause question you are not ~99% sure of to the `dialectic` skill, then work under the `robot` skill until both phases pass clean. Report calibrated confidence per the `confidence` skill. Do not commit unless the operator asked for a commit."
 msgstr ""
 
@@ -14675,7 +14675,7 @@ msgstr ""
 msgid "Both sources carry the same pinned collections, so the only thing separating them is how long they take and whether they answer at all. A single slow day says nothing: galaxy.ansible.com degrades and recovers, and a git clone can stall on one runner. The default is therefore retuned only when a rolling window of daily samples shows one source durably behind the other."
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "Both targets (Debian changelog and the RPM ``%changelog`` section) are fully regenerated on every run from the kept entries plus an archived-releases notice that points at the documentation site and lists the archived versions and dates as plain text. The notice is folded into the body of the oldest kept entry (not appended after the last entry), because free text after the final entry is not valid changelog data and makes the native parsers warn. Because the package files are regenerated, they cannot drift from the CHANGELOG.md SPOT."
 msgstr ""
 
@@ -16937,7 +16937,7 @@ msgstr ""
 msgid "Compatible with the Infinito.Nexus role and metadata system"
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "Compile *expr* into a predicate over a field dict. A bare expression with no operator is treated as ``name %% <expr>`` (substring on name)."
 msgstr ""
 
@@ -21168,11 +21168,11 @@ msgstr ""
 msgid "Exempts a `roles/*/meta/services.yml` healthcheck flavor from the requirement that the role's `files/Dockerfile` install the binary the probe runs, when the service sits on a `-slim` image. MUST name where the binary comes from instead. A `-slim` tag carries the runtime and nothing around it, so `curl` is absent and the probe fails from the first beat; under swarm the task is then reaped with exit 137 and every deployment holding the service in its closure fails on the convergence wait, naming the service rather than the missing binary."
 msgstr ""
 
-#, python-brace-format, python-format
+#, no-python-format, python-brace-format
 msgid "Exempts a `roles/*/templates/*compose.yml.j2` line, or the whole file (head marker), from the canonical compose skeleton: base-include header, `{{ service_name }}:` service keys each preceded by their `{% set service_name %}`, all per-service `{% set %}` knobs on two-space-indented dash-free lines above the key, `{% include %}` at four spaces inside the service body, and column-0 `compose_volumes` / `compose_networks` at the tail. The layout renders correctly because the `stack_host_template` action plugin sets `lstrip_blocks=True` for `compose.yml.j2`. Reserved for legitimate deviations that genuinely cannot follow the skeleton."
 msgstr ""
 
-#, python-brace-format, python-format
+#, no-python-format, python-brace-format
 msgid "Exempts a `when` / `failed_when` / `changed_when` / `until` value that legitimately carries `{{ }}` / `{% %}`. Reserved for genuine edge cases; the default path is a bare expression. Per-item render/apply data guards belong on a `condition:` data field (honored by the sys-svc-compose render helper and `LISTMONK_SETTINGS`), not `when:`."
 msgstr ""
 
@@ -22081,19 +22081,19 @@ msgstr ""
 msgid "Folder-per-round model 🎛️"
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "Follow the instructions from AGENTS.md, then commit the staged changes by following the procedure in `docs/agents/action/commit.md` (relative to the Infinito.Nexus repository root) exactly. That document is the source of truth; this skill only routes you there. Begin by clarifying every open requirement with the `active-listening` skill (escalating any root-cause or design question you are not ~99% sure of to the `dialectic` skill), then work under the `robot` skill."
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "Follow the instructions from AGENTS.md, then create a new requirement for the given topic by following the procedure in `docs/contributing/requirements.md` (relative to the Infinito.Nexus repository root) exactly. That document is the source of truth; this skill only routes you there. Begin by clarifying every open requirement with the `active-listening` skill (escalating any root-cause or design question you are not ~99% sure of to the `dialectic` skill), then work under the `robot` skill. Before every redeploy you MUST run `make compose-exec` and `make compose-inner-run` against the live stack and fully fix and inspect every failure in the container. A new deploy iteration MUST NOT start until every error is resolved and the fix has been empirically verified in-container. The iteration is finished only when every role is green end to end."
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "Follow the instructions from AGENTS.md, then debug the failing local deploy of the given role by following the procedure in `docs/agents/action/debug/local.md` (relative to the Infinito.Nexus repository root) exactly. That document is the source of truth; this skill only routes you there. Begin by clarifying every open requirement with the `active-listening` skill (escalating any root-cause or design question you are not ~99% sure of to the `dialectic` skill), then work under the `robot` skill."
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "Follow the instructions from AGENTS.md, then develop the requested feature or app by following the procedure in `docs/agents/action/develop.md` (relative to the Infinito.Nexus repository root) exactly. That document is the source of truth; this skill only routes you there. Begin by clarifying every open requirement with the `active-listening` skill (escalating any root-cause or design question you are not ~99% sure of to the `dialectic` skill), then work under the `robot` skill."
 msgstr ""
 
@@ -22118,23 +22118,23 @@ msgstr ""
 msgid "Follow the instructions from AGENTS.md, then follow the procedure in `docs/agents/action/iteration/workflow.md` (relative to the Infinito.Nexus repository root) exactly. That document is the source of truth; this skill only routes you there."
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "Follow the instructions from AGENTS.md, then implement the given requirement file by following the procedure in `docs/agents/action/requirements.md` (relative to the Infinito.Nexus repository root) exactly. That document is the source of truth; this skill only routes you there. Begin by clarifying every open requirement with the `active-listening` skill (escalating any root-cause or design question you are not ~99% sure of to the `dialectic` skill), then work under the `robot` skill."
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "Follow the instructions from AGENTS.md, then inspect the given log file by following the procedure in `docs/agents/action/debug/log.md` (relative to the Infinito.Nexus repository root) exactly. That document is the source of truth; this skill only routes you there. Begin by clarifying every open requirement with the `active-listening` skill (escalating any root-cause or design question you are not ~99% sure of to the `dialectic` skill), then work under the `robot` skill."
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "Follow the instructions from AGENTS.md, then open a pull request for the current branch by following the procedure in `docs/agents/action/pull-request.md` (relative to the Infinito.Nexus repository root) exactly. That document is the source of truth; this skill only routes you there. Begin by clarifying every open requirement with the `active-listening` skill (escalating any root-cause or design question you are not ~99% sure of to the `dialectic` skill), then work under the `robot` skill."
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "Follow the instructions from AGENTS.md, then push the branch, run the manual-CI draft cycle, and transition the PR to ready-for-review by following the procedure in `docs/agents/action/push-trigger-pull.md` (relative to the Infinito.Nexus repository root) exactly. That document is the source of truth; this skill only routes you there. Begin by clarifying every open requirement with the `active-listening` skill (escalating any root-cause or design question you are not ~99% sure of to the `dialectic` skill), then work under the `robot` skill."
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "Follow the instructions from AGENTS.md, then refactor and optimize the affected files by following the procedure in `docs/agents/action/refactor.md` (relative to the Infinito.Nexus repository root) exactly. That document is the source of truth; this skill only routes you there. Begin by clarifying every open requirement with the `active-listening` skill (escalating any root-cause or design question you are not ~99% sure of to the `dialectic` skill), then work under the `robot` skill."
 msgstr ""
 
@@ -22147,7 +22147,7 @@ msgstr ""
 msgid "Follow the instructions from AGENTS.md, then run `make worktree-up branch=<branch>` (the default action of this skill). The worktree lands under `~/.local/share/worktrees/<domain>/<account>/<repo>/<branch>` and joins the primary checkout's cache stack instead of starting its own."
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "Follow the instructions from AGENTS.md, then run and validate tests for the requested scope by following the procedure in `docs/agents/action/testing.md` (relative to the Infinito.Nexus repository root) exactly. That document is the source of truth; this skill only routes you there. Begin by clarifying every open requirement with the `active-listening` skill (escalating any root-cause or design question you are not ~99% sure of to the `dialectic` skill), then work under the `robot` skill."
 msgstr ""
 
@@ -23461,7 +23461,7 @@ msgstr ""
 msgid "Hand one entry per role the replay, and give its label the 📖."
 msgstr ""
 
-#, python-brace-format, python-format
+#, no-python-format, python-brace-format
 msgid "Hand-writing the ``{% if DEPLOYMENT_MODE == 'swarm' %} … {% else %} … {% endif %}`` per service is repetitive and easy to get wrong (forgot gate, wrong condition default, inconsistent indent). This lookup emits the whole block and switches on ``DEPLOYMENT_MODE`` itself."
 msgstr ""
 
@@ -25114,7 +25114,7 @@ msgstr ""
 msgid "Infinito.Nexus is committed to transparency and actively encourages communication in public channels. Openness strengthens trust within the community and makes the project more accessible to everyone. Internal channels SHOULD only be used when a topic genuinely requires confidentiality."
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "Infinito.Nexus is designed with security in mind. However, while following our guidelines can greatly improve your system's security, no IT system can be 100% secure. Please report any vulnerabilities as soon as possible."
 msgstr ""
 
@@ -27121,7 +27121,7 @@ msgstr ""
 msgid "License ⚖️"
 msgstr ""
 
-#, python-brace-format, python-format
+#, no-python-format, python-brace-format
 msgid "Liest die Datei rel_path (relative zum PROJECT_ROOT), ersetzt rekursiv alle \"{% include 'path' %}\"-Zeilen durch den Inhalt der jeweiligen Datei (mit gleicher Einrückung)."
 msgstr ""
 
@@ -30445,7 +30445,7 @@ msgstr ""
 msgid "Operations 🛠️"
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "Operator decision: 100% open source, matches the platform; OIDC handled via the oauth2-proxy gate."
 msgstr ""
 
@@ -31080,7 +31080,7 @@ msgstr ""
 msgid "Package-cache sizing env handlers."
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "Package-changelog generator hardening: the Debian changelog and the Fedora spec *%changelog* are mirrored from CHANGELOG.md without tripping their native parsers — every change line is indented for Debian, every body line gains a dash continuation for RPM, and the archived-releases notice is folded into the oldest kept entry instead of trailing after the final entry. Previously the un-indented bodies made *dpkg-buildpackage* abort the Debian package build with an empty maintainer. The *Changelog* title is also preserved when the active window is trimmed. See [the release procedure](docs/contributing/actions/release.md)."
 msgstr ""
 
@@ -33577,7 +33577,7 @@ msgstr ""
 msgid "Regenerate the Debian changelog at *path* from CHANGELOG.md."
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "Regenerate the ``%changelog`` section of an RPM spec file at *path* from CHANGELOG.md."
 msgstr ""
 
@@ -33993,7 +33993,7 @@ msgstr ""
 msgid "Render one CHANGELOG.md entry as a Debian changelog stanza."
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "Render one CHANGELOG.md entry as an RPM ``%changelog`` stanza."
 msgstr ""
 
@@ -34455,7 +34455,7 @@ msgstr ""
 msgid "Resolve a single ``services.<key>.<field>`` with provider fallback."
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "Resolve a single user by login attribute, parameterized via `%uid`"
 msgstr ""
 
@@ -40435,7 +40435,7 @@ msgstr ""
 msgid "Tests in this directory MUST only cover GitHub-side CI/CD artefacts (workflows, Dependabot, PR helpers). Tests for local `make` targets, role logic, or non-CI scripts MUST live elsewhere under `tests/integration/`."
 msgstr ""
 
-#, python-brace-format, python-format
+#, no-python-format, python-brace-format
 msgid "Tests in this directory MUST only cover Jinja-level concerns (template parsing, `{% include %}` resolution, variable reference/definition symmetry). Filter-plugin tests MUST live under `tests/integration/filters/`."
 msgstr ""
 
@@ -42929,7 +42929,7 @@ msgstr ""
 msgid "The file root of ``meta/services.yml`` IS the services map; there is no ``services.`` wrapper to walk into."
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "The file's pre-``%changelog`` head is preserved verbatim. The ``%changelog`` section is replaced with one stanza per entry plus the trailing notice. Returns ``True`` when the file was rewritten, ``False`` when nothing happened (missing file, no ``%changelog`` section, no entries, or dry run)."
 msgstr ""
 
@@ -43610,7 +43610,7 @@ msgstr ""
 msgid "The override path is host-vars `applications.<role>.services.<service>.{image,version}`. The inventory mirror step (see [mirror.md](mirror.md)) writes there automatically; manual overrides go to the same key."
 msgstr ""
 
-#, python-brace-format, python-format
+#, no-python-format, python-brace-format
 msgid "The override path lives at the caller because Jinja-scope `{% set %}` bindings are visible only in the rendering template, never in the Ansible variable context that the lookup sees."
 msgstr ""
 
@@ -44695,7 +44695,7 @@ msgstr ""
 msgid "The shared ``biber`` and ``administrator`` persona journeys are opted out via ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` in ``templates/playwright.env.j2``. Joomla’s site template ships no login/logout module, and ``plg_system_keycloak`` exposes sign-out only as the route ``index.php?option=keycloak&task=logout`` (``files/joomla-oidc-plugin/plg_system_keycloak/src/Extension/Keycloak.php``, ``handleLogout``) rather than as a rendered control, so the persona’s mandatory in-app logout click has no target and navigating a logout URL directly is forbidden by the contract. The OIDC handshake itself, the LDAP variant and the ``/administrator?fallback=local`` hatch are covered by ``files/playwright/test-oidc-login.js``, ``test-ldap-login.js`` and ``test-oidc-fallback.js``."
 msgstr ""
 
-#, python-brace-format, python-format
+#, no-python-format, python-brace-format
 msgid "The shared ``biber`` and ``administrator`` persona journeys are opted out via ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` in ``templates/playwright.env.j2``. Outside the OIDC variant, ``templates/casc.yaml.j2`` selects the ``ldap`` or ``local`` security realm and Jenkins’ only login surface is its own Java-realm form, whose fields are named ``j_username`` / ``j_password`` (pinned by the LDAP scenario in ``files/playwright/playwright.spec.js``) — names the shared native-login probe does not match, so the persona never authenticates. The flag is currently unconditional; narrowing it to ``{% if not JENKINS_OIDC_ENABLED %}`` once the OIDC persona journey has been verified end-to-end is the path back."
 msgstr ""
 
@@ -44738,7 +44738,7 @@ msgstr ""
 msgid "The shared `biber` and `administrator` persona journeys are opted out via `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. Joomla's site template ships no login/logout module, and `plg_system_keycloak` exposes sign-out only as the route `index.php?option=keycloak&task=logout` (`files/joomla-oidc-plugin/plg_system_keycloak/src/Extension/Keycloak.php`, `handleLogout`) rather than as a rendered control, so the persona's mandatory in-app logout click has no target and navigating a logout URL directly is forbidden by the contract. The OIDC handshake itself, the LDAP variant and the `/administrator?fallback=local` hatch are covered by `files/playwright/test-oidc-login.js`, `test-ldap-login.js` and `test-oidc-fallback.js`."
 msgstr ""
 
-#, python-brace-format, python-format
+#, no-python-format, python-brace-format
 msgid "The shared `biber` and `administrator` persona journeys are opted out via `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. Outside the OIDC variant, `templates/casc.yaml.j2` selects the `ldap` or `local` security realm and Jenkins' only login surface is its own Java-realm form, whose fields are named `j_username` / `j_password` (pinned by the LDAP scenario in `files/playwright/playwright.spec.js`) — names the shared native-login probe does not match, so the persona never authenticates. The flag is currently unconditional; narrowing it to `{% if not JENKINS_OIDC_ENABLED %}` once the OIDC persona journey has been verified end-to-end is the path back."
 msgstr ""
 
@@ -48459,7 +48459,7 @@ msgstr ""
 msgid "Update User with LDAP values"
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "Update [CHANGELOG.md](../../../CHANGELOG.md): prepend a new `## [<version>] - <YYYY-MM-DD>` section with the change set, written in the same style as the existing entries. When the release ships package metadata, also update [packaging/debian/changelog](../../../packaging/debian/changelog) and the `%changelog` section of [packaging/fedora/infinito-nexus.spec](../../../packaging/fedora/infinito-nexus.spec) with the corresponding entries."
 msgstr ""
 
@@ -50318,7 +50318,7 @@ msgstr ""
 msgid "When a role needs an OIDC endpoint, it MUST template the corresponding `OIDC.CLIENT.*` value rather than build the URL from `OIDC.URL` itself. The URL builders in [11_oidc.yml](../../../../group_vars/all/11_oidc.yml) already handle realm and protocol concerns."
 msgstr ""
 
-#, python-brace-format, python-format
+#, no-python-format, python-brace-format
 msgid "When a template needs a per-call override (either via Jinja-scope ``{% set docker_restart_policy = '...' %}`` or a hardcoded literal), the caller passes the policy explicitly:"
 msgstr ""
 
@@ -51478,7 +51478,7 @@ msgstr ""
 msgid "You MUST NOT use `.md` files to describe implementation logic that is already visible in the code."
 msgstr ""
 
-#, python-brace-format, python-format
+#, no-python-format, python-brace-format
 msgid "You MUST NOT use `templates/Dockerfile.j2` unless the Dockerfile requires Jinja2 control-flow logic (e.g. `{% if %}`, `{% for %}`)."
 msgstr ""
 
@@ -51581,7 +51581,7 @@ msgstr ""
 msgid "You MUST classify each failure into one of two buckets:"
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "You MUST cluster the downloaded logs by their shared failing task via `python -m cli.meta.ci.logs.analyze /tmp/logs/<child-run-id>`, then for each cluster you MUST perform static analysis of the repository code, the job logs, the downloaded artefacts, and any relevant external code until you are at least 99% certain of the root cause before you change anything. If the error class is a Playwright failure, you MUST follow [Playwright Failures](#playwright-failures) for the asset analysis before continuing."
 msgstr ""
 
@@ -53057,25 +53057,25 @@ msgstr ""
 msgid "[ ] ☑️ cells (infinito-native service flags already declared in `meta/services.yml`) are NOT re-declared as `meta/addons/` addons; they remain service integrations, and only ✅/🪙 cells become new addons."
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "[![CyberMaster.Space](https://img.shields.io/badge/CyberMaster-%2ESpace-000000?labelColor=004B8D&style=flat&borderRadius=8)](https://cybermaster.space)"
 msgstr ""
 
 msgid "[![GitHub Sponsors](https://img.shields.io/badge/Sponsor-GitHub%20Sponsors-blue?logo=github)](https://github.com/sponsors/kevinveenbirkenbach) [![View Source](https://img.shields.io/badge/View_Source-Repository-000000?logo=github&labelColor=004B8D&style=flat&borderRadius=8)](https://s.infinito.nexus/code)"
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "[![Infinito.Nexus](https://img.shields.io/badge/Infinito.Nexus-%2ECloud-000000?labelColor=004B8D&style=flat&borderRadius=8)](https://infinito.nexus)"
 msgstr ""
 
 msgid "[![Patreon](https://img.shields.io/badge/Support-Patreon-orange?logo=patreon)](https://www.patreon.com/kevinveenbirkenbach) [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20me%20a%20Coffee-Funding-yellow?logo=buymeacoffee)](https://buymeacoffee.com/kevinveenbirkenbach) [![PayPal](https://img.shields.io/badge/Donate-PayPal-blue?logo=paypal)](https://s.veen.world/paypaldonate) [![Sponsor Infinito.Nexus](https://img.shields.io/badge/Donate–Infinito.Nexus-000000?style=flat&labelColor=004B8D&logo=github-sponsors&logoColor=white&borderRadius=8)](https://github.com/sponsors/kevinveenbirkenbach)"
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "[![Pipeline](https://img.shields.io/badge/Pipeline-CI%2FCD-7A3E9D?style=for-the-badge)](?quick_pull=1&template=pipeline.md) [![Agents](https://img.shields.io/badge/Agents-AGENTS%2FCLAUDE%2FGEMINI-9C2F2F?style=for-the-badge)](?quick_pull=1&template=agents.md) [![Documentation](https://img.shields.io/badge/Documentation-docs-1F5C99?style=for-the-badge)](?quick_pull=1&template=documentation.md)"
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "[![Server](https://img.shields.io/badge/Server-web--*-0A7B83?style=for-the-badge)](?quick_pull=1&template=server.md) [![Workstation](https://img.shields.io/badge/Workstation-desk--*-2E6F40?style=for-the-badge)](?quick_pull=1&template=workstation.md) [![System](https://img.shields.io/badge/System-sys%2Fsvc%2Fdev-8B5E3C?style=for-the-badge)](?quick_pull=1&template=system.md)"
 msgstr ""
 
@@ -53964,11 +53964,11 @@ msgstr ""
 msgid "[Checkmk GitHub Repository](https://github.com/Checkmk/checkmk)"
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "[Checkmk](https://checkmk.com/) (Raw / Community edition, 100% open source) is an IT and application monitoring system. This role deploys the official all-in-one `checkmk/check-mk-raw` container behind the Infinito.Nexus reverse proxy, with Keycloak SSO via the oauth2-proxy gate and native LDAP user management."
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "[Checkmk](https://checkmk.com/) is an open-source IT/infrastructure & application monitoring system. The **Raw / Community** edition (100% open source) ships an official all-in-one container that bundles the monitoring core, RRD storage, and the Apache-served web GUI — it needs **no external database**."
 msgstr ""
 
@@ -56511,7 +56511,7 @@ msgstr ""
 msgid "[opentalk.eu](https://opentalk.eu/)"
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "[packaging/debian/changelog](../../../packaging/debian/changelog) and the `%changelog` section of [packaging/fedora/infinito-nexus.spec](../../../packaging/fedora/infinito-nexus.spec) are regenerated from the kept CHANGELOG.md entries, with a trailing notice that points at [docs.infinito.nexus](https://docs.infinito.nexus/) for further releases and a plain-text list of the archived versions and their dates (no links)."
 msgstr ""
 
@@ -59421,19 +59421,19 @@ msgstr ""
 msgid "`(position + sweep // 2) % 2`"
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "`(position + sweep) % len(architecture pool)`"
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "`(position + sweep) % len(distro pool)`"
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "`(position + sweep) % len(modes the role offers)`"
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "`(position // len(distro pool) + sweep) % len(filesystem pool)`"
 msgstr ""
 
@@ -60017,7 +60017,7 @@ msgstr ""
 msgid "`Certbot Official Website <https://certbot.eff.org/>`__"
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "`Checkmk <https://checkmk.com/>`__ (Raw / Community edition, 100% open source) is an IT and application monitoring system. This role deploys the official all-in-one ``checkmk/check-mk-raw`` container behind the Infinito.Nexus reverse proxy, with Keycloak SSO via the oauth2-proxy gate and native LDAP user management."
 msgstr ""
 
@@ -61745,7 +61745,7 @@ msgstr ""
 msgid "``$wgHTTPTimeout`` is raised inside the same block because core’s 25s is below a cold local model’s first token."
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "``%%`` is \"contains\" for a scalar string value and \"is a member of\" for a set value; ``==`` / ``!=`` against a set mean membership / non-membership. String comparisons (``==`` ``!=`` ``%%``) are case-insensitive; ``< > <= >=`` are numeric. A bare expression with no operator (e.g. ``nextcloud``) is shorthand for ``name %% nextcloud``."
 msgstr ""
 
@@ -63241,7 +63241,7 @@ msgstr ""
 msgid "``templates/roles/README.md.j2.tmpl`` is the single source of truth for the role-README structure. :mod:`cli.build.docs.readme.schema` derives the required/optional section set from it; the lint (``tests/lint/ansible/roles/test_readme.py``) and the generator (``python -m cli.build.docs.readme``) both consume that same schema so the three never drift."
 msgstr ""
 
-#, python-brace-format, python-format
+#, no-python-format, python-brace-format
 msgid "``templates/roles/README.md.j2.tmpl`` is the single source of truth. The required sections are the H2s the template emits with no optional context; the optional sections are the extra H2s that appear once every ``{% if ... %}``-guarded variable is supplied. Rendering the template both ways and diffing the H2 sets keeps the lint and the generator in lock-step with the template."
 msgstr ""
 
@@ -63726,7 +63726,7 @@ msgstr ""
 msgid "`backend`: `cloud` or `chezmoi`"
 msgstr ""
 
-#, python-brace-format, python-format
+#, no-python-format, python-brace-format
 msgid "`base.yml.j2` embeds an engine sidecar only `{% if enabled and not shared %}`."
 msgstr ""
 
@@ -68739,14 +68739,14 @@ msgstr ""
 msgid "calendar events (`core_calendar_get_calendar_events`)"
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "candidate = 35% of mem_limit"
 msgstr ""
 
 msgid "candidate package names, most specific first."
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "cap       = min(3072 MB, 60% of mem_limit)"
 msgstr ""
 
@@ -75092,27 +75092,27 @@ msgstr ""
 msgid "{   \"server\": [...],   \"workstation\": [...],   \"universal\": [...], }"
 msgstr ""
 
-#, python-brace-format, python-format
+#, no-python-format, python-brace-format
 msgid "{% endfor %}"
 msgstr ""
 
-#, python-brace-format, python-format
+#, no-python-format, python-brace-format
 msgid "{% for app_id in lookup('native_metrics_apps') %} {% include 'roles/' + app_id + '/templates/prometheus.yml.j2' %} {% endfor %}"
 msgstr ""
 
-#, python-format
+#, no-python-format
 msgid "{% for entry in lookup('container_extra_hosts',"
 msgstr ""
 
-#, python-brace-format, python-format
+#, no-python-format, python-brace-format
 msgid "{% for role_id in lookup('alert_rule_roles') %} {% include 'roles/' + role_id + '/templates/prometheus/alert_rules.yml.j2' %} {% endfor %}"
 msgstr ""
 
-#, python-brace-format, python-format
+#, no-python-format, python-brace-format
 msgid "{% if lookup('prometheus_integration_active', application_id) %} ...prometheus monitoring block... {% endif %}"
 msgstr ""
 
-#, python-brace-format, python-format
+#, no-python-format, python-brace-format
 msgid "{% set _comm_channels = lookup('active_alertmanager_channels') %}"
 msgstr ""
 
