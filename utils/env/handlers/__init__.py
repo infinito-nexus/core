@@ -16,6 +16,7 @@ from . import (
     passthrough,
 )
 from .infinito import (
+    cache_conf,
     cache_stack,
     container,
     distros,
@@ -23,6 +24,7 @@ from .infinito import (
     domain,
     gpu_count,
     i18n_libretranslate,
+    i18n_tuning,
     image,
     image_repository,
     inventory,
@@ -76,6 +78,7 @@ ORDERED_HANDLERS = [
     domain,
     running_on_act,
     running_on_github,
+    cache_conf,
     cache_stack,
     tor_socks_port,
     is_wsl2,
@@ -97,6 +100,7 @@ ORDERED_HANDLERS = [
     registry_cache_max_size,
     gpu_count,
     i18n_libretranslate,
+    i18n_tuning,
     package_cache_heap,
     package_cache_direct_mem,
     package_cache_blobstore_max,

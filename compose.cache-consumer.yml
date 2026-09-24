@@ -21,6 +21,7 @@ services:
       - "dl-cdn.alpinelinux.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
       - "raw.githubusercontent.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
       - "codeload.github.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+      - "argos-net.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
     volumes:
       - type: bind
         source: ${INFINITO_CACHE_REGISTRY_CA_HOST_PATH:?Run 'make dotenv' to generate the .env single source of truth}
@@ -32,6 +33,7 @@ services:
       - ./scripts/docker/cache/registry-ca.sh:/usr/local/bin/registry-cache-ca.sh:ro
       - ${INFINITO_CACHE_PACKAGE_PIP_CONF:?Set by 'cli deploy development up'}:/etc/pip.conf:ro
       - ${INFINITO_CACHE_PACKAGE_NPMRC:?Set by 'cli deploy development up'}:/root/.npmrc:ro
-      - ./compose/package-cache/apt/${INFINITO_DISTRO:?Run 'make dotenv' to generate the .env single source of truth}.list:/etc/apt/sources.list.d/package-cache.list:ro
+      - ./compose/package-cache/apt/${INFINITO_DISTRO:?Run 'make dotenv' to generate the .env single source of
+        truth}.list:/etc/apt/sources.list.d/package-cache.list:ro
       - ${INFINITO_CACHE_PACKAGE_FRONTEND_CA_FILE:?Set by 'cli deploy development up'}:/opt/package-frontend-ca.crt:ro
       - ./scripts/docker/cache/package-frontend/ca.sh:/usr/local/bin/package-frontend-ca.sh:ro

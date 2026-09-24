@@ -10,7 +10,7 @@ CA_KEY=/ca/ca.key
 CA_DAYS=3650
 LEAF_DAYS=730
 
-HOSTNAMES="pypi.org files.pythonhosted.org registry.npmjs.org rubygems.org index.rubygems.org repo.packagist.org proxy.golang.org dl-cdn.alpinelinux.org raw.githubusercontent.com codeload.github.com"
+HOSTNAMES="pypi.org files.pythonhosted.org registry.npmjs.org rubygems.org index.rubygems.org repo.packagist.org proxy.golang.org dl-cdn.alpinelinux.org raw.githubusercontent.com codeload.github.com argos-net.com"
 
 log() { printf '[package-frontend-certs] %s\n' "$*" >&2; }
 

@@ -306,7 +306,9 @@ dotenv:
 # Note: avoids stale BASH_ENV INFINITO_* values pinning via setdefault.
 dotenv-force:
 	@rm -f .env
-	@env -i HOME="$${HOME}" PATH="$${PATH}" python3 -m cli.meta.env
+	@env -i HOME="$${HOME}" PATH="$${PATH}" \
+		INFINITO_CACHE_CONF_SOURCE="$${INFINITO_CACHE_CONF_SOURCE:-}" \
+		python3 -m cli.meta.env
 
 .PHONY: environment-bootstrap
 # Bootstrap the local development environment.
