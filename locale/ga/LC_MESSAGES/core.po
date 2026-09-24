@@ -177,7 +177,7 @@ msgstr "Ríomhphost lárnach ciseal orchestration ródú phost óstach trí Mail
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr "Lár Athchúrsach / tosaigh innill réiteora DNS (Gan teorainn, etc.)"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -197,7 +197,7 @@ msgstr "inneall bunachar sonraí veicteoir lárnach a stóráil agus a chuardach
 # libretranslate
 msgctxt "role:sys-svc-rdbms:description"
 msgid "Centralized MariaDB or PostgreSQL database service shared across applications via Docker Compose"
-msgstr "Lárnaigh MariaDB nó IargreSQL seirbhís bunachar sonraí roinnte ar fud na n-iarratas via Docker Compose"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-svc-certs:description"
@@ -287,7 +287,7 @@ msgstr "Pobail agus Fiontair"
 # libretranslate
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
-msgstr "Róil insteallta HTML inmhúirínithe (CSS, JS, logout interceptor, Analytics, Painéal na nIonstraimí iframe) do Nginx / Oscailte via sub_filter/ Lua le sócmhainní CDN-aischurtha."
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-stk-full:description"
@@ -327,7 +327,7 @@ msgstr "coimeádán Reveal.js deic sleamhnán chun an t-ardán a chur i láthair
 # libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr "freastalaí deilbhín coimeádán le haghaidh óstáil an SVG branda Simplí agus bailiúchán PNG le haghaidh úsáid gréasáin agus doiciméadú"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-db-postgres:description"
@@ -627,7 +627,7 @@ msgstr "Ardán Federated, féin-óstáil le haghaidh imeachtaí a eagrú agus po
 # libretranslate
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
-msgstr "droichead Cónaidhme ag nascadh GníomhaíochtPub (Feicsean), Prótacal AT (taiseachas aeir: fliuch), agus an IndieWeb"
+msgstr ""
 
 # libretranslate
 msgctxt "menu:Finance & Accounting:title"
@@ -927,7 +927,7 @@ msgstr "Róil chothabhála do dheimhnithe, cothabháil córais, agus cúraimí o
 # libretranslate
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
-msgstr "Ról Marker clibeáil óstach mar an nod bainisteoir Swarm Docker, leis an loighic init tarmligthe a svc-swarm-node"
+msgstr ""
 
 # libretranslate
 msgctxt "menu:Marketing:title"
@@ -1818,7 +1818,7 @@ msgstr "Bearradh seirbhíse glantacháin Córas-tiomáinte méideanna Docker gan
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-hard:description"
 msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
-msgstr "Ról cothabhála córasaithe-scheduled le haghaidh lán Atosú Docker Múirín Stack, le atosú crua le haghaidh stacks cosúil Mailu"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-ctl-hlth-container:description"

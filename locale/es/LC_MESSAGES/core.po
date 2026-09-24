@@ -1992,7 +1992,7 @@ msgstr "Optimación del servidor web"
 # libretranslate
 msgctxt "role:desk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr "Configuración de estaciones de trabajo para Docker y Docker Componga con el usuario local en el grupo de docker para uso de desarrollo sin raíces"
+msgstr ""
 
 # libretranslate
 msgctxt "role:dev-arduino:description"

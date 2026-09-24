@@ -42,7 +42,7 @@ msgstr "管理ツールfürサーバー"
 # libretranslate
 msgctxt "role:sys-front-inj-all:description"
 msgid "Aggregate NGINX sub-filter injector adding Matomo tracking, global theming, iFrame and JS snippets by feature flag"
-msgstr "NGINX サブフィルタインジェクタを割り当て、Matoomo のトラッキング、グローバル テーマ、iFrame および JS スニペットを機能フラグで追加"
+msgstr ""
 
 # libretranslate
 msgctxt "role:desk-gnome:description"
@@ -177,7 +177,7 @@ msgstr "Mailu、msmtp、またはオプションのローカルSMTPリレーを�
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr "中央再帰/強化DNSリゾルバエンジン (アンバウンドなど)"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -325,7 +325,7 @@ msgstr "コンテナ化 Reveal.js プラットフォームを管理者、開発�
 # libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr "シンプルなアイコンブランドSVGとPNGコレクションをWebやドキュメント用にホスティングするためのコンテナ化されたアイコンサーバー"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-db-postgres:description"
@@ -393,7 +393,7 @@ msgstr "顧客関係"
 # libretranslate
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
-msgstr "顧客関係管理 (メディア) 顧客関係、販売パイプライン、マーケティング、およびサポート活動の管理のためのソフトウェア。"
+msgstr ""
 
 # libretranslate
 msgctxt "category:sys.dns:title"
@@ -623,7 +623,7 @@ msgstr "イベントを整理し、コミュニティやグループを構築す
 # libretranslate
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
-msgstr "フェデレーションブリッジ接続活動Pub (フェディバース), ATプロトコル (ブルースキー)インディーウェブ"
+msgstr ""
 
 # libretranslate
 msgctxt "menu:Finance & Accounting:title"
@@ -1197,7 +1197,7 @@ msgstr "将来のXMPPサーバー/コンテナの展開、実装用のプレー�
 # libretranslate
 msgctxt "menu:Commerce:description"
 msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
-msgstr "決済、在庫、顧客機能など、オンラインショップ、製品カタログ、およびデジタル販売チャネルの構築および管理のためのプラットフォーム。"
+msgstr ""
 
 msgctxt "logout:keep_closed"
 msgid "Please do not close this page yet."
@@ -1324,7 +1324,7 @@ msgstr "バックアップ、未使用証明書、一時ファイル、ドッカ
 # libretranslate
 msgctxt "category:drv:description"
 msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
-msgstr "プリンター、グラフィック、インプットデバイス、その他周辺機器のサポートなど、ハードウェアドライバのインストールと構成の役割。"
+msgstr ""
 
 # libretranslate
 msgctxt "category:web:description"
@@ -1334,7 +1334,7 @@ msgstr "静的なコンテンツサービスやデプロイ可能なWebアプリ
 # libretranslate
 msgctxt "category:sys.ctl.hlth:description"
 msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
-msgstr "システム監視と健康チェックのロール - ボットスタイルの自動チェックと、ログ、コンテナ、ディスクの使用状況などのコア低レベルのモニターを網羅しています。"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-front-tls-selfsigned:description"
@@ -1986,7 +1986,7 @@ msgstr "Webサーバの最適化"
 # libretranslate
 msgctxt "role:desk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr "Docker および Docker のワークステーション セットアップは、Docker グループのローカル ユーザーと rootless 開発の使用のために構成します"
+msgstr ""
 
 # libretranslate
 msgctxt "role:dev-arduino:description"

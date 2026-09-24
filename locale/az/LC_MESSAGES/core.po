@@ -92,7 +92,7 @@ msgstr "Yadda saxla"
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
-msgstr "Avtomatlaşdırma xidməti çıxarılmış və ya xüsusi Docker kolleksiyası"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-dns-hetzner-rdns:description"
@@ -172,12 +172,12 @@ msgstr "Nginx komponentləri və canlı status UI"
 # libretranslate
 msgctxt "role:sys-svc-mail:description"
 msgid "Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
-msgstr "E-poçt ünvanı"
+msgstr ""
 
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr "Mərkəzi recursive/ forwarding DNS təhlükəsiz motorlar (Daxil ol)"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -197,7 +197,7 @@ msgstr "Aktıq arasında paylaşılan torpaqları saxlamaq və axtarmaq üçün 
 # libretranslate
 msgctxt "role:sys-svc-rdbms:description"
 msgid "Centralized MariaDB or PostgreSQL database service shared across applications via Docker Compose"
-msgstr "Docker kolleksiyası vasitəsi ilə applications haqqında paylaşılan MariaDB və ya PostgreSQL bazası xidmət"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-svc-certs:description"
@@ -627,7 +627,7 @@ msgstr "Fevral, öz müştəriləri və qrupları təşkil etmək üçün platfo
 # libretranslate
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
-msgstr "İctimai körpü (Qalereya), AT Protokolu (Elan), və IndieWeb"
+msgstr ""
 
 # libretranslate
 msgctxt "menu:Finance & Accounting:title"
@@ -732,7 +732,7 @@ msgstr "Yardım"
 # libretranslate
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
-msgstr "Docker kolleksiyası üçün CA-trust enjeksiyon aktivlərinin quraşdırılması və layihəsinə uyğunlaşdırılması"
+msgstr ""
 
 # libretranslate
 msgctxt "category:gen:description"
@@ -882,12 +882,12 @@ msgstr "Light SMTP müştəri və xarici SMTP serveri vasitəsilə çıxarılmas
 # libretranslate
 msgctxt "role:web-app-gitea:description"
 msgid "Lightweight self-hosted Git service for code collaboration, version control, and repository management"
-msgstr "Kod əməkdaşlığı, versiyası nəzarəti və repository idarə"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-svc-nss:description"
 msgid "Local name resolution for the domains the target serves, via the myhostname NSS module"
-msgstr "Domen adı qeydiyyatdan keçirt »"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-ca-selfsigned:description"
@@ -1197,7 +1197,7 @@ msgstr "Disbound mail çatdırılma üçün müxtəlif sağlamlıq çeki, msmtp 
 # libretranslate
 msgctxt "role:desk-ssh:description"
 msgid "Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
-msgstr "Uşaq masaları üçün Persistent sistemid user-service SSH agent, .ssh config"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-svc-xmpp:description"
@@ -1287,7 +1287,7 @@ msgstr "İctimai REST API rol data, tarixi və çeviriləri Infinito.Nexus əsas
 # libretranslate
 msgctxt "role:pkgmgr:description"
 msgid "Python CLI package manager for cloning multiple code repositories and automating common Git operations"
-msgstr "Python CLI paketi meneceri çox kod depozitlərin klonlanması və avtomatlaşdırılması üçün meneceri"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-lint:description"
@@ -1307,7 +1307,7 @@ msgstr "Docker, Btrfs balansçıları və digər aşağı səviyyəli sistem dü
 # libretranslate
 msgctxt "role:sys-util-git-pull:description"
 msgid "Reusable Git pull primitive for shallow clones, detached-safe updates, tag pinning, and reliable change detection"
-msgstr "Reusable Daxil ol"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-ai-mcp-adapter:description"
@@ -1447,7 +1447,7 @@ msgstr "Ephemeral Docker konteynerlərində GitHub Actions iş işlərini icra e
 # libretranslate
 msgctxt "role:web-app-gitlab:description"
 msgid "Self-hosted DevOps platform for Git source-code management, CI/CD pipelines, and issue tracking"
-msgstr "Almaq üçün DevOps platforması, CI/CD boruları, və mövzu izləmə"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-fediwall:description"
@@ -1557,7 +1557,7 @@ msgstr "OIDC və LDAP giriş ilə, TV, musiqi və fotoşəkillərin axtarışı 
 # libretranslate
 msgctxt "role:svc-ai-ollama:description"
 msgid "Self-hosted model server for running open LLMs locally behind a simple HTTP API"
-msgstr "Yadda saxla"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-baserow:description"
@@ -1703,7 +1703,7 @@ msgstr "Sizə xidmətlərinə baxın..."
 # libretranslate
 msgctxt "role:web-app-postmarks:description"
 msgid "Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
-msgstr "Single  the  the  the  the  the  the  the"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-homeassistant:description"
@@ -1803,7 +1803,7 @@ msgstr "Kompüter sistemi Python paketini yükləyən və ya yeniləndirilməsi 
 # libretranslate
 msgctxt "role:sys-ctl-mtn-cert-deploy:description"
 msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
-msgstr "Docker kolleksiyası NGINX yığınına balıq yükləndirilən Docker komponentlərinə məlumat və vaxt"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-timer:description"
@@ -1818,7 +1818,7 @@ msgstr "Systemd-based təmizləmə xidmət pruning anonim Docker səyahətləri 
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-hard:description"
 msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
-msgstr "Tam Docker kolleksiyası üçün sistemləşdirilmiş təhlükəsizlik rolu, Mailu kimi yığmaqla başlayır"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-ctl-hlth-container:description"
@@ -1998,7 +1998,7 @@ msgstr "çox PostgreSQL server idarə etmək üçün Web-based idarə və inkiş
 # libretranslate
 msgctxt "role:web-app-phpmyadmin:description"
 msgid "Web-based administration tool for MySQL and MariaDB with schema management, querying, and import/export"
-msgstr "Kart idarəetmə, sorgulama və səyahət / səyahət"
+msgstr ""
 
 # libretranslate
 msgctxt "category:web.opt:title"
@@ -2008,7 +2008,7 @@ msgstr "Webserver Optimation"
 # libretranslate
 msgctxt "role:desk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr "Docker və Docker kolleksiyası üçün docker qrupunda yerli istifadəçi ilə Docker və Docker kolleksiyası"
+msgstr ""
 
 # libretranslate
 msgctxt "role:dev-arduino:description"

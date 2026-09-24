@@ -92,7 +92,7 @@ msgstr "资产管理"
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
-msgstr "自动恢复服务重新启动退出或不健康的 Docker 编译堆栈并解决港口冲突"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-dns-hetzner-rdns:description"
@@ -176,7 +176,7 @@ msgstr "通过 Mailu 、 msmtp 或可选的本地 SMTP 中继器的中央邮件�
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr "DNS 解析器中央递归/前置引擎 (无边等.)"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -196,7 +196,7 @@ msgstr "存储和搜索跨堆共享的消费者嵌入的中央矢量数据库引
 # libretranslate
 msgctxt "role:sys-svc-rdbms:description"
 msgid "Centralized MariaDB or PostgreSQL database service shared across applications via Docker Compose"
-msgstr "通过 Docker 编译共享的 MariaDB 或 PostgreSQL 数据库服务"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-svc-certs:description"
@@ -250,7 +250,7 @@ msgstr "Cloudflare DNS 靴子圈角色,用于顶级和通配符 A/AAAA记录 (�
 # libretranslate
 msgctxt "role:svc-registry-docker:description"
 msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
-msgstr "向Docker Swararm工人节点提供自定义图像的集群本地容器图像登记册"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-registry-cache:description"
@@ -324,7 +324,7 @@ msgstr "集装箱 Reveal.js 向管理员、开发者、用户和投资者介绍�
 # libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr "托管简单图标品牌SVG和PNG集的集装箱图标服务器,供网络和文件使用"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-db-postgres:description"
@@ -354,7 +354,7 @@ msgstr "控件"
 # libretranslate
 msgctxt "category:sys.ctl:description"
 msgid "Control layer for system lifecycle management—handling cleanup, monitoring, backups, alerting, maintenance, and repair tasks."
-msgstr "系统生命周期管理的控制层——处理清理、监测、备份、警报、维护和修理任务。"
+msgstr ""
 
 # libretranslate
 msgctxt "category:svc.ai:description"
@@ -392,7 +392,7 @@ msgstr "客户关系"
 # libretranslate
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
-msgstr "客户关系管理 (客户关系管理) 管理客户关系、销售管道、营销和支助活动的软件。"
+msgstr ""
 
 # libretranslate
 msgctxt "category:sys.dns:title"
@@ -457,7 +457,7 @@ msgstr "推迟启动的管弦乐器,以便在游戏完成后启用和开始收�
 # libretranslate
 msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
-msgstr "可部署的网络应用程序 (GitLab, Nextcloud, 马斯托登等.)"
+msgstr ""
 
 # libretranslate
 msgctxt "category:desk:title"
@@ -621,7 +621,7 @@ msgstr "联邦,自主办举办活动和建设社区和团体的平台"
 # libretranslate
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
-msgstr "连接活动的联邦桥梁 (费迪弗斯),《AT议定书》 (布鲁斯基),还有IndieWeb"
+msgstr ""
 
 # libretranslate
 msgctxt "menu:Finance & Accounting:title"
@@ -711,7 +711,7 @@ msgstr "硬化桌面网页浏览器,通过企业政策强制隐私和密码管�
 # libretranslate
 msgctxt "role:svc-ai-lmstudio:description"
 msgid "Headless local model server for open LLMs with an OpenAI-compatible API on the container network"
-msgstr "在容器网络上装有兼容 OpenAI 的本地模式服务器"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-ctl-hlth-volumes:description"
@@ -726,7 +726,7 @@ msgstr "帮助"
 # libretranslate
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
-msgstr "帮助者角色为 Docker 堆栈安装 CA- trust 注入资产并验证项目 CA 证书"
+msgstr ""
 
 msgctxt "category:gen:description"
 msgid "Helper roles & installers (git, locales, timer, etc.)"
@@ -918,7 +918,7 @@ msgstr "维护证书的作用、系统维护以及经常性的业务任务。"
 # libretranslate
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
-msgstr "标记角色标记一个主机为 Docker Swarm 管理器节点, 并授权 svc- swarm- node 使用 init 逻辑"
+msgstr ""
 
 # libretranslate
 msgctxt "menu:Marketing:title"
@@ -1194,7 +1194,7 @@ msgstr "未来XMPP服务器/容器部署的占位符"
 # libretranslate
 msgctxt "menu:Commerce:description"
 msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
-msgstr "建立和管理网上商店、产品目录和数字销售渠道的平台,包括付款、库存和客户功能。"
+msgstr ""
 
 msgctxt "logout:keep_closed"
 msgid "Please do not close this page yet."
@@ -1316,12 +1316,12 @@ msgstr "逆向副作用,用于路由和负载平衡流量到后端服务"
 # libretranslate
 msgctxt "category:sys.ctl.cln:description"
 msgid "Roles for cleaning up various system resources—old backups, unused certificates, temporary files, Docker volumes, disk caches, deprecated domains, and more."
-msgstr "清理各种系统资源的作用——旧的备份、未使用的证书、临时文件、Docker卷、磁盘缓存、贬值域等等。"
+msgstr ""
 
 # libretranslate
 msgctxt "category:drv:description"
 msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
-msgstr "安装和配置硬件驱动程序的作用——包括打印机、图形、输入设备和其他外围支持。"
+msgstr ""
 
 # libretranslate
 msgctxt "category:web:description"
@@ -1331,7 +1331,7 @@ msgstr "管理网络基础设施的作用——涵盖静态内容服务和可部
 # libretranslate
 msgctxt "category:sys.ctl.hlth:description"
 msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
-msgstr "系统监测和健康检查的作用——包括装瓶式自动检查和记录、容器、磁盘使用等核心低层显示器。"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-front-tls-selfsigned:description"
@@ -1626,7 +1626,7 @@ msgstr "服务优化"
 # libretranslate
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
-msgstr "服务级备份和回收组件——处理自动数据快照、远程备份、同步服务以及跨越数据库、文件和容器的备份协调。"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-svc-css:description"
@@ -1684,7 +1684,7 @@ msgstr "正在从各项服务中退出登录…"
 # libretranslate
 msgctxt "role:web-app-postmarks:description"
 msgid "Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
-msgstr "单一用户活动"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-homeassistant:description"
@@ -1784,7 +1784,7 @@ msgstr "通过主机系统 Python 安装或升级 Python 软件包的全系统�
 # libretranslate
 msgctxt "role:sys-ctl-mtn-cert-deploy:description"
 msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
-msgstr "同步的系统服务和定时器 让我们加密证书到多克 编译 NGINX 堆栈中"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-timer:description"
@@ -1799,7 +1799,7 @@ msgstr "系统驱动的清理服务浏览匿名多克卷加图像、容器、网
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-hard:description"
 msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
-msgstr "系统安排的完整 Docker 堆栈的维护功能重新启动, 硬重启像 Maillu 这样的堆栈"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-ctl-hlth-container:description"
@@ -1984,7 +1984,7 @@ msgstr "Web 服务器优化"
 # libretranslate
 msgctxt "role:desk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr "Docker 和 Docker 的工作站设置"
+msgstr ""
 
 # libretranslate
 msgctxt "role:dev-arduino:description"

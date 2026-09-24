@@ -92,7 +92,7 @@ msgstr "Omaisuudenhoito"
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
-msgstr "Automaattinen palautuspalvelu, joka käynnistää uudelleen poistetut tai epäterveelliset Docker-kasat ja ratkaisee satamaristiriidat"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-dns-hetzner-rdns:description"
@@ -177,7 +177,7 @@ msgstr "Keskuspostin orkestraatiokerros reititys isäntäposti Mailun, msmtp, ta
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr "Keskiset rekursiiviset DNS-resolver-moottorit (Ei sitoumuksia.)"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -287,7 +287,7 @@ msgstr "Yhteisö"
 # libretranslate
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
-msgstr "Yhteensopivat HTML- injektioroolit (CSS, JS, sieppain, analytiikka, kojelauta iframe) Nginx/OpenRestille sub_filter/Lua CDN-vakuuksilla."
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-stk-full:description"
@@ -327,7 +327,7 @@ msgstr "kontissa Reveal.js diakansi esitellä alustan ylläpitäjille, kehittäj
 # libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr "Kontaktitettu kuvake palvelimen isännöinti Yksinkertainen kuvakkeet merkki SVG ja PNG kokoelman web-ja dokumentointikäyttöön"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-db-postgres:description"
@@ -842,7 +842,7 @@ msgstr "JavaScript-käyttöaika palvelimen puoleisille sovelluksille ja kehittä
 # libretranslate
 msgctxt "role:web-app-hermes:description"
 msgid "Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to models through the shared LLM gateway"
-msgstr "Kernelieristeinen agentti, joka palvelee OpenAI-yhteensopivaa sovellusrajapintaa, ohjataan malleihin jaetun LLM-portin kautta"
+msgstr ""
 
 # libretranslate
 msgctxt "category:svc.virt:description"
@@ -1335,7 +1335,7 @@ msgstr ""
 # libretranslate
 msgctxt "category:drv:description"
 msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
-msgstr "Roolit asennus ja konfigurointi -laitteiston ajurit"
+msgstr ""
 
 # libretranslate
 msgctxt "category:web:description"
@@ -1639,7 +1639,7 @@ msgstr "Palvelun optimointi"
 # libretranslate
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
-msgstr "Palvelutason varmuuskopiointi- ja palautuskomponentteja"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-svc-css:description"
@@ -2005,7 +2005,7 @@ msgstr "Webserver Optimation"
 # libretranslate
 msgctxt "role:desk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr "Dockerin ja Dockerin työaseman asetukset Kokoa Docker-ryhmän paikallisen käyttäjän kanssa roottleess-kehittelyyn"
+msgstr ""
 
 # libretranslate
 msgctxt "role:dev-arduino:description"

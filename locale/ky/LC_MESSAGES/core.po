@@ -177,7 +177,7 @@ msgstr "Борбордук почта оркестрдик катмары, хо�
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr "Борбордук рекурсивдүү DNS чечүүчү кыймылдаткычтары (Байланышсыз ж.б.)"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -626,7 +626,7 @@ msgstr "Иш-чараларды уюштуруу жана жамааттарды
 # libretranslate
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
-msgstr "Федерациянын көпүрөсүн бириктирген ActivityPub (Ар кандай кесиптер), АТ протоколу (Блюскиски)жана IndieWeb"
+msgstr ""
 
 # libretranslate
 msgctxt "menu:Finance & Accounting:title"
@@ -925,7 +925,7 @@ msgstr "Сертификаттарды тейлөө, системаны тейл
 # libretranslate
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
-msgstr "Маркердин ролу хостту Docker Swarm менеджери түйүнү катары белгилөө, init логикасы svc-swarm түйүнүнө ыйгарылган"
+msgstr ""
 
 # libretranslate
 msgctxt "menu:Marketing:title"
@@ -2002,7 +2002,7 @@ msgstr "Вебсерверди оптималдаштыруу"
 # libretranslate
 msgctxt "role:desk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr "Docker жана Docker үчүн жумушчу станциянын түзүлүшү Docker тобундагы жергиликтүү колдонуучу менен тамырсыз өнүгүү үчүн композиция"
+msgstr ""
 
 # libretranslate
 msgctxt "role:dev-arduino:description"

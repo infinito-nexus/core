@@ -92,7 +92,7 @@ msgstr "Manajemen Asset Austabel"
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
-msgstr "Layanan pemulihan terotomatis memulai ulang keluar atau tidak sehat Docker Gubah tumpukan dan menyelesaikan konflik port"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-dns-hetzner-rdns:description"
@@ -177,7 +177,7 @@ msgstr "routing mail routing mail routing host mail melalui Mailu, msmtp, atau r
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr "Mesin resolver DNS resolver rekursif/forwarding pusat rafsif/mengarahkan rafis (Tidak terbatas, dll.)"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -197,7 +197,7 @@ msgstr "Mesin basis data vektor pusat untuk menyimpan dan mencari pembenaman per
 # libretranslate
 msgctxt "role:sys-svc-rdbms:description"
 msgid "Centralized MariaDB or PostgreSQL database service shared across applications via Docker Compose"
-msgstr "Terpusatkan MariaDB atau Layanan basis data PostgreSQL yang dibagikan ke seluruh aplikasi melalui Docker Gubah"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-svc-certs:description"
@@ -325,7 +325,7 @@ msgstr "Dikanalis Reveal.js Dek slide untuk menyajikan platform ke admin, pengem
 # libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr "Server ikon kontainerisasi untuk hosting Simmple Icons merek SVG dan PNG koleksi untuk web dan penggunaan dokumentasi"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-db-postgres:description"
@@ -393,7 +393,7 @@ msgstr "Hubungan Pelanggan"
 # libretranslate
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
-msgstr "Manajemen Hubungan Pelanggan (♪ CRM ♪) Perangkat lunak untuk mengelola hubungan pelanggan, pipa penjualan, pemasaran, dan kegiatan pendukung."
+msgstr ""
 
 # libretranslate
 msgctxt "category:sys.dns:title"
@@ -458,7 +458,7 @@ msgstr "Orkestor Deferred-start untuk mengaktifkan dan memulai layanan sistem ya
 # libretranslate
 msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
-msgstr "Aplikasi web yang dapat diledakkan (gitLab, Nextclud, Mastodon, dll.)"
+msgstr ""
 
 # libretranslate
 msgctxt "category:desk:title"
@@ -728,7 +728,7 @@ msgstr "Bantuan"
 # libretranslate
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
-msgstr "Peran Helper helper memasang aset injeksi kepercayaan CA untuk stack Docker Comprestch dan memvalidasi sertifikat CA proyek"
+msgstr ""
 
 # libretranslate
 msgctxt "category:gen:description"
@@ -958,7 +958,7 @@ msgstr "blok server NGINX yang secara permanen mengarahkan kembali www subdomain
 # libretranslate
 msgctxt "role:sys-front-inj-matomo:description"
 msgid "NGINX subfilter injector adding Matomo analytics script and noscript image tracker to served HTML pages"
-msgstr "Injektor subfilter NGINX menambahkan skrip analitiktomo dan pelacak gambar noscript ke halaman HTML yang dilayani"
+msgstr ""
 
 msgctxt "role:web-svc-html:description"
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
@@ -1352,7 +1352,7 @@ msgstr "Penjualan"
 # libretranslate
 msgctxt "category:svc.virt:title"
 msgid "Sandboxed Runtimes"
-msgstr "♪ Sandboxed Runtimes ♪"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-bkp-nfs-2-local:description"
@@ -1790,7 +1790,7 @@ msgstr "Pembantu pip sistem-wide untuk pemasangan atau peningkatan paket Python 
 # libretranslate
 msgctxt "role:sys-ctl-mtn-cert-deploy:description"
 msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
-msgstr "Layanan sistem dan pengatur waktu untuk sinkronisasi Mari enkripsi sertifikat ke Docker Gubah tumpukan NGINX dengan reload panas"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-timer:description"
@@ -1805,7 +1805,7 @@ msgstr "Layanan pembersihan yang digiring-sistem-driven pembersihan prunting vol
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-hard:description"
 msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
-msgstr "Peran pemeliharaan berjadwal-sistem untuk stack restart Docker Comprestch penuh, dengan restart keras untuk tumpukan seperti Malu"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-ctl-hlth-container:description"
@@ -1992,7 +1992,7 @@ msgstr "Optimasi Webserver"
 # libretranslate
 msgctxt "role:desk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr "Setup Workstation untuk Docker dan Docker Gubah bersama pengguna lokal dalam kelompok docker untuk penggunaan pengembangan tanpa akar"
+msgstr ""
 
 # libretranslate
 msgctxt "role:dev-arduino:description"

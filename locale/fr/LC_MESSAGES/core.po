@@ -177,7 +177,7 @@ msgstr "Calque d'orchestration du courrier central routage du courrier hôte via
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr "Moteurs de résolution DNS centraux récursifs/transversaux (Non consolidé, etc.)"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -624,7 +624,7 @@ msgstr "Plateforme fédérée et auto-organisée pour organiser des manifestatio
 # libretranslate
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
-msgstr "Fédération pont reliant ActivitéPub (Fédivers), le protocole AT (Bleu ciel), et le Web Indie"
+msgstr ""
 
 # libretranslate
 msgctxt "menu:Finance & Accounting:title"
@@ -924,7 +924,7 @@ msgstr "Rôles de maintenance pour les certificats, l'entretien du système et l
 # libretranslate
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
-msgstr "Rôle de marqueur étiquetant un hôte comme le nœud de gestionnaire de Swarm Docker, avec la logique d'initialisation déléguée à svc-swarm-node"
+msgstr ""
 
 # libretranslate
 msgctxt "menu:Marketing:title"

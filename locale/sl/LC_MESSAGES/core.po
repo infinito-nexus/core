@@ -92,7 +92,7 @@ msgstr "Upravljanje premoženja"
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
-msgstr "Avtomatizirana rekuperacija ponovno zagnana ali nezdrava Docker Sestavlja nizov in reševanje vratnih konfliktov"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-dns-hetzner-rdns:description"
@@ -177,7 +177,7 @@ msgstr "Centralna mail orkestracijska plast usmerja gostiteljsko pošto preko Ma
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr "Centralni rekurzivni/predhodni motorji DNS za reševanje (Brez obvez, itd.)"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -197,7 +197,7 @@ msgstr "Centralna vektorska podatkovna baza za shranjevanje in iskanje vgradnje 
 # libretranslate
 msgctxt "role:sys-svc-rdbms:description"
 msgid "Centralized MariaDB or PostgreSQL database service shared across applications via Docker Compose"
-msgstr "Centralizirana storitev zbirke podatkov MariaDB ali PostgreSQL, ki si jo delimo prek Docker Compoy"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-svc-certs:description"
@@ -732,7 +732,7 @@ msgstr "Pomoč"
 # libretranslate
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
-msgstr "Vloga pomočnika pri namestitvi sredstev CA-trust injection za kupe Docker Compound in potrjevanje certifikata CA projekta"
+msgstr ""
 
 # libretranslate
 msgctxt "category:gen:description"
@@ -1801,7 +1801,7 @@ msgstr "Sistemski pomočnik pip za namestitev ali nadgradnjo paketa Python preko
 # libretranslate
 msgctxt "role:sys-ctl-mtn-cert-deploy:description"
 msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
-msgstr "Sistemska storitev in časovnik za sinhronizacijo Šifrirajmo potrdila v kupe Docker Compound NGINX z vročo nalaganje"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-timer:description"
@@ -1816,7 +1816,7 @@ msgstr "Sistemsko vodene čistilne storitve za obrezovanje anonimnih Docker volu
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-hard:description"
 msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
-msgstr "Sistemsko-načrtovana vzdrževalna vloga za poln sklad Docker Compound ponovno zažene, s trdimi ponovnimi zagoni za sklada, kot je Mailu"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-ctl-hlth-container:description"
@@ -2006,7 +2006,7 @@ msgstr "Optimizacija spletnega strežnika"
 # libretranslate
 msgctxt "role:desk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr "Nastavitev delovne postaje za Docker in Docker Compound z lokalnim uporabnikom v skupini docker za razvoj brez korena"
+msgstr ""
 
 # libretranslate
 msgctxt "role:dev-arduino:description"

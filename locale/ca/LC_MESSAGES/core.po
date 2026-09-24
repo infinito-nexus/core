@@ -92,7 +92,7 @@ msgstr "Gestió d' Actius"
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
-msgstr "S' ha acabat la recuperació automàtica del servei i s' han tornat a resoldre conflictes de port"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-dns-hetzner-rdns:description"
@@ -177,7 +177,7 @@ msgstr "La capa de correu central de la orquestra capa de correu a través de Ma
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr "Motors recursius/ ampliadors de DNS central (Desbound, etc.)"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -197,7 +197,7 @@ msgstr "Motor de bases de dades vectorial central per emmagatzemar i cercar enca
 # libretranslate
 msgctxt "role:sys-svc-rdbms:description"
 msgid "Centralized MariaDB or PostgreSQL database service shared across applications via Docker Compose"
-msgstr "Name"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-svc-certs:description"
@@ -327,7 +327,7 @@ msgstr "Contenidor Reveal.js Coberta de diapositiva per presentar la plataforma 
 # libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr "Servidor d' icones contenidor per a allotjar la plataforma SVG i PNG simple per a l' ús de la documentació web i la documentació"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-db-postgres:description"
@@ -482,7 +482,7 @@ msgstr "Client de configuració de l'escriptori que connecta les carpetes a casa
 # libretranslate
 msgctxt "role:desk-gnome-extensions:description"
 msgid "Desktop config role for activating GNOME Shell extensions and installing a CLI tool to manage them"
-msgstr "Funció de configuració de l' escriptori per activar les extensions shell del GNOME i instal· lar una eina CLI per gestionar- les"
+msgstr ""
 
 # libretranslate
 msgctxt "category:desk:description"
@@ -732,7 +732,7 @@ msgstr "Ajuda"
 # libretranslate
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
-msgstr "Ajudar a instal· lar actius per a la injecció de confiança de CA per a compensacions Docker i validar el certificat del projecte CA"
+msgstr ""
 
 # libretranslate
 msgctxt "category:gen:description"
@@ -882,12 +882,12 @@ msgstr "Un client SMTP lleuger i el sendmail substitut per a enviar correu a tra
 # libretranslate
 msgctxt "role:web-app-gitea:description"
 msgid "Lightweight self-hosted Git service for code collaboration, version control, and repository management"
-msgstr "Un servei lleuger per al codi col·laboració, control de versions i gestió del repositori"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-svc-nss:description"
 msgid "Local name resolution for the domains the target serves, via the myhostname NSS module"
-msgstr "Resolució de nom local pels dominis que serveix l' objectiu, via el mòdul del meu nom de l' ordinador"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-ca-selfsigned:description"
@@ -1587,7 +1587,7 @@ msgstr "Portal personal de l'AI amb una IU de control del navegador, localitzada
 # libretranslate
 msgctxt "role:web-app-opencloud:description"
 msgid "Self-hosted platform for file sync, sharing, and collaboration with Keycloak SSO and central LDAP directory"
-msgstr "Una plataforma auto- màquina per sincronitzar fitxers, compartir i col· laboració amb SSO i el directori LDAP central"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-listmonk:description"
@@ -1753,7 +1753,7 @@ msgstr "Servidor de fitxers estàtic sobre HTTPS amb llistat de directoris, gest
 # libretranslate
 msgctxt "role:web-app-hugo:description"
 msgid "Static site generator building HTML from an upstream Git repository at build time and serving it via nginx"
-msgstr "Generador de llocs estàtic construint HTML des d'un repositori de ràdios amunt de construcció i servint-lo via nginx"
+msgstr ""
 
 # libretranslate
 msgctxt "menu:Storage:title"
@@ -1803,7 +1803,7 @@ msgstr "Ajuda per a tot el sistema per instal· lar o actualitzar un paquet de P
 # libretranslate
 msgctxt "role:sys-ctl-mtn-cert-deploy:description"
 msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
-msgstr "Servei i temporitzador per sincronitzar certificats en Docker CompINX amb munts calents"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-timer:description"
@@ -1818,7 +1818,7 @@ msgstr "El servei de neteja que s' està netejant els volums anònims Dockers m�
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-hard:description"
 msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
-msgstr "Funció de manteniment del sistema dissenyat per a la reordenació complet de la pila Dockers, amb reengegacions difícils com ara Mailu"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-ctl-hlth-container:description"
@@ -2008,7 +2008,7 @@ msgstr "Optimització del servidor web"
 # libretranslate
 msgctxt "role:desk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr "Configuració de treball de Docker i Darrack Compitzen amb l' usuari local en el grup d' scripts per a l' ús de desenvolupament sense root"
+msgstr ""
 
 # libretranslate
 msgctxt "role:dev-arduino:description"

@@ -92,7 +92,7 @@ msgstr "Διαχείριση περιουσιακών στοιχείων"
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
-msgstr "Αυτοματοποιημένη υπηρεσία ανάκτησης που επανεκκινεί εξόδους ή ανθυγιεινό Docker Συνθέστε στοίβες και επίλυση των συγκρούσεων λιμένα"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-dns-hetzner-rdns:description"
@@ -177,7 +177,7 @@ msgstr "Κεντρικό mail routing layer routing host mail μέσω Mailu, ms
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr "Κινητήρες κεντρικού αναδρομικού/διαβιβαστή DNS (Καμία δέσμευση.)"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -197,7 +197,7 @@ msgstr "Κεντρική μηχανή βάσης δεδομένων διανύσ
 # libretranslate
 msgctxt "role:sys-svc-rdbms:description"
 msgid "Centralized MariaDB or PostgreSQL database service shared across applications via Docker Compose"
-msgstr "Κεντρική υπηρεσία βάσεων δεδομένων MariaDB ή PostgreSQL που μοιράζεται σε εφαρμογές μέσω Docker Compus"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-svc-certs:description"
@@ -627,7 +627,7 @@ msgstr "Ομοσπονδιακή πλατφόρμα για την οργάνωσ
 # libretranslate
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
-msgstr "Ομοσπονδιακή γέφυρα που συνδέει δραστηριότητα Pub (Φεντιβέρζε), το πρωτόκολλο ΑΤ (Μπλούσκι), και το IndieWeb"
+msgstr ""
 
 # libretranslate
 msgctxt "menu:Finance & Accounting:title"
@@ -732,7 +732,7 @@ msgstr "Βοήθεια"
 # libretranslate
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
-msgstr "Βοηθητικός ρόλος εγκατάστασης περιουσιακών στοιχείων εγχύσεων CA-trust για Docker Συνθέτουν στοίβες και επικύρωση του πιστοποιητικού CA έργου"
+msgstr ""
 
 # libretranslate
 msgctxt "category:gen:description"
@@ -1802,7 +1802,7 @@ msgstr "Βοηθός συστήματος για εγκατάσταση ή αν�
 # libretranslate
 msgctxt "role:sys-ctl-mtn-cert-deploy:description"
 msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
-msgstr "Συστημένη υπηρεσία και χρονοδιακόπτης συγχρονισμού Ας κρυπτογραφήσουμε τα πιστοποιητικά σε Docker Συνθέστε τις στοίβες NGINX με ζεστό επαναφόρτωση"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-timer:description"
@@ -1817,7 +1817,7 @@ msgstr "Συστηματική υπηρεσία καθαρισμού κλαδέ�
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-hard:description"
 msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
-msgstr "Συστηματοποιημένος-προγραμματισμένος ρόλος συντήρησης για πλήρεις επανεκκινήσεις στοίβας σύνθεσης Docker, με σκληρές επανεκκινήσεις για στοίβες όπως Mailu"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-ctl-hlth-container:description"
@@ -2007,7 +2007,7 @@ msgstr "Βελτιστοποίηση Webserver"
 # libretranslate
 msgctxt "role:desk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr "Εγκατάσταση θέσης εργασίας για Docker και Docker Συνθέστε με τον τοπικό χρήστη στην ομάδα docker για χρήση χωρίς ρίζα"
+msgstr ""
 
 # libretranslate
 msgctxt "role:dev-arduino:description"

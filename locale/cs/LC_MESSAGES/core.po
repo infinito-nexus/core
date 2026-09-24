@@ -92,7 +92,7 @@ msgstr "Správa aktiv"
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
-msgstr "Automatické obnovení služby restartování opuštěné nebo nezdravé Docker Kompozitní zásobníky a řešení konfliktů portu"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-dns-hetzner-rdns:description"
@@ -172,12 +172,12 @@ msgstr "Centrální logout proxy pro single-action sign- out napříč všemi OI
 # libretranslate
 msgctxt "role:sys-svc-mail:description"
 msgid "Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
-msgstr "Centrální pošta orchestrální vrstva routing hostitelské pošty přes Maila, msmtp, nebo volitelné místní SMTP relé"
+msgstr ""
 
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr "Centrální rekurzivní / převáděcí motory DNS (Bez závazků, atd.)"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -217,7 +217,7 @@ msgstr "Vyčištění"
 # libretranslate
 msgctxt "role:sys-svc-cln-domains:description"
 msgid "Cleanup routine for deprecated domains, removing Nginx configs and revoking their Certbot certificates"
-msgstr "Vyčištění rutiny pro deprimované domény, odstranění Nginx configs a zrušení jejich certbot certifikátů"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-ctl-cln-disc-space:description"
@@ -287,7 +287,7 @@ msgstr "Společenství"
 # libretranslate
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
-msgstr "Kompozitní HTML vstřikovací role (CSS, JS, odhlašovací snímač, analytika, palubní iframe) pro Nginx / OpenRasty via sub_filter/ Lua s aktivy krytými CDN."
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-stk-full:description"
@@ -327,7 +327,7 @@ msgstr "Kontainerizované Reveal.js skluzavka pro prezentaci platformy administr
 # libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr "Kontainové ikony server pro hosting Jednoduché ikony značky SVG a PNG kolekce pro použití na webu a dokumentaci"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-db-postgres:description"
@@ -822,7 +822,7 @@ msgstr "Injekce"
 # libretranslate
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
-msgstr "Name"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-mig:description"
@@ -927,7 +927,7 @@ msgstr "Údržba rolí certifikátů, systémové údržby a opakujících se pr
 # libretranslate
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
-msgstr "Značka role označující hostitele jako uzel správce Docker Swarm, s init logika delegována na svc- srm- uzel"
+msgstr ""
 
 # libretranslate
 msgctxt "menu:Marketing:title"
@@ -1587,7 +1587,7 @@ msgstr "Self- hostil osobní AI agent brána s ovladačem prohlížeče UI, pís
 # libretranslate
 msgctxt "role:web-app-opencloud:description"
 msgid "Self-hosted platform for file sync, sharing, and collaboration with Keycloak SSO and central LDAP directory"
-msgstr "Name"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-listmonk:description"
@@ -1803,7 +1803,7 @@ msgstr "System- wide pip helper pro instalaci nebo upgrade Python balíčku pře
 # libretranslate
 msgctxt "role:sys-ctl-mtn-cert-deploy:description"
 msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
-msgstr "Systemd servis a časovač pro synchronizaci Pojďme zašifrovat certifikáty do Docker skládat NGINX zásobníky s hot- reload"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-timer:description"
@@ -1973,7 +1973,7 @@ msgstr "Webová infrastruktura"
 # libretranslate
 msgctxt "role:web-app-semaphore:description"
 msgid "Web UI and API for running Ansible, Terraform/OpenTofu, and shell automation on a schedule or on demand"
-msgstr "Name"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-lam:description"
@@ -2008,7 +2008,7 @@ msgstr "Optimalizace webového serveru"
 # libretranslate
 msgctxt "role:desk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr "Sestava pracovní stanice pro Docker a Docker Kompozice s lokálním uživatelem ve skupině Docker pro bezkolové použití"
+msgstr ""
 
 # libretranslate
 msgctxt "role:dev-arduino:description"

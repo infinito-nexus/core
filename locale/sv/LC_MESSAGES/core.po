@@ -177,7 +177,7 @@ msgstr "Central post orkestrering lager routing värd post via Mailu, msmtp, ell
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr "Centrala återkommande/framåtriktade DNS-resolutionsmotorer (Obunden, etc.)"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"

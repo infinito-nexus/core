@@ -92,7 +92,7 @@ msgstr "ניהול נכסים"
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
-msgstr "שירות התאוששות אוטומטי מחדש של מחסניות דוקרים לא בריאים ופתרון סכסוכים בנמל"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-dns-hetzner-rdns:description"
@@ -177,7 +177,7 @@ msgstr "שכבת גידור דואר מרכזית מסיימת דואר מארח
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr "ראשי תיבות של DNSshootr (ללא קשר, וכו'.)"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -197,7 +197,7 @@ msgstr "מנוע מסד נתונים של וקטור מרכזי לאחסון ו�
 # libretranslate
 msgctxt "role:sys-svc-rdbms:description"
 msgid "Centralized MariaDB or PostgreSQL database service shared across applications via Docker Compose"
-msgstr "מרכזי מריהDB או PostgreSQL שירות מסד נתונים משותף בין יישומים באמצעות Docker Compose"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-svc-certs:description"
@@ -326,7 +326,7 @@ msgstr "מכיל Reveal.js שקופיות הסיפון כדי להציג את ה
 # libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr "שרת סמל המכילה לאחסון מותג האיקונים הפשוט SVG ואוסף PNG לשימוש באינטרנט ותיעוד"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-db-postgres:description"
@@ -461,7 +461,7 @@ msgstr "Deferred-start Orchestrator המאפשרת והחל לאסוף שירו�
 # libretranslate
 msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
-msgstr "יישומי אינטרנט ברורים (GitLab, NextCloud, Mastodon וכו'.)"
+msgstr ""
 
 # libretranslate
 msgctxt "category:desk:title"
@@ -626,7 +626,7 @@ msgstr "פלטפורמה מבוססת-עצמית לארגון אירועים ו�
 # libretranslate
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
-msgstr "גשר הפדרציה המקשר בין פעילות (פדראלי), פרוטוקול (בלוסקי)The IndieWeb"
+msgstr ""
 
 # libretranslate
 msgctxt "menu:Finance & Accounting:title"
@@ -1701,7 +1701,7 @@ msgstr "מסירים אותך מהשירותים שלך..."
 # libretranslate
 msgctxt "role:web-app-postmarks:description"
 msgid "Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
-msgstr "One-user ActivityPub מציין אתר אינטרנט המזין הערות ציבוריות למסטודון ולפדיפך"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-homeassistant:description"
@@ -1816,7 +1816,7 @@ msgstr "שירות ניקוי מונחה על ידי מערכת ריצוף כר�
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-hard:description"
 msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
-msgstr "תפקידם של ערימה מלאה של Dockerose נפתח מחדש, עם חידושים קשים לערימות כמו Mailu"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-ctl-hlth-container:description"
@@ -1996,7 +1996,7 @@ msgstr "פלטפורמת ניהול ופיתוח מבוססת אינטרנט ל�
 # libretranslate
 msgctxt "role:web-app-phpmyadmin:description"
 msgid "Web-based administration tool for MySQL and MariaDB with schema management, querying, and import/export"
-msgstr "כלי ניהול מבוסס אינטרנט עבור MySQL ומריהDB עם ניהול סכימה, שאילתה, ייבוא /export"
+msgstr ""
 
 # libretranslate
 msgctxt "category:web.opt:title"

@@ -177,7 +177,7 @@ msgstr "Central Mail Orchestration Layer Routing Host Mail durch Mailu, msmtp od
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr "Zentrale rekursive/weiterleitende DNS-Resolver-Engines (Ungebunden, etc.)"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"

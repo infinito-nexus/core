@@ -92,7 +92,7 @@ msgstr "Menaxhimi i Asset"
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
-msgstr "Rifillimi i shërbimit të rimëkëmbjes me automatizuar ose kompozimi i rezervave të Docker dhe zgjidhja e konflikteve në port"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-dns-hetzner-rdns:description"
@@ -147,7 +147,7 @@ msgstr "CI Runner"
 # libretranslate
 msgctxt "role:svc-db-typesense:description"
 msgid "Central Dockerized search engine shared by multiple apps with per-consumer scoped API keys"
-msgstr "Motori qendror i kërkimit i ndarë nga aplikacione të shumëfishta me çelësa për-konsumer"
+msgstr ""
 
 # libretranslate
 msgctxt "menu:Help:description"
@@ -177,7 +177,7 @@ msgstr "Shtresa qendrore e orkestrimit të postës që prish postën përmes Mai
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr "Motorët qendrorë të vendosur DNS (Palidhur, etj.)"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -197,7 +197,7 @@ msgstr "Motori qendror i bazës së të dhënave vektoriale për ruajtjen dhe k�
 # libretranslate
 msgctxt "role:sys-svc-rdbms:description"
 msgid "Centralized MariaDB or PostgreSQL database service shared across applications via Docker Compose"
-msgstr "Shërbimi i bazës së të dhënave i centralizuar MariaDB ose PostgreSQL, i ndarë nëpërmjet programeve Docker"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-svc-certs:description"
@@ -217,7 +217,7 @@ msgstr "Pastro"
 # libretranslate
 msgctxt "role:sys-svc-cln-domains:description"
 msgid "Cleanup routine for deprecated domains, removing Nginx configs and revoking their Certbot certificates"
-msgstr "për hiq dhe"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-ctl-cln-disc-space:description"
@@ -287,7 +287,7 @@ msgstr "Komuniteti"
 # libretranslate
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
-msgstr "Roli i injeksionit HTML (CSS, JS, interceptor i logout, analitike, i kornizës) për sub_filter/Lua me asetet e mbështetura nga CDN."
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-stk-full:description"
@@ -327,7 +327,7 @@ msgstr "Në qendër Reveal.js Slide për paraqitjen e platformës për adminët,
 # libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr "server për dhe"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-db-postgres:description"
@@ -462,7 +462,7 @@ msgstr "Orkestra e hedhur në det për të lejuar dhe filluar shërbimet e mbled
 # libretranslate
 msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
-msgstr "Programe të përdorshme web (GitLab, reja tjetër, Mastodon, etj.)"
+msgstr ""
 
 # libretranslate
 msgctxt "category:desk:title"
@@ -717,7 +717,7 @@ msgstr "Shfletuesi i ashpër i web-it desktop me zgjatje të zbatuara të konfid
 # libretranslate
 msgctxt "role:svc-ai-lmstudio:description"
 msgid "Headless local model server for open LLMs with an OpenAI-compatible API on the container network"
-msgstr "server për hap me në"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-ctl-hlth-volumes:description"
@@ -732,7 +732,7 @@ msgstr "Ndihmë"
 # libretranslate
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
-msgstr "Roli i ndihmës për instalimin e pasurive të injektimit CA-trust për Docker Kompozoin stiva dhe verifikimin e çertifikatës CA"
+msgstr ""
 
 # libretranslate
 msgctxt "category:gen:description"
@@ -1037,7 +1037,7 @@ msgstr "OS & Përditësimet e paketave"
 # libretranslate
 msgctxt "role:sys-svc-objstore:description"
 msgid "Object-storage layer for SeaweedFS/MinIO backend resolution and per-consumer bucket and credential provisioning"
-msgstr "niveli për dhe"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-opt-swapfile:description"
@@ -1557,7 +1557,7 @@ msgstr "server i vetëm i medias për shfaqjen dhe organizimin e filmave, TV, mu
 # libretranslate
 msgctxt "role:svc-ai-ollama:description"
 msgid "Self-hosted model server for running open LLMs locally behind a simple HTTP API"
-msgstr "server për hap mbas"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-baserow:description"
@@ -1587,7 +1587,7 @@ msgstr "Mjeti personal i vetë-pritur i AI-së me një kontroll të shfletuesit 
 # libretranslate
 msgctxt "role:web-app-opencloud:description"
 msgid "Self-hosted platform for file sync, sharing, and collaboration with Keycloak SSO and central LDAP directory"
-msgstr "Platforma vetë-pritëse për file sinkronizim, ndarje dhe bashkëpunim me directory Cycloak SSO dhe me directory qendrore LDAP"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-listmonk:description"
@@ -1753,7 +1753,7 @@ msgstr "Static file server me j"
 # libretranslate
 msgctxt "role:web-app-hugo:description"
 msgid "Static site generator building HTML from an upstream Git repository at build time and serving it via nginx"
-msgstr "nga sipër dhe j"
+msgstr ""
 
 # libretranslate
 msgctxt "menu:Storage:title"
@@ -1803,7 +1803,7 @@ msgstr "Ndihmësi në të gjithë sistemin për instalimin apo përmirësimin e 
 # libretranslate
 msgctxt "role:sys-ctl-mtn-cert-deploy:description"
 msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
-msgstr "Shërbimi dhe kohëmatësi për sinkronizimin e certifikatave të kriptimit Let's Kripton në Docker Kompozon stenda të NGINX me ngarkesë të nxehtë"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-timer:description"
@@ -1818,7 +1818,7 @@ msgstr "Të nxitura nga sistemi për të pastruar shërbimin, duke hequr volumet
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-hard:description"
 msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
-msgstr "Roli i mirëmbajtjes së ngarkuar me sistem për rifillimin e rezervave Docker, me rinisje të vështira për t'u mbledhur si Mailu"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-ctl-hlth-container:description"
@@ -1993,7 +1993,7 @@ msgstr "Klient i bazuar në Internet për shfletimin, kërkimin dhe menazhimin e
 # libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr "Administrata dhe platforma për menaxhimin e serverave të shumtë postgreSQL, me OAuth opcional2 Futu"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-phpmyadmin:description"
@@ -2008,7 +2008,7 @@ msgstr "Optimacioni web"
 # libretranslate
 msgctxt "role:desk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr "Worktation për Docker dhe Docker Kompozojnë me përdoruesin lokale në grupin e docker për përdorim pa rrënjë të zhvillimit"
+msgstr ""
 
 # libretranslate
 msgctxt "role:dev-arduino:description"
