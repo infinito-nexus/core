@@ -3,6 +3,17 @@
 
 TLS_MODE: self_signed
 
+TIMEOUT_FACTOR: 4
+
+RESOURCE_HOST_CPUS_OVERRIDE: "{{ ansible_processor_nproc }}"
+
+SIZE_PERCENT_CLEANUP_DISC_SPACE: 98
+
+users:
+  administrator:
+    authorized_keys:
+      - ssh-ed25519 AAAA_TEST_DUMMY_KEY github-ci-dummy@infinito
+
 applications:
   web-svc-libretranslate:
     server:
@@ -10,6 +21,7 @@ applications:
         mode: self_signed
     services:
       libretranslate:
-        cpus: "{{ lookup('resource', 'avail_cpus') }}"
+        directions: from_source
+        cpus: "{{ lookup('resource', 'host_cpus') }}"
         mem_limit: "{{ lookup('resource', 'mem_limit') }}"
         pids_limit: 4096
