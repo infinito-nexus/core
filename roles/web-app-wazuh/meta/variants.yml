@@ -1,12 +1,4 @@
 ---
-# Matrix-deploy variant overrides for web-app-wazuh.
-# See docs/contributing/design/variants.md and
-# docs/contributing/artefact/files/role/variants.md for the file format.
-
-# V0: canonical deploy — SSO (OIDC), LDAP authorization, logout, and matomo
-# all on. RBAC is meaningless without a login mechanism, so this is the only
-# realistic production shape, but it is still "variant 0: everything on"
-# per the baseline convention.
 - services:
     container_backup:
       enabled: true
@@ -34,10 +26,6 @@
     tor:
       enabled: true
 
-# Exception: V1 (everything off) is not a realistic production shape (no SSO
-# means the dashboard falls back to the internal 'admin'/'kibanaserver' HTTP
-# basic accounts only, with no RBAC-differentiated login at all), but is
-# required for the dynamic-flag two-polarity matrix coverage test.
 - services:
     container_backup:
       enabled: false

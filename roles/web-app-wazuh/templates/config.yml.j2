@@ -1,14 +1,4 @@
 ---
-# OpenSearch security plugin authc/authz config, applied via securityadmin.sh.
-# basic_internal_auth_domain is always present so the 'admin'/'kibanaserver'
-# service accounts always work regardless of which SSO backend is configured
-# below. openid_auth_domain (native OIDC directly against Keycloak's discovery
-# endpoint, no oauth2-proxy sidecar) is layered on top when services.sso is
-# enabled. ldap_authz_domain (config.dynamic.authz, below) is a secondary,
-# AUTHORIZATION-ONLY backend: it never verifies a password, it only enriches
-# whichever user already authenticated via OIDC/basic with backend_roles
-# pulled from LDAP group membership, independent of the login mechanism. See
-# README.md for what was actually investigated for OIDC and the outcome.
 _meta:
   type: "config"
   config_version: 2
@@ -18,16 +8,6 @@ config:
     http:
       anonymous_auth_enabled: false
     authc:
-      # Exception: basic_internal_auth_domain is tried FIRST (order 0):
-      # confirmed against a live deploy that when openid_auth_domain is order 0
-      # instead, it short-circuits on ANY request that isn't carrying a
-      # Bearer token - including a Basic-auth request - and never falls
-      # through to basic, so the 'admin'/'kibanaserver' service accounts
-      # (and manager/dashboard's own INDEXER_PASSWORD calls) got a
-      # perpetual 401 with `WWW-Authenticate: Bearer` even with the
-      # correct password. challenge stays false here so an unauthenticated
-      # BROWSER request (no Authorization header at all) still falls
-      # through to openid_auth_domain's challenge/redirect.
       basic_internal_auth_domain:
         description: "HTTP basic auth against internal_users.yml (service accounts only)."
         http_enabled: true
@@ -63,11 +43,6 @@ config:
         authorization_backend:
           type: ldap
           config:
-            # Exception: LDAP.SERVER.URI is the platform SPOT for the
-            # connection target; OpenSearch's ldap module wants a bare host:port (no scheme) plus
-            # separate enable_ssl/enable_start_tls flags, so the scheme is
-            # stripped here rather than reconstructed from lower-level
-            # DOMAIN/PORT variables (see docs/contributing/design/iam/ldap.md).
             hosts:
               - "{{ LDAP.SERVER.URI | regex_replace('^ldaps?://', '') }}"
             enable_ssl: "{{ LDAP.SERVER.SECURITY == 'ldaps' }}"
@@ -76,9 +51,6 @@ config:
             bind_dn: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
             password: "{{ LDAP.BIND_CREDENTIAL }}"
             userbase: "{{ LDAP.DN.OU.USERS }}"
-            # Exception: OpenSearch's own {0}-subject placeholder, distinct
-            # from the %uid placeholder used by LDAP.FILTERS.USERS.LOGIN; built from
-            # LDAP.USER.ATTRIBUTES.ID rather than a new hardcoded attribute.
             usersearch: "({{ LDAP.USER.ATTRIBUTES.ID }}={0})"
             username_attribute: "{{ LDAP.USER.ATTRIBUTES.ID }}"
             rolebase: "{{ LDAP.DN.OU.ROLES }}"
