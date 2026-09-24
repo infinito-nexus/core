@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import ClassVar
 
 from utils import PROJECT_ROOT
+from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 
 FILES = ("compose.yml", "compose.cache-consumer.yml", "compose/*.yml", "i18n/*.yml")
@@ -27,9 +28,7 @@ INTERPOLATION = re.compile(r"\$\{([A-Za-z_][A-Za-z0-9_]*)(?:[:?-][^}]*)?\}")
 
 def _defaults(root: Path) -> dict[str, str]:
     values: dict[str, str] = {}
-    for line in (
-        (root / DEFAULT_ENV).read_text(encoding="utf-8").splitlines()
-    ):  # nocheck: cache-read - read once per session by this module only
+    for line in read_text(str(root / DEFAULT_ENV)).splitlines():
         if line.startswith("#") or "=" not in line:
             continue
         key, value = line.split("=", 1)

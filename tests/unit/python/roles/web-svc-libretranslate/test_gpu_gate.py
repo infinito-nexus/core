@@ -11,15 +11,17 @@ import unittest
 from pathlib import Path
 from typing import ClassVar
 
-import yaml
 from jinja2 import Environment, StrictUndefined
 
 from plugins.filter.resource_filter import resource_filter
 from utils import PROJECT_ROOT
+from utils.cache.yaml import load_yaml
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 ROLE = "web-svc-libretranslate"
-VARS = Path(PROJECT_ROOT) / "roles" / ROLE / "vars" / "main.yml"
-SERVICES = Path(PROJECT_ROOT) / "roles" / ROLE / "meta" / "services.yml"
+ROLE_DIR = Path(PROJECT_ROOT) / "roles" / ROLE
+VARS = ROLE_DIR / ROLE_FILE_VARS_MAIN
+SERVICES = ROLE_DIR / ROLE_FILE_META_SERVICES
 
 
 def _ansible_bool(value) -> bool:
@@ -29,7 +31,7 @@ def _ansible_bool(value) -> bool:
 
 
 class TestGpuGate(unittest.TestCase):
-    services: ClassVar[dict] = yaml.safe_load(SERVICES.read_text(encoding="utf-8"))
+    services: ClassVar[dict] = load_yaml(str(SERVICES))
 
     def _render(self, expression: str, applications: dict) -> str:
         env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - renders an ansible var expression, not markup
@@ -42,20 +44,18 @@ class TestGpuGate(unittest.TestCase):
         self.assertTrue(self.services["libretranslate"].get("gpu"))
 
     def test_the_declared_flag_reaches_the_gate(self) -> None:
-        expression = yaml.safe_load(VARS.read_text(encoding="utf-8"))[
-            "LIBRETRANSLATE_GPU"
-        ]
+        expression = load_yaml(str(VARS))["LIBRETRANSLATE_GPU"]
         rendered = self._render(expression, {ROLE: {"services": self.services}})
 
         self.assertTrue(_ansible_bool(rendered))
 
     def test_a_service_without_the_flag_keeps_the_gate_closed(self) -> None:
-        expression = yaml.safe_load(VARS.read_text(encoding="utf-8"))[
-            "LIBRETRANSLATE_GPU"
-        ]
-        plain = {"libretranslate": {k: v for k, v in
-                                    self.services["libretranslate"].items()
-                                    if k != "gpu"}}
+        expression = load_yaml(str(VARS))["LIBRETRANSLATE_GPU"]
+        plain = {
+            "libretranslate": {
+                k: v for k, v in self.services["libretranslate"].items() if k != "gpu"
+            }
+        }
         rendered = self._render(expression, {ROLE: {"services": plain}})
 
         self.assertFalse(_ansible_bool(rendered))

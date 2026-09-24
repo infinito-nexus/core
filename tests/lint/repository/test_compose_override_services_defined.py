@@ -12,23 +12,15 @@ import unittest
 from pathlib import Path
 from typing import ClassVar
 
-import yaml
-
 from utils import PROJECT_ROOT
+from utils.cache.yaml import load_yaml_any
 
 BASES = ("compose.yml",)
 OVERRIDES = ("compose/*.override.yml", "i18n/*.override.yml")
 
 
-class _ComposeLoader(yaml.SafeLoader):
-    """SafeLoader that tolerates compose's own tags, such as ``!reset``."""
-
-
-_ComposeLoader.add_multi_constructor("!", lambda loader, suffix, node: None)
-
-
 def _load(path: Path) -> dict:
-    return yaml.load(path.read_text(encoding="utf-8"), _ComposeLoader) or {}  # noqa: S506 - _ComposeLoader derives from SafeLoader
+    return load_yaml_any(str(path), default_if_missing={}) or {}
 
 
 def _services(path: Path) -> set[str]:

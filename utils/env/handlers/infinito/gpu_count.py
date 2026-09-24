@@ -14,7 +14,7 @@ COMMENT = "GPUs the compose services reserve: 'all' on an NVIDIA host, else 0."
 
 
 def apply(eb: EnvBuilder, ctx: BuildContext) -> None:
-    runtimes = subprocess.run(  # noqa: S607 - docker resolves from PATH as in every other env handler
+    runtimes = subprocess.run(
         ["docker", "info", "--format", "{{json .Runtimes}}"],
         capture_output=True,
         text=True,
