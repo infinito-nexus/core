@@ -5,11 +5,16 @@
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       cache_from:
         - "{{ lookup('image', application_id, 'libretranslate') }}"
+{% if LIBRETRANSLATE_CACHE_FRONTEND_IP | length > 0 %}
+      extra_hosts:
+        - "argos-net.com:{{ LIBRETRANSLATE_CACHE_FRONTEND_IP }}"
+{% endif %}
       args:
         BUILDKIT_INLINE_CACHE: "1"
         LIBRETRANSLATE_IMAGE: "{{ LIBRETRANSLATE_IMAGE }}"
         LIBRETRANSLATE_VERSION: "{{ LIBRETRANSLATE_VERSION }}"
         LIBRETRANSLATE_LOAD_ONLY: "{{ LIBRETRANSLATE_LOAD_ONLY }}"
+        LIBRETRANSLATE_DIRECTIONS: "{{ LIBRETRANSLATE_DIRECTIONS }}"
     {{ lookup('container_image', application_id, 'libretranslate') }}
     {{ lookup('compose_only', 'container_name', LIBRETRANSLATE_CONTAINER_ADDRESS) }}
     volumes: []

@@ -19,6 +19,7 @@ libretranslate:
   custom: true
   min_storage: 402MB
   load_only: []
+  directions: both
   ports:
     local:
       http: 8045

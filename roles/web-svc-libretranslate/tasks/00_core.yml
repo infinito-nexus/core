@@ -11,12 +11,28 @@
     name: sys-stk-full
 
 - name: "📦 Stage the model prefetch of {{ application_id }}"
-  ansible.builtin.copy:
-    src: prefetch_models.py
+  stack_host_copy:
+    src: python/prefetch_models.py
     dest: "{{ [lookup('container', application_id, 'directories.instance'), 'prefetch_models.py'] | path_join }}"
     mode: "0644"
-  delegate_to: "{{ STACK_HOST }}"
-  become: true
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "🔐 Stage the package-cache CA into the build context of {{ application_id }}"
+  stack_host_copy:
+    content: "{{ lookup('file', LIBRETRANSLATE_CACHE_CA_FILE) if LIBRETRANSLATE_CACHE_CA_FILE is file else '' }}"
+    dest: "{{ [lookup('container', application_id, 'directories.instance'), 'package-frontend-ca.crt'] | path_join }}"
+    mode: "0644"
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "🔐 Stage the package-cache CA installer of {{ application_id }}"
+  stack_host_copy:
+    src: "{{ [playbook_dir, LIBRETRANSLATE_CACHE_CA_INSTALLER] | path_join }}"
+    dest: "{{ [lookup('container', application_id, 'directories.instance'), 'package-frontend-ca.sh'] | path_join }}"
+    mode: "0755"
   notify:
     - compose-build
     - compose-up
