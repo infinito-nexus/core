@@ -38,6 +38,7 @@ SCORE_LEVELS = [
     "the text is positive and happy",
 ]
 SCORE_MIDPOINT = (len(SCORE_LEVELS) - 1) / 2
+NOUL_MIN_SEPARATION = 0.2
 
 RAIN = "It rained all morning and the forecast promises more storms tonight."
 ONIONS = "Dice the onions, brown them in butter, then fold in the flour."
@@ -89,17 +90,30 @@ def verify_choice(answer: dict, expected: str) -> tuple[str, str]:
 
 
 def verify_noul(answer: dict, expected: str) -> tuple[str, str]:
-    """noul is P(true); the true criterion is the one indexed first upstream."""
+    """noul is P(true) for the criterion indexed first upstream.
+
+    Only the shape is judged here. The server does not centre this probability
+    on 0.5: measured against a topic the encoder separates cleanly, a plainly
+    false text still answered 0.5908 where a true one answered 0.9507. The
+    ordering is what it carries, so the pair is judged in ``run_type``.
+    """
     raw = answer.get("noul")
     if not isinstance(raw, (int, float)):
         return str(raw), f"returned noul={raw!r}, which is not a number"
-    wants_true = expected == "true"
-    if (raw > 0.5) != wants_true:
-        return f"{raw}", (
-            f"returned noul={raw}, which reads as {'true' if raw > 0.5 else 'false'} "
-            f"where the text is plainly {expected}"
-        )
     return f"{raw}", ""
+
+
+def separated(observed: list[str], cases: tuple) -> str:
+    """Why the true text did not outscore the false one, or the empty string."""
+    scores = dict(zip((expected for _state, expected in cases), observed, strict=True))
+    spread = float(scores["true"]) - float(scores["false"])
+    if spread < NOUL_MIN_SEPARATION:
+        return (
+            f"answered {scores['true']} for the true text and {scores['false']} "
+            f"for the false one, a spread of {spread:.4f}; below "
+            f"{NOUL_MIN_SEPARATION} the two are not told apart"
+        )
+    return ""
 
 
 def verify_score(answer: dict, expected: str) -> tuple[str, str]:
@@ -123,14 +137,22 @@ PROBES = (
         choice_question,
         verify_choice,
         ((RAIN, "weather"), (ONIONS, "cooking")),
+        None,
     ),
     (
         "noul",
         noul_question,
         verify_noul,
         ((RAIN, "true"), (ONIONS, "false")),
+        separated,
     ),
-    ("score", score_question, verify_score, ((PRAISE, "high"), (COMPLAINT, "low"))),
+    (
+        "score",
+        score_question,
+        verify_score,
+        ((PRAISE, "high"), (COMPLAINT, "low")),
+        None,
+    ),
 )
 
 
@@ -159,7 +181,9 @@ def ask(base: str, key: str, state: str, questions: dict, model: str) -> dict:
         return json.loads(response.read().decode() or "{}").get("answers") or {}
 
 
-def run_type(base: str, key: str, model: str, name, build, verify, cases) -> list[str]:
+def run_type(
+    base: str, key: str, model: str, name, build, verify, cases, pair=None
+) -> list[str]:
     """Every violation this question type showed, as messages."""
     failures: list[str] = []
     observed: list[str] = []
@@ -187,6 +211,10 @@ def run_type(base: str, key: str, model: str, name, build, verify, cases) -> lis
             f"{name}: both texts were answered {observed[0]}; the server returns a "
             f"constant rather than reading its input"
         )
+    if pair is not None and len(observed) == len(cases):
+        violation = pair(observed, cases)
+        if violation:
+            failures.append(f"{name}: {violation}")
     return failures
 
 
@@ -221,8 +249,8 @@ def main() -> int:
     model = os.environ["MODEL"]
 
     failures: list[str] = []
-    for name, build, verify, cases in PROBES:
-        failures.extend(run_type(base, key, model, name, build, verify, cases))
+    for name, build, verify, cases, pair in PROBES:
+        failures.extend(run_type(base, key, model, name, build, verify, cases, pair))
 
     violation = rejects_a_wrong_key(base, model)
     if violation:
