@@ -76,13 +76,30 @@ def _parse_bond(value: Any) -> float | None:
         return None
 
 
-def _is_enabled(service_conf: dict[str, Any], default_enabled: bool) -> bool:
+def _is_enabled(
+    service_conf: dict[str, Any],
+    default_enabled: bool,
+    dynamic_enabled: bool = True,
+) -> bool:
+    """Whether a service counts as running.
+
+    Args:
+        service_conf: the service's merged configuration.
+        default_enabled: what an absent ``enabled`` key means.
+        dynamic_enabled: how to read an ``enabled`` that is a template rather
+            than a literal. True counts it, which is the safe reading wherever
+            an under-count would hide a service. A caller that scopes itself to
+            one variant passes False, because a variant that means to run such
+            a service pins it literally: the bond guard requires exactly that.
+    """
     if "enabled" not in service_conf:
         return default_enabled
     raw = service_conf.get("enabled")
     if isinstance(raw, bool):
         return raw
     text = str(raw).strip().lower()
+    if "{{" in text:
+        return dynamic_enabled
     return text not in ("false", "0", "no", "off")
 
 
@@ -138,6 +155,7 @@ def collect_role_resources(
     max_depth: int = 0,
     dedup: bool = True,
     loaded: set | None = None,
+    dynamic_enabled: bool = True,
 ) -> None:
     if loaded is None:
         loaded = set()
@@ -176,7 +194,9 @@ def collect_role_resources(
             continue
 
         if not _is_enabled(
-            service_conf, default_enabled=_looks_like_container(service_conf)
+            service_conf,
+            default_enabled=_looks_like_container(service_conf),
+            dynamic_enabled=dynamic_enabled,
         ):
             continue
 
@@ -220,6 +240,7 @@ def collect_role_resources(
             max_depth=max_depth,
             dedup=dedup,
             loaded=loaded,
+            dynamic_enabled=dynamic_enabled,
         )
 
 
