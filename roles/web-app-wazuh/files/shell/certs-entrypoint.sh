@@ -1,24 +1,5 @@
 #!/bin/bash
 # Wazuh Docker Copyright (C) 2017, Wazuh Inc. (License GPLv2)
-#
-# Replaces wazuh/wazuh-certs-generator's own /entrypoint.sh (bind-mounted
-# over it in templates/compose.yml.j2). The platform's shared
-# ca-trust-wrapper (see docs/contributing/environment/cache.md and
-# roles/sys-svc-compose/handlers/main.yml "Generate CA trust override")
-# force-sets CURL_CA_BUNDLE/SSL_CERT_FILE/REQUESTS_CA_BUNDLE/
-# NODE_EXTRA_CA_CERTS to the platform's own single-cert dev CA via a compose
-# override file that is always merged AFTER this role's own compose.yml, so
-# an `environment:` override in compose.yml.j2 is silently clobbered
-# (confirmed empirically against a live deploy). This container's original
-# entrypoint downloads its cert-generation tool from the genuinely-public
-# internet (packages.wazuh.com), which a single-cert CURL_CA_BUNDLE cannot
-# verify. `unset` here restores curl's default trust store, which the
-# wrapper's own `update-ca-trust extract` step has already populated with
-# both the system's public CAs and the platform's dev CA. Everything below
-# this point is an unmodified copy of the vendor's own /entrypoint.sh,
-# except download_package()'s curl flags (added --connect-timeout/--max-time/
-# --retry-all-errors so a transient network blip during `docker compose up`
-# doesn't hang or fail outright).
 unset CURL_CA_BUNDLE SSL_CERT_FILE REQUESTS_CA_BUNDLE NODE_EXTRA_CA_CERTS
 
 CERT_TOOL=wazuh-certs-tool.sh

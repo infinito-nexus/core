@@ -1,29 +1,6 @@
 #!/usr/bin/env bash
 # Wazuh Docker Copyright (C) 2017, Wazuh Inc. (License GPLv2)
-# nocheck: comments-valid — from `set -e` onward this is an unmodified copy of the vendor's own /entrypoint.sh (see README.md); its inline comments are upstream documentation, not project narration.
-#
-# --- infinito.nexus addition -------------------------------------------
-# The platform's shared CA-trust injection (compose.ca.override.yml) only
-# sets CURL_CA_BUNDLE/SSL_CERT_FILE/REQUESTS_CA_BUNDLE/NODE_EXTRA_CA_CERTS -
-# none of which the JVM honours. wazuh.indexer's own OIDC authenticator
-# (config.yml's openid_auth_domain) makes an outbound HTTPS call from
-# inside the JVM to Keycloak's discovery/JWKS endpoint to validate ID
-# tokens; without the platform's dev CA in the JVM's own cacerts keystore,
-# that call fails with PKIX path building failed / AuthenticatorUnavailableException,
-# which OpenSearch Security surfaces to the dashboard as a bare
-# "Authentication Exception" - confirmed against a live deploy by reading
-# the indexer's own stack trace. keytool import is the only fix; there is
-# no env-var-based shortcut for the JVM trust store. This must run before
-# the privilege-drop below, since the cacerts file is not writable by the
-# unprivileged wazuh-indexer user.
-#
-# No hardcoded path fallback here (unlike an earlier revision): CA_TRUST_CERT
-# is always set by the platform's compose.ca.override.yml when CA injection
-# is active, matching the guard-only pattern already used by
-# web-app-pixelfed/files/docker-entrypoint.sh and
-# web-app-jenkins/files/entrypoint-with-ca.sh. This also means the container
-# path this value points at (currently /tmp/infinito/ca/root-ca.crt) has no
-# duplicate literal to update if the platform's own SPOT for it changes.
+# nocheck: comments-valid  from `set -e` onward this is an unmodified copy of the vendor's own /entrypoint.sh; its inline comments are upstream documentation.
 if [ -n "${CA_TRUST_CERT:-}" ] && [ -r "${CA_TRUST_CERT}" ]; then
   CACERTS="/usr/share/wazuh-indexer/jdk/lib/security/cacerts"
   ALIAS="${CA_TRUST_NAME:-infinito-dev-ca}"
@@ -32,7 +9,6 @@ if [ -n "${CA_TRUST_CERT:-}" ] && [ -r "${CA_TRUST_CERT}" ]; then
     "$KEYTOOL" -importcert -noprompt -alias "$ALIAS" -file "$CA_TRUST_CERT" -keystore "$CACERTS" -storepass changeit
   fi
 fi
-# --- end infinito.nexus addition ----------------------------------------
 
 set -e
 

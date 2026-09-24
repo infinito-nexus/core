@@ -1,9 +1,4 @@
 ---
-# OpenSearch security plugin internal user database. Only the two service
-# accounts our own containers actually authenticate as are declared here;
-# real human users authenticate via the OIDC/SAML/LDAP backend configured in
-# config.yml, never through this file. Hashes are computed in vars/main.yml
-# from the plaintext credentials in meta/secrets.yml (never generated here).
 _meta:
   type: "internalusers"
   config_version: 2

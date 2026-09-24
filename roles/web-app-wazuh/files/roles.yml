@@ -1,15 +1,4 @@
 ---
-# Custom OpenSearch security roles. 'all_access' used by roles_mapping.yml.j2
-# is BUILT INTO the wazuh-indexer image and does not need to be declared
-# here. 'security_analyst' is genuinely custom: read-only over Wazuh's own
-# alert/monitoring indices, no security-index or admin actions, not a stock
-# Wazuh/OpenSearch template. 'readonly_auditor' is likewise genuinely
-# custom, replacing the built-in 'readall'+'kibana_read_only' pair: those
-# built-ins do not include the "read" action group's full scope needed for
-# wz-home's own bootstrap calls (confirmed against a live deploy - a
-# readonly-auditor session got permanently stuck on the app's own loading
-# screen with `no permissions for [indices:data/read/get]` in the
-# dashboard's server log).
 _meta:
   type: "roles"
   config_version: 2

@@ -1,42 +1,23 @@
 const { expect } = require("@playwright/test");
 const { decodeDotenvQuotedValue, normalizeBaseUrl, gotoOnion } = require("./personas");
 const { resolveTimeout } = require("./timeouts");
-// Keycloak Admin REST helpers (token fetch, group resolution, group
-// membership add/remove) live in the shared persona utils so other roles
-// can reuse them instead of reimplementing this logic; see
-// roles/test-e2e-playwright/files/personas/utils/keycloak.js.
 const keycloakAdmin = require("./personas/utils/keycloak");
 
 const env = {
   appBaseUrl: normalizeBaseUrl(process.env.APP_BASE_URL || ""),
-  canonicalDomain: decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN),
   keycloakBaseUrl: normalizeBaseUrl(process.env.KEYCLOAK_BASE_URL || ""),
   realmName: decodeDotenvQuotedValue(process.env.KEYCLOAK_REALM_NAME),
-  oidcIssuerUrl: decodeDotenvQuotedValue(process.env.OIDC_ISSUER_URL),
   superAdminUsername: decodeDotenvQuotedValue(process.env.SUPER_ADMIN_USERNAME),
   superAdminPassword: decodeDotenvQuotedValue(process.env.SUPER_ADMIN_PASSWORD),
   adminUsername: decodeDotenvQuotedValue(process.env.ADMIN_USERNAME),
   adminPassword: decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD),
   biberUsername: decodeDotenvQuotedValue(process.env.BIBER_USERNAME),
   biberPassword: decodeDotenvQuotedValue(process.env.BIBER_PASSWORD),
-  // Keycloak's own built-in bootstrap realm/client for password-grant admin
-  // authentication (OIDC.ADMIN.* in group_vars/all/11_oidc.yml) - distinct
-  // from KEYCLOAK_REALM_NAME/OIDC_ISSUER_URL above, which are this app's
-  // own OIDC client realm.
   keycloakAdminRealm: decodeDotenvQuotedValue(process.env.KEYCLOAK_ADMIN_REALM),
   keycloakAdminCliClientId: decodeDotenvQuotedValue(process.env.KEYCLOAK_ADMIN_CLI_CLIENT_ID),
-  // Keycloak group path is `/roles/web-app-wazuh/<role>` (leading slash —
-  // matches the raw `groups` claim shape documented in
-  // roles/web-app-joomla/meta/rbac.yml's worked example). The spec appends
-  // the role segment.
   rbacGroupPathPrefix: decodeDotenvQuotedValue(process.env.RBAC_GROUP_PATH_PREFIX),
 };
 
-// Same shape as roles/web-app-openwebui/files/playwright/_shared.js and
-// roles/web-app-wordpress/files/playwright/_shared.js: page.on listeners
-// persist across navigations (including the OIDC redirect through
-// Keycloak), so attaching this once before any goto() captures console/
-// pageerror output for the whole flow, not just the first document.
 function attachDiagnostics(page) {
   const consoleErrors = [];
   const pageErrors = [];
@@ -57,30 +38,6 @@ function attachDiagnostics(page) {
   return { consoleErrors, pageErrors, cspRelated };
 }
 
-// PREVIOUSLY this comment claimed "visiting any protected route with no
-// session triggers the Keycloak redirect directly (no in-app 'log in' link
-// to click first)". Confirmed WRONG against a live deploy: opensearch_
-// dashboards.yml.j2 sets opensearch_security.auth.type: "openid" (a single
-// value, which should auto-redirect per the plugin's own docs), yet a live
-// visit to `/` renders OpenSearch Dashboards' own /app/login shell and
-// sits there - no navigation to openid-connect/auth occurs even after 20s
-// of waiting. The exact reason wasn't pinned down further (not worth
-// blocking this fix on), but the practical fix is the same generic,
-// timing-tolerant trigger runAdminFlow already uses for exactly this
-// situation across other apps (roles/test-e2e-playwright/files/personas/
-// admin.js) - reused directly here rather than reimplemented, along with
-// its performKeycloakLoginForm.
-//
-// The old version of this function had a second, more serious bug: its
-// only success signal was `expect.poll(() => page.url()).toContain(host)`,
-// which is trivially true even while sitting on /app/login (that IS on
-// the app's own host) with zero credentials ever submitted. Confirmed
-// empirically: a live run reported success while
-// `page.context().cookies()` was `[]` - no session existed at all, and
-// every test using this helper had actually never logged in. A real
-// session cookie existing afterward is the one signal that distinguishes
-// "genuinely authenticated" from "URL happens to match" - the second
-// poll below is a direct, empirically-motivated fix for that failure mode.
 async function wazuhLoginViaOidc(page, appBaseUrl, username, password) {
   await gotoOnion(page, `${appBaseUrl}/`, { waitUntil: "domcontentloaded" });
 
@@ -116,45 +73,44 @@ async function wazuhLoginViaOidc(page, appBaseUrl, username, password) {
     .toBeGreaterThan(0);
 }
 
-// This role's own admin realm/client-id thin wrapper around the shared
-// helper, so keycloakAdminAddUserToGroup/keycloakRemoveUserFromGroupViaRest
-// below don't need to repeat it at every call site.
-function keycloakAdminOpts() {
-  return { adminRealm: env.keycloakAdminRealm, adminClientId: env.keycloakAdminCliClientId };
-}
-
-// Returns true when this call performed the join (caller MUST tear down),
-// false when the user was already a member (caller MUST NOT remove it).
-async function keycloakAdminAddUserToGroup(request, keycloakBaseUrl, realmName, targetGroupPath, username) {
-  return keycloakAdmin.keycloakAdminAddUserToGroup(
-    request,
-    keycloakBaseUrl,
-    realmName,
-    targetGroupPath,
-    username,
-    env.superAdminUsername,
-    env.superAdminPassword,
-    keycloakAdminOpts(),
-  );
-}
-
-async function keycloakRemoveUserFromGroupViaRest(request, keycloakBaseUrl, realmName, adminUsername, adminPassword, groupPath, username) {
-  return keycloakAdmin.keycloakRemoveUserFromGroupViaRest(
-    request,
-    keycloakBaseUrl,
-    realmName,
-    adminUsername,
-    adminPassword,
-    groupPath,
-    username,
-    keycloakAdminOpts(),
-  );
+async function withBiberInGroup(browser, groupPath, fn) {
+  const adminOpts = { adminRealm: env.keycloakAdminRealm, adminClientId: env.keycloakAdminCliClientId };
+  const adminCtx = await browser.newContext({ ignoreHTTPSErrors: true });
+  let biberAdded = false;
+  try {
+    biberAdded = await keycloakAdmin.keycloakAdminAddUserToGroup(
+      adminCtx.request,
+      env.keycloakBaseUrl,
+      env.realmName,
+      groupPath,
+      env.biberUsername,
+      env.superAdminUsername,
+      env.superAdminPassword,
+      adminOpts,
+    );
+    return await fn();
+  } finally {
+    if (biberAdded) {
+      await keycloakAdmin
+        .keycloakRemoveUserFromGroupViaRest(
+          adminCtx.request,
+          env.keycloakBaseUrl,
+          env.realmName,
+          env.superAdminUsername,
+          env.superAdminPassword,
+          groupPath,
+          env.biberUsername,
+          adminOpts,
+        )
+        .catch((err) => console.warn(`Cleanup removal of biber from ${groupPath} failed: ${err}`));
+    }
+    await adminCtx.close().catch(() => {});
+  }
 }
 
 module.exports = {
   env,
   attachDiagnostics,
   wazuhLoginViaOidc,
-  keycloakAdminAddUserToGroup,
-  keycloakRemoveUserFromGroupViaRest,
+  withBiberInGroup,
 };

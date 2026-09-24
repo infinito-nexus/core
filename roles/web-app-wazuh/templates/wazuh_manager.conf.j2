@@ -20,7 +20,7 @@
 
   <remote>
     <connection>secure</connection>
-    <port>1514</port>
+    <port>{{ lookup('config', application_id, 'services.manager.ports.internal.agent_events') }}</port>
     <protocol>tcp</protocol>
     <queue_size>131072</queue_size>
   </remote>
@@ -214,12 +214,9 @@
     <session_timeout>15m</session_timeout>
   </rule_test>
 
-  <!-- Agent enrollment across the platform's fleet is out of scope for this
-       role (see README.md); the auth block below matches upstream defaults
-       and is inert until a follow-up role wires real agent enrollment. -->
   <auth>
     <disabled>no</disabled>
-    <port>1515</port>
+    <port>{{ lookup('config', application_id, 'services.manager.ports.internal.agent_registration') }}</port>
     <use_source_ip>no</use_source_ip>
     <purge>yes</purge>
     <use_password>no</use_password>
