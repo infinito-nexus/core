@@ -1,6 +1,9 @@
 import re
 import unittest
 
+from babel.messages.catalog import Message, TranslationError
+from babel.messages.checkers import python_format
+
 from utils.cache.files import PROJECT_ROOT
 from utils.i18n.catalog import LOCALE_DIR, catalog_path, read_catalog
 from utils.i18n.extract import core_messages
@@ -33,6 +36,32 @@ class TestI18nCatalogs(unittest.TestCase):
     def test_every_language_has_a_core_catalog(self):
         missing = sorted(set(domain_languages(self.languages, "core")) - set(self.core))
         self.assertEqual(missing, [], "run `make i18n-extract domain=core`")
+
+    @staticmethod
+    def _rejects(catalog, message, string):
+        try:
+            python_format(catalog, Message(message.id, string, flags=message.flags))
+        except TranslationError:
+            return True
+        return False
+
+    def test_every_catalog_compiles(self):
+        broken = {}
+        for code, domain, catalog in self.every:
+            for message in catalog:
+                if "no-python-format" in message.flags or not message.string:
+                    continue
+                if self._rejects(catalog, message, message.id):
+                    continue
+                if self._rejects(catalog, message, message.string):
+                    broken[f"{domain}/{code}"] = broken.get(f"{domain}/{code}", 0) + 1
+        self.assertEqual(
+            broken,
+            {},
+            f"{sum(broken.values())} translations carry placeholders msgfmt "
+            f"rejects, so these catalogs do not compile: {broken}. Empty them "
+            "with `make i18n-prune`, then redo them with `make i18n-translate`.",
+        )
 
     def test_no_catalog_for_an_unknown_language(self):
         present = {

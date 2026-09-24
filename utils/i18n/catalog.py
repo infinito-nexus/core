@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 from babel.messages.catalog import Catalog
 from babel.messages.pofile import read_po, write_po
 
+from utils.i18n.placeholders import carries_placeholder
 from utils.software import (
     SOFTWARE_AUTHOR,
     SOFTWARE_CONTACT,
@@ -117,6 +118,10 @@ def render(catalog: Catalog) -> bytes:
     catalog.msgid_bugs_address = SOFTWARE_CONTACT
     catalog.last_translator = CONTACT
     catalog.language_team = CONTACT
+    for message in catalog:
+        if "python-format" in message.flags and not carries_placeholder(message.id):
+            message.flags.discard("python-format")
+            message.flags.add("no-python-format")
     buffer = io.BytesIO()
     write_po(buffer, catalog, width=0, sort_output=True, ignore_obsolete=True)
     return buffer.getvalue()

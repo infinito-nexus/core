@@ -7,6 +7,9 @@ import re
 from collections import Counter
 from dataclasses import dataclass
 
+PRINTF = r"%\([A-Za-z_]\w*\)[sdif]|%[sdif]"
+PLACEHOLDER = re.compile(PRINTF)
+
 PROTECTED = re.compile(
     r"``.+?``"
     r"|:[\w.+-]+:`[^`]+`"
@@ -15,8 +18,7 @@ PROTECTED = re.compile(
     r"|\{%.+?%\}"
     r"|\{\{.*"
     r"|\{[A-Za-z_]\w*\}"
-    r"|%\([A-Za-z_]\w*\)[sdif]"
-    r"|%[sdif]"
+    rf"|{PRINTF}"
     r"|https?://(?:[^\s<>\"'`()\[\]]|\([^\s<>\"'`()]*\))+"
     r"|<[^<>\s]+>"
     r"|(?<=\])\((?:[^\s()]|\([^\s()]*\))+\)"
@@ -28,6 +30,18 @@ PROTECTED = re.compile(
     r"|\d+(?:[.,]\d+)*"
     r"|\*\*|\*|`|\[|\]|\{|\}|\(|\)|\""
 )
+
+
+def carries_placeholder(message_id: str | tuple[str, ...]) -> bool:
+    """Return whether ``message_id`` holds a printf placeholder a translation must keep.
+
+    Args:
+        message_id: a catalog message id, singular or a plural tuple.
+    """
+    forms = message_id if isinstance(message_id, tuple) else (message_id,)
+    return any(PLACEHOLDER.search(form) for form in forms)
+
+
 MARKUP = '[]`*{}()"'
 EMPHASIS = re.compile(r"(\*\*)[ \t]*([^\s]|[^\s].*?[^\s])[ \t]*\1", re.DOTALL)
 
