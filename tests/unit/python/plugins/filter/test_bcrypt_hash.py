@@ -29,11 +29,6 @@ class TestBcryptHash(unittest.TestCase):
         self.assertTrue(hashed.startswith(("$2b$", "$2a$")))
 
     def test_64_character_password_hashes_successfully(self):
-        # Exception: Ansible's password_hash('bcrypt') filter routes through
-        # passlib, whose bcrypt self-test can misreport a well-under-72-byte
-        # password as "too long" when passlib and the installed bcrypt
-        # package's version detection drift apart. The raw bcrypt package
-        # used here has no such self-test.
         password = "A" * 64
         hashed = self.f(password)
         self.assertTrue(
