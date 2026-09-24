@@ -30,7 +30,7 @@
 
 - name: "🔐 Stage the package-cache CA installer of {{ application_id }}"
   stack_host_copy:
-    src: "{{ [playbook_dir, LIBRETRANSLATE_CACHE_CA_INSTALLER] | path_join }}"
+    src: "{{ lookup('path_absolute', LIBRETRANSLATE_CACHE_CA_INSTALLER) }}"
     dest: "{{ [lookup('container', application_id, 'directories.instance'), 'package-frontend-ca.sh'] | path_join }}"
     mode: "0755"
   notify:

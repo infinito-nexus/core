@@ -5,10 +5,7 @@
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       cache_from:
         - "{{ lookup('image', application_id, 'libretranslate') }}"
-{% if LIBRETRANSLATE_CACHE_FRONTEND_IP | length > 0 %}
-      extra_hosts:
-        - "argos-net.com:{{ LIBRETRANSLATE_CACHE_FRONTEND_IP }}"
-{% endif %}
+      {{ lookup('container_extra_hosts', extra_hosts=LIBRETRANSLATE_BUILD_HOSTS) | indent(6) }}
       args:
         BUILDKIT_INLINE_CACHE: "1"
         LIBRETRANSLATE_IMAGE: "{{ LIBRETRANSLATE_IMAGE }}"
