@@ -3,25 +3,37 @@ import argparse
 import subprocess
 import sys
 
+# The NVIDIA container toolkit mounts a 4 KiB tmpfs per CDI hook holding one
+# file, so it reads 100% on every GPU host and no cleanup can ever change that.
+MIN_SIZE_KIB = 64 * 1024
 
-def get_disk_usage_percentages():
-    """
-    Returns a list of filesystem usage percentages as integers.
-    Equivalent to: df --output=pcent | sed 1d | tr -d '%'
+
+def get_filesystem_usage():
+    """Return one (usage percent, size in KiB, mountpoint) per filesystem.
+
+    Returns:
+        Every filesystem df lists, unfiltered; the caller decides which of
+        them a cleanup could act on.
     """
     result = subprocess.run(
-        ["df", "--output=pcent"], capture_output=True, text=True, check=True
+        ["df", "--output=pcent,size,target"],
+        capture_output=True,
+        text=True,
+        check=True,
     )
 
-    lines = result.stdout.strip().split("\n")[1:]
-    percentages = []
+    entries = []
+    for line in result.stdout.strip().split("\n")[1:]:
+        parts = line.split(maxsplit=2)
+        if len(parts) != 3:
+            continue
+        percent, size, target = parts
+        percent = percent.replace("%", "")
+        if not percent.isdigit() or not size.isdigit():
+            continue
+        entries.append((int(percent), int(size), target))
 
-    for line in lines:
-        value = line.strip().replace("%", "")
-        if value.isdigit():
-            percentages.append(int(value))
-
-    return percentages
+    return entries
 
 
 def main():
@@ -42,12 +54,17 @@ def main():
     subprocess.run(["df"], check=False)
 
     errors = 0
-    percentages = get_disk_usage_percentages()
-
-    for usage in percentages:
-        if usage > threshold:
-            print(f"WARNING: {usage}% exceeds the limit of {threshold}%.")
-            errors += 1
+    for usage, size, target in get_filesystem_usage():
+        if usage <= threshold:
+            continue
+        if size < MIN_SIZE_KIB:
+            print(
+                f"INFO: {target} at {usage}% holds {size} KiB in total, "
+                "too small for a cleanup to reclaim anything."
+            )
+            continue
+        print(f"WARNING: {target} at {usage}% exceeds the limit of {threshold}%.")
+        errors += 1
 
     sys.exit(1 if errors else 0)
 
