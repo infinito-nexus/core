@@ -272,6 +272,50 @@ class TestRequiredRoleIds(unittest.TestCase):
         )
         self.assertEqual(result, set())
 
+    def _runtime_scoped(self) -> None:
+        _write_services_yml(
+            self.roles_dir / "test-e2e-cli",
+            """
+            ---
+            test-e2e-cli:
+              required_by:
+                runtimes: [dev, act, github]
+                compose:
+                  categories: [web]
+            """,
+        )
+
+    def test_a_runtime_the_list_names_still_requires_the_role(self) -> None:
+        self._runtime_scoped()
+
+        result = required_role_ids(
+            roles_dir=self.roles_dir,
+            deployed_role_ids=["web-app-yourls"],
+            runtime="act",
+        )
+
+        self.assertEqual(result, {"test-e2e-cli"})
+
+    def test_a_runtime_the_list_omits_waives_the_role(self) -> None:
+        self._runtime_scoped()
+
+        result = required_role_ids(
+            roles_dir=self.roles_dir,
+            deployed_role_ids=["web-app-yourls"],
+            runtime="host",
+        )
+
+        self.assertEqual(result, set())
+
+    def test_an_unknown_runtime_waives_nothing(self) -> None:
+        self._runtime_scoped()
+
+        result = required_role_ids(
+            roles_dir=self.roles_dir, deployed_role_ids=["web-app-yourls"]
+        )
+
+        self.assertEqual(result, {"test-e2e-cli"})
+
 
 class TestHostLogSlice(unittest.TestCase):
     def test_reads_full_file_at_zero_offset(self) -> None:
