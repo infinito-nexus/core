@@ -5,14 +5,13 @@ from __future__ import annotations
 import json
 import os
 import subprocess
-import sys
 import time
 import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 from utils.cache.yaml import load_yaml
 from utils.i18n.languages import SOURCE_LANGUAGE
@@ -20,9 +19,42 @@ from utils.i18n.placeholders import has_words, mask, unmask
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterable, Iterator
+
+class Outcome(NamedTuple):
+    """What one translation call produced, and why anything is missing.
+
+    Args:
+        values: one translation per source, None where it was discarded.
+        refused: requests the server turned down, retries included.
+        damaged: translations that altered a protected span.
+        refusal: the last refusal's message, empty when none happened.
+    """
+
+    values: list[str | None]
+    refused: int
+    damaged: int
+    refusal: str
+
+
+def merge(outcomes: Iterable[Outcome]) -> Outcome:
+    """Fold per-text outcomes back into one for the whole batch."""
+    values: list[str | None] = []
+    refused = damaged = 0
+    refusal = ""
+    for outcome in outcomes:
+        values += outcome.values
+        refused += outcome.refused
+        damaged += outcome.damaged
+        refusal = outcome.refusal or refusal
+    return Outcome(values, refused, damaged, refusal)
+
 
 ROLE = "web-svc-libretranslate"
+# LibreTranslate names a few targets by script rather than by the bare ISO
+# 639-1 code the catalogs use. A code missing from this map simply never turns
+# up in /languages, and the readiness wait then spins until its timeout.
+SERVER_CODES = {"zh": "zh-Hans"}
 SERVICES_FILE = Path("roles") / ROLE / ROLE_FILE_META_SERVICES
 CONTAINER_PORT = 5000
 MODELS_VOLUME = "infinito-i18n-libretranslate"
@@ -33,8 +65,11 @@ POLL_SECONDS = 5
 READY_TIMEOUT_SECONDS = 3600
 REQUEST_TIMEOUT_SECONDS = 600
 DEPLOYED_TIMEOUT_SECONDS = 5
-DEPLOY_TIMEOUT_SECONDS = 3600
+DEPLOY_TIMEOUT_SECONDS = 4 * 3600
 RUNNER_TIMEOUT_SECONDS = 300
+SERVICE_TIMEOUT_SECONDS = 300
+RETRY_ATTEMPTS = 4
+RETRY_BACKOFF_SECONDS = 2
 INVENTORY_DIR = Path.home() / "inventories" / "infinito-i18n"
 DEPLOY_PID_FILE = Path("build") / "deploy.pid"
 GPU_STAMP = Path("build") / "i18n-gpu.stamp"
@@ -78,6 +113,27 @@ def deployed(root: Path) -> str:
             return url
     except OSError:
         return ""
+
+
+def await_service(root: Path) -> str:
+    """Poll the deployed LibreTranslate until it answers, or give up.
+
+    A service the playbook just created needs longer than one probe's timeout
+    to serve its first request, and a single miss would send the caller off to
+    spawn a throwaway container beside the one it just deployed.
+
+    Args:
+        root: repository root.
+
+    Returns:
+        The base URL, empty when nothing answered before the deadline.
+    """
+    deadline = time.monotonic() + SERVICE_TIMEOUT_SECONDS
+    while True:
+        running = deployed(root)
+        if running or time.monotonic() > deadline:
+            return running
+        time.sleep(POLL_SECONDS)
 
 
 def unaccelerated(root: Path) -> bool:
@@ -186,7 +242,6 @@ def deploy(root: Path) -> str:
     """
     from cli.administration.deploy.development.env import compose_file_args
 
-    development = [sys.executable, "-m", "cli.administration.deploy.development"]
     inside = [
         "docker",
         "compose",
@@ -212,6 +267,8 @@ def deploy(root: Path) -> str:
             "--force-recreate",
             "i18n",
         ],
+        [*inside[:-2], "sh", "-lc", "/usr/local/bin/package-frontend-ca.sh"],
+        [*inside[:-2], "systemctl", "daemon-reload"],
         [*inside[:-2], "bash", f"{environment(root)['INFINITO_SRC_DIR']}/{bootstrap}"],
         [
             *inside,
@@ -252,7 +309,7 @@ def deploy(root: Path) -> str:
         )
         if index == 0:
             await_runner(name, outer)
-    running = deployed(root)
+    running = await_service(root)
     if running and accelerated():
         (root / GPU_STAMP).parent.mkdir(exist_ok=True)
         (root / GPU_STAMP).touch()
@@ -323,7 +380,13 @@ def container(image: str, codes: list[str], threads: int) -> Iterator[str]:
     if accelerated():
         command += ["--gpus", "all"]
         image = f"{image}{CUDA_SUFFIX}"
-    subprocess.run([*command, image], check=True, capture_output=True)
+    started = subprocess.run(
+        [*command, image], capture_output=True, text=True, check=False
+    )
+    if started.returncode:
+        raise RuntimeError(
+            f"docker run exited with {started.returncode}: {started.stderr.strip()}"
+        )
     try:
         mapping = subprocess.run(
             ["docker", "port", name, f"{CONTAINER_PORT}/tcp"],
@@ -362,6 +425,11 @@ class LibreTranslate:
         ) as response:
             return json.load(response)
 
+    @staticmethod
+    def server_code(code: str) -> str:
+        """Return the target code the server knows this catalog code by."""
+        return SERVER_CODES.get(code, code)
+
     def targets(self) -> set[str]:
         """Return the languages the server translates English into."""
         for language in self._call("/languages"):
@@ -377,10 +445,11 @@ class LibreTranslate:
             timeout: seconds to wait before giving up.
         """
         deadline = time.monotonic() + timeout
-        missing = set(codes)
+        wanted = {self.server_code(code) for code in codes}
+        missing = set(wanted)
         while True:
             try:
-                missing = set(codes) - self.targets()
+                missing = wanted - self.targets()
                 if not missing:
                     return
             except (OSError, ValueError):
@@ -391,30 +460,49 @@ class LibreTranslate:
                 )
             time.sleep(POLL_SECONDS)
 
-    def _batch(self, texts: list[str], target: str) -> list[str | None]:
+    def _post(self, masked: list, target: str) -> list | None:
+        """Return the server's translations, or None once the retries run out.
+
+        The server refuses a share of the requests while every lane hammers it
+        at once, and those refusals used to discard their entries for good.
+        """
+        refusals = 0
+        refusal = ""
+        for attempt in range(RETRY_ATTEMPTS):
+            try:
+                result = self._call(
+                    "/translate",
+                    {
+                        "q": [item.text for item in masked],
+                        "source": SOURCE_LANGUAGE,
+                        "target": self.server_code(target),
+                        "format": "html",
+                    },
+                )["translatedText"]
+            except (urllib.error.HTTPError, ValueError, KeyError, TypeError) as exc:
+                refusals += 1
+                refusal = f"{type(exc).__name__}: {exc}"
+                result = None
+            if isinstance(result, list) and len(result) == len(masked):
+                return result, refusals, refusal
+            time.sleep(RETRY_BACKOFF_SECONDS * 2**attempt)
+        return None, refusals, refusal
+
+    def _batch(self, texts: list[str], target: str) -> Outcome:
         masked = [mask(text) for text in texts]
-        try:
-            result = self._call(
-                "/translate",
-                {
-                    "q": [item.text for item in masked],
-                    "source": SOURCE_LANGUAGE,
-                    "target": target,
-                    "format": "html",
-                },
-            )["translatedText"]
-        except (urllib.error.HTTPError, ValueError, KeyError, TypeError):
-            result = None
-        if not isinstance(result, list) or len(result) != len(texts):
+        result, refused, refusal = self._post(masked, target)
+        if result is None:
             if len(texts) == 1:
-                return [None]
-            return [self._batch([text], target)[0] for text in texts]
-        return [
+                return Outcome([None], refused, 0, refusal)
+            return merge(self._batch([text], target) for text in texts)
+        values = [
             unmask(translated, item, text)
             for translated, item, text in zip(result, masked, texts, strict=True)
         ]
+        damaged = sum(1 for text in values if text is None)
+        return Outcome(values, refused, damaged, refusal)
 
-    def translate(self, texts: list[str], target: str) -> list[str | None]:
+    def translate(self, texts: list[str], target: str) -> Outcome:
         """Translate ``texts`` from English into ``target``.
 
         Args:
@@ -422,8 +510,10 @@ class LibreTranslate:
             target: ISO 639-1 code.
 
         Returns:
-            One translation per source; ``None`` where the server rejected the
-            request or the translation damaged a protected span.
+            One translation per source, ``None`` where it was discarded, plus
+            the counts that say which of the two reasons applied. The counts
+            belong to this call: lanes share the client, so a field on the
+            client would mix another catalog's numbers into this one's.
 
         Raises:
             OSError: the server is unreachable; every further request would
@@ -432,12 +522,17 @@ class LibreTranslate:
         results: list[str | None] = list(texts)
         wordy = [index for index, text in enumerate(texts) if has_words(text)]
         batches = [wordy[i : i + BATCH_SIZE] for i in range(0, len(wordy), BATCH_SIZE)]
+        refused = damaged = 0
+        refusal = ""
         with ThreadPoolExecutor(self.workers) as pool:
             translated = pool.map(
                 lambda batch: self._batch([texts[index] for index in batch], target),
                 batches,
             )
-            for batch, texts_out in zip(batches, translated, strict=True):
-                for index, text in zip(batch, texts_out, strict=True):
+            for batch, outcome in zip(batches, translated, strict=True):
+                for index, text in zip(batch, outcome.values, strict=True):
                     results[index] = text
-        return results
+                refused += outcome.refused
+                damaged += outcome.damaged
+                refusal = outcome.refusal or refusal
+        return Outcome(results, refused, damaged, refusal)

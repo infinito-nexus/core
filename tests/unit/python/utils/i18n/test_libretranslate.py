@@ -63,10 +63,91 @@ class TestTranslateFailures(unittest.TestCase):
         rejected = urllib.error.HTTPError(
             "http://libretranslate", 500, "boom", {}, None
         )
-        with mock.patch.object(self.client, "_call", side_effect=rejected):
+        with (
+            mock.patch("utils.i18n.libretranslate.time.sleep"),
+            mock.patch.object(self.client, "_call", side_effect=rejected),
+        ):
             self.assertEqual(
-                self.client.translate(["Hello", "World"], "de"), [None, None]
+                self.client.translate(["Hello", "World"], "de").values, [None, None]
             )
+
+
+class TestRefusalsAreRetried(unittest.TestCase):
+    """A server that buckles under the lanes must not cost entries for good."""
+
+    def setUp(self) -> None:
+        self.client = LibreTranslate("http://libretranslate", 1)
+        self.refusal = urllib.error.HTTPError(
+            "http://libretranslate", 500, "boom", {}, None
+        )
+
+    def test_a_transient_refusal_is_retried_until_it_succeeds(self) -> None:
+        answers = [self.refusal, self.refusal, {"translatedText": ["Hallo"]}]
+        with (
+            mock.patch("utils.i18n.libretranslate.time.sleep"),
+            mock.patch.object(self.client, "_call", side_effect=answers),
+        ):
+            outcome = self.client.translate(["Hello"], "de")
+
+        self.assertEqual(outcome.values, ["Hallo"])
+        self.assertEqual(outcome.refused, 2)
+        self.assertEqual(outcome.damaged, 0)
+
+    def test_a_permanent_refusal_is_counted_and_named(self) -> None:
+        with (
+            mock.patch("utils.i18n.libretranslate.time.sleep"),
+            mock.patch.object(self.client, "_call", side_effect=self.refusal),
+        ):
+            outcome = self.client.translate(["Hello"], "de")
+
+        self.assertEqual(outcome.values, [None])
+        self.assertTrue(outcome.refused)
+        self.assertIn("HTTPError", outcome.refusal)
+
+    def test_a_catalog_never_inherits_another_lane_s_counts(self) -> None:
+        answers = [
+            self.refusal,
+            {"translatedText": ["Hallo"]},
+            {"translatedText": ["Hi"]},
+        ]
+        with (
+            mock.patch("utils.i18n.libretranslate.time.sleep"),
+            mock.patch.object(self.client, "_call", side_effect=answers),
+        ):
+            first = self.client.translate(["Hello"], "de")
+            second = self.client.translate(["Hello"], "de")
+
+        self.assertEqual(first.refused, 1)
+        self.assertEqual(second.refused, 0)
+
+
+class TestScriptedTargetCodes(unittest.TestCase):
+    """LibreTranslate offers Chinese as zh-Hans/zh-Hant, never as bare zh."""
+
+    def setUp(self) -> None:
+        self.client = LibreTranslate("http://libretranslate", 1)
+        self.served = [{"code": "en", "targets": ["de", "zh-Hans", "zh-Hant"]}]
+
+    def test_the_catalog_code_is_sent_as_the_code_the_server_serves(self) -> None:
+        with mock.patch.object(
+            self.client, "_call", return_value={"translatedText": ["你好"]}
+        ) as call:
+            self.client.translate(["Hello"], "zh")
+
+        self.assertEqual(call.call_args.args[1]["target"], "zh-Hans")
+
+    def test_waiting_accepts_a_server_that_only_names_the_script(self) -> None:
+        with mock.patch.object(self.client, "_call", return_value=self.served):
+            self.client.wait(["zh", "de"], timeout=0)
+
+    def test_waiting_still_reports_a_target_nobody_serves(self) -> None:
+        with (
+            mock.patch.object(self.client, "_call", return_value=self.served),
+            self.assertRaises(TimeoutError) as raised,
+        ):
+            self.client.wait(["fr"], timeout=0)
+
+        self.assertIn("fr", str(raised.exception))
 
 
 class TestAccelerated(unittest.TestCase):

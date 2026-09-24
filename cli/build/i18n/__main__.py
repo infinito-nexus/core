@@ -14,7 +14,7 @@ import json
 import os
 import sys
 import tempfile
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from pathlib import Path
 
 from utils.cache.files import PROJECT_ROOT
@@ -108,39 +108,71 @@ def prune(domains: list[str], requested: list[str]) -> int:
     return 0
 
 
-def translate(domain: str, requested: list[str]) -> int:
-    supported = translatable(load_languages(PROJECT_ROOT), domain)
-    unsupported = sorted(set(requested) - set(supported))
-    if unsupported:
-        print(f"LibreTranslate does not support {unsupported}", file=sys.stderr)
-        return 2
-    codes = [
-        code
-        for code in (sorted(requested) if requested else supported)
-        if pending(read_catalog(catalog_path(PROJECT_ROOT, code, domain)))
-    ]
-    if not codes:
-        print(f"{domain}: nothing to translate")
+def usable_cpus() -> int:
+    """Return the CPUs this process may run on."""
+    try:
+        return len(os.sched_getaffinity(0))
+    except (AttributeError, OSError):
+        return os.cpu_count() or 1
+
+
+def one_catalog(client: LibreTranslate, domain: str, code: str) -> None:
+    """Translate every pending entry of one catalog and write it back.
+
+    Args:
+        client: translation client.
+        domain: catalog domain.
+        code: ISO 639-1 code of the catalog.
+    """
+    path = catalog_path(PROJECT_ROOT, code, domain)
+    catalog = read_catalog(path)
+    todo = pending(catalog)
+    discarded = refused = damaged = 0
+    refusal = ""
+    for start in range(0, len(todo), CHUNK_SIZE):
+        chunk = todo[start : start + CHUNK_SIZE]
+        outcome = client.translate([m.id for m in chunk], code)
+        discarded += apply(chunk, outcome.values)
+        refused += outcome.refused
+        damaged += outcome.damaged
+        refusal = outcome.refusal or refusal
+        write_catalog(path, catalog)
+        print(f"{domain}/{code}: {start + len(chunk)}/{len(todo)}", flush=True)
+    tail = f", last refusal {refusal}" if refused else ""
+    print(
+        f"{domain}/{code}: {len(todo) - discarded} translated, {discarded} discarded "
+        f"({refused} requests refused, {damaged} damaged a protected span){tail}",
+        flush=True,
+    )
+
+
+def translate(domains: list[str], requested: list[str]) -> int:
+    loaded = load_languages(PROJECT_ROOT)
+    work: list[tuple[str, str]] = []
+    for domain in domains:
+        supported = translatable(loaded, domain)
+        unsupported = sorted(set(requested) - set(supported))
+        if unsupported:
+            print(f"LibreTranslate does not support {unsupported}", file=sys.stderr)
+            return 2
+        work += [
+            (domain, code)
+            for code in (sorted(requested) if requested else supported)
+            if pending(read_catalog(catalog_path(PROJECT_ROOT, code, domain)))
+        ]
+    if not work:
+        print(f"{', '.join(domains)}: nothing to translate")
         return 0
-    threads = os.cpu_count() or 1
-    with server(PROJECT_ROOT, codes, threads) as url:
-        client = LibreTranslate(url, threads)
+
+    cpus = usable_cpus()
+    codes = sorted({code for _, code in work})
+    lanes = min(len(work), cpus)
+    with server(PROJECT_ROOT, codes, cpus) as url:
+        client = LibreTranslate(url, max(cpus // lanes, 1))
         client.wait(codes, READY_TIMEOUT_SECONDS)
-        for code in codes:
-            path = catalog_path(PROJECT_ROOT, code, domain)
-            catalog = read_catalog(path)
-            todo = pending(catalog)
-            discarded = 0
-            for start in range(0, len(todo), CHUNK_SIZE):
-                chunk = todo[start : start + CHUNK_SIZE]
-                discarded += apply(chunk, client.translate([m.id for m in chunk], code))
-                write_catalog(path, catalog)
-                print(f"{domain}/{code}: {start + len(chunk)}/{len(todo)}", flush=True)
-            print(
-                f"{domain}/{code}: {len(todo) - discarded} translated, "
-                f"{discarded} discarded",
-                flush=True,
-            )
+        with ThreadPoolExecutor(lanes) as pool:
+            for _ in pool.map(lambda job: one_catalog(client, *job), work):
+                pass
     return 0
 
 
@@ -152,7 +184,7 @@ def main() -> int:
     translate_parser = commands.add_parser(
         "translate", help="Machine-translate empty and fuzzy entries."
     )
-    translate_parser.add_argument("--domain", choices=DOMAINS, required=True)
+    translate_parser.add_argument("--domain", choices=DOMAINS)
     translate_parser.add_argument(
         "--languages",
         default="",
@@ -181,7 +213,10 @@ def main() -> int:
             [args.domain] if args.domain else list(DOMAINS),
             [c for c in args.languages.split(",") if c],
         )
-    return translate(args.domain, [c for c in args.languages.split(",") if c])
+    return translate(
+        [args.domain] if args.domain else list(DOMAINS),
+        [c for c in args.languages.split(",") if c],
+    )
 
 
 if __name__ == "__main__":
