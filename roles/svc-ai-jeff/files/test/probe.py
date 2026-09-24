@@ -29,8 +29,8 @@ CHOICE_OPTIONS = {
     "cooking": "the text is about food, recipes, ingredients or a kitchen",
 }
 NOUL_CRITERIA = {
-    "true": "the text asks a question",
-    "false": "the text states a fact",
+    "true": "the text is about weather, rain, storms or a forecast",
+    "false": "the text is about food, recipes, ingredients or a kitchen",
 }
 SCORE_LEVELS = [
     "the text is negative and unhappy",
@@ -41,8 +41,6 @@ SCORE_MIDPOINT = (len(SCORE_LEVELS) - 1) / 2
 
 RAIN = "It rained all morning and the forecast promises more storms tonight."
 ONIONS = "Dice the onions, brown them in butter, then fold in the flour."
-QUESTION_TEXT = "What time does the last train leave from the main station?"
-STATEMENT_TEXT = "The last train leaves from the main station at midnight."
 PRAISE = "Wonderful work, I am delighted with how well this turned out."
 COMPLAINT = "Terrible work, I am furious about how badly this turned out."
 
@@ -61,7 +59,7 @@ def noul_question(name: str) -> dict:
     return {
         name: {
             "type": "noul",
-            "instructions": "Decide whether this text is a question.",
+            "instructions": "Decide whether this text is about weather.",
             "criteria": NOUL_CRITERIA,
         }
     }
@@ -130,7 +128,7 @@ PROBES = (
         "noul",
         noul_question,
         verify_noul,
-        ((QUESTION_TEXT, "true"), (STATEMENT_TEXT, "false")),
+        ((RAIN, "true"), (ONIONS, "false")),
     ),
     ("score", score_question, verify_score, ((PRAISE, "high"), (COMPLAINT, "low"))),
 )
