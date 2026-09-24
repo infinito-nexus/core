@@ -11,6 +11,10 @@ Only ``join`` with a space separator is flagged. A comma or a semicolon
 produces one word and is safe unquoted, and ``to_json`` output is already
 covered by the repository's quoting convention.
 
+``dotenv_quote`` does NOT fix this. In swarm mode it delivers the value
+verbatim, because ``docker stack deploy`` keeps the quotes it would add and
+the container would then read them as part of the value.
+
 Per-line opt-out: ``# nocheck: env-space-value-unquoted``.
 """
 
@@ -37,8 +41,6 @@ def renders_unquoted_words(line: str) -> bool:
         return False
     value = match.group("value").strip()
     if not _SPACE_JOIN.search(value):
-        return False
-    if "dotenv_quote" in value:
         return False
     return not _QUOTED.match(value)
 
@@ -72,7 +74,9 @@ class TestEnvValueSpaceQuoted(unittest.TestCase):
                 "and leaves the variable unset, so a consumer running under "
                 "`set -u` dies on an unbound variable that the rendered file "
                 "appears to contain.\n\n"
-                "Fix: append `| dotenv_quote`.\n\n"
+                "Fix: join on a comma and split on one in the consumer. "
+                "`| dotenv_quote` does not help: swarm passes the value "
+                "verbatim, so the quotes would land inside it.\n\n"
                 f"Offending lines:\n{formatted}"
             )
 
