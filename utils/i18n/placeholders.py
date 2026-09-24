@@ -7,6 +7,8 @@ import re
 from collections import Counter
 from dataclasses import dataclass
 
+from utils.i18n import names
+
 PRINTF = r"%\([A-Za-z_]\w*\)[sdif]|%[sdif]"
 PLACEHOLDER = re.compile(PRINTF)
 
@@ -40,6 +42,37 @@ def carries_placeholder(message_id: str | tuple[str, ...]) -> bool:
     """
     forms = message_id if isinstance(message_id, tuple) else (message_id,)
     return any(PLACEHOLDER.search(form) for form in forms)
+
+
+EXTRA = re.compile(
+    r"[\U0001F300-\U0001FAFF☀-➿️]"
+    r"|[\w.+-]+@[\w-]+\.[\w.]+"
+)
+
+
+def matches(text: str, with_names: bool = True) -> list[tuple[int, int]]:
+    """Return the non-overlapping offsets every protection rule claims.
+
+    Args:
+        text: a source message or its translation.
+        with_names: whether role names and titles take part. They do when a
+            request is masked, so the translator never sees them, and they do
+            not when two texts are compared: German capitalises every noun, so
+            the lowercase ``shell extensions`` becomes ``Shell-Erweiterungen``
+            and a set comparison would read the capital as a surplus span.
+    """
+    found = [(m.start(), m.end()) for m in PROTECTED.finditer(text)]
+    found += [(m.start(), m.end()) for m in EXTRA.finditer(text)]
+    if with_names:
+        found += names.spans(text)
+    kept: list[tuple[int, int]] = []
+    reach = 0
+    for start, end in sorted(found):
+        if start < reach:
+            continue
+        kept.append((start, end))
+        reach = end
+    return kept
 
 
 MARKUP = '[]`*{}()"'
@@ -100,7 +133,18 @@ def protected_spans(text: str) -> Counter:
     Args:
         text: a source message or its translation.
     """
-    return Counter(PROTECTED.findall(text))
+    return Counter(text[start:end] for start, end in matches(text, with_names=False))
+
+
+def missing_names(source: str, translation: str) -> set[str]:
+    """Return the names ``source`` carries that ``translation`` dropped.
+
+    Args:
+        source: the source message.
+        translation: what came back for it.
+    """
+    carried = {source[start:end] for start, end in names.spans(source)}
+    return {name for name in carried if name not in translation}
 
 
 def has_words(text: str) -> bool:
@@ -109,7 +153,12 @@ def has_words(text: str) -> bool:
     Args:
         text: a source message.
     """
-    return any(character.isalpha() for character in PROTECTED.sub("", text))
+    plain, position = [], 0
+    for start, end in matches(text):
+        plain.append(text[position:start])
+        position = end
+    plain.append(text[position:])
+    return any(character.isalpha() for character in "".join(plain))
 
 
 def mask(text: str) -> Masked:
@@ -121,11 +170,11 @@ def mask(text: str) -> Masked:
     spans: list[str] = []
     parts: list[str] = []
     position = 0
-    for match in PROTECTED.finditer(text):
-        parts.append(html.escape(text[position : match.start()], quote=False))
+    for start, end in matches(text):
+        parts.append(html.escape(text[position:start], quote=False))
         parts.append(f'<x id="{len(spans)}"></x>')
-        spans.append(match.group(0))
-        position = match.end()
+        spans.append(text[start:end])
+        position = end
     parts.append(html.escape(text[position:], quote=False))
     return Masked("".join(parts), tuple(spans))
 

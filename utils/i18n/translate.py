@@ -6,7 +6,7 @@ from collections import Counter
 from typing import TYPE_CHECKING
 
 from utils.i18n.catalog import MACHINE_TRANSLATION
-from utils.i18n.placeholders import protected_spans
+from utils.i18n.placeholders import missing_names, protected_spans
 
 if TYPE_CHECKING:
     from babel.messages.catalog import Catalog, Message
@@ -58,6 +58,7 @@ def damaged(catalog: Catalog) -> list[Message]:
         and message.string
         and (
             protected_spans(str(message.string)) != protected_spans(message.id)
+            or missing_names(message.id, str(message.string))
             or structure(str(message.string)) != structure(message.id)
         )
     ]
