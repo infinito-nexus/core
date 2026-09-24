@@ -1,0 +1,37 @@
+---
+# Never instantiated: every runner pulls this in through `extends`, which
+# resolves the relative sources below against THIS file's directory.
+
+services:
+  cache-consumer:
+    environment:
+      INFINITO_CACHE_PACKAGE_FRONTEND_IP: ${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}
+    extra_hosts:
+      - "infinito-registry-cache:${INFINITO_CACHE_REGISTRY_IP:?Run 'make dotenv' to generate the .env single source of truth}"
+      - "deb.debian.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+      - "archive.ubuntu.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+      - "security.ubuntu.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+      - "pypi.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+      - "files.pythonhosted.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+      - "registry.npmjs.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+      - "rubygems.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+      - "index.rubygems.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+      - "repo.packagist.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+      - "proxy.golang.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+      - "dl-cdn.alpinelinux.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+      - "raw.githubusercontent.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+      - "codeload.github.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+    volumes:
+      - type: bind
+        source: ${INFINITO_CACHE_REGISTRY_CA_HOST_PATH:?Run 'make dotenv' to generate the .env single source of truth}
+        target: /opt/registry-cache-ca
+        read_only: true
+        bind:
+          create_host_path: true
+      - ${INFINITO_CACHE_REGISTRY_PROXY_CONF:?Set by 'cli deploy development up'}:/etc/systemd/system/docker.service.d/registry-cache-proxy.conf:ro
+      - ./scripts/docker/cache/registry-ca.sh:/usr/local/bin/registry-cache-ca.sh:ro
+      - ${INFINITO_CACHE_PACKAGE_PIP_CONF:?Set by 'cli deploy development up'}:/etc/pip.conf:ro
+      - ${INFINITO_CACHE_PACKAGE_NPMRC:?Set by 'cli deploy development up'}:/root/.npmrc:ro
+      - ./compose/package-cache/apt/${INFINITO_DISTRO:?Run 'make dotenv' to generate the .env single source of truth}.list:/etc/apt/sources.list.d/package-cache.list:ro
+      - ${INFINITO_CACHE_PACKAGE_FRONTEND_CA_FILE:?Set by 'cli deploy development up'}:/opt/package-frontend-ca.crt:ro
+      - ./scripts/docker/cache/package-frontend/ca.sh:/usr/local/bin/package-frontend-ca.sh:ro

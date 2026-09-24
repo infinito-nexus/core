@@ -113,23 +113,5 @@ services:
         condition: service_healthy
         required: false
     extends:
-      file: compose/cache-consumer.yml
+      file: compose.cache-consumer.yml
       service: cache-consumer
-    volumes:
-      - type: bind
-        source: ${INFINITO_CACHE_REGISTRY_CA_HOST_PATH:?Run 'make dotenv' to generate the .env single source of truth}
-        target: /opt/registry-cache-ca
-        read_only: true
-        bind:
-          create_host_path: true
-      - ${INFINITO_CACHE_REGISTRY_PROXY_CONF:?Set by 'cli deploy development up' / 'make compose-up' (driver-injected, not produced by 'make
-        dotenv')}:/etc/systemd/system/docker.service.d/registry-cache-proxy.conf:ro
-      - ./scripts/docker/cache/registry-ca.sh:/usr/local/bin/registry-cache-ca.sh:ro
-      - ${INFINITO_CACHE_PACKAGE_PIP_CONF:?Set by 'cli deploy development up' / 'make compose-up' (driver-injected, not produced by 'make
-        dotenv')}:/etc/pip.conf:ro
-      - ${INFINITO_CACHE_PACKAGE_NPMRC:?Set by 'cli deploy development up' / 'make compose-up' (driver-injected, not produced by 'make dotenv')}:/root/.npmrc:ro
-      - ./compose/package-cache/apt/${INFINITO_DISTRO:?Run 'make dotenv' to generate the .env single source of
-        truth}.list:/etc/apt/sources.list.d/package-cache.list:ro
-      - ${INFINITO_CACHE_PACKAGE_FRONTEND_CA_FILE:?Set by 'cli deploy development up' / 'make compose-up' (driver-injected, not produced by 'make
-        dotenv')}:/opt/package-frontend-ca.crt:ro
-      - ./scripts/docker/cache/package-frontend/ca.sh:/usr/local/bin/package-frontend-ca.sh:ro

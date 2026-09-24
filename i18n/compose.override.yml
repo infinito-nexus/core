@@ -30,9 +30,6 @@ services:
       - .:${INFINITO_SRC_DIR}
       - i18n-docker:${INFINITO_DOCKER_MOUNT:?Run 'make dotenv' to generate the .env single source of truth}
       - i18n-var-lib:${INFINITO_DIR_VAR_LIB:?Run 'make dotenv' to generate the .env single source of truth}/
-      - ${INFINITO_CACHE_REGISTRY_PROXY_CONF}:/etc/systemd/system/docker.service.d/registry-cache-proxy.conf:ro
-      - ${INFINITO_CACHE_PACKAGE_PIP_CONF}:/etc/pip.conf:ro
-      - ./compose/package-cache/apt/${INFINITO_DISTRO}.list:/etc/apt/sources.list.d/package-cache.list:ro
     environment:
       INFINITO_DIR_VAR_LIB: ${INFINITO_DIR_VAR_LIB}
       INFINITO_DNS_IP: ${INFINITO_DNS_IP}
@@ -41,7 +38,7 @@ services:
       INFINITO_CACHE_PACKAGE_FRONTEND_IP: ${INFINITO_CACHE_PACKAGE_FRONTEND_IP}
       DOCKER_DEFAULT_PLATFORM: ${INFINITO_DOCKER_PLATFORM}
     extends:
-      file: compose/cache-consumer.yml
+      file: compose.cache-consumer.yml
       service: cache-consumer
     ports:
       - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:${INFINITO_I18N_LIBRETRANSLATE_PORT:?Run 'make dotenv' to generate the
@@ -57,11 +54,9 @@ services:
     networks:
       default:
       i18n-cache:
-
 volumes:
   i18n-docker:
   i18n-var-lib:
-
 networks:
   i18n-cache:
     external: true
