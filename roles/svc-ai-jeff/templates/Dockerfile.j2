@@ -1,0 +1,20 @@
+FROM {{ JEFF_IMAGE }}:{{ JEFF_VERSION }}
+
+RUN rm -rf /var/lib/apt/lists/* \
+ && apt-get -o Acquire::Retries=3 update \
+ && apt-get -o Acquire::Retries=3 install -y --no-install-recommends git \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu torch
+
+RUN pip install --no-cache-dir \
+      "jeff{{ '[onnx]' if JEFF_FLAVOR == 'onnx' else '' }} @ git+{{ JEFF_REPOSITORY }}@{{ JEFF_REF }}" \
+      "huggingface_hub[cli]"
+
+RUN hf download {{ JEFF_MODEL_REPO }} --local-dir {{ JEFF_MODEL_PATH }}
+
+{% if JEFF_FLAVOR == 'onnx' %}
+RUN python -c "from jeff.backends.onnx_export import export_encoder; export_encoder('{{ JEFF_MODEL_PATH }}', int8=True)"
+{% endif %}
+
+CMD ["jeff"]

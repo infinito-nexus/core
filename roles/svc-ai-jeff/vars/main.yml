@@ -1,0 +1,15 @@
+---
+application_id: "svc-ai-jeff"
+entity_name: "{{ application_id | get_entity_name }}"
+
+JEFF_CONTAINER: "{{ lookup('config', application_id, 'services.jeff.name') }}"
+JEFF_PORT: "{{ lookup('config', application_id, 'services.jeff.ports.internal.http') }}"
+JEFF_IMAGE: "{{ lookup('config', application_id, 'services.jeff.image') }}"
+JEFF_VERSION: "{{ lookup('config', application_id, 'services.jeff.version') }}"
+JEFF_REPOSITORY: "{{ lookup('config', application_id, 'services.jeff.repository') }}"
+JEFF_REF: "{{ lookup('config', application_id, 'services.jeff.ref') }}"
+JEFF_MODEL_REPO: "{{ lookup('config', application_id, 'services.jeff.model_repo') }}"
+JEFF_MODEL_ALIAS: "{{ lookup('config', application_id, 'services.jeff.model_alias') }}"
+JEFF_FLAVOR: "{{ lookup('config', application_id, 'services.jeff.flavor') }}"
+JEFF_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.api_key') }}"
+JEFF_MODEL_PATH: "{{ ['/opt/jeff/models', JEFF_MODEL_REPO | basename] | path_join }}"

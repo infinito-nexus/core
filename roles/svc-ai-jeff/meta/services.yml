@@ -1,0 +1,37 @@
+---
+# nocheck: playwright-service-flag - typed classification API without a browser surface
+jeff:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  bond: 1
+  enabled: true
+  shared: true
+  # nocheck: dockerfile-custom  upstream ships a pyproject and no image, so the role builds one
+  # nocheck: docker-version  base of the self-built server, not the served application
+  image: python
+  version: "3.12.14-slim"
+  custom: true
+  name: jeff
+  repository: https://github.com/logan-markewich/jeff.git
+  # nocheck: semver-ref  upstream publishes no tags, so the pin is a commit
+  ref: 34b32f99a727c47b679adde33f4702a001e02979
+  model_repo: knowledgator/gliformer-large-v1
+  model_alias: jev-latest
+  request_timeout: 20
+  flavor: torch
+  healthcheck:
+    flavor: http_status
+    path: healthz
+  # nocheck: min-storage-headroom  Reason: the declared image is the Dockerfile base; the built image adds torch and the 575M GLiFormer checkpoint
+  min_storage: 4GB
+  cpus: "2.0"
+  mem_reservation: 1g
+  mem_limit: 4g
+  pids_limit: 512
+  ports:
+    internal:
+      http: 8000
+  lifecycle: pre-alpha
