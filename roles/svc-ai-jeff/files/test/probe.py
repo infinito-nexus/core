@@ -120,7 +120,12 @@ def verify_score(answer: dict, expected: str) -> tuple[str, str]:
 
 
 PROBES = (
-    ("choice", choice_question, verify_choice, ((RAIN, "weather"), (ONIONS, "cooking"))),
+    (
+        "choice",
+        choice_question,
+        verify_choice,
+        ((RAIN, "weather"), (ONIONS, "cooking")),
+    ),
     (
         "noul",
         noul_question,
@@ -163,7 +168,9 @@ def run_type(base: str, key: str, model: str, name, build, verify, cases) -> lis
     for state, expected in cases:
         answers = ask(base, key, state, build(name), model)
         if name not in answers:
-            failures.append(f"{name}: the answer carries no {name!r}: {sorted(answers)}")
+            failures.append(
+                f"{name}: the answer carries no {name!r}: {sorted(answers)}"
+            )
             continue
         if answers[name].get("type") != name:
             failures.append(
