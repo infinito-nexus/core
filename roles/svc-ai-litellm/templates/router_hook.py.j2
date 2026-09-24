@@ -25,8 +25,11 @@ Two polarities govern the filters, and mixing them up routes silently wrong:
 
 from __future__ import annotations
 
+import asyncio
 import json
+import random
 import re
+import time
 import urllib.request
 from datetime import date
 
@@ -42,7 +45,16 @@ JEFF_KEY = {{ LITELLM_JEFF_KEY | to_json }}
 JEFF_MODEL = {{ LITELLM_JEFF_MODEL | to_json }}
 JEFF_TIMEOUT = {{ LITELLM_JEFF_TIMEOUT | int }}
 JEFF_QUESTION = "route"
+JEFF_VERDICT_QUESTION = "verdict"
 JEFF_MAX_STATE_CHARS = {{ LITELLM_ROUTER_STATE_CHARS | int }}
+
+SAMPLE_ENABLED = {{ 'True' if LITELLM_ROUTER_SAMPLE_ENABLED | bool else 'False' }}
+SAMPLE_MODE = {{ LITELLM_ROUTER_SAMPLE_MODE | to_json }}
+SAMPLE_TRIGGER = {{ LITELLM_ROUTER_SAMPLE_TRIGGER | to_json }}
+SAMPLE_INTERVAL = {{ LITELLM_ROUTER_SAMPLE_INTERVAL | int }}
+SAMPLE_WIDTH = {{ LITELLM_ROUTER_SAMPLE_WIDTH | int }}
+HISTORY_TABLE = "infinito_router_history"
+TOKEN_BUCKETS = (256, 1024, 4096, 16384, 65536)
 
 SECRET_SHAPES = re.compile(
     r"-----BEGIN [A-Z ]*PRIVATE KEY-----"
@@ -251,7 +263,7 @@ def local_reason(data, deployments, catalog):
     if carries_secret(data):
         return "the request shows a structured secret"
     if not REMOTE_FALLBACK:
-        return "services.litellm.router_remote_fallback is off"
+        return "services.litellm.router.remote_fallback is off"
     return ""
 
 
@@ -366,6 +378,129 @@ def decide_weighted(candidates, weights):
     )["model_name"]
 
 
+def bucket(tokens):
+    """The token band *tokens* falls in, as the label history groups under."""
+    for edge in TOKEN_BUCKETS:
+        if tokens <= edge:
+            return str(edge)
+    return f"{TOKEN_BUCKETS[-1]}+"
+
+
+def signature(need):
+    """The request class routing history accumulates under.
+
+    Two requests share a class when they ask a route for the same kind of work:
+    the same token band and the same capability demands. Grouping finer spreads
+    the evidence too thin to ever decide; grouping coarser lets a verdict about
+    a vision request speak for a plain chat.
+    """
+    demands = "+".join(
+        flag
+        for flag in ("vision", "tools", "schema", "audio", "documents")
+        if need[flag]
+    )
+    return f"{bucket(need['input_tokens'] + need['max_output'])}:{demands or 'plain'}"
+
+
+class Sampler:
+    """Whether this request is answered by several routes instead of one.
+
+    Args:
+        trigger: ``seconds`` spaces comparisons in time, ``requests`` counts
+            them out, ``probability`` draws one in *interval*.
+        interval: seconds, requests or odds, read according to *trigger*.
+        clock: monotonic source, injected so a test does not wait.
+        draw: uniform source in [0, 1), injected for the same reason.
+    """
+
+    def __init__(self, trigger, interval, clock=time.monotonic, draw=random.random):
+        self._trigger = trigger
+        self._interval = max(int(interval), 1)
+        self._clock = clock
+        self._draw = draw
+        self._last = None
+        self._seen = 0
+
+    def due(self):
+        """True when this request should be compared across routes."""
+        if self._trigger == "requests":
+            self._seen += 1
+            if self._seen < self._interval:
+                return False
+            self._seen = 0
+            return True
+        if self._trigger == "probability":
+            return self._draw() < 1.0 / self._interval
+        now = self._clock()
+        if self._last is not None and now - self._last < self._interval:
+            return False
+        self._last = now
+        return True
+
+
+class History:
+    """What earlier comparisons said about each route, per request class.
+
+    The store is the proxy's own database, so a verdict outlives a restart. A
+    proxy without one keeps nothing at all: a process-local tally read as
+    history would let a fresh container claim experience it never gathered.
+    """
+
+    DDL = (
+        f"CREATE TABLE IF NOT EXISTS {HISTORY_TABLE} ("
+        "id BIGSERIAL PRIMARY KEY,"
+        "decided_at TIMESTAMPTZ NOT NULL DEFAULT now(),"
+        "signature TEXT NOT NULL,"
+        "alias TEXT NOT NULL,"
+        "won BOOLEAN NOT NULL)"
+    )
+    INDEX = (
+        f"CREATE INDEX IF NOT EXISTS {HISTORY_TABLE}_signature_idx "
+        f"ON {HISTORY_TABLE} (signature)"
+    )
+
+    def __init__(self, client):
+        self._client = client
+        self._ready = False
+
+    async def _ensure(self):
+        if not self._ready:
+            await self._client.execute_raw(self.DDL)
+            await self._client.execute_raw(self.INDEX)
+            self._ready = True
+
+    async def record(self, request_class, winner, offered):
+        """Write one row per offered route, marking which one won."""
+        await self._ensure()
+        for alias in offered:
+            await self._client.execute_raw(
+                f"INSERT INTO {HISTORY_TABLE} (signature, alias, won) "
+                f"VALUES ($1, $2, $3)",
+                request_class,
+                alias,
+                alias == winner,
+            )
+
+    async def wins(self, request_class):
+        """``{alias: (won, seen)}`` for *request_class*, empty when untried."""
+        await self._ensure()
+        rows = await self._client.query_raw(
+            f"SELECT alias, SUM(CASE WHEN won THEN 1 ELSE 0 END) AS won, "
+            f"COUNT(*) AS seen FROM {HISTORY_TABLE} "
+            f"WHERE signature = $1 GROUP BY alias",
+            request_class,
+        )
+        return {row["alias"]: (int(row["won"]), int(row["seen"])) for row in rows or []}
+
+
+def record_of(alias, tally):
+    """How *alias* fared before, as a clause, or empty when it has no record."""
+    won, seen = tally.get(alias, (0, 0))
+    if not seen:
+        return ""
+    return f"won {won} of {seen} comparisons like this"
+
+
 def headroom(entry, need):
     """How much context this route would leave unused on this request.
 
@@ -379,17 +514,35 @@ def headroom(entry, need):
     return int(context) - (need["input_tokens"] + need["max_output"])
 
 
-def describe(entry, need):
-    """One line telling the decider what this route is, in its own terms."""
+def describe(entry, need, tally=None):
+    """One line telling the decider what this route is, in its own terms.
+
+    Only measured or catalogued facts go in. A figure the catalog does not
+    state is left out rather than defaulted, because a decider cannot tell an
+    absent number from a zero one.
+    """
     caps = entry["_caps"]
     window = caps["context"] or "unstated"
-    place = "runs in this cluster" if caps["local"] else "runs at a provider"
     room = headroom(entry, need)
-    fit = "unknown headroom" if room == float("inf") else f"{int(room)} tokens spare"
-    return f"{place}, context window {window}, {fit}"
+    facts = [
+        "runs in this cluster" if caps["local"] else "runs at a provider",
+        f"context window {window}",
+        "unknown headroom" if room == float("inf") else f"{int(room)} tokens spare",
+        f"costs about {entry['_cost']:.4f} for this request",
+    ]
+    if caps["speed"]:
+        facts.append(f"{caps['speed']:.1f} tokens per second measured")
+    if caps["throughput"]:
+        facts.append(f"{int(caps['throughput'])} tokens per minute quota")
+    if caps["caching"]:
+        facts.append("caches prompts")
+    earlier = record_of(entry["model_name"], tally or {})
+    if earlier:
+        facts.append(earlier)
+    return ", ".join(facts)
 
 
-def ask_jeff(text, candidates, need):
+def ask_jeff(text, candidates, need, tally=None):
     """Put the routing choice to jeff as one typed choice question.
 
     jeff answers typed questions rather than generating, so the candidates
@@ -401,19 +554,39 @@ def ask_jeff(text, candidates, need):
         ValueError: when jeff answers a shape or an option this router did not
             offer, which must not be read as a route.
     """
+    criteria = {
+        entry["model_name"]: describe(entry, need, tally) for entry in candidates
+    }
+    answer = _systemone(
+        text,
+        JEFF_QUESTION,
+        "Which of these models should answer the request? Prefer the smallest "
+        "one that can serve it well.",
+        criteria,
+    )
+    alias = answer.get("choice")
+    if alias not in criteria:
+        raise ValueError(
+            f"jeff chose {alias!r}, which was not among {sorted(criteria)}"
+        )
+    return alias, float(answer.get("confidence") or 0.0)
+
+
+def _systemone(state, question, instructions, criteria):
+    """Put one typed choice to jeff and return the answer block it sent.
+
+    Raises:
+        OSError: when jeff cannot be reached.
+        ValueError: when jeff answers a different question than the one asked.
+    """
     payload = {
-        "state": text[:JEFF_MAX_STATE_CHARS],
+        "state": state[:JEFF_MAX_STATE_CHARS],
         "model": JEFF_MODEL,
         "questions": {
-            JEFF_QUESTION: {
+            question: {
                 "type": "choice",
-                "instructions": (
-                    "Which of these models should answer the request? Prefer "
-                    "the smallest one that can serve it well."
-                ),
-                "criteria": {
-                    entry["model_name"]: describe(entry, need) for entry in candidates
-                },
+                "instructions": instructions,
+                "criteria": criteria,
             }
         },
     }
@@ -428,15 +601,35 @@ def ask_jeff(text, candidates, need):
     )
     with urllib.request.urlopen(request, timeout=JEFF_TIMEOUT) as response:  # noqa: S310 configured internal origin
         body = json.loads(response.read())
-    answer = (body.get("answers") or {}).get(JEFF_QUESTION) or {}
-    alias = answer.get("choice")
-    offered = {entry["model_name"] for entry in candidates}
-    if alias not in offered:
-        raise ValueError(f"jeff chose {alias!r}, which was not among {sorted(offered)}")
-    return alias, float(answer.get("confidence") or 0.0)
+    answer = (body.get("answers") or {}).get(question)
+    if not answer:
+        raise ValueError(f"jeff returned no answer to {question!r}")
+    return answer
 
 
-def decide_system_one(candidates, need, text):
+def judge_answers(text, replies):
+    """The alias whose reply jeff calls the best answer to *text*.
+
+    The options are the replies themselves, not the routes that produced them,
+    so the verdict rests on what came back rather than on what the catalog
+    promised. Aliases are never shown to the decider for the same reason.
+    """
+    labels = {f"option-{index}": alias for index, alias in enumerate(sorted(replies))}
+    answer = _systemone(
+        text,
+        JEFF_VERDICT_QUESTION,
+        "Which of these answers serves the request best?",
+        {label: replies[alias][:JEFF_MAX_STATE_CHARS] for label, alias in labels.items()},
+    )
+    label = answer.get("choice")
+    if label not in labels:
+        raise ValueError(
+            f"jeff chose {label!r}, which was not among {sorted(labels)}"
+        )
+    return labels[label]
+
+
+def decide_system_one(candidates, need, text, tally=None):
     """The route jeff picks for this prompt.
 
     The weighted strategy ranks on standing preferences and stops reading the
@@ -447,11 +640,11 @@ def decide_system_one(candidates, need, text):
     quietly substituting a different decider would make that answer mean
     something else.
     """
-    alias, _confidence = ask_jeff(text, candidates, need)
+    alias, _confidence = ask_jeff(text, candidates, need, tally)
     return alias
 
 
-def decide(candidates, need, text="", weights=None, strategy=None):
+def decide(candidates, need, text="", weights=None, strategy=None, tally=None):
     """Dispatch to the configured strategy.
 
     Args:
@@ -460,14 +653,42 @@ def decide(candidates, need, text="", weights=None, strategy=None):
         text: what the caller wrote, which only ``system_one`` reads.
         weights: the weighted strategy's factor weights.
         strategy: ``system_one`` or ``weighted``.
+        tally: what earlier comparisons said, which only ``system_one`` reads.
 
     Returns:
         The winning alias.
     """
     strategy = ROUTER_STRATEGY if strategy is None else strategy
     if strategy == "system_one":
-        return decide_system_one(candidates, need, text)
+        return decide_system_one(candidates, need, text, tally)
     return decide_weighted(candidates, ROUTER_WEIGHTS if weights is None else weights)
+
+
+async def collect(router, data, candidates, width):
+    """Ask the first *width* candidates the same question.
+
+    Returns ``{alias: reply}`` for those that answered. A route that raises is
+    left out rather than recorded as a loss: failing to answer is a fact about
+    the moment, not evidence that its answers are worse.
+    """
+    chosen = candidates[:width]
+
+    async def one(entry):
+        payload = {key: value for key, value in data.items() if key != "mock_response"}
+        payload["model"] = entry["model_name"]
+        reply = await router.acompletion(**payload)
+        return entry["model_name"], reply.choices[0].message.content or ""
+
+    replies = {}
+    for outcome in await asyncio.gather(
+        *(one(entry) for entry in chosen), return_exceptions=True
+    ):
+        if isinstance(outcome, BaseException):
+            continue
+        alias, content = outcome
+        if content:
+            replies[alias] = content
+    return replies
 
 
 class SystemOneRouter(CustomLogger):
@@ -478,6 +699,11 @@ class SystemOneRouter(CustomLogger):
     instead would hide a broken router behind a plausible reply, and the alias
     exists precisely so callers do not have to know which model answered.
     """
+
+    def __init__(self):
+        super().__init__()
+        self._sampler = Sampler(SAMPLE_TRIGGER, SAMPLE_INTERVAL)
+        self._store = None
 
     async def async_pre_call_hook(self, user_api_key_dict, cache, data, call_type):  # noqa: ARG002 - LiteLLM hook signature
         if data.get("model") != ROUTER_ALIAS:
@@ -509,10 +735,13 @@ class SystemOneRouter(CustomLogger):
                 return (
                     f"'{ROUTER_ALIAS}' cannot route: {reason}, and no local model "
                     f"can take {demand}. A remote model could, so either shrink "
-                    f"the request or set services.litellm.router_remote_fallback"
+                    f"the request or set services.litellm.router.remote_fallback"
                 )
+        text = request_text(data)
+        request_class = signature(need)
+        tally = await self._tally(request_class)
         try:
-            data["model"] = decide(candidates, need, request_text(data))
+            data["model"] = decide(candidates, need, text, tally=tally)
         except (OSError, ValueError) as error:
             return (
                 f"'{ROUTER_ALIAS}' cannot route: the {ROUTER_STRATEGY} strategy "
@@ -520,7 +749,70 @@ class SystemOneRouter(CustomLogger):
                 f"Answering from a substitute decider would make the alias mean "
                 f"something the caller did not ask for"
             )
+        if SAMPLE_ENABLED and len(candidates) > 1 and self._sampler.due():
+            await self._compare(llm_router, data, candidates, text, request_class)
         return data
+
+    async def _tally(self, request_class):
+        """What earlier comparisons said, or nothing when they cannot be read."""
+        store = self._history()
+        if store is None:
+            return {}
+        try:
+            return await store.wins(request_class)
+        except Exception as error:  # noqa: BLE001 - history must never fail a route
+            print(
+                f"[router] routing history unreadable, deciding without it: "
+                f"{type(error).__name__}: {error}",
+                flush=True,
+            )
+            return {}
+
+    def _history(self):
+        """The store, or None when this proxy exposes no database to write to."""
+        try:
+            from litellm.proxy.proxy_server import prisma_client
+        except ImportError:
+            return None
+        if prisma_client is None:
+            return None
+        if self._store is None:
+            self._store = History(prisma_client.db)
+        return self._store
+
+    async def _compare(self, router, data, candidates, text, request_class):
+        """Answer this request from several routes and record which won.
+
+        In ``serve`` mode the winning reply is handed back to the caller
+        through ``mock_response``, so the fan-out is the answer path and no
+        further call is made. In ``shadow`` mode the caller keeps the route
+        already decided and only the verdict is kept.
+        """
+        try:
+            replies = await collect(router, data, candidates, SAMPLE_WIDTH)
+            if len(replies) < 2:
+                return
+            winner = judge_answers(text, replies)
+        except Exception as error:  # noqa: BLE001 - a comparison must never fail a route
+            print(
+                f"[router] comparison abandoned, serving the decided route: "
+                f"{type(error).__name__}: {error}",
+                flush=True,
+            )
+            return
+        store = self._history()
+        if store is not None:
+            try:
+                await store.record(request_class, winner, sorted(replies))
+            except Exception as error:  # noqa: BLE001 - see above
+                print(
+                    f"[router] comparison not recorded: "
+                    f"{type(error).__name__}: {error}",
+                    flush=True,
+                )
+        if SAMPLE_MODE == "serve":
+            data["model"] = winner
+            data["mock_response"] = replies[winner]
 
 
 instance = SystemOneRouter()

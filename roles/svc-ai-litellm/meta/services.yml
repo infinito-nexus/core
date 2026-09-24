@@ -15,21 +15,29 @@ litellm:
   name: litellm
   max_output_tokens: 512
   upstream_timeout: 240
-  router_alias: auto
-  router_remote_fallback: false
-  # nocheck: dynamic-flag
-  router_strategy: "{{ 'system_one' if (lookup('config', 'svc-ai-litellm', 'services.jeff.enabled') | bool) else 'weighted' }}"
-  router_weights:
-    locality: 1.0
-    cost: 0.4
-    speed: 0.25
-    caching: 0.15
-    throughput: 0.1
-  router_min_chars_per_token: 2
-  router_state_chars: 512
-  router_speed_samples: 12
-  router_speed_timeout: 60
-  router_speed_remeasure: false
+  router:
+    alias: auto
+    remote_fallback: false
+    # nocheck: dynamic-flag
+    strategy: "{{ 'system_one' if (lookup('config', 'svc-ai-litellm', 'services.jeff.enabled') | bool) else 'weighted' }}"
+    min_chars_per_token: 2
+    state_chars: 512
+    weights:
+      locality: 1.0
+      cost: 0.4
+      speed: 0.25
+      caching: 0.15
+      throughput: 0.1
+    speed:
+      samples: 12
+      timeout: 60
+      remeasure: false
+    sample:
+      enabled: false
+      mode: shadow
+      trigger: seconds
+      interval: 900
+      width: 3
   remote_models:
     - alias: openai/gpt-4o-mini
       model: openai/gpt-4o-mini

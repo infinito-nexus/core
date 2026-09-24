@@ -36,9 +36,11 @@ JEFF_URL = "http://jeff:8000"
 SHIPPED = load_yaml(PROJECT_ROOT / "roles/svc-ai-litellm" / ROLE_FILE_META_SERVICES)[
     "litellm"
 ]
-SHIPPED_WEIGHTS = SHIPPED["router_weights"]
-SHIPPED_MIN_CHARS_PER_TOKEN = SHIPPED["router_min_chars_per_token"]
-SHIPPED_STATE_CHARS = SHIPPED["router_state_chars"]
+SHIPPED_ROUTER = SHIPPED["router"]
+SHIPPED_WEIGHTS = SHIPPED_ROUTER["weights"]
+SHIPPED_MIN_CHARS_PER_TOKEN = SHIPPED_ROUTER["min_chars_per_token"]
+SHIPPED_STATE_CHARS = SHIPPED_ROUTER["state_chars"]
+SHIPPED_SAMPLE = SHIPPED_ROUTER["sample"]
 
 CATALOG = {
     "gpt-4o-mini": {
@@ -96,7 +98,17 @@ def _stub_litellm():
     sys.modules["litellm.integrations.custom_logger"] = custom_logger
 
 
-def load(*, remote_fallback=False, weights=None, strategy="weighted"):
+def load(
+    *,
+    remote_fallback=False,
+    weights=None,
+    strategy="weighted",
+    sample_enabled=False,
+    sample_mode=None,
+    sample_trigger=None,
+    sample_interval=None,
+    sample_width=None,
+):
     """The rendered hook, imported as the container would import it."""
     _stub_litellm()
     env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - Python source, not markup
@@ -113,6 +125,19 @@ def load(*, remote_fallback=False, weights=None, strategy="weighted"):
         LITELLM_JEFF_KEY="jeff-test-key",
         LITELLM_JEFF_MODEL="jev-latest",
         LITELLM_JEFF_TIMEOUT=20,
+        LITELLM_ROUTER_SAMPLE_ENABLED=sample_enabled,
+        LITELLM_ROUTER_SAMPLE_MODE=SHIPPED_SAMPLE["mode"]
+        if sample_mode is None
+        else sample_mode,
+        LITELLM_ROUTER_SAMPLE_TRIGGER=SHIPPED_SAMPLE["trigger"]
+        if sample_trigger is None
+        else sample_trigger,
+        LITELLM_ROUTER_SAMPLE_INTERVAL=SHIPPED_SAMPLE["interval"]
+        if sample_interval is None
+        else sample_interval,
+        LITELLM_ROUTER_SAMPLE_WIDTH=SHIPPED_SAMPLE["width"]
+        if sample_width is None
+        else sample_width,
     )
     module = types.ModuleType("router_hook_under_test")
     module.__file__ = str(Path(TEMPLATE).with_suffix(""))
@@ -473,7 +498,7 @@ class TestLocalOnly(HookCase, unittest.TestCase):
         routes = [local("tiny", context=10), remote("big", context=99999)]
         verdict = self.route(self.hook, self.BIG, routes)
         self.assertIsInstance(verdict, str)
-        self.assertIn("router_remote_fallback", verdict)
+        self.assertIn("router.remote_fallback", verdict)
 
     def test_the_switch_lets_a_big_prompt_reach_a_remote_model(self) -> None:
         hook = load(remote_fallback=True)
@@ -602,9 +627,10 @@ class JeffStub:
         confidence: the confidence it reports alongside the choice.
     """
 
-    def __init__(self, choice, confidence=0.9) -> None:
+    def __init__(self, choice, confidence=0.9, question="route") -> None:
         self.choice = choice
         self.confidence = confidence
+        self.question = question
         self.seen: dict = {}
 
     def urlopen(self, request, timeout=None):
@@ -619,7 +645,7 @@ class JeffStub:
         body = {
             "model": "gliformer-large-v1",
             "answers": {
-                "route": {
+                self.question: {
                     "type": "choice",
                     "choice": self.choice,
                     "confidence": self.confidence,
@@ -740,7 +766,7 @@ class TestShippedConfiguration(HookCase, unittest.TestCase):
     def test_the_shipped_strategy_reads_the_jeff_service_flag(self) -> None:
         self.assertIn(
             "services.jeff.enabled",
-            SHIPPED["router_strategy"],
+            SHIPPED_ROUTER["strategy"],
             "the strategy follows whether the System One service is deployed, "
             "and it reads that from the one flag that decides it",
         )
@@ -748,7 +774,7 @@ class TestShippedConfiguration(HookCase, unittest.TestCase):
     def test_both_strategy_names_are_reachable_from_the_expression(self) -> None:
         env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - a config value, not markup
         env.filters["bool"] = bool
-        template = env.from_string(SHIPPED["router_strategy"])
+        template = env.from_string(SHIPPED_ROUTER["strategy"])
         self.assertEqual(template.render(lookup=lambda *_args: True), "system_one")
         self.assertEqual(
             template.render(lookup=lambda *_args: False),
@@ -787,6 +813,172 @@ class TestShippedConfiguration(HookCase, unittest.TestCase):
             "the locality filter runs before the score, so a weight cannot buy "
             "a credential a trip to a provider",
         )
+
+
+class TestRequestClass(unittest.TestCase):
+    """History only helps when comparable requests land in the same class."""
+
+    def setUp(self) -> None:
+        self.hook = load()
+
+    def sign(self, tokens, **flags):
+        need = dict.fromkeys(("vision", "tools", "schema", "audio", "documents"), False)
+        need.update(flags)
+        need["input_tokens"] = tokens
+        need["max_output"] = 0
+        return self.hook.signature(need)
+
+    def test_two_sizes_in_one_band_share_a_class(self) -> None:
+        self.assertEqual(self.sign(300), self.sign(1000))
+
+    def test_crossing_a_band_splits_the_class(self) -> None:
+        self.assertNotEqual(self.sign(1000), self.sign(1100))
+
+    def test_a_capability_demand_splits_the_class(self) -> None:
+        self.assertNotEqual(self.sign(300), self.sign(300, vision=True))
+
+    def test_the_largest_band_still_names_a_class(self) -> None:
+        self.assertTrue(self.sign(10**9).endswith(":plain"))
+
+
+class TestSampler(unittest.TestCase):
+    """Comparisons cost a multiple of a request, so the trigger must hold."""
+
+    def setUp(self) -> None:
+        self.hook = load()
+
+    def test_seconds_fires_once_and_then_waits(self) -> None:
+        now = [1000.0]
+        sampler = self.hook.Sampler("seconds", 900, clock=lambda: now[0])
+        self.assertTrue(sampler.due())
+        now[0] += 899
+        self.assertFalse(sampler.due())
+        now[0] += 2
+        self.assertTrue(sampler.due())
+
+    def test_requests_counts_out_the_interval(self) -> None:
+        sampler = self.hook.Sampler("requests", 3)
+        self.assertEqual(
+            [sampler.due() for _ in range(6)],
+            [False, False, True, False, False, True],
+        )
+
+    def test_probability_draws_one_in_the_interval(self) -> None:
+        draws = iter([0.0, 0.5])
+        sampler = self.hook.Sampler("probability", 4, draw=lambda: next(draws))
+        self.assertTrue(sampler.due())
+        self.assertFalse(sampler.due())
+
+
+class TestDescribedMetrics(unittest.TestCase):
+    """What the decider is told about a route, and what it is not told."""
+
+    def setUp(self) -> None:
+        self.hook = load()
+
+    def describe(self, route, tally=None):
+        need = self.hook.summarize({"messages": [{"role": "user", "content": "hi"}]})
+        entry = self.hook.eligible([route], need, ALIAS, CATALOG, TODAY)[0]
+        return self.hook.describe(entry, need, tally)
+
+    def test_a_measured_rate_is_offered(self) -> None:
+        line = self.describe(local("home", context=9999, traits={"speed": 42.5}))
+        self.assertIn("42.5 tokens per second measured", line)
+
+    def test_an_unmeasured_rate_is_left_out_rather_than_zeroed(self) -> None:
+        line = self.describe(local("home", context=9999))
+        self.assertNotIn("tokens per second", line)
+
+    def test_the_price_of_this_request_is_offered(self) -> None:
+        self.assertIn("costs about", self.describe(local("home", context=9999)))
+
+    def test_an_earlier_verdict_is_offered(self) -> None:
+        line = self.describe(local("home", context=9999), {"home": (7, 9)})
+        self.assertIn("won 7 of 9 comparisons like this", line)
+
+    def test_a_route_without_a_record_claims_none(self) -> None:
+        line = self.describe(local("home", context=9999), {"other": (3, 3)})
+        self.assertNotIn("comparisons", line)
+
+
+class TestAnswerVerdict(unittest.TestCase):
+    """Judging the replies, not the promises the catalog made about them."""
+
+    def setUp(self) -> None:
+        self.hook = load()
+
+    def test_the_aliases_are_hidden_from_the_decider(self) -> None:
+        stub = JeffStub("option-0", question="verdict")
+        with unittest.mock.patch("urllib.request.urlopen", stub.urlopen):
+            self.hook.judge_answers("q", {"cheap": "a", "pricey": "b"})
+        criteria = stub.seen["body"]["questions"]["verdict"]["criteria"]
+        self.assertEqual(sorted(criteria), ["option-0", "option-1"])
+        self.assertEqual(sorted(criteria.values()), ["a", "b"])
+
+    def test_the_label_maps_back_to_the_alias_that_wrote_it(self) -> None:
+        stub = JeffStub("option-1", question="verdict")
+        with unittest.mock.patch("urllib.request.urlopen", stub.urlopen):
+            winner = self.hook.judge_answers("q", {"cheap": "a", "pricey": "b"})
+        self.assertEqual(winner, "pricey")
+
+    def test_an_answer_outside_the_options_is_not_read_as_a_verdict(self) -> None:
+        stub = JeffStub("option-9", question="verdict")
+        with (
+            unittest.mock.patch("urllib.request.urlopen", stub.urlopen),
+            self.assertRaises(ValueError),
+        ):
+            self.hook.judge_answers("q", {"cheap": "a", "pricey": "b"})
+
+
+class TestCollect(unittest.IsolatedAsyncioTestCase):
+    """A route that cannot answer is absent from the comparison, not a loser."""
+
+    def setUp(self) -> None:
+        self.hook = load()
+
+    class _Router:
+        def __init__(self, replies):
+            self.replies = replies
+
+        async def acompletion(self, **kwargs):
+            reply = self.replies[kwargs["model"]]
+            if isinstance(reply, Exception):
+                raise reply
+            return types.SimpleNamespace(
+                choices=[
+                    types.SimpleNamespace(message=types.SimpleNamespace(content=reply))
+                ]
+            )
+
+    async def test_a_raising_route_is_left_out(self) -> None:
+        router = self._Router({"a": "alpha", "b": RuntimeError("upstream down")})
+        replies = await self.hook.collect(
+            router,
+            {"messages": []},
+            [{"model_name": "a"}, {"model_name": "b"}],
+            2,
+        )
+        self.assertEqual(replies, {"a": "alpha"})
+
+    async def test_the_width_bounds_the_fan_out(self) -> None:
+        router = self._Router({"a": "alpha", "b": "beta", "c": "gamma"})
+        replies = await self.hook.collect(
+            router,
+            {"messages": []},
+            [{"model_name": "a"}, {"model_name": "b"}, {"model_name": "c"}],
+            2,
+        )
+        self.assertEqual(sorted(replies), ["a", "b"])
+
+    async def test_an_empty_reply_is_not_offered_for_judging(self) -> None:
+        router = self._Router({"a": "", "b": "beta"})
+        replies = await self.hook.collect(
+            router,
+            {"messages": []},
+            [{"model_name": "a"}, {"model_name": "b"}],
+            2,
+        )
+        self.assertEqual(replies, {"b": "beta"})
 
 
 if __name__ == "__main__":

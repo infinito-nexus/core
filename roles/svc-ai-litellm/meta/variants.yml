@@ -19,7 +19,9 @@
     postgres:
       shared: true
     litellm:
-      router_speed_samples: 1
+      router:
+        speed:
+          samples: 1
       remote_models:
         - alias: mock/deterministic
           provider: mock
@@ -40,7 +42,9 @@
       shared: true
       flavor: torch
     litellm:
-      router_speed_samples: 1
+      router:
+        speed:
+          samples: 1
       remote_models:
         - alias: mock/deterministic
           provider: mock
@@ -64,7 +68,9 @@
       mem_reservation: 512m
       mem_limit: 1g
     litellm:
-      router_speed_samples: 1
+      router:
+        speed:
+          samples: 1
       remote_models:
         - alias: mock/deterministic
           provider: mock

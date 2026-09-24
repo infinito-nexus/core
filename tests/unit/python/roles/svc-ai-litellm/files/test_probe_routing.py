@@ -306,7 +306,7 @@ class TestRouteVerdict(unittest.TestCase):
 
 SHIPPED_MIN_CHARS_PER_TOKEN = load_yaml(
     PROJECT_ROOT / "roles/svc-ai-litellm" / ROLE_FILE_META_SERVICES
-)["litellm"]["router_min_chars_per_token"]
+)["litellm"]["router"]["min_chars_per_token"]
 
 
 class TestOversizedPrompt(unittest.TestCase):
