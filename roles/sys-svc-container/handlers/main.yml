@@ -1,9 +1,10 @@
 ---
 - name: 🔄 Ensure Docker daemon is running on host
-  ansible.builtin.service:
+  ansible.builtin.systemd_service:
     name: docker.service
     state: restarted
     enabled: true
+    daemon_reload: true
   listen: container-manager-restart
 
 - name: 💬 Ensure Docker-In-Docker DNS works
