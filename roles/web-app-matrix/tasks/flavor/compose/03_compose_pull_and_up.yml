@@ -4,6 +4,7 @@
   command:
     cmd: "compose pull"
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
+  timeout: "{{ lookup('timeout', 3600) | int }}"
 
 - name: 🐳 compose up
   command:
@@ -11,5 +12,6 @@
     chdir: "{{ lookup('container', application_id, 'directories.instance') }}"
   register: result
   until: result is succeeded
+  timeout: "{{ lookup('timeout', 1800) | int }}"
   retries: 12
   delay: 30
