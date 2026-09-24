@@ -18,7 +18,11 @@ Environment:
     LITELLM_SAMPLES:   requests per model; above one, the first is discarded.
     LITELLM_TIMEOUT:   seconds one measured request may take.
     LITELLM_WARMUP:    seconds the discarded first request may take.
-    LITELLM_EXCLUDE:   alias to skip, namely the router's own.
+    LITELLM_EXCLUDE:   comma-separated aliases to leave unranked, namely the
+                       router's own and every mock. A mock generates nothing,
+                       so its rate is the proxy's echo latency rather than a
+                       model's, and ranking on it sends every request to a
+                       fixture that answers the same string to anything.
     LITELLM_REMEASURE: non-empty to re-measure models that already have a rate.
     LITELLM_PREVIOUS:  the JSON of the last measurement.
 """
@@ -38,7 +42,11 @@ PORT = os.environ["LITELLM_PORT"]
 SAMPLES = int(os.environ["LITELLM_SAMPLES"])
 TIMEOUT = float(os.environ["LITELLM_TIMEOUT"])
 WARMUP_TIMEOUT = float(os.environ["LITELLM_WARMUP"])
-EXCLUDE = os.environ.get("LITELLM_EXCLUDE") or ""
+EXCLUDE = {
+    alias.strip()
+    for alias in (os.environ.get("LITELLM_EXCLUDE") or "").split(",")
+    if alias.strip()
+}
 REMEASURE = bool(os.environ.get("LITELLM_REMEASURE"))
 PREVIOUS = json.loads(os.environ.get("LITELLM_PREVIOUS") or "{}")
 
@@ -144,7 +152,7 @@ def main():
     served = [
         entry["id"]
         for entry in call("/v1/models").get("data") or []
-        if entry.get("id") and entry["id"] != EXCLUDE
+        if entry.get("id") and entry["id"] not in EXCLUDE
     ]
     speeds = {}
     for model in served:

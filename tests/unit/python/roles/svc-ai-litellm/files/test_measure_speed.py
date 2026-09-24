@@ -150,6 +150,17 @@ class TestMeasureSpeed(unittest.TestCase):
         gateway = Gateway(["auto", "m"], {"m": [2.0]})
         self.assertEqual(list(run(gateway)), ["m"])
 
+    def test_every_excluded_alias_is_left_unranked(self) -> None:
+        gateway = Gateway(["auto", "mock/deterministic", "m"], {"m": [2.0]})
+        measured = run(gateway, LITELLM_EXCLUDE="auto,mock/deterministic")
+        self.assertEqual(
+            list(measured),
+            ["m"],
+            "a mock generates nothing, so its rate is the proxy's echo latency; "
+            "ranking on it routes every request to a fixture",
+        )
+        self.assertEqual(gateway.calls.get("mock/deterministic", 0), 0)
+
     def test_every_served_model_gets_its_own_rate(self) -> None:
         gateway = Gateway(["slow", "fast"], {"slow": [6.0], "fast": [1.0]}, tokens=60)
         self.assertEqual(run(gateway), {"slow": 10.0, "fast": 60.0})
