@@ -10,6 +10,12 @@ lived as four hand-copied expressions - both `sys-svc-compose` handlers,
 `sys-svc-compose-ca/vars/main.yml` and the msmtp template - which is one copy
 per place that can drift.
 
+Those three ask whether the application is *served* over the self-signed CA.
+An application that only *calls* one has no domain of its own and would be
+skipped, so a service may declare ``ca_client: true`` and be answered on the
+deployment's TLS mode alone. Without it such a container verifies against an
+empty trust store and fails every outbound call at the TLS handshake.
+
 Returns a plain bool, so callers read as a predicate:
 
     when: lookup('ca_injected', application_id)
@@ -51,6 +57,17 @@ class LookupModule(LookupBase):
             return lookup_loader.get(name, loader=self._loader, templar=templar).run(
                 args, variables=variables or {}
             )[0]
+
+        services = _run("config", [application_id, "services", {}]) or {}
+        if any(
+            _to_bool(service.get("ca_client", False))
+            for service in services.values()
+            if isinstance(service, dict)
+        ):
+            mode = (variables or {}).get("TLS_MODE", "")
+            if templar is not None:
+                mode = templar.template(mode)
+            return [str(mode).strip().lower() == SELF_SIGNED_MODE]
 
         if not has_domain(_run("domains", []), application_id):
             return [False]
