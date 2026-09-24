@@ -3,4 +3,4 @@
 pkgmgr:
   lifecycle: beta
   repository: https://github.com/kevinveenbirkenbach/package-manager.git
-  ref: v1.16.1
+  ref: v2.0.1

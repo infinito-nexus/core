@@ -13,7 +13,7 @@ license = { file = "LICENSE.md" }
 dependencies = [
   # Pinned: utils/recovery reads the generation layout from baudolo's own
   # BackupPaths, so the version here and in svc-bkp-volume-2-local must match.
-  "backup-docker-to-local==7.0.1",
+  "backup-docker-to-local==7.0.2",
   "Babel",
   "bcrypt",
   "cryptography",
