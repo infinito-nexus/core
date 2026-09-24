@@ -14,6 +14,16 @@ echo ">>> Installing docker client on ID=${ID} ID_LIKE=${ID_LIKE:-}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOCKER_APT_SANITIZER="${SCRIPT_DIR}/apt_repo.sh"
 
+apt_install_refreshing_on_miss() {
+  if apt-get install -y --no-install-recommends "$@"; then
+    return 0
+  fi
+  echo "[docker-cli] install missed the pool, discarding the index and retrying" >&2
+  rm -rf /var/lib/apt/lists/*
+  apt-get update
+  apt-get install -y --no-install-recommends "$@"
+}
+
 sanitize_docker_apt_sources() {
   local distro_id="$1"
   local keep_canonical="${2:-1}"
@@ -72,7 +82,7 @@ EOF
   fi
 
   apt-get update
-  apt-get install -y --no-install-recommends \
+  apt_install_refreshing_on_miss \
     ca-certificates \
     curl \
     gnupg \
@@ -84,7 +94,7 @@ EOF
     > /etc/apt/sources.list.d/docker.list
   apt-get update
   if [[ "${REPO_ONLY}" != "1" ]]; then
-    apt-get install -y --no-install-recommends \
+    apt_install_refreshing_on_miss \
       docker-buildx-plugin \
       docker-ce-cli \
       docker-compose-plugin
