@@ -21,7 +21,7 @@ flowchart LR
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
     end
-    subgraph role [web-svc-cdn 🐳🐝]
+    subgraph role [web-svc-cdn 🐳🐝💻]
         svc_dashboard["dashboard"]
         svc_cdn["cdn"]
         svc_build["build"]

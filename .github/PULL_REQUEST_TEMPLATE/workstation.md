@@ -1,6 +1,6 @@
 ## Summary
 
-Briefly describe the `desk-*` change and the user workflow it affects.
+Briefly describe the `dsk-*` change and the user workflow it affects.
 
 Examples:
 
@@ -24,7 +24,7 @@ Select the primary intent of this PR:
 
 List the impacted roles and workstation context.
 
-* Primary `desk-*` role(s):
+* Primary `dsk-*` role(s):
 * Related `dev-*`, `drv-*`, `user-*`, or `sys-*` role(s):
 * Distro(s) and desktop environment(s) tested:
 
@@ -36,7 +36,7 @@ Optional. Ignored unless a maintainer applies the **🧩 Subset** label; without
 
 ```yaml
 roles:
-  # - desk-firefox
+  # - dsk-firefox
   # - sys-version
 ```
 

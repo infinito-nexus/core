@@ -61,12 +61,12 @@ class TestOwningRole(unittest.TestCase):
 
     def test_foreign_role_id_fails(self):
         with self.assertRaises(AnsibleActionFail) as caught:
-            self._spec_for("nfs-ganesha", "desk-micro")
+            self._spec_for("nfs-ganesha", "dsk-micro")
         self.assertIn("svc-storage-nfs-server", str(caught.exception))
 
     def test_unknown_id_fails(self):
         with self.assertRaises(AnsibleActionFail):
-            self._spec_for("nope", "desk-micro")
+            self._spec_for("nope", "dsk-micro")
 
     def test_own_id_resolves(self):
         with mock.patch(
@@ -78,7 +78,7 @@ class TestOwningRole(unittest.TestCase):
 
     def test_shared_id_resolves_for_any_role(self):
         with mock.patch("plugins.action.package_install.resolve", return_value="spec"):
-            spec = self._spec_for("git", "desk-micro")
+            spec = self._spec_for("git", "dsk-micro")
         self.assertEqual(spec, "spec")
 
     def test_no_role_context_skips_the_check(self):

@@ -1,0 +1,8 @@
+---
+- block:
+    - name: 📦 install torrent software
+      package_install:
+        id: qbittorrent
+
+    - include_tasks: utils/once/flag.yml
+  when: run_once_dsk_qbittorrent is not defined

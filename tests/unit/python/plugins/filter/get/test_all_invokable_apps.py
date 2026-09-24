@@ -30,7 +30,7 @@ class TestGetAllInvokableApps(unittest.TestCase):
                 "util": {
                     "title": "utils",
                     "invokable": False,
-                    "desk": {"title": "Desktop utils", "invokable": True},
+                    "dsk": {"title": "Desktop utils", "invokable": True},
                 },
             }
         }

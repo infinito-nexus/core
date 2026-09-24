@@ -27,7 +27,7 @@ from . import PROJECT_ROOT
 
 INCLUDE_SITE = PROJECT_ROOT / "tasks/utils/setup/role.yml"
 FOREIGN_ID = "web-svc-mirror"
-OWN_ID = "desk-agnt-claude"
+OWN_ID = "dsk-gnt-claude"
 
 PROBE_TASK = """---
 - name: Report the application_id the role sees

@@ -36,7 +36,7 @@ flowchart LR
         svc_tor["tor"]
     end
     subgraph dependents [Dependents]
-        dpt_web_svc_legal["web-svc-legal"]
+        dpt_web_svc_legal["web-svc-legal 🐳🐝"]
     end
     dep_svc_net_tor -. "0..1" .-> svc_tor
     dep_web_app_matomo -. "0..1" .-> svc_matomo

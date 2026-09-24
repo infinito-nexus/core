@@ -119,13 +119,13 @@ class TestMetaLookup(unittest.TestCase):
         self.assertIsNone(get_role_lifecycle(role_dir, role_name="web-app-yourls"))
 
     def test_returns_empty_when_services_file_missing(self) -> None:
-        role_dir = self.fx.root / "desk-something"
+        role_dir = self.fx.root / "dsk-something"
         role_dir.mkdir(parents=True)
         self.assertEqual(
-            get_role_run_after(role_dir, role_name="desk-something"),
+            get_role_run_after(role_dir, role_name="dsk-something"),
             [],
         )
-        self.assertIsNone(get_role_lifecycle(role_dir, role_name="desk-something"))
+        self.assertIsNone(get_role_lifecycle(role_dir, role_name="dsk-something"))
 
     def test_malformed_yaml_raises_clear_error(self) -> None:
         role_dir = self.fx.root / "web-app-broken"

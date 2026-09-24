@@ -1,0 +1,8 @@
+---
+- block:
+    - name: 📦 install cursor
+      package_install:
+        id: cursor
+
+    - include_tasks: utils/once/flag.yml
+  when: run_once_dsk_gnt_cursor is not defined

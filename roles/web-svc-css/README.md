@@ -20,7 +20,7 @@ flowchart LR
     subgraph deps [Dependencies]
         dep_svc_net_tor["svc-net-tor 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
-        dep_web_svc_cdn["web-svc-cdn 🐳🐝"]
+        dep_web_svc_cdn["web-svc-cdn 🐳🐝💻"]
     end
     subgraph role [web-svc-css 💻]
         svc_css["css"]

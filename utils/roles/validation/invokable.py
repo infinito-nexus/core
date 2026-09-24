@@ -30,7 +30,7 @@ DEFAULT_RULES: tuple[DeploymentTypeRule, ...] = (
     ),
     DeploymentTypeRule(
         name="workstation",
-        include_re=re.compile(r"^(desk-|util-desk-)"),
+        include_re=re.compile(r"^(dsk-|util-dsk-)"),
         exclude_re=None,
     ),
     DeploymentTypeRule(
