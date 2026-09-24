@@ -7,6 +7,8 @@ import json
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from utils.i18n.client import BATCH_SIZE
+
 if TYPE_CHECKING:
     from utils.env.builder import BuildContext, EnvBuilder
 
@@ -30,5 +32,7 @@ def measured(repo_root: Path) -> dict:
 
 def apply(eb: EnvBuilder, ctx: BuildContext) -> None:
     best = measured(ctx.repo_root)
-    eb.setdefault(BATCH_KEY, str(best.get("batch_size", 20)), comment=BATCH_COMMENT)
+    eb.setdefault(
+        BATCH_KEY, str(best.get("batch_size", BATCH_SIZE)), comment=BATCH_COMMENT
+    )
     eb.setdefault(LANES_KEY, str(best.get("lanes", 0)), comment=LANES_COMMENT)

@@ -5,6 +5,7 @@ Usage:
   python -m cli.build.i18n translate --domain core|docs [--languages de,fr]
   python -m cli.build.i18n languages [--domain core|docs]
   python -m cli.build.i18n prune [--domain core|docs] [--languages de,fr]
+  python -m cli.build.i18n tune [--language de]
 """
 
 from __future__ import annotations
@@ -26,6 +27,7 @@ from utils.i18n.catalog import (
     read_catalog,
     write_catalog,
 )
+from utils.i18n.client import BATCH_SIZE
 from utils.i18n.extract import core_messages, docs_template
 from utils.i18n.languages import (
     DOMAINS,
@@ -166,9 +168,11 @@ def translate(domains: list[str], requested: list[str]) -> int:
 
     cpus = usable_cpus()
     codes = sorted({code for _, code in work})
-    lanes = min(len(work), cpus)
+    tuned = int(os.environ.get("INFINITO_I18N_LANES") or 0)
+    lanes = min(len(work), tuned or cpus)
+    batch = int(os.environ.get("INFINITO_I18N_BATCH_SIZE") or BATCH_SIZE)
     with server(PROJECT_ROOT, codes, cpus) as url:
-        client = LibreTranslate(url, max(cpus // lanes, 1))
+        client = LibreTranslate(url, max(cpus // lanes, 1), batch_size=batch)
         client.wait(codes, READY_TIMEOUT_SECONDS)
         with ThreadPoolExecutor(lanes) as pool:
             for _ in pool.map(lambda job: one_catalog(client, *job), work):
@@ -203,7 +207,19 @@ def main() -> int:
         default="",
         help="Comma-separated ISO 639-1 codes; empty for every language.",
     )
+    tune_parser = commands.add_parser(
+        "tune", help="Measure the fastest client settings on this host."
+    )
+    tune_parser.add_argument(
+        "--language",
+        default="de",
+        help="ISO 639-1 code the sweep translates into.",
+    )
     args = parser.parse_args()
+    if args.command == "tune":
+        from cli.build.i18n.tune import main as tune_main
+
+        return tune_main(args.language, usable_cpus())
     if args.command == "extract":
         return extract([args.domain] if args.domain else list(DOMAINS))
     if args.command == "languages":

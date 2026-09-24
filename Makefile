@@ -351,6 +351,12 @@ i18n-extract:
 i18n-translate:
 	@"$${PYTHON}" -m cli.build.i18n translate --domain "$(domain)" $(if $(languages),--languages "$(languages)")
 
+.PHONY: i18n-tune
+# Measure the fastest LibreTranslate client settings on this host and record them for `make dotenv`.
+# Param language: ISO 639-1 code the sweep translates into (default: de)
+i18n-tune:
+	@"$${PYTHON}" -m cli.build.i18n tune $(if $(language),--language "$(language)")
+
 .PHONY: install
 # Install all runtime dependencies.
 # Note: incremental via a stamp file (see scripts/install/all.sh).
