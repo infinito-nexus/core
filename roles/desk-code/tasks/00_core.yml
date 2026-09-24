@@ -15,6 +15,7 @@
 - name: "📦 install {{ code_flavor }}"
   package_install:
     id: "{{ code_flavor }}"
+  register: code_install
 
 - name: "🧩 Install the extension of an agent this host deploys"
   ansible.builtin.command:
@@ -24,5 +25,6 @@
   register: code_extension
   changed_when: "'successfully installed' in (code_extension.stdout | lower)"
   loop: "{{ code_wanted_extensions }}"
+  when: code_install is not skipped
 
 - include_tasks: utils/once/flag.yml
