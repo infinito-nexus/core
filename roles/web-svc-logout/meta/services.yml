@@ -12,7 +12,7 @@ logout:
   enabled: true
   shared: true
   image: ghcr.io/kevinveenbirkenbach/universal-logout
-  version: v1.3.1
+  version: v1.4.1
   name: logout
   min_storage: 250MB
   cpus: 0.2
