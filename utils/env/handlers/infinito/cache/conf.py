@@ -31,13 +31,16 @@ def primary_checkout(repo_root: Path) -> Path:
     Returns:
         The primary checkout's path, or ``repo_root`` when git cannot say.
     """
-    common = subprocess.run(
-        ["git", "rev-parse", "--path-format=absolute", "--git-common-dir"],
-        cwd=repo_root,
-        capture_output=True,
-        text=True,
-        check=False,
-    ).stdout.strip()
+    try:
+        common = subprocess.run(
+            ["git", "rev-parse", "--path-format=absolute", "--git-common-dir"],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            check=False,
+        ).stdout.strip()
+    except OSError:
+        return repo_root
     if not common:
         return repo_root
     return Path(common).parent

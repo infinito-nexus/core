@@ -1,4 +1,4 @@
-"""Unit tests for :mod:`utils.env.handlers.infinito.cache_conf`."""
+"""Unit tests for :mod:`utils.env.handlers.infinito.cache.conf`."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 from utils.env.builder import BuildContext, EnvBuilder
-from utils.env.handlers.infinito import cache_conf as handler
+from utils.env.handlers.infinito.cache import conf as handler
 
 _BLANK = {handler.SOURCE_KEY: "", handler.KEY: ""}
 
@@ -62,6 +62,11 @@ class TestPrimaryCheckout(unittest.TestCase):
         outside.mkdir()
 
         self.assertEqual(handler.primary_checkout(outside), outside)
+
+    def test_a_root_git_cannot_be_run_in_falls_back_to_itself(self) -> None:
+        missing = self.root / "gone"
+
+        self.assertEqual(handler.primary_checkout(missing), missing)
 
 
 class TestApply(unittest.TestCase):
