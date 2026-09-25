@@ -99,6 +99,28 @@ class TestServer(unittest.TestCase):
     def test_unknown_version_is_not_found(self) -> None:
         self.assertEqual(self._request("/v9.9.9/")[0], 404)
 
+    def test_a_translated_language_starts_its_build_and_an_untranslated_one_is_not_found(
+        self,
+    ) -> None:
+        index = self.library.translations / "latest" / "languages.json"
+        index.parent.mkdir(parents=True, exist_ok=True)
+        index.write_text(
+            json.dumps(
+                {"known": {"de": "Deutsch", "aa": "Afar"}, "translated": ["de"]}
+            ),
+            encoding="utf-8",
+        )
+        try:
+            status, _, body = self._request("/latest/de/")
+            self.assertEqual(status, 202)
+            self.assertIn("latest/de", body)
+            self.assertTrue((self.library.queue / "latest:de").exists())
+            self.assertEqual(self._request("/latest/aa/")[0], 404)
+            self.assertFalse((self.library.queue / "latest:aa").exists())
+        finally:
+            (self.library.queue / "latest:de").unlink(missing_ok=True)
+            index.unlink(missing_ok=True)
+
     def test_unbuilt_version_starts_its_build_and_shows_progress(self) -> None:
         status, _, body = self._request("/v1.0.0/page.html")
 

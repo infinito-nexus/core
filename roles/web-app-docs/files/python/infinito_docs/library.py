@@ -22,6 +22,8 @@ LATEST = "latest"
 DEPLOYED = "deployed"
 LOG_TAIL = 40
 POLL_SECONDS = 2
+QUEUE_SEPARATOR = ":"
+BACKGROUND_LANE = "background"
 REFS_TTL_SECONDS = 10
 TAG = re.compile(r"^v(\d+)\.(\d+)\.(\d+)$")
 
@@ -198,25 +200,54 @@ class Library:
             )
         return report
 
-    def request(self, version):
-        """Queue a build of ``version`` unless its site is current.
+    def request(self, version, code=None, background=False):
+        """Queue a build of ``version``, or of one of its translated sites.
 
         Args:
             version: ``latest`` or a release tag.
+            code: ISO 639-1 code to build instead of the version's own site.
+            background: queue behind every language a visitor asked for.
         """
         head, _ = self.refs()
-        if (not head and version != DEPLOYED) or self._current(version, head):
+        if not head and version != DEPLOYED:
             return
-        self.queue.mkdir(parents=True, exist_ok=True)
-        (self.queue / version).touch(exist_ok=True)
+        if code is None:
+            if self._current(version, head):
+                return
+            marker = version
+        elif self.translation_servable(version, code) or not self.translates(
+            version, code
+        ):
+            return
+        else:
+            marker = f"{version}{QUEUE_SEPARATOR}{code}"
+        lane = self.queue / BACKGROUND_LANE if background else self.queue
+        lane.mkdir(parents=True, exist_ok=True)
+        if background and (self.queue / marker).exists():
+            return
+        (lane / marker).touch(exist_ok=True)
+
+    def _dequeue(self, marker):
+        """Drop ``marker`` from both lanes.
+
+        Args:
+            marker: queue file name, ``version`` or ``version:code``.
+        """
+        (self.queue / marker).unlink(missing_ok=True)
+        (self.queue / BACKGROUND_LANE / marker).unlink(missing_ok=True)
 
     def next_queued(self):
-        if not self.queue.is_dir():
-            return None
-        waiting = sorted(
-            self.queue.iterdir(), key=lambda marker: marker.stat().st_mtime
-        )
-        return waiting[0].name if waiting else None
+        """Return the oldest marker a visitor is waiting on, else the oldest background one."""
+        for lane in (self.queue, self.queue / BACKGROUND_LANE):
+            if not lane.is_dir():
+                continue
+            waiting = sorted(
+                (marker for marker in lane.iterdir() if marker.is_file()),
+                key=lambda marker: marker.stat().st_mtime,
+            )
+            if waiting:
+                return waiting[0].name
+        return None
 
     def acquire_builder(self):
         """Try to become the builder of all replicas without blocking.
@@ -268,9 +299,13 @@ class Library:
                 except (OSError, subprocess.CalledProcessError) as exc:
                     print(f"fetch of {self.repository} failed: {exc}", file=sys.stderr)
                 next_fetch = time.monotonic() + interval
-            version = self.next_queued()
-            if version is None:
+            marker = self.next_queued()
+            if marker is None:
                 time.sleep(POLL_SECONDS)
+                continue
+            version, separator, code = marker.partition(QUEUE_SEPARATOR)
+            if separator:
+                self.build_language(version, code)
             else:
                 self.build(version)
 
@@ -287,6 +322,19 @@ class Library:
         """
         return self._resolve(self.sites / version / "html", rest)
 
+    def _language_index(self, version):
+        try:
+            payload = json.loads(
+                (self.translations / version / "languages.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+        except (OSError, ValueError):
+            return {}
+        if isinstance(payload.get("known"), dict):
+            return payload
+        return {"known": payload, "translated": []}
+
     def languages(self, version):
         """Return the languages of ``version`` and the ones with a built site.
 
@@ -297,18 +345,20 @@ class Library:
             ``(known, built)``: every language code of the version mapped to
             its native name, and the codes whose translated site is servable.
         """
-        try:
-            known = json.loads(
-                (self.translations / version / "languages.json").read_text(
-                    encoding="utf-8"
-                )
-            )
-        except (OSError, ValueError):
-            return {}, []
+        known = self._language_index(version).get("known") or {}
         built = [
             code for code in sorted(known) if self.translation_servable(version, code)
         ]
         return known, built
+
+    def translates(self, version, code):
+        """Return whether ``version`` carries translations for ``code``.
+
+        Args:
+            version: ``latest`` or a release tag.
+            code: ISO 639-1 code.
+        """
+        return code in (self._language_index(version).get("translated") or [])
 
     def translation_servable(self, version, code):
         return (self.translations / version / code / "html" / "index.html").is_file()
@@ -352,10 +402,10 @@ class Library:
         self._forget_refs()
         head, _ = self.refs()
         if version not in self.versions():
-            (self.queue / version).unlink(missing_ok=True)
+            self._dequeue(version)
             return
         if self._current(version, head):
-            (self.queue / version).unlink(missing_ok=True)
+            self._dequeue(version)
             return
         ref = {LATEST: head, DEPLOYED: self.snapshot_ref()}.get(version, version)
         work = self.scratch / version
@@ -364,21 +414,7 @@ class Library:
         state = {"state": "building", "phase": "checkout", "progress": 0, "log": []}
         try:
             self._save_state(version, **state)
-            shutil.rmtree(work, ignore_errors=True)
-            if version == DEPLOYED:
-                shutil.copytree(self.snapshot, src)
-            else:
-                src.mkdir(parents=True)
-                archive = work / "src.tar"
-                self._git("archive", "--format=tar", "-o", str(archive), ref)
-                with tarfile.open(archive) as tar:
-                    tar.extractall(src, filter="data")
-
-            shutil.copytree(self.package_dir, conf)
-            if (src / "assets" / "img").is_dir():
-                shutil.copytree(
-                    src / "assets" / "img", conf / "assets" / "img", dirs_exist_ok=True
-                )
+            self._checkout(version, ref, work)
 
             generators = generate_commands(src)
             env = {**os.environ, "PYTHONPATH": tooling}
@@ -389,12 +425,7 @@ class Library:
                 self._save_state(version, **state)
 
             state["phase"] = "sphinx"
-            sphinx_env = {
-                **os.environ,
-                "PYTHONPATH": os.pathsep.join([str(src), tooling]),
-                "PYTHONUNBUFFERED": "1",
-                "DOCS_VERSION": version,
-            }
+            sphinx_env = self._sphinx_env(version, src)
             self._run(
                 version,
                 state,
@@ -415,42 +446,108 @@ class Library:
             self._publish(version, out / "html", ref)
             known, translated = translated_languages(src)
             (self.translations / version).mkdir(parents=True, exist_ok=True)
-            _write_json(self.translations / version / "languages.json", known)
+            _write_json(
+                self.translations / version / "languages.json",
+                {"known": known, "translated": translated},
+            )
+            self._save_state(version, state="ready", phase="", progress=100, log=[])
             for code in translated:
-                state["phase"] = f"translate {code}"
-                self._save_state(version, **state)
-                target = work / f"out-{code}"
-                self._run(
-                    version,
-                    state,
-                    [
-                        "sphinx-build",
-                        "-M",
-                        "html",
-                        str(src),
-                        str(target),
-                        "-c",
-                        str(conf),
-                        "-j",
-                        str(self.jobs),
-                        "-D",
-                        f"language={code}",
-                        "-D",
-                        "html_copy_source=0",
-                    ],
-                    sphinx_env,
-                    work,
-                )
-                self._publish_site(
-                    self.translations / version, code, target / "html", ref
-                )
+                self.request(version, code, background=True)
+        except (OSError, subprocess.CalledProcessError, tarfile.TarError) as exc:
+            state["log"] = [*state["log"][-(LOG_TAIL - 1) :], str(exc)]
+            self._save_state(version, **{**state, "state": "failed"})
+        finally:
+            self._dequeue(version)
+            shutil.rmtree(work, ignore_errors=True)
+
+    def _checkout(self, version, ref, work):
+        """Lay out ``src`` and ``conf`` of ``ref`` under a fresh ``work``.
+
+        Args:
+            version: ``latest`` or a release tag.
+            ref: the commit or digest the version resolves to.
+            work: scratch directory to replace.
+        """
+        src, conf = work / "src", work / "conf"
+        shutil.rmtree(work, ignore_errors=True)
+        if version == DEPLOYED:
+            shutil.copytree(self.snapshot, src)
+        else:
+            src.mkdir(parents=True)
+            archive = work / "src.tar"
+            self._git("archive", "--format=tar", "-o", str(archive), ref)
+            with tarfile.open(archive) as tar:
+                tar.extractall(src, filter="data")
+        shutil.copytree(self.package_dir, conf)
+        if (src / "assets" / "img").is_dir():
+            shutil.copytree(
+                src / "assets" / "img", conf / "assets" / "img", dirs_exist_ok=True
+            )
+
+    def _sphinx_env(self, version, src):
+        return {
+            **os.environ,
+            "PYTHONPATH": os.pathsep.join([str(src), str(self.package_dir.parent)]),
+            "PYTHONUNBUFFERED": "1",
+            "DOCS_VERSION": version,
+        }
+
+    def build_language(self, version, code):
+        """Build one translated site of ``version`` into its own scratch.
+
+        Args:
+            version: ``latest`` or a release tag.
+            code: ISO 639-1 code of a language the version's catalogs translate.
+        """
+        marker = f"{version}{QUEUE_SEPARATOR}{code}"
+        self._forget_refs()
+        head, _ = self.refs()
+        if not self._current(version, head) or not self.translates(version, code):
+            self._dequeue(marker)
+            self.request(version)
+            return
+        ref = {LATEST: head, DEPLOYED: self.snapshot_ref()}.get(version, version)
+        work = self.scratch / f"{version}{QUEUE_SEPARATOR}{code}"
+        src, conf = work / "src", work / "conf"
+        target = work / "out"
+        state = {
+            "state": "building",
+            "phase": f"translate {code}",
+            "progress": 0,
+            "log": [],
+        }
+        try:
+            self._save_state(version, **state)
+            self._checkout(version, ref, work)
+            self._run(
+                version,
+                state,
+                [
+                    "sphinx-build",
+                    "-M",
+                    "html",
+                    str(src),
+                    str(target),
+                    "-c",
+                    str(conf),
+                    "-j",
+                    str(self.jobs),
+                    "-D",
+                    f"language={code}",
+                    "-D",
+                    "html_copy_source=0",
+                ],
+                self._sphinx_env(version, src),
+                work,
+            )
+            self._publish_site(self.translations / version, code, target / "html", ref)
             self._save_state(version, state="ready", phase="", progress=100, log=[])
         except (OSError, subprocess.CalledProcessError, tarfile.TarError) as exc:
             state["log"] = [*state["log"][-(LOG_TAIL - 1) :], str(exc)]
             self._save_state(version, **{**state, "state": "failed"})
         finally:
-            (self.queue / version).unlink(missing_ok=True)
             shutil.rmtree(work, ignore_errors=True)
+            self._dequeue(marker)
 
     def _publish(self, version, html, ref):
         self._publish_site(self.sites, version, html, ref)

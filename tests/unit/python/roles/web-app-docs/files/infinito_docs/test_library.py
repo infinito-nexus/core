@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib
+import json
 import os
 import subprocess
 import sys
@@ -161,7 +162,86 @@ class TestLibrary(unittest.TestCase):
         shelf.request("deployed")
         self.assertFalse((shelf.queue / "deployed").exists())
 
-    def test_every_translated_language_gets_its_own_site(self) -> None:
+    def _drain(self, limit=20):
+        """Run the builder's dispatch until the queue empties.
+
+        Args:
+            limit: hard stop so a marker that never clears fails loudly.
+        """
+        drained = []
+        for _ in range(limit):
+            marker = self.library.next_queued()
+            if marker is None:
+                return drained
+            drained.append(marker)
+            version, separator, code = marker.partition(":")
+            if separator:
+                self.library.build_language(version, code)
+            else:
+                self.library.build(version)
+        self.fail(f"queue did not empty in {limit} steps, drained {drained}")
+
+    def test_the_builder_drains_every_queued_language(self) -> None:
+        (self.repo / "meta").mkdir()
+        (self.repo / "meta" / "languages.yml").write_text(
+            "en:\n  native: English\nde:\n  native: Deutsch\n"
+            "fr:\n  native: Français\nit:\n  native: Italiano\n",
+            encoding="utf-8",
+        )
+        for code in ("de", "fr", "it"):
+            catalog = self.repo / "locale" / code / "LC_MESSAGES" / "docs.po"
+            catalog.parent.mkdir(parents=True)
+            catalog.write_text(
+                f'msgid ""\nmsgstr ""\n"Language: {code}\\n"\n\nmsgid "Hello"\nmsgstr "Hallo {code}"\n',
+                encoding="utf-8",
+            )
+        _commit(self.repo, "three translations")
+        self.library.fetch()
+        self.library.build("latest")
+
+        self.library.request("latest", "it")
+        drained = self._drain()
+
+        self.assertEqual(
+            drained[0], "latest:it", "the requested language must run first"
+        )
+        self.assertEqual(sorted(drained), ["latest:de", "latest:fr", "latest:it"])
+        self.assertEqual(self.library.languages("latest")[1], ["de", "fr", "it"])
+        self.assertIsNone(self.library.next_queued())
+
+    def test_a_language_index_from_before_the_split_still_names_its_languages(
+        self,
+    ) -> None:
+        index = self.library.translations / "latest" / "languages.json"
+        index.parent.mkdir(parents=True, exist_ok=True)
+        index.write_text(json.dumps({"de": "Deutsch", "fr": "Français"}), "utf-8")
+        site = self.library.translations / "latest" / "de" / "html"
+        site.mkdir(parents=True, exist_ok=True)
+        (site / "index.html").write_text("de", encoding="utf-8")
+
+        known, built = self.library.languages("latest")
+
+        self.assertEqual(sorted(known), ["de", "fr"])
+        self.assertEqual(built, ["de"])
+        self.assertFalse(self.library.translates("latest", "de"))
+
+    def test_a_requested_language_outruns_an_older_background_one(self) -> None:
+        background = self.library.queue / "background"
+        background.mkdir(parents=True, exist_ok=True)
+        for stale in (*self.library.queue.iterdir(), *background.iterdir()):
+            if stale.is_file():
+                stale.unlink()
+        (background / "latest:ar").touch()
+        (self.library.queue / "latest:de").touch()
+
+        self.assertEqual(self.library.next_queued(), "latest:de")
+
+        self.library._dequeue("latest:de")
+        self.assertEqual(self.library.next_queued(), "latest:ar")
+        self.library._dequeue("latest:ar")
+        self.assertIsNone(self.library.next_queued())
+
+    def test_a_translated_language_builds_its_site_on_request(self) -> None:
         (self.repo / "meta").mkdir()
         (self.repo / "meta" / "languages.yml").write_text(
             "en:\n  native: English\nde:\n  native: Deutsch\nfr:\n  native: Français\n",
@@ -181,7 +261,27 @@ class TestLibrary(unittest.TestCase):
 
         known, built = self.library.languages("latest")
         self.assertEqual(sorted(known), ["de", "en", "fr"])
-        self.assertEqual(built, ["de"])
+        self.assertEqual(built, [], "a version build must not prebuild any language")
+        self.assertTrue(self.library.translates("latest", "de"))
+        self.assertFalse(self.library.translates("latest", "fr"))
+        self.assertTrue(
+            (self.library.queue / "background" / "latest:de").exists(),
+            "every translated language must stay queued for a background build",
+        )
+        self.assertFalse((self.library.queue / "background" / "latest:fr").exists())
+        self.assertEqual(self.library.next_queued(), "latest:de")
+
+        self.library.request("latest", "fr")
+        self.assertFalse(
+            (self.library.queue / "latest:fr").exists(),
+            "an untranslated language must not enter the queue",
+        )
+        self.library.request("latest", "de")
+        self.assertTrue((self.library.queue / "latest:de").exists())
+        self.library.build_language("latest", "de")
+
+        self.assertEqual(self.library.languages("latest")[1], ["de"])
+        self.assertFalse((self.library.queue / "latest:de").exists())
         self.assertTrue(self.library.translation_servable("latest", "de"))
         page = self.library.resolve_translation("latest", "de", "docs/")
         self.assertEqual(read_text(str(page)), "docs")

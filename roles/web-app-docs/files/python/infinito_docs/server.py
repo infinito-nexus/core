@@ -140,7 +140,12 @@ class DocsHandler(SimpleHTTPRequestHandler):
     def _translation(self, version, code, path, head):
         rest = path.lstrip("/").partition("/")[2].partition("/")[2]
         if not self.library.translation_servable(version, code):
-            self.send_error(HTTPStatus.NOT_FOUND)
+            if not self.library.translates(version, code):
+                self.send_error(HTTPStatus.NOT_FOUND)
+                return
+            self.library.request(version, code)
+            body = BUILDING.format(version=html.escape(f"{version}/{code}"))
+            self._page(HTTPStatus.ACCEPTED, f"Building {version}/{code}", body, head)
         elif (not rest and not path.endswith("/")) or (
             target := self.library.resolve_translation(version, code, rest)
         ) is None:
