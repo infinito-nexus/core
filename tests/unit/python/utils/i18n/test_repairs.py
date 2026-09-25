@@ -195,6 +195,16 @@ class TestWriterAndGateAgree(unittest.TestCase):
             "the repairs run before harms(), so a written entry must stay clean",
         )
 
+    def test_a_translation_equal_to_its_source_damaged_nothing(self) -> None:
+        word_free = "** ``x`` **"
+
+        self.assertNotEqual(tighten(word_free), word_free, "the source breaks the rule")
+        self.assertFalse(
+            harms(word_free, word_free),
+            "the client answers a word-free entry with its own source, and an "
+            "identity mapping cannot have damaged anything",
+        )
+
     def test_every_criterion_of_the_gate_reaches_the_client(self) -> None:
         named = "Deploy web-app-docs before the documentation site answers anything."
         for label, source, translation in (

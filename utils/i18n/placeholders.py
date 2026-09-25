@@ -244,6 +244,8 @@ def harms(source: str, translation: str) -> bool:
         source: the source message.
         translation: what came back for it.
     """
+    if translation == source:
+        return False
     return bool(
         protected_spans(translation) != protected_spans(source)
         or missing_names(source, translation)
