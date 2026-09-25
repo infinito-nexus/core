@@ -19,12 +19,16 @@
 
 - name: "🧩 Install the extension of an agent this host deploys"
   ansible.builtin.command:
-    cmd: "{{ code_binary }} --install-extension {{ item }} --force"
+    cmd: "{{ code_binary }} --install-extension {{ item.value.config.extension_id }} --force"
   become: false
   become_user: "{{ lookup('users', WORKSTATION_USER).username }}"
   register: code_extension
   changed_when: "'successfully installed' in (code_extension.stdout | lower)"
-  loop: "{{ code_wanted_extensions }}"
-  when: code_install is not skipped
+  loop: "{{ code_addons | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  when:
+    - code_install is not skipped
+    - item.value.enabled | bool
 
 - include_tasks: utils/once/flag.yml
