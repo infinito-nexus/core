@@ -76,6 +76,9 @@ def matches(text: str, with_names: bool = True) -> list[tuple[int, int]]:
 
 
 MARKUP = '[]`*{}()"'
+STRUCTURE = "[]{}`*()"
+TRUNCATION_FLOOR = 120
+TRUNCATION_RATIO = 0.5
 EMPHASIS = re.compile(r"(\*\*)[ \t]*([^\s]|[^\s].*?[^\s])[ \t]*\1", re.DOTALL)
 
 
@@ -203,6 +206,52 @@ def missing_names(source: str, translation: str) -> set[str]:
     return {name for name in carried if name not in translation}
 
 
+def truncated(source: str, translation: str) -> bool:
+    """Return whether ``translation`` kept too little of ``source`` to be one.
+
+    The floor keeps a short entry out: ``Situation`` becomes ``Lage`` and loses
+    half its characters while saying the same thing. A passage past it that
+    comes back halved has dropped a clause.
+
+    Args:
+        source: the source message.
+        translation: what came back for it.
+    """
+    return (
+        len(source) > TRUNCATION_FLOOR
+        and len(translation) < len(source) * TRUNCATION_RATIO
+    )
+
+
+def structure(text: str) -> Counter:
+    """Return the markup characters of ``text`` with their multiplicity.
+
+    Args:
+        text: a source message or its translation.
+    """
+    return Counter(character for character in text if character in STRUCTURE)
+
+
+def harms(source: str, translation: str) -> bool:
+    """Return whether ``translation`` broke something ``source`` carried.
+
+    Single source of truth for both ends of the pipeline: the client drops a
+    translation this rejects, and the release gate reports one that survived
+    anyway. A check on one side only lets every run rewrite what the other
+    side then condemns, which never converges.
+
+    Args:
+        source: the source message.
+        translation: what came back for it.
+    """
+    return bool(
+        protected_spans(translation) != protected_spans(source)
+        or missing_names(source, translation)
+        or truncated(source, translation)
+        or structure(translation) != structure(source)
+    )
+
+
 def has_words(text: str) -> bool:
     """Return whether ``text`` holds any letter outside its protected spans.
 
@@ -259,6 +308,6 @@ def unmask(translated: str, masked: Masked, source: str) -> str | None:
     restored = recapitalise(terminate(collapse(restored, source), source), source)
     if sorted(seen) != list(range(len(masked.spans))):
         return None
-    if not restored or protected_spans(restored) != protected_spans(source):
+    if not restored or harms(source, restored):
         return None
     return restored

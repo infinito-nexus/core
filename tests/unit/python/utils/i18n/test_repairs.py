@@ -9,15 +9,18 @@ from __future__ import annotations
 
 import unittest
 
+from typing import ClassVar
+
 from utils.i18n.placeholders import (
     collapse,
+    harms,
     mask,
     recapitalise,
     resegment,
     terminate,
+    truncated,
     unmask,
 )
-from utils.i18n.translate import truncated
 
 
 def _round_trip(source: str, translated: str) -> str | None:
@@ -143,6 +146,51 @@ class TestTruncated(unittest.TestCase):
         source = "A" * 200
 
         self.assertFalse(truncated(source, "B" * 180))
+
+
+class TestWriterAndGateAgree(unittest.TestCase):
+    """The client must reject exactly what the release gate reports.
+
+    A criterion on one side only makes every run rewrite what the other side
+    then condemns, so `make i18n-prune` and `make i18n-translate` never
+    converge.
+    """
+
+    SOURCE: ClassVar[str] = (
+        "The deployment registers each service with the reverse proxy and then "
+        "waits until every container reports itself healthy before it continues."
+    )
+
+    def test_the_client_drops_a_translation_the_gate_would_report(self) -> None:
+        halved = "Der Dienst wartet."
+
+        self.assertTrue(harms(self.SOURCE, halved))
+        self.assertIsNone(_round_trip(self.SOURCE, halved))
+
+    def test_the_client_keeps_a_translation_the_gate_accepts(self) -> None:
+        faithful = (
+            "Die Bereitstellung meldet jeden Dienst beim Reverse Proxy an und "
+            "wartet dann, bis jeder Container sich als gesund meldet."
+        )
+
+        self.assertFalse(harms(self.SOURCE, faithful))
+        self.assertEqual(_round_trip(self.SOURCE, faithful), faithful)
+
+    def test_every_criterion_of_the_gate_reaches_the_client(self) -> None:
+        named = "Deploy web-app-docs before the documentation site answers anything."
+        for label, source, translation in (
+            ("truncated", self.SOURCE, "Kurz."),
+            ("structure", self.SOURCE, f"{self.SOURCE} ["),
+            (
+                "protected span",
+                self.SOURCE,
+                self.SOURCE.replace("reverse proxy", "``rp``"),
+            ),
+            ("missing name", named, "Stelle die Dokumentationsseite bereit."),
+        ):
+            with self.subTest(label):
+                self.assertTrue(harms(source, translation))
+                self.assertIsNone(_round_trip(source, translation))
 
 
 if __name__ == "__main__":
