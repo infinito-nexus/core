@@ -66,6 +66,31 @@ class TestAnsibleRoles(unittest.TestCase):
         self.assertIn("- **license**: MIT\n", page)
         self.assertTrue(page.endswith("\nREADME\n------\n\nConverted README\n"))
 
+    @patch.object(ansible_roles.subprocess, "run")
+    def test_a_block_scalar_stays_on_its_bullet(self, run: MagicMock) -> None:
+        run.return_value = MagicMock(stdout=b"Converted README\n")
+
+        with TemporaryDirectory() as td:
+            roles = Path(td) / "roles"
+            meta_file = roles / "web-app-demo" / ROLE_FILE_META_MAIN
+            meta_file.parent.mkdir(parents=True)
+            meta_file.write_text(
+                "galaxy_info:\n  company: |\n    Kevin Veen-Birkenbach\n"
+                "    https://www.veen.world\n",
+                encoding="utf-8",
+            )
+
+            ansible_roles.generate_ansible_roles_doc(roles, Path(td) / "out")
+
+            page = read_text(str(Path(td) / "out" / "web-app-demo.rst"))
+
+        self.assertIn(
+            "- **company**: Kevin Veen-Birkenbach https://www.veen.world\n",
+            page,
+            "almost every role declares company as a block scalar, and its second "
+            "line landed in column 0, which ends the bullet list it sits in",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

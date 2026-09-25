@@ -22,6 +22,18 @@ def convert_md_to_rst(md_content):
     return result.stdout.decode("utf-8")
 
 
+def _one_line(value) -> str:
+    """Return ``value`` as a single line, as a bullet item must be.
+
+    ``galaxy_info.company`` is a block scalar in almost every role, and its
+    second line landed in column 0, which ends the bullet list it sits in.
+
+    Args:
+        value: a value read from ``galaxy_info``.
+    """
+    return " ".join(str(value).split())
+
+
 def generate_ansible_roles_doc(roles_dir, output_dir):
     """Write one ``<role>.rst`` per role that has a ``meta/main.yml``.
 
@@ -46,7 +58,10 @@ def generate_ansible_roles_doc(roles_dir, output_dir):
             "Variables",
             "---------",
             "",
-            *(f"- **{key}**: {value}" for key, value in galaxy_info.items()),
+            *(
+                f"- **{key}**: {_one_line(value)}"
+                for key, value in galaxy_info.items()
+            ),
         ]
         text = "\n".join(lines) + "\n"
 
