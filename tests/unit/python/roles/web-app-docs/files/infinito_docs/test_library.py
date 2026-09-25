@@ -10,8 +10,6 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
-from utils.cache.files import read_text
-
 from . import PROJECT_ROOT
 
 _TOOLING = str(PROJECT_ROOT / "roles" / "web-app-docs" / "files" / "python")
@@ -19,6 +17,7 @@ if _TOOLING not in sys.path:
     sys.path.insert(0, _TOOLING)
 
 library = importlib.import_module("infinito_docs.library")
+builder = importlib.import_module("infinito_docs.builder")
 
 FAKE_SPHINX = """#!/usr/bin/env python3
 import os, pathlib, shutil, sys
@@ -76,7 +75,9 @@ def _commit(repo: Path, version: str, *tags: str) -> None:
         _git(repo, "tag", tag)
 
 
-class TestLibrary(unittest.TestCase):
+class LibraryFixture(unittest.TestCase):
+    """Mirror, fake sphinx and data dir shared with the builder's own tests."""
+
     def setUp(self) -> None:
         self._tmp = TemporaryDirectory()
         root = Path(self._tmp.name)
@@ -99,7 +100,7 @@ class TestLibrary(unittest.TestCase):
         self._env = patch.dict(os.environ, {"PATH": path})
         self._env.start()
         self._commands = patch.object(
-            library, "generate_commands", lambda src: [[sys.executable, "-c", "pass"]]
+            builder, "generate_commands", lambda src: [[sys.executable, "-c", "pass"]]
         )
         self._commands.start()
         self._ttl = patch.object(library, "REFS_TTL_SECONDS", 0)
@@ -128,86 +129,13 @@ class TestLibrary(unittest.TestCase):
         (entry,) = [e for e in replica.status() if e["name"] == name]
         return entry
 
+
+class TestLibrary(LibraryFixture):
     def test_fetch_lists_latest_then_release_tags_and_queues_latest(self) -> None:
         self.assertEqual(self.library.versions(), ["latest", "v1.2.0", "v1.0.0"])
         self.assertEqual(self.library.refs()[0], _git(self.repo, "rev-parse", "HEAD"))
         self.assertEqual(self.library.next_queued(), "latest")
         self.assertEqual(self._state(self.library, "latest")["state"], "queued")
-
-    def test_latest_is_built_from_the_last_commit(self) -> None:
-        self.library.build("latest")
-
-        self.assertEqual(self._site("latest", "version.txt"), "three")
-        self.assertEqual(self._site("latest", "environment.txt"), "1 latest")
-        self.assertEqual(self.library.built_ref("latest"), self.library.refs()[0])
-        entry = self._state(self.library, "latest")
-        self.assertEqual((entry["state"], entry["progress"]), ("ready", 100))
-        self.assertEqual(self._state(self.library, "v1.0.0")["state"], "missing")
-        self.assertIsNone(self.library.next_queued())
-        self.assertFalse(list(self.library.scratch.iterdir()))
-
-    def test_deployed_is_built_from_the_snapshot_and_stays_unlisted(self) -> None:
-        snapshot = self.data / "snapshot"
-        snapshot.mkdir(parents=True)
-        (snapshot / "VERSION").write_text("working tree", encoding="utf-8")
-        shelf = library.Library(str(self.repo), self.data, 1, self.package, snapshot)
-
-        shelf.request("deployed")
-        shelf.build("deployed")
-
-        self.assertEqual(self._site("deployed", "version.txt"), "working tree")
-        self.assertEqual(shelf.built_ref("deployed"), shelf.snapshot_ref())
-        self.assertIn("deployed", shelf.versions())
-        self.assertNotIn("deployed", [entry["name"] for entry in shelf.status()])
-        shelf.request("deployed")
-        self.assertFalse((shelf.queue / "deployed").exists())
-
-    def _drain(self, limit=20):
-        """Run the builder's dispatch until the queue empties.
-
-        Args:
-            limit: hard stop so a marker that never clears fails loudly.
-        """
-        drained = []
-        for _ in range(limit):
-            marker = self.library.next_queued()
-            if marker is None:
-                return drained
-            drained.append(marker)
-            version, separator, code = marker.partition(":")
-            if separator:
-                self.library.build_language(version, code)
-            else:
-                self.library.build(version)
-        self.fail(f"queue did not empty in {limit} steps, drained {drained}")
-
-    def test_the_builder_drains_every_queued_language(self) -> None:
-        (self.repo / "meta").mkdir()
-        (self.repo / "meta" / "languages.yml").write_text(
-            "en:\n  native: English\nde:\n  native: Deutsch\n"
-            "fr:\n  native: Français\nit:\n  native: Italiano\n",
-            encoding="utf-8",
-        )
-        for code in ("de", "fr", "it"):
-            catalog = self.repo / "locale" / code / "LC_MESSAGES" / "docs.po"
-            catalog.parent.mkdir(parents=True)
-            catalog.write_text(
-                f'msgid ""\nmsgstr ""\n"Language: {code}\\n"\n\nmsgid "Hello"\nmsgstr "Hallo {code}"\n',
-                encoding="utf-8",
-            )
-        _commit(self.repo, "three translations")
-        self.library.fetch()
-        self.library.build("latest")
-
-        self.library.request("latest", "it")
-        drained = self._drain()
-
-        self.assertEqual(
-            drained[0], "latest:it", "the requested language must run first"
-        )
-        self.assertEqual(sorted(drained), ["latest:de", "latest:fr", "latest:it"])
-        self.assertEqual(self.library.languages("latest")[1], ["de", "fr", "it"])
-        self.assertIsNone(self.library.next_queued())
 
     def test_a_language_index_from_before_the_split_still_names_its_languages(
         self,
@@ -224,6 +152,11 @@ class TestLibrary(unittest.TestCase):
         self.assertEqual(sorted(known), ["de", "fr"])
         self.assertEqual(built, ["de"])
         self.assertFalse(self.library.translates("latest", "de"))
+        self.assertFalse(
+            self.library._current("latest", self.library.refs()[0]),
+            "an index from before the split must not count as current, or the "
+            "version never rebuilds and no language can ever be requested",
+        )
 
     def test_a_requested_language_outruns_an_older_background_one(self) -> None:
         background = self.library.queue / "background"
@@ -241,62 +174,6 @@ class TestLibrary(unittest.TestCase):
         self.library._dequeue("latest:ar")
         self.assertIsNone(self.library.next_queued())
 
-    def test_a_translated_language_builds_its_site_on_request(self) -> None:
-        (self.repo / "meta").mkdir()
-        (self.repo / "meta" / "languages.yml").write_text(
-            "en:\n  native: English\nde:\n  native: Deutsch\nfr:\n  native: Français\n",
-            encoding="utf-8",
-        )
-        for code, translation in (("de", "Hallo"), ("fr", "")):
-            catalog = self.repo / "locale" / code / "LC_MESSAGES" / "docs.po"
-            catalog.parent.mkdir(parents=True)
-            catalog.write_text(
-                f'msgid ""\nmsgstr ""\n"Language: {code}\\n"\n\nmsgid "Hello"\nmsgstr "{translation}"\n',
-                encoding="utf-8",
-            )
-        _commit(self.repo, "translated")
-        self.library.fetch()
-
-        self.library.build("latest")
-
-        known, built = self.library.languages("latest")
-        self.assertEqual(sorted(known), ["de", "en", "fr"])
-        self.assertEqual(built, [], "a version build must not prebuild any language")
-        self.assertTrue(self.library.translates("latest", "de"))
-        self.assertFalse(self.library.translates("latest", "fr"))
-        self.assertTrue(
-            (self.library.queue / "background" / "latest:de").exists(),
-            "every translated language must stay queued for a background build",
-        )
-        self.assertFalse((self.library.queue / "background" / "latest:fr").exists())
-        self.assertEqual(self.library.next_queued(), "latest:de")
-
-        self.library.request("latest", "fr")
-        self.assertFalse(
-            (self.library.queue / "latest:fr").exists(),
-            "an untranslated language must not enter the queue",
-        )
-        self.library.request("latest", "de")
-        self.assertTrue((self.library.queue / "latest:de").exists())
-        self.library.build_language("latest", "de")
-
-        self.assertEqual(self.library.languages("latest")[1], ["de"])
-        self.assertFalse((self.library.queue / "latest:de").exists())
-        self.assertTrue(self.library.translation_servable("latest", "de"))
-        page = self.library.resolve_translation("latest", "de", "docs/")
-        self.assertEqual(read_text(str(page)), "docs")
-        self.assertIsNone(
-            self.library.resolve_translation("latest", "de", "../../etc/passwd")
-        )
-
-    def test_tag_is_built_from_its_own_commit_and_only_once(self) -> None:
-        self.library.request("v1.0.0")
-        self.library.build("v1.0.0")
-
-        self.assertEqual(self._site("v1.0.0", "version.txt"), "one")
-        self.library.request("v1.0.0")
-        self.assertFalse((self.library.queue / "v1.0.0").exists())
-
     def test_new_commit_requeues_latest_while_the_old_site_stays_served(self) -> None:
         self.library.build("latest")
         _commit(self.repo, "four")
@@ -308,20 +185,6 @@ class TestLibrary(unittest.TestCase):
         self.assertEqual(self._site("latest", "version.txt"), "three")
         self.library.build("latest")
         self.assertEqual(self._site("latest", "version.txt"), "four")
-
-    def test_failed_build_keeps_the_log_and_publishes_nothing(self) -> None:
-        (self.repo / "BROKEN").write_text("x", encoding="utf-8")
-        _commit(self.repo, "broken")
-        self.library.fetch()
-
-        self.library.build("latest")
-
-        entry = self._state(self.library, "latest")
-        self.assertEqual(entry["state"], "failed")
-        self.assertIn("Sphinx error: broken source", entry["log"])
-        self.assertFalse(self.library.servable("latest"))
-        self.library.request("latest")
-        self.assertEqual(self._state(self.library, "latest")["state"], "queued")
 
     def test_unknown_version_is_dropped_from_the_queue(self) -> None:
         self.library.request("v9.9.9")
