@@ -34261,7 +34261,7 @@ msgstr "पैकेज मैनेजर का उपयोग करके C
 
 # libretranslate
 msgid "Installs the Infinito.Nexus CLI automatically"
-msgstr "स्थापित करना Infinito.Nexus स्वचालित रूप से"
+msgstr ""
 
 # libretranslate
 msgid "Installs the SSH client using the system package manager"
@@ -60472,7 +60472,7 @@ msgstr "यह Ansible भूमिका स्थापित करता ह
 
 # libretranslate
 msgid "This Ansible role installs and makes the Infinito.Nexus CLI available on your system."
-msgstr "यह संभव भूमिका स्थापित करता है और बनाता है Infinito.Nexus आपके सिस्टम पर उपलब्ध सीएलआई।."
+msgstr ""
 
 # libretranslate
 msgid "This Ansible role installs everything needed for Arduino development on Arch Linux. It includes the official Arduino IDE, documentation, and user group configurations to enable serial port access for uploading code to boards."
@@ -87882,7 +87882,7 @@ msgstr "`pacman`"
 
 # libretranslate
 msgid "`page.context().clearCookies()` is permitted only as a final cleanup AFTER a click attempt and only when the click chain itself could not produce a verifiable logged-out state."
-msgstr "`page.context().clearCookies()` केवल एक अंतिम सफाई के रूप में अनुमति दी जाती है।."
+msgstr ""
 
 # libretranslate
 msgid "`page.goto` is only permitted to put the browser on the next surface (open the dashboard, open a protected URL to trigger an auth redirect, etc.); it MUST NOT be used to *invoke* an action that the UI exposes as a click target."

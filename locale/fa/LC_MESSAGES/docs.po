@@ -34226,7 +34226,7 @@ msgstr "مدیر افزونه GNOME را با استفاده از مدیر بس�
 
 # libretranslate
 msgid "Installs the Infinito.Nexus CLI automatically"
-msgstr "نصب ها Infinito.Nexus به طور خودکار به طور خودکار به طور خودکار به طور خودکار به طور خودکار CLI CLI"
+msgstr ""
 
 # libretranslate
 msgid "Installs the SSH client using the system package manager"
@@ -56094,7 +56094,7 @@ msgstr "مکان های نمودار Imprint در Infinito.Nexus کیهان: ا�
 
 # libretranslate
 msgid "The diagram places Infinito.Nexus CLI in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
-msgstr "مکان های نمودار Infinito.Nexus در CLI Infinito.Nexus کیهان: اجزایی که استفاده می کند (قابلیت ها), خدمات مرکزی که مصرف می کند (وابستگی ها)و به سوی آن، (فدراسیون و شبکه های خارجی پل)..."
+msgstr ""
 
 # libretranslate
 msgid "The diagram places Intel Driver in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
@@ -60390,7 +60390,7 @@ msgstr "این نقش Ansible نصب و اجرا می کند ```dockreap`` <http
 
 # libretranslate
 msgid "This Ansible role installs and makes the Infinito.Nexus CLI available on your system."
-msgstr "این نقش Ansible نصب شده و باعث می شود Infinito.Nexus در سیستم شما موجود است."
+msgstr ""
 
 # libretranslate
 msgid "This Ansible role installs everything needed for Arduino development on Arch Linux. It includes the official Arduino IDE, documentation, and user group configurations to enable serial port access for uploading code to boards."
@@ -62918,11 +62918,11 @@ msgstr "این نقش مدیریت پروژه شما را با Taigaیک ابز�
 
 # libretranslate
 msgid "This role this role installs and provides the Infinito.Nexus CLI, enabling you to manage your entire Infinito.Nexus environment from the command line. After deployment, the ``infinito`` command is available."
-msgstr "این نقش نصب شده و فراهم می کند Infinito.Nexus شما را قادر می سازد تا کل CLI خود را مدیریت کنید. Infinito.Nexus محیط از خط فرمان پس از استقرار، ``infinito`` فرمان در دسترس است."
+msgstr ""
 
 # libretranslate
 msgid "This role this role installs and provides the Infinito.Nexus CLI, enabling you to manage your entire Infinito.Nexus environment from the command line. After deployment, the `infinito` command is available."
-msgstr "این نقش نصب شده و فراهم می کند Infinito.Nexus شما را قادر می سازد تا کل CLI خود را مدیریت کنید. Infinito.Nexus محیط از خط فرمان پس از استقرار، `infinito` فرمان در دسترس است."
+msgstr ""
 
 # libretranslate
 msgid "This role unite your team with Mattermost, an open-source, self-hosted messaging platform that delivers secure, real-time collaboration through channels, threads, and integrations, keeping your conversations private and under your control."

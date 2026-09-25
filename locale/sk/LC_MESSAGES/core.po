@@ -1337,7 +1337,7 @@ msgstr "Úlohy pre čistenie rôznych systémových zdrojov a staré zálohy, ne
 # libretranslate
 msgctxt "category:drv:description"
 msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
-msgstr "Polohy pre inštaláciu a konfiguráciu hardvérových ovládačov."
+msgstr ""
 
 # libretranslate
 msgctxt "category:web:description"

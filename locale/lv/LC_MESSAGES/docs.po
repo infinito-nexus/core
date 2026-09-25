@@ -2965,7 +2965,7 @@ msgstr "**Apraksts:** Nākotnes viettura loma XMPP servera/konteinera izvietoša
 
 # libretranslate
 msgid "**Description:** Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
-msgstr "**Apraksts:** Name"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Policy-managed web browser for Arch Linux desktops with auto-installed enterprise extensions"
@@ -9755,7 +9755,7 @@ msgstr "**apraksts**: uz pārlūku vērsta admin saskarne kopīgotai LLM vārtej
 
 # libretranslate
 msgid "**description**: Build-time tool for simulating root-owned file operations without elevated privileges during package builds"
-msgstr "**apraksts**& Projekts"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Central Dockerized search engine shared by multiple apps with per-consumer scoped API keys"
@@ -19548,7 +19548,7 @@ msgstr "Abas lomas- meta lints (`tests/lint/ansible/services/test_addons_schema.
 
 # libretranslate
 msgid "Bounding a service port that carries no access policy of its own, where the packet filter is the only boundary available."
-msgstr "Pakešu filtrs ir vienīgā pieejamā robeža."
+msgstr ""
 
 # libretranslate
 msgid "Bounds scope; bigger surface to ship cleanly first."

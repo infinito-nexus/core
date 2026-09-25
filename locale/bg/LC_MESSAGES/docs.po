@@ -30357,7 +30357,7 @@ msgstr "Friendica"
 
 # libretranslate
 msgid "Friendica's `saml` addon is community-maintained — last-commit recency AND config-format compatibility need verification before committing to it as the canonical SSO path."
-msgstr "Friendica's `saml` Addon е общностно-оставените . . . . . ."
+msgstr ""
 
 # libretranslate
 msgid "Friends & Family"
@@ -55355,7 +55355,7 @@ msgstr "Складовите услуги се добавят."
 
 # libretranslate
 msgid "The cache's path-keyed loader is bypassed on purpose — the caller mutates content per call, so each parse is intentionally fresh."
-msgstr "Товарачът на кеша е заобикалян нарочно."
+msgstr ""
 
 # libretranslate
 msgid "The canonical bands map lives there as a single key. The CLI helpers and the lint test consult this module so the bands stay in one place."
@@ -60444,7 +60444,7 @@ msgstr "Тази недостижима роля инсталира и изпъ�
 
 # libretranslate
 msgid "This Ansible role installs and makes the Infinito.Nexus CLI available on your system."
-msgstr "Това Ansible роля инсталира и прави Infinito.Nexus Климатикът е на ваше разположение."
+msgstr ""
 
 # libretranslate
 msgid "This Ansible role installs everything needed for Arduino development on Arch Linux. It includes the official Arduino IDE, documentation, and user group configurations to enable serial port access for uploading code to boards."

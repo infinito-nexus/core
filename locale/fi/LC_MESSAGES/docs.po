@@ -5785,7 +5785,7 @@ msgstr "**Huolto- ja hallintotyökalut:** Sisäänrakennettu CLI- ja web-app-poh
 
 # libretranslate
 msgid "**Maintenance & Cleanup:** Reduced Let’s Encrypt renewal frequency to avoid rate limits, removed deprecated logs and variables, applied broad refactorings, and merged the Matomo autosetup feature."
-msgstr "**Huolto ja puhdistus:** Pienennetty Let Matomo automaattinen asetustoiminto."
+msgstr ""
 
 # libretranslate
 msgid "**Major Changes**"
@@ -9556,7 +9556,7 @@ msgstr "**`version`** (merkkijono):"
 
 # libretranslate
 msgid "**`web-app-atmo`** — a role that runs a self-hosted atmo appview on the platform, reusing the existing AT Protocol identity provided by [`web-app-bluesky`](../../roles/web-app-bluesky/) as the PDS/OAuth source."
-msgstr "**`web-app-atmo`** [`web-app-bluesky`](../../roles/web-app-bluesky/) PDS/Outh source."
+msgstr ""
 
 # libretranslate
 msgid "**`web-app-homeassistant` deploys Home Assistant in Container mode.** The role uses the official `home-assistant/home-assistant` container (no Supervisor, no add-on store, not privileged), following the standard `web-app-*` contract (`meta/*`). Add-on management is out of scope; the `mcp_server` core integration does not need the Supervisor."
@@ -19388,7 +19388,7 @@ msgstr "Molemmat aidot Playwright-henkilöt ovat tukossa. BookWyrmin kirjautumis
 
 # libretranslate
 msgid "Both authenticated Playwright personas are blocked. BookWyrm’s logout control is an icon-only avatar dropdown with no accessible name, so the shared in-app-logout helper cannot locate it; the trusted-header login itself works."
-msgstr "Molemmat aidot Playwright-henkilöt ovat tukossa. BookWyrm."
+msgstr ""
 
 # libretranslate
 msgid "Both authenticated Playwright personas are blocked. Fediwall is a read-only public wall: ``meta/services.yml`` pins ``sso.enabled: false`` and ``logout.enabled: false``, and the container is a plain nginx image serving the pre-built upstream tarball. There is no account model, no login form and no logout control."
@@ -34882,7 +34882,7 @@ msgstr "Sitä EI saa nimetä `meta/inventory.yml`. Ansible kielipalvelin auto-ap
 
 # libretranslate
 msgid "It MUST NOT carry ⏰ in its `name:`, and MUST carry a `run-name:` that prefixes ⏰ only when the schedule started the run, so a dispatched run is not mislabelled as scheduled:"
-msgstr "Se ei saa kantaa `name:`, ja PITÄÄ kantaa `run-name:` että etuliitteet"
+msgstr ""
 
 # libretranslate
 msgid "It automatically configures:"
@@ -56149,7 +56149,7 @@ msgstr "Kaaviossa kohdat Imprint ae Infinito.Nexus kosmos: sen käyttämät komp
 
 # libretranslate
 msgid "The diagram places Infinito.Nexus CLI in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
-msgstr "Kaaviossa kohdat Infinito.Nexus Kliininen Infinito.Nexus kosmos: sen käyttämät komponentit (valmiudet), keskuspalvelut se kuluttaa (riippuvuussuhteet), ja sen ulospäin ulottuvilla (Federaatio ja siltaverkot)."
+msgstr ""
 
 # libretranslate
 msgid "The diagram places Intel Driver in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
@@ -57693,7 +57693,7 @@ msgstr "Tämän tehtävän päätarkoituksena on"
 
 # libretranslate
 msgid "The maintained native path needs Kibana Agent Builder with its index privileges and licence; the older sidecar is deprecated."
-msgstr "Vanhempi sivuvaunu on poistettu."
+msgstr ""
 
 # libretranslate
 msgid "The maintained native path requires Kibana Agent Builder, suitable index/application privileges, and licensing; the older sidecar is deprecated. Record `missing_kibana_and_licence` until those dependencies are explicit."
@@ -61325,11 +61325,11 @@ msgstr "Tämä tekee Home Assistant a luonnollinen [025](025-mcp-role-integratio
 
 # libretranslate
 msgid "This makes ``sys-svc-mail`` the canonical entrypoint for “mail capabilities” on a node, abstracting away whether the actual delivery happens via Mailu or a local relay."
-msgstr "Tämä tekee ``sys-svc-mail`` canonical entrypoint for Mailu tai paikallinen viesti."
+msgstr ""
 
 # libretranslate
 msgid "This makes `sys-svc-mail` the canonical entrypoint for “mail capabilities” on a node, abstracting away whether the actual delivery happens via Mailu or a local relay."
-msgstr "Tämä tekee `sys-svc-mail` canonical entrypoint for Mailu tai paikallinen viesti."
+msgstr ""
 
 # libretranslate
 msgid "This maps all `@cymais.cloud` addresses to their equivalents under `@infinito.nexus`."
@@ -77333,7 +77333,7 @@ msgstr "[x] `apply/api_bot.py` sarjat `setup_complete=1` maaliskuuta `System Set
 
 # libretranslate
 msgid "[x] `auth/oidc/config` is written from `OIDC.CLIENT.*` values only — no hardcoded realm name, issuer URL, endpoint or claim string anywhere in the role."
-msgstr "[x] `auth/oidc/config` on kirjoitettu `OIDC.CLIENT.*` Arvot vain."
+msgstr ""
 
 # libretranslate
 msgid "[x] `auth: oidc` is rejected by static client renderers until a real acquisition, refresh, audience, expiry, and revocation flow is implemented and tested."
@@ -85741,7 +85741,7 @@ msgstr "`entity/`"
 
 # libretranslate
 msgid "`entry-manual-steer.yml` declares `cancel-in-progress: true` outright on its own group, and the orchestrator reads `github.event_name` — which a called workflow inherits from its caller — so a manual sweep supersedes on both levels without an input to pass down."
-msgstr "`entry-manual-steer.yml` ilmoitukset `cancel-in-progress: true` suoraan omaan ryhmäänsä, ja orkesteri `github.event_name`."
+msgstr ""
 
 # libretranslate
 msgid "`entry-push-latest.yml` declares exactly that expression, and it fires only on `push`, where `github.ref_name` is always the pushed branch. [entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml) carries no concurrency group of its own — it is the API fallback for that group — but its push job repeats the same predicate as a job `if`, so it never touches `main` either."
@@ -87799,7 +87799,7 @@ msgstr "`origin`"
 
 # libretranslate
 msgid "`output stream file` (**optional**, with a documented default value) — file path the deploy's stdout/stderr stream is written to; the default MUST be a stable, documented path under `/tmp/`."
-msgstr "`output stream file` (**valinnainen**, jonka oletusarvo on dokumentoitu) `/tmp/`."
+msgstr ""
 
 # libretranslate
 msgid "`owner.sh` resolves the concrete repository owner once for callers"

@@ -15677,7 +15677,7 @@ msgstr ""
 
 # libretranslate
 msgid "Added lookup(email) as the shared SMTP resolution layer and wired email integration into pretix, gitlab, openwebui, flowise, and others"
-msgstr "Pencarian tambahan(Email) gitlab, openwebui, flowise, dan lain-lain"
+msgstr ""
 
 # libretranslate
 msgid "Added lookup(email) as the shared SMTP resolution layer and wired email integration into roles such as openwebui, flowise, pretix, and gitlab"

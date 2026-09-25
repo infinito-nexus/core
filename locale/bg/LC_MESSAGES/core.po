@@ -1347,7 +1347,7 @@ msgstr "Роли за управление на уеб инфраструкту�
 # libretranslate
 msgctxt "category:sys.ctl.hlth:description"
 msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
-msgstr "Роля за система за мониторинг и здравни проверки . ."
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-front-tls-selfsigned:description"

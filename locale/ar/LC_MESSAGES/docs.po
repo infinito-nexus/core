@@ -2676,7 +2676,7 @@ msgstr "**الوصف:** شركة روت المحدودة للتصميم الذا
 
 # libretranslate
 msgid "**Description:** Local-first cross-platform desktop password manager storing credentials in an encrypted KeePass-format database"
-msgstr "**الوصف:** مدير كلمة المرور المكتبي المزودة بالأجهزة المحلية"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Locking mechanism for gating maintenance tasks until critical services stop, with configurable retry and timeout"
@@ -2684,7 +2684,7 @@ msgstr "**الوصف:** آلية إغلاق مهام صيانة التواريخ
 
 # libretranslate
 msgid "**Description:** Loopback-only Postfix relay for lightweight outbound mail delivery via localhost when no central mail stack runs"
-msgstr "**الوصف:** إرسال البريد بواسطة البريد بواسطة البريد المحلي"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Low-code visual builder for creating, testing, and publishing LLM and RAG workflows as HTTP endpoints"
@@ -10127,7 +10127,7 @@ msgstr "**الوصف**: Scheduled maintenance task for reclaiming disk space by 
 
 # libretranslate
 msgid "**description**: Scheduled pull-style backup replicating remote hosts onto this host over SSH and rsync as hard-linked snapshots"
-msgstr "**الوصف**ترجمة :"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Scheduled systemd maintenance service for pruning outdated backup versions when disk usage exceeds a threshold"
@@ -14621,7 +14621,7 @@ msgstr ""
 
 # libretranslate
 msgid "A role's task that reads its own service flag therefore picks up the runtime-resolved value, even when the inventory carried a Jinja string for that flag: the conditional evaluates against the play's actual `group_names`, which reflects which other application groups the host joined."
-msgstr "مهمّة الدور التي تقرأ علم الخدمة الخاصّ بها لذا تلتقط القيمة التي تم حلّها `group_names`, مما يعكس ما انضم إليه البلد المضيف من طلبات أخرى."
+msgstr ""
 
 # libretranslate
 msgid "A round deploys a provider once, so the role that pulls it in is the only place that can say how lean it has to be. A variant entry may therefore carry any application config topic under the service it depends on:"
@@ -15605,7 +15605,7 @@ msgstr "أدوار تطبيق جديدة مضافة: web-app-opencloud و web-ap
 
 # libretranslate
 msgid "Added new lint guards: project-walk, cache-read, project-root-import, noqa-only-ruff-codes, no-direct-yaml, no-inline-multiline-php-in-sh, no-inline-multiline-sql, no-lookup-config-jinja-default, role-meta-layout, web-role-no-web-dependency, run-once-on-shared-services, redundant-bool-patterns, sed-escape, no-sh-pipefail, compose-resource-limits, dynamic-flag, auth-coverage, variant-coverage, variants-services-match"
-msgstr "حُرَّاس مضافين جدد: رصيف المشاريع، وخيط المضغ، ومستوردات المشاريع، ورموز التكرار غير المباشرة، وعدم التوجيه المباشر، وعدم الانتظام في الخدمة، وعدم الكشف عن المواد، وعدم الكشف عن المواد"
+msgstr ""
 
 # libretranslate
 msgid "Added optional Django admin bootstrap and secure `SECRET_KEY` handling for Baserow"
@@ -15637,7 +15637,7 @@ msgstr "أضف تدفق العمل الخارجي لفحص صور دوكر، و�
 
 # libretranslate
 msgid "Added the lint corpus for: project-walk / cache-read / project-root-import / no-direct-yaml / no-inline-multiline-php-in-sh / no-inline-multiline-sql / no-lookup-config-jinja-default / role-meta-layout / web-role-no-web-dependency / run-once-on-shared-services / redundant-bool-patterns / sed-escape / no-sh-pipefail / compose-resource-limits / dynamic-flag / auth-coverage / variant-coverage / variants-services-match / Ansible Galaxy schema / inline literal script-block size cap / production Python file-size cap / SPOT-of-truth for domain literals / oauth2 proxy-port allocation"
-msgstr "مضافا إليه: خط الأساس/الخط المضغي/الغراف غير المباشر/أسطوانات غير قابلة للتغطية/غير قابلة للتغطية2 المخصصات البديلة"
+msgstr ""
 
 msgid "Added the package-cache (Nexus 3 OSS) and registry-cache stacks with inner-build override, TTL env vars, and SPOT documentation"
 msgstr ""
@@ -17500,7 +17500,7 @@ msgstr "يُطبّقُ التنظيف العالميِ لموادِ النطاق
 
 # libretranslate
 msgid "Applies to every call that fetches over the network, the distribution's own repositories included: their metadata is served by mirror pools that degrade independently of the package manager's internal retries."
-msgstr "وفقاً لكل مكالمة من تلك الأغشية على الشبكة، مخازن التوزيع الخاصة بها تشمل..."
+msgstr ""
 
 # libretranslate
 msgid "Applies to: **`main` (default branch)**"
@@ -25831,7 +25831,7 @@ msgstr "كل دخول له سلسلة هيكلية ينبغي إضافة فصو�
 
 # libretranslate
 msgid "Each file in this directory SHOULD declare its purpose and the hooks it registers at the top of the file so readers can understand why it cannot be switched off."
-msgstr "كل ملف في هذا الدليل يجب أن يعلن عن غرضه و الخطافات التي يسجلها في أعلى الملف."
+msgstr ""
 
 # libretranslate
 msgid "Each file's root IS the addon spec; the filename stem is the addon id. Malformed (non-mapping) payloads are skipped here; the lint layer is the one that reports them, so the checker stays robust against in-progress files."
@@ -27015,7 +27015,7 @@ msgstr "كل خط جسم غير فارغ يحصل على ``- `` الاستمرا
 
 # libretranslate
 msgid "Every non-empty line of the markdown body gets a two-space indent so Debian's parser accepts it: each change line MUST start with at least two spaces, otherwise dpkg treats it as a badly formatted line, loses the entry boundary and reports an empty maintainer. Blank lines stay blank."
-msgstr "كل خط غير فارغ من جسم التأشيرة يحصل على فصيلة فضائية اثنين لذلك حزمة ديبيان تقبل ذلك: خطوط فارغة تبقى فارغة."
+msgstr ""
 
 # libretranslate
 msgid "Every one of them needs the same four things before it can call into :mod:`utils.networks.render`: the resolved variables, the deployment mode, a service registry built from the merged applications, and closures over the ``config`` and ``database`` lookups. Building that once means a change to how the registry or the closures are obtained cannot reach one lookup and miss another."
@@ -27049,7 +27049,7 @@ msgstr "كل بلوجين و موبلجين يعلنون ```meta/addons/`` <./me
 
 # libretranslate
 msgid "Every probe here targets the container's own loopback, so a request that a proxy picks up is wrong by definition -- the Wget probe has said so with ``--proxy=off`` since it was written. Both spellings come from here so the exec form and the shell form cannot drift: the shell form needs the wildcard quoted and the exec form needs it bare, which is exactly the kind of difference that rots when it is written out three times."
-msgstr "كل مسبار هنا يستهدف ثغرة الحاويات لذا طلب أن يلتقط العميل خطأ بتعريف ``--proxy=off`` منذ أن كتبت كل التهجئة تأتي من هنا حتى لا يمكن الاستمارة التافهة واستمارة القذيفة أن تنجرف: الشكل القصفي يحتاج إلى بطاقة برية."
+msgstr ""
 
 # libretranslate
 msgid "Every push runs the same gate you can run locally:"
@@ -27106,7 +27106,7 @@ msgstr ""
 
 # libretranslate
 msgid "Every row is assigned its deploy mode, tor state, distro, filesystem and CPU architecture by its position in that list (:mod:`utils.github.variant.axes`)."
-msgstr "كل صف يتم تعيينه في موقعه في تلك القائمة (:mod:`utils.github.variant.axes`)."
+msgstr ""
 
 # libretranslate
 msgid "Every row of the CI matrix is one ``role#variant`` selection. Five axes are decided here, all as a deterministic rotation over the row's position in the *global* discovery order and the sweep number -- never at random, so a red job can be reproduced by re-running the same sweep, and so consecutive sweeps cover the combinations instead of sampling them:"
@@ -40095,7 +40095,7 @@ msgstr "النواتج التي تصدرها شركة جيت هوب كشروح (
 
 # libretranslate
 msgid "Outside the containerised test rig the configured relay is used unchanged. Inside it that relay domain has neither DNS nor a route: a host carrying the stack itself reaches mail on loopback, while a bare infra node has nothing listening there and has to enter through the manager's routing mesh."
-msgstr "خارج جهاز اختبار الحاويات تم استخدام إعادة الترشيد دون تغيير. داخله لا يوجد فيه مجال للطيران ولا طريقه مضيف يحمل الكوخ نفسه يصل للبريد على ظهره."
+msgstr ""
 
 # libretranslate
 #, python-brace-format
@@ -40854,7 +40854,7 @@ msgstr "المستعمل المكسور للبيانات الزمنية؛ عدم
 
 # libretranslate
 msgid "Per-user token is required for private feeds, rooms, messages, or mail; a shared service account MUST NOT merge users' private data"
-msgstr "المستعمل الواحد مطلوب للطعام الخاص أو الغرف أو الرسائل أو البريد"
+msgstr ""
 
 # libretranslate
 msgid "Per-variable computation MUST live under `handlers/` (see [handlers README](handlers/README.md) for the naming convention used there)."
@@ -42778,7 +42778,7 @@ msgstr "الارتفاعات ``ValueError`` (لا ``AnsibleError``) للتنقل
 
 # libretranslate
 msgid "Raises on a duplicate id: two files declaring the same package is the missing-SPOT condition the uniqueness lint exists to prevent, so the runtime resolver must never silently pick one."
-msgstr "يرتفع على نسخة مكررة: ملفان يعلنان نفس الطرد هو شرط الفريد الموجود لمنعه."
+msgstr ""
 
 # libretranslate
 msgid "Raises specific AnsibleFilterError messages for common misuse"
@@ -49246,7 +49246,7 @@ msgstr "الخادم الذين لا يمكن عرض مخططهم كرئيس ي�
 
 # libretranslate
 msgid "Servers whose auth scheme no client renderer can present are filtered out before rendering, so the config never carries an unusable credential."
-msgstr "الخادم الذين لا يستطيع أي صانع زبون حضورهم أن يخرجوا قبل أن يصدروا."
+msgstr ""
 
 # libretranslate
 msgid "Serves as a reusable system-level SSH dependency for other roles"
@@ -58261,7 +58261,7 @@ msgstr "اللقب يجعل هذه كجليفات، لذا استعادة واح
 
 # libretranslate
 msgid "The title's priority segment is the cross-check, not the source: it proves a priority line existed even when truncation mangled it, so an empty log read is a broken reader -- expired logs, a moved Inputs block, an inlined orchestrator -- rather than a run dispatched without one."
-msgstr "الجزء ذو الأولوية من العنوان هو الفحص الشامل، وليس المصدر: إنه يثبت وجود خط الأولوية حتى عندما مزقتها التموينات،."
+msgstr ""
 
 # libretranslate
 msgid "The token as an operator would have written it, for error messages."
@@ -58936,7 +58936,7 @@ msgstr ""
 
 # libretranslate
 msgid "This Ansible role installs and makes the Infinito.Nexus CLI available on your system."
-msgstr "هذا الدور المقدّر يركّز ويجعل Infinito.Nexus مُتاح على نظامك."
+msgstr ""
 
 msgid "This Ansible role installs everything needed for Arduino development on Arch Linux. It includes the official Arduino IDE, documentation, and user group configurations to enable serial port access for uploading code to boards."
 msgstr ""
@@ -66964,7 +66964,7 @@ msgstr "يجب أن تحافظ على النشرات المركزة، قابلة
 
 # libretranslate
 msgid "You MUST keep event handlers, observers, and DOM mutations idempotent because injected scripts may run on dynamic pages or be triggered repeatedly."
-msgstr "يجب أن تحافظوا على المتحكمين بالأحداث والمراقبين والتشويهات المتعمدة."
+msgstr ""
 
 # libretranslate
 msgid "You MUST keep explanations simple and explicit."
@@ -71682,7 +71682,7 @@ msgstr "[Shopware Developer Documentation](https://developer.shopware.com/)"
 
 # libretranslate
 msgid "[Shopware Official Website](https://www.shopware.com/en/) <!-- nocheck: url; redirect loop on probe, site is alive when visited interactively -->"
-msgstr "[موقع الويب الرسمي](https://www.shopware.com/en/) لا يوجد شيك:"
+msgstr ""
 
 # libretranslate
 msgid "[Shopware Store (Plugins)](https://store.shopware.com/en/)"
@@ -74437,7 +74437,7 @@ msgstr ""
 
 # libretranslate
 msgid "[x] Both agent roles run under the isolating runtime, and the deploy fails when they do not: compose reads the container's actual runtime, swarm reads the node's default runtime before labelling it."
-msgstr "[x] دور كل من العميلين يجري تحت وقت العزل والنشر يفشل عندما لا:."
+msgstr ""
 
 # libretranslate
 msgid "[x] Both agents reach inference only through the [031](031-llm-gateway-model-backends.md) gateway (BYO-model config points at `/v1`); switching a backend is a gateway config change, no agent redeploy."
@@ -91711,7 +91711,7 @@ msgstr "It is a btrfs subvolume root or a zfs dataset mountpoint;"
 
 # libretranslate
 msgid "it pins a mode the row cannot take, an onion state the row, the mode or the run's own tor axis rules out, or a distro, filesystem or architecture the run's own pool does not hold."
-msgstr "إنه يضع طريقة لا يمكن أن يأخذها الصف، دولة البصل الصف، الطريقة أو محور الركض الخاص خارج،."
+msgstr ""
 
 # libretranslate
 msgid "it pins a variant the role does not declare (any more): the usual case is a list carried over from an older run whose variants have since been renumbered;"
@@ -95869,7 +95869,7 @@ msgstr "النوع"
 
 # libretranslate
 msgid "type: bind                        # bind | config | secret may carry source source: \"{{ FOO }}\" read_only: true mode: \"0440\"                      # only for config/secret mounts:"
-msgstr "النوع: \"{{ FOO }}\" read_only: الطريقة الحقيقية: \"0440\" فقط للثقة/المبالغ السرية"
+msgstr ""
 
 # libretranslate
 msgid "type: tmpfs mounts:"

@@ -1335,7 +1335,7 @@ msgstr ""
 # libretranslate
 msgctxt "category:drv:description"
 msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
-msgstr "Roolit asennus ja konfigurointi -laitteiston ajurit."
+msgstr ""
 
 # libretranslate
 msgctxt "category:web:description"
@@ -1639,7 +1639,7 @@ msgstr "Palvelun optimointi"
 # libretranslate
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
-msgstr "Palvelutason varmuuskopiointi- ja palautuskomponentteja."
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-svc-css:description"

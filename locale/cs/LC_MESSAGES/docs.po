@@ -2434,7 +2434,7 @@ msgstr "**Popis:** Klient- side NFS nastavení pro montáž vzdáleného serveru
 
 # libretranslate
 msgid "**Description:** Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "**Popis:** Comment"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Clipboard manager with editable history, custom actions, and scripting support"
@@ -2522,7 +2522,7 @@ msgstr "**Popis:** Dedikovaný administrátorský účet s přístupem ke klíč
 
 # libretranslate
 msgid "**Description:** Dedicated system account with SSH-restricted commands and passwordless rsync sudo for secure backup access"
-msgstr "**Popis:** Name"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Deferred-start orchestrator for enabling and starting collected systemd services once a play completes"
@@ -2722,7 +2722,7 @@ msgstr "**Popis:** Interaktivní vizualizace všech grafů Infinito.Nexus role a
 
 # libretranslate
 msgid "**Description:** Issue and project tracking platform for software teams, with agile boards, workflows, and optional OIDC SSO"
-msgstr "**Popis:** Name"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** JavaScript runtime for building and running server-side applications and developer tooling"
@@ -3126,7 +3126,7 @@ msgstr "**Popis:** Self- hostovaná platforma WebRTC pro end- to- end- šifrovat
 
 # libretranslate
 msgid "**Description:** Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
-msgstr "**Popis:** Name"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
@@ -3182,11 +3182,11 @@ msgstr "**Popis:** Self- hostovaný modelový server pro spuštění open LLM lo
 
 # libretranslate
 msgid "**Description:** Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
-msgstr "**Popis:** Name"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
-msgstr "**Popis:** Name"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Self-hosted open-source ERP suite for finance, CRM, inventory, manufacturing, HR, sales, and projects"
@@ -3402,7 +3402,7 @@ msgstr "**Popis:** Role Wrapper pro instalaci idempotent balíčků a aktualizac
 
 # libretranslate
 msgid "**Description:** nftables packet filter whose rules each role owns as its own table, replaced atomically and reloaded at boot"
-msgstr "**Popis:** Name"
+msgstr ""
 
 # libretranslate
 msgid "**Desktop Integration Hooks:** This README ensures inclusion in the Web App Desktop overview."
@@ -6141,7 +6141,7 @@ msgstr "**NGINX Reverzní Proxy:** Name `/cool/` Cesty."
 
 # libretranslate
 msgid "**NGINX Reverse Proxy:** Configures a public-facing proxy with TLS termination and WebSocket support for ``/cool/`` paths."
-msgstr "**NGINX Reverzní Proxy:** Name ``/cool/`` Cesty."
+msgstr ""
 
 # libretranslate
 msgid "**NGINX Reverse Proxy:** Configures a public-facing proxy with TLS termination for `/` and internal API calls."
@@ -22850,11 +22850,11 @@ msgstr "Nastaví systémovou službu pro spuštění vyrovnávacího skriptu."
 
 # libretranslate
 msgid "Configures a systemd service to run the cleanup script, with notifications via [sys-ctl-alm-compose](../sys-ctl-alm-compose/README.md)."
-msgstr "Name [sys-ctl-alm-compose](../sys-ctl-alm-compose/README.md)."
+msgstr ""
 
 # libretranslate
 msgid "Configures a systemd service to run the cleanup script, with notifications via `sys-ctl-alm-compose <../sys-ctl-alm-compose/README.md>`__."
-msgstr "Name `sys-ctl-alm-compose <../sys-ctl-alm-compose/README.md>`__."
+msgstr ""
 
 # libretranslate
 msgid "Configures a systemd service to run the disk cleanup script."
@@ -44110,7 +44110,7 @@ msgstr "Režim pouze pro čtení 🔒"
 
 # libretranslate
 msgid "Read-only project identity; no task start, playbook, Terraform, shell, repository, key, inventory, environment, or user mutation"
-msgstr "Name"
+msgstr ""
 
 # libretranslate
 msgid "Read-only subcommands (`view`, `list`, `status`, `diff`, `checks`, `watch`, `download`, `clone`) do not match and remain auto-allowed via the sandbox, mirroring the GET-vs-mutation split used for `gh api`. The `deny` rules above take precedence for the highest-blast verbs (e.g. `gh repo delete`, `gh secret *`, `gh ssh-key *`)."

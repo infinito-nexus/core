@@ -1188,7 +1188,7 @@ msgstr "مستقبل کے لئے اسٹوب کردار کو مضبوط کریں 
 # libretranslate
 msgctxt "menu:Commerce:description"
 msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
-msgstr "اِن میں ادائیگی ، فنکار اور گاہک بھی شامل ہیں ۔."
+msgstr ""
 
 msgctxt "logout:keep_closed"
 msgid "Please do not close this page yet."
@@ -1617,7 +1617,7 @@ msgstr "خدمت کا آغاز"
 # libretranslate
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
-msgstr "سروس کی درجہ بندی پشتو اور بحالی کے اجزاء --."
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-svc-css:description"

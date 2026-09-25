@@ -2361,7 +2361,7 @@ msgstr "**Aprašymas:** Naršymo pagrindu besisukančio rato programėlė sprend
 
 # libretranslate
 msgid "**Description:** Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy"
-msgstr "**Aprašymas:** Name"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Build-time tool for simulating root-owned file operations without elevated privileges during package builds"
@@ -2639,7 +2639,7 @@ msgstr "**Aprašymas:** Pasaulinis stilių įpurškimas į NGINX aptarnaujamas p
 
 # libretranslate
 msgid "**Description:** Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
-msgstr "**Aprašymas:** Name"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Hardened desktop web browser with enforced privacy and password-manager extensions via Enterprise Policies"
@@ -2951,7 +2951,7 @@ msgstr "**Aprašymas:** Vieta turėtojas stub vaidmenį ateityje XMPP serveris /
 
 # libretranslate
 msgid "**Description:** Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
-msgstr "**Aprašymas:** Name"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Policy-managed web browser for Arch Linux desktops with auto-installed enterprise extensions"
@@ -3111,7 +3111,7 @@ msgstr "**Aprašymas:** Savarankiškai patalpinta WebRTC platforma, skirta galin
 
 # libretranslate
 msgid "**Description:** Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
-msgstr "**Aprašymas:** Name"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
@@ -3181,7 +3181,7 @@ msgstr "**Aprašymas:** Savarankiškas atvirojo kodo aparato vertimas API tekstu
 
 # libretranslate
 msgid "**Description:** Self-hosted personal AI agent gateway with a browser control UI, sandboxed in a Kata microVM or gVisor runtime"
-msgstr "**Aprašymas:** Name"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Self-hosted platform for file sync, sharing, and collaboration with Keycloak SSO and central LDAP directory"
@@ -3201,7 +3201,7 @@ msgstr "**Aprašymas:** Savarankiškai veikianti projektų valdymo, darbo paket�
 
 # libretranslate
 msgid "**Description:** Self-hosted portal for unified access to all deployed applications via a customizable tile and menu interface"
-msgstr "**Aprašymas:** Name"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Self-hosted ticketing platform for events with online sales, registration management, and secure payments"
@@ -3308,7 +3308,7 @@ msgstr "**Aprašymas:** GNOME darbastalio terminalų emuliatorius, suteikiantis 
 
 # libretranslate
 msgid "**Description:** Terminal-based text editor with modern keybindings and syntax highlighting for Pacman-based workstations"
-msgstr "**Aprašymas:** Name"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Test-harness role running end-to-end CLI test scripts for roles that declare a test environment template"
@@ -3424,7 +3424,7 @@ msgstr "**Skirtingi kadrai:** rsync `--link-dest` prieš ankstesnės kartos dubl
 
 # libretranslate
 msgid "**Differential snapshots:** rsync `--link-dest` per subtree against the previous generation deduplicates unchanged files."
-msgstr "**Skirtingi kadrai:** rsync `--link-dest` @ info / plain."
+msgstr ""
 
 # libretranslate
 msgid "**Differential snapshots:** rsync ``--link-dest`` against the previous generation deduplicates unchanged files."
@@ -3432,7 +3432,7 @@ msgstr "**Skirtingi kadrai:** rsync ``--link-dest`` prieš ankstesnės kartos du
 
 # libretranslate
 msgid "**Differential snapshots:** rsync ``--link-dest`` per subtree against the previous generation deduplicates unchanged files."
-msgstr "**Skirtingi kadrai:** rsync ``--link-dest`` @ info / plain."
+msgstr ""
 
 # libretranslate
 msgid "**DinD-aware:** Forwards to public resolvers in nested-Docker/CI where iterative resolution via root-hints is unsupported."
@@ -10452,7 +10452,7 @@ msgstr "**aprašymas**: Savarankiškai patalpinta WebRTC platforma, skirta galin
 
 # libretranslate
 msgid "**description**: Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
-msgstr "**aprašymas**Name"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"

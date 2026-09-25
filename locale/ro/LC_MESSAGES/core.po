@@ -1331,12 +1331,12 @@ msgstr "Roluri inverse pentru rutarea și echilibrarea traficului către servici
 # libretranslate
 msgctxt "category:sys.ctl.cln:description"
 msgid "Roles for cleaning up various system resources—old backups, unused certificates, temporary files, Docker volumes, disk caches, deprecated domains, and more."
-msgstr "Roluri pentru curăţarea diferitelor resurse de sistem."
+msgstr ""
 
 # libretranslate
 msgctxt "category:drv:description"
 msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
-msgstr "Roluri pentru instalarea și configurarea driverelor hardware."
+msgstr ""
 
 # libretranslate
 msgctxt "category:web:description"
@@ -1346,7 +1346,7 @@ msgstr "Roluri pentru gestionarea infrastructurii web care acoperă serviciile d
 # libretranslate
 msgctxt "category:sys.ctl.hlth:description"
 msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
-msgstr "Roluri de monitorizare a sistemului și controale de sănătate."
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-front-tls-selfsigned:description"

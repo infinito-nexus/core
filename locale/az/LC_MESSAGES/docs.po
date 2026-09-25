@@ -1594,7 +1594,7 @@ msgstr "**Bir şəkil dəyişdirilməsi haqqında** Bir istifadəçi, onun şək
 
 # libretranslate
 msgid "**Checks precede the grant:** The admission checks run inside the agent role before it deploys, so a refusal prevents the embodied container rather than following it."
-msgstr "**Qeydiyyatdan əvvəl** Qeydiyyatdan keçmişdir."
+msgstr ""
 
 # libretranslate
 msgid "**Clean up** any stale vHost files under ``sys-svc-cln-domains``."
@@ -1630,7 +1630,7 @@ msgstr "**Turlar arasında sübut.** hər bir ilk iteration əvvəl sarsıcı ç
 
 # libretranslate
 msgid "**Client-facing authentication:** The adapter issues its own bearer. The upstream credential authenticates the adapter to the provider and says nothing about who called the adapter, which is the gap the project-owned MCP sidecars leave open."
-msgstr "**Yadda saxla** Aksessuarlar öz ayır edir. The . . . . . . . . . . . . . . . . . . . . . ."
+msgstr ""
 
 # libretranslate
 msgid "**Clones a remote SSH config repository** into ``~/.ssh`` using the ``desk-git`` role."
@@ -2102,7 +2102,7 @@ msgstr "**Xüsusi User Experience:** Sənaye sosial təcrübə üçün mövzular
 
 # libretranslate
 msgid "**Customizable Webmail and Administration:** Provides a modern web interface for managing emails and administrative tasks with ease."
-msgstr "**Xüsusi Webmail və Administration:** E-poçt ünvanı."
+msgstr ""
 
 # libretranslate
 msgid "**Customizable:** Easily configurable to point to your own source code or documentation."
@@ -2198,7 +2198,7 @@ msgstr "**Debugging yardımçıları**: ümumi və ətraflı problemlər üçün
 
 # libretranslate
 msgid "**Decentralized Content Sharing:** Empower users to share photos and visual content across an interoperable, federated network with enhanced privacy controls."
-msgstr "**Mərkəzi kateqoriya:** Yadda saxla."
+msgstr ""
 
 # libretranslate
 msgid "**Decentralized Network:** Connect with users across multiple instances in a federated social media ecosystem."
@@ -2394,7 +2394,7 @@ msgstr "**Description:** Mərkəzi yükləndirilməsi üçün əsas yüksək rol
 
 # libretranslate
 msgid "**Description:** Central logout proxy for single-action sign-out across all OIDC-connected apps, with Nginx snippets and a live status UI"
-msgstr "**Description:** Nginx komponentləri və canlı status UI"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
@@ -2430,7 +2430,7 @@ msgstr "**Description:** Kompüter faylları, paket önbellekləri, isteğe bağ
 
 # libretranslate
 msgid "**Description:** Client-side NFS setup for mounting a remote server export on every swarm node, with a deploy-time reachability probe"
-msgstr "**Description:** Yadda saxla"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
@@ -2454,7 +2454,7 @@ msgstr "**Description:** Paylaşılan Docker Hub baza-image çıxışları üç�
 
 # libretranslate
 msgid "**Description:** Collaborative wiki platform for user-driven documentation with an extensible extension ecosystem and content management"
-msgstr "**Description:** Ətraflı uzatma ekosistemi və content idarəetmə"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Command-line journal application for creating and managing personal diary entries from the terminal"
@@ -2486,7 +2486,7 @@ msgstr "**Description:** Avtomatik bazar, istifadəçi və imtiyaz təhlükəsiz
 
 # libretranslate
 msgid "**Description:** Content management system for building and managing websites, blogs, and multisite networks with themes and plugins"
-msgstr "**Description:** Content , , , , , ,"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
@@ -2514,7 +2514,7 @@ msgstr "**Description:** Decenterized, beynəlxalq foto paylaşma və image feed
 
 # libretranslate
 msgid "**Description:** Decentralized, federated social-networking platform for peer-to-peer communication and community building"
-msgstr "**Description:** Axtar-to-peer əməliyyat və ictimai bina"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Dedicated administrator account with SSH key access and password-authenticated sudo for secure privilege escalation"
@@ -2678,7 +2678,7 @@ msgstr "**Description:** Wg-quick konfiqurasiyası ilə Host-level WireGuard VPN
 
 # libretranslate
 msgid "**Description:** Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
-msgstr "**Description:** Yadda saxla"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Host-level configuration linking Bash and Zsh login shells to a shared .profile for consistent environment loading"
@@ -2694,7 +2694,7 @@ msgstr "**Description:** Bir kök RSA-nın evüstü rolu 4096- Secure avtomatik 
 
 # libretranslate
 msgid "**Description:** Identity-based secrets, PKI and encryption manager with OIDC login, group-mapped policies and static-seal auto-unseal"
-msgstr "**Description:** E-poçt ünvanı"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
@@ -2774,7 +2774,7 @@ msgstr "**Description:** kritik xidmətlərin qarşısına qoşulmasına qarşı
 
 # libretranslate
 msgid "**Description:** Loopback-only Postfix relay for lightweight outbound mail delivery via localhost when no central mail stack runs"
-msgstr "**Description:** No məhsul işləyir"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Low-code visual builder for creating, testing, and publishing LLM and RAG workflows as HTTP endpoints"
@@ -2906,7 +2906,7 @@ msgstr "**Description:** Symfony və Vue.js onlayn mağazafronts bina və səhif
 
 # libretranslate
 msgid "**Description:** Open-source helpdesk and ticketing system for handling customer requests via email, chat, phone, and web"
-msgstr "**Description:** E-poçt ünvanı"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Open-source learning management system for creating, managing, and delivering online courses and e-learning"
@@ -2914,7 +2914,7 @@ msgstr "**Description:** Open-source öyrənmə sistemi yaratmaq, idarə etmək 
 
 # libretranslate
 msgid "**Description:** Open-source monitoring and alerting toolkit for storing metrics as time-series data and querying them with PromQL"
-msgstr "**Description:** PromQL"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Open-source participatory democracy platform for public consultations, civic processes, and community voting"
@@ -3050,7 +3050,7 @@ msgstr "**Description:** Docker konteyner səyahətləri üçün Docker konteyne
 
 # libretranslate
 msgid "**Description:** Scheduled health check crawling configured domains for CSP-blocked resources via a Puppeteer-based Node.js checker"
-msgstr "**Description:** Puppeteer-based Node.js check"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Scheduled health check for Btrfs filesystems that alerts on non-zero device error counters"
@@ -3118,7 +3118,7 @@ msgstr "**Description:** Elanlar3- fayllar, media, backups və AI məhsulları �
 
 # libretranslate
 msgid "**Description:** Self-hosted URL shortener for creating, tracking, and managing short links with built-in click analytics"
-msgstr "**Description:** Domen adı qeydiyyatdan keçirt »"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
@@ -3126,7 +3126,7 @@ msgstr "**Description:** End-to-end-encryptable video konferencing üçün WebRT
 
 # libretranslate
 msgid "**Description:** Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
-msgstr "**Description:** Yadda saxla"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
@@ -3166,7 +3166,7 @@ msgstr "**Description:** Bir imza-on, multi-faktor təhlükəsizlik və istifad�
 
 # libretranslate
 msgid "**Description:** Self-hosted low-code automation platform for connecting services and building workflow integrations visually"
-msgstr "**Description:** E-poçt ünvanı"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Self-hosted mail server suite with SMTP/IMAP/POP3, webmail, spam filtering, antivirus, DKIM signing, and TLS"
@@ -3186,7 +3186,7 @@ msgstr "**Description:** Self-poçt ünvanı veriləndirilməsi və məlumatlar�
 
 # libretranslate
 msgid "**Description:** Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
-msgstr "**Description:** E-poçt ünvanı"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Self-hosted open-source ERP suite for finance, CRM, inventory, manufacturing, HR, sales, and projects"
@@ -3222,7 +3222,7 @@ msgstr "**Description:** Xüsusi dəstək və menyu interfeyssi ilə bütün ist
 
 # libretranslate
 msgid "**Description:** Self-hosted ticketing platform for events with online sales, registration management, and secure payments"
-msgstr "**Description:** E-poçt ünvanı"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Self-hosted web conferencing platform for virtual classrooms, online meetings, and real-time collaboration"
@@ -3262,7 +3262,7 @@ msgstr "**Description:** Smart-home avtomatlaşdırma maşın inteqrasiyaları, 
 
 # libretranslate
 msgid "**Description:** Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
-msgstr "**Description:** Yadda saxla"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Static file server over HTTPS with directory listing, .well-known handling, and automatic TLS certificates"
@@ -3286,7 +3286,7 @@ msgstr "**Description:** OS paketi meneceri ilə hazırlanmış paketi indeksi v
 
 # libretranslate
 msgid "**Description:** System-wide command-line interface for managing and operating the entire self-hosted platform environment from the shell"
-msgstr "**Description:** the the the the"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** System-wide pip helper for installing or upgrading a Python package via the host's system Python"
@@ -3354,7 +3354,7 @@ msgstr "**Description:** Axtarış2 Pacman işstations virtual maşınlar üçü
 
 # libretranslate
 msgid "**Description:** Unified systemd notification service dispatching service-failure alerts through both Telegram and email channels"
-msgstr "**Description:** Yadda saxla"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
@@ -4987,7 +4987,7 @@ msgstr "**Uşaqlı CLI testability** Əməliyyatdan keçirilmiş və qarşılaş
 
 # libretranslate
 msgid "**Improved image mirroring workflows** with clearer separation of full and missing-only runs, branch-scoped concurrency, and deploy gating on successful mirroring"
-msgstr "**İnkişaf məlumatları** Tam və qeydsiz işləndirilməsi, filtr-kod koncurrency"
+msgstr ""
 
 # libretranslate
 msgid "**Improved user management:** A unified *user_key* model provides clearer and more robust user and permission handling across all roles."
@@ -5267,7 +5267,7 @@ msgstr "**Intuitive Web UI:** PostgreSQL serverinizi idarə etmək üçün müas
 
 # libretranslate
 msgid "**Inventory & Warehouse:** Manage stock levels, transfers, and warehouse operations. Supports barcode scanning, batch picking, and advanced routing."
-msgstr "**Daxil ol** Yadda saxla barkod tarama, kolleksiyası və qabaqcıl routing."
+msgstr ""
 
 # libretranslate
 msgid "**Inventory folders.** [init.py](../../../cli/administration/deploy/development/init.py) calls [build_dev_inventory_matrix](../../../cli/administration/deploy/development/inventory/builder.py), which creates one folder per round at `<inventory-dir>-<round>` (or just `<inventory-dir>` when there is a single round). For each folder, `build_dev_inventory` resolves the round's per-app variant payload and bakes it into the inventory's `host_vars` as `applications.<app>: <variant-payload>` overrides. The inventory is therefore variant-resolved on disk; no runtime selector is needed."
@@ -5838,7 +5838,7 @@ msgstr "**Marker rolu:** Daxil ol `svc-swarm-node` üzvü meneceri-init axını 
 
 # libretranslate
 msgid "**Marketing & Automation:** Create email campaigns, marketing automation workflows, and social media management integrated with CRM data."
-msgstr "**Marketinq və Automation:** E-poçt ünvanı."
+msgstr ""
 
 # libretranslate
 msgid "**Matomo Analytics & Global CSS:** Built-in support for analytics and unified styling."
@@ -7507,7 +7507,7 @@ msgstr "**Robust Connectivity:**"
 
 # libretranslate
 msgid "**Robust Connectivity:**   Easily manage database configurations, user accounts, and monitor query activity with built‑in health checks."
-msgstr "**Robust Connectivity:** Domen adı qeydiyyatdan keçirt »."
+msgstr ""
 
 # libretranslate
 msgid "**Robust Content Management:** Organize, categorize, and retrieve information efficiently with powerful content management tools."
@@ -9779,7 +9779,7 @@ msgstr "**description**: DNSSEC-in bir statik IP-dən istifadə etdiyi texnologi
 
 # libretranslate
 msgid "**description**: Central search and analytics engine with per-consumer index namespaces isolating tenants in a shared Docker deployment"
-msgstr "**description**: : : : : con con con con con con con"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Central vector database engine for storing and searching per-consumer embeddings shared across the stack"
@@ -9791,7 +9791,7 @@ msgstr "**description**Ətraflı MariaDB yaxşı PostgreSQL İnformasiya xidmət
 
 # libretranslate
 msgid "**description**: Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
-msgstr "**description**: s s s s s"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Cleanup routine for deprecated domains, removing Nginx configs and revoking their Certbot certificates"
@@ -9803,11 +9803,11 @@ msgstr "**description**: Kompüter faylları, paket önbellekləri, isteğe bağ
 
 # libretranslate
 msgid "**description**: Client-side NFS setup for mounting a remote server export on every swarm node, with a deploy-time reachability probe"
-msgstr "**description**:: Yadda saxla"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "**description**: that that : : : : : : : :"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Clipboard manager with editable history, custom actions, and scripting support"
@@ -9859,7 +9859,7 @@ msgstr "**description**: Avtomatik bazar, istifadəçi və imtiyaz təhlükəsiz
 
 # libretranslate
 msgid "**description**: Content management system for building and managing websites, blogs, and multisite networks with themes and plugins"
-msgstr "**description**: : , , , , ,"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
@@ -9887,7 +9887,7 @@ msgstr "**description**: Bakı şəhərində foto paylaşım və görüntü feed
 
 # libretranslate
 msgid "**description**: Decentralized, federated social-networking platform for peer-to-peer communication and community building"
-msgstr "**description**: : : : : :"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Dedicated administrator account with SSH key access and password-authenticated sudo for secure privilege escalation"
@@ -10147,7 +10147,7 @@ msgstr "**description**: kritik xidmətlərin qarşısına qoşulmasına qarşı
 
 # libretranslate
 msgid "**description**: Loopback-only Postfix relay for lightweight outbound mail delivery via localhost when no central mail stack runs"
-msgstr "**description**: : : : : : : : :"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Low-code visual builder for creating, testing, and publishing LLM and RAG workflows as HTTP endpoints"
@@ -10287,7 +10287,7 @@ msgstr "**description**: Yaratmaq, idarə etmək və online kurslar və e-ömək
 
 # libretranslate
 msgid "**description**: Open-source monitoring and alerting toolkit for storing metrics as time-series data and querying them with PromQL"
-msgstr "**description**: PromQL"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Open-source participatory democracy platform for public consultations, civic processes, and community voting"
@@ -10327,7 +10327,7 @@ msgstr "**description**: Planlaşdırmaq üçün paket meneceri Python paketlər
 
 # libretranslate
 msgid "**description**: Periodic health check for outbound mail delivery, sending a test message via msmtp and alerting on failure"
-msgstr "**description**: s s s s s s , s"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
@@ -10367,7 +10367,7 @@ msgstr "**description**: Cloudflare wildcard DNS rekordları üçün rolu (*.) u
 
 # libretranslate
 msgid "**description**: Provisioning role for a workstation login account with its shell dotfiles, SSH authorized keys, and environment"
-msgstr "**description**: : a a a a a a a"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Provisioning role for per-user environment setup, managing shell dotfiles and SSH authorized_keys"
@@ -10399,7 +10399,7 @@ msgstr "**description**Docker-in avtomatik TLS, WebSocket dəstək və per-app v
 
 # libretranslate
 msgid "**description**: Reverse-proxy TLS orchestration layer selecting Let's Encrypt, self-signed, or disabled certificate providers for Nginx"
-msgstr "**description**: s s s s s s s"
+msgstr ""
 
 # libretranslate
 msgid "**description**: SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
@@ -10459,7 +10459,7 @@ msgstr "**description**: disk istifadəsi bir eşsəyini dəstəkləyir zaman uz
 
 # libretranslate
 msgid "**description**: Scheduled systemd service and timer for rebalancing Btrfs file systems to keep storage allocation optimal"
-msgstr "**description**: to to to to to : :"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Scheduled systemd-timer job renewing Let's Encrypt SSL/TLS certificates via Certbot and reloading NGINX afterward"
@@ -10507,7 +10507,7 @@ msgstr "**description**: Ollamaq kimi yerli və xüsusi AI modelləri ilə əlaq
 
 # libretranslate
 msgid "**description**: Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
-msgstr "**description**: : : , , , , , , , , , , ,"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Self-hosted decentralized social network on the open AT Protocol, with its own Personal Data Server"
@@ -10523,7 +10523,7 @@ msgstr "**description**: Kataloq idarəetmə, çek, promosyonlar və çox mağaz
 
 # libretranslate
 msgid "**description**: Self-hosted enterprise wiki and knowledge-management platform with collaboration and app-based extensibility"
-msgstr "**description**Ətraflı əməliyyat platforması"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
@@ -10555,11 +10555,11 @@ msgstr "**description**: a simple simple a simple simple a a a API"
 
 # libretranslate
 msgid "**description**: Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
-msgstr "**description**: and and and and and and and"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
-msgstr "**description**: , , , , , , , , , ,"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Self-hosted open-source ERP suite for finance, CRM, inventory, manufacturing, HR, sales, and projects"
@@ -10579,7 +10579,7 @@ msgstr "**description**: Keycloak SSO və mərkəzi LDAP seriyası ilə əməkda
 
 # libretranslate
 msgid "**description**: Self-hosted platform for newsletters and mailing lists with subscriber segmentation and campaign analytics"
-msgstr "**description**: E-poçt ünvanı"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Self-hosted platform for online accounting, bookkeeping, and business finance management"
@@ -10675,7 +10675,7 @@ msgstr "**description**: avtomatlaşdırılmış iş icrası üçün xidmətə b
 
 # libretranslate
 msgid "**description**: Systemd-driven cleanup service pruning anonymous Docker volumes plus images, containers, networks, and build cache"
-msgstr "**description**: : , , : , : : , :"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
@@ -10727,7 +10727,7 @@ msgstr "**description**:  :2 Pacman işstations virtual maşınlar üçün hiper
 
 # libretranslate
 msgid "**description**: Unified systemd notification service dispatching service-failure alerts through both Telegram and email channels"
-msgstr "**description**Yadda saxla"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
@@ -10799,7 +10799,7 @@ msgstr "**discourse**"
 
 # libretranslate
 msgid "**distro** -- which declared distribution the row deploys on. Per row rather than per run, so one sweep proves every distribution instead of proving one and claiming nothing about the other four, and a red row still names the exact distribution it died on."
-msgstr "**dis** -- ki, qeyd edilən arxalar. Müəlliflik hüququqları qorunur."
+msgstr ""
 
 # libretranslate
 msgid "**dnsmasq** with the discovered WSL2 upstream DNS gateway as forwarder."
@@ -14305,7 +14305,7 @@ msgstr "Replay unprovable edir."
 
 # libretranslate
 msgid "A confirmed hit is cached on disk. The probe stays on the upstream registry: it exists to prove the declared pin is still pullable from where the deploy pulls it, which a mirrored copy cannot answer for."
-msgstr "Qeydiyyatdan keçirilir. probe . . . : : . . . . . . . . . . . . ."
+msgstr ""
 
 # libretranslate
 msgid "A constant hides the role id the substring rule looks for, so every SPOT of this kind MUST be listed here or the roles referencing it silently drop their provider from the static closure."
@@ -14426,7 +14426,7 @@ msgstr "Kök səssi konteyner runtime dövrü olan bir çatışmazlığı (confi
 
 # libretranslate
 msgid "A fallback MUST stay inside the permitted set, and a run whose whole permitted set is unservable MUST fail rather than leave it. The job title and the artifact name carry the kind the matrix assigned; the step summary carries the effective one."
-msgstr "Yadda saxla İş ünvanı və məhsulun xidmət göstərdiyi nömrədir; addım məhsul effektiv bir aparır."
+msgstr ""
 
 # libretranslate
 msgid "A fallback is reported, never silent. The job title and artifact name carry the kind the matrix *assigned*, while [docker_dataroot.sh](../../scripts/tests/deploy/utils/filesystem/docker_dataroot.sh) writes the *effective* filesystem and the reason into the step summary. When a run has to prove a filesystem-dependent path, read the summary rather than the title, or name the kind on the run to make it a demand. The snapshot mode of `svc-bkp-volume-2-local` is the case that matters: it only engages on btrfs and zfs."
@@ -14756,7 +14756,7 @@ msgstr "Prefix maska aşağı bits pulsuz bir contigious run bırakır, belə si
 
 # libretranslate
 msgid "A priority entry may pin axes (``web-app-zammad#1@compose+tor``), and the pin rides along into the retrigger: the entry never ran, so the run holds no evidence that the axes it named were the wrong ones. Only the name in front of the axis suffix is resolved against the statuses."
-msgstr "Əvvvəllik giriş axes pin (``web-app-zammad#1@compose+tor``), . . . . Yalnız arxa suffix ön adı statuslara qarşılaşdırılır."
+msgstr ""
 
 # libretranslate
 msgid "A priority role can fall behind the discovery budget cut in every mode, so the run holds no job for it and :func:`failed_roles` cannot see it — it is neither green nor red, it simply never ran. Carrying it into the retrigger is the only way it ever gets deployed."
@@ -15985,7 +15985,7 @@ msgstr "Daxil ol(email) the SMTP qablaşdırma kağızı və teld e-mail inteqra
 
 # libretranslate
 msgid "Added lookup(email) as the shared SMTP resolution layer and wired email integration into roles such as openwebui, flowise, pretix, and gitlab"
-msgstr "Daxil ol(email) Yadda saxla"
+msgstr ""
 
 # libretranslate
 msgid "Added major new application roles including web-app-odoo, web-app-decidim, web-app-fider, and web-app-prometheus"
@@ -16037,7 +16037,7 @@ msgstr "lint korpusu üçün lint korpusu əlavə etdi: layihə-hazırda / önl�
 
 # libretranslate
 msgid "Added the package-cache (Nexus 3 OSS) and registry-cache stacks with inner-build override, TTL env vars, and SPOT documentation"
-msgstr "Paketi qazandı (Elan 3 Oxunub) and and , , , , , , , , , ,"
+msgstr ""
 
 # libretranslate
 msgid "Added the per-role matrix-deploy variant model with folder-per-round inventories, meta/variants.yml declarations, and variant-aware Playwright env wiring"
@@ -18516,11 +18516,11 @@ msgstr "İnformasiya yaradılması, istifadəçi qrupu, və yaxşılaşdırma av
 
 # libretranslate
 msgid "Automates the creation of NGINX server blocks that redirect all ``www.`` subdomains to their non-www equivalents. Simple, idempotent, and SEO-friendly! 🚀"
-msgstr "NGINX server bloklarının yaradılması ``www.`` sub . . . www Yadda saxla 🚀"
+msgstr ""
 
 # libretranslate
 msgid "Automates the creation of NGINX server blocks that redirect all `www.` subdomains to their non-www equivalents. Simple, idempotent, and SEO-friendly! 🚀"
-msgstr "NGINX server bloklarının yaradılması `www.` sub . . . www Yadda saxla 🚀"
+msgstr ""
 
 # libretranslate
 msgid "Automatic OIDC scope configuration within the EspoCRM container"
@@ -18684,7 +18684,7 @@ msgstr "Backend bloker"
 
 # libretranslate
 msgid "Backfills CI images for the version tag if missing, retags them to release tags, and publishes the version-specific image set."
-msgstr ". . . . . . . . ."
+msgstr ""
 
 # libretranslate
 msgid "Background"
@@ -22645,7 +22645,7 @@ msgstr "Compos-flavor regresyon"
 
 # libretranslate
 msgid "Compose-managed services and ad-hoc task images both live under the same key on the role's primary or auxiliary service entries."
-msgstr "Compos . . . . . . . . . ."
+msgstr ""
 
 # libretranslate
 msgid "Composer"
@@ -23008,7 +23008,7 @@ msgstr "Bir model adlandırmaq lazım olan alıcılar (`web-app-moodle`, `web-ap
 
 # libretranslate
 msgid "Consumers that take an explicit domain or read one from the environment fall back here rather than repeating the literal, so changing the CI/dev default is a one-line edit in ``default.env`` instead of a hunt through the tree."
-msgstr "Açıq bir domen almaq və ya mühitdən birini oxuyur ``default.env`` ağac vasitəsi ilə avtomobil."
+msgstr ""
 
 # libretranslate
 msgid "Consumes ``system_service_run_list`` (created by ``sys-service`` when ``system_service_force_flush_final=true``)."
@@ -25161,7 +25161,7 @@ msgstr "Arch Linux sistemləri üçün dizayn, bu rol istifadə edir `pacman` Gi
 
 # libretranslate
 msgid "Designed for Archlinux systems, this role handles issuing certificates per domain and optionally cleans up redundant certificates if wildcard certificates are used. It intelligently decides whether to issue a standard or wildcard certificate based on the domain structure and your configuration."
-msgstr "Archlinux sistemləri üçün hazırlanmışdır, bu rol səviyyəsi domen qeydiyyatdan keçmiş sertifikatlar təklif edir. Domen adı qeydiyyatdan keçirt »."
+msgstr ""
 
 # libretranslate
 msgid "Designed for Archlinux systems, this role periodically checks whether web resources (JavaScript, fonts, images, etc.) are blocked by CSP headers. It integrates Python and Node.js tooling and installs a systemd service with timer support."
@@ -25840,7 +25840,7 @@ msgstr "Rerun `make compose-deploy mode=reinstall apps=<roles> full_cycle=true` 
 
 # libretranslate
 msgid "Do NOT rewrite large parts of the frontend when a focused event handler, DOM adjustment, or configuration change is enough."
-msgstr "Müəlliflik hüququqları qorunur."
+msgstr ""
 
 # libretranslate
 msgid "Do Not Replace"
@@ -26731,7 +26731,7 @@ msgstr "Ya yuxarı qeyd olunur."
 
 # libretranslate
 msgid "Either the current application IS web-app-prometheus, OR it declares prometheus as an enabled compose service dependency (services.prometheus.enabled: true)."
-msgstr "Yadda saxla web-app-prometheusYadda saxla (services.prometheus.enabled:)."
+msgstr ""
 
 # libretranslate
 msgid "Either the domain mapping dict (values can be str | list[str] | dict[str,str]) or an already flattened list of domains, or a single domain string."
@@ -27563,7 +27563,7 @@ msgstr "Çıxış, əvvəllik blokları haqqında haqqında"
 
 # libretranslate
 msgid "Every client connection MUST map to exactly one provider group named `roles/<provider-application-id>/mcp`. The deployment MAY create or locate the corresponding client-local group by name after startup and then use the identifier assigned by the client API; it MUST NOT predict a generated group UUID."
-msgstr "Hər bir müştəri bağlantısı MUST xidmət tam bir təhsil qrupu `roles/<provider-application-id>/mcp`. Yadda saxla API; yaradılmış qrup UUID tahmin etmir."
+msgstr ""
 
 # libretranslate
 msgid "Every collector is best-effort: a missing source must never abort the capture. ``INFINITO_RESCUE_DIAGNOSTICS_DIR`` and ``INFINITO_DNS53_SAMPLER_LOG`` are required and never defaulted here, so ``group_vars/all/05_paths.yml`` stays the one source. Prints one summary and ALWAYS exits 1 so a failure stays a failure."
@@ -28022,7 +28022,7 @@ msgstr "kateqoriya:"
 
 # libretranslate
 msgid "Exception: a `default:` is written into the inventory verbatim, so on the next read it arrives here as if an operator had typed it. Every default in the repository is a Jinja reference, and a pattern describes the rendered secret, not the template text that will produce it."
-msgstr "Axtarış: `default:` Əvvəlki burada bir operator növbəti olaraq buraya gəlir. rep . . . . . ."
+msgstr ""
 
 # libretranslate
 msgid "Exceptional stability, large community, predictable release cadence, broad package availability"
@@ -29477,7 +29477,7 @@ msgstr "Footer blok siyahısı düz məhsul kimi hər hansı bir parlaq yayımı
 
 # libretranslate
 msgid "For **regular** rows every axis is a deterministic rotation over the row's position in the global list and the sweep number, never random, so a red job reproduces by re-running the same sweep:"
-msgstr "Axtarış **Daxil ol** qırmızı işləyir ki, qırmızı iş istehsalçılıq dəyişdirir."
+msgstr ""
 
 # libretranslate
 msgid "For ANY non-trivial command (test runs, deploys, long pipelines), you MUST stream the FULL output to a file under `/tmp/` via `… 2>&1 | tee /tmp/<name>.log` and grep / inspect that file repeatedly instead of re-running the command. Reason: re-running `make test` to \"find the failure I just lost\" costs 2 minutes per cycle; grepping the saved log costs milliseconds."
@@ -29973,27 +29973,27 @@ msgstr "Sonrakı yeniliklər üçün:"
 
 # libretranslate
 msgid "For support, feedback, or contributions to the role, please open an issue or submit a pull request in the ``infinito`` repository. Contributions that enhance the role or broaden its applicability are greatly appreciated."
-msgstr "Yadda saxla ``infinito`` polad. rolu artırmaq və ya genişləndirilməsi genişləndirilməsi."
+msgstr ""
 
 # libretranslate
 msgid "For support, feedback, or contributions to the role, please open an issue or submit a pull request in the `infinito` repository. Contributions that enhance the role or broaden its applicability are greatly appreciated."
-msgstr "Yadda saxla `infinito` polad. rolu artırmaq və ya genişləndirilməsi genişləndirilməsi."
+msgstr ""
 
 # libretranslate
 msgid "For support, feedback, or contributions, such as enhancing the role or adding additional torrent-related functionality, please open an issue or submit a pull request in the ``infinito`` repository. Contributions that enhance the usability or features of qBittorrent within this role are highly appreciated."
-msgstr "Yadda saxla ``infinito`` polad. Bu rolda qBittorrent inkişafı və ya xüsusiyyətləri artırmaq kontributions yüksək qiymətdir."
+msgstr ""
 
 # libretranslate
 msgid "For support, feedback, or contributions, such as enhancing the role or adding additional torrent-related functionality, please open an issue or submit a pull request in the `infinito` repository. Contributions that enhance the usability or features of qBittorrent within this role are highly appreciated."
-msgstr "Yadda saxla `infinito` polad. Bu rolda qBittorrent inkişafı və ya xüsusiyyətləri artırmaq kontributions yüksək qiymətdir."
+msgstr ""
 
 # libretranslate
 msgid "For support, suggestions, or contributions, please raise an issue or a pull request in the ``infinito`` repository. This project welcomes contributions from the developer community."
-msgstr "Yadda saxla ``infinito`` polad. Bu layihə geliştirici sənayesindən əlavə edir."
+msgstr ""
 
 # libretranslate
 msgid "For support, suggestions, or contributions, please raise an issue or a pull request in the `infinito` repository. This project welcomes contributions from the developer community."
-msgstr "Yadda saxla `infinito` polad. Bu layihə geliştirici sənayesindən əlavə edir."
+msgstr ""
 
 # libretranslate
 msgid "For test commands and testing standards, see [testing.md](../actions/testing.md)."
@@ -31239,7 +31239,7 @@ msgstr "Təhlükəsiz CA override generator və düzgün icra sifarişi"
 
 # libretranslate
 msgid "Hardened CI and local development with better WSL2 bootstrap support, safer swap / disk handling, stronger GHCR mirroring and release workflows, and updated fork / PR automation"
-msgstr "Daha yaxşı WSL və yerli inkişaf2 boots , , , , , , , , , , , , , , ,"
+msgstr ""
 
 # libretranslate
 msgid "Hardened CI/CD pipelines with retries and Git fallback for Ansible Galaxy collections"
@@ -31419,7 +31419,7 @@ msgstr "Gizli uğursuzluq daha sonra daha çox hadisə edir."
 
 # libretranslate
 msgid "Hide or disable application UI fields that are sourced from OIDC or LDAP, per the rules in [javascript.js.md](../../artefact/files/role/javascript.js.md)."
-msgstr "Yadda saxla [javascript.js.md](../../artefact/files/role/javascript.js.md)."
+msgstr ""
 
 # libretranslate
 msgid "High-side-effect operations"
@@ -32311,7 +32311,7 @@ msgstr "dəyişiklik CI axını edir (məhsullar, qapılar, sifariş), [pipeline
 
 # libretranslate
 msgid "If the change affects user-visible behavior, you MUST add or update the matching end-to-end coverage in [Role `playwright.spec.js`](playwright.spec.js.md)."
-msgstr "Yadda saxla [Role `playwright.spec.js`](playwright.spec.js.md)."
+msgstr ""
 
 # libretranslate
 msgid "If the code is easy to explain, it is likely a good idea."
@@ -33118,7 +33118,7 @@ msgstr "Bütün əməkdaşlıq və məlumatların qarşılaşdırılmasında, si
 
 # libretranslate
 msgid "In compose mode the lookup returns the empty string because docker-compose ignores `deploy.replicas`. Wrapping the emit in the `deploy:` block remains the caller's responsibility - typically `roles/sys-svc-container/templates/deploy.yml.j2`."
-msgstr "Daxil ol `deploy.replicas`. çıxmaq `deploy:` block - the `roles/sys-svc-container/templates/deploy.yml.j2`."
+msgstr ""
 
 # libretranslate
 msgid "In embedded mode (``shared: false``) a consumer’s compose stack receives a storage-only SeaweedFS container without UI or published ports. The embedded S3 listener performs no authentication, so it MUST stay confined to the consumer’s isolated compose network."
@@ -33380,7 +33380,7 @@ msgstr "Infinito.Nexus mind .  in Lakin, bizim təkliflərdən sonra sisteminizi
 
 # libretranslate
 msgid "Infinito.Nexus is developed independently. Your support helps fund development, infrastructure, documentation, and the long-term growth of the project."
-msgstr "Infinito.Nexus qarşılaşdırılmışdır. Yadda saxla."
+msgstr ""
 
 # libretranslate
 msgid "Infinito.Nexus is distributed under the **Infinito.Nexus Community License (Non-Commercial)**. Please see [LICENSE.md](LICENSE.md) for full terms."
@@ -34229,7 +34229,7 @@ msgstr "Paket meneceri istifadə etdiyi CLI GNOME Extension Manager yükləyin."
 
 # libretranslate
 msgid "Installs the Infinito.Nexus CLI automatically"
-msgstr "Daxil ol Infinito.Nexus avtomatik olaraq"
+msgstr ""
 
 # libretranslate
 msgid "Installs the SSH client using the system package manager"
@@ -34406,7 +34406,7 @@ msgstr "Ansible-native artefacts üçün inteqrasiya testləri: fəaliyyət add�
 
 # libretranslate
 msgid "Integration tests for `.github/workflows/*.yml` and supporting scripts: PR scope/branch-prefix resolvers, PR-run cancellation, Dependabot coverage of every ecosystem in the repo, and CodeQL security-workflow coverage."
-msgstr "İnteqrasiya testləri `.github/workflows/*.yml` and . . . . . . . . . . . . . . ."
+msgstr ""
 
 # libretranslate
 msgid "Integration tests for `.j2` templates across the repository: syntax validity, include-path resolution, and consistent variable definition and usage."
@@ -37117,7 +37117,7 @@ msgstr "E-poçt **domain, users, and aliases** the `admin_data` database Siz yal
 
 # libretranslate
 msgid "Mailu links user accounts to specific domains, so changing a user's primary domain cannot be done via the admin interface. You need to update it manually via the database."
-msgstr "E-poçt ünvanı Veriləndirmək lazımdır."
+msgstr ""
 
 # libretranslate
 msgid "Mailu listening on the onion (operator: \"if possible\")"
@@ -40102,7 +40102,7 @@ msgstr "Yalnız ``==`` pins toplanmışdır. Bir sıra və ya VCS məsləhəti �
 
 # libretranslate
 msgid "Only go back to `make compose-deploy mode=reinstall apps=<roles> full_cycle=true` if you have concrete evidence that the inventory or host stack is broken, or you intentionally need a fresh single-app baseline again."
-msgstr "Yalnız geri dön `make compose-deploy mode=reinstall apps=<roles> full_cycle=true` Yadda saxla."
+msgstr ""
 
 # libretranslate
 msgid "Only literal `https://<host>` tokens count as external assets:"
@@ -40542,7 +40542,7 @@ msgstr "Bu qrupları qazanmaq üçün operator-əmətləri `Administration RBAC 
 
 # libretranslate
 msgid "Operator-facing tooling for provisioning inventories, running dedicated deploys, and managing host secrets across an Infinito.Nexus environment."
-msgstr "Müəlliflik hüquququqları qorunur. Infinito.Nexus environment."
+msgstr ""
 
 # libretranslate
 msgid "Operator-requested: isolate MDAD's Ansible runtime from Infinito's so MDAD can pin its own `ansible-core` / collection versions without crossing into the Infinito Ansible venv."
@@ -41070,7 +41070,7 @@ msgstr "GitHub Actions birnotations kimi göstərir ki, hazırlanmış log mesaj
 
 # libretranslate
 msgid "Outside the containerised test rig the configured relay is used unchanged. Inside it that relay domain has neither DNS nor a route: a host carrying the stack itself reaches mail on loopback, while a bare infra node has nothing listening there and has to enter through the manager's routing mesh."
-msgstr "Qarşılaşdırılmış test rigində konvertor dəyişdirilir. Ən yaxşı rəsmi olaraq, rəsmi olaraq, əlavə etdiyiniz səfərdən istifadə olunur."
+msgstr ""
 
 # libretranslate
 #, python-brace-format
@@ -41840,7 +41840,7 @@ msgstr "No-user OAuth/app password for non-public data; heç bir post, izləyir,
 
 # libretranslate
 msgid "Per-user access token and room membership; no cross-user service token, send, invite, kick, ban, power-level, or encryption-key action"
-msgstr "Per , ken ken ken ken ken ken ken ken , , ken , ken ken"
+msgstr ""
 
 # libretranslate
 msgid "Per-user or room-scoped service identity; no unrestricted archive, send, invite, kick, ban, role, or server administration action"
@@ -41852,7 +41852,7 @@ msgstr "Per-user token üçün zaman çizelgesi data; heç bir mesaj, mesajlaşm
 
 # libretranslate
 msgid "Per-user token is required for private feeds, rooms, messages, or mail; a shared service account MUST NOT merge users' private data"
-msgstr "Per a a a , , , , , , , a"
+msgstr ""
 
 # libretranslate
 msgid "Per-variable computation MUST live under `handlers/` (see [handlers README](handlers/README.md) for the naming convention used there)."
@@ -42518,7 +42518,7 @@ msgstr "Yüksək keyfiyyətli təhlükəsizliyi (Axtarış)"
 
 # libretranslate
 msgid "Pre-release suffixes (`-rc1`, `-alpha2`, `+build.5`) MAY be appended; the archive CLI preserves them in archived filenames."
-msgstr "Pre f f f (`-rc1`, `-alpha2`, `+build.5`) E-poçt ünvanı."
+msgstr ""
 
 # libretranslate
 msgid "Precedence 📊"
@@ -43172,7 +43172,7 @@ msgstr "Təhlükəsizlik ən yaxşı effektdir: PHP olmadan ev sahibi, və ya on
 
 # libretranslate
 msgid "Provisioning is best effort: a host without Ruby, or one that cannot install it, must not fail the whole gate. scripts/lint/ruby.sh skips loudly instead."
-msgstr "Yadda saxla scripts/lint/ruby.sh əlavə səfəri atlar."
+msgstr ""
 
 # libretranslate
 msgid "Provisioning runs in ``tasks/utils/mcp.yml``: it copies the plugin into the code volume, runs ``admin/cli/upgrade.php``, enables ``enablewebservices``, appends ``mcp`` to ``webserviceprotocols``, creates the ``infinito_mcp`` external service, attaches the read-only functions, mints the permanent token and stores it under ``users.administrator.tokens['web-app-moodle']``."
@@ -43798,7 +43798,7 @@ msgstr "Heç bir paket eksik deyil."
 
 # libretranslate
 msgid "Raises OSError / UnicodeDecodeError unchanged — callers that scan arbitrary files can wrap this in try/except if non-UTF-8 blobs may appear."
-msgstr "E-poçt ünvanı8 blobs görünür."
+msgstr ""
 
 # libretranslate
 msgid "Raises `TypeError` when the YAML root is not a mapping; use `load_yaml_any` for files whose root is a list or scalar."
@@ -44063,7 +44063,7 @@ msgstr "» 📖"
 
 # libretranslate
 msgid "Read-only API identity if enforceable; never disclose the global signature token or enable shorten, edit, or delete by default"
-msgstr "Oxunub API Yadda saxla"
+msgstr ""
 
 # libretranslate
 msgid "Read-only API user; no article, extension, template, configuration, or user mutation"
@@ -44277,7 +44277,7 @@ msgstr "Qeyd olunan addons-a qarşı bir kataloq yaşayır."
 
 # libretranslate
 msgid "Reconcile the 3.1.4 Streamable HTTP registry and a managed flow as defined above. Remove the global-security-relaxation-as-integration claim and replace the anonymous-only test with a deterministic tool call."
-msgstr "Reconcile 3.1.4 Streamable HTTP qeydiyyat və üzərində müxtəlif axtarış. . . . . . . . . . . . . . . ."
+msgstr ""
 
 # libretranslate
 msgid "Reconciliation MUST use the ownership name `infinito:<provider-application-id>`. It MUST update or remove only entries carrying that marker and preserve all human-created client configuration. Zero matching entries creates one, one updates it, and more than one MUST fail without guessing which duplicate to keep."
@@ -44694,7 +44694,7 @@ msgstr "Qeydiyyatdan keçmişdir. *deyil* Burada qeyd etdi - onlar qeyd ``defaul
 
 # libretranslate
 msgid "Registry pushes are remotely-visible and irreversible from the client; pushing to the wrong registry or tag can overwrite existing images consumed by downstream deployments. Authentication state is a persistent side-effect (uses the previously-saved `docker login` credentials)."
-msgstr "Yadda saxla E-poçt ünvanı (Əvvəlki qazanmaq `docker login` credentials)."
+msgstr ""
 
 # libretranslate
 msgid "Registry 📋"
@@ -46102,7 +46102,7 @@ msgstr "Daha yaxşı tanışlıq üçün struktur rehberləri"
 
 # libretranslate
 msgid "Retain per-server group grants but remove the hard-coded administrator token source, add application-scoped user roles, fix last-group revocation, and reconcile after restart."
-msgstr "Yadda saxla."
+msgstr ""
 
 # libretranslate
 msgid "Retain the native server only with a dedicated least-privilege identity, a verified read-only tool allowlist, per-consumer grants, and an actual client tool call."
@@ -47179,7 +47179,7 @@ msgstr "Verilmiş bir direktor üçün əlavə ağ siyahısı giriş siyahısı.
 
 # libretranslate
 msgid "Returns a list of role ids (e.g. ``svc-db-redis``), matching the ``external: true`` entries ``compose_networks`` emits. The swarm deploy handler pre-creates those overlays so a shared provider's network is present even when the provider role did not run in the same play."
-msgstr "Rol növlərinin siyahısı (e.g. ``svc-db-redis``), uyğun ``external: true`` Giriş ``compose_networks`` axtarış. provider . . . . ."
+msgstr ""
 
 # libretranslate
 msgid "Returns a list of role names under the given roles_path that start with the specified prefix."
@@ -47851,7 +47851,7 @@ msgstr "Rol- xüsusiyyətlər və axtarış (haqqında)"
 
 # libretranslate
 msgid "Role-type detection consumes the ``marker: True`` entries declared in :data:`utils.roles.mapping.ROLE_FILES` so the schema and the predicate share one source of truth: adding a new type marker on the SPOT side makes the predicate recognise the new type without further code edits."
-msgstr "Rol tipli aşkar istehsal edir ``marker: True`` Giriş :data:`utils.roles.mapping.ROLE_FILES` Oxunub: . . . . ."
+msgstr ""
 
 # libretranslate
 msgid "Role-type detection."
@@ -47951,7 +47951,7 @@ msgstr "Domen adı qeydiyyatdan keçirt » `roles/`."
 
 # libretranslate
 msgid "Roles whose type set does not match any explicit entry inherit the type's policy from the wildcard fallback (see below); without a wildcard the file/entry is implicitly forbidden."
-msgstr "Nömrənin növü hər hansı bir açıq giriş uyğun ola bilər (Aşağıdakılar); wild wild wild."
+msgstr ""
 
 # libretranslate
 msgid "Roles whose upstream offers no peer interaction surface (every static, single-purpose, or federation-only role on the auth-less list) MUST NOT add a peer-exchange test. The omission is part of the role's contract, not a gap."
@@ -48783,7 +48783,7 @@ msgstr "Proqramı mövcudlaşdırmaq üçün yayımlanmış image çalıştırı
 
 # libretranslate
 msgid "Run the published image to provision the inventory and deploy pgAdmin to a managed server (the mounted volume persists the inventory):"
-msgstr "Yadda saxla (Avtomobil haqqında):"
+msgstr ""
 
 # libretranslate
 msgid "Run the published image to provision the inventory and deploy phpldapadmin to a managed server (the mounted volume persists the inventory):"
@@ -51056,7 +51056,7 @@ msgstr "Axtar"
 
 # libretranslate
 msgid "Single SPOT for \"which address block does role X own\". The block is declared once, in that role's ``meta/networks.yml``; anything that has to reason about the deployment's own address space reads it from here instead of repeating the literal, which is how a CIDR ends up stated twice and then drifts."
-msgstr "Single SPOT üçün \"which blok rol X öz\". Blok bir kez qeyd edilir, bu rol ``meta/networks.yml``; Əgər bir CIDR-nin ikidən çox və sonra çıxarılması."
+msgstr ""
 
 # libretranslate
 msgid "Single SPOT for every container probe in the repo. The service name is the only positional argument, everything else comes from the service's ``meta/services.yml`` entry:"
@@ -51731,7 +51731,7 @@ msgstr "Standartlaşdırılmış Servis Konfiqurasiyası 🧱"
 
 # libretranslate
 msgid "Standardized container paths (`/opt/src/infinito`) and switched to a global virtual environment to ensure reproducible builds and consistent test execution."
-msgstr "Standartlaşdırılmış konteyner yolları (`/opt/src/infinito`) and . . . ."
+msgstr ""
 
 # libretranslate
 msgid "Start Here 📖"
@@ -52902,7 +52902,7 @@ msgstr "Birləşmiş öz imzalanmış rejimi **Sertifikat texnikası** determini
 
 # libretranslate
 msgid "Switched web-app-sphinx to a prebuilt container image Removed local pkgmgr build logic and now deploys via the published GHCR image with explicit Docker service configuration."
-msgstr "Açıq Docker xidmət konfiqurasiyası ilə GHCR image yayımlanmış yerli pkgmgr inşa edir."
+msgstr ""
 
 # libretranslate
 msgid "Switches the local working tree to a PR branch."
@@ -53986,7 +53986,7 @@ msgstr "Bu da bir retrigger replays edir: `--failed` qeyd olunmuş iş ünvanı 
 
 # libretranslate
 msgid "That is what stops the supervisor flow rather than effort. Flowise reaches an MCP server over the container network, and a stdio server has no address there: the client spawns and owns the process, so a shared endpoint two consumers could hold at once does not exist, and the deploy-time contract probe would consume the only session. Wrapping each agent in a stdio-to-HTTP bridge would put an unreviewed process on the platform's most privileged path — an agent with tool access — to work around a transport upstream has not shipped, which is the workaround this project refuses. Re-review when either upstream serves MCP over HTTP."
-msgstr "Bu səfərçi axını sənaye daha çox dayandırır. Domen adı qeydiyyatdan keçirt » Bir stdio-to-HTTP körpü hər bir agent platformanın ən yaxşı yol üzərində hesabsız bir proses alacaq - bir avtomobilin girişi ilə bir agent - bu layihə hər hansı bir işləməmişdir. Ya upstream HTTP üzərində MCP xidmət edir."
+msgstr ""
 
 # libretranslate
 msgid "That is why the repo favors:"
@@ -55720,7 +55720,7 @@ msgstr "The M M M (daxil ol)."
 
 # libretranslate
 msgid "The design follows simple composition principles so environment state can be loaded safely and consistently without duplicating logic in many places. 🧱"
-msgstr "Konfrans məhsulları aşağıdakılardır: 🧱"
+msgstr ""
 
 # libretranslate
 msgid "The destructive drill, sync pass only. It proves the backup is restorable rather than merely present — the property a backup exists for."
@@ -56113,7 +56113,7 @@ msgstr "Rəsm yerləri Imprint the Infinito.Nexus komponentlər olaraq (capabili
 
 # libretranslate
 msgid "The diagram places Infinito.Nexus CLI in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
-msgstr "Rəsm yerləri Infinito.Nexus Oxunub Infinito.Nexus komponentlər olaraq (capabilities), Əsas xidmətləri (Xüsusiyyət), və onun daşınması (İctimai və körpüblü xidmətlər)."
+msgstr ""
 
 # libretranslate
 msgid "The diagram places Intel Driver in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
@@ -58136,7 +58136,7 @@ msgstr "Liman haqqında bir məhsuldur ``svc-net-tor services.tor.ports.local.so
 
 # libretranslate
 msgid "The post-login assertion MUST prove the session is real, in this order of preference: a user-menu or persona-name string visible in the DOM, a navigation element only rendered for authenticated users, a URL pattern unique to authenticated state. Stopping at a 2xx status code or a static text snippet that exists logged-out as well MUST NOT count as a session check."
-msgstr "The . . . . . . . . . . . . . . . . . . . . . . . . . Axtarış 2xx status kodu və ya mövcud mövcud olan statik bir məhsul mövcuddur MUST bir seans çek kimi sayt deyil."
+msgstr ""
 
 # libretranslate
 msgid "The precedence is:"
@@ -58256,11 +58256,11 @@ msgstr "Üstünlük `pull_request_target` build build **build** bazadan ref birl
 
 # libretranslate
 msgid "The probe runs inside the systemd unit, not at deploy time, because the set of docker volumes changes between deploys and a volume added afterwards would be an empty stub inside a snapshot. It refuses unless all of the following hold for the docker data root reported by ``docker info``:"
-msgstr "Probe added . , , , , , , , , , Bu, docker data kök üçün aşağıdakı tutmadığı halda qeyd olunub ``docker info``:"
+msgstr ""
 
 # libretranslate
 msgid "The probe runs inside the systemd unit, not at deploy time, because the set of docker volumes changes between deploys and a volume added afterwards would be an empty stub inside a snapshot. It refuses unless all of the following hold for the docker data root reported by `docker info`:"
-msgstr "Probe added . , , , , , , , , , Bu, docker data kök üçün aşağıdakı tutmadığı halda qeyd olunub `docker info`:"
+msgstr ""
 
 # libretranslate
 msgid "The probe therefore builds a **throwaway** btrfs on a loop device and puts a stub on `PATH` in place of the docker daemon. The host's real data root is never touched, and no state survives the run."
@@ -59172,7 +59172,7 @@ msgstr "Oxunub:."
 
 # libretranslate
 msgid "The same reachability problem exists without Tor wherever the host resolves through a listener of its own on loopback, which is how the simulated cluster nodes are wired. Handing containers the declared clearnet address there was what a literal bridge address in the inventory used to paper over, and that literal went stale the moment the daemon's address pool moved the bridge off Docker's default."
-msgstr "Eyni məlumat problemi, ev sahibinin bir dinləşdirilməsi ilə hər yerləşdirilən Tor olmadan mövcuddur, ki, simvollanmış nümunlər teld edilir. Hand the . . . . . . . . . . . . . . . . . . . . . . . ."
+msgstr ""
 
 # libretranslate
 msgid "The same selections with every axis dropped, one entry per role."
@@ -59534,7 +59534,7 @@ msgstr "Axtarış `make compose-deploy` Əgər hansı bir və ya daha çox paket
 
 # libretranslate
 msgid "The single-database dumps, and the cluster dumps, which name their instance in the file name and go through ``baudolo-restore cluster``."
-msgstr "The da da da , da da ``baudolo-restore cluster``."
+msgstr ""
 
 # libretranslate
 msgid "The single-token `gh * <verb>*` patterns above only match when the third token starts with the verb. Compound names like `item-create` or `mark-template` slip through because the third token is the full compound, not the bare verb. These rules close that gap for Projects v2 mutations namespace-wide."
@@ -60088,7 +60088,7 @@ msgstr "Bu addımlar paylaşılan depozit işıq və Linux, MacOS və ya WSL il�
 
 # libretranslate
 msgid "These templates are intended for inclusion in larger NGINX configuration files via Jinja2.   They modularize your configuration by separating HTML, WebSocket, and media proxying, allowing for clear, reusable, and maintainable reverse proxy logic."
-msgstr "Bu şablonlar Jinja2. E-poçt ünvanı."
+msgstr ""
 
 # libretranslate
 msgid "These variables cap the `infinito` container so local runs can reproduce GitHub-hosted runner pressure. Each default is `0`, which Docker interprets as \"unlimited\" and is identical to omitting the key. See [ci.md](../../actions/debugging/ci.md) for runner specs and reproduction profiles."
@@ -60409,7 +60409,7 @@ msgstr "Bu Ansible rol quraşdırılması və icra ```dockreap`` <https://github
 
 # libretranslate
 msgid "This Ansible role installs and makes the Infinito.Nexus CLI available on your system."
-msgstr "Bu Ansible rol quraşdırmaq və edir Infinito.Nexus Sisteminizdə mövcuddur."
+msgstr ""
 
 # libretranslate
 msgid "This Ansible role installs everything needed for Arduino development on Arch Linux. It includes the official Arduino IDE, documentation, and user group configurations to enable serial port access for uploading code to boards."
@@ -61315,7 +61315,7 @@ msgstr "Bu modul bu bildirişləri tapır, onları idmanla indeksləşdirir və 
 
 # libretranslate
 msgid "This module is intentionally ansible-free and dependency-light so it can be imported from the lint layer, the external test layer, and the update automation without dragging deploy-time machinery in."
-msgstr "Bu modul lint kağızdan, xarici test kağızdan və yeniləndirilməsi olmadan yeniləşdirilməsi."
+msgstr ""
 
 # libretranslate
 msgid "This module is the single source of truth for role-level dependencies: the paths inside a role directory, the role types each path may legitimately appear under, the mandatory shape of those paths, and the ``marker`` entries that drive role-type detection itself. Both lint tests and the role-type predicate live downstream of this file:"
@@ -62834,7 +62834,7 @@ msgstr ""
 
 # libretranslate
 msgid "This role provisions the isolating runtime layer of a container host. It installs the pinned gVisor binary, then re-runs the daemon configuration of the container role so the freshly installed runtime is registered and the daemon is restarted onto it. In swarm mode it additionally labels the node as sandbox-isolating, which is the placement constraint that keeps sandboxed workloads off nodes that still default to the shared kernel."
-msgstr "Bu rol bir konteyner hostinq qazanmaq isolating runtime kağızı müəyyən edir. Bu pinned gVisor ikili quraşdırır, sonra konteyner rol daemon konfiqurasiyasını yeniləndirir və daemon buraxılır. In . . . . . ."
+msgstr ""
 
 # libretranslate
 msgid "This role provisions:"
@@ -62934,11 +62934,11 @@ msgstr "Bu rol sizin layihəsinə supercharge Taiga, inkişaf və əməkdaşlıq
 
 # libretranslate
 msgid "This role this role installs and provides the Infinito.Nexus CLI, enabling you to manage your entire Infinito.Nexus environment from the command line. After deployment, the ``infinito`` command is available."
-msgstr "Bu rol bu rol yükləyir və təklif edir Infinito.Nexus Oxunub, bütün səfərinizi idarə etmək üçün imkan verir Infinito.Nexus komanda xidməti. quraşdırma sonra, ``infinito`` komanda mövcuddur."
+msgstr ""
 
 # libretranslate
 msgid "This role this role installs and provides the Infinito.Nexus CLI, enabling you to manage your entire Infinito.Nexus environment from the command line. After deployment, the `infinito` command is available."
-msgstr "Bu rol bu rol yükləyir və təklif edir Infinito.Nexus Oxunub, bütün səfərinizi idarə etmək üçün imkan verir Infinito.Nexus komanda xidməti. quraşdırma sonra, `infinito` komanda mövcuddur."
+msgstr ""
 
 # libretranslate
 msgid "This role unite your team with Mattermost, an open-source, self-hosted messaging platform that delivers secure, real-time collaboration through channels, threads, and integrations, keeping your conversations private and under your control."
@@ -63303,7 +63303,7 @@ msgstr "Bir məhsul sistemini yaxşılaşdırmaq üçün istədiyi istehsala tra
 
 # libretranslate
 msgid "To reduce setup time and ensure consistency across developer workstations, this role prepares a functional and extensible foundation for software engineering work."
-msgstr "Bu rol proqram mühəndislik işi üçün funksional və extensible bazar hazırlamaq."
+msgstr ""
 
 # libretranslate
 msgid "To reproduce one locally, export `GUIDE_ROLE`, `GUIDE_MODE`, `INFINITO_DISTRO` and run `scripts/github/guide/one.sh`."
@@ -64398,7 +64398,7 @@ msgstr "Yeniyetmə `services.matrix.upstream.ref` in `meta/services.yml` yeni bi
 
 # libretranslate
 msgid "Update automation MUST preserve existing `enabled`, `required`, `bridges`, and credential-related fields, and MUST NOT enable newly discovered addons automatically."
-msgstr "Update proqram MUST mövcuddur `enabled`, `required`, `bridges`, and , , , , , ,."
+msgstr ""
 
 # libretranslate
 msgid "Update jobs skipped; Dependabot PRs auto-closed"
@@ -65084,11 +65084,11 @@ msgstr "Rol haqqında istifadə ağ yaradılması və kolleksiya arasında işl�
 
 # libretranslate
 msgid "Use with care: installing Python packages system-wide can conflict with OS package management. For isolated installs of CLI tools, consider ``pipx`` instead."
-msgstr "Yadda saxla • Şifrəni unutmusunuz? Uşaq avadanlığı ``pipx`` instead."
+msgstr ""
 
 # libretranslate
 msgid "Use with care: installing Python packages system-wide can conflict with OS package management. For isolated installs of CLI tools, consider `pipx` instead."
-msgstr "Yadda saxla • Şifrəni unutmusunuz? Uşaq avadanlığı `pipx` instead."
+msgstr ""
 
 # libretranslate
 msgid "Use your own agent skills repository; `make install-skills` copies its skills into the project."
@@ -68486,7 +68486,7 @@ msgstr "Siz MUST onun rol üçün açıq inkişaf tələbləri almaq `TODO.md` G
 
 # libretranslate
 msgid "You MUST capture system-wide development requirements in the root `TODO.md` file so global work stays visible in one place."
-msgstr "Qeydiyyatdan keçmək `TODO.md` file . ."
+msgstr ""
 
 # libretranslate
 msgid "You MUST check off each criterion in the requirement file as soon as it is verified. Do not batch them."
@@ -71288,7 +71288,7 @@ msgstr "[Arch Linux: baz-devel paketi](https://archlinux.org/packages/core/any/b
 
 # libretranslate
 msgid "[Arch Linux](https://archlinux.org) support MAY use the latest available package versions where no stable equivalent exists."
-msgstr "[Avtomobil](https://archlinux.org) Yadda saxla."
+msgstr ""
 
 # libretranslate
 msgid "[Arch Wiki: Clipboard](https://wiki.archlinux.org/title/Clipboard)"
@@ -73049,7 +73049,7 @@ msgstr "[Tarix](https://openbao.org/) Linux Fondu tərəfindən idarə olunan bi
 
 # libretranslate
 msgid "[OpenBao](https://openbao.org/) is the Linux-Foundation-governed fork of HashiCorp Vault: an identity-based secrets and encryption manager with a KV store, a PKI engine, pluggable auth methods and a built-in web UI."
-msgstr "[Tarix](https://openbao.org/) is the . a . , , , , , , , , , , , , , , , , , , , , , , , ,."
+msgstr ""
 
 # libretranslate
 msgid "[OpenBao](roles/web-app-openbao/)"
@@ -75016,7 +75016,7 @@ msgstr "[n8Qeydiyyat `n8n@1.95.3`](https://github.com/n8n-io/n8n/tree/n8n%401.95
 
 # libretranslate
 msgid "[n8n](https://n8n.io/) is an open-source workflow automation platform. Connect services, transform data, and build integrations using a visual low-code editor or custom JavaScript/Python nodes."
-msgstr "[n8n](https://n8n.io/) açıq məlumat avtomatlaşdırma platforması. Yadda saxla."
+msgstr ""
 
 # libretranslate
 msgid "[n8n](roles/web-app-n8n/)"
@@ -76645,7 +76645,7 @@ msgstr "[x] Bir post-application uzlaşma mərkəzi təhlükəsiz təhlükəsiz 
 
 # libretranslate
 msgid "[x] Only entities explicitly exposed to Assist are reachable via MCP; mutating tools are off unless the operator opts in."
-msgstr "[x] Müəllif hüquqlar qorunur."
+msgstr ""
 
 # libretranslate
 msgid "[x] Open WebUI grants each server to only `roles/<provider-application-id>/mcp`; one-of-many, no-membership, wrong-app, removal, and last-group removal tests pass."
@@ -76975,7 +76975,7 @@ msgstr "[x] rol qurmaq şablonları `service_update_order = 'stop-first'`, Əgə
 
 # libretranslate
 msgid "[x] The runner choice is fixed to GitHub-hosted DinD for reproducibility — every PR run is identical and depends on no self-hosted infrastructure. Migrating to a self-hosted runner (e.g. [014](014-svc-runner-ci.md)) is a Future Extension, not part of this requirement."
-msgstr "[x] The . . . . . . . . . . Bir öz ev sahibi böyük Britaniya (e.g. [014](014-svc-runner-ci.md)) Bu tələblərin bir hissəsi deyil."
+msgstr ""
 
 # libretranslate
 msgid "[x] The script accepts the following parameters:"
@@ -83103,7 +83103,7 @@ msgstr "``extension``"
 
 # libretranslate
 msgid "``extra_hosts=``, whatever the call site needs on top: a peer's overlay VIP, or a partner service reachable only on the host."
-msgstr "``extra_hosts=``, Yadda saxla."
+msgstr ""
 
 # libretranslate
 msgid "``false`` while MCP servers are discovered"
@@ -87472,7 +87472,7 @@ msgstr "`mu_plugin`"
 
 # libretranslate
 msgid "`n8n <https://n8n.io/>`__ is an open-source workflow automation platform. Connect services, transform data, and build integrations using a visual low-code editor or custom JavaScript/Python nodes."
-msgstr "`n8n <https://n8n.io/>`__ açıq məlumat avtomatlaşdırma platforması. Yadda saxla."
+msgstr ""
 
 # libretranslate
 msgid "`n8n Docker Documentation <https://docs.n8n.io/hosting/installation/docker/>`__"
@@ -88299,7 +88299,7 @@ msgstr "`resource_readonly` yaxşı `n8n_workflow`"
 
 # libretranslate
 msgid "`resource_readonly`: checked-in rules for exposing a bounded, non-secret published content set as MCP resources rather than pretending it is an application action API."
-msgstr "`resource_readonly`: an for for for for for an an for an an an an an an API."
+msgstr ""
 
 # libretranslate
 msgid "`restart-key`"
@@ -97217,11 +97217,11 @@ msgstr "the MediaWiki proqram `images/` and `extensions/` NFS-nin məlumatı (`n
 
 # libretranslate
 msgid "the Nextcloud account the app password belongs to; every tool call the adapter forwards runs with that account's permissions"
-msgstr "the Nextcloud account app ; ; ; ; ;"
+msgstr ""
 
 # libretranslate
 msgid "the Nextcloud account the app password belongs to; every tool call the adapter forwards runs with that account’s permissions"
-msgstr "the Nextcloud account app ; ; ; ; ;"
+msgstr ""
 
 # libretranslate
 msgid "the OpenAI agent takes no base URL and the `ollama` integration speaks Ollama's native API; see the measurement above"
@@ -97941,7 +97941,7 @@ msgstr "server xüsusiyyətsizdir; hər hansı bir daha istəyi çox olacaq, sə
 
 # libretranslate
 msgid "the service runs embedded inside that app's own compose stack rather than centrally. Mutually exclusive with the shared/required axis when enabled is True."
-msgstr "xidmət mövcuddur ki, appin öz formaq mərkəzi daha çox kağız. E-poçt ünvanı."
+msgstr ""
 
 # libretranslate
 msgid "the service's healthcheck entry from services.yml."
@@ -100380,7 +100380,7 @@ msgstr "💡 **Yerlihost üçün Smart Fallback**"
 
 # libretranslate
 msgid "💡 **Tip:** Mailu must be aware of the domain both in its configuration and the database for mail routing and certificate issuance to work correctly."
-msgstr "💡 **Tip:** E-poçt ünvanı."
+msgstr ""
 
 # libretranslate
 msgid "💡 Tip: This method is useful when you're using federated login and want to avoid managing separate local admin credentials."

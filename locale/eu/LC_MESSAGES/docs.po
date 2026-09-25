@@ -56166,7 +56166,7 @@ msgstr "Diagrama lekuak Imprint barruan Infinito.Nexus Kosmosa: hedatzen dituen 
 
 # libretranslate
 msgid "The diagram places Infinito.Nexus CLI in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
-msgstr "Diagrama lekuak Infinito.Nexus KLI barruan Infinito.Nexus Kosmosa: hedatzen dituen osagaiak (Gaitasunak), kontsumitzen dituen zerbitzu zentralak (Mendekotasunak)eta bere kanpoko irispidea (Federazio eta kanpoko sare zubiak)."
+msgstr ""
 
 # libretranslate
 msgid "The diagram places Intel Driver in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks)."
@@ -98247,7 +98247,7 @@ msgstr "mota: tmpfs muntatzeak:"
 
 # libretranslate
 msgid "type: volume                      # bind | volume | config | secret | tmpfs name: matrix_synapse_data         # OPTIONAL docker volume name; defaults to the key nfs: true                         # only meaningful for type: volume mounts:"
-msgstr "mota: bolumena # lotu | bolumena | konfigurazioa | sekretua | tmpfs izena: matrix_synapse_data"
+msgstr ""
 
 # libretranslate
 msgid "ublock-origin"

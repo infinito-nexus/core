@@ -3532,7 +3532,7 @@ msgstr "**המונחים:**"
 
 # libretranslate
 msgid "**Docker Compose Integration:**   Benefit from a streamlined, containerized deployment process that simplifies updates and environment configuration."
-msgstr "**המונחים:** תועלת מתהליך פריסה מבוזר, המפשט עדכונים ותצורה של הסביבה."
+msgstr ""
 
 # libretranslate
 msgid "**Docker Compose Integration:** Automates container setup and configuration."
@@ -15991,7 +15991,7 @@ msgstr "נוסף על זרימת העבודה של Docker חיצוני, רצף �
 
 # libretranslate
 msgid "Added the lint corpus for: project-walk / cache-read / project-root-import / no-direct-yaml / no-inline-multiline-php-in-sh / no-inline-multiline-sql / no-lookup-config-jinja-default / role-meta-layout / web-role-no-web-dependency / run-once-on-shared-services / redundant-bool-patterns / sed-escape / no-sh-pipefail / compose-resource-limits / dynamic-flag / auth-coverage / variant-coverage / variants-services-match / Ansible Galaxy schema / inline literal script-block size cap / production Python file-size cap / SPOT-of-truth for domain literals / oauth2 proxy-port allocation"
-msgstr "תוספת lint corpus for: Project-Walk / cache-read / Project-root-import / no-direct-yaml / no-inline-multiline-multiline-in-sh / no-inline-multiline-multiline-mcover s-mcoveryli/less-of-up-up-up-jinja-default / Role-meta-lay/ro-line2 הקצאת דואר"
+msgstr ""
 
 # libretranslate
 msgid "Added the package-cache (Nexus 3 OSS) and registry-cache stacks with inner-build override, TTL env vars, and SPOT documentation"

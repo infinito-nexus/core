@@ -354,7 +354,7 @@ msgstr "控件"
 # libretranslate
 msgctxt "category:sys.ctl:description"
 msgid "Control layer for system lifecycle management—handling cleanup, monitoring, backups, alerting, maintenance, and repair tasks."
-msgstr "系统生命周期管理的控制层——处理清理、监测、备份、警报、维护和修理任务。."
+msgstr ""
 
 # libretranslate
 msgctxt "category:svc.ai:description"
@@ -392,7 +392,7 @@ msgstr "客户关系"
 # libretranslate
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
-msgstr "客户关系管理 (客户关系管理) 管理客户关系、销售管道、营销和支助活动的软件。."
+msgstr ""
 
 # libretranslate
 msgctxt "category:sys.dns:title"
@@ -1194,7 +1194,7 @@ msgstr "未来XMPP服务器/容器部署的占位符"
 # libretranslate
 msgctxt "menu:Commerce:description"
 msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
-msgstr "建立和管理网上商店、产品目录和数字销售渠道的平台,包括付款、库存和客户功能。."
+msgstr ""
 
 msgctxt "logout:keep_closed"
 msgid "Please do not close this page yet."
@@ -1316,12 +1316,12 @@ msgstr "逆向副作用,用于路由和负载平衡流量到后端服务"
 # libretranslate
 msgctxt "category:sys.ctl.cln:description"
 msgid "Roles for cleaning up various system resources—old backups, unused certificates, temporary files, Docker volumes, disk caches, deprecated domains, and more."
-msgstr "清理各种系统资源的作用——旧的备份、未使用的证书、临时文件、Docker卷、磁盘缓存、贬值域等等。."
+msgstr ""
 
 # libretranslate
 msgctxt "category:drv:description"
 msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
-msgstr "安装和配置硬件驱动程序的作用——包括打印机、图形、输入设备和其他外围支持。."
+msgstr ""
 
 # libretranslate
 msgctxt "category:web:description"
@@ -1331,7 +1331,7 @@ msgstr "管理网络基础设施的作用——涵盖静态内容服务和可部
 # libretranslate
 msgctxt "category:sys.ctl.hlth:description"
 msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
-msgstr "系统监测和健康检查的作用——包括装瓶式自动检查和记录、容器、磁盘使用等核心低层显示器。."
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-front-tls-selfsigned:description"
@@ -1626,7 +1626,7 @@ msgstr "服务优化"
 # libretranslate
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
-msgstr "服务级备份和回收组件——处理自动数据快照、远程备份、同步服务以及跨越数据库、文件和容器的备份协调。."
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-svc-css:description"

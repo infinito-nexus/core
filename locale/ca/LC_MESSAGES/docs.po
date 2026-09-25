@@ -2430,7 +2430,7 @@ msgstr "**Descripció:** Configuració NFS del client per a muntar una exportaci
 
 # libretranslate
 msgid "**Description:** Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "**Descripció:** Funció Comment"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Clipboard manager with editable history, custom actions, and scripting support"
@@ -2602,7 +2602,7 @@ msgstr "**Descripció:** Servidor d'escacs Federats per jugar i seguir jocs vali
 
 # libretranslate
 msgid "**Description:** Federated, end-to-end-encrypted messaging platform with a web client and protocol bridges to external chat networks"
-msgstr "**Descripció:** Name"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Federated, self-hosted platform for organizing events and building communities and groups"
@@ -6138,7 +6138,7 @@ msgstr "**NGINX invers intermediari:** Name `/cool/` camins."
 
 # libretranslate
 msgid "**NGINX Reverse Proxy:** Configures a public-facing proxy with TLS termination and WebSocket support for ``/cool/`` paths."
-msgstr "**NGINX invers intermediari:** Name ``/cool/`` camins."
+msgstr ""
 
 # libretranslate
 msgid "**NGINX Reverse Proxy:** Configures a public-facing proxy with TLS termination for `/` and internal API calls."
@@ -9786,7 +9786,7 @@ msgstr "**descripció**: Configuració de la banda del client NFS per a muntar u
 
 # libretranslate
 msgid "**description**: Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
-msgstr "**descripció**: part del client WireGuard Comment"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Clipboard manager with editable history, custom actions, and scripting support"
@@ -32971,7 +32971,7 @@ msgstr "Portabilitat millorada (paquet del pacman eka) i ha afegit flux de treba
 
 # libretranslate
 msgid "Improved CI diagnostics, runner-state dumps, disk / swap handling, image wait logic, and mirror / release backfill workflows for fork-based development"
-msgstr "Name"
+msgstr ""
 
 # libretranslate
 msgid "Improved CI reliability with reusable workflows, fixed permissions, and consistent SARIF uploads"
@@ -57278,7 +57278,7 @@ msgstr "La implementació del MTAR manté una línia d'abstracció neta entre el
 
 # libretranslate
 msgid "The implementation MUST prefer native upstream MCP support. Plugin, sidecar, or marketplace MCP servers MAY be used only when the upstream project documents them as supported or when the role README documents the risk and the operator explicitly enables the integration."
-msgstr "La implementació MTART prefereix la implementació natiu del MC. Name."
+msgstr ""
 
 # libretranslate
 msgid "The implementation MUST start from the current code rather than from the completed checkboxes in requirement 025:"
@@ -69676,7 +69676,7 @@ msgstr "[ ] LDAP"
 
 # libretranslate
 msgid "[ ] LDAP- and SSO-bridging addons remain covered by the existing Playwright LDAP/SSO requirements (017/018) without new per-role wiring."
-msgstr "[ ] SÈRIES-VOSC Traducció: onliyu (017/018) Sense cables nous."
+msgstr ""
 
 # libretranslate
 msgid "[ ] LDAP-driven persona scenarios MUST live INSIDE the persona bodies named `biber: <flow>` and `administrator: <flow>` per 019 Rule 3; the per-persona LDAP gate is added via a separate `skipUnlessServiceEnabled('ldap')` call inside the existing persona body, not as a parallel ungated test. The persona-naming lint [test_naming.py](../../tests/lint/ansible/roles/web-app/playwright/persona/test_naming.py) is the role-closure gate; an additional ungated `ldap login` test next to the personas is forbidden by 019 Rule 5."

@@ -4488,7 +4488,7 @@ msgstr "**গ্রোবাল Matomo অনুসরণ**"
 
 # libretranslate
 msgid "**Global Matomo Tracking**   The role includes Matomo tracking configuration and injects the corresponding tracking script into your HTML."
-msgstr "**গ্রোবাল Matomo অনুসরণ** ভূমিকার অন্তর্ভুক্ত Matomo কনফিগার করো..."
+msgstr ""
 
 # libretranslate
 msgid "**Global Theming**"
@@ -10130,7 +10130,7 @@ msgstr "**বিবরণ**: ভবিষ্যৎ XMPP সার্ভারে
 
 # libretranslate
 msgid "**description**: Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
-msgstr "**বিবরণ**সংরক্ষণ করা হয়েছে"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Policy-managed web browser for Arch Linux desktops with auto-installed enterprise extensions"
@@ -10198,7 +10198,7 @@ msgstr "**বিবরণ**: প্রাথমিক-proxy TLS স্তরয�
 
 # libretranslate
 msgid "**description**: Scheduled backup job for hard-linked differential rsync snapshots of an NFS export into the local backup tree"
-msgstr "**বিবরণ**বাতিল করা হয়েছে"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Scheduled cleanup tool for revoking and deleting unused Let's Encrypt certificates"
@@ -10426,7 +10426,7 @@ msgstr "**বিবরণ**: ডিভাইস যোগাযোগ ব্য�
 
 # libretranslate
 msgid "**description**: Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
-msgstr "**বিবরণ**: অডিও/ভিডিও কল, পর্দা ভাগিং রুম, এবং SOT"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Static file server over HTTPS with directory listing, .well-known handling, and automatic TLS certificates"
@@ -14625,7 +14625,7 @@ msgstr "এক ধরনের ভূমিকা ``svc-opt-ssd-hdd`` এটি 
 
 # libretranslate
 msgid "A role MAY belong to several types simultaneously (for example an application that also ships a systemd unit). The returned frozenset contains every type whose marker matches; the user / tooling fallbacks fire only when no marker resolves."
-msgstr "একই ধরনের এক ভূমিকা (যেমন, একটি অ্যাপ্লিকেশনের জন্য চলমান জাহাজ). বাতিল করা হয়েছে."
+msgstr ""
 
 msgid "A role MAY omit the file entirely. The loader then exposes exactly one variant equal to the assembled per-role meta payload (`meta/services.yml` + `meta/server.yml` + `meta/rbac.yml` + `meta/volumes.yml` + `apply_schema()`'d `meta/secrets.yml`) unchanged."
 msgstr ""
@@ -14699,7 +14699,7 @@ msgstr "কোন ব্যবহারকারী এতে অবদান �
 
 # libretranslate
 msgid "A role that declares none takes the run's whole pool, which is what spreads both architectures evenly over its variants: every row of the catalogue advances the same rotation, so a role's consecutive rows alternate rather than repeating one architecture."
-msgstr "এমন একটি ভূমিকা যার নাম ঘোষণা করা হয় কোন কিছুরই নয়, যা এমনকি স্থাপত্যের উপর দিয়ে ছড়িয়ে পড়ে।."
+msgstr ""
 
 # libretranslate
 msgid "A role that gains a `shared_net` overlay changes its network layout: the project's default network, named after the entity and carrying the declared local subnet, is replaced by an unnamed project default, and the entity name passes to an externally managed network. Docker cannot relabel an existing network, so on a deployment that already ran, the network has to be recreated, and that fails while any consumer holds an endpoint on it:"
@@ -15757,7 +15757,7 @@ msgstr ""
 
 # libretranslate
 msgid "Added the lint corpus for: project-walk / cache-read / project-root-import / no-direct-yaml / no-inline-multiline-php-in-sh / no-inline-multiline-sql / no-lookup-config-jinja-default / role-meta-layout / web-role-no-web-dependency / run-once-on-shared-services / redundant-bool-patterns / sed-escape / no-sh-pipefail / compose-resource-limits / dynamic-flag / auth-coverage / variant-coverage / variants-services-match / Ansible Galaxy schema / inline literal script-block size cap / production Python file-size cap / SPOT-of-truth for domain literals / oauth2 proxy-port allocation"
-msgstr "IPttputers/ data-sc-de-প্যাশ্যাশ রূপে চিহ্নিত করুন: প্রজেক্ট // dis-me-de-in-de-interal-interinterface-s না / arde-in-inter-dec-প্ল-প্ল্যাট-পাইল-প্ল্যান্ট / -dec-প্লবিক-প্ল-প্লবিক-প্লটম্বর জন্য //-প্ল্যাট-প্ল্যাট-চ-চ unp-প্ল্যাটিক-প্ল্যাট-প্ল্যান্ট / - নেই2 প্রক্সি সংক্রান্ত বিকল্প"
+msgstr ""
 
 # libretranslate
 msgid "Added the package-cache (Nexus 3 OSS) and registry-cache stacks with inner-build override, TTL env vars, and SPOT documentation"
@@ -17599,7 +17599,7 @@ msgstr ""
 
 # libretranslate
 msgid "Application-scoped queries across the role catalogue: enumerate invokable applications, group them by deployment type, validate per-application storage budgets, and aggregate compute resources."
-msgstr "অ্যাপ্লিকেশনের ভূমিকার তালিকা দিয়ে আবেদন করা হয়েছে:."
+msgstr ""
 
 # libretranslate
 msgid "Application-scoped user grants"
@@ -17635,7 +17635,7 @@ msgstr "অব্যবহৃত ডোমেইন কনফিগের গ্
 
 # libretranslate
 msgid "Applies to every call that fetches over the network, the distribution's own repositories included: their metadata is served by mirror pools that degrade independently of the package manager's internal retries."
-msgstr "এই সব কলগুলোকে নেটওয়ার্কে নিয়ে আসা প্রতিটি আহ্বানের মধ্যে আছে, ডিস্ট্রিবিউশনের নিজস্ব রিপোজিটরি।."
+msgstr ""
 
 # libretranslate
 msgid "Applies to: **`main` (default branch)**"
@@ -18094,7 +18094,7 @@ msgstr "অনুমোদন, প্রক্সি, TLS, নেটওয়া
 
 # libretranslate
 msgid "Authenticates the mirror job against Docker Hub, which raises the anonymous pull-rate limit the mirror would otherwise hit."
-msgstr "ডকারের হাবের আয়নায় আয়নার কাজ অনুমোদন করা হয়েছে।."
+msgstr ""
 
 msgid "Authentication & Admin Model"
 msgstr ""
@@ -25383,7 +25383,7 @@ msgstr "একটি কঠিন কোড ডোমেইন বা পরি�
 
 # libretranslate
 msgid "Do NOT introduce noisy debug logging, uncaught errors, duplicate event handlers, or endless observers into injected scripts."
-msgstr "কোনো শব্দচিত্র ব্যবহার করবেন না ।."
+msgstr ""
 
 msgid "Do NOT leave implementation warnings unresolved just because they are inconvenient."
 msgstr ""
@@ -27940,7 +27940,7 @@ msgstr "বহিস্থিত পরীক্ষা"
 
 # libretranslate
 msgid "External tests MAY emit warnings instead of hard failures when the goal is advisory freshness reporting rather than merge-blocking correctness."
-msgstr "ভিডিও পরীক্ষাগুলো ব্যর্থতার পরিবর্তে একটি সতর্কবার্তা সৃষ্টি করে।."
+msgstr ""
 
 # libretranslate
 msgid "External tests MUST live under `tests/external/`."
@@ -28378,7 +28378,7 @@ msgstr "ফাইলের স্কীমা 📁"
 
 # libretranslate
 msgid "Files MUST use the pattern `NN_<topic>.yml`, where `NN` is a zero-padded two-digit numeric prefix. Ansible loads files in lexicographic order, so the prefix determines the load order and lets later files reference values defined earlier."
-msgstr "ফাইলসিস্টেমের বিন্যাস ব্যবহৃত `NN_<topic>.yml`, কোথায় `NN` এটা একটা শূন্য থেকে দুই সংখ্যার উপসর্গ। জি. এস."
+msgstr ""
 
 # libretranslate
 msgid "Files in `library/` should use:"
@@ -33841,7 +33841,7 @@ msgstr "পরীক্ষণের সুবিধা `.github/workflows/*.yml`
 
 # libretranslate
 msgid "Integration tests for `.j2` templates across the repository: syntax validity, include-path resolution, and consistent variable definition and usage."
-msgstr "পরীক্ষণের সুবিধা `.j2` রিপোজিটরিতে টেমপ্লেট:."
+msgstr ""
 
 msgid "Integration tests for `utils/manager/inventory/InventoryManager` and related inventory-schema machinery: transitive provider-role resolution, schema apply, vault scalar round-trip."
 msgstr ""
@@ -33882,7 +33882,7 @@ msgstr "স্বনির্ধারিত আন-ইনস্টল করা
 
 # libretranslate
 msgid "Integration tests for the deployment substrate that every role shares: Docker Compose templates, Docker image consistency, container networks, the shared service registry, and the backups contract."
-msgstr "যে সকল ভূমিকা শেয়ার করা হয়েছে তার ভিত্তিতে পরীক্ষা করা হচ্ছে।."
+msgstr ""
 
 # libretranslate
 msgid "Integration tests that enforce contracts between tasks and handlers. One file per contract, no second opinion on the same rule:"
@@ -40391,7 +40391,7 @@ msgstr "আউটপুট গঠনকৃত লগ ফাইল (সতর্�
 
 # libretranslate
 msgid "Outside the containerised test rig the configured relay is used unchanged. Inside it that relay domain has neither DNS nor a route: a host carrying the stack itself reaches mail on loopback, while a bare infra node has nothing listening there and has to enter through the manager's routing mesh."
-msgstr "কনফিগার করা হয়েছে এর ভেতরে যে রিলে ডোমেইনের কোন ডিএনএ বা কোন রাস্তা নেই, তা নেই।."
+msgstr ""
 
 # libretranslate
 #, python-brace-format
@@ -42301,7 +42301,7 @@ msgstr "শুধুমাত্র প্রমান করে যে পো�
 
 # libretranslate
 msgid "Proves the architecture supports the PKI story without mounting an unused CA that would still need backup, rotation and monitoring from day one."
-msgstr "একটি অব্যবহৃত সিএপিআই’র মাধ্যমে স্থাপত্যের সমর্থন রয়েছে।."
+msgstr ""
 
 # libretranslate
 msgid "Provide **one-stop, idempotent domain provisioning** for NGINX-based homelabs or small production environments."
@@ -46714,7 +46714,7 @@ msgstr "অতিরিক্ত ছবি তৈরী, ধাক্কা, আ
 
 # libretranslate
 msgid "Reworked shared service discovery and loading around the new sys-utils-service-loader flow and the required service semantics"
-msgstr "নতুন ধূমপায়ী যন্ত্র আবিষ্কার এবং লোড করা হয়েছে।"
+msgstr ""
 
 # libretranslate
 msgid "Reworked the Make surface into domain prefixes (compose-, network-, clean-, container-), added comment-derived make help, parallel test/lint wrappers with per-target wall-clock, a default help target, a single make deploy router, a make console REPL, make compose-playwright, a test-signed pre-push gate, and a clean-container-owned target"
@@ -48192,7 +48192,7 @@ msgstr "সিস্টেম সার্ভিসের তালিকাName
 
 # libretranslate
 msgid "Runs a dedicated local validation flow for one or more apps against the dev stack, cycling the stack and re-initializing the inventory first."
-msgstr "একটি বা একাধিক এ্যাপস-এর জন্য স্থানীয় একটি বৈধ ভাবে চালু হয়েছে।."
+msgstr ""
 
 # libretranslate
 msgid "Runs a targeted `infinito administration deploy dedicated` for one or more apps."
@@ -50195,7 +50195,7 @@ msgstr "সহজ আইকন পরিসেবা (যদি services.simplei
 
 # libretranslate
 msgid "Simplified CI image publishing workflow Removed the ci-publish workflow to ensure images are always built on version tags, while keeping stable tagging gated on successful checks."
-msgstr "সরল সি আই ছবি প্রকাশনা করছে কাজের ধারার উপর ভিত্তি করে কাজ করার জন্য।."
+msgstr ""
 
 # libretranslate
 msgid "Simplifies first-time setup of Tor Browser"
@@ -53375,7 +53375,7 @@ msgstr "এইচ.1 অ্যাপ্লিকেশনের ক্ষেত�
 
 # libretranslate
 msgid "The H1 heading MUST be the human-readable name of the category, ending with a single trailing emoji that hints at the topic."
-msgstr "এইচ.1 শিরোনাম এমএসটি হচ্ছে মানুষের নাম, বিভাগটির শেষ।."
+msgstr ""
 
 # libretranslate
 msgid "The HTTPS-only inner-build gap requires per-image CA-trust bootstrap, which is out of scope for the current minimal-invasive design."
@@ -56750,7 +56750,7 @@ msgstr "অ্যাপ্লিকেশন দ্বারা খালি অ
 
 # libretranslate
 msgid "The matrix hands every row exactly one filesystem, so the value a deploy job sees is always narrow. Reading that narrowness as a demand would turn every condition the applying step is built to tolerate into a red row: a loop device it could not claim, a pool another job still holds, a kernel without the module."
-msgstr "প্রতিটি সারির টাক্সের হাত ঠিক একটি ফাইল, তাই একটি বরাদ্দ কাজের মূল্য সবসময় সীমিত। একটি লুপ ডিভাইস ব্যবহার করে এমন একটি পুলের দাবির কথা উল্লেখ করতে পারে।."
+msgstr ""
 
 msgid "The matrix is **directional** (the row hosts the plugin/flag); bidirectional pairs such as `nextcloud`↔`openproject` carry a symbol in both cells. It is generated by [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py): ☑️ edges are scanned from every role's `meta/services.yml` (the `sso`/`matomo`/`prometheus`/`email`/`dashboard`/`css`/`logout`/`cdn`/`coturn`/`collabora`/`onlyoffice`/`libretranslate` keys), and ✅/🪙 edges come from a curated, web-verified `EDGES` map. It MUST be regenerated rather than hand-edited. At creation time it covers 82 roles with **523 infinito-native (☑️) wired edges plus 96 curated upstream (✅/🪙) edges**. The ☑️ layer is exhaustive (it is scanned from the repo); the ✅/🪙 layer is **not yet exhaustive** and grows as each role's upstream plugin ecosystem is researched in depth (e.g. a MediaWiki deep-dive added `DiscourseSsoConsumer`, `PeerTubeEmbed`, `MachineTranslation`→libretranslate, `Extension:AWS`→minio, and an LLM editor→openwebui). The ✅/🪙 set is the **backlog**: every ✅ pair is an addon this requirement commits to declare and wire (see Acceptance Criteria), and completing the per-role upstream survey is itself an acceptance criterion."
 msgstr ""
@@ -56991,7 +56991,7 @@ msgstr "উপেক্ষা করা পাথ- সমূহ হোস্ট-
 # libretranslate
 #, no-python-format, python-brace-format
 msgid "The override path lives at the caller because Jinja-scope `{% set %}` bindings are visible only in the rendering template, never in the Ansible variable context that the lookup sees."
-msgstr "ফোন করা রাস্তা উপেক্ষা কারণ জিনজাস্কোপ `{% set %}` বাইন্ডিং পুনরায় লোড করা হবে না ।."
+msgstr ""
 
 msgid "The override value for one credential, or None when unset."
 msgstr ""
@@ -57216,7 +57216,7 @@ msgstr "এই কাজের প্রধান উদ্দেশ্য হ�
 
 # libretranslate
 msgid "The primary purpose of this role is to ensure that Docker-based services remain operational. By automatically monitoring container health, it enables administrators to react quickly to failures, reducing downtime and preventing unnoticed service degradation."
-msgstr "ডকার ভিত্তিক পরিষেবাগুলো এখনও চালু আছে। কিন্তু, কিছু সময়ের জন্য তা করা সহজ নয় ।."
+msgstr ""
 
 msgid "The primary purpose of this role is to ensure that all Docker Compose services are restarted consistently, resolving issues that may arise from partial restarts. This helps maintain overall service stability and minimizes downtime."
 msgstr ""
@@ -57432,7 +57432,7 @@ msgstr "এই ভূমিকার উদ্দেশ্য হচ্ছে, �
 
 # libretranslate
 msgid "The purpose of this role is to ensure that GNOME Terminal is installed and properly configured on Arch Linux systems, providing users with a robust and fully featured terminal emulator that integrates seamlessly with the GNOME desktop."
-msgstr "এই ভূমিকার উদ্দেশ্য নিশ্চিত করা GNOME Terminal স্ট্রেইট সিস্টেমে ইনস্টল করা হয়েছে এবং সঠিকভাবে কনফিগার করা হয়েছে ।."
+msgstr ""
 
 # libretranslate
 msgid "The purpose of this role is to ensure uninterrupted workflow by keeping the desktop active during long-running tasks or presentations. By automatically starting caffeine-ng, it prevents unwanted screen locking or sleep modes on GNOME systems."
@@ -67330,7 +67330,7 @@ msgstr "শেয়ার করা ব্যর্থ কাজের মা�
 
 # libretranslate
 msgid "You MUST combine the matching `--color-XX-*` and `--color-rgb-XX-*` tokens in a way that is both meaningful and aesthetically coherent so semantic mappings, surfaces, gradients, borders, and overlays work together as one design system."
-msgstr "আপনি FUST মেলানোর কাজ করেছেন `--color-XX-*` এবং `--color-rgb-XX-*` কিন্তু, এটা কি সম্ভব?"
+msgstr ""
 
 # libretranslate
 msgid "You MUST commit only after all required checks pass."
@@ -67640,7 +67640,7 @@ msgstr "আপনি রি- রিডার `AGENTS.md` আর কার্য 
 
 # libretranslate
 msgid "You MUST re-run the full no-`apps=` sweep only as the final end-to-end parity confirmation, after the tail has gone green."
-msgstr "তুমি পুরো ফুল-না-`apps=` ঠিক আছে। ঠিক আছে। ঠিক আছে।."
+msgstr ""
 
 # libretranslate
 msgid "You MUST read [Role `javascript.js`](../files/role/javascript.js.md) BEFORE you implement role-local JavaScript so you can see how browser-side behavior should be implemented before you add or rewrite injected scripts."
@@ -80876,7 +80876,7 @@ msgstr "``HTTP_SECURITY_CHECK``"
 
 # libretranslate
 msgid "``INFINITO_CI_CHUNK_SIZE`` takes precedence when set; 0 derives the value from the runner slots a chunk may assume and the waves the queue window affords."
-msgstr "``INFINITO_CI_CHUNK_SIZE`` মাপ নির্ধারণ করা হলে 0 কিছু নম্বরের তালিকা ।."
+msgstr ""
 
 # libretranslate
 msgid "``INFINITO_VERSION_ENV_NAME`` (default: ``INFINITO_VERSION``)"
@@ -96228,7 +96228,7 @@ msgstr "অনুসন্ধানের ক্ষেত্রে ভেরি�
 
 # libretranslate
 msgid "the variants this sweep actually deploys. A variant the sweep cuts as redundant coverage never reaches a runner, so hanging the replay on it would silently drop the role from the instructions test; the next-smallest deployed variant carries it instead."
-msgstr "এটার নকশা সত্যিই চলছে. যুক্তি দিয়ে ছোট ছোট ছোট ছোট অংশগুলো কোন দৌড়বিদের কাছে পৌঁছায় না। তাই এটা আবার শুরু করা হবে।."
+msgstr ""
 
 # libretranslate
 msgid "the variants this sweep deploys, as the matrix writes them."

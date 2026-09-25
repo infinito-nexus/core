@@ -34230,7 +34230,7 @@ msgstr "Telepíti a CLI GNOME kiterjesztési kezelőt a csomagkezelő segítség
 
 # libretranslate
 msgid "Installs the Infinito.Nexus CLI automatically"
-msgstr "Telepíti a Infinito.Nexus Automatikus CLI"
+msgstr ""
 
 # libretranslate
 msgid "Installs the SSH client using the system package manager"
@@ -60416,7 +60416,7 @@ msgstr "Ez az Elérhető szerep beépül és végrehajtja ```dockreap`` <https:/
 
 # libretranslate
 msgid "This Ansible role installs and makes the Infinito.Nexus CLI available on your system."
-msgstr "Ez az elérhetõ szerep beiktatja és Infinito.Nexus A CLI elérhető a rendszerén."
+msgstr ""
 
 # libretranslate
 msgid "This Ansible role installs everything needed for Arduino development on Arch Linux. It includes the official Arduino IDE, documentation, and user group configurations to enable serial port access for uploading code to boards."

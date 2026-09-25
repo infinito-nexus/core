@@ -1684,7 +1684,7 @@ msgstr "**Volledige geheime dekking:** geheimen + tokens, zelf ondertekende CA, 
 
 # libretranslate
 msgid "**Complete secret coverage:** secrets + tokens, self-signed CA, Let’s Encrypt tree, ACME DNS credentials, ssh host keys and machine-id in one differential generation."
-msgstr "**Volledige geheime dekking:** geheimen + tokens, zelf-ondertekend CA, Let."
+msgstr ""
 
 # libretranslate
 msgid "**Composable**: designed to be called repeatedly for many domains."

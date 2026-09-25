@@ -15996,7 +15996,7 @@ msgstr "Funciones adicionales de aplicación: web-app-opencloud y web-app-openta
 
 # libretranslate
 msgid "Added new lint guards: project-walk, cache-read, project-root-import, noqa-only-ruff-codes, no-direct-yaml, no-inline-multiline-php-in-sh, no-inline-multiline-sql, no-lookup-config-jinja-default, role-meta-layout, web-role-no-web-dependency, run-once-on-shared-services, redundant-bool-patterns, sed-escape, no-sh-pipefail, compose-resource-limits, dynamic-flag, auth-coverage, variant-coverage, variants-services-match"
-msgstr "Nuevos guardias de linaje: proyecto-caminar, proyecto-root-import, noqa-only-ruff-codes, no-direct-yaml, no-inline-php-in-sh, no-inline-multiline-sql, no-lookup-config-jinja-default, role-meta-coverno"
+msgstr ""
 
 # libretranslate
 msgid "Added optional Django admin bootstrap and secure `SECRET_KEY` handling for Baserow"
@@ -16028,7 +16028,7 @@ msgstr "Añadido el flujo de trabajo de imagen de Docker externo, un cron semana
 
 # libretranslate
 msgid "Added the lint corpus for: project-walk / cache-read / project-root-import / no-direct-yaml / no-inline-multiline-php-in-sh / no-inline-multiline-sql / no-lookup-config-jinja-default / role-meta-layout / web-role-no-web-dependency / run-once-on-shared-services / redundant-bool-patterns / sed-escape / no-sh-pipefail / compose-resource-limits / dynamic-flag / auth-coverage / variant-coverage / variants-services-match / Ansible Galaxy schema / inline literal script-block size cap / production Python file-size cap / SPOT-of-truth for domain literals / oauth2 proxy-port allocation"
-msgstr "/ librería de errores / librería de errores2 Asignación proxy-port"
+msgstr ""
 
 # libretranslate
 msgid "Added the package-cache (Nexus 3 OSS) and registry-cache stacks with inner-build override, TTL env vars, and SPOT documentation"

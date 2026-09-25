@@ -393,7 +393,7 @@ msgstr "顧客関係"
 # libretranslate
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
-msgstr "顧客関係管理 (メディア) 顧客関係、販売パイプライン、マーケティング、およびサポート活動の管理のためのソフトウェア。."
+msgstr ""
 
 # libretranslate
 msgctxt "category:sys.dns:title"
@@ -1198,7 +1198,7 @@ msgstr "将来のXMPPサーバー/コンテナの展開、実装用のプレー�
 # libretranslate
 msgctxt "menu:Commerce:description"
 msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
-msgstr "決済、在庫、顧客機能など、オンラインショップ、製品カタログ、およびデジタル販売チャネルの構築および管理のためのプラットフォーム。."
+msgstr ""
 
 msgctxt "logout:keep_closed"
 msgid "Please do not close this page yet."
@@ -1325,7 +1325,7 @@ msgstr "バックアップ、未使用証明書、一時ファイル、ドッカ
 # libretranslate
 msgctxt "category:drv:description"
 msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
-msgstr "プリンター、グラフィック、インプットデバイス、その他周辺機器のサポートなど、ハードウェアドライバのインストールと構成の役割。."
+msgstr ""
 
 # libretranslate
 msgctxt "category:web:description"
@@ -1335,7 +1335,7 @@ msgstr "静的なコンテンツサービスやデプロイ可能なWebアプリ
 # libretranslate
 msgctxt "category:sys.ctl.hlth:description"
 msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
-msgstr "システム監視と健康チェックのロール - ボットスタイルの自動チェックと、ログ、コンテナ、ディスクの使用状況などのコア低レベルのモニターを網羅しています。."
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-front-tls-selfsigned:description"

@@ -311,7 +311,7 @@ msgstr "**\"계정 만들기\"** Decision #에서 git-forge 정체성 =13; PR은
 
 # libretranslate
 msgid "**\"Spins up local containers\"** happens inside the agent's isolated sandbox, which MUST therefore be able to run compose workloads (nested Docker inside the isolated runtime). This is a real capability constraint the agent role MUST declare; it is exactly the kind of host-near need Decision #4's runtime selection has to accommodate."
-msgstr "**\"로컬 컨테이너를 회전\"** 물질의 고립 된 샌드 박스 안쪽에 일어나기 때문에 퇴비를 달릴 수 있습니다. (고립된 런타임 안쪽에 배열된 도커). 이것은 진짜 기능 constraint 대리인 역할 MUST 선언입니다; 그것은 호스트 나우 필요 결정의 종류입니다 #4런타임 선택은 수용해야 합니다."
+msgstr ""
 
 # libretranslate
 msgid "**\"Waits for feedback\"** = the agent polls the PR through the git-forge MCP server (025); the human review gate stays human."
@@ -345,11 +345,11 @@ msgstr "**변화에 `services.hugo.source_version`** 잘못된 clone을 invalida
 
 # libretranslate
 msgid "**A dump needs a running engine.** It is replayed through ``docker exec``, so unlike a file tree it cannot be restored onto a bare host. After a total loss the order is: deploy the stack, stop the consumers, replay, start them again. The step names which of the two states is missing — a stopped container that only needs starting, or no container at all."
-msgstr "**덤프는 달리는 엔진을 필요로 합니다.** 그것은 재생 ``docker exec``, 파일 트리와는 달리 베어 호스트에 복원 할 수 없습니다. 총 손실 후 순서는: 스택을 배포, 소비자를 중지, 재생, 다시 시작. 두 주의 단계 이름은 누락되어 있습니다. - 시작해야 할 멈춰 컨테이너 또는 전혀 용기가 없습니다."
+msgstr ""
 
 # libretranslate
 msgid "**A dump needs a running engine.** It is replayed through `docker exec`, so unlike a file tree it cannot be restored onto a bare host. After a total loss the order is: deploy the stack, stop the consumers, replay, start them again. The step names which of the two states is missing — a stopped container that only needs starting, or no container at all."
-msgstr "**덤프는 달리는 엔진을 필요로 합니다.** 그것은 재생 `docker exec`, 파일 트리와는 달리 베어 호스트에 복원 할 수 없습니다. 총 손실 후 순서는: 스택을 배포, 소비자를 중지, 재생, 다시 시작. 두 주의 단계 이름은 누락되어 있습니다. - 시작해야 할 멈춰 컨테이너 또는 전혀 용기가 없습니다."
+msgstr ""
 
 # libretranslate
 msgid "**A force rebuild** without a source-version change can be triggered by clearing the role's image cache:"
@@ -365,7 +365,7 @@ msgstr "**모든 콘테이너를 위한 조사.** 건강 검사는 접두사에�
 
 # libretranslate
 msgid "**A role may narrow the pool.** `meta/services.yml.<primary_entity> .architectures` lists what the role can run on, next to `modes`, because both state a capability rather than a testing preference. The row draws from the intersection of the run's pool with the declarations of the role and of every role the deploy planner brings up for that variant, because the deploy pulls those in too; an empty intersection aborts the matrix."
-msgstr "**역할은 풀을 좁힐 수 있습니다.** `meta/services.yml.<primary_entity> .architectures` 역할이 실행 될 수있는 목록, 다음 `modes`, 둘 다 테스트 선호도 보다는 오히려 기능. 행은 실행의 풀의 교차로에서 역할의 선언과 모든 역할의 배포 플래너가 그 변형을 가져 오기 때문에 배포가 그 자체를 잡아; 빈 교차로는 매트릭스를 배웁니다."
+msgstr ""
 
 # libretranslate
 msgid "**AACS & BD+ Support**"
@@ -405,7 +405,7 @@ msgstr "**신청 콘테이너에 접근:** 첫째, 쉘 액세스 얻기 Pixelfed
 
 # libretranslate
 msgid "**Accounting & Finance:** Handle invoicing, payments, bank reconciliation, and financial reporting. Supports multi-currency and multi-company operations."
-msgstr "**회계 및 금융:** 통합, 지불, 은행 재조합, 금융 보고. 다중 통화 및 다중 회사 운영 지원."
+msgstr ""
 
 # libretranslate
 msgid "**Accurate sorting & comparison:** This collation uses full Unicode algorithm rules, ensuring linguistically correct comparisons across many languages."
@@ -486,11 +486,11 @@ msgstr "**고급 SEO 도구:** SEO 모범 사례와 SEO 플러그인의 풍부�
 
 # libretranslate
 msgid "**Advanced SEO Tools:** Optimize your site’s visibility in search engines using built-in support for SEO best practices and a rich ecosystem of SEO plugins."
-msgstr "**고급 SEO 도구:** SEO 최고의 관행과 SEO 플러그인의 풍부한 생태계를 지원하는 내장 지원으로 사이트의 가시성을 최적화하십시오."
+msgstr ""
 
 # libretranslate
 msgid "**Advanced Security Options:** Benefit from multi-factor authentication, configurable password policies, and secure session management."
-msgstr "**고급 보안 옵션:** 다중 요인 인증, 구성 가능한 암호 정책 및 보안 세션 관리에서 혜택."
+msgstr ""
 
 # libretranslate
 msgid "**Advanced Security:** Incorporates TLS encryption, DKIM, and SPF to secure your communications and prevent spoofing."
@@ -695,7 +695,7 @@ msgstr "**아치 리눅스 – 최적화** 빠른 믿을 수 있는 포장 관�
 
 # libretranslate
 msgid "**Assignment is deterministic, never random.** It follows the row's index in the global discovery order and the sweep number, so re-running a sweep reproduces the run. Discovery order itself is stabilised by `INFINITO_DISCOVERY_SEED`, which CI sets to the run id, so the plan table, the discover job and every chunk block of one run agree without passing state between them."
-msgstr "**할당은 의도적, 절대 임의입니다.** 글로벌 검색 순서와 스위프트 번호에서 행의 인덱스를 따르기 때문에 런을 다시 실행합니다. Discovery 주문 자체는 안정적으로 `INFINITO_DISCOVERY_SEED`, CI는 실행 ID에 세트, 그래서 계획 테이블, 발견 일 및 그들 사이 국가를 통과하지 않고 모든 펑크 블록."
+msgstr ""
 
 msgid "**Assignment reads the row's position like an odometer.** The distro is the low digit and the filesystem the high one, so consecutive rows walk every pairing instead of a diagonal through it. Turning both on the position directly covers only `n` of the `n x m` pairs whenever the two pools are the same length, and the sweep number does not unlock it, because it shifts both by the same amount."
 msgstr ""
@@ -718,7 +718,7 @@ msgstr "**Auth:** \"로그인 Bluesky\" — 사용자의 PDS / ID에 대한 프�
 
 # libretranslate
 msgid "**Authorization subject.** MCP integrations prefer user-scoped authorization. Service-account or administrator-scoped MCP credentials are allowed only for read-only default tool sets, or when the role README documents the upstream limitation and the operator explicitly enables mutating tools."
-msgstr "**인증 대상.** MCP 통합은 사용자 ROI를 선호합니다. 서비스 계정 또는 관리자-scoped MCP 자격은 읽기 전용 기본 도구 세트에만 허용되거나 역할 README 문서가 상류 제한 및 연산자를 명시적으로 사용할 수 있습니다."
+msgstr ""
 
 # libretranslate
 msgid "**Auto-Discovery**: Scans your NGINX ``servers`` directory for ``.conf`` files. 🔍"
@@ -782,11 +782,11 @@ msgstr "**자동화된 정리:** 다운로드 `dockreap --no-confirmation` 사�
 
 # libretranslate
 msgid "**Automated Configuration Management:** Uses additive configuration files to dynamically merge system settings into ``config.php``."
-msgstr "**자동화된 윤곽 관리:** 동적 병합 시스템 설정에 첨가제 구성 파일을 사용 ``config.php``·."
+msgstr ""
 
 # libretranslate
 msgid "**Automated Configuration Management:** Uses additive configuration files to dynamically merge system settings into `config.php`."
-msgstr "**자동화된 윤곽 관리:** 동적 병합 시스템 설정에 첨가제 구성 파일을 사용 `config.php`·."
+msgstr ""
 
 # libretranslate
 msgid "**Automated Deployment** 📦 Turn up servers and workstations in minutes with ready-made Ansible roles."
@@ -862,7 +862,7 @@ msgstr "**자동화된 회복:** 나머지는 컨테이너를 실패하고 포�
 
 # libretranslate
 msgid "**Automated Service Management:** Automatically reloads the systemd daemon and restarts the timer when changes are detected."
-msgstr "**자동화된 서비스 관리:** 체계적인 daemon를 재부팅하고 변경할 때 타이머를 재시작합니다."
+msgstr ""
 
 # libretranslate
 msgid "**Automated Service Management:** Automatically restarts the notifier service upon configuration changes."
@@ -1017,11 +1017,11 @@ msgstr "**협력:** 모든 사람들이 자유롭게 기여할 수있는 환경�
 
 # libretranslate
 msgid "**Be Inclusive:** Welcome contributions from all backgrounds and experiences. Encourage diverse perspectives and engage in constructive dialogue."
-msgstr "**포함 :** 모든 배경과 경험에서 환영 기여. 다양한 관점을 활용하고 구성 대화에 참여합니다."
+msgstr ""
 
 # libretranslate
 msgid "**Be Respectful:** Communicate and collaborate with courtesy, empathy, and respect. Listen to others’ opinions and value their input."
-msgstr "**기대 :** 법정, 동정, 그리고 존경과 협력. 다른 사람의 의견과 그들의 입력을 평가합니다."
+msgstr ""
 
 # libretranslate
 msgid "**Bearer-key API server:** The API server is gated by a generated `API_SERVER_KEY`, and calls to `/v1/models` without that key are rejected."
@@ -1276,7 +1276,7 @@ msgstr "**CPU 트랜스 코딩 전용** (GPU passthrough가 없습니다.)·."
 
 # libretranslate
 msgid "**CRM & Sales Management:** Track leads, opportunities, and customer relationships. Manage sales pipelines, quotations, and orders with full visibility into sales performance."
-msgstr "**CRM 및 영업 관리:** 트랙 리드, 기회 및 고객 관계. 판매 파이프라인, 견적 및 주문 관리."
+msgstr ""
 
 # libretranslate
 msgid "**CSP & Canonical Domains:** Hooks into platform CSP/SSL/domain management to keep policies strict and URLs stable."
@@ -1473,7 +1473,7 @@ msgstr "**집중된 데이타베이스 지원:** 회사연혁 MariaDB 안전한 
 
 # libretranslate
 msgid "**Centralized Identity Management:** Maintain a unified repository for all users and groups with robust organizational structures."
-msgstr "**집중된 ID 관리:** 강력한 조직 구조로 모든 사용자 및 그룹에 대한 통합 저장소를 유지합니다."
+msgstr ""
 
 # libretranslate
 msgid "**Centralized Logout:** Unified logout across applications in the ecosystem."
@@ -1531,7 +1531,7 @@ msgstr ""
 
 # libretranslate
 msgid "**Checks precede the grant:** The admission checks run inside the agent role before it deploys, so a refusal prevents the embodied container rather than following it."
-msgstr "**직업을 미리 확인:** 입학 검사는 배포하기 전에 에이전트 역할을 수행하므로 refusal은 다음과 같은 컨테이너를 구현합니다."
+msgstr ""
 
 # libretranslate
 msgid "**Clean up** any stale vHost files under ``sys-svc-cln-domains``."
@@ -1565,7 +1565,7 @@ msgstr "**둥근 사이 정리.** 래퍼가 실행되기 전에 [entity.sh](../.
 
 # libretranslate
 msgid "**Client-facing authentication:** The adapter issues its own bearer. The upstream credential authenticates the adapter to the provider and says nothing about who called the adapter, which is the gap the project-owned MCP sidecars leave open."
-msgstr "**인증:** 접합기는 그것의 자신의 Bearer를 문제합니다. 업스트림 자격은 공급자에 어댑터를 정통하고, 프로젝트 소유 MCP 사이드카가 열린 갭 인 어댑터라고하는 것에 대해 아무것도하지 않습니다."
+msgstr ""
 
 # libretranslate
 msgid "**Clones a remote SSH config repository** into ``~/.ssh`` using the ``desk-git`` role."
@@ -1589,15 +1589,15 @@ msgstr "**Coexists와 Nextcloud::** 병렬에서 실행 `web-app-nextcloud` 특�
 
 # libretranslate
 msgid "**Collaboration & Document Management:** Facilitate team collaboration with built-in discussion forums, document sharing, and version control, ensuring all project documentation remains up to date."
-msgstr "**협업 및 문서 관리:** 토론 포럼, 문서 공유 및 버전 컨트롤을 갖춘 Facilitate 팀 협업은 모든 프로젝트 문서가 최신 상태로 유지됩니다."
+msgstr ""
 
 # libretranslate
 msgid "**Collaborative Editing:** Enable multiple users to create and update content simultaneously through an intuitive interface."
-msgstr "**협업 편집:** 직관적인 인터페이스를 통해 콘텐츠를 생성하고 업데이트할 수 있습니다."
+msgstr ""
 
 # libretranslate
 msgid "**Commands Variability:** The available Artisan commands can vary based on your version of Pixelfed and Laravel. Always refer to the specific documentation for your version."
-msgstr "**명령 기능:** 유효한 Artisan 명령은 버전에 따라 다를 수 있습니다. Pixelfed 라라벨 항상 당신의 버전에 대한 특정 문서를 참조."
+msgstr ""
 
 # libretranslate
 msgid "**Community Building:** Host a private club, classroom library, or large public community for readers."
@@ -1644,7 +1644,7 @@ msgstr "**포괄적인 Query 능력:** LDAP 검색 도구를 사용하여 효율
 
 # libretranslate
 msgid "**Comprehensive e-Learning Platform:** Offers an extensive array of features including course management, assessment tools, and collaborative resources."
-msgstr "**포괄적인 e-Learning 플랫폼:** 코스 관리, 평가 도구 및 협업 리소스를 포함한 다양한 기능을 제공합니다."
+msgstr ""
 
 # libretranslate
 msgid "**Computed at container start** for `INFINITO_PATH`, set by [entry.sh](../../../scripts/docker/entry.sh)."
@@ -1656,7 +1656,7 @@ msgstr "**상태 활성화**"
 
 # libretranslate
 msgid "**Conditional Activation**   Activates only when you enable the `javascript` feature for a given application, keeping your server blocks clean and performant."
-msgstr "**상태 활성화** 활성화 할 때만 `javascript` 주어진 응용 프로그램에 대한 기능, 서버 블록을 깨끗하고 실행 유지."
+msgstr ""
 
 # libretranslate
 msgid "**Conditional Hard Restart:** Applies a hard restart procedure for specific directories (e.g., Mailu)."
@@ -1684,7 +1684,7 @@ msgstr "**구성 환경:**"
 
 # libretranslate
 msgid "**Configurable Environment:**   Easily customize your YOURLS instance through environment variables: set your site URL, admin credentials, and more."
-msgstr "**구성 환경:** 쉽게 사용자 정의 YOURLS 환경 변수를 통해 인스턴스: 사이트 URL을 설정, 관리 자격, 그리고 더."
+msgstr ""
 
 # libretranslate
 msgid "**Configurable Hardware ID:** Requires ``vendor_and_product_id`` to be set to the vendor and product ID of the MSI laptop."
@@ -1740,7 +1740,7 @@ msgstr "**설정 가능한 재설정 및 정리** 순지 및 재창조 디렉토
 
 # libretranslate
 msgid "**Configuration Debugging:** Quickly inspect environment variables, volume data, and configuration files to troubleshoot issues."
-msgstr "**구성 Debugging:** 신속하게 환경 변수, 볼륨 데이터 및 구성 파일을 검사하여 문제를 해결합니다."
+msgstr ""
 
 msgid "**Configuration keys (optional).** Add a `config.plugin_configuration` list to `meta/addons/<addon_id>.yml`. Each list item MUST contain `appid`, `configkey`, and `configvalue`. `03_configure.yml` loads the addon spec and invokes `occ config:app:set` for every entry."
 msgstr ""
@@ -1819,11 +1819,11 @@ msgstr "**컨테이너 배치:** 지원하다 Joomla 오시는길 Docker Compose
 
 # libretranslate
 msgid "**Containerized deployment:** Run PDS, social-app, and the login-broker through Docker Compose with the project's standard role-meta wiring."
-msgstr "**컨테이너 배치:** PDS, 소셜앱을 실행하고, Docker Compose 프로젝트의 표준 역할 메타 배선."
+msgstr ""
 
 # libretranslate
 msgid "**Containerized deployment:** Run PDS, social-app, and the login-broker through Docker Compose with the project’s standard role-meta wiring."
-msgstr "**컨테이너 배치:** PDS, 소셜앱을 실행하고, Docker Compose 프로젝트의 표준 역할 메타 배선."
+msgstr ""
 
 # libretranslate
 msgid "**Containerized deployment:** Run ejabberd through Docker Compose with the project's standard role-meta wiring."
@@ -1960,11 +1960,11 @@ msgstr ""
 
 # libretranslate
 msgid "**Customizable Configuration:** Tailor settings such as storage, email delivery, and administrative parameters using environment variables and configuration files."
-msgstr "**Customizable 윤곽:** 저장, 이메일 납품 및 환경변수 및 구성 파일을 사용하여 관리 매개 변수와 같은 Tailor 설정."
+msgstr ""
 
 # libretranslate
 msgid "**Customizable Deployment:** Configure LDAP settings and LAM’s administrative credentials via flexible environment variables."
-msgstr "**Customizable 배치:** LDAP 설정 구성 LAM유연한 환경 변수를 통해 관리 자격."
+msgstr ""
 
 # libretranslate
 msgid "**Customizable Flavor:** Supports installation of different LibreOffice flavors by dynamically setting the package name."
@@ -1980,7 +1980,7 @@ msgstr "**Customizable 배치 & 주제:** 커뮤니티의 독특한 스타일에
 
 # libretranslate
 msgid "**Customizable Media Handling:** Configure media roots, static assets, and music directories tailored to your deployment."
-msgstr "**Customizable 매체 취급:** 미디어 루트, 정적 자산 및 음악 감독을 구성하여 배포합니다."
+msgstr ""
 
 # libretranslate
 msgid "**Customizable SMTP Configuration:** Deploys a customizable msmtprc configuration file with parameters for TLS, authentication, and server details."
@@ -1992,11 +1992,11 @@ msgstr "**사용자 정의 설정**: 사용자 정의 허용 MariaDB 다양한 A
 
 # libretranslate
 msgid "**Customizable Setup:** Configure database connections, admin credentials, and server settings via environment variables and a TOML configuration file."
-msgstr "**사용자 정의 설정:** 데이터베이스 연결, 관리자 자격 증명 및 환경 변수 및 TOML 구성 파일을 통해 서버 설정 구성."
+msgstr ""
 
 # libretranslate
 msgid "**Customizable Setup:** Configure database connections, instance settings, and admin credentials via environment variables and a TOML configuration file."
-msgstr "**사용자 정의 설정:** 데이터베이스 연결, 인스턴스 설정 및 환경 변수 및 TOML 구성 파일을 통해 관리자 자격 구성."
+msgstr ""
 
 # libretranslate
 msgid "**Customizable Setup:** Configure icon sizes, formats, and routes effortlessly."
@@ -2024,7 +2024,7 @@ msgstr "**사용자 정의 타일**: 제목, 설명 및 아이콘, YAML을 통�
 
 # libretranslate
 msgid "**Customizable User Experience:** Configure themes, timeline settings, and notification options to tailor the social experience to your community."
-msgstr "**사용자 정의 User 경험:** 테마, 타임라인 설정 및 알림 옵션을 구성하여 커뮤니티에 소셜 경험을 맞춤화합니다."
+msgstr ""
 
 # libretranslate
 msgid "**Customizable Webmail and Administration:** Provides a modern web interface for managing emails and administrative tasks with ease."
@@ -2140,7 +2140,7 @@ msgstr "**분산 된 비디오 호스팅 :** 여러 인스턴스를 통해 비�
 
 # libretranslate
 msgid "**Decentralized and Federated:** Connect with a global network of Matrix homeservers, ensuring there is no single point of failure."
-msgstr "**탈중앙화 및 탈중앙화:** 글로벌 네트워크와 연결 Matrix homeservers, 실패의 단일 지점이 없다."
+msgstr ""
 
 # libretranslate
 msgid "**Decentralized social networking:** Self-host the AT Protocol PDS and serve user data under your own domain."
@@ -2152,7 +2152,7 @@ msgstr "**Declared 기계설비 접근:** 모든 장치 에이전트는 운전�
 
 # libretranslate
 msgid "**Dedicated device only.** Full access is permitted solely on a node whose only tenant is this agent. Forbidden on any shared cluster node (Decision #12)."
-msgstr "**전용 장치 만.** 전체 액세스는 단독으로 노드에 허용됩니다. 공유 클러스터 노드에서 Forbidden (결정 #12)·."
+msgstr ""
 
 # libretranslate
 msgid "**Dedicated domain:** The admin UI is reachable on its own canonical hostname under the primary domain."
@@ -2160,7 +2160,7 @@ msgstr "**전용 도메인:** admin UI는 기본 도메인의 자체적인 호�
 
 # libretranslate
 msgid "**Dedicated, single-tenant, segmented node only.** The role MUST refuse to deploy on a node that carries any shared-workload label or hosts other tenants, and the node MUST be network-segmented from shared infrastructure. This is enforced, not just documented: a placement/preflight guard hard-fails on a shared node."
-msgstr "**전용, 단결, 세그먼트 노드 만.** MUST는 공유 워크로드 라벨을 운반하는 노드에 배포하거나 다른 열거를 호스팅하지 않으며 노드 MUST는 공유 인프라에서 네트워킹됩니다. 이것은 단지 문서화되지 않습니다 : 공유 노드에 배치 / preflight 가드 하드 팩."
+msgstr ""
 
 # libretranslate
 msgid "**Dedicated-device guard:** Deployment aborts when another application shares the host or when the device is part of a multi-node swarm, naming the offender."
@@ -2263,7 +2263,7 @@ msgstr "**묘사:** NGINX sub-filter 인젝터 추가 Matomo 기능 플래그로
 
 # libretranslate
 msgid "**Description:** Aggregate desktop environment bundling caffeine, shell extensions, and terminal into a complete GNOME setup on Linux"
-msgstr "**묘사:** 데스크톱 환경 번들링 카페인, 쉘 확장 및 리눅스에서 완전한 GNOME 설정으로 터미널"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
@@ -2275,14 +2275,14 @@ msgstr "**묘사:** Epson 다기능 인쇄를 위한 아치 리눅스 운전사 
 
 # libretranslate
 msgid "**Description:** Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
-msgstr "**묘사:** 자동 복구 서비스 종료 또는 건강 Docker Compose 스택 및 해결 포트 충돌"
+msgstr ""
 
 msgid "**Description:** Automation role for reverse DNS (PTR) records on Hetzner Cloud servers, primary IPs, floating IPs, and load balancers"
 msgstr ""
 
 # libretranslate
 msgid "**Description:** Base development environment for software engineers on Linux, with core editors and language-agnostic tooling"
-msgstr "**묘사:** Linux에서 소프트웨어 엔지니어를 위한 기본 개발 환경, 핵심 편집기 및 언어 학습 도구"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Base role for systemd manager configuration via drop-ins, default settings, and unit validation"
@@ -2298,7 +2298,7 @@ msgstr "**묘사:** Browser-facing admin interface for the shared LLM Gateway, �
 
 # libretranslate
 msgid "**Description:** Build-time tool for simulating root-owned file operations without elevated privileges during package builds"
-msgstr "**묘사:** 패키지 빌드 기간 동안 높은 권한없이 루트 소유 파일 작업을 시뮬레이션하기위한 도구"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Central Dockerized search engine shared by multiple apps with per-consumer scoped API keys"
@@ -2310,7 +2310,7 @@ msgstr "**묘사:** 중앙 in-memory 캐싱 엔진 per-consumer key-prefix isola
 
 # libretranslate
 msgid "**Description:** Central loader role for ordered shared-service preloading and queued post-load role inclusions across the deployment"
-msgstr "**묘사:** 주문된 공유 서비스 사전 로드 및 할당된 포스트 로드 역할 포함"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Central logout proxy for single-action sign-out across all OIDC-connected apps, with Nginx snippets and a live status UI"
@@ -2373,7 +2373,7 @@ msgstr "**묘사:** Cluster-local pull-through cache for shared Docker Hub base-
 
 # libretranslate
 msgid "**Description:** Collaborative wiki platform for user-driven documentation with an extensible extension ecosystem and content management"
-msgstr "**묘사:** 확장 가능한 확장 생태계 및 콘텐츠 관리로 사용자 중심의 문서를 위한 협업 위키 플랫폼"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Command-line journal application for creating and managing personal diary entries from the terminal"
@@ -2393,7 +2393,7 @@ msgstr "**묘사:** Pooled Manager 및 worker 노드의 스케줄링 서비스�
 
 # libretranslate
 msgid "**Description:** Containerized Reveal.js slide deck for presenting the platform to admins, developers, users, and investors"
-msgstr "**묘사:** 회사 소개 Reveal.js 플랫폼에 대한 슬라이드 데크 관리자, 개발자, 사용자 및 투자자"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
@@ -2405,7 +2405,7 @@ msgstr "**묘사:** 자동화 된 데이터베이스, 사용자 및 권한 제�
 
 # libretranslate
 msgid "**Description:** Content management system for building and managing websites, blogs, and multisite networks with themes and plugins"
-msgstr "**묘사:** 웹 사이트, 블로그 및 멀티 사이트 네트워크 구축 및 관리를위한 콘텐츠 관리 시스템 테마와 플러그인"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
@@ -2433,15 +2433,15 @@ msgstr "**묘사:** 탈중앙화, federated platform for photo sharing and image
 
 # libretranslate
 msgid "**Description:** Decentralized, federated social-networking platform for peer-to-peer communication and community building"
-msgstr "**묘사:** 탈중앙화, 피어 투 피어 통신 및 커뮤니티 구축을 위한 소셜 네트워크 플랫폼"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Dedicated administrator account with SSH key access and password-authenticated sudo for secure privilege escalation"
-msgstr "**묘사:** SSH 키 액세스 및 보안 특권 에스컬레이션을위한 암호 전용 sudo와 함께 전용 관리자 계정"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Dedicated system account with SSH-restricted commands and passwordless rsync sudo for secure backup access"
-msgstr "**묘사:** SSH 제한 명령 및 보안 백업 액세스를위한 암호없는 rsync sudo가있는 전용 시스템 계정"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Deferred-start orchestrator for enabling and starting collected systemd services once a play completes"
@@ -2453,7 +2453,7 @@ msgstr "**묘사:** 스트리밍 음악, 재생 목록 및 팟캐스트용 데�
 
 # libretranslate
 msgid "**Description:** Desktop client setup linking home folders into the cloud-synced directory for integrated file synchronization"
-msgstr "**묘사:** 통합 파일 동기화를 위한 클라우드 동기화된 디렉토리로 홈 폴더를 연결하는 데스크톱 클라이언트 설정"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Desktop config role for activating GNOME Shell extensions and installing a CLI tool to manage them"
@@ -2465,7 +2465,7 @@ msgstr "**묘사:** VLC와 AACS/BD+ 라이브러리를 가진 데스크탑 미�
 
 # libretranslate
 msgid "**Description:** Desktop office suite for documents, spreadsheets, and presentations with Liberation fonts and language packs"
-msgstr "**묘사:** 문서, 스프레드 시트 및 리버스 폰트 및 언어 팩을 위한 데스크탑 오피스 스위트"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Desktop utility for inhibiting screen blanking and sleep, autostarted on the GNOME desktop"
@@ -2545,11 +2545,11 @@ msgstr "**묘사:** 라이브 비디오 스트리밍 및 스크린 레코딩을�
 
 # libretranslate
 msgid "**Description:** Free and open-source desktop application for personal and small-business accounting and financial management"
-msgstr "**묘사:** 개인 및 중소기업 회계 및 금융 관리를위한 무료 및 오픈 소스 데스크톱 응용"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Front-end JS injection notifying parent windows of iframe location changes and forcing external links into new tabs"
-msgstr "**묘사:** 정면 JS 주입은 iframe 위치 변화의 부모 창을 삭제하고 새로운 탭으로 외부 연결을 강제합니다"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Front-layer base for web apps: HTTPS foundation, optional Cloudflare setup, and reverse-proxy handler wiring"
@@ -2573,7 +2573,7 @@ msgstr "**묘사:** NGINX-served 앱에 대한 글로벌 스타일 시트 주입
 
 # libretranslate
 msgid "**Description:** Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
-msgstr "**묘사:** OpenSSH daemon 구성은 루트 로그인 및 암호 인증으로 키 기반 원격 액세스를 위한 구성"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Hardened desktop web browser with enforced privacy and password-manager extensions via Enterprise Policies"
@@ -2601,7 +2601,7 @@ msgstr "**묘사:** 유지 제한과 라이브 로그 스트리밍을 가진 sys
 
 # libretranslate
 msgid "**Description:** Host-level configuration linking Bash and Zsh login shells to a shared .profile for consistent environment loading"
-msgstr "**묘사:** Bash 및 Zsh 로그인 쉘을 연결하는 호스트 레벨 구성은 일관된 환경 로딩을 위해 공유합니다."
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Host-level provisioning for exposing the project's pyproject.toml version system-wide via /etc/environment"
@@ -2629,7 +2629,7 @@ msgstr "**묘사:** containerized-application 프로젝트 구조, .env 파일 �
 
 # libretranslate
 msgid "**Description:** Infrastructure role for managing systemd service units: cleanup, deployment, timers, and shared failure diagnostics"
-msgstr "**묘사:** 시스템 서비스 단위 관리를위한 인프라 역할 : 정리, 배포, 타이머 및 공유 실패 진단"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
@@ -2661,7 +2661,7 @@ msgstr "**묘사:** Kernel-level NFS 서버는 swarm-node 호스트에 대한 IP
 
 # libretranslate
 msgid "**Description:** Let's Encrypt provider for the front-facing TLS layer ensuring automated certificate issuance and presence"
-msgstr "**묘사:** TLS 레이어의 암호화 공급자는 자동화된 인증서 발급 및 존재를 보장합니다."
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Libretro-based frontend for emulators, game engines, and media players, with XMB and Ozone menu styles"
@@ -2805,11 +2805,11 @@ msgstr "**묘사:** CI/CD 파이프라인, 빌드 및 플러그인 기반 배포
 
 # libretranslate
 msgid "**Description:** Open-source community feedback platform for collecting, voting on, and prioritizing feature requests and ideas"
-msgstr "**묘사:** Open-source 커뮤니티 피드백 플랫폼 수집, 투표, 우선 기능 요청 및 아이디어"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Open-source content management system for building websites, intranets, and online applications without writing code"
-msgstr "**묘사:** 웹 사이트, intranets 및 온라인 응용 프로그램에 대한 오픈 소스 콘텐츠 관리 시스템"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Open-source desktop BitTorrent client for downloading and sharing files over the BitTorrent protocol"
@@ -2829,7 +2829,7 @@ msgstr "**묘사:** 이메일, 채팅, 전화 및 웹을 통해 고객 요청을
 
 # libretranslate
 msgid "**Description:** Open-source learning management system for creating, managing, and delivering online courses and e-learning"
-msgstr "**묘사:** 온라인 코스 및 e-learning 제공을 위한 오픈소스 학습 관리 시스템"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Open-source monitoring and alerting toolkit for storing metrics as time-series data and querying them with PromQL"
@@ -2837,11 +2837,11 @@ msgstr "**묘사:** Open-source Monitoring and alerting toolkit for storage metr
 
 # libretranslate
 msgid "**Description:** Open-source participatory democracy platform for public consultations, civic processes, and community voting"
-msgstr "**묘사:** 공공 상담, civic 프로세스 및 커뮤니티 투표를위한 오픈 소스 참가자 민주화 플랫폼"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Open-source, self-hosted team messaging platform for real-time collaboration via channels, threads, and integrations"
-msgstr "**묘사:** 채널, 스레드, 통합을 통해 실시간 협업을 위한 개방형 팀 메시징 플랫폼"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
@@ -2885,7 +2885,7 @@ msgstr "**묘사:** 미래에 대한 Placeholder stub 역할 XMPP Server/contain
 
 # libretranslate
 msgid "**Description:** Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
-msgstr "**묘사:** 로컬 백업 트리의 hard-link deduplicated snapshots에 대한 플러그인 시스템 백업"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Policy-managed web browser for Arch Linux desktops with auto-installed enterprise extensions"
@@ -2913,7 +2913,7 @@ msgstr "**묘사:** Cloudflare 와일드 카드 DNS 레코드에 대한 감독 �
 
 # libretranslate
 msgid "**Description:** Provisioning role for a workstation login account with its shell dotfiles, SSH authorized keys, and environment"
-msgstr "**묘사:** 쉘 dotfiles, SSH 공인 키 및 환경과 워크스테이션 로그인 계정의 프로비저닝 역할"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Provisioning role for per-user environment setup, managing shell dotfiles and SSH authorized_keys"
@@ -2965,7 +2965,7 @@ msgstr "**묘사:** host secrets, CA, ACME credentials, node identity를 로컬 
 
 # libretranslate
 msgid "**Description:** Scheduled deduplicating backup system for Docker container volumes to a local directory, with consistent SQL dumps"
-msgstr "**묘사:** Docker 컨테이너 볼륨에 대한 스케줄링 백업 시스템, 일관된 SQL 덤프와 함께"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Scheduled health check crawling configured domains for CSP-blocked resources via a Puppeteer-based Node.js checker"
@@ -2997,7 +2997,7 @@ msgstr "**묘사:** 사용되지 않은 익명 Docker 볼륨과 symlinks를 제�
 
 # libretranslate
 msgid "**Description:** Scheduled pull-style backup replicating remote hosts onto this host over SSH and rsync as hard-linked snapshots"
-msgstr "**묘사:** SSH와 rsync를 통해 원격 호스트를 복제하는 풀 스타일 백업"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Scheduled systemd maintenance service for pruning outdated backup versions when disk usage exceeds a threshold"
@@ -3005,7 +3005,7 @@ msgstr "**묘사:** Disk use가 임계값을 초과할 때 pruning outdated Back
 
 # libretranslate
 msgid "**Description:** Scheduled systemd service and timer for rebalancing Btrfs file systems to keep storage allocation optimal"
-msgstr "**묘사:** Btrfs 파일 시스템을 재분배하기 위한 Systemd 서비스 및 타이머 계획"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Scheduled systemd-timer job renewing Let's Encrypt SSL/TLS certificates via Certbot and reloading NGINX afterward"
@@ -3037,7 +3037,7 @@ msgstr "**묘사:** 셀프 호스팅 S3- 파일, 미디어, 백업 및 AI artifa
 
 # libretranslate
 msgid "**Description:** Self-hosted URL shortener for creating, tracking, and managing short links with built-in click analytics"
-msgstr "**묘사:** 자체 호스팅 URL 단축기 만들기, 추적 및 내장 클릭 분석과 짧은 링크 관리"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
@@ -3053,7 +3053,7 @@ msgstr "**묘사:** 지역 및 민간 AI 모델과 상호 작용하는 셀프 �
 
 # libretranslate
 msgid "**Description:** Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
-msgstr "**묘사:** 자체 호스팅 된 클라우드 플랫폼 파일 동기화, 공유, 실시간 협업 및 자신의 도메인 아래 팀 작업 공간"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Self-hosted decentralized social network on the open AT Protocol, with its own Personal Data Server"
@@ -3069,7 +3069,7 @@ msgstr "**묘사:** 카탈로그 관리, 체크 아웃, 프로모션 및 멀티 
 
 # libretranslate
 msgid "**Description:** Self-hosted enterprise wiki and knowledge-management platform with collaboration and app-based extensibility"
-msgstr "**묘사:** 협업 및 앱 기반 확장성을 갖춘 자체 호스팅 엔터프라이즈 위키 및 지식 관리 플랫폼"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
@@ -3085,7 +3085,7 @@ msgstr "**묘사:** Single Sign-on, Multi-factor 인증 및 사용자 federation
 
 # libretranslate
 msgid "**Description:** Self-hosted low-code automation platform for connecting services and building workflow integrations visually"
-msgstr "**묘사:** 연결 서비스 및 워크플로우 통합을 위한 셀프 호스팅 저코드 자동화 플랫폼"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Self-hosted mail server suite with SMTP/IMAP/POP3, webmail, spam filtering, antivirus, DKIM signing, and TLS"
@@ -3105,7 +3105,7 @@ msgstr "**묘사:** Self-hosted no-code database platform with spreadsheet-like 
 
 # libretranslate
 msgid "**Description:** Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
-msgstr "**묘사:** 문서, 스프레드 시트 및 프레젠테이션의 실시간 브라우져 편집을위한 셀프 호스팅 온라인 사무실 백엔드"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Self-hosted open-source ERP suite for finance, CRM, inventory, manufacturing, HR, sales, and projects"
@@ -3133,7 +3133,7 @@ msgstr "**묘사:** 온라인 회계, 책정 및 비즈니스 금융 관리를�
 
 # libretranslate
 msgid "**Description:** Self-hosted platform for project management, work-package tracking, Gantt planning, and team collaboration"
-msgstr "**묘사:** 프로젝트 관리, 작업 포장 추적, Gantt 계획 및 팀 협업을위한 자체 호스팅 플랫폼"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Self-hosted portal for unified access to all deployed applications via a customizable tile and menu interface"
@@ -3141,11 +3141,11 @@ msgstr "**묘사:** 사용자 정의 타일 및 메뉴 인터페이스를 통해
 
 # libretranslate
 msgid "**Description:** Self-hosted ticketing platform for events with online sales, registration management, and secure payments"
-msgstr "**묘사:** 온라인 판매, 등록 관리 및 보안 결제로 이벤트를 위한 셀프 호스팅 티켓 플랫폼"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Self-hosted web conferencing platform for virtual classrooms, online meetings, and real-time collaboration"
-msgstr "**묘사:** 가상 교실, 온라인 회의 및 실시간 협업을위한 셀프 호스팅 웹 conferencing 플랫폼"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Self-hosted, federated platform for sharing, hosting, and streaming your own music and audio library"
@@ -3161,7 +3161,7 @@ msgstr "**묘사:** canonical를 소유하는 서비스 registry 역할 `css` �
 
 # libretranslate
 msgid "**Description:** Shared host dependency ensuring the OpenSSL CLI is installed once for roles that invoke openssl commands"
-msgstr "**묘사:** openssl 명령을 호출하는 역할에 한 번 OpenSSL CLI를 보장 공유 호스트 의존성"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Shared message broker for async messaging with per-consumer virtual host and user isolation"
@@ -3189,7 +3189,7 @@ msgstr "**묘사:** 디렉토리 목록, .well-known handling 및 자동 TLS 인
 
 # libretranslate
 msgid "**Description:** Static site generator building HTML from an upstream Git repository at build time and serving it via nginx"
-msgstr "**묘사:** 정적 사이트 생성기 HTML을 업스트림에서 Git 빌드 시간에 저장소와 nginx를 통해 제공"
+msgstr ""
 
 msgid "**Description:** System configuration role for setting up and generating localesvia locale.gen and locale.conf templates"
 msgstr ""
@@ -3200,11 +3200,11 @@ msgstr "**묘사:** System hostname 설정은 재고 호스트 항목에서 파�
 
 # libretranslate
 msgid "**Description:** System-maintenance role for refreshing the package index and upgrading installed packages via the OS package manager"
-msgstr "**묘사:** OS 패키지 관리자를 통해 패키지 인덱스 및 업그레이드 설치 패키지를 새로 고침하기위한 시스템 정비 역할"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** System-wide command-line interface for managing and operating the entire self-hosted platform environment from the shell"
-msgstr "**묘사:** 시스템 전체 명령행 인터페이스를 관리하고 쉘에서 전체 셀프 호스팅 플랫폼 환경을 운영"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** System-wide pip helper for installing or upgrading a Python package via the host's system Python"
@@ -3272,7 +3272,7 @@ msgstr "**묘사:** 유형-2 Pacman 워크스테이션의 가상 머신을 위�
 
 # libretranslate
 msgid "**Description:** Unified systemd notification service dispatching service-failure alerts through both Telegram and email channels"
-msgstr "**묘사:** 텔레그램과 전자 메일 채널을 통해 서비스 실패 알림 서비스 파견"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
@@ -3319,7 +3319,7 @@ msgstr "**묘사:** pkgmgr 범용 패키지 관리자를 통해 idempotent 패�
 
 # libretranslate
 msgid "**Description:** nftables packet filter whose rules each role owns as its own table, replaced atomically and reloaded at boot"
-msgstr "**묘사:** nftables 패킷 필터 그 규칙 각각의 역할 자체 테이블, 대체 원자로 및 부팅에 다시로드"
+msgstr ""
 
 # libretranslate
 msgid "**Desktop Integration Hooks:** This README ensures inclusion in the Web App Desktop overview."
@@ -3459,7 +3459,7 @@ msgstr "**Docker Compose 통합:**"
 
 # libretranslate
 msgid "**Docker Compose Integration:**   Benefit from a streamlined, containerized deployment process that simplifies updates and environment configuration."
-msgstr "**Docker Compose 통합:** 간소화된 배포 프로세스를 간소화하여 업데이트 및 환경 설정을 간소화합니다."
+msgstr ""
 
 # libretranslate
 msgid "**Docker Compose Integration:** Automates container setup and configuration."
@@ -3475,7 +3475,7 @@ msgstr "**Docker 컴파일**"
 
 # libretranslate
 msgid "**Docker Compose**   Utilizes the standalone `compose` role to define and bring up containers, networks, and volumes automatically."
-msgstr "**Docker 컴파일** 독립을 활용 `compose` 컨테이너, 네트워크 및 볼륨을 자동으로 정의하고 가져옵니다."
+msgstr ""
 
 # libretranslate
 msgid "**Docker Network Management:** Creates an isolated `/28` subnet for Collabora and connects containers securely."
@@ -3533,7 +3533,7 @@ msgstr "**Dockerized 배포:** Docker 컨테이너의 응용 프로그램을 일
 
 # libretranslate
 msgid "**Dockerized Environment:** The entire process is contained within Docker, ensuring consistent builds and easy deployment."
-msgstr "**공급 능력:** 전체 과정은 Docker 내에서 포함되어 있으며 일관된 빌드 및 쉬운 배포를 보장합니다."
+msgstr ""
 
 # libretranslate
 msgid "**Dockerized MariaDB**: Leverages Docker for MariaDB deployment, ensuring consistency across different environments."
@@ -3773,7 +3773,7 @@ msgstr "**암호화된 app-password 캐시:** AES-만의 프로세스 로컬 맵
 
 # libretranslate
 msgid "**Encrypted attribute decrypt failure:** indicates a key mismatch between the SPI and the broker. The broker rejects the request with HTTP 500 rather than risk silently re-provisioning a fresh PDS account that loses the user's existing posts. Recovery: rotate the key and clear the attribute (manual op for now, key rotation is in the doc 013 Future Hardening section)."
-msgstr "**암호화된 속성 decrypt 실패:** SPI와 브로커 사이의 중요한 잡화를 나타냅니다. 브로커는 HTTP 요청을 거부 500 사용자의 기존 게시물을 잃는 신선한 PDS 계정이 완전히 재 감독하는 위험보다. 회복: 열쇠를 자전하고 속성을 지우십시오 (지금은 수동 op, 키 회전은 doc에 013 미래 경화 단면도)·."
+msgstr ""
 
 # libretranslate
 msgid "**Encrypted credential storage:** `N8N_ENCRYPTION_KEY` protects all saved credentials at rest; the key is stable across re-deploys."
@@ -3800,11 +3800,11 @@ msgstr "**회사연혁 2FA 및 비밀번호 관리자 사용** 관리자 MUST �
 
 # libretranslate
 msgid "**Enforced ceilings:** Request size, response size, timeout, concurrency, page size and result count come from the contract and are applied, not merely declared."
-msgstr "**강화된 천장:** 요청 크기, 응답 크기, 타임 아웃, 통화, 페이지 크기 및 결과 카운트는 계약에서 와서 적용되지 만 선언되지 않습니다."
+msgstr ""
 
 # libretranslate
 msgid "**Enforces Browser Extensions:** Configures Chromium Enterprise Policies to force-install uBlock Origin and the KeePassXC browser extension."
-msgstr "**Enforces 브라우저 확장:** 구성 Chromium uBlock Origin 및 KeePassXC 비밀번호."
+msgstr ""
 
 # libretranslate
 msgid "**Enforces Enterprise Policies:** Deploys a ``policies.json`` file that forces the installation of uBlock Origin and the KeePassXC Browser extension."
@@ -3988,7 +3988,7 @@ msgstr "**수출업자 ``PENPOT_PUBLIC_URI``** 단일 역할 env 파일에서 �
 
 # libretranslate
 msgid "**Extensible Architecture:** Leverage a wide range of extensions and customization options to tailor the wiki experience to your needs."
-msgstr "**Extensible 건축:** 다양한 확장 및 사용자 정의 옵션을 사용하여 wiki 경험을 필요에 맞게합니다."
+msgstr ""
 
 # libretranslate
 msgid "**Extensible Architecture:** Optional Redis, OpenSearch, and plugin-based IAM integrations."
@@ -4008,11 +4008,11 @@ msgstr "**연장 & 신청:** 수백 가지의 기능을 확장 XWiki 확장 및 
 
 # libretranslate
 msgid "**Extensive Community and Ecosystem:** Benefit from a massive community with frequent updates, security patches, and a wide range of third-party tools that continuously enhance the platform."
-msgstr "**광대한 공동체 및 생태계:** 빈번한 업데이트, 보안 패치, 그리고 지속적으로 플랫폼을 강화하는 타사 도구의 넓은 범위와 대규모 커뮤니티에서 혜택."
+msgstr ""
 
 # libretranslate
 msgid "**Extensive Plugin Support:** Enhance your forum with a wide range of plugins and integrations for additional functionality."
-msgstr "**Extensive 플러그인 지원:** 다양한 플러그인과 통합으로 포럼을 강화합니다."
+msgstr ""
 
 # libretranslate
 msgid "**External Link Handling**"
@@ -4101,7 +4101,7 @@ msgstr "**관련 상품 Chess 일치:** Fediverse에서 다른 사람들과의 �
 
 # libretranslate
 msgid "**Federated Communication:** Designed to operate within a federated network, enabling seamless sharing and interconnection with other PeerTube instances."
-msgstr "**Federated 커뮤니케이션:** 네트워크 내에서 작동하도록 설계, 원활한 공유 및 상호 연결 가능 PeerTube 예제."
+msgstr ""
 
 # libretranslate
 msgid "**Federated Social Network:** Connects with other BookWyrm instances and ActivityPub platforms."
@@ -4200,11 +4200,11 @@ msgstr "**가동 가능한 윤곽:**"
 
 # libretranslate
 msgid "**Flexible Configuration:**   Adjust settings such as SSL options, port numbers, and server credentials through environment variables and templated configuration files."
-msgstr "**가동 가능한 윤곽:** SSL 옵션, 포트 번호 및 환경 변수 및 템플릿 구성 파일을 통해 서버 자격 증명과 같은 설정을 조정합니다."
+msgstr ""
 
 # libretranslate
 msgid "**Flexible Configuration:** Customize cache sizes, domain settings, and authentication options via environment variables and templated configuration files."
-msgstr "**가동 가능한 윤곽:** 환경변수 및 템플릿 구성 파일을 통해 캐시 크기, 도메인 설정 및 인증 옵션을 사용자 정의합니다."
+msgstr ""
 
 # libretranslate
 msgid "**Flexible Configuration:** Easily customize settings such as database connections, admin credentials, and server configurations via a TOML file."
@@ -4236,7 +4236,7 @@ msgstr "**가동 가능한 환경 윤곽:**"
 
 # libretranslate
 msgid "**Flexible Environment Configuration:**   Customize your installation using environment variables and templated configuration files to match your infrastructure needs."
-msgstr "**가동 가능한 환경 윤곽:** 환경변수 및 템플릿 구성 파일을 사용하여 설치를 사용자의 인프라 요구에 맞게 지정합니다."
+msgstr ""
 
 # libretranslate
 msgid "**Flexible Notification:** Supports handler notification for post-install actions (e.g., Docker Compose builds)."
@@ -4244,7 +4244,7 @@ msgstr "**가동 가능한 통보:** 포스트 설치 작업을 위한 핸들러
 
 # libretranslate
 msgid "**Flexible Scheduling:** Supports configuration of parameters such as OnCalendar and RandomizedDelaySec for precise control over task timing."
-msgstr "**가동 가능한 계획:** OnCalendar 및 RandomizedDelaySec과 같은 매개 변수의 구성을 지원합니다."
+msgstr ""
 
 # libretranslate
 msgid "**Flexible Schema Support:** Customize and extend directory schemas to meet diverse organizational requirements."
@@ -4431,7 +4431,7 @@ msgstr "**주요사업 Matomo 관련 상품**"
 
 # libretranslate
 msgid "**Global Matomo Tracking**   The role includes Matomo tracking configuration and injects the corresponding tracking script into your HTML."
-msgstr "**주요사업 Matomo 관련 상품** 역할 포함 Matomo 설정 추적 및 HTML에 해당 추적 스크립트를 주입합니다."
+msgstr ""
 
 # libretranslate
 msgid "**Global Theming**"
@@ -4558,11 +4558,11 @@ msgstr "**하드웨어 액세스는 선언되지 않습니다, 담요-by-acciden
 
 # libretranslate
 msgid "**Headless Provisioning:** The administrator is seeded from the role's credential and the first-boot wizard is completed over the API, so no manual click-through is required."
-msgstr "**공급 능력:** 관리자는 역할의 자격과 첫 번째 부팅 마법사가 완료되었습니다. API, 그래서 수동 click-through는 요구되지 않습니다."
+msgstr ""
 
 # libretranslate
 msgid "**Headless Provisioning:** The administrator is seeded from the role’s credential and the first-boot wizard is completed over the API, so no manual click-through is required."
-msgstr "**공급 능력:** 관리자는 역할의 자격과 첫 번째 부팅 마법사가 완료되었습니다. API, 그래서 수동 click-through는 요구되지 않습니다."
+msgstr ""
 
 # libretranslate
 msgid "**Health Checks & Logging:** Integrates with Infinito.Nexus health checking and journald logging 📈"
@@ -4602,7 +4602,7 @@ msgstr "**Helpdesk 티켓:** 이메일, 웹 및 고객을 위한 다중채널 �
 
 # libretranslate
 msgid "**High Performance and Scalability:** Designed to handle large-scale deployments with rapid lookup and authentication response times."
-msgstr "**고성능과 확장성:** 대용량 배포를 신속하고 조회 및 인증 응답 시간으로 처리하도록 설계되었습니다."
+msgstr ""
 
 # libretranslate
 msgid "**High Performance:** Optimized for handling large-scale mailing lists and newsletters with rapid processing."
@@ -4645,7 +4645,7 @@ msgstr "**허브**:: [hub.infinito.nexus](https://hub.infinito.nexus) 튜토리�
 
 # libretranslate
 msgid "**Human Resources:** Manage employees, recruitment, expenses, leaves, and appraisals. Optional HR modules provide comprehensive workforce management."
-msgstr "**인간 자원:** 직원 관리, 채용, 비용, 잎 및 감정. 선택적인 HR 단위는 종합적인 인력 관리를 제공합니다."
+msgstr ""
 
 # libretranslate
 msgid "**Icon Server:** Serves scalable SVG and PNG icons from the Simple Icons collection."
@@ -4854,7 +4854,7 @@ msgstr "**향상된 CLI 능력** imports patchable 및 forwarding 명령어를 u
 
 # libretranslate
 msgid "**Improved image mirroring workflows** with clearer separation of full and missing-only runs, branch-scoped concurrency, and deploy gating on successful mirroring"
-msgstr "**향상된 이미지 미러링 워크플로우** 완전하고 누락된 실행의 더 명확한 별거로, 분기 ROId concurrency 및 성공적인 미러링에 배치"
+msgstr ""
 
 # libretranslate
 msgid "**Improved user management:** A unified *user_key* model provides clearer and more robust user and permission handling across all roles."
@@ -5023,7 +5023,7 @@ msgstr "**QR 코드 생성**: 단순히 입력하거나 내용을 붙여."
 
 # libretranslate
 msgid "**Integrated Backup & Recovery:** Provides built-in support for backup and restoration operations to safeguard your data."
-msgstr "**통합 백업 및 복구:** 백업 및 복원 작업에 대한 내장 지원 제공 데이터 보호."
+msgstr ""
 
 # libretranslate
 msgid "**Integrated Configuration:** Easily manage settings via environment variables and Docker Compose templates."
@@ -5051,7 +5051,7 @@ msgstr "**통합 Ready:** 외부 시스템과 연결 Keycloak (OIDC 소개), LDA
 
 # libretranslate
 msgid "**Integration Ready:** Easily integrates with other system roles within the Infinito.Nexus environment for automated notifications."
-msgstr "**통합 Ready:** 쉽게 다른 시스템 역할과 통합 Infinito.Nexus 자동화된 알림을 위한 환경."
+msgstr ""
 
 # libretranslate
 msgid "**Integration Support:** Compatible with ``sys-svc-proxy`` and other Infinito.Nexus service roles."
@@ -5063,11 +5063,11 @@ msgstr "**통합 지원:** 호환 가능 `sys-svc-proxy` 기타 Infinito.Nexus �
 
 # libretranslate
 msgid "**Integration:** Supports seamless integration with your backup infrastructure by limiting the backup user's permissions to only the required commands."
-msgstr "**통합:** 백업 인프라와 원활한 통합을 지원하여 백업 사용자의 권한을 제한하여 필요한 명령만 지원합니다."
+msgstr ""
 
 # libretranslate
 msgid "**Integration:** Supports seamless integration with your backup infrastructure by limiting the backup user’s permissions to only the required commands."
-msgstr "**통합:** 백업 인프라와 원활한 통합을 지원하여 백업 사용자의 권한을 제한하여 필요한 명령만 지원합니다."
+msgstr ""
 
 # libretranslate
 msgid "**Integration:** Triggers ``daemon-reload`` or ``daemon-reexec`` safely."
@@ -5090,7 +5090,7 @@ msgstr "**상호 작용하는 아이콘**: 자동 통합 Simple Icons 인기 브
 
 # libretranslate
 msgid "**Interactive Slides:** The presentation is built with **Reveal.js**, allowing for interactive slides with advanced features like fragments, transitions, and more."
-msgstr "**상호 작용하는 활주:** 발표는 내장 **Reveal.js**, 조각, 전환 등과 같은 고급 기능과 대화형 슬라이드를 허용."
+msgstr ""
 
 # libretranslate
 #, python-brace-format
@@ -5118,11 +5118,11 @@ msgstr "**직관적 인 웹 UI :**"
 
 # libretranslate
 msgid "**Intuitive Web UI:**   Access a modern, responsive, and highly customizable dashboard to manage your PostgreSQL servers."
-msgstr "**직관적 인 웹 UI :** 현대적이고 반응적이며 맞춤화된 대시보드에 접근하여 PostgreSQL 서버."
+msgstr ""
 
 # libretranslate
 msgid "**Inventory & Warehouse:** Manage stock levels, transfers, and warehouse operations. Supports barcode scanning, batch picking, and advanced routing."
-msgstr "**Inventory & 창고:** 재고 수준, 이동 및 창고 운영 관리. 바코드 스캐닝, 배치 선택 및 고급 라우팅 지원."
+msgstr ""
 
 msgid "**Inventory folders.** [init.py](../../../cli/administration/deploy/development/init.py) calls [build_dev_inventory_matrix](../../../cli/administration/deploy/development/inventory/builder.py), which creates one folder per round at `<inventory-dir>-<round>` (or just `<inventory-dir>` when there is a single round). For each folder, `build_dev_inventory` resolves the round's per-app variant payload and bakes it into the inventory's `host_vars` as `applications.<app>: <variant-payload>` overrides. The inventory is therefore variant-resolved on disk; no runtime selector is needed."
 msgstr ""
@@ -5161,7 +5161,7 @@ msgstr "**고립된 발달 worktrees.** 병렬 분지는 하나의 캐시 층을
 
 # libretranslate
 msgid "**Isolating runtime:** The compose service is pinned to Kata Containers when hardware virtualization and the Kata shim are present, and to gVisor otherwise."
-msgstr "**공급 능력:** 구성 서비스는 하드웨어 가상화 및 Kata shim이 존재할 때 Kata Containers에 핀으로 꼿습니다."
+msgstr ""
 
 # libretranslate
 msgid "**Isolating runtime:** The compose service is pinned to Kata Containers where `/dev/kvm` and the Kata shim are available, and to gVisor otherwise."
@@ -5184,7 +5184,7 @@ msgstr ""
 
 # libretranslate
 msgid "**JCasC-managed configuration:** Persist the security realm and authorisation strategy as code via Configuration as Code."
-msgstr "**JCasC 관리 구성:** 구성을 통해 코드로 보안 영역 및 권한 전략을 주장합니다."
+msgstr ""
 
 # libretranslate
 msgid "**JVM Auto-Tuning:** Safe calculation of `JVM_MINIMUM_MEMORY` / `JVM_MAXIMUM_MEMORY` with caps to avoid VM init errors."
@@ -5585,7 +5585,7 @@ msgstr "**MTU 윤곽:** 모든 정의된 인터넷 인터페이스에서 MTU를 
 
 # libretranslate
 msgid "**Machine identity:** AppRole is configured independently of human login, so services and automation use their own identities and short-lived tokens instead of a shared administrator token."
-msgstr "**기계 ID:** AppRole은 독립적으로 인간의 로그인, 그래서 서비스 및 자동화는 공유 관리자 토큰 대신 자신의 식별 및 짧은 라이브 토큰을 사용합니다."
+msgstr ""
 
 # libretranslate
 msgid "**Made Snipe-IT admin bootstrap idempotent** and treated known *users_groups* duplicate constraint errors as non-fatal while keeping strict failure handling for other cases"
@@ -5625,7 +5625,7 @@ msgstr "**Inventories 보안** 실행을 위한 당신의 inventories Infinito.N
 
 # libretranslate
 msgid "**Managed credentials:** The gateway master key and the admin UI password are generated and kept as role credentials, and the admin UI username is the platform administrator name."
-msgstr "**관리된 자격:** 게이트웨이 마스터 키와 관리자 UI 암호는 생성되어 역할 자격 증명으로 유지되며, 관리자 UI 사용자 이름은 플랫폼 관리자 이름입니다."
+msgstr ""
 
 # libretranslate
 msgid "**Manager Defaults:** Deploys custom timeouts via ``timeouts.conf``."
@@ -5645,7 +5645,7 @@ msgstr "**관리자 핀, 상태:** 클러스터 당 단일 인스턴스; swarm �
 
 # libretranslate
 msgid "**Manual Update and Log Access**: Provides guidance for viewing logs, accessing containers, and performing manual updates."
-msgstr "**수동 업데이트 및 로그 액세스**: 로그, 접근 컨테이너 및 수동 업데이트에 대한 안내를 제공합니다."
+msgstr ""
 
 # libretranslate
 msgid "**MariaDB data** stays local on the manager node via [svc-db-mariadb](../svc-db-mariadb/) pinning. NFS for the DB data directory is intentionally out of scope for v1 (locking / `fsync` semantics). See 023's Future Extensions."
@@ -5665,7 +5665,7 @@ msgstr "**감적 역할:** Carries no task; 어떤 작업을 선택 `svc-swarm-n
 
 # libretranslate
 msgid "**Marketing & Automation:** Create email campaigns, marketing automation workflows, and social media management integrated with CRM data."
-msgstr "**마케팅 & 자동화:** CRM 데이터와 통합된 이메일 캠페인, 마케팅 자동화 워크플로우 및 소셜 미디어 관리."
+msgstr ""
 
 # libretranslate
 msgid "**Matomo Analytics & Global CSS:** Built-in support for analytics and unified styling."
@@ -5673,7 +5673,7 @@ msgstr "**Matomo Analytics 및 글로벌 CSS:** 분석 및 통합 스타일링�
 
 # libretranslate
 msgid "**Matomo and Prometheus aware:** Toggles tracker and metrics integration based on the presence of the corresponding application roles."
-msgstr "**Matomo와 Prometheus 파일 형식 :** 해당 애플리케이션 역할의 존재에 따라 트래커 및 메트릭 통합."
+msgstr ""
 
 # libretranslate
 msgid "**Matomo integration is safer:** it now fails fast on empty tokens and consistently uses the hydrated users.administrator.tokens value for API calls."
@@ -5712,7 +5712,7 @@ msgstr "**소형 QR** QR코드를 즉시 생성하고 개인적으로 생성하�
 
 # libretranslate
 msgid "**Mini-QR** is a lightweight, self-hosted web application for generating QR codes instantly and privately.   It provides a minimal and elegant interface to convert any text, URL, or message into a QR code directly in your browser, without external tracking or dependencies."
-msgstr "**소형 QR** QR코드를 즉시 생성하고 개인적으로 생성하는 경량의 셀프 호스팅 웹 응용 프로그램입니다. 텍스트, URL, 또는 브라우저에서 QR 코드를 직접 변환하는 최소 및 우아한 인터페이스를 제공합니다. 외부 추적 또는 의존성없이."
+msgstr ""
 
 # libretranslate
 msgid "**Minimal NGINX Setup:** Clean and optimized default configurations."
@@ -5793,7 +5793,7 @@ msgstr "**현대 검색:** 오픈박스에서 찾기 (단일 노드)·."
 
 # libretranslate
 msgid "**Modern, Responsive Web Interface:** Access an intuitive and adaptive UI for effortless browsing, administration, and content management."
-msgstr "**현대, 책임 웹 공용영역:** 쉽게 검색, 관리 및 콘텐츠 관리를위한 직관적이고 적응 UI를 액세스하십시오."
+msgstr ""
 
 # libretranslate
 msgid "**Modular Design:** Easily integrates with other WireGuard roles or network configuration roles."
@@ -5829,7 +5829,7 @@ msgstr "**모듈**"
 
 # libretranslate
 msgid "**Monitoring and dashboard entries:** Registers the hub with the metrics and dashboard services when those are part of the deployment."
-msgstr "**모니터링 및 대시보드 항목:** metrics 및 대시보드 서비스에 허브를 등록하면 배포의 일부입니다."
+msgstr ""
 
 # libretranslate
 msgid "**Monitoring**   You can follow logs in real time with `journalctl -f`."
@@ -5903,7 +5903,7 @@ msgstr ""
 
 # libretranslate
 msgid "**Multisite Management:** Easily create and maintain multiple sites with a single WordPress installation, ideal for networks of blogs, corporate intranets, or educational institutions."
-msgstr "**Multisite 관리:** 여러 사이트를 단일으로 쉽게 만들고 유지 WordPress 설치, 블로그, 기업 인트라넷, 교육 기관의 네트워크에 이상적입니다."
+msgstr ""
 
 # libretranslate
 msgid "**Multisite path** (auto-detected via `is_multisite()`): per-site roles come from `/roles/web-app-wordpress/<canonical-domain>/<role>` entries; the super-admin capability comes from `/roles/web-app-wordpress/network-administrator`. The mapper adds the user to any site they have a role for (`add_user_to_blog`) and removes them from sites it previously added them to (`remove_user_from_blog`) when a role for that site disappears from the claim. A user-meta marker (`_infinito_oidc_added_blog_ids`) records which blog memberships the mapper owns, so memberships added through `wp-admin` or the REST API outside the OIDC flow are never touched."
@@ -5983,7 +5983,7 @@ msgstr "**NGINX 역 프록시:** 오시는 길 Joomla 프로젝트의 컨테이�
 
 # libretranslate
 msgid "**Narrow:** it configures name resolution and nothing else, so callers that only need resolution do not also change the system hostname"
-msgstr "**좁은:** 그것은 이름의 해상도와 아무것도 다른 구성, 그래서 필요 해상도는 시스템 호스트 이름을 변경하지 않는 호출"
+msgstr ""
 
 msgid "**Native Keycloak SSO:** Sit a ``web-app-keycloak``\\ ’s SSO-proxy sidecar sidecar in front of the broker so unauthenticated visitors are redirected to Keycloak before they ever reach the web client."
 msgstr ""
@@ -6218,7 +6218,7 @@ msgstr "**모든 주제는 작곡 프로젝트입니다.** Discourse는 자체�
 
 # libretranslate
 msgid "**Not for Server Use**: This playbook is not designed for server environments. It is optimized for individual development machines."
-msgstr "**서버 사용**: 이 플레이북은 서버 환경을 위해 설계되지 않습니다. 개별 개발 기계에 최적화되어 있습니다."
+msgstr ""
 
 # libretranslate
 msgid "**Not native in any edition**; Raw only via Apache `mod_auth_openidc` (manual PoC). → use the platform oauth2-proxy gate instead."
@@ -6269,7 +6269,7 @@ msgstr "**OIDC 인증:** ID 공급자와 같은 이음새가 없는 통합 Keycl
 
 # libretranslate
 msgid "**OIDC Authentication:** Single sign-on via Keycloak integration for seamless identity management across the Infinito.Nexus ecosystem."
-msgstr "**OIDC 인증:** 단일 사인온 Keycloak 원활한 ID 관리에 대한 통합 Infinito.Nexus 생태계."
+msgstr ""
 
 # libretranslate
 msgid "**OIDC JVM CA trust (self-signed TLS only):** when `TLS_MODE == self_signed`, the backend command (in `templates/compose.yml.j2`) imports the internal CA into a writable `cacerts` copy and points the JVM at it via `JAVA_TOOL_OPTIONS`. The shared `with-ca-trust.sh` entrypoint covers the OS/NSS/env trust stores but not the JVM truststore, so without this Penpot's server-side OIDC token/userinfo calls to Keycloak fail with `PKIX path building failed`. The override is gated behind self-signed mode (it is a no-op in production, where real CA-signed certs are already trusted) and the CA path is hardcoded because the framework's CA-override re-serialises the command."
@@ -6390,11 +6390,11 @@ msgstr "**단지 bridging addons는 서비스 블록을 추가합니다.** · `<
 
 # libretranslate
 msgid "**Only the first start serves nothing.** The env is authoritative again on every start, so what `TOOL_SERVER_CONNECTIONS` carries is the state the container comes back with. Before any group exists that is a disabled entry, which is the safe direction: no access rather than every administrator. Once the provisioning task has created the group, its id lives in the token store, `vars/main.yml` reads it back on the next deploy, and the filter renders the entry enabled with its exact group grant. From then on a bare container restart restores a served, correctly scoped connection without a deploy."
-msgstr "**첫번째 시작은 아무것도 봉사한다.** env는 각 시작에 다시 권한입니다, 그래서 무엇을 `TOOL_SERVER_CONNECTIONS` 운반은 컨테이너가 다시 온다. 모든 그룹이 장애인 출입국이 있음을 알기 전에 안전한 방향은 없습니다. 프로비저닝 작업이 그룹을 만들었을 때, 토큰 저장소에서 id 생활, `vars/main.yml` 다음 배포에 다시 읽을 수 있으며 필터는 정확한 그룹 보조금으로 활성화 된 항목을 렌더링합니다. 그런 다음 베어 컨테이너 재시작에서, 배포없이 제대로 범위를 연결."
+msgstr ""
 
 # libretranslate
 msgid "**Only the first start serves nothing.** The env is authoritative again on every start, so what ``TOOL_SERVER_CONNECTIONS`` carries is the state the container comes back with. Before any group exists that is a disabled entry, which is the safe direction: no access rather than every administrator. Once the provisioning task has created the group, its id lives in the token store, ``vars/main.yml`` reads it back on the next deploy, and the filter renders the entry enabled with its exact group grant. From then on a bare container restart restores a served, correctly scoped connection without a deploy."
-msgstr "**첫번째 시작은 아무것도 봉사한다.** env는 각 시작에 다시 권한입니다, 그래서 무엇을 ``TOOL_SERVER_CONNECTIONS`` 운반은 컨테이너가 다시 온다. 모든 그룹이 장애인 출입국이 있음을 알기 전에 안전한 방향은 없습니다. 프로비저닝 작업이 그룹을 만들었을 때, 토큰 저장소에서 id 생활, ``vars/main.yml`` 다음 배포에 다시 읽을 수 있으며 필터는 정확한 그룹 보조금으로 활성화 된 항목을 렌더링합니다. 그런 다음 베어 컨테이너 재시작에서, 배포없이 제대로 범위를 연결."
+msgstr ""
 
 # libretranslate
 msgid "**Open Identities:** Use your existing Fediverse account; no new silo account needed."
@@ -6735,11 +6735,11 @@ msgstr "**성과 최적화:** 적절한 저장 매체를 활용함으로써 전�
 
 # libretranslate
 msgid "**Performance trade‑off:** While slightly more storage might be used compared to `latin1`, the universality of `utf8mb4` outweighs the cost for most deployments."
-msgstr "**성과 무역 떨어져:** 약간 더 많은 저장이 비교되더라도 `latin1`, 보편적인 `utf8mb4` 대부분의 배포 비용을 설명합니다."
+msgstr ""
 
 # libretranslate
 msgid "**Permissions:** Ensure you have the necessary permissions and rights within the Docker container to perform these actions."
-msgstr "**제출:** Docker 컨테이너 내에서 필요한 권한 및 권한이 있는지 확인하십시오."
+msgstr ""
 
 # libretranslate
 msgid "**Persisted on the deploy target** for `INFINITO_VERSION`, written by the [sys-version](../../../roles/sys-version/) role."
@@ -7086,7 +7086,7 @@ msgstr "**감사:**"
 
 # libretranslate
 msgid "**Redacted audit trail:** Every call emits provider, consumer, tool, credential subject, status, duration and correlation id, and never the arguments, the response body or the credential."
-msgstr "**적정 감사 트레일:** 모든 통화는 공급자, 소비자, 도구, 자격, 상태, 기간 및 상관 관계 ID를 방출하고, 인수, 응답 몸 또는 자격."
+msgstr ""
 
 # libretranslate
 msgid "**Redis Caching:**"
@@ -7179,7 +7179,7 @@ msgstr "**경계선:** 다른 사람의 개인 및 전문 경계를 존중하고
 
 # libretranslate
 msgid "**Response caching:** Mirrored assets are cached with stale-serving, keeping delivery fast and resilient against upstream outages."
-msgstr "**응답 캐싱:** 미러링 된 자산은 stale-serving으로 캐시되며, 배송을 빠르고 탄력적으로 유지하십시오."
+msgstr ""
 
 # libretranslate
 msgid "**Responsive Design**: Optimized for desktop, tablet & mobile, built on Bootstrap."
@@ -7262,11 +7262,11 @@ msgstr "**튼튼한 연결성:**"
 
 # libretranslate
 msgid "**Robust Connectivity:**   Easily manage database configurations, user accounts, and monitor query activity with built‑in health checks."
-msgstr "**튼튼한 연결성:** 쉽게 데이터베이스 구성, 사용자 계정 관리 및 내장 된 건강 검사와 쿼리 활동을 모니터링."
+msgstr ""
 
 # libretranslate
 msgid "**Robust Content Management:** Organize, categorize, and retrieve information efficiently with powerful content management tools."
-msgstr "**Robust 내용 관리:** 강력한 콘텐츠 관리 도구로 정보를 효율적으로 관리, 분류 및 검색합니다."
+msgstr ""
 
 # libretranslate
 msgid "**Robust Content Moderation:** Utilize powerful moderation tools to manage community interactions and maintain safe spaces."
@@ -7278,7 +7278,7 @@ msgstr "**Robust 자료 관리:** 안전하고 신뢰할 수있는 스토리지 
 
 # libretranslate
 msgid "**Robust Infrastructure:** Seamlessly integrates with PostgreSQL for reliable data management and supports deployment behind a reverse proxy."
-msgstr "**Robust 인프라:** 원활한 통합 PostgreSQL 신뢰할 수있는 데이터 관리 및 역 프록시 뒤에 배포 지원."
+msgstr ""
 
 # libretranslate
 msgid "**Robust Media Management:** Manage your images, videos, and other media with an integrated media library, including options for enhanced upload limits and dynamic content delivery."
@@ -7314,7 +7314,7 @@ msgstr "**역할 통합:** 에 따라 `svc-net-wireguard-plain <../svc-net-wireg
 
 # libretranslate
 msgid "**Role-Based Access Control & Security:** Manage user permissions precisely to ensure that sensitive information and critical functions remain secure."
-msgstr "**역할 기반 액세스 제어 및 보안 :** 사용자 권한을 정확하게 관리하여 민감한 정보와 중요한 기능을 안전하게 유지하십시오."
+msgstr ""
 
 # libretranslate
 msgid "**Role-strategy authorisation:** Map Keycloak groups and LDAP groups onto Jenkins authorities through the ``role-strategy`` plugin."
@@ -7577,7 +7577,7 @@ msgstr "**물개는 입니다 `seal \"static\"`** 한국어 32-Repo credential �
 
 # libretranslate
 msgid "**Seamless Collaboration:** Collaborate in real time with team members, ensuring smooth data sharing and project management."
-msgstr "**원활한 협업:** 팀 구성원과 실시간 협업, 원활한 데이터 공유 및 프로젝트 관리 보장."
+msgstr ""
 
 # libretranslate
 msgid "**Seamless Docker Integration:** Works harmoniously with Docker Compose and other roles in your infrastructure."
@@ -7593,7 +7593,7 @@ msgstr "**이음새가 없는 IFrame Embedding**: UI 내에서 직접 앱을 실
 
 # libretranslate
 msgid "**Seamless Integration:** Designed to work within a larger system setup environment, integrating with dependencies such as Hunspell for spell checking."
-msgstr "**이음새가 없는 통합:** 더 큰 시스템 설정 환경에서 작업하도록 설계, 같은 의존도와 통합 Hunspell spell 검사를 위해."
+msgstr ""
 
 # libretranslate
 msgid "**Seamless Integration:** Easily integrates with other automation roles for a complete system setup."
@@ -7648,15 +7648,15 @@ msgstr "**보안 역 프록시 설정:**"
 
 # libretranslate
 msgid "**Secure Reverse Proxy Setup:**   Easily configure your access through a reverse proxy to ensure secure, controlled entry to your LDAP management tool."
-msgstr "**보안 역 프록시 설정:** 쉽게 LDAP 관리 도구에 보안, 제어 항목을 보장하는 역 프록시를 통해 액세스 구성."
+msgstr ""
 
 # libretranslate
 msgid "**Secure Web Access:** Configured to work seamlessly behind an NGINX reverse proxy for enhanced security and performance."
-msgstr "**안전한 웹 접근:** NGINX 역 프록시 뒤에 완벽하게 작동하도록 설정된 보안 및 성능."
+msgstr ""
 
 # libretranslate
 msgid "**Secure and Private:** Built-in support for TLS, secure SMTP integration, and strict administrative controls to ensure data protection."
-msgstr "**보안 및 개인:** TLS를 위한 내장 지원, 안전한 SMTP 통합 및 데이터 보호를 지키는 엄격한 관리 통제."
+msgstr ""
 
 # libretranslate
 msgid "**Secure and Reliable:** Benefit from secure access via an NGINX reverse proxy combined with a MariaDB backend for reliable data storage."
@@ -7707,7 +7707,7 @@ msgstr "**공급 능력:** 어떤 에이전트 역할 배포 embodies the device
 
 # libretranslate
 msgid "**Self-Healing & Maintenance** ⚙️ Automated cleanup, container healing, and auto-updates keep infrastructure healthy without human intervention."
-msgstr "**셀프 치유 및 유지 보수** ⚙️ 자동화된 정화, 콘테이너 치유 및 자동 갱신은 인간적인 개입 없이 건강한 기초를 지킵니다."
+msgstr ""
 
 # libretranslate
 msgid "**Self-cleaning:** failed backup attempts are torn down by ``sys-ctl-cln-faild-bkps`` so a broken run cannot poison the next."
@@ -7935,7 +7935,7 @@ msgstr ""
 
 # libretranslate
 msgid "**Single sign-on:** When Keycloak is deployed, an OAuth2 proxy sits in front of the gateway and admits only members of the administrator group of this application."
-msgstr "**단일 서명에:** 시간 : Keycloak 배포, OAuth2 프록시는 게이트웨이 앞에 앉아서 이 응용 프로그램의 관리자 그룹 만 인정합니다."
+msgstr ""
 
 msgid "**Single-Site path**: the claim MUST contain `/roles/web-app-wordpress/<role>` entries. The highest-privilege role across all matches wins (`administrator > editor > author > contributor > subscriber`). When no entry matches, the user's role is set to `subscriber` as a deterministic fallback."
 msgstr ""
@@ -8004,7 +8004,7 @@ msgstr "**Sovereign 영상 Conferencing:** 자체 호스팅 회의 외부 SaaS �
 
 # libretranslate
 msgid "**Stabilized multi-distro CI deploys** with per-distro orchestration, two-pass *ASYNC* testing, hard cleanup between runs, and a global execution time budget"
-msgstr "**안정화 멀티 디스트로 CI 배포** 두 개의 패스 *ASYNC에 대해* 테스트, 열심히 정리 사이에 실행, 글로벌 실행 시간 예산"
+msgstr ""
 
 # libretranslate
 msgid "**Stack:** TypeScript + Svelte (with some Astro). `pnpm` monorepo."
@@ -8427,7 +8427,7 @@ msgstr ""
 
 # libretranslate
 msgid "**The head leads unless an operator says otherwise.** Chunk 0 starts at the top of the ranking. The list is ordered coverage-first, so its head is what a run most needs proven, and a sweep that cannot afford the whole list leaves the tail behind rather than sliding a window over it."
-msgstr "**연산자가 그렇지 않다면 머리 리드.** 주 메뉴 0 순위의 상단에 시작. 목록은 적용 우선순위이므로 머리는 가장 입증 된 실행이 무엇인지이며 전체 목록이 창을 슬라이딩하는 것보다 꼬리를 나타낼 수 없습니다."
+msgstr ""
 
 # libretranslate
 msgid "**The integration matrix is a generated artifact with a sanctioned generator.** The generator lives under `cli/build/docs/integration_matrix/` and runs through `make integration-matrix`; `docs/` holds only the rendered page. It MUST satisfy the repo lints: its `EDGES` data moves into a sibling data module so the entrypoint stays under the 500-line limit, it uses the shared project-root helper instead of a local `__file__` upward walk, and it carries no self-path literal or `requirement NNN` token. The generated `027-integration-matrix.md` carries a `generated-artifact / not-a-requirement` head marker so the requirements-completeness/archival lint skips it. Dead upstream URLs in `EDGES` are fixed or dropped on regeneration."
@@ -8510,7 +8510,7 @@ msgstr "**타일 기반 발사기 UI**: 역동적으로 카탈로그를 렌더�
 
 # libretranslate
 msgid "**Time Tracking & Cost Management:** Record time spent on tasks to monitor productivity and generate detailed cost reports to manage budgets effectively."
-msgstr "**시간 추적 & 비용 관리:** 생산성을 모니터링하고 예산을 효과적으로 관리하기 위해 상세한 비용 보고서를 생성합니다."
+msgstr ""
 
 # libretranslate
 msgid "**Time-series metrics:** Collects and stores time-series data from configured targets."
@@ -11778,7 +11778,7 @@ msgstr "*oauth2_proxy_cookie_secret* → *sso_proxy_cookie_secret*"
 
 # libretranslate
 msgid "*offered* is empty -- a row the query returned always has     at least one mode, so an empty list is a bug upstream, not a case     to paper over with a fallback mode."
-msgstr "*제품 설명* 비어있다 -- 쿼리는 항상 적어도 하나의 모드를 가지고, 그래서 빈 목록은 버그 업스트림, 낙하 모드로 종이에 대한 경우."
+msgstr ""
 
 # libretranslate
 msgid "*pkgmgr* (package-manager git ref): v1.15.2 to v1.16.0"
@@ -13137,7 +13137,7 @@ msgstr ":func:`existing_archives` 디스크에 아카이브 파일 목록."
 
 # libretranslate
 msgid ":func:`failed_selections` reproduces the combination that broke, which is what a handful of red rows deserves. Once most of the ranking is red the question is no longer which combination broke but whether the role comes up at all, and a token per combination spends the priority budget proving the same role red twice. The role name lets the rotation pick the axes."
-msgstr ":func:`failed_selections` red rows의 손이 가치가있는 조합을 재현합니다. 순위가 적어지면 문제가 더 이상 깨지지 않고 역할이 모든 곳에서 올 수 있는지 확인하고 조합 당 토큰은 두 번 동일한 역할을하는 우선 예산을 지출합니다. 역할 이름은 회전을 axes를 선택합니다."
+msgstr ""
 
 # libretranslate
 msgid ":func:`image_healthcheck` plus which address answered."
@@ -13573,7 +13573,7 @@ msgstr "내장형 `rabbitmq-diagnostics ping` 건강 검사."
 
 # libretranslate
 msgid "A bulleted list of the most important capabilities. Each item MUST start with a **bold** label followed by a colon and a short explanation."
-msgstr "가장 중요한 기능의 총알 목록. 각 항목 MUST 시작 **인기있는** 라벨은 식민지와 짧은 설명에 따라."
+msgstr ""
 
 # libretranslate
 msgid "A candidate the curated relevance rules reject is silently dropped so broad marketplaces never produce unreviewable noise."
@@ -13589,7 +13589,7 @@ msgstr "변경된 소스는 이전 번역을 fuzzy 항목으로 유지, 제거 �
 
 # libretranslate
 msgid "A classic personal access token MAY be used as a fallback for unrelated automation, but it MUST NOT be used here because user-bound credentials expand the blast radius and require manual rotation."
-msgstr "고전적인 개인 액세스 토큰 MAY는 관련 자동화에 대한 낙하로 사용되지만 사용자 경계 식별이 폭발 반경을 확장하고 수동 회전이 필요합니다."
+msgstr ""
 
 # libretranslate
 msgid "A clean `down && up` is required after the change: `make compose-up` alone recreates the bridge but compose then re-attaches existing containers with dynamic IPs instead of the static `default.env` ones, which breaks CoreDNS."
@@ -13629,7 +13629,7 @@ msgstr "Computed fallback 정의 `_compute(short_key, resolved, variables)`·."
 
 # libretranslate
 msgid "A concrete end-to-end illustration of how the pieces compose. Nothing here is a new mechanism; it maps onto the decisions above."
-msgstr "조각이 작곡하는 방법의 구체적인 끝 최후의 삽화. 아무것도 여기에 새로운 메커니즘; 위의 결정에지도."
+msgstr ""
 
 # libretranslate
 msgid "A condition that makes the replay unprovable."
@@ -13637,7 +13637,7 @@ msgstr "Replay unprovable를 만드는 조건."
 
 # libretranslate
 msgid "A confirmed hit is cached on disk. The probe stays on the upstream registry: it exists to prove the declared pin is still pullable from where the deploy pulls it, which a mirrored copy cannot answer for."
-msgstr "확인된 히트는 디스크에 캐시됩니다. 프로브는 업스트림 레지스트리에 머물다 : 선언 된 핀을 증명하는 존재는 여전히 배치가 그것을 끌어 당길 때, 미러링 복사가 답할 수 없습니다."
+msgstr ""
 
 # libretranslate
 msgid "A constant hides the role id the substring rule looks for, so every SPOT of this kind MUST be listed here or the roles referencing it silently drop their provider from the static closure."
@@ -13657,7 +13657,7 @@ msgstr "A consuming role MAY는 자신의 공유 서비스 구성 필드를 over
 
 # libretranslate
 msgid "A container resolves through the runtime's embedded server on 127.0.0.11, which forwards to whatever the network was created with, so ``inspect`` on the container shows the address but never the forwarder behind it."
-msgstr "런타임의 임베디드 서버를 통해 컨테이너가 해결 127.0.0.11, 어떤 네트워크든지에 전달하는 것은, 그래서 ``inspect`` 컨테이너에서 주소는 표시하지만 그 뒤에 운송업자가 없습니다."
+msgstr ""
 
 # libretranslate
 msgid "A content publishing and distribution ecosystem for creators and media organizations."
@@ -13669,7 +13669,7 @@ msgstr "높은 보안 환경을 위한 사이버 탄력성 주권 인프라 기�
 
 # libretranslate
 msgid "A declaration names exactly one probe and any number of prefixes, either as one string or as a list. This module owns that grammar: the aliases, the validation and the timing arithmetic that decides what a composed probe inherits."
-msgstr "선언 이름은 정확히 하나의 프로브와 모든 번호의 접두사, 하나의 문자열 또는 목록으로. 이 모듈은 문법을 소유합니다. 별명, 유효성 및 타이밍 arithmetic는 구성 된 프로브 상속을 결정합니다."
+msgstr ""
 
 # libretranslate
 #, python-brace-format
@@ -13678,7 +13678,7 @@ msgstr "선언된 값은 ``{start, end}`` mapping 렌더링으로 ``start-end`` 
 
 # libretranslate
 msgid "A dedicated disk mounted straight onto `/var/lib/docker` needs no special layout: baudolo carves its snapshot **inside** the subject, as `<data root>/.baudolo-<tag>`, so source and destination are always on the same filesystem. Placing it beside the subject would fail with `EXDEV` exactly on that layout, since the parent directory then belongs to a different filesystem."
-msgstr "전용 디스크에 장착 `/var/lib/docker` 특별한 레이아웃이 없습니다 : baudolo는 스냅 샷을 차 **내 계정** 주제로 `<data root>/.baudolo-<tag>`, 그래서 소스와 목적지는 항상 같은 파일 시스템에. 주제 옆에는 실패할 것 `EXDEV` 즉, 부모 디렉토리 이후 다른 파일 시스템에 속한다."
+msgstr ""
 
 # libretranslate
 msgid "A dedicated disk mounted straight onto ``/var/lib/docker`` needs no special layout: baudolo carves its snapshot **inside** the subject, as ``<data root>/.baudolo-<tag>``, so source and destination are always on the same filesystem. Placing it beside the subject would fail with ``EXDEV`` exactly on that layout, since the parent directory then belongs to a different filesystem."
@@ -13732,11 +13732,11 @@ msgstr "한국어 `README.md` MUST 목록 `.md` 또는 `.rst` 디렉토리에 �
 
 # libretranslate
 msgid "A docs `README.md` MUST describe the audience, subject area, or boundary of the documentation in that directory when that context helps readers."
-msgstr "한국어 `README.md` MUST는 해당 문서의 잠재력, 대상 영역 또는 그 디렉토리의 경계를 설명합니다."
+msgstr ""
 
 # libretranslate
 msgid "A docs `README.md` MUST explain what kind of documentation lives in that directory and what scope that documentation covers. It MUST help readers understand the subject area and boundary of the folder without replacing the documentation pages themselves."
-msgstr "한국어 `README.md` MUST는 그 디렉토리에 어떤 종류의 문서가 살고 있으며 문서가 무엇인지 설명합니다. 그것은 독자가 문서 페이지를 대체하지 않고 폴더의 주제 영역과 경계를 이해하는 데 도움이됩니다."
+msgstr ""
 
 # libretranslate
 msgid "A docs `README.md` MUST stay short and scope-focused."
@@ -13783,11 +13783,11 @@ msgstr "파편은 이미 호스트보다 엄격한 수 있습니다. nftables에
 
 # libretranslate
 msgid "A fragment can only ever be stricter than the host already is. In nftables an `accept` terminates its own base chain and nothing more: the packet still traverses every other chain at that hook, and a `drop` in any of them wins. A rule that has to overrule a policy someone else set, such as the `DROP` docker installs on forwarded packets, does not belong in a fragment at all; it belongs in the chain that carries that policy."
-msgstr "파편은 이미 호스트보다 엄격한 수 있습니다. nftables에서 `accept` 자체 기본 체인을 종결하고 더 이상 아무것도 : 패킷은 여전히 그 후크에서 다른 모든 체인을 건너, `drop` 그들 모두에서 승리. 정책 누군가가 설정 한 것을 overrule하는 규칙 `DROP` 도커는 앞으로 소포에 설치, 전혀 파편에 속하지 않습니다; 그것은 그 정책을 운반 체인에 속합니다."
+msgstr ""
 
 # libretranslate
 msgid "A fully sovereign private cloud infrastructure designed for organizations that require full control over their data, identity, and service stack."
-msgstr "데이터, 정체성 및 서비스 스택을 통해 전체 제어를 요구하는 조직을 위해 설계된 완전히 유권자 개인 클라우드 인프라."
+msgstr ""
 
 # libretranslate
 msgid "A generated value is exempt because the algorithm that produced it is named by the same schema, and `generate_value()` takes no schema argument."
@@ -13881,7 +13881,7 @@ msgstr ""
 
 # libretranslate
 msgid "A key's comment is the most recent contiguous block of `# ...` lines directly above the `KEY=...` line, joined with single spaces. Section headers (`# --- ... ---`) are treated as separators: they reset the pending comment so the next key starts fresh, instead of inheriting the heading line as its own documentation."
-msgstr "키의 의견은 가장 최근의 연속 블록입니다 `# ...` 위에 직접 선 `KEY=...` 라인, 단일 공간과 함께. 단면도 headers (`# --- ... ---`) 구분으로 처리됩니다. 그들은 다음 키가 신선하게 시작되므로 자체 문서로 헤드 라인을 상속합니다."
+msgstr ""
 
 # libretranslate
 msgid "A label that silently stops resolving to arm64 turns the whole axis into a green lie."
@@ -13897,7 +13897,7 @@ msgstr "소프트웨어 또는 배포와 관련된 외부 링크 목록. 링크 
 
 # libretranslate
 msgid "A literal ``shared: false`` (not a Jinja expression) is the role author pinning an engine the central provider cannot serve. Honouring it is only safe on a manager-pinned role, where the volume stays node-local and the sidecar carries the matching placement constraint."
-msgstr "리터럴 ``shared: false`` (진자 표현) 중앙 공급자를 피하는 역할 저자는 봉사할 수 없습니다. 노드 로컬과 사이드카는 매칭 배치 제약을 운반합니다."
+msgstr ""
 
 # libretranslate
 msgid "A local deploy is failing on the host"
@@ -13946,7 +13946,7 @@ msgstr "누락 된 이벤트는 배포 체인의 적용 회귀를 나타냅니�
 
 # libretranslate
 msgid "A missing secret resolves to an empty string in workflow expressions. The workflow run starts and proceeds normally until the token-minting step:"
-msgstr "잘못된 비밀은 워크 플로우 표현의 빈 문자열로 해결합니다. 워크플로우가 시작되고 토큰 채굴 단계까지 일반적으로 진행합니다."
+msgstr ""
 
 # libretranslate
 msgid "A module MAY read tool-specific environment overrides (e.g. `ACTIONLINT_VERSION`, `RUFF_PIP_SPEC`) at call time."
@@ -14051,7 +14051,7 @@ msgstr "플러그인 항목 MAY 세트 `mandatory: true`. 이 inverts the tolera
 
 # libretranslate
 msgid "A pool of two or more stays a preference because the matrix already narrowed each row to one kind out of it: falling back to the other kind the run allowed is inside what the operator asked for, while failing the row is not. A run whose whole pool is unservable fails rather than leaving the pool."
-msgstr "두 개 이상의 풀은 이미 매트릭스가 각 행을 한 종류로 좁히기 때문에 선호합니다. 다른 종류의 런으로 떨어지는 것은 허용 된 작업자가 무엇을 요청하는지 내부이며, 행이 실패하지 않습니다. 전체 수영장이 수영장을 떠나지 않는 한 실행."
+msgstr ""
 
 # libretranslate
 msgid "A post-application MCP reconciliation stage MUST run after all selected provider roles have provisioned and probed their endpoints. The stage MUST create one immutable discovery snapshot and reconcile Open WebUI, Flowise, Hermes, OpenClaw, and n8n from that snapshot. It MUST run after initial deployment, provider credential rotation, provider MCP enable/disable changes, and a standalone client container restart."
@@ -14089,7 +14089,7 @@ msgstr "현대 조직의 전문 협업 및 정체 관리 스택."
 
 # libretranslate
 msgid "A provider writes its credential to the token store during its own role run, and each client resolves the providers it may reach from that store. This role runs at the end of the server stage, after every provider has written and before the end-to-end tests read the converged state."
-msgstr "공급자는 자체 역할 실행 중 토큰 저장소에 대한 자격 증명을 작성하고 각 클라이언트는 해당 상점에서 도달 할 수 있습니다 공급자를 해결합니다. 이 역할은 서버 단계의 끝에서 실행되며, 모든 공급자가 작성한 후 최종 테스트가 융합된 상태를 읽습니다."
+msgstr ""
 
 # libretranslate
 msgid "A proxy repo that holds a cached copy serves it when its remote is unreachable, regardless of `metadataMaxAge` (measured). `autoBlock` is therefore off: while a remote is auto-blocked Nexus answers `404 Remote Auto Blocked` instead of falling back to that cached copy. The mirror repos below only come into play when nothing is cached either."
@@ -14117,7 +14117,7 @@ msgstr "레코드 MUST는 역대가 비싸는 결정을 다룹니다. 구성 요
 
 # libretranslate
 msgid "A record MUST describe the decision as it stands today, including the alternatives that were weighed and why they lost, so a later reader can tell a deliberate constraint from an accident."
-msgstr "기록 MUST는 오늘 의미로 결정을 설명합니다. 무게를 달고 왜 잃었는지, 그래서 나중에 독자는 사고에서 deliberate 제약을 말할 수 있습니다."
+msgstr ""
 
 # libretranslate
 msgid "A recover mirrors a snapshot into a live target directory (``rsync -a --delete``), so the target's current state would be lost without a net. The flow therefore first runs the role's deployed backup service (``systemctl start`` on the role's unit), which applies the usual differential backup logic to the live data before anything is overwritten. Roles subclass :class:`DirectoryRecovery`, set ``unit_pattern`` and ship a thin ``files/python/recover.py`` CLI around it (enforced by ``tests/lint/ansible/roles/test_bkp_roles_have_recover.py``)."
@@ -14177,7 +14177,7 @@ msgstr "필요조건은 때 완료됩니다:"
 
 # libretranslate
 msgid "A retrigger inherits the window its source was given: the rows in front of that window were proven by the runs before it, and re-walking them from the head would redeploy a green stretch that nobody doubts. The source run's own ``offset`` input is that window's start."
-msgstr "리 트리거는 창의 소스를 부여했다 : 그 창의 앞에 행이 실행 전에 입증되었다, 그리고 머리에서 그들을 다시 걷는 것은 의심의 여지가 녹색 기지를 적립 할 것입니다. 소스 실행의 자체 ``offset`` 입력은 창의 시작이다."
+msgstr ""
 
 # libretranslate
 msgid "A reusable [Model Context Protocol](https://modelcontextprotocol.io/) adapter, instantiated once per provider application. Each instance fronts exactly one upstream, holds only that upstream's least-privileged credential, and exposes only the operations its checked-in contract names."
@@ -14259,11 +14259,11 @@ msgstr "관련 기사 `rc`::"
 
 # libretranslate
 msgid "A role that declares no users contributes none, so the result follows the deployment rather than everything the repository could ever deploy. Two roles sharing a user must agree on its policy: the account is one thing, so silently picking one declaration would hand the other role a password its application rejects."
-msgstr "사용자가 아무도에 기여하지 않는 역할, 그래서 결과는 배포보다 오히려 모든 저장소를 배포 할 수 있습니다. 사용자를 공유하는 두 가지 역할은 정책에 동의해야합니다 : 계정은 한 가지이므로 침묵으로 한 선언을 선택하면 다른 역할을 암호로 변환합니다."
+msgstr ""
 
 # libretranslate
 msgid "A role that declares none takes the run's whole pool, which is what spreads both architectures evenly over its variants: every row of the catalogue advances the same rotation, so a role's consecutive rows alternate rather than repeating one architecture."
-msgstr "아무리 선언하지 않는 역할은 실행의 전체 풀을 가지고, 이는 그 변종보다도 두 가지 아키텍처를 확산하는 것입니다 : 카탈로그의 모든 행은 동일한 회전을 전진하므로 역할의 연속 행은 하나의 아키텍처를 반복하는 것보다 교체합니다."
+msgstr ""
 
 # libretranslate
 msgid "A role that gains a `shared_net` overlay changes its network layout: the project's default network, named after the entity and carrying the declared local subnet, is replaced by an unnamed project default, and the entity name passes to an externally managed network. Docker cannot relabel an existing network, so on a deployment that already ran, the network has to be recreated, and that fails while any consumer holds an endpoint on it:"
@@ -14311,11 +14311,11 @@ msgstr ""
 
 # libretranslate
 msgid "A row several tokens name is emitted once per token, which is the whole point of the axes: ``role#1@compose+tor role#1@swarm+tor`` is one variant that failed in two modes, and it has to come back as two deploys. Two tokens narrowing a row the same way collapse into one, so a duplicate in the input cannot become two jobs racing for one artifact name."
-msgstr "몇 가지 토큰 이름은 토큰 당 한 번 방출됩니다. ``role#1@compose+tor role#1@swarm+tor`` 두 가지 모드에 실패 한 변종이며 두 개의 배치로 돌아 왔습니다. 두 개의 토큰은 동일한 방법으로 붕괴를 좁아서 입력에서 중복하면 하나의 포근 이름에 대한 두 가지 작업이 될 수 없습니다."
+msgstr ""
 
 # libretranslate
 msgid "A row the priority line claims is never the answer. ``regular`` is discovered without the priority line (see the retrigger's ``_ranking``), so it still holds rows the run will hand to that line instead (:func:`cli.meta.ci.matrix.candidates`): a variant-less pin takes its whole role, a pinned one takes those variants. Naming such a row would emit an offset that resolves against nothing once the run applies the priority line, and abort the discovery of every chunk."
-msgstr "우선 선 주장은 결코 대답하지 않습니다. ``regular`` 우선 선 없이 발견됩니다 (retrigger의 보기 ``_ranking``), 그래서 여전히 행을 보유 런은 대신 그 라인에 손을 (:func:`cli.meta.ci.matrix.candidates`): 변종없는 핀은 전체적인 역할을 취하며, 핀은 그 변종이 걸립니다. 그런 행이 실행이 우선 선을 적용하고 모든 펑크의 발견을 구합니다."
+msgstr ""
 
 # libretranslate
 msgid "A row's position is its index in the uncapped discovery order, not its index inside a chunk, so slicing the list into chunks never changes what a row is assigned. A priority row, which deploys several mode/tor combinations at once, walks the distro and filesystem rotations across those combinations rather than repeating one pair."
@@ -14327,7 +14327,7 @@ msgstr "파일 시스템 의존 경로가 서로 녹색으로 갈 수 있다는 
 
 # libretranslate
 msgid "A run that permits two or more kinds is a preference, not a demand. The matrix has already narrowed each row to one kind out of that pool, so falling back to another kind the run allowed stays inside what the operator asked for, while failing the row does not. A run whose whole permitted pool is unservable fails rather than leaving the pool."
-msgstr "두 개 이상의 종류를 허용하는 실행은, 수요가 아닙니다. 매트릭스는 이미 그 풀에서 한 종류에 각 행을 좁혀, 그래서 다른 종류로 다시 떨어지는 실행 허용은 어떤 연산자가 요청한지, 동안 잠금을 해제하지 않습니다. 전체 허용 풀이 풀을 떠나지 않는 한 실행."
+msgstr ""
 
 msgid "A run-wide choice cannot cover them. Five distributions and three filesystems are fifteen combinations, and a sweep that fixes one pair for all of its rows would need fifteen sweeps to say anything about the rest, while reporting green the whole time."
 msgstr ""
@@ -14338,7 +14338,7 @@ msgstr "동일한 크기의 swapfile은 Linux에서 메모리 스파이크를 �
 
 # libretranslate
 msgid "A sample whose install failed is recorded as ``None`` and ranks worse than any duration, so an outage counts fully rather than being dropped."
-msgstr "실패를 설치하는 표본은 기록됩니다 ``None`` 그리고 어떤 기간보다 더 나쁜 순위, 그래서 정전은 완전히 떨어졌다."
+msgstr ""
 
 # libretranslate
 msgid "A scheduled differential backup of the NFS export onto the local backup directory. Each run stores a discrete snapshot under `<backups>/<machine-hash>/backup-nfs-to-local/<generation>/files/`, hard-linked against the previous generation via rsync `--link-dest`."
@@ -14381,14 +14381,14 @@ msgstr ""
 
 # libretranslate
 msgid "A second tag next to every image, which the registry cleanup then has to protect as children of the plain tag. Pushing by digest gives the same manifest list without it."
-msgstr "모든 이미지 옆에 두 번째 태그는 레지스트리 정리가 일반 태그의 어린이로 보호해야합니다. digest에 의해 푸시는 그것 없이 동일한 표정표를 줍니다."
+msgstr ""
 
 msgid "A secret denylist such as `grep -v 'password|token|key'` does **NOT** count as protection: it is case-sensitive, and secrets also travel inside URL paths. Local deploys run with `MASK_CREDENTIALS_IN_LOGS` disabled, so `no_log` does not mask these tasks."
 msgstr ""
 
 # libretranslate
 msgid "A selection token names a role and MAY narrow the axes that role's rows would otherwise be assigned: which variants run, which deploy mode, whether the row goes behind the node onion, which distribution it deploys on, which filesystem its docker data root runs on and which CPU architecture it lands on. What a token leaves open stays open, exactly as an unpinned run leaves it: the priority line covers every mode and onion state the row can take, and the sweep rotation picks the distro, the filesystem and the architecture on both lines."
-msgstr "선택 토큰은 역할과 MAY 좁은 axes의 역할의 행은 그렇지 않으면 할당 될 것입니다 : 행이 노드 양파 뒤에 오는지, 행이 노드 양파 뒤에 오는지 여부를 배포하는 경우, 도커 데이터 루트가 켜지고 CPU 아키텍처가 착륙합니다. 토큰이 열리면 공개 된 유지 보수가 시작되고 정확히 언핑되지 않은 실행으로 나뉩니다. 우선 선은 모든 모드와 양파 상태가 행을 취할 수 있으며, 스위프트 교체는 디트로, 파일 시스템 및 두 줄의 아키텍처를 선택합니다."
+msgstr ""
 
 # libretranslate
 msgid "A selection token names a row that has to exist *on this branch* (:mod:`utils.github.variant.selection`). Nothing else in the chain can tell the operator that early: the matrix builder raises on the first bad token, one per chunk job, so a stale list costs one full CI round per entry and reports the second problem only after the first is fixed. Every problem is collected here instead, and the exit code gates the run."
@@ -14487,7 +14487,7 @@ msgstr ""
 
 # libretranslate
 msgid "A single-element list holding the expanded spec list, so the caller receives the list itself rather than its first element."
-msgstr "확장 된 사양 목록을 보유하는 단일 요소 목록이므로 콜러는 첫 번째 요소보다 목록 자체를받습니다."
+msgstr ""
 
 msgid "A single-node lab cannot answer the multi-node criteria: replica scaling, placement across two `kata-capable` Raspberry-Pi-class nodes, and the compose-plus-swarm end-to-end pass all need the cluster the requirement describes. The arm64 half of the placement criterion is proven by the image check above; the two-node half is not."
 msgstr ""
@@ -14516,11 +14516,11 @@ msgstr "Vault-encrypted 문자열을 나타내는 str의 subclass."
 
 # libretranslate
 msgid "A suite is turned off only when every job of it came back green; one that failed, was cancelled or never ran at all keeps it on the retrigger, so a retrigger spends its runners on what is not yet proven."
-msgstr "스위트는 녹색을 돌아 왔을 때만 꺼집니다. 실패한 것, 취소 또는 전혀 ran에서 모든 것이 리 트리거에 유지, 그래서 리 트리거는 아직 입증되지 않은 것에 그것의 런너를 소비."
+msgstr ""
 
 # libretranslate
 msgid "A superseded record MUST stay in place with its status changed and a link to the record that replaces it, because the reasoning it carries is what makes the replacement legible."
-msgstr "그 상태 변경 및 교체 기록에 대한 링크와 함께있는 수퍼 기록 MUST 체류, 그것이 운반하는 이유 때문에 대체 할 수 있습니다."
+msgstr ""
 
 # libretranslate
 msgid "A supported native MCP endpoint with an enforceable tool policy."
@@ -14585,7 +14585,7 @@ msgstr "전형적인 OIDC-consuming 역할은 예를 들어 환경 템플릿으�
 
 # libretranslate
 msgid "A user definition that declares no password falls back to ``{{ 42 | strong_password }}``. That is a template, not a value: it is re-rendered at every use site, so the task that creates an account and the task that later authenticates as it read two different secrets. Inventory creation is where the value gets decided once, next to the role credentials that are already generated there."
-msgstr "비밀번호가 없어지는 사용자 정의 ``{{ 42 | strong_password }}``. 그것은 템플릿, 값이 아닙니다: 그것은 모든 사용 사이트에서 다시 렌더링됩니다, 그래서 나중에 두 가지 다른 비밀을 읽기 때문에 계정과 작업을 생성하는 작업. Inventory 생성은 값이 한 번 결정되는 반면, 이미 생성 된 역할 자격 증명 옆에."
+msgstr ""
 
 msgid "A user whose Keycloak `groups` claim matches none of the three mapped paths is refused. This is the documented RBAC gate per requirement 013. The Joomla account is created on first login if it does not already exist. Subsequent logins re-sync the group memberships from Keycloak."
 msgstr ""
@@ -14621,7 +14621,7 @@ msgstr "변종 항목 MAY toggle `services.<key>.enabled+shared` 추가 공유 �
 
 # libretranslate
 msgid "A variant that dictates a provider's config does not deploy that provider as the provider declares it, so nothing about that run states what the provider does on its own. Callers that reason about coverage need to know which pairs those are before they credit one role's deploy to another."
-msgstr "공급자의 구성을 결정하는 변종은 공급자가 그것을 선언하는 것과 같은 공급자를 배포하지 않습니다, 그래서 그 주인에 대한 아무것도 자체에 어떤 공급자가 수행. 적용에 대한 이유를 호출하는 것은 그들이 다른 한 역할의 배치를 신용하기 전에 그 쌍을 알아야합니다."
+msgstr ""
 
 # libretranslate
 msgid "A verified upstream app↔app plugin exists but is not yet declared as an addon. Links to the plugin page. This is the backlog."
@@ -14779,7 +14779,7 @@ msgstr "Abstract는 각에 의해 공유된 교류를 재기합니다 ``svc-bkp-
 
 # libretranslate
 msgid "Accelerate your development with GitLab, an all-in-one platform for source code management, CI/CD, and more. Experience a robust and collaborative environment that empowers your development process."
-msgstr "개발 가속화 GitLab, 소스 코드 관리, CI/CD 및 더 많은 것을 위한 올인원 플랫폼. 개발 프로세스를 강화하고 강력한 협업 환경을 경험하십시오."
+msgstr ""
 
 # libretranslate
 msgid "Accept useful requirement changes."
@@ -14870,7 +14870,7 @@ msgstr "Acknowledgment의 특징"
 
 # libretranslate
 msgid "Across the rows a sweep deploys, every distribution and every filesystem is exercised instead of one pair, at no extra job count."
-msgstr "한 쌍 대신 모든 배포 및 모든 파일 시스템의 행을 건너, 추가 작업 수 없습니다."
+msgstr ""
 
 # libretranslate
 msgid "Act Deploy Scripts"
@@ -14925,7 +14925,7 @@ msgstr "Lua 기반 문자열 교체와 같은 고급 기능을 위해 버퍼링�
 
 # libretranslate
 msgid "Activates only when you enable the ``javascript`` feature for a given application, keeping your server blocks clean and performant."
-msgstr "활성화 할 때만 ``javascript`` 주어진 응용 프로그램에 대한 기능, 서버 블록을 깨끗하고 실행 유지."
+msgstr ""
 
 # libretranslate
 msgid "Activation 🎚️"
@@ -15236,7 +15236,7 @@ msgstr "명시된 사전 작성된 이미지 대기 오류 및 clearer release-i
 
 # libretranslate
 msgid "Added full Nix installer integration with dynamic upstream SHA256 verification, OS-specific installation paths, template-driven configuration, and updated pkgmgr integration."
-msgstr "동적 업스트림 SHA와 전체 Nix 설치 통합 추가256 검증, OS 별 설치 경로, 템플릿 중심 구성 및 업데이트 pkgmgr 통합."
+msgstr ""
 
 # libretranslate
 msgid "Added generic OIDC group-to-RBAC auto-provisioning for WordPress through OpenLDAP-backed role mapping"
@@ -15299,7 +15299,7 @@ msgstr "배포 테스트를 위한 diff-driven app whitelist 추가, unified # n
 
 # libretranslate
 msgid "Added the external Docker image version-check workflow, a weekly CodeQL safety cron, dedicated PR close / branch delete cancel workflows, and stronger development-environment testing"
-msgstr "외부 도커 이미지 버전 체크 워크플로우를 추가, 주간 CodeQL 안전 cron, 전용 PR 닫기 / 지점 삭제 워크플로우, 그리고 더 강력한 개발 환경 테스트"
+msgstr ""
 
 # libretranslate
 msgid "Added the lint corpus for: project-walk / cache-read / project-root-import / no-direct-yaml / no-inline-multiline-php-in-sh / no-inline-multiline-sql / no-lookup-config-jinja-default / role-meta-layout / web-role-no-web-dependency / run-once-on-shared-services / redundant-bool-patterns / sed-escape / no-sh-pipefail / compose-resource-limits / dynamic-flag / auth-coverage / variant-coverage / variants-services-match / Ansible Galaxy schema / inline literal script-block size cap / production Python file-size cap / SPOT-of-truth for domain literals / oauth2 proxy-port allocation"
@@ -15500,7 +15500,7 @@ msgstr "추가하기 OpenResty 제품정보"
 
 # libretranslate
 msgid "Adjust settings such as SSL options, port numbers, and server credentials through environment variables and templated configuration files."
-msgstr "SSL 옵션, 포트 번호 및 환경 변수 및 템플릿 구성 파일을 통해 서버 자격 증명과 같은 설정을 조정합니다."
+msgstr ""
 
 # libretranslate
 msgid "Adjust shell command wrapping/execution behavior."
@@ -16047,7 +16047,7 @@ msgstr "모든 기준은 검사됩니다 (`- [x]`)·."
 
 # libretranslate
 msgid "All deployment roles, Ansible tasks, and programs that run inside a deployed system MUST be compatible with the following distributions."
-msgstr "모든 배포 역할, Ansible 작업, 및 배포 된 시스템 내부 실행 프로그램 MUST 다음과 같은 배포와 호환됩니다."
+msgstr ""
 
 # libretranslate
 msgid "All headings MUST use sentence-case (capitalize only the first word and proper nouns)."
@@ -16117,7 +16117,7 @@ msgstr "모든 스크립트 맵 `*.infinito.test` · `127.0.0.1` 그래서 로�
 
 # libretranslate
 msgid "All services are deployed behind a reverse proxy and share a unified authentication layer where applicable. The inventory defines a single default host named 'server' and activates roles declaratively via group names."
-msgstr "모든 서비스는 역 프록시 뒤에 배치되고 해당되는 인증 레이어를 공유합니다. 재고는 단일 기본 호스트를 정의합니다. 'server' 그룹 이름을 통해 declaratively 역할을 합니다."
+msgstr ""
 
 # libretranslate
 msgid "All services are expected to be exposed behind a reverse proxy role where applicable."
@@ -16125,7 +16125,7 @@ msgstr "모든 서비스는 역 프록시 역할 뒤에 노출 될 것으로 예
 
 # libretranslate
 msgid "All services run behind a reverse proxy and share centralized identity management. The inventory defines a single host and activates roles declaratively."
-msgstr "모든 서비스는 역 프록시 뒤에 실행하고 중앙화 된 정체 관리를 공유합니다. 재고는 단일 호스트를 정의하고 선언적으로 역할을 활성화합니다."
+msgstr ""
 
 # libretranslate
 msgid "All settings available as `SEMAPHORE_*` env vars; `_FILE` suffix reads a value from a file (secret-friendly)."
@@ -16517,7 +16517,7 @@ msgstr "자체를 인증하는 응용 API Bearer MUST는 SSO ACL 화이트리스
 
 # libretranslate
 msgid "An application whose registration rejects the shell-safe alphabet states that in its own meta/users.yml rather than carrying a second credential beside the account it already owns."
-msgstr "자신의 등록이 쉘 안전 알파벳 상태를 거부하는 응용 프로그램 meta/users.yml 오히려 계정 옆에 두 번째 자격은 이미 소유합니다."
+msgstr ""
 
 # libretranslate
 msgid "An application's canonical primary domain when it has at most max_length characters, otherwise its short entity name (e.g. ``keycloak``)."
@@ -16548,7 +16548,7 @@ msgstr ""
 
 # libretranslate
 msgid "An empty or unresolvable closure filters nothing: discovery that silently dropped every provider would look exactly like a deployment without any, which is the failure this module refuses to produce elsewhere."
-msgstr "비어있거나 신뢰할 수없는 폐쇄 필터 없음 : 침묵적으로 모든 공급자가 아무런 문제없이 배포와 정확히 같은 것을 발견하면이 모듈은 다른 곳에서 생산하는 것을 거부합니다."
+msgstr ""
 
 # libretranslate
 msgid "An empty result is cached under its id too, or a role without the file would re-stat it on every call."
@@ -16556,7 +16556,7 @@ msgstr "빈 결과는 id에서 너무 캐시되거나 파일이없는 역할은 
 
 # libretranslate
 msgid "An empty string is a valid answer: a provider that has not minted its credential yet is the normal state early in a play, and the callers distinguish it from a wrong one by probing."
-msgstr "빈 문자열은 유효 답입니다 : 자격 증명을 축소하지 않은 공급자는 아직 플레이에서 정상 상태이기 때문에 콜러는 잘못된 것을 구별합니다."
+msgstr ""
 
 msgid "An empty string means \"not configured\" and passes every check, which is what makes an optional provider key expressible: declare the shape, leave the value empty, and the consumer gates on emptiness."
 msgstr ""
@@ -16578,7 +16578,7 @@ msgstr "Overrides를 가진 입장은 파생한 모양을 일으킵니다 (예�
 
 # libretranslate
 msgid "An entry without a pinned version can never be confirmed from disk and is always reported, so the caller falls through to a real install."
-msgstr "핀이없는 항목은 디스크에서 확인 할 수 없으며 항상보고되므로 콜러가 실제 설치로 떨어지는 것입니다."
+msgstr ""
 
 # libretranslate
 msgid "An example of how to use this role in your playbook:"
@@ -16600,7 +16600,7 @@ msgstr "플랫폼 잠금없이 출판, 비디오, 오디오, 분석 및 커뮤�
 
 # libretranslate
 msgid "An input the source left on its default resolves to empty and is dropped, so the retrigger leaves it on that same default rather than pinning today's default into a run that never asked for it."
-msgstr "입력 소스는 기본적으로 빈으로 해결하고 떨어졌다, 그래서 리 트리거는 오늘 기본을 핀으로 하지 않는 실행으로 그 같은 기본에 그것을 떠나."
+msgstr ""
 
 # libretranslate
 msgid "An input whose ``format()`` opens with nothing yields no segment: with no opening literal there is nothing to locate in a title, and ``str.find('')`` would match at position 0 and hand back the title's own prefix as the value. Such an input renders a glyph the reader understands and is recovered from the job log instead (``runs.LOG_INPUTS``)."
@@ -16639,7 +16639,7 @@ msgstr "알 수없는 트랙 이름 aborts 전에 다른 모든 실행."
 
 # libretranslate
 msgid "An unreadable log proves coverage neither way and is reported as \"missing\" for every required role, so the operator notices."
-msgstr "읽을 수없는 로그는 적용 범위를 증명하지 않고보고 \"missing\" 모든 필수 역할, 그래서 연산자 통지."
+msgstr ""
 
 # libretranslate
 msgid "An unset key is not an error. The provider's route stays unpublished, the gateway serves whatever local backend the round deploys, and [the litellm CLI test](../../../../../roles/svc-ai-litellm/files/test/probe.py) asserts the absence rather than skipping."
@@ -16936,7 +16936,7 @@ msgstr "다른 관련 교육 또는 문서 파일:"
 
 # libretranslate
 msgid "Any strings returned by this method that could ever contain non-ascii must be converted into python's unicode type as the strings will be run through jinja2 which has this requirement.  You can use::"
-msgstr "Python의 unicode 유형으로 변환되어야 할 수없는이 방법으로 반환되는 모든 문자열은 jinja를 통해 실행됩니다2 이 필요조건이 있는. 당신은 사용할 수 있습니다::"
+msgstr ""
 
 # libretranslate
 msgid "Any team-scoped API call."
@@ -17416,7 +17416,7 @@ msgstr "서버로, 각 관리된 MCP 서버 방아쇠 작업 흐름 MUST:"
 
 # libretranslate
 msgid "As a visitor of an Infinito.Nexus deployment, I want the documentation, the universal logout panel and the dashboard to speak my language from the core gettext catalogs, and I want browser apps such as MIG to be allowed to read the API, so that every surface core renders follows the same translations."
-msgstr "자주 묻는 질문 Infinito.Nexus 배포, 문서, 범용 로그 아웃 패널 및 대쉬보드는 핵심 gettext 카탈로그에서 내 언어를 구사하고 브라우저 응용 프로그램을 원하는 MIG 자주 묻는 질문 API, 그래서 모든 표면 코어 렌더링은 같은 번역을 따릅니다."
+msgstr ""
 
 msgid "As an Infinito.Nexus administrator, I want [OpenBao](https://github.com/openbao/openbao) deployed as a `web-app-openbao` role with Keycloak OIDC login, group-mapped policies, persistent storage, automatic unsealing, backup and monitoring, so that infrastructure secrets, application credentials, certificates and tokens can be stored and retrieved centrally without distributing static secrets across systems."
 msgstr ""
@@ -17427,7 +17427,7 @@ msgstr "자체 호스팅 배포의 연산자로서, I want every role who applic
 
 # libretranslate
 msgid "As the conversation grows, the agent MUST proactively suggest a higher tier. Base the estimate on observable signals: message count, response sizes, and whether context compression has been triggered by the system."
-msgstr "대화가 성장함에 따라 에이전트 MUST는 더 높은 계층을 제안합니다. 관찰 가능한 신호에 대한 견적을 기초: 메시지 수, 응답 크기, 및 컨텍스트 압축이 시스템에 의해 트리거 된지 여부."
+msgstr ""
 
 # libretranslate
 msgid "Ask Permissions ⚠️"
@@ -17534,7 +17534,7 @@ msgstr "에 의해 **각 대화 시작**다른 일을 하기 전에, 대리인 M
 
 # libretranslate
 msgid "At the start of every conversation, the agent MUST check whether agent skills are installed by verifying that `.agents/skills/` exists and is non-empty. If skills are missing, the agent MUST notify the user once with:"
-msgstr "모든 대화의 시작에서 에이전트 MUST 체크 에이전트 기술이 확인하여 설치 여부 `.agents/skills/` 존재하고 비 면제입니다. 기술이 누락되면 에이전트가 한 번 사용자를 통지합니다."
+msgstr ""
 
 # libretranslate
 msgid "At the start of every new conversation, you MUST read [.claude/settings.json](.claude/settings.json) and output a one-time summary: sandbox status with concrete `allowWrite`/`denyRead` paths, plus the counts of `permissions.allow`/`ask`/`deny`. Derive content from the live file; do not hardcode. Do not repeat unless the operator asks, and do not propose `/sandbox` when it is already active."
@@ -17585,7 +17585,7 @@ msgstr "Auth, proxy, TLS, 네트워킹, 마이그레이션 및 공유 요약 MUS
 
 # libretranslate
 msgid "Authenticates the mirror job against Docker Hub, which raises the anonymous pull-rate limit the mirror would otherwise hit."
-msgstr "Docker Hub에 대한 미러 작업을 인증하여 익명의 풀레이트 제한을 높이는 것은 그렇지 않으면 충돌합니다."
+msgstr ""
 
 # libretranslate
 msgid "Authentication & Admin Model"
@@ -17857,7 +17857,7 @@ msgstr "백엔드 차단기"
 
 # libretranslate
 msgid "Backfills CI images for the version tag if missing, retags them to release tags, and publishes the version-specific image set."
-msgstr "백필 CI 이미지 버전 태그를 누락하면 태그를 해제하고, 버전 별 이미지 세트를 게시합니다."
+msgstr ""
 
 # libretranslate
 msgid "Background"
@@ -18075,11 +18075,11 @@ msgstr "스택 서비스가 존재하지 않기 때문에, poll의 swarm 테스�
 
 # libretranslate
 msgid "Because that grant is irreversible once the container starts, the checks run inside the agent role before it deploys, not afterwards in this role: the agent is a shared service, so the service loader brings it up in the constructor stage while ``svc-ai`` roles only run at the following step. A check placed here would sit behind the deployment it exists to prevent."
-msgstr "그 보조금은 컨테이너가 시작되면 허용되지 않기 때문에, 체크는이 역할에서 나중에 배포하기 전에 에이전트 역할을 실행합니다. 에이전트는 공유 서비스이므로 서비스 로더는 건설자 단계에서 제공합니다. ``svc-ai`` 역할은 다음 단계에서만 실행됩니다. 여기에서 배치 한 체크는 배포 뒤에 앉을 것입니다."
+msgstr ""
 
 # libretranslate
 msgid "Because that grant is irreversible once the container starts, the checks run inside the agent role before it deploys, not afterwards in this role: the agent is a shared service, so the service loader brings it up in the constructor stage while `svc-ai` roles only run at the following step. A check placed here would sit behind the deployment it exists to prevent."
-msgstr "그 보조금은 컨테이너가 시작되면 허용되지 않기 때문에, 체크는이 역할에서 나중에 배포하기 전에 에이전트 역할을 실행합니다. 에이전트는 공유 서비스이므로 서비스 로더는 건설자 단계에서 제공합니다. `svc-ai` 역할은 다음 단계에서만 실행됩니다. 여기에서 배치 한 체크는 배포 뒤에 앉을 것입니다."
+msgstr ""
 
 # libretranslate
 msgid "Because the lookup emits ``$(...)`` shell syntax, callers MUST use the ``ansible.builtin.shell`` module (not ``command``) for the surrounding ``container exec`` invocation. A companion lint rule enforces this."
@@ -18133,7 +18133,7 @@ msgstr "PR을 표시하기 전에 **자주 묻는 질문**, 당신의 포크 MUS
 
 # libretranslate
 msgid "Before modifying any file in this role, you MUST explain to the user why the change is necessary and ask for explicit confirmation."
-msgstr "이 역할에서 모든 파일을 수정하기 전에, 변경이 필요한 사용자에 대해 설명하고 명시된 확인을 요청합니다."
+msgstr ""
 
 # libretranslate
 msgid "Before modifying any file under `roles/<role>/`, check for `roles/<role>/AGENTS.md`. If present, read and follow it (including any file-scoped subsections) before any change."
@@ -18141,7 +18141,7 @@ msgstr "아래의 파일 수정 `roles/<role>/`, 체크인 `roles/<role>/AGENTS.
 
 # libretranslate
 msgid "Before reporting the task complete, you MUST verify the spec against a running stack, not against file contents alone. Static file review misses navigation and auth bugs that only surface in the browser."
-msgstr "작업 완료를보고하기 전에 실행 스택에 대한 spec을 확인, 혼자 파일 내용에 대해하지. 정적 파일 리뷰는 브라우저에서 단지 표면의 탐색과 auth 버그를 놓습니다."
+msgstr ""
 
 msgid "Before running workflows you MUST configure the required secrets and credentials for the repository. This includes GHCR authentication for pushing and publishing container images. See [authentication.md](tools/ghcr/authentication.md) for the full setup guide."
 msgstr ""
@@ -18265,7 +18265,7 @@ msgstr "채용 정보 🧮"
 
 # libretranslate
 msgid "Behaviour-equal alternatives take the side that routes through the SPOT variable instead of inlining the expression again."
-msgstr "Behaviour-equal 대안은 SPOT 변수를 통해 경로를 다시 표현합니다."
+msgstr ""
 
 msgid "Behind that sits a second, smaller mismatch. LAM authenticates by binding an LDAP DN from its `Admins` list, which [`templates/env.j2`](./templates/env.j2) fills with `LDAP.DN.ADMINISTRATOR.DATA` and `LDAP.BIND_CREDENTIAL` — the `svc-db-openldap` `credentials.administrator_database_password` — while the shared helper types `lookup('users', 'administrator').password`, the secret of `uid=administrator,ou=users,…`, a different directory entry. That one is configurable rather than structural: the helper reads `ADMIN_NATIVE_PASSWORD` for exactly this case, and the role could render it. It is recorded here so the opt-out can be revisited together with the entry-point problem, which is the blocking one."
 msgstr ""
@@ -18457,11 +18457,11 @@ msgstr "BookWyrm은 ActivityPub에 내장된 책에 대한 사회적 네트워�
 
 # libretranslate
 msgid "Bookkeeping only: the compose layering below keys off the concrete resources a worktree was handed, never off this number, so a stray slot cannot make compose demand a value nobody set."
-msgstr "Bookkeeping only: 콘크리트 리소스에서 키 아래에서 레이어링은 worktree가 수를 넣지 않았으므로 stray 슬롯을 구성 할 수 없습니다."
+msgstr ""
 
 # libretranslate
 msgid "Boost your development journey with Gitea, a lightweight and energetic self-hosted Git service that offers efficient code collaboration, intuitive version control, and an agile environment for your projects. Ignite your coding spirit, innovate faster, and code with confidence!"
-msgstr "당신의 개발 여행을 밀어 Gitea, 경량과 에너지 자체 호스팅 Git 효율적인 코드 협업, 직관적인 버전 컨트롤 및 프로젝트의 agile 환경을 제공하는 서비스. 코딩 정신을 무시, 더 빠른 혁신, 그리고 신뢰와 코드!"
+msgstr ""
 
 # libretranslate
 msgid "Bootstrap"
@@ -18687,7 +18687,7 @@ msgstr "둘 다 역할 메타 lint (`tests/lint/ansible/services/test_addons_sch
 
 # libretranslate
 msgid "Bounding a service port that carries no access policy of its own, where the packet filter is the only boundary available."
-msgstr "소포 필터가 사용할 수 있는 유일한 경계선인 자체의 액세스 정책을 수행하는 서비스 포트를 경계."
+msgstr ""
 
 # libretranslate
 msgid "Bounds scope; bigger surface to ship cleanly first."
@@ -19160,7 +19160,7 @@ msgstr "사업 결정, 계약 및 파트너십"
 
 # libretranslate
 msgid "Business, strategic, and security-relevant topics MUST be discussed in internal channels only and MUST NOT be shared in public rooms or forums."
-msgstr "비즈니스, 전략적 및 보안 관련 주제는 내부 채널에만 논의되고 공공 객실 또는 포럼에서 공유되지 않습니다."
+msgstr ""
 
 # libretranslate
 msgid "Buy Me a Coffee"
@@ -19185,7 +19185,7 @@ msgstr ""
 
 # libretranslate
 msgid "By following these guidelines, both end users and administrators can achieve a high degree of security. Stay vigilant, keep your systems updated, and report any suspicious activity. While we strive for maximum security, no system is completely infallible."
-msgstr "이 가이드라인을 따르면, 최종 사용자와 관리자는 보안의 높은 정도를 달성할 수 있습니다. 시스템 업데이트를 유지하고 의심스러운 활동을보고하십시오. 우리는 최대 보안을 위해 노력하는 동안, 체계는 완전하게 팽창할 수 없습니다."
+msgstr ""
 
 # libretranslate
 msgid "By participating in the Infinito.Nexus project, you agree to adhere to this Code of Conduct. We appreciate your cooperation in helping us build a positive and productive community."
@@ -19908,7 +19908,7 @@ msgstr "중앙 엔진은 **공유넷 공급자** (기존 메커니즘 `utils/net
 
 # libretranslate
 msgid "Central identity and secure communications are deployed behind a hardened reverse proxy. This bundle is a skeleton activation map and contains no application-specific configuration."
-msgstr "중앙 정체성 및 보안 통신은 하드 역 프록시 뒤에 배치됩니다. 이 번들은 skeleton 활성화 맵이며 애플리케이션 별 구성이 없습니다."
+msgstr ""
 
 # libretranslate
 msgid "Central in-memory caching engine with per-consumer key-prefix isolation, usable centrally or as an embedded sidecar"
@@ -20118,7 +20118,7 @@ msgstr ""
 
 # libretranslate
 msgid "Check for any port conflicts and manually change the conflicting ports if necessary. Use the following command to verify:"
-msgstr "모든 포트 충돌을 확인하고 수동으로 필요한 경우 충돌 포트를 변경합니다. 다음 명령을 사용하여 확인:"
+msgstr ""
 
 # libretranslate
 msgid "Check if DKIM generation works on new setups"
@@ -21871,7 +21871,7 @@ msgstr "구성 표면"
 
 # libretranslate
 msgid "Configuration to apply changes on every request, ensuring that dynamic content and single-page applications are also tracked."
-msgstr "각 요청에 따라 변경할 수 있는 구성은 동적 콘텐츠와 단일 페이지 애플리케이션을 추적할 수 있습니다."
+msgstr ""
 
 # libretranslate
 msgid "Configuration 🛠️"
@@ -22084,7 +22084,7 @@ msgstr "모델명을 입력해야 하는 소비자 (`web-app-moodle`· `web-app-
 
 # libretranslate
 msgid "Consumers that take an explicit domain or read one from the environment fall back here rather than repeating the literal, so changing the CI/dev default is a one-line edit in ``default.env`` instead of a hunt through the tree."
-msgstr "명시된 도메인을 가지고 있거나 환경 중 하나를 읽는 소비자는 리터럴을 반복하기 때문에 CI/dev 기본값을 변경하는 것은 원라인 편집입니다. ``default.env`` 나무를 통해 사냥 대신."
+msgstr ""
 
 msgid "Consumes ``system_service_run_list`` (created by ``sys-service`` when ``system_service_force_flush_final=true``)."
 msgstr ""
@@ -22604,7 +22604,7 @@ msgstr "클래식 PAT 만들기 🔑"
 
 # libretranslate
 msgid "Create a fresh inventory and deploy the selected applications against the development stack. Existing container state and shared entities are kept untouched."
-msgstr "신선한 재고를 만들고 개발 스택에 대한 선택한 응용 프로그램을 배포합니다. 기존의 컨테이너 상태와 공유된 엔티티가 고정되지 않습니다."
+msgstr ""
 
 # libretranslate
 msgid "Create a new GitHub App under **Organization settings → Developer settings → GitHub Apps → New GitHub App**."
@@ -22656,11 +22656,11 @@ msgstr "당신의 포크를 만들거나 업데이트하십시오."
 
 # libretranslate
 msgid "Create the AI model entry under Administration > Intelligence panel > Settings, selecting the `Custom OpenAI-compatible` provider, and enter the API credentials under Administration > Integrations."
-msgstr "아래 AI 모델 항목 만들기 > 인텔리전스 패널 > 설정, 선택 `Custom OpenAI-compatible` 공급자, 그리고 입력 API 관리의 자격 > 통합."
+msgstr ""
 
 # libretranslate
 msgid "Create the AI model entry under Administration > Intelligence panel > Settings, selecting the ``Custom OpenAI-compatible`` provider, and enter the API credentials under Administration > Integrations."
-msgstr "아래 AI 모델 항목 만들기 > 인텔리전스 패널 > 설정, 선택 ``Custom OpenAI-compatible`` 공급자, 그리고 입력 API 관리의 자격 > 통합."
+msgstr ""
 
 # libretranslate
 msgid "Create the entry when none exists or replace its complete desired state when exactly one exists."
@@ -23003,7 +23003,7 @@ msgstr "작업 스케줄링/execution 전략을 사용자 정의합니다."
 
 # libretranslate
 msgid "Customize your installation using environment variables and templated configuration files to match your infrastructure needs."
-msgstr "환경변수 및 템플릿 구성 파일을 사용하여 설치를 사용자의 인프라 요구에 맞게 지정합니다."
+msgstr ""
 
 # libretranslate
 msgid "Customize 🧩"
@@ -23218,7 +23218,7 @@ msgstr "데비안 / 우분투 → `openssh-client`"
 
 # libretranslate
 msgid "Debian SHOULD be the preferred distro for that focused workflow iteration unless the failure is clearly distro-specific or the user asked for a different distro."
-msgstr "Debian SHOULD는 실패가 명확하게 변형되거나 사용자가 다른 디트로를 요청하지 않는 한 집중된 워크플로를 위한 선호한 디트로입니다."
+msgstr ""
 
 # libretranslate
 msgid "Debian, Ubuntu (+ derivatives like Mint, Pop!_OS, Raspbian)"
@@ -23757,7 +23757,7 @@ msgstr "계정 만들기 표준 Odoo Infinito.Nexus 배포 명령:"
 
 # libretranslate
 msgid "Deploy OpenLDAP in a Docker environment with support for TLS-secured communication via an NGINX stream proxy. OpenLDAP offers advanced directory management capabilities, including flexible schema definitions, dynamic configuration overlays, and comprehensive query support with LDAP search utilities."
-msgstr "계정 만들기 OpenLDAP NGINX 스트림 프록시를 통해 TLS-secured 통신을 지원하는 Docker 환경에서. OpenLDAP는 유연한 스키마 정의, 동적 구성 오버레이 및 LDAP 검색 유틸리티를 포함한 고급 디렉토리 관리 기능을 제공합니다."
+msgstr ""
 
 # libretranslate
 msgid "Deploy `Social Home <https://github.com/social-home-io/socialhome>`__, a privacy-first federated social platform built for a single household. One container, an embedded SQLite database, and peer-to-peer federation between households over Ed25519-signed WebRTC data channels — no ActivityPub, no message broker, no object store."
@@ -24176,7 +24176,7 @@ msgstr "Arch Linux 시스템 설계, 이 역할은 활용 `pacman` 모듈 설치
 
 # libretranslate
 msgid "Designed for Archlinux systems, this role handles issuing certificates per domain and optionally cleans up redundant certificates if wildcard certificates are used. It intelligently decides whether to issue a standard or wildcard certificate based on the domain structure and your configuration."
-msgstr "Archlinux 시스템 설계, 이 역할은 도메인 당 발급 인증서를 처리하고 야생 카드 인증서가 사용되는 경우 선택적으로 중복 인증서를 청소합니다. 그것은 지능적으로 도메인 구조와 구성을 기반으로 표준 또는 와일드 카드 인증서를 발급하는 것을 결정한다."
+msgstr ""
 
 # libretranslate
 msgid "Designed for Archlinux systems, this role periodically checks whether web resources (JavaScript, fonts, images, etc.) are blocked by CSP headers. It integrates Python and Node.js tooling and installs a systemd service with timer support."
@@ -24224,11 +24224,11 @@ msgstr "Node 기반 프로젝트에서 사용하기 위해 설계된 이 역할�
 
 # libretranslate
 msgid "Designed for various Linux distributions, this role manages the installation of the Chromium browser using the system’s package manager. It configures Chromium's managed policies to automatically deploy key browser extensions, ensuring that users always have a secure and consistent environment. This role integrates seamlessly with other system management roles for a holistic deployment."
-msgstr "다양한 Linux 배포를 위해 설계된 이 역할은 설치를 관리합니다. Chromium 시스템의 패키지 관리자를 사용하여 브라우저. 그것은 구성 Chromium's 관리 정책은 키 브라우저 확장을 자동으로 배치하고 사용자가 항상 안전하고 일관성있는 환경을 보장합니다. 이 역할은 전체적인 배포에 대한 다른 시스템 관리 역할과 원활하게 통합됩니다."
+msgstr ""
 
 # libretranslate
 msgid "Designed for various Linux distributions, this role manages the installation of the Chromium browser using the system’s package manager. It configures Chromium’s managed policies to automatically deploy key browser extensions, ensuring that users always have a secure and consistent environment. This role integrates seamlessly with other system management roles for a holistic deployment."
-msgstr "다양한 Linux 배포를 위해 설계된 이 역할은 설치를 관리합니다. Chromium 시스템의 패키지 관리자를 사용하여 브라우저. 그것은 구성 Chromium’ s 관리 정책 자동으로 키 브라우저 확장을 배포, 사용자가 항상 안전하고 일관된 환경을 보장. 이 역할은 전체적인 배포에 대한 다른 시스템 관리 역할과 원활하게 통합됩니다."
+msgstr ""
 
 # libretranslate
 msgid "Designed to be run once per host to provision proprietary GPU support"
@@ -24812,7 +24812,7 @@ msgstr ""
 
 # libretranslate
 msgid "Do NOT break native login, logout, navigation, or form flows unless the role explicitly requires that change and the new behavior is verified end to end."
-msgstr "네이티브 로그인, 로그아웃, 네이비게이션, 또는 폼 플로우가 명시적으로 변경하고 새로운 행동은 끝으로 확인되지 않습니다."
+msgstr ""
 
 # libretranslate
 msgid "Do NOT document patterns or extension points that do not exist in the code."
@@ -25464,7 +25464,7 @@ msgstr "각 항목은 정확히 하나의 구조 클래스 체인. 새로운 보
 
 # libretranslate
 msgid "Each file in this directory SHOULD declare its purpose and the hooks it registers at the top of the file so readers can understand why it cannot be switched off."
-msgstr "이 디렉토리의 각 파일 SHOULD는 목적과 후크가 파일 상단에 등록하므로 독자는 왜 전환 할 수 없다는 것을 이해할 수 있습니다."
+msgstr ""
 
 msgid "Each file's root IS the addon spec; the filename stem is the addon id. Malformed (non-mapping) payloads are skipped here; the lint layer is the one that reports them, so the checker stays robust against in-progress files."
 msgstr ""
@@ -25554,7 +25554,7 @@ msgstr "그 폐쇄의 각 역할은 실제로 씨앗에 도달하는 변종에 �
 
 # libretranslate
 msgid "Each row is a migration target. The \"Bridges\" column is the cross-role dependency this requirement makes explicit. \"Today's location\" is where the declaration lives before migration."
-msgstr "각 행은 이동 목표입니다. 더 보기 \"Bridges\" 열은 교차로 의존도입니다. 이 요구 사항은 명시되어 있습니다. \"현재 위치\" 항해 전에 선언이 사는 곳이다."
+msgstr ""
 
 # libretranslate
 msgid "Each row recomputes the role's embedded (forward) service deps from that variant's merged ``services`` map, so toggling a sidecar off in a variant drops it from the variant's ``embeds``/``weight``. The consumer (reverse) side is the variant-independent role-level graph: who else in the catalog embeds this role does not change with the role's own variant selection."
@@ -25595,7 +25595,7 @@ msgstr "각 shim MUST는 자신의 위치에 관계되는 저장소 뿌리를 �
 
 # libretranslate
 msgid "Each stage entry below lists the criteria a role MUST satisfy to claim that stage. Promotion to the next stage is a deliberate human decision, not an automated transition. A role MAY only be tagged with a stage whose criteria are fully met; any drift MUST be corrected by either fixing the role or demoting the lifecycle key to the highest stage whose criteria still hold."
-msgstr "아래 각 단계 항목은 해당 단계를 주장하는 역할 MUST 만족. 다음 단계에 대한 프로모션은 자동 전환이 아닌 인간의 결정입니다. 역할 MAY는 완전히 충족되는 단계로 태그됩니다. 어떤 드래프트 MUST는 역할을 수정하거나 수명주기 키를 가장 높은 단계로 데모함으로써 정확합니다."
+msgstr ""
 
 msgid "Each subpackage owns one generated page and runs through its own make target; ``docs/`` itself holds only the rendered result."
 msgstr ""
@@ -25740,11 +25740,11 @@ msgstr "LDAP 디렉토리 관리 LAM (LDAP 계정 관리자), LDAP 감독을 관
 
 # libretranslate
 msgid "Elevate your collaboration with Nextcloud, a vibrant self-hosted cloud solution designed for dynamic file sharing, seamless communication, and effortless teamwork. Nextcloud offers a full suite of integrated tools (including LDAP and OIDC authentication, Redis caching, and automated plugin management via OCC) to empower a secure, extensible, and production-ready cloud environment."
-msgstr "협력을 높이기 Nextcloud, 동적 파일 공유, 원활한 통신 및 노력없는 팀웍을 위해 설계된 활기찬 자체 호스팅 클라우드 솔루션. Nextcloud는 통합 도구의 전체 제품군을 제공합니다 (LDAP 및 OIDC 인증 등 Redis OCC를 통해 캐싱 및 자동화 플러그인 관리) 보안, 확장성 및 생산적 클라우드 환경을 강화하기 위해."
+msgstr ""
 
 # libretranslate
 msgid "Elevate your email marketing with Listmonk, a high-performance, self-hosted newsletter and mailing list manager featuring a modern, intuitive dashboard. Listmonk empowers you with advanced analytics, efficient subscriber segmentation, and streamlined campaign management, all configurable via a flexible TOML configuration file."
-msgstr "이메일 마케팅을 올리세요 Listmonk, 현대, 직관적인 대시보드를 갖춘 고성능 셀프 호스팅 뉴스 레터 및 메일링 목록 관리자. Listmonk는 고급 분석, 효율적인 가입자 세그먼트 및 간소화 된 캠페인 관리, 유연한 TOML 구성 파일을 통해 모든 구성 가능한 권한을 부여합니다."
+msgstr ""
 
 # libretranslate
 msgid "Eliminated Docker container name conflicts by reusing or cleanly resetting deploy test containers"
@@ -25813,11 +25813,11 @@ msgstr "Empirically 충분한 용 the piike ([₢ 킹162](https://github.com/inf
 
 # libretranslate
 msgid "Empower your data management with Baserow, an innovative platform that makes building and managing databases both fun and efficient. Enjoy a dynamic interface, seamless collaboration, and energetic tools that supercharge your workflow."
-msgstr "데이터 관리 Baserow, 데이터베이스를 구축하고 관리하는 혁신적인 플랫폼은 재미와 효율성을 모두. 동적 인터페이스, 원활한 협업 및 energetic 도구를 사용하여 작업 흐름을 충전합니다."
+msgstr ""
 
 # libretranslate
 msgid "Empower your decentralized social networking with Friendica, a platform designed to foster communication and community building with ease. Experience a robust, containerized deployment that streamlines installation, configuration, and maintenance for your Friendica instance."
-msgstr "분산 된 소셜 네트워킹을 강화 Friendica, 쉬운 커뮤니케이션과 공동체 건물을 촉진하기 위하여 디자인된 플랫폼. 견고하고 컨테이너화된 배포를 통해 설치, 구성 및 유지 보수를 간소화합니다. Friendica 예제."
+msgstr ""
 
 # libretranslate
 msgid "Empower your e-commerce vision with **Shopware 6**, a modern, flexible, and open-source commerce platform built on **Symfony and Vue.js**. Designed for growth and innovation, it enables seamless integration, outstanding customer experiences, and complete control over your digital business. Build, scale, and sell with confidence."
@@ -25825,11 +25825,11 @@ msgstr "전자 상거래 비전 강화 **Shopware 6**, 현대, 가동 가능한,
 
 # libretranslate
 msgid "Empower your knowledge base with MediaWiki, a versatile and collaborative platform designed to build comprehensive, user-driven documentation. MediaWiki offers a rich extension ecosystem, robust content management capabilities, and customizable configurations to transform your information into a vibrant, living resource."
-msgstr "지식 기반을 강화하십시오. MediaWiki, 다양한 협업 플랫폼은 종합적이고 사용자 중심의 문서를 구축하도록 설계되었습니다. MediaWiki는 풍부한 확장 생태계, 강력한 콘텐츠 관리 기능 및 사용자 정의 구성을 제공하여 귀하의 정보를 활기찬 생활 자원으로 변환합니다."
+msgstr ""
 
 # libretranslate
 msgid "Empower your organization with **XWiki**, an open-source enterprise wiki and knowledge management platform. XWiki provides powerful collaboration features, structured content management, and extensibility through applications and plugins, all under your control."
-msgstr "조직에 힘입어 **XWiki**, 오픈 소스 기업 위키 및 지식 관리 플랫폼. XWiki는 강력한 협업 기능, 구조화된 콘텐츠 관리 및 애플리케이션 및 플러그인을 통해 확장성을 제공합니다."
+msgstr ""
 
 msgid "Empty `run_after: []` is **forbidden**: omit the key when no constraint exists."
 msgstr ""
@@ -26072,11 +26072,11 @@ msgstr "자주 묻는 질문 `www.example.com` 자동 및 영구적으로 리디
 
 # libretranslate
 msgid "Ensure that system services and applications can always send notifications (e.g. health checks, alerts, job results) without each role having to care about the underlying mail plumbing."
-msgstr "시스템 서비스 및 응용 프로그램은 항상 알림을 보낼 수 있음 (e.g. 건강 검사, 경고, 작업 결과) 아래 메일 배관에 대해 걱정하는 각 역할없이."
+msgstr ""
 
 # libretranslate
 msgid "Ensure that system services and applications can always send notifications (e.g. health checks, alerts, job results) without each role having to care about the underlying mail plumbing."
-msgstr "시스템 서비스 및 응용 프로그램은 항상 알림을 보낼 수 있음 (e.g. 건강 검사, 경고, 작업 결과) 아래 메일 배관에 대해 걱정하는 각 역할없이."
+msgstr ""
 
 # libretranslate
 msgid "Ensure that the new domain is correctly set up:"
@@ -26211,11 +26211,11 @@ msgstr "Enterprise endpoints 관리자 org 회원, 청구 및 여러 orgs의 정
 
 # libretranslate
 msgid "Enterprises, research teams, and regulated organizations that need AI capabilities without sending data to external clouds."
-msgstr "기업, 연구 팀, 및 외부 클라우드에 데이터를 전송하지 않고 AI 기능을 필요로하는 규제 조직."
+msgstr ""
 
 # libretranslate
 msgid "Enters the push-entry concurrency group for the deleted branch so that any in-flight run on it is cancelled; a fallback step cancels remaining runs via the API."
-msgstr "삭제 된 지점의 푸시 엔트리 통화 그룹을 입력하여 취소됩니다. 가을 단계가 나머지 실행을 통해 취소됩니다. API·."
+msgstr ""
 
 # libretranslate
 msgid "Entity Purge 🗑️"
@@ -26548,7 +26548,7 @@ msgstr "모든 배치 모드 역할의 기본 구성 요소는 toggle 할 수 �
 
 # libretranslate
 msgid "Every discovered endpoint authenticates through a header. A provider that keys its session by URL segment instead cannot scope that segment per consumer or revoke it, so it is fronted by an adapter and the segment stays between the adapter and its upstream."
-msgstr "모든 발견 된 엔드 포인트는 헤더를 통해 정통합니다. URL 세그먼트에 의해 세션을 키는 공급자는 대신 소비자 당 세그먼트를 범위 할 수 없습니다 또는 그것을 회귀, 그래서 어댑터와 세그먼트는 어댑터와 업스트림 사이에 유지됩니다."
+msgstr ""
 
 # libretranslate
 msgid "Every embodiable agent runs the admission checks"
@@ -26606,7 +26606,7 @@ msgstr "모든 설치 가능한 패키지는 두 곳 중 하나에서 정확히 
 
 # libretranslate
 msgid "Every invokable role in the tested lifecycle envelope, with its upstream homepage, an introduction video, the roles it integrates with, and a one-command local install."
-msgstr "테스트 된 라이프 사이클 봉투의 모든 invokable 역할, 그것의 업스트림 홈페이지, 소개 비디오, 역할과 통합, 하나의 로컬 설치."
+msgstr ""
 
 # libretranslate
 msgid "Every key MUST be the fully qualified form :func:`override_key` builds; a short form is rejected rather than guessed at, because the same short key names different credentials on different apps."
@@ -26644,7 +26644,7 @@ msgstr "다른 에이전트 배포에 [032](032-agent-employees-firecracker.md) 
 
 # libretranslate
 msgid "Every page carries a version switcher in its sidebar. Switching keeps the current page and falls back to the start page of a version that lacks it."
-msgstr "모든 페이지는 사이드바에 버전 스위퍼를 운반합니다. 전환은 현재 페이지를 유지하고 부족한 버전의 시작 페이지로 돌아갑니다."
+msgstr ""
 
 # libretranslate
 msgid "Every path either deploys on the assigned kind, reports the substitution, or fails. None of them substitutes in silence."
@@ -26731,7 +26731,7 @@ msgstr ""
 
 # libretranslate
 msgid "Every rule in `permissions.ask` assumes the operator reads the prompt and confirms the action matches intent. Rules in `ask` are NOT a hard barrier. They are a speed-bump that converts automatic execution into a deliberate decision."
-msgstr "모든 규칙 `permissions.ask` 연산자가 프롬프트를 읽고 행동 일치를 확인합니다. 규칙에 `ask` 단단한 장벽은 아닙니다. 자동 실행을 deliberate 결정으로 변환하는 속도 펌프입니다."
+msgstr ""
 
 # libretranslate
 msgid "Every runner instance is an ephemeral container that mounts its host's docker socket (DooD). For each CI job it starts a fresh Infinito DinD container with a unique subnet and volume, runs the job inside it, and tears it down; the runner then re-registers with GitHub as a fresh ephemeral runner."
@@ -26773,7 +26773,7 @@ msgstr ""
 
 # libretranslate
 msgid "Every sweep exercises both architectures across the catalogue instead of proving amd64 and claiming nothing, at no extra job count."
-msgstr "Amd 대신 카탈로그의 모든 청소 운동64 그리고 아무것도 주장, 추가 작업 수 없습니다."
+msgstr ""
 
 # libretranslate
 msgid "Every task that creates a new file."
@@ -26950,7 +26950,7 @@ msgstr "예제:"
 
 # libretranslate
 msgid "Exception: a `default:` is written into the inventory verbatim, so on the next read it arrives here as if an operator had typed it. Every default in the repository is a Jinja reference, and a pattern describes the rendered secret, not the template text that will produce it."
-msgstr "예외: a `default:` 재고 동사로 작성되므로 다음 읽는 것은 운영자가 그것을 입력 한 경우 여기에 도착합니다. 저장소의 모든 기본은 Jinja 참조이며 패턴은 렌더링 된 비밀을 설명합니다. 템플릿 텍스트가 생성됩니다."
+msgstr ""
 
 # libretranslate
 msgid "Exceptional stability, large community, predictable release cadence, broad package availability"
@@ -27116,7 +27116,7 @@ msgstr "Existing per-plugin 작업 논리 MUST는 아래에서 이동 `tasks/add
 
 # libretranslate
 msgid "Existing scenarios MUST NOT be deleted when \"optimising\" a spec. Rewrite them to satisfy the rules above or strengthen assertions; do not shrink coverage. Deletions are only acceptable when the underlying behaviour was removed from the role itself."
-msgstr "기존 시나리오는 삭제되지 않습니다. \"optimising\" 사이트맵 위의 규칙을 만족시키거나 assertions를 강화합니다; 적용을 수축하지 마십시오. 삭제는 행동이 역할 자체에서 제거되었을 때만 허용됩니다."
+msgstr ""
 
 # libretranslate
 msgid "Exists so shell and workflow steps can compose the same reference the env layer composes, instead of spelling ``ghcr.io/...`` out a second time."
@@ -27124,7 +27124,7 @@ msgstr "쉘과 워크플로우 단계가 같은 참조를 구성할 수 있습�
 
 # libretranslate
 msgid "Exists so workflow steps can ask for the matrix, and for the distro behind a matrix entry, without embedding a python one-liner per question."
-msgstr "작업 흐름 단계는 매트릭스를 요청할 수 있으며, 매트릭스 항목 뒤에 디트로를 요청할 수 있습니다."
+msgstr ""
 
 # libretranslate
 msgid "Exit"
@@ -27175,7 +27175,7 @@ msgstr "Retry 플러그인 및 플러그인 경로 사용에 대한 확장 된 l
 
 # libretranslate
 msgid "Expanded lint, unit, and integration coverage around service-registry behavior, compose resource limits, email integration requirements, no_log policy, lookup usage, min-storage validation, and non-bash pipefail regressions"
-msgstr "서비스 관련 확장된 lint, Unit 및 통합 적용, 자원 제한, 이메일 통합 요구 사항, no_log 정책, 검색 사용, 최소 저장 유효성, 및 비 배설 파이프파일 회귀"
+msgstr ""
 
 # libretranslate
 msgid "Expanded shared platform integrations for SMTP, Prometheus / native metrics, OIDC, LDAP, and role-based RBAC provisioning"
@@ -27201,7 +27201,7 @@ msgstr "예상된 구조:"
 
 # libretranslate
 msgid "Experience Mobilizon, an open-source event management platform that empowers communities to create, manage, and attend events with ease. Mobilizon puts privacy and decentralization first, giving you full control over your data and how you engage with your audience."
-msgstr "- 연혁 Mobilizon, 커뮤니티가 만들고, 관리하고, 이벤트에 참여할 수 있는 오픈 소스 이벤트 관리 플랫폼. Mobilizon은 개인 정보 보호 및 탈중앙화를 먼저두고 데이터에 대한 전체 제어를 제공하고 청중과 어떻게 참여합니다."
+msgstr ""
 
 # libretranslate
 msgid "Experience the power of Matomo, an innovative open-source analytics platform that delivers real-time insights, robust visitor tracking, and privacy-first features to elevate your website performance. Dive into actionable data with unmatched precision and clarity."
@@ -27340,7 +27340,7 @@ msgstr "외부 시험"
 
 # libretranslate
 msgid "External tests MAY emit warnings instead of hard failures when the goal is advisory freshness reporting rather than merge-blocking correctness."
-msgstr "외부 시험 MAY는 목표가 병합을 막기 보다는 오히려 advisory 신선도를 보고하는 때 단단한 실패 대신 경고를 방출합니다."
+msgstr ""
 
 # libretranslate
 msgid "External tests MUST live under `tests/external/`."
@@ -27850,11 +27850,11 @@ msgstr "제품정보 `swarm_restart_condition`: 작곡 스타일 지도 ``docker
 
 # libretranslate
 msgid "Filter and order the collected service rows by their numeric/scalar fields (bond, depth, the resource columns) and by service/role."
-msgstr "필터 및 순서 수집된 서비스 행 그들의 숫자/scalar 필드 (채권, 깊이, 자원 열) 그리고 서비스/로."
+msgstr ""
 
 # libretranslate
 msgid "Filtering on activation here rather than inside each fragment is what keeps the fragments free of boilerplate. A rule that fires on a series nothing scrapes is worse than no rule: it alerts on ``absent()`` forever."
-msgstr "각 파편 안쪽에 활성화에 거르는 것은 보일러판의 파편을 자유롭게 유지하는 것입니다. 시리즈에 화재가 아무것도 스크랩이 규칙보다 악화되는 규칙 : 그것은에 경고 ``absent()`` 모두."
+msgstr ""
 
 # libretranslate
 msgid "Filters by prefix."
@@ -28450,7 +28450,7 @@ msgstr "정상적인 변화를 위해, contributors MUST:"
 
 # libretranslate
 msgid "For a one-off local override of the compose bridge, regenerate `.env` with the desired value and recreate the stack cleanly:"
-msgstr "작곡 브리지의 한 오프 로컬 오버라이드를 위해, 재생 `.env` 원하는 값과 스택을 깨끗하게 재현:"
+msgstr ""
 
 # libretranslate
 msgid "For a service that speaks something other than HTTP there -- php-fpm answers FastCGI -- so neither curl nor an HTTP request over the socket can judge it. ``/dev/tcp`` is a bash builtin, hence the explicit interpreter."
@@ -28478,11 +28478,11 @@ msgstr "행정 명령의 경우 `Administration.md <./Administration.md>`__. DNS
 
 # libretranslate
 msgid "For any support requests, suggestions, or contributions, please open an issue or a pull request in the ``infinito`` repository. Contributions, especially those that enhance the playbook’s functionality or extend its language support, are highly welcomed."
-msgstr "지원 요청, 제안 또는 기여를 위해, 문제 또는 풀 요청을 엽니 다 ``infinito`` 관련 기사 흥미 진진한, 특히 playbook의 기능을 강화하거나 언어 지원을 연장하는 사람들은, 높게 환영됩니다."
+msgstr ""
 
 # libretranslate
 msgid "For any support requests, suggestions, or contributions, please open an issue or a pull request in the `infinito` repository. Contributions, especially those that enhance the playbook's functionality or extend its language support, are highly welcomed."
-msgstr "지원 요청, 제안 또는 기여를 위해, 문제 또는 풀 요청을 엽니 다 `infinito` 관련 기사 Contributions, 특히 playbook의 기능을 강화하거나 언어 지원을 연장하는 사람들은, 높게 환영됩니다."
+msgstr ""
 
 # libretranslate
 msgid "For app-level local deploy flows and end-to-end checks, see [Development & Testing](../actions/testing.md)."
@@ -28848,27 +28848,27 @@ msgstr "다음 업데이트:"
 
 # libretranslate
 msgid "For support, feedback, or contributions to the role, please open an issue or submit a pull request in the ``infinito`` repository. Contributions that enhance the role or broaden its applicability are greatly appreciated."
-msgstr "지원, 피드백, 또는 역할에 기여를 위해, 문제를 열고 또는 풀 요청을 제출하십시오 ``infinito`` 관련 기사 역할을 강화하거나 중독성이 크게 향상 된 기여."
+msgstr ""
 
 # libretranslate
 msgid "For support, feedback, or contributions to the role, please open an issue or submit a pull request in the `infinito` repository. Contributions that enhance the role or broaden its applicability are greatly appreciated."
-msgstr "지원, 피드백, 또는 역할에 기여를 위해, 문제를 열고 또는 풀 요청을 제출하십시오 `infinito` 관련 기사 역할을 강화하거나 중독성이 크게 향상 된 기여."
+msgstr ""
 
 # libretranslate
 msgid "For support, feedback, or contributions, such as enhancing the role or adding additional torrent-related functionality, please open an issue or submit a pull request in the ``infinito`` repository. Contributions that enhance the usability or features of qBittorrent within this role are highly appreciated."
-msgstr "지원, 피드백, 또는 기여를 위해 역할 강화 또는 추가 토런트 관련 기능을 추가하고, 문제가 열거나 pull request를 제출하십시오. ``infinito`` 관련 기사 이 역할 안에 qBittorrent의 유용성 또는 특징을 강화하는 공헌은 높게 평가됩니다."
+msgstr ""
 
 # libretranslate
 msgid "For support, feedback, or contributions, such as enhancing the role or adding additional torrent-related functionality, please open an issue or submit a pull request in the `infinito` repository. Contributions that enhance the usability or features of qBittorrent within this role are highly appreciated."
-msgstr "지원, 피드백, 또는 기여를 위해 역할 강화 또는 추가 토런트 관련 기능을 추가하고, 문제가 열거나 pull request를 제출하십시오. `infinito` 관련 기사 이 역할 안에 qBittorrent의 유용성 또는 특징을 강화하는 공헌은 높게 평가됩니다."
+msgstr ""
 
 # libretranslate
 msgid "For support, suggestions, or contributions, please raise an issue or a pull request in the ``infinito`` repository. This project welcomes contributions from the developer community."
-msgstr "지원, 제안, 또는 기여를 위해, 문제 또는 풀 요청을 제기하십시오 ``infinito`` 관련 기사 이 프로젝트는 개발자 커뮤니티의 기여를 환영합니다."
+msgstr ""
 
 # libretranslate
 msgid "For support, suggestions, or contributions, please raise an issue or a pull request in the `infinito` repository. This project welcomes contributions from the developer community."
-msgstr "지원, 제안, 또는 기여를 위해, 문제 또는 풀 요청을 제기하십시오 `infinito` 관련 기사 이 프로젝트는 개발자 커뮤니티의 기여를 환영합니다."
+msgstr ""
 
 # libretranslate
 msgid "For test commands and testing standards, see [testing.md](../actions/testing.md)."
@@ -28910,7 +28910,7 @@ msgstr ""
 
 # libretranslate
 msgid "For the backup services keep in mind to setup a tandem, which pulls the backups from each other to verify that this also works"
-msgstr "백업 서비스에 대해 염두에 두는 것을 염두에두고, 이는 서로의 백업을 잡아 이 작업을 확인하기 위해"
+msgstr ""
 
 # libretranslate
 msgid "For the broader RBAC contract (LDAP layout, `rbac.tenancy` schema, the `rbac_group_path` lookup plugin), see [rbac.md](../../../../docs/contributing/design/iam/rbac.md)."
@@ -29546,7 +29546,7 @@ msgstr "문서 렌더링 ``docs/``·."
 
 # libretranslate
 msgid "Generators that render pages committed under `docs/`. Each one reads role metadata, renders a single page, and writes it back into the documentation tree, so `docs/` holds only the rendered result and never the code that produces it. A lint fails when a generated page drifts from a fresh run, so every page here is regenerated through its own make target rather than edited by hand."
-msgstr "아래의 페이지를 렌더링 하는 발전기 `docs/`. 각 하나는 역할 메타 데이터를 읽고, 단일 페이지를 렌더링하고 문서 트리에 다시 쓰기, 그래서 `docs/` 렌더링 된 결과 만 보유하고 코드를 생성하지 않습니다. lint는 신선한 실행에서 생성 된 페이지 편류가 발생했을 때 실패합니다. 그래서 모든 페이지는 자체를 통해 재생됩니다."
+msgstr ""
 
 # libretranslate
 msgid "Generic Docker Registry HTTP API v2 client."
@@ -29674,7 +29674,7 @@ msgstr "GitHub 워크 플로우 테스트 ⚙️"
 
 # libretranslate
 msgid "GitHub cancels a job that has sat queued for 24 hours. That clock starts when the job is queued, not when the run starts, and a `needs:` edge delays queueing until the dependency completes. A run that queues its whole matrix at once leaves the tail waiting past the cut, where it dies unrun. Deploying in chunks chained on `needs:` restarts the clock per chunk."
-msgstr "GitHub는 sat queued 작업을 취소 24 영업시간 그 시계는 작업이 누락될 때, 실행이 시작될 때, 그리고 `needs:` 신뢰할 수 있는 완료 때까지 가장자리 지연. 한 번에 전체 매트릭스를 queues는 잘라서 꼬리를 기다리는 것을 실행합니다. 관련 링크 `needs:` 펑크당 시계를 다시 시작합니다."
+msgstr ""
 
 msgid "GitHub cuts ``display_title`` at 512 UTF-8 bytes (measured on two runs, both exactly 512) and closes it with a literal ``...``. The run-name template renders ``priority`` second-to-last and ``whitelist`` last, and on the ``--failed`` path the whitelist is empty, so the cut always lands inside the priority list: measured 21 of 69 roles survived, the 21st a half-token. A CJK display name costs 3 bytes per character, so the budget is ~22 display names against ~28 bare role ids. Every job of the *called* workflow opens its log with an ``##[group] Inputs`` block holding the full values, so that is the SPOT for anything the title cannot hold."
 msgstr ""
@@ -29773,7 +29773,7 @@ msgstr "Hostnames의 목록을 제공, 두 번째 수준 도메인을 추출 (SL
 
 # libretranslate
 msgid "Given the same on-disk role layout and the same arguments, the helper produces identical output. It exits non-zero with a clear error when the requested capacity cannot be satisfied within the configured band."
-msgstr "동일한 on-disk 역할 레이아웃과 같은 인수를 주면 helper는 동일한 출력을 생성합니다. 요청된 용량이 구성된 밴드 내에서 만족할 수 없을 때 명확한 오류로 비제로를 종료합니다."
+msgstr ""
 
 # libretranslate
 msgid "Given the same on-disk role layout and the same arguments, the helper produces identical output. It exits non-zero with a clear error when the requested capacity cannot be satisfied within the configured umbrella block(s)."
@@ -30823,7 +30823,7 @@ msgstr "AI 스택에 이상: datasets, embeddings, 및 artifacts"
 
 # libretranslate
 msgid "Ideal for developers and content creators, the role simplifies deploying a dedicated icon server. It automates container setup, configuration, and routing, ensuring reliable, quick access to icons. Easily integrate scalable icons into your projects without managing individual asset files."
-msgstr "개발자 및 콘텐츠 제작자에 이상적입니다. 역할은 전용 아이콘 서버를 배포하는 단순화합니다. 컨테이너 설정, 구성 및 라우팅을 자동화하여 신뢰할 수 있고 신속한 접근을 보장합니다. 개별 자산 파일을 관리하지 않고도 확장 가능한 아이콘을 쉽게 통합합니다."
+msgstr ""
 
 # libretranslate
 msgid "Idempotence 🔁"
@@ -30956,7 +30956,7 @@ msgstr "완전히 오프라인 또는 공기 승인 설정이 필요한 경우, 
 
 # libretranslate
 msgid "If a local deploy is still progressing and the user has not asked you to change course, you MUST wait for it to finish instead of interrupting it."
-msgstr "로컬 배포가 여전히 진행되고 사용자가 변경 과정을 요청하지 않은 경우, 중단 대신 완료 할 때까지 기다리십시오."
+msgstr ""
 
 # libretranslate
 msgid "If a matching issue exists, you MUST add a comment via `gh issue comment <issue-number> --body-file <log-excerpt-file>` that contains the relevant log excerpt and links the full GitHub Actions run URL for every newly observed run."
@@ -30964,7 +30964,7 @@ msgstr "일치하는 문제가 존재하는 경우, 당신은 코멘트를 추�
 
 # libretranslate
 msgid "If a new test is created or an existing test has been changed since the last test run, you MUST rerun it after every subsequent action until it passes."
-msgstr "새로운 테스트가 생성되거나 기존 테스트가 마지막 테스트가 실행되기 때문에 변경되었는지, 이 패스까지 모든 후속 작업을 다시 실행합니다."
+msgstr ""
 
 # libretranslate
 msgid "If a push to GHCR fails with `denied: denied`:"
@@ -31006,7 +31006,7 @@ msgstr ""
 
 # libretranslate
 msgid "If any precondition fails, you MUST return to [Compose Loop](compose.md) and re-establish the baseline before continuing."
-msgstr "사전 조건이 실패하면, MUST 반환 [Compose 반복](compose.md) 계속하기 전에 기본 설정."
+msgstr ""
 
 # libretranslate
 msgid "If automation logic is not shell-based, it MUST live outside `scripts/` and be called from a `.sh` wrapper when needed."
@@ -31032,7 +31032,7 @@ msgstr ""
 
 # libretranslate
 msgid "If multiple roles share the same root cause, you MUST first deploy them together via the `apps=\"<role-a> <role-b>\"` form described in [Compose Loop](../iteration/compose.md), then run the alphabetically first role of the batch individually as the exemplary single-app deploy."
-msgstr "여러 역할이 동일한 루트 원인을 공유한다면, 먼저 함께 배포합니다. `apps=\"<role-a> <role-b>\"` 로그인 [Compose 반복](../iteration/compose.md), 그런 다음 알파벳순으로 첫 번째 작업을 실행합니다."
+msgstr ""
 
 # libretranslate
 msgid "If multiple runs across multiple branches share the same external failure, you MUST link all of them in the issue body or comment."
@@ -31183,11 +31183,11 @@ msgstr "새로운 변형이 표준 inter-round entity purge가 커버되지 않�
 
 # libretranslate
 msgid "If the only purpose of a test is to prevent removal of a specific code path, you SHOULD document that directly at the relevant code location with a short comment explaining why it must not be removed."
-msgstr "테스트의 유일한 목적은 특정 코드 경로의 제거를 방지하는 것입니다, 당신은 왜 제거해야하는지 설명하는 짧은 코멘트와 관련 코드 위치에 직접 SHOULD 문서."
+msgstr ""
 
 # libretranslate
 msgid "If the operator declines the commit request or signals to skip, you MUST continue with the next root cause without committing and proceed until all root causes are addressed."
-msgstr "연산자가 커밋 요청 또는 신호를 건너 뛰는 경우, 모든 루트 원인을 해결하지 않고 다음 루트 원인으로 계속됩니다."
+msgstr ""
 
 # libretranslate
 msgid "If the pre-commit hook fails, fix the underlying issue and retry the commit."
@@ -31195,7 +31195,7 @@ msgstr "프리밋 후크가 실패한 경우, 언더리스닝 문제를 해결�
 
 # libretranslate
 msgid "If the pre-commit hook warns about a staged file or its role, you MUST ask whether to fix that warning before you continue."
-msgstr "미리 진행된 파일 또는 그 역할에 대한 후크가 경고하면 계속 경고를 수정해야 합니다."
+msgstr ""
 
 # libretranslate
 msgid "If the push is rejected as non-fast-forward, stop and ask the operator. MUST NOT use `--force` or `--force-with-lease` without explicit per-invocation confirmation."
@@ -31253,7 +31253,7 @@ msgstr "웹 사이트가 로컬 배포 인증서를 사용하는 경우 MUST 실
 
 # libretranslate
 msgid "If the workflow uses a distro matrix, you MUST iterate on one distro at a time instead of rerunning the whole matrix during the default debug loop."
-msgstr "워크플로우가 디트로 매트릭스를 사용한다면, 디버그 루프에서 전체 매트릭스를 다시 실행하는 대신 한 번에 디트로트를 실행해야 합니다."
+msgstr ""
 
 # libretranslate
 msgid "If this happens, always consider all caching layers:"
@@ -31319,7 +31319,7 @@ msgstr "사용 가능한 경우 `enable_wildcard_certificate`, 수동으로 요�
 
 # libretranslate
 msgid "If you experience or witness any behavior that violates this Code of Conduct, please report it promptly. Reports should be sent to <kevin@veen.world>. All reports will be treated with discretion and confidentiality."
-msgstr "이 행동의 코드를 위반하는 행위를 경험하거나 증언하는 경우, 신속하게보고하십시오. 보고서는 보내야합니다. <kevin@veen.world>. 모든 보고는 재량과 기밀로 대우될 것입니다."
+msgstr ""
 
 # libretranslate
 msgid "If you have imported posts from Instagram, you can clean up the imported data and files as follows:"
@@ -31394,7 +31394,7 @@ msgstr "OpenID Connect를 통해 관리자가 로그인하면 (OIDC 소개) 별�
 
 # libretranslate
 msgid "If your domain is blacklisted, you can check the status with these services and take steps to remove your domain if necessary:"
-msgstr "도메인이 blacklisted인 경우, 이 서비스에 대한 상태를 확인하고 필요한 경우 도메인을 제거해야 합니다."
+msgstr ""
 
 # libretranslate
 msgid "If your logic requires **access to inventory, facts, or host-level information** that is not passed as a parameter."
@@ -31402,11 +31402,11 @@ msgstr "논리가 필요한 경우 **재고, 사실, 또는 호스트 수준 정
 
 # libretranslate
 msgid "Ignite the learning experience with [Moodle](https://moodle.org/), a powerful and versatile platform for online education that energizes classrooms and fosters interactive learning. Moodle delivers a comprehensive set of tools for creating, managing, and sharing educational content, supporting collaboration among educators and learners alike."
-msgstr "학습 경험을 Ignite [Moodle](https://moodle.org/), 교실을 격려하고 대화 형 학습을 촉진하는 온라인 교육을위한 강력하고 다양한 플랫폼. Moodle은 educators 및 Learners와 같은 교육 콘텐츠를 생성, 관리 및 공유하기위한 포괄적 인 세트의 도구를 제공합니다."
+msgstr ""
 
 # libretranslate
 msgid "Ignite the learning experience with `Moodle <https://moodle.org/>`__, a powerful and versatile platform for online education that energizes classrooms and fosters interactive learning. Moodle delivers a comprehensive set of tools for creating, managing, and sharing educational content, supporting collaboration among educators and learners alike."
-msgstr "학습 경험을 Ignite `Moodle <https://moodle.org/>`__, 교실을 격려하고 대화 형 학습을 촉진하는 온라인 교육을위한 강력하고 다양한 플랫폼. Moodle은 educators 및 Learners와 같은 교육 콘텐츠를 생성, 관리 및 공유하기위한 포괄적 인 세트의 도구를 제공합니다."
+msgstr ""
 
 msgid "Image"
 msgstr ""
@@ -31637,7 +31637,7 @@ msgstr "모든 응용 분야의 작업 로그아웃 구현"
 
 # libretranslate
 msgid "Implement, that the already during a play installed apps get stored, so that the installation process isn't triggered twice"
-msgstr "구현, 이미 Play에 설치된 앱이 저장되는 동안, 그래서 설치 프로세스는 두 번 트리거되지 않습니다"
+msgstr ""
 
 # libretranslate
 msgid "Implement, that username can just be identical to ldap\\keycloak username. First dirty hack; Block the changing of the field via JS"
@@ -31824,7 +31824,7 @@ msgstr "향상된 불안정성 (pacman → 패키지) formatter 작업 흐름을
 
 # libretranslate
 msgid "Improved CI diagnostics, runner-state dumps, disk / swap handling, image wait logic, and mirror / release backfill workflows for fork-based development"
-msgstr "개선된 CI 진단, 런너 스테이트 덤프, 디스크 / 스왑 처리, 이미지 대기 논리 및 미러 / 포크 기반 개발을 위한 백필 워크로드"
+msgstr ""
 
 # libretranslate
 msgid "Improved CI reliability with reusable workflows, fixed permissions, and consistent SARIF uploads"
@@ -31879,7 +31879,7 @@ msgstr "향상된 시스템 성능"
 
 # libretranslate
 msgid "Improves CI and release reliability by simplifying workflows, correcting permission handling, and hardening the pipeline against transient upstream failures."
-msgstr "작업 흐름을 단순화하여 CI 및 릴리즈 신뢰성 향상, 권한 처리 수정, 과도한 업스트림 실패에 대한 파이프라인 강화."
+msgstr ""
 
 # libretranslate
 msgid "Improves CI and test robustness by fixing Jinja2 templating edge cases, unifying unittest mock imports, hardening Docker image pull retries, and resolving multiple code-scanning alerts without suppressions."
@@ -31914,11 +31914,11 @@ msgstr "템플릿 외에도이 저장소 전체 리뷰 규칙을 염두에 두�
 
 # libretranslate
 msgid "In addition to the user security guidelines, administrators have additional responsibilities to secure the entire system:"
-msgstr "사용자 보안 지침 외에도 관리자는 전체 시스템을 확보하기 위해 추가 책임이 있습니다."
+msgstr ""
 
 # libretranslate
 msgid "In all communication and when handling data, you MUST respect the [Hacker Ethics](https://www.ccc.de/de/hackerethik) as defined by the Chaos Computer Club. This means treating information responsibly, protecting privacy, and acting in the interest of the public good."
-msgstr "모든 통신에서 데이터를 처리 할 때, 당신은 MUST 존중 [해커 윤리](https://www.ccc.de/de/hackerethik) Chaos Computer Club에 의해 정의됩니다. 개인정보의 수집 및 사용에 동의합니다."
+msgstr ""
 
 # libretranslate
 msgid "In compose mode the lookup returns the empty string because docker-compose ignores `deploy.replicas`. Wrapping the emit in the `deploy:` block remains the caller's responsibility - typically `roles/sys-svc-container/templates/deploy.yml.j2`."
@@ -31934,7 +31934,7 @@ msgstr "내장된 모드 (`shared: false`) 소비자의 퇴비 더미는 저장 
 
 # libretranslate
 msgid "In order to foster a welcoming, open, and respectful community for everyone, we expect all contributors and participants in the Infinito.Nexus project to abide by the following Code of Conduct."
-msgstr "환영, 개방, 존경받는 커뮤니티를 육성하기 위해, 우리는 모든 기여자와 참가자를 기대합니다 Infinito.Nexus 프로젝트는 다음과 같은 행동의 코드에 의해 abide."
+msgstr ""
 
 # libretranslate
 msgid "In short, `utils/domains/` exists to make domain handling consistent, central, and easy to evolve without scattering similar logic throughout the repository. 🧩"
@@ -31950,7 +31950,7 @@ msgstr "짧은: `local.sh` runner는 자체 하드웨어에 완전히 구축하�
 
 # libretranslate
 msgid "In short: these files exist to help development move quickly without teaching the project to be careless around host security controls. ⚙️"
-msgstr "짧은: 이 파일은 프로젝트가 호스트 보안 컨트롤에 대해 걱정할 필요가 없이 개발이 빠르게 이동할 수 있도록 합니다. ⚙️"
+msgstr ""
 
 # libretranslate
 msgid "In swarm mode the `restart:` top-level service key is silently ignored because swarm replaces it with `deploy.restart_policy` (rendered by `roles/sys-svc-container/templates/deploy.yml.j2`). Emitting `restart:` under swarm produces an \"Ignoring unsupported options\" warning at `docker stack deploy` time and double-declares the intent."
@@ -32172,7 +32172,7 @@ msgstr "Infinito.Nexus 관련 제품"
 
 # libretranslate
 msgid "Infinito.Nexus is committed to transparency and actively encourages communication in public channels. Openness strengthens trust within the community and makes the project more accessible to everyone. Internal channels SHOULD only be used when a topic genuinely requires confidentiality."
-msgstr "Infinito.Nexus 투명성에 헌신하고 적극적으로 공공 채널에서 통신을 격려한다. Openness는 커뮤니티 내에서 신뢰를 강화하고 프로젝트에 더 접근 할 수 있도록합니다. 내부 채널 SHOULD는 실제로 기밀을 필요로 할 때만 사용됩니다."
+msgstr ""
 
 # libretranslate
 #, no-python-format
@@ -32181,7 +32181,7 @@ msgstr "Infinito.Nexus 보안을 염두에 두고 설계되었습니다. 그러�
 
 # libretranslate
 msgid "Infinito.Nexus is developed independently. Your support helps fund development, infrastructure, documentation, and the long-term growth of the project."
-msgstr "Infinito.Nexus 자주적으로 개발된다. 지원은 기금 개발, 인프라, 문서 및 프로젝트의 장기적인 성장에 도움이 됩니다."
+msgstr ""
 
 # libretranslate
 msgid "Infinito.Nexus is distributed under the **Infinito.Nexus Community License (Non-Commercial)**. Please see [LICENSE.md](LICENSE.md) for full terms."
@@ -33015,7 +33015,7 @@ msgstr "패키지 관리자를 사용하여 CLI GNOME Extension Manager를 설�
 
 # libretranslate
 msgid "Installs the Infinito.Nexus CLI automatically"
-msgstr "설치하기 Infinito.Nexus 자주 묻는 질문"
+msgstr ""
 
 # libretranslate
 msgid "Installs the SSH client using the system package manager"
@@ -33045,7 +33045,7 @@ msgstr "최신 비없는 GPU 드라이버 설치 (e.g., NVIDIA, AMD) 아키하�
 
 # libretranslate
 msgid "Installs the module where it is packaged separately (Debian family) and no-ops where it ships inside systemd (Arch, RedHat)"
-msgstr "별도로 포장 된 모듈을 설치 (데비안 가족) systemd 내부를 배운 no-ops (아치, RedHat)"
+msgstr ""
 
 # libretranslate
 msgid "Installs the package with the `dev` extra, which carries Sphinx for the `docs` extraction."
@@ -33088,7 +33088,7 @@ msgstr "Renaming 대신, 이전 도메인의 전체 Maildir을 새 이름으로 
 
 # libretranslate
 msgid "Instructions for manual administrative operations like container login, config file edits, and post-update recovery actions."
-msgstr "컨테이너 로그인, 설정 파일 편집 및 포스트 업데이트 복구 작업과 같은 수동 관리 작업을 위한 지침."
+msgstr ""
 
 # libretranslate
 msgid "Instructions replay 📖"
@@ -33194,7 +33194,7 @@ msgstr "통합 테스트 `.github/workflows/*.yml` 그리고 지원 스크립트
 
 # libretranslate
 msgid "Integration tests for `.j2` templates across the repository: syntax validity, include-path resolution, and consistent variable definition and usage."
-msgstr "통합 테스트 `.j2` 저장소의 템플릿: 구문 유효성, include-path 해상도 및 일관된 변수 정의 및 사용."
+msgstr ""
 
 # libretranslate
 msgid "Integration tests for `utils/manager/inventory/InventoryManager` and related inventory-schema machinery: transitive provider-role resolution, schema apply, vault scalar round-trip."
@@ -33237,11 +33237,11 @@ msgstr "사용자 정의 Ansible lookup 플러그인에 대한 통합 테스트 
 
 # libretranslate
 msgid "Integration tests for the deployment substrate that every role shares: Docker Compose templates, Docker image consistency, container networks, the shared service registry, and the backups contract."
-msgstr "배포 기판에 대한 통합 테스트 모든 역할 공유: Docker Compose 템플릿, Docker 이미지 일관성, 컨테이너 네트워크, 공유 서비스 등록 및 백업 계약."
+msgstr ""
 
 # libretranslate
 msgid "Integration tests that enforce contracts between tasks and handlers. One file per contract, no second opinion on the same rule:"
-msgstr "작업과 핸들러 간의 계약을 시행하는 통합 테스트. 계약 당 하나의 파일, 동일한 규칙에 두 번째 의견 없음 :"
+msgstr ""
 
 # libretranslate
 msgid "Integration tests that enforce every `include_tasks` / `import_tasks` / `include_role` / `import_role` target referenced from role tasks (and other project YAML) resolves to an existing file."
@@ -33407,11 +33407,11 @@ msgstr "내부 채널 🔒"
 
 # libretranslate
 msgid "Internal helper role that installs CA-trust injection assets used by Docker Compose stacks. It ships a small wrapper plus the ``inject`` script and validates that the project CA certificate is present on the host before container builds rely on it."
-msgstr "CA-trust 주입 자산을 설치하는 내부 헬퍼 역할 Docker Compose 스택. 그것은 작은 래퍼 플러스 배송 ``inject`` 프로젝트 CA 인증서가 컨테이너 빌드 전에 호스트에 존재한다는 점과 검증."
+msgstr ""
 
 # libretranslate
 msgid "Internal helper role that installs CA-trust injection assets used by Docker Compose stacks. It ships a small wrapper plus the `inject` script and validates that the project CA certificate is present on the host before container builds rely on it."
-msgstr "CA-trust 주입 자산을 설치하는 내부 헬퍼 역할 Docker Compose 스택. 그것은 작은 래퍼 플러스 배송 `inject` 프로젝트 CA 인증서가 컨테이너 빌드 전에 호스트에 존재한다는 점과 검증."
+msgstr ""
 
 # libretranslate
 msgid "Internal infrastructure cleanups: re-synchronised .dockerignore and a shifted weekly CI schedule."
@@ -33684,7 +33684,7 @@ msgstr "관리자 구성의 깨끗한 상태를 보장하고 기본 타임아웃
 
 # libretranslate
 msgid "It ensures that the Package Manager is ready to manage repositories, perform Git operations, and streamline software management tasks."
-msgstr "패키지 관리자가 저장소를 관리 할 준비가되어 있음을 보장합니다. Git 운영 및 간소화 소프트웨어 관리 작업."
+msgstr ""
 
 # libretranslate
 msgid "It hooks `http_api_curl` rather than `http_request_args` because the args array cannot express a proxy: WordPress core's `WP_HTTP_Proxy` hardcodes `CURLPROXY_HTTP`, so SOCKS5 is reachable only on the raw cURL handle. Without it, libcurl refuses an `.onion` host at name resolution under [RFC 7686](https://www.rfc-editor.org/rfc/rfc7686) — before `/etc/hosts`, `extra_hosts` or DNS is consulted — and the token exchange fails with cURL error 6, which WordPress surfaces as `wp-login.php?login-error=http_request_failed`."
@@ -33703,7 +33703,7 @@ msgstr ""
 
 # libretranslate
 msgid "It is designed to be used as a fallback when no central Mailu instance is available, enabling applications and system services to send email via ``localhost:25`` without additional configuration."
-msgstr "중앙이 없는 낙하로 사용하도록 설계되었습니다. Mailu 예를 들어, 응용 프로그램과 시스템 서비스를 사용하여 이메일을 보내 ``localhost:25`` 추가 설정 없이."
+msgstr ""
 
 # libretranslate
 msgid "It is intentionally lightweight and does **not** configure the SSH server or modify SSH configuration files."
@@ -33731,11 +33731,11 @@ msgstr "그것은 문제에 대해 의견 할 수 있습니다."
 
 # libretranslate
 msgid "It offers an ad-free interface that works entirely within your local environment, making it ideal for individuals, organizations, and educational institutions that value data sovereignty."
-msgstr "지역 환경 내에서 전적으로 작동하는 무료 인터페이스를 제공하며 개인, 단체 및 교육 기관에 이상적입니다."
+msgstr ""
 
 # libretranslate
 msgid "It only **stores and propagates tokens that already exist** (e.g. created by bootstrap processes or provided externally)."
-msgstr "그것은 단지 **이미 존재하는 토큰 및 제안** (e.g. bootstrap 프로세스 또는 외부 제공)·."
+msgstr ""
 
 # libretranslate
 msgid "It plays well with **Let’s Encrypt**, **OAuth2 Proxy**, and your existing Docker stack."
@@ -33751,7 +33751,7 @@ msgstr "그것은 제공합니다 **안정되어 있는, 의견이 있는 입장
 
 # libretranslate
 msgid "It provides a minimal and elegant interface to convert any text, URL, or message into a QR code directly in your browser, without external tracking or dependencies."
-msgstr "텍스트, URL, 또는 브라우저에서 QR 코드를 직접 변환하는 최소 및 우아한 인터페이스를 제공합니다. 외부 추적 또는 의존성없이."
+msgstr ""
 
 # libretranslate
 msgid "It provides an open and decentralized way to play chess online, where games and moves are visible across the Fediverse."
@@ -33781,7 +33781,7 @@ msgstr "그것은에서 실행 [01파일 형식](../../../../../tasks/stages/01_
 
 # libretranslate
 msgid "It solves the common challenge of logging a user out from all connected apps with a single action, especially in environments where apps live on multiple subdomains and use OIDC authentication."
-msgstr "앱이 여러 하위 도메인과 OIDC 인증을 사용하여 여러 하위 도메인에 살고있는 환경에서 단일 행동으로 연결된 모든 앱에서 사용자를 로그인하는 일반적인 도전을 해결합니다."
+msgstr ""
 
 # libretranslate
 msgid "It supports a whitelist mechanism to avoid alerting on known or intentional volumes."
@@ -33816,7 +33816,7 @@ msgstr "행동과 행동을 통해 스팸 배포에 대해 `swarm-*` 대상. 동
 
 # libretranslate
 msgid "Iterate over this subtree and yield all existing files (of any kind, including directories) matching the given relative pattern."
-msgstr "이 하위 트리에 저장하고 모든 기존 파일 생성 (감독을 포함한 모든 종류의) 주어진 관계되는 본 일치."
+msgstr ""
 
 # libretranslate
 msgid "Iterates over every Btrfs filesystem."
@@ -33824,7 +33824,7 @@ msgstr "모든 Btrfs 파일 시스템에서 저장합니다."
 
 # libretranslate
 msgid "Iterates per-role variants against a development inventory. See below for how the include set is resolved and where `disable=` prunes it."
-msgstr "개발 재고에 대한 per-role 변형. 아래에서 설정이 해결되고있는 방법 `disable=` 그것을 prunes."
+msgstr ""
 
 # libretranslate
 msgid "Iterating a web app role in compose mode"
@@ -33856,7 +33856,7 @@ msgstr "그 SHA256 checksum은 같은 릴리스에서 fetched"
 
 # libretranslate
 msgid "Its purpose is to keep runtime configuration centralized, deterministic, and easy to reuse across local runs, CI, and container-based execution. 🧭"
-msgstr "이 목적은 중앙 집중식, 세속성 및 로컬 실행, CI 및 컨테이너 기반 실행을 통해 재사용이 용이합니다. 🧭"
+msgstr ""
 
 # libretranslate
 msgid "JS, JSONC, …"
@@ -34112,7 +34112,7 @@ msgstr "쉽게 설명 할 수 있습니다."
 
 # libretranslate
 msgid "Keep generated fields (UID, GID, email, description, password) unset when the shared aggregation logic SHOULD allocate or template them. Set them explicitly only when the role requires a specific value."
-msgstr "관련 제품 (UID, GID, 이메일, 설명, 암호) 공유 집계 논리 SHOULD 할당 또는 템플릿 할 때 unset. 특정 값이 필요할 때만 명시적으로 설정하십시오."
+msgstr ""
 
 # libretranslate
 msgid "Keep gradients, transparency, text contrast, and surface hierarchy aligned."
@@ -34188,7 +34188,7 @@ msgstr "단계별 파일에 의해 터치된 역할에 제한된 후속을 유�
 
 # libretranslate
 msgid "Keep the implementation, local validation, and PR template in sync so the app can be reviewed without guessing the intent."
-msgstr "구현, 로컬 검증 및 동기화의 PR 템플릿을 유지하므로 앱이 의도하지 않고 검토 할 수 있습니다."
+msgstr ""
 
 # libretranslate
 msgid "Keep the per-distro loop inside each deploy job"
@@ -34803,7 +34803,7 @@ msgstr ""
 
 # libretranslate
 msgid "Lifetime: process-wide. CLI tools that never rewrite their inputs see the same hit rate as before; long-lived Ansible processes pick up out-of-band writes on the very next read."
-msgstr "일생: 가공 넓은. 입력을 다시 작성하지 않는 CLI 도구는 이전과 동일한 히트율을 볼 수 있습니다. 긴 라이브 Ansible 프로세스는 매우 다음 읽습니다."
+msgstr ""
 
 # libretranslate
 msgid "Lightweight self-hosted Git service for code collaboration, version control, and repository management"
@@ -34882,7 +34882,7 @@ msgstr "올바른 Jinja를 시행하는 Lint 테스트2 Ansible 템플릿 및 �
 
 # libretranslate
 msgid "Lint tests that enforce cross-file consistency between a role's `meta/services.yml` declarations and the rest of the role's configuration."
-msgstr "역할 간의 교차 파일 일관성을 수행하는 Lint 테스트 `meta/services.yml` 선언과 역할의 나머지."
+msgstr ""
 
 # libretranslate
 msgid "Lint tests that enforce safe inline-SQL practices inside Ansible task definitions."
@@ -34893,7 +34893,7 @@ msgstr ""
 
 # libretranslate
 msgid "Lint tests that enforce variable-lifecycle invariants across the Ansible tree: every name a role declares MUST be consumed somewhere, and every name a role passes MUST be referenced by the play / template stack that receives it."
-msgstr "Ansible 나무의 가변 수명주기 invariants를 시행하는 Lint 테스트 : 모든 이름은 MUST가 어딘가에 소비되고 모든 이름은 재생 / 템플릿 스택에 의해 참조됩니다."
+msgstr ""
 
 # libretranslate
 msgid "Lint 🔍"
@@ -35926,7 +35926,7 @@ msgstr "원격 백업 풀은 호스트 당 빠른 실패하고 공급자를 통�
 
 # libretranslate
 msgid "Make small, safe cleanup improvements in the files you touch when they reduce friction without expanding the scope unnecessarily."
-msgstr "작은, 안전한 정리 개선을 만들 때 그들은 범위를 unnecessarily 확장하지 않고 마찰을 줄일 때 터치."
+msgstr ""
 
 # libretranslate
 msgid "Make sure all mailbox files belong to the `mail:mail` user/group:"
@@ -35969,7 +35969,7 @@ msgstr ""
 
 # libretranslate
 msgid "Make this path a symlink pointing to the target path. Note the order of arguments (link, target) is the reverse of os.symlink."
-msgstr "이 경로는 대상 경로에 symlink 포인팅. 인수의 순서 (링크, 대상) 의 역 os.symlink·."
+msgstr ""
 
 # libretranslate
 msgid "Make user admin via cli"
@@ -36101,7 +36101,7 @@ msgstr "지도 역할 -> [:class:`Failure`] 모든 실패한 배치 일을 위�
 
 # libretranslate
 msgid "Map the repository palette onto those variables. Add selector overrides only for surfaces that cannot be reached through variables."
-msgstr "해당 변수에 저장소 팔레트를 맵합니다. selector overrides만 변수를 통해 도달할 수 없는 표면."
+msgstr ""
 
 # libretranslate
 msgid "MariaDB"
@@ -36609,7 +36609,7 @@ msgstr "Mini-QR은 단순성, 개인 정보 보호 및 속도를 위해 설계�
 
 # libretranslate
 msgid "Mini-QR is designed for simplicity, privacy, and speed.   It offers an ad-free interface that works entirely within your local environment, making it ideal for individuals, organizations, and educational institutions that value data sovereignty.   The app runs as a single Docker container and requires no database or backend setup, enabling secure and frictionless QR generation anywhere."
-msgstr "Mini-QR은 단순성, 개인 정보 보호 및 속도를 위해 설계되었습니다. 지역 환경 내에서 전적으로 작동하는 무료 인터페이스를 제공하며 개인, 단체 및 교육 기관에 이상적입니다. 앱은 단일 도커 컨테이너로 실행되며 데이터베이스나 백엔드 설정이 필요하며 보안 및 마찰성 QR 생성을 어디서든 사용할 수 있습니다."
+msgstr ""
 
 # libretranslate
 msgid "Minimal Hardware Resources 💾"
@@ -36982,7 +36982,7 @@ msgstr "Debian, Ubuntu, Fedora 및 CentOS 시스템에 강력한 Nix installer�
 
 # libretranslate
 msgid "More stable updates: pkgmgr execution is more robust, especially in non-interactive environments and virtual environments."
-msgstr "안정되어 있는 갱신: pkgmgr 실행은 더 튼튼합니다, 특히 비활동성 환경 및 사실상 환경에서."
+msgstr ""
 
 # libretranslate
 msgid "Most application roles use Docker Compose for the running services."
@@ -37033,7 +37033,7 @@ msgstr "Backend 서비스 로드 결정 전용 보기 플러그인"
 
 # libretranslate
 msgid "Moves an issue (with its history and attachments) into a different repository. The destination repo can be attacker-controlled, equivalent to data exfiltration of the issue's contents. Issue transfers must be a deliberate human action."
-msgstr "문제 이동 (역사와 첨부) 다른 저장소로. 대상 repo는 문제의 내용의 데이터 여과와 같은 공격자가 통제 될 수 있습니다. 문제 전송은 인간 행동을 정의해야합니다."
+msgstr ""
 
 # libretranslate
 msgid "Moves non-database Docker volumes to mass storage (HDD) to optimize storage usage."
@@ -37078,7 +37078,7 @@ msgstr "멀티플레이어 (숫자 또는 숫자 문자열, >= 0)· TIMEOUT_FACT
 
 # libretranslate
 msgid "Multiplies every job's wall clock by the number of distributions and forces a shared time budget that silently skips the tail."
-msgstr "배포의 수에 의해 모든 작업의 벽 시계를 다룰 수 있으며 침묵적으로 꼬리를 건너는 공유 시간 예산을 강제합니다."
+msgstr ""
 
 # libretranslate
 msgid "Multisite"
@@ -37867,7 +37867,7 @@ msgstr "수집된 사용 통계 없음. 보통 기능적인 충격 없음."
 
 # libretranslate
 msgid "No value is ever substituted. Ansible's Linux hardware collector reads `/sys/block/<dev>/size` without a None guard and takes every hardware fact with it when that read fails, which is why the facts are a preferred source here rather than the only one."
-msgstr "아무 값도 대체되지 않습니다. Ansible의 Linux 하드웨어 수집가 읽기 `/sys/block/<dev>/size` 아무도 가드없이 모든 하드웨어 사실이 실패를 읽을 때, 사실은 단지 하나보다 선호 소스입니다."
+msgstr ""
 
 # libretranslate
 msgid "No-code builder for LLM apps / agent flows"
@@ -37997,7 +37997,7 @@ msgstr ""
 
 # libretranslate
 msgid "Note that all the above statements are true from the point of view of static type checkers. At runtime, Any cannot be used with instance checks."
-msgstr "위의 모든 진술은 정적 유형 검수소의 관점에서 진실합니다. runtime에서 인스턴스 체크와 함께 사용할 수 없습니다."
+msgstr ""
 
 msgid "Note the order of arguments (self, target) is the reverse of os.link's."
 msgstr ""
@@ -38409,11 +38409,11 @@ msgstr "MacOS에서 사용 [리마](https://lima-vm.io/) 그래서 프로젝트�
 
 # libretranslate
 msgid "On platforms where distro packages are known to be problematic (e.g. Arch Linux ARM), the role deliberately avoids the system package and falls back to the official installer to ensure a working and up-to-date Nix installation."
-msgstr "Distro 패키지가 문제가되는 플랫폼 (e.g. 아치 리눅스 팔), 역할 deliberately는 시스템 패키지를 피하고 공식 설치 업체로 돌아갑니다. 작업 및 최신 Nix 설치를 보장합니다."
+msgstr ""
 
 # libretranslate
 msgid "On platforms where distro packages are known to be problematic (e.g. Arch Linux ARM), the role deliberately avoids the system package and falls back to the official installer to ensure a working and up-to-date Nix installation."
-msgstr "Distro 패키지가 문제가되는 플랫폼 (e.g. 아치 리눅스 팔), 역할 deliberately는 시스템 패키지를 피하고 공식 설치 업체로 돌아갑니다. 작업 및 최신 Nix 설치를 보장합니다."
+msgstr ""
 
 # libretranslate
 msgid "On small machines, you SHOULD limit validation to the role you are touching."
@@ -38433,11 +38433,11 @@ msgstr "Cloned swapfile 스크립트를 통해 스왑 공간을 생성하고 활
 
 # libretranslate
 msgid "Once a compatible release ships, the next deploy run will install + enable + configure the plugin automatically without operator intervention."
-msgstr "호환 릴리즈 배가되면 다음 배포가 실행됩니다 + 활성화 + 연산자 개입없이 플러그인을 자동으로 구성합니다."
+msgstr ""
 
 # libretranslate
 msgid "Once all branch-caused failures are addressed, you MUST `git push` the branch on which you iterated to the operator's fork. For any root cause you could not resolve, you MUST file a separate issue per [External Failures](#external-failures) describing what was attempted and why it remains unresolved."
-msgstr "모든 지점이 실패하면, 당신은 MUST `git push` 운영자의 포크로 결정되는 지점. 어떤 루트 원인을 해결할 수 없습니다, 당신은 당 별도의 문제 파일을 MUST [외부 실패](#external-failures) 시도하고 왜 해결되지 않는지 설명하십시오."
+msgstr ""
 
 # libretranslate
 msgid "Once enabled, you MUST:"
@@ -38445,11 +38445,11 @@ msgstr "일단 활성화되면, 당신은 MUST:"
 
 # libretranslate
 msgid "Once executed, the user becomes fully available in the system (for sharing, group membership, and permissions) even without logging in."
-msgstr "일단 실행되면 사용자는 시스템에서 완전히 사용할 수 있습니다. (공유, 그룹 회원 및 권한) 로그인없이."
+msgstr ""
 
 # libretranslate
 msgid "Once the DNS changes have propagated, **press Enter** in the Certbot terminal.   If successful, Certbot will save the certificates under:"
-msgstr "DNS가 전파되면, **공지사항** 내 계정 Certbot 끝. 성공하면 Certbot 아래의 인증서를 저장할 것:"
+msgstr ""
 
 # libretranslate
 msgid "Once the Matomo bootstrap has run, either later in the same play or on the next Ansible invocation, `sys-token-store` writes the token to disk. On the **next play run** the token is resolved from the store, the condition evaluates to false, and `inject.yml` executes normally: registering the site at Matomo and injecting the tracking code into the target application."
@@ -38610,11 +38610,11 @@ msgstr ""
 
 # libretranslate
 msgid "One table per role is what makes the rules composable. A fragment replaces its own table and touches no other, so two roles on one host neither overwrite nor merge into each other, and a broken fragment fails alone instead of freezing everyone's rules."
-msgstr "역할 당 하나의 테이블은 규칙을 구성하는 것입니다. 파편은 자신의 테이블을 대체하고 다른, 그래서 하나의 호스트에 두 가지 역할은 서로를 덮지 않고, 깨진 조각은 모두의 규칙을 얼어 대신 혼자 실패."
+msgstr ""
 
 # libretranslate
 msgid "One table per role is what makes the rules composable. A fragment replaces its own table and touches no other, so two roles on one host neither overwrite nor merge into each other, and a broken fragment fails alone instead of freezing everyone’s rules."
-msgstr "역할 당 하나의 테이블은 규칙을 구성하는 것입니다. 파편은 자신의 테이블을 대체하고 다른, 그래서 하나의 호스트에 두 가지 역할은 서로를 덮지 않고, 깨진 조각은 모두의 규칙을 얼어 대신 혼자 실패."
+msgstr ""
 
 # libretranslate
 msgid "One translation per source; ``None`` where the server rejected the request or the translation damaged a protected span."
@@ -38708,14 +38708,14 @@ msgstr "한국어 run_after 선택된 세트 안쪽에 지적은 가장자리가
 
 # libretranslate
 msgid "Only supplied values are checked: a generated one comes from the algorithm the same schema names, and the generators take no schema argument."
-msgstr "제공된 값은 체크되어 있습니다. 생성된 값은 알고리즘에서 동일한 스키마 이름과 발전기는 스키마 인수가 없습니다."
+msgstr ""
 
 msgid "Only the configuration is recovered, never the selection: ``whitelist`` and ``priority`` say which roles ran, and a retrigger computes those itself. Runs from any other entry point carry an unrelated title and yield nothing at all."
 msgstr ""
 
 # libretranslate
 msgid "Only the first entry of the chosen variant: a priority row runs every mode and onion state it offers, and replaying the same README block in each of them proves nothing the first replay did not. The glyph goes between the variant number and the ⭐ of a priority row, with no space between the two: they are one marker block, not two axes."
-msgstr "선택된 변형의 첫 번째 항목 만 : 우선 행은 모든 모드와 양파 상태를 실행하고, 각각의 동일한 README 블록을 재생하는 것은 첫 번째 재생이 아닙니다. glyph는 변형 번호와 우선 행의 ⭐ 사이에 간다, 두 사이의 공간 : 그들은 하나의 마커 블록, 두 개의 축이 아닙니다."
+msgstr ""
 
 # libretranslate
 msgid "Only the mount that carries the docker data root matters. A btrfs partition elsewhere on the host changes nothing — the probe never looks at it."
@@ -38731,7 +38731,7 @@ msgstr "Opaque, 역할-interpreted 런타임 페이로드. Lint는 맵핑을 요
 
 # libretranslate
 msgid "Open (or comment on) a 'CI failure: <role>' issue per role whose deploy failed, linking the run artifacts and inlining the decisive rescue excerpt."
-msgstr "기타 (또는 댓글) 'CI 실패: <role>배포 실패한 역할 당 '문제, run artifacts를 연결하고 결정적인 구조 발췌."
+msgstr ""
 
 msgid "Open **Users**, search for the user, and select them."
 msgstr ""
@@ -38746,7 +38746,7 @@ msgstr "WebUI 설치"
 
 # libretranslate
 msgid "Open WebUI access tests MUST cover a user with one of several MCP groups, a user with no MCP group, a user in the wrong application's group, and removal of the user's last group. The known empty-group synchronization behavior MUST be fixed upstream, patched in the pinned image, or compensated by an explicit reconciliation/session-invalidation mechanism before strict revocation is claimed."
-msgstr "WebUI 액세스 테스트 MUST는 MCP 그룹 중 하나와 사용자를 커버, MCP 그룹과 사용자, 잘못된 응용 그룹의 사용자, 사용자의 마지막 그룹의 제거. 알려진 빈 그룹 동기화 행동 MUST 고정 업스트림, 핀 이미지에 패치, 또는 엄격한 재발급 전에 명시된 재조정 메커니즘에 의해 보상."
+msgstr ""
 
 msgid "Open WebUI consumes MCP through its native tool-server support. Every deployed shared MCP server role is rendered into `TOOL_SERVER_CONNECTIONS` as a `type: mcp` entry."
 msgstr ""
@@ -39117,7 +39117,7 @@ msgstr "이 그룹을 할당하기위한 작업 지시 `Administration RBAC <../
 
 # libretranslate
 msgid "Operator-facing tooling for provisioning inventories, running dedicated deploys, and managing host secrets across an Infinito.Nexus environment."
-msgstr "Inventories, 전용 배포를 실행하고, 호스트 비밀을 관리하기위한 작업 도구 Infinito.Nexus 환경."
+msgstr ""
 
 # libretranslate
 msgid "Operator-requested: isolate MDAD's Ansible runtime from Infinito's so MDAD can pin its own `ansible-core` / collection versions without crossing into the Infinito Ansible venv."
@@ -39136,7 +39136,7 @@ msgstr ""
 
 # libretranslate
 msgid "Optimised for Arch Linux, the role installs NGINX, prepares opinionated configuration snippets and exposes a simple interface for other roles to drop in new virtual-hosts."
-msgstr "Arch Linux에 최적화된 역할은 NGINX를 설치하고, 새로운 가상 호스트를 드롭하는 다른 역할에 대한 간단한 인터페이스를 제공합니다."
+msgstr ""
 
 # libretranslate
 msgid "Optimised for Arch Linux, the role installs NGINX, prepares opinionated configuration snippets and exposes a simple interface for other roles to drop in new virtual-hosts.   It plays well with **Let’s Encrypt**, **OAuth2 Proxy**, and your existing Docker stack."
@@ -39244,7 +39244,7 @@ msgstr "Portability 및 idempotency에 최적화 된이 역할은 다음과 같�
 
 # libretranslate
 msgid "Optimized for prompt and comprehensive failure alerts, this role configures a unified notification service. It leverages the capabilities of both Telegram and Email notifications to ensure that administrators are quickly informed about service issues, enabling rapid troubleshooting."
-msgstr "신속하고 포괄적 인 실패 경고를 위해 최적화 된이 역할은 통합 된 알림 서비스를 구성합니다. 텔레그램과 이메일 알림의 기능을 활용하면 관리자가 서비스 문제에 대해 신속하게 알려줍니다. 신속한 문제 해결."
+msgstr ""
 
 # libretranslate
 msgid "Optimized for real-time alerts, this role is a key component of the overall [`sys-ctl-alm-compose` suite](../). It ensures that, upon failure of a critical service, a Telegram message is automatically sent to notify administrators and enable prompt troubleshooting."
@@ -39272,7 +39272,7 @@ msgstr "보안 시스템 관리에 최적화 된이 역할은 다음과 같습�
 
 # libretranslate
 msgid "Optimized for security and ease of administration, this role guarantees that sudo is installed and configured according to recommended practices. The provided sudoers file includes essential comments, host/user aliases, and defaults to help prevent misconfigurations."
-msgstr "보안 및 관리의 용이성에 최적화 된이 역할은 권장 관행에 따라 설치 및 구성 보장한다. 제공된 sudoers 파일에는 필수 의견, 호스트/사용자 별명 및 기본 사항이 포함되어 있습니다."
+msgstr ""
 
 # libretranslate
 msgid "Optimized for simplicity and idempotency, this role:"
@@ -39455,7 +39455,7 @@ msgstr "전체장편 `.py` 파일 중 500-라인 캡."
 
 # libretranslate
 msgid "Opts the entire file out of the useful-comment check. Reserved for vendored / upstream config templates (e.g. Discourse `app.yml`) whose inline documentation is all intentional."
-msgstr "유용한 구성 체크 아웃의 전체 파일을 Opts. 공급 업체 / 업스트림 구성 템플릿 (e.g. 토론 `app.yml`) 그 인라인 문서는 모든 의도입니다."
+msgstr ""
 
 # libretranslate
 msgid "Opts the role's unified `services.sso` block out. Declares \"no login flow\"; paired with `enabled: false` + `shared: false`."
@@ -39550,7 +39550,7 @@ msgstr "우리의 약속"
 
 # libretranslate
 msgid "Our project maintainers and community leaders will review all reports and take appropriate action, which may include warnings, temporary suspension, or permanent expulsion from the community if necessary."
-msgstr "우리의 프로젝트 관리 및 커뮤니티 리더는 모든 보고서를 검토하고 필요한 경우 지역 사회에서 경고, 일시 중단 또는 영구적 폭발을 포함 할 수있는 적절한 조치를 취할 것입니다."
+msgstr ""
 
 # libretranslate
 msgid "Out of scope"
@@ -39626,11 +39626,11 @@ msgstr "제품정보"
 
 # libretranslate
 msgid "Outputs structured log messages that GitHub Actions renders as annotations (warning triangles, error markers, etc.) in the job summary and log view."
-msgstr "GitHub Actions가 주석으로 렌더링하는 구조화된 로그 메시지 (경고 삼각형, 오류 감적 등) 작업 요약 및 로그보기."
+msgstr ""
 
 # libretranslate
 msgid "Outside the containerised test rig the configured relay is used unchanged. Inside it that relay domain has neither DNS nor a route: a host carrying the stack itself reaches mail on loopback, while a bare infra node has nothing listening there and has to enter through the manager's routing mesh."
-msgstr "Containerised test rig를 외부로 설정된 릴레이는 변경되지 않습니다. DNS나 경로가 없는데, 호스트 자체가 루프백에 메일을 전달하는 호스트는, 베어 인프라 노드는 아무것도 듣지 않고 관리자의 라우팅 메쉬를 통해 입력해야 합니다."
+msgstr ""
 
 # libretranslate
 #, python-brace-format
@@ -40424,7 +40424,7 @@ msgstr "세션 시작에 대한 권한 📢"
 
 # libretranslate
 msgid "Permission is hereby granted to use, study, and modify this software for private, educational, and non-commercial purposes only."
-msgstr "권한은 여기에 사용, 연구 및 개인, 교육, 비 상업적 목적으로이 소프트웨어를 수정합니다."
+msgstr ""
 
 # libretranslate
 msgid "Permission to use `--no-verify` is valid for ONE commit only. You MUST NOT carry it over to subsequent commits unless the user explicitly grants it again."
