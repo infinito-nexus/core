@@ -41,7 +41,7 @@ engine_of() {
     return 1
 }
 
-read -r -a CONSUMERLESS <<< "${BKP_TEST_CONSUMERLESS_DB_VOLUMES}"
+IFS=',' read -r -a CONSUMERLESS <<< "${BKP_TEST_CONSUMERLESS_DB_VOLUMES}"
 
 owe_dump() {
     local volume="$1" engine="$2" idle

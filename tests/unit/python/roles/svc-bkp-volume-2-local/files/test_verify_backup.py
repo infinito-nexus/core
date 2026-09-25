@@ -87,6 +87,11 @@ class TestVerifyBackup(unittest.TestCase):
     def test_a_name_is_matched_whole_not_as_a_prefix(self) -> None:
         self.assert_fails(_verify("postgres_data", "postgres", "postgres"))
 
+    def test_every_entry_of_a_multi_volume_list_is_released(self) -> None:
+        self.assert_passes(
+            _verify("mariadb_data", "mariadb", "postgres_data,mariadb_data"),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
