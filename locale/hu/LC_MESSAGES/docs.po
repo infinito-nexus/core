@@ -2247,7 +2247,7 @@ msgstr "**Alapértelmezett viselkedés (változó nincs beállítva vagy beáll�
 
 # libretranslate
 msgid "**Default behaviour (variable not set or set to any value other than `true`):** Pushes to `main` are gated out at the `run-policy` job and CI is skipped."
-msgstr "**Alapértelmezett viselkedés (változó nincs beállítva vagy beállítva más értékre, mint `true`):** A `main` a `run-policy` A munka és az informátor kimarad."
+msgstr ""
 
 # libretranslate
 msgid "**Default behaviour (variable not set or set to any value other than `true`):** The `update-docker-image-versions` job is skipped. Dependabot PRs are auto-closed on open with a comment pointing to this variable."
@@ -25583,7 +25583,7 @@ msgstr "Irány"
 
 # libretranslate
 msgid "Direction gates the wiring: a `server` role only exposes `/mcp`, a `client` role only consumes, a `both` role does either. Implementation precedence is `native > plugin > sidecar > external`; a `sidecar`/`external` server gets its own service entry and port rather than reusing the app's primary HTTP port."
-msgstr "Irányok kapuk a vezetékek: a `server` Csak a szerepek jelennek meg `/mcp`, a `client` a `both` A szerep sem. Végrehajtási elsőbbség `native > plugin > sidecar > external`; `sidecar`/`external` A szerver saját szolgáltatást kap és portot kap ahelyett, hogy újrahasználja az alkalmazás elsődleges HTTP portját."
+msgstr ""
 
 # libretranslate
 msgid "Directory"
@@ -76281,7 +76281,7 @@ msgstr "[x] Az egyszintű vizsgálat kiterjed a CLI paraméterekre (szükséges 
 
 # libretranslate
 msgid "[x] A user logs in at `https://openbao.{{ DOMAIN_PRIMARY }}/` through the Keycloak chain and lands authenticated in the OpenBao UI. (`test-oidc-login.js`, 6.5 s.)"
-msgstr "[x] A felhasználó bejelentkezik a `https://openbao.{{ DOMAIN_PRIMARY }}/` a Keycloak a OpenBao UI. (`test-oidc-login.js`, 6.5 c.)"
+msgstr ""
 
 # libretranslate
 msgid "[x] A user who authenticates successfully but belongs to **no** OpenBao role group receives only the `default` policy and reaches no administrative surface. (`test-ldap-login.js` asserts biber receives neither `administrator` nor `operator`.)"

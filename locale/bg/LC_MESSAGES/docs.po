@@ -2449,7 +2449,7 @@ msgstr "**Описание:** Клъстер-локален регистър н�
 
 # libretranslate
 msgid "**Description:** Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
-msgstr "**Описание:** Cluster-local local pull-through cash for shared Docker Hub base-image pulls, cut duplicate transfers and rate limits"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Collaborative wiki platform for user-driven documentation with an extensible extension ecosystem and content management"
@@ -2477,7 +2477,7 @@ msgstr "**Описание:** Контейнери Reveal.js слайд тест
 
 # libretranslate
 msgid "**Description:** Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr "**Описание:** Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Containerized relational database with automated database, user, and privilege provisioning"
@@ -2489,7 +2489,7 @@ msgstr "**Описание:** Система за управление на съ
 
 # libretranslate
 msgid "**Description:** Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
-msgstr "**Описание:** Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tunned defaults"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Cross-distribution installer for the Nix package manager with checksum-verified, reproducible multi-user setup"
@@ -2597,7 +2597,7 @@ msgstr "**Описание:** Enterprise wiki и платформа за сът�
 
 # libretranslate
 msgid "**Description:** Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
-msgstr "**Описание:** Extensible Vim-based command-line text editor for terminal-drived code and configuration editing"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Federated chess server for playing and following rule-validated games over ActivityPub across the Fediverse"
@@ -2725,7 +2725,7 @@ msgstr "**Описание:** Платформа за проследяване �
 
 # libretranslate
 msgid "**Description:** JavaScript runtime for building and running server-side applications and developer tooling"
-msgstr "**Описание:** JavaScript runtime for building and running server-side applications and developer tooling"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to models through the shared LLM gateway"
@@ -2929,7 +2929,7 @@ msgstr "**Описание:** OpenAI-съвместим LLM портал за м
 
 # libretranslate
 msgid "**Description:** OpenJDK 11 runtime and development kit for Java applications on Pacman-based systems"
-msgstr "**Описание:** OpenJDK 11 runtime and development kit for Java applications on Pacman-based systems"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** OpenSSH client package for secure remote shell access and key-based authentication"
@@ -3133,7 +3133,7 @@ msgstr "**Описание:** Self-hosted чат интерфейс за вза�
 
 # libretranslate
 msgid "**Description:** Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
-msgstr "**Описание:** Self-hosted cloud platform for file sync, shareing, real-time cooperation, and team workspaces under your own domain"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Self-hosted decentralized social network on the open AT Protocol, with its own Personal Data Server"
@@ -3153,7 +3153,7 @@ msgstr "**Описание:** Самостоятелно предприятие 
 
 # libretranslate
 msgid "**Description:** Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
-msgstr "**Описание:** Self-hosted federated reading platform for book reviews and reading tracking over the Fediverse"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Self-hosted federated social network for microblogging, real-time timelines, and community moderation"
@@ -3233,7 +3233,7 @@ msgstr "**Описание:** Self-hosted, federated платформа за с�
 
 # libretranslate
 msgid "**Description:** Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
-msgstr "**Описание:** Self-hosted, privacy-first web analytics platform for real-time visit tracking and site metrics"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
@@ -3393,7 +3393,7 @@ msgstr "**Описание:** Workstation настройка за Docker и Dock
 
 # libretranslate
 msgid "**Description:** Workstation toolchain and serial-port permissions for Arduino board development on Linux"
-msgstr "**Описание:** Workstation toolchain and series-port permissions for Arduino board development on Linux"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Wrapper role for idempotent package installation and updates through the pkgmgr universal package manager"
@@ -3827,7 +3827,7 @@ msgstr "**Вграден бегач:** Автоматизацията се из�
 
 # libretranslate
 msgid "**Embedded** (``enabled: true``, ``shared: false``): a Redis sidecar rendered into the consumer’s own compose stack via ``templates/service.yml.j2``."
-msgstr "**Вградени** (``enabled: true``, ``shared: false``): A Redis sidecar turned into the customs own compose stack via ``templates/service.yml.j2``."
+msgstr ""
 
 # libretranslate
 msgid "**Embedded** (`enabled: true`, `shared: false`): a Redis sidecar rendered into the consumer's own compose stack via `templates/service.yml.j2`."
@@ -9717,7 +9717,7 @@ msgstr "**описание**: Обединяване на работния пл�
 
 # libretranslate
 msgid "**description**: Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
-msgstr "**описание**: Ansible helper role for idempotent per-user apply signons in a local YAML store"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Arch Linux driver bundle for Epson multifunction printing and scanning via escpr and imagescan"
@@ -9765,7 +9765,7 @@ msgstr "**описание**: Central loader роля за поръчване н
 
 # libretranslate
 msgid "**description**: Central logout proxy for single-action sign-out across all OIDC-connected apps, with Nginx snippets and a live status UI"
-msgstr "**описание**: Central logout prospective for single- action sign-out all OIDC-linked apps, with Nginx snippets and a live status UI"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
@@ -9821,7 +9821,7 @@ msgstr "**описание**: Клъстер-локален регистър н�
 
 # libretranslate
 msgid "**description**: Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
-msgstr "**описание**: Cluster-local pull-through cash for shared Docker Hub base-image pulls, cuting duplicate transfers and rate limits"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Collaborative wiki platform for user-driven documentation with an extensible extension ecosystem and content management"
@@ -9849,7 +9849,7 @@ msgstr "**описание**: Контейнери Reveal.js слайд тест
 
 # libretranslate
 msgid "**description**: Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr "**описание**: Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Containerized relational database with automated database, user, and privilege provisioning"
@@ -9969,7 +9969,7 @@ msgstr "**описание**: Enterprise wiki и платформа за сът�
 
 # libretranslate
 msgid "**description**: Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
-msgstr "**описание**: Extensible Vim-based command-line text editor for terminal-drived code and configuration editing"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Federated chess server for playing and following rule-validated games over ActivityPub across the Fediverse"
@@ -10097,7 +10097,7 @@ msgstr "**описание**: Платформа за проследяване �
 
 # libretranslate
 msgid "**description**: JavaScript runtime for building and running server-side applications and developer tooling"
-msgstr "**описание**: JavaScript runtime for building and running server-side applications and developer tooling"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to models through the shared LLM gateway"
@@ -10193,7 +10193,7 @@ msgstr "**описание**: Мрежов DNS мивка за блокиран�
 
 # libretranslate
 msgid "**description**: Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
-msgstr "**описание**: Networking helper for iptables spending and NAT masquerading of a WireGuard client running behind NAT or a firewall"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
@@ -10301,7 +10301,7 @@ msgstr "**описание**: OpenAI-съвместим LLM портал за м
 
 # libretranslate
 msgid "**description**: OpenJDK 11 runtime and development kit for Java applications on Pacman-based systems"
-msgstr "**описание**: OpenJDK 11 runtime and development kit for Java applications on Pacman-based systems"
+msgstr ""
 
 # libretranslate
 msgid "**description**: OpenSSH client package for secure remote shell access and key-based authentication"
@@ -10493,7 +10493,7 @@ msgstr "**описание**: Самостоятелно Hosted URL скъсяв
 
 # libretranslate
 msgid "**description**: Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
-msgstr "**описание**: Self-hosted WebRTC platform for end- to-end-recopyable video conferencecing with federated authority"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
@@ -10505,7 +10505,7 @@ msgstr "**описание**: Self-hosted чат интерфейс за вза�
 
 # libretranslate
 msgid "**description**: Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
-msgstr "**описание**: Self-hosted cloud platform for file sync, shareing, real-time cooperation, and team workspaces under your own domain"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Self-hosted decentralized social network on the open AT Protocol, with its own Personal Data Server"
@@ -10525,7 +10525,7 @@ msgstr "**описание**: Самостоятелно предприятие 
 
 # libretranslate
 msgid "**description**: Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
-msgstr "**описание**: Self-hosted federated reading platform for book reviews and reading tracking over the Fediverse"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Self-hosted federated social network for microblogging, real-time timelines, and community moderation"
@@ -10557,7 +10557,7 @@ msgstr "**описание**: Самостоятелно избрана безк
 
 # libretranslate
 msgid "**description**: Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
-msgstr "**описание**: Self-hosted online office backend for real-time in-browser editing of documents, electables, and presentations"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Self-hosted open-source ERP suite for finance, CRM, inventory, manufacturing, HR, sales, and projects"
@@ -10605,7 +10605,7 @@ msgstr "**описание**: Self-hosted, federated platform for share, hosting
 
 # libretranslate
 msgid "**description**: Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
-msgstr "**описание**: Self-hosted, privacy-first web analytics platform for real-time visit tracking and site metrics"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
@@ -10761,11 +10761,11 @@ msgstr "**описание**: Уеб-базиран инструмент за а
 
 # libretranslate
 msgid "**description**: Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr "**описание**: Workstation setting for Docker and Docker Compose with the local user in the docker group for rootless development use"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Workstation toolchain and serial-port permissions for Arduino board development on Linux"
-msgstr "**описание**: Workstation toolchain and series-port permissions for Arduino board development on Linux"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Wrapper role for idempotent package installation and updates through the pkgmgr universal package manager"
@@ -12627,7 +12627,7 @@ msgstr "*web-app-gitea*: 1.27.2 до 1.27.3"
 
 # libretranslate
 msgid "*web-app-gitlab* (webservice, sidekiq, workhorse, gitaly, shell, rails): v19.3.0 to v19.3.2"
-msgstr "*web-app-gitlab* (webservice, sidekiq, workhorse, gitaly, shell, rails): v19.3.0 v19.3.2"
+msgstr ""
 
 # libretranslate
 msgid "*web-app-gitlab*: 19.1.0-ee.0 to 19.1.1-ee.0"
@@ -12959,7 +12959,7 @@ msgstr "-- add-host={{ entry }}"
 
 # libretranslate
 msgid "--distro debian --owner acme --repository infinito-nexus --tag ci-abc"
-msgstr "--distro debian -- owner acme -- repository infinito-nexus -- tag ci-abc"
+msgstr ""
 
 # libretranslate
 msgid "--include web-app-nextcloud web-app-mastodon --include web-app-nextcloud,web-app-mastodon"
@@ -13263,7 +13263,7 @@ msgstr "032 - Служители на агентите на Кернел в Flow
 
 # libretranslate
 msgid "032 - OpenBao Secrets Manager with Keycloak OIDC, RBAC Policies and Static-Seal Auto-Unseal"
-msgstr "032 - OpenBao Secrets Manager with Keycloak OIDC, RBAC Policy and Static-Seal Auto-Unseal"
+msgstr ""
 
 # libretranslate
 msgid "033 - Home Assistant Role with MCP Server Surface"
@@ -15994,7 +15994,7 @@ msgstr "Добавяне на нови роли за кандидатстван�
 
 # libretranslate
 msgid "Added new lint guards: project-walk, cache-read, project-root-import, noqa-only-ruff-codes, no-direct-yaml, no-inline-multiline-php-in-sh, no-inline-multiline-sql, no-lookup-config-jinja-default, role-meta-layout, web-role-no-web-dependency, run-once-on-shared-services, redundant-bool-patterns, sed-escape, no-sh-pipefail, compose-resource-limits, dynamic-flag, auth-coverage, variant-coverage, variants-services-match"
-msgstr "Добавени нови охранители за мъх: project-walk, cache-read, project-root-import, noqa-ut-ruf-codes, no-direct-yaml, no-inline-multiline-php-in-sh, no-inline-multiline-sql, no-lookup-config-jinja-default, role-meta-layout, web-role-no-web-dependence, run-once-once-on-shared-services, exter-bool-patterns, sed-escape, no-sh-pipe-fail, compose-resource-de-deput, dynamic-flag, aut-coverage, varular-coverage, version-services-s-matchage"
+msgstr ""
 
 # libretranslate
 msgid "Added optional Django admin bootstrap and secure `SECRET_KEY` handling for Baserow"
@@ -22222,7 +22222,7 @@ msgstr "Клъстер-локален регистър на изображени
 
 # libretranslate
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
-msgstr "Cluster-local local pull-through cash for shared Docker Hub base-image pulls, cut duplicate transfers and rate limits"
+msgstr ""
 
 # libretranslate
 msgid "Cluster-shared NFS state dir: {{ lookup('nfs_state_path') }}."
@@ -22697,7 +22697,7 @@ msgstr "Изчислените пропуски не са независими. 
 
 # libretranslate
 msgid "Computes the SHA256 hash of the given inline content and returns a CSP token like \"'sha256-<base64>'\"."
-msgstr "Изравнява SHA256 hash of the given inline content and returns a CSP signon like \"'sha256-<base64>'\"."
+msgstr ""
 
 msgid "Conclusion flags select which jobs' logs are fetched (`-s`/`--success`, `-f`/`--failed`, `-c`/`--cancelled`, `--skipped`); with none given every completed job is fetched. Logs land under `DEST/logs/`, artifacts under `DEST/artifacts/`. `DEST` defaults to `/tmp/logs/<run-id>`. Job logs are available per job even while the run is still in progress; `--no-logs` / `--no-artifacts` skip either half."
 msgstr ""
@@ -24053,7 +24053,7 @@ msgstr "Резолюция на DNS `172.30.0.4` за домакини като 
 
 # libretranslate
 msgid "DNS-hijack + frontend HTTPS + runner CA-trust"
-msgstr "DNS-hijack + frontend HTPS + runner CA-trust"
+msgstr ""
 
 # libretranslate
 msgid "DOMAIN_PRIMARY (apex), defaults_networks.internet.ip4, optional defaults_networks.internet.ip6"
@@ -29183,7 +29183,7 @@ msgstr "Фиксирана SMTP в CI и DinD чрез динамично изб
 
 # libretranslate
 msgid "Fixed WordPress multisite wp-config quoting, hardcoded plugin-enable lookups, discourse-integration ordering, and per-variant Discourse toggle gating"
-msgstr "Fixed WordPress multisite WP- config quoting, hardcodeed plugin-enable lookups, discourse-integration ordering, and per-variant Discourse togling counting"
+msgstr ""
 
 # libretranslate
 msgid "Fixed deploy resolution, AUR installs (use ***aur_builder***), Debian/Ubuntu images (openssh-client), CI rate limits (***NIX_CONFIG***), plus general test and security fixes."
@@ -29220,7 +29220,7 @@ msgstr "Стационарен закачен багажник за багажн
 
 # libretranslate
 msgid "Fixed the Joomla install / re-deploy flow across the open regression classes: raw-git-tree refusal handling, re-deploy idempotency, dash pipefail incompatibility, cleanup-phase crashes, and fresh-install password-reset races"
-msgstr "Fixed the Joomla install / re-deployed flow through the open regression classs: rough-git-tree refand manding, re-deployed idempotency, dash pipefail conparation, cleanup-fase crashes, and fresh-install password-reset races"
+msgstr ""
 
 # libretranslate
 msgid "Fixed the sys-svc-container package selection on Ubuntu; the Makefile clean target is resilient to container-owned **pycache** files"
@@ -31851,7 +31851,7 @@ msgstr "INFINITO_DIR_SECRETS: host secrets dir, получени от var-lib SP
 
 # libretranslate
 msgid "INFINITO_DIR_VAR_LIB: Infinito state/secrets base dir, read from the group_vars paths SPOT (group_vars/all/05_paths.yml DIR_VAR_LIB)."
-msgstr "INFINITO_DIR_VAR_LIB: Infinito state/secrets base dir, read from the group_vars Пътища SPOT (group_vars/all/05_paths.yml DIR_VAR_LIB)."
+msgstr ""
 
 # libretranslate
 msgid "INFINITO_DISTROS: every distro id declared in meta/distros.yml."
@@ -35088,7 +35088,7 @@ msgstr "Итерация на роля на уеб приложение в ре�
 
 # libretranslate
 msgid "Iterating on Ansible logic for an application without recycling its data."
-msgstr "Iterating on Ansible logics for a application without recounting its data."
+msgstr ""
 
 # libretranslate
 msgid "Iterating on `svc-runner` or the self-hosted runner infrastructure"
@@ -36968,7 +36968,7 @@ msgstr "MIG"
 
 # libretranslate
 msgid "MODE_FOO: true   # comment MODE_BAR: false  # comment MODE_BAZ: null   # comment"
-msgstr "MODE_FOO: true # comment MODE_BAR: false # comment MODE_BAZ: null # comment"
+msgstr ""
 
 # libretranslate
 msgid "MSI Keyboard Driver"
@@ -39465,7 +39465,7 @@ msgstr "OIDC (местни)"
 
 # libretranslate
 msgid "OIDC -> RBAC mapping (infinito-oidc-rbac-mapper.php) 🎫"
-msgstr "OIDC - > RBAC mapping (infinito-oidc-rbac-mapper.php) 🎫"
+msgstr ""
 
 # libretranslate
 msgid "OIDC / Keycloak"
@@ -44516,7 +44516,7 @@ msgstr "Ref е `main`"
 
 # libretranslate
 msgid "Ref synchronization before workflow jobs derive CI scope from git history."
-msgstr "Реф. синхронизиране преди работни работни работни места да се получи CI обхват от историята на Git."
+msgstr ""
 
 # libretranslate
 msgid "Refactor the use of groups as roles in oauth2 proxy"
@@ -44657,7 +44657,7 @@ msgstr "Регенериране"
 
 # libretranslate
 msgid "Register --ghcr-namespace, --ghcr-repository, --ghcr-prefix on *parser*."
-msgstr "Регистри -- ghcr-namespace, --ghcr-repository, --ghcr-prefix on *unit description in lists*."
+msgstr ""
 
 # libretranslate
 msgid "Register a Nexus proxy repo in [package.sh](../../../scripts/docker/cache/package.sh)."
@@ -45221,7 +45221,7 @@ msgstr "Превъртете матрицата на връзката: коя р
 
 # libretranslate
 msgid "Render the collected service rows and aggregated totals as an aligned text table or as JSON."
-msgstr "Render the collected service roads and cumulated totals as a lineed text table or as JSON."
+msgstr ""
 
 # libretranslate
 msgid "Render the plan of one CI sweep: every candidate row, and where it lands."
@@ -50161,7 +50161,7 @@ msgstr "Self-hosted чат интерфейс за взаимодействие 
 
 # libretranslate
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
-msgstr "Self-hosted cloud platform for file sync, shareing, real-time cooperation, and team workspaces under your own domain"
+msgstr ""
 
 # libretranslate
 msgid "Self-hosted decentralized social network on the open AT Protocol, with its own Personal Data Server"
@@ -50181,7 +50181,7 @@ msgstr "Самостоятелно предприятие уики и платф
 
 # libretranslate
 msgid "Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
-msgstr "Self-hosted federated reading platform for book reviews and reading tracking over the Fediverse"
+msgstr ""
 
 # libretranslate
 msgid "Self-hosted federated social network for microblogging, real-time timelines, and community moderation"
@@ -50269,7 +50269,7 @@ msgstr "Self-hosted, federated платформа за споделяне, хо�
 
 # libretranslate
 msgid "Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
-msgstr "Self-hosted, privacy-first web analytics platform for real-time visit tracking and site metrics"
+msgstr ""
 
 # libretranslate
 msgid "Self-provider entries. MUST be `# nocheck: playwright-service-flag` per the \"no self-gate\" rule."
@@ -51264,7 +51264,7 @@ msgstr "Пропусни всичко. ``<root>/tests/``."
 
 # libretranslate
 msgid "Skip hostname configuration when running inside Docker containers"
-msgstr "Skip hostname configure when running inside Docker containers"
+msgstr ""
 
 # libretranslate
 msgid "Skipped ✓"
@@ -52423,7 +52423,7 @@ msgstr "SuiteCRM"
 
 # libretranslate
 msgid "Summarise Ansible `profile_roles` runtimes per matrix-deploy variant."
-msgstr "Summarise Ansible `profile_roles` runtimes per matric-dression video."
+msgstr ""
 
 # libretranslate
 msgid "Summary"
@@ -53022,7 +53022,7 @@ msgstr "Sys-ctl-cln-docker Role"
 
 # libretranslate
 msgid "Sys-ctl-cln-faild-bkps Role"
-msgstr "Sys-ctl-cln-failed-bkps Role"
+msgstr ""
 
 # libretranslate
 msgid "Sys-ctl-hlth-btrfs Role"
@@ -53058,7 +53058,7 @@ msgstr "Sys-ctl-hlth-webserver Роля"
 
 # libretranslate
 msgid "Sys-ctl-mtn-cert-deploy Role"
-msgstr "Sys-ctl-mtn-cert-dression Role"
+msgstr ""
 
 # libretranslate
 msgid "Sys-ctl-mtn-cert-renew Role"
@@ -73001,7 +73001,7 @@ msgstr "[Приставка OIDCName (импулсен двигател)](https:
 
 # libretranslate
 msgid "[ONLYOFFICE Document Server on Docker Hub](https://hub.docker.com/r/onlyoffice/documentserver)"
-msgstr "[AONOFFICE Document Server on Docker Hub](https://hub.docker.com/r/onlyoffice/documentserver)"
+msgstr ""
 
 # libretranslate
 msgid "[Odoo ERP](roles/web-app-odoo/)"
@@ -76781,7 +76781,7 @@ msgstr "[x] Обвивка на ролева мета под [`tests/lint/ansibl
 
 # libretranslate
 msgid "[x] Rotation and disablement tests prove that the old credential is rejected, the new credential works, and no stale client entry retains access. The first two run on every deploy: the shared contract probe opens the surface with the declared credential and fails unless a deterministic read succeeds, and separately proves a wrong credential is refused a session. Every one of the eight enabled serving surfaces includes that probe, so neither half is asserted for some roles and assumed for the rest. The third is unit-tested per client, and only three clients can hold a stale entry at all, because Hermes and OpenClaw keep no server-side registration: their configuration is rendered from the run's own discovery snapshot, so there is nothing left behind to go stale. Flowise overwrites the entry's `authConfig` and Open WebUI the registered connection, both already covered; n8n was the gap and now proves that a rotated bearer replaces the credential rather than being compared against one n8n never hands back, on the server side and for every client credential. Auditing the third half turned up a real leak on the way. Nextcloud mints an app password under a fixed managed name and never revoked the previous one, so every run that found the stored password rejected added another valid token to the account while the old ones kept full access. The mint is now preceded by a listing and the revocation of every token carrying that managed name."
-msgstr "[x] Тестовете за въртене и деактивация доказват, че старото признание е отхвърлено, новото признание работи и няма застояло влизане на клиенти запазва достъп. Първите две се движат на всяко разгръщане: съвместната контрактна сонда отваря повърхността с декларираното одобрение и се проваля, освен ако детерминистичното четене не успее и отделно доказва, че погрешното оценяване е отказано. Всяка една от осемте активирани обслужващи повърхности включва тази сонда, така че нито половината се твърди за някои роли и се приема за останалите. Третата е тествана единица за клиент, и само трима клиенти могат да държат застояло влизане на всички, защото Hermes и OpenClaw не съхранявайте регистрация от страна на сървъра: конфигурацията им се предава от собствената снимка на самото откритие, така че нищо не е останало, за да се застоят. Flowise overwrites the log's `authConfig` както и Open WebUI регистрираните връзки, които вече са обхванати; n8n е разликата и сега доказва, че въртящ се носител замества credential, отколкото се сравнява с един n8Никога не се връщай, от страна на сървъра и за всеки клиент. Проверката на третата половина показа истински теч по пътя. Следващото ментово ментово ментово ментовиче с парола на приложението под определено управлявано име и никога не е отменяло предишното, така че всяко рънче, което е открило, че съхраняваната парола е било отхвърлено, е добавяло друг валиден знак към акаунта, докато старите са поддържали пълен достъп. Ментата сега е предшествана от списък и отнемане на всеки символ, носещ това управлявано име."
+msgstr ""
 
 # libretranslate
 msgid "[x] Running `make i18n-extract` twice in a row leaves the working tree unchanged."
@@ -84187,7 +84187,7 @@ msgstr "``users.<WORKSTATION_USER>.username`` (по подразбиране WOR
 
 # libretranslate
 msgid "``utils.cache.applications`` — variants + ``get_merged_applications`` (ansible-free at import time, runner-host friendly)."
-msgstr "``utils.cache.applications`` . + ``get_merged_applications`` (insible-free at import time, runner-host friendly)."
+msgstr ""
 
 # libretranslate
 msgid "``utils.cache.base``         — cross-cutting helpers (constants, deep-merge, signatures, render machinery)."
@@ -89988,7 +89988,7 @@ msgstr "`web-app-funkwhale`"
 
 # libretranslate
 msgid "`web-app-funkwhale` — django header / remote-user auth backend"
-msgstr "`web-app-funkwhale` django header / offer-user auth backend"
+msgstr ""
 
 # libretranslate
 msgid "`web-app-gitea`"
@@ -92441,7 +92441,7 @@ msgstr "compose exec - it pds pdsadmin"
 
 # libretranslate
 msgid "compose exec -it pds pdsadmin account create-invite-code"
-msgstr "compose exec - it pds pdsadmin account create-invite-code"
+msgstr ""
 
 # libretranslate
 msgid "compose or swarm."
@@ -98159,7 +98159,7 @@ msgstr "Вярно е."
 
 # libretranslate
 msgid "tty=None auto-selects (local: True, CI: False). live=True streams stdout/stderr."
-msgstr "ty=Noone auto-selects (local: True, CI: False). live=True streaks stdout/stderr."
+msgstr ""
 
 # libretranslate
 msgid "two roles demand different values for the     same topic of the same provider."

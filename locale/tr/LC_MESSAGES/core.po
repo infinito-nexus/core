@@ -57,7 +57,7 @@ msgstr "Uyarı"
 # libretranslate
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
-msgstr "Analytics Analytics Analytics"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-token-store:description"
@@ -241,7 +241,7 @@ msgstr "Açıklamalı tarih, özel eylemler ve senaryo desteği ile videoboard y
 # libretranslate
 msgctxt "menu:Cloud:title"
 msgid "Cloud"
-msgstr "Bulut Bulut Bulut"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-svc-dns:description"
@@ -271,7 +271,7 @@ msgstr "Kur'an-line gazete uygulaması, terminalden kişisel günlük girişleri
 # libretranslate
 msgctxt "menu:Commerce:title"
 msgid "Commerce"
-msgstr "Ticaret Ticaret Ticaret"
+msgstr ""
 
 # libretranslate
 msgctxt "menu:Communication:title"
@@ -341,7 +341,7 @@ msgstr "Content Management"
 # libretranslate
 msgctxt "menu:Content Management:description"
 msgid "Content Management Systems (CMS) and web publishing platforms"
-msgstr "İçerik Yönetimi Sistemleri (CMS CMS CMS) ve web yayın platformları"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-wordpress:description"
@@ -599,7 +599,7 @@ msgstr "Olay ve bilet yönetimi araçları"
 # libretranslate
 msgctxt "menu:Events:title"
 msgid "Events"
-msgstr "Etkinlikler Etkinlikler Etkinlikler"
+msgstr ""
 
 # libretranslate
 msgctxt "role:desk-neovim:description"
@@ -639,7 +639,7 @@ msgstr "Finansal ve Muhasebe yazılımları"
 # libretranslate
 msgctxt "role:web-svc-coturn:description"
 msgid "Free and open-source TURN/STUN relay server for NAT traversal in WebRTC and real-time communication"
-msgstr "WebRTC'de NAT traversal ve gerçek zamanlı iletişim için ücretsiz ve açık kaynak TURN /STUN r r r r röportatörü"
+msgstr ""
 
 # libretranslate
 msgctxt "role:desk-obs:description"
@@ -724,7 +724,7 @@ msgstr "Evlatsız anonim Docker hacimleri için sağlık kontrolü, beyaz liste 
 # libretranslate
 msgctxt "menu:Help:title"
 msgid "Help"
-msgstr "Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-svc-compose-ca:description"
@@ -904,7 +904,7 @@ msgstr "Bakım görevlerini kritik hizmetler durdurana kadar karıştırma mekan
 # libretranslate
 msgctxt "role:sys-svc-mail-smtp:description"
 msgid "Loopback-only Postfix relay for lightweight outbound mail delivery via localhost when no central mail stack runs"
-msgstr "Halka geri dönüş- sadece merkezi posta yığını çalışmıyorken yerelhost aracılığıyla hafif posta teslimat için ek röle röle röle röle röle röle röprü"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-flowise:description"
@@ -914,7 +914,7 @@ msgstr "Düşük kodlu görsel inşaatçı, test etmek ve LLM ve RAG iş akışl
 # libretranslate
 msgctxt "category:sys.ctl.mtn:title"
 msgid "Maintenance"
-msgstr "Bakım Bakım Bakım"
+msgstr ""
 
 # libretranslate
 msgctxt "category:sys.ctl.mtn:description"
@@ -929,12 +929,12 @@ msgstr "Marker rolü bir ev sahibi tutmak Docker Swarm Yönetici hayırde, init 
 # libretranslate
 msgctxt "menu:Marketing:title"
 msgid "Marketing"
-msgstr "Pazarlama Pazarlama Pazarlama Pazarlama"
+msgstr ""
 
 # libretranslate
 msgctxt "category:sys.ctl.hlth:title"
 msgid "Monitoring"
-msgstr "İzleme İzleme İzleme İzleme İzleme"
+msgstr ""
 
 # libretranslate
 msgctxt "role:gen-hunspell:description"
@@ -1349,7 +1349,7 @@ msgstr "SAN-aware sertifikası sağlayıcısı, ön-proxy TLS katmanı için ken
 # libretranslate
 msgctxt "menu:Sales:title"
 msgid "Sales"
-msgstr "Satış Satış Satış Satış Satış Satış"
+msgstr ""
 
 # libretranslate
 msgctxt "category:svc.virt:title"
@@ -1474,7 +1474,7 @@ msgstr "Kendi kendine evlenmiş URL, izlemek ve inşa edilen kısa bağlantılar
 # libretranslate
 msgctxt "role:web-app-jitsi:description"
 msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
-msgstr "Kendi kendine ev sahipliği WebRTC platformu son uç uç uç uç uç-son şifreli video konferencing with beerated doğrulama"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-mini-qr:description"
@@ -1524,7 +1524,7 @@ msgstr "Kendi kendine evlenmiş kitap incelemeleri ve Fediverse'in karşısında
 # libretranslate
 msgctxt "role:web-app-mastodon:description"
 msgid "Self-hosted federated social network for microblogging, real-time timelines, and community moderation"
-msgstr "Kendi kendini mikroblogging, gerçek zamanlı zaman zaman zaman zaman zaman çizelgesi ve topluluk moderasyonları için beslenmiş sosyal ağ"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-keycloak:description"
@@ -1722,7 +1722,7 @@ msgstr "Sovereign open-source video ses / video aramaları, ekran paylaşımı, 
 # libretranslate
 msgctxt "category:sys.stk:title"
 msgid "Stack"
-msgstr "Stack Stack Stack"
+msgstr ""
 
 # libretranslate
 msgctxt "category:sys.stk:description"

@@ -1018,7 +1018,7 @@ msgstr "**রেগুলার এক্সপ্রেশন:** ব্যা�
 
 # libretranslate
 msgid "**Backup user SSH access was hardened:** backup keys are wrapped with a forced command wrapper and written via the shared user role; config is now users.backup.authorized_keys."
-msgstr "**ব্যবহারকারীর ব্যাকআপকৃত SSH ব্যবহারের সময় কঠিন হয়ে পড়েছে:** ব্যাক-আপ কী-এর ব্যবহার অনুমোদিত হবে এবং শেয়ার করা ব্যবহারকারী দ্বারা এটি লেখা কনফিগারেশনের ব্যবহার করা হবে; কনফিগারেশন এখন এখন এখন users.backup.authorized_keys. ."
+msgstr ""
 
 # libretranslate
 msgid "**Backup/cleanup services are more reliable:** run-once flags execute earlier, user-backup is an explicit dependency, and cleanback now uses a configurable backups root and keeps the newest backups by default (force-keep=3)."
@@ -6075,7 +6075,7 @@ msgstr "**নরো:** এটি পুনরায় নামকরণ কর
 
 # libretranslate
 msgid "**Native Keycloak SSO:** Sit a ``web-app-keycloak``\\ ’s SSO-proxy sidecar sidecar in front of the broker so unauthenticated visitors are redirected to Keycloak before they ever reach the web client."
-msgstr "**নেটিভ Keycloak এস.এস.:** বস ``web-app-keycloak``\\ t\\ t ব্রোকারের সামনে এসএসওএস এস এস এস-পিকার সাইডকার Keycloak ওয়েব ক্লায়েন্টের কাছে পৌঁছানোর আগে."
+msgstr ""
 
 # libretranslate
 msgid "**Native Keycloak SSO:** Sit a `web-app-keycloak`'s SSO-proxy sidecar sidecar in front of the broker so unauthenticated visitors are redirected to Keycloak before they ever reach the web client."
@@ -10645,11 +10645,11 @@ msgstr "**দ্বন্দ্বযুক্ত**"
 
 # libretranslate
 msgid "**gVisor runtime:** The pinned ``runsc`` release is fetched to ``/usr/local/bin/runsc`` and verified against its published SHA-512 checksum. The Kata shim is taken from the host as it is; the role does not install it."
-msgstr "**গ্লিসর স্লিপ:** পিন করা ``runsc`` রিলিজ করা হচ্ছে ``/usr/local/bin/runsc`` এবং এর প্রকাশ এস এস এস এস এস এস এ-512 চেকসাম। এটি হোস্ট থেকে করা হয়েছে।"
+msgstr ""
 
 # libretranslate
 msgid "**gVisor runtime:** The pinned `runsc` release is fetched to `/usr/local/bin/runsc` and verified against its published SHA-512 checksum. The Kata shim is taken from the host as it is; the role does not install it."
-msgstr "**গ্লিসর স্লিপ:** পিন করা `runsc` রিলিজ করা হচ্ছে `/usr/local/bin/runsc` এবং এর প্রকাশ এস এস এস এস এস এস এ-512 চেকসাম। এটি হোস্ট থেকে করা হয়েছে।"
+msgstr ""
 
 # libretranslate
 msgid "**galaxy_tags**: ['activitypub', 'bluesky', 'atproto', 'fediverse', 'bridge']"
@@ -15657,7 +15657,7 @@ msgstr "একটি টানের অনুরোধের সঙ্গে �
 
 # libretranslate
 msgid "Added a requirements archive CLI with a completeness lint, a live registry-reachability probe for pinned images, top-N Ansible role runtimes in the deploy job summary, Playwright JUnit reports rendered as a workflow step summary, an affected-roles filter that skips .md/.rst outside roles, and an update open-pr deduper that supersedes stale class siblings"
-msgstr "একটি প্রয়োজনীয় আর্কাইভ সিএলআই এর সাথে একটি সম্পূর্ণ অর্থ যোগ করা, একটি সরাসরি নিবন্ধনকৃত ছবি পিন করার জন্য একটি লাইভ নিবন্ধন যোগ্য অনুসন্ধান, শীর্ষ এন এন এন এন এন এন এন এন এন এন এন এন এন এর ভূমিকারিফিক ভূমিকার যার কথা বিবেচনা করা হয়েছে। .md/.rst ভূমিকার বাইরে, আর একটা খোলা-নিখুটে সুপার, যা খুবই খারাপ শ্রেণীর ছাত্র।"
+msgstr ""
 
 # libretranslate
 msgid "Added a scheduled/manual workflow to backfill the highest missing release image tag in GHCR"
@@ -25292,7 +25292,7 @@ msgstr "স্ট্যান্টনভ্রমেন্স বাতিল �
 
 # libretranslate
 msgid "Dispatch *workflow*, carrying *config* (see :func:`config_from_title`) over verbatim. An input left out keeps the workflow's own default."
-msgstr "পাঠ: *কর্মফ্লো*বহন করছে *কনফিগারেশন* (দেখুন :func:`config_from_title`) সম্পূর্ণ ক্রিয়াপথ। একটি ইনপুট আউট আউট আউট কর্মপ্রবাহের নিজের ডিফল্ট আছে।"
+msgstr ""
 
 # libretranslate
 msgid "Dispatch on the result (GitHub's `state=open` includes both ready and draft PRs; use `isDraft` to distinguish):"
@@ -28654,7 +28654,7 @@ msgstr "স্লাইডার Mattermost SSOSO বাটন পোলিং, 
 
 # libretranslate
 msgid "Fixed Mig + Sphinx container_port pointing at a non-existent flat .port key (added a wildcard-path validator)"
-msgstr "জিটিকে+ স্পেকক্স container_port একটি অজ্ঞাত সমতল সমতল সমতল সমতলকি (একটি করুক ডাক সম্পাদক যোগ করো)"
+msgstr ""
 
 # libretranslate
 msgid "Fixed Moodle deploy: PHP 8.3-fpm pin, serialized PHP-ext build to avoid modules/ race, dropped msmtp from the FPM healthcheck, aligned meta/services.yml with the image+version mirror convention"
@@ -37610,11 +37610,11 @@ msgstr "পুন্ডেল"
 
 # libretranslate
 msgid "Moodle compares every request against `$CFG->wwwroot`. A probe that reaches the endpoint over the internal HTTP origin is answered with a redirect to the canonical HTTPS URL rather than with JSON, so callers must send the canonical `Host` header and `X-Forwarded-Proto: https`."
-msgstr "মোডল প্রতিটি অনুরোধের তুলনা করেছেন: `$CFG->wwwroot`. একটি অনুসন্ধান যে অভ্যন্তরীণ এইচ- টি- এম- এল উত্‍পাদনের শেষ প্রান্তে পৌঁছেছে, তার উত্তর পাওয়া যাচ্ছে ক্যানটিকাল ইউ এস এস এস এস ইউ এস এর পরিবর্তে, যাতে ফোন কলটি ব্যবহার করতে পারে `Host` হেডার `X-Forwarded-Proto: https`. ."
+msgstr ""
 
 # libretranslate
 msgid "Moodle compares every request against ``$CFG->wwwroot``. A probe that reaches the endpoint over the internal HTTP origin is answered with a redirect to the canonical HTTPS URL rather than with JSON, so callers must send the canonical ``Host`` header and ``X-Forwarded-Proto: https``."
-msgstr "মোডল প্রতিটি অনুরোধের তুলনা করেছেন: ``$CFG->wwwroot``. একটি অনুসন্ধান যে অভ্যন্তরীণ এইচ- টি- এম- এল উত্‍পাদনের শেষ প্রান্তে পৌঁছেছে, তার উত্তর পাওয়া যাচ্ছে ক্যানটিকাল ইউ এস এস এস এস ইউ এস এর পরিবর্তে, যাতে ফোন কলটি ব্যবহার করতে পারে ``Host`` হেডার ``X-Forwarded-Proto: https``. ."
+msgstr ""
 
 msgid "Moodle ships a cURL blocklist that rejects every request to `10.0.0.0/8`, `172.16.0.0/12` and `192.168.0.0/16`, and only permits ports 80 and 443. Both settings gate `\\core\\files\\curl_security_helper`, which `auth_oidc` consults for the Keycloak token exchange and `\\core\\http_client` consults for the AI provider request. The gateway answers on `192.168.80.0/24`, and on an onion node `container_extra_hosts` pins the Keycloak authority to the Docker bridge gateway, which `NETWORK_DOCKER_ADDRESS_POOLS` draws from `10.208.0.0/12`. With the upstream defaults the OIDC login obtains no token and the AI provider cannot reach the gateway."
 msgstr ""
@@ -39190,7 +39190,7 @@ msgstr "একবার DNS পরিবর্তন, **লিখুন** এর
 
 # libretranslate
 msgid "Once the Matomo bootstrap has run, either later in the same play or on the next Ansible invocation, `sys-token-store` writes the token to disk. On the **next play run** the token is resolved from the store, the condition evaluates to false, and `inject.yml` executes normally: registering the site at Matomo and injecting the tracking code into the target application."
-msgstr "একবার Matomo বুটস্ট্র্যাপ চালানো হয়েছে, হয় পরে একই ভাবে খেলতে হবে, অথবা পরবর্তী এন এন এন এনএলডি প্রার্থনার জন্য, `sys-token-store` টোকেনটি ডিস্কের কাছে লিখুন। এর উপর **পরবর্তীবার চালাও** টোকেনটি দোকান থেকে ঠিক করা হয়েছে, অবস্থার মূল্যায়ন মিথ্যা, এবং `inject.yml` সাধারণত: সাইট রেজিস্টার করা হয়: Matomo এবং টার্গেট অ্যাপ্লিকেশনের মধ্যে ট্রাকিং কোড প্রবেশ করে।."
+msgstr ""
 
 # libretranslate
 msgid "Once the failing mode is green in its focused loop, you MUST resume the roundtrip over the failed app plus the apps that have not run yet (`apps=\"<failed-app> <still-untested apps in complexity order>\"`), and you MUST NOT restart the full sweep from the top. Apps that already went green earlier in the same run stay green; re-running them wastes one swarm rebuild each."
@@ -39259,7 +39259,7 @@ msgstr "একটি নির্মিত সংস্করণ প্রয়
 
 # libretranslate
 msgid "One canonical place to map every Infinito.Nexus knob to its MDAD counterpart; keeps MDAD's own inventory hierarchy intact."
-msgstr "প্রতিটি মানচিত্র মানচিত্র করতে একক একক একক একক একটি জায়গা Infinito.Nexus এমডিডিএডিডির প্রতিনিধিদের কেনোব; এমডিডিডির নিজস্ব অনুক্রম অক্ষত আছে।"
+msgstr ""
 
 # libretranslate
 msgid "One central role per engine, mirroring `svc-db-postgres`:"
@@ -40355,7 +40355,7 @@ msgstr "মেইল থেকে প্রস্থান করুন ``@<node
 
 # libretranslate
 msgid "Outbound mail health checks no longer fail silently on minimal container images: the heartbeat-email script copes with images that ship without the hostname binary, and the SSL trust file path is detected automatically across Red Hat, Debian, Ubuntu, Alpine and NixOS layouts."
-msgstr "কম কনফিউশন কনফিউশন ইমেজের মধ্যে স্বাস্থ্যের জন্য মেইল আর চুপ থাকে না: হার্টবিট- ই-মেইল স্ক্রিপ্ট যে সমস্ত ছবি ব্যবহার করে তা হোস্টার বাইনারি ছাড়া, এবং এল এস এস এস এস এস এস এস ডি কে- ডির বিশ্বাস করা হয় রেড হ্যাট, ডেবিয়ান আর এনওএসওএস ব্যবহার করে।"
+msgstr ""
 
 # libretranslate
 msgid "Outbound mail to `.onion` recipient domains is routed through Tor's SOCKS proxy (`127.0.0.1:9050`) instead of clearnet DNS/MX — enabling onion-to-onion / federated mail without public MX/rDNS."
@@ -52167,7 +52167,7 @@ msgstr "Sys-c- বিন্দু- স্ব-বিস্তৃত ভূমি�
 
 # libretranslate
 msgid "Sys-ctl-mtn-cert-renew Role"
-msgstr "Sys-cl-tt-ttt-re-re-ct-re রোল"
+msgstr ""
 
 # libretranslate
 msgid "Sys-ctl-rpr-btrfs-balancer Role"
@@ -52435,7 +52435,7 @@ msgstr "প্যাকেজ পরিচালনব্যবস্থা প�
 
 # libretranslate
 msgid "System-package-manager dispatch (pacman / apt-get / dnf / yum / brew)."
-msgstr "সিস্টেম-প্যাকেজ (Pcscman / apt / duf / yuf / sm /bin/bum /bin). ."
+msgstr ""
 
 # libretranslate
 msgid "Systemd Integration"
@@ -66991,7 +66991,7 @@ msgstr "আপনি এমএসটি-এর রিগ্রেশনাল �
 
 # libretranslate
 msgid "You MUST NOT assume that Act should be used automatically for workflow work. If the user agrees with the proposal, you SHOULD use `make act-workflow` for the iteration loop."
-msgstr "আপনারা অনুমান করবেন না যে কর্মফলের কাজে স্বয়ংক্রিয়ভাবে ব্যবহার করা উচিত। যদি ব্যবহারকারী প্রস্তাবের সঙ্গে একমত হন, তাহলে আপনি এসএইচ এস এস এস এস এস এস ব্যবহার করেন `make act-workflow` লুপের জন্য।."
+msgstr ""
 
 # libretranslate
 msgid "You MUST NOT break a single sentence across multiple lines in `.md` files. Each sentence MUST stay on one logical line so readers see the full statement at once and reflowable Markdown viewers do not introduce stray line breaks. A new line in the source MUST mean a new sentence, a new paragraph, or a structural element (heading, list item, table row, fenced block); never a soft wrap inside one sentence."
@@ -67249,7 +67249,7 @@ msgstr "প্রতিটি আপডেটের জন্য mUST বা আ
 
 # libretranslate
 msgid "You MUST add the smallest possible theming layer on top of the role's existing CSS."
-msgstr "আপনি এমএসটি এর বর্তমান এস এস এস এস এ সবচেয়ে ছোট স্তর যোগ করেছেন।."
+msgstr ""
 
 # libretranslate
 msgid "You MUST also enumerate any failed sibling runs dispatched from the same commit via `gh run list --commit \"$(gh run view <run-id> --json headSha --jq .headSha)\" --json databaseId,name,conclusion --jq '.[] | select(.conclusion==\"failure\")'`, then repeat the job enumeration for each."
@@ -67900,7 +67900,7 @@ msgstr "পরিষ্কার করার আগে প্রকৃতপক
 
 # libretranslate
 msgid "You SHOULD cover edge cases: empty inputs, missing keys, and boundary values, not only the happy path."
-msgstr "আপনার এস এইচ এস এস এস ঘটনা গোপন করতে পারে: ফাঁকা ইনপুট, চাবি, এবং সীমা ছাড়িয়ে যাওয়া, শুধু সুখী পথ নয় ।."
+msgstr ""
 
 # libretranslate
 msgid "You SHOULD group them by dependency family such as `tests/external/update/` or `tests/external/github/` when more than one test exists."
@@ -68187,7 +68187,7 @@ msgstr "[ ] **কোন বাধা নেই.** বাগ সংশোধন, 
 
 # libretranslate
 msgid "[ ] **One commit at the end.** ALL changes (role, meta, Playwright spec, documentation, marketplace entry, and the ticked checkboxes in this document) MUST be combined into ONE commit, created only after every Acceptance Criterion above is checked off (`- [x]`) and `make test` is green. The agent MUST NOT push; the operator runs `git-sign-push` outside the sandbox per [AGENTS.md](../../AGENTS.md)."
-msgstr "[ ] **শেষে একটাও হবে।** সমস্ত পরিবর্তন (ভূমিকা, মেটানেশন, নথিপত্র, কেনাকাটার এন্ট্রি, এবং এই ডকুমেন্টের চেকবাক্সে চেক করুন) MST এক এক এক একযোগে তৈরি করা হবে, প্রতিটি গ্রহণের পর মাত্র একটি করে নির্মিত (`- [x]`) এবং `make test` সবুজ। এজেন্ট MUST ধাক্কা না; অপারেটর সঞ্চালন `git-sign-push` প্রতি স্যান্ডবক্সের বাইরে [AGENTS.md](../../AGENTS.md). ."
+msgstr ""
 
 msgid "[ ] **One commit at the end.** The agent MUST NOT create any intermediate commit. ALL changes (the three new roles, the openresty swarm-mode adaptations, the pilot role updates, the CI workflow, schema entries, group_vars defaults, documentation, and the ticked checkboxes in this document) MUST be combined into ONE commit, created only after every Acceptance Criterion above is checked off (`- [x]`), `make test` is green, and `.github/workflows/test-deploy-swarm-nfs.yml` is green on its first scheduled run. Per-step commits, checkpoint commits, and partial commits MUST NOT be created. The agent MUST NOT push; the operator runs `git-sign-push` outside the sandbox per [AGENTS.md](../../AGENTS.md)."
 msgstr ""
@@ -74668,7 +74668,7 @@ msgstr "[এক্স] **কোন বাধা নেই.** বাগ সংশ
 
 # libretranslate
 msgid "[x] **One commit at the end.** The agent MUST NOT create any intermediate commit. ALL changes (role, CLI, tests, documentation, and the ticked checkboxes in this document) MUST be combined into ONE commit, created only after every Acceptance Criterion above is checked off (`- [x]`) and `make test` is green. Per-step commits, checkpoint commits, and partial commits MUST NOT be created. The agent MUST NOT push; the operator runs `git-sign-push` outside the sandbox per [AGENTS.md](../../AGENTS.md)."
-msgstr "[এক্স] **শেষে একটাও হবে।** এজেন্ট MUST না কোন ইন্টারমিডিয়ার তৈরি করে. সমস্ত পরিবর্তন (ভূমিকা, CLI, পরীক্ষা, নথিপত্র এবং এই ডকুমেন্টের চেকবাক্সে চেক করুন) MST এক এক এক একযোগে তৈরি করা হবে, প্রতিটি গ্রহণের পর মাত্র একটি করে নির্মিত (`- [x]`) এবং `make test` সবুজ। পের-প্রজেক্ট, চেকপয়েন্ট তৈরি করা হয়েছে, এবং আংশিক ভুল করা হয়েছে। এজেন্ট MUST ধাক্কা না; অপারেটর সঞ্চালন `git-sign-push` প্রতি স্যান্ডবক্সের বাইরে [AGENTS.md](../../AGENTS.md). ."
+msgstr ""
 
 # libretranslate
 msgid "[x] A **separate** OIDC login scenario and LDAP login scenario exist (not combined into one test body) per [018](018-playwright-ldap-coverage.md)."
@@ -81290,7 +81290,7 @@ msgstr "``basic_auth`` (``Authorization: Basic base64(<user>:<apiToken>)``)"
 
 # libretranslate
 msgid "``baudolo-restore --empty`` pre-cleans the schema in one psql session and replays the dump in the next, so a consumer that boots in between recreates the schema and the replay dies on its own ``CREATE TABLE``. Hence the refusal while a consumer is up."
-msgstr "``baudolo-restore --empty`` একটি psql সেশন থেকে স্কিমা পরিষ্কার করার আগে এবং পরবর্তী সময়ে আবর্জনার স্তূপ পুনরায় চালু করা, যাতে একটি ভোক্তার জুতার ভেতর আবার নতুন করে তৈরী হয় এবং তার পর পর পর পর পর পর পর পর পর তা নিজে মারা যায়। ``CREATE TABLE``. তাই ভোক্তারা প্রত্যাখ্যান করে।."
+msgstr ""
 
 # libretranslate
 msgid "``bbb``"
@@ -89262,7 +89262,7 @@ msgstr "একটি ঐচ্ছিক SMTP রিলেভেল (নিক্
 
 # libretranslate
 msgid "and is safe to use as a simple outbound relay for the local host."
-msgstr "আর স্থানীয় হোস্টদের জন্য সহজ আউট আউট আউট রিলে ব্যবহারের নিরাপদ।."
+msgstr ""
 
 # libretranslate
 msgid "and prepares the system to send emails through Mailu using the ``sys-svc-mail-msmtp`` role."
@@ -91731,7 +91731,7 @@ msgstr "ঐ সাব-গের বাইরে যেকোনো নকশা�
 
 # libretranslate
 msgid "for btrfs, the data root is writable and no directory in the volume tree is a subvolume of its own;"
-msgstr "batfs-র জন্য তথ্য root root root একটি অংশ এবং ভলিউমের মধ্যে কোনো ডিরেক্টরি উপস্থিত নেই;"
+msgstr ""
 
 # libretranslate
 msgid "for mailu (13 services, 4 overlay networks, a static-IP unbound resolver) triggers a swarm VIP-allocation deadlock (`could not find an available IP while allocating VIP` + `has pending allocations`, even on empty /24 networks)."

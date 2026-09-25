@@ -145,7 +145,7 @@ msgstr "CI 러너"
 # libretranslate
 msgctxt "role:svc-db-typesense:description"
 msgid "Central Dockerized search engine shared by multiple apps with per-consumer scoped API keys"
-msgstr "중앙 Dockerized search engine shared by multiple apps with per-consumer ranged API 키"
+msgstr ""
 
 # libretranslate
 msgctxt "menu:Help:description"
@@ -431,7 +431,7 @@ msgstr "분산, 피어 투 피어 비디오 호스팅, 스트리밍 및 라이�
 # libretranslate
 msgctxt "role:web-app-pixelfed:description"
 msgid "Decentralized, federated platform for photo sharing and image feeds across the fediverse"
-msgstr "탈중앙화, federated platform for photo sharing and image feeds throughout the fediverse"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-friendica:description"
@@ -605,12 +605,12 @@ msgstr "Extensible Vim 기반 명령 줄 텍스트 편집기 터미널 구동 �
 # libretranslate
 msgctxt "role:web-app-chess:description"
 msgid "Federated chess server for playing and following rule-validated games over ActivityPub across the Fediverse"
-msgstr "Federated chess server for playing and following rule-validated games over ActivityPub 건너편 Fediverse"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-matrix:description"
 msgid "Federated, end-to-end-encrypted messaging platform with a web client and protocol bridges to external chat networks"
-msgstr "Federated, end-to-end-encrypted messaging platform with web client and protocol bridges to External chat network"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-mobilizon:description"
@@ -959,7 +959,7 @@ msgstr "NGINX subfilter 인젝터 추가 Matomo 분석 스크립트 및 noscript
 # libretranslate
 msgctxt "role:web-svc-html:description"
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
-msgstr "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt 인증서"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-prx-openresty:description"
@@ -1122,7 +1122,7 @@ msgstr "온라인 코스 및 e-learning 제공을 위한 오픈소스 학습 관
 # libretranslate
 msgctxt "role:web-app-prometheus:description"
 msgid "Open-source monitoring and alerting toolkit for storing metrics as time-series data and querying them with PromQL"
-msgstr "Open-source Monitoring and alerting toolkit for storage metrics as time-series data and querying them with PromQL"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-decidim:description"
@@ -1514,7 +1514,7 @@ msgstr "협업 및 앱 기반 확장성을 갖춘 자체 호스팅 엔터프라�
 # libretranslate
 msgctxt "role:web-app-bookwyrm:description"
 msgid "Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
-msgstr "Self-hosted federated reading platform for book review and reading tracking throughout the Fediverse"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-mastodon:description"
@@ -1549,7 +1549,7 @@ msgstr "간단한 HTTP API 뒤에 로컬 LLM을 실행하기위한 자체 호스
 # libretranslate
 msgctxt "role:web-app-baserow:description"
 msgid "Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
-msgstr "Self-hosted no-code database platform with spreadsheet-like interface for building and collaborating on data"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-svc-collabora:description"
@@ -1816,7 +1816,7 @@ msgstr "모니터링된 서비스 단위가 실패할 때 시스템화된 msmtp 
 # libretranslate
 msgctxt "role:sys-ctl-alm-telegram:description"
 msgid "Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"
-msgstr "Systemd-triggered notifier for Deliver service-failure alerts to the Telegram 채팅"
+msgstr ""
 
 # libretranslate
 msgctxt "role:desk-gnome-terminal:description"

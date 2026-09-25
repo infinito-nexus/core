@@ -842,7 +842,7 @@ msgstr "เจ้าหน้าที่ Kermilli ที่ถูกกระ�
 # libretranslate
 msgctxt "category:svc.virt:description"
 msgid "Kernel-isolating container runtimes on the container host: Kata Containers microVMs and the gVisor userspace fallback."
-msgstr "Keptember- usinaling times appnation on the paint: Kata loader microVMs และ sports overnames."
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-virt-kata:description"

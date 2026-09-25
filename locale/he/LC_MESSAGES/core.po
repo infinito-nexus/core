@@ -836,7 +836,7 @@ msgstr "פלטפורמה מעקב פרויקטים עבור צוותי תוכנ�
 # libretranslate
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
-msgstr "JavaScript Runtime for Building and run Server-side Applications and Developer Tooling"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-hermes:description"
@@ -931,7 +931,7 @@ msgstr "תפקידו של מארקר הוא מארח כמנהל Docker Swarm nod
 # libretranslate
 msgctxt "menu:Marketing:title"
 msgid "Marketing"
-msgstr "שיווק שיווק שיווק"
+msgstr ""
 
 # libretranslate
 msgctxt "category:sys.ctl.hlth:title"
@@ -2011,7 +2011,7 @@ msgstr "התקנה של Docker ו Docker Compose עם המשתמש המקומי 
 # libretranslate
 msgctxt "role:dev-arduino:description"
 msgid "Workstation toolchain and serial-port permissions for Arduino board development on Linux"
-msgstr "Workstation Toolchain ו-Sy-port Authoritys for Arduino Board Development on Linux"
+msgstr ""
 
 # libretranslate
 msgctxt "role:pkgmgr-install:description"

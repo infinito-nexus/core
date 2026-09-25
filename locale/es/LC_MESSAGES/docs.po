@@ -67114,7 +67114,7 @@ msgstr "Cuando el objetivo de la iteración es la matriz completa (cobertura tra
 
 # libretranslate
 msgid "When the log carries the matrix-deploy round/pass markers, the result is segmented (one block of records per variant round + pass). Otherwise a single combined block is returned. Runtime rows are read from the ``ROLES RECAP`` sections only (never ``TASKS RECAP``, whose role-less task rows would double-count); a log without any recap header falls back to reading every profile-shaped line. The recap ``total`` line survives as the ``total`` row so consumers can cross-check the parsed sum. Per-host task results (``ok:``, ``changed:``, ``skipping:``, ``fatal:``, ``failed:`` under a ``TASK [role : ...]`` header) accumulate into each record's ``hosts`` field; delegation targets (``[host -> other]``) count for the source host. Raises FileNotFoundError when the log is absent (the caller turns that into a hard failure)."
-msgstr "Cuando el registro lleva los marcadores de redondeo/paso de despliegue de matriz, el resultado se segmenta (un bloque de registros por variante redonda + pase). De lo contrario, se devuelve un solo bloque combinado. Las filas de tiempo de ejecución se leen desde el ``ROLES RECAP`` secciones únicamente (nunca jamás nunca jamás nunca jamás nunca jamás nunca jamás jamás nunca jamás nunca jamás nunca jamás nunca jamás nunca jamás nunca jamás nunca jamás nunca jamás nunca jamás nunca jamás nunca jamás nunca jamás nunca jamás jamás nunca jamás nunca jamás jamás nunca jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás jamás ``TASKS RECAP``, cuyas filas de tareas sin roles dobles); un registro sin ninguna cabecera de recapitulación cae de nuevo a la lectura de cada línea en forma de perfil. La recaptura ``total`` la línea sobrevive como la ``total`` fila para que los consumidores puedan revisar la suma analizada. Resultados de la tarea del anfitrión (``ok:``, ``changed:``, ``skipping:``, ``fatal:``, ``failed:`` en virtud de la resolución ``TASK [role : ...]`` header) acumulado en cada registro ``hosts`` sobre el terreno; objetivos de delegación (``[host -> other]``) Cuenta para el anfitrión fuente. Raises FileNotFoundError cuando el registro está ausente (el llamante convierte eso en un duro fracaso)."
+msgstr ""
 
 # libretranslate
 msgid "When the oauth2-proxy SSO flavor is active, Snipe-IT’s native ``loginViaRemoteUser()`` is enabled via the ``Setting`` model (``login_remote_user_enabled``, ``login_remote_user_header_name = HTTP_X_FORWARDED_PREFERRED_USERNAME``). nginx gates ``/login`` through oauth2-proxy/Keycloak and injects the verified ``X-Forwarded-Preferred-Username`` header, which Snipe-IT matches against ``users.username`` (the user must pre-exist and be activated — sync them via LDAP) to mint a native ``snipeit_session``. Visitors without a matching activated user silently fall through to the normal login form (no error). The password/LDAP login form stays available as a fallback (``login_common_disabled = 0``), and the in-app logout is redirected to the central OIDC end-session URL."
@@ -70548,7 +70548,7 @@ msgstr "[ ] `semaphore.{{ DOMAIN_PRIMARY }}` resuelve mediante `sys-svc-proxy` a
 
 # libretranslate
 msgid "[ ] `tasks/flavor/ansible/03_run_playbook.yml` invokes `ansible-playbook -i inventory/hosts setup.yml --tags={{ services.matrix.playbook_tags }}` from `{{ instance_dir }}mdad/` and exits cleanly on all three ansible-flavor variants (V1 / V2 / V3) in a fresh-host matrix deploy."
-msgstr "[ ] `tasks/flavor/ansible/03_run_playbook.yml` invocaciones `ansible-playbook -i inventory/hosts setup.yml --tags={{ services.matrix.playbook_tags }}` desde `{{ instance_dir }}mdad/` y sale limpiamente en las tres variantes de sabor ansible (V1 V2 V3) en una matriz de hospedaje fresco."
+msgstr ""
 
 # libretranslate
 msgid "[ ] `templates/playwright.env.j2` exposes every env var the specs read; service flags carry `# nocheck` rationale where applicable."
@@ -83386,7 +83386,7 @@ msgstr "``key``: servicios.<key>.* base de búsqueda. Default: proporciona o ent
 
 # libretranslate
 msgid "``kind``: ``services_flags`` (default) | ``database`` | ``mcp_client`` | ``web_facing`` | ``onion_sso``. ``mcp_client`` admits a role only when its ``mcp.direction`` is ``client`` or ``both`` AND it declares ``services.<own-entity>.mcp_consumer: true`` without the provider refusing it through ``mcp_consumer: false`` on that same entry, so a provider's network carries the clients it admitted rather than every client in the deployment. Being a client is not an admission: without the second condition one admission anywhere reaches every provider that opens its overlay."
-msgstr "``kind``: ``services_flags`` (por defecto) Silencio ``database`` Silencio ``mcp_client`` Silencio ``web_facing`` Silencio ``onion_sso``. ``mcp_client`` admite un papel sólo cuando su ``mcp.direction`` es ``client`` o ``both`` Y declara ``services.<own-entity>.mcp_consumer: true`` sin que el proveedor lo rechace ``mcp_consumer: false`` en esa misma entrada, por lo que la red de proveedores lleva a los clientes que admitió en lugar de cada cliente en el despliegue. Ser cliente no es una admisión: sin la segunda condición una admisión llega a cada proveedor que abre su superposición."
+msgstr ""
 
 # libretranslate
 msgid "``last`` seeds the OCI pagination cursor: only tags sorting lexically after it are returned. Repos like GitLab CNG carry tens of thousands of commit-sha tags before the ``v*`` release tags, so an unseeded scan exhausts ``max_pages`` without ever reaching them."
@@ -84209,7 +84209,7 @@ msgstr "``true``"
 
 # libretranslate
 msgid "``type``           one of ``volume`` | ``bind`` | ``config`` | ``secret``"
-msgstr "``type`` uno de ``volume`` Silencio ``bind`` Silencio ``config`` Silencio ``secret``"
+msgstr ""
 
 # libretranslate
 msgid "``ublock-origin``"
@@ -93035,7 +93035,7 @@ msgstr "habilitado"
 # libretranslate
 #, python-brace-format
 msgid "enabled                 bool — ``services.sso.enabled`` shared                  bool — ``services.sso.shared`` flavor                  str  — one of {oidc, oauth2, saml}; default 'oidc' is_enabled              bool — alias of ``enabled``, semantic name is_proxy_gated          bool — ``enabled AND flavor == 'oauth2'`` is_oidc_native          bool — ``enabled AND flavor == 'oidc'`` is_saml                 bool — ``enabled AND flavor == 'saml'`` oauth2_origin_host      str  — ``services.sso.oauth2.origin.host`` or '' oauth2_origin_port      str  — ``services.sso.oauth2.origin.port`` or '' oauth2_acl              dict — ``services.sso.oauth2.acl`` or {} oauth2_allowed_groups   list — ``services.sso.oauth2.allowed_groups`` or [] oauth2_pass_access_token bool — ``services.sso.oauth2.pass_access_token``,"
-msgstr "bool permitido ``services.sso.enabled`` bool compartido: ``services.sso.shared`` sabor str - uno de los {oidc, oauth2, saml}; por defecto 'oidc' is_enabled bool - alias of ``enabled``, nombre semántico is_proxy_gated bool ``enabled AND flavor == 'oauth2'`` is_oidc_native bool ``enabled AND flavor == 'oidc'`` is_saml bool ``enabled AND flavor == 'saml'`` oauth2_origin_host str - ``services.sso.oauth2.origin.host`` o '' oauth2_origin_port str - ``services.sso.oauth2.origin.port`` o '' oauth2_acl dict - ``services.sso.oauth2.acl`` o {} oauth2_allowed_groups lista: ``services.sso.oauth2.allowed_groups`` o [] oauth2_pass_access_token bool ``services.sso.oauth2.pass_access_token``,"
+msgstr ""
 
 # libretranslate
 msgid "enabled (required)"

@@ -746,7 +746,7 @@ msgstr "Palīglīdzekļi"
 # libretranslate
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr "LuxSCS un LuxOpCo LuxSCS LuxOpCo LuxSCS LuxOpCo LuxSCS LuxOpCo un LuxSCS LuxOpCo LuxSCS LuxOpCo LuxOpCo LuxSCS LuxOpCo un LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo līgumu un LuxOpCo LuxSCS maksu un maksu par LuxOpCo pakalpojumiem, kas saistīti ar LuxOpCo pakalpojumiem, LuxOpCo un LuxOpCo, LuxOpCo darbībām un LuxOpCo darbībām.3 API."
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-net-wireguard-core:description"

@@ -2525,7 +2525,7 @@ msgstr "**묘사:** Federated chess server for playing and following rule-valida
 
 # libretranslate
 msgid "**Description:** Federated, end-to-end-encrypted messaging platform with a web client and protocol bridges to external chat networks"
-msgstr "**묘사:** Federated, end-to-end-encrypted messaging platform with web client and protocol bridges to External chat network"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Federated, self-hosted platform for organizing events and building communities and groups"
@@ -2833,7 +2833,7 @@ msgstr ""
 
 # libretranslate
 msgid "**Description:** Open-source monitoring and alerting toolkit for storing metrics as time-series data and querying them with PromQL"
-msgstr "**묘사:** Open-source Monitoring and alerting toolkit for storage metrics as time-series data and querying them with PromQL"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Open-source participatory democracy platform for public consultations, civic processes, and community voting"
@@ -3073,7 +3073,7 @@ msgstr ""
 
 # libretranslate
 msgid "**Description:** Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
-msgstr "**묘사:** Self-hosted federated reading platform for book review and reading tracking throughout the Fediverse"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Self-hosted federated social network for microblogging, real-time timelines, and community moderation"
@@ -3101,7 +3101,7 @@ msgstr "**묘사:** 간단한 HTTP 뒤에 로컬 LLM을 실행하기위한 자�
 
 # libretranslate
 msgid "**Description:** Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
-msgstr "**묘사:** Self-hosted no-code database platform with spreadsheet-like interface for building and collaborating on data"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
@@ -11639,7 +11639,7 @@ msgstr ""
 
 # libretranslate
 msgid "**sys-stk-front-base** bootstraps the front layer that most web-facing apps need:"
-msgstr "**sys-stk-front-base** bootstraps the front layer that most web-facing apps needs:"
+msgstr ""
 
 # libretranslate
 msgid "**systemd-resolved** stub listener disabled to avoid port conflicts."
@@ -14066,7 +14066,7 @@ msgstr ""
 
 # libretranslate
 msgid "A prefix does something on the way past -- sending a smoke mail is the only one so far -- and deliberately cannot decide liveness. That separation is what lets a probe stay the single verdict."
-msgstr "접두사는 과거의 길에 뭔가를하지 않습니다 -- 연기 메일을 보내는 것은 단지 단지 단지 하나 너무 멀리이다 -- 그리고 deliberately liveness를 결정할 수 없습니다. 그 분리는 프로브가 단일 verdict를 유지하도록하는 것입니다."
+msgstr ""
 
 msgid "A prefix mask leaves a contiguous run of low bits free, so per octet the addresses span exactly ``network_address`` to ``broadcast_address``. The cross product of those four ranges is the network, which makes the octet decomposition exact for any prefix length, aligned or not."
 msgstr ""
@@ -17423,7 +17423,7 @@ msgstr ""
 
 # libretranslate
 msgid "As an operator of a self-hosted deployment, I want every role whose application ships a native AI feature to reach the platform's own LiteLLM gateway instead of a third-party provider, so that prompts, documents and telemetry never leave the deployment and one credential rotation covers every application."
-msgstr "자체 호스팅 배포의 연산자로서, I want every role who application ships a native AI feature to reach the platform's own LiteLLM gateway instead of the third-party Provider, so that prompts, document and telemetry never Leave the deploy and one credential rotation cover every application."
+msgstr ""
 
 # libretranslate
 msgid "As the conversation grows, the agent MUST proactively suggest a higher tier. Base the estimate on observable signals: message count, response sizes, and whether context compression has been triggered by the system."
@@ -21769,7 +21769,7 @@ msgstr "Application 역할의 canonical OIDC 그룹 경로 Compute."
 
 # libretranslate
 msgid "Compute the compose-resource footprint of a role and its shared dependencies."
-msgstr "Compute the compose-resource through the role and its shared Dependencies."
+msgstr ""
 
 # libretranslate
 msgid "Computed fallbacks are not independent. `_compute` reads earlier keys from the in-progress `resolved` dict, so the declaration order in `RESOLUTION_ORDER` matters:"
@@ -23274,7 +23274,7 @@ msgstr "분산, 피어 투 피어 비디오 호스팅, 스트리밍 및 라이�
 
 # libretranslate
 msgid "Decentralized, federated platform for photo sharing and image feeds across the fediverse"
-msgstr "탈중앙화, federated platform for photo sharing and image feeds throughout the fediverse"
+msgstr ""
 
 # libretranslate
 msgid "Decentralized, federated social-networking platform for peer-to-peer communication and community building"
@@ -24624,7 +24624,7 @@ msgstr ""
 
 # libretranslate
 msgid "Disable/prune path: `provides: litellm_ui` makes `expand_service_tokens('web-app-litellm')` expand to `services.litellm_ui.*`, so disabling the UI role does not clear its `services.litellm` consumer contract; the gateway stays force-loaded until that flag is flipped manually or the expander learns about redirected consumer contracts."
-msgstr "장애인/후방 경로: `provides: litellm_ui` 제품정보 `expand_service_tokens('web-app-litellm')` 확대하기 `services.litellm_ui.*`, 그래서 UI 역할을 제거하지 않습니다 `services.litellm` 소비자 계약; 게이트웨이는 플래그가 수동으로 푹 푹 푹 푹 푹 푹 푹 들어간 소비자 계약에 대해 학습합니다."
+msgstr ""
 
 msgid "Disabled the *email* service in the *web-app-pihole* role by pinning *services.email* to a static *enabled: false* / *shared: false* with the matching *dynamic-flag* and *email* nocheck suppressions, removing the now-static email overrides from *meta/variants.yml*, and adding *javascript* true/false variant pins to keep the dynamic-flag matrix-coverage guard green."
 msgstr ""
@@ -27543,7 +27543,7 @@ msgstr "특징 및 작업 항목 🗂️"
 
 # libretranslate
 msgid "Federated chess server for playing and following rule-validated games over ActivityPub across the Fediverse"
-msgstr "Federated chess server for playing and following rule-validated games over ActivityPub 건너편 Fediverse"
+msgstr ""
 
 # libretranslate
 msgid "Federated social and messaging"
@@ -27551,7 +27551,7 @@ msgstr "Federated 사회 및 메시징"
 
 # libretranslate
 msgid "Federated, end-to-end-encrypted messaging platform with a web client and protocol bridges to external chat networks"
-msgstr "Federated, end-to-end-encrypted messaging platform with web client and protocol bridges to External chat network"
+msgstr ""
 
 # libretranslate
 msgid "Federated, self-hosted platform for organizing events and building communities and groups"
@@ -29202,7 +29202,7 @@ msgstr "팟캐스트"
 
 # libretranslate
 msgid "Friendica's `saml` addon is community-maintained — last-commit recency AND config-format compatibility need verification before committing to it as the canonical SSO path."
-msgstr "Friendica의 `saml` addon is community-maintained — last-commit recency and config-format compatibility need authentication before committing to it as a canonical SSO path."
+msgstr ""
 
 # libretranslate
 msgid "Friends & Family"
@@ -31883,7 +31883,7 @@ msgstr ""
 
 # libretranslate
 msgid "Improves CI and test robustness by fixing Jinja2 templating edge cases, unifying unittest mock imports, hardening Docker image pull retries, and resolving multiple code-scanning alerts without suppressions."
-msgstr "Jinja를 수정하여 CI 및 테스트 견고성 향상2 템퍼링 엣지 케이스, Unittest 스티어링 스트레이닝 스트레이닝 스트레이닝 스트레이닝 스트레이닝 스트레이닝 스트레이닝 스트레이닝 스트레이닝 스트레이닝 스트레이닝 스트레이닝 스트레이닝 스트레이닝 스트레이닝 스트레이닝 스트레이닝 스트레이닝 스트레이닝 스트레이닝 스트레이닝 스트레이닝 스트레이닝 스트레이닝 스트레이닝 스트레이닝 스트레이닝 스트레이닝 스트레이닝."
+msgstr ""
 
 # libretranslate
 msgid "Improves CI stability by extending deploy job timeouts to 6 hours, moving compose pull retries into Ansible, and adding additional deployer metadata."
@@ -32382,7 +32382,7 @@ msgstr "Inspect 및 제안 Docker 네트워크는 역할 카탈로그에 걸쳐 
 
 # libretranslate
 msgid "Inspect and suggest free host ports across the role catalogue so new services bind without colliding with already-declared services."
-msgstr "Inspect and suggest free host port throughout the role 카탈로그 so new services bind without colliding with already-declared services."
+msgstr ""
 
 # libretranslate
 msgid "Inspect and trigger the compose and swarm deploy-test runs for the branch you are on. `status` summarises each role's per-mode result (docker, swarm, and an aggregated all) from the last run; `trigger` dispatches a fresh manual run for all roles, only the ones that failed last time, or an explicit list."
@@ -36317,7 +36317,7 @@ msgstr "주요 특징"
 
 # libretranslate
 msgid "Matrix bridges modernized: Signal, Telegram, WhatsApp and Slack bridges migrate to bridgev2 config, the dead mautrix-facebook/instagram bridges are replaced by mautrix-meta, bridge specs are gated by the deployed addon, Synapse loads the bridge registrations from a mounted directory, and the role now tracks *matrix-docker-ansible-deploy* from the spantaleev upstream."
-msgstr "매트릭스 브리지 현대화 : 신호, 전보, WhatsApp 및 슬랙 브리지 브리지 브리지2 config, 죽은 mautrix-facebook/instagram bridges는 mautrix-meta에 의해 대체됩니다, 교량 specs는 배치된 addon에 의해 문질러, Synapse는 거치한 디렉토리에서 교량 등록을 적재하고, 지금 역할은 추적합니다 *매트릭스-docker-ansible-deploy* spantaleev 업스트림에서."
+msgstr ""
 
 msgid "Matrix jobs don't share a Docker layer cache; each runner pulls its own `infinito` image"
 msgstr ""
@@ -37090,7 +37090,7 @@ msgstr "관련 항목 `gh` config; 연속 주변 `gh pr/issue/run` 호출은 침
 
 # libretranslate
 msgid "Mutating tools MUST be disabled by default when upstream supports tool filtering or scopes."
-msgstr "Mutating tools MUST be disabled by default when upstream support tool filtering or ranges."
+msgstr ""
 
 # libretranslate
 msgid "Mutating tools stay off"
@@ -37225,7 +37225,7 @@ msgstr "NGINX vHost 템플릿: 기본 대. WebSocket (ws_generic)"
 
 # libretranslate
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
-msgstr "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt 인증서"
+msgstr ""
 
 # libretranslate
 msgid "NGINX-based web platform and reverse proxy with validated config reloads and Let's Encrypt integration"
@@ -38882,7 +38882,7 @@ msgstr "온라인 코스 및 e-learning 제공을 위한 오픈소스 학습 관
 
 # libretranslate
 msgid "Open-source monitoring and alerting toolkit for storing metrics as time-series data and querying them with PromQL"
-msgstr "Open-source Monitoring and alerting toolkit for storage metrics as time-series data and querying them with PromQL"
+msgstr ""
 
 # libretranslate
 msgid "Open-source participatory democracy platform for public consultations, civic processes, and community voting"

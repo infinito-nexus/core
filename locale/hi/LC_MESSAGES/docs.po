@@ -2316,11 +2316,11 @@ msgstr "**एक एन्क्रिप्टेड सर्वर पर त
 
 # libretranslate
 msgid "**Deploy** the Let’s Encrypt challenge-and-redirect snippet from ``sys-svc-letsencrypt``."
-msgstr "**तैनाती** Let's Encrypt चुनौती-and-redirect snippet from ``sys-svc-letsencrypt``।"
+msgstr ""
 
 # libretranslate
 msgid "**Deploy** the Let’s Encrypt challenge-and-redirect snippet from `sys-svc-letsencrypt`."
-msgstr "**तैनाती** Let's Encrypt चुनौती-and-redirect snippet from `sys-svc-letsencrypt`।"
+msgstr ""
 
 # libretranslate
 msgid "**Deployment and packaging foundations.** A host deployment mode joins Compose and Swarm in the deployment tooling. The former *sys-package*, *sys-aur* and *sys-aur-install* roles were replaced by a distribution-independent package registry. Volume metadata now uses one canonical schema, single-file mounts become Swarm configs, and service placement, replica counts, dependencies, addresses and health probes resolve through deployment-aware lookups."
@@ -12780,7 +12780,7 @@ msgstr "*web-app-nextcloud* व्हाइटबोर्ड: unpinned *नव�
 
 # libretranslate
 msgid "*web-app-nextcloud*: PHP 33-fpm-alpine to 34-fpm-alpine, nginx 1.31.2 to 1.31.3"
-msgstr "*web-app-nextcloud*PHP 33-Fpm-alpine to 34-Fpm-alpine, nginx 1.31.2 to 1.31.3"
+msgstr ""
 
 # libretranslate
 msgid "*web-app-opencloud*: 4.0.7 to 7.2.0"
@@ -12980,7 +12980,7 @@ msgstr "--add-host={{ entry }}"
 
 # libretranslate
 msgid "--distro debian --owner acme --repository infinito-nexus --tag ci-abc"
-msgstr "--distro debian - मालिक acme --repository infinito-nexus --tag ci-abc"
+msgstr ""
 
 # libretranslate
 msgid "--include web-app-nextcloud web-app-mastodon --include web-app-nextcloud,web-app-mastodon"
@@ -13347,7 +13347,7 @@ msgstr "1. लॉग इन"
 
 # libretranslate
 msgid "1. Search for the User in LDAP"
-msgstr "1. To search for; to search for. User LDAP में"
+msgstr ""
 
 # libretranslate
 msgid "1. Title (required) 🏷️"
@@ -13435,7 +13435,7 @@ msgstr "2. मेजबान परिभाषा"
 
 # libretranslate
 msgid "2. Open the API Tokens Page"
-msgstr "2. To open a new version. API Tokens page"
+msgstr ""
 
 # libretranslate
 msgid "2. Push"
@@ -22694,7 +22694,7 @@ msgstr "Compute अनुशंसित JVM Xms in MB using: Xms = min("
 
 # libretranslate
 msgid "Compute recommended JVM Xmx in MB using: Xmx = min("
-msgstr "Compute ने MB में JVM Xmx की सिफारिश की: Xmx = min("
+msgstr ""
 
 # libretranslate
 msgid "Compute recommended Redis `maxmemory` in MB."
@@ -31910,7 +31910,7 @@ msgstr "INFINITO_IS_WSL2: जब /proc/version मेजबान को WSL क
 
 # libretranslate
 msgid "INFINITO_OUTER_NETWORK_MTU: MTU of the compose stack's bridge network."
-msgstr "INFINITO_OUTER_NETWORK_MTU: MTU of compose stack's bridge network."
+msgstr ""
 
 # libretranslate
 msgid "INFINITO_PARENT_IMAGE: distribution base image reference composed from INFINITO_PARENT_IMAGE_OWNER, INFINITO_DISTRO and INFINITO_PARENT_IMAGE_TAG."
@@ -35665,7 +35665,7 @@ msgstr "Keycloak realm issuer URL."
 
 # libretranslate
 msgid "Keycloak redirect URIs/web-origins are computed from `lookup('domains')` at deploy"
-msgstr "Keycloak redirect URIs/web-origins से computed हैं `lookup('domains')` तैनात"
+msgstr ""
 
 # libretranslate
 msgid "Keycloak's `LDAP user federation` mirrors users into the realm in read-only mode."
@@ -39097,7 +39097,7 @@ msgstr "कोई अतिरिक्त भूमिका चर की आ�
 
 # libretranslate
 msgid "No agent needs host access to do agent work: OpenClaw's browser control and filesystem access run inside the guest, and Hermes' subagent execution runs inside the guest, so the agent runtime is fully isolatable. The only host-level demand is Hermes' web dashboard, which wants `network_mode: host` and a shared host PID namespace solely to display **host** metrics that an isolated guest cannot expose. That host-monitoring view is severable and MUST NOT pull the agent tier out of its isolated runtime: the agent runtime stays isolated, and the host-metrics dashboard is either run in Hermes' embedded/in-process mode (with reduced host stats) or split out to a separate non-isolated `runc` sidecar."
-msgstr "कोई एजेंट को एजेंट कार्य करने के लिए होस्ट एक्सेस की आवश्यकता नहीं है: ओपनक्लॉ के ब्राउज़र नियंत्रण और फ़ाइलसिस्टम एक्सेस अतिथि के अंदर चला जाता है, और हेर्म्स के सबएजेंट निष्पादन अतिथि के अंदर चलता है, इसलिए एजेंट रनटाइम पूरी तरह से अलग है। एकमात्र मेजबान स्तर की मांग हर्म्स वेब डैशबोर्ड है, जो चाहता है `network_mode: host` केवल एक साझा होस्ट PID नेमस्पेस प्रदर्शित करने के लिए **मेजबान** एक पृथक अतिथि को उजागर नहीं किया जा सकता है। यह होस्ट-मॉनिटरिंग व्यू severable है और MUST अपने पृथक रनटाइम से एजेंट टियर को बाहर नहीं खींचता है: एजेंट रनटाइम अलग रहता है, और होस्ट-मीट्रिक्स डैशबोर्ड या तो हर्म्स के एम्बेडेड / इन-प्रोसेस मोड में चल रहा है। (कम मेजबान आँकड़ों के साथ) या एक अलग गैर अलग अलग अलग करने के लिए विभाजित `runc` साइडकार"
+msgstr ""
 
 # libretranslate
 msgid "No ansible import: `utils.cache.base` deliberately carries none, and the env generator imports parts of `utils` on hosts that have no ansible installed."
@@ -41451,7 +41451,7 @@ msgstr "दस्तावेजों की सूची में एक ब�
 
 # libretranslate
 msgid "Parse a space- or comma-separated list of service names."
-msgstr "Parse a space- या comma-separated list of service name."
+msgstr ""
 
 # libretranslate
 msgid "Parse and trim the ``CHANGELOG.md`` SPOT."
@@ -45111,7 +45111,7 @@ msgstr "स्थानीय होस्ट विशेष-casing हटा �
 
 # libretranslate
 msgid "Removed misleading/deprecated image/version flags (e.g. Nextcloud)"
-msgstr "Removed misleading/deprecated image/version flags (E.g. Nextcloud)"
+msgstr ""
 
 # libretranslate
 msgid "Removed obsolete debug code referencing a non-existent *--debug* parameter **Base Image Changes**"
@@ -53058,7 +53058,7 @@ msgstr "Sys-ctl-hlth-csp भूमिका"
 
 # libretranslate
 msgid "Sys-ctl-hlth-disc-space Role"
-msgstr "Sys-ctl-hlth-disc-space role"
+msgstr ""
 
 # libretranslate
 msgid "Sys-ctl-hlth-journalctl Role"
@@ -54701,7 +54701,7 @@ msgstr "The The most of the most important ``desk-qbittorrent`` भूमिक�
 
 # libretranslate
 msgid "The ``desk-torbrowser`` role uses the ``community.general.pacman`` module to:"
-msgstr "The The most of the most important ``desk-torbrowser`` भूमिका ``community.general.pacman`` मॉड्यूल:"
+msgstr ""
 
 # libretranslate
 msgid "The ``gitlab_repositories`` volume is declared ``nfs: false``, so in swarm mode it stays a plain node-local volume instead of being rewritten to the shared NFS backend. Gitaly is pinned to a single replica. When a swarm reschedule moves the gitaly task to another node, the repositories stay on the previous node’s local volume; move the volume data manually before rescheduling gitaly."
@@ -54891,7 +54891,7 @@ msgstr "The The most of the most important `desk-qbittorrent` भूमिका
 
 # libretranslate
 msgid "The `desk-torbrowser` role uses the `community.general.pacman` module to:"
-msgstr "The The most of the most important `desk-torbrowser` भूमिका `community.general.pacman` मॉड्यूल:"
+msgstr ""
 
 # libretranslate
 msgid "The `file.path` pairs that decide each role type."
@@ -68868,7 +68868,7 @@ msgstr "आप MUST उस टेम्पलेट को चुनते ह�
 
 # libretranslate
 msgid "You MUST place role-local Dockerfiles at `files/Dockerfile`."
-msgstr "You MUST place role-local Dockerfiles at the place of the time. `files/Dockerfile`।."
+msgstr ""
 
 # libretranslate
 msgid "You MUST place the emoji before the category, never after."
@@ -85838,7 +85838,7 @@ msgstr "`external` अगर `external` या `TLS_ENABLED`, अन्य `loca
 
 # libretranslate
 msgid "`extra_hosts` entries DNS-hijacking the HTTPS upstream hostnames to the frontend's static IP"
-msgstr "`extra_hosts` प्रविष्टियां DNS-hijacking the HTTPS upstream hostnames to the frontend's स्थैतिक IP"
+msgstr ""
 
 # libretranslate
 msgid "`extra_vars` wins over the implicit `STORAGE_CONSTRAINED` / `RUNTIME` overrides so callers (and tests) keep the documented \"user-provided vars always win\" behaviour without re-implementing the merge."
@@ -96035,7 +96035,7 @@ msgstr "Qdrant में प्रति उपभोक्ता प्रि�
 
 # libretranslate
 msgid "quay.io/keycloak/keycloak -> keycloak/keycloak ghcr.io/mastodon/mastodon -> mastodon/mastodon docker.io/postgres        -> postgres postgres                  -> postgres"
-msgstr "quay.io/keycloak/keycloak -> keycloak/keycloak ghcr.io/mastodon/mastodon -> mastodon/mastodon docker.io/postgres -> postgres postgres -> postgres"
+msgstr ""
 
 # libretranslate
 msgid "queries the ordered discovered service list"
@@ -96215,7 +96215,7 @@ msgstr "रेपो-वाइड ग्रेप"
 
 # libretranslate
 msgid "repo/name:tag   -> (repo/name, :tag) repo/name@sha.. -> (repo/name, @sha..) repo/name       -> (repo/name, \"\")"
-msgstr "Repo/name:tag -> (रेपो / नाम: टैग) रेपोname@sha.. -> (Repo/name, @sha.) रेपो / नाम -> (रेपो / नाम, \"\")"
+msgstr ""
 
 # libretranslate
 msgid "repository root and the ISO 639-1 code of the catalog."

@@ -38908,7 +38908,7 @@ msgstr "Nové aplikace"
 
 # libretranslate
 msgid "New ERPNext role that ships the upstream Frappe Framework v15 stack as a web-app-erpnext role — backend, frontend, websocket, scheduler and two queue workers — wired into the central Keycloak via a built-in Keycloak Social Login Key and into the central OpenLDAP via the LDAP Settings doctype. The three-variant matrix (SSO plus LDAP, no auth, LDAP only) is exercised end-to-end and a repo-wide lint caps Ansible task names at 120 characters."
-msgstr "Nový ERPNext role, která lodě proti Frappe Frappe Frappe Frame v15 zásobník jako web-app-erpnext role - backend, frontend, websocket, plánovač a dva fronty pracovníci - připojeny do centrální Keycloak přes built- in Keycloak Sociální přihlašovací klíč a do centra OpenLDAP pomocí typu LDAP Settings. Třívariantová matice (SSO plus LDAP, žádný auth, pouze LDAP) je vykonáván end- to- end a repo- wide kšiltovky Ansible názvy úloh na 120 postavy."
+msgstr ""
 
 # libretranslate
 msgid "New Jitsi Meet role that adds an oauth2-proxy gated meeting surface plus matching LDAP-variant Playwright coverage. The spec layout is reorganised into a shared module and per-scenario test files so future scenarios can be added without touching the monolith."
@@ -76432,7 +76432,7 @@ msgstr "[x] Klientské role, jejichž výstup nabízí administrator-viditelný 
 
 # libretranslate
 msgid "[x] Database-backed integrations use per-application views/collections/indexes and read-only principals; no test or configuration contains a shared engine administrator credential. One database-backed surface is enabled, Qdrant, and auditing it found the engine running with no authentication at all: its environment set the HTTP port and disabled telemetry and nothing else, so every container that reached its network held full read, write and delete access to every collection, and the surface's read-only promise rested entirely on the adapter's own contract naming only GET routes. Qdrant 1.19 offers what was needed: `read_only_api_key` forces authentication on every request and grants reads only. The engine now declares both keys, the adapter presents the read-only one through `api-key`, and the full key goes only to consumers that own data here, which is asserted by a unit test on the resolver because handing the read-only key out anywhere else would make it meaningless. A contract that named a write route is now refused by the engine rather than only by the adapter. Two limits stay, and neither is a credential problem: Qdrant has no per-consumer principals, only engine-wide keys, so \"read-only principal\" is as narrow as this engine goes without JWT RBAC; and `qdrant_list_collections` enumerates the whole engine, which is bounded today by there being one data owner but is not a per-application view. The path parameter of `qdrant_get_collection` is not a traversal risk: the adapter percent-encodes it with an empty safe set, so a `../` argument reaches Qdrant as a literal collection name."
-msgstr "[x] Integrace zálohované databáze používá per- aplikace views/collections/indexes a pouze pro čtení; žádná zkouška nebo konfigurace neobsahuje akreditaci sdíleného správce motoru. Povolen je jeden podložený povrch databáze, Qdrant, a audit zjistil, že motor běží bez ověření vůbec: jeho prostředí nastavit HTTP port a vypnuté telemetrie a nic jiného, takže každý kontejner, který dosáhl své sítě držel plný čtení, psát a smazat přístup ke každé kolekci, a povrch je read- pouze slib spočíval zcela na adaptér vlastní smlouvu pojmenování pouze GET trasy. Qdrant 1.19 nabízí to, co bylo potřeba: `read_only_api_key` síla autentizace na každé žádosti a granty čte pouze. Motor nyní prohlašuje oba klíče, adaptér představuje čtení - pouze jeden přes `api-key`, a celý klíč jde pouze spotřebitelům, kteří vlastní údaje zde, který je uplatňován jednotkovým testem na resolveru, protože rozdávání read- pouze klíč kdekoliv jinde by bylo bezvýznamné. Smlouva, která pojmenovala cestu zápisu, je nyní zamítnuta motorem spíše než pouze adaptérem. Zůstávají dvě hranice a ani jeden z nich není důvěryhodný problém: Qdrant nemá žádné předspotřebitelské principy, pouze široce široce široce, takže \"read- only principle\" je stejně úzký jako tento motor bez JWT RBAC a `qdrant_list_collections` uvádí celý motor, který je dnes ohraničen jedním vlastníkem dat, ale není per- application view. Parametr cesty `qdrant_get_collection` není příčné riziko: adaptér condition- kóduje jej s prázdnou sadou, takže `../` Argument dosahuje Qdrant jako doslovný název sbírky."
+msgstr ""
 
 # libretranslate
 msgid "[x] Desktop and mobile launcher URLs are generated automatically from the role's domain."
@@ -78897,7 +78897,7 @@ msgstr "[🪙](https://www.openproject.org/docs/system-admin-guide/authenticatio
 
 # libretranslate
 msgid "__Gap-first:__ propose the lowest unoccupied contiguous span of size `--length N` within the band."
-msgstr "_ _ Gap- first: _ _ _ navrhnout nejnižší neobsazené souvislé rozpětí velikosti `--length N` uvnitř kapely."
+msgstr ""
 
 # libretranslate
 msgid "__Gap-first:__ propose the lowest unoccupied port in the band."
@@ -78913,11 +78913,11 @@ msgstr "_ _ Zvětšení pozadí: _ _ pokud všechny podbloky aktivní `/24` jsou
 
 # libretranslate
 msgid "__Increment fallback:__ if no internal gap fits, propose `max(end) + 1` to `max(end) + N` (clamped to the band's upper bound)."
-msgstr "_ _ _ Zvětšení pozadí: _ _ Pokud není vnitřní mezera pasuje, navrhnout `max(end) + 1` do `max(end) + N` (sevřený na horní hranici kapely)."
+msgstr ""
 
 # libretranslate
 msgid "__Increment fallback:__ if the band has no internal gaps, propose `max(used) + 1` (clamped to the band's upper bound)."
-msgstr "_ _ _ Zvětšení pozadí: _ _ Pokud kapela nemá vnitřní mezery, navrhnout `max(used) + 1` (sevřený na horní hranici kapely)."
+msgstr ""
 
 # libretranslate
 msgid "__MTU drops mid-handshake__, MITM cert mismatch, CA bundle missing, server-side issue"
@@ -78925,7 +78925,7 @@ msgstr "_ _ MTU klesá mid-handshake__, MITM cert neshoda, CA svazek chybí, ser
 
 # libretranslate
 msgid "__No established sequence:__ if the requested prefix size has no umbrella block established yet (e.g. `--clients 1000` → `/22` and no `/22` is in use), exit non-zero with a clear error suggesting that the operator pass `--block <cidr>` to bootstrap a new umbrella block manually."
-msgstr "_ _ _ Žádná stanovená posloupnost: _ _ pokud požadovaná velikost předvolby ještě nemá zabudovaný deštník (např. `--clients 1000` → `/22` a ne `/22` je užíván), výstup non-nula s jasnou chybou naznačuje, že provozovatel projít `--block <cidr>` k manuálnímu padělání nového bloku deštníků."
+msgstr ""
 
 # libretranslate
 msgid "__stderr__ prints a human-readable summary noting which band was used and how many gaps were filled vs. appended."
@@ -78933,7 +78933,7 @@ msgstr "_ _ stderr _ _ prints a human- rectory summary noting which band was use
 
 # libretranslate
 msgid "__stderr__ prints per-suggestion capacity and a human-readable summary noting which umbrella block(s) were scanned."
-msgstr "_ _ _ stderr _ _ prints per- support capacity and a human- recable summary noting which deštník block(s) byli skenováni."
+msgstr ""
 
 # libretranslate
 msgid "__stdout__ prints a machine-readable list (one port per line for single-port categories, one `<start>-<end>` pair per line for `relay`)."

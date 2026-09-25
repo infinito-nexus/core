@@ -241,7 +241,7 @@ msgstr "مدیر Clipboard با تاریخ قابل ویرایش، اقداما�
 # libretranslate
 msgctxt "menu:Cloud:title"
 msgid "Cloud"
-msgstr "Cloud Cloud Cloud"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-svc-dns:description"
@@ -341,7 +341,7 @@ msgstr "مدیریت محتوا"
 # libretranslate
 msgctxt "menu:Content Management:description"
 msgid "Content Management Systems (CMS) and web publishing platforms"
-msgstr "سیستم های مدیریت محتوا (CMS CMS CMS CMS) پلتفرم های انتشار وب"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-wordpress:description"
@@ -394,7 +394,7 @@ msgstr "ارتباط مشتری"
 # libretranslate
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
-msgstr "مدیریت روابط مشتری (CRM CRM CRM) نرم افزار برای مدیریت روابط مشتری، خطوط لوله فروش، بازاریابی و فعالیت های پشتیبانی."
+msgstr ""
 
 # libretranslate
 msgctxt "category:sys.dns:title"
@@ -509,7 +509,7 @@ msgstr "ویدئو کنفرانس دسکتاپ مشتری را برای جلسا
 # libretranslate
 msgctxt "menu:Development:title"
 msgid "Development"
-msgstr "توسعه توسعه توسعه"
+msgstr ""
 
 # libretranslate
 msgctxt "menu:Development:description"
@@ -569,7 +569,7 @@ msgstr "رانندگان"
 # libretranslate
 msgctxt "menu:Education:title"
 msgid "Education"
-msgstr "آموزش آموزش آموزش"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-ai-robot:description"
@@ -604,7 +604,7 @@ msgstr "حوادث"
 # libretranslate
 msgctxt "role:desk-neovim:description"
 msgid "Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
-msgstr "Extensible Vim-line text Editor for Terminal-based code and Configuration"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-chess:description"
@@ -1751,7 +1751,7 @@ msgstr "ذخیره سازی"
 # libretranslate
 msgctxt "category:sys:title"
 msgid "System"
-msgstr "سیستم سیستم سیستم"
+msgstr ""
 
 # libretranslate
 msgctxt "category:sys.front:title"
@@ -1978,7 +1978,7 @@ msgstr "وب مبتنی بر LDAP مشتری برای مرور، جستجو و �
 # libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr "سیستم مدیریت و توسعه مبتنی بر وب برای مدیریت سرورهای متعدد PostgreSQL، با اختیاری OAuth2 ورود ورود ورود"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-phpmyadmin:description"

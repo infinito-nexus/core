@@ -57,7 +57,7 @@ msgstr "Tahadhari ya"
 # libretranslate
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
-msgstr "Analytics Analytics Analytics Analytics Analytics"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-token-store:description"
@@ -97,7 +97,7 @@ msgstr "Huduma ya kupona ya moja kwa moja inayoanza tena au isiyo na afya Docker
 # libretranslate
 msgctxt "role:sys-dns-hetzner-rdns:description"
 msgid "Automation role for reverse DNS (PTR) records on Hetzner Cloud servers, primary IPs, floating IPs, and load balancers"
-msgstr "Jukumu la Automation kwa reverse DNS (wa wa wa wa) Rekodi kwenye seva za Hetzner Cloud, IPs za msingi, IP zinazozunguka, na mizani ya mzigo"
+msgstr ""
 
 # libretranslate
 msgctxt "category:sys.ctl.bkp:title"
@@ -340,7 +340,7 @@ msgstr "Usimamizi wa Maudhui"
 # libretranslate
 msgctxt "menu:Content Management:description"
 msgid "Content Management Systems (CMS) and web publishing platforms"
-msgstr "Mifumo ya Usimamizi wa Maudhui (CMS CMS CMS) majukwaa ya kuchapisha mtandao"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-wordpress:description"
@@ -393,7 +393,7 @@ msgstr "Uhusiano wa Wateja"
 # libretranslate
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
-msgstr "Uhusiano wa Wateja (CRM CRM CRM CRM) Programu ya kusimamia mahusiano ya wateja, mabomba ya mauzo, masoko, na shughuli za msaada."
+msgstr ""
 
 # libretranslate
 msgctxt "category:sys.dns:title"
@@ -463,7 +463,7 @@ msgstr "Matumizi mabaya ya mtandao (GitLab, Nextcloud, Mastodon, nk.)"
 # libretranslate
 msgctxt "category:desk:title"
 msgid "Desktop"
-msgstr "Desktop Desktop Desktop Desktop"
+msgstr ""
 
 # libretranslate
 msgctxt "role:desk-spotify:description"
@@ -623,7 +623,7 @@ msgstr "Jukwaa la kujitegemea la kuandaa matukio na kujenga jamii na vikundi"
 # libretranslate
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
-msgstr "Daraja la kuunganisha ActivityPub (wa wa wa wa wa), Itifaki ya AT (Bluesky)Mtandao wa IndieWeb"
+msgstr ""
 
 # libretranslate
 msgctxt "menu:Finance & Accounting:title"
@@ -998,7 +998,7 @@ msgstr "Msaidizi wa Mtandao kwa iptables forwarding na NAT masquerading ya mteja
 # libretranslate
 msgctxt "role:sys-front-inj-logout:description"
 msgid "Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
-msgstr "ya ya ya sub_filter JavaScript sindano kuelekeza hatua zote logout kwa centralized OIDC moja ishara-nje mwisho"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-svc-cdn:description"
@@ -1373,7 +1373,7 @@ msgstr "Backup iliyopangwa iliyopangwa ya siri za mwenyeji, CA, sifa za ACME, na
 # libretranslate
 msgctxt "role:svc-bkp-volume-2-local:description"
 msgid "Scheduled deduplicating backup system for Docker container volumes to a local directory, with consistent SQL dumps"
-msgstr "Imeandaliwa mfumo wa Backup Backup Backup Backup kwa kiasi cha chombo cha Docker kwenye saraka ya ndani, na dumps za SQL thabiti"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-ctl-hlth-csp:description"
@@ -1721,7 +1721,7 @@ msgstr "Jukwaa la mkutano wa video wa chanzo wazi kwa simu za sauti / video, kug
 # libretranslate
 msgctxt "category:sys.stk:title"
 msgid "Stack"
-msgstr "Stack ya Stack Stack Stack Stack"
+msgstr ""
 
 # libretranslate
 msgctxt "category:sys.stk:description"

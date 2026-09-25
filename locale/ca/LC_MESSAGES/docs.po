@@ -3458,7 +3458,7 @@ msgstr "**SSO Direct OIDC** La clau d' accés social de ekaFppe parla amb el cli
 
 # libretranslate
 msgid "**Direct OIDC SSO** — Frappe’s Social Login Key talks to the shared Keycloak client; redirect URI auto-registered via the ``redirect_uris`` filter (no per-app Keycloak entry needed)."
-msgstr "**SSO Direct OIDC** ekaFpperas Key Key Key Key Key de connexió Social es parla amb el client Keycloak compartit; Redirigeix URI auto-regite via la ``redirect_uris`` filtre (no es necessita entrada per al keycloak)."
+msgstr ""
 
 # libretranslate
 msgid "**Direct OIDC SSO:** Sign in through the shared Keycloak OIDC client without an oauth2-proxy sidecar; redirect URI is auto-registered."
@@ -4421,7 +4421,7 @@ msgstr "**Punter complet:** Executa `container system prune -a -f` per reclamar 
 
 # libretranslate
 msgid "**Full Unicode support**: `utf8mb4` is the only MySQL/MariaDB character set that fully implements 4‑byte UTF‑8, allowing storage of emojis, supplementary symbols, and all global scripts without data loss."
-msgstr "**Implementació completa d' Unicode**: `utf8mb4` és l' únic joc de caràcters MySQL/MariaDB que implementa completament 4correspondbyte UTF UTF UTF UTF UTFName8, permetent l'emmagatzematge d' emojiis, símbols complementaris, i tots els scripts globals sense pèrdua de dades."
+msgstr ""
 
 # libretranslate
 msgid "**Full onion node**: `DOMAIN_PRIMARY` = node `.onion`; entire stack shifts together. No web/identity split, no domain-transform lookup."
@@ -4461,7 +4461,7 @@ msgstr "**Amarrat complet:** Compon la pila amb un volum de dades dedicat (`jira
 
 # libretranslate
 msgid "**Future‑proof:** Modern applications and standards have converged on UTF‑8; using `utf8mb4` avoids migration challenges later."
-msgstr "**Blémplosa de futur:** Les aplicacions i els estàndards moderns s'han convergint a UTF UTF UTF UTF UTF UTF8; usant `utf8mb4` Evita els reptes de migració més tard."
+msgstr ""
 
 # libretranslate
 msgid "**Game Visibility:** Matches and moves can appear in social timelines."
@@ -7382,11 +7382,11 @@ msgstr "**Repositori Cloning:** Recupera automàticament el darrer repositori or
 
 # libretranslate
 msgid "**Reproducible installs:** every tool resolves to the pinned ``ref``, so the same commit installs the same linter version on every host and in every CI run."
-msgstr "**Instal·lacions reproducibles:** Totes les eines resolen l'entorn ``ref``, La mateixa publicació instal· la la la la mateixa versió de l'Iinter en cada màquina i en cada CI."
+msgstr ""
 
 # libretranslate
 msgid "**Reproducible installs:** every tool resolves to the pinned `ref`, so the same commit installs the same linter version on every host and in every CI run."
-msgstr "**Instal·lacions reproducibles:** Totes les eines resolen l'entorn `ref`, La mateixa publicació instal· la la la la mateixa versió de l'Iinter en cada màquina i en cada CI."
+msgstr ""
 
 # libretranslate
 msgid "**Required addons are explicit, and install failure is gated by `required`.** Every addon carries a boolean `required` field (default `false`). Core components that are part of the deployed app contract, such as Odoo's core modules, use `required: true`: they are always installed, MAY omit `enabled`, and MUST NOT set `enabled: false`. The field also governs install-failure behaviour: when an addon's installation fails, a `required: true` addon MUST hard-fail the play (the deploy stops), while a `required: false` addon MUST only emit a warning, skip that addon, and let the play continue."
@@ -8971,7 +8971,7 @@ msgstr "**Sortida universal:** El punt de sortida del projecte finalitza la sess
 
 # libretranslate
 msgid "**Update PR behaviour.** The scheduled update workflow MAY open or refresh an update pull request for addon version bumps and newly discovered catalog entries. Addon entries *discovered by update automation* MUST be added disabled by default (`enabled: false`) and MUST NOT silently enable new runtime behaviour. This hard-off default applies to auto-discovered addons only; it does NOT override the auto-enable-with-partner rule for deliberately-wired integrations (Decision 5)."
-msgstr "**Actualitza el comportament PP.** El flux d' actualització programat pot estar obert o actualitzar una actualització de les sol· licituds addon i les entrades del catàleg noves descobertes. Afegeix entrades *descobert per actualització de l' autocompleció* S' ha d' afegir per omissió (`enabled: false`) i NOFT en silenci habilita un nou comportament en temps d' execució. Aquest valor per omissió s' aplica només als adds automàtics, que NO anul· la la la regla auto- keep- partner per a la integració deliberadament-wired (Decisió 5)."
+msgstr ""
 
 # libretranslate
 msgid "**Use Artisan Commands:** Pixelfed is built on Laravel, so you'll use Laravel's Artisan CLI for user management. Here are some common tasks:"
@@ -9427,7 +9427,7 @@ msgstr "**`disable-onboarding`** és dins `PENPOT_FLAGS` Per tant els usuaris at
 
 # libretranslate
 msgid "**`docker exec` is FORBIDDEN. ⛔** You MUST NEVER invoke `docker exec` (nor nested `docker exec … docker exec …` into the DiD stack) directly. Always reach the live stack through `make` targets (e.g. `make compose-exec`, or the role-specific targets the `Makefile` exposes). If no `make` target covers what you need, ask the operator instead of falling back to raw `docker exec`."
-msgstr "**`docker exec` És PERBIDDEN. ⛔** No es pot invocar `docker exec` (ni ni ni ni ni ni ni ni ni ni niats `docker exec … docker exec …` a la pila DD) directament. Sempre arriba a la pila de vida `make` Objectius (Hola. `make compose-exec`, o els objectius específics del paper `Makefile` exposcions).. Si no `make` L'objectiu cobreix el que necessites, pregunta a l'operador enlloc de caure en brut `docker exec`."
+msgstr ""
 
 # libretranslate
 msgid "**`duplicate_owner` (1):** `web-app-litellm`. This role is only the UI of the separately classified LiteLLM service role, which owns any future MCP gateway contract."
@@ -15309,7 +15309,7 @@ msgstr "Un mur `config.servers` Potser es pot deixar buit a l' auto-fill amb els
 
 # libretranslate
 msgid "A wall’s ``config.servers`` may be left empty to auto-fill with the active Mastodon-API-compatible Fediverse siblings (``web-app-mastodon``, ``web-app-pixelfed``, ``web-app-friendica``) that are present in the current host’s ``group_names``. Every other field of ``wall-config.json`` is read verbatim from the wall’s ``config`` block."
-msgstr "Un mur Mur Mur wallss ``config.servers`` Potser es pot deixar buit a l' auto-fill amb els germans compatible amb el Mastodon- API (``web-app-mastodon``, ``web-app-pixelfed``, ``web-app-friendica``) que són presents en els ordinadors actuals ``group_names``. Cada altre camp de ``wall-config.json`` es llegeix verbatim des de la paret, Bushs ``config`` bloquejar."
+msgstr ""
 
 # libretranslate
 msgid "A workflow the entries call declares no `concurrency` of its own: its jobs then belong to the entry's group, and the entry's `cancel-in-progress` reaches them. `call-images-build-ci.yml` and `call-images-mirror-missing.yml` still declare one, so a run whose only live job is theirs stays outside the entry's group and waits for the fallback."
@@ -16964,7 +16964,7 @@ msgstr "Permet una `roles/*/meta/variants.yml` Les fulles substitueixen d' un at
 
 # libretranslate
 msgid "Allows a `services.<key>.healthcheck` that no `lookup('container_healthcheck', …)` call renders. Default path: add the lookup to the service block, because an unrendered declaration reads like the service is watched while the compose file carries no probe. Reserved for a call the static resolver cannot attribute — mastodon renders every service through a macro whose `service_name` is a macro parameter."
-msgstr "Permet una `services.<key>.healthcheck` que no `lookup('container_healthcheck', …)` Pistes de trucades. Camí per omissió: afegiu la cerca al bloc de servei, perquè una declaració sense acabar es llegeix com si el servei es veiés mentre el fitxer componen no té son son son son. La reserva d'una crida al sistema de resolució estàtica no pot atribut mastodon representa cada servei a través d'una macro que `service_name` és un paràmetre macro."
+msgstr ""
 
 # libretranslate
 msgid "Allows a bare curl invocation without the `curl` filter or inline `--max-time`."
@@ -29376,7 +29376,7 @@ msgstr "Segueix les instruccions des de AGENTS.md, després refactor i optimitza
 
 # libretranslate
 msgid "Follow the instructions from AGENTS.md, then run `make quality` (the default action of this skill). Stream the output to a log under `/tmp` and iterate: read the per-target result table, not the pipe exit code (which is unreliable), fix every failure at its root, and re-run until `make quality` is green end to end."
-msgstr "Segueix les instruccions des de AGENTS.md, després executeu `make quality` (l' acció per omissió d' aquesta habilitat). corrent de dades la sortida a un registre sota `/tmp` i i i iterata: Llegiu la taula de resultats per objectiu, no el codi de sortida de tub (que és poc fiable), arregla cada fallada a l'arrel i torna a executar fins `make quality` El final verd és fi."
+msgstr ""
 
 # libretranslate
 msgid "Follow the instructions from AGENTS.md, then run `make worktree-down branch=<branch>` (the default action of this skill). Pass the same `base=<dir>` that `make worktree-up` was given, otherwise the target looks in the default parent directory and reports no worktree at that path."
@@ -48045,7 +48045,7 @@ msgstr "Les files són els rols invokibles dins el sobre de cicle vital provable
 
 # libretranslate
 msgid "Rows one chunk may hold before its tail risks the queue cancel."
-msgstr "Un tros de files pot contenir- se abans que es cancel· la la la cua."
+msgstr ""
 
 # libretranslate
 msgid "Rows one sweep covers: the chunk blocks it fills, bounded by the run job cap. Rows beyond this roll into the next sweep via its offset."
@@ -60144,7 +60144,7 @@ msgstr "Aquest paper impossible col·loca [PhpMyAdmin](https://www.phpmyadmin.ne
 
 # libretranslate
 msgid "This Ansible role deploys `BigBlueButton <https://bigbluebutton.org/>`__ using Docker Compose. It includes support for Greenlight, OIDC, LDAP, TURN/STUN, health checks, and a modular ``.env`` setup. This role is ideal for educational institutions and teams requiring a self-hosted video conferencing solution. > 🔧 **Note**: The database layer should be decoupled in a future release to improve modularity and integration. >"
-msgstr "Aquest paper impossible col·loca `BigBlueButton <https://bigbluebutton.org/>`__ usant Docker Compose. Inclou suport per a Greenlight, OIDC, LDAP, remor/STUN, comprovacions de salut i modular ``.env`` L'accés. Aquest paper és ideal per a institucions educatives i equips que requereixen una solució auto-conferenciada de vídeo. > 🔧 **Nota**: La capa de base de dades s' hauria de de de de de de de de decouar en un futur llançament per millorar la modular i la integració. >"
+msgstr ""
 
 # libretranslate
 msgid "This Ansible role deploys `PhpMyAdmin <https://www.phpmyadmin.net/>`__ in a secure Docker environment, complete with optional OAuth2 proxy support. It enables seamless management of MariaDB/MySQL databases via a web-app-based interface."
@@ -60356,7 +60356,7 @@ msgstr "Aquest paper impossible instal·la ppm i opcionalment funciona `npm ci` 
 
 # libretranslate
 msgid "This Ansible role installs the GNU Compiler Collection (GCC) on Arch Linux systems. GCC is a standard compiler suite supporting C, C++, and other programming languages. It is a core component for compiling and building software from source."
-msgstr "Aquest paper impossible instal· la la la col· lecció de Compilador GNU (GCC) En els sistemes Arch Linux. GCC és una suite de compilador estàndard que permet C, C++, i d' altres idiomes de programació. És un component central per compilar i construir programari des de la font."
+msgstr ""
 
 # libretranslate
 msgid "This Ansible role installs the Intel VA-API media driver for the current Linux distribution."
@@ -63159,7 +63159,7 @@ msgstr "Per instal· lar l' editor, una eina de gestió de dependències PHP:"
 
 # libretranslate
 msgid "To integrate it into Infinito.Nexus, the consumer-facing role (`web-app-matrix`) MUST act as an adapter: clone MDAD at a pinned ref into the role artefact directory, generate an MDAD-shaped inventory + vars file from `lookup('config', application_id, ...)`, and invoke MDAD via `ansible-playbook` as a child process (or via Ansible's `import_playbook`). Credentials, domains, Keycloak OIDC client, central postgres / redis endpoints and the existing reverse-proxy front (sys-svc-proxy) all flow from Infinito.Nexus into MDAD via that adapter."
-msgstr "Per integrar-la Infinito.Nexus, el rol de consum (`web-app-matrix`) Actua com a a a a a adaptador: clonista MDAD en un refeçat en el directori d' artefacte, genera un inventari amb forma MDAD + vars `lookup('config', application_id, ...)`, i invocar MDAD via `ansible-playbook` com a procés fill (o via Ansible' s `import_playbook`)Crials, dominis, Keycloak Client OIDC, postgres centrals / Redis endpoints i el frontal de l' intermediari inversa existent (sys-svc-proxy) Tot el flux des de Infinito.Nexus a MDAD mitjançant aquest adaptador."
+msgstr ""
 
 # libretranslate
 msgid "To login to the database type in:"
@@ -65884,7 +65884,7 @@ msgstr "Camina des de ``start`` (omissió: directori de treball actual) Fins a u
 
 # libretranslate
 msgid "Walks up to ``limit`` recent runs because the very latest run on a branch is often a lint-only or skipped event with no deploy matrix."
-msgstr "Va cap amunt ``limit`` L' execució recent perquè l' última execució d' una branca és sovint un esdeveniment lint-només o o o o o s' ha omès sense matriu de colors."
+msgstr ""
 
 # libretranslate
 msgid "Wall content is baked at deploy time from ``services.fediwall.walls``, so administration happens in Ansible rather than in an in-app admin panel. The persona-facing coverage this role does carry lives in the cross-fediverse scenarios that post on a Mastodon or Friendica sibling and assert the post appears on the wall."
@@ -69981,7 +69981,7 @@ msgstr "[ ] Quan `svc-db-openldap` és dins `group_names`, `SEMAPHORE_LDAP_ENABL
 
 # libretranslate
 msgid "[ ] When `svc-db-openldap` is in `group_names`, an LDAP connection is provisioned (`files/configure-sso.sh`) so LDAP users (matching the `X-Remote-User`) exist with roles/contact groups. LDAP is a backend identity source behind the oauth2 gate — there is no separate LDAP login surface, so it is exempted from a Playwright gate (`# nocheck: playwright-service-flag`), mirroring [`web-app-openproject`](../../roles/web-app-openproject/)."
-msgstr "[ ] Quan `svc-db-openldap` és dins `group_names`, una connexió LDAP està provisional (`files/configure-sso.sh`) De manera que usuaris LDAP (Coincidència `X-Remote-User`) Existeixen amb els grups de funcions/ contactes. LDAP és una font d' identitat del dorsal darrere de la oauth2 La porta gate gate gate gate gate No hi ha una superfície d' accés LDAP separada, per tant està exempt d' una porta de Playwright (`# nocheck: playwright-service-flag`), mirall [`web-app-openproject`](../../roles/web-app-openproject/)."
+msgstr ""
 
 # libretranslate
 msgid "[ ] When `web-app-keycloak` is in `group_names`, the Keycloak OIDC client for Semaphore is auto-provisioned with redirect URI `https://semaphore.<DOMAIN_PRIMARY>/api/auth/oidc/keycloak/redirect`."
@@ -73625,7 +73625,7 @@ msgstr "[WireGard NAT i tallafocs](https://serverfault.com/questions/210408/cann
 
 # libretranslate
 msgid "[WireGuard Permissions Issue Discussion](https://bodhilinux.boards.net/thread/450/wireguard-rtnetlink-answers-permission-denied)"
-msgstr "[Els permisos del Wi Wi Wi Wi WireGard emes emeten debating](https://bodhilinux.boards.net/thread/450/wireguard-rtnetlink-answers-permission-denied)"
+msgstr ""
 
 # libretranslate
 msgid "[Wireguard Client](roles/svc-net-wireguard-plain/)"
@@ -76823,7 +76823,7 @@ msgstr "[x] L' natiu `mcp_server` La integració està habilitada i s' ha declar
 
 # libretranslate
 msgid "[x] The operational metadata stays role-local: authoritative source, transport, authentication, real credential subject, read/write scope, tool allowlist, proposed implementation, selected consumers, and blocker all live in the role's own `meta/mcp.yml`, and [test_mcp_schema.py](../../tests/lint/ansible/services/test_mcp_schema.py) enforces their shape there. A generated report aggregating them was removed: scope and credential subject were identical for every role, so the table restated its sources instead of deriving anything from them."
-msgstr "[x] Les metadades operatives es mantenen en el paper local: font autoritativa, transport, autenticació, matèria de credential real, de l' àmbit read/ write, la llista d' eines, la implementació proposada, els consumidors seleccionats i els bloqueigs que viuen en el propi rol `meta/mcp.yml`, i [test_mcp_schema.py](../../tests/lint/ansible/services/test_mcp_schema.py) força la seva forma allà. Un informe generat els va eliminar: l'objectiu i el subjecte fident era idèntica a cada paper, de manera que la taula restava les seves fonts en lloc de de de de de de de de de de de fer res."
+msgstr ""
 
 # libretranslate
 msgid "[x] The play enables AppRole, sets the Ansible `role_id` and `secret_id` from the inventory credentials via `role-id` / `custom-secret-id`, and **revokes the root token before the play ends**; `bao token lookup` on the old root token fails afterwards."
@@ -82142,7 +82142,7 @@ msgstr "``<!-- … -->`` (HTML, marca enrere)"
 
 # libretranslate
 msgid "``API`` is a plain mapping, so an inventory that configures three providers replaces the whole declaration instead of merging into it, and every provider it does not name disappears. Resolving a hidden provider then raises, and a raising lookup inside a value the applications renderer is templating leaves the raw ``{{ ... }}`` text in place: the consumer stores template text, and ``| bool`` coerces it to False with a deprecation warning that fails the deploy on the warning gate."
-msgstr "``API`` és un mapatge pla, de manera que un inventari que configura tres proveïdors reemplaça tota la declaració en comptes de fusionar- hi, i cada proveïdor que no desapareix. Resolent un proveïdor ocult, i una cerca de creixement dins d' un valor que el renderitzador d' aplicacions és la durada de les fulles en brut ``{{ ... }}`` text en el lloc: el consumidor desa plantilla de text, i ``| bool`` Conaceix a Fals amb un avís de de de de deprecació que falla a l'entrada d'advertència."
+msgstr ""
 
 # libretranslate
 msgid "``Archlinux``"
@@ -86955,7 +86955,7 @@ msgstr "`make environment-bootstrap`"
 
 # libretranslate
 msgid "`make environment-bootstrap` also installs the repository's local `pre-commit` hooks for this checkout."
-msgstr "`make environment-bootstrap` També instal· la la la local del repositori `pre-commit` Hi ha ganxos per a aquesta recuperació."
+msgstr ""
 
 # libretranslate
 msgid "`make environment-teardown`"
@@ -92823,7 +92823,7 @@ msgstr "habilitat"
 # libretranslate
 #, python-brace-format
 msgid "enabled                 bool — ``services.sso.enabled`` shared                  bool — ``services.sso.shared`` flavor                  str  — one of {oidc, oauth2, saml}; default 'oidc' is_enabled              bool — alias of ``enabled``, semantic name is_proxy_gated          bool — ``enabled AND flavor == 'oauth2'`` is_oidc_native          bool — ``enabled AND flavor == 'oidc'`` is_saml                 bool — ``enabled AND flavor == 'saml'`` oauth2_origin_host      str  — ``services.sso.oauth2.origin.host`` or '' oauth2_origin_port      str  — ``services.sso.oauth2.origin.port`` or '' oauth2_acl              dict — ``services.sso.oauth2.acl`` or {} oauth2_allowed_groups   list — ``services.sso.oauth2.allowed_groups`` or [] oauth2_pass_access_token bool — ``services.sso.oauth2.pass_access_token``,"
-msgstr "booleà habilitat ``services.sso.enabled`` booleà compartit ``services.sso.shared`` Li agrada l'astròloga un de {iidec, oauth2, B, Saml}; per omissió 'oidc' is_enabled booleà àlies de ``enabled``, nom semàntic is_proxy_gated booleà ``enabled AND flavor == 'oauth2'`` is_oidc_native booleà ``enabled AND flavor == 'oidc'`` is_saml booleà ``enabled AND flavor == 'saml'`` oauth2_origin_host str Laurent ``services.sso.oauth2.origin.host`` o '' oauth2_origin_port str Laurent ``services.sso.oauth2.origin.port`` o '' oauth2_acl dict opshit ``services.sso.oauth2.acl`` o {} oauth2_allowed_groups list  PROXY ``services.sso.oauth2.allowed_groups`` o [] oauth2_pass_access_token booleà ``services.sso.oauth2.pass_access_token``,"
+msgstr ""
 
 # libretranslate
 msgid "enabled (required)"
@@ -100466,7 +100466,7 @@ msgstr "🔗"
 
 # libretranslate
 msgid "🔧 **Note**: The database layer should be decoupled in a future release to improve modularity and integration."
-msgstr "🔧 **Nota**: La capa de base de dades s'hauria de de de de de de de decouar en un futur alliberament per millorar la modular i la integració."
+msgstr ""
 
 # libretranslate
 msgid "🔧 Keep image-focused automation grouped in one place"

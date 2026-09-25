@@ -1367,7 +1367,7 @@ msgstr "**Senarai allowlist turunan CSP-@@** Upstream proxy dihasilkan dari apli
 
 # libretranslate
 msgid "**CSP.** MCP Streamable HTTP runs server-to-server (the client role's backend connects to the server role), so a server role MUST NOT need a new browser `csp` `connect-src` entry for MCP. If an implementation does require a browser-side MCP fetch, the added `connect-src` source MUST be documented in the role README."
-msgstr "**CSP.** MCP Streamable HTTP menjalankan server server server server (backend peran klien terhubung ke peran server), sehingga peran server HARUS TIDAK membutuhkan peramban baru `csp` `connect-src` entri untuk MCP. Bila suatu implementasi memerlukan pengambilan MCP pada sisi browser-, yang ditambahkan `connect-src` Sumber HARUS didokumentasikan dalam README peran."
+msgstr ""
 
 # libretranslate
 msgid "**Cache directory management**: cleanup and recreation based on `MODE_CLEANUP`."
@@ -2596,7 +2596,7 @@ msgstr "**Keterangan:** platform kolaborasi Enterprise dan tim untuk menciptakan
 
 # libretranslate
 msgid "**Description:** Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
-msgstr "**Keterangan:** Penyunting teks baris baris baris Vim-masuk akal bagi pengubahan kode dan konfigurasi termal"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Federated chess server for playing and following rule-validated games over ActivityPub across the Fediverse"
@@ -25174,7 +25174,7 @@ msgstr "Dirancang untuk operasi non-interaktif, produksi-safe"
 
 # libretranslate
 msgid "Designed for retro gaming enthusiasts, this role installs RetroArch along with its core assets and themes on Arch Linux systems. It ensures all UI styles are ready and provides a consistent emulator frontend interface."
-msgstr "Dirancang untuk penggemar retro game, instalasi peran ini RetroArch bersama dengan aset inti dan tema pada sistem Arch Linux. Ini memastikan semua gaya UI siap dan menyediakan antarmuka antarmuka antarmuka emulator konsisten."
+msgstr ""
 
 # libretranslate
 msgid "Designed for reuse across apps (e.g., Mailu) and environments."
@@ -51918,7 +51918,7 @@ msgstr "Tetap buka ✓"
 
 # libretranslate
 msgid "Stays import-cheap so that `utils.cache.applications` (consumed on GitHub Actions runner hosts that ship without ansible — see CI runs 24934007615 / 24935979190) can pull this module without dragging ansible in. The single ansible-coupled symbol exposed from here is `_render_with_templar`, which lazy-imports `utils.templating.ansible` only when actually invoked."
-msgstr "Tetap penting-murah sehingga `utils.cache.applications` (dikonsumsi di GitHub Actions runner host bahwa kapal tanpa masuk akal - lihat CI berjalan 24934007615 / 24935979190) dapat menarik modul ini tanpa menyeret masuk masuk masuk Satu-dua simbol tunggal yang terbuka dari sini adalah `_render_with_templar`, yang lama-impor `utils.templating.ansible` hanya ketika benar-benar dipanggil."
+msgstr ""
 
 # libretranslate
 msgid "Stdlib line parse on purpose: env handlers feed the .env generation, which bootstraps fresh hosts before PyYAML exists (canonical pattern: utils/storage/nfs.py)."

@@ -28155,7 +28155,7 @@ msgstr "A `roles/*/meta/services.yml` rolaren baldintzako osasun-egiaztapenaren 
 # libretranslate
 #, no-python-format, python-brace-format
 msgid "Exempts a `roles/*/templates/*compose.yml.j2` line, or the whole file (head marker), from the canonical compose skeleton: base-include header, `{{ service_name }}:` service keys each preceded by their `{% set service_name %}`, all per-service `{% set %}` knobs on two-space-indented dash-free lines above the key, `{% include %}` at four spaces inside the service body, and column-0 `compose_volumes` / `compose_networks` at the tail. The layout renders correctly because the `stack_host_template` action plugin sets `lstrip_blocks=True` for `compose.yml.j2`. Reserved for legitimate deviations that genuinely cannot follow the skeleton."
-msgstr "A `roles/*/templates/*compose.yml.j2` lerroa, edo fitxategi osoa (buru-marka), konposatu kanonikotik: oinarrizko goiburua, `{{ service_name }}:` zerbitzuko gakoak, bakoitza aurretik `{% set service_name %}`, Dena zerbitzuko `{% set %}` knobs teklaren gaineko marra marra marra bikoitzetan, `{% include %}` lau zuriunetan, zerbitzu-gorputzaren barruan, eta zutabean...0 `compose_volumes` / `compose_networks` buztanean. Diseinua zuzen errendatzen da, zeren eta `stack_host_template` Ekintza pluginen multzoak `lstrip_blocks=True` zeren `compose.yml.j2`. Eskeletoari jarraitu ezin dioten desbideratze legitimoetarako erreserbatuta."
+msgstr ""
 
 # libretranslate
 #, no-python-format, python-brace-format
@@ -38077,7 +38077,7 @@ msgstr "Ispiluak zuloa ``scripts/meta/env/load.sh`` Semantika:"
 
 # libretranslate
 msgid "Mirrors the compose matrix deploy (``cli.administration.deploy.development.deploy``) for the swarm test cluster: for each variant round of the primary app it provisions a per-round inventory (baking that round's ``meta/variants.yml`` overlay into ``host_vars`` so the deploy sees the round's config, e.g. the keycloak totp-off variant), extends it with the swarm topology, writes runtime extras, and deploys via ``cli.administration.deploy.swarm`` (the Playwright e2e runs in-deploy). Each round mirrors the compose ``--full-cycle``: an initial deploy then an async update pass, each followed by a convergence + reachability wait; on the first round the backup + restore DR drill runs between them. Prior rounds' stacks are purged between rounds."
-msgstr "Ispilatu konposatze-matrizea hedatzea (``cli.administration.deploy.development.deploy``) aplikazio nagusiko aldaki bakoitzeko inbentario bat ematen du. (borobil hori gozotzea ``meta/variants.yml`` gainjarri ``host_vars`` beraz, zabalkuntzak biribilaren konfigurazioa ikusten du, adibidez, keycloak totp-off aldaera.), topologia zabalarekin hedatzen da, estra estra estra estrak idazten ditu eta hortik hedatzen da ``cli.administration.deploy.swarm`` (Playwright e2e exekutatzen da)Ispilu biribil bakoitzak konposaketa ``--full-cycle``: hasierako deploy bat, orduan async update pass bat, ondoren konbergentzia bat + irisgarritasunaren itxaronaldia; lehen txandan, babeskopia eta haien artean DR zulagailu-lasterketak berrezartzen ditu. Lehen txandako pilak biribilen artean garbitzen dira."
+msgstr ""
 
 # libretranslate
 msgid "Mirrors the existing postgres `shared` flag:"
@@ -47221,7 +47221,7 @@ msgstr "Emandako rol-izenen zerrenda itzultzen du roles_path hori zehaztutako au
 
 # libretranslate
 msgid "Returns a plain bool, so callers read as a predicate:"
-msgstr "Boolear arrunt bat itzultzen du, honela honela honela honela esaten dute deitzaileek:"
+msgstr ""
 
 # libretranslate
 msgid "Returns a spec mapping MODE_NAME -> info used by build_modes_from_args()."
@@ -57814,7 +57814,7 @@ msgstr "Modua honela irakurtzen da: ``compose_mode_force or DEPLOYMENT_MODE`` kl
 
 # libretranslate
 msgid "The mode selection is a *filter*, not an axis: ``--modes swarm`` keeps the rows whose role can be deployed as a swarm stack, ``--modes \"compose swarm\"`` keeps the rows at least one of the two can take. The shared filter is mode-clause + INFINITO_WHITELIST + INFINITO_BLACKLIST, the order is INFINITO_DISCOVERY_SORT, whose first key sorts clones last (one representative per dna cluster stays ahead of the budget cut, so redundant same-service-set variants fall behind it first), and the lifecycle envelope is INFINITO_LIFECYCLES."
-msgstr "Moduaren hautapena a da *iragazkia*Ez ardatz bat: ``--modes swarm`` ilarak mantentzen ditu, zeinen papera pila pila pila pila pila pila gisa hedatu daitekeen, ``--modes \"compose swarm\"`` gutxienez bietako batek har ditzakeen errenkadak mantentzen ditu. Partekatutako iragazkia mode-clause + da INFINITO_WHITELIST + INFINITO_BLACKLIST, ordena da INFINITO_DISCOVERY_SORT, lehen gako-motak klonatzen ditu (dna kluster bakoitzeko ordezkari bat aurrekontu-ebaketa baino lehen geratzen da, hain erredundanteak diren zerbitzu-multzoaren aldakiak atzean erortzen dira lehenik.), eta bizi-zikloaren gutun-azala INFINITO_LIFECYCLES."
+msgstr ""
 
 # libretranslate
 msgid "The mode sequence defaults to `compose swarm` and is overridable with `modes=\"compose swarm\"`. The order is always compose first, so the cheaper mode fails fast before the expensive swarm rebuild. Append `k8s` here once that mode exists."
@@ -58913,7 +58913,7 @@ msgstr "Eginkizunak CSS esteka orokor bat injektatzen du zure gunean etengabe ar
 
 # libretranslate
 msgid "The role installs **Nix** using either the native package manager (where supported and reliable) or the **official installer** with **SHA256 verification**."
-msgstr "Funtzioa instalatu egiten da **Nix** jatorrizko pakete-kudeatzailea erabiliz (non babestua eta fidagarria) edo **instalatzaile ofiziala** honekin: **SHA SHA SHA256 egiaztapena**."
+msgstr ""
 
 msgid "The role installs **msmtp**, handles distro-specific package differences (including EPEL bootstrap on EL-family hosts when required), and deploys a pre-configured ``msmtprc`` file via Jinja2. For distros without a dedicated ``msmtp-mta`` package, it configures a direct ``/usr/bin/sendmail`` compatibility symlink to ``msmtp``."
 msgstr ""
@@ -59545,11 +59545,11 @@ msgstr "Bertsio laburra:"
 
 # libretranslate
 msgid "The sidecar authenticates a Gitea token"
-msgstr "Alboko autoak a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a autentifikatzen du Gitea tokena"
+msgstr ""
 
 # libretranslate
 msgid "The sidecar creates its consumer's bucket itself at startup because a swarm stack's converge gate blocks before any post-deploy task could create it, deadlocking consumers that hard-fail on a missing bucket (e.g. the OpenTalk controller). The stock entrypoint routes every argv through ``weed`` (``sh`` as a command would become ``weed sh``), so the template overrides it with ``sh -c``; the server itself is still launched via ``/entrypoint.sh`` to keep its /data chown, privilege drop, and default server args."
-msgstr "Sidecar-ek bere kontsumitzailearen ontzia bera sortzen du hasieran, pila pila pila pila pila batek ate-blokeak batzen dituelako, edozein lan-ostek sortu baino lehen, kontsumitzaile hilak, falta den ontzi batean gogor jotzen dutenak. (adibidez, OpenTalk Kontroladorea). Stockaren sarrera-puntuak argv bakoitza zeharkatzen du ``weed`` (``sh`` agindu bat izango balitz bezala ``weed sh``)Beraz, txantiloiak gainjartzen du. ``sh -c``; zerbitzaria bera oraindik martxan dago ``/entrypoint.sh`` bere /data chown, pribilegio tanta eta zerbitzari lehenetsia gordetzeko."
+msgstr ""
 
 # libretranslate
 msgid "The sidecar is never routed publicly. A bearerless probe of `/mcp` on the public vhost is answered with an SSO redirect, never with an MCP response."
@@ -65021,7 +65021,7 @@ msgstr "Erabili orrialde hau rol bat edo gehiago baliozkotzeko **modu bakoitza o
 
 # libretranslate
 msgid "Use this page when a local deploy fails. For automated GitHub Actions / CI triage, see [ci.md](ci.md). For inspecting log files the operator has manually placed in the repository workdir, see [log.md](log.md)."
-msgstr "Erabili orri hau tokiko aplikazio batek huts egiten duenean. GitHub ekintza automatizatuetarako / CI triagerako, ikusi [ci.md](ci.md). Egunkari-fitxategiak ikuskatzeko, operadoreak eskuz jarri du biltegiko biltegiko biltegiko biltegian, ikusi [log.md](log.md)."
+msgstr ""
 
 # libretranslate
 msgid "Use this page when iterating on the `svc-runner` role or any workflow that involves self-hosted CI runner registration, configuration, or the runner infrastructure itself. For role-level iteration on other roles, see [Role Loop](compose.md). For workflow-level iteration, see [Workflow Loop](workflow.md)."
@@ -77012,7 +77012,7 @@ msgstr "[x] Rolak bat igortzen du `Content-Security-Policy` goiburua gainazal ka
 
 # libretranslate
 msgid "[x] The role exposes stack-management primitives (`deploy`, `update`, `remove`) consumable by the deploy pipeline of any role rendering a swarm stack."
-msgstr "[x] Rolak pila-management primitiboen berri ematen du (`deploy`, `update`, `remove`) Edozein rolen hodiak pila pila pila pila pila pila pila bat bihurtzen duela suposatu daiteke."
+msgstr ""
 
 # libretranslate
 msgid "[x] The role generates a correct Nginx/CSP vhost using [csp_filters.py](../../plugins/filter/csp_filters.py) and the `nginx_vhost` logic (via `sys-stk-full` + `meta/server.yml` CSP flags)."

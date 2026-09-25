@@ -13977,7 +13977,7 @@ msgstr "CLI kategorijos aplanke GALI būti `README.md` kuri apibūdina kategorij
 
 # libretranslate
 msgid "A CLI command is a Python package directory under cli/ that contains __main__.py."
-msgstr "CLI komanda yra Python paketo katalogas pagal cli / kad yra _ _ main _ _ _ .py."
+msgstr ""
 
 # libretranslate
 msgid "A CODEOWNER MUST approve"
@@ -26453,11 +26453,11 @@ msgstr "Kiekvienas sąrašo įrašas PRIVALO būti:"
 
 # libretranslate
 msgid "Each module in this directory owns exactly one lint tool and exposes a single `ensure()` function. The CLI in [__main__.py](__main__.py) groups these ensure calls and applies the stamp-based skip for the default \"all\" invocation."
-msgstr "Kiekvienas modulis šiame kataloge turi tiksliai vieną Lint įrankį ir rodo vieną `ensure()` funkcija. CLI in [_ Pagrindinis _ _ _ .py](__main__.py) grupės tai užtikrinti skambučius ir taikyti kon-based praleisti numatytąjį \"all\" užpuolimas."
+msgstr ""
 
 # libretranslate
 msgid "Each module in this directory owns exactly one variable, or one tightly-coupled group resolved by a single helper call. The orchestrator in [builder.py](../builder.py) iterates the registry in [__init__.py](__init__.py) and calls each handler's `apply(eb, ctx)` in order."
-msgstr "Kiekvienas šio katalogo modulis turi lygiai vieną kintamąjį, arba vieną susietąją grupę, išspręstą vienu pagalbos skambučiu. Orkestratorius [builder.py](../builder.py) Kartoja registrą [_ _ eiti _ _ _ eiti](__init__.py) ir paskambina kiekvienam prižiūrėtojui `apply(eb, ctx)` kad."
+msgstr ""
 
 # libretranslate
 msgid "Each module owns a private `_reset()` that clears its own cache dicts. The package-level `utils.cache._reset_cache_for_tests()` orchestrates all six (`base`, `applications`, `users`, `domains`, `yaml`, `files`) plus the shared fingerprint memo. Unit tests that exercise the cached paths MUST call it in `setUp` to guarantee clean state across test cases."

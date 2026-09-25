@@ -975,7 +975,7 @@ msgstr "NGINX негизделген веб-платформа жана беки
 # libretranslate
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
-msgstr "NGINX кызмат кылган статикалык баракча юридикалык изин берет (Импрессия) Жинжадан2 үлгүсү үлгүсү үлгүсү"
+msgstr ""
 
 # libretranslate
 msgctxt "category:svc.net:title"

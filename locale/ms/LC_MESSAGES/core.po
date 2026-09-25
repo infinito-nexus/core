@@ -548,7 +548,7 @@ msgstr "Backend server dokumen untuk pengeditan dokumen, lembar kerja, dan prese
 # libretranslate
 msgctxt "menu:Documentation:title"
 msgid "Documentation"
-msgstr "Dokumentasi Dokumentasi Dokumentasi Dokumentasi"
+msgstr ""
 
 # libretranslate
 msgctxt "menu:Documentation:description"
@@ -1730,7 +1730,7 @@ msgstr "Aras stack untuk mengatur server"
 # libretranslate
 msgctxt "category:web.svc:description"
 msgid "Static content servers (assets, HTML, legal, files)"
-msgstr "Pelayan konten Stachetik (aset aset aset, HTML, legal, file)"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-svc-file:description"

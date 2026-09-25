@@ -42,7 +42,7 @@ msgstr "حواسيب خدمة الإدارة"
 # libretranslate
 msgctxt "role:sys-front-inj-all:description"
 msgid "Aggregate NGINX sub-filter injector adding Matomo tracking, global theming, iFrame and JS snippets by feature flag"
-msgstr "Aggregate NGINX sub-filter injector add Matomo tracking, global theming, iFrame and JS snippets by feature flag"
+msgstr ""
 
 # libretranslate
 msgctxt "role:desk-gnome:description"
@@ -62,7 +62,7 @@ msgstr "التحليل"
 # libretranslate
 msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
-msgstr "Ansible helper role for idempotent persistence and lookup of peruser application tokens in a local YAML store"
+msgstr ""
 
 # libretranslate
 msgctxt "category:web.app:title"
@@ -360,7 +360,7 @@ msgstr "الطبقة الرقابية لمهام التنظيف والرصد و�
 # libretranslate
 msgctxt "category:svc.ai:description"
 msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
-msgstr "Core AI building blocks-model serving, OpenAI-compatible gateways, vector databases, orchestration, and conversation UIs."
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-svc-webserver-core:description"
@@ -448,7 +448,7 @@ msgstr ""
 # libretranslate
 msgctxt "role:user-backup:description"
 msgid "Dedicated system account with SSH-restricted commands and passwordless rsync sudo for secure backup access"
-msgstr "Dedicated system account with SSH-restricted commands and passwordless rsync sudo for secure supportive access"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-service-terminator:description"
@@ -488,7 +488,7 @@ msgstr ""
 # libretranslate
 msgctxt "role:desk-bluray-player:description"
 msgid "Desktop media-player setup with VLC and AACS/BD+ libraries for Blu-ray disc decryption and playback on Arch Linux"
-msgstr "Desktop media-player setup with VLC and AACS/BD+ Library for Blu-ray discryption and playback on Arch Linux"
+msgstr ""
 
 # libretranslate
 msgctxt "role:desk-libreoffice:description"
@@ -607,12 +607,12 @@ msgstr "محرِّر للنص القائم على المبادئ التوجيه�
 # libretranslate
 msgctxt "role:web-app-chess:description"
 msgid "Federated chess server for playing and following rule-validated games over ActivityPub across the Fediverse"
-msgstr "Federated ches server for playing and following rule-validated games over ActivityPub across the Fediverse"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-matrix:description"
 msgid "Federated, end-to-end-encrypted messaging platform with a web client and protocol bridges to external chat networks"
-msgstr "Federated, end-to-encrypted Messaging platform with a web client and protocol bridges to external conversation networks"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-mobilizon:description"
@@ -693,7 +693,7 @@ msgstr ""
 # libretranslate
 msgctxt "role:sys-front-inj-css:description"
 msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
-msgstr "Global fashionsheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorcheme"
+msgstr ""
 
 msgctxt "role:sys-svc-sshd:description"
 msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
@@ -811,7 +811,7 @@ msgstr "الحقن"
 # libretranslate
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
-msgstr "Intel VA-API media driver for equipment-accelerated video decode and encode across Linux distributions"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-mig:description"
@@ -860,7 +860,7 @@ msgstr ""
 # libretranslate
 msgctxt "role:desk-retroarch:description"
 msgid "Libretro-based frontend for emulators, game engines, and media players, with XMB and Ozone menu styles"
-msgstr "Lebretro-based frontend for emulators, game motors, and media players, with XMB and Ozone menu fashions"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-svc-mail-msmtp:description"
@@ -935,7 +935,7 @@ msgstr "جهاز فحص لتعويذة متعددة اللغات مزودة بأ
 # libretranslate
 msgctxt "role:web-opt-rdr-domains:description"
 msgid "NGINX glue role for 301 redirects from source to target domains with automatic SSL for the source hosts"
-msgstr "NGINX glue role for 301 Redirects from source to target domains with automatic SSL for the source hosts"
+msgstr ""
 
 msgctxt "role:sys-svc-webserver-https:description"
 msgid "NGINX layer for HTTPS with Let's Encrypt ACME challenge handling, port 80 to 443 redirect, and stale vHost cleanup"
@@ -1008,7 +1008,7 @@ msgstr "الخادم الذي يوجد مقره في نجينكس لاستضاف
 # libretranslate
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
-msgstr "Node.js حزمة حزمة حزمة تركيبة Npm واختياريا تشغيل 'npm ci داخل دليل المشروع"
+msgstr ""
 
 # libretranslate
 msgctxt "category:sys.ctl.alm:description"
@@ -1151,12 +1151,12 @@ msgstr "الخدمات الأمثل لتحسين نظامك"
 # libretranslate
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
-msgstr "Optimizing compilationr toolchain for building C, C++ and other native-language programs"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
-msgstr "Orchestration wrapper for perdomain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
+msgstr ""
 
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
@@ -1680,7 +1680,7 @@ msgstr "موقع تخصيص الكتب للمستعملين الوحيدين ا�
 # libretranslate
 msgctxt "role:web-app-homeassistant:description"
 msgid "Smart-home automation hub with device integrations, dashboards and a built-in MCP server for AI agent access"
-msgstr "Smart-home functioning hub with devices integrations, dashboards and a built-in MCP server for AI agent access"
+msgstr ""
 
 # libretranslate
 msgctxt "menu:Social Media:title"
@@ -1939,7 +1939,7 @@ msgstr "الشبكة"
 # libretranslate
 msgctxt "role:web-app-semaphore:description"
 msgid "Web UI and API for running Ansible, Terraform/OpenTofu, and shell automation on a schedule or on demand"
-msgstr "Web UI and API for running Ansible, Terraform/OpenTofu, and shell auto on a schedule or on demand"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-lam:description"

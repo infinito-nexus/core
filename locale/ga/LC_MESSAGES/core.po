@@ -242,7 +242,7 @@ msgstr "Clipboard bainisteoir le stair eagarthóireachta, gníomhaíochtaí sain
 # libretranslate
 msgctxt "menu:Cloud:title"
 msgid "Cloud"
-msgstr "Cloud Cloud Cloud"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-svc-dns:description"
@@ -287,7 +287,7 @@ msgstr "Pobail agus Fiontair"
 # libretranslate
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
-msgstr "Róil insteallta HTML inmhúirínithe (CSS, JS, logout interceptor, Analytics, Painéal na nIonstraimí iframe) do Nginx /OpenResty via via via via sub_filter/ Lua le sócmhainní CDN-aischurtha."
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-stk-full:description"

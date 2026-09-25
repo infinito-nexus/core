@@ -2691,7 +2691,7 @@ msgstr "**Descrición:** Segredos baseados na identidade, PKI e xestor de cifrad
 
 # libretranslate
 msgid "**Description:** In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
-msgstr "**Descrición:** En memoria memoria memoria memoria memoria memoria memoria memoria caché e almacenamento, compartido centralmente co illamento de ACL por consumidor ou incorporado como sidecar."
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Infinito.Nexus documentation for the latest commit and every release, built on demand with Sphinx"
@@ -7611,7 +7611,7 @@ msgstr "**Runtime Probing:** A función do contedor controla a cada hóspede ``/
 
 # libretranslate
 msgid "**Runtime target:** Cloudflare Workers (`wrangler.jsonc` present), backed by **D1** (Cloudflare's SQLite) as the aggregator cache and **Meilisearch** (optional) for full-text + geo search."
-msgstr "**Obxectivo Runtime:** Traballadores Cloudflare (`wrangler.jsonc` presente), Apoiado por **D D D1** (SQLite de Cloudflare) como o agregador e **Meilisearch** (opcional) Texto completo + geo search."
+msgstr ""
 
 # libretranslate
 msgid "**S3-compatible API:** Standard S3 SDKs and CLIs work against the gateway for uploads, media, attachments, and exports."
@@ -10053,7 +10053,7 @@ msgstr "**Descrición**Segredos baseados en identidade, PKI e xestor de cifrado 
 
 # libretranslate
 msgid "**description**: In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
-msgstr "**Descrición**En memoria memoria memoria memoria memoria memoria memoria memoria caché e tenda de valor clave, compartido centralmente co illamento de ACL por consumidor ou incorporado como sidecar."
+msgstr ""
 
 # libretranslate
 msgid "**description**: Infinito.Nexus documentation for the latest commit and every release, built on demand with Sphinx"
@@ -15800,7 +15800,7 @@ msgstr "Engadir API-key auth opcional unha historia de illamento OSS multi-tenan
 
 # libretranslate
 msgid "Add or extend the deep-merge edge-case tests in [test_variants.py](../../../../../tests/unit/python/utils/cache/test_variants.py) when the new variant exercises behaviour beyond the existing fixtures (for example list replacement vs. nested scalar override)."
-msgstr "Engadir ou ampliar as probas de fondo fondo fondo fondo fondo fondo caso en [test_variants.py](../../../../../tests/unit/python/utils/cache/test_variants.py) Cando a nova variante exercite o comportamento máis aló dos accesorios existentes. (Por exemplo, a lista de substitución vs. escalar aniñado)."
+msgstr ""
 
 # libretranslate
 msgid "Add or keep a behavior-level test only when the behavior can be verified meaningfully."
@@ -20008,7 +20008,7 @@ msgstr "por [Kevin Veen-Birkenbach](https://www.veen.world) parte do [Infinito.N
 
 # libretranslate
 msgid "By default **all** jobs run on GitHub-hosted runners — no configuration needed. You can add your own machine to run a proportional share of the deploy matrix, controlled by a single repository variable, `CI_SELF_HOSTED_RUNNER_COUNT`:"
-msgstr "Por defecto **Todo todo todo** Traballos realizados en corredores aloxados en GitHub - sen necesidade de configuración. Pode engadir a súa propia máquina para executar unha parte proporcional da matriz de implementación, controlada por unha única variable de repositorios. `CI_SELF_HOSTED_RUNNER_COUNT`::"
+msgstr ""
 
 # libretranslate
 msgid "By default — for an **untrusted** fork PR — the privileged `pull_request_target` build checks out the **base merge ref** (`refs/pull/<N>/merge`) from the base repository: the PR's changes merged onto base, with all workflow and build-orchestration scripts coming from base, never from the fork. Because `actions/checkout` otherwise refuses to fetch a PR ref under `pull_request_target`, the source checkout sets `allow-unsafe-pr-checkout: true`. The untrusted build runs **without organization secrets** — `secrets: inherit` is not passed and it authenticates to GHCR with the per-job `GITHUB_TOKEN` only, so a malicious fork cannot read repository/organization secrets. (The `pull_request_target` token still carries `packages: write`, so the `🛡️ Trusted` label remains the real trust boundary for anything beyond image publication.)"
@@ -23965,7 +23965,7 @@ msgstr "CyberMaster.Space"
 
 # libretranslate
 msgid "D1 is SQLite-shaped; there is no central SQLite service to reuse, and the cache is rebuildable from the firehose. Search is an opt-in enhancement."
-msgstr "D D D1 Ten forma de SQLite; non hai servizo de SQLite central para reutilizar, e a caché é reconstruída a partir da cheminea. A busca é unha mellora opt-in."
+msgstr ""
 
 # libretranslate
 msgid "DB engines (`redis`, `mariadb`, `postgres`)"
@@ -33151,7 +33151,7 @@ msgstr "caché e tenda de sesión"
 
 # libretranslate
 msgid "In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
-msgstr "En memoria memoria memoria memoria memoria memoria memoria memoria caché e almacenamento, compartido centralmente co illamento de ACL por consumidor ou incorporado como sidecar."
+msgstr ""
 
 # libretranslate
 msgid "In-process YAML loader with per-path memoisation."
@@ -33506,7 +33506,7 @@ msgstr "Inputs (Env):: ``INV_DIR`` Inventario de almacenamento ``host_vars/*.yml
 
 # libretranslate
 msgid "Inputs (env): ``NFS_IP``, ``MGR_IP``, ``MGR``, ``OUT_PATH`` (default ``/tmp/swarm-nfs-extras.yml``), ``KEY_PATH`` (default ``/tmp/swarm-nfs-admin.key``). A second ed25519 keypair is generated at ``INFINITO_SWARM_BACKUP_KEY`` (SPOT: default.env) and its public half lands in ``users.backup.authorized_keys`` so the DR drill's backup host can pull over the ``user-backup`` ssh-wrapper. The ``applications`` block written into the extras file carries the ``local-2-device`` mount/target/source device paths, which is all the DR drill reads back from it. The deploy-facing overrides, including ``remote-2-local.backup_providers`` (derived per round from ``utils.tests.swarm.backup_repos``), are baked by the matrix orchestrator into the provisioner's host_vars merge (INFINITO_VARS_PAYLOAD), NOT into the extras file: extra-vars replace the whole inventory ``applications`` dict and would strip every generated credential. ``users`` carries the same hazard for the same reason, and its authorized_keys travel the same merge channel. The deploy-facing twin ``<OUT_PATH stem>.deploy.yml`` therefore carries everything except ``applications`` and ``users``."
-msgstr "Inputs (Env):: ``NFS_IP``, ``MGR_IP``, ``MGR``, ``OUT_PATH`` (Por defecto ``/tmp/swarm-nfs-extras.yml``), ``KEY_PATH`` (Por defecto ``/tmp/swarm-nfs-admin.key``)Unha segunda ed25519 O teclado é xerado en ``INFINITO_SWARM_BACKUP_KEY`` (SPOT: default.env) a súa metade pública en ``users.backup.authorized_keys`` Así, o servidor de backup do DR pode tirar sobre ``user-backup`` Ssh-wrapper. El ``applications`` bloque escrito no ficheiro extras leva o ``local-2-device`` mount/target/source camiños de dispositivo, que é todo o dr dr dr dr dr tira del. Os excesos orientados cara a implantación, incluíndo ``remote-2-local.backup_providers`` (derivado por rolda de ``utils.tests.swarm.backup_repos``), son cocidos polo orquestrador matricial na do fornecemento host_vars Merge (INFINITO_VARS_PAYLOAD)Non no ficheiro extra: extravars substitúen todo o inventario ``applications`` dictar e eliminar todas as credenciais xeradas. ``users`` o mesmo perigo, polo mesmo motivo, e authorized_keys Percorre a mesma canle. O twin orientado ``<OUT_PATH stem>.deploy.yml`` que todo o leva, excepto ``applications`` e ``users``."
+msgstr ""
 
 # libretranslate
 msgid "Inputs come from the merged application config (``services.<key>.image`` and ``services.<key>.version``). ``image=`` and ``version=`` keyword overrides bypass those values for ad-hoc references (e.g. side-car init containers that do not appear in the services map)."
@@ -39224,7 +39224,7 @@ msgstr "Node.js Tempo de execución para a suite de unidade JavaScript."
 
 # libretranslate
 msgid "Nodes the DR drill's remote-2-local unit pulls from."
-msgstr "Nodos do DR DR DR DR DR DR DR.2A unidade local desprázase."
+msgstr ""
 
 # libretranslate
 msgid "Non-app consumers (any `sys-*` role) MUST call `lookup('email')` without an `application_id` so they never trigger a per-app merge."
@@ -57065,7 +57065,7 @@ msgstr "Os seguintes rexistros son descubertos e reflectidos:"
 
 # libretranslate
 msgid "The following roles MUST NOT carry `BIBER_*` env keys nor a biber scenario; closing each item is a NOOP except when a stale env-key shows up; in that case remove it."
-msgstr "As seguintes funcións non deben `BIBER_*` chaves env ou un escenario bibero; pechar cada elemento é un NOOP, excepto cando aparece unha chave chave chave; nese caso, eliminalo."
+msgstr ""
 
 # libretranslate
 msgid "The following roles have a concrete upstream MCP or MCP-client path that is absent from, or incorrectly represented by, current metadata. `candidate` means the path deserves implementation work; it does not mean that the current deployed version is safe or compatible."
@@ -63006,7 +63006,7 @@ msgstr "As tres propiedades seguen a Open WebUI As obras e ningunha delas está 
 # libretranslate
 #, python-brace-format
 msgid "Three settings keys in `vars/main.yml` are silent no-ops on v6.2.0: `security.enable_captcha`, `security.captcha_key` and `security.captcha_secret`. The live `settings` table carries a single `security.captcha` object (`{\"altcha\": {…}, \"hcaptcha\": {\"key\", \"secret\", \"enabled\"}}`), so all three `UPDATE`s match zero rows and neither `ON_ERROR_STOP` nor the reaper notices. hCaptcha has therefore never been active, which also makes the `HCAPTCHA_SERVICE_ENABLED` rationale in `templates/playwright.env.j2` describe protection that is not there. Rewrite the three keys as one object, then decide whether a captcha on the public subscription form is wanted at all."
-msgstr "Tres chaves en `vars/main.yml` Non está en silencio v6.2.0:: `security.enable_captcha`, `security.captcha_key` e `security.captcha_secret`. El vivo `settings` A mesa ten un único `security.captcha` Obxecto (`{\"altcha\": {…}, \"hcaptcha\": {\"key\", \"secret\", \"enabled\"}}`), Así que os tres `UPDATE`s = cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero cero e ningún `ON_ERROR_STOP` Tampouco os descartes. O captcha nunca estivo activo, o que fai que `HCAPTCHA_SERVICE_ENABLED` racional en `templates/playwright.env.j2` protección que non existe. Reescribir as tres claves como un só obxecto, e logo decidir se un captcha no formulario de subscrición pública se desexa."
+msgstr ""
 
 # libretranslate
 msgid "Three variables keep the fallback inside the group's bounds:"
@@ -63018,7 +63018,7 @@ msgstr "Limiar: Alertas e maiores"
 
 # libretranslate
 msgid "Tie-break key for a ready role: coarse bucket first, then name."
-msgstr "Tie-break clave para un papel preparado: balde balde balde en primeiro lugar, logo nome."
+msgstr ""
 
 # libretranslate
 msgid "Tier Progression: Token Budget Guidance"
@@ -66959,7 +66959,7 @@ msgstr "Cando o obxectivo de iteración é a matriz completa (A cobertura de var
 
 # libretranslate
 msgid "When the log carries the matrix-deploy round/pass markers, the result is segmented (one block of records per variant round + pass). Otherwise a single combined block is returned. Runtime rows are read from the ``ROLES RECAP`` sections only (never ``TASKS RECAP``, whose role-less task rows would double-count); a log without any recap header falls back to reading every profile-shaped line. The recap ``total`` line survives as the ``total`` row so consumers can cross-check the parsed sum. Per-host task results (``ok:``, ``changed:``, ``skipping:``, ``fatal:``, ``failed:`` under a ``TASK [role : ...]`` header) accumulate into each record's ``hosts`` field; delegation targets (``[host -> other]``) count for the source host. Raises FileNotFoundError when the log is absent (the caller turns that into a hard failure)."
-msgstr "Cando o rexistro leva os marcadores de matriz deploy round/pass, o resultado é segmentado. (Un bloque de rexistros por variante + pase). En caso contrario, devolverase un bloque combinado. As liñas de tempo son lidas desde o ``ROLES RECAP`` só seccións (Nunca nunca nunca nunca ``TASKS RECAP``, cuxas filas de tarefas sen papel farían dobres contas); un rexistro sen cabezallo recaptura volve a ler todas as liñas con forma de perfil. El recapit ``total`` A liña sobrevive como o ``total`` liña para que os consumidores poidan comprobar a suma parsed. Resultados de tarefas Per-host (``ok:``, ``changed:``, ``skipping:``, ``fatal:``, ``failed:`` Baixo a ``TASK [role : ...]`` cabeceira) Acumúlanse en cada rexistro ``hosts`` Ámbito: Obxectivos de delegación (``[host -> other]``) Conta para o servidor fonte. levanta FileNotFoundError cando o rexistro está ausente (O que se chama é un duro fracaso.)."
+msgstr ""
 
 # libretranslate
 msgid "When the oauth2-proxy SSO flavor is active, Snipe-IT’s native ``loginViaRemoteUser()`` is enabled via the ``Setting`` model (``login_remote_user_enabled``, ``login_remote_user_header_name = HTTP_X_FORWARDED_PREFERRED_USERNAME``). nginx gates ``/login`` through oauth2-proxy/Keycloak and injects the verified ``X-Forwarded-Preferred-Username`` header, which Snipe-IT matches against ``users.username`` (the user must pre-exist and be activated — sync them via LDAP) to mint a native ``snipeit_session``. Visitors without a matching activated user silently fall through to the normal login form (no error). The password/LDAP login form stays available as a fallback (``login_common_disabled = 0``), and the in-app logout is redirected to the central OIDC end-session URL."
@@ -68712,7 +68712,7 @@ msgstr "Hai que pasar cada `ARG` A través do `args:` Bloque en `templates/compo
 
 # libretranslate
 msgid "You MUST pass only the runtime values that the browser logic actually needs. Keep the rendered template surface small and explicit."
-msgstr "Ten que pasar só os valores de tempo de execución que a lóxica do navegador realmente precisa. Manteña a superficie do molde molde molde pequeno e explícito."
+msgstr ""
 
 # libretranslate
 msgid "You MUST pick the template that matches your change. The table below links the actual templates."
@@ -73160,7 +73160,7 @@ msgstr "[Prageeth Panicker](https://github.com/pragepani)"
 
 # libretranslate
 msgid "[Prageeth Panicker](https://github.com/pragepani): .ansible cache directory ignored"
-msgstr "[Prageeth Panicker](https://github.com/pragepani): caché caché caché caché ignorado"
+msgstr ""
 
 # libretranslate
 msgid "[Prageeth Panicker](https://github.com/pragepani): Pi-hole role and its Playwright test suite"
@@ -76602,7 +76602,7 @@ msgstr "[x] O cifrado Overlay-network está ON por defecto para redes renderizad
 
 # libretranslate
 msgid "[x] Per-addon task hooks live in `roles/<role>/tasks/addons/<id>.yml`; the former per-plugin task logic was moved there for a uniform schema."
-msgstr "[x] Per-Addon tarefas en directo `roles/<role>/tasks/addons/<id>.yml`; A antiga lóxica da tarefa por por por-plugin foi movida para un esquema uniforme."
+msgstr ""
 
 # libretranslate
 msgid "[x] PostgreSQL data is backed up via the existing backup role(s)."
@@ -81904,7 +81904,7 @@ msgstr "`__main__.py`"
 
 # libretranslate
 msgid "`_as_bool` MUST accept the usual string forms (`true|false|yes|no|1|0|on|off`), booleans, and numbers. Every boolean decision in the fallbacks MUST use it so that `SYSTEM_EMAIL_*` values coming from YAML, environment variables, or already-coerced facts all behave the same."
-msgstr "`_as_bool` Debe aceptar as formas habituais de corda. (`true|false|yes|no|1|0|on|off`), Booleanos e números. Todas as decisións booleanas nos recortes deben usalo para que `SYSTEM_EMAIL_*` Os valores que proveñen de YAML, as variables do ambiente ou os feitos xa feitos feitos feitos feitos feitos feitos feitos feitos feitos feitos son iguais."
+msgstr ""
 
 # libretranslate
 msgid "`_compute` MUST delegate to three other lookup plugins rather than re-reading project state directly:"
@@ -83864,7 +83864,7 @@ msgstr "``sys-svc-mail``: Orquestra de correo central"
 
 # libretranslate
 msgid "``sys-token-store`` is a lightweight Ansible helper role for **resolving and persisting per-user application tokens** in a unified and idempotent way."
-msgstr "``sys-token-store`` é un papel útil útil útil para **Resolución e persistencia de tokens por usuario** De maneira unificada e idempotentes."
+msgstr ""
 
 # libretranslate
 msgid "``sys_token_store_app``"
@@ -89074,7 +89074,7 @@ msgstr "`sys-svc-mail`: Orquestra de correo central"
 
 # libretranslate
 msgid "`sys-token-store` is a lightweight Ansible helper role for **resolving and persisting per-user application tokens** in a unified and idempotent way."
-msgstr "`sys-token-store` é un papel útil útil útil para **Resolución e persistencia de tokens por usuario** De maneira unificada e idempotentes."
+msgstr ""
 
 # libretranslate
 msgid "`sys_token_store_app`"
@@ -91157,7 +91157,7 @@ msgstr "bind-mounts para o rexistro-cache CA, os fragmentos cliente paquete-cach
 
 # libretranslate
 msgid "bind/volume default to rw (False); config/secret are conceptually read-only at the docker primitive level; tmpfs is rw."
-msgstr "to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to to (falso); config/secret son conceptualmente só de lectura a nivel primitivo docker; tmpfs é rw."
+msgstr ""
 
 # libretranslate
 msgid "blocked (11)"
@@ -92817,7 +92817,7 @@ msgstr "Emitir coleccións en liña en lugar de estilo de bloqueo."
 
 # libretranslate
 msgid "emit mapping keys in sorted order."
-msgstr "Emitir as claves de mapeo en orde orde orde orde orde orde orde orde orde ordeada."
+msgstr ""
 
 # libretranslate
 msgid "enable"

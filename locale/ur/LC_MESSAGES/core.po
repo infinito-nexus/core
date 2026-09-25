@@ -1026,7 +1026,7 @@ msgstr "object-storage see for SeaweedFS/MinIO backnd حل اور per Consumer c
 # libretranslate
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
-msgstr "on-target Automation for struction a space a space a space a construct space a space a space a space space a space a spapfile taff -"
+msgstr ""
 
 msgctxt "logout:open_logout"
 msgid "Open the logout page"
@@ -1420,7 +1420,7 @@ msgstr "Scheduled systemd-timer working Lu's invest SSL/TLS سندوں کو Cert
 # libretranslate
 msgctxt "role:svc-runner:description"
 msgid "Self-hosted CI runner infrastructure for executing GitHub Actions workflow jobs in ephemeral Docker containers"
-msgstr "خود کار طور پر کام کرنے والے سی آئی ایس ایم ایس ایس ایس کرک ڈاؤن لوڈ کرنے کے لئے"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-gitlab:description"
@@ -1642,7 +1642,7 @@ msgstr "شیئرڈ سٹوڈیو"
 # libretranslate
 msgctxt "role:sys-openssl:description"
 msgid "Shared host dependency ensuring the OpenSSL CLI is installed once for roles that invoke openssl commands"
-msgstr "شیئرڈ میزبان نیٹ ایس ایس ایس ایس ایس ایل ایس پی ایل کی تنصیب کے لیے ایک بار نصب کیا جاتا ہے"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-db-rabbitmq:description"
@@ -1758,7 +1758,7 @@ msgstr "اجزاء کے قریب نظام. اگر دوسرے کرداروں سے
 # libretranslate
 msgctxt "role:update:description"
 msgid "System-maintenance role for refreshing the package index and upgrading installed packages via the OS package manager"
-msgstr "پیکج انڈیکس کو تازگی بخشنے اور OS پیکج مینیجر کے ذریعے نصب کردہ پیکج پیکج پیکج پیکج پیکج پیکجوں کو تازہ کرنے کے لئے نظام- قیمتی کردار"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-cli:description"

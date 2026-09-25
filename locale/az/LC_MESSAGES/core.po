@@ -132,7 +132,7 @@ msgstr "Proqram təminatı, random seçim və oyunçulaşdırma üçün Browser-
 # libretranslate
 msgctxt "role:web-app-litellm:description"
 msgid "Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy"
-msgstr "the  L  L  L  L  L facing facing facing facing facing"
+msgstr ""
 
 # libretranslate
 msgctxt "role:dev-fakeroot:description"
@@ -327,7 +327,7 @@ msgstr "Korporativ Reveal.js platforma idarəetmə platformasını admins, devel
 # libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr "Web və məlumat istifadəsi üçün Simple Icons marka SVG və PNG kolleksiyası hosting hosting hosting üçün Containerized icon server"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-db-postgres:description"
@@ -732,7 +732,7 @@ msgstr "Yardım"
 # libretranslate
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
-msgstr "CA-trust enjeksiyon aktivlərinin qarşısını almaq Docker Compose stack and and and and"
+msgstr ""
 
 # libretranslate
 msgctxt "category:gen:description"
@@ -1022,7 +1022,7 @@ msgstr "Nginx-based server for hosting statik aktivlər üçün web məlumat yol
 # libretranslate
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
-msgstr "Node.js package  a  a  a  a pm"
+msgstr ""
 
 # libretranslate
 msgctxt "category:sys.ctl.alm:description"
@@ -1462,7 +1462,7 @@ msgstr "Self-dən keçirilib GitHub Action"
 # libretranslate
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
-msgstr "E-poçt ünvanı5 the  the  the  the  the  the  the"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-db-openldap:description"
@@ -1703,7 +1703,7 @@ msgstr "Sizə xidmətlərinə baxın..."
 # libretranslate
 msgctxt "role:web-app-postmarks:description"
 msgid "Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
-msgstr "Single-user ActivityPub bookmarking site ictimai kitab ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai məlumatları öyrənmək Mastodon Fediverse"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-homeassistant:description"
@@ -1793,7 +1793,7 @@ msgstr "OS paketi meneceri ilə hazırlanmış paketi indeksi və yeniləndirilm
 # libretranslate
 msgctxt "role:sys-cli:description"
 msgid "System-wide command-line interface for managing and operating the entire self-hosted platform environment from the shell"
-msgstr "the  the  the  the"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-pip-install:description"

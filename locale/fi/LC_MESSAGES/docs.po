@@ -68307,7 +68307,7 @@ msgstr "Et saa esitellä rinnakkaista välimuistia. Muunnokset ovat välimuistis
 
 # libretranslate
 msgid "You MUST NOT introduce a runtime variant-selector extra-var. Variant data lives in the inventory after init; the deploy stage reads it as plain `applications.<app>` overrides."
-msgstr "Et saa ottaa käyttöön runtime variantti-valitsin extra-var. Varianttidata elää inin in in in in in in in in in in in in in in in `applications.<app>` Ohituksia."
+msgstr ""
 
 # libretranslate
 msgid "You MUST NOT introduce a third parallel cache for the same concern. If you need to cache a derived shape, add a getter to the appropriate domain module (`applications`, `users`, or `domains`) that builds on the existing primitives."
@@ -83227,7 +83227,7 @@ msgstr "``group_vars/all/05_paths.yml`` on yksi totuuden lähde isäntäpoluille
 
 # libretranslate
 msgid "``host_alias=true``, which pins ``host.docker.internal`` at whatever reaches the host in the effective mode. A container that must talk to a service the host publishes -- msmtp relaying through the swarm ingress on :587, for instance -- needs the alias, and it must not hardcode ``host-gateway`` because that breaks under swarm for the reason below."
-msgstr "``host_alias=true``, joka nastat ``host.docker.internal`` mikä tahansa saavuttaa isäntä tehokkaassa tilassa. Kontti, jonka on puhuttava isännän julkaisemalle palvelulle.587, esimerkiksi -- tarvitsee peitenimen, ja se ei saa kova koodi ``host-gateway`` Koska se hajoaa parven alla alla alla olevasta syystä."
+msgstr ""
 
 # libretranslate
 msgid "``hostname``"
@@ -92990,7 +92990,7 @@ msgstr "käytössä"
 # libretranslate
 #, python-brace-format
 msgid "enabled                 bool — ``services.sso.enabled`` shared                  bool — ``services.sso.shared`` flavor                  str  — one of {oidc, oauth2, saml}; default 'oidc' is_enabled              bool — alias of ``enabled``, semantic name is_proxy_gated          bool — ``enabled AND flavor == 'oauth2'`` is_oidc_native          bool — ``enabled AND flavor == 'oidc'`` is_saml                 bool — ``enabled AND flavor == 'saml'`` oauth2_origin_host      str  — ``services.sso.oauth2.origin.host`` or '' oauth2_origin_port      str  — ``services.sso.oauth2.origin.port`` or '' oauth2_acl              dict — ``services.sso.oauth2.acl`` or {} oauth2_allowed_groups   list — ``services.sso.oauth2.allowed_groups`` or [] oauth2_pass_access_token bool — ``services.sso.oauth2.pass_access_token``,"
-msgstr "käytössä ``services.sso.enabled`` Jaettu bool ``services.sso.shared`` maku str {oidc, oauth2, saml}; oletus 'oidc' is_enabled bool ``enabled``, semanttinen nimi is_proxy_gated bool ``enabled AND flavor == 'oauth2'`` is_oidc_native bool ``enabled AND flavor == 'oidc'`` is_saml bool ``enabled AND flavor == 'saml'`` oauth2_origin_host str ``services.sso.oauth2.origin.host`` tai '' oauth2_origin_port str ``services.sso.oauth2.origin.port`` tai '' oauth2_acl äm ``services.sso.oauth2.acl`` tai {} oauth2_allowed_groups luettelo ``services.sso.oauth2.allowed_groups`` tai [] oauth2_pass_access_token bool ``services.sso.oauth2.pass_access_token``,"
+msgstr ""
 
 # libretranslate
 msgid "enabled (required)"

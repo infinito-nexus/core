@@ -604,7 +604,7 @@ msgstr "Kejadian"
 # libretranslate
 msgctxt "role:desk-neovim:description"
 msgid "Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
-msgstr "Penyunting teks baris baris baris Vim-masuk akal bagi pengubahan kode dan konfigurasi termal"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-chess:description"

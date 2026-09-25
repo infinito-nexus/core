@@ -13990,7 +13990,7 @@ msgstr "En CLI kategori mappe MAJ indeholde en `README.md` der beskriver kategor
 
 # libretranslate
 msgid "A CLI command is a Python package directory under cli/ that contains __main__.py."
-msgstr "En CLI kommando er en Python pakkemappe under cli / der indeholder _ _ main _ _ _ .py."
+msgstr ""
 
 # libretranslate
 msgid "A CODEOWNER MUST approve"
@@ -41844,7 +41844,7 @@ msgstr "Persona kontrakt- outs"
 
 # libretranslate
 msgid "Persona flows: `PERSONA_ADMINISTRATOR_BLOCKED` / `PERSONA_BIBER_BLOCKED` stay set because the shared persona helper needs a DOM logout control the Control UI does not expose. The administrator's SSO round-trip is covered by `test-oidc-login.js` instead. Unblock the helper once the UI gains a logout affordance."
-msgstr "Persona-strømme: `PERSONA_ADMINISTRATOR_BLOCKED` / `PERSONA_BIBER_BLOCKED` ophold indstillet, fordi den delte persona hjælper har brug for en DOM logout kontrol kontrol kontrol UI ikke afslører. Administratorens SSO rundtur er dækket af `test-oidc-login.js` I stedet. Afspærre hjælper, når EU I får en logout overkommelige."
+msgstr ""
 
 # libretranslate
 msgid "Personal Nexus"

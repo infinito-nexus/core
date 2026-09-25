@@ -782,7 +782,7 @@ msgstr "Segredos baseados na identidade, PKI e xestor de cifrado con inicio de s
 # libretranslate
 msgctxt "role:svc-db-redis:description"
 msgid "In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
-msgstr "En memoria memoria memoria memoria memoria memoria memoria memoria caché e almacenamento, compartido centralmente co illamento de ACL por consumidor ou incorporado como sidecar."
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-docs:description"

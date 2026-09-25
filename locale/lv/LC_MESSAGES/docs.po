@@ -20236,7 +20236,7 @@ msgstr "CI cauruļvads"
 
 # libretranslate
 msgid "CI pipeline pass: PR flow now gates the env-matrix via a new detect-affected-roles resolver (skipped on role-only diffs); push CI skipped when an open PR exists (with 20s race retry for bot branches); pip cache + python 3.12 across all 16 workflows, plus npm and ansible-galaxy caches where missing. Update bot now deletes its own branches when closing superseded PRs."
-msgstr "CI cauruļvada caurlaide: PR cauruļvada cauruļvada cauruļvada cauruļvada cauruļvada atveri aizvada env-matricas, izmantojot jaunu detektēšanas rīku (izlaistas tikai lomu atšķirības); push CI izlaists, ja atvērta PR pastāv (kur: 20s sacīkšu atkārtojums botu zariem); pip cache + pitons 3.12 visos 16 darbplūsmas, plus npm un ansible-galaxy kešatmiņas, ja trūkst. Atjaunot botu tagad dzēš pats savus zarus, aizverot aizstātās PR."
+msgstr ""
 
 # libretranslate
 msgid "CI release triggering Release logic is now driven by commit tags instead of tag-push events."

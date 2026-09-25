@@ -70527,7 +70527,7 @@ msgstr "[ ] `semaphore.{{ DOMAIN_PRIMARY }}` lahendab `sys-svc-proxy` Semaphore�
 
 # libretranslate
 msgid "[ ] `tasks/flavor/ansible/03_run_playbook.yml` invokes `ansible-playbook -i inventory/hosts setup.yml --tags={{ services.matrix.playbook_tags }}` from `{{ instance_dir }}mdad/` and exits cleanly on all three ansible-flavor variants (V1 / V2 / V3) in a fresh-host matrix deploy."
-msgstr "[ ] `tasks/flavor/ansible/03_run_playbook.yml` kutsub `ansible-playbook -i inventory/hosts setup.yml --tags={{ services.matrix.playbook_tags }}` pärit `{{ instance_dir }}mdad/` ja väljub puhtalt kõigil kolmel maitse-maitse variandil (V1 V2 V3) värskes maatriksis."
+msgstr ""
 
 # libretranslate
 msgid "[ ] `templates/playwright.env.j2` exposes every env var the specs read; service flags carry `# nocheck` rationale where applicable."

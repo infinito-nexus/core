@@ -257,7 +257,7 @@ msgstr "Клъстер-локален регистър на изображени
 # libretranslate
 msgctxt "role:svc-registry-cache:description"
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
-msgstr "Cluster-local local pull-through cash for shared Docker Hub base-image pulls, cut duplicate transfers and rate limits"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-mediawiki:description"
@@ -367,7 +367,7 @@ msgstr "Core AI building bursorks год., OpenAI-съвместими порт�
 # libretranslate
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
-msgstr "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tunned defaults"
+msgstr ""
 
 # libretranslate
 msgctxt "logout:no_check"
@@ -607,7 +607,7 @@ msgstr "Събития"
 # libretranslate
 msgctxt "role:desk-neovim:description"
 msgid "Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
-msgstr "Extensible Vim-based command-line text editor for terminal-drived code and configuration editing"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-chess:description"
@@ -1497,7 +1497,7 @@ msgstr "Self-hosted чат интерфейс за взаимодействие 
 # libretranslate
 msgctxt "role:web-app-nextcloud:description"
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
-msgstr "Self-hosted cloud platform for file sync, shareing, real-time cooperation, and team workspaces under your own domain"
+msgstr ""
 
 # libretranslate
 msgctxt "menu:Cloud:description"
@@ -1527,7 +1527,7 @@ msgstr "Самостоятелно предприятие уики и платф
 # libretranslate
 msgctxt "role:web-app-bookwyrm:description"
 msgid "Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
-msgstr "Self-hosted federated reading platform for book reviews and reading tracking over the Fediverse"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-mastodon:description"
@@ -1627,7 +1627,7 @@ msgstr "Self-hosted, federated платформа за споделяне, хо�
 # libretranslate
 msgctxt "role:web-app-matomo:description"
 msgid "Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
-msgstr "Self-hosted, privacy-first web analytics platform for real-time visit tracking and site metrics"
+msgstr ""
 
 # libretranslate
 msgctxt "menu:Server Administration:title"
@@ -2013,7 +2013,7 @@ msgstr "Workstation настройка за Docker и Docker Compose с мест
 # libretranslate
 msgctxt "role:dev-arduino:description"
 msgid "Workstation toolchain and serial-port permissions for Arduino board development on Linux"
-msgstr "Workstation toolchain and series-port permissions for Arduino board development on Linux"
+msgstr ""
 
 # libretranslate
 msgctxt "role:pkgmgr-install:description"

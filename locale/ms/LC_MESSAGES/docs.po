@@ -338,7 +338,7 @@ msgstr "**A Akan `svc-ai-litellm` Pintu gerbang adalah pintu masuk model tunggal
 
 # libretranslate
 msgid "**A `svc-ai-lmstudio` role is added as a routable backend, x86/GPU node only.** It deploys LM Studio in headless server mode (`lms server`, OpenAI-compatible API) and registers behind the gateway. LM Studio has no arm64 Linux server build, so it MUST be pinned to an x86 (typically GPU) node via placement constraint and MUST NOT be scheduled onto the Raspberry Pi / arm64 agent nodes of [032](032-agent-employees-firecracker.md). LM Studio ships primarily as a desktop GUI; the role MUST use its headless/server mode, and the README MUST document the container caveat (GPU passthrough, licensing/model-download constraints)."
-msgstr "**A Akan `svc-ai-lmstudio` Peranan using ditambahkan sebagai backend routable, x86Node /GPU saja.** Ini menyebar LM Studio Amunisi dalam mode server tanpa kepala (`lms server`, kompatibel OpenAI API) Dan mendaftar di belakang gerbang. LM Studio tidak memiliki lengan64 Linux server build, sehingga MUST disematkan ke x86 (Biasanya GPU) Node lewat batasan penempatan dan MUST TIDAK djadwalkan ke Raspberry Pi / lengan64 Node agen agen agen dari [032](032-agent-employees-firecracker.md). Kapal LM Studio terutama sebagai GUI desktop; peran MUST menggunakan mode tanpa kepala/server, dan README MUST dokumen caveat kontainer (Jalur tembus GPU, lisensi/kekangan turun-model)."
+msgstr ""
 
 # libretranslate
 msgid "**A blocked mode is NEVER a reason to silently switch to another.** If a mode cannot run (the swarm NFS wedge below, a wedged daemon, a missing host capability), STOP the whole sweep, report the blocker together with the exact recovery command, and wait for it to be cleared. You MUST NOT fall back to a `modes=compose`-only (or any reduced) sweep to look productive: it hides the unmet swarm parity and never satisfies the compose-AND-swarm gate. Resume the full sweep only once the blocker is gone."
@@ -462,11 +462,11 @@ msgstr "**UI yang digagalkan admin:** Pengguna berkas dan antarmuka web master d
 
 # libretranslate
 msgid "**Administration Support:** For client key creation and further setup, please refer to the [Administration](./Administration.md) file."
-msgstr "**Dukungan Administrasi Administrasi Administrasi Administrasi:** Untuk pembuatan kunci klien dan setup lebih lanjut, silakan merujuk ke [Administration](./Administration.md) Berkas."
+msgstr ""
 
 # libretranslate
 msgid "**Administration Support:** For client key creation and further setup, please refer to the `Administration <./Administration.md>`__ file."
-msgstr "**Dukungan Administrasi Administrasi Administrasi Administrasi:** Untuk pembuatan kunci klien dan setup lebih lanjut, silakan merujuk ke `Administration <./Administration.md>`__ Berkas."
+msgstr ""
 
 # libretranslate
 msgid "**Administrator login is enforced to be key-based:** playbooks fail early if users.administrator.authorized_keys is empty."
@@ -528,7 +528,7 @@ msgstr "**Agen penerima:** Bekas port 8000 Petakan ke port host (`local.agent`);
 
 # libretranslate
 msgid "**Agent reuse:** The embodied deployment is the agent role itself, so image, configuration and model routing stay identical to the isolated deployments."
-msgstr "**Agen Agen Agen Reuse:** Ketersediaan yang dimandikan adalah peran agen itu sendiri, jadi gambar, konfigurasi dan model routing tetap identik dengan penyebaran terisolasi."
+msgstr ""
 
 # libretranslate
 msgid "**Agents as employees, with a kernel between them and the host.** *web-app-hermes* and *web-app-openclaw* deploy agents behind the single sign-on gate, wired to the gateway's models and to the MCP servers discovery hands them, each proving on deploy that it can actually reach them. *svc-virt-kata* runs that tier under a kernel-isolating container runtime, and *svc-ai-robot* embodies an agent on a dedicated device. Every sandboxed agent acts as its own platform account rather than borrowing yours. See [web-app-hermes](roles/web-app-hermes/README.md), [web-app-openclaw](roles/web-app-openclaw/README.md) and [svc-virt-kata](roles/svc-virt-kata/README.md)."
@@ -612,7 +612,7 @@ msgstr "**Modul selalu-on** Digubah oleh `all.sh` ORANG dan ORANG - ORANG yang m
 
 # libretranslate
 msgid "**An agent can be provisioned with its own platform user account.** Creating an agent employee optionally provisions a dedicated identity through the platform's existing user mechanism (the `users` lookup, LDAP via [`svc-db-openldap`](../../roles/svc-db-openldap/), SSO via [`web-app-keycloak`](../../roles/web-app-keycloak/)); no new account system is built. The account is a **non-privileged standard user** by default (never administrator/service-account-with-mutating-tools). When enabled, the agent authenticates as its own user: OIDC login to its dashboard, a distinct mailbox/identity, and MCP calls made with `auth_subject: user` ([025](025-mcp-role-integration.md)) scoped to that account rather than a shared service account. The account is opt-in per agent; its password/token lives in the role's `meta/secrets.yml` `credentials:` block, never in README or env. An agent MUST also be deployable against an existing account (no forced account creation)."
-msgstr "**Agen agen dapat diberikan dengan akun pengguna platform sendiri.** Mencipta agen karyawan secara opsional ketentuan identitas dedikasi melalui platform mekanisme pengguna yang ada (iran `users` Pencarian, LDAP via [`svc-db-openldap`](../../roles/svc-db-openldap/), SSO via [`web-app-keycloak`](../../roles/web-app-keycloak/)); tidak ada sistem akun baru dibangun. akun adalah **Pengguna standar non-pribadi** Secara default (Jangan pernah administrator/service-account-with-mutasi-alat)Ketika diaktifkan, agen mengotentifikasi sebagai pengguna sendiri: log masuk OIDC ke dashboard, kotak surat/identitas yang berbeda, dan panggilan MCP dibuat dengan `auth_subject: user` ([025](025-mcp-role-integration.md)) Snamp terskop ke akun itu daripada akun layanan bersama. akun adalah opt-in per agen; password/token hidup dalam peran `meta/secrets.yml` `credentials:` blok, tidak pernah di README atau env. Agen agen agen UMUM juga dapat dikerahkan terhadap akun yang ada (Tidak ada pembuatan akun paksa)."
+msgstr ""
 
 # libretranslate
 msgid "**An engine inside its consumer's project** — matrix with its own postgres, for instance — is started service by service rather than as a whole project, because bringing the project up would start the consumer and the chain refuses to replay while one runs. The discriminator is the dump's volume name against its project name: equal for the central engines (`postgres` in project `postgres`), different for a per-app one (`matrix_database` in project `matrix`)."
@@ -1553,7 +1553,7 @@ msgstr ""
 
 # libretranslate
 msgid "**Checks precede the grant:** The admission checks run inside the agent role before it deploys, so a refusal prevents the embodied container rather than following it."
-msgstr "**Periksa sebelum hibah:** Pemeriksaan masuk masuk masuk masuk ke dalam peran agen sebelum itu menyebar, jadi penolakan mencegah wadah yang dimandikan daripada mengikutinya."
+msgstr ""
 
 # libretranslate
 msgid "**Clean up** any stale vHost files under ``sys-svc-cln-domains``."
@@ -1776,7 +1776,7 @@ msgstr "**Diakui:** Tidak ada mount/source/target Nilai-nilai yang gagal menyeba
 
 # libretranslate
 msgid "**Conflict Avoidance:** Prevents interference between maintenance operations and running services."
-msgstr "**Konflik Konflik Konflik Konflik:** Melarang gangguan antara operasi pemeliharaan dan layanan berjalan."
+msgstr ""
 
 # libretranslate
 msgid "**Cons:**"
@@ -2206,7 +2206,7 @@ msgstr "**Perilaku bawaan (Variabel variabel tidak ditetapkan atau ditetapkan ke
 
 # libretranslate
 msgid "**Default behaviour (variable not set):** The workflow uses `infinito-nexus/core` as the source repository. When the current repository is already `infinito-nexus/core`, the same-repository skip applies."
-msgstr "**Perilaku bawaan (variabel variabel variabel tidak ditetapkan)KANTOR:** Penggunaan aliran kerja `infinito-nexus/core` Pusat data sebagai sumber repositori. Tambahkan ketika repositori semasa sudah ada `infinito-nexus/core`, sama-repository skip berlaku."
+msgstr ""
 
 # libretranslate
 msgid "**Default:** `\"utf8mb4\"`"
@@ -5234,7 +5234,7 @@ msgstr "**Waktu berlari pengisolasi:** Layanan gubah disematkan ke Kata Containe
 
 # libretranslate
 msgid "**Isolation is gVisor on top of in-app sandboxing; Firecracker is out of reach on this engine.** Each agent app runs under `runtime: runsc`, a userspace guest kernel that intercepts syscalls before they reach the host, so untrusted model-generated code stays kernel-isolated even if the app's own sandbox is bypassed. No custom VMM, jailer wiring, or bespoke rootfs pipeline. E2B/Beam noted as alternatives in the role README but not adopted."
-msgstr "**Isolasi adalah gVisor di atas in-app sandboxing; Firecracker di luar jangkauan pada mesin ini.** Setiap agen agen agen aplikasi berjalan di bawah `runtime: runsc`, sebuah kernel tamu ruang pengguna yang memintas syscalls sebelum mereka mencapai host, sehingga kode model yang tidak dipercaya tetap kernel-isolated bahkan jika kotak pasir aplikasi sendiri dilewati. Bespoke rootfs pipa. E2Í B/Beam dicatat sebagai alternatif dalam peran README tetapi tidak diadopsi."
+msgstr ""
 
 # libretranslate
 #, python-format
@@ -6061,11 +6061,11 @@ msgstr "**LDAP Asli:** Pusat-OpenLDAP Lin padan sambungan memasok catatan penggu
 
 # libretranslate
 msgid "**Native OIDC SSO via SSO-proxy sidecar:** Gate the FusionDirectory web UI through the project's SSO-proxy sidecar (provided by `web-app-keycloak`) for OIDC-authenticated entry."
-msgstr "**OIDC asli SSO melalui SSO-proxy sidecar:** Gerbang gerbang gerbang FusionDirectory UI web proxy melalui proyek SSO-proxy sidecar (Disediakan oleh `web-app-keycloak`) Autentifikasi OIDC."
+msgstr ""
 
 # libretranslate
 msgid "**Native OIDC SSO via SSO-proxy sidecar:** Gate the FusionDirectory web UI through the project’s SSO-proxy sidecar (provided by ``web-app-keycloak``) for OIDC-authenticated entry."
-msgstr "**OIDC asli SSO melalui SSO-proxy sidecar:** Gerbang gerbang gerbang FusionDirectory UI web proksi SSO melalui proyek ini (Disediakan oleh ``web-app-keycloak``) Autentifikasi OIDC."
+msgstr ""
 
 # libretranslate
 msgid "**Native OIDC SSO:** Authenticate users against Keycloak via the ``oic-auth`` plugin, configured by JCasC at boot."
@@ -6095,18 +6095,18 @@ msgstr "**Rasa OIDC asli** (`services.sso.flavor: oidc`), bukan oauth2-PROxy gat
 
 # libretranslate
 msgid "**Native Prometheus metrics** via the `services.prometheus.native_metrics` + `templates/prometheus.yml.j2` contract already used by [`web-app-gitea`](../../roles/web-app-gitea/templates/prometheus.yml.j2), scraped on the internal container port over the role-local docker network."
-msgstr "**Penduduk Asli Prometheus metrik** Melalui `services.prometheus.native_metrics` + + + + + + `templates/prometheus.yml.j2` Kontrak kontrak kontrak yang sudah digunakan oleh [`web-app-gitea`](../../roles/web-app-gitea/templates/prometheus.yml.j2), Tergores di pelabuhan kontainer internal atas jaringan docker role-local."
+msgstr ""
 
 msgid "**Native in all editions** (incl. Raw): LDAP \"connections\" sync users, contact groups, roles."
 msgstr ""
 
 # libretranslate
 msgid "**Native** local email/password login is *off* once OIDC is the login path (forces SSO), *on* otherwise — derived from the ``sso`` service flag. ``PENPOT_FLAGS`` renders ``enable-login-with-password`` / ``disable-login-with-password`` accordingly (no JS injection needed — Penpot disables the password form natively). When native login is on, the role bootstraps a local password for the ``administrator`` profile via the backend PREPL (``enable-prepl-server``) in ``tasks/main.yml`` — ``create-profile`` for a fresh profile, ``update-profile`` to set the password when a federated login already created it; the bootstrap is skipped under OIDC."
-msgstr "**Penduduk Asli** log masuk omail/sandi lokal logy log masuk *Tidak* Sekali OIDC adalah jalur login (Angkatan angkatan SAO), *Pada* Sebaliknya — berasal dari ``sso`` Bendera pelayanan. ``PENPOT_FLAGS`` ERD ``enable-login-with-password`` / / / // ``disable-login-with-password`` Menurut pendapat (Tak dibutuhkan suntikan JS — Penpot Ababkan kata sandi secara natif)Ketika log masuk asli menyala, role bootstraps kata sandi lokal untuk ``administrator`` Profil profil profil melalui backend PREPL (``enable-prepl-server``) dalam ``tasks/main.yml`` — ``create-profile`` Untuk profil segar, ``update-profile`` OIDC."
+msgstr ""
 
 # libretranslate
 msgid "**Native** local email/password login is *off* once OIDC is the login path (forces SSO), *on* otherwise — derived from the `sso` service flag. `PENPOT_FLAGS` renders `enable-login-with-password` / `disable-login-with-password` accordingly (no JS injection needed — Penpot disables the password form natively). When native login is on, the role bootstraps a local password for the `administrator` profile via the backend PREPL (`enable-prepl-server`) in `tasks/main.yml` — `create-profile` for a fresh profile, `update-profile` to set the password when a federated login already created it; the bootstrap is skipped under OIDC."
-msgstr "**Penduduk Asli** log masuk omail/sandi lokal logy log masuk *Tidak* Sekali OIDC adalah jalur login (Angkatan angkatan SAO), *Pada* Sebaliknya — berasal dari `sso` Bendera pelayanan. `PENPOT_FLAGS` ERD `enable-login-with-password` / / / // `disable-login-with-password` Menurut pendapat (Tak dibutuhkan suntikan JS — Penpot Ababkan kata sandi secara natif)Ketika log masuk asli menyala, role bootstraps kata sandi lokal untuk `administrator` Profil profil profil melalui backend PREPL (`enable-prepl-server`) dalam `tasks/main.yml` — `create-profile` Untuk profil segar, `update-profile` OIDC."
+msgstr ""
 
 # libretranslate
 msgid "**Navigate to Pixelfed Directory:** Once inside the container, navigate to the Pixelfed directory. This is typically the root directory where Pixelfed is installed."
@@ -6227,7 +6227,7 @@ msgstr "**Tidak ada generasi token implisit**"
 
 # libretranslate
 msgid "**No new secret store.** Any credential an addon needs continues to be declared in [`meta/secrets.yml`](../contributing/design/role/services/layout.md) `credentials:` and read via `lookup('config', application_id, 'secrets.credentials.<name>')`."
-msgstr "**Tidak ada toko rahasia baru.** Setiap bukti bukti bukti yang dibutuhkan Addon terus dinyatakan dalam [`meta/secrets.yml`](../contributing/design/role/services/layout.md) `credentials:` Dan baca via `lookup('config', application_id, 'secrets.credentials.<name>')`."
+msgstr ""
 
 # libretranslate
 msgid "**No state changes beyond install:** Does not enable services or write per-user OBS configuration."
@@ -6319,11 +6319,11 @@ msgstr "**OAuth2 Adonan ging**Dukungan drop-in ketika *web-app-keycloakMobil sam
 
 # libretranslate
 msgid "**OAuth2 proxy gate:** Every request is gated by ``web-app-keycloak``\\ ’s SSO-proxy sidecar (``services.sso.enabled: true``). The Keycloak realm-level OTP and WebAuthn flow enforces 2FA before the OAuth2 proxy admits a session; KIX itself carries no 2FA logic."
-msgstr "**OAuth2 Pintu gerbang proksi prosois:** Setiap permintaan ditepati oleh ``web-app-keycloak``Mobil samping SSO-proksi milik Vodin \\ (``services.sso.enabled: true``). The Keycloak Alir-alir OTP dan WebAuthn tingkat alam 2FA sebelum OAuth2 Proksi gromis mengakui sesi; KIX sendiri membawa tidak 2Logika logika logika."
+msgstr ""
 
 # libretranslate
 msgid "**OAuth2 proxy gate:** Every request is gated by `web-app-keycloak`'s SSO-proxy sidecar (`services.sso.enabled: true`). The Keycloak realm-level OTP and WebAuthn flow enforces 2FA before the OAuth2 proxy admits a session; KIX itself carries no 2FA logic."
-msgstr "**OAuth2 Pintu gerbang proksi prosois:** Setiap permintaan ditepati oleh `web-app-keycloak`Mobil samping oksigen SSO (`services.sso.enabled: true`). The Keycloak Alir-alir OTP dan WebAuthn tingkat alam 2FA sebelum OAuth2 Proksi gromis mengakui sesi; KIX sendiri membawa tidak 2Logika logika logika."
+msgstr ""
 
 # libretranslate
 msgid "**OAuth2/SSO protection** via Keycloak and oauth2-proxy"
@@ -6494,11 +6494,11 @@ msgstr "**kompatibel dengan OpenWahWAI APIKANTOR:** Satu titik akhir HTTP melaya
 
 # libretranslate
 msgid "**OpenAI-compatible endpoint:** The headless server answers `/v1` requests on port 1234 inside the container network."
-msgstr "**Titik akhir yang tidak kompatibel OpenVONAI:** Jawaban server tanpa kepala `/v1` Permintaan permintaan permintaan dalam port 1234 Di dalam jaringan kontainer."
+msgstr ""
 
 # libretranslate
 msgid "**OpenAI-compatible endpoint:** The headless server answers ``/v1`` requests on port 1234 inside the container network."
-msgstr "**Titik akhir yang tidak kompatibel OpenVONAI:** Jawaban server tanpa kepala ``/v1`` Permintaan permintaan permintaan dalam port 1234 Di dalam jaringan kontainer."
+msgstr ""
 
 # libretranslate
 msgid "**OpenAI-compatible gateway:** The container starts the agent with the ``gateway`` command and answers OpenAI-style ``/v1`` requests on its own subdomain."
@@ -6829,11 +6829,11 @@ msgstr "**Pewaktu yang Tepat:** Secara opsional, uji coba memungkinkan perilaku 
 
 # libretranslate
 msgid "**Persistent agent data:** Agent state is stored in a named volume mounted at `/opt/data`, which the Backup Docker Volumes service captures without stopping the container."
-msgstr "**Data agen yang gigih:** Keadaan Agen Agen Agen disimpan dalam volume bernama yang dikait pada `/opt/data`, Yang mana Backup Docker Volumes Tangkapan layanan tanpa menghentikan kontainer."
+msgstr ""
 
 # libretranslate
 msgid "**Persistent agent data:** Agent state is stored in a named volume mounted at ``/opt/data``, which the Backup Docker Volumes service captures without stopping the container."
-msgstr "**Data agen yang gigih:** Keadaan Agen Agen Agen disimpan dalam volume bernama yang dikait pada ``/opt/data``, Yang mana Backup Docker Volumes Tangkapan layanan tanpa menghentikan kontainer."
+msgstr ""
 
 # libretranslate
 msgid "**Persistent configuration:** Mounts `/config` as a named volume and hands it to the container backup service when volume backups are part of the deployment."
@@ -7056,7 +7056,7 @@ msgstr "**Tujuan**"
 
 # libretranslate
 msgid "**Purpose:**   Handles \"normal\" web traffic such as HTML pages, API endpoints, and general HTTP(S) requests."
-msgstr "**Tujuan:** Pemegang \"normal\" Kemacetan web seperti halaman HTML, API titik akhir, dan HTTP umum(SAV) Permintaan permintaan permintaan permintaan."
+msgstr ""
 
 # libretranslate
 msgid "**Purpose:**   Handles WebSocket connections, enabling real-time features such as live updates or chats."
@@ -7122,7 +7122,7 @@ msgstr "**RBAC** Hanya pengguna dalam `web-app-pihole-administrator` Kelompok bi
 
 # libretranslate
 msgid "**Raspberry Pi is a real deploy target.** Agent images MUST publish an `arm64` manifest so a Pi-class node can pull them, and the agents MUST schedule across at least two labelled worker nodes. This is arch coverage, not arch exclusivity: the same images keep running on the amd64 nodes that CI and the lab use, so the requirement is that every architecture a node may have is published, never that a deploy is pinned to one."
-msgstr "**Raspberry Pi adalah target sesungguhnya.** Gambar Agen Agen Agen Agen Agen UMUM menerbitkan `arm64` manifes sehingga node Pi-class dapat menarik mereka, dan agen MUST jadwal di setidaknya dua node pekerja berlabel. Ini adalah cakupan lengkung, bukan eksklusivitas lengkung: gambar yang sama terus berjalan di amd64 Node-node yang digunakan oleh CI dan laboratorium, sehingga persyaratannya adalah bahwa setiap arsitektur sebuah node mungkin telah diterbitkan, tidak pernah bahwa sebuah penyebaran disematkan ke satu."
+msgstr ""
 
 # libretranslate
 msgid "**Read-only by default:** A non-`GET`/`HEAD` operation is refused unless `mutating_tools_enabled` is explicitly true."
@@ -9224,7 +9224,7 @@ msgstr "**`default:` (opsional)** Keistimewa adalah benang jinja yang digunakan 
 
 # libretranslate
 msgid "**`deny`** (precedence 1): structurally destructive shapes are blocked outright, even when sandboxed. Covers shell loops (`for`/`while`/`until`), cross-repo `git -C *`, force-push/reset/clean, `rm -rf*`, `sudo*`, privileged `gh` verbs (`secret`/`ssh-key`/`gpg-key`/`variable`/`extension`/`workflow enable`/`workflow disable`/`repo delete`/`pr merge`/`issue transfer`), and mutating `gh api` verbs (`DELETE`/`PUT`, secrets/keys/collaborators/merge paths)."
-msgstr "**`deny`** (Keunggulan 1): Bentuk yang merusak secara struktural diblokir secara langsung, bahkan ketika kotak pasir. Kulit kulit kulit kulit cangkang (`for`/ / / //`while`/ / / //`until`), cross-repo `git -C *`, force-push/reset/clean, `rm -rf*`, `sudo*`, terhormat `gh` kata kerja (`secret`/ / / //`ssh-key`/ / / //`gpg-key`/ / / //`variable`/ / / //`extension`/ / / //`workflow enable`/ / / //`workflow disable`/ / / //`repo delete`/ / / //`pr merge`/ / / //`issue transfer`)Dan bermutasi `gh api` kata kerja (`DELETE`/ / / //`PUT`, secrets/keys/collaborators/merge Jalur KAN)."
+msgstr ""
 
 # libretranslate
 msgid "**`disable-onboarding`** is in `PENPOT_FLAGS` so users land directly on the dashboard (sovereign install; also keeps the project/asset flows testable)."
@@ -9348,7 +9348,7 @@ msgstr "**`web-app-atmo`** Wacana — peran yang menjalankan sendiri hosted atmo
 
 # libretranslate
 msgid "**`web-app-homeassistant` deploys Home Assistant in Container mode.** The role uses the official `home-assistant/home-assistant` container (no Supervisor, no add-on store, not privileged), following the standard `web-app-*` contract (`meta/*`). Add-on management is out of scope; the `mcp_server` core integration does not need the Supervisor."
-msgstr "**`web-app-homeassistant` Para penyerang Home Assistant Bekas dalam mode kontainer.** Peran menggunakan pejabat `home-assistant/home-assistant` Bekasi (Tidak ada Supervisor, tidak ada toko tambahan, tidak istimewa), mengikuti standar `web-app-*` Kontrak kontrak kontrak (`meta/*`)Manajemen add-on diluar jangkauan; `mcp_server` Integrasi inti tidak membutuhkan Supervisor."
+msgstr ""
 
 # libretranslate
 msgid "**`web-app-keycloak`'s SSO-proxy sidecar** *(optional)* – protects the site with OAuth2."
@@ -12008,7 +12008,7 @@ msgstr ""
 
 # libretranslate
 msgid "**stock**"
-msgstr "**saham saham saham**"
+msgstr ""
 
 # libretranslate
 msgid "**suitecrm**"
@@ -12075,11 +12075,11 @@ msgstr "**⚠ Perubahan Perilaku**"
 
 # libretranslate
 msgid "**⚠️ Hardware safety is yours, not the platform's.** An agent driving motors, actuators or relays can cause physical harm. Emergency stop, current and motion limits, and fail-safe wiring are out of this platform's scope and are not enforced by this role. Provide them yourself before granting access to anything that moves."
-msgstr "**⚠️ Jaminan peralatan adalah milikmu, bukan di platform.** Agen agen agen yang mengemudikan motor, aktuator atau relay dapat menyebabkan bahaya fisik. Halte darurat, batas arus dan gerak, dan kabel pengaman gagal keluar dari lingkup platform ini dan tidak ditegakkan oleh peran ini. Sediakan mereka sendiri sebelum memberikan akses ke apapun yang bergerak."
+msgstr ""
 
 # libretranslate
 msgid "**⚠️ Hardware safety is yours, not the platform’s.** An agent driving motors, actuators or relays can cause physical harm. Emergency stop, current and motion limits, and fail-safe wiring are out of this platform’s scope and are not enforced by this role. Provide them yourself before granting access to anything that moves."
-msgstr "**⚠️ Keselamatan perkakasan milik Anda, bukan di platform.** Agen agen agen yang mengemudikan motor, aktuator atau relay dapat menyebabkan bahaya fisik. Halte darurat, batas arus dan gerak, dan kabel pengaman yang gagal keluar dari lingkup platform ini dan tidak ditegakkan oleh peran ini. Sediakan mereka sendiri sebelum memberikan akses ke apapun yang bergerak."
+msgstr ""
 
 # libretranslate
 msgid "**🔐 One login. ♾️ Infinite applications**"
@@ -13842,7 +13842,7 @@ msgstr "A Akan ``database = '*'`` Pumpan baris fadina seluruh kejadian dengan ``
 
 # libretranslate
 msgid "A ``host_gateway`` upstream resolves through ``host.docker.internal`` in ``/etc/hosts`` (host gateway), which the request-time ``resolver`` cannot see, so it renders as a literal directive like compose."
-msgstr "A Akan ``host_gateway`` hulu hulu hulu hulu menyelesaikan melalui ``host.docker.internal`` dalam ``/etc/hosts`` (gateway), yang meminta-waktu ``resolver`` AYAH tidak dapat melihat, sehingga ia memberikan sebagai arahan harfiah seperti menggubah."
+msgstr ""
 
 msgid "A ``maxmemory`` ceiling derived from the service ``mem_limit`` with an ``allkeys-lru`` policy."
 msgstr ""
@@ -13960,7 +13960,7 @@ msgstr "Sebuah blok layanan berjembatan jembatan MUST membawa standar `enabled` 
 
 # libretranslate
 msgid "A built-in (embedded) runner executes tasks in the main container; external `semaphore runner` agents are optional for scale-out."
-msgstr "Sebuah dibangun-in (Terbenam) Luncurkan tugas di kontainer utama; eksternal `semaphore runner` Agen agen agen adalah pilihan untuk skala-out."
+msgstr ""
 
 # libretranslate
 msgid "A built-in ``rabbitmq-diagnostics ping`` healthcheck."
@@ -14270,7 +14270,7 @@ msgstr "URL pekerjaan mempersempit muat turun ke aplikasi pekerjaan itu; URL ber
 
 # libretranslate
 msgid "A job counts as failed when it never finished, when the module reported ``failed``, or when a command returned a non-zero ``rc``. What distinguishes a real failure from an idempotent no-op differs per API and lives in different keys: modules put it in ``msg`` (cloudflare answers \"An identical record already exists\"), commands put it in ``stdout`` (``ollama pull`` prints \"up to date\" and exits non-zero). Both are searched, so a caller passes the tolerated phrasing and does not have to know which key carries it."
-msgstr "Sebuah pekerjaan dihitung sebagai gagal ketika tidak pernah selesai, ketika modul melaporkan ``failed``, atau ketika perintah mengembalikan non-nol ``rc``. Apa yang membedakan kegagalan nyata dari tidak-op idempoten berbeda per API dan tinggal di kunci yang berbeda: modul memasukkannya ke dalam ``msg`` (Jawaban awan awan awan \"Rekam serupa sudah ada\"), Perintah menempatkannya di ``stdout`` (``ollama pull`` Sidik jari \"sampai saat ini\" dan keluar tanpa nol)Keduanya digeledah, jadi penelepon melewati frasing yang ditoleransi dan tidak perlu tahu kunci mana yang membawanya."
+msgstr ""
 
 # libretranslate
 msgid "A job title states its whole combination, which lets `--failed` replay the mode, onion state and distribution, and makes a plan table row comparable to the job it predicts."
@@ -14278,7 +14278,7 @@ msgstr "Sebuah gelar pekerjaan menyatakan keseluruhan kombinasi, yang memungkink
 
 # libretranslate
 msgid "A job's green conclusion is **NOT** evidence for a specific change. Before citing a run as proof, you MUST locate the line in that job's log where the change executed: a Playwright spec's `✓` (a leading `-` means the spec was skipped), the env var inside the container, or the command text of an `if:`-gated step. If the string is absent, report the run as silent on the change, not as supporting it."
-msgstr "Kesimpulan hijau pekerjaan adalah **TIDAK** Bukti bukti bukti bukti untuk perubahan tertentu. Sebelum mengutip lari sebagai bukti, Anda harus menemukan garis dalam log pekerjaan di mana perubahan yang dilakukan: spesifikasi Playwright `✓` (Orang terkemuka `-` Maksudnya spesifikasinya dilewatkan), var env di dalam kontainer, atau teks perintah dari `if:`Langkah yang digagalkan. Jika string tidak hadir, melaporkan run sebagai diam pada perubahan, bukan sebagai mendukung itu."
+msgstr ""
 
 # libretranslate
 msgid "A key that some environment declares per run therefore MUST be written by a dedicated handler through `eb.set`. The exporting shell still wins for its own run, because [load.sh](../../scripts/meta/env/load.sh) preserves non-empty caller values when it sources `.env`; the file keeps the derived default. `INFINITO_RUNNING_ON_GITHUB` and `INFINITO_CACHE_STACK` are written this way. Note the consequence: for those keys `.env` and the running shell can legitimately disagree, and `.env` is not the authority."
@@ -14336,7 +14336,7 @@ msgstr "Sebuah nilai marker MUST menjadi string non-kosong. Jika kunci penanda h
 
 # libretranslate
 msgid "A matching `SYSTEM_EMAIL_<KEY>` variable defined anywhere in Ansible variable scope (inventory, group vars, host vars)."
-msgstr "A patch `SYSTEM_EMAIL_<KEY>` variabel variabel variabel didefinisikan di mana saja dalam lingkup variabel Ansible (Inventori, kelompok var, var tuan rumah)."
+msgstr ""
 
 # libretranslate
 msgid "A message prepared for an HTML-mode translation request."
@@ -15297,7 +15297,7 @@ msgstr "Pengakuan"
 
 # libretranslate
 msgid "Across the rows a sweep deploys, every distribution and every filesystem is exercised instead of one pair, at no extra job count."
-msgstr "Diseberang deretan sapuan penyebaran, setiap distribusi dan setiap sistem sistem sistem diselaraskan bukan satu pasangan, di tidak ada tambahan pekerjaan."
+msgstr ""
 
 # libretranslate
 msgid "Act Deploy Scripts"
@@ -16167,7 +16167,7 @@ msgstr "Dokumentasi agen dokumentasi 🤖"
 
 # libretranslate
 msgid "Agent file rules 📁"
-msgstr "Agen Agen Agen hukum 📁"
+msgstr ""
 
 # libretranslate
 msgid "Agent fleet that consumes this gateway: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
@@ -16194,7 +16194,7 @@ msgstr "Agen agen meta bimbingan 🧠"
 
 # libretranslate
 msgid "Agent role file rules 🎭"
-msgstr "Agen Agen Agen Agen Evo 🎭"
+msgstr ""
 
 msgid "Agent skills not installed. Run `make install-skills` to enable caveman and other agent skills."
 msgstr ""
@@ -16217,7 +16217,7 @@ msgstr "Agensi MUST edit sumber meta role-local, tidak membuat ulang kamus aplik
 
 # libretranslate
 msgid "Agents MUST operate in **`/caveman lite`** mode by default. Lite keeps grammar and readability intact while still reducing output size."
-msgstr "Agen Agen Agen telah beroperasi di **`/caveman lite`** Mode nutfah secara default. Kelayakan tata bahasa dan keterbacaan tetap utuh saat masih mengurangi ukuran keluaran."
+msgstr ""
 
 # libretranslate
 msgid "Agents MUST read deploy logs by extracting the field they need (`msg`, `stderr`, a probe result). Printing a raw task block, `argv` list, or environment dump is **FORBIDDEN ⛔**, including via a line-range `sed`/`head` over one."
@@ -16500,7 +16500,7 @@ msgstr "Semua dari mereka dibaca-saja; `mcp.tools.mutating_tools_enabled` Akan t
 
 # libretranslate
 msgid "All other `4xx`/`5xx` codes and connection errors (DNS, SSL) fail the test."
-msgstr "Semua yang lain `4xx`/ / / //`5xx` kode kode kode dan ralat sambungan (DNS, SSL) Gagal ujian."
+msgstr ""
 
 # libretranslate
 msgid "All other scopes MUST run the full [call-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml)."
@@ -16933,7 +16933,7 @@ msgstr "Sebuah Addon JANGAN menjembatani layanan yang tidak hadir dari `meta/ser
 
 # libretranslate
 msgid "An addon that needs install/enable/configure logic beyond the generic `config:` payload MUST place it in `roles/<role>/tasks/addons/<addon_id>.yml`, mirroring the `meta/addons/<addon_id>.yml` file-root convention."
-msgstr "Adonan yang dibutuhkan install/enable/configure Logika logika logika di luar generik `config:` Muatan muatan MuST menempatkannya di `roles/<role>/tasks/addons/<addon_id>.yml`, Bercercermin `meta/addons/<addon_id>.yml` Konvensi file-root."
+msgstr ""
 
 # libretranslate
 msgid "An addon under `meta/addons/` MAY declare an `incompatible_plugins` list in its `config:`. [01_install.yml](./01_install.yml) runs `occ app:disable` for every listed plugin before the install attempt. This guarantees that mutually exclusive integrations such as the OIDC entry points (`oidc_login`, `sociallogin`, `user_oidc`) and the document-editing surfaces (`onlyoffice`, `richdocuments`, `fileslibreofficeedit`) cannot accidentally coexist on the same instance."
@@ -17321,7 +17321,7 @@ msgstr "Mana Saja `gh ssh-key` Subcommand. `add` Dia adalah orang yang terus-men
 
 # libretranslate
 msgid "Any `gh variable` subcommand. Mirror of the `gh secret *` rule for Actions variables. Variables are unencrypted secrets-lite; even `list` exposes their values directly, so the entire namespace is blocked and managed out-of-band."
-msgstr "Mana Saja `gh variable` Subcommand. Cermin cermin cermin `gh secret *` Aturan untuk variabel tindakan. Variabel variabel tidak terenkripsi rahasia-lite; bahkan `list` Mengekspos nilai-nilai mereka secara langsung, sehingga seluruh ruang nama diblokir dan dikelola out-of-band."
+msgstr ""
 
 # libretranslate
 msgid "Any `gh` CLI invocation whose second token is a known mutating verb."
@@ -17582,7 +17582,7 @@ msgstr "Aplikasi-Aplikasi XAIN akan menimpa semua subset kunci ini di bawah `com
 
 # libretranslate
 msgid "Applications express database choice directly via the file root of `meta/services.yml`:"
-msgstr "Aplikasi aplikasi aplikasi mengekspresikan pilihan basis data secara langsung melalui root berkas `meta/services.yml`KANTOR:"
+msgstr ""
 
 # libretranslate
 msgid "Applications that speak “S3” (Pixelfed, Mastodon, Nextcloud, Flowise, etc.) store and retrieve objects from MinIO buckets using familiar SDKs and CLIs. Admins manage buckets, users, and access policies through a browser console while keeping everything on-prem."
@@ -17712,7 +17712,7 @@ msgstr "Keputusan Arsitektur Seni Rupa 🧭"
 
 # libretranslate
 msgid "Architecture Overview"
-msgstr "Sekilas Sekilas Pandang Arsitektur Arsitektur Arsitektur"
+msgstr ""
 
 # libretranslate
 msgid "Architectures age well when they make it obvious what can be enabled, disabled, or replaced."
@@ -17819,7 +17819,7 @@ msgstr "Sebagai pengelola Infinito.Nexus, Aku ingin semua kapal inti yang diekst
 
 # libretranslate
 msgid "As a platform administrator of Infinito.Nexus, I want ERPNext (Frappe Framework) integrated as a `web-app-erpnext` role with OpenID Connect identity provider integration so that users can access the ERP through the same Single Sign-On (SSO) mechanism used across the Infinito.Nexus ecosystem, reusing the platform's central database and cache services."
-msgstr "Sebagai administrator platform Infinito.Nexus, Aku ingin ERPNext (Bappe Frapework) Diintegrasikan sebagai suatu `web-app-erpnext` Peran jalinan dengan integrasi penyedia identitas OpenID Connect sehingga pengguna dapat mengakses ERP melalui Single Sign-On yang sama (SSO) Mekanisme mekanisme mekanisme yang digunakan di seluruh Infinito.Nexus ekosistem, menggunakan kembali platform pusat database dan layanan cache."
+msgstr ""
 
 msgid "As a platform administrator of Infinito.Nexus, I want [Checkmk](https://github.com/Checkmk/checkmk) integrated as a `web-app-checkmk` role with Keycloak SSO (via the oauth2-proxy gate) and native LDAP user management so that operators can run the open-source Checkmk monitoring server behind the platform's central Single Sign-On, validated end-to-end with Playwright personas."
 msgstr ""
@@ -17946,7 +17946,7 @@ msgstr "Asosiasi, LSM, dan komunitas online ingin membangun ruang digital indepe
 
 # libretranslate
 msgid "Assuming every job burns its full timeout is deliberately pessimistic — no job can outlast it — so the estimate can only overshoot the real drain time. With the current constants that is 4 waves of 20 runners, so 80 rows per chunk, and the last job of a chunk starts around t=18h, well inside the 24h window."
-msgstr "Mengandaikan setiap pekerjaan membakar habis habis habis habis waktunya dengan sengaja pesimis — tidak ada pekerjaan yang dapat bertahan lama — sehingga perkiraan hanya dapat mengatasi waktu pembuangan yang sebenarnya. Dengan konstan saat ini yang 4 Gelombang gelombang 20 Pelari, jadi 80 baris-baris per potongan, dan pekerjaan terakhir dari potongan dimulai sekitar t=18Di dalam 24Jendela."
+msgstr ""
 
 msgid "Assumption 10: `~/.ssh` is intentionally readable to allow `git push` on `ask` 🔑"
 msgstr ""
@@ -18528,7 +18528,7 @@ msgstr "Karena Bash diperbolehkan grosir, keselamatan operasional invokasi shell
 
 # libretranslate
 msgid "Because Jellyfin has no native SSO and its apps use API tokens, the **LDAP plugin against the central `svc-db-openldap`** is the \"works everywhere\" path — closest in spirit to roles that consume central LDAP. The optional OIDC web-SSO plugin maps to the platform Keycloak."
-msgstr "Karena Jellyfin Tidak ada SSO asli dan aplikasi yang digunakan API token, **Plugin LDAP LDAP LDAP offisius terhadap pusat `svc-db-openldap`** Itu adalah \"Di mana-mana bekerja\" Kepantasan yang paling dekat dengan peranan yang mengkonsumsi LDAP pusat. Pilihan opsional OIDC web-SSO petakan ke platform Keycloak."
+msgstr ""
 
 msgid "Because no stack service exists, the swarm test gates that poll ``docker service ls`` (``converge``, ``seed``, ``drain``, ``assert``) skip themselves via the ``workload: node-local`` declaration (``scripts/tests/deploy/swarm/utils/_context.sh`` maps ``node-local`` to ``HAS_SWARM_SERVICE=false``); the deploy itself, the registry distribution chain and the CLI e2e suite run in full."
 msgstr ""
@@ -18779,7 +18779,7 @@ msgstr "Lari \"python -m <module> Perancis\" dan ekstrak paragraf pertama setela
 
 # libretranslate
 msgid "Best-effort: the puppeteer browser is not downloaded here (``PUPPETEER_SKIP_DOWNLOAD``) so ``install-lint`` stays sandbox-safe. mmdc only needs a browser to RENDER, which ``scripts/lint/mermaid.sh`` provisions on demand (``npx puppeteer browsers install chrome-headless-shell``) right before it renders. That browser ships as a zip, so ``unzip`` is ensured here (puppeteer's extractor needs it, else it leaves an empty version dir and mmdc reports the browser missing). A failed install warns instead of aborting ``install-lint``, so sandboxes without npm/browser access still get the rest of the lint toolchain."
-msgstr "Peramban boneka tidak diunduh di sini (``PUPPETEER_SKIP_DOWNLOAD``) Jadi ``install-lint`` Dia tetap aman. - Mmdc hanya perlu browser untuk RENDER, yang ``scripts/lint/mermaid.sh`` ketentuan dalam permintaan (``npx puppeteer browsers install chrome-headless-shell``) Tepat sebelum dirender. Kapal penjelajah itu sebagai zip, jadi ``unzip`` Dipastikan di sini (Ekstraktor boneka boneka boneka itu memerlukannya, jika tidak ia meninggalkan versi kosong dir dan mmdc melaporkan peramban hilang)A gagal memasang peringatan daripada menggugurkan ``install-lint``, jadi kotak pasir tanpa akses npm/browser masih mendapatkan sisa toolchain lint."
+msgstr ""
 
 # libretranslate
 msgid "Better ideas can arrive late."
@@ -18822,7 +18822,7 @@ msgstr "Nama bind DN untuk CRUD pada entri dibawah `ROOT`"
 
 # libretranslate
 msgid "Bind DN for `cn=config` schema work"
-msgstr "Kenderaan DN untuk `cn=config` skema skema skema skema kerja"
+msgstr ""
 
 # libretranslate
 msgid "Bind DN: `{{ LDAP.DN.ADMINISTRATOR.DATA }}`"
@@ -19000,7 +19000,7 @@ msgstr "Kedua-dua persona Playwright terotentikasi diblok, dan keduanya ditutupi
 
 # libretranslate
 msgid "Both authenticated Playwright personas are blocked. BookWyrm's logout control is an icon-only avatar dropdown with no accessible name, so the shared in-app-logout helper cannot locate it; the trusted-header login itself works."
-msgstr "Kedua persona Playwright yang dikonfirmasi telah diblokir. Kontrol log keluar BukuWyrm adalah avatar avatar avatar icon-only dropdown tanpa nama yang dapat diakses, sehingga pembantu in-app-logout yang dibagikan tidak dapat menemukannya; login kepala-percaya itu sendiri bekerja."
+msgstr ""
 
 # libretranslate
 msgid "Both authenticated Playwright personas are blocked. BookWyrm’s logout control is an icon-only avatar dropdown with no accessible name, so the shared in-app-logout helper cannot locate it; the trusted-header login itself works."
@@ -19217,7 +19217,7 @@ msgstr "Komponen Anjungan (Keputusan yang Diusulkan 4)"
 
 # libretranslate
 msgid "Bridge contract"
-msgstr "Kontrak kontrak kontrak kontrak dagang"
+msgstr ""
 
 # libretranslate
 msgid "Bridge matrix"
@@ -19792,7 +19792,7 @@ msgstr "Kegagalan-kegagalan CIA lebih mudah untuk debug berkat membersihkan log 
 
 # libretranslate
 msgid "CI filtering changed *ONLY_APP* has been replaced with a space-separated *WHITELIST*. *INCLUDE_RE* and *EXCLUDE_RE* have been removed. Lifecycle selection via *TESTED_LIFECYCLES* is no longer supported."
-msgstr "Filteran Fransis berubah *ONLY_APP* Andore telah diganti dengan ruang terpisah *&Kosongkan*. *INCLUDE_RE* Dan *EXCLUDE_RE* Vicadon telah dihapus. Pemilihan sepeda sepeda sepeda motor *TESTED_LIFECYCLES* Watak tidak lagi didukung."
+msgstr ""
 
 # libretranslate
 msgid "CI fixes: resolved four CI failures across the *web-app-n8n*, *web-app-pihole* and *web-app-mastodon* roles."
@@ -20011,7 +20011,7 @@ msgstr "Cache / pub-sub untuk kolaborasi real-time."
 
 # libretranslate
 msgid "Cache Helpers 💾"
-msgstr "Pembantu Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Cache Ca 💾"
+msgstr ""
 
 # libretranslate
 msgid "Cache Purge"
@@ -20040,7 +20040,7 @@ msgstr "Cache"
 # libretranslate
 #, python-brace-format
 msgid "Cached YAML load that returns `{}` for missing files (legacy contract). Non-mapping roots surface as `SystemExit` to match the inventory CLI's existing error UX."
-msgstr "Muatan YAML Cache Cache Cache yang kembali `{}` Nama untuk berkas hilang (Kontrak warisan). Permukaan akar non-pemetaan sebagai `SystemExit` Untuk mencocokkan inventori CLI's kesalahan UX."
+msgstr ""
 
 # libretranslate
 msgid "Cached keyed on (applications fingerprint, include_aliases); the result is returned as-is, so callers MUST treat it as read-only."
@@ -21760,7 +21760,7 @@ msgstr "Penutupan perlindungan untuk gerombolan menyebarkan CLI's ``--id`` Dafta
 
 # libretranslate
 msgid "Closure resolution (per round)"
-msgstr "Resolusi Penutupan Penutupan (rata rata rata rata)"
+msgstr ""
 
 # libretranslate
 msgid "Cloudflare API Token for Ansible (`API.cloudflare.api_token`)"
@@ -22300,7 +22300,7 @@ msgstr "Contoh-contoh Beton 💡"
 
 # libretranslate
 msgid "Concrete dependencies contributors MUST preserve when changing fallbacks:"
-msgstr "Kontributor ketergantungan kontributor kontributor kontributor kontributor konklusi konklusi konodensial MUST melestarikan ketika mengubah fallback:"
+msgstr ""
 
 # libretranslate
 #, python-brace-format
@@ -22803,7 +22803,7 @@ msgstr "Panduan Sumbangan"
 
 # libretranslate
 msgid "Contribution documentation 🤝"
-msgstr "Dokumentasi dokumentasi dokumentasi dokumentasi 🤝"
+msgstr ""
 
 # libretranslate
 msgid "Contribution questions and workflow clarifications"
@@ -22882,7 +22882,7 @@ msgstr "Pengendalian apakah memaksa `main` Pemicu pipa CI. Pendorong ke semua ca
 
 # libretranslate
 msgid "Controls whether the push workflow updates the current repository's `main` branch before any later job derives deploy scope from `origin/main`. This keeps fork branch pushes aligned with the canonical default branch so diff-driven role discovery sees only the branch's own changes."
-msgstr "Penggawal apakah aliran kerja push mengupdate repositori saat ini `main` cabang cabang sebelum pekerjaan selanjutnya derives menyebarkan skop dari `origin/main`. Hal ini membuat cabang cabang cabang garpu terus mendorong sejajar dengan cabang baku kanonik sehingga penemuan peran diff-driven hanya melihat perubahan cabang sendiri."
+msgstr ""
 
 # libretranslate
 msgid "Convenience wrapper: - converts to string - if Jinja markers exist => render via strict Jinja2 using a robust context"
@@ -23337,7 +23337,7 @@ msgstr "Kredensial providensial MUST unik per provider dan, ketika sebuah provid
 
 # libretranslate
 msgid "Credentials and authorization"
-msgstr "Bukti Bukti Bukti Bukti Bukti Bukti dan Otorisasi"
+msgstr ""
 
 msgid "Credentials for proprietary / external (non-self-hosted) providers MUST be declared once in `group_vars/all/18_api.yml` under the `API` mapping (a key per provider, e.g. `cloudflare`, `telegram`, `github`, `google`, `jira`), sourced from the vault and defaulting to empty."
 msgstr ""

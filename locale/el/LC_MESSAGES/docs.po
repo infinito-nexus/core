@@ -2035,7 +2035,7 @@ msgstr "**Προσαρμοσμένη λογική (προαιρετικό).** Δ
 
 # libretranslate
 msgid "**Customizable Configuration:** Tailor settings such as storage, email delivery, and administrative parameters using environment variables and configuration files."
-msgstr "**Προσαρμογή ρύθμισης:** settings Tail Tail Tail Tail Tail Tail Tail Tail όπως η αποθήκευση, η παράδοση ηλεκτρονικού ταχυδρομείου και οι διοικητικές παράμετροι χρησιμοποιώντας περιβαλλοντικές μεταβλητές και αρχεία ρυθμίσεων."
+msgstr ""
 
 # libretranslate
 msgid "**Customizable Deployment:** Configure LDAP settings and LAM’s administrative credentials via flexible environment variables."
@@ -10629,7 +10629,7 @@ msgstr "**Περιγραφή**: Κοινή εξάρτηση υποδοχής ε�
 
 # libretranslate
 msgid "**description**: Shared message broker for async messaging with per-consumer virtual host and user isolation"
-msgstr "**Περιγραφή**: Shared message maker for async messaging with per-consumer virtual host and user semonity"
+msgstr ""
 
 # libretranslate
 msgid "**description**: Shared relational database server for applications needing central SQL storage, run in Docker"
@@ -12986,7 +12986,7 @@ msgstr "--add-host====Προσθήκη-host={{ entry }}"
 
 # libretranslate
 msgid "--distro debian --owner acme --repository infinito-nexus --tag ci-abc"
-msgstr "--distro debian -- owner acme -- repository infinito-nexus -- tag ci-abc -- ababcccccccccccccccccccccccccccccccccccabcccccccccccccccccccababccccccccccccccccccababcccccccccccccccccccccabcabcabababcccfinfinfinfinfinfinfinfinfinfinexexexex--exexexexexexexexexexexexexexexexexexexexexbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbianbian"
+msgstr ""
 
 # libretranslate
 msgid "--include web-app-nextcloud web-app-mastodon --include web-app-nextcloud,web-app-mastodon"
@@ -13230,7 +13230,7 @@ msgstr "022 - Zammad Helpdesk Ρόλος με OIDC SSO"
 
 # libretranslate
 msgid "023 - Docker Swarm Deployment with NFS-backed Shared Volumes"
-msgstr "023 - Docker Swarm Deplation with NFS-backed Shared Volumes"
+msgstr ""
 
 # libretranslate
 msgid "023 - Setup Penpot"
@@ -16054,7 +16054,7 @@ msgstr "Προστέθηκε η εξωτερική Docker έκδοση-ελέγ�
 
 # libretranslate
 msgid "Added the lint corpus for: project-walk / cache-read / project-root-import / no-direct-yaml / no-inline-multiline-php-in-sh / no-inline-multiline-sql / no-lookup-config-jinja-default / role-meta-layout / web-role-no-web-dependency / run-once-on-shared-services / redundant-bool-patterns / sed-escape / no-sh-pipefail / compose-resource-limits / dynamic-flag / auth-coverage / variant-coverage / variants-services-match / Ansible Galaxy schema / inline literal script-block size cap / production Python file-size cap / SPOT-of-truth for domain literals / oauth2 proxy-port allocation"
-msgstr "Προστέθηκε το lint corpus για: project-walk / cache-read / project-root-import / no-direct-yaml / no-inline-multiline-php-in-sh / no-inline-multiline-sql / no-lookup-config-jinja-default / role-meta-layout / web-role-no-web-dependency / run-on-on-shared-services / unoverse-bool-patters / sed-escape / no-sh-pipefail / semate-resource-limits / dynamic-flag / auth-coverage / parulture-coverage / parultures-services-match / Ansible Galaxy schema / inline calmage-block size / pythion- file-ize cap / SP-of-of-itage για domains / ouths / othauts2 κατανομή θύρας μεσολάβησης"
+msgstr ""
 
 # libretranslate
 msgid "Added the package-cache (Nexus 3 OSS) and registry-cache stacks with inner-build override, TTL env vars, and SPOT documentation"
@@ -26091,7 +26091,7 @@ msgstr "Γιατροί: `External Authentication <https://docs.bigbluebutton.org
 
 # libretranslate
 msgid "Document any plugin-specific task arguments in the plugin docstring and README."
-msgstr "Document every plugin-specific task buttons in the plugin docstring and README."
+msgstr ""
 
 # libretranslate
 msgid "Document intentional exceptions close to the relevant code so they stay visible until they can be removed."
@@ -29070,7 +29070,7 @@ msgstr "Όνομα"
 
 # libretranslate
 msgid "First pull of any image: cache miss, fetched upstream, persisted to disk."
-msgstr "Πρώτο τράβηγμα οποιασδήποτε εικόνας: λανθάνουσα λανθάνουσα λανθάνουσα λανθάνουσα λανθάνουσα λανθάνουσα λανθάνουσα λανθάνουσα ροή, επιμένουν στο δίσκο."
+msgstr ""
 
 # libretranslate
 msgid "First-Run Baseline 📦"
@@ -38935,7 +38935,7 @@ msgstr "Νέες εφαρμογές"
 
 # libretranslate
 msgid "New ERPNext role that ships the upstream Frappe Framework v15 stack as a web-app-erpnext role — backend, frontend, websocket, scheduler and two queue workers — wired into the central Keycloak via a built-in Keycloak Social Login Key and into the central OpenLDAP via the LDAP Settings doctype. The three-variant matrix (SSO plus LDAP, no auth, LDAP only) is exercised end-to-end and a repo-wide lint caps Ansible task names at 120 characters."
-msgstr "Νέο ERPNext ρόλο ότι τα πλοία το ανάντη Frappe Frappe Frappe Framework v15 στοίβα ως ένα web-app-erpnext ρόλοι — σύστημα υποστήριξης, σύστημα παρακολούθησης, websocket, προγραμματιστής και δύο εργαζόμενοι σε σειρά αναμονής — συνδεδεμένοι στο κεντρικό Keycloak μέσω ενσωματωμένου συστήματος Keycloak Κοινωνική σύνδεση κλειδί και στο κεντρικό OpenLDAP μέσω του Doctype Settings LDAP. Η μήτρα τριών μεταβλητών (SSO συν LDAP, χωρίς auth, LDAP μόνο) ασκείται end-to-end και ένα plint caps σε κλίμακα repo 120 χαρακτήρες."
+msgstr ""
 
 # libretranslate
 msgid "New Jitsi Meet role that adds an oauth2-proxy gated meeting surface plus matching LDAP-variant Playwright coverage. The spec layout is reorganised into a shared module and per-scenario test files so future scenarios can be added without touching the monolith."
@@ -48127,7 +48127,7 @@ msgstr "Διαδρομές που ισχυρίζεται το πρόσθετο"
 
 # libretranslate
 msgid "Routine maintenance: *.gitignore* now excludes local Claude agent artefacts (*launch.json*, *routines*, *workflows*), and dependabot bumps of *actions/stale* 9 → 10 and *eslint* 10.5.0 → 10.6.0."
-msgstr "Συντήρηση ρουτίνας: *. gitignore .gitignore . gi gi . . . . . . . . . . . . . . . . . . . . . . . . . . . . ore . . ore . . . ore gi gi gi gi ore ore gi gi gi gi gi gi gi gi ore gi gi gi gi gi gi gi gi gi ore ore ore ore ore ore ore ore ore ore ore ore ore ore ore ore ore ore ore ore ore ore ore ore ore ore ore ore ore ore ore ore ore ore ore ore* τώρα αποκλείει τοπικά αντικείμενα πράκτορα Claude (*launch.json*, *routineτίνες*, *Ροές εργασίας*), και εξαρτήσεις από *ενέργειες/ορατότητα* 9 → 10 και *εσλίντη* 10.5.0 → 10.6.0."
+msgstr ""
 
 # libretranslate
 msgid "Routine maintenance: Docker image and git-reference bumps, skills-lock refreshes, and dependabot updates (actions/checkout 6 to 7, @playwright/test 1.60.0 to 1.61.0, eslint 10.4.1 to 10.5.0)."
@@ -70291,7 +70291,7 @@ msgstr "[ ] [web-app-friendica](../../roles/web-app-friendica/): LDAP επιφά
 
 # libretranslate
 msgid "[ ] [web-app-fusiondirectory](../../roles/web-app-fusiondirectory/): IS the LDAP admin UI; its admin login already covers the LDAP bind path by construction."
-msgstr "[ ] [web-app-fusiondirectory](../../roles/web-app-fusiondirectory/): IS the LDAP admin UI? it admin login is already covers the LDAP connect path by construction."
+msgstr ""
 
 # libretranslate
 msgid "[ ] [web-app-fusiondirectory](../../roles/web-app-fusiondirectory/): LDAP admin UI; biber as a *managed* user appears in the directory view, but the role's own login is admin-only. Audit and document."
@@ -92799,7 +92799,7 @@ msgstr "δεμπιάν"
 
 # libretranslate
 msgid "debian/changelog source-package name restored to infinito-nexus so dpkg-source builds succeed again"
-msgstr "debian/changelog source-package name returned to infinito-nexus so dpkg-source builds success again"
+msgstr ""
 
 # libretranslate
 msgid "decidim"
@@ -97472,7 +97472,7 @@ msgstr "το κλειδί για την επίλυση του παιδιού."
 
 # libretranslate
 msgid "the chunk blocks themselves reserve only their static jobs (the discover step); their dynamic per-row matrices are exactly the slots being budgeted."
-msgstr "το ίδιο το κομμάτι διατηρεί μόνο τις στατικές θέσεις εργασίας τους (το βήμα ανακάλυψης)- οι δυναμικοί ανά σειρά πίνακες τους είναι ακριβώς οι διαθέσιμοι διαθέσιμοι διαθέσιμοι πόροι."
+msgstr ""
 
 # libretranslate
 msgid "the client's ``application_id``."
