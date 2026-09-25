@@ -215,7 +215,7 @@ For the full development setup, contribution workflow, testing, and coding stand
 
 ## Invest 💹
 
-We are actively looking for investors to help scale Infinito.Nexus and bring open, self-hosted infrastructure to more organizations worldwide. If you are interested in investing or partnering with us, please reach out via our [Investor Relations](SUPPORT.md#investor-relations) contact.
+We are actively looking for investors to help scale Infinito.Nexus and bring open, self-hosted infrastructure to more organizations worldwide. If you are interested in investing or partnering with us, please reach out via our [Investor Relations](SUPPORT.md#investor-relations-) contact.
 
 ## Code of Conduct 🕊️
 

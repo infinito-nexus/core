@@ -28,7 +28,7 @@ You MUST use [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119) keywords in all 
 ## Links 🔗
 
 - You MUST NOT use the full URL as link text. Use the domain name, `here`, or the filename instead. Never use the full path.
-- After `See`, you MUST use the domain name as link text, not `here`. `here` is only acceptable when the surrounding sentence reads naturally with it (e.g. "More information [here](...)").
+- After `See`, you MUST use the domain name as link text, not `here`. `here` is only acceptable when the surrounding sentence reads naturally with it (e.g. `More information [here](...)`).
 - For communication links such as Matrix, email, or phone, you MUST show only the value itself as link text, without any protocol prefix or URL wrapper.
 
 | Type | MUST NOT | MUST |
