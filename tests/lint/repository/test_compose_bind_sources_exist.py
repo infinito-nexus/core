@@ -7,7 +7,9 @@ turned `systemctl enable docker` into `File docker.service: Is a directory`.
 
 A relative source resolves against the project directory, so one that escapes
 the tree is wrong by construction. Absolute sources are host paths the cache
-stack creates on demand and are out of scope.
+stack creates on demand and are out of scope, as is a source a ``.gitignore``
+claims: the repository declares it generated, and its generator runs before
+the ``up``.
 """
 
 from __future__ import annotations
@@ -19,6 +21,7 @@ from typing import ClassVar
 
 from utils import PROJECT_ROOT
 from utils.cache.files import read_text
+from utils.cache.gitignore import is_path_gitignored, load_gitignore_patterns
 from utils.cache.yaml import load_yaml_any
 
 FILES = ("compose.yml", "compose.cache-consumer.yml", "compose/*.yml", "i18n/*.yml")
@@ -69,6 +72,21 @@ def _head(entry: str) -> str:
     return entry
 
 
+def _generated(root: Path, resolved: Path) -> bool:
+    """Whether a ``.gitignore`` between *root* and *resolved* declares the source generated.
+
+    Args:
+        root: the project directory relative sources resolve against.
+        resolved: an in-tree bind source that does not exist yet.
+    """
+    rel = resolved.relative_to(root).parts
+    for depth in range(len(rel)):
+        patterns = load_gitignore_patterns(str(root.joinpath(*rel[:depth])))
+        if patterns and is_path_gitignored("/".join(rel[depth:]), patterns):
+            return True
+    return False
+
+
 def _sources(body) -> list[str]:
     found: list[str] = []
     for entry in (body or {}).get("volumes") or []:
@@ -99,7 +117,9 @@ class TestComposeBindSourcesExist(unittest.TestCase):
                         outside = not resolved.is_relative_to(self.root)
                         if outside and Path(source).is_absolute():
                             continue
-                        if outside or not resolved.exists():
+                        if outside or not (
+                            resolved.exists() or _generated(self.root, resolved)
+                        ):
                             key = str(path.relative_to(self.root))
                             missing.setdefault(key, []).append(raw)
 
