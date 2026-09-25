@@ -53,11 +53,6 @@ services:
               capabilities: [gpu]
     networks:
       default:
-      i18n-cache:
 volumes:
   i18n-docker:
   i18n-var-lib:
-networks:
-  i18n-cache:
-    external: true
-    name: ${INFINITO_CACHE_NETWORK:?Set by 'make worktree-up' from the running cache stack}
