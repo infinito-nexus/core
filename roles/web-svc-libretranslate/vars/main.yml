@@ -9,6 +9,7 @@ LIBRETRANSLATE_GPU: "{{ lookup('applications') | resource_filter(application_id,
 LIBRETRANSLATE_VERSION: "{{ lookup('config', application_id, 'services.libretranslate.version') ~ ('-cuda' if LIBRETRANSLATE_GPU | bool else '') }}"
 LIBRETRANSLATE_LOAD_ONLY: "{{ lookup('config', application_id, 'services.libretranslate.load_only') | join(',') }}"
 LIBRETRANSLATE_DIRECTIONS: "{{ lookup('config', application_id, 'services.libretranslate.directions') }}"
+LIBRETRANSLATE_APP_USER: "{{ 'root' if LIBRETRANSLATE_GPU | bool else 'libretranslate' }}"
 LIBRETRANSLATE_THREADS: "{{ [(lookup('config', application_id, 'services.libretranslate.cpus') | float) | round(0, 'ceil') | int, 1] | max }}"
 LIBRETRANSLATE_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'libretranslate') }}"
 LIBRETRANSLATE_MCP_ENABLED: "{{ lookup('config', application_id, 'services.libretranslatemcp.enabled') | bool }}"
