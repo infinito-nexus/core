@@ -14,43 +14,13 @@ from __future__ import annotations
 
 import re
 from functools import lru_cache
-from pathlib import Path
 
-from utils.cache.files import PROJECT_ROOT, read_text
-from utils.cache.yaml import load_yaml
-from utils.roles.mapping import ROLE_FILE_META_MAIN
+from utils.cache.files import PROJECT_ROOT
+from utils.meta.role.names import role_names
+from utils.meta.role.titles import role_titles
 
-ROLES_DIR = "roles"
-README = "README.md"
 SENTENCE_END = re.compile(r"[.!?:;\n]\s*[*_`\"'(\[]*\s*$")
 OPENERS = " *_`\"'(["
-
-
-@lru_cache(maxsize=1)
-def _sources(root: str) -> tuple[tuple[str, ...], tuple[str, ...]]:
-    """Return the role directory names and the titles they declare.
-
-    Args:
-        root: repository root, as a string so the cache key stays hashable.
-    """
-    roles, titles = [], set()
-    for path in sorted(Path(root, ROLES_DIR).iterdir()):
-        if not path.is_dir():
-            continue
-        roles.append(path.name)
-        readme = path / README
-        if readme.is_file():
-            for line in read_text(str(readme)).splitlines():
-                if line.startswith("# "):
-                    titles.add(line[2:].strip())
-                    break
-        meta = path / ROLE_FILE_META_MAIN
-        if meta.is_file():
-            declared = load_yaml(str(meta)) or {}
-            name = (declared.get("galaxy_info") or {}).get("name")
-            if name:
-                titles.add(str(name).strip())
-    return tuple(roles), tuple(titles)
 
 
 def _alternation(names) -> str:
@@ -81,7 +51,7 @@ def patterns(
         The pattern for hyphenated role names, which hold wherever they appear,
         and the one for titles, which holds only on a capitalised occurrence.
     """
-    roles, titles = _sources(root)
+    roles, titles = role_names(root), role_titles(root)
     hyphenated = [name for name in roles if "-" in name]
     return (
         re.compile(_alternation(hyphenated)) if hyphenated else None,
