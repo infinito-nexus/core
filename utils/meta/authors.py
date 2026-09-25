@@ -1,19 +1,45 @@
-"""The people the repository credits, as one source for every reader.
+"""The people the roles name as their authors.
 
-The names are derived from the ``## Credits`` sections themselves rather than
-kept as a list, so crediting a contributor needs no code change. The derivation
-lives in :mod:`utils.roles.credits`; this module is the entry point for readers
-that want the names alone.
+``galaxy_info.author`` is where a role records who implemented it, so that is
+where the names are read. A role may credit more than one person, comma
+separated.
 """
 
 from __future__ import annotations
 
 from functools import lru_cache
+from pathlib import Path
 
-from utils.roles.credits import author_urls
+from utils.cache.files import PROJECT_ROOT
+from utils.cache.yaml import load_yaml
+from utils.meta.role.names import ROLES_DIR
+from utils.roles.mapping import ROLE_FILE_META_MAIN
+
+
+def role_authors(role_dir: Path) -> tuple[str, ...]:
+    """Return the people ``role_dir`` names as its authors.
+
+    Args:
+        role_dir: the role's directory.
+    """
+    meta = role_dir / ROLE_FILE_META_MAIN
+    if not meta.is_file():
+        return ()
+    declared = ((load_yaml(str(meta)) or {}).get("galaxy_info") or {}).get("author")
+    if not declared:
+        return ()
+    return tuple(part.strip() for part in str(declared).split(",") if part.strip())
 
 
 @lru_cache(maxsize=1)
-def author_names() -> tuple[str, ...]:
-    """Return every credited person's name, sorted."""
-    return tuple(sorted(author_urls()))
+def author_names(root: str = str(PROJECT_ROOT)) -> tuple[str, ...]:
+    """Return every declared role author, sorted and without duplicates.
+
+    Args:
+        root: repository root, as a string so the cache key stays hashable.
+    """
+    found = set()
+    for path in sorted(Path(root, ROLES_DIR).iterdir()):
+        if path.is_dir():
+            found.update(role_authors(path))
+    return tuple(sorted(found))

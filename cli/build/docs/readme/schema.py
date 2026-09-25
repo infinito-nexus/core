@@ -35,8 +35,8 @@ _REQUIRED_CTX: dict = {
 
 _OPTIONAL_CTX: dict = {
     "application_invokable": True,
+    "application_author_url": "https://social.infinito.nexus/profile/example/profile",
     "cosmos_intro": "Example cosmos intro.",
-    "application_author_url": "https://www.veen.world",
     "application_use_cases": "Example use case.",
     "application_developer_notes": [{"file": "Administration.md", "description": "notes."}],
     "application_further_resources": [{"label": "Example", "url": "https://example.com/"}],
