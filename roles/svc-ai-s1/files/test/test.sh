@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # shellcheck shell=bash
 #
-# svc-ai-jeff System One test: runs probe.py inside the jeff container.
+# svc-ai-s1 System One test: runs probe.py inside the decider's container.
 #
 # Env (rendered into test.env from templates/test.env.j2):
-#   JEFF_CONTAINER   resolved server container (CLI_LOCAL_CID)
-#   JEFF_PORT        http port the server listens on inside the container
-#   JEFF_MODEL_ALIAS alias the API accepts in a request's model field
+#   S1_CONTAINER     resolved server container (CLI_LOCAL_CID)
+#   S1_PORT          http port the server listens on inside the container
+#   S1_MODEL_ALIAS   alias the API accepts in a request's model field
 #   READY_RETRIES    readiness attempts (default 30)
 #   READY_SLEEP_SECONDS wait between attempts (default 10)
 
@@ -16,17 +16,17 @@ here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 READY_RETRIES="${READY_RETRIES:-30}"
 READY_SLEEP_SECONDS="${READY_SLEEP_SECONDS:-10}"
 
-[ -n "${JEFF_CONTAINER}" ] || {
-	echo "[FATAL] JEFF_CONTAINER unset; the server container was not resolved" >&2
+[ -n "${S1_CONTAINER}" ] || {
+	echo "[FATAL] S1_CONTAINER unset; the server container was not resolved" >&2
 	exit 2
 }
 
 probe() {
 	# nocheck: container-exec-resolver  address resolved by the caller and passed in
 	container exec -i \
-		-e "PORT=${JEFF_PORT}" \
-		-e "MODEL=${JEFF_MODEL_ALIAS}" \
-		"${JEFF_CONTAINER}" python3 - <"${here}/probe.py"
+		-e "PORT=${S1_PORT}" \
+		-e "MODEL=${S1_MODEL_ALIAS}" \
+		"${S1_CONTAINER}" python3 - <"${here}/probe.py"
 }
 
 attempt=1

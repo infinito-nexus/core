@@ -54,7 +54,7 @@ These choices are settled at requirement creation time and bound the implementat
 
 8. **The decision is deterministic, and a learned decision model is out of scope.** Among the routes that survive the filter, each is scored on the factors of decision 9 and the highest scorer wins, with the alias breaking a tie. The same request therefore returns the same model twice. No inference runs, nothing is downloaded, and the CI rows mean the same thing as production.
 
-   **This decision was reversed.** A System One *model* was weighed and rejected here on the ground that the filter in decision 5 already leaves one to three candidates, so a model choosing between two that can both answer buys accuracy nobody can measure while adding a container, a checkpoint and a second thing that can be down when the gateway starts. The operator reversed it: [`svc-ai-jeff`](../../roles/svc-ai-jeff/) now serves that decision under decision 11's `system_one` strategy.
+   **This decision was reversed.** A System One *model* was weighed and rejected here on the ground that the filter in decision 5 already leaves one to three candidates, so a model choosing between two that can both answer buys accuracy nobody can measure while adding a container, a checkpoint and a second thing that can be down when the gateway starts. The operator reversed it: [`svc-ai-s1`](../../roles/svc-ai-s1/) now serves that decision under decision 11's `system_one` strategy.
 
    What the rejection got right still holds and is now a cost rather than an argument. jeff ships no container image, so the role builds one from a pinned commit. It answers over a 575M GLiFormer encoder, so it carries a checkpoint. And the `auto` alias now depends on a service that can be unavailable, which is why an unreachable decider rejects loudly instead of falling back.
 
@@ -86,7 +86,7 @@ These choices are settled at requirement creation time and bound the implementat
 
     `weighted` is decision 9's score. It ranks on standing preferences and, once the filter has run, ignores the prompt entirely: the same candidate set returns the same winner whatever was asked. The name is the mechanism, and it names its own configuration: `router_strategy: weighted` is the strategy that reads `router_weights`, which `system_one` ignores.
 
-    `system_one` puts the choice to [`svc-ai-jeff`](../../roles/svc-ai-jeff/). The surviving candidates become the options of a single `choice` question and the prompt becomes the state it classifies, so the decision reads what the request is about rather than only how large it is. An option the router did not offer is refused rather than routed to, because the filter excluded the others for a reason.
+    `system_one` puts the choice to [`svc-ai-s1`](../../roles/svc-ai-s1/). The surviving candidates become the options of a single `choice` question and the prompt becomes the state it classifies, so the decision reads what the request is about rather than only how large it is. An option the router did not offer is refused rather than routed to, because the filter excluded the others for a reason.
 
     Neither strategy is chosen by hand. `services.litellm.router_strategy` derives from `services.jeff.enabled`: with the System One service deployed the gateway asks it, and without it there is nothing to ask, so the gateway falls to the strategy it can compute itself. Reading the service flag rather than `group_names` keeps one path from the deployment to the behaviour.
 
@@ -127,7 +127,7 @@ flowchart TB
         elig["eligible()<br/>drop what cannot serve it"]
         keep["local_reason()<br/>drop remote when it must stay in"]
         dec["decide()<br/>weighted score or system_one choice"]
-        jeff["svc-ai-jeff<br/>typed choice, no generation"]
+        jeff["svc-ai-s1<br/>typed choice, no generation"]
         weights["router_strategy + router_weights<br/>locality, cost, speed, caching, throughput"]
         rates["measure_speed.py<br/>1 warm-up + 12 measured per model at deploy"]
     end
@@ -191,7 +191,7 @@ flowchart TB
 - [x] Every routing factor carries a 0..1 weight in `services.litellm.router_weights`, a zero weight removes the factor, and no weighting lets a restricted request reach a remote model.
 - [x] The hook reads every catalogued field a request can act on, a demanded capability is proven before use, and a disqualifier fires only on explicit evidence.
 - [x] `services.litellm.router_strategy` derives from `services.jeff.enabled` and selects `weighted` or `system_one`, and the two return different models for the same candidate set.
-- [ ] `svc-ai-jeff` builds, serves `/healthz`, and answers the gateway's choice question with an alias the router offered.
+- [ ] `svc-ai-s1` builds, serves `/healthz`, and answers the gateway's choice question with an alias the router offered.
 - [ ] Variant 2 deploys with three mocks of distinct windows and `system_one`, and the routing probe shows the choice following the prompt.
 - [ ] The deploy sends `services.litellm.router_speed_samples` requests to each served model, and the measured rates reach `model_info.traits.speed` in the rendered config on the same deploy.
 - [x] The routing probe treats the alias as served rather than as a route without a backend, and fails when the gateway withholds it.

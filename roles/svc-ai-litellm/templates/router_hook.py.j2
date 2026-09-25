@@ -40,13 +40,13 @@ ROUTER_ALIAS = {{ LITELLM_ROUTER_ALIAS | to_json }}
 REMOTE_FALLBACK = {{ 'True' if LITELLM_ROUTER_REMOTE_FALLBACK | bool else 'False' }}
 ROUTER_WEIGHTS = {{ LITELLM_ROUTER_WEIGHTS | to_json }}
 ROUTER_STRATEGY = {{ LITELLM_ROUTER_STRATEGY | to_json }}
-JEFF_URL = {{ LITELLM_JEFF_URL | to_json }}
-JEFF_KEY = {{ LITELLM_JEFF_KEY | to_json }}
-JEFF_MODEL = {{ LITELLM_JEFF_MODEL | to_json }}
-JEFF_TIMEOUT = {{ LITELLM_JEFF_TIMEOUT | int }}
-JEFF_QUESTION = "route"
-JEFF_VERDICT_QUESTION = "verdict"
-JEFF_MAX_STATE_CHARS = {{ LITELLM_ROUTER_STATE_CHARS | int }}
+S1_URL = {{ LITELLM_S1_URL | to_json }}
+S1_KEY = {{ LITELLM_S1_KEY | to_json }}
+S1_MODEL = {{ LITELLM_S1_MODEL | to_json }}
+S1_TIMEOUT = {{ LITELLM_S1_TIMEOUT | int }}
+S1_QUESTION = "route"
+S1_VERDICT_QUESTION = "verdict"
+S1_MAX_STATE_CHARS = {{ LITELLM_ROUTER_STATE_CHARS | int }}
 
 SAMPLE_ENABLED = {{ 'True' if LITELLM_ROUTER_SAMPLE_ENABLED | bool else 'False' }}
 SAMPLE_MODE = {{ LITELLM_ROUTER_SAMPLE_MODE | to_json }}
@@ -542,16 +542,16 @@ def describe(entry, need, tally=None):
     return ", ".join(facts)
 
 
-def ask_jeff(text, candidates, need, tally=None):
-    """Put the routing choice to jeff as one typed choice question.
+def ask_s1(text, candidates, need, tally=None):
+    """Put the routing choice to the decider as one typed choice question.
 
-    jeff answers typed questions rather than generating, so the candidates
-    become the options of a single ``choice`` and the prompt becomes the state
-    it classifies. Returns ``(alias, confidence)``.
+    The decider answers typed questions rather than generating, so the
+    candidates become the options of a single ``choice`` and the prompt becomes
+    the state it classifies. Returns ``(alias, confidence)``.
 
     Raises:
-        OSError: when jeff cannot be reached.
-        ValueError: when jeff answers a shape or an option this router did not
+        OSError: when the decider cannot be reached.
+        ValueError: when it answers a shape or an option this router did not
             offer, which must not be read as a route.
     """
     criteria = {
@@ -559,7 +559,7 @@ def ask_jeff(text, candidates, need, tally=None):
     }
     answer = _systemone(
         text,
-        JEFF_QUESTION,
+        S1_QUESTION,
         "Which of these models should answer the request? Prefer the smallest "
         "one that can serve it well.",
         criteria,
@@ -567,21 +567,21 @@ def ask_jeff(text, candidates, need, tally=None):
     alias = answer.get("choice")
     if alias not in criteria:
         raise ValueError(
-            f"jeff chose {alias!r}, which was not among {sorted(criteria)}"
+            f"the decider chose {alias!r}, which was not among {sorted(criteria)}"
         )
     return alias, float(answer.get("confidence") or 0.0)
 
 
 def _systemone(state, question, instructions, criteria):
-    """Put one typed choice to jeff and return the answer block it sent.
+    """Put one typed choice to the decider and return the answer block it sent.
 
     Raises:
-        OSError: when jeff cannot be reached.
-        ValueError: when jeff answers a different question than the one asked.
+        OSError: when the decider cannot be reached.
+        ValueError: when it answers a different question than the one asked.
     """
     payload = {
-        "state": state[:JEFF_MAX_STATE_CHARS],
-        "model": JEFF_MODEL,
+        "state": state[:S1_MAX_STATE_CHARS],
+        "model": S1_MODEL,
         "questions": {
             question: {
                 "type": "choice",
@@ -591,24 +591,24 @@ def _systemone(state, question, instructions, criteria):
         },
     }
     request = urllib.request.Request(
-        f"{JEFF_URL}/v1/systemone",
+        f"{S1_URL}/v1/systemone",
         data=json.dumps(payload).encode(),
         headers={
-            "Authorization": f"Bearer {JEFF_KEY}",
+            "Authorization": f"Bearer {S1_KEY}",
             "Content-Type": "application/json",
         },
         method="POST",
     )
-    with urllib.request.urlopen(request, timeout=JEFF_TIMEOUT) as response:  # noqa: S310 configured internal origin
+    with urllib.request.urlopen(request, timeout=S1_TIMEOUT) as response:  # noqa: S310 configured internal origin
         body = json.loads(response.read())
     answer = (body.get("answers") or {}).get(question)
     if not answer:
-        raise ValueError(f"jeff returned no answer to {question!r}")
+        raise ValueError(f"the decider returned no answer to {question!r}")
     return answer
 
 
 def judge_answers(text, replies):
-    """The alias whose reply jeff calls the best answer to *text*.
+    """The alias whose reply the decider calls the best answer to *text*.
 
     The options are the replies themselves, not the routes that produced them,
     so the verdict rests on what came back rather than on what the catalog
@@ -617,30 +617,30 @@ def judge_answers(text, replies):
     labels = {f"option-{index}": alias for index, alias in enumerate(sorted(replies))}
     answer = _systemone(
         text,
-        JEFF_VERDICT_QUESTION,
+        S1_VERDICT_QUESTION,
         "Which of these answers serves the request best?",
-        {label: replies[alias][:JEFF_MAX_STATE_CHARS] for label, alias in labels.items()},
+        {label: replies[alias][:S1_MAX_STATE_CHARS] for label, alias in labels.items()},
     )
     label = answer.get("choice")
     if label not in labels:
         raise ValueError(
-            f"jeff chose {label!r}, which was not among {sorted(labels)}"
+            f"the decider chose {label!r}, which was not among {sorted(labels)}"
         )
     return labels[label]
 
 
 def decide_system_one(candidates, need, text, tally=None):
-    """The route jeff picks for this prompt.
+    """The route the decider picks for this prompt.
 
     The weighted strategy ranks on standing preferences and stops reading the
     prompt once the filter has run. This one hands the prompt and the surviving
     candidates to a System One model, which answers a typed choice without
-    generating. jeff being unreachable is not routed around: the caller named
+    generating. An unreachable decider is not routed around: the caller named
     an alias precisely so it would not have to know which model answered, and
     quietly substituting a different decider would make that answer mean
     something else.
     """
-    alias, _confidence = ask_jeff(text, candidates, need, tally)
+    alias, _confidence = ask_s1(text, candidates, need, tally)
     return alias
 
 

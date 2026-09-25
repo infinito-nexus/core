@@ -9,7 +9,7 @@ LITELLM_BASE_LOCAL_URL: "http://{{ lookup('config','svc-ai-litellm', 'services.l
 LMSTUDIO_BASE_LOCAL_URL: "http://{{ lookup('config','svc-ai-lmstudio', 'services.lmstudio.name') }}:{{ lookup('config','svc-ai-lmstudio', 'services.lmstudio.ports.internal.http')
   }}"
 
-JEFF_BASE_LOCAL_URL: "http://{{ lookup('config','svc-ai-jeff', 'services.jeff.name') }}:{{ lookup('config','svc-ai-jeff', 'services.jeff.ports.internal.http') }}"
+S1_BASE_LOCAL_URL: "http://{{ lookup('config','svc-ai-s1', 'services.s1.name') }}:{{ lookup('config','svc-ai-s1', 'services.s1.ports.internal.http') }}"
 
 LITELLM_OPENAI_BASE_LOCAL_URL: "{{ LITELLM_BASE_LOCAL_URL }}/v1"
 

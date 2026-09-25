@@ -31,7 +31,7 @@ from . import PROJECT_ROOT
 TEMPLATE = PROJECT_ROOT / "roles/svc-ai-litellm/templates/router_hook.py.j2"
 ALIAS = "auto"
 TODAY = "2026-09-24"
-JEFF_URL = "http://jeff:8000"
+S1_URL = "http://s1:8000"
 
 SHIPPED = load_yaml(PROJECT_ROOT / "roles/svc-ai-litellm" / ROLE_FILE_META_SERVICES)[
     "litellm"
@@ -121,10 +121,10 @@ def load(
         LITELLM_ROUTER_STRATEGY=strategy,
         LITELLM_ROUTER_MIN_CHARS_PER_TOKEN=SHIPPED_MIN_CHARS_PER_TOKEN,
         LITELLM_ROUTER_STATE_CHARS=SHIPPED_STATE_CHARS,
-        LITELLM_JEFF_URL=JEFF_URL,
-        LITELLM_JEFF_KEY="jeff-test-key",
-        LITELLM_JEFF_MODEL="jev-latest",
-        LITELLM_JEFF_TIMEOUT=20,
+        LITELLM_S1_URL=S1_URL,
+        LITELLM_S1_KEY="s1-test-key",
+        LITELLM_S1_MODEL="s1-latest",
+        LITELLM_S1_TIMEOUT=20,
         LITELLM_ROUTER_SAMPLE_ENABLED=sample_enabled,
         LITELLM_ROUTER_SAMPLE_MODE=SHIPPED_SAMPLE["mode"]
         if sample_mode is None
@@ -619,11 +619,11 @@ class TestConventionalStrategy(HookCase, unittest.TestCase):
         self.assertEqual((small, large), ("big", "big"))
 
 
-class JeffStub:
-    """Stands in for the jeff server, recording what the router asked it.
+class DeciderStub:
+    """Stands in for the System One server, recording what the router asked it.
 
     Args:
-        choice: the alias jeff answers with, or None to raise a transport error.
+        choice: the alias it answers with, or None to raise a transport error.
         confidence: the confidence it reports alongside the choice.
     """
 
@@ -672,7 +672,7 @@ class _Response:
 
 
 class TestSystemOneStrategy(HookCase, unittest.TestCase):
-    """The prompt goes to jeff, which answers one typed choice."""
+    """The prompt goes to the decider, which answers one typed choice."""
 
     ROUTES: ClassVar[list] = [
         local("small", context=4096),
@@ -689,42 +689,42 @@ class TestSystemOneStrategy(HookCase, unittest.TestCase):
                 strategy="system_one",
             )
 
-    def test_the_alias_jeff_chooses_is_the_one_routed_to(self) -> None:
-        self.assertEqual(self.ask(JeffStub("large")), "large")
-        self.assertEqual(self.ask(JeffStub("small")), "small")
+    def test_the_alias_the_decider_chooses_is_the_one_routed_to(self) -> None:
+        self.assertEqual(self.ask(DeciderStub("large")), "large")
+        self.assertEqual(self.ask(DeciderStub("small")), "small")
 
     def test_the_candidates_become_the_choice_options(self) -> None:
-        stub = JeffStub("small")
+        stub = DeciderStub("small")
         self.ask(stub)
         question = stub.seen["body"]["questions"]["route"]
         self.assertEqual(question["type"], "choice")
         self.assertEqual(sorted(question["criteria"]), ["large", "small"])
 
     def test_the_prompt_is_the_state_it_classifies(self) -> None:
-        stub = JeffStub("small")
+        stub = DeciderStub("small")
         self.ask(stub, text="summarise this invoice")
         self.assertEqual(stub.seen["body"]["state"], "summarise this invoice")
 
     def test_the_request_carries_the_model_alias_and_the_bearer_key(self) -> None:
-        stub = JeffStub("small")
+        stub = DeciderStub("small")
         self.ask(stub)
-        self.assertEqual(stub.seen["body"]["model"], "jev-latest")
-        self.assertEqual(stub.seen["headers"]["authorization"], "Bearer jeff-test-key")
-        self.assertEqual(stub.seen["url"], f"{JEFF_URL}/v1/systemone")
+        self.assertEqual(stub.seen["body"]["model"], "s1-latest")
+        self.assertEqual(stub.seen["headers"]["authorization"], "Bearer s1-test-key")
+        self.assertEqual(stub.seen["url"], f"{S1_URL}/v1/systemone")
 
     def test_a_long_prompt_is_truncated_to_what_the_server_accepts(self) -> None:
-        stub = JeffStub("small")
+        stub = DeciderStub("small")
         self.ask(stub, text="x" * 50000)
         self.assertEqual(
             len(stub.seen["body"]["state"]),
-            self.hook.JEFF_MAX_STATE_CHARS,
+            self.hook.S1_MAX_STATE_CHARS,
             "the server answers 422 above its state limit, which would read as "
             "a routing failure rather than an oversized prompt",
         )
 
     def test_an_option_the_router_never_offered_is_refused(self) -> None:
         with self.assertRaises(ValueError):
-            self.ask(JeffStub("a-model-nobody-serves"))
+            self.ask(DeciderStub("a-model-nobody-serves"))
 
     def test_the_prompt_changes_the_choice_where_weights_cannot(self) -> None:
         need = {**self.need, "input_tokens": 10}
@@ -734,14 +734,14 @@ class TestSystemOneStrategy(HookCase, unittest.TestCase):
             ),
             "large",
         )
-        self.assertEqual(self.ask(JeffStub("small"), need=need), "small")
+        self.assertEqual(self.ask(DeciderStub("small"), need=need), "small")
 
     def test_the_render_carries_the_strategy(self) -> None:
         self.assertEqual(load(strategy="system_one").ROUTER_STRATEGY, "system_one")
 
     def test_an_unreachable_decider_rejects_rather_than_substituting_one(self) -> None:
         hook = load(strategy="system_one")
-        stub = JeffStub(None)
+        stub = DeciderStub(None)
         with unittest.mock.patch("urllib.request.urlopen", stub.urlopen):
             verdict = TestLoudFailure.route(
                 types.SimpleNamespace(hook=hook),
@@ -763,9 +763,9 @@ class TestShippedConfiguration(HookCase, unittest.TestCase):
     def test_the_render_carries_the_shipped_weights(self) -> None:
         self.assertEqual(self.hook.ROUTER_WEIGHTS, SHIPPED_WEIGHTS)
 
-    def test_the_shipped_strategy_reads_the_jeff_service_flag(self) -> None:
+    def test_the_shipped_strategy_reads_the_decider_service_flag(self) -> None:
         self.assertIn(
-            "services.jeff.enabled",
+            "services.s1.enabled",
             SHIPPED_ROUTER["strategy"],
             "the strategy follows whether the System One service is deployed, "
             "and it reads that from the one flag that decides it",
@@ -908,7 +908,7 @@ class TestAnswerVerdict(unittest.TestCase):
         self.hook = load()
 
     def test_the_aliases_are_hidden_from_the_decider(self) -> None:
-        stub = JeffStub("option-0", question="verdict")
+        stub = DeciderStub("option-0", question="verdict")
         with unittest.mock.patch("urllib.request.urlopen", stub.urlopen):
             self.hook.judge_answers("q", {"cheap": "a", "pricey": "b"})
         criteria = stub.seen["body"]["questions"]["verdict"]["criteria"]
@@ -916,13 +916,13 @@ class TestAnswerVerdict(unittest.TestCase):
         self.assertEqual(sorted(criteria.values()), ["a", "b"])
 
     def test_the_label_maps_back_to_the_alias_that_wrote_it(self) -> None:
-        stub = JeffStub("option-1", question="verdict")
+        stub = DeciderStub("option-1", question="verdict")
         with unittest.mock.patch("urllib.request.urlopen", stub.urlopen):
             winner = self.hook.judge_answers("q", {"cheap": "a", "pricey": "b"})
         self.assertEqual(winner, "pricey")
 
     def test_an_answer_outside_the_options_is_not_read_as_a_verdict(self) -> None:
-        stub = JeffStub("option-9", question="verdict")
+        stub = DeciderStub("option-9", question="verdict")
         with (
             unittest.mock.patch("urllib.request.urlopen", stub.urlopen),
             self.assertRaises(ValueError),

@@ -1,6 +1,6 @@
 ---
 # nocheck: playwright-service-flag - typed classification API without a browser surface
-jeff:
+s1:
   modes:
     compose:
       enabled: true
@@ -14,18 +14,26 @@ jeff:
   image: python
   version: "3.12.14-slim"
   custom: true
-  name: jeff
-  repository: https://github.com/logan-markewich/jeff.git
-  # nocheck: semver-ref  upstream publishes no tags, so the pin is a commit
-  ref: 34b32f99a727c47b679adde33f4702a001e02979
-  model_repo: knowledgator/gliformer-large-v1
-  model_alias: jev-latest
+  name: s1
+  model_alias: s1-latest
   request_timeout: 20
-  flavor: torch
+  gpu: true
+  flavor: laya
+  laya:
+    checkpoints:
+      - name: english
+        repo: convaiinnovations/laya
+      - name: multilingual
+        repo: convaiinnovations/laya-multilingual
+  jeff:
+    repository: https://github.com/logan-markewich/jeff.git
+    # nocheck: semver-ref  upstream publishes no tags, so the pin is a commit
+    ref: 34b32f99a727c47b679adde33f4702a001e02979
+    model_repo: knowledgator/gliformer-large-v1
   healthcheck:
     flavor: http_status
-    path: healthz
-  # nocheck: min-storage-headroom  Reason: the declared image is the Dockerfile base; the built image adds torch and the 575M GLiFormer checkpoint
+    path: health
+  # nocheck: min-storage-headroom  Reason: the declared image is the Dockerfile base; the built image adds the runtime and the checkpoints the flavor bakes
   min_storage: 4GB
   cpus: "2.0"
   mem_reservation: 3g

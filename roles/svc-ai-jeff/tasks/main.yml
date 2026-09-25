@@ -1,5 +1,0 @@
----
-- include_tasks: 00_core.yml
-  when: run_once_svc_ai_jeff is not defined
-  vars:
-    application_id: svc-ai-jeff

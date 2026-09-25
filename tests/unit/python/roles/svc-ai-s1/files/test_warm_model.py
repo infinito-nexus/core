@@ -10,12 +10,12 @@ from unittest.mock import patch
 
 from . import PROJECT_ROOT
 
-SCRIPT_PATH = PROJECT_ROOT / "roles/svc-ai-jeff/files/python/warm_model.py"
+SCRIPT_PATH = PROJECT_ROOT / "roles/svc-ai-s1/files/python/warm_model.py"
 
 ENVIRONMENT = {
-    "JEFF_PORT": "8080",
-    "JEFF_MODEL_ALIASES": "jev-latest,jev-older",
-    "JEFF_API_KEYS": "sk-first-key,sk-second-key",
+    "S1_PORT": "8080",
+    "S1_MODEL_ALIAS": "s1-latest",
+    "S1_API_KEY": "sk-first-key",
 }
 
 
@@ -44,7 +44,7 @@ def run_script(body: bytes) -> dict[str, object]:
         seen["timeout"] = timeout
         return FakeResponse(body)
 
-    spec = importlib.util.spec_from_file_location("jeff_warm_model", SCRIPT_PATH)
+    spec = importlib.util.spec_from_file_location("s1_warm_model", SCRIPT_PATH)
     module = importlib.util.module_from_spec(spec)
     with (
         patch.dict("os.environ", ENVIRONMENT, clear=False),
@@ -54,23 +54,23 @@ def run_script(body: bytes) -> dict[str, object]:
     return seen
 
 
-class TestJeffWarmModel(unittest.TestCase):
-    """The router refuses to route when jeff misses its deadline, so the deploy
-    pays the cold load instead of the first caller. That only holds when the
-    warm-up reaches jeff and recognises a real answer.
+class TestS1WarmModel(unittest.TestCase):
+    """The router refuses to route when the decider misses its deadline, so the
+    deploy pays the first inference instead of the first caller. That only holds
+    when the warm-up reaches the decider and recognises a real answer.
     """
 
     ANSWERED: ClassVar[bytes] = b'{"answers": {"warmup": {"choice": "weather"}}}'
 
-    def test_asks_jeff_on_its_own_loopback(self) -> None:
+    def test_asks_the_decider_on_its_own_loopback(self) -> None:
         seen = run_script(self.ANSWERED)
         self.assertEqual(seen["url"], "http://127.0.0.1:8080/v1/systemone")
         self.assertEqual(seen["method"], "POST")
 
-    def test_takes_the_first_alias_and_the_first_key(self) -> None:
+    def test_carries_the_flavor_neutral_alias_and_key(self) -> None:
         seen = run_script(self.ANSWERED)
         self.assertEqual(seen["headers"]["authorization"], "Bearer sk-first-key")
-        self.assertEqual(seen["body"]["model"], "jev-latest")
+        self.assertEqual(seen["body"]["model"], "s1-latest")
 
     def test_asks_a_choice_question_the_encoder_can_answer(self) -> None:
         question = run_script(self.ANSWERED)["body"]["questions"]["warmup"]
@@ -86,7 +86,7 @@ class TestJeffWarmModel(unittest.TestCase):
         self.assertGreater(
             run_script(self.ANSWERED)["timeout"],
             20,
-            "the cold load is what overruns services.jeff.request_timeout, so a "
+            "the first inference is what overruns services.s1.request_timeout, so a "
             "warm-up on that budget would time out exactly where the router did",
         )
 

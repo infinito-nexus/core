@@ -19,7 +19,7 @@ litellm:
     alias: auto
     remote_fallback: false
     # nocheck: dynamic-flag
-    strategy: "{{ 'system_one' if (lookup('config', 'svc-ai-litellm', 'services.jeff.enabled') | bool) else 'weighted' }}"
+    strategy: "{{ 'system_one' if (lookup('config', 'svc-ai-litellm', 'services.s1.enabled') | bool) else 'weighted' }}"
     min_chars_per_token: 2
     state_chars: 512
     weights:
@@ -68,11 +68,11 @@ postgres:
   shared: "{{ 'svc-db-postgres' in group_names }}"
 
 # nocheck: playwright-service-flag, dynamic-flag
-# nocheck: gateway-backend-registered  Reason: jeff decides which model answers, it is not one; the router hook calls /v1/systemone, no model alias resolves to it
-jeff:
+# nocheck: gateway-backend-registered  Reason: the decider picks which model answers, it is not one; the router hook calls /v1/systemone, no model alias resolves to it
+s1:
   bond: 0.5
-  enabled: "{{ 'svc-ai-jeff' in group_names }}"
-  shared: "{{ 'svc-ai-jeff' in group_names }}"
+  enabled: "{{ 'svc-ai-s1' in group_names }}"
+  shared: "{{ 'svc-ai-s1' in group_names }}"
 
 # nocheck: playwright-service-flag, dynamic-flag
 ollama:

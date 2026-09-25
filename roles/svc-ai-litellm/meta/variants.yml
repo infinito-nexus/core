@@ -37,10 +37,9 @@
     lmstudio:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    jeff:
+    s1:
       enabled: true
       shared: true
-      flavor: torch
     litellm:
       router:
         speed:
@@ -61,12 +60,9 @@
       shared: true
     postgres:
       shared: true
-    jeff:
+    s1:
       enabled: true
       shared: true
-      flavor: onnx
-      mem_reservation: 512m
-      mem_limit: 1g
     litellm:
       router:
         speed:

@@ -1,4 +1,0 @@
----
-cli:
-  timeout: 900
-  container_service_key: jeff

@@ -3,15 +3,15 @@
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
   vars:
     resolve_service_key: "{{ entity_name }}"
-    resolve_output_prefix: JEFF
-    resolve_compose_cid: "{{ JEFF_CONTAINER }}"
+    resolve_output_prefix: S1
+    resolve_compose_cid: "{{ S1_CONTAINER }}"
 
 - name: "🔥 Warm the decider so the first route is not a cold load"
   ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i {{ JEFF_LOCAL_CID | quote }} python3 -c {{ lookup('file', lookup('path_absolute', 'roles/svc-ai-jeff/files/python/warm_model.py')) | quote }}
-  register: jeff_warm_result
+    container exec -i {{ S1_LOCAL_CID | quote }} python3 -c {{ lookup('file', lookup('path_absolute', 'roles/svc-ai-s1/files/python/warm_model.py')) | quote }}
+  register: s1_warm_result
   retries: 5
   delay: 10
-  until: jeff_warm_result.rc == 0
+  until: s1_warm_result.rc == 0
   changed_when: false
-  delegate_to: "{{ JEFF_HOST_NODE }}"
+  delegate_to: "{{ S1_HOST_NODE }}"

@@ -1,6 +1,6 @@
 """Assert the System One server answers every question type on its input.
 
-Runs inside the jeff container, where the API answers on loopback. Standard
+Runs inside the server's container, where the API answers on loopback. Standard
 library only: the image ships the server, not a test toolchain.
 
 Each type is asked twice with texts whose correct answer is unambiguous and
@@ -10,7 +10,7 @@ it either breaks the wire contract or returns the same answer to both.
 Env:
     PORT            http port the server listens on inside the container
     MODEL           alias the API accepts in a request's ``model`` field
-    JEFF_API_KEYS   the server's own key list, read from its environment rather
+    S1_API_KEY      the server's own key, read from its environment rather
                     than passed in, so no key reaches a command line
 """
 
@@ -221,7 +221,7 @@ def run_type(
 def rejects_a_wrong_key(base: str, model: str) -> str:
     """Why the server accepted a bad key, or the empty string.
 
-    An empty ``JEFF_API_KEYS`` disables authentication upstream, so a server
+    An empty ``S1_API_KEY`` disables authentication upstream, so a server
     that answers an unknown key is open to anything that reaches its port.
     """
     try:
@@ -237,10 +237,10 @@ def rejects_a_wrong_key(base: str, model: str) -> str:
 
 def main() -> int:
     base = f"http://127.0.0.1:{os.environ['PORT']}"
-    keys = [k for k in os.environ["JEFF_API_KEYS"].replace(",", " ").split() if k]
+    keys = [k for k in os.environ["S1_API_KEY"].replace(",", " ").split() if k]
     if not keys:
         print(
-            "[FAIL] JEFF_API_KEYS is empty, which disables authentication and "
+            "[FAIL] S1_API_KEY is empty, which disables authentication and "
             "leaves the server open to anything that reaches its port",
             file=sys.stderr,
         )
