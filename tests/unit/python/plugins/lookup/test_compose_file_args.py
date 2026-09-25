@@ -30,6 +30,14 @@ class _DomainsResolveStub:
         return [(variables or {}).get("domains", {})]
 
 
+class _CaInjectedStub:
+    def __init__(self, injected: bool):
+        self._injected = injected
+
+    def run(self, terms, variables=None, **kwargs):
+        return [self._injected]
+
+
 class TestComposeFArgs(unittest.TestCase):
     def setUp(self):
         self.m = _load_module(
@@ -48,17 +56,47 @@ class TestComposeFArgs(unittest.TestCase):
             },
         }
 
-    def _loader_dispatch(self, tls_stub):
-        # "domains" resolves through variables['domains'] to keep tests hermetic;
-        # "tls" resolves through the per-test stub.
+    def _loader_dispatch(self, tls_stub, ca_injected=None):
+        verdict = tls_stub.run(None)[0]
+        injected = (
+            (verdict["enabled"] and verdict["mode"] == "self_signed")
+            if ca_injected is None
+            else ca_injected
+        )
+
         def _get(name, *args, **kwargs):
             if name == "domains":
                 return _DomainsResolveStub()
             if name == "tls":
                 return tls_stub
+            if name == "ca_injected":
+                return _CaInjectedStub(injected)
             raise AssertionError(f"unexpected lookup name: {name}")
 
         return _get
+
+    def test_a_domainless_ca_client_still_gets_the_ca_override_file(self):
+        with (
+            patch.object(
+                self.m.lookup_loader,
+                "get",
+                side_effect=self._loader_dispatch(
+                    _TlsResolveStub(False, "off"), ca_injected=True
+                ),
+            ),
+            patch.object(
+                self.m, "get_docker_paths", side_effect=self._stub_get_docker_paths
+            ),
+            patch.object(self.m, "_role_provides_override", return_value=False),
+        ):
+            out = self.lookup.run(["web-app-a"], variables={**self.vars, "domains": {}})
+        self.assertIn(
+            "/x/compose.ca.override.yml",
+            out[0],
+            "ca_injected grants a domainless ca_client the override and the "
+            "handler writes it; a domain gate here leaves that file on disk "
+            "while the container runs without a trust store",
+        )
 
     def _stub_get_docker_paths(self, application_id: str, base_dir: str) -> dict:
         self.assertEqual(application_id, "web-app-a")
