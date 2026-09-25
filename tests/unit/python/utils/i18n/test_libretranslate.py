@@ -151,8 +151,34 @@ class TestScriptedTargetCodes(unittest.TestCase):
 
 
 class TestAccelerated(unittest.TestCase):
+    def setUp(self) -> None:
+        patched = mock.patch.dict(os.environ, {}, clear=False)
+        patched.start()
+        os.environ.pop("INFINITO_GPU_COUNT", None)
+        self.addCleanup(patched.stop)
+
     def _runtimes(self, stdout: str) -> mock.Mock:
         return mock.Mock(spec=subprocess.CompletedProcess, stdout=stdout)
+
+    def test_the_reserved_count_overrides_the_daemon(self) -> None:
+        listed = self._runtimes('{"nvidia":{"path":"nvidia-container-runtime"}}')
+        os.environ["INFINITO_GPU_COUNT"] = "0"
+
+        with mock.patch("subprocess.run", return_value=listed):
+            self.assertFalse(accelerated())
+
+    def test_a_reserved_count_enables_the_gpu_without_asking_the_daemon(self) -> None:
+        os.environ["INFINITO_GPU_COUNT"] = "all"
+
+        with mock.patch("subprocess.run", side_effect=AssertionError("asked docker")):
+            self.assertTrue(accelerated())
+
+    def test_an_empty_count_still_asks_the_daemon(self) -> None:
+        listed = self._runtimes('{"nvidia":{"path":"nvidia-container-runtime"}}')
+        os.environ["INFINITO_GPU_COUNT"] = "   "
+
+        with mock.patch("subprocess.run", return_value=listed):
+            self.assertTrue(accelerated())
 
     def test_a_registered_nvidia_runtime_enables_the_gpu(self) -> None:
         listed = self._runtimes('{"nvidia":{"path":"nvidia-container-runtime"}}')

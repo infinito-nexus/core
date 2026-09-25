@@ -49,7 +49,15 @@ def pinned_image(root: Path) -> str:
 
 
 def accelerated() -> bool:
-    """Return whether Docker can hand an NVIDIA GPU to a container."""
+    """Return whether Docker can hand an NVIDIA GPU to a container.
+
+    ``INFINITO_GPU_COUNT`` is the single point of truth the deploys read, so an
+    operator who sets it to 0 turns the GPU off here too. It is only derived
+    from the daemon where the variable is absent.
+    """
+    reserved = (os.environ.get("INFINITO_GPU_COUNT") or "").strip()
+    if reserved:
+        return reserved not in ("0", "none")
     runtimes = subprocess.run(
         ["docker", "info", "--format", "{{json .Runtimes}}"],
         capture_output=True,
