@@ -4,8 +4,10 @@ agnt_claude_package: "@anthropic-ai/claude-code"
 agnt_claude_user: "{{ lookup('users', WORKSTATION_USER).username }}"
 agnt_claude_home: "/home/{{ agnt_claude_user }}"
 agnt_claude_settings_path: "{{ [agnt_claude_home, '.claude', 'settings.json'] | path_join }}"
-agnt_claude_gateway_url: "{{ lookup('config', application_id, 'services.claude.gateway_url') or (LITELLM_OPENAI_BASE_LOOPBACK_URL if LITELLM_USABLE | bool else '') }}"
+agnt_claude_gateway_url: "{{ lookup('config', application_id, 'services.claude.gateway_url') or (LITELLM_OPENAI_BASE_LOOPBACK_URL if LITELLM_USABLE | bool else '')
+  }}"
 agnt_claude_model: "{{ lookup('config', application_id, 'services.claude.model') or (LITELLM_CHAT_MODEL if LITELLM_USABLE | bool else '') }}"
 agnt_claude_background_model: "{{ lookup('config', application_id, 'services.claude.background_model') }}"
-agnt_claude_gateway_key: "{{ lookup('config', application_id, 'secrets.credentials.gateway_key') or (lookup('config', application_id, 'secrets.credentials.litellm_api_key') if LITELLM_USABLE | bool else '') }}"
+agnt_claude_gateway_key: "{{ lookup('config', application_id, 'secrets.credentials.gateway_key') or (lookup('config', application_id, 'secrets.credentials.litellm_api_key')
+  if LITELLM_USABLE | bool else '') }}"
 agnt_claude_configured: "{{ (agnt_claude_gateway_url | length > 0) and (agnt_claude_gateway_key | length > 0) }}"
