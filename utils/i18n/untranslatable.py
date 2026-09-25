@@ -17,13 +17,41 @@ the catalogs withhold is the same message the client would have refused to send.
 from __future__ import annotations
 
 import re
+import unicodedata
 
-from utils.i18n.placeholders import has_words, prose
+from utils.i18n.placeholders import has_words
 from utils.meta.authors import author_names
 from utils.meta.role.brands import brand_titles
 from utils.software import SOFTWARE_NAME
 
 URL = re.compile(r"^(?:https?://|www\.|mailto:|tel:)\S+$")
+LINK = re.compile(r"^!?\[(?P<text>[^\]]*)\]\([^)]*\)$")
+EMPHASIS = "*_`~ \t"
+DECORATION = {"So", "Sk", "Cf", "Mn"}
+
+
+def _bare(text: str) -> str:
+    """Return ``text`` without the decoration a page wraps a name in.
+
+    A heading writes the name with an emoji behind it and a table cell links it
+    to the role that deploys it, so ``Git 🔐`` and ``[Baserow](roles/web-app-
+    baserow/)`` are the product under decoration rather than a phrase about it.
+
+    Only emphasis, a surrounding link and trailing symbols are removed. Taking
+    the prose instead, as an earlier version did, drops every protected span:
+    ``Redis ``cache``` then reads as ``Redis`` and 131 messages that say more
+    than a name were withheld.
+
+    Args:
+        text: a source message.
+    """
+    bare = text.strip().strip(EMPHASIS)
+    link = LINK.match(bare)
+    if link:
+        bare = link.group("text").strip().strip(EMPHASIS)
+    while bare and unicodedata.category(bare[-1]) in DECORATION:
+        bare = bare[:-1].strip(EMPHASIS)
+    return bare
 
 
 def _known() -> frozenset[str]:
@@ -35,22 +63,20 @@ def _known() -> frozenset[str]:
 def is_name(text: str) -> bool:
     """Whether ``text`` is nothing but a brand, a credited person or a URL.
 
-    The comparison runs against the prose, so the markdown a heading wraps the
-    name in falls away first: ``**Mastodon**`` is the product under emphasis,
-    not a phrase about it. Case is ignored because a page writes the name the
-    way its sentence needs it, and ``**mailu**`` is still Mailu.
+    The decoration a page wraps the name in is removed first; see :func:`_bare`.
+    Case is ignored because a page writes the name the way its sentence needs
+    it, and ``**mailu**`` is still Mailu.
 
-    An address is matched before that, on the raw text: masking protects the
-    address of ``mailto:a@b.c`` but leaves the scheme behind, so its prose reads
-    as a word.
+    An address is matched before that, on the raw text, because a URL carries
+    the characters the stripping removes.
 
     Args:
         text: a source message.
     """
     if URL.match(text.strip()):
         return True
-    stripped = prose(text).strip()
-    return bool(stripped) and stripped.lower() in _known()
+    bare = _bare(text)
+    return bool(bare) and bare.lower() in _known()
 
 
 def untranslatable(text: str) -> bool:

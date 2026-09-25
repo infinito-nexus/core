@@ -33,12 +33,46 @@ class TestUntranslatable(unittest.TestCase):
             with self.subTest(marked):
                 self.assertTrue(untranslatable(marked))
 
+    def test_a_name_carrying_a_digit_survives_the_stripping(self) -> None:
+        for written in ("n8n", "**n8n**", "Mini-QR"):
+            with self.subTest(written):
+                self.assertTrue(
+                    untranslatable(written),
+                    "comparing against the prose left 'nn', because masking "
+                    "treats the digit as a span of its own",
+                )
+
     def test_the_name_is_matched_whatever_case_the_page_wrote_it_in(self) -> None:
         self.assertTrue(
             untranslatable("**mailu**"),
             "a page writes the name the way its sentence needs it, and the "
             "product is Mailu either way",
         )
+
+    def test_a_link_whose_text_is_the_name_is_withheld(self) -> None:
+        for written in (
+            "[Baserow](roles/web-app-baserow/)",
+            "[Mastodon](https://joinmastodon.org)",
+        ):
+            with self.subTest(written):
+                self.assertTrue(untranslatable(written))
+
+    def test_an_emoji_behind_the_name_does_not_hide_it(self) -> None:
+        for written in ("Git 🔐", "Claude Code 🤖"):
+            with self.subTest(written):
+                self.assertTrue(untranslatable(written))
+
+    def test_a_message_saying_more_than_the_name_is_translated(self) -> None:
+        for written in ("Redis ``cache``", "Redis `queue`", "[Documentation](docs/)"):
+            with self.subTest(written):
+                self.assertFalse(
+                    untranslatable(written),
+                    "stripping every protected span instead of the decoration "
+                    "withheld 131 messages that say more than a name",
+                )
+
+    def test_a_link_inside_a_sentence_is_translated(self) -> None:
+        self.assertFalse(untranslatable("See [Mastodon](https://x) and more."))
 
     def test_a_marked_up_description_is_still_translated(self) -> None:
         self.assertFalse(untranslatable("**Cleanup Disc Space**"))
