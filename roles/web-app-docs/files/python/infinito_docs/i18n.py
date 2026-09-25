@@ -47,6 +47,7 @@ def extract(src: Path, output: Path, jobs: int) -> None:
                 "-b",
                 "gettext",
                 "-q",
+                "-W",
                 str(src),
                 str(out),
                 "-c",
