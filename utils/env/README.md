@@ -17,7 +17,7 @@ Every module here belongs to one of four roles: parse, resolve, orchestrate, wri
 | `runtime.py` | Resolve host-context lookups (disk, RAM, hostname, GHA/Act flags, `/proc/version`, helper-script invocation). |
 | `builder.py` | Thin orchestrator that defines `EnvBuilder`, `BuildContext`, and `build_env()`. Walks the handler registry. |
 | `writer.py` | Serialise an `EnvBuilder` into a docker-compose-compatible `.env` on disk. |
-| `handlers/` | One module per dynamically-computed variable. See [handlers README](handlers/README.md). |
+| [`handlers/`](handlers/) | One module per dynamically-computed variable. See [handlers README](handlers/README.md). |
 
 The CLI entry point lives at [__main__.py](../../cli/meta/env/__main__.py) under `cli/meta/env/`.
 Shell consumers source [load.sh](../../scripts/meta/env/load.sh) under `scripts/meta/env/`.
@@ -26,7 +26,7 @@ Shell consumers source [load.sh](../../scripts/meta/env/load.sh) under `scripts/
 
 - Module names MUST stay lowercase snake_case.
 - Pure passthrough or simple parser/writer helpers MUST live directly under `utils/env/`.
-- Per-variable computation MUST live under `handlers/` (see [handlers README](handlers/README.md) for the naming convention used there).
+- Per-variable computation MUST live under [`handlers/`](handlers/) (see [handlers README](handlers/README.md) for the naming convention used there).
 - Test files live in `tests/unit/python/utils/env/` and mirror the module name with a `test_` prefix.
 
 ## Machine Facts vs Run Facts 🧭
@@ -44,6 +44,6 @@ A key that some environment declares per run therefore MUST be written by a dedi
 
 ## Import Rules 🔗
 
-- `parser.py`, `runtime.py`, and `writer.py` MUST NOT import from `builder.py` or `handlers/`.
+- `parser.py`, `runtime.py`, and `writer.py` MUST NOT import from `builder.py` or [`handlers/`](handlers/).
 - `builder.py` MUST NOT import individual handler modules; it MUST go through the `ORDERED_HANDLERS` list exposed by `handlers/__init__.py`.
 - Handler modules MUST NOT import each other (see [handlers README](handlers/README.md)).

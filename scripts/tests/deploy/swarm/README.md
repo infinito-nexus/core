@@ -137,7 +137,7 @@ through the provisioner's host_vars merge.
 
 ## Scripts
 
-The sequenced flow lives in `routine/`, the naming SPOT in `utils/topology/`,
+The sequenced flow lives in [`routine/`](routine/), the naming SPOT in `utils/topology/`,
 shared helpers in `utils/`, and
 the cluster declaration (image, containers, network, DNS play) in
 `compose/swarm/` + `compose/swarm/compose.yml`.
@@ -154,7 +154,7 @@ the cluster declaration (image, containers, network, DNS play) in
 | deploy | `routine/02_provision_inventory.sh` | provision the per-round inventory |
 | deploy | `routine/03_wait_converge.sh` | wait for every stack service to converge |
 | deploy | `routine/04_verify_reachable.sh` | probe the app is reachable in-cluster |
-| deploy | `routine/backup/base.sh` (+ per-host routines in `routine/backup/`) | backup+restore DR drill between rounds |
+| deploy | `routine/backup/base.sh` (+ per-host routines in [`routine/backup/`](routine/backup/)) | backup+restore DR drill between rounds |
 | deploy | `utils/clean/purge_stacks.sh` | remove prior-round stacks between rounds |
 | chaos | `routine/05_seed_content.sh` | seed a marker on the NFS volume |
 | chaos | `routine/06_drain_worker.sh` | drain the app's worker + force reschedule |

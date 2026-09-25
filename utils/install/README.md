@@ -17,7 +17,7 @@ Modules at this level are channel-agnostic primitives; per-tool policy lives one
 | `npm.py` | Global / local npm install with per-user `--prefix` fallback. |
 | `github_release.py` | Latest-tag resolver and asset downloader for GitHub releases. |
 | `system_pkg.py` | Per-manager dispatch for `pacman` / `apt-get` / `dnf` / `yum` / `brew`. |
-| `lint/` | One module per tool, each exposing `ensure()`. See [lint README](lint/README.md). |
+| [`lint/`](lint/) | One module per tool, each exposing `ensure()`. See [lint README](lint/README.md). |
 
 The CLI entry point lives at [__main__.py](lint/__main__.py), invoked from [lint.sh](../../scripts/install/lint.sh) as `python3 -m utils.install.lint`.
 The matching dispatcher [wrapper.sh](../../scripts/install/wrapper.sh) routes `make install-lint` host vs container based on `INFINITO_LINT_RUNNER`.
@@ -26,7 +26,7 @@ The matching dispatcher [wrapper.sh](../../scripts/install/wrapper.sh) routes `m
 
 - Module names MUST stay lowercase snake_case.
 - Channel-agnostic helpers MUST live directly under `utils/install/`.
-- Per-tool policy (one tool per file) MUST live under `lint/` (see [lint README](lint/README.md)).
+- Per-tool policy (one tool per file) MUST live under [`lint/`](lint/) (see [lint README](lint/README.md)).
 - Test files live in `tests/unit/python/utils/install/` and mirror the module name with a `test_` prefix.
 
 ## Import Rules
@@ -34,4 +34,4 @@ The matching dispatcher [wrapper.sh](../../scripts/install/wrapper.sh) routes `m
 - `primitives.py` MUST NOT import from any other module in this package.
 - `pip.py`, `npm.py`, `github_release.py`, and `system_pkg.py` MAY import from `primitives.py`.
 - `npm.py` MAY import from `system_pkg.py` to bootstrap npm itself; no other cross-imports between these four are allowed.
-- Per-tool modules under `lint/` MUST NOT import each other (see [lint README](lint/README.md)).
+- Per-tool modules under [`lint/`](lint/) MUST NOT import each other (see [lint README](lint/README.md)).
