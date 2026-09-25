@@ -44,8 +44,8 @@ html_theme_options = {
 source_suffix = {
     ".md": "markdown",
     ".rst": "restructuredtext",
-    ".yml": "restructuredtext",
-    ".yaml": "restructuredtext",
+    ".yml": "yaml",
+    ".yaml": "yaml",
 }
 
 extensions = [
@@ -56,6 +56,8 @@ extensions = [
     "infinito_docs.extensions.markdown_include",
     "infinito_docs.extensions.parallel_postprocess",
     "infinito_docs.extensions.untranslated_yaml",
+    "infinito_docs.extensions.yaml_source",
+    "infinito_docs.extensions.directory_readme",
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
 ]
@@ -67,6 +69,7 @@ gettext_compact = "docs"
 gettext_location = False
 
 myst_enable_extensions = ["colon_fence"]
+myst_heading_anchors = 6
 
 
 def replace_assets_in_doctree(app, doctree, docname):
