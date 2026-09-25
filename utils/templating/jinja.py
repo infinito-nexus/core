@@ -146,6 +146,7 @@ def render_strict(
 ) -> str:
     """
     Convenience wrapper:
+
     - converts to string
     - if Jinja markers exist => render via strict Jinja2 using a robust context
       (recursive with depth limit)
