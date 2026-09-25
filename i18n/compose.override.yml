@@ -44,13 +44,6 @@ services:
       - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:${INFINITO_I18N_LIBRETRANSLATE_PORT:?Run 'make dotenv' to generate the
         .env single source of truth}:${INFINITO_I18N_LIBRETRANSLATE_PORT:?Run 'make dotenv' to generate the .env single source of truth}"
 
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: ${INFINITO_GPU_COUNT:?Run 'make dotenv' to generate the .env single source of truth}
-              capabilities: [gpu]
     networks:
       default:
 volumes:

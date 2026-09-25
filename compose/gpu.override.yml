@@ -1,0 +1,24 @@
+---
+# Layered on compose.yml by the dev tooling when the docker daemon registers an
+# NVIDIA runtime. A count of 0 does not disable the reservation, the daemon still
+# selects the driver and fails where there is none, so a GPU-less host must not
+# carry this file at all.
+
+services:
+  infinito:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: ${INFINITO_GPU_COUNT:?Run 'make dotenv' to generate the .env single source of truth}
+              capabilities: [gpu]
+
+  i18n:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: ${INFINITO_GPU_COUNT:?Run 'make dotenv' to generate the .env single source of truth}
+              capabilities: [gpu]
