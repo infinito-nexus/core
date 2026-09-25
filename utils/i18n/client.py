@@ -17,7 +17,8 @@ from typing import TYPE_CHECKING
 
 from utils.i18n.languages import SOURCE_LANGUAGE
 from utils.i18n.limits import BATCH_SIZE
-from utils.i18n.placeholders import has_words, mask, unmask
+from utils.i18n.placeholders import mask, unmask
+from utils.i18n.untranslatable import untranslatable
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -182,7 +183,9 @@ class LibreTranslate:
                 fail too, so the run stops instead of discarding the rest.
         """
         results: list[str | None] = list(texts)
-        wordy = [index for index, text in enumerate(texts) if has_words(text)]
+        wordy = [
+            index for index, text in enumerate(texts) if not untranslatable(text)
+        ]
         size = self.batch_size
         batches = [wordy[i : i + size] for i in range(0, len(wordy), size)]
         refused = damaged = 0

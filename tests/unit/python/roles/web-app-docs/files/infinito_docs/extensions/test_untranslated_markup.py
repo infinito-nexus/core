@@ -54,6 +54,16 @@ class TestUntranslatedMarkup(unittest.TestCase):
             "only the word-free messages may be withheld from the translator",
         )
 
+    def test_a_heading_that_is_only_a_brand_is_flagged(self) -> None:
+        (node,) = _applied("**Mastodon**")
+
+        self.assertIs(
+            node["translatable"],
+            False,
+            "the product is called that in every language, and the translator "
+            "had been turning it into Keycloak's Schluesselmantel",
+        )
+
     def test_a_lone_code_span_is_flagged(self) -> None:
         (node,) = _applied("`CLEANUP_FORCE_KEEP`")
 
@@ -94,9 +104,9 @@ class TestUntranslatedMarkup(unittest.TestCase):
         )
 
     def test_a_checkout_without_the_predicate_changes_nothing(self) -> None:
-        original = untranslated_markup.has_words
-        untranslated_markup.has_words = None
-        self.addCleanup(setattr, untranslated_markup, "has_words", original)
+        original = untranslated_markup.untranslatable
+        untranslated_markup.untranslatable = None
+        self.addCleanup(setattr, untranslated_markup, "untranslatable", original)
 
         (node,) = _applied("[`e2e/`](e2e/)")
 

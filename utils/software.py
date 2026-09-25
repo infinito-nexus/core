@@ -6,6 +6,7 @@ from utils.cache.files import PROJECT_ROOT
 from utils.cache.yaml import load_yaml
 
 SOFTWARE_VARS = PROJECT_ROOT / "group_vars" / "all" / "00_general.yml"
+SOFTWARE_NAME: str = load_yaml(str(SOFTWARE_VARS))["SOFTWARE_NAME"]
 SOFTWARE_REPOSITORY: str = load_yaml(str(SOFTWARE_VARS))["SOFTWARE_REPOSITORY"]
 SOFTWARE_AUTHOR = "Kevin Veen-Birkenbach"
 SOFTWARE_EMAIL = "kevinveenbirkenbach@infinito.nexus"
