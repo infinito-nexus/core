@@ -28,6 +28,12 @@ docs:
   version: 3.13-slim
   custom: true
   source_repository: "{{ SOFTWARE_REPOSITORY }}"
+  mermaid_version: 11.4.1
+  mermaid_sha256: a43bc1afd446f9c4cc66ac5dd45d02e8d65e26fc5344ec0ef787f88d6ddb6f9e
+  update:
+    - key: mermaid_version
+      type: npm
+      package: mermaid
   fetch_interval: 900
   build_jobs: 2
   # nocheck: min-storage-headroom  Reason: the image built on the python base (1.1 GB), the English sites of the deployed working tree and of the latest commit (2.3 GB each), one translated site of each (about 2 GB each, built without _sources) and the scratch of a running build (2.4 GB); every further version or translated language opened adds about 2.3 GB

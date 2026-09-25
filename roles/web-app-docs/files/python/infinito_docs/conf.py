@@ -59,6 +59,7 @@ extensions = [
     "infinito_docs.extensions.untranslated.markup",
     "infinito_docs.extensions.yaml_source",
     "infinito_docs.extensions.directory_index",
+    "infinito_docs.extensions.mermaid",
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
 ]
