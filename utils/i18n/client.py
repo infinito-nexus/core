@@ -16,13 +16,13 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from utils.i18n.languages import SOURCE_LANGUAGE
+from utils.i18n.limits import BATCH_SIZE
 from utils.i18n.placeholders import has_words, mask, unmask
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
 SERVER_CODES = {"zh": "zh-Hans"}
-BATCH_SIZE = 20
 POLL_SECONDS = 5
 REQUEST_TIMEOUT_SECONDS = 600
 RETRY_ATTEMPTS = 4

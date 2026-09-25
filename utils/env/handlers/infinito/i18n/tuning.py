@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from utils.i18n.client import BATCH_SIZE
+from utils.i18n.limits import BATCH_SIZE
 
 if TYPE_CHECKING:
     from utils.env.builder import BuildContext, EnvBuilder
