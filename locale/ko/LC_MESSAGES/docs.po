@@ -19,10 +19,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-# libretranslate
-msgid "!=0 => does not exist OR cannot be accessed (auth/network)"
-msgstr "!=0 => 존재하지 않거나 접근할 수 없습니다 (네트워크)"
-
 msgid "![Infinito.Nexus Logo](assets/img/logo.png)"
 msgstr ""
 
@@ -56,19 +52,6 @@ msgid "\"act\"    : local GitHub Actions emulation (act)"
 msgstr ""
 
 # libretranslate
-#, python-brace-format
-msgid "\"app1\": {\"in_roles\": False, \"in_inventory\": True}, \"app2\": {\"in_roles\": True, \"in_inventory\": False},"
-msgstr "\"app1\":: {\"in_roles\": 팔스, \"in_inventory\": 참}· \"app2\":: {\"in_roles\": 참, \"in_inventory\": 팔스}·"
-
-# libretranslate
-msgid "\"com.docker.compose.network={{ lookup('shared_network_key', role_id) }}\""
-msgstr "\"com.docker.compose.network={{ lookup('shared_network_key', role_id) }}\""
-
-# libretranslate
-msgid "\"epoch\"        → returns \"<mtime>\""
-msgstr "\"epoch\" → 반환 \"<mtime>\""
-
-# libretranslate
 msgid "\"github\" : real GitHub Actions runner"
 msgstr "\"github\" : 실제 GitHub 액션 런너"
 
@@ -78,10 +61,6 @@ msgstr "\"host\" : 기본 호스트 실행 (기본 정보)"
 
 msgid "\"oidc_login\" if services.ldap.enabled is truthy (pulsejet/nextcloud-oidc-login, proxy-LDAP capable)."
 msgstr ""
-
-# libretranslate
-msgid "\"server\": [...], \"workstation\": [...], \"universal\": [...],"
-msgstr "\"server\": [...], \"workstation\": [...], \"universal\": [...],"
 
 msgid "\"sociallogin\" otherwise (nextcloud/sociallogin)."
 msgstr ""
@@ -97,10 +76,6 @@ msgstr "\"{{ lookup('mcp_client_bearer', 'web-app-gitea') }}\" -> 합격 클라�
 # libretranslate
 msgid "\"{{ lookup('mcp_credential', 'web-app-gitea') }}\" -> the reader token, or \"\" when none has been issued yet \"{{ lookup('mcp_credential', 'web-app-gitea', 'mcp-writer') }}\" -> the writer token, stored beside it under a role-suffixed key"
 msgstr "\"{{ lookup('mcp_credential', 'web-app-gitea') }}\" -> 리더 토큰 또는 \"\" 아직 발행되지 않은 경우 \"{{ lookup('mcp_credential', 'web-app-gitea', 'mcp-writer') }}\" -> 작가 토큰, 역할 매핑 키의 밑에 저장"
-
-# libretranslate
-msgid "\"{{ lookup('rbac_group_path',"
-msgstr "\"{{ lookup('rbac_group_path',"
 
 # libretranslate
 msgid "\"{{ lookup('unit_name', system_service_id) }}\""
@@ -122,20 +97,6 @@ msgstr "#"
 msgid "# Locally-built image (no registry upstream). {{ lookup('container_image', application_id, 'x', custom=True) }}"
 msgstr "# 현지 이미지 (등록 업스트림 없음)· {{ lookup('container_image', application_id, 'x', custom=True) }}"
 
-#, python-brace-format
-msgid "# Mix: dict value ``None`` means \"use the default condition\". {{ lookup('depends_on', {SVC_A: 'service_healthy', SVC_B: None}) }}"
-msgstr ""
-
-msgid "# Multiple dependencies, all defaulting to ``service_started`` # (the Docker Compose default when no condition is given). {{ lookup('depends_on', [SVC_A, SVC_B]) }}"
-msgstr ""
-
-# libretranslate
-msgid "# Multiple dependencies, mixed conditions. {{ lookup('depends_on', {DB_CONTAINER: 'service_healthy',"
-msgstr "# 다수 의존성, 혼합 조건. {{ lookup('depends_on', {DB_CONTAINER: 'service_healthy',"
-
-msgid "# One dependency with an explicit condition. {{ lookup('depends_on', {ERPNEXT_CONFIGURATOR_CONTAINER:"
-msgstr ""
-
 # libretranslate
 msgid "# include-gated: when: DEPLOYMENT_MODE != \"swarm\""
 msgstr "# include-gated: 언제: DEPLOYMENT_MODE != \"swarm\""
@@ -149,16 +110,8 @@ msgid "# nocheck: shared, email # nocheck: url, docker-version"
 msgstr "# nocheck: 공유, 이메일 # nocheck: URL, docker-version"
 
 # libretranslate
-msgid "# roles/web-app-X/tasks/01_setup.yml - shell: |"
-msgstr "₢ 킹 roles/web-app-X/tasks/01_setup.yml - 포탄: |"
-
-# libretranslate
 msgid "# roles/web-app-X/templates/compose.yml.j2 {{ lookup('container_image', application_id, 'x') }}"
 msgstr "# roles/web-app-X/templates/compose.yml.j2 {{ lookup('container_image', application_id, 'x') }}"
-
-# libretranslate
-msgid "# roles/web-app-X/vars/main.yml X_CONTAINER_ADDRESS: \"{{ lookup('container_address', application_id, 'x') }}\""
-msgstr "# roles/web-app-X/vars/main.yml X_CONTAINER_ADDRESS: \"{{ lookup('container_address', application_id, 'x') }}\""
 
 # libretranslate
 msgid "'applications' is obtained via lookup('applications'), the merged-config SPOT."
@@ -181,23 +134,12 @@ msgid "'enabled' is missing/undefined  (treated as active)"
 msgstr "'enabled' 누락/undefined (활동으로 치료)"
 
 # libretranslate
-msgid "'folder': str, 'cert_path': str, 'mtime': float, 'not_before': int|None, 'not_after': int|None, 'is_wildcard': bool"
-msgstr "'folder': 지구, 'cert_path': 지구, 'mtime': 부유물, 'not_before': int|없음, 'not_after': int|없음, 'is_wildcard': 불"
-
-# libretranslate
 msgid "'full' recovery: recover every backup-stored type against a target host."
 msgstr "'full' 복구: 대상 호스트에 대한 모든 백업 저장 유형 복구."
 
 # libretranslate
-msgid "'service_completed_successfully'}) }}"
-msgstr "'service_completed_successfully'}) }}"
-
-# libretranslate
 msgid "'web-app-prometheus' is in group_names (prometheus is deployed on this host), AND"
 msgstr "'web-app-prometheus' 로그인 group_names (prometheus는이 호스트에 배포됩니다)·"
-
-msgid "(= the same value ``lookup('tls', s, 'url.base')`` returns)"
-msgstr ""
 
 # libretranslate
 msgid "(LDAP variant) Log in with an LDAP user — bind succeeds, lands authenticated."
@@ -238,16 +180,8 @@ msgid "(c) Fork-and-port. Highest maintenance cost; last resort. Pick (a) unless
 msgstr "(·) 포크 앤 포트. 가장 높은 유지 보수 비용; 마지막 리조트. 기타 (한국어) 지원하지 않는 (₢ 킹). 이것은 단 하나 가장 큰 기술적인 위험이고 첫번째 spiked이어야 합니다."
 
 # libretranslate
-msgid "(complexity graph, level 1), linked to the roles."
-msgstr "(복잡성 그래프, 수준 1), 역할에 연결."
-
-# libretranslate
 msgid "(default: <cwd>/roles, matching the service lookup)."
 msgstr "(기본 : <cwd>/roles, 일치하는 서비스 lookup)·."
-
-# libretranslate
-msgid "(default: <cwd>/roles, matching the service_registry lookup convention)."
-msgstr "(기본 : <cwd>/roles, 일치 service_registry 공지사항)·."
 
 # libretranslate
 msgid "(e.g. ``(\"Cosmos\",)`` for ``--update-cosmos``)."
@@ -263,10 +197,6 @@ msgstr ""
 msgid "(module, remaining_args)"
 msgstr "(모듈, remaining_args)"
 
-# libretranslate
-msgid "(recursive with depth limit)"
-msgstr "(깊이 한계로 반복)"
-
 msgid "(required)"
 msgstr ""
 
@@ -277,14 +207,6 @@ msgstr "(맨끝 단계)"
 # libretranslate
 msgid "(type, source) for each present repo, in order; volume per-volume."
 msgstr "(유형, 근원) 각 현재 repo를 위해, 순서에서; 부피 per-volume."
-
-# libretranslate
-msgid ") with a lower bound of 1024 MB."
-msgstr ") 더 낮은 경계로 1024 사이트맵."
-
-# libretranslate
-msgid ") with a lower bound of 512 MB."
-msgstr ") 더 낮은 경계로 512 사이트맵."
 
 # libretranslate
 msgid "*(Optional)* **CAA records** for all base SLDs (commented in the tasks; enable if you want CAA managed here)."
@@ -2609,9 +2531,8 @@ msgstr "**묘사:** Generic end-to-end test runner, 배포된 애플리케이션
 msgid "**Description:** Generic role installing the doli CLI and applying dotfile symlink mappings passed in by other roles"
 msgstr "**묘사:** doli CLI를 설치하고 다른 역할에 의해 통과된 dotfile symlink 매핑을 적용하는 일반적인 역할"
 
-# libretranslate
-msgid "**Description:** Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
-msgstr "**묘사:** NGINX HTML 응답을위한 글로벌 JavaScript 주입 층 sub_filter, CSP 해싱과 함께"
+msgid "**Description:** Global JavaScript injection layer for NGINX HTML responses via sub\\_filter, with CSP hashing"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
@@ -2801,9 +2722,8 @@ msgstr "**묘사:** DHCP 및 웹 관리자 대쉬보드와 함께 모든 장치�
 msgid "**Description:** Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
 msgstr "**묘사:** NAT 또는 방화벽 뒤에 실행되는 WireGuard 클라이언트의 IPtables 운송 및 NAT masquerading에 대한 네트워킹 도우미"
 
-# libretranslate
-msgid "**Description:** Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
-msgstr "**묘사:** 사이트맵 sub_filter JavaScript 주입은 중앙화 된 OIDC 단일 서명 아웃 엔드 포인트에 모든 로그 아웃 작업을 리디렉션"
+msgid "**Description:** Nginx sub\\_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Nginx-based content delivery network for serving shared static assets to internal web applications"
@@ -2968,17 +2888,15 @@ msgstr "**묘사:** Privilege-escalation 패키지 및 /etc/sudoers.d 드롭 인
 msgid "**Description:** Proprietary GPU driver installer for Arch-based systems via mhwd nonfree hardware detection"
 msgstr "**묘사:** mhwd nonfree 하드웨어 감지를 통해 Arch 기반 시스템에 대한 Proprietary GPU 드라이버 설치"
 
-# libretranslate
-msgid "**Description:** Provisioning role for Cloudflare wildcard DNS records (*.parent) on parent hosts and the apex domain"
-msgstr "**묘사:** Cloudflare 와일드 카드 DNS 레코드에 대한 감독 역할 (*사이트맵) 부모 호스트 및 apex 도메인에"
+msgid "**Description:** Provisioning role for Cloudflare wildcard DNS records (\\*.parent) on parent hosts and the apex domain"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Provisioning role for a workstation login account with its shell dotfiles, SSH authorized keys, and environment"
 msgstr ""
 
-# libretranslate
-msgid "**Description:** Provisioning role for per-user environment setup, managing shell dotfiles and SSH authorized_keys"
-msgstr "**묘사:** per-user 환경 설정, shell dotfiles 및 SSH 관리에 대한 약속 역할 authorized_keys"
+msgid "**Description:** Provisioning role for per-user environment setup, managing shell dotfiles and SSH authorized\\_keys"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
@@ -3219,9 +3137,8 @@ msgstr "**묘사:** Self-hosted, 공유, 호스팅 및 자신의 음악 및 오�
 msgid "**Description:** Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
 msgstr "**묘사:** 셀프 호스팅, 실시간 방문자 추적 및 사이트 통계에 대한 개인 정보 보호 우선 웹 분석 플랫폼"
 
-# libretranslate
-msgid "**Description:** Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
-msgstr "**묘사:** canonical를 소유하는 서비스 registry 역할 `css` 플래그와 CDN 업스트림에 CSS hostname을 리디렉션"
+msgid "**Description:** Service-registry role owning the canonical \\`css\\` flag and redirecting the CSS hostname to the CDN upstream"
+msgstr ""
 
 # libretranslate
 msgid "**Description:** Shared host dependency ensuring the OpenSSL CLI is installed once for roles that invoke openssl commands"
@@ -4391,7 +4308,7 @@ msgstr "**힘 실행 형태:** 시간 : `MODE_CLEANUP=true`, 정리는 즉시 �
 msgid "**Force Execution Mode:** When ``MODE_CLEANUP=true``, cleanup is executed immediately."
 msgstr "**힘 실행 형태:** 시간 : ``MODE_CLEANUP=true``, 정리는 즉시 실행됩니다."
 
-msgid "**Fork identity** for the operator's CI-redeploy shortcuts: `INFINITO_FORK_ACCOUNT` (defaults to the local OS username) and `INFINITO_FORK_REPOSITORY_URL` (composed as `https://github.com/$INFINITO_FORK_ACCOUNT/$INFINITO_FORK_REPOSITORY_NAME`), both set by handlers under [`utils/env/handlers/infinito/`](../../../utils/env/handlers/infinito/) (`fork_account.py`, `fork_repository_url.py`). The fork repository name itself lives in `default.env` as `INFINITO_FORK_REPOSITORY_NAME`."
+msgid "**Fork identity** for the operator's CI-redeploy shortcuts: `INFINITO_FORK_ACCOUNT` (defaults to the local OS username) and `INFINITO_FORK_REPOSITORY_URL` (composed as `https://github.com/$INFINITO_FORK_ACCOUNT/$INFINITO_FORK_REPOSITORY_NAME`), both set by handlers under `utils/env/handlers/infinito/` (`fork_account.py`, `fork_repository_url.py`). The fork repository name itself lives in `default.env` as `INFINITO_FORK_REPOSITORY_NAME`."
 msgstr ""
 
 # libretranslate
@@ -8296,17 +8213,15 @@ msgstr "**수도 특전:** 관리자 사용자 권한을 부여하는 전용 sud
 msgid "**Sudo Privileges:** Deploys a dedicated sudoers configuration to grant the administrator user `sudo <https://en.wikipedia.org/wiki/Sudo>`__ rights with password prompt."
 msgstr "**수도 특전:** 관리자 사용자 권한을 부여하는 전용 sudoers 구성 배포 `sudo <https://en.wikipedia.org/wiki/Sudo>`__ 비밀번호 찾기."
 
-# libretranslate
-msgid "**Suite Integration:** Part of the [`sys-ctl-alm-compose` suite](../) which includes related roles such as [sys-ctl-alm-email](../sys-ctl-alm-email/README.md) and others."
-msgstr "**Suite 통합:** 부분의 [`sys-ctl-alm-compose` 제품정보](../) 관련 역할과 같은 [sys-ctl-alm-email](../sys-ctl-alm-email/README.md) 기타."
-
-# libretranslate
-msgid "**Suite Integration:** Part of the ```sys-ctl-alm-compose`` suite <../>`__ which includes related roles such as `sys-ctl-alm-email <../sys-ctl-alm-email/README.md>`__ and others."
-msgstr "**Suite 통합:** 부분의 ```sys-ctl-alm-compose`` 제품정보 <../>`__ which includes related roles such as `sys-ctl-alm-email <../sys-ctl-alm-email/README.md>` 기타."
+msgid "**Suite Integration:** Part of the ``sys-ctl-alm-compose`` suite which includes related roles such as `sys-ctl-alm-email <../sys-ctl-alm-email/README.md>`__ and others."
+msgstr ""
 
 # libretranslate
 msgid "**Suite Integration:** Part of the ``sys-ctl-alm-compose`` suite, offering a unified approach to service failure notifications."
 msgstr "**Suite 통합:** 부분의 ``sys-ctl-alm-compose`` 서비스 실패 알림에 대한 통합 접근 방식을 제공하는 스위트."
+
+msgid "**Suite Integration:** Part of the `sys-ctl-alm-compose` suite which includes related roles such as [sys-ctl-alm-email](../sys-ctl-alm-email/README.md) and others."
+msgstr ""
 
 # libretranslate
 msgid "**Suite Integration:** Part of the `sys-ctl-alm-compose` suite, offering a unified approach to service failure notifications."
@@ -9570,9 +9485,8 @@ msgstr "**체스**"
 msgid "**collabora**"
 msgstr "**스낵 바**"
 
-# libretranslate
-msgid "**company**: Kevin Veen-Birkenbach"
-msgstr "**회사 소개**: 케빈 베렌 브레켄바흐"
+msgid "**company**: Kevin Veen-Birkenbach https://www.veen.world"
+msgstr ""
 
 msgid "**compose** is the default. Single host, local docker volumes, no cluster awareness. Every role works in this mode unchanged."
 msgstr ""
@@ -9848,7 +9762,7 @@ msgstr ""
 msgid "**description**: Generic role installing the doli CLI and applying dotfile symlink mappings passed in by other roles"
 msgstr ""
 
-msgid "**description**: Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
+msgid "**description**: Global JavaScript injection layer for NGINX HTML responses via sub\\_filter, with CSP hashing"
 msgstr ""
 
 msgid "**description**: Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
@@ -9995,7 +9909,7 @@ msgstr ""
 msgid "**description**: Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
 msgstr ""
 
-msgid "**description**: Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
+msgid "**description**: Nginx sub\\_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
 msgstr ""
 
 msgid "**description**: Nginx-based content delivery network for serving shared static assets to internal web applications"
@@ -10121,13 +10035,13 @@ msgstr ""
 msgid "**description**: Proprietary GPU driver installer for Arch-based systems via mhwd nonfree hardware detection"
 msgstr ""
 
-msgid "**description**: Provisioning role for Cloudflare wildcard DNS records (*.parent) on parent hosts and the apex domain"
+msgid "**description**: Provisioning role for Cloudflare wildcard DNS records (\\*.parent) on parent hosts and the apex domain"
 msgstr ""
 
 msgid "**description**: Provisioning role for a workstation login account with its shell dotfiles, SSH authorized keys, and environment"
 msgstr ""
 
-msgid "**description**: Provisioning role for per-user environment setup, managing shell dotfiles and SSH authorized_keys"
+msgid "**description**: Provisioning role for per-user environment setup, managing shell dotfiles and SSH authorized\\_keys"
 msgstr ""
 
 msgid "**description**: Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
@@ -10310,7 +10224,7 @@ msgstr ""
 msgid "**description**: Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
 msgstr ""
 
-msgid "**description**: Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
+msgid "**description**: Service-registry role owning the canonical \\`css\\` flag and redirecting the CSS hostname to the CDN upstream"
 msgstr ""
 
 msgid "**description**: Shared host dependency ensuring the OpenSSL CLI is installed once for roles that invoke openssl commands"
@@ -11180,9 +11094,8 @@ msgstr "**galaxy_tags**: ['nginx', 'cleanup', 'certbot', 'domains']"
 msgid "**galaxy_tags**: ['nginx', 'css', 'colors', 'bootstrap', 'theming', 'dynamic', 'frontend', 'global']"
 msgstr "**galaxy_tags**: ['nginx', 'css', 'colors', 'bootstrap', 'theming', 'dynamic', 'frontend', 'global']"
 
-# libretranslate
-msgid "**galaxy_tags**: ['nginx', 'docker', 'reverse_proxy', 'web', 'automation', 'archlinux']"
-msgstr "**galaxy_tags**: ['nginx', 'docker', 'reverse_proxy', 'web', 'automation', 'archlinux']"
+msgid "**galaxy_tags**: ['nginx', 'docker', 'reverse\\_proxy', 'web', 'automation', 'archlinux']"
+msgstr ""
 
 # libretranslate
 msgid "**galaxy_tags**: ['nginx', 'http', 'stream', 'caching', 'compression', 'security', 'performance']"
@@ -11212,9 +11125,8 @@ msgstr "**galaxy_tags**: ['nginx', 'iframe', 'javascript', 'csp', 'security', 'p
 msgid "**galaxy_tags**: ['nginx', 'injector', 'matomo', 'theming']"
 msgstr "**galaxy_tags**: ['nginx', 'injector', 'matomo', 'theming']"
 
-# libretranslate
-msgid "**galaxy_tags**: ['nginx', 'javascript', 'csp', 'sub_filter', 'injection', 'global']"
-msgstr "**galaxy_tags**: ['nginx', 'javascript', 'csp', 'sub_filter', 'injection', 'global']"
+msgid "**galaxy_tags**: ['nginx', 'javascript', 'csp', 'sub\\_filter', 'injection', 'global']"
+msgstr ""
 
 # libretranslate
 msgid "**galaxy_tags**: ['nginx', 'legal', 'imprint']"
@@ -11224,9 +11136,8 @@ msgstr "**galaxy_tags**: ['nginx', 'legal', 'imprint']"
 msgid "**galaxy_tags**: ['nginx', 'letsencrypt', 'docker', 'systemd']"
 msgstr "**galaxy_tags**: ['nginx', 'letsencrypt', 'docker', 'systemd']"
 
-# libretranslate
-msgid "**galaxy_tags**: ['nginx', 'logout', 'oidc', 'javascript', 'csp', 'sub_filter']"
-msgstr "**galaxy_tags**: ['nginx', 'logout', 'oidc', 'javascript', 'csp', 'sub_filter']"
+msgid "**galaxy_tags**: ['nginx', 'logout', 'oidc', 'javascript', 'csp', 'sub\\_filter']"
+msgstr ""
 
 # libretranslate
 msgid "**galaxy_tags**: ['nginx', 'matomo', 'analytics']"
@@ -11252,13 +11163,11 @@ msgstr "**galaxy_tags**: ['nginx', 'tls', 'letsencrypt', 'oauth2', 'automation',
 msgid "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'letsencrypt', 'acme', 'certificates']"
 msgstr "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'letsencrypt', 'acme', 'certificates']"
 
-# libretranslate
-msgid "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'reverse_proxy', 'letsencrypt', 'self_signed']"
-msgstr "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'reverse_proxy', 'letsencrypt', 'self_signed']"
+msgid "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'reverse\\_proxy', 'letsencrypt', 'self\\_signed']"
+msgstr ""
 
-# libretranslate
-msgid "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'self_signed', 'certificates', 'openssl']"
-msgstr "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'self_signed', 'certificates', 'openssl']"
+msgid "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'self\\_signed', 'certificates', 'openssl']"
+msgstr ""
 
 # libretranslate
 msgid "**galaxy_tags**: ['nix', 'devtools', 'development', 'build', 'automation', 'infinito-nexus']"
@@ -11296,9 +11205,8 @@ msgstr "**galaxy_tags**: ['opencloud', 'docker', 'oidc', 'ldap', 'cloud', 'files
 msgid "**galaxy_tags**: ['openproject', 'project-management', 'docker', 'compose', 'ldap', 'sso', 'automation']"
 msgstr "**galaxy_tags**: ['openproject', 'project-management', 'docker', 'compose', 'ldap', 'sso', 'automation']"
 
-# libretranslate
-msgid "**galaxy_tags**: ['openresty', 'nginx', 'docker', 'reverse_proxy']"
-msgstr "**galaxy_tags**: ['openresty', 'nginx', 'docker', 'reverse_proxy']"
+msgid "**galaxy_tags**: ['openresty', 'nginx', 'docker', 'reverse\\_proxy']"
+msgstr ""
 
 # libretranslate
 msgid "**galaxy_tags**: ['openssl', 'crypto', 'tls', 'package', 'system']"
@@ -12651,36 +12559,12 @@ msgid "- ``(payload_bytes, total_bytes)`` on success - ``(\"SKIPPED\", reason)``
 msgstr "- - - ``(payload_bytes, total_bytes)`` 성공 사례 ``(\"SKIPPED\", reason)`` ping이 사용할 수 없거나 부족할 때 CAP_NET_RAW - - - ``(None, None)`` 각 조사 크기는 떨어질 때"
 
 # libretranslate
-msgid "--add-host={{ entry }}"
-msgstr "--add-host ={{ entry }}"
-
-# libretranslate
 msgid "--distro debian --owner acme --repository infinito-nexus --tag ci-abc"
 msgstr "--디스트로 데비안 --owner acme --repository infinito-nexus --tag ci-abc"
 
 # libretranslate
-msgid "--include web-app-nextcloud web-app-mastodon --include web-app-nextcloud,web-app-mastodon"
-msgstr "--포함 web-app-nextcloud web-app-mastodon --포함 web-app-nextcloud·web-app-mastodon"
-
-# libretranslate
-msgid "--label"
-msgstr "- 라벨"
-
-# libretranslate
 msgid "--retry count; --retry-all-errors makes it cover transport-layer resets (exit 35/52/56), the class that hard-fails deploys on flaky CI egress. Pass 0 to opt a call out of retrying."
 msgstr "--retry count; --retry-all-errors는 수송 층 재설정을 커버 (오시는 길 35/52/56), flaky CI egress에 배포하는 클래스. 패스워드 0 retrying 호출을 선택합니다."
-
-# libretranslate
-msgid "-> \"roles/web-app-wordpress/blog.example/editor\""
-msgstr "-> \"roles/web-app-wordpress/blog.example/editor\""
-
-# libretranslate
-msgid "-> \"roles/web-app-wordpress/network-administrator\""
-msgstr "-> \"roles/web-app-wordpress/network-administrator\""
-
-# libretranslate
-msgid "-> \"roles/web-app-yourls/administrator\""
-msgstr "-> \"roles/web-app-yourls/administrator\""
 
 msgid "-> socks5h://host.docker.internal:<port> (compose)"
 msgstr ""
@@ -12692,10 +12576,6 @@ msgstr ".NET SDK는 결코 필요로 하지 않습니다; 제거하는 안전"
 # libretranslate
 msgid "0"
 msgstr "0"
-
-# libretranslate
-msgid "0 => exists"
-msgstr "0 => 존재"
 
 msgid "0 on success, 2 when no catalog offers the language."
 msgstr ""
@@ -13589,9 +13469,8 @@ msgstr ":mod:`.rotate` — — :func:`_rotate_credentials`, 간 통행 credentia
 msgid ":mod:`.run`   — :func:`_run_deploy`, one deploy pass inside the container"
 msgstr ""
 
-# libretranslate
-msgid ":mod:`.spec`            — :class:`DevInventorySpec` + ``PlanEntry`` type"
-msgstr ":mod:`.spec` — — :class:`DevInventorySpec` + 더보기 ``PlanEntry`` 제품정보"
+msgid ":mod:`.spec`            — :class:`~.spec.DevInventorySpec` + ``PlanEntry`` type"
+msgstr ""
 
 # libretranslate
 msgid "< 20 %"
@@ -13772,10 +13651,6 @@ msgstr ""
 # libretranslate
 msgid "A Nextcloud plugin that previously lived as a standalone config file moves wholesale into its `config:` block:"
 msgstr "· Nextcloud 이전 독립 설정 파일로 살았던 플러그인은 도매로 이동 `config:` 구획:"
-
-# libretranslate
-msgid "A PathInfo object that exposes the file type and other file attributes of this path."
-msgstr "이 경로의 파일 유형과 다른 파일 속성을 노출하는 PathInfo 객체."
 
 # libretranslate
 msgid "A Playwright scenario asserts that an unauthenticated request to the endpoint is never answered with a 2xx."
@@ -14408,10 +14283,6 @@ msgid "A new app MUST:"
 msgstr "새로운 앱 MUST:"
 
 # libretranslate
-msgid "A new database backend is added by extending `_ENGINES` — the rest of the module is engine-agnostic."
-msgstr "새로운 데이터베이스 백엔드가 확장하여 추가됩니다. `_ENGINES` — 모듈의 나머지는 엔진-agnostic입니다."
-
-# libretranslate
 msgid "A new helper MUST live in the subfolder that matches its responsibility. New responsibilities MAY motivate a new subfolder, but MUST NOT flatten back into the top level."
 msgstr "새로운 도우미 MUST는 그 책임을 일치하는 하위 폴더에 살고 있습니다. 새로운 책임 MAY는 새로운 subfolder를 동기 부여하지만 최고 수준으로 평평하지 않습니다."
 
@@ -14773,9 +14644,8 @@ msgstr "역할의 수명주기 값은 단일 선형 축에 앉아 `planned` (아
 msgid "A role's task that reads its own service flag therefore picks up the runtime-resolved value, even when the inventory carried a Jinja string for that flag: the conditional evaluates against the play's actual `group_names`, which reflects which other application groups the host joined."
 msgstr "자신의 서비스 플래그를 읽는 역할의 작업은 따라서 런타임 해결 된 값을 선택, 심지어 재고가 그 플래그에 대한 Jinja 문자열을 수행 할 때: 조건은 플레이의 실제에 대한 평가 `group_names`, 다른 응용 프로그램 그룹이 호스트에 합류하는 것을 반영합니다."
 
-# libretranslate
-msgid "A round deploys a provider once, so the role that pulls it in is the only place that can say how lean it has to be. A variant entry may therefore carry any application config topic under the service it depends on:"
-msgstr "라운드는 공급자를 한 번 배치, 그래서 그것에 끌어 당기는 역할은 그것이 될 수 있다는 것을 말할 수있는 유일한 장소입니다. 변형 항목은 따라서 서비스에 따라 애플리케이션 구성 항목을 수행 할 수 있습니다."
+msgid "A round deploys a provider once, so the role that pulls it in is the only place that can say how lean it has to be. A variant entry may therefore carry any application config topic under the service it depends on::"
+msgstr ""
 
 msgid "A round picks one variant per role, and that choice decides two things no single role's `meta/services.yml` can state on its own: which providers the role still pulls in, and how lean those providers have to be (:mod:`utils.roles.applications.topics`). Both are resolved here, so the matrix planner's include set, the inventory bake and the CI selection read one answer instead of three."
 msgstr ""
@@ -15430,9 +15300,8 @@ msgstr "인증 및 인증 🟢"
 msgid "Active Window vs. Archive 🗂️"
 msgstr "Active Window vs. 아카이브 🗂️"
 
-# libretranslate
-msgid "Active means: - application key is in group_names - application key matches prefix regex (default: ^(web-|svc-).* ) - under applications[app]['services'] each service is counted if:"
-msgstr "Active 수단: - 애플리케이션 키는 group_names - 애플리케이션 키 일치 prefix regex (기본값: ^(웹-|svc-)·* ) - 신청의 밑에[앱 다운로드]['services'] 각 서비스는 다음과 같이 계산됩니다:"
+msgid "Active means:"
+msgstr ""
 
 # libretranslate
 msgid "ActivityPub events at `event.{{ DOMAIN_PRIMARY }}`, Postgres+PostGIS, GraphQL API. The bridge target on the ActivityPub side."
@@ -15914,13 +15783,11 @@ msgstr "장치로이 역할을 추가하면 격리 된 에이전트가 연결됩
 msgid "Additional Notes"
 msgstr "추가 노트"
 
-# libretranslate
-msgid "Additional modules can be enabled by declaring them as ``group: optional`` addons in ```meta/addons/`` <meta/addons/>`__."
-msgstr "추가 모듈을 정의하여 사용할 수 있습니다. ``group: optional`` addons 에 ```meta/addons/`` <meta/addons/>`·."
+msgid "Additional modules can be enabled by declaring them as ``group: optional`` addons in ``meta/addons/``."
+msgstr ""
 
-# libretranslate
-msgid "Additional modules can be enabled by declaring them as `group: optional` addons in [`meta/addons/`](meta/addons/)."
-msgstr "추가 모듈을 정의하여 사용할 수 있습니다. `group: optional` addons 에 [`meta/addons/`](meta/addons/)·."
+msgid "Additional modules can be enabled by declaring them as `group: optional` addons in `meta/addons/`."
+msgstr ""
 
 # libretranslate
 msgid "Additional notes:"
@@ -15958,13 +15825,11 @@ msgstr "Addon 감시 MUST는 Docker 이미지 버전과 저장소 refs에 사용
 msgid "Addons"
 msgstr "지원하다"
 
-# libretranslate
-msgid "Addons are declared in [`meta/addons/`](./meta/addons/) and read at deploy time via `lookup('config', application_id, 'addons')`."
-msgstr "Addons는 선언 [`meta/addons/`](./meta/addons/) and read at 배포 시간 통해 `lookup('config', application_id, 'addons')`·."
+msgid "Addons are declared in ``meta/addons/`` and read at deploy time via ``lookup('config', application_id, 'addons')``."
+msgstr ""
 
-# libretranslate
-msgid "Addons are declared in ```meta/addons/`` <./meta/addons/>`__ and read at deploy time via ``lookup('config', application_id, 'addons')``."
-msgstr "Addons는 선언 ```meta/addons/`` <./meta/addons/>`__ and read at deploy time via ``lookup('config', application_id, 'addons')``·."
+msgid "Addons are declared in `meta/addons/` and read at deploy time via `lookup('config', application_id, 'addons')`."
+msgstr ""
 
 msgid "Address review feedback in your fork. See [review.md](actions/review.md)."
 msgstr ""
@@ -16121,7 +15986,7 @@ msgstr "공급 능력"
 msgid "After Every Commit"
 msgstr "자주 묻는 질문"
 
-msgid "After `See`, you MUST use the domain name as link text, not `here`. `here` is only acceptable when the surrounding sentence reads naturally with it (e.g. \"More information [here](...)\")."
+msgid "After `See`, you MUST use the domain name as link text, not `here`. `here` is only acceptable when the surrounding sentence reads naturally with it (e.g. `More information [here](...)`)."
 msgstr ""
 
 msgid "After `make network-trust-ca`, you MUST restart the browser so it picks up the updated trust store."
@@ -16225,6 +16090,9 @@ msgstr ""
 # libretranslate
 msgid "Agent Guidelines for humans"
 msgstr "인간을 위한 대리인 Guidelines"
+
+msgid "Agent Instructions Pull Request"
+msgstr ""
 
 # libretranslate
 msgid "Agent Instructions 🤖"
@@ -16664,10 +16532,6 @@ msgstr "모든 세 불린 MUST는 `true`· `verified_version` MUST 이름 정확
 #, python-brace-format
 msgid "All three personas (`guest`, `biber`, `administrator`) start at `${APP_BASE_URL}/` via direct goto (bookmark-style entry). The OAuth2-Proxy gate fires on the first request and redirects unauthenticated requests through Keycloak. No dashboard-tile click sits in the persona path."
 msgstr "모든 세 사람 (`guest`· `biber`· `administrator`) 시작하기 `${APP_BASE_URL}/` 직접 goto를 통해 (bookmark-style 항목). 오아우스2- 첫 번째 요청에 대한 프록시 게이트 화재 및 unauthenticated 요청을 리디렉션 Keycloak. 대시보드가 없는 클릭은 인내 경로에 앉아 있습니다."
-
-# libretranslate
-msgid "All values are assignable to Any."
-msgstr "모든 값은 모두 할당할 수 있습니다."
 
 # libretranslate
 msgid "All variables consumed by [compose.yml](../../../../compose.yml). The per-variable default + comment lives next to the key in [default.env](../../../../default.env); the tables below stay scoped to \"what role does this variable play in compose.yml\" and stop duplicating the default."
@@ -17253,9 +17117,8 @@ msgstr "Ansible 기본 (22)"
 msgid "Ansible filter plugin for retrieving application IDs."
 msgstr "애플리케이션 ID를 검색하기위한 Ansible 필터 플러그인."
 
-# libretranslate
-msgid "Ansible filter plugin that safely joins URL components from a list. - Requires a valid '<scheme>://' in the first element (any RFC-3986-ish scheme) - Preserves the double slash after the scheme, collapses other duplicate slashes - Supports query parts introduced by elements starting with '?' or '&'"
-msgstr "안전하게 목록에서 URL 컴포넌트에 가입하는 Ansible 필터 플러그인. - 유효성 검사<scheme>://' 첫 번째 요소 (모든 RFC-3986-ish 계획) - 계획 후 더블 슬래시를 보존, 다른 중복 슬래시 붕괴 - '?'또는 '&'로 시작하는 요소에 의해 도입 된 쿼리 부품을 지원"
+msgid "Ansible filter plugin that safely joins URL components from a list."
+msgstr ""
 
 # libretranslate
 msgid "Ansible filter plugin: get_role"
@@ -17265,9 +17128,8 @@ msgstr "Ansible 필터 플러그인: get_role"
 msgid "Ansible filter to count active docker services for current host."
 msgstr "현재 호스트를 위한 Active docker 서비스를 계산할 수 있는 필터."
 
-# libretranslate
-msgid "Ansible filter to retrieve all unique application_id values defined in roles/*/vars/main.yml files."
-msgstr "모든 고유의 검색 필터 application_id 역할/에 정의된 값*/바 /main.yml 파일 형식."
+msgid "Ansible filter to retrieve all unique application_id values defined in ``roles/*/vars/main.yml`` files."
+msgstr ""
 
 # libretranslate
 msgid "Ansible forks a fresh worker process for every task. The in-process cache inside `get_merged_applications` therefore never survives from one task to the next, and every task that touches the lookup would render the full tree again (about 16 to 23 seconds per task on a CI runner, measured on the workspace jobs)."
@@ -17402,10 +17264,6 @@ msgid "Any `gh` CLI invocation whose second token is a known mutating verb."
 msgstr ""
 
 # libretranslate
-msgid "Any assumed to have all methods and attributes."
-msgstr "모든 방법 및 속성을 가지고 가정."
-
-# libretranslate
 msgid "Any call to the GraphQL endpoint."
 msgstr "GraphQL 엔드포인트에 대한 모든 호출."
 
@@ -17450,10 +17308,6 @@ msgid "Any invocation of the `update-config` skill: bare `Skill(update-config)`,
 msgstr "어떤 주장 `update-config` 기술: 베어 `Skill(update-config)`, 네임스페이스 `Skill(update-config:<arg>)`, 또는 어떤 미래 잠수함."
 
 # libretranslate
-msgid "Any is assignable to every type."
-msgstr "모든 유형에 할당할 수 있습니다."
-
-# libretranslate
 msgid "Any organization-scoped API call."
 msgstr "모든 조직 API 전화."
 
@@ -17483,9 +17337,8 @@ msgstr ""
 msgid "Anything else — restating code, section banners, \"Note that …\", step narration outside sequential test specs, untracked TODO/FIXME — **DELETE before the edit lands**. Applies to every language and file kind under version control. When in doubt, delete."
 msgstr "기타 - 복원 코드, 섹션 배너, \"참고 ...\", 순차적 시험 specs, untracked TODO/FIXME 밖에 단계 narration — **편집 땅의 앞에 DELETE**. 버전 통제의 밑에 각 언어와 파일 종류에 적용합니다. 의심 할 여지없이 삭제."
 
-# libretranslate
-msgid "Anything that wants to materialise the development inventory MUST go through :func:`build_dev_inventory` (single folder) or :func:`build_dev_inventory_matrix` (one folder per matrix-deploy round). Both flow through :class:`DevInventorySpec` and own:"
-msgstr "개발 인벤토리 MUST를 재료화하려는 모든 것 :func:`build_dev_inventory` (단일 폴더) 또는 :func:`build_dev_inventory_matrix` (matrix-deploy 라운드 당 하나의 폴더). 두 교류를 통해 :class:`DevInventorySpec` 그리고 그들:"
+msgid "Anything that wants to materialise the development inventory MUST go through :func:`build_dev_inventory` (single folder) or :func:`build_dev_inventory_matrix` (one folder per matrix-deploy round). Both flow through :class:`~.spec.DevInventorySpec` and own:"
+msgstr ""
 
 # libretranslate
 msgid "App Administration"
@@ -17690,9 +17543,8 @@ msgstr "모든 업데이트를 적용 *제품 정보* 디스크에. 실제로 �
 msgid "Apply image mirror overrides to host_vars."
 msgstr "이미지 미러 overrides를 적용 host_vars·."
 
-# libretranslate
-msgid "Apply include/exclude/legacy role filters in the same order as before:"
-msgstr "지원하다 include/exclude/legacy 앞에 동일한 순서에 있는 역할 여과기:"
+msgid "Apply include/exclude/legacy role filters in the same order as before::"
+msgstr ""
 
 # libretranslate
 msgid "Apply plugin-specific configuration keys and run any role-local hook."
@@ -17821,6 +17673,9 @@ msgstr "포크, 비밀, 또는 방출 경로 영향을?"
 # libretranslate
 msgid "Are there architecture, migration, or compatibility implications?"
 msgstr "건축, 마이그레이션 또는 호환성이 있습니까?"
+
+msgid "Are there migration or compatibility implications?"
+msgstr ""
 
 # libretranslate
 msgid "Areas"
@@ -18788,6 +18643,9 @@ msgstr "채용 정보 🧭"
 msgid "Behavior:"
 msgstr "공급 능력:"
 
+msgid "Behavior::"
+msgstr ""
+
 # libretranslate
 msgid "Behaviour"
 msgstr "채용 정보"
@@ -19338,6 +19196,9 @@ msgstr ""
 msgid "Briefly describe the `web-*` change and the expected user-facing outcome."
 msgstr "간단한 설명 `web-*` 변경 및 예상 사용자 직면 결과."
 
+msgid "Briefly describe the change and the effect it has."
+msgstr ""
+
 # libretranslate
 msgid "Briefly describe the change to the agent instruction files and the expected effect."
 msgstr "Briefly는 대리인 지시 파일 및 예상된 효력에 변화를 설명합니다."
@@ -19476,9 +19337,8 @@ msgstr "호스트"
 msgid "Build in this order, verifying each stage against the running container before moving on: storage and static seal first (nothing else is testable until the instance auto-unseals), then init plus the AppRole bootstrap and root-token revocation, then policies, then OIDC, then LDAP, then metrics, then PKI behind its flag, then the Playwright specs."
 msgstr "이 주문에서 빌드, 이동하기 전에 실행 컨테이너에 대한 각 단계를 확인: 저장 및 정적 인 물개 먼저 (예를 들어 auto-unseals까지 테스트 할 수 없습니다.), 다음 init 플러스 AppRole 부츠 스트랩과 루트 토큰 재발행, 다음 정책, 다음 OIDC, 다음 LDAP, 다음 미터, 그 플래그 뒤에 PKI, 다음 Playwright specs."
 
-# libretranslate
-msgid "Build mapping: SAN -> list of entries entry = {"
-msgstr "맵핑 빌드 : SAN -> 항목의 목록 = {"
+msgid "Build mapping: SAN -> list of entries::"
+msgstr ""
 
 # libretranslate
 msgid "Build only what is needed now."
@@ -19777,9 +19637,8 @@ msgstr "CA-trust 및 OIDC-over-self-signed-TLS 경화 : 내부 CA는 PHP libcurl
 msgid "CA-trust env handlers."
 msgstr "CA-trust Env 핸들러."
 
-# libretranslate
-msgid "CACHE SEMANTICS - Cache key: `(str(Path(path).resolve()), st_mtime_ns, st_size)`."
-msgstr "CACHE SEMANTICS - 캐시 키: `(str(Path(path).resolve()), st_mtime_ns, st_size)`·."
+msgid "CACHE SEMANTICS"
+msgstr ""
 
 # libretranslate
 msgid "CDN helper role for building a consistent asset tree, URLs, and on-disk layout."
@@ -20100,6 +19959,9 @@ msgstr "Cache 디렉토리에 의해 사용 [사전등록](https://pre-commit.co
 msgid "Cache freshness window in minutes, applied to every Nexus proxy repo (`contentMaxAge`/`metadataMaxAge`/negative-cache TTL). Stays strictly below the 7-day `Valid-Until` window Debian / Ubuntu generate in their apt `Release` files, so `apt-get update` never aborts with \"Release file ... is expired\"."
 msgstr "각 Nexus proxy repo에 적용되는 분에 있는 캐시 신선도 창 (`contentMaxAge`·`metadataMaxAge`/negative 캐시 TTL). 아래에 엄격히 체재하십시오 7- 일 `Valid-Until` 창 데비안 / 우분투는 자신의 apt에서 생성 `Release` 파일, 그래서 `apt-get update` 절대 낙태 \"릴리스 파일 ... 만료됩니다\"·."
 
+msgid "Cache key: `(str(Path(path).resolve()), st_mtime_ns, st_size)`. Symlinks resolve once at the cache boundary so the same target shares an entry regardless of how callers spell the path. The mtime+size signature invalidates entries whenever the file is rewritten by an external process (e.g. Ansible's `copy:` module persisting tokens while the same Python process keeps running across many calls)."
+msgstr ""
+
 # libretranslate
 msgid "Cache state persists under `/var/cache/infinito/core/cache/`. Paths are configurable via the env scripts above."
 msgstr "Cache 상태 persists 아래 `/var/cache/infinito/core/cache/`. 경로는 위 env 스크립트를 통해 구성할 수 있습니다."
@@ -20297,9 +20159,8 @@ msgstr "등록없이 Canonical 이미지 이름 및 태그 / 다이제스트없�
 msgid "Canonical origin"
 msgstr "Canonical 근원"
 
-# libretranslate
-msgid "Canonical shape (dict-of-dicts; the YAML key is the semantic short name):"
-msgstr "Canonical 모양 (dict-of-dicts; YAML 키는 짧은 이름입니다)::"
+msgid "Canonical shape (dict-of-dicts; the YAML key is the semantic short name)::"
+msgstr ""
 
 # libretranslate
 msgid "Canonical upstream. Pull target for all branches. Push target for `main`."
@@ -20590,10 +20451,6 @@ msgid "Change Type"
 msgstr "변경 유형"
 
 # libretranslate
-msgid "Change the permissions of the path, like os.chmod()."
-msgstr "경로의 권한을 변경, 같은 os.chmod()·."
-
-# libretranslate
 msgid "Change the version from dev to a stable or productive version"
 msgstr "Dev에서 안정적이고 생산적인 버전으로 변경"
 
@@ -20694,10 +20551,6 @@ msgstr "LDAP 디렉토리에 있는 사용자가 존재하는지 확인:"
 msgid "Check if this current network setting makes sense. Seems a bit unneccessary complicated. Could be that a more straight foreword approach makes more sense."
 msgstr "현재 네트워크 설정이 감지되면 확인. 조금 unneccessary 복잡한 것을 보십시오. 더 스트레이트 이마 접근법은 더 많은 감각을 만들 수 있었다."
 
-# libretranslate
-msgid "Check if this path is a mount point"
-msgstr "이 경로가 마운트 포인트 인 경우 확인"
-
 msgid "Check it first anyway when building the line by hand, because the same check outside the trigger costs a second and names every problem at once:"
 msgstr ""
 
@@ -20758,6 +20611,9 @@ msgstr "장치 오류 카운터를 검사하여 모든 마운트 Btrfs 파일 �
 msgid "Checks whether the anonymous volume cleanup service is defined and available."
 msgstr "익명 볼륨 정리 서비스가 정의되고 사용할 수 있는지 확인하십시오."
 
+msgid "Checks::"
+msgstr ""
+
 # libretranslate
 msgid "Chess"
 msgstr "사이트맵"
@@ -20765,10 +20621,6 @@ msgstr "사이트맵"
 # libretranslate
 msgid "Choose **Purge Everything** to delete all cached files (recommended after a deployment)."
 msgstr "제품 정보 **모든 것** 모든 캐시 파일 삭제 (배포 후 권장)·."
-
-# libretranslate
-msgid "Choose a Pull Request Template"
-msgstr "Pull Request Template 선택하기"
 
 # libretranslate
 msgid "Choose code that is clean, coherent, and pleasant to read instead of code that is only clever."
@@ -22046,9 +21898,8 @@ msgstr "색깔 종류"
 msgid "Color Logic 🎨"
 msgstr "색깔 논리 🎨"
 
-# libretranslate
-msgid "Columns:"
-msgstr "란:"
+msgid "Columns::"
+msgstr ""
 
 # libretranslate
 msgid "Combined validation"
@@ -22360,13 +22211,11 @@ msgstr "Monolith에 구성 🔧"
 msgid "Compound subcommands (e.g. `gh project item-create`, `gh project field-delete`, `gh project mark-template`)."
 msgstr "합성 subcommands (사이트맵 `gh project item-create`· `gh project field-delete`· `gh project mark-template`)·."
 
-# libretranslate
-msgid "Compute recommended JVM Xms in MB using: Xms = min("
-msgstr "Compute 권장 JVM MB에서 Xms 사용: Xms = 분("
+msgid "Compute recommended JVM Xms in MB using::"
+msgstr ""
 
-# libretranslate
-msgid "Compute recommended JVM Xmx in MB using: Xmx = min("
-msgstr "Compute 권장 JVM Xmx MB 사용: Xmx = 분("
+msgid "Compute recommended JVM Xmx in MB using::"
+msgstr ""
 
 # libretranslate
 msgid "Compute recommended Redis `maxmemory` in MB."
@@ -22872,9 +22721,8 @@ msgstr "연속 통합 🔄"
 msgid "Contract"
 msgstr "회사연혁"
 
-# libretranslate
-msgid "Contract: - `application_id` MUST refer to a role that declares an `rbac:` block"
-msgstr "계약 : - `application_id` MUST는 선언하는 역할 참조 `rbac:` 제품정보"
+msgid "Contract:"
+msgstr ""
 
 # libretranslate
 msgid "Contributing"
@@ -22982,9 +22830,8 @@ msgstr "푸시 여부를 제어 `main` CI 파이프라인을 트리거합니다.
 msgid "Controls whether the push workflow updates the current repository's `main` branch before any later job derives deploy scope from `origin/main`. This keeps fork branch pushes aligned with the canonical default branch so diff-driven role discovery sees only the branch's own changes."
 msgstr "푸시 워크플로가 현재 저장소의 업데이트 여부를 제어합니다. `main` 나중에 작업 derives 배포 범위 전에 분지 `origin/main`. 이 포크 지점은 canonical 기본 지점과 일치하여 diff-driven role discovery는 지점의 자체 변경만 볼 수 있습니다."
 
-# libretranslate
-msgid "Convenience wrapper: - converts to string - if Jinja markers exist => render via strict Jinja2 using a robust context"
-msgstr "Convenience 래퍼: - 문자열로 변환 - Jinja 마커가 => 엄격한 Jinja를 통해 렌더링2 강력한 컨텍스트 사용"
+msgid "Convenience wrapper:"
+msgstr ""
 
 # libretranslate
 msgid "Convention:"
@@ -23082,10 +22929,6 @@ msgstr "생성된 토큰을 복사합니다."
 # libretranslate
 msgid "Copy the in-play role dumps next to the snapshot."
 msgstr "스냅 샷 옆에 in-play 역할 덤프를 복사합니다."
-
-# libretranslate
-msgid "Copy this file or directory tree into the given existing directory."
-msgstr "이 파일 또는 디렉토리 트리를 지정된 기존 디렉토리에 복사합니다."
 
 # libretranslate
 msgid "CopyQ"
@@ -23230,10 +23073,6 @@ msgid "Create a new GitHub App under **Organization settings → Developer setti
 msgstr "새로운 GitHub 앱 만들기 **조직 설정 → 개발자 설정 → GitHub Apps → 새로운 GitHub 앱**·."
 
 # libretranslate
-msgid "Create a new directory at this given path."
-msgstr "이 주어진 경로에서 새 디렉토리를 만듭니다."
-
-# libretranslate
 msgid "Create a new user under the desired domain"
 msgstr "원하는 도메인의 새로운 사용자 만들기"
 
@@ -23300,10 +23139,6 @@ msgstr "저장소 전체 MCP 감사를 작성하고 모든 역할에 대한 분�
 # libretranslate
 msgid "Create the swarm-test keypairs if they are absent and return the public keys."
 msgstr "그들이 부패하고 대중적인 열쇠를 돌려보내는 경우에 swarm-test 열쇠를 창조하십시오."
-
-# libretranslate
-msgid "Create this file with the given access mode, if it doesn't exist."
-msgstr "주어진 액세스 모드로이 파일을 만들면 존재하지 않습니다."
 
 # libretranslate
 msgid "Create user via CLI"
@@ -24038,6 +23873,9 @@ msgstr "딥 압축, 클래식 스타일"
 msgid "Default"
 msgstr "기본 정보"
 
+msgid "Default (`_MISSING`): raise `FileNotFoundError` for callers that want to fail loud (resolution code)."
+msgstr ""
+
 # libretranslate
 msgid "Default (non-variant) include resolution for the matrix planner."
 msgstr "기본 정보 (비-variant) matrix planner에 대한 해상도를 포함합니다."
@@ -24521,10 +24359,6 @@ msgid "Deployment Modes 🚢"
 msgstr "배포 모드 🚢"
 
 # libretranslate
-msgid "Deployment check  : app ID must appear in group_names. Channel check     : app must declare services.prometheus.communication.channel: true"
-msgstr "배포 체크 : 앱 ID는 group_names. 채널 체크 : 앱은 선언해야 services.prometheus.communication.channel: 사실"
-
-# libretranslate
 msgid "Deployment modes (Decisions #11, #12, #13)"
 msgstr "배포 모드 (댓글 #11·12·13)"
 
@@ -24735,9 +24569,8 @@ msgstr "Jinja 템플릿에서 역할-README 섹션 스키마."
 msgid "Derived from ``meta/services.yml.<primary_entity>.modes.<mode>.enabled``: a mode is skipped iff its ``enabled`` flag is ``false``."
 msgstr "관련 기사 ``meta/services.yml.<primary_entity>.modes.<mode>.enabled``: 모드가 건너 뛰기 때문에 ``enabled`` 플래그는 ``false``·."
 
-# libretranslate
-msgid "Derived from the ca_trust_paths SPOT plus SOFTWARE_NAME (group_vars); consumed by scripts/system/tls/trust/*.sh so the path never lives in shell literals. SOFTWARE_NAME is line-parsed instead of yaml-loaded: the env generator runs on the bare bootstrap python before any dependency (PyYAML) is installed."
-msgstr "에 의해 ca_trust_paths SPOT 플러스 SOFTWARE_NAME (group_vars); 소모 scripts/system/tls/trust·*.sh 그래서 경로는 포탄 리터럴에서 결코 살아. SOFTWARE_NAME yaml-loaded 대신 line-parsed: env generator는 어떤 의존도 전에 bare bootstrap python에서 실행됩니다. (모델 코스) 설치."
+msgid "Derived from the ca_trust_paths SPOT plus SOFTWARE_NAME (group_vars); consumed by ``scripts/system/tls/trust/*.sh`` so the path never lives in shell literals. SOFTWARE_NAME is line-parsed instead of yaml-loaded: the env generator runs on the bare bootstrap python before any dependency (PyYAML) is installed."
+msgstr ""
 
 # libretranslate
 msgid "Derived from the host's default-route interface MTU so the compose bridge never exceeds the path MTU (TLS handshakes silently drop fragments otherwise). When no default route is readable (agent sandboxes run in a network namespace whose /proc/net/route is empty, while /sys/class/net still shows the host NICs), falls back to the minimum MTU across UP physical interfaces; only if that finds nothing either does the static default from ``default.env`` apply."
@@ -25631,6 +25464,9 @@ msgstr "문서 생성기 📝"
 msgid "Documentation Lint 📄"
 msgstr "회사연혁 Lint 📄"
 
+msgid "Documentation Pull Request"
+msgstr ""
+
 # libretranslate
 msgid "Documentation Structure 🗂️"
 msgstr "문서 구조 🗂️"
@@ -26220,9 +26056,8 @@ msgstr "각 시나리오 MUST는 자체에 살고 `test-*.js` 모듈 (사이트�
 msgid "Each script MUST be entered via `cli.administration.deploy.development exec --env KEY=VAL` (or an equivalent `docker exec -e …` invocation) so the host wrapper can inject the required environment. Each script MUST assert its required env-vars at the top with `: \"${VAR:?}\"` so missing context surfaces immediately. Each script MUST `cd \"${INFINITO_SRC_DIR}\"` before running anything so relative paths resolve against the bind-mounted repo. Each script SHOULD run `./scripts/docker/entry.sh true` for entry bootstrap before the deploy step."
 msgstr "각 스크립트를 통해 입력됩니다. `cli.administration.deploy.development exec --env KEY=VAL` (또는 해당 `docker exec -e …` 관련 기사) 그래서 호스트 래퍼는 필요한 환경을 주사 할 수 있습니다. 각 스크립트 MUST는 필요한 env-vars를 최고로 주장합니다. `: \"${VAR:?}\"` 그래서 즉시 컨텍스트 표면을 누락. 각 스크립트 MUST `cd \"${INFINITO_SRC_DIR}\"` 모든 것을 실행하기 전에 상대 경로는 bind-mounted repo에 대해 해결합니다. 각 스크립트 SHOULD 실행 `./scripts/docker/entry.sh true` 배포 단계 전에 Entry bootstrap에 대한."
 
-# libretranslate
-msgid "Each service entry lives in the provider role's own [meta/services.yml](../../../../../roles), where the file root IS the services map keyed by `<entity_name>` (no `compose:` and no `services:` wrapper). See [layout.md](layout.md) for the full per-role meta layout."
-msgstr "각 서비스 항목은 공급자 역할의 자신의 생활 [meta/services.yml](../../../../../roles), 파일 루트가 서비스 맵이 keyed 곳 `<entity_name>` (없음 `compose:` 그리고 아니오 `services:` 관련 상품). 보기 [layout.md](layout.md) 전체 per-role 메타 레이아웃."
+msgid "Each service entry lives in the provider role's own `meta/services.yml`, where the file root IS the services map keyed by `<entity_name>` (no `compose:` and no `services:` wrapper). See [layout.md](layout.md) for the full per-role meta layout."
+msgstr ""
 
 # libretranslate
 msgid "Each service in host vars MAY carry a `mirror_policy` field that controls how the override is applied:"
@@ -27238,7 +27073,7 @@ msgstr "모든 실패는 그것의 뿌리에 조정됩니다. lint hit은 offend
 msgid "Every failure raises AnsibleError with an actionable message."
 msgstr "모든 실패는 행동 메시지와 AnsibleError를 제기합니다."
 
-msgid "Every file here is declared as an addon under [meta/addons/](../../meta/addons/) with `mechanism: mu_plugin` and `source: vendored`, and the addon id is the file stem. [04_mu_plugins.yml](../../tasks/04_mu_plugins.yml) loops over those declarations and copies `<addon_id>.php` into the container on every deploy; a new file therefore needs its `meta/addons/<addon_id>.yml` entry and a Playwright spec before it is installed."
+msgid "Every file here is declared as an addon under `meta/addons/` with `mechanism: mu_plugin` and `source: vendored`, and the addon id is the file stem. [04_mu_plugins.yml](../../tasks/04_mu_plugins.yml) loops over those declarations and copies `<addon_id>.php` into the container on every deploy; a new file therefore needs its `meta/addons/<addon_id>.yml` entry and a Playwright spec before it is installed."
 msgstr ""
 
 # libretranslate
@@ -27268,9 +27103,8 @@ msgstr ""
 msgid "Every key MUST be the fully qualified form :func:`override_key` builds; a short form is rejected rather than guessed at, because the same short key names different credentials on different apps."
 msgstr "모든 열쇠 MUST는 완전히 자격이 된 모양일 것입니다 :func:`override_key` 빌드; 짧은 형태는 다른 응용 프로그램에 동일한 짧은 키 이름 다른 자격 증명 때문에 추측보다 오히려 거부됩니다."
 
-# libretranslate
-msgid "Every line of the file named by ``ANSIBLE_LOG_PATH`` carries ``<ts> p=<pid> u=<user> n=<name> <LEVEL>| `` in front of the message that also went to stdout. Left unstripped, that prefix defeats every line-anchored matcher a reader applies, so a reader that mixes an anchored match with an unanchored one silently sees an empty log instead of failing."
-msgstr "이름의 모든 선 ``ANSIBLE_LOG_PATH`` 제품정보 ``<ts> p=<pid> u=<user> n=<name> <LEVEL>| `` 또한 stdout에 갔다 메시지의 앞에. 왼쪽 unstripped, 그 접두사 패배 모든 line-anchored matcher a reader apply, 그래서 섞는 독자는 불행히도 불행히도 빈 로그 대신 실패."
+msgid "Every line of the file named by ``ANSIBLE_LOG_PATH`` carries ``<ts> p=<pid> u=<user> n=<name> <LEVEL>|`` and a space in front of the message that also went to stdout. Left unstripped, that prefix defeats every line-anchored matcher a reader applies, so a reader that mixes an anchored match with an unanchored one silently sees an empty log instead of failing."
+msgstr ""
 
 # libretranslate
 msgid "Every literal a rendered segment can start with, so any of them ends the value before it."
@@ -27324,13 +27158,11 @@ msgstr "각 per-tool 단위 MUST는 동일한 표면을 노출합니다 그래�
 msgid "Every persona scenario MUST run the CSP injection assertion at least once on the role's canonical surface. When an injector service (`asset`, `cdn`, `css`, `javascript`, `simpleicons`, `matomo`) is enabled, the page's `Content-Security-Policy` header MUST list the injector's host. The assertion is centralised in [`personas/utils/csp.js`](../../../../../roles/test-e2e-playwright/files/personas/utils/csp.js) so every spec gets the check by default."
 msgstr "모든 사람의 시나리오 MUST는 역할의 운하 표면에 적어도 한 번 CSP 주입 assertion를 실행합니다. 인젝터 서비스 (`asset`· `cdn`· `css`· `javascript`· `simpleicons`· `matomo`) 사용 가능, 페이지 `Content-Security-Policy` header MUST는 인젝터의 호스트를 나열합니다. assertion는 집중됩니다 [`personas/utils/csp.js`](../../../../../roles/test-e2e-playwright/files/personas/utils/csp.js) 그래서 각 spec는 기본적으로 체크를 가져옵니다."
 
-# libretranslate
-msgid "Every plugin and mu-plugin is declared in [`meta/addons/`](./meta/addons/) under the unified addon contract. The OIDC and WP-Discourse runtime config lives in each addon's `config:` block. Both install paths read those declarations: a `required` addon that fails to install stops the deploy, an optional one warns and is skipped."
-msgstr "모든 플러그인 및 mu-plugin은 선언됩니다. [`meta/addons/`](./meta/addons/) unified addon 계약의 밑에. OIDC와 WP-Discourse runtime config는 각 addon의 삶 `config:` 블록. 둘 다 경로는 그 선언을 읽습니다: a `required` 배포 중지를 설치하지 못하는 addon, 옵션 하나 경고 및 건너뛰기."
+msgid "Every plugin and mu-plugin is declared in ``meta/addons/`` under the unified addon contract. The OIDC and WP-Discourse runtime config lives in each addon’s ``config:`` block. Both install paths read those declarations: a ``required`` addon that fails to install stops the deploy, an optional one warns and is skipped."
+msgstr ""
 
-# libretranslate
-msgid "Every plugin and mu-plugin is declared in ```meta/addons/`` <./meta/addons/>`__ under the unified addon contract. The OIDC and WP-Discourse runtime config lives in each addon’s ``config:`` block. Both install paths read those declarations: a ``required`` addon that fails to install stops the deploy, an optional one warns and is skipped."
-msgstr "모든 플러그인 및 mu-plugin은 선언됩니다. ```meta/addons/`` <./meta/addons/>`__ under the unified addon contract. The OIDC and WP-Discourse runtime config lives in each addon’s ``config:`` block. Both install paths read those declarations: a ``required`` 배포 중지를 설치하지 못하는 addon, 옵션 하나 경고 및 건너뛰기."
+msgid "Every plugin and mu-plugin is declared in `meta/addons/` under the unified addon contract. The OIDC and WP-Discourse runtime config lives in each addon's `config:` block. Both install paths read those declarations: a `required` addon that fails to install stops the deploy, an optional one warns and is skipped."
+msgstr ""
 
 # libretranslate
 msgid "Every probe here targets the container's own loopback, so a request that a proxy picks up is wrong by definition -- the Wget probe has said so with ``--proxy=off`` since it was written. Both spellings come from here so the exec form and the shell form cannot drift: the shell form needs the wildcard quoted and the exec form needs it bare, which is exactly the kind of difference that rots when it is written out three times."
@@ -27983,13 +27815,11 @@ msgstr "Extended Docker 이미지 버전 지원 ghcr.io, 깊이 인식 비교 �
 msgid "Extended timeout for the flaky *setupSuperUser* step"
 msgstr "Flaky를 위한 장시간 timeout *설정SuperUser* 한국어"
 
-# libretranslate
-msgid "Extensions are declared in [`meta/addons/`](./meta/addons/) under the unified addon contract. Each one is installed through the XWiki Extension Manager and pins its upstream version; the Maven coordinate is carried under the addon's `config.id`:"
-msgstr "확장은 선언됩니다. [`meta/addons/`](./meta/addons/) unified addon 계약의 밑에. 각각은 설치됩니다. XWiki 확장 관리자와 핀 그것의 상류 버전; Maven 협조는 addon의 밑에 실행됩니다 `config.id`::"
+msgid "Extensions are declared in ``meta/addons/`` under the unified addon contract. Each one is installed through the XWiki Extension Manager and pins its upstream version; the Maven coordinate is carried under the addon’s ``config.id``:"
+msgstr ""
 
-# libretranslate
-msgid "Extensions are declared in ```meta/addons/`` <./meta/addons/>`__ under the unified addon contract. Each one is installed through the XWiki Extension Manager and pins its upstream version; the Maven coordinate is carried under the addon’s ``config.id``:"
-msgstr "확장은 선언됩니다. ```meta/addons/`` <./meta/addons/>`__ under the unified addon contract. Each one is installed through the XWiki Extension Manager and pins its upstream version; the Maven coordinate is carried under the addon’s ``config.id``::"
+msgid "Extensions are declared in `meta/addons/` under the unified addon contract. Each one is installed through the XWiki Extension Manager and pins its upstream version; the Maven coordinate is carried under the addon's `config.id`:"
+msgstr ""
 
 msgid "Extensive deploy and end-to-end hardening, much of it reproduced in Docker-in-Docker: native username and password login fallbacks for the no-SSO admin persona across Akaunting, Snipe-IT, YOURLS and OpenProject; OpenProject linked to the LDAP auth source for header SSO to fix a trusted-header 401, with all rails-runner Ruby extracted to dedicated files under *files/ruby/*; Shopware retries asset and theme builds against a restarting SeaweedFS; Mailu retries user creation and waits for antispam readiness before DKIM keygen; YOURLS creates its database schema on deploy; and OpenProject boots db:migrate under Ruby 4.0."
 msgstr ""
@@ -28153,10 +27983,6 @@ msgstr "이 역할로 돌아가기 (``sys-svc-mail-smtp``) 그리고 보내 ``lo
 # libretranslate
 msgid "Fall back to this role (`sys-svc-mail-smtp`) and send via `localhost`."
 msgstr "이 역할로 돌아가기 (`sys-svc-mail-smtp`) 그리고 보내 `localhost`·."
-
-# libretranslate
-msgid "Fallback"
-msgstr "관련 상품"
 
 # libretranslate
 msgid "Fallback shape for a generation that cannot state its own."
@@ -28483,6 +28309,9 @@ msgstr "Filesystem 스냅샷"
 # libretranslate
 msgid "Fill `image`/`version` only if they are blank or absent"
 msgstr "제품정보 `image`·`version` 그들은 공백 또는 absent인 경우에만"
+
+msgid "Fill this in for any change. A specialised template carries extra prompts for its area; to open one, append its `template=` parameter to the pull request creation URL, for example `?quick_pull=1&template=server.md`."
+msgstr ""
 
 # libretranslate
 msgid "Filter Nexus `/service/rest/v1/repositories` JSON (stdin) down to apt-format proxy repo names, one per line (stdout). Exit 1 if no matching repo is found or input is malformed."
@@ -28814,9 +28643,8 @@ msgstr "깃발:"
 msgid "Flat schema entries keep the same shape:"
 msgstr "편평한 스키마 입장은 동일한 모양을 지킵니다:"
 
-# libretranslate
-msgid "Flatten domains from the *global* domains mapping entry. Supports:"
-msgstr "Flatten 도메인에서 *글로벌* 도메인 매핑 항목. 지원 :"
+msgid "Flatten domains from the global domains mapping entry."
+msgstr ""
 
 # libretranslate
 #, python-brace-format
@@ -29270,7 +29098,7 @@ msgstr "각 제안을 위해, 또한 client를 인쇄합니다 capacity__ (`/28 
 msgid "For email contact, write to [contact@infinito.nexus](mailto:contact@infinito.nexus)."
 msgstr "이메일 연락처, 쓰기 [contact@infinito.nexus](mailto:contact@infinito.nexus)·."
 
-msgid "For every Mastodon-API-compatible Fediverse sibling listed under the SPOT ``meta/services.yml.fediwall.fediverse_siblings`` that is also active on the current host (i.e. its application_id is in ``group_names``), return one entry per ``want_path``:"
+msgid "For every Mastodon-API-compatible Fediverse sibling listed under the SPOT ``meta/services.yml.fediwall.fediverse_siblings`` that is also active on the current host (i.e. its application_id is in ``group_names``), return one entry per ``want_path``::"
 msgstr ""
 
 # libretranslate
@@ -29464,7 +29292,7 @@ msgstr ""
 msgid "For multi-variant roles you MAY restrict any of the `make compose-deploy` invocations above (and the dev CLI subcommands) to one or more matrix rounds by setting `variant=<csv>` — a single index pins one round, a comma-separated list iterates that subset (the runner-split bundle CI produces), and empty/unset is the full matrix:"
 msgstr ""
 
-msgid "For multi-variant roles you MUST set `variant=<idx>` (see [Pinning A Single Variant](#pinning-a-single-variant-)) so the reuse path targets the round's folder. Without `variant=`, the reuse target points at `<INFINITO_INVENTORY_DIR>` which only exists for single-variant roles."
+msgid "For multi-variant roles you MUST set `variant=<idx>` (see [Pinning Variants](#pinning-variants-single-or-bundle-)) so the reuse path targets the round's folder. Without `variant=`, the reuse target points at `<INFINITO_INVENTORY_DIR>` which only exists for single-variant roles."
 msgstr ""
 
 # libretranslate
@@ -29728,9 +29556,8 @@ msgstr "이 통화를 구동하는 워크플로우 카탈로그의 경우 [workf
 msgid "For vulnerability reporting and disclosure, see [SECURITY.md](SECURITY.md)."
 msgstr "취약성 보고 및 공개를 위해, 보기 [SECURITY.md](SECURITY.md)·."
 
-# libretranslate
-msgid "For when a spec MUST be added or updated (including the `javascript.js` / `style.css` trigger), see the Scenarios section of [`playwright.spec.js`](../../artefact/files/role/playwright.specs.js.md#scenarios-)."
-msgstr "Spec MUST가 추가되거나 업데이트될 때 (한국어 `javascript.js` · `style.css` 관련 기사), Scenarios 섹션을 참조 [`playwright.spec.js`](../../artefact/files/role/playwright.specs.js.md#scenarios-)·."
+msgid "For when a spec MUST be added or updated (including the `javascript.js` / `style.css` trigger), see the Triggers section of [`playwright.spec.js`](../../artefact/files/role/playwright.specs.js.md#triggers-when-to-add-or-update-a-scenario-)."
+msgstr ""
 
 # libretranslate
 msgid "Force ``shared: true`` on every svc-db-* provider service in the swarm-test inventory host_vars."
@@ -30855,6 +30682,9 @@ msgstr "지원하다"
 msgid "Help reviewers focus on the riskiest parts of this PR. For repository-wide contribution and review expectations, see [CONTRIBUTING.md](../../CONTRIBUTING.md)."
 msgstr "이 PR의 가장 위험한 부분에 도움이 검토가 집중합니다. repository-wide 기여 및 리뷰 기대, 참조 [CONTRIBUTING.md](../../CONTRIBUTING.md)·."
 
+msgid "Help reviewers focus on the riskiest parts of this PR. For repository-wide contribution and review expectations, see [CONTRIBUTING.md](../CONTRIBUTING.md)."
+msgstr ""
+
 # libretranslate
 msgid "Helper"
 msgstr "도움"
@@ -30953,6 +30783,9 @@ msgstr "숨겨진 실패는 더 열심히 사건을 나중에 원인."
 # libretranslate
 msgid "Hide or disable application UI fields that are sourced from OIDC or LDAP, per the rules in [javascript.js.md](../../artefact/files/role/javascript.js.md)."
 msgstr "OIDC 또는 LDAP에서 소스된 응용 UI 필드를 숨기기 또는 비활성화할 수 있습니다. [javascript.js.md](../../artefact/files/role/javascript.js.md)·."
+
+msgid "High Quality Gate"
+msgstr ""
 
 # libretranslate
 msgid "High-side-effect operations"
@@ -31175,6 +31008,9 @@ msgstr "로그인, 로그 아웃, 프록시, 저장, 또는 메일 통합이 변
 msgid "How do triggers, permissions, concurrency, or artifacts behave after this change?"
 msgstr "방아쇠, 허가, 통화 또는 artifacts는이 변경 후 행동합니까?"
 
+msgid "How does it integrate with the existing stack?"
+msgstr ""
+
 # libretranslate
 msgid "How does this behave on the tested distro(s)?"
 msgstr "테스트 디트로에서이 행동하는 방법(₢ 킹)·?"
@@ -31273,10 +31109,6 @@ msgstr "사용 방법"
 # libretranslate
 msgid "How to use 🧭"
 msgstr "사용 방법 🧭"
-
-# libretranslate
-msgid "Hub: <https://hub.infinito.nexus/>"
-msgstr "허브: <https://hub.infinito.nexus/>"
 
 msgid "Hugging Face repository those flavors download at build time"
 msgstr ""
@@ -31478,10 +31310,6 @@ msgstr "INFINITO_WORKER_CPU: 노동자 SPOT 사슬을 위한 CPU 카운트 기�
 # libretranslate
 msgid "INFINITO_WORKER_FETCH: I/O-bound network-fetch worker count."
 msgstr "INFINITO_WORKER_FETCH: I/O-bound Network-fetch 작업자 수."
-
-# libretranslate
-msgid "INIT_CONTAINER: 'service_completed_successfully'}) }}"
-msgstr "INIT_CONTAINER: 'service_completed_successfully'}) }}"
 
 # libretranslate
 msgid "IPAM gateway for the default bridge network."
@@ -31801,13 +31629,6 @@ msgid "If systemd is not configured at all, appends the `[boot]` section to `/et
 msgstr "Systemd가 설정되지 않은 경우, appends `[boot]` 본문 바로가기 `/etc/wsl.conf` 및 트리거 `wsl --shutdown` 변경 사항"
 
 # libretranslate
-msgid "If term is a domain and exists in *global* domains mapping -> primary_domain = that term (normalized)."
-msgstr "용어는 도메인이며 존재하는 경우 *글로벌* 도메인 매핑 -> primary_domain 그 용어 (품질 관리)·."
-
-msgid "If term is a domain and only exists in applications[*].domains -> map to app_id, and primary_domain = canonical primary from global domains mapping (first entry)."
-msgstr ""
-
-# libretranslate
 msgid "If that validation fails, you MUST run `make clean` and rerun it."
 msgstr "유효성 검사가 실패하면 MUST가 실행됩니다. `make clean` 그리고 rerun 그것."
 
@@ -31824,10 +31645,6 @@ msgstr "앱이 명시적으로 토큰을 비활성화하면 *기본 정보* (e.g
 
 msgid "If the application's primary background is dark or black, you MUST use `--color-01-00` as the default theme color. If it is light or white, you MUST use `--color-01-99`. All other application colors MUST be mapped to one of these two anchors. Colors from categories `02`–`09` MUST be derived from and kept in visual relation to the chosen anchor."
 msgstr ""
-
-# libretranslate
-msgid "If the buttons do not work in your GitHub client, append one of these query parameters to the current pull request creation URL:"
-msgstr "버튼이 GitHub 클라이언트에서 작동하지 않으면 현재 풀 요청 생성 URL에 이러한 쿼리 매개 변수 중 하나를 추가하십시오."
 
 # libretranslate
 msgid "If the change adds or removes a repository variable, also update [configuration.md](configuration.md)."
@@ -33851,10 +33668,6 @@ msgid "Integrated with"
 msgstr "통합과"
 
 # libretranslate
-msgid "Integrated with  README titles of the role's direct service integrations"
-msgstr "역할의 직접 서비스 통합의 README 타이틀과 통합"
-
-# libretranslate
 msgid "Integrates a systemd timer for regular execution."
 msgstr "일반 실행을 위한 systemd 타이머를 통합합니다."
 
@@ -34564,10 +34377,6 @@ msgid "Iterate on a swarm deploy of a role through Act and the `swarm-*` targets
 msgstr "행동과 행동을 통해 스팸 배포에 대해 `swarm-*` 대상. 동일한 역할의 compose 배치를 위해, 보십시오 [Compose 반복](compose.md). 교차 형태 패성 문을 위해, 보십시오 [연락처](roundtrip.md). 행동이 낙태될 때 \"작업 설정\" 최근 Docker 엔진에, 참조 [작업 흐름 루프](workflow.md)·."
 
 # libretranslate
-msgid "Iterate over this subtree and yield all existing files (of any kind, including directories) matching the given relative pattern."
-msgstr ""
-
-# libretranslate
 msgid "Iterates over every Btrfs filesystem."
 msgstr "모든 Btrfs 파일 시스템에서 저장합니다."
 
@@ -34829,9 +34638,8 @@ msgstr "모든 application-scoped 기본값 유지 (서비스, 서버 설정, RB
 msgid "Keep all user and application keys lowercase"
 msgstr "모든 사용자 및 응용 키 Lowercase 유지"
 
-# libretranslate
-msgid "Keep app-specific Keycloak protocol mappers in a per-client scope file under the Keycloak [scopes](../../../../roles/web-app-keycloak/templates/import/scopes/) directory. Do not extend [default.json.j2](../../../../roles/web-app-keycloak/templates/import/clients/default.json.j2)."
-msgstr "앱 별 유지 Keycloak 클라이언트 범위 파일에 있는 프로토콜 mappers Keycloak [제품정보](../../../../roles/web-app-keycloak/templates/import/scopes/) 디렉토리. 확장되지 않음 [default.json.j2](../../../../roles/web-app-keycloak/templates/import/clients/default.json.j2)·."
+msgid "Keep app-specific Keycloak protocol mappers in a per-client scope file under the Keycloak `roles/web-app-keycloak/templates/import/scopes/` directory. Do not extend [default.json.j2](../../../../roles/web-app-keycloak/templates/import/clients/default.json.j2)."
+msgstr ""
 
 # libretranslate
 msgid "Keep branch up-to-date"
@@ -35111,9 +34919,8 @@ msgstr "Keycloak 인증 활성화"
 msgid "Keycloak base URL (`https://auth.<domain>`)."
 msgstr "Keycloak 기본 URL (`https://auth.<domain>`)·."
 
-# libretranslate
-msgid "Keycloak client definitions are imported from [clients](../../../../roles/web-app-keycloak/templates/import/clients/). The default template in [default.json.j2](../../../../roles/web-app-keycloak/templates/import/clients/default.json.j2) is shared by every application client."
-msgstr "Keycloak 클라이언트 정의는에서 수입됩니다 [회사 소개](../../../../roles/web-app-keycloak/templates/import/clients/). 기본 템플릿 [default.json.j2](../../../../roles/web-app-keycloak/templates/import/clients/default.json.j2) 모든 애플리케이션 클라이언트가 공유됩니다."
+msgid "Keycloak client definitions are imported from `roles/web-app-keycloak/templates/import/clients/`. The default template in [default.json.j2](../../../../roles/web-app-keycloak/templates/import/clients/default.json.j2) is shared by every application client."
+msgstr ""
 
 msgid "Keycloak group path that maps onto Joomla's `Editor` (id 4)."
 msgstr ""
@@ -35592,14 +35399,6 @@ msgid "Like :class:`Tcp`, but insists the status line is 2xx or 3xx."
 msgstr ""
 
 # libretranslate
-msgid "Like chmod(), except if the path points to a symlink, the symlink's permissions are changed, rather than its target's."
-msgstr "크리스마스(), symlink에 경로 포인트를 제외하고, symlink의 권한이 변경되는 경우, 오히려 대상보다."
-
-# libretranslate
-msgid "Like stat(), except if the path points to a symlink, the symlink's status information is returned, rather than its target's."
-msgstr "Stat 처럼(), symlink에 경로 포인트를 제외하고, symlink의 상태 정보는 대상보다는 반환됩니다."
-
-# libretranslate
 msgid "Limit the run to the affected app when possible."
 msgstr "영향을받는 앱으로 실행할 수 있습니다."
 
@@ -35751,6 +35550,12 @@ msgstr "터치된 에이전트 명령 파일 목록."
 msgid "List the touched documentation files and audience."
 msgstr "터치된 문서 파일 및 청중 목록."
 
+msgid "List what this change touches."
+msgstr ""
+
+msgid "Listing ``dir()`` instead sweeps in whatever the module imported, so every shim re-exported ``Path`` and ``Any``. Sphinx then found the same python target in nine packages and reported 320 ambiguous cross-references."
+msgstr ""
+
 # libretranslate
 msgid "Listmonk"
 msgstr "모스크"
@@ -35844,9 +35649,8 @@ msgstr "로드 핸들러 유틸리티 (예, ``svc-prx-openresty``)"
 msgid "Load handler utilities (e.g., `svc-prx-openresty`)"
 msgstr "로드 핸들러 유틸리티 (예, `svc-prx-openresty`)"
 
-# libretranslate
-msgid "Load metadata from meta/main.yml. Returns a dict with:"
-msgstr "Load 메타데이터 meta/main.yml. dict를 반환:"
+msgid "Load metadata from ``meta/main.yml``."
+msgstr ""
 
 # libretranslate
 msgid "Load nested roles YAML and return dash-joined paths where 'invokable' is False or missing. Appends suffix if provided."
@@ -36011,6 +35815,9 @@ msgstr "로컬 헤드리스 모델"
 # libretranslate
 msgid "Local model backend: [svc-ai-ollama](../../roles/svc-ai-ollama/)"
 msgstr "지역 모델 백엔드: [svc-ai-ollama](../../roles/svc-ai-ollama/)"
+
+msgid "Local name for the image reference the mirror commands pass around."
+msgstr ""
 
 # libretranslate
 msgid "Local overrides MUST NOT set `sandbox.enabled: false`, `sandbox.failIfUnavailable: false`, or `sandbox.allowUnsandboxedCommands: true`. The security model depends on the sandbox being on and fail-closed."
@@ -36291,9 +36098,8 @@ msgstr "더 보기 `subnet_address_regex`: 역할의 로컬 서브넷에 어떤 
 msgid "Lookup `subnet_gateway`: the gateway address of the role's local subnet."
 msgstr "더 보기 `subnet_gateway`: 역할의 로컬 서브넷의 게이트웨이 주소."
 
-# libretranslate
-msgid "Lookup form — the app config is resolved internally, so callers no longer pipe ``lookup('applications')`` in:"
-msgstr "Lookup form - 앱 구성은 내부적으로 해결되어 있으므로 더 이상 파이프를 호출하지 않습니다. ``lookup('applications')`` 다음 :"
+msgid "Lookup form — the app config is resolved internally, so callers no longer pipe ``lookup('applications')`` in::"
+msgstr ""
 
 # libretranslate
 msgid "Lookup order:"
@@ -36321,10 +36127,6 @@ msgstr "낮은 자원 인식 💡"
 # libretranslate
 msgid "Low-code visual builder for creating, testing, and publishing LLM and RAG workflows as HTTP endpoints"
 msgstr "LLM 및 RAG 워크플로우를 HTTP 엔드포인트로 제작, 테스트 및 출판하는 저코드 시각 빌더"
-
-# libretranslate
-msgid "MAPPING"
-msgstr "구매하기"
 
 # libretranslate
 msgid "MAY be removed without a deprecation cycle."
@@ -36743,17 +36545,6 @@ msgid "Make the obvious path obvious."
 msgstr "명백한 경로가 분명하다."
 
 # libretranslate
-msgid "Make the path absolute, resolving all symlinks on the way and also normalizing it."
-msgstr "길을 절대로 만들고, 모든 symlinks를 해결하고 또한 정상화하십시오."
-
-msgid "Make this path a hard link pointing to the same file as *target*."
-msgstr ""
-
-# libretranslate
-msgid "Make this path a symlink pointing to the target path. Note the order of arguments (link, target) is the reverse of os.symlink."
-msgstr ""
-
-# libretranslate
 msgid "Make user admin via cli"
 msgstr "Cli를 통해 사용자 관리자 만들기"
 
@@ -36883,6 +36674,9 @@ msgstr "지도 역할 -> [:class:`Failure`] 모든 실패한 배치 일을 위�
 
 # libretranslate
 msgid "Map the repository palette onto those variables. Add selector overrides only for surfaces that cannot be reached through variables."
+msgstr ""
+
+msgid "Mapping, from compose ``docker_restart_policy`` to swarm ``condition``:"
 msgstr ""
 
 # libretranslate
@@ -37126,10 +36920,6 @@ msgid "Matrix: @kevinveenbirkenbach:infinito.nexus"
 msgstr "매트릭스: @kevinveenbirkenbach:infinito.nexus"
 
 # libretranslate
-msgid "Matrix: `#public:infinito.nexus`"
-msgstr "매트릭스: `#public:infinito.nexus`"
-
-# libretranslate
 msgid "Matrix: `#public:infinito.nexus` - quick chat with the community."
 msgstr "매트릭스: `#public:infinito.nexus` - 커뮤니티와 빠른 채팅."
 
@@ -37268,6 +37058,9 @@ msgstr "자동화된 다중 문서 YAML 짐."
 # libretranslate
 msgid "Merge Strategy 🔀"
 msgstr "Merge 전략 🔀"
+
+msgid "Merge a Sibling Branch"
+msgstr ""
 
 # libretranslate
 msgid "Merge commits ARE allowed"
@@ -37824,10 +37617,6 @@ msgid "Move their values to the roles/*/config/main.yml file of each role"
 msgstr ""
 
 # libretranslate
-msgid "Move this file or directory tree into the given existing directory."
-msgstr "이 파일이나 디렉토리 트리를 지정된 기존 디렉토리로 이동합니다."
-
-# libretranslate
 msgid "Moved backend service-load decisions into a dedicated lookup plugin"
 msgstr "Backend 서비스 로드 결정 전용 보기 플러그인"
 
@@ -37861,7 +37650,7 @@ msgstr ""
 msgid "Multi-user (daemon) installation mode"
 msgstr "멀티 유저 (인기있는) 설치 모드"
 
-msgid "Multiple paths (returns list, one result per term):"
+msgid "Multiple paths (returns list, one result per term)::"
 msgstr ""
 
 # libretranslate
@@ -38052,9 +37841,6 @@ msgid "NSS"
 msgstr "사이트맵"
 
 msgid "Name"
-msgstr ""
-
-msgid "Name             Role README H1 title, linked to the role directory. Status           Role lifecycle stage. Description      ``galaxy_info.description`` from meta/main.yml. More             Emoji links: 🌐 homepage, 🎬 video (both from"
 msgstr ""
 
 # libretranslate
@@ -38502,6 +38288,9 @@ msgstr "Unsandboxed 탈출 해치 없음 🚪"
 msgid "No `--mode`, `--tor`, `--distros` or `--filesystem`. Those inputs pin an axis for the whole run, which the tokens already do per row, and a run-level pool that disagrees with a token refuses it. The only reason to reach for them is a line where every row genuinely shares one value, and even then the token form is what the report has to show."
 msgstr ""
 
+msgid "No ``__all__``: declaring the re-exported name makes autodoc document the class here as well as where it is defined, and sphinx then finds two targets for every ``ImageRef`` annotation."
+msgstr ""
+
 msgid "No `git commit` until every Acceptance Criterion is checked."
 msgstr ""
 
@@ -38816,17 +38605,6 @@ msgid "Note"
 msgstr ""
 
 # libretranslate
-msgid "Note that all the above statements are true from the point of view of static type checkers. At runtime, Any cannot be used with instance checks."
-msgstr ""
-
-msgid "Note the order of arguments (self, target) is the reverse of os.link's."
-msgstr ""
-
-# libretranslate
-msgid "Note: - Transitively follows provider roles by reading THEIR configs and applying the same"
-msgstr "Note: - TheIR configs 를 읽고 동일한 조건을 적용하여,"
-
-# libretranslate
 msgid "Note: Django superuser enables access to `/admin`. Workspace permissions inside Baserow still need to be configured in Baserow UI/API."
 msgstr "참고 : Django superuser는 액세스 할 수 있습니다. `/admin`. 작업 공간 권한 내부 Baserow 아직 구성해야 Baserow 사이트맵API·."
 
@@ -39032,13 +38810,11 @@ msgstr "압력계"
 msgid "Odoo ERP"
 msgstr "Odoo 소프트웨어"
 
-# libretranslate
-msgid "Odoo modules are declared as addons in [`meta/addons/`](meta/addons/) per the unified addon contract (requirement 026). The install path reads them from `applications.web-app-odoo.addons`."
-msgstr "Odoo 모듈은 addons로 선언됩니다. [`meta/addons/`](meta/addons/) unified addon 계약 당 (제품 설명 026). 설치 경로는 그들에서 읽습니다 `applications.web-app-odoo.addons`·."
+msgid "Odoo modules are declared as addons in ``meta/addons/`` per the unified addon contract (requirement 026). The install path reads them from ``applications.web-app-odoo.addons``."
+msgstr ""
 
-# libretranslate
-msgid "Odoo modules are declared as addons in ```meta/addons/`` <meta/addons/>`__ per the unified addon contract (requirement 026). The install path reads them from ``applications.web-app-odoo.addons``."
-msgstr "Odoo 모듈은 addons로 선언됩니다. ```meta/addons/`` <meta/addons/>`__ per the unified addon contract (requirement 026). The install path reads them from ``applications.web-app-odoo.addons``·."
+msgid "Odoo modules are declared as addons in `meta/addons/` per the unified addon contract (requirement 026). The install path reads them from `applications.web-app-odoo.addons`."
+msgstr ""
 
 # libretranslate
 msgid "Odoo's functionality is delivered through a modular architecture. The following core modules are installed by default:"
@@ -39316,9 +39092,8 @@ msgstr "한국어 ``package_name: \"<name>==<version>\"`` 라인."
 msgid "One ``pg_dumpall`` dump of a whole instance inside a generation."
 msgstr "한국어 ``pg_dumpall`` 세대 안에 전체 인스턴스의 덤프."
 
-# libretranslate
-msgid "One ``python:<version>-slim`` container runs the service in `files/python/infinito_docs/ <./files/python/infinito_docs/>`__:"
-msgstr "한국어 ``python:<version>-slim`` 컨테이너는 서비스 실행 `files/python/infinito_docs/ <./files/python/infinito_docs/>`__::"
+msgid "One ``python:<version>-slim`` container runs the service in ``files/python/infinito_docs/``:"
+msgstr ""
 
 # libretranslate
 #, python-brace-format
@@ -39329,9 +39104,8 @@ msgstr "한국어 ``{\"image\", \"track\", \"icon\", \"label\"}`` 이미지 당 
 msgid "One `docker stack` per role, consistent with today's one-compose-project-per-role model. Granular `deploy / update / rm` per role is preserved. A single global stack across all Infinito services is explicitly rejected — it would couple update windows and rollback granularity across unrelated apps."
 msgstr "한국어 `docker stack` 역할 당, 오늘 one-compose-project-per-role 모델과 일관성. 사이트맵 `deploy / update / rm` 역할은 보존됩니다. 모든 Infinito 서비스에 대한 단일 글로벌 스택은 명시적으로 거부됩니다 — 그것은 관련 응용 프로그램에 걸쳐 창과 롤백 과립을 업데이트 할 것입니다."
 
-# libretranslate
-msgid "One `python:<version>-slim` container runs the service in [files/python/infinito_docs/](./files/python/infinito_docs/):"
-msgstr "한국어 `python:<version>-slim` 컨테이너는 서비스 실행 [files/python/infinito_docs·](./files/python/infinito_docs/)::"
+msgid "One `python:<version>-slim` container runs the service in `files/python/infinito_docs/`:"
+msgstr ""
 
 msgid "One application role. The field order is the column order; legacy positional access (``row[0]`` … ``row[11]``) still resolves."
 msgstr ""
@@ -39639,26 +39413,6 @@ msgstr "라이브 런치만 설정할 수 있는 항목 열기:"
 # libretranslate
 msgid "Open the **Groups** tab on the user profile."
 msgstr "공지사항 **회사 소개** 사용자 프로필에 탭."
-
-# libretranslate
-msgid "Open the file in bytes mode, read it, and close the file."
-msgstr "바이트 모드에서 파일을 열고 파일을 닫습니다."
-
-# libretranslate
-msgid "Open the file in bytes mode, write to it, and close the file."
-msgstr "바이트 모드에서 파일을 열고, 그것을 쓰고, 파일을 닫습니다."
-
-# libretranslate
-msgid "Open the file in text mode, read it, and close the file."
-msgstr "텍스트 모드에서 파일을 열고, 그것을 읽고, 파일을 닫습니다."
-
-# libretranslate
-msgid "Open the file in text mode, write to it, and close the file."
-msgstr "텍스트 모드에서 파일을 열고, 그것을 쓰고, 파일을 닫습니다."
-
-# libretranslate
-msgid "Open the file pointed to by this path and return a file object, as the built-in open() function does."
-msgstr "이 경로에 의해 지적 된 파일을 열고 파일 개체를 반환, 내장 오픈() 함수는."
 
 # libretranslate
 msgid "Open the repository on GitHub."
@@ -40086,13 +39840,11 @@ msgstr "Portability 및 idempotency에 최적화 된이 역할은 다음과 같�
 msgid "Optimized for prompt and comprehensive failure alerts, this role configures a unified notification service. It leverages the capabilities of both Telegram and Email notifications to ensure that administrators are quickly informed about service issues, enabling rapid troubleshooting."
 msgstr ""
 
-# libretranslate
-msgid "Optimized for real-time alerts, this role is a key component of the overall [`sys-ctl-alm-compose` suite](../). It ensures that, upon failure of a critical service, a Telegram message is automatically sent to notify administrators and enable prompt troubleshooting."
-msgstr "실시간 알림에 최적화된 이 역할은 전체의 주요 구성 요소입니다. [`sys-ctl-alm-compose` 제품정보](../). 그것은, 중요한 서비스의 실패에, Telegram 메시지는 자동으로 관리자를 통지하고 신속한 문제 해결을 가능하게하기 위해 전송됩니다."
+msgid "Optimized for real-time alerts, this role is a key component of the overall ``sys-ctl-alm-compose`` suite. It ensures that, upon failure of a critical service, a Telegram message is automatically sent to notify administrators and enable prompt troubleshooting."
+msgstr ""
 
-# libretranslate
-msgid "Optimized for real-time alerts, this role is a key component of the overall ```sys-ctl-alm-compose`` suite <../>`__. It ensures that, upon failure of a critical service, a Telegram message is automatically sent to notify administrators and enable prompt troubleshooting."
-msgstr "실시간 알림에 최적화된 이 역할은 전체의 주요 구성 요소입니다. ```sys-ctl-alm-compose`` 제품정보 <../>`· 그것은, 중요한 서비스의 실패에, Telegram 메시지는 관리자를 통지하고 신속한 문제 해결을 가능하게하기 위해 자동으로 전송됩니다."
+msgid "Optimized for real-time alerts, this role is a key component of the overall `sys-ctl-alm-compose` suite. It ensures that, upon failure of a critical service, a Telegram message is automatically sent to notify administrators and enable prompt troubleshooting."
+msgstr ""
 
 # libretranslate
 msgid "Optimized for secure and reliable service failure notifications, this role is an integral part of the overall ``sys-ctl-alm-compose`` suite. It ensures that, upon failure of a critical service, an email alert is sent automatically to enable prompt troubleshooting."
@@ -40193,6 +39945,9 @@ msgstr "게이트 PDS 배포를위한 옵션 초대 코드."
 msgid "Optional kwarg:"
 msgstr "선택적인 kwarg:"
 
+msgid "Optional kwarg::"
+msgstr ""
+
 # libretranslate
 msgid "Optional lint/test extras are declared as `Recommends`/`optdepends` where supported."
 msgstr "선택적인 lint/test 여분은 선언됩니다 `Recommends`·`optdepends` 지원되는 곳."
@@ -40218,6 +39973,9 @@ msgid "Optional. Descriptive role-level metadata (`logo`, `homepage`, `video`, `
 msgstr "옵션. 기술적인 역할 수준 metadata (`logo`· `homepage`· `video`· `display`). 파일 루트 IS `applications.<app>.info` (없음 `info:` 관련 상품)·."
 
 msgid "Optional. Ignored unless a maintainer applies the **🧩 Subset** label; without the label CI uses the diff-derived role set as usual. When the label is set, CI deploys **only** the roles listed here — each must be an existing `roles/<id>` directory, or the run fails. See [pipeline.md](../../docs/contributing/artefact/git/pipeline.md#subset-label-)."
+msgstr ""
+
+msgid "Optional. Ignored unless a maintainer applies the **🧩 Subset** label; without the label CI uses the diff-derived role set as usual. When the label is set, CI deploys **only** the roles listed here — each must be an existing `roles/<id>` directory, or the run fails. See [pipeline.md](../docs/contributing/artefact/git/pipeline.md#subset-label-)."
 msgstr ""
 
 msgid "Optional. One file per addon (file root IS the addon spec; filename stem = addon id). See [Unified Addons](#unified-addons-metaaddons-) below."
@@ -40275,9 +40033,8 @@ msgstr "응용 프로그램이 HTTP와 응답 할 때까지 선택적으로 대�
 msgid "Optionally wires in a timer via the ``sys-timer`` role, controlled by the ``on_calendar_cleanup_certs`` variable."
 msgstr "타이머에 있는 선택적으로 철사 ``sys-timer`` 역할,에 의해 통제되는 ``on_calendar_cleanup_certs`` 변수."
 
-# libretranslate
-msgid "Options:"
-msgstr "옵션 :"
+msgid "Options::"
+msgstr ""
 
 # libretranslate
 msgid "Opts a `web-app-*` role out of the dashboard tile integration. Same shape as `logout`."
@@ -40766,6 +40523,9 @@ msgstr "Parameterized 이미지 및 버전 취급 *web-svc-simpleicons*"
 msgid "Parameters"
 msgstr "매개 변수"
 
+msgid "Parameters::"
+msgstr ""
+
 # libretranslate
 msgid "Parent hosts example:"
 msgstr "부모 호스트 예:"
@@ -40798,9 +40558,8 @@ msgstr "YAML 문자열을 파."
 msgid "Parse a ``--sort`` value into an ordered ``[(column, reverse), ...]``."
 msgstr "한국어 ``--sort`` 주문한 값 ``[(column, reverse), ...]``·."
 
-# libretranslate
-msgid "Parse a list of IDs supplied on the CLI. Supports:"
-msgstr "CLI에 공급된 ID 리스트를 파르세요. 지원 :"
+msgid "Parse a list of IDs supplied on the CLI. Supports::"
+msgstr ""
 
 # libretranslate
 msgid "Parse a multi-document YAML string into a list of documents."
@@ -40916,10 +40675,6 @@ msgstr "경로 일정"
 # libretranslate
 msgid "Path of the checkout's shared .git directory, empty when it owns one."
 msgstr "체크 아웃의 공유 .git 디렉토리의 경로, 빈 때 하나."
-
-# libretranslate
-msgid "Path represents a filesystem path but unlike PurePath, also offers methods to do system calls on path objects. Depending on your system, instantiating a Path will return either a PosixPath or a WindowsPath object. You can also instantiate a PosixPath or WindowsPath directly, but cannot instantiate a WindowsPath on a POSIX system or vice versa."
-msgstr "Path는 파일 시스템 경로를 나타내지만 PurePath와는 달리, 경로 객체에 시스템 호출을 수행하는 방법을 제공합니다. 시스템에 따라 경로가 PosixPath 또는 WindowsPath 객체를 반환합니다. PosixPath 또는 WindowsPath를 직접 즉시 사용할 수 있지만 POSIX 시스템 또는 부사장에 WindowsPath를 즉시 사용할 수 없습니다."
 
 # libretranslate
 msgid "Path to the roles directory (default: 'roles')."
@@ -41519,6 +41274,9 @@ msgstr ""
 msgid "Pipeline"
 msgstr ""
 
+msgid "Pipeline Pull Request"
+msgstr ""
+
 msgid "Pipeline Stages 🏗️"
 msgstr ""
 
@@ -41924,6 +41682,9 @@ msgstr ""
 msgid "Preserve the role's base CSS so the application styling stays intact."
 msgstr ""
 
+msgid "Preserves the double slash after the scheme, collapses other duplicate slashes"
+msgstr ""
+
 msgid "Preserves the newest backups automatically"
 msgstr ""
 
@@ -41981,6 +41742,9 @@ msgstr ""
 msgid "Primary role(s) or module(s):"
 msgstr ""
 
+msgid "Primary role(s), module(s) or file(s):"
+msgstr ""
+
 msgid "Primary-key matching covers the mandatory relationship, where the consumer pins the provider on unconditionally (``enabled: true, shared: true``) and no ``group_names`` reference is left to read — web-svc-asset consuming web-svc-file's ``file`` is the canonical case."
 msgstr ""
 
@@ -42000,6 +41764,12 @@ msgid "Print application roles new on this branch (absent under roles/ at a ref,
 msgstr ""
 
 msgid "Print the architecture pool of one run as a JSON array."
+msgstr ""
+
+msgid "Print the archive's trace members and the URLs they mention."
+msgstr ""
+
+msgid "Print the files and the URLs a Playwright trace archive holds."
 msgstr ""
 
 msgid "Print the group-conditional service keys, comma-separated for ``disable=``."
@@ -42383,6 +42153,9 @@ msgstr ""
 msgid "Public key per user name, for ``administrator`` and ``backup``."
 msgstr ""
 
+msgid "Public names of a module, for the package shims that re-export one."
+msgstr ""
+
 msgid "Public or library-scoped identity; no upload, favorite, playlist, federation, or administration mutation"
 msgstr ""
 
@@ -42423,6 +42196,9 @@ msgid "Publishing an image to a registry. Bare `docker push*` catches the direct
 msgstr ""
 
 msgid "Publishing changes to the remote."
+msgstr ""
+
+msgid "Pull Request"
 msgstr ""
 
 msgid "Pull Request Requirements 📋"
@@ -42474,9 +42250,6 @@ msgid "Pure-Python GID resolver — no ansible dependency."
 msgstr ""
 
 msgid "Pure-Python rendering of compose networks blocks fed by the service_registry."
-msgstr ""
-
-msgid "PurePath subclass that can make system calls."
 msgstr ""
 
 msgid "Purge"
@@ -43184,9 +42957,6 @@ msgstr ""
 msgid "Recursive walker: every dict at any depth (top-level entity, sub-entity, plugin map, ...) that declares BOTH `repository:` and `ref:` is a candidate. Only semver-compatible refs are version-checkable; branches (`master`, `main`, `stable`) and commit SHAs are skipped."
 msgstr ""
 
-msgid "Recursively copy this file or directory tree to the given destination."
-msgstr ""
-
 msgid "Recursively encrypt all leaves (plain text values) under the credentials section."
 msgstr ""
 
@@ -43199,9 +42969,6 @@ msgstr ""
 msgid "Recursively merge two dicts (customs into defaults). For each top-level key in customs, ensure all dict keys from defaults are present (at least empty dict). Customs always take precedence."
 msgstr ""
 
-msgid "Recursively move this file or directory tree to the given destination."
-msgstr ""
-
 msgid "Recursively process the 'credentials' section and generate values."
 msgstr ""
 
@@ -43209,9 +42976,6 @@ msgid "Recursively resolve schema includes by following configs transitively."
 msgstr ""
 
 msgid "Recursively wrap any str that begins with '$ANSIBLE_VAULT' in a VaultScalar so it dumps as a literal block."
-msgstr ""
-
-msgid "Recursively yield all existing files (of any kind, including directories) matching the given relative pattern, anywhere in this subtree."
 msgstr ""
 
 msgid "Red Hat"
@@ -43702,12 +43466,6 @@ msgstr ""
 msgid "Remove the hard-coded administrator credential path, add provider-consumer authorization, add client capability filtering, and implement post-application reconciliation."
 msgstr ""
 
-msgid "Remove this directory.  The directory must be empty."
-msgstr ""
-
-msgid "Remove this file or link. If the path is a directory, use rmdir() instead."
-msgstr ""
-
 msgid "Remove unnecessary work."
 msgstr ""
 
@@ -43766,12 +43524,6 @@ msgid "Removes the v* tag trigger from the push workflow so CI runs only on bran
 msgstr ""
 
 msgid "Removing work leaves room for value."
-msgstr ""
-
-msgid "Rename this path to the target path, overwriting if that path exists."
-msgstr ""
-
-msgid "Rename this path to the target path."
 msgstr ""
 
 msgid "Renamed *compose.services.desktop* to *compose.services.dashboard*"
@@ -44200,6 +43952,9 @@ msgstr ""
 msgid "Requires `INFINITO_CONTAINER` to be set to the name of the running container."
 msgstr ""
 
+msgid "Requires a valid '<scheme>://' in the first element (any RFC-3986-ish scheme)"
+msgstr ""
+
 msgid "Requires systemd configuration; networking differences from native Linux"
 msgstr ""
 
@@ -44322,9 +44077,6 @@ msgid "Resolve shared-provider roles transitively from role meta/services.yml."
 msgstr ""
 
 msgid "Resolve the SSO state for a consumer role."
-msgstr ""
-
-msgid "Resolve the [Open Questions](#open-questions-pending-operator-decision) into [Confirmed Decisions](#confirmed-decisions)."
 msgstr ""
 
 msgid "Resolve the explicit role subset declared in a pull-request body."
@@ -44721,22 +44473,10 @@ msgstr ""
 msgid "Return a list of human-readable violation strings (empty = valid)."
 msgstr ""
 
-msgid "Return a mermaid ``flowchart`` source (no ``` fences) for the role."
+msgid "Return a mermaid ``flowchart`` source (no code fences) for the role."
 msgstr ""
 
 msgid "Return a new ``webserver_csp_hashes_extra_by_app``-shaped dict with ``snippet`` appended (deduplicated) to ``<application_id>.<directive>``."
-msgstr ""
-
-msgid "Return a new path from the given 'file' URI."
-msgstr ""
-
-msgid "Return a new path pointing to expanduser('~')."
-msgstr ""
-
-msgid "Return a new path pointing to the current working directory."
-msgstr ""
-
-msgid "Return a new path with expanded ~ and ~user constructs (as returned by os.path.expanduser)"
 msgstr ""
 
 msgid "Return a password satisfying what the user's own declaration demands."
@@ -44782,9 +44522,6 @@ msgid "Return all role IDs whose meta/services.yml declares the given service as
 msgstr ""
 
 msgid "Return all tags for *image* from its registry (empty on any failure)."
-msgstr ""
-
-msgid "Return an absolute version of this path No normalization or symlink resolution is performed."
 msgstr ""
 
 msgid "Return an empty catalog."
@@ -45064,9 +44801,6 @@ msgstr ""
 msgid "Return the full ``PORT_BANDS`` map keyed by ``<scope>.<category>``."
 msgstr ""
 
-msgid "Return the group name of the file gid."
-msgstr ""
-
 msgid "Return the highest released version of ``package``, or None."
 msgstr ""
 
@@ -45077,9 +44811,6 @@ msgid "Return the languages the server translates English into."
 msgstr ""
 
 msgid "Return the list of usernames that do NOT have an identity-directory account (``identity`` not in ``accounts``). These names are blocked from being registered as Keycloak usernames. Usernames are regex-escaped so the result is safe to embed in a deny pattern."
-msgstr ""
-
-msgid "Return the login name of the file owner."
 msgstr ""
 
 msgid "Return the logout target of an application's own logout control."
@@ -45095,6 +44826,9 @@ msgid "Return the mirror repository for *image*, or ``None`` when unresolvable."
 msgstr ""
 
 msgid "Return the mirror repository for an upstream image, without a tag."
+msgstr ""
+
+msgid "Return the names ``module`` defines itself, honouring its ``__all__``."
 msgstr ""
 
 msgid "Return the names ``source`` carries that ``translation`` dropped."
@@ -45115,13 +44849,7 @@ msgstr ""
 msgid "Return the parsed manifest (or index) for ``image:reference``."
 msgstr ""
 
-msgid "Return the path as a URI."
-msgstr ""
-
 msgid "Return the path of the ``domain`` catalog of language ``code``."
-msgstr ""
-
-msgid "Return the path to which the symbolic link points."
 msgstr ""
 
 msgid "Return the per-service mount block (``volumes:`` + ``configs:`` + ``secrets:``) as a YAML string starting at column 0."
@@ -45146,9 +44874,6 @@ msgid "Return the resolver list for the container runtime, most specific first."
 msgstr ""
 
 msgid "Return the resolver to fall back on when the bridge may serve nothing."
-msgstr ""
-
-msgid "Return the result of the stat() system call on this path, like os.stat() does."
 msgstr ""
 
 msgid "Return the role a grant confers, resolving the pre-split name."
@@ -45250,6 +44975,9 @@ msgstr ""
 msgid "Return type"
 msgstr ""
 
+msgid "Return up to ``LIMIT`` distinct URLs found in one member of ``archive``."
+msgstr ""
+
 msgid "Return what *app_id* declares for *domain*, or an empty list."
 msgstr ""
 
@@ -45281,9 +45009,6 @@ msgid "Return whether a recorded per-version audit backs the delegation claim."
 msgstr ""
 
 msgid "Return whether a role marks itself an MCP client in its own services."
-msgstr ""
-
-msgid "Return whether other_path is the same or not as this file (as returned by os.path.samefile())."
 msgstr ""
 
 msgid "Return whether the role opts into deploy ``mode`` (``compose`` | ``swarm`` | ``host``)."
@@ -45374,10 +45099,13 @@ msgstr ""
 msgid "Returns ``{port: [(role, entity, scope, category), ...]}``. Single-int `local`/`public` categories AND every integer in each relay span are included; ``internal`` is skipped."
 msgstr ""
 
-msgid "Returns a dict per term:"
+msgid "Returns a dict per term::"
 msgstr ""
 
-msgid "Returns a dict with keys:"
+msgid "Returns a dict with keys::"
+msgstr ""
+
+msgid "Returns a dict with:"
 msgstr ""
 
 msgid "Returns a list of additional whitelist entries for a given directive. Accepts both scalar and list in config; always returns a list."
@@ -45446,9 +45174,6 @@ msgstr ""
 msgid "Returns the list of removed ``<user>.<app_id>`` keys (empty when the file is missing or no entries matched). The file is rewritten only when at least one entry was removed."
 msgstr ""
 
-msgid "Returns the new Path instance pointing to the target path."
-msgstr ""
-
 msgid "Returns the origin that lookup('asset', ...) resolves against for the current deployment (the internal CDN origin with web-svc-cdn flavor internal, else https://cdn.jsdelivr.net). Use it to derive the CSP script-/style-src origin from the same flavor decision the asset URLs use, so the whitelist never drifts from where the assets load."
 msgstr ""
 
@@ -45475,6 +45200,9 @@ msgid "Returns whether *application_id* is reachable over the node onion in the 
 msgstr ""
 
 msgid "Returns:"
+msgstr ""
+
+msgid "Returns::"
 msgstr ""
 
 msgid "Reusable per-provider MCP adapter exposing a narrow allowlisted read surface"
@@ -45843,22 +45571,22 @@ msgstr ""
 msgid "Role-iteration loop for agents. Recommended reading even for human contributors."
 msgstr ""
 
-msgid "Role-level GNOME Shell extensions are declared in [`meta/addons/`](./meta/addons/) (unified addon contract, requirement 026). They are installed through `cli-gnome-extension-manager`, which receives the `action`, `uuid`, and `url` from each addon's `config` payload:"
+msgid "Role-level GNOME Shell extensions are declared in ``meta/addons/`` (unified addon contract, requirement 026). They are installed through ``cli-gnome-extension-manager``, which receives the ``action``, ``uuid``, and ``url`` from each addon’s ``config`` payload:"
 msgstr ""
 
-msgid "Role-level GNOME Shell extensions are declared in ```meta/addons/`` <./meta/addons/>`__ (unified addon contract, requirement 026). They are installed through ``cli-gnome-extension-manager``, which receives the ``action``, ``uuid``, and ``url`` from each addon’s ``config`` payload:"
+msgid "Role-level GNOME Shell extensions are declared in `meta/addons/` (unified addon contract, requirement 026). They are installed through `cli-gnome-extension-manager`, which receives the `action`, `uuid`, and `url` from each addon's `config` payload:"
 msgstr ""
 
-msgid "Role-level extensions are declared in [`meta/addons/`](./meta/addons/) (unified addon contract, requirement 026):"
+msgid "Role-level extensions are declared in ``meta/addons/`` (unified addon contract, requirement 026):"
 msgstr ""
 
-msgid "Role-level extensions are declared in [`meta/addons/`](meta/addons/) following the unified addon contract (requirement 026)."
+msgid "Role-level extensions are declared in ``meta/addons/`` following the unified addon contract (requirement 026)."
 msgstr ""
 
-msgid "Role-level extensions are declared in ```meta/addons/`` <./meta/addons/>`__ (unified addon contract, requirement 026):"
+msgid "Role-level extensions are declared in `meta/addons/` (unified addon contract, requirement 026):"
 msgstr ""
 
-msgid "Role-level extensions are declared in ```meta/addons/`` <meta/addons/>`__ following the unified addon contract (requirement 026)."
+msgid "Role-level extensions are declared in `meta/addons/` following the unified addon contract (requirement 026)."
 msgstr ""
 
 msgid "Role-level extensions, whatever a given app calls them natively (`addon`, `plugin`, `mu_plugin`, `extension`, `module`, or a network/appservice `bridge`), are declared through one unified contract under `meta/addons/` (requirement 026). The per-app spelling under the primary service entity (`addons` / `plugins` / `modules` / `mu_plugins`) maps onto this single contract."
@@ -46209,9 +45937,6 @@ msgid "Run `python -m cli.contributing.update.source --dry-run` to list pending 
 msgstr ""
 
 msgid "Run `python -m cli.meta.ci.slots --matrix` to see the whole budget."
-msgstr ""
-
-msgid "Run a SQL query against a role's database via `container exec`."
 msgstr ""
 
 msgid "Run a command with stdout/stderr passthrough."
@@ -47319,10 +47044,10 @@ msgstr ""
 msgid "Search or read public/user-visible content and account state"
 msgstr ""
 
-msgid "Searches all roles/*/vars/main.yml for application_id and returns the absolute path of the role that matches. Raises an error if zero or more than one match is found."
+msgid "Searches all ``roles/*/vars/main.yml`` for application_id and returns the absolute path of the role that matches. Raises an error if zero or more than one match is found."
 msgstr ""
 
-msgid "Searches all roles/*/vars/main.yml for application_id and returns the relative path (from the project root) of the role that matches. Raises an error if zero or more than one match is found."
+msgid "Searches all ``roles/*/vars/main.yml`` for application_id and returns the relative path (from the project root) of the role that matches. Raises an error if zero or more than one match is found."
 msgstr ""
 
 msgid "Searxng"
@@ -47748,10 +47473,10 @@ msgstr ""
 msgid "Semantics and Writing ✍️"
 msgstr ""
 
-msgid "Semantics:"
+msgid "Semantics: when the current deploy contains any role whose id matches a listed `roles` entry, OR whose category set (top-level + first sub-level) intersects the listed `categories`, the role owning the services.yml entry MUST have executed (at least one of its TASK blocks must end with a non-skip status) in the run log slice that this verifier scans."
 msgstr ""
 
-msgid "Semantics: when the current deploy contains any role whose id matches a listed `roles` entry, OR whose category set (top-level + first sub-level) intersects the listed `categories`, the role owning the services.yml entry MUST have executed (at least one of its TASK blocks must end with a non-skip status) in the run log slice that this verifier scans."
+msgid "Semantics::"
 msgstr ""
 
 msgid "Semaphore UI"
@@ -47827,6 +47552,9 @@ msgid "Served: `get_table_schema`, `list_databases`, `list_table_rows`, `list_ta
 msgstr ""
 
 msgid "Server"
+msgstr ""
+
+msgid "Server Pull Request"
 msgstr ""
 
 msgid "Server and `web-*` changes"
@@ -48660,7 +48388,7 @@ msgid "Source 📁"
 msgstr ""
 
 #, python-brace-format
-msgid "Source: roles/**/meta/services.yml → <entity>.{image,version}."
+msgid "Source: ``roles/**/meta/services.yml`` -> ``<entity>.{image,version}``."
 msgstr ""
 
 msgid "Sovereign Cloud"
@@ -48691,9 +48419,6 @@ msgid "Sparse layouts make intent clearer."
 msgstr ""
 
 msgid "Speaks HTTP over a bash socket, for images without curl or wget."
-msgstr ""
-
-msgid "Special type indicating an unconstrained type."
 msgstr ""
 
 msgid "Specific feedback requested from reviewers:"
@@ -49484,6 +49209,9 @@ msgstr ""
 msgid "Supports modern features and configuration options offered by GNOME Terminal."
 msgstr ""
 
+msgid "Supports query parts introduced by elements starting with '?' or '&'"
+msgstr ""
+
 msgid "Supports standard HTTP/S traffic alongside WebSockets"
 msgstr ""
 
@@ -49775,9 +49503,6 @@ msgstr ""
 msgid "Symbol"
 msgstr ""
 
-msgid "Symlinks resolve once at the cache boundary so the same target shares an entry regardless of how callers spell the path. The mtime+size signature invalidates entries whenever the file is rewritten by an external process (e.g. Ansible's `copy:` module persisting tokens while the same Python process keeps running across many calls)."
-msgstr ""
-
 msgid "Sync Users"
 msgstr ""
 
@@ -50049,6 +49774,9 @@ msgid "System Maintenance Lock"
 msgstr ""
 
 msgid "System One"
+msgstr ""
+
+msgid "System Pull Request"
 msgstr ""
 
 msgid "System Purge"
@@ -50333,10 +50061,10 @@ msgstr ""
 msgid "Test changes in a private/incognito window to rule out browser cache."
 msgstr ""
 
-msgid "Test files live in [tests/unit/python/utils/env/](../../tests/unit/python/utils/env/) and mirror the module name with a `test_` prefix."
+msgid "Test files live in `tests/unit/python/utils/env/` and mirror the module name with a `test_` prefix."
 msgstr ""
 
-msgid "Test files live in [tests/unit/python/utils/install/](../../tests/unit/python/utils/install/) and mirror the module name with a `test_` prefix."
+msgid "Test files live in `tests/unit/python/utils/install/` and mirror the module name with a `test_` prefix."
 msgstr ""
 
 msgid "Test flavor 'edge'"
@@ -50556,7 +50284,7 @@ msgstr ""
 msgid "Tests in this directory MUST only cover the four classifications of a single project-wide match stream: literal-app calls (`test_literal_paths.py`), variable-app calls with an existing literal path (`test_variable_paths.py`), `~`-concatenated path expressions (`test_wildcard_paths.py`), and the strict per-role pass for `lookup('config', application_id, …)` calls inside `roles/<role>/...` (`test_role_local_paths.py`). Pure unit coverage of the lookup plugin's return values MUST live under `tests/unit/python/plugins/lookup/`."
 msgstr ""
 
-msgid "Tests in this directory MUST only cover the pure-function behaviour of `utils.cert_utils` and `utils.tls_common`. Lookup-plugin integration that depends on these modules MUST live under [`tests/unit/python/plugins/lookup/`](../../plugins/lookup/)."
+msgid "Tests in this directory MUST only cover the pure-function behaviour of `utils.cert_utils` and `utils.tls_common`. Lookup-plugin integration that depends on these modules MUST live under `tests/unit/python/plugins/lookup/`."
 msgstr ""
 
 msgid "Tests in this directory MUST only cover variable definition / consumption checks. Four orthogonal scopes live here:"
@@ -51721,9 +51449,6 @@ msgstr ""
 msgid "The checksum is validated **before** execution"
 msgstr ""
 
-msgid "The children are yielded in arbitrary order, and the special entries '.' and '..' are not included."
-msgstr ""
-
 msgid "The choice is not repeated here: it is ``resolve_credential``, the same function ``mcp_servers`` renders every client's connection with, so a test built on this lookup measures the credential the deployment actually ships."
 msgstr ""
 
@@ -51839,10 +51564,10 @@ msgstr ""
 msgid "The config topics a variant may dictate for the providers it pulls in."
 msgstr ""
 
-msgid "The config-bearing Nextcloud apps are declared in [`meta/addons/`](./meta/addons/) under the unified addon contract (requirement 026). Each declaration carries its full `occ config:app:set` payload under `config:`. The enable-only appstore apps stay under `nextcloud.plugins` in [`meta/services.yml`](./meta/services.yml)."
+msgid "The config-bearing Nextcloud apps are declared in ``meta/addons/`` under the unified addon contract (requirement 026). Each declaration carries its full ``occ config:app:set`` payload under ``config:``. The enable-only appstore apps stay under ``nextcloud.plugins`` in ```meta/services.yml`` <./meta/services.yml>`__."
 msgstr ""
 
-msgid "The config-bearing Nextcloud apps are declared in ```meta/addons/`` <./meta/addons/>`__ under the unified addon contract (requirement 026). Each declaration carries its full ``occ config:app:set`` payload under ``config:``. The enable-only appstore apps stay under ``nextcloud.plugins`` in ```meta/services.yml`` <./meta/services.yml>`__."
+msgid "The config-bearing Nextcloud apps are declared in `meta/addons/` under the unified addon contract (requirement 026). Each declaration carries its full `occ config:app:set` payload under `config:`. The enable-only appstore apps stay under `nextcloud.plugins` in [`meta/services.yml`](./meta/services.yml)."
 msgstr ""
 
 msgid "The configured relay host, the loopback address, the container's alias for its host, or a swarm manager."
@@ -53536,10 +53261,10 @@ msgstr ""
 msgid "The matrix-variant planner (see [variants.md](variants.md)) calls the expansion once per round, so each round's inventory gets the right transitive closure for that round's variant set."
 msgstr ""
 
-msgid "The mautrix network bridges are declared in [`meta/addons/`](./meta/addons/) as `mechanism: bridge` addons (requirement 026, Decision 13). Each is `required: false` and **disabled by default**; its per-network DB password and its appservice `as_token`/`hs_token` pair are referenced from [`meta/secrets.yml`](./meta/secrets.yml) `credentials:`, never inlined. The role renders each bridge's `config.yaml` and the matching Synapse `registration.yaml` from the same tokens."
+msgid "The mautrix network bridges are declared in ``meta/addons/`` as ``mechanism: bridge`` addons (requirement 026, Decision 13). Each is ``required: false`` and **disabled by default**; its per-network DB password and its appservice ``as_token``/``hs_token`` pair are referenced from ```meta/secrets.yml`` <./meta/secrets.yml>`__ ``credentials:``, never inlined. The role renders each bridge’s ``config.yaml`` and the matching Synapse ``registration.yaml`` from the same tokens."
 msgstr ""
 
-msgid "The mautrix network bridges are declared in ```meta/addons/`` <./meta/addons/>`__ as ``mechanism: bridge`` addons (requirement 026, Decision 13). Each is ``required: false`` and **disabled by default**; its per-network DB password and its appservice ``as_token``/``hs_token`` pair are referenced from ```meta/secrets.yml`` <./meta/secrets.yml>`__ ``credentials:``, never inlined. The role renders each bridge’s ``config.yaml`` and the matching Synapse ``registration.yaml`` from the same tokens."
+msgid "The mautrix network bridges are declared in `meta/addons/` as `mechanism: bridge` addons (requirement 026, Decision 13). Each is `required: false` and **disabled by default**; its per-network DB password and its appservice `as_token`/`hs_token` pair are referenced from [`meta/secrets.yml`](./meta/secrets.yml) `credentials:`, never inlined. The role renders each bridge's `config.yaml` and the matching Synapse `registration.yaml` from the same tokens."
 msgstr ""
 
 msgid "The measurement decides **which** value each axis takes, never **whether** it takes one:"
@@ -54854,7 +54579,7 @@ msgstr ""
 msgid "The shape mirrors the schema tree: nested keys stay nested. The literal string is preserved verbatim, with no rendering and no validation. Leaves WITHOUT ``default:`` are intentionally absent so the inventory's apply_schema-generated values win the merge."
 msgstr ""
 
-msgid "The shared ``biber`` and ``administrator`` persona helpers are declared blocked in `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. Nextcloud presents three different login surfaces depending on the variant (native, ``oidc_login``, ``sociallogin``), the native administrator authenticates with the role-local ``credentials.administrator_password`` rather than the Keycloak secret, and the ``#firstrunwizard`` modal intercepts the user-menu click the generic logout depends on. Both personas are therefore driven by the role’s own login specs — ``test-login-admin-native.js``, ``test-login-admin-oidc.js``, ``test-login-biber-oidc.js`` and ``test-login-biber-ldap.js`` under `files/playwright <./files/playwright/>`__ — which carry the flavor switch, the modal dismissal and the login retry the shared helper lacks."
+msgid "The shared ``biber`` and ``administrator`` persona helpers are declared blocked in `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. Nextcloud presents three different login surfaces depending on the variant (native, ``oidc_login``, ``sociallogin``), the native administrator authenticates with the role-local ``credentials.administrator_password`` rather than the Keycloak secret, and the ``#firstrunwizard`` modal intercepts the user-menu click the generic logout depends on. Both personas are therefore driven by the role’s own login specs — ``test-login-admin-native.js``, ``test-login-admin-oidc.js``, ``test-login-biber-oidc.js`` and ``test-login-biber-ldap.js`` under ``files/playwright/`` — which carry the flavor switch, the modal dismissal and the login retry the shared helper lacks."
 msgstr ""
 
 msgid "The shared ``biber`` and ``administrator`` persona helpers are declared blocked in `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. Odoo renders its SSO provider link only on ``/web/login`` inside the ``.o_login_auth`` container, not on the site root the persona helper starts from, and it exposes no in-app logout control — signing out means navigating to ``/web/session/logout``. The full Keycloak round trip for both users is covered by the role’s own ``odoo: admin sso login, verify ui, logout`` and ``odoo: biber sso login, verify ui, logout`` scenarios in `files/playwright/playwright.spec.js <./files/playwright/playwright.spec.js>`__."
@@ -54863,7 +54588,7 @@ msgstr ""
 msgid "The shared ``biber`` and ``administrator`` persona helpers are declared blocked in `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. OpenCloud Web answers Playwright’s headless Chromium user agent with a “browser not supported” splash unless ``forceAllowOldBrowser`` is seeded into ``localStorage`` before the first navigation, and its OIDC callback runs through OpenCloud’s own ``/oidc-callback`` → ``/web-oidc-callback`` routes instead of the oauth2-proxy pattern the shared helper detects. Both personas’ Keycloak round trip is covered by `files/playwright/test-sso-login.js <./files/playwright/test-sso-login.js>`__, which does that priming in `files/playwright/\\_shared.js <./files/playwright/_shared.js>`__."
 msgstr ""
 
-msgid "The shared ``biber`` and ``administrator`` persona helpers are declared blocked in `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. Pixelfed’s login id is the account e-mail rather than the Keycloak username, and the artisan-bootstrapped administrator name is reserved, so pixelfed’s first-time OIDC registration cannot mint it either. ``biber`` additionally needs his Keycloak e-mail rewritten to a resolvable domain through the Keycloak admin API before the first OIDC login, because pixelfed’s ``dns,spoof`` validator rejects ``.example`` addresses. Both setups live in `files/playwright/\\_shared.js <./files/playwright/_shared.js>`__ and drive the dedicated login specs in `files/playwright <./files/playwright/>`__."
+msgid "The shared ``biber`` and ``administrator`` persona helpers are declared blocked in `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. Pixelfed’s login id is the account e-mail rather than the Keycloak username, and the artisan-bootstrapped administrator name is reserved, so pixelfed’s first-time OIDC registration cannot mint it either. ``biber`` additionally needs his Keycloak e-mail rewritten to a resolvable domain through the Keycloak admin API before the first OIDC login, because pixelfed’s ``dns,spoof`` validator rejects ``.example`` addresses. Both setups live in `files/playwright/\\_shared.js <./files/playwright/_shared.js>`__ and drive the dedicated login specs in ``files/playwright/``."
 msgstr ""
 
 msgid "The shared ``biber`` and ``administrator`` persona helpers are declared blocked in `templates/playwright.env.j2 <./templates/playwright.env.j2>`__. The OpenTalk frontend is a public-client OIDC single-page app — the container env carries nothing but the issuer and the client id, there is no server-side session and no HTML login form — so the role drives it with its own redirect-racing helper keyed on ``LOGIN_*`` / ``BIBER_*`` instead of the ``ADMIN_*`` pair the shared helper expects, and the browser-side session leaves the contract’s in-app logout leg without a target. Both personas’ Keycloak → dashboard chain is covered by `files/playwright/test-sso-login.js <./files/playwright/test-sso-login.js>`__."
@@ -54897,7 +54622,7 @@ msgstr ""
 msgid "The shared ``biber`` persona journey is opted out via ``PERSONA_BIBER_BLOCKED`` in ``templates/playwright.env.j2``. A Jellyfin account binds to exactly one authentication provider, so biber’s login is owned by the per-addon specs that know which provider is live: ``files/playwright/addons/sso-authentication.spec.js`` for OIDC and ``addons/ldap-authentication.spec.js`` for the LDAP-only matrix variant. The generic persona cannot pick between them and would duplicate or contradict that coverage; ``playwright.spec.js`` keeps the ``guest`` scenario and the native administrator login."
 msgstr ""
 
-msgid "The shared `biber` and `administrator` persona helpers are declared blocked in [templates/playwright.env.j2](./templates/playwright.env.j2). Nextcloud presents three different login surfaces depending on the variant (native, `oidc_login`, `sociallogin`), the native administrator authenticates with the role-local `credentials.administrator_password` rather than the Keycloak secret, and the `#firstrunwizard` modal intercepts the user-menu click the generic logout depends on. Both personas are therefore driven by the role's own login specs — `test-login-admin-native.js`, `test-login-admin-oidc.js`, `test-login-biber-oidc.js` and `test-login-biber-ldap.js` under [files/playwright](./files/playwright/) — which carry the flavor switch, the modal dismissal and the login retry the shared helper lacks."
+msgid "The shared `biber` and `administrator` persona helpers are declared blocked in [templates/playwright.env.j2](./templates/playwright.env.j2). Nextcloud presents three different login surfaces depending on the variant (native, `oidc_login`, `sociallogin`), the native administrator authenticates with the role-local `credentials.administrator_password` rather than the Keycloak secret, and the `#firstrunwizard` modal intercepts the user-menu click the generic logout depends on. Both personas are therefore driven by the role's own login specs — `test-login-admin-native.js`, `test-login-admin-oidc.js`, `test-login-biber-oidc.js` and `test-login-biber-ldap.js` under `files/playwright/` — which carry the flavor switch, the modal dismissal and the login retry the shared helper lacks."
 msgstr ""
 
 msgid "The shared `biber` and `administrator` persona helpers are declared blocked in [templates/playwright.env.j2](./templates/playwright.env.j2). Odoo renders its SSO provider link only on `/web/login` inside the `.o_login_auth` container, not on the site root the persona helper starts from, and it exposes no in-app logout control — signing out means navigating to `/web/session/logout`. The full Keycloak round trip for both users is covered by the role's own `odoo: admin sso login, verify ui, logout` and `odoo: biber sso login, verify ui, logout` scenarios in [files/playwright/playwright.spec.js](./files/playwright/playwright.spec.js)."
@@ -54906,7 +54631,7 @@ msgstr ""
 msgid "The shared `biber` and `administrator` persona helpers are declared blocked in [templates/playwright.env.j2](./templates/playwright.env.j2). OpenCloud Web answers Playwright's headless Chromium user agent with a \"browser not supported\" splash unless `forceAllowOldBrowser` is seeded into `localStorage` before the first navigation, and its OIDC callback runs through OpenCloud's own `/oidc-callback` → `/web-oidc-callback` routes instead of the oauth2-proxy pattern the shared helper detects. Both personas' Keycloak round trip is covered by [files/playwright/test-sso-login.js](./files/playwright/test-sso-login.js), which does that priming in [files/playwright/_shared.js](./files/playwright/_shared.js)."
 msgstr ""
 
-msgid "The shared `biber` and `administrator` persona helpers are declared blocked in [templates/playwright.env.j2](./templates/playwright.env.j2). Pixelfed's login id is the account e-mail rather than the Keycloak username, and the artisan-bootstrapped administrator name is reserved, so pixelfed's first-time OIDC registration cannot mint it either. `biber` additionally needs his Keycloak e-mail rewritten to a resolvable domain through the Keycloak admin API before the first OIDC login, because pixelfed's `dns,spoof` validator rejects `.example` addresses. Both setups live in [files/playwright/_shared.js](./files/playwright/_shared.js) and drive the dedicated login specs in [files/playwright](./files/playwright/)."
+msgid "The shared `biber` and `administrator` persona helpers are declared blocked in [templates/playwright.env.j2](./templates/playwright.env.j2). Pixelfed's login id is the account e-mail rather than the Keycloak username, and the artisan-bootstrapped administrator name is reserved, so pixelfed's first-time OIDC registration cannot mint it either. `biber` additionally needs his Keycloak e-mail rewritten to a resolvable domain through the Keycloak admin API before the first OIDC login, because pixelfed's `dns,spoof` validator rejects `.example` addresses. Both setups live in [files/playwright/_shared.js](./files/playwright/_shared.js) and drive the dedicated login specs in `files/playwright/`."
 msgstr ""
 
 msgid "The shared `biber` and `administrator` persona helpers are declared blocked in [templates/playwright.env.j2](./templates/playwright.env.j2). The OpenTalk frontend is a public-client OIDC single-page app — the container env carries nothing but the issuer and the client id, there is no server-side session and no HTML login form — so the role drives it with its own redirect-racing helper keyed on `LOGIN_*` / `BIBER_*` instead of the `ADMIN_*` pair the shared helper expects, and the browser-side session leaves the contract's in-app logout leg without a target. Both personas' Keycloak → dashboard chain is covered by [files/playwright/test-sso-login.js](./files/playwright/test-sso-login.js)."
@@ -55092,9 +54817,6 @@ msgid "The table below summarizes common Ansible plugin types and their conventi
 msgstr ""
 
 msgid "The table lives in its own ``## Roles Overview 🧩`` section directly above ``## Use it online 🚀`` in the root README.md and is fully regenerated on every run; every other section stays untouched. Rows are the invokable roles, sorted ascending by the Entity column."
-msgstr ""
-
-msgid "The target path may be absolute or relative. Relative paths are interpreted relative to the current working directory, *not* the directory of the Path object."
 msgstr ""
 
 msgid "The target refuses to drop a worktree with uncommitted changes. Show the operator that status and let them decide; only add `force=true` when they explicitly ask for it, because it discards the changes."
@@ -56351,9 +56073,6 @@ msgstr ""
 msgid "This means:"
 msgstr ""
 
-msgid "This method normally follows symlinks; to check whether a symlink exists, add the argument follow_symlinks=False."
-msgstr ""
-
 msgid "This minor release adds Mattermost deployment support, improves release image automation, and hardens CI, Ansible plugin handling, and application deployment reliability across the stack."
 msgstr ""
 
@@ -56564,7 +56283,7 @@ msgstr ""
 msgid "This prepares the repository for local development."
 msgstr ""
 
-msgid "This prevents errors like:"
+msgid "This prevents errors like::"
 msgstr ""
 
 msgid "This process provides a streamlined way to manage Pixelfed users directly from the CLI in a Dockerized environment, ensuring that you can efficiently administer your Pixelfed instance without needing to access the Pixelfed web interface."
@@ -57196,10 +56915,10 @@ msgstr ""
 msgid "This role focuses on **safe automation and scheduling**, while the linked project contains the actual cleanup implementation."
 msgstr ""
 
-msgid "This role force-installs the following Chromium browser extensions via managed Enterprise Policies. They are declared in [meta/addons/](meta/addons/) and rendered into the CRX install list."
+msgid "This role force-installs the following Chromium browser extensions via managed Enterprise Policies. They are declared in ``meta/addons/`` and rendered into the CRX install list."
 msgstr ""
 
-msgid "This role force-installs the following Chromium browser extensions via managed Enterprise Policies. They are declared in `meta/addons/ <meta/addons/>`__ and rendered into the CRX install list."
+msgid "This role force-installs the following Chromium browser extensions via managed Enterprise Policies. They are declared in `meta/addons/` and rendered into the CRX install list."
 msgstr ""
 
 msgid "This role frees disk space by executing a script that cleans up temporary files, clears package caches, and optionally cleans up backup directories and Docker resources when disk usage exceeds a specified threshold."
@@ -57582,10 +57301,10 @@ msgstr ""
 msgid "This role ships central Playwright defaults:"
 msgstr ""
 
-msgid "This role ships its OIDC login stack and its AI editing stack as unified addons declared in [`meta/addons/`](meta/addons/). All four are MediaWiki extensions installed from upstream at the `REL<major>_<minor>` branch matching the pinned image, and each is gated on a service flag. Secrets are rendered through the role's templates and never inlined into an addon declaration."
+msgid "This role ships its OIDC login stack and its AI editing stack as unified addons declared in ``meta/addons/``. All four are MediaWiki extensions installed from upstream at the ``REL<major>_<minor>`` branch matching the pinned image, and each is gated on a service flag. Secrets are rendered through the role’s templates and never inlined into an addon declaration."
 msgstr ""
 
-msgid "This role ships its OIDC login stack and its AI editing stack as unified addons declared in ```meta/addons/`` <meta/addons/>`__. All four are MediaWiki extensions installed from upstream at the ``REL<major>_<minor>`` branch matching the pinned image, and each is gated on a service flag. Secrets are rendered through the role’s templates and never inlined into an addon declaration."
+msgid "This role ships its OIDC login stack and its AI editing stack as unified addons declared in `meta/addons/`. All four are MediaWiki extensions installed from upstream at the `REL<major>_<minor>` branch matching the pinned image, and each is gated on a service flag. Secrets are rendered through the role's templates and never inlined into an addon declaration."
 msgstr ""
 
 msgid "This role stores and manages per-user application tokens in a local YAML store file (idempotent read/write helpers)."
@@ -57805,10 +57524,10 @@ msgstr ""
 msgid "To exercise it on a host without btrfs tooling, install `baudolo-snapshot` into a throwaway privileged container and run it there. Note that a container's `/dev` carries no `/dev/loopN` nodes, so `losetup --find` finds nothing and the matrix reports `SKIP` unless they are created first (`mknod /dev/loop0 b 7 0`, …) or the host's `/dev` is bind-mounted in."
 msgstr ""
 
-msgid "To extend support for a new distribution, add the distribution name to the lookup dict in [main.yml](./tasks/main.yml). When the new distribution shares a package manager with an existing entry, point it at that entry's task file. When it brings a new package manager, add a new family file under [tasks/](./tasks/) and keep [meta/main.yml](./meta/main.yml) `platforms` in sync."
+msgid "To extend support for a new distribution, add the distribution name to the lookup dict in [main.yml](./tasks/main.yml). When the new distribution shares a package manager with an existing entry, point it at that entry's task file. When it brings a new package manager, add a new family file under `tasks/` and keep [meta/main.yml](./meta/main.yml) `platforms` in sync."
 msgstr ""
 
-msgid "To extend support for a new distribution, add the distribution name to the lookup dict in `main.yml <./tasks/main.yml>`__. When the new distribution shares a package manager with an existing entry, point it at that entry’s task file. When it brings a new package manager, add a new family file under `tasks/ <./tasks/>`__ and keep `meta/main.yml <./meta/main.yml>`__ ``platforms`` in sync."
+msgid "To extend support for a new distribution, add the distribution name to the lookup dict in `main.yml <./tasks/main.yml>`__. When the new distribution shares a package manager with an existing entry, point it at that entry’s task file. When it brings a new package manager, add a new family file under ``tasks/`` and keep `meta/main.yml <./meta/main.yml>`__ ``platforms`` in sync."
 msgstr ""
 
 msgid "To find your Zone ID, go to the overview page for your domain in the Cloudflare dashboard. **Note:** It can take a few seconds for the cache to be purged globally."
@@ -58136,6 +57855,9 @@ msgid "Transform your project management with [OpenProject](https://www.openproj
 msgstr ""
 
 msgid "Transform your project management with `OpenProject <https://www.openproject.org/>`__, a vibrant and collaborative tool that brings clarity and energy to your planning, tracking, and team communication. Experience streamlined workflows and an innovative platform that propels your projects forward."
+msgstr ""
+
+msgid "Transitively follows provider roles by reading THEIR configs and applying the same resolve_direct_service_roles_from_config() logic."
 msgstr ""
 
 msgid "Translate *value* (a compose-style ``docker_restart_policy``) to its swarm ``deploy.restart_policy.condition`` equivalent."
@@ -58540,7 +58262,7 @@ msgstr ""
 msgid "URLs, domains, and credentials MUST come from the rendered `.env`. No hardcoded values in the spec."
 msgstr ""
 
-msgid "USAGE"
+msgid "USAGE::"
 msgstr ""
 
 msgid "Ubuntu"
@@ -58630,7 +58352,7 @@ msgstr ""
 msgid "Unit tests for discovery, buckets, and `run_after` ordering"
 msgstr ""
 
-msgid "Unit tests for the top-level certificate and TLS helper modules in [`utils/`](../../../../utils/): `cert_utils.py` (wildcard/exact match logic, newest-certificate selection) and `tls_common.py` (flavor handling, SAN overrides, domain normalisation)."
+msgid "Unit tests for the top-level certificate and TLS helper modules in `utils/`: `cert_utils.py` (wildcard/exact match logic, newest-certificate selection) and `tls_common.py` (flavor handling, SAN overrides, domain normalisation)."
 msgstr ""
 
 msgid "Unit tests: known seed → known address test vector; idempotent reuse; file-format byte-exactness (headers + lengths)."
@@ -58883,7 +58605,7 @@ msgstr ""
 msgid "Usage"
 msgstr ""
 
-msgid "Usage (single path → string via Jinja):"
+msgid "Usage (single path → string via Jinja)::"
 msgstr ""
 
 msgid "Usage Examples"
@@ -58892,7 +58614,7 @@ msgstr ""
 msgid "Usage example::"
 msgstr ""
 
-msgid "Usage from a non-compose call site:"
+msgid "Usage from a non-compose call site::"
 msgstr ""
 
 msgid "Usage in a per-app prometheus.yml.j2 fragment:"
@@ -58901,10 +58623,16 @@ msgstr ""
 msgid "Usage in a template:"
 msgstr ""
 
+msgid "Usage in a template::"
+msgstr ""
+
 msgid "Usage in any ``compose.yml.j2``:"
 msgstr ""
 
 msgid "Usage in any service template:"
+msgstr ""
+
+msgid "Usage in any service template::"
 msgstr ""
 
 msgid "Usage 💻"
@@ -58920,6 +58648,9 @@ msgid "Usage:"
 msgstr ""
 
 msgid "Usage: python3 utils/github/pytest_summary.py <reports-dir>  # nocheck: self-path-reference"
+msgstr ""
+
+msgid "Usage::"
 msgstr ""
 
 msgid "Use"
@@ -59016,9 +58747,6 @@ msgid "Use pdsadmin"
 msgstr ""
 
 msgid "Use realistic inputs. Build hypotheses about cross-component behavior before writing assertions."
-msgstr ""
-
-msgid "Use resolve() to resolve symlinks and remove '..' segments."
 msgstr ""
 
 msgid "Use running software, not documents alone, as the main progress signal."
@@ -59273,6 +59001,9 @@ msgstr ""
 msgid "Used by:"
 msgstr ""
 
+msgid "Used by::"
+msgstr ""
+
 msgid "Used directly as `container_name`. Derived from `INFINITO_DISTRO` by [container.py](../../../../utils/env/handlers/infinito/container.py)."
 msgstr ""
 
@@ -59417,6 +59148,9 @@ msgstr ""
 msgid "Uses ``postMessage`` to inform the parent window of any URL changes inside the iframe (including pushState/popState events) for seamless SPA support."
 msgstr ""
 
+msgid "Uses ``skopeo inspect docker://<dest>``, whose exit code is 0 when the tag exists and non-zero when it does not exist or cannot be accessed (auth/network)."
+msgstr ""
+
 msgid "Uses `community.general.pacman` to install the `postfix` package."
 msgstr ""
 
@@ -59484,9 +59218,6 @@ msgid "Uses the built-in `hostname` module to apply the `inventory_hostname` val
 msgstr ""
 
 msgid "Uses the same ``applications_if_group_and_all_deps`` dep-walker the runtime constructor consumes, so the CLI-side closure and the constructor's in-play role set stay in sync without duplicated meta-walking logic."
-msgstr ""
-
-msgid "Uses: skopeo inspect docker://<dest> Exit code:"
 msgstr ""
 
 msgid "Using the Token in Ansible"
@@ -59913,9 +59644,6 @@ msgstr ""
 msgid "Walk every `roles/*/meta/services.yml` and collect ints under `<entity>.ports.<scope>.<category>` (across ALL entities and ALL roles)."
 msgstr ""
 
-msgid "Walk the directory tree from this directory, similar to os.walk()."
-msgstr ""
-
 msgid "Walk the inventory directory and collect every ``applications:`` block keyed by its source file path."
 msgstr ""
 
@@ -59949,7 +59677,7 @@ msgstr ""
 msgid "Watch the new run and propagate its exit status:"
 msgstr ""
 
-msgid "We are actively looking for investors to help scale Infinito.Nexus and bring open, self-hosted infrastructure to more organizations worldwide. If you are interested in investing or partnering with us, please reach out via our [Investor Relations](SUPPORT.md#investor-relations) contact."
+msgid "We are actively looking for investors to help scale Infinito.Nexus and bring open, self-hosted infrastructure to more organizations worldwide. If you are interested in investing or partnering with us, please reach out via our [Investor Relations](SUPPORT.md#investor-relations-) contact."
 msgstr ""
 
 msgid "We are committed to creating a friendly, safe, and inclusive environment for all members of our community, regardless of age, race, gender, sexual orientation, disability, religion, or any other status. We pledge to treat everyone with respect and courtesy."
@@ -60971,33 +60699,6 @@ msgstr ""
 msgid "Whether the token narrows anything at all beyond the role name."
 msgstr ""
 
-msgid "Whether this path exists."
-msgstr ""
-
-msgid "Whether this path is a FIFO."
-msgstr ""
-
-msgid "Whether this path is a block device."
-msgstr ""
-
-msgid "Whether this path is a character device."
-msgstr ""
-
-msgid "Whether this path is a directory."
-msgstr ""
-
-msgid "Whether this path is a junction."
-msgstr ""
-
-msgid "Whether this path is a regular file (also True for symlinks pointing to regular files)."
-msgstr ""
-
-msgid "Whether this path is a socket."
-msgstr ""
-
-msgid "Whether this path is a symbolic link."
-msgstr ""
-
 msgid "Whether to install a profile snippet for automatic environment loading."
 msgstr ""
 
@@ -61232,7 +60933,7 @@ msgstr ""
 msgid "Within its scope, `compose.yml` MUST stay a thin orchestration surface for the `infinito` runner container and its CoreDNS sidecar. It MUST NOT host application roles, fixtures, or test harnesses."
 msgstr ""
 
-msgid "Within the same bucket, ordering is refined by `run_after:` declared on the provider role's primary entity in [meta/services.yml](../../../../../roles) (i.e. `services.<primary_entity>.run_after`)."
+msgid "Within the same bucket, ordering is refined by `run_after:` declared on the provider role's primary entity in `meta/services.yml` (i.e. `services.<primary_entity>.run_after`)."
 msgstr ""
 
 msgid "Without TURN/STUN, video calls, conferencing, and peer-to-peer connections often fail due to NAT traversal issues."
@@ -61275,6 +60976,9 @@ msgid "WordPress's canonical surface is the public blog front page. The OIDC rou
 msgstr ""
 
 msgid "WordPress’s canonical surface is the public blog front page. The OIDC round-trip fires on ``/wp-login.php``, which the ``daggerhart-openid-connect-generic`` addon auto-redirects to Keycloak (``login_type: auto``, see ```meta/addons/daggerhart-openid-connect-generic.yml`` <./meta/addons/daggerhart-openid-connect-generic.yml>`__); the shared personas enter at the site root and never visit that path. ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ therefore declares ``PERSONA_BIBER_BLOCKED=true`` and ``PERSONA_ADMINISTRATOR_BLOCKED=true``. The journeys themselves are not dropped: ``test-admin-oidc-login.js`` drives the admin login, logout and landing assertion, and ``test-rbac-roles.js`` drives the Keycloak-group-to-WordPress-role mapping over the same entry point."
+msgstr ""
+
+msgid "Work from the [Confirmed Decisions](#confirmed-decisions); raise anything still open with the operator before implementing it."
 msgstr ""
 
 msgid "Work with business daily."
@@ -61370,6 +61074,9 @@ msgstr ""
 msgid "Workstation Docker"
 msgstr ""
 
+msgid "Workstation Pull Request"
+msgstr ""
+
 msgid "Workstation User"
 msgstr ""
 
@@ -61392,9 +61099,6 @@ msgid "Wrapper-level tests covering the per-round folder iteration and cleanup l
 msgstr ""
 
 msgid "Wraps ``utils.roles.applications.services.sso.get_sso_config`` so templates and tasks share one source of truth with Python callers (notably ``plugins/lookup/compose_volumes.py``)."
-msgstr ""
-
-msgid "Wraps the `container exec -i <container> <client> -v ON_ERROR_STOP=1 ...` pattern so role tasks don't have to spell out the exec shape by hand. Works for both shared mode (central `svc-db-*` container) and non-shared mode (per-role `<entity>-database` container) because the `container` field of the `database` lookup is already shared-aware. Queries are piped via stdin, never via the shell, so SQL content doesn't need shell-escaping."
 msgstr ""
 
 msgid "Write Scope ✍️"
@@ -61562,7 +61266,7 @@ msgstr ""
 msgid "Yield absolute paths of project files matching the filter."
 msgstr ""
 
-msgid "Yield all ImageRef entries discovered across all roles in *repo_root*."
+msgid "Yield all ImageRef entries discovered across all roles in ``repo_root``."
 msgstr ""
 
 msgid "Yield all canonical + alias domains from an app config."
@@ -61572,9 +61276,6 @@ msgid "Yield existing vhost files (http + https) for every app belonging to *ent
 msgstr ""
 
 msgid "Yield mount dicts in ``volume['mounts']`` that target ``service``."
-msgstr ""
-
-msgid "Yield path objects of the directory contents."
 msgstr ""
 
 msgid "Yield project files filtered through ``.gitignore``."
@@ -62199,7 +61900,7 @@ msgstr ""
 msgid "You MUST treat each unchecked criterion (`- [ ]`) as a discrete unit of work."
 msgstr ""
 
-msgid "You MUST treat the matching Pull Request template described in [Pull Request Templates](../../contributing/artefact/git/pull-request.md) and stored in [PULL_REQUEST_TEMPLATE](../../../.github/PULL_REQUEST_TEMPLATE) as the SPOT for requirements, file checks, validation expectations, and the Definition of Done."
+msgid "You MUST treat the matching Pull Request template described in [Pull Request Templates](../../contributing/artefact/git/pull-request.md) and stored in `.github/PULL_REQUEST_TEMPLATE` as the SPOT for requirements, file checks, validation expectations, and the Definition of Done."
 msgstr ""
 
 msgid "You MUST treat the provided log files as the source of truth for the failure they describe."
@@ -62277,7 +61978,7 @@ msgstr ""
 msgid "You MUST use the AI forum at [s.infinito.nexus/aihub](https://s.infinito.nexus/aihub) as the companion guidance and support resource."
 msgstr ""
 
-msgid "You MUST use the templates from [PULL_REQUEST_TEMPLATE](../../../.github/PULL_REQUEST_TEMPLATE)."
+msgid "You MUST use the templates from `.github/PULL_REQUEST_TEMPLATE`."
 msgstr ""
 
 msgid "You MUST use these linting and quality tools where applicable:"
@@ -62900,6 +62601,9 @@ msgstr ""
 msgid "[ ] Relevant logs or run links attached"
 msgstr ""
 
+msgid "[ ] Relevant tests or lints run"
+msgstr ""
+
 msgid "[ ] Removing the host from `svc-swarm-node` MUST restore the Compose deployment of MediaWiki without manual cleanup of stale volume metadata."
 msgstr ""
 
@@ -62995,6 +62699,9 @@ msgid "[ ] The image is self-built from `files/` and pinned to a concrete upstre
 msgstr ""
 
 msgid "[ ] The implementation follows the Definition of Done, and the contribution guidelines in [CONTRIBUTING.md](../../CONTRIBUTING.md) were considered and applied during implementation."
+msgstr ""
+
+msgid "[ ] The implementation follows the Definition of Done, and the contribution guidelines in [CONTRIBUTING.md](../CONTRIBUTING.md) were considered and applied during implementation."
 msgstr ""
 
 msgid "[ ] The matrix axes contain the entity name of **every** `web-app-*` and `web-svc-*` role; a role added later forces a matrix regeneration."
@@ -63396,14 +63103,6 @@ msgid "[![Infinito.Nexus](https://img.shields.io/badge/Infinito.Nexus-%2ECloud-0
 msgstr ""
 
 msgid "[![Patreon](https://img.shields.io/badge/Support-Patreon-orange?logo=patreon)](https://www.patreon.com/kevinveenbirkenbach) [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20me%20a%20Coffee-Funding-yellow?logo=buymeacoffee)](https://buymeacoffee.com/kevinveenbirkenbach) [![PayPal](https://img.shields.io/badge/Donate-PayPal-blue?logo=paypal)](https://s.veen.world/paypaldonate) [![Sponsor Infinito.Nexus](https://img.shields.io/badge/Donate–Infinito.Nexus-000000?style=flat&labelColor=004B8D&logo=github-sponsors&logoColor=white&borderRadius=8)](https://github.com/sponsors/kevinveenbirkenbach)"
-msgstr ""
-
-#, no-python-format
-msgid "[![Pipeline](https://img.shields.io/badge/Pipeline-CI%2FCD-7A3E9D?style=for-the-badge)](?quick_pull=1&template=pipeline.md) [![Agents](https://img.shields.io/badge/Agents-AGENTS%2FCLAUDE%2FGEMINI-9C2F2F?style=for-the-badge)](?quick_pull=1&template=agents.md) [![Documentation](https://img.shields.io/badge/Documentation-docs-1F5C99?style=for-the-badge)](?quick_pull=1&template=documentation.md)"
-msgstr ""
-
-#, no-python-format
-msgid "[![Server](https://img.shields.io/badge/Server-web--*-0A7B83?style=for-the-badge)](?quick_pull=1&template=server.md) [![Workstation](https://img.shields.io/badge/Workstation-dsk--*-2E6F40?style=for-the-badge)](?quick_pull=1&template=workstation.md) [![System](https://img.shields.io/badge/System-sys%2Fsvc%2Fdev-8B5E3C?style=for-the-badge)](?quick_pull=1&template=system.md)"
 msgstr ""
 
 msgid "[**Arch Linux**](https://archlinux.org)"
@@ -63937,6 +63636,9 @@ msgstr ""
 msgid "[Agent `playwright.spec.js`](../../../agents/files/role/playwright.spec.js.md): authoring procedure and live review."
 msgstr ""
 
+msgid "[Agents](PULL_REQUEST_TEMPLATE/agents.md) - agent instruction files"
+msgstr ""
+
 msgid "[Agile Manifesto](https://agilemanifesto.org/)"
 msgstr ""
 
@@ -64276,9 +63978,6 @@ msgstr ""
 msgid "[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)"
 msgstr ""
 
-msgid "[CONTRIBUTING.md](../CONTRIBUTING.md)"
-msgstr ""
-
 msgid "[CONTRIBUTING.md](CONTRIBUTING.md) covers the workflow, testing, review, and coding standards."
 msgstr ""
 
@@ -64558,6 +64257,9 @@ msgid "[Document custom addon development workflow](https://open.project.infinit
 msgstr ""
 
 msgid "[Document upgrade procedures between Odoo versions](https://open.project.infinito.nexus/wp/564)"
+msgstr ""
+
+msgid "[Documentation](PULL_REQUEST_TEMPLATE/documentation.md) - docs only"
 msgstr ""
 
 msgid "[Documentation](roles/web-app-docs/)"
@@ -65463,6 +65165,9 @@ msgstr ""
 msgid "[Pi](https://github.com/earendil-works/pi) is a minimal terminal coding agent with a lazy-loading skill system. This role installs it on a workstation and registers the platform's model gateway as its provider."
 msgstr ""
 
+msgid "[Pipeline](PULL_REQUEST_TEMPLATE/pipeline.md) - CI/CD"
+msgstr ""
+
 msgid "[Pixelfed GitHub repository](https://github.com/pixelfed/pixelfed)"
 msgstr ""
 
@@ -65700,6 +65405,9 @@ msgstr ""
 msgid "[Semaphore UI](roles/web-app-semaphore/)"
 msgstr ""
 
+msgid "[Server](PULL_REQUEST_TEMPLATE/server.md) - `web-*` roles"
+msgstr ""
+
 msgid "[Set up your local environment](docs/contributing/environment/setup.md)."
 msgstr ""
 
@@ -65763,9 +65471,6 @@ msgstr ""
 msgid "[SuiteCRM](roles/web-app-suitecrm/)"
 msgstr ""
 
-msgid "[Support and Contact](../SUPPORT.md)"
-msgstr ""
-
 msgid "[Svc Engine](https://example.com/) is an application."
 msgstr ""
 
@@ -65779,6 +65484,9 @@ msgid "[SysPass issue #1299](https://github.com/nuxsmin/sysPass/issues/1299)"
 msgstr ""
 
 msgid "[System One](roles/svc-ai-s1/)"
+msgstr ""
+
+msgid "[System](PULL_REQUEST_TEMPLATE/system.md) - `sys-*`, `svc-*`, `dev-*`, `drv-*`"
 msgstr ""
 
 msgid "[Systemd (Wikipedia)](https://en.wikipedia.org/wiki/Systemd)"
@@ -65913,6 +65621,9 @@ msgstr ""
 msgid "[Workflow Loop](../agents/action/iteration/workflow.md)"
 msgstr ""
 
+msgid "[Workstation](PULL_REQUEST_TEMPLATE/workstation.md) - `dsk-*` roles"
+msgstr ""
+
 msgid "[World Wide Web](roles/web-opt-rdr-www/)"
 msgstr ""
 
@@ -66034,9 +65745,6 @@ msgid "[`discourse/discourse-mcp`](https://github.com/discourse/discourse-mcp)"
 msgstr ""
 
 msgid "[`enable/`](enable/) ✅"
-msgstr ""
-
-msgid "[`env/`](../../../cli/meta/env/) (under `cli/meta/`) provides the CLI entry point invoked as `python -m cli.meta.env`."
 msgstr ""
 
 msgid "[`env/`](../../../utils/env/) (under `utils/`) holds the parser, runtime helpers, writer, and one handler module per dynamically-computed variable under [`handlers/`](../../../utils/env/handlers/)."
@@ -66534,9 +66242,6 @@ msgstr ""
 msgid "[development/](development/README.md): matrix deploy, include resolution, `disable` and orphan pruning (with diagrams)."
 msgstr ""
 
-msgid "[diagnose/](diagnose/)"
-msgstr ""
-
 msgid "[dnf](https://dnf.readthedocs.io/)"
 msgstr ""
 
@@ -66562,9 +66267,6 @@ msgid "[docs/contributing/](../../) for workflow and constraints"
 msgstr ""
 
 msgid "[docs/contributing/actions/debugging/network.md](../../../docs/contributing/actions/debugging/network.md) explains how to read the diagnose output and how to fix MTU / IPv6 / connectivity issues."
-msgstr ""
-
-msgid "[docs/contributing/tools/network/](../../../docs/contributing/tools/network/) covers the contract of the `address` and `ports` suggesters."
 msgstr ""
 
 msgid "[documentation.md](../../../../.github/PULL_REQUEST_TEMPLATE/documentation.md)"
@@ -66736,9 +66438,6 @@ msgid "[introduction_docker](https://docs.checkmk.com/latest/en/introduction_doc
 msgstr ""
 
 msgid "[inventories/bundles/](../../../inventories/bundles/) for deployment shapes"
-msgstr ""
-
-msgid "[inventories/bundles/servers/](../../../inventories/bundles/servers) describe concrete deployment shapes such as a personal server, a community hub, or a sovereign cloud setup. They decide which roles are active together and which ones stay out."
 msgstr ""
 
 msgid "[inventory-args ...] -- [deploy-args ...]"
@@ -67031,9 +66730,6 @@ msgstr ""
 msgid "[resources.py](resources.py)"
 msgstr ""
 
-msgid "[roles/](../../../roles/) for behavior"
-msgstr ""
-
 msgid "[roles/web-app-wordpress/meta/services.yml](../../../roles/web-app-wordpress/meta/services.yml) declares `services.discourse.shared: true` plus a fallback `enabled: \"{{ 'web-app-discourse' in group_names }}\"`."
 msgstr ""
 
@@ -67047,9 +66743,6 @@ msgid "[runner/](runner/)"
 msgstr ""
 
 msgid "[saml.html](https://docs.checkmk.com/latest/en/saml.html)"
-msgstr ""
-
-msgid "[scopes](../../../../roles/web-app-keycloak/templates/import/scopes/)"
 msgstr ""
 
 msgid "[scripts/](../../../scripts/)"
@@ -67493,12 +67186,6 @@ msgstr ""
 msgid "[users.py](../../../../../../plugins/lookup/users.py)"
 msgstr ""
 
-msgid "[users/ (cache)](../../../../../../utils/cache/users/)"
-msgstr ""
-
-msgid "[users/](users/)"
-msgstr ""
-
 msgid "[utils/cache.sh](utils/cache.sh)"
 msgstr ""
 
@@ -67767,7 +67454,7 @@ msgstr ""
 msgid "[x] A native (local-password) admin login scenario exists (`test-login-native.js`), separate from the OIDC/LDAP companions, and is skipped when `sso` is enabled (native login disabled under OIDC)."
 msgstr ""
 
-msgid "[x] A new CLI entry point at `cli/administration/deploy/runner/` (path to be created) is wired into the `infinito` CLI tree the same way the existing [`cli/administration/deploy/dedicated/`](../../cli/administration/deploy/runner/) and [`cli/administration/deploy/development/`](../../cli/administration/deploy/development/) commands are."
+msgid "[x] A new CLI entry point at `cli/administration/deploy/runner/` (path to be created) is wired into the `infinito` CLI tree the same way the existing `cli/administration/deploy/dedicated/` and [`cli/administration/deploy/development/`](../../cli/administration/deploy/development/) commands are."
 msgstr ""
 
 msgid "[x] A new GitHub Actions workflow at `.github/workflows/test-deploy-swarm-nfs.yml` (path to be created) provisions a multi-node Swarm cluster on a single **GitHub-hosted** runner using Docker-in-Docker with multiple Docker daemons. The topology is fixed at **three simulated nodes**: exactly one manager (`swarm-mgr-01`) plus exactly two workers (`swarm-wrk-01`, `swarm-wrk-02`). Three nodes are mandatory so that the rescheduling test has a genuine choice of target (drain the worker running the MediaWiki application service → scheduler MUST pick the OTHER worker, not the manager). One additional container hosts the NFS server reachable from all three simulated nodes. Then the workflow deploys `web-app-mediawiki` as a Swarm stack with the MariaDB service pinned to the manager and the application service free to schedule on either worker."
@@ -68489,7 +68176,7 @@ msgstr ""
 msgid "[x] The vhost supports HTTPS termination and routes to internal service names."
 msgstr ""
 
-msgid "[x] The workflow MUST create the inventory via the canonical [cli/administration/inventory/provision/](../../cli/administration/inventory/provision/) CLI (the same `infinito` entry point developers use locally — \"Create or update a full inventory for a host\"). The workflow MUST NOT hand-roll a YAML inventory from scratch. After the provision step, the workflow's only inventory edits MUST be: adding the three simulated hosts to the `svc-swarm-node` group, adding `swarm-mgr-01` to `svc-swarm-manager`, and adding all three simulated hosts to the `web-app-mediawiki` group so the pilot role's `DEPLOYMENT_MODE` resolves to `swarm`. Any other inventory mutation is forbidden."
+msgid "[x] The workflow MUST create the inventory via the canonical `cli/administration/inventory/provision/` CLI (the same `infinito` entry point developers use locally — \"Create or update a full inventory for a host\"). The workflow MUST NOT hand-roll a YAML inventory from scratch. After the provision step, the workflow's only inventory edits MUST be: adding the three simulated hosts to the `svc-swarm-node` group, adding `swarm-mgr-01` to `svc-swarm-manager`, and adding all three simulated hosts to the `web-app-mediawiki` group so the pilot role's `DEPLOYMENT_MODE` resolves to `swarm`. Any other inventory mutation is forbidden."
 msgstr ""
 
 msgid "[x] The workflow MUST report `failure` (not `skipped`, not `cancelled`) if any of the assertions above fail."
@@ -69954,24 +69641,6 @@ msgid "`$wgHTTPTimeout` is raised inside the same block because core's 25s is be
 msgstr ""
 
 msgid "`%`"
-msgstr ""
-
-msgid "`&template=agents.md`"
-msgstr ""
-
-msgid "`&template=documentation.md`"
-msgstr ""
-
-msgid "`&template=pipeline.md`"
-msgstr ""
-
-msgid "`&template=server.md`"
-msgstr ""
-
-msgid "`&template=system.md`"
-msgstr ""
-
-msgid "`&template=workstation.md`"
 msgstr ""
 
 msgid "`(position + sweep // 2) % 2`"
@@ -72552,6 +72221,9 @@ msgstr ""
 msgid "``Debian`` / ``Ubuntu``"
 msgstr ""
 
+msgid "``DevInventorySpec`` is imported but deliberately absent from ``__all__``: listing a re-exported class makes autodoc document it here as well as in :mod:`.spec`, and sphinx then finds two targets for every annotation. Importing it from this package keeps working either way."
+msgstr ""
+
 #, python-brace-format
 msgid "``EDGES``: the curated, web-verified upstream app↔app plugin/integration pages, each ``(source, target, url, kind)`` with ``kind`` in ``{\"check\", \"coin\"}``."
 msgstr ""
@@ -74216,6 +73888,9 @@ msgstr ""
 msgid "`api.seaweedfs.s3.*` is the public S3 endpoint and is reachable without SSO gating."
 msgstr ""
 
+msgid "`application_id` MUST refer to a role that declares an `rbac:` block in its `meta/services.yml`. The role may be tenant-aware (`rbac.tenancy.axis == \"domain\"`) or not (default)."
+msgstr ""
+
 msgid "`applications['<application_id>'].compose.services.email.<key>`, applied only when an `application_id` is passed."
 msgstr ""
 
@@ -74574,6 +74249,9 @@ msgstr ""
 msgid "`cli/contributing/mirror/sync/__main__.py` copies each image from the upstream source to the GHCR mirror destination using `skopeo copy`. Supports `--only-missing` to skip already-mirrored images and `--images-per-hour` for throttling."
 msgstr ""
 
+msgid "`cli/meta/env/` provides the CLI entry point invoked as `python -m cli.meta.env`."
+msgstr ""
+
 msgid "`cliconf_plugins/`"
 msgstr ""
 
@@ -74826,7 +74504,7 @@ msgstr ""
 msgid "`default:` values are **NOT validated.** `validation:` only applies to user-provided values, so the schema default is exempt."
 msgstr ""
 
-msgid "`default_if_missing` controls the missing-file behaviour: - Default (`_MISSING`): raise `FileNotFoundError` for callers that"
+msgid "`default_if_missing` controls the missing-file behaviour:"
 msgstr ""
 
 msgid "`defaults/main.yml`"
@@ -74881,6 +74559,9 @@ msgid "`dev_nix_installer_version`   Nix version to install via the official ins
 msgstr ""
 
 msgid "`device`"
+msgstr ""
+
+msgid "`diagnose/`"
 msgstr ""
 
 msgid "`dir.sh`"
@@ -75026,6 +74707,9 @@ msgid "`docs.infinito.example`, `here`, a descriptive label, or `setup.md`"
 msgstr ""
 
 msgid "`docs/agents/action/` holds one runbook per action and is read on demand, not at session start: read a runbook when the matching `i8-` skill routes you to it, or when you are about to perform that action without one. It is the bulk of the agent documentation, and every runbook in it is inert until its action is the task."
+msgstr ""
+
+msgid "`docs/contributing/tools/network/` covers the contract of the `address` and `ports` suggesters."
 msgstr ""
 
 msgid "`docs/contributing/workflow.md`"
@@ -75884,6 +75568,9 @@ msgid "`internal` ports are NOT supported by the suggester; they are dictated by
 msgstr ""
 
 msgid "`internal`, container network only"
+msgstr ""
+
+msgid "`inventories/bundles/servers/` describes concrete deployment shapes such as a personal server, a community hub, or a sovereign cloud setup. They decide which roles are active together and which ones stay out."
 msgstr ""
 
 msgid "`inventory.sh`"
@@ -77197,6 +76884,9 @@ msgstr ""
 msgid "`roles/<role>/vars/main.yml` for values derived from that configuration, and for those the role fixes. Role vars outrank inventory variables, so a value placed here cannot be overridden per host."
 msgstr ""
 
+msgid "`roles/` for behavior"
+msgstr ""
+
 msgid "`roles/sys-ca-selfsigned/`. generates the self-signed Root CA inside the container"
 msgstr ""
 
@@ -77216,6 +76906,9 @@ msgid "`roles/test-e2e-playwright/tasks/02_run_one.yml` forwards the resolved va
 msgstr ""
 
 msgid "`roles/test-e2e-playwright/templates/package.json.j2` (rendered per-deploy; pins `@playwright/test` from `meta/services.yml.playwright.version`)"
+msgstr ""
+
+msgid "`roles/web-app-keycloak/templates/import/scopes/`"
 msgstr ""
 
 msgid "`roles/web-app-taiga/templates/style.css.j2` is the Taiga role override."
@@ -78234,6 +77927,9 @@ msgstr ""
 msgid "`users.<WORKSTATION_USER>.username` (defaults to WORKSTATION_USER if missing)"
 msgstr ""
 
+msgid "`users/`"
+msgstr ""
+
 msgid "`users` lookup 👥"
 msgstr ""
 
@@ -78247,6 +77943,9 @@ msgid "`utils.roles.entity.name.get_entity_name` maps a role / application_id to
 msgstr ""
 
 msgid "`utils/_context.sh`"
+msgstr ""
+
+msgid "`utils/cache/users/`"
 msgstr ""
 
 msgid "`utils/clean/all.sh`"
@@ -78807,7 +78506,7 @@ msgstr ""
 msgid "`~/.local/share/worktrees`"
 msgstr ""
 
-msgid "`~/.ssh` is intentionally **not** in this list. Denying it would make `git push` over SSH unreachable and defeat the `Bash(git push*)` ask-gate. The trade-off and its mitigations are documented in [security.md](security.md#assumption-10) (Assumption 10)."
+msgid "`~/.ssh` is intentionally **not** in this list. Denying it would make `git push` over SSH unreachable and defeat the `Bash(git push*)` ask-gate. The trade-off and its mitigations are documented in [security.md](security.md#assumption-10-ssh-is-intentionally-readable-to-allow-git-push-on-ask-) (Assumption 10)."
 msgstr ""
 
 msgid "`~/.venvs`"
@@ -79244,6 +78943,12 @@ msgstr ""
 msgid "application ids whose credentials rotate; ``None`` rotates all of ``application_ids``. User passwords ignore it and always resolve through the full ``application_ids``."
 msgstr ""
 
+msgid "application key is in group_names"
+msgstr ""
+
+msgid "application key matches prefix regex (default: ``^(web-|svc-).*``)"
+msgstr ""
+
 msgid "application the credential belongs to."
 msgstr ""
 
@@ -79260,15 +78965,6 @@ msgid "application_id, default value"
 msgstr ""
 
 msgid "application_id: restrict to one application; None aggregates across all. primary_domain: the deployment's primary domain (its hosts are not external)."
-msgstr ""
-
-msgid "application_id='web-app-wordpress', role='editor', tenant='blog.example') }}\""
-msgstr ""
-
-msgid "application_id='web-app-wordpress', role='network-administrator') }}\""
-msgstr ""
-
-msgid "application_id='web-app-yourls', role='administrator') }}\""
 msgstr ""
 
 msgid "applications are resolved via lookup('applications')"
@@ -79299,9 +78995,6 @@ msgid "argparse entry + dispatch"
 msgstr ""
 
 msgid "argument normalization before module dispatch,"
-msgstr ""
-
-msgid "argv:"
 msgstr ""
 
 msgid "argv_parts=[\"deploy\",\"container\",\"--foo\",\"bar\"] -> (\"cli.administration.deploy.container\", [\"--foo\",\"bar\"])"
@@ -80327,6 +80020,9 @@ msgstr ""
 msgid "comma-separated indices"
 msgstr ""
 
+msgid "command line arguments; ``sys.argv[1:]`` when omitted."
+msgstr ""
+
 msgid "comment block above"
 msgstr ""
 
@@ -80377,9 +80073,6 @@ msgid "config paths ORed together to decide whether an app gets a URI."
 msgstr ""
 
 msgid "config value accessor."
-msgstr ""
-
-msgid "config:"
 msgstr ""
 
 msgid "config_path"
@@ -80433,16 +80126,10 @@ msgstr ""
 msgid "contacts"
 msgstr ""
 
-msgid "container"
-msgstr ""
-
 msgid "container abstraction (``container``, ``compose``)"
 msgstr ""
 
 msgid "container abstraction (`container`, `compose`)"
-msgstr ""
-
-msgid "container exec -i {{ X_CONTAINER_ADDRESS }} my-cli command"
 msgstr ""
 
 msgid "container lacks `ping` after auto-install (auto-skipped), or path drops every probe size"
@@ -80463,6 +80150,9 @@ msgstr ""
 msgid "content in place (position is left untouched)."
 msgstr ""
 
+msgid "converts to string"
+msgstr ""
+
 msgid "copies `files/playwright/playwright.spec.js` into the project as `tests/playwright.spec.js`"
 msgstr ""
 
@@ -80476,9 +80166,6 @@ msgid "course catalogue (``core_course_get_courses``, ``core_enrol_get_users_cou
 msgstr ""
 
 msgid "course catalogue (`core_course_get_courses`, `core_enrol_get_users_courses`)"
-msgstr ""
-
-msgid "create"
 msgstr ""
 
 msgid "create a `web-app-*` role"
@@ -80529,9 +80216,6 @@ msgstr ""
 msgid "dashboard"
 msgstr ""
 
-msgid "data:                               # YAML key = semantic short name"
-msgstr ""
-
 msgid "database"
 msgstr ""
 
@@ -80551,9 +80235,6 @@ msgid "declare the 5 node containers, node image + lab network (compose SPOT)"
 msgstr ""
 
 msgid "default   – add a managed section only when it is missing."
-msgstr ""
-
-msgid "default False: the gate hands the upstream a bearer token only where the app decodes one"
 msgstr ""
 
 msgid "default behavior is strict=True (missing keys raise)"
@@ -80755,10 +80436,6 @@ msgstr ""
 msgid "enabled"
 msgstr ""
 
-#, python-brace-format
-msgid "enabled                 bool — ``services.sso.enabled`` shared                  bool — ``services.sso.shared`` flavor                  str  — one of {oidc, oauth2, saml}; default 'oidc' is_enabled              bool — alias of ``enabled``, semantic name is_proxy_gated          bool — ``enabled AND flavor == 'oauth2'`` is_oidc_native          bool — ``enabled AND flavor == 'oidc'`` is_saml                 bool — ``enabled AND flavor == 'saml'`` oauth2_origin_host      str  — ``services.sso.oauth2.origin.host`` or '' oauth2_origin_port      str  — ``services.sso.oauth2.origin.port`` or '' oauth2_acl              dict — ``services.sso.oauth2.acl`` or {} oauth2_allowed_groups   list — ``services.sso.oauth2.allowed_groups`` or [] oauth2_pass_access_token bool — ``services.sso.oauth2.pass_access_token``,"
-msgstr ""
-
 msgid "enabled (required)"
 msgstr ""
 
@@ -80852,12 +80529,6 @@ msgstr ""
 msgid "enabled with the `xwiki` partner"
 msgstr ""
 
-msgid "enabled: false    # everything else in addons survives"
-msgstr ""
-
-msgid "enabled: true shared: true services: null        # brings nothing along addons:"
-msgstr ""
-
 msgid "enabler (2)"
 msgstr ""
 
@@ -80889,9 +80560,6 @@ msgid "entries returned by ``damaged``."
 msgstr ""
 
 msgid "entries returned by ``pending``."
-msgstr ""
-
-msgid "entries_only=True, wantlist=True) %}"
 msgstr ""
 
 msgid "enum"
@@ -81026,9 +80694,6 @@ msgstr ""
 msgid "external networks (no in-repo service); each owns a DB credential"
 msgstr ""
 
-msgid "extra_hosts=['host.docker.internal:host-gateway']) | indent(4) }}"
-msgstr ""
-
 msgid "fa-solid fa-graduation-cap"
 msgstr ""
 
@@ -81093,12 +80758,6 @@ msgid "first query element uses '?', subsequent use '&' (regardless of given pre
 msgstr ""
 
 msgid "flavor: curl path: health/ready start_period: 20m"
-msgstr ""
-
-msgid "floor(0.7 * mem_limit), mem_limit - 1024, 12288"
-msgstr ""
-
-msgid "floor(Xmx / 2), mem_reservation, Xmx"
 msgstr ""
 
 msgid "flowise"
@@ -81308,22 +80967,19 @@ msgstr ""
 msgid "https://www.ordinatechnic.com/distribution-specific-guides/Arch/installing-an-epson-multifunction-printer-on-arch-linux-and-derivatives"
 msgstr ""
 
-msgid "https://www.veen.world"
-msgstr ""
-
 msgid "hugo"
 msgstr ""
 
 msgid "iFrame Notifier for NGINX"
 msgstr ""
 
-msgid "id      — canonical service key  (e.g. 'matomo') role    — provider role name     (e.g. 'web-app-matomo') enabled — True if any deployed app has services.<key>.enabled: true shared  — True if any deployed app has services.<key>.shared: true required — True if any deployed app has both enabled AND shared (direct"
-msgstr ""
-
 msgid "identify shared dependencies such as database, proxy, or identity"
 msgstr ""
 
 msgid "idle time before a stop"
+msgstr ""
+
+msgid "if Jinja markers exist => render via strict Jinja2 using a robust context (recursive with depth limit)"
 msgstr ""
 
 msgid "if a 3rd argument (default) is provided, strict=False and that default is returned"
@@ -81341,19 +80997,10 @@ msgstr ""
 msgid "implementing reusable module interfaces for role/playbook consumption."
 msgstr ""
 
-msgid "in its `meta/services.yml`. The role may be tenant-aware (`rbac.tenancy.axis == \"domain\"`) or not (default)."
-msgstr ""
-
-msgid "in its own role config — the self-declaration pattern (SPOT per app, no hardcoded list anywhere)."
-msgstr ""
-
 msgid "in_group_deps/__main__.py contains the original implementation."
 msgstr ""
 
 msgid "incapable"
-msgstr ""
-
-msgid "include -> exclude -> legacy roles"
 msgstr ""
 
 msgid "include closure of svc-storage-nfs-server; induces the export-host repository."
@@ -81545,21 +81192,6 @@ msgstr ""
 msgid "letters, digits and the marks ``-_.``, never a leading ``-``, with one of each class the Keycloak realm policy ``specialChars(1)`` counts."
 msgstr ""
 
-msgid "library package"
-msgstr ""
-
-msgid "library.cert\\_check\\_exists module"
-msgstr ""
-
-msgid "library.database\\_query module"
-msgstr ""
-
-msgid "library.docker\\_bridge\\_gateway module"
-msgstr ""
-
-msgid "library.keycloak\\_kcadm\\_update module"
-msgstr ""
-
 msgid "libretranslate"
 msgstr ""
 
@@ -81603,9 +81235,6 @@ msgid "liveness, names the provider it fronts"
 msgstr ""
 
 msgid "loads services through [load/app.yml](../../../../../tasks/utils/load/app.yml)"
-msgstr ""
-
-msgid "local    — True if any deployed app has enabled AND NOT shared, i.e."
 msgstr ""
 
 msgid "local docker volume (today's shape)"
@@ -81659,9 +81288,6 @@ msgstr ""
 msgid "lookup('roles_with_placement', 'manager')"
 msgstr ""
 
-msgid "lookup('service', 'matomo') lookup('service', 'web-app-matomo')   # resolved via reverse mapping query('service', ['a', 'b', 'c'])     # single list term -> one applications load for many keys"
-msgstr ""
-
 msgid "lookup('sso_oidc_plugin')"
 msgstr ""
 
@@ -81705,9 +81331,6 @@ msgid "make requirements-archive installs kpmx and runs pkgmgr archive docs/requ
 msgstr ""
 
 msgid "make/__main__.py contains the original implementation."
-msgstr ""
-
-msgid "make: *** No rule to make target 'clean'.  Stop."
 msgstr ""
 
 msgid "makepkg refuses to run as root, so the toolchain, a build user and a passwordless pacman rule must exist before any AUR package is built."
@@ -81792,12 +81415,6 @@ msgid "merged applications view, used for feature gating and for each consumer's
 msgstr ""
 
 msgid "meta dependencies"
-msgstr ""
-
-msgid "meta/info.yml, omitted when absent) and 🛠️ the role README's Quick Setup section."
-msgstr ""
-
-msgid "meta/server.yml                  -> connect-src CSP whitelist (url_bases) templates/wall-config.json.j2    -> default ``servers`` list   (domains)"
 msgstr ""
 
 msgid "micro"
@@ -81896,9 +81513,6 @@ msgstr ""
 msgid "name:      the library/source name (used in the Dockerfile context)"
 msgstr ""
 
-msgid "name: create the shared network ansible.builtin.command:"
-msgstr ""
-
 msgid "named roots + orphaned closure"
 msgstr ""
 
@@ -81918,9 +81532,6 @@ msgid "navigator"
 msgstr ""
 
 msgid "neither the volume nor the database name is known to     the repository, so the engine would have to be guessed."
-msgstr ""
-
-msgid "network"
 msgstr ""
 
 msgid "nextcloud"
@@ -82160,9 +81771,6 @@ msgstr ""
 msgid "openwebui"
 msgstr ""
 
-msgid "openwebui:"
-msgstr ""
-
 msgid "optional `canonical`"
 msgstr ""
 
@@ -82199,9 +81807,6 @@ msgstr ""
 msgid "or rebase"
 msgstr ""
 
-msgid "or transitively via its own enabled service dependencies). \"Required\" was chosen over \"needed\" to express that the service is contractually required by a real consumer, not merely convenient."
-msgstr ""
-
 msgid "or, through the chain, ``python3 -m cli.administration.recover database <generation> localhost``."
 msgstr ""
 
@@ -82227,9 +81832,6 @@ msgid "parallel Sphinx processes."
 msgstr ""
 
 msgid "parallel translation requests."
-msgstr ""
-
-msgid "param (str): query parameter name (default: \"version\") mode  (str): \"qs\" (default) → returns \"?<param>=<mtime>\""
 msgstr ""
 
 msgid "param connect_timeout"
@@ -82287,9 +81889,6 @@ msgid "path-like of the role directory (``roles/<name>``)."
 msgstr ""
 
 msgid "pause between tries."
-msgstr ""
-
-msgid "pct=0.125, min_mb=256, hardcap_mb=1024) }}"
 msgstr ""
 
 msgid "peertube"
@@ -83025,9 +82624,6 @@ msgstr ""
 msgid "python -m cli.administration.inventory.devices ..."
 msgstr ""
 
-msgid "python -m cli.build.docs.readme.overview [--check] [--readme PATH] [--roles-dir DIR]"
-msgstr ""
-
 msgid "python -m cli.meta.ci.architectures [\"amd64 arm64\"]"
 msgstr ""
 
@@ -83050,6 +82646,9 @@ msgid "python -m cli.meta.roles.applications.role_name <app_id> -r <roles_dir>"
 msgstr ""
 
 msgid "python -m utils.inventory.bundle_apps education-suite,startup-essentials"
+msgstr ""
+
+msgid "python -m utils.parse_trace <trace.zip>"
 msgstr ""
 
 msgid "python3 -m cli.meta.ci.dev_runtime images python3 -m cli.meta.ci.dev_runtime distro --image fedora:latest python3 -m cli.meta.ci.dev_runtime matrix --mode rotate --run 42"
@@ -83259,9 +82858,6 @@ msgstr ""
 msgid "resolve-time truth"
 msgstr ""
 
-msgid "resolve_direct_service_roles_from_config() logic."
-msgstr ""
-
 msgid "resolved ``(token, owner)`` per provider role id."
 msgstr ""
 
@@ -83403,9 +82999,6 @@ msgstr ""
 msgid "roles directory, when it is not derived from ``project_root``."
 msgstr ""
 
-msgid "roles package"
-msgstr ""
-
 msgid "roles the traversal must not enter."
 msgstr ""
 
@@ -83415,79 +83008,10 @@ msgstr ""
 msgid "roles tree to read; defaults to the project's own."
 msgstr ""
 
-msgid "roles.svc\\-bkp\\-remote\\-2\\-local package"
-msgstr ""
-
-msgid "roles.svc\\-bkp\\-volume\\-2\\-local package"
-msgstr ""
-
-msgid "roles.svc\\-bkp\\-volume\\-2\\-local.library package"
-msgstr ""
-
-msgid "roles.svc\\-bkp\\-volume\\-2\\-local.library.file\\_has\\_content module"
-msgstr ""
-
-msgid "roles.svc\\-db\\-openldap package"
-msgstr ""
-
-msgid "roles.svc\\-db\\-openldap.filter\\_plugins package"
-msgstr ""
-
-msgid "roles.svc\\-db\\-openldap.filter\\_plugins.build\\_ldap\\_role\\_entries module"
-msgstr ""
-
-msgid "roles.svc\\-runner package"
-msgstr ""
-
-msgid "roles.sys\\-ctl\\-hlth\\-webserver package"
-msgstr ""
-
-msgid "roles.sys\\-ctl\\-hlth\\-webserver.filter\\_plugins package"
-msgstr ""
-
-msgid "roles.sys\\-ctl\\-hlth\\-webserver.filter\\_plugins.web\\_health\\_expectations module"
-msgstr ""
-
-msgid "roles.sys\\-front\\-inj\\-all package"
-msgstr ""
-
-msgid "roles.sys\\-front\\-inj\\-all.filter\\_plugins package"
-msgstr ""
-
-msgid "roles.sys\\-front\\-inj\\-all.filter\\_plugins.inj\\_enabled module"
-msgstr ""
-
-msgid "roles.sys\\-front\\-inj\\-all.filter\\_plugins.inj\\_snippets module"
-msgstr ""
-
-msgid "roles.sys\\-svc\\-cdn package"
-msgstr ""
-
-msgid "roles.sys\\-svc\\-cdn.filter\\_plugins package"
-msgstr ""
-
-msgid "roles.sys\\-svc\\-cdn.filter\\_plugins.cdn\\_dirs module"
-msgstr ""
-
-msgid "roles.sys\\-util\\-git\\-pull package"
-msgstr ""
-
-msgid "roles.web\\-svc\\-logout package"
-msgstr ""
-
-msgid "roles.web\\-svc\\-logout.filter\\_plugins package"
-msgstr ""
-
-msgid "roles.web\\-svc\\-logout.filter\\_plugins.domain\\_filters module"
-msgstr ""
-
 msgid "roles/ directory"
 msgstr ""
 
 msgid "roles_dir — roles directory for the postgres connection split"
-msgstr ""
-
-msgid "roles_dir — roles directory for the static fallback registry"
 msgstr ""
 
 msgid "rotate ``applications.<app>.credentials.*``."
@@ -83598,13 +83122,10 @@ msgstr ""
 msgid "scan for all occurrences of '[' and '{' in the output"
 msgstr ""
 
-msgid "scans role configs from [roles/](../../../../../roles)"
+msgid "scans role configs from `roles/`"
 msgstr ""
 
 msgid "scope: ``host`` (default) restricts to roles in ``group_names``;"
-msgstr ""
-
-msgid "scratch:"
 msgstr ""
 
 msgid "seconds an agent gets to answer its health endpoint"
@@ -83658,15 +83179,6 @@ msgstr ""
 msgid "service whose ``enabled``/``shared`` flag names another role (``'<role>' in group_names``), whose key matches another role's ``provides`` (provision) name, or whose key is another role's own primary service key while both flags are on."
 msgstr ""
 
-msgid "service: synapse target: /data read_only: false              # per-mount override of volume-level when: \"{{ FLAG | bool }}\""
-msgstr ""
-
-msgid "service: synapse target: /etc/synapse/config"
-msgstr ""
-
-msgid "service: synapse target: /var/run/synapse size: 64m                     # per-mount tmpfs size"
-msgstr ""
-
 msgid "service_name may be \"\" → will resolve to get_entity_name(application_id)."
 msgstr ""
 
@@ -83700,9 +83212,6 @@ msgstr ""
 msgid "services.simpleicons.enabled"
 msgstr ""
 
-msgid "services:"
-msgstr ""
-
 msgid "sets `MM_SERVICESETTINGS_ENABLEUSERACCESSTOKENS=true`,"
 msgstr ""
 
@@ -83734,9 +83243,6 @@ msgid "shell in docker"
 msgstr ""
 
 msgid "shopware"
-msgstr ""
-
-msgid "siblings   -> the active sibling application_ids themselves domains    -> each sibling's primary domain (canonical[0]) url_bases  -> each sibling's TLS ``url.base``"
 msgstr ""
 
 msgid "sidecar"
@@ -84363,6 +83869,9 @@ msgstr ""
 msgid "the measurement has samples of it, and"
 msgstr ""
 
+msgid "the member to scan."
+msgstr ""
+
 msgid "the merged applications map."
 msgstr ""
 
@@ -84379,6 +83888,9 @@ msgid "the message the occurrence sits in."
 msgstr ""
 
 msgid "the module results, in execution order."
+msgstr ""
+
+msgid "the module whose public API is being re-exported."
 msgstr ""
 
 msgid "the module's own return dict, tagged with the module that produced it. A module that dies on an unhandled exception never carries ``msg`` -- the AnsiballZ wrapper returns only ``failed`` and ``exception``, whose event holds the sole account of what went wrong."
@@ -84400,6 +83912,9 @@ msgid "the npm registry"
 msgstr ""
 
 msgid "the onion is not involved"
+msgstr ""
+
+msgid "the opened trace archive."
 msgstr ""
 
 msgid "the operator-selected roots (already `disable`-filtered)."
@@ -84667,9 +84182,6 @@ msgstr ""
 msgid "the server is unreachable; every further request would     fail too, so the run stops instead of discarding the rest."
 msgstr ""
 
-msgid "the service runs embedded inside that app's own compose stack rather than centrally. Mutually exclusive with the shared/required axis when enabled is True."
-msgstr ""
-
 msgid "the service's healthcheck entry from services.yml."
 msgstr ""
 
@@ -84865,22 +84377,13 @@ msgstr ""
 msgid "type"
 msgstr ""
 
-msgid "type: bind                        # bind | config | secret may carry source source: \"{{ FOO }}\" read_only: true mode: \"0440\"                      # only for config/secret mounts:"
-msgstr ""
-
-msgid "type: tmpfs mounts:"
-msgstr ""
-
-msgid "type: volume                      # bind | volume | config | secret | tmpfs name: matrix_synapse_data         # OPTIONAL docker volume name; defaults to the key nfs: true                         # only meaningful for type: volume mounts:"
-msgstr ""
-
 msgid "ublock-origin"
 msgstr ""
 
 msgid "ubuntu"
 msgstr ""
 
-msgid "universal = invokable AND NOT matched by any non-universal rule."
+msgid "under applications[app]['services'] each service is counted if:"
 msgstr ""
 
 msgid "unpinned"
@@ -85567,6 +85070,9 @@ msgstr ""
 msgid "utils.recovery.manifest module"
 msgstr ""
 
+msgid "utils.reexport module"
+msgstr ""
+
 msgid "utils.roles package"
 msgstr ""
 
@@ -85861,9 +85367,6 @@ msgstr ""
 msgid "waits until the app is reachable"
 msgstr ""
 
-msgid "want to fail loud (resolution code)."
-msgstr ""
-
 msgid "want-path is optional and MUST be the second positional argument"
 msgstr ""
 
@@ -86024,16 +85527,16 @@ msgstr ""
 msgid "whether the suite reaches its target over Tor. A run against a `.onion` address waits on circuits rather than on the CPU: measured on one Nextcloud variant at equal mode and filesystem, the sidecar took 4817s over Tor against 911s on clearnet, and Tor burns no browser CPU. The CPU divisor cannot describe that phase, so the count is raised instead of derived from cores. Raised by a factor rather than freed, because every worker holds its own circuits."
 msgstr ""
 
-msgid "whisper:"
-msgstr ""
-
 msgid "wildcard tokens (`*`) cannot be mirrored deterministically,"
 msgstr ""
 
-msgid "wildcard: suffix appended to every URI (default '/*') features: config paths ORed to gate an application (default services.sso.enabled) dedup: drop repeated URIs (default true)"
+msgid "wire the cells to the server's write endpoint."
 msgstr ""
 
-msgid "wire the cells to the server's write endpoint."
+msgid "with a lower bound of 1024 MB."
+msgstr ""
+
+msgid "with a lower bound of 512 MB."
 msgstr ""
 
 msgid "with documented defaults (`backend: local`, no `nfs` sub-block required when disabled)."
@@ -86100,27 +85603,8 @@ msgstr ""
 msgid "zammad"
 msgstr ""
 
-msgid "{"
-msgstr ""
-
-#, python-brace-format
-msgid "{   \"app1\": {\"in_roles\": False, \"in_inventory\": True},   \"app2\": {\"in_roles\": True, \"in_inventory\": False}, }"
-msgstr ""
-
-#, python-brace-format
-msgid "{   \"server\": [...],   \"workstation\": [...],   \"universal\": [...], }"
-msgstr ""
-
-#, no-python-format, python-brace-format
-msgid "{% endfor %}"
-msgstr ""
-
 #, no-python-format, python-brace-format
 msgid "{% for app_id in lookup('native_metrics_apps') %} {% include 'roles/' + app_id + '/templates/prometheus.yml.j2' %} {% endfor %}"
-msgstr ""
-
-#, no-python-format
-msgid "{% for entry in lookup('container_extra_hosts',"
 msgstr ""
 
 #, no-python-format, python-brace-format
@@ -86129,10 +85613,6 @@ msgstr ""
 
 #, no-python-format, python-brace-format
 msgid "{% if lookup('prometheus_integration_active', application_id) %} ...prometheus monitoring block... {% endif %}"
-msgstr ""
-
-#, no-python-format, python-brace-format
-msgid "{% set _comm_channels = lookup('active_alertmanager_channels') %}"
 msgstr ""
 
 msgid "{{ 30 | curl }}                      -> curl -s --connect-timeout 5 --max-time 30 --retry 3 --retry-all-errors --retry-delay 2 {{ 300 | curl }}                     -> curl -s --connect-timeout 5 --max-time 300 --retry 3 --retry-all-errors --retry-delay 2 {{ lookup('timeout', 30) | curl }}   -> TIMEOUT_FACTOR-scaled variant"
@@ -86183,12 +85663,6 @@ msgstr ""
 msgid "{{ lookup('container_dns') }}"
 msgstr ""
 
-msgid "{{ lookup('container_extra_hosts') | indent(4) }} {{ lookup('container_extra_hosts',"
-msgstr ""
-
-msgid "{{ lookup('container_extra_hosts', application_id='web-app-nextcloud') | indent(4) }}"
-msgstr ""
-
 msgid "{{ lookup('container_healthcheck', service_name) | indent(4) }} {{ lookup('container_healthcheck', service_name, samples=3) | indent(4) }}"
 msgstr ""
 
@@ -86228,12 +85702,6 @@ msgstr ""
 msgid "{{ lookup('i18n_sample', 'docs', 'de', 'README.md', 5) }}"
 msgstr ""
 
-msgid "{{ lookup('local_mtime_qs', '/a.js', '/b.js', param='v') }}"
-msgstr ""
-
-msgid "{{ lookup('local_mtime_qs', '/path/to/file.css') }} -> \"?version=1712323456\""
-msgstr ""
-
 #, python-brace-format
 msgid "{{ lookup('mcp_servers') }} -> {\"selected\": [...], \"rejected\": [...]}"
 msgstr ""
@@ -86244,19 +85712,10 @@ msgstr ""
 msgid "{{ lookup('minio', minio_consumer_id, 'url') }}"
 msgstr ""
 
-msgid "{{ lookup('node_max_old_space_size', application_id, service_name) }} {{ lookup('node_max_old_space_size', application_id, service_name,"
-msgstr ""
-
 msgid "{{ lookup('objstore', consumer_id) }}"
 msgstr ""
 
 msgid "{{ lookup('objstore', consumer_id, 'url') }}"
-msgstr ""
-
-msgid "{{ lookup('postgres_libraries', ['vector', 'bloom']) }}"
-msgstr ""
-
-msgid "{{ lookup('redirect_uris') }} {{ lookup('redirect_uris', wildcard='/cb') }}"
 msgstr ""
 
 msgid "{{ lookup('role_subnets', 'web-app-bigbluebutton') }}   # ['10.7.7.0/24'] {{ lookup('role_subnets', SOME_ROLE_LIST) }}            # one entry per role"
@@ -86325,9 +85784,6 @@ msgstr ""
 msgid "| `meta/secrets.yml.credentials.<key>`  | `secrets.credentials.<key>`                      |"
 msgstr ""
 
-msgid "}"
-msgstr ""
-
 msgid "‍ Author Information"
 msgstr ""
 
@@ -86389,9 +85845,6 @@ msgid "⚠️ **Warning:** Always back up your database before performing manual
 msgstr ""
 
 msgid "⚠️ After this script runs, WSL2 must be fully restarted before systemd-dependent steps (DNS, AppArmor, etc.) will work."
-msgstr ""
-
-msgid "⚠️ Do not submit this chooser as the final pull request description."
 msgstr ""
 
 msgid "✅"
@@ -86526,9 +85979,6 @@ msgstr ""
 msgid "🐳 **Docker-based** deployment via official `bigbluebutton/docker <https://github.com/bigbluebutton/docker>`__"
 msgstr ""
 
-msgid "👀 Click `View` to render this chooser and make the buttons visible. Then select the template that best matches your change:"
-msgstr ""
-
 msgid "👉"
 msgstr ""
 
@@ -86574,7 +86024,7 @@ msgstr ""
 msgid "💡 Tip: This method is useful when you're using federated login and want to avoid managing separate local admin credentials."
 msgstr ""
 
-msgid "💬 If you need support choosing the right template or preparing your pull request:"
+msgid "💬 [Support and Contact](../SUPPORT.md) · Hub: <https://hub.infinito.nexus/> · Matrix: `#public:infinito.nexus`"
 msgstr ""
 
 msgid "💳 **[PayPal](https://s.veen.world/paypaldonate)**"
@@ -86602,9 +86052,6 @@ msgid "📖 About This Project"
 msgstr ""
 
 msgid "📖 marks the row that replays the role's README instructions after its deploy, and names the mode the replay runs in -- which is the guide's own, not the row's (:mod:`utils.roles.guide`)."
-msgstr ""
-
-msgid "📘 Repository-wide contribution and review expectations:"
 msgstr ""
 
 msgid "📚"
@@ -86757,7 +86204,7 @@ msgstr ""
 msgid "🗃️ **Backlog & Sprint Management:** Create user stories, tasks, and sprints with ease."
 msgstr ""
 
-msgid "🙏 Thank you for your contribution to [https://Infinito.Nexus](https://Infinito.Nexus)."
+msgid "🙏 Thank you for your contribution to [Infinito.Nexus](https://Infinito.Nexus)."
 msgstr ""
 
 msgid "🚦 **Handler-Safe**"
