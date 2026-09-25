@@ -17,9 +17,7 @@ _TOOLING = str(PROJECT_ROOT / "roles" / "web-app-docs" / "files" / "python")
 if _TOOLING not in sys.path:
     sys.path.insert(0, _TOOLING)
 
-untranslated_yaml = importlib.import_module(
-    "infinito_docs.extensions.untranslated_yaml"
-)
+untranslated_yaml = importlib.import_module("infinito_docs.extensions.untranslated.yaml")
 
 
 def _document(source: str):

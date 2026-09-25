@@ -16,7 +16,7 @@ if _TOOLING not in sys.path:
     sys.path.insert(0, _TOOLING)
 
 untranslated_markup = importlib.import_module(
-    "infinito_docs.extensions.untranslated_markup"
+    "infinito_docs.extensions.untranslated.markup"
 )
 
 SOURCE = "/src/docs/testing.md"
