@@ -74,7 +74,7 @@ infinito administration deploy dedicated "$INVENTORY/devices.yml" \
 
 ## Addons
 
-This role force-installs the following Chromium browser extensions via managed Enterprise Policies. They are declared in [meta/addons/](meta/addons/) and rendered into the CRX install list.
+This role force-installs the following Chromium browser extensions via managed Enterprise Policies. They are declared in `meta/addons/` and rendered into the CRX install list.
 
 | Addon | Mechanism | Default state | Bridges |
 |---|---|---|---|

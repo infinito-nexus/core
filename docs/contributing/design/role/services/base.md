@@ -12,7 +12,7 @@ Examples:
 - `web-app-keycloak` provides `oidc`
 - `svc-db-mariadb` provides `mariadb`
 
-Each service entry lives in the provider role's own [meta/services.yml](../../../../../roles), where the file root IS the services map keyed by `<entity_name>` (no `compose:` and no `services:` wrapper).
+Each service entry lives in the provider role's own `meta/services.yml`, where the file root IS the services map keyed by `<entity_name>` (no `compose:` and no `services:` wrapper).
 See [layout.md](layout.md) for the full per-role meta layout.
 
 ## Role-Local Service Metadata 🏷️
@@ -68,7 +68,7 @@ Primary implementation files:
 
 The discovery layer:
 
-- scans role configs from [roles/](../../../../../roles)
+- scans role configs from `roles/`
 - discovers provider entries from `services`
 - derives deploy type and loader bucket from the role name
 - resolves `provides:` and `canonical:`
@@ -88,7 +88,7 @@ Global bucket order:
 4. `web-svc`
 5. `web-app`
 
-Within the same bucket, ordering is refined by `run_after:` declared on the provider role's primary entity in [meta/services.yml](../../../../../roles) (i.e. `services.<primary_entity>.run_after`).
+Within the same bucket, ordering is refined by `run_after:` declared on the provider role's primary entity in `meta/services.yml` (i.e. `services.<primary_entity>.run_after`).
 
 Rules:
 

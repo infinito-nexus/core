@@ -47,7 +47,7 @@ If a role cannot answer those questions, it is probably doing too much.
 
 Bundles are the assembly layer.
 
-[inventories/bundles/servers/](../../../inventories/bundles/servers) describe concrete deployment shapes such as a personal server, a community hub, or a sovereign cloud setup. They decide which roles are active together and which ones stay out.
+`inventories/bundles/servers/` describes concrete deployment shapes such as a personal server, a community hub, or a sovereign cloud setup. They decide which roles are active together and which ones stay out.
 
 For example, the repository already has server bundles such as `community-hub`, `personal-nexus`, and `sovereign-cloud`. Each one combines the same building blocks in a different way for a different operating model.
 
@@ -192,7 +192,7 @@ See [workflow.md](../workflow.md) for the full contribution flow.
 
 If you are trying to understand a change, start here:
 
-- [roles/](../../../roles/) for behavior
+- `roles/` for behavior
 - [inventories/bundles/](../../../inventories/bundles/) for deployment shapes
 - [Makefile](../../../Makefile) and [scripts/](../../../scripts/) for supported commands
 - [lint.md](../actions/testing/lint.md) for code and framework rules

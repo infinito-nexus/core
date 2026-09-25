@@ -150,7 +150,7 @@ Operator-facing instructions for assigning these groups live in [Administration 
 
 ## Addons
 
-Every plugin and mu-plugin is declared in [`meta/addons/`](./meta/addons/) under
+Every plugin and mu-plugin is declared in `meta/addons/` under
 the unified addon contract. The OIDC and WP-Discourse runtime config lives in each addon's `config:` block. Both install paths read those declarations: a `required` addon that fails to install stops the deploy, an optional one warns and is skipped.
 
 | Addon | Mechanism | Default state | Bridges |

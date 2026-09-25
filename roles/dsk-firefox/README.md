@@ -73,7 +73,7 @@ infinito administration deploy dedicated "$INVENTORY/devices.yml" \
 
 ## Addons
 
-Role-level extensions are declared in [`meta/addons/`](./meta/addons/) (unified addon contract, requirement 026):
+Role-level extensions are declared in `meta/addons/` (unified addon contract, requirement 026):
 
 | Addon | Mechanism | Default state | Bridges |
 |-------|-----------|---------------|---------|

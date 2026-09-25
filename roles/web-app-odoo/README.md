@@ -149,11 +149,11 @@ Odoo's functionality is delivered through a modular architecture. The following 
 | **project** | Project management with Kanban boards, Gantt charts, and time tracking |
 | **stock** | Inventory and warehouse management with barcode support |
 
-Additional modules can be enabled by declaring them as `group: optional` addons in [`meta/addons/`](meta/addons/).
+Additional modules can be enabled by declaring them as `group: optional` addons in `meta/addons/`.
 
 ## Addons
 
-Odoo modules are declared as addons in [`meta/addons/`](meta/addons/) per the unified addon contract (requirement 026). The install path reads them from `applications.web-app-odoo.addons`.
+Odoo modules are declared as addons in `meta/addons/` per the unified addon contract (requirement 026). The install path reads them from `applications.web-app-odoo.addons`.
 
 | Addon | Mechanism | Default state | Bridges |
 |-------|-----------|---------------|---------|

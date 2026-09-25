@@ -105,7 +105,7 @@ docker run --rm -it \
 
 ## Addons
 
-This role ships its OIDC login stack and its AI editing stack as unified addons declared in [`meta/addons/`](meta/addons/). All four are MediaWiki extensions installed from upstream at the `REL<major>_<minor>` branch matching the pinned image, and each is gated on a service flag. Secrets are rendered through the role's templates and never inlined into an addon declaration.
+This role ships its OIDC login stack and its AI editing stack as unified addons declared in `meta/addons/`. All four are MediaWiki extensions installed from upstream at the `REL<major>_<minor>` branch matching the pinned image, and each is gated on a service flag. Secrets are rendered through the role's templates and never inlined into an addon declaration.
 
 | Addon | Mechanism | Default state | Bridges |
 |---|---|---|---|

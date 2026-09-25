@@ -6,7 +6,7 @@ This role publishes the Infinito.Nexus documentation for the latest commit and f
 
 ## Overview
 
-One `python:<version>-slim` container runs the service in [files/python/infinito_docs/](./files/python/infinito_docs/):
+One `python:<version>-slim` container runs the service in `files/python/infinito_docs/`:
 
 1. It keeps a git mirror of `services.docs.source_repository` in the `docs_sites` volume and fetches it every `services.docs.fetch_interval` seconds, or later when a build is still running.
 2. `latest` is the last commit of the default branch. It is built at start and rebuilt whenever a fetch finds a new commit; the previous build stays online until the new one replaces it.

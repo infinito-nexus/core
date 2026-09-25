@@ -121,7 +121,7 @@ docker run --rm -it \
 
 ## Addons
 
-Addons are declared in [`meta/addons/`](./meta/addons/) and read at deploy time via `lookup('config', application_id, 'addons')`.
+Addons are declared in `meta/addons/` and read at deploy time via `lookup('config', application_id, 'addons')`.
 
 | Addon | Mechanism | Default state | Bridges |
 |---|---|---|---|

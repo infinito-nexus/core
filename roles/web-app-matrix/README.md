@@ -186,7 +186,7 @@ The ansible flavor maps each true flag to the matching `matrix_<bridge>_enabled`
 ## Addons
 
 The mautrix network bridges are declared in
-[`meta/addons/`](./meta/addons/) as `mechanism: bridge` addons
+`meta/addons/` as `mechanism: bridge` addons
 (requirement 026, Decision 13). Each is `required: false` and **disabled by default**; its
 per-network DB password and its appservice `as_token`/`hs_token` pair are referenced from
 [`meta/secrets.yml`](./meta/secrets.yml) `credentials:`, never inlined. The role renders each

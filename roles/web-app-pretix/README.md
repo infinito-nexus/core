@@ -118,7 +118,7 @@ docker run --rm -it \
 
 ## Addons
 
-Role-level extensions are declared in [`meta/addons/`](meta/addons/) following the unified addon contract (requirement 026).
+Role-level extensions are declared in `meta/addons/` following the unified addon contract (requirement 026).
 
 | Addon | Mechanism | Default state | Bridges |
 |---|---|---|---|

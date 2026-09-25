@@ -118,7 +118,7 @@ docker run --rm -it \
 
 ## Addons
 
-Extensions are declared in [`meta/addons/`](./meta/addons/) under the unified addon contract.
+Extensions are declared in `meta/addons/` under the unified addon contract.
 Each one is installed through the XWiki Extension Manager and pins its upstream version; the Maven coordinate is carried under the addon's `config.id`:
 
 | Addon | Mechanism | Default state | Bridges |

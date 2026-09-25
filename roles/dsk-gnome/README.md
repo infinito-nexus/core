@@ -78,7 +78,7 @@ infinito administration deploy dedicated "$INVENTORY/devices.yml" \
 
 ## Addons
 
-Role-level GNOME Shell extensions are declared in [`meta/addons/`](./meta/addons/) (unified addon contract, requirement 026).
+Role-level GNOME Shell extensions are declared in `meta/addons/` (unified addon contract, requirement 026).
 They are installed through `cli-gnome-extension-manager`, which receives the `action`, `uuid`, and `url` from each addon's `config` payload:
 
 | Addon | Mechanism | Default state | Bridges |

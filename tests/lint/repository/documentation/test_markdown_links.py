@@ -40,6 +40,25 @@ class BrokenLink(NamedTuple):
     line: int
     target: str
     resolved: Path
+    reason: str
+
+
+def _unresolvable(resolved: Path) -> str:
+    """Return why ``resolved`` cannot back a link, empty when it can.
+
+    A directory is only a link target because its README stands in for it:
+    that is what GitHub opens, and what the documentation build resolves the
+    link against. A directory without one renders as a file listing in the one
+    place and as a missing cross-reference in the other.
+
+    Args:
+        resolved: the absolute path a link target resolved to.
+    """
+    if not resolved.exists():
+        return "no such path"
+    if resolved.is_dir() and not (resolved / "README.md").is_file():
+        return "directory without a README.md to stand in for it"
+    return ""
 
 
 def _tracked_md_files(root: Path) -> list[Path]:
@@ -133,13 +152,15 @@ def _check_file(file: Path, root: Path) -> list[BrokenLink]:
         else:
             resolved = (base / path_part).resolve()
 
-        if not resolved.exists():
+        reason = _unresolvable(resolved)
+        if reason:
             broken.append(
                 BrokenLink(
                     file=file,
                     line=line_no,
                     target=raw_target,
                     resolved=resolved,
+                    reason=reason,
                 )
             )
 
@@ -170,7 +191,7 @@ class TestMarkdownLinks(unittest.TestCase):
         ]
         for item in sorted(broken, key=lambda b: (b.file.as_posix(), b.line)):
             rel = item.file.relative_to(root).as_posix()
-            lines.append(f"  {rel}:{item.line}: {item.target!r}")
+            lines.append(f"  {rel}:{item.line}: {item.target!r} - {item.reason}")
         self.fail("\n".join(lines))
 
 

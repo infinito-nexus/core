@@ -96,7 +96,7 @@ To extend support for a new distribution, add the distribution name to the
 lookup dict in [main.yml](./tasks/main.yml). When the new distribution shares
 a package manager with an existing entry, point it at that entry's task file.
 When it brings a new package manager, add a new family file under
-[tasks/](./tasks/) and keep [meta/main.yml](./meta/main.yml) `platforms` in
+`tasks/` and keep [meta/main.yml](./meta/main.yml) `platforms` in
 sync.
 
 ## Further Resources

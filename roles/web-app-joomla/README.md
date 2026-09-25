@@ -61,7 +61,7 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 
 ## Addons
 
-Role-level extensions are declared in [`meta/addons/`](./meta/addons/)
+Role-level extensions are declared in `meta/addons/`
 (unified addon contract, requirement 026):
 
 | Addon | Mechanism | Default state | Bridges |
