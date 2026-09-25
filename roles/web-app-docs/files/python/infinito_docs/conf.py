@@ -56,6 +56,7 @@ extensions = [
     "infinito_docs.extensions.markdown_include",
     "infinito_docs.extensions.parallel_postprocess",
     "infinito_docs.extensions.untranslated_yaml",
+    "infinito_docs.extensions.untranslated_markup",
     "infinito_docs.extensions.yaml_source",
     "infinito_docs.extensions.directory_index",
     "sphinx.ext.autodoc",
