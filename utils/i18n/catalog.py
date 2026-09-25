@@ -90,8 +90,13 @@ def read_catalog(path: Path) -> Catalog:
 def merge(template: Catalog, existing: Catalog | None, code: str) -> Catalog:
     """Return ``existing`` updated to the messages of ``template``.
 
-    A changed source keeps its previous translation as a fuzzy entry, a removed
-    source disappears.
+    A changed source becomes an empty entry, a removed source disappears.
+
+    Babel would instead search every removed message for one resembling the
+    changed source and carry its translation over as a fuzzy entry. That search
+    is quadratic and costs minutes per catalog, while no consumer here reads a
+    fuzzy entry: ``translations``, the API and the docs builder all skip it, and
+    ``pending`` hands it back to the translator anyway.
 
     Args:
         template: catalog of the current sources.
@@ -99,7 +104,7 @@ def merge(template: Catalog, existing: Catalog | None, code: str) -> Catalog:
         code: ISO 639-1 code of the language.
     """
     catalog = existing if existing is not None else new_catalog(template.domain, code)
-    catalog.update(template)
+    catalog.update(template, no_fuzzy_matching=True)
     catalog.obsolete.clear()
     return catalog
 

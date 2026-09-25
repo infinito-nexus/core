@@ -9,18 +9,25 @@ from utils.i18n.catalog import (
     translations,
     write_catalog,
 )
+from utils.i18n.translate import pending
 
 
 class TestMerge(unittest.TestCase):
-    def test_changed_source_keeps_translation_as_fuzzy(self):
+    def test_changed_source_comes_back_empty_for_the_translator(self):
         catalog = merge(build_template([("a", "Hello world")], "core"), None, "de")
         catalog.get("Hello world", context="a").string = "Hallo Welt"
 
         merged = merge(build_template([("a", "Hello world!")], "core"), catalog, "de")
 
         message = merged.get("Hello world!", context="a")
-        self.assertEqual(message.string, "Hallo Welt")
-        self.assertTrue(message.fuzzy)
+        self.assertFalse(message.string)
+        self.assertFalse(message.fuzzy)
+        self.assertEqual(
+            [m.id for m in pending(merged)],
+            ["Hello world!"],
+            "carrying the old translation over would cost a quadratic search for "
+            "a value pending() hands straight back to the translator",
+        )
 
     def test_removed_source_disappears(self):
         catalog = merge(
