@@ -3522,10 +3522,6 @@ msgid "**Docker Compose Integration:** Deploy PhpMyAdmin via a templated Compose
 msgstr "**Docker Compose Integration:** Zabaldu PhpMyAdmin txantiloi bidez."
 
 # libretranslate
-msgid "**Docker Compose**"
-msgstr "**Docker Compose**"
-
-# libretranslate
 msgid "**Docker Compose**   Utilizes the standalone `compose` role to define and bring up containers, networks, and volumes automatically."
 msgstr "**Docker Compose** Erabili standalone `compose` Papera edukiontziak, sareak eta bolumenak automatikoki definitzeko eta biltzeko."
 
@@ -9713,10 +9709,6 @@ msgid "**account**"
 msgstr "**kontua**"
 
 # libretranslate
-msgid "**akaunting**"
-msgstr "**Akaunting**"
-
-# libretranslate
 msgid "**architecture** -- which CPU architecture the row deploys on, and through :func:`utils.github.variant.pools.runner_of` which runner it lands on. It rotates on the position directly rather than as a further odometer digit: two values against five distros and fifteen distro/filesystem positions are coprime with both, so walking it fastest still reaches every pairing, while making it the slowest digit would hand a role with few rows a single architecture forever. A role may narrow the pool to one value in ``meta/services.yml`` when only that hardware can run it."
 msgstr "**arkitektura** - zein PUZaren arkitekturak ezartzen duen errenkada eta horren bidez :func:`utils.github.variant.pools.runner_of` Korrika egiten duena. Posizioan biratu egiten da, ez beste odometro-digitu gisa: bi balio bost distroren aurka eta hamabost distro/fitxategi-sistemako posizio biekin batera, eta, beraz, azkar ibiliz gero, parekatze guztietara iristen da. Rol batek igerilekua balio bakar batera mugatu dezake ``meta/services.yml`` hardware horrek bakarrik exekuta dezake."
 
@@ -9756,22 +9748,6 @@ msgstr "**babeskopiaren erroa** (direktorioa) → aurkitu + berreskuratu `nfs �
 msgid "**baseline exclusions** — `web-app-fider` and `web-app-bookwyrm` (also keycloak-job, n8n) were red before the tor branch and stay out of scope for it; bookwyrm fails its oauth2 trusted-header session spec, fider its baseline. Fix separately from the onion work. espocrm has left this list: its onion variant failed in the shared admin persona (fixed in b97cf8888) and its clearnet variant returns HTTP 500 on GET /api/v1/App/user, cause still open."
 msgstr "**oinarrizko bazterketak** - `web-app-fider` eta `web-app-bookwyrm` (teklak-job, n8n) gorri-gorriak ziren tor-aren adarren aurretik, eta ez zion lekurik uzten; bookwyrm-ek bere oauth-a huts egiten du.2 Fidatu-buruaren saioko spec-a, bere oinarri-lerroa finkatzen du. Konpondu tipula lanetik aparte. espocrmek zerrenda hau utzi du: tipula-aldaerak huts egin du partekatutako administratzaile-pertsonan (b-n finkatua97cf8888) eta bere aldaera argiak HTTP itzultzen du 500 GET /api/v1/App/user, oraindik irekita dago."
 
-# libretranslate
-msgid "**baserow**"
-msgstr "**baserow**"
-
-# libretranslate
-msgid "**bigbluebutton**"
-msgstr "**bigbluebutton**"
-
-# libretranslate
-msgid "**bluesky**"
-msgstr "**bluesky**"
-
-# libretranslate
-msgid "**bookwyrm**"
-msgstr "**bookwyrm**"
-
 msgid "**both red, different errors**: two causes, not one. Split them."
 msgstr ""
 
@@ -9791,14 +9767,6 @@ msgstr "**castling.club** ActivityPub protokoloan eraikitako xake-zerbitzari fed
 msgid "**cdn**"
 msgstr "**cdn**"
 
-# libretranslate
-msgid "**chess**"
-msgstr "**xakea**"
-
-# libretranslate
-msgid "**collabora**"
-msgstr "**Collabora**"
-
 msgid "**company**: Kevin Veen-Birkenbach https://www.veen.world"
 msgstr ""
 
@@ -9807,16 +9775,8 @@ msgid "**compose** is the default. Single host, local docker volumes, no cluster
 msgstr "**Idatzi** lehenetsia da. Ostalari bakarra, bertako docker bolumenak, klusterren kontzientziarik ez. Rol bakoitzak modu honetan funtzionatzen du, aldatu gabe."
 
 # libretranslate
-msgid "**confluence**"
-msgstr "**konfluentzia**"
-
-# libretranslate
 msgid "**contacts**"
 msgstr "**kontaktuak**"
-
-# libretranslate
-msgid "**coturn**"
-msgstr "**coturn**"
 
 # libretranslate
 msgid "**crm**"
@@ -9829,10 +9789,6 @@ msgstr "**Css**"
 # libretranslate
 msgid "**dashboard**"
 msgstr "**dashboard**"
-
-# libretranslate
-msgid "**decidim**"
-msgstr "**decidim**"
 
 # libretranslate
 msgid "**default.** Probe the host before every run and snapshot when btrfs or zfs is proven safe; otherwise log the reason and copy live."
@@ -10943,10 +10899,6 @@ msgid "**device** (`/dev/sdb1`, image file) → device step first (restores the 
 msgstr "**gailua** (`/dev/sdb1`, Irudi-fitxategia) → gailuaren urratsa lehenik (zuhaitza bere leheneratze-errora itzultzen du)orduan `nfs → volume → secrets`"
 
 # libretranslate
-msgid "**discourse**"
-msgstr "**diskurtsoa**"
-
-# libretranslate
 msgid "**distro** -- which declared distribution the row deploys on. Per row rather than per run, so one sweep proves every distribution instead of proving one and claiming nothing about the other four, and a red row still names the exact distribution it died on."
 msgstr "**distro** eta banaketak errenkada zabaltzen duela adierazten du. Errenkada bakoitzeko, eta ez exekuzioko, beraz, miaketa batek banaketa bakoitza frogatzen du bata frogatu ordez eta beste lauez ezer esan gabe, eta errenkada gorri batek bere banaketa zehatza izendatzen du."
 
@@ -10968,22 +10920,6 @@ msgid "**dual-family providers** — the one real remaining design gap. On a CI 
 msgstr "**Familia bikoitzeko hornitzaileak** - geratzen den diseinu-hutsune bakarra. CI onion nodo batean, tor-enabled hornitzaileak (adibidez, mastodon) onion-exclusive dira: domeinu-zerrendak bakarrik dauka `.onion` kanonikoa da, ez dago koxkarik. Familia-lerrokatzeen ebazlea (`utils/tls_common.py:align_domain_to_consumer`, Hariztatutakoa `plugins/lookup/tls.py`) Kasu horretan, fidantza zuzena da, beraz, kontsumitzaile garbi batek onion URL bat jasotzen du, eta ezin du ez ebatzi ez lortu. Lehenengo froga gogorrak: `web-app-fediwall` aldaera 2 (tor=false) errendatzea `microblog.<onion>` sartu `wall-config.json.servers`; clearnet arakatzailea (ez SOCKS) garaiak horma-elementu mastodonoen zain (`test-walls-surface-posts.js:24`, determinista erretretetan zehar)Klase bera mantentzea espero da `web-app-bigbluebutton`, `web-app-nextcloud`, `web-app-opentalk` eta `web-app-jitsi` gorria (aplikazio gardenak, zeinen parekoak errefraktatzen dituen... OIDC/cdn/matomo/logout - Onion-primary ebazpena)Norabide finkoa: hornitzaileek bi familiak argitaratu behar dituzte (onion canonical-aren ondoan) Beraz, ebazpenak zerbait du lerrokatzeko; atzera botatakoan berriro aplikatzea barne. `KC_HOSTNAME` Keycloak-eko tipula-atea, aurreko sortatik bota zena, familia bikoitza existitzen denean bakarrik behar delako."
 
 # libretranslate
-msgid "**erpnext**"
-msgstr "**erpnext**"
-
-# libretranslate
-msgid "**espocrm**"
-msgstr "**espocrm**"
-
-# libretranslate
-msgid "**fediwall**"
-msgstr "**fediwall**"
-
-# libretranslate
-msgid "**fider**"
-msgstr "**fider**"
-
-# libretranslate
 msgid "**file**"
 msgstr "**fitxategia**"
 
@@ -10992,24 +10928,8 @@ msgid "**filesystem** -- which kind the row's docker data root runs on. The two 
 msgstr "**fitxategi-sistema** -- zein motakoa den errenkadako datuen erroa. Biek irakurtzen dute errenkadaren posizioa, odometro bat bezala: distroa digitu baxua da eta fitxategi-sistema handia, beraz, elkarren segidako errenkada bakoitza diagonal bat baino gehiago ibiltzen da. Biak posizio berean jartzeak bakarrik estaliko luke ``n`` eta ``n x m`` bi igerilekuak luzera berekoak direnean, eta miaketa batek ere ez badu desblokeatzen, berdin mugitzen delako."
 
 # libretranslate
-msgid "**flowise**"
-msgstr "**fluxua**"
-
-# libretranslate
-msgid "**friendica**"
-msgstr "**lagunaica**"
-
-# libretranslate
 msgid "**fullchain.pem** → The certificate"
 msgstr "**fullchain.pem** → Ziurtagiria"
-
-# libretranslate
-msgid "**funkwhale**"
-msgstr "**funkwhale**"
-
-# libretranslate
-msgid "**fusiondirectory**"
-msgstr "**fusio-direktorioa**"
 
 # libretranslate
 msgid "**gVisor runtime:** The pinned ``runsc`` release is fetched to ``/usr/local/bin/runsc`` and verified against its published SHA-512 checksum. The Kata shim is taken from the host as it is; the role does not install it."
@@ -11080,14 +11000,6 @@ msgid "**galaxy_tags**: ['peertube', 'video-hosting', 'docker', 'compose', 'dece
 msgstr ""
 
 # libretranslate
-msgid "**gitea**"
-msgstr "**gitea**"
-
-# libretranslate
-msgid "**gitlab**"
-msgstr "**gitlab**"
-
-# libretranslate
 msgid "**host** (`[user@]host`) → rsync-pull the whole backup tree, then `nfs → volume → secrets`"
 msgstr "**ostalaria** (`[user@]host`) → erresinkronizatu babeskopiaren zuhaitz osoa, orduan `nfs → volume → secrets`"
 
@@ -11100,20 +11012,8 @@ msgid "**https on the onion IdP — investigated and REJECTED, do not re-derive.
 msgstr "**https on on the onion IdP - ikertu eta berrikusi, ez errebokatu.** OIDC Discovery / RFC 8414 https jaulkitzaile bat nahi dut, eta Keycloak esklusiboak ez du ezer, bezero-liburutegi zorrotzek uko egiten diote. Onion TLS zerbitzatzea lau gauza independentetan blokeatuta dago, ordena honetan: (1) `roles/svc-net-tor/templates/torrc.j2` argitaratu soilik `HiddenServicePort 80`, eta paperik ez du adierazten 443 barruan `ports.public`/`ports.local`, Horrela `lookup('tor_ports')` Ezin da inoiz emititu, TLS irauliz gero, Keycloak ezin du Torren gainean erabat atzigarri egin, zeren eta `nginx_ssl_header.j2` bat if/ele eta portua da 80 desagertu egiten da; (2) `roles/sys-front-tls-selfsigned/tasks/00_core.yml` CN bat idazten du, X gainezkatzen duena.509da 64-byteko txanoa a 62- V karakterea3 onion - `group_vars/all/02_tls.yml` Dagoeneko hau babesten du erroko ZEarentzat eta beste inon ez; (3) `nginx_ssl_header.j2` HSTS adar berean igortzen du, eta arakatzaileek ez dute klik egiten HSTS ostalarian kate ez-fidagarri batekin, beraz, auto-sinadurak blokeatu egiten ditu benetako erabiltzaileak, Playwright-en ikustezina den bitartean. `ignoreHTTPSErrors`; (4) zero libcurl kontsumitzaile finkatzen ditu, RFC delako 7686 Errefusa izen bereizmenean gertatzen da eta eskema-independentea da. Desblokeatzeak ZE bat behar du vrako arazoekin3 `.onion` (HARICA, CA/B Forumeko botoa 144) - Erosketa, ez kodea. Ordura arte, konsumatzaile-konpontzaileak zutik zeuden: SOCKS proxy-a libcurl bezeroentzat. peertube ez dago haien artean, paper garbi bat da."
 
 # libretranslate
-msgid "**hugo**"
-msgstr "**hugo**"
-
-# libretranslate
 msgid "**iptables Rule Adaptation:** Modifies iptables to allow forwarding and NAT masquerading for the WireGuard client."
 msgstr "**iptables Rule Adaptation:** Iiptableak eraldatzen ditu WireGuard bezeroaren birbideratzea eta NAT maskaratzea baimentzeko."
-
-# libretranslate
-msgid "**jenkins**"
-msgstr "**jenkins**"
-
-# libretranslate
-msgid "**jira**"
-msgstr "**jira**"
 
 # libretranslate
 msgid "**jitsi**"
@@ -11123,48 +11023,20 @@ msgstr "**jitsi**"
 msgid "**joomla local-login fallback spec** — `test-oidc-fallback.js:52` (the `?fallback=local` emergency hatch: local Joomla admin form login must reach the control panel). Root cause UNCONFIRMED. It is independent of the fixed OIDC-login spec: the fallback path short-circuits before the plugin's server-side discovery, so the committed `extra_hosts` fix does not cover it. The `secure => true` sticky-cookie hypothesis was rejected (`.onion` is a potentially-trustworthy origin and the e2e Firefox sets `dom.securecontext.allowlist_onions`, so Secure cookies are accepted over plain-http onion). Next step when it fails again post-fix: isolate the post-submit URL — Keycloak redirect (cookie lost) vs. form reject vs. slow control-panel render."
 msgstr "**joomla local-login fallbackspec** - `test-oidc-fallback.js:52` (eta `?fallback=local` larrialdiko ataka: tokiko Joomla admin inprimakiak kontrol-panelera iritsi behar du). Erroa sortu da. OIDC-login spec finkoarekiko independentea da: pluginaren zerbitzariaren aldeko aurkikuntzaren aurreko ibilbide laburra, beraz, konprometitua `extra_hosts` Konponduk ez du estaltzen. The `secure => true` Cookie itsaskorraren hipotesia baztertu egin da (`.onion` jatorri Fidagarria da eta e2Firefoxen multzoak `dom.securecontext.allowlist_onions`, Beraz, cookie seguruak onartzen dira 'http onion'-en bidez). Hurrengo urratsa, berriro huts egiten duenean: isolatu URL azpiazpikoa - Keycloak birbideratzea (cookie-a galduta) vs. formak errefusatu egiten du kontrol-paneleko errendatze motela."
 
-# libretranslate
-msgid "**joomla**"
-msgstr "**joomla**"
-
-# libretranslate
-msgid "**keycloak**"
-msgstr "**keycloak**"
-
-# libretranslate
-msgid "**kix**"
-msgstr "**kix**"
-
 msgid "**kubernetes** (future) is reserved as a third render backend consuming the same per-role inputs."
 msgstr ""
-
-# libretranslate
-msgid "**lam**"
-msgstr "**lam**"
 
 # libretranslate
 msgid "**legal**"
 msgstr "**legala**"
 
 # libretranslate
-msgid "**libretranslate**"
-msgstr "**libretranslate**"
-
-# libretranslate
 msgid "**license**: Infinito.Nexus Community License (Non-Commercial)"
 msgstr "**lizentzia**: Infinito.Nexus Komunitatearen lizentzia (Ez komertziala)"
 
 # libretranslate
-msgid "**listmonk**"
-msgstr "**listmonk**"
-
-# libretranslate
 msgid "**litellm**"
 msgstr "**Liellm**"
-
-# libretranslate
-msgid "**littlejs**"
-msgstr "**littlejs**"
 
 msgid "**local green, CI red**: the failure is in the axis the local stack does not have. Read the CI artifact before touching the role."
 msgstr ""
@@ -11177,61 +11049,13 @@ msgid "**logout**"
 msgstr "**saioa**"
 
 # libretranslate
-msgid "**magento**"
-msgstr "**magento**"
-
-# libretranslate
-msgid "**mailu**"
-msgstr "**mailua**"
-
-# libretranslate
-msgid "**mastodon**"
-msgstr "**mastodon**"
-
-# libretranslate
 msgid "**matomo container health flake (checkmk batch)** — in the checkmk job the 4th deploy play failed at `Wait for Matomo container to be healthy` with `container inspect: map has no entry for key \"State\"` for the whole retry window (container started, then vanished — likely crash + prune). Plays 1–3 in the SAME job deployed matomo healthy, so classified transient (resource/prune pressure after ~3h). No code fix derivable. If it recurs, investigate as a real matomo crash/OOM (container logs, mem_limit)."
 msgstr "**matomo edukiontziaren osasuna (checkmk batch)** - Checkmk-en lanean 4huts egin du deploy jokoak `Wait for Matomo container to be healthy` honekin: `container inspect: map has no entry for key \"State\"` leiho osoan zehar (edukiontzia hasi zen, gero desagertu egin zen, ziurrenik kraskatu + prune). Plays 1-3 SAMEren lanean matomo osasuntsu hedatua, beraz, aldi baterako sailkatua (baliabidea/pruneko presioa ~ ondoren3h)Ez dago kode finkorik. Berriro gertatzen bada, ikertu benetako matomo-istripu gisa (edukiontzien egunkariak, mem_limit)."
-
-# libretranslate
-msgid "**matomo**"
-msgstr "**matomo**"
-
-# libretranslate
-msgid "**matrix**"
-msgstr "**matrizea**"
-
-# libretranslate
-msgid "**mattermost**"
-msgstr "**materia**"
-
-# libretranslate
-msgid "**mediawiki**"
-msgstr "**mediawiki**"
-
-# libretranslate
-msgid "**mig**"
-msgstr "**migratu**"
-
-# libretranslate
-msgid "**mini-qr**"
-msgstr "**mini-qr**"
-
-# libretranslate
-msgid "**minio**"
-msgstr "**minio**"
-
-# libretranslate
-msgid "**mobilizon**"
-msgstr "**mobilizon**"
 
 # libretranslate
 #, no-python-format
 msgid "**mode** -- which of ``compose``/``swarm``/``host`` the row deploys in, drawn from the modes the role actually offers. In practice that is at most two: swarm requires the role to ship its own stack, host requires it not to. ``(position + sweep) % len(offered)`` therefore flips a row between its two modes on consecutive sweeps."
 msgstr "**modua** -Zein? ``compose``/``swarm``/``host`` errenkada hedatzen da, benetan eskaintzen dituen moduetatik marraztua. Praktikan, bi izaten dira gehienetan: pilak bere lekua behar du, ostalariak ez du behar. ``(position + sweep) % len(offered)`` Beraz, bere bi moduen arteko errenkada irauli egiten du, hurrenez hurren."
-
-# libretranslate
-msgid "**moodle**"
-msgstr "**moodle**"
 
 # libretranslate
 msgid "**n8n**"
@@ -11240,10 +11064,6 @@ msgstr "**n8n**"
 # libretranslate
 msgid "**navigator**"
 msgstr "**nabigatzailea**"
-
-# libretranslate
-msgid "**nextcloud**"
-msgstr "**Nextcloud**"
 
 # libretranslate
 msgid "**npm Installation:** Ensures the ``npm`` package manager is installed."
@@ -11258,57 +11078,13 @@ msgid "**odoo**"
 msgstr "**odoo**"
 
 # libretranslate
-msgid "**onlyoffice**"
-msgstr "**bulegoa bakarrik**"
-
-# libretranslate
-msgid "**opencloud**"
-msgstr "**opencloud**"
-
-# libretranslate
-msgid "**openproject**"
-msgstr "**openproject**"
-
-# libretranslate
-msgid "**opentalk**"
-msgstr "**opentalk**"
-
-# libretranslate
 msgid "**openwebui**"
 msgstr "**openwebui**"
-
-# libretranslate
-msgid "**peertube**"
-msgstr "**peertube**"
-
-# libretranslate
-msgid "**pgadmin**"
-msgstr "**pgadmin**"
-
-# libretranslate
-msgid "**phpldapadmin**"
-msgstr "**phpldapadmin**"
-
-# libretranslate
-msgid "**phpmyadmin**"
-msgstr "**phpmyadmin**"
-
-# libretranslate
-msgid "**pixelfed**"
-msgstr "**pixelfed**"
 
 # libretranslate
 #, python-brace-format
 msgid "**platforms**: [{'name': 'ArchLinux', 'versions': ['all']}, {'name': 'Debian', 'versions': ['all']}, {'name': 'EL', 'versions': ['all']}, {'name': 'Fedora', 'versions': ['all']}, {'name': 'Ubuntu', 'versions': ['all']}]"
 msgstr "**plataformak**: [{'name': 'ArchLinux', 'versions': ['all']}, {'name': 'Debian', 'versions': ['all']}, {'name': 'EL', 'versions': ['all']}, {'name': 'Fedora', 'versions': ['all']}, {'name': 'Ubuntu', 'versions': ['all']}]"
-
-# libretranslate
-msgid "**postmarks**"
-msgstr "**laster-markak**"
-
-# libretranslate
-msgid "**pretix**"
-msgstr "**pretix**"
 
 # libretranslate
 msgid "**privkey.pem** → The private key"
@@ -11317,10 +11093,6 @@ msgstr "**privkey.pem** → Gako pribatua"
 # libretranslate
 msgid "**project**"
 msgstr "**proiektua**"
-
-# libretranslate
-msgid "**prometheus**"
-msgstr "**prometheus**"
 
 # libretranslate
 msgid "**role_name**: keyboard-color"
@@ -11333,10 +11105,6 @@ msgstr "**Erruleta gurpila**"
 # libretranslate
 msgid "**server-side OIDC reachability candidates** — joomla failed because its app container performs server-side OIDC discovery against `http://auth.<onion>` without an `extra_hosts` mapping. Roles with the same mechanic and no `container_extra_hosts` lookup yet (fix is the same one-line lookup, apply on CI evidence): wordpress (daggerhart plugin) and mediawiki (PluggableAuth) are structurally identical PHP in-app plugins (high likelihood); discourse is now confirmed and pinned (run 33445831564, job Nextcloud#7); jenkins, jira, confluence, odoo, openwebui, pretix, zammad, semaphore, jellyfin, listmonk, xwiki, mastodon consume the issuer server-side too (unverified network path). oauth2-proxy-based apps are NOT affected (proven green: prometheus admin SSO). Two names have left this list on evidence: mobilizon got the lookup in 0e39f3fad after its code-to-token call raised OAuth2.Error Connection refused twenty-four times, and gitlab was NEVER a member - run 31756560361 shows it resolving and connecting (peeraddr=172.30.0.10:443); its failure was the openid_connect gem rebuilding the discovery URL over https regardless of the issuer scheme, fixed in 2389b6e38."
 msgstr "**OIDCren irisgarritasuneko hautagaiak** - joomlak huts egin du bere aplikazioaren edukiontziak OIDC zerbitzariaren aldeko aurkikuntza egiten duelako. `http://auth.<onion>` gabe `extra_hosts` mapatzen. Funtzioak mekanikari berarekin eta ez `container_extra_hosts` bilaketa oraindik (zuzenketa lerro bakarreko bilaketa bera da, aplikatu CI ebidentzian): WordPress (daggerhart plugina) eta mediawiki (Autentifikatu) PHP aplikazioko plugin egiturazko berdinak dira (probabilitatea); hitzaldia baieztatu eta itsatsia dago (korrika 33445831564, Nextcloud# lana7); jenkins, jira, confluence, odoo, openwebui, pretix, zammad, semaphore, jellyfin, listmonk, xwiki, mastodon-ek ere jaulkitzailearen zerbitzaria kontsumitzen du. (egiaztatu gabeko sareko bidea)oauth2-proxy-an oinarritutako aplikazioek ez dute eraginik. (berde frogatua: prometheus admin SSO)Bi izenek utzi dute zerrenda hau ebidentzian: mobilizon-ek bilaketa egin du 0e39f3bere kode-token deiaren ondoren OAuth2.Error Konexioak hogeita lau aldiz ukatu zuen, eta gitlab ez zen inoiz kide izan. 31756560361 erakusten du konpontzen eta konektatzen (peeraddr=172.30.0.10:443)bere hutsegitea izan zen; openid_connect Harribitxia da aurkikuntzaren URLa berreraikitzea https bidez, jaulkitzailearen eskema kontuan hartu gabe. 2389b6e38."
-
-# libretranslate
-msgid "**shopware**"
-msgstr "**denda**"
 
 # libretranslate
 msgid "**simpleicons**"
@@ -11363,10 +11131,6 @@ msgid "**stock**"
 msgstr "**stocka**"
 
 # libretranslate
-msgid "**suitecrm**"
-msgstr "**suitecrm**"
-
-# libretranslate
 msgid "**swarm** (v1) is opt-in per host via Ansible group membership. Adds: multi-host cluster, overlay networks, NFS-backed shared volumes, rolling updates, placement constraints."
 msgstr "**ugari** (v1) Ansible taldeko kidearen bidez aukeratzen da. Gehitu: ostalari anitzeko klusterra, sare gainjarriak, NFSk babestutako bolumen partekatuak, ijezketa-eguneraketak, kokapen-mugak."
 
@@ -11381,10 +11145,6 @@ msgstr "**sys-stk-front-base** aplikazio gehienek behar duten aurreko geruza est
 # libretranslate
 msgid "**systemd-resolved** stub listener disabled to avoid port conflicts."
 msgstr "**konponduta** last listener desgaituta portuko gatazkak saihesteko."
-
-# libretranslate
-msgid "**taiga**"
-msgstr "**taiga**"
 
 # libretranslate
 msgid "**test-development environment jobs** — all 5 distro jobs (arch, debian, ubuntu, fedora, centos) hit the 4h30m cap under congestion while still progressing (playwright image pull). Environmental, no code fix - distinct from the distro sweep's own budget, which did have one: 508669809 books a budget SIGKILL as skipped, which ad9222630 had only done for SIGTERM; note that onion e2e inherently lengthens the routine (×5 onion timeouts, circuit waits), so under congestion these jobs are the first to hit the cap."
@@ -11409,24 +11169,8 @@ msgid "**website**"
 msgstr "**webgunea**"
 
 # libretranslate
-msgid "**wordpress**"
-msgstr "**WordPress**"
-
-# libretranslate
 msgid "**xmpp**"
 msgstr "**xmpp**"
-
-# libretranslate
-msgid "**xwiki**"
-msgstr "**xwiki**"
-
-# libretranslate
-msgid "**yourls**"
-msgstr "**zurea**"
-
-# libretranslate
-msgid "**zammad**"
-msgstr "**zammad**"
 
 # libretranslate
 msgid "**⚠ Behavior Changes**"
@@ -13751,6 +13495,9 @@ msgstr "Inbentarioan paper bat jar daiteke hiru bidetatik eta bata bestearengand
 msgid "A role declares `meta/mcp.yml` when it actually serves or consumes MCP. The file is a capability descriptor, not a service entry: no single role provides MCP, so the service registry cannot pair provider and consumer, and the `mcp_consumer` flag in `meta/services.yml` does it instead. Vocabulary lives in [`utils/roles/applications/mcp.py`](../../../../../utils/roles/applications/mcp.py); the hard lint is [`test_mcp_schema.py`](../../../../../tests/lint/ansible/services/test_mcp_schema.py)."
 msgstr "Rolak adierazten du `meta/mcp.yml` MCP zerbitzatzen edo kontsumitzen duenean. Fitxategia gaitasun-deskriptorea da, ez zerbitzu-sarrera bat: rol bakar batek ere ez du MCP ematen, beraz, zerbitzu-erregistroak ezin du hornitzaile eta kontsumitzailea parekatu, eta zerbitzu-erregistroak ezin du hornitzaile eta kontsumitzailea elkartu. `mcp_consumer` bandera `meta/services.yml` Horren ordez. Vocabulary bizi da [`utils/roles/applications/mcp.py`](../../../../../utils/roles/applications/mcp.py); lint gogorra da [`test_mcp_schema.py`](../../../../../tests/lint/ansible/services/test_mcp_schema.py)."
 
+msgid "A role declares it twice and the two may differ: the ``README.md`` heading is what a reader sees, ``galaxy_info.name`` what the metadata carries. The heading wins where both exist, because the documentation is built from it."
+msgstr ""
+
 msgid "A role directory name is never an English phrase, so it is protected wherever it appears. A title is a single word often enough that the two readings collide: ``Unbound`` is a DNS resolver and an adjective, ``Shell`` a role and a common noun. Measured over the catalogs, the capital separates them: of 47932 capitalised occurrences the translator altered 22 percent, among them ``(Unbound, etc.)`` turning into ``(Ungebunden, etc.)``, while the 40698 lowercase ones it altered in 40 percent of cases and those readings were the common noun the text meant (``shell extensions``, ``user-driven documentation``)."
 msgstr ""
 
@@ -14284,10 +14031,6 @@ msgstr "AIEditingAssistant"
 # libretranslate
 msgid "AOF persistence for cached data."
 msgstr "Datuak gordetzeko AOF iraunkortasuna."
-
-# libretranslate
-msgid "API"
-msgstr "API"
 
 # libretranslate
 msgid "API (STRICT):"
@@ -15487,10 +15230,6 @@ msgid "Aggressively pruned Docker artifacts between distro runs"
 msgstr "Docker-en artefaktu oldarkorrak distroen artean"
 
 # libretranslate
-msgid "Akaunting"
-msgstr "Akaunting"
-
-# libretranslate
 msgid "Akaunting Container: `compose exec -it akaunting bash`"
 msgstr "Akaunting edukiontzia: `compose exec -it akaunting bash`"
 
@@ -16166,6 +15905,9 @@ msgstr "Azpian addon bat `meta/addons/` Deklarazioa `incompatible_plugins` zerre
 # libretranslate
 msgid "An addon whose pinned version is behind the latest upstream release."
 msgstr "Gehigarri bat, bere bertsio pindua korrontearen azken argitalpenaren atzean dagoena."
+
+msgid "An address is matched before that, on the raw text: masking protects the address of ``mailto:a@b.c`` but leaves the scheme behind, so its prose reads as a word."
+msgstr ""
 
 # libretranslate
 msgid "An app that needs an extra mapper MUST add it through a per-client scope. See [nextcloud.json.j2](../../../../roles/web-app-keycloak/templates/import/scopes/nextcloud.json.j2) for the precedent: a dedicated scope holds the Nextcloud-specific UID and quota mappers and is attached only to the Nextcloud client."
@@ -17770,10 +17512,6 @@ msgid "Baseline scenarios (reachability, CSP, canonical-domain DOM assertion, lo
 msgstr "Oinarrizko agertokiak (helgarritasuna, CSP, DOMaren baieztapen kanonikoa, azken egoeratik hasita) Ez da inolako zerbitzutan sartu behar. Zerbitzu partekatu bakoitza desgaituta duen zabalkuntzak oinarri-suite bat utzi behar du oraindik."
 
 # libretranslate
-msgid "Baserow"
-msgstr "Baserow"
-
-# libretranslate
 msgid "Baserow documents a native built-in MCP server."
 msgstr "Baserow-ek MCP zerbitzariko jatorrizko bat aurkezten du."
 
@@ -18109,10 +17847,6 @@ msgid "Biber keeps a runnable journey: `files/playwright/test-ldap-variant.js` d
 msgstr "Biber-ek bidaia errepikakorra egiten du: `files/playwright/test-ldap-variant.js` LDAPeko jatorrizko saioa gidatzen du eta `files/playwright/test-profile-readonly.js` Profilaren eremu itxiak baieztatzen ditu. Administratzailearen pertsonarako bide-izena urrats zabal bat da, guneko administratzaileari lehendik daukan pertsonaren kredentziala ematen diona."
 
 # libretranslate
-msgid "BigBlueButton"
-msgstr "BigBlueButton"
-
-# libretranslate
 msgid "Binary fixtures (sample images, videos, …) MUST live under `roles/<role>/files/playwright/fixtures/`. The `*.js` glob does not ship binaries or subdirectories, so the runner stages the whole `fixtures/` directory next to the tests; specs load a fixture via `path.join(__dirname, \"fixtures\", \"<name>\")`."
 msgstr "Finture bitarrak (irudiak, bideoak...) Azpian bizi behar da `roles/<role>/files/playwright/fixtures/`. The `*.js` Korrespondentziak ez du bitarrik edo azpidirektoriorik bidaltzen, beraz, korrikalariak dena antolatzen du. `fixtures/` probaren ondoko direktorioa; specs-ek konponketa bat kargatzen dute `path.join(__dirname, \"fixtures\", \"<name>\")`."
 
@@ -18197,10 +17931,6 @@ msgid "Blue-ray Disc"
 msgstr "Blue-ray diskoa"
 
 # libretranslate
-msgid "Bluesky"
-msgstr "Bluesky"
-
-# libretranslate
 msgid "Bluesky login-broker"
 msgstr "Bluesky-ren saio-hasiera"
 
@@ -18211,10 +17941,6 @@ msgstr "Gorputz-testua emojiak erabil ditzake irakurgarritasuna laguntzen dutene
 # libretranslate
 msgid "Body text MAY use emojis where they improve readability."
 msgstr "Gorputz-testuak emojiak erabil ditzake irakurgarritasuna hobetzeko."
-
-# libretranslate
-msgid "BookWyrm"
-msgstr "BookWyrm"
 
 # libretranslate
 msgid "BookWyrm provides a federated social network for books built on ActivityPub. Each instance can be private, invitation-only, or open for public registration. Users can import/export book lists, interact with others across the Fediverse, and maintain their own curated reading environment. As an admin, you can configure moderation tools, content rules, and federation policies to suit your community."
@@ -18550,10 +18276,6 @@ msgstr "Zubiak (zerbitzua → papera)"
 # libretranslate
 msgid "Bridges: in-repo dependency vs network bridge"
 msgstr "Zubiak: in-repo dependency vs sareko zubia"
-
-# libretranslate
-msgid "Bridgy Fed"
-msgstr "Bridgy Fed"
 
 # libretranslate
 msgid "Briefly describe the CI/CD or pipeline change and the expected effect."
@@ -19815,10 +19537,6 @@ msgid "Cert generation, Nexus repo bootstrap, and runner trust-store install run
 msgstr "Zert generazioa, Nexus repo bootstrap eta korrikalarien konfiantzazko denda martxan [compose.py](../../../cli/administration/deploy/development/compose.py)."
 
 # libretranslate
-msgid "Certbot"
-msgstr "Certbot"
-
-# libretranslate
 msgid "Certbot Reaper"
 msgstr "Certbot Reaper"
 
@@ -19986,10 +19704,6 @@ msgid "Checklist ✅"
 msgstr "Kontrol-zerrenda ✅"
 
 # libretranslate
-msgid "Checkmk"
-msgstr "Checkmk"
-
-# libretranslate
 msgid "Checkmk Raw bundles its own core/RRD; nothing external needed."
 msgstr "Checkmk Raw-ek bere core/RRDa biltzen du, kanpoko ezer ez da behar."
 
@@ -20019,10 +19733,6 @@ msgstr "Bolumena garbitzeko zerbitzu anonimoa definitu eta erabilgarri dagoen eg
 
 msgid "Checks::"
 msgstr ""
-
-# libretranslate
-msgid "Chess"
-msgstr "Xakea"
 
 # libretranslate
 msgid "Choose **Purge Everything** to delete all cached files (recommended after a deployment)."
@@ -20057,10 +19767,6 @@ msgid "Chore"
 msgstr "Chore"
 
 # libretranslate
-msgid "Chromium"
-msgstr "Kromoa"
-
-# libretranslate
 msgid "Chunk 0 holds the head of the ranking unless *offset* moves it; the order *inside* a chunk is then sorted (:func:`utils.github.variant.axes.sort_key`), so the job list reads by role rather than by rank."
 msgstr "Chunk 0 sailkapeneko burua dauka, ez bada *desplazamendua* mugitzen du; ordena *barruan* zati bat ordenatzen da (:func:`utils.github.variant.axes.sort_key`), Lan-zerrendak paperaren arabera irakurtzen du mailaren arabera baino."
 
@@ -20088,9 +19794,6 @@ msgstr "Txinatar klasikoa, erdi-formala"
 msgid "Classify a pin as ``semver``, ``digest`` or ``ref``."
 msgstr "Klasifikatu pin bat honela ``semver``, ``digest`` edo ``ref``."
 
-msgid "Claude Code"
-msgstr ""
-
 # libretranslate
 msgid "Claude Code Sandbox 🏖️"
 msgstr "Claude Code Sandbox 🏖️"
@@ -20110,10 +19813,6 @@ msgstr "Claude Code-k tresna-dei guztiak ebaluatzen ditu zerrendan. [`permission
 # libretranslate
 msgid "Claude Code safety rests on two layers."
 msgstr "Claude Code segurtasuna bi geruzatan dago."
-
-# libretranslate
-msgid "Claude Code 🤖"
-msgstr "Claude kodea 🤖"
 
 # libretranslate
 msgid "Clauses in significance order (first = primary sort key). ``reverse`` is True for ``desc``."
@@ -21201,10 +20900,6 @@ msgid "Cluster-shared NFS state dir: {{ lookup('nfs_state_path') }}."
 msgstr "Cluster-partekatutako NFS egoeraren direktorioa: {{ lookup('nfs_state_path') }}."
 
 # libretranslate
-msgid "Code"
-msgstr "Kodea"
-
-# libretranslate
 msgid "Code Execution ⚙️"
 msgstr "Kodearen exekuzioa ⚙️"
 
@@ -21276,18 +20971,11 @@ msgstr "Funtzio-identifikazio baten eta CI izenen arteko kodeketa."
 msgid "Codespaces are billable, persistent VMs with full repo + secret access; `ssh`/`cp` open a remote shell or move files in/out. The whole namespace is asked because even read commands (`list`, `view`) interact with billable infrastructure."
 msgstr "Kode-espazioak fakturagarriak dira, VM iraunkorrak, repo + ezkutuko sarbidea dutenak; `ssh`/`cp` ireki urruneko shell bat edo mugitu fitxategiak. Izen-espazio osoa eskatzen da, baita irakurri ere komandoak. (`list`, `view`) Diru-azpiegiturarekin elkarreragin."
 
-msgid "Codex"
-msgstr ""
-
 msgid "Codex reads its key from an environment variable rather than from its config file, so the role writes the key to a `0600` file under `~/.config/environment.d/` and names that variable in `config.toml`. A workstation whose gateway lives in another inventory leaves `services.codex.gateway_url` and `credentials.gateway_key` set by hand instead, and the loopback wiring stays out of the way."
 msgstr ""
 
 msgid "Codex reads its key from an environment variable rather than from its config file, so the role writes the key to a ``0600`` file under ``~/.config/environment.d/`` and names that variable in ``config.toml``. A workstation whose gateway lives in another inventory leaves ``services.codex.gateway_url`` and ``credentials.gateway_key`` set by hand instead, and the loopback wiring stays out of the way."
 msgstr ""
-
-# libretranslate
-msgid "Collabora"
-msgstr "Collabora"
 
 # libretranslate
 msgid "Collaborative wiki platform for user-driven documentation with an extensible extension ecosystem and content management"
@@ -21883,10 +21571,6 @@ msgid "Conflict doctrine"
 msgstr "Gatazkaren doktrina"
 
 # libretranslate
-msgid "Confluence"
-msgstr "Kokagunea"
-
-# libretranslate
 msgid "Confluence is Atlassian’s enterprise wiki and collaboration platform. This role deploys Confluence via Docker Compose, wires it to PostgreSQL, and integrates proxy awareness, optional OIDC SSO, health checks, and production-friendly defaults for Infinito.Nexus."
 msgstr "Konfluentzia Atlassian-en enpresa- wikia eta lankidetza-plataforma da. Funtzio hau zabaltzen da Confluence bidez Docker ComposeHariak harian jarri PostgreSQLeta proxy-aren kontzientzia, aukerako OIDC SSO, osasun-kontrolak eta ekoizpen-lehenespenak integratzen ditu Infinito.Nexus."
 
@@ -22387,10 +22071,6 @@ msgid "Copy the in-play role dumps next to the snapshot."
 msgstr "Kopiatu paperaren iraulketak pantailaren ondoan."
 
 # libretranslate
-msgid "CopyQ"
-msgstr "CopyQ"
-
-# libretranslate
 msgid "Copyright (c) 2026 Kevin Veen-Birkenbach All rights reserved."
 msgstr "Copyright-a (c) 2026 Kevin Veen-Birkenbach Eskubide guztiak erreserbatuta."
 
@@ -22457,10 +22137,6 @@ msgstr "Cosmos"
 # libretranslate
 msgid "Cospend"
 msgstr "Cospend"
-
-# libretranslate
-msgid "Coturn"
-msgstr "Itzuli"
 
 # libretranslate
 msgid "Coturn Project: [github.com/coturn/coturn](https://github.com/coturn/coturn)"
@@ -22860,9 +22536,6 @@ msgstr "Uneko balioa"
 msgid "Currently, no checks are enforced"
 msgstr "Une honetan ez dago egiaztatzerik"
 
-msgid "Cursor"
-msgstr ""
-
 msgid "Cursor's CLI cannot be pointed at a custom OpenAI-compatible endpoint: it exchanges the key for Cursor session tokens and talks its own protocol afterwards. The editor does carry an \"Override OpenAI Base URL\" field, but it lives in Cursor's own state database rather than in a file this role could render."
 msgstr ""
 
@@ -23255,10 +22928,6 @@ msgstr "Erabaki zerrendako zein posizio semantikori dagokion kontrolera."
 # libretranslate
 msgid "Decides whether the new version is the highest published version and, if so, advances the `latest` floating tag."
 msgstr "Bertsio berria bertsiorik altuena ote den erabakitzen du, eta, hala bada, aurrera egiten du. `latest` etiketa mugikorra."
-
-# libretranslate
-msgid "Decidim"
-msgstr "Decidim"
 
 # libretranslate
 msgid "Decidim's base image does not include an OpenID Connect OmniAuth strategy. This role builds a custom image that:"
@@ -24535,10 +24204,6 @@ msgid "Discards all uncommitted local changes without any recovery path."
 msgstr "Onartu gabeko aldaketa lokal guztiak baztertzen ditu berreskuratzeko biderik gabe."
 
 # libretranslate
-msgid "Discourse"
-msgstr "Discourse"
-
-# libretranslate
 msgid "Discourse AI"
 msgstr "AI"
 
@@ -24757,10 +24422,6 @@ msgstr "Egin orain beharrezko lana arrazoirik gabe atzeratu ordez."
 # libretranslate
 msgid "Docker Auto Restart"
 msgstr "Docker Auto Berrabiarazi"
-
-# libretranslate
-msgid "Docker Compose"
-msgstr "Docker Compose"
 
 # libretranslate
 msgid "Docker Compose Certificate Sync Service"
@@ -25344,10 +25005,6 @@ msgid "ENTRYPOINT detection and recovery"
 msgstr "ENTRYPOINT detekzioa eta berreskuratzea"
 
 # libretranslate
-msgid "ERPNext"
-msgstr "ERPNext"
-
-# libretranslate
 msgid "ERPNext is an open-source ERP suite built on the [Frappe Framework](https://frappeframework.com/). Upstream ships a multi-container deployment ([frappe_docker](https://github.com/frappe/frappe_docker)) consisting of:"
 msgstr "ERPNext iturburu irekiko ERP suite bat da, gainean eraikia [Frappe Framework](https://frappeframework.com/). Upstream-ek trenbide anitzeko hedapena egiten du ([frappe_docker](https://github.com/frappe/frappe_docker)) hauek osatzen dute:"
 
@@ -25742,10 +25399,6 @@ msgstr "Edo uneko aplikazioa web-app-prometheus da, edo prometeoa gaitu gisa adi
 # libretranslate
 msgid "Either the domain mapping dict (values can be str | list[str] | dict[str,str]) or an already flattened list of domains, or a single domain string."
 msgstr "Edo domeinuaren mapaketa dict (balioak estra daitezke | zerrenda[estolda] | diktatu[str,str]) edo dagoeneko laututako domeinu-zerrenda edo domeinu-kate bakar bat."
-
-# libretranslate
-msgid "Elasticsearch"
-msgstr "Elasticsearch"
 
 # libretranslate
 msgid "Election is relative to the rows handed in, so a caller that filters MUST call this again on the survivors: a stand-in the filter dropped is not deployed, and the row deferring to it is cut in favour of nothing."
@@ -26444,10 +26097,6 @@ msgstr "Ihes egin balio bat balio gisa erabiltzeko *ordezkoa* sed s// komando ba
 # libretranslate
 msgid "Escape a value for use inside a Ruby double-quoted string and wrap it in double quotes."
 msgstr "Ihes egin balio bat Rubyk aipu bikoitza duen kate batean erabiltzeko eta komatxo bikoitzetan bildu."
-
-# libretranslate
-msgid "EspoCRM"
-msgstr "EspoCRM"
 
 # libretranslate
 msgid "Essential repository files covering agent rules, support, security, and community standards."
@@ -27691,10 +27340,6 @@ msgid "Federation 🔗"
 msgstr "Federazioa 🔗"
 
 # libretranslate
-msgid "Fediwall"
-msgstr "Fediwall"
-
-# libretranslate
 msgid "Fediwall is a static, single-page web application with no backend, no database, and no user accounts. Configuration lives in a ``wall-config.json`` next to ``index.html`` and can be overridden per-visitor through URL parameters."
 msgstr "Fediwall web aplikazio estatikoa da, orri bakarrekoa, motorrik gabe, datu-baserik gabe eta erabiltzaile-konturik gabe. Konfigurazioa a batean bizi da ``wall-config.json`` ondokoa ``index.html`` eta bisitari bakoitzeko gainjarri daitezke URL parametroen bidez."
 
@@ -27765,10 +27410,6 @@ msgstr "Fetchmail Workaround 🔄"
 # libretranslate
 msgid "Fetchmail might not work properly with large amounts of data. For more information, refer to this [issue](https://github.com/Mailu/Mailu/issues/1719)."
 msgstr "Fetchmail-ek ez du behar bezala funtzionatuko datu kopuru handiekin. Informazio gehiagorako, ikus hau. [arazo](https://github.com/Mailu/Mailu/issues/1719)."
-
-# libretranslate
-msgid "Fider"
-msgstr "Fider"
 
 # libretranslate
 msgid "Field"
@@ -28027,10 +27668,6 @@ msgstr "Amaitu inplementazioa"
 # libretranslate
 msgid "Firecracker sandbox reference: [E2B infra](https://github.com/e2b-dev/infra)"
 msgstr "Firecracker sandbox erreferentzia: [E2B infra](https://github.com/e2b-dev/infra)"
-
-# libretranslate
-msgid "Firefox"
-msgstr "Firefox"
 
 # libretranslate
 msgid "Firewall ruleset"
@@ -28305,10 +27942,6 @@ msgstr "Fluxua"
 # libretranslate
 msgid "Flow Summary 📋"
 msgstr "Fluxuaren laburpena 📋"
-
-# libretranslate
-msgid "Flowise"
-msgstr "Fluiseise"
 
 # libretranslate
 msgid "Flowise 3.1.4 Integration"
@@ -29377,10 +29010,6 @@ msgid "Fresh installs only"
 msgstr "Instalazio freskoak bakarrik"
 
 # libretranslate
-msgid "Friendica"
-msgstr "Friendica"
-
-# libretranslate
 msgid "Friendica's `saml` addon is community-maintained — last-commit recency AND config-format compatibility need verification before committing to it as the canonical SSO path."
 msgstr "Friendica's `saml` addon komunitateari atxikia dago, azken konposaketa eta konfigurazio-formatuaren bateragarritasunak egiaztatze bat behar du SSO bide kanoniko gisa hartu aurretik."
 
@@ -29496,10 +29125,6 @@ msgid "Functional requirements live under [`docs/requirements/`](docs/requiremen
 msgstr ""
 
 # libretranslate
-msgid "Funkwhale"
-msgstr "Funkwhale"
-
-# libretranslate
 msgid "Funkwhale renders its sign-in control as a bare ``div``. The helper matches ``getByRole(\"link\"|\"button\")``, which cannot select it, so the in-app fallback misses as well."
 msgstr "Funkwhale-k bere zeinu-kontrola bihurtzen du. ``div``. Laguntzailea bat dator ``getByRole(\"link\"|\"button\")``, Horrek ezin du hautatu, beraz, hutsegitea ere gertatzen da."
 
@@ -29522,10 +29147,6 @@ msgstr "Baliabide gehiago"
 # libretranslate
 msgid "Further resources"
 msgstr "Baliabide gehiago"
-
-# libretranslate
-msgid "FusionDirectory"
-msgstr "FusionDirectory"
 
 # libretranslate
 msgid "Future"
@@ -29786,10 +29407,6 @@ msgid "Gettext and LibreTranslate env handlers."
 msgstr ""
 
 # libretranslate
-msgid "Git"
-msgstr "Git"
-
-# libretranslate
 msgid "Git Workflow Helpers 🔐"
 msgstr "Git Workflow Helpers 🔐"
 
@@ -29804,10 +29421,6 @@ msgstr "Git artefacts 🗂️"
 # libretranslate
 msgid "Git is the control plane."
 msgstr "Git kontrol-hegazkina da."
-
-# libretranslate
-msgid "Git 🔐"
-msgstr "Git 🔐"
 
 # libretranslate
 msgid "GitHub Actions cannot generate a variable number of jobs, so the chunk blocks are written out in the orchestrator. `INFINITO_CI_MAX_CHUNKS` must equal how many exist there — `slots` plans a sweep against that key, and a sweep planned larger than the chain silently drops its tail. Declare one block more than `available` fills (`ceil(available / chunk size) + 1`): the split receives every declared block, so after a short priority chunk the regular rows still fill the rest of the budget. Blocks whose slice comes back empty skip themselves and cost nothing."
@@ -29914,16 +29527,8 @@ msgid "GitHub-release asset helpers (latest-tag resolver + downloader)."
 msgstr "GitHub-en jaulkipen aktiboaren laguntzaileak (azken etiketaren ebazlea + deskargatzailea)."
 
 # libretranslate
-msgid "GitLab"
-msgstr "GitLab"
-
-# libretranslate
 msgid "Gitaly data locality"
 msgstr "Datuen kokalekua"
-
-# libretranslate
-msgid "Gitea"
-msgstr "Gitea"
 
 # libretranslate
 msgid "Gitea has no built-in MCP server. The role runs the project-owned ``gitea-mcp`` package as a sidecar container next to Gitea and points it at the instance over the container network. Because that sidecar authenticates nothing itself, the ``svc-ai-mcp-adapter`` instance sits in front of it and is what clients address."
@@ -29988,10 +29593,6 @@ msgstr "Ontzi-ordena orokorra:"
 # libretranslate
 msgid "Global setting **\"Authenticate users by incoming HTTP requests\"** / `auth_by_http_header = \"X-Remote-User\"` — reads the username from a trusted reverse-proxy header."
 msgstr "Ezarpen orokorrak **\"Autentifikatu erabiltzaileak HTTP eskaeren bidez\"** / `auth_by_http_header = \"X-Remote-User\"` - erabiltzaile-izena alderantzizko proxy goiburu fidagarri batetik irakurtzen du."
-
-# libretranslate
-msgid "GnuCash"
-msgstr "GnuCash"
 
 # libretranslate
 msgid "Go to **Caching** → **Configuration**."
@@ -30418,10 +30019,6 @@ msgid "Helps ensure that the system has adequate swap space for improved perform
 msgstr "Sistemak swap leku egokia duela ziurtatzen du errendimendua eta egonkortasuna hobetzeko."
 
 # libretranslate
-msgid "Hermes Agent"
-msgstr "Hermes agentea"
-
-# libretranslate
 msgid "Hermes Agent: [hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com/)"
 msgstr "Hermes agentea: [herme-agent.nousresearch.com](https://hermes-agent.nousresearch.com/)"
 
@@ -30508,10 +30105,6 @@ msgstr "Operadoreari emandako kredentziala bere eskemari."
 # libretranslate
 msgid "Holds primitives that the domain modules (`users`, `applications`, `domains`) all need but no domain owns: filesystem constants, YAML loaders, deep-merge, cache-key + content-fingerprint signatures, templar-render machinery, and the cross-domain re-entry guard."
 msgstr "Domeinu-moduluek primitiboak dituzte (`users`, `applications`, `domains`) guztiak behar ditu, baina ez du domeinurik: fitxategi-sistemako konstanteak, YAML kargatzaileak, ur sakoneko kargatzaileak, cacheko tekla + eduki-fingerreko sinadurak, templar-ren makinaria eta domeinu gurutzatuaren sarrera-zaindaria."
-
-# libretranslate
-msgid "Home Assistant"
-msgstr "Etxeko laguntzailea"
 
 # libretranslate
 msgid "Home Assistant MCP Server: [home-assistant.io/integrations/mcp_server](https://www.home-assistant.io/integrations/mcp_server/)"
@@ -30808,10 +30401,6 @@ msgid "Hugging Face repository those flavors download at build time"
 msgstr ""
 
 # libretranslate
-msgid "Hugo"
-msgstr "Hugo"
-
-# libretranslate
 msgid "Hugo: Administration"
 msgstr "Hugo: Administrazioa"
 
@@ -30833,10 +30422,6 @@ msgstr "Gizakia, eskariaren arabera"
 # libretranslate
 msgid "Human-readable owner for lint and runtime messages."
 msgstr "Giza-irakurlearen jabea lint eta exekuzio-mezuetarako."
-
-# libretranslate
-msgid "Hunspell"
-msgstr "Hunspell"
 
 # libretranslate
 msgid "IAM roles"
@@ -33663,10 +33248,6 @@ msgid "Integration with `sys-ctl-hlth-journalctl` for downstream monitoring"
 msgstr "Integrazioa `sys-ctl-hlth-journalctl` beheranzko monitorizaziorako"
 
 # libretranslate
-msgid "Intel Driver"
-msgstr "Intel Driver"
-
-# libretranslate
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
 msgstr "Intel VA-API multimedia-kontrola hardware bidez kodetu eta kodetu Linux banaketak."
 
@@ -34212,10 +33793,6 @@ msgid "Java"
 msgstr "Java"
 
 # libretranslate
-msgid "Jellyfin"
-msgstr "Jellyfin"
-
-# libretranslate
 msgid "Jellyfin bundles SQLite."
 msgstr "Jellyfinek SQLite biltzen du."
 
@@ -34230,10 +33807,6 @@ msgstr "Jellyfinek bere metadatuak barneko SQLitean gordetzen ditu `/config` - B
 # libretranslate
 msgid "Jellyfin stores its metadata in internal SQLite under ``/config`` - it needs **no external database**. The role persists three named volumes: ``/config``, ``/cache``, and ``/media``. Media libraries are added in-app against ``/media``."
 msgstr "Jellyfinek bere metadatuak barneko SQLitean gordetzen ditu ``/config`` - Behar du. **kanpoko datu-baserik ez**. Rolak hiru liburuki izendatzen ditu: ``/config``, ``/cache``, eta ``/media``. Media liburutegiak aplikaziora gehitzen dira ``/media``."
-
-# libretranslate
-msgid "Jenkins"
-msgstr "Jenkins"
 
 # libretranslate
 msgid "Jenkins support is plugin-based and MUST be pinned like other Jenkins plugins."
@@ -34280,10 +33853,6 @@ msgid "Jinja2 templates"
 msgstr "Jinja2 txantiloiak"
 
 # libretranslate
-msgid "Jira"
-msgstr "Jira"
-
-# libretranslate
 msgid "Jitsi"
 msgstr "Jitsi"
 
@@ -34315,10 +33884,6 @@ msgid "Joined URL."
 msgstr "URL bat sartu da."
 
 # libretranslate
-msgid "Joomla"
-msgstr "Joomla"
-
-# libretranslate
 msgid "Joomla 6 Keycloak OIDC SSO plugin (`plg_system_keycloak`)"
 msgstr "Joomla 6 Keycloak OIDC SSO plugina (`plg_system_keycloak`)"
 
@@ -34327,23 +33892,12 @@ msgid "Journalctl"
 msgstr "Journalctl"
 
 # libretranslate
-msgid "Jrnl"
-msgstr "Jrnl"
-
-# libretranslate
 msgid "Judge by the two `📊 per-target wall-clock` tables (one for the test phase, one for lint) and any `FAILED TARGETS:` line — never by the pipe exit code, which is unreliable here. `docs` and `autoformat` write to the tree: run `git status` after every pass and treat an unexpected diff as a finding, not as noise."
 msgstr "Epailea biengatik `📊 per-target wall-clock` taulak (bat proba-faserako, bat linterako) eta `FAILED TARGETS:` lerroa, inoiz ez kanalizaziotik irteteko kodearen bidez, hemen ez da fidagarria. `docs` eta `autoformat` Idatzi zuhaitzari: korri `git status` Pasaldi bakoitzaren ondoren, eta ustekabeko diff bat bilatu, ez zarata gisa."
-
-msgid "Jupyter"
-msgstr ""
 
 # libretranslate
 msgid "Just include this role in your playbook; it will:"
 msgstr "Sartu paper hau zure idazlanean."
-
-# libretranslate
-msgid "KIX"
-msgstr "KIX"
 
 # libretranslate
 msgid "KWARGS"
@@ -34356,10 +33910,6 @@ msgstr "Kata eta gVisor"
 # libretranslate
 msgid "Kata with the Firecracker hypervisor was the original choice and cannot be delivered on Docker Engine: Firecracker requires the container rootfs as a block device (the containerd `devmapper` snapshotter), while dockerd always hands the runtime a directory. Kata's Firecracker driver advertises no filesystem sharing, and Kata's own documentation tests Docker with QEMU as the VMM. Reaching a microVM here means moving the agent tier off dockerd onto containerd with `devmapper`, which is a separate decision. Until then the microVM clauses below describe an intent, not a shipped mechanism."
 msgstr "Kata Firecracker hiperbisorearekin jatorrizko aukera zen eta ezin da Docker motorrean entregatu: Firecracker-ek edukiontziaren erroak behar ditu bloke-gailu gisa. (edukiontzian `devmapper` snapshotter), Dockerd-ek beti direktorio bat ematen duen bitartean. Kataren Firecracker gidariak ez du fitxategi-sistemarik partekatzen, eta Kataren dokumentazio-probak Docker-ekin, QEMU-rekin VMM gisa. MikroVM batera iristeak esan nahi du agentearen gorpua edukiontzira eramatea. `devmapper`Erabaki bat da. Ordura arte, azpiko mikroVM klausulak asmo bat deskribatzen dute, ez mekanismo bat."
-
-# libretranslate
-msgid "KeePassXC"
-msgstr "KeePassXC"
 
 # libretranslate
 msgid "Keep Docker-specific explanations here and keep the command reference in `../artefact/files/makefile.md`."
@@ -34663,10 +34213,6 @@ msgid "Key variables (see `defaults/main.yml`):"
 msgstr "Gakoaren aldagaiak (Ikusi `defaults/main.yml`):"
 
 # libretranslate
-msgid "Keycloak"
-msgstr "Keycloak"
-
-# libretranslate
 msgid "Keycloak Client Templates 📦"
 msgstr "Keycloak Bezeroaren txantiloiak 📦"
 
@@ -34756,10 +34302,6 @@ msgstr "Kubernetes klusterraren kredentzialak."
 # libretranslate
 msgid "Kwargs:"
 msgstr "Kwargs:"
-
-# libretranslate
-msgid "LAM"
-msgstr "LAM"
 
 # libretranslate
 #, python-brace-format
@@ -34884,10 +34426,6 @@ msgid "LLM gateway: [031-llm-gateway-model-backends.md](031-llm-gateway-model-ba
 msgstr "LLM atebidea: [031-llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)"
 
 # libretranslate
-msgid "LM Studio"
-msgstr "LM Studio"
-
-# libretranslate
 msgid "LUKS device/image → local backup root"
 msgstr "LUKS gailua/irudia → babeskopia lokalaren erroa"
 
@@ -34926,9 +34464,6 @@ msgstr "GitHub-en argitalpenetarako azken etiketaren ebazlea eta aktiboen deskar
 # libretranslate
 msgid "Launch Snipe‑IT quickly with Docker Compose and Ansible automation for a production‑ready platform."
 msgstr "Abiarazi Snipe‑IT azkar Docker Compose eta ekoizpenerako prest dagoen plataforma baten automatizazioa."
-
-msgid "Laya"
-msgstr ""
 
 msgid "Laya keeps its own settings in ``~/.laya/``, including the model providers it talks to. This role does not render that file: upstream documents the provider types but not the on-disk schema, so the provider is an operator step in the application’s own settings. Pointing it at the platform gateway means adding a provider of type ``openai_compatible``."
 msgstr ""
@@ -35127,14 +34662,6 @@ msgid "Leverages the ``sys-stk-backend`` role to stand up your containerized dat
 msgstr "Leverages ``sys-stk-backend`` zure datu-base edukiontziratuari eusteko papera (PostgreSQL, MariaDB, etab.) babeskopia eta erabiltzailearen kudeaketarekin."
 
 # libretranslate
-msgid "LibreOffice"
-msgstr "LibreOffice"
-
-# libretranslate
-msgid "LibreTranslate"
-msgstr "LibreTranslate"
-
-# libretranslate
 msgid "LibreTranslate is an open-source machine translation API that can be self-hosted. This role provides a standardized, reproducible deployment with optional extensions such as Redis caching, database persistence, and Matomo tracking."
 msgstr "LibreTranslate iturburu irekiko itzulpen automatikoko API bat da, auto-ostatu daitekeena. Rol honek hedapen estandarizatu eta erreproduzigarria eskaintzen du, hautazko hedapenekin, hala nola Redis cachearekin, datu-basearen iraunkortasunarekin eta Matomoren jarraipenekin."
 
@@ -35222,10 +34749,6 @@ msgid "Links 🔗"
 msgstr "Estekak 🔗"
 
 # libretranslate
-msgid "Lint"
-msgstr "Lint"
-
-# libretranslate
 msgid "Lint Integration 🚦"
 msgstr "Lint integrazioa 🚦"
 
@@ -35268,10 +34791,6 @@ msgstr "Shell-pipeline eredu seguruak ezartzen dituzten lingote-probak Ansible b
 # libretranslate
 msgid "Lint tests that enforce variable-lifecycle invariants across the Ansible tree: every name a role declares MUST be consumed somewhere, and every name a role passes MUST be referenced by the play / template stack that receives it."
 msgstr "Bizi-ziklo aldakorreko aldaezinak ezartzen dituzten lintze-probak zuhaitz aldagarrian zehar: rol batek adierazten duen izen bakoitza nonbait kontsumitu behar da, eta izen bakoitza pasatzen den rol bat erreferentziatu behar da jasotzen duen joko/txantiloi pilak."
-
-# libretranslate
-msgid "Lint 🔍"
-msgstr "Lint 🔍"
 
 # libretranslate
 msgid "Linux"
@@ -35352,10 +34871,6 @@ msgid "Listing ``dir()`` instead sweeps in whatever the module imported, so ever
 msgstr ""
 
 # libretranslate
-msgid "Listmonk"
-msgstr "Listmonk"
-
-# libretranslate
 #, python-brace-format
 msgid "Lists all container packages with the requested visibility via the GitHub Packages REST API (`GET /user/packages` or `GET /orgs/{org}/packages`)."
 msgstr "Eskatutako ikusgaitasuna duten edukiontzi-pakete guztiak zerrendatzen ditu GitHub paketeak REST API bidez (`GET /user/packages` edo `GET /orgs/{org}/packages`)."
@@ -35387,10 +34902,6 @@ msgstr "LiteLLM: `litellm.ai <https://www.litellm.ai>`__"
 # libretranslate
 msgid "Literals rather than an import because the code that reads a generation runs on swarm nodes, the NFS server and bare rescue hosts, which carry a git checkout and no baudolo; this module must stay import-free for that reason. The agreement is enforced by ``tests/lint/repository/dependencies/test_baudolo_pin.py``."
 msgstr "Literalak inportazio bat baino gehiago, belaunaldi bat irakurtzen duen kodeak nodo ugariak, NFS zerbitzariak eta salbuespeneko ostalariek betetzen dituztelako, eta horrek kontrol urduria eta baudolorik ez duelako; modulu honek inportantziarik gabe egon behar du horregatik. Akordioa behartuta dago ``tests/lint/repository/dependencies/test_baudolo_pin.py``."
-
-# libretranslate
-msgid "LittleJS"
-msgstr "LittleJS"
 
 # libretranslate
 msgid "LittleJS Playground is designed as a lightweight HTML5 game sandbox for education, prototyping, and fun. It exposes the original LittleJS ``examples/`` browser and adds a Bootstrap-based landing page that lists all examples as clickable tiles and offers quick links to popular games such as platformers and arcade-style demos. The app runs as a single Docker container and requires no additional database or backend services."
@@ -36055,10 +35566,6 @@ msgid "MDAD's `ansible-playbook setup.yml` invocation is encapsulated in a dedic
 msgstr "MDAD's `ansible-playbook setup.yml` Deia azpikontratista batean kapsulatuta dago (DinD #2 Infinito-ren edukiontziari dagokionez, DinD #1). Lasterkariaren irudia lokalki eraikitzen da `roles/web-app-matrix/files/flavor/ansible/runner/Dockerfile` eta pintatuta `services.matrix.runner.image`. Korrikalariak lotu-muneak `/var/run/docker.sock`, `/etc/systemd/system`, `/run/systemd`, `/usr/local/bin`, `/matrix`, eta MDAD txekea, beraz, MDADek lurra idazten du biltegiaren izen espazialean (Dockerren daemon bera eta gainerako pilak bezala sistematuta)."
 
 # libretranslate
-msgid "MIG"
-msgstr "MIG"
-
-# libretranslate
 msgid "MODE_FOO: true   # comment MODE_BAR: false  # comment MODE_BAZ: null   # comment"
 msgstr "MODE_FOO: true # comment MODE_BAR: false # comment MODE_BAZ: null # comment"
 
@@ -36195,20 +35702,12 @@ msgid "Made *drv-intel* VA-API package handling distro-specific"
 msgstr "Made Made *drv-intel* VA-API paketeen kudeaketa distro espezifikorako"
 
 # libretranslate
-msgid "Magento"
-msgstr "Magento"
-
-# libretranslate
 msgid "Mail egress over Tor (operator: \"must\")"
 msgstr "Posta-agressa Torren gainean (eragilea: \"must\")"
 
 # libretranslate
 msgid "Mail server:"
 msgstr "Posta-zerbitzaria:"
-
-# libretranslate
-msgid "Mailu"
-msgstr "Mailu"
 
 # libretranslate
 msgid "Mailu Dependency Detection 🚨"
@@ -36499,10 +35998,6 @@ msgid "Mapping, from compose ``docker_restart_policy`` to swarm ``condition``:"
 msgstr ""
 
 # libretranslate
-msgid "MariaDB"
-msgstr "MariaDB"
-
-# libretranslate
 msgid "MariaDB database provisioning via the ``sys-svc-rdbms`` role"
 msgstr "MariaDB datu-basea hornitzen ``sys-svc-rdbms`` Rola"
 
@@ -36619,10 +36114,6 @@ msgid "Marks the Ansible task as `changed` if:"
 msgstr "Zeregin ansiblea honela markatzen du: `changed` Baldin eta:"
 
 # libretranslate
-msgid "Mastodon"
-msgstr "Mastodon"
-
-# libretranslate
 msgid "Match commands exactly as Claude Code does: literal prefix, `*` wildcard, `deny` overrides `allow`."
 msgstr "Claude Kodeak egiten duen bezala parekatzeko komandoak: aurrizki literala, `*` komodina, `deny` gainjarriak `allow`."
 
@@ -36683,10 +36174,6 @@ msgid "Materialised path and loader"
 msgstr "Bide materializatua eta kargatzailea"
 
 # libretranslate
-msgid "Matomo"
-msgstr "Matomo"
-
-# libretranslate
 msgid "Matomo Token Not Yet Available ⚠️"
 msgstr "Matomo Token oraindik ez dago eskuragarri ⚠️"
 
@@ -36712,10 +36199,6 @@ msgstr "Matomo pluginaren hautagaia"
 # libretranslate
 msgid "Matomo upgrade to 1.1.13"
 msgstr "Matomo bertsio-berritu 1.1.13"
-
-# libretranslate
-msgid "Matrix"
-msgstr "Matrizea"
 
 # libretranslate
 msgid "Matrix bridges modernized: Signal, Telegram, WhatsApp and Slack bridges migrate to bridgev2 config, the dead mautrix-facebook/instagram bridges are replaced by mautrix-meta, bridge specs are gated by the deployed addon, Synapse loads the bridge registrations from a mounted directory, and the role now tracks *matrix-docker-ansible-deploy* from the spantaleev upstream."
@@ -36753,10 +36236,6 @@ msgstr "Matrizea: `#public:infinito.nexus` -Hitz egin komunitatearekin."
 # libretranslate
 msgid "Matrix: `@kevinveenbirkenbach:infinito.nexus`"
 msgstr "Matrizea: `@kevinveenbirkenbach:infinito.nexus`"
-
-# libretranslate
-msgid "Mattermost"
-msgstr "Mattermost"
 
 # libretranslate
 msgid "Mattermost **Team Edition** does not support native OIDC (`MM_OPENIDSETTINGS_*`) or LDAP, since both are Enterprise-only features."
@@ -36850,10 +36329,6 @@ msgstr "Euskarri-plataforma"
 msgid "Media library on a **named Docker volume** (`/media`), plus `/config` + `/cache`."
 msgstr "Multimedia-liburutegia a **Docker bolumena** (`/media`), plus `/config` + `/cache`."
 
-# libretranslate
-msgid "MediaWiki"
-msgstr "MediaWiki"
-
 msgid "Medians, not means: a job that hit a queue wait or a network stall is a long tail on an otherwise cheap axis, and averaging lets one such job outvote a hundred normal ones."
 msgstr ""
 
@@ -36868,10 +36343,6 @@ msgstr "Kideak `application_administrators` LDAP taldea (baldintzapean 004) jaso
 # libretranslate
 msgid "Members of the `application_administrators` group (per requirement 004) gain OpenCloud admin rights when they log in."
 msgstr "Kideak `application_administrators` taldea (baldintzapean 004) irabazi OpenCloud admin eskubideak saioa hastean."
-
-# libretranslate
-msgid "Memcached"
-msgstr "Memcached"
 
 # libretranslate
 msgid "Memcached has no native auth or namespace. Consumer isolation is key-prefix only and is resolved by ``lookup('engine', 'memcached', consumer_id)`` at consume time, so ``tasks/01_init.yml`` is a no-op."
@@ -37008,20 +36479,12 @@ msgid "Migration, rollback, or security-sensitive concerns:"
 msgstr "Migrazioak, atzerakadak edo segurtasun-neurriak:"
 
 # libretranslate
-msgid "MinIO"
-msgstr "MinIO"
-
-# libretranslate
 msgid "MinIO: [www.min.io](https://www.min.io)"
 msgstr "MinIO: [www.min.io](https://www.min.io)"
 
 # libretranslate
 msgid "MinIO: `www.min.io <https://www.min.io>`__"
 msgstr "MinIO: `www.min.io <https://www.min.io>`__"
-
-# libretranslate
-msgid "Mini-QR"
-msgstr "Mini-QR"
 
 # libretranslate
 msgid "Mini-QR is designed for simplicity, privacy, and speed."
@@ -37174,10 +36637,6 @@ msgstr "Ispiluak ondarea scripts/meta/env/runtime.sh logika:"
 # libretranslate
 msgid "Missing Resolve Scripts"
 msgstr "'Konpondu scriptak falta dira'"
-
-# libretranslate
-msgid "Mobilizon"
-msgstr "Mobilizon"
 
 # libretranslate
 msgid "Mode"
@@ -37345,10 +36804,6 @@ msgstr "Kontrol-nodoak,"
 # libretranslate
 msgid "Monitors disk-space usage and alerts if any filesystem usage exceeds your defined threshold."
 msgstr "Disko-espazioen erabilera eta alertak kontrolatzen ditu fitxategi-sistemaren erabilera batek zure muga gaindituz gero."
-
-# libretranslate
-msgid "Moodle"
-msgstr "Moodle"
 
 # libretranslate
 msgid "Moodle compares every request against `$CFG->wwwroot`. A probe that reaches the endpoint over the internal HTTP origin is answered with a redirect to the canonical HTTPS URL rather than with JSON, so callers must send the canonical `Host` header and `X-Forwarded-Proto: https`."
@@ -37874,10 +37329,6 @@ msgid "Neither strategy is chosen by hand. `services.litellm.router_strategy` de
 msgstr ""
 
 # libretranslate
-msgid "Neovim"
-msgstr "Neovim"
-
-# libretranslate
 #, python-brace-format
 msgid "Nested keys are walked transparently (e.g. `credentials.recaptcha.{key,secret}`)."
 msgstr "Habiaratutako gakoak garden ibiltzen dira (Adibidez: `credentials.recaptcha.{key,secret}`)."
@@ -38069,10 +37520,6 @@ msgstr "Aldagai berriek jarraitu behar dute `TEST_E2E_PLAYWRIGHT_` Aurrizkiaren 
 # libretranslate
 msgid "Newest run on ``branch`` (in ``repo``) that actually contains compose/ swarm deploy jobs. Returns the run dict (with a cached ``_jobs`` key) or None."
 msgstr "Korrika berria ``branch`` (barruan ``repo``) Izan ere, konposaketa-lan pilak daude. Diktadura itzultzen du (cache batekin ``_jobs`` gakoa) Edo ez."
-
-# libretranslate
-msgid "Nextcloud"
-msgstr "Nextcloud"
 
 # libretranslate
 msgid "Nextcloud Applications"
@@ -38822,10 +38269,6 @@ msgstr "Argitalpen zaharragoak"
 msgid "Older backup subdirectories are validated and cleaned if they are invalid"
 msgstr "Babeskopiaren azpidirektorio zaharrak balioztatu eta garbitu egiten dira baliogabe badaude."
 
-# libretranslate
-msgid "Ollama"
-msgstr "Ollama"
-
 msgid "Ollama, then LM Studio, then declared, then the router alias."
 msgstr ""
 
@@ -39213,6 +38656,9 @@ msgstr "Open WebUIk bakarrik du zerbitzariko erabiltzailearen muga, `mcp` RBAC t
 msgid "Only a clean sweep of successes retires the suite. A shard that failed, was cancelled, timed out or skipped did not run through, and a run that holds no job for the suite at all never started it -- none of those is evidence the suite is good, so the retrigger keeps asking for it."
 msgstr "Arrakasta garbi batek bakarrik erretiratzen du suitea. Huts egin zuen shard bat bertan behera utzi zen, denbora galdu edo saltatu ez zuen korrika egin, eta suiteak inoiz ez zuen lanik egiten. Horietako bat ere ez da froga suitea ona dela, eta, beraz, errektoreak eskatzen jarraitzen du."
 
+msgid "Only a message that is nothing but the name qualifies. Inside a sentence the name is protected by the span machinery in :mod:`utils.i18n.placeholders`, and the sentence around it still needs translating."
+msgstr ""
+
 msgid "Only a role that declares nothing falls back on its shape: a stack role (ships a compose template) is offered ``compose`` and ``swarm``, anything else is offered ``host``."
 msgstr ""
 
@@ -39267,9 +38713,8 @@ msgstr "Aukeratutako aldakiaren lehen sarrera bakarrik: lehentasun-errenkadak es
 msgid "Only the mount that carries the docker data root matters. A btrfs partition elsewhere on the host changes nothing — the probe never looks at it."
 msgstr "Docker-en datuen erroa daraman muntatzeak bakarrik axola du. Ostalariko beste lekuren batean btrf-en partizio batek ez du ezer aldatzen."
 
-# libretranslate
-msgid "OnlyOffice"
-msgstr "Bakarrik"
+msgid "Only those two fields are read. Matching against every URL in the role sweeps in whatever its prose links to, and a reference to ``en.wikipedia.org/wiki/ Bourne_shell`` then turns ``Shell`` into a brand."
+msgstr ""
 
 # libretranslate
 msgid "Opaque, role-interpreted runtime payload. Lint does not constrain its inner shape beyond requiring a mapping. Secrets inside `config` MUST resolve through `lookup('config', application_id, 'secrets.credentials.<name>')` and MUST NOT be inlined literally."
@@ -39285,10 +38730,6 @@ msgstr "Ireki **Erabiltzaileak**Bilatu erabiltzailea eta hautatu."
 # libretranslate
 msgid "Open Questions"
 msgstr "Ireki galderak"
-
-# libretranslate
-msgid "Open WebUI"
-msgstr "Ireki WebUI"
 
 # libretranslate
 msgid "Open WebUI access tests MUST cover a user with one of several MCP groups, a user with no MCP group, a user in the wrong application's group, and removal of the user's last group. The known empty-group synchronization behavior MUST be fixed upstream, patched in the pinned image, or compensated by an explicit reconciliation/session-invalidation mechanism before strict revocation is claimed."
@@ -39434,16 +38875,8 @@ msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and 
 msgstr "OpenAI-rekin bateragarria den LLM atebidea /v bakarra zeharkatzen1 motor lokal eta ostatatutakoen amaierako puntua, kontsumoko gakoekin"
 
 # libretranslate
-msgid "OpenBao"
-msgstr "OpenBao"
-
-# libretranslate
 msgid "OpenBao auto-unseals on every restart, so deploy and redeploy stay idempotent and no OpenBao-generated key material has to be written back into the inventory. The inventory is the \"existing source of trust\" upstream's caveat asks for."
 msgstr "OpenBao auto-ebaluazioak berrabiarazpen bakoitzean, beraz, zabaldu eta redeploy mantendu idempotent eta ez da OpenBao sortutako gako-materialik idatzi behar inbentarioan. Inbentarioa da \"lehendik dagoen konfiantza-iturria\" Upstream's caveat-ek eskatzen du."
-
-# libretranslate
-msgid "OpenClaw"
-msgstr "OpenClaw"
 
 # libretranslate
 msgid "OpenClaw consumes MCP. Every deployed shared MCP server role is discovered through `MCP_DISCOVERED_SERVERS` and written into the agent configuration."
@@ -39468,10 +38901,6 @@ msgstr "OpenClaw-en CLI erreferentziak honela dio zuzenean: `openclaw mcp serve`
 # libretranslate
 msgid "OpenClaw: [openclaw.ai](https://openclaw.ai/)"
 msgstr "OpenClaw: [openclaw.ai](https://openclaw.ai/)"
-
-# libretranslate
-msgid "OpenCloud"
-msgstr "OpenCloud"
 
 # libretranslate
 msgid "OpenCloud delegates authentication to the central Keycloak realm and consumes user and group data from the central OpenLDAP directory. Local password login is disabled when `services.sso.enabled` is true (the default), and accounts are auto-provisioned on first OIDC login."
@@ -39502,10 +38931,6 @@ msgid "OpenIDConnect"
 msgstr "OpenIDConnect"
 
 # libretranslate
-msgid "OpenLDAP"
-msgstr "OpenLDAP"
-
-# libretranslate
 msgid "OpenLDAP configuration LDIFs"
 msgstr "OpenLDAP konfigurazioa LDIFak"
 
@@ -39514,16 +38939,8 @@ msgid "OpenLDAP group LDIFs"
 msgstr "OpenLDAP taldea LDIFak"
 
 # libretranslate
-msgid "OpenProject"
-msgstr "OpenProject"
-
-# libretranslate
 msgid "OpenProject documents an MCP endpoint under `/mcp` and OAuth application setup."
 msgstr "OpenProject-ek MCPren amaierako puntua dokumentatu du `/mcp` eta OAuth aplikazioaren konfigurazioa."
-
-# libretranslate
-msgid "OpenResty"
-msgstr "OpenResty"
 
 # libretranslate
 msgid "OpenResty image handling Image and version are now resolved from role configuration instead of hardcoded variables. Custom overrides must be placed in config."
@@ -39532,10 +38949,6 @@ msgstr "Irudia eta bertsioa kudeatzeko OpenResty irudia eta bertsioa konfigurazi
 # libretranslate
 msgid "OpenResty runs `network_mode: host`, binds 80/443, `proxy_pass http://127.0.0.1:<port>`"
 msgstr "OpenResty lasterketak `network_mode: host`, lotu 80/443, `proxy_pass http://127.0.0.1:<port>`"
-
-# libretranslate
-msgid "OpenTalk"
-msgstr "OpenTalk"
 
 # libretranslate
 msgid "OpenTalk authenticates users against the central Keycloak realm via OIDC and looks up users via the Keycloak admin Web API (`keycloak_webapi` backend). OpenLDAP feeds OpenTalk transitively through Keycloak's federation."
@@ -40698,16 +40111,8 @@ msgid "PayPal"
 msgstr "PayPal"
 
 # libretranslate
-msgid "PeerTube"
-msgstr "PeerTube"
-
-# libretranslate
 msgid "PeerTube is a decentralized, open-source video hosting platform that empowers creators to share videos without relying on centralized services. It leverages federated architecture and peer-to-peer technologies to provide scalable, secure, and community-driven video streaming."
 msgstr "PeerTube bideo hosting plataforma deszentralizatu eta kode irekikoa da, sortzaileei bideoak partekatzea baimentzen diena zerbitzu zentralizatuetan oinarritu gabe. Arkitektura federatua eta peer-to-peer teknologiak baliatzen ditu bideo-korronte eskalagarriak, seguruak eta komunitarioak eskaintzeko."
-
-# libretranslate
-msgid "Penpot"
-msgstr "Penpot"
 
 # libretranslate
 msgid "Penpot interactive server"
@@ -41141,10 +40546,6 @@ msgstr "Telefonoa: [+49 178 179 8023](tel:+491781798023)"
 msgid "Phone: `00491781798023`"
 msgstr "Telefonoa: `00491781798023`"
 
-# libretranslate
-msgid "PhpMyAdmin"
-msgstr "PhpMyAdmin"
-
 msgid "Pi Coding Agent"
 msgstr ""
 
@@ -41284,10 +40685,6 @@ msgstr "Kanalizazio-ikuspegia 🛤️"
 # libretranslate
 msgid "Pipeline stages"
 msgstr "Kanalizazio-faseak"
-
-# libretranslate
-msgid "Pixelfed"
-msgstr "Pixelfed"
 
 # libretranslate
 msgid "Pixelfed Administration"
@@ -41606,10 +41003,6 @@ msgid "Postfix:"
 msgstr "Postfixa:"
 
 # libretranslate
-msgid "PostgreSQL"
-msgstr "PostgreSQL"
-
-# libretranslate
 msgid "PostgreSQL Docker Upgrade: Major Version Migration"
 msgstr "PostgreSQL Docker Upgrade: Bertsio nagusiaren migrazioa"
 
@@ -41624,10 +41017,6 @@ msgstr "PostgreSQL datu-basea (MySQL/MariaDB ez dago onartuta Mattermost v-tik8+
 # libretranslate
 msgid "PostgreSQL database via the shared platform instance"
 msgstr "PostgreSQL datu-basea plataforma partekatuaren instantziaren bidez"
-
-# libretranslate
-msgid "Postmarks"
-msgstr "Posta-markak"
 
 # libretranslate
 msgid "Postmarks has no native OIDC/SAML/LDAP/REMOTE_USER login — the only auth path is the `ADMIN_KEY` password form. Under the `oauth2` SSO flavor this role adds a **trusted-header SSO bridge**:"
@@ -41823,10 +41212,6 @@ msgstr "Babeskopia berrienak automatikoki gordetzen ditu"
 # libretranslate
 msgid "Presigned URLs for secure, time-limited uploads/downloads"
 msgstr "URL aurrez sinatuak igoera eta deskarga seguruetarako"
-
-# libretranslate
-msgid "Pretix"
-msgstr "Pretix"
 
 # libretranslate
 msgid "Prevented backup failures by enforcing linear service execution order and safer handler flushing"
@@ -42050,10 +41435,6 @@ msgstr "Python birtualeko proiektuak kudeatzen ditu (batez ere `~/.venvs/pkgmgr`
 # libretranslate
 msgid "Project-scoped read identity; no issue/story, sprint, membership, webhook, or project mutation"
 msgstr "Proiektu-skopioan irakur-identitatea; ez jaulkipenik, ez historiarik, esprintik, kiderik, webhook edo proiektu-mutaziorik."
-
-# libretranslate
-msgid "Prometheus"
-msgstr "Prometeo"
 
 # libretranslate
 msgid "Prometheus Service Tests 📈"
@@ -42705,14 +42086,6 @@ msgid "Python-specific code conventions: unittest import shape, `PROJECT_ROOT` u
 msgstr "Python-en berariazko kode-konbentzioak: inportazio-formak, `PROJECT_ROOT` erabilera, debekatu gordina `os.walk`/`Path.rglob`/uncached `read_text`, `noqa` markatzaileen higienea, eredu boolear erredundanteak eta autobide-erreferentzia saihestea."
 
 # libretranslate
-msgid "QBittorrent"
-msgstr "QBittorrent"
-
-# libretranslate
-msgid "Qdrant"
-msgstr "Qdrant"
-
-# libretranslate
 msgid "Qdrant Docker Upgrade"
 msgstr "Qdrant Docker Upgrade"
 
@@ -42869,10 +42242,6 @@ msgstr "Keycloak-en saioa amaitzeko puntua."
 # libretranslate
 msgid "RUNTIME (explicit override)"
 msgstr "RUNTIME (Gainjarri esplizitua)"
-
-# libretranslate
-msgid "RabbitMQ"
-msgstr "RabbitMQ"
 
 # libretranslate
 msgid "Raft's BoltDB store is mmap + `fsync` based, so it hits exactly the locking and `fsync` semantics that keep the database engines off NFS. The deployment-modes volume model requires a placement constraint for any non-NFS volume under swarm, so the data cannot be lost on a reschedule. Same shape as [`svc-db-postgres`](../../roles/svc-db-postgres/) and the other engines."
@@ -43570,34 +42939,6 @@ msgstr "Rol baten trafikoa birbideratzea edo itzultzea, helbide-barruti batean b
 # libretranslate
 msgid "Redirector"
 msgstr "Berbideraketa"
-
-# libretranslate
-msgid "Redis"
-msgstr "Redis"
-
-# libretranslate
-msgid "Redis ``cache``"
-msgstr "Redis ``cache``"
-
-# libretranslate
-msgid "Redis ``queue``"
-msgstr "Redis ``queue``"
-
-# libretranslate
-msgid "Redis ``socketio``"
-msgstr "Redis ``socketio``"
-
-# libretranslate
-msgid "Redis `cache`"
-msgstr "Redis `cache`"
-
-# libretranslate
-msgid "Redis `queue`"
-msgstr "Redis `queue`"
-
-# libretranslate
-msgid "Redis `socketio`"
-msgstr "Redis `socketio`"
 
 # libretranslate
 msgid "Redis blocked sidecar path"
@@ -45246,10 +44587,6 @@ msgid "Retrieval-augmented generation (RAG) with vector DBs (e.g., Qdrant)"
 msgstr "Eskuratutako belaunaldia (RAG) DB bektoreekin (adibidez, Qdrant)"
 
 # libretranslate
-msgid "RetroArch"
-msgstr "RetroArch"
-
-# libretranslate
 msgid "Retry Loop"
 msgstr "Berriro saiatu begizta"
 
@@ -45453,6 +44790,9 @@ msgstr "Itzuli ``source`` Ingelesez eta edozein hizkuntzatara itzultzen dena."
 msgid "Return ``text`` escaped for HTML with its protected spans tokenised."
 msgstr "Itzuli ``text`` HTMLra ihes egin zuen bere babes-estalkiekin."
 
+msgid "Return ``text`` reduced to its letters and digits, lower case."
+msgstr ""
+
 msgid "Return ``text`` with every protected span removed."
 msgstr ""
 
@@ -45603,9 +44943,15 @@ msgstr "Itzuli artxiboko fitxategi guztiak *archive_dir* Fitxategi-izenaren arab
 msgid "Return every capture of *pattern* in the body of *url*."
 msgstr "Itzuli harrapaketa bakoitza *eredua* gorputzean *url*."
 
+msgid "Return every credited person's name, sorted."
+msgstr ""
+
 # libretranslate
 msgid "Return every declared addon across all roles' ``meta/addons/*.yml``."
 msgstr "Itzuli aitortutako gehigarri guztiak rol guztietan ``meta/addons/*.yml``."
+
+msgid "Return every declared role title, sorted and without duplicates."
+msgstr ""
 
 # libretranslate
 msgid "Return every declared source that moved ahead of its pin."
@@ -45647,6 +44993,9 @@ msgstr "Itzuli npm baten bertsio argitaratu guztiak *paketea*."
 msgid "Return every released version of ``package``, empty when PyPI is unreachable."
 msgstr "Itzuli argitaratutako bertsio bakoitza ``package``, hutsik PyPI atziezina denean."
 
+msgid "Return every role directory name, sorted."
+msgstr ""
+
 # libretranslate
 msgid "Return every role on either end of a bond, in stable order."
 msgstr "Itzuli funtzio guztiak loturaren bi muturretan, ordena egonkorran."
@@ -45654,6 +45003,9 @@ msgstr "Itzuli funtzio guztiak loturaren bi muturretan, ordena egonkorran."
 # libretranslate
 msgid "Return every role reachable from ``seeds`` through meta and service edges."
 msgstr "Itzuli lortzen diren rol guztiak ``seeds`` meta eta zerbitzu ertzen bidez."
+
+msgid "Return every role title that names an upstream product, sorted."
+msgstr ""
 
 # libretranslate
 msgid "Return every semver-checkable ``(repository, ref)`` declaration under ``roles/*/meta/services.yml`` and ``roles/*/meta/addons/*.yml`` whose ref is not suppressed."
@@ -45937,6 +45289,9 @@ msgstr "Itzuli osoa ``PORT_BANDS`` mapa ``<scope>.<category>``."
 msgid "Return the highest released version of ``package``, or None."
 msgstr "Itzuli bertsiorik altuena ``package``, Edo bat ere ez."
 
+msgid "Return the identifiers ``role_dir`` names its upstream product by."
+msgstr ""
+
 # libretranslate
 msgid "Return the immediate subdirectories of ``cli/<parts>/``, split into runnable commands (``__main__.py`` present) and category folders. Empty support packages (no command anywhere underneath) are skipped."
 msgstr "Itzuli berehalako azpidirektorioak ``cli/<parts>/``, komando exekutagarrietan zatitua (``__main__.py`` present) eta kategoria-karpetak. Laguntza-pakete hutsak (ez dago aginterik azpian) Jauzi egin dute."
@@ -46138,6 +45493,9 @@ msgstr ""
 # libretranslate
 msgid "Return the template of the ``docs`` domain, built from a copy of the working tree."
 msgstr "Itzuli txantiloia ``docs`` domeinua, lan-zuhaitzaren kopia batetik eraikia."
+
+msgid "Return the title ``role_dir`` declares, empty when it declares none."
+msgstr ""
 
 msgid "Return the unconditional and the capitalisation-gated name patterns."
 msgstr ""
@@ -47165,10 +46523,6 @@ msgstr "Hugo bitarra biratzen"
 # libretranslate
 msgid "Rotation"
 msgstr "Biraketa"
-
-# libretranslate
-msgid "Roulette Wheel"
-msgstr "Erruleta gurpila"
 
 # libretranslate
 msgid "Round-robin via `tasks.<service>` upstream"
@@ -48888,13 +48242,6 @@ msgstr ""
 msgid "Searches all ``roles/*/vars/main.yml`` for application_id and returns the relative path (from the project root) of the role that matches. Raises an error if zero or more than one match is found."
 msgstr ""
 
-msgid "Searxng"
-msgstr ""
-
-# libretranslate
-msgid "SeaweedFS"
-msgstr "SeaweedFS"
-
 # libretranslate
 msgid "SeaweedFS is the shared S3 object store. A role becomes a consumer by declaring a `seaweedfs` service in `meta/services.yml`, wiring its app config from `lookup('objstore', application_id, ...)` (bucket / access_key / secret_key / url / region), and shipping a gated `files/playwright/test-seaweedfs.js`. See `web-app-mastodon`, `web-app-pixelfed`, and `web-app-nextcloud` for the reference pattern. SeaweedFS S3 requires **path-style addressing** and the internal `http://` endpoint."
 msgstr "SeaweedFS partekatua da S3 objektuen biltegia. Rol bat kontsumitzaile bihurtzen da, bat deklaratuz `seaweedfs` zerbitzua `meta/services.yml`, aplikazioa konfiguratuz `lookup('objstore', application_id, ...)` (kuboa access_key / secret_key / url / eskualdea)eta bidalketak `files/playwright/test-seaweedfs.js`. `web-app-mastodon`, `web-app-pixelfed`, eta `web-app-nextcloud` erreferentzia-ereduarentzat. SeaweedFS S3 eskakizunak **bide-estiloko helbideratzea** eta barnekoa `http://` amaierako puntua."
@@ -49453,10 +48800,6 @@ msgstr "Semantika: uneko inplementazioak bere id-arekin bat datorren edozein fun
 
 msgid "Semantics::"
 msgstr ""
-
-# libretranslate
-msgid "Semaphore UI"
-msgstr "Semaphore UI"
 
 # libretranslate
 msgid "Semver primitives shared by every version-bump backend."
@@ -50134,10 +49477,6 @@ msgid "Ships an embedded sidecar snippet (`templates/service.yml.j2`) for the `s
 msgstr "Albo-gurdi kapsulatua bidaltzen du (`templates/service.yml.j2`) zeren eta `shared: false` bide-bazterra."
 
 # libretranslate
-msgid "Shopware"
-msgstr "Denda"
-
-# libretranslate
 msgid "Short single-command invocations MAY stay inline when they do not contain meaningful control flow."
 msgstr "Komando bakarreko dei laburrak barnean gera daitezke kontrol-fluxu esanguratsurik ez dutenean."
 
@@ -50200,10 +49539,6 @@ msgstr "Isil-isilik irteten da WSLn exekutatzen ez bada2"
 # libretranslate
 msgid "Silently exits if systemd is already running (`/run/systemd/system` exists)"
 msgstr "Isil-isilik irteten da sistema exekutatzen ari bada (`/run/systemd/system` existitzen da)"
-
-# libretranslate
-msgid "Simple Icons"
-msgstr "Ikono sinpleak"
 
 # libretranslate
 msgid "Simple and lightweight"
@@ -50544,10 +49879,6 @@ msgid "Snipe-IT is entered through a trusted-header bridge: the oauth2-proxy aut
 msgstr "Snipe-IT zubi fidagarri batetik sartzen da: oauth2-Autentifikatutako proxy-a Keycloak eta Snipe-IT-a ``loginViaRemoteUser()`` jatorrizko saio bat egiten du bat datorrenerako ``users.username`` errenkada (Ikusi ```files/php/apply/sso_config.php`` <./files/php/apply/sso_config.php>`__). The gate declares no ``allowed_groups``, so ``biber`` passes the proxy — but the role provisions only the administrator account (```tasks/03_admin.yml`` <./tasks/03_admin.yml>`__), so the header carries a username Snipe-IT does not know and the visitor falls back to the native login form. ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ therefore declares ``PERSONA_BIBER_BLOCKED=true``, while the ``administrator`` persona stays live (``PERSONA_ADMINISTRATOR_BLOCKED=false``) eta amaitzen den zubi osoa erabiltzen du."
 
 # libretranslate
-msgid "Snipe‑IT"
-msgstr "Snipe-IT"
-
-# libretranslate
 msgid "Snipe‑IT is an open‑source asset management system designed to streamline hardware and software inventory tracking. This deployment provides an automated, containerized solution using Docker Compose, centralized MariaDB database integration, and secure, configurable environment settings, including robust SMTP email support and pending SAML authentication enhancements."
 msgstr "Snipe‐IT kode irekiko aktiboen kudeaketa sistema bat da, hardware eta softwareen inbentarioen jarraipena errazteko diseinatua. Hedapen honek soluzio automatizatu eta edukiontzidun bat eskaintzen du, Docker Composezentralizatua MariaDB datu-basearen integrazioa eta ingurune seguru eta konfiguragarria, SMTP posta-laguntza sendoa eta SAML autentifikazio-hobekuntzak barne."
 
@@ -50563,10 +49894,6 @@ msgstr "Beraz, baldintza bat `\"{{ 'web-app-matomo' in group_names }}\"` ertzak 
 #, python-brace-format
 msgid "So the format is read from the workflow itself. Every input renders as one segment, ``<head><value> ``, where the head is the emoji the workflow's own ``format('🐧{0} ', …)`` prefixes the value with. An input holding its default renders no segment at all, so a title carries only what deviates — and an absent input means \"the workflow's default\", which is exactly what a retrigger should leave alone."
 msgstr "Beraz, formatua laneko fluxutik bertatik irakurtzen da. Sarrera bakoitzak segmentu bat ematen du, ``<head><value> ``, non burua emojia den lan-fluxuaren berarena ``format('🐧{0} ', …)`` balioari aurrea hartzen dio. Sarrera lehenetsi bat edukitzeak ez du segmenturik ematen, beraz, tituluak desbideratzen duena baino ez du hartzen, eta sarrera faltak esan nahi du \"lan-fluxuaren lehenetsia\"Hori da, hain zuzen ere, itzultzaile batek bakarrik utzi beharko lukeena."
-
-# libretranslate
-msgid "Social Home"
-msgstr "Gizarte Etxea"
 
 # libretranslate
 msgid "Soft quota for the default blobstore. Computed as half free disk at the cache path, floor `2g`."
@@ -50766,10 +50093,6 @@ msgstr "Zatitu bilaketa-lerro ordenatuak sorta bateko serie-zatietan."
 # libretranslate
 msgid "Sponsor Infinito.Nexus"
 msgstr "Babeslea Infinito.Nexus"
-
-# libretranslate
-msgid "Spotify"
-msgstr "Spotify"
 
 # libretranslate
 msgid "Spotify is a digital music streaming service that gives you access to millions of songs and podcasts. The role calls ``package_install`` with the ``spotify`` id; ```meta/packages.yml`` <meta/packages.yml>`__ declares it as an AUR package on Arch Linux and as a deliberate no-op on the Debian and RedHat families, which do not archive the proprietary client."
@@ -51585,10 +50908,6 @@ msgstr "Taldeentzat egokia: aurreikusgarria, pribatua, erreproduzigarria"
 # libretranslate
 msgid "Suite Selection 🎯"
 msgstr "Suite hautapena 🎯"
-
-# libretranslate
-msgid "SuiteCRM"
-msgstr "SuiteCRM"
 
 # libretranslate
 msgid "Summarise Ansible `profile_roles` runtimes per matrix-deploy variant."
@@ -52607,10 +51926,6 @@ msgstr "TURN Wikipedian: `en.wikipedia.org/wiki/Traversal_Using_Relays_around_NA
 # libretranslate
 msgid "Tag the commit: `git tag -a v<MAJOR>.<MINOR>.<PATCH> -m \"Release version <MAJOR>.<MINOR>.<PATCH>\"`."
 msgstr "Egin ezazu: `git tag -a v<MAJOR>.<MINOR>.<PATCH> -m \"Release version <MAJOR>.<MINOR>.<PATCH>\"`."
-
-# libretranslate
-msgid "Taiga"
-msgstr "Taiga"
 
 # libretranslate
 msgid "Taiga is ideal for developers, designers, and agile teams who want:"
@@ -54779,6 +54094,9 @@ msgstr "Pieza arruntak hauek dira:"
 msgid "The companion [027-integration-matrix.md](027-integration-matrix.md) is a generated role×role matrix over the entity names of every `web-app-*` and `web-svc-*` role. Each cell marks whether the **row** role wires in the **column** role:"
 msgstr "Laguna [027-integrazioa...matrix.md](027-integration-matrix.md) funtzio-xrole matrize bat da edozein entitate-izenen gainean. `web-app-*` eta `web-svc-*` Rola. Gelaxka bakoitzak markatzen du ea **errenkada** hariak paperetan **Zutabea** Rola:"
 
+msgid "The comparison runs against the prose, so the markdown a heading wraps the name in falls away first: ``**Mastodon**`` is the product under emphasis, not a phrase about it. Case is ignored because a page writes the name the way its sentence needs it, and ``**mailu**`` is still Mailu."
+msgstr ""
+
 # libretranslate
 msgid "The complete model is machine-readable in [`schema.yml`](schema.yml)."
 msgstr "Modelo osoa makina bidez irakurtzeko modukoa da. [`schema.yml`](schema.yml)."
@@ -56143,6 +55461,9 @@ msgstr "Direktorioak lotuak dauden fitxategiak bakarrik eduki behar ditu definit
 msgid "The directory has two kinds of env modules:"
 msgstr "Direktorioak bi env modulu mota ditu:"
 
+msgid "The directory names of the roles, as one source for every reader."
+msgstr ""
+
 # libretranslate
 msgid "The discovery layer:"
 msgstr "Aurkikuntzaren geruza:"
@@ -56327,6 +55648,9 @@ msgstr "Kanpoko gehigarriak abisuak eman behar ditu, ez hutsegiteak, monitorizat
 # libretranslate
 msgid "The external addon test MUST emit warnings, not failures, when a supported catalog adapter detects a new relevant addon that is not listed in `meta/addons/`."
 msgstr "Kanpoko gehigarrien probak abisuak eman behar ditu, ez hutsegiteak, onartutako katalogo-moldagailu batek beste gehigarri garrantzitsu bat detektatzen duenean. `meta/addons/`."
+
+msgid "The extraction and the translation client share this one function, so a message the catalogs withhold is the same message the client would have refused to send."
+msgstr ""
 
 # libretranslate
 msgid "The fact is not merely late, it is wrong while it is late. Facts are read before the daemon config is applied, so ``docker0`` still carries docker's own default; writing the pools then moves the bridge underneath it. A swarm node measured ``172.17.0.1`` in daemon.json against a live ``10.208.0.1``, which is why the declaration answers here and the fact never does."
@@ -57126,6 +56450,9 @@ msgstr "Izenak ez du inoiz lekurik: ``whitelist`` eta ``priority`` Lan-fluxuen s
 msgid "The name of the matching role directory."
 msgstr "Bat datorren funtzio-direktorioaren izena."
 
+msgid "The names are derived from the ``## Credits`` sections themselves rather than kept as a list, so crediting a contributor needs no code change. The derivation lives in :mod:`utils.roles.credits`; this module is the entry point for readers that want the names alone."
+msgstr ""
+
 # libretranslate
 msgid "The names in declaration order, aliases substituted."
 msgstr "Deklarazioaren izenean, aliasak ordezten ziren."
@@ -57332,6 +56659,9 @@ msgid "The path ``INFINITO_SRC_DIR`` names."
 msgstr "Bidea ``INFINITO_SRC_DIR`` Izenak."
 
 msgid "The pattern for hyphenated role names, which hold wherever they appear, and the one for titles, which holds only on a capitalised occurrence."
+msgstr ""
+
+msgid "The people the repository credits, as one source for every reader."
 msgstr ""
 
 # libretranslate
@@ -58428,6 +57758,9 @@ msgstr "Rolak, orduan, Playwright proiektua tokiko eszenaratze-direktorio batera
 msgid "The role therefore installs the editor and leaves the endpoint override to the operator. Nothing here pretends to configure a gateway that the product does not accept from a file."
 msgstr ""
 
+msgid "The role titles that name an upstream product rather than describe a job."
+msgstr ""
+
 # libretranslate
 msgid "The role uses a multi-stage Dockerfile:"
 msgstr "Rolak agertoki anitzeko Dockerfile bat erabiltzen du:"
@@ -59126,6 +58459,9 @@ msgstr "Hiruak `svc-bkp-*` Biltegiko errenkadak hemendik datoz `backup_repos.rep
 # libretranslate
 msgid "The three candidates that vendor documentation claimed were probed against running instances on 2026-08-27, and each is filed below on what the deployed artefact actually offers rather than on the claim:"
 msgstr "Saltzailearen dokumentazioa eskatzen zuten hiru hautagaiak instantziak exekutatzearen aurka epaitu zituzten. 2026-08-27, eta bakoitza behean aurkezten da, zer eskaintzen duen artefaktu hedatuak erreklamazioan baino:"
+
+msgid "The title a role presents itself under."
+msgstr ""
 
 # libretranslate
 msgid "The title renders these as glyphs, so recovering one means translating a symbol back into a value; the log holds the word the operator picked. Reading it there keeps the retrigger honest even if the title's marker changes shape."
@@ -62560,9 +61896,6 @@ msgstr "Docker-en bolumenak SSDn edo HDDn lan karga motaren arabera kokatzen dit
 msgid "Tightened the compose-resource-limits lint and reconciled the entire role corpus against it"
 msgstr "Konposaketa-baliabideen mugak zorroztu eta corpus osoa adiskidetu zuen haren aurka."
 
-msgid "Tika"
-msgstr ""
-
 # libretranslate
 msgid "To access the MariaDB instance in the database container, run the following command:"
 msgstr "Sarbidea lortzeko MariaDB adibidez datu-basearen edukiontzian, exekutatu komando hau:"
@@ -63516,6 +62849,9 @@ msgstr "Txanda batean bi rolk konfigurazio desberdina eskatzen dute hornitzaile 
 msgid "Two selection tokens that pin different axes of one row can resolve to the same deploy. They collapse into one entry, and the stronger `enforce_filesystem` claim survives the collapse."
 msgstr "Errenkada bateko ardatz desberdinak ezartzen dituzten bi hautapen-tokenek hedapena bera ebatzi dezakete. Sarrera batean erortzen dira, eta indartsuenak `enforce_filesystem` Erreklamazioak kolapsoa gainditzen du."
 
+msgid "Two shapes qualify. A message with no word at all is markup: ``[`e2e/`](e2e/)`` has nothing a translation could change. A message that is exactly a name is a label: ``Mastodon`` is the product, ``Infinito.Nexus`` this software, ``Kevin Veen-Birkenbach`` the person, and a bare URL the address, and each must read the same in every language."
+msgstr ""
+
 msgid "Two sources, run verdicts first:"
 msgstr ""
 
@@ -63541,10 +62877,6 @@ msgstr "Idatzi hiztegia eta forma"
 
 # libretranslate
 msgid "Types"
-msgstr "Motak"
-
-# libretranslate
-msgid "Typesense"
 msgstr "Motak"
 
 # libretranslate
@@ -63648,10 +62980,6 @@ msgstr "Eraginik gabe (CIk adar-arau bakoitzeko) ✓"
 # libretranslate
 msgid "Unblock the `biber` persona. Listmonk matches OIDC users by e-mail and the role provisions no biber account; `cmd/auth.go` `OIDCFinish` 404s unless `security.oidc.auto_create_users` is true, and `createOIDCUser` passes `UserRoleID` as a plain int, so `default_user_role_id` must name a real role. The seeded database holds exactly one (`id=1 Super Admin`), so unblocking biber means first creating a limited Listmonk user role. It buys no coverage the administrator persona does not already buy."
 msgstr "Desblokeatu `biber` persona. Listmonk bat dator OIDCren erabiltzaileekin posta elektronikoz eta papereko xedapenak biber konturik gabe; `cmd/auth.go` `OIDCFinish` 404S izan ezik `security.oidc.auto_create_users` egia da, eta `createOIDCUser` pasa `UserRoleID` int bat bezala, beraz, `default_user_role_id` Benetako rol bat izendatu behar da. Hazitako datu-baseak bat dauka zehazki (`id=1 Super Admin`), Beraz, biber desblokeatzeak esan nahi du lehenik mugatu bat sortzea Listmonk erabiltzailearen papera. Ez du administratzaileak erosten ez duen estaldurarik erosten."
-
-# libretranslate
-msgid "Unbound"
-msgstr "Mugagabea"
 
 # libretranslate
 msgid "Uncomment a pacman.conf section, then install through it."
@@ -63759,10 +63087,6 @@ msgstr "Unitate-probak: hazi ezaguna → helbidearen proba-bektore ezaguna; berr
 # libretranslate
 msgid "Unit-test package mirroring the source split: [`test_spec.py`](../../../tests/unit/python/cli/administration/deploy/development/inventory/test_spec.py), [`test_payload.py`](../../../tests/unit/python/cli/administration/deploy/development/inventory/test_payload.py), [`test_planner.py`](../../../tests/unit/python/cli/administration/deploy/development/inventory/test_planner.py), [`test_builder.py`](../../../tests/unit/python/cli/administration/deploy/development/inventory/test_builder.py)."
 msgstr "Iturburu-zatia ispilatzen duen proba-paketea: [`test_spec.py`](../../../tests/unit/python/cli/administration/deploy/development/inventory/test_spec.py), [`test_payload.py`](../../../tests/unit/python/cli/administration/deploy/development/inventory/test_payload.py), [`test_planner.py`](../../../tests/unit/python/cli/administration/deploy/development/inventory/test_planner.py), [`test_builder.py`](../../../tests/unit/python/cli/administration/deploy/development/inventory/test_builder.py)."
-
-# libretranslate
-msgid "Universal Logout"
-msgstr "Universal Logout"
 
 # libretranslate
 msgid "Universal stage execution removed Universal roles are no longer executed as a separate lifecycle stage. They are handled exclusively via constructor and destructor stages. This prevents duplicate executions but changes lifecycle behavior."
@@ -65340,10 +64664,6 @@ msgid "View Source"
 msgstr "Ikusi iturburua"
 
 # libretranslate
-msgid "Virtual Box"
-msgstr "Kutxa birtuala"
-
-# libretranslate
 msgid "Visit `https://next.erp.{{ DOMAIN_PRIMARY }}/` — Frappe / ERPNext login page renders, no wizard."
 msgstr "Bisitatu `https://next.erp.{{ DOMAIN_PRIMARY }}/` - Frappe / ERPNext Saioa hasteko orria errendatzea, aztirik ez."
 
@@ -66052,6 +65372,9 @@ msgstr "Sare-bilaketak errendatzaileei deitu behar die."
 msgid "What a token leaves open belongs to the line it stands in: `priority` covers every remaining combination in one sweep, `whitelist` keeps the rotation and the row's position in the matrix. A pin the row cannot take aborts the matrix rather than dropping the row, because a dropped row would report a green run for a combination that never ran. Such a pin is `@swarm` on a role without its own stack, `+tor` on a variant that pins `services.tor.enabled` false, or any axis that fights the run's own `mode`, `tor`, `distros`, `filesystem` or `architectures` input, or `:arm64` on a role whose `meta/services.yml` declares `architectures: [amd64]`."
 msgstr "Token bat irekita uzten duena bere lerroari dagokio: `priority` gainerako konbinazio guztiak miaketa batean estaltzen ditu, `whitelist` matrizean biraketa eta errenkadaren posizioa mantentzen ditu. Lerroak ezin du matrizea abortatu errenkadatik erori baino, eroritako errenkada batek lasterketa berdearen berri emango bailuke inoiz egin ez den konbinazio baterako. Halako orratza da `@swarm` rol bat bere pilarik gabe, `+tor` pintzen duen aldaki batean `services.tor.enabled` faltsua, edo lasterketaren beraren aurka borrokatzen duen edozein ardatz. `mode`, `tor`, `distros`, `filesystem` edo `architectures` sarrera edo `:arm64` rol batean `meta/services.yml` adierazten du `architectures: [amd64]`."
 
+msgid "What a translator must never be handed, on either end of the pipeline."
+msgstr ""
+
 # libretranslate
 msgid "What capability was introduced?"
 msgstr "Zer gaitasun sartu zen?"
@@ -66067,6 +65390,9 @@ msgstr "Zertan oinarritzen da?"
 # libretranslate
 msgid "What does it install or configure?"
 msgstr "Zer instalatzen edo konfiguratzen du?"
+
+msgid "What does separate them is the role's own account of what it deploys: the upstream homepage and the image it pulls. ``Mastodon`` sits inside ``joinmastodon.org``; ``Cleanup Disc Space`` sits inside nothing. Every word of the title must appear, not the title as one string, because a product spells its parts in either order: ``Claude Code`` lives at ``code.claude.com``."
+msgstr ""
 
 msgid "What each axis value costs in runner time, measured off finished runs."
 msgstr ""
@@ -66790,6 +66116,15 @@ msgstr "STARTTLS erabiltzen den ala ez."
 msgid "Whether ``image:reference`` resolves to a manifest."
 msgstr "Ala ez ``image:reference`` Manifestu bat erabakitzen du."
 
+msgid "Whether ``text`` is nothing but a brand, a credited person or a URL."
+msgstr ""
+
+msgid "Whether ``text`` must stay in its source form."
+msgstr ""
+
+msgid "Whether ``title`` names the product ``role_dir`` deploys."
+msgstr ""
+
 # libretranslate
 msgid "Whether ``version`` pins by content rather than by name."
 msgstr "Ala ez ``version`` edukiaren arabera, izenaren ordez."
@@ -67071,10 +66406,6 @@ msgid "WireGuard Client behind NAT"
 msgstr "WireGuard bezeroa NAT atzean"
 
 # libretranslate
-msgid "Wireguard"
-msgstr "Wireguard"
-
-# libretranslate
 msgid "Wireguard Client"
 msgstr "Wireguard bezeroa"
 
@@ -67177,10 +66508,6 @@ msgstr "Gabe `sudo` Lehenengo bi baieztapenak oraindik martxan daude eta matrize
 # libretranslate
 msgid "Without this setting, runner registration from org CI will fail with HTTP 403. Fork CI is unaffected because the token has full access to the fork repository."
 msgstr "Ezarpen hau gabe, org CIko korrikalarien erregistroak huts egingo du HTTPrekin 403. Sardexka CIk ez du eraginik, tokenak sardexka biltegirako sarbide osoa duelako."
-
-# libretranslate
-msgid "WordPress"
-msgstr "WordPress"
 
 # libretranslate
 msgid "WordPress Multisite is opt-in. Set ``services.wordpress.multisite.enabled: true`` in the inventory to convert the deployed instance into a sub-domain Multisite network. Every entry in ``domains.canonical`` becomes a site in the network; the first entry is the network primary, subsequent entries are child sites."
@@ -67508,10 +66835,6 @@ msgid "XPI urls (uBlock Origin, KeePassXC)"
 msgstr "XPI url (uBlock jatorria, KeePassXC)"
 
 # libretranslate
-msgid "XWiki"
-msgstr "XWiki"
-
-# libretranslate
 msgid "YAML & Jinja Lint 📐"
 msgstr "YAML eta Jinja Lint 📐"
 
@@ -67530,10 +66853,6 @@ msgstr "YAML iturburua onartutako blokeen azpimultzora mugatuta."
 # libretranslate
 msgid "YAML writes null three ways - ``null``, ``~``, and a key with nothing after it - so a half-typed line empties a topic rather than being ignored."
 msgstr "YAMLk hiru modutan idazten du: ``null``, ``~``, Eta gako bat, atzetik ezer ez duena, horrela lerro erdi idatzi batek gai bat huts egiten du ezikusi egin ordez."
-
-# libretranslate
-msgid "YOURLS"
-msgstr "ZUREAK"
 
 # libretranslate
 msgid "YOURLS (Your Own URL Shortener) is an open‑source URL shortening solution that enables you to create, track, and manage short links with ease. This deployment leverages Docker to provide a secure and easily scalable environment, ensuring that your YOURLS instance is configured for optimal performance and reliability."
@@ -68759,10 +68078,6 @@ msgid "Your change SHOULD be small and focused."
 msgstr "Zure aldaketak txikiak eta kontzentratuak izan behar du."
 
 # libretranslate
-msgid "Zammad"
-msgstr "Zammad"
-
-# libretranslate
 msgid "Zero Vendor Lock-In"
 msgstr "Zero Vendor Lock-en"
 
@@ -68785,10 +68100,6 @@ msgstr "Zero-pad zenbakizko osagai bakoitza *bertsioa* Hiru digitura."
 # libretranslate
 msgid "Zone"
 msgstr "Zonaldea"
-
-# libretranslate
-msgid "Zoom"
-msgstr "Zooma"
 
 # libretranslate
 msgid "[ ] \"Sign in with Bluesky\" completes an AT Protocol OAuth round-trip against the platform PDS provided by [`web-app-bluesky`](../../roles/web-app-bluesky/), and an authenticated user can create a `community.lexicon.calendar.event` record that is written to their PDS repo."
@@ -70327,10 +69638,6 @@ msgid "[AGENTS.md](../../../../../AGENTS.md) forbids `for` / `while` / `until` l
 msgstr "[AGENTS.md](../../../../../AGENTS.md) debekuak `for` / `while` / `until` Bash deialdiak, eta `Bash(for *)` / `Bash(while *)` / `Bash(until *)` barruan daude `deny` araua betearazteko. Zeregin bakoitzak baliokide bat du: bat bakarra `grep` fitxategi-argumentu anitzekin, `xargs`, korrespondentzia errekurtsibo bat, edo tresna dedikatu bat."
 
 # libretranslate
-msgid "[API](roles/web-svc-api/)"
-msgstr "[API](roles/web-svc-api/)"
-
-# libretranslate
 msgid "[API](roles/web-svc-api/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
 msgstr "[API](roles/web-svc-api/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
 
@@ -70406,10 +69713,6 @@ msgstr ""
 # libretranslate
 msgid "[Agile Manifesto](https://agilemanifesto.org/)"
 msgstr "[Agile Manifestua](https://agilemanifesto.org/)"
-
-# libretranslate
-msgid "[Akaunting](roles/web-app-akaunting/)"
-msgstr "[Akaunting](roles/web-app-akaunting/)"
 
 # libretranslate
 msgid "[Alejandro Roman Ibanez](https://github.com/AlejandroRomanIbanez): self-hosted containerised CI runners"
@@ -70755,16 +70058,8 @@ msgid "[Baserow MCP Server docs](https://baserow.io/user-docs/mcp-server) <!-- n
 msgstr "[Baserow MCP Zerbitzariaren docs](https://baserow.io/user-docs/mcp-server) <!- nocheck: url - page is live (HEAD+GET 200); baserow.io tartekatuta 404s CI korrikalariaren IPak -->"
 
 # libretranslate
-msgid "[Baserow](roles/web-app-baserow/)"
-msgstr "[Baserow](roles/web-app-baserow/)"
-
-# libretranslate
 msgid "[BigBlueButton Docker Docs](https://docs.bigbluebutton.org/greenlight/v3/install/)"
 msgstr "[BigBlueButton Docker Docs](https://docs.bigbluebutton.org/greenlight/v3/install/)"
-
-# libretranslate
-msgid "[BigBlueButton](roles/web-app-bigbluebutton/)"
-msgstr "[BigBlueButton](roles/web-app-bigbluebutton/)"
 
 # libretranslate
 msgid "[Bitnami OpenLDAP](https://hub.docker.com/r/bitnami/openldap)"
@@ -70787,20 +70082,8 @@ msgid "[Bluesky](https://bsky.social/) is a decentralized social network that ru
 msgstr "[Bluesky](https://bsky.social/) Gizarte-sare deszentralizatu bat da, AT Protokoloa irekitzen duena. Erabiltzaile-kontu bakoitza Datu Pertsonalen Zerbitzari batean bizi da. (PDS) erabiltzailearen mezuak, erantzunak eta sinatutako erregistroak jarraitzen ditu, eta aplikazio independenteen edozein ikuspegik irakur ditzake erregistro horiek denbora-lerro bat emateko."
 
 # libretranslate
-msgid "[Bluesky](roles/web-app-bluesky/)"
-msgstr "[Bluesky](roles/web-app-bluesky/)"
-
-# libretranslate
-msgid "[BookWyrm Documentation](https://docs.joinbookwyrm.com/)"
-msgstr "[BookWyrm Documentation](https://docs.joinbookwyrm.com/)"
-
-# libretranslate
 msgid "[BookWyrm GitHub](https://github.com/bookwyrm-social/bookwyrm)"
 msgstr "[BookWyrm GitHub](https://github.com/bookwyrm-social/bookwyrm)"
-
-# libretranslate
-msgid "[BookWyrm](roles/web-app-bookwyrm/)"
-msgstr "[BookWyrm](roles/web-app-bookwyrm/)"
 
 # libretranslate
 msgid "[Boy Scout Rule](https://en.wikipedia.org/wiki/Leaving_the_world_a_better_place)"
@@ -70809,10 +70092,6 @@ msgstr "[Boy Scout erregela](https://en.wikipedia.org/wiki/Leaving_the_world_a_b
 # libretranslate
 msgid "[Branch Protection](docs/contributing/tools/github/branch/security.md): Rules enforced on the `main` branch."
 msgstr "[Babeskopia](docs/contributing/tools/github/branch/security.md): Arauak betearaztea `main` adarra."
-
-# libretranslate
-msgid "[Bridgy Fed Documentation](https://bridgy-fed.readthedocs.io/)"
-msgstr "[Bridgy Fed Documentation](https://bridgy-fed.readthedocs.io/)"
 
 # libretranslate
 msgid "[Bridgy Fed Official Site](https://fed.brid.gy/)"
@@ -70825,10 +70104,6 @@ msgstr "[Bridgy Fed iturburua GitHub-en](https://github.com/snarfed/bridgy-fed)"
 # libretranslate
 msgid "[Bridgy Fed](https://fed.brid.gy/) is a federation bridge between ActivityPub (the Fediverse), the AT Protocol (Bluesky), and the IndieWeb (webmentions and microformats2). It mirrors identities and cross-network interactions so a post on one network reaches followers on the others."
 msgstr "[Bridgy Fed](https://fed.brid.gy/) JardueraPub-en arteko zubi federala da (Fediverse)AT protokoloa (Bluesky)eta IndieWeb (webmentioak eta mikroformatuak2)Identitateak eta sareen arteko elkarrekintzak islatzen ditu, beraz, sare bateko posta beste jarraitzaileengana iristen da."
-
-# libretranslate
-msgid "[Bridgy Fed](roles/web-app-bridgy-fed/)"
-msgstr "[Bridgy Fed](roles/web-app-bridgy-fed/)"
 
 # libretranslate
 msgid "[CHANGELOG.md](../../../CHANGELOG.md) at the repository root holds the most recent releases inline. Older releases live one-file-per-version under [docs/changelog/](../../changelog/), linked from the `## Older Releases` section at the bottom of the active changelog."
@@ -70888,18 +70163,7 @@ msgstr "[Checkmk](https://checkmk.com/) (Raw / Community edizioa, 100% iturburu 
 msgid "[Checkmk](https://checkmk.com/) is an open-source IT/infrastructure & application monitoring system. The **Raw / Community** edition (100% open source) ships an official all-in-one container that bundles the monitoring core, RRD storage, and the Apache-served web GUI — it needs **no external database**."
 msgstr "[Checkmk](https://checkmk.com/) IT/Infrastructure & application monitoring sistema bat da. The **Raw / Community** Edizioa (100% iturburu irekikoa) edukiontzi ofizial bat dauka, kontrol-gunea, RRD biltegia eta Apachek zaindutako web-interfazea biltzen dituena. **kanpoko datu-baserik ez**."
 
-# libretranslate
-msgid "[Checkmk](roles/web-app-checkmk/)"
-msgstr "[Checkmk](roles/web-app-checkmk/)"
-
-# libretranslate
-msgid "[Chess](roles/web-app-chess/)"
-msgstr "[Xakea](roles/web-app-chess/)"
-
 msgid "[Claude Code](https://code.claude.com/) is Anthropic's terminal coding agent. This role installs it on a workstation and points it at the platform's own model gateway instead of the vendor API."
-msgstr ""
-
-msgid "[Claude Code](roles/dsk-gnt-claude/)"
 msgstr ""
 
 msgid "[Claude Code](roles/dsk-gnt-claude/), [Codex](roles/dsk-gnt-codex/)"
@@ -70921,18 +70185,8 @@ msgstr "[Cloudflare Purge Cache Documentation](https://developers.cloudflare.com
 msgid "[Cloudmark Reset](https://csi.cloudmark.com/en/reset/)"
 msgstr "[Cloudmark Berrezarri](https://csi.cloudmark.com/en/reset/)"
 
-msgid "[Code](roles/dsk-code/)"
-msgstr ""
-
 msgid "[Codex](https://github.com/openai/codex) is OpenAI's terminal coding agent, installed on a workstation and pointed at this deployment's own model gateway instead of the vendor API."
 msgstr ""
-
-msgid "[Codex](roles/dsk-gnt-codex/)"
-msgstr ""
-
-# libretranslate
-msgid "[Collabora](roles/web-svc-collabora/)"
-msgstr "[Collabora](roles/web-svc-collabora/)"
 
 # libretranslate
 msgid "[Compose Loop](../../../agents/action/iteration/compose.md): baseline deploy, redeploy rules, Certificate Authority trust, Inspect-before-redeploy."
@@ -71043,17 +70297,10 @@ msgid "[Coturn](https://github.com/coturn/coturn) is a free and open-source **TU
 msgstr "[Itzuli](https://github.com/coturn/coturn) iturri libre eta ireki bat da **TURN (NAT inguruko errelayak erabiltzen)** eta **STUN (Saioa NATerako tresnak)** zerbitzaria. Denbora errealeko komunikazioa ahalbidetzen du (RTC) bezalako aplikazioak **WebRTC** NAT eta suebakietan zehar modu fidagarrian lan egitea."
 
 # libretranslate
-msgid "[Coturn](roles/web-svc-coturn/)"
-msgstr "[Itzuli](roles/web-svc-coturn/)"
-
-# libretranslate
 msgid "[Create a fork and a branch with the right prefix](docs/contributing/workflow.md)."
 msgstr "[Sortu sardexka eta adar bat eskuineko aurrizkiarekin](docs/contributing/workflow.md)."
 
 msgid "[Cursor](https://cursor.com/) is an AI-first code editor. This role installs it on a workstation."
-msgstr ""
-
-msgid "[Cursor](roles/dsk-gnt-cursor/)"
 msgstr ""
 
 # libretranslate
@@ -71097,10 +70344,6 @@ msgid "[Decidim documentation](https://docs.decidim.org/)"
 msgstr "[Dokumentazio zehatza](https://docs.decidim.org/)"
 
 # libretranslate
-msgid "[Decidim](roles/web-app-decidim/)"
-msgstr "[Decidim](roles/web-app-decidim/)"
-
-# libretranslate
 msgid "[Deploy Guide](deploy.md) — inventory creation and deploys"
 msgstr "[Deploy gida](deploy.md) - inbentarioa sortzea eta zabaltzea"
 
@@ -71121,10 +70364,6 @@ msgid "[Development Hub](https://s.infinito.nexus/development) - general develop
 msgstr "[Garapen-zentroa](https://s.infinito.nexus/development) -Garatzailearen eztabaida orokorra eta laguntzaileen orientazioa."
 
 # libretranslate
-msgid "[Discourse Documentation](https://meta.discourse.org/t/discourse-setup-guide/21966)"
-msgstr "[Discourse Documentation](https://meta.discourse.org/t/discourse-setup-guide/21966)"
-
-# libretranslate
 msgid "[Discourse GitHub Repository](https://github.com/discourse/discourse_docker.git)"
 msgstr "[Discourse GitHub biltegia](https://github.com/discourse/discourse_docker.git)"
 
@@ -71135,10 +70374,6 @@ msgstr "[Discourse Meta Forum](https://meta.discourse.org/)"
 # libretranslate
 msgid "[Discourse Official Website](https://www.discourse.org/)"
 msgstr "[Webgune ofiziala](https://www.discourse.org/)"
-
-# libretranslate
-msgid "[Discourse](roles/web-app-discourse/)"
-msgstr "[Discourse](roles/web-app-discourse/)"
 
 # libretranslate
 msgid "[Discussion #16470](https://github.com/orgs/jellyfin/discussions/16470)"
@@ -71220,28 +70455,12 @@ msgid "[ERPNext](https://erpnext.com/) is an open-source ERP suite built on the 
 msgstr "[ERPNext](https://erpnext.com/) Iturburu irekiko ERP suite bat da, gainean eraikia [Frappe Framework](https://frappeframework.com/). Finantzak, CRM, inbentarioa, fabrikazioa, HR, salmentak, proiektuak eta webguneak biltzen ditu auto-ostatutako pila batean."
 
 # libretranslate
-msgid "[ERPNext](roles/web-app-erpnext/)"
-msgstr "[ERPNext](roles/web-app-erpnext/)"
-
-# libretranslate
-msgid "[Elasticsearch](roles/svc-db-elasticsearch/)"
-msgstr "[Elasticsearch](roles/svc-db-elasticsearch/)"
-
-# libretranslate
 msgid "[Enable Single Sign-On (SSO)](https://baserow.io/user-docs/enable-single-sign-on-sso)"
 msgstr "[Gaitu saio-hasiera bakarra (SSO)](https://baserow.io/user-docs/enable-single-sign-on-sso)"
 
 # libretranslate
-msgid "[EspoCRM Documentation](https://docs.espocrm.com/) 📖"
-msgstr "[EspoCRM Documentation](https://docs.espocrm.com/) 📖"
-
-# libretranslate
 msgid "[EspoCRM Official Website](https://www.espocrm.com/) 🌍"
 msgstr "[EspoCRM webgune ofiziala](https://www.espocrm.com/) 🌍"
-
-# libretranslate
-msgid "[EspoCRM](roles/web-app-espocrm/)"
-msgstr "[EspoCRM](roles/web-app-espocrm/)"
 
 # libretranslate
 msgid "[Evangelos Tsakoudis](https://evangelostsak.com): Penpot role and its end-to-end test suite"
@@ -71250,10 +70469,6 @@ msgstr "[Evangelos Tsakoudis](https://evangelostsak.com): Penpot funtzioa eta am
 # libretranslate
 msgid "[Evangelos Tsakoudis](https://evangelostsak.com): the OpenBao role with its seal, credential rotation, recovery and RBAC end-to-end suite, role-local Prometheus alert rules, and the LAM and swarm network fixes that work uncovered"
 msgstr "[Evangelos Tsakoudis](https://evangelostsak.com): OpenBao bere zigilua, kredentzialaren biraketa, berreskuratzea eta RBAC amaierako suitea, role-local Prometheus alerta-arauak eta LAM eta sare-konponketa ugariak, agerian lan egiten dutenak"
-
-# libretranslate
-msgid "[Evangelos Tsakoudis](https://github.com/evangelostsak)"
-msgstr "[Evangelos Tsakoudis](https://github.com/evangelostsak)"
 
 # libretranslate
 msgid "[External Tests](testing/external.md)"
@@ -71276,20 +70491,12 @@ msgid "[Fediwall GitHub Repository](https://github.com/defnull/fediwall)"
 msgstr "[Fediwall GitHub biltegia](https://github.com/defnull/fediwall)"
 
 # libretranslate
-msgid "[Fediwall](roles/web-app-fediwall/)"
-msgstr "[Fediwall](roles/web-app-fediwall/)"
-
-# libretranslate
 msgid "[Fider GitHub](https://github.com/getfider/fider)"
 msgstr "[Fider GitHub](https://github.com/getfider/fider)"
 
 # libretranslate
 msgid "[Fider](https://getfider.com/) is an open-source community feedback and voting platform that allows teams to collect, prioritize, and track feature requests and ideas."
 msgstr "[Fider](https://getfider.com/) Iturburu irekiko iritzi- eta bozketa-plataforma bat da, taldeei aukera ematen diena ezaugarri-eskaerak eta ideiak biltzeko, lehenesteko eta jarraitzeko."
-
-# libretranslate
-msgid "[Fider](roles/web-app-fider/)"
-msgstr "[Fider](roles/web-app-fider/)"
 
 # libretranslate
 msgid "[File Server](roles/web-svc-file/)"
@@ -71316,10 +70523,6 @@ msgid "[Flowise tag `flowise@3.1.4`](https://github.com/FlowiseAI/Flowise/tree/f
 msgstr "[Fluxu-etiketa `flowise@3.1.4`](https://github.com/FlowiseAI/Flowise/tree/flowise%403.1.4), batez ere `packages/server/src/routes/custom-mcp-servers/` eta `packages/server/src/services/custom-mcp-servers/`"
 
 # libretranslate
-msgid "[Flowise](roles/web-app-flowise/)"
-msgstr "[Fluiseise](roles/web-app-flowise/)"
-
-# libretranslate
 msgid "[Forum HOWTO](https://forum.checkmk.com/t/howto-cmk-with-oidc-authentication/37168)"
 msgstr "[Forum HOWTO](https://forum.checkmk.com/t/howto-cmk-with-oidc-authentication/37168)"
 
@@ -71344,24 +70547,12 @@ msgid "[Friendica Installation Documentation](https://wiki.friendi.ca/docs/insta
 msgstr "[Friendica instalazioa Documentation](https://wiki.friendi.ca/docs/install)"
 
 # libretranslate
-msgid "[Friendica](roles/web-app-friendica/)"
-msgstr "[Friendica](roles/web-app-friendica/)"
-
-# libretranslate
-msgid "[Funkwhale](roles/web-app-funkwhale/)"
-msgstr "[Funkwhale](roles/web-app-funkwhale/)"
-
-# libretranslate
 msgid "[FusionDirectory Official Website](https://www.fusiondirectory.org/)"
 msgstr "[FusionDirectory Webgune Ofiziala](https://www.fusiondirectory.org/)"
 
 # libretranslate
 msgid "[FusionDirectory](https://www.fusiondirectory.org/) is a web-based LDAP administration tool that manages users, groups, and other directory objects through a pluggable interface. The application stores all of its data in an external LDAP directory, which makes it the natural front-end for the project's `svc-db-openldap` backend."
 msgstr "[FusionDirectory](https://www.fusiondirectory.org/) LDAPeko administrazio-tresna bat da, erabiltzaileak, taldeak eta beste direktorio-objektuak kudeatzen dituena interfaze plugin baten bidez. Aplikazioak bere datu guztiak kanpoko LDAP direktorio batean gordetzen ditu, eta horrek proiektuaren bukaera naturala bihurtzen du. `svc-db-openldap` motorra."
-
-# libretranslate
-msgid "[FusionDirectory](roles/web-app-fusiondirectory/)"
-msgstr "[FusionDirectory](roles/web-app-fusiondirectory/)"
 
 # libretranslate
 msgid "[Gist by marienfressinaud](https://gist.github.com/marienfressinaud/f284a59b18aad395eb0de2d22836ae6b)"
@@ -71388,10 +70579,6 @@ msgid "[GitLab SSO in Mattermost](https://docs.mattermost.com/administration-gui
 msgstr "[GitLab SSO Mattermost](https://docs.mattermost.com/administration-guide/onboard/sso-gitlab.html)"
 
 # libretranslate
-msgid "[GitLab](roles/web-app-gitlab/)"
-msgstr "[GitLab](roles/web-app-gitlab/)"
-
-# libretranslate
 msgid "[Gitea LDAP integration](https://docs.gitea.com/administration/authentication/)"
 msgstr "[Gitea LDAP integrazioa](https://docs.gitea.com/administration/authentication/)"
 
@@ -71402,10 +70589,6 @@ msgstr "[Gitea MCP paketea](https://pkg.go.dev/gitea.com/gitea/gitea-mcp)"
 # libretranslate
 msgid "[Gitea Official Website](https://gitea.io/)"
 msgstr "[Gitea webgune ofiziala](https://gitea.io/)"
-
-# libretranslate
-msgid "[Gitea](roles/web-app-gitea/)"
-msgstr "[Gitea](roles/web-app-gitea/)"
 
 # libretranslate
 msgid "[Google Postmaster](https://postmaster.google.com/) - Analyzes deliverability and spam issues for Gmail."
@@ -71439,20 +70622,12 @@ msgstr "[Hermes agentea](https://hermes-agent.nousresearch.com/) Nous Research-e
 msgid "[Hermes Agent](https://hermes-agent.nousresearch.com/) is an autonomous agent runtime. This role runs it in embodied mode: on a machine that is dedicated to it, with direct access to the hardware of that machine. Where the container roles put a kernel boundary between the agent and its host, here the boundary is the device itself."
 msgstr "[Hermes agentea](https://hermes-agent.nousresearch.com/) Agente autonomoa da. Funtzio honek modu gorpuztatuan exekutatzen du: hari eskainitako makina batean, makina horren hardwarerako sarbide zuzenarekin. Edukiontzien paperek nukleoaren muga jartzen dutenean agentearen eta ostalariaren artean, hemen muga gailua bera da."
 
-# libretranslate
-msgid "[Hermes Agent](roles/web-app-hermes/)"
-msgstr "[Hermes agentea](roles/web-app-hermes/)"
-
 msgid "[Hermes Agent](roles/web-app-hermes/), [Keycloak](roles/web-app-keycloak/), [LiteLLM Gateway](roles/svc-ai-litellm/), [OpenClaw](roles/web-app-openclaw/)"
 msgstr ""
 
 # libretranslate
 msgid "[Home Assistant](https://www.home-assistant.io/) is an open-source home automation platform that connects smart-home devices from many vendors behind a single local interface. It keeps device state, dashboards, and automation rules on the machine that runs it, and exposes them through a web interface, a REST API, and a built-in MCP server."
 msgstr "[Etxeko laguntzailea](https://www.home-assistant.io/) Iturburu irekiko etxeko automatizazio-plataforma bat da, etxe adimenduneko gailuak interfaze lokal bakar baten atzean hornitzaile askotatik konektatzen dituena. Gailuen egoera, arbelak eta makinaren automatizazio arauak mantentzen ditu, eta web interfaze baten bidez, REST baten bidez erakusten ditu. APIeta MCP zerbitzari barneratua."
-
-# libretranslate
-msgid "[Home Assistant](roles/web-app-homeassistant/)"
-msgstr "[Etxeko laguntzailea](roles/web-app-homeassistant/)"
 
 # libretranslate
 msgid "[How I backup dedicated root servers](https://blog.veen.world/2020/12/26/how-i-backup-dedicated-root-servers/)"
@@ -71469,10 +70644,6 @@ msgstr "[Hugoren webgune ofiziala](https://gohugo.io/)"
 # libretranslate
 msgid "[Hugo](https://gohugo.io/) is a fast, single-binary static site generator written in Go. This role builds a Hugo site from any upstream Git repository (default: [gohugoio/hugoDocs](https://github.com/gohugoio/hugoDocs)) at image-build time and serves the rendered HTML/CSS/JS via nginx. There is no database, no application server, and no dynamic backend at runtime."
 msgstr "[Hugo](https://gohugo.io/) Go-n idatzitako gune estatiko bizkor bat da. Funtzio honek bat osatzen du Hugo edozein upstream gunetik Git biltegia (lehenetsia: [gohugoio/hugoDocs](https://github.com/gohugoio/hugoDocs)) irudiz landutako denboran eta errendatutakoan HTML/CSS/JS nginx bidez. Ez dago datu-baserik, ez aplikazio-zerbitzaririk, ez motor dinamikorik exekuzio-denboran."
-
-# libretranslate
-msgid "[Hugo](roles/web-app-hugo/)"
-msgstr "[Hugo](roles/web-app-hugo/)"
 
 # libretranslate
 msgid "[Implement email template customization](https://open.project.infinito.nexus/wp/562)"
@@ -71515,10 +70686,6 @@ msgid "[Integration Tests](testing/integration.md)"
 msgstr "[Integrazio-probak](testing/integration.md)"
 
 # libretranslate
-msgid "[Intel Driver](roles/drv-intel/)"
-msgstr "[Intel Driver](roles/drv-intel/)"
-
-# libretranslate
 msgid "[Intel Media Driver upstream documentation](https://01.org/intel-media-sdk)"
 msgstr "[Intel Media Driver Upstream dokumentazioa](https://01.org/intel-media-sdk)"
 
@@ -71547,10 +70714,6 @@ msgid "[Jellyfin](https://jellyfin.org) is a free, open-source media server. Thi
 msgstr "[Jellyfin](https://jellyfin.org) Iturburu irekiko multimedia zerbitzari bat da. Funtzio honek ofiziala zabaltzen du `jellyfin/jellyfin` edukiontzia atzean Infinito.Nexus alderantzizko proxy-a, honekin Keycloak OIDC (web) eta LDAP erdiko autentifikazioaren bidez emana Jellyfin auth plugin."
 
 # libretranslate
-msgid "[Jellyfin](roles/web-app-jellyfin/)"
-msgstr "[Jellyfin](roles/web-app-jellyfin/)"
-
-# libretranslate
 msgid "[Jenkins Configuration as Code plugin](https://plugins.jenkins.io/configuration-as-code/)"
 msgstr "[Jenkins konfigurazioa Kodearen plugin gisa](https://plugins.jenkins.io/configuration-as-code/)"
 
@@ -71569,10 +70732,6 @@ msgstr "[Jenkins oic-auth plugina](https://plugins.jenkins.io/oic-auth/)"
 # libretranslate
 msgid "[Jenkins](https://www.jenkins.io/) is an open-source automation server that orchestrates the build, test, and deployment of software through pipelines, freestyle jobs, and a large plugin ecosystem."
 msgstr "[Jenkins](https://www.jenkins.io/) Kode irekiko automatizazio-zerbitzari bat da, eta softwarearen eraikuntza, proba eta hedapena antolatzen du hodien, estilo libreko lanen eta pluginen ekosistema handi baten bidez."
-
-# libretranslate
-msgid "[Jenkins](roles/web-app-jenkins/)"
-msgstr "[Jenkins](roles/web-app-jenkins/)"
 
 # libretranslate
 msgid "[Jira](https://www.atlassian.com/) is Atlassian’s issue and project-tracking platform. This role deploys Jira via Docker Compose, connects it to PostgreSQL, and adds proxy awareness, optional OIDC SSO, health checks, and production-oriented defaults for Infinito.Nexus."
@@ -71595,20 +70754,12 @@ msgid "[Jitsi prosody plugins (jitsi-contrib)](https://github.com/jitsi-contrib/
 msgstr "[Jitsi prosody plugin (jitsi-contrib)](https://github.com/jitsi-contrib/prosody-plugins)"
 
 # libretranslate
-msgid "[Joomla Documentation](https://docs.joomla.org/)"
-msgstr "[Joomla Documentation](https://docs.joomla.org/)"
-
-# libretranslate
 msgid "[Joomla Official Website](https://www.joomla.org/)"
 msgstr "[Joomla-ren webgune ofiziala](https://www.joomla.org/)"
 
 # libretranslate
 msgid "[Joomla](https://www.joomla.org/) is a free and open-source content management system that lets users build and run websites, intranets, and online applications without writing code. It exposes a component, module, and plugin architecture that authors and developers extend with custom content types, layouts, and integrations."
 msgstr "[Joomla](https://www.joomla.org/) Edukiak kudeatzeko sistema librea da, erabiltzaileei webgune, intranet eta lineako aplikazioak idazteko koderik gabe eraikitzeko eta exekutatzeko aukera ematen diena. Osagai, modulu eta pluginen arkitektura bat erakusten du, autoreek eta garatzaileek eduki mota, diseinu eta integrazio pertsonalizatuekin hedatzen dutena."
-
-# libretranslate
-msgid "[Joomla](roles/web-app-joomla/)"
-msgstr "[Joomla](roles/web-app-joomla/)"
 
 # libretranslate
 msgid "[Jrnl official documentation](https://jrnl.sh/)"
@@ -71619,9 +70770,6 @@ msgid "[Jrnl](https://jrnl.sh/) is a simple and effective command-line journal a
 msgstr "[Jrnl](https://jrnl.sh/) Komando-lerroko egunkari-aplikazio sinple eta eraginkorra da, erabiltzaileek egunkari-sarrera pertsonalak sortu eta kudeatzeko aukera ematen duena."
 
 msgid "[Jupyter](https://jupyter.org/) runs code in a managed kernel and returns its output. This role provides that kernel as a backend for other services rather than as a notebook UI for people."
-msgstr ""
-
-msgid "[Jupyter](roles/svc-ai-jupyter/)"
 msgstr ""
 
 # libretranslate
@@ -71641,10 +70789,6 @@ msgid "[KIX documentation](https://docs.kixdesk.com/)"
 msgstr "[KIX dokumentazioa](https://docs.kixdesk.com/)"
 
 # libretranslate
-msgid "[KIX](roles/web-app-kix/)"
-msgstr "[KIX](roles/web-app-kix/)"
-
-# libretranslate
 msgid "[Kata & gVisor](roles/svc-virt-kata/)"
 msgstr "[Kata eta gVisor](roles/svc-virt-kata/)"
 
@@ -71655,10 +70799,6 @@ msgstr "[Kata Edukiontziak](https://katacontainers.io/) OCI edukiontziaren exeku
 # libretranslate
 msgid "[KeePassXC documentation](https://keepassxc.org/docs/)"
 msgstr "[KeePassXC dokumentazioa](https://keepassxc.org/docs/)"
-
-# libretranslate
-msgid "[KeePassXC](https://keepassxc.org/)"
-msgstr "[KeePassXC](https://keepassxc.org/)"
 
 # libretranslate
 msgid "[KeePassXC](https://keepassxc.org/) is a free, open-source, cross-platform password manager that stores credentials in an encrypted local database compatible with the KeePass format."
@@ -71733,24 +70873,12 @@ msgid "[Kevin Veen-Birkenbach](https://veen.world): unified addon syntax, API si
 msgstr "[Kevin Veen-Birkenbach](https://veen.world): addon sintaxi bateratua, API egia puntu bakarra, Nextcloud integrazioak eta aldaeraren birbalorazioa, CI aldaera, baliabideen gobernantza, Matrix zubiaren migrazioa eta bertsioaren mantenua"
 
 # libretranslate
-msgid "[Kevin Veen-Birkenbach](https://www.veen.world/)"
-msgstr "[Kevin Veen-Birkenbach](https://www.veen.world/)"
-
-# libretranslate
 msgid "[Keycloak GitHub Repository](https://github.com/keycloak/keycloak)"
 msgstr "[Keycloak GitHub biltegia](https://github.com/keycloak/keycloak)"
 
 # libretranslate
 msgid "[Keycloak Official Website](https://www.keycloak.org/)"
 msgstr "[Keycloak webgune ofiziala](https://www.keycloak.org/)"
-
-# libretranslate
-msgid "[Keycloak](roles/web-app-keycloak/)"
-msgstr "[Keycloak](roles/web-app-keycloak/)"
-
-# libretranslate
-msgid "[LAM](roles/web-app-lam/)"
-msgstr "[LAM](roles/web-app-lam/)"
 
 # libretranslate
 msgid "[LDAP Account Manager Official Website](https://www.ldap-account-manager.org/)"
@@ -71788,10 +70916,6 @@ msgstr "[LID konmutadorea](roles/drv-lid-switch/)"
 msgid "[LM Studio](https://lmstudio.ai/) is a runtime for open large language models. Its headless server mode loads models from a local store and answers chat and completion requests over an OpenAI-compatible HTTP API, so prompts and model weights stay on the machine that runs them."
 msgstr "[LM Studio](https://lmstudio.ai/) Hizkuntza-eredu handiak irekitzeko denbora da. Bere zerbitzaribururik gabeko moduak tokiko biltegi bateko ereduak kargatzen ditu eta berriketa eta osaketa eskaerak erantzuten ditu OpenAIrekin bateragarria den HTTP baten gainean. APIBeraz, pisu azkarrak eta modeloak makinan geratzen dira, haiek gidatzen dituztenak."
 
-# libretranslate
-msgid "[LM Studio](roles/svc-ai-lmstudio/)"
-msgstr "[LM Studio](roles/svc-ai-lmstudio/)"
-
 msgid "[LM Studio](roles/svc-ai-lmstudio/), [Ollama](roles/svc-ai-ollama/), [PostgreSQL](roles/svc-db-postgres/), [System One](roles/svc-ai-s1/)"
 msgstr ""
 
@@ -71801,10 +70925,6 @@ msgstr ""
 # libretranslate
 msgid "[Let's Encrypt](https://letsencrypt.org/)"
 msgstr "[Enkriptatu dezagun](https://letsencrypt.org/)"
-
-# libretranslate
-msgid "[LibreTranslate](roles/web-svc-libretranslate/)"
-msgstr "[LibreTranslate](roles/web-svc-libretranslate/)"
 
 # libretranslate
 msgid "[Linux](platform/linux.md)"
@@ -71823,10 +70943,6 @@ msgid "[Listmonk Official Website](https://listmonk.app/)"
 msgstr "[Listmonk-en webgune ofiziala](https://listmonk.app/)"
 
 # libretranslate
-msgid "[Listmonk](roles/web-app-listmonk/)"
-msgstr "[Listmonk](roles/web-app-listmonk/)"
-
-# libretranslate
 msgid "[LiteLLM Admin UI](roles/web-app-litellm/)"
 msgstr "[LiteLLM Admin UI](roles/web-app-litellm/)"
 
@@ -71841,10 +70957,6 @@ msgstr "[LiteLLM](https://docs.litellm.ai/) OpenAI-rekin bateragarria den HTTP b
 # libretranslate
 msgid "[LiteLLM](https://docs.litellm.ai/) is an LLM gateway that puts a single OpenAI-compatible API in front of many model providers. Its admin UI is the gateway's built-in web interface for virtual API keys, teams, budgets and rate limits, model routing, and request and spend logs."
 msgstr "[LiteLLM](https://docs.litellm.ai/) OpenAI-rekin bateragarria den atebide bat da. API modelo-hornitzaile askoren aurrean. Bere admin UI atariaren web-interfaze integratua da birtualerako API gakoak, taldeak, aurrekontuak eta tasa-mugak, ereduen bideraketa, eta egunkariak eskatu eta gastatu."
-
-# libretranslate
-msgid "[LittleJS](roles/web-app-littlejs/)"
-msgstr "[LittleJS](roles/web-app-littlejs/)"
 
 # libretranslate
 msgid "[Local purge guide](../../../scripts/tests/deploy/local/purge/README.md): Local deploy cleanup helpers."
@@ -71867,20 +70979,12 @@ msgid "[MCP user delegation audit](../../docs/contributing/design/role/services/
 msgstr "[MCPren erabiltzailearen delegazioaren auditoria](../../docs/contributing/design/role/services/mcp/delegation.md)"
 
 # libretranslate
-msgid "[MIG](roles/web-app-mig/)"
-msgstr "[MIG](roles/web-app-mig/)"
-
-# libretranslate
 msgid "[MXToolbox](https://mxtoolbox.com)"
 msgstr "[MXToolbox](https://mxtoolbox.com)"
 
 # libretranslate
 msgid "[Magento Open Source](https://magento.com/)"
 msgstr "[Magento Open Source](https://magento.com/)"
-
-# libretranslate
-msgid "[Magento](roles/web-app-magento/)"
-msgstr "[Magento](roles/web-app-magento/)"
 
 # libretranslate
 msgid "[Mailu GitHub repository](https://github.com/Mailu/Mailu)"
@@ -71915,16 +71019,8 @@ msgid "[Mailu-OIDC](https://github.com/heviat/Mailu-OIDC)"
 msgstr "[Mailu-OIDC](https://github.com/heviat/Mailu-OIDC)"
 
 # libretranslate
-msgid "[Mailu](https://github.com/infinito-nexus/core/tree/main/roles/web-app-mailu)"
-msgstr "[Mailu](https://github.com/infinito-nexus/core/tree/main/roles/web-app-mailu)"
-
-# libretranslate
 msgid "[Mailu](https://mailu.io/) as a full-featured mail server (when available),"
 msgstr "[Mailu](https://mailu.io/) posta-zerbitzari bat bezala (erabilgarri dagoenean),"
-
-# libretranslate
-msgid "[Mailu](roles/web-app-mailu/)"
-msgstr "[Mailu](roles/web-app-mailu/)"
 
 # libretranslate
 msgid "[Make a focused change](docs/contributing/workflow.md)."
@@ -71947,16 +71043,8 @@ msgid "[Makefile](../../../Makefile) and [scripts/](../../../scripts/) for suppo
 msgstr "[Makefile](../../../Makefile) eta [scriptak/](../../../scripts/) onartutako komandoentzat"
 
 # libretranslate
-msgid "[MariaDB](roles/svc-db-mariadb/)"
-msgstr "[MariaDB](roles/svc-db-mariadb/)"
-
-# libretranslate
 msgid "[Mastodon Configuration Guide](https://gist.github.com/TrillCyborg/84939cd4013ace9960031b803a0590c4)"
 msgstr "[Mastodon konfiguratzeko gida](https://gist.github.com/TrillCyborg/84939cd4013ace9960031b803a0590c4)"
-
-# libretranslate
-msgid "[Mastodon Documentation](https://docs.joinmastodon.org/)"
-msgstr "[Mastodon Documentation](https://docs.joinmastodon.org/)"
 
 # libretranslate
 msgid "[Mastodon GitHub Issues](https://github.com/mastodon/mastodon/issues/7958)"
@@ -71967,32 +71055,16 @@ msgid "[Mastodon Official Website](https://joinmastodon.org/)"
 msgstr "[Mastodon webgune ofiziala](https://joinmastodon.org/)"
 
 # libretranslate
-msgid "[Mastodon](roles/web-app-mastodon/)"
-msgstr "[Mastodon](roles/web-app-mastodon/)"
-
-# libretranslate
 msgid "[Matomo Official Website](https://matomo.org/)"
 msgstr "[Matomoren webgune ofiziala](https://matomo.org/)"
-
-# libretranslate
-msgid "[Matomo](roles/web-app-matomo/)"
-msgstr "[Matomo](roles/web-app-matomo/)"
 
 # libretranslate
 msgid "[Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
 msgstr "[Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
 
 # libretranslate
-msgid "[Matrix Documentation](https://matrix.org/docs/)"
-msgstr "[Matrizea Documentation](https://matrix.org/docs/)"
-
-# libretranslate
 msgid "[Matrix Official Website](https://matrix.org/)"
 msgstr "[Matrizearen webgune ofiziala](https://matrix.org/)"
-
-# libretranslate
-msgid "[Matrix](roles/web-app-matrix/)"
-msgstr "[Matrizea](roles/web-app-matrix/)"
 
 # libretranslate
 msgid "[Mattermost Configuration Settings](https://docs.mattermost.com/administration-guide/configure/configuration-settings.html)"
@@ -72011,44 +71083,20 @@ msgid "[Mattermost SSO Integration Guide](https://docs.mattermost.com/administra
 msgstr "[Integraziorako gida](https://docs.mattermost.com/administration-guide/onboard/sso-saml-keycloak.html)"
 
 # libretranslate
-msgid "[Mattermost](roles/web-app-mattermost/)"
-msgstr "[Mattermost](roles/web-app-mattermost/)"
-
-# libretranslate
-msgid "[MediaWiki Documentation](https://www.mediawiki.org/wiki/Manual:Configuration_settings)"
-msgstr "[MediaWiki Documentation](https://www.mediawiki.org/wiki/Manual:Configuration_settings)"
-
-# libretranslate
 msgid "[MediaWiki Official Website](https://www.mediawiki.org/)"
 msgstr "[MediaWikiren webgune ofiziala](https://www.mediawiki.org/)"
-
-# libretranslate
-msgid "[MediaWiki](roles/web-app-mediawiki/)"
-msgstr "[MediaWiki](roles/web-app-mediawiki/)"
 
 # libretranslate
 msgid "[Memcached official documentation](https://memcached.org/)"
 msgstr "[Dokumentazio ofiziala](https://memcached.org/)"
 
 # libretranslate
-msgid "[Memcached](roles/svc-db-memcached/)"
-msgstr "[Memcached](roles/svc-db-memcached/)"
-
-# libretranslate
 msgid "[Meta Infinite Graph Homepage](https://github.com/kevinveenbirkenbach/meta-infinite-graph)"
 msgstr "[Meta amaigabeko grafikoaren webgunea](https://github.com/kevinveenbirkenbach/meta-infinite-graph)"
 
 # libretranslate
-msgid "[Mini-QR](roles/web-app-mini-qr/)"
-msgstr "[Mini-QR](roles/web-app-mini-qr/)"
-
-# libretranslate
 msgid "[Mobilizon Official Website](https://mobilizon.org)"
 msgstr "[Mobilizon webgune ofiziala](https://mobilizon.org)"
-
-# libretranslate
-msgid "[Mobilizon](roles/web-app-mobilizon/)"
-msgstr "[Mobilizon](roles/web-app-mobilizon/)"
 
 # libretranslate
 msgid "[Model Context Protocol](https://modelcontextprotocol.io/)"
@@ -72065,10 +71113,6 @@ msgstr "[Moodle MCP plugina](https://moodle.org/plugins/webservice_mcp)"
 # libretranslate
 msgid "[Moodle Official Website](https://moodle.org/)"
 msgstr "[Moodle-ren webgune ofiziala](https://moodle.org/)"
-
-# libretranslate
-msgid "[Moodle](roles/web-app-moodle/)"
-msgstr "[Moodle](roles/web-app-moodle/)"
 
 # libretranslate
 msgid "[Moving from iptables to nftables](https://wiki.nftables.org/wiki-nftables/index.php/Moving_from_iptables_to_nftables)"
@@ -72129,10 +71173,6 @@ msgstr "[Nextclouden webgune ofiziala](https://nextcloud.com/)"
 # libretranslate
 msgid "[Nextcloud → ONLYOFFICE Integration App](https://apps.nextcloud.com/apps/onlyoffice)"
 msgstr "[Nextcloud → Integraziorako aplikazioa](https://apps.nextcloud.com/apps/onlyoffice)"
-
-# libretranslate
-msgid "[Nextcloud](roles/web-app-nextcloud/)"
-msgstr "[Nextcloud](roles/web-app-nextcloud/)"
 
 # libretranslate
 msgid "[Nginx](https://nginx.org/)"
@@ -72211,28 +71251,12 @@ msgid "[Ollama Model Library](https://ollama.com/library)"
 msgstr "[Ollama Model Library](https://ollama.com/library)"
 
 # libretranslate
-msgid "[Ollama](https://ollama.com)"
-msgstr "[Ollama](https://ollama.com)"
-
-# libretranslate
 msgid "[Ollama](https://ollama.com) is a local model server that runs open LLMs on your hardware and exposes a simple HTTP API. Prompts and data stay on your machines, making it the backbone for privacy-first AI."
 msgstr "[Ollama](https://ollama.com) LLMak zure hardwarean irekitzen dituen eta HTTP sinple bat erakusten duen modelo-zerbitzari lokala da. API. Gonbiteak eta datuak zure makinetan geratzen dira, pribatutasunaren lehen AArako bizkarrezurra bihurtuz."
 
 # libretranslate
-msgid "[Ollama](roles/svc-ai-ollama/)"
-msgstr "[Ollama](roles/svc-ai-ollama/)"
-
-# libretranslate
-msgid "[OnlyOffice](roles/web-svc-onlyoffice/)"
-msgstr "[Bakarrik](roles/web-svc-onlyoffice/)"
-
-# libretranslate
 msgid "[Open WebUI MCP docs](https://docs.openwebui.com/features/extensibility/mcp/)"
 msgstr "[Open WebUI MCP docs](https://docs.openwebui.com/features/extensibility/mcp/)"
-
-# libretranslate
-msgid "[Open WebUI](roles/web-app-openwebui/)"
-msgstr "[Ireki WebUI](roles/web-app-openwebui/)"
 
 # libretranslate
 msgid "[Open a Pull Request with the right template](docs/contributing/artefact/git/pull-request.md)."
@@ -72247,16 +71271,8 @@ msgid "[OpenBao](https://openbao.org/) is the Linux-Foundation-governed fork of 
 msgstr "[OpenBao](https://openbao.org/) HashiCorp Vault-eko Linux-Foundation-governed sardexka da: nortasunean oinarritutako sekretuak eta enkriptatze-kudeatzailea KV dendarekin, PKI motorrarekin, auth metodo entxufagarriak eta UI barneratua."
 
 # libretranslate
-msgid "[OpenBao](roles/web-app-openbao/)"
-msgstr "[OpenBao](roles/web-app-openbao/)"
-
-# libretranslate
 msgid "[OpenClaw](https://openclaw.ai/) is an open-source personal AI agent that runs on hardware you control. It ships a gateway process with a browser Control UI next to its CLI and TUI, keeps persistent memory and a workspace on disk, and performs browser and filesystem tasks inside its own sandbox."
 msgstr "[OpenClaw](https://openclaw.ai/) Kode irekiko AI agente pertsonala da, zuk kontrolatzen duzun hardwarea kudeatzen duena. Sarbide-prozesu bat egiten du arakatzailearen Kontrol UIrekin, bere CLI eta TUIren ondoan, memoria eta laneko area iraunkorra mantentzen ditu diskoan, eta arakatzailearen eta fitxategi-sistemaren zereginak egiten ditu bere harea-ontzian."
-
-# libretranslate
-msgid "[OpenClaw](roles/web-app-openclaw/)"
-msgstr "[OpenClaw](roles/web-app-openclaw/)"
 
 # libretranslate
 msgid "[OpenCloud documentation](https://docs.opencloud.eu/)"
@@ -72265,10 +71281,6 @@ msgstr "[OpenCloud dokumentazioa](https://docs.opencloud.eu/)"
 # libretranslate
 msgid "[OpenCloud](https://opencloud.eu/) is a sovereign self-hosted file sync, share, and collaboration platform maintained by the Heinlein Group. It is a fork of the OpenCloud Infinite Scale codebase and is published as the `opencloudeu/opencloud` container image."
 msgstr "[OpenCloud](https://opencloud.eu/) Heinlein Taldeak mantentzen duen sinkronizazio, partekatzea eta lankidetzarako plataforma subiranoa da. Sardexka bat da OpenCloud Infinite Scale kode-basea eta argitaratzen da `opencloudeu/opencloud` Edukiontziaren irudia."
-
-# libretranslate
-msgid "[OpenCloud](roles/web-app-opencloud/)"
-msgstr "[OpenCloud](roles/web-app-opencloud/)"
 
 # libretranslate
 msgid "[OpenID Connect RP-Initiated Logout](https://openid.net/specs/openid-connect-session-1_0.html#RPLogout)"
@@ -72283,16 +71295,8 @@ msgid "[OpenID docs](https://docs.semaphoreui.com/administration-guide/openid/),
 msgstr "[OpenID docs](https://docs.semaphoreui.com/administration-guide/openid/), [Keycloak konfigurazioa](https://docs.semaphoreui.com/administration-guide/openid/keycloak/)"
 
 # libretranslate
-msgid "[OpenLDAP](roles/svc-db-openldap/)"
-msgstr "[OpenLDAP](roles/svc-db-openldap/)"
-
-# libretranslate
 msgid "[OpenProject MCP Server docs](https://www.openproject.org/docs/system-admin-guide/integrations/mcp-server/)"
 msgstr "[OpenProject MCP Zerbitzariaren docs](https://www.openproject.org/docs/system-admin-guide/integrations/mcp-server/)"
-
-# libretranslate
-msgid "[OpenProject](roles/web-app-openproject/)"
-msgstr "[OpenProject](roles/web-app-openproject/)"
 
 # libretranslate
 msgid "[OpenResty Docker Hub](https://hub.docker.com/r/openresty/openresty)"
@@ -72301,10 +71305,6 @@ msgstr "[OpenResty Docker Hub](https://hub.docker.com/r/openresty/openresty)"
 # libretranslate
 msgid "[OpenResty Official Documentation](https://openresty.org/)"
 msgstr "[OpenResty ofiziala Documentation](https://openresty.org/)"
-
-# libretranslate
-msgid "[OpenResty](roles/svc-prx-openresty/)"
-msgstr "[OpenResty](roles/svc-prx-openresty/)"
 
 # libretranslate
 msgid "[OpenSSH security recommendations](https://www.openssh.com/security.html)"
@@ -72327,10 +71327,6 @@ msgid "[OpenTalk](https://opentalk.eu/) is a sovereign open-source video confere
 msgstr "[OpenTalk](https://opentalk.eu/) Heinlein Taldeak garatutako kode irekiko bideokonferentzia plataforma subiranoa da. Rust kontrolagailua, LiveKit-en oinarritutako WebRTC multimedia-zerbitzaria eta React web-end bat konbinatzen ditu."
 
 # libretranslate
-msgid "[OpenTalk](roles/web-app-opentalk/)"
-msgstr "[OpenTalk](roles/web-app-opentalk/)"
-
-# libretranslate
 msgid "[OpenWrt Forum Discussion on WireGuard](https://forum.openwrt.org/t/cannot-ssh-to-clients-on-lan-when-accessing-router-via-wireguard-client/132709/3)"
 msgstr "[OpenWrt Forum eztabaida WireGuard-en](https://forum.openwrt.org/t/cannot-ssh-to-clients-on-lan-when-accessing-router-via-wireguard-client/132709/3)"
 
@@ -72345,10 +71341,6 @@ msgstr "[PeerTube GitHub arazoak](https://github.com/Chocobozzz/PeerTube/issues/
 # libretranslate
 msgid "[PeerTube Official Documentation](https://docs.joinpeertube.org/install-docker)"
 msgstr "[PeerTube ofiziala Documentation](https://docs.joinpeertube.org/install-docker)"
-
-# libretranslate
-msgid "[PeerTube](roles/web-app-peertube/)"
-msgstr "[PeerTube](roles/web-app-peertube/)"
 
 # libretranslate
 msgid "[Penpot Configuration Guide](https://help.penpot.app/technical-guide/configuration/)"
@@ -72367,16 +71359,8 @@ msgid "[Penpot](https://penpot.app/) is an open-source design and prototyping pl
 msgstr "[Penpot](https://penpot.app/) kode irekiko diseinu eta prototipoen plataforma da (Figma ordezko bat)baldintza honek beste bat jarraitzen du `web-app-penpot` Funtzio ansiblea hedatzen duena Penpotpila edukiontzidunak eta hariak sartzen dizkio. Infinito.Nexus ekosistema (identitatea, alderantzizko proxya, merkatua, babeskopia)."
 
 # libretranslate
-msgid "[Penpot](roles/web-app-penpot/)"
-msgstr "[Penpot](roles/web-app-penpot/)"
-
-# libretranslate
 msgid "[Per-Role Meta Layout](../contributing/design/role/services/layout.md)"
 msgstr "[Lerro bakarreko meta-diseinua](../contributing/design/role/services/layout.md)"
-
-# libretranslate
-msgid "[PhpMyAdmin](roles/web-app-phpmyadmin/)"
-msgstr "[PhpMyAdmin](roles/web-app-phpmyadmin/)"
 
 msgid "[Pi Coding Agent](roles/dsk-gnt-pi/)"
 msgstr ""
@@ -72390,10 +71374,6 @@ msgstr ""
 # libretranslate
 msgid "[Pixelfed GitHub repository](https://github.com/pixelfed/pixelfed)"
 msgstr "[Pixelfed GitHub biltegia](https://github.com/pixelfed/pixelfed)"
-
-# libretranslate
-msgid "[Pixelfed](roles/web-app-pixelfed/)"
-msgstr "[Pixelfed](roles/web-app-pixelfed/)"
 
 # libretranslate
 msgid "[Play Blu-ray with VLC Guide](https://videobyte.de/play-blu-ray-with-vlc)"
@@ -72424,20 +71404,8 @@ msgid "[PostgreSQL Docker Image](https://hub.docker.com/_/postgres)"
 msgstr "[PostgreSQL Docker irudia](https://hub.docker.com/_/postgres)"
 
 # libretranslate
-msgid "[PostgreSQL](roles/svc-db-postgres/)"
-msgstr "[PostgreSQL](roles/svc-db-postgres/)"
-
-# libretranslate
 msgid "[Postmarks (GitHub)](https://github.com/ckolderup/postmarks)"
 msgstr "[Posta-markak (GitHub)](https://github.com/ckolderup/postmarks)"
-
-# libretranslate
-msgid "[Postmarks](roles/web-app-postmarks/)"
-msgstr "[Posta-markak](roles/web-app-postmarks/)"
-
-# libretranslate
-msgid "[Prageeth Panicker](https://github.com/pragepani)"
-msgstr "[Prageeth Panicker](https://github.com/pragepani)"
 
 # libretranslate
 msgid "[Prageeth Panicker](https://github.com/pragepani): .ansible cache directory ignored"
@@ -72452,10 +71420,6 @@ msgid "[Prageeth Panicker](https://github.com/pragepani): web-app-n8n role (work
 msgstr "[Prageeth Panicker](https://github.com/pragepani): web-app-n8n Rola (lan-fluxuen automatizazioa, SSO, LDAP, Playwright)"
 
 # libretranslate
-msgid "[Pretix Documentation](https://docs.pretix.eu/en/latest/)"
-msgstr "[Pretix Documentation](https://docs.pretix.eu/en/latest/)"
-
-# libretranslate
 msgid "[Pretix GitHub Repository](https://github.com/pretix/pretix)"
 msgstr "[Pretix GitHub biltegia](https://github.com/pretix/pretix)"
 
@@ -72464,20 +71428,8 @@ msgid "[Pretix Official Website](https://pretix.eu/)"
 msgstr "[Pretix webgune ofiziala](https://pretix.eu/)"
 
 # libretranslate
-msgid "[Pretix](roles/web-app-pretix/)"
-msgstr "[Pretix](roles/web-app-pretix/)"
-
-# libretranslate
-msgid "[Prometheus Documentation](https://prometheus.io/docs/)"
-msgstr "[Prometeo Documentation](https://prometheus.io/docs/)"
-
-# libretranslate
 msgid "[Prometheus](https://prometheus.io/) is an open-source systems monitoring and alerting toolkit that collects and stores time-series metrics and provides a powerful query language (PromQL)."
 msgstr "[Prometeo](https://prometheus.io/) kode irekiko sistemen monitorizazioa eta alerta tresna-kit bat da, denbora-neurriak biltzen eta gordetzen dituena eta kontsulta-hizkuntza ahaltsua eskaintzen duena. (PromQL)."
-
-# libretranslate
-msgid "[Prometheus](roles/web-app-prometheus/)"
-msgstr "[Prometeo](roles/web-app-prometheus/)"
 
 # libretranslate
 msgid "[Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
@@ -72512,10 +71464,6 @@ msgid "[Qdrant Snapshots](https://qdrant.tech/documentation/concepts/snapshots/)
 msgstr "[Qdrant Snapshots](https://qdrant.tech/documentation/concepts/snapshots/)"
 
 # libretranslate
-msgid "[Qdrant](roles/svc-db-qdrant/)"
-msgstr "[Qdrant](roles/svc-db-qdrant/)"
-
-# libretranslate
 msgid "[RBAC Wikipedia](https://de.wikipedia.org/wiki/Role_Based_Access_Control)"
 msgstr "[RBAC Wikipedia](https://de.wikipedia.org/wiki/Role_Based_Access_Control)"
 
@@ -72532,20 +71480,12 @@ msgid "[README.md](../../../.github/workflows/README.md) for the token grammar a
 msgstr "[README.md](../../../.github/workflows/README.md) tokenaren gramatikarako eta ardatzeko biraketa-mahairako."
 
 # libretranslate
-msgid "[RabbitMQ](roles/svc-db-rabbitmq/)"
-msgstr "[RabbitMQ](roles/svc-db-rabbitmq/)"
-
-# libretranslate
 msgid "[Redirector](roles/web-opt-rdr-domains/)"
 msgstr "[Berbideraketa](roles/web-opt-rdr-domains/)"
 
 # libretranslate
 msgid "[Redis ACL documentation](https://redis.io/docs/latest/operate/oss_and_stack/management/security/acl/)"
 msgstr "[Redis ACL dokumentazioa](https://redis.io/docs/latest/operate/oss_and_stack/management/security/acl/)"
-
-# libretranslate
-msgid "[Redis](roles/svc-db-redis/)"
-msgstr "[Redis](roles/svc-db-redis/)"
 
 # libretranslate
 msgid "[Releases](https://github.com/openbao/openbao/releases)"
@@ -72586,10 +71526,6 @@ msgstr "[Erruleta gurpila GitHub-en](https://github.com/p-wojt/roulette-wheel)"
 # libretranslate
 msgid "[Roulette Wheel](https://github.com/p-wojt/roulette-wheel) is a Node.js-based front-end application that simulates a roulette wheel in the browser."
 msgstr "[Erruleta gurpila](https://github.com/p-wojt/roulette-wheel) a Node.js-lehen mailako aplikazioa arakatzailean erruleta-gurpil bat simulatzen duena."
-
-# libretranslate
-msgid "[Roulette Wheel](roles/web-app-roulette-wheel/)"
-msgstr "[Erruleta gurpila](roles/web-app-roulette-wheel/)"
 
 # libretranslate
 msgid "[Rsync and sudo integration](https://askubuntu.com/questions/719439/using-rsync-with-sudo-on-the-destination-machine)"
@@ -72638,9 +71574,6 @@ msgstr "[A eskalatzea Mastodon Zerbitzaria](https://www.digitalocean.com/communi
 msgid "[SearXNG](https://docs.searxng.org/) is a metasearch engine. It forwards a query to other search engines and returns the merged result without an account and without a tracking profile."
 msgstr ""
 
-msgid "[Searxng](roles/svc-ai-searxng/)"
-msgstr ""
-
 # libretranslate
 msgid "[SeaweedFS Wiki](https://github.com/seaweedfs/seaweedfs/wiki)"
 msgstr "[SeaweedFS Wiki](https://github.com/seaweedfs/seaweedfs/wiki)"
@@ -72652,10 +71585,6 @@ msgstr "[SeaweedFS GitHub-en](https://github.com/seaweedfs/seaweedfs)"
 # libretranslate
 msgid "[SeaweedFS](https://github.com/seaweedfs/seaweedfs) is a fast distributed storage system for blobs, objects, and files. It exposes an S3-compatible API, so applications store and retrieve objects with standard S3 SDKs and CLIs."
 msgstr "[SeaweedFS](https://github.com/seaweedfs/seaweedfs) blobak, objektuak eta fitxategiak gordetzeko sistema azkar banatua da. S bat erakusten du3-bateragarria APIBeraz, aplikazioek objektuak gorde eta eskuratzen dituzte S estandarrarekin.3 SDKak eta CLIak."
-
-# libretranslate
-msgid "[SeaweedFS](roles/web-app-seaweedfs/)"
-msgstr "[SeaweedFS](roles/web-app-seaweedfs/)"
 
 # libretranslate
 msgid "[Self-Hosted Runner](roles/svc-runner/)"
@@ -72685,10 +71614,6 @@ msgstr "[Semaphore UI](https://semaphoreui.com/) (lehenago *Semaforo ansiblea*, 
 msgid "[Semaphore UI](https://semaphoreui.com/) is a modern web UI and API for running Ansible playbooks, Terraform/OpenTofu plans, and shell scripts on a schedule or on demand. This role deploys the official [`semaphoreui/semaphore`](https://github.com/semaphoreui/semaphore) container behind the Infinito.Nexus reverse proxy with central PostgreSQL, native Keycloak OIDC Single Sign-On, and optional LDAP login."
 msgstr "[Semaphore UI](https://semaphoreui.com/) webgune modernoa da eta API Joko-liburu ansibleak, Terraform/OpenTofu planak eta shell-eko scriptak ordutegi edo eskaera batean exekutatzeko. Funtzio honek ofiziala zabaltzen du [`semaphoreui/semaphore`](https://github.com/semaphoreui/semaphore) edukiontzia atzean Infinito.Nexus alderantzizko proxya erdikoarekin PostgreSQLbertakoa Keycloak OIDC saio-hasiera bakarrekoa eta aukerako LDAP saio-hasiera."
 
-# libretranslate
-msgid "[Semaphore UI](roles/web-app-semaphore/)"
-msgstr "[Semaphore UI](roles/web-app-semaphore/)"
-
 msgid "[Server](PULL_REQUEST_TEMPLATE/server.md) - `web-*` roles"
 msgstr ""
 
@@ -72713,28 +71638,12 @@ msgid "[Shopware Store (Plugins)](https://store.shopware.com/en/)"
 msgstr "[Denda denda (Pluginak)](https://store.shopware.com/en/)"
 
 # libretranslate
-msgid "[Shopware](roles/web-app-shopware/)"
-msgstr "[Denda](roles/web-app-shopware/)"
-
-# libretranslate
-msgid "[Simple Icons](roles/web-svc-simpleicons/)"
-msgstr "[Ikono sinpleak](roles/web-svc-simpleicons/)"
-
-# libretranslate
 msgid "[Snipe‑IT Official Documentation](https://snipe-it.readme.io/)"
 msgstr "[Snipe-IT Ofiziala Documentation](https://snipe-it.readme.io/)"
 
 # libretranslate
-msgid "[Snipe‑IT](roles/web-app-snipe-it/)"
-msgstr "[Snipe-IT](roles/web-app-snipe-it/)"
-
-# libretranslate
 msgid "[Social Home source](https://github.com/social-home-io/socialhome)"
 msgstr "[Gizarte-etxeko iturria](https://github.com/social-home-io/socialhome)"
-
-# libretranslate
-msgid "[Social Home](roles/web-app-socialhome/)"
-msgstr "[Gizarte Etxea](roles/web-app-socialhome/)"
 
 # libretranslate
 msgid "[Sociallogin Plugin (Official)](https://apps.nextcloud.com/apps/sociallogin)"
@@ -72765,16 +71674,8 @@ msgid "[Subnetting Basics](https://www.scaleuptech.com/de/blog/was-ist-und-wie-f
 msgstr "[Oinarrizko azpisareak](https://www.scaleuptech.com/de/blog/was-ist-und-wie-funktioniert-subnetting/)"
 
 # libretranslate
-msgid "[SuiteCRM Documentation](https://docs.suitecrm.com/) 📖"
-msgstr "[SuiteCRM Documentation](https://docs.suitecrm.com/) 📖"
-
-# libretranslate
 msgid "[SuiteCRM Official Website](https://suitecrm.com/) 🌍"
 msgstr "[SuiteCRMren webgune ofiziala](https://suitecrm.com/) 🌍"
-
-# libretranslate
-msgid "[SuiteCRM](roles/web-app-suitecrm/)"
-msgstr "[SuiteCRM](roles/web-app-suitecrm/)"
 
 # libretranslate
 msgid "[Svc Engine](https://example.com/) is an application."
@@ -72819,10 +71720,6 @@ msgid "[Taiga](https://www.taiga.io/) is a powerful and intuitive open-source pr
 msgstr "[Taiga](https://www.taiga.io/) Proiektu irekien kudeaketarako plataforma ahaltsu eta intuitiboa da, talde arinetarako egokitua. Scrum, Kanban edo lan hibrido pertsonalizatu bat egiten ari zaren ala ez, Taiga ingurune aberats eta pertsonalizagarria eskaintzen du zure proiektuetan planifikatzeko, jarraitzeko eta lankidetzan aritzeko, enpresa-tresnen konplexutasunik eta SaaS plataformako saltzailearen sarrailarik gabe."
 
 # libretranslate
-msgid "[Taiga](roles/web-app-taiga/)"
-msgstr "[Taiga](roles/web-app-taiga/)"
-
-# libretranslate
 msgid "[Terminal aliases and agent shortcuts](shell/alias.md): the `i8*` shell aliases (`make install-alias`) and the agent conversation shortcuts, printed together by `make alias`; `make onboard` sets up a developer workstation end to end."
 msgstr "[Terminalaren aliasak eta agenteen lasterbideak](shell/alias.md): `i8*` shell aliasak (`make install-alias`) eta agenteen elkarrizketarako lasterbideak, elkarrekin inprimatuak `make alias`; `make onboard` garapen-lanpostu bat amaitzen da."
 
@@ -72834,9 +71731,6 @@ msgstr "[E2E Cli](https://example.com/) Aplikazio bat da."
 msgid "[Three Laws of Robotics](https://simple.wikipedia.org/wiki/Three_Laws_of_Robotics)"
 msgstr "[Robotikaren hiru legeak](https://simple.wikipedia.org/wiki/Three_Laws_of_Robotics)"
 
-msgid "[Tika](roles/svc-ai-tika/)"
-msgstr ""
-
 # libretranslate
 msgid "[Tor Onion Service](roles/svc-net-tor/)"
 msgstr "[Tor Onion zerbitzua](roles/svc-net-tor/)"
@@ -72846,16 +71740,8 @@ msgid "[Tor Project documentation](https://www.torproject.org/)"
 msgstr "[Tor proiektuaren dokumentazioa](https://www.torproject.org/)"
 
 # libretranslate
-msgid "[Typesense](roles/svc-db-typesense/)"
-msgstr "[Motak](roles/svc-db-typesense/)"
-
-# libretranslate
 msgid "[UFW and SSH via WireGuard](https://unix.stackexchange.com/questions/717172/why-is-ufw-blocking-acces-to-ssh-via-wireguard)"
 msgstr "[UFW eta SSH WireGuarden bidez](https://unix.stackexchange.com/questions/717172/why-is-ufw-blocking-acces-to-ssh-via-wireguard)"
-
-# libretranslate
-msgid "[Unbound](roles/svc-dns-unbound/)"
-msgstr "[Mugagabea](roles/svc-dns-unbound/)"
 
 # libretranslate
 msgid "[Unit Tests](testing/unit.md)"
@@ -72864,10 +71750,6 @@ msgstr "[Unitate probak](testing/unit.md)"
 # libretranslate
 msgid "[Universal Logout GitHub Repository](https://github.com/kevinveenbirkenbach/universal-logout)"
 msgstr "[Universal Logout GitHub biltegia](https://github.com/kevinveenbirkenbach/universal-logout)"
-
-# libretranslate
-msgid "[Universal Logout](roles/web-svc-logout/)"
-msgstr "[Universal Logout](roles/web-svc-logout/)"
 
 # libretranslate
 msgid "[Use the development guide](docs/contributing/actions/testing.md)."
@@ -72921,10 +71803,6 @@ msgid "[WireGuard Connection Dies on Ubuntu](https://serverfault.com/questions/1
 msgstr "[WireGuard konexioa Ubuntun hiltzen da](https://serverfault.com/questions/1086297/wireguard-connection-dies-on-ubuntu-peer)"
 
 # libretranslate
-msgid "[WireGuard Documentation](https://www.wireguard.com/)"
-msgstr "[WireGuard Documentation](https://www.wireguard.com/)"
-
-# libretranslate
 msgid "[WireGuard NAT and Firewall Issues](https://serverfault.com/questions/210408/cannot-ssh-debug1-expecting-ssh2-msg-kex-dh-gex-reply)"
 msgstr "[WireGuard NAT eta Firewall arazoak](https://serverfault.com/questions/210408/cannot-ssh-debug1-expecting-ssh2-msg-kex-dh-gex-reply)"
 
@@ -72935,10 +71813,6 @@ msgstr "[WireGuard baimenak eztabaida](https://bodhilinux.boards.net/thread/450/
 # libretranslate
 msgid "[Wireguard Client](roles/svc-net-wireguard-plain/)"
 msgstr "[Wireguard bezeroa](roles/svc-net-wireguard-plain/)"
-
-# libretranslate
-msgid "[Wireguard](roles/svc-net-wireguard-core/)"
-msgstr "[Wireguard](roles/svc-net-wireguard-core/)"
 
 # libretranslate
 msgid "[WordPress Multisite Documentation](https://wordpress.org/support/article/create-a-network/)"
@@ -72957,10 +71831,6 @@ msgid "[WordPress](https://en.wordpress.org/) is a versatile and widely used [co
 msgstr "[WordPress](https://en.wordpress.org/) moldakorra eta oso erabilia da [edukiak kudeatzeko sistema (CMS)](https://en.wikipedia.org/wiki/Content_management_system) Milioika webgune, blog eta zorrotik merkataritza elektronikora eta gune korporatiboetara. Hedapen honek edukiontzi bat eskaintzen du WordPress adibidez, multisite eragiketarako optimizatua, multimedia-kudeaketa aurreratua eta pluginen euskarri zabala, eta aukera ematen dizu funtzionalitate aberatsak erabat aprobetxatzeko. WordPress softwarea."
 
 # libretranslate
-msgid "[WordPress](roles/web-app-wordpress/)"
-msgstr "[WordPress](roles/web-app-wordpress/)"
-
-# libretranslate
 msgid "[Workflow Loop](../agents/action/iteration/workflow.md)"
 msgstr "[Lan-fluxuaren begizta](../agents/action/iteration/workflow.md)"
 
@@ -72976,20 +71846,12 @@ msgid "[XMPP](roles/web-svc-xmpp/)"
 msgstr "[XMPP](roles/web-svc-xmpp/)"
 
 # libretranslate
-msgid "[XWiki Documentation](https://www.xwiki.org/xwiki/bin/view/Documentation/)"
-msgstr "[XWiki Documentation](https://www.xwiki.org/xwiki/bin/view/Documentation/)"
-
-# libretranslate
 msgid "[XWiki GitHub Repository](https://github.com/xwiki/xwiki-platform)"
 msgstr "[XWiki GitHub biltegia](https://github.com/xwiki/xwiki-platform)"
 
 # libretranslate
 msgid "[XWiki Official Website](https://www.xwiki.org/)"
 msgstr "[XWikiren webgune ofiziala](https://www.xwiki.org/)"
-
-# libretranslate
-msgid "[XWiki](roles/web-app-xwiki/)"
-msgstr "[XWiki](roles/web-app-xwiki/)"
 
 # libretranslate
 msgid "[YAGNI](https://en.wikipedia.org/wiki/You_aren%27t_gonna_need_it)"
@@ -73004,20 +71866,12 @@ msgid "[YOURLS Official Website](https://yourls.org/)"
 msgstr "[ZURE Webgune Ofiziala](https://yourls.org/)"
 
 # libretranslate
-msgid "[YOURLS](roles/web-app-yourls/)"
-msgstr "[ZUREAK](roles/web-app-yourls/)"
-
-# libretranslate
 msgid "[Yahoo Sender Hub](https://senders.yahooinc.com/) - Provides insights and delivery reports for Yahoo."
 msgstr "[Yahoo Sender Hub](https://senders.yahooinc.com/) - Yahoo-rentzat informazio eta entrega txostenak eskaintzen ditu."
 
 # libretranslate
 msgid "[Youtube Tutorial](https://www.youtube.com/watch?v=fvxQ8bW0vO8)"
 msgstr "[Youtube Tutoretza](https://www.youtube.com/watch?v=fvxQ8bW0vO8)"
-
-# libretranslate
-msgid "[Zammad Docker Compose Documentation](https://docs.zammad.org/en/latest/install/docker-compose.html)"
-msgstr "[Zammad Docker Compose Documentation](https://docs.zammad.org/en/latest/install/docker-compose.html)"
 
 # libretranslate
 msgid "[Zammad GitHub](https://github.com/zammad/zammad)"
@@ -73030,10 +71884,6 @@ msgstr "[Zammad-en webgune ofiziala](https://zammad.org/)"
 # libretranslate
 msgid "[Zammad](https://zammad.org/) is an open-source helpdesk and ticketing system. Agents handle customer requests across email, chat, phone and web; customers can open tickets from a self-service portal."
 msgstr "[Zammad](https://zammad.org/) kode irekiko laguntza-sistema da. Agenteek bezeroen eskaerak posta elektronikoz, berriketaz, telefonoz eta web bidez kudeatzen dituzte; bezeroek autozerbitzuko atari batetik sarrerak ireki ditzakete."
-
-# libretranslate
-msgid "[Zammad](roles/web-app-zammad/)"
-msgstr "[Zammad](roles/web-app-zammad/)"
 
 # libretranslate
 msgid "[Zen of Python](https://en.wikipedia.org/wiki/Zen_of_Python)"
@@ -73817,24 +72667,12 @@ msgid "[pdsadmin GitHub Repository](https://github.com/lhaig/pdsadmin)"
 msgstr "[pdsadmin GitHub biltegia](https://github.com/lhaig/pdsadmin)"
 
 # libretranslate
-msgid "[pgAdmin Documentation](https://www.pgadmin.org/docs/)"
-msgstr "[pgAdmin Documentation](https://www.pgadmin.org/docs/)"
-
-# libretranslate
 msgid "[pgAdmin Official Homepage](https://www.pgadmin.org/)"
 msgstr "[pgAdmin etxeko orri ofiziala](https://www.pgadmin.org/)"
 
 # libretranslate
-msgid "[pgAdmin](roles/web-app-pgadmin/)"
-msgstr "[pgAdmin](roles/web-app-pgadmin/)"
-
-# libretranslate
 msgid "[phpLDAPadmin Docker Container Documentation](https://github.com/leenooks/phpLDAPadmin/wiki/Docker-Container)"
 msgstr "[phpLDAPadmin Docker Container Documentation](https://github.com/leenooks/phpLDAPadmin/wiki/Docker-Container)"
-
-# libretranslate
-msgid "[phpLDAPadmin Documentation](https://github.com/leenooks/phpLDAPadmin/wiki/Docker-Container)"
-msgstr "[phpLDAPadmin Documentation](https://github.com/leenooks/phpLDAPadmin/wiki/Docker-Container)"
 
 # libretranslate
 msgid "[pipeline.md](../../../artefact/git/pipeline.md): how the orchestrator routes PR runs."
@@ -76986,6 +75824,9 @@ msgstr "``MODE_RESET`` Gainera, Docker zerbitzua berrabiaraziko du garbiketaren 
 # libretranslate
 msgid "``MODE_RESET``: Performs cleanup and restarts the Docker service."
 msgstr "``MODE_RESET``: Docker zerbitzua garbitu eta berrabiarazten du."
+
+msgid "``Mastodon`` must survive translation, ``Cleanup Disc Space`` must not. Neither the capital nor a dictionary separates them: a brand is deliberately built from an ordinary word, so ``Mastodon``, ``Matrix``, ``Cursor`` and ``Shell`` all sit in an English dictionary, while a descriptive title regularly carries a term no dictionary holds. Measured against en_US-large, that rule would have released Mastodon, PostgreSQL and WordPress for translation and protected ``Automated Email Alerts for Service Failures``."
+msgstr ""
 
 # libretranslate
 #, python-brace-format
@@ -80981,10 +79822,6 @@ msgstr "gehitu dagokion sortari"
 msgid "administrator"
 msgstr "Administratzailea"
 
-# libretranslate
-msgid "akaunting"
-msgstr "Akaunting"
-
 msgid "alias the API accepts in a request's `model` field"
 msgstr ""
 
@@ -81390,10 +80227,6 @@ msgid "base64-encoded 32 random bytes; AES-256-GCM key."
 msgstr "oinarria64kodetua 32 ausazko byte; AES-256-GCM gakoa."
 
 # libretranslate
-msgid "baserow"
-msgstr "baserow"
-
-# libretranslate
 msgid "baudolo owns these values and writes them into every generation's manifest, so :func:`utils.recovery.manifest.layout_of` is what callers ask. These literals answer only for generations written before the manifest existed - those cannot describe themselves, and nothing else can tell a reader what they used."
 msgstr "baudolok balio hauek ditu eta belaunaldi guztietan idazten ditu. :func:`utils.recovery.manifest.layout_of` Hori da deitzaileek eskatzen dutena. Letra-tipo hauek manifestua baino lehen idatzitako belaunaldiei bakarrik erantzuten diete: ezin dute beren burua deskribatu, eta beste ezerk ezin dio irakurleari esan zer erabili zuten."
 
@@ -81421,10 +80254,6 @@ msgid "beta 🌿"
 msgstr "beta 🌿"
 
 # libretranslate
-msgid "bigbluebutton"
-msgstr "bigbluebutton"
-
-# libretranslate
 #, python-brace-format
 msgid "bind-mounts for the registry-cache CA, the package-cache client snippets (`pip.conf`, `npmrc`, `apt/${INFINITO_DISTRO}.list`), and the frontend CA file"
 msgstr "erregistro-cache CArako lotu-muntaketak, pakete-kaxako bezeroaren mozkinak (`pip.conf`, `npmrc`, `apt/${INFINITO_DISTRO}.list`), eta aurreko ZE fitxategia"
@@ -81444,14 +80273,6 @@ msgstr "bide zuzena"
 # libretranslate
 msgid "blocker"
 msgstr "blokeatzailea"
-
-# libretranslate
-msgid "bluesky"
-msgstr "bluesky"
-
-# libretranslate
-msgid "bookwyrm"
-msgstr "bookwyrm"
 
 # libretranslate
 msgid "bool"
@@ -81614,10 +80435,6 @@ msgstr "kontrolak `lookup('service', service_key).required`"
 # libretranslate
 msgid "checks the reachability of the Mailu endpoint,"
 msgstr "egiaztatzen du irisgarritasuna Mailu azken puntua,"
-
-# libretranslate
-msgid "chess"
-msgstr "xakea"
 
 # libretranslate
 msgid "chunk 0 fails → the remaining chunks are skipped"
@@ -82556,10 +81373,6 @@ msgid "co-deploy superset, no prune"
 msgstr "co-deploy superset, prunerik gabe"
 
 # libretranslate
-msgid "collabora"
-msgstr "Collabora"
-
-# libretranslate
 msgid "column to wrap long scalars at, None for the PyYAML default."
 msgstr "Zutabea eskalatzaile luzeak biltzeko, Bat ere ez PyYAML lehenetsiarentzat."
 
@@ -82679,10 +81492,6 @@ msgid "conflicting local tags (`would clobber existing tag`)"
 msgstr "Etiketa lokal gatazkatsuak (`would clobber existing tag`)"
 
 # libretranslate
-msgid "confluence"
-msgstr "konfluentzia"
-
-# libretranslate
 msgid "connect only explicitly selected workflow tools with checked-in input schemas;"
 msgstr "Konektatu esplizituki hautatutako lan-fluxuaren tresnak sarrera-eskema egiaztatuekin;"
 
@@ -82744,10 +81553,6 @@ msgstr "kopiak `files/playwright/playwright.spec.js` proiektuaren barruan honela
 # libretranslate
 msgid "core `aiprovider_openai`; each action carries its own `action_<name>_endpoint`, so the pinned 4.5 branch needs no third-party provider plugin (`aiprovider_openaicompatible` requires Moodle 5.0)"
 msgstr "nukleoa `aiprovider_openai`; ekintza bakoitzak berea du `action_<name>_endpoint`, Beraz, orratza 4.5 adarrak ez du hirugarrenen hornitzailearen pluginik behar (`aiprovider_openaicompatible` eskakizunak Moodle 5.0)"
-
-# libretranslate
-msgid "coturn"
-msgstr "coturn"
 
 # libretranslate
 msgid "course catalogue (``core_course_get_courses``, ``core_enrol_get_users_courses``)"
@@ -82828,10 +81633,6 @@ msgstr "debian"
 # libretranslate
 msgid "debian/changelog source-package name restored to infinito-nexus so dpkg-source builds succeed again"
 msgstr "debian/changelog iturburu-paketearen izena infinito-nexus-era itzuli da, beraz dpkg-source-en eraikuntzak arrakasta izan dute berriro"
-
-# libretranslate
-msgid "decidim"
-msgstr "decidim"
 
 # libretranslate
 msgid "declare the 5 node containers, node image + lab network (compose SPOT)"
@@ -82959,10 +81760,6 @@ msgstr "Lurra idazten duen direktorioa."
 # libretranslate
 msgid "disabled"
 msgstr "desgaituta"
-
-# libretranslate
-msgid "discourse"
-msgstr "diskurtsoa"
 
 # libretranslate
 msgid "discovers provider entries from `services`"
@@ -83297,20 +82094,12 @@ msgid "equal to `from`"
 msgstr "berdin `from`"
 
 # libretranslate
-msgid "erpnext"
-msgstr "erpnext"
-
-# libretranslate
 msgid "eslint preserve-caught-error and no-useless-assignment violations in five Playwright helpers"
 msgstr "Ez du ezertarako balio."
 
 # libretranslate
 msgid "eslint, eslint-plugin-playwright, eslint/js, actions/setup-python, actions/create-github-app-token"
 msgstr ""
-
-# libretranslate
-msgid "espocrm"
-msgstr "espocrm"
 
 # libretranslate
 msgid "every ``default_net`` provider and every ``collect_proxy_resolvable`` provider in the same mode."
@@ -83483,16 +82272,8 @@ msgid "fediverse and media roles"
 msgstr "fediverse and media roles"
 
 # libretranslate
-msgid "fediwall"
-msgstr "fediwall"
-
-# libretranslate
 msgid "fedora"
 msgstr "fedora"
-
-# libretranslate
-msgid "fider"
-msgstr "fider"
 
 # libretranslate
 msgid "file"
@@ -83525,10 +82306,6 @@ msgstr "lehen kontsulta-elementuak '?' erabiltzen du, ondoren '&' erabili. (aurr
 # libretranslate
 msgid "flavor: curl path: health/ready start_period: 20m"
 msgstr "zaporea: kizkur-bidea: osasuna/irakurlea start_period: 20m"
-
-# libretranslate
-msgid "flowise"
-msgstr "fluxua"
 
 # libretranslate
 msgid "focused on reusable domain behavior"
@@ -83579,10 +82356,6 @@ msgid "fresh"
 msgstr "freskoa"
 
 # libretranslate
-msgid "friendica"
-msgstr "lagunaica"
-
-# libretranslate
 msgid "from utils.cache.files import iter_project_files, read_text"
 msgstr "- utils.cache.files inportatu iter_project_files, read_text"
 
@@ -83601,14 +82374,6 @@ msgstr "mapa bateratu osoa"
 # libretranslate
 msgid "fully qualified collection name, namespace and name."
 msgstr "Bildumaren izena, izenlekua eta izena erabat kualifikatua."
-
-# libretranslate
-msgid "funkwhale"
-msgstr "funkwhale"
-
-# libretranslate
-msgid "fusiondirectory"
-msgstr "fusio-direktorioa"
 
 # libretranslate
 msgid "ganesha: userspace, runs in the swarm DinD test node."
@@ -83635,16 +82400,8 @@ msgid "git repository URL to fetch the ``aliases`` file from."
 msgstr "git biltegiaren URLa eskuratzeko ``aliases`` fitxategitik."
 
 # libretranslate
-msgid "gitea"
-msgstr "gitea"
-
-# libretranslate
 msgid "github"
 msgstr "github"
-
-# libretranslate
-msgid "gitlab"
-msgstr "gitlab"
 
 # libretranslate
 msgid "global TLS default, overridden per consumer by ``resolve_enabled``; an .onion domain always resolves to plaintext."
@@ -83750,10 +82507,6 @@ msgstr "html"
 # libretranslate
 msgid "http: 8080"
 msgstr "http: 8080"
-
-# libretranslate
-msgid "hugo"
-msgstr "hugo"
 
 # libretranslate
 msgid "iFrame Notifier for NGINX"
@@ -83936,23 +82689,11 @@ msgid "it pins a variant the role does not declare (any more): the usual case is
 msgstr "rolak adierazten ez duen aldaera bat ezartzen du (gehiago): ohiko kasua run zahar batek eramandako zerrenda da, aldaerak berriro zenbatu ondoren;"
 
 # libretranslate
-msgid "jenkins"
-msgstr "jenkins"
-
-# libretranslate
-msgid "jira"
-msgstr "jira"
-
-# libretranslate
 msgid "jitsi"
 msgstr "jitsi"
 
 msgid "jobs of one or more runs, as the GitHub API returns them."
 msgstr ""
-
-# libretranslate
-msgid "joomla"
-msgstr "joomla"
 
 # libretranslate
 msgid "keep host setup separate from consumer setup"
@@ -83983,16 +82724,8 @@ msgid "key-prefix only (no native ACL)"
 msgstr "tekla-aurrizkia bakarrik (ez da jatorrizko ACL)"
 
 # libretranslate
-msgid "keycloak"
-msgstr "keycloak"
-
-# libretranslate
 msgid "kill the nodes + remove the lab network"
 msgstr "hil nodoak eta kendu laborategiko sarea"
-
-# libretranslate
-msgid "kix"
-msgstr "kix"
 
 # libretranslate
 msgid "kwarg want= is NOT supported (use positional want-path)"
@@ -84001,10 +82734,6 @@ msgstr "kwarg want= Ez dago onartuta (posizio-desbidearen erabilera)"
 # libretranslate
 msgid "label form or ASCII form; a bare role id or display name pins nothing and selects every row of that role."
 msgstr "etiketa forma edo ASCII forma; paperaren ID edo pantaila-izen hutsa ez da ezer pintatzen eta funtzio horren errenkada guztiak hautatzen ditu."
-
-# libretranslate
-msgid "lam"
-msgstr "lam"
 
 # libretranslate
 msgid "largest ICMP-DF payload that survives (= path MTU − 28 bytes IP+ICMP header)"
@@ -84039,10 +82768,6 @@ msgid "letters, digits and the marks ``-_.``, never a leading ``-``, with one of
 msgstr "letrak, digituak eta markak ``-_.``, Inoiz ez lider bat ``-``, klase bakoitzeko batekin, Keycloak Politika ``specialChars(1)`` Zenbatu."
 
 # libretranslate
-msgid "libretranslate"
-msgstr "libretranslate"
-
-# libretranslate
 msgid "line above"
 msgstr "goian"
 
@@ -84067,10 +82792,6 @@ msgid "list[str]"
 msgstr "zerrenda[estolda]"
 
 # libretranslate
-msgid "listmonk"
-msgstr "listmonk"
-
-# libretranslate
 msgid "litellm"
 msgstr "Liellm"
 
@@ -84081,10 +82802,6 @@ msgstr "literala `false`"
 # libretranslate
 msgid "literal `true`"
 msgstr "literala `true`"
-
-# libretranslate
-msgid "littlejs"
-msgstr "littlejs"
 
 # libretranslate
 msgid "live directory to restore into."
@@ -84197,14 +82914,6 @@ msgid "machine fact"
 msgstr "makinaren errealitatea"
 
 # libretranslate
-msgid "magento"
-msgstr "magento"
-
-# libretranslate
-msgid "mailu"
-msgstr "mailua"
-
-# libretranslate
 msgid "mailu root-cause fix"
 msgstr "mailuaren erroa konpondu delako"
 
@@ -84265,22 +82974,6 @@ msgid "maps each record to a Mobilizon event (field mapping per Open Question 5)
 msgstr "erregistro bakoitza mapa batean Mobilizon Gertaera (eremuaren mapa galdera ireki bakoitzeko 5) eta upserts bidez MobilizonGraphQL API;"
 
 # libretranslate
-msgid "mastodon"
-msgstr "mastodon"
-
-# libretranslate
-msgid "matomo"
-msgstr "matomo"
-
-# libretranslate
-msgid "matrix"
-msgstr "matrizea"
-
-# libretranslate
-msgid "mattermost"
-msgstr "materia"
-
-# libretranslate
 msgid "max_passes is reached"
 msgstr "max_passes iritsi da"
 
@@ -84309,10 +83002,6 @@ msgid "median seconds per source, infinite when every sample failed."
 msgstr "segundoak iturburuko, amaigabeak lagin bakoitzak huts egin duenean."
 
 # libretranslate
-msgid "mediawiki"
-msgstr "mediawiki"
-
-# libretranslate
 msgid "memory a worker may claim, taken from what is free rather than from what the machine has."
 msgstr "Memoria langile batek erreklama dezake, libre denetik hartua, ez makinak daukanetik."
 
@@ -84333,14 +83022,6 @@ msgid "meta dependencies"
 msgstr "meta-mendekotasunak"
 
 # libretranslate
-msgid "micro"
-msgstr "mikro"
-
-# libretranslate
-msgid "mig"
-msgstr "migratu"
-
-# libretranslate
 msgid "min       = 768 MB (required minimum)"
 msgstr "min = 768 MB (gutxienekoa)"
 
@@ -84349,24 +83030,12 @@ msgid "min_mb: minimum floor value (default 64 MB)"
 msgstr "min_mb: gutxieneko zoru-balioa (lehenetsia 64 MB)"
 
 # libretranslate
-msgid "mini-qr"
-msgstr "mini-qr"
-
-# libretranslate
-msgid "minio"
-msgstr "minio"
-
-# libretranslate
 msgid "mints a personal access token for the administrator account and persists it with ``sys-token-store`` under ``users.administrator.tokens['web-app-mattermost']``."
 msgstr "Administratzailearen konturako sarbide-token pertsonal bat egiten du eta horrekin jarraitzen du ``sys-token-store`` azpian ``users.administrator.tokens['web-app-mattermost']``."
 
 # libretranslate
 msgid "mints a personal access token for the administrator account and persists it with `sys-token-store` under `users.administrator.tokens['web-app-mattermost']`."
 msgstr "Administratzailearen konturako sarbide-token pertsonal bat egiten du eta horrekin jarraitzen du `sys-token-store` azpian `users.administrator.tokens['web-app-mattermost']`."
-
-# libretranslate
-msgid "mobilizon"
-msgstr "mobilizon"
 
 # libretranslate
 msgid "mode"
@@ -84394,10 +83063,6 @@ msgstr "Moduluaren argumentuak: ez dago baliorik exekuzioaren aurretik."
 # libretranslate
 msgid "module name, or GENERIC_PACKAGE for the host's manager."
 msgstr "moduluaren izena edo GENERIC_PACKAGE ostalariaren arduradunarentzat."
-
-# libretranslate
-msgid "moodle"
-msgstr "moodle"
 
 # libretranslate
 msgid "more reuse across bundles"
@@ -84439,9 +83104,8 @@ msgstr "myservice:"
 msgid "n/a"
 msgstr "n/a"
 
-# libretranslate
 msgid "n8n"
-msgstr "n8n"
+msgstr ""
 
 # libretranslate
 msgid "n8n 1.100.1 Integration"
@@ -84474,10 +83138,6 @@ msgstr "nabigatzailea"
 # libretranslate
 msgid "neither the volume nor the database name is known to     the repository, so the engine would have to be guessed."
 msgstr "Ez da biltegiaren bolumena ez datu-basearen izena ezagutzen, beraz, motorra asmatu beharko litzateke."
-
-# libretranslate
-msgid "nextcloud"
-msgstr "Nextcloud"
 
 # libretranslate
 msgid "nfs-server"
@@ -84760,24 +83420,8 @@ msgid "only; removed from non-invokable roles)."
 msgstr "soilik; ezeztaezineko roletatik kenduta)."
 
 # libretranslate
-msgid "onlyoffice"
-msgstr "bulegoa bakarrik"
-
-# libretranslate
-msgid "opencloud"
-msgstr "opencloud"
-
-# libretranslate
-msgid "openproject"
-msgstr "openproject"
-
-# libretranslate
 msgid "openresty pinned to manager (single replica)"
 msgstr "Administratzaileari lotuta (erreplika bakuna)"
-
-# libretranslate
-msgid "opentalk"
-msgstr "opentalk"
 
 # libretranslate
 msgid "openwebui"
@@ -84943,10 +83587,6 @@ msgid "pause between tries."
 msgstr "Pausatu entseguen artean."
 
 # libretranslate
-msgid "peertube"
-msgstr "peertube"
-
-# libretranslate
 msgid "per-app alias-to-canonical mappings from ``lookup('applications_current_play')``, gated by ``AUTO_BUILD_ALIASES``."
 msgstr "perapp alias-to-canonical mappings from ``lookup('applications_current_play')``, kordoka ``AUTO_BUILD_ALIASES``."
 
@@ -84992,10 +83632,6 @@ msgid "persists a `{ at_uri ↔ mobilizon_event_id }` mapping (role-local SQLite
 msgstr "a `{ at_uri ↔ mobilizon_event_id }` mapatzea (role-local SQLite) beraz, eguneratu/desezabatu pista eta etorkizuneko alderantzizko bide bat dedupi daiteke."
 
 # libretranslate
-msgid "pgAdmin"
-msgstr "pgAdmin"
-
-# libretranslate
 msgid "pgAdmin is the most popular and feature‑rich open source administration and development platform for PostgreSQL. This deployment provides a secure, containerized pgAdmin instance complete with optional OAuth2 proxy support for enhanced authentication. It is built for both developers and database administrators who want an easy‐to‐use web interface to manage multiple PostgreSQL servers."
 msgstr "pgAdmin iturburu irekiko administrazio eta garapen plataformarik ezagunena da PostgreSQL. Hedapen honek pgAdmin instantzia segurua eta edukiontzizkoa eskaintzen du OAuth aukerakoarekin.2 Proxy euskarria autentifikazioa hobetzeko. Web-interfaze erraza nahi duten garatzaile eta datu-baseen administratzaileentzat eraikita dago, hainbat kudeatzeko. PostgreSQL zerbitzariak."
 
@@ -85006,10 +83642,6 @@ msgstr "pgAdmin-en saio-hasierako IDa kontuaren posta da `PGADMIN_DEFAULT_EMAIL`
 # libretranslate
 msgid "pgAdmin’s own login id is the account e-mail ``PGADMIN_DEFAULT_EMAIL`` (```templates/env.j2`` <./templates/env.j2>`__, ```vars/main.yml`` <./vars/main.yml>`__), not the Keycloak ``administrator`` username, so the ``administrator`` persona has no in-app credential once it is through the oauth2-proxy. ```meta/services.yml`` <./meta/services.yml>`__ additionally admits only the ``web-app-pgadmin`` administrator RBAC group to that proxy (``sso.oauth2.allowed_groups``), and ``biber`` carries an empty role list, so it is denied before pgAdmin is reached. ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ therefore declares ``PERSONA_BIBER_BLOCKED=true`` and ``PERSONA_ADMINISTRATOR_BLOCKED=true``; the ``guest`` persona and the baseline assertions run unconditionally."
 msgstr "pgAdmin-en saio-hasierako IDa kontua da. ``PGADMIN_DEFAULT_EMAIL`` (```templates/env.j2`` <./templates/env.j2>`__, ```vars/main.yml`` <./vars/main.yml>`__), not the Keycloak ``administrator`` username, so the ``administrator`` persona has no in-app credential once it is through the oauth2-proxy. ```meta/services.yml`` <./meta/services.yml>`__ additionally admits only the ``web-app-pgadmin`` administrator RBAC group to that proxy (``sso.oauth2.allowed_groups``), and ``biber`` carries an empty role list, so it is denied before pgAdmin is reached. ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ therefore declares ``PERSONA_BIBER_BLOCKED=true`` and ``PERSONA_ADMINISTRATOR_BLOCKED=true``; the ``guest`` persona eta oinarrizko baieztapenak baldintzarik gabe exekutatzen dira."
-
-# libretranslate
-msgid "pgadmin"
-msgstr "pgadmin"
 
 # libretranslate
 msgid "php, composer or phpunit is still absent afterwards."
@@ -85040,20 +83672,8 @@ msgid "phpMyAdmin signs in as the MariaDB `root` account wired through `PMA_USER
 msgstr "phpMyAdminek sinatu egiten du MariaDB `root` kontua kable bidez `PMA_USER` / `PMA_PASSWORD` ([`templates/env.j2`](./templates/env.j2), [`vars/main.yml`](./vars/main.yml)); Keycloak `administrator` Erabiltzaile-izena ez da MariaDB erabiltzaile, beraz, `services.sso.enabled: false` matrize-aldaerak `administrator` pertsonak ez du jatorrizko saioa gidatzeko eta [`templates/playwright.env.j2`](./templates/playwright.env.j2) errendatzea `PERSONA_ADMINISTRATOR_BLOCKED=true`. [`meta/services.yml`](./meta/services.yml) Aitortzen du bakarrik `web-app-phpmyadmin` RBAC taldea oauth-era2-proxy-a (`sso.oauth2.allowed_groups`) eta `biber` Rol-zerrenda hutsa dauka. `PERSONA_BIBER_BLOCKED=true` aldaki guztietan dago. The `guest` persona eta oinarrizko baieztapenak baldintzarik gabe exekutatzen dira."
 
 # libretranslate
-msgid "phpldapadmin"
-msgstr "phpldapadmin"
-
-# libretranslate
-msgid "phpmyadmin"
-msgstr "phpmyadmin"
-
-# libretranslate
 msgid "pip's package cache. Granted because the project's `make install-python` step (transitively invoked by `make test`, which runs as a pre-commit hook) populates this cache; denying it would force every install to redownload from PyPI even when the requirements have not changed."
 msgstr "Paketeen cachea. Emandakoa, proiektuarena delako. `make install-python` urratsa (transbordadorea `make test`, aurre-konposatutako kako gisa funtzionatzen duena) cache hau betetzen du, instalazio guztiak PyPItik birkargatzera behartuko lituzke, baldintzak aldatu ez badira ere."
-
-# libretranslate
-msgid "pixelfed"
-msgstr "pixelfed"
 
 # libretranslate
 msgid "pkgmgr dependency pinned to v1.14.0 (was floating stable), bringing in the package_name resolver and pkgmgr release --retry"
@@ -85779,10 +84399,6 @@ msgid "postgresql-<major>-<apt_package>"
 msgstr "postgresql...<major>-<apt_package>"
 
 # libretranslate
-msgid "postmarks"
-msgstr "laster-markak"
-
-# libretranslate
 msgid "posts: search, read, create, update, delete,"
 msgstr "mezuak: bilatu, irakurri, sortu, eguneratu, ezabatu,"
 
@@ -85803,10 +84419,6 @@ msgstr ""
 
 msgid "preload entries svc-ai-ollama serves; empty when it is not a backend of this deployment."
 msgstr ""
-
-# libretranslate
-msgid "pretix"
-msgstr "pretix"
 
 # libretranslate
 msgid "primary application of the round."
@@ -85831,10 +84443,6 @@ msgstr "sortzen du:"
 # libretranslate
 msgid "project"
 msgstr "proiektua"
-
-# libretranslate
-msgid "prometheus"
-msgstr "prometheus"
 
 # libretranslate
 msgid "provider IPs in placement order, deduplicated."
@@ -86124,6 +84732,9 @@ msgstr "Biltegiak erroan egiten du lan ebazlea."
 # libretranslate
 msgid "repository root to scan."
 msgstr "erro biltegia eskaneatzeko."
+
+msgid "repository root, as a string so the cache key stays hashable."
+msgstr ""
 
 # libretranslate
 msgid "repository root, used to derive ``roles_dir`` and registry."
@@ -86647,10 +85258,6 @@ msgid "shell in docker"
 msgstr "shell docker-ean"
 
 # libretranslate
-msgid "shopware"
-msgstr "denda"
-
-# libretranslate
 msgid "sidecar"
 msgstr "sidecar"
 
@@ -86819,10 +85426,6 @@ msgid "suffix appended to every URI."
 msgstr "URI bakoitzari erantsitako atzizkia."
 
 # libretranslate
-msgid "suitecrm"
-msgstr "suitecrm"
-
-# libretranslate
 msgid "swarm"
 msgstr "ugari"
 
@@ -86869,10 +85472,6 @@ msgstr "etiketak"
 # libretranslate
 msgid "tags were removed"
 msgstr "etiketak kendu egin dira"
-
-# libretranslate
-msgid "taiga"
-msgstr "taiga"
 
 # libretranslate
 msgid "target ``.po`` file."
@@ -87619,6 +86218,12 @@ msgstr "rolak ``application_id``."
 # libretranslate
 msgid "the role's ``mcp`` mapping, or anything else."
 msgstr "rolak ``mcp`` mapatzea, edo beste edozer."
+
+msgid "the role's declared title."
+msgstr ""
+
+msgid "the role's directory."
+msgstr ""
 
 # libretranslate
 msgid "the role's rendered variant configs, in index order."
@@ -88622,6 +87227,9 @@ msgstr "utils.i18n.placeholders Modulua"
 msgid "utils.i18n.translate module"
 msgstr "utils.i18n.translate Modulua"
 
+msgid "utils.i18n.untranslatable module"
+msgstr ""
+
 # libretranslate
 msgid "utils.install package"
 msgstr "utils.install paketea"
@@ -88786,9 +87394,24 @@ msgstr "utils.manager.value\\ generator modulua"
 msgid "utils.meta package"
 msgstr "utils.meta paketea"
 
+msgid "utils.meta.authors module"
+msgstr ""
+
 # libretranslate
 msgid "utils.meta.port\\_bands module"
 msgstr "utils.meta.port\\ bands modulua"
+
+msgid "utils.meta.role package"
+msgstr ""
+
+msgid "utils.meta.role.brands module"
+msgstr ""
+
+msgid "utils.meta.role.names module"
+msgstr ""
+
+msgid "utils.meta.role.titles module"
+msgstr ""
 
 # libretranslate
 msgid "utils.meta.scan module"
@@ -89402,10 +88025,6 @@ msgid "with specific, descriptive messages."
 msgstr "Mezu zehatz eta deskribatzaileekin."
 
 # libretranslate
-msgid "wordpress"
-msgstr "WordPress"
-
-# libretranslate
 msgid "worker threads for credentials generation."
 msgstr "Langilearen hariak kredentzialak sortzeko."
 
@@ -89438,10 +88057,6 @@ msgid "xmpp"
 msgstr "xmpp"
 
 # libretranslate
-msgid "xwiki"
-msgstr "xwiki"
-
-# libretranslate
 msgid "yes"
 msgstr "bai"
 
@@ -89460,14 +88075,6 @@ msgstr "bai. `relay`"
 # libretranslate
 msgid "your preferred contact method for follow-up"
 msgstr "zure kontaktu-metodo hobetsia jarraipena egiteko"
-
-# libretranslate
-msgid "yourls"
-msgstr "zurea"
-
-# libretranslate
-msgid "zammad"
-msgstr "zammad"
 
 # libretranslate
 #, no-python-format, python-brace-format

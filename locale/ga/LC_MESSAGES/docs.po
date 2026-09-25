@@ -3521,10 +3521,6 @@ msgid "**Docker Compose Integration:** Deploy PhpMyAdmin via a templated Compose
 msgstr "**Comhtháthú Docker Compose:** Pléascadh PhpMyAdmin trí thus Múirínithe teimpléad."
 
 # libretranslate
-msgid "**Docker Compose**"
-msgstr "**Déan teagmháil Linn**"
-
-# libretranslate
 msgid "**Docker Compose**   Utilizes the standalone `compose` role to define and bring up containers, networks, and volumes automatically."
 msgstr "**Déan teagmháil Linn** Utilizes an standalone `compose` ról a shainiú agus a thabhairt suas coimeádáin, líonraí, agus méideanna go huathoibríoch."
 
@@ -9713,10 +9709,6 @@ msgid "**account**"
 msgstr "**Cuntas deimhnithe**"
 
 # libretranslate
-msgid "**akaunting**"
-msgstr "**akaunting**"
-
-# libretranslate
 msgid "**architecture** -- which CPU architecture the row deploys on, and through :func:`utils.github.variant.pools.runner_of` which runner it lands on. It rotates on the position directly rather than as a further odometer digit: two values against five distros and fifteen distro/filesystem positions are coprime with both, so walking it fastest still reaches every pairing, while making it the slowest digit would hand a role with few rows a single architecture forever. A role may narrow the pool to one value in ``meta/services.yml`` when only that hardware can run it."
 msgstr "**ailtireacht ailtireacht** -- a n-imsíonn ailtireacht LAP an tsraith ar, agus trí :func:`utils.github.variant.pools.runner_of` a théann sé ar aghaidh. Rothlaíonn sé ar an seasamh go díreach seachas mar dhigit odometer breise: dhá luachanna i gcoinne cúig distros agus cúig post distro / córas déag atá coprime leis an dá, mar sin ag siúl sé is tapúla fós sroicheann gach pairing, agus a dhéanamh go mbeadh an digit is moille lámh ról le cúpla sraitheanna ailtireacht amháin go deo. D'fhéadfadh ról an linn snámha a chaolú le luach amháin i ``meta/services.yml`` nuair amháin gur féidir crua-earraí a reáchtáil."
 
@@ -9756,22 +9748,6 @@ msgstr "**cúltaca de thalamh** (An t-eolas úsáideach) a fháil amach → `nfs
 msgid "**baseline exclusions** — `web-app-fider` and `web-app-bookwyrm` (also keycloak-job, n8n) were red before the tor branch and stay out of scope for it; bookwyrm fails its oauth2 trusted-header session spec, fider its baseline. Fix separately from the onion work. espocrm has left this list: its onion variant failed in the shared admin persona (fixed in b97cf8888) and its clearnet variant returns HTTP 500 on GET /api/v1/App/user, cause still open."
 msgstr "**eisiamh bonnlíne** — — — — `web-app-fider` agus `web-app-bookwyrm` (freisin keycloak-job, n8n) Bhí dearg roimh an brainse tor agus fanacht amach as raon feidhme dó; theipeann ar bookwyrm a oauth2 spec seisiún muinín-ceann, fider a baseline. Fix ar leithligh ón obair oinniún. D'fhág espocrm an liosta seo: theip ar a leagan oinniún sa persona admin roinnte (seasta i b97cúplála8888) agus a tuairisceáin leagan clearnet HTTP 500 ar GET / api / v1/App / úsáideoir, faoi deara fós oscailte."
 
-# libretranslate
-msgid "**baserow**"
-msgstr "**foirm duille: líneach**"
-
-# libretranslate
-msgid "**bigbluebutton**"
-msgstr "**bláthanna cumhra: cumhráin**"
-
-# libretranslate
-msgid "**bluesky**"
-msgstr "**taiseachas aeir: fliuch**"
-
-# libretranslate
-msgid "**bookwyrm**"
-msgstr "**tréimhse saoil: ilbhliantúil**"
-
 msgid "**both red, different errors**: two causes, not one. Split them."
 msgstr ""
 
@@ -9791,14 +9767,6 @@ msgstr "**castling.club** Is freastalaí fichille cónasctha tógtha ar an prót
 msgid "**cdn**"
 msgstr "**taiseachas aeir: fliuch**"
 
-# libretranslate
-msgid "**chess**"
-msgstr ""
-
-# libretranslate
-msgid "**collabora**"
-msgstr "**tréimhse saoil: ilbhliantúil**"
-
 msgid "**company**: Kevin Veen-Birkenbach https://www.veen.world"
 msgstr ""
 
@@ -9807,16 +9775,8 @@ msgid "**compose** is the default. Single host, local docker volumes, no cluster
 msgstr "**a chumadh** Is é an réamhshocraithe. óstach aonair, méideanna docker áitiúil, gan aon feasacht braisle. Oibríonn gach ról sa mhodh gan athrú."
 
 # libretranslate
-msgid "**confluence**"
-msgstr "**tionchar**"
-
-# libretranslate
 msgid "**contacts**"
 msgstr "**Teagmháil**"
-
-# libretranslate
-msgid "**coturn**"
-msgstr "**cas ar ais**"
 
 # libretranslate
 msgid "**crm**"
@@ -9829,10 +9789,6 @@ msgstr "**taiseachas aeir: fliuch**"
 # libretranslate
 msgid "**dashboard**"
 msgstr "**Painéal na nIonstraimí**"
-
-# libretranslate
-msgid "**decidim**"
-msgstr "**taiseachas aeir: fliuch**"
 
 # libretranslate
 msgid "**default.** Probe the host before every run and snapshot when btrfs or zfs is proven safe; otherwise log the reason and copy live."
@@ -10943,10 +10899,6 @@ msgid "**device** (`/dev/sdb1`, image file) → device step first (restores the 
 msgstr "**gléas gléas** (`/dev/sdb1`, comhad íomhá) céim gléas → (restores an crann a chur ar ais-fréamh), ansin `nfs → volume → secrets`"
 
 # libretranslate
-msgid "**discourse**"
-msgstr "**Amharc ar gach eolas**"
-
-# libretranslate
 msgid "**distro** -- which declared distribution the row deploys on. Per row rather than per run, so one sweep proves every distribution instead of proving one and claiming nothing about the other four, and a red row still names the exact distribution it died on."
 msgstr "**cineál gas: in airde** - a dhearbhaigh dáileadh an tsraith imscaradh ar. In aghaidh a chéile seachas in aghaidh an rith, mar sin cruthaíonn sweep amháin gach dáileadh in ionad a chruthú amháin agus ag éileamh rud ar bith mar gheall ar an ceann eile ceithre, agus as a chéile dearg fós ainmneacha an dáileadh cruinn fuair sé bás ar."
 
@@ -10968,22 +10920,6 @@ msgid "**dual-family providers** — the one real remaining design gap. On a CI 
 msgstr ""
 
 # libretranslate
-msgid "**erpnext**"
-msgstr "**iarscríbhinn**"
-
-# libretranslate
-msgid "**espocrm**"
-msgstr "**taiseachas aeir: fliuch**"
-
-# libretranslate
-msgid "**fediwall**"
-msgstr "**bláthanna cumhra: cumhráin**"
-
-# libretranslate
-msgid "**fider**"
-msgstr "**dílis**"
-
-# libretranslate
 msgid "**file**"
 msgstr "**comhad comhad**"
 
@@ -10992,24 +10928,8 @@ msgid "**filesystem** -- which kind the row's docker data root runs on. The two 
 msgstr "**córas comhaid** - cén cineál a ritheann fréamh sonraí docker an tsraith ar. An dá léamh seasamh an tsraith ar nós odometer: Is é an distro an dhigit íseal agus an córas comhaid an ceann ard, sraitheanna chomh as a chéile siúl gach pairing seachas trasnánach tríd. Bheadh Casadh araon ar an seasamh a chlúdach go díreach ach amháin ``n`` de na ``n x m`` péirí aon uair a tharlóidh an dá linnte a bheith ar an fad céanna, agus ní bheadh aon sweep dhíghlasáil é, mar athraíonn an sweep araon ag an méid céanna."
 
 # libretranslate
-msgid "**flowise**"
-msgstr "**sreabhadh**"
-
-# libretranslate
-msgid "**friendica**"
-msgstr "**taiseachas aeir: fliuch**"
-
-# libretranslate
 msgid "**fullchain.pem** → The certificate"
 msgstr "**fullchain.pem** An deimhniú →"
-
-# libretranslate
-msgid "**funkwhale**"
-msgstr "**cliceáil grianghraf a mhéadú**"
-
-# libretranslate
-msgid "**fusiondirectory**"
-msgstr "**auto insurance**"
 
 # libretranslate
 msgid "**gVisor runtime:** The pinned ``runsc`` release is fetched to ``/usr/local/bin/runsc`` and verified against its published SHA-512 checksum. The Kata shim is taken from the host as it is; the role does not install it."
@@ -11090,14 +11010,6 @@ msgid "**galaxy_tags**: ['peertube', 'video-hosting', 'docker', 'compose', 'dece
 msgstr "**galaxy_tags**: ['peertube', 'video-hosting', 'docker', 'compose', 'decentralized', 'open-source', 'ardán físeán']"
 
 # libretranslate
-msgid "**gitea**"
-msgstr "**bláthanna cumhra: cumhráin**"
-
-# libretranslate
-msgid "**gitlab**"
-msgstr "**tréimhse saoil: ilbhliantúil**"
-
-# libretranslate
 msgid "**host** (`[user@]host`) → rsync-pull the whole backup tree, then `nfs → volume → secrets`"
 msgstr "**óstach óstach** (`[user@]host`) → rsync-pull an crann cúltaca ar fad, ansin `nfs → volume → secrets`"
 
@@ -11110,20 +11022,8 @@ msgid "**https on the onion IdP — investigated and REJECTED, do not re-derive.
 msgstr "**https ar an IdP oinniún - imscrúdú agus REJECTED, ná ath-díor.** OIDC Discovery / RFC 8414 ag iarraidh eisitheoir https, agus níl aon cheann ag Keycloak oinniún-eisiach, mar sin diúltaíonn leabharlanna cliaint dian é. Tá Freastal ar TLS ar an oinniún blocáilte ar cheithre rudaí neamhspleácha, san ord seo: (1) `roles/svc-net-tor/templates/torrc.j2` foilsiú ach amháin `HiddenServicePort 80`, agus dearbhaíonn aon ról 443 i `ports.public`/ Baile`ports.local`, mar sin `lookup('tor_ports')` Ní féidir é a astú - Déanann TLS flipping ar an gcéad Keycloak unreachable thar Tor go hiomlán, mar gheall ar `nginx_ssl_header.j2` Is é ceann má / else agus port 80 imíonn sé; (2) `roles/sys-front-tls-selfsigned/tasks/00_core.yml` scríobhann CN gan chosaint, a théann thar X.509's 64caipín -byte ar 62Seirbhís do Chustaiméirí3 oinniún — `group_vars/all/02_tls.yml` gardaí cheana féin go díreach seo don fhréamh CA agus áit ar bith eile; (3) `nginx_ssl_header.j2` astaíonn HSTS sa bhrainse céanna, agus a thairiscint brabhsálaithe aon cliceáil-trí ar óstach HSTS le slabhra untrusted, mar sin féin-sínithe ghlas eatramhach úsáideoirí fíor amach agus fanacht dofheicthe a Playwright ar `ignoreHTTPSErrors`; (4) Socraíonn sé náid tomhaltóirí libcurl, mar gheall ar RFC 7686 Tarlaíonn diúltú ag réiteach ainm agus is scéim-neamhspleách. Ar Feitheamh riachtanais CA a saincheisteanna le haghaidh v3 `.onion` (HARICA, CA/B Fóram ballóid 144) soláthar, ní cód. Go dtí sin Ceartaíonn an per-tomhaltóir seasamh: seachfhreastalaí SOCKS do chliaint libcurl. Tá peertube a thuilleadh ina measc - tá sé ina ról soiléir-amháin."
 
 # libretranslate
-msgid "**hugo**"
-msgstr "**tréimhse saoil: ilbhliantúil**"
-
-# libretranslate
 msgid "**iptables Rule Adaptation:** Modifies iptables to allow forwarding and NAT masquerading for the WireGuard client."
 msgstr "**iptables Riail Oiriúnú:** Modifies iptables chun ligean ar aghaidh agus masquerading NAT don chliant WireGuard."
-
-# libretranslate
-msgid "**jenkins**"
-msgstr "**cineál gas: in airde**"
-
-# libretranslate
-msgid "**jira**"
-msgstr "**taiseachas aeir: fliuch**"
 
 # libretranslate
 msgid "**jitsi**"
@@ -11134,48 +11034,20 @@ msgid "**joomla local-login fallback spec** — `test-oidc-fallback.js:52` (the 
 msgstr "**ghrian nochtadh: leath-scáth** — — — — `test-oidc-fallback.js:52` (an `?fallback=local` haiste éigeandála: ní mór logáil isteach foirm áitiúil Joomla admin teacht ar an bpainéal rialú). Fréamh faoi deara UNCONFIRMED. Tá sé neamhspleách ar an spec OIDC-login seasta: an cosán fallback gearr-ciorcaid roimh an breiseán ar fhreastalaí-taobh fionnachtain, mar sin an tiomanta `extra_hosts` Ní shocrú chlúdach. An bhfuil `secure => true` diúltaíodh hipitéis greamaitheach (`.onion` tionscnamh a d'fhéadfadh a bheith iontaofa agus an e2Leagann Firefox `dom.securecontext.allowlist_onions`, mar sin Glactar le fianáin Secure thar oinniún plain-http). An chéad chéim eile nuair a theipeann air arís iar-shocrú: leithlisiú an URL iar-ionad — Keycloak atreorú (fianán caillte) vs fhoirm dhiúltú vs. rialú-panel mall a dhéanamh."
 
 # libretranslate
-msgid "**joomla**"
-msgstr "**riachtanais uisce: measartha**"
-
-# libretranslate
-msgid "**keycloak**"
-msgstr "**minicíocht uisce: flúirseach**"
-
-# libretranslate
-msgid "**kix**"
-msgstr "**riachtanais uisce: measartha**"
-
-# libretranslate
 msgid "**kubernetes** (future) is reserved as a third render backend consuming the same per-role inputs."
 msgstr "**riachtanais uisce: measartha** (sa todhchaí) Tá in áirithe mar an tríú rindreáil Tógann an céanna in aghaidh an-ról ionchuir."
-
-# libretranslate
-msgid "**lam**"
-msgstr "**lam**"
 
 # libretranslate
 msgid "**legal**"
 msgstr "**dlíthiúil**"
 
 # libretranslate
-msgid "**libretranslate**"
-msgstr "**taiseachas aeir: fliuch**"
-
-# libretranslate
 msgid "**license**: Infinito.Nexus Community License (Non-Commercial)"
 msgstr "**free**: Infinito.Nexus Ceadúnas Madraí ar Líne (Neamhthráchtáil)"
 
 # libretranslate
-msgid "**listmonk**"
-msgstr "**cineál gas: in airde**"
-
-# libretranslate
 msgid "**litellm**"
 msgstr "**Déan teagmháil linn**"
-
-# libretranslate
-msgid "**littlejs**"
-msgstr "**taiseachas aeir: fliuch**"
 
 msgid "**local green, CI red**: the failure is in the axis the local stack does not have. Read the CI artifact before touching the role."
 msgstr ""
@@ -11188,51 +11060,8 @@ msgid "**logout**"
 msgstr "**logála amach**"
 
 # libretranslate
-msgid "**magento**"
-msgstr "**riachtanais uisce: measartha**"
-
-# libretranslate
-msgid "**mailu**"
-msgstr "**mailto**"
-
-# libretranslate
-msgid "**mastodon**"
-msgstr "**minicíocht uisce: flúirseach**"
-
-# libretranslate
 msgid "**matomo container health flake (checkmk batch)** — in the checkmk job the 4th deploy play failed at `Wait for Matomo container to be healthy` with `container inspect: map has no entry for key \"State\"` for the whole retry window (container started, then vanished — likely crash + prune). Plays 1–3 in the SAME job deployed matomo healthy, so classified transient (resource/prune pressure after ~3h). No code fix derivable. If it recurs, investigate as a real matomo crash/OOM (container logs, mem_limit)."
 msgstr "**calóg sláinte coimeádán matomo (seiceáil bhaisc)** - sa phost checkmk an 4th imscaradh theip ar dráma ag `Wait for Matomo container to be healthy` le `container inspect: map has no entry for key \"State\"` le haghaidh an fhuinneog ar fad retry (coimeádán thosaigh, ansin vanished - timpiste dócha + prune). Plays 1– – – –3 sa phost SAME imscaradh matomo sláintiúil, mar sin de transient rangaithe (acmhainn / brú pontúin tar éis ~3Is maith liom é). Uimh cód a shocrú derivable. Má reurs sé, imscrúdú mar tuairteála fíor matomo / OOM (logs coimeádán, mem_limit)."
-
-# libretranslate
-msgid "**matomo**"
-msgstr "**taiseachas aeir: fliuch**"
-
-# libretranslate
-msgid "**matrix**"
-msgstr "**maitrís maitrís**"
-
-# libretranslate
-msgid "**mattermost**"
-msgstr "**ábhar beagnach**"
-
-# libretranslate
-msgid "**mediawiki**"
-msgstr "**Déan teagmháil linn**"
-
-msgid "**mig**"
-msgstr ""
-
-# libretranslate
-msgid "**mini-qr**"
-msgstr "**soilse loingseoireachta E**"
-
-# libretranslate
-msgid "**minio**"
-msgstr "**taiseachas aeir: fliuch**"
-
-# libretranslate
-msgid "**mobilizon**"
-msgstr "**crios fuar: aon sonraí**"
 
 # libretranslate
 #, no-python-format
@@ -11240,19 +11069,11 @@ msgid "**mode** -- which of ``compose``/``swarm``/``host`` the row deploys in, d
 msgstr ""
 
 # libretranslate
-msgid "**moodle**"
-msgstr "**cineál gas: in airde**"
-
-# libretranslate
 msgid "**n8n**"
 msgstr "**n8n**"
 
 msgid "**navigator**"
 msgstr ""
-
-# libretranslate
-msgid "**nextcloud**"
-msgstr "**taiseachas aeir: fliuch**"
 
 # libretranslate
 msgid "**npm Installation:** Ensures the ``npm`` package manager is installed."
@@ -11267,57 +11088,13 @@ msgid "**odoo**"
 msgstr "**taiseachas aeir: fliuch**"
 
 # libretranslate
-msgid "**onlyoffice**"
-msgstr "**ach amháin oifig**"
-
-# libretranslate
-msgid "**opencloud**"
-msgstr "**taiseachas aeir: fliuch**"
-
-# libretranslate
-msgid "**openproject**"
-msgstr "**oscailte**"
-
-# libretranslate
-msgid "**opentalk**"
-msgstr "**oscailte**"
-
-# libretranslate
 msgid "**openwebui**"
 msgstr "**Déan teagmháil linn**"
-
-# libretranslate
-msgid "**peertube**"
-msgstr "**duille dath: glas**"
-
-# libretranslate
-msgid "**pgadmin**"
-msgstr "**taiseachas aeir: fliuch**"
-
-# libretranslate
-msgid "**phpldapadmin**"
-msgstr "**minicíocht uisce: flúirseach**"
-
-# libretranslate
-msgid "**phpmyadmin**"
-msgstr "**Seirbhís do Chustaiméirí**"
-
-# libretranslate
-msgid "**pixelfed**"
-msgstr "**pixelfed**"
 
 # libretranslate
 #, python-brace-format
 msgid "**platforms**: [{'name': 'ArchLinux', 'versions': ['all']}, {'name': 'Debian', 'versions': ['all']}, {'name': 'EL', 'versions': ['all']}, {'name': 'Fedora', 'versions': ['all']}, {'name': 'Ubuntu', 'versions': ['all']}]"
 msgstr "**ardáin**: [{'name': 'ArchLinux', 'versions': ['all']}, {'name': 'Debian', 'versions': ['all']}, {'name': 'EL', 'versions': ['all']}, {'name': 'Fedora', 'versions': ['all']}, {'name': 'Ubuntu', 'versions': ['all']}]"
-
-# libretranslate
-msgid "**postmarks**"
-msgstr "**postmarks**"
-
-# libretranslate
-msgid "**pretix**"
-msgstr "**riachtanais uisce: measartha**"
 
 # libretranslate
 msgid "**privkey.pem** → The private key"
@@ -11326,10 +11103,6 @@ msgstr "**privkey.pem** → an eochair phríobháideach"
 # libretranslate
 msgid "**project**"
 msgstr "**tionscadal tionscadal**"
-
-# libretranslate
-msgid "**prometheus**"
-msgstr "**cineál gas: in airde**"
 
 # libretranslate
 msgid "**role_name**: keyboard-color"
@@ -11342,10 +11115,6 @@ msgstr "**roth roulette**"
 # libretranslate
 msgid "**server-side OIDC reachability candidates** — joomla failed because its app container performs server-side OIDC discovery against `http://auth.<onion>` without an `extra_hosts` mapping. Roles with the same mechanic and no `container_extra_hosts` lookup yet (fix is the same one-line lookup, apply on CI evidence): wordpress (daggerhart plugin) and mediawiki (PluggableAuth) are structurally identical PHP in-app plugins (high likelihood); discourse is now confirmed and pinned (run 33445831564, job Nextcloud#7); jenkins, jira, confluence, odoo, openwebui, pretix, zammad, semaphore, jellyfin, listmonk, xwiki, mastodon consume the issuer server-side too (unverified network path). oauth2-proxy-based apps are NOT affected (proven green: prometheus admin SSO). Two names have left this list on evidence: mobilizon got the lookup in 0e39f3fad after its code-to-token call raised OAuth2.Error Connection refused twenty-four times, and gitlab was NEVER a member - run 31756560361 shows it resolving and connecting (peeraddr=172.30.0.10:443); its failure was the openid_connect gem rebuilding the discovery URL over https regardless of the issuer scheme, fixed in 2389b6e38."
 msgstr ""
-
-# libretranslate
-msgid "**shopware**"
-msgstr "**earraí spóirt**"
 
 # libretranslate
 msgid "**simpleicons**"
@@ -11372,10 +11141,6 @@ msgid "**stock**"
 msgstr ""
 
 # libretranslate
-msgid "**suitecrm**"
-msgstr "**cineál gas: in airde**"
-
-# libretranslate
 msgid "**swarm** (v1) is opt-in per host via Ansible group membership. Adds: multi-host cluster, overlay networks, NFS-backed shared volumes, rolling updates, placement constraints."
 msgstr ""
 
@@ -11390,10 +11155,6 @@ msgstr "**sys-stk-front-base** buataisítraps an ciseal tosaigh go bhfuil an chu
 # libretranslate
 msgid "**systemd-resolved** stub listener disabled to avoid port conflicts."
 msgstr "**córasach-réitigh** éisteoir stub faoi mhíchumas a sheachaint coinbhleachtaí calafoirt."
-
-# libretranslate
-msgid "**taiga**"
-msgstr "**taiseachas aeir: fliuch**"
 
 # libretranslate
 msgid "**test-development environment jobs** — all 5 distro jobs (arch, debian, ubuntu, fedora, centos) hit the 4h30m cap under congestion while still progressing (playwright image pull). Environmental, no code fix - distinct from the distro sweep's own budget, which did have one: 508669809 books a budget SIGKILL as skipped, which ad9222630 had only done for SIGTERM; note that onion e2e inherently lengthens the routine (×5 onion timeouts, circuit waits), so under congestion these jobs are the first to hit the cap."
@@ -11418,23 +11179,7 @@ msgid "**website**"
 msgstr "**láithreán gréasáin**"
 
 # libretranslate
-msgid "**wordpress**"
-msgstr "**wordpress**"
-
-# libretranslate
 msgid "**xmpp**"
-msgstr "**taiseachas aeir: fliuch**"
-
-# libretranslate
-msgid "**xwiki**"
-msgstr "**cliceáil grianghraf a mhéadú**"
-
-# libretranslate
-msgid "**yourls**"
-msgstr "**dornálaíochta**"
-
-# libretranslate
-msgid "**zammad**"
 msgstr "**taiseachas aeir: fliuch**"
 
 # libretranslate
@@ -13756,6 +13501,9 @@ msgstr "Is féidir ról a tharraingt isteach san fhardal trí aon cheann de thr�
 msgid "A role declares `meta/mcp.yml` when it actually serves or consumes MCP. The file is a capability descriptor, not a service entry: no single role provides MCP, so the service registry cannot pair provider and consumer, and the `mcp_consumer` flag in `meta/services.yml` does it instead. Vocabulary lives in [`utils/roles/applications/mcp.py`](../../../../../utils/roles/applications/mcp.py); the hard lint is [`test_mcp_schema.py`](../../../../../tests/lint/ansible/services/test_mcp_schema.py)."
 msgstr "Fógraíonn ról `meta/mcp.yml` nuair a feidhmíonn sé i ndáiríre nó a itheann MCP. Is é an comhad tuairisceoir cumas, ní iontráil seirbhíse: Soláthraíonn aon ról amháin MCP, mar sin ní féidir leis an chlár seirbhíse soláthraí péire agus tomhaltóir, agus an `mcp_consumer` bratach i `meta/services.yml` dhéanann sé ina ionad. saol Vocabulary i [`utils/roles/applications/mcp.py`](../../../../../utils/roles/applications/mcp.py); Is é an lint crua [`test_mcp_schema.py`](../../../../../tests/lint/ansible/services/test_mcp_schema.py)."
 
+msgid "A role declares it twice and the two may differ: the ``README.md`` heading is what a reader sees, ``galaxy_info.name`` what the metadata carries. The heading wins where both exist, because the documentation is built from it."
+msgstr ""
+
 msgid "A role directory name is never an English phrase, so it is protected wherever it appears. A title is a single word often enough that the two readings collide: ``Unbound`` is a DNS resolver and an adjective, ``Shell`` a role and a common noun. Measured over the catalogs, the capital separates them: of 47932 capitalised occurrences the translator altered 22 percent, among them ``(Unbound, etc.)`` turning into ``(Ungebunden, etc.)``, while the 40698 lowercase ones it altered in 40 percent of cases and those readings were the common noun the text meant (``shell extensions``, ``user-driven documentation``)."
 msgstr ""
 
@@ -14290,10 +14038,6 @@ msgstr "AIEditingAsistant"
 # libretranslate
 msgid "AOF persistence for cached data."
 msgstr "AOF marthanacht do shonraí i dtaisce."
-
-# libretranslate
-msgid "API"
-msgstr "API"
 
 # libretranslate
 msgid "API (STRICT):"
@@ -15491,10 +15235,6 @@ msgid "Aggressively pruned Docker artifacts between distro runs"
 msgstr "Ionsaitheach pruned artifacts Docker idir ritheann distro"
 
 # libretranslate
-msgid "Akaunting"
-msgstr "Amharc ar gach eolas"
-
-# libretranslate
 msgid "Akaunting Container: `compose exec -it akaunting bash`"
 msgstr "Akaunting Coimeádán: `compose exec -it akaunting bash`"
 
@@ -16172,6 +15912,9 @@ msgstr "An addon faoi `meta/addons/` MAY dhearbhú `incompatible_plugins` liosta
 # libretranslate
 msgid "An addon whose pinned version is behind the latest upstream release."
 msgstr "Tá addon a leagan pinned taobh thiar den scaoileadh is déanaí upstream."
+
+msgid "An address is matched before that, on the raw text: masking protects the address of ``mailto:a@b.c`` but leaves the scheme behind, so its prose reads as a word."
+msgstr ""
 
 # libretranslate
 msgid "An app that needs an extra mapper MUST add it through a per-client scope. See [nextcloud.json.j2](../../../../roles/web-app-keycloak/templates/import/scopes/nextcloud.json.j2) for the precedent: a dedicated scope holds the Nextcloud-specific UID and quota mappers and is attached only to the Nextcloud client."
@@ -17779,10 +17522,6 @@ msgid "Baseline scenarios (reachability, CSP, canonical-domain DOM assertion, lo
 msgstr "cásanna bonnlíne (reachability, CSP, Canonical-domain DOM dearbhú, logáil-amach staid deiridh) MUST NACH geata ar aon seirbhís. A imscaradh le gach seirbhís roinnte MUST faoi mhíchumas a fhágáil fós ar bunlíne a rith sraith."
 
 # libretranslate
-msgid "Baserow"
-msgstr "bláthanna cumhra: cumhráin"
-
-# libretranslate
 msgid "Baserow documents a native built-in MCP server."
 msgstr "Doiciméid Baserow ó dhúchas-tógtha i freastalaí MCP."
 
@@ -18118,10 +17857,6 @@ msgid "Biber keeps a runnable journey: `files/playwright/test-ldap-variant.js` d
 msgstr "Coinníonn Biber turas runnable: `files/playwright/test-ldap-variant.js` thiomáineann an logáil LDAP-bind dúchais agus `files/playwright/test-profile-readonly.js` Dearbhaíonn na réimsí próifíl faoi ghlas. Is é an cosán ar ais go dtí an persona riarthóir céim imscaradh go lámha an riarthóir láithreán dintiúir an persona env iompraíonn cheana féin."
 
 # libretranslate
-msgid "BigBlueButton"
-msgstr "cliceáil grianghraf a mhéadú"
-
-# libretranslate
 msgid "Binary fixtures (sample images, videos, …) MUST live under `roles/<role>/files/playwright/fixtures/`. The `*.js` glob does not ship binaries or subdirectories, so the runner stages the whole `fixtures/` directory next to the tests; specs load a fixture via `path.join(__dirname, \"fixtures\", \"<name>\")`."
 msgstr "daingneáin dénártha (íomhánna samplacha, físeáin,...) MUST beo faoi `roles/<role>/files/playwright/fixtures/`. An `*.js` Ní glob long binaries nó subdirectories, mar sin céimeanna an dara háit an t-iomlán `fixtures/` eolaire in aice leis na tástálacha; specs luchtú daingneán via `path.join(__dirname, \"fixtures\", \"<name>\")`."
 
@@ -18206,10 +17941,6 @@ msgid "Blue-ray Disc"
 msgstr "Gorm-gha Disc"
 
 # libretranslate
-msgid "Bluesky"
-msgstr "taiseachas aeir: fliuch"
-
-# libretranslate
 msgid "Bluesky login-broker"
 msgstr "cliceáil grianghraf a mhéadú"
 
@@ -18220,10 +17951,6 @@ msgstr "téacs Comhlacht úsáid MAY emojis nuair a chabhróidh siad inléiteach
 # libretranslate
 msgid "Body text MAY use emojis where they improve readability."
 msgstr "téacs Comhlacht úsáid MAY emojis nuair a fheabhsaíonn siad inléiteacht."
-
-# libretranslate
-msgid "BookWyrm"
-msgstr "Seirbhís do Chustaiméirí"
 
 # libretranslate
 msgid "BookWyrm provides a federated social network for books built on ActivityPub. Each instance can be private, invitation-only, or open for public registration. Users can import/export book lists, interact with others across the Fediverse, and maintain their own curated reading environment. As an admin, you can configure moderation tools, content rules, and federation policies to suit your community."
@@ -18558,10 +18285,6 @@ msgstr "Droichid (ról seirbhíse →)"
 # libretranslate
 msgid "Bridges: in-repo dependency vs network bridge"
 msgstr "Droichid: in-repo dependency vs droichead líonra"
-
-# libretranslate
-msgid "Bridgy Fed"
-msgstr "tréimhse saoil: ilbhliantúil"
 
 # libretranslate
 msgid "Briefly describe the CI/CD or pipeline change and the expected effect."
@@ -19822,10 +19545,6 @@ msgid "Cert generation, Nexus repo bootstrap, and runner trust-store install run
 msgstr "Giniúint Teastas, buataisí Nexus repo, agus dara háit a shuiteáil muinín-stór [compose.py](../../../cli/administration/deploy/development/compose.py)."
 
 # libretranslate
-msgid "Certbot"
-msgstr "Cén fáth ar chóir dom dul isteach?"
-
-# libretranslate
 msgid "Certbot Reaper"
 msgstr "cliceáil grianghraf a mhéadú"
 
@@ -19993,10 +19712,6 @@ msgid "Checklist ✅"
 msgstr "Seiceáil an Gharda Síochána ✅"
 
 # libretranslate
-msgid "Checkmk"
-msgstr "Seiceáil"
-
-# libretranslate
 msgid "Checkmk Raw bundles its own core/RRD; nothing external needed."
 msgstr "Seiceáil bundles amh a chroí féin / RRD; rud ar bith seachtrach ag teastáil."
 
@@ -20026,10 +19741,6 @@ msgstr "Seiceálacha cibé an bhfuil an tseirbhís glanta toirte gan ainm sainit
 
 msgid "Checks::"
 msgstr ""
-
-# libretranslate
-msgid "Chess"
-msgstr "Seirbhís do Chustaiméirí"
 
 # libretranslate
 msgid "Choose **Purge Everything** to delete all cached files (recommended after a deployment)."
@@ -20064,10 +19775,6 @@ msgid "Chore"
 msgstr "Coir"
 
 # libretranslate
-msgid "Chromium"
-msgstr "Cróimiam"
-
-# libretranslate
 msgid "Chunk 0 holds the head of the ranking unless *offset* moves it; the order *inside* a chunk is then sorted (:func:`utils.github.variant.axes.sort_key`), so the job list reads by role rather than by rank."
 msgstr "Déan Teagmháil Linn 0 Tá ceann an rangú mura *fhritháireamh* bogann sé; an t-ordú *taobh istigh* Tá smután sórtáil ansin (:func:`utils.github.variant.axes.sort_key`), mar sin léann an liosta poist de réir ról seachas ag céim."
 
@@ -20095,9 +19802,6 @@ msgstr "Sínis Classic, leath-formal"
 msgid "Classify a pin as ``semver``, ``digest`` or ``ref``."
 msgstr "Rangú bioráin mar ``semver``, ``digest`` nó ``ref``."
 
-msgid "Claude Code"
-msgstr ""
-
 # libretranslate
 msgid "Claude Code Sandbox 🏖️"
 msgstr "Claude Cód Sandbox 🏖️"
@@ -20117,10 +19821,6 @@ msgstr "Claude Code meastóireacht ar gach glaoch uirlis i gcoinne na liostaí i
 # libretranslate
 msgid "Claude Code safety rests on two layers."
 msgstr "Tá sábháilteacht Cód Claude ar dhá shraith."
-
-# libretranslate
-msgid "Claude Code 🤖"
-msgstr "Claude Code 🤖"
 
 # libretranslate
 msgid "Clauses in significance order (first = primary sort key). ``reverse`` is True for ``desc``."
@@ -21208,10 +20908,6 @@ msgid "Cluster-shared NFS state dir: {{ lookup('nfs_state_path') }}."
 msgstr "Cluster-roinnte NFS stáit dir: {{ lookup('nfs_state_path') }}."
 
 # libretranslate
-msgid "Code"
-msgstr "Cód an Chóid"
-
-# libretranslate
 msgid "Code Execution ⚙️"
 msgstr "Cód a fhorghníomhú ⚙️"
 
@@ -21283,18 +20979,11 @@ msgstr "Codec idir ról id agus an t-ainm taispeáint CI ainmneacha a iompar."
 msgid "Codespaces are billable, persistent VMs with full repo + secret access; `ssh`/`cp` open a remote shell or move files in/out. The whole namespace is asked because even read commands (`list`, `view`) interact with billable infrastructure."
 msgstr "Tá Codespaces iontaofa, VMs leanúnach le rochtain iomlán repo + rúnda; `ssh`/ Baile`cp` oscailt bhlaosc iargúlta nó comhaid a bhogadh i / amach. Iarrtar ar an ainmspás iomlán mar gheall ar orduithe a léamh fiú (`list`, `view`) idirghníomhú le bonneagar billable."
 
-msgid "Codex"
-msgstr ""
-
 msgid "Codex reads its key from an environment variable rather than from its config file, so the role writes the key to a `0600` file under `~/.config/environment.d/` and names that variable in `config.toml`. A workstation whose gateway lives in another inventory leaves `services.codex.gateway_url` and `credentials.gateway_key` set by hand instead, and the loopback wiring stays out of the way."
 msgstr ""
 
 msgid "Codex reads its key from an environment variable rather than from its config file, so the role writes the key to a ``0600`` file under ``~/.config/environment.d/`` and names that variable in ``config.toml``. A workstation whose gateway lives in another inventory leaves ``services.codex.gateway_url`` and ``credentials.gateway_key`` set by hand instead, and the loopback wiring stays out of the way."
 msgstr ""
-
-# libretranslate
-msgid "Collabora"
-msgstr "Amharc ar gach eolas"
 
 # libretranslate
 msgid "Collaborative wiki platform for user-driven documentation with an extensible extension ecosystem and content management"
@@ -21890,10 +21579,6 @@ msgid "Conflict doctrine"
 msgstr "fhoirceadal coimhlinte"
 
 # libretranslate
-msgid "Confluence"
-msgstr "Tionchar a imirt"
-
-# libretranslate
 msgid "Confluence is Atlassian’s enterprise wiki and collaboration platform. This role deploys Confluence via Docker Compose, wires it to PostgreSQL, and integrates proxy awareness, optional OIDC SSO, health checks, and production-friendly defaults for Infinito.Nexus."
 msgstr "Tá tionchar ar wiki fiontraíochta Atlassian agus ardán comhoibrithe. Imscaradh an ról seo Confluence trí Docker Compose, sreanga sé go PostgreSQL, agus comhtháthaíonn sé feasacht seachfhreastalaí, OIDC SSO roghnach, seiceálacha sláinte, agus teipeanna a tháirgeadh-chairdiúil do Infinito.Nexus."
 
@@ -22394,10 +22079,6 @@ msgstr "Cóipeáil an chomhartha a ghintear."
 msgid "Copy the in-play role dumps next to the snapshot."
 msgstr "Cóipeáil na dumpaí ról in-imirt in aice leis an pictiúr."
 
-# libretranslate
-msgid "CopyQ"
-msgstr "Cóipleabhar"
-
 msgid "Copyright (c) 2026 Kevin Veen-Birkenbach All rights reserved."
 msgstr ""
 
@@ -22465,10 +22146,6 @@ msgstr "taiseachas aeir: fliuch"
 # libretranslate
 msgid "Cospend"
 msgstr "Seirbhís do Chustaiméirí"
-
-# libretranslate
-msgid "Coturn"
-msgstr "Coturn"
 
 # libretranslate
 msgid "Coturn Project: [github.com/coturn/coturn](https://github.com/coturn/coturn)"
@@ -22868,9 +22545,6 @@ msgstr "Luach reatha"
 msgid "Currently, no checks are enforced"
 msgstr "Faoi láthair, ní chuirtear aon seiceálacha i bhfeidhm"
 
-msgid "Cursor"
-msgstr ""
-
 msgid "Cursor's CLI cannot be pointed at a custom OpenAI-compatible endpoint: it exchanges the key for Cursor session tokens and talks its own protocol afterwards. The editor does carry an \"Override OpenAI Base URL\" field, but it lives in Cursor's own state database rather than in a file this role could render."
 msgstr ""
 
@@ -23263,10 +22937,6 @@ msgstr "Decide a seasamh shéimeantach as an liosta thuas oireann an seiceáil."
 # libretranslate
 msgid "Decides whether the new version is the highest published version and, if so, advances the `latest` floating tag."
 msgstr "Cinneann an bhfuil an leagan nua an leagan is airde a foilsíodh agus, má tá, chun cinn an `latest` tag snámh."
-
-# libretranslate
-msgid "Decidim"
-msgstr "Déan cinneadh"
 
 # libretranslate
 msgid "Decidim's base image does not include an OpenID Connect OmniAuth strategy. This role builds a custom image that:"
@@ -24545,10 +24215,6 @@ msgid "Discards all uncommitted local changes without any recovery path."
 msgstr "Discards gach athruithe áitiúla gan aon cosán a ghnóthú."
 
 # libretranslate
-msgid "Discourse"
-msgstr "An tSeirbhís Garda Tarrthála"
-
-# libretranslate
 msgid "Discourse AI"
 msgstr "Amharc ar gach eolas"
 
@@ -24767,10 +24433,6 @@ msgstr "An bhfuil an obair is gá anois in ionad a iarchur é gan chúis."
 # libretranslate
 msgid "Docker Auto Restart"
 msgstr "Docker Auto Atosú"
-
-# libretranslate
-msgid "Docker Compose"
-msgstr "Déan teagmháil Linn"
 
 # libretranslate
 msgid "Docker Compose Certificate Sync Service"
@@ -25354,10 +25016,6 @@ msgid "ENTRYPOINT detection and recovery"
 msgstr "ENTRYPOINT bhrath agus a ghnóthú"
 
 # libretranslate
-msgid "ERPNext"
-msgstr "ERPNext"
-
-# libretranslate
 msgid "ERPNext is an open-source ERP suite built on the [Frappe Framework](https://frappeframework.com/). Upstream ships a multi-container deployment ([frappe_docker](https://github.com/frappe/frappe_docker)) consisting of:"
 msgstr "Is ERPNext sraith ERP foinse oscailte tógtha ar an [Creat an Fheirtéaraigh](https://frappeframework.com/). Longa Upstream imscaradh ilchoinneálach ([frappe_docker](https://github.com/frappe/frappe_docker)) a bhfuil:"
 
@@ -25752,10 +25410,6 @@ msgstr "Ceachtar an t-iarratas reatha IS web-app-prometheus, NÓ dearbhaíonn s�
 # libretranslate
 msgid "Either the domain mapping dict (values can be str | list[str] | dict[str,str]) or an already flattened list of domains, or a single domain string."
 msgstr "Ceachtar an dict mapála fearainn (Is féidir luachanna a str liosta[snáithe str] dict[Sraith, sraith]) nó liosta cheana féin leacaithe de fearainn, nó teaghrán fearainn amháin."
-
-# libretranslate
-msgid "Elasticsearch"
-msgstr "Taighde leaisteacha"
 
 # libretranslate
 msgid "Election is relative to the rows handed in, so a caller that filters MUST call this again on the survivors: a stand-in the filter dropped is not deployed, and the row deferring to it is cut in favour of nothing."
@@ -26454,10 +26108,6 @@ msgstr "Escape luach le húsáid mar an *athsholáthair* cuid de sed s // ordú.
 # libretranslate
 msgid "Escape a value for use inside a Ruby double-quoted string and wrap it in double quotes."
 msgstr "Escape luach le húsáid taobh istigh de teaghrán dúbailte Ruby luaite agus é a wrap i Sleachta dúbailte."
-
-# libretranslate
-msgid "EspoCRM"
-msgstr "Seirbhís do Chustaiméirí"
 
 # libretranslate
 msgid "Essential repository files covering agent rules, support, security, and community standards."
@@ -27699,10 +27349,6 @@ msgid "Federation 🔗"
 msgstr "Cónaidhm na Rúise 🔗"
 
 # libretranslate
-msgid "Fediwall"
-msgstr "taiseachas aeir: fliuch"
-
-# libretranslate
 msgid "Fediwall is a static, single-page web application with no backend, no database, and no user accounts. Configuration lives in a ``wall-config.json`` next to ``index.html`` and can be overridden per-visitor through URL parameters."
 msgstr "Is Fediwall iarratas gréasáin statach, aon-leathanach gan aon chúl, aon bhunachar sonraí, agus aon chuntais úsáideora. Saol Cumraíocht i ``wall-config.json`` in aice leis ``index.html`` agus is féidir iad a overmharcaíocht per-visitor trí pharaiméadair URL."
 
@@ -27773,10 +27419,6 @@ msgstr "Fetchmail Workround 🔄"
 # libretranslate
 msgid "Fetchmail might not work properly with large amounts of data. For more information, refer to this [issue](https://github.com/Mailu/Mailu/issues/1719)."
 msgstr "Ní fhéadfadh Fetchmail ag obair i gceart le méideanna móra sonraí. Le haghaidh tuilleadh eolais, féach ar seo [ga - FAQs](https://github.com/Mailu/Mailu/issues/1719)."
-
-# libretranslate
-msgid "Fider"
-msgstr "Fider"
 
 # libretranslate
 msgid "Field"
@@ -28035,10 +27677,6 @@ msgstr "Críochnaigh cur i bhfeidhm"
 # libretranslate
 msgid "Firecracker sandbox reference: [E2B infra](https://github.com/e2b-dev/infra)"
 msgstr "Firecracker bosca gainimh tagairt: [E2B infra](https://github.com/e2b-dev/infra)"
-
-# libretranslate
-msgid "Firefox"
-msgstr "Uisce agus Séarachas"
 
 # libretranslate
 msgid "Firewall ruleset"
@@ -28313,10 +27951,6 @@ msgstr "Lúthchleasaíocht"
 # libretranslate
 msgid "Flow Summary 📋"
 msgstr "Plean Gníomhaíochta don Oideachas 📋"
-
-# libretranslate
-msgid "Flowise"
-msgstr "Flowise"
 
 # libretranslate
 msgid "Flowise 3.1.4 Integration"
@@ -29383,10 +29017,6 @@ msgid "Fresh installs only"
 msgstr "Suiteálacha úra amháin"
 
 # libretranslate
-msgid "Friendica"
-msgstr "riachtanais uisce: measartha"
-
-# libretranslate
 msgid "Friendica's `saml` addon is community-maintained — last-commit recency AND config-format compatibility need verification before committing to it as the canonical SSO path."
 msgstr "riachtanais uisce: measartha `saml` Tá addon pobal-choinneáil - recency deireanach-saor in aisce agus comhoiriúnacht config-format gá fíorú roimh cion dó mar an cosán SSO Canonical."
 
@@ -29502,10 +29132,6 @@ msgid "Functional requirements live under [`docs/requirements/`](docs/requiremen
 msgstr ""
 
 # libretranslate
-msgid "Funkwhale"
-msgstr "Seirbhís do Chustaiméirí"
-
-# libretranslate
 msgid "Funkwhale renders its sign-in control as a bare ``div``. The helper matches ``getByRole(\"link\"|\"button\")``, which cannot select it, so the in-app fallback misses as well."
 msgstr "Tugann Funkwhale a shíniú-i rialú mar lom ``div``. Na cluichí cúntóir ``getByRole(\"link\"|\"button\")``, nach féidir a roghnú é, mar sin cailleann an in-app fallback chomh maith."
 
@@ -29528,10 +29154,6 @@ msgstr "Amharc ar gach eolas"
 # libretranslate
 msgid "Further resources"
 msgstr "Acmhainní eile"
-
-# libretranslate
-msgid "FusionDirectory"
-msgstr "Comhbhrúiteoir"
 
 # libretranslate
 msgid "Future"
@@ -29793,10 +29415,6 @@ msgid "Gettext and LibreTranslate env handlers."
 msgstr ""
 
 # libretranslate
-msgid "Git"
-msgstr "bláthanna cumhra: cumhráin"
-
-# libretranslate
 msgid "Git Workflow Helpers 🔐"
 msgstr "Cúnamh Sreabhadh Oibre Git 🔐"
 
@@ -29811,10 +29429,6 @@ msgstr "Déantúsóirí Git 🗂️"
 # libretranslate
 msgid "Git is the control plane."
 msgstr "Is Git an eitleán rialaithe."
-
-# libretranslate
-msgid "Git 🔐"
-msgstr "Bláthanna cumhra: cumhráin 🔐"
 
 # libretranslate
 msgid "GitHub Actions cannot generate a variable number of jobs, so the chunk blocks are written out in the orchestrator. `INFINITO_CI_MAX_CHUNKS` must equal how many exist there — `slots` plans a sweep against that key, and a sweep planned larger than the chain silently drops its tail. Declare one block more than `available` fills (`ceil(available / chunk size) + 1`): the split receives every declared block, so after a short priority chunk the regular rows still fill the rest of the budget. Blocks whose slice comes back empty skip themselves and cost nothing."
@@ -29921,16 +29535,8 @@ msgid "GitHub-release asset helpers (latest-tag resolver + downloader)."
 msgstr "GitHub-scaoileadh cúntóirí sócmhainní (réiteach is déanaí + downloader)."
 
 # libretranslate
-msgid "GitLab"
-msgstr "GitLab"
-
-# libretranslate
 msgid "Gitaly data locality"
 msgstr "Áit sonraí Gitaly"
-
-# libretranslate
-msgid "Gitea"
-msgstr "bláthanna cumhra: cumhráin"
 
 # libretranslate
 msgid "Gitea has no built-in MCP server. The role runs the project-owned ``gitea-mcp`` package as a sidecar container next to Gitea and points it at the instance over the container network. Because that sidecar authenticates nothing itself, the ``svc-ai-mcp-adapter`` instance sits in front of it and is what clients address."
@@ -29995,10 +29601,6 @@ msgstr "Ordú buicéad domhanda:"
 # libretranslate
 msgid "Global setting **\"Authenticate users by incoming HTTP requests\"** / `auth_by_http_header = \"X-Remote-User\"` — reads the username from a trusted reverse-proxy header."
 msgstr "leagan domhanda **\"úsáideoirí fíordheimhnithe ag iarratais HTTP ag teacht isteach\"** / Baile `auth_by_http_header = \"X-Remote-User\"` — léann an t-ainm úsáideora ó header iontaofa droim ar ais-proxy."
-
-# libretranslate
-msgid "GnuCash"
-msgstr "Bláthanna faoi dhíon"
 
 # libretranslate
 msgid "Go to **Caching** → **Configuration**."
@@ -30422,10 +30024,6 @@ msgstr "Cúntóirí faoi `utils/roles/` oibriú ar déantúsáin ról Ansible ag
 msgid "Helps ensure that the system has adequate swap space for improved performance and stability."
 msgstr "Cuidíonn sé a chinntiú go bhfuil spás leordhóthanach ag an gcóras le haghaidh feidhmíocht agus cobhsaíocht feabhsaithe."
 
-# libretranslate
-msgid "Hermes Agent"
-msgstr "Hermes Gníomhaire"
-
 msgid "Hermes Agent: [hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com/)"
 msgstr ""
 
@@ -30512,10 +30110,6 @@ msgstr "Coinnigh dintiúr oibreora-sholáthar don scéimre dearbhaíonn sé."
 # libretranslate
 msgid "Holds primitives that the domain modules (`users`, `applications`, `domains`) all need but no domain owns: filesystem constants, YAML loaders, deep-merge, cache-key + content-fingerprint signatures, templar-render machinery, and the cross-domain re-entry guard."
 msgstr "Holds primitives go bhfuil na modúil fearainn (`users`, `applications`, `domains`) gach gá ach aon bhfearann úinéireacht: tairiseach córas comhaid, lódálaithe YAML, domhain- chumasc, taisce-eochair + síniú ábhar-fingerprint, innealra templar-render, agus an garda tras-domain ath-iontrála."
-
-# libretranslate
-msgid "Home Assistant"
-msgstr "Baile Cúnta"
 
 # libretranslate
 msgid "Home Assistant MCP Server: [home-assistant.io/integrations/mcp_server](https://www.home-assistant.io/integrations/mcp_server/)"
@@ -30811,10 +30405,6 @@ msgid "Hugging Face repository those flavors download at build time"
 msgstr ""
 
 # libretranslate
-msgid "Hugo"
-msgstr "Go raibh maith agat"
-
-# libretranslate
 msgid "Hugo: Administration"
 msgstr "Hugo: Riarachán"
 
@@ -30836,10 +30426,6 @@ msgstr "Duine, ar éileamh"
 # libretranslate
 msgid "Human-readable owner for lint and runtime messages."
 msgstr "úinéir an duine- inléite le haghaidh teachtaireachtaí lint agus runtime."
-
-# libretranslate
-msgid "Hunspell"
-msgstr "Seirbhís do Chustaiméirí"
 
 # libretranslate
 msgid "IAM roles"
@@ -33666,10 +33252,6 @@ msgid "Integration with `sys-ctl-hlth-journalctl` for downstream monitoring"
 msgstr "Comhtháthú le `sys-ctl-hlth-journalctl` le haghaidh faireacháin iartheachtach"
 
 # libretranslate
-msgid "Intel Driver"
-msgstr "Tiománaí Intel"
-
-# libretranslate
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
 msgstr "Intel VA-API tiománaí meáin le haghaidh crua-earraí-ceiliúradh dhíchódú físeán agus ionchódú ar fud dáiltí Linux"
 
@@ -34215,10 +33797,6 @@ msgid "Java"
 msgstr "Cén fáth ar chóir dom dul?"
 
 # libretranslate
-msgid "Jellyfin"
-msgstr "riachtanais uisce: measartha"
-
-# libretranslate
 msgid "Jellyfin bundles SQLite."
 msgstr "bundles Jellyfin SQLite."
 
@@ -34233,10 +33811,6 @@ msgstr "Jellyfin siopaí a meiteashonraí i SQLite inmheánach faoi `/config` - 
 # libretranslate
 msgid "Jellyfin stores its metadata in internal SQLite under ``/config`` - it needs **no external database**. The role persists three named volumes: ``/config``, ``/cache``, and ``/media``. Media libraries are added in-app against ``/media``."
 msgstr "Jellyfin siopaí a meiteashonraí i SQLite inmheánach faoi ``/config`` - riachtanais sé **aon bhunachar sonraí seachtrach**. Leanann an ról trí imleabhar ainmnithe: ``/config``, ``/cache``, agus ``/media``. Meáin leabharlanna a leanas i-app i gcoinne ``/media``."
-
-# libretranslate
-msgid "Jenkins"
-msgstr "Déan teagmháil linn"
 
 # libretranslate
 msgid "Jenkins support is plugin-based and MUST be pinned like other Jenkins plugins."
@@ -34283,10 +33857,6 @@ msgid "Jinja2 templates"
 msgstr "Déan teagmháil linn2 teimpléid"
 
 # libretranslate
-msgid "Jira"
-msgstr "cineál gas: in airde"
-
-# libretranslate
 msgid "Jitsi"
 msgstr "Féach ar an bpróifíl"
 
@@ -34318,10 +33888,6 @@ msgid "Joined URL."
 msgstr "Clárú: URL."
 
 # libretranslate
-msgid "Joomla"
-msgstr "riachtanais uisce: measartha"
-
-# libretranslate
 msgid "Joomla 6 Keycloak OIDC SSO plugin (`plg_system_keycloak`)"
 msgstr "riachtanais uisce: measartha 6 Keycloak OIDC SSO plugin (`plg_system_keycloak`)"
 
@@ -34330,23 +33896,12 @@ msgid "Journalctl"
 msgstr "Toir ornáideacha agus Crainn"
 
 # libretranslate
-msgid "Jrnl"
-msgstr "taiseachas aeir: fliuch"
-
-# libretranslate
 msgid "Judge by the two `📊 per-target wall-clock` tables (one for the test phase, one for lint) and any `FAILED TARGETS:` line — never by the pipe exit code, which is unreliable here. `docs` and `autoformat` write to the tree: run `git status` after every pass and treat an unexpected diff as a finding, not as noise."
 msgstr "Breitheamh ag an dá `📊 per-target wall-clock` táblaí tábla tábla (ceann amháin don chéim tástála, ceann amháin le haghaidh lint) agus aon `FAILED TARGETS:` líne - riamh ag an cód scoir píopa, atá neamhiontaofa anseo. `docs` agus `autoformat` scríobh chuig an gcrann: reáchtáil `git status` tar éis gach pas agus diff gan choinne a chóireáil mar aimsiú, ní mar thorann."
-
-msgid "Jupyter"
-msgstr ""
 
 # libretranslate
 msgid "Just include this role in your playbook; it will:"
 msgstr "Just a chur san áireamh an ról i do leabhar súgartha; beidh sé:"
-
-# libretranslate
-msgid "KIX"
-msgstr "KIX"
 
 # libretranslate
 msgid "KWARGS"
@@ -34359,10 +33914,6 @@ msgstr "Seirbhís do Chustaiméirí"
 # libretranslate
 msgid "Kata with the Firecracker hypervisor was the original choice and cannot be delivered on Docker Engine: Firecracker requires the container rootfs as a block device (the containerd `devmapper` snapshotter), while dockerd always hands the runtime a directory. Kata's Firecracker driver advertises no filesystem sharing, and Kata's own documentation tests Docker with QEMU as the VMM. Reaching a microVM here means moving the agent tier off dockerd onto containerd with `devmapper`, which is a separate decision. Until then the microVM clauses below describe an intent, not a shipped mechanism."
 msgstr "Ba é Kata leis an hypervisor Firecracker an rogha bunaidh agus ní féidir é a sheachadadh ar Inneall Docker: Éilíonn Firecracker na fréamhacha coimeádán mar fheiste bloc (an coimeádán `devmapper` grianghrafadóir), cé dockerd lámha i gcónaí ar an runtime eolaire. Fógraíonn tiománaí Firecracker Kata aon roinnt córas comhaid, agus tástálacha doiciméadúcháin Kata féin Docker le QEMU mar an VMM. Reaching microVM anseo ciallaíonn bogadh an tier gníomhaire as dockerd isteach coimeádán le `devmapper`, is cinneadh ar leith. Go dtí sin na clásail microVM thíos cur síos ar intinn, ní meicníocht shipped."
-
-# libretranslate
-msgid "KeePassXC"
-msgstr "Seirbhís do Chustaiméirí"
 
 # libretranslate
 msgid "Keep Docker-specific explanations here and keep the command reference in `../artefact/files/makefile.md`."
@@ -34666,10 +34217,6 @@ msgid "Key variables (see `defaults/main.yml`):"
 msgstr "Athróg eochair (féach ar `defaults/main.yml`):"
 
 # libretranslate
-msgid "Keycloak"
-msgstr "Uisce agus Séarachas"
-
-# libretranslate
 msgid "Keycloak Client Templates 📦"
 msgstr "Plean Gníomhaíochta don Oideachas 📦"
 
@@ -34759,10 +34306,6 @@ msgstr "Kubernetes dintiúir braisle."
 # libretranslate
 msgid "Kwargs:"
 msgstr "Caitheamh aimsire:"
-
-# libretranslate
-msgid "LAM"
-msgstr "Déan teagmháil linn"
 
 # libretranslate
 #, python-brace-format
@@ -34886,10 +34429,6 @@ msgid "LLM gateway: [031-llm-gateway-model-backends.md](031-llm-gateway-model-ba
 msgstr ""
 
 # libretranslate
-msgid "LM Studio"
-msgstr "Stiúideo LM"
-
-# libretranslate
 msgid "LUKS device/image → local backup root"
 msgstr "LUKS gléas / íomhá → cúltaca áitiúil fréamh"
 
@@ -34928,9 +34467,6 @@ msgstr "réiteoir is déanaí-tag agus íoslódáil sócmhainní le haghaidh sca
 # libretranslate
 msgid "Launch Snipe‑IT quickly with Docker Compose and Ansible automation for a production‑ready platform."
 msgstr "Seoladh an tSuímh Snipe‑IT go tapa le Docker Compose agus uathoibriú Ansible le haghaidh ardán táirgthe-réidh."
-
-msgid "Laya"
-msgstr ""
 
 msgid "Laya keeps its own settings in ``~/.laya/``, including the model providers it talks to. This role does not render that file: upstream documents the provider types but not the on-disk schema, so the provider is an operator step in the application’s own settings. Pointing it at the platform gateway means adding a provider of type ``openai_compatible``."
 msgstr ""
@@ -35129,14 +34665,6 @@ msgid "Leverages the ``sys-stk-backend`` role to stand up your containerized dat
 msgstr "Deochanna na ``sys-stk-backend`` ról chun seasamh suas do bhunachar sonraí coimeádán (PostgreSQL, MariaDB, etc.) le cúltacaí agus bainistíocht úsáideora."
 
 # libretranslate
-msgid "LibreOffice"
-msgstr "Oifig na Gaeilge"
-
-# libretranslate
-msgid "LibreTranslate"
-msgstr "Déan teagmháil anois"
-
-# libretranslate
 msgid "LibreTranslate is an open-source machine translation API that can be self-hosted. This role provides a standardized, reproducible deployment with optional extensions such as Redis caching, database persistence, and Matomo tracking."
 msgstr "Is LibreTranslate aistriúchán meaisín foinse oscailte API féidir a bheith féin-óstáil. Soláthraíonn an ról seo imlonnú caighdeánaithe, atáirgthe le síntí roghnacha ar nós Redis caching, marthanacht bunachar, agus rianú Matomo."
 
@@ -35224,10 +34752,6 @@ msgid "Links 🔗"
 msgstr "Naisc go dtí suíomhanna eile 🔗"
 
 # libretranslate
-msgid "Lint"
-msgstr "Leathanach Main"
-
-# libretranslate
 msgid "Lint Integration 🚦"
 msgstr "Comhtháthú Leint 🚦"
 
@@ -35270,10 +34794,6 @@ msgstr "tástálacha lint a fhorfheidhmiú patrúin sábháilte bhlaosc-píblín
 # libretranslate
 msgid "Lint tests that enforce variable-lifecycle invariants across the Ansible tree: every name a role declares MUST be consumed somewhere, and every name a role passes MUST be referenced by the play / template stack that receives it."
 msgstr "tástálacha Lint a fhorfheidhmiú invariants athróg-saoil ar fud an crann Ansible: Dearbhaíonn gach ainm MUST a chaitheamh áit éigin, agus gach ainm Gabhann ról MUST a tharchur ag an chairn spraoi / teimpléad a fhaigheann sé."
-
-# libretranslate
-msgid "Lint 🔍"
-msgstr "Leathanach Main 🔍"
 
 # libretranslate
 msgid "Linux"
@@ -35354,10 +34874,6 @@ msgid "Listing ``dir()`` instead sweeps in whatever the module imported, so ever
 msgstr ""
 
 # libretranslate
-msgid "Listmonk"
-msgstr "Déan Teagmháil Linn"
-
-# libretranslate
 #, python-brace-format
 msgid "Lists all container packages with the requested visibility via the GitHub Packages REST API (`GET /user/packages` or `GET /orgs/{org}/packages`)."
 msgstr "Liostaigh gach pacáiste coimeádán leis an infheictheacht iarrtha tríd an GitHub Pacáistí REST API (`GET /user/packages` nó `GET /orgs/{org}/packages`)."
@@ -35389,10 +34905,6 @@ msgstr "LiteLLM: `litellm.ai <https://www.litellm.ai>`__"
 # libretranslate
 msgid "Literals rather than an import because the code that reads a generation runs on swarm nodes, the NFS server and bare rescue hosts, which carry a git checkout and no baudolo; this module must stay import-free for that reason. The agreement is enforced by ``tests/lint/repository/dependencies/test_baudolo_pin.py``."
 msgstr "Literals seachas iompórtáil mar gheall ar an cód a léann giniúint ritheann ar nóid swarm, an fhreastalaí NFS agus hóstach tarrthála lom, a dhéanann Seiceáil git agus aon baudolo; Ní mór an modúl seo fanacht iompórtáil-saor in aisce ar an gcúis sin. Cuirtear an comhaontú i bhfeidhm trí ``tests/lint/repository/dependencies/test_baudolo_pin.py``."
-
-# libretranslate
-msgid "LittleJS"
-msgstr "Bláthanna faoi dhíon"
 
 # libretranslate
 msgid "LittleJS Playground is designed as a lightweight HTML5 game sandbox for education, prototyping, and fun. It exposes the original LittleJS ``examples/`` browser and adds a Bootstrap-based landing page that lists all examples as clickable tiles and offers quick links to popular games such as platformers and arcade-style demos. The app runs as a single Docker container and requires no additional database or backend services."
@@ -36055,10 +35567,6 @@ msgid "MDAD's `ansible-playbook setup.yml` invocation is encapsulated in a dedic
 msgstr "MDAD ar `ansible-playbook setup.yml` invocation encapsulated i fo-coimeádaí tiomnaithe (Cóipeáil nasc leis an tweet2 i gcomparáid leis an Infinito imscaradh coimeádán atá DinD #1). Tá an íomhá rádala tógtha go háitiúil ó `roles/web-app-matrix/files/flavor/ansible/runner/Dockerfile` agus pinned via `services.matrix.runner.image`. An dara háit ceangail-mounts `/var/run/docker.sock`, `/etc/systemd/system`, `/run/systemd`, `/usr/local/bin`, `/matrix`, agus an Seiceáil MDAD mar sin scríobhann MDAD talamh sa choimeádán imscaradh ar ainmspás (céanna Docker daemon agus córasaithe mar an chuid eile den chairn)."
 
 # libretranslate
-msgid "MIG"
-msgstr "MILLEADH"
-
-# libretranslate
 msgid "MODE_FOO: true   # comment MODE_BAR: false  # comment MODE_BAZ: null   # comment"
 msgstr "MODE_FOO: fíor # comment MODE_BAR: bréagach # comment MODE_BAZ: null # comment"
 
@@ -36195,20 +35703,12 @@ msgid "Made *drv-intel* VA-API package handling distro-specific"
 msgstr "Déanta as cruach dhosmálta *drv-intel* VA-API láimhseáil pacáiste distro-shonrach"
 
 # libretranslate
-msgid "Magento"
-msgstr "Toir agus Crainn"
-
-# libretranslate
 msgid "Mail egress over Tor (operator: \"must\")"
 msgstr "Ríomhphost egress thar Tor (oibreoir: \"must\")"
 
 # libretranslate
 msgid "Mail server:"
 msgstr "freastalaí poist:"
-
-# libretranslate
-msgid "Mailu"
-msgstr "Post a Sheoladh"
 
 # libretranslate
 msgid "Mailu Dependency Detection 🚨"
@@ -36500,10 +36000,6 @@ msgid "Mapping, from compose ``docker_restart_policy`` to swarm ``condition``:"
 msgstr ""
 
 # libretranslate
-msgid "MariaDB"
-msgstr "taiseachas aeir: fliuch"
-
-# libretranslate
 msgid "MariaDB database provisioning via the ``sys-svc-rdbms`` role"
 msgstr "MariaDB bunachar soláthair trí ``sys-svc-rdbms`` Ról na Gaeilge"
 
@@ -36620,10 +36116,6 @@ msgid "Marks the Ansible task as `changed` if:"
 msgstr "Marcanna an tasc Ansible mar `changed` más rud é:"
 
 # libretranslate
-msgid "Mastodon"
-msgstr "ollscoileanna eile"
-
-# libretranslate
 msgid "Match commands exactly as Claude Code does: literal prefix, `*` wildcard, `deny` overrides `allow`."
 msgstr "orduithe Match díreach mar a dhéanann Claude Cód: réimír litriúil, `*` cárta fiáin, `deny` overrides `allow`."
 
@@ -36684,10 +36176,6 @@ msgid "Materialised path and loader"
 msgstr "cosán Ábhartha agus luchtaire"
 
 # libretranslate
-msgid "Matomo"
-msgstr "Déan Teagmháil Linn"
-
-# libretranslate
 msgid "Matomo Token Not Yet Available ⚠️"
 msgstr "Ní Mar sin féin, ar fáil ⚠️"
 
@@ -36714,10 +36202,6 @@ msgstr "Matomo iarrthóir breiseán"
 # libretranslate
 msgid "Matomo upgrade to 1.1.13"
 msgstr "Uasghrádú Matomo 1.1.13"
-
-# libretranslate
-msgid "Matrix"
-msgstr "Maitrís"
 
 # libretranslate
 msgid "Matrix bridges modernized: Signal, Telegram, WhatsApp and Slack bridges migrate to bridgev2 config, the dead mautrix-facebook/instagram bridges are replaced by mautrix-meta, bridge specs are gated by the deployed addon, Synapse loads the bridge registrations from a mounted directory, and the role now tracks *matrix-docker-ansible-deploy* from the spantaleev upstream."
@@ -36755,10 +36239,6 @@ msgstr "Maitrís: `#public:infinito.nexus` - comhrá tapa leis an bpobal."
 # libretranslate
 msgid "Matrix: `@kevinveenbirkenbach:infinito.nexus`"
 msgstr "Maitrís: `@kevinveenbirkenbach:infinito.nexus`"
-
-# libretranslate
-msgid "Mattermost"
-msgstr "Neamhlonrach"
 
 # libretranslate
 msgid "Mattermost **Team Edition** does not support native OIDC (`MM_OPENIDSETTINGS_*`) or LDAP, since both are Enterprise-only features."
@@ -36852,9 +36332,6 @@ msgstr "Ardán na Meán"
 msgid "Media library on a **named Docker volume** (`/media`), plus `/config` + `/cache`."
 msgstr "Meáin leabharlann ar **ainmnithe Docker toirt** (`/media`), móide `/config` + + + + `/cache`."
 
-msgid "MediaWiki"
-msgstr ""
-
 msgid "Medians, not means: a job that hit a queue wait or a network stall is a long tail on an otherwise cheap axis, and averaging lets one such job outvote a hundred normal ones."
 msgstr ""
 
@@ -36869,10 +36346,6 @@ msgstr "Comhaltaí na `application_administrators` grúpa LDAP (in aghaidh an ch
 # libretranslate
 msgid "Members of the `application_administrators` group (per requirement 004) gain OpenCloud admin rights when they log in."
 msgstr "Comhaltaí na `application_administrators` cineál gas: in airde (in aghaidh an cheanglais 004) fháil OpenCloud cearta admin nuair a logáil siad isteach."
-
-# libretranslate
-msgid "Memcached"
-msgstr "Memcached"
 
 # libretranslate
 msgid "Memcached has no native auth or namespace. Consumer isolation is key-prefix only and is resolved by ``lookup('engine', 'memcached', consumer_id)`` at consume time, so ``tasks/01_init.yml`` is a no-op."
@@ -37008,20 +36481,12 @@ msgid "Migration, rollback, or security-sensitive concerns:"
 msgstr "Imirce, athsheoladh, nó imní slándála-íogair:"
 
 # libretranslate
-msgid "MinIO"
-msgstr "cineál gas: in airde"
-
-# libretranslate
 msgid "MinIO: [www.min.io](https://www.min.io)"
 msgstr "MinIO: [www.min.io](https://www.min.io)"
 
 # libretranslate
 msgid "MinIO: `www.min.io <https://www.min.io>`__"
 msgstr "MinIO: `www.min.io <https://www.min.io>`__"
-
-# libretranslate
-msgid "Mini-QR"
-msgstr "Mini-QR"
 
 # libretranslate
 msgid "Mini-QR is designed for simplicity, privacy, and speed."
@@ -37172,10 +36637,6 @@ msgstr "Mirrors an oidhreacht scripts/meta/env/runtime.sh loighic:"
 # libretranslate
 msgid "Missing Resolve Scripts"
 msgstr "Scripteanna a Bhainistiú"
-
-# libretranslate
-msgid "Mobilizon"
-msgstr "crios fuar: aon sonraí"
 
 # libretranslate
 msgid "Mode"
@@ -37342,10 +36803,6 @@ msgstr "Nóid Monatóireachta,"
 # libretranslate
 msgid "Monitors disk-space usage and alerts if any filesystem usage exceeds your defined threshold."
 msgstr "Monatóireacht a dhéanamh ar úsáid diosca-spás agus foláirimh má tá aon úsáid córas comhaid níos mó ná do tairseach sainithe."
-
-# libretranslate
-msgid "Moodle"
-msgstr "Déan teagmháil linn"
 
 # libretranslate
 msgid "Moodle compares every request against `$CFG->wwwroot`. A probe that reaches the endpoint over the internal HTTP origin is answered with a redirect to the canonical HTTPS URL rather than with JSON, so callers must send the canonical `Host` header and `X-Forwarded-Proto: https`."
@@ -37870,10 +37327,6 @@ msgid "Neither strategy is chosen by hand. `services.litellm.router_strategy` de
 msgstr ""
 
 # libretranslate
-msgid "Neovim"
-msgstr "riachtanais uisce: measartha"
-
-# libretranslate
 #, python-brace-format
 msgid "Nested keys are walked transparently (e.g. `credentials.recaptcha.{key,secret}`)."
 msgstr "Eochracha Nested siúl trédhearcach (e.g. `credentials.recaptcha.{key,secret}`)."
@@ -38065,10 +37518,6 @@ msgstr "Athróg nua MUST lean an `TEST_E2E_PLAYWRIGHT_` réim an choinbhinsiúin
 # libretranslate
 msgid "Newest run on ``branch`` (in ``repo``) that actually contains compose/ swarm deploy jobs. Returns the run dict (with a cached ``_jobs`` key) or None."
 msgstr "Rith is nuaí ar ``branch`` (i ``repo``) go bhfuil i ndáiríre a chumadh / swarm imscaradh poist. Tuairisceáin an dict reáchtáil (le taisce ``_jobs`` eochair eochair) nó Uimh."
-
-# libretranslate
-msgid "Nextcloud"
-msgstr "taiseachas aeir: fliuch"
 
 # libretranslate
 msgid "Nextcloud Applications"
@@ -38817,10 +38266,6 @@ msgstr "Tuilleadh roghanna..."
 msgid "Older backup subdirectories are validated and cleaned if they are invalid"
 msgstr "subdirectories cúltaca níos sine a bhailíochtú agus a ghlanadh má tá siad neamhbhailí"
 
-# libretranslate
-msgid "Ollama"
-msgstr "riachtanais uisce: measartha"
-
 msgid "Ollama, then LM Studio, then declared, then the router alias."
 msgstr ""
 
@@ -39205,6 +38650,9 @@ msgstr "Ach amháin Open WebUI Déanann teorainn úsáideora per-freastalaí, tr
 msgid "Only a clean sweep of successes retires the suite. A shard that failed, was cancelled, timed out or skipped did not run through, and a run that holds no job for the suite at all never started it -- none of those is evidence the suite is good, so the retrigger keeps asking for it."
 msgstr "Ní théann ach scuab glan de rath ar an seomra. A shard gur theip air, Cuireadh ar ceal, amaithe amach nó nach raibh skipped rith tríd, agus a reáchtáil go bhfuil aon phost don seomra riamh thosaigh sé - aon cheann de na fianaise go bhfuil an seomra go maith, mar sin coimeádann an retrigger iarraidh air."
 
+msgid "Only a message that is nothing but the name qualifies. Inside a sentence the name is protected by the span machinery in :mod:`utils.i18n.placeholders`, and the sentence around it still needs translating."
+msgstr ""
+
 msgid "Only a role that declares nothing falls back on its shape: a stack role (ships a compose template) is offered ``compose`` and ``swarm``, anything else is offered ``host``."
 msgstr ""
 
@@ -39259,9 +38707,8 @@ msgstr "Níl ach an chéad iontráil den leagan roghnaithe: Ritheann sraith tosa
 msgid "Only the mount that carries the docker data root matters. A btrfs partition elsewhere on the host changes nothing — the probe never looks at it."
 msgstr "Níl ach an méid a dhéanann na hábhair fhréamh sonraí docker. A laindéal btrfs in áiteanna eile ar na hathruithe óstach rud ar bith - an probe riamh Breathnaíonn ar sé."
 
-# libretranslate
-msgid "OnlyOffice"
-msgstr "Oifig an Ombudsman"
+msgid "Only those two fields are read. Matching against every URL in the role sweeps in whatever its prose links to, and a reference to ``en.wikipedia.org/wiki/ Bourne_shell`` then turns ``Shell`` into a brand."
+msgstr ""
 
 # libretranslate
 msgid "Opaque, role-interpreted runtime payload. Lint does not constrain its inner shape beyond requiring a mapping. Secrets inside `config` MUST resolve through `lookup('config', application_id, 'secrets.credentials.<name>')` and MUST NOT be inlined literally."
@@ -39278,10 +38725,6 @@ msgstr "Oscailt Oscailte **Úsáideoirí**, cuardach a dhéanamh don úsáideoir
 # libretranslate
 msgid "Open Questions"
 msgstr "Amharc ar gach eolas"
-
-# libretranslate
-msgid "Open WebUI"
-msgstr "Rochtain ar an nGréasán"
 
 # libretranslate
 msgid "Open WebUI access tests MUST cover a user with one of several MCP groups, a user with no MCP group, a user in the wrong application's group, and removal of the user's last group. The known empty-group synchronization behavior MUST be fixed upstream, patched in the pinned image, or compensated by an explicit reconciliation/session-invalidation mechanism before strict revocation is claimed."
@@ -39427,16 +38870,8 @@ msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and 
 msgstr "OpenAI-comhoiriúnach LLM geata ródú amháin / V1 endpoint le backends samhail áitiúil agus óstáil le heochracha per-tomhaltóir"
 
 # libretranslate
-msgid "OpenBao"
-msgstr "Seirbhís do Chustaiméirí"
-
-# libretranslate
 msgid "OpenBao auto-unseals on every restart, so deploy and redeploy stay idempotent and no OpenBao-generated key material has to be written back into the inventory. The inventory is the \"existing source of trust\" upstream's caveat asks for."
 msgstr "OpenBao auto-unseals ar gach restart, mar sin imscaradh agus ath-imlonnú fanacht idempotent agus ní gá aon ábhar eochair OpenBao-ghiniúint a scríobh ar ais isteach san fhardal. Is é an fardal an \"foinse iontaobhais reatha\" Iarrann caveat sruth ar do."
-
-# libretranslate
-msgid "OpenClaw"
-msgstr "Oscailt an dlí"
 
 # libretranslate
 msgid "OpenClaw consumes MCP. Every deployed shared MCP server role is discovered through `MCP_DISCOVERED_SERVERS` and written into the agent configuration."
@@ -39461,10 +38896,6 @@ msgstr "Deir tagairt CLI féin OpenClaw mar sin go díreach: `openclaw mcp serve
 # libretranslate
 msgid "OpenClaw: [openclaw.ai](https://openclaw.ai/)"
 msgstr "OpenClaw: [openclaw.ai](https://openclaw.ai/)"
-
-# libretranslate
-msgid "OpenCloud"
-msgstr "taiseachas aeir: fliuch"
 
 # libretranslate
 msgid "OpenCloud delegates authentication to the central Keycloak realm and consumes user and group data from the central OpenLDAP directory. Local password login is disabled when `services.sso.enabled` is true (the default), and accounts are auto-provisioned on first OIDC login."
@@ -39495,10 +38926,6 @@ msgid "OpenIDConnect"
 msgstr "OpenIDConnect"
 
 # libretranslate
-msgid "OpenLDAP"
-msgstr "Amharc ar gach eolas"
-
-# libretranslate
 msgid "OpenLDAP configuration LDIFs"
 msgstr "LDIF chumraíocht OpenLDAP"
 
@@ -39507,16 +38934,8 @@ msgid "OpenLDAP group LDIFs"
 msgstr "OpenLDAP grúpa LDIFs"
 
 # libretranslate
-msgid "OpenProject"
-msgstr "irl - Library Service"
-
-# libretranslate
 msgid "OpenProject documents an MCP endpoint under `/mcp` and OAuth application setup."
 msgstr "Doiciméid OpenProject endpoint MCP faoi `/mcp` agus thus iarratas ó bhéal."
-
-# libretranslate
-msgid "OpenResty"
-msgstr "Amharc ar gach eolas"
 
 # libretranslate
 msgid "OpenResty image handling Image and version are now resolved from role configuration instead of hardcoded variables. Custom overrides must be placed in config."
@@ -39525,10 +38944,6 @@ msgstr "OpenResty íomhá láimhseáil íomhá agus leagan réiteach anois ó ch
 # libretranslate
 msgid "OpenResty runs `network_mode: host`, binds 80/443, `proxy_pass http://127.0.0.1:<port>`"
 msgstr "Ritheann OpenResty `network_mode: host`, ceangail 80/ Baile443, `proxy_pass http://127.0.0.1:<port>`"
-
-# libretranslate
-msgid "OpenTalk"
-msgstr "Nuacht agus Imeachtaí"
 
 # libretranslate
 msgid "OpenTalk authenticates users against the central Keycloak realm via OIDC and looks up users via the Keycloak admin Web API (`keycloak_webapi` backend). OpenLDAP feeds OpenTalk transitively through Keycloak's federation."
@@ -40691,16 +40106,8 @@ msgid "PayPal"
 msgstr "PayPal"
 
 # libretranslate
-msgid "PeerTube"
-msgstr "Feithiclí"
-
-# libretranslate
 msgid "PeerTube is a decentralized, open-source video hosting platform that empowers creators to share videos without relying on centralized services. It leverages federated architecture and peer-to-peer technologies to provide scalable, secure, and community-driven video streaming."
 msgstr "Is ardán a óstáil físeán díláraithe, foinse oscailte é PeerTube a thugann cumhacht do chruthaitheoirí físeáin a roinnt gan bheith ag brath ar sheirbhísí láraithe. Giaráil sé ailtireacht chothaithe agus teicneolaíochtaí piaraí-le-peer a chur ar fáil sruthú físeán inscálaithe, slán, agus pobail-tiomáinte."
-
-# libretranslate
-msgid "Penpot"
-msgstr "cineál gas: in airde"
 
 # libretranslate
 msgid "Penpot interactive server"
@@ -41134,10 +40541,6 @@ msgstr "Fón: [+ + + +49 178 179 8023](tel:+491781798023)"
 msgid "Phone: `00491781798023`"
 msgstr "Fón: `00491781798023`"
 
-# libretranslate
-msgid "PhpMyAdmin"
-msgstr "Foinse do bhfianaise faoi stiúir glan"
-
 msgid "Pi Coding Agent"
 msgstr ""
 
@@ -41277,10 +40680,6 @@ msgstr "Forbhreathnú ar Pipeline 🛤️"
 # libretranslate
 msgid "Pipeline stages"
 msgstr "céimeanna Pipeline"
-
-# libretranslate
-msgid "Pixelfed"
-msgstr "Pixelfed"
 
 # libretranslate
 msgid "Pixelfed Administration"
@@ -41599,10 +40998,6 @@ msgid "Postfix:"
 msgstr "Postfix:"
 
 # libretranslate
-msgid "PostgreSQL"
-msgstr "Seirbhís do Chustaiméirí"
-
-# libretranslate
 msgid "PostgreSQL Docker Upgrade: Major Version Migration"
 msgstr "IargreSQL Docker Uasghrádú: Leagan Mór Imirce"
 
@@ -41617,10 +41012,6 @@ msgstr "Bunachar sonraí PostgresQL (MySQL / MariaDB nach bhfuil tacaíocht ó M
 # libretranslate
 msgid "PostgreSQL database via the shared platform instance"
 msgstr "Bunachar sonraí PostgreSQL trí shampla ardán roinnte"
-
-# libretranslate
-msgid "Postmarks"
-msgstr "taiseachas aeir: fliuch"
 
 # libretranslate
 msgid "Postmarks has no native OIDC/SAML/LDAP/REMOTE_USER login — the only auth path is the `ADMIN_KEY` password form. Under the `oauth2` SSO flavor this role adds a **trusted-header SSO bridge**:"
@@ -41815,10 +41206,6 @@ msgstr "Preserves na cúltacaí nua go huathoibríoch"
 # libretranslate
 msgid "Presigned URLs for secure, time-limited uploads/downloads"
 msgstr "URLanna réamhshonraithe le haghaidh uaslódáil slán, am-teoranta / íosluchtú"
-
-# libretranslate
-msgid "Pretix"
-msgstr "Amharc ar gach eolas"
 
 # libretranslate
 msgid "Prevented backup failures by enforcing linear service execution order and safer handler flushing"
@@ -42043,10 +41430,6 @@ msgstr "Tionscadal-bhainistithe Python fíorúil (go háirithe `~/.venvs/pkgmgr`
 # libretranslate
 msgid "Project-scoped read identity; no issue/story, sprint, membership, webhook, or project mutation"
 msgstr "Aitheantas a léamh Tionscadal-scóip; aon cheist / scéal, sprint, ballraíocht, Hook gréasáin, nó sócháin tionscadail"
-
-# libretranslate
-msgid "Prometheus"
-msgstr "Táirgí gaolmhara"
 
 # libretranslate
 msgid "Prometheus Service Tests 📈"
@@ -42697,14 +42080,6 @@ msgid "Python-specific code conventions: unittest import shape, `PROJECT_ROOT` u
 msgstr "Coinbhinsiún cód Python-shonrach: cruth allmhairí unittest, `PROJECT_ROOT` úsáid, toirmeasc ar amh `os.walk`/ Baile`Path.rglob`/ uncached `read_text`, `noqa` sláinteachas marcóir, patrúin iomarcach boolean, agus seachaint féin-chosanta."
 
 # libretranslate
-msgid "QBittorrent"
-msgstr "Cairt na gCustaiméirí"
-
-# libretranslate
-msgid "Qdrant"
-msgstr "Réadmhaoin"
-
-# libretranslate
 msgid "Qdrant Docker Upgrade"
 msgstr "Uasghrádú Docker Qdrant"
 
@@ -42863,10 +42238,6 @@ msgstr "RP-initiated logout endpoint ag Keycloak."
 # libretranslate
 msgid "RUNTIME (explicit override)"
 msgstr "RUNAM (override follasach)"
-
-# libretranslate
-msgid "RabbitMQ"
-msgstr "Rothar a dhéanamh"
 
 # libretranslate
 msgid "Raft's BoltDB store is mmap + `fsync` based, so it hits exactly the locking and `fsync` semantics that keep the database engines off NFS. The deployment-modes volume model requires a placement constraint for any non-NFS volume under swarm, so the data cannot be lost on a reschedule. Same shape as [`svc-db-postgres`](../../roles/svc-db-postgres/) and the other engines."
@@ -43565,34 +42936,6 @@ msgstr "Atreorú nó a aistriú tráchta úinéireacht ról, raon feidhme le ré
 # libretranslate
 msgid "Redirector"
 msgstr "Amharc ar gach eolas"
-
-# libretranslate
-msgid "Redis"
-msgstr "Taiseachas aeir: fliuch"
-
-# libretranslate
-msgid "Redis ``cache``"
-msgstr "Taiseachas aeir: fliuch ``cache``"
-
-# libretranslate
-msgid "Redis ``queue``"
-msgstr "Taiseachas aeir: fliuch ``queue``"
-
-# libretranslate
-msgid "Redis ``socketio``"
-msgstr "Taiseachas aeir: fliuch ``socketio``"
-
-# libretranslate
-msgid "Redis `cache`"
-msgstr "Taiseachas aeir: fliuch `cache`"
-
-# libretranslate
-msgid "Redis `queue`"
-msgstr "Taiseachas aeir: fliuch `queue`"
-
-# libretranslate
-msgid "Redis `socketio`"
-msgstr "Taiseachas aeir: fliuch `socketio`"
 
 # libretranslate
 msgid "Redis blocked sidecar path"
@@ -45241,10 +44584,6 @@ msgid "Retrieval-augmented generation (RAG) with vector DBs (e.g., Qdrant)"
 msgstr "Giniúint athshlánaithe (RÚNAÍOCHT) le DBs veicteoir (e.g., Qdrant)"
 
 # libretranslate
-msgid "RetroArch"
-msgstr "Riachtanais uisce: measartha"
-
-# libretranslate
 msgid "Retry Loop"
 msgstr "Amharc ar gach eolas"
 
@@ -45450,6 +44789,9 @@ msgstr "Tuairisceán ``source`` i mBéarla agus gach teanga a aistríonn aon che
 msgid "Return ``text`` escaped for HTML with its protected spans tokenised."
 msgstr "Tuairisceán ``text`` éalaigh le haghaidh HTML lena réisí faoi chosaint a chomharthaíodh."
 
+msgid "Return ``text`` reduced to its letters and digits, lower case."
+msgstr ""
+
 msgid "Return ``text`` with every protected span removed."
 msgstr ""
 
@@ -45600,9 +44942,15 @@ msgstr "Tuairisceán gach comhad cartlainne faoi *archive_dir* curtha in eagar a
 msgid "Return every capture of *pattern* in the body of *url*."
 msgstr ""
 
+msgid "Return every credited person's name, sorted."
+msgstr ""
+
 # libretranslate
 msgid "Return every declared addon across all roles' ``meta/addons/*.yml``."
 msgstr "Tuairisceán gach addon dearbhaithe ar fud na róil ' ``meta/addons/*.yml``."
+
+msgid "Return every declared role title, sorted and without duplicates."
+msgstr ""
 
 # libretranslate
 msgid "Return every declared source that moved ahead of its pin."
@@ -45644,6 +44992,9 @@ msgstr "Tuairisceán gach leagan foilsithe de npm *pacáiste pacáiste*."
 msgid "Return every released version of ``package``, empty when PyPI is unreachable."
 msgstr "Tuairisceán gach leagan a scaoileadh ``package``, folamh nuair a bhíonn PyPI unreachable."
 
+msgid "Return every role directory name, sorted."
+msgstr ""
+
 # libretranslate
 msgid "Return every role on either end of a bond, in stable order."
 msgstr "Tuairisceán gach ról ar cheachtar de bhanna, in ord cobhsaí."
@@ -45651,6 +45002,9 @@ msgstr "Tuairisceán gach ról ar cheachtar de bhanna, in ord cobhsaí."
 # libretranslate
 msgid "Return every role reachable from ``seeds`` through meta and service edges."
 msgstr "Tuairisceán gach ról insroichte ó ``seeds`` trí meta agus imill seirbhíse."
+
+msgid "Return every role title that names an upstream product, sorted."
+msgstr ""
 
 # libretranslate
 msgid "Return every semver-checkable ``(repository, ref)`` declaration under ``roles/*/meta/services.yml`` and ``roles/*/meta/addons/*.yml`` whose ref is not suppressed."
@@ -45933,6 +45287,9 @@ msgstr "Fill ar ais go hiomlán ``PORT_BANDS`` léarscáil eochair ag ``<scope>.
 msgid "Return the highest released version of ``package``, or None."
 msgstr "Fill ar ais an leagan is airde a scaoileadh ``package``, nó Uimh."
 
+msgid "Return the identifiers ``role_dir`` names its upstream product by."
+msgstr ""
+
 # libretranslate
 msgid "Return the immediate subdirectories of ``cli/<parts>/``, split into runnable commands (``__main__.py`` present) and category folders. Empty support packages (no command anywhere underneath) are skipped."
 msgstr "Tuairisceán na fo-stiúrthóirí láithreacha ``cli/<parts>/``, scoilt isteach orduithe runnable (``__main__.py`` i láthair na huaire) agus fillteáin chatagóir. Pacáistí tacaíochta Folamh (aon ordú áit thíos) a skipped."
@@ -46134,6 +45491,9 @@ msgstr ""
 # libretranslate
 msgid "Return the template of the ``docs`` domain, built from a copy of the working tree."
 msgstr "Cuir an teimpléad ar ais ``docs`` fearainn, tógtha ó chóip den chrann oibre."
+
+msgid "Return the title ``role_dir`` declares, empty when it declares none."
+msgstr ""
 
 msgid "Return the unconditional and the capitalisation-gated name patterns."
 msgstr ""
@@ -47161,10 +46521,6 @@ msgstr "Rothlú an Hugo dénártha dénártha"
 # libretranslate
 msgid "Rotation"
 msgstr "Rothlach"
-
-# libretranslate
-msgid "Roulette Wheel"
-msgstr "Roulette Roth"
 
 # libretranslate
 msgid "Round-robin via `tasks.<service>` upstream"
@@ -48880,13 +48236,6 @@ msgstr ""
 msgid "Searches all ``roles/*/vars/main.yml`` for application_id and returns the relative path (from the project root) of the role that matches. Raises an error if zero or more than one match is found."
 msgstr ""
 
-msgid "Searxng"
-msgstr ""
-
-# libretranslate
-msgid "SeaweedFS"
-msgstr "Uisce agus Séarachas"
-
 # libretranslate
 msgid "SeaweedFS is the shared S3 object store. A role becomes a consumer by declaring a `seaweedfs` service in `meta/services.yml`, wiring its app config from `lookup('objstore', application_id, ...)` (bucket / access_key / secret_key / url / region), and shipping a gated `files/playwright/test-seaweedfs.js`. See `web-app-mastodon`, `web-app-pixelfed`, and `web-app-nextcloud` for the reference pattern. SeaweedFS S3 requires **path-style addressing** and the internal `http://` endpoint."
 msgstr "Níl an Tweet seo ar fáil.3 siopa réad. Bíonn ról ina thomhaltóir trí dhearbhú a dhéanamh `seaweedfs` service india `meta/services.yml`, sreangú a app config ó `lookup('objstore', application_id, ...)` (buicéad / buicéad / access_key / Baile secret_key / url / réigiún), agus loingseoireachta gated `files/playwright/test-seaweedfs.js`. Féach `web-app-mastodon`, `web-app-pixelfed`, agus `web-app-nextcloud` don phatrún tagartha. Uisce agus Séarachas3 Éilíonn **cosán-stíl aghaidh** agus an inmheánach `http://` endpoint."
@@ -49445,10 +48794,6 @@ msgstr "Semantics: nuair a bhíonn an t-imscaradh reatha aon ról a oireann id l
 
 msgid "Semantics::"
 msgstr ""
-
-# libretranslate
-msgid "Semaphore UI"
-msgstr "Semaphore Chomhéadain"
 
 # libretranslate
 msgid "Semver primitives shared by every version-bump backend."
@@ -50125,10 +49470,6 @@ msgid "Ships an embedded sidecar snippet (`templates/service.yml.j2`) for the `s
 msgstr "Longa snippet sidecar leabaithe (`templates/service.yml.j2`) do na `shared: false` cosán is fearr-amach."
 
 # libretranslate
-msgid "Shopware"
-msgstr "Amharc ar gach eolas"
-
-# libretranslate
 msgid "Short single-command invocations MAY stay inline when they do not contain meaningful control flow."
 msgstr "Invocations singil-command Gearr Fanann MAY inlíne nuair nach bhfuil sreabhadh rialaithe bríoch iontu."
 
@@ -50191,10 +49532,6 @@ msgstr "Slí amach go réidh mura rith ar WSL2"
 # libretranslate
 msgid "Silently exits if systemd is already running (`/run/systemd/system` exists)"
 msgstr "Slí amach go réidh má tá córasach ag rith cheana féin (`/run/systemd/system` ann)"
-
-# libretranslate
-msgid "Simple Icons"
-msgstr "Icons Simplí"
 
 # libretranslate
 msgid "Simple and lightweight"
@@ -50536,10 +49873,6 @@ msgid "Snipe-IT is entered through a trusted-header bridge: the oauth2-proxy aut
 msgstr "Cuirtear Snipe-IT isteach trí dhroichead iontaofa: an oauth2-proxy fíordheimhnithe i gcoinne Keycloak agus Snipe-IT ar ``loginViaRemoteUser()`` mints seisiún dúchais don meaitseáil ``users.username`` sraith (féach ar ```files/php/apply/sso_config.php`` <./files/php/apply/sso_config.php>`__). The gate declares no ``allowed_groups``, so ``biber`` passes the proxy — but the role provisions only the administrator account (```tasks/03_admin.yml`` <./tasks/03_admin.yml>`__), so the header carries a username Snipe-IT does not know and the visitor falls back to the native login form. ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ therefore declares ``PERSONA_BIBER_BLOCKED=true``, while the ``administrator`` persona stays live (``PERSONA_ADMINISTRATOR_BLOCKED=false``) agus feidhmíonn sé deireadh leis an droichead iomlán."
 
 # libretranslate
-msgid "Snipe‑IT"
-msgstr "Snipe-IT"
-
-# libretranslate
 msgid "Snipe‑IT is an open‑source asset management system designed to streamline hardware and software inventory tracking. This deployment provides an automated, containerized solution using Docker Compose, centralized MariaDB database integration, and secure, configurable environment settings, including robust SMTP email support and pending SAML authentication enhancements."
 msgstr "Is córas bainistíochta sócmhainní foinse oscailte é Snipe-IT atá deartha chun rianú crua-earraí agus fardal bogearraí a chuíchóiriú. Soláthraíonn an imscaradh réiteach uathoibrithe, coimeádán ag baint úsáide as Docker Compose, láraithe MariaDB comhtháthú bunachar sonraí, agus slán, suímh timpeallacht configurable, lena n-áirítear tacaíocht ríomhphoist láidir SMTP agus go dtí feabhsuithe fíordheimhnithe SAML."
 
@@ -50555,10 +49888,6 @@ msgstr "Mar sin, coinníollach `\"{{ 'web-app-matomo' in group_names }}\"` pulls
 #, python-brace-format
 msgid "So the format is read from the workflow itself. Every input renders as one segment, ``<head><value> ``, where the head is the emoji the workflow's own ``format('🐧{0} ', …)`` prefixes the value with. An input holding its default renders no segment at all, so a title carries only what deviates — and an absent input means \"the workflow's default\", which is exactly what a retrigger should leave alone."
 msgstr "Mar sin, léifear an fhormáid ón sreabhadh oibre féin. Tugann gach ionchur mar deighleog amháin, ``<head><value> ``, áit a bhfuil an ceann an emoji an sreabhadh oibre féin ``format('🐧{0} ', …)`` réimeanna an luach le. Tugann ionchur a bhfuil a réamhshocraithe aon deighleog ar chor ar bith, mar sin ní dhéanann teideal ach cad chlaonann - agus ciallaíonn ionchur as láthair \"réamhshocraithe an sreabhadh oibre\", a bhfuil go díreach cad ba chóir retrigger fhágáil ina n-aonar."
-
-# libretranslate
-msgid "Social Home"
-msgstr "Baile Átha Cliath"
 
 # libretranslate
 msgid "Soft quota for the default blobstore. Computed as half free disk at the cache path, floor `2g`."
@@ -50756,10 +50085,6 @@ msgstr "Scoil na sraitheanna fionnachtana ordaigh isteach an smután sraitheach 
 # libretranslate
 msgid "Sponsor Infinito.Nexus"
 msgstr "Amharc ar gach eolas Infinito.Nexus"
-
-# libretranslate
-msgid "Spotify"
-msgstr "Spotify"
 
 # libretranslate
 msgid "Spotify is a digital music streaming service that gives you access to millions of songs and podcasts. The role calls ``package_install`` with the ``spotify`` id; ```meta/packages.yml`` <meta/packages.yml>`__ declares it as an AUR package on Arch Linux and as a deliberate no-op on the Debian and RedHat families, which do not archive the proprietary client."
@@ -51574,10 +50899,6 @@ msgstr "Oiriúnach d'fhoirne: intuartha, príobháideach, atáirgthe"
 # libretranslate
 msgid "Suite Selection 🎯"
 msgstr "Roghnaigh gach rud 🎯"
-
-# libretranslate
-msgid "SuiteCRM"
-msgstr "Seirbhís do Chustaiméirí"
 
 # libretranslate
 msgid "Summarise Ansible `profile_roles` runtimes per matrix-deploy variant."
@@ -52595,10 +51916,6 @@ msgstr "TURN ar Vicipéid: `en.wikipedia.org/wiki/Traversal_Using_Relays_around_
 # libretranslate
 msgid "Tag the commit: `git tag -a v<MAJOR>.<MINOR>.<PATCH> -m \"Release version <MAJOR>.<MINOR>.<PATCH>\"`."
 msgstr "Clib an tiomantas: `git tag -a v<MAJOR>.<MINOR>.<PATCH> -m \"Release version <MAJOR>.<MINOR>.<PATCH>\"`."
-
-# libretranslate
-msgid "Taiga"
-msgstr "Taiseachas aeir: fliuch"
 
 # libretranslate
 msgid "Taiga is ideal for developers, designers, and agile teams who want:"
@@ -54768,6 +54085,9 @@ msgstr "Is iad na píosaí coitianta:"
 msgid "The companion [027-integration-matrix.md](027-integration-matrix.md) is a generated role×role matrix over the entity names of every `web-app-*` and `web-svc-*` role. Each cell marks whether the **row** role wires in the **column** role:"
 msgstr ""
 
+msgid "The comparison runs against the prose, so the markdown a heading wraps the name in falls away first: ``**Mastodon**`` is the product under emphasis, not a phrase about it. Case is ignored because a page writes the name the way its sentence needs it, and ``**mailu**`` is still Mailu."
+msgstr ""
+
 # libretranslate
 msgid "The complete model is machine-readable in [`schema.yml`](schema.yml)."
 msgstr "Is é an tsamhail iomlán meaisín-inléite i [`schema.yml`](schema.yml)."
@@ -56131,6 +55451,9 @@ msgstr "An MUST eolaire bhfuil ach comhaid atá ceangailte-suite i seirbhís at�
 msgid "The directory has two kinds of env modules:"
 msgstr "Tá an eolaire dhá chineál na modúil env:"
 
+msgid "The directory names of the roles, as one source for every reader."
+msgstr ""
+
 # libretranslate
 msgid "The discovery layer:"
 msgstr "An ciseal fionnachtain:"
@@ -56315,6 +55638,9 @@ msgstr "Astaíonn an tástáil breiseán seachtrach rabhaidh, ní teipeanna, nua
 # libretranslate
 msgid "The external addon test MUST emit warnings, not failures, when a supported catalog adapter detects a new relevant addon that is not listed in `meta/addons/`."
 msgstr "Astaíonn an tástáil breiseán seachtrach rabhaidh, ní teipeanna, nuair a bhraitheann adapter chatalóg tacaithe addon ábhartha nua nach bhfuil liostaithe i `meta/addons/`."
+
+msgid "The extraction and the translation client share this one function, so a message the catalogs withhold is the same message the client would have refused to send."
+msgstr ""
 
 # libretranslate
 msgid "The fact is not merely late, it is wrong while it is late. Facts are read before the daemon config is applied, so ``docker0`` still carries docker's own default; writing the pools then moves the bridge underneath it. A swarm node measured ``172.17.0.1`` in daemon.json against a live ``10.208.0.1``, which is why the declaration answers here and the fact never does."
@@ -57115,6 +56441,9 @@ msgstr "An t-ainm riamh i seilbh spás: an ``whitelist`` agus ``priority`` Tá i
 msgid "The name of the matching role directory."
 msgstr "Ainm an eolaire ról meaitseáil."
 
+msgid "The names are derived from the ``## Credits`` sections themselves rather than kept as a list, so crediting a contributor needs no code change. The derivation lives in :mod:`utils.roles.credits`; this module is the entry point for readers that want the names alone."
+msgstr ""
+
 # libretranslate
 msgid "The names in declaration order, aliases substituted."
 msgstr "Cuirtear na hainmneacha in ord dearbhaithe, ailiases in ionad."
@@ -57321,6 +56650,9 @@ msgid "The path ``INFINITO_SRC_DIR`` names."
 msgstr "An cosán ``INFINITO_SRC_DIR`` ainmneacha."
 
 msgid "The pattern for hyphenated role names, which hold wherever they appear, and the one for titles, which holds only on a capitalised occurrence."
+msgstr ""
+
+msgid "The people the repository credits, as one source for every reader."
 msgstr ""
 
 # libretranslate
@@ -58419,6 +57751,9 @@ msgstr "An ról céimeanna ansin an tionscadal Playwright le eolaire staging ái
 msgid "The role therefore installs the editor and leaves the endpoint override to the operator. Nothing here pretends to configure a gateway that the product does not accept from a file."
 msgstr ""
 
+msgid "The role titles that name an upstream product rather than describe a job."
+msgstr ""
+
 # libretranslate
 msgid "The role uses a multi-stage Dockerfile:"
 msgstr "Úsáideann an ról Dockerfile ilchéime:"
@@ -59119,6 +58454,9 @@ msgstr "Na trí `svc-bkp-*` sraitheanna stór teacht ó `backup_repos.repo_place
 # libretranslate
 msgid "The three candidates that vendor documentation claimed were probed against running instances on 2026-08-27, and each is filed below on what the deployed artefact actually offers rather than on the claim:"
 msgstr "Bhí na trí iarrthóirí a doiciméadú díoltóir éileamh probed i gcoinne cásanna a reáchtáil ar 2026- - - - -08- - - - -27, agus tá gach comhdaíodh thíos ar an méid a thairgeann an déantáin imscaradh iarbhír seachas ar an éileamh:"
+
+msgid "The title a role presents itself under."
+msgstr ""
 
 # libretranslate
 msgid "The title renders these as glyphs, so recovering one means translating a symbol back into a value; the log holds the word the operator picked. Reading it there keeps the retrigger honest even if the title's marker changes shape."
@@ -62557,9 +61895,6 @@ msgstr "Ról Stiúrtha a chur imleabhair Docker ar SSD nó HDD de réir cineál 
 msgid "Tightened the compose-resource-limits lint and reconciled the entire role corpus against it"
 msgstr "Rite an comhdhéantú-acmhainní-teorainneacha lint agus réitigh an ról ar fad corpus i gcoinne é"
 
-msgid "Tika"
-msgstr ""
-
 # libretranslate
 msgid "To access the MariaDB instance in the database container, run the following command:"
 msgstr "Chun teacht ar an MariaDB mar shampla sa choimeádán bunachar sonraí, reáchtáil an t-ordú seo a leanas:"
@@ -63513,6 +62848,9 @@ msgstr "Dhá ról i éileamh cruinn amháin config éagsúla do sholáthraí amh
 msgid "Two selection tokens that pin different axes of one row can resolve to the same deploy. They collapse into one entry, and the stronger `enforce_filesystem` claim survives the collapse."
 msgstr "Dhá tokens roghnú gur féidir le bioráin aiseanna éagsúla de chéile amháin a réiteach leis an imscaradh céanna. Thit siad isteach i iontráil amháin, agus an níos láidre `enforce_filesystem` éileamh mhaireann an titim."
 
+msgid "Two shapes qualify. A message with no word at all is markup: ``[`e2e/`](e2e/)`` has nothing a translation could change. A message that is exactly a name is a label: ``Mastodon`` is the product, ``Infinito.Nexus`` this software, ``Kevin Veen-Birkenbach`` the person, and a bare URL the address, and each must read the same in every language."
+msgstr ""
+
 msgid "Two sources, run verdicts first:"
 msgstr ""
 
@@ -63539,10 +62877,6 @@ msgstr "Foclóir Cineál agus cruth"
 # libretranslate
 msgid "Types"
 msgstr "Cineálacha"
-
-# libretranslate
-msgid "Typesense"
-msgstr "Cineáltas"
 
 # libretranslate
 msgid "Typical Use Cases"
@@ -63645,10 +62979,6 @@ msgstr "Gan tionchar (Ritheann CI in aghaidh na rialacha brainse) ✓"
 # libretranslate
 msgid "Unblock the `biber` persona. Listmonk matches OIDC users by e-mail and the role provisions no biber account; `cmd/auth.go` `OIDCFinish` 404s unless `security.oidc.auto_create_users` is true, and `createOIDCUser` passes `UserRoleID` as a plain int, so `default_user_role_id` must name a real role. The seeded database holds exactly one (`id=1 Super Admin`), so unblocking biber means first creating a limited Listmonk user role. It buys no coverage the administrator persona does not already buy."
 msgstr "Ar Feitheamh an `biber` An tAcht iomlán. Listmonk oireann úsáideoirí OIDC trí ríomhphost agus na forálacha ról aon chuntas biber; `cmd/auth.go` `OIDCFinish` 404s mura `security.oidc.auto_create_users` is fíor, agus `createOIDCUser` Gabhann `UserRoleID` mar int plain, mar sin `default_user_role_id` Ní mór a ainm ról fíor. Tá an bunachar sonraí síol go díreach ceann (`id=1 Super Admin`), mar sin ciallaíonn biber unblocking chéad chruthú teoranta Listmonk ról an úsáideora. Ceannaíonn sé aon chlúdach nach bhfuil an persona riarthóir a cheannach cheana féin."
-
-# libretranslate
-msgid "Unbound"
-msgstr "Gan teorainn"
 
 # libretranslate
 msgid "Uncomment a pacman.conf section, then install through it."
@@ -63756,10 +63086,6 @@ msgstr "Tástálacha Aonad: síol ar eolas → veicteoir tástála seoladh ar eo
 # libretranslate
 msgid "Unit-test package mirroring the source split: [`test_spec.py`](../../../tests/unit/python/cli/administration/deploy/development/inventory/test_spec.py), [`test_payload.py`](../../../tests/unit/python/cli/administration/deploy/development/inventory/test_payload.py), [`test_planner.py`](../../../tests/unit/python/cli/administration/deploy/development/inventory/test_planner.py), [`test_builder.py`](../../../tests/unit/python/cli/administration/deploy/development/inventory/test_builder.py)."
 msgstr "Pacáiste aonad-tástála scáthán an scoilt foinse: [`test_spec.py`](../../../tests/unit/python/cli/administration/deploy/development/inventory/test_spec.py), [`test_payload.py`](../../../tests/unit/python/cli/administration/deploy/development/inventory/test_payload.py), [`test_planner.py`](../../../tests/unit/python/cli/administration/deploy/development/inventory/test_planner.py), [`test_builder.py`](../../../tests/unit/python/cli/administration/deploy/development/inventory/test_builder.py)."
-
-# libretranslate
-msgid "Universal Logout"
-msgstr "Logáil Uilíoch"
 
 # libretranslate
 msgid "Universal stage execution removed Universal roles are no longer executed as a separate lifecycle stage. They are handled exclusively via constructor and destructor stages. This prevents duplicate executions but changes lifecycle behavior."
@@ -65335,10 +64661,6 @@ msgid "View Source"
 msgstr "Féach ar an Foinse"
 
 # libretranslate
-msgid "Virtual Box"
-msgstr "Bosca Fíorúil"
-
-# libretranslate
 msgid "Visit `https://next.erp.{{ DOMAIN_PRIMARY }}/` — Frappe / ERPNext login page renders, no wizard."
 msgstr "Tabhair cuairt ar `https://next.erp.{{ DOMAIN_PRIMARY }}/` — Frappe / ERPNext Déanann leathanach logáil isteach, aon draoi."
 
@@ -66046,6 +65368,9 @@ msgstr "Cad is gá Lookup líonra chun glaoch ar an lucht déanta."
 msgid "What a token leaves open belongs to the line it stands in: `priority` covers every remaining combination in one sweep, `whitelist` keeps the rotation and the row's position in the matrix. A pin the row cannot take aborts the matrix rather than dropping the row, because a dropped row would report a green run for a combination that never ran. Such a pin is `@swarm` on a role without its own stack, `+tor` on a variant that pins `services.tor.enabled` false, or any axis that fights the run's own `mode`, `tor`, `distros`, `filesystem` or `architectures` input, or `:arm64` on a role whose `meta/services.yml` declares `architectures: [amd64]`."
 msgstr "Cad iad na duilleoga chomhartha oscailte a bhaineann leis an líne a sheasann sé i: `priority` Clúdaíonn gach meascán eile i scuab amháin, `whitelist` Coinníonn an uainíocht agus seasamh an tsraith sa maitrís. Ní féidir le bioráin an tsraith a ghlacadh aborts an maitrís seachas dropping an tsraith, toisc go mbeadh as a chéile thit tuarascáil a reáchtáil glas do mheascán riamh ar siúl. Tá a leithéid de bioráin `@swarm` ar ról gan a chairn féin, `+tor` ar malairt go bioráin `services.tor.enabled` bréagach, nó aon ais a troideanna an reáchtáil féin `mode`, `tor`, `distros`, `filesystem` nó `architectures` ionchur, nó `:arm64` ar ról a bhfuil `meta/services.yml` a dhearbhú `architectures: [amd64]`."
 
+msgid "What a translator must never be handed, on either end of the pipeline."
+msgstr ""
+
 # libretranslate
 msgid "What capability was introduced?"
 msgstr "Cén cumas a tugadh isteach?"
@@ -66061,6 +65386,9 @@ msgstr "Cad a dhéanann sé ag brath ar?"
 # libretranslate
 msgid "What does it install or configure?"
 msgstr "Cad a dhéanann sé a shuiteáil nó a chumrú?"
+
+msgid "What does separate them is the role's own account of what it deploys: the upstream homepage and the image it pulls. ``Mastodon`` sits inside ``joinmastodon.org``; ``Cleanup Disc Space`` sits inside nothing. Every word of the title must appear, not the title as one string, because a product spells its parts in either order: ``Claude Code`` lives at ``code.claude.com``."
+msgstr ""
 
 msgid "What each axis value costs in runner time, measured off finished runs."
 msgstr ""
@@ -66785,6 +66113,15 @@ msgstr "Cibé STARTTLS úsáidtear."
 msgid "Whether ``image:reference`` resolves to a manifest."
 msgstr "An bhfuil ``image:reference`` réitíonn sé le léiriú."
 
+msgid "Whether ``text`` is nothing but a brand, a credited person or a URL."
+msgstr ""
+
+msgid "Whether ``text`` must stay in its source form."
+msgstr ""
+
+msgid "Whether ``title`` names the product ``role_dir`` deploys."
+msgstr ""
+
 # libretranslate
 msgid "Whether ``version`` pins by content rather than by name."
 msgstr "An bhfuil ``version`` bioráin de réir ábhair seachas de réir ainm."
@@ -67066,10 +66403,6 @@ msgid "WireGuard Client behind NAT"
 msgstr "WireGuard Cliant taobh thiar de NAT"
 
 # libretranslate
-msgid "Wireguard"
-msgstr "Seirbhís do Chustaiméirí"
-
-# libretranslate
 msgid "Wireguard Client"
 msgstr "Cliant an Gharda Síochána"
 
@@ -67171,10 +66504,6 @@ msgstr "Gan Sreang `sudo` an chéad dá dearbhuithe reáchtáil fós agus na tua
 # libretranslate
 msgid "Without this setting, runner registration from org CI will fail with HTTP 403. Fork CI is unaffected because the token has full access to the fork repository."
 msgstr "Gan an suíomh seo, beidh clárú rádala ó org CI theipeann le HTTP 403. Tá Fork CI unaffected toisc go bhfuil an chomhartha rochtain iomlán ar an stór forc."
-
-# libretranslate
-msgid "WordPress"
-msgstr "WordPress"
 
 # libretranslate
 msgid "WordPress Multisite is opt-in. Set ``services.wordpress.multisite.enabled: true`` in the inventory to convert the deployed instance into a sub-domain Multisite network. Every entry in ``domains.canonical`` becomes a site in the network; the first entry is the network primary, subsequent entries are child sites."
@@ -67502,10 +66831,6 @@ msgid "XPI urls (uBlock Origin, KeePassXC)"
 msgstr "Seirbhís do Chustaiméirí (uBlock Origin, KeePassXC)"
 
 # libretranslate
-msgid "XWiki"
-msgstr "XWiki"
-
-# libretranslate
 msgid "YAML & Jinja Lint 📐"
 msgstr "Déan Teagmháil Linn Lint 📐"
 
@@ -67524,10 +66849,6 @@ msgstr "Tá foinse YAML teoranta don fho-thacar bloc tacaithe."
 # libretranslate
 msgid "YAML writes null three ways - ``null``, ``~``, and a key with nothing after it - so a half-typed line empties a topic rather than being ignored."
 msgstr "Scríobhann YAML trí bhealach ar neamhní - ``null``, ``~``, agus eochair le rud ar bith tar éis é - mar sin béim líne leath-cineálta ábhar seachas á neamhaird."
-
-# libretranslate
-msgid "YOURLS"
-msgstr "TÚLRAÍ"
 
 # libretranslate
 msgid "YOURLS (Your Own URL Shortener) is an open‑source URL shortening solution that enables you to create, track, and manage short links with ease. This deployment leverages Docker to provide a secure and easily scalable environment, ensuring that your YOURLS instance is configured for optimal performance and reliability."
@@ -68755,10 +68076,6 @@ msgid "Your change SHOULD be small and focused."
 msgstr "Do athrú SHOULD a bheith beag agus dírithe."
 
 # libretranslate
-msgid "Zammad"
-msgstr "Taiseachas aeir: fliuch"
-
-# libretranslate
 msgid "Zero Vendor Lock-In"
 msgstr "Seirbhís do Chustaiméirí"
 
@@ -68781,10 +68098,6 @@ msgstr "Zero-pad gach comhpháirt uimhriúil *leagan leagan* go dtí trí dhigit
 # libretranslate
 msgid "Zone"
 msgstr ""
-
-# libretranslate
-msgid "Zoom"
-msgstr "Súgradh"
 
 # libretranslate
 msgid "[ ] \"Sign in with Bluesky\" completes an AT Protocol OAuth round-trip against the platform PDS provided by [`web-app-bluesky`](../../roles/web-app-bluesky/), and an authenticated user can create a `community.lexicon.calendar.event` record that is written to their PDS repo."
@@ -70324,10 +69637,6 @@ msgid "[AGENTS.md](../../../../../AGENTS.md) forbids `for` / `while` / `until` l
 msgstr "[AGENTS.md](../../../../../AGENTS.md) forbids `for` / Baile `while` / Baile `until` lúba i sonraisc Bash, agus `Bash(for *)` / Baile `Bash(while *)` / Baile `Bash(until *)` go bhfuil i `deny` an riail a fhorfheidhmiú. Tá gach tasc cothrom-fhoirm coibhéiseach: amháin `grep` le hargóintí comhad il, `xargs`, glór athchúrsach, nó uirlis tiomnaithe."
 
 # libretranslate
-msgid "[API](roles/web-svc-api/)"
-msgstr "[API](roles/web-svc-api/)"
-
-# libretranslate
 msgid "[API](roles/web-svc-api/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
 msgstr "[API](roles/web-svc-api/), [Corporate Design](roles/web-svc-css/), [Dashboard](roles/web-app-dashboard/), [Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
 
@@ -70403,10 +69712,6 @@ msgstr ""
 # libretranslate
 msgid "[Agile Manifesto](https://agilemanifesto.org/)"
 msgstr "[Seirbhís do Chustaiméirí](https://agilemanifesto.org/)"
-
-# libretranslate
-msgid "[Akaunting](roles/web-app-akaunting/)"
-msgstr "[Amharc ar gach eolas](roles/web-app-akaunting/)"
 
 # libretranslate
 msgid "[Alejandro Roman Ibanez](https://github.com/AlejandroRomanIbanez): self-hosted containerised CI runners"
@@ -70752,16 +70057,8 @@ msgid "[Baserow MCP Server docs](https://baserow.io/user-docs/mcp-server) <!-- n
 msgstr "[Bunaithe MCP Seirbhís do Chustaiméirí](https://baserow.io/user-docs/mcp-server) r!- nocheck: url - Tá leathanach beo (Téacsanna arna gcur síos: 200); baserow.io tréimhse de chuid eile: aon 404s IP dara háit CI - ^"
 
 # libretranslate
-msgid "[Baserow](roles/web-app-baserow/)"
-msgstr "[bláthanna cumhra: cumhráin](roles/web-app-baserow/)"
-
-# libretranslate
 msgid "[BigBlueButton Docker Docs](https://docs.bigbluebutton.org/greenlight/v3/install/)"
 msgstr "[Seirbhís do Chustaiméirí](https://docs.bigbluebutton.org/greenlight/v3/install/)"
-
-# libretranslate
-msgid "[BigBlueButton](roles/web-app-bigbluebutton/)"
-msgstr "[cliceáil grianghraf a mhéadú](roles/web-app-bigbluebutton/)"
 
 # libretranslate
 msgid "[Bitnami OpenLDAP](https://hub.docker.com/r/bitnami/openldap)"
@@ -70784,20 +70081,8 @@ msgid "[Bluesky](https://bsky.social/) is a decentralized social network that ru
 msgstr "[taiseachas aeir: fliuch](https://bsky.social/) líonra sóisialta díláraithe a ritheann ar an oscailte Prótacal AT. Tá gach cuntas úsáideora ina chónaí ar Freastalaí Sonraí Pearsanta (PDS) go bhfuil poist an úsáideora, freagraí, agus seo a leanas mar thaifid sínithe, agus is féidir aon líon de thuairimí app neamhspleách léamh na taifid sin a dhéanamh amlíne."
 
 # libretranslate
-msgid "[Bluesky](roles/web-app-bluesky/)"
-msgstr "[taiseachas aeir: fliuch](roles/web-app-bluesky/)"
-
-# libretranslate
-msgid "[BookWyrm Documentation](https://docs.joinbookwyrm.com/)"
-msgstr "[Seirbhís do Chustaiméirí Documentation](https://docs.joinbookwyrm.com/)"
-
-# libretranslate
 msgid "[BookWyrm GitHub](https://github.com/bookwyrm-social/bookwyrm)"
 msgstr "[cliceáil grianghraf a mhéadú](https://github.com/bookwyrm-social/bookwyrm)"
-
-# libretranslate
-msgid "[BookWyrm](roles/web-app-bookwyrm/)"
-msgstr "[Seirbhís do Chustaiméirí](roles/web-app-bookwyrm/)"
 
 # libretranslate
 msgid "[Boy Scout Rule](https://en.wikipedia.org/wiki/Leaving_the_world_a_better_place)"
@@ -70806,10 +70091,6 @@ msgstr "[Buachaill Scout Riail](https://en.wikipedia.org/wiki/Leaving_the_world_
 # libretranslate
 msgid "[Branch Protection](docs/contributing/tools/github/branch/security.md): Rules enforced on the `main` branch."
 msgstr "[Cosaint an Bhrainse](docs/contributing/tools/github/branch/security.md): Rialacha a chuirtear i bhfeidhm ar an `main` brainse."
-
-# libretranslate
-msgid "[Bridgy Fed Documentation](https://bridgy-fed.readthedocs.io/)"
-msgstr "[tréimhse saoil: ilbhliantúil Documentation](https://bridgy-fed.readthedocs.io/)"
 
 # libretranslate
 msgid "[Bridgy Fed Official Site](https://fed.brid.gy/)"
@@ -70822,10 +70103,6 @@ msgstr "[Bridgy Foinse ar GitHub](https://github.com/snarfed/bridgy-fed)"
 # libretranslate
 msgid "[Bridgy Fed](https://fed.brid.gy/) is a federation bridge between ActivityPub (the Fediverse), the AT Protocol (Bluesky), and the IndieWeb (webmentions and microformats2). It mirrors identities and cross-network interactions so a post on one network reaches followers on the others."
 msgstr "[tréimhse saoil: ilbhliantúil](https://fed.brid.gy/) Is droichead cónaidhme idir ActionPub (na Fediverse), Prótacal AT (Bluesky), agus an IndieWeb (webmentions agus microformats2). Taispeánann sé céannachtaí agus idirghníomhaíochtaí tras-líonra mar sin sroicheann post ar líonra amháin leanúna ar na daoine eile."
-
-# libretranslate
-msgid "[Bridgy Fed](roles/web-app-bridgy-fed/)"
-msgstr "[tréimhse saoil: ilbhliantúil](roles/web-app-bridgy-fed/)"
 
 # libretranslate
 msgid "[CHANGELOG.md](../../../CHANGELOG.md) at the repository root holds the most recent releases inline. Older releases live one-file-per-version under [docs/changelog/](../../changelog/), linked from the `## Older Releases` section at the bottom of the active changelog."
@@ -70885,18 +70162,7 @@ msgstr "[Seiceáil](https://checkmk.com/) (Eagrán Raw / Pobail, 100% foinse osc
 msgid "[Checkmk](https://checkmk.com/) is an open-source IT/infrastructure & application monitoring system. The **Raw / Community** edition (100% open source) ships an official all-in-one container that bundles the monitoring core, RRD storage, and the Apache-served web GUI — it needs **no external database**."
 msgstr "[Seiceáil](https://checkmk.com/) córas monatóireachta TF/infrastruchtúr agus feidhmchláir is ea é. An bhfuil **Raw / Pobail** eagrán nua (100% foinse oscailte) longa coimeádán oifigiúil uile-i-amháin a bundles an croí monatóireachta, stóráil RRD, agus an GUI gréasáin Apache-choimeád - riachtanais sé **aon bhunachar sonraí seachtrach**."
 
-# libretranslate
-msgid "[Checkmk](roles/web-app-checkmk/)"
-msgstr "[Seiceáil](roles/web-app-checkmk/)"
-
-# libretranslate
-msgid "[Chess](roles/web-app-chess/)"
-msgstr "[Seirbhís do Chustaiméirí](roles/web-app-chess/)"
-
 msgid "[Claude Code](https://code.claude.com/) is Anthropic's terminal coding agent. This role installs it on a workstation and points it at the platform's own model gateway instead of the vendor API."
-msgstr ""
-
-msgid "[Claude Code](roles/dsk-gnt-claude/)"
 msgstr ""
 
 msgid "[Claude Code](roles/dsk-gnt-claude/), [Codex](roles/dsk-gnt-codex/)"
@@ -70918,18 +70184,8 @@ msgstr "[cliceáil grianghraf a mhéadú Documentation](https://developers.cloud
 msgid "[Cloudmark Reset](https://csi.cloudmark.com/en/reset/)"
 msgstr "[Athshocraigh Cloudmark](https://csi.cloudmark.com/en/reset/)"
 
-msgid "[Code](roles/dsk-code/)"
-msgstr ""
-
 msgid "[Codex](https://github.com/openai/codex) is OpenAI's terminal coding agent, installed on a workstation and pointed at this deployment's own model gateway instead of the vendor API."
 msgstr ""
-
-msgid "[Codex](roles/dsk-gnt-codex/)"
-msgstr ""
-
-# libretranslate
-msgid "[Collabora](roles/web-svc-collabora/)"
-msgstr "[Amharc ar gach eolas](roles/web-svc-collabora/)"
 
 # libretranslate
 msgid "[Compose Loop](../../../agents/action/iteration/compose.md): baseline deploy, redeploy rules, Certificate Authority trust, Inspect-before-redeploy."
@@ -71040,17 +70296,10 @@ msgid "[Coturn](https://github.com/coturn/coturn) is a free and open-source **TU
 msgstr "[Coturn](https://github.com/coturn/coturn) Is foinse saor in aisce agus oscailte **TURN (Láimhseálann Ag baint úsáide as Traversal timpeall NAT)** agus **Amharc ar gach eolas (Utilities Traversal Seisiún do NAT)** freastalaí. Cuireann sé cumarsáid fíor-ama ar chumas (RTC) iarratais ar nós **Láithreán Gréasáin** a bheith ag obair go hiontaofa ar fud NATs agus ballaí dóiteáin."
 
 # libretranslate
-msgid "[Coturn](roles/web-svc-coturn/)"
-msgstr "[Coturn](roles/web-svc-coturn/)"
-
-# libretranslate
 msgid "[Create a fork and a branch with the right prefix](docs/contributing/workflow.md)."
 msgstr "[Cruthaigh forc agus brainse leis an réimír ceart](docs/contributing/workflow.md)."
 
 msgid "[Cursor](https://cursor.com/) is an AI-first code editor. This role installs it on a workstation."
-msgstr ""
-
-msgid "[Cursor](roles/dsk-gnt-cursor/)"
 msgstr ""
 
 # libretranslate
@@ -71094,10 +70343,6 @@ msgid "[Decidim documentation](https://docs.decidim.org/)"
 msgstr "[Doiciméid a dhearbhú](https://docs.decidim.org/)"
 
 # libretranslate
-msgid "[Decidim](roles/web-app-decidim/)"
-msgstr "[Déan cinneadh](roles/web-app-decidim/)"
-
-# libretranslate
 msgid "[Deploy Guide](deploy.md) — inventory creation and deploys"
 msgstr "[Clár na dToghthóirí](deploy.md) — cruthú fardal agus imscaradh"
 
@@ -71118,10 +70363,6 @@ msgid "[Development Hub](https://s.infinito.nexus/development) - general develop
 msgstr "[Déan Teagmháil Linn](https://s.infinito.nexus/development) - plé forbróir ginearálta agus treoir rannchuiditheora."
 
 # libretranslate
-msgid "[Discourse Documentation](https://meta.discourse.org/t/discourse-setup-guide/21966)"
-msgstr "[An tSeirbhís Garda Tarrthála Documentation](https://meta.discourse.org/t/discourse-setup-guide/21966)"
-
-# libretranslate
 msgid "[Discourse GitHub Repository](https://github.com/discourse/discourse_docker.git)"
 msgstr "[Stór GitHub](https://github.com/discourse/discourse_docker.git)"
 
@@ -71132,10 +70373,6 @@ msgstr "[Fóram Meta](https://meta.discourse.org/)"
 # libretranslate
 msgid "[Discourse Official Website](https://www.discourse.org/)"
 msgstr "[Láithreán Gréasáin Oifigiúil](https://www.discourse.org/)"
-
-# libretranslate
-msgid "[Discourse](roles/web-app-discourse/)"
-msgstr "[An tSeirbhís Garda Tarrthála](roles/web-app-discourse/)"
 
 # libretranslate
 msgid "[Discussion #16470](https://github.com/orgs/jellyfin/discussions/16470)"
@@ -71217,28 +70454,12 @@ msgid "[ERPNext](https://erpnext.com/) is an open-source ERP suite built on the 
 msgstr "[ERPNext](https://erpnext.com/) Is sraith ERP foinse oscailte tógtha ar an [Creat an Fheirtéaraigh](https://frappeframework.com/). Clúdaíonn sé airgeadas, CRM, fardal, déantúsaíochta, HR, díolacháin, tionscadail, agus láithreáin ghréasáin i amháin féin-óstach Stack."
 
 # libretranslate
-msgid "[ERPNext](roles/web-app-erpnext/)"
-msgstr "[ERPNext](roles/web-app-erpnext/)"
-
-# libretranslate
-msgid "[Elasticsearch](roles/svc-db-elasticsearch/)"
-msgstr "[Taighde leaisteacha](roles/svc-db-elasticsearch/)"
-
-# libretranslate
 msgid "[Enable Single Sign-On (SSO)](https://baserow.io/user-docs/enable-single-sign-on-sso)"
 msgstr "[Cumasaigh Aonair Cláraigh (SSO)](https://baserow.io/user-docs/enable-single-sign-on-sso)"
 
 # libretranslate
-msgid "[EspoCRM Documentation](https://docs.espocrm.com/) 📖"
-msgstr "[Seirbhís do Chustaiméirí Documentation](https://docs.espocrm.com/) 📖"
-
-# libretranslate
 msgid "[EspoCRM Official Website](https://www.espocrm.com/) 🌍"
 msgstr "[Láithreán gréasáin oifigiúil EspoCRM](https://www.espocrm.com/) 🌍"
-
-# libretranslate
-msgid "[EspoCRM](roles/web-app-espocrm/)"
-msgstr "[Seirbhís do Chustaiméirí](roles/web-app-espocrm/)"
 
 # libretranslate
 msgid "[Evangelos Tsakoudis](https://evangelostsak.com): Penpot role and its end-to-end test suite"
@@ -71247,10 +70468,6 @@ msgstr "[Déan Teagmháil Linn](https://evangelostsak.com): Ról Penpot agus a s
 # libretranslate
 msgid "[Evangelos Tsakoudis](https://evangelostsak.com): the OpenBao role with its seal, credential rotation, recovery and RBAC end-to-end suite, role-local Prometheus alert rules, and the LAM and swarm network fixes that work uncovered"
 msgstr "[Déan Teagmháil Linn](https://evangelostsak.com): an OpenBao ról lena shéala, rothlú dintiúir, aisghabháil agus sraith deiridh RBAC go deireadh, ról-áitiúil Prometheus rialacha foláirimh, agus an LAM agus Ceartúcháin líonra swarm go obair nochtadh"
-
-# libretranslate
-msgid "[Evangelos Tsakoudis](https://github.com/evangelostsak)"
-msgstr "[Déan Teagmháil Linn](https://github.com/evangelostsak)"
 
 # libretranslate
 msgid "[External Tests](testing/external.md)"
@@ -71273,20 +70490,12 @@ msgid "[Fediwall GitHub Repository](https://github.com/defnull/fediwall)"
 msgstr "[Déan teagmháil Linn](https://github.com/defnull/fediwall)"
 
 # libretranslate
-msgid "[Fediwall](roles/web-app-fediwall/)"
-msgstr "[taiseachas aeir: fliuch](roles/web-app-fediwall/)"
-
-# libretranslate
 msgid "[Fider GitHub](https://github.com/getfider/fider)"
 msgstr "[Seirbhís do Chustaiméirí](https://github.com/getfider/fider)"
 
 # libretranslate
 msgid "[Fider](https://getfider.com/) is an open-source community feedback and voting platform that allows teams to collect, prioritize, and track feature requests and ideas."
 msgstr "[Fider](https://getfider.com/) is aiseolais pobail foinse oscailte agus ardán vótála a ligeann d'fhoirne a bhailiú, tús áite, agus rian iarratais gné agus smaointe."
-
-# libretranslate
-msgid "[Fider](roles/web-app-fider/)"
-msgstr "[Fider](roles/web-app-fider/)"
 
 # libretranslate
 msgid "[File Server](roles/web-svc-file/)"
@@ -71313,10 +70522,6 @@ msgid "[Flowise tag `flowise@3.1.4`](https://github.com/FlowiseAI/Flowise/tree/f
 msgstr "[tag fliú `flowise@3.1.4`](https://github.com/FlowiseAI/Flowise/tree/flowise%403.1.4), go háirithe `packages/server/src/routes/custom-mcp-servers/` agus `packages/server/src/services/custom-mcp-servers/`"
 
 # libretranslate
-msgid "[Flowise](roles/web-app-flowise/)"
-msgstr "[Flowise](roles/web-app-flowise/)"
-
-# libretranslate
 msgid "[Forum HOWTO](https://forum.checkmk.com/t/howto-cmk-with-oidc-authentication/37168)"
 msgstr "[Fóram HOWTO](https://forum.checkmk.com/t/howto-cmk-with-oidc-authentication/37168)"
 
@@ -71341,24 +70546,12 @@ msgid "[Friendica Installation Documentation](https://wiki.friendi.ca/docs/insta
 msgstr "[Seirbhís do Chustaiméirí Documentation](https://wiki.friendi.ca/docs/install)"
 
 # libretranslate
-msgid "[Friendica](roles/web-app-friendica/)"
-msgstr "[riachtanais uisce: measartha](roles/web-app-friendica/)"
-
-# libretranslate
-msgid "[Funkwhale](roles/web-app-funkwhale/)"
-msgstr "[Seirbhís do Chustaiméirí](roles/web-app-funkwhale/)"
-
-# libretranslate
 msgid "[FusionDirectory Official Website](https://www.fusiondirectory.org/)"
 msgstr "[Láithreán Gréasáin Oifigiúil Comhleá](https://www.fusiondirectory.org/)"
 
 # libretranslate
 msgid "[FusionDirectory](https://www.fusiondirectory.org/) is a web-based LDAP administration tool that manages users, groups, and other directory objects through a pluggable interface. The application stores all of its data in an external LDAP directory, which makes it the natural front-end for the project's `svc-db-openldap` backend."
 msgstr "[Comhbhrúiteoir](https://www.fusiondirectory.org/) Is uirlis riaracháin LDAP gréasán-bhunaithe a bhainistíonn úsáideoirí, grúpaí, agus rudaí eolaire eile trí comhéadan pluggable. Déanann an t-iarratas gach ceann dá chuid sonraí in eolaire LDAP seachtrach, rud a fhágann go bhfuil sé an ceann tosaigh nádúrtha don tionscadal `svc-db-openldap` siar."
-
-# libretranslate
-msgid "[FusionDirectory](roles/web-app-fusiondirectory/)"
-msgstr "[Comhbhrúiteoir](roles/web-app-fusiondirectory/)"
 
 # libretranslate
 msgid "[Gist by marienfressinaud](https://gist.github.com/marienfressinaud/f284a59b18aad395eb0de2d22836ae6b)"
@@ -71385,10 +70578,6 @@ msgid "[GitLab SSO in Mattermost](https://docs.mattermost.com/administration-gui
 msgstr "[GitLab SSO i Mattermost](https://docs.mattermost.com/administration-guide/onboard/sso-gitlab.html)"
 
 # libretranslate
-msgid "[GitLab](roles/web-app-gitlab/)"
-msgstr "[GitLab](roles/web-app-gitlab/)"
-
-# libretranslate
 msgid "[Gitea LDAP integration](https://docs.gitea.com/administration/authentication/)"
 msgstr "[Comhtháthú Gitea LDAP](https://docs.gitea.com/administration/authentication/)"
 
@@ -71399,10 +70588,6 @@ msgstr "[Gitea MCP pacáiste](https://pkg.go.dev/gitea.com/gitea/gitea-mcp)"
 # libretranslate
 msgid "[Gitea Official Website](https://gitea.io/)"
 msgstr "[Láithreán Gréasáin Oifigiúil Gitea](https://gitea.io/)"
-
-# libretranslate
-msgid "[Gitea](roles/web-app-gitea/)"
-msgstr "[bláthanna cumhra: cumhráin](roles/web-app-gitea/)"
 
 # libretranslate
 msgid "[Google Postmaster](https://postmaster.google.com/) - Analyzes deliverability and spam issues for Gmail."
@@ -71436,20 +70621,12 @@ msgstr "[Hermes Gníomhaire](https://hermes-agent.nousresearch.com/) Is gníomha
 msgid "[Hermes Agent](https://hermes-agent.nousresearch.com/) is an autonomous agent runtime. This role runs it in embodied mode: on a machine that is dedicated to it, with direct access to the hardware of that machine. Where the container roles put a kernel boundary between the agent and its host, here the boundary is the device itself."
 msgstr "[Hermes Gníomhaire](https://hermes-agent.nousresearch.com/) Is runtime gníomhaire uathrialach. Ritheann an ról seo i mód chorpraithe: ar mheaisín atá tiomanta dó, le rochtain dhíreach ar chrua-earraí an mheaisín sin. Sa chás go gcuireann na róil coimeádáin teorainn eithne idir an gníomhaire agus a óstach, is é an teorainn an gléas féin."
 
-# libretranslate
-msgid "[Hermes Agent](roles/web-app-hermes/)"
-msgstr "[Hermes Gníomhaire](roles/web-app-hermes/)"
-
 msgid "[Hermes Agent](roles/web-app-hermes/), [Keycloak](roles/web-app-keycloak/), [LiteLLM Gateway](roles/svc-ai-litellm/), [OpenClaw](roles/web-app-openclaw/)"
 msgstr ""
 
 # libretranslate
 msgid "[Home Assistant](https://www.home-assistant.io/) is an open-source home automation platform that connects smart-home devices from many vendors behind a single local interface. It keeps device state, dashboards, and automation rules on the machine that runs it, and exposes them through a web interface, a REST API, and a built-in MCP server."
 msgstr "[Baile Cúnta](https://www.home-assistant.io/) Is ardán uathoibriú bhaile foinse oscailte a nascann feistí cliste-baile ó díoltóirí go leor taobh thiar de comhéadan áitiúil amháin. Coinníonn sé stát gléas, dashboards, agus rialacha uathoibriú ar an meaisín a ritheann sé, agus nochtann siad trí comhéadan gréasáin, a REST API, agus freastalaí MCP tógtha."
-
-# libretranslate
-msgid "[Home Assistant](roles/web-app-homeassistant/)"
-msgstr "[Baile Cúnta](roles/web-app-homeassistant/)"
 
 # libretranslate
 msgid "[How I backup dedicated root servers](https://blog.veen.world/2020/12/26/how-i-backup-dedicated-root-servers/)"
@@ -71466,10 +70643,6 @@ msgstr "[Suíomh oifigiúil Hugo](https://gohugo.io/)"
 # libretranslate
 msgid "[Hugo](https://gohugo.io/) is a fast, single-binary static site generator written in Go. This role builds a Hugo site from any upstream Git repository (default: [gohugoio/hugoDocs](https://github.com/gohugoio/hugoDocs)) at image-build time and serves the rendered HTML/CSS/JS via nginx. There is no database, no application server, and no dynamic backend at runtime."
 msgstr "[Go raibh maith agat](https://gohugo.io/) Is gineadóir suíomh statach tapa, singil-binary scríofa i Go. Tógann an ról seo a Hugo suíomh ó aon sruth Git stór lárnach (cineál gas: in airde [cliceáil grianghraf a mhéadú](https://github.com/gohugoio/hugoDocs)) ag an am íomhá-tógáil agus feidhmíonn an rinneadh HTML/CSS/JS trí nginx. Níl aon bhunachar sonraí, aon fhreastalaí iarratais, agus aon chúllíne dinimiciúil ag runtime."
-
-# libretranslate
-msgid "[Hugo](roles/web-app-hugo/)"
-msgstr "[Go raibh maith agat](roles/web-app-hugo/)"
 
 # libretranslate
 msgid "[Implement email template customization](https://open.project.infinito.nexus/wp/562)"
@@ -71512,10 +70685,6 @@ msgid "[Integration Tests](testing/integration.md)"
 msgstr "[Tástáil Comhtháthú](testing/integration.md)"
 
 # libretranslate
-msgid "[Intel Driver](roles/drv-intel/)"
-msgstr "[Tiománaí Intel](roles/drv-intel/)"
-
-# libretranslate
 msgid "[Intel Media Driver upstream documentation](https://01.org/intel-media-sdk)"
 msgstr "[Intel Meáin Meáin Tiománaí doiciméadú sruth](https://01.org/intel-media-sdk)"
 
@@ -71544,10 +70713,6 @@ msgid "[Jellyfin](https://jellyfin.org) is a free, open-source media server. Thi
 msgstr "[riachtanais uisce: measartha](https://jellyfin.org) Is freastalaí meáin saor in aisce, oscailte-foinse. Imscaradh an ról seo an t-oifigeach `jellyfin/jellyfin` coimeádán taobh thiar de na Infinito.Nexus seachfhreastalaí droim ar ais, le Keycloak OIDC (web development) agus fíordheimhnithe LDAP lárnach ar fáil tríd an Jellyfin plugins auth."
 
 # libretranslate
-msgid "[Jellyfin](roles/web-app-jellyfin/)"
-msgstr "[riachtanais uisce: measartha](roles/web-app-jellyfin/)"
-
-# libretranslate
 msgid "[Jenkins Configuration as Code plugin](https://plugins.jenkins.io/configuration-as-code/)"
 msgstr "[Jenkins Cumraíocht mar breiseán Cód](https://plugins.jenkins.io/configuration-as-code/)"
 
@@ -71566,10 +70731,6 @@ msgstr "[Jenkins oic-auth breiseán](https://plugins.jenkins.io/oic-auth/)"
 # libretranslate
 msgid "[Jenkins](https://www.jenkins.io/) is an open-source automation server that orchestrates the build, test, and deployment of software through pipelines, freestyle jobs, and a large plugin ecosystem."
 msgstr "[Déan teagmháil linn](https://www.jenkins.io/) Is freastalaí uathoibriú foinse oscailte a orchestrates an thógáil, tástáil, agus imscaradh na bogearraí trí píblínte, poist stíl saor in aisce, agus éiceachóras breiseán mór."
-
-# libretranslate
-msgid "[Jenkins](roles/web-app-jenkins/)"
-msgstr "[Déan teagmháil linn](roles/web-app-jenkins/)"
 
 # libretranslate
 msgid "[Jira](https://www.atlassian.com/) is Atlassian’s issue and project-tracking platform. This role deploys Jira via Docker Compose, connects it to PostgreSQL, and adds proxy awareness, optional OIDC SSO, health checks, and production-oriented defaults for Infinito.Nexus."
@@ -71592,20 +70753,12 @@ msgid "[Jitsi prosody plugins (jitsi-contrib)](https://github.com/jitsi-contrib/
 msgstr "[Jitsi prosody plugins (Déan teagmháil linn)](https://github.com/jitsi-contrib/prosody-plugins)"
 
 # libretranslate
-msgid "[Joomla Documentation](https://docs.joomla.org/)"
-msgstr "[riachtanais uisce: measartha Documentation](https://docs.joomla.org/)"
-
-# libretranslate
 msgid "[Joomla Official Website](https://www.joomla.org/)"
 msgstr "[Láithreán gréasáin oifigiúil Joomla](https://www.joomla.org/)"
 
 # libretranslate
 msgid "[Joomla](https://www.joomla.org/) is a free and open-source content management system that lets users build and run websites, intranets, and online applications without writing code. It exposes a component, module, and plugin architecture that authors and developers extend with custom content types, layouts, and integrations."
 msgstr "[riachtanais uisce: measartha](https://www.joomla.org/) Is córas saor in aisce agus oscailte bainistíochta ábhar a ligeann d'úsáideoirí a thógáil agus a reáchtáil láithreáin ghréasáin, inlíons, agus iarratais ar líne gan cód scríbhneoireachta. Léiríonn sé comhpháirt, modúl, agus ailtireacht breiseán a leathnú údair agus forbróirí le cineálacha ábhar saincheaptha, leagan amach, agus integrations."
-
-# libretranslate
-msgid "[Joomla](roles/web-app-joomla/)"
-msgstr "[riachtanais uisce: measartha](roles/web-app-joomla/)"
 
 # libretranslate
 msgid "[Jrnl official documentation](https://jrnl.sh/)"
@@ -71616,9 +70769,6 @@ msgid "[Jrnl](https://jrnl.sh/) is a simple and effective command-line journal a
 msgstr "[taiseachas aeir: fliuch](https://jrnl.sh/) Is iarratas iris simplí agus éifeachtach ordú-líne a ligeann d'úsáideoirí a chruthú agus a bhainistiú iontrálacha iris pearsanta."
 
 msgid "[Jupyter](https://jupyter.org/) runs code in a managed kernel and returns its output. This role provides that kernel as a backend for other services rather than as a notebook UI for people."
-msgstr ""
-
-msgid "[Jupyter](roles/svc-ai-jupyter/)"
 msgstr ""
 
 # libretranslate
@@ -71638,10 +70788,6 @@ msgid "[KIX documentation](https://docs.kixdesk.com/)"
 msgstr "[doiciméadú KIX](https://docs.kixdesk.com/)"
 
 # libretranslate
-msgid "[KIX](roles/web-app-kix/)"
-msgstr "[KIX](roles/web-app-kix/)"
-
-# libretranslate
 msgid "[Kata & gVisor](roles/svc-virt-kata/)"
 msgstr "[Seirbhís do Chustaiméirí](roles/svc-virt-kata/)"
 
@@ -71652,10 +70798,6 @@ msgstr "[coimeádáin Kata](https://katacontainers.io/) Is runtime coimeádán O
 # libretranslate
 msgid "[KeePassXC documentation](https://keepassxc.org/docs/)"
 msgstr "[doiciméadú KeePassXC](https://keepassxc.org/docs/)"
-
-# libretranslate
-msgid "[KeePassXC](https://keepassxc.org/)"
-msgstr "[Seirbhís do Chustaiméirí](https://keepassxc.org/)"
 
 # libretranslate
 msgid "[KeePassXC](https://keepassxc.org/) is a free, open-source, cross-platform password manager that stores credentials in an encrypted local database compatible with the KeePass format."
@@ -71730,24 +70872,12 @@ msgid "[Kevin Veen-Birkenbach](https://veen.world): unified addon syntax, API si
 msgstr "[cliceáil grianghraf a mhéadú](https://veen.world): syntax addon aontaithe, API aon-phointe-de-truth, Nextcloud comhtháthú agus athchothromú athraitheach, bundling athraitheach CI, rialachas acmhainní, Matrix imirce droichead agus cothabháil leagan"
 
 # libretranslate
-msgid "[Kevin Veen-Birkenbach](https://www.veen.world/)"
-msgstr "[cliceáil grianghraf a mhéadú](https://www.veen.world/)"
-
-# libretranslate
 msgid "[Keycloak GitHub Repository](https://github.com/keycloak/keycloak)"
 msgstr "[Déan teagmháil anois](https://github.com/keycloak/keycloak)"
 
 # libretranslate
 msgid "[Keycloak Official Website](https://www.keycloak.org/)"
 msgstr "[Láithreán Gréasáin Oifigiúil Keycloak](https://www.keycloak.org/)"
-
-# libretranslate
-msgid "[Keycloak](roles/web-app-keycloak/)"
-msgstr "[Uisce agus Séarachas](roles/web-app-keycloak/)"
-
-# libretranslate
-msgid "[LAM](roles/web-app-lam/)"
-msgstr "[Déan teagmháil linn](roles/web-app-lam/)"
 
 # libretranslate
 msgid "[LDAP Account Manager Official Website](https://www.ldap-account-manager.org/)"
@@ -71785,10 +70915,6 @@ msgstr "[Tiománaí Athraigh LID](roles/drv-lid-switch/)"
 msgid "[LM Studio](https://lmstudio.ai/) is a runtime for open large language models. Its headless server mode loads models from a local store and answers chat and completion requests over an OpenAI-compatible HTTP API, so prompts and model weights stay on the machine that runs them."
 msgstr "[Stiúideo LM](https://lmstudio.ai/) Is runtime do mhúnlaí teanga mór oscailte. A hualaí mód freastalaí headless samhlacha ó siopa áitiúil agus freagraí comhrá agus iarratais críochnaithe thar HTTP OpenAI-comhoiriúnach API, mar sin leideanna agus meáchain samhail fanacht ar an meaisín a ritheann iad."
 
-# libretranslate
-msgid "[LM Studio](roles/svc-ai-lmstudio/)"
-msgstr "[Stiúideo LM](roles/svc-ai-lmstudio/)"
-
 msgid "[LM Studio](roles/svc-ai-lmstudio/), [Ollama](roles/svc-ai-ollama/), [PostgreSQL](roles/svc-db-postgres/), [System One](roles/svc-ai-s1/)"
 msgstr ""
 
@@ -71798,10 +70924,6 @@ msgstr ""
 # libretranslate
 msgid "[Let's Encrypt](https://letsencrypt.org/)"
 msgstr "[A ligean ar Criptiú](https://letsencrypt.org/)"
-
-# libretranslate
-msgid "[LibreTranslate](roles/web-svc-libretranslate/)"
-msgstr "[Déan teagmháil anois](roles/web-svc-libretranslate/)"
 
 # libretranslate
 msgid "[Linux](platform/linux.md)"
@@ -71820,10 +70942,6 @@ msgid "[Listmonk Official Website](https://listmonk.app/)"
 msgstr "[Láithreán Gréasáin Oifigiúil Listmonk](https://listmonk.app/)"
 
 # libretranslate
-msgid "[Listmonk](roles/web-app-listmonk/)"
-msgstr "[Déan Teagmháil Linn](roles/web-app-listmonk/)"
-
-# libretranslate
 msgid "[LiteLLM Admin UI](roles/web-app-litellm/)"
 msgstr "[LiteLLM Riarachán Chomhéadain](roles/web-app-litellm/)"
 
@@ -71838,10 +70956,6 @@ msgstr "[Naisc ábhartha eile](https://docs.litellm.ai/) Is geata LLM a nochtann
 # libretranslate
 msgid "[LiteLLM](https://docs.litellm.ai/) is an LLM gateway that puts a single OpenAI-compatible API in front of many model providers. Its admin UI is the gateway's built-in web interface for virtual API keys, teams, budgets and rate limits, model routing, and request and spend logs."
 msgstr "[Naisc ábhartha eile](https://docs.litellm.ai/) Is geata LLM a chuireann amháin OpenAI-compatible API os comhair go leor soláthraithe múnla. Is é an Chomhéadain admin comhéadan gréasáin tógtha isteach an geata do fíorúil API eochracha, foirne, buiséid agus teorainneacha ráta, ródú samhail, agus logáil isteach a iarraidh agus a chaitheamh."
-
-# libretranslate
-msgid "[LittleJS](roles/web-app-littlejs/)"
-msgstr "[Bláthanna faoi dhíon](roles/web-app-littlejs/)"
 
 # libretranslate
 msgid "[Local purge guide](../../../scripts/tests/deploy/local/purge/README.md): Local deploy cleanup helpers."
@@ -71864,20 +70978,12 @@ msgid "[MCP user delegation audit](../../docs/contributing/design/role/services/
 msgstr "[MCP iniúchóireachta toscaireachta úsáideora](../../docs/contributing/design/role/services/mcp/delegation.md)"
 
 # libretranslate
-msgid "[MIG](roles/web-app-mig/)"
-msgstr "[MILLEADH](roles/web-app-mig/)"
-
-# libretranslate
 msgid "[MXToolbox](https://mxtoolbox.com)"
 msgstr "[MXToolbox](https://mxtoolbox.com)"
 
 # libretranslate
 msgid "[Magento Open Source](https://magento.com/)"
 msgstr "[Foinse Oscailte](https://magento.com/)"
-
-# libretranslate
-msgid "[Magento](roles/web-app-magento/)"
-msgstr "[Toir agus Crainn](roles/web-app-magento/)"
 
 # libretranslate
 msgid "[Mailu GitHub repository](https://github.com/Mailu/Mailu)"
@@ -71912,16 +71018,8 @@ msgid "[Mailu-OIDC](https://github.com/heviat/Mailu-OIDC)"
 msgstr "[Clár na dToghthóirí](https://github.com/heviat/Mailu-OIDC)"
 
 # libretranslate
-msgid "[Mailu](https://github.com/infinito-nexus/core/tree/main/roles/web-app-mailu)"
-msgstr "[Post a Sheoladh](https://github.com/infinito-nexus/core/tree/main/roles/web-app-mailu)"
-
-# libretranslate
 msgid "[Mailu](https://mailu.io/) as a full-featured mail server (when available),"
 msgstr "[Post a Sheoladh](https://mailu.io/) mar fhreastalaí poist lán-feiceáil (nuair atá siad ar fáil),"
-
-# libretranslate
-msgid "[Mailu](roles/web-app-mailu/)"
-msgstr "[Post a Sheoladh](roles/web-app-mailu/)"
 
 # libretranslate
 msgid "[Make a focused change](docs/contributing/workflow.md)."
@@ -71944,16 +71042,8 @@ msgid "[Makefile](../../../Makefile) and [scripts/](../../../scripts/) for suppo
 msgstr "[Déan comhad](../../../Makefile) agus [scripteanna /](../../../scripts/) le haghaidh orduithe tacaíocht"
 
 # libretranslate
-msgid "[MariaDB](roles/svc-db-mariadb/)"
-msgstr "[taiseachas aeir: fliuch](roles/svc-db-mariadb/)"
-
-# libretranslate
 msgid "[Mastodon Configuration Guide](https://gist.github.com/TrillCyborg/84939cd4013ace9960031b803a0590c4)"
 msgstr "[Treoir Cumraíochta Mastodon](https://gist.github.com/TrillCyborg/84939cd4013ace9960031b803a0590c4)"
-
-# libretranslate
-msgid "[Mastodon Documentation](https://docs.joinmastodon.org/)"
-msgstr "[ollscoileanna eile Documentation](https://docs.joinmastodon.org/)"
 
 # libretranslate
 msgid "[Mastodon GitHub Issues](https://github.com/mastodon/mastodon/issues/7958)"
@@ -71964,32 +71054,16 @@ msgid "[Mastodon Official Website](https://joinmastodon.org/)"
 msgstr "[Láithreán Gréasáin Oifigiúil Mastodon](https://joinmastodon.org/)"
 
 # libretranslate
-msgid "[Mastodon](roles/web-app-mastodon/)"
-msgstr "[ollscoileanna eile](roles/web-app-mastodon/)"
-
-# libretranslate
 msgid "[Matomo Official Website](https://matomo.org/)"
 msgstr "[Suíomh Gréasáin Oifigiúil Matomo](https://matomo.org/)"
-
-# libretranslate
-msgid "[Matomo](roles/web-app-matomo/)"
-msgstr "[Déan Teagmháil Linn](roles/web-app-matomo/)"
 
 # libretranslate
 msgid "[Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
 msgstr "[Déan Teagmháil Linn](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
 
 # libretranslate
-msgid "[Matrix Documentation](https://matrix.org/docs/)"
-msgstr "[Maitrís Documentation](https://matrix.org/docs/)"
-
-# libretranslate
 msgid "[Matrix Official Website](https://matrix.org/)"
 msgstr "[Maitrís Suíomh Gréasáin Oifigiúil](https://matrix.org/)"
-
-# libretranslate
-msgid "[Matrix](roles/web-app-matrix/)"
-msgstr "[Maitrís](roles/web-app-matrix/)"
 
 # libretranslate
 msgid "[Mattermost Configuration Settings](https://docs.mattermost.com/administration-guide/configure/configuration-settings.html)"
@@ -72008,42 +71082,20 @@ msgid "[Mattermost SSO Integration Guide](https://docs.mattermost.com/administra
 msgstr "[Treoir maidir le Comhtháthú SSO](https://docs.mattermost.com/administration-guide/onboard/sso-saml-keycloak.html)"
 
 # libretranslate
-msgid "[Mattermost](roles/web-app-mattermost/)"
-msgstr "[Neamhlonrach](roles/web-app-mattermost/)"
-
-msgid "[MediaWiki Documentation](https://www.mediawiki.org/wiki/Manual:Configuration_settings)"
-msgstr ""
-
-# libretranslate
 msgid "[MediaWiki Official Website](https://www.mediawiki.org/)"
 msgstr "[MediaWiki Láithreán Gréasáin Oifigiúil](https://www.mediawiki.org/)"
-
-msgid "[MediaWiki](roles/web-app-mediawiki/)"
-msgstr ""
 
 # libretranslate
 msgid "[Memcached official documentation](https://memcached.org/)"
 msgstr "[Doiciméid oifigiúla memcached](https://memcached.org/)"
 
 # libretranslate
-msgid "[Memcached](roles/svc-db-memcached/)"
-msgstr "[Memcached](roles/svc-db-memcached/)"
-
-# libretranslate
 msgid "[Meta Infinite Graph Homepage](https://github.com/kevinveenbirkenbach/meta-infinite-graph)"
 msgstr "[Meta Leathanach Baile Sainmhínithe](https://github.com/kevinveenbirkenbach/meta-infinite-graph)"
 
 # libretranslate
-msgid "[Mini-QR](roles/web-app-mini-qr/)"
-msgstr "[Mini-QR](roles/web-app-mini-qr/)"
-
-# libretranslate
 msgid "[Mobilizon Official Website](https://mobilizon.org)"
 msgstr "[Mobilizon Láithreán Gréasáin Oifigiúil](https://mobilizon.org)"
-
-# libretranslate
-msgid "[Mobilizon](roles/web-app-mobilizon/)"
-msgstr "[crios fuar: aon sonraí](roles/web-app-mobilizon/)"
 
 # libretranslate
 msgid "[Model Context Protocol](https://modelcontextprotocol.io/)"
@@ -72060,10 +71112,6 @@ msgstr "[Moodle MCP breiseán](https://moodle.org/plugins/webservice_mcp)"
 # libretranslate
 msgid "[Moodle Official Website](https://moodle.org/)"
 msgstr "[Moodle Láithreán gréasáin oifigiúil](https://moodle.org/)"
-
-# libretranslate
-msgid "[Moodle](roles/web-app-moodle/)"
-msgstr "[Déan teagmháil linn](roles/web-app-moodle/)"
 
 # libretranslate
 msgid "[Moving from iptables to nftables](https://wiki.nftables.org/wiki-nftables/index.php/Moving_from_iptables_to_nftables)"
@@ -72124,10 +71172,6 @@ msgstr "[Nextcloud Láithreán Gréasáin Oifigiúil](https://nextcloud.com/)"
 # libretranslate
 msgid "[Nextcloud → ONLYOFFICE Integration App](https://apps.nextcloud.com/apps/onlyoffice)"
 msgstr "[Nextcloud → App Comhtháthú AMHÁIN](https://apps.nextcloud.com/apps/onlyoffice)"
-
-# libretranslate
-msgid "[Nextcloud](roles/web-app-nextcloud/)"
-msgstr "[taiseachas aeir: fliuch](roles/web-app-nextcloud/)"
 
 # libretranslate
 msgid "[Nginx](https://nginx.org/)"
@@ -72206,28 +71250,12 @@ msgid "[Ollama Model Library](https://ollama.com/library)"
 msgstr "[Ollama Model Library](https://ollama.com/library)"
 
 # libretranslate
-msgid "[Ollama](https://ollama.com)"
-msgstr "[riachtanais uisce: measartha](https://ollama.com)"
-
-# libretranslate
 msgid "[Ollama](https://ollama.com) is a local model server that runs open LLMs on your hardware and exposes a simple HTTP API. Prompts and data stay on your machines, making it the backbone for privacy-first AI."
 msgstr "[riachtanais uisce: measartha](https://ollama.com) Is freastalaí múnla áitiúil a ritheann LLMs oscailte ar do crua-earraí agus nochtann HTTP simplí API. Cóipeáil nasc leis an tweet Leabaigh an Tweet ."
 
 # libretranslate
-msgid "[Ollama](roles/svc-ai-ollama/)"
-msgstr "[riachtanais uisce: measartha](roles/svc-ai-ollama/)"
-
-# libretranslate
-msgid "[OnlyOffice](roles/web-svc-onlyoffice/)"
-msgstr "[Oifig an Ombudsman](roles/web-svc-onlyoffice/)"
-
-# libretranslate
 msgid "[Open WebUI MCP docs](https://docs.openwebui.com/features/extensibility/mcp/)"
 msgstr "[Oscail WebUI MCP docs](https://docs.openwebui.com/features/extensibility/mcp/)"
-
-# libretranslate
-msgid "[Open WebUI](roles/web-app-openwebui/)"
-msgstr "[Rochtain ar an nGréasán](roles/web-app-openwebui/)"
 
 # libretranslate
 msgid "[Open a Pull Request with the right template](docs/contributing/artefact/git/pull-request.md)."
@@ -72242,16 +71270,8 @@ msgid "[OpenBao](https://openbao.org/) is the Linux-Foundation-governed fork of 
 msgstr "[Seirbhís do Chustaiméirí](https://openbao.org/) Is é an forc Linux-Foundation-rialta de HashiCorp Vault: rúin aitheantais-bhunaithe agus bainisteoir criptithe le siopa KV, inneall PKI, modhanna auth pluggable agus Chomhéadain gréasáin tógtha."
 
 # libretranslate
-msgid "[OpenBao](roles/web-app-openbao/)"
-msgstr "[Seirbhís do Chustaiméirí](roles/web-app-openbao/)"
-
-# libretranslate
 msgid "[OpenClaw](https://openclaw.ai/) is an open-source personal AI agent that runs on hardware you control. It ships a gateway process with a browser Control UI next to its CLI and TUI, keeps persistent memory and a workspace on disk, and performs browser and filesystem tasks inside its own sandbox."
 msgstr "[Oscailt an dlí](https://openclaw.ai/) Is gníomhaire AI pearsanta foinse oscailte a ritheann ar crua-earraí tú rialú. Longa sé próiseas geata le Chomhéadain Rialaithe bhrabhsálaí in aice lena CLI agus TUI, Coinníonn cuimhne leanúnach agus spás oibre ar diosca, agus feidhmíonn sé tascanna bhrabhsálaí agus córas comhaid taobh istigh dá bhosca gainimh féin."
-
-# libretranslate
-msgid "[OpenClaw](roles/web-app-openclaw/)"
-msgstr "[Oscailt an dlí](roles/web-app-openclaw/)"
 
 # libretranslate
 msgid "[OpenCloud documentation](https://docs.opencloud.eu/)"
@@ -72260,10 +71280,6 @@ msgstr "[Doiciméid OpenCloud](https://docs.opencloud.eu/)"
 # libretranslate
 msgid "[OpenCloud](https://opencloud.eu/) is a sovereign self-hosted file sync, share, and collaboration platform maintained by the Heinlein Group. It is a fork of the OpenCloud Infinite Scale codebase and is published as the `opencloudeu/opencloud` container image."
 msgstr "[taiseachas aeir: fliuch](https://opencloud.eu/) Is ceannasach féin-óstach comhad sync, scair, agus ardán comhoibrithe a chothabháil ag an Ghrúpa Heinlein. Is maith liom é OpenCloud Bunachar Scála Infinite agus tá sé foilsithe mar `opencloudeu/opencloud` íomhá coimeádán."
-
-# libretranslate
-msgid "[OpenCloud](roles/web-app-opencloud/)"
-msgstr "[taiseachas aeir: fliuch](roles/web-app-opencloud/)"
 
 # libretranslate
 msgid "[OpenID Connect RP-Initiated Logout](https://openid.net/specs/openid-connect-session-1_0.html#RPLogout)"
@@ -72278,16 +71294,8 @@ msgid "[OpenID docs](https://docs.semaphoreui.com/administration-guide/openid/),
 msgstr "[Docs OpenID](https://docs.semaphoreui.com/administration-guide/openid/), [Keycloak ar fud an domhain](https://docs.semaphoreui.com/administration-guide/openid/keycloak/)"
 
 # libretranslate
-msgid "[OpenLDAP](roles/svc-db-openldap/)"
-msgstr "[Amharc ar gach eolas](roles/svc-db-openldap/)"
-
-# libretranslate
 msgid "[OpenProject MCP Server docs](https://www.openproject.org/docs/system-admin-guide/integrations/mcp-server/)"
 msgstr "[OpenProject MCP Seirbhís do Chustaiméirí](https://www.openproject.org/docs/system-admin-guide/integrations/mcp-server/)"
-
-# libretranslate
-msgid "[OpenProject](roles/web-app-openproject/)"
-msgstr "[irl - Library Service](roles/web-app-openproject/)"
 
 # libretranslate
 msgid "[OpenResty Docker Hub](https://hub.docker.com/r/openresty/openresty)"
@@ -72296,10 +71304,6 @@ msgstr "[Seirbhís do Chustaiméirí](https://hub.docker.com/r/openresty/openres
 # libretranslate
 msgid "[OpenResty Official Documentation](https://openresty.org/)"
 msgstr "[Oscailt Oifigiúil Documentation](https://openresty.org/)"
-
-# libretranslate
-msgid "[OpenResty](roles/svc-prx-openresty/)"
-msgstr "[Amharc ar gach eolas](roles/svc-prx-openresty/)"
 
 # libretranslate
 msgid "[OpenSSH security recommendations](https://www.openssh.com/security.html)"
@@ -72322,10 +71326,6 @@ msgid "[OpenTalk](https://opentalk.eu/) is a sovereign open-source video confere
 msgstr "[Nuacht agus Imeachtaí](https://opentalk.eu/) Is ardán ceannasach oscailte-foinse comhroinnte físeán forbartha ag an nGrúpa Heinlein. Nascann sé rialtóir Rust, freastalaí meáin WebRTC LiveKit-bhunaithe, agus tosaigh gréasáin React."
 
 # libretranslate
-msgid "[OpenTalk](roles/web-app-opentalk/)"
-msgstr "[Nuacht agus Imeachtaí](roles/web-app-opentalk/)"
-
-# libretranslate
 msgid "[OpenWrt Forum Discussion on WireGuard](https://forum.openwrt.org/t/cannot-ssh-to-clients-on-lan-when-accessing-router-via-wireguard-client/132709/3)"
 msgstr "[OpenWrt Fóram Plé ar WireGuard](https://forum.openwrt.org/t/cannot-ssh-to-clients-on-lan-when-accessing-router-via-wireguard-client/132709/3)"
 
@@ -72340,10 +71340,6 @@ msgstr "[Ceisteanna Coitianta](https://github.com/Chocobozzz/PeerTube/issues/309
 # libretranslate
 msgid "[PeerTube Official Documentation](https://docs.joinpeertube.org/install-docker)"
 msgstr "[PeerTube Oifigiúil Documentation](https://docs.joinpeertube.org/install-docker)"
-
-# libretranslate
-msgid "[PeerTube](roles/web-app-peertube/)"
-msgstr "[Feithiclí](roles/web-app-peertube/)"
 
 # libretranslate
 msgid "[Penpot Configuration Guide](https://help.penpot.app/technical-guide/configuration/)"
@@ -72362,16 +71358,8 @@ msgid "[Penpot](https://penpot.app/) is an open-source design and prototyping pl
 msgstr "[cineál gas: in airde](https://penpot.app/) Is dearadh foinse oscailte agus ardán prototyping (Figma féin-óstáil rogha eile). An riachtanas seo rianta nua `web-app-penpot` Ról uafásach a imscaradh Penpot's cruach coimeádán agus sreanga sé isteach sa Infinito.Nexus éiceachóras (féiniúlacht, seachfhreastalaí droim ar ais, margadh, cúltaca)."
 
 # libretranslate
-msgid "[Penpot](roles/web-app-penpot/)"
-msgstr "[cineál gas: in airde](roles/web-app-penpot/)"
-
-# libretranslate
 msgid "[Per-Role Meta Layout](../contributing/design/role/services/layout.md)"
 msgstr "[Per-Role Meta Leagan Amach](../contributing/design/role/services/layout.md)"
-
-# libretranslate
-msgid "[PhpMyAdmin](roles/web-app-phpmyadmin/)"
-msgstr "[Foinse do bhfianaise faoi stiúir glan](roles/web-app-phpmyadmin/)"
 
 msgid "[Pi Coding Agent](roles/dsk-gnt-pi/)"
 msgstr ""
@@ -72385,10 +71373,6 @@ msgstr ""
 # libretranslate
 msgid "[Pixelfed GitHub repository](https://github.com/pixelfed/pixelfed)"
 msgstr "[Pixelfed GitHub stór](https://github.com/pixelfed/pixelfed)"
-
-# libretranslate
-msgid "[Pixelfed](roles/web-app-pixelfed/)"
-msgstr "[Pixelfed](roles/web-app-pixelfed/)"
 
 # libretranslate
 msgid "[Play Blu-ray with VLC Guide](https://videobyte.de/play-blu-ray-with-vlc)"
@@ -72419,20 +71403,8 @@ msgid "[PostgreSQL Docker Image](https://hub.docker.com/_/postgres)"
 msgstr "[Íomhá Docker PostgreSQL](https://hub.docker.com/_/postgres)"
 
 # libretranslate
-msgid "[PostgreSQL](roles/svc-db-postgres/)"
-msgstr "[Seirbhís do Chustaiméirí](roles/svc-db-postgres/)"
-
-# libretranslate
 msgid "[Postmarks (GitHub)](https://github.com/ckolderup/postmarks)"
 msgstr "[taiseachas aeir: fliuch (Déan teagmháil linn)](https://github.com/ckolderup/postmarks)"
-
-# libretranslate
-msgid "[Postmarks](roles/web-app-postmarks/)"
-msgstr "[taiseachas aeir: fliuch](roles/web-app-postmarks/)"
-
-# libretranslate
-msgid "[Prageeth Panicker](https://github.com/pragepani)"
-msgstr "[Prageeth Panicker](https://github.com/pragepani)"
 
 # libretranslate
 msgid "[Prageeth Panicker](https://github.com/pragepani): .ansible cache directory ignored"
@@ -72447,10 +71419,6 @@ msgid "[Prageeth Panicker](https://github.com/pragepani): web-app-n8n role (work
 msgstr "[Prageeth Panicker](https://github.com/pragepani): web-app-n8n Ról na Gaeilge (uathoibriú sreabhadh oibre, SSO imeall-ceannaire, LDAP, Playwright)"
 
 # libretranslate
-msgid "[Pretix Documentation](https://docs.pretix.eu/en/latest/)"
-msgstr "[Amharc ar gach eolas Documentation](https://docs.pretix.eu/en/latest/)"
-
-# libretranslate
 msgid "[Pretix GitHub Repository](https://github.com/pretix/pretix)"
 msgstr "[Córais stiúrtha](https://github.com/pretix/pretix)"
 
@@ -72459,20 +71427,8 @@ msgid "[Pretix Official Website](https://pretix.eu/)"
 msgstr "[Láithreán Gréasáin Oifigiúil Réamhshocrú](https://pretix.eu/)"
 
 # libretranslate
-msgid "[Pretix](roles/web-app-pretix/)"
-msgstr "[Amharc ar gach eolas](roles/web-app-pretix/)"
-
-# libretranslate
-msgid "[Prometheus Documentation](https://prometheus.io/docs/)"
-msgstr "[Táirgí gaolmhara Documentation](https://prometheus.io/docs/)"
-
-# libretranslate
 msgid "[Prometheus](https://prometheus.io/) is an open-source systems monitoring and alerting toolkit that collects and stores time-series metrics and provides a powerful query language (PromQL)."
 msgstr "[Táirgí gaolmhara](https://prometheus.io/) Is córas foinse oscailte monatóireacht agus alerting toolkit a bhailíonn agus siopaí méadracht ama-sraith agus soláthraíonn teanga cheist cumhachtach (An tSeirbhís Garda Tarrthála)."
-
-# libretranslate
-msgid "[Prometheus](roles/web-app-prometheus/)"
-msgstr "[Táirgí gaolmhara](roles/web-app-prometheus/)"
 
 # libretranslate
 msgid "[Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
@@ -72507,10 +71463,6 @@ msgid "[Qdrant Snapshots](https://qdrant.tech/documentation/concepts/snapshots/)
 msgstr "[Snapshots Qdrant](https://qdrant.tech/documentation/concepts/snapshots/)"
 
 # libretranslate
-msgid "[Qdrant](roles/svc-db-qdrant/)"
-msgstr "[Réadmhaoin](roles/svc-db-qdrant/)"
-
-# libretranslate
 msgid "[RBAC Wikipedia](https://de.wikipedia.org/wiki/Role_Based_Access_Control)"
 msgstr "[RBAC Vicipéid](https://de.wikipedia.org/wiki/Role_Based_Access_Control)"
 
@@ -72527,20 +71479,12 @@ msgid "[README.md](../../../.github/workflows/README.md) for the token grammar a
 msgstr "[README.md](../../../.github/workflows/README.md) don ghramadach chomhartha agus an tábla uainíochta in aghaidh an acastóra."
 
 # libretranslate
-msgid "[RabbitMQ](roles/svc-db-rabbitmq/)"
-msgstr "[Rothar a dhéanamh](roles/svc-db-rabbitmq/)"
-
-# libretranslate
 msgid "[Redirector](roles/web-opt-rdr-domains/)"
 msgstr "[Amharc ar gach eolas](roles/web-opt-rdr-domains/)"
 
 # libretranslate
 msgid "[Redis ACL documentation](https://redis.io/docs/latest/operate/oss_and_stack/management/security/acl/)"
 msgstr "[Doiciméid Redis ACL](https://redis.io/docs/latest/operate/oss_and_stack/management/security/acl/)"
-
-# libretranslate
-msgid "[Redis](roles/svc-db-redis/)"
-msgstr "[taiseachas aeir: fliuch](roles/svc-db-redis/)"
 
 # libretranslate
 msgid "[Releases](https://github.com/openbao/openbao/releases)"
@@ -72581,10 +71525,6 @@ msgstr "[Roulette Roth ar GitHub](https://github.com/p-wojt/roulette-wheel)"
 # libretranslate
 msgid "[Roulette Wheel](https://github.com/p-wojt/roulette-wheel) is a Node.js-based front-end application that simulates a roulette wheel in the browser."
 msgstr "[Roulette Roth](https://github.com/p-wojt/roulette-wheel) Is maith liom é Node.js--bhunaithe iarratas tosaigh a insamhail roth roulette sa bhrabhsálaí."
-
-# libretranslate
-msgid "[Roulette Wheel](roles/web-app-roulette-wheel/)"
-msgstr "[Roulette Roth](roles/web-app-roulette-wheel/)"
 
 # libretranslate
 msgid "[Rsync and sudo integration](https://askubuntu.com/questions/719439/using-rsync-with-sudo-on-the-destination-machine)"
@@ -72633,9 +71573,6 @@ msgstr "[Scaling Mastodon Freastalaí Freastalaí](https://www.digitalocean.com/
 msgid "[SearXNG](https://docs.searxng.org/) is a metasearch engine. It forwards a query to other search engines and returns the merged result without an account and without a tracking profile."
 msgstr ""
 
-msgid "[Searxng](roles/svc-ai-searxng/)"
-msgstr ""
-
 # libretranslate
 msgid "[SeaweedFS Wiki](https://github.com/seaweedfs/seaweedfs/wiki)"
 msgstr "[Uisce agus Séarachas Féach ar Léarscáileanna](https://github.com/seaweedfs/seaweedfs/wiki)"
@@ -72647,10 +71584,6 @@ msgstr "[Seirbhís do Chustaiméirí](https://github.com/seaweedfs/seaweedfs)"
 # libretranslate
 msgid "[SeaweedFS](https://github.com/seaweedfs/seaweedfs) is a fast distributed storage system for blobs, objects, and files. It exposes an S3-compatible API, so applications store and retrieve objects with standard S3 SDKs and CLIs."
 msgstr "[Uisce agus Séarachas](https://github.com/seaweedfs/seaweedfs) Is córas stórála a dháileadh go tapa do blobs, rudaí, agus comhaid. Nochtadh sé S3-comhoiriúnach API, mar sin a stóráil iarratais agus rudaí a aisghabháil le S caighdeánach3 SDKs agus CLIs."
-
-# libretranslate
-msgid "[SeaweedFS](roles/web-app-seaweedfs/)"
-msgstr "[Uisce agus Séarachas](roles/web-app-seaweedfs/)"
 
 # libretranslate
 msgid "[Self-Hosted Runner](roles/svc-runner/)"
@@ -72680,10 +71613,6 @@ msgstr "[Semaphore Chomhéadain](https://semaphoreui.com/) (tráth na gceist *An
 msgid "[Semaphore UI](https://semaphoreui.com/) is a modern web UI and API for running Ansible playbooks, Terraform/OpenTofu plans, and shell scripts on a schedule or on demand. This role deploys the official [`semaphoreui/semaphore`](https://github.com/semaphoreui/semaphore) container behind the Infinito.Nexus reverse proxy with central PostgreSQL, native Keycloak OIDC Single Sign-On, and optional LDAP login."
 msgstr "[Semaphore Chomhéadain](https://semaphoreui.com/) Is Chomhéadain gréasáin nua-aimseartha agus API do leabhair spraoi Ansible reáchtáil, pleananna Terraform / OpenTofu, agus scripteanna bhlaosc ar sceideal nó ar éileamh. Imscaradh an ról seo an t-oifigeach [`semaphoreui/semaphore`](https://github.com/semaphoreui/semaphore) coimeádán taobh thiar de na Infinito.Nexus seachfhreastalaí droim ar ais le lárnach PostgreSQL, dúchais Keycloak OIDC Aonair Cláraigh-Ar, agus logáil isteach LDAP roghnach."
 
-# libretranslate
-msgid "[Semaphore UI](roles/web-app-semaphore/)"
-msgstr "[Semaphore Chomhéadain](roles/web-app-semaphore/)"
-
 msgid "[Server](PULL_REQUEST_TEMPLATE/server.md) - `web-*` roles"
 msgstr ""
 
@@ -72708,28 +71637,12 @@ msgid "[Shopware Store (Plugins)](https://store.shopware.com/en/)"
 msgstr "[Siopa Leabharlainne (Plugs)](https://store.shopware.com/en/)"
 
 # libretranslate
-msgid "[Shopware](roles/web-app-shopware/)"
-msgstr "[Amharc ar gach eolas](roles/web-app-shopware/)"
-
-# libretranslate
-msgid "[Simple Icons](roles/web-svc-simpleicons/)"
-msgstr "[Icons Simplí](roles/web-svc-simpleicons/)"
-
-# libretranslate
 msgid "[Snipe‑IT Official Documentation](https://snipe-it.readme.io/)"
 msgstr "[Snipe-IT Oifigiúil Documentation](https://snipe-it.readme.io/)"
 
 # libretranslate
-msgid "[Snipe‑IT](roles/web-app-snipe-it/)"
-msgstr "[Snipe-IT](roles/web-app-snipe-it/)"
-
-# libretranslate
 msgid "[Social Home source](https://github.com/social-home-io/socialhome)"
 msgstr "[foinse tí sóisialta](https://github.com/social-home-io/socialhome)"
-
-# libretranslate
-msgid "[Social Home](roles/web-app-socialhome/)"
-msgstr "[Baile Átha Cliath](roles/web-app-socialhome/)"
 
 # libretranslate
 msgid "[Sociallogin Plugin (Official)](https://apps.nextcloud.com/apps/sociallogin)"
@@ -72760,16 +71673,8 @@ msgid "[Subnetting Basics](https://www.scaleuptech.com/de/blog/was-ist-und-wie-f
 msgstr "[Buneolas Fhorlíonadh](https://www.scaleuptech.com/de/blog/was-ist-und-wie-funktioniert-subnetting/)"
 
 # libretranslate
-msgid "[SuiteCRM Documentation](https://docs.suitecrm.com/) 📖"
-msgstr "[Seirbhís do Chustaiméirí Documentation](https://docs.suitecrm.com/) 📖"
-
-# libretranslate
 msgid "[SuiteCRM Official Website](https://suitecrm.com/) 🌍"
 msgstr "[Láithreán Gréasáin Oifigiúil SuiteCRM](https://suitecrm.com/) 🌍"
-
-# libretranslate
-msgid "[SuiteCRM](roles/web-app-suitecrm/)"
-msgstr "[Seirbhís do Chustaiméirí](roles/web-app-suitecrm/)"
 
 # libretranslate
 msgid "[Svc Engine](https://example.com/) is an application."
@@ -72814,10 +71719,6 @@ msgid "[Taiga](https://www.taiga.io/) is a powerful and intuitive open-source pr
 msgstr "[taiseachas aeir: fliuch](https://www.taiga.io/) Is ardán bainistíochta tionscadal cumhachtach agus iomasach oscailte-foinse in oiriúint d'fhoirne agile. Cibé an bhfuil tú ag cleachtadh Scrum, Kanban, nó sreabhadh oibre hibrideach saincheaptha, Taiga Cuireann timpeallacht saibhir, customizable a phleanáil, a rianú, agus comhoibriú ar do thionscadail, gan chastacht na n-uirlisí fiontraíochta nó an díoltóir glas-i na n-ardán SaaS."
 
 # libretranslate
-msgid "[Taiga](roles/web-app-taiga/)"
-msgstr "[taiseachas aeir: fliuch](roles/web-app-taiga/)"
-
-# libretranslate
 msgid "[Terminal aliases and agent shortcuts](shell/alias.md): the `i8*` shell aliases (`make install-alias`) and the agent conversation shortcuts, printed together by `make alias`; `make onboard` sets up a developer workstation end to end."
 msgstr "[Ailiasanna teirminéil agus giorraithe gníomhaire](shell/alias.md): an `i8*` ailias bhlaosc (`make install-alias`) agus na haicearraí comhrá gníomhaire, clóite le chéile ag `make alias`; `make onboard` Leagann sé deireadh le stáisiún oibre forbróir go deireadh."
 
@@ -72829,9 +71730,6 @@ msgstr "[Tástáil E2An t-eolas](https://example.com/) iarratas."
 msgid "[Three Laws of Robotics](https://simple.wikipedia.org/wiki/Three_Laws_of_Robotics)"
 msgstr "[Trí Dlíthe Robotics](https://simple.wikipedia.org/wiki/Three_Laws_of_Robotics)"
 
-msgid "[Tika](roles/svc-ai-tika/)"
-msgstr ""
-
 # libretranslate
 msgid "[Tor Onion Service](roles/svc-net-tor/)"
 msgstr "[Seirbhís Oinniún Tor](roles/svc-net-tor/)"
@@ -72841,16 +71739,8 @@ msgid "[Tor Project documentation](https://www.torproject.org/)"
 msgstr "[Doiciméid Tionscadail Torth](https://www.torproject.org/)"
 
 # libretranslate
-msgid "[Typesense](roles/svc-db-typesense/)"
-msgstr "[cineáltas](roles/svc-db-typesense/)"
-
-# libretranslate
 msgid "[UFW and SSH via WireGuard](https://unix.stackexchange.com/questions/717172/why-is-ufw-blocking-acces-to-ssh-via-wireguard)"
 msgstr "[UFW agus SSH trí WireGuard](https://unix.stackexchange.com/questions/717172/why-is-ufw-blocking-acces-to-ssh-via-wireguard)"
-
-# libretranslate
-msgid "[Unbound](roles/svc-dns-unbound/)"
-msgstr "[Gan teorainn](roles/svc-dns-unbound/)"
 
 # libretranslate
 msgid "[Unit Tests](testing/unit.md)"
@@ -72859,10 +71749,6 @@ msgstr "[Tástáil Aonad](testing/unit.md)"
 # libretranslate
 msgid "[Universal Logout GitHub Repository](https://github.com/kevinveenbirkenbach/universal-logout)"
 msgstr "[Logáil isteach Uilíoch GitHub Stór](https://github.com/kevinveenbirkenbach/universal-logout)"
-
-# libretranslate
-msgid "[Universal Logout](roles/web-svc-logout/)"
-msgstr "[Logáil Uilíoch](roles/web-svc-logout/)"
 
 # libretranslate
 msgid "[Use the development guide](docs/contributing/actions/testing.md)."
@@ -72916,10 +71802,6 @@ msgid "[WireGuard Connection Dies on Ubuntu](https://serverfault.com/questions/1
 msgstr "[Dies Ceangal WireGuard ar Ubuntu](https://serverfault.com/questions/1086297/wireguard-connection-dies-on-ubuntu-peer)"
 
 # libretranslate
-msgid "[WireGuard Documentation](https://www.wireguard.com/)"
-msgstr "[Monaróir a tháirgtear: Uimh Documentation](https://www.wireguard.com/)"
-
-# libretranslate
 msgid "[WireGuard NAT and Firewall Issues](https://serverfault.com/questions/210408/cannot-ssh-debug1-expecting-ssh2-msg-kex-dh-gex-reply)"
 msgstr "[WireGuard NAT agus Firewall Saincheisteanna](https://serverfault.com/questions/210408/cannot-ssh-debug1-expecting-ssh2-msg-kex-dh-gex-reply)"
 
@@ -72930,10 +71812,6 @@ msgstr "[WireGuard Ceadanna Plé Eisiúint](https://bodhilinux.boards.net/thread
 # libretranslate
 msgid "[Wireguard Client](roles/svc-net-wireguard-plain/)"
 msgstr "[Cliant an Gharda Síochána](roles/svc-net-wireguard-plain/)"
-
-# libretranslate
-msgid "[Wireguard](roles/svc-net-wireguard-core/)"
-msgstr "[Seirbhís do Chustaiméirí](roles/svc-net-wireguard-core/)"
 
 # libretranslate
 msgid "[WordPress Multisite Documentation](https://wordpress.org/support/article/create-a-network/)"
@@ -72952,10 +71830,6 @@ msgid "[WordPress](https://en.wordpress.org/) is a versatile and widely used [co
 msgstr "[WordPress](https://en.wordpress.org/) Is versatile agus a úsáidtear go forleathan [data management system (CMS)](https://en.wikipedia.org/wiki/Content_management_system) go cumhachtaí na milliúin de láithreáin ghréasáin, ó blogs agus punanna chuig r-thráchtáil agus láithreáin chorparáideacha. Soláthraíonn an t-imscaradh seo coimeádánithe WordPress mar shampla Optamaithe le haghaidh oibriú multisite, bainistíocht meáin chun cinn, agus tacaíocht breiseán fairsing, ag ligean duit a ghiaráil go hiomlán ar na gnéithe saibhir de na WordPress bogearraí."
 
 # libretranslate
-msgid "[WordPress](roles/web-app-wordpress/)"
-msgstr "[WordPress](roles/web-app-wordpress/)"
-
-# libretranslate
 msgid "[Workflow Loop](../agents/action/iteration/workflow.md)"
 msgstr "[Sreabhadh Oibre](../agents/action/iteration/workflow.md)"
 
@@ -72971,20 +71845,12 @@ msgid "[XMPP](roles/web-svc-xmpp/)"
 msgstr "[XMPP](roles/web-svc-xmpp/)"
 
 # libretranslate
-msgid "[XWiki Documentation](https://www.xwiki.org/xwiki/bin/view/Documentation/)"
-msgstr "[XWiki Documentation](https://www.xwiki.org/xwiki/bin/view/Documentation/)"
-
-# libretranslate
 msgid "[XWiki GitHub Repository](https://github.com/xwiki/xwiki-platform)"
 msgstr "[Córas Bainistíochta](https://github.com/xwiki/xwiki-platform)"
 
 # libretranslate
 msgid "[XWiki Official Website](https://www.xwiki.org/)"
 msgstr "[XWiki Láithreán Gréasáin Oifigiúil](https://www.xwiki.org/)"
-
-# libretranslate
-msgid "[XWiki](roles/web-app-xwiki/)"
-msgstr "[XWiki](roles/web-app-xwiki/)"
 
 # libretranslate
 msgid "[YAGNI](https://en.wikipedia.org/wiki/You_aren%27t_gonna_need_it)"
@@ -72999,20 +71865,12 @@ msgid "[YOURLS Official Website](https://yourls.org/)"
 msgstr "[TÚLS Láithreán Gréasáin Oifigiúil](https://yourls.org/)"
 
 # libretranslate
-msgid "[YOURLS](roles/web-app-yourls/)"
-msgstr "[TÚLRAÍ](roles/web-app-yourls/)"
-
-# libretranslate
 msgid "[Yahoo Sender Hub](https://senders.yahooinc.com/) - Provides insights and delivery reports for Yahoo."
 msgstr "[Seirbhís do Chustaiméirí](https://senders.yahooinc.com/) - Soláthraíonn léargais agus tuarascálacha seachadta do Yahoo."
 
 # libretranslate
 msgid "[Youtube Tutorial](https://www.youtube.com/watch?v=fvxQ8bW0vO8)"
 msgstr "[Youtube Tutorial](https://www.youtube.com/watch?v=fvxQ8bW0vO8)"
-
-# libretranslate
-msgid "[Zammad Docker Compose Documentation](https://docs.zammad.org/en/latest/install/docker-compose.html)"
-msgstr "[taiseachas aeir: fliuch Docker Compose Documentation](https://docs.zammad.org/en/latest/install/docker-compose.html)"
 
 # libretranslate
 msgid "[Zammad GitHub](https://github.com/zammad/zammad)"
@@ -73025,10 +71883,6 @@ msgstr "[Láithreán Gréasáin Oifigiúil Zammad](https://zammad.org/)"
 # libretranslate
 msgid "[Zammad](https://zammad.org/) is an open-source helpdesk and ticketing system. Agents handle customer requests across email, chat, phone and web; customers can open tickets from a self-service portal."
 msgstr "[taiseachas aeir: fliuch](https://zammad.org/) Is deasc cabhrach foinse oscailte agus córas ticéadaithe. Gníomhairí a láimhseáil iarratais do chustaiméirí ar fud r-phost, comhrá, fón agus gréasáin; Is féidir le custaiméirí ticéid a oscailt ó thairseach féinseirbhíse."
-
-# libretranslate
-msgid "[Zammad](roles/web-app-zammad/)"
-msgstr "[taiseachas aeir: fliuch](roles/web-app-zammad/)"
 
 # libretranslate
 msgid "[Zen of Python](https://en.wikipedia.org/wiki/Zen_of_Python)"
@@ -73805,24 +72659,12 @@ msgid "[pdsadmin GitHub Repository](https://github.com/lhaig/pdsadmin)"
 msgstr "[Córais stiúrtha](https://github.com/lhaig/pdsadmin)"
 
 # libretranslate
-msgid "[pgAdmin Documentation](https://www.pgadmin.org/docs/)"
-msgstr "[tréimhse saoil: ilbhliantúil Documentation](https://www.pgadmin.org/docs/)"
-
-# libretranslate
 msgid "[pgAdmin Official Homepage](https://www.pgadmin.org/)"
 msgstr "[PgAdmin leathanach oifigiúil](https://www.pgadmin.org/)"
 
 # libretranslate
-msgid "[pgAdmin](roles/web-app-pgadmin/)"
-msgstr "[tréimhse saoil: ilbhliantúil](roles/web-app-pgadmin/)"
-
-# libretranslate
 msgid "[phpLDAPadmin Docker Container Documentation](https://github.com/leenooks/phpLDAPadmin/wiki/Docker-Container)"
 msgstr "[phpLDAPadmin Docker coimeádán Documentation](https://github.com/leenooks/phpLDAPadmin/wiki/Docker-Container)"
-
-# libretranslate
-msgid "[phpLDAPadmin Documentation](https://github.com/leenooks/phpLDAPadmin/wiki/Docker-Container)"
-msgstr "[minicíocht uisce: flúirseach Documentation](https://github.com/leenooks/phpLDAPadmin/wiki/Docker-Container)"
 
 # libretranslate
 msgid "[pipeline.md](../../../artefact/git/pipeline.md): how the orchestrator routes PR runs."
@@ -76975,6 +75817,9 @@ msgstr "``MODE_RESET`` atosú chomh maith leis an tseirbhís Docker tar éis cle
 # libretranslate
 msgid "``MODE_RESET``: Performs cleanup and restarts the Docker service."
 msgstr "``MODE_RESET``: Feidhmíonn cleanup agus restarts an tseirbhís Docker."
+
+msgid "``Mastodon`` must survive translation, ``Cleanup Disc Space`` must not. Neither the capital nor a dictionary separates them: a brand is deliberately built from an ordinary word, so ``Mastodon``, ``Matrix``, ``Cursor`` and ``Shell`` all sit in an English dictionary, while a descriptive title regularly carries a term no dictionary holds. Measured against en_US-large, that rule would have released Mastodon, PostgreSQL and WordPress for translation and protected ``Automated Email Alerts for Service Failures``."
+msgstr ""
 
 # libretranslate
 #, python-brace-format
@@ -80971,10 +79816,6 @@ msgstr "é a chur leis an bundle ábhartha"
 msgid "administrator"
 msgstr "business directory"
 
-# libretranslate
-msgid "akaunting"
-msgstr "akaunting"
-
 msgid "alias the API accepts in a request's `model` field"
 msgstr ""
 
@@ -81381,10 +80222,6 @@ msgid "base64-encoded 32 random bytes; AES-256-GCM key."
 msgstr ""
 
 # libretranslate
-msgid "baserow"
-msgstr "foirm duille: líneach"
-
-# libretranslate
 msgid "baudolo owns these values and writes them into every generation's manifest, so :func:`utils.recovery.manifest.layout_of` is what callers ask. These literals answer only for generations written before the manifest existed - those cannot describe themselves, and nothing else can tell a reader what they used."
 msgstr "baudolo úinéireacht na luachanna agus scríobhann iad i ngach glúin léiriú, mar sin :func:`utils.recovery.manifest.layout_of` Is é an méid a iarrann glaoiteoirí. Freagraíonn na litriúil ach amháin do na glúnta atá scríofa roimh an léiriú ann - ní féidir leo cur síos a dhéanamh orthu féin, agus ní féidir le rud ar bith eile léitheoir a insint cad a d'úsáid siad."
 
@@ -81412,10 +80249,6 @@ msgid "beta 🌿"
 msgstr "taiseachas aeir: tais 🌿"
 
 # libretranslate
-msgid "bigbluebutton"
-msgstr "bláthanna cumhra: cumhráin"
-
-# libretranslate
 #, python-brace-format
 msgid "bind-mounts for the registry-cache CA, the package-cache client snippets (`pip.conf`, `npmrc`, `apt/${INFINITO_DISTRO}.list`), and the frontend CA file"
 msgstr "ceangal-mounts don chlár-taisce CA, an pacáiste-cache snippets cliant (`pip.conf`, `npmrc`, `apt/${INFINITO_DISTRO}.list`), agus an tosaigh comhad CA"
@@ -81435,14 +80268,6 @@ msgstr "cosán díreach blocáilte"
 # libretranslate
 msgid "blocker"
 msgstr "blocker"
-
-# libretranslate
-msgid "bluesky"
-msgstr "taiseachas aeir: fliuch"
-
-# libretranslate
-msgid "bookwyrm"
-msgstr "tréimhse saoil: ilbhliantúil"
 
 # libretranslate
 msgid "bool"
@@ -81607,10 +80432,6 @@ msgstr "seiceálacha `lookup('service', service_key).required`"
 # libretranslate
 msgid "checks the reachability of the Mailu endpoint,"
 msgstr "seiceálacha a dhéanamh ar inmharthanacht an Mailu endpoint,"
-
-# libretranslate
-msgid "chess"
-msgstr ""
 
 # libretranslate
 msgid "chunk 0 fails → the remaining chunks are skipped"
@@ -82543,10 +81364,6 @@ msgid "co-deploy superset, no prune"
 msgstr "superset comh-pléascadh, gan aon prune"
 
 # libretranslate
-msgid "collabora"
-msgstr "tréimhse saoil: ilbhliantúil"
-
-# libretranslate
 msgid "column to wrap long scalars at, None for the PyYAML default."
 msgstr "colún a wrap scalars fada ag, None don réamhshocraithe PyYAML."
 
@@ -82666,10 +81483,6 @@ msgid "conflicting local tags (`would clobber existing tag`)"
 msgstr "salach clibeanna áitiúla (`would clobber existing tag`)"
 
 # libretranslate
-msgid "confluence"
-msgstr "tionchar"
-
-# libretranslate
 msgid "connect only explicitly selected workflow tools with checked-in input schemas;"
 msgstr "ceangal ach uirlisí sreabhadh oibre roghnaithe go sainráite le seic-i schemas ionchur;"
 
@@ -82731,10 +81544,6 @@ msgstr "cóipeanna `files/playwright/playwright.spec.js` isteach sa tionscadal m
 # libretranslate
 msgid "core `aiprovider_openai`; each action carries its own `action_<name>_endpoint`, so the pinned 4.5 branch needs no third-party provider plugin (`aiprovider_openaicompatible` requires Moodle 5.0)"
 msgstr ""
-
-# libretranslate
-msgid "coturn"
-msgstr "cas ar ais"
 
 # libretranslate
 msgid "course catalogue (``core_course_get_courses``, ``core_enrol_get_users_courses``)"
@@ -82814,10 +81623,6 @@ msgstr "cineál gas: in airde"
 # libretranslate
 msgid "debian/changelog source-package name restored to infinito-nexus so dpkg-source builds succeed again"
 msgstr "debian / athrú ainm foinse-pacáiste ar ais chuig infinito-nexus sin dpkg-foinse tógálacha éirigh arís"
-
-# libretranslate
-msgid "decidim"
-msgstr "taiseachas aeir: fliuch"
 
 # libretranslate
 msgid "declare the 5 node containers, node image + lab network (compose SPOT)"
@@ -82945,10 +81750,6 @@ msgstr "eolaire na scríobhann talamh i."
 # libretranslate
 msgid "disabled"
 msgstr "Bláthanna faoi dhíon"
-
-# libretranslate
-msgid "discourse"
-msgstr "Amharc ar gach eolas"
 
 # libretranslate
 msgid "discovers provider entries from `services`"
@@ -83282,20 +82083,12 @@ msgid "equal to `from`"
 msgstr "comhionann le `from`"
 
 # libretranslate
-msgid "erpnext"
-msgstr "iarscríbhinn"
-
-# libretranslate
 msgid "eslint preserve-caught-error and no-useless-assignment violations in five Playwright helpers"
 msgstr "eslint chaomhnú-mhúinteoir agus sáruithe gan úsáid-sannadh i gcúig Cúntóirí Playwright"
 
 # libretranslate
 msgid "eslint, eslint-plugin-playwright, eslint/js, actions/setup-python, actions/create-github-app-token"
 msgstr "cliceáil grianghraf a mhéadú"
-
-# libretranslate
-msgid "espocrm"
-msgstr "taiseachas aeir: fliuch"
 
 # libretranslate
 msgid "every ``default_net`` provider and every ``collect_proxy_resolvable`` provider in the same mode."
@@ -83468,16 +82261,8 @@ msgid "fediverse and media roles"
 msgstr "róil fediverse agus meáin"
 
 # libretranslate
-msgid "fediwall"
-msgstr "bláthanna cumhra: cumhráin"
-
-# libretranslate
 msgid "fedora"
 msgstr "riachtanais uisce: measartha"
-
-# libretranslate
-msgid "fider"
-msgstr "dílis"
 
 # libretranslate
 msgid "file"
@@ -83509,10 +82294,6 @@ msgstr ""
 # libretranslate
 msgid "flavor: curl path: health/ready start_period: 20m"
 msgstr "blas: cosán curl: sláinte / réidh start_period: 20m"
-
-# libretranslate
-msgid "flowise"
-msgstr "sreabhadh"
 
 # libretranslate
 msgid "focused on reusable domain behavior"
@@ -83563,10 +82344,6 @@ msgid "fresh"
 msgstr "bláthanna cumhra: cumhráin"
 
 # libretranslate
-msgid "friendica"
-msgstr "taiseachas aeir: fliuch"
-
-# libretranslate
 msgid "from utils.cache.files import iter_project_files, read_text"
 msgstr "ó utils.cache.files allmhairiú iter_project_files, read_text"
 
@@ -83585,14 +82362,6 @@ msgstr "mapáil iomlán cumaisc"
 # libretranslate
 msgid "fully qualified collection name, namespace and name."
 msgstr "ainm, ainm agus ainm an bhailiúcháin atá cáilithe go hiomlán."
-
-# libretranslate
-msgid "funkwhale"
-msgstr "cliceáil grianghraf a mhéadú"
-
-# libretranslate
-msgid "fusiondirectory"
-msgstr "auto insurance"
 
 # libretranslate
 msgid "ganesha: userspace, runs in the swarm DinD test node."
@@ -83619,15 +82388,7 @@ msgid "git repository URL to fetch the ``aliases`` file from."
 msgstr "git URL stór a rachadh an ``aliases`` comhad ó."
 
 # libretranslate
-msgid "gitea"
-msgstr "bláthanna cumhra: cumhráin"
-
-# libretranslate
 msgid "github"
-msgstr "tréimhse saoil: ilbhliantúil"
-
-# libretranslate
-msgid "gitlab"
 msgstr "tréimhse saoil: ilbhliantúil"
 
 # libretranslate
@@ -83731,10 +82492,6 @@ msgstr "html"
 # libretranslate
 msgid "http: 8080"
 msgstr "http: 8080"
-
-# libretranslate
-msgid "hugo"
-msgstr "tréimhse saoil: ilbhliantúil"
 
 # libretranslate
 msgid "iFrame Notifier for NGINX"
@@ -83918,23 +82675,11 @@ msgid "it pins a variant the role does not declare (any more): the usual case is
 msgstr "bioráin sé malairt nach bhfuil an ról a dhearbhú (aon duine eile): is é an cás is gnách liosta a dhéantar ar láimh ó reáchtáil níos sine a bhfuil a leaganacha a athuimhrítear ó shin;"
 
 # libretranslate
-msgid "jenkins"
-msgstr "cineál gas: in airde"
-
-# libretranslate
-msgid "jira"
-msgstr "taiseachas aeir: fliuch"
-
-# libretranslate
 msgid "jitsi"
 msgstr "Déan teagmháil linn"
 
 msgid "jobs of one or more runs, as the GitHub API returns them."
 msgstr ""
-
-# libretranslate
-msgid "joomla"
-msgstr "riachtanais uisce: measartha"
 
 # libretranslate
 msgid "keep host setup separate from consumer setup"
@@ -83965,16 +82710,8 @@ msgid "key-prefix only (no native ACL)"
 msgstr "eochair-prefix amháin (aon ACL dúchais)"
 
 # libretranslate
-msgid "keycloak"
-msgstr "minicíocht uisce: flúirseach"
-
-# libretranslate
 msgid "kill the nodes + remove the lab network"
 msgstr "mharú na nóid + bain an líonra saotharlainne"
-
-# libretranslate
-msgid "kix"
-msgstr "riachtanais uisce: measartha"
 
 # libretranslate
 msgid "kwarg want= is NOT supported (use positional want-path)"
@@ -83983,10 +82720,6 @@ msgstr "kwarg ag iarraidh = NACH tacaíocht (úsáid a bhaint as bealaí ba mhai
 # libretranslate
 msgid "label form or ASCII form; a bare role id or display name pins nothing and selects every row of that role."
 msgstr "foirm lipéad nó foirm ASCII; ról lom id nó ainm taispeáint bioráin rud ar bith agus roghnaíonn gach sraith den ról sin."
-
-# libretranslate
-msgid "lam"
-msgstr "lam"
 
 # libretranslate
 msgid "largest ICMP-DF payload that survives (= path MTU − 28 bytes IP+ICMP header)"
@@ -84021,10 +82754,6 @@ msgid "letters, digits and the marks ``-_.``, never a leading ``-``, with one of
 msgstr "litreacha, digití agus marcanna ``-_.``, riamh le rá ``-``, le ceann amháin de gach rang an Keycloak realm policy EN ``specialChars(1)`` comhaireamh."
 
 # libretranslate
-msgid "libretranslate"
-msgstr "taiseachas aeir: fliuch"
-
-# libretranslate
 msgid "line above"
 msgstr "líne thuas"
 
@@ -84049,10 +82778,6 @@ msgid "list[str]"
 msgstr "liosta de na liosta[snáithe str]"
 
 # libretranslate
-msgid "listmonk"
-msgstr "cineál gas: in airde"
-
-# libretranslate
 msgid "litellm"
 msgstr "Déan teagmháil linn"
 
@@ -84063,10 +82788,6 @@ msgstr "foirm duille: líneach `false`"
 # libretranslate
 msgid "literal `true`"
 msgstr "foirm duille: líneach `true`"
-
-# libretranslate
-msgid "littlejs"
-msgstr "taiseachas aeir: fliuch"
 
 # libretranslate
 msgid "live directory to restore into."
@@ -84180,14 +82901,6 @@ msgid "machine fact"
 msgstr "Go deimhin meaisín"
 
 # libretranslate
-msgid "magento"
-msgstr "riachtanais uisce: measartha"
-
-# libretranslate
-msgid "mailu"
-msgstr "mailto"
-
-# libretranslate
 msgid "mailu root-cause fix"
 msgstr "cineál gas: in airde"
 
@@ -84248,22 +82961,6 @@ msgid "maps each record to a Mobilizon event (field mapping per Open Question 5)
 msgstr "léarscáileanna gach taifead ar Mobilizon event event (mapáil allamuigh in aghaidh Ceist Oscailte 5) agus upserts via Mobilizon's GraphQL API;"
 
 # libretranslate
-msgid "mastodon"
-msgstr "minicíocht uisce: flúirseach"
-
-# libretranslate
-msgid "matomo"
-msgstr "taiseachas aeir: fliuch"
-
-# libretranslate
-msgid "matrix"
-msgstr "maitrís maitrís"
-
-# libretranslate
-msgid "mattermost"
-msgstr "ábhar beagnach"
-
-# libretranslate
 msgid "max_passes is reached"
 msgstr "max_passes Is maith liom é"
 
@@ -84292,10 +82989,6 @@ msgid "median seconds per source, infinite when every sample failed."
 msgstr "soicind meánach in aghaidh an fhoinse, gan teorainn nuair a theip ar gach sampla."
 
 # libretranslate
-msgid "mediawiki"
-msgstr "Déan teagmháil linn"
-
-# libretranslate
 msgid "memory a worker may claim, taken from what is free rather than from what the machine has."
 msgstr "cuimhne d'fhéadfadh oibrí a éileamh, a glacadh as an méid atá saor in aisce seachas as an méid atá ag an meaisín."
 
@@ -84316,13 +83009,6 @@ msgid "meta dependencies"
 msgstr "spleáchas meta"
 
 # libretranslate
-msgid "micro"
-msgstr ""
-
-msgid "mig"
-msgstr ""
-
-# libretranslate
 msgid "min       = 768 MB (required minimum)"
 msgstr "= 768 BLIANTÚIL (íosmhéid ag teastáil)"
 
@@ -84331,24 +83017,12 @@ msgid "min_mb: minimum floor value (default 64 MB)"
 msgstr "min_mb: luach íosta urláir (cineál gas: in airde 64 BLIANTÚIL)"
 
 # libretranslate
-msgid "mini-qr"
-msgstr "soilse loingseoireachta E"
-
-# libretranslate
-msgid "minio"
-msgstr "taiseachas aeir: fliuch"
-
-# libretranslate
 msgid "mints a personal access token for the administrator account and persists it with ``sys-token-store`` under ``users.administrator.tokens['web-app-mattermost']``."
 msgstr "mints rochtain phearsanta chomhartha don chuntas riarthóir agus leanann sé leis ``sys-token-store`` faoi bhun ``users.administrator.tokens['web-app-mattermost']``."
 
 # libretranslate
 msgid "mints a personal access token for the administrator account and persists it with `sys-token-store` under `users.administrator.tokens['web-app-mattermost']`."
 msgstr "mints rochtain phearsanta chomhartha don chuntas riarthóir agus leanann sé leis `sys-token-store` faoi bhun `users.administrator.tokens['web-app-mattermost']`."
-
-# libretranslate
-msgid "mobilizon"
-msgstr "crios fuar: aon sonraí"
 
 # libretranslate
 msgid "mode"
@@ -84376,10 +83050,6 @@ msgstr "argóintí modúl; Tá luach None thit roimh fhorghníomhú."
 # libretranslate
 msgid "module name, or GENERIC_PACKAGE for the host's manager."
 msgstr "ainm modúl, nó GENERIC_PACKAGE do bhainisteoir an ósta."
-
-# libretranslate
-msgid "moodle"
-msgstr "cineál gas: in airde"
 
 # libretranslate
 msgid "more reuse across bundles"
@@ -84421,9 +83091,8 @@ msgstr "mo sheirbhís:"
 msgid "n/a"
 msgstr "n/a"
 
-# libretranslate
 msgid "n8n"
-msgstr "n8n"
+msgstr ""
 
 # libretranslate
 msgid "n8n 1.100.1 Integration"
@@ -84455,10 +83124,6 @@ msgstr ""
 # libretranslate
 msgid "neither the volume nor the database name is known to     the repository, so the engine would have to be guessed."
 msgstr "nach bhfuil an méid ná an t-ainm bunachar sonraí ar eolas ag an stór, mar sin bheadh an t-inneall a guessed."
-
-# libretranslate
-msgid "nextcloud"
-msgstr "taiseachas aeir: fliuch"
 
 # libretranslate
 msgid "nfs-server"
@@ -84741,24 +83406,8 @@ msgid "only; removed from non-invokable roles)."
 msgstr "ach; a bhaint as róil neamh-invokable)."
 
 # libretranslate
-msgid "onlyoffice"
-msgstr "ach amháin oifig"
-
-# libretranslate
-msgid "opencloud"
-msgstr "taiseachas aeir: fliuch"
-
-# libretranslate
-msgid "openproject"
-msgstr "oscailte"
-
-# libretranslate
 msgid "openresty pinned to manager (single replica)"
 msgstr "openresty pinned le bainisteoir (macasamhail na hEilvéise)"
-
-# libretranslate
-msgid "opentalk"
-msgstr "oscailte"
 
 # libretranslate
 msgid "openwebui"
@@ -84924,10 +83573,6 @@ msgid "pause between tries."
 msgstr "sos idir iarracht."
 
 # libretranslate
-msgid "peertube"
-msgstr "duille dath: glas"
-
-# libretranslate
 msgid "per-app alias-to-canonical mappings from ``lookup('applications_current_play')``, gated by ``AUTO_BUILD_ALIASES``."
 msgstr "per-app ailias-go-canonical mapaí ó ``lookup('applications_current_play')``, gated ag ``AUTO_BUILD_ALIASES``."
 
@@ -84973,10 +83618,6 @@ msgid "persists a `{ at_uri ↔ mobilizon_event_id }` mapping (role-local SQLite
 msgstr "fós a `{ at_uri ↔ mobilizon_event_id }` léarscáil an tSuímh (Ról áitiúil SQLite) mar sin is féidir nuashonruithe / asraonta rian agus cosán a athrú sa todhchaí dedup."
 
 # libretranslate
-msgid "pgAdmin"
-msgstr "tréimhse saoil: ilbhliantúil"
-
-# libretranslate
 msgid "pgAdmin is the most popular and feature‑rich open source administration and development platform for PostgreSQL. This deployment provides a secure, containerized pgAdmin instance complete with optional OAuth2 proxy support for enhanced authentication. It is built for both developers and database administrators who want an easy‐to‐use web interface to manage multiple PostgreSQL servers."
 msgstr "Is é pgAdmin an t-ardán foinse oscailte agus forbartha is coitianta agus is gné-saibhir PostgreSQL. Soláthraíonn an t-imscaradh seo cás slán, coimeádta críochnaithe le OAuth roghnach2 tacaíocht seachfhreastalaí le haghaidh fíordheimhnithe feabhsaithe. Tá sé tógtha don dá forbróirí agus riarthóirí bunachar sonraí ar mian leo - éasca le húsáid comhéadan gréasáin a bhainistiú il PostgreSQL freastalaithe."
 
@@ -84987,10 +83628,6 @@ msgstr "Is é an logáil isteach féin pgAdmin ar an gcuntas r-phost `PGADMIN_DE
 # libretranslate
 msgid "pgAdmin’s own login id is the account e-mail ``PGADMIN_DEFAULT_EMAIL`` (```templates/env.j2`` <./templates/env.j2>`__, ```vars/main.yml`` <./vars/main.yml>`__), not the Keycloak ``administrator`` username, so the ``administrator`` persona has no in-app credential once it is through the oauth2-proxy. ```meta/services.yml`` <./meta/services.yml>`__ additionally admits only the ``web-app-pgadmin`` administrator RBAC group to that proxy (``sso.oauth2.allowed_groups``), and ``biber`` carries an empty role list, so it is denied before pgAdmin is reached. ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ therefore declares ``PERSONA_BIBER_BLOCKED=true`` and ``PERSONA_ADMINISTRATOR_BLOCKED=true``; the ``guest`` persona and the baseline assertions run unconditionally."
 msgstr "PgAdmin ar logáil isteach féin id é an cuntas r-phost ``PGADMIN_DEFAULT_EMAIL`` (```templates/env.j2`` <./templates/env.j2>`__, ```vars/main.yml`` <./vars/main.yml>`__), not the Keycloak ``administrator`` username, so the ``administrator`` persona has no in-app credential once it is through the oauth2-proxy. ```meta/services.yml`` <./meta/services.yml>`__ additionally admits only the ``web-app-pgadmin`` administrator RBAC group to that proxy (``sso.oauth2.allowed_groups``), and ``biber`` carries an empty role list, so it is denied before pgAdmin is reached. ```templates/playwright.env.j2`` <./templates/playwright.env.j2>`__ therefore declares ``PERSONA_BIBER_BLOCKED=true`` and ``PERSONA_ADMINISTRATOR_BLOCKED=true``; the ``guest`` persona agus na dearbhuithe bonnlíne reáchtáil gan choinníoll."
-
-# libretranslate
-msgid "pgadmin"
-msgstr "taiseachas aeir: fliuch"
 
 # libretranslate
 msgid "php, composer or phpunit is still absent afterwards."
@@ -85021,20 +83658,8 @@ msgid "phpMyAdmin signs in as the MariaDB `root` account wired through `PMA_USER
 msgstr "comharthaí phpMyAdmin i mar MariaDB `root` cuntas sreangaithe tríd `PMA_USER` / Baile `PMA_PASSWORD` ([`templates/env.j2`](./templates/env.j2), [`vars/main.yml`](./vars/main.yml)); an Keycloak `administrator` Ní ainm úsáideora MariaDB úsáideoir, mar sin sa `services.sso.enabled: false` leaganacha maitrís na `administrator` Tá persona aon logáil isteach dúchais a thiomáint agus [`templates/playwright.env.j2`](./templates/playwright.env.j2) custom `PERSONA_ADMINISTRATOR_BLOCKED=true`. [`meta/services.yml`](./meta/services.yml) admhaíonn ach an `web-app-phpmyadmin` riarthóir grúpa RBAC chuig an oauth2-proxy (`sso.oauth2.allowed_groups`) agus `biber` Déanann liosta ról folamh, mar sin `PERSONA_BIBER_BLOCKED=true` Tá i ngach leagan. An bhfuil `guest` persona agus na dearbhuithe bonnlíne reáchtáil gan choinníoll."
 
 # libretranslate
-msgid "phpldapadmin"
-msgstr "minicíocht uisce: flúirseach"
-
-# libretranslate
-msgid "phpmyadmin"
-msgstr "Seirbhís do Chustaiméirí"
-
-# libretranslate
 msgid "pip's package cache. Granted because the project's `make install-python` step (transitively invoked by `make test`, which runs as a pre-commit hook) populates this cache; denying it would force every install to redownload from PyPI even when the requirements have not changed."
 msgstr "Taisce pacáiste pip ar. Deonaithe mar gheall ar an tionscadal `make install-python` céim chéim (agairt go huathoibríoch ag `make test`, a ritheann mar Hook réamh-iomaitheoir) populates an taisce; dhiúltú go mbeadh sé i bhfeidhm gach shuiteáil a redownload ó PyPI fiú nuair nach bhfuil na ceanglais athrú."
-
-# libretranslate
-msgid "pixelfed"
-msgstr "pixelfed"
 
 # libretranslate
 msgid "pkgmgr dependency pinned to v1.14.0 (was floating stable), bringing in the package_name resolver and pkgmgr release --retry"
@@ -85764,10 +84389,6 @@ msgid "postgresql-<major>-<apt_package>"
 msgstr "riachtanais uisce: measartha<major>- - - - -<apt_package>"
 
 # libretranslate
-msgid "postmarks"
-msgstr "postmarks"
-
-# libretranslate
 msgid "posts: search, read, create, update, delete,"
 msgstr "poist: cuardaigh, léamh, chruthú, thabhairt cothrom le dáta, scriosadh,"
 
@@ -85788,10 +84409,6 @@ msgstr ""
 
 msgid "preload entries svc-ai-ollama serves; empty when it is not a backend of this deployment."
 msgstr ""
-
-# libretranslate
-msgid "pretix"
-msgstr "riachtanais uisce: measartha"
 
 # libretranslate
 msgid "primary application of the round."
@@ -85816,10 +84433,6 @@ msgstr "Táirgeann:"
 # libretranslate
 msgid "project"
 msgstr "tionscadal tionscadal"
-
-# libretranslate
-msgid "prometheus"
-msgstr "cineál gas: in airde"
 
 # libretranslate
 msgid "provider IPs in placement order, deduplicated."
@@ -86110,6 +84723,9 @@ msgstr "stór an ról a oibríonn réiteach ó."
 # libretranslate
 msgid "repository root to scan."
 msgstr "fhréamh stór a scanadh."
+
+msgid "repository root, as a string so the cache key stays hashable."
+msgstr ""
 
 # libretranslate
 msgid "repository root, used to derive ``roles_dir`` and registry."
@@ -86632,10 +85248,6 @@ msgid "shell in docker"
 msgstr "bhlaosc i docker"
 
 # libretranslate
-msgid "shopware"
-msgstr "earraí spóirt"
-
-# libretranslate
 msgid "sidecar"
 msgstr "taobh istigh"
 
@@ -86804,10 +85416,6 @@ msgid "suffix appended to every URI."
 msgstr "iarmhír ceangailte le gach URI."
 
 # libretranslate
-msgid "suitecrm"
-msgstr "cineál gas: in airde"
-
-# libretranslate
 msgid "swarm"
 msgstr "tréimhse saoil: ilbhliantúil"
 
@@ -86854,10 +85462,6 @@ msgstr "tags"
 # libretranslate
 msgid "tags were removed"
 msgstr "Baineadh clibeanna"
-
-# libretranslate
-msgid "taiga"
-msgstr "taiseachas aeir: fliuch"
 
 # libretranslate
 msgid "target ``.po`` file."
@@ -87604,6 +86208,12 @@ msgstr "an ról ``application_id``."
 # libretranslate
 msgid "the role's ``mcp`` mapping, or anything else."
 msgstr "an ról ``mcp`` mapáil, nó aon rud eile."
+
+msgid "the role's declared title."
+msgstr ""
+
+msgid "the role's directory."
+msgstr ""
 
 # libretranslate
 msgid "the role's rendered variant configs, in index order."
@@ -88598,6 +87208,9 @@ msgstr "utils.i18n.placeholders modúlach"
 msgid "utils.i18n.translate module"
 msgstr "utils.i18n.translate modúlach"
 
+msgid "utils.i18n.untranslatable module"
+msgstr ""
+
 # libretranslate
 msgid "utils.install package"
 msgstr "utils.install pacáiste pacáiste"
@@ -88758,9 +87371,24 @@ msgstr "utils.manager.value\\ giniúint modúl"
 msgid "utils.meta package"
 msgstr "utils.meta pacáiste pacáiste"
 
+msgid "utils.meta.authors module"
+msgstr ""
+
 # libretranslate
 msgid "utils.meta.port\\_bands module"
 msgstr "utils.meta.port\\ bands modúl"
+
+msgid "utils.meta.role package"
+msgstr ""
+
+msgid "utils.meta.role.brands module"
+msgstr ""
+
+msgid "utils.meta.role.names module"
+msgstr ""
+
+msgid "utils.meta.role.titles module"
+msgstr ""
 
 # libretranslate
 msgid "utils.meta.scan module"
@@ -89373,10 +88001,6 @@ msgid "with specific, descriptive messages."
 msgstr "le teachtaireachtaí sonracha, tuairisciúil."
 
 # libretranslate
-msgid "wordpress"
-msgstr "wordpress"
-
-# libretranslate
 msgid "worker threads for credentials generation."
 msgstr "snáitheanna oibrí do ghlúin dintiúir."
 
@@ -89409,10 +88033,6 @@ msgid "xmpp"
 msgstr "taiseachas aeir: fliuch"
 
 # libretranslate
-msgid "xwiki"
-msgstr "cliceáil grianghraf a mhéadú"
-
-# libretranslate
 msgid "yes"
 msgstr "cineál gas: in airde"
 
@@ -89431,14 +88051,6 @@ msgstr "yes do `relay`"
 # libretranslate
 msgid "your preferred contact method for follow-up"
 msgstr "do modh teagmhála is fearr le haghaidh leantach"
-
-# libretranslate
-msgid "yourls"
-msgstr "dornálaíochta"
-
-# libretranslate
-msgid "zammad"
-msgstr "taiseachas aeir: fliuch"
 
 # libretranslate
 #, no-python-format, python-brace-format
