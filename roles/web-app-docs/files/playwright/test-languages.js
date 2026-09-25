@@ -8,22 +8,42 @@ function normalized(text) {
   return (text || "").replace(/\s+/g, " ");
 }
 
+let lastTransportError = null;
+
 async function statusOf(request, url) {
-  const response = await request.get(url, { failOnStatusCode: false, maxRedirects: 0, timeout: resolveTimeout(30_000) });
-  return response.status();
+  try {
+    const response = await request.get(url, { failOnStatusCode: false, maxRedirects: 0, timeout: resolveTimeout(30_000) });
+    lastTransportError = null;
+    return response.status();
+  } catch (error) {
+    lastTransportError = error;
+    return 0;
+  }
+}
+
+async function pollStatus(request, url, expected, message, timeout) {
+  lastTransportError = null;
+  try {
+    await expect
+      .poll(() => statusOf(request, url), { message, timeout: resolveTimeout(timeout), intervals: [30_000] })
+      .toBe(expected);
+  } catch (failure) {
+    if (!lastTransportError) throw failure;
+    throw new Error(`${failure.message}\nlast transport error reaching ${url}: ${lastTransportError.message}`);
+  }
 }
 
 exports.register = function (shared) {
   test("the deployed working tree is published in German with a language switcher", async ({ page, request }) => {
     test.setTimeout(resolveTimeout(5_400_000)); // the English and then the German Sphinx build of the deployed working tree
     expect(Object.keys(sample).length, "Expected German translations of README messages in docs.po").toBeGreaterThan(0);
-    await expect
-      .poll(() => statusOf(request, `${shared.appBaseUrl}/deployed/de/`), {
-        message: "Expected the German site of the deployed working tree to be built",
-        timeout: resolveTimeout(5_300_000),
-        intervals: [30_000],
-      })
-      .toBe(200);
+    await pollStatus(
+      request,
+      `${shared.appBaseUrl}/deployed/de/`,
+      200,
+      "Expected the German site of the deployed working tree to be built",
+      5_300_000,
+    );
 
     await gotoOnion(page, `${shared.appBaseUrl}/deployed/de/`);
     expect(await page.locator("html").getAttribute("lang")).toBe("de");
@@ -44,12 +64,12 @@ exports.register = function (shared) {
 
   test("a language without a translated site answers 404", async ({ request }) => {
     test.setTimeout(resolveTimeout(3_000_000)); // the English Sphinx build of the deployed working tree
-    await expect
-      .poll(() => statusOf(request, `${shared.appBaseUrl}/deployed/aa/`), {
-        message: "Expected the Afar path of the deployed working tree to answer 404",
-        timeout: resolveTimeout(2_900_000),
-        intervals: [30_000],
-      })
-      .toBe(404);
+    await pollStatus(
+      request,
+      `${shared.appBaseUrl}/deployed/aa/`,
+      404,
+      "Expected the Afar path of the deployed working tree to answer 404",
+      2_900_000,
+    );
   });
 };
