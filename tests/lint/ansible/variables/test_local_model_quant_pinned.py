@@ -29,9 +29,9 @@ from __future__ import annotations
 import unittest
 from typing import ClassVar
 
-import yaml
-
 from utils.annotations.suppress import is_suppressed_at
+from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml
 
 from . import PROJECT_ROOT
 
@@ -41,15 +41,12 @@ _KEY = "AI_LOCAL_MODELS"
 
 
 def _entries() -> list[dict]:
-    data = yaml.safe_load(_VARS_FILE.read_text(encoding="utf-8")) or {}
-    declared = data.get(_KEY)
+    declared = load_yaml(_VARS_FILE).get(_KEY)
     return [entry for entry in (declared or []) if isinstance(entry, dict)]
 
 
 def _line_of(alias: str) -> int:
-    for number, line in enumerate(
-        _VARS_FILE.read_text(encoding="utf-8").splitlines(), 1
-    ):
+    for number, line in enumerate(read_text(str(_VARS_FILE)).splitlines(), 1):
         if f"alias: {alias}" in line:
             return number
     return 0
