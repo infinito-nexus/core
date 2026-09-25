@@ -195,7 +195,7 @@ class TestWriterAndGateAgree(unittest.TestCase):
             "the repairs run before harms(), so a written entry must stay clean",
         )
 
-    def test_a_translation_equal_to_its_source_damaged_nothing(self) -> None:
+    def test_a_word_free_entry_equal_to_its_source_damaged_nothing(self) -> None:
         word_free = "** ``x`` **"
 
         self.assertNotEqual(tighten(word_free), word_free, "the source breaks the rule")
@@ -203,6 +203,23 @@ class TestWriterAndGateAgree(unittest.TestCase):
             harms(word_free, word_free),
             "the client answers a word-free entry with its own source, and an "
             "identity mapping cannot have damaged anything",
+        )
+
+    def test_a_short_label_may_come_back_unchanged(self) -> None:
+        for label in ("RBAC", "n8n", "Cloud", "DNS Resolvers"):
+            with self.subTest(label):
+                self.assertFalse(harms(label, label))
+
+    def test_a_sentence_that_comes_back_unchanged_is_a_failed_translation(self) -> None:
+        sentence = (
+            "Centralized database service shared across applications via Docker."
+        )
+
+        self.assertTrue(
+            harms(sentence, sentence),
+            "the server answers with its input when it fails, and the client "
+            "seeds every entry with the source, so an echoed sentence would "
+            "count as translated and never be retried",
         )
 
     def test_every_criterion_of_the_gate_reaches_the_client(self) -> None:

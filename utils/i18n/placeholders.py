@@ -79,6 +79,7 @@ MARKUP = '[]`*{}()"'
 STRUCTURE = "[]{}`*()"
 TRUNCATION_FLOOR = 120
 TRUNCATION_RATIO = 0.5
+ECHO_FLOOR = 30
 EMPHASIS = re.compile(r"(\*\*)[ \t]*([^\s]|[^\s].*?[^\s])[ \t]*\1", re.DOTALL)
 
 
@@ -240,12 +241,18 @@ def harms(source: str, translation: str) -> bool:
     anyway. A check on one side only lets every run rewrite what the other
     side then condemns, which never converges.
 
+    A translation identical to its source changed nothing and so damaged
+    nothing, except when the source is a sentence: the server answers with its
+    input when it fails, and the client seeds every entry with the source, so
+    an echoed sentence is a failure that would otherwise count as translated
+    and never be retried.
+
     Args:
         source: the source message.
         translation: what came back for it.
     """
     if translation == source:
-        return False
+        return sum(character.isalpha() for character in prose(source)) >= ECHO_FLOOR
     return bool(
         protected_spans(translation) != protected_spans(source)
         or missing_names(source, translation)
@@ -256,8 +263,8 @@ def harms(source: str, translation: str) -> bool:
     )
 
 
-def has_words(text: str) -> bool:
-    """Return whether ``text`` holds any letter outside its protected spans.
+def prose(text: str) -> str:
+    """Return ``text`` with every protected span removed.
 
     Args:
         text: a source message.
@@ -267,7 +274,16 @@ def has_words(text: str) -> bool:
         plain.append(text[position:start])
         position = end
     plain.append(text[position:])
-    return any(character.isalpha() for character in "".join(plain))
+    return "".join(plain)
+
+
+def has_words(text: str) -> bool:
+    """Return whether ``text`` holds any letter outside its protected spans.
+
+    Args:
+        text: a source message.
+    """
+    return any(character.isalpha() for character in prose(text))
 
 
 def mask(text: str) -> Masked:
