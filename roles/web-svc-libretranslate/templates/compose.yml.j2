@@ -5,14 +5,13 @@
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       cache_from:
         - "{{ lookup('image', application_id, 'libretranslate') }}"
-      {{ lookup('container_extra_hosts', extra_hosts=LIBRETRANSLATE_BUILD_HOSTS) | indent(6) }}
       args:
         BUILDKIT_INLINE_CACHE: "1"
         LIBRETRANSLATE_IMAGE: "{{ LIBRETRANSLATE_IMAGE }}"
         LIBRETRANSLATE_VERSION: "{{ LIBRETRANSLATE_VERSION }}"
         LIBRETRANSLATE_LOAD_ONLY: "{{ LIBRETRANSLATE_LOAD_ONLY }}"
-        APP_USER: "{{ LIBRETRANSLATE_APP_USER }}"
         LIBRETRANSLATE_DIRECTIONS: "{{ LIBRETRANSLATE_DIRECTIONS }}"
+        APP_USER: "{{ LIBRETRANSLATE_APP_USER }}"
     {{ lookup('container_image', application_id, 'libretranslate') }}
     {{ lookup('compose_only', 'container_name', LIBRETRANSLATE_CONTAINER_ADDRESS) }}
     volumes: []
