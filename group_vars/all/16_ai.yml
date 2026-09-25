@@ -30,6 +30,7 @@ AI_LOCAL_MODELS:
     repo: lmstudio-community/Llama-3.2-1B-Instruct-GGUF
     url: https://huggingface.co/lmstudio-community/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q4_K_M.gguf
     source: https://huggingface.co/lmstudio-community/Llama-3.2-1B-Instruct-GGUF
+    quant: q4_k_m
     file: Llama-3.2-1B-Instruct-Q4_K_M.gguf
     sha256: "f7ede42862ceca07ad1c88a97b67520019c4ac7e5ced250d2e696fa62ab189af"
     bytes: 807690688
