@@ -192,7 +192,7 @@ See [workflow.md](../workflow.md) for the full contribution flow.
 
 If you are trying to understand a change, start here:
 
-- `roles/` for behavior
+- [roles/](../../../roles/) for behavior
 - [inventories/bundles/](../../../inventories/bundles/) for deployment shapes
 - [Makefile](../../../Makefile) and [scripts/](../../../scripts/) for supported commands
 - [lint.md](../actions/testing/lint.md) for code and framework rules

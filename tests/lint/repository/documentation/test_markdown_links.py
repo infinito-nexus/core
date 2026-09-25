@@ -18,7 +18,7 @@ from typing import NamedTuple
 
 from utils.cache.files import iter_non_ignored_files, read_text
 
-from . import PROJECT_ROOT
+from . import INDEX_FILES, PROJECT_ROOT, index_page
 
 _MD_LINK_RE = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
 
@@ -46,7 +46,7 @@ class BrokenLink(NamedTuple):
 def _unresolvable(resolved: Path) -> str:
     """Return why ``resolved`` cannot back a link, empty when it can.
 
-    A directory is only a link target because its README stands in for it:
+    A directory is only a link target because an index page stands in for it:
     that is what GitHub opens, and what the documentation build resolves the
     link against. A directory without one renders as a file listing in the one
     place and as a missing cross-reference in the other.
@@ -56,8 +56,8 @@ def _unresolvable(resolved: Path) -> str:
     """
     if not resolved.exists():
         return "no such path"
-    if resolved.is_dir() and not (resolved / "README.md").is_file():
-        return "directory without a README.md to stand in for it"
+    if resolved.is_dir() and index_page(resolved) is None:
+        return f"directory without any of {', '.join(INDEX_FILES)}"
     return ""
 
 

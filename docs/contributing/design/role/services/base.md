@@ -68,7 +68,7 @@ Primary implementation files:
 
 The discovery layer:
 
-- scans role configs from `roles/`
+- scans role configs from [roles/](../../../../../roles/)
 - discovers provider entries from `services`
 - derives deploy type and loader bucket from the role name
 - resolves `provides:` and `canonical:`
