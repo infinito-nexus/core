@@ -10,7 +10,7 @@ from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 def get_all_application_ids(roles_dir="roles"):
     """
     Ansible filter to retrieve all unique application_id values
-    defined in roles/*/vars/main.yml files.
+    defined in ``roles/*/vars/main.yml`` files.
 
     :param roles_dir: Base directory for Ansible roles (default: 'roles')
     :return: Sorted list of unique application_id strings

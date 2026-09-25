@@ -13,7 +13,7 @@ Hand-writing the ``{% if DEPLOYMENT_MODE == 'swarm' %} … {% else %} …
 gate, wrong condition default, inconsistent indent). This lookup
 emits the whole block and switches on ``DEPLOYMENT_MODE`` itself.
 
-USAGE
+USAGE::
 
     # One dependency with an explicit condition.
     {{ lookup('depends_on', {ERPNEXT_CONFIGURATOR_CONTAINER:

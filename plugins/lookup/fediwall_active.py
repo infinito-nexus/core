@@ -12,7 +12,8 @@ active on the current host (i.e. its application_id is in
     url_bases  -> each sibling's TLS ``url.base``
                   (= the same value ``lookup('tls', s, 'url.base')`` returns)
 
-Used by:
+Used by::
+
     meta/server.yml                  -> connect-src CSP whitelist (url_bases)
     templates/wall-config.json.j2    -> default ``servers`` list   (domains)
 

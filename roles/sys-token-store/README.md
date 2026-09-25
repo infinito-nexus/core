@@ -106,8 +106,6 @@ Empty tokens are rejected explicitly.
 
 ## Usage Examples
 
----
-
 ### Persist a token
 
 ```yaml

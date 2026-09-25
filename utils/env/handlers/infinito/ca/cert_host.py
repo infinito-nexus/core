@@ -1,7 +1,7 @@
 """INFINITO_CA_CERT_HOST: host path of the self-signed root CA cert.
 
 Derived from the ca_trust_paths SPOT plus SOFTWARE_NAME (group_vars); consumed
-by scripts/system/tls/trust/*.sh so the path never lives in shell literals.
+by ``scripts/system/tls/trust/*.sh`` so the path never lives in shell literals.
 SOFTWARE_NAME is line-parsed instead of yaml-loaded: the env generator runs on
 the bare bootstrap python before any dependency (PyYAML) is installed.
 """
