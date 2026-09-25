@@ -6,6 +6,7 @@ import html
 import re
 from collections import Counter
 from dataclasses import dataclass
+from functools import lru_cache
 
 from utils.i18n import names
 
@@ -50,17 +51,8 @@ EXTRA = re.compile(
 )
 
 
-def matches(text: str, with_names: bool = True) -> list[tuple[int, int]]:
-    """Return the non-overlapping offsets every protection rule claims.
-
-    Args:
-        text: a source message or its translation.
-        with_names: whether role names and titles take part. They do when a
-            request is masked, so the translator never sees them, and they do
-            not when two texts are compared: German capitalises every noun, so
-            the lowercase ``shell extensions`` becomes ``Shell-Erweiterungen``
-            and a set comparison would read the capital as a surplus span.
-    """
+@lru_cache(maxsize=1 << 17)
+def _claimed(text: str, with_names: bool) -> tuple[tuple[int, int], ...]:
     found = [(m.start(), m.end()) for m in PROTECTED.finditer(text)]
     found += [(m.start(), m.end()) for m in EXTRA.finditer(text)]
     if with_names:
@@ -72,7 +64,24 @@ def matches(text: str, with_names: bool = True) -> list[tuple[int, int]]:
             continue
         kept.append((start, end))
         reach = end
-    return kept
+    return tuple(kept)
+
+
+def matches(text: str, with_names: bool = True) -> list[tuple[int, int]]:
+    """Return the non-overlapping offsets every protection rule claims.
+
+    The scan is cached behind a fresh list, because one source message is
+    scanned once per target language and callers may sort or trim the result.
+
+    Args:
+        text: a source message or its translation.
+        with_names: whether role names and titles take part. They do when a
+            request is masked, so the translator never sees them, and they do
+            not when two texts are compared: German capitalises every noun, so
+            the lowercase ``shell extensions`` becomes ``Shell-Erweiterungen``
+            and a set comparison would read the capital as a surplus span.
+    """
+    return list(_claimed(text, with_names))
 
 
 MARKUP = '[]`*{}()"'
@@ -340,8 +349,12 @@ def has_words(text: str) -> bool:
     return any(character.isalpha() for character in prose(text))
 
 
+@lru_cache(maxsize=1 << 16)
 def mask(text: str) -> Masked:
     """Return ``text`` escaped for HTML with its protected spans tokenised.
+
+    The result is immutable and one source message is masked once per target
+    language, so the same string arrives dozens of times per run.
 
     Args:
         text: the source message.

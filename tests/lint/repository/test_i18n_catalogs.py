@@ -1,5 +1,18 @@
+"""Every shipped catalog parses, matches its sources and kept its protections.
+
+Each question below has to look at every message of every catalog, and there
+are around fifty catalogs per domain. One worker therefore reads its catalog
+once, answers all of them, and sends back a handful of strings instead of the
+catalog: the findings are capped, and the source shape travels as a digest.
+"""
+
+import hashlib
+import os
 import re
 import unittest
+from concurrent.futures import ProcessPoolExecutor
+from dataclasses import dataclass, field
+from pathlib import Path
 
 from babel.messages.catalog import Message, TranslationError
 from babel.messages.checkers import python_format
@@ -17,44 +30,133 @@ from utils.i18n.placeholders import (
     tighten,
 )
 
+SAMPLE = 20
+QUOTED = re.compile(r"['\"][\w.-]+['\"]")
+
+_EXPECTED: set = set()
+
+
+@dataclass
+class Findings:
+    """What one catalog answered, in the words its test reports."""
+
+    code: str
+    domain: str
+    uncompilable: int = 0
+    shape: str = ""
+    stale: list = field(default_factory=list)
+    markup: list = field(default_factory=list)
+    quoted: list = field(default_factory=list)
+    spans: list = field(default_factory=list)
+    merged: list = field(default_factory=list)
+    loose: list = field(default_factory=list)
+
+
+def _load_expected() -> None:
+    global _EXPECTED  # noqa: PLW0603 — one read per worker, not per catalog
+    _EXPECTED = set(core_messages(PROJECT_ROOT))
+
+
+def _rejects(catalog, message, string) -> bool:
+    try:
+        python_format(catalog, Message(message.id, string, flags=message.flags))
+    except TranslationError:
+        return True
+    return False
+
+
+def inspect(task: tuple[str, str, str]) -> Findings:
+    """Answer every catalog question for one catalog.
+
+    Args:
+        task: the language code, the domain and the catalog's path.
+    """
+    code, domain, path = task
+    catalog = read_catalog(Path(path))
+    found = Findings(code, domain)
+    where = f"{domain}/{code}"
+    shape = set()
+
+    for message in catalog:
+        source, translation = message.id, message.string
+        if not isinstance(source, str) or not source:
+            continue
+        shape.add((message.context, source))
+
+        if isinstance(translation, str) and translation:
+            if (
+                "no-python-format" not in message.flags
+                and not _rejects(catalog, message, source)
+                and _rejects(catalog, message, translation)
+            ):
+                found.uncompilable += 1
+            if protected_spans(source) != protected_spans(translation):
+                found.spans.append(f"{where}: {message.context} {source!r}")
+            if resegment(translation, mask(source).spans, source) != translation:
+                found.merged.append(f"{where}: {source!r}")
+            if tighten(translation) != translation:
+                found.loose.append(f"{where}: {translation!r}")
+
+        bare = TOKEN.sub("", mask(source).text)
+        if set(bare) & set(MARKUP):
+            found.markup.append(f"{where}: {source!r}")
+        if QUOTED.search(bare):
+            found.quoted.append(f"{where}: {source!r}")
+
+    found.shape = hashlib.sha256(
+        repr(sorted(shape, key=repr)).encode("utf-8")
+    ).hexdigest()
+    if domain == "core" and shape != _EXPECTED:
+        found.stale = sorted(_EXPECTED ^ shape, key=repr)[:3]
+
+    for capped in (found.markup, found.quoted, found.spans, found.merged, found.loose):
+        del capped[SAMPLE:]
+    return found
+
 
 class TestI18nCatalogs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.languages = load_languages(PROJECT_ROOT)
-        cls.core = {
-            code: read_catalog(catalog_path(PROJECT_ROOT, code, "core"))
-            for code in domain_languages(cls.languages, "core")
-            if catalog_path(PROJECT_ROOT, code, "core").is_file()
+        cls.present = {
+            domain: [
+                code
+                for code in domain_languages(cls.languages, domain)
+                if catalog_path(PROJECT_ROOT, code, domain).is_file()
+            ]
+            for domain in ("core", "docs")
         }
-        cls.every = [(code, "core", catalog) for code, catalog in cls.core.items()]
-        for code in domain_languages(cls.languages, "docs"):
-            path = catalog_path(PROJECT_ROOT, code, "docs")
-            if path.is_file():
-                cls.every.append((code, "docs", read_catalog(path)))
+        tasks = [
+            (code, domain, str(catalog_path(PROJECT_ROOT, code, domain)))
+            for domain in ("core", "docs")
+            for code in cls.present[domain]
+        ]
+        if not tasks:
+            cls.findings = []
+            return
+        workers = min(len(tasks), os.cpu_count() or 1)
+        with ProcessPoolExecutor(max_workers=workers, initializer=_load_expected) as pool:
+            cls.findings = list(pool.map(inspect, tasks, chunksize=1))
+
+    def _all(self, attribute: str) -> list:
+        return [
+            entry
+            for found in self.findings
+            for entry in getattr(found, attribute)
+        ]
 
     def test_every_language_has_a_core_catalog(self):
-        missing = sorted(set(domain_languages(self.languages, "core")) - set(self.core))
+        missing = sorted(
+            set(domain_languages(self.languages, "core")) - set(self.present["core"])
+        )
         self.assertEqual(missing, [], "run `make i18n-extract domain=core`")
 
-    @staticmethod
-    def _rejects(catalog, message, string):
-        try:
-            python_format(catalog, Message(message.id, string, flags=message.flags))
-        except TranslationError:
-            return True
-        return False
-
     def test_every_catalog_compiles(self):
-        broken = {}
-        for code, domain, catalog in self.every:
-            for message in catalog:
-                if "no-python-format" in message.flags or not message.string:
-                    continue
-                if self._rejects(catalog, message, message.id):
-                    continue
-                if self._rejects(catalog, message, message.string):
-                    broken[f"{domain}/{code}"] = broken.get(f"{domain}/{code}", 0) + 1
+        broken = {
+            f"{f.domain}/{f.code}": f.uncompilable
+            for f in self.findings
+            if f.uncompilable
+        }
         self.assertEqual(
             broken,
             {},
@@ -70,106 +172,42 @@ class TestI18nCatalogs(unittest.TestCase):
         self.assertEqual(sorted(present - set(self.languages)), [])
 
     def test_core_catalogs_hold_exactly_the_current_sources(self):
-        expected = set(core_messages(PROJECT_ROOT))
-        stale = {
-            code: sorted(expected ^ {(m.context, m.id) for m in catalog if m.id})[:3]
-            for code, catalog in self.core.items()
-            if expected != {(m.context, m.id) for m in catalog if m.id}
-        }
+        stale = {f.code: f.stale for f in self.findings if f.stale}
         self.assertEqual(stale, {}, "run `make i18n-extract domain=core`")
 
     def test_every_docs_catalog_holds_the_same_sources(self):
-        shapes = {
-            code: {(m.context, m.id) for m in catalog if m.id}
-            for code, domain, catalog in self.every
-            if domain == "docs"
-        }
-        reference = next(iter(shapes.values()), set())
+        shapes = {f.code: f.shape for f in self.findings if f.domain == "docs"}
+        reference = next(iter(shapes.values()), "")
         drifted = sorted(code for code, shape in shapes.items() if shape != reference)
         self.assertEqual(drifted, [], "run `make i18n-extract domain=docs`")
 
     def test_translations_keep_every_protected_span(self):
-        broken = []
-        catalogs = [(code, "core", catalog) for code, catalog in self.core.items()]
-        for code in domain_languages(self.languages, "docs"):
-            path = catalog_path(PROJECT_ROOT, code, "docs")
-            if path.is_file():
-                catalogs.append((code, "docs", read_catalog(path)))
-        for code, domain, catalog in catalogs:
-            broken.extend(
-                f"{domain}/{code}: {message.context} {message.id!r}"
-                for message in catalog
-                if isinstance(message.id, str)
-                and message.id
-                and message.string
-                and protected_spans(message.id) != protected_spans(message.string)
-            )
-        self.assertEqual(broken[:20], [])
+        self.assertEqual(self._all("spans")[:SAMPLE], [])
 
     def test_no_source_hands_markup_to_the_translator(self):
-        leaking = []
-        for code, domain, catalog in self.every:
-            leaking.extend(
-                f"{domain}/{code}: {message.id!r}"
-                for message in catalog
-                if isinstance(message.id, str)
-                and message.id
-                and set(TOKEN.sub("", mask(message.id).text)) & set(MARKUP)
-            )
         self.assertEqual(
-            leaking[:20],
+            self._all("markup")[:SAMPLE],
             [],
             "a construct escapes masking; extend PROTECTED rather than the catalog",
         )
 
     def test_no_translation_spaces_its_emphasis_open(self):
-        loose = []
-        for code, domain, catalog in self.every:
-            loose.extend(
-                f"{domain}/{code}: {message.string!r}"
-                for message in catalog
-                if isinstance(message.string, str)
-                and message.string
-                and tighten(message.string) != message.string
-            )
         self.assertEqual(
-            loose[:20],
+            self._all("loose")[:SAMPLE],
             [],
             "markdown renders no emphasis around a space; run prune and translate again",
         )
 
     def test_no_translation_swallowed_a_sentence_boundary(self):
-        merged = []
-        for code, domain, catalog in self.every:
-            merged.extend(
-                f"{domain}/{code}: {message.id!r}"
-                for message in catalog
-                if isinstance(message.id, str)
-                and message.id
-                and isinstance(message.string, str)
-                and message.string
-                and resegment(message.string, mask(message.id).spans, message.id)
-                != message.string
-            )
         self.assertEqual(
-            merged[:20],
+            self._all("merged")[:SAMPLE],
             [],
             "a translator read a trailing span as sentence-final and glued the next sentence on",
         )
 
     def test_no_source_hands_a_quoted_identifier_to_the_translator(self):
-        quoted = re.compile(r"['\"][\w.-]+['\"]")
-        leaking = []
-        for code, domain, catalog in self.every:
-            leaking.extend(
-                f"{domain}/{code}: {message.id!r}"
-                for message in catalog
-                if isinstance(message.id, str)
-                and message.id
-                and quoted.search(TOKEN.sub("", mask(message.id).text))
-            )
         self.assertEqual(
-            leaking[:20],
+            self._all("quoted")[:SAMPLE],
             [],
             "a quoted identifier reaches the translator and becomes a different value",
         )
