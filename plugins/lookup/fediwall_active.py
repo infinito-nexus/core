@@ -5,7 +5,7 @@
 For every Mastodon-API-compatible Fediverse sibling listed under the
 SPOT ``meta/services.yml.fediwall.fediverse_siblings`` that is also
 active on the current host (i.e. its application_id is in
-``group_names``), return one entry per ``want_path``:
+``group_names``), return one entry per ``want_path``::
 
     siblings   -> the active sibling application_ids themselves
     domains    -> each sibling's primary domain (canonical[0])

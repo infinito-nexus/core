@@ -9,6 +9,7 @@ def parse_roles_list(raw_roles: list[str] | None) -> set[str] | None:
 
       --include web-app-nextcloud web-app-mastodon
       --include web-app-nextcloud,web-app-mastodon
+
     Same logic is reused for --exclude and --roles.
     """
     if not raw_roles:
