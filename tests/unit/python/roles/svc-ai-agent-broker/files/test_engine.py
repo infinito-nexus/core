@@ -107,6 +107,56 @@ class TestUnixTransport(unittest.TestCase):
             engine.Engine(self.path, timeout=5).call("GET", "/containers/x/exec")
 
 
+class _ConnectEngine(engine.Engine):
+    """Engine whose connect answers 404 for the first ``misses`` attempts."""
+
+    def __init__(self, misses):
+        self.misses = misses
+        self.attempts = 0
+        self.slept = 0.0
+
+    def call(self, method, path, body=None, query=None, expect=(200,), timeout=None):
+        if method == "GET":
+            return {"Containers": {}}
+        self.attempts += 1
+        if self.attempts <= self.misses:
+            raise engine.EngineError(f"POST {path} -> 404: not found", 404)
+        return None
+
+
+class TestConnect(unittest.TestCase):
+    def setUp(self):
+        self.real_sleep = engine.time.sleep
+        engine.time.sleep = lambda seconds: None
+
+    def tearDown(self):
+        engine.time.sleep = self.real_sleep
+
+    def test_a_swarm_overlay_is_joined_once_its_allocator_realizes_it(self):
+        fake = _ConnectEngine(misses=3)
+        fake.connect("net-1", "broker", "broker-alias")
+        self.assertEqual(fake.attempts, 4)
+
+    def test_a_network_that_stays_missing_is_not_waited_on_forever(self):
+        fake = _ConnectEngine(misses=10**6)
+        with self.assertRaises(engine.EngineError):
+            fake.connect("net-1", "broker", "broker-alias", realize_timeout=0)
+        self.assertEqual(fake.attempts, 1)
+
+    def test_a_refusal_that_is_not_a_missing_network_is_raised_at_once(self):
+        fake = _ConnectEngine(misses=0)
+
+        def deny(method, path, body=None, query=None, expect=(200,), timeout=None):
+            if method == "GET":
+                return {"Containers": {}}
+            raise engine.EngineError(f"POST {path} -> 403: denied", 403)
+
+        fake.call = deny
+        with self.assertRaises(engine.EngineError) as caught:
+            fake.connect("net-1", "broker", "broker-alias")
+        self.assertEqual(caught.exception.status, 403)
+
+
 class TestSwarmBackend(unittest.TestCase):
     def test_a_service_is_placed_on_the_sandbox_nodes_and_starts_scaled_down(self):
         fake = RecordingEngine(runtime="runsc")

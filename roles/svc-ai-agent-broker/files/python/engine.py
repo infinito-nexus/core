@@ -3,6 +3,7 @@ from __future__ import annotations
 import http.client
 import json
 import socket
+import time
 import urllib.parse
 
 LABEL_PLATFORM = "infinito.agent.platform"
@@ -10,7 +11,14 @@ LABEL_OWNER = "infinito.agent.owner"
 
 
 class EngineError(RuntimeError):
-    pass
+    """Args:
+    message: what the call was and how it answered.
+    status: HTTP status the engine returned, or None when it never answered.
+    """
+
+    def __init__(self, message, status=None):
+        super().__init__(message)
+        self.status = status
 
 
 class _UnixConnection(http.client.HTTPConnection):
@@ -53,7 +61,7 @@ class Engine:
         finally:
             connection.close()
         if status not in expect:
-            raise EngineError(f"{method} {path} -> {status}: {raw[:400]!r}")
+            raise EngineError(f"{method} {path} -> {status}: {raw[:400]!r}", status)
         if not raw:
             return None
         try:
@@ -99,17 +107,44 @@ class Engine:
         )
         return created["Id"]
 
-    def connect(self, network_id, container, alias):
-        detail = self.call("GET", f"/networks/{network_id}")
-        attached = detail.get("Containers") or {}
-        if any(key.startswith(container) for key in attached):
+    def connect(self, network_id, container, alias, realize_timeout=120, pause=2):
+        """Attach ``container`` to ``network_id`` once the network is usable.
+
+        Exception: a swarm-scoped overlay answers GET from the control plane
+        before its allocator has realized it on any node, while connect is
+        node-local, so connect returns 404 for a network that does exist. A 404
+        that outlives ``realize_timeout`` is raised, because then the network
+        really is gone.
+
+        Args:
+            network_id: id ``ensure_network`` returned.
+            container: container id or name to attach.
+            alias: name the other members of the network reach it by.
+            realize_timeout: seconds to allow the swarm allocator.
+            pause: seconds between attempts.
+        """
+        deadline = time.monotonic() + realize_timeout
+        while True:
+            detail = self.call("GET", f"/networks/{network_id}")
+            attached = detail.get("Containers") or {}
+            if any(key.startswith(container) for key in attached):
+                return
+            try:
+                self.call(
+                    "POST",
+                    f"/networks/{network_id}/connect",
+                    body={
+                        "Container": container,
+                        "EndpointConfig": {"Aliases": [alias]},
+                    },
+                    expect=(200, 204),
+                )
+            except EngineError as error:
+                if error.status != 404 or time.monotonic() >= deadline:
+                    raise
+                time.sleep(pause)
+                continue
             return
-        self.call(
-            "POST",
-            f"/networks/{network_id}/connect",
-            body={"Container": container, "EndpointConfig": {"Aliases": [alias]}},
-            expect=(200, 204),
-        )
 
 
 class ComposeBackend:
