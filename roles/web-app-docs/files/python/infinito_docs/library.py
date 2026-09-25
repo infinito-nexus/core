@@ -296,6 +296,19 @@ class Library(Builder):
             )
         self._forget_refs()
         self.request(LATEST)
+        self._refresh_stale_sites()
+
+    def _refresh_stale_sites(self):
+        """Queue every already-served version whose site no longer matches its ref.
+
+        A tag is built on demand and then left alone, so nothing would ever
+        notice that its language index predates the translated-site split or
+        that its sources moved. Only versions that are already servable are
+        touched, which keeps an unbuilt tag on demand.
+        """
+        for version in self.versions():
+            if self.servable(version):
+                self.request(version)
 
     def run_builder(self, interval):
         while not self.acquire_builder():

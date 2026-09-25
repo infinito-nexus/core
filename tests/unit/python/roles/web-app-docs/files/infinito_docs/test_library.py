@@ -158,6 +158,30 @@ class TestLibrary(LibraryFixture):
             "version never rebuilds and no language can ever be requested",
         )
 
+    def test_a_served_tag_with_a_stale_index_is_queued_again(self) -> None:
+        self.library.request("v1.0.0")
+        self.library.build("v1.0.0")
+        self.assertTrue(self.library.servable("v1.0.0"))
+        index = self.library.translations / "v1.0.0" / "languages.json"
+        index.parent.mkdir(parents=True, exist_ok=True)
+        index.write_text(json.dumps({"de": "Deutsch"}), encoding="utf-8")
+
+        self.library.fetch()
+
+        self.assertTrue(
+            (self.library.queue / "v1.0.0").exists(),
+            "a tag is built on demand and then never revisited, so nothing else "
+            "would ever notice its index predates the split",
+        )
+
+    def test_a_current_tag_is_not_queued_again(self) -> None:
+        self.library.request("v1.0.0")
+        self.library.build("v1.0.0")
+
+        self.library.fetch()
+
+        self.assertFalse((self.library.queue / "v1.0.0").exists())
+
     def test_a_requested_language_outruns_an_older_background_one(self) -> None:
         background = self.library.queue / "background"
         background.mkdir(parents=True, exist_ok=True)
