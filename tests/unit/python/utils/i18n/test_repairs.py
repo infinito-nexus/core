@@ -222,6 +222,32 @@ class TestWriterAndGateAgree(unittest.TestCase):
             "count as translated and never be retried",
         )
 
+    def test_a_stuttered_word_is_reported(self) -> None:
+        self.assertTrue(harms("Cloud", "Cloud Cloud Cloud"))
+        self.assertTrue(
+            harms("Marketing for teams", "Marketing Marketing Marketing für Teams")
+        )
+
+    def test_a_word_the_source_repeats_is_not_a_stutter(self) -> None:
+        source = "very very very slow"
+
+        self.assertFalse(harms(source, source.replace("slow", "langsam")))
+
+    def test_a_non_latin_catalog_that_came_back_in_english_is_reported(self) -> None:
+        english = "Core NGINX webserver with stream support and tuned defaults"
+
+        self.assertTrue(harms(english, english.replace("tuned", "tunned"), "ar"))
+        self.assertFalse(
+            harms(english, english.replace("tuned", "tunned"), "de"),
+            "a latin-script target needs a language detector, which does not exist here",
+        )
+
+    def test_a_non_latin_translation_keeping_a_few_terms_is_not_reported(self) -> None:
+        source = "Core NGINX webserver with HTTP stream support and tuned defaults"
+        arabic = "خادم NGINX الأساسي مع دعم HTTP وإعدادات افتراضية مضبوطة للأداء"
+
+        self.assertFalse(harms(source, arabic, "ar"))
+
     def test_every_criterion_of_the_gate_reaches_the_client(self) -> None:
         named = "Deploy web-app-docs before the documentation site answers anything."
         for label, source, translation in (

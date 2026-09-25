@@ -38,13 +38,14 @@ def damaged(catalog: Catalog) -> list[Message]:
     Args:
         catalog: a language catalog.
     """
+    language = str(catalog.locale or "").split("_")[0]
     return [
         message
         for message in catalog
         if isinstance(message.id, str)
         and message.id
         and message.string
-        and harms(message.id, str(message.string))
+        and harms(message.id, str(message.string), language)
     ]
 
 

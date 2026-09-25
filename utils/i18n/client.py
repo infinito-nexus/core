@@ -158,7 +158,7 @@ class LibreTranslate:
                 return Outcome([None], refused, 0, refusal)
             return merge(self._batch([text], target) for text in texts)
         values = [
-            unmask(translated, item, text)
+            unmask(translated, item, text, target)
             for translated, item, text in zip(result, masked, texts, strict=True)
         ]
         damaged = sum(1 for text in values if text is None)
