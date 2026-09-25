@@ -14,6 +14,8 @@ Env (rendered into test.env from templates/test.env.j2):
     LMSTUDIO_ALIASES   JSON list of aliases only LM Studio provides, rendered
                        whether or not the backend is deployed so the absent
                        case stays assertable
+    MOCK_ALIASES       JSON list of aliases answered from a canned string, whose
+                       reported prompt token count is litellm's own constant
     REMOTE_ALIASES     JSON list of aliases a configured provider key publishes
                        (OpenAI, Anthropic, OpenRouter)
     OLLAMA_ENABLED     true|false
@@ -205,6 +207,7 @@ def route_verdict(
     needed_tokens: int,
     counted_tokens: int = 0,
     sent_tokens: int = 0,
+    mocks: tuple = (),
 ) -> str:
     """Why this answer does not prove the router worked, or the empty string.
 
@@ -221,6 +224,10 @@ def route_verdict(
             backend that reports fewer truncated the prompt instead of refusing
             it. A declared window above the model's trained one is answered
             that way, so comparing against the window would miss it.
+        mocks: the aliases that answer from a canned string. They report a
+            handful of prompt tokens whatever they are sent, because they never
+            read the prompt at all, so the truncation test cannot tell them
+            from a backend that dropped it.
 
     Returns:
         One message, empty when the answer is a legitimate routing outcome.
@@ -239,6 +246,8 @@ def route_verdict(
             f"'{served}', whose declared window is {window}; the eligibility filter "
             f"did not exclude it"
         )
+    if served in mocks:
+        return ""
     if counted_tokens and counted_tokens < sent_tokens * TRUNCATION_RATIO:
         return (
             f"'{served}' evaluated {counted_tokens} prompt tokens of the "
@@ -271,6 +280,7 @@ def _probe_router(
     windows: dict,
     retries: int,
     pause: float,
+    mocks: tuple = (),
 ) -> list[str]:
     """Whether the alias routes, or only answers.
 
@@ -294,7 +304,7 @@ def _probe_router(
             )
         ]
     verdict = route_verdict(
-        router_alias, windows, served, needed, counted, len(prompt) // 2
+        router_alias, windows, served, needed, counted, len(prompt) // 2, mocks
     )
     if verdict:
         failures.append(verdict)
@@ -349,8 +359,11 @@ def main() -> int:
         ).items()
         if alias in served
     }
+    mocks = tuple(json.loads(os.environ["MOCK_ALIASES"]))
     if router_alias and len(windows) > 1 and not failures:
-        failures.extend(_probe_router(base, key, router_alias, windows, retries, pause))
+        failures.extend(
+            _probe_router(base, key, router_alias, windows, retries, pause, mocks)
+        )
 
     for failure in failures:
         print(f"[FAIL] {failure}", file=sys.stderr)

@@ -13,6 +13,7 @@
 #   LITELLM_CHAT_MODEL_SERVED  true|false
 #   LITELLM_EXPECTED_MODELS    JSON list the config template published
 #   LITELLM_LMSTUDIO_ALIASES   JSON list of aliases only LM Studio provides
+#   LITELLM_MOCK_ALIASES       JSON list of aliases answered from a canned string
 #   LITELLM_REMOTE_ALIASES     JSON list of aliases a configured provider key adds
 #   LITELLM_OLLAMA_ENABLED     true|false
 #   LITELLM_LMSTUDIO_ENABLED   true|false
@@ -50,6 +51,7 @@ probe() {
 		-e "CHAT_MODEL_SERVED=${LITELLM_CHAT_MODEL_SERVED}" \
 		-e "EXPECTED_MODELS=${LITELLM_EXPECTED_MODELS}" \
 		-e "LMSTUDIO_ALIASES=${LITELLM_LMSTUDIO_ALIASES}" \
+		-e "MOCK_ALIASES=${LITELLM_MOCK_ALIASES}" \
 		-e "REMOTE_ALIASES=${LITELLM_REMOTE_ALIASES}" \
 		-e "OLLAMA_ENABLED=${LITELLM_OLLAMA_ENABLED}" \
 		-e "LMSTUDIO_ENABLED=${LITELLM_LMSTUDIO_ENABLED}" \

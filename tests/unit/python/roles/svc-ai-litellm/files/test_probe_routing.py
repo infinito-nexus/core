@@ -251,8 +251,12 @@ class TestRouteVerdict(unittest.TestCase):
 
     WINDOWS: ClassVar[dict] = {"small": 4096, "medium": 16384, "large": 65536}
 
-    def verdict(self, served, needed=5461, counted=0, sent=0):
-        return probe.route_verdict("auto", self.WINDOWS, served, needed, counted, sent)
+    MOCKS: ClassVar[tuple] = ("medium",)
+
+    def verdict(self, served, needed=5461, counted=0, sent=0, mocks=()):
+        return probe.route_verdict(
+            "auto", self.WINDOWS, served, needed, counted, sent, mocks
+        )
 
     def test_a_backend_that_evaluated_less_than_was_sent_fails(self) -> None:
         self.assertIn(
@@ -273,8 +277,32 @@ class TestRouteVerdict(unittest.TestCase):
         self.assertEqual(
             self.verdict("large", counted=8185, sent=8192),
             "",
-            "a mock counts its own prompt and a chat template shifts the total "
-            "either way, so an exact comparison would fail a healthy route",
+            "a chat template shifts the total either way, so an exact "
+            "comparison would fail a healthy route",
+        )
+
+    def test_a_mock_is_not_accused_of_truncating(self) -> None:
+        self.assertEqual(
+            self.verdict("medium", counted=10, sent=8192, mocks=self.MOCKS),
+            "",
+            "litellm answers a mock route from a canned string and reports its "
+            "own constant prompt token count, so the number carries nothing to "
+            "compare the prompt against",
+        )
+
+    def test_a_mock_is_still_held_to_its_declared_window(self) -> None:
+        self.assertIn(
+            "did not exclude it",
+            self.verdict("small", needed=8192, counted=10, sent=8192, mocks=("small",)),
+            "the exemption covers the truncation number only; a mock routed a "
+            "prompt its declared window cannot hold is still a routing failure, "
+            "which is why the exemption sits after the window check",
+        )
+
+    def test_an_alias_outside_the_mock_list_is_still_accused(self) -> None:
+        self.assertIn(
+            "silently dropped the rest",
+            self.verdict("medium", counted=10, sent=8192, mocks=("other",)),
         )
 
     def test_a_model_whose_window_holds_the_prompt_passes(self) -> None:
