@@ -15,9 +15,8 @@ if TYPE_CHECKING:
 KEY = "INFINITO_CACHE_PACKAGE_FRONTEND_CONF"
 SOURCE_KEY = "INFINITO_CACHE_CONF_SOURCE"
 COMMENT = (
-    "Bind source for the package-cache frontend's nginx upstream map. "
-    "One cache stack serves every checkout on the host, so it follows the "
-    f"primary one; set {SOURCE_KEY}=worktree to test a change before merging."
+    "Upstream map the cache frontend mounts; follows the primary checkout, "
+    f"{SOURCE_KEY}=worktree points it here."
 )
 RELATIVE = Path("compose") / "package-cache-frontend" / "upstreams.conf"
 

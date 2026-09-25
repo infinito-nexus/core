@@ -16,9 +16,8 @@ import re
 from functools import lru_cache
 from pathlib import Path
 
-import yaml
-
-from utils.cache.files import PROJECT_ROOT
+from utils.cache.files import PROJECT_ROOT, read_text
+from utils.cache.yaml import load_yaml
 from utils.roles.mapping import ROLE_FILE_META_MAIN
 
 ROLES_DIR = "roles"
@@ -41,13 +40,13 @@ def _sources(root: str) -> tuple[tuple[str, ...], tuple[str, ...]]:
         roles.append(path.name)
         readme = path / README
         if readme.is_file():
-            for line in readme.read_text(encoding="utf-8").splitlines():
+            for line in read_text(str(readme)).splitlines():
                 if line.startswith("# "):
                     titles.add(line[2:].strip())
                     break
         meta = path / ROLE_FILE_META_MAIN
         if meta.is_file():
-            declared = yaml.safe_load(meta.read_text(encoding="utf-8")) or {}
+            declared = load_yaml(str(meta)) or {}
             name = (declared.get("galaxy_info") or {}).get("name")
             if name:
                 titles.add(str(name).strip())

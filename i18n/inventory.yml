@@ -5,7 +5,7 @@ TLS_MODE: self_signed
 
 TIMEOUT_FACTOR: 4
 
-RESOURCE_HOST_CPUS_OVERRIDE: "{{ ansible_processor_nproc }}"
+RESOURCE_HOST_CPUS_OVERRIDE: "{{ ansible_facts['processor_nproc'] }}"
 
 SIZE_PERCENT_CLEANUP_DISC_SPACE: 98
 

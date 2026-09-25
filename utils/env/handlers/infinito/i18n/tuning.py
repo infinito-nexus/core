@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from utils.cache.files import read_text
 from utils.i18n.limits import BATCH_SIZE
 
 if TYPE_CHECKING:
@@ -25,7 +26,7 @@ def measured(repo_root: Path) -> dict:
     if not path.is_file():
         return {}
     try:
-        return json.loads(path.read_text(encoding="utf-8")).get("best") or {}
+        return json.loads(read_text(str(path))).get("best") or {}
     except (OSError, ValueError):
         return {}
 
