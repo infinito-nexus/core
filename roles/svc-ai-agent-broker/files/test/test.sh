@@ -80,6 +80,8 @@ proxy_probe() {
 		"${AGENT_BROKER_CONTAINER}" python3 - <"${here}/proxy.py"
 }
 
+EMPTY_KEY_DIGEST="$(printf '' | sha256sum)"
+
 agent_key_digest() {
 	if [ "${DEPLOYMENT_MODE}" = "swarm" ]; then
 		container docker service inspect -f '{{range .Spec.TaskTemplate.ContainerSpec.Env}}{{println .}}{{end}}' "$1" |
@@ -168,6 +170,11 @@ output="$(probe "${BROKER_KEY}" "${OWNER_A}" "${USER_A_EMAIL}" openclaw)"
 echo "${output}"
 [ "$(status_of "${output}")" = "200" ] || fail "${USER_A_NAME}'s openclaw agent answered $(status_of "${output}"), not 200"
 relayed "${since}" "${OWNER_A}" openclaw || fail "${USER_A_NAME}'s openclaw agent never got a model answer through the relay"
+
+for name in "${NAME_A}" "${NAME_B}"; do
+	[ "$(agent_key_digest "${name}")" != "${EMPTY_KEY_DIGEST}" ] ||
+		fail "${name} carries no ${AGENT_KEY_ENV}, so comparing the two keys proves nothing"
+done
 
 [ "$(agent_key_digest "${NAME_A}")" != "$(agent_key_digest "${NAME_B}")" ] ||
 	fail "both owners' agents carry the same ${AGENT_KEY_ENV}"
