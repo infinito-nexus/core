@@ -75,7 +75,7 @@ gitlab:
   lifecycle: beta
 webservice:
   image: registry.gitlab.com/gitlab-org/build/cng/gitlab-webservice-ce
-  version: v19.4.0
+  version: v19.4.1
   name: gitlab-webservice
   healthcheck:
     test: ["CMD", "/scripts/healthcheck"]
@@ -94,7 +94,7 @@ sidekiq:
     flavor: tcp
     path: liveness
   image: registry.gitlab.com/gitlab-org/build/cng/gitlab-sidekiq-ce
-  version: v19.4.0
+  version: v19.4.1
   name: gitlab-sidekiq
   cpus: "1.0"
   mem_reservation: 2g
@@ -105,7 +105,7 @@ sidekiq:
       http: 3808
 workhorse:
   image: registry.gitlab.com/gitlab-org/build/cng/gitlab-workhorse-ce
-  version: v19.4.0
+  version: v19.4.1
   name: gitlab-workhorse
   healthcheck:
     test: ["CMD", "/scripts/healthcheck"]
@@ -117,7 +117,7 @@ gitaly:
   # nocheck: single-replica
   replicas: 1
   image: registry.gitlab.com/gitlab-org/build/cng/gitaly
-  version: v19.4.0
+  version: v19.4.1
   healthcheck:
     test: ["CMD", "/scripts/healthcheck"]
   name: gitlab-gitaly
@@ -130,7 +130,7 @@ gitaly:
   pids_limit: 1024
 shell:
   image: registry.gitlab.com/gitlab-org/build/cng/gitlab-shell
-  version: v19.4.0
+  version: v19.4.1
   name: gitlab-shell
   ports:
     internal:
@@ -143,7 +143,7 @@ migrations:
   # nocheck: single-replica
   replicas: 1
   image: registry.gitlab.com/gitlab-org/build/cng/gitlab-rails-ce
-  version: v19.4.0
+  version: v19.4.1
   name: gitlab-migrations
   cpus: "1.0"
   mem_reservation: 1g
