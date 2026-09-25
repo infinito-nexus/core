@@ -28,7 +28,7 @@ def generate_ansible_roles_index(roles_dir, output_file, caption):
     ]
     lines = [
         caption,
-        "===================",
+        "=" * len(caption),
         "",
         ".. toctree::",
         "   :maxdepth: 1",

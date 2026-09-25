@@ -32,7 +32,7 @@ class TestIndex(unittest.TestCase):
 
         self.assertEqual(
             text,
-            "Ansible Role Glossary\n===================\n\n"
+            "Ansible Role Glossary\n=====================\n\n"
             ".. toctree::\n   :maxdepth: 1\n   :caption: Ansible Role Glossary\n\n"
             "   ../generated/roles/a\n   ../generated/roles/b\n",
         )

@@ -44,6 +44,8 @@ class TestProgress(unittest.TestCase):
                 "/w/src/generated/modules",
                 "/w/src",
                 "/w/src/tests",
+                "/w/src/roles",
+                "/w/src/library",
             ],
         )
         self.assertEqual(

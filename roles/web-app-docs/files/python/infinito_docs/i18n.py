@@ -36,6 +36,10 @@ def extract(src: Path, output: Path, jobs: int) -> None:
         conf = Path(scratch) / "conf"
         out = Path(scratch) / "out"
         shutil.copytree(PACKAGE_DIR, conf)
+        if (src / "assets" / "img").is_dir():
+            shutil.copytree(
+                src / "assets" / "img", conf / "assets" / "img", dirs_exist_ok=True
+            )
         env = {**os.environ, "PYTHONPATH": os.pathsep.join([tooling, *inherited])}
         for command in generate_commands(src):
             subprocess.run(command, check=True, env=env, cwd=scratch)

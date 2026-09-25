@@ -8,6 +8,29 @@ from utils.cache.yaml import load_yaml
 from utils.roles.mapping import ROLE_FILE_META_MAIN, ROLE_FILE_README
 
 
+SECTION_CHARS = set("=-`:'\"~^_*+#<>")
+
+
+def _fit_underlines(rst: str) -> str:
+    """Return ``rst`` with every section underline at least as long as its title.
+
+    A heading that ends in a stray variation selector or zero-width joiner, left
+    behind where an emoji was removed, makes pandoc count one character fewer
+    than docutils does, and docutils then reports the underline as too short.
+
+    Args:
+        rst: reStructuredText as pandoc produced it.
+    """
+    lines = rst.splitlines()
+    for index, line in enumerate(lines[1:], start=1):
+        title = lines[index - 1]
+        if not line or not title.strip() or set(line) - SECTION_CHARS:
+            continue
+        if len(line) < len(title):
+            lines[index] = line[0] * len(title)
+    return "\n".join(lines) + ("\n" if rst.endswith("\n") else "")
+
+
 def convert_md_to_rst(md_content):
     try:
         result = subprocess.run(
@@ -19,19 +42,28 @@ def convert_md_to_rst(md_content):
     except subprocess.CalledProcessError as exc:
         print("Error converting Markdown to reStructuredText:", exc)
         return md_content
-    return result.stdout.decode("utf-8")
+    return _fit_underlines(result.stdout.decode("utf-8"))
+
+
+INLINE_MARKUP = ("\\", "*", "`", "|", "_")
 
 
 def _one_line(value) -> str:
-    """Return ``value`` as a single line, as a bullet item must be.
+    """Return ``value`` as a single reStructuredText line.
 
     ``galaxy_info.company`` is a block scalar in almost every role, and its
     second line landed in column 0, which ends the bullet list it sits in.
+    Metadata is prose, not markup, so a character that opens inline markup is
+    escaped rather than left to look for a partner: one description reads
+    ``(*.parent)`` and reported an unterminated emphasis.
 
     Args:
         value: a value read from ``galaxy_info``.
     """
-    return " ".join(str(value).split())
+    text = " ".join(str(value).split())
+    for character in INLINE_MARKUP:
+        text = text.replace(character, f"\\{character}")
+    return text
 
 
 def generate_ansible_roles_doc(roles_dir, output_dir):
@@ -53,7 +85,8 @@ def generate_ansible_roles_doc(roles_dir, output_dir):
             f"{role.name.capitalize()} Role",
             "=" * (len(role.name) + 7),
             "",
-            f"**Description:** {galaxy_info.get('description', 'No description available')}",
+            "**Description:** "
+            + _one_line(galaxy_info.get("description", "No description available")),
             "",
             "Variables",
             "---------",

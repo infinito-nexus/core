@@ -45,6 +45,8 @@ def generate_commands(src):
             str(generated / "modules"),
             str(src),
             str(src / "tests"),
+            str(src / "roles"),
+            str(src / "library"),
         ],
         _generator(
             "yaml_index",

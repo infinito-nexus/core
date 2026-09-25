@@ -70,6 +70,7 @@ gettext_location = False
 
 myst_enable_extensions = ["colon_fence"]
 myst_heading_anchors = 6
+myst_url_schemes = ("http", "https", "mailto", "ftp", "tel")
 
 
 def replace_assets_in_doctree(app, doctree, docname):

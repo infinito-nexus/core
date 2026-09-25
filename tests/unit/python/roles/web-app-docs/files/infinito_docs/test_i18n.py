@@ -30,6 +30,9 @@ class TestExtract(unittest.TestCase):
             (src / "config.yml").write_text(
                 "name: sys-stk-front-proxy\n", encoding="utf-8"
             )
+            images = src / "assets" / "img"
+            images.mkdir(parents=True)
+            (images / "favicon.ico").write_bytes(b"")
             output = Path(tmp) / "docs.pot"
 
             with patch.object(i18n, "generate_commands", lambda src: []):
