@@ -24062,7 +24062,7 @@ msgstr "DNS resolutsioonid `172.30.0.4` võõrustajatele `pypi.org` on tahtlikud
 
 # libretranslate
 msgid "DNS-hijack + frontend HTTPS + runner CA-trust"
-msgstr "DNS-hijack + frontend HTTPS + runner CA-trust"
+msgstr ""
 
 # libretranslate
 msgid "DOMAIN_PRIMARY (apex), defaults_networks.internet.ip4, optional defaults_networks.internet.ip6"
@@ -30957,7 +30957,7 @@ msgstr "NGINXi ülemaailmne CSS süstimine"
 
 # libretranslate
 msgid "Global JavaScript Injector for NGINX"
-msgstr "Global JavaScript Injector for NGINX"
+msgstr ""
 
 # libretranslate
 msgid "Global bucket order:"
@@ -72997,7 +72997,7 @@ msgstr "[Nextcloudi ametlik koduleht](https://nextcloud.com/)"
 
 # libretranslate
 msgid "[Nextcloud → ONLYOFFICE Integration App](https://apps.nextcloud.com/apps/onlyoffice)"
-msgstr "[Nextcloud → ONLYOFFICE Integration App](https://apps.nextcloud.com/apps/onlyoffice)"
+msgstr ""
 
 # libretranslate
 msgid "[Nextcloud](roles/web-app-nextcloud/)"

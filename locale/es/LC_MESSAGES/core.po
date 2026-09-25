@@ -306,7 +306,7 @@ msgstr "Container Registries"
 # libretranslate
 msgctxt "role:sys-svc-container:description"
 msgid "Container engine runtime with Compose for building and running application containers on Linux hosts"
-msgstr "Container engine runtime with Compose for building and running application containers on Linux hosts"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-swarm-node:description"
@@ -534,12 +534,12 @@ msgstr "herramienta de construcción de base específica (compiladores, ligadore
 # libretranslate
 msgctxt "role:sys-stk-backend:description"
 msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Docker Compose stack for containerized relational databases with backup, user, and permission management"
+msgstr ""
 
 # libretranslate
 msgctxt "category:svc.swarm:description"
 msgid "Docker Swarm cluster bootstrap and node-membership roles for multi-host service deployment."
-msgstr "Docker Swarm cluster bootstrap and node-membership roles for multi-host service deployment."
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-svc-onlyoffice:description"
@@ -1249,7 +1249,7 @@ msgstr "Herramientas de gestión de proyectos"
 # libretranslate
 msgctxt "role:drv-non-free:description"
 msgid "Proprietary GPU driver installer for Arch-based systems via mhwd nonfree hardware detection"
-msgstr "Proprietary GPU driver installer for Arch-based systems via mhwd nonfree hardware detection"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-dns-wildcards:description"

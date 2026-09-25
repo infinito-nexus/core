@@ -32,7 +32,7 @@ msgstr "AI Services"
 # libretranslate
 msgctxt "menu:Artificial Intelligence:description"
 msgid "AI tools and frameworks for running, managing, and experimenting with models."
-msgstr "AI tools and frameworks for running, managing, and experimenting with models."
+msgstr ""
 
 # libretranslate
 msgctxt "menu:Server Administration:description"
@@ -132,7 +132,7 @@ msgstr "تطبيق العجلات الدوارة على الحشد لاتخاذ 
 # libretranslate
 msgctxt "role:web-app-litellm:description"
 msgid "Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy"
-msgstr "Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy"
+msgstr ""
 
 # libretranslate
 msgctxt "role:dev-fakeroot:description"
@@ -197,7 +197,7 @@ msgstr "محرك قاعدة بيانات ناقلات مركزية لتخزين 
 # libretranslate
 msgctxt "role:sys-svc-rdbms:description"
 msgid "Centralized MariaDB or PostgreSQL database service shared across applications via Docker Compose"
-msgstr "Centralized MariaDB or PostgreSQL database service shared across applications via Docker Compose"
+msgstr ""
 
 msgctxt "role:sys-svc-certs:description"
 msgid "Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
@@ -365,7 +365,7 @@ msgstr "Core AI building blocks-model serving, OpenAI-compatible gateways, vecto
 # libretranslate
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
-msgstr "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
+msgstr ""
 
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -443,7 +443,7 @@ msgstr "منبر للشبكة الاجتماعية اللامركزية والم
 # libretranslate
 msgctxt "role:user-administrator:description"
 msgid "Dedicated administrator account with SSH key access and password-authenticated sudo for secure privilege escalation"
-msgstr "Dedicated administrator account with SSH key access and password-authenticated sudo for secure privilege escalation"
+msgstr ""
 
 # libretranslate
 msgctxt "role:user-backup:description"
@@ -478,7 +478,7 @@ msgstr "تشكيلة عملاء مكتبية تربط ملفات المنازل 
 # libretranslate
 msgctxt "role:desk-gnome-extensions:description"
 msgid "Desktop config role for activating GNOME Shell extensions and installing a CLI tool to manage them"
-msgstr "Desktop config role for activating GNOME Shell extensions and installing a CLI tool to manage them"
+msgstr ""
 
 # libretranslate
 msgctxt "category:desk:description"
@@ -538,7 +538,7 @@ msgstr "كومة دوكر كومبوس من قواعد البيانات المت
 # libretranslate
 msgctxt "category:svc.swarm:description"
 msgid "Docker Swarm cluster bootstrap and node-membership roles for multi-host service deployment."
-msgstr "Docker Swarm cluster bootstrap and node-membership roles for multi-host service deployment."
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-svc-onlyoffice:description"
@@ -766,7 +766,7 @@ msgstr ":: الدور الذي يضطلع به على المستوى المضي�
 # libretranslate
 msgctxt "role:web-app-openbao:description"
 msgid "Identity-based secrets, PKI and encryption manager with OIDC login, group-mapped policies and static-seal auto-unseal"
-msgstr "Identity-based secrets, PKI and encryption manager with OIDC login, group-mapped policies and static-seal auto-unseal"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-db-redis:description"
@@ -831,12 +831,12 @@ msgstr "الوقت الذي يستغرقه بناء وتشغيل تطبيقات 
 # libretranslate
 msgctxt "role:web-app-hermes:description"
 msgid "Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to models through the shared LLM gateway"
-msgstr "Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to models through the shared LLM gateway"
+msgstr ""
 
 # libretranslate
 msgctxt "category:svc.virt:description"
 msgid "Kernel-isolating container runtimes on the container host: Kata Containers microVMs and the gVisor userspace fallback."
-msgstr "Kernel-isolating container runtimes on the container host: Kata Containers microVMs and the gVisor userspace fallback."
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-virt-kata:description"
@@ -846,7 +846,7 @@ msgstr "تشغيل الحاويات المُعَزَّلة التي لا يُث�
 # libretranslate
 msgctxt "role:svc-storage-nfs-server:description"
 msgid "Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts"
-msgstr "Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts"
+msgstr ""
 
 # libretranslate
 msgctxt "menu:Education:description"
@@ -944,7 +944,7 @@ msgstr ""
 # libretranslate
 msgctxt "role:web-opt-rdr-www:description"
 msgid "NGINX server blocks that permanently redirect www subdomains to their non-www apex domains"
-msgstr "NGINX server blocks that permanently redirect www subdomains to their non-www apex domains"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-front-inj-matomo:description"
@@ -954,7 +954,7 @@ msgstr "حقن مرشّح فرعي لشبكة إن جيناكس Matomo محلل 
 # libretranslate
 msgctxt "role:web-svc-html:description"
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
-msgstr "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-prx-openresty:description"
@@ -1267,7 +1267,7 @@ msgstr "Public REST API serving role data, history and translations of Infinito.
 # libretranslate
 msgctxt "role:pkgmgr:description"
 msgid "Python CLI package manager for cloning multiple code repositories and automating common Git operations"
-msgstr "Python CLI package manager for cloning multiple code repositories and automating common Git operations"
+msgstr ""
 
 msgctxt "role:sys-lint:description"
 msgid "Release pins for the GitHub-release lint tools the toolchain installs"
@@ -1290,7 +1290,7 @@ msgstr "Reusable Git سحب البدائي للمستنسخات الضحلة، �
 # libretranslate
 msgctxt "role:svc-ai-mcp-adapter:description"
 msgid "Reusable per-provider MCP adapter exposing a narrow allowlisted read surface"
-msgstr "Reusable per-provider MCP adapter exposing a narrow allowlisted read surface"
+msgstr ""
 
 msgctxt "role:sys-svc-proxy:description"
 msgid "Reverse proxy front-end for Docker-hosted services with automatic TLS, WebSocket support, and per-app vHost templating"
@@ -1328,7 +1328,7 @@ msgstr ":: دور رصد النظام والفحص الصحي - بما في ذل
 # libretranslate
 msgctxt "role:sys-front-tls-selfsigned:description"
 msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
-msgstr "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
+msgstr ""
 
 # libretranslate
 msgctxt "menu:Sales:title"
@@ -1700,7 +1700,7 @@ msgstr "معدات تطوير البرامجيات"
 # libretranslate
 msgctxt "role:web-app-opentalk:description"
 msgid "Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
-msgstr "Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
+msgstr ""
 
 # libretranslate
 msgctxt "category:sys.stk:title"
@@ -1832,7 +1832,7 @@ msgstr "دور التمرين وضع مجلدات دوكر على SSD أو HDD �
 # libretranslate
 msgctxt "role:dev-python:description"
 msgid "Toolchain for Python scripting, application development, and data science on Linux"
-msgstr "Toolchain for Python scripting, application development, and data science on Linux"
+msgstr ""
 
 # libretranslate
 msgctxt "menu:Tools:title"
@@ -1842,7 +1842,7 @@ msgstr "الأدوات"
 # libretranslate
 msgctxt "menu:User Management:description"
 msgid "Tools for Identity and Access Management, including authentication, user provisioning, and secure access control."
-msgstr "Tools for Identity and Access Management, including authentication, user provisioning, and secure access control."
+msgstr ""
 
 # libretranslate
 msgctxt "menu:Communication:description"

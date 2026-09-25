@@ -31090,7 +31090,7 @@ msgstr "Confiança HTTP CA (Infinito-http-ca-trust.php) 🔐"
 
 # libretranslate
 msgid "HTTP onion SOCKS (infinito-http-onion-socks.php) 🧅"
-msgstr "HTTP onion SOCKS (infinito-http-onion-socks.php) 🧅"
+msgstr ""
 
 # libretranslate
 msgid "HTTP status codes for a deployed domain."
@@ -42191,7 +42191,7 @@ msgstr "Playwrightgreat- britain counties. kgm (per [playwright.spec.js contract
 
 # libretranslate
 msgid "Playwright / E2E: biber First-Login Caveat"
-msgstr "Playwright / E2E: biber First-Login Caveat"
+msgstr ""
 
 # libretranslate
 msgid "Playwright Codegen (built-in) 🔧"

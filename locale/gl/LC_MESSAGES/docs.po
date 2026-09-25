@@ -30755,7 +30755,7 @@ msgstr "GitHub Action runners"
 
 # libretranslate
 msgid "GitHub Actions workflow command annotations."
-msgstr "GitHub Actions workflow command annotations."
+msgstr ""
 
 # libretranslate
 msgid "GitHub Actions 🎬"
@@ -30867,7 +30867,7 @@ msgstr "O soporte de Gitea aparece como un paquete MCP propiedade do proxecto. A
 
 # libretranslate
 msgid "Gitignore-aware path matching for project-tree scans."
-msgstr "Gitignore-aware path matching for project-tree scans."
+msgstr ""
 
 # libretranslate
 msgid "Gitignore-filtered iteration"
@@ -38517,7 +38517,7 @@ msgstr "NGINX bloques de servidor que redireccionan permanentemente os subdomini
 
 # libretranslate
 msgid "NGINX vHost Templates: Basic vs. WebSocket (ws_generic)"
-msgstr "NGINX vHost Templates: Basic vs. WebSocket (ws_generic)"
+msgstr ""
 
 # libretranslate
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
@@ -73001,7 +73001,7 @@ msgstr "[OpenCloud](roles/web-app-opencloud/)"
 
 # libretranslate
 msgid "[OpenID Connect RP-Initiated Logout](https://openid.net/specs/openid-connect-session-1_0.html#RPLogout)"
-msgstr "[OpenID Connect RP-Initiated Logout](https://openid.net/specs/openid-connect-session-1_0.html#RPLogout)"
+msgstr ""
 
 # libretranslate
 msgid "[OpenID docs](https://docs.semaphoreui.com/administration-guide/openid/)"
@@ -74430,7 +74430,7 @@ msgstr "[cron-images-cleanup-ci.yml](../../../../../.github/workflows/cron-image
 
 # libretranslate
 msgid "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml), [call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml)"
-msgstr "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml), [call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml)"
+msgstr ""
 
 # libretranslate
 msgid "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml): `🪞 Mirror all images`"
@@ -93647,7 +93647,7 @@ msgstr "input name -> valor, baleiro cando ningún traballo da execución rexist
 
 # libretranslate
 msgid "inputs read verbatim from a called job's log (:func:`inputs_from_jobs`)."
-msgstr "inputs read verbatim from a called job's log (:func:`inputs_from_jobs`)."
+msgstr ""
 
 # libretranslate
 msgid "install"
@@ -100577,7 +100577,7 @@ msgstr "🧩 Proxecto Upstream: `lyqht/mini-qr <https://github.com/lyqht/mini-qr
 
 # libretranslate
 msgid "🧩 [Libretro - Modular Emulator Framework](https://www.libretro.com/)"
-msgstr "🧩 [Libretro - Modular Emulator Framework](https://www.libretro.com/)"
+msgstr ""
 
 # libretranslate
 msgid "🧩 `Libretro - Modular Emulator Framework <https://www.libretro.com/>`__"

@@ -12932,7 +12932,7 @@ msgstr "--add-host={{ entry }}"
 
 # libretranslate
 msgid "--distro debian --owner acme --repository infinito-nexus --tag ci-abc"
-msgstr "--distro debian --owner acme --repository infinito-nexus --tag ci-abc"
+msgstr ""
 
 # libretranslate
 msgid "--include web-app-nextcloud web-app-mastodon --include web-app-nextcloud,web-app-mastodon"
@@ -25845,7 +25845,7 @@ msgstr "Composez Docker"
 
 # libretranslate
 msgid "Docker Compose Certificate Sync Service"
-msgstr "Docker Compose Certificate Sync Service"
+msgstr ""
 
 # libretranslate
 msgid "Docker Compose Tooling 🐳"
@@ -39201,7 +39201,7 @@ msgstr "Aucune valeur n'est jamais remplacée. Le collectionneur de matériel Li
 
 # libretranslate
 msgid "No-code builder for LLM apps / agent flows"
-msgstr "No-code builder for LLM apps / agent flows"
+msgstr ""
 
 # libretranslate
 msgid "No-op when nothing is pinned or it is the host's own; raises SystemExit when the handler cannot be registered."
@@ -71612,7 +71612,7 @@ msgstr "[Dépôt PDS GitHub Bluesky](https://github.com/bluesky-social/pds)"
 
 # libretranslate
 msgid "[Bluesky Social App GitHub Repository](https://github.com/bluesky-social/social-app)"
-msgstr "[Bluesky Social App GitHub Repository](https://github.com/bluesky-social/social-app)"
+msgstr ""
 
 # libretranslate
 msgid "[Bluesky](https://bsky.social/) is a decentralized social network that runs on the open AT Protocol. Each user account lives on a Personal Data Server (PDS) that holds the user's posts, replies, and follows as signed records, and any number of independent app views can read those records to render a timeline."
@@ -93158,7 +93158,7 @@ msgstr "eslint conserve-caught-error et sans-usage des violations d'attribution 
 
 # libretranslate
 msgid "eslint, eslint-plugin-playwright, eslint/js, actions/setup-python, actions/create-github-app-token"
-msgstr "eslint, eslint-plugin-playwright, eslint/js, actions/setup-python, actions/create-github-app-token"
+msgstr ""
 
 # libretranslate
 msgid "espocrm"

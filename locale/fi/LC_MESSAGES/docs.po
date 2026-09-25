@@ -12961,7 +12961,7 @@ msgstr "--add-host{{ entry }}"
 
 # libretranslate
 msgid "--distro debian --owner acme --repository infinito-nexus --tag ci-abc"
-msgstr "--distro debian --owner acme --repository infinito-nexus --tag ci-abc"
+msgstr ""
 
 # libretranslate
 msgid "--include web-app-nextcloud web-app-mastodon --include web-app-nextcloud,web-app-mastodon"
@@ -93209,7 +93209,7 @@ msgstr "eslint state-catch-virhe ja hyödytön-tehtävä rikkoo viidessä Playwr
 
 # libretranslate
 msgid "eslint, eslint-plugin-playwright, eslint/js, actions/setup-python, actions/create-github-app-token"
-msgstr "eslint, eslint-plugin-playwright, eslint/js, actions/setup-python, actions/create-github-app-token"
+msgstr ""
 
 # libretranslate
 msgid "espocrm"

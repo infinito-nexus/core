@@ -1292,7 +1292,7 @@ msgstr "Python CLI csomagkezelő több kódtár klónozásához és közös Git 
 # libretranslate
 msgctxt "role:sys-lint:description"
 msgid "Release pins for the GitHub-release lint tools the toolchain installs"
-msgstr "Release pins for the GitHub-release lint tools the toolchain installs"
+msgstr ""
 
 # libretranslate
 msgctxt "category:sys.ctl.rpr:title"

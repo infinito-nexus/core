@@ -27016,7 +27016,7 @@ msgstr "Povolit self-hosted běžci v org"
 
 # libretranslate
 msgid "Encode role ids to display names and back, for one repository tree."
-msgstr "Encode role ids to display names and back, for one repository tree."
+msgstr ""
 
 # libretranslate
 msgid "End users access a web page, pick a model, and start chatting. Conversations remain on your servers. Admins can enable strict offline behavior so no external network calls occur. The UI can also point at OpenAI-compatible endpoints if needed."
@@ -31958,7 +31958,7 @@ msgstr "INFINITO_WORKER_CPU * 20, se základnou 1 Kolabuje na 1 (sekvenční nou
 
 # libretranslate
 msgid "INFINITO_WORKER_CPU: CPU-count base for the worker SPOT chain."
-msgstr "INFINITO_WORKER_CPU: CPU-count base for the worker SPOT chain."
+msgstr ""
 
 # libretranslate
 msgid "INFINITO_WORKER_FETCH: I/O-bound network-fetch worker count."
@@ -49728,7 +49728,7 @@ msgstr "Bezproblémová injekce přes NGINX `sub_filter` n `</head>`."
 
 # libretranslate
 msgid "Seamless restarts on config update"
-msgstr "Seamless restarts on config update"
+msgstr ""
 
 # libretranslate
 msgid "Seamlessly connect to a MariaDB instance for consistent, reliable data storage and management."
@@ -67125,7 +67125,7 @@ msgstr "Když role vdechne vlastní značku nebo téma"
 
 # libretranslate
 msgid "When the role injects custom frontend behavior"
-msgstr "When the role injects custom frontend behavior"
+msgstr ""
 
 # libretranslate
 #, python-brace-format

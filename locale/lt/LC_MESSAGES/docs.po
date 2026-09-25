@@ -30859,7 +30859,7 @@ msgstr "Global CSS Instruction for NGINX"
 
 # libretranslate
 msgid "Global JavaScript Injector for NGINX"
-msgstr "Global JavaScript Injector for NGINX"
+msgstr ""
 
 # libretranslate
 msgid "Global bucket order:"

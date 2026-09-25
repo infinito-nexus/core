@@ -327,7 +327,7 @@ msgstr "Контейнери Reveal.js слайд тесте за предста
 # libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
+msgstr ""
 
 # libretranslate
 msgctxt "role:svc-db-postgres:description"
@@ -837,7 +837,7 @@ msgstr "Платформа за проследяване на емисии и п
 # libretranslate
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
-msgstr "JavaScript runtime for building and running server-side applications and developer tooling"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-hermes:description"
@@ -1152,7 +1152,7 @@ msgstr "OpenAI-съвместим LLM портал за маршрутизира
 # libretranslate
 msgctxt "role:dev-java:description"
 msgid "OpenJDK 11 runtime and development kit for Java applications on Pacman-based systems"
-msgstr "OpenJDK 11 runtime and development kit for Java applications on Pacman-based systems"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-svc-ssh:description"

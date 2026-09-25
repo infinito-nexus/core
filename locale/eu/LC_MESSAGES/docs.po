@@ -12972,7 +12972,7 @@ msgstr "--add-host={{ entry }}"
 
 # libretranslate
 msgid "--distro debian --owner acme --repository infinito-nexus --tag ci-abc"
-msgstr "--distro debian --owner acme --repository infinito-nexus --tag ci-abc"
+msgstr ""
 
 # libretranslate
 msgid "--include web-app-nextcloud web-app-mastodon --include web-app-nextcloud,web-app-mastodon"
@@ -13296,7 +13296,7 @@ msgstr "036 -AAA atebidearen integrazio natiboa"
 
 # libretranslate
 msgid "037 - Gettext Catalogs with LibreTranslate Autotranslation"
-msgstr "037 - Gettext Catalogs with LibreTranslate Autotranslation"
+msgstr ""
 
 # libretranslate
 msgid "038 - web-svc-api"
@@ -24064,7 +24064,7 @@ msgstr "DNS ebazpenak: `172.30.0.4` ostalariek bezala `pypi.org` nahita daude: p
 
 # libretranslate
 msgid "DNS-hijack + frontend HTTPS + runner CA-trust"
-msgstr "DNS-hijack + frontend HTTPS + runner CA-trust"
+msgstr ""
 
 # libretranslate
 msgid "DOMAIN_PRIMARY (apex), defaults_networks.internet.ip4, optional defaults_networks.internet.ip6"
@@ -25887,7 +25887,7 @@ msgstr "Docker Compose"
 
 # libretranslate
 msgid "Docker Compose Certificate Sync Service"
-msgstr "Docker Compose Certificate Sync Service"
+msgstr ""
 
 # libretranslate
 msgid "Docker Compose Tooling 🐳"
@@ -30962,7 +30962,7 @@ msgstr "CSS injekzio orokorra NGINXerako"
 
 # libretranslate
 msgid "Global JavaScript Injector for NGINX"
-msgstr "Global JavaScript Injector for NGINX"
+msgstr ""
 
 # libretranslate
 msgid "Global bucket order:"
@@ -64545,7 +64545,7 @@ msgstr "Upstream OpenTalk bi onartzen ditut `[user_search].backend` balioak: `ke
 
 # libretranslate
 msgid "Upstream Paths Missing from Current Metadata"
-msgstr "Upstream Paths Missing from Current Metadata"
+msgstr ""
 
 # libretranslate
 msgid "Upstream ``host:port``: compose ``127.0.0.1:<local>``; swarm ``<entity>:<internal>`` (shared-overlay alias) for the app frontend, or ``<entity>_<service_key>:<internal>`` for named sidecars (sso-proxy). A ``host_gateway`` app runs node-local under swarm and publishes its local port to the host, so the overlay-attached proxy reaches it at ``host.docker.internal:<local>`` via the host gateway (the caller sets this off the real DEPLOYMENT_MODE, since such apps force a compose-style render). Missing swarm internal port hard-fails."
@@ -75137,7 +75137,7 @@ msgstr "[opencloud.eu](https://opencloud.eu/)"
 
 # libretranslate
 msgid "[opencloudeu/opencloud on Docker Hub](https://hub.docker.com/r/opencloudeu/opencloud)"
-msgstr "[opencloudeu/opencloud on Docker Hub](https://hub.docker.com/r/opencloudeu/opencloud)"
+msgstr ""
 
 # libretranslate
 msgid "[opentalk.eu](https://opentalk.eu/)"
@@ -93243,7 +93243,7 @@ msgstr "Ez du ezertarako balio."
 
 # libretranslate
 msgid "eslint, eslint-plugin-playwright, eslint/js, actions/setup-python, actions/create-github-app-token"
-msgstr "eslint, eslint-plugin-playwright, eslint/js, actions/setup-python, actions/create-github-app-token"
+msgstr ""
 
 # libretranslate
 msgid "espocrm"
@@ -96379,7 +96379,7 @@ msgstr "rol izena -> bere izena run_after Rol-izenak."
 
 # libretranslate
 msgid "role name -> sort key for ready-set tie-breaking."
-msgstr "role name -> sort key for ready-set tie-breaking."
+msgstr ""
 
 # libretranslate
 msgid "role names to order (deduplicated internally)."

@@ -13244,7 +13244,7 @@ msgstr "034 - Embodied Robot Platform for Hermes (svc-ai-robot)"
 
 # libretranslate
 msgid "035 - MCP Proxy Expansion and Application Interconnection"
-msgstr "035 - MCP Proxy Expansion and Application Interconnection"
+msgstr ""
 
 # libretranslate
 msgid "036 - Native AI Gateway Integration"
@@ -24166,7 +24166,7 @@ msgstr "Fejlsøgningsguider 🐞"
 
 # libretranslate
 msgid "Debugging in the nested docker daemon"
-msgstr "Debugging in the nested docker daemon"
+msgstr ""
 
 # libretranslate
 msgid "Debugguging Migrations:"
@@ -38401,7 +38401,7 @@ msgstr "NGINX Global Matomo og temaændringsrolle"
 
 # libretranslate
 msgid "NGINX HTTPS Certificate Retrieval"
-msgstr "NGINX HTTPS Certificate Retrieval"
+msgstr ""
 
 # libretranslate
 msgid "NGINX Location Templates"
@@ -42126,7 +42126,7 @@ msgstr "Playwright (per [playwright.spec.js kontrakt](../contributing/artefact/f
 
 # libretranslate
 msgid "Playwright / E2E: biber First-Login Caveat"
-msgstr "Playwright / E2E: biber First-Login Caveat"
+msgstr ""
 
 # libretranslate
 msgid "Playwright Codegen (built-in) 🔧"
@@ -42844,7 +42844,7 @@ msgstr "Propper implementere og teste LDAP integration, konfigurationsværdierne
 
 # libretranslate
 msgid "Proprietary API credential SPOT, read from group_vars/all/18_api.yml."
-msgstr "Proprietary API credential SPOT, read from group_vars/all/18_api.yml."
+msgstr ""
 
 # libretranslate
 msgid "Proprietary API credentials (the `API` SPOT)"
@@ -45331,7 +45331,7 @@ msgstr "Oprydning, billedoprydning og beskæring"
 
 # libretranslate
 msgid "Repository name the runners register with."
-msgstr "Repository name the runners register with."
+msgstr ""
 
 # libretranslate
 msgid "Repository root, overridable for tests via ``INFINITO_PROJECT_ROOT``."
@@ -63628,7 +63628,7 @@ msgstr "Sand iff denne instans kører cache stak snarere end at dele det."
 
 # libretranslate
 msgid "True on a real GitHub runner; act and generic CI are not that."
-msgstr "True on a real GitHub runner; act and generic CI are not that."
+msgstr ""
 
 # libretranslate
 msgid "True when *application_id* is reachable over the node onion, i.e. when svc-net-tor is deployed for it (``services.tor.enabled``) AND at least one of its services opts in with ``exposed: true``, which is what earns a ``HiddenServicePort`` (``collect_exposed_ports``)."
@@ -71389,7 +71389,7 @@ msgstr "[Bluesky PDS GitHub Repository](https://github.com/bluesky-social/pds)"
 
 # libretranslate
 msgid "[Bluesky Social App GitHub Repository](https://github.com/bluesky-social/social-app)"
-msgstr "[Bluesky Social App GitHub Repository](https://github.com/bluesky-social/social-app)"
+msgstr ""
 
 # libretranslate
 msgid "[Bluesky](https://bsky.social/) is a decentralized social network that runs on the open AT Protocol. Each user account lives on a Personal Data Server (PDS) that holds the user's posts, replies, and follows as signed records, and any number of independent app views can read those records to render a timeline."
@@ -81198,7 +81198,7 @@ msgstr "`RUN apk add` (Alpine ≥3.18 HTTPS)"
 
 # libretranslate
 msgid "`RUN apk add` (inner Dockerfile build, Alpine ≤3.17 HTTP)"
-msgstr "`RUN apk add` (inner Dockerfile build, Alpine ≤3.17 HTTP)"
+msgstr ""
 
 # libretranslate
 msgid "`RUN apt-get install` (inner Dockerfile build, Debian/Ubuntu)"

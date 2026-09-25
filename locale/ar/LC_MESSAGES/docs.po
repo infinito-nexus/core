@@ -646,7 +646,7 @@ msgstr "**Meta `dependencies:`** من كل دور `meta/main.yml`."
 
 # libretranslate
 msgid "**Ansible**: Required for running this role."
-msgstr "**Ansible**: Required for running this role."
+msgstr ""
 
 # libretranslate
 msgid "**Ansible**: This playbook requires Ansible to be installed on your system."
@@ -915,7 +915,7 @@ msgstr "**Automatic SSL/TLS Certificate Management:** نُدمج مع دعنا �
 
 # libretranslate
 msgid "**Automatic SSL/TLS Certificate Management:** Integrates with Let’s Encrypt for secure access."
-msgstr "**Automatic SSL/TLS Certificate Management:** Integrates with Let’s Encrypt for secure access."
+msgstr ""
 
 msgid "**Automatic TLS & HSTS**: integrates with the *sys-svc-webserver-https* role for certificate management."
 msgstr ""
@@ -1290,7 +1290,7 @@ msgstr "**CSP Resource Validation:** ويستخدم الفرسان في محاك
 
 # libretranslate
 msgid "**CSP integration**: Automatically appends the required script hash into your CSP policy via the role’s CSP helper."
-msgstr "**CSP integration**: Automatically appends the required script hash into your CSP policy via the role’s CSP helper."
+msgstr ""
 
 # libretranslate
 msgid "**CSP** allows ``unsafe-inline``/``unsafe-eval`` for ``script-src-elem`` and ``blob:`` workers/images, required by Penpot’s SPA and worker-based renderer."
@@ -1349,7 +1349,7 @@ msgstr "**الحالات الحساسة (`ci`):** ويتوقّع معظم الت
 
 # libretranslate
 msgid "**Central DB Integration:** Connects to shared MariaDB instances for multi-role environments."
-msgstr "**Central DB Integration:** Connects to shared MariaDB instances for multi-role environments."
+msgstr ""
 
 # libretranslate
 msgid "**Central Database:** PostgreSQL integration (local or central DB) with bootstrap credentials from role vars."
@@ -1502,7 +1502,7 @@ msgstr "**تركيب عبوات سيرتبوت إنجينكس:** تحتاج ال
 
 # libretranslate
 msgid "**Certificate Cleanup Tool Installation**"
-msgstr "**Certificate Cleanup Tool Installation**"
+msgstr ""
 
 # libretranslate
 msgid "**Certificate Cleanup Tool Installation**   Uses `pkgmgr-install` to install the `certreap` binary."
@@ -3448,7 +3448,7 @@ msgstr "**Docker Compose Integration:** تركيب الحاويات والتشك
 
 # libretranslate
 msgid "**Docker Compose Integration:** Deploy PhpMyAdmin via a templated Compose setup."
-msgstr "**Docker Compose Integration:** Deploy PhpMyAdmin via a templated Compose setup."
+msgstr ""
 
 # libretranslate
 msgid "**Docker Compose**"
@@ -3513,7 +3513,7 @@ msgstr "**Dockerized Environment:** وتتمحور العملية برمتها �
 
 # libretranslate
 msgid "**Dockerized MariaDB**: Leverages Docker for MariaDB deployment, ensuring consistency across different environments."
-msgstr "**Dockerized MariaDB**: Leverages Docker for MariaDB deployment, ensuring consistency across different environments."
+msgstr ""
 
 # libretranslate
 msgid "**Dockerized ONLYOFFICE Document Server:** Uses the official ``onlyoffice/documentserver`` image."
@@ -3620,7 +3620,7 @@ msgstr "**هيكل الدليل الديناميكي:** Creates per-application 
 
 # libretranslate
 msgid "**Dynamic Icon Delivery:** Icons are dynamically served via RESTful endpoints."
-msgstr "**Dynamic Icon Delivery:** Icons are dynamically served via RESTful endpoints."
+msgstr ""
 
 # libretranslate
 msgid "**Dynamic Redirects**: Builds ``source: \"www.domain\"`` → ``target: \"domain\"`` mappings on the fly. 🔧"
@@ -3845,7 +3845,7 @@ msgstr "**ضمان توافق البيئة** عن طريق الحقن ``SSH_AUTH
 
 # libretranslate
 msgid "**Enterprise Wiki Platform:** Create, edit, and organize pages with a powerful WYSIWYG editor and structured content support."
-msgstr "**Enterprise Wiki Platform:** Create, edit, and organize pages with a powerful WYSIWYG editor and structured content support."
+msgstr ""
 
 # libretranslate
 msgid "**Enterprise-Grade Security** 🔒 Centralized user management via LDAP & OIDC (Keycloak), plus optional 2FA and encrypted storage."
@@ -4205,7 +4205,7 @@ msgstr "**النشر المرن:** Easily scale and customize using Docker Compo
 
 # libretranslate
 msgid "**Flexible Environment Configuration:**"
-msgstr "**Flexible Environment Configuration:**"
+msgstr ""
 
 # libretranslate
 msgid "**Flexible Environment Configuration:**   Customize your installation using environment variables and templated configuration files to match your infrastructure needs."
@@ -4455,7 +4455,7 @@ msgstr ""
 
 # libretranslate
 msgid "**HTTP admin and BOSH:** Expose the ejabberd web admin and BOSH/WebSocket bindings on the role’s HTTP port for browser-based interaction."
-msgstr "**HTTP admin and BOSH:** Expose the ejabberd web admin and BOSH/WebSocket bindings on the role’s HTTP port for browser-based interaction."
+msgstr ""
 
 # libretranslate
 msgid "**HTTP on the onion side** (TLS forced off for `.onion`), vhosts on `:80`, upstream gets `X-Forwarded-Proto: https`."
@@ -5360,7 +5360,7 @@ msgstr ""
 
 # libretranslate
 msgid "**LDAP/OIDC SSO:** Integrate with corporate identity providers for seamless login 🔐"
-msgstr "**LDAP/OIDC SSO:** Integrate with corporate identity providers for seamless login 🔐"
+msgstr ""
 
 # libretranslate
 msgid "**Language Cache Cleanup:** Removes common build artefacts and tool caches."
@@ -5380,7 +5380,7 @@ msgstr "**دعونا مشفرة التكامل:** Automatically requests and ins
 
 # libretranslate
 msgid "**Let’s Encrypt Integration:** Automatically requests and installs SSL/TLS certificates."
-msgstr "**Let’s Encrypt Integration:** Automatically requests and installs SSL/TLS certificates."
+msgstr ""
 
 msgid "**Lexicon source of truth for geo/time.** Mobilizon uses PostGIS + its own TZ handling; the lexicon calendar event carries its own location/time fields. The bridge needs an explicit, documented field mapping (start/end/tz/location/title/description/url) — incomplete mapping = silent data loss."
 msgstr ""
@@ -5774,7 +5774,7 @@ msgstr "**تجربة المنتدى الحديث:** المشاركة في منا
 
 # libretranslate
 msgid "**Modern and Scalable:** A robust Symfony-based framework optimized for commerce innovation."
-msgstr "**Modern and Scalable:** A robust Symfony-based framework optimized for commerce innovation."
+msgstr ""
 
 # libretranslate
 msgid "**Modern search:** OpenSearch out of the box (single-node)."
@@ -5782,7 +5782,7 @@ msgstr "**البحث الحديث:** فتح البحث خارج الصندوق (
 
 # libretranslate
 msgid "**Modern, Responsive Web Interface:** Access an intuitive and adaptive UI for effortless browsing, administration, and content management."
-msgstr "**Modern, Responsive Web Interface:** Access an intuitive and adaptive UI for effortless browsing, administration, and content management."
+msgstr ""
 
 # libretranslate
 msgid "**Modular Design:** Easily integrates with other WireGuard roles or network configuration roles."
@@ -5939,7 +5939,7 @@ msgstr "**NGINX Cleanup:** يزيل بأمان ملفات تشكيل الخاد�
 
 # libretranslate
 msgid "**NGINX Integration**: Sets up NGINX for handling domain-specific requests and SSL termination."
-msgstr "**NGINX Integration**: Sets up NGINX for handling domain-specific requests and SSL termination."
+msgstr ""
 
 # libretranslate
 msgid "**NGINX Reverse Proxy Integration:** Provides secure access and HTTPS termination."
@@ -7298,7 +7298,7 @@ msgstr ""
 
 # libretranslate
 msgid "**Robust Reset and Recovery Tools:** Easily reset and reinitialize both the application and its underlying database."
-msgstr "**Robust Reset and Recovery Tools:** Easily reset and reinitialize both the application and its underlying database."
+msgstr ""
 
 # libretranslate
 msgid "**Robust Scalability & Performance:** Leverage integrated Redis caching and a reliable database (MariaDB or PostgreSQL) for smooth scaling and high performance."
@@ -12864,7 +12864,7 @@ msgstr "019 - بلاي رايت meta/services.yml تغطية التكافؤ"
 
 # libretranslate
 msgid "020 - CI Run 25705903504 Deploy-Failure Remediation Loop"
-msgstr "020 - CI Run 25705903504 Deploy-Failure Remediation Loop"
+msgstr ""
 
 # libretranslate
 msgid "021 - SSO Flavor Migration (oauth2 + oidc → unified `sso` service)"
@@ -12876,7 +12876,7 @@ msgstr "022 - Zammad دور مكتب المساعدة مع مكتب التعاو
 
 # libretranslate
 msgid "023 - Docker Swarm Deployment with NFS-backed Shared Volumes"
-msgstr "023 - Docker Swarm Deployment with NFS-backed Shared Volumes"
+msgstr ""
 
 # libretranslate
 msgid "023 - Setup Penpot"
@@ -13976,11 +13976,11 @@ msgstr "حاوية تُعَمّنُ خلال خادمِ المدرجِ على 12
 
 # libretranslate
 msgid "A content publishing and distribution ecosystem for creators and media organizations."
-msgstr "A content publishing and distribution ecosystem for creators and media organizations."
+msgstr ""
 
 # libretranslate
 msgid "A cyber-resilient sovereign infrastructure foundation for high-assurance environments."
-msgstr "A cyber-resilient sovereign infrastructure foundation for high-assurance environments."
+msgstr ""
 
 # libretranslate
 msgid "A declaration names exactly one probe and any number of prefixes, either as one string or as a list. This module owns that grammar: the aliases, the validation and the timing arithmetic that decides what a composed probe inherits."
@@ -14029,7 +14029,7 @@ msgstr "وثائق مفصلة لاستخدام وإدارة Nextcloud on Infinit
 
 # libretranslate
 msgid "A digital administration and documentation platform for structured organizations."
-msgstr "A digital administration and documentation platform for structured organizations."
+msgstr ""
 
 # libretranslate
 msgid "A distro ships the interpreter and its extensions as separate packages, so a present ``php`` binary says nothing about them and ``ensure_command_present`` returns early on one. The extension is therefore probed against ``php -m``."
@@ -14165,7 +14165,7 @@ msgstr "معالج يستهدف فرعاً مشروطاً (فقط، نيكس ف�
 
 # libretranslate
 msgid "A high-performance e-commerce stack optimized for conversion and analytics."
-msgstr "A high-performance e-commerce stack optimized for conversion and analytics."
+msgstr ""
 
 # libretranslate
 msgid "A higher-level orchestration wrapper, *sys-stk-front-proxy* ties together several lower-level roles:"
@@ -14255,7 +14255,7 @@ msgstr "تطابق `SYSTEM_EMAIL_<KEY>` متغير معرّف في أي مكان
 
 # libretranslate
 msgid "A message prepared for an HTML-mode translation request."
-msgstr "A message prepared for an HTML-mode translation request."
+msgstr ""
 
 # libretranslate
 msgid "A minted Tor v3 onion key and its ``HiddenServiceDir`` file contents."
@@ -14340,7 +14340,7 @@ msgstr "السيناريو الشخصي الذي لا يفي بالغرض بعد
 
 # libretranslate
 msgid "A personal digital sovereignty stack for individuals controlling their own data."
-msgstr "A personal digital sovereignty stack for individuals controlling their own data."
+msgstr ""
 
 msgid "A pin MUST be a quoted string, never an unquoted number. `\"\"` tracks the app default."
 msgstr ""
@@ -14401,11 +14401,11 @@ msgstr "الدور ذو الأولوية يمكن أن يقع وراء الاك�
 
 # libretranslate
 msgid "A privacy-first foundation for enterprises running AI locally and keeping sensitive data on-prem."
-msgstr "A privacy-first foundation for enterprises running AI locally and keeping sensitive data on-prem."
+msgstr ""
 
 # libretranslate
 msgid "A professional collaboration and identity management stack for modern organizations."
-msgstr "A professional collaboration and identity management stack for modern organizations."
+msgstr ""
 
 # libretranslate
 msgid "A provider writes its credential to the token store during its own role run, and each client resolves the providers it may reach from that store. This role runs at the end of the server stage, after every provider has written and before the end-to-end tests read the converged state."
@@ -14421,7 +14421,7 @@ msgstr "سؤال يجب ألا يعدل الملفات أو الشفرة أو ا
 
 # libretranslate
 msgid "A rapid deployment stack for startups building software products and services."
-msgstr "A rapid deployment stack for startups building software products and services."
+msgstr ""
 
 # libretranslate
 msgid "A record MUST NOT be written for a choice that a reader can recover from the code alone, such as a helper's signature or a local refactoring."
@@ -14749,7 +14749,7 @@ msgstr "فقرة قصيرة تصف ما هي **برمجيات** هو. لا يج�
 
 # libretranslate
 msgid "A short-lived LibreTranslate container and a client for its HTTP API."
-msgstr "A short-lived LibreTranslate container and a client for its HTTP API."
+msgstr ""
 
 msgid "A sidecar ``web-app-keycloak`` oauth2-proxy authenticates the visitor against Keycloak (OIDC, or LDAP federated through Keycloak) and nginx overwrites the ``X-Forwarded-*`` identity headers on every proxied request."
 msgstr ""
@@ -14793,7 +14793,7 @@ msgstr "ارتكاب واحد (أو سلسلة ضيقة ذات صلة) يُسق�
 
 # libretranslate
 msgid "A single entry a catalog adapter surfaced for relevance + version review."
-msgstr "A single entry a catalog adapter surfaced for relevance + version review."
+msgstr ""
 
 # libretranslate
 msgid "A single grammar covers every per-line, per-block, and per-file opt-out across the test suite. See ``docs/contributing/actions/testing/suppression.md`` for the catalog of valid rule keys, their placement, and the test that consumes each."
@@ -14851,7 +14851,7 @@ msgstr "وسجل متفوق يبقى في مكانه مع تغير مركزه و
 
 # libretranslate
 msgid "A supported native MCP endpoint with an enforceable tool policy."
-msgstr "A supported native MCP endpoint with an enforceable tool policy."
+msgstr ""
 
 # libretranslate
 msgid "A suppression marker is a comment carrying one or more rule keys:"
@@ -15253,7 +15253,7 @@ msgstr "نشيطة GNOME Shell تمديدات عن طريق العضلات."
 
 # libretranslate
 msgid "Activates buffering for advanced features such as Lua-based string replacements."
-msgstr "Activates buffering for advanced features such as Lua-based string replacements."
+msgstr ""
 
 # libretranslate
 msgid "Activates only when you enable the ``javascript`` feature for a given application, keeping your server blocks clean and performant."
@@ -15930,11 +15930,11 @@ msgstr "الأدوار والخدمات المؤثرة"
 
 # libretranslate
 msgid "Affected auth, TLS, permissions, secrets, headers, or exposed surfaces:"
-msgstr "Affected auth, TLS, permissions, secrets, headers, or exposed surfaces:"
+msgstr ""
 
 # libretranslate
 msgid "Affected auth, TLS, permissions, secrets, services, or exposed surfaces:"
-msgstr "Affected auth, TLS, permissions, secrets, services, or exposed surfaces:"
+msgstr ""
 
 # libretranslate
 msgid "Affected permissions, destructive actions, secrets, or safety guardrails:"
@@ -16387,7 +16387,7 @@ msgstr "جميع المعايير (`- [x]`)."
 
 # libretranslate
 msgid "All deployment roles, Ansible tasks, and programs that run inside a deployed system MUST be compatible with the following distributions."
-msgstr "All deployment roles, Ansible tasks, and programs that run inside a deployed system MUST be compatible with the following distributions."
+msgstr ""
 
 # libretranslate
 msgid "All headings MUST use sentence-case (capitalize only the first word and proper nouns)."
@@ -17117,7 +17117,7 @@ msgstr "ملفوفة عن النظرات ``utils.roles.meta_lookup.iter_roles_wi
 
 # libretranslate
 msgid "Ansible lookup: unified SSO state for a consumer role."
-msgstr "Ansible lookup: unified SSO state for a consumer role."
+msgstr ""
 
 # libretranslate
 msgid "Ansible only auto-loads `meta/main.yml`. Every other `meta/<topic>.yml` is read by the project's own loaders (`utils/cache/applications.py`, `utils/cache/users.py`, `utils/manager/inventory.py`)."
@@ -17180,7 +17180,7 @@ msgstr "Ansible, pip and gcc run **بالداخل** الحاوية، ليس عل
 
 # libretranslate
 msgid "Ansible: Ensure that Ansible is installed on your system to run this playbook."
-msgstr "Ansible: Ensure that Ansible is installed on your system to run this playbook."
+msgstr ""
 
 # libretranslate
 msgid "Answer the development-runtime matrix questions from the distro SPOT."
@@ -17560,7 +17560,7 @@ msgstr "Arch Linux"
 
 # libretranslate
 msgid "Arch Linux with Docker, Compose, and NGINX roles pre-installed"
-msgstr "Arch Linux with Docker, Compose, and NGINX roles pre-installed"
+msgstr ""
 
 # libretranslate
 msgid "Arch Linux → ``openssh``"
@@ -17834,7 +17834,7 @@ msgstr "مساعد عبر `integration_openai`"
 
 # libretranslate
 msgid "Associations, NGOs, and online communities looking to build independent digital spaces."
-msgstr "Associations, NGOs, and online communities looking to build independent digital spaces."
+msgstr ""
 
 # libretranslate
 msgid "Assuming every job burns its full timeout is deliberately pessimistic — no job can outlast it — so the estimate can only overshoot the real drain time. With the current constants that is 4 waves of 20 runners, so 80 rows per chunk, and the last job of a chunk starts around t=18h, well inside the 24h window."
@@ -17944,7 +17944,7 @@ msgstr "الأسبقية"
 
 # libretranslate
 msgid "Auth, proxy, TLS, networking, migrations, and shared abstractions MUST receive extra review attention."
-msgstr "Auth, proxy, TLS, networking, migrations, and shared abstractions MUST receive extra review attention."
+msgstr ""
 
 msgid "Authenticates the mirror job against Docker Hub, which raises the anonymous pull-rate limit the mirror would otherwise hit."
 msgstr ""
@@ -18112,7 +18112,7 @@ msgstr "مرحلة التشغيل الآلي *sys-service* (وحدات متوق�
 
 # libretranslate
 msgid "Automatically Request Copilot Review ✅"
-msgstr "Automatically Request Copilot Review ✅"
+msgstr ""
 
 # libretranslate
 msgid "Automatically adapts to your inventory names"
@@ -18377,7 +18377,7 @@ msgstr "خط الأساس وطريق الإنعاش."
 
 # libretranslate
 msgid "Baseline and recovery path; purges entities first."
-msgstr "Baseline and recovery path; purges entities first."
+msgstr ""
 
 # libretranslate
 msgid "Baseline scenarios (reachability, CSP, canonical-domain DOM assertion, logged-out final state) MUST NOT gate on any service. A deploy with every shared service disabled MUST still leave a passing baseline suite."
@@ -18783,7 +18783,7 @@ msgstr "إعدام القفل حتى توقفت خدمات محددة"
 
 # libretranslate
 msgid "Bloggers, podcasters, and media companies seeking independent publishing infrastructure."
-msgstr "Bloggers, podcasters, and media companies seeking independent publishing infrastructure."
+msgstr ""
 
 # libretranslate
 msgid "Blue-ray Disc"
@@ -19162,7 +19162,7 @@ msgstr "تطبيق العجلات الدوارة على الحشد لاتخاذ 
 
 # libretranslate
 msgid "Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy"
-msgstr "Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy"
+msgstr ""
 
 # libretranslate
 msgid "Buckets, users, access keys, and fine-grained policies"
@@ -19570,7 +19570,7 @@ msgstr "مفتاح الصراخ `(str(Path(path).resolve()), st_mtime_ns, st_siz
 
 # libretranslate
 msgid "CDN helper role for building a consistent asset tree, URLs, and on-disk layout."
-msgstr "CDN helper role for building a consistent asset tree, URLs, and on-disk layout."
+msgstr ""
 
 # libretranslate
 msgid "CI"
@@ -19670,7 +19670,7 @@ msgstr ""
 
 # libretranslate
 msgid "CI images MUST exist for every declared distribution on every run, since any row may draw any of them."
-msgstr "CI images MUST exist for every declared distribution on every run, since any row may draw any of them."
+msgstr ""
 
 # libretranslate
 msgid "CI images 🐳"
@@ -19724,7 +19724,7 @@ msgstr "CI ✓"
 
 # libretranslate
 msgid "CI workflows fully mirror-aware with strict env validation"
-msgstr "CI workflows fully mirror-aware with strict env validation"
+msgstr ""
 
 # libretranslate
 msgid "CI 🤖"
@@ -19784,7 +19784,7 @@ msgstr "حزمة نقاط الدخول لنسخ صور دوكر"
 
 # libretranslate
 msgid "CLI entry point package for declared version-source updates."
-msgstr "CLI entry point package for declared version-source updates."
+msgstr ""
 
 # libretranslate
 msgid "CLI entry point package for git repository ref updates."
@@ -19799,7 +19799,7 @@ msgstr ""
 
 # libretranslate
 msgid "CLI entry point package for retuning the preferred collection source."
-msgstr "CLI entry point package for retuning the preferred collection source."
+msgstr ""
 
 # libretranslate
 msgid "CLI mint helper"
@@ -19849,7 +19849,7 @@ msgstr "CSP, `domains`.. `status_codes`, بالإضافة إلى `networks.local
 
 # libretranslate
 msgid "CSP-aware reverse proxy integration"
-msgstr "CSP-aware reverse proxy integration"
+msgstr ""
 
 # libretranslate
 msgid "CSP3-aware: supports base/elem/attr for styles and scripts."
@@ -21939,7 +21939,7 @@ msgstr "ملفوف متوافق"
 
 # libretranslate
 msgid "Compatible with SPAs and dynamically generated content."
-msgstr "Compatible with SPAs and dynamically generated content."
+msgstr ""
 
 # libretranslate
 msgid "Compatible with the Infinito.Nexus role and metadata system"
@@ -22105,7 +22105,7 @@ msgstr "خلاصة التوصية Xms in MB using: Xms = min("
 
 # libretranslate
 msgid "Compute recommended JVM Xmx in MB using: Xmx = min("
-msgstr "Compute recommended JVM Xmx in MB using: Xmx = min("
+msgstr ""
 
 # libretranslate
 msgid "Compute recommended Redis `maxmemory` in MB."
@@ -22117,11 +22117,11 @@ msgstr "النطاق النهائي `git diff --name-only origin/main...<branch>
 
 # libretranslate
 msgid "Compute the canonical OIDC group path for an application role."
-msgstr "Compute the canonical OIDC group path for an application role."
+msgstr ""
 
 # libretranslate
 msgid "Compute the compose-resource footprint of a role and its shared dependencies."
-msgstr "Compute the compose-resource footprint of a role and its shared dependencies."
+msgstr ""
 
 # libretranslate
 msgid "Computed fallbacks are not independent. `_compute` reads earlier keys from the in-progress `resolved` dict, so the declaration order in `RESOLUTION_ORDER` matters:"
@@ -22310,7 +22310,7 @@ msgstr "المقررات المؤكدة"
 
 # libretranslate
 msgid "Confirmed against upstream documentation, each accepting a custom OpenAI-compatible base URL:"
-msgstr "Confirmed against upstream documentation, each accepting a custom OpenAI-compatible base URL:"
+msgstr ""
 
 # libretranslate
 msgid "Confirming the `groups` claim 🧾"
@@ -22515,7 +22515,7 @@ msgstr "إدارة موارد الحاويات: تُعلن خدمات الإدا
 
 # libretranslate
 msgid "Container-Owned Filesystem Entries 🐳"
-msgstr "Container-Owned Filesystem Entries 🐳"
+msgstr ""
 
 # libretranslate
 msgid "Container-local cleanup helpers under `scripts/container/purge/`."
@@ -23066,7 +23066,7 @@ msgstr "Create/end meeting, DNS blocking changes, playbook/Terraform/shell يت�
 
 # libretranslate
 msgid "Create/open a timestamped log file inside log_dir."
-msgstr "Create/open a timestamped log file inside log_dir."
+msgstr ""
 
 # libretranslate
 msgid "Created in 2023 by [Kevin Veen-Birkenbach](https://www.veen.world/)"
@@ -23462,7 +23462,7 @@ msgstr "قرارات الجمعية العامة `172.30.0.4` للمضيفين `
 
 # libretranslate
 msgid "DNS-hijack + frontend HTTPS + runner CA-trust"
-msgstr "DNS-hijack + frontend HTTPS + runner CA-trust"
+msgstr ""
 
 # libretranslate
 msgid "DOMAIN_PRIMARY (apex), defaults_networks.internet.ip4, optional defaults_networks.internet.ip6"
@@ -23482,7 +23482,7 @@ msgstr "لوحة"
 
 # libretranslate
 msgid "Dashboard Integration Scope Tests 🎛️"
-msgstr "Dashboard Integration Scope Tests 🎛️"
+msgstr ""
 
 # libretranslate
 msgid "Dashboard w/Live Data"
@@ -23840,7 +23840,7 @@ msgstr "السياسة غير المباشرة لكل نوع."
 
 # libretranslate
 msgid "Default redeploy after a local code change:"
-msgstr "Default redeploy after a local code change:"
+msgstr ""
 
 # libretranslate
 msgid "Default state"
@@ -24403,7 +24403,7 @@ msgstr "نشرات Unbound حاوية في IP ثابت على تلك الشبك�
 
 # libretranslate
 msgid "Deploys and configures a systemd unit"
-msgstr "Deploys and configures a systemd unit"
+msgstr ""
 
 # libretranslate
 msgid "Deploys every app from an existing inventory."
@@ -24427,7 +24427,7 @@ msgstr "ينشر قطعة واحدة من المسح. كل صف مصفوفة ه�
 
 # libretranslate
 msgid "Deploys service and reloads/restarts it on changes."
-msgstr "Deploys service and reloads/restarts it on changes."
+msgstr ""
 
 # libretranslate
 msgid "Deploys the universal logout service container based on the official [universal-logout GitHub repository](https://github.com/kevinveenbirkenbach/universal-logout)."
@@ -24614,7 +24614,7 @@ msgstr "مصممة لتدار مرة واحدة لكل مضيف لتوفير ا�
 
 # libretranslate
 msgid "Designed to be used as the Front Channel Logout URL for Keycloak or other OpenID Connect providers, enabling a seamless, service-spanning logout experience."
-msgstr "Designed to be used as the Front Channel Logout URL for Keycloak or other OpenID Connect providers, enabling a seamless, service-spanning logout experience."
+msgstr ""
 
 # libretranslate
 msgid "Desk-bluray-player Role"
@@ -24786,7 +24786,7 @@ msgstr "التحديد 🧪"
 
 # libretranslate
 msgid "Deterministic compose behavior across local, CI, and containerized environments"
-msgstr "Deterministic compose behavior across local, CI, and containerized environments"
+msgstr ""
 
 # libretranslate
 msgid "Deterministic strategy:"
@@ -24906,7 +24906,7 @@ msgstr "نشر مصفوفة التنمية"
 
 # libretranslate
 msgid "Development or test environments without Mailu."
-msgstr "Development or test environments without Mailu."
+msgstr ""
 
 # libretranslate
 msgid "Diagnose CLI orchestration."
@@ -25125,7 +25125,7 @@ msgstr "اسم التلاعب"
 
 # libretranslate
 msgid "Displays and outputs the generated public SSH key."
-msgstr "Displays and outputs the generated public SSH key."
+msgstr ""
 
 # libretranslate
 msgid "Disposition"
@@ -25257,7 +25257,7 @@ msgstr "Docker Compose"
 
 # libretranslate
 msgid "Docker Compose Certificate Sync Service"
-msgstr "Docker Compose Certificate Sync Service"
+msgstr ""
 
 # libretranslate
 msgid "Docker Compose Tooling 🐳"
@@ -25544,7 +25544,7 @@ msgstr "الوحدات الرئيسية:"
 
 # libretranslate
 msgid "Domain-name cache: canonical-domains map derived from merged apps."
-msgstr "Domain-name cache: canonical-domains map derived from merged apps."
+msgstr ""
 
 # libretranslate
 msgid "Dotenv-safe quote, switched on DEPLOYMENT_MODE from the render context."
@@ -25748,11 +25748,11 @@ msgstr "كل واحد `test()` يُدير في سياقه المنعزل لا ي
 
 # libretranslate
 msgid "Each additional MCP server role SHOULD land in a focused commit or PR when it can be validated independently."
-msgstr "Each additional MCP server role SHOULD land in a focused commit or PR when it can be validated independently."
+msgstr ""
 
 # libretranslate
 msgid "Each additional role SHOULD land in a focused commit or PR when it can be validated independently."
-msgstr "Each additional role SHOULD land in a focused commit or PR when it can be validated independently."
+msgstr ""
 
 # libretranslate
 msgid "Each addon lives in its own file `meta/addons/<addon_id>.yml`: **the file root IS the addon spec, there is NO wrapping `<addon_id>:` key, and the filename stem supplies the addon id.** All files in the directory are collected into `applications.<role_id>.addons`, keyed by `<addon_id>`. The materialised path is `applications.<role_id>.addons.<addon_id>`, read via `lookup('config', application_id, 'addons.<addon_id>')`."
@@ -25984,7 +25984,7 @@ msgstr "كل ملف شفرة يحتوي `all.sh` لكل طلب مكتشف و م�
 
 # libretranslate
 msgid "Eager placeholder substitution for cached user dicts."
-msgstr "Eager placeholder substitution for cached user dicts."
+msgstr ""
 
 # libretranslate
 msgid "Earlier revisions gated these blocks on ``services.sso.enabled``, which unblocked the personas in exactly the variant where the chain still does not work."
@@ -26325,11 +26325,11 @@ msgstr "Enables HTML/body manipulation (للدمى بالحقن، والمحلل
 
 # libretranslate
 msgid "Enables and starts/restarts each service."
-msgstr "Enables and starts/restarts each service."
+msgstr ""
 
 # libretranslate
 msgid "Enables browser-side and proxy-side caching for efficient delivery."
-msgstr "Enables browser-side and proxy-side caching for efficient delivery."
+msgstr ""
 
 # libretranslate
 msgid "Enables secure login via OpenID Connect (OIDC).   Plugin used: [daggerhart-openid-connect-generic](https://wordpress.org/plugins/daggerhart-openid-connect-generic/)"
@@ -26341,7 +26341,7 @@ msgstr "Enables systemd as the WSL2 النظام الداخلي بالكتابة
 
 # libretranslate
 msgid "Enabling self-hosted runners in the org"
-msgstr "Enabling self-hosted runners in the org"
+msgstr ""
 
 # libretranslate
 msgid "Encode role ids to display names and back, for one repository tree."
@@ -26533,7 +26533,7 @@ msgstr ":: ضمان ألا تؤدي مهام الجيل والعرض الرئي�
 
 # libretranslate
 msgid "Ensures the CLI is available system-wide"
-msgstr "Ensures the CLI is available system-wide"
+msgstr ""
 
 # libretranslate
 msgid "Ensures the HTTPS base via ``sys-svc-webserver-https``"
@@ -26592,7 +26592,7 @@ msgstr ""
 
 # libretranslate
 msgid "Enterprises, research teams, and regulated organizations that need AI capabilities without sending data to external clouds."
-msgstr "Enterprises, research teams, and regulated organizations that need AI capabilities without sending data to external clouds."
+msgstr ""
 
 # libretranslate
 msgid "Enters the push-entry concurrency group for the deleted branch so that any in-flight run on it is cancelled; a fallback step cancels remaining runs via the API."
@@ -26738,7 +26738,7 @@ msgstr "إدارة متغيرات البيئة عن طريق جينجا2 الن�
 
 # libretranslate
 msgid "Environments gate deployment secrets and required reviewers; weakening them exposes secrets to additional workflows."
-msgstr "Environments gate deployment secrets and required reviewers; weakening them exposes secrets to additional workflows."
+msgstr ""
 
 # libretranslate
 msgid "Ephemeral development environments"
@@ -26781,7 +26781,7 @@ msgstr "EspoCRM"
 
 # libretranslate
 msgid "Essential repository files covering agent rules, support, security, and community standards."
-msgstr "Essential repository files covering agent rules, support, security, and community standards."
+msgstr ""
 
 # libretranslate
 msgid "Ethics"
@@ -27291,7 +27291,7 @@ msgstr "مثال:"
 
 # libretranslate
 msgid "Example: Delete all private mirror packages for infinito-nexus-core 🧹"
-msgstr "Example: Delete all private mirror packages for infinito-nexus-core 🧹"
+msgstr ""
 
 # libretranslate
 msgid "Example: `ghcr.io/kevinveenbirkenbach/infinito-nexus-core/mirror/docker.io/nextcloud:production-fpm-alpine`"
@@ -27323,7 +27323,7 @@ msgstr "أمثلة على مواضيع مناسبة للقنوات العامة:
 
 # libretranslate
 msgid "Examples of topics that MUST stay internal:"
-msgstr "Examples of topics that MUST stay internal:"
+msgstr ""
 
 # libretranslate
 msgid "Examples ✅"
@@ -27375,7 +27375,7 @@ msgstr "Execute (أو استعراض أولي) الخطوات التي اتخذ�
 
 # libretranslate
 msgid "Execute PHP artisan commands in the following order for updating Akaunting:"
-msgstr "Execute PHP artisan commands in the following order for updating Akaunting:"
+msgstr ""
 
 # libretranslate
 msgid "Execute SQL commands"
@@ -27390,7 +27390,7 @@ msgstr ""
 
 # libretranslate
 msgid "Execute autonomously; open a clarification only when a decision is genuinely ambiguous and blocking."
-msgstr "Execute autonomously; open a clarification only when a decision is genuinely ambiguous and blocking."
+msgstr ""
 
 # libretranslate
 msgid "Execute autonomously; the Confirmed Decisions are settled. Scaffold from [`roles/web-app-semaphore/`](../../roles/web-app-semaphore/) for the native-OIDC + LDAP + Prometheus shape, and from [`roles/svc-db-elasticsearch/tasks/01_init.yml`](../../roles/svc-db-elasticsearch/tasks/01_init.yml) for the in-container configuration pattern that keeps credentials out of process arguments."
@@ -27580,7 +27580,7 @@ msgstr "توسيع نطاق التغطية بالوحدة، والتغطية ب�
 
 # libretranslate
 msgid "Expanded shared platform integrations for SMTP, Prometheus / native metrics, OIDC, LDAP, and role-based RBAC provisioning"
-msgstr "Expanded shared platform integrations for SMTP, Prometheus / native metrics, OIDC, LDAP, and role-based RBAC provisioning"
+msgstr ""
 
 # libretranslate
 msgid "Expected Behavior"
@@ -27655,7 +27655,7 @@ msgstr "Expose app-specific base URLs, issuer URLs, feature flags, and accredita
 
 # libretranslate
 msgid "Expose the status codes that prove a domain is served to templates."
-msgstr "Expose the status codes that prove a domain is served to templates."
+msgstr ""
 
 # libretranslate
 msgid "Exposes ``tasks/utils/debug.yml`` as the canonical Ansible wrapper around that script."
@@ -27667,11 +27667,11 @@ msgstr "النفقات `tasks/utils/debug.yml` كغطاء لامع حول ذلك
 
 # libretranslate
 msgid "Exposes changes to all repository collaborators and CI."
-msgstr "Exposes changes to all repository collaborators and CI."
+msgstr ""
 
 # libretranslate
 msgid "Exposes the discovered registry and ordered provider list to Ansible"
-msgstr "Exposes the discovered registry and ordered provider list to Ansible"
+msgstr ""
 
 # libretranslate
 msgid "Exposure"
@@ -27690,7 +27690,7 @@ msgstr "توسيع نطاق الخدمات المشتركة، أو الطرد، 
 
 # libretranslate
 msgid "Extend bootstrap or deployment behavior for a server-facing application"
-msgstr "Extend bootstrap or deployment behavior for a server-facing application"
+msgstr ""
 
 # libretranslate
 msgid "Extend desktop integration, shell tooling, or user defaults"
@@ -28435,7 +28435,7 @@ msgstr "مرآة للنشر، وتوقيت النشر، والمناولة ال�
 
 # libretranslate
 msgid "Fixed GHCR namespace lowercasing edge cases in image-related workflows"
-msgstr "Fixed GHCR namespace lowercasing edge cases in image-related workflows"
+msgstr ""
 
 msgid "Fixed Joomla admin-password handling ($ no longer eaten by bash), plugin manifest waits, and Playwright login hardening"
 msgstr ""
@@ -28462,7 +28462,7 @@ msgstr ""
 
 # libretranslate
 msgid "Fixed OpenCloud / OpenTalk Playwright OIDC scenarios; added the OpenTalk recorder; fixed OpenCloud SPA wait after the OIDC callback"
-msgstr "Fixed OpenCloud / OpenTalk Playwright OIDC scenarios; added the OpenTalk recorder; fixed OpenCloud SPA wait after the OIDC callback"
+msgstr ""
 
 # libretranslate
 msgid "Fixed PR / branch cancellation behavior, branch-scope CI gating, fork prerequisite handling, and several GitHub Actions orchestration edge cases"
@@ -29302,11 +29302,11 @@ msgstr "For the LDAP changing tree, DN layout, attribute SPOT, and the rules for
 
 # libretranslate
 msgid "For the OIDC plugin source and its environment contract see [README.md](./files/joomla-oidc-plugin/README.md)."
-msgstr "For the OIDC plugin source and its environment contract see [README.md](./files/joomla-oidc-plugin/README.md)."
+msgstr ""
 
 # libretranslate
 msgid "For the OIDC plugin source and its environment contract see `README.md <./files/joomla-oidc-plugin/README.md>`__."
-msgstr "For the OIDC plugin source and its environment contract see `README.md <./files/joomla-oidc-plugin/README.md>`__."
+msgstr ""
 
 # libretranslate
 msgid "For the OIDC variable tree, claim rules, and the policy that app-specific protocol mappers belong in per-client scope files (not in the shared ``clients/default.json.j2``), see `oidc.md <../../docs/contributing/design/iam/oidc.md>`__."
@@ -29460,7 +29460,7 @@ msgstr "لدليل سير العمل الذي يقود هذه المكالمات
 
 # libretranslate
 msgid "For vulnerability reporting and disclosure, see [SECURITY.md](SECURITY.md)."
-msgstr "For vulnerability reporting and disclosure, see [SECURITY.md](SECURITY.md)."
+msgstr ""
 
 # libretranslate
 msgid "For when a spec MUST be added or updated (including the `javascript.js` / `style.css` trigger), see the Scenarios section of [`playwright.spec.js`](../../artefact/files/role/playwright.specs.js.md#scenarios-)."
@@ -29524,7 +29524,7 @@ msgstr "مزامنة الشوكة الرئيسية، تدفق العمل بال�
 
 # libretranslate
 msgid "Fork, PR, release, or scheduled paths affected:"
-msgstr "Fork, PR, release, or scheduled paths affected:"
+msgstr ""
 
 msgid "Fork-PR CI hardening (follow-up to the 11.1.0 trusted-fork flow): the privileged *pull_request_target* image producer and mirror now set *allow-unsafe-pr-checkout* so *actions/checkout* stops refusing the merged fork ref it had begun rejecting. Untrusted fork builds run without organization secrets — they authenticate to GHCR with the per-job *GITHUB_TOKEN* only and mirror Docker Hub anonymously — while the maintainer-trusted path keeps full credentials and builds the raw PR head. The trust switch moved to the *🛡️ Trusted* label. See [the fork-PR pipeline](docs/contributing/artefact/git/pipeline.md) and [the GHCR authentication reference](docs/contributing/tools/ghcr/authentication.md)."
 msgstr ""
@@ -30197,7 +30197,7 @@ msgstr "Global CSS Injection for NGINX"
 
 # libretranslate
 msgid "Global JavaScript Injector for NGINX"
-msgstr "Global JavaScript Injector for NGINX"
+msgstr ""
 
 # libretranslate
 msgid "Global bucket order:"
@@ -30395,7 +30395,7 @@ msgstr "HTTP CA trust (infinito-http-ca-trust.php) 🔐"
 
 # libretranslate
 msgid "HTTP onion SOCKS (infinito-http-onion-socks.php) 🧅"
-msgstr "HTTP onion SOCKS (infinito-http-onion-socks.php) 🧅"
+msgstr ""
 
 # libretranslate
 msgid "HTTP status codes for a deployed domain."
@@ -30466,7 +30466,7 @@ msgstr "اكتمال أسلاك اليدين"
 
 # libretranslate
 msgid "Handles both standard restarts and hard restarts for specific containers (e.g., for Mailu)."
-msgstr "Handles both standard restarts and hard restarts for specific containers (e.g., for Mailu)."
+msgstr ""
 
 # libretranslate
 msgid "Hard guarantees:"
@@ -30883,7 +30883,7 @@ msgstr "كيف يتم تجميع قائمة جرد قابلة للانقراض �
 
 # libretranslate
 msgid "How an NFS-backed volume is captured exactly once and restored only through its mounted backing store:"
-msgstr "How an NFS-backed volume is captured exactly once and restored only through its mounted backing store:"
+msgstr ""
 
 # libretranslate
 msgid "How do login, logout, proxying, storage, or mail integration behave after this change?"
@@ -31096,7 +31096,7 @@ msgstr "INFINITO_DOCKER_PLATFORM: الهدف من الهيكل الذي تم ن�
 
 # libretranslate
 msgid "INFINITO_DOCKER_VOLUME: GHA-side override pointing at the runner's large-disk mount."
-msgstr "INFINITO_DOCKER_VOLUME: GHA-side override pointing at the runner's large-disk mount."
+msgstr ""
 
 # libretranslate
 msgid "INFINITO_DOMAIN: ``<stack>.<INFINITO_DNS_DOMAIN>``, where the stack is ``main`` for the primary checkout and the normalised branch for a linked git worktree. Always overrides the caller env, which inside the stack container is the previous ``.env``; GitHub/act runs keep the static default and custom.env pins win."
@@ -31123,7 +31123,7 @@ msgstr "INFINITO_IS_WSL2: صحيح عندما يحدد المنتج/التحوي
 
 # libretranslate
 msgid "INFINITO_OUTER_NETWORK_MTU: MTU of the compose stack's bridge network."
-msgstr "INFINITO_OUTER_NETWORK_MTU: MTU of the compose stack's bridge network."
+msgstr ""
 
 # libretranslate
 msgid "INFINITO_PARENT_IMAGE: distribution base image reference composed from INFINITO_PARENT_IMAGE_OWNER, INFINITO_DISTRO and INFINITO_PARENT_IMAGE_TAG."
@@ -31159,7 +31159,7 @@ msgstr "INFINITO_RUNNING_ON_GITHUB: حقيقي عندما يركض على عمل
 
 # libretranslate
 msgid "INFINITO_SWARM_NFS_EXPORT_BASE: NFS export base inside the NFS-server sidecar, read from the provider SPOT roles/svc-storage-nfs-server/meta/services.yml."
-msgstr "INFINITO_SWARM_NFS_EXPORT_BASE: NFS export base inside the NFS-server sidecar, read from the provider SPOT roles/svc-storage-nfs-server/meta/services.yml."
+msgstr ""
 
 # libretranslate
 msgid "INFINITO_SWARM_NFS_STATE_PATH: cluster-shared NFS state dir for the act-swarm test harness, derived from the export-base SPOT (INFINITO_SWARM_NFS_EXPORT_BASE) and the shared state subdir constant."
@@ -31175,11 +31175,11 @@ msgstr "INFINITO_WORKER_CPU * 20, مع قاعدة 1 ينهار 1 (إشارة ا�
 
 # libretranslate
 msgid "INFINITO_WORKER_CPU: CPU-count base for the worker SPOT chain."
-msgstr "INFINITO_WORKER_CPU: CPU-count base for the worker SPOT chain."
+msgstr ""
 
 # libretranslate
 msgid "INFINITO_WORKER_FETCH: I/O-bound network-fetch worker count."
-msgstr "INFINITO_WORKER_FETCH: I/O-bound network-fetch worker count."
+msgstr ""
 
 # libretranslate
 msgid "INIT_CONTAINER: 'service_completed_successfully'}) }}"
@@ -31191,7 +31191,7 @@ msgstr "بوابة IPAM لشبكة جسر القصور."
 
 # libretranslate
 msgid "IPAM subnet for the default bridge network."
-msgstr "IPAM subnet for the default bridge network."
+msgstr ""
 
 # libretranslate
 msgid "IPv4 network in CIDR notation, e.g. ``192.168.24.0/24``."
@@ -31233,7 +31233,7 @@ msgstr "Idea"
 
 # libretranslate
 msgid "Ideal for AI stacks: datasets, embeddings, and artifacts"
-msgstr "Ideal for AI stacks: datasets, embeddings, and artifacts"
+msgstr ""
 
 # libretranslate
 msgid "Ideal for developers and content creators, the role simplifies deploying a dedicated icon server. It automates container setup, configuration, and routing, ensuring reliable, quick access to icons. Easily integrate scalable icons into your projects without managing individual asset files."
@@ -31245,7 +31245,7 @@ msgstr "الحياد 🔁"
 
 # libretranslate
 msgid "Idempotency, compatibility, or rollout concerns:"
-msgstr "Idempotency, compatibility, or rollout concerns:"
+msgstr ""
 
 msgid "Idempotent ``.env`` loader for Python CLI entry-points."
 msgstr ""
@@ -31264,7 +31264,7 @@ msgstr "المصداقية: لا يغير اسم النظام إلا إذا كا
 
 # libretranslate
 msgid "Idempotent: subsequent role runs reuse the populated cache volume."
-msgstr "Idempotent: subsequent role runs reuse the populated cache volume."
+msgstr ""
 
 # libretranslate
 msgid "Idempotently configures `origin`, `fork`, `main`-tracking, and the push-routing keys above."
@@ -31315,7 +31315,7 @@ msgstr "الهوية والترخيص وشروط الإثبات"
 
 # libretranslate
 msgid "Identity-based secrets, PKI and encryption manager with OIDC login, group-mapped policies and static-seal auto-unseal"
-msgstr "Identity-based secrets, PKI and encryption manager with OIDC login, group-mapped policies and static-seal auto-unseal"
+msgstr ""
 
 # libretranslate
 msgid "If CI fails, follow a clean debugging workflow:"
@@ -32232,7 +32232,7 @@ msgstr "تحسين مجموعة الأدوات اللازمة لدور التش�
 
 # libretranslate
 msgid "Improve technical quality continuously."
-msgstr "Improve technical quality continuously."
+msgstr ""
 
 # libretranslate
 msgid "Improve workflow permissions, observability, or execution flow"
@@ -32326,7 +32326,7 @@ msgstr "في حالة عجز Nextcloud + إنشاء برنامج العمل ال
 
 # libretranslate
 msgid "In addition to the persona and CSP specs:"
-msgstr "In addition to the persona and CSP specs:"
+msgstr ""
 
 # libretranslate
 msgid "In addition to the templates, keep these repository-wide review rules in mind:"
@@ -32370,7 +32370,7 @@ msgstr "باختصار: `local.sh` يثبت أن الهارب يستطيع أن 
 
 # libretranslate
 msgid "In short: these files exist to help development move quickly without teaching the project to be careless around host security controls. ⚙️"
-msgstr "In short: these files exist to help development move quickly without teaching the project to be careless around host security controls. ⚙️"
+msgstr ""
 
 # libretranslate
 msgid "In swarm mode the `restart:` top-level service key is silently ignored because swarm replaces it with `deploy.restart_policy` (rendered by `roles/sys-svc-container/templates/deploy.yml.j2`). Emitting `restart:` under swarm produces an \"Ignoring unsupported options\" warning at `docker stack deploy` time and double-declares the intent."
@@ -32422,11 +32422,11 @@ msgstr "In-repo analogues"
 
 # libretranslate
 msgid "In-scope: LDAP scenario MUST be added"
-msgstr "In-scope: LDAP scenario MUST be added"
+msgstr ""
 
 # libretranslate
 msgid "In-scope: biber scenario MUST be added"
-msgstr "In-scope: biber scenario MUST be added"
+msgstr ""
 
 # libretranslate
 msgid "In-stack PDS URL for server-side XRPC calls (`http://pds:3000`); defaults to `PDS_URL` when unset."
@@ -32780,7 +32780,7 @@ msgstr "داخل الحاوية، تركيب محرر للنص وحرر الوص
 
 # libretranslate
 msgid "Inside the interactive shell, run the following commands:"
-msgstr "Inside the interactive shell, run the following commands:"
+msgstr ""
 
 # libretranslate
 msgid "Inspect LDAP Entries 🩺"
@@ -33188,7 +33188,7 @@ msgstr "وضع خطط لسجل الطرد"
 
 # libretranslate
 msgid "Install required Ansible collections via ansible-galaxy with retry + git fallback."
-msgstr "Install required Ansible collections via ansible-galaxy with retry + git fallback."
+msgstr ""
 
 # libretranslate
 msgid "Install shellcheck via system package manager."
@@ -33218,7 +33218,7 @@ msgstr "Install the PHP CLI via system package manager (صالون من طراز
 
 # libretranslate
 msgid "Install the PHP interpreter, Composer and the extensions PHPUnit needs."
-msgstr "Install the PHP interpreter, Composer and the extensions PHPUnit needs."
+msgstr ""
 
 # libretranslate
 msgid "Install the PHP toolchain and the Composer vendor tree."
@@ -33314,7 +33314,7 @@ msgstr ""
 
 # libretranslate
 msgid "Installs GnuCash finance management software on Pacman-based systems, ensuring the latest version is present."
-msgstr "Installs GnuCash finance management software on Pacman-based systems, ensuring the latest version is present."
+msgstr ""
 
 # libretranslate
 msgid "Installs Hunspell and configured language packs on Pacman-based systems for spell checking in multiple languages."
@@ -33363,7 +33363,7 @@ msgstr "تركيبات و تشكيلات كافيين نج لإبقاء الحا
 
 # libretranslate
 msgid "Installs caffeine-ng from the AUR using an AUR helper."
-msgstr "Installs caffeine-ng from the AUR using an AUR helper."
+msgstr ""
 
 # libretranslate
 msgid "Installs distro-specific base development packages:"
@@ -33415,7 +33415,7 @@ msgstr "حزمة تركيب: `openssl`"
 
 # libretranslate
 msgid "Installs project dependencies and runs the first repository setup."
-msgstr "Installs project dependencies and runs the first repository setup."
+msgstr ""
 
 msgid "Installs required packages (e.g. [lsof](https://en.wikipedia.org/wiki/Lsof) and [psutil](https://pypi.org/project/psutil/)) using pacman."
 msgstr ""
@@ -33506,7 +33506,7 @@ msgstr "وبدلاً من إعادة تسمية الميدلدر بأكمله م
 
 # libretranslate
 msgid "Instructions for manual administrative operations like container login, config file edits, and post-update recovery actions."
-msgstr "Instructions for manual administrative operations like container login, config file edits, and post-update recovery actions."
+msgstr ""
 
 # libretranslate
 msgid "Instructions replay 📖"
@@ -33518,7 +33518,7 @@ msgstr "Integrate seamlessly with complementary Ansible roles and web server for
 
 # libretranslate
 msgid "Integrate seamlessly with complementary roles for Docker Compose and web server management."
-msgstr "Integrate seamlessly with complementary roles for Docker Compose and web server management."
+msgstr ""
 
 # libretranslate
 msgid "Integrate the change into the following services when possible:"
@@ -33562,7 +33562,7 @@ msgstr "القائمة المرجعية للتكامل من أجل التطبي�
 
 # libretranslate
 msgid "Integration Over Forced Migration 🔗"
-msgstr "Integration Over Forced Migration 🔗"
+msgstr ""
 
 # libretranslate
 msgid "Integration Tests 🔗"
@@ -33993,7 +33993,7 @@ msgstr "عكس ذلك :func:`pad_version`. ``007.000.000`` ? ``7.0.0``."
 
 # libretranslate
 msgid "Invest in design and code quality on every change."
-msgstr "Invest in design and code quality on every change."
+msgstr ""
 
 # libretranslate
 msgid "Invest 💹"
@@ -34059,11 +34059,11 @@ msgstr "وهو يتكون تلقائيا:"
 
 # libretranslate
 msgid "It automatically discovers roles that ship a Playwright test project under:"
-msgstr "It automatically discovers roles that ship a Playwright test project under:"
+msgstr ""
 
 # libretranslate
 msgid "It can optionally exclude specific volumes from the check using a configurable whitelist."
-msgstr "It can optionally exclude specific volumes from the check using a configurable whitelist."
+msgstr ""
 
 # libretranslate
 msgid "It cannot: the CPU comes with the runner, which is chosen before the job starts."
@@ -34170,7 +34170,7 @@ msgstr "It provides a **نقطة دخول ثابتة ومفتوحة** لتنفي
 
 # libretranslate
 msgid "It provides a minimal and elegant interface to convert any text, URL, or message into a QR code directly in your browser, without external tracking or dependencies."
-msgstr "It provides a minimal and elegant interface to convert any text, URL, or message into a QR code directly in your browser, without external tracking or dependencies."
+msgstr ""
 
 # libretranslate
 msgid "It provides an open and decentralized way to play chess online, where games and moves are visible across the Fediverse."
@@ -34661,7 +34661,7 @@ msgstr ""
 
 # libretranslate
 msgid "Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to models through the shared LLM gateway"
-msgstr "Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to models through the shared LLM gateway"
+msgstr ""
 
 # libretranslate
 msgid "Kernel-isolating container runtimes that sandbox untrusted workloads in a microVM or a userspace kernel"
@@ -34669,7 +34669,7 @@ msgstr "تشغيل الحاويات المُعَزَّلة التي لا يُث�
 
 # libretranslate
 msgid "Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts"
-msgstr "Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts"
+msgstr ""
 
 # libretranslate
 msgid "Kevins Package Manager"
@@ -35155,7 +35155,7 @@ msgstr "LetsEncrypt TLS provider for sys-front-tls."
 
 # libretranslate
 msgid "Leverage MariaDB for secure and reliable data storage."
-msgstr "Leverage MariaDB for secure and reliable data storage."
+msgstr ""
 
 # libretranslate
 msgid "Leverages Ansible’s [`hostname`](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/hostname_module.html) module."
@@ -35370,11 +35370,11 @@ msgstr "إدراج الأدوار المؤثرة والخدمات ذات الص�
 
 # libretranslate
 msgid "List the impacted roles and shared components."
-msgstr "List the impacted roles and shared components."
+msgstr ""
 
 # libretranslate
 msgid "List the impacted roles and workstation context."
-msgstr "List the impacted roles and workstation context."
+msgstr ""
 
 # libretranslate
 msgid "List the impacted workflows and related automation."
@@ -36705,7 +36705,7 @@ msgstr "Matomo Token Not yet Available ⚠️"
 
 # libretranslate
 msgid "Matomo analytics platform set up and accessible."
-msgstr "Matomo analytics platform set up and accessible."
+msgstr ""
 
 # libretranslate
 msgid "Matomo endpoints (if services.matomo.enabled) for script-elem/connect"
@@ -36951,7 +36951,7 @@ msgstr "Meta-Layout Integration Tests 🗂️"
 
 # libretranslate
 msgid "Meta-introspection commands that report on roles, applications, services, networks, ports, Jinja templates, and call order across the repository."
-msgstr "Meta-introspection commands that report on roles, applications, services, networks, ports, Jinja templates, and call order across the repository."
+msgstr ""
 
 # libretranslate
 msgid "Metadata must be defined under:"
@@ -37386,7 +37386,7 @@ msgstr "سلوك محرك دوكر"
 
 # libretranslate
 msgid "More reliable analytics setup: Matomo is initialized automatically even if the service is unreachable or the API token is missing."
-msgstr "More reliable analytics setup: Matomo is initialized automatically even if the service is unreachable or the API token is missing."
+msgstr ""
 
 # libretranslate
 msgid "More reliable releases: versioned Docker images are always built and published; latest always points to the newest version."
@@ -37394,11 +37394,11 @@ msgstr "إصدارات أكثر موثوقية: صور دوكر المستنسخ
 
 # libretranslate
 msgid "More robust Nix installer on Debian, Ubuntu, Fedora and CentOS systems: stale nixbld users from earlier installation attempts are cleaned up before the multi-user installer runs, and a long-standing crash on hosts where the nixbld group is absent has been resolved."
-msgstr "More robust Nix installer on Debian, Ubuntu, Fedora and CentOS systems: stale nixbld users from earlier installation attempts are cleaned up before the multi-user installer runs, and a long-standing crash on hosts where the nixbld group is absent has been resolved."
+msgstr ""
 
 # libretranslate
 msgid "More stable updates: pkgmgr execution is more robust, especially in non-interactive environments and virtual environments."
-msgstr "More stable updates: pkgmgr execution is more robust, especially in non-interactive environments and virtual environments."
+msgstr ""
 
 # libretranslate
 msgid "Most application roles use Docker Compose for the running services."
@@ -37550,7 +37550,7 @@ msgstr "NFS driver block (المعالم المتعددة التي يمكن ال
 
 # libretranslate
 msgid "NFS export base from the provider SPOT: {{ lookup('nfs_export_base') }}."
-msgstr "NFS export base from the provider SPOT: {{ lookup('nfs_export_base') }}."
+msgstr ""
 
 # libretranslate
 msgid "NFS export base from the provider's services.yml SPOT."
@@ -37626,7 +37626,7 @@ msgstr "NGINX glue role for 301 Redirects from source to target domains with aut
 
 # libretranslate
 msgid "NGINX hot-reload if available, otherwise restart"
-msgstr "NGINX hot-reload if available, otherwise restart"
+msgstr ""
 
 # libretranslate
 msgid "NGINX installed on the target server."
@@ -37634,15 +37634,15 @@ msgstr "NGINX رُكبت على الخادم المستهدف."
 
 # libretranslate
 msgid "NGINX server blocks that permanently redirect www subdomains to their non-www apex domains"
-msgstr "NGINX server blocks that permanently redirect www subdomains to their non-www apex domains"
+msgstr ""
 
 # libretranslate
 msgid "NGINX vHost Templates: Basic vs. WebSocket (ws_generic)"
-msgstr "NGINX vHost Templates: Basic vs. WebSocket (ws_generic)"
+msgstr ""
 
 # libretranslate
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
-msgstr "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
+msgstr ""
 
 # libretranslate
 msgid "NGINX-based web platform and reverse proxy with validated config reloads and Let's Encrypt integration"
@@ -38072,7 +38072,7 @@ msgstr "يليق بنقطة نهاية للبروتوكول النموذجي ل�
 
 # libretranslate
 msgid "Nginx + SPA; public HTTP surface, proxies to backend/exporter."
-msgstr "Nginx + SPA; public HTTP surface, proxies to backend/exporter."
+msgstr ""
 
 # libretranslate
 msgid "Nginx-based content delivery network for serving shared static assets to internal web applications"
@@ -38171,7 +38171,7 @@ msgstr "لا مخبأ (المصدر هو خيط وليس طريق) - مخصص ل
 
 # libretranslate
 msgid "No changes required in application code."
-msgstr "No changes required in application code."
+msgstr ""
 
 # libretranslate
 msgid "No consumer addresses a backend directly"
@@ -38194,7 +38194,7 @@ msgstr "No external DB consumer (على عكس دور السيمافوري، ا�
 
 # libretranslate
 msgid "No external DB; internal SQLite under `/config`."
-msgstr "No external DB; internal SQLite under `/config`."
+msgstr ""
 
 # libretranslate
 msgid "No external dependencies"
@@ -38484,11 +38484,11 @@ msgstr "يخطر عن طريق النظام في حالة وقوع أخطاء أ
 
 # libretranslate
 msgid "Number of runner instances to provision."
-msgstr "Number of runner instances to provision."
+msgstr ""
 
 # libretranslate
 msgid "Number of runner instances; auto-scales to available CPU cores."
-msgstr "Number of runner instances; auto-scales to available CPU cores."
+msgstr ""
 
 # libretranslate
 msgid "Number of spaces every line BUT the first one is prefixed with. The first line has NO leading whitespace - the caller places ``{{ lookup('depends_on', …) }}`` at the desired column in the template, and Jinja substitution turns that template-side leading whitespace into line 1's indent. Lines 2+ then carry ``indent`` extra spaces (on top of the YAML-relative indent) so they align under line 1."
@@ -39003,7 +39003,7 @@ msgstr "مضيف واحد يدير الأسطول بأكمله: الدور يب�
 
 # libretranslate
 msgid "One integer CI setting, read through the shared env SPOT."
-msgstr "One integer CI setting, read through the shared env SPOT."
+msgstr ""
 
 # libretranslate
 msgid "One matrix row as the ``role#variant`` the sweep rotation cannot move."
@@ -39023,7 +39023,7 @@ msgstr "واحد من `external`.. `external_container`.. `localhost`.. `localho
 
 # libretranslate
 msgid "One package id, declared either repository-wide or by one role."
-msgstr "One package id, declared either repository-wide or by one role."
+msgstr ""
 
 # libretranslate
 msgid "One query per run, not one per deploy mode. Every row is a ``role#variant`` selection, so the row basis, the ranking and the budget cut all speak the same unit and the cut can select a subset of a role's variants. Which deploy mode a row actually runs in is decided afterwards by the rotation in ``utils.github.variant.bundles``; the query only decides which rows exist."
@@ -39648,7 +39648,7 @@ msgstr "This role ensures secure SSL/TLS certificate generation with minimal man
 
 # libretranslate
 msgid "Optimized for automated file system management, this role:"
-msgstr "Optimized for automated file system management, this role:"
+msgstr ""
 
 msgid "Optimized for automated task scheduling in a [systemd](https://en.wikipedia.org/wiki/Systemd) environment, this role:"
 msgstr ""
@@ -39679,7 +39679,7 @@ msgstr "تحقيق الاستخدام الأمثل للإدارة الفعالة
 
 # libretranslate
 msgid "Optimized for efficient caching and GZIP compression"
-msgstr "Optimized for efficient caching and GZIP compression"
+msgstr ""
 
 # libretranslate
 msgid "Optimized for efficient storage management, this role:"
@@ -40229,7 +40229,7 @@ msgstr "إجابة رقمية أعلى درجة Reuse for all subsequent deploym
 
 # libretranslate
 msgid "PHP toolchain provisioning for the PHP unit suite."
-msgstr "PHP toolchain provisioning for the PHP unit suite."
+msgstr ""
 
 msgid "PKGMGR will now be pulled again"
 msgstr ""
@@ -40318,7 +40318,7 @@ msgstr "آخر المستجدات"
 
 # libretranslate
 msgid "Package-Cache Frontend (TLS-terminating reverse proxy) 🔐"
-msgstr "Package-Cache Frontend (TLS-terminating reverse proxy) 🔐"
+msgstr ""
 
 # libretranslate
 msgid "Package-Cache Wiring 📦"
@@ -40830,7 +40830,7 @@ msgstr "المستعمل الواحد Nextcloud الحصص"
 
 # libretranslate
 msgid "Per-user OAuth for non-public data; no post, message, follow, moderation, or account mutation"
-msgstr "Per-user OAuth for non-public data; no post, message, follow, moderation, or account mutation"
+msgstr ""
 
 # libretranslate
 msgid "Per-user OAuth for non-public timelines; no status, follow, favorite, direct-message, moderation, or account mutation"
@@ -40838,7 +40838,7 @@ msgstr "Per-user OAuth for non-public timelines; no status, follow, preferred, d
 
 # libretranslate
 msgid "Per-user OAuth/app password for non-public data; no post, like, follow, moderation, or account mutation"
-msgstr "Per-user OAuth/app password for non-public data; no post, like, follow, moderation, or account mutation"
+msgstr ""
 
 # libretranslate
 msgid "Per-user access token and room membership; no cross-user service token, send, invite, kick, ban, power-level, or encryption-key action"
@@ -40910,7 +40910,7 @@ msgstr "يضاف إلى جميع الجهات المساهمة `settings.json` �
 
 # libretranslate
 msgid "Permissions, fork-safety, release, or security-sensitive concerns:"
-msgstr "Permissions, fork-safety, release, or security-sensitive concerns:"
+msgstr ""
 
 # libretranslate
 msgid "Permits a local `PROJECT_ROOT` / `parents[N]` / `os.pardir` chain. Reserved for `__main__.py` `sys.path` bootstrap and standalone scripts under `roles/<role>/files/`. The marker MUST carry an inline explanation."
@@ -41057,7 +41057,7 @@ msgstr "Pin"
 
 # libretranslate
 msgid "Pin a Moodle-compatible plugin, use an exact web-service function allowlist and restricted service user, and prove that unlisted functions cannot be invoked."
-msgstr "Pin a Moodle-compatible plugin, use an exact web-service function allowlist and restricted service user, and prove that unlisted functions cannot be invoked."
+msgstr ""
 
 # libretranslate
 msgid "Pin a matrix plan to a subset of rounds when `variants` is set."
@@ -41245,7 +41245,7 @@ msgstr "بلاي رايت (لكل فرد [playwright.spec.js العقد](../cont
 
 # libretranslate
 msgid "Playwright / E2E: biber First-Login Caveat"
-msgstr "Playwright / E2E: biber First-Login Caveat"
+msgstr ""
 
 # libretranslate
 msgid "Playwright Codegen (built-in) 🔧"
@@ -41461,7 +41461,7 @@ msgstr "PostgreSQL"
 
 # libretranslate
 msgid "PostgreSQL Docker Upgrade: Major Version Migration"
-msgstr "PostgreSQL Docker Upgrade: Major Version Migration"
+msgstr ""
 
 # libretranslate
 msgid "PostgreSQL data directories are **not compatible across major versions**. You cannot just point a newer version to the old data volume. You must export and re-import your data."
@@ -41537,7 +41537,7 @@ msgstr "الاختبارات المسبقة عن السلوك التي تتحق�
 
 # libretranslate
 msgid "Prefer deterministic outputs and avoid hidden global state."
-msgstr "Prefer deterministic outputs and avoid hidden global state."
+msgstr ""
 
 # libretranslate
 msgid "Prefer explicit behavior."
@@ -41545,7 +41545,7 @@ msgstr "تصرف صريح"
 
 # libretranslate
 msgid "Prefer explicit function/class APIs over implicit globals."
-msgstr "Prefer explicit function/class APIs over implicit globals."
+msgstr ""
 
 # libretranslate
 msgid "Prefer face-to-face or synchronous discussion when the decision is urgent or complex."
@@ -41584,7 +41584,7 @@ msgstr ""
 
 # libretranslate
 msgid "Prefer the smallest implementation that still satisfies the requirement and remains easy to maintain."
-msgstr "Prefer the smallest implementation that still satisfies the requirement and remains easy to maintain."
+msgstr ""
 
 # libretranslate
 msgid "Preferred Approach ✅"
@@ -41596,7 +41596,7 @@ msgstr "التكاملات المؤجلة"
 
 # libretranslate
 msgid "Preferred for stable, long-term community production deployments"
-msgstr "Preferred for stable, long-term community production deployments"
+msgstr ""
 
 # libretranslate
 msgid "Prefix"
@@ -41616,7 +41616,7 @@ msgstr "Prefixes MUST be unique and sequential without gaps. عندما تضيف
 
 # libretranslate
 msgid "Prefixes: shell that runs before a probe without judging the container."
-msgstr "Prefixes: shell that runs before a probe without judging the container."
+msgstr ""
 
 # libretranslate
 msgid "Premature action can make the result worse."
@@ -41656,7 +41656,7 @@ msgstr "عرض"
 
 # libretranslate
 msgid "Preserve the Community Edition licensing blocker. A future Enterprise variant must explicitly supply the edition/license and use a restricted OAuth application."
-msgstr "Preserve the Community Edition licensing blocker. A future Enterprise variant must explicitly supply the edition/license and use a restricted OAuth application."
+msgstr ""
 
 # libretranslate
 msgid "Preserve the role's base CSS so the application styling stays intact."
@@ -41809,11 +41809,11 @@ msgstr "Special repo on Free / Pro / Team"
 
 # libretranslate
 msgid "Probe the largest ICMP-DF payload that survives without fragmentation."
-msgstr "Probe the largest ICMP-DF payload that survives without fragmentation."
+msgstr ""
 
 # libretranslate
 msgid "Probes: one class per flavor, each deciding whether the container serves."
-msgstr "Probes: one class per flavor, each deciding whether the container serves."
+msgstr ""
 
 # libretranslate
 msgid "Problem this solves"
@@ -41877,7 +41877,7 @@ msgstr "البيانات الوصفية الداخلية للمشروع (أيك�
 
 # libretranslate
 msgid "Project-local plugin namespace for Python imports in tests and tooling."
-msgstr "Project-local plugin namespace for Python imports in tests and tooling."
+msgstr ""
 
 msgid "Project-managed Python virtualenvs (notably `~/.venvs/pkgmgr`, the editable-install target for `infinito-nexus` itself). Required so the pre-commit `make test` hook can refresh the editable install of this repository's Python package without hitting `[Errno 30] Read-only file system`. The directory holds only Python interpreters and packages, no host credentials."
 msgstr ""
@@ -41955,7 +41955,7 @@ msgstr "Propper implement and test the LDAP integration, the formation values ju
 
 # libretranslate
 msgid "Proprietary API credential SPOT, read from group_vars/all/18_api.yml."
-msgstr "Proprietary API credential SPOT, read from group_vars/all/18_api.yml."
+msgstr ""
 
 # libretranslate
 msgid "Proprietary API credentials (the `API` SPOT)"
@@ -42099,11 +42099,11 @@ msgstr ""
 
 # libretranslate
 msgid "Provides handler-based reload/reexec for systemd."
-msgstr "Provides handler-based reload/reexec for systemd."
+msgstr ""
 
 # libretranslate
 msgid "Provides predictable behavior in CI and production"
-msgstr "Provides predictable behavior in CI and production"
+msgstr ""
 
 # libretranslate
 msgid "Provides the filters `abs_role_path_by_application_id` and `rel_role_path_by_application_id`."
@@ -42111,11 +42111,11 @@ msgstr "توفر المرشحات `abs_role_path_by_application_id` و `rel_role
 
 # libretranslate
 msgid "Provides the shared ``files/debug.sh`` SPOT for reusable service-failure diagnostics."
-msgstr "Provides the shared ``files/debug.sh`` SPOT for reusable service-failure diagnostics."
+msgstr ""
 
 # libretranslate
 msgid "Provides the shared `files/debug.sh` SPOT for reusable service-failure diagnostics."
-msgstr "Provides the shared `files/debug.sh` SPOT for reusable service-failure diagnostics."
+msgstr ""
 
 # libretranslate
 msgid "Provides three primitives the rest of the package builds on:"
@@ -42254,7 +42254,7 @@ msgstr "قيام المؤسسات العامة والهيئات الإدارية
 
 # libretranslate
 msgid "Public institutions, regulated industries, European organizations, and enterprises seeking a compliant cloud alternative."
-msgstr "Public institutions, regulated industries, European organizations, and enterprises seeking a compliant cloud alternative."
+msgstr ""
 
 # libretranslate
 msgid "Public key per user name, for ``administrator`` and ``backup``."
@@ -42270,7 +42270,7 @@ msgstr "نقطة الدخول العامة لإعادة تحديد كلمات ا
 
 # libretranslate
 msgid "Public reads first; no proposal, vote, moderation, identity, or assembly mutation"
-msgstr "Public reads first; no proposal, vote, moderation, identity, or assembly mutation"
+msgstr ""
 
 # libretranslate
 msgid "Public reads or restricted account; no upload, comment, follow, federation, moderation, or administration mutation"
@@ -42487,7 +42487,7 @@ msgstr "وضع قيم ثابتة مشتركة في مصدر واحد لا حصر
 
 # libretranslate
 msgid "Python CLI for init, deploy, up, down, exec, etc."
-msgstr "Python CLI for init, deploy, up, down, exec, etc."
+msgstr ""
 
 # libretranslate
 msgid "Python Development Utilities"
@@ -42725,7 +42725,7 @@ msgstr "ترعرع عندما ``meta/packages.yml`` ينتهك الشكل الم
 
 # libretranslate
 msgid "Raised when a config entry is defined in schema but not set in application."
-msgstr "Raised when a config entry is defined in schema but not set in application."
+msgstr ""
 
 # libretranslate
 msgid "Raised when a meta/volumes.yml fails schema validation."
@@ -42837,7 +42837,7 @@ msgstr "إعادة فتح سير العمل يمكن أن يُعاد تشغيل�
 
 # libretranslate
 msgid "Re-export modules or import-probe tests where import success is the assertion."
-msgstr "Re-export modules or import-probe tests where import success is the assertion."
+msgstr ""
 
 # libretranslate
 msgid "Re-renders multiple rounds because intermediate results can still contain Jinja."
@@ -43312,7 +43312,7 @@ msgstr ""
 
 # libretranslate
 msgid "Recursively copy this file or directory tree to the given destination."
-msgstr "Recursively copy this file or directory tree to the given destination."
+msgstr ""
 
 # libretranslate
 msgid "Recursively encrypt all leaves (plain text values) under the credentials section."
@@ -43459,7 +43459,7 @@ msgstr "Ref coincidehronization before work flow jobs derived CI scope from git 
 
 # libretranslate
 msgid "Refactor the use of groups as roles in oauth2 proxy"
-msgstr "Refactor the use of groups as roles in oauth2 proxy"
+msgstr ""
 
 # libretranslate
 msgid "Refactor this role - It seems like it's just an wrapper for 'sys-svc-webserver-https' which doesn't add any additional logic"
@@ -43482,7 +43482,7 @@ msgstr "Refactored CSP health checks to operate on full URLs derived from NGINX 
 
 # libretranslate
 msgid "Refactored TLS into a single, explicit resolution layer with SAN-aware certificates"
-msgstr "Refactored TLS into a single, explicit resolution layer with SAN-aware certificates"
+msgstr ""
 
 # libretranslate
 msgid "Refactored build, setup, and deploy workflows to match the new layered design and improve maintainability."
@@ -43529,7 +43529,7 @@ msgstr "الملفات المرجعية 📌"
 
 # libretranslate
 msgid "Reference for frequently used OCC commands, including user and app management."
-msgstr "Reference for frequently used OCC commands, including user and app management."
+msgstr ""
 
 # libretranslate
 msgid "Reference of the distribution base image a distro's container builds FROM."
@@ -43833,7 +43833,7 @@ msgstr "إعادة تحميل التعليمات 🔄"
 
 # libretranslate
 msgid "Reloads and restarts the timer using systemd to ensure that changes take effect."
-msgstr "Reloads and restarts the timer using systemd to ensure that changes take effect."
+msgstr ""
 
 # libretranslate
 msgid "Remote"
@@ -44010,7 +44010,7 @@ msgstr "Removed CLI flags ولم تعد الخيارات التالية متاح
 
 # libretranslate
 msgid "Removed deprecated buildx install input"
-msgstr "Removed deprecated buildx install input"
+msgstr ""
 
 # libretranslate
 msgid "Removed hardcoded *base-devel* from workstation bundles and *sys-aur*"
@@ -44030,7 +44030,7 @@ msgstr "إلغاء قانون ديباغ القديم الذي يشير إلى �
 
 # libretranslate
 msgid "Removed obsolete legacy paths now that systemd is universally available"
-msgstr "Removed obsolete legacy paths now that systemd is universally available"
+msgstr ""
 
 # libretranslate
 msgid "Removes failed backups only"
@@ -44103,7 +44103,7 @@ msgstr ""
 
 # libretranslate
 msgid "Render Playwright JUnit XML reports as GitHub Actions step-summary markdown."
-msgstr "Render Playwright JUnit XML reports as GitHub Actions step-summary markdown."
+msgstr ""
 
 # libretranslate
 msgid "Render a distro image reference from the ``meta/distros.yml`` SPOT."
@@ -44445,7 +44445,7 @@ msgstr "حدود هيكلية على نطاق المستودعات: إحصاء �
 
 # libretranslate
 msgid "Reproducing Runner Resource Limits Locally 💾"
-msgstr "Reproducing Runner Resource Limits Locally 💾"
+msgstr ""
 
 # libretranslate
 msgid "Req 019 rollout: deploy gate"
@@ -44673,7 +44673,7 @@ msgstr "Reset logout service database formation Explicitly set database type to 
 
 # libretranslate
 msgid "Resets service units by removing old or obsolete definitions."
-msgstr "Resets service units by removing old or obsolete definitions."
+msgstr ""
 
 # libretranslate
 msgid "Resolution Model 🧮"
@@ -44754,7 +44754,7 @@ msgstr "الحلول application_id لمجال معين (الكانتونات أ
 
 # libretranslate
 msgid "Resolve database values for a given database_consumer_id."
-msgstr "Resolve database values for a given database_consumer_id."
+msgstr ""
 
 # libretranslate
 msgid "Resolve dynamic values during playbook processing."
@@ -44798,7 +44798,7 @@ msgstr "تسوية الأدوار المشتركة بين مقدمي الخدم�
 
 # libretranslate
 msgid "Resolve the SSO state for a consumer role."
-msgstr "Resolve the SSO state for a consumer role."
+msgstr ""
 
 # libretranslate
 msgid "Resolve the [Open Questions](#open-questions-pending-operator-decision) into [Confirmed Decisions](#confirmed-decisions)."
@@ -45033,7 +45033,7 @@ msgstr "القيود 🚫"
 
 # libretranslate
 msgid "Restructure guides for better discoverability"
-msgstr "Restructure guides for better discoverability"
+msgstr ""
 
 # libretranslate
 msgid "Retain per-server group grants but remove the hard-coded administrator token source, add application-scoped user roles, fix last-group revocation, and reconcile after restart."
@@ -45041,7 +45041,7 @@ msgstr "Retain per-server group grants but remove the hard-coded administrator t
 
 # libretranslate
 msgid "Retain the native server only with a dedicated least-privilege identity, a verified read-only tool allowlist, per-consumer grants, and an actual client tool call."
-msgstr "Retain the native server only with a dedicated least-privilege identity, a verified read-only tool allowlist, per-consumer grants, and an actual client tool call."
+msgstr ""
 
 # libretranslate
 msgid "Retrieval-augmented generation (RAG) with vector DBs (e.g., Qdrant)"
@@ -46205,7 +46205,7 @@ msgstr "العودة:"
 
 # libretranslate
 msgid "Reusable per-provider MCP adapter exposing a narrow allowlisted read surface"
-msgstr "Reusable per-provider MCP adapter exposing a narrow allowlisted read surface"
+msgstr ""
 
 # libretranslate
 msgid "Reusable shell behavior MUST live in script files, not in repeated workflow `run:` blocks."
@@ -46286,7 +46286,7 @@ msgstr "الاحتياجات من الاستعراض 🔍"
 
 # libretranslate
 msgid "Review the process at regular intervals and change it when it is not working."
-msgstr "Review the process at regular intervals and change it when it is not working."
+msgstr ""
 
 # libretranslate
 msgid "Reviewer MUST confirm both source and destination repos."
@@ -46353,7 +46353,7 @@ msgstr "المُراجع أكد أن شجرة العمل نظيفة (أو مخب
 
 # libretranslate
 msgid "Revisit ambiguous roles only after the confirmed set is green."
-msgstr "Revisit ambiguous roles only after the confirmed set is green."
+msgstr ""
 
 # libretranslate
 msgid "Revokes and deletes corresponding Certbot certificates."
@@ -46372,7 +46372,7 @@ msgstr "إعادة تصميم الصور، والدفع، والمرآة، وا�
 
 # libretranslate
 msgid "Reworked shared service discovery and loading around the new sys-utils-service-loader flow and the required service semantics"
-msgstr "Reworked shared service discovery and loading around the new sys-utils-service-loader flow and the required service semantics"
+msgstr ""
 
 # libretranslate
 msgid "Reworked the Make surface into domain prefixes (compose-, network-, clean-, container-), added comment-derived make help, parallel test/lint wrappers with per-target wall-clock, a default help target, a single make deploy router, a make console REPL, make compose-playwright, a test-signed pre-push gate, and a clean-container-owned target"
@@ -46469,7 +46469,7 @@ msgstr "دور ملفات README تتبع هذا القسم ويمكن حذف ا
 
 # libretranslate
 msgid "Role README schema, section parsing, Cosmos derivation, and generation."
-msgstr "Role README schema, section parsing, Cosmos derivation, and generation."
+msgstr ""
 
 # libretranslate
 msgid "Role README 📄"
@@ -48135,7 +48135,7 @@ msgstr "SMTP/client timeout in seconds."
 
 # libretranslate
 msgid "SPOT for development inventory creation."
-msgstr "SPOT for development inventory creation."
+msgstr ""
 
 # libretranslate
 msgid "SPOT for the ``deploy`` subcommand of the development stack helper."
@@ -48262,7 +48262,7 @@ msgstr "SSO هو **oauth2-البوابة البديلة Checkmk رئيس (`auth_
 
 # libretranslate
 msgid "SSO needs no special handling: Keycloak domain is onion ⇒ one onion issuer/realm; onion emails match `email_domains`."
-msgstr "SSO needs no special handling: Keycloak domain is onion ⇒ one onion issuer/realm; onion emails match `email_domains`."
+msgstr ""
 
 # libretranslate
 msgid "SSO user cap: LiteLLM refuses SSO above 5 rows in `litellm_usertable` without `LITELLM_LICENSE` (`litellm/proxy/management_endpoints/ui_sso.py` at `v1.77.3-stable`). Wire a licence variable, or pin the UI to the administrator, before a sixth person needs the UI."
@@ -48479,7 +48479,7 @@ msgstr "Screenshot"
 
 # libretranslate
 msgid "Screenshots, logs, traces, or migration notes SHOULD be attached when they help review the change."
-msgstr "Screenshots, logs, traces, or migration notes SHOULD be attached when they help review the change."
+msgstr ""
 
 # libretranslate
 msgid "Script"
@@ -48882,7 +48882,7 @@ msgstr "انظر [WordPress كتيّب المصابيح](https://developer.wordp
 
 # libretranslate
 msgid "See the dedicated SPOT pages for authoring rules:"
-msgstr "See the dedicated SPOT pages for authoring rules:"
+msgstr ""
 
 # libretranslate
 msgid "See: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#setting-a-warning-message"
@@ -49494,11 +49494,11 @@ msgstr "يجهز كل المتفوقين الضروريين."
 
 # libretranslate
 msgid "Sets file ownership (``root:root``) and permissions (``0644``)"
-msgstr "Sets file ownership (``root:root``) and permissions (``0644``)"
+msgstr ""
 
 # libretranslate
 msgid "Sets file ownership (`root:root`) and permissions (`0644`)"
-msgstr "Sets file ownership (`root:root`) and permissions (`0644`)"
+msgstr ""
 
 # libretranslate
 msgid "Sets the default repository for `gh` invocations in the current directory."
@@ -49592,7 +49592,7 @@ msgstr "التدفق المشترك للمستودعات 🔄"
 
 # libretranslate
 msgid "Shared SPOT for the unified addon contract."
-msgstr "Shared SPOT for the unified addon contract."
+msgstr ""
 
 # libretranslate
 msgid "Shared Utilities (`utils/`)"
@@ -49644,7 +49644,7 @@ msgstr "مُساعدون متقاسمون من أجل قيادة المركز/ا
 
 # libretranslate
 msgid "Shared helpers for the development deploy CLI."
-msgstr "Shared helpers for the development deploy CLI."
+msgstr ""
 
 # libretranslate
 msgid "Shared logout endpoint across apps"
@@ -49700,7 +49700,7 @@ msgstr "تبادل النظرة واحدة يبقي المنطق النشط في
 
 # libretranslate
 msgid "Shebang Requirement for Custom Modules"
-msgstr "Shebang Requirement for Custom Modules"
+msgstr ""
 
 # libretranslate
 msgid "Shell"
@@ -50155,7 +50155,7 @@ msgstr "دخان بعد النشر:"
 
 # libretranslate
 msgid "Smoke-tests the interactive console REPL"
-msgstr "Smoke-tests the interactive console REPL"
+msgstr ""
 
 # libretranslate
 msgid "Smoke: visit `https://media.{{ DOMAIN_PRIMARY }}/` → Jellyfin loads → sign in via the chosen integration → reach the home/library surface."
@@ -50308,7 +50308,7 @@ msgstr "Sovereign Local AI Platform"
 
 # libretranslate
 msgid "Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
-msgstr "Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
+msgstr ""
 
 # libretranslate
 msgid "Space-separated display names rendered as space-separated role ids."
@@ -50354,7 +50354,7 @@ msgstr "Split ``<path>:<absolute-target>`` - (الطريق، الهدف)."
 
 # libretranslate
 msgid "Split a CI selection token into its name and its axis suffix."
-msgstr "Split a CI selection token into its name and its axis suffix."
+msgstr ""
 
 # libretranslate
 msgid "Split a Markdown README into its H2 sections (fence-aware)."
@@ -50614,7 +50614,7 @@ msgstr "الإشعار بالبدء"
 
 # libretranslate
 msgid "State per conflict which side won and why; a reader must be able to audit the judgement without reopening the diff."
-msgstr "State per conflict which side won and why; a reader must be able to audit the judgement without reopening the diff."
+msgstr ""
 
 # libretranslate
 msgid "State that several replicas would write to the same file needs more than node-local storage: pair `nfs: false` with a single replica or a manager pin, or externalise the state into a database. The `embedded-state-on-nfs` lint enforces this for roles that run no RDBMS of their own."
@@ -50954,11 +50954,11 @@ msgstr "Streamable HTTP (JSON-RPC 2.0 فوق ``POST``)"
 
 # libretranslate
 msgid "Streamline the decommissioning of outdated or deprecated domains by automating the removal of NGINX server blocks and their SSL certificates."
-msgstr "Streamline the decommissioning of outdated or deprecated domains by automating the removal of NGINX server blocks and their SSL certificates."
+msgstr ""
 
 # libretranslate
 msgid "Strict Jinja renderers used by lookup plugins, library modules, and the YAML cache layer."
-msgstr "Strict Jinja renderers used by lookup plugins, library modules, and the YAML cache layer."
+msgstr ""
 
 # libretranslate
 msgid "Strict SAN planning driven by `CURRENT_PLAY_DOMAINS_ALL`"
@@ -50969,7 +50969,7 @@ msgstr ""
 
 # libretranslate
 msgid "Strict multi-pass Jinja rendering to prevent leaked templates"
-msgstr "Strict multi-pass Jinja rendering to prevent leaked templates"
+msgstr ""
 
 # libretranslate
 msgid "Strict rendering helper for lookup/filter plugins."
@@ -51172,7 +51172,7 @@ msgstr "Suggest one free public SH port (`PORT_BANDS.public.ssh`):"
 
 # libretranslate
 msgid "Suggest three free localhost HTTP ports inside `PORT_BANDS.local.http`:"
-msgstr "Suggest three free localhost HTTP ports inside `PORT_BANDS.local.http`:"
+msgstr ""
 
 # libretranslate
 msgid "Suggest two free `/28` subnets (14 clients each) inside the established umbrella blocks:"
@@ -51260,7 +51260,7 @@ msgstr "دعم إنهاء الخدمة على مستوى العميل."
 
 # libretranslate
 msgid "Support for SSL/TLS termination at the proxy level."
-msgstr "Support for SSL/TLS termination at the proxy level."
+msgstr ""
 
 # libretranslate
 msgid "Support for distroless images, profile-only services, NSS/Chromium"
@@ -51304,7 +51304,7 @@ msgstr "الدعم A/AAAAA, CNAME, MX, TXT, SRV"
 
 # libretranslate
 msgid "Supports Arch, Debian, Ubuntu, Fedora, CentOS Stream"
-msgstr "Supports Arch, Debian, Ubuntu, Fedora, CentOS Stream"
+msgstr ""
 
 # libretranslate
 msgid "Supports WebSocket upgrades for hybrid APIs."
@@ -52171,7 +52171,7 @@ msgstr "TURN and STUN listen ports"
 
 # libretranslate
 msgid "TURN and STUN support over TCP and UDP"
-msgstr "TURN and STUN support over TCP and UDP"
+msgstr ""
 
 # libretranslate
 msgid "TURN on Wikipedia: [en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT](https://en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT)"
@@ -53017,7 +53017,7 @@ msgstr ""
 
 # libretranslate
 msgid "The HTTPS-only inner-build gap requires per-image CA-trust bootstrap, which is out of scope for the current minimal-invasive design."
-msgstr "The HTTPS-only inner-build gap requires per-image CA-trust bootstrap, which is out of scope for the current minimal-invasive design."
+msgstr ""
 
 # libretranslate
 msgid "The Hugo build runs inside `docker compose build`. If `hugo` exits non-zero, the play fails and the previous image keeps serving. To inspect the failure log:"
@@ -53245,7 +53245,7 @@ msgstr "معاملات التحقق من مدى القدرة على الوصول
 
 # libretranslate
 msgid "The URL reachability check treats read and connect timeouts as warnings."
-msgstr "The URL reachability check treats read and connect timeouts as warnings."
+msgstr ""
 
 msgid "The YAML key is the semantic short name. Each entry value MAY carry ``name`` (the docker volume name); when absent and ``type`` is ``volume``, callers default the docker name to the semantic key."
 msgstr ""
@@ -53849,7 +53849,7 @@ msgstr "كلمة المرور لا تصل إلى عميل العملاء الح�
 
 # libretranslate
 msgid "The app runs as a single Docker container and requires no database or backend setup, enabling secure and frictionless QR generation anywhere."
-msgstr "The app runs as a single Docker container and requires no database or backend setup, enabling secure and frictionless QR generation anywhere."
+msgstr ""
 
 # libretranslate
 msgid "The app stack for `<role>` is still running."
@@ -53996,7 +53996,7 @@ msgstr "الدلو هو عبارة عن مرحلة تحميل مزودة بال�
 
 # libretranslate
 msgid "The budget as a CLI table: per-job reservations, then the totals and the chunk arithmetic they leave room for."
-msgstr "The budget as a CLI table: per-job reservations, then the totals and the chunk arithmetic they leave room for."
+msgstr ""
 
 # libretranslate
 msgid "The build pipeline runs entirely on the operator's host, before any Ansible play starts. Three stages produce the inventory file plus the matching `host_vars/<host>.yml`:"
@@ -54261,7 +54261,7 @@ msgstr "The container name and DNS alias within the `central_mariadb` شبكة. 
 
 # libretranslate
 msgid "The control databases are dropped: they exist in every cluster and are not deployed as applications, so nothing consumes them."
-msgstr "The control databases are dropped: they exist in every cluster and are not deployed as applications, so nothing consumes them."
+msgstr ""
 
 # libretranslate
 msgid "The correct Pull Request template MUST be used."
@@ -55774,7 +55774,7 @@ msgstr "The following declare an LDAP block but legitimately do not expose a tes
 
 # libretranslate
 msgid "The following directories are never readable, even if a task explicitly requests access:"
-msgstr "The following directories are never readable, even if a task explicitly requests access:"
+msgstr ""
 
 msgid "The following lists are the complete repository snapshot used to construct this requirement. Implementation MUST replace the snapshot check with a test that derives the current set dynamically; it MUST NOT hard-code the number 172."
 msgstr ""
@@ -55785,7 +55785,7 @@ msgstr "وتغطي الصفحات التالية المبادئ التوجيهي
 
 # libretranslate
 msgid "The following registries are discovered and mirrored:"
-msgstr "The following registries are discovered and mirrored:"
+msgstr ""
 
 msgid "The following roles MUST NOT carry `BIBER_*` env keys nor a biber scenario; closing each item is a NOOP except when a stale env-key shows up; in that case remove it."
 msgstr ""
@@ -55823,7 +55823,7 @@ msgstr "الكيميائيات الأربعة المُقدّمة مُعلقة ف
 
 # libretranslate
 msgid "The front-page CSP + canonical-domain baseline is ungated and always runs."
-msgstr "The front-page CSP + canonical-domain baseline is ungated and always runs."
+msgstr ""
 
 # libretranslate
 msgid "The full CSP test surface lives in the same module: `assertCspResponseHeader(response, label)` (returns the parsed directive map), `assertCspMetaParity(page, headerDirectives, label)` (verifies the optional `<meta http-equiv>` echo is a subset of the response header), `installCspViolationObserver(page)` + `readCspViolations(page)` (DOM-side `securitypolicyviolation` capture), `expectNoCspViolations(page, diagnostics, label)` (asserts neither the DOM stream nor `diagnostics.cspRelated` carries a violation), and the `EXPECTED_CSP_DIRECTIVES` constant. Specs MUST require these from `./personas`; inline copies are forbidden and caught at review."
@@ -55980,7 +55980,7 @@ msgstr "هوية خدمة النظام."
 
 # libretranslate
 msgid "The image is an unversioned preview; an explicit MCP-capable headless version has to replace it before a surface can be curated."
-msgstr "The image is an unversioned preview; an explicit MCP-capable headless version has to replace it before a surface can be curated."
+msgstr ""
 
 # libretranslate
 msgid "The image ships no `ENTRYPOINT`, so the compose `command` carries the binary path followed by its flags."
@@ -56004,7 +56004,7 @@ msgstr "ويحافظ التنفيذ على خط ثابت نظيف بين الت�
 
 # libretranslate
 msgid "The implementation MUST keep a clean abstraction line between the render backends:"
-msgstr "The implementation MUST keep a clean abstraction line between the render backends:"
+msgstr ""
 
 # libretranslate
 msgid "The implementation MUST prefer native upstream MCP support. Plugin, sidecar, or marketplace MCP servers MAY be used only when the upstream project documents them as supported or when the role README documents the risk and the operator explicitly enables the integration."
@@ -56056,7 +56056,7 @@ msgstr "ويبدأ العميل المنفذ مراجعة حساباته من ا
 
 # libretranslate
 msgid "The implementing changes are committed and the PR references the requirement file."
-msgstr "The implementing changes are committed and the PR references the requirement file."
+msgstr ""
 
 # libretranslate
 msgid "The in-play loader (`utils.cache.applications.get_merged_applications`) uses each role's variant-free base config (the assembled `meta/<topic>.yml` payload) as the default and lets the inventory's `applications.<app>` overrides win via deep merge: the inventory itself is the source of truth for what variant a round runs against. Variant 0 enumerates every dynamic service-key from `meta/services.yml` with `enabled: true, shared: true` so the \"all flags on\" baseline is explicit and deep-merge with a non-baseline override yields the expected variant-N shape (see [variants.md](../artefact/files/role/variants.md) for the file-format rule and [test_non_baseline_explicit_disables.py](../../../tests/integration/roles/meta/variants/test_non_baseline_explicit_disables.py) for the lint guard)."
@@ -56138,7 +56138,7 @@ msgstr ""
 
 # libretranslate
 msgid "The key carries no static default; it is generated here so the shell and CI side of the project read the same SPOT the Python side does."
-msgstr "The key carries no static default; it is generated here so the shell and CI side of the project read the same SPOT the Python side does."
+msgstr ""
 
 msgid "The key covers `group_names`. `domains.py` derives from the applications view and shares that dependency; `users` reads `group_names` nowhere."
 msgstr ""
@@ -56164,7 +56164,7 @@ msgstr "القسم الأخير المطلوب (الأرصدة الدائنة ح
 
 # libretranslate
 msgid "The last two segments, joined by the separator that preceded the last."
-msgstr "The last two segments, joined by the separator that preceded the last."
+msgstr ""
 
 # libretranslate
 msgid "The layers are orthogonal: `yaml.py` caches \"this file's parsed root\", the `applications`/`users`/`domains` modules cache \"this aggregated, rendered payload\". They do not invalidate each other and MAY both be active at the same time."
@@ -56172,7 +56172,7 @@ msgstr "الطبقات هي النسيج: `yaml.py` مخابئ \"جذر هذا �
 
 # libretranslate
 msgid "The legacy list-of-dicts shape is no longer accepted."
-msgstr "The legacy list-of-dicts shape is no longer accepted."
+msgstr ""
 
 msgid "The lid switch is a hardware component on laptops that triggers power state changes (sleep, hibernate, lock) when the lid is closed. On Linux, systemd's `logind` daemon manages lid switch events via `/etc/systemd/logind.conf`. The [`setup-hibernate`](https://github.com/kevinveenbirkenbach/setup-hibernate) tool provides hibernation support configuration."
 msgstr ""
@@ -56226,7 +56226,7 @@ msgstr "الكتابة من الأدب `default:`"
 
 # libretranslate
 msgid "The loaded script is collapsed into a one-liner before injection and added to the CSP hash list so inline execution remains consistent with the generated policy."
-msgstr "The loaded script is collapsed into a one-liner before injection and added to the CSP hash list so inline execution remains consistent with the generated policy."
+msgstr ""
 
 # libretranslate
 msgid "The local development compose stack SHOULD inherit the host Docker MTU automatically from `/etc/docker/daemon.json`. If auto-detection is unavailable or wrong, override it explicitly with `INFINITO_OUTER_NETWORK_MTU`."
@@ -56911,7 +56911,7 @@ msgstr "بيئة المشروع مملوكة لمولد واحد وليس مبع
 
 # libretranslate
 msgid "The project-owned plugin is unaudited: endpoint, transport, auth and tool scope are unverified in source."
-msgstr "The project-owned plugin is unaudited: endpoint, transport, auth and tool scope are unverified in source."
+msgstr ""
 
 # libretranslate
 msgid "The project-owned server passes ownership, licence, pinning and read-only default, but its HTTP transport serves one session per process, which upstream asserts in `src/test/transport.test.ts` at `v0.3.1`; the deploy probe alone would leave it restart-required."
@@ -57314,7 +57314,7 @@ msgstr "The role automates the provisioning of a secure Firefox البيئة، �
 
 # libretranslate
 msgid "The role automatically selects the appropriate installation method:"
-msgstr "The role automatically selects the appropriate installation method:"
+msgstr ""
 
 # libretranslate
 msgid "The role box lists EVERY service the role declares. Around it:"
@@ -57350,7 +57350,7 @@ msgstr "يدقق الدور فيما إذا كان `pip` من `ansible_python_in
 
 # libretranslate
 msgid "The role configures a systemd service and timer which executes the CSP crawler periodically against all NGINX domains."
-msgstr "The role configures a systemd service and timer which executes the CSP crawler periodically against all NGINX domains."
+msgstr ""
 
 # libretranslate
 msgid "The role configures and deploys a containerized PhpMyAdmin instance using Docker Compose. It optionally integrates with a central database and uses dynamic Ansible variables to support flexible deployments in both production and homelab environments."
@@ -57497,7 +57497,7 @@ msgstr "الدور الذي يُنشئ وحدة مُنظمة تُصيب كل د�
 
 # libretranslate
 msgid "The role installs the correct SSH client package for the following platforms:"
-msgstr "The role installs the correct SSH client package for the following platforms:"
+msgstr ""
 
 # libretranslate
 msgid "The role is a critical component in a secure backup scheme. By isolating backup operations to a dedicated user, it minimizes the risk of unauthorized actions. The role configures the SSH environment so that only specific, allowed commands can be executed, and it sets up passwordless sudo rights for rsync, ensuring smooth and secure backup operations."
@@ -57609,11 +57609,11 @@ msgstr ""
 
 # libretranslate
 msgid "The role uses a multi-stage Dockerfile:"
-msgstr "The role uses a multi-stage Dockerfile:"
+msgstr ""
 
 # libretranslate
 msgid "The role will load both sub-roles and satisfy all dependencies transparently."
-msgstr "The role will load both sub-roles and satisfy all dependencies transparently."
+msgstr ""
 
 # libretranslate
 msgid "The role will register mappings using ``doli add`` and can optionally run ``doli pull``."
@@ -57720,7 +57720,7 @@ msgstr "الرحلة التي لا تطاق `files/playwright/test-login-biber.j
 
 # libretranslate
 msgid "The runner is intentionally test-agnostic at runtime: it executes only tests provided by application roles."
-msgstr "The runner is intentionally test-agnostic at runtime: it executes only tests provided by application roles."
+msgstr ""
 
 msgid "The runner keeps Playwright traces, screenshots, and videos for every test only when the resolved environment variable `INFINITO_PLAYWRIGHT_KEEP` evaluates to `true` (case-insensitive). Any other value, including unset or empty, keeps artefacts only when a test fails."
 msgstr ""
@@ -58123,7 +58123,7 @@ msgstr "هويّة البرمجيّة، مستودعها، يقرأ من... grou
 
 # libretranslate
 msgid "The source code of this software is publicly available for transparency, learning, and private use."
-msgstr "The source code of this software is publicly available for transparency, learning, and private use."
+msgstr ""
 
 # libretranslate
 msgid "The source run read a window of the ranking, starting where *carried* put it (:func:`carried_index`) and stopping at its budget. Only the green part of that window is newly settled, so the answer is the last row of the leading run of *successful* rows behind the window's start, as a selection token -- a token still names the same row after the ranking shifts, a row count does not."
@@ -58450,11 +58450,11 @@ msgstr "تم كتابة خطة الطرد."
 
 # libretranslate
 msgid "The volume repo contributes a database step after its file steps: the dumps have to land once the volumes are back and while the consumers are still down, which is where the caller has them."
-msgstr "The volume repo contributes a database step after its file steps: the dumps have to land once the volumes are back and while the consumers are still down, which is where the caller has them."
+msgstr ""
 
 # libretranslate
 msgid "The warning MUST name the role, the addon id, and the failing step so the operator can act without reading raw task output."
-msgstr "The warning MUST name the role, the addon id, and the failing step so the operator can act without reading raw task output."
+msgstr ""
 
 msgid "The wget half stays proxy-aware on purpose: busybox wget rejects ``--proxy=off``, and this flavor exists for images where which tool ships is unknown, so hardening it there would break the very case it covers."
 msgstr ""
@@ -58859,7 +58859,7 @@ msgstr "This Ansible role injects a custom JavaScript snippet into all HTML resp
 
 # libretranslate
 msgid "This Ansible role injects a small JavaScript snippet into your HTML responses that enables parent pages to get notified whenever the iframe’s location changes and forces external links to open in a new tab."
-msgstr "This Ansible role injects a small JavaScript snippet into your HTML responses that enables parent pages to get notified whenever the iframe’s location changes and forces external links to open in a new tab."
+msgstr ""
 
 # libretranslate
 msgid "This Ansible role installs **fakeroot** for the current Linux distribution. Fakeroot enables non-privileged users to simulate root-level file manipulations, making it ideal for building packages or performing file operations that normally require root permissions."
@@ -59114,7 +59114,7 @@ msgstr "هذه الآلية Docker Compose تبسيط عملية النشر من
 
 # libretranslate
 msgid "This avoids ABI and SONAME mismatches on rolling or less frequently rebuilt distributions."
-msgstr "This avoids ABI and SONAME mismatches on rolling or less frequently rebuilt distributions."
+msgstr ""
 
 # libretranslate
 msgid "This avoids brittle parents[N] assumptions and fixes \"cli/cli/...\" path bugs."
@@ -59609,7 +59609,7 @@ msgstr "هذا الملف موسع CONTRIBUTING.md التعليمات الخاص
 
 # libretranslate
 msgid "This file is consumed by the inventory creator to substitute mirror URLs into host variables."
-msgstr "This file is consumed by the inventory creator to substitute mirror URLs into host variables."
+msgstr ""
 
 # libretranslate
 msgid "This file is runtime-agnostic and binding for every agent (Claude Code, Codex, Gemini CLI, other). There are no tool-specific extension files."
@@ -59668,7 +59668,7 @@ msgstr "ويوثق هذا الملف تشكيلة عناصر مدونة كلود
 
 # libretranslate
 msgid "This gives faster feedback and protects shared CI runners."
-msgstr "This gives faster feedback and protects shared CI runners."
+msgstr ""
 
 # libretranslate
 msgid "This guarantees reliable ``changed_when`` behavior in Ansible"
@@ -60110,7 +60110,7 @@ msgstr "ويستخدم هذا المستودع عدة أنواع من الاخت
 
 # libretranslate
 msgid "This requirement closes that gap consistently across the role tree rather than role by role."
-msgstr "This requirement closes that gap consistently across the role tree rather than role by role."
+msgstr ""
 
 # libretranslate
 msgid "This requirement covers requirement and design work only. It does not authorize enabling a new MCP endpoint, upgrading an application, installing an upstream plugin, or widening a credential in the same change that introduces this document."
@@ -60178,7 +60178,7 @@ msgstr ""
 
 # libretranslate
 msgid "This role automates the deployment of Kevin’s Package Manager by:"
-msgstr "This role automates the deployment of Kevin’s Package Manager by:"
+msgstr ""
 
 msgid "This role automates the deployment of Odoo in a containerized Docker environment with PostgreSQL database integration, OIDC/LDAP authentication support, and full Infinito.Nexus stack integration including reverse proxy, CSP configuration, and centralized identity management."
 msgstr ""
@@ -60193,7 +60193,7 @@ msgstr "This role automates the installation of Jrnl استخدام `community.g
 
 # libretranslate
 msgid "This role automates the installation of fakeroot via the OS package manager, ensuring that users can simulate superuser operations without requiring elevated privileges."
-msgstr "This role automates the installation of fakeroot via the OS package manager, ensuring that users can simulate superuser operations without requiring elevated privileges."
+msgstr ""
 
 # libretranslate
 msgid "This role automates the installation of micro, a CLI text editor, on Pacman‑based systems. It uses the ``community.general.pacman`` module to ensure the editor is installed and up to date."
@@ -60827,7 +60827,7 @@ msgstr "This role frees disk space by implementing a script that cleans up tempo
 
 # libretranslate
 msgid "This role front bootstrap for web apps: HTTPS base, optional Cloudflare setup, and handler wiring."
-msgstr "This role front bootstrap for web apps: HTTPS base, optional Cloudflare setup, and handler wiring."
+msgstr ""
 
 # libretranslate
 msgid "This role generic role to manage reverse DNS (PTR) for Hetzner Cloud resources (server, primary_ip, floating_ip, load_balancer)."
@@ -60850,15 +60850,15 @@ msgstr "هذا الدور حقن Matomo محلليون يتتبعون الرمز
 
 # libretranslate
 msgid "This role injects a JS snippet into HTML to notify parent windows of iframe location changes and force external links to new tabs."
-msgstr "This role injects a JS snippet into HTML to notify parent windows of iframe location changes and force external links to new tabs."
+msgstr ""
 
 # libretranslate
 msgid "This role injects a catcher that intercepts all logout elements in HTML pages served by NGINX and redirects them to a centralized logout endpoint via JavaScript."
-msgstr "This role injects a catcher that intercepts all logout elements in HTML pages served by NGINX and redirects them to a centralized logout endpoint via JavaScript."
+msgstr ""
 
 # libretranslate
 msgid "This role injects a custom JavaScript snippet into Nginx-served HTML responses via sub_filter."
-msgstr "This role injects a custom JavaScript snippet into Nginx-served HTML responses via sub_filter."
+msgstr ""
 
 # libretranslate
 msgid "This role installs **GNOME Terminal**, the official terminal emulator for the GNOME desktop environment. GNOME Terminal provides a modern, feature-rich command-line interface for users on Arch Linux."
@@ -60931,7 +60931,7 @@ msgstr "This role installs and configures Git على النظام المستهد
 
 # libretranslate
 msgid "This role installs and configures Nginx HTTP and stream modules with performance-tuned defaults."
-msgstr "This role installs and configures Nginx HTTP and stream modules with performance-tuned defaults."
+msgstr ""
 
 # libretranslate
 msgid "This role installs and configures VirtualBox and its kernel modules on Pacman-based systems, including extension packs and user group setup."
@@ -60966,7 +60966,7 @@ msgstr ""
 
 # libretranslate
 msgid "This role installs caffeine-ng and configures it to autostart for preventing screen sleep on GNOME."
-msgstr "This role installs caffeine-ng and configures it to autostart for preventing screen sleep on GNOME."
+msgstr ""
 
 # libretranslate
 msgid "This role installs distro-specific equivalents of core build tooling so systems are ready for compiling software from source. After deploying this role, all common build dependencies are available on the system."
@@ -61249,7 +61249,7 @@ msgstr ""
 
 # libretranslate
 msgid "This role re-invokes each deployed MCP client’s own reconciliation from the complete provider set."
-msgstr "This role re-invokes each deployed MCP client’s own reconciliation from the complete provider set."
+msgstr ""
 
 # libretranslate
 msgid "This role refreshes the package index and upgrades every installed package on the host. ``tasks/main.yml`` reads ``ansible_facts['distribution']`` and dispatches to one of three task files grouped by package-manager family. Debian and Ubuntu both use ``apt``, Fedora and CentOS both use ``dnf``, so each pair shares a single task file. A separate ``unsupported.yml`` fails loudly with a clear message when a host runs a distribution that this role does not yet cover."
@@ -61265,7 +61265,7 @@ msgstr "ويدير هذا الدور قائمة مجمَّعة بالخدمات 
 
 # libretranslate
 msgid "This role searches the systemd journal for errors over the past day and alerts if any are found."
-msgstr "This role searches the systemd journal for errors over the past day and alerts if any are found."
+msgstr ""
 
 # libretranslate
 msgid "This role seems unused atm, adapt it to your needs as soon as you implement it and remove this message"
@@ -61277,7 +61277,7 @@ msgstr "هذا الدور المصمم ذاتياً sys-front-tls (سان على
 
 # libretranslate
 msgid "This role serves static assets via Nginx by copying from a source directory to the Nginx data path."
-msgstr "This role serves static assets via Nginx by copying from a source directory to the Nginx data path."
+msgstr ""
 
 # libretranslate
 msgid "This role sets up a dedicated backup user (``backup``) for performing secure backup operations. It creates the user, configures a restricted SSH environment with a custom ``authorized_keys`` template and an SSH wrapper script, and grants necessary sudo rights for executing rsync. This configuration helps ensure controlled and secure access specifically for backup processes."
@@ -61303,7 +61303,7 @@ msgstr ""
 
 # libretranslate
 msgid "This role sets up the universal logout proxy service, a Dockerized Python Flask container that coordinates logout requests across multiple OIDC-integrated applications. It also configures the necessary NGINX proxy snippets and environment variables to enable unified logout flows."
-msgstr "This role sets up the universal logout proxy service, a Dockerized Python Flask container that coordinates logout requests across multiple OIDC-integrated applications. It also configures the necessary NGINX proxy snippets and environment variables to enable unified logout flows."
+msgstr ""
 
 # libretranslate
 msgid "This role ships central Playwright defaults:"
@@ -61626,7 +61626,7 @@ msgstr "لتفتيش الملفات أو إدارة الأوامر داخل حا
 
 # libretranslate
 msgid "To install Composer, a PHP dependency management tool:"
-msgstr "To install Composer, a PHP dependency management tool:"
+msgstr ""
 
 msgid "To integrate it into Infinito.Nexus, the consumer-facing role (`web-app-matrix`) MUST act as an adapter: clone MDAD at a pinned ref into the role artefact directory, generate an MDAD-shaped inventory + vars file from `lookup('config', application_id, ...)`, and invoke MDAD via `ansible-playbook` as a child process (or via Ansible's `import_playbook`). Credentials, domains, Keycloak OIDC client, central postgres / redis endpoints and the existing reverse-proxy front (sys-svc-proxy) all flow from Infinito.Nexus into MDAD via that adapter."
 msgstr ""
@@ -61824,7 +61824,7 @@ msgstr "Todos"
 
 # libretranslate
 msgid "Toggles whether forks may run workflows, restricts the action allowlist, and gates repo-level CI policy."
-msgstr "Toggles whether forks may run workflows, restricts the action allowlist, and gates repo-level CI policy."
+msgstr ""
 
 # libretranslate
 msgid "Token Resolution Order"
@@ -62009,7 +62009,7 @@ msgstr "Transform a dict of domains (القيم: str, list, dict) في قائم�
 
 # libretranslate
 msgid "Transform to general loader role for full stack"
-msgstr "Transform to general loader role for full stack"
+msgstr ""
 
 # libretranslate
 msgid "Transform your project management with [OpenProject](https://www.openproject.org/), a vibrant and collaborative tool that brings clarity and energy to your planning, tracking, and team communication. Experience streamlined workflows and an innovative platform that propels your projects forward."
@@ -62043,7 +62043,7 @@ msgstr ""
 
 # libretranslate
 msgid "Transparent Docker Hub mirror via `registry:2`'s built-in proxy mode."
-msgstr "Transparent Docker Hub mirror via `registry:2`'s built-in proxy mode."
+msgstr ""
 
 # libretranslate
 msgid "Transport"
@@ -62653,7 +62653,7 @@ msgstr "ولم يعد التنفيذ الشامل للمرحلة التي أزي
 
 # libretranslate
 msgid "Universal-logout endpoint clears role + SSO session; next protected request re-engages auth."
-msgstr "Universal-logout endpoint clears role + SSO session; next protected request re-engages auth."
+msgstr ""
 
 # libretranslate
 msgid "Unleash the potential of centralized identity management with [OpenLDAP](https://www.openldap.org/). This powerful directory service provides a robust platform for managing users, groups, and organizational units while ensuring secure, scalable, and efficient authentication and authorization."
@@ -63230,7 +63230,7 @@ msgstr "استخدم هذه المبادئ عندما تغير رمز المست
 
 # libretranslate
 msgid "Use these shared rules as the default baseline for role values and path handling."
-msgstr "Use these shared rules as the default baseline for role values and path handling."
+msgstr ""
 
 # libretranslate
 msgid "Use this as a practical reference when you want to understand how local development is expected to work."
@@ -63322,11 +63322,11 @@ msgstr "استخدم هذه القاعدة عندما يعلق دور صور ا�
 
 # libretranslate
 msgid "Use this rule when a task body contains non-trivial shell, SQL, Python, JavaScript, or any other non-YAML code."
-msgstr "Use this rule when a task body contains non-trivial shell, SQL, Python, JavaScript, or any other non-YAML code."
+msgstr ""
 
 # libretranslate
 msgid "Use this section for Ansible-specific guidance that applies across the repository."
-msgstr "Use this section for Ansible-specific guidance that applies across the repository."
+msgstr ""
 
 # libretranslate
 msgid "Use this section for role-structure guidance around images, files, and constants."
@@ -63377,7 +63377,7 @@ msgstr "استخدام إضافة العرف جينجا2 مشغلي الاختب
 
 # libretranslate
 msgid "Use to alter how tasks are scheduled/executed across hosts."
-msgstr "Use to alter how tasks are scheduled/executed across hosts."
+msgstr ""
 
 # libretranslate
 msgid "Use to customize low-level execution and privilege mechanics."
@@ -63393,7 +63393,7 @@ msgstr "تستخدم لتحميل المتغيرات من المساندة."
 
 # libretranslate
 msgid "Use to persist facts/results across runs for performance and consistency."
-msgstr "Use to persist facts/results across runs for performance and consistency."
+msgstr ""
 
 # libretranslate
 msgid "Use when"
@@ -63810,7 +63810,7 @@ msgstr "مراقبة التعرض للشبكة والشبكة"
 
 # libretranslate
 msgid "Validate a list of application IDs against both role definitions and inventory."
-msgstr "Validate a list of application IDs against both role definitions and inventory."
+msgstr ""
 
 msgid "Validate every candidate fix on live state BEFORE the next roundtrip; a swarm rebuild costs tens of minutes (same rule as the focused loops). In-cluster edits are validation only, the repo change is the real fix."
 msgstr ""
@@ -63833,7 +63833,7 @@ msgstr "المبالغ المقيدة"
 
 # libretranslate
 msgid "Validates DNS resolution across target distributions."
-msgstr "Validates DNS resolution across target distributions."
+msgstr ""
 
 # libretranslate
 msgid "Validates all active unit files before reload/reexec."
@@ -65951,7 +65951,7 @@ msgstr "داخل نفس الدلو، يتم صقل الطلب بواسطة `run_
 
 # libretranslate
 msgid "Without TURN/STUN, video calls, conferencing, and peer-to-peer connections often fail due to NAT traversal issues."
-msgstr "Without TURN/STUN, video calls, conferencing, and peer-to-peer connections often fail due to NAT traversal issues."
+msgstr ""
 
 msgid "Without TURN/STUN, video calls, conferencing, and peer-to-peer connections often fail due to NAT traversal issues.   Coturn solves this by acting as a **relay server** and/or **discovery service** for public IP addresses."
 msgstr ""
@@ -68093,11 +68093,11 @@ msgstr "[ ] SSO-to-`keycloak` الخلايا راضية مركزياً `sso` ا�
 
 # libretranslate
 msgid "[ ] Screenshot attached for user-visible changes"
-msgstr "[ ] Screenshot attached for user-visible changes"
+msgstr ""
 
 # libretranslate
 msgid "[ ] Screenshot attached when the change is user-visible"
-msgstr "[ ] Screenshot attached when the change is user-visible"
+msgstr ""
 
 # libretranslate
 msgid "[ ] Security impact present"
@@ -68235,15 +68235,15 @@ msgstr "[ ] This requirement file is cross-linked from the implementing PR (لك
 
 # libretranslate
 msgid "[ ] This requirement file is cross-linked from the implementing PR."
-msgstr "[ ] This requirement file is cross-linked from the implementing PR."
+msgstr ""
 
 # libretranslate
 msgid "[ ] This requirement is cross-linked from the implementing PR, and the implementing PR is cross-linked back here per [requirements.md](../contributing/requirements.md)."
-msgstr "[ ] This requirement is cross-linked from the implementing PR, and the implementing PR is cross-linked back here per [requirements.md](../contributing/requirements.md)."
+msgstr ""
 
 # libretranslate
 msgid "[ ] This requirement is cross-linked from the implementing PR."
-msgstr "[ ] This requirement is cross-linked from the implementing PR."
+msgstr ""
 
 # libretranslate
 msgid "[ ] Tor sidecar bootstraps (`network_mode: host`); 9050/9051 bind `127.0.0.1` only; zero published ports."
@@ -68431,7 +68431,7 @@ msgstr "[ ] [web-app-mattermost](../../roles/web-app-mattermost/) يُعلنُ �
 
 # libretranslate
 msgid "[ ] [web-app-mattermost](../../roles/web-app-mattermost/): AD/LDAP login surface independent of OIDC."
-msgstr "[ ] [web-app-mattermost](../../roles/web-app-mattermost/): AD/LDAP login surface independent of OIDC."
+msgstr ""
 
 # libretranslate
 msgid "[ ] [web-app-mediawiki](../../roles/web-app-mediawiki/) declares `PluggableAuth` and `OpenIDConnect` in `meta/addons/` with `mechanism: extension`; `OpenIDConnect` bridges `sso`."
@@ -69419,7 +69419,7 @@ msgstr "[Alejandro Roman Ibanez](https://github.com/AlejandroRomanIbanez): Autos
 
 # libretranslate
 msgid "[Alejandro Roman Ibanez](https://github.com/AlejandroRomanIbanez): video recording for hand-built Playwright contexts"
-msgstr "[Alejandro Roman Ibanez](https://github.com/AlejandroRomanIbanez): video recording for hand-built Playwright contexts"
+msgstr ""
 
 # libretranslate
 msgid "[Alejandro Roman](https://github.com/AlejandroRomanIbanez)"
@@ -70105,7 +70105,7 @@ msgstr "[دليل النشر](docs/administration/deploy.md) فيما يتعلق
 
 # libretranslate
 msgid "[Developing Ansible Filter Plugins](https://docs.ansible.com/ansible/latest/dev_guide/developing_plugins.html#developing-filter-plugins)"
-msgstr "[Developing Ansible Filter Plugins](https://docs.ansible.com/ansible/latest/dev_guide/developing_plugins.html#developing-filter-plugins)"
+msgstr ""
 
 # libretranslate
 msgid "[Developing Ansible Lookup Plugins](https://docs.ansible.com/ansible/latest/dev_guide/developing_plugins.html#developing-lookup-plugins)"
@@ -71419,7 +71419,7 @@ msgstr "[Prageeth Panicker](https://github.com/pragepani): دليل مخابئ �
 
 # libretranslate
 msgid "[Prageeth Panicker](https://github.com/pragepani): Pi-hole role and its Playwright test suite"
-msgstr "[Prageeth Panicker](https://github.com/pragepani): Pi-hole role and its Playwright test suite"
+msgstr ""
 
 # libretranslate
 msgid "[Prageeth Panicker](https://github.com/pragepani): web-app-n8n role (workflow automation, edge-header SSO, LDAP, Playwright)"
@@ -71893,7 +71893,7 @@ msgstr "[WireGuard Client behind NAT](roles/svc-net-wireguard-firewalled/)"
 
 # libretranslate
 msgid "[WireGuard Connection Dies on Ubuntu](https://serverfault.com/questions/1086297/wireguard-connection-dies-on-ubuntu-peer)"
-msgstr "[WireGuard Connection Dies on Ubuntu](https://serverfault.com/questions/1086297/wireguard-connection-dies-on-ubuntu-peer)"
+msgstr ""
 
 # libretranslate
 msgid "[WireGuard Documentation](https://www.wireguard.com/)"
@@ -74133,7 +74133,7 @@ msgstr "[web.sh](web.sh)"
 
 # libretranslate
 msgid "[workflows.md](workflows.md): catalog of every workflow file under `.github/workflows/`."
-msgstr "[workflows.md](workflows.md): catalog of every workflow file under `.github/workflows/`."
+msgstr ""
 
 # libretranslate
 msgid "[workflows.md](workflows.md): full workflow catalog."
@@ -74336,7 +74336,7 @@ msgstr "[x] السيناريو يتحقق من تحميل الأصول."
 
 # libretranslate
 msgid "[x] A scenario verifies project creation."
-msgstr "[x] A scenario verifies project creation."
+msgstr ""
 
 # libretranslate
 msgid "[x] A schema test verifies that `enabled` may be omitted, defaults to `false` for optional addons, defaults to true for `required: true`, and rejects `required: true` with `enabled: false`."
@@ -74356,7 +74356,7 @@ msgstr "[x] التحقق من صحة الخدمات يتحقق من كل تقا�
 
 # libretranslate
 msgid "[x] A spec asserts the RBAC denial from the criteria above (a non-member gets no administrative surface)."
-msgstr "[x] A spec asserts the RBAC denial from the criteria above (a non-member gets no administrative surface)."
+msgstr ""
 
 msgid "[x] A spec covers every RBAC tier, not only the denial: `biber` starts in no group and reaches no privileged surface, then an administrator adds him to each of the three RBAC groups in turn through LAM, and after every change he logs in again and the spec asserts the policy set and the capability that tier is meant to grant — the operator writes an application secret where the reader gets 403, the reader still reads it back, and only the administrator reads an ACL policy definition. Removing him between rounds proves the revoke as well as the grant. **Correction from implementation:** this was first built with two dedicated accounts, `baooperator` and `baoreader`, which deployed and joined their groups correctly but returned 403 on every LDAP bind — a user declared without an explicit `password` inherits the `strong_password` fallback, which `utils/templating/ansible.py` re-evaluates through `secrets.choice` on each render with nothing persisted, so `ldap_passwd` and `playwright.env` could receive different strings. Moving `biber` between the groups drops both accounts, needs no password workaround, and covers strictly more: the static members could only ever show a steady state, never a grant or a revoke taking effect. Building it also surfaced a defect in `web-app-lam`: `meta/csp.yml` set `script-src-elem.unsafe-inline: false`, which blocked the inline script LAM renders to drive its asynchronous tools, so LDAP import/export and Multi edit posted their job, displayed `Status: in progress` and never polled it — broken for every user, not just the spec."
 msgstr ""
@@ -74688,7 +74688,7 @@ msgstr "[x] No credentation in `meta/secrets.yml` يوفّر نموذجاً رئ
 
 # libretranslate
 msgid "[x] No deployed role launches arbitrary user-provided stdio MCP commands by default."
-msgstr "[x] No deployed role launches arbitrary user-provided stdio MCP commands by default."
+msgstr ""
 
 msgid "[x] No fatal failures in matrix r3 (all PLAY RECAPs `failed=0`; Playwright runs all passed-or-skipped, no failures)."
 msgstr ""
@@ -74923,7 +74923,7 @@ msgstr "[x] يُدعم حجم تخزين الأصول عن طريق الدور �
 
 # libretranslate
 msgid "[x] The clone respects the role-wide CA-trust env so HTTPS clone works behind the local CA terminator."
-msgstr "[x] The clone respects the role-wide CA-trust env so HTTPS clone works behind the local CA terminator."
+msgstr ""
 
 # libretranslate
 msgid "[x] The compose flavor's deprecated status is surfaced in `roles/web-app-matrix/README.md` (lifecycle/`meta/info.yml::deprecated` is not part of the schema; the deprecation contract lives in the README and the `tasks/main.yml` dispatch comment)."
@@ -74982,7 +74982,7 @@ msgstr "[x] المستمع يعمل مع `tls_disable = true` ولا يمكن ا
 
 # libretranslate
 msgid "[x] The logout panel takes the text direction of every language from `meta/languages.yml`."
-msgstr "[x] The logout panel takes the text direction of every language from `meta/languages.yml`."
+msgstr ""
 
 # libretranslate
 #, python-brace-format
@@ -75062,7 +75062,7 @@ msgstr ""
 
 # libretranslate
 msgid "[x] The script accepts the following parameters:"
-msgstr "[x] The script accepts the following parameters:"
+msgstr ""
 
 # libretranslate
 msgid "[x] The service carries `placement: manager` with the raft/NFS reason in its `# nocheck: default-placement-manager` comment, so the swarm task cannot be rescheduled away from its volume. Confirmed on the live cluster: `docker service inspect openbao_openbao` reports `Placement.Constraints [\"node.role == manager\"]`."
@@ -80015,7 +80015,7 @@ msgstr ""
 
 # libretranslate
 msgid "`_compute` MUST delegate to three other lookup plugins rather than re-reading project state directly:"
-msgstr "`_compute` MUST delegate to three other lookup plugins rather than re-reading project state directly:"
+msgstr ""
 
 # libretranslate
 msgid "`_shared.js` — env + login helpers (`penpotOidcLogin`, `penpotLdapLogin`, `penpotNativeLogin`, `penpotRegister`)."
@@ -81363,7 +81363,7 @@ msgstr "``lookup('volume', application_id, name)`` - إعادة الديكت ا�
 
 # libretranslate
 msgid "``main.yml``: The main task file that handles the installation of GnuCash."
-msgstr "``main.yml``: The main task file that handles the installation of GnuCash."
+msgstr ""
 
 # libretranslate
 msgid "``main`` unless ``repo_root`` is a linked git worktree, whose branch is lowercased and every character outside ``[a-z0-9_-]`` replaced by ``-``; ``None`` when the worktree's git directory is not reachable, as inside a container that mounts only the checkout."
@@ -81927,7 +81927,7 @@ msgstr ""
 
 # libretranslate
 msgid "``sys-svc-mail-msmtp``: msmtp client and sendmail replacement"
-msgstr "``sys-svc-mail-msmtp``: msmtp client and sendmail replacement"
+msgstr ""
 
 # libretranslate
 msgid "``sys-svc-mail``: central mail orchestration"
@@ -84927,7 +84927,7 @@ msgstr "`main.yml`"
 
 # libretranslate
 msgid "`main.yml`: The main task file that handles the installation of GnuCash."
-msgstr "`main.yml`: The main task file that handles the installation of GnuCash."
+msgstr ""
 
 # libretranslate
 msgid "`main` keeps tracking `origin/main` for `git pull`, independent of the push override."
@@ -86030,7 +86030,7 @@ msgstr "`prometheus_readonly`"
 
 # libretranslate
 msgid "`prometheus_readonly`: query, query-range, labels, metadata, and targets with explicit lookback, sample, response, and timeout limits;"
-msgstr "`prometheus_readonly`: query, query-range, labels, metadata, and targets with explicit lookback, sample, response, and timeout limits;"
+msgstr ""
 
 # libretranslate
 msgid "`prometheus`"
@@ -87096,7 +87096,7 @@ msgstr "`sys-svc-compose` يكتشف دوكرفيل تلقائيا من خلال
 
 # libretranslate
 msgid "`sys-svc-mail-msmtp`: msmtp client and sendmail replacement"
-msgstr "`sys-svc-mail-msmtp`: msmtp client and sendmail replacement"
+msgstr ""
 
 # libretranslate
 msgid "`sys-svc-mail`: central mail orchestration"
@@ -88454,7 +88454,7 @@ msgstr "نظرة على الرابط `database`: `lookup('<engine>', consumer_id
 
 # libretranslate
 msgid "a connector plugin such as AI Engine exposes a custom OpenAI-compatible endpoint"
-msgstr "a connector plugin such as AI Engine exposes a custom OpenAI-compatible endpoint"
+msgstr ""
 
 # libretranslate
 msgid "a consumer of a database is still running, a dump has     no credentials row, or its engine is unknown to the repository."
@@ -88513,7 +88513,7 @@ msgstr "اسم، قائمة بالمبارزة بالإضافة إلى مسبا�
 
 # libretranslate
 msgid "a non-empty value in the process env is adopted and written back"
-msgstr "a non-empty value in the process env is adopted and written back"
+msgstr ""
 
 msgid "a path in the caller's own mount namespace that sits on the same filesystem as the daemon's storage. Consulted only when the data root the daemon reports does not resolve here."
 msgstr ""
@@ -88554,7 +88554,7 @@ msgstr "صف :func:`cli.meta.ci.matrix.entries_of`."
 
 # libretranslate
 msgid "a scalar, list or mapping straight out of the declaration."
-msgstr "a scalar, list or mapping straight out of the declaration."
+msgstr ""
 
 # libretranslate
 msgid "a selection token (`role#0/zfs`)"
@@ -88569,7 +88569,7 @@ msgstr ""
 
 # libretranslate
 msgid "a source message or its translation."
-msgstr "a source message or its translation."
+msgstr ""
 
 # libretranslate
 msgid "a source message."
@@ -88611,7 +88611,7 @@ msgstr "a wiki page created before the drain is still readable (دي بي يبق
 
 # libretranslate
 msgid "a wiki page created before the drain is still readable;"
-msgstr "a wiki page created before the drain is still readable;"
+msgstr ""
 
 msgid "a.b.example.com     -> parent: b.example.com    -> creates: `*.b.example.com`"
 msgstr ""
@@ -90309,7 +90309,7 @@ msgstr "تركز على عقدة واحدة"
 
 # libretranslate
 msgid "config paths ORed together to decide whether an app gets a URI."
-msgstr "config paths ORed together to decide whether an app gets a URI."
+msgstr ""
 
 # libretranslate
 msgid "config value accessor."
@@ -90693,7 +90693,7 @@ msgstr "ديترويت"
 
 # libretranslate
 msgid "docs that explain how to scale down the stack"
-msgstr "docs that explain how to scale down the stack"
+msgstr ""
 
 # libretranslate
 msgid "docs/agents/action/iteration/compose.md sharpens the in-container verify rule and full-matrix flow"
@@ -91027,7 +91027,7 @@ msgstr "الخروقات في خمسة مساعدين بلاي رايت"
 
 # libretranslate
 msgid "eslint, eslint-plugin-playwright, eslint/js, actions/setup-python, actions/create-github-app-token"
-msgstr "eslint, eslint-plugin-playwright, eslint/js, actions/setup-python, actions/create-github-app-token"
+msgstr ""
 
 # libretranslate
 msgid "espocrm"
@@ -92216,7 +92216,7 @@ msgstr "المزيد من إعادة الاستخدام عبر الأرانب"
 
 # libretranslate
 msgid "msg: can not use content with a dir as dest for NGINX multi distro"
-msgstr "msg: can not use content with a dir as dest for NGINX multi distro"
+msgstr ""
 
 # libretranslate
 msgid "msmtp"
@@ -92842,7 +92842,7 @@ msgstr "pgadmin"
 
 # libretranslate
 msgid "php, composer or phpunit is still absent afterwards."
-msgstr "php, composer or phpunit is still absent afterwards."
+msgstr ""
 
 # libretranslate
 msgid "php, composer, unzip or one of the extensions is still     absent."
@@ -97883,7 +97883,7 @@ msgstr ""
 
 # libretranslate
 msgid "🏗️ Build container images for local and CI workflows"
-msgstr "🏗️ Build container images for local and CI workflows"
+msgstr ""
 
 # libretranslate
 msgid "🏷️ Resolve the highest version tag that still needs release backfill"
@@ -97989,7 +97989,7 @@ msgstr "💾"
 
 # libretranslate
 msgid "💾 **Postfix Installation on Arch Linux**"
-msgstr "💾 **Postfix Installation on Arch Linux**"
+msgstr ""
 
 # libretranslate
 msgid "📁 **Unified CSS Base Configuration** deployment for all NGINX applications"
@@ -98047,7 +98047,7 @@ msgstr "📦 بناء وتركيب مجموعة من البيانات الوصف
 
 # libretranslate
 msgid "📦 Install Python, Ansible, and lint dependencies for supported environments"
-msgstr "📦 Install Python, Ansible, and lint dependencies for supported environments"
+msgstr ""
 
 # libretranslate
 msgid "📦 Publish, retag, and maintain image artifacts in registries"
@@ -98075,7 +98075,7 @@ msgstr "📨 **Msmtp Client Configur**"
 
 # libretranslate
 msgid "📬 SMTP integration and Greenlight admin creation"
-msgstr "📬 SMTP integration and Greenlight admin creation"
+msgstr ""
 
 msgid "🔁 **Async & Realtime Events:** Includes RabbitMQ and support for Taiga’s event system."
 msgstr ""
@@ -98323,7 +98323,7 @@ msgstr "🧩 المشروع الأولي: `lyqht/mini-qr <https://github.com/lyq
 
 # libretranslate
 msgid "🧩 [Libretro - Modular Emulator Framework](https://www.libretro.com/)"
-msgstr "🧩 [Libretro - Modular Emulator Framework](https://www.libretro.com/)"
+msgstr ""
 
 # libretranslate
 msgid "🧩 `Libretro - Modular Emulator Framework <https://www.libretro.com/>`__"

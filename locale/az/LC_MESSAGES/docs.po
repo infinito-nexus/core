@@ -9611,7 +9611,7 @@ msgstr "**author**: Kevin Veen-Birkenbach"
 
 # libretranslate
 msgid "**author**: Marko Pjevac, Kevin Veen-Birkenbach"
-msgstr "**author**: Marko Pjevac, Kevin Veen-Birkenbach"
+msgstr ""
 
 # libretranslate
 msgid "**author**: Prageeth Panicker"
@@ -17540,7 +17540,7 @@ msgstr "Ansible limit, tipik `localhost`"
 
 # libretranslate
 msgid "Ansible lint toolchain installers."
-msgstr "Ansible lint toolchain installers."
+msgstr ""
 
 # libretranslate
 msgid "Ansible lookup plugin: version"
@@ -42126,7 +42126,7 @@ msgstr "Upstream daha yüksək bir azadlıq tag edən Pins."
 
 # libretranslate
 msgid "Pip-based installer with venv / sudo / --user fallback logic."
-msgstr "Pip-based installer with venv / sudo / --user fallback logic."
+msgstr ""
 
 # libretranslate
 msgid "Pipeline"
@@ -72401,7 +72401,7 @@ msgstr "[Jitsi](roles/web-app-jitsi/)"
 
 # libretranslate
 msgid "[Jitsi prosody plugins (jitsi-contrib)](https://github.com/jitsi-contrib/prosody-plugins)"
-msgstr "[Jitsi prosody plugins (jitsi-contrib)](https://github.com/jitsi-contrib/prosody-plugins)"
+msgstr ""
 
 # libretranslate
 msgid "[Joomla Documentation](https://docs.joomla.org/)"
@@ -73661,7 +73661,7 @@ msgstr "[Kompüter testi](testing/unit.md)"
 
 # libretranslate
 msgid "[Universal Logout GitHub Repository](https://github.com/kevinveenbirkenbach/universal-logout)"
-msgstr "[Universal Logout GitHub Repository](https://github.com/kevinveenbirkenbach/universal-logout)"
+msgstr ""
 
 # libretranslate
 msgid "[Universal Logout](roles/web-svc-logout/)"
@@ -92747,7 +92747,7 @@ msgstr "detached HEAD yenilikləri"
 
 # libretranslate
 msgid "deterministic formatting helpers."
-msgstr "deterministic formatting helpers."
+msgstr ""
 
 # libretranslate
 msgid "dev-nix"

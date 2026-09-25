@@ -155,7 +155,7 @@ msgstr "# nocheck: pip-version package_name: \"Automatu = =1.1.1\""
 
 # libretranslate
 msgid "# nocheck: shared, email # nocheck: url, docker-version"
-msgstr "# nocheck: shared, email # nocheck: url, docker-version"
+msgstr ""
 
 # libretranslate
 msgid "# roles/web-app-X/tasks/01_setup.yml - shell: |"
@@ -23718,7 +23718,7 @@ msgstr "A PASS közötti credential rotation 1 és PASS 2 Egy bevetési kört."
 
 # libretranslate
 msgid "Credential schema definitions and runtime credential values."
-msgstr "Credential schema definitions and runtime credential values."
+msgstr ""
 
 # libretranslate
 msgid "Credential schema with optional `default:` field."
@@ -36375,7 +36375,7 @@ msgstr "Loader szerepe biztosítja a megosztott szolgáltatás előzetes átenge
 
 # libretranslate
 msgid "Loader, lint, and the materialised path"
-msgstr "Loader, lint, and the materialised path"
+msgstr ""
 
 # libretranslate
 msgid "Loading decides whether the provider role is deployed at all."
@@ -38512,7 +38512,7 @@ msgstr "NGINX tartománybeállítás"
 
 # libretranslate
 msgid "NGINX Global Matomo & Theming Modifier Role"
-msgstr "NGINX Global Matomo & Theming Modifier Role"
+msgstr ""
 
 # libretranslate
 msgid "NGINX HTTPS Certificate Retrieval"
@@ -44842,7 +44842,7 @@ msgstr "Szabadidő-kapuk, amelyek eldöntik, hogy egy jelölt elkötelezettség 
 
 # libretranslate
 msgid "Release: Infrastructure Hardening, Mirroring & Deterministic Deploys 🚀"
-msgstr "Release: Infrastructure Hardening, Mirroring & Deterministic Deploys 🚀"
+msgstr ""
 
 # libretranslate
 msgid "Releases a specific version tag (build + publish). Called from `entry-push-latest.yml` on tagged pushes."
@@ -72940,7 +72940,7 @@ msgstr "[Nextcloud hivatalos honlapja](https://nextcloud.com/)"
 
 # libretranslate
 msgid "[Nextcloud → ONLYOFFICE Integration App](https://apps.nextcloud.com/apps/onlyoffice)"
-msgstr "[Nextcloud → ONLYOFFICE Integration App](https://apps.nextcloud.com/apps/onlyoffice)"
+msgstr ""
 
 # libretranslate
 msgid "[Nextcloud](roles/web-app-nextcloud/)"
@@ -93702,11 +93702,11 @@ msgstr "ha a 3rd érv (alapértelmezés) szigorú = hamis, és hogy az alapérte
 
 # libretranslate
 msgid "image name, with or without a registry prefix."
-msgstr "image name, with or without a registry prefix."
+msgstr ""
 
 # libretranslate
 msgid "image name, with or without registry host."
-msgstr "image name, with or without registry host."
+msgstr ""
 
 # libretranslate
 msgid "image reference to run."

@@ -366,7 +366,7 @@ msgstr "Core AI bina blokları - hizmet etmek, OpenAI- uyumlu ağ geçidi, vekt�
 # libretranslate
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
-msgstr "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
+msgstr ""
 
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
@@ -1067,7 +1067,7 @@ msgstr "CRM, satış, muhasebe, envanter, HR ve web sitesi yönetimi için açı
 # libretranslate
 msgctxt "role:web-app-checkmk:description"
 msgid "Open-source IT and application monitoring server behind SSO with native LDAP user management"
-msgstr "Open-source IT and application monitoring server behind SSO with native LDAP user management"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-snipe-it:description"

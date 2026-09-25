@@ -155,7 +155,7 @@ msgstr "# nocheck: pip- versi package_name: \"autotu = =1.1.1\""
 
 # libretranslate
 msgid "# nocheck: shared, email # nocheck: url, docker-version"
-msgstr "# nocheck: shared, email # nocheck: url, docker-version"
+msgstr ""
 
 msgid "# roles/web-app-X/tasks/01_setup.yml - shell: |"
 msgstr ""
@@ -7536,7 +7536,7 @@ msgstr "**Stability & Performance Robust:** Leverage terintegrasi Redis caching 
 
 # libretranslate
 msgid "**Robust Tracking:** Track user interactions across your website with comprehensive analytics tools."
-msgstr "**Robust Tracking:** Track user interactions across your website with comprehensive analytics tools."
+msgstr ""
 
 # libretranslate
 msgid "**Role Integration:** Depends on the [svc-net-wireguard-plain](../svc-net-wireguard-plain/README.md) role to ensure that WireGuard is properly configured before applying firewall rules."
@@ -17424,7 +17424,7 @@ msgstr "Pelacakan analisis"
 
 # libretranslate
 msgid "Android SDK is never needed; safe to remove"
-msgstr "Android SDK is never needed; safe to remove"
+msgstr ""
 
 # libretranslate
 msgid "Annotation format emitted by utils.annotations.message:"
@@ -17923,7 +17923,7 @@ msgstr "Aplikasi 📦"
 
 # libretranslate
 msgid "Applies a Content Security Policy header."
-msgstr "Applies a Content Security Policy header."
+msgstr ""
 
 # libretranslate
 msgid "Applies default timeout values for systemd manager behavior."
@@ -19747,7 +19747,7 @@ msgstr "Membangun sekitar orang terlibat dan memberi mereka kepemilikan pekerjaa
 
 # libretranslate
 msgid "Build canonical Docker Hub source ref for skopeo."
-msgstr "Build canonical Docker Hub source ref for skopeo."
+msgstr ""
 
 # libretranslate
 msgid "Build dynamic inventories from APIs, services, or files."
@@ -22671,7 +22671,7 @@ msgstr "Komputer scope dari `git diff --name-only origin/main...<branch>`."
 
 # libretranslate
 msgid "Compute the canonical OIDC group path for an application role."
-msgstr "Compute the canonical OIDC group path for an application role."
+msgstr ""
 
 # libretranslate
 msgid "Compute the compose-resource footprint of a role and its shared dependencies."
@@ -23454,7 +23454,7 @@ msgstr "Persyaratan benar 025klaim basi dan tambahkan audit melelahkan / mekanis
 
 # libretranslate
 msgid "Corrections to Existing MCP Metadata"
-msgstr "Corrections to Existing MCP Metadata"
+msgstr ""
 
 # libretranslate
 msgid "Cosmos"
@@ -24037,7 +24037,7 @@ msgstr "Resolusi DNS ke `172.30.0.4` Untuk host seperti `pypi.org` adalah diseng
 
 # libretranslate
 msgid "DNS-hijack + frontend HTTPS + runner CA-trust"
-msgstr "DNS-hijack + frontend HTTPS + runner CA-trust"
+msgstr ""
 
 # libretranslate
 msgid "DOMAIN_PRIMARY (apex), defaults_networks.internet.ip4, optional defaults_networks.internet.ip6"
@@ -24217,7 +24217,7 @@ msgstr "Panduan pengawakutuan 🐞"
 
 # libretranslate
 msgid "Debugging in the nested docker daemon"
-msgstr "Debugging in the nested docker daemon"
+msgstr ""
 
 # libretranslate
 msgid "Debugguging Migrations:"
@@ -36359,7 +36359,7 @@ msgstr "Peran loader menyediakan layanan shared- preload dan tugas pembantu untu
 
 # libretranslate
 msgid "Loader, lint, and the materialised path"
-msgstr "Loader, lint, and the materialised path"
+msgstr ""
 
 # libretranslate
 msgid "Loading decides whether the provider role is deployed at all."
@@ -40547,7 +40547,7 @@ msgstr "Operator HARUS memperlakukan setiap membaca yang tak dapat dijelaskan `~
 
 # libretranslate
 msgid "Opt-in live third-party checks, excluded from `make test`"
-msgstr "Opt-in live third-party checks, excluded from `make test`"
+msgstr ""
 
 # libretranslate
 msgid "Optimised for Arch Linux, the role installs NGINX, prepares opinionated configuration snippets and exposes a simple interface for other roles to drop in new virtual-hosts."
@@ -50335,7 +50335,7 @@ msgstr "Serialise *data* ke string YAML."
 
 # libretranslate
 msgid "Serialise an EnvBuilder to .env on disk."
-msgstr "Serialise an EnvBuilder to .env on disk."
+msgstr ""
 
 # libretranslate
 msgid "Serialise an `EnvBuilder` into a docker-compose-compatible `.env` on disk."
@@ -50854,7 +50854,7 @@ msgstr "Berbagi satu lookup menjaga aktiv-set logika dalam SPOT tunggal dan cerm
 
 # libretranslate
 msgid "Shebang Requirement for Custom Modules"
-msgstr "Shebang Requirement for Custom Modules"
+msgstr ""
 
 # libretranslate
 msgid "Shell"

@@ -30969,7 +30969,7 @@ msgstr "Domhanda CSS Instealladh le haghaidh NGINX"
 
 # libretranslate
 msgid "Global JavaScript Injector for NGINX"
-msgstr "Global JavaScript Injector for NGINX"
+msgstr ""
 
 # libretranslate
 msgid "Global bucket order:"
@@ -73141,7 +73141,7 @@ msgstr "[taiseachas aeir: fliuch](roles/web-app-opencloud/)"
 
 # libretranslate
 msgid "[OpenID Connect RP-Initiated Logout](https://openid.net/specs/openid-connect-session-1_0.html#RPLogout)"
-msgstr "[OpenID Connect RP-Initiated Logout](https://openid.net/specs/openid-connect-session-1_0.html#RPLogout)"
+msgstr ""
 
 # libretranslate
 msgid "[OpenID docs](https://docs.semaphoreui.com/administration-guide/openid/)"

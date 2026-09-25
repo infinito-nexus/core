@@ -155,7 +155,7 @@ msgstr "# nocheck: pipp-version package_name: \"automtu ==1.1.1\""
 
 # libretranslate
 msgid "# nocheck: shared, email # nocheck: url, docker-version"
-msgstr "# nocheck: shared, email # nocheck: url, docker-version"
+msgstr ""
 
 # libretranslate
 msgid "# roles/web-app-X/tasks/01_setup.yml - shell: |"
@@ -23107,7 +23107,7 @@ msgstr "Архетип на ролята за обслужване на конт
 
 # libretranslate
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
+msgstr ""
 
 # libretranslate
 msgid "Containerized relational database with automated database, user, and privilege provisioning"
@@ -23732,7 +23732,7 @@ msgstr "Критично въртене между PASS 1 и Пас 2 - Да."
 
 # libretranslate
 msgid "Credential schema definitions and runtime credential values."
-msgstr "Credential schema definitions and runtime credential values."
+msgstr ""
 
 # libretranslate
 msgid "Credential schema with optional `default:` field."
@@ -25876,7 +25876,7 @@ msgstr "Docker Compose"
 
 # libretranslate
 msgid "Docker Compose Certificate Sync Service"
-msgstr "Docker Compose Certificate Sync Service"
+msgstr ""
 
 # libretranslate
 msgid "Docker Compose Tooling 🐳"
@@ -38529,7 +38529,7 @@ msgstr "Настройки на домейн NGINX"
 
 # libretranslate
 msgid "NGINX Global Matomo & Theming Modifier Role"
-msgstr "NGINX Global Matomo & Theming Modifier Role"
+msgstr ""
 
 # libretranslate
 msgid "NGINX HTTPS Certificate Retrieval"
@@ -42109,7 +42109,7 @@ msgstr "Заострени ***pkgmgr*** клонинги към ***стабил�
 
 # libretranslate
 msgid "Pinned Ansible collection versions in ``requirements/``."
-msgstr "Pinned Ansible collection versions in ``requirements/``."
+msgstr ""
 
 # libretranslate
 msgid "Pinned Docker GitHub Actions used in release image workflows to commit SHAs"
@@ -42491,7 +42491,7 @@ msgstr "PostgreSQL"
 
 # libretranslate
 msgid "PostgreSQL Docker Upgrade: Major Version Migration"
-msgstr "PostgreSQL Docker Upgrade: Major Version Migration"
+msgstr ""
 
 # libretranslate
 msgid "PostgreSQL data directories are **not compatible across major versions**. You cannot just point a newer version to the old data volume. You must export and re-import your data."
@@ -70138,7 +70138,7 @@ msgstr "[ ] [desk-gnome-extensions](../../roles/desk-gnome-extensions/) декл
 
 # libretranslate
 msgid "[ ] [svc-db-openldap](../../roles/svc-db-openldap/): backend service with no end-user UI; covered by integration tests, not Playwright."
-msgstr "[ ] [svc-db-openldap](../../roles/svc-db-openldap/): backend service with no end-user UI; covered by integration tests, not Playwright."
+msgstr ""
 
 # libretranslate
 msgid "[ ] [web-app-akaunting](../../roles/web-app-akaunting/): LDAP authentication plugin."
@@ -70314,7 +70314,7 @@ msgstr "[ ] [web-app-xwiki](../../roles/web-app-xwiki/) декларира св�
 
 # libretranslate
 msgid "[ ] [web-svc-cdn](../../roles/web-svc-cdn/), [web-svc-simpleicons](../../roles/web-svc-simpleicons/), [web-svc-xmpp](../../roles/web-svc-xmpp/), [web-svc-libretranslate](../../roles/web-svc-libretranslate/): backend services with no end-user UI."
-msgstr "[ ] [web-svc-cdn](../../roles/web-svc-cdn/), [web-svc-simpleicons](../../roles/web-svc-simpleicons/), [web-svc-xmpp](../../roles/web-svc-xmpp/), [web-svc-libretranslate](../../roles/web-svc-libretranslate/): backend services with no end-user UI."
+msgstr ""
 
 # libretranslate
 msgid "[ ] `/deployed/de/` serves a page whose `<html lang>` is `de` and whose body contains the German translation of a message from the German `docs.po`; `/latest/de/` follows once the catalogs are on `main`."
@@ -71616,7 +71616,7 @@ msgstr "[Bluesky PDS GitHub Repository](https://github.com/bluesky-social/pds)"
 
 # libretranslate
 msgid "[Bluesky Social App GitHub Repository](https://github.com/bluesky-social/social-app)"
-msgstr "[Bluesky Social App GitHub Repository](https://github.com/bluesky-social/social-app)"
+msgstr ""
 
 # libretranslate
 msgid "[Bluesky](https://bsky.social/) is a decentralized social network that runs on the open AT Protocol. Each user account lives on a Personal Data Server (PDS) that holds the user's posts, replies, and follows as signed records, and any number of independent app views can read those records to render a timeline."
@@ -75101,7 +75101,7 @@ msgstr "[opencloud.eu](https://opencloud.eu/)"
 
 # libretranslate
 msgid "[opencloudeu/opencloud on Docker Hub](https://hub.docker.com/r/opencloudeu/opencloud)"
-msgstr "[opencloudeu/opencloud on Docker Hub](https://hub.docker.com/r/opencloudeu/opencloud)"
+msgstr ""
 
 # libretranslate
 msgid "[opentalk.eu](https://opentalk.eu/)"

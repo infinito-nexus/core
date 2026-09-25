@@ -25823,7 +25823,7 @@ msgstr "Docker Compose"
 
 # libretranslate
 msgid "Docker Compose Certificate Sync Service"
-msgstr "Docker Compose Certificate Sync Service"
+msgstr ""
 
 # libretranslate
 msgid "Docker Compose Tooling 🐳"
@@ -30886,7 +30886,7 @@ msgstr "NGINX"
 
 # libretranslate
 msgid "Global JavaScript Injector for NGINX"
-msgstr "Global JavaScript Injector for NGINX"
+msgstr ""
 
 # libretranslate
 msgid "Global bucket order:"
@@ -71458,7 +71458,7 @@ msgstr "[Bluesky PDS GitHub Repository](https://github.com/bluesky-social/pds)"
 
 # libretranslate
 msgid "[Bluesky Social App GitHub Repository](https://github.com/bluesky-social/social-app)"
-msgstr "[Bluesky Social App GitHub Repository](https://github.com/bluesky-social/social-app)"
+msgstr ""
 
 # libretranslate
 msgid "[Bluesky](https://bsky.social/) is a decentralized social network that runs on the open AT Protocol. Each user account lives on a Personal Data Server (PDS) that holds the user's posts, replies, and follows as signed records, and any number of independent app views can read those records to render a timeline."
@@ -72947,7 +72947,7 @@ msgstr "[OpenCloud](roles/web-app-opencloud/)"
 
 # libretranslate
 msgid "[OpenID Connect RP-Initiated Logout](https://openid.net/specs/openid-connect-session-1_0.html#RPLogout)"
-msgstr "[OpenID Connect RP-Initiated Logout](https://openid.net/specs/openid-connect-session-1_0.html#RPLogout)"
+msgstr ""
 
 # libretranslate
 msgid "[OpenID docs](https://docs.semaphoreui.com/administration-guide/openid/)"
@@ -73529,7 +73529,7 @@ msgstr "[מבחן יחידה](testing/unit.md)"
 
 # libretranslate
 msgid "[Universal Logout GitHub Repository](https://github.com/kevinveenbirkenbach/universal-logout)"
-msgstr "[Universal Logout GitHub Repository](https://github.com/kevinveenbirkenbach/universal-logout)"
+msgstr ""
 
 # libretranslate
 msgid "[Universal Logout](roles/web-svc-logout/)"

@@ -17564,7 +17564,7 @@ msgstr "अनुमत सीमा, आम तौर पर `localhost`"
 
 # libretranslate
 msgid "Ansible lint toolchain installers."
-msgstr "Ansible lint toolchain installers."
+msgstr ""
 
 # libretranslate
 msgid "Ansible lookup plugin: version"
@@ -25896,7 +25896,7 @@ msgstr "Docker Compose"
 
 # libretranslate
 msgid "Docker Compose Certificate Sync Service"
-msgstr "Docker Compose Certificate Sync Service"
+msgstr ""
 
 # libretranslate
 msgid "Docker Compose Tooling 🐳"
@@ -73215,7 +73215,7 @@ msgstr "[OpenTalk](roles/web-app-opentalk/)"
 
 # libretranslate
 msgid "[OpenWrt Forum Discussion on WireGuard](https://forum.openwrt.org/t/cannot-ssh-to-clients-on-lan-when-accessing-router-via-wireguard-client/132709/3)"
-msgstr "[OpenWrt Forum Discussion on WireGuard](https://forum.openwrt.org/t/cannot-ssh-to-clients-on-lan-when-accessing-router-via-wireguard-client/132709/3)"
+msgstr ""
 
 # libretranslate
 msgid "[Package update](roles/update/)"

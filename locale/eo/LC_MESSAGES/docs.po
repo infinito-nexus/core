@@ -1515,7 +1515,7 @@ msgstr "**Centralized Database Access:** Konektas senjunte al la komuna MariaDB-
 
 # libretranslate
 msgid "**Centralized Database Integration:**"
-msgstr "**Centralized Database Integration:**"
+msgstr ""
 
 # libretranslate
 msgid "**Centralized Database Integration:**   Seamlessly connect to a MariaDB instance for consistent, reliable data storage and management."
@@ -24056,7 +24056,7 @@ msgstr "Dashboard"
 
 # libretranslate
 msgid "Dashboard Integration Scope Tests 🎛️"
-msgstr "Dashboard Integration Scope Tests 🎛️"
+msgstr ""
 
 # libretranslate
 msgid "Dashboard w/Live Data"
@@ -25860,7 +25860,7 @@ msgstr "Docker Compose"
 
 # libretranslate
 msgid "Docker Compose Certificate Sync Service"
-msgstr "Docker Compose Certificate Sync Service"
+msgstr ""
 
 # libretranslate
 msgid "Docker Compose Tooling 🐳"
@@ -30347,7 +30347,7 @@ msgstr "De ekstere, ĉiu MCP-pado respondas ``404``. La nabo servas sian itinero
 
 # libretranslate
 msgid "Front Base (HTTPS + Cloudflare + Handlers)"
-msgstr "Front Base (HTTPS + Cloudflare + Handlers)"
+msgstr ""
 
 # libretranslate
 msgid "Front-door auth gates (e.g. an oauth2-proxy `sso` service in front of the vhost) are NOT addon bridges unless the addon itself talks to that service; they stay in `meta/services.yml` and MUST NOT appear under `bridges:`."
@@ -38487,7 +38487,7 @@ msgstr "NGINX Domain Setup"
 
 # libretranslate
 msgid "NGINX Global Matomo & Theming Modifier Role"
-msgstr "NGINX Global Matomo & Theming Modifier Role"
+msgstr ""
 
 # libretranslate
 msgid "NGINX HTTPS Certificate Retrieval"
@@ -51690,7 +51690,7 @@ msgstr "Norma variadmatrico trans helpdesk/ERP-roloj."
 
 # libretranslate
 msgid "Standardized Service Configuration 🧱"
-msgstr "Standardized Service Configuration 🧱"
+msgstr ""
 
 # libretranslate
 msgid "Standardized container paths (`/opt/src/infinito`) and switched to a global virtual environment to ensure reproducible builds and consistent test execution."
@@ -71550,7 +71550,7 @@ msgstr "[Bluesky PDS GitHub Repository](https://github.com/bluesky-social/pds)"
 
 # libretranslate
 msgid "[Bluesky Social App GitHub Repository](https://github.com/bluesky-social/social-app)"
-msgstr "[Bluesky Social App GitHub Repository](https://github.com/bluesky-social/social-app)"
+msgstr ""
 
 # libretranslate
 msgid "[Bluesky](https://bsky.social/) is a decentralized social network that runs on the open AT Protocol. Each user account lives on a Personal Data Server (PDS) that holds the user's posts, replies, and follows as signed records, and any number of independent app views can read those records to render a timeline."
@@ -72112,7 +72112,7 @@ msgstr "[Funkwhale](roles/web-app-funkwhale/)"
 
 # libretranslate
 msgid "[FusionDirectory Official Website](https://www.fusiondirectory.org/)"
-msgstr "[FusionDirectory Official Website](https://www.fusiondirectory.org/)"
+msgstr ""
 
 # libretranslate
 msgid "[FusionDirectory](https://www.fusiondirectory.org/) is a web-based LDAP administration tool that manages users, groups, and other directory objects through a pluggable interface. The application stores all of its data in an external LDAP directory, which makes it the natural front-end for the project's `svc-db-openldap` backend."
@@ -100605,7 +100605,7 @@ msgstr "🧩 Laŭflua projekto: `lyqht/mini-qr <https://github.com/lyqht/mini-qr
 
 # libretranslate
 msgid "🧩 [Libretro - Modular Emulator Framework](https://www.libretro.com/)"
-msgstr "🧩 [Libretro - Modular Emulator Framework](https://www.libretro.com/)"
+msgstr ""
 
 # libretranslate
 msgid "🧩 `Libretro - Modular Emulator Framework <https://www.libretro.com/>`__"

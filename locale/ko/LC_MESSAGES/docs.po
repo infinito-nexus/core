@@ -26231,7 +26231,7 @@ msgstr "엔티티 키드 primitives."
 
 # libretranslate
 msgid "Entity-keyed purge primitives for stack-level cleanup inside the running container."
-msgstr "Entity-keyed purge primitives for stack-level cleanup inside the running container."
+msgstr ""
 
 # libretranslate
 msgid "Entries already covered by project-level wildcards or by sandbox auto-allow SHOULD be removed from `settings.local.json`."

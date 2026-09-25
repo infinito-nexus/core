@@ -17528,7 +17528,7 @@ msgstr "Ansible filter spraudnis: get_role"
 
 # libretranslate
 msgid "Ansible filter to count active docker services for current host."
-msgstr "Ansible filter to count active docker services for current host."
+msgstr ""
 
 # libretranslate
 msgid "Ansible filter to retrieve all unique application_id values defined in roles/*/vars/main.yml files."

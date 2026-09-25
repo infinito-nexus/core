@@ -1565,7 +1565,7 @@ msgstr "**Certbot-NGINX Paketinstallation:** Installiert erforderliche certbot P
 
 # libretranslate
 msgid "**Certificate Cleanup Tool Installation**"
-msgstr "**Certificate Cleanup Tool Installation**"
+msgstr ""
 
 # libretranslate
 msgid "**Certificate Cleanup Tool Installation**   Uses `pkgmgr-install` to install the `certreap` binary."
@@ -12784,11 +12784,11 @@ msgstr "*web-app-nextcloud* (Proxy): 1.31.3-alpin bis 1.31.5-alpin"
 
 # libretranslate
 msgid "*web-app-nextcloud* proxy (nginx): unpinned *alpine* to pinned 1.31.2-alpine"
-msgstr "*web-app-nextcloud* proxy (nginx): unpinned *alpine* to pinned 1.31.2-alpine"
+msgstr ""
 
 # libretranslate
 msgid "*web-app-nextcloud* whiteboard: unpinned *latest* to pinned v1.5.9"
-msgstr "*web-app-nextcloud* whiteboard: unpinned *latest* to pinned v1.5.9"
+msgstr ""
 
 # libretranslate
 msgid "*web-app-nextcloud*: PHP 33-fpm-alpine to 34-fpm-alpine, nginx 1.31.2 to 1.31.3"
@@ -12992,7 +12992,7 @@ msgstr "--add-host={{ entry }}"
 
 # libretranslate
 msgid "--distro debian --owner acme --repository infinito-nexus --tag ci-abc"
-msgstr "--distro debian --owner acme --repository infinito-nexus --tag ci-abc"
+msgstr ""
 
 # libretranslate
 msgid "--include web-app-nextcloud web-app-mastodon --include web-app-nextcloud,web-app-mastodon"
@@ -20804,7 +20804,7 @@ msgstr "Zentrale dockerisierte Suchmaschine, die von mehreren Apps mit API-Schl�
 
 # libretranslate
 msgid "Central Engine Services (swarm + compose)"
-msgstr "Central Engine Services (swarm + compose)"
+msgstr ""
 
 # libretranslate
 msgid "Central `svc-db-*` / `svc-dns-*`: `placement: manager` (single node)."
@@ -22975,7 +22975,7 @@ msgstr "Connection Vars, die Variante gebacken `applications.<app>` Block, vault
 
 # libretranslate
 msgid "Connection vars, vars-file/JSON overlays, become-password handling."
-msgstr "Connection vars, vars-file/JSON overlays, become-password handling."
+msgstr ""
 
 # libretranslate
 msgid "Consequences in practice:"
@@ -24119,7 +24119,7 @@ msgstr "Dashboard"
 
 # libretranslate
 msgid "Dashboard Integration Scope Tests 🎛️"
-msgstr "Dashboard Integration Scope Tests 🎛️"
+msgstr ""
 
 # libretranslate
 msgid "Dashboard w/Live Data"
@@ -31230,7 +31230,7 @@ msgstr "HTTPS OAuth Redirect Fix"
 
 # libretranslate
 msgid "HTTPS base ready (NGINX, ACME webroot)"
-msgstr "HTTPS base ready (NGINX, ACME webroot)"
+msgstr ""
 
 # libretranslate
 msgid "Hadolint (High severity)"
@@ -32001,7 +32001,7 @@ msgstr "INFINITO_WORKER_CPU: CPU-Count-Basis für die Worker SPOT-Kette."
 
 # libretranslate
 msgid "INFINITO_WORKER_FETCH: I/O-bound network-fetch worker count."
-msgstr "INFINITO_WORKER_FETCH: I/O-bound network-fetch worker count."
+msgstr ""
 
 # libretranslate
 msgid "INIT_CONTAINER: 'service_completed_successfully'}) }}"
@@ -32111,7 +32111,7 @@ msgstr "Identität"
 
 # libretranslate
 msgid "Identity & Access Integration Tests 🔐"
-msgstr "Identity & Access Integration Tests 🔐"
+msgstr ""
 
 # libretranslate
 msgid "Identity and Access Management"
@@ -38627,7 +38627,7 @@ msgstr "NGINX-Serverblöcke, die www-Subdomains dauerhaft auf ihre Nicht-www-Ape
 
 # libretranslate
 msgid "NGINX vHost Templates: Basic vs. WebSocket (ws_generic)"
-msgstr "NGINX vHost Templates: Basic vs. WebSocket (ws_generic)"
+msgstr ""
 
 # libretranslate
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
@@ -41509,7 +41509,7 @@ msgstr "Parse Argv in ``(args, passthrough, modes_spec)``."
 
 # libretranslate
 msgid "Parse human-readable memory size strings to bytes."
-msgstr "Parse human-readable memory size strings to bytes."
+msgstr ""
 
 # libretranslate
 msgid "Parse include_tasks/import_tasks from tasks/main.yml. Only accepts simple, non-Jinja names."
@@ -42334,7 +42334,7 @@ msgstr "Playwright (pro Person [playwright.spec.js Vertrag](../contributing/arte
 
 # libretranslate
 msgid "Playwright / E2E: biber First-Login Caveat"
-msgstr "Playwright / E2E: biber First-Login Caveat"
+msgstr ""
 
 # libretranslate
 msgid "Playwright Codegen (built-in) 🔧"
@@ -42554,7 +42554,7 @@ msgstr "PostgreSQL"
 
 # libretranslate
 msgid "PostgreSQL Docker Upgrade: Major Version Migration"
-msgstr "PostgreSQL Docker Upgrade: Major Version Migration"
+msgstr ""
 
 # libretranslate
 msgid "PostgreSQL data directories are **not compatible across major versions**. You cannot just point a newer version to the old data volume. You must export and re-import your data."
@@ -53390,7 +53390,7 @@ msgstr "Systemskripte"
 
 # libretranslate
 msgid "System Utility: Git Pull (Shallow & Pinned)"
-msgstr "System Utility: Git Pull (Shallow & Pinned)"
+msgstr ""
 
 # libretranslate
 msgid "System Version ️"
@@ -63239,7 +63239,7 @@ msgstr "Tie-Break-Taste für eine bereite Rolle: zuerst grober Bucket, dann Name
 
 # libretranslate
 msgid "Tier Progression: Token Budget Guidance"
-msgstr "Tier Progression: Token Budget Guidance"
+msgstr ""
 
 # libretranslate
 msgid "Tiering role placing Docker volumes on SSD or HDD by workload type, with symlinks keeping paths consistent"
@@ -67691,7 +67691,7 @@ msgstr "Wikipedia: [Session Traversal Utilities für NAT](https://en.wikipedia.o
 
 # libretranslate
 msgid "Wikipedia: [Traversal Using Relays around NAT](https://en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT)"
-msgstr "Wikipedia: [Traversal Using Relays around NAT](https://en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT)"
+msgstr ""
 
 # libretranslate
 msgid "Wikipedia: `Session Traversal Utilities for NAT <https://en.wikipedia.org/wiki/STUN>`__"
@@ -71750,7 +71750,7 @@ msgstr "[Bluesky PDS GitHub Repository](https://github.com/bluesky-social/pds)"
 
 # libretranslate
 msgid "[Bluesky Social App GitHub Repository](https://github.com/bluesky-social/social-app)"
-msgstr "[Bluesky Social App GitHub Repository](https://github.com/bluesky-social/social-app)"
+msgstr ""
 
 # libretranslate
 msgid "[Bluesky](https://bsky.social/) is a decentralized social network that runs on the open AT Protocol. Each user account lives on a Personal Data Server (PDS) that holds the user's posts, replies, and follows as signed records, and any number of independent app views can read those records to render a timeline."
@@ -73092,7 +73092,7 @@ msgstr "[Nextcloud Offizielle Webseite](https://nextcloud.com/)"
 
 # libretranslate
 msgid "[Nextcloud → ONLYOFFICE Integration App](https://apps.nextcloud.com/apps/onlyoffice)"
-msgstr "[Nextcloud → ONLYOFFICE Integration App](https://apps.nextcloud.com/apps/onlyoffice)"
+msgstr ""
 
 # libretranslate
 msgid "[Nextcloud](roles/web-app-nextcloud/)"
@@ -73240,7 +73240,7 @@ msgstr "[OpenCloud](roles/web-app-opencloud/)"
 
 # libretranslate
 msgid "[OpenID Connect RP-Initiated Logout](https://openid.net/specs/openid-connect-session-1_0.html#RPLogout)"
-msgstr "[OpenID Connect RP-Initiated Logout](https://openid.net/specs/openid-connect-session-1_0.html#RPLogout)"
+msgstr ""
 
 # libretranslate
 msgid "[OpenID docs](https://docs.semaphoreui.com/administration-guide/openid/)"
@@ -73824,7 +73824,7 @@ msgstr "[Einheitstests](testing/unit.md)"
 
 # libretranslate
 msgid "[Universal Logout GitHub Repository](https://github.com/kevinveenbirkenbach/universal-logout)"
-msgstr "[Universal Logout GitHub Repository](https://github.com/kevinveenbirkenbach/universal-logout)"
+msgstr ""
 
 # libretranslate
 msgid "[Universal Logout](roles/web-svc-logout/)"
@@ -73892,7 +73892,7 @@ msgstr "[WireGuard NAT und Firewall-Probleme](https://serverfault.com/questions/
 
 # libretranslate
 msgid "[WireGuard Permissions Issue Discussion](https://bodhilinux.boards.net/thread/450/wireguard-rtnetlink-answers-permission-denied)"
-msgstr "[WireGuard Permissions Issue Discussion](https://bodhilinux.boards.net/thread/450/wireguard-rtnetlink-answers-permission-denied)"
+msgstr ""
 
 # libretranslate
 msgid "[Wireguard Client](roles/svc-net-wireguard-plain/)"
@@ -93368,7 +93368,7 @@ msgstr "eslint preserve-caught-error und no-useless-assignment-Verstöße in fü
 
 # libretranslate
 msgid "eslint, eslint-plugin-playwright, eslint/js, actions/setup-python, actions/create-github-app-token"
-msgstr "eslint, eslint-plugin-playwright, eslint/js, actions/setup-python, actions/create-github-app-token"
+msgstr ""
 
 # libretranslate
 msgid "espocrm"
@@ -93708,7 +93708,7 @@ msgstr "gettext Domain."
 
 # libretranslate
 msgid "git repository URL (GitHub-style raw path layout)."
-msgstr "git repository URL (GitHub-style raw path layout)."
+msgstr ""
 
 # libretranslate
 msgid "git repository URL to fetch the ``aliases`` file from."
@@ -94681,7 +94681,7 @@ msgstr "nftables-Paketfilter, dessen Regeln jede Rolle als eigene Tabelle besitz
 
 # libretranslate
 msgid "nginx vhost-file purge helper (entity-keyed)."
-msgstr "nginx vhost-file purge helper (entity-keyed)."
+msgstr ""
 
 # libretranslate
 msgid "no"

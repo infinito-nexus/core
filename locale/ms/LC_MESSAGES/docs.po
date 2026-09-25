@@ -153,7 +153,7 @@ msgstr "# Nocheck: pip-version package_name: KANTOR: \"Otomtu==1.1.1\""
 
 # libretranslate
 msgid "# nocheck: shared, email # nocheck: url, docker-version"
-msgstr "# nocheck: shared, email # nocheck: url, docker-version"
+msgstr ""
 
 msgid "# roles/web-app-X/tasks/01_setup.yml - shell: |"
 msgstr ""
@@ -12727,7 +12727,7 @@ msgstr "--add-host={{ entry }}"
 
 # libretranslate
 msgid "--distro debian --owner acme --repository infinito-nexus --tag ci-abc"
-msgstr "--distro debian --owner acme --repository infinito-nexus --tag ci-abc"
+msgstr ""
 
 # libretranslate
 msgid "--include web-app-nextcloud web-app-mastodon --include web-app-nextcloud,web-app-mastodon"
