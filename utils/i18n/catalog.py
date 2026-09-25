@@ -11,6 +11,7 @@ from babel.messages.catalog import Catalog
 from babel.messages.pofile import read_po, write_po
 
 from utils.i18n.placeholders import carries_placeholder
+from utils.i18n.untranslatable import untranslatable
 from utils.software import (
     SOFTWARE_AUTHOR,
     SOFTWARE_CONTACT,
@@ -65,7 +66,12 @@ def new_catalog(domain: str, code: str | None = None) -> Catalog:
 
 
 def build_template(messages: Iterable[tuple[str, str]], domain: str) -> Catalog:
-    """Return a template catalog holding ``messages``.
+    """Return a template catalog holding the translatable part of ``messages``.
+
+    This is the ``core`` domain's counterpart to the sphinx transform the
+    ``docs`` domain carries: ``core`` never passes through sphinx, so a message
+    that is nothing but a name would otherwise reach its catalog while the same
+    message is withheld from the other domain.
 
     Args:
         messages: ``(msgctxt, msgid)`` pairs; ``msgctxt`` may be ``None``.
@@ -73,7 +79,8 @@ def build_template(messages: Iterable[tuple[str, str]], domain: str) -> Catalog:
     """
     template = new_catalog(domain)
     for context, msgid in messages:
-        template.add(msgid, context=context)
+        if not untranslatable(msgid):
+            template.add(msgid, context=context)
     return template
 
 

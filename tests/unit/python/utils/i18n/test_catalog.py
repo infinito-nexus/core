@@ -12,6 +12,25 @@ from utils.i18n.catalog import (
 from utils.i18n.translate import pending
 
 
+class TestBuildTemplate(unittest.TestCase):
+    def test_a_message_that_is_only_a_name_never_enters_the_template(self) -> None:
+        template = build_template(
+            [("a", "Mastodon"), ("b", "Mastodon is a federated network.")], "core"
+        )
+
+        self.assertEqual(
+            [message.id for message in template if message.id],
+            ["Mastodon is a federated network."],
+            "core never passes through sphinx, so without this the docs domain "
+            "withholds a name its own catalog still carries",
+        )
+
+    def test_a_message_without_a_word_never_enters_the_template(self) -> None:
+        template = build_template([("a", "`x`"), ("b", "Real prose.")], "core")
+
+        self.assertEqual([message.id for message in template if message.id], ["Real prose."])
+
+
 class TestMerge(unittest.TestCase):
     def test_changed_source_comes_back_empty_for_the_translator(self):
         catalog = merge(build_template([("a", "Hello world")], "core"), None, "de")
