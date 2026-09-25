@@ -34,10 +34,20 @@ msgctxt "menu:Artificial Intelligence:description"
 msgid "AI tools and frameworks for running, managing, and experimenting with models."
 msgstr "AI orodja in okviri za vodenje, upravljanje in eksperimentiranje z modeli."
 
+msgctxt "role:dsk-gnt-cursor:description"
+msgid "AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
+msgstr ""
+
 # libretranslate
 msgctxt "menu:Server Administration:description"
 msgid "Administration Tools für servers"
 msgstr "Skrbniška orodja für strežniki"
+
+# libretranslate
+#, fuzzy
+msgctxt "category:dsk.gnt:title"
+msgid "Agents"
+msgstr "Dogodki"
 
 # libretranslate
 msgctxt "role:sys-front-inj-all:description"
@@ -45,7 +55,8 @@ msgid "Aggregate NGINX sub-filter injector adding Matomo tracking, global themin
 msgstr "Aggregate NGINX sub-filter injektor dodajanje Matomo sledenje, globalno tematiko, iFrame in JS snippes po funkcijske zastave"
 
 # libretranslate
-msgctxt "role:desk-gnome:description"
+#, fuzzy
+msgctxt "role:dsk-gnome:description"
 msgid "Aggregate desktop environment bundling caffeine, shell extensions, and terminal into a complete GNOME setup on Linux"
 msgstr "Aggregate namizno okolje združevanje kofeina, lupin razširitve, in terminal v popolno GNOME nastavitev na Linuxu"
 
@@ -149,6 +160,10 @@ msgctxt "role:svc-db-typesense:description"
 msgid "Central Dockerized search engine shared by multiple apps with per-consumer scoped API keys"
 msgstr "Centralni dockerizirani iskalnik, ki ga deli več aplikacij z API ključi na potrošnika"
 
+msgctxt "role:svc-ai-tika:description"
+msgid "Central document extraction engine that turns uploaded files into text for retrieval-augmented chat"
+msgstr ""
+
 # libretranslate
 msgctxt "menu:Help:description"
 msgid "Central help resources, including documentation, support tools, and guidance."
@@ -235,7 +250,8 @@ msgid "Client-side WireGuard VPN role for stable connectivity with a systemd ser
 msgstr "Vloga WireGuard VPN na strani naročnika za stabilno povezljivost s sistemsko storitvijo in skripto, ki uglašuje vmesnik MTU"
 
 # libretranslate
-msgctxt "role:desk-copyq:description"
+#, fuzzy
+msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Upravljalnik odložišča z urejevalno zgodovino, dejanji po meri in podporo za skripte"
 
@@ -259,13 +275,18 @@ msgctxt "role:svc-registry-cache:description"
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
 msgstr "Krajevni predpomnilnik za skupno sliko Docker Hub, rezanje dvojnih prenosov in omejitev hitrosti"
 
+msgctxt "category:dsk.gnt:description"
+msgid "Coding agents installed on the workstation (Claude Code, Cursor, Pi)"
+msgstr ""
+
 # libretranslate
 msgctxt "role:web-app-mediawiki:description"
 msgid "Collaborative wiki platform for user-driven documentation with an extensible extension ecosystem and content management"
 msgstr "Skupna wiki platforma za uporabniško podprto dokumentacijo z razširjenim ekosistemom in upravljanjem vsebin"
 
 # libretranslate
-msgctxt "role:desk-jrnl:description"
+#, fuzzy
+msgctxt "role:dsk-jrnl:description"
 msgid "Command-line journal application for creating and managing personal diary entries from the terminal"
 msgstr "Program ukazne vrstice za ustvarjanje in upravljanje vnosov osebnih dnevnikov s terminala"
 
@@ -465,47 +486,56 @@ msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
 msgstr "Razširljivi spletni programi (GitLab, Nextcloud, Mastodon idr.)"
 
 # libretranslate
-msgctxt "category:desk:title"
+#, fuzzy
+msgctxt "category:dsk:title"
 msgid "Desktop"
 msgstr "Namizje"
 
 # libretranslate
-msgctxt "role:desk-spotify:description"
+#, fuzzy
+msgctxt "role:dsk-spotify:description"
 msgid "Desktop client for streaming music, playlists, and podcasts"
 msgstr "Namizni odjemalec za pretakanje glasbe, predvajalnih seznamov in podcastov"
 
 # libretranslate
-msgctxt "role:desk-nextcloud:description"
+#, fuzzy
+msgctxt "role:dsk-nextcloud:description"
 msgid "Desktop client setup linking home folders into the cloud-synced directory for integrated file synchronization"
 msgstr "Nastavitev namiznega odjemalca, ki povezuje domače mape v mapo, sinhronizirano z oblakom, za integrirano sinhronizacijo datotek"
 
 # libretranslate
-msgctxt "role:desk-gnome-extensions:description"
+#, fuzzy
+msgctxt "role:dsk-gnome-extensions:description"
 msgid "Desktop config role for activating GNOME Shell extensions and installing a CLI tool to manage them"
 msgstr "Namizna konfiguracija za aktiviranje razširitev GNOME Shell in namestitev orodja CLI za njihovo upravljanje"
 
 # libretranslate
-msgctxt "category:desk:description"
+#, fuzzy
+msgctxt "category:dsk:description"
 msgid "Desktop environment roles & apps (GNOME, browser, LibreOffice, etc.)"
 msgstr "Vloge in aplikacije za okolje namizja (GNOME, brskalnik, LibreOffice, itd.)"
 
 # libretranslate
-msgctxt "role:desk-bluray-player:description"
+#, fuzzy
+msgctxt "role:dsk-bluray-player:description"
 msgid "Desktop media-player setup with VLC and AACS/BD+ libraries for Blu-ray disc decryption and playback on Arch Linux"
 msgstr "Nastavitev namiznega večpredstavnostnega predvajalnika s knjižnicama VLC in AACS/BD+ za dešifriranje diska Blu-ray in predvajanje na Arch Linuxu"
 
 # libretranslate
-msgctxt "role:desk-libreoffice:description"
+#, fuzzy
+msgctxt "role:dsk-libreoffice:description"
 msgid "Desktop office suite for documents, spreadsheets, and presentations with Liberation fonts and language packs"
 msgstr "Namizna pisarniška zbirka za dokumente, preglednice in predstavitve z osvobodilnimi pisavami in jezikovnimi paketi"
 
 # libretranslate
-msgctxt "role:desk-gnome-caffeine:description"
+#, fuzzy
+msgctxt "role:dsk-gnome-caffeine:description"
 msgid "Desktop utility for inhibiting screen blanking and sleep, autostarted on the GNOME desktop"
 msgstr "Pripomoček za namizje za zavrtje slepega zaslona in spanje, samodejno zagnan na namizju GNOME"
 
 # libretranslate
-msgctxt "role:desk-zoom:description"
+#, fuzzy
+msgctxt "role:dsk-zoom:description"
 msgid "Desktop video conferencing client for online meetings, webinars, and screen sharing"
 msgstr "Odjemalec namiznih videokonferenc za spletne sestanke, spletne strani in souporabo zaslona"
 
@@ -605,7 +635,8 @@ msgid "Events"
 msgstr "Dogodki"
 
 # libretranslate
-msgctxt "role:desk-neovim:description"
+#, fuzzy
+msgctxt "role:dsk-neovim:description"
 msgid "Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
 msgstr "Obsežen urejevalnik besedila na podlagi ukazne vrstice za urejanje kode in konfiguracij na terminalu"
 
@@ -645,12 +676,14 @@ msgid "Free and open-source TURN/STUN relay server for NAT traversal in WebRTC a
 msgstr "Brezplačni in odprtokodni strežnik za rele TURN/STON za NAT traversal v WebRTC in komunikacijo v realnem času"
 
 # libretranslate
-msgctxt "role:desk-obs:description"
+#, fuzzy
+msgctxt "role:dsk-obs:description"
 msgid "Free and open-source desktop application for live video streaming and screen recording"
 msgstr "Brezplačni in odprtokodni namizni program za prenos v živo in snemanje zaslona"
 
 # libretranslate
-msgctxt "role:desk-gnucash:description"
+#, fuzzy
+msgctxt "role:dsk-gnucash:description"
 msgid "Free and open-source desktop application for personal and small-business accounting and financial management"
 msgstr "Brezplačna in odprtokodna namizna aplikacija za osebno in maloposlovno računovodstvo ter finančno poslovodenje"
 
@@ -690,7 +723,8 @@ msgid "Generic end-to-end test runner executing role-provided Playwright specs i
 msgstr "Splošni testni tekač od konca do konca, ki izvaja Playwrightove specifikacije v Dockerju za uporabljene programe"
 
 # libretranslate
-msgctxt "role:desk-dotlinker:description"
+#, fuzzy
+msgctxt "role:dsk-dotlinker:description"
 msgid "Generic role installing the doli CLI and applying dotfile symlink mappings passed in by other roles"
 msgstr "Splošna vloga namestitve doli CLI in uporabe kartografskih kart dotfile, ki jih izvajajo druge vloge"
 
@@ -710,7 +744,8 @@ msgid "Hardened OpenSSH daemon configuration for key-based remote access with ro
 msgstr "Ojačene nastavitve daemona OpenSSH za oddaljen dostop, ki temelji na ključih, z onemogočeno avtentikacijo root in gesla"
 
 # libretranslate
-msgctxt "role:desk-chromium:description"
+#, fuzzy
+msgctxt "role:dsk-chromium:description"
 msgid "Hardened desktop web browser with enforced privacy and password-manager extensions via Enterprise Policies"
 msgstr "Otrdel namizni spletni brskalnik z uveljavljenimi razširitvami za upravljanje zasebnosti in gesel prek Enterprise Policy"
 
@@ -839,6 +874,10 @@ msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "Čas delovanja javascripta za gradnjo in delovanje aplikacij na strani strežnika ter orodja za razvijalce"
 
+msgctxt "role:svc-ai-jupyter:description"
+msgid "Kernel backend that runs the code a chat writes, in a container instead of in the browser sandbox"
+msgstr ""
+
 # libretranslate
 msgctxt "role:web-app-hermes:description"
 msgid "Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to models through the shared LLM gateway"
@@ -870,7 +909,8 @@ msgid "Let's Encrypt provider for the front-facing TLS layer ensuring automated 
 msgstr "Šifrirajmo ponudnika za čelno obrnjeno plast TLS, ki zagotavlja samodejno izdajo in prisotnost certifikatov"
 
 # libretranslate
-msgctxt "role:desk-retroarch:description"
+#, fuzzy
+msgctxt "role:dsk-retroarch:description"
 msgid "Libretro-based frontend for emulators, game engines, and media players, with XMB and Ozone menu styles"
 msgstr "Začelje na osnovi libretroja za emulatorje, igralne motorje in medijske predvajalnike, s stiloma menijev XMB in Ozone"
 
@@ -895,9 +935,14 @@ msgid "Local self-signed Root CA for issuing trust so containers accept internal
 msgstr "Lokalni samopodpisani Root CA za izdajo zaupanja, tako da zabojniki sprejmejo notranje končne točke TLS"
 
 # libretranslate
-msgctxt "role:desk-keepassxc:description"
+#, fuzzy
+msgctxt "role:dsk-keepassxc:description"
 msgid "Local-first cross-platform desktop password manager storing credentials in an encrypted KeePass-format database"
 msgstr "Krajevno prvi upravljalnik namiznih gesel z navzkrižno platformo, ki shranjuje poverilnice v šifrirani bazi KeePass-format"
+
+msgctxt "role:dsk-laya:description"
+msgid "Local-first notification command center that aggregates Slack, mail and issue trackers into approvable action cards"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-lock:description"
@@ -933,6 +978,14 @@ msgstr "Marker vloga označi gostitelja kot vozlišče Docker Swarm manager, z i
 msgctxt "menu:Marketing:title"
 msgid "Marketing"
 msgstr "Trženje"
+
+msgctxt "role:svc-ai-searxng:description"
+msgid "Metasearch engine the platform queries for web results without handing a user's query to a tracking search provider"
+msgstr ""
+
+msgctxt "role:dsk-gnt-pi:description"
+msgid "Minimal terminal coding agent with a lazy-loading skill system, wired to the platform's own model gateway"
+msgstr ""
 
 # libretranslate
 msgctxt "category:sys.ctl.hlth:title"
@@ -1105,7 +1158,8 @@ msgid "Open-source content management system for building websites, intranets, a
 msgstr "Odprtokodni sistem upravljanja vsebin za gradnjo spletnih strani, intranetov in spletnih aplikacij brez pisne kode"
 
 # libretranslate
-msgctxt "role:desk-qbittorrent:description"
+#, fuzzy
+msgctxt "role:dsk-qbittorrent:description"
 msgid "Open-source desktop BitTorrent client for downloading and sharing files over the BitTorrent protocol"
 msgstr "Odprtokodni namizni odjemalec BitTorrent za prenos in souporabo datotek preko protokola BitTorrent"
 
@@ -1189,13 +1243,18 @@ msgctxt "role:sys-pip:description"
 msgid "Package manager for installing and managing Python packages on the target host"
 msgstr "Upravljalnik paketov za namestitev in upravljanje Python paketov na ciljnem gostitelju"
 
+msgctxt "role:svc-ai-agent-broker:description"
+msgid "Per-user Hermes and OpenClaw agents started on demand behind an OpenAI-compatible endpoint"
+msgstr ""
+
 # libretranslate
 msgctxt "role:sys-ctl-hlth-msmtp:description"
 msgid "Periodic health check for outbound mail delivery, sending a test message via msmtp and alerting on failure"
 msgstr "Periodični zdravstveni pregled za dostavo pošte, pošiljanje sporočila o testiranju preko msmtp in opozarjanje na okvaro"
 
 # libretranslate
-msgctxt "role:desk-ssh:description"
+#, fuzzy
+msgctxt "role:dsk-ssh:description"
 msgid "Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
 msgstr "Vztrajen sistemski uporabnik-service SSH agent za Wayland namizja, z .ssh config sinhroniziran iz Git"
 
@@ -1225,7 +1284,8 @@ msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the
 msgstr "Sistemsko podprto varnostno kopiranje z vtičem za težko povezavo, deduplicirane posnetke lokalnega rezervnega drevesa na napravo USB, ki jo je mogoče zamenjati"
 
 # libretranslate
-msgctxt "role:desk-firefox:description"
+#, fuzzy
+msgctxt "role:dsk-firefox:description"
 msgid "Policy-managed web browser for Arch Linux desktops with auto-installed enterprise extensions"
 msgstr "S politiko upravljani spletni brskalnik za namizja Arch Linux z avtonameščenimi razširitvami podjetij"
 
@@ -1472,6 +1532,10 @@ msgstr "Samogostiteljski imenik LDAP za centralizirano upravljanje uporabnikov, 
 msgctxt "role:web-app-minio:description"
 msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
 msgstr "samogostujoči S3-združljivo shranjevanje predmetov za datoteke, medije, varnostne kopije in artefakte AI"
+
+msgctxt "role:svc-ai-s1:description"
+msgid "Self-hosted System One classifier that answers typed questions so the gateway can route without generating"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-yourls:description"
@@ -1834,13 +1898,23 @@ msgctxt "role:sys-ctl-alm-telegram:description"
 msgid "Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"
 msgstr "Prijavitelj s sistemskim sprožilcem za pošiljanje opozoril o neuspešnih storitvah na klepet Telegram"
 
+msgctxt "role:dsk-gnt-claude:description"
+msgid "Terminal coding agent from Anthropic, pointed at the platform's own model gateway instead of the vendor API"
+msgstr ""
+
+msgctxt "role:dsk-gnt-codex:description"
+msgid "Terminal coding agent from OpenAI, pointed at the platform's own model gateway instead of the vendor API"
+msgstr ""
+
 # libretranslate
-msgctxt "role:desk-gnome-terminal:description"
+#, fuzzy
+msgctxt "role:dsk-gnome-terminal:description"
 msgid "Terminal emulator for the GNOME desktop, giving command-line access on Arch Linux workstations"
 msgstr "Terminalni emulator za namizje GNOME, ki omogoča dostop do ukazne vrstice na Arch Linuxovih delovnih postajah"
 
 # libretranslate
-msgctxt "role:desk-micro:description"
+#, fuzzy
+msgctxt "role:dsk-micro:description"
 msgid "Terminal-based text editor with modern keybindings and syntax highlighting for Pacman-based workstations"
 msgstr "Urejevalnik besedil na osnovi terminala s sodobnimi vezavami in poudarjanjem sintakse za delovne postaje na osnovi Pacman"
 
@@ -1910,12 +1984,14 @@ msgid "Tor daemon publishing the node as a v3 onion service"
 msgstr "Tor demon objavlja vozlišče kot v3 Storitve čebule"
 
 # libretranslate
-msgctxt "role:desk-torbrowser:description"
+#, fuzzy
+msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "Tor odjemalec omrežja in zaganjalnik brskalnika za anonimno brskanje po spletu, osredotočeno na zasebnost"
 
 # libretranslate
-msgctxt "role:desk-virtualbox:description"
+#, fuzzy
+msgctxt "role:dsk-virtualbox:description"
 msgid "Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack"
 msgstr "Vrsta2 hipervisor za virtualne stroje na delovnih postajah Pacman, z moduli jedra in podaljški"
 
@@ -1955,7 +2031,8 @@ msgid "Users & Access"
 msgstr "Uporabniki in dostop"
 
 # libretranslate
-msgctxt "role:desk-git:description"
+#, fuzzy
+msgctxt "role:dsk-git:description"
 msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
 msgstr "Odjemalec za nadzor različic za osebne delovne postaje, prednastavljen z identiteto, podpisovanjem in združevanjem privzetih vrednosti"
 
@@ -1963,6 +2040,10 @@ msgstr "Odjemalec za nadzor različic za osebne delovne postaje, prednastavljen 
 msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
 msgstr "Razlikovana postavitve opredmetena jelka za dostavo CDN s skupno, prodajalec, in na role javnost imeniki"
+
+msgctxt "role:dsk-code:description"
+msgid "Visual Studio Code workstation editor in a selectable flavor, carrying the extensions of the agents the host deploys"
+msgstr ""
 
 # libretranslate
 msgctxt "category:web:title"
@@ -2005,7 +2086,8 @@ msgid "Webserver Optimation"
 msgstr "Optimizacija spletnega strežnika"
 
 # libretranslate
-msgctxt "role:desk-docker:description"
+#, fuzzy
+msgctxt "role:dsk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
 msgstr "Nastavitev delovne postaje za Docker in Docker Compose z lokalnim uporabnikom v skupini docker za razvoj brez korenin"
 

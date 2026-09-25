@@ -34,10 +34,20 @@ msgctxt "menu:Artificial Intelligence:description"
 msgid "AI tools and frameworks for running, managing, and experimenting with models."
 msgstr "Công cụ AI và khuôn khổ để chạy, quản lý và thử nghiệm với mô hình."
 
+msgctxt "role:dsk-gnt-cursor:description"
+msgid "AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
+msgstr ""
+
 # libretranslate
 msgctxt "menu:Server Administration:description"
 msgid "Administration Tools für servers"
 msgstr "Name"
+
+# libretranslate
+#, fuzzy
+msgctxt "category:dsk.gnt:title"
+msgid "Agents"
+msgstr "Sự kiện"
 
 # libretranslate
 msgctxt "role:sys-front-inj-all:description"
@@ -45,7 +55,8 @@ msgid "Aggregate NGINX sub-filter injector adding Matomo tracking, global themin
 msgstr "Trình tiêm chủng NGINX phụ bổ sung theo dõi Matomo, toàn cầu, iFrame và JS bằng cờ tính năng"
 
 # libretranslate
-msgctxt "role:desk-gnome:description"
+#, fuzzy
+msgctxt "role:dsk-gnome:description"
 msgid "Aggregate desktop environment bundling caffeine, shell extensions, and terminal into a complete GNOME setup on Linux"
 msgstr "Môi trường màn hình nền tích tụ cà phê, mở rộng vỏ bọc, và thiết bị cuối thành một thiết lập GNOME hoàn chỉnh trên Linux"
 
@@ -149,6 +160,10 @@ msgctxt "role:svc-db-typesense:description"
 msgid "Central Dockerized search engine shared by multiple apps with per-consumer scoped API keys"
 msgstr "Công cụ tìm kiếm trung tâm Dockerized được chia sẻ bởi nhiều ứng dụng với các khoá trên mỗi đối tượng được bao gồm bởi API"
 
+msgctxt "role:svc-ai-tika:description"
+msgid "Central document extraction engine that turns uploaded files into text for retrieval-augmented chat"
+msgstr ""
+
 # libretranslate
 msgctxt "menu:Help:description"
 msgid "Central help resources, including documentation, support tools, and guidance."
@@ -234,7 +249,8 @@ msgid "Client-side WireGuard VPN role for stable connectivity with a systemd ser
 msgstr "Vai trò khách hàng bên Wire Guard VPN cho việc kết nối ổn định với một dịch vụ hệ thống và văn lệnh mà giai điệu giao diện MT"
 
 # libretranslate
-msgctxt "role:desk-copyq:description"
+#, fuzzy
+msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Bộ quản lý bảng tạm với lịch sử soạn thảo, hành động tự chọn và hỗ trợ văn lệnh"
 
@@ -258,13 +274,18 @@ msgctxt "role:svc-registry-cache:description"
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
 msgstr "Bộ nhớ tạm xếp chồng-local thông qua cho các động tác kéo căn cứ Docker, cắt đôi chuyển giao và giới hạn tốc độ"
 
+msgctxt "category:dsk.gnt:description"
+msgid "Coding agents installed on the workstation (Claude Code, Cursor, Pi)"
+msgstr ""
+
 # libretranslate
 msgctxt "role:web-app-mediawiki:description"
 msgid "Collaborative wiki platform for user-driven documentation with an extensible extension ecosystem and content management"
 msgstr "Nền tảng sinh thái hợp tác cho tài liệu hướng dẫn người dùng với hệ thống mở rộng mở rộng và quản lý nội dung"
 
 # libretranslate
-msgctxt "role:desk-jrnl:description"
+#, fuzzy
+msgctxt "role:dsk-jrnl:description"
 msgid "Command-line journal application for creating and managing personal diary entries from the terminal"
 msgstr "Ứng dụng nhật ký dòng lệnh cho việc tạo và quản lý mục nhật ký cá nhân từ thiết bị cuối"
 
@@ -461,47 +482,56 @@ msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
 msgstr "Các ứng dụng web có thể triển khai (GitLab. Nextcloud. Mastodon, etc.)"
 
 # libretranslate
-msgctxt "category:desk:title"
+#, fuzzy
+msgctxt "category:dsk:title"
 msgid "Desktop"
 msgstr "Màn hình nền"
 
 # libretranslate
-msgctxt "role:desk-spotify:description"
+#, fuzzy
+msgctxt "role:dsk-spotify:description"
 msgid "Desktop client for streaming music, playlists, and podcasts"
 msgstr "Trình khách màn hình để truyền nhạc, danh sách các bản nhạc và harcast"
 
 # libretranslate
-msgctxt "role:desk-nextcloud:description"
+#, fuzzy
+msgctxt "role:dsk-nextcloud:description"
 msgid "Desktop client setup linking home folders into the cloud-synced directory for integrated file synchronization"
 msgstr "Trình khách môi trường thiết lập liên kết thư mục chính vào thư mục đặc trưng đám mây để đồng bộ hoá tập tin"
 
 # libretranslate
-msgctxt "role:desk-gnome-extensions:description"
+#, fuzzy
+msgctxt "role:dsk-gnome-extensions:description"
 msgid "Desktop config role for activating GNOME Shell extensions and installing a CLI tool to manage them"
 msgstr "Vai trò cấu hình môi trường để khởi động GNOME Shell Phần mở rộng và cài đặt một công cụ CLI để quản lý chúng"
 
 # libretranslate
-msgctxt "category:desk:description"
+#, fuzzy
+msgctxt "category:dsk:description"
 msgid "Desktop environment roles & apps (GNOME, browser, LibreOffice, etc.)"
 msgstr "& Ứng dụng môi trường làm việc (GNOME, trình duyệt, LibreOffice, etc.)"
 
 # libretranslate
-msgctxt "role:desk-bluray-player:description"
+#, fuzzy
+msgctxt "role:dsk-bluray-player:description"
 msgid "Desktop media-player setup with VLC and AACS/BD+ libraries for Blu-ray disc decryption and playback on Arch Linux"
 msgstr "Name"
 
 # libretranslate
-msgctxt "role:desk-libreoffice:description"
+#, fuzzy
+msgctxt "role:dsk-libreoffice:description"
 msgid "Desktop office suite for documents, spreadsheets, and presentations with Liberation fonts and language packs"
 msgstr "Bộ công cụ văn phòng máy tính cho tài liệu, bảng tính và trình bày với các phông chữ giải phóng và gói ngôn ngữ"
 
 # libretranslate
-msgctxt "role:desk-gnome-caffeine:description"
+#, fuzzy
+msgctxt "role:dsk-gnome-caffeine:description"
 msgid "Desktop utility for inhibiting screen blanking and sleep, autostarted on the GNOME desktop"
 msgstr "Tiện ích màn hình để ức chế việc trống và ngủ, tự động khởi chạy trên màn hình GNOME"
 
 # libretranslate
-msgctxt "role:desk-zoom:description"
+#, fuzzy
+msgctxt "role:dsk-zoom:description"
 msgid "Desktop video conferencing client for online meetings, webinars, and screen sharing"
 msgstr "Trình khách tham khảo phim màn hình cho các cuộc họp trực tuyến, webinars, và chia sẻ màn hình"
 
@@ -601,7 +631,8 @@ msgid "Events"
 msgstr "Sự kiện"
 
 # libretranslate
-msgctxt "role:desk-neovim:description"
+#, fuzzy
+msgctxt "role:dsk-neovim:description"
 msgid "Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
 msgstr "Trình soạn thảo văn bản theo dòng lệnh có khả năng tăng cường cho trình soạn thảo mã và cấu hình thiết bị cuối"
 
@@ -641,12 +672,14 @@ msgid "Free and open-source TURN/STUN relay server for NAT traversal in WebRTC a
 msgstr "Máy phục vụ chuyển tiếp mã nguồn miễn phí và mã nguồn mở cho NAT trên mạng Internet và truyền thông thời gian thực"
 
 # libretranslate
-msgctxt "role:desk-obs:description"
+#, fuzzy
+msgctxt "role:dsk-obs:description"
 msgid "Free and open-source desktop application for live video streaming and screen recording"
 msgstr "Ứng dụng bàn làm việc miễn phí và mã nguồn mở cho việc truyền hình trực tiếp và thu hình màn hình"
 
 # libretranslate
-msgctxt "role:desk-gnucash:description"
+#, fuzzy
+msgctxt "role:dsk-gnucash:description"
 msgid "Free and open-source desktop application for personal and small-business accounting and financial management"
 msgstr "Ứng dụng bàn làm việc miễn phí và mã nguồn mở cho kế toán cá nhân và thương mại nhỏ và quản lý tài chính"
 
@@ -686,7 +719,8 @@ msgid "Generic end-to-end test runner executing role-provided Playwright specs i
 msgstr "Chung chung kết thúc bài kiểm tra lần chạy thử thực hiện vai trò được chứng minh trong Docker chống lại các ứng dụng đã triển khai"
 
 # libretranslate
-msgctxt "role:desk-dotlinker:description"
+#, fuzzy
+msgctxt "role:dsk-dotlinker:description"
 msgid "Generic role installing the doli CLI and applying dotfile symlink mappings passed in by other roles"
 msgstr "Vai trò chung của việc cài đặt doli CLI và áp dụng các bản đồ giao tiếp dotfile được thông qua bởi các vai trò khác"
 
@@ -706,7 +740,8 @@ msgid "Hardened OpenSSH daemon configuration for key-based remote access with ro
 msgstr "Cấu hình trình nền OpenSSH cứng cho phép truy cập từ xa dựa trên phím với đăng nhập root và mật khẩu bị tắt"
 
 # libretranslate
-msgctxt "role:desk-chromium:description"
+#, fuzzy
+msgctxt "role:dsk-chromium:description"
 msgid "Hardened desktop web browser with enforced privacy and password-manager extensions via Enterprise Policies"
 msgstr "Trình duyệt mạng bàn làm việc cứng với sự riêng tư và phần mở rộng quản lý mật khẩu thông qua hệ thống chính sách Enterprise"
 
@@ -835,6 +870,10 @@ msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "Chạy JavaScript thời gian để xây dựng và chạy ứng dụng cạnh máy chủ và phát triển tooling"
 
+msgctxt "role:svc-ai-jupyter:description"
+msgid "Kernel backend that runs the code a chat writes, in a container instead of in the browser sandbox"
+msgstr ""
+
 # libretranslate
 msgctxt "role:web-app-hermes:description"
 msgid "Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to models through the shared LLM gateway"
@@ -866,7 +905,8 @@ msgid "Let's Encrypt provider for the front-facing TLS layer ensuring automated 
 msgstr "Chúng ta hãy cung cấp mã hóa cho các lớp tôn giáo sai lệch phía trước bảo đảm tự động chứng nhận an ninh và hiện diện"
 
 # libretranslate
-msgctxt "role:desk-retroarch:description"
+#, fuzzy
+msgctxt "role:dsk-retroarch:description"
 msgid "Libretro-based frontend for emulators, game engines, and media players, with XMB and Ozone menu styles"
 msgstr "Giao diện điều khiển nền tảng cho trình giả lập, động cơ trò chơi và người chơi phương tiện, với kiểu dáng trình đơn XMB và Ozone"
 
@@ -891,9 +931,14 @@ msgid "Local self-signed Root CA for issuing trust so containers accept internal
 msgstr "CA gốc tự ký địa phương cho việc phát hành sự tin tưởng để các thùng chứa chấp nhận điểm kết thúc nội bộ của USD"
 
 # libretranslate
-msgctxt "role:desk-keepassxc:description"
+#, fuzzy
+msgctxt "role:dsk-keepassxc:description"
 msgid "Local-first cross-platform desktop password manager storing credentials in an encrypted KeePass-format database"
 msgstr "Name"
+
+msgctxt "role:dsk-laya:description"
+msgid "Local-first notification command center that aggregates Slack, mail and issue trackers into approvable action cards"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-lock:description"
@@ -929,6 +974,14 @@ msgstr "Đánh dấu vai trò của máy Docker Swarm nút quản lý, với log
 msgctxt "menu:Marketing:title"
 msgid "Marketing"
 msgstr "Khu chợ"
+
+msgctxt "role:svc-ai-searxng:description"
+msgid "Metasearch engine the platform queries for web results without handing a user's query to a tracking search provider"
+msgstr ""
+
+msgctxt "role:dsk-gnt-pi:description"
+msgid "Minimal terminal coding agent with a lazy-loading skill system, wired to the platform's own model gateway"
+msgstr ""
 
 # libretranslate
 msgctxt "category:sys.ctl.hlth:title"
@@ -1099,7 +1152,8 @@ msgid "Open-source content management system for building websites, intranets, a
 msgstr "Hệ thống quản lý nội dung mã nguồn mở cho việc xây dựng trang web, mạng nội bộ và ứng dụng trực tuyến mà không cần viết mã"
 
 # libretranslate
-msgctxt "role:desk-qbittorrent:description"
+#, fuzzy
+msgctxt "role:dsk-qbittorrent:description"
 msgid "Open-source desktop BitTorrent client for downloading and sharing files over the BitTorrent protocol"
 msgstr "Trình khách BitTorrent mã nguồn mở để tải và chia sẻ tập tin qua giao thức BitTorrent"
 
@@ -1182,13 +1236,18 @@ msgctxt "role:sys-pip:description"
 msgid "Package manager for installing and managing Python packages on the target host"
 msgstr "Trình quản lý gói để cài đặt và quản lý các gói Python trên máy đích"
 
+msgctxt "role:svc-ai-agent-broker:description"
+msgid "Per-user Hermes and OpenClaw agents started on demand behind an OpenAI-compatible endpoint"
+msgstr ""
+
 # libretranslate
 msgctxt "role:sys-ctl-hlth-msmtp:description"
 msgid "Periodic health check for outbound mail delivery, sending a test message via msmtp and alerting on failure"
 msgstr "Định kỳ y tế kiểm tra gửi thư bị hạn chế, gửi một thông điệp kiểm tra thông qua msmtp và báo động về thất bại"
 
 # libretranslate
-msgctxt "role:desk-ssh:description"
+#, fuzzy
+msgctxt "role:dsk-ssh:description"
 msgid "Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
 msgstr "Người dùng- dịch vụ SSH có hệ thống cho máy tính Wayland, với cấu hình « .sh » đồng bộ từ Git"
 
@@ -1216,7 +1275,8 @@ msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the
 msgstr "Các bản sao lưu được thêm vào cho ảnh chụp phức tạp của cây sao lưu địa phương trên thiết bị USB có thể trao đổi"
 
 # libretranslate
-msgctxt "role:desk-firefox:description"
+#, fuzzy
+msgctxt "role:dsk-firefox:description"
 msgid "Policy-managed web browser for Arch Linux desktops with auto-installed enterprise extensions"
 msgstr "Trình duyệt web được quản lý chính sách cho Arch Linux với phần mở rộng doanh nghiệp tự động"
 
@@ -1464,6 +1524,10 @@ msgstr "Dịch vụ thư mục LDAP tự chủ cho người dùng tập trung, n
 msgctxt "role:web-app-minio:description"
 msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
 msgstr "Tự chủ S3- Lưu trữ vật thể tương ứng cho tập tin, phương tiện truyền thông, bản sao lưu, và cổ vật AI"
+
+msgctxt "role:svc-ai-s1:description"
+msgid "Self-hosted System One classifier that answers typed questions so the gateway can route without generating"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-yourls:description"
@@ -1823,13 +1887,23 @@ msgctxt "role:sys-ctl-alm-telegram:description"
 msgid "Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"
 msgstr "Comment"
 
+msgctxt "role:dsk-gnt-claude:description"
+msgid "Terminal coding agent from Anthropic, pointed at the platform's own model gateway instead of the vendor API"
+msgstr ""
+
+msgctxt "role:dsk-gnt-codex:description"
+msgid "Terminal coding agent from OpenAI, pointed at the platform's own model gateway instead of the vendor API"
+msgstr ""
+
 # libretranslate
-msgctxt "role:desk-gnome-terminal:description"
+#, fuzzy
+msgctxt "role:dsk-gnome-terminal:description"
 msgid "Terminal emulator for the GNOME desktop, giving command-line access on Arch Linux workstations"
 msgstr "Trình giả lập thiết bị cuối cho bàn làm việc GNOME, cho phép truy cập dòng lệnh trên Arch Linux"
 
 # libretranslate
-msgctxt "role:desk-micro:description"
+#, fuzzy
+msgctxt "role:dsk-micro:description"
 msgid "Terminal-based text editor with modern keybindings and syntax highlighting for Pacman-based workstations"
 msgstr "Trình soạn thảo văn bản dựa trên thiết bị cuối với các tổ hợp phím hiện đại và tô sáng cú pháp cho các trạm làm việc dựa trên Pacman"
 
@@ -1898,12 +1972,14 @@ msgid "Tor daemon publishing the node as a v3 onion service"
 msgstr "Tor trình nền xuất bản nút là một v3 hành tây"
 
 # libretranslate
-msgctxt "role:desk-torbrowser:description"
+#, fuzzy
+msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "Trình khách mạng Tor và phóng tên lửa trình duyệt vô danh, tập trung duyệt mạng cá nhân"
 
 # libretranslate
-msgctxt "role:desk-virtualbox:description"
+#, fuzzy
+msgctxt "role:dsk-virtualbox:description"
 msgid "Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack"
 msgstr "Kiểu...2 Trình siêu giám sát máy ảo trên trạm làm việc Pacman, với mô-đun hạt nhân và gói mở rộng"
 
@@ -1941,7 +2017,8 @@ msgid "Users & Access"
 msgstr "Người dùng & truy cập"
 
 # libretranslate
-msgctxt "role:desk-git:description"
+#, fuzzy
+msgctxt "role:dsk-git:description"
 msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
 msgstr "Trình khách điều khiển phiên bản cho trạm làm việc cá nhân, cấu hình sẵn với danh tính, ký và hợp nhất mặc định"
 
@@ -1949,6 +2026,10 @@ msgstr "Trình khách điều khiển phiên bản cho trạm làm việc cá nh
 msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
 msgstr "Name"
+
+msgctxt "role:dsk-code:description"
+msgid "Visual Studio Code workstation editor in a selectable flavor, carrying the extensions of the agents the host deploys"
+msgstr ""
 
 # libretranslate
 msgctxt "category:web:title"
@@ -1991,7 +2072,8 @@ msgid "Webserver Optimation"
 msgstr "Comment"
 
 # libretranslate
-msgctxt "role:desk-docker:description"
+#, fuzzy
+msgctxt "role:dsk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
 msgstr "Name Docker Compose với người dùng cục bộ trong nhóm docker cho việc sử dụng phát triển không gốc"
 

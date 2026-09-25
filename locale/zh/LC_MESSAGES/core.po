@@ -34,10 +34,20 @@ msgctxt "menu:Artificial Intelligence:description"
 msgid "AI tools and frameworks for running, managing, and experimenting with models."
 msgstr "AI用于运行,管理和实验模型的工具和框架."
 
+msgctxt "role:dsk-gnt-cursor:description"
+msgid "AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
+msgstr ""
+
 # libretranslate
 msgctxt "menu:Server Administration:description"
 msgid "Administration Tools für servers"
 msgstr "管理工具 für 服务器"
+
+# libretranslate
+#, fuzzy
+msgctxt "category:dsk.gnt:title"
+msgid "Agents"
+msgstr "活动"
 
 # libretranslate
 msgctxt "role:sys-front-inj-all:description"
@@ -45,7 +55,8 @@ msgid "Aggregate NGINX sub-filter injector adding Matomo tracking, global themin
 msgstr "添加 Matomo 跟踪、全球主题、 iFrame 和 JS 片断的 NGINX 次过滤注射器"
 
 # libretranslate
-msgctxt "role:desk-gnome:description"
+#, fuzzy
+msgctxt "role:dsk-gnome:description"
 msgid "Aggregate desktop environment bundling caffeine, shell extensions, and terminal into a complete GNOME setup on Linux"
 msgstr "合并桌面环境,将咖啡因、外壳扩展和终端捆绑成Linux上完整的GNOME设置"
 
@@ -148,6 +159,10 @@ msgctxt "role:svc-db-typesense:description"
 msgid "Central Dockerized search engine shared by multiple apps with per-consumer scoped API keys"
 msgstr "Central Dockerized 搜索引擎由多个应用共享,每个消费者范围为API密钥"
 
+msgctxt "role:svc-ai-tika:description"
+msgid "Central document extraction engine that turns uploaded files into text for retrieval-augmented chat"
+msgstr ""
+
 # libretranslate
 msgctxt "menu:Help:description"
 msgid "Central help resources, including documentation, support tools, and guidance."
@@ -233,7 +248,8 @@ msgid "Client-side WireGuard VPN role for stable connectivity with a systemd ser
 msgstr "客户端的WireGuard VPN 角色,用于与调制MTU接口的系统化服务和脚本实现稳定的连接"
 
 # libretranslate
-msgctxt "role:desk-copyq:description"
+#, fuzzy
+msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "可编辑历史、自定义动作和脚本支持的剪贴板管理器"
 
@@ -257,13 +273,18 @@ msgctxt "role:svc-registry-cache:description"
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
 msgstr "分组局部拉动缓存,用于共享 Docker Hub 基像拉动,剪切重复转移和速率限制"
 
+msgctxt "category:dsk.gnt:description"
+msgid "Coding agents installed on the workstation (Claude Code, Cursor, Pi)"
+msgstr ""
+
 # libretranslate
 msgctxt "role:web-app-mediawiki:description"
 msgid "Collaborative wiki platform for user-driven documentation with an extensible extension ecosystem and content management"
 msgstr "用户驱动文件协作维基平台,可扩展扩展生态系统和内容管理"
 
 # libretranslate
-msgctxt "role:desk-jrnl:description"
+#, fuzzy
+msgctxt "role:dsk-jrnl:description"
 msgid "Command-line journal application for creating and managing personal diary entries from the terminal"
 msgstr "从终端创建和管理个人日记条目的命令行日记应用程序"
 
@@ -460,46 +481,54 @@ msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
 msgstr ""
 
 # libretranslate
-msgctxt "category:desk:title"
+#, fuzzy
+msgctxt "category:dsk:title"
 msgid "Desktop"
 msgstr "桌面"
 
 # libretranslate
-msgctxt "role:desk-spotify:description"
+#, fuzzy
+msgctxt "role:dsk-spotify:description"
 msgid "Desktop client for streaming music, playlists, and podcasts"
 msgstr "用于流媒体音乐、播放列表和播客的桌面客户端"
 
 # libretranslate
-msgctxt "role:desk-nextcloud:description"
+#, fuzzy
+msgctxt "role:dsk-nextcloud:description"
 msgid "Desktop client setup linking home folders into the cloud-synced directory for integrated file synchronization"
 msgstr "桌面客户端设置, 将主文件夹连接到云同步目录, 用于集成文件同步"
 
 # libretranslate
-msgctxt "role:desk-gnome-extensions:description"
+#, fuzzy
+msgctxt "role:dsk-gnome-extensions:description"
 msgid "Desktop config role for activating GNOME Shell extensions and installing a CLI tool to manage them"
 msgstr "用于激活 GNOME Shell 扩展并安装管理它们的 CLI 工具的桌面配置角色"
 
-msgctxt "category:desk:description"
+msgctxt "category:dsk:description"
 msgid "Desktop environment roles & apps (GNOME, browser, LibreOffice, etc.)"
 msgstr ""
 
 # libretranslate
-msgctxt "role:desk-bluray-player:description"
+#, fuzzy
+msgctxt "role:dsk-bluray-player:description"
 msgid "Desktop media-player setup with VLC and AACS/BD+ libraries for Blu-ray disc decryption and playback on Arch Linux"
 msgstr "桌面媒体播放器设置, 包含 VLC 和 AACS/ BD+ 库, 用于 Blu- ray 盘片解密和在 Arch Linux 上播放"
 
 # libretranslate
-msgctxt "role:desk-libreoffice:description"
+#, fuzzy
+msgctxt "role:dsk-libreoffice:description"
 msgid "Desktop office suite for documents, spreadsheets, and presentations with Liberation fonts and language packs"
 msgstr "用于文档、电子表格和带有解放字体和语言包的演示文稿的桌面办公套件"
 
 # libretranslate
-msgctxt "role:desk-gnome-caffeine:description"
+#, fuzzy
+msgctxt "role:dsk-gnome-caffeine:description"
 msgid "Desktop utility for inhibiting screen blanking and sleep, autostarted on the GNOME desktop"
 msgstr "用于抑制屏幕空白和睡眠的桌面工具, 在 GNOME 桌面上自动启动"
 
 # libretranslate
-msgctxt "role:desk-zoom:description"
+#, fuzzy
+msgctxt "role:dsk-zoom:description"
 msgid "Desktop video conferencing client for online meetings, webinars, and screen sharing"
 msgstr "用于在线会议、网络研讨会和屏幕共享的桌面视频会议客户端"
 
@@ -599,7 +628,8 @@ msgid "Events"
 msgstr "活动"
 
 # libretranslate
-msgctxt "role:desk-neovim:description"
+#, fuzzy
+msgctxt "role:dsk-neovim:description"
 msgid "Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
 msgstr "用于终端驱动代码和配置编辑的可扩展 Vim 命令行文本编辑器"
 
@@ -639,12 +669,14 @@ msgid "Free and open-source TURN/STUN relay server for NAT traversal in WebRTC a
 msgstr "WebRTC和实时通信中用于NAT traversal的自由和开源的TURN/STUN中继服务器"
 
 # libretranslate
-msgctxt "role:desk-obs:description"
+#, fuzzy
+msgctxt "role:dsk-obs:description"
 msgid "Free and open-source desktop application for live video streaming and screen recording"
 msgstr "用于直播视频流和屏幕录制的自由和开源桌面应用程序"
 
 # libretranslate
-msgctxt "role:desk-gnucash:description"
+#, fuzzy
+msgctxt "role:dsk-gnucash:description"
 msgid "Free and open-source desktop application for personal and small-business accounting and financial management"
 msgstr "个人和小企业会计和财务管理的免费和开源桌面应用程序"
 
@@ -684,7 +716,8 @@ msgid "Generic end-to-end test runner executing role-provided Playwright specs i
 msgstr "通用端到端测试跑者执行角色 提供 Docker 的 Playwright 规格与已部署的应用程序对比"
 
 # libretranslate
-msgctxt "role:desk-dotlinker:description"
+#, fuzzy
+msgctxt "role:dsk-dotlinker:description"
 msgid "Generic role installing the doli CLI and applying dotfile symlink mappings passed in by other roles"
 msgstr "通用角色安装 doli CLI 并应用其他角色传递的 dotfile 符号链接映射"
 
@@ -704,7 +737,8 @@ msgid "Hardened OpenSSH daemon configuration for key-based remote access with ro
 msgstr "硬化 OpenSSH 守护进程配置, 用于基于密钥的远程访问, 并禁止根登录和密码认证"
 
 # libretranslate
-msgctxt "role:desk-chromium:description"
+#, fuzzy
+msgctxt "role:dsk-chromium:description"
 msgid "Hardened desktop web browser with enforced privacy and password-manager extensions via Enterprise Policies"
 msgstr "硬化桌面网页浏览器,通过企业政策强制隐私和密码管理扩展"
 
@@ -830,6 +864,10 @@ msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "JavaScript 用于构建和运行服务器侧应用程序和开发工具的运行时间"
 
+msgctxt "role:svc-ai-jupyter:description"
+msgid "Kernel backend that runs the code a chat writes, in a container instead of in the browser sandbox"
+msgstr ""
+
 # libretranslate
 msgctxt "role:web-app-hermes:description"
 msgid "Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to models through the shared LLM gateway"
@@ -861,7 +899,8 @@ msgid "Let's Encrypt provider for the front-facing TLS layer ensuring automated 
 msgstr "让我们为前置 TLS 层加密提供者,确保自动证书的签发和存在"
 
 # libretranslate
-msgctxt "role:desk-retroarch:description"
+#, fuzzy
+msgctxt "role:dsk-retroarch:description"
 msgid "Libretro-based frontend for emulators, game engines, and media players, with XMB and Ozone menu styles"
 msgstr "基于 Libretro 的前端, 供模拟器、 游戏引擎和媒体播放器使用, 带有 XMB 和 臭氧 菜单样式"
 
@@ -886,9 +925,14 @@ msgid "Local self-signed Root CA for issuing trust so containers accept internal
 msgstr "发布信任的本地自签名根 CA , 所以容器接受内部 TLS 端点"
 
 # libretranslate
-msgctxt "role:desk-keepassxc:description"
+#, fuzzy
+msgctxt "role:dsk-keepassxc:description"
 msgid "Local-first cross-platform desktop password manager storing credentials in an encrypted KeePass-format database"
 msgstr "本地首个跨平台桌面密码管理器将证书存储在加密的 KeePass 格式数据库中"
+
+msgctxt "role:dsk-laya:description"
+msgid "Local-first notification command center that aggregates Slack, mail and issue trackers into approvable action cards"
+msgstr ""
 
 # libretranslate
 msgctxt "role:sys-lock:description"
@@ -924,6 +968,14 @@ msgstr "标记角色标记主机为 Docker Swarm 管理器节点,带有赋予的
 msgctxt "menu:Marketing:title"
 msgid "Marketing"
 msgstr "营销"
+
+msgctxt "role:svc-ai-searxng:description"
+msgid "Metasearch engine the platform queries for web results without handing a user's query to a tracking search provider"
+msgstr ""
+
+msgctxt "role:dsk-gnt-pi:description"
+msgid "Minimal terminal coding agent with a lazy-loading skill system, wired to the platform's own model gateway"
+msgstr ""
 
 # libretranslate
 msgctxt "category:sys.ctl.hlth:title"
@@ -1093,7 +1145,8 @@ msgid "Open-source content management system for building websites, intranets, a
 msgstr "用于构建网站,内联网,以及不写代码的在线应用程序的开源内容管理系统"
 
 # libretranslate
-msgctxt "role:desk-qbittorrent:description"
+#, fuzzy
+msgctxt "role:dsk-qbittorrent:description"
 msgid "Open-source desktop BitTorrent client for downloading and sharing files over the BitTorrent protocol"
 msgstr "开源桌面 BitTorrent 客户端,用于在 BitTorrent 协议上下载和共享文件"
 
@@ -1176,13 +1229,18 @@ msgctxt "role:sys-pip:description"
 msgid "Package manager for installing and managing Python packages on the target host"
 msgstr "在目标主机上安装和管理 Python 包的软件包管理器"
 
+msgctxt "role:svc-ai-agent-broker:description"
+msgid "Per-user Hermes and OpenClaw agents started on demand behind an OpenAI-compatible endpoint"
+msgstr ""
+
 # libretranslate
 msgctxt "role:sys-ctl-hlth-msmtp:description"
 msgid "Periodic health check for outbound mail delivery, sending a test message via msmtp and alerting on failure"
 msgstr "定期对出入境邮件进行健康检查,通过msmtp发送测试信息,并对故障发出警报"
 
 # libretranslate
-msgctxt "role:desk-ssh:description"
+#, fuzzy
+msgctxt "role:dsk-ssh:description"
 msgid "Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
 msgstr "Wayland 桌面的持续系统用户服务 SSH 代理, 从 Git 同步 . ssh 配置"
 
@@ -1210,7 +1268,8 @@ msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the
 msgstr "在可互换的 USB 设备上插上本地备份树的硬链接解码快照的系统备份"
 
 # libretranslate
-msgctxt "role:desk-firefox:description"
+#, fuzzy
+msgctxt "role:dsk-firefox:description"
 msgid "Policy-managed web browser for Arch Linux desktops with auto-installed enterprise extensions"
 msgstr "Arch Linux 桌面自动安装企业扩展的政策管理网页浏览器"
 
@@ -1457,6 +1516,10 @@ msgstr "为集中用户、组和计划管理提供自办LDAP目录服务,可使�
 msgctxt "role:web-app-minio:description"
 msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
 msgstr "自行主办3- 文件、媒体、备份和人工智能文物的兼容对象存储"
+
+msgctxt "role:svc-ai-s1:description"
+msgid "Self-hosted System One classifier that answers typed questions so the gateway can route without generating"
+msgstr ""
 
 # libretranslate
 msgctxt "role:web-app-yourls:description"
@@ -1816,13 +1879,23 @@ msgctxt "role:sys-ctl-alm-telegram:description"
 msgid "Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"
 msgstr "为Telegram聊天发送服务失败警报的系统触发通知器"
 
+msgctxt "role:dsk-gnt-claude:description"
+msgid "Terminal coding agent from Anthropic, pointed at the platform's own model gateway instead of the vendor API"
+msgstr ""
+
+msgctxt "role:dsk-gnt-codex:description"
+msgid "Terminal coding agent from OpenAI, pointed at the platform's own model gateway instead of the vendor API"
+msgstr ""
+
 # libretranslate
-msgctxt "role:desk-gnome-terminal:description"
+#, fuzzy
+msgctxt "role:dsk-gnome-terminal:description"
 msgid "Terminal emulator for the GNOME desktop, giving command-line access on Arch Linux workstations"
 msgstr "GNOME 桌面的终端模拟器, 在 Arch Linux 工作站上提供命令行访问"
 
 # libretranslate
-msgctxt "role:desk-micro:description"
+#, fuzzy
+msgctxt "role:dsk-micro:description"
 msgid "Terminal-based text editor with modern keybindings and syntax highlighting for Pacman-based workstations"
 msgstr "基于终端的文本编辑器, 带有基于 Pacman 的工作站的现代密钥绑定和语法加亮"
 
@@ -1891,12 +1964,14 @@ msgid "Tor daemon publishing the node as a v3 onion service"
 msgstr "Tor 守护进程将节点发布为 v3 洋葱服务"
 
 # libretranslate
-msgctxt "role:desk-torbrowser:description"
+#, fuzzy
+msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "Tor 网络客户端和浏览器启动器,用于匿名、注重隐私的网页浏览"
 
 # libretranslate
-msgctxt "role:desk-virtualbox:description"
+#, fuzzy
+msgctxt "role:dsk-virtualbox:description"
 msgid "Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack"
 msgstr "类型2 Pacman工作站虚拟机的超显像器,内核模块和扩展包"
 
@@ -1932,7 +2007,8 @@ msgid "Users & Access"
 msgstr ""
 
 # libretranslate
-msgctxt "role:desk-git:description"
+#, fuzzy
+msgctxt "role:dsk-git:description"
 msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
 msgstr "个人工作站的版本控制客户端, 预先配置身份, 签名, 并合并默认"
 
@@ -1940,6 +2016,10 @@ msgstr "个人工作站的版本控制客户端, 预先配置身份, 签名, 并
 msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
 msgstr "CDN 与共享、供应商和每个角色发布目录的版本资产树布局"
+
+msgctxt "role:dsk-code:description"
+msgid "Visual Studio Code workstation editor in a selectable flavor, carrying the extensions of the agents the host deploys"
+msgstr ""
 
 # libretranslate
 msgctxt "category:web:title"
@@ -1982,7 +2062,8 @@ msgid "Webserver Optimation"
 msgstr "Web 服务器优化"
 
 # libretranslate
-msgctxt "role:desk-docker:description"
+#, fuzzy
+msgctxt "role:dsk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
 msgstr "Docker 和 Docker Compose 与嵌入器组中的本地用户进行无根开发使用"
 
