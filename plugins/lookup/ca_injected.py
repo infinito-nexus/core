@@ -32,6 +32,7 @@ from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from plugins.filter.has.domain import has_domain
+from utils.tls_common import AVAILABLE_FLAVORS, as_str, require
 
 SELF_SIGNED_MODE = "self_signed"
 
@@ -58,19 +59,22 @@ class LookupModule(LookupBase):
                 args, variables=variables or {}
             )[0]
 
-        services = _run("config", [application_id, "services", {}]) or {}
-        if any(
-            _to_bool(service.get("ca_client", False))
-            for service in services.values()
-            if isinstance(service, dict)
-        ):
-            mode = (variables or {}).get("TLS_MODE", "")
-            if templar is not None:
-                mode = templar.template(mode)
-            return [str(mode).strip().lower() == SELF_SIGNED_MODE]
-
         if not has_domain(_run("domains", []), application_id):
-            return [False]
+            services = _run("config", [application_id, "services", {}]) or {}
+            if not any(
+                _to_bool(service.get("ca_client", False))
+                for service in services.values()
+                if isinstance(service, dict)
+            ):
+                return [False]
+            mode = as_str(require(variables or {}, "TLS_MODE", str))
+            if mode not in AVAILABLE_FLAVORS:
+                raise AnsibleError(
+                    f"ca_injected: TLS_MODE must be one of "
+                    f"{sorted(AVAILABLE_FLAVORS)}, got '{mode}'"
+                )
+            return [mode == SELF_SIGNED_MODE]
+
         if not _to_bool(_run("tls", [application_id, "enabled"])):
             return [False]
         return [_run("tls", [application_id, "mode"]) == SELF_SIGNED_MODE]
