@@ -323,7 +323,7 @@ msgstr "회사 소개 Reveal.js 플랫폼에 대한 슬라이드 데크 관리�
 # libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr ""
+msgstr "Containerized icon 서버 호스팅 Simple Icons 웹 및 문서 사용에 대한 SVG 및 PNG 컬렉션"
 
 # libretranslate
 msgctxt "role:svc-db-postgres:description"
@@ -353,7 +353,7 @@ msgstr "제품정보"
 # libretranslate
 msgctxt "category:sys.ctl:description"
 msgid "Control layer for system lifecycle management—handling cleanup, monitoring, backups, alerting, maintenance, and repair tasks."
-msgstr ""
+msgstr "시스템 수명주기 관리를위한 제어 층 - 청소, 모니터링, 백업, 경고, 유지 보수 및 수리 작업."
 
 # libretranslate
 msgctxt "category:svc.ai:description"
@@ -391,7 +391,7 @@ msgstr "고객 관계"
 # libretranslate
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
-msgstr ""
+msgstr "고객 관계 관리 (사이트맵) 고객 관계, 영업 파이프라인, 마케팅 및 지원 활동을 관리하기위한 소프트웨어."
 
 # libretranslate
 msgctxt "category:sys.dns:title"
@@ -456,7 +456,7 @@ msgstr "Deferred-start Orchestrator for enable and starting collect systemd serv
 # libretranslate
 msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
-msgstr ""
+msgstr "웹 앱 배포 (GitLab· Nextcloud· Mastodon등)"
 
 # libretranslate
 msgctxt "category:desk:title"
@@ -620,7 +620,7 @@ msgstr "이벤트 및 건물 지역 사회 및 그룹을 조직하기위한 자�
 # libretranslate
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
-msgstr ""
+msgstr "연맹 브리지 연결 ActivityPub (사이트맵), AT 프로토콜 (Bluesky), 그리고 IndieWeb"
 
 # libretranslate
 msgctxt "menu:Finance & Accounting:title"
@@ -739,7 +739,7 @@ msgstr "유용한 도구"
 # libretranslate
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr ""
+msgstr "고성능, 자체 호스팅 스토리지 솔루션 관리, 스케일링 및 Amazon S와 호환되는 객체 저장 포함3 API."
 
 # libretranslate
 msgctxt "role:svc-net-wireguard-core:description"
@@ -1196,7 +1196,7 @@ msgstr "향후 XMPP 서버/컨테이너 배포를 위한 Placeholder stub 역할
 # libretranslate
 msgctxt "menu:Commerce:description"
 msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
-msgstr ""
+msgstr "온라인 상점, 제품 카탈로그 및 디지털 판매 채널 구축 및 관리를위한 플랫폼 - 결제, 재고, 고객 기능."
 
 msgctxt "logout:keep_closed"
 msgid "Please do not close this page yet."
@@ -1324,7 +1324,7 @@ msgstr "다양한 시스템 리소스를 청소하기위한 역할 - 오래된 �
 # libretranslate
 msgctxt "category:drv:description"
 msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
-msgstr ""
+msgstr "하드웨어 드라이버를 설치하고 구성하는 역할 - 프린터, 그래픽, 입력 장치 및 기타 주변 지원."
 
 # libretranslate
 msgctxt "category:web:description"
@@ -1334,7 +1334,7 @@ msgstr "웹 인프라 관리를위한 역할 - 정적 콘텐츠 서비스 및 �
 # libretranslate
 msgctxt "category:sys.ctl.hlth:description"
 msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
-msgstr ""
+msgstr "시스템 모니터링 및 건강 검사에 대한 역할—봇 스타일의 자동화 된 검사 및 로그, 컨테이너, 디스크 사용 등을 위한 핵심 저수준 모니터."
 
 # libretranslate
 msgctxt "role:sys-front-tls-selfsigned:description"
@@ -1629,7 +1629,7 @@ msgstr "서비스 Optimation"
 # libretranslate
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
-msgstr ""
+msgstr "서비스 수준 백업 및 복구 구성 요소 - 자동화 된 데이터 스냅 샷, 원격 백업, 동기화 서비스 및 데이터베이스, 파일 및 컨테이너 전역의 백업 오케스트라."
 
 # libretranslate
 msgctxt "role:web-svc-css:description"

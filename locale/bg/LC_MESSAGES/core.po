@@ -92,7 +92,7 @@ msgstr "Управление на активи"
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
-msgstr ""
+msgstr "Автоматизирани услуги за възстановяване, които се рестартират или са нездравословни Docker Compose Стачки и решаване на пристанищни конфликти"
 
 # libretranslate
 msgctxt "role:sys-dns-hetzner-rdns:description"
@@ -177,7 +177,7 @@ msgstr "Централно поща оркестрация слой маршру
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr ""
+msgstr "Двигатели с централно рекурсивно/предаващо управление на DNS (Unbound, и др.)"
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -252,7 +252,7 @@ msgstr "Cloudflare DNS bootstrap роля за apex и Wildcard A/AAA запис
 # libretranslate
 msgctxt "role:svc-registry-docker:description"
 msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
-msgstr ""
+msgstr "Клъстер-локален регистър на изображенията на контейнери за обслужване на персонализирани изображения Docker Swarm Работни възли"
 
 # libretranslate
 msgctxt "role:svc-registry-cache:description"
@@ -627,7 +627,7 @@ msgstr "Федеративна, самостоятелна платформа з
 # libretranslate
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
-msgstr ""
+msgstr "Федерален мост, свързващ дейносттаPub (Федиверсия), Протокол АТ (Bluesky), и IndieWeb"
 
 # libretranslate
 msgctxt "menu:Finance & Accounting:title"
@@ -927,7 +927,7 @@ msgstr "Роли за поддръжка на сертификати, поддр
 # libretranslate
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
-msgstr ""
+msgstr "Маркер роля маркиране на домакин като Docker Swarm мениджър възел, с инит логика делегирани svc-swarm-node"
 
 # libretranslate
 msgctxt "menu:Marketing:title"
@@ -1347,7 +1347,7 @@ msgstr "Роли за управление на уеб инфраструкту�
 # libretranslate
 msgctxt "category:sys.ctl.hlth:description"
 msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
-msgstr ""
+msgstr "Роля за система за мониторинг и здравни проверки . ."
 
 # libretranslate
 msgctxt "role:sys-front-tls-selfsigned:description"
@@ -1437,7 +1437,7 @@ msgstr "Планирано системно обслужване и таймер
 # libretranslate
 msgctxt "role:sys-ctl-mtn-cert-renew:description"
 msgid "Scheduled systemd-timer job renewing Let's Encrypt SSL/TLS certificates via Certbot and reloading NGINX afterward"
-msgstr ""
+msgstr "Да шифроваме SSL/TLS удостоверенията чрез Certbot и презареждане на NGINX след това"
 
 # libretranslate
 msgctxt "role:svc-runner:description"
@@ -1492,7 +1492,7 @@ msgstr "Самостоятелно Hosted браузър инструмент з
 # libretranslate
 msgctxt "role:web-app-openwebui:description"
 msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
-msgstr ""
+msgstr "Self-hosted чат интерфейс за взаимодействие с местни и частни модели AI чрез backends като Ollama"
 
 # libretranslate
 msgctxt "role:web-app-nextcloud:description"
@@ -1703,7 +1703,7 @@ msgstr "Отписвам те от услугите ти..."
 # libretranslate
 msgctxt "role:web-app-postmarks:description"
 msgid "Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
-msgstr ""
+msgstr "Дейност с един потребителPub отметки сайт federating публични отметки към Mastodon и Федиверсата"
 
 # libretranslate
 msgctxt "role:web-app-homeassistant:description"

@@ -177,7 +177,7 @@ msgstr "Центральний поштовий симфонічний шар м
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr ""
+msgstr "Центральні рекурсивні / переадресаційні двигуни DNS (Unboundі т.д.)"
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -325,7 +325,7 @@ msgstr "Контейнери Reveal.js слайд-ката для предста
 # libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr ""
+msgstr "Контейнерований сервер ікони для хостингу Simple Icons бренд SVG та PNG для використання веб- та документації"
 
 # libretranslate
 msgctxt "role:svc-db-postgres:description"
@@ -458,7 +458,7 @@ msgstr "Симфонічний оркестр Deferred-start для забезп
 # libretranslate
 msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
-msgstr ""
+msgstr "Розгортання веб-додатків (GitLabй Nextcloudй Mastodonі т.д.)"
 
 # libretranslate
 msgctxt "category:desk:title"
@@ -623,7 +623,7 @@ msgstr "Федеративна платформа для організації 
 # libretranslate
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
-msgstr ""
+msgstr "Федерація міст з'єднання активностіПуб (Федівер), протокол AT (Bluesky), і індіВеб"
 
 # libretranslate
 msgctxt "menu:Finance & Accounting:title"
@@ -728,7 +728,7 @@ msgstr "Допомогти"
 # libretranslate
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
-msgstr ""
+msgstr "Допомога установка засобів для ін'єкцій CA-trust Docker Compose Стекти і підтверджувати проект сертифікату CA"
 
 # libretranslate
 msgctxt "category:gen:description"
@@ -878,7 +878,7 @@ msgstr "Легковаговик SMTP клієнт і заміна пошти д
 # libretranslate
 msgctxt "role:web-app-gitea:description"
 msgid "Lightweight self-hosted Git service for code collaboration, version control, and repository management"
-msgstr ""
+msgstr "Легкий самоприхований Git сервіс для співпраці з кодом, керування версіями та управління репозиторією"
 
 # libretranslate
 msgctxt "role:sys-svc-nss:description"
@@ -923,7 +923,7 @@ msgstr "Принципи обслуговування сертифікатів, 
 # libretranslate
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
-msgstr ""
+msgstr "Роль маркера ведучий як Docker Swarm Керівник вузла, з логічною делегованої логікою svc-swarm-node"
 
 # libretranslate
 msgctxt "menu:Marketing:title"
@@ -958,7 +958,7 @@ msgstr "NGINX серверні блоки, які постійно перена�
 # libretranslate
 msgctxt "role:sys-front-inj-matomo:description"
 msgid "NGINX subfilter injector adding Matomo analytics script and noscript image tracker to served HTML pages"
-msgstr ""
+msgstr "NGINX субфільтр інжектор додавання Matomo Аналітика скрипту та носкоптера зображення для подачі HTML-сторінок"
 
 # libretranslate
 msgctxt "role:web-svc-html:description"
@@ -1032,7 +1032,7 @@ msgstr "Оновлення OS & пакета"
 # libretranslate
 msgctxt "role:sys-svc-objstore:description"
 msgid "Object-storage layer for SeaweedFS/MinIO backend resolution and per-consumer bucket and credential provisioning"
-msgstr ""
+msgstr "Об'єктно-секторний шар для SeaweedFSУкраїнськаMinIO зворотна роздільна здатність і per-consumer відро і достовірне надання"
 
 # libretranslate
 msgctxt "role:svc-opt-swapfile:description"
@@ -1297,7 +1297,7 @@ msgstr "Ремонт і відновлення ролей - рукоділля �
 # libretranslate
 msgctxt "role:sys-util-git-pull:description"
 msgid "Reusable Git pull primitive for shallow clones, detached-safe updates, tag pinning, and reliable change detection"
-msgstr ""
+msgstr "Випадковий Git тягнути примітив для мілковидних клонів, детадно-безпечних оновлень, міток пінінг і надійного виявлення змін"
 
 # libretranslate
 msgctxt "role:svc-ai-mcp-adapter:description"
@@ -1690,7 +1690,7 @@ msgstr "Виконується вихід із ваших сервісів…"
 # libretranslate
 msgctxt "role:web-app-postmarks:description"
 msgid "Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
-msgstr ""
+msgstr "Однокористувацька активністьПуб зауважив сайт, що об'єднує публічні закладки Mastodon і Федівер"
 
 # libretranslate
 msgctxt "role:web-app-homeassistant:description"

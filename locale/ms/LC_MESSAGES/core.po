@@ -92,7 +92,7 @@ msgstr "Manajemen Asset Austabel"
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
-msgstr ""
+msgstr "Layanan pemulihan terotomatisasi memulai ulang layanan keluar atau tidak sehat Docker Compose susun dan pecahkan konflik port"
 
 # libretranslate
 msgctxt "role:sys-dns-hetzner-rdns:description"
@@ -177,7 +177,7 @@ msgstr "routing mail routing mail routing host mail melalui Mailu, msmtp, atau r
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr ""
+msgstr "Mesin resolver DNS resolver rekursif/forwarding pusat rafsif/mengarahkan rafis (Unbound, dll.)"
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -197,7 +197,7 @@ msgstr "Mesin basis data vektor pusat untuk menyimpan dan mencari pembenaman per
 # libretranslate
 msgctxt "role:sys-svc-rdbms:description"
 msgid "Centralized MariaDB or PostgreSQL database service shared across applications via Docker Compose"
-msgstr ""
+msgstr "Dipusatkan MariaDB Fiji atau PostgreSQL Layanan basis data berbayar di seluruh aplikasi melalui Docker Compose"
 
 # libretranslate
 msgctxt "role:sys-svc-certs:description"
@@ -325,7 +325,7 @@ msgstr "Dikanalis Reveal.js Dek slide untuk menyajikan platform ke admin, pengem
 # libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr ""
+msgstr "Bekas server ikon untuk hosting Simple Icons Koleksi merek SVG dan PNG untuk penggunaan web dan dokumentasi"
 
 # libretranslate
 msgctxt "role:svc-db-postgres:description"
@@ -458,7 +458,7 @@ msgstr "Orkestor Deferred-start untuk mengaktifkan dan memulai layanan sistem ya
 # libretranslate
 msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
-msgstr ""
+msgstr "Aplikasi web yang dapat diledakkan (GitLab, Nextcloud, Mastodon, dll.)"
 
 # libretranslate
 msgctxt "category:desk:title"
@@ -728,7 +728,7 @@ msgstr "Bantuan"
 # libretranslate
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
-msgstr ""
+msgstr "Peran pembantu untuk memasang aset injeksi kepercayaan CA Docker Compose Tumpukan dan validasi sertifikat CA proyek"
 
 # libretranslate
 msgctxt "category:gen:description"
@@ -958,7 +958,7 @@ msgstr "blok server NGINX yang secara permanen mengarahkan kembali www subdomain
 # libretranslate
 msgctxt "role:sys-front-inj-matomo:description"
 msgid "NGINX subfilter injector adding Matomo analytics script and noscript image tracker to served HTML pages"
-msgstr ""
+msgstr "Penambahan injektor subfilter NGINX Matomo Naskah analitik dan pelacak gambar noskrip untuk melayani halaman HTML"
 
 msgctxt "role:web-svc-html:description"
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
@@ -1790,7 +1790,7 @@ msgstr "Pembantu pip sistem-wide untuk pemasangan atau peningkatan paket Python 
 # libretranslate
 msgctxt "role:sys-ctl-mtn-cert-deploy:description"
 msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
-msgstr ""
+msgstr "Layanan sistem dan pengatur waktu untuk sinkronisasi Mari kita enkripsi sertifikat ke Docker Compose tumpukan NGINX dengan reload panas"
 
 # libretranslate
 msgctxt "role:sys-timer:description"
@@ -1805,7 +1805,7 @@ msgstr "Layanan pembersihan yang digiring-sistem-driven pembersihan prunting vol
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-hard:description"
 msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
-msgstr ""
+msgstr "Peran pemeliharaan terjadwal-kejadwalan untuk penuh Docker Compose Stack stack restart, dengan hard restart untuk stack seperti Mailu"
 
 # libretranslate
 msgctxt "role:sys-ctl-hlth-container:description"
@@ -1992,7 +1992,7 @@ msgstr "Optimasi Webserver"
 # libretranslate
 msgctxt "role:desk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr ""
+msgstr "Tempat kerja untuk Docker dan Docker Compose afoldon dengan pengguna lokal dalam kelompok docker untuk penggunaan pengembangan tanpa akar"
 
 # libretranslate
 msgctxt "role:dev-arduino:description"

@@ -147,7 +147,7 @@ msgstr "CI Runner"
 # libretranslate
 msgctxt "role:svc-db-typesense:description"
 msgid "Central Dockerized search engine shared by multiple apps with per-consumer scoped API keys"
-msgstr ""
+msgstr "Dockeriseeritud keskne otsingumootor, mida jagavad mitmed rakendused, mille ulatus on tarbija kohta API võtmed"
 
 # libretranslate
 msgctxt "menu:Help:description"
@@ -177,7 +177,7 @@ msgstr "Keskne postiorkestreerimise kiht, mis suunab hosti kirja Mailu, msmtp v�
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr ""
+msgstr "Tsentraalsed rekursiiv-/edasisuunalised DNS-lahutusmootorid (Unboundjne.)"
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -927,7 +927,7 @@ msgstr "Sertifikaatide hooldusrollid, süsteemi hooldus ja korduvad tööülesan
 # libretranslate
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
-msgstr ""
+msgstr "Märkimisrolli märkimine masinana Docker Swarm halduri sõlm, millele on delegeeritud init- loogika svc-swarm-node"
 
 # libretranslate
 msgctxt "menu:Marketing:title"
@@ -1037,7 +1037,7 @@ msgstr "OS & pakettide uuendused"
 # libretranslate
 msgctxt "role:sys-svc-objstore:description"
 msgid "Object-storage layer for SeaweedFS/MinIO backend resolution and per-consumer bucket and credential provisioning"
-msgstr ""
+msgstr "Objekti säilitamise kiht SeaweedFS/MinIO taustaprogrammi eraldusvõime ning tarbija- ja volikirjakomplekt"
 
 # libretranslate
 msgctxt "role:svc-opt-swapfile:description"
@@ -1577,7 +1577,7 @@ msgstr "Isemajandav avatud lähtekoodiga ERP komplekt rahanduse, CRM-i, varude, 
 # libretranslate
 msgctxt "role:web-svc-libretranslate:description"
 msgid "Self-hosted open-source machine translation API for translating and detecting text across languages"
-msgstr ""
+msgstr "Ise hostitud avatud lähtekoodiga masintõlge API Teksti tõlkimine ja tuvastamine erinevates keeltes"
 
 # libretranslate
 msgctxt "role:web-app-openclaw:description"

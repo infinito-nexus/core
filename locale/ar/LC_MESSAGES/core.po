@@ -92,7 +92,7 @@ msgstr "إدارة الأصول"
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
-msgstr ""
+msgstr "خدمات الاسترجاع الآلية التي انتهت أو غير صحية Docker Compose الحزم وحل النزاعات في الموانئ"
 
 # libretranslate
 msgctxt "role:sys-dns-hetzner-rdns:description"
@@ -147,7 +147,7 @@ msgstr "CI Runner"
 # libretranslate
 msgctxt "role:svc-db-typesense:description"
 msgid "Central Dockerized search engine shared by multiple apps with per-consumer scoped API keys"
-msgstr ""
+msgstr "محرك البحث المكثف المركزي الذي يتقاسمه تطبيقات متعددة ذات نطاق كل مستهلك API مفاتيح"
 
 # libretranslate
 msgctxt "menu:Help:description"
@@ -172,12 +172,12 @@ msgstr "الوكيل المركزي لقطع الغيار للتوقيع على 
 # libretranslate
 msgctxt "role:sys-svc-mail:description"
 msgid "Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
-msgstr ""
+msgstr "الطبقة البريدية المركزية Mailuأو نقلة محلية اختيارية"
 
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr ""
+msgstr "محركات التصليح/التجديد المركزية (Unboundإلخ)"
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -215,7 +215,7 @@ msgstr "التنظيف"
 # libretranslate
 msgctxt "role:sys-svc-cln-domains:description"
 msgid "Cleanup routine for deprecated domains, removing Nginx configs and revoking their Certbot certificates"
-msgstr ""
+msgstr "التنظيف الروتيني للمجالات المهددة بالانهيار، إزالة مقابض نجينكس وإلغاء Certbot الشهادات"
 
 # libretranslate
 msgctxt "role:sys-ctl-cln-disc-space:description"
@@ -250,7 +250,7 @@ msgstr "دور كلودفلور DNS الحذاء لسجلات A/AAAA (and option
 # libretranslate
 msgctxt "role:svc-registry-docker:description"
 msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
-msgstr ""
+msgstr "سجل صور الحاويات على مستوى المجموعة لخدمة صور مبنية حسب الطلب Docker Swarm العمال"
 
 # libretranslate
 msgctxt "role:svc-registry-cache:description"
@@ -325,7 +325,7 @@ msgstr "الحاويات Reveal.js ينزلق سطح الأرض لعرض الم�
 # libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr ""
+msgstr "خادم إيكون محجوز لاستضافة Simple Icons مجموعة برمجيات SVG و PNG من أجل استخدام الإنترنت والتوثيق"
 
 # libretranslate
 msgctxt "role:svc-db-postgres:description"
@@ -458,7 +458,7 @@ msgstr "مصممة مؤجلة لتمكين وبدء جمع الخدمات الن
 # libretranslate
 msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
-msgstr ""
+msgstr "تطبيقات شبكية قابلة للانتشار (GitLab.. Nextcloud.. Mastodonإلخ)"
 
 # libretranslate
 msgctxt "category:desk:title"
@@ -706,7 +706,7 @@ msgstr ""
 # libretranslate
 msgctxt "role:svc-ai-lmstudio:description"
 msgid "Headless local model server for open LLMs with an OpenAI-compatible API on the container network"
-msgstr ""
+msgstr "خادم نموذجي محلي لا يُستهان به لآليات الإدارة المستدامة للأراضي المفتوحة التي تتوافق مع المعايير المحاسبية الدولية API على شبكة الحاويات"
 
 # libretranslate
 msgctxt "role:sys-ctl-hlth-volumes:description"
@@ -870,7 +870,7 @@ msgstr "زبون من طراز SMTP ذو الوزن الخفيف، واستبد�
 # libretranslate
 msgctxt "role:web-app-gitea:description"
 msgid "Lightweight self-hosted Git service for code collaboration, version control, and repository management"
-msgstr ""
+msgstr "الوزن الخفيف Git خدمة التعاون في مجال الرموز، ومراقبة النسخ، وإدارة المستودعات"
 
 # libretranslate
 msgctxt "role:sys-svc-nss:description"
@@ -915,7 +915,7 @@ msgstr "أدوار الصيانة للشهادات، والارتقاء بالن
 # libretranslate
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
-msgstr ""
+msgstr "دور الملصقات هو مضيف Docker Swarm موكّل المدير، مع المنطق الغير مقصود svc-swarm-node"
 
 # libretranslate
 msgctxt "menu:Marketing:title"
@@ -949,7 +949,7 @@ msgstr "NGINX server blocks that permanently redirect www subdomains to their no
 # libretranslate
 msgctxt "role:sys-front-inj-matomo:description"
 msgid "NGINX subfilter injector adding Matomo analytics script and noscript image tracker to served HTML pages"
-msgstr ""
+msgstr "حقن مرشّح فرعي لشبكة إن جيناكس Matomo محلل للكتاب ومتتبع للصور المخطوطة لخدمة صفحات HTML"
 
 # libretranslate
 msgctxt "role:web-svc-html:description"
@@ -1023,7 +1023,7 @@ msgstr "OS ' package updates"
 # libretranslate
 msgctxt "role:sys-svc-objstore:description"
 msgid "Object-storage layer for SeaweedFS/MinIO backend resolution and per-consumer bucket and credential provisioning"
-msgstr ""
+msgstr "طبقة تخزين الأجسام SeaweedFS/MinIO قرار احتياطي ودلو كل مستهلك وتوفير وثائق الإثبات"
 
 # libretranslate
 msgctxt "role:svc-opt-swapfile:description"
@@ -1136,7 +1136,7 @@ msgstr "بوابة نظام LLM المفتوحة المتوافقة مع نظا�
 # libretranslate
 msgctxt "role:dev-java:description"
 msgid "OpenJDK 11 runtime and development kit for Java applications on Pacman-based systems"
-msgstr ""
+msgstr "OpenJDK 11 مجموعة أدوات العمل والتطوير Java تطبيقات النظم القائمة على باكمان"
 
 # libretranslate
 msgctxt "role:sys-svc-ssh:description"
@@ -1180,12 +1180,12 @@ msgstr "إجراء فحص طبي دوري لتوصيل البريد عبر ال�
 # libretranslate
 msgctxt "role:desk-ssh:description"
 msgid "Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
-msgstr ""
+msgstr "عامل ثابت لخدمة المستعملين SSH لأجهزة الحاسوب المكتبي في وايلاند، مع تم تزامن عقد الزواج من Git"
 
 # libretranslate
 msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
-msgstr ""
+msgstr "دور حاملي العقارات في المستقبل XMPP نشر الخواديم/الحاويات، التنفيذ في انتظار"
 
 # libretranslate
 msgctxt "menu:Commerce:description"
@@ -1285,7 +1285,7 @@ msgstr ""
 # libretranslate
 msgctxt "role:sys-util-git-pull:description"
 msgid "Reusable Git pull primitive for shallow clones, detached-safe updates, tag pinning, and reliable change detection"
-msgstr ""
+msgstr "Reusable Git سحب البدائي للمستنسخات الضحلة، تحديثات السلامة المنفصلة، وضع العلامات، والكشف الموثوق عن التغيير"
 
 # libretranslate
 msgctxt "role:svc-ai-mcp-adapter:description"
@@ -1413,7 +1413,7 @@ msgstr "خدمات مبرمجة ومؤقتة لإعادة التوازن بين 
 # libretranslate
 msgctxt "role:sys-ctl-mtn-cert-renew:description"
 msgid "Scheduled systemd-timer job renewing Let's Encrypt SSL/TLS certificates via Certbot and reloading NGINX afterward"
-msgstr ""
+msgstr "وظيفة مبرمجة مُجدّدة لندخل شهادات SSL/TLS عبر Certbot واعادة تحميل نجينكس بعد ذلك"
 
 # libretranslate
 msgctxt "role:svc-runner:description"
@@ -1464,9 +1464,10 @@ msgctxt "role:web-app-mini-qr:description"
 msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
 msgstr "أداة مجهزة بالاستهلاك الذاتي لتوليد رموز الترددات العالية من النص أو اليورانات المزودة بأجهزة محلية ملائمة للخصوصية"
 
+# libretranslate
 msgctxt "role:web-app-openwebui:description"
 msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
-msgstr ""
+msgstr "تفاعل الدردشة ذاتياً للتفاعل مع النماذج المحلية والخاصة للمبادرة عن طريق دعم مثل Ollama"
 
 # libretranslate
 msgctxt "role:web-app-nextcloud:description"
@@ -1551,7 +1552,7 @@ msgstr "مؤلفة من مصادر مفتوحة ذاتية من نظام تخط�
 # libretranslate
 msgctxt "role:web-svc-libretranslate:description"
 msgid "Self-hosted open-source machine translation API for translating and detecting text across languages"
-msgstr ""
+msgstr "ترجمة آلية ذاتية المصدر المفتوح API ترجمة وكشف النص عبر اللغات"
 
 # libretranslate
 msgctxt "role:web-app-openclaw:description"
@@ -1561,7 +1562,7 @@ msgstr "مدخل العميل الخاص ذو العجلات ذاتياً مع �
 # libretranslate
 msgctxt "role:web-app-opencloud:description"
 msgid "Self-hosted platform for file sync, sharing, and collaboration with Keycloak SSO and central LDAP directory"
-msgstr ""
+msgstr "منبر مدعوم ذاتياً لمزامنة الملفات وتبادلها والتعاون معها Keycloak SSO and central LDAP director"
 
 # libretranslate
 msgctxt "role:web-app-listmonk:description"
@@ -1674,7 +1675,7 @@ msgstr "جارٍ تسجيل خروجك من الخدمات…"
 # libretranslate
 msgctxt "role:web-app-postmarks:description"
 msgid "Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
-msgstr ""
+msgstr "موقع تخصيص الكتب للمستعملين الوحيدين الموزعين Mastodon والعكس"
 
 # libretranslate
 msgctxt "role:web-app-homeassistant:description"
@@ -1724,7 +1725,7 @@ msgstr "خادم ملف ثابت على شركة HTTPS مع قائمة أدلة�
 # libretranslate
 msgctxt "role:web-app-hugo:description"
 msgid "Static site generator building HTML from an upstream Git repository at build time and serving it via nginx"
-msgstr ""
+msgstr "المولدات الكهربائية للمواقع الثابتة HTML من أعلى المجرى Git مستودع في وقت البناء وخدمته عن طريق النينكس"
 
 # libretranslate
 msgctxt "menu:Storage:title"
@@ -1770,9 +1771,10 @@ msgctxt "role:sys-pip-install:description"
 msgid "System-wide pip helper for installing or upgrading a Python package via the host's system Python"
 msgstr ""
 
+# libretranslate
 msgctxt "role:sys-ctl-mtn-cert-deploy:description"
 msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
-msgstr ""
+msgstr "خدمة نظامية وموقّت للتزامن دعونا ندخل الشهادات إلى Docker Compose NGINX stacks with hot-reload"
 
 # libretranslate
 msgctxt "role:sys-timer:description"
@@ -1787,7 +1789,7 @@ msgstr "خدمات التنظيف النظامية التي تدير مجلدا�
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-hard:description"
 msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
-msgstr ""
+msgstr "دور الصيانة المقرر على نطاق المنظومة Docker Compose حزمة من الراحة، مع البقايا الصلبة للوجبات الخفيفة مثل Mailu"
 
 # libretranslate
 msgctxt "role:sys-ctl-hlth-container:description"
@@ -1962,7 +1964,7 @@ msgstr "منصة الإدارة والتنمية القائمة على شبكة 
 # libretranslate
 msgctxt "role:web-app-phpmyadmin:description"
 msgid "Web-based administration tool for MySQL and MariaDB with schema management, querying, and import/export"
-msgstr ""
+msgstr "أداة الإدارة القائمة على شبكة الإنترنت لميسكول MariaDB مع إدارة المواد الكيميائية، والاستفسارات، والواردات/الصادرات"
 
 # libretranslate
 msgctxt "category:web.opt:title"
@@ -1972,7 +1974,7 @@ msgstr "الموقع الشبكي"
 # libretranslate
 msgctxt "role:desk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr ""
+msgstr "تركيبة تشغيل دوكر و Docker Compose مع المستخدم المحلي في مجموعة دوكر للاستعمال الإنمائي بلا جذور"
 
 # libretranslate
 msgctxt "role:dev-arduino:description"

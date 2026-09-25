@@ -92,7 +92,7 @@ msgstr "Gestionarea activelor"
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
-msgstr ""
+msgstr "Serviciul automat de recuperare repornirea ieșirilor sau nesănătoase Docker Compose stive și rezolvarea conflictelor portuare"
 
 # libretranslate
 msgctxt "role:sys-dns-hetzner-rdns:description"
@@ -177,7 +177,7 @@ msgstr "Strat de orchestrare centrala de rutare mail gazda prin Mailu, msmtp, sa
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr ""
+msgstr "Motoare cu piston cu aprindere prin scânteie cu aprindere prin scânteie (Unbound, etc.)"
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -327,7 +327,7 @@ msgstr "Containere Reveal.js punte slide pentru prezentarea platformei către ad
 # libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr ""
+msgstr "Server de pictogramă containerizat pentru găzduirea Simple Icons brand SVG şi PNG pentru utilizare web şi documentaţie"
 
 # libretranslate
 msgctxt "role:svc-db-postgres:description"
@@ -927,7 +927,7 @@ msgstr "Roluri de întreținere pentru certificate, întreținerea sistemului ș
 # libretranslate
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
-msgstr ""
+msgstr "Marker rol etichetarea o gazdă ca Docker Swarm Nod manager, cu logica iniţială delegată svc-swarm-node"
 
 # libretranslate
 msgctxt "menu:Marketing:title"
@@ -1331,12 +1331,12 @@ msgstr "Roluri inverse pentru rutarea și echilibrarea traficului către servici
 # libretranslate
 msgctxt "category:sys.ctl.cln:description"
 msgid "Roles for cleaning up various system resources—old backups, unused certificates, temporary files, Docker volumes, disk caches, deprecated domains, and more."
-msgstr ""
+msgstr "Roluri pentru curăţarea diferitelor resurse de sistem."
 
 # libretranslate
 msgctxt "category:drv:description"
 msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
-msgstr ""
+msgstr "Roluri pentru instalarea și configurarea driverelor hardware."
 
 # libretranslate
 msgctxt "category:web:description"
@@ -1346,7 +1346,7 @@ msgstr "Roluri pentru gestionarea infrastructurii web care acoperă serviciile d
 # libretranslate
 msgctxt "category:sys.ctl.hlth:description"
 msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
-msgstr ""
+msgstr "Roluri de monitorizare a sistemului și controale de sănătate."
 
 # libretranslate
 msgctxt "role:sys-front-tls-selfsigned:description"
@@ -1802,7 +1802,7 @@ msgstr "Asistent pip la nivel de sistem pentru instalarea sau modernizarea unui 
 # libretranslate
 msgctxt "role:sys-ctl-mtn-cert-deploy:description"
 msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
-msgstr ""
+msgstr "Serviciu sistemat și cronometru pentru sincronizare Să cripteze certificatele în Docker Compose Stive NGINX cu reîncărcare la cald"
 
 # libretranslate
 msgctxt "role:sys-timer:description"

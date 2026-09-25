@@ -177,7 +177,7 @@ msgstr "صفحه اصلی هدایت نامه میزبان ایمیل از طر�
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr ""
+msgstr "موتورهای DNS Recursive/forward (Unboundو غیره)"
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -326,7 +326,7 @@ msgstr "Containerized Reveal.js اسلاید برای ارائه پلت فرم �
 # libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr ""
+msgstr "سرور آیکون Containerized برای میزبانی Simple Icons نام تجاری SVG و PNG Collection برای استفاده از وب و مستندات"
 
 # libretranslate
 msgctxt "role:svc-db-postgres:description"
@@ -1146,7 +1146,7 @@ msgstr "OpenAI سازگار دروازه LLM مسیریابی یک /1 نقطه �
 # libretranslate
 msgctxt "role:dev-java:description"
 msgid "OpenJDK 11 runtime and development kit for Java applications on Pacman-based systems"
-msgstr ""
+msgstr "OpenJDK 11 کیت زمان و توسعه برای Java برنامه های کاربردی در سیستم های مبتنی بر Pacman"
 
 # libretranslate
 msgctxt "role:sys-svc-ssh:description"
@@ -1741,7 +1741,7 @@ msgstr "سرور فایل استاتیک بر روی HTTPS با لیست دای�
 # libretranslate
 msgctxt "role:web-app-hugo:description"
 msgid "Static site generator building HTML from an upstream Git repository at build time and serving it via nginx"
-msgstr ""
+msgstr "ساخت ژنراتور سایت استاتیک HTML از بالادستی Git مخزن در ساخت زمان و خدمت از طریق nginx"
 
 # libretranslate
 msgctxt "menu:Storage:title"

@@ -92,7 +92,7 @@ msgstr "Quản lý Tài sản"
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
-msgstr ""
+msgstr "Dịch vụ phục hồi tự động thoát hoặc không lành mạnh Docker Compose chồng và giải quyết xung đột cổng"
 
 # libretranslate
 msgctxt "role:sys-dns-hetzner-rdns:description"
@@ -177,7 +177,7 @@ msgstr "Trình chuyển đổi màn hình nền trung tâm cho máy chủ hướ
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr ""
+msgstr "Trình đệ quy trung tâm/ tua lại máy giải quyết DNS (Unbound, etc.)"
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -197,7 +197,7 @@ msgstr "Cơ chế cơ sở dữ liệu trung tâm để tích trữ và tìm ki�
 # libretranslate
 msgctxt "role:sys-svc-rdbms:description"
 msgid "Centralized MariaDB or PostgreSQL database service shared across applications via Docker Compose"
-msgstr ""
+msgstr "Trung tâm hoá MariaDB hay PostgreSQL Dịch vụ cơ sở dữ liệu chia sẻ qua ứng dụng thông qua Docker Compose"
 
 # libretranslate
 msgctxt "role:sys-svc-certs:description"
@@ -251,7 +251,7 @@ msgstr "Vai trò của DNS khởi động cho đỉnh và thẻ A/AAA (và tùy 
 # libretranslate
 msgctxt "role:svc-registry-docker:description"
 msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
-msgstr ""
+msgstr "Danh sách công cụ chứa ảnh nhómlocal để phục vụ các ảnh được xây dựng riêng Docker Swarm nút nhân"
 
 # libretranslate
 msgctxt "role:svc-registry-cache:description"
@@ -325,7 +325,7 @@ msgstr "Comment Reveal.js Sàn trượt để trình bày nền tảng cho ban q
 # libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr ""
+msgstr "Máy phục vụ biểu tượng bị khóa cho việc tổ chức Simple Icons Name"
 
 # libretranslate
 msgctxt "role:svc-db-postgres:description"
@@ -458,7 +458,7 @@ msgstr "Name"
 # libretranslate
 msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
-msgstr ""
+msgstr "Các ứng dụng web có thể triển khai (GitLab. Nextcloud. Mastodon, etc.)"
 
 # libretranslate
 msgctxt "category:desk:title"
@@ -478,12 +478,12 @@ msgstr "Trình khách môi trường thiết lập liên kết thư mục chính
 # libretranslate
 msgctxt "role:desk-gnome-extensions:description"
 msgid "Desktop config role for activating GNOME Shell extensions and installing a CLI tool to manage them"
-msgstr ""
+msgstr "Vai trò cấu hình môi trường để khởi động GNOME Shell Phần mở rộng và cài đặt một công cụ CLI để quản lý chúng"
 
 # libretranslate
 msgctxt "category:desk:description"
 msgid "Desktop environment roles & apps (GNOME, browser, LibreOffice, etc.)"
-msgstr ""
+msgstr "& Ứng dụng môi trường làm việc (GNOME, trình duyệt, LibreOffice, etc.)"
 
 # libretranslate
 msgctxt "role:desk-bluray-player:description"
@@ -713,7 +713,7 @@ msgstr "Trình duyệt mạng bàn làm việc cứng với sự riêng tư và 
 # libretranslate
 msgctxt "role:svc-ai-lmstudio:description"
 msgid "Headless local model server for open LLMs with an OpenAI-compatible API on the container network"
-msgstr ""
+msgstr "Trình phục vụ máy chủ cục bộ không đầu cho việc mở LMs với một trình phục vụ OpenAI tương ứng API trên mạng container"
 
 # libretranslate
 msgctxt "role:sys-ctl-hlth-volumes:description"
@@ -728,7 +728,7 @@ msgstr "Trợ giúp"
 # libretranslate
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
-msgstr ""
+msgstr "Đang hỗ trợ việc cài đặt tài sản phun CA tin cậy cho Docker Compose Chứng nhận CA dự án và hợp lệ hoá"
 
 # libretranslate
 msgctxt "category:gen:description"
@@ -818,7 +818,7 @@ msgstr "In trip"
 # libretranslate
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
-msgstr ""
+msgstr "Intel VA-API Trình điều khiển phương tiện cho phép giải mã video được tăng tốc và mã hóa qua bản phân phối Linux"
 
 # libretranslate
 msgctxt "role:web-app-mig:description"
@@ -838,7 +838,7 @@ msgstr "Chạy JavaScript thời gian để xây dựng và chạy ứng dụng 
 # libretranslate
 msgctxt "role:web-app-hermes:description"
 msgid "Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to models through the shared LLM gateway"
-msgstr ""
+msgstr "Nhân viên thời gian chạy bị phá vỡ nhân viên phục vụ một OpenAI tương ứng API, được chuyển tới mô hình qua cổng M chung"
 
 # libretranslate
 msgctxt "category:svc.virt:description"
@@ -923,7 +923,7 @@ msgstr "Vai trò bảo trì cho chứng nhận, quản lý hệ thống, và l�
 # libretranslate
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
-msgstr ""
+msgstr "Đánh dấu vai trò của máy Docker Swarm nút quản lý, với logic init ủy thác cho svc-swarm-node"
 
 # libretranslate
 msgctxt "menu:Marketing:title"
@@ -1146,7 +1146,7 @@ msgstr "Name1 kết thúc điểm tới hậu phương mô hình cục bộ và 
 # libretranslate
 msgctxt "role:dev-java:description"
 msgid "OpenJDK 11 runtime and development kit for Java applications on Pacman-based systems"
-msgstr ""
+msgstr "OpenJDK 11 Name Java ứng dụng trên hệ thống dựa trên Pacman"
 
 # libretranslate
 msgctxt "role:sys-svc-ssh:description"
@@ -1195,7 +1195,7 @@ msgstr "Người dùng- dịch vụ SSH có hệ thống cho máy tính Wayland,
 # libretranslate
 msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
-msgstr ""
+msgstr "Vai trò giữ chỗ cho tương lai XMPP Trình phục vụ/ hậu phương triển khai, thực hiện đang chờ"
 
 # libretranslate
 msgctxt "menu:Commerce:description"
@@ -1273,7 +1273,7 @@ msgstr "Máy phục vụ ủy nhiệm"
 # libretranslate
 msgctxt "role:web-svc-api:description"
 msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
-msgstr ""
+msgstr "CÔNG VIỆC API Đang phục vụ dữ liệu, lịch sử và các bản dịch của Infinito.Nexus Cho mỗi phần lõi và nĩa của nó"
 
 # libretranslate
 msgctxt "role:pkgmgr:description"
@@ -1548,7 +1548,7 @@ msgstr "Trình phục vụ phương tiện truyền thông tự chủ để truy
 # libretranslate
 msgctxt "role:svc-ai-ollama:description"
 msgid "Self-hosted model server for running open LLMs locally behind a simple HTTP API"
-msgstr ""
+msgstr "Trình phục vụ mô hình tự chủ để chạy đồ thị mở kho cục bộ phía sau một HTTP đơn giản API"
 
 # libretranslate
 msgctxt "role:web-app-baserow:description"
@@ -1568,7 +1568,7 @@ msgstr "Phòng phòng cấp cứu mã nguồn mở cho tài chính, CRM, kho hà
 # libretranslate
 msgctxt "role:web-svc-libretranslate:description"
 msgid "Self-hosted open-source machine translation API for translating and detecting text across languages"
-msgstr ""
+msgstr "Trình dịch mã nguồn mở tự chủ API để dịch và phát hiện văn bản trong nhiều ngôn ngữ"
 
 # libretranslate
 msgctxt "role:web-app-openclaw:description"
@@ -1691,7 +1691,7 @@ msgstr "Đang đăng xuất bạn khỏi các dịch vụ…"
 # libretranslate
 msgctxt "role:web-app-postmarks:description"
 msgid "Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
-msgstr ""
+msgstr "Đánh dấu nơi Mạng Chỉ người dùng Mastodon và Fediver"
 
 # libretranslate
 msgctxt "role:web-app-homeassistant:description"
@@ -1741,7 +1741,7 @@ msgstr "Máy phục vụ tập tin tĩnh trên HTTPS với danh sách thư mục
 # libretranslate
 msgctxt "role:web-app-hugo:description"
 msgid "Static site generator building HTML from an upstream Git repository at build time and serving it via nginx"
-msgstr ""
+msgstr "Name Git Kho lúc xây dựng và phục vụ nó thông qua nginx"
 
 # libretranslate
 msgctxt "menu:Storage:title"
@@ -1791,7 +1791,7 @@ msgstr "hỗ trợ ống dẫn toàn hệ thống để cài đặt hoặc nâng
 # libretranslate
 msgctxt "role:sys-ctl-mtn-cert-deploy:description"
 msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
-msgstr ""
+msgstr "Dịch vụ và đồng bộ giờ hệ thống cho việc đồng bộ hoá chứng nhận hãy mã hóa vào Docker Compose NGINX chồng có tải nóng"
 
 # libretranslate
 msgctxt "role:sys-timer:description"
@@ -1806,7 +1806,7 @@ msgstr "Dịch vụ dọn dẹp không tên của Docker, thêm hình ảnh, h�
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-hard:description"
 msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
-msgstr ""
+msgstr "Vai trò bảo trì có sẵn hệ thống cho đầy đủ Docker Compose chồng khởi chạy lại, với khởi chạy lại khó cho chồng như Mailu"
 
 # libretranslate
 msgctxt "role:sys-ctl-hlth-container:description"
@@ -1958,7 +1958,7 @@ msgstr "Comment"
 # libretranslate
 msgctxt "role:web-app-semaphore:description"
 msgid "Web UI and API for running Ansible, Terraform/OpenTofu, and shell automation on a schedule or on demand"
-msgstr ""
+msgstr "Name API cho chạy Ansable, Terraform/ openTofu, và tự động hóa hệ vỏ theo thời gian biểu hoặc yêu cầu"
 
 # libretranslate
 msgctxt "role:web-app-lam:description"
@@ -1993,7 +1993,7 @@ msgstr "Comment"
 # libretranslate
 msgctxt "role:desk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr ""
+msgstr "Name Docker Compose với người dùng cục bộ trong nhóm docker cho việc sử dụng phát triển không gốc"
 
 # libretranslate
 msgctxt "role:dev-arduino:description"

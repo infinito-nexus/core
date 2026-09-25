@@ -42,7 +42,7 @@ msgstr "Server Für Perkakas Administrasi"
 # libretranslate
 msgctxt "role:sys-front-inj-all:description"
 msgid "Aggregate NGINX sub-filter injector adding Matomo tracking, global theming, iFrame and JS snippets by feature flag"
-msgstr ""
+msgstr "Agregate NGINX sub- filter injektor menambahkan Matomo pelacakan, tema global, iFrame dan snippet JS oleh tanda fitur"
 
 # libretranslate
 msgctxt "role:desk-gnome:description"
@@ -92,7 +92,7 @@ msgstr "Manajemen Aset"
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
-msgstr ""
+msgstr "Layanan pemulihan otomatis mulai keluar atau tidak sehat Docker Compose Tumpukan dan pemecahan konflik port"
 
 # libretranslate
 msgctxt "role:sys-dns-hetzner-rdns:description"
@@ -172,12 +172,12 @@ msgstr "Proksi logout pusat untuk single-action sign-out seluruh aplikasi yang t
 # libretranslate
 msgctxt "role:sys-svc-mail:description"
 msgid "Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
-msgstr ""
+msgstr "Lapisan orchetation surat tengah routing host melalui Mailu, msmtp, atau sebuah relay lokal SMTP"
 
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr ""
+msgstr "Mesin rekursif / meneruskan DNS resolver (Unbound, dll.)"
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -326,7 +326,7 @@ msgstr "Diatur Reveal.js slide deck untuk menyajikan platform ke admin, pengemba
 # libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr ""
+msgstr "Server ikon yang terpasang untuk host Simple Icons merek SVG dan PNG koleksi untuk penggunaan web dan dokumentasi"
 
 # libretranslate
 msgctxt "role:svc-db-postgres:description"
@@ -729,7 +729,7 @@ msgstr "Bantuan"
 # libretranslate
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
-msgstr ""
+msgstr "Peran pembantu memasang aset injeksi CA- trust untuk Docker Compose Stacks dan validasi sertifikat CA projek"
 
 # libretranslate
 msgctxt "category:gen:description"
@@ -924,7 +924,7 @@ msgstr "Peran pemeliharaan untuk sertifikat, perbaikan sistem, dan tugas operasi
 # libretranslate
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
-msgstr ""
+msgstr "Peran penanda menandai host sebagai Docker Swarm titik manajer, dengan logika init mendelegasikan ke svc-swarm-node"
 
 # libretranslate
 msgctxt "menu:Marketing:title"
@@ -959,7 +959,7 @@ msgstr "Server blok NGINX yang secara permanen mengarahkan subdomains www ke dom
 # libretranslate
 msgctxt "role:sys-front-inj-matomo:description"
 msgid "NGINX subfilter injector adding Matomo analytics script and noscript image tracker to served HTML pages"
-msgstr ""
+msgstr "Injector subfilter NGINX menambahkan Matomo scrip analytics dan nossory image tracker untuk melayani halaman HTML"
 
 # libretranslate
 msgctxt "role:web-svc-html:description"
@@ -1196,7 +1196,7 @@ msgstr "Sistit systemd service SSH agent for Wayland desktops, with the .ssh con
 # libretranslate
 msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
-msgstr ""
+msgstr "Placeholder stub peran untuk masa depan XMPP penyebaran server / kontainer, implementasi tertunda"
 
 # libretranslate
 msgctxt "menu:Commerce:description"
@@ -1579,7 +1579,7 @@ msgstr "Self-host pribadi agen AI gateway dengan kontrol peramban UI, sandboxed 
 # libretranslate
 msgctxt "role:web-app-opencloud:description"
 msgid "Self-hosted platform for file sync, sharing, and collaboration with Keycloak SSO and central LDAP directory"
-msgstr ""
+msgstr "Platform self-hosted untuk sinkronisasi, berbagi, dan berkolaborasi dengan Keycloak Direktori SSO dan pusat LDAP"
 
 # libretranslate
 msgctxt "role:web-app-listmonk:description"
@@ -1792,7 +1792,7 @@ msgstr "Sistem- wide pip helper untuk memasang atau meningkatkan paket Python me
 # libretranslate
 msgctxt "role:sys-ctl-mtn-cert-deploy:description"
 msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
-msgstr ""
+msgstr "Layanan dan timer Systemd untuk sinkronisasi Mari kita Enkripsi sertifikat ke Docker Compose Tumpukan NGINX dengan hot-reload"
 
 # libretranslate
 msgctxt "role:sys-timer:description"
@@ -1807,7 +1807,7 @@ msgstr "Systemd- layanan pembersihan didorong memangkas volume Docker anonim dit
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-hard:description"
 msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
-msgstr ""
+msgstr "Sistemd- dijadwalkan peran pemeliharaan untuk penuh Docker Compose stack restarts, with hard restarts for stacks like Mailu"
 
 # libretranslate
 msgctxt "role:sys-ctl-hlth-container:description"

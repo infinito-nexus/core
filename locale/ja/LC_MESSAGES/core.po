@@ -42,7 +42,7 @@ msgstr "管理ツールfürサーバー"
 # libretranslate
 msgctxt "role:sys-front-inj-all:description"
 msgid "Aggregate NGINX sub-filter injector adding Matomo tracking, global theming, iFrame and JS snippets by feature flag"
-msgstr ""
+msgstr "Aggregate NGINX サブフィルタインジェクタ追加 Matomo 機能フラグによるトラッキング、グローバルテーマ、iFrame、JSスニペット"
 
 # libretranslate
 msgctxt "role:desk-gnome:description"
@@ -177,7 +177,7 @@ msgstr "Mailu、msmtp、またはオプションのローカルSMTPリレーを�
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr ""
+msgstr "中央再帰/強化DNSリゾルバエンジン (Unbound等。)"
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -325,7 +325,7 @@ msgstr "コンテナ化 Reveal.js プラットフォームを管理者、開発�
 # libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr ""
+msgstr "ホスティング用のコンテナ化されたアイコンサーバー Simple Icons SVG および PNG の Web および文書の使用のためのコレクション"
 
 # libretranslate
 msgctxt "role:svc-db-postgres:description"
@@ -393,7 +393,7 @@ msgstr "顧客関係"
 # libretranslate
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
-msgstr ""
+msgstr "顧客関係管理 (メディア) 顧客関係、販売パイプライン、マーケティング、およびサポート活動の管理のためのソフトウェア。."
 
 # libretranslate
 msgctxt "category:sys.dns:title"
@@ -623,7 +623,7 @@ msgstr "イベントを整理し、コミュニティやグループを構築す
 # libretranslate
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
-msgstr ""
+msgstr "フェデレーションブリッジ接続活動Pub (フェディバース), ATプロトコル (Bluesky)インディーウェブ"
 
 # libretranslate
 msgctxt "menu:Finance & Accounting:title"
@@ -1185,9 +1185,10 @@ msgctxt "role:sys-ctl-hlth-msmtp:description"
 msgid "Periodic health check for outbound mail delivery, sending a test message via msmtp and alerting on failure"
 msgstr "タイムリーな健康チェックは、アウトバウンドメール配信、msmtpによるテストメッセージを送信し、失敗を警告します。"
 
+# libretranslate
 msgctxt "role:desk-ssh:description"
 msgid "Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
-msgstr ""
+msgstr "Waylandデスクトップ用のPersistentシステム化されたユーザーサービスSSHエージェント、.ssh configが同期 Git"
 
 # libretranslate
 msgctxt "role:web-svc-xmpp:description"
@@ -1197,7 +1198,7 @@ msgstr "将来のXMPPサーバー/コンテナの展開、実装用のプレー�
 # libretranslate
 msgctxt "menu:Commerce:description"
 msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
-msgstr ""
+msgstr "決済、在庫、顧客機能など、オンラインショップ、製品カタログ、およびデジタル販売チャネルの構築および管理のためのプラットフォーム。."
 
 msgctxt "logout:keep_closed"
 msgid "Please do not close this page yet."
@@ -1324,7 +1325,7 @@ msgstr "バックアップ、未使用証明書、一時ファイル、ドッカ
 # libretranslate
 msgctxt "category:drv:description"
 msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
-msgstr ""
+msgstr "プリンター、グラフィック、インプットデバイス、その他周辺機器のサポートなど、ハードウェアドライバのインストールと構成の役割。."
 
 # libretranslate
 msgctxt "category:web:description"
@@ -1334,7 +1335,7 @@ msgstr "静的なコンテンツサービスやデプロイ可能なWebアプリ
 # libretranslate
 msgctxt "category:sys.ctl.hlth:description"
 msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
-msgstr ""
+msgstr "システム監視と健康チェックのロール - ボットスタイルの自動チェックと、ログ、コンテナ、ディスクの使用状況などのコア低レベルのモニターを網羅しています。."
 
 # libretranslate
 msgctxt "role:sys-front-tls-selfsigned:description"
@@ -1986,7 +1987,7 @@ msgstr "Webサーバの最適化"
 # libretranslate
 msgctxt "role:desk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr ""
+msgstr "Docker および Docker のワークステーションのセットアップ Docker Compose ルートレス開発のためのドッカーグループでローカルユーザーと"
 
 # libretranslate
 msgctxt "role:dev-arduino:description"

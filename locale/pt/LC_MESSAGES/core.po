@@ -92,7 +92,7 @@ msgstr "Gestão de Activos"
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
-msgstr ""
+msgstr "Serviço de recuperação automatizado reiniciando saiu ou não saudável Docker Compose pilhas e resolução de conflitos de portas"
 
 # libretranslate
 msgctxt "role:sys-dns-hetzner-rdns:description"
@@ -177,7 +177,7 @@ msgstr "Camada central de orquestração do correio roteando o correio da máqui
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr ""
+msgstr "Motores de resolução DNS recursivos/avanços centrais (Unbound, etc.)"
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -326,7 +326,7 @@ msgstr "Containerizado Reveal.js slide deck para apresentar a plataforma para ad
 # libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr ""
+msgstr "Servidor de ícones containerizado para hospedar o Simple Icons coleção SVG e PNG da marca para uso web e documentação"
 
 # libretranslate
 msgctxt "role:svc-db-postgres:description"
@@ -1034,7 +1034,7 @@ msgstr "Atualizações do & pacote do sistema operacional"
 # libretranslate
 msgctxt "role:sys-svc-objstore:description"
 msgid "Object-storage layer for SeaweedFS/MinIO backend resolution and per-consumer bucket and credential provisioning"
-msgstr ""
+msgstr "Camada de armazenamento de objetos para SeaweedFS/MinIO Resolução da infra-estrutura e provisionamento por consumidor e credencial"
 
 # libretranslate
 msgctxt "role:svc-opt-swapfile:description"
@@ -1994,7 +1994,7 @@ msgstr "Optimização do servidor Web"
 # libretranslate
 msgctxt "role:desk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr ""
+msgstr "Configuração da estação de trabalho para Docker e Docker Compose com o usuário local no grupo docker para uso de desenvolvimento sem raiz"
 
 # libretranslate
 msgctxt "role:dev-arduino:description"

@@ -624,7 +624,7 @@ msgstr "Федеративная платформа для организаци�
 # libretranslate
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
-msgstr ""
+msgstr "Мост Федерации, соединяющий ActivityPub (Федиверс), Протокол AT (Bluesky)и IndieWeb"
 
 # libretranslate
 msgctxt "menu:Finance & Accounting:title"
@@ -924,7 +924,7 @@ msgstr "Функции обслуживания сертификатов, обс
 # libretranslate
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
-msgstr ""
+msgstr "Роль маркера, помечающего хоста как Docker Swarm Узел менеджера, с логикой init делегированной svc-swarm-node"
 
 # libretranslate
 msgctxt "menu:Marketing:title"

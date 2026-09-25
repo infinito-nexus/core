@@ -177,7 +177,7 @@ msgstr "Centra poŝta instrumentado tavolo vojiganta mastro-poŝton tra Mailu, m
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr ""
+msgstr "Centra rekursiva/avancigo DNS-solvaj motoroj (Unboundktp.)"
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"

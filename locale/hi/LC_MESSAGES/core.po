@@ -42,7 +42,7 @@ msgstr "प्रशासन उपकरण Für सर्वर"
 # libretranslate
 msgctxt "role:sys-front-inj-all:description"
 msgid "Aggregate NGINX sub-filter injector adding Matomo tracking, global theming, iFrame and JS snippets by feature flag"
-msgstr ""
+msgstr "सकल NGINX उप-फिल्टर इंजेक्टर जोड़ने Matomo फीचर फ्लैग द्वारा ट्रैकिंग, ग्लोबल थीमिंग, आईफ्रेम और जे एस स्निपेट्स"
 
 # libretranslate
 msgctxt "role:desk-gnome:description"
@@ -92,7 +92,7 @@ msgstr "परिसंपत्ति प्रबंधन"
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
-msgstr ""
+msgstr "स्वचालित वसूली सेवा पुनरारंभ निकास या अस्वास्थ्यकर Docker Compose स्टैक और बंदरगाह संघर्ष को हल"
 
 # libretranslate
 msgctxt "role:sys-dns-hetzner-rdns:description"
@@ -147,7 +147,7 @@ msgstr "CI धावक"
 # libretranslate
 msgctxt "role:svc-db-typesense:description"
 msgid "Central Dockerized search engine shared by multiple apps with per-consumer scoped API keys"
-msgstr ""
+msgstr "सेंट्रल डॉकराइज्ड सर्च इंजन ने प्रति उपभोक्ता के साथ कई ऐपों द्वारा साझा किया API कुंजी"
 
 # libretranslate
 msgctxt "menu:Help:description"
@@ -172,12 +172,12 @@ msgstr "Nginx snippets और एक लाइव स्टेटस UI के �
 # libretranslate
 msgctxt "role:sys-svc-mail:description"
 msgid "Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
-msgstr ""
+msgstr "सेंट्रल मेल ऑर्केस्ट्रेशन लेयर रूटिंग होस्ट मेल के माध्यम से Mailu, msmtp, या एक वैकल्पिक स्थानीय SMTP रिले"
 
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr ""
+msgstr "सेंट्रल रीकर्सिव / फॉरवर्डिंग DNS रिमूवर इंजन (Unboundआदि)"
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -197,7 +197,7 @@ msgstr "स्टैक पर साझा किए गए प्रति उ
 # libretranslate
 msgctxt "role:sys-svc-rdbms:description"
 msgid "Centralized MariaDB or PostgreSQL database service shared across applications via Docker Compose"
-msgstr ""
+msgstr "केंद्रीकृत MariaDB या PostgreSQL डेटाबेस सेवा के माध्यम से अनुप्रयोगों में साझा Docker Compose"
 
 # libretranslate
 msgctxt "role:sys-svc-certs:description"
@@ -216,7 +216,7 @@ msgstr "क्लीनअप"
 # libretranslate
 msgctxt "role:sys-svc-cln-domains:description"
 msgid "Cleanup routine for deprecated domains, removing Nginx configs and revoking their Certbot certificates"
-msgstr ""
+msgstr "डिप्रीकेटेड डोमेन के लिए क्लीनअप रूटीन, Nginx configs को हटाने और उनके revoking को हटाने Certbot प्रमाणपत्र"
 
 # libretranslate
 msgctxt "role:sys-ctl-cln-disc-space:description"
@@ -251,7 +251,7 @@ msgstr "apex और वाइल्डकार्ड A/AAAA रिकॉर्�
 # libretranslate
 msgctxt "role:svc-registry-docker:description"
 msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
-msgstr ""
+msgstr "कस्टम निर्मित छवियों की सेवा के लिए क्लस्टर-स्थानीय कंटेनर छवि रजिस्ट्री Docker Swarm कार्यकर्ता नोड"
 
 # libretranslate
 msgctxt "role:svc-registry-cache:description"
@@ -326,7 +326,7 @@ msgstr "कंटेनरीकृत Reveal.js व्यवस्थापक,
 # libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr ""
+msgstr "होस्टिंग के लिए कंटेनरीकृत आइकन सर्वर Simple Icons वेब और प्रलेखन उपयोग के लिए ब्रांड एसवीजी और पीएनजी संग्रह"
 
 # libretranslate
 msgctxt "role:svc-db-postgres:description"
@@ -419,7 +419,7 @@ msgstr "क्लाउडफ्लेयर DNS रिकॉर्ड्स क
 # libretranslate
 msgctxt "category:svc.db:description"
 msgid "Database applications (DBMS, LDAP, Redis, etc.)"
-msgstr ""
+msgstr "डेटाबेस (डीबीएमएस, LDAP, Redisआदि)"
 
 # libretranslate
 msgctxt "category:svc.db:title"
@@ -479,7 +479,7 @@ msgstr "डेस्कटॉप क्लाइंट सेटअप एकी
 # libretranslate
 msgctxt "role:desk-gnome-extensions:description"
 msgid "Desktop config role for activating GNOME Shell extensions and installing a CLI tool to manage them"
-msgstr ""
+msgstr "GNOME को सक्रिय करने के लिए डेस्कटॉप विन्यास भूमिका Shell उन्हें प्रबंधित करने के लिए एक CLI उपकरण को एक्सटेंशन और इंस्टॉल करना"
 
 # libretranslate
 msgctxt "category:desk:description"
@@ -624,7 +624,7 @@ msgstr "घटनाओं और इमारत समुदायों औ�
 # libretranslate
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
-msgstr ""
+msgstr "फेडरेशन पुल कनेक्टिंग कार्यकलाप (Fediverse), AT प्रोटोकॉल (Bluesky)IndieWeb"
 
 # libretranslate
 msgctxt "menu:Finance & Accounting:title"
@@ -729,7 +729,7 @@ msgstr "सहायता"
 # libretranslate
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
-msgstr ""
+msgstr "हेल्पर भूमिका के लिए CA-trust इंजेक्शन परिसंपत्तियों की स्थापना Docker Compose परियोजना सीए प्रमाणपत्र को स्टैक और मान्य करना"
 
 # libretranslate
 msgctxt "category:gen:description"
@@ -819,7 +819,7 @@ msgstr "इंजेक्शन"
 # libretranslate
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
-msgstr ""
+msgstr "इंटेल वीए-API हार्डवेयर त्वरित वीडियो डिकोड के लिए मीडिया ड्राइवर और लिनक्स वितरण में एन्कोड"
 
 # libretranslate
 msgctxt "role:web-app-mig:description"
@@ -839,7 +839,7 @@ msgstr "बिल्डिंग और रनिंग सर्वर-सा�
 # libretranslate
 msgctxt "role:web-app-hermes:description"
 msgid "Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to models through the shared LLM gateway"
-msgstr ""
+msgstr "कर्नेल-अलग एजेंट रनटाइम एक OpenAI-compatible सेवा APIसाझा एलएलएम गेटवे के माध्यम से मॉडल के लिए मार्गनिर्देशित"
 
 # libretranslate
 msgctxt "category:svc.virt:description"
@@ -879,7 +879,7 @@ msgstr "एक बाहरी SMTP सर्वर के माध्यम �
 # libretranslate
 msgctxt "role:web-app-gitea:description"
 msgid "Lightweight self-hosted Git service for code collaboration, version control, and repository management"
-msgstr ""
+msgstr "लाइटवेट स्व-होस्ट Git कोड सहयोग, संस्करण नियंत्रण और भंडार प्रबंधन के लिए सेवा"
 
 # libretranslate
 msgctxt "role:sys-svc-nss:description"
@@ -924,7 +924,7 @@ msgstr "प्रमाणपत्र, सिस्टम upkeep, और पर
 # libretranslate
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
-msgstr ""
+msgstr "मार्कर भूमिका एक मेजबान के रूप में टांगना Docker Swarm प्रबंधक नोड, इनिट लॉजिक के साथ प्रत्यायोजित करने के लिए svc-swarm-node"
 
 # libretranslate
 msgctxt "menu:Marketing:title"
@@ -959,7 +959,7 @@ msgstr "NGINX सर्वर ब्लॉक जो स्थायी रू�
 # libretranslate
 msgctxt "role:sys-front-inj-matomo:description"
 msgid "NGINX subfilter injector adding Matomo analytics script and noscript image tracker to served HTML pages"
-msgstr ""
+msgstr "NGINX सबफिल्टर इंजेक्टर जोड़ने Matomo एनालिटिक्स स्क्रिप्ट और noscript छवि ट्रैकर HTML पृष्ठों की सेवा करने के लिए"
 
 # libretranslate
 msgctxt "role:web-svc-html:description"
@@ -1146,7 +1146,7 @@ msgstr "OpenAI-compatible LLM गेटवे एक सिंगल / वी �
 # libretranslate
 msgctxt "role:dev-java:description"
 msgid "OpenJDK 11 runtime and development kit for Java applications on Pacman-based systems"
-msgstr ""
+msgstr "OpenJDK 11 रनटाइम और विकास किट Java Pacman आधारित प्रणालियों पर अनुप्रयोग"
 
 # libretranslate
 msgctxt "role:sys-svc-ssh:description"
@@ -1190,7 +1190,7 @@ msgstr "बाह्य मेल वितरण के लिए आवधि�
 # libretranslate
 msgctxt "role:desk-ssh:description"
 msgid "Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
-msgstr ""
+msgstr "Persistent व्यवस्थित उपयोगकर्ता सेवा SSH एजेंट के लिए वेलैंड डेस्कटॉप, .ssh विन्यास से सिंक के साथ Git"
 
 # libretranslate
 msgctxt "role:web-svc-xmpp:description"
@@ -1273,12 +1273,12 @@ msgstr "प्रॉक्सी सर्वर"
 # libretranslate
 msgctxt "role:web-svc-api:description"
 msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
-msgstr ""
+msgstr "सार्वजनिक API भूमिका डेटा, इतिहास और अनुवाद की सेवा Infinito.Nexus प्रत्येक कोर और उसके कांटे के लिए"
 
 # libretranslate
 msgctxt "role:pkgmgr:description"
 msgid "Python CLI package manager for cloning multiple code repositories and automating common Git operations"
-msgstr ""
+msgstr "एकाधिक कोड भंडार को बंद करने और आम तौर पर स्वचालित करने के लिए पायथन CLI पैकेज मैनेजर Git संचालन"
 
 # libretranslate
 msgctxt "role:sys-lint:description"
@@ -1298,7 +1298,7 @@ msgstr "मरम्मत और वसूली की भूमिकाए�
 # libretranslate
 msgctxt "role:sys-util-git-pull:description"
 msgid "Reusable Git pull primitive for shallow clones, detached-safe updates, tag pinning, and reliable change detection"
-msgstr ""
+msgstr "अनुकूलन Git उथले क्लोन, अलग-अलग सुरक्षित अपडेट, टैग पिनिंग और विश्वसनीय परिवर्तन का पता लगाने के लिए प्राइमिटिव खींचें"
 
 # libretranslate
 msgctxt "role:svc-ai-mcp-adapter:description"
@@ -1438,7 +1438,7 @@ msgstr "स्व-होस्टेड CI धावक बुनियादी
 # libretranslate
 msgctxt "role:web-app-gitlab:description"
 msgid "Self-hosted DevOps platform for Git source-code management, CI/CD pipelines, and issue tracking"
-msgstr ""
+msgstr "स्व-होस्टेड DevOps प्लेटफॉर्म के लिए Git स्रोत-कोड प्रबंधन, सीआई / सीडी पाइपलाइन, और अंक ट्रैकिंग"
 
 # libretranslate
 msgctxt "role:web-app-fediwall:description"
@@ -1483,7 +1483,7 @@ msgstr "गोपनीयता के अनुकूल स्थानीय
 # libretranslate
 msgctxt "role:web-app-openwebui:description"
 msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
-msgstr ""
+msgstr "स्थानीय और निजी एआई मॉडल के साथ बातचीत करने के लिए स्व-होस्टेड चैट इंटरफ़ेस जैसे बैकेंड्स के माध्यम से Ollama"
 
 # libretranslate
 msgctxt "role:web-app-nextcloud:description"
@@ -1568,7 +1568,7 @@ msgstr "वित्त, सीआरएम, सूची, विनिर्म
 # libretranslate
 msgctxt "role:web-svc-libretranslate:description"
 msgid "Self-hosted open-source machine translation API for translating and detecting text across languages"
-msgstr ""
+msgstr "स्व-होस्टेड ओपन सोर्स मशीन अनुवाद API भाषाओं में पाठ का अनुवाद और पता लगाने के लिए"
 
 # libretranslate
 msgctxt "role:web-app-openclaw:description"
@@ -1691,7 +1691,7 @@ msgstr "आपको सेवाओं से लॉग आउट किया 
 # libretranslate
 msgctxt "role:web-app-postmarks:description"
 msgid "Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
-msgstr ""
+msgstr "एकल उपयोगकर्ता गतिविधिपुब बुकमार्किंग साइट सार्वजनिक बुकमार्क्स को सार्वजनिक करने के लिए Mastodon और Fediverse"
 
 # libretranslate
 msgctxt "role:web-app-homeassistant:description"
@@ -1741,7 +1741,7 @@ msgstr "डायरेक्टरी लिस्टिंग, .well-known ह
 # libretranslate
 msgctxt "role:web-app-hugo:description"
 msgid "Static site generator building HTML from an upstream Git repository at build time and serving it via nginx"
-msgstr ""
+msgstr "एक अपस्ट्रीम से स्टेटिक साइट जनरेटर निर्माण HTML Git निर्माण समय पर भंडार और इसे nginx के माध्यम से सेवा"
 
 # libretranslate
 msgctxt "menu:Storage:title"
@@ -1806,7 +1806,7 @@ msgstr "व्यवस्थित सफाई सेवा अज्ञात
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-hard:description"
 msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
-msgstr ""
+msgstr "पूर्ण के लिए व्यवस्थित-scheduled रखरखाव भूमिका Docker Compose स्टैक रिस्टार्ट, जैसे स्टैक के लिए हार्ड रिस्टार्ट के साथ Mailu"
 
 # libretranslate
 msgctxt "role:sys-ctl-hlth-container:description"
@@ -1958,7 +1958,7 @@ msgstr "वेब अवसंरचना"
 # libretranslate
 msgctxt "role:web-app-semaphore:description"
 msgid "Web UI and API for running Ansible, Terraform/OpenTofu, and shell automation on a schedule or on demand"
-msgstr ""
+msgstr "वेब यूआई और API एक अनुसूची पर या मांग पर Ansible, Terraform/OpenTofu, और शेल स्वचालन चलाने के लिए"
 
 # libretranslate
 msgctxt "role:web-app-lam:description"
@@ -1993,7 +1993,7 @@ msgstr "वेबसर्वर ऑप्टिमाइजेशन"
 # libretranslate
 msgctxt "role:desk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr ""
+msgstr "डॉकर के लिए वर्कस्टेशन सेटअप Docker Compose रूटलेस डेवलपमेंट उपयोग के लिए डोकर समूह में स्थानीय उपयोगकर्ता के साथ"
 
 # libretranslate
 msgctxt "role:dev-arduino:description"

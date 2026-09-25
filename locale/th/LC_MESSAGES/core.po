@@ -42,7 +42,7 @@ msgstr "เซิร์ฟเวอร์บริการ Office"
 # libretranslate
 msgctxt "role:sys-front-inj-all:description"
 msgid "Aggregate NGINX sub-filter injector adding Matomo tracking, global theming, iFrame and JS snippets by feature flag"
-msgstr ""
+msgstr "Agregate NGINX รองรับการเพิ่มตัวฉีดน้ํา Matomo ติดตาม, การจับสัญญาณทั่วโลก, iFrame และ JS Spegpets โดยธงคุณลักษณะ"
 
 # libretranslate
 msgctxt "role:desk-gnome:description"
@@ -92,7 +92,7 @@ msgstr "การจัดการโปรแกรม"
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
-msgstr ""
+msgstr "บริการการกู้คืนอัตโนมัติ เริ่มการทํางานใหม่หรือเสียหาย Docker Compose ความขัดแย้งระหว่างสแต็กและการแก้ไขพอร์ต"
 
 # libretranslate
 msgctxt "role:sys-dns-hetzner-rdns:description"
@@ -177,7 +177,7 @@ msgstr "Central Press Expression ชั้นเพลง routing mail ผ่า
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr ""
+msgstr "โปรแกรมแก้ไข DNS สําหรับกลาง/ ส่งต่อภาพ (Unboundฯลฯ)"
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -197,7 +197,7 @@ msgstr "กลไกฐานข้อมูลของเวกเตอร์
 # libretranslate
 msgctxt "role:sys-svc-rdbms:description"
 msgid "Centralized MariaDB or PostgreSQL database service shared across applications via Docker Compose"
-msgstr ""
+msgstr "จัดกึ่งกลาง MariaDB หรือ PostgreSQL บริการฐานข้อมูลที่ใช้ร่วมกันผ่านโปรแกรมต่าง ๆ Docker Compose"
 
 # libretranslate
 msgctxt "role:sys-svc-certs:description"
@@ -251,7 +251,7 @@ msgstr "Cloadflare DNS part part for header and Wildbard A/AAAA สถิติ 
 # libretranslate
 msgctxt "role:svc-registry-docker:description"
 msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
-msgstr ""
+msgstr "ส่วนเสริมสําหรับจัดเก็บรูปภาพต่าง ๆ สําหรับทําการสร้างเอง Docker Swarm โหนดงาน"
 
 # libretranslate
 msgctxt "role:svc-registry-cache:description"
@@ -325,7 +325,7 @@ msgstr "บรรจุไว้ Reveal.js เลื่อน ดาดฟ้า
 # libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr ""
+msgstr "บรรจุแม่ข่ายไอคอนสําหรับเป็นเจ้าภาพ Simple Icons คลังภาพแบบแบรนด์ SVG และ PNG สําหรับเว็บและเอกสารที่ใช้"
 
 # libretranslate
 msgctxt "role:svc-db-postgres:description"
@@ -457,7 +457,7 @@ msgstr "Defirred-เริ่มต้นออเคสตร้าสําห
 # libretranslate
 msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
-msgstr ""
+msgstr "โปรแกรมเว็บที่สามารถใช้งานได้Name (GitLab. Nextcloud. Mastodonฯลฯ)"
 
 # libretranslate
 msgctxt "category:desk:title"
@@ -477,12 +477,12 @@ msgstr "โปรแกรมลูกข่าย Desktop ได้ตั้ง
 # libretranslate
 msgctxt "role:desk-gnome-extensions:description"
 msgid "Desktop config role for activating GNOME Shell extensions and installing a CLI tool to manage them"
-msgstr ""
+msgstr "บทบาทปรับแต่งพื้นที่ทํางานสําหรับเรียกใช้งาน GNOMEName Shell ส่วนขยายและติดตั้งเครื่องมือ CLI เพื่อจัดการ"
 
 # libretranslate
 msgctxt "category:desk:description"
 msgid "Desktop environment roles & apps (GNOME, browser, LibreOffice, etc.)"
-msgstr ""
+msgstr "บทบาทของพื้นที่ทํางาน (GNOME, เว็บเบราว์เซอร์ LibreOfficeฯลฯ)"
 
 # libretranslate
 msgctxt "role:desk-bluray-player:description"
@@ -622,7 +622,7 @@ msgstr "สร้างแพลตฟอร์มด้วยตนเอง �
 # libretranslate
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
-msgstr ""
+msgstr "การเชื่อมต่อสะพานสหพันธรัฐ (เส้นพริ้วไหว), โปรโตคอล AT (Bluesky)และอินดี้เว็บ"
 
 # libretranslate
 msgctxt "menu:Finance & Accounting:title"
@@ -712,7 +712,7 @@ msgstr "เว็บเบราว์เซอร์ที่อ่านยา
 # libretranslate
 msgctxt "role:svc-ai-lmstudio:description"
 msgid "Headless local model server for open LLMs with an OpenAI-compatible API on the container network"
-msgstr ""
+msgstr "เซิร์ฟเวอร์ท้องถิ่นที่ไม่มีหัวสําหรับเปิด LLMs ด้วย OpenAI ที่เข้ากันได้ API บนเครือข่ายคอนเทนเนอร์"
 
 # libretranslate
 msgctxt "role:sys-ctl-hlth-volumes:description"
@@ -727,7 +727,7 @@ msgstr "ช่วยเหลือ"
 # libretranslate
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
-msgstr ""
+msgstr "บทบาทของผู้ช่วยในการติดตั้ง CA-Unknown from Docker Compose สแต็กและตรวจสอบใบรับรองโครงการ"
 
 # libretranslate
 msgctxt "category:gen:description"
@@ -837,7 +837,7 @@ msgstr "เวลาที่จาวาสคริปต์ทํางาน
 # libretranslate
 msgctxt "role:web-app-hermes:description"
 msgid "Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to models through the shared LLM gateway"
-msgstr ""
+msgstr "เจ้าหน้าที่ Kermilli ที่ถูกกระตุ้นให้ให้บริการแบบ OpenAI APIเส้นทางที่จะจําลองผ่านประตู LLM ร่วมกัน"
 
 # libretranslate
 msgctxt "category:svc.virt:description"
@@ -882,7 +882,7 @@ msgstr "Sightwin ตัวเอง Git บริการสําหรับ�
 # libretranslate
 msgctxt "role:sys-svc-nss:description"
 msgid "Local name resolution for the domains the target serves, via the myhostname NSS module"
-msgstr ""
+msgstr "ความละเอียดชื่อท้องถิ่นสําหรับโดเมนที่เป้าหมายให้บริการผ่านทางชื่อเครื่อง NSS มอดูล"
 
 # libretranslate
 msgctxt "role:sys-ca-selfsigned:description"
@@ -921,7 +921,7 @@ msgstr "บทบาท ของ การ บํารุง รักษา �
 # libretranslate
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
-msgstr ""
+msgstr "บทบาทของผู้ทําเครื่องหมาย Docker Swarm โหนดผู้จัดการ โดยมีตรรกะ init ที่เป็นตัวแทนของ svc-swarm-node"
 
 # libretranslate
 msgctxt "menu:Marketing:title"
@@ -954,7 +954,7 @@ msgstr ""
 # libretranslate
 msgctxt "role:sys-front-inj-matomo:description"
 msgid "NGINX subfilter injector adding Matomo analytics script and noscript image tracker to served HTML pages"
-msgstr ""
+msgstr "เพิ่มตัวแทรกเตอร์ย่อย NGINX Matomo สคริปต์วิเคราะห์และตัวติดตามรูปภาพที่ไม่มีสคริปต์ เพื่อใช้หน้า HTML"
 
 # libretranslate
 msgctxt "role:web-svc-html:description"
@@ -1029,7 +1029,7 @@ msgstr "การปรับปรุงแพกเกจ OS"
 # libretranslate
 msgctxt "role:sys-svc-objstore:description"
 msgid "Object-storage layer for SeaweedFS/MinIO backend resolution and per-consumer bucket and credential provisioning"
-msgstr ""
+msgstr "เลเยอร์วัตถุ SeaweedFS/MinIO ความละเอียดและถังกระดาษต่อเครื่อง และการตั้งค่าที่น่าเชื่อถือ"
 
 # libretranslate
 msgctxt "role:svc-opt-swapfile:description"
@@ -1142,7 +1142,7 @@ msgstr "OpenAI ที่เข้ากันได้กับประตู L
 # libretranslate
 msgctxt "role:dev-java:description"
 msgid "OpenJDK 11 runtime and development kit for Java applications on Pacman-based systems"
-msgstr ""
+msgstr "OpenJDK 11 เวลาทํางานและอุปกรณ์พัฒนาสําหรับ Java โปรแกรมบนระบบ Pachman"
 
 # libretranslate
 msgctxt "role:sys-svc-ssh:description"
@@ -1183,13 +1183,15 @@ msgctxt "role:sys-ctl-hlth-msmtp:description"
 msgid "Periodic health check for outbound mail delivery, sending a test message via msmtp and alerting on failure"
 msgstr "การตรวจสุขภาพอย่างต่อเนื่องสําหรับการส่งเมลผ่านทางภายนอก, ส่งข้อความทดสอบผ่านทาง msmtp และแจ้งเตือนเมื่อล้มเหลว"
 
+# libretranslate
 msgctxt "role:desk-ssh:description"
 msgid "Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
-msgstr ""
+msgstr "ส่วนบริการ SHS สําหรับเดสก์ทอปของ Wayland กับ .sch ปรับแต่งที่เข้ากันได้กับ Git"
 
+# libretranslate
 msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
-msgstr ""
+msgstr "ตําแหน่งผู้ถือครองสําหรับอนาคต XMPP การใช้เซิร์ฟเวอร์/ ส่วนติดตั้ง, การจัดทําชั่วคราว"
 
 # libretranslate
 msgctxt "menu:Commerce:description"
@@ -1431,7 +1433,7 @@ msgstr "โครงสร้างพื้นฐานของ CI ที่�
 # libretranslate
 msgctxt "role:web-app-gitlab:description"
 msgid "Self-hosted DevOps platform for Git source-code management, CI/CD pipelines, and issue tracking"
-msgstr ""
+msgstr "เวที Devops ที่บรรจุตัวเองสําหรับ Git การจัดการ source-code, CI/CD ท่อส่งน้ํามัน และติดตามปัญหา"
 
 # libretranslate
 msgctxt "role:web-app-fediwall:description"
@@ -1476,7 +1478,7 @@ msgstr "เครื่องมือเรียกดูด้วยตนเ
 # libretranslate
 msgctxt "role:web-app-openwebui:description"
 msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
-msgstr ""
+msgstr "ส่วนติดต่อกับโปรแกรม AI ในเครื่องด้วยตนเอง เช่น Ollama"
 
 # libretranslate
 msgctxt "role:web-app-nextcloud:description"
@@ -1541,7 +1543,7 @@ msgstr "เซิร์ฟเวอร์สื่อด้วยตนเอง
 # libretranslate
 msgctxt "role:svc-ai-ollama:description"
 msgid "Self-hosted model server for running open LLMs locally behind a simple HTTP API"
-msgstr ""
+msgstr "เซิร์ฟเวอร์ต้นแบบที่ผู้ใช้ด้วยตนเอง สําหรับการทํางาน LLMs ที่เปิดอยู่ภายในเครื่อง HTTP แบบธรรมดา API"
 
 # libretranslate
 msgctxt "role:web-app-baserow:description"
@@ -1684,7 +1686,7 @@ msgstr "กำลังออกจากระบบบริการต่า
 # libretranslate
 msgctxt "role:web-app-postmarks:description"
 msgid "Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
-msgstr ""
+msgstr "กิจกรรมของเครื่องเดี่ยวPub ที่ทําคั่นหน้าเว็บไซต์เพื่อเปิดคั่นหน้าสาธารณะไปยัง Mastodon และกลุ่มแนวหน้า"
 
 # libretranslate
 msgctxt "role:web-app-homeassistant:description"
@@ -1734,7 +1736,7 @@ msgstr "เซิร์ฟเวอร์ Stratic เหนือ HTTPS ด้�
 # libretranslate
 msgctxt "role:web-app-hugo:description"
 msgid "Static site generator building HTML from an upstream Git repository at build time and serving it via nginx"
-msgstr ""
+msgstr "Stattic ไซต์เครื่องกําเนิดไฟฟ้าอาคาร HTML จากต้นน้ํา Git คลังสินค้าที่เวลาก่อสร้างและให้บริการผ่าน nginx"
 
 # libretranslate
 msgctxt "menu:Storage:title"
@@ -1784,7 +1786,7 @@ msgstr "ผู้ช่วยเหลือ Pope ทั่วระบบ ส�
 # libretranslate
 msgctxt "role:sys-ctl-mtn-cert-deploy:description"
 msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
-msgstr ""
+msgstr "บริการระบบและตัวจับเวลาสําหรับการปรับเทียบข้อมูล... Docker Compose สแต็กของ NGINX ที่มีการโหลดร้อน"
 
 # libretranslate
 msgctxt "role:sys-timer:description"
@@ -1799,7 +1801,7 @@ msgstr "บริการการล้างข้อมูลระบบKCh
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-hard:description"
 msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
-msgstr ""
+msgstr "บทบาทการบํารุงรักษาของระบบเต็มรูปแบบ Docker Compose สแต็กเริ่มต้นด้วยฮาร์ดรีเซ็ตสําหรับกองเช่น Mailu"
 
 # libretranslate
 msgctxt "role:sys-ctl-hlth-container:description"
@@ -1971,7 +1973,7 @@ msgstr "โปรแกรมลูกข่าย LDAP บนเว็บ เ�
 # libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr ""
+msgstr "เวทีบริหารและพัฒนาเว็บ สําหรับการจัดการหลาย ๆ PostgreSQL เซิร์ฟเวอร์ด้วยตัวเลือก OAuth2 ล็อกอิน"
 
 # libretranslate
 msgctxt "role:web-app-phpmyadmin:description"
@@ -1986,7 +1988,7 @@ msgstr "ออปติเมชันของเว็บ"
 # libretranslate
 msgctxt "role:desk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr ""
+msgstr "การตั้งค่าสถานีการทํางานสําหรับโดเคอร์และ Docker Compose กับผู้ใช้ท้องถิ่นในกลุ่มดอกเกอร์สําหรับการใช้งานการพัฒนาราก"
 
 # libretranslate
 msgctxt "role:dev-arduino:description"

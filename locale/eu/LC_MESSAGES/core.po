@@ -177,7 +177,7 @@ msgstr "Posta zentraleko orkestrazio-geruza ostalari-posta Mailu, msmtp edo auke
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr ""
+msgstr "DNS konpontzeko motor errekurtsibo eta aurrerakoiak (Unbound, e.a.)"
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -2008,7 +2008,7 @@ msgstr "Webserver-en optimizazioa"
 # libretranslate
 msgctxt "role:desk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr ""
+msgstr "Dockerrentzat lan-estazioa eta Docker Compose erabiltzaile lokalarekin docker taldean rootless garapenerako erabiltzeko"
 
 # libretranslate
 msgctxt "role:dev-arduino:description"

@@ -92,7 +92,7 @@ msgstr "Turto valdymas"
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
-msgstr ""
+msgstr "Automatinė atkūrimo paslauga iš naujo paleidžiant iš naujo Docker Compose kaminai ir spręsti uosto konfliktus"
 
 # libretranslate
 msgctxt "role:sys-dns-hetzner-rdns:description"
@@ -147,7 +147,7 @@ msgstr "CI bėgikas"
 # libretranslate
 msgctxt "role:svc-db-typesense:description"
 msgid "Central Dockerized search engine shared by multiple apps with per-consumer scoped API keys"
-msgstr ""
+msgstr "Centrinė dokumentuota paieškos sistema, kuria dalinasi kelios programėlės su vartotojo programėlėmis API raktai"
 
 # libretranslate
 msgctxt "menu:Help:description"
@@ -177,7 +177,7 @@ msgstr "Centrinis paštas orchestracija sluoksnis nukreipimo priimančiosios lai
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr ""
+msgstr "Centriniai rekursiniai / ekspedijavimo DNS resolver varikliai (Unboundir t. t.)"
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -197,7 +197,7 @@ msgstr "Centrinis vektorinis duomenų bazės variklis, skirtas vartotojams skirt
 # libretranslate
 msgctxt "role:sys-svc-rdbms:description"
 msgid "Centralized MariaDB or PostgreSQL database service shared across applications via Docker Compose"
-msgstr ""
+msgstr "Centralizuotas MariaDB arba PostgreSQL duomenų bazių paslauga, kuria per programas dalijamasi Docker Compose"
 
 # libretranslate
 msgctxt "role:sys-svc-certs:description"
@@ -252,7 +252,7 @@ msgstr "Debesys DNS bootstrap vaidmuo apex ir laukinės kortelės A / AAAA įra�
 # libretranslate
 msgctxt "role:svc-registry-docker:description"
 msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
-msgstr ""
+msgstr "Cluster- vietinis konteinerio paveikslėlių registras, skirtas tinkamiems paveikslėliams į Docker Swarm darbuotojų mazgai"
 
 # libretranslate
 msgctxt "role:svc-registry-cache:description"
@@ -286,7 +286,7 @@ msgstr "Bendrija"
 # libretranslate
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
-msgstr ""
+msgstr "Kompozitiniai HTML įpurškimo vaidmenys (CSS, JS, registracijos perėmėjas, analitika, prietaisų skydelio pavadinimas) Nginx /OpenResty per sub_filter/ Lua su CDN užtikrintu turtu."
 
 # libretranslate
 msgctxt "role:sys-stk-full:description"
@@ -326,7 +326,7 @@ msgstr "Konterizuota Reveal.js skaidrių denio pristatyti platformą administrat
 # libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr ""
+msgstr "Konteinerių ženkliukų serveris, skirtas talpinti Simple Icons prekės ženklo SVG ir PNG kolekcija žiniatinklio ir dokumentacijos naudojimui"
 
 # libretranslate
 msgctxt "role:svc-db-postgres:description"
@@ -461,7 +461,7 @@ msgstr "Deferred- start orkestratorius, skirtas įjungti ir pradėti surinktas s
 # libretranslate
 msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
-msgstr ""
+msgstr "Vartotinos žiniatinklio programos (GitLab, Nextcloud, Mastodonir t. t.)"
 
 # libretranslate
 msgctxt "category:desk:title"
@@ -481,7 +481,7 @@ msgstr "Darbastalio kliento sąranka, jungianti namų aplankus į drumstą sinch
 # libretranslate
 msgctxt "role:desk-gnome-extensions:description"
 msgid "Desktop config role for activating GNOME Shell extensions and installing a CLI tool to manage them"
-msgstr ""
+msgstr "Darbastalio konfigūravimo funkcija GNOME aktyvavimui Shell CLI įrankio išplėtimas ir įdiegimas jų valdymui"
 
 # libretranslate
 msgctxt "category:desk:description"
@@ -625,7 +625,7 @@ msgstr "Federacinė, savarankiška platforma renginiams organizuoti ir bendruome
 # libretranslate
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
-msgstr ""
+msgstr "Federacijos tiltas, jungiantis ActivityPub (Redaguoti), AT protokolas (Bluesky), ir IndieWeb"
 
 # libretranslate
 msgctxt "menu:Finance & Accounting:title"
@@ -730,7 +730,7 @@ msgstr "Pagalba"
 # libretranslate
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
-msgstr ""
+msgstr "Pagalba vaidmuo įdiegti CA- pasitikėjimo injekcijos turtą Docker Compose Kliūtys ir projekto CA sertifikato tvirtinimas"
 
 # libretranslate
 msgctxt "category:gen:description"
@@ -820,7 +820,7 @@ msgstr "Injekcija"
 # libretranslate
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
-msgstr ""
+msgstr "Intel VA-API medijos tvarkyklė- pagreitinto vaizdo dekodo ir kodavimo visoje Linux distribucijos"
 
 # libretranslate
 msgctxt "role:web-app-mig:description"
@@ -925,7 +925,7 @@ msgstr "Sertifikatų techninės priežiūros funkcijos, sistemos priežiūra ir 
 # libretranslate
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
-msgstr ""
+msgstr "Žymeklio vaidmuo pažymint kompiuterį kaip Docker Swarm valdytojas mazgas, su init logika deleguota svc-swarm-node"
 
 # libretranslate
 msgctxt "menu:Marketing:title"
@@ -1032,9 +1032,10 @@ msgctxt "category:update:description"
 msgid "OS & package updates"
 msgstr "OS & paketų atnaujinimai"
 
+# libretranslate
 msgctxt "role:sys-svc-objstore:description"
 msgid "Object-storage layer for SeaweedFS/MinIO backend resolution and per-consumer bucket and credential provisioning"
-msgstr ""
+msgstr "Objektų laikymo sluoksnis SeaweedFS/MinIO Grįžtamosios sistemos skiriamoji geba ir vartotojų apsauga ir patikinimas"
 
 # libretranslate
 msgctxt "role:svc-opt-swapfile:description"
@@ -1552,7 +1553,7 @@ msgstr "Savarankiškai aptarnaujamas media serveris, skirtas srautiniam filmavim
 # libretranslate
 msgctxt "role:svc-ai-ollama:description"
 msgid "Self-hosted model server for running open LLMs locally behind a simple HTTP API"
-msgstr ""
+msgstr "Name API"
 
 msgctxt "role:web-app-baserow:description"
 msgid "Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
@@ -1796,7 +1797,7 @@ msgstr "Platus sisteminis pip pagalbininkas Python paketui įdiegti arba atnauji
 # libretranslate
 msgctxt "role:sys-ctl-mtn-cert-deploy:description"
 msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
-msgstr ""
+msgstr "Sisteminė paslauga ir laikmatis sinchronizavimo Let 's Šifruoti sertifikatus į Docker Compose NGINX kaminai su karštu įkėlimu"
 
 # libretranslate
 msgctxt "role:sys-timer:description"
@@ -1811,7 +1812,7 @@ msgstr "Sisteminė valymo paslauga genėjimas anoniminis Docker tomai plius vaiz
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-hard:description"
 msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
-msgstr ""
+msgstr "Sistemų - planinės techninės priežiūros funkcija visiškai Docker Compose kamino restarts, su sunku restarts už kaminai kaip Mailu"
 
 # libretranslate
 msgctxt "role:sys-ctl-hlth-container:description"
@@ -2001,7 +2002,7 @@ msgstr "Žiniatinklio serverio optimizavimas"
 # libretranslate
 msgctxt "role:desk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr ""
+msgstr "Darbo vietos nustatymas Docker ir Docker Compose su vietiniu dokerio grupės naudotoju, naudojančiu preparatą lopšio vystymuisi"
 
 # libretranslate
 msgctxt "role:dev-arduino:description"

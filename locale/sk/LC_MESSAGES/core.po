@@ -42,7 +42,7 @@ msgstr "Administratívne nástroje pre servery"
 # libretranslate
 msgctxt "role:sys-front-inj-all:description"
 msgid "Aggregate NGINX sub-filter injector adding Matomo tracking, global theming, iFrame and JS snippets by feature flag"
-msgstr ""
+msgstr "Pridanie súhrnného NGINX podfiltračného injektora Matomo sledovanie, globálne jeming, iFrame a JS útržky podľa funkcie vlajky"
 
 # libretranslate
 msgctxt "role:desk-gnome:description"
@@ -92,7 +92,7 @@ msgstr "Správa aktív"
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
-msgstr ""
+msgstr "Automatizovaná rekuperačná služba, ktorá opäť odchádza alebo je nezdravá Docker Compose komíny a riešenie konfliktov v prístavoch"
 
 # libretranslate
 msgctxt "role:sys-dns-hetzner-rdns:description"
@@ -177,7 +177,7 @@ msgstr "Central mail orchestračná vrstva smerovanie hostiteľskej pošty cez M
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr ""
+msgstr "Centrálne rekurzívne/prevádzacie motory DNS resolver (Unboundatď.)"
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -252,7 +252,7 @@ msgstr "Cloudflare DNS bootstrap role pre Apex a wildcard A/AAAA záznamy (a nep
 # libretranslate
 msgctxt "role:svc-registry-docker:description"
 msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
-msgstr ""
+msgstr "Cluster-lokálne kontajner snímky register pre servírovanie na mieru postavených obrázkov na Docker Swarm pracovné uzly"
 
 # libretranslate
 msgctxt "role:svc-registry-cache:description"
@@ -732,7 +732,7 @@ msgstr "Pomocník"
 # libretranslate
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
-msgstr ""
+msgstr "Úloha pomocníka, ktorou sa inštalujú aktíva CA-trustovej injekcie Docker Compose komíny a validácia certifikátu CA projektu"
 
 # libretranslate
 msgctxt "category:gen:description"
@@ -927,7 +927,7 @@ msgstr "Úlohy údržby pre certifikáty, udržiavanie systému a opakujúce sa 
 # libretranslate
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
-msgstr ""
+msgstr "Marker role značkovanie hostiteľa ako Docker Swarm Uzol manažéra s init logikou delegovanou na svc-swarm-node"
 
 # libretranslate
 msgctxt "menu:Marketing:title"
@@ -962,7 +962,7 @@ msgstr "NGINX server bloky, ktoré trvalo presmerovať www subdomains na ich non
 # libretranslate
 msgctxt "role:sys-front-inj-matomo:description"
 msgid "NGINX subfilter injector adding Matomo analytics script and noscript image tracker to served HTML pages"
-msgstr ""
+msgstr "Pridanie subfiltračného injektora NGINX Matomo Analytics skript a notscript Image tracker na obsluhu HTML stránok"
 
 # libretranslate
 msgctxt "role:web-svc-html:description"
@@ -1037,7 +1037,7 @@ msgstr "Aktualizácie OS & balíkov"
 # libretranslate
 msgctxt "role:sys-svc-objstore:description"
 msgid "Object-storage layer for SeaweedFS/MinIO backend resolution and per-consumer bucket and credential provisioning"
-msgstr ""
+msgstr "Vrchná vrstva objektu pre SeaweedFS/MinIO backend riešenie krízových situácií a na spotrebiteľa skupina a dôveryhodné zabezpečenie"
 
 # libretranslate
 msgctxt "role:svc-opt-swapfile:description"
@@ -1337,7 +1337,7 @@ msgstr "Úlohy pre čistenie rôznych systémových zdrojov a staré zálohy, ne
 # libretranslate
 msgctxt "category:drv:description"
 msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
-msgstr ""
+msgstr "Polohy pre inštaláciu a konfiguráciu hardvérových ovládačov."
 
 # libretranslate
 msgctxt "category:web:description"
@@ -1803,7 +1803,7 @@ msgstr "System-wide Pip pomocník pre inštaláciu alebo modernizáciu Python ba
 # libretranslate
 msgctxt "role:sys-ctl-mtn-cert-deploy:description"
 msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
-msgstr ""
+msgstr "Systémová služba a časovač pre synchronizáciu Zašifrovať certifikáty do Docker Compose NGINX zásobníky s preťažením"
 
 # libretranslate
 msgctxt "role:sys-timer:description"
@@ -2008,7 +2008,7 @@ msgstr "Optimalizácia webserverov"
 # libretranslate
 msgctxt "role:desk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr ""
+msgstr "Nastavenie pracovnej stanice pre Docker a Docker Compose s miestnym užívateľom v dockerovej skupine pre bezkoreňové vývojové použitie"
 
 # libretranslate
 msgctxt "role:dev-arduino:description"

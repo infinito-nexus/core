@@ -177,7 +177,7 @@ msgstr "Central mail orchestration safu routing mwenyeji barua kupitia Mailu, ms
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr ""
+msgstr "Mfumo wa Kurejesha / Kuendeleza Injini za DNS (Unboundya etc.)"
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -623,7 +623,7 @@ msgstr "Jukwaa la kujitegemea la kuandaa matukio na kujenga jamii na vikundi"
 # libretranslate
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
-msgstr ""
+msgstr "Daraja la kuunganisha ActivityPub (wa wa wa wa wa), Itifaki ya AT (Bluesky)Mtandao wa IndieWeb"
 
 # libretranslate
 msgctxt "menu:Finance & Accounting:title"

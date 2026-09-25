@@ -92,7 +92,7 @@ msgstr "Mahigpit na Pangangasiwa"
 # libretranslate
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
-msgstr ""
+msgstr "Ang serbisyo sa pagpapagaling na may kasamang makina na muling lumalabas o hindi mabuti sa katawan Docker Compose mga salansan at paglutas sa mga alitan sa daungan"
 
 # libretranslate
 msgctxt "role:sys-dns-hetzner-rdns:description"
@@ -177,7 +177,7 @@ msgstr "Ang Central mail orkestration layer na tumatalunton sa koreo ng host sa 
 # libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
-msgstr ""
+msgstr "Central revisive/forwarding DNS defender engines (Unbound, atbp.)"
 
 # libretranslate
 msgctxt "role:svc-dns-unbound:description"
@@ -197,7 +197,7 @@ msgstr "Central vector database engine para sa pag-imbak at paghahanap ng mga pe
 # libretranslate
 msgctxt "role:sys-svc-rdbms:description"
 msgid "Centralized MariaDB or PostgreSQL database service shared across applications via Docker Compose"
-msgstr ""
+msgstr "Ginawang sentral MariaDB o PostgreSQL Ang serbisyo ng database ay nagbahagi sa ibayo ng mga aplikasyon sa pamamagitan ng Docker Compose"
 
 # libretranslate
 msgctxt "role:sys-svc-certs:description"
@@ -327,7 +327,7 @@ msgstr "Naglalaman Reveal.js Padulas na kubyerta para sa paghaharap ng plataporm
 # libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr ""
+msgstr "Naglalaman ng icon server para sa hosting Simple Icons tatak na SVG at koleksiyon ng PNG para sa paggamit ng web at dokumentasyon"
 
 # libretranslate
 msgctxt "role:svc-db-postgres:description"
@@ -462,7 +462,7 @@ msgstr "Deferred-start orkestrator para sa paggawa at pagsisimula ng mga nakolek
 # libretranslate
 msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
-msgstr ""
+msgstr "Deployableng mga gamit sa web (GitLab, Nextcloud, Mastodon, atbp.)"
 
 # libretranslate
 msgctxt "category:desk:title"
@@ -482,7 +482,7 @@ msgstr "Desktop client setup na nag-uugnay ng mga home folder sa cloud-synced di
 # libretranslate
 msgctxt "role:desk-gnome-extensions:description"
 msgid "Desktop config role for activating GNOME Shell extensions and installing a CLI tool to manage them"
-msgstr ""
+msgstr "Desktop setting papel para sa pag - eeensayo ngrkton Shell Mga pagpapalawig at pagkabit ng kasangkapang CLI upang pangasiwaan ang mga ito"
 
 # libretranslate
 msgctxt "category:desk:description"
@@ -887,7 +887,7 @@ msgstr "Lightweight self-hosted Git service para sa pakikipagtulungan ng code, k
 # libretranslate
 msgctxt "role:sys-svc-nss:description"
 msgid "Local name resolution for the domains the target serves, via the myhostname NSS module"
-msgstr ""
+msgstr "Ang lokal na resolusyon ng pangalan para sa mga nasasakupan ang nagsisilbi, sa pamamagitan ng myhostname NSS module"
 
 # libretranslate
 msgctxt "role:sys-ca-selfsigned:description"
@@ -1993,7 +1993,7 @@ msgstr "Web-based LDAP client para sa pagtingin, paghahanap, at paglalapat ng di
 # libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
-msgstr ""
+msgstr "Web-based administration and development platform para sa pamamahala ng multiple PostgreSQL Mga server, na may opsyonal na OAuth2 login"
 
 # libretranslate
 msgctxt "role:web-app-phpmyadmin:description"

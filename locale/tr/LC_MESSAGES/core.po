@@ -326,7 +326,7 @@ msgstr "Konteynerli Reveal.js Platformu yöneticilere, geliştiricilere, kullan�
 # libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr ""
+msgstr "Konteynerli ikon sunucusunu barındırmak için Simple Icons Marka SVG ve PNG web ve belge kullanımı için koleksiyonu"
 
 # libretranslate
 msgctxt "role:svc-db-postgres:description"
@@ -924,7 +924,7 @@ msgstr "Sertifikalar için bakım rolleri, sistem bakımı ve tekrarlanan operas
 # libretranslate
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
-msgstr ""
+msgstr "Marker rolü bir ev sahibi tutmak Docker Swarm Yönetici hayırde, init logic delege ile svc-swarm-node"
 
 # libretranslate
 msgctxt "menu:Marketing:title"
@@ -1742,7 +1742,7 @@ msgstr "Statik dosya sunucusu, HTTPS'nin dizi listesi, .well-biliş, ve otomatik
 # libretranslate
 msgctxt "role:web-app-hugo:description"
 msgid "Static site generator building HTML from an upstream Git repository at build time and serving it via nginx"
-msgstr ""
+msgstr "Statik site jeneratörü HTML'yi bir akıştan inşa ediyor Git Zaman inşa etmek ve nginx aracılığıyla hizmet etmek"
 
 # libretranslate
 msgctxt "menu:Storage:title"
@@ -1994,7 +1994,7 @@ msgstr "Webserver Optimation"
 # libretranslate
 msgctxt "role:desk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr ""
+msgstr "Docker ve Docker Compose Docker grubundaki yerel kullanıcı ile köksüz gelişim kullanımı için"
 
 # libretranslate
 msgctxt "role:dev-arduino:description"
