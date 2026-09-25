@@ -16,9 +16,18 @@ The diagram places Claude Code in the Infinito.Nexus cosmos: the components it d
 
 ```mermaid
 flowchart LR
+    subgraph deps [Dependencies]
+        dep_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
+    end
     subgraph role [dsk-gnt-claude 💻]
         svc_claude["claude"]
+        svc_litellm["litellm"]
     end
+    subgraph dependents [Dependents]
+        dpt_dsk_code["dsk-code 💻"]
+    end
+    dep_svc_ai_litellm -. "0..1" .-> svc_litellm
+    svc_claude -. "0..1" .-> dpt_dsk_code
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.

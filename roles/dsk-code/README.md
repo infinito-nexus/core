@@ -18,9 +18,17 @@ The diagram places Code in the Infinito.Nexus cosmos: the components it deploys 
 
 ```mermaid
 flowchart LR
+    subgraph deps [Dependencies]
+        dep_dsk_gnt_claude["dsk-gnt-claude 💻"]
+        dep_dsk_gnt_codex["dsk-gnt-codex 💻"]
+    end
     subgraph role [dsk-code 💻]
         svc_code["code"]
+        svc_claude["claude"]
+        svc_codex["codex"]
     end
+    dep_dsk_gnt_claude -. "0..1" .-> svc_claude
+    dep_dsk_gnt_codex -. "0..1" .-> svc_codex
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.

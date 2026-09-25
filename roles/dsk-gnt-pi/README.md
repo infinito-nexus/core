@@ -16,9 +16,14 @@ The diagram places Pi Coding Agent in the Infinito.Nexus cosmos: the components 
 
 ```mermaid
 flowchart LR
+    subgraph deps [Dependencies]
+        dep_svc_ai_litellm["svc-ai-litellm 🐳🐝"]
+    end
     subgraph role [dsk-gnt-pi 💻]
         svc_pi["pi"]
+        svc_litellm["litellm"]
     end
+    dep_svc_ai_litellm -. "0..1" .-> svc_litellm
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
