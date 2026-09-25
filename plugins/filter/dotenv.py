@@ -11,7 +11,11 @@
 #   container. Wrapping the value would leak literal quotes into
 #   ``$KEY`` ("\"password\""), breaking DB connect strings, URL parsers,
 #   and any ``int(os.environ['KEY'])`` consumer.
-#   So in swarm mode the filter returns the value unchanged.
+#   So in swarm mode the filter returns the value unchanged, including a
+#   value carrying spaces: quoting one produced ``AGENT_PLATFORMS="{...}"``
+#   in the broker's container, which ``json.loads`` then read as a string
+#   rather than a mapping. A shell-sourced file needs the opposite and must
+#   not contain a space at all - join such a value on a comma.
 #
 # The mode is read from ``DEPLOYMENT_MODE`` in the rendering context.
 # When the context is missing (e.g. unit tests calling the filter
@@ -43,11 +47,7 @@ def _quote_compose_style(value: Any) -> str:
 def _passthrough_swarm(value: Any) -> str:
     if value is None:
         return ""
-    s = str(value)
-    if any(c in s for c in " \t\n"):
-        s = s.replace("\\", "\\\\").replace('"', '\\"')
-        return f'"{s}"'
-    return s
+    return str(value)
 
 
 @jinja2.pass_context

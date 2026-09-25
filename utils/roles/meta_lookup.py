@@ -125,6 +125,42 @@ def get_role_run_after(role: PathLike, *, role_name: str | None = None) -> list[
     return out
 
 
+def get_role_guide_companions(
+    role: PathLike, *, role_name: str | None = None
+) -> list[str]:
+    """Return the role ids the documented deploy has to name alongside this one.
+
+    A role whose own asserts need something the dependency closure does not
+    supply (a served model, a second backend) carries them here, because
+    ``--include`` filters the generated inventory to the ids it is given
+    literally: a provider pulled in as a dependency runs, but never joins
+    ``group_names``, so a flag gated on that stays false and the deploy the
+    README documents stops on the assert.
+    """
+    role_dir, name = _resolve_role(role, role_name)
+    services = _read_meta_services(role_dir)
+    primary = _primary_entry(name, services)
+    if primary is None:
+        return []
+    raw = primary.get("guide_companions")
+    if raw is None:
+        return []
+    if not isinstance(raw, list):
+        raise MetaServicesShapeError(
+            f"Invalid guide_companions type in meta/services.yml for role "
+            f"'{name}': expected list, got {type(raw).__name__}."
+        )
+    out: list[str] = []
+    for item in raw:
+        if not isinstance(item, str) or not item.strip():
+            raise MetaServicesShapeError(
+                f"Invalid guide_companions entry in meta/services.yml for role "
+                f"'{name}': {item!r} (expected non-empty string)."
+            )
+        out.append(item.strip())
+    return out
+
+
 def get_role_lifecycle(role: PathLike, *, role_name: str | None = None) -> str | None:
     """Return the role's ``lifecycle`` string (or ``None`` when absent)."""
     role_dir, name = _resolve_role(role, role_name)
@@ -148,6 +184,32 @@ configure the host instead of shipping a stack."""
 
 DEPLOY_MODES: tuple[str, ...] = ("compose", "swarm")
 """The stack deploy modes the CI test-deploy matrix (get_role_skip) covers."""
+
+
+def get_role_declared_modes(
+    role: PathLike, *, role_name: str | None = None
+) -> tuple[str, ...]:
+    """Return the deploy modes the role names under ``modes``, in ``MODES``
+    order, regardless of their ``enabled`` value.
+
+    Empty when the role declares no ``modes`` block, which leaves the caller
+    on its own default. A role that names a mode its stack shape would not
+    imply (an injector asking for compose) is stating an intent, so the
+    declaration outranks the shape.
+    """
+    role_dir, name = _resolve_role(role, role_name)
+    primary = _primary_entry(name, _read_meta_services(role_dir))
+    if primary is None:
+        return ()
+    modes = primary.get("modes")
+    if modes is None:
+        return ()
+    if not isinstance(modes, dict):
+        raise MetaServicesShapeError(
+            f"Invalid modes type in meta/services.yml for role '{name}': "
+            f"expected mapping, got {type(modes).__name__}."
+        )
+    return tuple(mode for mode in MODES if mode in modes)
 
 
 def get_role_mode_enabled(

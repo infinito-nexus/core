@@ -68,7 +68,12 @@ class TestTestEnvSourcing(unittest.TestCase):
                 self.assertEqual(
                     result.stderr, "", "sourcing test.env must not run anything"
                 )
-                self.assertEqual(result.stdout, " ".join(str(port) for port in PORTS))
+                self.assertEqual(
+                    result.stdout,
+                    ",".join(str(port) for port in PORTS),
+                    "the value joins on a comma so it stays one shell word "
+                    "without quoting, which swarm would deliver verbatim",
+                )
 
 
 if __name__ == "__main__":

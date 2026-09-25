@@ -8,7 +8,7 @@
 Then select the template that best matches your change:
 
 [![Server](https://img.shields.io/badge/Server-web--*-0A7B83?style=for-the-badge)](?quick_pull=1&template=server.md)
-[![Workstation](https://img.shields.io/badge/Workstation-desk--*-2E6F40?style=for-the-badge)](?quick_pull=1&template=workstation.md)
+[![Workstation](https://img.shields.io/badge/Workstation-dsk--*-2E6F40?style=for-the-badge)](?quick_pull=1&template=workstation.md)
 [![System](https://img.shields.io/badge/System-sys%2Fsvc%2Fdev-8B5E3C?style=for-the-badge)](?quick_pull=1&template=system.md)
 
 [![Pipeline](https://img.shields.io/badge/Pipeline-CI%2FCD-7A3E9D?style=for-the-badge)](?quick_pull=1&template=pipeline.md)

@@ -1,0 +1,64 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- include_tasks: utils/load/handlers.yml
+  vars:
+    handler_role_name: "sys-svc-compose"
+
+- name: "🔐 Verify the gateway contract for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
+
+- name: "🛑 Refuse an agent model the gateway never resolved"
+  ansible.builtin.assert:
+    that:
+      - AGENT_BROKER_MODEL | length > 0
+      - AGENT_BROKER_MODEL is not search('[{][{]')
+    fail_msg: "services.agent-broker.agents.model resolved to '{{ AGENT_BROKER_MODEL }}'; every agent would ask the gateway for it. Deploy a backend role (svc-ai-ollama,
+      svc-ai-lmstudio) alongside the broker, or configure a provider key on svc-ai-litellm."
+    quiet: true
+
+- name: "⚠️ Report a platform this model cannot serve"
+  ansible.builtin.debug:
+    msg: "{{ item }} is not offered: it refuses any model below {{ AGENT_BROKER_PLATFORMS_DECLARED[item].min_context }} tokens and '{{ AGENT_BROKER_MODEL }}' declares
+      {{ AGENT_BROKER_CONTEXT }}, so every prompt would come back HTTP 500. Point services.agent-broker.agents.model at a larger model to offer it again."
+  loop: "{{ AGENT_BROKER_PLATFORMS_REFUSED }}"
+
+- name: "⚠️ Report a context minimum this deploy cannot prove"
+  ansible.builtin.debug:
+    msg: "{{ item.key }} requires {{ item.value.min_context }} tokens and '{{ AGENT_BROKER_MODEL }}' declares no context, so nothing here can tell whether the model
+      is large enough. Declare the model's context to make this checkable."
+  when: (AGENT_BROKER_CONTEXT | string | length) == 0
+  loop: "{{ AGENT_BROKER_PLATFORMS_DECLARED | dict2items | selectattr('value.min_context', 'defined') | list }}"
+  loop_control:
+    label: "{{ item.key }}"
+
+- name: "🛡️ Install the isolating runtime every agent runs under"
+  ansible.builtin.include_role:
+    name: svc-virt-kata
+
+- name: "📦 Stage the agent broker build context"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "{{ lookup('path_absolute', 'roles/svc-ai-agent-broker/files/python/access.py') }}"
+        dest: "{{ [AGENT_BROKER_BUILD_DIR, 'access.py'] | path_join }}"
+        mode: "0644"
+        notify: [compose-build, compose-up]
+      - src: "{{ lookup('path_absolute', 'roles/svc-ai-agent-broker/files/python/agents.py') }}"
+        dest: "{{ [AGENT_BROKER_BUILD_DIR, 'agents.py'] | path_join }}"
+        mode: "0644"
+        notify: [compose-build, compose-up]
+      - src: "{{ lookup('path_absolute', 'roles/svc-ai-agent-broker/files/python/engine.py') }}"
+        dest: "{{ [AGENT_BROKER_BUILD_DIR, 'engine.py'] | path_join }}"
+        mode: "0644"
+        notify: [compose-build, compose-up]
+      - src: "{{ lookup('path_absolute', 'roles/svc-ai-agent-broker/files/python/server.py') }}"
+        dest: "{{ [AGENT_BROKER_BUILD_DIR, 'server.py'] | path_join }}"
+        mode: "0644"
+        notify: [compose-build, compose-up]
+
+- name: "🔧 Setup container network for {{ application_id }}"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
+  vars:
+    compose_handlers_flush: true

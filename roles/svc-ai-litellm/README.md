@@ -17,15 +17,21 @@ flowchart LR
     subgraph deps [Dependencies]
         dep_svc_ai_lmstudio["svc-ai-lmstudio 🐳🐝"]
         dep_svc_ai_ollama["svc-ai-ollama 🐳🐝"]
+        dep_svc_ai_s1["svc-ai-s1 🐳🐝"]
         dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
     end
     subgraph role [svc-ai-litellm 🐳🐝]
         svc_litellm["litellm"]
         svc_postgres["postgres"]
+        svc_s1["s1"]
         svc_ollama["ollama"]
         svc_lmstudio["lmstudio"]
     end
     subgraph dependents [Dependents]
+        dpt_dsk_gnt_claude["dsk-gnt-claude 💻"]
+        dpt_dsk_gnt_codex["dsk-gnt-codex 💻"]
+        dpt_dsk_gnt_pi["dsk-gnt-pi 💻"]
+        dpt_svc_ai_agent_broker["svc-ai-agent-broker 🐳🐝"]
         dpt_web_app_discourse["web-app-discourse 🐳🐝"]
         dpt_web_app_flowise["web-app-flowise 🐳🐝"]
         dpt_web_app_hermes["web-app-hermes 🐳🐝"]
@@ -34,16 +40,17 @@ flowchart LR
         dpt_web_app_mattermost["web-app-mattermost 🐳🐝"]
         dpt_web_app_mediawiki["web-app-mediawiki 🐳🐝"]
         dpt_web_app_moodle["web-app-moodle 🐳🐝"]
-        dpt_web_app_n8n["web-app-n8n 🐳🐝"]
-        dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]
-        dpt_web_app_openclaw["web-app-openclaw 🐳🐝"]
-        dpt_web_app_openwebui["web-app-openwebui 🐳🐝"]
         dpt_more["..."]
     end
     dep_svc_ai_lmstudio -. "0..1" .-> svc_lmstudio
     dep_svc_ai_ollama -. "0..1" .-> svc_ollama
+    dep_svc_ai_s1 -. "0..1" .-> svc_s1
     dep_svc_db_postgres -. "0..1" .-> svc_postgres
+    svc_litellm -. "0..1" .-> dpt_dsk_gnt_claude
+    svc_litellm -. "0..1" .-> dpt_dsk_gnt_codex
+    svc_litellm -. "0..1" .-> dpt_dsk_gnt_pi
     svc_litellm -- "1:1" --> dpt_more
+    svc_litellm -- "1:1" --> dpt_svc_ai_agent_broker
     svc_litellm -. "0..1" .-> dpt_web_app_discourse
     svc_litellm -. "0..1" .-> dpt_web_app_flowise
     svc_litellm -. "0..1" .-> dpt_web_app_hermes
@@ -52,10 +59,6 @@ flowchart LR
     svc_litellm -. "0..1" .-> dpt_web_app_mattermost
     svc_litellm -. "0..1" .-> dpt_web_app_mediawiki
     svc_litellm -. "0..1" .-> dpt_web_app_moodle
-    svc_litellm -. "0..1" .-> dpt_web_app_n8n
-    svc_litellm -. "0..1" .-> dpt_web_app_nextcloud
-    svc_litellm -. "0..1" .-> dpt_web_app_openclaw
-    svc_litellm -. "0..1" .-> dpt_web_app_openwebui
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
@@ -65,6 +68,8 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - **OpenAI-compatible API:** One HTTP endpoint serves every model listed in the gateway configuration.
 - **Backend routing:** Model entries are generated for Ollama and LM Studio when those services run on the host, under the shared alias each model carries so a consumer names one model whichever local backend answers it.
 - **Remote providers:** OpenAI, Anthropic and OpenRouter each add their models when a key is configured. The keys are declared in `meta/secrets.yml` with the `type` and `regex` their value must satisfy, and default to the central `API.<provider>.api_key` entry; an unset key leaves that provider's routes unpublished.
+- **Configurable remote models:** The published remote models are the `litellm.remote_models` list in `meta/services.yml`, each entry an `alias`, the LiteLLM `model` string and its `provider`, plus an optional `context` in tokens. An inventory replaces the list through `applications.svc-ai-litellm.services.litellm.remote_models`, and a provider without a key slot aborts the deploy.
+- **Declared context windows:** A model entry carrying `context` publishes it as `model_info.max_input_tokens`, and an Ollama entry also runs with that window as `num_ctx` instead of the server's default, so a caller's prompt is not silently truncated.
 - **Per-consumer virtual keys:** Each consuming application receives its own virtual key, created through the gateway admin API under an alias naming that application.
 - **File-based model list:** The model list is mounted as a read-only config file, with database-stored model entries turned off.
 - **Managed credentials:** The gateway master key and the admin UI password are generated and kept as role credentials, and the admin UI username is the platform administrator name.

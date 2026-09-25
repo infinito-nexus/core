@@ -1,0 +1,7 @@
+---
+application_id: "svc-ai-jupyter"
+entity_name: "{{ application_id | get_entity_name }}"
+
+JUPYTER_CONTAINER: "{{ lookup('config', application_id, 'services.jupyter.name') }}"
+JUPYTER_PORT: "{{ lookup('config', application_id, 'services.jupyter.ports.internal.http') }}"
+JUPYTER_AUTH_TOKEN: "{{ lookup('config', application_id, 'secrets.credentials.auth_token') }}"

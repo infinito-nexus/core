@@ -98,6 +98,38 @@ class TestTriggerMain(unittest.TestCase):
             calls, [("entry-manual-steer.yml", "feature/x", "__ALL__", "", {}, "o/r")]
         )
 
+    def test_priority_is_dispatched_with_the_axis_overrides(self) -> None:
+        rc, calls = self._run(
+            [
+                "--priority",
+                "web-app-b#1@compose  web-app-a#0@swarm",
+                "--workspace",
+                "false",
+                "--chunk-gate",
+                "false",
+                "--filesystem",
+                "btrfs",
+            ]
+        )
+        self.assertEqual(rc, 0)
+        self.assertEqual(calls[0][3], "web-app-a#0@swarm web-app-b#1@compose")
+        self.assertEqual(
+            calls[0][4],
+            {"workspace": "false", "chunk_gate": "false", "filesystem": "btrfs"},
+        )
+
+    def test_an_unusable_token_is_refused_before_anything_is_dispatched(self) -> None:
+        with mock.patch.object(
+            trigger.validate, "problems", return_value=(["bad token"], [])
+        ):
+            rc, calls = self._run(["--priority", "web-app-a#9"])
+        self.assertEqual(rc, 1)
+        self.assertEqual(calls, [], "a refused line must not reach the workflow")
+
+    def test_priority_and_failed_cannot_both_build_the_line(self) -> None:
+        with self.assertRaises(SystemExit):
+            self._run(["--failed", "--priority", "web-app-a#0"])
+
     def test_apps_explicit_list(self) -> None:
         rc, calls = self._run(["--apps", "web-app-a  web-app-b"])
         self.assertEqual(rc, 0)

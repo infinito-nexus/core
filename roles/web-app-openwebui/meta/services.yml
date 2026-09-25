@@ -42,6 +42,11 @@ openwebui:
   offline_mode: false
   hf_hub_offline: false
   enable_api_keys: true
+  image_model: ""
+  embedding_model: ""
+  speech_to_text_model: ""
+  text_to_speech_model: ""
+  comfyui_url: ""
   cpus: 2.0
   mem_reservation: 1g
   mem_limit: 4g
@@ -86,6 +91,30 @@ litellm:
   bond: 1
   enabled: "{{ LITELLM_USABLE }}"
   shared: true
+agent-broker:
+  bond: 1
+  enabled: "{{ 'svc-ai-agent-broker' in group_names }}"
+  shared: "{{ 'svc-ai-agent-broker' in group_names }}"
+# nocheck: playwright-service-flag - DB engine, covered by role-local integration tests
+qdrant:
+  bond: 1
+  enabled: "{{ 'svc-db-qdrant' in group_names }}"
+  shared: "{{ 'svc-db-qdrant' in group_names }}"
+# nocheck: playwright-service-flag - extraction engine without a browser surface
+tika:
+  bond: 0
+  enabled: false # nocheck: dynamic-flag
+  shared: false # nocheck: dynamic-flag
+# nocheck: playwright-service-flag - search backend consumed over the container network
+searxng:
+  bond: 0
+  enabled: false # nocheck: dynamic-flag
+  shared: false # nocheck: dynamic-flag
+# nocheck: playwright-service-flag - kernel backend consumed over the container network
+jupyter:
+  bond: 0
+  enabled: false # nocheck: dynamic-flag
+  shared: false # nocheck: dynamic-flag
 
 email:
   bond: 1

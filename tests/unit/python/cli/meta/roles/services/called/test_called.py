@@ -43,7 +43,7 @@ class TestCategoriesOf(unittest.TestCase):
         self.assertEqual(categories_of("sys-ctl-hlth-csp"), {"sys", "sys-ctl"})
 
     def test_single_segment(self) -> None:
-        self.assertEqual(categories_of("desk"), {"desk"})
+        self.assertEqual(categories_of("dsk"), {"dsk"})
 
     def test_empty(self) -> None:
         self.assertEqual(categories_of(""), set())

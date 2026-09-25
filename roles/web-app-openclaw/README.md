@@ -40,6 +40,7 @@ flowchart LR
         svc_container_backup["container_backup"]
     end
     subgraph dependents [Dependents]
+        dpt_svc_ai_agent_broker["svc-ai-agent-broker 🐳🐝"]
         dpt_svc_ai_robot["svc-ai-robot 💻"]
         dpt_svc_db_qdrant["svc-db-qdrant 🐳🐝"]
         dpt_web_app_baserow["web-app-baserow 🐳🐝"]
@@ -51,7 +52,6 @@ flowchart LR
         dpt_web_app_jellyfin["web-app-jellyfin 🐳🐝"]
         dpt_web_app_jenkins["web-app-jenkins 🐳🐝"]
         dpt_web_app_listmonk["web-app-listmonk 🐳🐝"]
-        dpt_web_app_mattermost["web-app-mattermost 🐳🐝"]
         dpt_more["..."]
     end
     dep_svc_ai_litellm -. "0..1" .-> svc_litellm
@@ -65,6 +65,7 @@ flowchart LR
     dep_web_svc_css -. "0..1" .-> svc_css
     dep_web_svc_logout -. "0..1" .-> svc_logout
     svc_openclaw -- "1:1" --> dpt_more
+    svc_openclaw -- "1:1" --> dpt_svc_ai_agent_broker
     svc_openclaw -. "0..1" .-> dpt_svc_ai_robot
     svc_openclaw -. "0..1" .-> dpt_svc_db_qdrant
     svc_openclaw -. "0..1" .-> dpt_web_app_baserow
@@ -76,7 +77,6 @@ flowchart LR
     svc_openclaw -. "0..1" .-> dpt_web_app_jellyfin
     svc_openclaw -. "0..1" .-> dpt_web_app_jenkins
     svc_openclaw -. "0..1" .-> dpt_web_app_listmonk
-    svc_openclaw -. "0..1" .-> dpt_web_app_mattermost
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.

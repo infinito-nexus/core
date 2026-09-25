@@ -18,9 +18,9 @@ flowchart LR
         svc_hunspell["hunspell"]
     end
     subgraph dependents [Dependents]
-        dpt_desk_libreoffice["desk-libreoffice 💻 ⚙️"]
+        dpt_dsk_libreoffice["dsk-libreoffice 💻 ⚙️"]
     end
-    svc_hunspell -- "1:1" --> dpt_desk_libreoffice
+    svc_hunspell -- "1:1" --> dpt_dsk_libreoffice
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.

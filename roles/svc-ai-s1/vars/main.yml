@@ -1,0 +1,27 @@
+---
+application_id: "svc-ai-s1"
+entity_name: "{{ application_id | get_entity_name }}"
+
+S1_CONTAINER: "{{ lookup('config', application_id, 'services.s1.name') }}"
+S1_PORT: "{{ lookup('config', application_id, 'services.s1.ports.internal.http') }}"
+S1_IMAGE: "{{ lookup('config', application_id, 'services.s1.image') }}"
+S1_VERSION: "{{ lookup('config', application_id, 'services.s1.version') }}"
+S1_FLAVOR: "{{ lookup('config', application_id, 'services.s1.flavor') }}"
+S1_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.api_key') }}"
+S1_MODEL_ALIAS: "{{ lookup('config', application_id, 'services.s1.model_alias') }}"
+
+S1_GPU_REQUESTED: "{{ lookup('applications') | resource_filter(application_id, 'gpu', 's1', false) }}"
+S1_NVIDIA_DEVICE: /dev/nvidia0
+S1_NVIDIA_RUNTIME: /usr/bin/nvidia-container-runtime
+S1_LAYA_DEVICE: "{{ 'cuda' if S1_GPU | bool else 'cpu' }}"
+
+S1_BUILD_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
+S1_MODEL_ROOT: "/opt/s1/models"
+
+S1_LAYA_CHECKPOINTS: "{{ lookup('config', application_id, 'services.s1.laya.checkpoints') }}"
+S1_LAYA_REPOS: "{{ S1_LAYA_CHECKPOINTS | map(attribute='repo') | join(',') }}"
+
+S1_JEFF_REPOSITORY: "{{ lookup('config', application_id, 'services.s1.jeff.repository') }}"
+S1_JEFF_REF: "{{ lookup('config', application_id, 'services.s1.jeff.ref') }}"
+S1_JEFF_MODEL_REPO: "{{ lookup('config', application_id, 'services.s1.jeff.model_repo') }}"
+S1_JEFF_MODEL_PATH: "{{ [S1_MODEL_ROOT, S1_JEFF_MODEL_REPO | basename] | path_join }}"

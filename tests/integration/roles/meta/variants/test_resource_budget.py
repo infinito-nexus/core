@@ -86,6 +86,7 @@ def _collect_findings(root: Path) -> list[BudgetFinding]:
                 rows=rows,
                 warnings=[],
                 dedup=True,
+                dynamic_enabled=False,
             )
             totals = aggregate(rows)
             mem_reservation = totals["mem_reservation_bytes"] or 0

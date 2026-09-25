@@ -20,7 +20,7 @@ flowchart LR
         dep_web_app_matomo["web-app-matomo 🐳🐝"]
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
         dep_web_svc_asset["web-svc-asset 💻"]
-        dep_web_svc_cdn["web-svc-cdn 🐳🐝"]
+        dep_web_svc_cdn["web-svc-cdn 🐳🐝💻"]
         dep_web_svc_css["web-svc-css 💻"]
         dep_web_svc_logout["web-svc-logout 🐳🐝"]
         dep_web_svc_simpleicons["web-svc-simpleicons 🐳🐝"]

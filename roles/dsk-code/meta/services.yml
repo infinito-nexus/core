@@ -1,0 +1,22 @@
+---
+code:
+  modes:
+    host:
+      enabled: true
+  lifecycle: alpha
+  flavor: code-oss
+  min_storage: "1GB"
+  cpus: "2.0"
+  mem_reservation: "512m"
+  mem_limit: "4g"
+  pids_limit: 1024
+# nocheck: playwright-service-flag, dynamic-flag  workstation agent, carried as an editor extension when the host deploys it
+claude:
+  bond: 0.5
+  enabled: "{{ 'dsk-gnt-claude' in group_names }}"
+  shared: "{{ 'dsk-gnt-claude' in group_names }}"
+# nocheck: playwright-service-flag, dynamic-flag  workstation agent, carried as an editor extension when the host deploys it
+codex:
+  bond: 0.5
+  enabled: "{{ 'dsk-gnt-codex' in group_names }}"
+  shared: "{{ 'dsk-gnt-codex' in group_names }}"

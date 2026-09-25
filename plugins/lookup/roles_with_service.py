@@ -23,6 +23,9 @@ Kwargs:
         ``deployment`` restricts to roles present anywhere in ``groups``,
         which is what a container-network consumer can actually reach;
         ``all`` returns every declaring role, deployed or not.
+    include_headless: ``True`` also returns declaring roles without a
+        canonical domain, with empty ``canonical_domain`` and
+        ``canonical_url``.
     direction: opt-in MCP filter. When set (``server``/``client``/``both``),
         only roles whose block declares that ``direction`` (or ``both``)
         are returned, and each entry additionally carries ``transport``,
@@ -140,6 +143,7 @@ class LookupModule(LookupBase):
             str(direction_raw).strip().lower() if direction_raw is not None else None
         )
         deployed = _deployed_roles(scope, vars_)
+        include_headless = bool(kwargs.get("include_headless", False))
 
         tls_lookup = lookup_loader.get(
             "tls", loader=self._loader, templar=self._templar
@@ -172,7 +176,7 @@ class LookupModule(LookupBase):
             if get_entity_name(str(role_id)) == service_name:
                 continue
             canonical = _resolve_canonical_domain(str(role_id), app_config)
-            if not canonical and direction is None:
+            if not canonical and direction is None and not include_headless:
                 continue
             canonical_url = ""
             if canonical:

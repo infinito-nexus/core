@@ -29,7 +29,7 @@ A role usually owns one capability:
 - `svc-*` for shared services such as databases, proxies, mail, DNS, VPN, backups, and identity support
 - `web-app-*` for end-user applications
 - `dev-*` for development tooling
-- `desk-*` for workstation setup
+- `dsk-*` for workstation setup
 - `web-svc-*` and `web-opt-*` for web-facing helpers and redirects
 
 For example, `web-app-nextcloud` owns the Nextcloud deployment, `sys-svc-webserver-https` owns the HTTPS plumbing, and `sys-ctl-cln-docker` handles Docker cleanup.

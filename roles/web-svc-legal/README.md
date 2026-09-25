@@ -19,7 +19,7 @@ flowchart LR
         dep_web_app_prometheus["web-app-prometheus 🐳🐝"]
         dep_web_svc_html["web-svc-html 💻"]
     end
-    subgraph role [web-svc-legal]
+    subgraph role [web-svc-legal 🐳🐝]
         svc_legal["legal ❌"]
         svc_html["html"]
         svc_prometheus["prometheus"]

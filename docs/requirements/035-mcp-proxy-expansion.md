@@ -480,15 +480,15 @@ An adapter could reach these, and none has been curated yet. The five that used 
 
 `web-svc-collabora`, `web-svc-onlyoffice`.
 
-### no_surface (96)
+### no_surface (97)
 
 These roles remain out of shared MCP discovery.
 A future exception requires a new requirement with a fixed operation list, dedicated identity, isolation boundary, human approval for mutations, and audit trail.
 
-**`host_execution_boundary` (39):** `desk-bluray-player`, `desk-chromium`, `desk-copyq`, `desk-docker`, `desk-dotlinker`, `desk-firefox`, `desk-git`, `desk-gnome`, `desk-gnome-caffeine`, `desk-gnome-extensions`, `desk-gnome-terminal`, `desk-gnucash`, `desk-jrnl`, `desk-keepassxc`, `desk-libreoffice`, `desk-micro`, `desk-neovim`, `desk-nextcloud`, `desk-obs`, `desk-qbittorrent`, `desk-retroarch`, `desk-spotify`, `desk-ssh`, `desk-torbrowser`, `desk-virtualbox`, `desk-zoom`, `dev-arduino`, `dev-core`, `dev-java`, `dev-locales`, `dev-make`, `dev-nix`, `dev-nodejs`, `dev-python`, `drv-epson-multiprinter`, `drv-intel`, `drv-lid-switch`, `drv-non-free`, `gen-hunspell`.
+**`host_execution_boundary` (45):** `dev-arduino`, `dev-core`, `dev-java`, `dev-locales`, `dev-make`, `dev-nix`, `dev-nodejs`, `dev-python`, `drv-epson-multiprinter`, `drv-intel`, `drv-lid-switch`, `drv-non-free`, `dsk-bluray-player`, `dsk-chromium`, `dsk-code`, `dsk-copyq`, `dsk-docker`, `dsk-dotlinker`, `dsk-firefox`, `dsk-git`, `dsk-gnome`, `dsk-gnome-caffeine`, `dsk-gnome-extensions`, `dsk-gnome-terminal`, `dsk-gnt-claude`, `dsk-gnt-codex`, `dsk-gnt-cursor`, `dsk-gnt-pi`, `dsk-gnucash`, `dsk-jrnl`, `dsk-keepassxc`, `dsk-laya`, `dsk-libreoffice`, `dsk-micro`, `dsk-neovim`, `dsk-nextcloud`, `dsk-obs`, `dsk-qbittorrent`, `dsk-retroarch`, `dsk-spotify`, `dsk-ssh`, `dsk-torbrowser`, `dsk-virtualbox`, `dsk-zoom`, `gen-hunspell`.
 These roles operate a workstation, developer toolchain, device, or host package; bridging them would amount to shared shell, filesystem, browser-session, device, or host execution without an application-specific remote identity.
 
-**`privileged_control_plane` (25):** `svc-bkp-local-2-device`, `svc-bkp-nfs-2-local`, `svc-bkp-remote-2-local`, `svc-bkp-secrets-2-local`, `svc-bkp-volume-2-local`, `svc-dns-unbound`, `svc-net-firewall`, `svc-net-tor`, `svc-net-wireguard-core`, `svc-net-wireguard-firewalled`, `svc-net-wireguard-plain`, `svc-opt-keyboard-color`, `svc-opt-ssd-hdd`, `svc-opt-swapfile`, `svc-prx-openresty`, `svc-registry-cache`, `svc-registry-docker`, `svc-runner`, `svc-storage-nfs-client`, `svc-storage-nfs-server`, `svc-swarm-manager`, `svc-swarm-node`, `svc-virt-kata`, `update`, `web-app-openbao`.
+**`privileged_control_plane` (27):** `svc-ai-agent-broker`, `svc-ai-jupyter`, `svc-bkp-local-2-device`, `svc-bkp-nfs-2-local`, `svc-bkp-remote-2-local`, `svc-bkp-secrets-2-local`, `svc-bkp-volume-2-local`, `svc-dns-unbound`, `svc-net-firewall`, `svc-net-tor`, `svc-net-wireguard-core`, `svc-net-wireguard-firewalled`, `svc-net-wireguard-plain`, `svc-opt-keyboard-color`, `svc-opt-ssd-hdd`, `svc-opt-swapfile`, `svc-prx-openresty`, `svc-registry-cache`, `svc-registry-docker`, `svc-runner`, `svc-storage-nfs-client`, `svc-storage-nfs-server`, `svc-swarm-manager`, `svc-swarm-node`, `svc-virt-kata`, `update`, `web-app-openbao`.
 These roles can recover secrets, alter routing or host state, run code, change deployment state, or reach storage/control-plane sockets; they require a separate audited operations gateway and human approval rather than general-purpose application MCP.
 
 **`shared_engine_isolation` (4):** `svc-db-memcached`, `svc-db-openldap`, `svc-db-postgres`, `svc-db-rabbitmq`.
@@ -501,7 +501,7 @@ These UIs expose identity or database administration rather than a bounded appli
 **`duplicate_owner` (1):** `web-app-litellm`.
 This role is only the UI of the separately classified LiteLLM service role, which owns any future MCP gateway contract.
 
-**`no_remote_surface` (24):** `svc-ai-ollama`, `svc-ai-robot`, `web-app-chess`, `web-app-dashboard`, `web-app-docs`, `web-app-fediwall`, `web-app-hugo`, `web-app-littlejs`, `web-app-mig`, `web-app-mini-qr`, `web-app-navigator`, `web-app-roulette-wheel`, `web-opt-rdr-domains`, `web-opt-rdr-www`, `web-svc-asset`, `web-svc-cdn`, `web-svc-coturn`, `web-svc-css`, `web-svc-file`, `web-svc-html`, `web-svc-legal`, `web-svc-logout`, `web-svc-mirror`, `web-svc-simpleicons`.
+**`no_remote_surface` (27):** `svc-ai-ollama`, `svc-ai-robot`, `svc-ai-s1`, `svc-ai-searxng`, `svc-ai-tika`, `web-app-chess`, `web-app-dashboard`, `web-app-docs`, `web-app-fediwall`, `web-app-hugo`, `web-app-littlejs`, `web-app-mig`, `web-app-mini-qr`, `web-app-navigator`, `web-app-roulette-wheel`, `web-opt-rdr-domains`, `web-opt-rdr-www`, `web-svc-asset`, `web-svc-cdn`, `web-svc-coturn`, `web-svc-css`, `web-svc-file`, `web-svc-html`, `web-svc-legal`, `web-svc-logout`, `web-svc-mirror`, `web-svc-simpleicons`.
 These roles have no independently useful authenticated remote action contract at the pinned implementation.
 Static published content MAY later be consumed through one owning application's bounded `resource_readonly` adapter, but a new MCP sidecar that merely reimplements a static site's behavior does not count as integration.
 Model tool calling in Ollama does not by itself make Ollama an MCP client or server.
