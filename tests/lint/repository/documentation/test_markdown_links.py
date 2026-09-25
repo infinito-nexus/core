@@ -11,14 +11,13 @@ Absolute paths starting with '/' are resolved against the repository root.
 from __future__ import annotations
 
 import re
-import subprocess
 import unittest
 from pathlib import Path
 from typing import NamedTuple
 
-from utils.cache.files import iter_non_ignored_files, read_text
+from utils.cache.files import read_text
 
-from . import INDEX_FILES, PROJECT_ROOT, index_page
+from . import INDEX_FILES, PROJECT_ROOT, index_page, markdown_files
 
 _MD_LINK_RE = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
 
@@ -59,18 +58,6 @@ def _unresolvable(resolved: Path) -> str:
     if resolved.is_dir() and index_page(resolved) is None:
         return f"directory without any of {', '.join(INDEX_FILES)}"
     return ""
-
-
-def _tracked_md_files(root: Path) -> list[Path]:
-    try:
-        out = subprocess.check_output(
-            ["git", "-C", str(root), "ls-files", "-z"],
-            stderr=subprocess.STDOUT,
-        )
-        rel_paths = [p for p in out.decode("utf-8", errors="replace").split("\0") if p]
-        return [root / rel for rel in rel_paths if rel.endswith(".md")]
-    except Exception:
-        return [Path(p) for p in iter_non_ignored_files(extensions=(".md",))]
 
 
 def _is_checkable_link(target: str) -> bool:
@@ -168,12 +155,12 @@ def _check_file(file: Path, root: Path) -> list[BrokenLink]:
 
 
 class TestMarkdownLinks(unittest.TestCase):
-    """Every file-system link in a tracked markdown file must resolve to a real path."""
+    """Every file-system link in a shipped markdown file must resolve to a real path."""
 
     def test_markdown_relative_links_resolve(self) -> None:
         root = PROJECT_ROOT
-        md_files = _tracked_md_files(root)
-        self.assertTrue(md_files, "No tracked .md files found.")
+        md_files = markdown_files()
+        self.assertTrue(md_files, "No .md files found.")
 
         broken: list[BrokenLink] = []
         for file in sorted(md_files):

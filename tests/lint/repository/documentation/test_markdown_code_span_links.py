@@ -15,7 +15,6 @@ Per-line opt-out: ``# nocheck: markdown-code-span-linkable``.
 from __future__ import annotations
 
 import re
-import subprocess
 import unittest
 from pathlib import Path
 from typing import NamedTuple
@@ -23,7 +22,7 @@ from typing import NamedTuple
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
 
-from . import PROJECT_ROOT, index_page
+from . import PROJECT_ROOT, index_page, markdown_files
 
 _RULE = "markdown-code-span-linkable"
 
@@ -38,11 +37,6 @@ class Linkable(NamedTuple):
     line: int
     span: str
     target: Path
-
-
-def _tracked_markdown(root: Path) -> list[Path]:
-    out = subprocess.check_output(["git", "-C", str(root), "ls-files", "-z", "*.md"])
-    return [root / rel for rel in out.decode("utf-8").split("\0") if rel]
 
 
 def _candidate(span: str) -> bool:
@@ -100,7 +94,7 @@ def _findings(file: Path, root: Path) -> list[Linkable]:
 class TestMarkdownCodeSpanLinks(unittest.TestCase):
     def test_a_linkable_directory_is_written_as_a_link(self) -> None:
         findings: list[Linkable] = []
-        for file in sorted(_tracked_markdown(PROJECT_ROOT)):
+        for file in sorted(markdown_files()):
             findings.extend(_findings(file, PROJECT_ROOT))
 
         if not findings:
