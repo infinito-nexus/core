@@ -11021,10 +11021,6 @@ msgid "**mode** -- which of ``compose``/``swarm``/``host`` the row deploys in, d
 msgstr "**מצב** - מי ``compose``/ / / /``swarm``/ / / /``host`` השורה מתפשטת, נמשכת מהמצבים שהתפקיד למעשה מציע. בפועל זה הוא ברוב שני: נחיל דורש את התפקיד להעביר את הערימה שלו, המארח דורש לא. ``(position + sweep) % len(offered)`` לכן, הוא הופך את השורה בין שני מצביו על גורפים רצופים."
 
 # libretranslate
-msgid "**n8n**"
-msgstr "**n8n**"
-
-# libretranslate
 msgid "**navigator**"
 msgstr "**ניווט**"
 
@@ -15856,7 +15852,7 @@ msgstr "תוספת מתחת `meta/addons/` MAY מכריזה על `incompatible_p
 msgid "An addon whose pinned version is behind the latest upstream release."
 msgstr "תוספת שהגרסה הנצפית שלה עומדת מאחורי השחרור האחרון במעלה הזרם."
 
-msgid "An address is matched before that, on the raw text: masking protects the address of ``mailto:a@b.c`` but leaves the scheme behind, so its prose reads as a word."
+msgid "An address is matched before that, on the raw text, because a URL carries the characters the stripping removes."
 msgstr ""
 
 # libretranslate
@@ -42840,6 +42836,24 @@ msgstr "הפניה מחדש או תרגום של תנועה תפקיד משלה�
 msgid "Redirector"
 msgstr "Redirector"
 
+msgid "Redis ``cache``"
+msgstr ""
+
+msgid "Redis ``queue``"
+msgstr ""
+
+msgid "Redis ``socketio``"
+msgstr ""
+
+msgid "Redis `cache`"
+msgstr ""
+
+msgid "Redis `queue`"
+msgstr ""
+
+msgid "Redis `socketio`"
+msgstr ""
+
 # libretranslate
 msgid "Redis blocked sidecar path"
 msgstr "Redis חסם את נתיב ה-sidecar"
@@ -53954,9 +53968,6 @@ msgstr "החלקים הנפוצים הם:"
 msgid "The companion [027-integration-matrix.md](027-integration-matrix.md) is a generated role×role matrix over the entity names of every `web-app-*` and `web-svc-*` role. Each cell marks whether the **row** role wires in the **column** role:"
 msgstr "חבר [027המונחים:matrix.md](027-integration-matrix.md) הוא תפקיד שנוצר ×role matrix על השמות של כל ישות `web-app-*` ו `web-svc-*` תפקיד. כל תא מציין אם **שורות** המונחים: **עמודה** תפקיד:"
 
-msgid "The comparison runs against the prose, so the markdown a heading wraps the name in falls away first: ``**Mastodon**`` is the product under emphasis, not a phrase about it. Case is ignored because a page writes the name the way its sentence needs it, and ``**mailu**`` is still Mailu."
-msgstr ""
-
 # libretranslate
 msgid "The complete model is machine-readable in [`schema.yml`](schema.yml)."
 msgstr "המודל המלא הוא מכונה [`schema.yml`](schema.yml)."
@@ -54118,6 +54129,9 @@ msgstr "הקודים המוצהרים, הריקים כאשר האפליקציה 
 # libretranslate
 msgid "The declared keys mapped to their codes, dropping keys that declare nothing usable."
 msgstr "המפתחות המוצהמים קודים שלהם, מטילים מפתחות אשר מכריזים על שום דבר אפשרי."
+
+msgid "The decoration a page wraps the name in is removed first; see :func:`_bare`. Case is ignored because a page writes the name the way its sentence needs it, and ``**mailu**`` is still Mailu."
+msgstr ""
 
 # libretranslate
 msgid "The dedicated oauth2-proxy provider role (its directory under *roles/*) is deleted; the 5 sidecar templates and the per-consumer render task fold into **web-app-keycloak** (*templates/sso_proxy/*, *tasks/sso_proxy.yml*). **web-app-keycloak** now declares **provides: sso**."
@@ -69885,6 +69899,9 @@ msgstr ""
 msgid "[Bluesky](https://bsky.social/) is a decentralized social network that runs on the open AT Protocol. Each user account lives on a Personal Data Server (PDS) that holds the user's posts, replies, and follows as signed records, and any number of independent app views can read those records to render a timeline."
 msgstr "[בלוסקי](https://bsky.social/) היא רשת חברתית מבוזרת שפועלת בפרוטוקול Open AT. כל חשבון משתמש חי ב- Personal Data Server (PDS) זה מחזיק את הפוסטים של המשתמש, תשובות, ועוקב כרשומות חתום, וכל מספר תצוגות אפליקציה עצמאיות יכול לקרוא את הרשומות האלה כדי להפוך ציר זמן."
 
+msgid "[BookWyrm Documentation](https://docs.joinbookwyrm.com/)"
+msgstr ""
+
 # libretranslate
 msgid "[BookWyrm GitHub](https://github.com/bookwyrm-social/bookwyrm)"
 msgstr "[שם הספר:Wyrm GitHub](https://github.com/bookwyrm-social/bookwyrm)"
@@ -69896,6 +69913,9 @@ msgstr "[Boy Rule הצופים](https://en.wikipedia.org/wiki/Leaving_the_world_
 # libretranslate
 msgid "[Branch Protection](docs/contributing/tools/github/branch/security.md): Rules enforced on the `main` branch."
 msgstr "[הגנת הזרוע](docs/contributing/tools/github/branch/security.md): חוקים שאפו על `main` ענף."
+
+msgid "[Bridgy Fed Documentation](https://bridgy-fed.readthedocs.io/)"
+msgstr ""
 
 # libretranslate
 msgid "[Bridgy Fed Official Site](https://fed.brid.gy/)"
@@ -70167,6 +70187,9 @@ msgstr "[פיתוח Ansible Lookup Plugins](https://docs.ansible.com/ansible/lat
 msgid "[Development Hub](https://s.infinito.nexus/development) - general developer discussion and contributor guidance."
 msgstr "[פיתוח Hub](https://s.infinito.nexus/development) דיון מפתח כללי והדרכה תורם."
 
+msgid "[Discourse Documentation](https://meta.discourse.org/t/discourse-setup-guide/21966)"
+msgstr ""
+
 # libretranslate
 msgid "[Discourse GitHub Repository](https://github.com/discourse/discourse_docker.git)"
 msgstr "[המונחים: GitHub Repository](https://github.com/discourse/discourse_docker.git)"
@@ -70261,6 +70284,9 @@ msgstr "[ERP Next](https://erpnext.com/) חבילת קוד פתוח ERP שנבנ
 # libretranslate
 msgid "[Enable Single Sign-On (SSO)](https://baserow.io/user-docs/enable-single-sign-on-sso)"
 msgstr "[תגית: Single Sign-On (SSO)](https://baserow.io/user-docs/enable-single-sign-on-sso)"
+
+msgid "[EspoCRM Documentation](https://docs.espocrm.com/) 📖"
+msgstr ""
 
 # libretranslate
 msgid "[EspoCRM Official Website](https://www.espocrm.com/) 🌍"
@@ -70557,6 +70583,9 @@ msgstr "[Jitsi Meet](roles/web-app-jitsi/)"
 msgid "[Jitsi prosody plugins (jitsi-contrib)](https://github.com/jitsi-contrib/prosody-plugins)"
 msgstr "[Jitsi Prosody plugins (Jitsi-contrib)](https://github.com/jitsi-contrib/prosody-plugins)"
 
+msgid "[Joomla Documentation](https://docs.joomla.org/)"
+msgstr ""
+
 # libretranslate
 msgid "[Joomla Official Website](https://www.joomla.org/)"
 msgstr "[אתר האינטרנט הרשמי של Joomla](https://www.joomla.org/)"
@@ -70849,6 +70878,9 @@ msgstr "[Makefile](../../../Makefile) ו [תסריטים /](../../../scripts/) �
 msgid "[Mastodon Configuration Guide](https://gist.github.com/TrillCyborg/84939cd4013ace9960031b803a0590c4)"
 msgstr "[Mastodon Configuration Guide](https://gist.github.com/TrillCyborg/84939cd4013ace9960031b803a0590c4)"
 
+msgid "[Mastodon Documentation](https://docs.joinmastodon.org/)"
+msgstr ""
+
 # libretranslate
 msgid "[Mastodon GitHub Issues](https://github.com/mastodon/mastodon/issues/7958)"
 msgstr "[בעיות Mastodon GitHub](https://github.com/mastodon/mastodon/issues/7958)"
@@ -70864,6 +70896,9 @@ msgstr "[אתר האינטרנט הרשמי Matomo](https://matomo.org/)"
 # libretranslate
 msgid "[Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
 msgstr "[Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
+
+msgid "[Matrix Documentation](https://matrix.org/docs/)"
+msgstr ""
 
 # libretranslate
 msgid "[Matrix Official Website](https://matrix.org/)"
@@ -70884,6 +70919,9 @@ msgstr "[המונחים: MCP Server docs](https://github.com/mattermost/mattermo
 # libretranslate
 msgid "[Mattermost SSO Integration Guide](https://docs.mattermost.com/administration-guide/onboard/sso-saml-keycloak.html)"
 msgstr "[מדריך שילוב SSO](https://docs.mattermost.com/administration-guide/onboard/sso-saml-keycloak.html)"
+
+msgid "[MediaWiki Documentation](https://www.mediawiki.org/wiki/Manual:Configuration_settings)"
+msgstr ""
 
 # libretranslate
 msgid "[MediaWiki Official Website](https://www.mediawiki.org/)"
@@ -71221,6 +71259,9 @@ msgstr "[פאניקה פאניקה](https://github.com/pragepani): משחק: Pi-
 msgid "[Prageeth Panicker](https://github.com/pragepani): web-app-n8n role (workflow automation, edge-header SSO, LDAP, Playwright)"
 msgstr "[פאניקה פאניקה](https://github.com/pragepani): web-app-n8n תפקיד (אוטומציה של זרימה, קצה ראש SSO, LDAP, Playwright)"
 
+msgid "[Pretix Documentation](https://docs.pretix.eu/en/latest/)"
+msgstr ""
+
 # libretranslate
 msgid "[Pretix GitHub Repository](https://github.com/pretix/pretix)"
 msgstr "[Pretix GitHub Repository](https://github.com/pretix/pretix)"
@@ -71228,6 +71269,9 @@ msgstr "[Pretix GitHub Repository](https://github.com/pretix/pretix)"
 # libretranslate
 msgid "[Pretix Official Website](https://pretix.eu/)"
 msgstr "[אתר אינטרנט רשמי Pretix](https://pretix.eu/)"
+
+msgid "[Prometheus Documentation](https://prometheus.io/docs/)"
+msgstr ""
 
 # libretranslate
 msgid "[Prometheus](https://prometheus.io/) is an open-source systems monitoring and alerting toolkit that collects and stores time-series metrics and provides a powerful query language (PromQL)."
@@ -71474,6 +71518,9 @@ msgstr "[אחסון Optimizer](roles/svc-opt-ssd-hdd/)"
 msgid "[Subnetting Basics](https://www.scaleuptech.com/de/blog/was-ist-und-wie-funktioniert-subnetting/)"
 msgstr "[המונחים:](https://www.scaleuptech.com/de/blog/was-ist-und-wie-funktioniert-subnetting/)"
 
+msgid "[SuiteCRM Documentation](https://docs.suitecrm.com/) 📖"
+msgstr ""
+
 # libretranslate
 msgid "[SuiteCRM Official Website](https://suitecrm.com/) 🌍"
 msgstr "[אתר האינטרנט הרשמי של SuiteCRM](https://suitecrm.com/) 🌍"
@@ -71603,6 +71650,9 @@ msgstr "[לקוח Wireguard מאחורי NAT](roles/svc-net-wireguard-firewalled
 msgid "[WireGuard Connection Dies on Ubuntu](https://serverfault.com/questions/1086297/wireguard-connection-dies-on-ubuntu-peer)"
 msgstr "[חיבור WireGuard מת ב-Ubuntu](https://serverfault.com/questions/1086297/wireguard-connection-dies-on-ubuntu-peer)"
 
+msgid "[WireGuard Documentation](https://www.wireguard.com/)"
+msgstr ""
+
 # libretranslate
 msgid "[WireGuard NAT and Firewall Issues](https://serverfault.com/questions/210408/cannot-ssh-debug1-expecting-ssh2-msg-kex-dh-gex-reply)"
 msgstr "[Wireguard NAT ו- Firewall](https://serverfault.com/questions/210408/cannot-ssh-debug1-expecting-ssh2-msg-kex-dh-gex-reply)"
@@ -71646,6 +71696,9 @@ msgstr "[World Wide Web](roles/web-opt-rdr-www/)"
 msgid "[XMPP](roles/web-svc-xmpp/)"
 msgstr "[XMPP](roles/web-svc-xmpp/)"
 
+msgid "[XWiki Documentation](https://www.xwiki.org/xwiki/bin/view/Documentation/)"
+msgstr ""
+
 # libretranslate
 msgid "[XWiki GitHub Repository](https://github.com/xwiki/xwiki-platform)"
 msgstr "[XWiki GitHub Repository](https://github.com/xwiki/xwiki-platform)"
@@ -71673,6 +71726,9 @@ msgstr "[Yahoo Sender Hub](https://senders.yahooinc.com/) מספק תובנות 
 # libretranslate
 msgid "[Youtube Tutorial](https://www.youtube.com/watch?v=fvxQ8bW0vO8)"
 msgstr "[YouTube Tutorial](https://www.youtube.com/watch?v=fvxQ8bW0vO8)"
+
+msgid "[Zammad Docker Compose Documentation](https://docs.zammad.org/en/latest/install/docker-compose.html)"
+msgstr ""
 
 # libretranslate
 msgid "[Zammad GitHub](https://github.com/zammad/zammad)"
@@ -72420,10 +72476,6 @@ msgid "[n8n](https://n8n.io/) is an open-source workflow automation platform. Co
 msgstr "[n8n](https://n8n.io/) היא פלטפורמת אוטומציה של קוד פתוח. חיבור שירותים, להפוך נתונים, ולבנות אינטגרציה באמצעות עורך קוד נמוך חזותי או צמת JavaScript / Python מותאם אישית."
 
 # libretranslate
-msgid "[n8n](roles/web-app-n8n/)"
-msgstr "[n8n](roles/web-app-n8n/)"
-
-# libretranslate
 msgid "[network/](network/) for DNS and IPv6 helpers"
 msgstr "[רשת /](network/) DNS ו- IPv6 עוזרים"
 
@@ -72464,6 +72516,9 @@ msgstr "[pacman](https://wiki.archlinux.org/title/pacman)"
 msgid "[pdsadmin GitHub Repository](https://github.com/lhaig/pdsadmin)"
 msgstr "[עקבו אחרי GitHub Repository](https://github.com/lhaig/pdsadmin)"
 
+msgid "[pgAdmin Documentation](https://www.pgadmin.org/docs/)"
+msgstr ""
+
 # libretranslate
 msgid "[pgAdmin Official Homepage](https://www.pgadmin.org/)"
 msgstr "[אתר האינטרנט הרשמי של pgAdmin](https://www.pgadmin.org/)"
@@ -72471,6 +72526,9 @@ msgstr "[אתר האינטרנט הרשמי של pgAdmin](https://www.pgadmin.or
 # libretranslate
 msgid "[phpLDAPadmin Docker Container Documentation](https://github.com/leenooks/phpLDAPadmin/wiki/Docker-Container)"
 msgstr "[phpLDAPמנהל Dockerer Documentation](https://github.com/leenooks/phpLDAPadmin/wiki/Docker-Container)"
+
+msgid "[phpLDAPadmin Documentation](https://github.com/leenooks/phpLDAPadmin/wiki/Docker-Container)"
+msgstr ""
 
 # libretranslate
 msgid "[pipeline.md](../../../artefact/git/pipeline.md): how the orchestrator routes PR runs."
@@ -82838,9 +82896,6 @@ msgstr "שירות:"
 # libretranslate
 msgid "n/a"
 msgstr "n/a"
-
-msgid "n8n"
-msgstr ""
 
 # libretranslate
 msgid "n8n 1.100.1 Integration"

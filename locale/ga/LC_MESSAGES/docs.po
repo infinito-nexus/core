@@ -11068,10 +11068,6 @@ msgstr "**calóg sláinte coimeádán matomo (seiceáil bhaisc)** - sa phost che
 msgid "**mode** -- which of ``compose``/``swarm``/``host`` the row deploys in, drawn from the modes the role actually offers. In practice that is at most two: swarm requires the role to ship its own stack, host requires it not to. ``(position + sweep) % len(offered)`` therefore flips a row between its two modes on consecutive sweeps."
 msgstr ""
 
-# libretranslate
-msgid "**n8n**"
-msgstr "**n8n**"
-
 msgid "**navigator**"
 msgstr ""
 
@@ -15913,7 +15909,7 @@ msgstr "An addon faoi `meta/addons/` MAY dhearbhú `incompatible_plugins` liosta
 msgid "An addon whose pinned version is behind the latest upstream release."
 msgstr "Tá addon a leagan pinned taobh thiar den scaoileadh is déanaí upstream."
 
-msgid "An address is matched before that, on the raw text: masking protects the address of ``mailto:a@b.c`` but leaves the scheme behind, so its prose reads as a word."
+msgid "An address is matched before that, on the raw text, because a URL carries the characters the stripping removes."
 msgstr ""
 
 # libretranslate
@@ -42937,6 +42933,24 @@ msgstr "Atreorú nó a aistriú tráchta úinéireacht ról, raon feidhme le ré
 msgid "Redirector"
 msgstr "Amharc ar gach eolas"
 
+msgid "Redis ``cache``"
+msgstr ""
+
+msgid "Redis ``queue``"
+msgstr ""
+
+msgid "Redis ``socketio``"
+msgstr ""
+
+msgid "Redis `cache`"
+msgstr ""
+
+msgid "Redis `queue`"
+msgstr ""
+
+msgid "Redis `socketio`"
+msgstr ""
+
 # libretranslate
 msgid "Redis blocked sidecar path"
 msgstr "Redis bac cosán sidecar"
@@ -54085,9 +54099,6 @@ msgstr "Is iad na píosaí coitianta:"
 msgid "The companion [027-integration-matrix.md](027-integration-matrix.md) is a generated role×role matrix over the entity names of every `web-app-*` and `web-svc-*` role. Each cell marks whether the **row** role wires in the **column** role:"
 msgstr ""
 
-msgid "The comparison runs against the prose, so the markdown a heading wraps the name in falls away first: ``**Mastodon**`` is the product under emphasis, not a phrase about it. Case is ignored because a page writes the name the way its sentence needs it, and ``**mailu**`` is still Mailu."
-msgstr ""
-
 # libretranslate
 msgid "The complete model is machine-readable in [`schema.yml`](schema.yml)."
 msgstr "Is é an tsamhail iomlán meaisín-inléite i [`schema.yml`](schema.yml)."
@@ -54249,6 +54260,9 @@ msgstr "Na cóid dearbhaithe, folamh nuair a dhearbhaíonn an app aon cheann don
 # libretranslate
 msgid "The declared keys mapped to their codes, dropping keys that declare nothing usable."
 msgstr "Na heochracha dearbhaithe mapáilte chun a gcuid cóid, eochracha dropping a dhearbhú rud ar bith inúsáidte."
+
+msgid "The decoration a page wraps the name in is removed first; see :func:`_bare`. Case is ignored because a page writes the name the way its sentence needs it, and ``**mailu**`` is still Mailu."
+msgstr ""
 
 msgid "The dedicated oauth2-proxy provider role (its directory under *roles/*) is deleted; the 5 sidecar templates and the per-consumer render task fold into **web-app-keycloak** (*templates/sso_proxy/*, *tasks/sso_proxy.yml*). **web-app-keycloak** now declares **provides: sso**."
 msgstr ""
@@ -70080,6 +70094,9 @@ msgstr "[Bluesky Athbhreithniú Sóisialta](https://github.com/bluesky-social/so
 msgid "[Bluesky](https://bsky.social/) is a decentralized social network that runs on the open AT Protocol. Each user account lives on a Personal Data Server (PDS) that holds the user's posts, replies, and follows as signed records, and any number of independent app views can read those records to render a timeline."
 msgstr "[taiseachas aeir: fliuch](https://bsky.social/) líonra sóisialta díláraithe a ritheann ar an oscailte Prótacal AT. Tá gach cuntas úsáideora ina chónaí ar Freastalaí Sonraí Pearsanta (PDS) go bhfuil poist an úsáideora, freagraí, agus seo a leanas mar thaifid sínithe, agus is féidir aon líon de thuairimí app neamhspleách léamh na taifid sin a dhéanamh amlíne."
 
+msgid "[BookWyrm Documentation](https://docs.joinbookwyrm.com/)"
+msgstr ""
+
 # libretranslate
 msgid "[BookWyrm GitHub](https://github.com/bookwyrm-social/bookwyrm)"
 msgstr "[cliceáil grianghraf a mhéadú](https://github.com/bookwyrm-social/bookwyrm)"
@@ -70091,6 +70108,9 @@ msgstr "[Buachaill Scout Riail](https://en.wikipedia.org/wiki/Leaving_the_world_
 # libretranslate
 msgid "[Branch Protection](docs/contributing/tools/github/branch/security.md): Rules enforced on the `main` branch."
 msgstr "[Cosaint an Bhrainse](docs/contributing/tools/github/branch/security.md): Rialacha a chuirtear i bhfeidhm ar an `main` brainse."
+
+msgid "[Bridgy Fed Documentation](https://bridgy-fed.readthedocs.io/)"
+msgstr ""
 
 # libretranslate
 msgid "[Bridgy Fed Official Site](https://fed.brid.gy/)"
@@ -70362,6 +70382,9 @@ msgstr "[Plugins Lookup Ansible a fhorbairt](https://docs.ansible.com/ansible/la
 msgid "[Development Hub](https://s.infinito.nexus/development) - general developer discussion and contributor guidance."
 msgstr "[Déan Teagmháil Linn](https://s.infinito.nexus/development) - plé forbróir ginearálta agus treoir rannchuiditheora."
 
+msgid "[Discourse Documentation](https://meta.discourse.org/t/discourse-setup-guide/21966)"
+msgstr ""
+
 # libretranslate
 msgid "[Discourse GitHub Repository](https://github.com/discourse/discourse_docker.git)"
 msgstr "[Stór GitHub](https://github.com/discourse/discourse_docker.git)"
@@ -70456,6 +70479,9 @@ msgstr "[ERPNext](https://erpnext.com/) Is sraith ERP foinse oscailte tógtha ar
 # libretranslate
 msgid "[Enable Single Sign-On (SSO)](https://baserow.io/user-docs/enable-single-sign-on-sso)"
 msgstr "[Cumasaigh Aonair Cláraigh (SSO)](https://baserow.io/user-docs/enable-single-sign-on-sso)"
+
+msgid "[EspoCRM Documentation](https://docs.espocrm.com/) 📖"
+msgstr ""
 
 # libretranslate
 msgid "[EspoCRM Official Website](https://www.espocrm.com/) 🌍"
@@ -70752,6 +70778,9 @@ msgstr "[Cluiche iontach](roles/web-app-jitsi/)"
 msgid "[Jitsi prosody plugins (jitsi-contrib)](https://github.com/jitsi-contrib/prosody-plugins)"
 msgstr "[Jitsi prosody plugins (Déan teagmháil linn)](https://github.com/jitsi-contrib/prosody-plugins)"
 
+msgid "[Joomla Documentation](https://docs.joomla.org/)"
+msgstr ""
+
 # libretranslate
 msgid "[Joomla Official Website](https://www.joomla.org/)"
 msgstr "[Láithreán gréasáin oifigiúil Joomla](https://www.joomla.org/)"
@@ -71045,6 +71074,9 @@ msgstr "[Déan comhad](../../../Makefile) agus [scripteanna /](../../../scripts/
 msgid "[Mastodon Configuration Guide](https://gist.github.com/TrillCyborg/84939cd4013ace9960031b803a0590c4)"
 msgstr "[Treoir Cumraíochta Mastodon](https://gist.github.com/TrillCyborg/84939cd4013ace9960031b803a0590c4)"
 
+msgid "[Mastodon Documentation](https://docs.joinmastodon.org/)"
+msgstr ""
+
 # libretranslate
 msgid "[Mastodon GitHub Issues](https://github.com/mastodon/mastodon/issues/7958)"
 msgstr "[Cad a bhí mícheart leis an láithreán gréasáin seo?](https://github.com/mastodon/mastodon/issues/7958)"
@@ -71060,6 +71092,9 @@ msgstr "[Suíomh Gréasáin Oifigiúil Matomo](https://matomo.org/)"
 # libretranslate
 msgid "[Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
 msgstr "[Déan Teagmháil Linn](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
+
+msgid "[Matrix Documentation](https://matrix.org/docs/)"
+msgstr ""
 
 # libretranslate
 msgid "[Matrix Official Website](https://matrix.org/)"
@@ -71080,6 +71115,9 @@ msgstr "[Neamhlonrach MCP Seirbhís do Chustaiméirí](https://github.com/matter
 # libretranslate
 msgid "[Mattermost SSO Integration Guide](https://docs.mattermost.com/administration-guide/onboard/sso-saml-keycloak.html)"
 msgstr "[Treoir maidir le Comhtháthú SSO](https://docs.mattermost.com/administration-guide/onboard/sso-saml-keycloak.html)"
+
+msgid "[MediaWiki Documentation](https://www.mediawiki.org/wiki/Manual:Configuration_settings)"
+msgstr ""
 
 # libretranslate
 msgid "[MediaWiki Official Website](https://www.mediawiki.org/)"
@@ -71418,6 +71456,9 @@ msgstr "[Prageeth Panicker](https://github.com/pragepani): Ról Pi-poll agus a s
 msgid "[Prageeth Panicker](https://github.com/pragepani): web-app-n8n role (workflow automation, edge-header SSO, LDAP, Playwright)"
 msgstr "[Prageeth Panicker](https://github.com/pragepani): web-app-n8n Ról na Gaeilge (uathoibriú sreabhadh oibre, SSO imeall-ceannaire, LDAP, Playwright)"
 
+msgid "[Pretix Documentation](https://docs.pretix.eu/en/latest/)"
+msgstr ""
+
 # libretranslate
 msgid "[Pretix GitHub Repository](https://github.com/pretix/pretix)"
 msgstr "[Córais stiúrtha](https://github.com/pretix/pretix)"
@@ -71425,6 +71466,9 @@ msgstr "[Córais stiúrtha](https://github.com/pretix/pretix)"
 # libretranslate
 msgid "[Pretix Official Website](https://pretix.eu/)"
 msgstr "[Láithreán Gréasáin Oifigiúil Réamhshocrú](https://pretix.eu/)"
+
+msgid "[Prometheus Documentation](https://prometheus.io/docs/)"
+msgstr ""
 
 # libretranslate
 msgid "[Prometheus](https://prometheus.io/) is an open-source systems monitoring and alerting toolkit that collects and stores time-series metrics and provides a powerful query language (PromQL)."
@@ -71672,6 +71716,9 @@ msgstr "[Stóráil Optimizer](roles/svc-opt-ssd-hdd/)"
 msgid "[Subnetting Basics](https://www.scaleuptech.com/de/blog/was-ist-und-wie-funktioniert-subnetting/)"
 msgstr "[Buneolas Fhorlíonadh](https://www.scaleuptech.com/de/blog/was-ist-und-wie-funktioniert-subnetting/)"
 
+msgid "[SuiteCRM Documentation](https://docs.suitecrm.com/) 📖"
+msgstr ""
+
 # libretranslate
 msgid "[SuiteCRM Official Website](https://suitecrm.com/) 🌍"
 msgstr "[Láithreán Gréasáin Oifigiúil SuiteCRM](https://suitecrm.com/) 🌍"
@@ -71801,6 +71848,9 @@ msgstr "[WireGuard Cliant taobh thiar de NAT](roles/svc-net-wireguard-firewalled
 msgid "[WireGuard Connection Dies on Ubuntu](https://serverfault.com/questions/1086297/wireguard-connection-dies-on-ubuntu-peer)"
 msgstr "[Dies Ceangal WireGuard ar Ubuntu](https://serverfault.com/questions/1086297/wireguard-connection-dies-on-ubuntu-peer)"
 
+msgid "[WireGuard Documentation](https://www.wireguard.com/)"
+msgstr ""
+
 # libretranslate
 msgid "[WireGuard NAT and Firewall Issues](https://serverfault.com/questions/210408/cannot-ssh-debug1-expecting-ssh2-msg-kex-dh-gex-reply)"
 msgstr "[WireGuard NAT agus Firewall Saincheisteanna](https://serverfault.com/questions/210408/cannot-ssh-debug1-expecting-ssh2-msg-kex-dh-gex-reply)"
@@ -71844,6 +71894,9 @@ msgstr "[Domhanda Leathanaigh](roles/web-opt-rdr-www/)"
 msgid "[XMPP](roles/web-svc-xmpp/)"
 msgstr "[XMPP](roles/web-svc-xmpp/)"
 
+msgid "[XWiki Documentation](https://www.xwiki.org/xwiki/bin/view/Documentation/)"
+msgstr ""
+
 # libretranslate
 msgid "[XWiki GitHub Repository](https://github.com/xwiki/xwiki-platform)"
 msgstr "[Córas Bainistíochta](https://github.com/xwiki/xwiki-platform)"
@@ -71871,6 +71924,9 @@ msgstr "[Seirbhís do Chustaiméirí](https://senders.yahooinc.com/) - Soláthra
 # libretranslate
 msgid "[Youtube Tutorial](https://www.youtube.com/watch?v=fvxQ8bW0vO8)"
 msgstr "[Youtube Tutorial](https://www.youtube.com/watch?v=fvxQ8bW0vO8)"
+
+msgid "[Zammad Docker Compose Documentation](https://docs.zammad.org/en/latest/install/docker-compose.html)"
+msgstr ""
 
 # libretranslate
 msgid "[Zammad GitHub](https://github.com/zammad/zammad)"
@@ -72614,10 +72670,6 @@ msgid "[n8n](https://n8n.io/) is an open-source workflow automation platform. Co
 msgstr "[n8n](https://n8n.io/) Is ardán uathoibriú sreabhadh oibre foinse oscailte. seirbhísí nasc, sonraí a athrú, agus comhtháthú a thógáil ag baint úsáide as eagarthóir físe íseal-chód nó nó nóid saincheaptha JavaScript/Python."
 
 # libretranslate
-msgid "[n8n](roles/web-app-n8n/)"
-msgstr "[n8n](roles/web-app-n8n/)"
-
-# libretranslate
 msgid "[network/](network/) for DNS and IPv6 helpers"
 msgstr "[líonra /](network/) do DNS agus IPv6 cúntóirÃ"
 
@@ -72658,6 +72710,9 @@ msgstr "[pacman](https://wiki.archlinux.org/title/pacman)"
 msgid "[pdsadmin GitHub Repository](https://github.com/lhaig/pdsadmin)"
 msgstr "[Córais stiúrtha](https://github.com/lhaig/pdsadmin)"
 
+msgid "[pgAdmin Documentation](https://www.pgadmin.org/docs/)"
+msgstr ""
+
 # libretranslate
 msgid "[pgAdmin Official Homepage](https://www.pgadmin.org/)"
 msgstr "[PgAdmin leathanach oifigiúil](https://www.pgadmin.org/)"
@@ -72665,6 +72720,9 @@ msgstr "[PgAdmin leathanach oifigiúil](https://www.pgadmin.org/)"
 # libretranslate
 msgid "[phpLDAPadmin Docker Container Documentation](https://github.com/leenooks/phpLDAPadmin/wiki/Docker-Container)"
 msgstr "[phpLDAPadmin Docker coimeádán Documentation](https://github.com/leenooks/phpLDAPadmin/wiki/Docker-Container)"
+
+msgid "[phpLDAPadmin Documentation](https://github.com/leenooks/phpLDAPadmin/wiki/Docker-Container)"
+msgstr ""
 
 # libretranslate
 msgid "[pipeline.md](../../../artefact/git/pipeline.md): how the orchestrator routes PR runs."
@@ -83090,9 +83148,6 @@ msgstr "mo sheirbhís:"
 # libretranslate
 msgid "n/a"
 msgstr "n/a"
-
-msgid "n8n"
-msgstr ""
 
 # libretranslate
 msgid "n8n 1.100.1 Integration"

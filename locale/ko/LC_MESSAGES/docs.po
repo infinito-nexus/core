@@ -10458,10 +10458,6 @@ msgid "**mode** -- which of ``compose``/``swarm``/``host`` the row deploys in, d
 msgstr "**지원하다** -- 의 ``compose``·``swarm``·``host`` 행에 배치, 모드에서 그려진 역할은 실제로 제공합니다. 대부분의 두 가지에 있음을 연습하십시오 : swarm은 자신의 스택을 발송하는 역할을 필요로하며 호스트는하지 않습니다. ``(position + sweep) % len(offered)`` 따라서 연속 스윕에 두 개의 모드 사이의 행을 플립합니다."
 
 # libretranslate
-msgid "**n8n**"
-msgstr "**₢ 킹8₢ 킹**"
-
-# libretranslate
 msgid "**navigator**"
 msgstr "**뚱 베어**"
 
@@ -15142,7 +15138,7 @@ msgstr "아래에 추가 `meta/addons/` MAY 선언 `incompatible_plugins` 목록
 msgid "An addon whose pinned version is behind the latest upstream release."
 msgstr "새 버전이 최신 업스트림 릴리스 뒤에있는 애드온."
 
-msgid "An address is matched before that, on the raw text: masking protects the address of ``mailto:a@b.c`` but leaves the scheme behind, so its prose reads as a word."
+msgid "An address is matched before that, on the raw text, because a URL carries the characters the stripping removes."
 msgstr ""
 
 msgid "An app that needs an extra mapper MUST add it through a per-client scope. See [nextcloud.json.j2](../../../../roles/web-app-keycloak/templates/import/scopes/nextcloud.json.j2) for the precedent: a dedicated scope holds the Nextcloud-specific UID and quota mappers and is attached only to the Nextcloud client."
@@ -40897,6 +40893,24 @@ msgstr ""
 msgid "Redirector"
 msgstr ""
 
+msgid "Redis ``cache``"
+msgstr ""
+
+msgid "Redis ``queue``"
+msgstr ""
+
+msgid "Redis ``socketio``"
+msgstr ""
+
+msgid "Redis `cache`"
+msgstr ""
+
+msgid "Redis `queue`"
+msgstr ""
+
+msgid "Redis `socketio`"
+msgstr ""
+
 msgid "Redis blocked sidecar path"
 msgstr ""
 
@@ -49378,9 +49392,6 @@ msgstr ""
 msgid "The companion [027-integration-matrix.md](027-integration-matrix.md) is a generated role×role matrix over the entity names of every `web-app-*` and `web-svc-*` role. Each cell marks whether the **row** role wires in the **column** role:"
 msgstr ""
 
-msgid "The comparison runs against the prose, so the markdown a heading wraps the name in falls away first: ``**Mastodon**`` is the product under emphasis, not a phrase about it. Case is ignored because a page writes the name the way its sentence needs it, and ``**mailu**`` is still Mailu."
-msgstr ""
-
 msgid "The complete model is machine-readable in [`schema.yml`](schema.yml)."
 msgstr ""
 
@@ -49503,6 +49514,9 @@ msgid "The declared codes, empty when the app declares none for this domain."
 msgstr ""
 
 msgid "The declared keys mapped to their codes, dropping keys that declare nothing usable."
+msgstr ""
+
+msgid "The decoration a page wraps the name in is removed first; see :func:`_bare`. Case is ignored because a page writes the name the way its sentence needs it, and ``**mailu**`` is still Mailu."
 msgstr ""
 
 msgid "The dedicated oauth2-proxy provider role (its directory under *roles/*) is deleted; the 5 sidecar templates and the per-consumer render task fold into **web-app-keycloak** (*templates/sso_proxy/*, *tasks/sso_proxy.yml*). **web-app-keycloak** now declares **provides: sso**."
@@ -61523,6 +61537,9 @@ msgstr ""
 msgid "[Bluesky](https://bsky.social/) is a decentralized social network that runs on the open AT Protocol. Each user account lives on a Personal Data Server (PDS) that holds the user's posts, replies, and follows as signed records, and any number of independent app views can read those records to render a timeline."
 msgstr ""
 
+msgid "[BookWyrm Documentation](https://docs.joinbookwyrm.com/)"
+msgstr ""
+
 msgid "[BookWyrm GitHub](https://github.com/bookwyrm-social/bookwyrm)"
 msgstr ""
 
@@ -61530,6 +61547,9 @@ msgid "[Boy Scout Rule](https://en.wikipedia.org/wiki/Leaving_the_world_a_better
 msgstr ""
 
 msgid "[Branch Protection](docs/contributing/tools/github/branch/security.md): Rules enforced on the `main` branch."
+msgstr ""
+
+msgid "[Bridgy Fed Documentation](https://bridgy-fed.readthedocs.io/)"
 msgstr ""
 
 msgid "[Bridgy Fed Official Site](https://fed.brid.gy/)"
@@ -61738,6 +61758,9 @@ msgstr ""
 msgid "[Development Hub](https://s.infinito.nexus/development) - general developer discussion and contributor guidance."
 msgstr ""
 
+msgid "[Discourse Documentation](https://meta.discourse.org/t/discourse-setup-guide/21966)"
+msgstr ""
+
 msgid "[Discourse GitHub Repository](https://github.com/discourse/discourse_docker.git)"
 msgstr ""
 
@@ -61808,6 +61831,9 @@ msgid "[ERPNext](https://erpnext.com/) is an open-source ERP suite built on the 
 msgstr ""
 
 msgid "[Enable Single Sign-On (SSO)](https://baserow.io/user-docs/enable-single-sign-on-sso)"
+msgstr ""
+
+msgid "[EspoCRM Documentation](https://docs.espocrm.com/) 📖"
 msgstr ""
 
 msgid "[EspoCRM Official Website](https://www.espocrm.com/) 🌍"
@@ -62032,6 +62058,9 @@ msgstr ""
 msgid "[Jitsi prosody plugins (jitsi-contrib)](https://github.com/jitsi-contrib/prosody-plugins)"
 msgstr ""
 
+msgid "[Joomla Documentation](https://docs.joomla.org/)"
+msgstr ""
+
 msgid "[Joomla Official Website](https://www.joomla.org/)"
 msgstr ""
 
@@ -62254,6 +62283,9 @@ msgstr ""
 msgid "[Mastodon Configuration Guide](https://gist.github.com/TrillCyborg/84939cd4013ace9960031b803a0590c4)"
 msgstr ""
 
+msgid "[Mastodon Documentation](https://docs.joinmastodon.org/)"
+msgstr ""
+
 msgid "[Mastodon GitHub Issues](https://github.com/mastodon/mastodon/issues/7958)"
 msgstr ""
 
@@ -62264,6 +62296,9 @@ msgid "[Matomo Official Website](https://matomo.org/)"
 msgstr ""
 
 msgid "[Matomo](roles/web-app-matomo/), [Prometheus](roles/web-app-prometheus/), [Tor Onion Service](roles/svc-net-tor/)"
+msgstr ""
+
+msgid "[Matrix Documentation](https://matrix.org/docs/)"
 msgstr ""
 
 msgid "[Matrix Official Website](https://matrix.org/)"
@@ -62279,6 +62314,9 @@ msgid "[Mattermost MCP Server docs](https://github.com/mattermost/mattermost-plu
 msgstr ""
 
 msgid "[Mattermost SSO Integration Guide](https://docs.mattermost.com/administration-guide/onboard/sso-saml-keycloak.html)"
+msgstr ""
+
+msgid "[MediaWiki Documentation](https://www.mediawiki.org/wiki/Manual:Configuration_settings)"
 msgstr ""
 
 msgid "[MediaWiki Official Website](https://www.mediawiki.org/)"
@@ -62536,10 +62574,16 @@ msgstr ""
 msgid "[Prageeth Panicker](https://github.com/pragepani): web-app-n8n role (workflow automation, edge-header SSO, LDAP, Playwright)"
 msgstr ""
 
+msgid "[Pretix Documentation](https://docs.pretix.eu/en/latest/)"
+msgstr ""
+
 msgid "[Pretix GitHub Repository](https://github.com/pretix/pretix)"
 msgstr ""
 
 msgid "[Pretix Official Website](https://pretix.eu/)"
+msgstr ""
+
+msgid "[Prometheus Documentation](https://prometheus.io/docs/)"
 msgstr ""
 
 msgid "[Prometheus](https://prometheus.io/) is an open-source systems monitoring and alerting toolkit that collects and stores time-series metrics and provides a powerful query language (PromQL)."
@@ -62728,6 +62772,9 @@ msgstr ""
 msgid "[Subnetting Basics](https://www.scaleuptech.com/de/blog/was-ist-und-wie-funktioniert-subnetting/)"
 msgstr ""
 
+msgid "[SuiteCRM Documentation](https://docs.suitecrm.com/) 📖"
+msgstr ""
+
 msgid "[SuiteCRM Official Website](https://suitecrm.com/) 🌍"
 msgstr ""
 
@@ -62827,6 +62874,9 @@ msgstr ""
 msgid "[WireGuard Connection Dies on Ubuntu](https://serverfault.com/questions/1086297/wireguard-connection-dies-on-ubuntu-peer)"
 msgstr ""
 
+msgid "[WireGuard Documentation](https://www.wireguard.com/)"
+msgstr ""
+
 msgid "[WireGuard NAT and Firewall Issues](https://serverfault.com/questions/210408/cannot-ssh-debug1-expecting-ssh2-msg-kex-dh-gex-reply)"
 msgstr ""
 
@@ -62860,6 +62910,9 @@ msgstr ""
 msgid "[XMPP](roles/web-svc-xmpp/)"
 msgstr ""
 
+msgid "[XWiki Documentation](https://www.xwiki.org/xwiki/bin/view/Documentation/)"
+msgstr ""
+
 msgid "[XWiki GitHub Repository](https://github.com/xwiki/xwiki-platform)"
 msgstr ""
 
@@ -62879,6 +62932,9 @@ msgid "[Yahoo Sender Hub](https://senders.yahooinc.com/) - Provides insights and
 msgstr ""
 
 msgid "[Youtube Tutorial](https://www.youtube.com/watch?v=fvxQ8bW0vO8)"
+msgstr ""
+
+msgid "[Zammad Docker Compose Documentation](https://docs.zammad.org/en/latest/install/docker-compose.html)"
 msgstr ""
 
 msgid "[Zammad GitHub](https://github.com/zammad/zammad)"
@@ -63458,9 +63514,6 @@ msgstr ""
 msgid "[n8n](https://n8n.io/) is an open-source workflow automation platform. Connect services, transform data, and build integrations using a visual low-code editor or custom JavaScript/Python nodes."
 msgstr ""
 
-msgid "[n8n](roles/web-app-n8n/)"
-msgstr ""
-
 msgid "[network/](network/) for DNS and IPv6 helpers"
 msgstr ""
 
@@ -63492,10 +63545,16 @@ msgstr ""
 msgid "[pdsadmin GitHub Repository](https://github.com/lhaig/pdsadmin)"
 msgstr ""
 
+msgid "[pgAdmin Documentation](https://www.pgadmin.org/docs/)"
+msgstr ""
+
 msgid "[pgAdmin Official Homepage](https://www.pgadmin.org/)"
 msgstr ""
 
 msgid "[phpLDAPadmin Docker Container Documentation](https://github.com/leenooks/phpLDAPadmin/wiki/Docker-Container)"
+msgstr ""
+
+msgid "[phpLDAPadmin Documentation](https://github.com/leenooks/phpLDAPadmin/wiki/Docker-Container)"
 msgstr ""
 
 msgid "[pipeline.md](../../../artefact/git/pipeline.md): how the orchestrator routes PR runs."
@@ -71440,9 +71499,6 @@ msgid "myservice:"
 msgstr ""
 
 msgid "n/a"
-msgstr ""
-
-msgid "n8n"
 msgstr ""
 
 msgid "n8n 1.100.1 Integration"
