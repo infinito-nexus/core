@@ -37,6 +37,8 @@ agent-broker:
     access_cache_seconds: 60
   run_after:
     - svc-ai-litellm
+  guide_companions:
+    - svc-ai-ollama
   lifecycle: beta
 
 # nocheck: shared

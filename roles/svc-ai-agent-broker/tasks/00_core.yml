@@ -13,7 +13,8 @@
     that:
       - AGENT_BROKER_MODEL | length > 0
       - AGENT_BROKER_MODEL is not search('[{][{]')
-    fail_msg: "services.agent-broker.agents.model resolved to '{{ AGENT_BROKER_MODEL }}'; every agent would ask the gateway for it."
+    fail_msg: "services.agent-broker.agents.model resolved to '{{ AGENT_BROKER_MODEL }}'; every agent would ask the gateway for it. Deploy a backend role (svc-ai-ollama,
+      svc-ai-lmstudio) alongside the broker, or configure a provider key on svc-ai-litellm."
     quiet: true
 
 - name: "⚠️ Report a platform this model cannot serve"

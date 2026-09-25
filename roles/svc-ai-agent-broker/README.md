@@ -60,7 +60,7 @@ Clone, set up the workstation, and deploy Agent Broker onto the local stack:
 git clone https://github.com/infinito-nexus/core.git
 cd core
 make onboard
-make compose-deploy mode=reinstall apps=svc-ai-agent-broker full_cycle=false
+make compose-deploy mode=reinstall apps=svc-ai-agent-broker,svc-ai-ollama full_cycle=false
 ```
 
 ### Production
@@ -68,7 +68,7 @@ make compose-deploy mode=reinstall apps=svc-ai-agent-broker full_cycle=false
 Run the published image to provision the inventory and deploy Agent Broker to a managed server (the mounted volume persists the inventory):
 
 ```bash
-APP=svc-ai-agent-broker
+APP=svc-ai-agent-broker,svc-ai-ollama
 HOST=<your-server>
 DOMAIN=<your-domain>
 TLS_MODE=self_signed

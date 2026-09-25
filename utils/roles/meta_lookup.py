@@ -124,6 +124,42 @@ def get_role_run_after(role: PathLike, *, role_name: str | None = None) -> list[
     return out
 
 
+def get_role_guide_companions(
+    role: PathLike, *, role_name: str | None = None
+) -> list[str]:
+    """Return the role ids the documented deploy has to name alongside this one.
+
+    A role whose own asserts need something the dependency closure does not
+    supply (a served model, a second backend) carries them here, because
+    ``--include`` filters the generated inventory to the ids it is given
+    literally: a provider pulled in as a dependency runs, but never joins
+    ``group_names``, so a flag gated on that stays false and the deploy the
+    README documents stops on the assert.
+    """
+    role_dir, name = _resolve_role(role, role_name)
+    services = _read_meta_services(role_dir)
+    primary = _primary_entry(name, services)
+    if primary is None:
+        return []
+    raw = primary.get("guide_companions")
+    if raw is None:
+        return []
+    if not isinstance(raw, list):
+        raise MetaServicesShapeError(
+            f"Invalid guide_companions type in meta/services.yml for role "
+            f"'{name}': expected list, got {type(raw).__name__}."
+        )
+    out: list[str] = []
+    for item in raw:
+        if not isinstance(item, str) or not item.strip():
+            raise MetaServicesShapeError(
+                f"Invalid guide_companions entry in meta/services.yml for role "
+                f"'{name}': {item!r} (expected non-empty string)."
+            )
+        out.append(item.strip())
+    return out
+
+
 def get_role_lifecycle(role: PathLike, *, role_name: str | None = None) -> str | None:
     """Return the role's ``lifecycle`` string (or ``None`` when absent)."""
     role_dir, name = _resolve_role(role, role_name)

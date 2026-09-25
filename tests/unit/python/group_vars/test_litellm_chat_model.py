@@ -243,5 +243,47 @@ class TestAiRemoteAliases(unittest.TestCase):
         self.assertEqual(self._render(set()), [])
 
 
+class TestAiAgentModel(unittest.TestCase):
+    """Every agent the broker starts asks the gateway for this alias, and
+    roles/svc-ai-agent-broker/tasks/00_core.yml stops the deploy when it is
+    empty. A deployment that carries neither a mock nor a backend nor a
+    provider key resolves to '', so the two sources are pinned together.
+    """
+
+    template: ClassVar[str]
+
+    @classmethod
+    def setUpClass(cls):
+        cls.template = load_yaml(_AI_VARS)["AI_AGENT_MODEL"]
+
+    def _render(self, *, mock_aliases, chat_model):
+        env = Environment(undefined=StrictUndefined, autoescape=False)  # noqa: S701 - renders a bare alias, not markup
+        return env.from_string(self.template).render(
+            AI_MOCK_ALIASES=list(mock_aliases), LITELLM_CHAT_MODEL=chat_model
+        )
+
+    def test_a_declared_mock_is_preferred_over_the_served_model(self):
+        self.assertEqual(
+            self._render(
+                mock_aliases=["mock/deterministic"], chat_model="qwen2.5:0.5b"
+            ),
+            "mock/deterministic",
+        )
+
+    def test_without_a_mock_the_served_model_answers(self):
+        self.assertEqual(
+            self._render(mock_aliases=[], chat_model="qwen2.5:0.5b"), "qwen2.5:0.5b"
+        )
+
+    def test_neither_a_mock_nor_a_served_model_names_nothing(self):
+        self.assertEqual(
+            self._render(mock_aliases=[], chat_model=""),
+            "",
+            "a broker deployed without a backend role and without a provider "
+            "key has no model to start its agents on, which 00_core.yml turns "
+            "into a stopped deploy rather than agents that all answer 400",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

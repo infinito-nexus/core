@@ -6,6 +6,8 @@
 
   Required context:
     application_id           Role id used in the Quick Setup commands (e.g. web-app-matrix).
+    application_deploy_ids   That id plus meta/services.yml guide_companions, comma-joined,
+                             because --include filters the inventory literally.
     application_name         Human-readable software name (H1, no role id).
     application_url          Official website; linked on first use in Description.
     application_description  One paragraph about the SOFTWARE (not the role).
@@ -67,7 +69,7 @@ Clone, set up the workstation, and deploy {{ application_name }} onto the local 
 git clone https://github.com/infinito-nexus/core.git
 cd core
 make onboard
-make compose-deploy mode=reinstall apps={{ application_id }} full_cycle=false
+make compose-deploy mode=reinstall apps={{ application_deploy_ids }} full_cycle=false
 ```
 
 ### Production
@@ -82,7 +84,7 @@ bash scripts/install/package.sh
 make install
 source scripts/meta/env/load.sh
 
-APP={{ application_id }}
+APP={{ application_deploy_ids }}
 DOMAIN=<your-domain>
 {% if application_needs_clearnet_resolver -%}
 DNS=<your-clearnet-resolver>
@@ -103,7 +105,7 @@ infinito administration deploy dedicated "$INVENTORY/devices.yml" \
 Run the published image to provision the inventory and deploy {{ application_name }} to a managed server (the mounted volume persists the inventory):
 
 ```bash
-APP={{ application_id }}
+APP={{ application_deploy_ids }}
 HOST=<your-server>
 DOMAIN=<your-domain>
 {% if application_needs_clearnet_resolver -%}
