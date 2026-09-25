@@ -9,6 +9,8 @@ from docutils.frontend import get_default_settings
 from docutils.parsers.rst import Parser
 from docutils.utils import new_document
 
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
+
 from . import PROJECT_ROOT
 
 _TOOLING = str(PROJECT_ROOT / "roles" / "web-app-docs" / "files" / "python")
@@ -46,7 +48,7 @@ class TestYamlParser(unittest.TestCase):
         )
 
     def test_the_page_is_titled_after_the_file(self) -> None:
-        document = _parsed("/src/roles/web-app-x/meta/services.yml")
+        document = _parsed(f"/src/roles/web-app-x/{ROLE_FILE_META_SERVICES}")
 
         titles = [node.astext() for node in document.findall(nodes.title)]
         self.assertEqual(titles, ["services.yml"])

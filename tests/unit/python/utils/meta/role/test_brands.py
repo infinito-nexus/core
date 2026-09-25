@@ -5,6 +5,7 @@ import unittest
 from pathlib import Path
 
 from utils.meta.role.brands import brand_titles, is_brand, squashed
+from utils.roles.mapping import ROLE_FILE_META_INFO, ROLE_FILE_META_SERVICES
 
 
 class TestIsBrand(unittest.TestCase):
@@ -18,11 +19,11 @@ class TestIsBrand(unittest.TestCase):
         (role / "meta").mkdir(parents=True)
         (role / "README.md").write_text(f"# {title}\n", encoding="utf-8")
         if homepage:
-            (role / "meta" / "info.yml").write_text(
+            (role / ROLE_FILE_META_INFO).write_text(
                 f"homepage: {homepage}\n", encoding="utf-8"
             )
         if image:
-            (role / "meta" / "services.yml").write_text(
+            (role / ROLE_FILE_META_SERVICES).write_text(
                 f"main:\n  image: {image}\n", encoding="utf-8"
             )
         return role

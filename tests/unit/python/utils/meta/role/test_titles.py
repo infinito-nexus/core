@@ -6,6 +6,7 @@ from pathlib import Path
 
 from utils.meta.role.names import role_names
 from utils.meta.role.titles import role_title, role_titles
+from utils.roles.mapping import ROLE_FILE_META_MAIN
 
 
 class TestRoleTitle(unittest.TestCase):
@@ -21,7 +22,7 @@ class TestRoleTitle(unittest.TestCase):
         self.assertEqual(role_title(self.role), "Demo App")
 
     def test_the_metadata_name_stands_in_without_a_heading(self) -> None:
-        (self.role / "meta" / "main.yml").write_text(
+        (self.role / ROLE_FILE_META_MAIN).write_text(
             "galaxy_info:\n  name: Declared Name\n", encoding="utf-8"
         )
 
@@ -29,7 +30,7 @@ class TestRoleTitle(unittest.TestCase):
 
     def test_the_heading_wins_over_the_metadata(self) -> None:
         (self.role / "README.md").write_text("# Demo App\n", encoding="utf-8")
-        (self.role / "meta" / "main.yml").write_text(
+        (self.role / ROLE_FILE_META_MAIN).write_text(
             "galaxy_info:\n  name: Declared Name\n", encoding="utf-8"
         )
 
