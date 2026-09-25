@@ -1,11 +1,14 @@
 ---
-pi:
+codex:
   modes:
     host:
       enabled: true
   lifecycle: alpha
+  bond: 1
+  enabled: true
+  shared: true
   gateway_url: ""
-  models: []
+  model: ""
   min_storage: "500MB"
   cpus: "1.0"
   mem_reservation: "256m"

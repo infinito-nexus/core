@@ -4,6 +4,9 @@ claude:
     host:
       enabled: true
   lifecycle: alpha
+  bond: 1
+  enabled: true
+  shared: true
   gateway_url: ""
   model: ""
   background_model: ""
@@ -12,3 +15,8 @@ claude:
   mem_reservation: "256m"
   mem_limit: "1g"
   pids_limit: 512
+# nocheck: playwright-service-flag, dynamic-flag  AI backend, infrastructural, and a single shared instance
+litellm:
+  bond: 1
+  enabled: "{{ LITELLM_USABLE }}"
+  shared: true

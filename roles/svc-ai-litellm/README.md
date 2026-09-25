@@ -15,19 +15,22 @@ The diagram places LiteLLM Gateway in the Infinito.Nexus cosmos: the components 
 ```mermaid
 flowchart LR
     subgraph deps [Dependencies]
-        dep_svc_ai_jeff["svc-ai-jeff 🐳🐝"]
         dep_svc_ai_lmstudio["svc-ai-lmstudio 🐳🐝"]
         dep_svc_ai_ollama["svc-ai-ollama 🐳🐝"]
+        dep_svc_ai_s1["svc-ai-s1 🐳🐝"]
         dep_svc_db_postgres["svc-db-postgres 🐳🐝"]
     end
     subgraph role [svc-ai-litellm 🐳🐝]
         svc_litellm["litellm"]
         svc_postgres["postgres"]
-        svc_jeff["jeff"]
+        svc_s1["s1"]
         svc_ollama["ollama"]
         svc_lmstudio["lmstudio"]
     end
     subgraph dependents [Dependents]
+        dpt_dsk_gnt_claude["dsk-gnt-claude 💻"]
+        dpt_dsk_gnt_codex["dsk-gnt-codex 💻"]
+        dpt_dsk_gnt_pi["dsk-gnt-pi 💻"]
         dpt_svc_ai_agent_broker["svc-ai-agent-broker 🐳🐝"]
         dpt_web_app_discourse["web-app-discourse 🐳🐝"]
         dpt_web_app_flowise["web-app-flowise 🐳🐝"]
@@ -37,15 +40,15 @@ flowchart LR
         dpt_web_app_mattermost["web-app-mattermost 🐳🐝"]
         dpt_web_app_mediawiki["web-app-mediawiki 🐳🐝"]
         dpt_web_app_moodle["web-app-moodle 🐳🐝"]
-        dpt_web_app_n8n["web-app-n8n 🐳🐝"]
-        dpt_web_app_nextcloud["web-app-nextcloud 🐳🐝"]
-        dpt_web_app_openclaw["web-app-openclaw 🐳🐝"]
         dpt_more["..."]
     end
-    dep_svc_ai_jeff -. "0..1" .-> svc_jeff
     dep_svc_ai_lmstudio -. "0..1" .-> svc_lmstudio
     dep_svc_ai_ollama -. "0..1" .-> svc_ollama
+    dep_svc_ai_s1 -. "0..1" .-> svc_s1
     dep_svc_db_postgres -. "0..1" .-> svc_postgres
+    svc_litellm -. "0..1" .-> dpt_dsk_gnt_claude
+    svc_litellm -. "0..1" .-> dpt_dsk_gnt_codex
+    svc_litellm -. "0..1" .-> dpt_dsk_gnt_pi
     svc_litellm -- "1:1" --> dpt_more
     svc_litellm -- "1:1" --> dpt_svc_ai_agent_broker
     svc_litellm -. "0..1" .-> dpt_web_app_discourse
@@ -56,9 +59,6 @@ flowchart LR
     svc_litellm -. "0..1" .-> dpt_web_app_mattermost
     svc_litellm -. "0..1" .-> dpt_web_app_mediawiki
     svc_litellm -. "0..1" .-> dpt_web_app_moodle
-    svc_litellm -. "0..1" .-> dpt_web_app_n8n
-    svc_litellm -. "0..1" .-> dpt_web_app_nextcloud
-    svc_litellm -. "0..1" .-> dpt_web_app_openclaw
 ```
 
 Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.

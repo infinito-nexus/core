@@ -3,8 +3,8 @@
   ansible.builtin.file:
     path: "{{ agnt_pi_models_path | dirname }}"
     state: directory
-    owner: "{{ lookup('users', WORKSTATION_USER).username }}"
-    group: "{{ lookup('users', WORKSTATION_USER).username }}"
+    owner: "{{ agnt_pi_user }}"
+    group: "{{ agnt_pi_user }}"
     mode: "0700"
 
 - name: 🔎 Look for models the user already keeps
@@ -28,7 +28,7 @@
   ansible.builtin.template: # nocheck: stack-host-template (workstation role; the file belongs to the local user and there is no compose stack to gate on)
     src: models.json.j2
     dest: "{{ agnt_pi_models_path }}"
-    owner: "{{ lookup('users', WORKSTATION_USER).username }}"
-    group: "{{ lookup('users', WORKSTATION_USER).username }}"
+    owner: "{{ agnt_pi_user }}"
+    group: "{{ agnt_pi_user }}"
     mode: "0600"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

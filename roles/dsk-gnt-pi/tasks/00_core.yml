@@ -9,6 +9,10 @@
   register: agnt_pi_install
   changed_when: "'added' in agnt_pi_install.stdout or 'changed' in agnt_pi_install.stdout"
 
+- name: "🔐 Verify the gateway contract for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
+  when: lookup('config', application_id, 'services.litellm.enabled', false) | bool
+
 - name: 🔑 Point the agent at the model gateway
   ansible.builtin.include_tasks: 01_gateway.yml
   when: agnt_pi_configured | bool
