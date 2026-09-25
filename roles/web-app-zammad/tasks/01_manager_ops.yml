@@ -1,27 +1,4 @@
 ---
-- name: "🎬 Stage Zammad host-side init files (local + swarm peers)"
-  ansible.builtin.include_tasks:
-    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
-  vars:
-    role_templates:
-      - src: "auto_wizard.json.j2"
-        dest: "{{ ZAMMAD_AUTO_WIZARD_HOST_PATH }}"
-        mode: "0644"
-      - src: "zz/omniauth_allow_get.rb.j2"
-        dest: "{{ ZAMMAD_OMNIAUTH_INIT_HOST_PATH }}"
-        mode: "0644"
-      - src: "telegram_helper_stub.rb.j2"
-        dest: "{{ ZAMMAD_TELEGRAM_HELPER_HOST_PATH }}"
-        mode: "0644"
-      - src: "zz/oidc/group_role_mapping.rb.j2"
-        dest: "{{ ZAMMAD_OIDC_GROUP_ROLE_MAP_HOST_PATH }}"
-        mode: "0644"
-        condition: "{{ ZAMMAD_OIDC_ENABLED }}"
-      - src: "zz/oidc/http_discovery.rb.j2"
-        dest: "{{ ZAMMAD_OIDC_HTTP_DISCOVERY_HOST_PATH }}"
-        mode: "0644"
-        condition: "{{ ZAMMAD_OIDC_ENABLED and ZAMMAD_HTTP_ONLY_ENABLED }}"
-
 - name: "🔐 grant CREATEDB to Zammad PostgreSQL role (init runs rake db:create)"
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
