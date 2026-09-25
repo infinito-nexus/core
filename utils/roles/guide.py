@@ -8,9 +8,10 @@ the README's Production block describes: the bare role, with the optional
 providers switched off.
 
 The replay is a second deploy on the same runner, so the row it picks must be
-one the guide can actually deploy: the README has to carry a Production block,
-and the guide's own mode (``compose`` for a role that ships a stack, ``host``
-for one installed onto the machine) has to be a mode the role runs and tests.
+one the guide can actually deploy: the role has to be invokable, because that
+is what makes the documentation build give it a Production block, and the
+guide's own mode (``compose`` for a role that ships a stack, ``host`` for one
+installed onto the machine) has to be a mode the role runs and tests.
 """
 
 from __future__ import annotations
@@ -18,17 +19,15 @@ from __future__ import annotations
 from functools import cache
 from typing import TYPE_CHECKING
 
-from utils.cache.files import PROJECT_ROOT, read_text
+from utils.cache.files import PROJECT_ROOT
 from utils.roles.deploy import role_has_stack
 from utils.roles.meta_lookup import get_role_mode_enabled, get_role_test_skips
+from utils.roles.validation.invokable import _get_invokable_paths, _is_role_invokable
 
 if TYPE_CHECKING:
     from collections.abc import Collection, Mapping, Sequence
     from typing import Any
 
-PRODUCTION_HEADING = "### Production"
-"""The README section :file:`scripts/github/guide/compose_deploy.sh` replays.
-A role without it has no instructions to test."""
 
 
 def _enabled_services(variant: Mapping[str, Any]) -> int:
@@ -74,8 +73,7 @@ def guide_deployable(app: str) -> str:
     row of every chunk.
     """
     role_dir = PROJECT_ROOT / "roles" / app
-    readme = role_dir / "README.md"
-    if not readme.is_file() or PRODUCTION_HEADING not in read_text(str(readme)):
+    if not _is_role_invokable(app, _get_invokable_paths()):
         return ""
     mode = "compose" if role_has_stack(role_dir) else "host"
     if mode in get_role_test_skips(role_dir, role_name=app):

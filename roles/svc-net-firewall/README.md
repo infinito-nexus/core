@@ -12,19 +12,6 @@ One table per role is what makes the rules composable. A fragment replaces its o
 
 Replacing beats adding. `nft -f` on an existing table merges, so a rule dropped from the declaration would stay in the kernel and the ruleset could only ever grow. Each fragment therefore creates, deletes and redeclares its table in one transaction, which is also why the table is never observed empty: unlike a flush followed by rules, there is no window in which the boundary is gone.
 
-## Cosmos
-
-The diagram places Firewall ruleset in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph role [svc-net-firewall 💻]
-        svc_firewall["firewall"]
-    end
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
-
 ## Features
 
 - **Owned per role:** Each consumer declares one table under its own name, so rules are added and retired with the role that needs them.
@@ -40,53 +27,8 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 
 A fragment can only ever be stricter than the host already is. In nftables an `accept` terminates its own base chain and nothing more: the packet still traverses every other chain at that hook, and a `drop` in any of them wins. A rule that has to overrule a policy someone else set, such as the `DROP` docker installs on forwarded packets, does not belong in a fragment at all; it belongs in the chain that carries that policy.
 
-## Quick Setup
-
-### Development
-
-Clone, set up the workstation, and deploy Firewall ruleset onto the local stack:
-
-```bash
-git clone https://github.com/infinito-nexus/core.git
-cd core
-make onboard
-make compose-deploy mode=reinstall apps=svc-net-firewall full_cycle=false
-```
-
-### Production
-
-Install Firewall ruleset directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):
-
-```bash
-git clone https://github.com/infinito-nexus/core.git
-cd core
-bash scripts/install/package.sh
-make install
-source scripts/meta/env/load.sh
-
-APP=svc-net-firewall
-DOMAIN=<your-domain>
-TLS_MODE=self_signed
-SSH_PUBLIC_KEY="<your-ssh-public-key>"
-INVENTORY=inventories/production
-infinito administration inventory provision "$INVENTORY" \
-  --inventory-file "$INVENTORY/devices.yml" \
-  --host localhost \
-  --include "$APP" \
-  --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}"
-infinito administration deploy dedicated "$INVENTORY/devices.yml" \
-  --password-file "$INVENTORY/.password" \
-  --diff -vv
-```
-
 ## Further Resources
 
 - [nftables Wiki](https://wiki.nftables.org/)
 - [nft(8) manual page](https://www.netfilter.org/projects/nftables/manpage.html)
 - [Moving from iptables to nftables](https://wiki.nftables.org/wiki-nftables/index.php/Moving_from_iptables_to_nftables)
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

@@ -40,7 +40,10 @@ def extract(src: Path, output: Path, jobs: int) -> None:
             shutil.copytree(
                 src / "assets" / "img", conf / "assets" / "img", dirs_exist_ok=True
             )
-        env = {**os.environ, "PYTHONPATH": os.pathsep.join([tooling, *inherited])}
+        env = {
+            **os.environ,
+            "PYTHONPATH": os.pathsep.join([str(src), tooling, *inherited]),
+        }
         for command in generate_commands(src):
             subprocess.run(command, check=True, env=env, cwd=scratch)
         subprocess.run(
@@ -60,7 +63,7 @@ def extract(src: Path, output: Path, jobs: int) -> None:
                 str(jobs),
             ],
             check=True,
-            env={**env, "PYTHONPATH": os.pathsep.join([str(src), tooling, *inherited])},
+            env=env,
             cwd=scratch,
         )
         shutil.copyfile(out / f"{DOMAIN}.pot", output)

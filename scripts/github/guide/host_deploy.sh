@@ -9,8 +9,7 @@ set -euo pipefail
 
 # Exception: strip the clone/cd lines because the checkout is already
 # mounted; running them would clone a fresh tree and lose the CI changes.
-awk '/^### Production$/{p=1} p && /^```bash$/{c=1; next} c && /^```$/{exit} c' \
-	"roles/${GUIDE_ROLE}/README.md" |
+python3 -m cli.build.docs.readme.production "${GUIDE_ROLE}" |
 	grep -vE '^git clone |^cd core$' >/tmp/host-deploy.sh
 test -s /tmp/host-deploy.sh
 

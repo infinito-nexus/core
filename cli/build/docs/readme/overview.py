@@ -210,7 +210,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"{readme_path.name}: overview up to date")
         return 0
     if args.check:
-        print(f"{readme_path.name}: overview outdated, run make readme-index")
+        print(f"{readme_path.name}: overview outdated")
         return 1
     readme_path.write_text(updated, encoding="utf-8")
     print(f"{readme_path.name}: overview updated")

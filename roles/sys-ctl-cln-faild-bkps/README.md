@@ -14,29 +14,6 @@ To avoid accidental data loss, the role **keeps the most recent backups by defau
 
 This role cleans up failed Docker backups by configuring a systemd service and timer to execute the cleanup operations periodically.
 
-## Cosmos
-
-The diagram places Cleanup Failed Backups in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph role [sys-ctl-cln-faild-bkps 💻]
-        svc_faild_bkps["faild-bkps"]
-    end
-    subgraph dependents [Dependents]
-        dpt_svc_bkp_nfs_2_local["svc-bkp-nfs-2-local 💻 ⚙️"]
-        dpt_svc_bkp_remote_2_local["svc-bkp-remote-2-local 💻 ⚙️"]
-        dpt_svc_bkp_secrets_2_local["svc-bkp-secrets-2-local 💻 ⚙️"]
-        dpt_svc_bkp_volume_2_local["svc-bkp-volume-2-local 💻 ⚙️"]
-    end
-    svc_faild_bkps -- "1:1" --> dpt_svc_bkp_nfs_2_local
-    svc_faild_bkps -- "1:1" --> dpt_svc_bkp_remote_2_local
-    svc_faild_bkps -- "1:1" --> dpt_svc_bkp_secrets_2_local
-    svc_faild_bkps -- "1:1" --> dpt_svc_bkp_volume_2_local
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
-
 ## Features
 
 - **Automated provisioning:** Configured by Ansible without manual steps.
@@ -96,9 +73,3 @@ This role is intended for servers that create regular Docker backups and need a 
 - Ensure recent backups are never touched
 
 No manual interaction is required once the role is deployed.
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

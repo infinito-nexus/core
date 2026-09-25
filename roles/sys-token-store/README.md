@@ -15,19 +15,6 @@ It only **stores and propagates tokens that already exist** (e.g. created by boo
 
 This role stores and manages per-user application tokens in a local YAML store file (idempotent read/write helpers).
 
-## Cosmos
-
-The diagram places sys-token-store in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph role [sys-token-store 💻]
-        svc_token_store["token-store"]
-    end
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
-
 ## Features
 
 - **Automated provisioning:** Configured by Ansible without manual steps.
@@ -145,9 +132,3 @@ It is a **generic infrastructure helper**.
 - Let `sys-token-store` handle persistence
 
 ---
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

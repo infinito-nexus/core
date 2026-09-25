@@ -270,13 +270,6 @@ compose-up: install
 console:
 	@"$${PYTHON}" -m cli.console
 
-.PHONY: cosmos
-# Regenerate the '## Cosmos' mermaid diagram in every role README (or one role).
-# Usage: make cosmos [role=<id>]
-# Param role: single role id (default: all roles)
-cosmos:
-	@"$${PYTHON}" -m cli.build.docs.readme $(role) --update-cosmos
-
 .PHONY: diagnose-disk-usage
 # Show disk and Docker resource usage to identify what to clean up.
 diagnose-disk-usage:
@@ -287,13 +280,6 @@ diagnose-disk-usage:
 # Note: covers DNS, TCP, TLS, and PMTU on both IPv4 and IPv6.
 diagnose-network:
 	@$(MAKE) compose-exec cmd="python3 -m cli.contributing.network.diagnose"
-
-.PHONY: docs
-# Regenerate generated documentation: role Cosmos diagrams, Quick Setup blocks, the root-README roles index, and the MCP audit report.
-docs:
-	@"$(MAKE)" cosmos
-	@"$(MAKE)" readme-generate quick_setup=true
-	@"$(MAKE)" readme-index
 
 .PHONY: dotenv
 # Regenerate .env (SPOT) from default.env + runtime context.
@@ -629,36 +615,14 @@ onboard: bootstrap install-skills install-alias environment-bootstrap
 	@"$(MAKE)" compose-exec cmd="bash scripts/install/dev-extras.sh"
 
 .PHONY: quality
-# Regenerate generated docs, autoformat, then run the full test suite (pre-commit gate).
+# Autoformat, then run the full test suite (pre-commit gate).
 quality:
-	@"$(MAKE)" docs
 	@"$(MAKE)" autoformat
 	@"$(MAKE)" test
 
 .PHONY: quality-high
 # Full gate: quality (autoformat + test) followed by every lint check.
 quality-high: quality lint
-
-.PHONY: readme-check
-# Verify every role README matches the schema template (writes nothing; fails if any would change).
-readme-check:
-	@"$${PYTHON}" -m cli.build.docs.readme --check
-
-.PHONY: readme-generate
-# Generate/complete role README.md files from templates/roles/README.md.j2.tmpl.
-# Usage: make readme-generate [role=<id>] [override=true] [cosmos=true] [quick_setup=true]
-# Param role: single role id (default: all roles)
-# Param override: true regenerates managed sections even when present
-# Param cosmos: true regenerates only the Cosmos diagram
-# Param quick_setup: true regenerates only the Quick Setup section
-readme-generate:
-	@"$${PYTHON}" -m cli.build.docs.readme $(role) $(if $(filter true,$(override)),--override) $(if $(filter true,$(cosmos)),--update-cosmos) $(if $(filter true,$(quick_setup)),--update-quick-setup)
-
-.PHONY: readme-index
-# Regenerate the invokable-role overview table in the root README.md.
-# Param check: true verifies only and fails when the table is outdated
-readme-index:
-	@"$${PYTHON}" -m cli.build.docs.readme.overview $(if $(filter true,$(check)),--check)
 
 .PHONY: requirements-archive
 # Archive fully-checked requirement files via pkgmgr (installs kpmx if missing).

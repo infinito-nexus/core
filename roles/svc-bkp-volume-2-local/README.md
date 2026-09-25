@@ -10,55 +10,6 @@ File payloads are captured with rsync hard-link snapshots; databases register th
 This role installs the `baudolo` CLI, lays out the on-host backup tree, deploys the systemd service that drives the periodic run, and wires the cleanup-of-failed-backups dependency so partial snapshots are not retained.
 Database seeding for individual apps is contributed by the consumer roles via `tasks/03_seed-database-to-backup.yml`, which they include conditionally once `svc-bkp-volume-2-local` is in `group_names`.
 
-## Cosmos
-
-The diagram places Backup Docker Volumes in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph deps [Dependencies]
-        dep_svc_bkp_secrets_2_local["svc-bkp-secrets-2-local 💻"]
-        dep_sys_ctl_cln_faild_bkps["sys-ctl-cln-faild-bkps 💻 ⚙️"]
-    end
-    subgraph role [svc-bkp-volume-2-local 💻]
-        svc_volume_2_local["volume-2-local"]
-        svc_test["test ❌"]
-        svc_secrets_backup["secrets_backup"]
-    end
-    subgraph dependents [Dependents]
-        dpt_svc_ai_lmstudio["svc-ai-lmstudio 🐳🐝"]
-        dpt_svc_ai_ollama["svc-ai-ollama 🐳🐝"]
-        dpt_svc_db_elasticsearch["svc-db-elasticsearch 🐳🐝"]
-        dpt_svc_db_mariadb["svc-db-mariadb 🐳🐝"]
-        dpt_svc_db_openldap["svc-db-openldap 🐳🐝"]
-        dpt_svc_db_postgres["svc-db-postgres 🐳🐝"]
-        dpt_svc_db_qdrant["svc-db-qdrant 🐳🐝"]
-        dpt_svc_db_rabbitmq["svc-db-rabbitmq 🐳🐝"]
-        dpt_svc_db_redis["svc-db-redis 🐳🐝"]
-        dpt_svc_db_typesense["svc-db-typesense 🐳🐝"]
-        dpt_svc_dns_unbound["svc-dns-unbound 🐳🐝"]
-        dpt_svc_prx_openresty["svc-prx-openresty 🐳🐝"]
-        dpt_more["..."]
-    end
-    dep_svc_bkp_secrets_2_local -- "1:1" --> svc_secrets_backup
-    dep_sys_ctl_cln_faild_bkps -- "1:1" --> svc_volume_2_local
-    svc_volume_2_local -- "1:1" --> dpt_more
-    svc_volume_2_local -. "0..1" .-> dpt_svc_ai_lmstudio
-    svc_volume_2_local -. "0..1" .-> dpt_svc_ai_ollama
-    svc_volume_2_local -. "0..1" .-> dpt_svc_db_elasticsearch
-    svc_volume_2_local -. "0..1" .-> dpt_svc_db_mariadb
-    svc_volume_2_local -. "0..1" .-> dpt_svc_db_openldap
-    svc_volume_2_local -. "0..1" .-> dpt_svc_db_postgres
-    svc_volume_2_local -. "0..1" .-> dpt_svc_db_qdrant
-    svc_volume_2_local -. "0..1" .-> dpt_svc_db_rabbitmq
-    svc_volume_2_local -- "1:1" --> dpt_svc_db_redis
-    svc_volume_2_local -. "0..1" .-> dpt_svc_db_typesense
-    svc_volume_2_local -- "1:1" --> dpt_svc_dns_unbound
-    svc_volume_2_local -- "1:1" --> dpt_svc_prx_openresty
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
-
 ## Schema
 
 How an NFS-backed volume is captured exactly once and restored only through
@@ -175,45 +126,6 @@ is the point of stating it. Before every snapshot the launcher also removes the
 To make snapshots possible on a host that refuses them, give the docker data root
 its own btrfs subvolume and install `btrfs-progs`.
 
-## Quick Setup
-
-### Development
-
-Clone, set up the workstation, and deploy Backup Docker Volumes onto the local stack:
-
-```bash
-git clone https://github.com/infinito-nexus/core.git
-cd core
-make onboard
-make compose-deploy mode=reinstall apps=svc-bkp-volume-2-local full_cycle=false
-```
-
-### Production
-
-Install Backup Docker Volumes directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):
-
-```bash
-git clone https://github.com/infinito-nexus/core.git
-cd core
-bash scripts/install/package.sh
-make install
-source scripts/meta/env/load.sh
-
-APP=svc-bkp-volume-2-local
-DOMAIN=<your-domain>
-TLS_MODE=self_signed
-SSH_PUBLIC_KEY="<your-ssh-public-key>"
-INVENTORY=inventories/production
-infinito administration inventory provision "$INVENTORY" \
-  --inventory-file "$INVENTORY/devices.yml" \
-  --host localhost \
-  --include "$APP" \
-  --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}"
-infinito administration deploy dedicated "$INVENTORY/devices.yml" \
-  --password-file "$INVENTORY/.password" \
-  --diff -vv
-```
-
 ## NFS-backed volumes
 
 When a host runs Docker Swarm with NFSv4-backed shared volumes
@@ -306,9 +218,3 @@ recover.py <backups>/<machine-hash>/backup-docker-to-local/<generation>/<volume>
 1. Stop the consuming project (`docker compose down` / `docker stack rm <stack>`).
 2. Run the script; it first starts the role's deployed backup unit (a fresh differential baudolo generation of every volume and database), resolves the volume's mountpoint and mirrors the snapshot into it (`rsync -a --delete`). `--no-safety-backup` skips the unit run when the target holds nothing worth saving.
 3. Restore the databases with the `--databases` mode above **while the project is still down**, then start it again; on swarm, NFS-backed volumes are restored via `svc-bkp-nfs-2-local`'s `recover.py` instead (see below).
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

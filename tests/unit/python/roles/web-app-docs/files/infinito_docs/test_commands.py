@@ -56,9 +56,28 @@ class TestProgress(unittest.TestCase):
                 "infinito_docs.generators.index",
                 "infinito_docs.generators.roles_overview",
                 "infinito_docs.generators.readmes",
+                "cli.build.docs.readme",
+                "cli.build.docs.readme.overview",
             ],
         )
         self.assertTrue(all(command[1] == "-P" for command in commands[1:]))
+
+    def test_the_readme_generators_write_only_inside_the_checkout(self) -> None:
+        commands = builders.generate_commands(Path("/w/src"))
+        targets = [arg for command in commands[-2:] for arg in command[4:]]
+
+        self.assertEqual(
+            targets,
+            [
+                "--override",
+                "--roles-dir",
+                "/w/src/roles",
+                "--readme",
+                "/w/src/README.md",
+                "--roles-dir",
+                "/w/src/roles",
+            ],
+        )
 
 
 if __name__ == "__main__":

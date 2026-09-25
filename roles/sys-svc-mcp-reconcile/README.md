@@ -8,19 +8,6 @@ Post-application MCP convergence for every deployed client, run at the **end of 
 
 This role re-invokes each deployed MCP client's own reconciliation from the complete provider set.
 
-## Cosmos
-
-The diagram places sys-svc-mcp-reconcile in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph role [sys-svc-mcp-reconcile 💻]
-        svc_svc_mcp_reconcile["svc-mcp-reconcile"]
-    end
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
-
 ## Features
 
 - Converges every deployed MCP client from one complete provider set.
@@ -49,9 +36,3 @@ one. `tests/lint/ansible/services/test_mcp_client_entrypoint.py` fails when a cl
 ## Further Resources
 
 - [Model Context Protocol](https://modelcontextprotocol.io/)
-
-## Credits
-
-Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

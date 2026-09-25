@@ -107,7 +107,10 @@ class Builder:
             self._checkout(version, ref, work)
 
             generators = generate_commands(src)
-            env = {**os.environ, "PYTHONPATH": tooling}
+            env = {
+                **os.environ,
+                "PYTHONPATH": os.pathsep.join([str(src), tooling]),
+            }
             state["phase"] = "generate"
             for step, command in enumerate(generators, start=1):
                 self._run(version, state, command, env, work)

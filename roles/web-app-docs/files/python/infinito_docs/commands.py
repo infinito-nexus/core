@@ -15,14 +15,12 @@ _SPAN = {
 }
 
 
+def _module(name, *args):
+    return [sys.executable, "-P", "-m", name, *(str(arg) for arg in args)]
+
+
 def _generator(name, *args):
-    return [
-        sys.executable,
-        "-P",
-        "-m",
-        f"infinito_docs.generators.{name}",
-        *(str(arg) for arg in args),
-    ]
+    return _module(f"infinito_docs.generators.{name}", *args)
 
 
 def generate_commands(src):
@@ -79,6 +77,19 @@ def generate_commands(src):
             generated / "roles_overview.json",
         ),
         _generator("readmes", "--generated-dir", generated),
+        _module(
+            "cli.build.docs.readme",
+            "--override",
+            "--roles-dir",
+            src / "roles",
+        ),
+        _module(
+            "cli.build.docs.readme.overview",
+            "--readme",
+            src / "README.md",
+            "--roles-dir",
+            src / "roles",
+        ),
     ]
 
 
