@@ -12,6 +12,7 @@ import json
 import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from statistics import median
 
 from utils.cache.files import PROJECT_ROOT
 from utils.i18n.catalog import catalog_path, read_catalog
@@ -20,7 +21,8 @@ from utils.i18n.libretranslate import READY_TIMEOUT_SECONDS, LibreTranslate, ser
 from utils.i18n.translate import pending
 
 TUNING_FILE = Path("build") / "i18n-tuning.json"
-SAMPLE_SIZE = 400
+SAMPLE_SIZE = 200
+REPEATS = 3
 BATCH_SIZES = (10, 20, 40, 80)
 LANE_FACTORS = (0.5, 1.0, 2.0)
 
@@ -62,31 +64,52 @@ def rate(url: str, texts: list[str], code: str, batch: int, lanes: int) -> float
 def tune(cpus: int, code: str) -> dict:
     """Sweep the client settings and return the fastest pair.
 
+    A cold server answers its opening requests well above its steady rate, and
+    the pair measured first used to inherit that and win every sweep. Repeating
+    a pair back to back does not help, because all of its runs then sit inside
+    the same opening window. The grid is therefore walked once per pass and the
+    passes are what repeat, so the bonus lands on one run of one pair and the
+    median drops it. The recorded spread says whether the winner is a real
+    difference or the noise the whole grid sits in.
+
     Args:
         cpus: the CPU count lane factors scale from.
         code: target language the sweep translates into.
     """
     texts = sample("docs", code)
-    results: list[dict] = []
+    pairs = [
+        (batch, max(int(cpus * factor), 1))
+        for batch in BATCH_SIZES
+        for factor in LANE_FACTORS
+    ]
+    runs: dict[tuple[int, int], list[float]] = {pair: [] for pair in pairs}
     with server(PROJECT_ROOT, [code], cpus) as url:
         client = LibreTranslate(url, 1)
         client.wait([code], READY_TIMEOUT_SECONDS)
-        for batch in BATCH_SIZES:
-            for factor in LANE_FACTORS:
-                lanes = max(int(cpus * factor), 1)
+        rate(url, texts, code, *pairs[0])
+        for attempt in range(1, REPEATS + 1):
+            for batch, lanes in pairs:
                 measured = rate(url, texts, code, batch, lanes)
-                results.append(
-                    {
-                        "batch_size": batch,
-                        "lanes": lanes,
-                        "entries_per_second": measured,
-                    }
-                )
+                runs[(batch, lanes)].append(measured)
                 print(
-                    f"batch={batch:3d} lanes={lanes:3d} {measured:7.1f} entries/s",
+                    f"pass {attempt}/{REPEATS} batch={batch:3d} lanes={lanes:3d} "
+                    f"{measured:7.1f} entries/s",
                     flush=True,
                 )
+    results = [
+        {
+            "batch_size": batch,
+            "lanes": lanes,
+            "entries_per_second": median(runs[(batch, lanes)]),
+            "spread": max(runs[(batch, lanes)]) - min(runs[(batch, lanes)]),
+        }
+        for batch, lanes in pairs
+    ]
     best = max(results, key=lambda r: r["entries_per_second"])
+    field = [r["entries_per_second"] for r in results]
+    best["decisive"] = best["entries_per_second"] - median(field) > max(
+        r["spread"] for r in results
+    )
     return {"best": best, "measurements": results}
 
 
@@ -118,9 +141,10 @@ def main(code: str, cpus: int) -> int:
     outcome = tune(cpus, code)
     best = outcome["best"]
     path = write(outcome)
+    verdict = "ahead of the field" if best["decisive"] else "inside the noise"
     print(
         f"best: batch_size={best['batch_size']} lanes={best['lanes']} "
-        f"({best['entries_per_second']:.1f} entries/s), written to {path}",
+        f"({best['entries_per_second']:.1f} entries/s, {verdict}), written to {path}",
         flush=True,
     )
     print("Run `make dotenv-force` to publish the values into .env.", flush=True)
