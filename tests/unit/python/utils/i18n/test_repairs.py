@@ -8,7 +8,6 @@ lower-cased, and a run of spaces it opened around a span.
 from __future__ import annotations
 
 import unittest
-
 from typing import ClassVar
 
 from utils.i18n.placeholders import (
@@ -18,6 +17,7 @@ from utils.i18n.placeholders import (
     recapitalise,
     resegment,
     terminate,
+    tighten,
     truncated,
     unmask,
 )
@@ -175,6 +175,25 @@ class TestWriterAndGateAgree(unittest.TestCase):
 
         self.assertFalse(harms(self.SOURCE, faithful))
         self.assertEqual(_round_trip(self.SOURCE, faithful), faithful)
+
+    def test_prune_can_clear_what_the_repository_lint_reports(self) -> None:
+        source = "**bold** text here and more words to say"
+        spaced = "** fett ** Text hier und mehr Worte zu sagen"
+
+        self.assertNotEqual(tighten(spaced), spaced, "the lint would report this")
+        self.assertTrue(harms(source, spaced), "so damaged() must report it too")
+
+    def test_a_repaired_translation_is_not_reported_by_the_widened_predicate(
+        self,
+    ) -> None:
+        source = "All `alpha` criteria."
+        restored = _round_trip(source, 'alle  <x id="0"></x>  Kriterien')
+
+        self.assertEqual(restored, "Alle `alpha` Kriterien.")
+        self.assertFalse(
+            harms(source, restored),
+            "the repairs run before harms(), so a written entry must stay clean",
+        )
 
     def test_every_criterion_of_the_gate_reaches_the_client(self) -> None:
         named = "Deploy web-app-docs before the documentation site answers anything."

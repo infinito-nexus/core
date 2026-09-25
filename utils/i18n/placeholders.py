@@ -249,6 +249,8 @@ def harms(source: str, translation: str) -> bool:
         or missing_names(source, translation)
         or truncated(source, translation)
         or structure(translation) != structure(source)
+        or tighten(translation) != translation
+        or resegment(translation, mask(source).spans, source) != translation
     )
 
 
