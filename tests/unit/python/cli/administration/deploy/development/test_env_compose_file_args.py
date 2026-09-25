@@ -22,6 +22,7 @@ _LOCAL_PRIMARY = {
     "INFINITO_CACHE_NETWORK": "",
     "INFINITO_CACHE_STACK": "",
     "INFINITO_PUBLISH_PORTS": "",
+    "INFINITO_GPU_COUNT": "0",
 }
 
 _WORKTREE = {
@@ -123,6 +124,18 @@ class TestComposeFileArgs(unittest.TestCase):
     )
     def test_unpublished_ports_add_the_noports_override(self) -> None:
         self.assertIn("compose/noports.override.yml", compose_file_args())
+
+    @patch.dict(os.environ, _LOCAL_PRIMARY, clear=False)
+    def test_a_host_without_a_gpu_reserves_none(self) -> None:
+        self.assertNotIn("compose/gpu.override.yml", compose_file_args())
+
+    @patch.dict(
+        os.environ,
+        {**_LOCAL_PRIMARY, "INFINITO_GPU_COUNT": "all"},
+        clear=False,
+    )
+    def test_a_host_with_a_gpu_adds_the_reservation(self) -> None:
+        self.assertIn("compose/gpu.override.yml", compose_file_args())
 
 
 if __name__ == "__main__":  # pragma: no cover
