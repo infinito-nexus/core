@@ -29,7 +29,10 @@ async function pollStatus(request, url, expected, message, timeout) {
       .toBe(expected);
   } catch (failure) {
     if (!lastTransportError) throw failure;
-    throw new Error(`${failure.message}\nlast transport error reaching ${url}: ${lastTransportError.message}`);
+    throw new Error(
+      `${failure.message}\nlast transport error reaching ${url}: ${lastTransportError.message}`,
+      { cause: failure },
+    );
   }
 }
 
