@@ -45,7 +45,8 @@ from .legacy_resolver import (
 )
 from .payload import _bake_overrides, _resolve_variant_payloads
 from .planner import filter_plan_to_variants, plan_dev_inventory_matrix
-from .spec import DevInventorySpec, PlanEntry
+from .spec import DevInventorySpec as DevInventorySpec
+from .spec import PlanEntry
 
 __all__ = [
     "PlanEntry",

@@ -1,10 +1,8 @@
 """Build execution for :class:`infinito_docs.library.Library`.
 
-Split out of ``library.py`` to keep both files under the repository's Python
-line cap. ``Builder`` is a mixin: it owns the sphinx runs, the checkout and the
-atomic publish, and reaches the queue, state and path helpers through ``self``.
-The constants and the two catalog helpers live here so the import runs one way,
-from ``library`` to ``builder``.
+``Builder`` is a mixin: it owns the sphinx runs, the checkout and the atomic
+publish, and reaches the queue, state and path helpers through ``self``. The
+constants live here so the import runs one way, from ``library`` to ``builder``.
 """
 
 from __future__ import annotations
@@ -16,46 +14,13 @@ import subprocess
 import tarfile
 import threading
 
-from babel.messages.pofile import read_po
-
+from infinito_docs.catalogs import translated_languages
 from infinito_docs.commands import generate_commands, progress_of
-from utils.cache.yaml import load_yaml_str
 
 LATEST = "latest"
 DEPLOYED = "deployed"
 LOG_TAIL = 40
 QUEUE_SEPARATOR = ":"
-
-
-def translated_languages(src):
-    """Return the languages of ``src`` and those its ``docs`` catalogs translate.
-
-    Args:
-        src: checkout of the version to document.
-
-    Returns:
-        ``(known, translated)``: every language of ``meta/languages.yml``
-        mapped to its native name, and the codes whose ``docs.po`` holds at
-        least one translation.
-    """
-    languages_file = src / "meta" / "languages.yml"
-    if not languages_file.is_file():
-        return {}, []
-    known = {
-        str(code): str((entry or {}).get("native", code))
-        for code, entry in (
-            load_yaml_str(languages_file.read_text(encoding="utf-8")) or {}
-        ).items()
-    }
-    translated = []
-    for code in sorted(known):
-        catalog = src / "locale" / code / "LC_MESSAGES" / "docs.po"
-        if not catalog.is_file():
-            continue
-        with catalog.open("rb") as handle:
-            if any(m.id and m.string and not m.fuzzy for m in read_po(handle)):
-                translated.append(code)
-    return known, translated
 
 
 def write_json(path, payload):
@@ -65,6 +30,16 @@ def write_json(path, payload):
 
 
 class Builder:
+    def _append_log(self, state, line):
+        state["log"] = [*state["log"][-(LOG_TAIL - 1) :], line]
+
+    def _ready(self, marker):
+        self._save_state(marker, state="ready", phase="", progress=100, log=[])
+
+    def _failed(self, marker, state, exc):
+        self._append_log(state, str(exc))
+        self._save_state(marker, **{**state, "state": "failed"})
+
     def _run(self, version, state, command, env, cwd):
         with subprocess.Popen(
             command,
@@ -76,7 +51,7 @@ class Builder:
         ) as process:
             for line in process.stdout:
                 progress = progress_of(line, state["progress"])
-                state["log"] = [*state["log"][-(LOG_TAIL - 1) :], line.rstrip()]
+                self._append_log(state, line.rstrip())
                 if progress != state["progress"]:
                     state["progress"] = progress
                     self._save_state(version, **state)
@@ -97,7 +72,7 @@ class Builder:
         if self._current(version, head):
             self._dequeue(version)
             return
-        ref = {LATEST: head, DEPLOYED: self.snapshot_ref()}.get(version, version)
+        ref = self._wanted_ref(version, head)
         work = self.scratch / version
         src, conf, out = work / "src", work / "conf", work / "out"
         tooling = str(self.package_dir.parent)
@@ -143,12 +118,11 @@ class Builder:
                 {"known": known, "translated": translated},
             )
             self._publish(version, out / "html", ref)
-            self._save_state(version, state="ready", phase="", progress=100, log=[])
+            self._ready(version)
             for code in translated:
                 self.request(version, code, background=True)
         except (OSError, subprocess.CalledProcessError, tarfile.TarError) as exc:
-            state["log"] = [*state["log"][-(LOG_TAIL - 1) :], str(exc)]
-            self._save_state(version, **{**state, "state": "failed"})
+            self._failed(version, state, exc)
         finally:
             self._dequeue(version)
             shutil.rmtree(work, ignore_errors=True)
@@ -199,7 +173,7 @@ class Builder:
             self._dequeue(marker)
             self.request(version)
             return
-        ref = {LATEST: head, DEPLOYED: self.snapshot_ref()}.get(version, version)
+        ref = self._wanted_ref(version, head)
         work = self.scratch / f"{version}{QUEUE_SEPARATOR}{code}"
         src, conf = work / "src", work / "conf"
         target = work / "out"
@@ -234,10 +208,9 @@ class Builder:
                 work,
             )
             self._publish_site(self.translations / version, code, target / "html", ref)
-            self._save_state(marker, state="ready", phase="", progress=100, log=[])
+            self._ready(marker)
         except (OSError, subprocess.CalledProcessError, tarfile.TarError) as exc:
-            state["log"] = [*state["log"][-(LOG_TAIL - 1) :], str(exc)]
-            self._save_state(marker, **{**state, "state": "failed"})
+            self._failed(marker, state, exc)
         finally:
             shutil.rmtree(work, ignore_errors=True)
             self._dequeue(marker)

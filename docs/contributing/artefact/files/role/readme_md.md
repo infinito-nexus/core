@@ -90,7 +90,7 @@ Link text MUST be a descriptive label or the domain name. Never use the full URL
 | Quick Setup | the role's invokability in `categories.yml`, plus `meta/services.yml` `guide_companions` |
 | Credits | `galaxy_info.author` in `meta/main.yml` |
 
-To read one without a full build, render it: `python -m cli.build.docs.readme.production <role>` prints the Production block CI replays.
+CI replays the Production block off the published page rather than off this file, so the instructions that are tested are the ones a reader sees. See [instructions.md](../../../tools/github/actions/instructions.md).
 
 ## Formatting Rules 📏
 

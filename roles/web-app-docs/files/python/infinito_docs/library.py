@@ -1,30 +1,27 @@
 from __future__ import annotations
 
-import fcntl
 import hashlib
 import json
 import re
 import subprocess
-import sys
 import threading
 import time
 from pathlib import Path
 
+from .build_queue import Queue
 from .builder import (
     DEPLOYED,
     LATEST,
-    QUEUE_SEPARATOR,
     Builder,
     write_json,
 )
+from .sites import Sites
 
-POLL_SECONDS = 2
-BACKGROUND_LANE = "background"
 REFS_TTL_SECONDS = 10
 TAG = re.compile(r"^v(\d+)\.(\d+)\.(\d+)$")
 
 
-class Library(Builder):
+class Library(Sites, Queue, Builder):
     """Mirror of the documented repository and the site of every version.
 
     Args:
@@ -109,13 +106,6 @@ class Library(Builder):
             self._snapshot_ref = digest.hexdigest()
         return self._snapshot_ref
 
-    def built_ref(self, version):
-        stamp = self.sites / version / "ref"
-        return stamp.read_text(encoding="utf-8").strip() if stamp.is_file() else ""
-
-    def servable(self, version):
-        return (self.sites / version / "html" / "index.html").is_file()
-
     def _wanted_ref(self, version, head):
         """Return the ref ``version`` should have been built from.
 
@@ -136,41 +126,10 @@ class Library(Builder):
             and self._language_index_is_current(version)
         )
 
-    def translation_ref(self, version, code):
-        """Return the ref the translated site of ``code`` was built from.
-
-        Args:
-            version: ``latest`` or a release tag.
-            code: ISO 639-1 code.
-        """
-        stamp = self.translations / version / code / "ref"
-        return stamp.read_text(encoding="utf-8").strip() if stamp.is_file() else ""
-
     def _translation_current(self, version, code, head):
-        return (
-            self.translation_servable(version, code)
-            and self.translation_ref(version, code)
-            == self._wanted_ref(version, head)
-        )
-
-    def _language_index_is_current(self, version) -> bool:
-        """Whether the version's language index was written by this code.
-
-        An index from before the split lists only the known languages, so the
-        translated ones are unknown and no language can be requested. Calling
-        that version current would leave it in that state forever, because only
-        a build rewrites the index.
-
-        Args:
-            version: ``latest`` or a release tag.
-        """
-        path = self.translations / version / "languages.json"
-        if not path.is_file():
-            return True
-        try:
-            return "translated" in json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, ValueError):
-            return False
+        return self.translation_servable(version, code) and self.translation_ref(
+            version, code
+        ) == self._wanted_ref(version, head)
 
     def _state(self, version):
         path = self.states / f"{version}.json"
@@ -211,73 +170,6 @@ class Library(Builder):
             )
         return report
 
-    def request(self, version, code=None, background=False):
-        """Queue a build of ``version``, or of one of its translated sites.
-
-        Args:
-            version: ``latest`` or a release tag.
-            code: ISO 639-1 code to build instead of the version's own site.
-            background: queue behind every language a visitor asked for.
-        """
-        head, _ = self.refs()
-        if not head and version != DEPLOYED:
-            return
-        if code is None:
-            if self._current(version, head):
-                return
-            marker = version
-        elif not self.translates(version, code) or self._translation_current(
-            version, code, head
-        ):
-            return
-        else:
-            marker = f"{version}{QUEUE_SEPARATOR}{code}"
-        lane = self.queue / BACKGROUND_LANE if background else self.queue
-        lane.mkdir(parents=True, exist_ok=True)
-        if background and (self.queue / marker).exists():
-            return
-        (lane / marker).touch(exist_ok=True)
-
-    def _dequeue(self, marker):
-        """Drop ``marker`` from both lanes.
-
-        Args:
-            marker: queue file name, ``version`` or ``version:code``.
-        """
-        (self.queue / marker).unlink(missing_ok=True)
-        (self.queue / BACKGROUND_LANE / marker).unlink(missing_ok=True)
-
-    def next_queued(self):
-        """Return the oldest marker a visitor is waiting on, else the oldest background one."""
-        for lane in (self.queue, self.queue / BACKGROUND_LANE):
-            if not lane.is_dir():
-                continue
-            waiting = sorted(
-                (marker for marker in lane.iterdir() if marker.is_file()),
-                key=lambda marker: marker.stat().st_mtime,
-            )
-            if waiting:
-                return waiting[0].name
-        return None
-
-    def acquire_builder(self):
-        """Try to become the builder of all replicas without blocking.
-
-        Returns:
-            ``True`` while this process holds the builder lock.
-        """
-        if self._lock_handle is not None:
-            return True
-        self.lock_file.parent.mkdir(parents=True, exist_ok=True)
-        handle = self.lock_file.open("a+")
-        try:
-            fcntl.lockf(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except OSError:
-            handle.close()
-            return False
-        self._lock_handle = handle
-        return True
-
     def fetch(self):
         if (self.mirror / "HEAD").is_file():
             self._git("remote", "update", "--prune")
@@ -309,92 +201,3 @@ class Library(Builder):
         for version in self.versions():
             if self.servable(version):
                 self.request(version)
-
-    def run_builder(self, interval):
-        while not self.acquire_builder():
-            time.sleep(POLL_SECONDS)
-        if self.snapshot.is_dir():
-            self.request(DEPLOYED)
-        next_fetch = 0.0
-        while True:
-            if time.monotonic() >= next_fetch:
-                try:
-                    self.fetch()
-                except (OSError, subprocess.CalledProcessError) as exc:
-                    print(f"fetch of {self.repository} failed: {exc}", file=sys.stderr)
-                next_fetch = time.monotonic() + interval
-            marker = self.next_queued()
-            if marker is None:
-                time.sleep(POLL_SECONDS)
-                continue
-            version, separator, code = marker.partition(QUEUE_SEPARATOR)
-            if separator:
-                self.build_language(version, code)
-            else:
-                self.build(version)
-
-    def resolve(self, version, rest):
-        """Return the file a request for ``rest`` in ``version`` maps to.
-
-        Args:
-            version: a built version.
-            rest: the request path below the version, already unquoted.
-
-        Returns:
-            The file inside the version's site, or ``None`` when the site has
-            no such file or the path escapes it.
-        """
-        return self._resolve(self.sites / version / "html", rest)
-
-    def _language_index(self, version):
-        try:
-            payload = json.loads(
-                (self.translations / version / "languages.json").read_text(
-                    encoding="utf-8"
-                )
-            )
-        except (OSError, ValueError):
-            return {}
-        if isinstance(payload.get("known"), dict):
-            return payload
-        return {"known": payload, "translated": []}
-
-    def languages(self, version):
-        """Return the languages of ``version`` and the ones with a built site.
-
-        Args:
-            version: ``latest`` or a release tag.
-
-        Returns:
-            ``(known, built)``: every language code of the version mapped to
-            its native name, and the codes whose translated site is servable.
-        """
-        known = self._language_index(version).get("known") or {}
-        built = [
-            code for code in sorted(known) if self.translation_servable(version, code)
-        ]
-        return known, built
-
-    def translates(self, version, code):
-        """Return whether ``version`` carries translations for ``code``.
-
-        Args:
-            version: ``latest`` or a release tag.
-            code: ISO 639-1 code.
-        """
-        return code in (self._language_index(version).get("translated") or [])
-
-    def translation_servable(self, version, code):
-        return (self.translations / version / code / "html" / "index.html").is_file()
-
-    def resolve_translation(self, version, code, rest):
-        return self._resolve(self.translations / version / code / "html", rest)
-
-    def _resolve(self, site, rest):
-        root = site.resolve()
-        target = (root / rest).resolve()
-        if target != root and root not in target.parents:
-            return None
-        if target.is_dir():
-            target /= "index.html"
-        return target if target.is_file() else None
