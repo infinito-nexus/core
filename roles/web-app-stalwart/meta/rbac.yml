@@ -1,0 +1,4 @@
+---
+roles:
+  bot:
+    description: Bot/service account with an API token (e.g. email send/receive)

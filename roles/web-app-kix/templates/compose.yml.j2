@@ -10,6 +10,7 @@
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     # nocheck: healthcheck-timing-override  the image's own HEALTHCHECK supplies test, interval, timeout and retries; only the start window is corrected here
     healthcheck:
@@ -34,6 +35,7 @@
       - NOTIFICATION_URL=http://{{ KIX_FRONTEND_SERVICE }}:{{ KIX_FRONTEND_INTERNAL_PORT }}/notifications
       - BACKEND_API_URL=http://{{ KIX_BACKEND_SERVICE }}:{{ KIX_BACKEND_INTERNAL_PORT }}/api/v1
     {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     # nocheck: healthcheck-timing-override  the image's own HEALTHCHECK supplies test, interval, timeout and retries; only the start window is corrected here
     healthcheck:
@@ -48,6 +50,7 @@
     {{ lookup('depends_on', {KIX_BACKEND_SERVICE: 'service_healthy', KIX_FRONTEND_SERVICE: 'service_healthy'}) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_ports', ['kix', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
 {{ lookup('compose_volumes') }}

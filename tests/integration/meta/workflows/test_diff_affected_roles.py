@@ -46,6 +46,9 @@ class TestDiffAffectedRoles(unittest.TestCase):
         )
         subprocess.run(["git", "config", "user.name", "ci"], cwd=repo, check=True)
         subprocess.run(
+            ["git", "config", "commit.gpgsign", "false"], cwd=repo, check=True
+        )
+        subprocess.run(
             ["git", "remote", "add", "origin", str(bare)], cwd=repo, check=True
         )
 

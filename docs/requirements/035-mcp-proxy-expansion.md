@@ -464,11 +464,11 @@ An upstream path exists or is claimed, and something concrete stops it here. Eac
 | `web-app-penpot` | `interactive_browser_session` | The server needs an active browser tab and plugin connection, and can execute powerful design-context operations. |
 | `web-app-shopware` | `version_unverified` | The pinned 6.7.8.2 predates the experimental native `/api/_mcp` server. |
 
-### adapter_candidate (37)
+### adapter_candidate (38)
 
 An adapter could reach these, and none has been curated yet. The five that used to sit under "current MCP metadata requiring revalidation" are here because that revalidation found no shipped surface to revalidate.
 
-`svc-db-typesense`, `web-app-akaunting`, `web-app-bigbluebutton`, `web-app-bluesky`, `web-app-bookwyrm`, `web-app-bridgy-fed`, `web-app-confluence`, `web-app-decidim`, `web-app-espocrm`, `web-app-friendica`, `web-app-funkwhale`, `web-app-jira`, `web-app-jitsi`, `web-app-joomla`, `web-app-kix`, `web-app-magento`, `web-app-mailu`, `web-app-mastodon`, `web-app-matrix`, `web-app-mediawiki`, `web-app-minio`, `web-app-mobilizon`, `web-app-opencloud`, `web-app-openproject`, `web-app-opentalk`, `web-app-peertube`, `web-app-pihole`, `web-app-pixelfed`, `web-app-postmarks`, `web-app-seaweedfs`, `web-app-semaphore`, `web-app-socialhome`, `web-app-suitecrm`, `web-app-taiga`, `web-app-xwiki`, `web-app-yourls`, `web-svc-xmpp`.
+`svc-db-typesense`, `web-app-akaunting`, `web-app-bigbluebutton`, `web-app-bluesky`, `web-app-bookwyrm`, `web-app-bridgy-fed`, `web-app-confluence`, `web-app-decidim`, `web-app-espocrm`, `web-app-friendica`, `web-app-funkwhale`, `web-app-jira`, `web-app-jitsi`, `web-app-joomla`, `web-app-kix`, `web-app-magento`, `web-app-mailu`, `web-app-mastodon`, `web-app-matrix`, `web-app-mediawiki`, `web-app-minio`, `web-app-mobilizon`, `web-app-opencloud`, `web-app-openproject`, `web-app-opentalk`, `web-app-peertube`, `web-app-pihole`, `web-app-pixelfed`, `web-app-postmarks`, `web-app-seaweedfs`, `web-app-semaphore`, `web-app-socialhome`, `web-app-stalwart`, `web-app-suitecrm`, `web-app-taiga`, `web-app-xwiki`, `web-app-yourls`, `web-svc-xmpp`.
 
 ### enabler (2)
 
@@ -480,7 +480,7 @@ An adapter could reach these, and none has been curated yet. The five that used 
 
 `web-svc-collabora`, `web-svc-onlyoffice`.
 
-### no_surface (96)
+### no_surface (98)
 
 These roles remain out of shared MCP discovery.
 A future exception requires a new requirement with a fixed operation list, dedicated identity, isolation boundary, human approval for mutations, and audit trail.
@@ -488,7 +488,7 @@ A future exception requires a new requirement with a fixed operation list, dedic
 **`host_execution_boundary` (39):** `desk-bluray-player`, `desk-chromium`, `desk-copyq`, `desk-docker`, `desk-dotlinker`, `desk-firefox`, `desk-git`, `desk-gnome`, `desk-gnome-caffeine`, `desk-gnome-extensions`, `desk-gnome-terminal`, `desk-gnucash`, `desk-jrnl`, `desk-keepassxc`, `desk-libreoffice`, `desk-micro`, `desk-neovim`, `desk-nextcloud`, `desk-obs`, `desk-qbittorrent`, `desk-retroarch`, `desk-spotify`, `desk-ssh`, `desk-torbrowser`, `desk-virtualbox`, `desk-zoom`, `dev-arduino`, `dev-core`, `dev-java`, `dev-locales`, `dev-make`, `dev-nix`, `dev-nodejs`, `dev-python`, `drv-epson-multiprinter`, `drv-intel`, `drv-lid-switch`, `drv-non-free`, `gen-hunspell`.
 These roles operate a workstation, developer toolchain, device, or host package; bridging them would amount to shared shell, filesystem, browser-session, device, or host execution without an application-specific remote identity.
 
-**`privileged_control_plane` (25):** `svc-bkp-local-2-device`, `svc-bkp-nfs-2-local`, `svc-bkp-remote-2-local`, `svc-bkp-secrets-2-local`, `svc-bkp-volume-2-local`, `svc-dns-unbound`, `svc-net-firewall`, `svc-net-tor`, `svc-net-wireguard-core`, `svc-net-wireguard-firewalled`, `svc-net-wireguard-plain`, `svc-opt-keyboard-color`, `svc-opt-ssd-hdd`, `svc-opt-swapfile`, `svc-prx-openresty`, `svc-registry-cache`, `svc-registry-docker`, `svc-runner`, `svc-storage-nfs-client`, `svc-storage-nfs-server`, `svc-swarm-manager`, `svc-swarm-node`, `svc-virt-kata`, `update`, `web-app-openbao`.
+**`privileged_control_plane` (26):** `svc-bkp-local-2-device`, `svc-bkp-nfs-2-local`, `svc-bkp-remote-2-local`, `svc-bkp-secrets-2-local`, `svc-bkp-volume-2-local`, `svc-dns-unbound`, `svc-net-firewall`, `svc-net-tor`, `svc-net-tor-smtp`, `svc-net-wireguard-core`, `svc-net-wireguard-firewalled`, `svc-net-wireguard-plain`, `svc-opt-keyboard-color`, `svc-opt-ssd-hdd`, `svc-opt-swapfile`, `svc-prx-openresty`, `svc-registry-cache`, `svc-registry-docker`, `svc-runner`, `svc-storage-nfs-client`, `svc-storage-nfs-server`, `svc-swarm-manager`, `svc-swarm-node`, `svc-virt-kata`, `update`, `web-app-openbao`.
 These roles can recover secrets, alter routing or host state, run code, change deployment state, or reach storage/control-plane sockets; they require a separate audited operations gateway and human approval rather than general-purpose application MCP.
 
 **`shared_engine_isolation` (4):** `svc-db-memcached`, `svc-db-openldap`, `svc-db-postgres`, `svc-db-rabbitmq`.

@@ -202,6 +202,21 @@ class TestLifecycleAllowedValues(unittest.TestCase):
                 + "\n".join(f"  - {o}" for o in offenders)
             )
 
+    def test_ci_envelope_only_names_allowed_lifecycles(self):
+        """A typo in ``INFINITO_LIFECYCLES`` silently drops every role of that
+        stage from CI test-deploy discovery instead of failing, so the envelope
+        and the allowed-value set must not be able to drift apart."""
+        from utils.roles.lifecycle import tested_lifecycles
+
+        unknown = sorted(tested_lifecycles() - ALLOWED_LIFECYCLES)
+        self.assertEqual(
+            unknown,
+            [],
+            "default.env INFINITO_LIFECYCLES names stages that are not valid "
+            f"lifecycle values: {unknown}. Roles tagged with a valid stage that "
+            "is missing from the envelope are invisible to the deploy matrix.",
+        )
+
 
 class TestPortShape(unittest.TestCase):
     def test_local_and_public_ports_are_category_keyed_maps(self):
@@ -238,10 +253,38 @@ class TestHostBoundPortCollisions(unittest.TestCase):
         ("web-app-bigbluebutton", 48087),
     }
 
+    @staticmethod
+    def _provider_alternative_groups() -> list[set[str]]:
+        """Role sets that are runtime-exclusive alternatives for one service
+        key: the role that ``provides`` the key plus every role whose primary
+        entity ``covers`` it (e.g. the mail providers — only the active
+        ``MAIL_PROVIDER`` publishes the ports; the other renders without
+        them). Derived from the self-declared registry, no role names here."""
+        from utils.roles.applications.services.registry import (
+            build_service_registry_from_roles_dir,
+        )
+
+        registry = build_service_registry_from_roles_dir(ROLES_DIR)
+        provider_of: dict[str, str] = {}
+        coverers: dict[str, set[str]] = {}
+        for key, entry in registry.items():
+            if "canonical" in entry:
+                continue
+            role = entry.get("role", "")
+            provider_of[key] = role
+            for covered in entry.get("covers", []) or []:
+                coverers.setdefault(covered, set()).add(role)
+        return [
+            {provider_of[key], *roles}
+            for key, roles in coverers.items()
+            if key in provider_of
+        ]
+
     def test_no_host_bound_port_collisions(self):
         from utils.meta.scan import host_bound_port_set
 
         host_bound = host_bound_port_set()
+        alternative_groups = self._provider_alternative_groups()
         clashes: list[str] = []
         for port, owners in sorted(host_bound.items()):
             if len(owners) <= 1:
@@ -251,6 +294,8 @@ class TestHostBoundPortCollisions(unittest.TestCase):
                 len(roles_holding) == 1
                 and (next(iter(roles_holding)), port) in self._SAME_ROLE_LEGACY_OVERLAPS
             ):
+                continue
+            if any(roles_holding <= group for group in alternative_groups):
                 continue
             pretty = ", ".join(
                 f"{role}/{entity} {scope}.{cat}" for role, entity, scope, cat in owners

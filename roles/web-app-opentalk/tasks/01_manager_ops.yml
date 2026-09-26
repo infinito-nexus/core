@@ -15,6 +15,14 @@
   notify:
     - compose-up
 
+- name: "📄 Render RabbitMQ config '{{ application_id }}'"
+  stack_host_template:
+    src: rabbitmq.conf.j2
+    dest: "{{ [lookup('container', application_id, 'directories.volumes'), 'rabbitmq.conf'] | path_join }}"
+    mode: "0644"
+  notify:
+    - compose-up
+
 - name: "📄 Render OpenTalk recorder config '{{ application_id }}'"
   stack_host_template:
     src: recorder.toml.j2

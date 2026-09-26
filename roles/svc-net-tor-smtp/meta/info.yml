@@ -1,0 +1,4 @@
+---
+# nocheck: info-media in-repo gateway, no upstream project to link or demo
+logo:
+  class: fa-solid fa-user-secret

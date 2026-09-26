@@ -1,5 +1,10 @@
 # Mailu
 
+> **ℹ️ Alternative provider.** The default email provider is
+> [`web-app-stalwart`](../web-app-stalwart/). Mailu remains a fully supported
+> option: set `MAIL_PROVIDER: web-app-mailu` (and deploy this role) to route the
+> mail abstraction (`plugins/lookup/email.py`, `sys-svc-mail`) to Mailu instead.
+
 ## Description
 
 Revolutionize your email communications with Mailu, a secure and flexible mail server solution that integrates comprehensive features like robust SMTP/IMAP support, advanced spam filtering, DKIM signing, and seamless webmail access. With its modern design and performance-oriented architecture, Mailu empowers you to manage digital correspondence with efficiency and reliability.

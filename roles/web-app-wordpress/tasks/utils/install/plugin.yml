@@ -1,7 +1,26 @@
 ---
+# WP-CLI can exit 255 after a finished install, because WordPress' fatal
+# handler requires the .maintenance file the install has just removed. The
+# install therefore stops retrying on "Success:", and whether the plugin is
+# really there is decided by `wp plugin is-installed` afterwards.
 - name: "📦 Normalise the install contract for '{{ plugin_name }}'"
+  vars:
+    wp_plugin_catalog: "{{ lookup('config', application_id, 'addons.' ~ plugin_name ~ '.update.catalog') }}"
   ansible.builtin.set_fact:
-    wp_plugin_required: "{{ lookup('config', application_id, 'addons.' ~ plugin_name ~ '.required', false) | bool }}"
+    wp_plugin_required: "{{ lookup('config', application_id, 'addons.' ~ plugin_name ~ '.required') | bool }}"
+    wp_plugin_pinned: "{{ wp_plugin_catalog == 'github-releases' }}"
+    wp_plugin_source: >-
+      {{
+        (
+          'https://github.com/'
+          ~ lookup('config', application_id, 'addons.' ~ plugin_name ~ '.update.upstream_id')
+          ~ '/releases/download/'
+          ~ lookup('config', application_id, 'addons.' ~ plugin_name ~ '.version')
+          ~ '/' ~ plugin_name ~ '.zip'
+        )
+        if wp_plugin_catalog == 'github-releases'
+        else plugin_name
+      }}
   changed_when: false
 
 - name: "🔎 Check if WordPress plugin '{{ plugin_name }}' is installed"
@@ -16,19 +35,52 @@
 - name: "📦 Install WordPress plugin '{{ plugin_name }}' via WP CLI"
   ansible.builtin.shell: >
     container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
-    wp plugin install {{ plugin_name }}
+    wp plugin install {{ wp_plugin_source }}
+    {{ '--force' if (wp_plugin_pinned | bool) else '' }}
     --path={{ WORDPRESS_DOCKER_HTML_PATH }}
   register: wp_plugin_install
-  when: wp_plugin_present.rc != 0
-  failed_when: wp_plugin_install.rc != 0 and wp_plugin_required | bool
+  when: (wp_plugin_pinned | bool) or wp_plugin_present.rc != 0
+  until: wp_plugin_install.rc == 0 or 'Success:' in wp_plugin_install.stdout
+  retries: 3
+  delay: 10
+  changed_when: >-
+    'Plugin installed successfully' in wp_plugin_install.stdout
+    or 'Plugin updated successfully' in wp_plugin_install.stdout
+  failed_when: false
 
-- name: "🟡 Skip optional WordPress plugin '{{ plugin_name }}' after a failed install"
-  ansible.builtin.debug:
-    msg: >-
-      ::warning title=addon install failed::{{ application_id }} addon
-      '{{ plugin_name }}' did not install (rc={{ wp_plugin_install.rc }});
-      activation skipped, deploy continues because the addon is not required
-  when: (wp_plugin_install.rc | default(0)) != 0
+- name: "🔎 Verify WordPress plugin '{{ plugin_name }}' is installed after the install"
+  ansible.builtin.shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
+    wp plugin is-installed {{ plugin_name }}
+    --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+  register: wp_plugin_verified
+  when: wp_plugin_install is not skipped
+  changed_when: false
+  failed_when: wp_plugin_verified.rc not in [0, 1]
+
+- name: "🧮 Resolve whether '{{ plugin_name }}' is installed"
+  ansible.builtin.set_fact:
+    wp_plugin_installed: "{{ (wp_plugin_install is skipped) or wp_plugin_verified.rc == 0 }}"
+  changed_when: false
+
+- name: "🚧 Handle '{{ plugin_name }}' that did not install"
+  when: not (wp_plugin_installed | bool)
+  block:
+    - name: "🛑 Fail because required addon '{{ plugin_name }}' did not install"
+      ansible.builtin.fail:
+        msg: >-
+          {{ application_id }} addon '{{ plugin_name }}' did not install from
+          {{ wp_plugin_source }} (rc={{ wp_plugin_install.rc }}) after
+          {{ wp_plugin_install.attempts }} attempt(s)
+      when: wp_plugin_required | bool
+
+    - name: "🟡 Skip optional WordPress plugin '{{ plugin_name }}' after a failed install"
+      ansible.builtin.debug:
+        msg: >-
+          ::warning title=addon install failed::{{ application_id }} addon
+          '{{ plugin_name }}' did not install (rc={{ wp_plugin_install.rc }});
+          activation skipped, deploy continues because the addon is not required
+      when: not (wp_plugin_required | bool)
 
 - name: "✅ Activate WordPress plugin '{{ plugin_name }}' via WP CLI"
   ansible.builtin.shell: >
@@ -36,7 +88,7 @@
     wp plugin activate {{ plugin_name }}
     --path={{ WORDPRESS_DOCKER_HTML_PATH }}
   register: wp_plugin_activate
-  when: (wp_plugin_install.rc | default(0)) == 0
+  when: wp_plugin_installed | bool
   changed_when: >
     wp_plugin_activate.rc == 0
     and ('already' not in (wp_plugin_activate.stderr | lower))

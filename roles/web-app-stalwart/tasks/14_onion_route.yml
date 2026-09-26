@@ -1,0 +1,79 @@
+---
+# Route .onion recipients through the Tor SMTP gateway (svc-net-tor-smtp).
+# Stalwart has no outbound SOCKS of its own, so a relay route hands every
+# .onion recipient to the gateway, which dials the target over Tor.
+# JMAP request bodies live in templates/jmap/route|strategy/*.json.j2.
+# Trip-wire: the MtaOutboundStrategy singleton is NOT enumerated by
+# get(ids:null) — strategy/get.json.j2 MUST query ids:["singleton"], or the
+# existence check is always false and the update path is skipped.
+- name: "📖 List existing Stalwart outbound routes"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: "{{ lookup('template', 'jmap/route/get.json.j2') }}"
+
+- name: "🔍 Resolve whether the onion relay route already exists"
+  ansible.builtin.set_fact:
+    stalwart_onion_route_exists: >-
+      {{ (stalwart_jmap.methodResponses[0][1].list | default([]))
+         | selectattr('name', 'equalto', STALWART_ONION_ROUTE_NAME)
+         | list | length > 0 }}
+
+- name: "📁 Create the onion relay route to the Tor SMTP gateway"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: "{{ lookup('template', 'jmap/route/create.json.j2') }}"
+  when: not (stalwart_onion_route_exists | bool)
+
+- name: "⚙️ Build the outbound route strategy (local, then onion, else mx)"
+  ansible.builtin.set_fact:
+    stalwart_route_expr:
+      match:
+        "0":
+          if: "is_local_domain(rcpt_domain)"
+          then: "'local'"
+        "1":
+          if: "ends_with(rcpt_domain, '.onion')"
+          then: "'{{ STALWART_ONION_ROUTE_NAME }}'"
+      else: "'mx'"
+
+- name: "📖 Read the outbound strategy singleton"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: "{{ lookup('template', 'jmap/strategy/get.json.j2') }}"
+
+- name: "🔧 Record whether the outbound strategy singleton exists"
+  ansible.builtin.set_fact:
+    stalwart_strategy_exists: "{{ (stalwart_jmap.methodResponses[0][1].list | length) > 0 }}"
+
+- name: "📁 Create the outbound strategy with the onion route"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: "{{ lookup('template', 'jmap/strategy/create.json.j2') }}"
+  when: not (stalwart_strategy_exists | bool)
+
+- name: "🔀 Point the outbound strategy at the onion route for .onion recipients"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: "{{ lookup('template', 'jmap/strategy/update.json.j2') }}"
+  when: stalwart_strategy_exists | bool
+
+- name: "📖 Read back the live outbound strategy"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: "{{ lookup('template', 'jmap/strategy/get.json.j2') }}"
+
+- name: "✅ Assert the live strategy matches the intended onion route (SPOT)"
+  ansible.builtin.assert:
+    that:
+      - stalwart_route_terms | reject('in', stalwart_live_route) | list | length == 0
+    fail_msg: >-
+      Stalwart's live outbound strategy is missing terms from the intended route
+      {{ stalwart_route_terms | reject('in', stalwart_live_route) | list }};
+      live route: {{ stalwart_live_route }}
+    success_msg: ".onion recipients route to the '{{ STALWART_ONION_ROUTE_NAME }}' gateway relay, local delivery preserved"
+  vars:
+    stalwart_live_route: "{{ (stalwart_jmap.methodResponses[0][1].list | first).route | to_json }}"
+    stalwart_route_terms: >-
+      {{ (stalwart_route_expr.match.values() | map(attribute='if') | list)
+         + (stalwart_route_expr.match.values() | map(attribute='then') | list)
+         + [stalwart_route_expr['else']] }}

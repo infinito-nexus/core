@@ -81,6 +81,8 @@ const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
 const biberUsername = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
 const biberPassword = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
+const mapacheUsername = decodeDotenvQuotedValue(process.env.MAPACHE_USERNAME);
+const mapachePassword = decodeDotenvQuotedValue(process.env.MAPACHE_PASSWORD);
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
 
 test.beforeEach(async ({ page }) => {
@@ -195,6 +197,44 @@ test("normal-realm administrator logs in through account interface and logs out"
     .toBe(true);
 
   await expectNoCspViolations(page, diagnostics, "keycloak normal-realm account (administrator)");
+});
+
+// mapache is this role's own meta/users.yml persona, carrying accounts:
+// ["identity"]. It exists to be registered here and nowhere else: consuming
+// roles must provision their application account for it on first OIDC login
+// rather than receive one from Ansible. Asserting the registration here keeps
+// that contract observable at the identity provider, before any consumer runs.
+test("normal-realm mapache is registered and can authenticate", async ({ page }) => {
+  safeSkipUnlessEnabled("ldap");
+  const diagnostics = attachDiagnostics(page);
+
+  expect(mapacheUsername, "MAPACHE_USERNAME must be set in the Playwright env file").toBeTruthy();
+  expect(mapachePassword, "MAPACHE_PASSWORD must be set in the Playwright env file").toBeTruthy();
+
+  const accountUrl = `${appBaseUrl}/realms/${realmName}/account/`;
+  const response = await gotoOnion(page, accountUrl);
+  expect(response, "Expected normal-realm account page response").toBeTruthy();
+  expect(response.status(), "Expected normal-realm account page response to be successful").toBeLessThan(400);
+
+  const signInButton = page.locator("a, button").filter({ hasText: /sign\s*in|log\s*in|anmelden/i }).first();
+  if ((await signInButton.count().catch(() => 0)) > 0) {
+    await signInButton.click({ timeout: resolveTimeout(30_000) });
+  }
+
+  await fillKeycloakLoginForm(page, mapacheUsername, mapachePassword);
+
+  await expect
+    .poll(() => page.url(), {
+      timeout: resolveTimeout(60_000),
+      message: "Expected mapache login to reach the account interface"
+    })
+    .toContain("/account");
+
+  await expect(page.locator("body")).toContainText(/personal\s*info|account|profile|signing\s*in/i, { timeout: resolveTimeout(60_000) });
+
+  await keycloakSignOutFromAccountConsole(page);
+
+  await expectNoCspViolations(page, diagnostics, "keycloak normal-realm account (mapache)");
 });
 
 test("normal-realm biber logs in through account interface and logs out", async ({ page }) => {

@@ -10,6 +10,7 @@
               ['gitea', 'ssh']) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
       {% if GITEA_MCP_ENABLED | bool %}
       {{ GITEA_MCP_UPSTREAM_NETWORK }}:

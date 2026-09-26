@@ -31,8 +31,8 @@ prometheus:
 # nocheck: playwright-service-flag - email not used by Jitsi room flow
 email:
   bond: 1
-  enabled: "{{ 'web-app-mailu' in group_names }}"
-  shared: "{{ 'web-app-mailu' in group_names }}"
+  enabled: "{{ MAIL_PROVIDER in group_names }}"
+  shared: "{{ MAIL_PROVIDER in group_names }}"
 # nocheck: playwright-service-flag - css consumer, no Playwright surface (provider: web-svc-css)
 css:
   bond: 1

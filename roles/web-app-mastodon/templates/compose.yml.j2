@@ -24,6 +24,7 @@
     {% if with_volumes %}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {% endif %}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 {% endmacro -%}
 

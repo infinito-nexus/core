@@ -12,6 +12,12 @@
   vars:
     compose_handlers_flush: false
 
+- name: "📁 Ensure the node-exporter textfile directory exists"
+  ansible.builtin.file:
+    path: "{{ DIR_METRICS_TEXTFILE }}"
+    state: directory
+    mode: "0755"
+
 - name: "📄 Render Prometheus config files (local + swarm peers)"
   ansible.builtin.include_tasks:
     file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"

@@ -16,6 +16,8 @@ DNS_NM_DNSMASQ_DIR="/etc/NetworkManager/dnsmasq.d"
 DNS_NM_DNSMASQ_CONF="${DNS_NM_DNSMASQ_DIR}/${DNS_DOMAIN}.conf"
 # shellcheck disable=SC2034
 DNS_SYS_DNSMASQ_CONF="/etc/dnsmasq.d/${DNS_DOMAIN}.conf"
+# shellcheck disable=SC2034
+DNS_RESOLVED_DROPIN="/etc/systemd/resolved.conf.d/${DNS_DOMAIN}.conf"
 
 dns_systemd_is_operational() {
 	command -v systemctl >/dev/null 2>&1 && [[ -d /run/systemd/system ]]
@@ -154,18 +156,32 @@ dns_remove_hosts_fallback() {
 }
 
 dns_test_resolution() {
-	local checked=0 host
+	local checked=0 failed=0 host attempt
 
 	echo
 	echo ">>> Testing resolution"
 	if [[ "${DNS_HOSTS_FILE}" == "/etc/hosts" ]]; then
 		while IFS= read -r host; do
-			getent hosts "${host}" || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+			for attempt in 1 2 3; do
+				if getent hosts "${host}"; then
+					break
+				fi
+				if [[ "${attempt}" -eq 3 ]]; then
+					echo "    FAIL: ${host}"
+					failed=$((failed + 1))
+				else
+					sleep 1
+				fi
+			done
 			checked=$((checked + 1))
 			if [[ "${checked}" -ge 3 ]]; then
 				break
 			fi
 		done < <(dns_read_hosts_fallback_entries)
+		if [[ "${failed}" -gt 0 ]]; then
+			echo ">>> ERROR: ${failed}/${checked} test names do not resolve; local DNS is NOT working." >&2
+			return 1
+		fi
 	else
 		echo ">>> Skipping getent check for custom hosts file: ${DNS_HOSTS_FILE}"
 	fi

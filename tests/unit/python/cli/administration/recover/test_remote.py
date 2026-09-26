@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 import unittest
 
 from cli.administration.recover import remote
@@ -43,7 +44,7 @@ class CommandsTest(unittest.TestCase):
         self.assertEqual(
             steps[0], ["rsync", "-a", "host:/backup/usb.img", remote.IMAGE]
         )
-        self.assertEqual(steps[1][0], "python3")
+        self.assertEqual(steps[1][0], sys.executable)
         self.assertIn(remote.IMAGE, steps[1])
         self.assertIn(remote.LOCAL_ROOT, steps[1])
         self.assertIn("--passphrase-stdin", steps[1])

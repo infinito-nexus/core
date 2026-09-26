@@ -45,6 +45,44 @@ def _collect_local_tcp_ports(port_categories: Any, into: set[int]) -> None:
             into.add(value)
 
 
+def _provided_capabilities(
+    applications: dict[str, Any], deployed: set[str]
+) -> dict[str, set[str]]:
+    """Capability key -> the deployed roles whose service ``provides:`` it.
+
+    Args:
+        applications: the variant-merged applications view.
+        deployed: role ids present in this deploy.
+    """
+    provided: dict[str, set[str]] = {}
+    for app_id, cfg in applications.items():
+        if app_id not in deployed or not isinstance(cfg, dict):
+            continue
+        services = cfg.get("services")
+        if not isinstance(services, dict):
+            continue
+        for entity in services.values():
+            if not isinstance(entity, dict):
+                continue
+            key = entity.get("provides")
+            if isinstance(key, str) and key:
+                provided.setdefault(key, set()).add(app_id)
+    return provided
+
+
+def _is_inactive_coverer(
+    entity: dict[str, Any], app_id: str, provided: dict[str, set[str]]
+) -> bool:
+    """Whether this service only covers a capability another deployed role provides."""
+    covers = entity.get("covers")
+    if not isinstance(covers, (list, tuple)):
+        return False
+    return any(
+        isinstance(key, str) and (provided.get(key, set()) - {app_id})
+        for key in covers
+    )
+
+
 def collect_onion_ports(
     applications: dict[str, Any],
     deployed_roles: list[str],
@@ -64,11 +102,19 @@ def collect_onion_ports(
     declared next to ``network.public: false``, and Mailu's implicit-TLS ports
     are dropped from the publish list whenever TLS is off, which an onion
     deployment always is.
+
+    A service that only ``covers:`` a capability another deployed role
+    ``provides:`` is skipped for the same reason: it is a legacy co-tenant, the
+    provider owns the host ports, and forwarding the co-tenant's onion ports
+    advertises endpoints nothing answers on. The Mailu-to-Stalwart migration
+    round deploys both, and the ports Mailu alone would serve (110, 143, 587)
+    are dead there.
     """
     ports: set[int] = set()
     deployed = set(deployed_roles)
     if not isinstance(applications, dict):
         return []
+    provided = _provided_capabilities(applications, deployed)
     for app_id, cfg in applications.items():
         if app_id not in deployed:
             continue
@@ -77,6 +123,8 @@ def collect_onion_ports(
             continue
         for entity in services.values():
             if not isinstance(entity, dict):
+                continue
+            if _is_inactive_coverer(entity, app_id, provided):
                 continue
             declared = entity.get("ports")
             if not isinstance(declared, dict):

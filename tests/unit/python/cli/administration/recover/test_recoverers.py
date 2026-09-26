@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 import unittest
 
 from cli.administration.recover import paths, recoverers
@@ -182,7 +183,7 @@ class RegistryTest(unittest.TestCase):
 
     def test_command_starts_with_interpreter_and_script(self):
         cmd = recoverers.RECOVERERS["secrets"].command("/gen/files")
-        self.assertEqual(cmd[0], "python3")
+        self.assertEqual(cmd[0], sys.executable)
         self.assertTrue(
             cmd[1].endswith("svc-bkp-secrets-2-local/files/python/recover.py")
         )

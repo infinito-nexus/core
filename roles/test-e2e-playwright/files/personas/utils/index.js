@@ -22,6 +22,7 @@ const interaction = require("./interaction");
 const dotenv = require("./dotenv");
 const dom = require("./dom");
 const seaweedfs = require("./seaweedfs");
+const mailbox = require("./mailbox");
 
 module.exports = {
   ...env,
@@ -34,4 +35,5 @@ module.exports = {
   ...dotenv,
   ...dom,
   ...seaweedfs,
+  ...mailbox,
 };

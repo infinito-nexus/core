@@ -37,6 +37,21 @@ class _DummyTemplar:
         return value
 
 
+class _RenderingTemplar:
+    """A templar that actually resolves expressions, like the real one.
+
+    ``_DummyTemplar`` returns its input unchanged, so it cannot expose a value
+    that only misbehaves while still an unrendered template.
+    """
+
+    def __init__(self, available_variables=None, rendered=None):
+        self.available_variables = available_variables or {}
+        self._rendered = rendered or {}
+
+    def template(self, value):
+        return self._rendered.get(value, value)
+
+
 def _email(external=True, host=RELAY):
     return {"external": external, "host": host}
 
@@ -66,6 +81,18 @@ class TestSmtpHostLookup(unittest.TestCase):
     def test_compose_rig_uses_loopback(self):
         vars_ = {"DOCKER_IN_CONTAINER": True, "DEPLOYMENT_MODE": "compose"}
         self.assertEqual(self._resolve(vars_), "127.0.0.1")
+
+    def test_an_unrendered_group_var_still_reaches_the_rig_loopback(self):
+        """DOCKER_IN_CONTAINER is a group_vars expression, and a lookup receives it
+        raw. Read unrendered it is neither true nor false, so the rig kept the
+        configured relay instead of loopback — and on an onion node that relay is a
+        .onion, which msmtp cannot route (EX_UNAVAILABLE, 'proxy failure')."""
+        raw = "{{ (ansible_facts['env']['container'] | default('')) != '' }}"
+        vars_ = {"DOCKER_IN_CONTAINER": raw, "DEPLOYMENT_MODE": "compose"}
+        lm = self.LookupModule()
+        lm._templar = _RenderingTemplar(vars_, {raw: True})
+        lm._loader = None
+        self.assertEqual(lm.run([_email()], variables=vars_)[0], "127.0.0.1")
 
     def test_swarm_node_uses_loopback(self):
         vars_ = {

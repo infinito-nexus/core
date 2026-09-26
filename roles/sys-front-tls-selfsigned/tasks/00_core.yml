@@ -110,7 +110,7 @@
       {{
         (
           (_ss_cert_text.stdout | default('')) |
-          regex_findall('DNS:([^,\\s;]+)') |
+          regex_findall('DNS:([^,\s;]+)') |
           map('lower') | list | unique | sort
         )
         if (_ss_cert_stat.stat.exists | default(false)) else

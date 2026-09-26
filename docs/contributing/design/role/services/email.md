@@ -89,10 +89,10 @@ Role templates and tasks that consume the lookup MUST follow these rules:
 - For `vars/main.yml`, contributors MUST define a single holder variable (`<ROLE>_EMAIL: "{{ lookup('email', application_id) }}"`) and reference its keys. Re-calling the lookup on every reference would re-run the resolution.
 - Non-app consumers (any `sys-*` role) MUST call `lookup('email')` without an `application_id` so they never trigger a per-app merge.
 
-## Mailu Dependency Detection 🚨
+## Mail Provider Dependency Detection 🚨
 
-Roles that call `lookup('email', ...)` are treated as dependents of Mailu.
-The integration check [test_mailu_dependency.py](../../../../../tests/integration/infrastructure/services/test_mailu_dependency.py) scans every role for the `lookup('email'` pattern and fails if such a role does not declare `services.email` with `enabled: true` and `shared: true` at the file root of its `meta/services.yml`.
+Roles that call `lookup('email', ...)` are treated as dependents of the mail provider (`web-app-stalwart`).
+The integration check [test_mail_provider_dependency.py](../../../../../tests/integration/infrastructure/services/test_mail_provider_dependency.py) scans every role for the `lookup('email'` pattern and fails if such a role does not declare `services.email` with `enabled: true` and `shared: true` at the file root of its `meta/services.yml`.
 A new email consumer MUST declare that service block in its role's `meta/services.yml`.
 
 ## See Also 🔗
