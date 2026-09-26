@@ -116,8 +116,8 @@ def committing_as(root: Path | None = None) -> tuple[str, str]:
         ``(name, email)``; either is empty when neither source knows it.
     """
     carried = (
-        os.environ.get("INFINITO_GIT_AUTHOR_NAME", "").strip(),
-        os.environ.get("INFINITO_GIT_AUTHOR_EMAIL", "").strip(),
+        (os.environ.get("INFINITO_GIT_AUTHOR_NAME") or "").strip(),
+        (os.environ.get("INFINITO_GIT_AUTHOR_EMAIL") or "").strip(),
     )
     if carried[1]:
         return carried
