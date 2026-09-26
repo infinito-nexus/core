@@ -38,12 +38,21 @@ class TestParallelDeployIsRefused(unittest.TestCase):
         root = Path(self._tmp.name)
         router = root / "scripts" / "deploy" / "main.sh"
         router.parent.mkdir(parents=True, exist_ok=True)
-        router.write_text("read -r _\n", encoding="utf-8")
+        router.write_text("echo started\nread -r _\n", encoding="utf-8")
         held = subprocess.Popen(
             ["bash", str(router)],
             stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
         )
         self.addCleanup(held.kill)
+        self.addCleanup(held.stdout.close)
+        self.assertEqual(
+            held.stdout.readline(),
+            b"started\n",
+            "the router has to reach its first line before its command line is read; "
+            "/proc/<pid>/cmdline is empty until the child execs, which it is for "
+            "376 of 400 reads taken right after Popen returns",
+        )
 
         self.assertTrue(deploying(self._root_holding(held.pid)))
 
