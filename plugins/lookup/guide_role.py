@@ -16,9 +16,7 @@ from plugins.lookup.deployment import running_apps
 from utils.roles.validation.invokable import list_invokable_app_ids
 
 
-def guide_role(
-    application_id: str, running: list[str], invokable: list[str]
-) -> str:
+def guide_role(application_id: str, running: list[str], invokable: list[str]) -> str:
     """Return the app whose guide is replayed, ``application_id`` when it is alone.
 
     Args:
@@ -39,5 +37,9 @@ class LookupModule(LookupBase):
         **kwargs: Any,
     ) -> list[str]:
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
-        application_id = str(terms[0]) if terms else str(vars_.get("application_id", ""))
-        return [guide_role(application_id, running_apps(vars_), list_invokable_app_ids())]
+        application_id = (
+            str(terms[0]) if terms else str(vars_.get("application_id", ""))
+        )
+        return [
+            guide_role(application_id, running_apps(vars_), list_invokable_app_ids())
+        ]

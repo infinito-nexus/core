@@ -9,7 +9,9 @@ INVOKABLE = ["web-app-docs", "web-app-nextcloud", "svc-db-postgres", "dsk-gnt-cl
 class TestGuideRole(unittest.TestCase):
     def test_the_first_invokable_peer_wins(self):
         self.assertEqual(
-            guide_role("web-app-docs", ["web-app-docs", "web-app-nextcloud"], INVOKABLE),
+            guide_role(
+                "web-app-docs", ["web-app-docs", "web-app-nextcloud"], INVOKABLE
+            ),
             "web-app-nextcloud",
         )
 
@@ -20,14 +22,18 @@ class TestGuideRole(unittest.TestCase):
         )
 
     def test_the_asking_role_alone_names_itself(self):
-        self.assertEqual(guide_role("web-app-docs", ["web-app-docs"], INVOKABLE), "web-app-docs")
+        self.assertEqual(
+            guide_role("web-app-docs", ["web-app-docs"], INVOKABLE), "web-app-docs"
+        )
 
     def test_an_empty_round_names_the_asking_role(self):
         self.assertEqual(guide_role("web-app-docs", [], INVOKABLE), "web-app-docs")
 
     def test_the_round_order_decides_between_two_peers(self):
         self.assertEqual(
-            guide_role("web-app-docs", ["svc-db-postgres", "dsk-gnt-claude"], INVOKABLE),
+            guide_role(
+                "web-app-docs", ["svc-db-postgres", "dsk-gnt-claude"], INVOKABLE
+            ),
             "svc-db-postgres",
         )
 

@@ -49,7 +49,9 @@ class QueueFixture(LibraryFixture):
         directory = self.library.translations / version
         directory.mkdir(parents=True, exist_ok=True)
         (directory / "languages.json").write_text(
-            json.dumps({"known": {code: code for code in translated}, "translated": translated}),
+            json.dumps(
+                {"known": {code: code for code in translated}, "translated": translated}
+            ),
             encoding="utf-8",
         )
 

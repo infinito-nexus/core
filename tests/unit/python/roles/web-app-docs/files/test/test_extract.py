@@ -80,7 +80,9 @@ class TestFetch(unittest.TestCase):
             mock.patch.object(extract.urllib.request, "urlopen", side_effect=answers),
             mock.patch.object(extract.time, "sleep"),
         ):
-            self.assertEqual(extract.fetch("http://x/", timeout=60, poll=0), "<p>ok</p>")
+            self.assertEqual(
+                extract.fetch("http://x/", timeout=60, poll=0), "<p>ok</p>"
+            )
 
     def test_a_build_that_never_finishes_times_out(self) -> None:
         with (
