@@ -4792,6 +4792,16 @@ msgstr "**Host:** `_acme-challenge.DOMAIN_PRIMARY`"
 msgid "**How it works:**"
 msgstr "**Wie es funktioniert:**"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: **Wie viel jeder Faktor zählt, ist eine Zahl in
+# `services.yml`, zwischen 0 und 1.** `services.litellm.router_weights` trägt
+# ein Gewicht pro Faktor: `locality`, `cost` und `speed`. Jeder Faktor wird
+# skaliert auf 0.1 *innerhalb des Kandidaten-Sets* bevor sein Gewicht gilt,
+# weil die rohen Einheiten nicht vergleichen - ein pro-Token-Preis ist ein
+# Millionstel eines Cents und eine Rate ist Dutzende von Token pro Sekunde.
+# Ein Faktor, dessen Wert für jede Route identisch ist 1 und entscheidet daher
+# nichts, anstatt auf einem rundenden Artefakt zu rangieren.
 msgid "**How much each factor counts is a number in `services.yml`, between 0 and 1.** `services.litellm.router_weights` carries one weight per factor: `locality`, `cost` and `speed`. Each factor is scaled to 0..1 *inside the candidate set* before its weight applies, because the raw units do not compare - a per-token price is a millionth of a cent and a rate is tens of tokens per second. A factor whose value is identical across the set scores every route 1 and therefore decides nothing, rather than ranking on a rounding artefact."
 msgstr ""
 
@@ -7446,6 +7456,11 @@ msgid "**Readiness gating:** Bootstrap blocks until the engine accepts connectio
 msgstr "**Radiness Gating:** Bootstrap blockiert, bis der Motor Verbindungen akzeptiert."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: **Reading Status & Reviews:** Markieren Sie Bücher als
+# "zu lesen", "lesen" oder "fertig" und veröffentlichen Sie Bewertungen oder
+# Zitate.
 msgid "**Reading Status & Reviews:** Mark books as “to read,” “reading,” or “finished,” and publish reviews or quotes."
 msgstr ""
 
@@ -8822,6 +8837,21 @@ msgid "**The UI is published, the MCP surface is not.** *(Revised during impleme
 msgstr "**Die Benutzeroberfläche ist veröffentlicht, die MCP-Oberfläche nicht.** *(Während der Implementierung überarbeitet; die ursprüngliche Entscheidung war nur für beide intern.)* Home Assistant folgt dem `web-app-*` Vertrag und bedient seine eigene Benutzeroberfläche auf einer kanonischen Domain durch den Reverse-Proxy, weil jeder Teil dieses Vertrags - `meta/domains.yml`, `meta/csp.yml`, der gast playwright persona - nimmt einen öffentlichen vhost an, und eine rolle ohne eine müsste als eine form gestaltet werden. `svc-*` Rolle statt. Der eigene Auth-Anbieter des Hubs bewacht diese Oberfläche. Der MCP-Endpunkt bleibt `exposure: internal`: es ist nur in Cluster erreichbar, eine nicht authentifizierte Sonde öffentlichen Ursprungs wird abgelehnt, und `files/playwright/test-mcp-guest.js` Er behauptet genau das. Ein Plattform-SSO-Gate vor der Benutzeroberfläche bleibt ein dokumentiertes Follow-up."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: **Die ``mcp`` Eine Rolle wird pro Plattform gewährt,
+# nicht pro Anwendung.** Ein Benutzer ``roles:`` eine Liste nur Rollennamen
+# trägt und ```build_realm_rbac_groups``
+# <../web-app-keycloak/filter_plugins/build_realm_rbac_groups.py>`__ matches
+# them without an application context, so ``roles: [mcp]`` makes that user a
+# member of *every* deployed ``/roles/<app>/mcp`` Gruppe. Berechtigung zum
+# Autofahren Baserow aber nicht GitLab ist daher heute nicht deklarativ
+# ausdrückbar; es braucht die Keycloak Die Mitgliedschaft wird direkt auf die
+# einzelne Gruppe festgelegt. Die tool-server-seite ehrt jede mitgliedschaft,
+# so dass das limit das benutzermodell der plattform ist, nicht diese
+# verkabelung, und die playwright-abdeckung spiegelt es wider: es beweist
+# "alle gruppen sehen alle server" und "keine gruppe sieht keine", nicht der
+# selektive fall.
 msgid "**The ``mcp`` role is granted per platform, not per application.** A user’s ``roles:`` list carries role names only, and ```build_realm_rbac_groups`` <../web-app-keycloak/filter_plugins/build_realm_rbac_groups.py>`__ matches them without an application context, so ``roles: [mcp]`` makes that user a member of *every* deployed ``/roles/<app>/mcp`` group. Entitling somebody to drive Baserow but not GitLab is therefore not expressible declaratively today; it needs the Keycloak membership to be set directly on the single group. The tool-server side honours whatever membership arrives, so the limit is the platform’s user model, not this wiring, and the Playwright coverage reflects it: it proves “all groups sees all servers” and “no group sees none”, not the selective case."
 msgstr ""
 
@@ -8899,6 +8929,23 @@ msgid "**The integration matrix is a generated artifact with a sanctioned genera
 msgstr "**Die Integrationsmatrix ist ein generiertes Artefakt mit einem sanktionierten Generator.** Der Generator lebt unter `cli/build/docs/integration_matrix/` und läuft durch `make integration-matrix`; `docs/` hält nur die gerenderte Seite. Es muss die repo Flusen befriedigen: seine `EDGES` Daten wandern in ein Geschwisterdatenmodul, so dass der Einstiegspunkt unter dem 500-Zeilen-Limit bleibt, er verwendet den gemeinsamen Projekt-Wurzel-Helfer anstelle eines lokalen `__file__` aufwärts gehen, und es trägt keinen Selbstweg wörtlich oder `requirement NNN` Token. Die erzeugte `027-integration-matrix.md` trägt einen `generated-artifact / not-a-requirement` Kopfmarkierung, so dass die Anforderungen Vollständigkeit / Archiv Flusen überspringt es. Dead Upstream URLs in `EDGES` bei der Regeneration fixiert oder fallen gelassen werden."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: **Die Integrationsmatrix ist das Cross-Role Addon
+# Backlog.** Die vollständige rolexrole-Fähigkeitskarte lebt im generierten
+# Begleiter [027-Integrationmatrix.md](027-integration-matrix.md) (Quelle der
+# Wahrheit:
+# [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py)).
+# ☑️ Zellen sind Integrationen **bereits verdrahtet** durch ein
+# Infinito-native Service Flag in der Rolle der Zeile `meta/services.yml`
+# (z.B. `sso`→keycloak, `matomo`, `prometheus`, `email`→mailu), abgeleitet
+# durch Scannen des Repo, keine Aktion erforderlich. ✅ Zellen werden überprüft
+# **Upstream App↔App Plugins noch nicht deklariert** als Addons verpflichtet
+# sich der Backlog dieser Anforderung zu Wire. 🪙 Zellen sind die gleichen wie
+# ✅ Aber hinter einem kommerziellen Tier (Opt-in, Operator-enabled). ❌ Zellen
+# haben keine bekannte Integration. Die Matrix muss regeneriert werden (nicht
+# handbearbeitet) wann immer eine Rolle oder eine Integration hinzugefügt
+# wird; `meta/addons/` Migrationswende ✅ in ☑️ im Laufe der Zeit.
 msgid "**The integration matrix is the cross-role addon backlog.** The full role×role capability map lives in the generated companion [027-integration-matrix.md](027-integration-matrix.md) (source of truth: [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py)). ☑️ cells are integrations **already wired** through an infinito-native service flag in the row role's `meta/services.yml` (e.g. `sso`→keycloak, `matomo`, `prometheus`, `email`→mailu), derived by scanning the repo, no action required. ✅ cells are verified **upstream app↔app plugins not yet declared** as addons, the backlog this requirement commits to wire. 🪙 cells are the same as ✅ but gated behind a commercial tier (opt-in, operator-enabled). ❌ cells have no known integration. The matrix MUST be regenerated (not hand-edited) whenever a role or an integration is added; the `meta/addons/` migrations turn ✅ into ☑️ over time."
 msgstr ""
 
@@ -11062,10 +11109,18 @@ msgid "**galaxy_tags**: ['baserow', 'docker', 'data management', 'databases']"
 msgstr "**galaxy_tags**: ['baserow', 'docker', 'data management', 'databases']"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: **galaxy_tags**: ['bluesky', 'docker', "soziales
+# Netzwerk", 'decentralized']
 msgid "**galaxy_tags**: ['bluesky', 'docker', 'social network', 'decentralized']"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: **galaxy_tags**: ['friendica', 'docker', "soziales
+# Netzwerk", 'decentralized']
 msgid "**galaxy_tags**: ['friendica', 'docker', 'social network', 'decentralized']"
 msgstr ""
 
@@ -11078,6 +11133,9 @@ msgid "**galaxy_tags**: ['gitlab', 'docker', 'ci/cd', 'self-hosted', 'version co
 msgstr "**galaxy_tags**: ['gitlab', 'docker', 'ci/cd', 'self-hosted', 'version control']"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: **galaxy_tags**: ['jira', "Projektmanagement"]
 msgid "**galaxy_tags**: ['jira', 'project management']"
 msgstr ""
 
@@ -11102,6 +11160,10 @@ msgid "**galaxy_tags**: ['mailu', 'docker', 'email', 'mail server', 'self-hosted
 msgstr "**galaxy_tags**: ['mailu', 'docker', 'email', 'mail server', 'self-hosted']"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: **galaxy_tags**: ['mastodon', 'docker', 'federated',
+# 'decentralized', 'microblog'"Soziales Netzwerk"]
 msgid "**galaxy_tags**: ['mastodon', 'docker', 'federated', 'decentralized', 'microblog', 'social network']"
 msgstr ""
 
@@ -11109,6 +11171,10 @@ msgstr ""
 msgid "**galaxy_tags**: ['nginx', 'docker', 'reverse\\_proxy', 'web', 'automation', 'archlinux']"
 msgstr "**galaxy_tags**: ['nginx', 'docker', 'reverse\\ proxy' 'web', 'automation', 'archlinux']"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: **galaxy_tags**: ['nginx', 'javascript', 'csp'"sub\
+# filter" 'injection', 'global']
 msgid "**galaxy_tags**: ['nginx', 'javascript', 'csp', 'sub\\_filter', 'injection', 'global']"
 msgstr ""
 
@@ -11960,6 +12026,10 @@ msgid "- ``(payload_bytes, total_bytes)`` on success - ``(\"SKIPPED\", reason)``
 msgstr "- ``(payload_bytes, total_bytes)`` Erfolgreich - ``(\"SKIPPED\", reason)`` Wenn Ping nicht verfügbar ist oder fehlt CAP_NET_RAW - ``(None, None)`` Wenn jede Sondengröße fallen gelassen wird"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate echo
+# nocheck: url
+# translation-rejected: --distro debian --owner acme --repository
+# infinito-nexus --tag ci-abc
 msgid "--distro debian --owner acme --repository infinito-nexus --tag ci-abc"
 msgstr ""
 
@@ -14436,6 +14506,16 @@ msgid "Action Plugin Tests 🧩"
 msgstr "Action Plugin Tests 🧩"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Aktionen, die mit dem Workflow durchgeführt werden
+# `GITHUB_TOKEN` Starten Sie keine weiteren Workflowläufe. Wann
+# [cron-update.yml](../../../../../.github/workflows/cron-update.yml) öffnet
+# ein Update PR mit `GITHUB_TOKEN`, `pull_request` und `pull_request_target`
+# Ereignisse, die treiben
+# [Entry-pr-changeorchestrate.yml](../../../../../.github/workflows/entry-pr-change-orchestrate.yml)
+# Feuern Sie nicht auf diese PR, so dass der CI-Orchestrator niemals dagegen
+# antritt.
 msgid "Actions performed with the workflow-provided `GITHUB_TOKEN` do not start further workflow runs. When [cron-update.yml](../../../../../.github/workflows/cron-update.yml) opens an update PR with `GITHUB_TOKEN`, the `pull_request` and `pull_request_target` events that drive [entry-pr-change-orchestrate.yml](../../../../../.github/workflows/entry-pr-change-orchestrate.yml) do not fire on that PR, so the CI orchestrator never runs against it."
 msgstr ""
 
@@ -15677,6 +15757,10 @@ msgid "All other `4xx`/`5xx` codes and connection errors (DNS, SSL) fail the tes
 msgstr "Alle anderen `4xx`/`5xx` Codes und Verbindungsfehler (DNS, SSL) bestehen nicht im Test."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Alle anderen Bereiche müssen die volle
+# [Anruforchestrator.yml](../../../../.github/workflows/call-orchestrator.yml).
 msgid "All other scopes MUST run the full [call-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml)."
 msgstr ""
 
@@ -15741,10 +15825,20 @@ msgid "All settings available as `SEMAPHORE_*` env vars; `_FILE` suffix reads a 
 msgstr "Alle Einstellungen verfügbar als `SEMAPHORE_*` env vars; `_FILE` Suffix liest einen Wert aus einer Datei (geheimfreundlich)."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Alle Aufgaben werden durch "run once" Fakten geschützt
+# und `MODE_CLEANUP` Markierungen, um unbeabsichtigte Wiederholungen oder
+# veraltete Dateien zu vermeiden.
 msgid "All tasks are guarded by “run once” facts and `MODE_CLEANUP` flags to avoid unintended re-runs or stale files."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Alle Aufgaben werden durch "run once" Fakten geschützt
+# und ``MODE_CLEANUP`` Markierungen, um unbeabsichtigte Wiederholungen oder
+# veraltete Dateien zu vermeiden.
 msgid "All tasks are guarded by “run once” facts and ``MODE_CLEANUP`` flags to avoid unintended re-runs or stale files."
 msgstr ""
 
@@ -16058,6 +16152,11 @@ msgid "Among the hosts in `svc-swarm-node`, the cluster manager is identified by
 msgstr "Unter den Gastgebern in `svc-swarm-node`, Der Clustermanager wird durch zusätzliche Mitgliedschaft in `svc-swarm-manager`. v1 Umfang: genau EIN Host. Arbeiter werden abgeleitet als `svc-swarm-node − svc-swarm-manager` — keine doppelte Liste in `group_vars`."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: An "Anwendungsrolle" mindestens ein Projekt besitzt
+# `meta/<topic>.yml` Markierungsdatei (Dienste, Server, rbac, Volumes, Schema,
+# Benutzer).
 msgid "An \"application role\" carries at least one project-owned `meta/<topic>.yml` marker file (services, server, rbac, volumes, schema, users)."
 msgstr ""
 
@@ -17066,6 +17165,15 @@ msgstr "Als Plattformadministrator von Infinito.Nexus, Ich möchte eine `web-app
 msgid "As a platform administrator of Infinito.Nexus, I want a self-hostable `web-app-atmo` role that deploys an [atmo.rsvp](https://atmo.rsvp) instance (upstream [flo-bit/atmo-events](https://github.com/flo-bit/atmo-events), the successor to OpenMeet) wired to the platform's existing AT Protocol identity, and a bridge that mirrors calendar events between AT Protocol and Mobilizon, so that events created on my instance appear simultaneously on the AT Protocol (Bluesky) network and the ActivityPub (Fediverse) network from a single source of truth."
 msgstr "Als Plattformadministrator von Infinito.Nexus, Ich möchte eine Selbst-Hostable `web-app-atmo` Rolle, die eine [atmo.rsvp](https://atmo.rsvp) Beispiel (Vorwärts [flo-bit/atmo-events](https://github.com/flo-bit/atmo-events), Der Nachfolger von OpenMeet) Verdrahtet mit der vorhandenen AT-Protokoll-Identität der Plattform und einer Brücke, die Kalenderereignisse zwischen AT Protocol und Mobilizon widerspiegelt, so dass Ereignisse, die auf meiner Instanz erstellt wurden, gleichzeitig auf dem AT-Protokoll erscheinen. (Bluesky) Netzwerk und ActivityPub (Fediverse) Netzwerk aus einer einzigen Quelle der Wahrheit."
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Als Plattformadministrator von Infinito.Nexus, Ich
+# möchte ein einziges OpenAI-kompatibles LLM-Gateway, das zu jedem
+# Modell-Backend führt. (lokal Ollama, LM Studio, OpenRouter, ...), damit
+# jeder KI-Verbraucher (OpenWebUI, Flowise, und der Agent Mitarbeiter in
+# [032](032-agent-employees-firecracker.md)) Ziele 1 `/v1` Endpoint und I
+# tauschen oder fügen Modell-Backends zentral hinzu, ohne einen Verbraucher zu
+# berühren.
 msgid "As a platform administrator of Infinito.Nexus, I want a single OpenAI-compatible LLM gateway that routes to any model backend (local Ollama, LM Studio, OpenRouter, ...), so that every AI consumer (OpenWebUI, Flowise, and the agent employees in [032](032-agent-employees-firecracker.md)) targets one `/v1` endpoint and I swap or add model backends centrally without touching any consumer."
 msgstr ""
 
@@ -17848,6 +17956,17 @@ msgid "Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), 
 msgstr "Vor der Implementierung muss der Agent lesen [AGENTS.md](../../AGENTS.md), die Zielrolle `AGENTS.md` wenn vorhanden, [CONTRIBUTING.md](../../CONTRIBUTING.md), und die Agent- und Contributor-Anleitung des Repository. Jede Upstream-Fähigkeit MUSS mit dem genauen Image-Tag, Source-Tag oder Commit verifiziert werden, das von der Implementierung ausgewählt wurde; die aktuelle Dokumentation oder eine neuere Upstream-Version ist kein Beweis für den bereitgestellten Pin."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Vor der Implementierung muss der Agent lesen
+# [AGENTS.md](../../AGENTS.md), dann [Komponieren
+# Loop](../agents/action/iteration/compose.md), [Swarm
+# Loop](../agents/action/iteration/swarm.md),
+# [Einsatzmodes.md](../contributing/design/deployment-modes.md),
+# [Playwright-Vertrag](../contributing/artefact/files/role/playwright.specs.js.md),
+# und die IAM-Seiten [common.md](../contributing/design/iam/common.md),
+# [oidc.md](../contributing/design/iam/oidc.md) und
+# [rbac.md](../contributing/design/iam/rbac.md).
 msgid "Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Compose Loop](../agents/action/iteration/compose.md), [Swarm Loop](../agents/action/iteration/swarm.md), [deployment-modes.md](../contributing/design/deployment-modes.md), the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md), and the IAM pages [common.md](../contributing/design/iam/common.md), [oidc.md](../contributing/design/iam/oidc.md) and [rbac.md](../contributing/design/iam/rbac.md)."
 msgstr ""
 
@@ -19102,6 +19221,16 @@ msgstr "CI Bilder 🐳"
 msgid "CI in your fork MUST be green."
 msgstr "CI in Ihrer Gabel muss grün sein."
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: CI wird automatisch bei Pull-Request-Ereignissen und
+# bei Pushs zu den in der Entry-Workflow-Zeile in
+# [workflows.md](../../tools/github/actions/workflows.md). Die Pipeline
+# besteht aus wiederverwendbaren Workflow-Dateien unter
+# [Github/Workflows](../../../../.github/workflows/). Der zentrale Koordinator
+# ist
+# [Anruforchestrator.yml](../../../../.github/workflows/call-orchestrator.yml),
+# die durch die Eingabe-Workflows aufgerufen wird.
 msgid "CI is triggered automatically on pull-request events and on pushes to the branches listed in the entry-workflow row in [workflows.md](../../tools/github/actions/workflows.md). The pipeline is composed of reusable workflow files under [.github/workflows/](../../../../.github/workflows/). The central coordinator is [call-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml), which is called by the entry workflows."
 msgstr ""
 
@@ -19780,6 +19909,12 @@ msgid "Centralizes container execution logic"
 msgstr "Zentralisiert Containerausführungslogik"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Cert Generation läuft in einem Wegwerf-Alpencontainer
+# angetrieben von
+# [Packungsfrontendcerts.sh](../../../scripts/docker/cache/package-frontend/certs.sh)
+# Bevor das Frontend beginnt.
 msgid "Cert generation runs in a throw-away alpine container driven by [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) before the frontend starts."
 msgstr ""
 
@@ -21217,6 +21352,14 @@ msgid "CodeQL (High severity)"
 msgstr "CodeQL (Hoher Schweregrad)"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Statische CodeQL-Analyse. Aufruf von
+# [Anruforchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml)
+# So erzeugt jeder CI-Lauf einen einzigen Scan; außerdem läuft er auf einem
+# wöchentlichen Cron, so dass die Abdeckung nicht sinkt, wenn kein Schub auf
+# `main`. siehe [pipeline.md](../../../artefact/git/pipeline.md) für das
+# Angussverhalten.
 msgid "CodeQL static analysis. Invoked by [call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) so every CI run produces a single scan; additionally runs on a weekly cron so coverage does not drop when no pushes land on `main`. See [pipeline.md](../../../artefact/git/pipeline.md) for the gating behaviour."
 msgstr ""
 
@@ -21867,6 +22010,10 @@ msgid "Connection vars, the variant-baked `applications.<app>` block, vault-encr
 msgstr "Connection Vars, die Variante gebacken `applications.<app>` Block, vault-verschlüsselt `ansible_become_password`, plus jede `--vars` / `--vars-file` Überlagerungen (Was ist, wo deployment-wide flags wie. `DOMAIN_PRIMARY`, `TLS_ENABLED`, und `networks.internet.{ip4,ip6}` Geben Sie bei Einstellung ein, ansonsten group_vars bietet die env-driven defaults)."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate echo
+# nocheck: url
+# translation-rejected: Connection vars, vars-file/JSON overlays,
+# become-password handling.
 msgid "Connection vars, vars-file/JSON overlays, become-password handling."
 msgstr ""
 
@@ -22228,6 +22375,15 @@ msgid "Controller-side *version* lookup plugin reading from *pyproject.toml* (wi
 msgstr "Controllerseitiges *Version* Lookup-Plugin lesen von *pyproject.toml* (mit Poetry Fallback)"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Steuert, ob Playwright Trace, Screenshot und Video für
+# jeden Test oder nur für fehlgeschlagene Tests im Deployment-Test-Workflow
+# speichert
+# ([Call-Testdeploy.yml](../../../../../.github/workflows/call-test-deploy.yml))Für
+# die vollständige Ausbreitungskette, die Inventarüberschreibung und die
+# lokalen Entsprechungen siehe [Playwright
+# Tests](../../../actions/testing/playwright.md#artefact-retention-).
 msgid "Controls whether Playwright keeps trace, screenshot, and video for every test or only for failing tests in the deploy-test workflow ([call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml)). For the full propagation chain, the inventory override, and the local equivalents, see [Playwright Tests](../../../actions/testing/playwright.md#artefact-retention-)."
 msgstr ""
 
@@ -22372,6 +22528,13 @@ msgid "Core developer workflow (`make install`, `make setup`)"
 msgstr "Workflow für Entwickler (`make install`, `make setup`)"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Core hat heute keinen Gettext. Der einzige Katalog ist
+# [logout_i18n.yml](../../roles/web-app-keycloak/files/logout_i18n.yml): 30
+# Sprachen mit Schlüsseln nach Sprachcode, benannte Schlüssel, `{placeholder}`
+# Slots und a `dir` value, inlined als JSON by
+# [Logoutpanel.js.j2](../../roles/web-app-keycloak/templates/logout-panel.js.j2).
 #, python-brace-format
 msgid "Core has no gettext today. The only catalogue is [logout_i18n.yml](../../roles/web-app-keycloak/files/logout_i18n.yml): 30 languages keyed by language code, named keys, `{placeholder}` slots and a `dir` value, inlined as JSON by [logout-panel.js.j2](../../roles/web-app-keycloak/templates/logout-panel.js.j2)."
 msgstr ""
@@ -22822,6 +22985,14 @@ msgstr "Derzeit werden keine Kontrollen durchgeführt"
 msgid "Cursor's CLI cannot be pointed at a custom OpenAI-compatible endpoint: it exchanges the key for Cursor session tokens and talks its own protocol afterwards. The editor does carry an \"Override OpenAI Base URL\" field, but it lives in Cursor's own state database rather than in a file this role could render."
 msgstr "Cursors CLI kann nicht auf einen benutzerdefinierten OpenAI-kompatiblen Endpunkt ausgerichtet werden: Es tauscht den Schlüssel für Cursor Session-Tokens und spricht danach ein eigenes Protokoll. Der Editor trägt eine \"OpenAI Base URL überschreiben\" Feld, aber es lebt in Cursoreigene staatliche Datenbank statt in einer Datei, die diese Rolle darstellen könnte."
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Cursors CLI kann nicht auf einen benutzerdefinierten
+# OpenAI-kompatiblen Endpunkt ausgerichtet werden: Er tauscht den Schlüssel
+# für Cursor Session-Tokens und spricht danach ein eigenes Protokoll. Der
+# Editor trägt ein Feld "Override OpenAI Base URL", aber es lebt in CursorDie
+# eigene staatsdatenbank und nicht in einer datei, die diese rolle darstellen
+# könnte.
 msgid "Cursor’s CLI cannot be pointed at a custom OpenAI-compatible endpoint: it exchanges the key for Cursor session tokens and talks its own protocol afterwards. The editor does carry an “Override OpenAI Base URL” field, but it lives in Cursor’s own state database rather than in a file this role could render."
 msgstr ""
 
@@ -23014,6 +23185,9 @@ msgid "Dashboard"
 msgstr "Dashboard"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate echo
+# nocheck: url
+# translation-rejected: Dashboard Integration Scope Tests 🎛️
 msgid "Dashboard Integration Scope Tests 🎛️"
 msgstr ""
 
@@ -25856,6 +26030,11 @@ msgid "Empty key or out-of-deployment base URL fails the deploy"
 msgstr "Leere Schlüssel- oder Out-of-Deployment-Basis-URL schlägt die Bereitstellung fehl"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Leerergebnis (Keine offene PR): Erstellen Sie einen
+# als Entwurf über `gh pr create --draft` Verwendung des Matching Templates
+# per [Zugrequest.md](./pull-request.md).
 msgid "Empty result (no open PR): create one as draft via `gh pr create --draft` using the matching template per [pull-request.md](./pull-request.md)."
 msgstr ""
 
@@ -26278,6 +26457,17 @@ msgid "Entries are ``\"name:address\"`` strings and are deduplicated in first-se
 msgstr "Einträge sind ``\"name:address\"`` Strings und werden in erster Reihenfolge dedupliziert. Wenn nichts das Lookup ausgibt, gibt es eine leere Zeichenfolge zurück."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Einträge Render **Behinderte**, und die Aufgabe
+# ermöglicht jedem in demselben Schreiben, das seine Bewilligung trägt. Eine
+# leere ``access_grants`` ist nicht "niemand": Open WebUI liest es wie jeder
+# Administrator, der breiter ist als die ``mcp`` Gruppe. Seit
+# ``ENABLE_PERSISTENT_CONFIG=false`` macht das env bei jedem start wieder
+# autoritativ, ein aktivierter, aber nicht genehmigter eintrag würde allen
+# administratoren vor dem ersten provisioning-lauf und nach einem nackten
+# container-neustart zugriff geben. Ein behinderter eintrag wird überhaupt
+# nicht bedient, so dass der fallback kein zugang statt zu viel ist.
 msgid "Entries render **disabled**, and the task enables each one in the same write that carries its grant. An empty ``access_grants`` is not “nobody”: Open WebUI reads it as every administrator, which is wider than the ``mcp`` group. Since ``ENABLE_PERSISTENT_CONFIG=false`` makes the env authoritative again on every start, an enabled-but-ungranted entry would hand access to all administrators before the first provisioning run and after any bare container restart. A disabled entry is not served at all, so the fallback is no access rather than too much."
 msgstr ""
 
@@ -26634,6 +26824,15 @@ msgstr "Jeder Fehler ist an seiner Wurzel fixiert. Ein Flusentreffer wird durch 
 msgid "Every failure raises AnsibleError with an actionable message."
 msgstr "Jeder Fehler wirft AnsibleError mit einer umsetzbaren Nachricht auf."
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Jede Datei hier wird als Addon deklariert unter
+# `meta/addons/` mit `mechanism: mu_plugin` und `source: vendored`, Die
+# Addon-ID ist der Dateistamm. [04mu
+# plugins.yml](../../tasks/04_mu_plugins.yml) Schleifen über diese Erklärungen
+# und Kopien `<addon_id>.php` bei jedem Deployment in den Container; eine neue
+# Datei benötigt daher `meta/addons/<addon_id>.yml` Eintrag und eine
+# Playwright-Spezifikation, bevor sie installiert wird.
 msgid "Every file here is declared as an addon under `meta/addons/` with `mechanism: mu_plugin` and `source: vendored`, and the addon id is the file stem. [04_mu_plugins.yml](../../tasks/04_mu_plugins.yml) loops over those declarations and copies `<addon_id>.php` into the container on every deploy; a new file therefore needs its `meta/addons/<addon_id>.yml` entry and a Playwright spec before it is installed."
 msgstr ""
 
@@ -26847,6 +27046,11 @@ msgstr "Jede Spec muss festgelegt werden `test.use({ ignoreHTTPSErrors: true })`
 msgid "Every stack has its own domain below it (`INFINITO_DOMAIN`): the primary checkout is `main.infinito.test`, a worktree from `make worktree-up` is its branch lowercased with every character outside `a-z0-9_-` replaced by `-` (`feature/store-i18n` → `feature-store-i18n.infinito.test`). `linux.sh` routes each stack's domain to that checkout's `INFINITO_BIND_IP`, read from the `.env` of every `git worktree list` entry. Re-run `make network-dns-setup` after creating or removing a worktree."
 msgstr "Jeder Stack hat seine eigene Domain darunter. (`INFINITO_DOMAIN`): Der primäre Checkout ist `main.infinito.test`, Ein Worktree von `make worktree-up` ist sein Zweig niedriger geschnitten mit jedem Charakter außerhalb `a-z0-9_-` ersetzt durch `-` (`feature/store-i18n` → `feature-store-i18n.infinito.test`). `linux.sh` Routen jeder Stack-Domäne zu diesem Checkout `INFINITO_BIND_IP`, Lesen Sie aus dem `.env` von jedem `git worktree list` Eintrag. Wiederholung `make network-dns-setup` nach dem Erstellen oder Entfernen eines Worktrees."
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Jede Stateful Rolle im Repo hält beide Modi ein; nur
+# Host-Level- und Infrastrukturrollen deaktivieren Schwarm. Siehe
+# [Einsatzmodes.md](../contributing/design/deployment-modes.md).
 msgid "Every stateful role in the repo keeps both modes on; only host-level and infrastructure roles disable swarm. See [deployment-modes.md](../contributing/design/deployment-modes.md)."
 msgstr ""
 
@@ -29255,6 +29459,13 @@ msgid "Fork PRs cannot publish packages themselves, so their untrusted `pull_req
 msgstr "Fork PRs können Pakete nicht selbst veröffentlichen, so dass ihre nicht vertrauenswürdigen `pull_request` läuft warten in `scripts/meta/wait/mirrors.sh` bis ein vertrauenswürdiger Produzentenlauf die erforderlichen Refs veröffentlicht hat."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Fork PRs laufen unter dem `pull_request` Event ohne
+# Schreibberechtigungen. Privilegierte Schritte (Image Builds, Paket schreibt)
+# Lauf über `pull_request_target`. Die Gabel CI wartet auf diese
+# privilegierten Bilder, bevor sie fortfahren. Siehe
+# [Zugrequest.md](pull-request.md) für den mitwirkenden fork-workflow.
 msgid "Fork PRs run under the `pull_request` event without write permissions. Privileged steps (image builds, package writes) run via `pull_request_target`. The fork CI waits for those privileged images before proceeding. See [pull-request.md](pull-request.md) for the contributor-facing fork workflow."
 msgstr ""
 
@@ -29571,6 +29782,11 @@ msgid "GITHUB_ACTIONS=true AND not ACT   -> real github actions"
 msgstr "GITHUB_ACTIONS=true AND not ACT -> echte Github-Aktionen"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: GITHUB_REPOSITORY_OWNER: niedrigerer
+# GHA-Repository-Besitzer, abgeleitet von GITHUB_REPOSITORY_OWNER / EIGENTÜMER
+# / GITHUB_REPOSITORYTödlich, wenn auf GHA nicht auflösbar.
 msgid "GITHUB_REPOSITORY_OWNER: lowercased GHA repository owner, derived from GITHUB_REPOSITORY_OWNER / OWNER / GITHUB_REPOSITORY. Fatal if unresolvable on GHA."
 msgstr ""
 
@@ -30176,6 +30392,13 @@ msgid "HTTP/2 support, TLS/SSL integration"
 msgstr "HTTP/2 Unterstützung, TLS/SSL Integration"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: HTTPS (Hafen 443): Per-Hostname-Serverzertifikate, die
+# von einer dedizierten CA unterzeichnet wurden. Verwendet von der `infinito`
+# Läufer (Ansible-driven `pip install`, `gem install`, `composer install`,
+# `curl https://…`)Der Läufer vertraut der CA über
+# [Packungsfrontendca.sh](../../../scripts/docker/cache/package-frontend/ca.sh).
 msgid "HTTPS (port 443): per-hostname server certs signed by a dedicated CA. Used by the `infinito` runner (Ansible-driven `pip install`, `gem install`, `composer install`, `curl https://…`). The runner trusts the CA via [package-frontend-ca.sh](../../../scripts/docker/cache/package-frontend/ca.sh)."
 msgstr ""
 
@@ -30979,6 +31202,10 @@ msgid "INFINITO_WORKER_CPU: CPU-count base for the worker SPOT chain."
 msgstr "INFINITO_WORKER_CPU: CPU-Count-Basis für die Worker SPOT-Kette."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate echo
+# nocheck: url
+# translation-rejected: INFINITO_WORKER_FETCH: I/O-bound network-fetch worker
+# count.
 msgid "INFINITO_WORKER_FETCH: I/O-bound network-fetch worker count."
 msgstr ""
 
@@ -31097,6 +31324,9 @@ msgid "Identity"
 msgstr "Identität"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate echo
+# nocheck: url
+# translation-rejected: Identity & Access Integration Tests 🔐
 msgid "Identity & Access Integration Tests 🔐"
 msgstr ""
 
@@ -31457,6 +31687,12 @@ msgid "If the upstream is HTTP-only and inner-`dockerd` builds need it, also add
 msgstr "Wenn der Upstream nur HTTP und inner-`dockerd` Builds brauchen es, fügen Sie es auch hinzu `_CACHE_HTTP_HOSTNAMES` in [compose.py](../../../roles/sys-svc-compose/files/python/compose.py) Die Per-App `compose.cache.override.yml` Einschließt es in `build.extra_hosts`."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Wenn der Upstream HTTPS verwendet, fügen Sie ihn hinzu
+# `HOSTNAMES` in
+# [Packungsfrontendcerts.sh](../../../scripts/docker/cache/package-frontend/certs.sh)
+# So wird ein Blattzertifikat ausgestellt.
 msgid "If the upstream uses HTTPS, add it to `HOSTNAMES` in [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) so a leaf cert is issued."
 msgstr ""
 
@@ -35352,10 +35588,20 @@ msgid "Load metadata from ``meta/main.yml``."
 msgstr "Metadaten laden von ``meta/main.yml``."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Laden Sie verschachtelte Rollen YAML und geben Sie
+# dash-verbundene Pfade zurück, wo 'invokable' ist falsch oder fehlt. Fügt
+# Suffix (falls vorhanden) bei.
 msgid "Load nested roles YAML and return dash-joined paths where 'invokable' is False or missing. Appends suffix if provided."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Laden Sie verschachtelte Rollen YAML und geben Sie
+# dash-verbundene Pfade zurück, wo 'invokable' ist wahr. Fügt Suffix (falls
+# vorhanden) bei.
 msgid "Load nested roles YAML and return dash-joined paths where 'invokable' is True. Appends suffix if provided."
 msgstr ""
 
@@ -35901,6 +36147,10 @@ msgid "MCP client wiring: the native `@modelcontextprotocol/sdk` client is confi
 msgstr "MCP Client Verdrahtung: der native `@modelcontextprotocol/sdk` Der Client wird konfiguriert durch `openclaw.json`, Nicht env."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: MCP-Vertrag:
+# [025-mcp-Rolleintegration.md](025-mcp-role-integration.md)
 msgid "MCP contract: [025-mcp-role-integration.md](025-mcp-role-integration.md)"
 msgstr ""
 
@@ -35929,6 +36179,10 @@ msgid "MCP server roles expose application capabilities through an authenticated
 msgstr "MCP-Serverrollen zeigen Anwendungsmöglichkeiten über einen authentifizierten MCP-Endpunkt."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: MCP-Tool-Ebene:
+# [025-mcp-Rolleintegration.md](025-mcp-role-integration.md)
 msgid "MCP tool plane: [025-mcp-role-integration.md](025-mcp-role-integration.md)"
 msgstr ""
 
@@ -36177,6 +36431,10 @@ msgid "Maintenance, dependency, and tooling updates (incl. branches created by [
 msgstr "Wartung, Abhängigkeit und Tooling-Updates (Incl. Zweigstellen erstellt von [cron-update.yml](../../../../.github/workflows/cron-update.yml))"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Markeproxy_hide_header Content-Security-Policy'
+# optional mit more_header Option.
 msgid "Make 'proxy_hide_header Content-Security-Policy' optional by using more_header option."
 msgstr ""
 
@@ -37523,6 +37781,10 @@ msgid "NGINX server blocks that permanently redirect www subdomains to their non
 msgstr "NGINX-Serverblöcke, die www-Subdomains dauerhaft auf ihre Nicht-www-Apex-Domains umleiten"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate echo
+# nocheck: url
+# translation-rejected: NGINX vHost Templates: Basic vs. WebSocket
+# (ws_generic)
 msgid "NGINX vHost Templates: Basic vs. WebSocket (ws_generic)"
 msgstr ""
 
@@ -38848,6 +39110,10 @@ msgid "One Ansible module invocation the action plugin should execute."
 msgstr "Ein Ansible-Modulaufruf, den das Aktions-Plugin ausführen soll."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: 1 OpenAI-kompatibel `/v1`, Routen zu jedem Backend
+# (Kopflos, nur intern)
 msgid "One OpenAI-compatible `/v1`, routes to any backend (headless, internal-only)"
 msgstr ""
 
@@ -38856,29 +39122,60 @@ msgid "One Pi joins as a `kata-capable` arm64 node; `web-app-hermes` deploys the
 msgstr "Ein Pi tritt als ein `kata-capable` arm64-Knoten; `web-app-hermes` wird dort unter der vom Preflight ausgewählten isolierenden Laufzeit bereitgestellt (Entscheidung #4)."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: 1 `HiddenServicePort` deckt alle Apps ab: alle
+# `<sub>.<NODE_ONION>.onion` Request kommt am `127.0.0.1:80` wo OpenResty
+# Strecken durch `Host`.
 msgid "One `HiddenServicePort` covers all apps: every `<sub>.<NODE_ONION>.onion` request arrives on `127.0.0.1:80` where OpenResty routes by `Host`."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: 1 ``package_name: "<name>==<version>"`` Linie.
 msgid "One ``package_name: \"<name>==<version>\"`` line."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: 1 ``pg_dumpall`` Dump einer ganzen Instanz innerhalb
+# einer Generation.
 msgid "One ``pg_dumpall`` dump of a whole instance inside a generation."
 msgstr ""
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: 1 ``python:<version>-slim`` Container betreibt den
+# Service in ``files/python/infinito_docs/``:
 msgid "One ``python:<version>-slim`` container runs the service in ``files/python/infinito_docs/``:"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: 1 ``{"image", "track", "icon", "label"}`` Eintrag pro
+# Bild.
 #, python-brace-format
 msgid "One ``{\"image\", \"track\", \"icon\", \"label\"}`` entry per image."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: 1 `docker stack` pro Rolle, im Einklang mit dem
+# heutigen One-Compose-Project-per-Role-Modell. Granulat `deploy / update /
+# rm` pro Rolle bleibt erhalten. Ein einziger globaler Stack für alle
+# Infinito-Dienste wird ausdrücklich abgelehnt - er würde Update-Fenster und
+# Rollback-Granularität über nicht verwandte Apps koppeln.
 msgid "One `docker stack` per role, consistent with today's one-compose-project-per-role model. Granular `deploy / update / rm` per role is preserved. A single global stack across all Infinito services is explicitly rejected — it would couple update windows and rollback granularity across unrelated apps."
 msgstr ""
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: 1 `python:<version>-slim` Container betreibt den
+# Service in `files/python/infinito_docs/`:
 msgid "One `python:<version>-slim` container runs the service in `files/python/infinito_docs/`:"
 msgstr ""
 
@@ -40210,6 +40507,11 @@ msgid "PR pipelines use `cancel-in-progress: true` so only the newest run per PR
 msgstr "PR-Pipelines nutzen `cancel-in-progress: true` Es ist also nur der neueste Lauf pro PR- und Ereignistyp aktiv. Die Gruppe erntet nicht immer einen langen Orchestrator-Sweep, der dann den neueren Lauf parken lässt. `pending`; [Entry-Cancel-superseded.yml](../../../../.github/workflows/entry-cancel-superseded.yml) storniert diese Reste über die API, siehe [cancel/README.md](../../../../scripts/github/cancel/README.md)."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: PR-Ziel- und Template-Regeln live in
+# [Zugrequest.md](./pull-request.md) Und sie müssen befolgt werden, bevor sie
+# die befehle unten ausführen.
 msgid "PR target and template rules live in [pull-request.md](./pull-request.md) and MUST be followed before running the commands below."
 msgstr ""
 
@@ -40359,6 +40661,11 @@ msgid "Parse *text* as a block mapping and return it."
 msgstr "*Text* als Block-Mapping analysieren und zurückgeben."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: GHA-Annotationszeilen aus einer Protokolldatei
+# analysieren und eine Markdown-Zusammenfassung in $
+# schreibenGITHUB_STEP_SUMMARY.
 msgid "Parse GHA annotation lines from a log file and write a Markdown summary to $GITHUB_STEP_SUMMARY."
 msgstr ""
 
@@ -40403,6 +40710,9 @@ msgid "Parse argv into ``(args, passthrough, modes_spec)``."
 msgstr "Parse Argv in ``(args, passthrough, modes_spec)``."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate echo
+# nocheck: url
+# translation-rejected: Parse human-readable memory size strings to bytes.
 msgid "Parse human-readable memory size strings to bytes."
 msgstr ""
 
@@ -40750,6 +41060,19 @@ msgid "Per-role subnet in `meta/server.yml.networks.local.subnet`"
 msgstr "Teilnetz nach Rollen in `meta/server.yml.networks.local.subnet`"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Pro-Rolle-Update-PRs: Die Docker-Image-Version und die
+# Repository-Ref-Updater öffnen jetzt eine Pull-Request pro betroffener Rolle
+# anstelle einer einzigen kombinierten PR und berechnen die Diff mit der
+# neuesten Version. *Haupthauptstadt* zur Laufzeit — die Update-Jobs check out
+# *Haupthauptstadt* anstelle des auslösenden Commits, so dass ein
+# Warteschlange oder abgestandener Lauf keine bereits zusammengeführten
+# Änderungen mehr vorschlägt oder nicht verwandte Rollen bündelt. Jede Rolle
+# bekommt einen eigenen Branch (*Update/<type>-<role>-<date>-<fingerprint>*)
+# und eine rollenweite Duplikatprüfung, während die *Qualifikationenlock.json*
+# Der updater bleibt absichtlich eine einzige PR. Siehe [Der Update Workflow
+# Katalog](docs/contributing/tools/github/actions/workflows.md).
 msgid "Per-role update PRs: the Docker-image-version and repository-ref updaters now open one pull request per affected role instead of a single combined PR, and they recompute the diff against the latest *main* at run time — the update jobs check out *main* rather than the triggering commit, so a queued or stale run no longer proposes already-merged changes or bundles unrelated roles. Each role gets its own branch (*update/<type>-<role>-<date>-<fingerprint>*) and a role-scoped duplicate check, while the *skills-lock.json* updater deliberately stays a single PR. See [the update workflow catalog](docs/contributing/tools/github/actions/workflows.md)."
 msgstr ""
 
@@ -41464,6 +41787,9 @@ msgid "Postfix:"
 msgstr "Postfix:"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate echo
+# nocheck: url
+# translation-rejected: PostgreSQL Docker Upgrade: Major Version Migration
 msgid "PostgreSQL Docker Upgrade: Major Version Migration"
 msgstr ""
 
@@ -41784,6 +42110,11 @@ msgid "Print the group-conditional service keys, comma-separated for ``disable=`
 msgstr "Drucken Sie die gruppenbedingten Dienstschlüssel, getrennt für ``disable=``."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Drucken, eine pro Zeile, die Rollen-IDs, die die
+# Bereitstellung CLI sollte ``--include`` So hat das resultierende Inventar
+# jede Gruppe APP_IDTransitive Deps werden zum Einsatzzeitpunkt benötigt.
 msgid "Print, one per line, the role IDs the provision CLI should ``--include`` so the resulting inventory has every group APP_ID's transitive deps will need at deploy time."
 msgstr ""
 
@@ -42503,6 +42834,15 @@ msgstr "Einen Branch durch den Manual-CI-Entwurf schieben → Ready-for-Review-Z
 msgid "Pushing 🚢"
 msgstr "Pushing 🚢"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Legen Sie eine Datei nur dann in dieses Verzeichnis,
+# wenn das von ihr implementierte Verhalten Teil des Sicherheits- oder
+# Integrationsvertrags dieser Rolle ist und für jede Anforderung in Kraft
+# bleiben MUSS. Everyday Feature Plugins SOLLTEN normal bleiben
+# `wp-content/plugins/` und verwaltet werden [05enable
+# plugin.yml](../../tasks/05_enable_plugin.yml) So können die Betreiber sie
+# bei Bedarf pro Standort deaktivieren.
 msgid "Put a file in this directory only when the behavior it implements is part of the security or integration contract of this role and MUST remain in effect for every request. Everyday feature plugins SHOULD stay in normal `wp-content/plugins/` and be managed through [05_enable_plugin.yml](../../tasks/05_enable_plugin.yml) so operators can disable them per site if needed."
 msgstr ""
 
@@ -42647,6 +42987,15 @@ msgid "RBAC is not feasible beyond the group gate: Postmarks has no in-app autho
 msgstr "RBAC ist nicht über das Gruppen-Gate hinaus machbar: Postmarks hat keine In-App-Autorisierungsstufe jenseits von \"Besitzer oder nicht\" und keine Identität pro Benutzer. `X-Forwarded-Email`/`X-Forwarded-Preferred-Username` kann nichts innerhalb der App erfassen. Diese RBAC-Ausnahme ist dokumentiert nach [lifecycle.md](../../docs/contributing/design/role/services/lifecycle.md)."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: RBAC ist nicht über das Gruppen-Gate hinaus machbar:
+# Postmarks hat keine In-App-Autorisierungsstufe jenseits von "Besitzer oder
+# nicht" und keine Identität pro Benutzer.
+# ``X-Forwarded-Email``/``X-Forwarded-Preferred-Username`` kann nichts
+# innerhalb der App erfassen. Diese RBAC-Ausnahme ist dokumentiert per
+# `lifecycle.md
+# <../../docs/contributing/design/role/services/lifecycle.md>`__.
 msgid "RBAC is not feasible beyond the group gate: Postmarks has no in-app authorisation tier beyond “owner or not” and no per-user identity, so ``X-Forwarded-Email``/``X-Forwarded-Preferred-Username`` cannot scope anything inside the app. This RBAC exception is documented per `lifecycle.md <../../docs/contributing/design/role/services/lifecycle.md>`__."
 msgstr ""
 
@@ -42655,6 +43004,15 @@ msgid "RBAC stays gating-only because the PDS has no in-app role concept beyond 
 msgstr "RBAC bleibt Gating-only, weil der PDS kein In-App-Rollenkonzept hat, das über \"Konto existiert / existiert nicht\" hinausgeht. Mitgliedschaft in der `/roles/web-app-bluesky` Die Keycloak-Gruppe lässt einen Benutzer am oauth2-Proxy-Gate vorbei. Die dokumentierte SSO/RBAC Ausnahme per [lifecycle.md](../../docs/contributing/design/role/services/lifecycle.md) die Ebene der In-App-Zulassung umfasst."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: RBAC bleibt Gating-only, weil der PDS kein
+# In-App-Rollenkonzept hat, das über "Konto existiert / existiert nicht"
+# hinausgeht. Mitgliedschaft in der ``/roles/web-app-bluesky`` Keycloak Gruppe
+# lässt einen Benutzer am Oauth vorbei2Proxy-Gate. Die dokumentierte SSO/RBAC
+# Ausnahme per `lifecycle.md
+# <../../docs/contributing/design/role/services/lifecycle.md>`__ die Ebene der
+# In-App-Zulassung umfasst.
 msgid "RBAC stays gating-only because the PDS has no in-app role concept beyond “account exists / does not exist”. Membership in the ``/roles/web-app-bluesky`` Keycloak group lets a user past the oauth2-proxy gate. The documented SSO/RBAC exception per `lifecycle.md <../../docs/contributing/design/role/services/lifecycle.md>`__ covers the in-app authorisation tier."
 msgstr ""
 
@@ -43249,6 +43607,14 @@ msgstr "Grund: pytest führt jeden Test in einem Prozess durch. Ohne einen freig
 msgid "Rebuilds the local inventory and keeps the runtime `.password` file."
 msgstr "Baut das lokale Inventar neu auf und behält die Laufzeit `.password` Datei."
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Rekonstruktion der env-pipeline um einen SPOT
+# default.env an der Repository-Root, zogen die env / Subtree und die
+# env.development Markierung, gefaltet ci.env in default.envund legen Sie
+# jeden Runtime-Knopf unter die `INFINITO_` Namespace (BUILDKIT_ENABLED,
+# OUTER_NETWORK_MTU automatische Erkennung von der Host-Route,
+# CONTAINER_CA_ENABLED, und der Pfad / das Bild überschreibt)
 msgid "Rebuilt the env pipeline around a SPOT default.env at the repository root, retired the env/ subtree and the env.development marker, folded ci.env into default.env, and put every runtime knob under the `INFINITO_` namespace (BUILDKIT_ENABLED, OUTER_NETWORK_MTU auto-detected from the host route, CONTAINER_CA_ENABLED, and the path/image overrides)"
 msgstr ""
 
@@ -43369,6 +43735,10 @@ msgid "Recursively resolve schema includes by following configs transitively."
 msgstr "Das rekursiv auflösende Schema beinhaltet, dass man Configs transitiv folgt."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Rekursiv jede Str, die mit '$ beginntANSIBLE_VAULT' in
+# einem VaultScalar, so dass es als buchstäblicher Block abgeladen wird.
 msgid "Recursively wrap any str that begins with '$ANSIBLE_VAULT' in a VaultScalar so it dumps as a literal block."
 msgstr ""
 
@@ -43878,6 +44248,10 @@ msgstr "Remote-Setup und signierte Pushs werden von [git-maintainer-tools](https
 msgid "Remotes 🌐"
 msgstr "Fernbedienungen 🌐"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Entfernen *ports.yml und*networks.yml durch eine
+# Lookup-Funktion
 msgid "Remove *_ports.yml and*_networks.yml by a lookup function"
 msgstr ""
 
@@ -44741,6 +45115,10 @@ msgid "Resolution 🔗"
 msgstr "Resolution 🔗"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Auflösung APP_IDTransitive umfassen unter den aktiven
+# Varianten.
 msgid "Resolve APP_ID's transitive include set under the active variants."
 msgstr ""
 
@@ -44901,6 +45279,12 @@ msgstr "Resolver 🗺️"
 msgid "Resolves `INFINITO_INVENTORY_DIR`, `INFINITO_INVENTORY_FILE`, and `INFINITO_INVENTORY_VARS_FILE` into `.env` for the dev CLI (see [variables.md](../environment/variables.md))."
 msgstr "Auflösungen `INFINITO_INVENTORY_DIR`, `INFINITO_INVENTORY_FILE`, und `INFINITO_INVENTORY_VARS_FILE` in `.env` für die dev CLI (siehe) [variables.md](../environment/variables.md)."
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Löst eine browserseitige URL für eine
+# Frontend-Abhängigkeit auf, die in dem rolleneigenen Paket deklariert
+# wurde.lock.json, Spiegelung jsdelivrs npm-Pfadschema, so dass sich die
+# internen und externen Formen nur durch den Host unterscheiden:
 msgid "Resolves a browser-facing URL for a frontend dependency declared in the role's own package-lock.json, mirroring jsdelivr's npm path scheme so the internal and external forms differ only by host:"
 msgstr ""
 
@@ -46310,6 +46694,11 @@ msgid "Returns inline script/style snippets to hash for a given directive. Accep
 msgstr "Gibt Inline-Script/Style-Snippets für eine bestimmte Direktive an Hash zurück. Akzeptiert sowohl Skalar als auch Liste in config; gibt immer eine Liste zurück."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Gibt 1 zurück ``{'role': …, 'app': …}`` Mapping pro
+# Rolle, so dass eine Stufe die Gruppe durchlaufen kann, anstatt eine
+# generierte Aufgabendatei pro Gruppe aufzunehmen:
 #, python-brace-format
 msgid "Returns one ``{'role': …, 'app': …}`` mapping per role, so a stage can loop over the group instead of including a generated task file per group:"
 msgstr ""
@@ -47121,6 +47510,12 @@ msgstr "Round-Trip YAML-Zugriff für die Inventardateien, die dieses Paket neu s
 msgid "Roundtrip Loop"
 msgstr "Roundtrip-Schleife"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Leitet jeden YAML Touchpoint und jeden
+# Projekt-Baum-Spaziergang durch utils.cache.{yaml,files} und konsolidierte
+# die Cache-Module in einem einzigen Utils/Cache/Paket; Integrationstests
+# teilen sich nun einen Parse und einen Walk pro Make-Testaufruf
 #, python-brace-format
 msgid "Routed every YAML touchpoint and every project-tree walk through utils.cache.{yaml,files} and consolidated the cache modules into a single utils/cache/ package; integration tests now share one parse and one walk per make test invocation"
 msgstr ""
@@ -48775,6 +49170,18 @@ msgstr "Skripte sollten verwendet werden `command -v` oder gleichwertig, um verf
 msgid "Scripts for installing the Infinito self-signed Root CA into the trust stores of the developer's machine."
 msgstr "Skripte zum Installieren der selbstsignierten Root CA von Infinito in den Trust Stores der Entwicklermaschine."
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Skripte pro Schritt: Bring-up
+# [01bootstrap.sh](01_bootstrap.sh) - Bereitstellung [02provision
+# inventar.sh](02_provision_inventory.sh) - konvergieren [03wait
+# converge.sh](03_wait_converge.sh) - Erreichbarkeit [04verify
+# reachable.sh](04_verify_reachable.sh) - Bohrer
+# [backup/base.sh](backup/base.sh) - Markierung [05seed
+# content.sh](05_seed_content.sh) - Abfluss [06drain
+# worker.sh](06_drain_worker.sh) - Behauptung [07assert
+# state.sh](07_assert_state.sh) - Purge
+# [../utils/clean/purge_stacks.sh](../utils/clean/purge_stacks.sh).
 msgid "Scripts per step: bring-up [01_bootstrap.sh](01_bootstrap.sh) - provision [02_provision_inventory.sh](02_provision_inventory.sh) - converge [03_wait_converge.sh](03_wait_converge.sh) - reachability [04_verify_reachable.sh](04_verify_reachable.sh) - drill [backup/base.sh](backup/base.sh) - marker [05_seed_content.sh](05_seed_content.sh) - drain [06_drain_worker.sh](06_drain_worker.sh) - assert [07_assert_state.sh](07_assert_state.sh) - purge [../utils/clean/purge_stacks.sh](../utils/clean/purge_stacks.sh)."
 msgstr ""
 
@@ -49074,6 +49481,11 @@ msgstr "Siehe [readme_md.md](artefact/files/role/readme_md.md) für die Anforder
 msgid "See [regression.md](../../docs/contributing/actions/testing/regression.md) for the SPOT: rules on what regression guards are permitted and the preferred alternative approach."
 msgstr "Siehe [regression.md](../../docs/contributing/actions/testing/regression.md) für den SPOT: Regeln darüber, welche Regressionswächter zulässig sind und der bevorzugte alternative Ansatz."
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Siehe [test\
+# templates.py](../../../../../tests/lint/docker/dockerfile/test_templates.py)
+# für die Umsetzung.
 msgid "See [test\\_templates.py](../../../../../tests/lint/docker/dockerfile/test_templates.py) for the implementation."
 msgstr ""
 
@@ -50073,6 +50485,12 @@ msgid "Ship the first valuable increment early."
 msgstr "Versenden Sie das erste wertvolle Inkrement frühzeitig."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Versand einer Zweigniederlassung: commit per
+# [commit.md](commit.md), dann laufen `git-sign-push` außerhalb der Sandbox.
+# Öffnen Sie die Pull Request gegen `origin/main` pro Person
+# [Zugrequest.md](pull-request.md).
 msgid "Shipping a branch: commit per [commit.md](commit.md), then run `git-sign-push` outside the sandbox. Open the pull request against `origin/main` per [pull-request.md](pull-request.md)."
 msgstr ""
 
@@ -50297,6 +50715,16 @@ msgstr "Single Source of Truth für die CI App-Discovery-Abfrage."
 msgid "Single source of truth for the node's onion identity: ``ensure_node_onion`` mints/reuses the key files here and the ``svc-net-tor`` role copies them into the running daemon. Lives outside anything the deploy regenerates and is mounted into the DiD at ``{playbook_dir}/.onion-identity/hs``."
 msgstr "Single Source of Truth für die Zwiebelidentität des Knotens: ``ensure_node_onion`` Mints / verwendet die Schlüsseldateien hier und die ``svc-net-tor`` Rolle kopiert sie in den laufenden daemon. Lebt außerhalb von allem, was der Deployment regeneriert und in den DiD am ``{playbook_dir}/.onion-identity/hs``."
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Single Source of Truth für das Per-Addon aktivieren
+# Flaggen, die vom Playwright Addon-Gating-Helfer konsumiert werden
+# (``tests/addon-gating.js`` -> ``skipUnlessAddonEnabled``). Ersetzt die
+# fehleranfällige Jinja-Schleife pro Vorlage: Sie löst die materialisierte
+# ``addons`` Mapping für ``application_id`` und gibt einen zurück
+# ``<ADDON_ID>_ADDON_ENABLED=<true|false>`` Zeile pro deklariertem Addon
+# (sortiert nach env key, newline-joined), wobei die env-key-Ableitung mit
+# addon- übereinstimmtgating.js genau.
 msgid "Single source of truth for the per-addon enable flags consumed by the Playwright addon-gating helper (``tests/addon-gating.js`` -> ``skipUnlessAddonEnabled``). Replaces the error-prone per-template Jinja loop: it resolves the materialised ``addons`` mapping for ``application_id`` and returns one ``<ADDON_ID>_ADDON_ENABLED=<true|false>`` line per declared addon (sorted by env key, newline-joined), where the env-key derivation matches addon-gating.js exactly."
 msgstr ""
 
@@ -50928,6 +51356,12 @@ msgid "State the kind instead of reading it from the mount table, and abort the 
 msgstr "Geben Sie die Art an, anstatt sie von der Mount-Tabelle zu lesen, und brechen Sie den Lauf ab, wenn der Host sie nicht liefern kann. Jeder Check unten läuft immer noch - nur das \"welches Dateisystem ist das\" -Lookup wird übersprungen."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Geben Sie die Art an, anstatt sie von der
+# Mount-Tabelle zu lesen, und brechen Sie den Lauf ab, wenn der Host sie nicht
+# liefern kann. Jeder Check unten läuft noch - nur das "welches Dateisystem
+# ist das" -Lookup wird übersprungen.
 msgid "State the kind instead of reading it from the mount table, and abort the run when the host cannot deliver it. Every check below still runs — only the “which filesystem is this” lookup is skipped."
 msgstr ""
 
@@ -52428,6 +52862,9 @@ msgstr "System-II-Kandidaten, unverändert durch diese Anforderung"
 msgid "System Maintenance Lock"
 msgstr "Systemwartungssperre"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: System 1
 msgid "System One"
 msgstr ""
 
@@ -52448,6 +52885,9 @@ msgid "System Scripts"
 msgstr "Systemskripte"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate echo
+# nocheck: url
+# translation-rejected: System Utility: Git Pull (Shallow & Pinned)
 msgid "System Utility: Git Pull (Shallow & Pinned)"
 msgstr ""
 
@@ -54066,6 +54506,12 @@ msgid "The `ldap` service block in [`meta/services.yml`](./meta/services.yml) is
 msgstr "Die `ldap` Serviceblock in [`meta/services.yml`](./meta/services.yml) wird absichtlich an das wörtliche `false` (siehe [TODO.md](./TODO.md)): der `jonmbake/discourse-ldap-auth` Plugin bricht ab Discourse Bootstrap auf den letzten Versionen. `discourse-ldap-auth` Daher wird auf deaktiviert aufgelöst, bis dieser block in das dynamische gruppenmitgliedschaftsformular zurückgedreht wird."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Die `lint` Arbeitslose
+# [Anruflint.yml](../../../../.github/workflows/call-lint.yml): `make lint`
+# Fans checken alle flusen parallel aus, plus einen hadolint sarif job. Es
+# muss passieren, bevor die Pipeline weitergeht.
 msgid "The `lint` job runs [call-lint.yml](../../../../.github/workflows/call-lint.yml): `make lint` fans every lint check out in parallel, plus a hadolint SARIF job. It MUST pass before the pipeline continues."
 msgstr ""
 
@@ -54166,6 +54612,12 @@ msgid "The `test-workspace` stage runs the workspace workflow listed in the `Inf
 msgstr "Die `test-workspace` Stage führt den Workspace Workflow aus, der in der `Infrastructure tests` Tabelle von [workflows.md](../../tools/github/actions/workflows.md)."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Die `test` Arbeitslose
+# [Anruftest.yml](../../../../.github/workflows/call-test.yml): `make test`
+# Lüfter die Einheit, Integration, Flusen und externe Suiten parallel auf dem
+# Läufer-Host. Es muss passieren `code-quality-gate`.
 msgid "The `test` job runs [call-test.yml](../../../../.github/workflows/call-test.yml): `make test` fans the unit, integration, lint and external suites out in parallel on the runner host. It MUST pass `code-quality-gate`."
 msgstr ""
 
@@ -54448,6 +54900,18 @@ msgid "The audit is the role tree itself: every fact about a role's MCP surface 
 msgstr "Das Audit ist der Rollenbaum selbst: Jede Tatsache über die MCP-Oberfläche einer Rolle lebt für sich. `meta/services.yml`, Ein separates Artefakt wäre also eine Kopie, die abgestanden werden kann. `grep -l '^mcp:' roles/*/meta/services.yml` Aufzählung der integrierten Rollen."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Der automatische Pin folgt dem effektiven
+# Deployment-Modus und darf im Schwarm NICHT ``host-gateway``: Dieser Alias
+# löst sich pro Knoten auf, während openresty veröffentlicht :80 mit ``mode:
+# host`` unter ``node.role == manager``, so wählte jede Replik auf einem
+# Arbeiter sein eigenes Gateway und der Token-Austausch starb mit "Verbindung
+# abgelehnt" (7b1839681, gemessen am Penpot im Lauf 31340965955). Swarm erhält
+# daher die routbare Adresse des Stack-Hosts - das Ziel svc-net-tor sendet
+# bereits den gesamten Hidden-Service-Traffic an. ``ansible_facts`` trägt es,
+# weil die Compose-Datei einmal mit dem Manager als Inventar-Host gerendert
+# wird und Schwarm dasselbe anwendet ``extra_hosts`` für jede Aufgabe.
 msgid "The automatic pin follows the effective deploy mode, and in swarm it must NOT be ``host-gateway``: that alias resolves per node, while openresty publishes :80 with ``mode: host`` under ``node.role == manager``, so every replica on a worker dialled its own gateway and the token exchange died with 'Connection refused' (7b1839681, measured on penpot in run 31340965955). Swarm therefore gets the stack host's routable address -- the destination svc-net-tor already sends all hidden-service traffic to. ``ansible_facts`` carries it because the compose file is rendered once with the manager as inventory host and swarm applies the same ``extra_hosts`` to every task."
 msgstr ""
 
@@ -54769,6 +55233,13 @@ msgid "The common pieces are:"
 msgstr "Die gemeinsamen Stücke sind:"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Der Begleiter
+# [027-Integrationmatrix.md](027-integration-matrix.md) ist eine generierte
+# rolexrole-Matrix über den Entitätsnamen jeder `web-app-*` und `web-svc-*`
+# Rolle. Jede Zelle markiert, ob die **Reihe** Rollendrähte im **Spalte**
+# Rolle:
 msgid "The companion [027-integration-matrix.md](027-integration-matrix.md) is a generated role×role matrix over the entity names of every `web-app-*` and `web-svc-*` role. Each cell marks whether the **row** role wires in the **column** role:"
 msgstr ""
 
@@ -56543,6 +57014,15 @@ msgid "The gate is applied inside [push_ci_policy.sh](../../../../../scripts/met
 msgstr "Das Gate wird innen angewendet [push_ci_policy.sh](../../../../../scripts/meta/resolve/push_ci_policy.sh), welche die `run-policy` Job Calls. Wann `GITHUB_REF == refs/heads/main` und `CI_RUN_ON_MAIN != 'true'`, der Job emittiert `should_run=false` Jeder Downstream-Job wird übersprungen."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Das Gateway ist also angesteckt **Variante 2** für
+# jeden Verbraucher, der drei Varianten versendet und die Variante verlassen
+# hat 0 für die zwei Varianten Rollen, deren Runde 2 fällt darauf zurück. 1
+# `make compose-deploy variant=2` Führen Sie Übungen acht der neun bestätigten
+# Rollen. `web-app-nextcloud` ist die Ausnahme: seine KI-Oberfläche hat immer
+# von einer eigenen Variante gelebt 7, neben den anderen überbrückten Partnern
+# verteilt es über Budget-Binns.
 msgid "The gateway is therefore pinned on **variant 2** for every consumer that ships three variants, and left on variant 0 for the two-variant roles, whose round 2 falls back to it. One `make compose-deploy variant=2` run exercises eight of the nine confirmed roles. `web-app-nextcloud` is the exception: its AI surface has always lived on its own variant 7, alongside the other bridged partners it distributes across budget bins."
 msgstr ""
 
@@ -56976,6 +57456,10 @@ msgstr "Der Login-Button in der Benutzeroberfläche lautet „SSO mit Infinito.N
 msgid "The logo must use a valid Font Awesome class string, e.g.:"
 msgstr "Das Logo muss eine gültige Font Awesome Klassenzeichenfolge verwenden, z. B.:"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Die Logs finden Sie hier auf dem Host:
+# **/var/lib/docker/volumes/nextcloud_data/ data/data/nextcloud.log**
 msgid "The logs you will find here on the host: **/var/lib/docker/volumes/nextcloud_data/_data/data/nextcloud.log**"
 msgstr ""
 
@@ -57430,6 +57914,14 @@ msgstr "Die Pins werden gelesen von ``utils/install/lint/pinned.py``, die jeder 
 msgid "The pins are read by `utils/install/lint/pinned.py`, which every lint installer calls:"
 msgstr "Die Pins werden gelesen von `utils/install/lint/pinned.py`, die jeder Fluseninstallateur aufruft:"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Die Pipeline wird aufgerufen von
+# [06plugin.yml](../06_plugin.yml), die wiederum einmal pro Iteration des
+# `NEXTCLOUD_PLUGIN_ITEMS` Schleife [02manager
+# ops.yml](../../02_manager_ops.yml). Die Schleifenvariable `plugin_item` ist
+# ausgepackt in `plugin_key` (Der Name der OCC App) und `plugin_value` (seinen
+# Meta-Eintrag).
 msgid "The pipeline is invoked from [06_plugin.yml](../06_plugin.yml), which in turn runs once per iteration of the `NEXTCLOUD_PLUGIN_ITEMS` loop in [02_manager_ops.yml](../../02_manager_ops.yml). The loop variable `plugin_item` is unpacked into `plugin_key` (the OCC app name) and `plugin_value` (its meta entry)."
 msgstr ""
 
@@ -57769,9 +58261,23 @@ msgstr "Der Zweck dieser Rolle ist es, die Installation und Konfiguration von Gi
 msgid "The purpose of this role is to automate the installation and configuration of LibreOffice along with its language support on personal computers. This ensures that users have a consistent and fully functional office suite environment across their systems."
 msgstr "Der Zweck dieser Rolle ist es, die Installation und Konfiguration von LibreOffice zusammen mit seiner Sprachunterstützung auf Personal Computern zu automatisieren. Dies stellt sicher, dass Benutzer eine konsistente und voll funktionsfähige Office-Suite-Umgebung in ihren Systemen haben."
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Der Zweck dieser Rolle ist es, den Installations- und
+# Aktualisierungsprozess für Infinito.Nexusverwandte Anwendungen oder andere
+# verwaltete Pakete mit ``pkgmgr``. Es vereinfacht die Paketabwicklung und
+# setzt bewährte Verfahren für die Paketbereitstellung in automatisierten
+# Umgebungen durch.
 msgid "The purpose of this role is to automate the installation and update process for Infinito.Nexus-related applications or other managed packages using ``pkgmgr``. It simplifies package handling and enforces best practices for package deployment in automated environments."
 msgstr ""
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Der Zweck dieser Rolle ist es, den Installations- und
+# Aktualisierungsprozess für Infinito.Nexusverwandte Anwendungen oder andere
+# verwaltete Pakete mit `pkgmgr`. Es vereinfacht die Paketabwicklung und setzt
+# bewährte Verfahren für die Paketbereitstellung in automatisierten Umgebungen
+# durch.
 msgid "The purpose of this role is to automate the installation and update process for Infinito.Nexus-related applications or other managed packages using `pkgmgr`. It simplifies package handling and enforces best practices for package deployment in automated environments."
 msgstr ""
 
@@ -58913,6 +59419,18 @@ msgid "The shared ``biber`` and ``administrator`` persona journeys are opted out
 msgstr "Die geteilte ``biber`` und ``administrator`` Persona Journeys wird ausgeschaltet über ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` in ``templates/playwright.env.j2``. Außerhalb der OIDC-Variante, ``templates/casc.yaml.j2`` wählt die ``ldap`` oder ``local`` Sicherheitsbereich und die einzige Anmeldefläche von Jenkins ist eine eigene Java-Reichform, deren Felder benannt sind ``j_username`` / ``j_password`` (Das LDAP-Szenario in ``files/playwright/playwright.spec.js``) - die gemeinsame native-login-sonde stimmt nicht überein, so dass sich die persona niemals authentifiziert. Die Flagge ist derzeit bedingungslos; verengt es auf ``{% if not JENKINS_OIDC_ENABLED %}`` Sobald die OIDC-Persona-Reise Ende-zu-Ende verifiziert wurde, ist der Weg zurück."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Die geteilte ``biber`` und ``administrator`` Persona
+# Journeys wird ausgeschaltet über ``PERSONA_BIBER_BLOCKED`` /
+# ``PERSONA_ADMINISTRATOR_BLOCKED`` in ``templates/playwright.env.j2``. Die
+# Oauth2-proxy sidecar nur gates den vhost - FusionDirectory hält seinen
+# eigenen LDAP-Bind-Login dahinter, in dem das OIDC-Szenario der Rolle
+# ``files/playwright/playwright.spec.js`` behauptet, indem man erwartet, dass
+# ein "anmelden" -button nach dem. Keycloak Hin- und Rückfahrt.
+# ``tasks/main.yml`` Bestimmungen Nr. FusionDirectory Konto, so die Keycloak
+# Identitätskarten zu keiner verzeichnissitzung, die die gemeinsam genutzten
+# helfer zu einem in-app-logout durchführen könnten.
 msgid "The shared ``biber`` and ``administrator`` persona journeys are opted out via ``PERSONA_BIBER_BLOCKED`` / ``PERSONA_ADMINISTRATOR_BLOCKED`` in ``templates/playwright.env.j2``. The oauth2-proxy sidecar only gates the vhost — FusionDirectory keeps its own LDAP-bind login behind it, which the role’s OIDC scenario in ``files/playwright/playwright.spec.js`` asserts by expecting a “Sign in” button to still be visible after the Keycloak round-trip. ``tasks/main.yml`` provisions no FusionDirectory account, so the Keycloak identity maps to no directory session the shared helpers could carry through to an in-app logout."
 msgstr ""
 
@@ -58953,6 +59471,18 @@ msgid "The shared `biber` and `administrator` persona journeys are opted out via
 msgstr "Die geteilte `biber` und `administrator` Persona Journeys wird ausgeschaltet über `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. Sobald eine IAM-Quelle verdrahtet ist, wird die Rolle festgelegt `GITEA__service__DISABLE_REGISTRATION` (`templates/env.j2`, angetrieben von `GITEA_IAM_ENABLED` in `vars/main.yml`), und `tasks/setup/oidc.yml` Registriert nur die auth-quelle - niemals eine. Gitea Benutzer - so ein Keycloak Identität ohne Vorverlinkung Gitea Der Account wird zurück zu `/user/login`. Das Opt-out erlischt, sobald die Bereitstellungsbestimmungen (oder Autolinks) Gitea Konten für die persona-identitäten."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Die geteilte `biber` und `administrator` Persona
+# Journeys wird ausgeschaltet über `PERSONA_BIBER_BLOCKED` /
+# `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. Fiders
+# SSO-Eintrag ist ein zweistufiges Modal: der Header "Zeichen" Button öffnet
+# nur den Anbieterdialog und ein zweiter Klick auf "Weiter mit ... SSO" führt
+# die Keycloak Redirect, während der geteilte Helfer genau einmal klickt und
+# nie den IdP erreicht. Beide Reisen werden Ende-zu-Ende durch die eigene
+# Rolle abgedeckt `fider: admin sso login` und `fider: biber sso login as
+# regular user` Szenarien in `files/playwright/playwright.spec.js`; das
+# Opt-out erlischt, sobald der geteilte Helfer lernt Fiders modal.
 msgid "The shared `biber` and `administrator` persona journeys are opted out via `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. Fider's SSO entry is a two-step modal: the header \"Sign in\" button only opens the provider dialog, and a second click on \"Continue with … SSO\" performs the Keycloak redirect, whereas the shared helper clicks exactly once and never reaches the IdP. Both journeys are covered end-to-end by this role's own `fider: admin sso login` and `fider: biber sso login as regular user` scenarios in `files/playwright/playwright.spec.js`; the opt-out lapses once the shared helper learns Fider's modal."
 msgstr ""
 
@@ -58970,6 +59500,18 @@ msgid "The shared `biber` and `administrator` persona journeys are opted out via
 msgstr "Die geteilte `biber` und `administrator` Persona Journeys wird ausgeschaltet über `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. Außerhalb der OIDC-Variante, `templates/casc.yaml.j2` wählt die `ldap` oder `local` Sicherheitsbereich und die einzige Anmeldefläche von Jenkins ist eine eigene Java-Reichform, deren Felder benannt werden `j_username` / `j_password` (Das LDAP-Szenario in `files/playwright/playwright.spec.js`) - die gemeinsame native-login-sonde stimmt nicht überein, so dass sich die persona niemals authentifiziert. Die Flagge ist derzeit bedingungslos; verengt es auf `{% if not JENKINS_OIDC_ENABLED %}` Sobald die OIDC-Persona-Reise Ende-zu-Ende verifiziert wurde, ist der Weg zurück."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Die geteilte `biber` und `administrator` Persona
+# Journeys wird ausgeschaltet über `PERSONA_BIBER_BLOCKED` /
+# `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. Die
+# Oauth2-proxy sidecar nur gates den vhost - FusionDirectory hält seinen
+# eigenen LDAP-Bind-Login dahinter, in dem das OIDC-Szenario der Rolle
+# `files/playwright/playwright.spec.js` Behauptungen durch Erwartung einer
+# "Zeichen" Knopf noch sichtbar nach dem Keycloak Hin- und Rückfahrt.
+# `tasks/main.yml` Bestimmungen Nr. FusionDirectory Konto, so die Keycloak
+# Identitätskarten zu keiner verzeichnissitzung, die die gemeinsam genutzten
+# helfer zu einem in-app-logout durchführen könnten.
 msgid "The shared `biber` and `administrator` persona journeys are opted out via `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`. The oauth2-proxy sidecar only gates the vhost — FusionDirectory keeps its own LDAP-bind login behind it, which the role's OIDC scenario in `files/playwright/playwright.spec.js` asserts by expecting a \"Sign in\" button to still be visible after the Keycloak round-trip. `tasks/main.yml` provisions no FusionDirectory account, so the Keycloak identity maps to no directory session the shared helpers could carry through to an in-app logout."
 msgstr ""
 
@@ -59294,6 +59836,54 @@ msgstr "Der Top-Level-Knoten MUSS eine YAML-Liste sein. Eine Nicht-Listen-Root i
 msgid "The trade-off is that `deny` now carries the full weight of \"what the agent must never do from the shell\". New destructive patterns MUST be added to `deny`. They can no longer be caught implicitly by an absent `allow` entry."
 msgstr "Der Kompromiss ist, dass `deny` trägt nun das volle Gewicht von \"was der Agent niemals aus der Schale tun darf\". Neue destruktive Muster müssen hinzugefügt werden `deny`Sie können nicht mehr implizit von einem Abwesenden gefangen werden `allow` Eintrag."
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Transitfelder (``services`` / ``consumed_by`` und ihre
+# Zählungen) sind die BFS-Schließung gedeckelt auf ``max_level``; ``*_direct``
+# Felder sind immer die One-Hop-Nachbarn. ``weight`` die Summe der vier
+# numerischen Spalten. ``dna`` ist ein Hash des eigenen Namens der Rolle, der
+# mit seinen eingebetteten Diensten vereint ist (sortiert), so dass sich zwei
+# Rollen, die den gleichen Service abdecken, eine dna teilen. ``siblings``
+# sind die anderen Rollen, die sich die dna teilen; ``clone`` Wahr ist für
+# jede Reihe einer dna-Gruppe außer der schwersten (Bindungen gebrochen durch
+# den Namen)Das Sortieren von Klonen hält also einen Vertreter pro Dienst vor
+# der Budgetkürzung. ``random`` ist eine pro Zeile 6-stellige Nonce, frisch
+# gerollt pro Aufruf, so dass die Bindungsreihenfolge absichtlich zwischen den
+# Läufen variiert. ``variant`` ist ``meta/variants.yml`` Diese Zeile wurde
+# berechnet, oder ``None`` für eine ganze Rollenreihe. ``id`` und
+# ``covered_by`` werden von der CLI nach dem Sortieren festgelegt: ``id`` die
+# numerische Position der Zeile in Sortierreihenfolge (1-basiert), und
+# ``covered_by`` ist ``id`` der ersten früheren (grün) Zeile einer anderen
+# Rolle, die diese Zeile einbettet, oder das Sentinel ``0`` Wenn diese Reihe
+# selbst grün ist (nicht real ``id`` ist 0)Zwei Varianten derselben Rolle
+# decken sich nie gegenseitig ab. ``row`` ist 1-basierte Zeilennummer in der
+# endgültigen gerenderten Ausgabe (Zuletzt zugewiesen, nach Filterung), so
+# bleibt es sequentiell auch beim Sortieren nach ``covered_by`` Gerangel
+# ``id``. ``variants`` die Zahl der ``meta/variants.yml`` Varianten der Rolle
+# im Whole-Role-Modus; unter ``--variant`` Jede Zeile ist bereits eine
+# einzelne Variante, so ist es ``1``. ``lifecycle`` Ist die Rolle
+# ``meta/services.yml`` Lebenszyklusphase (alpha/beta/pre/...). ``compose`` /
+# ``swarm`` Sind wahr, wenn die CI-Test-Deploy-Matrix die Rolle in diesem
+# Modus ausübt und die Discovery-Skipp-Logik respektiert: aufrufbar +
+# Lebenszyklus im getesteten Umschlag + die Rolle ist ``skip`` Liste. Unter
+# ``--variant`` ``swarm`` ist per Variante (Jede Variante wird bereitgestellt,
+# so dass sie die Rollenebene verfolgt ``swarm`` und ``stack``). ``stack`` Ist
+# wahr, wenn die Rolle einen eigenen Containerstapel darstellt (Schiffe a
+# ``templates/*compose*.yml.j2``); Host-only Rollen (Backup, Wireguard,
+# Swapfile) und reine Service-Injektoren sind falsch. ``swarm`` impliziert
+# ``stack``: Eine Rolle ohne eigene Kompositionsvorlage ist niemals ein Ziel
+# für den Einsatz von Swarm-Stacks, also ``swarm`` Ist erzwungen falsch, wenn
+# ``stack`` ist falsch. ``host`` Spiegel der primären Entität
+# ``modes.host.enabled`` Flagge (Default True) für Nicht-Stack-Rollen und
+# erzwungen False für eine Stack-Rolle: Es markiert aufrufbare Rollen, die den
+# Host konfigurieren, anstatt einen Stack zu versenden. ``test_compose`` /
+# ``test_swarm`` / ``test_host`` Duplizieren Sie die Modusspalten abzüglich
+# der Rolle ``meta/tests.yml`` ``skip`` Liste: ``modes`` Staaten, in denen
+# eine Rolle RUNS, ``skip`` Deaktiviert das Testen eines Modus und CI
+# Discovery filtert diese ``test_*`` Spalten. ``integrated`` ist falsch, wenn
+# die direkte Servicekarte der Zeile keinen ausländischen Anbieter aktiviert
+# hält (Die Rolle wird isoliert eingesetzt): pro Variante auf Variantenreihen,
+# von der Basis ``meta/services.yml`` auf Ganzwalzenreihen.
 msgid "The transitive fields (``services`` / ``consumed_by`` and their counts) are the BFS closure capped at ``max_level``; the ``*_direct`` fields are always the one-hop neighbours. ``weight`` is the sum of the four numeric columns. ``dna`` is a hash of the role's own name unioned with its embedded services (sorted), so two roles covering the same service set share a dna. ``siblings`` are the other roles sharing that dna; ``clone`` is True for every row of a dna group except the heaviest one (ties broken by name), so sorting clones last keeps one representative per service set ahead of the budget cut. ``random`` is a per-row 6-digit nonce, rolled fresh per invocation, so tie order deliberately varies between runs. ``variant`` is the ``meta/variants.yml`` index this row was computed against, or ``None`` for a whole-role row. ``id`` and ``covered_by`` are set by the CLI after sorting: ``id`` is the row's numeric position in sort order (1-based), and ``covered_by`` is the ``id`` of the first earlier (green) row of a DIFFERENT role that embeds this row, or the sentinel ``0`` when this row is itself green (no real ``id`` is 0). Two variants of the same role never cover each other. ``row`` is the 1-based line number in the final rendered output (assigned last, after filtering), so it stays sequential even when sorting by ``covered_by`` scrambles ``id``. ``variants`` is the number of ``meta/variants.yml`` variants of the role in whole-role mode; under ``--variant`` each row already is a single variant, so it is ``1``. ``lifecycle`` is the role's ``meta/services.yml`` lifecycle stage (alpha/beta/pre/…). ``compose`` / ``swarm`` are True when the CI test-deploy matrix exercises the role in that mode, honouring the discovery skip logic: invokable + lifecycle in the tested envelope + the role's ``skip`` list. Under ``--variant`` ``swarm`` is per-variant (every variant deploys, so it tracks the role-level ``swarm`` and ``stack``). ``stack`` is True when the role renders its own container stack (ships a ``templates/*compose*.yml.j2``); host-only roles (backup, wireguard, swapfile) and pure service-injectors are False. ``swarm`` implies ``stack``: a role with no compose template of its own is never a swarm stack-deploy target, so ``swarm`` is forced False when ``stack`` is False. ``host`` mirrors the primary entity's ``modes.host.enabled`` flag (default True) for non-stack roles, and is forced False for a stack role: it marks invokable roles that configure the host instead of shipping a stack. ``test_compose`` / ``test_swarm`` / ``test_host`` duplicate the mode columns minus the role's ``meta/tests.yml`` ``skip`` list: ``modes`` states where a role RUNS, ``skip`` deactivates TESTING a mode, and CI discovery filters on these ``test_*`` columns. ``integrated`` is False when the row's direct service map keeps no foreign provider enabled (the role deploys isolated): per variant on variant rows, from the base ``meta/services.yml`` on whole-role rows."
 msgstr ""
 
@@ -60166,6 +60756,10 @@ msgstr "Dies vermeidet ABI- und SONAME-Mismatches beim Rollen oder weniger häuf
 msgid "This avoids brittle parents[N] assumptions and fixes \"cli/cli/...\" path bugs."
 msgstr "Dies vermeidet spröde Eltern[N] Annahmen und Fixes \"cli/cli/...\" Path Bugs."
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Dies vermeidet fragile Dateipfadkonstruktion und Fixes
+# 'cli/cli/...Fragen.
 msgid "This avoids fragile file path construction and fixes 'cli/cli/...' issues."
 msgstr ""
 
@@ -60844,10 +61438,20 @@ msgid "This makes Home Assistant a natural [025](025-mcp-role-integration.md) **
 msgstr "Dies macht Home Assistant zu einem natürlichen [025](025-mcp-role-integration.md) **MCP-Serverrolle** und das konkrete Backend für das Szenario des isolierten Heimassistenten in [032](032-agent-employees-firecracker.md): Der Agent bleibt Kernel-isoliert und erreicht das Haus nur durch diese MCP-Oberfläche, niemals durch Host-Zugriff. Home Assistant läuft nativ `arm64`/Raspberry Pi, so dass es sich mit der Pi-Agenten-Geschichte zusammensetzt."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Das macht ``sys-svc-mail`` den kanonischen
+# Einstiegspunkt für "Mail-Fähigkeiten" auf einem Knoten, wobei abstrahiert
+# wird, ob die tatsächliche Zustellung über Mailu oder ein lokales Relais.
 msgid "This makes ``sys-svc-mail`` the canonical entrypoint for “mail capabilities” on a node, abstracting away whether the actual delivery happens via Mailu or a local relay."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Das macht `sys-svc-mail` den kanonischen
+# Einstiegspunkt für "Mail-Fähigkeiten" auf einem Knoten, wobei abstrahiert
+# wird, ob die tatsächliche Zustellung über Mailu oder ein lokales Relais.
 msgid "This makes `sys-svc-mail` the canonical entrypoint for “mail capabilities” on a node, abstracting away whether the actual delivery happens via Mailu or a local relay."
 msgstr ""
 
@@ -61364,6 +61968,14 @@ msgid "This role builds Postmarks from source into a custom image, wires it to t
 msgstr "Diese Rolle baut Postmarks von der Quelle in ein benutzerdefiniertes Bild, verbindet es mit dem Standard-Reverse-Proxy und setzt seine SQLite-Daten fort. Postmarks ist Single-User: Es gibt keine Konten, nur \"der Eigentümer\". Das Upstream-Login ist ein einzelnes Shared-Secret-Passwortformular, das eine Sitzung boolean umdreht (`req.session.loggedIn`)."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Diese Rolle baut auf Postmarks von der Quelle in ein
+# benutzerdefiniertes Bild, verbindet es mit dem Standard-Reverse-Proxy und
+# setzt seine SQLite-Daten fort. Postmarks ist Single-User: Es gibt keine
+# Konten, nur "der Eigentümer". Das Upstream-Login ist ein einzelnes
+# Shared-Secret-Passwortformular, das eine Sitzung boolean umdreht
+# (``req.session.loggedIn``).
 msgid "This role builds Postmarks from source into a custom image, wires it to the standard reverse proxy, and persists its SQLite data. Postmarks is single-user: there are no accounts, only “the owner”. The upstream login is a single shared-secret password form that flips one session boolean (``req.session.loggedIn``)."
 msgstr ""
 
@@ -62685,6 +63297,9 @@ msgid "Tie-break key for a ready role: coarse bucket first, then name."
 msgstr "Tie-Break-Taste für eine bereite Rolle: zuerst grober Bucket, dann Name."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate echo
+# nocheck: url
+# translation-rejected: Tier Progression: Token Budget Guidance
 msgid "Tier Progression: Token Budget Guidance"
 msgstr ""
 
@@ -65574,6 +66189,11 @@ msgid "Wait rather than rush."
 msgstr "Warten statt Eile."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Warten Sie, bis die CI in Ihrer Gabel grün ist. Siehe
+# [Zugrequest.md](artefact/git/pull-request.md) für den erforderlichen
+# CI-Bereich.
 msgid "Wait until the CI in your fork is green. See [pull-request.md](artefact/git/pull-request.md) for required CI scope."
 msgstr ""
 
@@ -66728,6 +67348,21 @@ msgid "When the iteration target is the full matrix (cross-variant coverage matt
 msgstr "Wenn das Iterationsziel die vollständige Matrix ist (varianteübergreifende Abdeckung ist wichtiger als fokussierte Fehlergeschwindigkeit), wird der Befehl, den Sie ausführen, durch Ihre aktuelle Situation festgelegt. Nicht improvisieren `mode` oder `variant=`: Finden Sie Ihre Situation in der Tabelle und führen Sie genau diesen Befehl aus."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Wenn das Protokoll die Matrix-Deployment-Runde /
+# Pass-Marker trägt, wird das Ergebnis segmentiert (1 Datensatzblock pro
+# Ausführungsrunde + Pass). Andernfalls wird ein einziger kombinierter Block
+# zurückgegeben. Laufzeitreihen werden aus dem ``ROLES RECAP`` nur Abschnitte
+# (nie ``TASKS RECAP``, deren rollenlose Aufgabenreihen doppelt zählen
+# würden); Ein Protokoll ohne Recap-Header greift auf das Lesen jeder
+# profilförmigen Zeile zurück. Die Zusammenfassung ``total`` Linie überlebt
+# als die ``total`` Zeile, damit die Verbraucher die analysierte Summe
+# überprüfen können. Ergebnisse pro Host-Aufgabe (``ok:``, ``changed:``,
+# ``skipping:``, ``fatal:``, ``failed:`` unter a ``TASK [role : ...]`` Kopf)
+# akkumulieren in jedem Datensatz ``hosts`` Feld; Delegierungsziele (``[host
+# -> other]``) Zählen Sie für den Source Host. Erhebt FileNotFoundError, wenn
+# das Protokoll fehlt (Der anrufer verwandelt das in einen harten ausfall.).
 msgid "When the log carries the matrix-deploy round/pass markers, the result is segmented (one block of records per variant round + pass). Otherwise a single combined block is returned. Runtime rows are read from the ``ROLES RECAP`` sections only (never ``TASKS RECAP``, whose role-less task rows would double-count); a log without any recap header falls back to reading every profile-shaped line. The recap ``total`` line survives as the ``total`` row so consumers can cross-check the parsed sum. Per-host task results (``ok:``, ``changed:``, ``skipping:``, ``fatal:``, ``failed:`` under a ``TASK [role : ...]`` header) accumulate into each record's ``hosts`` field; delegation targets (``[host -> other]``) count for the source host. Raises FileNotFoundError when the log is absent (the caller turns that into a hard failure)."
 msgstr ""
 
@@ -67325,6 +67960,18 @@ msgid "With the broker deployed, Open WebUI runs with `BYPASS_MODEL_ACCESS_CONTR
 msgstr "Mit dem Broker im Einsatz, Open WebUI Läufe `BYPASS_MODEL_ACCESS_CONTROL=false`. Ein Bereitstellungszeitschritt gewährt jedem LiteLLM-Modell öffentlichen Lesezugriff und jedem Agentenmodell Lesezugriff für seine `agent-user` Nur Gruppe. A `svc-ai-litellm` deploy wiederholt diesen Schritt in einem Running Open WebUIein dem Gateway hinzugefügtes Modell für jeden Benutzer ohne Open WebUI Einsatz."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Mit dem Label Set, dem `detect-affected-roles` Job in
+# [Entry-pr-changeorchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml)
+# Anrufe
+# [pr_affected_roles.sh](../../../../scripts/github/resolve/pr_affected_roles.sh),
+# die den [cli.meta.ci.subset_roles](../../../../cli/meta/ci/subset_roles.py)
+# Modul. Das Modul liest den ersten eingezäunten Block, dessen YAML eine
+# `roles:` Schlüssel (Der Überschriftstext stimmt nicht überein) Diese Liste
+# wird als `whitelist` Ausgabe, die als Priority Sprosse in die
+# Deployment-Tests fließt 2 oben. Ohne das Label gilt die diff-getriebene
+# Priorität.
 msgid "With the label set, the `detect-affected-roles` job in [entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml) calls [pr_affected_roles.sh](../../../../scripts/github/resolve/pr_affected_roles.sh), which runs the [cli.meta.ci.subset_roles](../../../../cli/meta/ci/subset_roles.py) module. The module reads the first fenced block whose YAML carries a `roles:` key (the heading text is not matched) and emits that list as the `whitelist` output, which flows into the deploy tests as precedence rung 2 above. Without the label, the diff-driven precedence applies."
 msgstr ""
 
@@ -67497,6 +68144,17 @@ msgid "Workflow update jobs"
 msgstr "Workflow Update Jobs"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Workflows kommunizieren durch *Inputs* (am
+# `workflow_call` / `workflow_dispatch`), *Ausgänge*, *Konkurrenzgruppen* (die
+# abbrechen oder serialisieren läuft mit dem gleichen Gruppenschlüssel), und
+# die `GITHUB_TOKEN` / Repository Secrets und Variablen. Die Eingangspunkte
+# dieses Repository (`entry-*.yml`) Übersetzen externer Trigger in einen Anruf
+# an die Zentrale
+# [Anruforchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml).
+# Die meisten anderen Workflows sind wiederverwendbare Bausteine, die vom
+# Orchestrator aufgerufen werden.
 msgid "Workflows communicate through *inputs* (on `workflow_call` / `workflow_dispatch`), *outputs*, *concurrency groups* (which cancel or serialize runs with the same group key), and the `GITHUB_TOKEN` / repository secrets and variables. The entry points of this repository (`entry-*.yml`) translate external triggers into a call to the central [call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml). Most other workflows are reusable building blocks invoked from the orchestrator."
 msgstr ""
 
@@ -69804,6 +70462,15 @@ msgid "[ ] Workflow run in fork or equivalent validation"
 msgstr "[ ] Workflow in Fork oder gleichwertiger Validierung"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: [ ]
+# [027-Integrationmatrix.md](027-integration-matrix.md) regeneriert wird aus
+# [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py)
+# und engagiert; ein Check schlägt fehl, wenn sich die engagierte Matrix von
+# einer neuen Generation unterscheidet (Keine Hand Edits)Der Generator wird ☑️
+# Edges durch Scannen jeder Rolle `meta/services.yml` Integrationsschlüssel
+# und -render ✅/🪙 aus dem kuratierten `EDGES` Karte.
 msgid "[ ] [027-integration-matrix.md](027-integration-matrix.md) is regenerated from [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py) and committed; a check fails if the committed matrix differs from a fresh generation (no hand edits). The generator derives ☑️ edges by scanning every role's `meta/services.yml` integration keys and renders ✅/🪙 from the curated `EDGES` map."
 msgstr ""
 
@@ -70972,6 +71639,10 @@ msgid "[Bluesky PDS GitHub Repository](https://github.com/bluesky-social/pds)"
 msgstr "[Bluesky PDS GitHub Repository](https://github.com/bluesky-social/pds)"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate echo
+# nocheck: url
+# translation-rejected: [Bluesky Social App GitHub
+# Repository](https://github.com/bluesky-social/social-app)
 msgid "[Bluesky Social App GitHub Repository](https://github.com/bluesky-social/social-app)"
 msgstr ""
 
@@ -72222,6 +72893,10 @@ msgid "[OpenCloud](https://opencloud.eu/) is a sovereign self-hosted file sync, 
 msgstr "[OpenCloud](https://opencloud.eu/) ist eine souveräne, selbst gehostete Dateisynchronisations-, Freigabe- und Kollaborationsplattform der Heinlein Group. Es ist ein Fork der OpenCloud Infinite Scale Codebasis und wird als `opencloudeu/opencloud` Containerbild."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate echo
+# nocheck: url
+# translation-rejected: [OpenID Connect RP-Initiated
+# Logout](https://openid.net/specs/openid-connect-session-1_0.html#RPLogout)
 msgid "[OpenID Connect RP-Initiated Logout](https://openid.net/specs/openid-connect-session-1_0.html#RPLogout)"
 msgstr ""
 
@@ -72649,6 +73324,9 @@ msgstr "[Swapfile](roles/svc-opt-swapfile/)"
 msgid "[SysPass issue #1299](https://github.com/nuxsmin/sysPass/issues/1299)"
 msgstr "[SysPass Ausgabe #1299](https://github.com/nuxsmin/sysPass/issues/1299)"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: [System 1](roles/svc-ai-s1/)
 msgid "[System One](roles/svc-ai-s1/)"
 msgstr ""
 
@@ -72705,6 +73383,10 @@ msgid "[Unit Tests](testing/unit.md)"
 msgstr "[Einheitstests](testing/unit.md)"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate echo
+# nocheck: url
+# translation-rejected: [Universal Logout GitHub
+# Repository](https://github.com/kevinveenbirkenbach/universal-logout)
 msgid "[Universal Logout GitHub Repository](https://github.com/kevinveenbirkenbach/universal-logout)"
 msgstr ""
 
@@ -73181,66 +73863,158 @@ msgid "[call-images-build-ci.yml](../../../../../.github/workflows/call-images-b
 msgstr "[call-images-build-ci.yml](../../../../../.github/workflows/call-images-build-ci.yml): `🖼️ Build: CI Images (all distros)`"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# [call-images-mirrormissing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml):
+# `🪞 Mirror: Docker Hub → GHCR (only missing)`
 msgid "[call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml): `🪞 Mirror: Docker Hub → GHCR (only missing)`"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# [call-images-mirrormissing.yml](../../../../.github/workflows/call-images-mirror-missing.yml)
+# Kopien fehlen nur Upstream-Refs in GHCR über `cli.contributing.mirror.sync
+# --only-missing`. Optionale Docker Hub-Anmeldeinformationen reduzieren die
+# quellenseitigen Ratengrenzen während dieser Synchronisierung.
 msgid "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) copies only missing upstream refs into GHCR via `cli.contributing.mirror.sync --only-missing`. Optional Docker Hub credentials reduce source-side rate limits during that sync."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# [call-images-mirrormissing.yml](../../../../.github/workflows/call-images-mirror-missing.yml)
+# Spiegelt alle fehlenden Upstream-Bilder parallel zu den DNS-Tests, so dass
+# später Jobs von GHCR anstelle von Docker Hub, MCR oder anderen externen
+# Registern bereitgestellt werden. Dies schützt CI vor Upstream-Rate-Limits,
+# Geo-Blocking und vorübergehenden Registerausfällen.
 msgid "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) mirrors any missing upstream images in parallel with the DNS tests so later deploy jobs pull from GHCR instead of Docker Hub, MCR, or other external registries. This shields CI from upstream rate limits, geo-blocking, and transient registry outages."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# [Anruflint.yml](../../../../../.github/workflows/call-lint.yml): `🧹 Lint`
 msgid "[call-lint.yml](../../../../../.github/workflows/call-lint.yml): `🧹 Lint`"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# [Anruforchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml)
+# Vergleiche `github.ref` Aus dem gleichen Grund: Ein aufgerufener Workflow
+# erbt die Ref des Anrufers, die `refs/pull/<n>/merge` für a `pull_request`
+# Anrufer, aber `refs/heads/main` für a `pull_request_target` eine. Die
+# `ci-orchestrator` Tätigkeit von `entry-pr-change-orchestrate.yml` ist
+# eingezäunt `github.event_name == 'pull_request'`, Der ref, den der
+# orchestrator von diesem anrufer sieht, ist immer der merge ref; die
+# verbreiterung dieses zauns würde stillschweigend die gabel in die gruppe des
+# mains bringen.
 msgid "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) compares `github.ref` for the same reason: a called workflow inherits the caller's ref, which is `refs/pull/<n>/merge` for a `pull_request` caller but `refs/heads/main` for a `pull_request_target` one. The `ci-orchestrator` job of `entry-pr-change-orchestrate.yml` is fenced to `github.event_name == 'pull_request'`, so the ref the orchestrator sees from that caller is always the merge ref; widening that fence would silently put fork runs into main's group."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# [Anruforchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml):
+# `🎵 CI: Orchestrator`
 msgid "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml): `🎵 CI: Orchestrator`"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# [Call-Releaseversion.yml](../../../../../.github/workflows/call-release-version.yml):
+# `🚀 Release: Version Logic`
 msgid "[call-release-version.yml](../../../../../.github/workflows/call-release-version.yml): `🚀 Release: Version Logic`"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# [Call-Releaseversion.yml](../../../.github/workflows/call-release-version.yml)
 msgid "[call-release-version.yml](../../../.github/workflows/call-release-version.yml)"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# [Call-Testdeploy.yml](../../../../../.github/workflows/call-test-deploy.yml)
 msgid "[call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml)"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# [Call-Testdeploy.yml](../../../../../.github/workflows/call-test-deploy.yml):
+# `🚀 Test: Deploy`
 msgid "[call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml): `🚀 Test: Deploy`"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# [Call-Testdeploy.yml](../../../../.github/workflows/call-test-deploy.yml)
+# verengt seine app-matrix auf die reihe von rollen, die tatsächlich von der
+# abweichung der branche betroffen sind. `origin/main`. Die `discover` Job
+# löst eine effektive Whitelist vor
+# [output_apps.sh](../../../../scripts/github/resolve/output_apps.sh) läuft
+# mit folgender Priorität:
 msgid "[call-test-deploy.yml](../../../../.github/workflows/call-test-deploy.yml) narrows its app matrix to the set of roles actually impacted by the branch's diff against `origin/main`. The `discover` job resolves an effective whitelist before [output_apps.sh](../../../../scripts/github/resolve/output_apps.sh) runs, using the following precedence:"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# [Call-Testdns.yml](../../../../../.github/workflows/call-test-dns.yml): `💬
+# Test: DNS`
 msgid "[call-test-dns.yml](../../../../../.github/workflows/call-test-dns.yml): `💬 Test: DNS`"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# [Call-Testdns.yml](../../../../.github/workflows/call-test-dns.yml)
+# validiert die DNS-Konfiguration über alle Zielverteilungen hinweg.
 msgid "[call-test-dns.yml](../../../../.github/workflows/call-test-dns.yml) validates DNS configuration across all target distributions."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# [Call-Testinstall.yml](../../../../../.github/workflows/call-test-install.yml):
+# `📦 Test: Install`
 msgid "[call-test-install.yml](../../../../../.github/workflows/call-test-install.yml): `📦 Test: Install`"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# [Call-Testworkspace.yml](../../../../../.github/workflows/call-test-workspace.yml):
+# `💻 Test: Workspace`
 msgid "[call-test-workspace.yml](../../../../../.github/workflows/call-test-workspace.yml): `💻 Test: Workspace`"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# [Anruftest.yml](../../../../../.github/workflows/call-test.yml): `🧪 Test`
 msgid "[call-test.yml](../../../../../.github/workflows/call-test.yml): `🧪 Test`"
 msgstr ""
 
@@ -73301,30 +74075,64 @@ msgid "[credentials/](../../../cli/administration/inventory/credentials/__main__
 msgstr "[Credentials/](../../../cli/administration/inventory/credentials/__main__.py)"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# [cron-cleanupstale.yml](../../../../../.github/workflows/cron-cleanup-stale.yml):
+# `🧹 Prune stale data`
 msgid "[cron-cleanup-stale.yml](../../../../../.github/workflows/cron-cleanup-stale.yml): `🧹 Prune stale data`"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# [cron-images-cleanupci.yml](../../../../../.github/workflows/cron-images-cleanup-ci.yml):
+# `🧹 Prune CI images`
 msgid "[cron-images-cleanup-ci.yml](../../../../../.github/workflows/cron-images-cleanup-ci.yml): `🧹 Prune CI images`"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# [cron-images-mirrorall.yml](../../../../../.github/workflows/cron-images-mirror-all.yml),
+# [call-images-mirrormissing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml)
 msgid "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml), [call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml)"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# [cron-images-mirrorall.yml](../../../../../.github/workflows/cron-images-mirror-all.yml):
+# `🪞 Mirror all images`
 msgid "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml): `🪞 Mirror all images`"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# [Kronenfreisetzunghighest.yml](../../../../../.github/workflows/cron-release-highest.yml):
+# `🚀 Release missing tag`
 msgid "[cron-release-highest.yml](../../../../../.github/workflows/cron-release-highest.yml): `🚀 Release missing tag`"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# [Kronenfreisetzunghighest.yml](../../../.github/workflows/cron-release-highest.yml)
 msgid "[cron-release-highest.yml](../../../.github/workflows/cron-release-highest.yml)"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# [cron-securitycodeql.yml](../../../../../.github/workflows/cron-security-codeql.yml):
+# `🔐 Scan with CodeQL`
 msgid "[cron-security-codeql.yml](../../../../../.github/workflows/cron-security-codeql.yml): `🔐 Scan with CodeQL`"
 msgstr ""
 
@@ -73349,6 +74157,11 @@ msgid "[database.py](database.py) resolves the active database backend for an ap
 msgstr "[database.py](database.py) löst das aktive Datenbank-Backend für eine Anwendung auf (`mariadb`, `postgres`, ...) aus seiner Dienstleistungskarte."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# [Einsatzmodes.md](../../contributing/design/deployment-modes.md) für die
+# `mode` Achse.
 msgid "[deployment-modes.md](../../contributing/design/deployment-modes.md) for the `mode` axis."
 msgstr ""
 
@@ -73433,6 +74246,11 @@ msgid "[entry-cancel-superseded.yml](../../../../../.github/workflows/entry-canc
 msgstr "[Entry-Cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml): `🚫 Cancel: Superseded Runs`"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# [Entry-Löschungbranch.yml](../../../../../.github/workflows/entry-delete-branch.yml):
+# `🚫 Cancel: Runs on Branch Delete`
 msgid "[entry-delete-branch.yml](../../../../../.github/workflows/entry-delete-branch.yml): `🚫 Cancel: Runs on Branch Delete`"
 msgstr ""
 
@@ -73449,10 +74267,20 @@ msgid "[entry-manual-steer.yml](../../../../.github/workflows/entry-manual-steer
 msgstr "[entry-manual-steer.yml](../../../../.github/workflows/entry-manual-steer.yml): versendet den Orchestrator manuell für ein ausgewähltes Distributionsset und eine Whitelist."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# [Entry-pr-changeorchestrate.yml](../../../../../.github/workflows/entry-pr-change-orchestrate.yml):
+# `🔀 Pull Request`
 msgid "[entry-pr-change-orchestrate.yml](../../../../../.github/workflows/entry-pr-change-orchestrate.yml): `🔀 Pull Request`"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# [Entry-pr-changeorchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml):
+# erkennt den PR-Bereich und ruft den Orchestrator bedingt auf.
 msgid "[entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml): detects PR scope and conditionally calls the orchestrator."
 msgstr ""
 
@@ -73565,6 +74393,16 @@ msgid "[local deploy scripts](../../../scripts/tests/deploy/local/)"
 msgstr "[Local Deployment Skripts](../../../scripts/tests/deploy/local/)"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# [Logoutpanel.js.j2](../../roles/web-app-keycloak/templates/logout-panel.js.j2)
+# Inline [logout_i18n.yml](../../roles/web-app-keycloak/files/logout_i18n.yml)
+# als a `{language: {key: text, dir}}` Gegenstand und
+# [Logoutpanel.js](../../roles/web-app-keycloak/files/javascript/logout-panel.js)
+# Wählen Sie die Sprache aus `<html lang>` und `navigator.language`. Ihre 29
+# Nicht-englische Blöcke sind die einzigen menschlichen Übersetzungen, die
+# Kern besitzen.
 #, python-brace-format
 msgid "[logout-panel.js.j2](../../roles/web-app-keycloak/templates/logout-panel.js.j2) inlines [logout_i18n.yml](../../roles/web-app-keycloak/files/logout_i18n.yml) as a `{language: {key: text, dir}}` object, and [logout-panel.js](../../roles/web-app-keycloak/files/javascript/logout-panel.js) picks the language from `<html lang>` and `navigator.language`. Its 29 non-English blocks are the only human translations core owns."
 msgstr ""
@@ -73870,6 +74708,10 @@ msgstr "[Prüf-mcp-guest.js](../../roles/web-app-homeassistant/files/playwright/
 msgid "[test-oidc-login.js](../../roles/web-app-litellm/files/playwright/test-oidc-login.js), gated on `services.sso`"
 msgstr "[Test-oidc-login.js](../../roles/web-app-litellm/files/playwright/test-oidc-login.js), gated on `services.sso`"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# [Testsystem-onerouter.js](../../roles/web-app-openwebui/files/playwright/test-system-one-router.js)
 msgid "[test-system-one-router.js](../../roles/web-app-openwebui/files/playwright/test-system-one-router.js)"
 msgstr ""
 
@@ -74415,6 +75257,33 @@ msgid "[x] Client roles whose upstream offers an administrator-visible list of c
 msgstr "[x] Clientrollen, deren Upstream eine vom Administrator sichtbare Liste von konfigurierten MCP-Servern bietet, setzen sie in der Playwright-Abdeckung frei. Ein Client ohne eine solche Oberfläche hat stattdessen seine konfigurierten Server zum Bereitstellungszeitpunkt bewährt, und sein README gibt an, welche der beiden zutrifft."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: [x] Datenbankgestützte Integrationen pro Anwendung
+# views/collections/indexes und schreibgeschützte Prinzipale; kein Test oder
+# keine Konfiguration enthält einen gemeinsamen Engine-Administratornachweis.
+# Eine datenbankgestützte Oberfläche ist aktiviert, QdrantDie Überprüfung
+# ergab, dass die Engine ohne Authentifizierung lief: ihre Umgebung setzte den
+# HTTP-Port und deaktivierte Telemetrie und sonst nichts, so dass jeder
+# Container, der sein Netzwerk erreichte, den vollen Lese-, Schreib- und
+# Löschzugriff auf jede Sammlung hielt, und das Leseversprechen der Oberfläche
+# ruhte vollständig auf dem eigenen Vertrag des Adapters, der nur GET-Routen
+# nannte. Qdrant 1.19 bietet, was benötigt wurde: `read_only_api_key` Forces
+# Authentication bei jeder Anfrage und Grants liest nur. Die Engine deklariert
+# nun beide Tasten, der Adapter präsentiert den Read-Only durch `api-key`, und
+# der vollständige Schlüssel geht nur an Verbraucher, die hier Daten besitzen,
+# was durch einen Unit-Test auf dem Resolver bestätigt wird, da die Übergabe
+# des Nur-Leseschlüssels an einem anderen Ort ihn bedeutungslos machen würde.
+# Ein Vertrag, der eine Schreibroute benannt hat, wird nun vom Motor und nicht
+# nur vom Adapter abgelehnt. Zwei Grenzen bleiben, und weder ist ein
+# credential Problem: Qdrant hat keine Pro-Konsumenten-Prinzipien, nur
+# motorweite Schlüssel, also "Read-Only-Prinzipal" so schmal ist, wie dieser
+# Motor ohne JWT RBAC läuft, und `qdrant_list_collections` listet die gesamte
+# Engine auf, die heute durch einen Dateneigner begrenzt ist, aber keine
+# Ansicht pro Anwendung ist. Der Bahnparameter von `qdrant_get_collection` ist
+# kein traversales Risiko: der Adapter prozentual kodiert es mit einem leeren
+# Safe-Set, also ein `../` Argumentation erreicht Qdrant als wörtlicher
+# Sammelname.
 msgid "[x] Database-backed integrations use per-application views/collections/indexes and read-only principals; no test or configuration contains a shared engine administrator credential. One database-backed surface is enabled, Qdrant, and auditing it found the engine running with no authentication at all: its environment set the HTTP port and disabled telemetry and nothing else, so every container that reached its network held full read, write and delete access to every collection, and the surface's read-only promise rested entirely on the adapter's own contract naming only GET routes. Qdrant 1.19 offers what was needed: `read_only_api_key` forces authentication on every request and grants reads only. The engine now declares both keys, the adapter presents the read-only one through `api-key`, and the full key goes only to consumers that own data here, which is asserted by a unit test on the resolver because handing the read-only key out anywhere else would make it meaningless. A contract that named a write route is now refused by the engine rather than only by the adapter. Two limits stay, and neither is a credential problem: Qdrant has no per-consumer principals, only engine-wide keys, so \"read-only principal\" is as narrow as this engine goes without JWT RBAC; and `qdrant_list_collections` enumerates the whole engine, which is bounded today by there being one data owner but is not a per-application view. The path parameter of `qdrant_get_collection` is not a traversal risk: the adapter percent-encodes it with an empty safe set, so a `../` argument reaches Qdrant as a literal collection name."
 msgstr ""
 
@@ -74514,6 +75383,12 @@ msgstr "[x] Jede Rolle in der bestätigten Tabelle zeigt ihre AI-Basis-URL auf d
 msgid "[x] Every role with an `application_id` has an explicit audit disposition as required by requirement 035. Absence of an `mcp` block is not accepted as evidence that the role was reviewed."
 msgstr "[x] Jede Rolle mit einem `application_id` eine ausdrückliche Prüfungsanordnung gemäß Anforderung 035 hat. Fehlen eines `mcp` Block wird nicht als Beweis dafür akzeptiert, dass die Rolle überprüft wurde."
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: [x] Jeder Routing-Faktor trägt eine 0.1 Gewicht in
+# `services.litellm.router_weights`, Ein Nullgewicht entfernt den Faktor, und
+# keine Gewichtung lässt eine eingeschränkte Anforderung ein entferntes Modell
+# erreichen.
 msgid "[x] Every routing factor carries a 0..1 weight in `services.litellm.router_weights`, a zero weight removes the factor, and no weighting lets a restricted request reach a remote model."
 msgstr ""
 
@@ -77340,6 +78215,14 @@ msgid "``enforced`` onions every capable row, ``disabled`` none, ``exclusive`` d
 msgstr "``enforced`` Zwiebeln jeder fähigen Reihe, ``disabled`` keine, ``exclusive`` die Reihen fallen lässt, die keinen aufnehmen können, ``auto`` rotiert."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: ``entries_only=true`` Gibt diese Zeichenfolgen als
+# Liste anstelle des gerenderten Blocks für einen Container zurück, der von
+# einer Compose-Datei überhaupt nicht beschrieben wird: ``web-app-discourse``
+# gebaut von discourse_dockers ``launcher``, dessen einzige Argumentoberfläche
+# ``docker_args:`` in seiner ``app.yml``, also braucht es
+# ``--add-host=<entry>`` Strecken.
 msgid "``entries_only=true`` returns those strings as a list instead of the rendered block, for a container that is not described by a compose file at all: ``web-app-discourse`` is built by discourse_docker's ``launcher``, whose only argument surface is ``docker_args:`` in its ``app.yml``, so it needs ``--add-host=<entry>`` lines."
 msgstr ""
 
@@ -77705,6 +78588,16 @@ msgid "``phpunit/phpunit`` declares ``_PHPUNIT_EXTENSIONS`` as platform requirem
 msgstr "``phpunit/phpunit`` erklärt ``_PHPUNIT_EXTENSIONS`` Als Plattformanforderungen weigert sich Composer, den Anbieterbaum ohne sie zu lösen, so dass sie Teil der Toolchain und nicht der Suite sind, die sie verbraucht. Eine Distribution versendet sie als Pakete, die vom Dolmetscher getrennt sind, weshalb ein Geschenk ``php`` Binär bedeutet nicht, dass sie da sind."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: ``playwright.spec.js`` — Orchestrator: TLS Baseline,
+# Projekterstellung, Image Asset Upload und
+# ``guest``/``biber``/``administrator`` Personas. Die ``biber`` /
+# ``administrator`` Personas werden als blockiert erklärt
+# ``PERSONA_*_BLOCKED`` (Spiegelung ``web-app-taiga``): Penpots "OpenID"
+# -Eintrag und SPA-Benutzermenü-Logout sind vom generischen Persona-Helfer
+# nicht fahrbar, so dass die echte Authent beider Benutzer von den oben
+# genannten dedizierten Login-Begleitern ausgeübt wird.
 msgid "``playwright.spec.js`` — orchestrator: TLS baseline, project creation, image asset upload, and the ``guest``/``biber``/``administrator`` personas. The ``biber`` / ``administrator`` personas are declared blocked via ``PERSONA_*_BLOCKED`` (mirroring ``web-app-taiga``): Penpot’s in-app “OpenID” entry and SPA user-menu logout aren’t driveable by the generic persona helper, so both users’ real auth is exercised by the dedicated login companions above."
 msgstr ""
 
@@ -77876,6 +78769,10 @@ msgstr "``setdefault`` nur dann auf den gelieferten Wert zurückfällt, wenn der
 msgid "``source_url``:      upstream documentation or source of the MCP surface."
 msgstr "``source_url``: vorgelagerte Dokumentation oder Quelle der MCP-Oberfläche."
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: ``source`` für Bindungen/Konfigurationen/Geheimnisse,
+# ``''`` wenn nicht vorhanden
 msgid "``source``         for binds / configs / secrets, ``''`` if absent"
 msgstr ""
 
@@ -82001,6 +82898,9 @@ msgstr "cli.build.docs Packung"
 msgid "cli.build.docs.integration\\_matrix package"
 msgstr "cli.build.docs.integration\\ matrix Paket"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: cli.build.docs.integrationModul \ matrix.data
 msgid "cli.build.docs.integration\\_matrix.data module"
 msgstr ""
 
@@ -82300,6 +83200,9 @@ msgstr "cli.meta.ci.plan Modul"
 msgid "cli.meta.ci.query module"
 msgstr "cli.meta.ci.query Modul"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: cli.meta.ci.reportModul \ failures
 msgid "cli.meta.ci.report\\_failures module"
 msgstr ""
 
@@ -83246,6 +84149,10 @@ msgid "eslint preserve-caught-error and no-useless-assignment violations in five
 msgstr "eslint preserve-caught-error und no-useless-assignment-Verstöße in fünf Playwright-Helfern"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate echo
+# nocheck: url
+# translation-rejected: eslint, eslint-plugin-playwright, eslint/js,
+# actions/setup-python, actions/create-github-app-token
 msgid "eslint, eslint-plugin-playwright, eslint/js, actions/setup-python, actions/create-github-app-token"
 msgstr ""
 
@@ -83626,6 +84533,10 @@ msgid "host"
 msgstr "Gastgeber"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Wirtsseite: Vorreinigung, `compose build` + 1 `compose
+# up`, sudo `.deb` Build, dann das Spiel
 msgid "host side: pre-clean, `compose build` + one `compose up`, sudo `.deb` build, then the play"
 msgstr ""
 
@@ -83793,6 +84704,9 @@ msgstr "internes CDN für style/script elem und connect"
 msgid "internal:"
 msgstr "intern:"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Bestände/Server/Arbeitsplatz/
 msgid "inventories/   server/   workstation/"
 msgstr ""
 
@@ -84497,6 +85411,23 @@ msgid "one dict from ``volume['mounts']``."
 msgstr "Ein Diktat von ``volume['mounts']``."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: 1 Eintrag pro (Zeile, Mode, Tor) der Lauf
+# Bereitstellungen, jeweils gestempelt mit der Distribution und Dateisystem
+# seine Rotation gezogen, trägt die Entdeckung der Reihe ``id`` und die
+# ``covered`` ID der früheren Zeile, die es bereits einbettet (``0``: nichts
+# tut), so kann ein Leser des Plans eine redundante Zeile von einer
+# eindeutigen ohne eine zweite Abfrage unterscheiden. Eine regelmäßige Reihe
+# ergibt genau eine - die Rotation wählt ihre Kombination für diesen Sweep.
+# Eine Prioritätszeile liefert jede Kombination :func:`combinations` erlaubt,
+# so dass die Rollen, die ein Lauf beweisen soll, überall auf einmal bewiesen
+# werden, anstatt über vier Sweeps abgetastet zu werden. ``disable`` trägt die
+# Provider-Token die Deployment-Bohrer schaltet aus; eine Reihe ohne Tor
+# deaktiviert den Provider, so dass keine Abhängigkeitskante ihn zurück in den
+# Verschluss ziehen kann. Die eigenen Zeilen des Anbieters nehmen daher nie
+# den Clearnet-Zustand ein: Wenn man dort Tor deaktiviert, würde die getestete
+# App aus dem eigenen Deployment entfernt.
 msgid "one entry per (row, mode, tor) the run deploys, each stamped with the distro and filesystem its rotation drew, carrying the row's discovery ``id`` and the ``covered`` id of the earlier row that already embeds it (``0``: nothing does), so a reader of the plan can tell a redundant row from a unique one without a second query. A regular row yields exactly one -- the rotation picks its combination for this sweep. A priority row yields every combination :func:`combinations` allows, so the roles a run is told to prove are proven everywhere at once rather than sampled over four sweeps. ``disable`` carries the provider tokens the deploy drill switches off; a row without tor disables the provider so no dependency edge can pull it back into the closure. The provider's own rows therefore never take the clearnet state: disabling tor there would strip the app under test out of its own deploy."
 msgstr ""
 
@@ -84893,12 +85824,21 @@ msgstr "plugins.filter.active\\ docker-Modul"
 msgid "plugins.filter.application\\_allowed module"
 msgstr "plugins.filter.application\\ erlaubtes Modul"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: plugins.filter.asyncModul \ failures
 msgid "plugins.filter.async\\_failures module"
 msgstr ""
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: plugins.filter.caModul \ trust\ paths
 msgid "plugins.filter.ca\\_trust\\_paths module"
 msgstr ""
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: plugins.filter.canonicalModul \ domains\ map
 msgid "plugins.filter.canonical\\_domains\\_map module"
 msgstr ""
 
@@ -84942,9 +85882,15 @@ msgstr "plugins.filter.dotenv Modul"
 msgid "plugins.filter.generate package"
 msgstr "plugins.filter.generate Packung"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: plugins.filter.generate.allModul \ domains
 msgid "plugins.filter.generate.all\\_domains module"
 msgstr ""
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: plugins.filter.generate.baseModul \ sld\ domains
 msgid "plugins.filter.generate.base\\_sld\\_domains module"
 msgstr ""
 
@@ -84964,9 +85910,16 @@ msgstr "plugins.filter.get.all.application\\ ids-Modul"
 msgid "plugins.filter.get.all.invokable\\_apps module"
 msgstr "plugins.filter.get.all.invokable\\ apps Modul"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: plugins.filter.get.categoryModul \ entries
 msgid "plugins.filter.get.category\\_entries module"
 msgstr ""
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: plugins.filter.get.deploymentModul \ types\ from\
+# groups
 msgid "plugins.filter.get.deployment\\_types\\_from\\_groups module"
 msgstr ""
 
@@ -84994,6 +85947,9 @@ msgstr "plugins.filter.get.service\\ script\\ path Modul"
 msgid "plugins.filter.get.url module"
 msgstr "plugins.filter.get.url Modul"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: plugins.filter.giteaModul \ auth\ noop
 msgid "plugins.filter.gitea\\_auth\\_noop module"
 msgstr ""
 
@@ -85013,6 +85969,9 @@ msgstr "plugins.filter.has.env Modul"
 msgid "plugins.filter.invokable\\_paths module"
 msgstr "plugins.filter.invokable\\ paths Modul"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: plugins.filter.ldapModul \ modify\ noop
 msgid "plugins.filter.ldap\\_modify\\_noop module"
 msgstr ""
 
@@ -85020,6 +85979,9 @@ msgstr ""
 msgid "plugins.filter.litellm package"
 msgstr "plugins.filter.litellm Packung"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: plugins.filter.litellm.modelModul \ routes
 msgid "plugins.filter.litellm.model\\_routes module"
 msgstr ""
 
@@ -85035,6 +85997,9 @@ msgstr "plugins.filter.merge Packung"
 msgid "plugins.filter.merge.mapping module"
 msgstr "plugins.filter.merge.mapping Modul"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: plugins.filter.merge.withModul \ defaults
 msgid "plugins.filter.merge.with\\_defaults module"
 msgstr ""
 
@@ -85050,6 +86015,9 @@ msgstr "plugins.filter.native\\ metrics\\ target Modul"
 msgid "plugins.filter.on\\_off module"
 msgstr "plugins.filter.on\\ off Modul"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: plugins.filter.redirectModul \ sources
 msgid "plugins.filter.redirect\\_sources module"
 msgstr ""
 
@@ -85061,6 +86029,9 @@ msgstr "plugins.filter.reserved\\ Benutzermodul"
 msgid "plugins.filter.resource\\_filter module"
 msgstr "plugins.filter.resource\\ filtermodul"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: plugins.filter.roleModul \ path\ by\ app\ id
 msgid "plugins.filter.role\\_path\\_by\\_app\\_id module"
 msgstr ""
 
@@ -85128,13 +86099,22 @@ msgstr "plugins.filter.value\\ generator-Modul"
 msgid "plugins.lookup package"
 msgstr "plugins.lookup Packung"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: plugins.lookup.activeModul \ alertmanager\ channels
 msgid "plugins.lookup.active\\_alertmanager\\_channels module"
 msgstr ""
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: plugins.lookup.addonModul \ env\ flags
 msgid "plugins.lookup.addon\\_env\\_flags module"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: plugins.lookup.alertModul \ rule\ roles
 msgid "plugins.lookup.alert\\_rule\\_roles module"
 msgstr ""
 
@@ -85286,6 +86266,9 @@ msgstr "plugins.lookup.container\\ Dienstmodul"
 msgid "plugins.lookup.container\\_volumes module"
 msgstr "plugins.lookup.container\\ volumes Modul"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: plugins.lookup.currentModul \ play\ redirect\ domains
 msgid "plugins.lookup.current\\_play\\_redirect\\_domains module"
 msgstr ""
 
@@ -85294,6 +86277,9 @@ msgid "plugins.lookup.database module"
 msgstr "plugins.lookup.database Modul"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: plugins.lookup.databaseModul \ consumerless\ volumes
 msgid "plugins.lookup.database\\_consumerless\\_volumes module"
 msgstr ""
 
@@ -85389,6 +86375,9 @@ msgstr "plugins.lookup.nfs\\ Flavor-Modul"
 msgid "plugins.lookup.nfs\\_fstype module"
 msgstr "plugins.lookup.nfs\\ fstype-Modul"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: plugins.lookup.nfsModul \ mount\ opts
 msgid "plugins.lookup.nfs\\_mount\\_opts module"
 msgstr ""
 
@@ -85400,6 +86389,9 @@ msgstr "plugins.lookup.nfs\\ state\\ path Modul"
 msgid "plugins.lookup.nginx module"
 msgstr "plugins.lookup.nginx Modul"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: plugins.lookup.nodeModul \ max\ old\ space\ size
 msgid "plugins.lookup.node\\_max\\_old\\_space\\_size module"
 msgstr ""
 
@@ -88047,6 +89039,9 @@ msgstr "utils.cache.files Modul"
 msgid "utils.cache.gitignore module"
 msgstr "utils.cache.gitignore Modul"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: utils.cache.schemaModul \ credentials
 msgid "utils.cache.schema\\_credentials module"
 msgstr ""
 
@@ -88086,6 +89081,9 @@ msgstr "utils.cleanup.databases\\ csv-Modul"
 msgid "utils.cleanup.nginx\\_vhosts module"
 msgstr "utils.cleanup.nginx\\ vhosts-Modul"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: utils.cleanup.pycacheModul \ only\ dirs
 msgid "utils.cleanup.pycache\\_only\\_dirs module"
 msgstr ""
 
@@ -88157,6 +89155,9 @@ msgstr "utils.docker.registry Modul"
 msgid "utils.domains package"
 msgstr "utils.domains Packung"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: utils.domains.applicationModul \ domain\ index
 msgid "utils.domains.application\\_domain\\_index module"
 msgstr ""
 
@@ -88196,6 +89197,9 @@ msgstr "utils.env.handlers.docker\\ Plattformmodul"
 msgid "utils.env.handlers.gha\\_passthrough module"
 msgstr "utils.env.handlers.gha\\ Durchgangsmodul"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: utils.env.handlers.githubModul \ repository\ owner
 msgid "utils.env.handlers.github\\_repository\\_owner module"
 msgstr ""
 
@@ -88315,15 +89319,30 @@ msgstr "utils.env.handlers.infinito.outer\\ network\\ mtu module"
 msgid "utils.env.handlers.infinito.package\\_cache package"
 msgstr "utils.env.handlers.infinito.package\\ Cache-Paket"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: utils.env.handlers.infinito.package\ cache.admin\
+# password module
 msgid "utils.env.handlers.infinito.package\\_cache.admin\\_password module"
 msgstr ""
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: utils.env.handlers.infinito.package\ cache.blobstore\
+# max Modul
 msgid "utils.env.handlers.infinito.package\\_cache.blobstore\\_max module"
 msgstr ""
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: utils.env.handlers.infinito.package\ cache.direct\ mem
+# Modul
 msgid "utils.env.handlers.infinito.package\\_cache.direct\\_mem module"
 msgstr ""
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: utils.env.handlers.infinito.package\ cache.heap Modul
 msgid "utils.env.handlers.infinito.package\\_cache.heap module"
 msgstr ""
 
@@ -88347,6 +89366,10 @@ msgstr "utils.env.handlers.infinito.playwright.stage\\ base\\ dir Modul"
 msgid "utils.env.handlers.infinito.pull\\_policy module"
 msgstr "utils.env.handlers.infinito.pull\\ policy module"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: utils.env.handlers.infinito.registryModul \ cache\
+# max\ size
 msgid "utils.env.handlers.infinito.registry\\_cache\\_max\\_size module"
 msgstr ""
 
@@ -88370,9 +89393,15 @@ msgstr "utils.env.handlers.infinito.rescue.local\\ dumps\\ dir Modul"
 msgid "utils.env.handlers.infinito.running\\_on package"
 msgstr "utils.env.handlers.infinito.running\\ on Paket"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: utils.env.handlers.infinito.running\ on.act Modul
 msgid "utils.env.handlers.infinito.running\\_on.act module"
 msgstr ""
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: utils.env.handlers.infinito.running\ on.github-Modul
 msgid "utils.env.handlers.infinito.running\\_on.github module"
 msgstr ""
 
@@ -88380,9 +89409,17 @@ msgstr ""
 msgid "utils.env.handlers.infinito.swarm\\_nfs package"
 msgstr "utils.env.handlers.infinito.swarm\\ nfs Paket"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: utils.env.handlers.infinito.swarm\ nfs.export\
+# basismodul
 msgid "utils.env.handlers.infinito.swarm\\_nfs.export\\_base module"
 msgstr ""
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: utils.env.handlers.infinito.swarm\ nfs.state\
+# path-Modul
 msgid "utils.env.handlers.infinito.swarm\\_nfs.state\\_path module"
 msgstr ""
 
@@ -88770,6 +89807,9 @@ msgstr "utils.networks.render Modul"
 msgid "utils.nexus package"
 msgstr "utils.nexus Packung"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: utils.nexus.listModul \ apt\ proxy\ repos
 msgid "utils.nexus.list\\_apt\\_proxy\\_repos module"
 msgstr ""
 
@@ -89077,6 +90117,9 @@ msgstr "utils.tests.swarm.write Packung"
 msgid "utils.tests.swarm.write.extras module"
 msgstr "utils.tests.swarm.write.extras Modul"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: utils.tests.swarm.write.hostsModul \ entries
 msgid "utils.tests.swarm.write.hosts\\_entries module"
 msgstr ""
 
