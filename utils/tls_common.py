@@ -252,6 +252,14 @@ def resolve_term(
         primary = norm_domain(
             resolve_primary_domain_from_app(domains, str(app_id), err_prefix=err_prefix)
         )
+        # Exception: an exclusive Tor app has its clearnet domain swapped for an
+        # onion one in the merged map, so a clearnet term would resolve to that
+        # onion primary and report TLS off. The webserver health check would
+        # then probe clearnet hosts over http (a 301 fails it), and the CSP
+        # crawler would scan servers/http and skip the https vhosts. Keep the
+        # requested clearnet domain, mirroring align_domain_to_consumer.
+        if is_onion_domain(primary) and not is_onion_domain(t):
+            return str(app_id), norm_domain(t)
         return str(app_id), primary
 
     app_id = t

@@ -16,4 +16,4 @@
 
 - name: "📂 Load http redirect routines"
   include_tasks: 01_http.yml
-  when: lookup('tls', application_id, 'enabled') | bool
+  when: lookup('tls', domain | default(application_id), 'enabled') | bool

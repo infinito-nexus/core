@@ -1,2 +1,6 @@
 ---
-tls_mode_effective: "{{ lookup('tls', application_id, 'mode') }}"
+# Exception: domain, not application_id — sys-stk-front-proxy re-includes this
+# role once per vhost (e.g. a clearnet + onion pair for the same app);
+# app-id-keyed TLS state would apply one domain's enabled/mode to every pass.
+# Falls back to application_id for callers that never set domain.
+tls_mode_effective: "{{ lookup('tls', domain | default(application_id), 'mode') }}"

@@ -1,0 +1,65 @@
+---
+# General
+application_id: "web-app-wazuh"
+entity_name: "{{ application_id | get_entity_name }}"
+
+# https://wazuh.com/
+WAZUH_MANAGER_CONTAINER: "{{ lookup('config', application_id, 'services.manager.name') }}"
+
+WAZUH_INDEXER_CONTAINER: "{{ lookup('config', application_id, 'services.indexer.name') }}"
+WAZUH_INDEXER_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'indexer') }}"
+WAZUH_INDEXER_HTTP_PORT: "{{ lookup('config', application_id, 'services.indexer.ports.local.http') }}"
+WAZUH_INDEXER_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.indexer.ports.internal.http') }}"
+
+# services.console is the compose-entity key for the dashboard; see meta/services.yml for why it isn't named "dashboard".
+WAZUH_DASHBOARD_CONTAINER: "{{ lookup('config', application_id, 'services.console.name') }}"
+WAZUH_DASHBOARD_HTTP_PORT: "{{ lookup('config', application_id, 'services.console.ports.local.http') }}"
+WAZUH_DASHBOARD_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.console.ports.internal.http') }}"
+
+# Onion sibling of the clearnet domain when svc-net-tor is deployed (tasks/00_core.yml's second front-proxy include, README.md's "Tor / Onion Reachability"); empty string otherwise.
+WAZUH_DASHBOARD_ONION_DOMAIN: "{{ (lookup('tls', application_id, 'domains.all') | select('search', '\\.onion$') | list | first) | default('') }}"
+
+WAZUH_CERTS_GENERATOR_CONTAINER: "{{ lookup('config', application_id, 'services.certs_generator.name') }}"
+
+# Host-side bind-mount roots (instance dir is unique per role deploy)
+WAZUH_INSTANCE_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
+WAZUH_CERTS_DIR_HOST: "{{ [ WAZUH_INSTANCE_DIR, 'certs' ] | path_join }}"
+WAZUH_CERTS_CONFIG_HOST: "{{ [ WAZUH_INSTANCE_DIR, 'certs.yml' ] | path_join }}"
+
+# Consumed by compose.yml.j2's volume mounts and 01_securityadmin.yml's `container exec` invocation.
+WAZUH_INDEXER_CERTS_DIR_CONTAINER: "/usr/share/wazuh-indexer/config/certs" # nocheck: container-var-name-lookup — in-container path, not a container name
+WAZUH_INDEXER_SECURITY_DIR_CONTAINER: "/usr/share/wazuh-indexer/config/opensearch-security" # nocheck: container-var-name-lookup — in-container path, not a container name
+
+# Host sysctl.d file for the indexer's vm.max_map_count requirement; see tasks/00_core.yml for the DinD-sandbox limitation on setting it.
+WAZUH_SYSCTL_CONF: "/etc/sysctl.d/99-wazuh-indexer.conf"
+
+# Internal API base URL (host-reachable, used by Ansible uri_retry/wait_for tasks)
+WAZUH_INDEXER_INTERNAL_API_URL: "https://{{ DOCKER_REACH_HOST }}:{{ WAZUH_INDEXER_HTTP_PORT }}"
+
+# Auth integrations
+WAZUH_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
+WAZUH_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') | bool }}"
+
+# Credentials (meta/secrets.yml); the indexer's internal_users.yml needs a bcrypt HASH of each plaintext, computed here via `bcrypt_hash` (plugins/filter/bcrypt_hash.py, not Ansible's broken `password_hash('bcrypt')`) so every consumer resolves the same source-of-truth variable.
+WAZUH_INDEXER_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.indexer_admin_password') }}"
+WAZUH_INDEXER_ADMIN_HASH: "{{ WAZUH_INDEXER_ADMIN_PASSWORD | bcrypt_hash }}"
+
+WAZUH_DASHBOARD_SERVICE_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.dashboard_service_password') }}"
+WAZUH_DASHBOARD_SERVICE_HASH: "{{ WAZUH_DASHBOARD_SERVICE_PASSWORD | bcrypt_hash }}"
+
+WAZUH_WUI_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.wazuh_wui_password') }}"
+
+WAZUH_CLUSTER_KEY: "{{ lookup('config', application_id, 'secrets.credentials.manager_cluster_key') }}"
+
+# meta/rbac.yml backend_roles for templates/roles_mapping.yml.j2: OIDC path is manually prefixed with "/" (rbac_group_path's bare output has none, but Keycloak's full-path `groups` claim does — see roles/web-app-yourls/vars/main.yml and roles/web-app-joomla/meta/rbac.yml's worked example) and MUST be listed alongside the differently-shaped LDAP CN below, not instead of it.
+WAZUH_RBAC_ADMIN_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
+WAZUH_RBAC_ANALYST_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='security-analyst') }}"
+WAZUH_RBAC_READONLY_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='readonly-auditor') }}"
+
+WAZUH_RBAC_ADMIN_LDAP_CN: "{{ application_id }}-administrator"
+WAZUH_RBAC_ANALYST_LDAP_CN: "{{ application_id }}-security-analyst"
+WAZUH_RBAC_READONLY_LDAP_CN: "{{ application_id }}-readonly-auditor"
+
+# Overrides test-e2e-playwright's shared 30x5s (~150s) default: indexer's own healthcheck above is a 390s worst case, and swarm has no service_healthy gating, so 120x5s (600s) covers it plus dashboard boot margin.
+test_e2e_playwright_wait_retries: 120
+test_e2e_playwright_wait_delay: 5
