@@ -1,9 +1,11 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- include_tasks: utils/load/handlers.yml
-  vars:
-    handler_role_name: "sys-svc-compose"
+- name: "🥾 For '{{ application_id }}': bootstrap the compose host once"
+  ansible.builtin.include_role:
+    name: sys-svc-compose
+    tasks_from: 00_core.yml
+  when: run_once_sys_svc_compose is not defined
 
 - name: "🛑 Refuse a backend flavor the role does not carry"
   ansible.builtin.assert:
