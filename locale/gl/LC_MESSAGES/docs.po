@@ -3746,7 +3746,7 @@ msgstr "**Administración eficiente:** Optimizar o manexo de obxectos LDAP como 
 
 # libretranslate
 msgid "**Efficient Code Collaboration:** Manage repositories and workflows with an intuitive interface."
-msgstr "**Código de colaboración eficaz:** Xestionar repositorios e fluxos de traballo cunha interface intuitiva."
+msgstr ""
 
 # libretranslate
 msgid "**Efficient Integration:** Works seamlessly with web server roles for robust domain routing."
@@ -5341,7 +5341,7 @@ msgstr ""
 
 # libretranslate
 msgid "**JCasC-managed configuration:** Persist the security realm and authorisation strategy as code via Configuration as Code."
-msgstr "**Configuración JCasC:** Persiste o ámbito de seguridade e a estratexia de autorización como código a través da configuración como código."
+msgstr ""
 
 msgid "**JSON enabled:** the settings add the ``json`` output format, which upstream ships disabled and which every API client needs."
 msgstr ""
@@ -15373,7 +15373,7 @@ msgstr "Todos os compromisos deben ser asinados (GPG/SSH)"
 
 # libretranslate
 msgid "All communication MUST follow the project [Code of Conduct](../../../CODE_OF_CONDUCT.md)."
-msgstr "Toda comunicación debe seguir o proxecto [Código de conducta](../../../CODE_OF_CONDUCT.md)."
+msgstr ""
 
 # libretranslate
 msgid "All configuration is handled via ``meta/services.yml`` (services map at file root) and ``meta/server.yml`` (server block at file root)."
@@ -18665,7 +18665,7 @@ msgstr "Seguindo estas directrices, tanto os usuarios finais como os administrad
 
 # libretranslate
 msgid "By participating in the Infinito.Nexus project, you agree to adhere to this Code of Conduct. We appreciate your cooperation in helping us build a positive and productive community."
-msgstr "Ao participar na Infinito.Nexus Vostede acepta cumprir este código de conduta. Agradecemos a vosa colaboración para axudarnos a construír unha comunidade positiva e produtiva."
+msgstr ""
 
 # libretranslate
 msgid "By standardizing `.profile` as the central source for environment configuration, this role ensures consistent shell behavior. It does **not** manage the contents of `.profile` itself; it only guarantees that it is sourced by supported shells."
@@ -27086,7 +27086,7 @@ msgstr "Extraer o ``owner/repo`` Slug de a github.com URL (https ou ssh)."
 
 # libretranslate
 msgid "Extracted Code 📤"
-msgstr "Código extraído 📤"
+msgstr ""
 
 # libretranslate
 msgid "Extracted cleanup logic into a dedicated script"
@@ -28162,7 +28162,7 @@ msgstr "Para un garfo, fornece o teu nome de usuario de GitHub para que os corre
 
 # libretranslate
 msgid "For a full reference of permitted Claude Code operations and their security rationale, see [claude/](claude/README.md)."
-msgstr "Para unha referencia completa das operacións permitidas do código Claude e a súa racionalidade de seguridade. [Claude/](claude/README.md)."
+msgstr ""
 
 # libretranslate
 msgid "For a hard reset, which will delete all data and stop all services, use the following commands:"
@@ -31099,7 +31099,7 @@ msgstr "Se estás habilitado `enable_wildcard_certificate`, Siga estes pasos par
 
 # libretranslate
 msgid "If you experience or witness any behavior that violates this Code of Conduct, please report it promptly. Reports should be sent to <kevin@veen.world>. All reports will be treated with discretion and confidentiality."
-msgstr "Se experimenta ou testemuña calquera comportamento que infrinxa este Código de conduta, por favor, informe de forma inmediata. Os informes deben ser enviados para <kevin@veen.world>. Todos os informes serán tratados con discreción e confidencialidade."
+msgstr ""
 
 # libretranslate
 msgid "If you have imported posts from Instagram, you can clean up the imported data and files as follows:"
@@ -31722,7 +31722,7 @@ msgstr "En modo incrustado (`shared: false`) A pila de composición dun consumid
 
 # libretranslate
 msgid "In order to foster a welcoming, open, and respectful community for everyone, we expect all contributors and participants in the Infinito.Nexus project to abide by the following Code of Conduct."
-msgstr "Co fin de fomentar unha comunidade acolledora, aberta e respectuosa para todos, esperamos que todos os participantes e todas as persoas poidan participar. Infinito.Nexus O proxecto contempla o seguinte código de conduta."
+msgstr ""
 
 # libretranslate
 msgid "In short, `utils/domains/` exists to make domain handling consistent, central, and easy to evolve without scattering similar logic throughout the repository. 🧩"
@@ -43917,15 +43917,15 @@ msgstr "Requisito para ser up-to-date ✅"
 
 # libretranslate
 msgid "Require Code Owner Reviews ✅"
-msgstr "Require revisións de propietarios de códigos ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Code Quality Results ✅"
-msgstr "Require resultados de calidade do código ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Code Scanning Results ✅"
-msgstr "Require resultados de escaneo de código ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Conversation Resolution ✅"
@@ -47333,7 +47333,7 @@ msgstr "Realización de probas específicas 🏃"
 
 # libretranslate
 msgid "Running `git` against an arbitrary working tree via the `-C <path>` flag is blocked. The agent has legitimate repositories under `additionalDirectories` (see top of this page) that `-C` could be pointed at, so the sandbox write-boundary alone is not enough to prevent cross-repo edits. Denying the flag forces every git invocation to operate on the repo rooted at the session's current working directory, which the operator set deliberately. Operators who genuinely need to work on a second repo MUST open a new Claude Code session in that directory instead of reaching across with `-C`."
-msgstr "Correndo `git` contra unha árbore de traballo a través da `-C <path>` Bandeira bloqueada. O axente ten repositorios lexítimos baixo `additionalDirectories` (Ver a parte superior desta páxina) que `-C` Podería apuntarse, polo que a sandbox write-boundary por si soa non é suficiente para evitar edicións cruzadas. Negar a bandeira obriga a cada invocación git a operar no repositorio enraizada no directorio actual da sesión, que o operador estableceu deliberadamente. Operadores que realmente necesitan traballar nun segundo descanso Debe abrir unha nova sesión de código Claude nese directorio en vez de chegar a través de. `-C`."
+msgstr ""
 
 # libretranslate
 msgid "Running a pass"
@@ -58411,7 +58411,7 @@ msgstr "O nivel superior `compose.yml` Está alcance para **Desenvolvemento loca
 
 # libretranslate
 msgid "The top-level `env` block sets process environment variables for every Claude Code session. It is currently used to disable GPG signing for agent-created commits via the additive `GIT_CONFIG_COUNT` mechanism:"
-msgstr "O nivel superior `env` Para cada sesión de código de Claude. Actualmente utilízase para desactivar a sinatura de GPG para accións creadas por axentes a través do aditivo. `GIT_CONFIG_COUNT` Mecanismo:"
+msgstr ""
 
 # libretranslate
 msgid "The top-level node MUST be a YAML list. A non-list root is a hard error."
@@ -59217,7 +59217,7 @@ msgstr "Esta función ansible crea e xestiona Akauntingun innovador software de 
 
 # libretranslate
 msgid "This Code of Conduct applies to all spaces managed by the Infinito.Nexus project, including GitHub repositories, mailing lists, chat rooms, and other communication channels."
-msgstr "Este Código de Conduta é aplicable a todos os espazos xestionados pola Infinito.Nexus proxecto, incluíndo repositorios de GitHub, listas de correo, salas de chat e outras canles de comunicación."
+msgstr ""
 
 # libretranslate
 msgid "This Docker Compose deployment automates the installation and operation of a Pixelfed instance."
@@ -60194,7 +60194,7 @@ msgstr "Esta páxina documenta o contrato de `email` O plugin de busca e as regr
 
 # libretranslate
 msgid "This page documents the permission and runtime configuration in [`.claude/settings.json`](../../../../../.claude/settings.json). For the trust assumptions and the two-layer containment model behind these rules, see [security.md](security.md). For the OS-level sandbox configuration, see [sandbox.md](sandbox.md). For general agent workflow rules, see [common.md](../common.md). For the Claude Code reference, see [docs.claude.com](https://code.claude.com/docs/en/settings)."
-msgstr "Esta páxina documenta a configuración de permisos e tempo de execución en [`.claude/settings.json`](../../../../../.claude/settings.json). Para os supostos de confianza eo modelo de contención de dúas capas detrás destas regras, ver [security.md](security.md). Para a configuración de sandbox nivel OS, ver [sandbox.md](sandbox.md). Para as regras de fluxo de traballo do axente xeral, vexa [common.md](../common.md). Para o código Claude, ver [docs.claude.com](https://code.claude.com/docs/en/settings)."
+msgstr ""
 
 # libretranslate
 msgid "This page documents the rules that govern the top-level [compose.yml](../../../../compose.yml) and the environment variables it consumes. For general documentation rules (links, writing, RFC 2119 keywords), see [documentation.md](../../documentation.md). For CI debugging workflows that use these variables, see [ci.md](../../actions/debugging/ci.md)."
@@ -60202,7 +60202,7 @@ msgstr "Esta páxina documenta as regras que regulan o nivel superior. [compose.
 
 # libretranslate
 msgid "This page enumerates the trust assumptions that the Claude Code configuration in [`.claude/settings.json`](../../../../../.claude/settings.json) relies on. If any assumption becomes false on a given host, the corresponding rule in [settings.md](settings.md) or [sandbox.md](sandbox.md) MUST be re-evaluated before Claude Code is started. This file is the single reference for the architectural reasoning. Per-rule tables in the neighbouring pages summarise the mechanics and link here for the full argument."
-msgstr "Esta páxina enumera os presupostos de confianza de que a configuración do código Claude [`.claude/settings.json`](../../../../../.claude/settings.json) Confía en. Se calquera suposición se fai falsa nun determinado hóspede, a regra correspondente en [settings.md](settings.md) ou [sandbox.md](sandbox.md) Hai que reavaliar antes de que comezase o programa. Este ficheiro é a única referencia para o razoamento arquitectónico. As táboas de regras das páxinas veciñas resumen a mecánica e ligan aquí para o argumento completo."
+msgstr ""
 
 # libretranslate
 msgid "This page enumerates the values the `meta/services.yml.<entity>.lifecycle` key MAY take and what each value commits the project to. The on-disk shape of `lifecycle` itself is documented in [layout.md](layout.md); this page is the semantic counterpart."
@@ -70597,7 +70597,7 @@ msgstr "[Jellyfin](https://jellyfin.org) É un servidor de medios de código abe
 
 # libretranslate
 msgid "[Jenkins Configuration as Code plugin](https://plugins.jenkins.io/configuration-as-code/)"
-msgstr "[Jenkins Configuration como Código](https://plugins.jenkins.io/configuration-as-code/)"
+msgstr ""
 
 # libretranslate
 msgid "[Jenkins MCP Server plugin](https://plugins.jenkins.io/mcp-server/)"

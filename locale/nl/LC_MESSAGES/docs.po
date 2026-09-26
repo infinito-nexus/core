@@ -3755,7 +3755,7 @@ msgstr "**Efficiënte administratie:** Stroomlijn de behandeling van LDAP-object
 
 # libretranslate
 msgid "**Efficient Code Collaboration:** Manage repositories and workflows with an intuitive interface."
-msgstr "**Efficiënte codesamenwerking:** Beheer repositories en workflows met een intuïtieve interface."
+msgstr ""
 
 # libretranslate
 msgid "**Efficient Integration:** Works seamlessly with web server roles for robust domain routing."

@@ -3639,7 +3639,7 @@ msgstr "**الإدارة الفعالة:** Streamline the handling of LDAP objec
 
 # libretranslate
 msgid "**Efficient Code Collaboration:** Manage repositories and workflows with an intuitive interface."
-msgstr "**التعاون في مجال المدونة:** إدارة المستودعات وسير العمل مع واجهة غير ملائمة"
+msgstr ""
 
 # libretranslate
 msgid "**Efficient Integration:** Works seamlessly with web server roles for robust domain routing."
@@ -4782,7 +4782,7 @@ msgstr "**إذا انتهك:** إذا اتسع المساهم `allowWrite` (عل
 
 # libretranslate
 msgid "**If violated:** Running Claude Code on a host with production containers exposes those containers to disruption. A contributor on such a host SHOULD add read-only-narrowing `docker *` ask/deny entries in `.claude/settings.local.json` before starting a session."
-msgstr "**إذا انتهك:** تشغيل كود كلود على مضيف مع حاويات الإنتاج يعرض تلك الحاويات للتعطيل. مساهم على هذا المضيف يجب أن يضيف فقط `docker *` دخول الطلب/العدوى `.claude/settings.local.json` قبل بدء الدورة."
+msgstr ""
 
 # libretranslate
 msgid "**If violated:** The attempt fails, the agent sees the error, and typically refactors within one retry. No host-level exposure."
@@ -14993,7 +14993,7 @@ msgstr "تم التوقيع على كل شيء (GPG/SSH)"
 
 # libretranslate
 msgid "All communication MUST follow the project [Code of Conduct](../../../CODE_OF_CONDUCT.md)."
-msgstr "All communication MUST follow the project [مدونة قواعد السلوك](../../../CODE_OF_CONDUCT.md)."
+msgstr ""
 
 # libretranslate
 msgid "All configuration is handled via ``meta/services.yml`` (services map at file root) and ``meta/server.yml`` (server block at file root)."
@@ -18168,7 +18168,7 @@ msgstr "وباتباع هذه المبادئ التوجيهية، يمكن لل�
 
 # libretranslate
 msgid "By participating in the Infinito.Nexus project, you agree to adhere to this Code of Conduct. We appreciate your cooperation in helping us build a positive and productive community."
-msgstr "عن طريق المشاركة في Infinito.Nexus مشروع، توافق على الانضمام إلى مدونة السلوك هذه. ونقدر تعاونكم في مساعدتنا على بناء مجتمع إيجابي ومنتج."
+msgstr ""
 
 # libretranslate
 msgid "By standardizing `.profile` as the central source for environment configuration, this role ensures consistent shell behavior. It does **not** manage the contents of `.profile` itself; it only guarantees that it is sourced by supported shells."
@@ -26441,7 +26441,7 @@ msgstr "Extract the ``owner/repo`` سائل من github.com URL (https or ssh)."
 
 # libretranslate
 msgid "Extracted Code 📤"
-msgstr "المدونة المستقطعة 📤"
+msgstr ""
 
 # libretranslate
 msgid "Extracted cleanup logic into a dedicated script"
@@ -27494,7 +27494,7 @@ msgstr ""
 
 # libretranslate
 msgid "For a full reference of permitted Claude Code operations and their security rationale, see [claude/](claude/README.md)."
-msgstr "وللاطلاع على إشارة كاملة لعمليات مدونة قواعد السلوك المسموح بها ومبرراتها الأمنية، انظر [claude/](claude/README.md)."
+msgstr ""
 
 # libretranslate
 msgid "For a hard reset, which will delete all data and stop all services, use the following commands:"
@@ -30363,7 +30363,7 @@ msgstr "إذا مكنت `enable_wildcard_certificate`, اتبع هذه الخط�
 
 # libretranslate
 msgid "If you experience or witness any behavior that violates this Code of Conduct, please report it promptly. Reports should be sent to <kevin@veen.world>. All reports will be treated with discretion and confidentiality."
-msgstr "إذا كنت تجرب أو تشهد أي سلوك ينتهك مدونة السلوك هذه، يرجى الإبلاغ عنها فورا. يجب إرسال التقارير <kevin@veen.world>- تعامل جميع التقارير بسلطة تقديرية وسرية."
+msgstr ""
 
 # libretranslate
 msgid "If you have imported posts from Instagram, you can clean up the imported data and files as follows:"
@@ -30980,7 +30980,7 @@ msgstr "In embedded mode (`shared: false`) كومة مستهلك تستقبل ح
 
 # libretranslate
 msgid "In order to foster a welcoming, open, and respectful community for everyone, we expect all contributors and participants in the Infinito.Nexus project to abide by the following Code of Conduct."
-msgstr "وبغية تعزيز مجتمع ترحيبي ومفتوح ومحترم للجميع، نتوقع من جميع المساهمين والمشاركين في المؤتمر Infinito.Nexus مشروع الالتزام بمدونة قواعد السلوك التالية."
+msgstr ""
 
 # libretranslate
 msgid "In short, `utils/domains/` exists to make domain handling consistent, central, and easy to evolve without scattering similar logic throughout the repository. 🧩"
@@ -42919,7 +42919,7 @@ msgstr "طلب من الفرع أن يكون في الأعلى إلى النها
 
 # libretranslate
 msgid "Require Code Owner Reviews ✅"
-msgstr "استعراضات مالكي المدونة ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Code Quality Results ✅"
@@ -46268,7 +46268,7 @@ msgstr "إجراء اختبارات محددة 🏃"
 
 # libretranslate
 msgid "Running `git` against an arbitrary working tree via the `-C <path>` flag is blocked. The agent has legitimate repositories under `additionalDirectories` (see top of this page) that `-C` could be pointed at, so the sandbox write-boundary alone is not enough to prevent cross-repo edits. Denying the flag forces every git invocation to operate on the repo rooted at the session's current working directory, which the operator set deliberately. Operators who genuinely need to work on a second repo MUST open a new Claude Code session in that directory instead of reaching across with `-C`."
-msgstr "تشغيل `git` على شجرة عمل تعسفية عبر `-C <path>` العلم مغلق العميل لديه مستودعات شرعية تحت `additionalDirectories` (انظر أعلى هذه الصفحة) أن `-C` يمكن أن يُشار إليه، لذا صندوق الرمل يكتب وحده ليس كافياً للحيلولة دون دخوله. نكران قوات العلم كل محفزات جيت للعمل على الاسترداد المتأصلة في دليل العمل الحالي للدورة، الذي وضعه المشغل عمدا. المشغلون الذين يحتاجون حقا إلى العمل على إعادة ترتيب ثانية للمسح المتعدد الوسائط يفتحون دورة جديدة لمدونة كلود في ذلك الدليل بدلا من التواصل مع `-C`."
+msgstr ""
 
 # libretranslate
 msgid "Running a pass"
@@ -57821,7 +57821,7 @@ msgstr "هذا الدور الملموس ينشئ ويدير Akauntingبرمجي
 
 # libretranslate
 msgid "This Code of Conduct applies to all spaces managed by the Infinito.Nexus project, including GitHub repositories, mailing lists, chat rooms, and other communication channels."
-msgstr "تنطبق مدونة قواعد السلوك هذه على جميع الأماكن التي تديرها Infinito.Nexus Project, including GitHub repositories, mailing lists, conversation rooms, and other communication channels."
+msgstr ""
 
 # libretranslate
 msgid "This Docker Compose deployment automates the installation and operation of a Pixelfed instance."
@@ -58422,7 +58422,7 @@ msgstr "يتضمن هذا الملف دور نشر وإدارة `Coturn <https:/
 
 # libretranslate
 msgid "This folder documents the Claude Code agent configuration for this project. The authoritative policy lives in [`.claude/settings.json`](../../../../../.claude/settings.json); the pages here explain the reasoning behind each entry so future contributors understand *why* a rule exists before they change it."
-msgstr "ويوثق هذا الملف تشكيلة عناصر مدونة كلود لهذا المشروع. السياسة الموثوقة تعيش في [`.claude/settings.json`](../../../../../.claude/settings.json)' ' توضح الصفحات الواردة هنا الأسباب الكامنة وراء كل دخول حتى يفهم المساهمون في المستقبل *لماذا* هناك قاعدة قبل أن يغيروها."
+msgstr ""
 
 # libretranslate
 msgid "This gives faster feedback and protects shared CI runners."
@@ -58744,7 +58744,7 @@ msgstr ""
 
 # libretranslate
 msgid "This page documents the OS-level sandbox configuration for Claude Code. The relevant keys live under `sandbox` in [`.claude/settings.json`](../../../../../.claude/settings.json). The sandbox is the **primary** containment layer in this project: because the allowlist uses the wildcard `Bash(*)` (with `autoAllowBashIfSandboxed` as defence-in-depth), sandbox confinement, not the per-command allowlist, is what bounds the blast radius of Bash. The `allow`/`ask`/`deny` lists described in [settings.md](settings.md) remain in force on top of it as the policy gate."
-msgstr "وتوثّق هذه الصفحة تشكيلة صندوق الرمال على مستوى سطح الأرض لمدونة كلود. المفاتيح ذات الصلة تعيش تحت `sandbox` في [`.claude/settings.json`](../../../../../.claude/settings.json). صندوق الرمال هو **الابتدائي** طبقة الاحتواء في هذا المشروع: لأن القائمة المسموح بها تستخدم البطاقة البرية `Bash(*)` (مع `autoAllowBashIfSandboxed` الدفاع المتعمق)حبس صندوق الرمل، وليس الإسم الوحيد، هو ما يربط نطاق الإنفجار باش. The `allow`/`ask`/`deny` القوائم الموصوفة [settings.md](settings.md) لا تزال سارية على رأسها كبوابة السياسة العامة."
+msgstr ""
 
 # libretranslate
 msgid "This page documents the administrator-facing surface of outgoing email configuration. For the plugin contract and extension rules, see [email.md](../../contributing/design/role/services/email.md)."
@@ -58763,7 +58763,7 @@ msgstr ""
 
 # libretranslate
 msgid "This page documents the permission and runtime configuration in [`.claude/settings.json`](../../../../../.claude/settings.json). For the trust assumptions and the two-layer containment model behind these rules, see [security.md](security.md). For the OS-level sandbox configuration, see [sandbox.md](sandbox.md). For general agent workflow rules, see [common.md](../common.md). For the Claude Code reference, see [docs.claude.com](https://code.claude.com/docs/en/settings)."
-msgstr "هذه الصفحة توثق الأذن والتشكيل الزمني [`.claude/settings.json`](../../../../../.claude/settings.json)- بالنسبة للافتراضات الاستئمانية ونموذج الاحتواء المزدوج وراء هذه القواعد، انظر [security.md](security.md). لتشكيل صندوق الرمال على مستوى سطح الأرض، انظر [sandbox.md](sandbox.md). من أجل قواعد سير عمل العميل العام [common.md](../common.md)- للاطلاع على إشارة كلود، انظر [docs.claude.com](https://code.claude.com/docs/en/settings)."
+msgstr ""
 
 # libretranslate
 msgid "This page documents the rules that govern the top-level [compose.yml](../../../../compose.yml) and the environment variables it consumes. For general documentation rules (links, writing, RFC 2119 keywords), see [documentation.md](../../documentation.md). For CI debugging workflows that use these variables, see [ci.md](../../actions/debugging/ci.md)."
@@ -58771,7 +58771,7 @@ msgstr "هذه الصفحة توثق القواعد التي تحكم أعلى �
 
 # libretranslate
 msgid "This page enumerates the trust assumptions that the Claude Code configuration in [`.claude/settings.json`](../../../../../.claude/settings.json) relies on. If any assumption becomes false on a given host, the corresponding rule in [settings.md](settings.md) or [sandbox.md](sandbox.md) MUST be re-evaluated before Claude Code is started. This file is the single reference for the architectural reasoning. Per-rule tables in the neighbouring pages summarise the mechanics and link here for the full argument."
-msgstr "تورد هذه الصفحة افتراضات الثقة بأن تشكيل مدونة كلود في [`.claude/settings.json`](../../../../../.claude/settings.json) يعتمد على. إذا أصبح أي افتراض خاطئا على مضيف معين، القاعدة المقابلة في [settings.md](settings.md) أو [sandbox.md](sandbox.md) يعاد تقييم النظام قبل بدء مدونة كلود. هذا الملف هو المرجع الوحيد للمنطق المعماري. وتلخص الجداول ذات القاعدة في الصفحات المجاورة الميكانيكيين والربط هنا من أجل الحجة الكاملة."
+msgstr ""
 
 # libretranslate
 msgid "This page enumerates the values the `meta/services.yml.<entity>.lifecycle` key MAY take and what each value commits the project to. The on-disk shape of `lifecycle` itself is documented in [layout.md](layout.md); this page is the semantic counterpart."
@@ -68309,7 +68309,7 @@ msgstr "[CSS](https://developer.mozilla.org/en-US/docs/Web/CSS) يَسْحبُ �
 
 # libretranslate
 msgid "[Caveman](https://github.com/JuliusBrussee/caveman) is a token-compression plugin installed via `make install-skills`. It reduces output token consumption through progressively terser communication styles. `make install-skills` copies the skills from the repository pinned as `INFINITO_SKILLS_REPOSITORY` in the generated `.env` (override via `custom.env`, see `docs/contributing/customize.md`); the [skills](https://github.com/kevinveenbirkenbach/skills) repository pins every skill in its `skills-lock.json` and also supports global installs via its own `make install`. This works universally across all supported agents: Claude Code, Codex, Gemini CLI, Cursor, Copilot, Windsurf, Cline, and more."
-msgstr "[كافرمان](https://github.com/JuliusBrussee/caveman) مركب مركب عبر `make install-skills`. وهو يقلل من الاستهلاك المكسور من الإنتاج عن طريق أساليب الاتصال المتطورة تدريجيا. `make install-skills` نسخ المهارات من المستودع `INFINITO_SKILLS_REPOSITORY` in the generated `.env` (تجاوز عبر `custom.env`, انظر `docs/contributing/customize.md`); [المهارات](https://github.com/kevinveenbirkenbach/skills) المستودع يعلق كل مهارة `skills-lock.json` كما يدعم التركيبات العالمية عن طريق تركيباتها الخاصة `make install`. ويعمل هذا على نطاق عالمي في جميع العملاء المدعومين: كلود كودوكس، جيميني كلي، كورسور، كوبليت، ويندسورف، كلين، وأكثر."
+msgstr ""
 
 # libretranslate
 msgid "[Certbot Official Website](https://certbot.eff.org/)"
@@ -68883,7 +68883,7 @@ msgstr ""
 
 # libretranslate
 msgid "[Jenkins Configuration as Code plugin](https://plugins.jenkins.io/configuration-as-code/)"
-msgstr "[جنكينز كونجورد كرمز](https://plugins.jenkins.io/configuration-as-code/)"
+msgstr ""
 
 # libretranslate
 msgid "[Jenkins MCP Server plugin](https://plugins.jenkins.io/mcp-server/)"

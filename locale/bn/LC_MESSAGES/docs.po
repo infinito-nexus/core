@@ -3714,7 +3714,7 @@ msgstr "**প্রশাসনিক প্রশাসন:** এল- ডি- �
 
 # libretranslate
 msgid "**Efficient Code Collaboration:** Manage repositories and workflows with an intuitive interface."
-msgstr "**সম্ভাব্য কোড সহযোগিতা:** একটি ইনট্যুরেন্স ইন্টারফেস দিয়ে সংগ্রহস্থল এবং কর্মপ্রবাহে পরিচালনা করুন।"
+msgstr ""
 
 # libretranslate
 msgid "**Efficient Integration:** Works seamlessly with web server roles for robust domain routing."
@@ -4868,7 +4868,7 @@ msgstr ""
 
 # libretranslate
 msgid "**If violated:** Running Claude Code on a host with production containers exposes those containers to disruption. A contributor on such a host SHOULD add read-only-narrowing `docker *` ask/deny entries in `.claude/settings.local.json` before starting a session."
-msgstr "**যদি তা শেষ হয়:** প্রোডাকশন কন্টেইনার দিয়ে হোস্টিং কোড সেই কন্টেইনারগুলোকে ফাঁস করে দেয় । এরকম হোস্ট এসএইচএল-এর একজন প্রদায়ক শুধুমাত্র পাঠ করাই যথেষ্ট `docker *` এই বিষয়ে আরো তথ্য জানতে বলুন `.claude/settings.local.json` সেশান আরম্ভের পূর্বে"
+msgstr ""
 
 # libretranslate
 msgid "**If violated:** The attempt fails, the agent sees the error, and typically refactors within one retry. No host-level exposure."
@@ -5075,7 +5075,7 @@ msgstr "**প্রাচীন আগুন ইনস্টল করুন:** 
 
 # libretranslate
 msgid "**Installs Visual Studio Code:** A powerful code editor with a wide plugin ecosystem."
-msgstr "**ভিজুয়াল স্টুডিও কোড ইনস্টল করুন:** একটি ব্যাপক প্লাগ-ইন সংরক্ষণের একটি শক্তিশালী কোড সম্পাদক।"
+msgstr ""
 
 # libretranslate
 msgid "**Installs ``setup-hibernate``:** Uses ``pkgmgr`` to install and initialize hibernation support."
@@ -5279,7 +5279,7 @@ msgstr ""
 
 # libretranslate
 msgid "**JCasC-managed configuration:** Persist the security realm and authorisation strategy as code via Configuration as Code."
-msgstr "**JacC-mand কনফিগারেশন:** কোডের মাধ্যমে নিরাপত্তা রাজ্য এবং অনুমোদন কৌশলের মাধ্যমে প্রাপ্ত হয়েছে।"
+msgstr ""
 
 msgid "**JSON enabled:** the settings add the ``json`` output format, which upstream ships disabled and which every API client needs."
 msgstr ""
@@ -15127,7 +15127,7 @@ msgstr "MUST অনুমোদন করেছেন (এনক্রিপ্�
 
 # libretranslate
 msgid "All communication MUST follow the project [Code of Conduct](../../../CODE_OF_CONDUCT.md)."
-msgstr "সব যোগাযোগ মন্ত্রী প্রকল্পটি অনুসরণ করে [অনুক্রমের কোড](../../../CODE_OF_CONDUCT.md). ."
+msgstr ""
 
 # libretranslate
 msgid "All configuration is handled via ``meta/services.yml`` (services map at file root) and ``meta/server.yml`` (server block at file root)."
@@ -18348,7 +18348,7 @@ msgstr "এই নির্দেশনা অনুসরণ করে, উভ�
 
 # libretranslate
 msgid "By participating in the Infinito.Nexus project, you agree to adhere to this Code of Conduct. We appreciate your cooperation in helping us build a positive and productive community."
-msgstr "অংশগ্রহণের মাধ্যমে Infinito.Nexus প্রজেক্ট, আপনি এই আচার - আচরণকে মেনে চলার ব্যাপারে একমত। আমরা আপনাদের সহযোগিতাকে উপলব্ধি করি, যাতে আমরা এক ইতিবাচক ও ফলপ্রসূ সমাজ গড়ে তুলতে পারি ।"
+msgstr ""
 
 # libretranslate
 msgid "By standardizing `.profile` as the central source for environment configuration, this role ensures consistent shell behavior. It does **not** manage the contents of `.profile` itself; it only guarantees that it is sourced by supported shells."
@@ -26650,7 +26650,7 @@ msgstr "সম্প্রসারণ করা হবে ``owner/repo`` এক
 
 # libretranslate
 msgid "Extracted Code 📤"
-msgstr "কোড এক্সট্র্যাক্ট করা হয়েছে 📤"
+msgstr ""
 
 # libretranslate
 msgid "Extracted cleanup logic into a dedicated script"
@@ -27703,7 +27703,7 @@ msgstr "forkের জন্য, আপনার গিটহাবের ব্
 
 # libretranslate
 msgid "For a full reference of permitted Claude Code operations and their security rationale, see [claude/](claude/README.md)."
-msgstr "একটি পূর্ণ রেফারেন্সের জন্য ক্লড কোড অপারেশন এবং তাদের নিরাপত্তা যুক্তি, দেখুন [অদৃশ্য](claude/README.md). ."
+msgstr ""
 
 # libretranslate
 msgid "For a hard reset, which will delete all data and stop all services, use the following commands:"
@@ -27958,7 +27958,7 @@ msgstr "আরো সমর্থনের জন্য, জেবার ফো�
 
 # libretranslate
 msgid "For general agent workflow rules shared across all agents (Claude Code, Codex, Gemini, others), see [common.md](../common.md). For the Claude Code permission model reference, see [docs.anthropic.com](https://docs.anthropic.com/en/docs/claude-code/settings)."
-msgstr "জেনারেল এজেন্ট ওয়ার্কফ্লোরম নিয়ম সব এজেন্টের সাথে ভাগ করে নিয়েছে (ক্লড কোড, কোডেক্স, গেমেন, অন্যদের), এবং দেখতে থাকুন [common.md](../common.md). Clalod কোড অনুমতির মডেল, দেখুন [docs.anthropic.com](https://docs.anthropic.com/en/docs/claude-code/settings). ."
+msgstr ""
 
 # libretranslate
 msgid "For general background on SMTP, see [SMTP on Wikipedia](https://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol).   For details about Postfix itself, see [Postfix on Wikipedia](https://en.wikipedia.org/wiki/Postfix_(software))."
@@ -30604,7 +30604,7 @@ msgstr "সক্রিয় হলে `enable_wildcard_certificate`, এর �
 
 # libretranslate
 msgid "If you experience or witness any behavior that violates this Code of Conduct, please report it promptly. Reports should be sent to <kevin@veen.world>. All reports will be treated with discretion and confidentiality."
-msgstr "আপনি যদি কোনো অভিজ্ঞতা বা সাক্ষ্যদান করেন, তা হলে দয়া করে দ্রুত তা জানান । প্রতিবেদন পাঠানো উচিত <kevin@veen.world>. সকল রিপোর্ট বিচক্ষণতার সাথে এবং গোপনীয়তার সঙ্গে বিবেচনা করা হবে."
+msgstr ""
 
 # libretranslate
 msgid "If you have imported posts from Instagram, you can clean up the imported data and files as follows:"
@@ -31214,7 +31214,7 @@ msgstr "এমবেড করা মোড (`shared: false`) একজন ক�
 
 # libretranslate
 msgid "In order to foster a welcoming, open, and respectful community for everyone, we expect all contributors and participants in the Infinito.Nexus project to abide by the following Code of Conduct."
-msgstr "সবার জন্য একটি স্বাগত, উন্মুক্ত এবং শ্রদ্ধাশীল সম্প্রদায়কে গড়ে তোলার জন্য আমরা আশা করছি সকল অংশগ্রহণকারী এবং অংশগ্রহণকারীদের আমরা পাব। Infinito.Nexus এই প্রকল্পের মাধ্যমে শৃঙ্খলা বজায় রাখা হবে।"
+msgstr ""
 
 # libretranslate
 msgid "In short, `utils/domains/` exists to make domain handling consistent, central, and easy to evolve without scattering similar logic throughout the repository. 🧩"
@@ -35482,7 +35482,7 @@ msgstr "যোগ্য হিসাবে চিহ্নিত করুন `c
 
 # libretranslate
 msgid "Match commands exactly as Claude Code does: literal prefix, `*` wildcard, `deny` overrides `allow`."
-msgstr "ক্লড কোডের মতো ঠিক কমান্ডসমূহ ঠিক এরকম: আক্ষরিক প্রেফিক্স, `*` ওয়াইল্ড-কার্ড `deny` বিভাজনের প্রণালী `allow`. ."
+msgstr ""
 
 # libretranslate
 msgid "Match every user entry, used for sync jobs and listings"
@@ -43237,15 +43237,15 @@ msgstr "বড় হতে শাখা-টু-ডেট করতে হবে
 
 # libretranslate
 msgid "Require Code Owner Reviews ✅"
-msgstr "কোড মালিক পর্যালোচনা প্রয়োজন ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Code Quality Results ✅"
-msgstr "কোডের গুণমান নির্ধারণ করুন ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Code Scanning Results ✅"
-msgstr "কোড স্ক্যান ফলাফল প্রয়োজন ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Conversation Resolution ✅"
@@ -46590,7 +46590,7 @@ msgstr "সুনির্দিষ্ট পরীক্ষা সঞ্চা�
 
 # libretranslate
 msgid "Running `git` against an arbitrary working tree via the `-C <path>` flag is blocked. The agent has legitimate repositories under `additionalDirectories` (see top of this page) that `-C` could be pointed at, so the sandbox write-boundary alone is not enough to prevent cross-repo edits. Denying the flag forces every git invocation to operate on the repo rooted at the session's current working directory, which the operator set deliberately. Operators who genuinely need to work on a second repo MUST open a new Claude Code session in that directory instead of reaching across with `-C`."
-msgstr "চলমান `git` একটি যথেচ্ছ কাজের ট্রির মাধ্যমে `-C <path>` পতাকা ব্লক করা হয়েছে। এজেন্টের বৈধ রিপোজিটরি আছে `additionalDirectories` (এই পৃষ্ঠার উপরে দেখুন) যে `-C` বলা যেতে পারে, তাই স্যান্ডবক্স লেখার জন্য শুধুমাত্র ক্রস-রেপ সম্পাদন রোধ করার জন্য যথেষ্ট নয়। বর্তমানে সেশানের কাজের ডিরেক্টরিতে আবার চালু করার জন্য পতাকার সকল আবেদন নাকচ করে দেওয়া হয়েছে। অপারেটর, যারা সত্যিকার অর্থে দ্বিতীয় বারের মত কাজ করতে হবে, তারা এই ডিরেক্টরীতে একটি নতুন ক্লাড কোড উন্মুক্ত করবে। `-C`. ."
+msgstr ""
 
 # libretranslate
 msgid "Running a pass"
@@ -51528,7 +51528,7 @@ msgstr ""
 
 # libretranslate
 msgid "Tests in this directory MUST only cover repository settings files (Claude Code config, IDE rule files, agent permission catalogues). Code conventions MUST live elsewhere under `tests/lint/repository/`."
-msgstr "এই ডিরেক্টরিতে MSTS-এর পরীক্ষা শুধুমাত্র রিপোজিটরি সেটিংস ফাইল (ক্লড কোড কনফিগারেশন, IDE নিয়ম ফাইল, এজেন্ট অনুমতি ক্যাটালগ). সি. টি. `tests/lint/repository/`. ."
+msgstr ""
 
 # libretranslate
 msgid "Tests in this directory MUST only cover repository/ref shape rules. Broader `meta/services.yml` invariants live one level up in [`services/`](../)."
@@ -57486,7 +57486,7 @@ msgstr "উপরের স্তর `compose.yml` আরম্ভের তা�
 
 # libretranslate
 msgid "The top-level `env` block sets process environment variables for every Claude Code session. It is currently used to disable GPG signing for agent-created commits via the additive `GIT_CONFIG_COUNT` mechanism:"
-msgstr "উপরের স্তর `env` Clad কোড সেশানের জন্য ব্লক করা হয় । যোগ করার জন্য বর্তমানে ব্যবহৃত GPG ডাটাবেসের মধ্যে নির্মিত GPG অনুসন্ধানের উদ্দেশ্যে বর্তমানে নিষ্ক্রিয় করা হয়েছে `GIT_CONFIG_COUNT` পদ্ধতি:"
+msgstr ""
 
 # libretranslate
 msgid "The top-level node MUST be a YAML list. A non-list root is a hard error."
@@ -58264,7 +58264,7 @@ msgstr "এই গুরুত্বপূর্ণ ভূমিকা স্থ
 
 # libretranslate
 msgid "This Code of Conduct applies to all spaces managed by the Infinito.Nexus project, including GitHub repositories, mailing lists, chat rooms, and other communication channels."
-msgstr "এই অক্ষরের কোড সব স্থান দ্বারা প্রয়োগ করা হয় Infinito.Nexus জিট্টাহাব রিপোজিটরি, মেইলিং লিস্ট, চ্যাট রুম এবং অন্যান্য যোগাযোগের চ্যানেল সহ প্রকল্পটি।."
+msgstr ""
 
 # libretranslate
 msgid "This Docker Compose deployment automates the installation and operation of a Pixelfed instance."
@@ -58829,7 +58829,7 @@ msgstr "এই ফাইলটি তৈরি করেছে একটি হ�
 
 # libretranslate
 msgid "This file is runtime-agnostic and binding for every agent (Claude Code, Codex, Gemini CLI, other). There are no tool-specific extension files."
-msgstr "এই ফাইলটি প্রত্যেক এজেন্টের জন্য হার্না-পোটিক এবং বাঁধা (ক্লড কোড, কোডেক্স, গেইমিন সিএল, অন্যান্য). কোনো নির্দিষ্ট ফাইল এক্সটেনশন ফাইল নেই।."
+msgstr ""
 
 # libretranslate
 msgid "This filter inspects each role under the given roles directory, loads its vars/main.yml, and returns the role folder name whose application_id matches the provided value."
@@ -58881,7 +58881,7 @@ msgstr "এই ফোল্ডারের মধ্যে উপস্থিত
 
 # libretranslate
 msgid "This folder documents the Claude Code agent configuration for this project. The authoritative policy lives in [`.claude/settings.json`](../../../../../.claude/settings.json); the pages here explain the reasoning behind each entry so future contributors understand *why* a rule exists before they change it."
-msgstr "এই ফোল্ডারটি ডকুমেন্টটি ক্লড কোড এজেন্টের কনফিগারেশন. কর্তৃত্ব নীতি বেঁচে আছে [`.claude/settings.json`](../../../../../.claude/settings.json); এখানে পাতাগুলো প্রতিটি এন্ট্রির পিছনে যুক্তি ব্যাখ্যা করে তাই ভবিষ্যত কন্যেছে *কেন* তারা পরিবর্তনের আগেই নিয়ম বিদ্যমান।."
+msgstr ""
 
 # libretranslate
 msgid "This gives faster feedback and protects shared CI runners."
@@ -59211,7 +59211,7 @@ msgstr "এই পেজ-স্থানীয় জাভাস্ক্রী
 
 # libretranslate
 msgid "This page documents the OS-level sandbox configuration for Claude Code. The relevant keys live under `sandbox` in [`.claude/settings.json`](../../../../../.claude/settings.json). The sandbox is the **primary** containment layer in this project: because the allowlist uses the wildcard `Bash(*)` (with `autoAllowBashIfSandboxed` as defence-in-depth), sandbox confinement, not the per-command allowlist, is what bounds the blast radius of Bash. The `allow`/`ask`/`deny` lists described in [settings.md](settings.md) remain in force on top of it as the policy gate."
-msgstr "এই পৃষ্ঠাটি Clod কোডের জন্য OS- লেভেল-লেচার কনফিগারেশন । সংশ্লিষ্ট চাবির নিচে থাকে `sandbox` এর মধ্যে [`.claude/settings.json`](../../../../../.claude/settings.json)' আদগোষ ্ ঠীর' । **প্রাথমিক** এই প্রজেক্টের মধ্যে স্তর উপস্থিত থাকার ফলে: তালিকা রূপে ওয়াইল্ড-কার্ড ব্যবহার করা হবে `Bash(*)` (সহ `autoAllowBashIfSandboxed` প্রতিরক্ষা-in-হাইল)সকল কমান্ড তালিকা থেকে নয়, বালিবক্স বন্দী, বাশারের বিষ্ফোরণের সীমা কতো। এটা `allow`/`ask`/`deny` বর্ণনাসূচক তালিকা [settings.md](settings.md) নীতি গেটের উপর জোর দিয়ে দাঁড়িয়ে থাকুন।."
+msgstr ""
 
 # libretranslate
 msgid "This page documents the administrator-facing surface of outgoing email configuration. For the plugin contract and extension rules, see [email.md](../../contributing/design/role/services/email.md)."
@@ -59231,7 +59231,7 @@ msgstr "এই ওয়েবপেজটির চুক্তিপত্র 
 
 # libretranslate
 msgid "This page documents the permission and runtime configuration in [`.claude/settings.json`](../../../../../.claude/settings.json). For the trust assumptions and the two-layer containment model behind these rules, see [security.md](security.md). For the OS-level sandbox configuration, see [sandbox.md](sandbox.md). For general agent workflow rules, see [common.md](../common.md). For the Claude Code reference, see [docs.claude.com](https://code.claude.com/docs/en/settings)."
-msgstr "এই পেজ-এর অনুমতি এবং রানিং কনফিগারেশনQuery [`.claude/settings.json`](../../../../../.claude/settings.json)..বিশ্বাসী ধারণা আর দুই মূল মডেল এই নিয়মের পিছনে, দেখ... [security.md](security.md)... OS- লেভেল স্যান্ডবক্স কনফিগারেশনের জন্য, দেখুন [sandbox.md](sandbox.md). দেখুন, সাধারণ এজেন্ট কাজের শ্রম আইন, দেখুন [common.md](../common.md). Cold কোড রেফারেন্স, দেখুন [docs.claude.com](https://code.claude.com/docs/en/settings). ."
+msgstr ""
 
 # libretranslate
 msgid "This page documents the rules that govern the top-level [compose.yml](../../../../compose.yml) and the environment variables it consumes. For general documentation rules (links, writing, RFC 2119 keywords), see [documentation.md](../../documentation.md). For CI debugging workflows that use these variables, see [ci.md](../../actions/debugging/ci.md)."
@@ -59239,7 +59239,7 @@ msgstr "এই পৃষ্ঠা দ্বারা উপরের স্ত�
 
 # libretranslate
 msgid "This page enumerates the trust assumptions that the Claude Code configuration in [`.claude/settings.json`](../../../../../.claude/settings.json) relies on. If any assumption becomes false on a given host, the corresponding rule in [settings.md](settings.md) or [sandbox.md](sandbox.md) MUST be re-evaluated before Claude Code is started. This file is the single reference for the architectural reasoning. Per-rule tables in the neighbouring pages summarise the mechanics and link here for the full argument."
-msgstr "এই পৃষ্ঠাটি এই ধারণাটি উল্লেখ করে যে স্লাড কোড কনফিগারেশন এ বিশ্বাস করা হচ্ছে [`.claude/settings.json`](../../../../../.claude/settings.json) নির্ভর করছে। যদি কোন ধারণা প্রদত্ত হোস্টে মিথ্যা হয়, তাহলে সংশ্লিষ্ট নিয়ম [settings.md](settings.md) অথবা [sandbox.md](sandbox.md) কালুদ কোড চালু হওয়ার আগে এমএসটি-কে আবার ফিরিয়ে আনা হবে। এই ফাইলটি স্থাপত্যগত যুক্তির জন্য শুধুমাত্র একটি রেফারেন্স। প্রতিবেশী পাতায় পারলার টেবিলগুলো মেকানিকের সাথে যুক্ত করে এবং পুরো যুক্তির সাথে সংযুক্ত করে।."
+msgstr ""
 
 # libretranslate
 msgid "This page enumerates the values the `meta/services.yml.<entity>.lifecycle` key MAY take and what each value commits the project to. The on-disk shape of `lifecycle` itself is documented in [layout.md](layout.md); this page is the semantic counterpart."
@@ -68809,7 +68809,7 @@ msgstr "[CSS](https://developer.mozilla.org/en-US/docs/Web/CSS) সন্নি�
 
 # libretranslate
 msgid "[Caveman](https://github.com/JuliusBrussee/caveman) is a token-compression plugin installed via `make install-skills`. It reduces output token consumption through progressively terser communication styles. `make install-skills` copies the skills from the repository pinned as `INFINITO_SKILLS_REPOSITORY` in the generated `.env` (override via `custom.env`, see `docs/contributing/customize.md`); the [skills](https://github.com/kevinveenbirkenbach/skills) repository pins every skill in its `skills-lock.json` and also supports global installs via its own `make install`. This works universally across all supported agents: Claude Code, Codex, Gemini CLI, Cursor, Copilot, Windsurf, Cline, and more."
-msgstr "[কেয়ম্যান](https://github.com/JuliusBrussee/caveman) Pont-com-র সাহায্যে ইনস্টল করা প্লাগ-ইন `make install-skills`. এটি ধীরে ধীরে যোগাযোগ ব্যবস্থার মাধ্যমে আউটপুটের সুবিধা কমিয়ে দেয়। `make install-skills` রিপোজিটরিতে যে - দক্ষতা অর্জন করা হয়েছে, তা কপি করুন `INFINITO_SKILLS_REPOSITORY` এর পরে `.env` (ব্যবহার মাধ্যমে `custom.env`, এবং দেখতে থাকুন `docs/contributing/customize.md`); [দক্ষতা](https://github.com/kevinveenbirkenbach/skills) কনটেইনিং পিন এর প্রত্যেকটা দক্ষতা `skills-lock.json` এবং সে তার নিজের মাধ্যমে বিশ্বব্যাপী সমর্থন করে। `make install`...এই কাজ সকল সমর্থিত এজেন্টদের নিয়ে কাজ করে: ক্লড কোড, গ্লোড কোড, গেইমিন সিএল, কার্সার, কো পাইলট, উইন্ডসার্ফ, সাইলাইন ইত্যাদি।."
+msgstr ""
 
 # libretranslate
 msgid "[Certbot Official Website](https://certbot.eff.org/)"
@@ -69368,7 +69368,7 @@ msgstr "[জেলিফিন](https://jellyfin.org) বিনামূল্�
 
 # libretranslate
 msgid "[Jenkins Configuration as Code plugin](https://plugins.jenkins.io/configuration-as-code/)"
-msgstr "[জেনকিস কনফিগারেশন কোড- এর মতো কনফিগারেশন](https://plugins.jenkins.io/configuration-as-code/)"
+msgstr ""
 
 # libretranslate
 msgid "[Jenkins MCP Server plugin](https://plugins.jenkins.io/mcp-server/)"
@@ -70426,7 +70426,7 @@ msgstr "[ব্যবহারকারীর নিরাপত্তা সং
 
 # libretranslate
 msgid "[Visual Studio Code](https://code.visualstudio.com/) is a powerful source code editor with a wide plugin ecosystem, supporting development workflows across many languages and platforms. See also the [Arch Wiki - Development Tools](https://wiki.archlinux.org/title/Category:Development) and general [Software Engineering](https://en.wikipedia.org/wiki/Software_engineering) on Wikipedia."
-msgstr "[স্টুডিও কোড দৃশ্যমান](https://code.visualstudio.com/) এটি একটি শক্তিশালী উৎস কোড কোডের সম্পাদক, যার একটি বিস্তৃত প্লাগ-ইন বাস্তুসংস্থান রয়েছে, যা অনেক ভাষা এবং প্লাটফর্ম জুড়ে উন্নয়নের কাজে সহায়তা করে। আরো দেখুন [উইকি - উন্নয়ন টুল](https://wiki.archlinux.org/title/Category:Development) সাধারণ [সফ্টওয়্যার প্রকৌশল](https://en.wikipedia.org/wiki/Software_engineering) উইকিপিডিয়ার উপর।."
+msgstr ""
 
 msgid "[Visual Studio Code](https://github.com/microsoft/vscode) in a selectable flavor: the distribution's Code - OSS build, VSCodium, or Microsoft's own binary."
 msgstr ""
@@ -70596,7 +70596,7 @@ msgstr "[`../remove.sh`](../remove.sh). ডি. এন. এস. কনফিগ�
 
 # libretranslate
 msgid "[`.claude/settings.json`](.claude/settings.json) is the single source of truth for agent permissions, independent of runtime. Its `permissions` (`allow`/`ask`/`deny`) and `sandbox` sections are both binding, regardless of runtime (Claude Code, Codex, Gemini, other)."
-msgstr "[`.claude/settings.json`](.claude/settings.json) এজেন্টের অনুমতি ছাড়া এটা সত্য। এটি `permissions` (`allow`/`ask`/`deny`) এবং `sandbox` আমাদের বিভাগ দু'টোই বাঁধা, যাই হোক না কেন। (ক্লড কোড, কোডেক্স, গেমেন, অন্যান্য). ."
+msgstr ""
 
 # libretranslate
 msgid "[`9p4/jellyfin-plugin-sso`](https://github.com/9p4/jellyfin-plugin-sso) — OIDC/SAML one-click, **web UI only** (native apps cannot use it); third-party."
@@ -73305,7 +73305,7 @@ msgstr ""
 # libretranslate
 #, python-brace-format
 msgid "`\"sandbox\": { \"allowUnsandboxedCommands\": false }` removes the operator's ability to opt a single command out of the sandbox. The `dangerouslyDisableSandbox: true` parameter exposed by the Bash tool is rejected when this flag is `false`, so there is no per-call \"trust me, run this raw on the host\" path. Commands that legitimately cannot run inside the sandbox (e.g. operations requiring access to `~/.ssh` or `~/.gnupg`) MUST be invoked manually by the operator outside Claude Code rather than smuggled through an unsandboxed escape."
-msgstr "`\"sandbox\": { \"allowUnsandboxedCommands\": false }` অপারেটরের ক্ষমতা স্যান্ডবক্স থেকে একটা কমান্ড বের করার. এটা `dangerouslyDisableSandbox: true` Bash টুল দ্বারা এই ফ্ল্যাগটি প্রত্যাখ্যান করা হলে চিহ্নিত পরামিতির ব্যবহার করা হবে `false`, অতএব , কোন আশ ্ রয়স ্ থল নেই । \"আমার উপর বিশ্বাস রাখো, হোস্টে এই শুকনোটা নাও\" রাস্তা। যে কমান্ড বৈধভাবে স্যান্ডবক্সে সঞ্চালন করা যাবে না (উদাহরণের সাহায্যে: `~/.ssh` অথবা `~/.gnupg`) এমএসটিকে কল করে কেলাড কোডের বাইরের অপারেটরকে কল করে কোন বিচ্ছিন্ন এলাকা থেকে পাচার না করে।."
+msgstr ""
 
 #, python-brace-format
 msgid "`\"sandbox\": { \"autoAllowBashIfSandboxed\": true }` treats sandbox confinement as sufficient policy for Bash. It exists as defence-in-depth alongside the explicit `Bash(*)` allow entry in `permissions.allow`: with either in place, Bash commands run automatically as long as no `deny` or `ask` rule matches. The wildcard `Bash(*)` is the primary gate today; the flag guarantees the agent stays functional if that entry is ever narrowed or removed. This keeps the allowlist small (see [settings.md](settings.md)) and removes the friction of extending it for every new make target or script. The trade-off is that the sandbox MUST be correct: `allowWrite`, `denyRead`, and the network rules below are now the operative policy for what Bash can touch."

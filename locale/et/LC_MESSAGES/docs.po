@@ -3753,7 +3753,7 @@ msgstr "**Tõhus haldus:** Lihtsustage LDAP-objektide, nagu kasutajate, rühmade
 
 # libretranslate
 msgid "**Efficient Code Collaboration:** Manage repositories and workflows with an intuitive interface."
-msgstr "**Tõhus koodikoostöö:** Halda hoidlaid ja töövooge intuitiivse liidesega."
+msgstr ""
 
 # libretranslate
 msgid "**Efficient Integration:** Works seamlessly with web server roles for robust domain routing."
@@ -5143,7 +5143,7 @@ msgstr "**Paigaldab RetroArchi:** Sealhulgas peamine `RetroArch package <https:/
 
 # libretranslate
 msgid "**Installs Visual Studio Code:** A powerful code editor with a wide plugin ecosystem."
-msgstr "**Paigaldab visuaalse stuudio koodi:** Võimas koodiredaktor laia plugina ökosüsteemiga."
+msgstr ""
 
 # libretranslate
 msgid "**Installs ``setup-hibernate``:** Uses ``pkgmgr`` to install and initialize hibernation support."
@@ -5352,7 +5352,7 @@ msgstr "**See pöörleb otse rea asendis, mitte kolmanda läbisõidumõõdiku nu
 
 # libretranslate
 msgid "**JCasC-managed configuration:** Persist the security realm and authorisation strategy as code via Configuration as Code."
-msgstr "**JCasC hallatav konfiguratsioon:** Jätkuvalt turvavaldkond ja autoriseerimisstrateegia koodina Konfiguratsiooni koodina."
+msgstr ""
 
 msgid "**JSON enabled:** the settings add the ``json`` output format, which upstream ships disabled and which every API client needs."
 msgstr ""
@@ -15407,7 +15407,7 @@ msgstr "Kõik kohustused TULEB allkirjastada (GPG/SSH)"
 
 # libretranslate
 msgid "All communication MUST follow the project [Code of Conduct](../../../CODE_OF_CONDUCT.md)."
-msgstr "Kogu kommunikatsioon peab järgima projekti. [Käitumisjuhend](../../../CODE_OF_CONDUCT.md)."
+msgstr ""
 
 # libretranslate
 msgid "All configuration is handled via ``meta/services.yml`` (services map at file root) and ``meta/server.yml`` (server block at file root)."
@@ -18700,7 +18700,7 @@ msgstr "Neid suuniseid järgides võivad nii lõppkasutajad kui ka administraato
 
 # libretranslate
 msgid "By participating in the Infinito.Nexus project, you agree to adhere to this Code of Conduct. We appreciate your cooperation in helping us build a positive and productive community."
-msgstr "Osaledes Infinito.Nexus Te nõustute järgima käesolevat käitumisjuhendit. Me hindame teie koostööd, et aidata meil luua positiivne ja produktiivne kogukond."
+msgstr ""
 
 # libretranslate
 msgid "By standardizing `.profile` as the central source for environment configuration, this role ensures consistent shell behavior. It does **not** manage the contents of `.profile` itself; it only guarantees that it is sourced by supported shells."
@@ -27133,7 +27133,7 @@ msgstr "Eemalda ``owner/repo`` nälkja github.com URL (https või ssh)."
 
 # libretranslate
 msgid "Extracted Code 📤"
-msgstr "Väljatõmmatud kood 📤"
+msgstr ""
 
 # libretranslate
 msgid "Extracted cleanup logic into a dedicated script"
@@ -31149,7 +31149,7 @@ msgstr "Kui lubasid `enable_wildcard_certificate`, järgige neid samme, et nõud
 
 # libretranslate
 msgid "If you experience or witness any behavior that violates this Code of Conduct, please report it promptly. Reports should be sent to <kevin@veen.world>. All reports will be treated with discretion and confidentiality."
-msgstr "Kui kogete või olete tunnistajaks käitumisele, mis rikub käesolevat käitumisjuhendit, teatage sellest viivitamatult. Aruanded tuleks saata <kevin@veen.world>. Kõiki aruandeid käsitletakse diskreetselt ja konfidentsiaalselt."
+msgstr ""
 
 # libretranslate
 msgid "If you have imported posts from Instagram, you can clean up the imported data and files as follows:"
@@ -31772,7 +31772,7 @@ msgstr "Põimitud režiimis (`shared: false`) tarbija komponeeritud virna saab a
 
 # libretranslate
 msgid "In order to foster a welcoming, open, and respectful community for everyone, we expect all contributors and participants in the Infinito.Nexus project to abide by the following Code of Conduct."
-msgstr "Selleks, et edendada külalislahket, avatud ja lugupidavat kogukonda kõigi jaoks, ootame kõiki panustajaid ja osalejaid. Infinito.Nexus Projekt, mille eesmärk on järgida järgmist käitumisjuhendit."
+msgstr ""
 
 # libretranslate
 msgid "In short, `utils/domains/` exists to make domain handling consistent, central, and easy to evolve without scattering similar logic throughout the repository. 🧩"
@@ -43997,15 +43997,15 @@ msgstr "Filiaal peab olema ajakohane ✅"
 
 # libretranslate
 msgid "Require Code Owner Reviews ✅"
-msgstr "Nõuda koodi omaniku ülevaatust ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Code Quality Results ✅"
-msgstr "Nõuda koodi kvaliteedi tulemusi ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Code Scanning Results ✅"
-msgstr "Nõutakse koodi skaneerimise tulemusi ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Conversation Resolution ✅"
@@ -59340,7 +59340,7 @@ msgstr "Ansible roll loob ja haldab Akaunting, uuendusliku veebipõhise raamatup
 
 # libretranslate
 msgid "This Code of Conduct applies to all spaces managed by the Infinito.Nexus project, including GitHub repositories, mailing lists, chat rooms, and other communication channels."
-msgstr "Käesolevat tegevusjuhendit kohaldatakse kõikide ruumide suhtes, mida Infinito.Nexus projekt, sealhulgas GitHubi hoidlad, meililistid, jututoad ja muud sidekanalid."
+msgstr ""
 
 # libretranslate
 msgid "This Docker Compose deployment automates the installation and operation of a Pixelfed instance."
@@ -70738,7 +70738,7 @@ msgstr "[Jellyfin](https://jellyfin.org) See on tasuta, avatud lähtekoodiga mee
 
 # libretranslate
 msgid "[Jenkins Configuration as Code plugin](https://plugins.jenkins.io/configuration-as-code/)"
-msgstr "[Jenkinsi seadistamine koodipluginana](https://plugins.jenkins.io/configuration-as-code/)"
+msgstr ""
 
 # libretranslate
 msgid "[Jenkins MCP Server plugin](https://plugins.jenkins.io/mcp-server/)"
@@ -71805,7 +71805,7 @@ msgstr "[Kasutaja turvalisuse juhend](docs/security/user.md)"
 
 # libretranslate
 msgid "[Visual Studio Code](https://code.visualstudio.com/) is a powerful source code editor with a wide plugin ecosystem, supporting development workflows across many languages and platforms. See also the [Arch Wiki - Development Tools](https://wiki.archlinux.org/title/Category:Development) and general [Software Engineering](https://en.wikipedia.org/wiki/Software_engineering) on Wikipedia."
-msgstr "[Visuaalstuudio kood](https://code.visualstudio.com/) See on võimas lähtekoodi redaktor, millel on lai plugina ökosüsteem, mis toetab arendustöövooge paljudes keeltes ja platvormides. Vaata ka [Arch Wiki - arendusvahendid](https://wiki.archlinux.org/title/Category:Development) üldise [Tarkvaratehnika](https://en.wikipedia.org/wiki/Software_engineering) Vikipeedias."
+msgstr ""
 
 msgid "[Visual Studio Code](https://github.com/microsoft/vscode) in a selectable flavor: the distribution's Code - OSS build, VSCodium, or Microsoft's own binary."
 msgstr ""

@@ -3736,7 +3736,7 @@ msgstr "**Veiksmingas administravimas:** Supaprastinti LDAP objektų, pavyzdžiu
 
 # libretranslate
 msgid "**Efficient Code Collaboration:** Manage repositories and workflows with an intuitive interface."
-msgstr "**Veiksmingas kodekso bendradarbiavimas:** Tvarkyti saugyklas ir darbų srautus su intuityvia sąsaja."
+msgstr ""
 
 # libretranslate
 msgid "**Efficient Integration:** Works seamlessly with web server roles for robust domain routing."
@@ -5326,7 +5326,7 @@ msgstr "**Jis suka eilutės padėtyje tiesiogiai, ne kaip trečias odometro skai
 
 # libretranslate
 msgid "**JCasC-managed configuration:** Persist the security realm and authorisation strategy as code via Configuration as Code."
-msgstr "**JCasC- valdoma konfigūracija:** Persistenkite saugumo sritį ir leidimų strategiją kaip kodą per Konfigūracija kodas."
+msgstr ""
 
 msgid "**JSON enabled:** the settings add the ``json`` output format, which upstream ships disabled and which every API client needs."
 msgstr ""
@@ -15342,7 +15342,7 @@ msgstr "Visi įsipareigojimai PRIVALO būti pasirašyti (GPG / SSH)"
 
 # libretranslate
 msgid "All communication MUST follow the project [Code of Conduct](../../../CODE_OF_CONDUCT.md)."
-msgstr "Visa komunikacija PRIVALO sekti projektą [Elgesio kodeksas](../../../CODE_OF_CONDUCT.md)."
+msgstr ""
 
 # libretranslate
 msgid "All configuration is handled via ``meta/services.yml`` (services map at file root) and ``meta/server.yml`` (server block at file root)."
@@ -18624,7 +18624,7 @@ msgstr "Pagal šias gaires tiek galutiniai vartotojai, tiek administratoriai gal
 
 # libretranslate
 msgid "By participating in the Infinito.Nexus project, you agree to adhere to this Code of Conduct. We appreciate your cooperation in helping us build a positive and productive community."
-msgstr "Dalyvaujant Infinito.Nexus projekto, jūs sutinkate laikytis šio elgesio kodekso. Mes vertiname jūsų bendradarbiavimą padedant mums sukurti teigiamą ir produktyvią bendruomenę."
+msgstr ""
 
 # libretranslate
 msgid "By standardizing `.profile` as the central source for environment configuration, this role ensures consistent shell behavior. It does **not** manage the contents of `.profile` itself; it only guarantees that it is sourced by supported shells."
@@ -27041,7 +27041,7 @@ msgstr "Ištraukti ``owner/repo`` šliužas iš a github.com URL (https arba ssh
 
 # libretranslate
 msgid "Extracted Code 📤"
-msgstr "Ištrauktas kodas 📤"
+msgstr ""
 
 # libretranslate
 msgid "Extracted cleanup logic into a dedicated script"
@@ -31054,7 +31054,7 @@ msgstr "Jei įjungta `enable_wildcard_certificate`, atlikite šiuos veiksmus, ka
 
 # libretranslate
 msgid "If you experience or witness any behavior that violates this Code of Conduct, please report it promptly. Reports should be sent to <kevin@veen.world>. All reports will be treated with discretion and confidentiality."
-msgstr "Jei patiriate ar matote kokį nors elgesį, pažeidžiantį šį elgesio kodeksą, prašome skubiai apie tai pranešti. Ataskaitos turėtų būti siunčiamos: <kevin@veen.world>. Visi pranešimai bus tvarkomi diskretiškai ir laikantis konfidencialumo."
+msgstr ""
 
 # libretranslate
 msgid "If you have imported posts from Instagram, you can clean up the imported data and files as follows:"
@@ -31675,7 +31675,7 @@ msgstr "Įterptasis režimas (`shared: false`) vartotojo komponavimo kaminas gau
 
 # libretranslate
 msgid "In order to foster a welcoming, open, and respectful community for everyone, we expect all contributors and participants in the Infinito.Nexus project to abide by the following Code of Conduct."
-msgstr "Siekdami skatinti sveikinančią, atvirą ir pagarbų bendruomenę visiems, tikimės, kad visi dalyviai ir dalyviai Infinito.Nexus projektas, kuriuo siekiama laikytis šio Elgesio kodekso."
+msgstr ""
 
 # libretranslate
 msgid "In short, `utils/domains/` exists to make domain handling consistent, central, and easy to evolve without scattering similar logic throughout the repository. 🧩"

@@ -3755,7 +3755,7 @@ msgstr "**Αποτελεσματική χορήγηση:** Streamline ο χει�
 
 # libretranslate
 msgid "**Efficient Code Collaboration:** Manage repositories and workflows with an intuitive interface."
-msgstr "**Αποτελεσματική συνεργασία κώδικα:** Διαχείριση αποθετηρίων και ροών εργασίας με μια διαισθητική διεπαφή."
+msgstr ""
 
 # libretranslate
 msgid "**Efficient Integration:** Works seamlessly with web server roles for robust domain routing."
@@ -4934,7 +4934,7 @@ msgstr "**Σε περίπτωση παραβίασης:** Εάν ο συνεισ
 
 # libretranslate
 msgid "**If violated:** Running Claude Code on a host with production containers exposes those containers to disruption. A contributor on such a host SHOULD add read-only-narrowing `docker *` ask/deny entries in `.claude/settings.local.json` before starting a session."
-msgstr "**Σε περίπτωση παραβίασης:** Η λειτουργία κώδικα Claude σε έναν ξενιστή με δοχεία παραγωγής εκθέτει αυτά τα δοχεία σε διαταραχή. Ένας συνεισφέρων σε ένα τέτοιο host θα πρέπει να προσθέσει μόνο ανάγνωση-στένωση `docker *` να ζητήσει/αρνηθεί καταχωρήσεις in `.claude/settings.local.json` πριν ξεκινήσει μια συνεδρία."
+msgstr ""
 
 # libretranslate
 msgid "**If violated:** The attempt fails, the agent sees the error, and typically refactors within one retry. No host-level exposure."
@@ -5145,7 +5145,7 @@ msgstr "**Εγκαθιστά RetroArch:** Συμπεριλαμβανομένου
 
 # libretranslate
 msgid "**Installs Visual Studio Code:** A powerful code editor with a wide plugin ecosystem."
-msgstr "**Εγκαθιστά Visual Studio Κωδικός:** Ένας ισχυρός επεξεργαστής κώδικα με ένα ευρύ οικοσύστημα plugin."
+msgstr ""
 
 # libretranslate
 msgid "**Installs ``setup-hibernate``:** Uses ``pkgmgr`` to install and initialize hibernation support."
@@ -5354,7 +5354,7 @@ msgstr "**Περιστρέφει στη θέση της γραμμής απευ�
 
 # libretranslate
 msgid "**JCasC-managed configuration:** Persist the security realm and authorisation strategy as code via Configuration as Code."
-msgstr "**configuration διαχείρισης JCasC:** Επιμένουμε στο πεδίο ασφαλείας και τη στρατηγική έγκρισης ως κώδικα μέσω της ρύθμισης ως κώδικα."
+msgstr ""
 
 msgid "**JSON enabled:** the settings add the ``json`` output format, which upstream ships disabled and which every API client needs."
 msgstr ""
@@ -9352,7 +9352,7 @@ msgstr "**Γιατί αυτό το σετ;** [Debian](https://www.debian.org) π
 
 # libretranslate
 msgid "**Why:** Friendica currently authenticates in two steps: oauth2-proxy gates the vhost (Keycloak-Authorization-Code-Flow, 2FA-enforceable), then the user must fill Friendica's own `/login` form because stock Friendica has **no header-trusted auto-login** — Owa.php / OAuth/Token.php only read `HTTP_AUTHORIZATION` for API endpoints, never for the web session. The ldapauth addon stays enabled solely as a first-login bootstrap that materialises the `friendica.user` row from openldap."
-msgstr "**Γιατί:** Η Friendica αυτή τη στιγμή πιστοποιείται σε δύο βήματα: outh2-Πύλες κατά προσέγγιση το φάντασμα (Keycloak-Eγκριση-Κωδικός-Flow, 2FA-ενισχυόμενο), τότε ο χρήστης πρέπει να γεμίσει το δικό Friendica του `/login` μορφή επειδή το απόθεμα Friendica έχει **χωρίς ενσωματωμένη κεφαλίδα auto-login** — Owa.php / OAuth/Token.php μόνο ανάγνωση `HTTP_AUTHORIZATION` για τα τελικά σημεία API, ποτέ για τη συνεδρία web. Το ldapauth addon παραμένει ενεργοποιημένο μόνο ως ένα πρώτο-login bootstrap που υλοποιεί το `friendica.user` Σειρά από openldap."
+msgstr ""
 
 # libretranslate
 msgid "**Wildcard A/AAAA records** (`*.parent`) for parent hosts via `sys-dns-wildcards`"
@@ -15421,7 +15421,7 @@ msgstr "Όλες οι δεσμεύσεις ΠΡΕΠΕΙ να υπογράφον�
 
 # libretranslate
 msgid "All communication MUST follow the project [Code of Conduct](../../../CODE_OF_CONDUCT.md)."
-msgstr "Όλες οι επικοινωνίες ΠΡΕΠΕΙ ΝΑ ακολουθούν το έργο [Κώδικας δεοντολογίας](../../../CODE_OF_CONDUCT.md)."
+msgstr ""
 
 # libretranslate
 msgid "All configuration is handled via ``meta/services.yml`` (services map at file root) and ``meta/server.yml`` (server block at file root)."
@@ -18720,7 +18720,7 @@ msgstr "Ακολουθώντας αυτές τις κατευθυντήριες 
 
 # libretranslate
 msgid "By participating in the Infinito.Nexus project, you agree to adhere to this Code of Conduct. We appreciate your cooperation in helping us build a positive and productive community."
-msgstr "Με τη συμμετοχή στην Infinito.Nexus σχέδιο, συμφωνείτε να τηρείτε αυτόν τον κώδικα συμπεριφοράς. Εκτιμούμε τη συνεργασία σας για να μας βοηθήσετε να οικοδομήσουμε μια θετική και παραγωγική κοινότητα."
+msgstr ""
 
 # libretranslate
 msgid "By standardizing `.profile` as the central source for environment configuration, this role ensures consistent shell behavior. It does **not** manage the contents of `.profile` itself; it only guarantees that it is sourced by supported shells."
@@ -27162,7 +27162,7 @@ msgstr "Εξαγωγή ``owner/repo`` γυμνοσάλιαγκας github.com UR
 
 # libretranslate
 msgid "Extracted Code 📤"
-msgstr "Εκχυλισμένος κωδικός 📤"
+msgstr ""
 
 # libretranslate
 msgid "Extracted cleanup logic into a dedicated script"
@@ -31179,7 +31179,7 @@ msgstr "Αν ενεργοποιήσατε `enable_wildcard_certificate`, ακο�
 
 # libretranslate
 msgid "If you experience or witness any behavior that violates this Code of Conduct, please report it promptly. Reports should be sent to <kevin@veen.world>. All reports will be treated with discretion and confidentiality."
-msgstr "Αν βιώσετε ή δείτε οποιαδήποτε συμπεριφορά που παραβιάζει αυτόν τον Κώδικα Συμπεριφοράς, παρακαλούμε να τον αναφέρετε αμέσως. Οι εκθέσεις θα πρέπει να αποστέλλονται στο <kevin@veen.world>. Όλες οι αναφορές θα αντιμετωπίζονται με διακριτικότητα και εμπιστευτικότητα."
+msgstr ""
 
 # libretranslate
 msgid "If you have imported posts from Instagram, you can clean up the imported data and files as follows:"
@@ -31802,7 +31802,7 @@ msgstr "Σε ενσωματωμένη λειτουργία (`shared: false`) μ�
 
 # libretranslate
 msgid "In order to foster a welcoming, open, and respectful community for everyone, we expect all contributors and participants in the Infinito.Nexus project to abide by the following Code of Conduct."
-msgstr "Για την προώθηση μιας φιλόξενης, ανοιχτής και σεβαστής κοινότητας για όλους, περιμένουμε όλους τους συνεισφέροντες και τους συμμετέχοντες στην Infinito.Nexus σχέδιο συμμόρφωσης με τον ακόλουθο κώδικα δεοντολογίας."
+msgstr ""
 
 # libretranslate
 msgid "In short, `utils/domains/` exists to make domain handling consistent, central, and easy to evolve without scattering similar logic throughout the repository. 🧩"
@@ -36137,7 +36137,7 @@ msgstr "Σηματοδοτεί το εύχρηστο έργο ως `changed` ε�
 
 # libretranslate
 msgid "Match commands exactly as Claude Code does: literal prefix, `*` wildcard, `deny` overrides `allow`."
-msgstr "Ταίριασμα εντολών ακριβώς όπως κάνει ο κώδικας Claude: κατά γράμμα πρόθεμα, `*` μπαλαντέρ, `deny` παρακάμψεις `allow`."
+msgstr ""
 
 # libretranslate
 msgid "Match every user entry, used for sync jobs and listings"
@@ -44030,15 +44030,15 @@ msgstr "Απαίτηση Υποκαταστήματος για να είναι U
 
 # libretranslate
 msgid "Require Code Owner Reviews ✅"
-msgstr "Απαίτηση ανασκοπήσεων ιδιοκτήτη κώδικα ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Code Quality Results ✅"
-msgstr "Απαίτηση αποτελεσμάτων ποιότητας κώδικα ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Code Scanning Results ✅"
-msgstr "Απαιτούνται αποτελέσματα σάρωσης κώδικα ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Conversation Resolution ✅"
@@ -59385,7 +59385,7 @@ msgstr "Ο ρόλος αυτός είναι προσιτός και διαχει
 
 # libretranslate
 msgid "This Code of Conduct applies to all spaces managed by the Infinito.Nexus project, including GitHub repositories, mailing lists, chat rooms, and other communication channels."
-msgstr "Ο παρών κώδικας συμπεριφοράς ισχύει για όλους τους χώρους που διαχειρίζεται το Infinito.Nexus έργο, συμπεριλαμβανομένων των αποθετηρίων GitHub, λίστες αλληλογραφίας, αίθουσες συνομιλίας και άλλα κανάλια επικοινωνίας."
+msgstr ""
 
 # libretranslate
 msgid "This Docker Compose deployment automates the installation and operation of a Pixelfed instance."
@@ -60006,7 +60006,7 @@ msgstr "Αυτός ο φάκελος περιέχει το ρόλο για τη�
 
 # libretranslate
 msgid "This folder documents the Claude Code agent configuration for this project. The authoritative policy lives in [`.claude/settings.json`](../../../../../.claude/settings.json); the pages here explain the reasoning behind each entry so future contributors understand *why* a rule exists before they change it."
-msgstr "Αυτός ο φάκελος καταγράφει τις ρυθμίσεις του παράγοντα κώδικα Claude για αυτό το έργο. Η έγκυρη πολιτική ζει [`.claude/settings.json`](../../../../../.claude/settings.json); οι σελίδες εδώ εξηγούν το σκεπτικό πίσω από κάθε καταχώρηση έτσι ώστε οι μελλοντικοί συνεισφέροντες να κατανοήσουν *Γιατί;* Υπάρχει ένας κανόνας πριν τον αλλάξουν."
+msgstr ""
 
 # libretranslate
 msgid "This gives faster feedback and protects shared CI runners."
@@ -60345,7 +60345,7 @@ msgstr "Αυτή η σελίδα έγγραφα ρόλο-τοπική JavaScript
 
 # libretranslate
 msgid "This page documents the OS-level sandbox configuration for Claude Code. The relevant keys live under `sandbox` in [`.claude/settings.json`](../../../../../.claude/settings.json). The sandbox is the **primary** containment layer in this project: because the allowlist uses the wildcard `Bash(*)` (with `autoAllowBashIfSandboxed` as defence-in-depth), sandbox confinement, not the per-command allowlist, is what bounds the blast radius of Bash. The `allow`/`ask`/`deny` lists described in [settings.md](settings.md) remain in force on top of it as the policy gate."
-msgstr "Αυτή η σελίδα τεκμηριώνει τη διαμόρφωση OS-level sandbox για τον κώδικα Claude. Τα σχετικά κλειδιά ζουν κάτω `sandbox` μέσα [`.claude/settings.json`](../../../../../.claude/settings.json). Η άμμος είναι το **πρωτογενής** στρώμα περιορισμού σε αυτό το έργο: επειδή η λίστα επιτρέπει χρησιμοποιεί την μπαλαντέρ `Bash(*)` (με `autoAllowBashIfSandboxed` ως εις βάθος άμυνα), περιορισμό αμμόκουτου, όχι ο κατάλογος αδειών ανά εντολή, είναι αυτό που οριοθετεί την ακτίνα έκρηξης του Μπας. Η `allow`/`ask`/`deny` κατάλογοι που περιγράφονται στο [settings.md](settings.md) Μείνε σε ισχύ από πάνω του ως πύλη πολιτικής."
+msgstr ""
 
 # libretranslate
 msgid "This page documents the administrator-facing surface of outgoing email configuration. For the plugin contract and extension rules, see [email.md](../../contributing/design/role/services/email.md)."
@@ -60365,7 +60365,7 @@ msgstr "Η παρούσα σελίδα `email` Το Ansible lookup plugin και
 
 # libretranslate
 msgid "This page documents the permission and runtime configuration in [`.claude/settings.json`](../../../../../.claude/settings.json). For the trust assumptions and the two-layer containment model behind these rules, see [security.md](security.md). For the OS-level sandbox configuration, see [sandbox.md](sandbox.md). For general agent workflow rules, see [common.md](../common.md). For the Claude Code reference, see [docs.claude.com](https://code.claude.com/docs/en/settings)."
-msgstr "Αυτή η σελίδα καταγράφει την άδεια και τις ρυθμίσεις χρόνου εκτέλεσης σε [`.claude/settings.json`](../../../../../.claude/settings.json). Για τις υποθέσεις εμπιστοσύνης και το μοντέλο περιορισμού δύο επιπέδων πίσω από αυτούς τους κανόνες, βλ. [security.md](security.md). Για τις ρυθμίσεις OS-level sandbox, δείτε [sandbox.md](sandbox.md). Για τους γενικούς κανόνες ροής εργασίας παράγοντα, βλέπε [common.md](../common.md). Για τον κώδικα Claude, βλέπε [docs.claude.com](https://code.claude.com/docs/en/settings)."
+msgstr ""
 
 # libretranslate
 msgid "This page documents the rules that govern the top-level [compose.yml](../../../../compose.yml) and the environment variables it consumes. For general documentation rules (links, writing, RFC 2119 keywords), see [documentation.md](../../documentation.md). For CI debugging workflows that use these variables, see [ci.md](../../actions/debugging/ci.md)."
@@ -60373,7 +60373,7 @@ msgstr "Αυτή η σελίδα τεκμηριώνει τους κανόνες 
 
 # libretranslate
 msgid "This page enumerates the trust assumptions that the Claude Code configuration in [`.claude/settings.json`](../../../../../.claude/settings.json) relies on. If any assumption becomes false on a given host, the corresponding rule in [settings.md](settings.md) or [sandbox.md](sandbox.md) MUST be re-evaluated before Claude Code is started. This file is the single reference for the architectural reasoning. Per-rule tables in the neighbouring pages summarise the mechanics and link here for the full argument."
-msgstr "Αυτή η σελίδα απαριθμεί τις υποθέσεις εμπιστοσύνης που διαμορφώνει ο κώδικας Claude [`.claude/settings.json`](../../../../../.claude/settings.json) Βασίσου πάνω μου. Εάν οποιαδήποτε υπόθεση γίνει ψευδής σε ένα δεδομένο ξενιστή, ο αντίστοιχος κανόνας [settings.md](settings.md) ή [sandbox.md](sandbox.md) Πρέπει να επαναξιολογηθεί πριν ξεκινήσει ο κώδικας Claude. Αυτό το αρχείο είναι η ενιαία αναφορά για την αρχιτεκτονική συλλογιστική. Οι πίνακες ανά κανόνα στις γειτονικές σελίδες συνοψίζουν τη μηχανική και συνδέουν εδώ για το πλήρες επιχείρημα."
+msgstr ""
 
 # libretranslate
 msgid "This page enumerates the values the `meta/services.yml.<entity>.lifecycle` key MAY take and what each value commits the project to. The on-disk shape of `lifecycle` itself is documented in [layout.md](layout.md); this page is the semantic counterpart."
@@ -70791,7 +70791,7 @@ msgstr "[Ζελιφίνη](https://jellyfin.org) είναι ένας ελεύθ�
 
 # libretranslate
 msgid "[Jenkins Configuration as Code plugin](https://plugins.jenkins.io/configuration-as-code/)"
-msgstr "[Configuration Jenkins ως πρόσθετο κώδικα](https://plugins.jenkins.io/configuration-as-code/)"
+msgstr ""
 
 # libretranslate
 msgid "[Jenkins MCP Server plugin](https://plugins.jenkins.io/mcp-server/)"
@@ -71854,7 +71854,7 @@ msgstr "[Οδηγός ασφάλειας χρήστη](docs/security/user.md)"
 
 # libretranslate
 msgid "[Visual Studio Code](https://code.visualstudio.com/) is a powerful source code editor with a wide plugin ecosystem, supporting development workflows across many languages and platforms. See also the [Arch Wiki - Development Tools](https://wiki.archlinux.org/title/Category:Development) and general [Software Engineering](https://en.wikipedia.org/wiki/Software_engineering) on Wikipedia."
-msgstr "[Κωδικός Visual Studio](https://code.visualstudio.com/) είναι ένας ισχυρός επεξεργαστής πηγαίου κώδικα με ένα ευρύ οικοσύστημα plugin, υποστηρίζοντας τις ροές εργασίας ανάπτυξης σε πολλές γλώσσες και πλατφόρμες. Βλ. επίσης [Arch Wiki - Εργαλεία Ανάπτυξης](https://wiki.archlinux.org/title/Category:Development) και γενικά [Μηχανική λογισμικού](https://en.wikipedia.org/wiki/Software_engineering) στη Βικιπαίδεια."
+msgstr ""
 
 msgid "[Visual Studio Code](https://github.com/microsoft/vscode) in a selectable flavor: the distribution's Code - OSS build, VSCodium, or Microsoft's own binary."
 msgstr ""
@@ -72029,7 +72029,7 @@ msgstr "[`../remove.sh`](../remove.sh). σενάριο που αναιρεί τ�
 
 # libretranslate
 msgid "[`.claude/settings.json`](.claude/settings.json) is the single source of truth for agent permissions, independent of runtime. Its `permissions` (`allow`/`ask`/`deny`) and `sandbox` sections are both binding, regardless of runtime (Claude Code, Codex, Gemini, other)."
-msgstr "[`.claude/settings.json`](.claude/settings.json) είναι η μόνη πηγή αλήθειας για άδειες πράκτορα, ανεξάρτητα από το χρόνο εκτέλεσης. Είναι `permissions` (`allow`/`ask`/`deny`) και `sandbox` τα τμήματα είναι και τα δύο δεσμευτικά, ανεξάρτητα από το χρόνο εκτέλεσης (Κώδικας Claude, Κώδικας, Δίδυμοι, άλλοι)."
+msgstr ""
 
 # libretranslate
 msgid "[`9p4/jellyfin-plugin-sso`](https://github.com/9p4/jellyfin-plugin-sso) — OIDC/SAML one-click, **web UI only** (native apps cannot use it); third-party."
@@ -74867,7 +74867,7 @@ msgstr "stdout εκτυπώνει ένα υποδίκτυο ανά γραμμή.
 # libretranslate
 #, python-brace-format
 msgid "`\"sandbox\": { \"allowUnsandboxedCommands\": false }` removes the operator's ability to opt a single command out of the sandbox. The `dangerouslyDisableSandbox: true` parameter exposed by the Bash tool is rejected when this flag is `false`, so there is no per-call \"trust me, run this raw on the host\" path. Commands that legitimately cannot run inside the sandbox (e.g. operations requiring access to `~/.ssh` or `~/.gnupg`) MUST be invoked manually by the operator outside Claude Code rather than smuggled through an unsandboxed escape."
-msgstr "`\"sandbox\": { \"allowUnsandboxedCommands\": false }` αφαιρεί την ικανότητα του χειριστή να επιλέξει μια εντολή από το sandbox. Η `dangerouslyDisableSandbox: true` η παράμετρος που εκτίθεται από το εργαλείο Bash απορρίπτεται όταν αυτή η σημαία `false`, έτσι δεν υπάρχει ανά κλήση \"Εμπιστέψου με, τρέξε το στον ξενιστή.\" Μονοπάτι. Εντολές που νόμιμα δεν μπορούν να τρέξουν μέσα στο αμμόκουτο (π.χ. λειτουργίες που απαιτούν πρόσβαση σε `~/.ssh` ή `~/.gnupg`) Πρέπει να γίνεται χειρωνακτική επίκληση από τον χειριστή έξω από τον κώδικα Claude αντί να περνάει λαθραία μέσω μιας μη κλειδωμένης διαφυγής."
+msgstr ""
 
 # libretranslate
 #, python-brace-format

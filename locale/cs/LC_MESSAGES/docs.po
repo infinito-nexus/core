@@ -3755,7 +3755,7 @@ msgstr "**Efektivní podání:** Urychlit manipulaci s LDAP objekty, jako jsou u
 
 # libretranslate
 msgid "**Efficient Code Collaboration:** Manage repositories and workflows with an intuitive interface."
-msgstr "**Efektivní spolupráce kódů:** Správa úložišť a pracovních toků s intuitivním rozhraním."
+msgstr ""
 
 # libretranslate
 msgid "**Efficient Integration:** Works seamlessly with web server roles for robust domain routing."
@@ -5143,7 +5143,7 @@ msgstr "**Instalace RetroArch:** Včetně hlavní `RetroArch package <https://ar
 
 # libretranslate
 msgid "**Installs Visual Studio Code:** A powerful code editor with a wide plugin ecosystem."
-msgstr "**Nainstaluje vizuální Studio kód:** Výkonný editor kódu s širokým plugin ekosystémem."
+msgstr ""
 
 # libretranslate
 msgid "**Installs ``setup-hibernate``:** Uses ``pkgmgr`` to install and initialize hibernation support."
@@ -5352,7 +5352,7 @@ msgstr "**Otáčí se přímo na pozici řady, ne jako třetí tachometr čísli
 
 # libretranslate
 msgid "**JCasC-managed configuration:** Persist the security realm and authorisation strategy as code via Configuration as Code."
-msgstr "**Nastavení JCasC- řízené:** Podporovat bezpečnostní a autorizační strategii jako kód prostřednictvím Konfigurace jako kód."
+msgstr ""
 
 msgid "**JSON enabled:** the settings add the ``json`` output format, which upstream ships disabled and which every API client needs."
 msgstr ""
@@ -15406,7 +15406,7 @@ msgstr "Všechny závazky musí být podepsány (GPG / SSH)"
 
 # libretranslate
 msgid "All communication MUST follow the project [Code of Conduct](../../../CODE_OF_CONDUCT.md)."
-msgstr "Veškerá komunikace musí následovat projekt [Kodex chování](../../../CODE_OF_CONDUCT.md)."
+msgstr ""
 
 # libretranslate
 msgid "All configuration is handled via ``meta/services.yml`` (services map at file root) and ``meta/server.yml`` (server block at file root)."
@@ -18703,7 +18703,7 @@ msgstr "Podle těchto pokynů mohou koncoví uživatelé i administrátoři dos�
 
 # libretranslate
 msgid "By participating in the Infinito.Nexus project, you agree to adhere to this Code of Conduct. We appreciate your cooperation in helping us build a positive and productive community."
-msgstr "Účast Infinito.Nexus Projekt, souhlasíte s dodržováním tohoto kodexu chování. Oceňujeme vaši spolupráci při budování pozitivní a produktivní komunity."
+msgstr ""
 
 # libretranslate
 msgid "By standardizing `.profile` as the central source for environment configuration, this role ensures consistent shell behavior. It does **not** manage the contents of `.profile` itself; it only guarantees that it is sourced by supported shells."
@@ -27141,7 +27141,7 @@ msgstr "Extrahovat ``owner/repo`` slimák github.com URL (https nebo ssh)."
 
 # libretranslate
 msgid "Extracted Code 📤"
-msgstr "Vytažený kód 📤"
+msgstr ""
 
 # libretranslate
 msgid "Extracted cleanup logic into a dedicated script"
@@ -31158,7 +31158,7 @@ msgstr "Pokud jste zapnuli `enable_wildcard_certificate`, Postupujte podle těch
 
 # libretranslate
 msgid "If you experience or witness any behavior that violates this Code of Conduct, please report it promptly. Reports should be sent to <kevin@veen.world>. All reports will be treated with discretion and confidentiality."
-msgstr "Pokud zažijete nebo budete svědky jakéhokoliv chování, které porušuje tento kodex chování, okamžitě to ohláste. Zprávy by měly být zaslány <kevin@veen.world>. Se všemi zprávami bude zacházeno diskrétně a důvěrně."
+msgstr ""
 
 # libretranslate
 msgid "If you have imported posts from Instagram, you can clean up the imported data and files as follows:"
@@ -31782,7 +31782,7 @@ msgstr "V vloženém režimu (`shared: false`) Spotřebitelský komposta obdrž�
 
 # libretranslate
 msgid "In order to foster a welcoming, open, and respectful community for everyone, we expect all contributors and participants in the Infinito.Nexus project to abide by the following Code of Conduct."
-msgstr "S cílem podpořit vítanou, otevřenou a uctivou komunitu pro každého očekáváme všechny přispěvatele a účastníky Infinito.Nexus projekt, který se bude řídit tímto kodexem chování."
+msgstr ""
 
 # libretranslate
 msgid "In short, `utils/domains/` exists to make domain handling consistent, central, and easy to evolve without scattering similar logic throughout the repository. 🧩"
@@ -44002,15 +44002,15 @@ msgstr "Vyžadovat pobočku být up- To- Date ✅"
 
 # libretranslate
 msgid "Require Code Owner Reviews ✅"
-msgstr "Recenze pro majitele požadovaného kódu ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Code Quality Results ✅"
-msgstr "Výsledky kvality kódu ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Code Scanning Results ✅"
-msgstr "Požadovat výsledky skenování kódu ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Conversation Resolution ✅"
@@ -59342,7 +59342,7 @@ msgstr "Tato Ansible role stanoví a spravuje Akaunting, inovativní online úč
 
 # libretranslate
 msgid "This Code of Conduct applies to all spaces managed by the Infinito.Nexus project, including GitHub repositories, mailing lists, chat rooms, and other communication channels."
-msgstr "Tento kodex chování se vztahuje na všechny prostory spravované Infinito.Nexus projekt, včetně úložišť GitHub, mailových seznamů, chatových místností a dalších komunikačních kanálů."
+msgstr ""
 
 # libretranslate
 msgid "This Docker Compose deployment automates the installation and operation of a Pixelfed instance."
@@ -70150,7 +70150,7 @@ msgstr "[CSS](https://developer.mozilla.org/en-US/docs/Web/CSS) styly uživatels
 
 # libretranslate
 msgid "[Caveman](https://github.com/JuliusBrussee/caveman) is a token-compression plugin installed via `make install-skills`. It reduces output token consumption through progressively terser communication styles. `make install-skills` copies the skills from the repository pinned as `INFINITO_SKILLS_REPOSITORY` in the generated `.env` (override via `custom.env`, see `docs/contributing/customize.md`); the [skills](https://github.com/kevinveenbirkenbach/skills) repository pins every skill in its `skills-lock.json` and also supports global installs via its own `make install`. This works universally across all supported agents: Claude Code, Codex, Gemini CLI, Cursor, Copilot, Windsurf, Cline, and more."
-msgstr "[Caveman](https://github.com/JuliusBrussee/caveman) je token- komprese plugin nainstalován přes `make install-skills`. To snižuje spotřebu výstupů token prostřednictvím postupně terser komunikační styly. `make install-skills` kopíruje dovednosti z úložiště připnuté jako `INFINITO_SKILLS_REPOSITORY` v generované `.env` (Přepsat pomocí `custom.env`, viz `docs/contributing/customize.md`); [dovednosti](https://github.com/kevinveenbirkenbach/skills) úložiště vypne všechny dovednosti v jeho `skills-lock.json` a také podporuje globální instalace prostřednictvím své vlastní `make install`. To funguje všeobecně ve všech podporovaných agentech: Claude Code, Codex, Gemini CLI, Kursor, Copilot, Windsurf, Cline, a další."
+msgstr ""
 
 # libretranslate
 msgid "[Certbot Official Website](https://certbot.eff.org/)"
@@ -70732,7 +70732,7 @@ msgstr "[Jellyfin](https://jellyfin.org) je volný, open-source mediální serve
 
 # libretranslate
 msgid "[Jenkins Configuration as Code plugin](https://plugins.jenkins.io/configuration-as-code/)"
-msgstr "[Name](https://plugins.jenkins.io/configuration-as-code/)"
+msgstr ""
 
 # libretranslate
 msgid "[Jenkins MCP Server plugin](https://plugins.jenkins.io/mcp-server/)"
@@ -71799,7 +71799,7 @@ msgstr "[Uživatelská bezpečnostní příručka](docs/security/user.md)"
 
 # libretranslate
 msgid "[Visual Studio Code](https://code.visualstudio.com/) is a powerful source code editor with a wide plugin ecosystem, supporting development workflows across many languages and platforms. See also the [Arch Wiki - Development Tools](https://wiki.archlinux.org/title/Category:Development) and general [Software Engineering](https://en.wikipedia.org/wiki/Software_engineering) on Wikipedia."
-msgstr "[Kód vizuálního studia](https://code.visualstudio.com/) je výkonný zdrojový kód editor s širokým plugin ekosystému, podporovat vývoj pracovních toků v mnoha jazycích a platformách. Viz také [Arch Wiki - Vývojové nástroje](https://wiki.archlinux.org/title/Category:Development) a obecné [Software Engineering](https://en.wikipedia.org/wiki/Software_engineering) na Wikipedii."
+msgstr ""
 
 msgid "[Visual Studio Code](https://github.com/microsoft/vscode) in a selectable flavor: the distribution's Code - OSS build, VSCodium, or Microsoft's own binary."
 msgstr ""

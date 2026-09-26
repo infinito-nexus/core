@@ -3751,7 +3751,7 @@ msgstr "**Efektīva ievadīšana:** Racionalizē LDAP objektu, piemēram, lietot
 
 # libretranslate
 msgid "**Efficient Code Collaboration:** Manage repositories and workflows with an intuitive interface."
-msgstr "**Efektīva sadarbība ar kodu:** Pārvaldīt krātuves un darbplūsmas ar intuitīvu saskarni."
+msgstr ""
 
 # libretranslate
 msgid "**Efficient Integration:** Works seamlessly with web server roles for robust domain routing."
@@ -5141,7 +5141,7 @@ msgstr "**Instalēt RetroArch:** Ieskaitot galveno `RetroArch package <https://a
 
 # libretranslate
 msgid "**Installs Visual Studio Code:** A powerful code editor with a wide plugin ecosystem."
-msgstr "**Uzstāda vizuālās studijas kodu:** Spēcīgs kodu redaktors ar plašu spraudņu ekosistēmu."
+msgstr ""
 
 # libretranslate
 msgid "**Installs ``setup-hibernate``:** Uses ``pkgmgr`` to install and initialize hibernation support."
@@ -5349,7 +5349,7 @@ msgstr ""
 
 # libretranslate
 msgid "**JCasC-managed configuration:** Persist the security realm and authorisation strategy as code via Configuration as Code."
-msgstr "**JCASC pārvaldītā konfigurācija:** Turēt drošības jomā un autorizācijas stratēģiju kā kodu, izmantojot konfigurācija kā kodu."
+msgstr ""
 
 msgid "**JSON enabled:** the settings add the ``json`` output format, which upstream ships disabled and which every API client needs."
 msgstr ""
@@ -9345,7 +9345,7 @@ msgstr "**Kāpēc tā?** [Debian](https://www.debian.org) ir priekšroka stabili
 
 # libretranslate
 msgid "**Why:** Friendica currently authenticates in two steps: oauth2-proxy gates the vhost (Keycloak-Authorization-Code-Flow, 2FA-enforceable), then the user must fill Friendica's own `/login` form because stock Friendica has **no header-trusted auto-login** — Owa.php / OAuth/Token.php only read `HTTP_AUTHORIZATION` for API endpoints, never for the web session. The ldapauth addon stays enabled solely as a first-login bootstrap that materialises the `friendica.user` row from openldap."
-msgstr "**Kāpēc?** Friendica šobrīd autentificējas divos posmos: oauth2-Plašs vārti vhost (Keycloak- atļaujas kodu-floku, 2FA izpildāms), tad lietotājam ir jāaizpilda Friendica's pašu `/login` forma, jo krājumi Friendica ir **nav galvenes uzticama autologīna** — Owa.php / OAuth/Token.php Tikai lasīt `HTTP_AUTHORIZATION` aizstāj API galapunkti, nekad tīmekļa sesijai. Ldapauth addon paliek ieslēgts tikai kā pirmā login bootstrap, kas īsteno `friendica.user` rinda no openldap."
+msgstr ""
 
 # libretranslate
 msgid "**Wildcard A/AAAA records** (`*.parent`) for parent hosts via `sys-dns-wildcards`"
@@ -15401,7 +15401,7 @@ msgstr "Visām saistībām jābūt parakstītām (GPG/SSH)"
 
 # libretranslate
 msgid "All communication MUST follow the project [Code of Conduct](../../../CODE_OF_CONDUCT.md)."
-msgstr "Visai saziņai jāseko projektam [Rīcības kodekss](../../../CODE_OF_CONDUCT.md)."
+msgstr ""
 
 # libretranslate
 msgid "All configuration is handled via ``meta/services.yml`` (services map at file root) and ``meta/server.yml`` (server block at file root)."
@@ -18696,7 +18696,7 @@ msgstr "Ievērojot šīs pamatnostādnes, gan galalietotāji, gan administratori
 
 # libretranslate
 msgid "By participating in the Infinito.Nexus project, you agree to adhere to this Code of Conduct. We appreciate your cooperation in helping us build a positive and productive community."
-msgstr "Piedaloties Infinito.Nexus projekts, jūs piekrītat ievērot šo rīcības kodeksu. Mēs novērtējam jūsu sadarbību, palīdzot mums veidot pozitīvu un produktīvu kopienu."
+msgstr ""
 
 # libretranslate
 msgid "By standardizing `.profile` as the central source for environment configuration, this role ensures consistent shell behavior. It does **not** manage the contents of `.profile` itself; it only guarantees that it is sourced by supported shells."

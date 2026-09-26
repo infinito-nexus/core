@@ -5345,7 +5345,7 @@ msgstr "**Ĝi rotacias sur la pozicio de la vico rekte, ne kiel triaodometrocife
 
 # libretranslate
 msgid "**JCasC-managed configuration:** Persist the security realm and authorisation strategy as code via Configuration as Code."
-msgstr "**JCasC-administrita konfiguracio:** Persisto la sekurecsfero kaj aprobstrategio kiel kodo per Konfiguracio kiel Kodo."
+msgstr ""
 
 msgid "**JSON enabled:** the settings add the ``json`` output format, which upstream ships disabled and which every API client needs."
 msgstr ""
@@ -15382,7 +15382,7 @@ msgstr "Ĉiuj rajtoj estu subskribitaj (GPG/SSH)"
 
 # libretranslate
 msgid "All communication MUST follow the project [Code of Conduct](../../../CODE_OF_CONDUCT.md)."
-msgstr "Ĉiu komunikado devas sekvi la projekton [Kodo de konduto](../../../CODE_OF_CONDUCT.md)."
+msgstr ""
 
 # libretranslate
 msgid "All configuration is handled via ``meta/services.yml`` (services map at file root) and ``meta/server.yml`` (server block at file root)."
@@ -18674,7 +18674,7 @@ msgstr "De sekvado de tiuj gvidlinioj, kaj finuzantoj kaj administrantoj povas a
 
 # libretranslate
 msgid "By participating in the Infinito.Nexus project, you agree to adhere to this Code of Conduct. We appreciate your cooperation in helping us build a positive and productive community."
-msgstr "Per partopreno en la Infinito.Nexus Vi konsentas aliĝi al tiu Kodo de konduto. Ni aprezas vian kunlaboron helpi nin konstrui pozitivan kaj produktivan komunumon."
+msgstr ""
 
 # libretranslate
 msgid "By standardizing `.profile` as the central source for environment configuration, this role ensures consistent shell behavior. It does **not** manage the contents of `.profile` itself; it only guarantees that it is sourced by supported shells."
@@ -27104,7 +27104,7 @@ msgstr ""
 
 # libretranslate
 msgid "Extracted Code 📤"
-msgstr "Ekstraktita Kodo 📤"
+msgstr ""
 
 # libretranslate
 msgid "Extracted cleanup logic into a dedicated script"
@@ -31109,7 +31109,7 @@ msgstr "Se vi permesas `enable_wildcard_certificate`, Sekvu tiujn paŝojn por ma
 
 # libretranslate
 msgid "If you experience or witness any behavior that violates this Code of Conduct, please report it promptly. Reports should be sent to <kevin@veen.world>. All reports will be treated with discretion and confidentiality."
-msgstr "Se vi travivas aŭ atestu ajnan konduton kiu malobservas tiun Kodon de konduto, bonvolu raporti ĝin senprokraste. Raportoj devus esti senditaj al <kevin@veen.world>. Ĉiuj raportoj estos traktitaj kun diskreteco kaj konfidenco."
+msgstr ""
 
 # libretranslate
 msgid "If you have imported posts from Instagram, you can clean up the imported data and files as follows:"
@@ -31731,7 +31731,7 @@ msgstr "En integriĝinta reĝimo (`shared: false`) La kunmeta stako de konsumant
 
 # libretranslate
 msgid "In order to foster a welcoming, open, and respectful community for everyone, we expect all contributors and participants in the Infinito.Nexus project to abide by the following Code of Conduct."
-msgstr "Por kreskigi bonvenigan, sinceran, kaj respekteman komunumon por ĉiu, ni atendas ĉiujn kontribuantojn kaj partoprenantojn en la Infinito.Nexus projekto por sekvi la sekvan Kodon de konduto."
+msgstr ""
 
 # libretranslate
 msgid "In short, `utils/domains/` exists to make domain handling consistent, central, and easy to evolve without scattering similar logic throughout the repository. 🧩"
@@ -59251,7 +59251,7 @@ msgstr "Tiu sama rolo starigas kaj administras Akaunting, noviga reta kontada so
 
 # libretranslate
 msgid "This Code of Conduct applies to all spaces managed by the Infinito.Nexus project, including GitHub repositories, mailing lists, chat rooms, and other communication channels."
-msgstr "Tiu Kodo de konduto validas por ĉiuj spacoj administritaj fare de la Infinito.Nexus projekto, inkluzive de GitHub ripozoj, poŝtaj listoj, babilejo ĉambroj, kaj aliaj komunikadkanaloj."
+msgstr ""
 
 # libretranslate
 msgid "This Docker Compose deployment automates the installation and operation of a Pixelfed instance."

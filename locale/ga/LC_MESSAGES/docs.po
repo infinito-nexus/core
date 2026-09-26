@@ -3754,7 +3754,7 @@ msgstr "**Riarachán easnamhach:** Sruthlínigh an láimhseáil rudaí LDAP ar n
 
 # libretranslate
 msgid "**Efficient Code Collaboration:** Manage repositories and workflows with an intuitive interface."
-msgstr "**Comhoibriú Cód Éifeachtach:** Repositories agus sreabhadh oibre a bhainistiú le comhéadan iomasach."
+msgstr ""
 
 # libretranslate
 msgid "**Efficient Integration:** Works seamlessly with web server roles for robust domain routing."
@@ -4932,7 +4932,7 @@ msgstr "**Má sháraigh:** Má leathnaíonn ranníocóir `allowWrite` (mar shamp
 
 # libretranslate
 msgid "**If violated:** Running Claude Code on a host with production containers exposes those containers to disruption. A contributor on such a host SHOULD add read-only-narrowing `docker *` ask/deny entries in `.claude/settings.local.json` before starting a session."
-msgstr "**Má sháraigh:** Rith Cód Claude ar a lán le coimeádáin táirgthe nochtann na coimeádáin sin le cur isteach. Síntiúsaire ar a leithéid de SHOULD cuir léamh-amháin-narrowing `docker *` iontrálacha a iarraidh/a dhiúltú `.claude/settings.local.json` roimh thús seisiún."
+msgstr ""
 
 # libretranslate
 msgid "**If violated:** The attempt fails, the agent sees the error, and typically refactors within one retry. No host-level exposure."
@@ -5143,7 +5143,7 @@ msgstr "**Suiteálacha RetroArch:** Lena n-áirítear an príomh `RetroArch pack
 
 # libretranslate
 msgid "**Installs Visual Studio Code:** A powerful code editor with a wide plugin ecosystem."
-msgstr "**Shuiteálacha Amharc Stiúideo Cód:** A eagarthóir cód cumhachtach le héiceachórais breiseán leathan."
+msgstr ""
 
 # libretranslate
 msgid "**Installs ``setup-hibernate``:** Uses ``pkgmgr`` to install and initialize hibernation support."
@@ -5352,7 +5352,7 @@ msgstr "**Rothlaíonn sé ar sheasamh an tsraith go díreach, ní mar dhigit tr�
 
 # libretranslate
 msgid "**JCasC-managed configuration:** Persist the security realm and authorisation strategy as code via Configuration as Code."
-msgstr "**JCasC-bhainistithe chumraíocht:** Freastal ar an réimse slándála agus straitéis údaraithe mar chód trí Cumraíocht mar Chód."
+msgstr ""
 
 msgid "**JSON enabled:** the settings add the ``json`` output format, which upstream ships disabled and which every API client needs."
 msgstr ""
@@ -15412,7 +15412,7 @@ msgstr "Gach tiomantas MUST a shíniú (GPG / SSH)"
 
 # libretranslate
 msgid "All communication MUST follow the project [Code of Conduct](../../../CODE_OF_CONDUCT.md)."
-msgstr "Gach cumarsáid MUST lean an tionscadal [Cód Iompair](../../../CODE_OF_CONDUCT.md)."
+msgstr ""
 
 # libretranslate
 msgid "All configuration is handled via ``meta/services.yml`` (services map at file root) and ``meta/server.yml`` (server block at file root)."
@@ -18706,7 +18706,7 @@ msgstr "Trí na treoirlínte seo a leanas, is féidir le húsáideoirí deiridh 
 
 # libretranslate
 msgid "By participating in the Infinito.Nexus project, you agree to adhere to this Code of Conduct. We appreciate your cooperation in helping us build a positive and productive community."
-msgstr "Trí pháirt a ghlacadh sa Infinito.Nexus tionscadal, aontaíonn tú cloí leis an gCód Iompair. Is mór dúinn do chomhoibriú i cuidiú linn a thógáil pobal dearfach agus táirgiúil."
+msgstr ""
 
 # libretranslate
 msgid "By standardizing `.profile` as the central source for environment configuration, this role ensures consistent shell behavior. It does **not** manage the contents of `.profile` itself; it only guarantees that it is sourced by supported shells."
@@ -27146,7 +27146,7 @@ msgstr "An bhfuil a fhios agat? ``owner/repo`` sluga ó github.com URL (riachtan
 
 # libretranslate
 msgid "Extracted Code 📤"
-msgstr "Cód Sliocht 📤"
+msgstr ""
 
 # libretranslate
 msgid "Extracted cleanup logic into a dedicated script"
@@ -31160,7 +31160,7 @@ msgstr "Má tá tú ar chumas `enable_wildcard_certificate`, lean na céimeanna 
 
 # libretranslate
 msgid "If you experience or witness any behavior that violates this Code of Conduct, please report it promptly. Reports should be sent to <kevin@veen.world>. All reports will be treated with discretion and confidentiality."
-msgstr "Má tá tú taithí nó finné aon iompar a sháraíonn an Cód Iompair, tabhair tuairisc go pras. Ba chóir tuarascálacha a sheoladh chuig <kevin@veen.world>. Déileálfar le gach tuarascáil le rogha agus le rúndacht."
+msgstr ""
 
 # libretranslate
 msgid "If you have imported posts from Instagram, you can clean up the imported data and files as follows:"
@@ -31783,7 +31783,7 @@ msgstr "I mód leabaithe (`shared: false`) faigheann stóráil-amháin SeaweedFS
 
 # libretranslate
 msgid "In order to foster a welcoming, open, and respectful community for everyone, we expect all contributors and participants in the Infinito.Nexus project to abide by the following Code of Conduct."
-msgstr "D'fhonn pobal fáilteach, oscailte, agus meas a chothú do gach duine, táimid ag súil le gach rannchuiditheoir agus rannpháirtí sna Infinito.Nexus tionscadal chun cloí leis an gCód Iompair seo a leanas."
+msgstr ""
 
 # libretranslate
 msgid "In short, `utils/domains/` exists to make domain handling consistent, central, and easy to evolve without scattering similar logic throughout the repository. 🧩"
@@ -36113,7 +36113,7 @@ msgstr "Marcanna an tasc Ansible mar `changed` más rud é:"
 
 # libretranslate
 msgid "Match commands exactly as Claude Code does: literal prefix, `*` wildcard, `deny` overrides `allow`."
-msgstr "orduithe Match díreach mar a dhéanann Claude Cód: réimír litriúil, `*` cárta fiáin, `deny` overrides `allow`."
+msgstr ""
 
 # libretranslate
 msgid "Match every user entry, used for sync jobs and listings"
@@ -43997,15 +43997,15 @@ msgstr "An Brainse a Fhiosrú a bheith Up-go-Dáta ✅"
 
 # libretranslate
 msgid "Require Code Owner Reviews ✅"
-msgstr "Athbhreithniú ar Chód Úinéir ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Code Quality Results ✅"
-msgstr "Ceisteanna Coitianta ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Code Scanning Results ✅"
-msgstr "Faigh amach níos mó ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Conversation Resolution ✅"
@@ -47418,7 +47418,7 @@ msgstr "Tástáil Sonrach Rith 🏃"
 
 # libretranslate
 msgid "Running `git` against an arbitrary working tree via the `-C <path>` flag is blocked. The agent has legitimate repositories under `additionalDirectories` (see top of this page) that `-C` could be pointed at, so the sandbox write-boundary alone is not enough to prevent cross-repo edits. Denying the flag forces every git invocation to operate on the repo rooted at the session's current working directory, which the operator set deliberately. Operators who genuinely need to work on a second repo MUST open a new Claude Code session in that directory instead of reaching across with `-C`."
-msgstr "Rith `git` i gcoinne crann oibre treallach tríd an `-C <path>` Tá bratach bac. Tá stórtha dlisteanacha ag an ngníomhaire faoi `additionalDirectories` (féach barr an leathanaigh seo) go bhfuil `-C` D'fhéadfaí a chur in iúl ag, mar sin nach bhfuil an bosca gainimh scríobh-teorann ina n-aonar go leor chun cosc a chur in eagar tras-repo. Denying na fórsaí bratach gach suaitheantas git a oibriú ar an repo fréamhaithe ag eolaire oibre reatha an tseisiúin, a leag an t-oibreoir d'aon turas. Oibreoirí a bhfuil gá dáiríre a bheith ag obair ar an dara repo MUST oscailt seisiún nua Cód Claude san eolaire in ionad a bhaint amach ar fud leis `-C`."
+msgstr ""
 
 # libretranslate
 msgid "Running a pass"
@@ -58105,7 +58105,7 @@ msgstr "Ritheann an tseirbhís mar lightweight Node.js app tacaíocht ó Postgre
 # libretranslate
 #, python-brace-format
 msgid "The settings file additionally sets `\"sandbox\": { \"failIfUnavailable\": true }`. This prevents a dangerous false-security state: if the OS-level sandbox backend (e.g. `bwrap` on Linux, `sandbox-exec` on macOS) is missing or non-functional, Claude Code would otherwise silently fall back to no sandboxing while `autoAllowBashIfSandboxed` continues to auto-approve commands as if they were confined. With `failIfUnavailable: true`, Claude Code refuses to proceed in that situation, forcing the operator to install the missing backend or explicitly downgrade the policy before any command runs. Contributors on systems without a working sandbox backend MUST install the appropriate binary rather than weakening this flag locally."
-msgstr "Leagann an comhad suímh chomh maith `\"sandbox\": { \"failIfUnavailable\": true }`. Cuireann sé seo cosc ar staid contúirteacha bréagach slándála: má tá an bosca gainimh OS-leibhéal ar chúl (e.g. `bwrap` ar Linux, `sandbox-exec` ar macOS) Tá sé ar iarraidh nó neamh-fheidhmiúil, bheadh Claude Cód titim ar ais go ciúin ar shlí eile gan aon sandboxing agus `autoAllowBashIfSandboxed` leanúint ar aghaidh le horduithe auto-a cheadú amhail is dá mbeadh siad teoranta. Le haghaidh `failIfUnavailable: true`, Claude Cód diúltaíonn dul ar aghaidh sa chás sin, forcing an t-oibreoir a shuiteáil ar ais ar iarraidh nó go sainráite íosghrádú an polasaí sula ritheann aon ordú. Contributors ar chórais gan MUST bosca gainimh ag obair a shuiteáil ar an dénártha cuí seachas lagú an bhratach go háitiúil."
+msgstr ""
 
 # libretranslate
 msgid "The setup tasks handle the full first-deploy bootstrap automatically:"
@@ -58526,7 +58526,7 @@ msgstr "An leibhéal barr `compose.yml` go bhfuil raon feidhme **forbairt áiti�
 
 # libretranslate
 msgid "The top-level `env` block sets process environment variables for every Claude Code session. It is currently used to disable GPG signing for agent-created commits via the additive `GIT_CONFIG_COUNT` mechanism:"
-msgstr "An leibhéal barr `env` Leagann bloc athróg timpeallacht próiseas do gach seisiún Claude Cód. Úsáidtear é faoi láthair chun síniú GPG a dhíchumasú le haghaidh cimithe gníomhaire a cruthaíodh tríd an mbreiseán `GIT_CONFIG_COUNT` meicníocht:"
+msgstr ""
 
 # libretranslate
 msgid "The top-level node MUST be a YAML list. A non-list root is a hard error."
@@ -59336,7 +59336,7 @@ msgstr "Leagann an ról Ansible suas agus bainistíonn Akaunting, bogearraí cun
 
 # libretranslate
 msgid "This Code of Conduct applies to all spaces managed by the Infinito.Nexus project, including GitHub repositories, mailing lists, chat rooms, and other communication channels."
-msgstr "Baineann an Cód Iompair seo le gach spás a bhainistíonn an Infinito.Nexus tionscadal, lena n-áirítear stórtha GitHub, liostaí phost, seomraí comhrá, agus bealaí cumarsáide eile."
+msgstr ""
 
 # libretranslate
 msgid "This Docker Compose deployment automates the installation and operation of a Pixelfed instance."
@@ -59958,7 +59958,7 @@ msgstr "Tá an fillteán an ról a imscaradh agus a bhainistiú `Coturn <https:/
 
 # libretranslate
 msgid "This folder documents the Claude Code agent configuration for this project. The authoritative policy lives in [`.claude/settings.json`](../../../../../.claude/settings.json); the pages here explain the reasoning behind each entry so future contributors understand *why* a rule exists before they change it."
-msgstr "Doiciméid an fillteán seo an chumraíocht gníomhaire Claude Cód don tionscadal seo. Tá cónaí ar an mbeartas údarásach i [`.claude/settings.json`](../../../../../.claude/settings.json); na leathanaigh a mhíniú anseo ar an réasúnaíocht taobh thiar de gach iontráil sin a thuiscint rannchuiditheoirí sa todhchaí *cén fáth* Tá riail ann sula n-athraíonn siad é."
+msgstr ""
 
 # libretranslate
 msgid "This gives faster feedback and protects shared CI runners."
@@ -60318,7 +60318,7 @@ msgstr "Doiciméid an leathanach seo conradh an `email` Breiseán Lookup Ansible
 
 # libretranslate
 msgid "This page documents the permission and runtime configuration in [`.claude/settings.json`](../../../../../.claude/settings.json). For the trust assumptions and the two-layer containment model behind these rules, see [security.md](security.md). For the OS-level sandbox configuration, see [sandbox.md](sandbox.md). For general agent workflow rules, see [common.md](../common.md). For the Claude Code reference, see [docs.claude.com](https://code.claude.com/docs/en/settings)."
-msgstr "Doiciméid an leathanach seo an cead agus cumraíocht runtime i [`.claude/settings.json`](../../../../../.claude/settings.json). Maidir leis na boinn tuisceana iontaobhais agus an tsamhail srianadh dhá ciseal taobh thiar de na rialacha seo, féach [security.md](security.md). Maidir leis an cumraíocht bosca gainimh OS-leibhéal, féach [sandbox.md](sandbox.md). Maidir le rialacha ginearálta maidir le sreabhadh oibre gníomhaire, féach [common.md](../common.md). Maidir leis an tagairt Cód Claude, féach [docs.claude.com](https://code.claude.com/docs/en/settings)."
+msgstr ""
 
 # libretranslate
 msgid "This page documents the rules that govern the top-level [compose.yml](../../../../compose.yml) and the environment variables it consumes. For general documentation rules (links, writing, RFC 2119 keywords), see [documentation.md](../../documentation.md). For CI debugging workflows that use these variables, see [ci.md](../../actions/debugging/ci.md)."
@@ -60326,7 +60326,7 @@ msgstr "Doiciméid an leathanach seo na rialacha a rialaíonn an leibhéal barr 
 
 # libretranslate
 msgid "This page enumerates the trust assumptions that the Claude Code configuration in [`.claude/settings.json`](../../../../../.claude/settings.json) relies on. If any assumption becomes false on a given host, the corresponding rule in [settings.md](settings.md) or [sandbox.md](sandbox.md) MUST be re-evaluated before Claude Code is started. This file is the single reference for the architectural reasoning. Per-rule tables in the neighbouring pages summarise the mechanics and link here for the full argument."
-msgstr "Áirithíonn an leathanach seo na toimhdí muiníne go bhfuil an chumraíocht Cód Claude i [`.claude/settings.json`](../../../../../.claude/settings.json) ag brath ar. Má éiríonn aon toimhde bréagach ar óstach ar leith, an riail chomhfhreagrach i [settings.md](settings.md) nó [sandbox.md](sandbox.md) MUST a ath-imghabháil roimh Claude Cód tosaithe. Is é an comhad seo an tagairt amháin don réasúnaíocht ailtireachta. Déanann táblaí Per-rule sna leathanaigh chomharsanachta achoimre ar na meicnic agus nasc anseo don argóint iomlán."
+msgstr ""
 
 # libretranslate
 msgid "This page enumerates the values the `meta/services.yml.<entity>.lifecycle` key MAY take and what each value commits the project to. The on-disk shape of `lifecycle` itself is documented in [layout.md](layout.md); this page is the semantic counterpart."
@@ -70740,7 +70740,7 @@ msgstr "[riachtanais uisce: measartha](https://jellyfin.org) Is freastalaí meá
 
 # libretranslate
 msgid "[Jenkins Configuration as Code plugin](https://plugins.jenkins.io/configuration-as-code/)"
-msgstr "[Jenkins Cumraíocht mar breiseán Cód](https://plugins.jenkins.io/configuration-as-code/)"
+msgstr ""
 
 # libretranslate
 msgid "[Jenkins MCP Server plugin](https://plugins.jenkins.io/mcp-server/)"
@@ -71807,7 +71807,7 @@ msgstr "[Treoir Slándáil Úsáideora](docs/security/user.md)"
 
 # libretranslate
 msgid "[Visual Studio Code](https://code.visualstudio.com/) is a powerful source code editor with a wide plugin ecosystem, supporting development workflows across many languages and platforms. See also the [Arch Wiki - Development Tools](https://wiki.archlinux.org/title/Category:Development) and general [Software Engineering](https://en.wikipedia.org/wiki/Software_engineering) on Wikipedia."
-msgstr "[Amharc ar gach eolas](https://code.visualstudio.com/) Is eagarthóir cód foinse chumhachtach le héiceachórais breiseán leathan, tacú le sreabhadh oibre forbartha ar fud go leor teangacha agus ardáin. Féach freisin [Arch Wiki - Uirlisí Forbartha](https://wiki.archlinux.org/title/Category:Development) agus ginearálta [Innealtóireacht Bogearraí](https://en.wikipedia.org/wiki/Software_engineering) ar Vicipéid."
+msgstr ""
 
 msgid "[Visual Studio Code](https://github.com/microsoft/vscode) in a selectable flavor: the distribution's Code - OSS build, VSCodium, or Microsoft's own binary."
 msgstr ""
@@ -74799,7 +74799,7 @@ msgstr "stdout priontaí folíon amháin in aghaidh na líne."
 # libretranslate
 #, python-brace-format
 msgid "`\"sandbox\": { \"allowUnsandboxedCommands\": false }` removes the operator's ability to opt a single command out of the sandbox. The `dangerouslyDisableSandbox: true` parameter exposed by the Bash tool is rejected when this flag is `false`, so there is no per-call \"trust me, run this raw on the host\" path. Commands that legitimately cannot run inside the sandbox (e.g. operations requiring access to `~/.ssh` or `~/.gnupg`) MUST be invoked manually by the operator outside Claude Code rather than smuggled through an unsandboxed escape."
-msgstr "`\"sandbox\": { \"allowUnsandboxedCommands\": false }` Cuireann cumas an oibreora ordú amháin a roghnú as an mbosca gainimh. An bhfuil `dangerouslyDisableSandbox: true` paraiméadar nochta ag an uirlis Bash diúltaíodh nuair a bhíonn an bhratach `false`, mar sin níl aon per-call \"muinín dom, reáchtáil an amh ar an óstach\" cosán. Orduithe nach féidir a reáchtáil go dlisteanach taobh istigh den bhosca gainimh (e.g. oibríochtaí a dteastaíonn rochtain uathu `~/.ssh` nó `~/.gnupg`) MUST agairt de láimh ag an t-oibreoir taobh amuigh Claude Cód seachas smuigleáil trí éalú unsandboxed."
+msgstr ""
 
 # libretranslate
 #, python-brace-format

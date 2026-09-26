@@ -3750,7 +3750,7 @@ msgstr "**Tehokas anto:** Streamline käsittely LDAP esineitä, kuten käyttäji
 
 # libretranslate
 msgid "**Efficient Code Collaboration:** Manage repositories and workflows with an intuitive interface."
-msgstr "**Tehokas koodiyhteistyö:** Hallitse arkistoja ja työnkulkuja intuitiivisella käyttöliittymällä."
+msgstr ""
 
 # libretranslate
 msgid "**Efficient Integration:** Works seamlessly with web server roles for robust domain routing."
@@ -4929,7 +4929,7 @@ msgstr "**Jos sitä rikotaan:** Jos tietolähde laajenee `allowWrite` (esimerkik
 
 # libretranslate
 msgid "**If violated:** Running Claude Code on a host with production containers exposes those containers to disruption. A contributor on such a host SHOULD add read-only-narrowing `docker *` ask/deny entries in `.claude/settings.local.json` before starting a session."
-msgstr "**Jos sitä rikotaan:** Claude-koodin käyttö isäntänä, jolla on tuotantokontteja, aiheuttaa häiriöitä. Tällaisen isännän rahoittajan olisi lisättävä vain lukua rajoittava `docker *` kysy/ kiellä merkinnät `.claude/settings.local.json` ennen istunnon aloittamista."
+msgstr ""
 
 # libretranslate
 msgid "**If violated:** The attempt fails, the agent sees the error, and typically refactors within one retry. No host-level exposure."
@@ -5140,7 +5140,7 @@ msgstr "**Asennukset RetroArch:** Tärkeimmät `RetroArch package <https://archl
 
 # libretranslate
 msgid "**Installs Visual Studio Code:** A powerful code editor with a wide plugin ecosystem."
-msgstr "**Asennukset Visual Studio -koodi:** Tehokas koodi editori laaja plugin ekosysteemi."
+msgstr ""
 
 # libretranslate
 msgid "**Installs ``setup-hibernate``:** Uses ``pkgmgr`` to install and initialize hibernation support."
@@ -5349,7 +5349,7 @@ msgstr "**Se pyörii rivin sijainti suoraan, ei kolmannen matkamittarin numero.*
 
 # libretranslate
 msgid "**JCasC-managed configuration:** Persist the security realm and authorisation strategy as code via Configuration as Code."
-msgstr "**JCSC:n hallinnoima konfiguraatio:** Suojele turvallisuuspiiriä ja valtuutusstrategiaa koodina koodin muodossa."
+msgstr ""
 
 msgid "**JSON enabled:** the settings add the ``json`` output format, which upstream ships disabled and which every API client needs."
 msgstr ""
@@ -15396,7 +15396,7 @@ msgstr "Kaikki sitoumukset PITÄÄ allekirjoittaa (GPG/SSH)"
 
 # libretranslate
 msgid "All communication MUST follow the project [Code of Conduct](../../../CODE_OF_CONDUCT.md)."
-msgstr "Kaikki viestintä PITÄÄ seurata projektia [Käytännesäännöt](../../../CODE_OF_CONDUCT.md)."
+msgstr ""
 
 # libretranslate
 msgid "All configuration is handled via ``meta/services.yml`` (services map at file root) and ``meta/server.yml`` (server block at file root)."
@@ -18690,7 +18690,7 @@ msgstr "Näitä ohjeita noudattamalla sekä loppukäyttäjät että hallinnoijat
 
 # libretranslate
 msgid "By participating in the Infinito.Nexus project, you agree to adhere to this Code of Conduct. We appreciate your cooperation in helping us build a positive and productive community."
-msgstr "Osallistumalla Infinito.Nexus projekti, suostut noudattamaan näitä käytännesääntöjä. Arvostamme yhteistyötänne myönteisen ja tuottavan yhteisön rakentamisessa."
+msgstr ""
 
 # libretranslate
 msgid "By standardizing `.profile` as the central source for environment configuration, this role ensures consistent shell behavior. It does **not** manage the contents of `.profile` itself; it only guarantees that it is sourced by supported shells."
@@ -27126,7 +27126,7 @@ msgstr "Pura ``owner/repo`` luoti github.com URL (Pääaine tai ssh)."
 
 # libretranslate
 msgid "Extracted Code 📤"
-msgstr "Purettu koodi 📤"
+msgstr ""
 
 # libretranslate
 msgid "Extracted cleanup logic into a dedicated script"
@@ -31142,7 +31142,7 @@ msgstr "Jos valitsit `enable_wildcard_certificate`, seurata näitä ohjeita manu
 
 # libretranslate
 msgid "If you experience or witness any behavior that violates this Code of Conduct, please report it promptly. Reports should be sent to <kevin@veen.world>. All reports will be treated with discretion and confidentiality."
-msgstr "Jos koet tai näet mitään käytöstä, joka rikkoo näitä käytännesääntöjä, ilmoita siitä viipymättä. Kertomukset on lähetettävä osoitteeseen <kevin@veen.world>. Kaikkia raportteja käsitellään luottamuksellisesti."
+msgstr ""
 
 # libretranslate
 msgid "If you have imported posts from Instagram, you can clean up the imported data and files as follows:"
@@ -31766,7 +31766,7 @@ msgstr "sulautettu tila (`shared: false`) kuluttajan sävelkasa vastaanottaa var
 
 # libretranslate
 msgid "In order to foster a welcoming, open, and respectful community for everyone, we expect all contributors and participants in the Infinito.Nexus project to abide by the following Code of Conduct."
-msgstr "Edistääksemme tervetulleen, avoimen ja kunnioittavan yhteisön kaikille, odotamme kaikkia osallistujia ja osallistujia Infinito.Nexus hanke noudattaa seuraavia käytännesääntöjä."
+msgstr ""
 
 # libretranslate
 msgid "In short, `utils/domains/` exists to make domain handling consistent, central, and easy to evolve without scattering similar logic throughout the repository. 🧩"
@@ -43994,15 +43994,15 @@ msgstr "Vaadi haara olemaan ylös-to-date ✅"
 
 # libretranslate
 msgid "Require Code Owner Reviews ✅"
-msgstr "Vaadi koodin omistajan arvostelut ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Code Quality Results ✅"
-msgstr "Vaadi koodin laatutulokset ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Code Scanning Results ✅"
-msgstr "Vaadi koodin skannaustulokset ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Conversation Resolution ✅"
@@ -59331,7 +59331,7 @@ msgstr "Tämä toimiva rooli muodostaa ja hallinnoi Akaunting, innovatiivinen on
 
 # libretranslate
 msgid "This Code of Conduct applies to all spaces managed by the Infinito.Nexus project, including GitHub repositories, mailing lists, chat rooms, and other communication channels."
-msgstr "Käytännesääntöjä sovelletaan kaikkiin tiloihin, joita hallinnoi Infinito.Nexus projekti, kuten GitHub arkistot, postituslistat, chat-huoneet, ja muut viestintäkanavat."
+msgstr ""
 
 # libretranslate
 msgid "This Docker Compose deployment automates the installation and operation of a Pixelfed instance."
@@ -60292,7 +60292,7 @@ msgstr "Tämä sivu dokumentoi rooli-paikallinen JavaScript injektointi ja selai
 
 # libretranslate
 msgid "This page documents the OS-level sandbox configuration for Claude Code. The relevant keys live under `sandbox` in [`.claude/settings.json`](../../../../../.claude/settings.json). The sandbox is the **primary** containment layer in this project: because the allowlist uses the wildcard `Bash(*)` (with `autoAllowBashIfSandboxed` as defence-in-depth), sandbox confinement, not the per-command allowlist, is what bounds the blast radius of Bash. The `allow`/`ask`/`deny` lists described in [settings.md](settings.md) remain in force on top of it as the policy gate."
-msgstr "Tällä sivulla dokumentoidaan Claude-koodin OS-tason hiekkalaatikon asetukset. Tärkeimmät avaimet elävät alla `sandbox` in [`.claude/settings.json`](../../../../../.claude/settings.json). Hiekkalaatikko on **primaari** Projektin estokerros: koska sallilista käyttää wildcardia `Bash(*)` (kun `autoAllowBashIfSandboxed` Perusteellisena puolustuksena), hiekkalaatikon eristys, ei yhden komennon lupalista, on se mikä rajoittaa Bashin räjähdyssäde. • `allow`/`ask`/`deny` kohdassa kuvatut luettelot [settings.md](settings.md) Pysykää sen päällä politiikan porttina."
+msgstr ""
 
 # libretranslate
 msgid "This page documents the administrator-facing surface of outgoing email configuration. For the plugin contract and extension rules, see [email.md](../../contributing/design/role/services/email.md)."
@@ -70721,7 +70721,7 @@ msgstr "[Jellyfin](https://jellyfin.org) on vapaa, avoin mediapalvelin. Tässä 
 
 # libretranslate
 msgid "[Jenkins Configuration as Code plugin](https://plugins.jenkins.io/configuration-as-code/)"
-msgstr "[Jenkinsin asetukset koodiliitännäiseksi](https://plugins.jenkins.io/configuration-as-code/)"
+msgstr ""
 
 # libretranslate
 msgid "[Jenkins MCP Server plugin](https://plugins.jenkins.io/mcp-server/)"
@@ -71787,7 +71787,7 @@ msgstr "[Käyttäjän turvallisuusopas](docs/security/user.md)"
 
 # libretranslate
 msgid "[Visual Studio Code](https://code.visualstudio.com/) is a powerful source code editor with a wide plugin ecosystem, supporting development workflows across many languages and platforms. See also the [Arch Wiki - Development Tools](https://wiki.archlinux.org/title/Category:Development) and general [Software Engineering](https://en.wikipedia.org/wiki/Software_engineering) on Wikipedia."
-msgstr "[Visual Studio -koodi](https://code.visualstudio.com/) on tehokas lähdekoodin editori, jolla on laaja plugin-ekosysteemi, joka tukee kehityksen työnkulkuja useilla kielillä ja alustoilla. Katso myös [Arch Wiki - Kehitystyökalut](https://wiki.archlinux.org/title/Category:Development) ja yleiset [Ohjelmistotekniikka](https://en.wikipedia.org/wiki/Software_engineering) Wikipediassa."
+msgstr ""
 
 msgid "[Visual Studio Code](https://github.com/microsoft/vscode) in a selectable flavor: the distribution's Code - OSS build, VSCodium, or Microsoft's own binary."
 msgstr ""
@@ -88407,7 +88407,7 @@ msgstr "🎯 **Bootstrapin ohitusyhteensopivuus**"
 
 # libretranslate
 msgid "🏖️ Install OS-level Claude Code sandbox dependencies (`bubblewrap`, `socat`) via `sandbox.sh`, covering Debian, Ubuntu, Fedora, CentOS/RHEL/Rocky/Alma, and Arch; also exposed as `make install-agent`"
-msgstr "🏖️ Asenna OS-tason Claude-koodi hiekkalaatikon riippuvuudet (`bubblewrap`, `socat`) via `sandbox.sh`, Debian, Ubuntu, Fedora, CentOS/RHEL/Rocky/Alma, ja Arch; myös alttiina `make install-agent`"
+msgstr ""
 
 # libretranslate
 msgid "🏗️ Build container images for local and CI workflows"

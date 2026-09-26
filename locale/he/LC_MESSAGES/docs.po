@@ -3741,7 +3741,7 @@ msgstr "**ניהול יעיל:** הגדר את הטיפול של אובייקט�
 
 # libretranslate
 msgid "**Efficient Code Collaboration:** Manage repositories and workflows with an intuitive interface."
-msgstr "**שיתוף פעולה קוד יעיל:** נהלים וזרימות עבודה עם ממשק אינטואיטיבי."
+msgstr ""
 
 # libretranslate
 msgid "**Efficient Integration:** Works seamlessly with web server roles for robust domain routing."
@@ -4916,7 +4916,7 @@ msgstr "**אם תפר:** אם תורם גדול `allowWrite` (לדוגמה על 
 
 # libretranslate
 msgid "**If violated:** Running Claude Code on a host with production containers exposes those containers to disruption. A contributor on such a host SHOULD add read-only-narrowing `docker *` ask/deny entries in `.claude/settings.local.json` before starting a session."
-msgstr "**אם תפר:** הפעלת הקוד על מארח עם מיכלי ייצור חושפת את המכולות האלה לשיבוש. תורם למארח כזה SHOULD מוסיף קריאה בלבד `docker *` לשאול/deny ערכים `.claude/settings.local.json` לפני תחילת הפגישה."
+msgstr ""
 
 # libretranslate
 msgid "**If violated:** The attempt fails, the agent sees the error, and typically refactors within one retry. No host-level exposure."
@@ -5124,7 +5124,7 @@ msgstr "**מקררים:** כולל הראשי `RetroArch package <https://archli
 
 # libretranslate
 msgid "**Installs Visual Studio Code:** A powerful code editor with a wide plugin ecosystem."
-msgstr "**התקנת קוד Visual Studio:** עורך קוד חזק עם מערכת אקולוגית רחבה של תוסף."
+msgstr ""
 
 # libretranslate
 msgid "**Installs ``setup-hibernate``:** Uses ``pkgmgr`` to install and initialize hibernation support."
@@ -5332,7 +5332,7 @@ msgstr ""
 
 # libretranslate
 msgid "**JCasC-managed configuration:** Persist the security realm and authorisation strategy as code via Configuration as Code."
-msgstr "**JCasC-managed תצורה:** Persist את אסטרטגיית התחום הביטחוני וההוראה כקוד באמצעות קונפדרציה כקוד."
+msgstr ""
 
 msgid "**JSON enabled:** the settings add the ``json`` output format, which upstream ships disabled and which every API client needs."
 msgstr ""
@@ -15358,7 +15358,7 @@ msgstr "כל הפעולות חייבות להיחתם (GPG/SSH)"
 
 # libretranslate
 msgid "All communication MUST follow the project [Code of Conduct](../../../CODE_OF_CONDUCT.md)."
-msgstr "כל התקשורת חייבת לעקוב אחר הפרויקט [קוד התנהגות](../../../CODE_OF_CONDUCT.md)."
+msgstr ""
 
 # libretranslate
 msgid "All configuration is handled via ``meta/services.yml`` (services map at file root) and ``meta/server.yml`` (server block at file root)."
@@ -18642,7 +18642,7 @@ msgstr "על ידי ביצוע הנחיות אלה, משתמשים ומנהלי 
 
 # libretranslate
 msgid "By participating in the Infinito.Nexus project, you agree to adhere to this Code of Conduct. We appreciate your cooperation in helping us build a positive and productive community."
-msgstr "על ידי השתתפות Infinito.Nexus הפרויקט, אתה מסכים לדבוק בקוד ההתנהגות הזה. אנו מעריכים את שיתוף הפעולה שלכם בסיוע לנו לבנות קהילה חיובית ופרודוקטיבית."
+msgstr ""
 
 # libretranslate
 msgid "By standardizing `.profile` as the central source for environment configuration, this role ensures consistent shell behavior. It does **not** manage the contents of `.profile` itself; it only guarantees that it is sourced by supported shells."
@@ -27068,7 +27068,7 @@ msgstr "לחלץ את ``owner/repo`` מתוך A github.com כתובת URL (טל�
 
 # libretranslate
 msgid "Extracted Code 📤"
-msgstr "קוד 📤"
+msgstr ""
 
 # libretranslate
 msgid "Extracted cleanup logic into a dedicated script"
@@ -28144,7 +28144,7 @@ msgstr "עבור a fork, לספק את שם המשתמש GitHub שלך כך רצ
 
 # libretranslate
 msgid "For a full reference of permitted Claude Code operations and their security rationale, see [claude/](claude/README.md)."
-msgstr "לקבלת התייחסות מלאה של פעולות הקוד המותר ורציונליות האבטחה שלהם, ראה [המונחים:](claude/README.md)."
+msgstr ""
 
 # libretranslate
 msgid "For a hard reset, which will delete all data and stop all services, use the following commands:"
@@ -28403,7 +28403,7 @@ msgstr ""
 
 # libretranslate
 msgid "For general agent workflow rules shared across all agents (Claude Code, Codex, Gemini, others), see [common.md](../common.md). For the Claude Code permission model reference, see [docs.anthropic.com](https://docs.anthropic.com/en/docs/claude-code/settings)."
-msgstr "עבור כללי גיבוש עובדים של הסוכן המשותף בכל הסוכנים (קלוד קוד, קודקס, תאומים, אחרים), ראה [common.md](../common.md). עבור מודל האישור של Claude Code, ראה [docs.anthropic.com](https://docs.anthropic.com/en/docs/claude-code/settings)."
+msgstr ""
 
 # libretranslate
 msgid "For general background on SMTP, see [SMTP on Wikipedia](https://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol).   For details about Postfix itself, see [Postfix on Wikipedia](https://en.wikipedia.org/wiki/Postfix_(software))."
@@ -31075,7 +31075,7 @@ msgstr "אם אתה יכול `enable_wildcard_certificate`, בצע את השלב
 
 # libretranslate
 msgid "If you experience or witness any behavior that violates this Code of Conduct, please report it promptly. Reports should be sent to <kevin@veen.world>. All reports will be treated with discretion and confidentiality."
-msgstr "אם אתם חווים או עדים להתנהגות המפרה את קוד ההתנהגות הזה, אנא דווחו עליו מיד. יש לשלוח דוחות <kevin@veen.world>. כל הדיווחים יטופלו בשיקול דעת ובסודיות."
+msgstr ""
 
 # libretranslate
 msgid "If you have imported posts from Instagram, you can clean up the imported data and files as follows:"
@@ -31696,7 +31696,7 @@ msgstr "במצב מוטבע (`shared: false`) ערימה של הצרכן מקב�
 
 # libretranslate
 msgid "In order to foster a welcoming, open, and respectful community for everyone, we expect all contributors and participants in the Infinito.Nexus project to abide by the following Code of Conduct."
-msgstr "על מנת לטפח קהילה תומכת, פתוחה ומכבדת לכולם, אנו מצפים מכל התורנים והמשתתפים. Infinito.Nexus פרויקט לציית לקוד ההתנהגות הבא."
+msgstr ""
 
 # libretranslate
 msgid "In short, `utils/domains/` exists to make domain handling consistent, central, and easy to evolve without scattering similar logic throughout the repository. 🧩"
@@ -36017,7 +36017,7 @@ msgstr "מארק המשימה הבלתי אפשרית `changed` אם:"
 
 # libretranslate
 msgid "Match commands exactly as Claude Code does: literal prefix, `*` wildcard, `deny` overrides `allow`."
-msgstr "הוראות התאמה בדיוק כמוקוד קלוד עושה: תיקון מילולי, `*` פארקר, `deny` Overrides `allow`."
+msgstr ""
 
 # libretranslate
 msgid "Match every user entry, used for sync jobs and listings"
@@ -43899,11 +43899,11 @@ msgstr "דרושים Code Controller ✅"
 
 # libretranslate
 msgid "Require Code Quality Results ✅"
-msgstr "דרושים תוצאות איכות קוד ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Code Scanning Results ✅"
-msgstr "דרישות קוד סורק תוצאות ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Conversation Resolution ✅"
@@ -47308,7 +47308,7 @@ msgstr "ביצוע בדיקות ספציפיות 🏃"
 
 # libretranslate
 msgid "Running `git` against an arbitrary working tree via the `-C <path>` flag is blocked. The agent has legitimate repositories under `additionalDirectories` (see top of this page) that `-C` could be pointed at, so the sandbox write-boundary alone is not enough to prevent cross-repo edits. Denying the flag forces every git invocation to operate on the repo rooted at the session's current working directory, which the operator set deliberately. Operators who genuinely need to work on a second repo MUST open a new Claude Code session in that directory instead of reaching across with `-C`."
-msgstr "ריצה `git` נגד עץ עבודה שרירותי באמצעות `-C <path>` הדגל חסום. לסוכן יש שרידים לגיטימיים מתחת `additionalDirectories` (ראה מעל דף זה) זה `-C` ניתן להצביע על כך שתיבת החול לבדה אינה מספיקה כדי למנוע עריכה חוצה גבולות. הכחשת הדגל, כל ג'יט, שמטרתה לפעול על ה-Repo מושרש בדירקטוריון העבודה הנוכחי של הפגישה, שאותו הציב המפעיל במכוון. המפעילים שבאמת צריכים לעבוד ב-Repo השני חייבים לפתוח מושב חדש של קוד קלוד במדריך הזה במקום לעבור איתו. `-C`."
+msgstr ""
 
 # libretranslate
 msgid "Running a pass"
@@ -57958,7 +57958,7 @@ msgstr "השירות הוא קל משקל Node.js אפליקציה מגובה Po
 # libretranslate
 #, python-brace-format
 msgid "The settings file additionally sets `\"sandbox\": { \"failIfUnavailable\": true }`. This prevents a dangerous false-security state: if the OS-level sandbox backend (e.g. `bwrap` on Linux, `sandbox-exec` on macOS) is missing or non-functional, Claude Code would otherwise silently fall back to no sandboxing while `autoAllowBashIfSandboxed` continues to auto-approve commands as if they were confined. With `failIfUnavailable: true`, Claude Code refuses to proceed in that situation, forcing the operator to install the missing backend or explicitly downgrade the policy before any command runs. Contributors on systems without a working sandbox backend MUST install the appropriate binary rather than weakening this flag locally."
-msgstr "קובץ הגדרות נוספות `\"sandbox\": { \"failIfUnavailable\": true }`. מצב זה מונע מצב מסוכן של אבטחה כוזבת: אם תיבת החול ברמה של מערכת ההפעלה חוזרת (למשל. `bwrap` על לינוקס, `sandbox-exec` על macOS) הוא חסר או לא מתפקד, קוד קלוד היה נופל באופן אחר ללא ארגז חול. `autoAllowBashIfSandboxed` ממשיך להדגים את הפקודות, כאילו היו מוגבלים. עם `failIfUnavailable: true`, קוד קלוד מסרב להמשיך במצב זה, מה שחייב את המפעיל להתקין את הסגנית החסרה או להוריד במפורש את המדיניות לפני כל פקודה. קונטריוטרים על מערכות ללא תיקון חול עובד חייבים להתקין את בינארי המתאים במקום להחליש את הדגל הזה באופן מקומי."
+msgstr ""
 
 # libretranslate
 msgid "The setup tasks handle the full first-deploy bootstrap automatically:"
@@ -58371,7 +58371,7 @@ msgstr "הרמה העליונה `compose.yml` זה היקף **פיתוח ובד�
 
 # libretranslate
 msgid "The top-level `env` block sets process environment variables for every Claude Code session. It is currently used to disable GPG signing for agent-created commits via the additive `GIT_CONFIG_COUNT` mechanism:"
-msgstr "הרמה העליונה `env` בלוק קובע את סביבת המשתנים עבור כל מושב קוד קלוד. כיום הוא משמש כדי להשבית GPG חתימה עבור מבצעים שנוצרו על ידי התוסף. `GIT_CONFIG_COUNT` מנגנון:"
+msgstr ""
 
 # libretranslate
 msgid "The top-level node MUST be a YAML list. A non-list root is a hard error."
@@ -59176,7 +59176,7 @@ msgstr "תפקיד בלתי אפשרי זה מופיע ולנהל Akauntingתו�
 
 # libretranslate
 msgid "This Code of Conduct applies to all spaces managed by the Infinito.Nexus project, including GitHub repositories, mailing lists, chat rooms, and other communication channels."
-msgstr "קוד התנהגות זה חל על כל החללים המנוהלים על ידי Infinito.Nexus פרויקט, כולל GitHub Repositories, רשימות דיוור, חדרי צ'אט וערוצי תקשורת אחרים."
+msgstr ""
 
 # libretranslate
 msgid "This Docker Compose deployment automates the installation and operation of a Pixelfed instance."
@@ -59743,7 +59743,7 @@ msgstr "קובץ זה נצרך על ידי יוצר המלאי כדי להחלי
 
 # libretranslate
 msgid "This file is runtime-agnostic and binding for every agent (Claude Code, Codex, Gemini CLI, other). There are no tool-specific extension files."
-msgstr "קובץ זה פועל ב-Time-agnostic ומחייב לכל סוכן (קלוד קוד, Codex, Gemini CLI, Other). אין קבצי הרחבה ספציפיים לכלי."
+msgstr ""
 
 # libretranslate
 msgid "This filter inspects each role under the given roles directory, loads its vars/main.yml, and returns the role folder name whose application_id matches the provided value."
@@ -60153,7 +60153,7 @@ msgstr "דף זה מתעד את החוזה של `email` תוסף מראה אמי
 
 # libretranslate
 msgid "This page documents the permission and runtime configuration in [`.claude/settings.json`](../../../../../.claude/settings.json). For the trust assumptions and the two-layer containment model behind these rules, see [security.md](security.md). For the OS-level sandbox configuration, see [sandbox.md](sandbox.md). For general agent workflow rules, see [common.md](../common.md). For the Claude Code reference, see [docs.claude.com](https://code.claude.com/docs/en/settings)."
-msgstr "דף זה מתעד את ההרשאה ותצורה של זמן ריצה ב [`.claude/settings.json`](../../../../../.claude/settings.json). עבור הנחות האמון ואת מודל שתי שכבות מאחורי כללים אלה, ראה [security.md](security.md). עבור תצורת ארגז החול ברמת ה-OS, ראה [sandbox.md](sandbox.md). עבור כללי פיתוח עובדים, ראה [common.md](../common.md). לקבלת ההתייחסות לקוד קלוד, ראה [docs.claude.com](https://code.claude.com/docs/en/settings)."
+msgstr ""
 
 # libretranslate
 msgid "This page documents the rules that govern the top-level [compose.yml](../../../../compose.yml) and the environment variables it consumes. For general documentation rules (links, writing, RFC 2119 keywords), see [documentation.md](../../documentation.md). For CI debugging workflows that use these variables, see [ci.md](../../actions/debugging/ci.md)."
@@ -60161,7 +60161,7 @@ msgstr "דף זה מתעד את הכללים השולטים ברמה העליו�
 
 # libretranslate
 msgid "This page enumerates the trust assumptions that the Claude Code configuration in [`.claude/settings.json`](../../../../../.claude/settings.json) relies on. If any assumption becomes false on a given host, the corresponding rule in [settings.md](settings.md) or [sandbox.md](sandbox.md) MUST be re-evaluated before Claude Code is started. This file is the single reference for the architectural reasoning. Per-rule tables in the neighbouring pages summarise the mechanics and link here for the full argument."
-msgstr "דף זה מתאר את הנחות האמון שתצורת הקוד של קלוד [`.claude/settings.json`](../../../../../.claude/settings.json) מבוסס. אם ההנחה הופכת להיות כוזבת על מארח מסוים, הכלל המתאים [settings.md](settings.md) או או [sandbox.md](sandbox.md) יש להבין מחדש לפני שהקוד של קלוד. קובץ זה הוא ההתייחסות היחידה לחשיבה האדריכלית. שולחנות Per-rule בדפי השכנות מסכמים את המכניקה ואת הקישור כאן לטיעון המלא."
+msgstr ""
 
 # libretranslate
 msgid "This page enumerates the values the `meta/services.yml.<entity>.lifecycle` key MAY take and what each value commits the project to. The on-disk shape of `lifecycle` itself is documented in [layout.md](layout.md); this page is the semantic counterpart."
@@ -71609,7 +71609,7 @@ msgstr "[מדריך אבטחת המשתמש](docs/security/user.md)"
 
 # libretranslate
 msgid "[Visual Studio Code](https://code.visualstudio.com/) is a powerful source code editor with a wide plugin ecosystem, supporting development workflows across many languages and platforms. See also the [Arch Wiki - Development Tools](https://wiki.archlinux.org/title/Category:Development) and general [Software Engineering](https://en.wikipedia.org/wiki/Software_engineering) on Wikipedia."
-msgstr "[קוד Visual Studio](https://code.visualstudio.com/) הוא עורך קוד מקור חזק עם מערכת אקולוגית רחבה, תומך בזרימות עבודה בפיתוח על פני שפות ופלטפורמות רבות. ראה גם [Arch Wiki - פיתוח כלים](https://wiki.archlinux.org/title/Category:Development) כללי [הנדסת תוכנה](https://en.wikipedia.org/wiki/Software_engineering) על ויקיפדיה."
+msgstr ""
 
 msgid "[Visual Studio Code](https://github.com/microsoft/vscode) in a selectable flavor: the distribution's Code - OSS build, VSCodium, or Microsoft's own binary."
 msgstr ""
@@ -71784,7 +71784,7 @@ msgstr "[`../remove.sh`](../remove.sh). תסריט מדמיע שמנוגד לת�
 
 # libretranslate
 msgid "[`.claude/settings.json`](.claude/settings.json) is the single source of truth for agent permissions, independent of runtime. Its `permissions` (`allow`/`ask`/`deny`) and `sandbox` sections are both binding, regardless of runtime (Claude Code, Codex, Gemini, other)."
-msgstr "[`.claude/settings.json`](.claude/settings.json) הוא המקור היחיד לאמת עבור הרשאות הסוכן, עצמאי משעות ריצה. שלה `permissions` (`allow`/ / / /`ask`/ / / /`deny`) ו `sandbox` שני החלקים מחייבים, ללא קשר לשעות ריצה (קלוד קוד, Codex, Gemini, Gemini)."
+msgstr ""
 
 # libretranslate
 msgid "[`9p4/jellyfin-plugin-sso`](https://github.com/9p4/jellyfin-plugin-sso) — OIDC/SAML one-click, **web UI only** (native apps cannot use it); third-party."

@@ -3750,7 +3750,7 @@ msgstr "**Administrasi Efisien:** Streamline penanganan objek LDAP seperti pengg
 
 # libretranslate
 msgid "**Efficient Code Collaboration:** Manage repositories and workflows with an intuitive interface."
-msgstr "**Kolaborasi Kode Efisien:** Kelola repositori dan alur kerja dengan antarmuka intuitif."
+msgstr ""
 
 # libretranslate
 msgid "**Efficient Integration:** Works seamlessly with web server roles for robust domain routing."
@@ -5137,7 +5137,7 @@ msgstr "**Install RetroArch:** Termasuk utama `RetroArch package <https://archli
 
 # libretranslate
 msgid "**Installs Visual Studio Code:** A powerful code editor with a wide plugin ecosystem."
-msgstr "**Instal Kode Studio Visual:** Seorang editor kode yang kuat dengan ekosistem plugin yang luas."
+msgstr ""
 
 # libretranslate
 msgid "**Installs ``setup-hibernate``:** Uses ``pkgmgr`` to install and initialize hibernation support."
@@ -5346,7 +5346,7 @@ msgstr "**Ini berputar pada posisi baris secara langsung, bukan sebagai angka od
 
 # libretranslate
 msgid "**JCasC-managed configuration:** Persist the security realm and authorisation strategy as code via Configuration as Code."
-msgstr "**Konfigurasi yang dikelola JCasC-:** Persist dunia keamanan dan otorisasi strategi sebagai kode via Konfigurasi sebagai Kode."
+msgstr ""
 
 msgid "**JSON enabled:** the settings add the ``json`` output format, which upstream ships disabled and which every API client needs."
 msgstr ""
@@ -9331,7 +9331,7 @@ msgstr "**Mengapa ini diatur?** [Debian](https://www.debian.org) Disukai untuk s
 
 # libretranslate
 msgid "**Why:** Friendica currently authenticates in two steps: oauth2-proxy gates the vhost (Keycloak-Authorization-Code-Flow, 2FA-enforceable), then the user must fill Friendica's own `/login` form because stock Friendica has **no header-trusted auto-login** — Owa.php / OAuth/Token.php only read `HTTP_AUTHORIZATION` for API endpoints, never for the web session. The ldapauth addon stays enabled solely as a first-login bootstrap that materialises the `friendica.user` row from openldap."
-msgstr "**Mengapa:** Friendica saat ini otentikasi dalam dua langkah: oauth2-proksi gerbang vhost (Keycloak-Otorisasi-Kode- Flow, 2Dapat dibenarkan), maka pengguna harus mengisi Friendicasendiri `/login` formulir karena stok Friendica memiliki **tidak ada header- terpercaya auto- login** - Owa.php / OAuth/Token.php hanya membaca `HTTP_AUTHORIZATION` untuk API titik akhir, tidak pernah untuk sesi web. Addon Ladapauth hanya diaktifkan sebagai bootstrap login pertama yang terwujud `friendica.user` baris dari openldap."
+msgstr ""
 
 # libretranslate
 msgid "**Wildcard A/AAAA records** (`*.parent`) for parent hosts via `sys-dns-wildcards`"
@@ -15392,7 +15392,7 @@ msgstr "Semua berkomitmen HARUS ditandatangani (GPG / SSH)"
 
 # libretranslate
 msgid "All communication MUST follow the project [Code of Conduct](../../../CODE_OF_CONDUCT.md)."
-msgstr "Semua komunikasi HARUS mengikuti proyek [Kode Isi](../../../CODE_OF_CONDUCT.md)."
+msgstr ""
 
 # libretranslate
 msgid "All configuration is handled via ``meta/services.yml`` (services map at file root) and ``meta/server.yml`` (server block at file root)."
@@ -18680,7 +18680,7 @@ msgstr "Dengan mengikuti pedoman ini, baik pengguna maupun administrator dapat m
 
 # libretranslate
 msgid "By participating in the Infinito.Nexus project, you agree to adhere to this Code of Conduct. We appreciate your cooperation in helping us build a positive and productive community."
-msgstr "Dengan berpartisipasi di Infinito.Nexus proyek, Anda setuju untuk mematuhi Kode Konten ini. Kami menghargai kerjasama Anda dalam membantu kami membangun komunitas positif dan produktif."
+msgstr ""
 
 # libretranslate
 msgid "By standardizing `.profile` as the central source for environment configuration, this role ensures consistent shell behavior. It does **not** manage the contents of `.profile` itself; it only guarantees that it is sourced by supported shells."
@@ -27111,7 +27111,7 @@ msgstr "Ekstrak ``owner/repo`` siput dari github.com URL (https atau ssh)."
 
 # libretranslate
 msgid "Extracted Code 📤"
-msgstr "Kode Terekstrak 📤"
+msgstr ""
 
 # libretranslate
 msgid "Extracted cleanup logic into a dedicated script"
@@ -31123,7 +31123,7 @@ msgstr "Jika Anda diaktifkan `enable_wildcard_certificate`, ikuti langkah-langka
 
 # libretranslate
 msgid "If you experience or witness any behavior that violates this Code of Conduct, please report it promptly. Reports should be sent to <kevin@veen.world>. All reports will be treated with discretion and confidentiality."
-msgstr "Jika Anda mengalami atau menyaksikan setiap perilaku yang melanggar Kode Konten ini, silakan laporkan segera. Laporan harus dikirim ke <kevin@veen.world>. Semua laporan akan diperlakukan dengan kebijaksanaan dan kerahasiaan."
+msgstr ""
 
 # libretranslate
 msgid "If you have imported posts from Instagram, you can clean up the imported data and files as follows:"
@@ -31746,7 +31746,7 @@ msgstr "Dalam mode tertanam (`shared: false`) tumpukan compose konsumen menerima
 
 # libretranslate
 msgid "In order to foster a welcoming, open, and respectful community for everyone, we expect all contributors and participants in the Infinito.Nexus project to abide by the following Code of Conduct."
-msgstr "Dalam rangka untuk menyambut, membuka, dan menghormati komunitas bagi semua orang, kami mengharapkan semua kontributor dan peserta dalam Infinito.Nexus proyek untuk mematuhi dengan Kode Konten berikut."
+msgstr ""
 
 # libretranslate
 msgid "In short, `utils/domains/` exists to make domain handling consistent, central, and easy to evolve without scattering similar logic throughout the repository. 🧩"
@@ -36071,7 +36071,7 @@ msgstr "Tandai tugas Ansible sebagai `changed` if:"
 
 # libretranslate
 msgid "Match commands exactly as Claude Code does: literal prefix, `*` wildcard, `deny` overrides `allow`."
-msgstr "Cocok perintah persis seperti Claude Kode tidak: literal prefix, `*` wildcard, `deny` overrides `allow`."
+msgstr ""
 
 # libretranslate
 msgid "Match every user entry, used for sync jobs and listings"
@@ -43962,15 +43962,15 @@ msgstr "Perlu Branch untuk menjadi Up- Tanggal To- ✅"
 
 # libretranslate
 msgid "Require Code Owner Reviews ✅"
-msgstr "Perlu Ulasan Pemilik Kode ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Code Quality Results ✅"
-msgstr "Perlu Hasil Kualitas Kode ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Code Scanning Results ✅"
-msgstr "Perlu Hasil Memindai Kode ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Conversation Resolution ✅"
@@ -47380,7 +47380,7 @@ msgstr "Menjalankan Tes Khusus 🏃"
 
 # libretranslate
 msgid "Running `git` against an arbitrary working tree via the `-C <path>` flag is blocked. The agent has legitimate repositories under `additionalDirectories` (see top of this page) that `-C` could be pointed at, so the sandbox write-boundary alone is not enough to prevent cross-repo edits. Denying the flag forces every git invocation to operate on the repo rooted at the session's current working directory, which the operator set deliberately. Operators who genuinely need to work on a second repo MUST open a new Claude Code session in that directory instead of reaching across with `-C`."
-msgstr "Berjalan `git` terhadap pohon bekerja sewenang-wenang melalui `-C <path>` bendera diblokir. Agen memiliki repositori yang sah di bawah `additionalDirectories` (lihat atas halaman ini) itu `-C` bisa menunjuk, sehingga sandbox menulis - batas saja tidak cukup untuk mencegah persilangan - repo edits. Menyangkal gaya bendera setiap doa git untuk beroperasi pada akar repo pada direktori kerja sesi saat ini, yang dibuat operator dengan sengaja. Operator yang benar-benar perlu untuk bekerja pada repo musted kedua membuka sesi Claude Kode baru dalam direktori itu daripada mencapai seluruh dengan `-C`."
+msgstr ""
 
 # libretranslate
 msgid "Running a pass"

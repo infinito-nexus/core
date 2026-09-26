@@ -3665,7 +3665,7 @@ msgstr "**능률적인 관리:** 사용자, 그룹 및 조직 단위와 같은 L
 
 # libretranslate
 msgid "**Efficient Code Collaboration:** Manage repositories and workflows with an intuitive interface."
-msgstr "**효율적인 코드 협업:** 직관적인 인터페이스로 저장소 및 워크플로를 관리합니다."
+msgstr ""
 
 # libretranslate
 msgid "**Efficient Integration:** Works seamlessly with web server roles for robust domain routing."
@@ -5003,7 +5003,7 @@ msgstr "**설치하기 RetroArch::** 주요 특징 `RetroArch package <https://a
 
 # libretranslate
 msgid "**Installs Visual Studio Code:** A powerful code editor with a wide plugin ecosystem."
-msgstr "**Visual Studio 코드 설치:** 넓은 플러그인 생태계와 강력한 코드 편집기."
+msgstr ""
 
 # libretranslate
 msgid "**Installs ``setup-hibernate``:** Uses ``pkgmgr`` to install and initialize hibernation support."
@@ -14669,7 +14669,7 @@ msgstr "모든 커밋 MUST 서명 (GPG / 메쉬)"
 
 # libretranslate
 msgid "All communication MUST follow the project [Code of Conduct](../../../CODE_OF_CONDUCT.md)."
-msgstr "모든 커뮤니케이션 MUST는 프로젝트를 따릅니다 [윤리경영](../../../CODE_OF_CONDUCT.md)·."
+msgstr ""
 
 msgid "All configuration is handled via ``meta/services.yml`` (services map at file root) and ``meta/server.yml`` (server block at file root)."
 msgstr ""
@@ -17841,7 +17841,7 @@ msgstr ""
 
 # libretranslate
 msgid "By participating in the Infinito.Nexus project, you agree to adhere to this Code of Conduct. We appreciate your cooperation in helping us build a positive and productive community."
-msgstr "참가안내 Infinito.Nexus 프로젝트, 이 행동의 코드를 준수하는 것에 동의합니다. 우리는 우리가 긍정적이고 생산적인 공동체를 건설하는 것을 돕기에 있는 당신의 협력을 평가합니다."
+msgstr ""
 
 # libretranslate
 msgid "By standardizing `.profile` as the central source for environment configuration, this role ensures consistent shell behavior. It does **not** manage the contents of `.profile` itself; it only guarantees that it is sourced by supported shells."
@@ -26050,7 +26050,7 @@ msgstr "추출 물 ``owner/repo`` slug 에서 a github.com 사이트 맵 (https 
 
 # libretranslate
 msgid "Extracted Code 📤"
-msgstr "추출된 부호 📤"
+msgstr ""
 
 # libretranslate
 msgid "Extracted cleanup logic into a dedicated script"

@@ -3755,7 +3755,7 @@ msgstr "**Administrazio eraginkorra:** LDAP objektuen kudeaketa erraztu, hala no
 
 # libretranslate
 msgid "**Efficient Code Collaboration:** Manage repositories and workflows with an intuitive interface."
-msgstr "**Kode eraginkorren lankidetza:** Kudeatu biltegiak eta lan-fluxuak interfaze intuitibo batekin."
+msgstr ""
 
 # libretranslate
 msgid "**Efficient Integration:** Works seamlessly with web server roles for robust domain routing."
@@ -5144,7 +5144,7 @@ msgstr "**Instalatu RetroArch:** Nagusia barne `RetroArch package <https://archl
 
 # libretranslate
 msgid "**Installs Visual Studio Code:** A powerful code editor with a wide plugin ecosystem."
-msgstr "**Visual Studio kodea instalatzen du:** Pluginen ekosistema zabala duen kode-editore indartsua."
+msgstr ""
 
 # libretranslate
 msgid "**Installs ``setup-hibernate``:** Uses ``pkgmgr`` to install and initialize hibernation support."
@@ -5353,7 +5353,7 @@ msgstr "**Errenkadaren posizioan biratzen du zuzenean, ez hirugarren odometroko 
 
 # libretranslate
 msgid "**JCasC-managed configuration:** Persist the security realm and authorisation strategy as code via Configuration as Code."
-msgstr "**JCasCk kudeatutako konfigurazioa:** Fidagarritasunaren erresuma eta baimen-estrategia kode gisa onartzea, Konfigurazioa kode gisa."
+msgstr ""
 
 msgid "**JSON enabled:** the settings add the ``json`` output format, which upstream ships disabled and which every API client needs."
 msgstr ""
@@ -15407,7 +15407,7 @@ msgstr "Konpromiso guztiak sinatu behar dira (GPG/SSH)"
 
 # libretranslate
 msgid "All communication MUST follow the project [Code of Conduct](../../../CODE_OF_CONDUCT.md)."
-msgstr "Komunikazio guztiek proiektua jarraitu behar dute [Jokabide-kodea](../../../CODE_OF_CONDUCT.md)."
+msgstr ""
 
 # libretranslate
 msgid "All configuration is handled via ``meta/services.yml`` (services map at file root) and ``meta/server.yml`` (server block at file root)."
@@ -18699,7 +18699,7 @@ msgstr "Jarraibide hauei jarraituz, azken erabiltzaileek eta administratzaileek 
 
 # libretranslate
 msgid "By participating in the Infinito.Nexus project, you agree to adhere to this Code of Conduct. We appreciate your cooperation in helping us build a positive and productive community."
-msgstr "Parte hartuz Infinito.Nexus Proiektua, jokabide-kode hau onartzea onartzen duzu. Eskertzen dizugu komunitate positibo eta produktiboa eraikitzen laguntzea."
+msgstr ""
 
 # libretranslate
 msgid "By standardizing `.profile` as the central source for environment configuration, this role ensures consistent shell behavior. It does **not** manage the contents of `.profile` itself; it only guarantees that it is sourced by supported shells."
@@ -27137,7 +27137,7 @@ msgstr "Erauzi ``owner/repo`` batetik zintzilik github.com URLa (https edo ssh).
 
 # libretranslate
 msgid "Extracted Code 📤"
-msgstr "Erauzitako kodea 📤"
+msgstr ""
 
 # libretranslate
 msgid "Extracted cleanup logic into a dedicated script"
@@ -28214,7 +28214,7 @@ msgstr "Sardexka bat egiteko, eman GitHub-en erabiltzaile-izena, beraz, lasterka
 
 # libretranslate
 msgid "For a full reference of permitted Claude Code operations and their security rationale, see [claude/](claude/README.md)."
-msgstr "Claude-Kode eragiketa baimenduak eta haien segurtasun-arrazoiak erreferentziatzeko, ikus [claude](claude/README.md)."
+msgstr ""
 
 # libretranslate
 msgid "For a hard reset, which will delete all data and stop all services, use the following commands:"
@@ -31154,7 +31154,7 @@ msgstr "Gaitzen bazara `enable_wildcard_certificate`, urrats hauek jarraitu beha
 
 # libretranslate
 msgid "If you experience or witness any behavior that violates this Code of Conduct, please report it promptly. Reports should be sent to <kevin@veen.world>. All reports will be treated with discretion and confidentiality."
-msgstr "Jokabide-kode hau urratzen duen jokabideren bat baldin baduzu, jakinarazi berehala. Txostenak bidali behar dira <kevin@veen.world>. Txosten guztiak diskrezioz eta konfidentzialtasunez tratatuko dira."
+msgstr ""
 
 # libretranslate
 msgid "If you have imported posts from Instagram, you can clean up the imported data and files as follows:"
@@ -31778,7 +31778,7 @@ msgstr "Modu kapsulatua (`shared: false`) Kontsumitzailearen konposaketa-pila ba
 
 # libretranslate
 msgid "In order to foster a welcoming, open, and respectful community for everyone, we expect all contributors and participants in the Infinito.Nexus project to abide by the following Code of Conduct."
-msgstr "Komunitate atsegina, irekia eta errespetuzkoa sustatzeko, laguntzaile eta parte-hartzaile guztiak espero ditugu. Infinito.Nexus Jokabide-kode hau betetzeko proiektua."
+msgstr ""
 
 # libretranslate
 msgid "In short, `utils/domains/` exists to make domain handling consistent, central, and easy to evolve without scattering similar logic throughout the repository. 🧩"
@@ -36111,7 +36111,7 @@ msgstr "Zeregin ansiblea honela markatzen du: `changed` Baldin eta:"
 
 # libretranslate
 msgid "Match commands exactly as Claude Code does: literal prefix, `*` wildcard, `deny` overrides `allow`."
-msgstr "Claude Kodeak egiten duen bezala parekatzeko komandoak: aurrizki literala, `*` komodina, `deny` gainjarriak `allow`."
+msgstr ""
 
 # libretranslate
 msgid "Match every user entry, used for sync jobs and listings"
@@ -44001,15 +44001,15 @@ msgstr "Derrigortu adarra eguneratuta egotea ✅"
 
 # libretranslate
 msgid "Require Code Owner Reviews ✅"
-msgstr "Kodearen jabearen berrikuspenak behar ditu ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Code Quality Results ✅"
-msgstr "Kodearen kalitatearen emaitzak behar dira ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Code Scanning Results ✅"
-msgstr "Kode eskaneatzeko emaitzak behar dira ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Conversation Resolution ✅"
@@ -47420,7 +47420,7 @@ msgstr "Proba espezifikoak egitea 🏃"
 
 # libretranslate
 msgid "Running `git` against an arbitrary working tree via the `-C <path>` flag is blocked. The agent has legitimate repositories under `additionalDirectories` (see top of this page) that `-C` could be pointed at, so the sandbox write-boundary alone is not enough to prevent cross-repo edits. Denying the flag forces every git invocation to operate on the repo rooted at the session's current working directory, which the operator set deliberately. Operators who genuinely need to work on a second repo MUST open a new Claude Code session in that directory instead of reaching across with `-C`."
-msgstr "Korrika `git` arbitrarioki lan egiten duen zuhaitz baten kontra `-C <path>` Bandera blokeatuta dago. Agenteak legezko biltegiak ditu azpian `additionalDirectories` (Ikusi orrialde honen goiko aldea) hori `-C` seinalatu ahal izango litzateke, beraz, harea-kutxak bakarrik ez du nahikoa izango zeharkako zuzenketak saihesteko. Bandera ukatzeak saioko uneko lan-direktorioan errotutako errepoia erabiltzera behartzen du, operadoreak nahita ezarritakoa. Bigarren repo batean lan egin behar duten operadoreek Claude Kodearen saio berri bat ireki behar dute direktorio horretan gurutzatu ordez. `-C`."
+msgstr ""
 
 # libretranslate
 msgid "Running a pass"
@@ -52425,7 +52425,7 @@ msgstr "Direktorio honetako testek kableatze prometeo espezifikoa eta zerbitzu p
 
 # libretranslate
 msgid "Tests in this directory MUST only cover repository settings files (Claude Code config, IDE rule files, agent permission catalogues). Code conventions MUST live elsewhere under `tests/lint/repository/`."
-msgstr "Direktorio honetako probak biltegi-ezarpenak bakarrik gorde behar ditu (Claude kodea konfigurazioa, IDE arau-fitxategiak, agenteen baimenaren katalogoak). Kodeen konbentzioek beste nonbait bizi behar dute. `tests/lint/repository/`."
+msgstr ""
 
 # libretranslate
 msgid "Tests in this directory MUST only cover repository/ref shape rules. Broader `meta/services.yml` invariants live one level up in [`services/`](../)."
@@ -59342,7 +59342,7 @@ msgstr "Ansible rol hau sortu eta kudeatzen du AkauntingInterneteko kontabilitat
 
 # libretranslate
 msgid "This Code of Conduct applies to all spaces managed by the Infinito.Nexus project, including GitHub repositories, mailing lists, chat rooms, and other communication channels."
-msgstr "Jokabide-kode hau kudeatzen dituen espazio guztiei aplikatzen zaie. Infinito.Nexus proiektua, GitHub biltegiak, posta-zerrendak, berriketa-gelak eta bestelako komunikazio-kanalak barne."
+msgstr ""
 
 # libretranslate
 msgid "This Docker Compose deployment automates the installation and operation of a Pixelfed instance."
@@ -59911,7 +59911,7 @@ msgstr "Fitxategi hau asmatzaile sortzaileak erabiltzen du ispiluaren URLak osta
 
 # libretranslate
 msgid "This file is runtime-agnostic and binding for every agent (Claude Code, Codex, Gemini CLI, other). There are no tool-specific extension files."
-msgstr "Fitxategi hau denbora-agnostikoa eta agente guztientzat loteslea da (Claude kodea, Codex, Gemini CLI, beste batzuk). Ez dago luzapen-fitxategi espezifikorik."
+msgstr ""
 
 # libretranslate
 msgid "This filter inspects each role under the given roles directory, loads its vars/main.yml, and returns the role folder name whose application_id matches the provided value."
@@ -60321,7 +60321,7 @@ msgstr "Orrialde honek kontratua aurkezten du `email` Bilatzeko plugin ansibleak
 
 # libretranslate
 msgid "This page documents the permission and runtime configuration in [`.claude/settings.json`](../../../../../.claude/settings.json). For the trust assumptions and the two-layer containment model behind these rules, see [security.md](security.md). For the OS-level sandbox configuration, see [sandbox.md](sandbox.md). For general agent workflow rules, see [common.md](../common.md). For the Claude Code reference, see [docs.claude.com](https://code.claude.com/docs/en/settings)."
-msgstr "Orrialde honek baimen eta exekuzio-orduen konfigurazioa zehazten du [`.claude/settings.json`](../../../../../.claude/settings.json). Fidagarritasun-suposizioak eta bi geruzako edukitze-eredua arau horien atzean, ikus [security.md](security.md). OS mailako sandbox konfiguraziorako, ikus [sandbox.md](sandbox.md). Eragile orokorren lan-fluxuaren arauetarako, ikus [common.md](../common.md). Claude Kodearen erreferentziarako, ikus [docs.claude.com](https://code.claude.com/docs/en/settings)."
+msgstr ""
 
 # libretranslate
 msgid "This page documents the rules that govern the top-level [compose.yml](../../../../compose.yml) and the environment variables it consumes. For general documentation rules (links, writing, RFC 2119 keywords), see [documentation.md](../../documentation.md). For CI debugging workflows that use these variables, see [ci.md](../../actions/debugging/ci.md)."
@@ -70159,7 +70159,7 @@ msgstr "[CSS](https://developer.mozilla.org/en-US/docs/Web/CSS) Erabiltzaileek w
 
 # libretranslate
 msgid "[Caveman](https://github.com/JuliusBrussee/caveman) is a token-compression plugin installed via `make install-skills`. It reduces output token consumption through progressively terser communication styles. `make install-skills` copies the skills from the repository pinned as `INFINITO_SKILLS_REPOSITORY` in the generated `.env` (override via `custom.env`, see `docs/contributing/customize.md`); the [skills](https://github.com/kevinveenbirkenbach/skills) repository pins every skill in its `skills-lock.json` and also supports global installs via its own `make install`. This works universally across all supported agents: Claude Code, Codex, Gemini CLI, Cursor, Copilot, Windsurf, Cline, and more."
-msgstr "[Caveman](https://github.com/JuliusBrussee/caveman) token-konpresiorako plugina da, eta honen bidez instalatuta dago `make install-skills`. irteerako token-kontsumoa murrizten du pixkanaka-pixkanaka terser komunikazio-estiloen bidez. `make install-skills` biltegiko trebetasunak kopiatzen ditu. `INFINITO_SKILLS_REPOSITORY` sortutakoan `.env` (override bidez `custom.env`, Ikusi `docs/contributing/customize.md`); [trebetasunak](https://github.com/kevinveenbirkenbach/skills) biltegiak bere trebetasun guztiak betetzen ditu `skills-lock.json` eta instalazio orokorrak ere onartzen ditu bere kabuz. `make install`. Honek unibertsalki funtzionatzen du onartutako eragile guztietan: Claude Code, Codex, Gemini CLI, Kurtsorea, Kopilot, Windsurf, Cline eta abar."
+msgstr ""
 
 # libretranslate
 msgid "[Certbot Official Website](https://certbot.eff.org/)"
@@ -70741,7 +70741,7 @@ msgstr "[Jellyfin](https://jellyfin.org) Iturburu irekiko multimedia zerbitzari 
 
 # libretranslate
 msgid "[Jenkins Configuration as Code plugin](https://plugins.jenkins.io/configuration-as-code/)"
-msgstr "[Jenkins konfigurazioa Kodearen plugin gisa](https://plugins.jenkins.io/configuration-as-code/)"
+msgstr ""
 
 # libretranslate
 msgid "[Jenkins MCP Server plugin](https://plugins.jenkins.io/mcp-server/)"
@@ -71808,7 +71808,7 @@ msgstr "[Erabiltzailearen segurtasunaren gida](docs/security/user.md)"
 
 # libretranslate
 msgid "[Visual Studio Code](https://code.visualstudio.com/) is a powerful source code editor with a wide plugin ecosystem, supporting development workflows across many languages and platforms. See also the [Arch Wiki - Development Tools](https://wiki.archlinux.org/title/Category:Development) and general [Software Engineering](https://en.wikipedia.org/wiki/Software_engineering) on Wikipedia."
-msgstr "[Visual Studio kodea](https://code.visualstudio.com/) Iturburu-kodeen editore ahaltsua da, pluginen ekosistema zabala duena, hizkuntza eta plataforma askotan garapen-fluxuak onartzen dituena. Ikus, gainera [Arch Wiki - Garapen tresnak](https://wiki.archlinux.org/title/Category:Development) eta orokorra [Software ingeniaritza](https://en.wikipedia.org/wiki/Software_engineering) Wikipedian."
+msgstr ""
 
 msgid "[Visual Studio Code](https://github.com/microsoft/vscode) in a selectable flavor: the distribution's Code - OSS build, VSCodium, or Microsoft's own binary."
 msgstr ""
@@ -71983,7 +71983,7 @@ msgstr "[`../remove.sh`](../remove.sh). DNS konfigurazioa desegiten duen script-
 
 # libretranslate
 msgid "[`.claude/settings.json`](.claude/settings.json) is the single source of truth for agent permissions, independent of runtime. Its `permissions` (`allow`/`ask`/`deny`) and `sandbox` sections are both binding, regardless of runtime (Claude Code, Codex, Gemini, other)."
-msgstr "[`.claude/settings.json`](.claude/settings.json) Egiaren iturri bakarra da agenteen baimenentzat, exekuzio-denboratik aparte. Berea da `permissions` (`allow`/`ask`/`deny`) eta `sandbox` atalak lotesleak dira, exekuzio-denbora kontuan hartu gabe (Claude kodea, Codex, Gemini, beste bat)."
+msgstr ""
 
 # libretranslate
 msgid "[`9p4/jellyfin-plugin-sso`](https://github.com/9p4/jellyfin-plugin-sso) — OIDC/SAML one-click, **web UI only** (native apps cannot use it); third-party."
@@ -74805,7 +74805,7 @@ msgstr "stdout prints bat lerroko."
 # libretranslate
 #, python-brace-format
 msgid "`\"sandbox\": { \"allowUnsandboxedCommands\": false }` removes the operator's ability to opt a single command out of the sandbox. The `dangerouslyDisableSandbox: true` parameter exposed by the Bash tool is rejected when this flag is `false`, so there is no per-call \"trust me, run this raw on the host\" path. Commands that legitimately cannot run inside the sandbox (e.g. operations requiring access to `~/.ssh` or `~/.gnupg`) MUST be invoked manually by the operator outside Claude Code rather than smuggled through an unsandboxed escape."
-msgstr "`\"sandbox\": { \"allowUnsandboxedCommands\": false }` operadoreak aginte bakar bat hautatzeko duen gaitasuna kentzen du. The `dangerouslyDisableSandbox: true` Bash tresnak erakusten duen parametroa ez da onartzen bandera hau dagoenean `false`, beraz, ez dago deirik \"Fidatu nitaz, erabili gordin hau ostalarian\" Bide-izena. Legez bete ezin diren aginduak harea-ontzian (adibidez, sarbidea eskatzen duten eragiketak `~/.ssh` edo `~/.gnupg`) Claude Kodetik kanpoko operadoreak eskuz deitu behar du ihes egin beharrean."
+msgstr ""
 
 # libretranslate
 #, python-brace-format

@@ -3690,7 +3690,7 @@ msgstr "**Administrasi Efisien:** Streamline penanganan objek LDAP seperti pengg
 
 # libretranslate
 msgid "**Efficient Code Collaboration:** Manage repositories and workflows with an intuitive interface."
-msgstr "**Kolaborasi Kode Esensial:** Kepengelola repositori dan alur kerja dengan antarmuka intuitif."
+msgstr ""
 
 # libretranslate
 msgid "**Efficient Integration:** Works seamlessly with web server roles for robust domain routing."
@@ -5061,7 +5061,7 @@ msgstr "**Instal RetroArchKANTOR:** Termasuk yang utama `RetroArch package <http
 
 # libretranslate
 msgid "**Installs Visual Studio Code:** A powerful code editor with a wide plugin ecosystem."
-msgstr "**Situs web resmi** Seorang editor kode yang kuat dengan ekosistem plugin yang luas."
+msgstr ""
 
 # libretranslate
 msgid "**Installs ``setup-hibernate``:** Uses ``pkgmgr`` to install and initialize hibernation support."
@@ -5269,7 +5269,7 @@ msgstr "**Ia berputar pada posisi baris secara langsung, bukan sebagai digit odo
 
 # libretranslate
 msgid "**JCasC-managed configuration:** Persist the security realm and authorisation strategy as code via Configuration as Code."
-msgstr "**Konfigurasi terurus JCasC:** Otorisasi alam keamanan dan strategi sebagai kode melalui Konfigurasi sebagai Kode."
+msgstr ""
 
 msgid "**JSON enabled:** the settings add the ``json`` output format, which upstream ships disabled and which every API client needs."
 msgstr ""

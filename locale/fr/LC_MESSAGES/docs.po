@@ -3738,7 +3738,7 @@ msgstr "**Administration efficace :** Rationaliser la gestion des objets LDAP co
 
 # libretranslate
 msgid "**Efficient Code Collaboration:** Manage repositories and workflows with an intuitive interface."
-msgstr "**Collaboration efficace en matière de codes :** Gérer les dépôts et les workflows avec une interface intuitive."
+msgstr ""
 
 # libretranslate
 msgid "**Efficient Integration:** Works seamlessly with web server roles for robust domain routing."
@@ -4913,7 +4913,7 @@ msgstr "**En cas de violation:** Si un contributeur élargit `allowWrite` (par e
 
 # libretranslate
 msgid "**If violated:** Running Claude Code on a host with production containers exposes those containers to disruption. A contributor on such a host SHOULD add read-only-narrowing `docker *` ask/deny entries in `.claude/settings.local.json` before starting a session."
-msgstr "**En cas de violation:** L'utilisation du code Claude sur un hôte avec des contenants de production expose ces contenants à des perturbations. Un contributeur sur un tel hôte DOIT ajouter lecture seule-rétroaction `docker *` demander/dénoncer les entrées dans `.claude/settings.local.json` avant de commencer une session."
+msgstr ""
 
 # libretranslate
 msgid "**If violated:** The attempt fails, the agent sees the error, and typically refactors within one retry. No host-level exposure."
@@ -5333,7 +5333,7 @@ msgstr "**Il tourne directement sur la position de la rangée, pas comme un troi
 
 # libretranslate
 msgid "**JCasC-managed configuration:** Persist the security realm and authorisation strategy as code via Configuration as Code."
-msgstr "**Configuration gérée par JCasC :** Persistez dans le domaine de la sécurité et de la stratégie d'autorisation en tant que code via Configuration en tant que code."
+msgstr ""
 
 msgid "**JSON enabled:** the settings add the ``json`` output format, which upstream ships disabled and which every API client needs."
 msgstr ""
@@ -18663,7 +18663,7 @@ msgstr "En suivant ces lignes directrices, les utilisateurs finaux et les admini
 
 # libretranslate
 msgid "By participating in the Infinito.Nexus project, you agree to adhere to this Code of Conduct. We appreciate your cooperation in helping us build a positive and productive community."
-msgstr "En participant aux Infinito.Nexus projet, vous acceptez de respecter ce code de conduite. Nous apprécions votre coopération pour nous aider à bâtir une communauté positive et productive."
+msgstr ""
 
 # libretranslate
 msgid "By standardizing `.profile` as the central source for environment configuration, this role ensures consistent shell behavior. It does **not** manage the contents of `.profile` itself; it only guarantees that it is sourced by supported shells."
@@ -28168,7 +28168,7 @@ msgstr "Pour une fourche, fournissez votre nom d'utilisateur GitHub afin que les
 
 # libretranslate
 msgid "For a full reference of permitted Claude Code operations and their security rationale, see [claude/](claude/README.md)."
-msgstr "Pour une référence complète aux opérations autorisées du Code Claude et à leur justification en matière de sécurité, voir [claude/](claude/README.md)."
+msgstr ""
 
 # libretranslate
 msgid "For a hard reset, which will delete all data and stop all services, use the following commands:"
@@ -31109,7 +31109,7 @@ msgstr "Si vous avez activé `enable_wildcard_certificate`, suivez ces étapes p
 
 # libretranslate
 msgid "If you experience or witness any behavior that violates this Code of Conduct, please report it promptly. Reports should be sent to <kevin@veen.world>. All reports will be treated with discretion and confidentiality."
-msgstr "Si vous ressentez ou assistez à un comportement qui viole ce code de conduite, veuillez le signaler rapidement. Les rapports doivent être envoyés à <kevin@veen.world>. Tous les rapports seront traités avec discrétion et confidentialité."
+msgstr ""
 
 # libretranslate
 msgid "If you have imported posts from Instagram, you can clean up the imported data and files as follows:"
@@ -31733,7 +31733,7 @@ msgstr "En mode intégré (`shared: false`) une pile de composition d'un consomm
 
 # libretranslate
 msgid "In order to foster a welcoming, open, and respectful community for everyone, we expect all contributors and participants in the Infinito.Nexus project to abide by the following Code of Conduct."
-msgstr "Afin de favoriser une communauté accueillante, ouverte et respectueuse pour tous, nous attendons de tous les contributeurs et participants à la Infinito.Nexus de respecter le code de conduite suivant."
+msgstr ""
 
 # libretranslate
 msgid "In short, `utils/domains/` exists to make domain handling consistent, central, and easy to evolve without scattering similar logic throughout the repository. 🧩"
@@ -43942,15 +43942,15 @@ msgstr "Exiger que la branche soit à jour ✅"
 
 # libretranslate
 msgid "Require Code Owner Reviews ✅"
-msgstr "Exiger des avis du propriétaire du code ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Code Quality Results ✅"
-msgstr "Exiger des résultats de qualité de code ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Code Scanning Results ✅"
-msgstr "Exiger des résultats de numérisation de code ✅"
+msgstr ""
 
 # libretranslate
 msgid "Require Conversation Resolution ✅"
@@ -59285,7 +59285,7 @@ msgstr "Ce rôle Ansible établit et gère Akaunting, un logiciel de comptabilit
 
 # libretranslate
 msgid "This Code of Conduct applies to all spaces managed by the Infinito.Nexus project, including GitHub repositories, mailing lists, chat rooms, and other communication channels."
-msgstr "Le présent code de conduite s'applique à tous les espaces gérés par les Infinito.Nexus projet, y compris les dépôts GitHub, les listes de diffusion, les salles de discussion et d'autres canaux de communication."
+msgstr ""
 
 # libretranslate
 msgid "This Docker Compose deployment automates the installation and operation of a Pixelfed instance."
@@ -59855,7 +59855,7 @@ msgstr "Ce fichier est consommé par le créateur de l'inventaire pour remplacer
 
 # libretranslate
 msgid "This file is runtime-agnostic and binding for every agent (Claude Code, Codex, Gemini CLI, other). There are no tool-specific extension files."
-msgstr "Ce fichier est d'exécution-agnostique et de liaison pour chaque agent (Code Claude, Codex, Gemini CLI, autres). Il n'y a pas de fichiers d'extension spécifiques à un outil."
+msgstr ""
 
 # libretranslate
 msgid "This filter inspects each role under the given roles directory, loads its vars/main.yml, and returns the role folder name whose application_id matches the provided value."
@@ -60267,7 +60267,7 @@ msgstr "Cette page documente le contrat de la `email` plugin de recherche ansibl
 
 # libretranslate
 msgid "This page documents the permission and runtime configuration in [`.claude/settings.json`](../../../../../.claude/settings.json). For the trust assumptions and the two-layer containment model behind these rules, see [security.md](security.md). For the OS-level sandbox configuration, see [sandbox.md](sandbox.md). For general agent workflow rules, see [common.md](../common.md). For the Claude Code reference, see [docs.claude.com](https://code.claude.com/docs/en/settings)."
-msgstr "Cette page documente la configuration de l'autorisation et de l'exécution [`.claude/settings.json`](../../../../../.claude/settings.json). Pour les hypothèses de confiance et le modèle de confinement à deux niveaux derrière ces règles, voir [security.md](security.md). Pour la configuration du bac à sable au niveau OS, voir [sandbox.md](sandbox.md). Pour les règles générales de flux de travail des agents, voir [common.md](../common.md). Pour la référence du code Claude, voir [docs.claude.com](https://code.claude.com/docs/en/settings)."
+msgstr ""
 
 # libretranslate
 msgid "This page documents the rules that govern the top-level [compose.yml](../../../../compose.yml) and the environment variables it consumes. For general documentation rules (links, writing, RFC 2119 keywords), see [documentation.md](../../documentation.md). For CI debugging workflows that use these variables, see [ci.md](../../actions/debugging/ci.md)."
@@ -74772,7 +74772,7 @@ msgstr "stdout imprime un sous-net par ligne."
 # libretranslate
 #, python-brace-format
 msgid "`\"sandbox\": { \"allowUnsandboxedCommands\": false }` removes the operator's ability to opt a single command out of the sandbox. The `dangerouslyDisableSandbox: true` parameter exposed by the Bash tool is rejected when this flag is `false`, so there is no per-call \"trust me, run this raw on the host\" path. Commands that legitimately cannot run inside the sandbox (e.g. operations requiring access to `~/.ssh` or `~/.gnupg`) MUST be invoked manually by the operator outside Claude Code rather than smuggled through an unsandboxed escape."
-msgstr "`\"sandbox\": { \"allowUnsandboxedCommands\": false }` élimine la capacité de l'opérateur d'opter pour une seule commande dans le bac à sable. Les `dangerouslyDisableSandbox: true` le paramètre exposé par l'outil Bash est rejeté lorsque ce drapeau est `false`, donc il n'y a pas d'appel \"Faites-moi confiance, lancez ça sur l'hôte.\" chemin. Commandes qui ne peuvent légitimement pas courir à l'intérieur du bac à sable (Par exemple, les opérations nécessitant un accès `~/.ssh` ou `~/.gnupg`) DOIT être invoqué manuellement par l'opérateur en dehors du Code Claude plutôt que de passer en contrebande par une évasion non-sandboxée."
+msgstr ""
 
 # libretranslate
 #, python-brace-format

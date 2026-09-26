@@ -18730,7 +18730,7 @@ msgstr "Durch die Einhaltung dieser Richtlinien können sowohl Endbenutzer als a
 
 # libretranslate
 msgid "By participating in the Infinito.Nexus project, you agree to adhere to this Code of Conduct. We appreciate your cooperation in helping us build a positive and productive community."
-msgstr "Durch Teilnahme an der Infinito.Nexus Projekt, erklären Sie sich damit einverstanden, diesen Verhaltenskodex einzuhalten. Wir schätzen Ihre Mitarbeit beim Aufbau einer positiven und produktiven Gemeinschaft."
+msgstr ""
 
 # libretranslate
 msgid "By standardizing `.profile` as the central source for environment configuration, this role ensures consistent shell behavior. It does **not** manage the contents of `.profile` itself; it only guarantees that it is sourced by supported shells."
@@ -31194,7 +31194,7 @@ msgstr "Wenn Sie aktiviert haben `enable_wildcard_certificate`, Befolgen Sie die
 
 # libretranslate
 msgid "If you experience or witness any behavior that violates this Code of Conduct, please report it promptly. Reports should be sent to <kevin@veen.world>. All reports will be treated with discretion and confidentiality."
-msgstr "Wenn Sie ein Verhalten erleben oder erleben, das gegen diesen Verhaltenskodex verstößt, melden Sie es bitte umgehend. Berichte sind zu übermitteln an <kevin@veen.world>. Alle Berichte werden mit Diskretion und Vertraulichkeit behandelt."
+msgstr ""
 
 # libretranslate
 msgid "If you have imported posts from Instagram, you can clean up the imported data and files as follows:"
@@ -31818,7 +31818,7 @@ msgstr "Im Embedded Mode (`shared: false`) Der Compose-Stack eines Verbrauchers 
 
 # libretranslate
 msgid "In order to foster a welcoming, open, and respectful community for everyone, we expect all contributors and participants in the Infinito.Nexus project to abide by the following Code of Conduct."
-msgstr "Um eine einladende, offene und respektvolle Gemeinschaft für alle zu fördern, erwarten wir alle Mitwirkenden und Teilnehmer an der Infinito.Nexus Projekt zur Einhaltung des folgenden Verhaltenskodex."
+msgstr ""
 
 # libretranslate
 msgid "In short, `utils/domains/` exists to make domain handling consistent, central, and easy to evolve without scattering similar logic throughout the repository. 🧩"
@@ -59413,7 +59413,7 @@ msgstr "Diese Ansible-Rolle richtet und verwaltet Akaunting, eine innovative Onl
 
 # libretranslate
 msgid "This Code of Conduct applies to all spaces managed by the Infinito.Nexus project, including GitHub repositories, mailing lists, chat rooms, and other communication channels."
-msgstr "Dieser Verhaltenskodex gilt für alle von der Infinito.Nexus Projekt, einschließlich GitHub-Repositories, Mailinglisten, Chatrooms und anderen Kommunikationskanälen."
+msgstr ""
 
 # libretranslate
 msgid "This Docker Compose deployment automates the installation and operation of a Pixelfed instance."
