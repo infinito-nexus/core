@@ -304,6 +304,11 @@ msgctxt "menu:Community:title"
 msgid "Community"
 msgstr "Коомчулук"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: HTML инжекциялык ролдору (CSS, JS, Logout Interceptor,
+# аналитика, панель) Nginx үчүнOpenResty аркылуу аркылуу sub_filterМЧН менен
+# камсыздалган активдери бар Луа.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -783,6 +788,10 @@ msgctxt "role:dev-shell:description"
 msgid "Host-level configuration linking Bash and Zsh login shells to a shared .profile for consistent environment loading"
 msgstr "Bash жана Zsh login кабыктарын айлана-чөйрөнү ырааттуу жүктөө үчүн жалпы.profile менен байланыштырган хост деңгээлиндеги конфигурация"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Долбоорду ачыкка чыгаруу үчүн хост деңгээлиндеги
+# чаралар pyproject.toml Системалык версия (ETC)
 msgctxt "role:sys-version:description"
 msgid "Host-level provisioning for exposing the project's pyproject.toml version system-wide via /etc/environment"
 msgstr ""
@@ -1013,6 +1022,10 @@ msgid "NGINX-based web platform and reverse proxy with validated config reloads 
 msgstr "NGINX негизделген веб-платформа жана бекитилген конфигурациялык кайра жүктөр жана Келгиле шифрлөө интеграциясы менен тескери прокси"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: NGINX кызмат кылган статикалык баракча юридикалык изин
+# берет (Импрессия) Жинжадан2 үлгүсү үлгүсү үлгүсү
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
 msgstr ""
@@ -1057,6 +1070,10 @@ msgctxt "role:web-svc-asset:description"
 msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
 msgstr "Nginx негизделген сервер булак каталогунан веб-маалымат жолуна көчүрүлгөн статикалык активдерди хостинг кылуу үчүн"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Node.js Npm орнотуу жана долбоордун каталогунун ичинде
+# "npm ci" иштетүү үчүн пакетти башкаруучу орнотуу
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
 msgstr ""
@@ -1106,6 +1123,10 @@ msgctxt "role:web-app-odoo:description"
 msgid "Open-source ERP suite for CRM, sales, accounting, inventory, HR, and website management"
 msgstr "Ачык булактуу ERP топтому CRM, сатуу, бухгалтердик эсеп, инвентаризация, кадрлар жана веб-сайтты башкаруу үчүн"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Ачык булактуу IT жана тиркемелерди көзөмөлдөө сервери
+# (SSO)
 msgctxt "role:web-app-checkmk:description"
 msgid "Open-source IT and application monitoring server behind SSO with native LDAP user management"
 msgstr ""
@@ -1150,6 +1171,11 @@ msgctxt "role:web-app-discourse:description"
 msgid "Open-source discussion and community forum platform with moderation, notifications, and plugin support"
 msgstr "Ачык булактуу талкуу жана коомдук форум платформасы модерация, билдирүүлөр жана плагин колдоосу менен"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: "Ачык булактуу электрондук соода платформасы
+# ""Симфония"" жана ""Симфония"" программаларына негизделген." Vue.js
+# Интернеттеги дүкөндөрдү куруу жана масштабдаштыруу
 msgctxt "role:web-app-shopware:description"
 msgid "Open-source ecommerce platform built on Symfony and Vue.js for building and scaling online storefronts"
 msgstr ""
@@ -1719,8 +1745,17 @@ msgctxt "role:svc-db-rabbitmq:description"
 msgid "Shared message broker for async messaging with per-consumer virtual host and user isolation"
 msgstr "Керектөөчүлөргө виртуалдык хост жана колдонуучуну изоляциялоо менен асинк билдирүү үчүн жалпы билдирүү брокери"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Көп түйүндүү жайгаштыруулар тарабынан колдонулган
+# жалпы туруктуу сактоочу арткы бөлүктөр <unk> NFSv4 Сервердик жана клиенттик
+# ролдор.
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
+msgstr ""
+
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
 msgstr ""
 
 # translated-by: libretranslate

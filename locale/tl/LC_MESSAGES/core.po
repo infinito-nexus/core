@@ -1519,6 +1519,11 @@ msgctxt "role:web-app-minio:description"
 msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
 msgstr "Sariling-Isinunod na S3-compatiable na bagay na nakaimbak para sa mga file, media, backup, at AI artifact"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Napahiya System One " classifier " na sumasagot sa mga
+# tanong na may tipo upang ang pintuang - daan ay makadaan nang hindi
+# lumilikha ng mga tanong
 msgctxt "role:svc-ai-s1:description"
 msgid "Self-hosted System One classifier that answers typed questions so the gateway can route without generating"
 msgstr ""
@@ -1727,6 +1732,10 @@ msgstr "Ibinabahagi ang message broker para sa async messaging na may per-consum
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "Ibahagi ang mga tendent-strage backend na ginagamit ng mga multi-node depostments — NFSv4 papel ng server at kliyente."
+
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"
@@ -2024,6 +2033,10 @@ msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
 msgstr "Binigkas na asset-tree na ayos para sa CDN paghahatid na may kabahagi, tindero, at per-role release directories"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Nakikitang Studio Code "workstation editor " sa isang
+# piling lasa, dinadala ang mga extension ng mga ahente na ginagamit ng host
 msgctxt "role:dsk-code:description"
 msgid "Visual Studio Code workstation editor in a selectable flavor, carrying the extensions of the agents the host deploys"
 msgstr ""

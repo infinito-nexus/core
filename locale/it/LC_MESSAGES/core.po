@@ -273,6 +273,10 @@ msgctxt "role:svc-registry-cache:description"
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
 msgstr "cache pull-through Cluster-local per l'imaging di base Docker Hub condiviso, il taglio di trasferimenti duplicati e limiti di velocità"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Agenti di codifica installati sulla stazione di lavoro
+# (Claude Code♪ Cursor♪)
 msgctxt "category:dsk.gnt:description"
 msgid "Coding agents installed on the workstation (Claude Code, Cursor, Pi)"
 msgstr ""
@@ -1719,6 +1723,10 @@ msgstr "broker di messaggi condivisi per messaggi asincizzati con host virtuali 
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "Supporti di memorizzazione persistenti condivisi utilizzati da distribuzioni multi-nodi — NFSv4 server e ruoli client."
+
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"

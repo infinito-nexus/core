@@ -303,6 +303,11 @@ msgctxt "menu:Community:title"
 msgid "Community"
 msgstr "ชุมชน"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: บทบาทการฉีด HTML แบบคอมโพเนนท์ได้ (CSS, JS,
+# เครื่องดักจับสัญญาณล็อกเอาต์, การวิเคราะห์, กรอบหน้าปัด) สําหรับ
+# Nginx/OpenResty ผ่าน sub_filterสินทรัพย์ CDN.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -382,6 +387,10 @@ msgctxt "category:svc.ai:description"
 msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
 msgstr "Core AI บล็อก -- Model Pervision, OpenAI ประตูที่เข้ากันได้, ฐานข้อมูลเวกเตอร์, วงออเคสตร้า, และแชต UIs."
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Kore EntertainX เว็บเซอร์ (inX) ด้วย HTTP และ TCP/UDP
+# stream และค่าปริยายของการแสดง
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr ""
@@ -865,6 +874,10 @@ msgid "Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to
 msgstr "เจ้าหน้าที่ Kermilli ที่ถูกกระตุ้นให้ให้บริการแบบ OpenAI APIเส้นทางที่จะจําลองผ่านประตู LLM ร่วมกัน"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Keptember- usinaling times appnation on the paint:
+# Kata loader microVMs และ sports overnames.
 msgctxt "category:svc.virt:description"
 msgid "Kernel-isolating container runtimes on the container host: Kata Containers microVMs and the gVisor userspace fallback."
 msgstr ""
@@ -914,10 +927,18 @@ msgctxt "role:sys-ca-selfsigned:description"
 msgid "Local self-signed Root CA for issuing trust so containers accept internal TLS endpoints"
 msgstr "ลายเซ็นตัวเองท้องถิ่นรูท CA สําหรับสร้างความไว้วางใจ เพื่อให้คอนเทนเนอร์ยอมรับจุดปลายของ TLS ภายใน"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: ระบบจัดการรหัสผ่านสําหรับพื้นที่ทํางานแบบไขว้
+# (cross-platiform) อันดับ 1 ในฐานข้อมูล Ke Pass-formats ที่ถูกเข้ารหัสไว้
 msgctxt "role:dsk-keepassxc:description"
 msgid "Local-first cross-platform desktop password manager storing credentials in an encrypted KeePass-format database"
 msgstr ""
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: ศูนย์ควบคุมการแจ้งเตือนที่ 1 ในเครื่อง ซึ่งคอมไพล์
+# slack, จดหมายและเครื่องติดตามเข้าใช้การ์ดการกระทําที่ใช้ได้
 msgctxt "role:dsk-laya:description"
 msgid "Local-first notification command center that aggregates Slack, mail and issue trackers into approvable action cards"
 msgstr ""
@@ -972,6 +993,9 @@ msgctxt "category:sys.ctl.hlth:title"
 msgid "Monitoring"
 msgstr "เฝ้าดู"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Checknown regory (c.bg transparent c.ศ.
 msgctxt "role:gen-hunspell:description"
 msgid "Multi-language spell checker with configurable dictionary packs for desktop and office text editing"
 msgstr ""
@@ -986,6 +1010,10 @@ msgctxt "role:sys-svc-webserver-https:description"
 msgid "NGINX layer for HTTPS with Let's Encrypt ACME challenge handling, port 80 to 443 redirect, and stale vHost cleanup"
 msgstr "GNNX ชั้นสําหรับ HTTPs ด้วย Let's การเข้ารหัสความท้าทาย ACME, พอร์ต 80 ถึง 443 เปลี่ยนทิศทาง, และล้างรอยหยัก"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: แม่ข่ายบริการ NGINX บล็อคที่การแปลงพาธอย่างถาวรของ
+# www.shorts ไปยังโดเมนที่ไม่ใช่วินโดว์สของพวกเขา
 msgctxt "role:web-opt-rdr-www:description"
 msgid "NGINX server blocks that permanently redirect www subdomains to their non-www apex domains"
 msgstr ""
@@ -1330,6 +1358,11 @@ msgctxt "category:sys.ctl.rpr:title"
 msgid "Repair"
 msgstr "ซ่อมแซม"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: การซ่อมแซมและฟื้นฟูบทบาท --
+# การซ่อมแซมระบบยาก/การซ่อมแซมของดอกเกอร์, ระบบสมดุล (Btrfs)
+# และการแก้ไขระบบระดับต่ําอื่นๆ.
 msgctxt "category:sys.ctl.rpr:description"
 msgid "Repair and recovery roles—handling hard/soft recovery of Docker, Btrfs balancers, and other low-level system fixes."
 msgstr ""
@@ -1713,6 +1746,10 @@ msgstr "โบรกเกอร์จดหมายที่ใช้ร่ว
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "แบ็คเอนต์จัดการร่วมกันแบบต่อเนื่องที่ถูกใช้โดยการใช้งานหลายแบบ — NFSv4 แม่ข่ายและบทลูกค้า"
+
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"

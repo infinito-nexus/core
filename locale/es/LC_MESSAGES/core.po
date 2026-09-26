@@ -324,6 +324,10 @@ msgid "Container Registries"
 msgstr "Container Registries"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate echo
+# nocheck: url
+# translation-rejected: Container engine runtime with Compose for building and
+# running application containers on Linux hosts
 msgctxt "role:sys-svc-container:description"
 msgid "Container engine runtime with Compose for building and running application containers on Linux hosts"
 msgstr ""
@@ -552,11 +556,19 @@ msgid "Distro-specific base build toolchain (compilers, linkers, make) for compi
 msgstr "herramienta de construcción de base específica (compiladores, ligadores, hacer) para compilar software de fuente"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate echo
+# nocheck: url
+# translation-rejected: Docker Compose stack for containerized relational
+# databases with backup, user, and permission management
 msgctxt "role:sys-stk-backend:description"
 msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate echo
+# nocheck: url
+# translation-rejected: Docker Swarm cluster bootstrap and node-membership
+# roles for multi-host service deployment.
 msgctxt "category:svc.swarm:description"
 msgid "Docker Swarm cluster bootstrap and node-membership roles for multi-host service deployment."
 msgstr ""
@@ -1292,6 +1304,10 @@ msgid "Project Management Tools"
 msgstr "Herramientas de gestión de proyectos"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate echo
+# nocheck: url
+# translation-rejected: Proprietary GPU driver installer for Arch-based
+# systems via mhwd nonfree hardware detection
 msgctxt "role:drv-non-free:description"
 msgid "Proprietary GPU driver installer for Arch-based systems via mhwd nonfree hardware detection"
 msgstr ""
@@ -1721,6 +1737,10 @@ msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "Backends de almacenamiento persistente compartido utilizado por despliegues de varios nodos — NFSv4 roles de servidor y cliente."
 
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
@@ -1973,6 +1993,9 @@ msgctxt "role:sys-ctl-alm-compose:description"
 msgid "Unified systemd notification service dispatching service-failure alerts through both Telegram and email channels"
 msgstr "Servicio de notificación sistematizado unificado que envía alertas de falta de servicio a través de canales de Telegram y correo electrónico"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Actualizaciones " Gestión de paquetes
 msgctxt "category:update:title"
 msgid "Updates & Package Management"
 msgstr ""
@@ -1990,6 +2013,9 @@ msgctxt "menu:User Management:title"
 msgid "User Management"
 msgstr "Gestión de usuarios"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Cuentas de usuario " control de acceso
 msgctxt "category:user:description"
 msgid "User accounts & access control"
 msgstr ""

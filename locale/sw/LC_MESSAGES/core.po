@@ -65,6 +65,9 @@ msgid "Alerting"
 msgstr "Tahadhari ya"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Analytics Analytics Analytics Analytics Analytics
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
 msgstr ""
@@ -105,6 +108,11 @@ msgid "Automated recovery service restarting exited or unhealthy Docker Compose 
 msgstr "Huduma ya kupona ya moja kwa moja inayoanza tena au isiyo na afya Docker Compose stacks na kutatua migogoro ya bandari"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Jukumu la Automation kwa reverse DNS (wa wa wa wa)
+# Rekodi kwenye seva za Hetzner Cloud, IPs za msingi, IP zinazozunguka, na
+# mizani ya mzigo
 msgctxt "role:sys-dns-hetzner-rdns:description"
 msgid "Automation role for reverse DNS (PTR) records on Hetzner Cloud servers, primary IPs, floating IPs, and load balancers"
 msgstr ""
@@ -303,6 +311,11 @@ msgctxt "menu:Community:title"
 msgid "Community"
 msgstr "Jumuiya ya Jumuiya"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Majukumu ya sindano ya HTML (CSS, JS, uingizaji wa
+# logout, analytics, iframe ya dashibodi) kwa hisani ya RaiaMwema/OpenResty
+# Kwa kupitia sub_filterTumia rasilimali zinazoungwa mkono na CDN.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -358,6 +371,10 @@ msgid "Content Management"
 msgstr "Usimamizi wa Maudhui"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Mifumo ya Usimamizi wa Maudhui (CMS CMS CMS) majukwaa
+# ya kuchapisha mtandao
 msgctxt "menu:Content Management:description"
 msgid "Content Management Systems (CMS) and web publishing platforms"
 msgstr ""
@@ -411,6 +428,11 @@ msgid "Customer Relationship"
 msgstr "Uhusiano wa Wateja"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Uhusiano wa Wateja (CRM CRM CRM CRM) Programu ya
+# kusimamia mahusiano ya wateja, mabomba ya mauzo, masoko, na shughuli za
+# msaada.
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
 msgstr ""
@@ -480,6 +502,9 @@ msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
 msgstr "Matumizi mabaya ya mtandao (GitLab, Nextcloud, Mastodon, nk.)"
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Desktop Desktop Desktop Desktop
 msgctxt "category:dsk:title"
 msgid "Desktop"
 msgstr ""
@@ -640,6 +665,10 @@ msgid "Federated, self-hosted platform for organizing events and building commun
 msgstr "Jukwaa la kujitegemea la kuandaa matukio na kujenga jamii na vikundi"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Daraja la kuunganisha ActivityPub (wa wa wa wa wa),
+# Itifaki ya AT (Bluesky)Mtandao wa IndieWeb
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
 msgstr ""
@@ -1035,6 +1064,10 @@ msgid "Networking helper for iptables forwarding and NAT masquerading of a WireG
 msgstr "Msaidizi wa Mtandao kwa iptables forwarding na NAT masquerading ya mteja WireGuard mbio nyuma ya NAT au firewall"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Ya ya ya sub_filter JavaScript sindano kuelekeza hatua
+# zote logout kwa centralized OIDC moja ishara-nje mwisho
 msgctxt "role:sys-front-inj-logout:description"
 msgid "Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
 msgstr ""
@@ -1415,6 +1448,10 @@ msgid "Scheduled deduplicating backup of host secrets, CA, ACME credentials, and
 msgstr "Backup iliyopangwa iliyopangwa ya siri za mwenyeji, CA, sifa za ACME, na utambulisho wa node kwa saraka ya Backup ya ndani"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Imeandaliwa mfumo wa Backup Backup Backup Backup kwa
+# kiasi cha chombo cha Docker kwenye saraka ya ndani, na dumps za SQL thabiti
 msgctxt "role:svc-bkp-volume-2-local:description"
 msgid "Scheduled deduplicating backup system for Docker container volumes to a local directory, with consistent SQL dumps"
 msgstr ""
@@ -1719,6 +1756,10 @@ msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "Kuunganishwa kwa backends inayoendelea inayotumiwa na kupelekwa kwa njia nyingi - NFSv4 server na majukumu ya wateja."
 
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
@@ -1768,6 +1809,9 @@ msgid "Sovereign open-source video conferencing platform for audio/video calls, 
 msgstr "Jukwaa la mkutano wa video wa chanzo wazi kwa simu za sauti / video, kugawana skrini, vyumba vya kuvunja, na SSO"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Stack ya Stack Stack Stack Stack
 msgctxt "category:sys.stk:title"
 msgid "Stack"
 msgstr ""

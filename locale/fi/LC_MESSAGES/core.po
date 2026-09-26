@@ -1344,6 +1344,11 @@ msgctxt "category:sys.ctl.rpr:title"
 msgid "Repair"
 msgstr "Korjaus"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Korjaa ja palauttaa rooleja.käsittely kova / pehmeä
+# palautuminen Docker, Btrfs tasapainottajat, ja muut matalan tason
+# järjestelmäkorjauksia.
 msgctxt "category:sys.ctl.rpr:description"
 msgid "Repair and recovery roles—handling hard/soft recovery of Docker, Btrfs balancers, and other low-level system fixes."
 msgstr ""
@@ -1373,11 +1378,20 @@ msgctxt "category:svc.prx:description"
 msgid "Reverse-proxy roles for routing and load-balancing traffic to backend services"
 msgstr "Käänteisproksiroolit liikenteen reitityksessä ja kuormituksen tasapainottamisessa taustapalveluihin"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Roolit siivoamiseen erilaisia järjestelmän
+# resursseja.old varmuuskopiot, käyttämättömät varmenteet, väliaikaiset
+# tiedostot, Docker volyymit, levy välimuistit, deprecated verkkotunnuksia, ja
+# paljon muuta.
 msgctxt "category:sys.ctl.cln:description"
 msgid "Roles for cleaning up various system resources—old backups, unused certificates, temporary files, Docker volumes, disk caches, deprecated domains, and more."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: Roolit asennus ja konfigurointi -laitteiston ajurit.
 msgctxt "category:drv:description"
 msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
 msgstr ""
@@ -1387,6 +1401,11 @@ msgctxt "category:web:description"
 msgid "Roles for managing web infrastructure—covering static content services and deployable web applications."
 msgstr "Tehtävät web-infrastruktuurin hallinnoimiseksi."
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Roolit järjestelmän seuranta ja
+# terveystarkastukset.compassing bot-tyylinen automaattiset tarkastukset ja
+# ydin matalan tason monitorit lokit, kontit, levyn käyttö, ja enemmän.
 msgctxt "category:sys.ctl.hlth:description"
 msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
 msgstr ""
@@ -1687,6 +1706,10 @@ msgid "Service Optimation"
 msgstr "Palvelun optimointi"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: Palvelutason varmuuskopiointi- ja
+# palautuskomponentteja.
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr ""
@@ -1725,6 +1748,10 @@ msgstr "Jaettu viestimeklari async-viestinnälle, jossa on käyttäjäkohtainen 
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "Usean solmupisteen käyttämien pysyvien varastojen yhteiset tukiosat NFSv4 palvelimen ja asiakkaan roolit."
+
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"

@@ -303,6 +303,11 @@ msgctxt "menu:Community:title"
 msgid "Community"
 msgstr "Українська"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Доступні ролі ін'єкцій HTML (JavaScript licenses API
+# Веб-сайт Go1.13.8) для Nginx/OpenResty Зареєструватися sub_filter/Луа з
+# активами CDN.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -1035,6 +1040,10 @@ msgctxt "role:svc-net-wireguard-firewalled:description"
 msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
 msgstr "Мережевий помічник для iptables переадресації та NAT masquerading клієнтів WireGuard, що працює за NAT або брандмауер"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Негінкс sub_filter JavaScript licenses API Веб-сайт
+# Go1.13.8
 msgctxt "role:sys-front-inj-logout:description"
 msgid "Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
 msgstr ""
@@ -1718,6 +1727,10 @@ msgstr "Загальний брокер повідомлень для обмін
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "Розширені персистентно-сторжувні запобіжники, що використовуються для багатостороннього розгортання — NFSv4 Статус на сервери"
+
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"

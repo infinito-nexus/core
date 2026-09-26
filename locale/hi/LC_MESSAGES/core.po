@@ -1056,6 +1056,10 @@ msgctxt "role:web-svc-asset:description"
 msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
 msgstr "एक स्रोत निर्देशिका से वेब डेटा पथ में कॉपी की गई स्थैतिक संपत्ति की मेजबानी के लिए Nginx आधारित सर्वर"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Node.js पैकेज-प्रबंधक सेटअप एनपीएम स्थापित करना और
+# वैकल्पिक रूप से प्रोजेक्ट डायरेक्टरी के अंदर 'npm' चल रहा है
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
 msgstr ""
@@ -1719,6 +1723,10 @@ msgstr "प्रति उपभोक्ता आभासी होस्ट
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "साझा लगातार भंडारण backends बहु नोड तैनाती द्वारा इस्तेमाल किया - NFSv4 सर्वर और क्लाइंट भूमिकाएं।"
+
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"

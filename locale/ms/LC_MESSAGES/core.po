@@ -258,6 +258,9 @@ msgctxt "menu:Cloud:title"
 msgid "Cloud"
 msgstr "Awan"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: A/AAAAAA record (CAA opsional dan opsional) (Inggris)
 msgctxt "role:sys-svc-dns:description"
 msgid "Cloudflare DNS bootstrap role for apex and wildcard A/AAAA records (and optional CAA) across a web stack's base domains"
 msgstr ""
@@ -411,6 +414,11 @@ msgid "Customer Relationship"
 msgstr "Hubungan Pelanggan"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Manajemen Hubungan Pelanggan (♪ CRM ♪) Perangkat lunak
+# untuk mengelola hubungan pelanggan, pipa penjualan, pemasaran, dan kegiatan
+# pendukung.
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
 msgstr ""
@@ -566,6 +574,9 @@ msgid "Document server backend for real-time in-browser editing of documents, sp
 msgstr "Backend server dokumen untuk pengeditan dokumen, lembar kerja, dan presentasi secara real-time"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Dokumentasi Dokumentasi Dokumentasi Dokumentasi
 msgctxt "menu:Documentation:title"
 msgid "Documentation"
 msgstr ""
@@ -1000,6 +1011,10 @@ msgctxt "role:sys-front-inj-matomo:description"
 msgid "NGINX subfilter injector adding Matomo analytics script and noscript image tracker to served HTML pages"
 msgstr "Penambahan injektor subfilter NGINX Matomo Naskah analitik dan pelacak gambar noskrip untuk melayani halaman HTML"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: {0}NGINX vhost untuk melayani situs web HTML statis
+# melalui HTTPS dengan sertifikat otomatis Mari Enkripsi
 msgctxt "role:web-svc-html:description"
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
 msgstr ""
@@ -1221,6 +1236,10 @@ msgctxt "role:sys-pip:description"
 msgid "Package manager for installing and managing Python packages on the target host"
 msgstr "Manajer paket untuk memasang dan mengelola paket Python pada host target"
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: O-user Hermes dan OpenClaw Agen agen agen agen mulai
+# menuntut di balik titik akhir OpenAI-kompatibel
 msgctxt "role:svc-ai-agent-broker:description"
 msgid "Per-user Hermes and OpenClaw agents started on demand behind an OpenAI-compatible endpoint"
 msgstr ""
@@ -1394,6 +1413,9 @@ msgid "Sales"
 msgstr "Penjualan"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: ♪ Sandboxed Runtimes ♪
 msgctxt "category:svc.virt:title"
 msgid "Sandboxed Runtimes"
 msgstr ""
@@ -1718,6 +1740,10 @@ msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "Backend penyimpanan-terusan terkongsi yang digunakan oleh penyebaran multi-node — NFSv4 server dan peran klien."
 
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
@@ -1777,6 +1803,10 @@ msgid "Stack levels to setup the server"
 msgstr "Aras stack untuk mengatur server"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Pelayan konten Stachetik (aset aset aset, HTML, legal,
+# file)
 msgctxt "category:web.svc:description"
 msgid "Static content servers (assets, HTML, legal, files)"
 msgstr ""

@@ -800,6 +800,11 @@ msgid "Identity-based secrets, PKI and encryption manager with OIDC login, group
 msgstr "Segredos baseados na identidade, PKI e xestor de cifrado con inicio de sesión de OIDC, políticas co grupo e autos non selo estático."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: En memoria memoria memoria memoria memoria memoria
+# memoria memoria caché e almacenamento, compartido centralmente co illamento
+# de ACL por consumidor ou incorporado como sidecar.
 msgctxt "role:svc-db-redis:description"
 msgid "In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
 msgstr ""
@@ -1728,6 +1733,10 @@ msgstr "corrector de mensaxes compartidas para mensaxería de asina con servidor
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "Soportes de almacenamento persistentes compartidos utilizados por despregue multi-nodo - NFSv4 Funcións de servidor e cliente."
+
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"

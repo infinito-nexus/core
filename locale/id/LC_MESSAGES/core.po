@@ -621,6 +621,10 @@ msgctxt "menu:Events:title"
 msgid "Events"
 msgstr "Kejadian"
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Penyunting teks baris baris baris Vim-masuk akal bagi
+# pengubahan kode dan konfigurasi termal
 msgctxt "role:dsk-neovim:description"
 msgid "Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
 msgstr ""
@@ -1719,6 +1723,10 @@ msgstr "broker pesan bersama untuk async messaging dengan per-consumer virtual h
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "Backend penyimpanan bersama-bersama yang dipakai oleh penyebaran multi- node - NFSv4 server dan peran klien."
+
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"

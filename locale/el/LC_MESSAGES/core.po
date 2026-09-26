@@ -764,6 +764,12 @@ msgctxt "menu:Tools:description"
 msgid "Helpful Tools"
 msgstr "Βοηθητικά Εργαλεία"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Αποθήκευση υψηλής απόδοσης, αυτόνομες λύσεις για τη
+# διαχείριση, κλιμάκωση και πρόσβαση σε μη δομημένα δεδομένα —
+# συμπεριλαμβανομένης της αποθήκευσης αντικειμένων συμβατών με την Amazon S3
+# APIs (στα Αγγλικά).
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
 msgstr ""
@@ -963,6 +969,10 @@ msgctxt "menu:Marketing:title"
 msgid "Marketing"
 msgstr "Εμπορία"
 
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Metasearch engine the platform questions for web
+# results without handing a user's query to a tracking search provider
 msgctxt "role:svc-ai-searxng:description"
 msgid "Metasearch engine the platform queries for web results without handing a user's query to a tracking search provider"
 msgstr ""
@@ -1726,6 +1736,10 @@ msgstr "Μεσίτης κοινόχρηστων μηνυμάτων για μην
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "Κοινά συστήματα υποστήριξης επίμονης αποθήκευσης που χρησιμοποιούνται από πολυκόμβους ανάπτυξης — NFSv4 roles σέρβερ και πελάτη."
+
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"

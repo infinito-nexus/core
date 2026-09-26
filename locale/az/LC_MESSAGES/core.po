@@ -140,6 +140,9 @@ msgid "Browser-based spinning wheel app for decision making, random selection, a
 msgstr "Proqram təminatı, random seçim və oyunçulaşdırma üçün Browser-based çıxış app"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: The L L L L L facing facing facing facing facing
 msgctxt "role:web-app-litellm:description"
 msgid "Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy"
 msgstr ""
@@ -750,6 +753,10 @@ msgid "Help"
 msgstr "Yardım"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: CA-trust enjeksiyon aktivlərinin qarşısını almaq
+# Docker Compose stack and and and and
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
 msgstr ""
@@ -1060,6 +1067,9 @@ msgid "Nginx-based server for hosting static assets copied from a source directo
 msgstr "Nginx-based server for hosting statik aktivlər üçün web məlumat yolu üçün mövcuddur"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Node.js package a a a a pm
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
 msgstr ""
@@ -1505,6 +1515,9 @@ msgid "Self-hosted GitHub Actions runner deployment and configuration"
 msgstr "Self-dən keçirilib GitHub Action"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: E-poçt ünvanı5 the the the the the the the
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
 msgstr ""
@@ -1729,6 +1742,10 @@ msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "Multi-node yerləşdirilməsi tərəfindən istifadə olunan davamlı qarşısı – NFSv4 server və müştəri rolları."
 
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
@@ -1751,6 +1768,11 @@ msgid "Signing you out of your services…"
 msgstr "Sizə xidmətlərinə baxın..."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Single-user ActivityPub bookmarking site ictimai kitab
+# ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai ictimai
+# məlumatları öyrənmək Mastodon Fediverse
 msgctxt "role:web-app-postmarks:description"
 msgid "Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
 msgstr ""
@@ -1841,6 +1863,9 @@ msgid "System-maintenance role for refreshing the package index and upgrading in
 msgstr "OS paketi meneceri ilə hazırlanmış paketi indeksi və yeniləndirilməsi üçün sistem-anatenance rolu"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: The the the the
 msgctxt "role:sys-cli:description"
 msgid "System-wide command-line interface for managing and operating the entire self-hosted platform environment from the shell"
 msgstr ""

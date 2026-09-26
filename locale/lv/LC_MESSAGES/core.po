@@ -549,6 +549,10 @@ msgctxt "role:dev-git:description"
 msgid "Distributed version control system for tracking source code changes and coordinating development work"
 msgstr "Izplatīta versiju kontroles sistēma, lai izsekotu pirmkoda izmaiņas un koordinētu izstrādes darbu"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Distro specifiska bāzes veidošanas rīku ķēde
+# (kompilatori, linkeri, make) izmantošanai 87. nodaļas preču ražošanā
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr ""
@@ -764,6 +768,15 @@ msgid "Helpful Tools"
 msgstr "Palīglīdzekļi"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: LuxSCS un LuxOpCo LuxSCS LuxOpCo LuxSCS LuxOpCo LuxSCS
+# LuxOpCo un LuxSCS LuxOpCo LuxSCS LuxOpCo LuxOpCo LuxSCS LuxOpCo un LuxOpCo
+# LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo
+# LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo līgumu un LuxOpCo
+# LuxSCS maksu un maksu par LuxOpCo pakalpojumiem, kas saistīti ar LuxOpCo
+# pakalpojumiem, LuxOpCo un LuxOpCo, LuxOpCo darbībām un LuxOpCo darbībām.3
+# API.
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
 msgstr ""
@@ -1363,6 +1376,11 @@ msgctxt "role:sys-svc-proxy:description"
 msgid "Reverse proxy front-end for Docker-hosted services with automatic TLS, WebSocket support, and per-app vHost templating"
 msgstr "Reversā starpniekservera priekšpuse Docker mitinātajiem servisiem ar automātisko TLS, WebSocket atbalstu un per-app vHost templating"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Apgrieztā starpniekservera TLS orķestrācijas slānis,
+# kas izvēlas 'Let' Encrypt, 'pašparakstīt' vai 'atslēgti' Nginx sertifikātu
+# nodrošinātājus
 msgctxt "role:sys-front-tls:description"
 msgid "Reverse-proxy TLS orchestration layer selecting Let's Encrypt, self-signed, or disabled certificate providers for Nginx"
 msgstr ""
@@ -1727,6 +1745,10 @@ msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "Koplietošanas pastāvīgas glabāšanas aizmugures, ko izmanto multimezglu izvietošanā – NFSv4 servera un klienta lomas."
 
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
@@ -1737,6 +1759,10 @@ msgctxt "logout:all_done"
 msgid "Signed out everywhere."
 msgstr "Parakstīts visur."
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Paraksts, izņemot {failed} skaits * {total}
+# pakalpojumi.
 #, python-brace-format
 msgctxt "logout:partial"
 msgid "Signed out, except {failed} of {total} services."
@@ -2117,6 +2143,9 @@ msgctxt "logout:st_pending"
 msgid "signing out"
 msgstr "parakstīšanās"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: {done} skaits * {total} Parakstītie pakalpojumi
 #, python-brace-format
 msgctxt "logout:counter"
 msgid "{done} of {total} services signed out"

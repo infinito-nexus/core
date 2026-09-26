@@ -1284,6 +1284,10 @@ msgctxt "role:web-app-socialhome:description"
 msgid "Privacy-first social platform for households, federating peer-to-peer over WebRTC on an embedded SQLite store"
 msgstr "Zasebnost-prva socialna platforma za gospodinjstva, federating peer-to-peer nad WebRTC na vgrajeni SQLite trgovina"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Paket privilegacij in utrjeni sudoerji s
+# podporo/etc/sudoers.d
 msgctxt "role:sys-sudo:description"
 msgid "Privilege-escalation package and hardened sudoers configuration with /etc/sudoers.d drop-in support"
 msgstr ""
@@ -1727,6 +1731,10 @@ msgstr "Deljeni posrednik sporočil za sporočanje async z virtualnim gostitelje
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "Skupna hrbtna stran za trajno shranjevanje, ki se uporablja pri uporabi več vozlišč – NFSv4 vloge strežnika in strank."
+
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"

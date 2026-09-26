@@ -270,6 +270,10 @@ msgid "Cluster-local container image registry for serving custom-built images to
 msgstr "Клъстер-локален регистър на изображенията на контейнери за обслужване на персонализирани изображения Docker Swarm Работни възли"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Cluster-local local pull-through cash for shared
+# Docker Hub base-image pulls, cut duplicate transfers and rate limits
 msgctxt "role:svc-registry-cache:description"
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
 msgstr ""
@@ -385,6 +389,10 @@ msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vect
 msgstr "Core AI building bursorks год., OpenAI-съвместими портали, векторни бази данни, оркестрация и чат UIs."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Core NGINX webserver with HTTP and TCP/UDP stream
+# support and performance-tunned defaults
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr ""
@@ -624,6 +632,10 @@ msgctxt "menu:Events:title"
 msgid "Events"
 msgstr "Събития"
 
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Extensible Vim-based command-line text editor for
+# terminal-drived code and configuration editing
 msgctxt "role:dsk-neovim:description"
 msgid "Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
 msgstr ""
@@ -854,6 +866,10 @@ msgid "Issue and project tracking platform for software teams, with agile boards
 msgstr "Платформа за проследяване на емисии и проекти за софтуерни екипи, с пъргави бордове, работни потоци и опционално OIDC SSO"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate echo
+# nocheck: url
+# translation-rejected: JavaScript runtime for building and running
+# server-side applications and developer tooling
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr ""
@@ -1389,6 +1405,9 @@ msgid "Roles for managing web infrastructure—covering static content services 
 msgstr "Роли за управление на уеб инфраструктурата, покриващи услуги за статично съдържание и приложения за достъп до интернет."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: Роля за система за мониторинг и здравни проверки . .
 msgctxt "category:sys.ctl.hlth:description"
 msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
 msgstr ""
@@ -1544,6 +1563,10 @@ msgid "Self-hosted chat interface for interacting with local and private AI mode
 msgstr "Self-hosted чат интерфейс за взаимодействие с местни и частни модели AI чрез backends като Ollama"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Self-hosted cloud platform for file sync, shareing,
+# real-time cooperation, and team workspaces under your own domain
 msgctxt "role:web-app-nextcloud:description"
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
 msgstr ""
@@ -1574,6 +1597,10 @@ msgid "Self-hosted enterprise wiki and knowledge-management platform with collab
 msgstr "Самостоятелно предприятие уики и платформа за управление на знанията със сътрудничество и гъвкавост на базата на приложението"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Self-hosted federated reading platform for book
+# reviews and reading tracking over the Fediverse
 msgctxt "role:web-app-bookwyrm:description"
 msgid "Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
 msgstr ""
@@ -1674,6 +1701,10 @@ msgid "Self-hosted, federated platform for sharing, hosting, and streaming your 
 msgstr "Self-hosted, federated платформа за споделяне, хостинг, и стрийминг собствена музика и аудио библиотека"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Self-hosted, privacy-first web analytics platform for
+# real-time visit tracking and site metrics
 msgctxt "role:web-app-matomo:description"
 msgid "Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
 msgstr ""
@@ -1727,6 +1758,10 @@ msgstr "Брокер на споделени съобщения за асинх�
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "Споделени постоянни аксесоари, използвани от многоканални устройства за достъп до мрежата NFSv4 сървър и клиентски роли."
+
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"
@@ -2075,6 +2110,10 @@ msgid "Workstation setup for Docker and Docker Compose with the local user in th
 msgstr "Настройка на работна станция за Docker и Docker Compose с местния потребител в докер групата за използване без корени"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Workstation toolchain and series-port permissions for
+# Arduino board development on Linux
 msgctxt "role:dev-arduino:description"
 msgid "Workstation toolchain and serial-port permissions for Arduino board development on Linux"
 msgstr ""

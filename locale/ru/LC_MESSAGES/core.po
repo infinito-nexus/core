@@ -1256,6 +1256,11 @@ msgctxt "logout:keep_open"
 msgid "Please keep this page open until this is done."
 msgstr "Держите эту страницу открытой до завершения."
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Plug-triggered systemd backup for hard-link
+# deduplicated snapshots of the local backup tree to a swappable USB device
+# (англ.) (недоступная ссылка).
 msgctxt "role:svc-bkp-local-2-device:description"
 msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
 msgstr ""
@@ -1719,6 +1724,10 @@ msgstr "Общий брокер сообщений для обмена сооб�
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "Общие серверы с постоянным хранением, используемые многоузловыми развертываниями — NFSv4 Роль сервера и клиента."
+
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"

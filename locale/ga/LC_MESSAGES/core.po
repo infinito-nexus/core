@@ -255,6 +255,9 @@ msgid "Clipboard manager with editable history, custom actions, and scripting su
 msgstr "Clipboard bainisteoir le stair eagarthóireachta, gníomhaíochtaí saincheaptha, agus tacaíocht script"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Cloud Cloud Cloud
 msgctxt "menu:Cloud:title"
 msgid "Cloud"
 msgstr ""
@@ -305,6 +308,11 @@ msgid "Community"
 msgstr "Pobail agus Fiontair"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Róil insteallta HTML inmhúirínithe (CSS, JS, logout
+# interceptor, Analytics, Painéal na nIonstraimí iframe) do Nginx /OpenResty
+# via via via via sub_filter/ Lua le sócmhainní CDN-aischurtha.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -1728,6 +1736,10 @@ msgstr "bróicéir teachtaireacht roinnte le haghaidh teachtaireachtaí async le
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "Leasanna comhroinnte leanúnacha stórála a úsáideann imlonnú il-node - NFSv4 róil freastalaí agus cliant."
+
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"

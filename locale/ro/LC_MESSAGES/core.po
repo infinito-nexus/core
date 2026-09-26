@@ -1059,6 +1059,10 @@ msgctxt "role:web-svc-asset:description"
 msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
 msgstr "Server bazat pe Nginx pentru găzduirea activelor statice copiate dintr-un director sursă pe calea de date web"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Node.js configurare pachet-manager instalarea npm și
+# opțional rulează "npm ci" într-un director de proiect
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
 msgstr ""
@@ -1374,11 +1378,18 @@ msgid "Reverse-proxy roles for routing and load-balancing traffic to backend ser
 msgstr "Roluri inverse pentru rutarea și echilibrarea traficului către serviciile suport"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: Roluri pentru curăţarea diferitelor resurse de sistem.
 msgctxt "category:sys.ctl.cln:description"
 msgid "Roles for cleaning up various system resources—old backups, unused certificates, temporary files, Docker volumes, disk caches, deprecated domains, and more."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: Roluri pentru instalarea și configurarea driverelor
+# hardware.
 msgctxt "category:drv:description"
 msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
 msgstr ""
@@ -1389,6 +1400,10 @@ msgid "Roles for managing web infrastructure—covering static content services 
 msgstr "Roluri pentru gestionarea infrastructurii web care acoperă serviciile de conținut static și aplicațiile web disponibile."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: Roluri de monitorizare a sistemului și controale de
+# sănătate.
 msgctxt "category:sys.ctl.hlth:description"
 msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
 msgstr ""
@@ -1727,6 +1742,10 @@ msgstr "broker de mesaje partajate pentru mesaje asinc cu gazda virtuală per-co
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "Platforme de stocare persistente partajate utilizate de aplicații multi-node4 roluri de server și client."
+
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"

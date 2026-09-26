@@ -1059,6 +1059,10 @@ msgctxt "role:web-svc-asset:description"
 msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
 msgstr "Nginx-baserad server för värd statiska tillgångar kopierade från en källkatalog till webbdatabanan"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Node.js pakethanterare installation av npm och
+# eventuellt kör "npm ci" i en projektkatalog
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
 msgstr ""
@@ -1727,6 +1731,10 @@ msgstr "Delad meddelandemäklare för async messaging med virtuell värd och anv
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "Shared persistent-storage backends som används av multi-node distributioner - NFSv4 server och kundroller."
+
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"

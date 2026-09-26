@@ -254,6 +254,9 @@ msgid "Clipboard manager with editable history, custom actions, and scripting su
 msgstr "مدیر Clipboard با تاریخ قابل ویرایش، اقدامات سفارشی و پشتیبانی اسکریپتینگ"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Cloud Cloud Cloud
 msgctxt "menu:Cloud:title"
 msgid "Cloud"
 msgstr ""
@@ -359,6 +362,10 @@ msgid "Content Management"
 msgstr "مدیریت محتوا"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: سیستم های مدیریت محتوا (CMS CMS CMS CMS) پلتفرم های
+# انتشار وب
 msgctxt "menu:Content Management:description"
 msgid "Content Management Systems (CMS) and web publishing platforms"
 msgstr ""
@@ -412,6 +419,10 @@ msgid "Customer Relationship"
 msgstr "ارتباط مشتری"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: مدیریت روابط مشتری (CRM CRM CRM) نرم افزار برای مدیریت
+# روابط مشتری، خطوط لوله فروش، بازاریابی و فعالیت های پشتیبانی.
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
 msgstr ""
@@ -527,6 +538,9 @@ msgid "Desktop video conferencing client for online meetings, webinars, and scre
 msgstr "ویدئو کنفرانس دسکتاپ مشتری را برای جلسات آنلاین، وبینینارها و به اشتراک گذاری صفحه نمایش"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: توسعه توسعه توسعه
 msgctxt "menu:Development:title"
 msgid "Development"
 msgstr ""
@@ -587,6 +601,9 @@ msgid "Drivers"
 msgstr "رانندگان"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: آموزش آموزش آموزش
 msgctxt "menu:Education:title"
 msgid "Education"
 msgstr ""
@@ -621,6 +638,10 @@ msgctxt "menu:Events:title"
 msgid "Events"
 msgstr "حوادث"
 
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Extensible Vim-line text Editor for Terminal-based
+# code and Configuration
 msgctxt "role:dsk-neovim:description"
 msgid "Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
 msgstr ""
@@ -1055,6 +1076,10 @@ msgctxt "role:web-svc-asset:description"
 msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
 msgstr "سرور مبتنی بر Nginx برای میزبانی دارایی های استاتیک کپی شده از یک دایرکتوری منبع به مسیر داده های وب"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Node.js نصب npm و اجرای اختیاری "npm ci" در داخل یک
+# دایرکتوری پروژه
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
 msgstr ""
@@ -1719,6 +1744,10 @@ msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "backends-storage به اشتراک گذاشته شده توسط استقرار چند لایه - NFSv4 نقش های سرور و مشتری"
 
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
@@ -1798,6 +1827,9 @@ msgid "Storage"
 msgstr "ذخیره سازی"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: سیستم سیستم سیستم
 msgctxt "category:sys:title"
 msgid "System"
 msgstr ""
@@ -2040,6 +2072,10 @@ msgid "Web-based LDAP client for browsing, searching, and administering director
 msgstr "وب مبتنی بر LDAP مشتری برای مرور، جستجو و مدیریت ورودی دایرکتوری در سرورهای LDAP"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: مدیریت مبتنی بر وب و پلت فرم توسعه برای مدیریت چندین
+# PostgreSQL سرورهای اختیاری OAuth2 ورود ورود ورود
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
 msgstr ""

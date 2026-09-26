@@ -1380,6 +1380,10 @@ msgid "Roles for cleaning up various system resources—old backups, unused cert
 msgstr "Úlohy pre čistenie rôznych systémových zdrojov a staré zálohy, nevyužité certifikáty, dočasné súbory, Docker objemy, disk cache, deprecated domény, a ďalšie."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: Polohy pre inštaláciu a konfiguráciu hardvérových
+# ovládačov.
 msgctxt "category:drv:description"
 msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
 msgstr ""
@@ -1728,6 +1732,10 @@ msgstr "Zdieľaný sprostredkovateľ správ pre async messaging s per-consumer v
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "Zdieľané trvalé úložné backendy používané v multi-node nasadenia4 úlohy servera a klienta."
+
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"

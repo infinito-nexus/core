@@ -328,6 +328,9 @@ msgctxt "role:sys-svc-container:description"
 msgid "Container engine runtime with Compose for building and running application containers on Linux hosts"
 msgstr "Linux ホスト上のアプリケーションコンテナの構築と実行のための Compose によるコンテナエンジンのランタイム"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: スケジューリングサービス用のコンテナオーケストレーションクラスター(プール付きマネージャーとワーカーノード)
 msgctxt "role:svc-swarm-node:description"
 msgid "Container orchestration cluster for scheduling services across pooled manager and worker nodes"
 msgstr ""
@@ -411,6 +414,10 @@ msgid "Customer Relationship"
 msgstr "顧客関係"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: 顧客関係管理 (メディア)
+# 顧客関係、販売パイプライン、マーケティング、およびサポート活動の管理のためのソフトウェア。.
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
 msgstr ""
@@ -765,6 +772,10 @@ msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
 msgstr "Amazon Sと互換性のあるオブジェクトストレージを含む、管理、スケーリング、および非構造化されたデータへのアクセスのための高性能、セルフホストストレージソリューション3 API の"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: ホストレベルのWireGuard VPNサービス(wg-quick
+# config、パッケージインストール、および安全なトンネル用のIP-forwarding sysctl)
 msgctxt "role:svc-net-wireguard-core:description"
 msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
 msgstr ""
@@ -1177,6 +1188,10 @@ msgctxt "role:web-app-mattermost:description"
 msgid "Open-source, self-hosted team messaging platform for real-time collaboration via channels, threads, and integrations"
 msgstr "チャネル、スレッド、および統合によるリアルタイムコラボレーションのためのオープンソース、セルフホスト型チームメッセージングプラットフォーム"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: OpenAI 互換 LLM ゲートウェイが 1 つ/v をルーティング1
+# ローカルおよびホストされたモデルにパーコンシューマーキーが付いているエンドポイント
 msgctxt "role:svc-ai-litellm:description"
 msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
 msgstr ""
@@ -1241,6 +1256,10 @@ msgid "Placeholder stub role for a future XMPP server/container deployment, impl
 msgstr "将来のXMPPサーバー/コンテナの展開、実装用のプレースホルダースタブロール"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected:
+# 決済、在庫、顧客機能など、オンラインショップ、製品カタログ、およびデジタル販売チャネルの構築および管理のためのプラットフォーム。.
 msgctxt "menu:Commerce:description"
 msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
 msgstr ""
@@ -1273,6 +1292,10 @@ msgctxt "role:web-app-socialhome:description"
 msgid "Privacy-first social platform for households, federating peer-to-peer over WebRTC on an embedded SQLite store"
 msgstr "世帯のためのプライバシーファーストのソーシャルプラットフォーム, 埋め込まれたSQLiteストアでWebRTC上のピアツーピアをフェデレーション"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Privilege-escalation パッケージおよび/etc/sudoers.d ドロップイン
+# サポートとの堅くされたsudoers構成
 msgctxt "role:sys-sudo:description"
 msgid "Privilege-escalation package and hardened sudoers configuration with /etc/sudoers.d drop-in support"
 msgstr ""
@@ -1368,6 +1391,10 @@ msgid "Roles for cleaning up various system resources—old backups, unused cert
 msgstr "バックアップ、未使用証明書、一時ファイル、ドッカーボリューム、ディスクキャッシュ、非推奨ドメインなど、さまざまなシステムリソースをクリーンアップするためのロール。"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected:
+# プリンター、グラフィック、インプットデバイス、その他周辺機器のサポートなど、ハードウェアドライバのインストールと構成の役割。.
 msgctxt "category:drv:description"
 msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
 msgstr ""
@@ -1378,6 +1405,10 @@ msgid "Roles for managing web infrastructure—covering static content services 
 msgstr "静的なコンテンツサービスやデプロイ可能なWebアプリケーションを網羅する、Webインフラストラクチャを管理する役割。"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: システム監視と健康チェックのロール -
+# ボットスタイルの自動チェックと、ログ、コンテナ、ディスクの使用状況などのコア低レベルのモニターを網羅しています。.
 msgctxt "category:sys.ctl.hlth:description"
 msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
 msgstr ""
@@ -1617,6 +1648,10 @@ msgctxt "role:web-svc-libretranslate:description"
 msgid "Self-hosted open-source machine translation API for translating and detecting text across languages"
 msgstr "テキストを言語間で翻訳し、検出するためのセルフホスト型のオープンソース機械翻訳API"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# セルフホスト型パーソナルAIエージェントゲートウェイ(ブラウザコントロールUI)、片マイクロVMまたはgVisorランタイムでサンドボックス
 msgctxt "role:web-app-openclaw:description"
 msgid "Self-hosted personal AI agent gateway with a browser control UI, sandboxed in a Kata microVM or gVisor runtime"
 msgstr ""
@@ -1626,6 +1661,10 @@ msgctxt "role:web-app-opencloud:description"
 msgid "Self-hosted platform for file sync, sharing, and collaboration with Keycloak SSO and central LDAP directory"
 msgstr "Keycloak SSO とセントラル LDAP ディレクトリとファイル同期、共有、コラボレーションのためのセルフホストプラットフォーム"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# ニュースレターおよびメーリングリストのためのセルフホスト型プラットフォーム(購読者セグメンテーションとキャンペーン分析)
 msgctxt "role:web-app-listmonk:description"
 msgid "Self-hosted platform for newsletters and mailing lists with subscriber segmentation and campaign analytics"
 msgstr ""
@@ -1675,6 +1714,10 @@ msgctxt "category:svc.opt:title"
 msgid "Service Optimation"
 msgstr "サービス最適化"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected:
+# サービスレベルのバックアップとリカバリコンポーネント(自動データスナップショット、リモートバックアップ、同期サービス、データベース、ファイル、コンテナ間でのバックアップオーケストレーション)。.
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr ""
@@ -1713,6 +1756,10 @@ msgstr "共有メッセージブローカーは、パーコンシューマーバ
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "マルチノードの展開で使用される共有持続ストレージのバックエンド — NFSv4 サーバーとクライアントの役割。"
+
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"

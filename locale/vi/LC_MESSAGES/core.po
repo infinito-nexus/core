@@ -303,6 +303,11 @@ msgctxt "menu:Community:title"
 msgid "Community"
 msgstr "Ghi chú"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Chức năng tiêm HTML hiệu chỉnh được (CSS, JS, bộ ngăn
+# chặn, phân tích, bảng điều khiển tôi khung) Nginx/OpenResty qua
+# sub_filter(Tiếng Tây Ban Nha).
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -1719,6 +1724,10 @@ msgstr "Trình môi giới thông điệp chia sẻ cho một tin nhắn đồng
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "hậu phương bền bỉ chia sẻ được dùng bởi triển khai đa node — NFSv4 máy chủ và vai trò khách hàng."
+
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"

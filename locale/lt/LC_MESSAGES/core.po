@@ -279,6 +279,11 @@ msgctxt "category:dsk.gnt:description"
 msgid "Coding agents installed on the workstation (Claude Code, Cursor, Pi)"
 msgstr "Darbo vietoje įrengti kodavimo įrenginiai (Claude Code, Cursor, Pi)"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Bendradarbiaujanti "Wiki" platforma, skirta
+# naudotojams skirtiems dokumentams su išplėstiniu ekosistemos ir turinio
+# valdymu
 msgctxt "role:web-app-mediawiki:description"
 msgid "Collaborative wiki platform for user-driven documentation with an extensible extension ecosystem and content management"
 msgstr ""
@@ -608,6 +613,10 @@ msgctxt "role:sys-svc-engine:description"
 msgid "Engine-agnostic wiring layer for shared cache, queue, search, and vector engines with per-consumer provisioning"
 msgstr "Inžinierius-agnostikas laidų sluoksnis bendro talpyklos, eilė, paieška, ir vektoriniai varikliai su pervartotojo tiekimas"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: "Enterprise wiki" ir komandos bendradarbiavimo
+# platforma turiniui kurti, organizuoti ir dalytis
 msgctxt "role:web-app-confluence:description"
 msgid "Enterprise wiki and team collaboration platform for creating, organizing, and sharing content"
 msgstr ""
@@ -1542,10 +1551,19 @@ msgctxt "role:web-app-openwebui:description"
 msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
 msgstr "Savarankiška pokalbių sąsaja, skirta palaikyti ryšį su vietiniais ir privačiais PG modeliais per atsargines dalis, pvz., Ollama"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Patalpinta "debesų" platforma failų sinchronizavimui,
+# dalijimuisi, realiam bendradarbiavimui ir komandos darbo vietoms jūsų paties
+# domene
 msgctxt "role:web-app-nextcloud:description"
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
 msgstr ""
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: "Self-" debesų "sprendimai failų sinchronizavimui,
+# bendradarbiavimui ir duomenų mainams.
 msgctxt "menu:Cloud:description"
 msgid "Self-hosted cloud solutions for file synchronization, collaboration, and data sharing."
 msgstr ""
@@ -1605,6 +1623,11 @@ msgctxt "role:svc-ai-ollama:description"
 msgid "Self-hosted model server for running open LLMs locally behind a simple HTTP API"
 msgstr "Name API"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Savarankiškai prižiūrima "No- code" duomenų bazės
+# platforma su į skaičiuoklę panašia sąsaja duomenų kūrimui ir
+# bendradarbiavimui
 msgctxt "role:web-app-baserow:description"
 msgid "Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
 msgstr ""
@@ -1724,6 +1747,10 @@ msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "Bendro naudojimo nuolatinės saugyklos programinė sąsaja, naudojama diegiant kelis mazgus - NFSv4 serverio ir kliento vaidmenis."
 
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
@@ -1770,6 +1797,11 @@ msgctxt "category:dev:title"
 msgid "Software Development Utilties"
 msgstr "Programinės įrangos kūrimas"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Valstybinė atvirojo kodo vaizdo konferencijų platforma
+# garso ir (arba) vaizdo skambučiams, ekrano bendrinimui, išjungimo kambariams
+# ir SSO
 msgctxt "role:web-app-opentalk:description"
 msgid "Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
 msgstr ""

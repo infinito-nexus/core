@@ -109,6 +109,9 @@ msgctxt "role:sys-dns-hetzner-rdns:description"
 msgid "Automation role for reverse DNS (PTR) records on Hetzner Cloud servers, primary IPs, floating IPs, and load balancers"
 msgstr "বিপরীত DNS-র জন্য স্বয়ংক্রিয়ভাবে তথ্য প্রদান করা হবে (বিট) হেজনার ক্লাউড সার্ভার, প্রাথমিক IPs, ভাসমান IP এবং লোড করা"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: ব্যাক- আপ পুনরুদ্ধার করা হবে (F)
 msgctxt "category:sys.ctl.bkp:title"
 msgid "Backup & Restore"
 msgstr ""
@@ -138,6 +141,10 @@ msgctxt "role:web-app-roulette-wheel:description"
 msgid "Browser-based spinning wheel app for decision making, random selection, and gamification"
 msgstr "সিদ্ধান্ত সিদ্ধান্ত, এলোমেলো নির্বাচন এবং rmolumn এর জন্য ব্রাউজার, ব্যবস্থাপনার জন্য ব্রাউজার"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: শেয়ার করা L8 গেটওয়ের জন্য ব্রাউজার-fafing ইন্টারফেস,
+# সামনের প্রক্সি- এর পিছনে নিজস্ব ডোমেনে প্রকাশ করা হয়
 msgctxt "role:web-app-litellm:description"
 msgid "Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy"
 msgstr ""
@@ -271,6 +278,9 @@ msgctxt "role:svc-registry-cache:description"
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
 msgstr "শেয়ারকৃত ডকারের হাব-ছবি টান টান টান টান টান-ছবি, অনুরূপ স্থানান্তর এবং সীমা অতিক্রমকারী"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: কোড লেখা হয়েছে: (Claude Code'%s' Cursor; পাই)
 msgctxt "category:dsk.gnt:description"
 msgid "Coding agents installed on the workstation (Claude Code, Cursor, Pi)"
 msgstr ""
@@ -301,6 +311,10 @@ msgid "Community"
 msgstr "সম্প্রদায়"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: ভূমিকা: (CSS, JS, লগার, Alickits, ড্যাশবোর্ড SSI)
+# এনজিক্স/ এর জন্যOpenResty %s দ্বারা sub_filter- CDN-REDe-র মাধ্যমে লুকা।.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -474,6 +488,10 @@ msgid "Deferred-start orchestrator for enabling and starting collected systemd s
 msgstr "পুনরুদ্ধারের জন্য কনফিগার করুন এবং একবার একটি খেলা সম্পূর্ণ করার পর সংগ্রহ করুন"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: ZIP ওয়েব অ্যাপ্লিকেশন (GitLab'%s' Nextcloud'%s'
+# Mastodon; ইত্যাদি.)
 msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
 msgstr ""
@@ -949,6 +967,10 @@ msgid "Maintenance roles for certificates, system upkeep, and recurring operatio
 msgstr "সার্টিফিকেটের জন্য দায়ী ভূমিকা, সিস্টেমের জন্য রাখা এবং ধারাবাহিক কাজ করা।"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: হোস্টের মতো ভূমিকা ধার্যকারী Docker Swarm ব্যবস্থাপক
+# নোড, “%s”-এর মাধ্যমে মুদ্রণের ক্ষমতা সম্পন্ন হয়েছে svc-swarm-node
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
 msgstr ""
@@ -1053,6 +1075,10 @@ msgctxt "role:web-svc-asset:description"
 msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
 msgstr "উৎস ডিরেক্টরি থেকে ওয়েব ডাটা পাথের জন্য একটি উৎস ডিরেক্টরিতে কপি করতে এনজিক্স সার্ভার"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Node.js একটি প্রকল্প ডিরেক্টরীতে 'pi' টাইপ করুন এবং
+# 'npi' টাইপ করুন
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
 msgstr ""
@@ -1272,6 +1298,10 @@ msgctxt "role:web-app-socialhome:description"
 msgid "Privacy-first social platform for households, federating peer-to-peer over WebRTC on an embedded SQLite store"
 msgstr "পারিবারিক জন্য গোপনীয়তা প্রাথমিক সামাজিক প্লাটফর্ম, যেটি একটি সন্নিবেশিত SQLite স্টোরের উপর অবস্থিত ওয়েবআরটিসি-এর মাধ্যমে সঙ্গীসাথিদের দ্বারা চালিত।"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: অনুমোদন সংক্রান্ত প্যাকেজ ও কঠিন কনফিগারেশনের সাথে কাজ
+# করা হয়েছে। /etc/sus/su.com-র সাথে কাজ করা হয়েছে।
 msgctxt "role:sys-sudo:description"
 msgid "Privilege-escalation package and hardened sudoers configuration with /etc/sudoers.d drop-in support"
 msgstr ""
@@ -1715,6 +1745,10 @@ msgstr "প্রতি হোস্টের মাধ্যমে বার্
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "মাল্টি-নোপেনিং দ্বারা ব্যবহৃত স্থায়ী ব্যাক-এন্ড ব্যাক-এন্ড ব্যাক-এন্ড ব্যাক-এন্ড4 সার্ভারের ও ক্লায়েন্টের ভূমিকা।"
+
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"

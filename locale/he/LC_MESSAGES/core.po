@@ -304,6 +304,10 @@ msgctxt "menu:Community:title"
 msgid "Community"
 msgstr "קהילה"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: תאימות ל-HTML (CSS, JS, ליירוט , ניתוח, לוחמת iframe)
+# Nginx /OpenResty באמצעות sub_filter*הופנה מהדף CDN-backed Assets.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -854,6 +858,10 @@ msgid "Issue and project tracking platform for software teams, with agile boards
 msgstr "פלטפורמה מעקב פרויקטים עבור צוותי תוכנה, עם לוחות זריזים, זרימות עבודה, ואופציונלי OIDC SSO"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: JavaScript Runtime for Building and run Server-side
+# Applications and Developer Tooling
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr ""
@@ -959,6 +967,9 @@ msgid "Marker role tagging a host as the Docker Swarm manager node, with the ini
 msgstr "תפקידו של מארקר הוא מארח כמנהל Docker Swarm node, עם הלוגיקה init שהוקצה svc-swarm-nodem-node"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: שיווק שיווק שיווק
 msgctxt "menu:Marketing:title"
 msgid "Marketing"
 msgstr ""
@@ -1058,6 +1069,10 @@ msgctxt "role:web-svc-asset:description"
 msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
 msgstr "שרת המבוססת על Nginx לאחסון נכסים סטטיים שהועתקה ממדריך מקור לנתיב נתוני האינטרנט"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Node.js התקנת חבילה-מנהלת התקנת npm והפעלה אופציונלית
+# של "npm ci" בתוך לוח פרויקט
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
 msgstr ""
@@ -1727,6 +1742,10 @@ msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "ראשי התיבות של NFSv4 תפקידי השרת והלקוח"
 
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
@@ -2074,6 +2093,10 @@ msgid "Workstation setup for Docker and Docker Compose with the local user in th
 msgstr "תכנון עבודה עבור Docker ו Docker Compose עם המשתמש המקומי בקבוצת הדוקר לשימוש בפיתוח ללא שורש"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Workstation Toolchain ו-Sy-port Authoritys for Arduino
+# Board Development on Linux
 msgctxt "role:dev-arduino:description"
 msgid "Workstation toolchain and serial-port permissions for Arduino board development on Linux"
 msgstr ""

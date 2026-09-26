@@ -1335,6 +1335,10 @@ msgid "Python CLI package manager for cloning multiple code repositories and aut
 msgstr "Python CLI csomagkezelő több kódtár klónozásához és közös Git műveletek automatizálásához"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate echo
+# nocheck: url
+# translation-rejected: Release pins for the GitHub-release lint tools the
+# toolchain installs
 msgctxt "role:sys-lint:description"
 msgid "Release pins for the GitHub-release lint tools the toolchain installs"
 msgstr ""
@@ -1728,6 +1732,10 @@ msgstr "Megosztott üzenet bróker async üzenetküldés per- fogyasztó virtuá
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "A többcsomós telepítések által használt, megosztott tartós tárolási hátterek - NFSv4 szerver és kliens szerepek."
+
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"

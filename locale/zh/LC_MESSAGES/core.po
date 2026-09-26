@@ -109,6 +109,9 @@ msgctxt "role:sys-dns-hetzner-rdns:description"
 msgid "Automation role for reverse DNS (PTR) records on Hetzner Cloud servers, primary IPs, floating IPs, and load balancers"
 msgstr "反向 DNS 自动化角色 (PTR 读取器) 在Hetzner Cloud服务器、主要IP、浮动IP和负载平衡器上的记录"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: 备份恢复( R)
 msgctxt "category:sys.ctl.bkp:title"
 msgid "Backup & Restore"
 msgstr ""
@@ -272,6 +275,9 @@ msgctxt "role:svc-registry-cache:description"
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
 msgstr "分组局部拉动缓存,用于共享 Docker Hub 基像拉动,剪切重复转移和速率限制"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: 在工作站安装编码器 (Claude Code, (中文). Cursor)
 msgctxt "category:dsk.gnt:description"
 msgid "Coding agents installed on the workstation (Claude Code, Cursor, Pi)"
 msgstr ""
@@ -301,6 +307,10 @@ msgctxt "menu:Community:title"
 msgid "Community"
 msgstr "社区"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: 可编译的 HTML 注入角色 (CSS、JS、登机拦截器、分析仪、仪表板) 用于 Nginx / (%
+# 1)OpenResty 通过 sub_filter卢亚拥有CDN支持的资产.
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
@@ -371,6 +381,9 @@ msgid "Control"
 msgstr "控件"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: 系统生命周期管理的控制层——处理清理、监测、备份、警报、维护和修理任务。.
 msgctxt "category:sys.ctl:description"
 msgid "Control layer for system lifecycle management—handling cleanup, monitoring, backups, alerting, maintenance, and repair tasks."
 msgstr ""
@@ -409,6 +422,9 @@ msgid "Customer Relationship"
 msgstr "客户关系"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: 客户关系管理 (客户关系管理) 管理客户关系、销售管道、营销和支助活动的软件。.
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
 msgstr ""
@@ -474,6 +490,10 @@ msgid "Deferred-start orchestrator for enabling and starting collected systemd s
 msgstr "推迟启动的管弦乐器,以便在游戏完成后启用和开始收集的系统服务"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: 可部署的网络应用程序 (GitLab, (中文). Nextcloud, (中文).
+# Mastodon,等编.)
 msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
 msgstr ""
@@ -498,6 +518,9 @@ msgctxt "role:dsk-gnome-extensions:description"
 msgid "Desktop config role for activating GNOME Shell extensions and installing a CLI tool to manage them"
 msgstr "启动 GNOME 的桌面配置角色 Shell 扩展并安装管理它们的 CLI 工具"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: 桌面环境角色( A) (GNOME,浏览器, LibreOffice,等编.)
 msgctxt "category:dsk:description"
 msgid "Desktop environment roles & apps (GNOME, browser, LibreOffice, etc.)"
 msgstr ""
@@ -747,6 +770,9 @@ msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
 msgstr "帮助者角色安装 CA 信任注入资产 Docker Compose 堆栈和验证工程 CA 证书"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: 帮助者角色安装器( I) (git, 地方, 计时器等)
 msgctxt "category:gen:description"
 msgid "Helper roles & installers (git, locales, timer, etc.)"
 msgstr ""
@@ -756,6 +782,10 @@ msgctxt "menu:Tools:description"
 msgid "Helpful Tools"
 msgstr "辅助工具"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: 管理、缩放和访问无结构数据的高性能、自我托管的存储解决方案——包括与亚马逊S兼容的对象存储3 APIs
+# (英语).
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
 msgstr ""
@@ -775,6 +805,9 @@ msgctxt "role:dev-shell:description"
 msgid "Host-level configuration linking Bash and Zsh login shells to a shared .profile for consistent environment loading"
 msgstr "主机级配置将 Bash 和 Zsh 登录弹壳连接到共享的 . profile , 用于一致的环境加载"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: B. 为披露项目提供东道一级服务 pyproject.toml 全系统通过/etc/环境
 msgctxt "role:sys-version:description"
 msgid "Host-level provisioning for exposing the project's pyproject.toml version system-wide via /etc/environment"
 msgstr ""
@@ -1059,6 +1092,9 @@ msgctxt "category:sys.ctl.alm:description"
 msgid "Notification handlers for system events"
 msgstr "系统事件通知处理者"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: OS 软件包更新( P)
 msgctxt "category:update:description"
 msgid "OS & package updates"
 msgstr ""
@@ -1236,6 +1272,9 @@ msgid "Placeholder stub role for a future XMPP server/container deployment, impl
 msgstr "未来XMPP服务器/容器部署的占位符"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: 建立和管理网上商店、产品目录和数字销售渠道的平台,包括付款、库存和客户功能。.
 msgctxt "menu:Commerce:description"
 msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
 msgstr ""
@@ -1268,6 +1307,9 @@ msgctxt "role:web-app-socialhome:description"
 msgid "Privacy-first social platform for households, federating peer-to-peer over WebRTC on an embedded SQLite store"
 msgstr "家庭隐私第一社交平台,通过嵌入式SQLite商店的WebRTC建立对等关系"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: 使用/etc/sunessers.d 滴滴支持的特权升级套件和硬化的顺势配置
 msgctxt "role:sys-sudo:description"
 msgid "Privilege-escalation package and hardened sudoers configuration with /etc/sudoers.d drop-in support"
 msgstr ""
@@ -1358,11 +1400,17 @@ msgid "Reverse-proxy roles for routing and load-balancing traffic to backend ser
 msgstr "逆向副作用,用于路由和负载平衡流量到后端服务"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: 清理各种系统资源的作用——旧的备份、未使用的证书、临时文件、Docker卷、磁盘缓存、贬值域等等。.
 msgctxt "category:sys.ctl.cln:description"
 msgid "Roles for cleaning up various system resources—old backups, unused certificates, temporary files, Docker volumes, disk caches, deprecated domains, and more."
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: 安装和配置硬件驱动程序的作用——包括打印机、图形、输入设备和其他外围支持。.
 msgctxt "category:drv:description"
 msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
 msgstr ""
@@ -1373,6 +1421,9 @@ msgid "Roles for managing web infrastructure—covering static content services 
 msgstr "管理网络基础设施的作用——涵盖静态内容服务和可部署的网络应用。"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: 系统监测和健康检查的作用——包括装瓶式自动检查和记录、容器、磁盘使用等核心低层显示器。.
 msgctxt "category:sys.ctl.hlth:description"
 msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
 msgstr ""
@@ -1673,6 +1724,9 @@ msgid "Service Optimation"
 msgstr "服务优化"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate truncated
+# nocheck: url
+# translation-rejected: 服务级备份和回收组件——处理自动数据快照、远程备份、同步服务以及跨越数据库、文件和容器的备份协调。.
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr ""
@@ -1711,6 +1765,10 @@ msgstr "与每个消费者虚拟主机和用户隔离共享消息代理"
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "多节点部署所使用的共享持久存储后端——NFSv4 服务器和客户端角色。"
+
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"
@@ -1964,6 +2022,9 @@ msgctxt "role:sys-ctl-alm-compose:description"
 msgid "Unified systemd notification service dispatching service-failure alerts through both Telegram and email channels"
 msgstr "通过Telegram和电子邮件渠道统一系统通知服务发送服务失败警报"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: 更新软件包管理( P)
 msgctxt "category:update:title"
 msgid "Updates & Package Management"
 msgstr ""
@@ -1986,6 +2047,9 @@ msgctxt "category:user:description"
 msgid "User accounts & access control"
 msgstr "用户账户和访问控制"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: 用户访问( A)
 msgctxt "category:user:title"
 msgid "Users & Access"
 msgstr ""

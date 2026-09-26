@@ -1366,6 +1366,12 @@ msgctxt "category:svc.prx:description"
 msgid "Reverse-proxy roles for routing and load-balancing traffic to backend services"
 msgstr "Reverse-proxy rollen voor routing en load-balancing verkeer naar backend diensten"
 
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Rol voor het opruimen van verschillende
+# systeembronnen.Oude back-ups, ongebruikte certificaten, tijdelijke
+# bestanden, Docker volumes, schijf caches, verouderde domeinen, en nog veel
+# meer.
 msgctxt "category:sys.ctl.cln:description"
 msgid "Roles for cleaning up various system resources—old backups, unused certificates, temporary files, Docker volumes, disk caches, deprecated domains, and more."
 msgstr ""
@@ -1719,6 +1725,10 @@ msgstr "Gedeeld bericht makelaar voor async berichten met per-consumer virtuele 
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "Gedeelde persistente opslag backends gebruikt door multi-node implementaties4 server en client rollen."
+
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"
