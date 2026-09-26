@@ -32,7 +32,13 @@ from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 from . import PROJECT_ROOT
 
 _RULE = "mcp-audit-completeness"
-_RECORD = PROJECT_ROOT / "docs" / "architecture" / "decisions" / "0003-mcp-surface-per-provider.md"
+_RECORD = (
+    PROJECT_ROOT
+    / "docs"
+    / "architecture"
+    / "decisions"
+    / "0003-mcp-surface-per-provider.md"
+)
 _AUDIT_HEADING = "## Exhaustive Application-ID Audit"
 
 _SECTION_HEADING = re.compile(r"^###\s+(?P<title>.+?)\s+\((?P<count>\d+)\)\s*$")
