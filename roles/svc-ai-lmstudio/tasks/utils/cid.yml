@@ -1,7 +1,7 @@
 ---
 - name: "🔍 Resolve the LM Studio container on '{{ lmstudio_node }}'"
   ansible.builtin.shell: |
-    {% if DEPLOYMENT_MODE == 'swarm' %}
+    {% if IS_SWARM_MODE %}
     container ps \
       --filter "label=com.docker.swarm.service.name={{ lmstudio_service_name }}" \
       --filter status=running \
@@ -13,7 +13,7 @@
   changed_when: false
   retries: 30
   delay: 2
-  until: DEPLOYMENT_MODE == 'compose' or (lmstudio_node_cid.stdout | trim) | length > 0
+  until: IS_COMPOSE_MODE or (lmstudio_node_cid.stdout | trim) | length > 0
   delegate_to: "{{ lmstudio_node }}"
 
 - name: "🔧 Target '{{ lmstudio_node }}' for the next LM Studio step"

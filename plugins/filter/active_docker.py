@@ -2,9 +2,11 @@
 Ansible filter to count active docker services for current host.
 
 Active means:
+
 - application key is in group_names
-- application key matches prefix regex (default: ^(web-|svc-).* )
+- application key matches prefix regex (default: ``^(web-|svc-).*``)
 - under applications[app]['services'] each service is counted if:
+
   - 'enabled' is True, OR
   - 'enabled' is missing/undefined  (treated as active)
 

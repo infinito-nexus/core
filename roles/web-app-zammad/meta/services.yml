@@ -115,6 +115,9 @@ websocket:
 search:
   image: docker.elastic.co/elasticsearch/elasticsearch
   version: "8.13.4"
+  update:
+    type: registry_tags
+    image: docker.elastic.co/elasticsearch/elasticsearch
   min_storage: 839MB
   cpus: "1.0"
   mem_reservation: 1g

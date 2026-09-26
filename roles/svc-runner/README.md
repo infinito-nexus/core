@@ -12,21 +12,6 @@ Registration tokens are fetched from the GitHub API at container start time via 
 
 The `RUNNER_DISTRIBUTION` variable selects distro-specific package installation tasks (Debian, Ubuntu, Arch Linux, or Fedora/EL). The role is designed to be driven by the `make runner-ci-deploy` target; see the end-to-end guide below.
 
-## Cosmos
-
-The diagram places Self-Hosted Runner in the Infinito.Nexus cosmos: the components it deploys (capabilities), the central services it consumes (dependencies), and its outward reach (federation and bridged external networks).
-
-```mermaid
-flowchart LR
-    subgraph role [svc-runner 🐳🐝]
-        svc_runner["runner"]
-        svc_buildkit["buildkit ❌"]
-        svc_act_runner["act-runner ❌"]
-    end
-```
-
-Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`.
-
 ## Features
 
 - **Self-hosted:** Run CI jobs on your own server without consuming GitHub-hosted runner minutes.
@@ -37,45 +22,6 @@ Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (
 - **Multi-distro:** Supports Debian, Ubuntu (`apt`), Arch Linux (`pacman`), and Fedora/EL (`dnf`) via distro-specific task files.
 - **Idempotent:** Re-running the deploy rebuilds the image and restarts containers cleanly without manual cleanup.
 - **CI workflow ready:** All deploy-test workflows route to GitHub-hosted runners by default; set `CI_SELF_HOSTED_RUNNER_COUNT` to overflow jobs to your runners.
-
-## Quick Setup
-
-### Development
-
-Clone, set up the workstation, and deploy Self-Hosted Runner onto the local stack:
-
-```bash
-git clone https://github.com/infinito-nexus/core.git
-cd core
-make onboard
-make compose-deploy mode=reinstall apps=svc-runner full_cycle=false
-```
-
-### Production
-
-Run the published image to provision the inventory and deploy Self-Hosted Runner to a managed server (the mounted volume persists the inventory):
-
-```bash
-APP=svc-runner
-HOST=<your-server>
-DOMAIN=<your-domain>
-TLS_MODE=self_signed
-SSH_PUBLIC_KEY="<your-ssh-public-key>"
-
-docker run --rm -it \
-  -v "$PWD/inventories:/etc/infinito.nexus/inventories" \
-  -e APP="$APP" -e HOST="$HOST" -e DOMAIN="$DOMAIN" -e TLS_MODE="$TLS_MODE" -e SSH_PUBLIC_KEY="$SSH_PUBLIC_KEY" \
-  ghcr.io/infinito-nexus/core/debian bash -c '
-    INVENTORY=/etc/infinito.nexus/inventories/production
-    infinito administration inventory provision "$INVENTORY" \
-      --inventory-file "$INVENTORY/devices.yml" \
-      --host "$HOST" \
-      --include "$APP" \
-      --vars "{\"TLS_MODE\": \"$TLS_MODE\", \"DOMAIN_PRIMARY\": \"$DOMAIN\", \"users\": {\"administrator\": {\"authorized_keys\": [\"$SSH_PUBLIC_KEY\"]}}}" &&
-    infinito administration deploy dedicated "$INVENTORY/devices.yml" \
-      --password-file "$INVENTORY/.password" \
-      --diff -vv'
-```
 
 ## End-to-end guide
 
@@ -183,7 +129,7 @@ python -m cli.administration.deploy.runner <hostname> \
 | `RUNNER_LABELS` | `self-hosted,linux,{{ RUNNER_DISTRIBUTION }}` | Comma-separated labels assigned to every runner instance. |
 | `RUNNER_INSTALL_DIR` | `/opt/github-runner` | Base installation directory; instances land in `<dir>/<N>/`. |
 | `RUNNER_USER` | `github-runner` | System user account that owns all runner files and processes. |
-| `RUNNER_COUNT` | auto (`ansible_processor_vcpus // RUNNER_CPUS`) | Number of runner instances; auto-scales to available CPU cores. |
+| `RUNNER_COUNT` | auto (`RESOURCE_HOST_CPUS // RUNNER_CPUS`) | Number of runner instances; auto-scales to available CPU cores. |
 | `RUNNER_CPUS` | `2` | CPU limit per runner instance (matches GitHub-hosted 2-core quota). |
 | `RUNNER_DOCKER_BASE` | `/mnt/docker` | Base path for per-instance Docker volume directories. |
 | `RUNNER_PROJECT_PREFIX` | `runner` | Prefix for per-instance Docker Compose project names and `INFINITO_RUNNER_PREFIX`. |
@@ -269,9 +215,3 @@ chain and the CLI e2e suite run in full.
 
 - [GitHub Actions self-hosted runner documentation](https://docs.github.com/en/actions/hosting-your-own-runners)
 - [actions/runner releases](https://github.com/actions/runner/releases)
-
-## Credits
-
-Implemented by **[Alejandro Roman Ibanez](https://github.com/AlejandroRomanIbanez)**.
-Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world).
-Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license).

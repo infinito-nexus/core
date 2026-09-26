@@ -107,6 +107,7 @@ class FilterModule:
           - services.matomo.enabled
           - services.dashboard.enabled
           - services.simpleicons.enabled
+          - services.api.enabled
           - services.logout.enabled
           - services.hcaptcha.enabled
           - services.recaptcha.enabled
@@ -230,6 +231,7 @@ class FilterModule:
               * internal CDN for style/script elem and connect
               * Matomo endpoints (if services.matomo.enabled) for script-elem/connect
               * Simpleicons service (if services.simpleicons.enabled) for connect
+              * API service (if services.api.enabled) for connect
               * reCAPTCHA (if services.recaptcha.enabled) for script-elem/frame-src
               * hCaptcha (if services.hcaptcha.enabled) for script-elem/frame-src
               * frame-ancestors extended for dashboard/logout/keycloak if enabled
@@ -314,6 +316,15 @@ class FilterModule:
                     tokens.append(
                         _aligned_url(
                             domains, application_id, "web-svc-simpleicons", web_protocol
+                        )
+                    )
+
+                if directive == "connect-src" and self.is_feature_enabled(
+                    applications, "api", application_id
+                ):
+                    tokens.append(
+                        _aligned_url(
+                            domains, application_id, "web-svc-api", web_protocol
                         )
                     )
 

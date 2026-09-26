@@ -43,7 +43,7 @@ class TestCategoriesOf(unittest.TestCase):
         self.assertEqual(categories_of("sys-ctl-hlth-csp"), {"sys", "sys-ctl"})
 
     def test_single_segment(self) -> None:
-        self.assertEqual(categories_of("desk"), {"desk"})
+        self.assertEqual(categories_of("dsk"), {"dsk"})
 
     def test_empty(self) -> None:
         self.assertEqual(categories_of(""), set())
@@ -271,6 +271,50 @@ class TestRequiredRoleIds(unittest.TestCase):
             roles_dir=self.roles_dir, deployed_role_ids=["web-app-yourls"]
         )
         self.assertEqual(result, set())
+
+    def _runtime_scoped(self) -> None:
+        _write_services_yml(
+            self.roles_dir / "test-e2e-cli",
+            """
+            ---
+            test-e2e-cli:
+              required_by:
+                runtimes: [dev, act, github]
+                compose:
+                  categories: [web]
+            """,
+        )
+
+    def test_a_runtime_the_list_names_still_requires_the_role(self) -> None:
+        self._runtime_scoped()
+
+        result = required_role_ids(
+            roles_dir=self.roles_dir,
+            deployed_role_ids=["web-app-yourls"],
+            runtime="act",
+        )
+
+        self.assertEqual(result, {"test-e2e-cli"})
+
+    def test_a_runtime_the_list_omits_waives_the_role(self) -> None:
+        self._runtime_scoped()
+
+        result = required_role_ids(
+            roles_dir=self.roles_dir,
+            deployed_role_ids=["web-app-yourls"],
+            runtime="host",
+        )
+
+        self.assertEqual(result, set())
+
+    def test_an_unknown_runtime_waives_nothing(self) -> None:
+        self._runtime_scoped()
+
+        result = required_role_ids(
+            roles_dir=self.roles_dir, deployed_role_ids=["web-app-yourls"]
+        )
+
+        self.assertEqual(result, {"test-e2e-cli"})
 
 
 class TestHostLogSlice(unittest.TestCase):

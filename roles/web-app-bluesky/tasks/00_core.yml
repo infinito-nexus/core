@@ -59,8 +59,8 @@
   vars:
     domain: "{{ BLUESKY_API_DOMAIN }}"
     http_port: "{{ BLUESKY_API_PORT }}"
-    webserver_proxy_service_key: "{{ 'pds' if DEPLOYMENT_MODE == 'swarm' else (application_id | get_entity_name) }}"
-    proxy_internal_port: "{{ lookup('config', application_id, 'services.api.ports.internal.http') if DEPLOYMENT_MODE == 'swarm' else '' }}"
+    webserver_proxy_service_key: "{{ 'pds' if IS_SWARM_MODE else (application_id | get_entity_name) }}"
+    proxy_internal_port: "{{ lookup('config', application_id, 'services.api.ports.internal.http') if IS_SWARM_MODE else '' }}"
 
 - name: "📂 Front proxy {{ BLUESKY_WEB_DOMAIN }} (broker if oauth2, else social-app)"
   include_role:
@@ -72,14 +72,14 @@
     webserver_proxy_service_key: >-
       {{
         (BLUESKY_BROKER_SERVICE if (lookup('config', application_id, 'services.sso.enabled') | bool) else 'web')
-        if DEPLOYMENT_MODE == 'swarm' else (application_id | get_entity_name)
+        if IS_SWARM_MODE else (application_id | get_entity_name)
       }}
     proxy_internal_port: >-
       {{
         (lookup('config', application_id, 'services.broker.ports.internal.http')
          if (lookup('config', application_id, 'services.sso.enabled') | bool)
          else lookup('config', application_id, 'services.web.ports.internal.http'))
-        if DEPLOYMENT_MODE == 'swarm' else ''
+        if IS_SWARM_MODE else ''
       }}
   when: BLUESKY_WEB_ENABLED | bool
 
@@ -89,8 +89,8 @@
   vars:
     domain: "{{ BLUESKY_VIEW_DOMAIN_FINAL }}"
     http_port: "{{ BLUESKY_VIEW_PORT }}"
-    webserver_proxy_service_key: "{{ 'view' if DEPLOYMENT_MODE == 'swarm' else (application_id | get_entity_name) }}"
-    proxy_internal_port: "{{ lookup('config', application_id, 'services.view.ports.internal.http') if DEPLOYMENT_MODE == 'swarm' else '' }}"
+    webserver_proxy_service_key: "{{ 'view' if IS_SWARM_MODE else (application_id | get_entity_name) }}"
+    proxy_internal_port: "{{ lookup('config', application_id, 'services.view.ports.internal.http') if IS_SWARM_MODE else '' }}"
   when: BLUESKY_VIEW_ENABLED | bool
 
 - name: "📁 Create native PDS administrator (oauth2 disabled, no broker auto-provision)"

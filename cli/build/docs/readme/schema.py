@@ -16,6 +16,7 @@ import jinja2
 
 from cli.build.docs.readme.sections import h2_titles
 from utils.cache.files import PROJECT_ROOT
+from utils.software import SOFTWARE_REPOSITORY
 
 TEMPLATE_DIR = PROJECT_ROOT / "templates" / "roles"
 TEMPLATE_NAME = "README.md.j2.tmpl"
@@ -29,12 +30,13 @@ _REQUIRED_CTX: dict = {
     "application_features": [{"name": "Example", "description": "An example feature."}],
     "application_author": "Kevin Veen-Birkenbach",
     "cosmos_mermaid": 'flowchart LR\n    a["a"] --> b["b"]',
+    "software_repository": SOFTWARE_REPOSITORY,
 }
 
 _OPTIONAL_CTX: dict = {
     "application_invokable": True,
+    "application_author_url": "https://social.infinito.nexus/profile/kevinveenbirkenbach/profile",
     "cosmos_intro": "Example cosmos intro.",
-    "application_author_url": "https://www.veen.world",
     "application_use_cases": "Example use case.",
     "application_developer_notes": [{"file": "Administration.md", "description": "notes."}],
     "application_further_resources": [{"label": "Example", "url": "https://example.com/"}],

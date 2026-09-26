@@ -61,9 +61,11 @@ def _derive_accounts(roles: Any) -> list[str]:
 
 
 def _apply_account_defaults(users: dict[str, Any]) -> dict[str, Any]:
-    for user in users.values():
+    for key, user in users.items():
         if not isinstance(user, dict):
             continue
+        if "email" not in user:
+            user["email"] = f"{user.get('username', key)}@{{{{ DOMAIN_PRIMARY }}}}"
         if user.get("accounts") is None:
             user["accounts"] = _derive_accounts(user.get("roles", []))
         if "forward" not in user:

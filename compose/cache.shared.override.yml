@@ -11,6 +11,10 @@ services:
     networks:
       cache:
 
+  i18n:
+    networks:
+      cache:
+
 networks:
   cache:
     external: true

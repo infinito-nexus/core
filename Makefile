@@ -47,6 +47,13 @@ autoformat: install-lint
 autoformat-restage:
 	@bash scripts/git/autoformat_restage.sh "$(MAKE)" autoformat
 
+.PHONY: binfmt
+# Make an architecture executable here through emulation.
+# Param arch: amd64 | arm64 (default: the platform in INFINITO_DOCKER_PLATFORM)
+binfmt:
+	@"$${PYTHON}" -m cli.administration.deploy.development binfmt \
+		$(if $(arch),--architecture "$(arch)")
+
 .PHONY: bond
 # Serve the role bond matrix, where editing a cell rewrites the role's bond.
 bond:
@@ -263,13 +270,6 @@ compose-up: install
 console:
 	@"$${PYTHON}" -m cli.console
 
-.PHONY: cosmos
-# Regenerate the '## Cosmos' mermaid diagram in every role README (or one role).
-# Usage: make cosmos [role=<id>]
-# Param role: single role id (default: all roles)
-cosmos:
-	@"$${PYTHON}" -m cli.build.docs.readme $(role) --update-cosmos
-
 .PHONY: diagnose-disk-usage
 # Show disk and Docker resource usage to identify what to clean up.
 diagnose-disk-usage:
@@ -280,14 +280,6 @@ diagnose-disk-usage:
 # Note: covers DNS, TCP, TLS, and PMTU on both IPv4 and IPv6.
 diagnose-network:
 	@$(MAKE) compose-exec cmd="python3 -m cli.contributing.network.diagnose"
-
-.PHONY: docs
-# Regenerate generated documentation: role Cosmos diagrams, Quick Setup blocks, the root-README roles index, and the MCP audit report.
-docs:
-	@"$(MAKE)" cosmos
-	@"$(MAKE)" readme-generate quick_setup=true
-	@"$(MAKE)" readme-index
-	@"$(MAKE)" mcp-audit
 
 .PHONY: dotenv
 # Regenerate .env (SPOT) from default.env + runtime context.
@@ -300,7 +292,9 @@ dotenv:
 # Note: avoids stale BASH_ENV INFINITO_* values pinning via setdefault.
 dotenv-force:
 	@rm -f .env
-	@env -i HOME="$${HOME}" PATH="$${PATH}" python3 -m cli.meta.env
+	@env -i HOME="$${HOME}" PATH="$${PATH}" \
+		INFINITO_CACHE_CONF_SOURCE="$${INFINITO_CACHE_CONF_SOURCE:-}" \
+		python3 -m cli.meta.env
 
 .PHONY: environment-bootstrap
 # Bootstrap the local development environment.
@@ -329,6 +323,39 @@ fix-dockerignore:
 # Example: make help target=compose-playwright
 help:
 	@bash scripts/make/help.sh $(target)
+
+.PHONY: i18n-extract
+# Merge the translatable strings of core and the documentation into the gettext catalogs under locale/.
+# Param domain: core | docs (empty: both)
+i18n-extract:
+	@"$${PYTHON}" -m cli.build.i18n extract $(if $(domain),--domain "$(domain)")
+
+.PHONY: i18n-prune
+# Empty the translations that altered a protected span so the next i18n-translate redoes them.
+# Param domain: core | docs (empty: both)
+# Param languages: comma-separated ISO 639-1 codes (empty: every language)
+i18n-prune:
+	@"$${PYTHON}" -m cli.build.i18n prune $(if $(domain),--domain "$(domain)") $(if $(languages),--languages "$(languages)")
+
+.PHONY: i18n-retry
+# Offer the entries a previous run recorded as refused again, after the masking or the damage predicate changed.
+# Param domain: core | docs (empty: both)
+# Param languages: comma-separated ISO 639-1 codes (empty: every language)
+i18n-retry:
+	@"$${PYTHON}" -m cli.build.i18n retry $(if $(domain),--domain "$(domain)") $(if $(languages),--languages "$(languages)")
+
+.PHONY: i18n-translate
+# Machine-translate the empty and fuzzy entries of the gettext catalogs, deploying the i18n LibreTranslate runner when it does not answer.
+# Param domain: core | docs (empty: both)
+# Param languages: comma-separated ISO 639-1 codes (empty: every language LibreTranslate supports)
+i18n-translate:
+	@"$${PYTHON}" -m cli.build.i18n translate $(if $(domain),--domain "$(domain)") $(if $(languages),--languages "$(languages)")
+
+.PHONY: i18n-tune
+# Measure the fastest LibreTranslate client settings on this host and record them for `make dotenv`.
+# Param language: ISO 639-1 code the sweep translates into (default: de)
+i18n-tune:
+	@"$${PYTHON}" -m cli.build.i18n tune $(if $(language),--language "$(language)")
 
 .PHONY: install
 # Install all runtime dependencies.
@@ -538,11 +565,6 @@ lint-sql: install-lint
 	@bash scripts/install/wrapper.sh sql
 	@bash scripts/lint/wrapper.sh sql
 
-.PHONY: mcp-audit
-# Regenerate the MCP audit report; test_mcp_audit_report fails when it drifts.
-mcp-audit:
-	@"$${PYTHON}" -m cli.build.docs.mcp_audit
-
 .PHONY: meta-list
 # Print the repository role list.
 meta-list:
@@ -600,36 +622,14 @@ onboard: bootstrap install-skills install-alias environment-bootstrap
 	@"$(MAKE)" compose-exec cmd="bash scripts/install/dev-extras.sh"
 
 .PHONY: quality
-# Regenerate generated docs, autoformat, then run the full test suite (pre-commit gate).
+# Autoformat, then run the full test suite (pre-commit gate).
 quality:
-	@"$(MAKE)" docs
 	@"$(MAKE)" autoformat
 	@"$(MAKE)" test
 
 .PHONY: quality-high
 # Full gate: quality (autoformat + test) followed by every lint check.
 quality-high: quality lint
-
-.PHONY: readme-check
-# Verify every role README matches the schema template (writes nothing; fails if any would change).
-readme-check:
-	@"$${PYTHON}" -m cli.build.docs.readme --check
-
-.PHONY: readme-generate
-# Generate/complete role README.md files from templates/roles/README.md.j2.tmpl.
-# Usage: make readme-generate [role=<id>] [override=true] [cosmos=true] [quick_setup=true]
-# Param role: single role id (default: all roles)
-# Param override: true regenerates managed sections even when present
-# Param cosmos: true regenerates only the Cosmos diagram
-# Param quick_setup: true regenerates only the Quick Setup section
-readme-generate:
-	@"$${PYTHON}" -m cli.build.docs.readme $(role) $(if $(filter true,$(override)),--override) $(if $(filter true,$(cosmos)),--update-cosmos) $(if $(filter true,$(quick_setup)),--update-quick-setup)
-
-.PHONY: readme-index
-# Regenerate the invokable-role overview table in the root README.md.
-# Param check: true verifies only and fails when the table is outdated
-readme-index:
-	@"$${PYTHON}" -m cli.build.docs.readme.overview $(if $(filter true,$(check)),--check)
 
 .PHONY: requirements-archive
 # Archive fully-checked requirement files via pkgmgr (installs kpmx if missing).
@@ -779,6 +779,7 @@ swarm-shell:
 	@SWARM_NAME='$(name)' node='$(node)' bash scripts/tests/deploy/act/shell_node.sh
 
 SWARM_DISTROS = $(or $(distros),$${INFINITO_DISTRO:?})
+SWARM_ARCH = $(or $(arch),$(shell bash scripts/meta/resolve/architecture.sh))
 
 .PHONY: swarm-zombie
 # Run a swarm matrix-app test and leave the cluster alive afterwards for post-mortem inspection.
@@ -787,6 +788,7 @@ SWARM_DISTROS = $(or $(distros),$${INFINITO_DISTRO:?})
 # Param variant: optional matrix variant index to deploy (default 0); a multi-variant app runs one cluster per swarm-zombie, so pick the round to validate.
 # Param disable: optional comma-separated provider keys removed from the test inventory (e.g. matomo,dashboard,prometheus,email,css).
 # Param name: optional cluster-id prefix for the container + network names; release with the same name=.
+# Param arch: architecture the cluster deploys on, amd64 | arm64 (default: the host's own).
 # Param step_timeout: optional minute budget for the matrix-deploy step (default 690).
 # Note: Use `make swarm-exec` / `make swarm-shell` to inspect, `make swarm-down` to release.
 swarm-zombie: install-act
@@ -803,11 +805,13 @@ swarm-zombie: install-act
 	 disable=$(disable); \
 	 SWARM_NAME=$(or $(name),$(app)); \
 	 INFINITO_SWARM_STEP_TIMEOUT_MINUTES=$(or $(step_timeout),690); \
-	 INFINITO_DISTROS=$(SWARM_DISTROS)" \
+	 INFINITO_DISTROS=$(SWARM_DISTROS); \
+	 INFINITO_ARCHITECTURES=$(SWARM_ARCH); \
+	 INFINITO_ARCHITECTURE=$(SWARM_ARCH)" \
 	 ACT_WORKFLOW=.github/workflows/call-test-deploy.yml \
 	 ACT_JOB=deploy \
 	 ACT_MATRIX="apps:$(app);variant:$(or $(variant),0);mode:swarm" \
-	 ACT_INPUTS="whitelist=$(app)#$(or $(variant),0)@swarm distros=$(SWARM_DISTROS) index=0 sweep=0 modes=swarm disable=$(disable)" \
+	 ACT_INPUTS="whitelist=$(app)#$(or $(variant),0)@swarm distros=$(SWARM_DISTROS) index=0 sweep=0 modes=swarm disable=$(disable) architectures=$(SWARM_ARCH)" \
 	 bash scripts/tests/deploy/act/workflow.sh
 
 .PHONY: system-purge

@@ -15,7 +15,7 @@
 {% if (TLS_MODE | lower) == 'self_signed' and OIDC.CLIENT.ISSUER_URL.startswith('https') %}
       - "{{ CA_TRUST.cert_host }}:{{ CA_TRUST.cert_container }}:ro"
 {% endif %}
-{% if DEPLOYMENT_MODE == 'swarm' %}
+{% if IS_SWARM_MODE %}
     {{ lookup('container_networks', provider_self_alias=False) | indent(4) }}
     deploy:
       placement:

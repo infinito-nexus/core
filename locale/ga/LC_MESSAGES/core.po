@@ -1,0 +1,2141 @@
+# Irish translations for infinito-nexus.
+# Copyright (C) 2026 Kevin Veen-Birkenbach
+# This file is distributed under the Infinito.Nexus Community License (Non-Commercial).
+# Kevin Veen-Birkenbach <kevinveenbirkenbach@infinito.nexus>, 2026.
+# https://infinito.nexus
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: infinito-nexus VERSION\n"
+"Report-Msgid-Bugs-To: contact@infinito.nexus\n"
+"POT-Creation-Date: 2026-01-01 00:00+0000\n"
+"PO-Revision-Date: 2026-01-01 00:00+0000\n"
+"Last-Translator: Kevin Veen-Birkenbach <kevinveenbirkenbach@infinito.nexus>\n"
+"Language: ga\n"
+"Language-Team: Kevin Veen-Birkenbach <kevinveenbirkenbach@infinito.nexus>\n"
+"Plural-Forms: nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n>=3 && n<=6 ? 2 : n>=7 && n<=10 ? 3 : 4);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-certbot:description"
+msgid "ACME client for automated Let's Encrypt SSL/TLS certificate issuance and renewal via webroot or DNS-01 challenges"
+msgstr "cliant ACME le haghaidh uathoibrithe A ligean ar Criptiú SSL / TLS deimhniú eisiúint agus athnuachan trí webroot nó DNS-01 dúshláin"
+
+# translated-by: libretranslate
+msgctxt "category:svc.ai:title"
+msgid "AI Services"
+msgstr "Seirbhísí AI"
+
+# translated-by: libretranslate
+msgctxt "menu:Artificial Intelligence:description"
+msgid "AI tools and frameworks for running, managing, and experimenting with models."
+msgstr "AI uirlisí agus creataí le haghaidh reáchtáil, bhainistiú, agus turgnamh le samhlacha."
+
+# translated-by: libretranslate
+msgctxt "role:dsk-gnt-cursor:description"
+msgid "AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
+msgstr "AI-céad eagarthóir cód suiteáilte ar an stáisiún oibre, a bhfuil a override endpoint tréimhsí céim oibreoir"
+
+# translated-by: libretranslate
+msgctxt "menu:Server Administration:description"
+msgid "Administration Tools für servers"
+msgstr "Uirlisí Riaracháin le freastalaithe"
+
+# translated-by: libretranslate
+msgctxt "category:dsk.gnt:title"
+msgid "Agents"
+msgstr "Gníomhairí"
+
+# translated-by: libretranslate
+msgctxt "role:sys-front-inj-all:description"
+msgid "Aggregate NGINX sub-filter injector adding Matomo tracking, global theming, iFrame and JS snippets by feature flag"
+msgstr "Comhiomlán NGINX fo-scagaire instealladh ag cur Matomo rianú, ainmniú domhanda, iFrame agus JS snippets de réir gné bratach"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-gnome:description"
+msgid "Aggregate desktop environment bundling caffeine, shell extensions, and terminal into a complete GNOME setup on Linux"
+msgstr "Comhiomlán timpeallacht deisce bundling Caiféin, síntí sliogáin, agus críochfort i thus GNOME iomlán ar Linux"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.alm:title"
+msgid "Alerting"
+msgstr "Amharc ar gach eolas"
+
+# translated-by: libretranslate
+msgctxt "menu:Analytics:title"
+msgid "Analytics"
+msgstr "Anailíseoir"
+
+# translated-by: libretranslate
+msgctxt "role:sys-token-store:description"
+msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
+msgstr "Ról cúntóir do mharthanacht idempotent agus lookup de tokens iarratas in aghaidh an-úsáideoir i siopa áitiúil YAML"
+
+# translated-by: libretranslate
+msgctxt "category:web.app:title"
+msgid "Applications"
+msgstr "Amharc ar gach eolas"
+
+# translated-by: libretranslate
+msgctxt "menu:Sales:description"
+msgid "Applications for e-commerce, ticketing, and sales management."
+msgstr "Iarratais ar ríomhthráchtáil, ticéadú, agus bainistíocht díolacháin."
+
+# translated-by: libretranslate
+msgctxt "role:drv-epson-multiprinter:description"
+msgid "Arch Linux driver bundle for Epson multifunction printing and scanning via escpr and imagescan"
+msgstr "Arch Linux bundle tiománaí do Epson priontáil multifunction agus scanadh trí escpr agus imagecan"
+
+# translated-by: libretranslate
+msgctxt "menu:Artificial Intelligence:title"
+msgid "Artificial Intelligence"
+msgstr "Faisnéis Shaorga"
+
+# translated-by: libretranslate
+msgctxt "menu:Asset Management:title"
+msgid "Asset Management"
+msgstr "Bainistíocht acmhainní"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-rpr-container-soft:description"
+msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
+msgstr "Seirbhís a ghnóthú Uathoibrithe atosú scoir nó unhealthy Docker Compose stacks agus coinbhleachtaí calafoirt a réiteach"
+
+# translated-by: libretranslate
+msgctxt "role:sys-dns-hetzner-rdns:description"
+msgid "Automation role for reverse DNS (PTR) records on Hetzner Cloud servers, primary IPs, floating IPs, and load balancers"
+msgstr "Ról Uathoibriú do DNS droim ar ais (PTR) taifid ar fhreastalaithe Hetzner Cloud, IPanna bunscoile, IPanna snámh, agus iarmhéideoirí ualach"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.bkp:title"
+msgid "Backup & Restore"
+msgstr "Cúltaca agus Athchóirigh"
+
+# translated-by: libretranslate
+msgctxt "category:svc.bkp:title"
+msgid "Backup Services"
+msgstr "Amharc ar gach eolas"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.bkp:description"
+msgid "Backup strategies & restore procedures"
+msgstr "straitéisí cúltaca agus nósanna imeachta a chur ar ais"
+
+# translated-by: libretranslate
+msgctxt "role:dev-core:description"
+msgid "Base development environment for software engineers on Linux, with core editors and language-agnostic tooling"
+msgstr "Timpeallacht forbartha bonn d'innealtóirí bogearraí ar Linux, le heagarthóirí lárnacha agus tooling teanga-agnostic"
+
+# translated-by: libretranslate
+msgctxt "role:sys-daemon:description"
+msgid "Base role for systemd manager configuration via drop-ins, default settings, and unit validation"
+msgstr "Ról bonn le haghaidh cumraíocht bainisteoir córasach trí titim-orlach, socruithe réamhshocraithe, agus bailíochtú aonad"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-roulette-wheel:description"
+msgid "Browser-based spinning wheel app for decision making, random selection, and gamification"
+msgstr "Brabhsálaí-bhunaithe aip roth sníomh le haghaidh cinnteoireachta, roghnú randamach, agus gamification"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-litellm:description"
+msgid "Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy"
+msgstr "Brabhsálaí-facing comhéadan admin don gheata LLM roinnte, a foilsíodh ar a bhfearann féin taobh thiar den seachfhreastalaí tosaigh"
+
+# translated-by: libretranslate
+msgctxt "role:dev-fakeroot:description"
+msgid "Build-time tool for simulating root-owned file operations without elevated privileges during package builds"
+msgstr "Tógáil-am uirlis chun insamhladh oibríochtaí comhad fréamh-úinéireacht gan pribhléidí ardaithe le linn tógála pacáiste"
+
+# translated-by: libretranslate
+msgctxt "category:svc.runner:title"
+msgid "CI Runner"
+msgstr "CI Runner"
+
+# translated-by: libretranslate
+msgctxt "role:svc-db-typesense:description"
+msgid "Central Dockerized search engine shared by multiple apps with per-consumer scoped API keys"
+msgstr "Lár inneall cuardaigh Dockerized roinnte ag apps il le per-tomhaltóir raon feidhme eochracha API"
+
+# translated-by: libretranslate
+msgctxt "role:svc-ai-tika:description"
+msgid "Central document extraction engine that turns uploaded files into text for retrieval-augmented chat"
+msgstr "Inneall eastósctha doiciméad lárnach a casadh comhaid a uaslódáil isteach sa téacs le haghaidh comhrá a aisghabháil-a mhéadú"
+
+# translated-by: libretranslate
+msgctxt "menu:Help:description"
+msgid "Central help resources, including documentation, support tools, and guidance."
+msgstr "Acmhainní cabhrach Lárnach, lena n-áirítear doiciméid, uirlisí tacaíochta, agus treoir."
+
+# translated-by: libretranslate
+msgctxt "role:svc-db-memcached:description"
+msgid "Central in-memory caching engine with per-consumer key-prefix isolation, usable centrally or as an embedded sidecar"
+msgstr "Lár in-seomra inneall caching le in aghaidh an-tomhaltóir eochair-prefix aonrú, inúsáidte go lárnach nó mar sidecar leabaithe"
+
+# translated-by: libretranslate
+msgctxt "role:sys-service-loader:description"
+msgid "Central loader role for ordered shared-service preloading and queued post-load role inclusions across the deployment"
+msgstr "Ról lódála lárnach le haghaidh réamhluchtú seirbhíse comhroinnte ordaithe agus cuimsithe ról iar-ualach scuaine ar fud an imscaradh"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-logout:description"
+msgid "Central logout proxy for single-action sign-out across all OIDC-connected apps, with Nginx snippets and a live status UI"
+msgstr "seachfhreastalaí logála lárnach le haghaidh comharthaí aon-gníomh ar fud gach apps OIDC-nasctha, le snippets Nginx agus UI stádas beo"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-mail:description"
+msgid "Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
+msgstr "Ríomhphost lárnach ciseal orchestration ródú phost óstach trí Mailu, msmtp, nó sealaíochta áitiúil roghnach SMTP"
+
+# translated-by: libretranslate
+msgctxt "category:svc.dns:description"
+msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
+msgstr "Lár Athchúrsach / tosaigh innill réiteora DNS (Unbound, etc.)"
+
+# translated-by: libretranslate
+msgctxt "role:svc-dns-unbound:description"
+msgid "Central recursive/forwarding DNSSEC resolver on a static IP for consumer stacks to target as their DNS"
+msgstr "Lár Athchúrsach / aghaidh réiteoir DNSSEC ar IP statach do chairn tomhaltóra chun díriú mar a n- DNS"
+
+# translated-by: libretranslate
+msgctxt "role:svc-db-elasticsearch:description"
+msgid "Central search and analytics engine with per-consumer index namespaces isolating tenants in a shared Docker deployment"
+msgstr "inneall cuardaigh agus Analytics le gach-tomhaltóir innéacs namespaces isolating tionóntaí in imscaradh Docker roinnte"
+
+# translated-by: libretranslate
+msgctxt "role:svc-db-qdrant:description"
+msgid "Central vector database engine for storing and searching per-consumer embeddings shared across the stack"
+msgstr "inneall bunachar sonraí veicteoir lárnach a stóráil agus a chuardach in aghaidh an-tomhaltóir embeddings roinnte ar fud an chairn"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-rdbms:description"
+msgid "Centralized MariaDB or PostgreSQL database service shared across applications via Docker Compose"
+msgstr "Lárnaigh MariaDB nó PostgreSQL seirbhís bunachar sonraí roinnte ar fud na n-iarratas Docker Compose"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-certs:description"
+msgid "Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
+msgstr "Seirbhís ACME Certbot-tiomáinte do A ligean ar Criptithe aonair-domain agus wildcard teastais TLS ar fearainn NGINX"
+
+# translated-by: libretranslate
+msgctxt "logout:checking"
+msgid "Checking your other sessions…"
+msgstr "Seiceáil do sheisiúin eile..."
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.cln:title"
+msgid "Cleanup"
+msgstr "Glanadh"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-cln-domains:description"
+msgid "Cleanup routine for deprecated domains, removing Nginx configs and revoking their Certbot certificates"
+msgstr "Glanadh gnáthamh le haghaidh réimsí dímheasta, a bhaint Nginx configs agus a chúlghairm a gcuid deimhnithe Certbot"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-cln-disc-space:description"
+msgid "Cleanup routine for reclaiming disk space from temp files, package caches, optional Docker data and old backups"
+msgstr "Cleanup ghnáthamh do reclaiming spás diosca ó chomhaid teocht, taisce pacáiste, sonraí Docker roghnach agus cúltacaí d'aois"
+
+# translated-by: libretranslate
+msgctxt "role:svc-storage-nfs-client:description"
+msgid "Client-side NFS setup for mounting a remote server export on every swarm node, with a deploy-time reachability probe"
+msgstr "Cliant-taobh thus NFS le haghaidh gléasta onnmhairithe freastalaí iargúlta ar gach nód swarm, le probe inrochtaineacht imscaradh-am"
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-wireguard-plain:description"
+msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
+msgstr "Cliant-taobh WireGuard VPN ról le haghaidh nascacht cobhsaí le seirbhís córasach agus script go comhéadan tune MTU"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-copyq:description"
+msgid "Clipboard manager with editable history, custom actions, and scripting support"
+msgstr "Clipboard bainisteoir le stair eagarthóireachta, gníomhaíochtaí saincheaptha, agus tacaíocht script"
+
+# translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Cloud Cloud Cloud
+msgctxt "menu:Cloud:title"
+msgid "Cloud"
+msgstr ""
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-dns:description"
+msgid "Cloudflare DNS bootstrap role for apex and wildcard A/AAAA records (and optional CAA) across a web stack's base domains"
+msgstr "Cloudflare buataisítrap DNS ról do apex agus taifid cárta fiáin A / AAAA (agus CAA roghnach) ar fud an Stack gréasáin fearainn bonn"
+
+# translated-by: libretranslate
+msgctxt "role:svc-registry-docker:description"
+msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
+msgstr "Cluster-áit áitiúil coimeádán íomhá clár le haghaidh freastal ar íomhánna saincheaptha a tógadh go Docker Swarm oibrí nóid"
+
+# translated-by: libretranslate
+msgctxt "role:svc-registry-cache:description"
+msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
+msgstr "Cluster-áitiúil taisce tarraingt-trí do pulls bonn Docker Hub roinnte, a ghearradh aistrithe dúblach agus teorainneacha ráta"
+
+# translated-by: libretranslate
+msgctxt "category:dsk.gnt:description"
+msgid "Coding agents installed on the workstation (Claude Code, Cursor, Pi)"
+msgstr "Gníomhairí comhdúcháin suiteáilte ar an stáisiún oibre (Claude Code, Cursor, Pi)"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-mediawiki:description"
+msgid "Collaborative wiki platform for user-driven documentation with an extensible extension ecosystem and content management"
+msgstr "ardán wiki comhoibritheach le haghaidh doiciméadú úsáideora-tiomáinte le héiceachórais síneadh extensible agus bainistíocht ábhar"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-jrnl:description"
+msgid "Command-line journal application for creating and managing personal diary entries from the terminal"
+msgstr "Iarratas irisleabhar Ordú-líne chun iontrálacha dialann pearsanta a chruthú agus a bhainistiú ón gcríochfort"
+
+# translated-by: libretranslate
+msgctxt "menu:Commerce:title"
+msgid "Commerce"
+msgstr "Trácht a dhéanamh"
+
+# translated-by: libretranslate
+msgctxt "menu:Communication:title"
+msgid "Communication"
+msgstr "Cumarsáid agus Cumarsáid"
+
+# translated-by: libretranslate
+msgctxt "menu:Community:title"
+msgid "Community"
+msgstr "Pobail agus Fiontair"
+
+# translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: Róil insteallta HTML inmhúirínithe (CSS, JS, logout
+# interceptor, Analytics, Painéal na nIonstraimí iframe) do Nginx /OpenResty
+# via via via via sub_filter/ Lua le sócmhainní CDN-aischurtha.
+msgctxt "category:sys.front.inj:description"
+msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
+msgstr ""
+
+# translated-by: libretranslate
+msgctxt "role:sys-stk-full:description"
+msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
+msgstr "Comhdhéanta Stack ról bundling cúltaca bunachar coimeádán le HTTP droim ar ais-proxy tosaigh le haghaidh rochtain gréasáin"
+
+# translated-by: libretranslate
+msgctxt "category:svc.swarm:title"
+msgid "Container Orchestration"
+msgstr "Coimeádán Orchestration"
+
+# translated-by: libretranslate
+msgctxt "category:svc.registry:title"
+msgid "Container Registries"
+msgstr "Coimeádán Registries"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-container:description"
+msgid "Container engine runtime with Compose for building and running application containers on Linux hosts"
+msgstr "runtime inneall coimeádán le múirín le haghaidh tógála agus coimeádáin iarratais ag rith ar hóstach Linux"
+
+# translated-by: libretranslate
+msgctxt "role:svc-swarm-node:description"
+msgid "Container orchestration cluster for scheduling services across pooled manager and worker nodes"
+msgstr "Cnuasach orchestration coimeádán le haghaidh seirbhísí sceidealaithe ar fud an bainisteoir linnte agus nóid oibrí"
+
+# translated-by: libretranslate
+msgctxt "category:svc.registry:description"
+msgid "Container-registry services - local registry and pull-through cache."
+msgstr "Seirbhísí coimeádán-cláraithe - clárú áitiúil agus taisce tarraingt-trí."
+
+# translated-by: libretranslate
+msgctxt "role:web-app-navigator:description"
+msgid "Containerized Reveal.js slide deck for presenting the platform to admins, developers, users, and investors"
+msgstr "coimeádán Reveal.js deic sleamhnán chun an t-ardán a chur i láthair do admins, forbróirí, úsáideoirí, agus infheisteoirí"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-simpleicons:description"
+msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
+msgstr "Coimeádán freastalaí deilbhín do óstáil an Simple Icons bailiúchán branda SVG agus PNG le haghaidh úsáid gréasáin agus doiciméadúcháin"
+
+# translated-by: libretranslate
+msgctxt "role:svc-db-postgres:description"
+msgid "Containerized relational database with automated database, user, and privilege provisioning"
+msgstr "bunachar sonraí ndáil coimeádán le bunachar sonraí uathoibrithe, úsáideoir, agus soláthar pribhléide"
+
+# translated-by: libretranslate
+msgctxt "menu:Content Management:title"
+msgid "Content Management"
+msgstr "Clár na dToghthóirí"
+
+# translated-by: libretranslate
+msgctxt "menu:Content Management:description"
+msgid "Content Management Systems (CMS) and web publishing platforms"
+msgstr "Córais Bhainistíochta Faisnéise (CMS) agus ardáin foilsitheoireachta gréasáin"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-wordpress:description"
+msgid "Content management system for building and managing websites, blogs, and multisite networks with themes and plugins"
+msgstr "Córas bainistíochta Ábhar le haghaidh tógála agus láithreáin ghréasáin a bhainistiú, a blogs, agus líonraí multisite le téamaí agus plugins"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl:title"
+msgid "Control"
+msgstr "Rialú ar Rialú"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl:description"
+msgid "Control layer for system lifecycle management—handling cleanup, monitoring, backups, alerting, maintenance, and repair tasks."
+msgstr "ciseal rialaithe do bhainistíocht saolré córas-lámhaigh cleanup, monatóireacht, cúltacaí, foláirimh, cothabháil, agus tascanna a dheisiú."
+
+# translated-by: libretranslate
+msgctxt "category:svc.ai:description"
+msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
+msgstr "Core AI bloic tógála-samhail ag freastal, OpenAI-comhoiriúnach geataí, bunachair shonraí veicteoir, orchestration, agus UIs comhrá."
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-webserver-core:description"
+msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
+msgstr "Core webserver NGINX le HTTP agus tacaíocht sruth TCP / UDP agus réamhshocraithe feidhmíochta-tuned"
+
+# translated-by: libretranslate
+msgctxt "logout:no_check"
+msgid "Could not check your other sessions."
+msgstr "Níorbh fhéidir seiceáil do sheisiúin eile."
+
+# translated-by: libretranslate
+msgctxt "logout:stalled"
+msgid "Could not confirm every sign-out."
+msgstr "Níorbh fhéidir a dheimhniú gach síniú amach."
+
+# translated-by: libretranslate
+msgctxt "role:dev-nix:description"
+msgid "Cross-distribution installer for the Nix package manager with checksum-verified, reproducible multi-user setup"
+msgstr "suiteálaí tras-dáileadh le haghaidh an bainisteoir pacáiste Nix le checkum-verified, thus il-úsáideoir in-athnuaite"
+
+# translated-by: libretranslate
+msgctxt "role:sys-cleanup:description"
+msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
+msgstr "Gnáthamh cothabhála tras-dáileadh do mhíntíriú diosca ar fud CI, coimeádán, agus timpeallachtaí a thógáil"
+
+# translated-by: libretranslate
+msgctxt "menu:Customer Relationship:title"
+msgid "Customer Relationship"
+msgstr "Gaol do Chustaiméirí"
+
+# translated-by: libretranslate
+msgctxt "menu:Customer Relationship:description"
+msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
+msgstr "Bainistíocht Caidrimh Chustaiméirí (CAD CAD) bogearraí do bhainistiú caidrimh do chustaiméirí, píblínte díolacháin, margaíochta, agus gníomhaíochtaí tacaíochta."
+
+# translated-by: libretranslate
+msgctxt "category:sys.dns:title"
+msgid "DNS Automation"
+msgstr "Uathoibriú DNS"
+
+# translated-by: libretranslate
+msgctxt "category:svc.dns:title"
+msgid "DNS Resolvers"
+msgstr "DNS Resolutions"
+
+# translated-by: libretranslate
+msgctxt "category:sys.dns:description"
+msgid "DNS providers, records, and rDNS management (Cloudflare, Hetzner, etc.)."
+msgstr "soláthraithe DNS, taifid, agus bainistíocht rDNS (Cloudflare, Hetzner, etc.)."
+
+# translated-by: libretranslate
+msgctxt "role:sys-dns-cloudflare-records:description"
+msgid "Data-driven role for managing Cloudflare DNS records (A/AAAA, CNAME, MX, TXT, SRV) across apps and environments"
+msgstr "Ról sonraí-tiomáinte chun taifid DNS Cloudflare a bhainistiú (A/AAAA, CNAME, MX, TXT, SRV) thar apps agus timpeallachtaí"
+
+# translated-by: libretranslate
+msgctxt "category:svc.db:description"
+msgid "Database applications (DBMS, LDAP, Redis, etc.)"
+msgstr "Iarratais Bunachar Sonraí (DBMS, LDAP, Redis, etc.)"
+
+# translated-by: libretranslate
+msgctxt "category:svc.db:title"
+msgid "Databases"
+msgstr "Bunachar Sonraí"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-peertube:description"
+msgid "Decentralized, federated platform for peer-to-peer video hosting, streaming, and live broadcasting"
+msgstr "Ardán díláraithe, cónasctha le haghaidh óstáil físe piaraí, sruthú, agus craoladh beo"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-pixelfed:description"
+msgid "Decentralized, federated platform for photo sharing and image feeds across the fediverse"
+msgstr "Ardán díláraithe, chothaithe le haghaidh fothaí grianghraf agus íomhá ar fud an fhéichiú"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-friendica:description"
+msgid "Decentralized, federated social-networking platform for peer-to-peer communication and community building"
+msgstr "Ardán líonraithe sóisialta díláraithe, chothaithe le haghaidh cumarsáide piaraí agus tógála pobail"
+
+# translated-by: libretranslate
+msgctxt "role:user-administrator:description"
+msgid "Dedicated administrator account with SSH key access and password-authenticated sudo for secure privilege escalation"
+msgstr "Cuntas riarthóir tiomnaithe le rochtain eochair SSH agus sudo phasfhocal-authenticated le haghaidh escalation phribhléid slán"
+
+# translated-by: libretranslate
+msgctxt "role:user-backup:description"
+msgid "Dedicated system account with SSH-restricted commands and passwordless rsync sudo for secure backup access"
+msgstr "Cuntas córas tiomnaithe le orduithe SSH-restricted agus sudo rsync gan focal faire le haghaidh rochtain cúltaca slán"
+
+# translated-by: libretranslate
+msgctxt "role:sys-service-terminator:description"
+msgid "Deferred-start orchestrator for enabling and starting collected systemd services once a play completes"
+msgstr "Ceolfhoireann iarchurtha-túsach chun seirbhísí córasacha a chumasú agus a thosú nuair a chríochnaíonn súgradh"
+
+# translated-by: libretranslate
+msgctxt "category:web.app:description"
+msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
+msgstr "Iarratais gréasáin Infhostaithe (GitLab, Nextcloud, Mastodon, etc.)"
+
+# translated-by: libretranslate
+msgctxt "category:dsk:title"
+msgid "Desktop"
+msgstr "Uisce agus Séarachas"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-spotify:description"
+msgid "Desktop client for streaming music, playlists, and podcasts"
+msgstr "Cliant Deasc do shruthú ceol, seinmliostaí, agus podchraoltaí"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-nextcloud:description"
+msgid "Desktop client setup linking home folders into the cloud-synced directory for integrated file synchronization"
+msgstr "Deisce thus cliant nasc fillteáin bhaile isteach an eolaire scamall-sineite le haghaidh sioncrónaithe comhad comhtháite"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-gnome-extensions:description"
+msgid "Desktop config role for activating GNOME Shell extensions and installing a CLI tool to manage them"
+msgstr "Ról config Deisce do ghníomhú GNOME Shell síntí agus a shuiteáil uirlis CLI chun iad a bhainistiú"
+
+# translated-by: libretranslate
+msgctxt "category:dsk:description"
+msgid "Desktop environment roles & apps (GNOME, browser, LibreOffice, etc.)"
+msgstr "Róil timpeallachta Deasc & apps (GNOME, bhrabhsálaí, LibreOffice, etc.)"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-bluray-player:description"
+msgid "Desktop media-player setup with VLC and AACS/BD+ libraries for Blu-ray disc decryption and playback on Arch Linux"
+msgstr "Desktop meáin-imreoir thus le VLC agus AACS / BD + leabharlanna do decryption diosca Blu-ray agus athsheinm ar Arch Linux"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-libreoffice:description"
+msgid "Desktop office suite for documents, spreadsheets, and presentations with Liberation fonts and language packs"
+msgstr "Sraith oifige deisce do dhoiciméid, scarbhileoga, agus cur i láthair le clónna Liberation agus pacáistí teanga"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-gnome-caffeine:description"
+msgid "Desktop utility for inhibiting screen blanking and sleep, autostarted on the GNOME desktop"
+msgstr "Deisce fóntais chun cosc a chur ar fholmhú scáileán agus codladh, autostarted ar an deasc GNOME"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-zoom:description"
+msgid "Desktop video conferencing client for online meetings, webinars, and screen sharing"
+msgstr "Deasc físe a thabhairt do chliaint le haghaidh cruinnithe ar líne, webinars, agus roinnt scáileán"
+
+# translated-by: libretranslate
+msgctxt "menu:Development:title"
+msgid "Development"
+msgstr "Forbairt agus Forbairt"
+
+# translated-by: libretranslate
+msgctxt "menu:Development:description"
+msgid "Development and CI/CD tools"
+msgstr "Forbairt agus uirlisí CI/CD"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-seaweedfs:description"
+msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
+msgstr "Dáileadh S3-compatible siopa réad do roinnte, buicéad in aghaidh an-tomhaltóir ar fáil ar fud róil gréasáin-app"
+
+# translated-by: libretranslate
+msgctxt "role:dev-git:description"
+msgid "Distributed version control system for tracking source code changes and coordinating development work"
+msgstr "Córas rialaithe leagan Dáilte do rianú athruithe cód foinse agus obair forbartha comhordaithe"
+
+# translated-by: libretranslate
+msgctxt "role:dev-base-devel:description"
+msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
+msgstr "Distro-sonrach bonn thógáil toolchain (compilers, nascóirí, dhéanamh) le haghaidh bogearraí a thiomsú ó fhoinse"
+
+# translated-by: libretranslate
+msgctxt "role:sys-stk-backend:description"
+msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
+msgstr "Docker Compose Stack do bhunachair shonraí i ndáil coimeádán le cúltaca, úsáideoir, agus bainistíocht cead"
+
+# translated-by: libretranslate
+msgctxt "category:svc.swarm:description"
+msgid "Docker Swarm cluster bootstrap and node-membership roles for multi-host service deployment."
+msgstr "Docker Swarm braisle buataisítrap agus rólanna node-comhal le haghaidh imscaradh seirbhíse il-óstach."
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-onlyoffice:description"
+msgid "Document server backend for real-time in-browser editing of documents, spreadsheets, and presentations"
+msgstr "backend freastalaí doiciméad le haghaidh fíor-ama in-browser eagarthóireacht ar dhoiciméid, scarbhileoga, agus cur i láthair"
+
+# translated-by: libretranslate
+msgctxt "menu:Documentation:title"
+msgid "Documentation"
+msgstr "Cáipéisí"
+
+# translated-by: libretranslate
+msgctxt "menu:Documentation:description"
+msgid "Documentation and Wiki Applications"
+msgstr "Doiciméid agus Iarratais Wiki"
+
+# translated-by: libretranslate
+msgctxt "role:svc-opt-keyboard-color:description"
+msgid "Driver integration for dynamic keyboard color and RGB lighting control on MSI laptops"
+msgstr "Comhtháthú Tiománaí le haghaidh dath méarchlár dinimiciúil agus rialú soilsithe RGB ar ríomhairí glúine MSI"
+
+# translated-by: libretranslate
+msgctxt "category:drv:title"
+msgid "Drivers"
+msgstr "Tiománaithe"
+
+# translated-by: libretranslate
+msgctxt "menu:Education:title"
+msgid "Education"
+msgstr "Oideachas sna Luathbhlianta"
+
+# translated-by: libretranslate
+msgctxt "role:svc-ai-robot:description"
+msgid "Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device"
+msgstr "ardán robot corpraithe do Hermes ar gléas tiomnaithe, líonra-segmented singil-tionónta"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-mcp-reconcile:description"
+msgid "End-of-play convergence of every deployed MCP client against the complete provider set"
+msgstr "Cóineasú deireadh-imirt de gach cliant MCP imscaradh i gcoinne an soláthraí iomlán atá leagtha"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-engine:description"
+msgid "Engine-agnostic wiring layer for shared cache, queue, search, and vector engines with per-consumer provisioning"
+msgstr "Inneall-agnostic sreangú ciseal do taisce roinnte, scuaine, cuardaigh, agus innill veicteoir le soláthar per-tomhaltóir"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-confluence:description"
+msgid "Enterprise wiki and team collaboration platform for creating, organizing, and sharing content"
+msgstr "Fiontraíocht wiki agus ardán comhoibriú foirne a chruthú, eagrú, agus ábhar a roinnt"
+
+# translated-by: libretranslate
+msgctxt "menu:Events:description"
+msgid "Event and ticket management tools"
+msgstr "Imeacht agus uirlisí bainistíochta ticéad"
+
+# translated-by: libretranslate
+msgctxt "menu:Events:title"
+msgid "Events"
+msgstr "Amharc ar gach eolas"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-neovim:description"
+msgid "Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
+msgstr "Dian-bhunaithe eagarthóir téacs ordú-líne le haghaidh cód críochfort-tiomáinte agus eagarthóireacht chumraíocht"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-chess:description"
+msgid "Federated chess server for playing and following rule-validated games over ActivityPub across the Fediverse"
+msgstr "Freastalaí fichille Federated le haghaidh imirt agus a leanas cluichí riail-validated thar ActionPub ar fud na Fediverse"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-matrix:description"
+msgid "Federated, end-to-end-encrypted messaging platform with a web client and protocol bridges to external chat networks"
+msgstr "Ardán teachtaireachtaí le cliant gréasáin agus droichid phrótacail le líonraí comhrá seachtracha a ríomh, a chríochnú-le-deireadh."
+
+# translated-by: libretranslate
+msgctxt "role:web-app-mobilizon:description"
+msgid "Federated, self-hosted platform for organizing events and building communities and groups"
+msgstr "Ardán Federated, féin-óstáil le haghaidh imeachtaí a eagrú agus pobail tógála agus grúpaí"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-bridgy-fed:description"
+msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
+msgstr "Droichead Cónaidhme ag nascadh GníomhaíochtPub (Feicsean), Prótacal AT (Bluesky), agus an IndieWeb"
+
+# translated-by: libretranslate
+msgctxt "menu:Finance & Accounting:title"
+msgid "Finance & Accounting"
+msgstr "Airgeadas & Cuntasaíocht"
+
+# translated-by: libretranslate
+msgctxt "menu:Finance & Accounting:description"
+msgid "Financial and accounting software"
+msgstr "Bogearraí airgeadais agus cuntasaíochta"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-coturn:description"
+msgid "Free and open-source TURN/STUN relay server for NAT traversal in WebRTC and real-time communication"
+msgstr "Freastalaí Relay TURN / STUN saor in aisce agus oscailte do thréithe NAT i WebRTC agus cumarsáid fíor-ama"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-obs:description"
+msgid "Free and open-source desktop application for live video streaming and screen recording"
+msgstr "Feidhmchlár deisce saor in aisce agus oscailte le haghaidh sruthú físe beo agus taifeadadh scáileáin"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-gnucash:description"
+msgid "Free and open-source desktop application for personal and small-business accounting and financial management"
+msgstr "Iarratas deisce saor in aisce agus foinse oscailte le haghaidh cuntasaíochta pearsanta agus beag-ghnó agus bainistíocht airgeadais"
+
+# translated-by: libretranslate
+msgctxt "role:sys-front-inj-dashboard:description"
+msgid "Front-end JS injection notifying parent windows of iframe location changes and forcing external links into new tabs"
+msgstr "Tosaigh JS instealladh fógra fuinneoga tuismitheoir na n-athruithe suíomh iframe agus forcing naisc sheachtracha i tabs nua"
+
+# translated-by: libretranslate
+msgctxt "role:sys-stk-front-base:description"
+msgid "Front-layer base for web apps: HTTPS foundation, optional Cloudflare setup, and reverse-proxy handler wiring"
+msgstr "Tosaigh-ciseal bonn le haghaidh apps gréasáin: HTTPS bunús, roghnach Cloudflare thus, agus droim ar ais-proxy láimhseálaí sreangú"
+
+# translated-by: libretranslate
+msgctxt "category:sys.front:description"
+msgid "Frontend helpers for reverse-proxied apps (injection, shared assets, CDN plumbing)."
+msgstr "Cúntóirí Tosaigh le haghaidh apps droim ar ais (instealladh, sócmhainní roinnte, pluiméireacht CDN)."
+
+# translated-by: libretranslate
+msgctxt "menu:Games:title"
+msgid "Games"
+msgstr "Cluichí ar líne"
+
+# translated-by: libretranslate
+msgctxt "menu:Games:description"
+msgid "Gaming platforms and entertainment applications."
+msgstr "ardáin cluichíochta agus iarratais siamsaíochta."
+
+# translated-by: libretranslate
+msgctxt "category:gen:title"
+msgid "Generic"
+msgstr "Cineálach"
+
+# translated-by: libretranslate
+msgctxt "role:test-e2e-playwright:description"
+msgid "Generic end-to-end test runner executing role-provided Playwright specs in Docker against deployed applications"
+msgstr "Cineálach rádala tástála deireadh-le-deireadh forghníomhaitheach ról-sholáthar specs Playwright i Docker i gcoinne iarratais imscaradh"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-dotlinker:description"
+msgid "Generic role installing the doli CLI and applying dotfile symlink mappings passed in by other roles"
+msgstr "Ról cineálach a shuiteáil an doli CLI agus a chur i bhfeidhm mapaí siompóisearach dotfile rith i rólanna eile"
+
+# translated-by: libretranslate
+msgctxt "role:sys-front-inj-javascript:description"
+msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
+msgstr "Sraith instealladh Domhanda JavaScript le haghaidh freagraí NGINX HTML trí sub_filter, le hashing CSP"
+
+# translated-by: libretranslate
+msgctxt "role:sys-front-inj-css:description"
+msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
+msgstr "Instealladh stílbhileog domhanda le haghaidh apps NGINX-choimeád, unifying solas agus dorcha a ainmniú ó colorscheme dinimiciúil"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-sshd:description"
+msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
+msgstr "Hardened OpenSSH cumraíocht daemon do rochtain iargúlta eochair-bhunaithe le logáil isteach fréimhe agus fíordheimhnithe phasfhocal faoi mhíchumas"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-chromium:description"
+msgid "Hardened desktop web browser with enforced privacy and password-manager extensions via Enterprise Policies"
+msgstr "Bhrabhsálaí gréasáin Hardened deisce le príobháideachais agus pasfhocal-bainis sí síntí via Fiontar Polasaithe"
+
+# translated-by: libretranslate
+msgctxt "role:svc-ai-lmstudio:description"
+msgid "Headless local model server for open LLMs with an OpenAI-compatible API on the container network"
+msgstr "Freastalaí múnla áitiúil gan sreang do LLManna oscailte le API OpenAI-comhoiriúnach ar an líonra coimeádán"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-hlth-volumes:description"
+msgid "Health check for orphaned anonymous Docker volumes unbound to containers, with whitelist and alerting"
+msgstr "Seiceáil sláinte le haghaidh líon Docker gan ainm dílleachta gan ainm gan cheangal le coimeádáin, le whitelist agus foláirimh"
+
+# translated-by: libretranslate
+msgctxt "menu:Help:title"
+msgid "Help"
+msgstr "Cabhair"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-compose-ca:description"
+msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
+msgstr "Ról Helper a shuiteáil sócmhainní instealladh CA-iontaobh do chairn Docker Compose agus a bhailíochtú an deimhniú CA tionscadail"
+
+# translated-by: libretranslate
+msgctxt "category:gen:description"
+msgid "Helper roles & installers (git, locales, timer, etc.)"
+msgstr "Rólanna agus suiteálaithe cabhrach (git, locales, lasc ama, etc.)"
+
+# translated-by: libretranslate
+msgctxt "menu:Tools:description"
+msgid "Helpful Tools"
+msgstr "Uirlisí cabhracha"
+
+# translated-by: libretranslate
+msgctxt "menu:Storage:description"
+msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
+msgstr "réitigh stórála féin-óstáil le haghaidh sonraí neamhstruchtúrtha a bhainistiú, a scálú, agus a rochtain — lena n-áirítear stóráil réada atá comhoiriúnach le Amazon S3 APIs."
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-wireguard-core:description"
+msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
+msgstr "Host-leibhéal WireGuard VPN seirbhíse le wg-quick config, pacáiste shuiteáil, agus IP-forwarding steall do tholláin slán"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-journalctl:description"
+msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
+msgstr "chumraíocht leibhéal óstáil don daemon logáil córasach-iris le teorainneacha coinneála agus sruthú logáil beo"
+
+# translated-by: libretranslate
+msgctxt "role:dev-shell:description"
+msgid "Host-level configuration linking Bash and Zsh login shells to a shared .profile for consistent environment loading"
+msgstr "cumraíocht Host-leibhéal nascadh sliogáin Bash agus Zsh logáil isteach le .profile roinnte do luchtú timpeallacht comhsheasmhach"
+
+# translated-by: libretranslate
+msgctxt "role:sys-version:description"
+msgid "Host-level provisioning for exposing the project's pyproject.toml version system-wide via /etc/environment"
+msgstr "Soláthar leibhéal óstála chun an tionscadal a nochtadh pyproject.toml leagan ar fud an chórais trí / srl / comhshaoil"
+
+# translated-by: libretranslate
+msgctxt "role:user-root:description"
+msgid "Host-level role provisioning a root RSA 4096-bit SSH key pair for secure automated administrative access"
+msgstr "Ról leibhéal na hóstála ag soláthar fréamh RSA 4096-bit eochair péire SSH le haghaidh rochtain riaracháin uathoibrithe"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-openbao:description"
+msgid "Identity-based secrets, PKI and encryption manager with OIDC login, group-mapped policies and static-seal auto-unseal"
+msgstr "Rúin aitheantais-bhunaithe, PKI agus bainisteoir criptithe le logáil isteach OIDC, beartais grúpa-tábáilte agus uathoibríoch-neamhseal statach"
+
+# translated-by: libretranslate
+msgctxt "role:svc-db-redis:description"
+msgid "In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
+msgstr "In-meamory eochair-luach taisce agus a stóráil, roinnte go lárnach le per-tomhaltóir ACL leithlisiú nó leabaithe mar sidecar"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-docs:description"
+msgid "Infinito.Nexus documentation for the latest commit and every release, built on demand with Sphinx"
+msgstr "Infinito.Nexus doiciméadú don tiomantas is déanaí agus gach scaoileadh, tógtha ar éileamh le Sphinx"
+
+# translated-by: libretranslate
+msgctxt "menu:Infrastructure:title"
+msgid "Infrastructure"
+msgstr "irl - Climate Change"
+
+# translated-by: libretranslate
+msgctxt "menu:Infrastructure:description"
+msgid "Infrastructure and networking tools"
+msgstr "Uirlisí bonneagair agus líonraithe"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-compose:description"
+msgid "Infrastructure role for managing containerized-application project structures, .env files, and lifecycle handlers"
+msgstr "Ról bonneagair chun struchtúir tionscadail i bhfeidhm coimeádán a bhainistiú, .env comhaid, agus láimhseálaithe saolré"
+
+# translated-by: libretranslate
+msgctxt "role:sys-service:description"
+msgid "Infrastructure role for managing systemd service units: cleanup, deployment, timers, and shared failure diagnostics"
+msgstr "Ról bonneagair chun aonaid seirbhíse córasaithe a bhainistiú: glanadh, imscaradh, amchláir, agus diagnóisí teipe comhroinnte"
+
+# translated-by: libretranslate
+msgctxt "category:svc:description"
+msgid "Infrastructure services like databases"
+msgstr "Seirbhísí bonneagair cosúil le bunachair sonraí"
+
+# translated-by: libretranslate
+msgctxt "category:sys.front.inj:title"
+msgid "Injection"
+msgstr "Instealladh Instealladh"
+
+# translated-by: libretranslate
+msgctxt "role:drv-intel:description"
+msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
+msgstr "Intel VA-API tiománaí meáin le haghaidh crua-earraí-ceiliúradh dhíchódú físeán agus ionchódú ar fud dáiltí Linux"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-mig:description"
+msgid "Interactive graph visualization of all Infinito.Nexus roles and their dependencies for architecture transparency"
+msgstr "Amharcléiriú graf Idirghníomhach ar fad Infinito.Nexus róil agus a spleáchas le haghaidh trédhearcacht ailtireacht"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-jira:description"
+msgid "Issue and project tracking platform for software teams, with agile boards, workflows, and optional OIDC SSO"
+msgstr "Eisiúint agus ardán rianaithe tionscadail le haghaidh foirne bogearraí, le boird agile, sreabhadh oibre, agus OIDC roghnach SSO"
+
+# translated-by: libretranslate
+msgctxt "role:dev-nodejs:description"
+msgid "JavaScript runtime for building and running server-side applications and developer tooling"
+msgstr "JavaScript runtime le haghaidh tógála agus ag rith iarratais freastalaí-taobh agus forbróir tooling"
+
+# translated-by: libretranslate
+msgctxt "role:svc-ai-jupyter:description"
+msgid "Kernel backend that runs the code a chat writes, in a container instead of in the browser sandbox"
+msgstr "Deireadh Kernel a ritheann an cód scríobhann comhrá, i gcoimeádán in ionad sa bhosca gainimh bhrabhsálaí"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-hermes:description"
+msgid "Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to models through the shared LLM gateway"
+msgstr "Gníomhaire bunaithe ar Kernel ag freastal ar API OpenAI-comhoiriúnach, ar bhealach chuig samhlacha tríd an tairseach LLM roinnte"
+
+# translated-by: libretranslate
+msgctxt "category:svc.virt:description"
+msgid "Kernel-isolating container runtimes on the container host: Kata Containers microVMs and the gVisor userspace fallback."
+msgstr "runtimes coimeádán Kernel-isolating ar an óstach coimeádán: Kata coimeádáin microVMs agus an gVisor userspace fallback."
+
+# translated-by: libretranslate
+msgctxt "role:svc-virt-kata:description"
+msgid "Kernel-isolating container runtimes that sandbox untrusted workloads in a microVM or a userspace kernel"
+msgstr "runtimes coimeádán Kernel-isolating go bosca gainimh untrusted ualaí oibre i microVM nó eithne úsáideoraspace"
+
+# translated-by: libretranslate
+msgctxt "role:svc-storage-nfs-server:description"
+msgid "Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts"
+msgstr "freastalaí NFS leibhéal Kernel le haghaidh onnmhairiú crann eolaire roinnte le rochtain IP-restricted do hóstach swarm-node"
+
+# translated-by: libretranslate
+msgctxt "menu:Education:description"
+msgid "Learning platforms, classroom collaboration tools, and digital education environments."
+msgstr "ardáin foghlama, uirlisí comhoibrithe seomra ranga, agus timpeallachtaí oideachais digiteacha."
+
+# translated-by: libretranslate
+msgctxt "role:sys-front-tls-letsencrypt:description"
+msgid "Let's Encrypt provider for the front-facing TLS layer ensuring automated certificate issuance and presence"
+msgstr "Déanaimis soláthraí Criptithe don chiseal TLS tosaigh lena n-áirithítear deimhniú uathoibrithe agus láithreacht"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-retroarch:description"
+msgid "Libretro-based frontend for emulators, game engines, and media players, with XMB and Ozone menu styles"
+msgstr "Libretro-bhunaithe tosaigh do emulators, innill cluiche, agus imreoirí meáin, le stíleanna roghchlár XMB agus Ozone"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-mail-msmtp:description"
+msgid "Lightweight SMTP client and sendmail replacement for delivering mail through an external SMTP server"
+msgstr "Lightweight SMTP cliant agus a sheoladh ríomhphoist athsholáthair le haghaidh seachadadh phost trí fhreastalaí SMTP seachtrach"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-gitea:description"
+msgid "Lightweight self-hosted Git service for code collaboration, version control, and repository management"
+msgstr "Seirbhís Git féin-óstáil Lightweight do chomhoibriú cód, rialú leagan, agus bainistíocht stór"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-nss:description"
+msgid "Local name resolution for the domains the target serves, via the myhostname NSS module"
+msgstr "Rún ainm áitiúil do na fearainn feidhmíonn an sprioc, tríd an modúl myhostname NSS"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ca-selfsigned:description"
+msgid "Local self-signed Root CA for issuing trust so containers accept internal TLS endpoints"
+msgstr "Fréimhe féin-sínithe áitiúil CA chun muinín a eisiúint mar sin glacann coimeádáin le foircinn inmheánacha TLS"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-keepassxc:description"
+msgid "Local-first cross-platform desktop password manager storing credentials in an encrypted KeePass-format database"
+msgstr "Local-chéad tras-ardán bainisteoir phasfhocal deisce a stóráil dintiúir i bunachar sonraí criptithe KeePass-format"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-laya:description"
+msgid "Local-first notification command center that aggregates Slack, mail and issue trackers into approvable action cards"
+msgstr "Ionad ordú áitiúil-céad fógra a chomhiomlánaíonn Slack, post agus rianaithe eisiúint i cártaí gníomh approvable"
+
+# translated-by: libretranslate
+msgctxt "role:sys-lock:description"
+msgid "Locking mechanism for gating maintenance tasks until critical services stop, with configurable retry and timeout"
+msgstr "Meicníocht glasála le haghaidh tascanna cothabhála a ithe go dtí go stopann seirbhísí criticiúla, le retry configurable agus timeout"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-mail-smtp:description"
+msgid "Loopback-only Postfix relay for lightweight outbound mail delivery via localhost when no central mail stack runs"
+msgstr "Loopback-amháin Postfix Relay haghaidh seachadadh ríomhphoist lightweight outbound trí localhost nuair a ritheann aon Stack phost lárnach"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-flowise:description"
+msgid "Low-code visual builder for creating, testing, and publishing LLM and RAG workflows as HTTP endpoints"
+msgstr "tógálaí amhairc íseal-chód le haghaidh LLM agus RAG a chruthú, a thástáil, agus a fhoilsiú mar chríochphointí HTTP"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.mtn:title"
+msgid "Maintenance"
+msgstr "Cothabháil Bóithre"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.mtn:description"
+msgid "Maintenance roles for certificates, system upkeep, and recurring operational tasks."
+msgstr "Róil chothabhála do dheimhnithe, cothabháil córais, agus cúraimí oibriúcháin athfhillteacha."
+
+# translated-by: libretranslate
+msgctxt "role:svc-swarm-manager:description"
+msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
+msgstr "Ról Marker clibeáil óstach mar an Docker Swarm bainisteoir nód, leis an loighic init tarmligthe a svc-swarm-node"
+
+# translated-by: libretranslate
+msgctxt "menu:Marketing:title"
+msgid "Marketing"
+msgstr "Margaíocht agus Margaíocht"
+
+# translated-by: libretranslate
+msgctxt "role:svc-ai-searxng:description"
+msgid "Metasearch engine the platform queries for web results without handing a user's query to a tracking search provider"
+msgstr "Inneall metasearch na ceisteanna ardán le haghaidh torthaí gréasáin gan tabhairt freagra úsáideora chuig soláthraí cuardaigh rianú"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-gnt-pi:description"
+msgid "Minimal terminal coding agent with a lazy-loading skill system, wired to the platform's own model gateway"
+msgstr "Gníomhaire códaithe críochfort Minimal le córas scileanna leisciúil-ualú, sreangaithe chuig an ardán geata samhail féin"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.hlth:title"
+msgid "Monitoring"
+msgstr "Faireachán agus Faireachán"
+
+# translated-by: libretranslate
+msgctxt "role:gen-hunspell:description"
+msgid "Multi-language spell checker with configurable dictionary packs for desktop and office text editing"
+msgstr "Seiceáil litrithe il-teanga le pacáistí foclóir configurable le haghaidh eagarthóireacht téacs deisce agus oifige"
+
+# translated-by: libretranslate
+msgctxt "role:web-opt-rdr-domains:description"
+msgid "NGINX glue role for 301 redirects from source to target domains with automatic SSL for the source hosts"
+msgstr "Ról gliú NGINX le haghaidh 301 atreoruithe ó fhoinse chun sprioc fearainn le SSL uathoibríoch do na hóstach foinse"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-webserver-https:description"
+msgid "NGINX layer for HTTPS with Let's Encrypt ACME challenge handling, port 80 to 443 redirect, and stale vHost cleanup"
+msgstr "NGINX ciseal do HTTPS le A ligean ar Criptithe ACME dúshlán láimhseáil, port 80 go dtí 443 atreorú, agus stale vHost cleanup"
+
+# translated-by: libretranslate
+msgctxt "role:web-opt-rdr-www:description"
+msgid "NGINX server blocks that permanently redirect www subdomains to their non-www apex domains"
+msgstr "Bloic freastalaí NGINX a atreorú go buan www subdomains chuig a n-fearainn neamh-www apex"
+
+# translated-by: libretranslate
+msgctxt "role:sys-front-inj-matomo:description"
+msgid "NGINX subfilter injector adding Matomo analytics script and noscript image tracker to served HTML pages"
+msgstr "NGINX subfilter injector chur script anailísíochta Matomo agus rianaitheoir íomhá noscript a sheirbheáil leathanaigh HTML"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-html:description"
+msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
+msgstr "vhost NGINX chun freastal ar láithreáin ghréasáin HTML statach thar HTTPS le deimhnithe uathoibríoch A ligean ar Criptithe"
+
+# translated-by: libretranslate
+msgctxt "role:svc-prx-openresty:description"
+msgid "NGINX-based web platform and reverse proxy with validated config reloads and Let's Encrypt integration"
+msgstr "ardán gréasáin NGINX-bhunaithe agus seachfhreastalaí droim ar ais le athluchtuithe config bailíochtaithe agus A ligean ar Comhtháthú Criptithe"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-legal:description"
+msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
+msgstr "NGINX-shealbhaithe leathanach statach ag déanamh imprint dlíthiúil (taiseachas aeir: fliuch) ó Jinja2 teimpléad teimpléad"
+
+# translated-by: libretranslate
+msgctxt "category:svc.net:title"
+msgid "Network"
+msgstr "Líonra na Líonraí"
+
+# translated-by: libretranslate
+msgctxt "category:svc.net:description"
+msgid "Network setup (DNS, Let's Encrypt HTTP, WireGuard, etc.)"
+msgstr "Líonra thus (DNS, A ligean ar Criptithe HTTP, WireGuard, etc.)"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-pihole:description"
+msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
+msgstr "Poill DNS líonra-leathan le haghaidh fógraí blocála agus lorgairí ar fud gach feiste, le DHCP agus Painéal na nIonstraimí admin gréasáin"
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-wireguard-firewalled:description"
+msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
+msgstr "Cúntóir líonraithe le haghaidh iptables ar aghaidh agus masquerading NAT cliant WireGuard ag rith taobh thiar de NAT nó balla dóiteáin"
+
+# translated-by: libretranslate
+msgctxt "role:sys-front-inj-logout:description"
+msgid "Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
+msgstr "Toir agus Crainn sub_filter Instealladh JavaScript a atreorú gach gníomh logála isteach chuig lárnaithe OIDC síniú aonair amach endpoint"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-cdn:description"
+msgid "Nginx-based content delivery network for serving shared static assets to internal web applications"
+msgstr "Líonra seachadta ábhar Nginx-bhunaithe chun sócmhainní statach roinnte a sheirbheáil ar iarratais ghréasáin inmheánacha"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-mirror:description"
+msgid "Nginx-based privacy proxy that mirrors whitelisted third-party assets under a first-party domain"
+msgstr "Nginx-bhunaithe seachfhreastalaí príobháideachta a scátháin whitelisted sócmhainní tríú páirtí faoi bhfearann chéad pháirtí"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-asset:description"
+msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
+msgstr "Nginx-bhunaithe freastalaí do óstáil sócmhainní statach a chóipeáil ó eolaire foinse chuig an cosán sonraí gréasáin"
+
+# translated-by: libretranslate
+msgctxt "role:dev-npm:description"
+msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
+msgstr "Node.js pacáiste-bainisteoir thus shuiteáil npm agus go roghnach ag rith 'npm ci' taobh istigh eolaire tionscadail"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.alm:description"
+msgid "Notification handlers for system events"
+msgstr "Láimhseálaithe Fógra le haghaidh imeachtaí córais"
+
+# translated-by: libretranslate
+msgctxt "category:update:description"
+msgid "OS & package updates"
+msgstr "OS & nuashonruithe pacáiste"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-objstore:description"
+msgid "Object-storage layer for SeaweedFS/MinIO backend resolution and per-consumer bucket and credential provisioning"
+msgstr "Ciseal raidhse le haghaidh rún siar SeaweedFS/MinIO agus buicéad in aghaidh an tomhaltóra agus soláthar dintiúir"
+
+# translated-by: libretranslate
+msgctxt "role:svc-opt-swapfile:description"
+msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
+msgstr "Ar-target uathoibriú a chruthú agus a ghníomhachtú spás swap trí script swapfile cloned"
+
+# translated-by: libretranslate
+msgctxt "logout:open_logout"
+msgid "Open the logout page"
+msgstr "Oscail an leathanach logout"
+
+# translated-by: libretranslate
+msgctxt "logout:no_check_hint"
+msgid "Open the logout page and sign out of the remaining services yourself."
+msgstr "Oscail an leathanach logout agus a shíniú amach as na seirbhísí atá fágtha duit féin."
+
+# translated-by: libretranslate
+msgctxt "role:web-app-espocrm:description"
+msgid "Open-source CRM platform for managing sales, customer interactions, and business processes across teams"
+msgstr "Oscailte-foinse ardán CRM do díolacháin a bhainistiú, idirghníomhaíochtaí do chustaiméirí, agus próisis ghnó ar fud foirne"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-suitecrm:description"
+msgid "Open-source CRM platform for sales, service, cases, and campaign management with workflow automation"
+msgstr "Open-source CRM ardán do díolacháin, seirbhís, cásanna, agus bainistíocht feachtas le uathoibriú sreabhadh oibre"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-odoo:description"
+msgid "Open-source ERP suite for CRM, sales, accounting, inventory, HR, and website management"
+msgstr "Open-source ERP sraith do CRM, díolacháin, cuntasaíocht, fardal, HR, agus bainistíocht láithreán gréasáin"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-checkmk:description"
+msgid "Open-source IT and application monitoring server behind SSO with native LDAP user management"
+msgstr "Oscail-foinse TF agus freastalaí monatóireachta i bhfeidhm taobh thiar SSO le bainistíocht úsáideora LDAP dúchais"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-snipe-it:description"
+msgid "Open-source IT asset management system for tracking hardware and software inventory"
+msgstr "Córas bainistíochta sócmhainní TF foinse oscailte chun crua-earraí agus fardal bogearraí a rianú"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-kix:description"
+msgid "Open-source ITSM and helpdesk platform (OTRS fork) for ticketing, CMDB, knowledge base, and reporting"
+msgstr "ITSM foinse oscailte agus ardán deisce cabhrach (Seirbhís do Chustaiméirí) do ticéadú, CMDB, bonn eolais, agus tuairisciú"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-taiga:description"
+msgid "Open-source agile project management platform for Scrum, Kanban, and hybrid team workflows"
+msgstr "ardán bainistíochta tionscadail agraile foinse oscailte do Sreabhadh oibre Scrum, Kanban, agus foireann hibrideach"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-jenkins:description"
+msgid "Open-source automation server for CI/CD pipelines, builds, and plugin-driven deployment workflows"
+msgstr "freastalaí uathoibriú foinse oscailte le haghaidh píblínte CI / Baile, Tógann, agus sreabhadh oibre imscaradh breiseán-tiomáinte"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-fider:description"
+msgid "Open-source community feedback platform for collecting, voting on, and prioritizing feature requests and ideas"
+msgstr "ardán aiseolais pobail foinse oscailte do bhailiú, vótáil ar, agus tosaíocht a thabhairt ar iarratais gné agus smaointe"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-joomla:description"
+msgid "Open-source content management system for building websites, intranets, and online applications without writing code"
+msgstr "Córas bainistíochta ábhar foinse oscailte do láithreáin ghréasáin tógála, inlíons, agus iarratais ar líne gan cód scríbhneoireachta"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-qbittorrent:description"
+msgid "Open-source desktop BitTorrent client for downloading and sharing files over the BitTorrent protocol"
+msgstr "Oscail-foinse deisce BitTorrent cliant a íoslódáil agus a roinnt comhaid thar an prótacal BitTorrent"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-discourse:description"
+msgid "Open-source discussion and community forum platform with moderation, notifications, and plugin support"
+msgstr "Oscail-foinse plé agus ardán fóram pobail le moderation, fógraí, agus tacaíocht breiseán"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-shopware:description"
+msgid "Open-source ecommerce platform built on Symfony and Vue.js for building and scaling online storefronts"
+msgstr "ardán ríomhthráchtáil foinse oscailte tógtha ar Symfony agus Vue.js le haghaidh tógála agus scálú ar líne storefronts"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-zammad:description"
+msgid "Open-source helpdesk and ticketing system for handling customer requests via email, chat, phone, and web"
+msgstr "Open-source helpdesk agus córas ticéadú chun déileáil le hiarratais do chustaiméirí trí ríomhphost, comhrá, fón, agus gréasáin"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-moodle:description"
+msgid "Open-source learning management system for creating, managing, and delivering online courses and e-learning"
+msgstr "Córas bainistíochta foghlama foinse oscailte chun cúrsaí ar líne agus ríomhfhoghlaim a chruthú, a bhainistiú, agus a sheachadadh"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-prometheus:description"
+msgid "Open-source monitoring and alerting toolkit for storing metrics as time-series data and querying them with PromQL"
+msgstr "Oscail-foinse monatóireacht agus alerting toolkit a stóráil méadracht mar sonraí ama-sraith agus iad a chuardach le PromQL"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-decidim:description"
+msgid "Open-source participatory democracy platform for public consultations, civic processes, and community voting"
+msgstr "Oscail-foinse ardán daonlathas rannpháirteach do chomhairliúcháin phoiblí, próisis shibhialta, agus vótáil pobail"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-mattermost:description"
+msgid "Open-source, self-hosted team messaging platform for real-time collaboration via channels, threads, and integrations"
+msgstr "Open-source, ardán teachtaireachtaí foirne féin-óstáil le haghaidh comhoibriú fíor-ama trí chainéil, snáitheanna, agus integrations"
+
+# translated-by: libretranslate
+msgctxt "role:svc-ai-litellm:description"
+msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
+msgstr "OpenAI-comhoiriúnach LLM geata ródú amháin / V1 endpoint le backends samhail áitiúil agus óstáil le heochracha per-tomhaltóir"
+
+# translated-by: libretranslate
+msgctxt "role:dev-java:description"
+msgid "OpenJDK 11 runtime and development kit for Java applications on Pacman-based systems"
+msgstr "Teagmháil le FÁS 11 trealamh runtime agus forbartha le haghaidh iarratais Java ar chórais Pacman-bhunaithe"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-ssh:description"
+msgid "OpenSSH client package for secure remote shell access and key-based authentication"
+msgstr "OpenSSH pacáiste cliant le haghaidh rochtain bhlaosc iargúlta slán agus fíordheimhnithe eochair-bhunaithe"
+
+# translated-by: libretranslate
+msgctxt "category:svc.opt:description"
+msgid "Optimation Services to improve your system"
+msgstr "Seirbhísí Optamaithe chun do chóras a fheabhsú"
+
+# translated-by: libretranslate
+msgctxt "role:dev-gcc:description"
+msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
+msgstr "Optamaigh compiler toolchain do thógáil C, C ++, agus cláir dúchais eile"
+
+# translated-by: libretranslate
+msgctxt "role:sys-stk-front-proxy:description"
+msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
+msgstr "Clúdaigh áirseáil do sholáthar NGINX per-domain le teastais TLS, teimpléid vHost, agus roghnach OAuth2"
+
+# translated-by: libretranslate
+msgctxt "logout:pace_tor"
+msgid "Over Tor this can take a while."
+msgstr "Thar Tor féidir é seo a ghlacadh ar feadh tamaill."
+
+# translated-by: libretranslate
+msgctxt "role:dev-make:description"
+msgid "Package installation for the GNU Make build automation tool on Arch Linux via Pacman"
+msgstr "Suiteáil pacáiste don GNU Déan thógáil uirlis uathoibriú ar Arch Linux trí Pacman"
+
+# translated-by: libretranslate
+msgctxt "role:sys-pip:description"
+msgid "Package manager for installing and managing Python packages on the target host"
+msgstr "Bainisteoir Pacáiste do shuiteáil agus a bhainistiú pacáistí Python ar an óstach sprioc"
+
+# translated-by: libretranslate
+msgctxt "role:svc-ai-agent-broker:description"
+msgid "Per-user Hermes and OpenClaw agents started on demand behind an OpenAI-compatible endpoint"
+msgstr "Per-úsáideoir Hermes agus OpenClaw thosaigh gníomhairí ar éileamh taobh thiar de phointe deiridh OpenAI-comhoiriúnach"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-hlth-msmtp:description"
+msgid "Periodic health check for outbound mail delivery, sending a test message via msmtp and alerting on failure"
+msgstr "Seiceáil sláinte tréimhsiúla le haghaidh seachadadh poist amach, teachtaireacht tástála a sheoladh trí msmtp agus foláirimh ar mhainneachtain"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-ssh:description"
+msgid "Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
+msgstr "Persistent córasaithe úsáideora-seirbhíse gníomhaire SSH do dheasc Wayland, leis an .ssh config synced ó Git"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-xmpp:description"
+msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
+msgstr "Ról stub sealbhóir Áite do fhreastalaí XMPP sa todhchaí / imscaradh coimeádán, cur i bhfeidhm go dtí go"
+
+# translated-by: libretranslate
+msgctxt "menu:Commerce:description"
+msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
+msgstr "Ardáin do thógáil agus a bhainistiú siopaí ar líne, catalóga táirge, agus cainéil díolacháin digiteach - lena n-áirítear íocaíocht, fardal, agus gnéithe do chustaiméirí."
+
+# translated-by: libretranslate
+msgctxt "logout:keep_closed"
+msgid "Please do not close this page yet."
+msgstr "Ná dún an leathanach seo go fóill."
+
+# translated-by: libretranslate
+msgctxt "logout:keep_open"
+msgid "Please keep this page open until this is done."
+msgstr "Coinnigh an leathanach seo ar oscailt go dtí go ndéantar é seo."
+
+# translated-by: libretranslate
+msgctxt "role:svc-bkp-local-2-device:description"
+msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
+msgstr "Breiseán-triggered cúltaca córasach do crua-nasc snapshots deduplicated an crann cúltaca áitiúil isteach ar gléas USB swappable"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-firefox:description"
+msgid "Policy-managed web browser for Arch Linux desktops with auto-installed enterprise extensions"
+msgstr "Brabhsálaí gréasáin beartas-bhainistithe do dheasc Arch Linux le síntí fiontraíochta uathoibríoch-shuiteáilte"
+
+# translated-by: libretranslate
+msgctxt "role:drv-lid-switch:description"
+msgid "Power-aware systemd logind configuration for predictable laptop lid-close behavior across battery, AC, and docked states"
+msgstr "Power-aware cumraíocht logáil isteach córasach do ríomhaire glúine intuartha iompar lid-dlúth ar fud ceallraí, AC, agus stáit docked"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-socialhome:description"
+msgid "Privacy-first social platform for households, federating peer-to-peer over WebRTC on an embedded SQLite store"
+msgstr "Príobháideachas-an chéad ardán sóisialta do theaghlaigh, cónaidhme piaraí-go-peer thar WebRTC ar siopa SQLite leabaithe"
+
+# translated-by: libretranslate
+msgctxt "role:sys-sudo:description"
+msgid "Privilege-escalation package and hardened sudoers configuration with /etc/sudoers.d drop-in support"
+msgstr "Pribhléid-scálú pacáiste agus cruaite sudoers chumraíocht le / srl / Sudoers.d titim-i tacaíocht"
+
+# translated-by: libretranslate
+msgctxt "menu:Project Management:title"
+msgid "Project Management"
+msgstr "Bainistíocht Tionscadail"
+
+# translated-by: libretranslate
+msgctxt "menu:Project Management:description"
+msgid "Project Management Tools"
+msgstr "Uirlisí Bainistíochta Tionscadail"
+
+# translated-by: libretranslate
+msgctxt "role:drv-non-free:description"
+msgid "Proprietary GPU driver installer for Arch-based systems via mhwd nonfree hardware detection"
+msgstr "Suiteálaí tiománaí GPU dílseánaigh do chórais Arch-bhunaithe trí bhrath crua-earraí neamh-saor in aisce"
+
+# translated-by: libretranslate
+msgctxt "role:sys-dns-wildcards:description"
+msgid "Provisioning role for Cloudflare wildcard DNS records (*.parent) on parent hosts and the apex domain"
+msgstr "Ról a chur ar fáil do thaifid DNS Cárta fiáin Cloudflare (*.tuismitheoir) ar hóstach tuismitheoir agus an fearann apex"
+
+# translated-by: libretranslate
+msgctxt "role:user-workstation:description"
+msgid "Provisioning role for a workstation login account with its shell dotfiles, SSH authorized keys, and environment"
+msgstr "Ról a sholáthar le haghaidh cuntas logála stáisiún oibre lena dotfiles bhlaosc, Eochracha údaraithe SSH, agus timpeallacht"
+
+# translated-by: libretranslate
+msgctxt "role:user:description"
+msgid "Provisioning role for per-user environment setup, managing shell dotfiles and SSH authorized_keys"
+msgstr "Ról a chur ar fáil do thus timpeallacht in aghaidh an-úsáideoir, dotfiles bhlaosc a bhainistiú agus SSH authorized_keys"
+
+# translated-by: libretranslate
+msgctxt "category:svc.prx:title"
+msgid "Proxy Servers"
+msgstr "Freastalaithe Proxy"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-api:description"
+msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
+msgstr "REST API Poiblí ag freastal ar shonraí ról, stair agus aistriúcháin de Infinito.Nexus do gach ref de chroí agus a forks"
+
+# translated-by: libretranslate
+msgctxt "role:pkgmgr:description"
+msgid "Python CLI package manager for cloning multiple code repositories and automating common Git operations"
+msgstr "Python bainisteoir pacáiste CLI do chlónáil stórtha cód il agus uathoibriú oibríochtaí Git coitianta"
+
+# translated-by: libretranslate
+msgctxt "role:sys-lint:description"
+msgid "Release pins for the GitHub-release lint tools the toolchain installs"
+msgstr "Pionnaí Scaoileadh don GitHub-scaoileadh lint uirlisí suiteálaithe toolchain"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.rpr:title"
+msgid "Repair"
+msgstr "irl - Library Service"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.rpr:description"
+msgid "Repair and recovery roles—handling hard/soft recovery of Docker, Btrfs balancers, and other low-level system fixes."
+msgstr "Róil a dheisiú agus a ghnóthú -handling crua / bog a ghnóthú Docker, cothromaíochtóirí Btrfs, agus córas íseal-leibhéal eile fixes."
+
+# translated-by: libretranslate
+msgctxt "role:sys-util-git-pull:description"
+msgid "Reusable Git pull primitive for shallow clones, detached-safe updates, tag pinning, and reliable change detection"
+msgstr "Ath-inúsáidte Git tarraingt primitive do clones éadomhain, nuashonruithe scoite-sábháilte, pinning tag, agus bhrath athrú iontaofa"
+
+# translated-by: libretranslate
+msgctxt "role:svc-ai-mcp-adapter:description"
+msgid "Reusable per-provider MCP adapter exposing a narrow allowlisted read surface"
+msgstr "Adapter MCP in aghaidh an-soláthraithe ag nochtadh dromchla a léamh caolliostaithe"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-proxy:description"
+msgid "Reverse proxy front-end for Docker-hosted services with automatic TLS, WebSocket support, and per-app vHost templating"
+msgstr "Reverse seachfhreastalaí tosaigh-deireadh do Docker-óstach seirbhísí le TLS uathoibríoch, tacaíocht WebSocket, agus per-app vHost templating"
+
+# translated-by: libretranslate
+msgctxt "role:sys-front-tls:description"
+msgid "Reverse-proxy TLS orchestration layer selecting Let's Encrypt, self-signed, or disabled certificate providers for Nginx"
+msgstr "Reverse-proxy TLS sraith orchestration roghnú A ligean ar Criptithe, féin-sínithe, nó soláthraithe deimhnithe faoi mhíchumas do Nginx"
+
+# translated-by: libretranslate
+msgctxt "category:svc.prx:description"
+msgid "Reverse-proxy roles for routing and load-balancing traffic to backend services"
+msgstr "Róil droim ar ais-proxy le haghaidh tráchta ródú agus ualach-chothromú le seirbhísí cúl"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.cln:description"
+msgid "Roles for cleaning up various system resources—old backups, unused certificates, temporary files, Docker volumes, disk caches, deprecated domains, and more."
+msgstr "Rólanna chun acmhainní córas éagsúla a ghlanadh suas - cúltacaí d'aois, deimhnithe neamhúsáidte, comhaid shealadacha, imleabhair Docker, taisceanna diosca, fearainn dímheasta, agus níos mó."
+
+# translated-by: libretranslate
+msgctxt "category:drv:description"
+msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
+msgstr "Róil a shuiteáil agus a chumrú tiománaithe crua-earraí-earraí - printéirí a chlúdach, grafaicí, feistí ionchur, agus tacaíocht forimeallach eile."
+
+# translated-by: libretranslate
+msgctxt "category:web:description"
+msgid "Roles for managing web infrastructure—covering static content services and deployable web applications."
+msgstr "Róil maidir le bonneagar gréasáin a bhainistiú - seirbhísí ábhair statach a chlúdach agus iarratais ghréasáin in-imscartha."
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.hlth:description"
+msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
+msgstr "Róil le haghaidh monatóireacht córas agus seiceálacha sláinte-seiceálacha uathoibrithe buidéal-stíl agus monatóireacht ar leibhéal lárnach íseal le haghaidh logs, coimeádáin, úsáid diosca, agus níos mó."
+
+# translated-by: libretranslate
+msgctxt "role:sys-front-tls-selfsigned:description"
+msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
+msgstr "Soláthraí deimhniú SAN-aware ag giniúint agus ag stóráil deimhnithe TLS féin-sínithe don chiseal tosaigh-proxy TLS"
+
+# translated-by: libretranslate
+msgctxt "menu:Sales:title"
+msgid "Sales"
+msgstr "Díolacháin agus Díolacháin"
+
+# translated-by: libretranslate
+msgctxt "category:svc.virt:title"
+msgid "Sandboxed Runtimes"
+msgstr "Ranganna Teagaisc"
+
+# translated-by: libretranslate
+msgctxt "role:svc-bkp-nfs-2-local:description"
+msgid "Scheduled backup job for hard-linked differential rsync snapshots of an NFS export into the local backup tree"
+msgstr "Sceidealta post cúltaca do rsync dhifreálach rsync snapshots de onnmhairithe NFS isteach sa chrann cúltaca áitiúil"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-cln-certs:description"
+msgid "Scheduled cleanup tool for revoking and deleting unused Let's Encrypt certificates"
+msgstr "Uirlis glantacháin Sceidealta chun deimhnithe neamhúsáidte a chúlghairm agus a scriosadh"
+
+# translated-by: libretranslate
+msgctxt "role:svc-bkp-secrets-2-local:description"
+msgid "Scheduled deduplicating backup of host secrets, CA, ACME credentials, and node identity to the local backup directory"
+msgstr "Sceidealta cúltaca deduplicating rúin óstach, CA, dintiúir ACME, agus aitheantas nód leis an eolaire cúltaca áitiúil"
+
+# translated-by: libretranslate
+msgctxt "role:svc-bkp-volume-2-local:description"
+msgid "Scheduled deduplicating backup system for Docker container volumes to a local directory, with consistent SQL dumps"
+msgstr "Córas cúltaca deduplicating Sceidealta do imleabhair coimeádán Docker chuig eolaire áitiúil, le dumpaí SQL comhsheasmhach"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-hlth-csp:description"
+msgid "Scheduled health check crawling configured domains for CSP-blocked resources via a Puppeteer-based Node.js checker"
+msgstr "Seiceálacha sláinte sceidealta crawling fearainn cumraithe le haghaidh acmhainní CSP-blocked trí Puppeteer-bhunaithe Node.js checker"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-hlth-btrfs:description"
+msgid "Scheduled health check for Btrfs filesystems that alerts on non-zero device error counters"
+msgstr "Seiceáil sláinte Sceidealta le haghaidh córas comhaid Btrfs a foláirimh ar cuntair earráide gléas neamh-zero"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-hlth-disc-space:description"
+msgid "Scheduled health check for filesystem disk usage, alerting when any mount exceeds its warning threshold"
+msgstr "Seiceáil sláinte Sceidealta le haghaidh úsáid diosca córas comhaid, foláireamh nuair a níos mó aon mount a tairseach rabhaidh"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-hlth-journalctl:description"
+msgid "Scheduled health check scanning the systemd journal for daily errors and alerting on matches"
+msgstr "Sceidealta seiceáil sláinte scanadh an iris systemd le haghaidh earráidí laethúla agus foláirimh ar cluichí"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-hlth-webserver:description"
+msgid "Scheduled health check verifying each NGINX domain returns its expected HTTP status and alerting on deviations"
+msgstr "Seiceálacha sláinte Sceidealta a fhíorú gach NGINX fearainn tuairisceáin a stádas HTTP ag súil leis agus foláirimh ar diallais"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-cln-faild-bkps:description"
+msgid "Scheduled maintenance service for detecting and removing failed Docker backups while keeping recent sets intact"
+msgstr "Seirbhís cothabhála Sceidealta chun cúltacaí Docker theip a bhrath agus a bhaint agus tacair a choinneáil le déanaí slán"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-cln-anon-volumes:description"
+msgid "Scheduled maintenance task for reclaiming disk space by removing unused anonymous Docker volumes and their symlinks"
+msgstr "tasc cothabhála Sceidealta le haghaidh aiséileamh spás diosca trí dheireadh a chur méideanna Docker gan ainm agus a gcuid siomptálacha"
+
+# translated-by: libretranslate
+msgctxt "role:svc-bkp-remote-2-local:description"
+msgid "Scheduled pull-style backup replicating remote hosts onto this host over SSH and rsync as hard-linked snapshots"
+msgstr "Sceidealta cúltaca tarraingt-stíl mhacasamhlú hóstach iargúlta ar an óstach thar SSH agus rsync mar snapshots crua-nasctha"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-cln-bkps:description"
+msgid "Scheduled systemd maintenance service for pruning outdated backup versions when disk usage exceeds a threshold"
+msgstr "Sceidealta seirbhíse cothabhála córasaithe le haghaidh bearradh leaganacha cúltaca as dáta nuair a bhíonn úsáid diosca níos mó ná tairseach"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-rpr-btrfs-balancer:description"
+msgid "Scheduled systemd service and timer for rebalancing Btrfs file systems to keep storage allocation optimal"
+msgstr "Seirbhís córasach Sceidealta agus lasc ama chun córais comhad Btrfs a athchothromú chun leithdháileadh stórála a choinneáil is fearr"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-mtn-cert-renew:description"
+msgid "Scheduled systemd-timer job renewing Let's Encrypt SSL/TLS certificates via Certbot and reloading NGINX afterward"
+msgstr "Sceidealta post systemd-timer athnuachan A ligean ar Criptithe SSL / TLS deimhnithe trí Certbot agus athlódáil NGINX ina dhiaidh sin"
+
+# translated-by: libretranslate
+msgctxt "role:svc-runner:description"
+msgid "Self-hosted CI runner infrastructure for executing GitHub Actions workflow jobs in ephemeral Docker containers"
+msgstr "Féin-óstach bonneagar rádala CI do fhorghníomhú GitHub Gníomhaíochtaí poist sreabhadh oibre i gcoimeádáin Docker ephemeral"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-gitlab:description"
+msgid "Self-hosted DevOps platform for Git source-code management, CI/CD pipelines, and issue tracking"
+msgstr "ardán DevOps Féin-óstáil le haghaidh Git foinse-cód bainistíochta, CI/CD píblínte, agus rianú eisiúint"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-fediwall:description"
+msgid "Self-hosted Fediverse wall for showing recent public posts by hashtag or account in a live masonry grid"
+msgstr "Balla Féin-óstáil Fediverse chun post poiblí le déanaí a thaispeáint trí hashtag nó cuntas i eangach saoirseachta beo"
+
+# translated-by: libretranslate
+msgctxt "category:svc.runner:description"
+msgid "Self-hosted GitHub Actions runner deployment and configuration"
+msgstr "Féin-óstach GitHub Gníomhartha imscaradh rádala agus cumraíocht"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-littlejs:description"
+msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
+msgstr "Féin-óstáil HTML5 bosca gainimh cluiche do brabhsáil agus a reáchtáil demos inneall lightweight agus cluichí sa bhrabhsálaí"
+
+# translated-by: libretranslate
+msgctxt "role:svc-db-openldap:description"
+msgid "Self-hosted LDAP directory service for centralized user, group, and schema management with TLS-secured access"
+msgstr "Seirbhís eolaire LDAP Féin-óstáil d'úsáideoir láraithe, grúpa, agus bainistíocht scéimre le rochtain TLS-urraithe"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-minio:description"
+msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
+msgstr "Féin-óstáil S3-compatible stóráil réad do chomhaid, meáin, backups, agus artifacts AI"
+
+# translated-by: libretranslate
+msgctxt "role:svc-ai-s1:description"
+msgid "Self-hosted System One classifier that answers typed questions so the gateway can route without generating"
+msgstr "Féin-óstáil System One classifier a freagraí ceisteanna clóscríofa ionas gur féidir leis an geata bealach gan giniúint"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-yourls:description"
+msgid "Self-hosted URL shortener for creating, tracking, and managing short links with built-in click analytics"
+msgstr "Féin-óstach URL giorraithe le haghaidh a chruthú, rianú, agus naisc gearr le tógtha i cliceáil Analytics"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-jitsi:description"
+msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
+msgstr "ardán WebRTC Féin-óstáil le haghaidh físeán deireadh-le-deireadh-sainchriptithe a thabhairt le fíordheimhnithe cónasctha"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-mini-qr:description"
+msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
+msgstr "Uirlis bhrabhsálaí féin-óstach chun cóid QR a ghiniúint ó téacs nó URLanna le rindreáil áitiúil phríobháideach-chairdiúil"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-openwebui:description"
+msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
+msgstr "comhéadan comhrá féin-óstáil chun idirghníomhú le samhlacha AI áitiúla agus príobháideacha trí chúlchríocha ar nós Ollama"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-nextcloud:description"
+msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
+msgstr "ardán scamall Féin-óstach do sync comhad, roinnt, comhoibriú fíor-ama, agus spásanna oibre foirne faoi do bhfearann féin"
+
+# translated-by: libretranslate
+msgctxt "menu:Cloud:description"
+msgid "Self-hosted cloud solutions for file synchronization, collaboration, and data sharing."
+msgstr "réitigh scamall féin-óstáil le haghaidh sioncrónaithe comhad, comhoibriú, agus sonraí a roinnt."
+
+# translated-by: libretranslate
+msgctxt "role:web-app-bluesky:description"
+msgid "Self-hosted decentralized social network on the open AT Protocol, with its own Personal Data Server"
+msgstr "Féin-óstáil líonra sóisialta díláraithe ar an oscailte AT Prótacal, lena Freastalaí Sonraí Pearsanta féin"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-penpot:description"
+msgid "Self-hosted design and prototyping platform for UI/UX work, real-time collaboration, and developer handoff"
+msgstr "Dearadh féin-óstáil agus ardán prototyping le haghaidh obair Chomhéadain / UX, comhoibriú fíor-ama, agus forbróir handoff"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-magento:description"
+msgid "Self-hosted e-commerce platform for catalog management, checkout, promotions, and multi-store online retail"
+msgstr "ardán ríomhthráchtáil Féin-óstáil le haghaidh bainistíochta chatalóg, Seiceáil, cur chun cinn, agus miondíola il-siopa ar líne"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-xwiki:description"
+msgid "Self-hosted enterprise wiki and knowledge-management platform with collaboration and app-based extensibility"
+msgstr "wiki fiontraíochta féin-óstáil agus ardán bainistíochta eolais le comhoibriú agus extensibility app-bhunaithe"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-bookwyrm:description"
+msgid "Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
+msgstr "Ardán léitheoireachta féin-óstáil chothaithe le haghaidh athbhreithnithe leabhar agus rianú léitheoireachta ar fud na Fediverse"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-mastodon:description"
+msgid "Self-hosted federated social network for microblogging, real-time timelines, and community moderation"
+msgstr "Líonra sóisialta féin-óstáil chothaithe le haghaidh microblogging, timelines fíor-ama, agus moderation pobail"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-keycloak:description"
+msgid "Self-hosted identity and access management platform for single sign-on, multi-factor authentication, and user federation"
+msgstr "Féin-óstáil féiniúlacht agus ardán bainistíochta rochtain do shíniú-ar, fíordheimhnithe il-fhachtóir, agus chónaidhm úsáideora"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-n8n:description"
+msgid "Self-hosted low-code automation platform for connecting services and building workflow integrations visually"
+msgstr "ardán uathoibriú féin-óstáil íseal-cód do nascadh seirbhísí agus comhtháthú sreabhadh oibre tógála amhairc"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-mailu:description"
+msgid "Self-hosted mail server suite with SMTP/IMAP/POP3, webmail, spam filtering, antivirus, DKIM signing, and TLS"
+msgstr "Féin-óstáil sraith freastalaí ríomhphoist le SMTP/IMAP/POP3, webmail, spam scagadh, antivirus, DKIM síniú, agus TLS"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-jellyfin:description"
+msgid "Self-hosted media server for streaming and organizing movies, TV, music, and photos, with OIDC and LDAP login"
+msgstr "Freastalaí meáin Féin-óstáil do scannáin sruthú agus a eagrú, teilifís, ceol, agus grianghraif, le OIDC agus LDAP logáil isteach"
+
+# translated-by: libretranslate
+msgctxt "role:svc-ai-ollama:description"
+msgid "Self-hosted model server for running open LLMs locally behind a simple HTTP API"
+msgstr "Féin-óstáil freastalaí múnla do reáchtáil LLMs oscailte go háitiúil taobh thiar de API HTTP simplí"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-baserow:description"
+msgid "Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
+msgstr "Féin-óstáil ardán bunachar sonraí aon-chód le comhéadan scarbhileog-mhaith le haghaidh tógála agus comhoibriú ar shonraí"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-collabora:description"
+msgid "Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
+msgstr "Féin-óstach oifig ar líne ar ais le haghaidh fíor-ama in-bhrabhsálaí eagarthóireacht ar dhoiciméid, scarbhileoga, agus cur i láthair"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-erpnext:description"
+msgid "Self-hosted open-source ERP suite for finance, CRM, inventory, manufacturing, HR, sales, and projects"
+msgstr "Féin-óstáil oscailte-foinse ERP sraith le haghaidh airgeadais, CRM, fardal, déantúsaíochta, HR, díolacháin, agus tionscadail"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-libretranslate:description"
+msgid "Self-hosted open-source machine translation API for translating and detecting text across languages"
+msgstr "Féin-óstach aistriúchán meaisín foinse oscailte API do aistriú agus a bhrath téacs trasna teangacha"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-openclaw:description"
+msgid "Self-hosted personal AI agent gateway with a browser control UI, sandboxed in a Kata microVM or gVisor runtime"
+msgstr "Féin-óstáil pearsanta AI gheata gníomhaire le Chomhéadain rialaithe bhrabhsálaí, sandboxed i microVM Kata nó gVisor runtime"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-opencloud:description"
+msgid "Self-hosted platform for file sync, sharing, and collaboration with Keycloak SSO and central LDAP directory"
+msgstr "ardán féin-óstach le haghaidh comhad sync, roinnt, agus comhoibriú le Keycloak SSO agus eolaire LDAP lárnach"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-listmonk:description"
+msgid "Self-hosted platform for newsletters and mailing lists with subscriber segmentation and campaign analytics"
+msgstr "ardán féin-óstáil do nuachtlitir agus liostaí phost le deighilteoir agus Analytics feachtas"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-akaunting:description"
+msgid "Self-hosted platform for online accounting, bookkeeping, and business finance management"
+msgstr "ardán féin-óstach do chuntasaíocht ar líne, leabharchoimeád, agus bainistíocht airgeadais gnó"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-openproject:description"
+msgid "Self-hosted platform for project management, work-package tracking, Gantt planning, and team collaboration"
+msgstr "ardán féin-óstáil do bhainistíocht tionscadail, obair-pacáiste rianú, pleanáil Gantt, agus comhoibriú foirne"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-dashboard:description"
+msgid "Self-hosted portal for unified access to all deployed applications via a customizable tile and menu interface"
+msgstr "Tairseach féin-óstáil le haghaidh rochtain aontaithe ar gach iarratas imscaradh trí tíl customizable agus roghchlár comhéadan"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-pretix:description"
+msgid "Self-hosted ticketing platform for events with online sales, registration management, and secure payments"
+msgstr "ardán ticéadaithe féin-óstáil le haghaidh imeachtaí le díolacháin ar líne, bainistíocht clárúcháin, agus íocaíochtaí slán"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-bigbluebutton:description"
+msgid "Self-hosted web conferencing platform for virtual classrooms, online meetings, and real-time collaboration"
+msgstr "ardán comhroinnte gréasáin féin-óstáil do sheomraí fíorúil, cruinnithe ar líne, agus comhoibriú fíor-ama"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-funkwhale:description"
+msgid "Self-hosted, federated platform for sharing, hosting, and streaming your own music and audio library"
+msgstr "Féin-óstach, ardán chothaithe do roinnt, óstáil, agus sruthú do ceol féin agus leabharlann fuaime"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-matomo:description"
+msgid "Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
+msgstr "Féin-óstach, príobháideachta-an chéad ardán anailísíochta gréasáin le haghaidh rianú cuairteoirí fíor-ama agus méadracht láithreán"
+
+# translated-by: libretranslate
+msgctxt "menu:Server Administration:title"
+msgid "Server Administration"
+msgstr "Riarachán Freastalaí"
+
+# translated-by: libretranslate
+msgctxt "category:svc.opt:title"
+msgid "Service Optimation"
+msgstr "Seirbhís Optimation"
+
+# translated-by: libretranslate
+msgctxt "category:svc.bkp:description"
+msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
+msgstr "Seirbhís-leibhéal cúltaca agus comhpháirteanna a ghnóthú-lámhaigh snapshots sonraí uathoibrithe, cúltacaí iargúlta, seirbhísí sioncrónaithe, agus cúltaca orchestration thar bunachair sonraí, comhaid, agus coimeádáin."
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-css:description"
+msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
+msgstr "Ról clárlainne seirbhíse ar leis an Canonical `css` bratach agus atreorú an t-óstach CSS chuig an CDN upstream"
+
+# translated-by: libretranslate
+msgctxt "category:svc:title"
+msgid "Services"
+msgstr "Seirbhísí ar líne"
+
+# translated-by: libretranslate
+msgctxt "category:web.svc:title"
+msgid "Services"
+msgstr "Seirbhísí ar líne"
+
+# translated-by: libretranslate
+msgctxt "category:svc.storage:title"
+msgid "Shared Storage"
+msgstr "Stóráil roinnte"
+
+# translated-by: libretranslate
+msgctxt "role:sys-openssl:description"
+msgid "Shared host dependency ensuring the OpenSSL CLI is installed once for roles that invoke openssl commands"
+msgstr "Comhroinnte spleáchas óstach a chinntiú go bhfuil an OpenSSL CLI suiteáilte uair amháin le haghaidh róil agairt orduithe opensl"
+
+# translated-by: libretranslate
+msgctxt "role:svc-db-rabbitmq:description"
+msgid "Shared message broker for async messaging with per-consumer virtual host and user isolation"
+msgstr "bróicéir teachtaireacht roinnte le haghaidh teachtaireachtaí async le óstach fíorúil per-tomhaltóir agus leithlisiú úsáideora"
+
+# translated-by: libretranslate
+msgctxt "category:svc.storage:description"
+msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
+msgstr "Leasanna comhroinnte leanúnacha stórála a úsáideann imlonnú il-node - NFSv4 róil freastalaí agus cliant."
+
+# translated-by: libretranslate
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr "Roinnte premise de gach ról deisce, an logáil isteach cuntas a chuid comhad a bhaineann le"
+
+# translated-by: libretranslate
+msgctxt "role:svc-db-mariadb:description"
+msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
+msgstr "freastalaí bunachar sonraí comhroinnte le haghaidh iarratas ag teastáil stóráil SQL lárnach, reáchtáil i Docker"
+
+# translated-by: libretranslate
+msgctxt "logout:all_done"
+msgid "Signed out everywhere."
+msgstr "Sínithe amach i ngach áit."
+
+# translated-by: libretranslate
+#, python-brace-format
+msgctxt "logout:partial"
+msgid "Signed out, except {failed} of {total} services."
+msgstr "Sínithe amach, ach amháin {failed} de {total} seirbhísí."
+
+# translated-by: libretranslate
+msgctxt "logout:running"
+msgid "Signing you out of your services…"
+msgstr "Sínigh tú amach as do chuid seirbhísí..."
+
+# translated-by: libretranslate
+msgctxt "role:web-app-postmarks:description"
+msgid "Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
+msgstr "Gníomhaíocht aon-úsáideoir Pub leabharmharcála láithreán cónaidhmeerating leabharmharcanna poiblí le Mastodon agus an Fediverse"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-homeassistant:description"
+msgid "Smart-home automation hub with device integrations, dashboards and a built-in MCP server for AI agent access"
+msgstr "Mol uathoibriú cliste-baile le comhtháthaithe gléas, dashboards agus freastalaí MCP tógtha do AI gníomhaire rochtain"
+
+# translated-by: libretranslate
+msgctxt "menu:Social Media:title"
+msgid "Social Media"
+msgstr "Na Meáin Shóisialta"
+
+# translated-by: libretranslate
+msgctxt "menu:Social Media:description"
+msgid "Social Media Tools"
+msgstr "Uirlisí na Meán Sóisialta"
+
+# translated-by: libretranslate
+msgctxt "category:dev:title"
+msgid "Software Development Utilties"
+msgstr "Utilities Forbairt Bogearraí"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-opentalk:description"
+msgid "Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
+msgstr "Sovereign oscailte-foinse físeán comhcheangal ardán do fuaime / físeáin glaonna, roinnt scáileán, seomraí breakout, agus SSO"
+
+# translated-by: libretranslate
+msgctxt "category:sys.stk:title"
+msgid "Stack"
+msgstr "Stack Stack"
+
+# translated-by: libretranslate
+msgctxt "category:sys.stk:description"
+msgid "Stack levels to setup the server"
+msgstr "leibhéil Stack a thus an freastalaí"
+
+# translated-by: libretranslate
+msgctxt "category:web.svc:description"
+msgid "Static content servers (assets, HTML, legal, files)"
+msgstr "freastalaithe ábhar statach (sócmhainní, HTML, dlíthiúil, comhaid)"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-file:description"
+msgid "Static file server over HTTPS with directory listing, .well-known handling, and automatic TLS certificates"
+msgstr "freastalaí comhad statach thar HTTPS le liostú eolaire, láimhseáil .well-aitheanta, agus deimhnithe TLS uathoibríoch"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-hugo:description"
+msgid "Static site generator building HTML from an upstream Git repository at build time and serving it via nginx"
+msgstr "Tógáil gineadóir láithreán statach HTML ó stór Git upstream ag am a thógáil agus ag freastal air trí nginx"
+
+# translated-by: libretranslate
+msgctxt "menu:Storage:title"
+msgid "Storage"
+msgstr "Stóráil stórála"
+
+# translated-by: libretranslate
+msgctxt "category:sys:title"
+msgid "System"
+msgstr "Córas an Chórais"
+
+# translated-by: libretranslate
+msgctxt "category:sys.front:title"
+msgid "System Frontend Helpers"
+msgstr "Córas Cúntóirí Tosaigh"
+
+# translated-by: libretranslate
+msgctxt "role:dev-locales:description"
+msgid "System configuration role for setting up and generating localesvia locale.gen and locale.conf templates"
+msgstr "Ról cumraíochta Córas do bhunú agus a ghiniúint localesvia locale.gen agus locale.conf teimpléid"
+
+# translated-by: libretranslate
+msgctxt "role:sys-hostname:description"
+msgid "System hostname configuration derived from the inventory host entry"
+msgstr "Córas chumraíocht hostname dhíorthaítear ó iontráil óstach fardal"
+
+# translated-by: libretranslate
+msgctxt "category:sys:description"
+msgid "System near components. Will be automaticly called if necessary from other roles."
+msgstr "Córas in aice le comhpháirteanna. Beidh ar a dtugtar go huathoibríoch más gá ó róil eile."
+
+# translated-by: libretranslate
+msgctxt "role:update:description"
+msgid "System-maintenance role for refreshing the package index and upgrading installed packages via the OS package manager"
+msgstr "Ról Córas-chothabháil le haghaidh refreshing an innéacs pacáiste agus uasghrádú pacáistí suiteáilte tríd an bainisteoir pacáiste OS"
+
+# translated-by: libretranslate
+msgctxt "role:sys-cli:description"
+msgid "System-wide command-line interface for managing and operating the entire self-hosted platform environment from the shell"
+msgstr "Comhéadan ordú-líne ar fud an chórais chun an timpeallacht ardán féin-óstach ar fad a bhainistiú agus a oibriú ón bhlaosc"
+
+# translated-by: libretranslate
+msgctxt "role:sys-pip-install:description"
+msgid "System-wide pip helper for installing or upgrading a Python package via the host's system Python"
+msgstr "Córas-leathan cúntóir pip do shuiteáil nó a uasghrádú pacáiste Python tríd an ósta córas Python"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-mtn-cert-deploy:description"
+msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
+msgstr "Seirbhís Córas agus lasc ama le haghaidh syncing A ligean ar Criptithe deimhnithe isteach Docker Compose NGINX stacks le te-ualach"
+
+# translated-by: libretranslate
+msgctxt "role:sys-timer:description"
+msgid "Systemd timer unit for starting a service on a recurring calendar schedule for automated task execution"
+msgstr "Aonad lasc ama Córas chun seirbhís a thosú ar sceideal féilire athfhillteach le haghaidh fhorghníomhú tasc uathoibrithe"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-cln-docker:description"
+msgid "Systemd-driven cleanup service pruning anonymous Docker volumes plus images, containers, networks, and build cache"
+msgstr "Bearradh seirbhíse glantacháin Córas-tiomáinte méideanna Docker gan ainm móide íomhánna, coimeádáin, líonraí, agus taisce a thógáil"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-rpr-container-hard:description"
+msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
+msgstr "Ról cothabhála córasaithe le haghaidh lán Docker Compose Atosú Stack, le atosú crua do chairn mhaith Mailu"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-hlth-container:description"
+msgid "Systemd-timed monitor for detecting unhealthy or non-zero-exited Docker containers and raising failure alerts"
+msgstr "Monatóireacht a dhéanamh ar chóras ama chun coimeádáin Docker neamhshláinte nó neamh-zero-exited bhrath agus foláirimh teip a ardú"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-alm-email:description"
+msgid "Systemd-triggered msmtp notifier for emailing operators when a monitored service unit fails"
+msgstr "Córas-triggered msmtp notifier le haghaidh oibreoirí r-phost nuair a theipeann aonad seirbhíse monatóireachta"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-alm-telegram:description"
+msgid "Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"
+msgstr "Córas-triggered notifier do sheachadadh foláirimh seirbhíse-failure le comhrá Telegram"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-gnt-claude:description"
+msgid "Terminal coding agent from Anthropic, pointed at the platform's own model gateway instead of the vendor API"
+msgstr "Gníomhaire códaithe Críochfort ó Anthropic, Léirigh ag an ardán geata samhail féin in ionad an díoltóir API"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-gnt-codex:description"
+msgid "Terminal coding agent from OpenAI, pointed at the platform's own model gateway instead of the vendor API"
+msgstr "Gníomhaire códaithe Críochfort ó OpenAI, Léirigh ag an ardán geata samhail féin in ionad an díoltóir API"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-gnome-terminal:description"
+msgid "Terminal emulator for the GNOME desktop, giving command-line access on Arch Linux workstations"
+msgstr "Impulator Críochfort don deasc GNOME, ag tabhairt rochtain ordú-líne ar stáisiúin oibre Arch Linux"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-micro:description"
+msgid "Terminal-based text editor with modern keybindings and syntax highlighting for Pacman-based workstations"
+msgstr "Eagarthóir téacs Terminal-bhunaithe le keybindings nua-aimseartha agus syntax béim do stáisiúin oibre Pacman-bhunaithe"
+
+# translated-by: libretranslate
+msgctxt "role:test-e2e-cli:description"
+msgid "Test-harness role running end-to-end CLI test scripts for roles that declare a test environment template"
+msgstr "Ról tástála-harness ag rith scripteanna tástála deireadh-le-deireadh CLI do róil a dhearbhú teimpléad timpeallacht tástála"
+
+# translated-by: libretranslate
+msgctxt "logout:pace"
+msgid "This usually takes a few seconds."
+msgstr "Tógann sé seo de ghnáth cúpla soicind."
+
+# translated-by: libretranslate
+msgctxt "role:svc-opt-ssd-hdd:description"
+msgid "Tiering role placing Docker volumes on SSD or HDD by workload type, with symlinks keeping paths consistent"
+msgstr "ról Stiúrtha a chur imleabhair Docker ar SSD nó HDD de réir cineál ualach oibre, le siompóisearaí a choinneáil cosáin comhsheasmhach"
+
+# translated-by: libretranslate
+msgctxt "role:dev-python:description"
+msgid "Toolchain for Python scripting, application development, and data science on Linux"
+msgstr "Toolchain do scriptiú Python, forbairt i bhfeidhm, agus eolaíocht sonraí ar Linux"
+
+# translated-by: libretranslate
+msgctxt "menu:Tools:title"
+msgid "Tools"
+msgstr "Uirlisí"
+
+# translated-by: libretranslate
+msgctxt "menu:User Management:description"
+msgid "Tools for Identity and Access Management, including authentication, user provisioning, and secure access control."
+msgstr "Uirlisí le haghaidh Bainistíocht Aitheantais agus Rochtana, lena n-áirítear fíordheimhniú, soláthar úsáideora, agus rialú rochtana slán."
+
+# translated-by: libretranslate
+msgctxt "menu:Communication:description"
+msgid "Tools for communication"
+msgstr "Uirlisí le haghaidh cumarsáide"
+
+# translated-by: libretranslate
+msgctxt "menu:Marketing:description"
+msgid "Tools for email campaigns, audience engagement, automation, and digital marketing workflows."
+msgstr "Uirlisí le haghaidh feachtais ríomhphoist, rannpháirtíocht lucht féachana, uathoibriú, agus sreabhadh oibre margaíochta digiteach."
+
+# translated-by: libretranslate
+msgctxt "menu:Asset Management:description"
+msgid "Tools to inventory, track, and manage hardware and software assets across your organization."
+msgstr "Uirlisí fardal, rian, agus crua-earraí agus bogearraí sócmhainní a bhainistiú ar fud do eagraíocht."
+
+# translated-by: libretranslate
+msgctxt "menu:Community:description"
+msgid "Tools to manage the community"
+msgstr "Uirlisí chun an pobal a bhainistiú"
+
+# translated-by: libretranslate
+msgctxt "menu:Analytics:description"
+msgid "Tools to measure, visualize, and optimize website performance and user behavior through data-driven insights."
+msgstr "Uirlisí a thomhas, a shamhlú, agus feidhmíocht láithreán gréasáin agus iompar úsáideora uasmhéadú trí léargais sonraí-tiomáinte."
+
+# translated-by: libretranslate
+msgctxt "category:web.opt:description"
+msgid "Tools which help to optimize webservers"
+msgstr "Uirlisí a chabhraíonn le gréasáin a bharrfheabhsú"
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-tor:description"
+msgid "Tor daemon publishing the node as a v3 onion service"
+msgstr "Tor daemon fhoilsiú an nód mar v3 seirbhís onion"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-torbrowser:description"
+msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
+msgstr "Cliant líonra Tor agus seoltóir bhrabhsálaí le haghaidh brabhsálaí gréasáin gan ainm, atá dírithe ar phríobháideacht"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-virtualbox:description"
+msgid "Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack"
+msgstr "Cineál-2 hypervisor le haghaidh meaisíní fíorúil ar stáisiúin oibre Pacman, le modúil eithne agus pacáiste síneadh"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-alm-compose:description"
+msgid "Unified systemd notification service dispatching service-failure alerts through both Telegram and email channels"
+msgstr "Seirbhís fógra córasach aontaithe sheoladh foláirimh seirbhíse-teagmhála tríd an dá Telegram agus bealaí ríomhphoist"
+
+# translated-by: libretranslate
+msgctxt "category:update:title"
+msgid "Updates & Package Management"
+msgstr "Nuashonruithe agus Bainistíocht Pacáiste"
+
+# translated-by: libretranslate
+msgctxt "logout:partial_hint"
+msgid "Use the links below to sign out of the rest yourself."
+msgstr "Bain úsáid as na naisc thíos chun síniú amach as an gcuid eile féin."
+
+# translated-by: libretranslate
+msgctxt "logout:stalled_hint"
+msgid "Use the links below to sign out of the services still listed."
+msgstr "Bain úsáid as na naisc thíos chun síniú amach as na seirbhísí atá liostaithe fós."
+
+# translated-by: libretranslate
+msgctxt "menu:User Management:title"
+msgid "User Management"
+msgstr "Bainistíocht Úsáideora"
+
+# translated-by: libretranslate
+msgctxt "category:user:description"
+msgid "User accounts & access control"
+msgstr "Cuntais úsáideora agus rialú rochtana"
+
+# translated-by: libretranslate
+msgctxt "category:user:title"
+msgid "Users & Access"
+msgstr "Úsáideoirí agus Rochtain"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-git:description"
+msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
+msgstr "Leagan-rialú cliant do stáisiúin oibre pearsanta, preconfigured le féiniúlacht, síniú, agus mainneachtainí chumasc"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-cdn:description"
+msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
+msgstr "Leagann leagan amach crann sócmhainní le haghaidh seachadadh CDN le roinnt, díoltóir, agus stiúrthóireachtaí scaoileadh per-role"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-code:description"
+msgid "Visual Studio Code workstation editor in a selectable flavor, carrying the extensions of the agents the host deploys"
+msgstr "Cliceáil grianghraf a mhéadú Code eagarthóir stáisiún oibre i blas roghnach, ag iompar na síntí na gníomhairí imscaradh an óstach"
+
+# translated-by: libretranslate
+msgctxt "category:web:title"
+msgid "Web Infrastructure"
+msgstr "Bonneagar Gréasáin"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-semaphore:description"
+msgid "Web UI and API for running Ansible, Terraform/OpenTofu, and shell automation on a schedule or on demand"
+msgstr "Chomhéadain Gréasáin agus API do reáchtáil Ansible, Terraform / OpenTofu, agus uathoibriú bhlaosc ar sceideal nó ar éileamh"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-lam:description"
+msgid "Web interface for administering LDAP directories: managing users, groups, and other directory objects"
+msgstr "Comhéadan Gréasáin chun riar eolairí LDAP: úsáideoirí a bhainistiú, grúpaí, agus rudaí eolaire eile"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-fusiondirectory:description"
+msgid "Web-based LDAP administration interface for managing users, groups, and directory objects"
+msgstr "comhéadan riaracháin LDAP Web-bhunaithe d'úsáideoirí a bhainistiú, grúpaí, agus rudaí eolaire"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-phpldapadmin:description"
+msgid "Web-based LDAP client for browsing, searching, and administering directory entries in LDAP servers"
+msgstr "cliant LDAP gréasán-bhunaithe le haghaidh brabhsála, cuardach, agus a riaradh iontrálacha eolaire i freastalaithe LDAP"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-pgadmin:description"
+msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
+msgstr "Ardán riaracháin agus forbartha bunaithe ar an ngréasán chun freastalaithe éagsúla PostgreSQL a bhainistiú, le roghnach OAuth2 logáil isteach"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-phpmyadmin:description"
+msgid "Web-based administration tool for MySQL and MariaDB with schema management, querying, and import/export"
+msgstr "Uirlis riaracháin bunaithe ar an nGréasán do MySQL agus MariaDB le bainistíocht scéimre, ceistiú, agus allmhairiú / onnmhairiú"
+
+# translated-by: libretranslate
+msgctxt "category:web.opt:title"
+msgid "Webserver Optimation"
+msgstr "Webserver Optamaithe"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-docker:description"
+msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
+msgstr "Socrú stáisiún oibre do Docker agus Docker Compose leis an úsáideoir áitiúil sa ghrúpa docker le haghaidh úsáid forbartha gan fréamh"
+
+# translated-by: libretranslate
+msgctxt "role:dev-arduino:description"
+msgid "Workstation toolchain and serial-port permissions for Arduino board development on Linux"
+msgstr "Workstation toolchain agus sraithuimhir-port ceadanna d'fhorbairt bord Arduino ar Linux"
+
+# translated-by: libretranslate
+msgctxt "role:pkgmgr-install:description"
+msgid "Wrapper role for idempotent package installation and updates through the pkgmgr universal package manager"
+msgstr "Ról Wrapper do shuiteáil pacáiste idempotent agus nuashonruithe tríd an bainisteoir pacáiste uilíoch pkgmgr"
+
+# translated-by: libretranslate
+msgctxt "logout:may_close"
+msgid "You can close this page now."
+msgstr "Is féidir leat an leathanach seo a dhúnadh anois."
+
+# translated-by: libretranslate
+msgctxt "logout:st_failed"
+msgid "failed"
+msgstr "theip theip air"
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-firewall:description"
+msgid "nftables packet filter whose rules each role owns as its own table, replaced atomically and reloaded at boot"
+msgstr "nftables scagaire paicéad a bhfuil a rialacha úinéireacht gach ról mar a tábla féin, in ionad adamhach agus athluchtaithe ag tosaithe"
+
+# translated-by: libretranslate
+msgctxt "logout:st_unconfirmed"
+msgid "not confirmed"
+msgstr "gan a bheith deimhnithe"
+
+# translated-by: libretranslate
+msgctxt "logout:manual"
+msgid "sign out manually"
+msgstr "síniú amach de láimh"
+
+# translated-by: libretranslate
+msgctxt "logout:st_done"
+msgid "signed out"
+msgstr "sínithe amach"
+
+# translated-by: libretranslate
+msgctxt "logout:st_pending"
+msgid "signing out"
+msgstr "síniú isteach"
+
+# translated-by: libretranslate
+#, python-brace-format
+msgctxt "logout:counter"
+msgid "{done} of {total} services signed out"
+msgstr "{done} de {total} seirbhísí sínithe"
+

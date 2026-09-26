@@ -1,0 +1,9 @@
+# nocheck: backup-service-flag the git mirror and every built site are regenerated on demand; the volume is backup-disabled
+---
+# nocheck: embedded-state-on-nfs the replicas coordinate through this volume: one holds the builder lock, the queue and build states are files beside the sites, and sites are published by atomic rename
+docs_sites:
+  type: volume
+  backup: false
+  mounts:
+    - service: docs
+      target: /data

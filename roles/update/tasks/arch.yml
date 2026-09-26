@@ -8,6 +8,19 @@
     line: "XferCommand = /usr/bin/curl -L -C - -f --connect-timeout 5 --retry 3 --retry-all-errors --retry-delay 2 -o %o %u"
     insertafter: "^\\[options\\]"
 
+- name: "🔍 update (pacman) | read pacman.conf for the download sandbox switch"
+  ansible.builtin.slurp:
+    src: /etc/pacman.conf
+  register: update_pacman_conf
+
+- name: "🔓 update (pacman) | run XferCommand as root where the download sandbox is off"
+  become: true
+  ansible.builtin.replace:
+    path: /etc/pacman.conf
+    regexp: "^DownloadUser\\s*="
+    replace: "#DownloadUser ="
+  when: "'DisableSandbox' in (update_pacman_conf.content | b64decode).splitlines()"
+
 - name: "🔄 update (pacman) | refresh pacman cache and upgrade all installed packages"
   community.general.pacman: # nocheck: dynamic-package - full-system upgrade, not a package install
     update_cache: true

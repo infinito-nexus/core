@@ -1,0 +1,2154 @@
+# Latvian translations for infinito-nexus.
+# Copyright (C) 2026 Kevin Veen-Birkenbach
+# This file is distributed under the Infinito.Nexus Community License (Non-Commercial).
+# Kevin Veen-Birkenbach <kevinveenbirkenbach@infinito.nexus>, 2026.
+# https://infinito.nexus
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: infinito-nexus VERSION\n"
+"Report-Msgid-Bugs-To: contact@infinito.nexus\n"
+"POT-Creation-Date: 2026-01-01 00:00+0000\n"
+"PO-Revision-Date: 2026-01-01 00:00+0000\n"
+"Last-Translator: Kevin Veen-Birkenbach <kevinveenbirkenbach@infinito.nexus>\n"
+"Language: lv\n"
+"Language-Team: Kevin Veen-Birkenbach <kevinveenbirkenbach@infinito.nexus>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-certbot:description"
+msgid "ACME client for automated Let's Encrypt SSL/TLS certificate issuance and renewal via webroot or DNS-01 challenges"
+msgstr "ACME klients automatizētai Let 's šifrēt SSL/TLS sertifikātu izdošanu un atjaunošanu, izmantojot webroot vai DNS-01 problēmas"
+
+# translated-by: libretranslate
+msgctxt "category:svc.ai:title"
+msgid "AI Services"
+msgstr "AI pakalpojumi"
+
+# translated-by: libretranslate
+msgctxt "menu:Artificial Intelligence:description"
+msgid "AI tools and frameworks for running, managing, and experimenting with models."
+msgstr "MI rīki un ietvari darbam, vadībai un eksperimentēšanai ar modeļiem."
+
+# translated-by: libretranslate
+msgctxt "role:dsk-gnt-cursor:description"
+msgid "AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
+msgstr "Darbstacijā instalēts AI pirmā koda redaktors, kura galarezultāts saglabājas kā operatora solis"
+
+# translated-by: libretranslate
+msgctxt "menu:Server Administration:description"
+msgid "Administration Tools für servers"
+msgstr "Administrācijas rīki für serveri"
+
+# translated-by: libretranslate
+msgctxt "category:dsk.gnt:title"
+msgid "Agents"
+msgstr "Pārstāvji"
+
+# translated-by: libretranslate
+msgctxt "role:sys-front-inj-all:description"
+msgid "Aggregate NGINX sub-filter injector adding Matomo tracking, global theming, iFrame and JS snippets by feature flag"
+msgstr "Apkopotais NGINX apakšfiltra inžektors, kas pievieno Matomo sekošanu, globālo rādiusu, iFrame un JS fragmentus pēc funkcijas karoga"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-gnome:description"
+msgid "Aggregate desktop environment bundling caffeine, shell extensions, and terminal into a complete GNOME setup on Linux"
+msgstr "Kopēta darbvirsmas vide, kas apvieno kofeīnu, čaulas paplašinājumus un termināli pilnīgā GNOME konfigurācijā uz Linux"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.alm:title"
+msgid "Alerting"
+msgstr "Brīdinājums"
+
+# translated-by: libretranslate
+msgctxt "menu:Analytics:title"
+msgid "Analytics"
+msgstr "Analītika"
+
+# translated-by: libretranslate
+msgctxt "role:sys-token-store:description"
+msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
+msgstr "Viena lietotāja lietotņu žetonu idempotenta noturības un uzmeklēšanas palīga loma vietējā YAML veikalā"
+
+# translated-by: libretranslate
+msgctxt "category:web.app:title"
+msgid "Applications"
+msgstr "Pieteikumi"
+
+# translated-by: libretranslate
+msgctxt "menu:Sales:description"
+msgid "Applications for e-commerce, ticketing, and sales management."
+msgstr "Pieteikumi e-komercija, biļešu, un pārdošanas vadība."
+
+# translated-by: libretranslate
+msgctxt "role:drv-epson-multiprinter:description"
+msgid "Arch Linux driver bundle for Epson multifunction printing and scanning via escpr and imagescan"
+msgstr "Arch Linux draiveru komplekts Epson daudzfunkciju drukāšanai un skenēšanai, izmantojot escpr un attēluscan"
+
+# translated-by: libretranslate
+msgctxt "menu:Artificial Intelligence:title"
+msgid "Artificial Intelligence"
+msgstr "Mākslīgais intelekts"
+
+# translated-by: libretranslate
+msgctxt "menu:Asset Management:title"
+msgid "Asset Management"
+msgstr "Aktīvu pārvaldība"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-rpr-container-soft:description"
+msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
+msgstr "Automatizēta reģenerācijas pakalpojums atsākot izeja vai neveselīgs Docker Compose steki un ostas konfliktu atrisināšana"
+
+# translated-by: libretranslate
+msgctxt "role:sys-dns-hetzner-rdns:description"
+msgid "Automation role for reverse DNS (PTR) records on Hetzner Cloud servers, primary IPs, floating IPs, and load balancers"
+msgstr "Automatizācijas loma reverso DNS (PTR) ieraksti Hetzner Cloud serveros, primārajos IP, peldošajos IP un slodzes balansos"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.bkp:title"
+msgid "Backup & Restore"
+msgstr "Rezerves kopēšana un atjaunošana"
+
+# translated-by: libretranslate
+msgctxt "category:svc.bkp:title"
+msgid "Backup Services"
+msgstr "Rezerves kopēšanas pakalpojumi"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.bkp:description"
+msgid "Backup strategies & restore procedures"
+msgstr "Rezerves kopēšanas stratēģijas un atjaunošanas procedūras"
+
+# translated-by: libretranslate
+msgctxt "role:dev-core:description"
+msgid "Base development environment for software engineers on Linux, with core editors and language-agnostic tooling"
+msgstr "Pamata izstrādes vide programmatūras inženieriem Linux, ar galvenajiem redaktoriem un valodas-agnostikas rīku"
+
+# translated-by: libretranslate
+msgctxt "role:sys-daemon:description"
+msgid "Base role for systemd manager configuration via drop-ins, default settings, and unit validation"
+msgstr "Sistēmas pārvaldnieka bāzes loma konfigurācijā, izmantojot nolaižamos iestatījumus, noklusējuma iestatījumus un vienības apstiprināšanu"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-roulette-wheel:description"
+msgid "Browser-based spinning wheel app for decision making, random selection, and gamification"
+msgstr "Pārlūkā balstīta vērpšanas ritenis app lēmumu pieņemšanai, izlases izvēle, un gamification"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-litellm:description"
+msgid "Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy"
+msgstr "Uz pārlūku vērsta admin saskarne koplietošanas LLM vārteja, kas publicēta savā domēnā aiz priekšējā starpniekservera"
+
+# translated-by: libretranslate
+msgctxt "role:dev-fakeroot:description"
+msgid "Build-time tool for simulating root-owned file operations without elevated privileges during package builds"
+msgstr "Būvēšanas laika rīks root- piederošu failu operāciju simulēšanai bez paaugstinātām tiesībām paketes būvēšanas laikā"
+
+# translated-by: libretranslate
+msgctxt "category:svc.runner:title"
+msgid "CI Runner"
+msgstr "CI darbinātājs"
+
+# translated-by: libretranslate
+msgctxt "role:svc-db-typesense:description"
+msgid "Central Dockerized search engine shared by multiple apps with per-consumer scoped API keys"
+msgstr "Centrālā Dockerized meklētājprogramma kopīga ar vairākām lietotnēm ar uz patērētāju izvietotiem API taustiņiem"
+
+# translated-by: libretranslate
+msgctxt "role:svc-ai-tika:description"
+msgid "Central document extraction engine that turns uploaded files into text for retrieval-augmented chat"
+msgstr "Centrālais dokumentu ekstrakcijas dzinējs, kas augšupielādētos failus pārvērš tekstā, lai pārrakstītu tērzēšanu"
+
+# translated-by: libretranslate
+msgctxt "menu:Help:description"
+msgid "Central help resources, including documentation, support tools, and guidance."
+msgstr "Centrālie palīdzības resursi, tostarp dokumentācija, atbalsta rīki un norādījumi."
+
+# translated-by: libretranslate
+msgctxt "role:svc-db-memcached:description"
+msgid "Central in-memory caching engine with per-consumer key-prefix isolation, usable centrally or as an embedded sidecar"
+msgstr "Centrālais atmiņas kodēšanas dzinējs ar vienu patēriņa atslēgu prefiksa izolāciju, izmantojams centrā vai kā iebūvēts blakusvāģis"
+
+# translated-by: libretranslate
+msgctxt "role:sys-service-loader:description"
+msgid "Central loader role for ordered shared-service preloading and queued post-load role inclusions across the deployment"
+msgstr "Centrālā lādētāja loma pasūtītā dalītā pakalpojuma priekšielādēšanā un rindā esošos pēcslodzes lomu ieslēgumos visā izvēršanas laikā"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-logout:description"
+msgid "Central logout proxy for single-action sign-out across all OIDC-connected apps, with Nginx snippets and a live status UI"
+msgstr "Centrālā atslēgšanās starpniekserveris vienas darbības izrakstīšanai visās OIDC pieslēgtajās programmās ar Nginx fragmentiem un tiešraides statusa UI"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-mail:description"
+msgid "Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
+msgstr "Centrālā pasta orķestra slāņa maršrutēšanas resursdatora pasts, izmantojot Mailu, msmtp, vai papildus lokālo SMTP releju"
+
+# translated-by: libretranslate
+msgctxt "category:svc.dns:description"
+msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
+msgstr "Centrālie rekursīvie / pārnesošie DNS resinter dzinēji (Unbound, utt.)"
+
+# translated-by: libretranslate
+msgctxt "role:svc-dns-unbound:description"
+msgid "Central recursive/forwarding DNSSEC resolver on a static IP for consumer stacks to target as their DNS"
+msgstr "Centrālā rekursīva / nosūtot DNSSEC resolver statiskā IP patērētāju skursteņi, lai mērķētu kā to DNS"
+
+# translated-by: libretranslate
+msgctxt "role:svc-db-elasticsearch:description"
+msgid "Central search and analytics engine with per-consumer index namespaces isolating tenants in a shared Docker deployment"
+msgstr "Centrālās meklēšanas un analīzes dzinējs ar katra patēriņa indeksa vārdtelpām, kas izolē īrniekus kopīgā Docker izvietojumā"
+
+# translated-by: libretranslate
+msgctxt "role:svc-db-qdrant:description"
+msgid "Central vector database engine for storing and searching per-consumer embeddings shared across the stack"
+msgstr "Centrālā vektoru datubāzes dzinējs, lai uzglabātu un meklētu katra patērētāja iegultos koplietojamajā stekā"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-rdbms:description"
+msgid "Centralized MariaDB or PostgreSQL database service shared across applications via Docker Compose"
+msgstr "Centralizēts MariaDB vai PostgreSQL datu bāzes pakalpojums koplietojams visās programmās caur Docker Compose"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-certs:description"
+msgid "Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
+msgstr "Ar Certbot darbināts ACME serviss Let šifrēt viendomīna un aizstājējkartes TLS sertifikātus NGINX domēniem"
+
+# translated-by: libretranslate
+msgctxt "logout:checking"
+msgid "Checking your other sessions…"
+msgstr "Pārbauda pārējās sesijas..."
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.cln:title"
+msgid "Cleanup"
+msgstr "Tīrīšana"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-cln-domains:description"
+msgid "Cleanup routine for deprecated domains, removing Nginx configs and revoking their Certbot certificates"
+msgstr "Satīrīšanas rutīnas par novecojušiem domēniem, likvidējot Nginx konfigurācijas un atceļot savus Certbot sertifikātus"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-cln-disc-space:description"
+msgid "Cleanup routine for reclaiming disk space from temp files, package caches, optional Docker data and old backups"
+msgstr "Satīrīšanas kārtība diska vietas atgūšanai no pagaidu failiem, pakešu kešatmiņām, Docker fakultatīviem datiem un vecajiem dublējumiem"
+
+# translated-by: libretranslate
+msgctxt "role:svc-storage-nfs-client:description"
+msgid "Client-side NFS setup for mounting a remote server export on every swarm node, with a deploy-time reachability probe"
+msgstr "Klienta puses NFS iestatīšana attālināta servera eksporta montāžai uz katra bara mezgla ar izvietošanas laika sasniedzamības zondi"
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-wireguard-plain:description"
+msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
+msgstr "Klienta puses WireGuard VPN loma stabilu savienojamību ar sistematizētu pakalpojumu un skriptu, kas melodija saskarne MTU"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-copyq:description"
+msgid "Clipboard manager with editable history, custom actions, and scripting support"
+msgstr "Starpliktuves pārvaldnieks ar rediģējamu vēsturi, pielāgotām darbībām un skriptēšanas atbalstu"
+
+# translated-by: libretranslate
+msgctxt "menu:Cloud:title"
+msgid "Cloud"
+msgstr "Mākoņi"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-dns:description"
+msgid "Cloudflare DNS bootstrap role for apex and wildcard A/AAAA records (and optional CAA) across a web stack's base domains"
+msgstr "Cloudflare DNS bootstrap loma apex un wildcard A/AAAA ieraksti (un izvēles CAA) pāri tīmekļa steka bāzes domēniem"
+
+# translated-by: libretranslate
+msgctxt "role:svc-registry-docker:description"
+msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
+msgstr "Cluster-local konteinera attēlu reģistrs, lai apkalpotu pēc pasūtījuma izveidotus attēlus uz Docker Swarm strādnieku mezgliem"
+
+# translated-by: libretranslate
+msgctxt "role:svc-registry-cache:description"
+msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
+msgstr "Cluster-local pull-through kešatmiņa koplietošanas Docker Hub bāzes attēla vilcējiem, samazinot dubultu pārskaitījumu un ātruma ierobežojumus"
+
+# translated-by: libretranslate
+msgctxt "category:dsk.gnt:description"
+msgid "Coding agents installed on the workstation (Claude Code, Cursor, Pi)"
+msgstr "Kodēšanas aģenti, kas uzstādīti darbstacijā (Claude Code, Cursor, Pi)"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-mediawiki:description"
+msgid "Collaborative wiki platform for user-driven documentation with an extensible extension ecosystem and content management"
+msgstr "Sadarbīga wiki platforma uz lietotāju orientētai dokumentācijai ar paplašināmu ekosistēmas un satura pārvaldību"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-jrnl:description"
+msgid "Command-line journal application for creating and managing personal diary entries from the terminal"
+msgstr "Komandrindas dienasgrāmatas programma personisku dienasgrāmatas ierakstu veidošanai un pārvaldībai no termināla"
+
+# translated-by: libretranslate
+msgctxt "menu:Commerce:title"
+msgid "Commerce"
+msgstr "Tirdzniecība"
+
+# translated-by: libretranslate
+msgctxt "menu:Communication:title"
+msgid "Communication"
+msgstr "Saziņa"
+
+# translated-by: libretranslate
+msgctxt "menu:Community:title"
+msgid "Community"
+msgstr "Kopiena"
+
+# translated-by: libretranslate
+msgctxt "category:sys.front.inj:description"
+msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
+msgstr "Kompleksās HTML injekcijas lomas (CSS, JS, atslēgšanās pārtvērējs, analītika, paneļa iframe) Nginx/OpenResty caur sub_filter/Lua ar CND nodrošinātiem aktīviem."
+
+# translated-by: libretranslate
+msgctxt "role:sys-stk-full:description"
+msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
+msgstr "Kompozīta steka loma, kas apvieno konteinerizētu datubāzes aizmuguri ar HTTP reversā starpniekservera priekšpusi tīmekļa piekļuvei"
+
+# translated-by: libretranslate
+msgctxt "category:svc.swarm:title"
+msgid "Container Orchestration"
+msgstr "Konteineru organizēšana"
+
+# translated-by: libretranslate
+msgctxt "category:svc.registry:title"
+msgid "Container Registries"
+msgstr "Konteineru reģistri"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-container:description"
+msgid "Container engine runtime with Compose for building and running application containers on Linux hosts"
+msgstr "Konteinera dzinēja darbināšanas laiks ar Kompožu Linux saimniekiem lietojumprogrammu konteineru būvniecībai un darbināšanai"
+
+# translated-by: libretranslate
+msgctxt "role:svc-swarm-node:description"
+msgid "Container orchestration cluster for scheduling services across pooled manager and worker nodes"
+msgstr "Konteineru organizēšanas klasteri plānošanas pakalpojumiem apvienoto vadītāju un darbinieku mezglu"
+
+# translated-by: libretranslate
+msgctxt "category:svc.registry:description"
+msgid "Container-registry services - local registry and pull-through cache."
+msgstr "Konteineru reģistra pakalpojumi - vietējais reģistrs un caurplūdes kešatmiņa."
+
+# translated-by: libretranslate
+msgctxt "role:web-app-navigator:description"
+msgid "Containerized Reveal.js slide deck for presenting the platform to admins, developers, users, and investors"
+msgstr "Konteineri Reveal.js slaidu klājs prezentēt platformu, lai admins, izstrādātāji, lietotāji, un ieguldītājiem"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-simpleicons:description"
+msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
+msgstr "Konteinerizēts ikonu serveris hostingam Simple Icons Zīmola SVG un PNG kolekcija tīmekļa un dokumentācijas izmantošanai"
+
+# translated-by: libretranslate
+msgctxt "role:svc-db-postgres:description"
+msgid "Containerized relational database with automated database, user, and privilege provisioning"
+msgstr "Konteineru relāciju datubāze ar automatizētu datu bāzi, lietotājs, un privilēģiju nodrošināšana"
+
+# translated-by: libretranslate
+msgctxt "menu:Content Management:title"
+msgid "Content Management"
+msgstr "Satura pārvaldība"
+
+# translated-by: libretranslate
+msgctxt "menu:Content Management:description"
+msgid "Content Management Systems (CMS) and web publishing platforms"
+msgstr "Satura vadības sistēmas (CMS) un tīmekļa publicēšanas platformas"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-wordpress:description"
+msgid "Content management system for building and managing websites, blogs, and multisite networks with themes and plugins"
+msgstr "Satura pārvaldības sistēma tīmekļa vietņu, blogu un daudzvietīgu tīklu ar tēmām un spraudņiem izveidei un pārvaldībai"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl:title"
+msgid "Control"
+msgstr "Kontrole"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl:description"
+msgid "Control layer for system lifecycle management—handling cleanup, monitoring, backups, alerting, maintenance, and repair tasks."
+msgstr "Kontroles slānis sistēmas dzīves cikla pārvaldībai— apstrāde tīrīšana, uzraudzība, dublēšana, brīdināšana, apkope, un remonta uzdevumi."
+
+# translated-by: libretranslate
+msgctxt "category:svc.ai:description"
+msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
+msgstr "AI pamatelementi – modeļu apkalpošana, OpenAI savietojamas vārtejas, vektoru datubāzes, orķestrācija un tērzēšanas UI."
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-webserver-core:description"
+msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
+msgstr "Pamata NGINX tīmekļa serveris ar HTTP un TCP/UDP straumēšanas atbalstu un veiktspējas izlīdzinātiem noklusējumiem"
+
+# translated-by: libretranslate
+msgctxt "logout:no_check"
+msgid "Could not check your other sessions."
+msgstr "Neizdevās pārbaudīt citas sesijas."
+
+# translated-by: libretranslate
+msgctxt "logout:stalled"
+msgid "Could not confirm every sign-out."
+msgstr "Neizdevās apstiprināt katru izrakstīšanās reizi."
+
+# translated-by: libretranslate
+msgctxt "role:dev-nix:description"
+msgid "Cross-distribution installer for the Nix package manager with checksum-verified, reproducible multi-user setup"
+msgstr "Šķērssadales uzstādītājs Nix pakešu pārvaldniekam ar kontrolsummu pārbaudītiem reproducējamiem vairāku lietotāju iestatījumiem"
+
+# translated-by: libretranslate
+msgctxt "role:sys-cleanup:description"
+msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
+msgstr "Šķērssadales uzturēšanas kārtība diska reģenerācijai CI, konteinerā un būvēšanas vidē"
+
+# translated-by: libretranslate
+msgctxt "menu:Customer Relationship:title"
+msgid "Customer Relationship"
+msgstr "Klientu attiecības"
+
+# translated-by: libretranslate
+msgctxt "menu:Customer Relationship:description"
+msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
+msgstr "Klientu attiecību pārvaldība (CRM) programmatūra, lai pārvaldītu klientu attiecības, pārdošanas cauruļvadi, tirgvedība, un atbalsta darbības."
+
+# translated-by: libretranslate
+msgctxt "category:sys.dns:title"
+msgid "DNS Automation"
+msgstr "DNS automatizācija"
+
+# translated-by: libretranslate
+msgctxt "category:svc.dns:title"
+msgid "DNS Resolvers"
+msgstr "DNS resolveri"
+
+# translated-by: libretranslate
+msgctxt "category:sys.dns:description"
+msgid "DNS providers, records, and rDNS management (Cloudflare, Hetzner, etc.)."
+msgstr "DNS sniedzēji, ieraksti, un rDNS vadība (Cloudflare, Hetzner u.c.)."
+
+# translated-by: libretranslate
+msgctxt "role:sys-dns-cloudflare-records:description"
+msgid "Data-driven role for managing Cloudflare DNS records (A/AAAA, CNAME, MX, TXT, SRV) across apps and environments"
+msgstr "Uz datiem balstīta loma, pārvaldot DNS ierakstus ar Cloudflare DNS (A/AAAA, CNAME, MX, TXT, SRV) visās programmās un vidēs"
+
+# translated-by: libretranslate
+msgctxt "category:svc.db:description"
+msgid "Database applications (DBMS, LDAP, Redis, etc.)"
+msgstr "Datubāzes lietotnes (DBMS, LDAP, Redis u.c.)"
+
+# translated-by: libretranslate
+msgctxt "category:svc.db:title"
+msgid "Databases"
+msgstr "Datu bāzes"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-peertube:description"
+msgid "Decentralized, federated platform for peer-to-peer video hosting, streaming, and live broadcasting"
+msgstr "Decentralizēta, federēta platforma vienādranga video hostingam, straumēšanai un tiešraidei"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-pixelfed:description"
+msgid "Decentralized, federated platform for photo sharing and image feeds across the fediverse"
+msgstr "Decentralizēta, federēta platforma foto koplietošanai un attēlu plūsmas visā federācijā"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-friendica:description"
+msgid "Decentralized, federated social-networking platform for peer-to-peer communication and community building"
+msgstr "Decentralizēta un apvienota sociālo tīklu platforma savstarpējai saziņai un kopienas veidošanai"
+
+# translated-by: libretranslate
+msgctxt "role:user-administrator:description"
+msgid "Dedicated administrator account with SSH key access and password-authenticated sudo for secure privilege escalation"
+msgstr "Īpašs administratora konts ar SSH atslēgu un ar paroli autentificētu sudo drošai privilēģiju eskalācijai"
+
+# translated-by: libretranslate
+msgctxt "role:user-backup:description"
+msgid "Dedicated system account with SSH-restricted commands and passwordless rsync sudo for secure backup access"
+msgstr "Specializēts sistēmas konts ar SSH slēgtām komandām un bez paroli rsync sudo drošai rezerves piekļuvei"
+
+# translated-by: libretranslate
+msgctxt "role:sys-service-terminator:description"
+msgid "Deferred-start orchestrator for enabling and starting collected systemd services once a play completes"
+msgstr "Atliktā starta orķestris, lai dotu iespēju un sāktu apkopotos sistematizētos pakalpojumus, kad spēle ir pabeigta"
+
+# translated-by: libretranslate
+msgctxt "category:web.app:description"
+msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
+msgstr "Izvietojamas tīmekļa lietotnes (GitLab, Nextcloud, Mastodon u.c.)"
+
+# translated-by: libretranslate
+msgctxt "category:dsk:title"
+msgid "Desktop"
+msgstr "Darbvirsma"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-spotify:description"
+msgid "Desktop client for streaming music, playlists, and podcasts"
+msgstr "Darbvirsmas klients mūzikas, repertuāru un podraides straumēšanai"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-nextcloud:description"
+msgid "Desktop client setup linking home folders into the cloud-synced directory for integrated file synchronization"
+msgstr "Darbvirsmas klienta iestatīšana, kas savieno mājas mapes ar mākoņsinhronizētu mapi integrētai failu sinhronizācijai"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-gnome-extensions:description"
+msgid "Desktop config role for activating GNOME Shell extensions and installing a CLI tool to manage them"
+msgstr "Darbvirsmas konfigurācijas loma GNOME aktivizēšanai Shell paplašinājumi un CLI rīka uzstādīšana to pārvaldībai"
+
+# translated-by: libretranslate
+msgctxt "category:dsk:description"
+msgid "Desktop environment roles & apps (GNOME, browser, LibreOffice, etc.)"
+msgstr "Darbvirsmas vides lomas un programmas (GNOME, pārlūkprogramma, LibreOffice, utt.)"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-bluray-player:description"
+msgid "Desktop media-player setup with VLC and AACS/BD+ libraries for Blu-ray disc decryption and playback on Arch Linux"
+msgstr "Darbvirsmas multivides atskaņotāja iestatīšana ar VLC un AACS/BD+ bibliotēkām Blu-ray diska atšifrēšanai un atskaņošanai uz Arch Linux"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-libreoffice:description"
+msgid "Desktop office suite for documents, spreadsheets, and presentations with Liberation fonts and language packs"
+msgstr "Darbvirsmas biroja komplekts dokumentiem, izklājlapām un prezentācijas ar atbrīvošanas fontiem un valodu pakām"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-gnome-caffeine:description"
+msgid "Desktop utility for inhibiting screen blanking and sleep, autostarted on the GNOME desktop"
+msgstr "Darbvirsmas utilīta ekrāna iztukšošanas un miega kavēšanai, automātiski palaista uz GNOME darbvirsmas"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-zoom:description"
+msgid "Desktop video conferencing client for online meetings, webinars, and screen sharing"
+msgstr "Darbvirsmas video konferences klients tiešsaistes sanāksmēm, webinars, un ekrāna koplietošana"
+
+# translated-by: libretranslate
+msgctxt "menu:Development:title"
+msgid "Development"
+msgstr "Attīstība"
+
+# translated-by: libretranslate
+msgctxt "menu:Development:description"
+msgid "Development and CI/CD tools"
+msgstr "Izstrādes un CI/CD rīki"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-seaweedfs:description"
+msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
+msgstr "Izplatīts S3-Saderīgs objektu veikals koplietošanas, par patērētāju spainis nodrošināšana pāri web-app lomas"
+
+# translated-by: libretranslate
+msgctxt "role:dev-git:description"
+msgid "Distributed version control system for tracking source code changes and coordinating development work"
+msgstr "Izplatīta versiju kontroles sistēma, lai izsekotu pirmkoda izmaiņas un koordinētu izstrādes darbu"
+
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Distro specifiska bāzes veidošanas rīku ķēde
+# (kompilatori, linkeri, make) izmantošanai 87. nodaļas preču ražošanā
+msgctxt "role:dev-base-devel:description"
+msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
+msgstr ""
+
+# translated-by: libretranslate
+msgctxt "role:sys-stk-backend:description"
+msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
+msgstr "Docker Komponējiet steku konteinerizētām relāciju datubāzēm ar dublējumu, lietotāju un atļauju pārvaldību"
+
+# translated-by: libretranslate
+msgctxt "category:svc.swarm:description"
+msgid "Docker Swarm cluster bootstrap and node-membership roles for multi-host service deployment."
+msgstr "Docker Swarm klastera bootstrap un mezgla dalībnieku lomas multi-host pakalpojumu izvietošanai."
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-onlyoffice:description"
+msgid "Document server backend for real-time in-browser editing of documents, spreadsheets, and presentations"
+msgstr "Dokumentu servera aizmugure reāllaika pārlūka dokumentu, izklājlapu un prezentāciju rediģēšanai"
+
+# translated-by: libretranslate
+msgctxt "menu:Documentation:title"
+msgid "Documentation"
+msgstr "Dokumentācija"
+
+# translated-by: libretranslate
+msgctxt "menu:Documentation:description"
+msgid "Documentation and Wiki Applications"
+msgstr "Dokumentācija un Wiki programmas"
+
+# translated-by: libretranslate
+msgctxt "role:svc-opt-keyboard-color:description"
+msgid "Driver integration for dynamic keyboard color and RGB lighting control on MSI laptops"
+msgstr "Draivera integrācija dinamiskai tastatūras krāsu un RGB apgaismojuma kontrolei uz MSI klēpjdatoriem"
+
+# translated-by: libretranslate
+msgctxt "category:drv:title"
+msgid "Drivers"
+msgstr "Vadītāji"
+
+# translated-by: libretranslate
+msgctxt "menu:Education:title"
+msgid "Education"
+msgstr "Izglītība"
+
+# translated-by: libretranslate
+msgctxt "role:svc-ai-robot:description"
+msgid "Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device"
+msgstr "Iebūvēta robotu platforma Hermes uz īpašas, tīkla segmenta viena tenanta ierīces"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-mcp-reconcile:description"
+msgid "End-of-play convergence of every deployed MCP client against the complete provider set"
+msgstr "Katra izvietotā MCP klienta pašreizējā konverģence pret visu pakalpojumu sniedzēju komplektu"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-engine:description"
+msgid "Engine-agnostic wiring layer for shared cache, queue, search, and vector engines with per-consumer provisioning"
+msgstr "Dzinēja-agnostikas vadu slānis kopīgai kešatmiņai, rindām, meklēšanai un vektoru dzinējiem, nodrošinot katram patērētājam"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-confluence:description"
+msgid "Enterprise wiki and team collaboration platform for creating, organizing, and sharing content"
+msgstr "Biznesa viki un komandas sadarbības platforma satura radīšanai, organizēšanai un kopīgošanai"
+
+# translated-by: libretranslate
+msgctxt "menu:Events:description"
+msgid "Event and ticket management tools"
+msgstr "Pasākumu un biļešu pārvaldības rīki"
+
+# translated-by: libretranslate
+msgctxt "menu:Events:title"
+msgid "Events"
+msgstr "Notikumi"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-neovim:description"
+msgid "Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
+msgstr "Uz Vim bāzēts paplašināms komandrindas teksta redaktors ar termināli darbināmu kodu un konfigurācijas rediģēšanai"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-chess:description"
+msgid "Federated chess server for playing and following rule-validated games over ActivityPub across the Fediverse"
+msgstr "Federēts šaha serveris, lai spēlētu un pēc noteikumiem apstiprinātas spēles virs ActivityPub visā Fediverse"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-matrix:description"
+msgid "Federated, end-to-end-encrypted messaging platform with a web client and protocol bridges to external chat networks"
+msgstr "Transponēta ziņojumapmaiņas platforma “no gala līdz galam” ar tīmekļa klientu un protokola tiltiem uz ārējiem tērzēšanas tīkliem"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-mobilizon:description"
+msgid "Federated, self-hosted platform for organizing events and building communities and groups"
+msgstr "Federēta, pašorganizēta platforma pasākumu organizēšanai un kopienu un grupu veidošanai"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-bridgy-fed:description"
+msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
+msgstr "Federācijas tilts, kas savieno ActivityPub (Atšķirīgs), AT protokols (Bluesky), un IndieWeb"
+
+# translated-by: libretranslate
+msgctxt "menu:Finance & Accounting:title"
+msgid "Finance & Accounting"
+msgstr "Finanšu un grāmatvedības"
+
+# translated-by: libretranslate
+msgctxt "menu:Finance & Accounting:description"
+msgid "Financial and accounting software"
+msgstr "Finanšu un grāmatvedības programmatūra"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-coturn:description"
+msgid "Free and open-source TURN/STUN relay server for NAT traversal in WebRTC and real-time communication"
+msgstr "Bezmaksas un atvērtā pirmkoda TURN/STUN releja serveris NAT traversālai izmantošanai WebRTC un reālā laika sakariem"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-obs:description"
+msgid "Free and open-source desktop application for live video streaming and screen recording"
+msgstr "Bezmaksas un atvērtā pirmkoda darbvirsmas lietojumprogramma video tiešraidei un ekrāna ierakstīšanai"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-gnucash:description"
+msgid "Free and open-source desktop application for personal and small-business accounting and financial management"
+msgstr "Bezmaksas un atvērtā pirmkoda lietojumprogramma personīgajai un mazo uzņēmumu grāmatvedībai un finanšu pārvaldībai"
+
+# translated-by: libretranslate
+msgctxt "role:sys-front-inj-dashboard:description"
+msgid "Front-end JS injection notifying parent windows of iframe location changes and forcing external links into new tabs"
+msgstr "Priekšējā JS injekcija, paziņojot vecāka logus iframe atrašanās vietas izmaiņas un piespiežot ārējās saites uz jaunām cilnēm"
+
+# translated-by: libretranslate
+msgctxt "role:sys-stk-front-base:description"
+msgid "Front-layer base for web apps: HTTPS foundation, optional Cloudflare setup, and reverse-proxy handler wiring"
+msgstr "Priekšējā slāņa bāze tīmekļa lietotnēm: HTTPS fonds, izvēles Cloudflare iestatīšana un reversā-proxy apstrādātāja instalācija"
+
+# translated-by: libretranslate
+msgctxt "category:sys.front:description"
+msgid "Frontend helpers for reverse-proxied apps (injection, shared assets, CDN plumbing)."
+msgstr "Priekšējie palīgi aplikācijām ar atpakaļgaitā (injekcija, kopīpašums, CDN santehnika)."
+
+# translated-by: libretranslate
+msgctxt "menu:Games:title"
+msgid "Games"
+msgstr "Spēles"
+
+# translated-by: libretranslate
+msgctxt "menu:Games:description"
+msgid "Gaming platforms and entertainment applications."
+msgstr "Azartspēļu platformas un izklaides lietojumprogrammas."
+
+# translated-by: libretranslate
+msgctxt "category:gen:title"
+msgid "Generic"
+msgstr "Vispārējs"
+
+# translated-by: libretranslate
+msgctxt "role:test-e2e-playwright:description"
+msgid "Generic end-to-end test runner executing role-provided Playwright specs in Docker against deployed applications"
+msgstr "Generic end-to-end test runner izpildīt lomu-nodrošināja Playwright specs in Docker pret izlikto pieteikumu"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-dotlinker:description"
+msgid "Generic role installing the doli CLI and applying dotfile symlink mappings passed in by other roles"
+msgstr "Vispārīga loma, uzstādot Doli CLI un piemērojot dotfile symlink kartēšanu pa citām lomām"
+
+# translated-by: libretranslate
+msgctxt "role:sys-front-inj-javascript:description"
+msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
+msgstr "Globālais JavaScript injekcijas slānis NGINX HTML atbildēm caur sub_filter, ar CSP hashing"
+
+# translated-by: libretranslate
+msgctxt "role:sys-front-inj-css:description"
+msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
+msgstr "Globālā stilu lapu injekcija NGINX served lietotnēm, apvienojot gaismas un tumšās tās no dinamiskas krāsu shēmas"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-sshd:description"
+msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
+msgstr "Rūdīta OpenSSH dēmona konfigurācija uz atslēgu bāzētai attālinātai piekļuvei ar root login un paroli autentificēšanu atslēgta"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-chromium:description"
+msgid "Hardened desktop web browser with enforced privacy and password-manager extensions via Enterprise Policies"
+msgstr "Rūdīts darbvirsmas tīmekļa pārlūks ar piespiedu privātuma un paroles vadītāja paplašinājumiem, izmantojot Enterprise Policies"
+
+# translated-by: libretranslate
+msgctxt "role:svc-ai-lmstudio:description"
+msgid "Headless local model server for open LLMs with an OpenAI-compatible API on the container network"
+msgstr "Bezgalvju lokālo modeļu serveris atvērtām LLM ar OpenAI saderīgu API konteinera tīklā"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-hlth-volumes:description"
+msgid "Health check for orphaned anonymous Docker volumes unbound to containers, with whitelist and alerting"
+msgstr "Veselības pārbaude bāreņiem anonīms Docker apjomi neierobežots konteineros, ar balto sarakstu un trauksmes"
+
+# translated-by: libretranslate
+msgctxt "menu:Help:title"
+msgid "Help"
+msgstr "Palīdzība"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-compose-ca:description"
+msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
+msgstr "Palīdzības sniedzēja loma CA uzticības veicināšanas līdzekļu ierīkošanā Docker Compose skursteņi un projekta CA sertifikāta apstiprināšana"
+
+# translated-by: libretranslate
+msgctxt "category:gen:description"
+msgid "Helper roles & installers (git, locales, timer, etc.)"
+msgstr "Palīga lomas un uzstādītāji (git, loki, taimeris utt.)"
+
+# translated-by: libretranslate
+msgctxt "menu:Tools:description"
+msgid "Helpful Tools"
+msgstr "Palīglīdzekļi"
+
+# translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: LuxSCS un LuxOpCo LuxSCS LuxOpCo LuxSCS LuxOpCo LuxSCS
+# LuxOpCo un LuxSCS LuxOpCo LuxSCS LuxOpCo LuxOpCo LuxSCS LuxOpCo un LuxOpCo
+# LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo
+# LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo LuxOpCo līgumu un LuxOpCo
+# LuxSCS maksu un maksu par LuxOpCo pakalpojumiem, kas saistīti ar LuxOpCo
+# pakalpojumiem, LuxOpCo un LuxOpCo, LuxOpCo darbībām un LuxOpCo darbībām.3
+# API.
+msgctxt "menu:Storage:description"
+msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
+msgstr ""
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-wireguard-core:description"
+msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
+msgstr "Host līmeņa WireGuard VPN pakalpojums ar wg-quick konfigurāciju, pakotņu uzstādīšana, un IP-forwarding sysctl drošu tuneļu"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-journalctl:description"
+msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
+msgstr "Resursdatora līmeņa konfigurācija sistematizētajam žurnalētajam žurnalētajam žurnalēšanas dēmonam ar aiztures ierobežojumiem un dzīvo žurnālu straumēšanu"
+
+# translated-by: libretranslate
+msgctxt "role:dev-shell:description"
+msgid "Host-level configuration linking Bash and Zsh login shells to a shared .profile for consistent environment loading"
+msgstr "Resursdatora līmeņa konfigurācija, kas saista Bash un Zsh pieteikšanās čaulas uz koplietošanas . profils konsekventu vides ielādes"
+
+# translated-by: libretranslate
+msgctxt "role:sys-version:description"
+msgid "Host-level provisioning for exposing the project's pyproject.toml version system-wide via /etc/environment"
+msgstr "Uzņēmēja līmeņa nodrošinājums projekta atklāšanai pyproject.toml versija visā sistēmā, izmantojot /etc/environment"
+
+# translated-by: libretranslate
+msgctxt "role:user-root:description"
+msgid "Host-level role provisioning a root RSA 4096-bit SSH key pair for secure automated administrative access"
+msgstr "Uzņēmēja līmeņa lomu nodrošināšana saknes RSA 4096-bit SSH atslēgu pāris drošu automatizētu administratīvo piekļuvi"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-openbao:description"
+msgid "Identity-based secrets, PKI and encryption manager with OIDC login, group-mapped policies and static-seal auto-unseal"
+msgstr "Identitātes bāzēti noslēpumi, PKI un šifrēšanas pārvaldnieks ar OIDC pieteikšanos, grupas aplaupīšanas politiku un statisko zīmogu auto- unsalu"
+
+# translated-by: libretranslate
+msgctxt "role:svc-db-redis:description"
+msgid "In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
+msgstr "Atmiņas atslēgas vērtības kešatmiņa un veikals, centralizēti koplietots ar viena patērētāja ACL izolāciju vai iestrādāts blakusvāģī"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-docs:description"
+msgid "Infinito.Nexus documentation for the latest commit and every release, built on demand with Sphinx"
+msgstr "Infinito.Nexus dokumentācija par jaunāko nodevumu un katru atbrīvošanu, pamatojoties uz pieprasījumu ar Sfinx"
+
+# translated-by: libretranslate
+msgctxt "menu:Infrastructure:title"
+msgid "Infrastructure"
+msgstr "Infrastruktūra"
+
+# translated-by: libretranslate
+msgctxt "menu:Infrastructure:description"
+msgid "Infrastructure and networking tools"
+msgstr "Infrastruktūra un tīklu veidošanas instrumenti"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-compose:description"
+msgid "Infrastructure role for managing containerized-application project structures, .env files, and lifecycle handlers"
+msgstr "Infrastruktūras loma konteinera-pieteikuma projektu struktūru, env failus, un dzīves cikla apstrādātāji"
+
+# translated-by: libretranslate
+msgctxt "role:sys-service:description"
+msgid "Infrastructure role for managing systemd service units: cleanup, deployment, timers, and shared failure diagnostics"
+msgstr "Infrastruktūras loma sistemātisko pakalpojumu vienību pārvaldībā: tīrīšana, izvietošana, taimeris un kopīga kļūdu diagnostika"
+
+# translated-by: libretranslate
+msgctxt "category:svc:description"
+msgid "Infrastructure services like databases"
+msgstr "Infrastruktūras pakalpojumi, piemēram, datubāzes"
+
+# translated-by: libretranslate
+msgctxt "category:sys.front.inj:title"
+msgid "Injection"
+msgstr "Injekcijām"
+
+# translated-by: libretranslate
+msgctxt "role:drv-intel:description"
+msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
+msgstr "Intel VA-API datu nesēju draiveris aparatūras paātrināta video atkodēšanai un kodēšanai pa Linux distributīviem"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-mig:description"
+msgid "Interactive graph visualization of all Infinito.Nexus roles and their dependencies for architecture transparency"
+msgstr "Interaktīvā grafika vizualizācija Infinito.Nexus lomas un to atkarība no arhitektūras pārredzamības"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-jira:description"
+msgid "Issue and project tracking platform for software teams, with agile boards, workflows, and optional OIDC SSO"
+msgstr "Izdošanas un projektu izsekošanas platforma programmatūras komandām, ar veiklu dēli, darbplūsmas, un izvēles OIDC SSO"
+
+# translated-by: libretranslate
+msgctxt "role:dev-nodejs:description"
+msgid "JavaScript runtime for building and running server-side applications and developer tooling"
+msgstr "JavaScript palaišanas laiks servera lietojumprogrammām un izstrādātājiem"
+
+# translated-by: libretranslate
+msgctxt "role:svc-ai-jupyter:description"
+msgid "Kernel backend that runs the code a chat writes, in a container instead of in the browser sandbox"
+msgstr "Kernel aizmugure, kas vada kodu tērzēšanas raksta, konteinerā, nevis pārlūka smilšu kastē"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-hermes:description"
+msgid "Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to models through the shared LLM gateway"
+msgstr "Kerneļa izolēta aģenta darbības laiks, kas apkalpo ar OpenAI saderīgu API, kas maršrutēts uz modeļiem caur kopīgo LLM vārteju"
+
+# translated-by: libretranslate
+msgctxt "category:svc.virt:description"
+msgid "Kernel-isolating container runtimes on the container host: Kata Containers microVMs and the gVisor userspace fallback."
+msgstr "Kernel-izolē konteinera runtimes uz konteinera resursdatora: Kata Containers microVMs un gVisor userpace flangback."
+
+# translated-by: libretranslate
+msgctxt "role:svc-virt-kata:description"
+msgid "Kernel-isolating container runtimes that sandbox untrusted workloads in a microVM or a userspace kernel"
+msgstr "Kerneļu izolēšanas konteinera darbības laiki, kuros smilšu kaste neuzticama slodze mikroVM vai lietotāja vietas kodolā"
+
+# translated-by: libretranslate
+msgctxt "role:svc-storage-nfs-server:description"
+msgid "Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts"
+msgstr "Kernel līmeņa NFS serveris koplietošanas direktorija koka ar IP ierobežotu piekļuvi sharm-node resursdatoriem eksportēšanai"
+
+# translated-by: libretranslate
+msgctxt "menu:Education:description"
+msgid "Learning platforms, classroom collaboration tools, and digital education environments."
+msgstr "Mācību platformas, klašu sadarbības instrumenti un digitālā izglītības vide."
+
+# translated-by: libretranslate
+msgctxt "role:sys-front-tls-letsencrypt:description"
+msgid "Let's Encrypt provider for the front-facing TLS layer ensuring automated certificate issuance and presence"
+msgstr "Šifrēt pakalpojumu sniedzēju priekšējam TLS slānim, kas nodrošina automātisku sertifikātu izsniegšanu un klātbūtni"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-retroarch:description"
+msgid "Libretro-based frontend for emulators, game engines, and media players, with XMB and Ozone menu styles"
+msgstr "Libretro-based fasādē emulatoriem, spēļu dzinēji, un mediju atskaņotāji, ar XMB un Ozone izvēlnes stilu"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-mail-msmtp:description"
+msgid "Lightweight SMTP client and sendmail replacement for delivering mail through an external SMTP server"
+msgstr "Viegls SMTP klients un sendmail aizvietošana pasta piegādei caur ārēju SMTP serveri"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-gitea:description"
+msgid "Lightweight self-hosted Git service for code collaboration, version control, and repository management"
+msgstr "Viegls pašpasūtošs Git pakalpojums kodu sadarbībai, versiju kontrolei un repozitorija pārvaldībai"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-nss:description"
+msgid "Local name resolution for the domains the target serves, via the myhostname NSS module"
+msgstr "Vietējo nosaukumu izšķirtspēja domēniem mērķis kalpo, izmantojot myhostname NSS moduli"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ca-selfsigned:description"
+msgid "Local self-signed Root CA for issuing trust so containers accept internal TLS endpoints"
+msgstr "Lokāla pašparakstīta Sakne CA uzticamības izsniegšanai, lai konteineri pieņemtu iekšējos TLS galapunktus"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-keepassxc:description"
+msgid "Local-first cross-platform desktop password manager storing credentials in an encrypted KeePass-format database"
+msgstr "Lokāla pirmā starpplatformu darbvirsmas paroles pārvaldnieks, kas glabā akreditācijas datus šifrētā KeePass-format datubāzē"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-laya:description"
+msgid "Local-first notification command center that aggregates Slack, mail and issue trackers into approvable action cards"
+msgstr "Lokāls- pirmais paziņošanas komandcentrs, kas apkopo Slack, pasta un izdošanas trakerus apstiprināmajās rīcības kartēs"
+
+# translated-by: libretranslate
+msgctxt "role:sys-lock:description"
+msgid "Locking mechanism for gating maintenance tasks until critical services stop, with configurable retry and timeout"
+msgstr "Bloķēšanas mehānisms apkopes uzdevumu veikšanai, līdz kritiskie pakalpojumi apstājas, ar konfigurējamu atkārtojumu un noildzi"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-mail-smtp:description"
+msgid "Loopback-only Postfix relay for lightweight outbound mail delivery via localhost when no central mail stack runs"
+msgstr "Tikai pēcoperācijas relejs vieglai izejošai pasta piegādei, izmantojot localhost, kad nav centrālā pasta steka"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-flowise:description"
+msgid "Low-code visual builder for creating, testing, and publishing LLM and RAG workflows as HTTP endpoints"
+msgstr "Zemkoda vizuālais veidotājs LLM un RAG darbplūsmu radīšanai, testēšanai un publicēšanai kā HTTP mērķa kritēriji"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.mtn:title"
+msgid "Maintenance"
+msgstr "Apkope"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.mtn:description"
+msgid "Maintenance roles for certificates, system upkeep, and recurring operational tasks."
+msgstr "Sertifikātu tehniskās apkopes uzdevumi, sistēmas uzturēšana un regulāri operatīvie uzdevumi."
+
+# translated-by: libretranslate
+msgctxt "role:svc-swarm-manager:description"
+msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
+msgstr "Marķiera loma iezīmējot uzņēmēja kā Docker Swarm pārvaldnieka mezgls, ar init loģiku deleģēts svc-swarm-node"
+
+# translated-by: libretranslate
+msgctxt "menu:Marketing:title"
+msgid "Marketing"
+msgstr "Tirdzniecība"
+
+# translated-by: libretranslate
+msgctxt "role:svc-ai-searxng:description"
+msgid "Metasearch engine the platform queries for web results without handing a user's query to a tracking search provider"
+msgstr "Metasearch dzinējs platformas vaicājumus par tīmekļa rezultātiem, nenododot lietotāja vaicājumu izsekošanas meklēšanas nodrošinātājam"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-gnt-pi:description"
+msgid "Minimal terminal coding agent with a lazy-loading skill system, wired to the platform's own model gateway"
+msgstr "Minimāls termināla kodēšanas aģents ar slink-ielādēšanas prasmju sistēmu, kas pieslēgta platformas modeļa vārtejai"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.hlth:title"
+msgid "Monitoring"
+msgstr "Uzraudzība"
+
+# translated-by: libretranslate
+msgctxt "role:gen-hunspell:description"
+msgid "Multi-language spell checker with configurable dictionary packs for desktop and office text editing"
+msgstr "Daudzvalodu pareizrakstības pārbaudītājs ar konfigurējamiem vārdnīcu pakotnēm darbvirsmas un biroja teksta rediģēšanai"
+
+# translated-by: libretranslate
+msgctxt "role:web-opt-rdr-domains:description"
+msgid "NGINX glue role for 301 redirects from source to target domains with automatic SSL for the source hosts"
+msgstr "NGINX līmes loma 301 pāradresē no avota uz mērķa domēniem ar automātisku SSL avota resursdatoriem"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-webserver-https:description"
+msgid "NGINX layer for HTTPS with Let's Encrypt ACME challenge handling, port 80 to 443 redirect, and stale vHost cleanup"
+msgstr "NGINX slānis HTTPS ar Let 's šifrēt ACME izaicinājumu apstrāde, ports 80 līdz 443 novirzīt, un stale vHost tīrīšana"
+
+# translated-by: libretranslate
+msgctxt "role:web-opt-rdr-www:description"
+msgid "NGINX server blocks that permanently redirect www subdomains to their non-www apex domains"
+msgstr "NGINX servera bloki, kas neatgriezeniski novirza www apakšdomēnus uz domēniem, kas nav www apex"
+
+# translated-by: libretranslate
+msgctxt "role:sys-front-inj-matomo:description"
+msgid "NGINX subfilter injector adding Matomo analytics script and noscript image tracker to served HTML pages"
+msgstr "NGINX apakšfiltra inžektors, kam HTML lapās pievienots Matomo analytics skripts un noskripta attēlu trakers"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-html:description"
+msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
+msgstr "NGINX vhost apkalpo statisko HTML mājas lapas virs HTTPS ar automātisko Let's šifrēt sertifikātus"
+
+# translated-by: libretranslate
+msgctxt "role:svc-prx-openresty:description"
+msgid "NGINX-based web platform and reverse proxy with validated config reloads and Let's Encrypt integration"
+msgstr "NGINX bāzēta tīmekļa platforma un reversais starpniekserveris ar validētu konfigurāciju pārlādēšanu un Let's Encrypt integrāciju"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-legal:description"
+msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
+msgstr "NGINX served static page rendering a legal nospiedums (Impressum) no Jinja2 sagatave"
+
+# translated-by: libretranslate
+msgctxt "category:svc.net:title"
+msgid "Network"
+msgstr "Tīkls"
+
+# translated-by: libretranslate
+msgctxt "category:svc.net:description"
+msgid "Network setup (DNS, Let's Encrypt HTTP, WireGuard, etc.)"
+msgstr "Tīkla iestatīšana (DNS, pieņemsim šifrēt HTTP, WireGuard utt.)"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-pihole:description"
+msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
+msgstr "Tīkla mēroga DNS grimšanas caurums, lai bloķētu reklāmas un trackers pa visām ierīcēm, ar DHCP un web admin paneļa"
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-wireguard-firewalled:description"
+msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
+msgstr "Tīkla palīgs iptables pāradresēšanai un NAT masquerading no WireGuard klients darbojas aiz NAT vai ugunsmūris"
+
+# translated-by: libretranslate
+msgctxt "role:sys-front-inj-logout:description"
+msgid "Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
+msgstr "Nginx sub_filter Javascript injekcija pārvirza visas atteikšanās darbības uz centralizētu OIDC vienu izrakstīšanās galapunktu"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-cdn:description"
+msgid "Nginx-based content delivery network for serving shared static assets to internal web applications"
+msgstr "Nginx bāzēts satura piegādes tīkls kopīgo statisko aktīvu apkalpošanai uz iekšējām tīmekļa lietotnēm"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-mirror:description"
+msgid "Nginx-based privacy proxy that mirrors whitelisted third-party assets under a first-party domain"
+msgstr "Nginx bāzēts privātuma starpniekserveris, kas atspoguļo balto sarakstā iekļautos trešo personu aktīvus pirmās puses domēnā"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-asset:description"
+msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
+msgstr "Nginx bāzēts serveris statisko aktīvu izvietošanai no pirmkoda mapes uz tīmekļa datu ceļu"
+
+# translated-by: libretranslate
+msgctxt "role:dev-npm:description"
+msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
+msgstr "Node.js package- manager setup instalējot npm un fakultatīvi darbojas 'npm ci' projekta direktorijā"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.alm:description"
+msgid "Notification handlers for system events"
+msgstr "Sistēmas notikumu paziņojumu apstrādātāji"
+
+# translated-by: libretranslate
+msgctxt "category:update:description"
+msgid "OS & package updates"
+msgstr "OS & pakotņu atjauninājumi"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-objstore:description"
+msgid "Object-storage layer for SeaweedFS/MinIO backend resolution and per-consumer bucket and credential provisioning"
+msgstr "Objekta glabāšanas slānis SeaweedFS/MinIO aizmugures izšķirtspējai un uz patērētāju spainim un rezervēšanai"
+
+# translated-by: libretranslate
+msgctxt "role:svc-opt-swapfile:description"
+msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
+msgstr "Uz mērķa automatizācija, lai radītu un aktivizētu mijmaiņas telpu, izmantojot klonētu swapfile skriptu"
+
+# translated-by: libretranslate
+msgctxt "logout:open_logout"
+msgid "Open the logout page"
+msgstr "Atvērt atteikšanās lapu"
+
+# translated-by: libretranslate
+msgctxt "logout:no_check_hint"
+msgid "Open the logout page and sign out of the remaining services yourself."
+msgstr "Atveriet atteikšanās lapu un izrakstiet atlikušos pakalpojumus pats."
+
+# translated-by: libretranslate
+msgctxt "role:web-app-espocrm:description"
+msgid "Open-source CRM platform for managing sales, customer interactions, and business processes across teams"
+msgstr "Atklāta pirmkoda CRM platforma pārdošanas, klientu mijiedarbības un biznesa procesu pārvaldībai starp komandām"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-suitecrm:description"
+msgid "Open-source CRM platform for sales, service, cases, and campaign management with workflow automation"
+msgstr "Atvērtā koda CRM platforma pārdošanas, pakalpojumu, kases un kampaņu vadībai ar darbplūsmas automatizāciju"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-odoo:description"
+msgid "Open-source ERP suite for CRM, sales, accounting, inventory, HR, and website management"
+msgstr "Atvērta avota ERP komplekts CRM, pārdošanas, uzskaites, inventāra, personāla un tīmekļa vietņu pārvaldībai"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-checkmk:description"
+msgid "Open-source IT and application monitoring server behind SSO with native LDAP user management"
+msgstr "Atvērtā pirmkoda IT un lietojumprogrammu monitoringa serveris aiz SSO ar vietējo LDAP lietotāja vadību"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-snipe-it:description"
+msgid "Open-source IT asset management system for tracking hardware and software inventory"
+msgstr "Atklāta pirmkoda IT aktīvu pārvaldības sistēma aparatūras un programmatūras inventarizācijai"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-kix:description"
+msgid "Open-source ITSM and helpdesk platform (OTRS fork) for ticketing, CMDB, knowledge base, and reporting"
+msgstr "Atklāta pirmkoda ITSM un palīdzības dienesta platforma (OTRS dakša) biļešu pārdošanai, CMDB, zināšanu bāzei un ziņošanai"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-taiga:description"
+msgid "Open-source agile project management platform for Scrum, Kanban, and hybrid team workflows"
+msgstr "Atvērtā koda Agile projektu vadības platforma Scrum, Kanban un hibrīda komandas darbplūsmām"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-jenkins:description"
+msgid "Open-source automation server for CI/CD pipelines, builds, and plugin-driven deployment workflows"
+msgstr "Atvērtā pirmkoda automatizācijas serveris CI/CD cauruļvadiem, būvēm un spraudņu virzītām izvēršanas darbplūsmām"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-fider:description"
+msgid "Open-source community feedback platform for collecting, voting on, and prioritizing feature requests and ideas"
+msgstr "Atvērtā pirmkoda kopienas atgriezeniskās saites platforma funkciju pieprasījumu un ideju vākšanai, balsošanai un prioritāšu noteikšanai"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-joomla:description"
+msgid "Open-source content management system for building websites, intranets, and online applications without writing code"
+msgstr "Atklāta pirmkoda satura pārvaldības sistēma tīmekļa vietņu, iekštīklu un tiešsaistes lietojumprogrammu izveidei bez rakstīšanas koda"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-qbittorrent:description"
+msgid "Open-source desktop BitTorrent client for downloading and sharing files over the BitTorrent protocol"
+msgstr "Atvērtā pirmkoda darbvirsmas BitTorrent klients failu lejupielādei un kopīgošanai, izmantojot BitTorrent protokolu"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-discourse:description"
+msgid "Open-source discussion and community forum platform with moderation, notifications, and plugin support"
+msgstr "Atvērto resursu diskusiju un kopienas foruma platforma ar mērenību, paziņojumi, un spraudnis atbalsts"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-shopware:description"
+msgid "Open-source ecommerce platform built on Symfony and Vue.js for building and scaling online storefronts"
+msgstr "Uz Symfony veidota atvērtā pirmkoda e-komercijas platforma un Vue.js ēku un mērogošanas tiešsaistes veikalu"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-zammad:description"
+msgid "Open-source helpdesk and ticketing system for handling customer requests via email, chat, phone, and web"
+msgstr "Atvērtā pirmkoda palīdzības dienests un biļešu sistēma klientu pieprasījumu apstrādei pa e-pastu, tērzēšanu, tālruni un tīmekli"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-moodle:description"
+msgid "Open-source learning management system for creating, managing, and delivering online courses and e-learning"
+msgstr "Atvērta avota mācību vadības sistēma tiešsaistes kursu un e-mācību izveidei, pārvaldībai un nodrošināšanai"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-prometheus:description"
+msgid "Open-source monitoring and alerting toolkit for storing metrics as time-series data and querying them with PromQL"
+msgstr "Atklātā pirmkoda uzraudzības un brīdināšanas rīku komplekts metriku glabāšanai kā laikrindas datus un to vaicāšanai ar PromQL"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-decidim:description"
+msgid "Open-source participatory democracy platform for public consultations, civic processes, and community voting"
+msgstr "Atvērtu līdzekļu līdzdalības demokrātijas platforma sabiedriskajām konsultācijām, pilsoniskajiem procesiem un sabiedrības balsojumam"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-mattermost:description"
+msgid "Open-source, self-hosted team messaging platform for real-time collaboration via channels, threads, and integrations"
+msgstr "Atvērto avotu, pašhosted komandas ziņojumapmaiņas platforma reālā laika sadarbībai, izmantojot kanālus, pavedieni, un integrācija"
+
+# translated-by: libretranslate
+msgctxt "role:svc-ai-litellm:description"
+msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
+msgstr "OpenAI savietojama LLM vārtejas maršrutēšana ar vienu /v1 galapunkts lokālajām un uzturētajām modeļa aizmugurēm ar patēriņa atslēgām"
+
+# translated-by: libretranslate
+msgctxt "role:dev-java:description"
+msgid "OpenJDK 11 runtime and development kit for Java applications on Pacman-based systems"
+msgstr "OpenJDK 11 palaišanas un izstrādes komplekts Java lietojumprogrammām uz Pacman bāzētām sistēmām"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-ssh:description"
+msgid "OpenSSH client package for secure remote shell access and key-based authentication"
+msgstr "OpenSSH klienta pakotne drošai attālinātai čaulas piekļuvei un uz atslēgas bāzētai autentifikācijai"
+
+# translated-by: libretranslate
+msgctxt "category:svc.opt:description"
+msgid "Optimation Services to improve your system"
+msgstr "Optimizācijas pakalpojumi sistēmas uzlabošanai"
+
+# translated-by: libretranslate
+msgctxt "role:dev-gcc:description"
+msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
+msgstr "Optimizē kompilatora rīku ķēdi C, C++ un citu dzimtās valodas programmu celtniecībai"
+
+# translated-by: libretranslate
+msgctxt "role:sys-stk-front-proxy:description"
+msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
+msgstr "Orķestra ietvars katram domēnam NGINX nodrošināšanai ar TLS sertifikātiem, vHost veidnēm un pēc izvēles OAuth2"
+
+# translated-by: libretranslate
+msgctxt "logout:pace_tor"
+msgid "Over Tor this can take a while."
+msgstr "Tora dēļ var paiet kāds laiks."
+
+# translated-by: libretranslate
+msgctxt "role:dev-make:description"
+msgid "Package installation for the GNU Make build automation tool on Arch Linux via Pacman"
+msgstr "Pakotņu instalācija GNU Padarīt veidot automatizācijas rīku uz Arch Linux via Pacman"
+
+# translated-by: libretranslate
+msgctxt "role:sys-pip:description"
+msgid "Package manager for installing and managing Python packages on the target host"
+msgstr "Pakotņu pārvaldnieks Python pakotņu uzstādīšanai un pārvaldībai uz mērķa resursdatora"
+
+# translated-by: libretranslate
+msgctxt "role:svc-ai-agent-broker:description"
+msgid "Per-user Hermes and OpenClaw agents started on demand behind an OpenAI-compatible endpoint"
+msgstr "Hermes un OpenClaw aģenti, kas sāk pēc pieprasījuma, atpaliekot no ar OpenAI savietojama mērķa kritērija"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-hlth-msmtp:description"
+msgid "Periodic health check for outbound mail delivery, sending a test message via msmtp and alerting on failure"
+msgstr "Periodiska veselības pārbaude par izejošo pasta piegādi, testa ziņojuma nosūtīšana, izmantojot msmtp, un brīdināšana par kļūmi"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-ssh:description"
+msgid "Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
+msgstr "Pastāvīga sistematizēta lietotāja servisa SSH aģents Wayland galddatoriem, ar .ssh konfigurācija sinhronizēta no Git"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-xmpp:description"
+msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
+msgstr "Vietu turētāja stub loma nākotnes XMPP servera/konteinera izvietošanai, īstenošana vēl nav pabeigta"
+
+# translated-by: libretranslate
+msgctxt "menu:Commerce:description"
+msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
+msgstr "Platformas tiešsaistes veikalu, preču katalogu un digitālo pārdošanas kanālu būvniecībai un pārvaldībai — tostarp maksājumu, inventāra un klientu funkcijas."
+
+# translated-by: libretranslate
+msgctxt "logout:keep_closed"
+msgid "Please do not close this page yet."
+msgstr "Lūdzu, vēl neaizveriet šo lapu."
+
+# translated-by: libretranslate
+msgctxt "logout:keep_open"
+msgid "Please keep this page open until this is done."
+msgstr "Lūdzu, atstājiet šo lapu atvērtu līdz tas ir izdarīts."
+
+# translated-by: libretranslate
+msgctxt "role:svc-bkp-local-2-device:description"
+msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
+msgstr "Name"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-firefox:description"
+msgid "Policy-managed web browser for Arch Linux desktops with auto-installed enterprise extensions"
+msgstr "Politiku pārvaldīta tīmekļa pārlūkprogramma Arch Linux darbvirsmām ar automātiski uzstādītiem uzņēmuma paplašinājumiem"
+
+# translated-by: libretranslate
+msgctxt "role:drv-lid-switch:description"
+msgid "Power-aware systemd logind configuration for predictable laptop lid-close behavior across battery, AC, and docked states"
+msgstr "Power-aware sistematizēta pieteikšanās konfigurācija paredzamu klēpjdatora vāku-close uzvedību visā akumulatoru, AC, un doka valstīm"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-socialhome:description"
+msgid "Privacy-first social platform for households, federating peer-to-peer over WebRTC on an embedded SQLite store"
+msgstr "Privātuma pirmā sociālā platforma mājsaimniecībām, vienādranga apvienošana tīmeklīRTC iegultā SQLite veikalā"
+
+# translated-by: libretranslate
+msgctxt "role:sys-sudo:description"
+msgid "Privilege-escalation package and hardened sudoers configuration with /etc/sudoers.d drop-in support"
+msgstr "Privilēģiju eskalācijas pakotne un rūdīti sudoers konfigurācija ar /etc / sudoers.d pilin-in atbalstu"
+
+# translated-by: libretranslate
+msgctxt "menu:Project Management:title"
+msgid "Project Management"
+msgstr "Projektu vadība"
+
+# translated-by: libretranslate
+msgctxt "menu:Project Management:description"
+msgid "Project Management Tools"
+msgstr "Projektu pārvaldības rīki"
+
+# translated-by: libretranslate
+msgctxt "role:drv-non-free:description"
+msgid "Proprietary GPU driver installer for Arch-based systems via mhwd nonfree hardware detection"
+msgstr "Patentēts GPU vadītāja uzstādītājs arka bāzes sistēmām, izmantojot mhwd bezfree aparatūras atklāšana"
+
+# translated-by: libretranslate
+msgctxt "role:sys-dns-wildcards:description"
+msgid "Provisioning role for Cloudflare wildcard DNS records (*.parent) on parent hosts and the apex domain"
+msgstr "Cloudflare Windcard DNS ierakstu nodrošināšana (*. vecāka) par vecāku saimniekiem un apex domēnu"
+
+# translated-by: libretranslate
+msgctxt "role:user-workstation:description"
+msgid "Provisioning role for a workstation login account with its shell dotfiles, SSH authorized keys, and environment"
+msgstr "Darba stacijas pieteikšanās konta nodrošināšana ar saviem čaulas punktiem, SSH autorizētajām atslēgām un vidi"
+
+# translated-by: libretranslate
+msgctxt "role:user:description"
+msgid "Provisioning role for per-user environment setup, managing shell dotfiles and SSH authorized_keys"
+msgstr "Uz lietotāju orientētas vides uzstādīšanas nodrošināšana, čaulas punktu failu un SSH pārvaldība authorized_keys"
+
+# translated-by: libretranslate
+msgctxt "category:svc.prx:title"
+msgid "Proxy Servers"
+msgstr "Starpniekserveri"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-api:description"
+msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
+msgstr "Public REST API apkalpo lomu datus, vēsturi un tulkojumi Infinito.Nexus katrai serdes daļai un dakšām"
+
+# translated-by: libretranslate
+msgctxt "role:pkgmgr:description"
+msgid "Python CLI package manager for cloning multiple code repositories and automating common Git operations"
+msgstr "Python CLI pakotņu pārvaldnieks vairāku kodu repozitoriju klonēšanai un kopīgo Git operāciju automatizēšanai"
+
+# translated-by: libretranslate
+msgctxt "role:sys-lint:description"
+msgid "Release pins for the GitHub-release lint tools the toolchain installs"
+msgstr "Release adatas GitHub atbrīvošanas lint rīkus rīkķēdes instalēt"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.rpr:title"
+msgid "Repair"
+msgstr "Remonts"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.rpr:description"
+msgid "Repair and recovery roles—handling hard/soft recovery of Docker, Btrfs balancers, and other low-level system fixes."
+msgstr "Remonta un reģenerācijas funkcijas – apstrāde grūti / viegli atgūt Docker, Btrfs balansieri, un citi zema līmeņa sistēmas labojumi."
+
+# translated-by: libretranslate
+msgctxt "role:sys-util-git-pull:description"
+msgid "Reusable Git pull primitive for shallow clones, detached-safe updates, tag pinning, and reliable change detection"
+msgstr "Atkārtoti lietojams Git pull primitīvi sekliem kloniem, atsevišķi drošu atjauninājumu, tag pinning, un uzticamu izmaiņu noteikšana"
+
+# translated-by: libretranslate
+msgctxt "role:svc-ai-mcp-adapter:description"
+msgid "Reusable per-provider MCP adapter exposing a narrow allowlisted read surface"
+msgstr "Atkārtoti izmantojams katram nodrošinātājam MCP adapteris, kas atklāj šauru atspējotu lasīšanas virsmu"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-proxy:description"
+msgid "Reverse proxy front-end for Docker-hosted services with automatic TLS, WebSocket support, and per-app vHost templating"
+msgstr "Reversā starpniekservera priekšpuse Docker mitinātajiem servisiem ar automātisko TLS, WebSocket atbalstu un per-app vHost templating"
+
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Apgrieztā starpniekservera TLS orķestrācijas slānis,
+# kas izvēlas 'Let' Encrypt, 'pašparakstīt' vai 'atslēgti' Nginx sertifikātu
+# nodrošinātājus
+msgctxt "role:sys-front-tls:description"
+msgid "Reverse-proxy TLS orchestration layer selecting Let's Encrypt, self-signed, or disabled certificate providers for Nginx"
+msgstr ""
+
+# translated-by: libretranslate
+msgctxt "category:svc.prx:description"
+msgid "Reverse-proxy roles for routing and load-balancing traffic to backend services"
+msgstr "Maršrutēšanas un slodzes līdzsvarošanas un aizmugures pakalpojumu reversās starpniekservera lomas"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.cln:description"
+msgid "Roles for cleaning up various system resources—old backups, unused certificates, temporary files, Docker volumes, disk caches, deprecated domains, and more."
+msgstr "Lomas dažādu sistēmas resursu tīrīšanai-veci dublējumi, neizmantoti sertifikāti, pagaidu faili, Docker apjomi, diska kešatmiņas, novecojuši domēni, un vairāk."
+
+# translated-by: libretranslate
+msgctxt "category:drv:description"
+msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
+msgstr "Funkcijas aparatūras draiveru uzstādīšanā un konfigurēšanā – printeru, grafikas, ievadierīču un citu perifēro atbalstu."
+
+# translated-by: libretranslate
+msgctxt "category:web:description"
+msgid "Roles for managing web infrastructure—covering static content services and deployable web applications."
+msgstr "Tīmekļa infrastruktūras pārvaldības uzdevumi – statiskā satura pakalpojumu un izvietojamu tīmekļa lietojumprogrammu nodrošināšana."
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.hlth:description"
+msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
+msgstr "Lomas sistēmas uzraudzībai un veselības pārbaudēm – apkopojot botu stila automatizētās pārbaudes un pamata zema līmeņa monitori apaļkoku, konteineri, disku izmantošana, un vairāk."
+
+# translated-by: libretranslate
+msgctxt "role:sys-front-tls-selfsigned:description"
+msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
+msgstr "SAN-aware sertifikātu nodrošinātājs, kas ģenerē un uzglabā pašparakstītus TLS sertifikātus priekšējai proxy TLS slānim"
+
+# translated-by: libretranslate
+msgctxt "menu:Sales:title"
+msgid "Sales"
+msgstr "Pārdošana"
+
+# translated-by: libretranslate
+msgctxt "category:svc.virt:title"
+msgid "Sandboxed Runtimes"
+msgstr "Smilšu kastes darbības laiki"
+
+# translated-by: libretranslate
+msgctxt "role:svc-bkp-nfs-2-local:description"
+msgid "Scheduled backup job for hard-linked differential rsync snapshots of an NFS export into the local backup tree"
+msgstr "Plānotais dublējuma darbs grūti saistīta diferenciāla rsync momentuzņēmumi NFS eksportam uz vietējo rezerves koku"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-cln-certs:description"
+msgid "Scheduled cleanup tool for revoking and deleting unused Let's Encrypt certificates"
+msgstr "Plānots tīrīšanas rīks neizmantoto Let's šifrēt sertifikātu atsaukšanai un dzēšanai"
+
+# translated-by: libretranslate
+msgctxt "role:svc-bkp-secrets-2-local:description"
+msgid "Scheduled deduplicating backup of host secrets, CA, ACME credentials, and node identity to the local backup directory"
+msgstr "Plānots dublēt datora noslēpumus, CA, ACME akreditācijas datus un mezgla identitāti lokālajā rezerves kopiju mapē"
+
+# translated-by: libretranslate
+msgctxt "role:svc-bkp-volume-2-local:description"
+msgid "Scheduled deduplicating backup system for Docker container volumes to a local directory, with consistent SQL dumps"
+msgstr "Plānota dublēšanas sistēma Docker konteinera skaļumiem lokālai mapei, ar SQL izgāztuvēm"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-hlth-csp:description"
+msgid "Scheduled health check crawling configured domains for CSP-blocked resources via a Puppeteer-based Node.js checker"
+msgstr "Plānotie veselības pārbaudes tralēšana konfigurētie domēni CSP bloķētiem resursiem, izmantojot Puppeteer bāzes Node.js pārbaudītājs"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-hlth-btrfs:description"
+msgid "Scheduled health check for Btrfs filesystems that alerts on non-zero device error counters"
+msgstr "Plānota veselības pārbaude Btrfs failu sistēmām, kas ziņo par kļūdu skaitītājiem, kuri nav nulles ierīce"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-hlth-disc-space:description"
+msgid "Scheduled health check for filesystem disk usage, alerting when any mount exceeds its warning threshold"
+msgstr "Plānotā veselības pārbaude failu sistēmas diska lietošanai, brīdināšana, kad montējums pārsniedz tā brīdinājuma slieksni"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-hlth-journalctl:description"
+msgid "Scheduled health check scanning the systemd journal for daily errors and alerting on matches"
+msgstr "Plānota veselības pārbaude, skenējot sistematizēto dienasgrāmatu, lai konstatētu ikdienas kļūdas un brīdinātu par sakritībām"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-hlth-webserver:description"
+msgid "Scheduled health check verifying each NGINX domain returns its expected HTTP status and alerting on deviations"
+msgstr "Plānota veselības pārbaude, pārbaudot katru NGINX domēnu atgriež savu paredzamo HTTP statusu un brīdina par novirzēm"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-cln-faild-bkps:description"
+msgid "Scheduled maintenance service for detecting and removing failed Docker backups while keeping recent sets intact"
+msgstr "Plānots tehniskās apkopes pakalpojums, lai atklātu un noņemtu neveiksmīgos Docker dublējumus, saglabājot nesenos komplektus neskartus"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-cln-anon-volumes:description"
+msgid "Scheduled maintenance task for reclaiming disk space by removing unused anonymous Docker volumes and their symlinks"
+msgstr "Plānotais uzturēšanas uzdevums diska vietas atgūšanai, noņemot neizmantotos anonīmos Docker sējumus un to symlinks"
+
+# translated-by: libretranslate
+msgctxt "role:svc-bkp-remote-2-local:description"
+msgid "Scheduled pull-style backup replicating remote hosts onto this host over SSH and rsync as hard-linked snapshots"
+msgstr "Plānots pull stila dublējums, kas atkārto attālinātos datorus uz šī datora pa SSH un rsync kā grūti saistīti momentuzņēmumi"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-cln-bkps:description"
+msgid "Scheduled systemd maintenance service for pruning outdated backup versions when disk usage exceeds a threshold"
+msgstr "Plānotās sistematizētās tehniskās apkopes serviss novecojušo rezerves versiju atzarošanai, kad diska lietojums pārsniedz slieksni"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-rpr-btrfs-balancer:description"
+msgid "Scheduled systemd service and timer for rebalancing Btrfs file systems to keep storage allocation optimal"
+msgstr "Plānots sistematizēts pakalpojums un taimeris līdzsvarošanai Btrfs failu sistēmas, lai saglabātu uzglabāšanas sadali optimāli"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-mtn-cert-renew:description"
+msgid "Scheduled systemd-timer job renewing Let's Encrypt SSL/TLS certificates via Certbot and reloading NGINX afterward"
+msgstr "Plānots sistematizēts taimera darbs, atjaunojot Let's Encrypt SSL/TLS sertifikātus, izmantojot Certbot un pārlādējot NGINX pēc tam"
+
+# translated-by: libretranslate
+msgctxt "role:svc-runner:description"
+msgid "Self-hosted CI runner infrastructure for executing GitHub Actions workflow jobs in ephemeral Docker containers"
+msgstr "Pašsaņemoša CI skrējēja infrastruktūra GitHub darbības darbplūsmas darbavietas īslaicīgos doku konteineros"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-gitlab:description"
+msgid "Self-hosted DevOps platform for Git source-code management, CI/CD pipelines, and issue tracking"
+msgstr "Pašizvietota DevOps platforma Git avota kodu pārvaldībai, CI/CD cauruļvadiem un izsekošanai"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-fediwall:description"
+msgid "Self-hosted Fediverse wall for showing recent public posts by hashtag or account in a live masonry grid"
+msgstr "Pašsaņemts Fediverse sienas rādīt nesen publisko amatu ar birku vai kontu dzīvā mūra režģi"
+
+# translated-by: libretranslate
+msgctxt "category:svc.runner:description"
+msgid "Self-hosted GitHub Actions runner deployment and configuration"
+msgstr "Pašhosted GitHub darbības skrējēja izvietošana un konfigurācija"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-littlejs:description"
+msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
+msgstr "Pašsaņemts HTML5 spēļu smilšu kaste pārlūkošanai un darbojas viegls dzinēja demos un spēles pārlūkā"
+
+# translated-by: libretranslate
+msgctxt "role:svc-db-openldap:description"
+msgid "Self-hosted LDAP directory service for centralized user, group, and schema management with TLS-secured access"
+msgstr "Pašhosted LDAP direktoriju pakalpojums centralizētajam lietotājam, grupai un shēmas vadībai ar TLS nodrošinātu piekļuvi"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-minio:description"
+msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
+msgstr "Pašapgādāts S3- Savietojamu objektu krātuve failiem, datu nesējiem, rezerves daļām un MI artefaktiem"
+
+# translated-by: libretranslate
+msgctxt "role:svc-ai-s1:description"
+msgid "Self-hosted System One classifier that answers typed questions so the gateway can route without generating"
+msgstr "Pašapgādāts System One klasifikators, kas atbild uz drukātiem jautājumiem, lai vārteja var maršrutu, neradot"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-yourls:description"
+msgid "Self-hosted URL shortener for creating, tracking, and managing short links with built-in click analytics"
+msgstr "Pašsaņemts URL saīsinātājs, lai izveidotu, izsekošana, un pārvaldīt īsas saites ar iebūvētu klikšķi analītikas"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-jitsi:description"
+msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
+msgstr "Pašatskaņota WebRTC platforma gala-to-end-šifrējama video konferences ar federētu autentifikāciju"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-mini-qr:description"
+msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
+msgstr "Self-hosted pārlūkprogramma rīks QR kodu ģenerēšanai no teksta vai URL ar privātumam draudzīgu lokālu renderēšanu"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-openwebui:description"
+msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
+msgstr "Pašhosted tērzēšanas interfeiss mijiedarbībai ar vietējiem un privātajiem AI modeļiem, izmantojot aizmugures, piemēram, Ollama"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-nextcloud:description"
+msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
+msgstr "Self-hosted mākonis platforma failu sinhronizācijai, koplietošana, reālā laika sadarbība, un komandas darba vietas zem sava domēna"
+
+# translated-by: libretranslate
+msgctxt "menu:Cloud:description"
+msgid "Self-hosted cloud solutions for file synchronization, collaboration, and data sharing."
+msgstr "Self-hosted mākoņa risinājumi failu sinhronizācijai, sadarbība, un datu koplietošana."
+
+# translated-by: libretranslate
+msgctxt "role:web-app-bluesky:description"
+msgid "Self-hosted decentralized social network on the open AT Protocol, with its own Personal Data Server"
+msgstr "Pašsaņemts decentralizēts sociālais tīkls atvērtajā AT protokolā ar savu Personas datu serveri"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-penpot:description"
+msgid "Self-hosted design and prototyping platform for UI/UX work, real-time collaboration, and developer handoff"
+msgstr "Pašsaņemts dizains un prototipu platforma UI / UX darbu, reāllaika sadarbība, un izstrādātājs offoff"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-magento:description"
+msgid "Self-hosted e-commerce platform for catalog management, checkout, promotions, and multi-store online retail"
+msgstr "Pašhosted e-komercijas platforma katalogu pārvaldību, izrakstīšanās, akcijas, un daudzstāvu tiešsaistes mazumtirdzniecības"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-xwiki:description"
+msgid "Self-hosted enterprise wiki and knowledge-management platform with collaboration and app-based extensibility"
+msgstr "Pašhosted uzņēmums wiki un zināšanu pārvaldības platforma ar sadarbību un lietotnes balstītu ekstensibilitāti"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-bookwyrm:description"
+msgid "Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
+msgstr "Pašhosted feaderated lasīšanas platforma grāmatu atsauksmēm un lasīšanas izsekošana visā Fediverse"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-mastodon:description"
+msgid "Self-hosted federated social network for microblogging, real-time timelines, and community moderation"
+msgstr "Pašsaņem federēts sociālais tīkls mikroblogošana, reālā laika grafikus, un kopienas mērenību"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-keycloak:description"
+msgid "Self-hosted identity and access management platform for single sign-on, multi-factor authentication, and user federation"
+msgstr "Pašhostinga identitāte un piekļuves pārvaldības platforma vienai pierakstīšanās, vairāku faktoru autentifikācijai un lietotāju federācijai"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-n8n:description"
+msgid "Self-hosted low-code automation platform for connecting services and building workflow integrations visually"
+msgstr "Pašapkalpošanās zema koda automatizācijas platforma, lai savienotu pakalpojumus un ēku darbplūsmas integrāciju vizuāli"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-mailu:description"
+msgid "Self-hosted mail server suite with SMTP/IMAP/POP3, webmail, spam filtering, antivirus, DKIM signing, and TLS"
+msgstr "Pašsaņemts pasta servera komplekts ar SMTP/IMAP/POP3, webmail, mēstuļu filtrēšana, antivīruss, DKIM parakstīšana un TLS"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-jellyfin:description"
+msgid "Self-hosted media server for streaming and organizing movies, TV, music, and photos, with OIDC and LDAP login"
+msgstr "Pašhosted mediju serveri straumēšanas un organizēšanas filmas, TV, mūzika, un fotogrāfijas, ar OIDC un LDAP login"
+
+# translated-by: libretranslate
+msgctxt "role:svc-ai-ollama:description"
+msgid "Self-hosted model server for running open LLMs locally behind a simple HTTP API"
+msgstr "Pašhostinga modeļa serveris atvērtu LLM darbināšanai lokāli aiz vienkārša HTTP API"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-baserow:description"
+msgid "Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
+msgstr "Pašsaņemama bezkoda datubāzes platforma ar izklājlapu līdzīgu saskarni datu veidošanai un sadarbībai"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-collabora:description"
+msgid "Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
+msgstr "Pašsaņem tiešsaistes biroja aizmugure reāllaika in-browser rediģēšana dokumentu, izklājlapas, un prezentācijas"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-erpnext:description"
+msgid "Self-hosted open-source ERP suite for finance, CRM, inventory, manufacturing, HR, sales, and projects"
+msgstr "Pašhostinga atklātā pirmkoda ERP komplekts finansējumam, CRM, inventārs, ražošana, CR, pārdošana un projekti"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-libretranslate:description"
+msgid "Self-hosted open-source machine translation API for translating and detecting text across languages"
+msgstr "Pašsaņem atvērtā pirmkoda mašīntulkošanas API tulkošanu un noteikt tekstu visās valodās"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-openclaw:description"
+msgid "Self-hosted personal AI agent gateway with a browser control UI, sandboxed in a Kata microVM or gVisor runtime"
+msgstr "Pašhosted personīgo AI aģents vārteja ar pārlūka kontroli UI, smilšu kastē Kata microVM vai gVisor palaist laiku"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-opencloud:description"
+msgid "Self-hosted platform for file sync, sharing, and collaboration with Keycloak SSO and central LDAP directory"
+msgstr "Pašhostinga platforma failu sinhronizēšanai, koplietošanai un sadarbībai ar Keycloak SSO un centrālo LDAP direktoriju"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-listmonk:description"
+msgid "Self-hosted platform for newsletters and mailing lists with subscriber segmentation and campaign analytics"
+msgstr "Pašpakalpojumu platforma jaunumiem un adresātu sarakstiem ar abonentu segmentāciju un kampaņas analīzi"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-akaunting:description"
+msgid "Self-hosted platform for online accounting, bookkeeping, and business finance management"
+msgstr "Pašhosted platforma tiešsaistes grāmatvedības, grāmatvedība, un biznesa finanšu pārvaldību"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-openproject:description"
+msgid "Self-hosted platform for project management, work-package tracking, Gantt planning, and team collaboration"
+msgstr "Pašorganizēta platforma projektu vadībai, darba pakešu izsekošanai, Ganta plānošanai un komandas sadarbībai"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-dashboard:description"
+msgid "Self-hosted portal for unified access to all deployed applications via a customizable tile and menu interface"
+msgstr "Pašsaņemams portāls vienotai piekļuvei visām izvērstajām programmām, izmantojot pielāgojamu flīžu un izvēlnes saskarni"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-pretix:description"
+msgid "Self-hosted ticketing platform for events with online sales, registration management, and secure payments"
+msgstr "Pašapkalpošanās biļešu platforma pasākumiem ar tiešsaistes pārdošanu, reģistrācijas vadība, un droši maksājumi"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-bigbluebutton:description"
+msgid "Self-hosted web conferencing platform for virtual classrooms, online meetings, and real-time collaboration"
+msgstr "Pašorganizēta tīmekļa konferenču platforma virtuālajām klasēm, tiešsaistes sanāksmes un reālā laika sadarbība"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-funkwhale:description"
+msgid "Self-hosted, federated platform for sharing, hosting, and streaming your own music and audio library"
+msgstr "Self-hosted, federated platforma koplietošanai, hostings, un straumēšanas savu mūziku un audio bibliotēka"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-matomo:description"
+msgid "Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
+msgstr "Pašhostinga, privātuma pirmais tīmekļa analīzes platforma reālā laika apmeklētāju izsekošanas un vietnes metriku"
+
+# translated-by: libretranslate
+msgctxt "menu:Server Administration:title"
+msgid "Server Administration"
+msgstr "Servera administrācija"
+
+# translated-by: libretranslate
+msgctxt "category:svc.opt:title"
+msgid "Service Optimation"
+msgstr "Pakalpojuma optimizācija"
+
+# translated-by: libretranslate
+msgctxt "category:svc.bkp:description"
+msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
+msgstr "Servisa līmeņa dublēšanas un atgūšanas komponenti — automatizētu datu momentuzņēmumu apstrāde, attālināti dublējumi, sinhronizācijas pakalpojumi un dublēšanas organizēšana datu bāzēs, failos un konteineros."
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-css:description"
+msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
+msgstr "Pakalpojumu reģistra funkcijas, kam pieder kanonika `css` atzīmēt un pāradresēt CSS resursdatora nosaukumu uz CDN augšup"
+
+# translated-by: libretranslate
+msgctxt "category:svc:title"
+msgid "Services"
+msgstr "Pakalpojumi"
+
+# translated-by: libretranslate
+msgctxt "category:web.svc:title"
+msgid "Services"
+msgstr "Pakalpojumi"
+
+# translated-by: libretranslate
+msgctxt "category:svc.storage:title"
+msgid "Shared Storage"
+msgstr "Koplietošana"
+
+# translated-by: libretranslate
+msgctxt "role:sys-openssl:description"
+msgid "Shared host dependency ensuring the OpenSSL CLI is installed once for roles that invoke openssl commands"
+msgstr "Koplietošanas resursdatora atkarība nodrošina OpenSSL CLI instalēšanu vienu reizi lomām, kas piesauc opensl komandas"
+
+# translated-by: libretranslate
+msgctxt "role:svc-db-rabbitmq:description"
+msgid "Shared message broker for async messaging with per-consumer virtual host and user isolation"
+msgstr "Koplietošanas ziņojumu brokeris par async ziņojumapmaiņu ar vienu patērētāju virtuālais resursdators un lietotāja izolācija"
+
+# translated-by: libretranslate
+msgctxt "category:svc.storage:description"
+msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
+msgstr "Koplietošanas pastāvīgas glabāšanas aizmugures, ko izmanto multimezglu izvietošanā – NFSv4 servera un klienta lomas."
+
+# translated-by: libretranslate
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr "Koplietošanas premisa katru darbvirsmas lomu, pieteikšanās konts tā faili pieder"
+
+# translated-by: libretranslate
+msgctxt "role:svc-db-mariadb:description"
+msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
+msgstr "Koplietošanas relāciju datubāzes serveris lietojumprogrammām, kam nepieciešama centrālā SQL krātuve, palaists Docker"
+
+# translated-by: libretranslate
+msgctxt "logout:all_done"
+msgid "Signed out everywhere."
+msgstr "Parakstīts visur."
+
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Paraksts, izņemot {failed} skaits * {total}
+# pakalpojumi.
+#, python-brace-format
+msgctxt "logout:partial"
+msgid "Signed out, except {failed} of {total} services."
+msgstr ""
+
+# translated-by: libretranslate
+msgctxt "logout:running"
+msgid "Signing you out of your services…"
+msgstr "Parakstot jūs no saviem pakalpojumiem..."
+
+# translated-by: libretranslate
+msgctxt "role:web-app-postmarks:description"
+msgid "Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
+msgstr "Viena lietotāja ActivityPub grāmatzīmēšana vietnē, kas apvieno publiskās grāmatzīmes Mastodon un Fediverse"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-homeassistant:description"
+msgid "Smart-home automation hub with device integrations, dashboards and a built-in MCP server for AI agent access"
+msgstr "Smart-home automatizācijas centrmezgls ar ierīču integrāciju, paneļa un iebūvētu MCP serveri AI aģenta piekļuvei"
+
+# translated-by: libretranslate
+msgctxt "menu:Social Media:title"
+msgid "Social Media"
+msgstr "Sociālie mediji"
+
+# translated-by: libretranslate
+msgctxt "menu:Social Media:description"
+msgid "Social Media Tools"
+msgstr "Sociālo mediju rīki"
+
+# translated-by: libretranslate
+msgctxt "category:dev:title"
+msgid "Software Development Utilties"
+msgstr "Programmatūras izstrādes pakalpojumi"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-opentalk:description"
+msgid "Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
+msgstr "Valsts atvērtā pirmkoda videokonferenču platforma audio/video zvaniem, ekrāna koplietošanai, izlaušanās telpām un SSO"
+
+# translated-by: libretranslate
+msgctxt "category:sys.stk:title"
+msgid "Stack"
+msgstr "Steks"
+
+# translated-by: libretranslate
+msgctxt "category:sys.stk:description"
+msgid "Stack levels to setup the server"
+msgstr "Steka līmeņi servera iestatīšanai"
+
+# translated-by: libretranslate
+msgctxt "category:web.svc:description"
+msgid "Static content servers (assets, HTML, legal, files)"
+msgstr "Statiskā satura serveri (aktīvi, HTML, juridiskie, faili)"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-file:description"
+msgid "Static file server over HTTPS with directory listing, .well-known handling, and automatic TLS certificates"
+msgstr "Statisks failu serveris HTTPS ar direktoriju sarakstu, .labi zināms apstrāde, un automātisko TLS sertifikāti"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-hugo:description"
+msgid "Static site generator building HTML from an upstream Git repository at build time and serving it via nginx"
+msgstr "Statisks vietas ģenerators ēka HTML no augšpus Git krātuves veidošanas laikā un apkalpo to, izmantojot ginx"
+
+# translated-by: libretranslate
+msgctxt "menu:Storage:title"
+msgid "Storage"
+msgstr "Uzglabāšana"
+
+# translated-by: libretranslate
+msgctxt "category:sys:title"
+msgid "System"
+msgstr "Sistēma"
+
+# translated-by: libretranslate
+msgctxt "category:sys.front:title"
+msgid "System Frontend Helpers"
+msgstr "Sistēmas priekšpuses palīgi"
+
+# translated-by: libretranslate
+msgctxt "role:dev-locales:description"
+msgid "System configuration role for setting up and generating localesvia locale.gen and locale.conf templates"
+msgstr "Sistēmas konfigurācijas loma lokalizācijas izveidē un ģenerēšanā locale.gen kā arī locale.conf sagataves"
+
+# translated-by: libretranslate
+msgctxt "role:sys-hostname:description"
+msgid "System hostname configuration derived from the inventory host entry"
+msgstr "Sistēmas resursdatora nosaukuma konfigurācija, kas atvasināta no inventāra resursdatora ieraksta"
+
+# translated-by: libretranslate
+msgctxt "category:sys:description"
+msgid "System near components. Will be automaticly called if necessary from other roles."
+msgstr "Sistēma sastāvdaļu tuvumā. Tiks automātiski izsaukts, ja nepieciešams no citām lomām."
+
+# translated-by: libretranslate
+msgctxt "role:update:description"
+msgid "System-maintenance role for refreshing the package index and upgrading installed packages via the OS package manager"
+msgstr "Sistēmas uzturēšanas funkcija paketes indeksa atsvaidzināšanai un uzstādīto pakotņu atjaunināšanai, izmantojot OS pakotņu pārvaldnieku"
+
+# translated-by: libretranslate
+msgctxt "role:sys-cli:description"
+msgid "System-wide command-line interface for managing and operating the entire self-hosted platform environment from the shell"
+msgstr "Sistēmas komandrindas interfeiss, lai pārvaldītu un darbinātu visu paša uzturēto platformas vidi no čaulas"
+
+# translated-by: libretranslate
+msgctxt "role:sys-pip-install:description"
+msgid "System-wide pip helper for installing or upgrading a Python package via the host's system Python"
+msgstr "Sistēmas mēroga pip palīgs Python paketes uzstādīšanai vai atjaunināšanai, izmantojot saimnieka sistēmu Python"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-mtn-cert-deploy:description"
+msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
+msgstr "Sistēmas serviss un taimeris, lai sinhronizētu Let's Encrypt sertifikātus Docker Compose NGINX stekus ar karstu pārlādēšanu"
+
+# translated-by: libretranslate
+msgctxt "role:sys-timer:description"
+msgid "Systemd timer unit for starting a service on a recurring calendar schedule for automated task execution"
+msgstr "Sistēmas taimera vienība pakalpojuma palaišanai uz regulāra kalendāra grafika automātiskai uzdevumu izpildei"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-cln-docker:description"
+msgid "Systemd-driven cleanup service pruning anonymous Docker volumes plus images, containers, networks, and build cache"
+msgstr "Sistēmu vadīta tīrīšana pakalpojums atzaro anonīmu Docker apjomi plus attēli, konteineri, tīkli, un veidot kešatmiņu"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-rpr-container-hard:description"
+msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
+msgstr "Sistemātiski plānotas tehniskās apkopes funkcijas pilnībā Docker Compose steka pārstartēšana, ar cieto pārstartēšanu tādiem stekiem kā Mailu"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-hlth-container:description"
+msgid "Systemd-timed monitor for detecting unhealthy or non-zero-exited Docker containers and raising failure alerts"
+msgstr "Sistemātisks laika monitors, lai atklātu neveselīgus vai nenulles izejošus dokeru konteinerus un palielinātu brīdinājumus par atteici"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-alm-email:description"
+msgid "Systemd-triggered msmtp notifier for emailing operators when a monitored service unit fails"
+msgstr "Systemd-triggered msmtp paziņotājs e-pasta sūtīšanas operatoriem, kad uzraudzītā pakalpojumu vienība neizdodas"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-alm-telegram:description"
+msgid "Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"
+msgstr "Sistēmā saslēgts paziņotājs par pakalpojuma atteices ziņojumu sniegšanu uz telegrammas tērzēšanu"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-gnt-claude:description"
+msgid "Terminal coding agent from Anthropic, pointed at the platform's own model gateway instead of the vendor API"
+msgstr "Terminālis kodēšanas aģents no Anthropic, norādīja uz platformas pašas modeļa vārteja, nevis pārdevēja API"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-gnt-codex:description"
+msgid "Terminal coding agent from OpenAI, pointed at the platform's own model gateway instead of the vendor API"
+msgstr "Termināla kodēšanas aģents no OpenAI, norādīts platformas pašas modeļa vārteja, nevis pārdevēja API"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-gnome-terminal:description"
+msgid "Terminal emulator for the GNOME desktop, giving command-line access on Arch Linux workstations"
+msgstr "GNOME darbvirsmas termināla emulators, kas nodrošina komandrindas piekļuvi Arch Linux darbstacijās"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-micro:description"
+msgid "Terminal-based text editor with modern keybindings and syntax highlighting for Pacman-based workstations"
+msgstr "Termināļos bāzēts teksta redaktors ar moderniem taustiņiem un sintakses izcelšana Pacman bāzētām darbstacijām"
+
+# translated-by: libretranslate
+msgctxt "role:test-e2e-cli:description"
+msgid "Test-harness role running end-to-end CLI test scripts for roles that declare a test environment template"
+msgstr "Testēšanas iekārtas funkcijas, kas darbojas “no gala līdz galam” CLI testa skripti lomām, kas deklarē testēšanas vides veidni"
+
+# translated-by: libretranslate
+msgctxt "logout:pace"
+msgid "This usually takes a few seconds."
+msgstr "Tas parasti aizņem dažas sekundes."
+
+# translated-by: libretranslate
+msgctxt "role:svc-opt-ssd-hdd:description"
+msgid "Tiering role placing Docker volumes on SSD or HDD by workload type, with symlinks keeping paths consistent"
+msgstr "Līmēšanas loma Docker skaļumi uz SSD vai HDD pēc darba slodzes tipa, ar symlinks saglabājot ceļus konsekventu"
+
+# translated-by: libretranslate
+msgctxt "role:dev-python:description"
+msgid "Toolchain for Python scripting, application development, and data science on Linux"
+msgstr "Rīku ķēde Python skriptēšanai, lietojumprogrammu izstrādei un datu zinātnei par Linux"
+
+# translated-by: libretranslate
+msgctxt "menu:Tools:title"
+msgid "Tools"
+msgstr "Rīki"
+
+# translated-by: libretranslate
+msgctxt "menu:User Management:description"
+msgid "Tools for Identity and Access Management, including authentication, user provisioning, and secure access control."
+msgstr "Identitātes un piekļuves pārvaldības instrumenti, tostarp autentifikācija, lietotāju nodrošināšana un droša piekļuves kontrole."
+
+# translated-by: libretranslate
+msgctxt "menu:Communication:description"
+msgid "Tools for communication"
+msgstr "Saziņas līdzekļi"
+
+# translated-by: libretranslate
+msgctxt "menu:Marketing:description"
+msgid "Tools for email campaigns, audience engagement, automation, and digital marketing workflows."
+msgstr "E-pasta kampaņu rīki, auditorijas iesaistīšana, automatizācija un digitālā mārketinga darbplūsmas."
+
+# translated-by: libretranslate
+msgctxt "menu:Asset Management:description"
+msgid "Tools to inventory, track, and manage hardware and software assets across your organization."
+msgstr "Instrumenti, lai inventarizācijas, izsekot, un pārvaldīt aparatūras un programmatūras aktīvus visā jūsu organizācijā."
+
+# translated-by: libretranslate
+msgctxt "menu:Community:description"
+msgid "Tools to manage the community"
+msgstr "Kopienas pārvaldības instrumenti"
+
+# translated-by: libretranslate
+msgctxt "menu:Analytics:description"
+msgid "Tools to measure, visualize, and optimize website performance and user behavior through data-driven insights."
+msgstr "Instrumenti, lai izmērītu, vizualizētu, un optimizētu mājas lapas veiktspēju un lietotāju uzvedību, izmantojot datu balstītu ieskatu."
+
+# translated-by: libretranslate
+msgctxt "category:web.opt:description"
+msgid "Tools which help to optimize webservers"
+msgstr "Rīki, kas palīdz optimizēt tīmekļa serveri"
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-tor:description"
+msgid "Tor daemon publishing the node as a v3 onion service"
+msgstr "Tor dēmons publicē mezglu kā v3 Sīpolu pakalpojumi"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-torbrowser:description"
+msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
+msgstr "Tor tīkla klienta un pārlūka palaidējs anonīmai, uz privātumu vērstai tīmekļa pārlūkošanai"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-virtualbox:description"
+msgid "Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack"
+msgstr "Veids2 hipervizors virtuālām mašīnām Pacman darbstacijās, ar kodolu moduļiem un paplašinājumu"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-alm-compose:description"
+msgid "Unified systemd notification service dispatching service-failure alerts through both Telegram and email channels"
+msgstr "Vienotas sistēmas paziņojumu pakalpojumu nosūtīšanas pakalpojuma atteices brīdinājumi, izmantojot gan telegrammas, gan e-pasta kanālus"
+
+# translated-by: libretranslate
+msgctxt "category:update:title"
+msgid "Updates & Package Management"
+msgstr "Atjaunināt & pakotņu pārvaldību"
+
+# translated-by: libretranslate
+msgctxt "logout:partial_hint"
+msgid "Use the links below to sign out of the rest yourself."
+msgstr "Izmantojiet saites zemāk, lai parakstītos no pārējo sevi."
+
+# translated-by: libretranslate
+msgctxt "logout:stalled_hint"
+msgid "Use the links below to sign out of the services still listed."
+msgstr "Izmantojiet saites zemāk, lai parakstītos no vēl uzskaitītajiem pakalpojumiem."
+
+# translated-by: libretranslate
+msgctxt "menu:User Management:title"
+msgid "User Management"
+msgstr "Lietotāju pārvaldība"
+
+# translated-by: libretranslate
+msgctxt "category:user:description"
+msgid "User accounts & access control"
+msgstr "Lietotāju konti un piekļuves kontrole"
+
+# translated-by: libretranslate
+msgctxt "category:user:title"
+msgid "Users & Access"
+msgstr "Lietotāji un piekļuve"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-git:description"
+msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
+msgstr "Versijas kontroles klients personīgajām darbstacijām, iepriekš konfigurēts ar identitāti, parakstīšanu, un apvieno noklusējuma"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-cdn:description"
+msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
+msgstr "Verificēts aktīvu ielāde izkārtojums CDN piegādei ar koplietošanas, pārdevējs, un per-rolle release direktorijas"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-code:description"
+msgid "Visual Studio Code workstation editor in a selectable flavor, carrying the extensions of the agents the host deploys"
+msgstr "Vizuālā studijas Code darbstacijas redaktors atlasāmu garšu, veicot paplašinājumus aģentiem uzņēmēja izvieto"
+
+# translated-by: libretranslate
+msgctxt "category:web:title"
+msgid "Web Infrastructure"
+msgstr "Tīmekļa infrastruktūra"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-semaphore:description"
+msgid "Web UI and API for running Ansible, Terraform/OpenTofu, and shell automation on a schedule or on demand"
+msgstr "Web UI un API darbojas Ansible, Terraform / OpenTofu, un čaulas automatizācijas grafiku vai pēc pieprasījuma"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-lam:description"
+msgid "Web interface for administering LDAP directories: managing users, groups, and other directory objects"
+msgstr "Tīmekļa saskarne LDAP direktoriju administrēšanai: lietotāju, grupu un citu direktoriju objektu pārvaldība"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-fusiondirectory:description"
+msgid "Web-based LDAP administration interface for managing users, groups, and directory objects"
+msgstr "Web-based LDAP administrēšanas saskarne lietotāju, grupu un direktoriju objektu pārvaldībai"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-phpldapadmin:description"
+msgid "Web-based LDAP client for browsing, searching, and administering directory entries in LDAP servers"
+msgstr "Web-based LDAP klients pārlūkošanai, meklēšanai un administrēšanai direktoriju ierakstus LDAP serveros"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-pgadmin:description"
+msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
+msgstr "Web-based administrēšanas un attīstības platforma, lai pārvaldītu vairākus PostgreSQL serverus, ar izvēles OAuth2 Pieteikšanās"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-phpmyadmin:description"
+msgid "Web-based administration tool for MySQL and MariaDB with schema management, querying, and import/export"
+msgstr "Web-based administrēšanas rīks MySQL un MariaDB ar shēmu pārvaldību, vaicājumi, un importa / eksporta"
+
+# translated-by: libretranslate
+msgctxt "category:web.opt:title"
+msgid "Webserver Optimation"
+msgstr "Webserver optimizācija"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-docker:description"
+msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
+msgstr "Darbstacijas uzstādīšana Docker un Docker Compose ar lokālo lietotāju docker grupā bezsakņu attīstības lietošanai"
+
+# translated-by: libretranslate
+msgctxt "role:dev-arduino:description"
+msgid "Workstation toolchain and serial-port permissions for Arduino board development on Linux"
+msgstr "Darbstaciju rīku ķēdes un sērijveida portu atļaujas Arduino galda attīstībai Linux"
+
+# translated-by: libretranslate
+msgctxt "role:pkgmgr-install:description"
+msgid "Wrapper role for idempotent package installation and updates through the pkgmgr universal package manager"
+msgstr "Wrapper loma idempotent pakotņu uzstādīšanu un atjauninājumus, izmantojot pkgmgr universālo pakotņu vadītājs"
+
+# translated-by: libretranslate
+msgctxt "logout:may_close"
+msgid "You can close this page now."
+msgstr "Jūs varat aizvērt šo lapu tagad."
+
+# translated-by: libretranslate
+msgctxt "logout:st_failed"
+msgid "failed"
+msgstr "neizdevās"
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-firewall:description"
+msgid "nftables packet filter whose rules each role owns as its own table, replaced atomically and reloaded at boot"
+msgstr "nftables pakešu filtrs, kura noteikumi katrai lomai pieder kā sava tabula, aizstāts atomiski un pārlādēts boot"
+
+# translated-by: libretranslate
+msgctxt "logout:st_unconfirmed"
+msgid "not confirmed"
+msgstr "nav apstiprināts"
+
+# translated-by: libretranslate
+msgctxt "logout:manual"
+msgid "sign out manually"
+msgstr "izrakstīšanās manuāli"
+
+# translated-by: libretranslate
+msgctxt "logout:st_done"
+msgid "signed out"
+msgstr "parakstīts"
+
+# translated-by: libretranslate
+msgctxt "logout:st_pending"
+msgid "signing out"
+msgstr "parakstīšanās"
+
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: {done} skaits * {total} Parakstītie pakalpojumi
+#, python-brace-format
+msgctxt "logout:counter"
+msgid "{done} of {total} services signed out"
+msgstr ""
+

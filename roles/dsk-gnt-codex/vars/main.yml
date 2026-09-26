@@ -1,0 +1,14 @@
+---
+application_id: dsk-gnt-codex
+agnt_codex_package: "@openai/codex"
+agnt_codex_user: "{{ lookup('users', WORKSTATION_USER).username }}"
+agnt_codex_home: "/home/{{ agnt_codex_user }}"
+agnt_codex_config_path: "{{ [agnt_codex_home, '.codex', 'config.toml'] | path_join }}"
+agnt_codex_key_env: INFINITO_GATEWAY_KEY
+agnt_codex_env_path: "{{ [agnt_codex_home, '.config', 'environment.d', '50-infinito-codex.conf'] | path_join }}"
+agnt_codex_gateway_url: "{{ lookup('config', application_id, 'services.codex.gateway_url') or (LITELLM_OPENAI_BASE_LOOPBACK_URL if LITELLM_USABLE | bool else '')
+  }}"
+agnt_codex_model: "{{ lookup('config', application_id, 'services.codex.model') or (LITELLM_CHAT_MODEL if LITELLM_USABLE | bool else '') }}"
+agnt_codex_gateway_key: "{{ lookup('config', application_id, 'secrets.credentials.gateway_key') or (lookup('config', application_id, 'secrets.credentials.litellm_api_key')
+  if LITELLM_USABLE | bool else '') }}"
+agnt_codex_configured: "{{ (agnt_codex_gateway_url | length > 0) and (agnt_codex_gateway_key | length > 0) and (agnt_codex_model | length > 0) }}"

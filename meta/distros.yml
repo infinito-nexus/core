@@ -30,8 +30,8 @@
 #                      galaxy_platform_versions below.
 
 images:
+  base: "ghcr.io/{owner}/base-{slug}:{tag}"
   pkgmgr: "ghcr.io/{owner}/pkgmgr-{slug}:{tag}"
-  pkgmgr_virgin: "ghcr.io/{owner}/pkgmgr-{slug}-virgin:{tag}"
   environment: "ghcr.io/{owner}/{repository}/{slug}:{tag}"
 
 galaxy_platform_versions:

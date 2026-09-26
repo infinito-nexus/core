@@ -28,11 +28,13 @@ from cli.build.docs.readme.cosmos import derive_cosmos_mermaid
 from cli.build.docs.readme.sections import Readme, parse_readme
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml
-from utils.roles.credits import author_urls
+from utils.meta.identity import by_name, profile_url
 from utils.roles.deploy import role_has_stack
 from utils.roles.entity.name import get_entity_name
 from utils.roles.mapping import ROLE_FILE_META_MAIN, ROLE_FILE_README
+from utils.roles.meta_lookup import get_role_guide_companions
 from utils.roles.validation.invokable import _get_invokable_paths, _is_role_invokable
+from utils.software import SOFTWARE_REPOSITORY
 from utils.symbol_glossary import to_emoji
 
 MANAGED_SECTIONS = ("Cosmos", "Quick Setup", "Credits")
@@ -95,9 +97,13 @@ def _base_context(role_dir, role_name: str, app_name: str, *, invokable: bool) -
             {"name": "Feature", "description": "Describe a capability."}
         ],
         "application_author": _role_author(role_dir),
-        "application_author_url": author_urls().get(_role_author(role_dir)),
+        "application_author_url": profile_url(by_name().get(_role_author(role_dir), "")),
         "application_is_host": not role_has_stack(role_dir),
         "application_needs_clearnet_resolver": _needs_clearnet_resolver(role_dir),
+        "application_deploy_ids": ",".join(
+            [role_name, *get_role_guide_companions(role_dir, role_name=role_name)]
+        ),
+        "software_repository": SOFTWARE_REPOSITORY,
         "cosmos_mermaid": derive_cosmos_mermaid(role_dir, role_name),
         "cosmos_legend": _cosmos_legend(),
     }

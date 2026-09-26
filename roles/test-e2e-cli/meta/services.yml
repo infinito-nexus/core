@@ -2,6 +2,7 @@
 test-e2e-cli:
   lifecycle: alpha
   required_by:
+    runtimes: [dev, act, github]
     compose:
       categories: [web]
     swarm:

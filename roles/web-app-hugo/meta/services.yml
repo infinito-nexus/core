@@ -38,6 +38,14 @@ hugo:
   builder_version: exts-0.148.0
   source_repository: https://github.com/gohugoio/hugoDocs.git
   source_version: v0.148.0
+  update:
+    - key: builder_version
+      type: registry_tags
+      image: hugomods/hugo
+      match: "exts-"
+    - key: source_version
+      type: git_tags
+      repository: https://github.com/gohugoio/hugoDocs.git
   hugo_environment: production
   hugo_minify: true
   ports:

@@ -25,6 +25,7 @@ def _assign(rows, **kwargs) -> list[dict[str, str]]:
     unnarrowed run hands it."""
     kwargs.setdefault("distros", axes.DISTROS)
     kwargs.setdefault("filesystems", axes.FILESYSTEMS)
+    kwargs.setdefault("architectures", axes.ARCHITECTURES)
     return axes.assign(rows, **kwargs)
 
 
@@ -111,6 +112,7 @@ class TestArtifactSlug(unittest.TestCase):
                             entry["tor"] == "true",
                             entry["distro"],
                             entry["filesystem"],
+                            entry["architecture"],
                         ),
                     ),
                 )
@@ -473,6 +475,7 @@ class TestDistroAndFilesystemAxes(unittest.TestCase):
             tor_mode="disabled",
             distros=("debian",),
             filesystems=("zfs",),
+            architectures=("amd64",),
             variants_per_app=_VARIANTS,
         )
         self.assertEqual(len(entries), 1)
@@ -613,6 +616,126 @@ class TestEnvironmentReads(unittest.TestCase):
     def test_the_tor_mode_comes_from_the_environment(self) -> None:
         with mock.patch.dict("os.environ", {"INFINITO_TOR": "exclusive"}):
             self.assertEqual(tor.resolve_tor_mode(), "exclusive")
+
+
+class TestArchitectureAxis(unittest.TestCase):
+    """The architecture rotates like the other axes and narrows per role."""
+
+    def test_consecutive_rows_of_one_role_alternate_architectures(self) -> None:
+        rows = [_row("web-app-b", index, ("compose",)) for index in range(6)]
+        entries = _assign(
+            rows, sweep=0, tor_mode="disabled", variants_per_app=_VARIANTS
+        )
+        drawn = [entry["architecture"] for entry in entries]
+        self.assertEqual(set(drawn), set(pools.ARCHITECTURES))
+        self.assertEqual(
+            drawn.count("amd64"),
+            drawn.count("arm64"),
+            f"six rows must split evenly over both architectures; got {drawn}. "
+            f"An uneven split means the rotation is keyed on something that "
+            f"does not advance per row, and a role with few rows would then "
+            f"never reach one of the two.",
+        )
+
+    def test_the_architecture_pairs_with_every_distro_over_a_sweep(self) -> None:
+        """Two architectures against five distros only cover all ten pairs
+        because the pool sizes are coprime; a pool that stops being coprime
+        would silently test half the combinations."""
+        rows = [_row("web-app-b", index, ("compose",)) for index in range(10)]
+        entries = _assign(
+            rows, sweep=0, tor_mode="disabled", variants_per_app=_VARIANTS
+        )
+        pairs = {(entry["distro"], entry["architecture"]) for entry in entries}
+        self.assertEqual(len(pairs), len(pools.DISTROS) * len(pools.ARCHITECTURES))
+
+    def test_the_runner_label_follows_the_architecture(self) -> None:
+        rows = [_row("web-app-b", index, ("compose",)) for index in range(2)]
+        entries = _assign(
+            rows, sweep=0, tor_mode="disabled", variants_per_app=_VARIANTS
+        )
+        for entry in entries:
+            with self.subTest(entry["architecture"]):
+                self.assertEqual(entry["runner"], pools.RUNNERS[entry["architecture"]])
+
+    def test_a_role_declaring_one_architecture_never_draws_the_other(self) -> None:
+        rows = [_row("web-app-b", index, ("compose",)) for index in range(4)]
+        with mock.patch.object(axes, "get_role_architectures", return_value=["arm64"]):
+            entries = _assign(
+                rows, sweep=0, tor_mode="disabled", variants_per_app=_VARIANTS
+            )
+        self.assertEqual({entry["architecture"] for entry in entries}, {"arm64"})
+
+    def test_a_service_in_the_closure_narrows_the_row_like_the_role(self) -> None:
+        rows = [
+            {**_row("web-app-b", index, ("compose",)), "services": ["svc-db-x"]}
+            for index in range(4)
+        ]
+        declared = {"svc-db-x": ["amd64"]}
+        with mock.patch.object(
+            axes,
+            "get_role_architectures",
+            side_effect=lambda role: declared.get(role, []),
+        ):
+            entries = _assign(
+                rows, sweep=0, tor_mode="disabled", variants_per_app=_VARIANTS
+            )
+        self.assertEqual({entry["architecture"] for entry in entries}, {"amd64"})
+
+    def test_a_role_and_run_that_permit_nothing_in_common_abort(self) -> None:
+        rows = [_row("web-app-b", 0, ("compose",))]
+        with (
+            mock.patch.object(axes, "get_role_architectures", return_value=["arm64"]),
+            self.assertRaises(SystemExit),
+        ):
+            _assign(
+                rows,
+                sweep=0,
+                tor_mode="disabled",
+                architectures=("amd64",),
+                variants_per_app=_VARIANTS,
+            )
+
+    def test_a_pinned_architecture_replaces_the_rotation(self) -> None:
+        rows = [_row("web-app-b", 0, ("compose",), pin_architecture="arm64")]
+        entries = _assign(rows, sweep=0, tor_mode="auto", variants_per_app=_VARIANTS)
+        self.assertEqual(entries[0]["architecture"], "arm64")
+
+    def test_a_pin_the_role_forbids_aborts_the_matrix(self) -> None:
+        rows = [_row("web-app-b", 0, ("compose",), pin_architecture="amd64")]
+        with (
+            mock.patch.object(axes, "get_role_architectures", return_value=["arm64"]),
+            self.assertRaises(SystemExit),
+        ):
+            _assign(rows, sweep=0, tor_mode="auto", variants_per_app=_VARIANTS)
+
+    def test_the_architecture_survives_the_label_round_trip(self) -> None:
+        entry = _assign(
+            [_row("web-app-a", 0, ("swarm",))],
+            sweep=0,
+            tor_mode="enforced",
+            architectures=("arm64",),
+            variants_per_app=_VARIANTS,
+        )[0]
+        self.assertEqual(axes.parse_label(entry["label"]).architecture, "arm64")
+
+    def test_the_architecture_keeps_two_deploys_of_one_row_apart(self) -> None:
+        """Both architectures of one row upload artifacts, and
+        actions/upload-artifact rejects the second upload under one name."""
+        slugs = {
+            axes.artifact_slug(
+                "compose", "web-app-b", "0", False, "debian", "zfs", architecture
+            )
+            for architecture in pools.ARCHITECTURES
+        }
+        self.assertEqual(len(slugs), len(pools.ARCHITECTURES))
+
+    def test_every_declared_architecture_has_a_runner(self) -> None:
+        """A declared architecture without a label would make the matrix emit
+        an empty ``runs-on``, which GitHub answers by queueing the job
+        forever."""
+        for architecture in pools.ARCHITECTURES:
+            with self.subTest(architecture=architecture):
+                self.assertTrue(pools.runner_of(architecture))
 
 
 if __name__ == "__main__":

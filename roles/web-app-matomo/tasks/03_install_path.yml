@@ -28,7 +28,7 @@
   meta: flush_handlers
 
 - name: "🐝 Matomo install | Swarm: restart matomo so patched config is re-read"
-  when: DEPLOYMENT_MODE == 'swarm'
+  when: IS_SWARM_MODE
   block:
     - name: "🐝 Matomo install | Swarm: force-restart matomo service"
       ansible.builtin.command: >-

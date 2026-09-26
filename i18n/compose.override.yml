@@ -1,0 +1,51 @@
+---
+# Second runner for the i18n toolchain, with its own inner docker daemon and
+# docker state. Gated behind the `i18n` compose profile.
+
+services:
+  i18n:
+    image: "${INFINITO_IMAGE:?Resolved by cli.administration.deploy.development; the i18n runner reuses the image the infinito service builds}"
+    pull_policy: never
+    container_name: ${INFINITO_CONTAINER:?Run 'make dotenv' to generate the .env single source of truth}_i18n
+    profiles:
+      - i18n
+    command:
+      - /sbin/init
+      - systemd.log_target=console
+      - systemd.log_level=debug
+    stop_signal: SIGRTMIN+3
+    privileged: true
+    cgroup: host
+    restart: "no"
+    tty: true
+    stdin_open: true
+    tmpfs:
+      - /run
+      - /run/lock
+    mem_limit: ${INFINITO_MEM_LIMIT:?Run 'make dotenv' to generate the .env single source of truth}
+    memswap_limit: ${INFINITO_MEMSWAP_LIMIT:?Run 'make dotenv' to generate the .env single source of truth}
+    cpus: ${INFINITO_CPUS:?Run 'make dotenv' to generate the .env single source of truth}
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - .:${INFINITO_SRC_DIR}
+      - i18n-docker:${INFINITO_DOCKER_MOUNT:?Run 'make dotenv' to generate the .env single source of truth}
+      - i18n-var-lib:${INFINITO_DIR_VAR_LIB:?Run 'make dotenv' to generate the .env single source of truth}/
+    environment:
+      INFINITO_DIR_VAR_LIB: ${INFINITO_DIR_VAR_LIB}
+      INFINITO_DNS_IP: ${INFINITO_DNS_IP}
+      INFINITO_DOMAIN: ${INFINITO_DOMAIN}
+      INFINITO_SRC_DIR: ${INFINITO_SRC_DIR}
+      INFINITO_CACHE_PACKAGE_FRONTEND_IP: ${INFINITO_CACHE_PACKAGE_FRONTEND_IP}
+      DOCKER_DEFAULT_PLATFORM: ${INFINITO_DOCKER_PLATFORM}
+    extends:
+      file: compose.cache-consumer.yml
+      service: cache-consumer
+    ports:
+      - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:${INFINITO_I18N_LIBRETRANSLATE_PORT:?Run 'make dotenv' to generate the
+        .env single source of truth}:${INFINITO_I18N_LIBRETRANSLATE_PORT:?Run 'make dotenv' to generate the .env single source of truth}"
+
+    networks:
+      default:
+volumes:
+  i18n-docker:
+  i18n-var-lib:

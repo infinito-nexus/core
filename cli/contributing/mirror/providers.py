@@ -57,10 +57,9 @@ class GHCRProvider(RegistryProvider):
         """
         Return True if the destination tag already exists in GHCR.
 
-        Uses: skopeo inspect docker://<dest>
-        Exit code:
-          - 0 => exists
-          - !=0 => does not exist OR cannot be accessed (auth/network)
+        Uses ``skopeo inspect docker://<dest>``, whose exit code is 0 when the
+        tag exists and non-zero when it does not exist or cannot be accessed
+        (auth/network).
         """
         dest = f"{self.image_base(image)}:{image.version}"
         r = subprocess.run(
@@ -145,10 +144,9 @@ class GiteaProvider(RegistryProvider):
         """
         Return True if the destination tag already exists in the target registry.
 
-        Uses: skopeo inspect docker://<dest>
-        Exit code:
-          - 0 => exists
-          - !=0 => does not exist OR cannot be accessed (auth/network)
+        Uses ``skopeo inspect docker://<dest>``, whose exit code is 0 when the
+        tag exists and non-zero when it does not exist or cannot be accessed
+        (auth/network).
         """
         dest = f"{self.image_base(image)}:{image.version}"
         r = subprocess.run(

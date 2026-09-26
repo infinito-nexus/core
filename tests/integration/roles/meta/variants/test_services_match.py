@@ -30,14 +30,18 @@ when the key is a resolver-only matrix hook with no real consumer
 contract in ``meta/services.yml`` — typical for invokable
 infrastructure roles whose variant entries pin the round's companion
 topology via service-key flags the resolver maps to provider roles.
+
+The marker exempts that service key in every variant of the file. A hook is
+resolver-only for the role, not for one round of it, and repeating the same
+marker at each occurrence states one fact several times.
 """
 
 from __future__ import annotations
 
+import re
 import unittest
 from typing import TYPE_CHECKING
 
-from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_VARIANTS
@@ -61,49 +65,35 @@ def _load_yaml(path: Path) -> object:
         return None
 
 
-def _variant_service_key_line_numbers(
-    variants_file: Path,
-) -> dict[tuple[int, str], int]:
-    """Map ``(variant_index, service_key)`` -> 1-based line number for
-    every top-level service key declared under a variant's ``services:``
-    mapping. Variant index advances at every top-level list item (lines
-    that begin with ``- ``)."""
-    lines = read_text(str(variants_file)).splitlines()
-    out: dict[tuple[int, str], int] = {}
+_KEY = re.compile(r"^\s*(?P<key>[A-Za-z_][\w.-]*):")
 
-    variant_index = -1
-    stack: list[tuple[int, str]] = []
 
-    for idx, raw in enumerate(lines):
-        stripped = raw.strip()
-        if not stripped or stripped.startswith("#"):
+def _exempt_keys(lines: list[str]) -> set[str]:
+    """Return the service keys the file exempts from this rule.
+
+    Exception: the marker is read straight off the text. The line-number scan
+    this used to go through recorded nothing for some variant shapes, so the
+    rule reported keys that could not be exempted at all.
+
+    Args:
+        lines: the variants file, split into lines.
+    """
+    exempt: set[str] = set()
+    for index, line in enumerate(lines):
+        if f"nocheck: {_RULE}" not in line:
             continue
-
-        if raw.startswith("- "):
-            variant_index += 1
-            stack = []
-            after_dash = raw[2:]
-            indent = 0
-            line_for_key = after_dash
-        else:
-            indent = len(raw) - len(raw.lstrip(" "))
-            line_for_key = stripped
-
-        while stack and stack[-1][0] >= indent:
-            stack.pop()
-
-        if ":" not in line_for_key:
+        named = _KEY.match(line)
+        if named:
+            exempt.add(named.group("key"))
             continue
-        key = line_for_key.split(":", 1)[0].strip()
-        if not key:
-            continue
-        stack.append((indent, key))
-
-        path_keys = [k for _, k in stack]
-        if len(path_keys) == 2 and path_keys[0] == "services":
-            out[(variant_index, path_keys[1])] = idx + 1
-
-    return out
+        for follower in lines[index + 1 :]:
+            if not follower.strip():
+                break
+            named = _KEY.match(follower)
+            if named:
+                exempt.add(named.group("key"))
+            break
+    return exempt
 
 
 class TestVariantsServicesMatch(unittest.TestCase):
@@ -122,8 +112,9 @@ class TestVariantsServicesMatch(unittest.TestCase):
             if not isinstance(variants_raw, list):
                 continue
 
-            line_numbers = _variant_service_key_line_numbers(variants_file)
             variants_text_lines = read_text(str(variants_file)).splitlines()
+
+            exempt = _exempt_keys(variants_text_lines)
 
             for index, variant in enumerate(variants_raw):
                 if not isinstance(variant, dict):
@@ -134,13 +125,7 @@ class TestVariantsServicesMatch(unittest.TestCase):
                 for key in variant_services:
                     if not isinstance(key, str):
                         continue
-                    if key in declared_keys:
-                        continue
-
-                    line_no = line_numbers.get((index, key))
-                    if line_no is not None and is_suppressed_at(
-                        variants_text_lines, line_no, _RULE
-                    ):
+                    if key in declared_keys or key in exempt:
                         continue
 
                     offenders.append(

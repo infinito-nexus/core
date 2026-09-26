@@ -6,6 +6,8 @@
 
   Required context:
     application_id           Role id used in the Quick Setup commands (e.g. web-app-matrix).
+    application_deploy_ids   That id plus meta/services.yml guide_companions, comma-joined,
+                             because --include filters the inventory literally.
     application_name         Human-readable software name (H1, no role id).
     application_url          Official website; linked on first use in Description.
     application_description  One paragraph about the SOFTWARE (not the role).
@@ -19,8 +21,9 @@
   Optional context:
     application_invokable          When true, emit the Quick Setup section
                                    (invokable roles only; forbidden otherwise).
+    application_author_url         The author's social profile, derived from the
+                                   address .mailmap folds their commits into.
     cosmos_intro                   Sentence above the Cosmos diagram.
-    application_author_url         Wraps the Credits author in a Markdown link.
     application_use_cases          Paragraph for the optional Use Cases section.
     application_developer_notes    List of {file, description} local-doc links.
     application_further_resources  List of {label, url} external links.
@@ -64,10 +67,10 @@
 Clone, set up the workstation, and deploy {{ application_name }} onto the local stack:
 
 ```bash
-git clone https://github.com/infinito-nexus/core.git
+git clone {{ software_repository }}
 cd core
 make onboard
-make compose-deploy mode=reinstall apps={{ application_id }} full_cycle=false
+make compose-deploy mode=reinstall apps={{ application_deploy_ids }} full_cycle=false
 ```
 
 ### Production
@@ -76,13 +79,13 @@ make compose-deploy mode=reinstall apps={{ application_id }} full_cycle=false
 Install {{ application_name }} directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):
 
 ```bash
-git clone https://github.com/infinito-nexus/core.git
+git clone {{ software_repository }}
 cd core
 bash scripts/install/package.sh
 make install
 source scripts/meta/env/load.sh
 
-APP={{ application_id }}
+APP={{ application_deploy_ids }}
 DOMAIN=<your-domain>
 {% if application_needs_clearnet_resolver -%}
 DNS=<your-clearnet-resolver>
@@ -103,7 +106,7 @@ infinito administration deploy dedicated "$INVENTORY/devices.yml" \
 Run the published image to provision the inventory and deploy {{ application_name }} to a managed server (the mounted volume persists the inventory):
 
 ```bash
-APP={{ application_id }}
+APP={{ application_deploy_ids }}
 HOST=<your-server>
 DOMAIN=<your-domain>
 {% if application_needs_clearnet_resolver -%}

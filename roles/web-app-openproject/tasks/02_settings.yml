@@ -8,7 +8,7 @@
   delay: 5
   until: openproject_web_state.stdout.strip() == "running"
   changed_when: false
-  when: DEPLOYMENT_MODE == 'compose'
+  when: IS_COMPOSE_MODE
 
 - name: ⏳ Wait until OpenProject web service converged (swarm)
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/wait_converged.yml') }}"
@@ -44,7 +44,7 @@
   delay: 5
   until: openproject_web_state_after_migrate.stdout.strip() == "running"
   changed_when: false
-  when: DEPLOYMENT_MODE == 'compose'
+  when: IS_COMPOSE_MODE
 
 - name: ⏳ Wait until OpenProject web service converged (after migrations, swarm)
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/wait_converged.yml') }}"

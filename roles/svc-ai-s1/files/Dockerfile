@@ -1,0 +1,19 @@
+ARG S1_BASE_IMAGE
+ARG S1_BASE_VERSION
+FROM ${S1_BASE_IMAGE}:${S1_BASE_VERSION}
+
+ARG S1_FLAVOR
+ARG S1_GPU
+ARG S1_LAYA_CHECKPOINTS
+ARG S1_JEFF_REPOSITORY
+ARG S1_JEFF_REF
+ARG S1_JEFF_MODEL_REPO
+ARG S1_JEFF_MODEL_PATH
+
+COPY build.sh entrypoint.sh /usr/local/bin/
+
+RUN bash /usr/local/bin/build.sh
+
+ENV S1_FLAVOR=${S1_FLAVOR}
+
+ENTRYPOINT ["bash", "/usr/local/bin/entrypoint.sh"]

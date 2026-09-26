@@ -1,0 +1,921 @@
+---
+aa:
+  name: "Afar"
+  native: "Qafaraf"
+  direction: ltr
+  libretranslate: false
+ab:
+  name: "Abkhazian"
+  native: "Аԥсшәа"
+  direction: ltr
+  libretranslate: false
+ae:
+  name: "Avestan"
+  native: "Avesta"
+  direction: ltr
+  libretranslate: false
+af:
+  name: "Afrikaans"
+  native: "Afrikaans"
+  direction: ltr
+  libretranslate: false
+ak:
+  name: "Akan"
+  native: "Akan"
+  direction: ltr
+  libretranslate: false
+am:
+  name: "Amharic"
+  native: "አማርኛ"
+  direction: ltr
+  libretranslate: false
+an:
+  name: "Aragonese"
+  native: "Aragonés"
+  direction: ltr
+  libretranslate: false
+ar:
+  name: "Arabic"
+  native: "العربية"
+  direction: rtl
+  libretranslate: true
+as:
+  name: "Assamese"
+  native: "অসমীয়া"
+  direction: ltr
+  libretranslate: false
+av:
+  name: "Avaric"
+  native: "Авар мацӀ"
+  direction: ltr
+  libretranslate: false
+ay:
+  name: "Aymara"
+  native: "Aymar aru"
+  direction: ltr
+  libretranslate: false
+az:
+  name: "Azerbaijani"
+  native: "Azərbaycan"
+  direction: ltr
+  libretranslate: true
+ba:
+  name: "Bashkir"
+  native: "Башҡорт"
+  direction: ltr
+  libretranslate: false
+be:
+  name: "Belarusian"
+  native: "Беларуская"
+  direction: ltr
+  libretranslate: false
+bg:
+  name: "Bulgarian"
+  native: "Български"
+  direction: ltr
+  libretranslate: true
+bh:
+  name: "Bihari"
+  native: "भोजपुरी"
+  direction: ltr
+  libretranslate: false
+bi:
+  name: "Bislama"
+  native: "Bislama"
+  direction: ltr
+  libretranslate: false
+bm:
+  name: "Bambara"
+  native: "Bamanakan"
+  direction: ltr
+  libretranslate: false
+bn:
+  name: "Bangla"
+  native: "বাংলা"
+  direction: ltr
+  libretranslate: true
+bo:
+  name: "Tibetan"
+  native: "བོད་སྐད་"
+  direction: ltr
+  libretranslate: false
+br:
+  name: "Breton"
+  native: "Brezhoneg"
+  direction: ltr
+  libretranslate: false
+bs:
+  name: "Bosnian"
+  native: "Bosanski"
+  direction: ltr
+  libretranslate: false
+ca:
+  name: "Catalan"
+  native: "Català"
+  direction: ltr
+  libretranslate: true
+ce:
+  name: "Chechen"
+  native: "Нохчийн"
+  direction: ltr
+  libretranslate: false
+ch:
+  name: "Chamorro"
+  native: "Chamoru"
+  direction: ltr
+  libretranslate: false
+co:
+  name: "Corsican"
+  native: "Corsu"
+  direction: ltr
+  libretranslate: false
+cr:
+  name: "Cree"
+  native: "ᓀᐦᐃᔭᐍᐏᐣ"
+  direction: ltr
+  libretranslate: false
+cs:
+  name: "Czech"
+  native: "Čeština"
+  direction: ltr
+  libretranslate: true
+cu:
+  name: "Church Slavic"
+  native: "Словѣньскъ"
+  direction: ltr
+  libretranslate: false
+cv:
+  name: "Chuvash"
+  native: "Чӑваш чӗлхи"
+  direction: ltr
+  libretranslate: false
+cy:
+  name: "Welsh"
+  native: "Cymraeg"
+  direction: ltr
+  libretranslate: false
+da:
+  name: "Danish"
+  native: "Dansk"
+  direction: ltr
+  libretranslate: true
+de:
+  name: "German"
+  native: "Deutsch"
+  direction: ltr
+  libretranslate: true
+dv:
+  name: "Divehi"
+  native: "ދިވެހި"
+  direction: rtl
+  libretranslate: false
+dz:
+  name: "Dzongkha"
+  native: "རྫོང་ཁ"
+  direction: ltr
+  libretranslate: false
+ee:
+  name: "Ewe"
+  native: "Eʋegbe"
+  direction: ltr
+  libretranslate: false
+el:
+  name: "Greek"
+  native: "Ελληνικά"
+  direction: ltr
+  libretranslate: true
+en:
+  name: "English"
+  native: "English"
+  direction: ltr
+  libretranslate: false
+eo:
+  name: "Esperanto"
+  native: "Esperanto"
+  direction: ltr
+  libretranslate: true
+es:
+  name: "Spanish"
+  native: "Español"
+  direction: ltr
+  libretranslate: true
+et:
+  name: "Estonian"
+  native: "Eesti"
+  direction: ltr
+  libretranslate: true
+eu:
+  name: "Basque"
+  native: "Euskara"
+  direction: ltr
+  libretranslate: true
+fa:
+  name: "Persian"
+  native: "فارسی"
+  direction: rtl
+  libretranslate: true
+ff:
+  name: "Fula"
+  native: "Pulaar"
+  direction: ltr
+  libretranslate: false
+fi:
+  name: "Finnish"
+  native: "Suomi"
+  direction: ltr
+  libretranslate: true
+fj:
+  name: "Fijian"
+  native: "Vosa Vakaviti"
+  direction: ltr
+  libretranslate: false
+fo:
+  name: "Faroese"
+  native: "Føroyskt"
+  direction: ltr
+  libretranslate: false
+fr:
+  name: "French"
+  native: "Français"
+  direction: ltr
+  libretranslate: true
+fy:
+  name: "Western Frisian"
+  native: "Frysk"
+  direction: ltr
+  libretranslate: false
+ga:
+  name: "Irish"
+  native: "Gaeilge"
+  direction: ltr
+  libretranslate: true
+gd:
+  name: "Scottish Gaelic"
+  native: "Gàidhlig"
+  direction: ltr
+  libretranslate: false
+gl:
+  name: "Galician"
+  native: "Galego"
+  direction: ltr
+  libretranslate: true
+gn:
+  name: "Guarani"
+  native: "Avañeʼẽ"
+  direction: ltr
+  libretranslate: false
+gu:
+  name: "Gujarati"
+  native: "ગુજરાતી"
+  direction: ltr
+  libretranslate: false
+gv:
+  name: "Manx"
+  native: "Gaelg"
+  direction: ltr
+  libretranslate: false
+ha:
+  name: "Hausa"
+  native: "Hausa"
+  direction: ltr
+  libretranslate: false
+he:
+  name: "Hebrew"
+  native: "עברית"
+  direction: rtl
+  libretranslate: true
+hi:
+  name: "Hindi"
+  native: "हिन्दी"
+  direction: ltr
+  libretranslate: true
+ho:
+  name: "Hiri Motu"
+  native: "Hiri Motu"
+  direction: ltr
+  libretranslate: false
+hr:
+  name: "Croatian"
+  native: "Hrvatski"
+  direction: ltr
+  libretranslate: false
+ht:
+  name: "Haitian Creole"
+  native: "Kreyòl ayisyen"
+  direction: ltr
+  libretranslate: false
+hu:
+  name: "Hungarian"
+  native: "Magyar"
+  direction: ltr
+  libretranslate: true
+hy:
+  name: "Armenian"
+  native: "Հայերեն"
+  direction: ltr
+  libretranslate: false
+hz:
+  name: "Herero"
+  native: "Otjiherero"
+  direction: ltr
+  libretranslate: false
+ia:
+  name: "Interlingua"
+  native: "Interlingua"
+  direction: ltr
+  libretranslate: false
+id:
+  name: "Indonesian"
+  native: "Indonesia"
+  direction: ltr
+  libretranslate: true
+ie:
+  name: "Interlingue"
+  native: "Interlingue"
+  direction: ltr
+  libretranslate: false
+ig:
+  name: "Igbo"
+  native: "Igbo"
+  direction: ltr
+  libretranslate: false
+ii:
+  name: "Sichuan Yi"
+  native: "ꆈꌠꉙ"
+  direction: ltr
+  libretranslate: false
+ik:
+  name: "Inupiaq"
+  native: "Iñupiaq"
+  direction: ltr
+  libretranslate: false
+io:
+  name: "Ido"
+  native: "Ido"
+  direction: ltr
+  libretranslate: false
+is:
+  name: "Icelandic"
+  native: "Íslenska"
+  direction: ltr
+  libretranslate: false
+it:
+  name: "Italian"
+  native: "Italiano"
+  direction: ltr
+  libretranslate: true
+iu:
+  name: "Inuktitut"
+  native: "ᐃᓄᒃᑎᑐᑦ"
+  direction: ltr
+  libretranslate: false
+ja:
+  name: "Japanese"
+  native: "日本語"
+  direction: ltr
+  libretranslate: true
+jv:
+  name: "Javanese"
+  native: "Jawa"
+  direction: ltr
+  libretranslate: false
+ka:
+  name: "Georgian"
+  native: "Ქართული"
+  direction: ltr
+  libretranslate: false
+kg:
+  name: "Kongo"
+  native: "Kikongo"
+  direction: ltr
+  libretranslate: false
+ki:
+  name: "Kikuyu"
+  native: "Gikuyu"
+  direction: ltr
+  libretranslate: false
+kj:
+  name: "Kuanyama"
+  native: "Oshikwanyama"
+  direction: ltr
+  libretranslate: false
+kk:
+  name: "Kazakh"
+  native: "Қазақ тілі"
+  direction: ltr
+  libretranslate: false
+kl:
+  name: "Kalaallisut"
+  native: "Kalaallisut"
+  direction: ltr
+  libretranslate: false
+km:
+  name: "Khmer"
+  native: "ខ្មែរ"
+  direction: ltr
+  libretranslate: false
+kn:
+  name: "Kannada"
+  native: "ಕನ್ನಡ"
+  direction: ltr
+  libretranslate: false
+ko:
+  name: "Korean"
+  native: "한국어"
+  direction: ltr
+  libretranslate: true
+kr:
+  name: "Kanuri"
+  native: "Kanuri"
+  direction: ltr
+  libretranslate: false
+ks:
+  name: "Kashmiri"
+  native: "کٲشُر"
+  direction: rtl
+  libretranslate: false
+ku:
+  name: "Kurdish"
+  native: "Kurdî (kurmancî)"
+  direction: ltr
+  libretranslate: false
+kv:
+  name: "Komi"
+  native: "Коми кыв"
+  direction: ltr
+  libretranslate: false
+kw:
+  name: "Cornish"
+  native: "Kernewek"
+  direction: ltr
+  libretranslate: false
+ky:
+  name: "Kyrgyz"
+  native: "Кыргызча"
+  direction: ltr
+  libretranslate: true
+la:
+  name: "Latin"
+  native: "Latina"
+  direction: ltr
+  libretranslate: false
+lb:
+  name: "Luxembourgish"
+  native: "Lëtzebuergesch"
+  direction: ltr
+  libretranslate: false
+lg:
+  name: "Ganda"
+  native: "Luganda"
+  direction: ltr
+  libretranslate: false
+li:
+  name: "Limburgish"
+  native: "Limburgs"
+  direction: ltr
+  libretranslate: false
+ln:
+  name: "Lingala"
+  native: "Lingála"
+  direction: ltr
+  libretranslate: false
+lo:
+  name: "Lao"
+  native: "ລາວ"
+  direction: ltr
+  libretranslate: false
+lt:
+  name: "Lithuanian"
+  native: "Lietuvių"
+  direction: ltr
+  libretranslate: true
+lu:
+  name: "Luba-Katanga"
+  native: "Tshiluba"
+  direction: ltr
+  libretranslate: false
+lv:
+  name: "Latvian"
+  native: "Latviešu"
+  direction: ltr
+  libretranslate: true
+mg:
+  name: "Malagasy"
+  native: "Malagasy"
+  direction: ltr
+  libretranslate: false
+mh:
+  name: "Marshallese"
+  native: "Kajin M̧ajeļ"
+  direction: ltr
+  libretranslate: false
+mi:
+  name: "Māori"
+  native: "Māori"
+  direction: ltr
+  libretranslate: false
+mk:
+  name: "Macedonian"
+  native: "Македонски"
+  direction: ltr
+  libretranslate: false
+ml:
+  name: "Malayalam"
+  native: "മലയാളം"
+  direction: ltr
+  libretranslate: false
+mn:
+  name: "Mongolian"
+  native: "Монгол"
+  direction: ltr
+  libretranslate: false
+mr:
+  name: "Marathi"
+  native: "मराठी"
+  direction: ltr
+  libretranslate: false
+ms:
+  name: "Malay"
+  native: "Melayu"
+  direction: ltr
+  libretranslate: true
+mt:
+  name: "Maltese"
+  native: "Malti"
+  direction: ltr
+  libretranslate: false
+my:
+  name: "Burmese"
+  native: "မြန်မာ"
+  direction: ltr
+  libretranslate: false
+na:
+  name: "Nauru"
+  native: "Dorerin Naoero"
+  direction: ltr
+  libretranslate: false
+nb:
+  name: "Norwegian Bokmål"
+  native: "Norsk bokmål"
+  direction: ltr
+  libretranslate: true
+nd:
+  name: "North Ndebele"
+  native: "IsiNdebele"
+  direction: ltr
+  libretranslate: false
+ne:
+  name: "Nepali"
+  native: "नेपाली"
+  direction: ltr
+  libretranslate: false
+ng:
+  name: "Ndonga"
+  native: "Oshindonga"
+  direction: ltr
+  libretranslate: false
+nl:
+  name: "Dutch"
+  native: "Nederlands"
+  direction: ltr
+  libretranslate: true
+nn:
+  name: "Norwegian Nynorsk"
+  native: "Norsk nynorsk"
+  direction: ltr
+  libretranslate: false
+"no":
+  name: "Norwegian"
+  native: "Norsk"
+  direction: ltr
+  libretranslate: false
+nr:
+  name: "South Ndebele"
+  native: "IsiNdebele"
+  direction: ltr
+  libretranslate: false
+nv:
+  name: "Navajo"
+  native: "Diné bizaad"
+  direction: ltr
+  libretranslate: false
+ny:
+  name: "Nyanja"
+  native: "Chichewa"
+  direction: ltr
+  libretranslate: false
+oc:
+  name: "Occitan"
+  native: "Occitan"
+  direction: ltr
+  libretranslate: false
+oj:
+  name: "Ojibwa"
+  native: "Anishinaabemowin"
+  direction: ltr
+  libretranslate: false
+om:
+  name: "Oromo"
+  native: "Oromoo"
+  direction: ltr
+  libretranslate: false
+or:
+  name: "Odia"
+  native: "ଓଡ଼ିଆ"
+  direction: ltr
+  libretranslate: false
+os:
+  name: "Ossetic"
+  native: "Ирон"
+  direction: ltr
+  libretranslate: false
+pa:
+  name: "Punjabi"
+  native: "ਪੰਜਾਬੀ"
+  direction: ltr
+  libretranslate: false
+pi:
+  name: "Pali"
+  native: "पाळि"
+  direction: ltr
+  libretranslate: false
+pl:
+  name: "Polish"
+  native: "Polski"
+  direction: ltr
+  libretranslate: true
+ps:
+  name: "Pashto"
+  native: "پښتو"
+  direction: rtl
+  libretranslate: false
+pt:
+  name: "Portuguese"
+  native: "Português"
+  direction: ltr
+  libretranslate: true
+qu:
+  name: "Quechua"
+  native: "Runasimi"
+  direction: ltr
+  libretranslate: false
+rm:
+  name: "Romansh"
+  native: "Rumantsch"
+  direction: ltr
+  libretranslate: false
+rn:
+  name: "Rundi"
+  native: "Ikirundi"
+  direction: ltr
+  libretranslate: false
+ro:
+  name: "Romanian"
+  native: "Română"
+  direction: ltr
+  libretranslate: true
+ru:
+  name: "Russian"
+  native: "Русский"
+  direction: ltr
+  libretranslate: true
+rw:
+  name: "Kinyarwanda"
+  native: "Ikinyarwanda"
+  direction: ltr
+  libretranslate: false
+sa:
+  name: "Sanskrit"
+  native: "संस्कृत भाषा"
+  direction: ltr
+  libretranslate: false
+sc:
+  name: "Sardinian"
+  native: "Sardu"
+  direction: ltr
+  libretranslate: false
+sd:
+  name: "Sindhi"
+  native: "سنڌي"
+  direction: rtl
+  libretranslate: false
+se:
+  name: "Northern Sami"
+  native: "Davvisámegiella"
+  direction: ltr
+  libretranslate: false
+sg:
+  name: "Sango"
+  native: "Sängö"
+  direction: ltr
+  libretranslate: false
+si:
+  name: "Sinhala"
+  native: "සිංහල"
+  direction: ltr
+  libretranslate: false
+sk:
+  name: "Slovak"
+  native: "Slovenčina"
+  direction: ltr
+  libretranslate: true
+sl:
+  name: "Slovenian"
+  native: "Slovenščina"
+  direction: ltr
+  libretranslate: true
+sm:
+  name: "Samoan"
+  native: "Gagana Samoa"
+  direction: ltr
+  libretranslate: false
+sn:
+  name: "Shona"
+  native: "ChiShona"
+  direction: ltr
+  libretranslate: false
+so:
+  name: "Somali"
+  native: "Soomaali"
+  direction: ltr
+  libretranslate: false
+sq:
+  name: "Albanian"
+  native: "Shqip"
+  direction: ltr
+  libretranslate: true
+sr:
+  name: "Serbian"
+  native: "Српски"
+  direction: ltr
+  libretranslate: false
+ss:
+  name: "Swati"
+  native: "SiSwati"
+  direction: ltr
+  libretranslate: false
+st:
+  name: "Southern Sotho"
+  native: "Sesotho"
+  direction: ltr
+  libretranslate: false
+su:
+  name: "Sundanese"
+  native: "Basa Sunda"
+  direction: ltr
+  libretranslate: false
+sv:
+  name: "Swedish"
+  native: "Svenska"
+  direction: ltr
+  libretranslate: true
+sw:
+  name: "Swahili"
+  native: "Kiswahili"
+  direction: ltr
+  libretranslate: true
+ta:
+  name: "Tamil"
+  native: "தமிழ்"
+  direction: ltr
+  libretranslate: false
+te:
+  name: "Telugu"
+  native: "తెలుగు"
+  direction: ltr
+  libretranslate: false
+tg:
+  name: "Tajik"
+  native: "Тоҷикӣ"
+  direction: ltr
+  libretranslate: false
+th:
+  name: "Thai"
+  native: "ไทย"
+  direction: ltr
+  libretranslate: true
+ti:
+  name: "Tigrinya"
+  native: "ትግርኛ"
+  direction: ltr
+  libretranslate: false
+tk:
+  name: "Turkmen"
+  native: "Türkmen dili"
+  direction: ltr
+  libretranslate: false
+tl:
+  name: "Tagalog"
+  native: "Filipino"
+  direction: ltr
+  libretranslate: true
+tn:
+  name: "Tswana"
+  native: "Setswana"
+  direction: ltr
+  libretranslate: false
+to:
+  name: "Tongan"
+  native: "Lea fakatonga"
+  direction: ltr
+  libretranslate: false
+tr:
+  name: "Turkish"
+  native: "Türkçe"
+  direction: ltr
+  libretranslate: true
+ts:
+  name: "Tsonga"
+  native: "Xitsonga"
+  direction: ltr
+  libretranslate: false
+tt:
+  name: "Tatar"
+  native: "Татар"
+  direction: ltr
+  libretranslate: false
+tw:
+  name: "Twi"
+  native: "Twi"
+  direction: ltr
+  libretranslate: false
+ty:
+  name: "Tahitian"
+  native: "Reo Tahiti"
+  direction: ltr
+  libretranslate: false
+ug:
+  name: "Uyghur"
+  native: "ئۇيغۇرچە"
+  direction: rtl
+  libretranslate: false
+uk:
+  name: "Ukrainian"
+  native: "Українська"
+  direction: ltr
+  libretranslate: true
+ur:
+  name: "Urdu"
+  native: "اردو"
+  direction: rtl
+  libretranslate: true
+uz:
+  name: "Uzbek"
+  native: "O‘zbek"
+  direction: ltr
+  libretranslate: false
+ve:
+  name: "Venda"
+  native: "Tshivenḓa"
+  direction: ltr
+  libretranslate: false
+vi:
+  name: "Vietnamese"
+  native: "Tiếng Việt"
+  direction: ltr
+  libretranslate: true
+vo:
+  name: "Volapük"
+  native: "Volapük"
+  direction: ltr
+  libretranslate: false
+wa:
+  name: "Walloon"
+  native: "Walon"
+  direction: ltr
+  libretranslate: false
+wo:
+  name: "Wolof"
+  native: "Wolof"
+  direction: ltr
+  libretranslate: false
+xh:
+  name: "Xhosa"
+  native: "IsiXhosa"
+  direction: ltr
+  libretranslate: false
+yi:
+  name: "Yiddish"
+  native: "ייִדיש"
+  direction: rtl
+  libretranslate: false
+yo:
+  name: "Yoruba"
+  native: "Èdè Yorùbá"
+  direction: ltr
+  libretranslate: false
+za:
+  name: "Zhuang"
+  native: "Vahcuengh"
+  direction: ltr
+  libretranslate: false
+zh:
+  name: "Chinese"
+  native: "中文"
+  direction: ltr
+  libretranslate: true
+zu:
+  name: "Zulu"
+  native: "IsiZulu"
+  direction: ltr
+  libretranslate: false

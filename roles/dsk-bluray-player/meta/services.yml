@@ -1,0 +1,16 @@
+---
+# nocheck: dynamic-flag  the desktop base is the premise of every dsk role, not a per-host option
+desktop-base:
+  bond: 1
+  enabled: true
+  shared: true
+bluray-player:
+  modes:
+    host:
+      enabled: true
+  lifecycle: pre-alpha
+  min_storage: "1GB"
+  cpus: "1.0"
+  mem_reservation: "256m"
+  mem_limit: "1g"
+  pids_limit: 512

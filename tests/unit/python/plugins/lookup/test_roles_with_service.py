@@ -245,6 +245,29 @@ class RolesWithServiceLookupTests(unittest.TestCase):
         }
         self.assertEqual(self._run(["dashboard"], applications), [[]])
 
+    def test_include_headless_keeps_a_role_without_canonical_domain(self):
+        applications = {
+            "svc-ai-foo": {
+                "services": {
+                    "litellm": {"enabled": True, "shared": True},
+                },
+                "domains": {},
+            },
+        }
+        self.assertEqual(
+            self._run(["litellm"], applications, include_headless=True),
+            [
+                [
+                    {
+                        "id": "svc-ai-foo",
+                        "canonical_domain": "",
+                        "canonical_url": "",
+                        "iframe": True,
+                    }
+                ]
+            ],
+        )
+
     def test_canonical_as_string_is_accepted(self):
         applications = {
             "web-app-foo": {

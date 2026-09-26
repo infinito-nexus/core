@@ -93,12 +93,14 @@ def _mem_res_mb(apps: dict, app_id: str) -> int:
 
 def jvm_max_mb(apps: dict, app_id: str) -> int:
     """
-    Compute recommended JVM Xmx in MB using:
-    Xmx = min(
-        floor(0.7 * mem_limit),
-        mem_limit - 1024,
-        12288
-    )
+    Compute recommended JVM Xmx in MB using::
+
+        Xmx = min(
+            floor(0.7 * mem_limit),
+            mem_limit - 1024,
+            12288
+        )
+
     with a lower bound of 1024 MB.
     """
     limit_mb = _mem_limit_mb(apps, app_id)
@@ -111,12 +113,14 @@ def jvm_max_mb(apps: dict, app_id: str) -> int:
 
 def jvm_min_mb(apps: dict, app_id: str) -> int:
     """
-    Compute recommended JVM Xms in MB using:
-    Xms = min(
-        floor(Xmx / 2),
-        mem_reservation,
-        Xmx
-    )
+    Compute recommended JVM Xms in MB using::
+
+        Xms = min(
+            floor(Xmx / 2),
+            mem_reservation,
+            Xmx
+        )
+
     with a lower bound of 512 MB.
     """
     xmx = jvm_max_mb(apps, app_id)

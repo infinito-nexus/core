@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import os
 
+from .binfmt import ensure as ensure_binfmt
 from .build import handler as build_handler
 from .common import make_compose
 
@@ -54,6 +55,8 @@ def handler(args: argparse.Namespace) -> int:
     if args.when_down and _stack_is_running():
         print(">>> Stack already running — skipping up")
         return 0
+
+    ensure_binfmt()
 
     rc = _maybe_build_missing()
     if rc != 0:

@@ -45,14 +45,12 @@ flowchart TB
         chunk0 --> smoke["call-test-runner-smoke.yml"]
         chain --> report["report-main-failures"]
 
-        instmake["call-test-install-make.yml"]
-        instpkgmgr["call-test-install-pkgmgr.yml"]
+        install["call-test-install.yml"]
         mirror --> devenv["test-workspace: call-test-workspace.yml"]
 
         chain --> donegate["done"]
         smoke --> donegate
-        instmake --> donegate
-        instpkgmgr --> donegate
+        install --> donegate
         devenv --> donegate
     end
 
@@ -136,8 +134,8 @@ row would otherwise be assigned. Two spellings are accepted:
 
 | Form | Example |
 |---|---|
-| ASCII | `web-app-nextcloud#0,2@swarm+tor%debian/zfs` |
-| the job label, pasted back out of the failed run | `🐳🧅🌀🦓网络应用·Nextcloud#0` |
+| ASCII | `web-app-nextcloud#0,2@swarm+tor%debian/zfs:arm64` |
+| the job label, pasted back out of the failed run | `🐳🧅🌀🦓🦾网络应用·Nextcloud#0` |
 
 | Separator | Axis | Values |
 |---|---|---|
@@ -146,6 +144,7 @@ row would otherwise be assigned. Two spellings are accepted:
 | `+` | onion state | `tor`, `clearnet` |
 | `%` | distro | `arch`, `debian`, `ubuntu`, `fedora`, `centos` |
 | `/` | filesystem | `zfs`, `btrfs`, `ext4` |
+| `:` | architecture | `amd64`, `arm64` |
 
 The onion state is spelled `+clearnet` rather than `-tor` because a role id may
 itself end in `-tor`.
@@ -156,17 +155,21 @@ the row's position in the matrix. A pin the row cannot take aborts the matrix
 rather than dropping the row, because a dropped row would report a green run
 for a combination that never ran. Such a pin is `@swarm` on a role without its
 own stack, `+tor` on a variant that pins `services.tor.enabled` false, or any
-axis that fights the run's own `mode`, `tor`, `distros` or `filesystem` input.
+axis that fights the run's own `mode`, `tor`, `distros`, `filesystem` or
+`architectures` input, or `:arm64` on a role whose `meta/services.yml`
+declares `architectures: [amd64]`.
 
 That is also what a retrigger replays: `--failed` reads the glyphs off the failed
 job's title and writes them back as a token, so the row comes back in the mode,
-onion state and distribution it died on rather than on whatever the rotation
-would pick next. The filesystem is deliberately left out. A title states the
+onion state, distribution and architecture it died on rather than on whatever
+the rotation would pick next. The architecture is replayed because it is the
+machine the job ran on, not a preference it could fall back from. The
+filesystem is deliberately left out. A title states the
 kind the matrix *assigned*, which a deploy is allowed to fall back from, so
 pinning it would both misstate what the job ran on and turn the kind into a
 demand, failing the retrigger on the very condition the fallback absorbs.
 
-### Mode, tor, distro and filesystem
+### Mode, tor, distro, filesystem and architecture
 
 The `tor` input decides what the onion axis is allowed to do at all:
 
@@ -177,10 +180,33 @@ The `tor` input decides what the onion axis is allowed to do at all:
 | `exclusive` | as `enforced`, and rows that cannot take an onion are dropped |
 | `disabled` | no row takes the onion |
 
-`distros` and `filesystem` narrow the pools the other two axes draw from. Both
-default to empty, which means the whole declared set. That is what a sweep
-wants, because the rows are spread over the pool rather than all sharing one
-value. Narrowing is for chasing a single distribution or a single filesystem.
+`distros`, `filesystem` and `architectures` narrow the pools the other axes
+draw from. All three default to empty, which means the whole declared set. That
+is what a sweep wants, because the rows are spread over the pool rather than all
+sharing one value. Narrowing is for chasing a single distribution, filesystem or
+architecture.
+
+The architecture is the one axis a deploy job cannot apply to itself: the distro
+is installed and the filesystem is built, but the CPU arrives with the runner.
+The matrix therefore carries the runner label with the row (`ubuntu-latest` for
+amd64, `ubuntu-24.04-arm` for arm64), `runs-on` reads it, and the job asserts
+`uname -m` against what it was assigned before deploying anything, so a label
+that stops resolving to arm64 hardware fails loudly instead of reporting an
+arm64 row green from an amd64 machine.
+
+A role that only one architecture can run declares it on its primary service
+entity, next to `modes`:
+
+```yaml
+<primary_entity>:
+  architectures:
+    - amd64
+```
+
+The row then draws from that intersection instead of the run's whole pool, and
+so does every row whose variant deploys that role, as the deploy planner resolves it. A
+role and a run that permit nothing in common abort the matrix rather than
+dropping the row.
 
 Whether the assigned filesystem is binding depends on who chose it:
 
@@ -224,6 +250,7 @@ reproduces by re-running the same sweep:
 | tor | `(position + sweep // 2) % 2` |
 | distro | `(position + sweep) % len(distro pool)` |
 | filesystem | `(position // len(distro pool) + sweep) % len(filesystem pool)` |
+| architecture | `(position + sweep) % len(architecture pool)` |
 
 A role offers at most two modes in practice — swarm needs its own stack, host
 needs the absence of one — so a row flips between its two modes on consecutive
@@ -234,17 +261,21 @@ consecutive rows walk every pairing of the two pools rather than a diagonal
 through it. Turning both on the position directly would cover only as many
 pairings as the pools are long whenever they happen to be the same length, and
 no sweep would unlock that, because the sweep shifts both by the same amount.
-Priority rows skip the
+The architecture rotates on the position directly rather than as a third
+odometer digit. Two values are coprime with both five distros and the fifteen
+distro/filesystem positions, so walking it fastest still reaches every pairing,
+while making it the slowest digit would hand a role with few rows one
+architecture forever - and the point of the axis is that a role's own variants
+split over both. Priority rows skip the
 mode/tor rotation entirely and take the whole cross-product at once; their
-distro and filesystem walk on across those combinations, so one priority role
-proves several distributions in one sweep.
+distro, filesystem and architecture walk on across those combinations, so one
+priority role proves several distributions in one sweep.
 
 Because the same variant can run several times in one sweep, the onion state is
 part of what identifies a job: it is in the job label (`🧅` vs `🌐`) and in every
 artifact name. Two jobs uploading under one artifact name is a conflict, not an
-overwrite. The distro and
-filesystem glyphs follow it in the label (`🐳🧅🌀🦓`), so a title says which
-combination died without opening the job.
+overwrite. The distro, filesystem and architecture glyphs follow it in the label
+(`🐳🧅🌀🦓🦾`), so a title says which combination died without opening the job.
 
 ### Stopping on failure
 

@@ -6,10 +6,10 @@ and tempt callers to express conditions / delegate_to / vars on the
 outer wrapper that semantically belong to a single grouped concern.
 The convention is: ≤ 3 direct children, otherwise extract the body
 into its own ``include_tasks:`` sub-file. If the include is gated by
-``when: DEPLOYMENT_MODE == "compose"`` (or another compose-only guard),
+``when: IS_COMPOSE_MODE`` (or another compose-only guard),
 the sub-file MAY carry the file-header marker
 
-    # include-gated: when: DEPLOYMENT_MODE == "compose"
+    # include-gated: when: IS_COMPOSE_MODE
 
 so the swarm-compat lints (``compose-chdir-in-task`` /
 ``compose-verb-in-task``) treat the file as exempt — see
@@ -125,10 +125,10 @@ class TestNoOversizedAnsibleBlock(unittest.TestCase):
                 "stays scannable.\n\n"
                 "Example refactor:\n"
                 "    - name: '<descriptive>'\n"
-                "      when: DEPLOYMENT_MODE != 'swarm'\n"
+                "      when: not IS_SWARM_MODE\n"
                 "      include_tasks: <NN>_<descriptive>.yml\n\n"
                 "If the sub-file is when-gated, mark it with the header\n"
-                '    # include-gated: when: DEPLOYMENT_MODE != "swarm"\n'
+                "    # include-gated: when: not IS_SWARM_MODE\n"
                 "(see utils/annotations/task_gate.py) so the swarm-compat "
                 f"lints exempt it.\n\nOffenders:\n{formatted}"
             )

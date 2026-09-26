@@ -33,6 +33,7 @@ mailu:
   enabled: true # nocheck: dynamic-flag
   shared: true
   provides: email
+  # nocheck: unwatched-version  Reason: Mailu ships its images under the release-series tag while its git tags are patch level (2024.06.58), so the series is the pin and moves only on a deliberate migration
   version: "2024.06"
   name: mailu
   backup:
@@ -87,7 +88,7 @@ redis:
     disabled: true
   enabled: true # nocheck: dynamic-flag
   # Exception: central redis overlay adds VIP pressure on manager-pinned mailu; embedded redis avoids it.
-  shared: "{{ ('svc-db-redis' in group_names) and (DEPLOYMENT_MODE == 'compose') }}"
+  shared: "{{ ('svc-db-redis' in group_names) and (IS_COMPOSE_MODE) }}"
   cpus: "0.2"
   mem_reservation: 256m
   mem_limit: 512m
@@ -96,7 +97,7 @@ redis:
 # nocheck: dynamic-flag  enabled+shared (not the `in group_names` form) marks svc-dns-unbound `required` so the loader deploys it every compose round; reverting reintroduces the admin DNS hang.
 unbound:
   bond: 1
-  enabled: "{{ DEPLOYMENT_MODE == 'compose' }}"
+  enabled: "{{ IS_COMPOSE_MODE }}"
   shared: true
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 mariadb:

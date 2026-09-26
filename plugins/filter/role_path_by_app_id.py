@@ -46,7 +46,7 @@ def _role_path_by_application_id(application_id, index):
 
 def abs_role_path_by_application_id(application_id):
     """
-    Searches all roles/*/vars/main.yml for application_id and returns
+    Searches all ``roles/*/vars/main.yml`` for application_id and returns
     the absolute path of the role that matches. Raises an error if
     zero or more than one match is found.
     """
@@ -55,7 +55,7 @@ def abs_role_path_by_application_id(application_id):
 
 def rel_role_path_by_application_id(application_id):
     """
-    Searches all roles/*/vars/main.yml for application_id and returns
+    Searches all ``roles/*/vars/main.yml`` for application_id and returns
     the relative path (from the project root) of the role that matches.
     Raises an error if zero or more than one match is found.
     """

@@ -72,6 +72,12 @@ module.exports = [
     },
   },
   {
+    files: ["roles/web-svc-simpleicons/files/javascript/**/*.js"],
+    languageOptions: {
+      sourceType: "module",
+    },
+  },
+  {
     files: [
       "roles/**/files/playwright/**/*.js",
       "roles/test-e2e-playwright/files/personas/**/*.js",

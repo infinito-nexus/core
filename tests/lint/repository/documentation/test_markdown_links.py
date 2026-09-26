@@ -11,14 +11,15 @@ Absolute paths starting with '/' are resolved against the repository root.
 from __future__ import annotations
 
 import re
-import subprocess
 import unittest
-from pathlib import Path
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
-from utils.cache.files import iter_non_ignored_files, read_text
+from utils.cache.files import read_text
 
-from . import PROJECT_ROOT
+from . import INDEX_FILES, PROJECT_ROOT, index_page, markdown_files
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 _MD_LINK_RE = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
 
@@ -40,18 +41,25 @@ class BrokenLink(NamedTuple):
     line: int
     target: str
     resolved: Path
+    reason: str
 
 
-def _tracked_md_files(root: Path) -> list[Path]:
-    try:
-        out = subprocess.check_output(
-            ["git", "-C", str(root), "ls-files", "-z"],
-            stderr=subprocess.STDOUT,
-        )
-        rel_paths = [p for p in out.decode("utf-8", errors="replace").split("\0") if p]
-        return [root / rel for rel in rel_paths if rel.endswith(".md")]
-    except Exception:
-        return [Path(p) for p in iter_non_ignored_files(extensions=(".md",))]
+def _unresolvable(resolved: Path) -> str:
+    """Return why ``resolved`` cannot back a link, empty when it can.
+
+    A directory is only a link target because an index page stands in for it:
+    that is what GitHub opens, and what the documentation build resolves the
+    link against. A directory without one renders as a file listing in the one
+    place and as a missing cross-reference in the other.
+
+    Args:
+        resolved: the absolute path a link target resolved to.
+    """
+    if not resolved.exists():
+        return "no such path"
+    if resolved.is_dir() and index_page(resolved) is None:
+        return f"directory without any of {', '.join(INDEX_FILES)}"
+    return ""
 
 
 def _is_checkable_link(target: str) -> bool:
@@ -133,13 +141,15 @@ def _check_file(file: Path, root: Path) -> list[BrokenLink]:
         else:
             resolved = (base / path_part).resolve()
 
-        if not resolved.exists():
+        reason = _unresolvable(resolved)
+        if reason:
             broken.append(
                 BrokenLink(
                     file=file,
                     line=line_no,
                     target=raw_target,
                     resolved=resolved,
+                    reason=reason,
                 )
             )
 
@@ -147,12 +157,12 @@ def _check_file(file: Path, root: Path) -> list[BrokenLink]:
 
 
 class TestMarkdownLinks(unittest.TestCase):
-    """Every file-system link in a tracked markdown file must resolve to a real path."""
+    """Every file-system link in a shipped markdown file must resolve to a real path."""
 
     def test_markdown_relative_links_resolve(self) -> None:
         root = PROJECT_ROOT
-        md_files = _tracked_md_files(root)
-        self.assertTrue(md_files, "No tracked .md files found.")
+        md_files = markdown_files()
+        self.assertTrue(md_files, "No .md files found.")
 
         broken: list[BrokenLink] = []
         for file in sorted(md_files):
@@ -170,7 +180,7 @@ class TestMarkdownLinks(unittest.TestCase):
         ]
         for item in sorted(broken, key=lambda b: (b.file.as_posix(), b.line)):
             rel = item.file.relative_to(root).as_posix()
-            lines.append(f"  {rel}:{item.line}: {item.target!r}")
+            lines.append(f"  {rel}:{item.line}: {item.target!r} - {item.reason}")
         self.fail("\n".join(lines))
 
 

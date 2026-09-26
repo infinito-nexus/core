@@ -1,0 +1,2141 @@
+# Greek translations for infinito-nexus.
+# Copyright (C) 2026 Kevin Veen-Birkenbach
+# This file is distributed under the Infinito.Nexus Community License (Non-Commercial).
+# Kevin Veen-Birkenbach <kevinveenbirkenbach@infinito.nexus>, 2026.
+# https://infinito.nexus
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: infinito-nexus VERSION\n"
+"Report-Msgid-Bugs-To: contact@infinito.nexus\n"
+"POT-Creation-Date: 2026-01-01 00:00+0000\n"
+"PO-Revision-Date: 2026-01-01 00:00+0000\n"
+"Last-Translator: Kevin Veen-Birkenbach <kevinveenbirkenbach@infinito.nexus>\n"
+"Language: el\n"
+"Language-Team: Kevin Veen-Birkenbach <kevinveenbirkenbach@infinito.nexus>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-certbot:description"
+msgid "ACME client for automated Let's Encrypt SSL/TLS certificate issuance and renewal via webroot or DNS-01 challenges"
+msgstr "Πελάτης ACME για αυτοματοποιημένη έκδοση και ανανέωση πιστοποιητικού SSL/TLS, μέσω webroot ή DNS-01 προκλήσεις"
+
+# translated-by: libretranslate
+msgctxt "category:svc.ai:title"
+msgid "AI Services"
+msgstr "Υπηρεσίες AI"
+
+# translated-by: libretranslate
+msgctxt "menu:Artificial Intelligence:description"
+msgid "AI tools and frameworks for running, managing, and experimenting with models."
+msgstr "Εργαλεία και πλαίσια AI για την εκτέλεση, διαχείριση και πειραματισμό με μοντέλα."
+
+# translated-by: libretranslate
+msgctxt "role:dsk-gnt-cursor:description"
+msgid "AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
+msgstr "AI-πρώτος επεξεργαστής κώδικα εγκατεστημένος στο σταθμό εργασίας, του οποίου το τελικό σημείο παράκαμψης παραμένει ένα βήμα χειριστή"
+
+# translated-by: libretranslate
+msgctxt "menu:Server Administration:description"
+msgid "Administration Tools für servers"
+msgstr "Εργαλεία διαχείρισης για εξυπηρετητές"
+
+# translated-by: libretranslate
+msgctxt "category:dsk.gnt:title"
+msgid "Agents"
+msgstr "Πράκτορες"
+
+# translated-by: libretranslate
+msgctxt "role:sys-front-inj-all:description"
+msgid "Aggregate NGINX sub-filter injector adding Matomo tracking, global theming, iFrame and JS snippets by feature flag"
+msgstr "Συγκεντρωτικός εγχυτήρας φίλτρου NGINX που προσθέτει Matomo tracking, global theming, iFrame και JS snippets από τη σημαία χαρακτηριστικό"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-gnome:description"
+msgid "Aggregate desktop environment bundling caffeine, shell extensions, and terminal into a complete GNOME setup on Linux"
+msgstr "Συγκεντρωτικό περιβάλλον επιφάνειας εργασίας που δεσμεύει καφεΐνη, επεκτάσεις κελύφους και τερματικό σε μια ολοκληρωμένη ρύθμιση GNOME στο Linux"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.alm:title"
+msgid "Alerting"
+msgstr "Ειδοποίηση"
+
+# translated-by: libretranslate
+msgctxt "menu:Analytics:title"
+msgid "Analytics"
+msgstr "Αναλυτικοί"
+
+# translated-by: libretranslate
+msgctxt "role:sys-token-store:description"
+msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
+msgstr "Ευέλικτος ρόλος βοηθού για ευφυή επιμονή και αναζήτηση των σημείων εφαρμογής ανά χρήστη σε τοπικό κατάστημα YAML"
+
+# translated-by: libretranslate
+msgctxt "category:web.app:title"
+msgid "Applications"
+msgstr "Εφαρμογές"
+
+# translated-by: libretranslate
+msgctxt "menu:Sales:description"
+msgid "Applications for e-commerce, ticketing, and sales management."
+msgstr "Αιτήσεις για ηλεκτρονικό εμπόριο, έκδοση εισιτηρίων και διαχείριση πωλήσεων."
+
+# translated-by: libretranslate
+msgctxt "role:drv-epson-multiprinter:description"
+msgid "Arch Linux driver bundle for Epson multifunction printing and scanning via escpr and imagescan"
+msgstr "Δέσμη οδηγών Arch Linux για εκτύπωση και σάρωση πολλαπλών λειτουργιών Epson μέσω escpr και imagescan"
+
+# translated-by: libretranslate
+msgctxt "menu:Artificial Intelligence:title"
+msgid "Artificial Intelligence"
+msgstr "Τεχνητή Νοημοσύνη"
+
+# translated-by: libretranslate
+msgctxt "menu:Asset Management:title"
+msgid "Asset Management"
+msgstr "Διαχείριση περιουσιακών στοιχείων"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-rpr-container-soft:description"
+msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
+msgstr "Αυτοματοποιημένη υπηρεσία ανάκτησης που επανεκκινεί εξερχόμενη ή ανθυγιεινή Docker Compose στοίβα και επίλυση συγκρούσεων λιμένων"
+
+# translated-by: libretranslate
+msgctxt "role:sys-dns-hetzner-rdns:description"
+msgid "Automation role for reverse DNS (PTR) records on Hetzner Cloud servers, primary IPs, floating IPs, and load balancers"
+msgstr "Ρόλος αυτοματοποίησης για το αντίστροφο DNS (PTR) αρχεία σε εξυπηρετητές Hetzner Cloud, πρωτεύοντα IPs, πλωτά IPs και ισοσταθμιστές φορτίου"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.bkp:title"
+msgid "Backup & Restore"
+msgstr "Δημιουργία αντιγράφων ασφαλείας και επαναφορά"
+
+# translated-by: libretranslate
+msgctxt "category:svc.bkp:title"
+msgid "Backup Services"
+msgstr "Υπηρεσίες αντιγράφων ασφαλείας"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.bkp:description"
+msgid "Backup strategies & restore procedures"
+msgstr "Στρατηγικές αντιγράφων ασφαλείας & διαδικασίες αποκατάστασης"
+
+# translated-by: libretranslate
+msgctxt "role:dev-core:description"
+msgid "Base development environment for software engineers on Linux, with core editors and language-agnostic tooling"
+msgstr "Βασικό περιβάλλον ανάπτυξης για μηχανικούς λογισμικού στο Linux, με βασικούς συντάκτες και γλωσσοαγνωστικό εργαλείο"
+
+# translated-by: libretranslate
+msgctxt "role:sys-daemon:description"
+msgid "Base role for systemd manager configuration via drop-ins, default settings, and unit validation"
+msgstr "Βασικός ρόλος για τις ρυθμίσεις του διαχειριστή μέσω drop-in, προεπιλεγμένες ρυθμίσεις και επικύρωση μονάδας"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-roulette-wheel:description"
+msgid "Browser-based spinning wheel app for decision making, random selection, and gamification"
+msgstr "Εφαρμογή περιστρεφόμενου τροχού με βάση τον περιηγητή για λήψη αποφάσεων, τυχαία επιλογή και ομοιομορφία"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-litellm:description"
+msgid "Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy"
+msgstr "Διεπαφή διαχείρισης με το πρόγραμμα περιήγησης για την κοινή πύλη LLM, δημοσιευμένη στο δικό της τομέα πίσω από το μπροστινό διαμεσολαβητή"
+
+# translated-by: libretranslate
+msgctxt "role:dev-fakeroot:description"
+msgid "Build-time tool for simulating root-owned file operations without elevated privileges during package builds"
+msgstr "Εργαλείο κατασκευής χρόνου για προσομοίωση λειτουργιών αρχείων που ανήκουν στη ρίζα χωρίς αυξημένα δικαιώματα κατά τη διάρκεια των κατασκευών πακέτων"
+
+# translated-by: libretranslate
+msgctxt "category:svc.runner:title"
+msgid "CI Runner"
+msgstr "CI Runner"
+
+# translated-by: libretranslate
+msgctxt "role:svc-db-typesense:description"
+msgid "Central Dockerized search engine shared by multiple apps with per-consumer scoped API keys"
+msgstr "Κεντρική Dockerized μηχανή αναζήτησης που μοιράζεται από πολλαπλές εφαρμογές με ανά-καταναλωτή scopeed κλειδιά API"
+
+# translated-by: libretranslate
+msgctxt "role:svc-ai-tika:description"
+msgid "Central document extraction engine that turns uploaded files into text for retrieval-augmented chat"
+msgstr "Κεντρική μηχανή εξαγωγής εγγράφου που μετατρέπει τα αρχεία που έχουν φορτωθεί σε κείμενο για την επαναχρησιμοποίηση συνομιλίας"
+
+# translated-by: libretranslate
+msgctxt "menu:Help:description"
+msgid "Central help resources, including documentation, support tools, and guidance."
+msgstr "Κεντρικόι πόροι βοήθειας, συμπεριλαμβανομένης της τεκμηρίωσης, εργαλείων υποστήριξης και καθοδήγησης."
+
+# translated-by: libretranslate
+msgctxt "role:svc-db-memcached:description"
+msgid "Central in-memory caching engine with per-consumer key-prefix isolation, usable centrally or as an embedded sidecar"
+msgstr "Κεντρικός κινητήρας χύτευσης σε μνήμη με απομόνωση ανά καταναλωτή-πρόθεμα, που μπορεί να χρησιμοποιηθεί κεντρικά ή ως ενσωματωμένο πλευρικό όχημα"
+
+# translated-by: libretranslate
+msgctxt "role:sys-service-loader:description"
+msgid "Central loader role for ordered shared-service preloading and queued post-load role inclusions across the deployment"
+msgstr "Κεντρικός ρόλος φορτωτή για τις παραγγελίες της κοινής υπηρεσίας προφόρτωσης και των καταχωρίσεων των roleόλων μετά τη φόρτωση σε αναμονή σε όλη την ανάπτυξη"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-logout:description"
+msgid "Central logout proxy for single-action sign-out across all OIDC-connected apps, with Nginx snippets and a live status UI"
+msgstr "Κεντρικός διαμεσολαβητής αποσύνδεσης για μία ενέργεια σε όλες τις εφαρμογές που συνδέονται με το OIDC, με Nginx snippets και μια ζωντανή κατάσταση UI"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-mail:description"
+msgid "Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
+msgstr "Κεντρικό mail routing layer routing host mail μέσω Mailu, msmtp, ή ένα προαιρετικό τοπικό SMTP relay"
+
+# translated-by: libretranslate
+msgctxt "category:svc.dns:description"
+msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
+msgstr "Κινητήρες κεντρικού αναδρομικού/διαβιβαστή DNS (Unbound, κλπ.)"
+
+# translated-by: libretranslate
+msgctxt "role:svc-dns-unbound:description"
+msgid "Central recursive/forwarding DNSSEC resolver on a static IP for consumer stacks to target as their DNS"
+msgstr "Κεντρικός αναδρομικός/διαβιβαστής DNSSEC σε στατικό IP για τις στοιβάδες καταναλωτών να στοχεύουν ως DNS τους"
+
+# translated-by: libretranslate
+msgctxt "role:svc-db-elasticsearch:description"
+msgid "Central search and analytics engine with per-consumer index namespaces isolating tenants in a shared Docker deployment"
+msgstr "Κινητήρας κεντρικής αναζήτησης και ανάλυσης με χώρους ονομάτων ανά καταναλωτή"
+
+# translated-by: libretranslate
+msgctxt "role:svc-db-qdrant:description"
+msgid "Central vector database engine for storing and searching per-consumer embeddings shared across the stack"
+msgstr "Κεντρική μηχανή βάσης δεδομένων διανύσματος για την αποθήκευση και την αναζήτηση ενσωμάτωσης ανά καταναλωτή που μοιράζονται σε όλη τη στοίβα"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-rdbms:description"
+msgid "Centralized MariaDB or PostgreSQL database service shared across applications via Docker Compose"
+msgstr "Κεντρικά MariaDB ή PostgreSQL υπηρεσία βάσης δεδομένων που μοιράζεται σε εφαρμογές μέσω Docker Compose"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-certs:description"
+msgid "Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
+msgstr "Υπηρεσία ACME με βάση το Certbot για τα Πιστοποιητικά TLS μιας κάρτας σε τομείς NGINX"
+
+# translated-by: libretranslate
+msgctxt "logout:checking"
+msgid "Checking your other sessions…"
+msgstr "Ελέγχω τις άλλες συνεδρίες σας..."
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.cln:title"
+msgid "Cleanup"
+msgstr "Καθαρισμός"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-cln-domains:description"
+msgid "Cleanup routine for deprecated domains, removing Nginx configs and revoking their Certbot certificates"
+msgstr "Καθαρισμός ρουτίνας για υποτιμημένους τομείς, αφαίρεση Nginx configs και ανάκληση πιστοποιητικών Certbot τους"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-cln-disc-space:description"
+msgid "Cleanup routine for reclaiming disk space from temp files, package caches, optional Docker data and old backups"
+msgstr "Καθαρισμός ρουτίνας για την ανάκτηση χώρου στο δίσκο από αρχεία Temp, caches πακέτων, προαιρετικά στοιχεία Docker και παλιά αντίγραφα ασφαλείας"
+
+# translated-by: libretranslate
+msgctxt "role:svc-storage-nfs-client:description"
+msgid "Client-side NFS setup for mounting a remote server export on every swarm node, with a deploy-time reachability probe"
+msgstr "Εγκατάσταση NFS πλευρά πελάτη για την τοποθέτηση ενός απομακρυσμένου διακομιστή εξαγωγής σε κάθε κόμβο σμήνος, με έναν ανιχνευτή προσιτό χρόνο ανάπτυξης"
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-wireguard-plain:description"
+msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
+msgstr "Πελάτης-side WireGuard VPN ρόλος για σταθερή συνδεσιμότητα με μια συστηματοποιημένη υπηρεσία και σενάριο που μελωδία διεπαφή MTU"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-copyq:description"
+msgid "Clipboard manager with editable history, custom actions, and scripting support"
+msgstr "Διαχείριση προχείρου με επεξεργάσιμο ιστορικό, προσαρμοσμένες ενέργειες και υποστήριξη σεναρίων"
+
+# translated-by: libretranslate
+msgctxt "menu:Cloud:title"
+msgid "Cloud"
+msgstr "Σύννεφο"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-dns:description"
+msgid "Cloudflare DNS bootstrap role for apex and wildcard A/AAAA records (and optional CAA) across a web stack's base domains"
+msgstr "Cloudflare DNS Bootstrap ρόλο για την κορυφή και Wildcard A/AAAA (και προαιρετική CAA) σε όλους τους βασικούς τομείς μιας στοίβας ιστού"
+
+# translated-by: libretranslate
+msgctxt "role:svc-registry-docker:description"
+msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
+msgstr "Σμήνος-τοπικό μητρώο εικόνας εμπορευματοκιβωτίων για την εξυπηρέτηση προσαρμοσμένων εικόνων σε κόμβους εργαζομένων Docker Swarm"
+
+# translated-by: libretranslate
+msgctxt "role:svc-registry-cache:description"
+msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
+msgstr "Σμήνος-τοπική pull-through cache για κοινές Docker Hub βάσεις-εικόνες, κοπή διπλών μεταφορών και όρια ταχύτητας"
+
+# translated-by: libretranslate
+msgctxt "category:dsk.gnt:description"
+msgid "Coding agents installed on the workstation (Claude Code, Cursor, Pi)"
+msgstr "Κωδικοποιητές εγκατεστημένοι στο σταθμό εργασίας (Claude Code, Cursor, Pi)"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-mediawiki:description"
+msgid "Collaborative wiki platform for user-driven documentation with an extensible extension ecosystem and content management"
+msgstr "Συνεργατική πλατφόρμα wiki για τεκμηρίωση με γνώμονα το χρήστη με εκτεταμένο οικοσύστημα επέκτασης και διαχείριση περιεχομένου"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-jrnl:description"
+msgid "Command-line journal application for creating and managing personal diary entries from the terminal"
+msgstr "Εφαρμογή ημερολογίου γραμμής εντολών για τη δημιουργία και διαχείριση προσωπικών καταχωρήσεων ημερολογίου από το τερματικό"
+
+# translated-by: libretranslate
+msgctxt "menu:Commerce:title"
+msgid "Commerce"
+msgstr "Εμπόριο"
+
+# translated-by: libretranslate
+msgctxt "menu:Communication:title"
+msgid "Communication"
+msgstr "Επικοινωνία"
+
+# translated-by: libretranslate
+msgctxt "menu:Community:title"
+msgid "Community"
+msgstr "Κοινότητα"
+
+# translated-by: libretranslate
+msgctxt "category:sys.front.inj:description"
+msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
+msgstr "Σύνθετοι ρόλοι εγχύσεων HTML (CSS, JS, αναχαίτιση αποσύνδεσης, ανάλυση, πλαίσιο ταμπλό) για Nginx/OpenResty μέσω sub_filter/Lua με CDN-backed περιουσιακά στοιχεία."
+
+# translated-by: libretranslate
+msgctxt "role:sys-stk-full:description"
+msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
+msgstr "Σύνθετη στοίβα ρόλο bundling ένα κοντέινερ βάση δεδομένων σύστημα υποστήριξης με ένα HTTP αντιστροφή-προσέγγιση για πρόσβαση στο διαδίκτυο"
+
+# translated-by: libretranslate
+msgctxt "category:svc.swarm:title"
+msgid "Container Orchestration"
+msgstr "Ενορχήστρωση κοντέινερ"
+
+# translated-by: libretranslate
+msgctxt "category:svc.registry:title"
+msgid "Container Registries"
+msgstr "Διατάξεις εμπορευματοκιβωτίων"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-container:description"
+msgid "Container engine runtime with Compose for building and running application containers on Linux hosts"
+msgstr "Χρόνος λειτουργίας μηχανής εμπορευματοκιβωτίων με σύνθεση για την κατασκευή και εκτέλεση εμπορευματοκιβωτίων εφαρμογών σε Linux hosts"
+
+# translated-by: libretranslate
+msgctxt "role:svc-swarm-node:description"
+msgid "Container orchestration cluster for scheduling services across pooled manager and worker nodes"
+msgstr "Συγκρότημα ενορχήστρωσης εμπορευματοκιβωτίων για υπηρεσίες προγραμματισμού σε συγκεντρωτικούς κόμβους διαχείρισης και εργαζομένων"
+
+# translated-by: libretranslate
+msgctxt "category:svc.registry:description"
+msgid "Container-registry services - local registry and pull-through cache."
+msgstr "Υπηρεσίες μεταφοράς εμπορευματοκιβωτίων - τοπικό μητρώο και pull-through cache."
+
+# translated-by: libretranslate
+msgctxt "role:web-app-navigator:description"
+msgid "Containerized Reveal.js slide deck for presenting the platform to admins, developers, users, and investors"
+msgstr "Δεξαμενές Reveal.js slide deck για την παρουσίαση της πλατφόρμας σε διαχειριστές, προγραμματιστές, χρήστες και επενδυτές"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-simpleicons:description"
+msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
+msgstr "Διακομιστής εικονιδίων Containerized για τη φιλοξενία της συλλογής SVG και PNG της Simple Icons για χρήση μέσω ιστού και τεκμηρίωσης"
+
+# translated-by: libretranslate
+msgctxt "role:svc-db-postgres:description"
+msgid "Containerized relational database with automated database, user, and privilege provisioning"
+msgstr "Συνδεδεμένη σχεσιακή βάση δεδομένων με αυτοματοποιημένη βάση δεδομένων, χρήστη και παροχή προνομίων"
+
+# translated-by: libretranslate
+msgctxt "menu:Content Management:title"
+msgid "Content Management"
+msgstr "Διαχείριση περιεχομένου"
+
+# translated-by: libretranslate
+msgctxt "menu:Content Management:description"
+msgid "Content Management Systems (CMS) and web publishing platforms"
+msgstr "Συστήματα διαχείρισης περιεχομένου (CMS) και πλατφόρμες δημοσίευσης ιστοσελίδων"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-wordpress:description"
+msgid "Content management system for building and managing websites, blogs, and multisite networks with themes and plugins"
+msgstr "Σύστημα διαχείρισης περιεχομένου για την κατασκευή και διαχείριση ιστοσελίδων, blogs και πολυχώρων δικτύων με θέματα και plugins"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl:title"
+msgid "Control"
+msgstr "Έλεγχος"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl:description"
+msgid "Control layer for system lifecycle management—handling cleanup, monitoring, backups, alerting, maintenance, and repair tasks."
+msgstr "Στρώμα ελέγχου για τη διαχείριση του κύκλου ζωής του συστήματος— χειρισμό καθαρισμού, παρακολούθησης, αντιγράφων ασφαλείας, συναγερμού, συντήρησης, και επισκευών εργασίες."
+
+# translated-by: libretranslate
+msgctxt "category:svc.ai:description"
+msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
+msgstr "Core AI building blocks— model service, OpenAI-συμβατές πύλες, βάσεις δεδομένων φορέων, ενορχήστρωση και συνομιλία UIs."
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-webserver-core:description"
+msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
+msgstr "Κεντρικός εξυπηρετητής ιστού NGINX με υποστήριξη ρεύματος HTTP και TCP/UDP και προεπιλεγμένες επιδόσεις"
+
+# translated-by: libretranslate
+msgctxt "logout:no_check"
+msgid "Could not check your other sessions."
+msgstr "Αδυναμία ελέγχου των άλλων συνεδριών σας."
+
+# translated-by: libretranslate
+msgctxt "logout:stalled"
+msgid "Could not confirm every sign-out."
+msgstr "Αδυναμία επιβεβαίωσης κάθε υπογραφής."
+
+# translated-by: libretranslate
+msgctxt "role:dev-nix:description"
+msgid "Cross-distribution installer for the Nix package manager with checksum-verified, reproducible multi-user setup"
+msgstr "Εγκαταστάτης πολλαπλής διανομής για το διαχειριστή πακέτων Nix με έλεγχο επιβεβαιωμένο, αναπαραγώγιμο σύστημα πολλαπλών χρηστών"
+
+# translated-by: libretranslate
+msgctxt "role:sys-cleanup:description"
+msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
+msgstr "Διανομή ρουτίνα συντήρησης για την αποκατάσταση δίσκων σε CI, δοχείο, και να οικοδομήσουμε περιβάλλοντα"
+
+# translated-by: libretranslate
+msgctxt "menu:Customer Relationship:title"
+msgid "Customer Relationship"
+msgstr "Σχέση πελάτη"
+
+# translated-by: libretranslate
+msgctxt "menu:Customer Relationship:description"
+msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
+msgstr "Διαχείριση σχέσεων πελατών (CRM) λογισμικό για τη διαχείριση των σχέσεων των πελατών, τους αγωγούς πωλήσεων, το μάρκετινγκ και τις δραστηριότητες υποστήριξης."
+
+# translated-by: libretranslate
+msgctxt "category:sys.dns:title"
+msgid "DNS Automation"
+msgstr "Αυτοματοποίηση DNS"
+
+# translated-by: libretranslate
+msgctxt "category:svc.dns:title"
+msgid "DNS Resolvers"
+msgstr "Διαλύτες DNS"
+
+# translated-by: libretranslate
+msgctxt "category:sys.dns:description"
+msgid "DNS providers, records, and rDNS management (Cloudflare, Hetzner, etc.)."
+msgstr "Παροχείς DNS, αρχεία και διαχείριση rDNS (Cloudflare, Hetzner, κ.λπ.)."
+
+# translated-by: libretranslate
+msgctxt "role:sys-dns-cloudflare-records:description"
+msgid "Data-driven role for managing Cloudflare DNS records (A/AAAA, CNAME, MX, TXT, SRV) across apps and environments"
+msgstr "Ρόλος με βάση τα δεδομένα για τη διαχείριση αρχείων DNS Cloudflare (A/AAAA, CNAME, MX, TXT, SRV) σε εφαρμογές και περιβάλλοντα"
+
+# translated-by: libretranslate
+msgctxt "category:svc.db:description"
+msgid "Database applications (DBMS, LDAP, Redis, etc.)"
+msgstr "Εφαρμογές βάσεων δεδομένων (DBMS, LDAP, Redis κ.λπ.)"
+
+# translated-by: libretranslate
+msgctxt "category:svc.db:title"
+msgid "Databases"
+msgstr "Βάσεις δεδομένων"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-peertube:description"
+msgid "Decentralized, federated platform for peer-to-peer video hosting, streaming, and live broadcasting"
+msgstr "Αποκεντρωμένη, τροφοδοτημένη πλατφόρμα για peer-to-peer φιλοξενία βίντεο, streaming, και ζωντανή μετάδοση"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-pixelfed:description"
+msgid "Decentralized, federated platform for photo sharing and image feeds across the fediverse"
+msgstr "Αποκεντρωμένη, τροφοδοτημένη πλατφόρμα για την ανταλλαγή φωτογραφιών και εικόνων σε όλο το fediverse"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-friendica:description"
+msgid "Decentralized, federated social-networking platform for peer-to-peer communication and community building"
+msgstr "Αποκεντρωμένη, ομοσπονδιακή πλατφόρμα κοινωνικής δικτύωσης για την επικοινωνία μεταξύ ομοτίμων και την οικοδόμηση κοινοτήτων"
+
+# translated-by: libretranslate
+msgctxt "role:user-administrator:description"
+msgid "Dedicated administrator account with SSH key access and password-authenticated sudo for secure privilege escalation"
+msgstr "Ειδικός λογαριασμός διαχειριστή με πρόσβαση κλειδιού SSH και sudo με κωδικό πρόσβασης για ασφαλή κλιμάκωση προνομίων"
+
+# translated-by: libretranslate
+msgctxt "role:user-backup:description"
+msgid "Dedicated system account with SSH-restricted commands and passwordless rsync sudo for secure backup access"
+msgstr "Αφιερωμένος λογαριασμός συστήματος με εντολές με περιορισμό SSH και χωρίς κωδικό πρόσβασης rsync sudo για ασφαλή εφεδρική πρόσβαση"
+
+# translated-by: libretranslate
+msgctxt "role:sys-service-terminator:description"
+msgid "Deferred-start orchestrator for enabling and starting collected systemd services once a play completes"
+msgstr "Αναβαλλόμενος-έναρξη ενορχηστρωτής για την ενεργοποίηση και την έναρξη συλλεγόμενων συστηματοποιημένων υπηρεσιών μόλις ολοκληρωθεί ένα παιχνίδι"
+
+# translated-by: libretranslate
+msgctxt "category:web.app:description"
+msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
+msgstr "Αναπτυξιακές εφαρμογές ιστού (GitLab, Nextcloud, Mastodon, κ.λπ.)"
+
+# translated-by: libretranslate
+msgctxt "category:dsk:title"
+msgid "Desktop"
+msgstr "Επιφάνεια εργασίας"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-spotify:description"
+msgid "Desktop client for streaming music, playlists, and podcasts"
+msgstr "Πελάτης επιφάνειας εργασίας για streaming μουσική, λίστες αναπαραγωγής και podcasts"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-nextcloud:description"
+msgid "Desktop client setup linking home folders into the cloud-synced directory for integrated file synchronization"
+msgstr "Εγκατάσταση πελάτη επιφάνειας εργασίας που συνδέει τους αρχικούς φακέλους με τον κατάλογο cloud-synced για ενσωματωμένο συγχρονισμό αρχείων"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-gnome-extensions:description"
+msgid "Desktop config role for activating GNOME Shell extensions and installing a CLI tool to manage them"
+msgstr "Ρόλος ρύθμισης επιφάνειας εργασίας για ενεργοποίηση του GNOME Shell επεκτάσεις και εγκατάσταση ενός εργαλείου CLI για τη διαχείριση τους"
+
+# translated-by: libretranslate
+msgctxt "category:dsk:description"
+msgid "Desktop environment roles & apps (GNOME, browser, LibreOffice, etc.)"
+msgstr "Ρόλοι περιβάλλοντος επιφάνειας εργασίας & εφαρμογές (GNOME, περιηγητής, LibreOffice, κλπ.)"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-bluray-player:description"
+msgid "Desktop media-player setup with VLC and AACS/BD+ libraries for Blu-ray disc decryption and playback on Arch Linux"
+msgstr "Εγκατάσταση μέσων-παίκτη Desktop με βιβλιοθήκες VLC και AACS/BD+ για αποκρυπτογράφηση δίσκων Blu-ray και αναπαραγωγή στο Arch Linux"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-libreoffice:description"
+msgid "Desktop office suite for documents, spreadsheets, and presentations with Liberation fonts and language packs"
+msgstr "Σουίτα γραφείου για έγγραφα, λογιστικά φύλλα και παρουσιάσεις με γραμματοσειρές Απελευθέρωσης και πακέτα γλωσσών"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-gnome-caffeine:description"
+msgid "Desktop utility for inhibiting screen blanking and sleep, autostarted on the GNOME desktop"
+msgstr "Εργαλείο επιφάνειας εργασίας για αναστολή της διαγραφής οθόνης και του ύπνου, που ξεκίνησε αυτόματα στην επιφάνεια εργασίας του GNOME"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-zoom:description"
+msgid "Desktop video conferencing client for online meetings, webinars, and screen sharing"
+msgstr "Πελάτης τηλεδιάσκεψης Desktop για online συναντήσεις, webinars και κοινή χρήση οθόνης"
+
+# translated-by: libretranslate
+msgctxt "menu:Development:title"
+msgid "Development"
+msgstr "Ανάπτυξη"
+
+# translated-by: libretranslate
+msgctxt "menu:Development:description"
+msgid "Development and CI/CD tools"
+msgstr "Ανάπτυξη και εργαλεία CI/CD"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-seaweedfs:description"
+msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
+msgstr "Διανεμημένο S3-συμβατό κατάστημα αντικειμένων για κοινή, ανά καταναλωτή κουβά παροχή σε όλους τους ρόλους web-app"
+
+# translated-by: libretranslate
+msgctxt "role:dev-git:description"
+msgid "Distributed version control system for tracking source code changes and coordinating development work"
+msgstr "Διανεμημένο σύστημα ελέγχου έκδοσης για την παρακολούθηση των αλλαγών πηγαίου κώδικα και το συντονισμό των εργασιών ανάπτυξης"
+
+# translated-by: libretranslate
+msgctxt "role:dev-base-devel:description"
+msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
+msgstr "Δομή εργαλείων ειδικής βάσης (μεταγλωττιστές, συνδετήρες, make) για την κατάρτιση λογισμικού από την πηγή"
+
+# translated-by: libretranslate
+msgctxt "role:sys-stk-backend:description"
+msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
+msgstr "Docker σύνθεση στοίβα για κοντέινερ σχετικές βάσεις δεδομένων με backup, χρήστη, και διαχείριση αδειών"
+
+# translated-by: libretranslate
+msgctxt "category:svc.swarm:description"
+msgid "Docker Swarm cluster bootstrap and node-membership roles for multi-host service deployment."
+msgstr "Docker Swarm bootstrap και ρόλοι κόμβου-membership για την ανάπτυξη υπηρεσιών πολλαπλών host."
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-onlyoffice:description"
+msgid "Document server backend for real-time in-browser editing of documents, spreadsheets, and presentations"
+msgstr "Σύστημα υποστήριξης εξυπηρετητή εγγράφων για την επεξεργασία εγγράφων, λογιστικών φύλλων και παρουσιάσεων σε πραγματικό χρόνο in-browser"
+
+# translated-by: libretranslate
+msgctxt "menu:Documentation:title"
+msgid "Documentation"
+msgstr "Τεκμηρίωση"
+
+# translated-by: libretranslate
+msgctxt "menu:Documentation:description"
+msgid "Documentation and Wiki Applications"
+msgstr "Τεκμηρίωση και εφαρμογές Wiki"
+
+# translated-by: libretranslate
+msgctxt "role:svc-opt-keyboard-color:description"
+msgid "Driver integration for dynamic keyboard color and RGB lighting control on MSI laptops"
+msgstr "Ενσωμάτωση οδηγού για το δυναμικό χρώμα πληκτρολογίου και τον έλεγχο φωτισμού RGB σε φορητούς υπολογιστές MSI"
+
+# translated-by: libretranslate
+msgctxt "category:drv:title"
+msgid "Drivers"
+msgstr "Οδηγοί"
+
+# translated-by: libretranslate
+msgctxt "menu:Education:title"
+msgid "Education"
+msgstr "Εκπαίδευση"
+
+# translated-by: libretranslate
+msgctxt "role:svc-ai-robot:description"
+msgid "Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device"
+msgstr "Αμάξωτη πλατφόρμα ρομπότ για τον Ερμή σε μια ειδική, δικτυακή συσκευή μονούtenant"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-mcp-reconcile:description"
+msgid "End-of-play convergence of every deployed MCP client against the complete provider set"
+msgstr "Τέλος παιχνιδιού σύγκλισης κάθε αναπτυσσόμενου πελάτη MCP έναντι του πλήρους συνόλου παρόχου"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-engine:description"
+msgid "Engine-agnostic wiring layer for shared cache, queue, search, and vector engines with per-consumer provisioning"
+msgstr "Αγνωστικό στρώμα καλωδίωσης κινητήρα για κοινή λανθάνουσα μνήμη, ουρά, αναζήτηση και διανυσματικές μηχανές με παροχή ανά καταναλωτή"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-confluence:description"
+msgid "Enterprise wiki and team collaboration platform for creating, organizing, and sharing content"
+msgstr "Enterprise wiki και πλατφόρμα ομαδικής συνεργασίας για τη δημιουργία, οργάνωση και ανταλλαγή περιεχομένου"
+
+# translated-by: libretranslate
+msgctxt "menu:Events:description"
+msgid "Event and ticket management tools"
+msgstr "Εργαλεία διαχείρισης εισιτηρίων και εκδηλώσεων"
+
+# translated-by: libretranslate
+msgctxt "menu:Events:title"
+msgid "Events"
+msgstr "Γεγονότα"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-neovim:description"
+msgid "Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
+msgstr "Εκτεταμένος επεξεργαστής κειμένου γραμμής εντολών με βάση το Vim για επεξεργασία κώδικα και διαμόρφωσης με βάση το τερματικό"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-chess:description"
+msgid "Federated chess server for playing and following rule-validated games over ActivityPub across the Fediverse"
+msgstr "Ομαδοποιημένος σέρβερ σκακιού για παιχνίδι και μετά από παιχνίδια με επικύρωση κανόνα πάνω από το ActivityPub σε όλο το Fediverse"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-matrix:description"
+msgid "Federated, end-to-end-encrypted messaging platform with a web client and protocol bridges to external chat networks"
+msgstr "Federated, end-to-end-encrypted πλατφόρμα μηνυμάτων με web client και γέφυρες πρωτοκόλλου σε εξωτερικά δίκτυα συνομιλίας"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-mobilizon:description"
+msgid "Federated, self-hosted platform for organizing events and building communities and groups"
+msgstr "Ομοσπονδιακή πλατφόρμα για την οργάνωση εκδηλώσεων και την οικοδόμηση κοινοτήτων και ομάδων"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-bridgy-fed:description"
+msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
+msgstr "Ομοσπονδιακή γέφυρα που συνδέει δραστηριότητα Pub (Φεντιβέρζε), το πρωτόκολλο ΑΤ (Bluesky), και το IndieWeb"
+
+# translated-by: libretranslate
+msgctxt "menu:Finance & Accounting:title"
+msgid "Finance & Accounting"
+msgstr "Χρηματοδότηση & Λογιστική"
+
+# translated-by: libretranslate
+msgctxt "menu:Finance & Accounting:description"
+msgid "Financial and accounting software"
+msgstr "Χρηματοοικονομικό και λογιστικό λογισμικό"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-coturn:description"
+msgid "Free and open-source TURN/STUN relay server for NAT traversal in WebRTC and real-time communication"
+msgstr "Δωρεάν και ανοικτού κώδικα TURN/STUN relay server για NAT traversal στο WebRTC και επικοινωνία σε πραγματικό χρόνο"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-obs:description"
+msgid "Free and open-source desktop application for live video streaming and screen recording"
+msgstr "Δωρεάν και ανοικτή εφαρμογή για ζωντανή μετάδοση βίντεο και εγγραφή οθόνης"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-gnucash:description"
+msgid "Free and open-source desktop application for personal and small-business accounting and financial management"
+msgstr "Δωρεάν και ανοικτή εφαρμογή για την προσωπική και τη μικρή επιχείρηση λογιστική και οικονομική διαχείριση"
+
+# translated-by: libretranslate
+msgctxt "role:sys-front-inj-dashboard:description"
+msgid "Front-end JS injection notifying parent windows of iframe location changes and forcing external links into new tabs"
+msgstr "Εμπρός JS εγχύσεων ειδοποιώντας μητρικά παράθυρα της τοποθεσίας iframe αλλαγές και αναγκάζοντας εξωτερικούς συνδέσμους σε νέες καρτέλες"
+
+# translated-by: libretranslate
+msgctxt "role:sys-stk-front-base:description"
+msgid "Front-layer base for web apps: HTTPS foundation, optional Cloudflare setup, and reverse-proxy handler wiring"
+msgstr "Εμπρόσθια βάση για εφαρμογές web: HTTPS foundation, προαιρετική ρύθμιση Cloudflare, και καλωδίωση χειριστή αντίστροφης προσέγγισης"
+
+# translated-by: libretranslate
+msgctxt "category:sys.front:description"
+msgid "Frontend helpers for reverse-proxied apps (injection, shared assets, CDN plumbing)."
+msgstr "Βοηθοί του περιβάλλοντος για εφαρμογές με αντίστροφη προσέγγιση (έγχυση, κοινόχρηστα περιουσιακά στοιχεία, υδραυλικά CDN)."
+
+# translated-by: libretranslate
+msgctxt "menu:Games:title"
+msgid "Games"
+msgstr "Παιχνίδια"
+
+# translated-by: libretranslate
+msgctxt "menu:Games:description"
+msgid "Gaming platforms and entertainment applications."
+msgstr "Πλατφόρμες παιχνιδιών και εφαρμογές ψυχαγωγίας."
+
+# translated-by: libretranslate
+msgctxt "category:gen:title"
+msgid "Generic"
+msgstr "Γενικά"
+
+# translated-by: libretranslate
+msgctxt "role:test-e2e-playwright:description"
+msgid "Generic end-to-end test runner executing role-provided Playwright specs in Docker against deployed applications"
+msgstr "Γενικευμένες προδιαγραφές end-to-end test runner εκτέλεσης roleόλων που παρέχονται από το Playwright στο Docker κατά των χρησιμοποιούμενων εφαρμογών"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-dotlinker:description"
+msgid "Generic role installing the doli CLI and applying dotfile symlink mappings passed in by other roles"
+msgstr "Γενικός ρόλος εγκατάστασης του Doli CLI και εφαρμογή χαρτογραφήσεων symlink dotfile που περνούν από άλλους ρόλους"
+
+# translated-by: libretranslate
+msgctxt "role:sys-front-inj-javascript:description"
+msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
+msgstr "Global JavaScript στρώμα εγχύσεων για απαντήσεις HTML NGINX μέσω sub_filter, με hashing CSP"
+
+# translated-by: libretranslate
+msgctxt "role:sys-front-inj-css:description"
+msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
+msgstr "Παγκόσμια ένεση φύλλου στυλ για εφαρμογές που εξυπηρετούνται από το NGINX, ενοποιώντας το φως και το σκούρο θέμα από ένα δυναμικό σχήμα χρωμάτων"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-sshd:description"
+msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
+msgstr "Οι ρυθμίσεις δαίμονα OpenSSH Hardened για απομακρυσμένη πρόσβαση με σύνδεση root και ταυτοποίηση κωδικού πρόσβασης απενεργοποιήθηκαν"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-chromium:description"
+msgid "Hardened desktop web browser with enforced privacy and password-manager extensions via Enterprise Policies"
+msgstr "Hardened desktop web browser με την επιβολή της ιδιωτικότητας και τις επεκτάσεις κωδικού πρόσβασης-διαχειριστή μέσω Enterprise Πολιτικές"
+
+# translated-by: libretranslate
+msgctxt "role:svc-ai-lmstudio:description"
+msgid "Headless local model server for open LLMs with an OpenAI-compatible API on the container network"
+msgstr "Ακέφαλος τοπικός εξυπηρετητής μοντέλων για ανοικτά LLM με ένα API συμβατό με OpenAI στο δίκτυο εμπορευματοκιβωτίων"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-hlth-volumes:description"
+msgid "Health check for orphaned anonymous Docker volumes unbound to containers, with whitelist and alerting"
+msgstr "Έλεγχος υγείας για ορφανούς ανώνυμους όγκους Docker που δεν είναι συνδεδεμένοι σε δοχεία, με whitelist και ειδοποίηση"
+
+# translated-by: libretranslate
+msgctxt "menu:Help:title"
+msgid "Help"
+msgstr "Βοήθεια"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-compose-ca:description"
+msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
+msgstr "Βοηθητικό ρόλο εγκατάσταση CA-trust injection στοιχεία ενεργητικού για Docker Compose στοίβα και επικύρωση του πιστοποιητικού CA έργου"
+
+# translated-by: libretranslate
+msgctxt "category:gen:description"
+msgid "Helper roles & installers (git, locales, timer, etc.)"
+msgstr "Help βοηθού & εγκαταστάτες (git, locales, χρονόμετρο, κ.λπ.)"
+
+# translated-by: libretranslate
+msgctxt "menu:Tools:description"
+msgid "Helpful Tools"
+msgstr "Βοηθητικά Εργαλεία"
+
+# translation-refused: libretranslate protected-span
+# nocheck: url
+# translation-rejected: Αποθήκευση υψηλής απόδοσης, αυτόνομες λύσεις για τη
+# διαχείριση, κλιμάκωση και πρόσβαση σε μη δομημένα δεδομένα —
+# συμπεριλαμβανομένης της αποθήκευσης αντικειμένων συμβατών με την Amazon S3
+# APIs (στα Αγγλικά).
+msgctxt "menu:Storage:description"
+msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
+msgstr ""
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-wireguard-core:description"
+msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
+msgstr "WireGuard VPN σε επίπεδο υποδοχής με wg-γρήγορο config, εγκατάσταση πακέτων και IP-προωθώντας το σύστημα για ασφαλείς σήραγγες"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-journalctl:description"
+msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
+msgstr "Διαμόρφωση επιπέδου υπολογιστή για τον δαίμονα καταγραφής του συστήματος με όρια διατήρησης και ζωντανή ροή καταγραφής"
+
+# translated-by: libretranslate
+msgctxt "role:dev-shell:description"
+msgid "Host-level configuration linking Bash and Zsh login shells to a shared .profile for consistent environment loading"
+msgstr "Διαμόρφωση επιπέδου υποδοχής που συνδέει τα κελύφη σύνδεσης Bash και Zsh με ένα κοινό .profile για συνεπή φόρτωση περιβάλλοντος"
+
+# translated-by: libretranslate
+msgctxt "role:sys-version:description"
+msgid "Host-level provisioning for exposing the project's pyproject.toml version system-wide via /etc/environment"
+msgstr "Πρόβλεψη επιπέδου υποδοχής για την έκθεση του έργου pyproject.toml σύστημα έκδοσης μέσω /etc/environment"
+
+# translated-by: libretranslate
+msgctxt "role:user-root:description"
+msgid "Host-level role provisioning a root RSA 4096-bit SSH key pair for secure automated administrative access"
+msgstr "Ρόλος επιπέδου υποδοχής που παρέχει μια ρίζα RSA 4096-bit ζεύγος κλειδιών SSH για ασφαλή αυτοματοποιημένη διοικητική πρόσβαση"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-openbao:description"
+msgid "Identity-based secrets, PKI and encryption manager with OIDC login, group-mapped policies and static-seal auto-unseal"
+msgstr "Μυστικά με βάση την ταυτότητα, PKI και διαχειριστής κρυπτογράφησης με σύνδεση OIDC, πολιτικές με ομάδα και αυτόματη αποσφράγιση στατικών σφραγίδων"
+
+# translated-by: libretranslate
+msgctxt "role:svc-db-redis:description"
+msgid "In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
+msgstr "Αποθήκευση και αποθήκευση λανθάνουσας τιμής κλειδιού, που μοιράζεται κεντρικά με την απομόνωση ACL ανά καταναλωτή ή ενσωματωμένη ως sidecar"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-docs:description"
+msgid "Infinito.Nexus documentation for the latest commit and every release, built on demand with Sphinx"
+msgstr "Infinito.Nexus τεκμηρίωση για την τελευταία δέσμευση και κάθε κυκλοφορία, που βασίζεται στη ζήτηση με Σφίγγα"
+
+# translated-by: libretranslate
+msgctxt "menu:Infrastructure:title"
+msgid "Infrastructure"
+msgstr "Υποδομές"
+
+# translated-by: libretranslate
+msgctxt "menu:Infrastructure:description"
+msgid "Infrastructure and networking tools"
+msgstr "Εργαλεία υποδομής και δικτύωσης"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-compose:description"
+msgid "Infrastructure role for managing containerized-application project structures, .env files, and lifecycle handlers"
+msgstr "Ρόλος υποδομής για τη διαχείριση των δομών του έργου, των αρχείων .env και των διαχειριστών του κύκλου ζωής"
+
+# translated-by: libretranslate
+msgctxt "role:sys-service:description"
+msgid "Infrastructure role for managing systemd service units: cleanup, deployment, timers, and shared failure diagnostics"
+msgstr "Ρόλος υποδομής για τη διαχείριση των συστηματοποιημένων μονάδων υπηρεσιών: καθαρισμός, ανάπτυξη, χρονοδιακόπτες και διαγνωστικά κοινών αποτυχιών"
+
+# translated-by: libretranslate
+msgctxt "category:svc:description"
+msgid "Infrastructure services like databases"
+msgstr "Υπηρεσίες υποδομής όπως βάσεις δεδομένων"
+
+# translated-by: libretranslate
+msgctxt "category:sys.front.inj:title"
+msgid "Injection"
+msgstr "Ένεση"
+
+# translated-by: libretranslate
+msgctxt "role:drv-intel:description"
+msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
+msgstr "Οδηγός πολυμέσων Intel VA-API για βίντεο με επιτάχυνση υλικού αποκωδικοποιεί και κωδικοποιεί σε όλες τις διανομές Linux"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-mig:description"
+msgid "Interactive graph visualization of all Infinito.Nexus roles and their dependencies for architecture transparency"
+msgstr "Διαδραστική απεικόνιση γραφήματος όλων Infinito.Nexus ρόλοι και εξαρτήσεις τους για τη διαφάνεια της αρχιτεκτονικής"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-jira:description"
+msgid "Issue and project tracking platform for software teams, with agile boards, workflows, and optional OIDC SSO"
+msgstr "Έκδοση και παρακολούθηση έργων για ομάδες λογισμικού, με ευέλικτες σανίδες, ροές εργασίας και προαιρετική OIDC SSO"
+
+# translated-by: libretranslate
+msgctxt "role:dev-nodejs:description"
+msgid "JavaScript runtime for building and running server-side applications and developer tooling"
+msgstr "JavaScript runtime για την κατασκευή και εκτέλεση εφαρμογών και εργαλείων ανάπτυξης server"
+
+# translated-by: libretranslate
+msgctxt "role:svc-ai-jupyter:description"
+msgid "Kernel backend that runs the code a chat writes, in a container instead of in the browser sandbox"
+msgstr "Σύστημα υποστήριξης πυρήνα που τρέχει τον κωδικό μια συνομιλία γράφει, σε ένα δοχείο αντί στο πρόγραμμα περιήγησης sandbox"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-hermes:description"
+msgid "Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to models through the shared LLM gateway"
+msgstr "Ο απομονωμένος παράγοντας πυρήνα εξυπηρετεί ένα συμβατό με OpenAI API, δρομολογημένο σε μοντέλα μέσω της κοινής πύλης LLM"
+
+# translated-by: libretranslate
+msgctxt "category:svc.virt:description"
+msgid "Kernel-isolating container runtimes on the container host: Kata Containers microVMs and the gVisor userspace fallback."
+msgstr "Χρόνοι λειτουργίας του δοχείου απομόνωσης πυρήνα στον ξενιστή εμπορευματοκιβωτίων: MicroVMs Kata Containers και το χώρο χρήσης gVisor fallback."
+
+# translated-by: libretranslate
+msgctxt "role:svc-virt-kata:description"
+msgid "Kernel-isolating container runtimes that sandbox untrusted workloads in a microVM or a userspace kernel"
+msgstr "Χρόνοι λειτουργίας του δοχείου απομόνωσης πυρήνα που το κιβώτιο άμμου δεν εμπιστεύεται φόρτο εργασίας σε μικροVM ή πυρήνα χώρου χρήστη"
+
+# translated-by: libretranslate
+msgctxt "role:svc-storage-nfs-server:description"
+msgid "Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts"
+msgstr "Εξυπηρετητής επιπέδου πυρήνα NFS για την εξαγωγή ενός κοινού δέντρου καταλόγου με IP-περιορισμένη πρόσβαση για κόμβους σμήνους"
+
+# translated-by: libretranslate
+msgctxt "menu:Education:description"
+msgid "Learning platforms, classroom collaboration tools, and digital education environments."
+msgstr "Εκπαιδευτικές πλατφόρμες, εργαλεία συνεργασίας στην τάξη και ψηφιακά εκπαιδευτικά περιβάλλοντα."
+
+# translated-by: libretranslate
+msgctxt "role:sys-front-tls-letsencrypt:description"
+msgid "Let's Encrypt provider for the front-facing TLS layer ensuring automated certificate issuance and presence"
+msgstr "Ας κρυπτογραφήσουμε τον πάροχο για το στρώμα TLS με μέτωπο, εξασφαλίζοντας την αυτοματοποιημένη έκδοση και παρουσία πιστοποιητικών"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-retroarch:description"
+msgid "Libretro-based frontend for emulators, game engines, and media players, with XMB and Ozone menu styles"
+msgstr "Frontend με βάση το Libretro για εξομοιωτές, μηχανές παιχνιδιών και παίκτες πολυμέσων, με στυλ μενού XMB και Ozone"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-mail-msmtp:description"
+msgid "Lightweight SMTP client and sendmail replacement for delivering mail through an external SMTP server"
+msgstr "Ελαφρύς πελάτης SMTP και αντικατάσταση email για την παράδοση αλληλογραφίας μέσω εξωτερικού εξυπηρετητή SMTP"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-gitea:description"
+msgid "Lightweight self-hosted Git service for code collaboration, version control, and repository management"
+msgstr "Ελαφριά υπηρεσία αυτο-φιλοξενούμενο Git για τη συνεργασία κώδικα, τον έλεγχο έκδοσης, και τη διαχείριση αποθετηρίου"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-nss:description"
+msgid "Local name resolution for the domains the target serves, via the myhostname NSS module"
+msgstr "Ανάλυση τοπικού ονόματος για τους τομείς που εξυπηρετεί ο στόχος, μέσω της ενότητας myhostname NSS"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ca-selfsigned:description"
+msgid "Local self-signed Root CA for issuing trust so containers accept internal TLS endpoints"
+msgstr "Τοπικά αυτο-υπογεγραμμένα Root CA για την έκδοση εμπιστοσύνης έτσι δοχεία δέχονται εσωτερικά τελικά σημεία TLS"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-keepassxc:description"
+msgid "Local-first cross-platform desktop password manager storing credentials in an encrypted KeePass-format database"
+msgstr "Τοπικός πρώτος διαχειριστής κωδικού πρόσβασης cross-platform desktop αποθηκεύοντας διαπιστευτήρια σε μια κρυπτογραφημένη βάση δεδομένων KeePass-format"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-laya:description"
+msgid "Local-first notification command center that aggregates Slack, mail and issue trackers into approvable action cards"
+msgstr "Τοπικό-πρώτο κέντρο εντολών ειδοποίησης που συγκεντρώνει Slack, ταχυδρομείο και έκδοση trackers σε έγκυρες κάρτες δράσης"
+
+# translated-by: libretranslate
+msgctxt "role:sys-lock:description"
+msgid "Locking mechanism for gating maintenance tasks until critical services stop, with configurable retry and timeout"
+msgstr "Μηχανισμός κλειδώματος για εργασίες συντήρησης gating μέχρι να σταματήσουν οι κρίσιμες υπηρεσίες, με παραμετροποιήσιμη δοκιμή και χρονικό όριο"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-mail-smtp:description"
+msgid "Loopback-only Postfix relay for lightweight outbound mail delivery via localhost when no central mail stack runs"
+msgstr "Αναμεταδότης μόνο Postfix για ελαφριά παράδοση αλληλογραφίας μέσω localhost όταν δεν τρέχει κεντρική στοίβα αλληλογραφίας"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-flowise:description"
+msgid "Low-code visual builder for creating, testing, and publishing LLM and RAG workflows as HTTP endpoints"
+msgstr "Οπτικός κατασκευαστής χαμηλού κώδικα για τη δημιουργία, δοκιμή και δημοσίευση ροών εργασίας LLM και RAG ως τελικά σημεία HTTP"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.mtn:title"
+msgid "Maintenance"
+msgstr "Συντήρηση"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.mtn:description"
+msgid "Maintenance roles for certificates, system upkeep, and recurring operational tasks."
+msgstr "Ρόλοι συντήρησης για πιστοποιητικά, συντήρηση συστήματος και επαναλαμβανόμενες επιχειρησιακές εργασίες."
+
+# translated-by: libretranslate
+msgctxt "role:svc-swarm-manager:description"
+msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
+msgstr "Σηματοδοτώντας έναν οικοδεσπότη ως κόμβο διαχείρισης Docker Swarm, με τη λογική init που έχει ανατεθεί στο svc-swarm-node"
+
+# translated-by: libretranslate
+msgctxt "menu:Marketing:title"
+msgid "Marketing"
+msgstr "Εμπορία"
+
+# translation-refused: libretranslate untranslated
+# nocheck: url
+# translation-rejected: Metasearch engine the platform questions for web
+# results without handing a user's query to a tracking search provider
+msgctxt "role:svc-ai-searxng:description"
+msgid "Metasearch engine the platform queries for web results without handing a user's query to a tracking search provider"
+msgstr ""
+
+# translated-by: libretranslate
+msgctxt "role:dsk-gnt-pi:description"
+msgid "Minimal terminal coding agent with a lazy-loading skill system, wired to the platform's own model gateway"
+msgstr "Ελαχιστοποιημένος παράγοντας κωδικοποίησης τερματικού με σύστημα δεξιοτήτων τεμπέλη, συνδεδεμένος με τη δική του πύλη μοντέλου της πλατφόρμας"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.hlth:title"
+msgid "Monitoring"
+msgstr "Παρακολούθηση"
+
+# translated-by: libretranslate
+msgctxt "role:gen-hunspell:description"
+msgid "Multi-language spell checker with configurable dictionary packs for desktop and office text editing"
+msgstr "Πολυγλωσσικός ελεγκτής ορθογραφίας με διαμορφώσιμα πακέτα λεξικών για επεξεργασία κειμένου επιφάνειας εργασίας και γραφείου"
+
+# translated-by: libretranslate
+msgctxt "role:web-opt-rdr-domains:description"
+msgid "NGINX glue role for 301 redirects from source to target domains with automatic SSL for the source hosts"
+msgstr "NGINX ρόλο κόλλα για 301 ανακατευθύνει από πηγή σε τομείς προορισμού με αυτόματο SSL για τους υπολογιστές πηγής"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-webserver-https:description"
+msgid "NGINX layer for HTTPS with Let's Encrypt ACME challenge handling, port 80 to 443 redirect, and stale vHost cleanup"
+msgstr "Στρώμα NGINX για HTTPS με τον χειρισμό πρόκλησης ACME, θύρα 80 προς 443 ανακατευθύνσεις και μπαγιάτικος καθαρισμός vHost"
+
+# translated-by: libretranslate
+msgctxt "role:web-opt-rdr-www:description"
+msgid "NGINX server blocks that permanently redirect www subdomains to their non-www apex domains"
+msgstr "Τα μπλοκ του εξυπηρετητή NGINX που ανακατευθύνουν μόνιμα το www subdomains στους μη-www apex τομείς τους"
+
+# translated-by: libretranslate
+msgctxt "role:sys-front-inj-matomo:description"
+msgid "NGINX subfilter injector adding Matomo analytics script and noscript image tracker to served HTML pages"
+msgstr "NGINX subfilter εγχυτήρας προσθήκη Matomo analytics σενάριο και noscript image tracker σε εξυπηρετούμενες σελίδες HTML"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-html:description"
+msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
+msgstr "NGINX vhost για την εξυπηρέτηση στατικών ιστοσελίδων HTML μέσω HTTPS με αυτόματη κρυπτογράφηση πιστοποιητικών"
+
+# translated-by: libretranslate
+msgctxt "role:svc-prx-openresty:description"
+msgid "NGINX-based web platform and reverse proxy with validated config reloads and Let's Encrypt integration"
+msgstr "Δικτυακή πλατφόρμα με βάση το NGINX και αντίστροφο διαμεσολαβητή με επικυρωμένες επαναφορτίσεις ρυθμίσεων και την ενσωμάτωση κρυπτογράφησης"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-legal:description"
+msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
+msgstr "NGINX-served στατική σελίδα καθιστώντας ένα νομικό αποτύπωμα (Εντυπωσιασμός) από ένα Jinja2 πρότυπο"
+
+# translated-by: libretranslate
+msgctxt "category:svc.net:title"
+msgid "Network"
+msgstr "Δίκτυο"
+
+# translated-by: libretranslate
+msgctxt "category:svc.net:description"
+msgid "Network setup (DNS, Let's Encrypt HTTP, WireGuard, etc.)"
+msgstr "setup δικτύου (DNS, ας κρυπτογραφήσουμε HTTP, WireGuard, κλπ.)"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-pihole:description"
+msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
+msgstr "Καταβόθρα δικτύου DNS για την παρεμπόδιση διαφημίσεων και ανιχνευτών σε όλες τις συσκευές, με DHCP και ένα ταμπλό διαχείρισης ιστού"
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-wireguard-firewalled:description"
+msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
+msgstr "Βοηθός δικτύωσης για iptables προώθηση και NAT masquerading ενός πελάτη WireGuard που τρέχει πίσω από NAT ή ένα τείχος προστασίας"
+
+# translated-by: libretranslate
+msgctxt "role:sys-front-inj-logout:description"
+msgid "Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
+msgstr "Νάγκινξ sub_filter JavaScript injection ανακατευθύνοντας όλες τις ενέργειες αποσύνδεσης σε ένα κεντρικό OIDC ενιαίο τελικό σημείο σύνδεσης"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-cdn:description"
+msgid "Nginx-based content delivery network for serving shared static assets to internal web applications"
+msgstr "Nginx-based δίκτυο παράδοσης περιεχομένου για την εξυπηρέτηση κοινών στατικών περιουσιακών στοιχείων σε εσωτερικές εφαρμογές web"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-mirror:description"
+msgid "Nginx-based privacy proxy that mirrors whitelisted third-party assets under a first-party domain"
+msgstr "Nginx-based proxy προστασία προσωπικών δεδομένων που καθρεφτίζει whitelisted περιουσιακά στοιχεία τρίτων στο πλαίσιο ενός τομέα πρώτου μέρους"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-asset:description"
+msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
+msgstr "Διακομιστής με βάση το Nginx για τη φιλοξενία στατικών περιουσιακών στοιχείων αντιγραφόμενων από έναν κατάλογο πηγαίου κώδικα στη διαδρομή δεδομένων ιστού"
+
+# translated-by: libretranslate
+msgctxt "role:dev-npm:description"
+msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
+msgstr "Node.js εγκατάστασης διαχείρισης πακέτων εγκατάστασης npm και προαιρετικά εκτέλεση 'npm ci' μέσα σε έναν κατάλογο έργων"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.alm:description"
+msgid "Notification handlers for system events"
+msgstr "Χειριστές ειδοποιήσεων για συμβάντα συστήματος"
+
+# translated-by: libretranslate
+msgctxt "category:update:description"
+msgid "OS & package updates"
+msgstr "Ενημέρωση OS & πακέτου"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-objstore:description"
+msgid "Object-storage layer for SeaweedFS/MinIO backend resolution and per-consumer bucket and credential provisioning"
+msgstr "Στρώμα αποθήκευσης αντικειμένων για την ανάλυση του συστήματος υποστήριξης SeaweedFS/MinIO και τον κάδο ανά καταναλωτή και την πιστοποίηση"
+
+# translated-by: libretranslate
+msgctxt "role:svc-opt-swapfile:description"
+msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
+msgstr "Αυτοματοποίηση on-target για τη δημιουργία και ενεργοποίηση swap χώρου μέσω ενός κλωνοποιημένου σεναρίου swapfile"
+
+# translated-by: libretranslate
+msgctxt "logout:open_logout"
+msgid "Open the logout page"
+msgstr "Άνοιγμα της σελίδας αποσύνδεσης"
+
+# translated-by: libretranslate
+msgctxt "logout:no_check_hint"
+msgid "Open the logout page and sign out of the remaining services yourself."
+msgstr "Ανοίξτε τη σελίδα αποσύνδεσης και υπογράψτε από τις υπόλοιπες υπηρεσίες μόνοι σας."
+
+# translated-by: libretranslate
+msgctxt "role:web-app-espocrm:description"
+msgid "Open-source CRM platform for managing sales, customer interactions, and business processes across teams"
+msgstr "Πλατφόρμα CRM ανοιχτού κώδικα για τη διαχείριση πωλήσεων, αλληλεπιδράσεων πελατών και επιχειρηματικών διαδικασιών σε ομάδες"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-suitecrm:description"
+msgid "Open-source CRM platform for sales, service, cases, and campaign management with workflow automation"
+msgstr "Πλατφόρμα ανοικτής πηγής CRM για πωλήσεις, υπηρεσίες, περιπτώσεις και διαχείριση εκστρατείας με αυτοματοποίηση ροής εργασίας"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-odoo:description"
+msgid "Open-source ERP suite for CRM, sales, accounting, inventory, HR, and website management"
+msgstr "Open-source ERP σουίτα για CRM, πωλήσεις, λογιστική, απογραφή, HR, και διαχείριση ιστοχώρου"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-checkmk:description"
+msgid "Open-source IT and application monitoring server behind SSO with native LDAP user management"
+msgstr "Ανοιχτό πηγαίο υπολογιστή και διακομιστή παρακολούθησης εφαρμογών πίσω από το SSO με μητρική διαχείριση χρηστών LDAP"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-snipe-it:description"
+msgid "Open-source IT asset management system for tracking hardware and software inventory"
+msgstr "Ανοικτό σύστημα διαχείρισης περιουσιακών στοιχείων πληροφορικής για την παρακολούθηση του υλικού και της απογραφής λογισμικού"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-kix:description"
+msgid "Open-source ITSM and helpdesk platform (OTRS fork) for ticketing, CMDB, knowledge base, and reporting"
+msgstr "Ανοιχτή πλατφόρμα ITSM και helpdesk (Πιρούνι OTRS) για την έκδοση εισιτηρίων, CMDB, βάση γνώσεων και υποβολή εκθέσεων"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-taiga:description"
+msgid "Open-source agile project management platform for Scrum, Kanban, and hybrid team workflows"
+msgstr "Πλατφόρμα διαχείρισης έργων ανοικτού κώδικα για τις ροές εργασίας Scrum, Kanban και υβριδικών ομάδων"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-jenkins:description"
+msgid "Open-source automation server for CI/CD pipelines, builds, and plugin-driven deployment workflows"
+msgstr "Διακομιστής αυτοματοποίησης ανοιχτού κώδικα για αγωγούς CI/CD, κατασκευές και ροές εργασίας ανάπτυξης με γνώμονα πρόσθετα"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-fider:description"
+msgid "Open-source community feedback platform for collecting, voting on, and prioritizing feature requests and ideas"
+msgstr "Πλατφόρμα ανατροφοδότησης της κοινότητας ανοικτού κώδικα για τη συλλογή, την ψηφοφορία και την ιεράρχηση των αιτημάτων και των ιδεών χαρακτηριστικών"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-joomla:description"
+msgid "Open-source content management system for building websites, intranets, and online applications without writing code"
+msgstr "Σύστημα διαχείρισης περιεχομένου ανοιχτού κώδικα για την κατασκευή ιστοσελίδων, ενδοδικτύων και διαδικτυακών εφαρμογών χωρίς κωδικό εγγραφής"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-qbittorrent:description"
+msgid "Open-source desktop BitTorrent client for downloading and sharing files over the BitTorrent protocol"
+msgstr "Open-source desktop BitTorrent client για λήψη και κοινή χρήση αρχείων μέσω του πρωτοκόλλου BitTorrent"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-discourse:description"
+msgid "Open-source discussion and community forum platform with moderation, notifications, and plugin support"
+msgstr "Open-source συζήτηση και πλατφόρμα φόρουμ της κοινότητας με μέτρο, ειδοποιήσεις και υποστήριξη plugin"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-shopware:description"
+msgid "Open-source ecommerce platform built on Symfony and Vue.js for building and scaling online storefronts"
+msgstr "Πλατφόρμα ηλεκτρονικού εμπορίου ανοιχτού κώδικα που χτίστηκε στο Symfony και Vue.js για κατασκευή και κλιμάκωση σε απευθείας σύνδεση καταστήματα"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-zammad:description"
+msgid "Open-source helpdesk and ticketing system for handling customer requests via email, chat, phone, and web"
+msgstr "Open-source helpdesk και το σύστημα έκδοσης εισιτηρίων για τον χειρισμό των αιτημάτων των πελατών μέσω ηλεκτρονικού ταχυδρομείου, συνομιλίας, τηλεφώνου και web"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-moodle:description"
+msgid "Open-source learning management system for creating, managing, and delivering online courses and e-learning"
+msgstr "Ανοικτό σύστημα διαχείρισης μάθησης για τη δημιουργία, διαχείριση και παροχή online μαθημάτων και ηλεκτρονική μάθηση"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-prometheus:description"
+msgid "Open-source monitoring and alerting toolkit for storing metrics as time-series data and querying them with PromQL"
+msgstr "Εργαλείο παρακολούθησης και ειδοποίησης ανοιχτού κώδικα για την αποθήκευση των μετρικών ως δεδομένων χρονοσειρών και την ερώτησή τους με PromQL"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-decidim:description"
+msgid "Open-source participatory democracy platform for public consultations, civic processes, and community voting"
+msgstr "Πλατφόρμα συμμετοχικής δημοκρατίας ανοικτού κώδικα για δημόσιες διαβουλεύσεις, διαδικασίες πολιτών και κοινοτικές εκλογές"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-mattermost:description"
+msgid "Open-source, self-hosted team messaging platform for real-time collaboration via channels, threads, and integrations"
+msgstr "Open-source, αυτο-φιλοξενούμενη πλατφόρμα μηνυμάτων ομάδας για συνεργασία σε πραγματικό χρόνο μέσω καναλιών, νημάτων και ενσωμάτωσης"
+
+# translated-by: libretranslate
+msgctxt "role:svc-ai-litellm:description"
+msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
+msgstr "OpenAI-συμβατή πύλη LLM routing a single /v1 τελικό σημείο για τοπικά και φιλοξενημένα συστήματα υποστήριξης μοντέλων με κλειδιά ανά καταναλωτή"
+
+# translated-by: libretranslate
+msgctxt "role:dev-java:description"
+msgid "OpenJDK 11 runtime and development kit for Java applications on Pacman-based systems"
+msgstr "ΆνοιγμαJDK 11 κιτ runtime και ανάπτυξης εφαρμογών Java σε συστήματα με βάση το Pacman"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-ssh:description"
+msgid "OpenSSH client package for secure remote shell access and key-based authentication"
+msgstr "Πακέτο πελατών OpenSSH για ασφαλή απομακρυσμένη πρόσβαση κελύφους και ταυτοποίηση με βάση το κλειδί"
+
+# translated-by: libretranslate
+msgctxt "category:svc.opt:description"
+msgid "Optimation Services to improve your system"
+msgstr "Υπηρεσίες Βελτιστοποίησης για τη βελτίωση του συστήματός σας"
+
+# translated-by: libretranslate
+msgctxt "role:dev-gcc:description"
+msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
+msgstr "Βελτιστοποίηση αλυσίδας εργαλείων μεταγλωττιστών για την κατασκευή C, C++, και άλλα προγράμματα εγγενών γλωσσών"
+
+# translated-by: libretranslate
+msgctxt "role:sys-stk-front-proxy:description"
+msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
+msgstr "Περιτύλιγμα ενορχήστρωσης για ανά τομέα NGINX παροχή με πιστοποιητικά TLS, vHost πρότυπα, και προαιρετική OAuth2"
+
+# translated-by: libretranslate
+msgctxt "logout:pace_tor"
+msgid "Over Tor this can take a while."
+msgstr "Πάνω από Tor αυτό μπορεί να πάρει λίγο χρόνο."
+
+# translated-by: libretranslate
+msgctxt "role:dev-make:description"
+msgid "Package installation for the GNU Make build automation tool on Arch Linux via Pacman"
+msgstr "Εγκατάσταση πακέτων για το εργαλείο αυτοματοποίησης κατασκευής GNU Make στο Arch Linux μέσω Pacman"
+
+# translated-by: libretranslate
+msgctxt "role:sys-pip:description"
+msgid "Package manager for installing and managing Python packages on the target host"
+msgstr "Διαχειριστής πακέτων για την εγκατάσταση και διαχείριση πακέτων Python στον υπολογιστή προορισμού"
+
+# translated-by: libretranslate
+msgctxt "role:svc-ai-agent-broker:description"
+msgid "Per-user Hermes and OpenClaw agents started on demand behind an OpenAI-compatible endpoint"
+msgstr "Ανά χρήστη Hermes και OpenClaw πράκτορες ξεκίνησαν κατόπιν ζήτησης πίσω από ένα συμβατό με το OpenAI τελικό σημείο"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-hlth-msmtp:description"
+msgid "Periodic health check for outbound mail delivery, sending a test message via msmtp and alerting on failure"
+msgstr "Περιοδικός έλεγχος υγείας για παράδοση εξερχόμενης αλληλογραφίας, αποστολή δοκιμαστικού μηνύματος μέσω msmtp και ειδοποίηση για αστοχία"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-ssh:description"
+msgid "Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
+msgstr "Επίμονο σύστημα SSH για υπολογιστές Wayland, με το .ssh config συγχρονισμένο από Git"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-xmpp:description"
+msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
+msgstr "role αποκόπτης θέσης για μια μελλοντική ανάπτυξη εξυπηρετητή / εμπορευματοκιβωτίων XMPP, υλοποίηση που εκκρεμεί"
+
+# translated-by: libretranslate
+msgctxt "menu:Commerce:description"
+msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
+msgstr "Πλατφόρμες για την κατασκευή και διαχείριση online καταστημάτων, καταλόγων προϊόντων και ψηφιακών καναλιών πωλήσεων — συμπεριλαμβανομένων πληρωμών, απογραφής και χαρακτηριστικών πελατών."
+
+# translated-by: libretranslate
+msgctxt "logout:keep_closed"
+msgid "Please do not close this page yet."
+msgstr "Παρακαλώ μην κλείσετε ακόμα αυτή τη σελίδα."
+
+# translated-by: libretranslate
+msgctxt "logout:keep_open"
+msgid "Please keep this page open until this is done."
+msgstr "Παρακαλώ κρατήστε αυτή τη σελίδα ανοιχτή μέχρι να τελειώσει."
+
+# translated-by: libretranslate
+msgctxt "role:svc-bkp-local-2-device:description"
+msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
+msgstr "Ρυθμιζόμενο με πρόσθετα συστήματα αντιγράφων ασφαλείας για απενεργοποιημένα στιγμιότυπα σκληρού συνδέσμου του τοπικού εφεδρικού δέντρου σε συσκευή USB που μπορεί να ανταλλαχθεί"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-firefox:description"
+msgid "Policy-managed web browser for Arch Linux desktops with auto-installed enterprise extensions"
+msgstr "Περιηγητής ιστού με διαχείριση πολιτικής για υπολογιστές Arch Linux με αυτόματες επεκτάσεις επιχειρήσεων"
+
+# translated-by: libretranslate
+msgctxt "role:drv-lid-switch:description"
+msgid "Power-aware systemd logind configuration for predictable laptop lid-close behavior across battery, AC, and docked states"
+msgstr "Συνδεδεμένες ρυθμίσεις για προβλέψιμη συμπεριφορά κλειστού λάπτοπ σε μπαταρία, AC και προσδεδεμένες καταστάσεις"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-socialhome:description"
+msgid "Privacy-first social platform for households, federating peer-to-peer over WebRTC on an embedded SQLite store"
+msgstr "Πρώτη κοινωνική πλατφόρμα προστασίας προσωπικών δεδομένων για νοικοκυριά, τροφοδοτούμενη από ομότιμους χρήστες μέσω WebRTC σε ενσωματωμένο κατάστημα SQLite"
+
+# translated-by: libretranslate
+msgctxt "role:sys-sudo:description"
+msgid "Privilege-escalation package and hardened sudoers configuration with /etc/sudoers.d drop-in support"
+msgstr "Πακέτο διαβάθμισης προνομίων και σκληρών sudoers διαμόρφωση με /etc/sudoers.d υποστήριξη πτώσης"
+
+# translated-by: libretranslate
+msgctxt "menu:Project Management:title"
+msgid "Project Management"
+msgstr "Διαχείριση Έργου"
+
+# translated-by: libretranslate
+msgctxt "menu:Project Management:description"
+msgid "Project Management Tools"
+msgstr "Εργαλεία Διαχείρισης Έργου"
+
+# translated-by: libretranslate
+msgctxt "role:drv-non-free:description"
+msgid "Proprietary GPU driver installer for Arch-based systems via mhwd nonfree hardware detection"
+msgstr "Ιδιοκτήτης εγκαταστάτης οδηγών GPU για συστήματα με βάση Arch μέσω ανίχνευσης μη ελεύθερου υλικού mhwd"
+
+# translated-by: libretranslate
+msgctxt "role:sys-dns-wildcards:description"
+msgid "Provisioning role for Cloudflare wildcard DNS records (*.parent) on parent hosts and the apex domain"
+msgstr "Πρόβλεψη του ρόλου για τα αρχεία Wildcard Cloudflare DNS (*. γονείς) στους γονικούς υπολογιστές και στον τομέα apex"
+
+# translated-by: libretranslate
+msgctxt "role:user-workstation:description"
+msgid "Provisioning role for a workstation login account with its shell dotfiles, SSH authorized keys, and environment"
+msgstr "Πρόβλεψη του ρόλου ενός λογαριασμού σύνδεσης θέσεων εργασίας με το κέλυφος dotfiles του, SSH εξουσιοδοτημένα κλειδιά, και περιβάλλον"
+
+# translated-by: libretranslate
+msgctxt "role:user:description"
+msgid "Provisioning role for per-user environment setup, managing shell dotfiles and SSH authorized_keys"
+msgstr "Πρόβλεψη ρόλου για τη ρύθμιση περιβάλλοντος ανά χρήστη, διαχείριση αρχείων κουκκίδων και SSH authorized_keys"
+
+# translated-by: libretranslate
+msgctxt "category:svc.prx:title"
+msgid "Proxy Servers"
+msgstr "Εξυπηρετητές διαμεσολαβητή"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-api:description"
+msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
+msgstr "Δημόσια REST API εξυπηρετούν τα δεδομένα roleόλων, την ιστορία και τις μεταφράσεις του Infinito.Nexus για κάθε ref πυρήνα και τα πιρούνια του"
+
+# translated-by: libretranslate
+msgctxt "role:pkgmgr:description"
+msgid "Python CLI package manager for cloning multiple code repositories and automating common Git operations"
+msgstr "Διαχειριστής πακέτων CLI Python για κλωνοποίηση αποθετηρίων πολλαπλών κωδικών και αυτοματοποίηση κοινών λειτουργιών Git"
+
+# translated-by: libretranslate
+msgctxt "role:sys-lint:description"
+msgid "Release pins for the GitHub-release lint tools the toolchain installs"
+msgstr "Οι καρφίτσες απελευθέρωσης για τα εργαλεία χνούδι απελευθέρωσης GitHub η αλυσίδα εργαλείων εγκαθιστά"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.rpr:title"
+msgid "Repair"
+msgstr "Επισκευή"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.rpr:description"
+msgid "Repair and recovery roles—handling hard/soft recovery of Docker, Btrfs balancers, and other low-level system fixes."
+msgstr "Repair επισκευής και ανάκτησης— χειρισμός σκληρής/μαλακής ανάκτησης των ισοσταθμιστών Docker, Btrfs, και άλλων χαμηλού επιπέδου διορθώσεων συστήματος."
+
+# translated-by: libretranslate
+msgctxt "role:sys-util-git-pull:description"
+msgid "Reusable Git pull primitive for shallow clones, detached-safe updates, tag pinning, and reliable change detection"
+msgstr "Επαναχρησιμοποιήσιμο Git τραβήξτε πρωτόγονο για ρηχούς κλώνους, αποσπώμενες-ασφαλείς ενημερώσεις, καρφίτσα ετικέτας, και αξιόπιστη ανίχνευση αλλαγών"
+
+# translated-by: libretranslate
+msgctxt "role:svc-ai-mcp-adapter:description"
+msgid "Reusable per-provider MCP adapter exposing a narrow allowlisted read surface"
+msgstr "Επαναχρησιμοποιήσιμος προσαρμογέας MCP ανά πάροχο εκθέτοντας μια στενή επιτρεπόμενη επιφάνεια ανάγνωσης"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-proxy:description"
+msgid "Reverse proxy front-end for Docker-hosted services with automatic TLS, WebSocket support, and per-app vHost templating"
+msgstr "Αντίστροφο proxy front-end για Docker-hosted υπηρεσίες με αυτόματη υποστήριξη TLS, WebSocket και per-app vHost templing"
+
+# translated-by: libretranslate
+msgctxt "role:sys-front-tls:description"
+msgid "Reverse-proxy TLS orchestration layer selecting Let's Encrypt, self-signed, or disabled certificate providers for Nginx"
+msgstr "Αντίστροφο στρώμα ενορχήστρωσης TLS επιλογή Ας κρυπτογραφήσουμε, αυτο-υπογράψαμε, ή απενεργοποιημένοι πάροχοι πιστοποιητικών για Nginx"
+
+# translated-by: libretranslate
+msgctxt "category:svc.prx:description"
+msgid "Reverse-proxy roles for routing and load-balancing traffic to backend services"
+msgstr "Ρόλοι αντίστροφης προσέγγισης για τη δρομολόγηση και τη εξισορρόπηση φορτίου για υπηρεσίες υποστήριξης"
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.cln:description"
+msgid "Roles for cleaning up various system resources—old backups, unused certificates, temporary files, Docker volumes, disk caches, deprecated domains, and more."
+msgstr "Ρόλοι για τον καθαρισμό διαφόρων πόρων του συστήματος—παλιά αντίγραφα ασφαλείας, αχρησιμοποίητα πιστοποιητικά, προσωρινά αρχεία, τόμοι Docker, caches δίσκων, υποτιμημένες περιοχές, και πολλά άλλα."
+
+# translated-by: libretranslate
+msgctxt "category:drv:description"
+msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
+msgstr "Ρόλοι για την εγκατάσταση και τη διαμόρφωση οδηγών συσκευών—που καλύπτουν εκτυπωτές, γραφικά, συσκευές εισόδου και άλλη περιφερειακή υποστήριξη."
+
+# translated-by: libretranslate
+msgctxt "category:web:description"
+msgid "Roles for managing web infrastructure—covering static content services and deployable web applications."
+msgstr "Ρόλοι για τη διαχείριση της διαδικτυακής υποδομής—που καλύπτουν τις υπηρεσίες στατικού περιεχομένου και τις εφαρμογές που μπορούν να αναπτυχθούν."
+
+# translated-by: libretranslate
+msgctxt "category:sys.ctl.hlth:description"
+msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
+msgstr "Ρόλοι για την παρακολούθηση του συστήματος και τους υγειονομικούς ελέγχους—συμπεριλαμβανομένων των αυτοματοποιημένων ελέγχων στυλ bot και του πυρήνα χαμηλού επιπέδου οθόνες για αρχεία καταγραφής, δοχεία, χρήση δίσκων, και πολλά άλλα."
+
+# translated-by: libretranslate
+msgctxt "role:sys-front-tls-selfsigned:description"
+msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
+msgstr "Ο πάροχος πιστοποιητικών SAN γνωρίζει ότι παράγει και αποθηκεύει πιστοποιητικά TLS με αυτοτελή υπογραφή για το εμπρόσθιο στρώμα TLS"
+
+# translated-by: libretranslate
+msgctxt "menu:Sales:title"
+msgid "Sales"
+msgstr "Πωλήσεις"
+
+# translated-by: libretranslate
+msgctxt "category:svc.virt:title"
+msgid "Sandboxed Runtimes"
+msgstr "Χρόνοι εκτέλεσης με Sandboxed"
+
+# translated-by: libretranslate
+msgctxt "role:svc-bkp-nfs-2-local:description"
+msgid "Scheduled backup job for hard-linked differential rsync snapshots of an NFS export into the local backup tree"
+msgstr "Προγραμματισμένη εργασία αντιγράφων ασφαλείας για rsync στιγμιότυπα μιας NFS εξαγωγής στο τοπικό δέντρο αντιγράφων ασφαλείας"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-cln-certs:description"
+msgid "Scheduled cleanup tool for revoking and deleting unused Let's Encrypt certificates"
+msgstr "Προγραμματισμένο εργαλείο καθαρισμού για ανάκληση και διαγραφή αχρησιμοποίητων πιστοποιητικών"
+
+# translated-by: libretranslate
+msgctxt "role:svc-bkp-secrets-2-local:description"
+msgid "Scheduled deduplicating backup of host secrets, CA, ACME credentials, and node identity to the local backup directory"
+msgstr "Προγραμματισμένη αποτύπωση αντιγράφων ασφαλείας από μυστικά host, πιστοποιητικά CA, ACME και ταυτότητα κόμβου στον τοπικό κατάλογο αντιγράφων ασφαλείας"
+
+# translated-by: libretranslate
+msgctxt "role:svc-bkp-volume-2-local:description"
+msgid "Scheduled deduplicating backup system for Docker container volumes to a local directory, with consistent SQL dumps"
+msgstr "Προγραμματισμένο σύστημα αντιγράφων ασφαλείας για όγκους εμπορευματοκιβωτίων Docker σε έναν τοπικό κατάλογο, με συνεπείς απορρίψεις SQL"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-hlth-csp:description"
+msgid "Scheduled health check crawling configured domains for CSP-blocked resources via a Puppeteer-based Node.js checker"
+msgstr "Προγραμματισμένος έλεγχος υγείας που σέρνεται διαμορφωμένοι τομείς για CSP-μπλοκαρισμένους πόρους μέσω ενός Puppeteer-based Node.js ελεγκτής"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-hlth-btrfs:description"
+msgid "Scheduled health check for Btrfs filesystems that alerts on non-zero device error counters"
+msgstr "Προγραμματισμένος έλεγχος υγείας για συστήματα αρχείων Btrfs που ειδοποιούν για μη μηδενικούς μετρητές σφαλμάτων συσκευών"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-hlth-disc-space:description"
+msgid "Scheduled health check for filesystem disk usage, alerting when any mount exceeds its warning threshold"
+msgstr "Προγραμματισμένος έλεγχος υγείας για χρήση δίσκου συστήματος αρχείων, ειδοποιώντας όταν οποιαδήποτε βάση υπερβαίνει το όριο προειδοποίησης"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-hlth-journalctl:description"
+msgid "Scheduled health check scanning the systemd journal for daily errors and alerting on matches"
+msgstr "Προγραμματισμένος έλεγχος υγείας σαρώνοντας το περιοδικό του συστήματος για καθημερινά λάθη και ειδοποιώντας για τα σπίρτα"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-hlth-webserver:description"
+msgid "Scheduled health check verifying each NGINX domain returns its expected HTTP status and alerting on deviations"
+msgstr "Προγραμματισμένος έλεγχος υγείας που επαληθεύει κάθε τομέα NGINX επιστρέφει την αναμενόμενη κατάστασή του HTTP και προειδοποιεί για αποκλίσεις"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-cln-faild-bkps:description"
+msgid "Scheduled maintenance service for detecting and removing failed Docker backups while keeping recent sets intact"
+msgstr "Προγραμματισμένη υπηρεσία συντήρησης για την ανίχνευση και την αφαίρεση αποτυχημένων αντιγράφων ασφαλείας Docker, διατηρώντας ανέπαφα τα πρόσφατα σύνολα"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-cln-anon-volumes:description"
+msgid "Scheduled maintenance task for reclaiming disk space by removing unused anonymous Docker volumes and their symlinks"
+msgstr "Προγραμματισμένη εργασία συντήρησης για την ανάκτηση χώρου στο δίσκο με την αφαίρεση αχρησιμοποίητων ανώνυμων όγκων Docker και των συμβολικών δεσμών τους"
+
+# translated-by: libretranslate
+msgctxt "role:svc-bkp-remote-2-local:description"
+msgid "Scheduled pull-style backup replicating remote hosts onto this host over SSH and rsync as hard-linked snapshots"
+msgstr "Προγραμματισμένα pull-style αντίγραφα αντιγράφων ασφαλείας απομακρυσμένων υπολογιστών σε αυτόν τον υπολογιστή πάνω από SSH και rsync ως σκληρά συνδεδεμένα στιγμιότυπα"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-cln-bkps:description"
+msgid "Scheduled systemd maintenance service for pruning outdated backup versions when disk usage exceeds a threshold"
+msgstr "Προγραμματισμένη συστηματική υπηρεσία συντήρησης για το κλάδεμα ξεπερασμένων εφεδρικών εκδόσεων όταν η χρήση του δίσκου υπερβαίνει ένα κατώφλι"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-rpr-btrfs-balancer:description"
+msgid "Scheduled systemd service and timer for rebalancing Btrfs file systems to keep storage allocation optimal"
+msgstr "Προγραμματισμένη υπηρεσία συστήματος και χρονοδιακόπτης για την επαναεξισορρόπηση συστημάτων αρχείων Btrfs για τη διατήρηση της βέλτιστης κατανομής αποθήκευσης"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-mtn-cert-renew:description"
+msgid "Scheduled systemd-timer job renewing Let's Encrypt SSL/TLS certificates via Certbot and reloading NGINX afterward"
+msgstr "Προγραμματισμένη εργασία με ρυθμισμένο χρόνο ανανέωσης Ας κρυπτογραφήσουμε τα πιστοποιητικά SSL/TLS μέσω του Certbot και επαναφόρτωση του NGINX μετά"
+
+# translated-by: libretranslate
+msgctxt "role:svc-runner:description"
+msgid "Self-hosted CI runner infrastructure for executing GitHub Actions workflow jobs in ephemeral Docker containers"
+msgstr "Υποδομή CI για την εκτέλεση εργασιών ροής εργασίας GitHub Δράσεις σε εφήμερα δοχεία Docker"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-gitlab:description"
+msgid "Self-hosted DevOps platform for Git source-code management, CI/CD pipelines, and issue tracking"
+msgstr "Αυτόνομη πλατφόρμα DevOps για τη διαχείριση πηγαίου κώδικα Git, αγωγών CI/CD, και την παρακολούθηση έκδοσης"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-fediwall:description"
+msgid "Self-hosted Fediverse wall for showing recent public posts by hashtag or account in a live masonry grid"
+msgstr "Αυτο-φιλοξενούμενος τοίχος Fediverse για την εμφάνιση πρόσφατων δημόσιων δημοσιεύσεων με hashtag ή λογαριασμό σε ένα ζωντανό πλέγμα τοιχοποιίας"
+
+# translated-by: libretranslate
+msgctxt "category:svc.runner:description"
+msgid "Self-hosted GitHub Actions runner deployment and configuration"
+msgstr "Ανάπτυξη και διαμόρφωση του δρομέα ενεργειών GitHub που φιλοξενεί τον εαυτό του"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-littlejs:description"
+msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
+msgstr "Αυτοξενούμενοι HTML5 παιχνίδι sandbox για περιήγηση και λειτουργία ελαφρύ κινητήρα demos και παιχνίδια στο πρόγραμμα περιήγησης"
+
+# translated-by: libretranslate
+msgctxt "role:svc-db-openldap:description"
+msgid "Self-hosted LDAP directory service for centralized user, group, and schema management with TLS-secured access"
+msgstr "Υπηρεσία καταλόγου LDAP για κεντρικό χρήστη, ομάδα, και διαχείριση σχήματος με TLS ασφαλισμένη πρόσβαση"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-minio:description"
+msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
+msgstr "Αυτοπροσώπευση S3-συμβατή αποθήκευση αντικειμένων για αρχεία, μέσα, αντίγραφα ασφαλείας, και AI τεχνουργήματα"
+
+# translated-by: libretranslate
+msgctxt "role:svc-ai-s1:description"
+msgid "Self-hosted System One classifier that answers typed questions so the gateway can route without generating"
+msgstr "Αυτοπροσώπως System One κατηγοριοποιητής που απαντά πληκτρολογημένες ερωτήσεις έτσι ώστε η πύλη να μπορεί να δρομολογήσει χωρίς δημιουργία"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-yourls:description"
+msgid "Self-hosted URL shortener for creating, tracking, and managing short links with built-in click analytics"
+msgstr "Self-hosted συντόμευση URL για τη δημιουργία, την παρακολούθηση και τη διαχείριση σύντομων συνδέσεων με ενσωματωμένη ανάλυση κλικ"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-jitsi:description"
+msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
+msgstr "Self-hosted WebRTC πλατφόρμα για το τέλος-to-end-encryptable βίντεο conferencing με Federated ταυτοποίηση"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-mini-qr:description"
+msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
+msgstr "Εργαλείο περιήγησης για τη δημιουργία κωδικών QR από κείμενο ή URL με φιλική προς το απόρρητο τοπική απόδοση"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-openwebui:description"
+msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
+msgstr "Αυτο-φιλοξενούμενη διεπαφή συνομιλίας για αλληλεπίδραση με τοπικά και ιδιωτικά μοντέλα AI μέσω συστημάτων υποστήριξης όπως το Ollama"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-nextcloud:description"
+msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
+msgstr "Αυτο-φιλοξενούμενη πλατφόρμα cloud για συγχρονισμό αρχείων, κοινή χρήση, σε πραγματικό χρόνο συνεργασία, και χώρους εργασίας ομάδα κάτω από το δικό σας τομέα"
+
+# translated-by: libretranslate
+msgctxt "menu:Cloud:description"
+msgid "Self-hosted cloud solutions for file synchronization, collaboration, and data sharing."
+msgstr "Αυτο-φιλοξενούμενες λύσεις cloud για συγχρονισμό αρχείων, συνεργασία και ανταλλαγή δεδομένων."
+
+# translated-by: libretranslate
+msgctxt "role:web-app-bluesky:description"
+msgid "Self-hosted decentralized social network on the open AT Protocol, with its own Personal Data Server"
+msgstr "Αυτο-φιλοξενούμενο αποκεντρωμένο κοινωνικό δίκτυο στο ανοικτό πρωτόκολλο AT, με δικό του διακομιστή προσωπικών δεδομένων"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-penpot:description"
+msgid "Self-hosted design and prototyping platform for UI/UX work, real-time collaboration, and developer handoff"
+msgstr "Αυτο-φιλοξενούμενη πλατφόρμα σχεδιασμού και prototyping για εργασία UI/UX, σε πραγματικό χρόνο συνεργασία, και developer delivery"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-magento:description"
+msgid "Self-hosted e-commerce platform for catalog management, checkout, promotions, and multi-store online retail"
+msgstr "Αυτο-φιλοξενούμενη πλατφόρμα ηλεκτρονικού εμπορίου για τη διαχείριση καταλόγων, checkout, προσφορές, και multi-store online λιανική"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-xwiki:description"
+msgid "Self-hosted enterprise wiki and knowledge-management platform with collaboration and app-based extensibility"
+msgstr "Self-hosted business wiki και πλατφόρμα διαχείρισης γνώσεων με τη συνεργασία και την επέκταση εφαρμογών"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-bookwyrm:description"
+msgid "Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
+msgstr "Αυτο-φιλοξενούμενη πλατφόρμα ανάγνωσης για κριτικές βιβλίων και την παρακολούθηση σε όλη τη Fediverse"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-mastodon:description"
+msgid "Self-hosted federated social network for microblogging, real-time timelines, and community moderation"
+msgstr "Αυτο-φιλοξενούμενο ομοσπονδιακό κοινωνικό δίκτυο για microblogging, σε πραγματικό χρόνο χρονοδιαγράμματα, και μετριοπάθεια της κοινότητας"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-keycloak:description"
+msgid "Self-hosted identity and access management platform for single sign-on, multi-factor authentication, and user federation"
+msgstr "Αυτο-φιλοξενούμενη πλατφόρμα διαχείρισης ταυτότητας και πρόσβασης για ενιαία σήμανση, πολυπαράγοντα ταυτοποίησης και ομοσπονδία χρηστών"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-n8n:description"
+msgid "Self-hosted low-code automation platform for connecting services and building workflow integrations visually"
+msgstr "Αυτο-φιλοξενούμενη πλατφόρμα αυτοματισμού χαμηλού κώδικα για τη σύνδεση υπηρεσιών και την οικοδόμηση ενσωμάτωσης ροής εργασίας οπτικά"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-mailu:description"
+msgid "Self-hosted mail server suite with SMTP/IMAP/POP3, webmail, spam filtering, antivirus, DKIM signing, and TLS"
+msgstr "Σουίτα εξυπηρετητή αλληλογραφίας με SMTP/IMAP/POP3, webmail, spam φιλτράρισμα, antivirus, υπογραφή DKIM, και TLS"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-jellyfin:description"
+msgid "Self-hosted media server for streaming and organizing movies, TV, music, and photos, with OIDC and LDAP login"
+msgstr "Self-hosted media server για streaming και οργάνωση ταινιών, τηλεόρασης, μουσικής και φωτογραφιών, με σύνδεση OIDC και LDAP"
+
+# translated-by: libretranslate
+msgctxt "role:svc-ai-ollama:description"
+msgid "Self-hosted model server for running open LLMs locally behind a simple HTTP API"
+msgstr "Αυτοξενούμενος εξυπηρετητής μοντέλων για την εκτέλεση ανοιχτών LLM τοπικά πίσω από ένα απλό HTTP API"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-baserow:description"
+msgid "Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
+msgstr "Αυτο-φιλοξενούμενη πλατφόρμα βάσης δεδομένων χωρίς κώδικα με διεπαφή όπως υπολογιστικό φύλλο για την κατασκευή και τη συνεργασία σε δεδομένα"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-collabora:description"
+msgid "Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
+msgstr "Αυτο-φιλοξενούμενο online σύστημα υποστήριξης γραφείου για την επεξεργασία εγγράφων, λογιστικών φύλλων και παρουσιάσεων σε πραγματικό χρόνο in-browser"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-erpnext:description"
+msgid "Self-hosted open-source ERP suite for finance, CRM, inventory, manufacturing, HR, sales, and projects"
+msgstr "Σουίτα ERP ανοικτού κώδικα για χρηματοοικονομικά, CRM, απογραφή, κατασκευή, HR, πωλήσεις και έργα"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-libretranslate:description"
+msgid "Self-hosted open-source machine translation API for translating and detecting text across languages"
+msgstr "Αυτο-φιλοξενούμενη μετάφραση ανοικτού κώδικα μηχάνημα API για τη μετάφραση και την ανίχνευση κειμένου σε όλες τις γλώσσες"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-openclaw:description"
+msgid "Self-hosted personal AI agent gateway with a browser control UI, sandboxed in a Kata microVM or gVisor runtime"
+msgstr "Αυτο-φιλοξενούμενη προσωπική πύλη πράκτορα AI με τον έλεγχο του προγράμματος περιήγησης UI, sandboxed in a Kata microVM or gVisor runtime"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-opencloud:description"
+msgid "Self-hosted platform for file sync, sharing, and collaboration with Keycloak SSO and central LDAP directory"
+msgstr "Αυτόνομη πλατφόρμα για συγχρονισμό αρχείων, κοινή χρήση και συνεργασία με το Keycloak SSO και τον κεντρικό κατάλογο LDAP"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-listmonk:description"
+msgid "Self-hosted platform for newsletters and mailing lists with subscriber segmentation and campaign analytics"
+msgstr "Αυτόνομη πλατφόρμα για ενημερωτικά δελτία και λίστες αλληλογραφίας με την κατάτμηση συνδρομητών και την ανάλυση καμπάνιας"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-akaunting:description"
+msgid "Self-hosted platform for online accounting, bookkeeping, and business finance management"
+msgstr "Αυτο-φιλοξενούμενη πλατφόρμα για online λογιστική, λογιστική και διαχείριση επιχειρηματικών οικονομικών"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-openproject:description"
+msgid "Self-hosted platform for project management, work-package tracking, Gantt planning, and team collaboration"
+msgstr "Αυτόνομη πλατφόρμα για τη διαχείριση του έργου, την παρακολούθηση πακέτου εργασίας, Gantt σχεδιασμό, και ομαδική συνεργασία"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-dashboard:description"
+msgid "Self-hosted portal for unified access to all deployed applications via a customizable tile and menu interface"
+msgstr "Αυτο-φιλοξενούμενη πύλη για ενιαία πρόσβαση σε όλες τις χρησιμοποιούμενες εφαρμογές μέσω μιας προσαρμόσιμης διεπαφής πλακιδίων και μενού"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-pretix:description"
+msgid "Self-hosted ticketing platform for events with online sales, registration management, and secure payments"
+msgstr "Αυτο-φιλοξενούμενη πλατφόρμα έκδοσης εισιτηρίων για εκδηλώσεις με online πωλήσεις, διαχείριση εγγραφών και ασφαλείς πληρωμές"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-bigbluebutton:description"
+msgid "Self-hosted web conferencing platform for virtual classrooms, online meetings, and real-time collaboration"
+msgstr "Self-hosted web conferencing πλατφόρμα για εικονικές αίθουσες διδασκαλίας, online συναντήσεις, και σε πραγματικό χρόνο συνεργασία"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-funkwhale:description"
+msgid "Self-hosted, federated platform for sharing, hosting, and streaming your own music and audio library"
+msgstr "Αυτο-φιλοξενούμενη, ομοσπονδιακό πλατφόρμα για την κοινή χρήση, φιλοξενία, και streaming δική σας μουσική και βιβλιοθήκη ήχου"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-matomo:description"
+msgid "Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
+msgstr "Self-hosted, privacy-first web analytics πλατφόρμα για πραγματικό χρόνο παρακολούθηση επισκεπτών και μετρήσεις site"
+
+# translated-by: libretranslate
+msgctxt "menu:Server Administration:title"
+msgid "Server Administration"
+msgstr "Διαχείριση εξυπηρετητή"
+
+# translated-by: libretranslate
+msgctxt "category:svc.opt:title"
+msgid "Service Optimation"
+msgstr "Βελτιστοποίηση υπηρεσίας"
+
+# translated-by: libretranslate
+msgctxt "category:svc.bkp:description"
+msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
+msgstr "Συνιστώσες υποστήριξης σε επίπεδο υπηρεσίας και αποκατάστασης— χειρισμός αυτόματων στιγμιότυπων δεδομένων, απομακρυσμένων αντιγράφων ασφαλείας, υπηρεσιών συγχρονισμού, και ενορχήστρωση αντιγράφων ασφαλείας σε βάσεις δεδομένων, αρχεία και δοχεία."
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-css:description"
+msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
+msgstr "Ο υπηρεσιακός-εγκληματικός ρόλος ανήκει στον κανόνα `css` σημαία και ανακατευθύνοντας το όνομα υπολογιστή CSS στο CDN ανάντη"
+
+# translated-by: libretranslate
+msgctxt "category:svc:title"
+msgid "Services"
+msgstr "Υπηρεσίες"
+
+# translated-by: libretranslate
+msgctxt "category:web.svc:title"
+msgid "Services"
+msgstr "Υπηρεσίες"
+
+# translated-by: libretranslate
+msgctxt "category:svc.storage:title"
+msgid "Shared Storage"
+msgstr "Κοινή αποθήκευση"
+
+# translated-by: libretranslate
+msgctxt "role:sys-openssl:description"
+msgid "Shared host dependency ensuring the OpenSSL CLI is installed once for roles that invoke openssl commands"
+msgstr "Κοινή εξάρτηση υποδοχής που εξασφαλίζει την εγκατάσταση του OpenSSL CLI μία φορά για ρόλους που επικαλούνται εντολές opensl"
+
+# translated-by: libretranslate
+msgctxt "role:svc-db-rabbitmq:description"
+msgid "Shared message broker for async messaging with per-consumer virtual host and user isolation"
+msgstr "Μεσίτης κοινόχρηστων μηνυμάτων για μηνύματα async με εικονικό υπολογιστή ανά καταναλωτή και απομόνωση χρήστη"
+
+# translated-by: libretranslate
+msgctxt "category:svc.storage:description"
+msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
+msgstr "Κοινά συστήματα υποστήριξης επίμονης αποθήκευσης που χρησιμοποιούνται από πολυκόμβους ανάπτυξης — NFSv4 roles σέρβερ και πελάτη."
+
+# translated-by: libretranslate
+msgctxt "role:dsk-base:description"
+msgid "Shared premise of every desktop role, the login account its files belong to"
+msgstr "Κοινή προϋπόθεση για κάθε ρόλο επιφάνειας εργασίας, ο λογαριασμός σύνδεσης τα αρχεία του ανήκουν σε"
+
+# translated-by: libretranslate
+msgctxt "role:svc-db-mariadb:description"
+msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
+msgstr "Κοινόχρηστος σχετικός εξυπηρετητής βάσεων δεδομένων για εφαρμογές που χρειάζονται κεντρική αποθήκευση SQL, τρέχει στο Docker"
+
+# translated-by: libretranslate
+msgctxt "logout:all_done"
+msgid "Signed out everywhere."
+msgstr "Υπέγραψε παντού."
+
+# translated-by: libretranslate
+#, python-brace-format
+msgctxt "logout:partial"
+msgid "Signed out, except {failed} of {total} services."
+msgstr "Υπογραφή, εκτός {failed} του {total} υπηρεσίες."
+
+# translated-by: libretranslate
+msgctxt "logout:running"
+msgid "Signing you out of your services…"
+msgstr "Υπογράφοντας εκτός υπηρεσίας..."
+
+# translated-by: libretranslate
+msgctxt "role:web-app-postmarks:description"
+msgid "Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
+msgstr "Δραστηριότητα ενός χρήστηΣύστημα σελιδοδείκτηPub που τροφοδοτεί τους δημόσιους σελιδοδείκτες στο Mastodon και το Fediverse"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-homeassistant:description"
+msgid "Smart-home automation hub with device integrations, dashboards and a built-in MCP server for AI agent access"
+msgstr "Smart-home κέντρο αυτοματισμού με ενσωματωμένες συσκευές, ταμπλό και ενσωματωμένο διακομιστή MCP για πρόσβαση πράκτορα AI"
+
+# translated-by: libretranslate
+msgctxt "menu:Social Media:title"
+msgid "Social Media"
+msgstr "Μέσα κοινωνικής δικτύωσης"
+
+# translated-by: libretranslate
+msgctxt "menu:Social Media:description"
+msgid "Social Media Tools"
+msgstr "Εργαλεία κοινωνικής δικτύωσης"
+
+# translated-by: libretranslate
+msgctxt "category:dev:title"
+msgid "Software Development Utilties"
+msgstr "Βοηθήματα ανάπτυξης λογισμικού"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-opentalk:description"
+msgid "Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
+msgstr "Κύρια πλατφόρμα τηλεδιάσκεψης ανοιχτού κώδικα για κλήσεις ήχου/βίντεο, κοινή χρήση οθόνης, αίθουσες breakout, και SSO"
+
+# translated-by: libretranslate
+msgctxt "category:sys.stk:title"
+msgid "Stack"
+msgstr "Στοίβα"
+
+# translated-by: libretranslate
+msgctxt "category:sys.stk:description"
+msgid "Stack levels to setup the server"
+msgstr "Επίπεδα στοίβας για τη ρύθμιση του εξυπηρετητή"
+
+# translated-by: libretranslate
+msgctxt "category:web.svc:description"
+msgid "Static content servers (assets, HTML, legal, files)"
+msgstr "Στατικοί εξυπηρετητές περιεχομένου (περιουσιακά στοιχεία, HTML, νομικά, αρχεία)"
+
+# translated-by: libretranslate
+msgctxt "role:web-svc-file:description"
+msgid "Static file server over HTTPS with directory listing, .well-known handling, and automatic TLS certificates"
+msgstr "Στατικός εξυπηρετητής αρχείων μέσω HTTPS με κατάλογο, .καλά γνωστό χειρισμό, και αυτόματα πιστοποιητικά TLS"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-hugo:description"
+msgid "Static site generator building HTML from an upstream Git repository at build time and serving it via nginx"
+msgstr "Στατική γεννήτρια site κτίριο HTML από ένα ανάντη Git αποθετήριο κατά την κατασκευή του χρόνου και την εξυπηρέτηση μέσω nginx"
+
+# translated-by: libretranslate
+msgctxt "menu:Storage:title"
+msgid "Storage"
+msgstr "Αποθήκευση"
+
+# translated-by: libretranslate
+msgctxt "category:sys:title"
+msgid "System"
+msgstr "Σύστημα"
+
+# translated-by: libretranslate
+msgctxt "category:sys.front:title"
+msgid "System Frontend Helpers"
+msgstr "Βοηθοί περιβάλλοντος συστήματος"
+
+# translated-by: libretranslate
+msgctxt "role:dev-locales:description"
+msgid "System configuration role for setting up and generating localesvia locale.gen and locale.conf templates"
+msgstr "Ρόλος διαμόρφωσης του συστήματος για τη δημιουργία και τη δημιουργία τοπικών κέντρων locale.gen και locale.conf πρότυπα"
+
+# translated-by: libretranslate
+msgctxt "role:sys-hostname:description"
+msgid "System hostname configuration derived from the inventory host entry"
+msgstr "configuration hostname συστήματος που προέρχεται από την καταχώρηση host απογραφής"
+
+# translated-by: libretranslate
+msgctxt "category:sys:description"
+msgid "System near components. Will be automaticly called if necessary from other roles."
+msgstr "Σύστημα κοντά σε εξαρτήματα. Θα κληθεί αυτόματα αν χρειαστεί από άλλους ρόλους."
+
+# translated-by: libretranslate
+msgctxt "role:update:description"
+msgid "System-maintenance role for refreshing the package index and upgrading installed packages via the OS package manager"
+msgstr "Ρόλος συντήρησης συστήματος για την αναζωογόνηση του δείκτη πακέτων και την αναβάθμιση εγκατεστημένων πακέτων μέσω του διαχειριστή πακέτων OS"
+
+# translated-by: libretranslate
+msgctxt "role:sys-cli:description"
+msgid "System-wide command-line interface for managing and operating the entire self-hosted platform environment from the shell"
+msgstr "Διεπαφή γραμμής εντολών σε επίπεδο συστήματος για τη διαχείριση και λειτουργία ολόκληρου του περιβάλλοντος πλατφόρμας με δυνατότητα επιλογής από το κέλυφος"
+
+# translated-by: libretranslate
+msgctxt "role:sys-pip-install:description"
+msgid "System-wide pip helper for installing or upgrading a Python package via the host's system Python"
+msgstr "Βοηθός συστήματος για εγκατάσταση ή αναβάθμιση πακέτου Python μέσω του συστήματος του υπολογιστή Python"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-mtn-cert-deploy:description"
+msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
+msgstr "Συστημένη υπηρεσία και χρονόμετρο για συγχρονισμό Docker Compose Στοίβα NGINX με ζεστό επαναφόρτωση"
+
+# translated-by: libretranslate
+msgctxt "role:sys-timer:description"
+msgid "Systemd timer unit for starting a service on a recurring calendar schedule for automated task execution"
+msgstr "Συστημένη μονάδα χρονοδιακόπτη για την εκκίνηση υπηρεσίας σε επαναλαμβανόμενο χρονοδιάγραμμα ημερολογίου για αυτοματοποιημένη εκτέλεση εργασιών"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-cln-docker:description"
+msgid "Systemd-driven cleanup service pruning anonymous Docker volumes plus images, containers, networks, and build cache"
+msgstr "Συστηματική υπηρεσία καθαρισμού κλαδέματος ανώνυμοι τόμοι Docker συν εικόνες, δοχεία, δίκτυα, και να οικοδομήσουμε cache"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-rpr-container-hard:description"
+msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
+msgstr "Συστηματοποιημένος προγραμματισμένος ρόλος συντήρησης για πλήρη Docker Compose επανεκκίνηση στοίβας, με σκληρή επανεκκίνηση για στοίβες όπως Mailu"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-hlth-container:description"
+msgid "Systemd-timed monitor for detecting unhealthy or non-zero-exited Docker containers and raising failure alerts"
+msgstr "Συστημένη χρονομετρημένη οθόνη για την ανίχνευση ανθυγιεινών ή μη εξερχόμενων εμπορευματοκιβωτίων Docker και την αύξηση των σημάτων αστοχίας"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-alm-email:description"
+msgid "Systemd-triggered msmtp notifier for emailing operators when a monitored service unit fails"
+msgstr "Εντοπιστής msmtp με ενεργοποίηση συστήματος για τους χειριστές email όταν μια ελεγχόμενη μονάδα εξυπηρέτησης αποτυγχάνει"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-alm-telegram:description"
+msgid "Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"
+msgstr "Γνωστοποιητής ενεργοποιημένος με σύστημα για την παροχή καταχωρίσεων αποτυχίας υπηρεσίας σε συνομιλία Telegram"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-gnt-claude:description"
+msgid "Terminal coding agent from Anthropic, pointed at the platform's own model gateway instead of the vendor API"
+msgstr "Παράγοντας κωδικοποίησης τερματικού από το Anthropic, που δείχνει τη δική του πύλη μοντέλο της πλατφόρμας αντί του πωλητή API"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-gnt-codex:description"
+msgid "Terminal coding agent from OpenAI, pointed at the platform's own model gateway instead of the vendor API"
+msgstr "Παράγοντας κωδικοποίησης τερματικού από το OpenAI, δείχνει τη δική του πύλη μοντέλου της πλατφόρμας αντί του πωλητή API"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-gnome-terminal:description"
+msgid "Terminal emulator for the GNOME desktop, giving command-line access on Arch Linux workstations"
+msgstr "Προσομοιωτής τερματικού για την επιφάνεια εργασίας του GNOME, δίνοντας πρόσβαση γραμμής εντολών σε σταθμούς εργασίας Arch Linux"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-micro:description"
+msgid "Terminal-based text editor with modern keybindings and syntax highlighting for Pacman-based workstations"
+msgstr "Επεξεργαστής κειμένου με βάση το τερματικό με σύγχρονες συνδέσεις πλήκτρων και επισήμανση σύνταξης για σταθμούς εργασίας με βάση το Pacman"
+
+# translated-by: libretranslate
+msgctxt "role:test-e2e-cli:description"
+msgid "Test-harness role running end-to-end CLI test scripts for roles that declare a test environment template"
+msgstr "Σεναρίων δοκιμών-harness για ρόλους που δηλώνουν πρότυπο περιβάλλοντος δοκιμής"
+
+# translated-by: libretranslate
+msgctxt "logout:pace"
+msgid "This usually takes a few seconds."
+msgstr "Αυτό συνήθως παίρνει μερικά δευτερόλεπτα."
+
+# translated-by: libretranslate
+msgctxt "role:svc-opt-ssd-hdd:description"
+msgid "Tiering role placing Docker volumes on SSD or HDD by workload type, with symlinks keeping paths consistent"
+msgstr "Ρόλος βαθμονόμησης που τοποθετεί τους όγκους Docker σε SSD ή HDD ανά τύπο φόρτου εργασίας, με συμβολικούς συνδέσμους που διατηρούν σταθερές διαδρομές"
+
+# translated-by: libretranslate
+msgctxt "role:dev-python:description"
+msgid "Toolchain for Python scripting, application development, and data science on Linux"
+msgstr "Εργαλειοθήκη για σενάριο Python, ανάπτυξη εφαρμογών και επιστήμη δεδομένων στο Linux"
+
+# translated-by: libretranslate
+msgctxt "menu:Tools:title"
+msgid "Tools"
+msgstr "Εργαλεία"
+
+# translated-by: libretranslate
+msgctxt "menu:User Management:description"
+msgid "Tools for Identity and Access Management, including authentication, user provisioning, and secure access control."
+msgstr "Εργαλεία για τη Διαχείριση Ταυτότητας και Πρόσβασης, συμπεριλαμβανομένης της ταυτοποίησης, της παροχής χρηστών και του ασφαλούς ελέγχου πρόσβασης."
+
+# translated-by: libretranslate
+msgctxt "menu:Communication:description"
+msgid "Tools for communication"
+msgstr "Εργαλεία επικοινωνίας"
+
+# translated-by: libretranslate
+msgctxt "menu:Marketing:description"
+msgid "Tools for email campaigns, audience engagement, automation, and digital marketing workflows."
+msgstr "Εργαλεία για εκστρατείες ηλεκτρονικού ταχυδρομείου, συμμετοχή κοινού, αυτοματοποίηση, και ψηφιακές ροές εργασίας μάρκετινγκ."
+
+# translated-by: libretranslate
+msgctxt "menu:Asset Management:description"
+msgid "Tools to inventory, track, and manage hardware and software assets across your organization."
+msgstr "Εργαλεία για την απογραφή, την παρακολούθηση και τη διαχείριση υλικού και λογισμικού σε όλο τον οργανισμό σας."
+
+# translated-by: libretranslate
+msgctxt "menu:Community:description"
+msgid "Tools to manage the community"
+msgstr "Εργαλεία διαχείρισης της κοινότητας"
+
+# translated-by: libretranslate
+msgctxt "menu:Analytics:description"
+msgid "Tools to measure, visualize, and optimize website performance and user behavior through data-driven insights."
+msgstr "Εργαλεία μέτρησης, οπτικοποίησης και βελτιστοποίησης της απόδοσης της ιστοσελίδας και της συμπεριφοράς των χρηστών μέσω πληροφοριών που βασίζονται στα δεδομένα."
+
+# translated-by: libretranslate
+msgctxt "category:web.opt:description"
+msgid "Tools which help to optimize webservers"
+msgstr "Εργαλεία που βοηθούν στη βελτιστοποίηση των webservers"
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-tor:description"
+msgid "Tor daemon publishing the node as a v3 onion service"
+msgstr "Tor daemon δημοσίευση του κόμβου ως v3 υπηρεσία κρεμμυδιού"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-torbrowser:description"
+msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
+msgstr "Tor πελάτης δικτύου και εκκινητής περιηγητών για ανώνυμη, επικεντρωμένη στην ιδιωτικότητα περιήγηση στο διαδίκτυο"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-virtualbox:description"
+msgid "Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack"
+msgstr "Τύπος-2 hypervisor για εικονικές μηχανές σε σταθμούς εργασίας Pacman, με δομοστοιχεία πυρήνα και πακέτο επέκτασης"
+
+# translated-by: libretranslate
+msgctxt "role:sys-ctl-alm-compose:description"
+msgid "Unified systemd notification service dispatching service-failure alerts through both Telegram and email channels"
+msgstr "Ενοποιημένη συστηματοποιημένη υπηρεσία ειδοποιήσεων που αποστέλλει ειδοποιήσεις για αστοχία υπηρεσιών μέσω των καναλιών Telegram και email"
+
+# translated-by: libretranslate
+msgctxt "category:update:title"
+msgid "Updates & Package Management"
+msgstr "Ενημέρωση & Διαχείριση Πακέτων"
+
+# translated-by: libretranslate
+msgctxt "logout:partial_hint"
+msgid "Use the links below to sign out of the rest yourself."
+msgstr "Χρησιμοποιήστε τους παρακάτω συνδέσμους για να υπογράψετε μόνοι σας."
+
+# translated-by: libretranslate
+msgctxt "logout:stalled_hint"
+msgid "Use the links below to sign out of the services still listed."
+msgstr "Χρησιμοποιήστε τους παρακάτω συνδέσμους για να υπογράψετε από τις υπηρεσίες που εξακολουθούν να αναφέρονται."
+
+# translated-by: libretranslate
+msgctxt "menu:User Management:title"
+msgid "User Management"
+msgstr "Διαχείριση χρηστών"
+
+# translated-by: libretranslate
+msgctxt "category:user:description"
+msgid "User accounts & access control"
+msgstr "Λογαριασμοί χρηστών & έλεγχος πρόσβασης"
+
+# translated-by: libretranslate
+msgctxt "category:user:title"
+msgid "Users & Access"
+msgstr "& Πρόσβαση χρηστών"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-git:description"
+msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
+msgstr "Πελάτης ελέγχου έκδοσης για προσωπικούς σταθμούς εργασίας, προδιαμορφωμένος με ταυτότητα, υπογραφή και συγχώνευση προεπιλογών"
+
+# translated-by: libretranslate
+msgctxt "role:sys-svc-cdn:description"
+msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
+msgstr "Μορφοποιημένη διάταξη περιουσιακού στοιχείου-δέντρου για παράδοση CDN με κοινόχρηστους καταλόγους, πωλητή και ανά-ρόλο έκδοσης"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-code:description"
+msgid "Visual Studio Code workstation editor in a selectable flavor, carrying the extensions of the agents the host deploys"
+msgstr "Visual Studio Code επεξεργαστής θέσεων εργασίας σε μια εκλεκτή γεύση, μεταφέροντας τις επεκτάσεις των παραγόντων που αναπτύσσει ο οικοδεσπότης"
+
+# translated-by: libretranslate
+msgctxt "category:web:title"
+msgid "Web Infrastructure"
+msgstr "Υποδομή ιστού"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-semaphore:description"
+msgid "Web UI and API for running Ansible, Terraform/OpenTofu, and shell automation on a schedule or on demand"
+msgstr "Web UI και API για την εκτέλεση Ansible, Terraform/OpenTofu, και αυτοματοποίηση κελύφους σε ένα πρόγραμμα ή κατόπιν ζήτησης"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-lam:description"
+msgid "Web interface for administering LDAP directories: managing users, groups, and other directory objects"
+msgstr "Διεπαφή ιστού για τη διαχείριση καταλόγων LDAP: διαχείριση χρηστών, ομάδων και άλλων αντικειμένων καταλόγου"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-fusiondirectory:description"
+msgid "Web-based LDAP administration interface for managing users, groups, and directory objects"
+msgstr "Διεπαφή διαχείρισης LDAP μέσω διαδικτύου για τη διαχείριση χρηστών, ομάδων και αντικειμένων καταλόγου"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-phpldapadmin:description"
+msgid "Web-based LDAP client for browsing, searching, and administering directory entries in LDAP servers"
+msgstr "Web-based LDAP client για περιήγηση, αναζήτηση και διαχείριση καταχωρήσεων καταλόγου σε LDAP servers"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-pgadmin:description"
+msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
+msgstr "Web-based διαχείριση και ανάπτυξη πλατφόρμα για τη διαχείριση πολλαπλών διακομιστών PostgreSQL, με προαιρετική OAuth2 Σύνδεση"
+
+# translated-by: libretranslate
+msgctxt "role:web-app-phpmyadmin:description"
+msgid "Web-based administration tool for MySQL and MariaDB with schema management, querying, and import/export"
+msgstr "Web-based εργαλείο διαχείρισης για MySQL και MariaDB με διαχείριση σχημάτων, ερωτήσεις, και εισαγωγή / εξαγωγή"
+
+# translated-by: libretranslate
+msgctxt "category:web.opt:title"
+msgid "Webserver Optimation"
+msgstr "Βελτιστοποίηση Webserver"
+
+# translated-by: libretranslate
+msgctxt "role:dsk-docker:description"
+msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
+msgstr "Εγκατάσταση θέσης εργασίας για Docker και Docker Compose με τον τοπικό χρήστη στην ομάδα docker για χρήση χωρίς ρίζα"
+
+# translated-by: libretranslate
+msgctxt "role:dev-arduino:description"
+msgid "Workstation toolchain and serial-port permissions for Arduino board development on Linux"
+msgstr "Εργαστηριακή αλυσίδα εργαλείων και σειριακές άδειες λιμένων για την ανάπτυξη πίνακα Arduino στο Linux"
+
+# translated-by: libretranslate
+msgctxt "role:pkgmgr-install:description"
+msgid "Wrapper role for idempotent package installation and updates through the pkgmgr universal package manager"
+msgstr "Ρόλος τυμπάνων για την εγκατάσταση και ενημερώσεις πακέτου idempotent μέσω του διαχειριστή πακέτων pkgmgr universal"
+
+# translated-by: libretranslate
+msgctxt "logout:may_close"
+msgid "You can close this page now."
+msgstr "Μπορείς να κλείσεις αυτή τη σελίδα τώρα."
+
+# translated-by: libretranslate
+msgctxt "logout:st_failed"
+msgid "failed"
+msgstr "αποτυχία"
+
+# translated-by: libretranslate
+msgctxt "role:svc-net-firewall:description"
+msgid "nftables packet filter whose rules each role owns as its own table, replaced atomically and reloaded at boot"
+msgstr "nftables φίλτρο πακέτο των οποίων οι κανόνες κάθε ρόλος κατέχει ως δικό του πίνακα, αντικαθίσταται ατομικά και επαναφορτώνεται κατά την εκκίνηση"
+
+# translated-by: libretranslate
+msgctxt "logout:st_unconfirmed"
+msgid "not confirmed"
+msgstr "δεν έχει επιβεβαιωθεί"
+
+# translated-by: libretranslate
+msgctxt "logout:manual"
+msgid "sign out manually"
+msgstr "χειροκίνητη έξοδος"
+
+# translated-by: libretranslate
+msgctxt "logout:st_done"
+msgid "signed out"
+msgstr "Υπογραφή"
+
+# translated-by: libretranslate
+msgctxt "logout:st_pending"
+msgid "signing out"
+msgstr "Υπογραφή"
+
+# translated-by: libretranslate
+#, python-brace-format
+msgctxt "logout:counter"
+msgid "{done} of {total} services signed out"
+msgstr "{done} του {total} Υπογραφείσες υπηρεσίες"
+

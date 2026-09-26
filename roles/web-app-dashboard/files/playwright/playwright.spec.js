@@ -24,6 +24,7 @@ require("./test-icons").register(shared);
 require("./test-header-navbar-logos").register(shared);
 require("./test-iframe-sync").register(shared);
 require("./test-matomo-integration").register(shared);
+require("./test-i18n").register(shared);
 
 // OIDC login → account → logout round-trip.
 require("./test-oidc-login").register(shared);

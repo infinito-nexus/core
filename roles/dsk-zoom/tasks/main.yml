@@ -1,0 +1,8 @@
+---
+- block:
+    - name: 📦 install video conference software
+      package_install:
+        id: zoom
+
+    - include_tasks: utils/once/flag.yml
+  when: run_once_dsk_zoom is not defined

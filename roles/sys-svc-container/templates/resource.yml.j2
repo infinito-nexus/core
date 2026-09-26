@@ -2,3 +2,6 @@ cpus:               {{ lookup('applications') | resource_filter(application_id, 
 mem_reservation:    {{ lookup('applications') | resource_filter(application_id, 'mem_reservation', service_name | default(''), RESOURCE_MEM_RESERVATION) }}
 mem_limit:          {{ lookup('applications') | resource_filter(application_id, 'mem_limit',       service_name | default(''), RESOURCE_MEM_LIMIT) }}
 pids_limit:         {{ lookup('applications') | resource_filter(application_id, 'pids_limit',      service_name | default(''), RESOURCE_PIDS_LIMIT) }}
+{% if (lookup('applications') | resource_filter(application_id, 'gpu', service_name | default(''), false)) | bool and (sys_svc_container_nvidia_device is defined and sys_svc_container_nvidia_device.stat.exists) %}
+runtime:            nvidia
+{% endif %}

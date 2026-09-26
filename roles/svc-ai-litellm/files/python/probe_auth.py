@@ -11,9 +11,12 @@ consumer key still working afterwards, so it proves isolation without touching
 any credential a consumer depends on.
 
 Environment:
-    LITELLM_MK:   master key the gateway accepts.
+    LITELLM_MASTER_KEY: master key the gateway accepts, read from its own
+        environment rather than passed in.
     LITELLM_PORT: port the gateway listens on inside its own container.
-    LITELLM_KEY:  a live consumer virtual key that must survive the revocation.
+    stdin:        JSON ``{"key": "<consumer virtual key>"}``, a live key that
+        must survive the revocation. It arrives on stdin because an -e argument
+        would put it in the container exec command line.
 """
 
 from __future__ import annotations
@@ -21,6 +24,7 @@ from __future__ import annotations
 import contextlib
 import json
 import os
+import sys
 import time
 import urllib.error
 import urllib.request
@@ -152,8 +156,8 @@ def main():
     base = "http://127.0.0.1:" + os.environ["LITELLM_PORT"]
     probe(
         lambda key: status_of(base, key),
-        admin_call(base, os.environ["LITELLM_MK"]),
-        os.environ["LITELLM_KEY"],
+        admin_call(base, os.environ["LITELLM_MASTER_KEY"]),
+        json.load(sys.stdin)["key"],
     )
     print("AUTHENTICATED")
 

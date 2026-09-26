@@ -74,7 +74,7 @@
   delegate_to: "{{ STACK_HOST }}"
   run_once: true
   when:
-    - DEPLOYMENT_MODE == 'swarm'
+    - IS_SWARM_MODE
     - IS_STACK_HOST | bool
 
 - name: "⏳ Mattermost | Wait until every replica is back on the merged config"

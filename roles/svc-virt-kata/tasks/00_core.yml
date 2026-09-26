@@ -11,7 +11,7 @@
       nodes: declare an svc-virt-kata group in the inventory. Without it this
       role runs on every host, every worker becomes a sandbox node, and the
       rest of the platform is evacuated onto the stack host.
-  when: DEPLOYMENT_MODE == 'swarm'
+  when: IS_SWARM_MODE
 
 - name: "📦 Install the gVisor userspace kernel (runsc)"
   get_url_retry:
@@ -41,7 +41,7 @@
   register: svc_virt_kata_default_runtime
   changed_when: false
   when:
-    - DEPLOYMENT_MODE == 'swarm'
+    - IS_SWARM_MODE
     - not (IS_STACK_HOST | bool)
 
 - name: "🛑 Refuse a sandbox node that still defaults to the shared kernel"
@@ -55,7 +55,7 @@
       per-service runtime key, so the label would promise an isolation the node
       cannot deliver and the agents would run on the host kernel.
   when:
-    - DEPLOYMENT_MODE == 'swarm'
+    - IS_SWARM_MODE
     - not (IS_STACK_HOST | bool)
 
 - name: "🏷️ Label this node as kata-capable"
@@ -66,7 +66,7 @@
   changed_when: svc_virt_kata_label.rc == 0
   delegate_to: "{{ STACK_HOST }}"
   when:
-    - DEPLOYMENT_MODE == 'swarm'
+    - IS_SWARM_MODE
     - not (IS_STACK_HOST | bool)
 
 - name: "🔍 Read back the nodes that carry the sandbox label"
@@ -76,7 +76,7 @@
   changed_when: false
   delegate_to: "{{ STACK_HOST }}"
   run_once: true
-  when: DEPLOYMENT_MODE == 'swarm'
+  when: IS_SWARM_MODE
 
 - name: "🛑 Refuse to promise isolation that no node can carry"
   ansible.builtin.assert:
@@ -88,4 +88,4 @@
       the convergence wait gives up. This role writes the label on every node it
       runs on except the stack host, so put svc-virt-kata on at least one worker.
   run_once: true
-  when: DEPLOYMENT_MODE == 'swarm'
+  when: IS_SWARM_MODE

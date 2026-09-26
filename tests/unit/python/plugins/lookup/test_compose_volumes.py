@@ -42,6 +42,8 @@ def _vars(**extra):
     base = {
         "application_id": "web-app-x",
         "DEPLOYMENT_MODE": "compose",
+        "IS_COMPOSE_MODE": True,
+        "IS_SWARM_MODE": False,
         "DIR_VAR_LIB": _DIR_VAR_LIB,
     }
     base.update(extra)

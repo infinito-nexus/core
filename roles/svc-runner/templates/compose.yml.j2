@@ -16,7 +16,7 @@
     group_add:
       - "{{ _runner_docker_gid }}"
     {{ lookup('container_networks', node_local=True) | indent(4) }}
-    {% if DEPLOYMENT_MODE == 'swarm' %}
+    {% if IS_SWARM_MODE %}
     deploy:
       {{ lookup('compose_replicas', 1) }}
     {% endif %}

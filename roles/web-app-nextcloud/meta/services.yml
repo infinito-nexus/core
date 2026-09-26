@@ -84,9 +84,9 @@ nextcloud:
     enabled: "{{ not (lookup('config', 'web-app-nextcloud', 'services.sso.enabled') | bool) }}"
   performance:
     php:
-      memory_limit: "{{ ((ansible_facts['memtotal_mb'] | int) / 30) | int }}M"
+      memory_limit: "{{ ((lookup('resource', 'host_mem_mb') | int) / 30) | int }}M"
       upload_limit: 5G
-      opcache_memory_consumption: "{{ ((ansible_facts['memtotal_mb'] | int) / 30) | int }}M"
+      opcache_memory_consumption: "{{ ((lookup('resource', 'host_mem_mb') | int) / 30) | int }}M"
       fpm:
         max_children: 16
         start_servers: 4

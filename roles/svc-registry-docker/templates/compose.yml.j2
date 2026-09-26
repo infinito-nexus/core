@@ -4,7 +4,7 @@
     image: "{{ REGISTRY_IMAGE }}:{{ REGISTRY_VERSION }}"  # nocheck: container-image-lookup
     {{ lookup('compose_only', 'container_name', REGISTRY_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    {% if DEPLOYMENT_MODE == 'swarm' %}
+    {% if IS_SWARM_MODE %}
     environment:
       REGISTRY_HTTP_ADDR: "{{ REGISTRY_BIND_IP }}:{{ REGISTRY_PORT }}"
     {% else %}
@@ -12,7 +12,7 @@
     {{ lookup('container_ports', ['docker', 'registry']) | indent(4) }}
     {% endif %}
     {{ lookup('container_volumes', service_name) | indent(4) }}
-    {% if DEPLOYMENT_MODE == 'swarm' %}
+    {% if IS_SWARM_MODE %}
     networks: # nocheck: networks-literal
       hostnet: {}
     {% else %}
@@ -20,7 +20,7 @@
     {% endif %}
 
 {{ lookup('compose_volumes') }}
-{% if DEPLOYMENT_MODE == 'swarm' %}
+{% if IS_SWARM_MODE %}
 networks: # nocheck: networks-literal
   hostnet:
     external: true

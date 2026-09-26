@@ -13,6 +13,23 @@
     compose_repository_pull: false
     webserver_extra_configuration: "{{ lookup('template', 'nginx/sso.html.conf.j2') }}"
 
+- name: "🌐 Load the port-ui content catalogs from the core translations"
+  set_fact:
+    dashboard_i18n_content: "{{ lookup('i18n_content', 'role:', 'menu:') }}"
+  run_once: true
+
+- name: "📁 Ensure the port-ui content catalog directory exists on every node"
+  ansible.builtin.file:
+    path: "{{ DASHBOARD_I18N_CONTENT_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: "🌐 Render the port-ui content catalogs (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates: "{{ dashboard_i18n_content | i18n_content_templates(DASHBOARD_I18N_CONTENT_DIR, 'i18n-content.yaml.j2') }}"
+
 - name: "👔 Dashboard manager-side operations (file deploys + container exec)"
   include_tasks: 02_manager_ops.yml
   when: IS_STACK_HOST | bool

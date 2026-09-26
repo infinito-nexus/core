@@ -8,8 +8,7 @@
 # - Always include base compose.yml
 # - Include compose.override.yml ONLY when the ROLE (application_id) provides one
 #   (same logic as tasks/04_files.yml with_first_found)
-# - Include compose.ca.override.yml ONLY when:
-#     the app has a domain AND TLS is enabled AND TLS mode == "self_signed"
+# - Include compose.ca.override.yml ONLY when lookup('ca_injected') is true
 #
 # Optional kwargs:
 # - include_ca (bool, default True):
@@ -57,27 +56,6 @@ def _maybe_template(templar: Any, value: Any) -> Any:
     if callable(tpl):
         return tpl(value)
     return value
-
-
-def _value_has_domain(v: Any) -> bool:
-    if v is None:
-        return False
-    if isinstance(v, str):
-        return v.strip() != ""
-    if isinstance(v, (list, tuple, set)):
-        return any(_value_has_domain(x) for x in v)
-    if isinstance(v, dict):
-        return any(_value_has_domain(x) for x in v.values())
-    return False
-
-
-def _has_domain(domains: Any, application_id: str) -> bool:
-    """
-    Dependency-free domain existence check that matches the intent of the old filter.
-    """
-    if isinstance(domains, dict):
-        return _value_has_domain(domains.get(application_id))
-    return _value_has_domain(domains)
 
 
 def _role_provides_override(*, application_id: str, templar: Any) -> bool:
@@ -183,35 +161,15 @@ class LookupModule(LookupBase):
             parts.append(f"{flag} {override}")
 
         if include_ca:
-            domains = lookup_loader.get(
-                "domains", loader=self._loader, templar=templar
-            ).run([], variables=variables)[0]
-            if _has_domain(domains, application_id):
-                tlsr = lookup_loader.get("tls", self._loader, self._templar)
-                tls = tlsr.run([application_id], variables=variables)[0]
-
-                if not isinstance(tls, dict):
+            injected = lookup_loader.get(
+                "ca_injected", loader=self._loader, templar=templar
+            ).run([application_id], variables=variables)[0]
+            if injected:
+                if not _as_str(ca_override):
                     raise AnsibleError(
-                        f"compose_file_args: tls returned non-dict: {type(tls)}"
+                        "compose_file_args: compose.files.compose_ca_override is "
+                        "required when the CA is injected"
                     )
-                if "enabled" not in tls:
-                    raise AnsibleError(
-                        "compose_file_args: tls did not return 'enabled'"
-                    )
-                if "mode" not in tls:
-                    raise AnsibleError("compose_file_args: tls did not return 'mode'")
-
-                enabled = bool(tls["enabled"])
-                mode = _as_str(tls["mode"])
-                if not mode:
-                    raise AnsibleError("compose_file_args: tls returned empty 'mode'")
-
-                if enabled and mode == "self_signed":
-                    if not _as_str(ca_override):
-                        raise AnsibleError(
-                            "compose_file_args: compose.files.compose_ca_override is required "
-                            "when TLS is enabled and mode is self_signed"
-                        )
-                    parts.append(f"{flag} {ca_override}")
+                parts.append(f"{flag} {ca_override}")
 
         return [" ".join(parts)]

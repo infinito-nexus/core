@@ -112,6 +112,9 @@ giteamcpupstream:
   shared: false
   image: docker.gitea.com/gitea-mcp-server
   version: "1.6.0"
+  update:
+    type: registry_tags
+    image: docker.gitea.com/gitea-mcp-server
   name: gitea-mcp
   cpus: 0.25
   mem_reservation: 0.1g

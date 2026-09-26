@@ -1,58 +1,21 @@
 ---
-# Host resources
-RESOURCE_HOST_CPUS: "{{ ansible_facts['processor_vcpus'] | int }}"
-RESOURCE_HOST_MEM: "{{ (ansible_facts['memtotal_mb'] | int) // 1024 }}"
+RESOURCE_HOST_CPUS_OVERRIDE: # Set to an integer in the inventory to pin the CPU count instead of measuring it
+RESOURCE_HOST_MEM_MB_OVERRIDE: # Set to MiB in the inventory to pin the memory instead of measuring it
 
-RESOURCE_HOST_RESERVE_CPU: 2
-RESOURCE_HOST_RESERVE_MEM: 4
+RESOURCE_HOST_CPUS: "{{ lookup('resource', 'host_cpus') }}"
 
-RESOURCE_AVAIL_CPUS: "{{ (RESOURCE_HOST_CPUS | int) - (RESOURCE_HOST_RESERVE_CPU | int) }}"
-RESOURCE_AVAIL_MEM: "{{ (RESOURCE_HOST_MEM  | int) - (RESOURCE_HOST_RESERVE_MEM | int) }}"
+RESOURCE_CPUS: "{{ lookup('resource', 'cpus') }}"
+RESOURCE_MEM_RESERVATION: "{{ lookup('resource', 'mem_reservation') }}"
+RESOURCE_MEM_LIMIT: "{{ lookup('resource', 'mem_limit') }}"
+RESOURCE_PIDS_LIMIT: "{{ lookup('resource', 'pids_limit') }}"
 
-RESOURCE_ACTIVE_DOCKER_CONTAINER_COUNT: >-
-  {{
-    applications
-    | active_docker_container_count(group_names, '^(web-|svc-).*', ensure_min_one=True)
-  }}
-
-RESOURCE_CPUS_NUM: >-
-  {{
-    [
-      (
-        ((RESOURCE_AVAIL_CPUS | float) / (RESOURCE_ACTIVE_DOCKER_CONTAINER_COUNT | float))
-        | round(2)
-      ),
-      0.5
-    ] | max
-  }}
-
-RESOURCE_MEM_RESERVATION_NUM: >-
-  {{
-    (((RESOURCE_AVAIL_MEM  | float) / (RESOURCE_ACTIVE_DOCKER_CONTAINER_COUNT | float)) * 0.7)
-    | round(1)
-  }}
-RESOURCE_MEM_LIMIT_NUM: >-
-  {{
-    (((RESOURCE_AVAIL_MEM  | float) / (RESOURCE_ACTIVE_DOCKER_CONTAINER_COUNT | float)) * 1.0)
-    | round(1)
-  }}
-
-RESOURCE_CPUS: "{{ RESOURCE_CPUS_NUM }}"
-RESOURCE_MEM_RESERVATION: "{{ RESOURCE_MEM_RESERVATION_NUM }}g"
-RESOURCE_MEM_LIMIT: "{{ RESOURCE_MEM_LIMIT_NUM }}g"
-RESOURCE_PIDS_LIMIT: 512
-
-POSTGRES_VCPUS: "{{ ansible_facts['processor_vcpus'] | int }}"
-POSTGRES_TOTAL_RAM_MB: "{{ ansible_facts['memtotal_mb'] | int }}"
-POSTGRES_MAX_CONNECTIONS: "{{ [ ((POSTGRES_VCPUS | int) * 30 + 50), 400 ] | min }}"
-POSTGRES_ALLOWED_AVG_CONNECTIONS: "{{ (POSTGRES_MAX_CONNECTIONS | split_postgres_connections(lookup('path_absolute', 'roles'))) | int }}"
-POSTGRES_SUPERUSER_RESERVED_CONNECTIONS: 3
-POSTGRES_SHARED_BUFFERS_MB: "{{ ((POSTGRES_TOTAL_RAM_MB | int) * 25) // 100 }}"
-POSTGRES_SHARED_BUFFERS: "{{ POSTGRES_SHARED_BUFFERS_MB ~ 'MB' }}"
-POSTGRES_WORK_MEM_MB: "{{ [ ( (POSTGRES_TOTAL_RAM_MB | int) // ( [ (POSTGRES_MAX_CONNECTIONS | int), 1 ] | max ) // 2 ), 1 ] | max }}"
-POSTGRES_WORK_MEM: "{{ POSTGRES_WORK_MEM_MB ~ 'MB' }}"
-POSTGRES_MAINTENANCE_WORK_MEM_MB: "{{ [ (((POSTGRES_TOTAL_RAM_MB | int) * 5) // 100), 64 ] | max }}"
-POSTGRES_MAINTENANCE_WORK_MEM: "{{ POSTGRES_MAINTENANCE_WORK_MEM_MB ~ 'MB' }}"
-POSTGRES_DELAY: 2
+POSTGRES_MAX_CONNECTIONS: "{{ lookup('resource', 'postgres_max_connections') }}"
+POSTGRES_ALLOWED_AVG_CONNECTIONS: "{{ lookup('resource', 'postgres_allowed_avg_connections') }}"
+POSTGRES_SUPERUSER_RESERVED_CONNECTIONS: "{{ lookup('resource', 'postgres_superuser_reserved_connections') }}"
+POSTGRES_SHARED_BUFFERS: "{{ lookup('resource', 'postgres_shared_buffers') }}"
+POSTGRES_WORK_MEM: "{{ lookup('resource', 'postgres_work_mem') }}"
+POSTGRES_MAINTENANCE_WORK_MEM: "{{ lookup('resource', 'postgres_maintenance_work_mem') }}"
+POSTGRES_MAX_LOCKS_PER_TRANSACTION: "{{ lookup('resource', 'postgres_max_locks_per_transaction') }}"
+POSTGRES_DELAY: "{{ lookup('resource', 'postgres_delay') }}"
 
 TIMEOUT_FACTOR: 1

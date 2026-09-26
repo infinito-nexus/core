@@ -9,16 +9,19 @@ from __future__ import annotations
 
 from . import (
     act_platform_image,
+    docker_platform,
     gha_passthrough,
     github_repository_owner,
     nix_config,
     passthrough,
 )
 from .infinito import (
-    cache_stack,
     container,
     distros,
     docker_volume,
+    domain,
+    git_identity,
+    gpu_count,
     image,
     image_repository,
     inventory,
@@ -31,11 +34,15 @@ from .infinito import (
 )
 from .infinito.ca import bundle_candidates as ca_bundle_candidates
 from .infinito.ca import cert_host as ca_cert_host
+from .infinito.cache import conf as cache_conf
+from .infinito.cache import stack as cache_stack
 from .infinito.dir import backups as dir_backups
 from .infinito.dir import secrets as dir_secrets
 from .infinito.dir import var_lib as dir_var_lib
 from .infinito.fork import account as fork_account
 from .infinito.fork import repository_url as fork_repository_url
+from .infinito.i18n import libretranslate as i18n_libretranslate
+from .infinito.i18n import tuning as i18n_tuning
 from .infinito.package_cache import admin_password as package_cache_admin_password
 from .infinito.package_cache import blobstore_max as package_cache_blobstore_max
 from .infinito.package_cache import direct_mem as package_cache_direct_mem
@@ -54,6 +61,7 @@ from .infinito.worker import fetch as worker_fetch
 
 ORDERED_HANDLERS = [
     passthrough,
+    docker_platform,
     distros,
     dir_var_lib,
     dir_backups,
@@ -68,8 +76,10 @@ ORDERED_HANDLERS = [
     worker_cpu,
     worker_fetch,
     container,
+    domain,
     running_on_act,
     running_on_github,
+    cache_conf,
     cache_stack,
     tor_socks_port,
     is_wsl2,
@@ -89,6 +99,10 @@ ORDERED_HANDLERS = [
     fork_repository_url,
     nix_config,
     registry_cache_max_size,
+    git_identity,
+    gpu_count,
+    i18n_libretranslate,
+    i18n_tuning,
     package_cache_heap,
     package_cache_direct_mem,
     package_cache_blobstore_max,

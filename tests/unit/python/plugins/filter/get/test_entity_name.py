@@ -22,9 +22,7 @@ class TestGetEntityNameFilter(unittest.TestCase):
                     "app": {"title": "Applications", "invokable": True},
                     "svc": {"title": "Services", "invokable": True},
                 },
-                "util": {
-                    "desk": {"dev": {"title": "Dev Utilities", "invokable": True}}
-                },
+                "util": {"dsk": {"dev": {"title": "Dev Utilities", "invokable": True}}},
                 "sys": {
                     "ctl": {
                         "bkp": {"title": "Backup", "invokable": True},

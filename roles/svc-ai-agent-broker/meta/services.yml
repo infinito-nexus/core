@@ -1,0 +1,78 @@
+---
+agent-broker:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: default-placement-manager  joins each agent's attachable overlay through the manager engine the socket proxy fronts
+  placement: manager
+  bond: 1
+  enabled: true
+  shared: true
+  image: python
+  # nocheck: docker-version  base of a self-built stdlib-only image, not the served application
+  version: "3.13.15-slim"
+  custom: true
+  ca_client: true
+  name: agent-broker
+  min_storage: 130MB
+  cpus: "0.5"
+  mem_reservation: 64m
+  mem_limit: 256m
+  pids_limit: 256
+  healthcheck:
+    flavor: http_status
+    path: health
+  ports:
+    internal:
+      http: 8080
+  request_timeout: 1800
+  agents:
+    model: "{{ AI_AGENT_MODEL }}"
+    idle_stop: true
+    idle_minutes: 30
+    max_running: 20
+    start_timeout: 900
+    access_cache_seconds: 60
+  run_after:
+    - svc-ai-litellm
+  guide_companions:
+    - svc-ai-ollama
+  lifecycle: beta
+
+# nocheck: shared
+# nocheck: dynamic-flag
+socket-proxy:
+  bond: 1
+  enabled: true
+  image: wollomatic/socket-proxy
+  version: 1.13.1
+  name: agent-socket-proxy
+  cpus: "0.25"
+  mem_reservation: 16m
+  mem_limit: 64m
+  pids_limit: 128
+  healthcheck:
+    test: ["CMD", "./healthcheck"]
+# nocheck: playwright-service-flag, dynamic-flag  every agent call is relayed through the gateway, so the broker never runs without it
+litellm:
+  bond: 1
+  enabled: true
+  shared: true
+# nocheck: playwright-service-flag, dynamic-flag  the broker authorizes every request against Keycloak group paths and has no LDAP or no-auth path, so a group_names gate would only defer the failure to runtime
+sso:
+  bond: 1
+  enabled: true
+  shared: true
+  flavor: oidc
+# nocheck: playwright-service-flag, dynamic-flag
+hermes:
+  bond: 1
+  enabled: true
+  shared: true
+# nocheck: playwright-service-flag, dynamic-flag
+openclaw:
+  bond: 1
+  enabled: true
+  shared: true

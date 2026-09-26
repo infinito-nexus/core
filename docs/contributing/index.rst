@@ -8,4 +8,4 @@ Contribution Guide
    workflow
    environment/setup
    design/principles
-   tools/makefile
+   tools/make

@@ -82,6 +82,8 @@ class TestIterProjectFiles(_ProjectRootFixture, unittest.TestCase):
         _touch(self.root / "node_modules/pkg/index.js", "module.exports = {};")
         _touch(self.root / "vendor/nette/utils/readme.md", "# vendored")
         _touch(self.root / "__pycache__/dead.pyc", "")
+        _touch(self.root / "build/ruff-cache-0/0.16.7/entry.json", "{}")
+        _touch(self.root / "cli/build/docs/readme/overview.py", "x = 1")
 
     def test_skip_dirs_pruned(self) -> None:
         all_paths = set(iter_project_files())
@@ -92,6 +94,17 @@ class TestIterProjectFiles(_ProjectRootFixture, unittest.TestCase):
         self.assertFalse(any("/__pycache__/" in p for p in all_paths))
         self.assertFalse(any("/node_modules/" in p for p in all_paths))
         self.assertFalse(any("/vendor/" in p for p in all_paths))
+
+    def test_build_is_pruned_at_the_root_only(self) -> None:
+        all_paths = set(iter_project_files())
+        self.assertFalse(
+            any(p.startswith(f"{self.root}/build/") for p in all_paths),
+            f"root build/ artefacts reached the walk: {all_paths}",
+        )
+        self.assertTrue(
+            any(p.endswith("cli/build/docs/readme/overview.py") for p in all_paths),
+            f"cli/build is source and must survive the prune: {all_paths}",
+        )
 
     def test_extensions_filter(self) -> None:
         ymls = list(iter_project_files(extensions=(".yml",)))
@@ -104,12 +117,13 @@ class TestIterProjectFiles(_ProjectRootFixture, unittest.TestCase):
 
     def test_exclude_tests_skips_tests_subtree(self) -> None:
         with_tests = list(iter_project_files(extensions=(".py",)))
-        self.assertEqual(len(with_tests), 1)
+        self.assertEqual(len(with_tests), 2)
 
         without_tests = list(
             iter_project_files(extensions=(".py",), exclude_tests=True)
         )
-        self.assertEqual(without_tests, [])
+        self.assertEqual(len(without_tests), 1)
+        self.assertTrue(without_tests[0].endswith("cli/build/docs/readme/overview.py"))
 
     def test_exclude_dirs_path_segment_match(self) -> None:
         kept = list(iter_project_files(exclude_dirs=("docs",)))

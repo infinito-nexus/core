@@ -32,6 +32,11 @@ on:
         required: false
         type: boolean
         default: false
+      architectures:
+        description: "🏗️ Space-separated architecture pool to build (amd64, arm64). Empty: both."
+        required: false
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -41,9 +46,35 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
-    name: 💿 Image
+  pools:
+    name: 🏗️ Pools
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.out.outputs.matrix }}
+      image_tag: ${{ steps.out.outputs.image_tag }}
+      architectures: ${{ steps.out.outputs.architectures }}
+    steps:
+      - name: ⬇️ Checkout trusted workflow repo (helpers)
+        uses: actions/checkout@v7.0.0
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: 📦 Install jq
+        run: ./scripts/install/apt.sh jq
+
+      - name: 🧮 Compute the distro, architecture and tag pools
+        id: out
+        run: scripts/github/runner/images_build_outputs.sh "${{ inputs.distros }}" "${{ inputs.image_tag }}" "${{ inputs.architectures }}"
+
+  build:
+    name: 💿 Images ${{ matrix.architecture }}
+    needs: pools
+    runs-on: ${{ matrix.architecture == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        architecture: ${{ fromJson(needs.pools.outputs.architectures) }}
     permissions:
       contents: read
       packages: write
@@ -67,10 +98,6 @@ jobs:
       - name: 📦 Install jq
         run: ./scripts/install/apt.sh jq
 
-      - name: 🧮 Compute the distro list and image tag
-        id: out
-        run: scripts/github/runner/images_build_outputs.sh "${{ inputs.distros }}" "${{ inputs.image_tag }}"
-
       - name: 💽 Disk pressure (start)
         shell: bash
         run: bash scripts/github/runner/disk_pressure_report.sh START
@@ -90,10 +117,18 @@ jobs:
           RETRY_DELAY_SECONDS: "20"
         run: bash scripts/github/runner/pull_with_retry.sh "${{ steps.buildkit.outputs.ref }}"
 
+      - name: 🧮 Count the runner's CPUs
+        id: cpus
+        shell: bash
+        run: echo "count=$(nproc)" >> "$GITHUB_OUTPUT"
+
       - name: 🔧 Set up Docker Buildx
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
         with:
           driver-opts: image=${{ steps.buildkit.outputs.ref }}
+          buildkitd-config-inline: |
+            [worker.oci]
+              max-parallelism = ${{ steps.cpus.outputs.count }}
 
       - name: 🔑 Login to GHCR
         uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
@@ -114,37 +149,35 @@ jobs:
           echo "owner=$(scripts/meta/resolve/repository/owner.sh)" >> "$GITHUB_OUTPUT"
           echo "name=$(scripts/meta/resolve/repository/name.sh)" >> "$GITHUB_OUTPUT"
 
-      - name: 🔨 Build & push every distro (retry 7x, 20s)
+      - name: 🔨 Build & push every distro by digest (retry 7x, 20s)
         if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) }}
         shell: bash
         env:
           GITHUB_REPOSITORY_OWNER: ${{ steps.owner.outputs.owner }}
           BUILD_CONTEXT_DIR: _src
-          INFINITO_DISTROS: ${{ join(fromJson(steps.out.outputs.matrix), ' ') }}
-          IMAGE_TAG: ${{ steps.out.outputs.image_tag }}
+          INFINITO_DISTROS: ${{ join(fromJson(needs.pools.outputs.matrix), ' ') }}
+          IMAGE_ARCH: ${{ matrix.architecture }}
+          IMAGE_DIGEST_DIR: build/image-digests
           USE_NIX_TOKEN: ${{ !(github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository) }}
           NIX_GITHUB_TOKEN: ${{ github.token }}
           MAX_ATTEMPTS: "7"
           RETRY_DELAY_SECONDS: "20"
         run: ./scripts/image/push_all.sh
 
-      - name: ⏳ Assert every distro image is in the registry
-        shell: bash
-        env:
-          REGISTRY: ghcr.io
-          OWNER: ${{ steps.owner.outputs.owner }}
-          REPO_PREFIX: ${{ steps.owner.outputs.name }}
-          CI_TAG: ${{ steps.out.outputs.image_tag }}
-          INFINITO_DISTROS: ${{ join(fromJson(steps.out.outputs.matrix), ' ') }}
-          WAIT_ATTEMPTS: "90"
-          WAIT_SLEEP_SECONDS: "10"
-        run: ./scripts/meta/wait/ci_images.sh
+      - name: 📤 Upload the ${{ matrix.architecture }} digests
+        if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: image-digests-${{ matrix.architecture }}
+          path: build/image-digests/
+          retention-days: 1
+          if-no-files-found: error
 
       - name: 📤 Upload per-distro build logs
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: image-build-logs
+          name: image-build-logs-${{ matrix.architecture }}
           path: build/image-logs/
           retention-days: 7
           if-no-files-found: ignore
@@ -158,3 +191,66 @@ jobs:
         if: always()
         shell: bash
         run: bash scripts/github/runner/cleanup_docker.sh
+
+  manifest:
+    name: 🏷️ One tag per distro
+    needs: [pools, build]
+    if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: ⬇️ Checkout trusted workflow repo (helpers)
+        uses: actions/checkout@v7.0.0
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: 📦 Install jq
+        run: ./scripts/install/apt.sh jq
+
+      - name: 📥 Download every architecture's digests
+        uses: actions/download-artifact@v8
+        with:
+          pattern: image-digests-*
+          merge-multiple: true
+          path: build/image-digests/
+
+      - name: 🔑 Login to GHCR
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: 🔍 Resolve repository owner
+        id: owner
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "owner=$(scripts/meta/resolve/repository/owner.sh)" >> "$GITHUB_OUTPUT"
+          echo "name=$(scripts/meta/resolve/repository/name.sh)" >> "$GITHUB_OUTPUT"
+
+      - name: 🏷️ Tag each distro's digests as one multi-architecture image
+        shell: bash
+        env:
+          GITHUB_REPOSITORY_OWNER: ${{ steps.owner.outputs.owner }}
+          IMAGE_TAG: ${{ needs.pools.outputs.image_tag }}
+          IMAGE_ARCHITECTURES: ${{ join(fromJson(needs.pools.outputs.architectures), ' ') }}
+          IMAGE_DIGEST_DIR: build/image-digests
+          INFINITO_DISTROS: ${{ join(fromJson(needs.pools.outputs.matrix), ' ') }}
+        run: ./scripts/image/manifest_all.sh
+
+      - name: ⏳ Assert every distro image is in the registry
+        shell: bash
+        env:
+          REGISTRY: ghcr.io
+          OWNER: ${{ steps.owner.outputs.owner }}
+          REPO_PREFIX: ${{ steps.owner.outputs.name }}
+          CI_TAG: ${{ needs.pools.outputs.image_tag }}
+          INFINITO_DISTROS: ${{ join(fromJson(needs.pools.outputs.matrix), ' ') }}
+          WAIT_ATTEMPTS: "90"
+          WAIT_SLEEP_SECONDS: "10"
+        run: ./scripts/meta/wait/ci_images.sh

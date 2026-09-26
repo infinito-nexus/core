@@ -48,6 +48,10 @@ mig:
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 256
+api:
+  bond: 1
+  enabled: "{{ 'web-svc-api' in group_names }}"
+  shared: "{{ 'web-svc-api' in group_names }}"
 # nocheck: playwright-service-flag — css consumer, no Playwright surface (provider: web-svc-css)
 css:
   bond: 1

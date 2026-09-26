@@ -129,7 +129,7 @@ scenario; closing each item is a NOOP except when a stale env-key
 shows up; in that case remove it.
 
 - [ ] [web-svc-cdn](../../roles/web-svc-cdn/), [web-svc-simpleicons](../../roles/web-svc-simpleicons/), [web-svc-xmpp](../../roles/web-svc-xmpp/), [web-svc-libretranslate](../../roles/web-svc-libretranslate/): backend services with no end-user UI.
-- [ ] [web-app-hugo](../../roles/web-app-hugo/), [web-app-sphinx](../../roles/web-app-sphinx/), [web-app-bridgy-fed](../../roles/web-app-bridgy-fed/), [web-app-mig](../../roles/web-app-mig/): static or pure-publishing content with no authenticated path.
+- [ ] [web-app-hugo](../../roles/web-app-hugo/), [web-app-docs](../../roles/web-app-docs/), [web-app-bridgy-fed](../../roles/web-app-bridgy-fed/), [web-app-mig](../../roles/web-app-mig/): static or pure-publishing content with no authenticated path.
 - [ ] [web-app-dashboard](../../roles/web-app-dashboard/), [web-app-matomo](../../roles/web-app-matomo/): own admin authentication is in scope of their own admin tests; biber-as-non-admin is not a meaningful surface here. Document and exempt.
 
 ### Verification

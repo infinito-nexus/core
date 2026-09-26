@@ -13,6 +13,7 @@ from cli.administration.inventory.provision.services_disabler import (
     assert_services_disabled_inventory_consistency_from_env,
 )
 from cli.meta.roles.services.called import verify as verify_required_system_services
+from cli.meta.runtime import detect_runtime
 
 from .proc import run, run_make
 
@@ -130,6 +131,7 @@ def run_ansible_playbook(
             log_path=ansible_log_path,
             log_byte_offset=log_offset_before,
             deployed_role_ids=allowed_applications,
+            runtime=detect_runtime(),
         )
         if not ok:
             print(

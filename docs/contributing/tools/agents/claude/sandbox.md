@@ -71,7 +71,7 @@ The following directories are never readable, even if a task explicitly requests
 | `~/.aws` | AWS access keys and configuration. |
 | `~/.config/gcloud` | Google Cloud service account credentials. |
 
-`~/.ssh` is intentionally **not** in this list. Denying it would make `git push` over SSH unreachable and defeat the `Bash(git push*)` ask-gate. The trade-off and its mitigations are documented in [security.md](security.md#assumption-10) (Assumption 10).
+`~/.ssh` is intentionally **not** in this list. Denying it would make `git push` over SSH unreachable and defeat the `Bash(git push*)` ask-gate. The trade-off and its mitigations are documented in [security.md](security.md#assumption-10-ssh-is-intentionally-readable-to-allow-git-push-on-ask-) (Assumption 10).
 
 ## Network 🌐
 

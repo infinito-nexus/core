@@ -77,8 +77,9 @@ def detect_compose_files(project_dir: Path) -> list[Path]:
 
 
 _CACHE_HTTP_HOSTNAMES = (
-    "deb.debian.org",
     "archive.ubuntu.com",
+    "argos-net.com",
+    "deb.debian.org",
     "security.ubuntu.com",
 )
 

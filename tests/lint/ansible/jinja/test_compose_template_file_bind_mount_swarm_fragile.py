@@ -37,14 +37,8 @@ _IF = re.compile(r"\{%\s*if\s+(?P<expr>.+?)\s*%\}")
 _ELIF = re.compile(r"\{%\s*elif\s+(?P<expr>.+?)\s*%\}")
 _ELSE = re.compile(r"\{%\s*else\s*%\}")
 _ENDIF = re.compile(r"\{%\s*endif\s*%\}")
-_COMPOSE_ONLY_GATE = re.compile(
-    r"DEPLOYMENT_MODE\s*!=\s*['\"]swarm['\"]"
-    r"|DEPLOYMENT_MODE\s*==\s*['\"]compose['\"]"
-)
-_SWARM_ONLY_GATE = re.compile(
-    r"DEPLOYMENT_MODE\s*==\s*['\"]swarm['\"]"
-    r"|DEPLOYMENT_MODE\s*!=\s*['\"]compose['\"]"
-)
+_COMPOSE_ONLY_GATE = re.compile(r"not\s+IS_SWARM_MODE|IS_COMPOSE_MODE")
+_SWARM_ONLY_GATE = re.compile(r"(?<!not )IS_SWARM_MODE|not\s+IS_COMPOSE_MODE")
 
 _SHORT_FORM_RO = re.compile(
     r"""
@@ -100,7 +94,7 @@ def _is_special_source(src: str) -> bool:
 
 
 def _is_inside_compose_only_gate(lines: list[str], target_idx: int) -> bool:
-    """True iff lines[target_idx] sits under a `DEPLOYMENT_MODE == 'compose'` gate."""
+    """True iff lines[target_idx] sits under a `IS_COMPOSE_MODE` gate."""
     stack: list[tuple[str, bool]] = []
     for i, raw in enumerate(lines):
         if i == target_idx:

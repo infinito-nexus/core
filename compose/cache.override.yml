@@ -87,7 +87,7 @@ services:
         read_only: true
         bind:
           create_host_path: true
-      - ./compose/package-cache-frontend/upstreams.conf:/etc/nginx/conf.d/upstreams.conf:ro
+      - ${INFINITO_CACHE_PACKAGE_FRONTEND_CONF:?Run 'make dotenv' to generate the .env single source of truth}:/etc/nginx/conf.d/upstreams.conf:ro
     networks:
       default:
         ipv4_address: ${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}
@@ -112,39 +112,6 @@ services:
       package-cache-frontend:
         condition: service_healthy
         required: false
-    environment:
-      INFINITO_CACHE_PACKAGE_FRONTEND_IP: ${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}
-    extra_hosts:
-      # Exception: /etc/hosts is used because coredns can't resolve the container names.
-      - "infinito-registry-cache:${INFINITO_CACHE_REGISTRY_IP:?Run 'make dotenv' to generate the .env single source of truth}"
-      - "deb.debian.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
-      - "archive.ubuntu.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
-      - "security.ubuntu.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
-      - "pypi.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
-      - "files.pythonhosted.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
-      - "registry.npmjs.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
-      - "rubygems.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
-      - "index.rubygems.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
-      - "repo.packagist.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
-      - "proxy.golang.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
-      - "dl-cdn.alpinelinux.org:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
-      - "raw.githubusercontent.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
-      - "codeload.github.com:${INFINITO_CACHE_PACKAGE_FRONTEND_IP:?Run 'make dotenv' to generate the .env single source of truth}"
-    volumes:
-      - type: bind
-        source: ${INFINITO_CACHE_REGISTRY_CA_HOST_PATH:?Run 'make dotenv' to generate the .env single source of truth}
-        target: /opt/registry-cache-ca
-        read_only: true
-        bind:
-          create_host_path: true
-      - ${INFINITO_CACHE_REGISTRY_PROXY_CONF:?Set by 'cli deploy development up' / 'make compose-up' (driver-injected, not produced by 'make
-        dotenv')}:/etc/systemd/system/docker.service.d/registry-cache-proxy.conf:ro
-      - ./scripts/docker/cache/registry-ca.sh:/usr/local/bin/registry-cache-ca.sh:ro
-      - ${INFINITO_CACHE_PACKAGE_PIP_CONF:?Set by 'cli deploy development up' / 'make compose-up' (driver-injected, not produced by 'make
-        dotenv')}:/etc/pip.conf:ro
-      - ${INFINITO_CACHE_PACKAGE_NPMRC:?Set by 'cli deploy development up' / 'make compose-up' (driver-injected, not produced by 'make dotenv')}:/root/.npmrc:ro
-      - ./compose/package-cache/apt/${INFINITO_DISTRO:?Run 'make dotenv' to generate the .env single source of
-        truth}.list:/etc/apt/sources.list.d/package-cache.list:ro
-      - ${INFINITO_CACHE_PACKAGE_FRONTEND_CA_FILE:?Set by 'cli deploy development up' / 'make compose-up' (driver-injected, not produced by 'make
-        dotenv')}:/opt/package-frontend-ca.crt:ro
-      - ./scripts/docker/cache/package-frontend/ca.sh:/usr/local/bin/package-frontend-ca.sh:ro
+    extends:
+      file: compose.cache-consumer.yml
+      service: cache-consumer

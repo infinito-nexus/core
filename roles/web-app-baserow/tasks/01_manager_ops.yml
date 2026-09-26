@@ -34,7 +34,7 @@
   changed_when: baserow_restart_after_migrate.rc == 0
   when:
     - baserow_migrate_result.changed
-    - DEPLOYMENT_MODE == 'compose'
+    - IS_COMPOSE_MODE
 
 - name: "🔄 Restart Baserow application after applying migrations (swarm mode)"
   ansible.builtin.command: "container service update --force {{ lookup('container_service', application_id, BASEROW_SERVICE_NAME) }}"
@@ -43,7 +43,7 @@
   timeout: "{{ lookup('timeout', 600) | int }}"
   when:
     - baserow_migrate_result.changed
-    - DEPLOYMENT_MODE == 'swarm'
+    - IS_SWARM_MODE
 
 - name: "🔍 Re-resolve the container the restart replaced"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"

@@ -9,6 +9,9 @@ from pathlib import Path
 
 import yaml
 
+RUN_TIMEOUT_SECONDS = 3600
+TIMEOUT_RC = 124
+
 
 def run_cmd(cmd: list[str], *, cwd: Path, env: dict[str, str]) -> tuple[int, str, str]:
     """Run a command with stdout and stderr captured SEPARATELY.
@@ -16,15 +19,31 @@ def run_cmd(cmd: list[str], *, cwd: Path, env: dict[str, str]) -> tuple[int, str
     Compose prints warnings ('variable is not set', ...) on stderr; merging
     them into stdout poisons every parser downstream (yaml config, the
     `config --images` list, the `pull --help` probe).
+
+    Returns:
+        Exit code, stdout, stderr. A run that outlives
+        ``RUN_TIMEOUT_SECONDS`` returns ``TIMEOUT_RC`` with whatever the
+        command had written by then.
     """
-    p = subprocess.run(
-        cmd,
-        cwd=str(cwd),
-        env=env,
-        text=True,
-        capture_output=True,
-        check=False,
-    )
+    try:
+        p = subprocess.run(
+            cmd,
+            cwd=str(cwd),
+            env=env,
+            text=True,
+            capture_output=True,
+            check=False,
+            timeout=RUN_TIMEOUT_SECONDS,
+        )
+    except subprocess.TimeoutExpired as expired:
+        out = expired.stdout or ""
+        err = expired.stderr or ""
+        return (
+            TIMEOUT_RC,
+            out if isinstance(out, str) else out.decode("utf-8", "replace"),
+            (err if isinstance(err, str) else err.decode("utf-8", "replace"))
+            + f"\ntimed out after {RUN_TIMEOUT_SECONDS}s: {' '.join(cmd)}\n",
+        )
     return p.returncode, p.stdout or "", p.stderr or ""
 
 

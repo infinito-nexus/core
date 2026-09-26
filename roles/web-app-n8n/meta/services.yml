@@ -68,6 +68,9 @@ n8n:
     no_stop_required: false
   image: docker.n8n.io/n8nio/n8n
   version: "1.100.1"
+  update:
+    type: registry_tags
+    image: docker.n8n.io/n8nio/n8n
   name: n8n
   min_storage: 422MB
   cpus: "1.0"

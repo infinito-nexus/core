@@ -28,6 +28,13 @@ RUN set -euo pipefail; \
 
 COPY default.env ${INFINITO_SRC_DIR}/default.env
 COPY scripts/install ${INFINITO_SRC_DIR}/scripts/install
+
+# hadolint ignore=SC1090
+RUN set -euo pipefail; \
+  source <(grep -hE '^INFINITO_(FILESYSTEM_INSTALL_SCRIPT|APT_UBUNTU_MIRRORS)=' "${INFINITO_SRC_DIR}/default.env"); \
+  INFINITO_APT_UBUNTU_MIRRORS="${INFINITO_APT_UBUNTU_MIRRORS:?}" /bin/bash "${INFINITO_SRC_DIR}/scripts/install/apt-mirrors.sh"; \
+  /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_FILESYSTEM_INSTALL_SCRIPT:?}"
+
 COPY roles/dev-python/files/shell ${INFINITO_SRC_DIR}/roles/dev-python/files/shell
 COPY requirements ${INFINITO_SRC_DIR}/requirements
 COPY utils/__init__.py ${INFINITO_SRC_DIR}/utils/__init__.py
@@ -48,16 +55,16 @@ COPY . ${INFINITO_SRC_DIR}
 
 # hadolint ignore=DL3008,DL3033,DL3041,SC1090
 RUN set -euo pipefail; \
-  source <(grep -hE '^INFINITO_((PYTHON|DOCKER_CLI|PACKAGE|FILESYSTEM|INTERPRETERS)_INSTALL_SCRIPT|APT_UBUNTU_MIRRORS)=' "${INFINITO_SRC_DIR}/default.env"); \
-  INFINITO_APT_UBUNTU_MIRRORS="${INFINITO_APT_UBUNTU_MIRRORS:?}" /bin/bash "${INFINITO_SRC_DIR}/scripts/install/apt-mirrors.sh"; \
+  source <(grep -hE '^INFINITO_(PYTHON|DOCKER_CLI|PACKAGE|INTERPRETERS)_INSTALL_SCRIPT=' "${INFINITO_SRC_DIR}/default.env"); \
   /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_PYTHON_INSTALL_SCRIPT:?}"; \
   /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_DOCKER_CLI_INSTALL_SCRIPT:?}"; \
   /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_PACKAGE_INSTALL_SCRIPT:?}"; \
-  /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_FILESYSTEM_INSTALL_SCRIPT:?}"; \
   /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_INTERPRETERS_INSTALL_SCRIPT:?}"
 
 RUN set -euo pipefail; \
-  systemctl mask systemd-firstboot.service first-boot-complete.target || true; \
+  systemctl mask systemd-firstboot.service first-boot-complete.target \
+    systemd-binfmt.service proc-sys-fs-binfmt_misc.automount \
+    proc-sys-fs-binfmt_misc.mount || true; \
   systemd-machine-id-setup || true
 
 ENV container=docker

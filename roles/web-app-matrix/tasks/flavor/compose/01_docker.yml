@@ -1,5 +1,5 @@
 ---
-# include-gated: when: DEPLOYMENT_MODE == "compose"
+# include-gated: when: IS_COMPOSE_MODE
 - name: "🧩 load docker and db for {{ application_id }}"
   include_role:
     name: sys-stk-backend
@@ -83,7 +83,7 @@
 
 - name: "🐳 compose-mode lifecycle (pull + up)"
   include_tasks: 03_compose_pull_and_up.yml
-  when: DEPLOYMENT_MODE == 'compose'
+  when: IS_COMPOSE_MODE
 
 - name: "🚿 Flush handlers so the stack deploys before the Synapse wait"
   meta: flush_handlers

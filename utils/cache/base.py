@@ -24,6 +24,7 @@ from typing import TYPE_CHECKING, Any
 from plugins.filter.merge.with_defaults import (
     merge_with_defaults,  # noqa: F401  re-exported
 )
+from utils.cache.errors import is_unresolvable
 from utils.paths import FILE_TOKENS
 
 from . import PROJECT_ROOT, ROLES_DIR  # noqa: F401
@@ -238,7 +239,9 @@ def _render_with_templar(
                     rendered = _templar_render_preserve_type(
                         templar, data, base_variables
                     )
-                except Exception:
+                except Exception as exc:
+                    if is_unresolvable(exc):
+                        raise
                     rendered = None
                 if rendered is not None and not isinstance(rendered, str):
                     return _render_deep(rendered)
@@ -247,7 +250,9 @@ def _render_with_templar(
                     rendered = _templar_render_best_effort(
                         templar, data, base_variables
                     )
-                except Exception:
+                except Exception as exc:
+                    if is_unresolvable(exc):
+                        raise
                     return data
                 if rendered == data:
                     break
@@ -259,7 +264,9 @@ def _render_with_templar(
                 rendered = templar.template(data, fail_on_undefined=False)
             except TypeError:
                 rendered = templar.template(data)
-            except Exception:
+            except Exception as exc:
+                if is_unresolvable(exc):
+                    raise
                 return data
             if rendered == data:
                 break

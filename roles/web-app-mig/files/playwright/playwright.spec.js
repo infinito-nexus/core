@@ -1,11 +1,14 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow , expectHstsWhenTls, gotoOnion } = require("./personas");
+const { skipUnlessServiceEnabled } = require("./service-gating");
+
+const { assertCspResponseHeader, decodeDotenvQuotedValue, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow , expectHstsWhenTls, gotoOnion } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
+const apiBaseUrl = normalizeBaseUrl(process.env.API_BASE_URL || "");
 
 test.beforeEach(async ({ page }) => {
   expect(appBaseUrl, "APP_BASE_URL must be set").toBeTruthy();
@@ -38,6 +41,14 @@ test("mig returns HTML content under canonical domain", async ({ request }) => {
     contentType.includes("text/html"),
     `Expected HTML content-type, got "${contentType}"`
   ).toBe(true);
+});
+
+test("mig may read the API: its CSP connects to the API origin", async ({ request }) => {
+  skipUnlessServiceEnabled("api");
+  expect(apiBaseUrl, "API_BASE_URL must be set").toBeTruthy();
+  const response = await request.get(`${appBaseUrl}/`, { timeout: resolveTimeout(30_000) });
+  const directives = assertCspResponseHeader(response, "mig");
+  expect(directives["connect-src"], "Expected connect-src to admit the API origin").toContain(new URL(apiBaseUrl).origin);
 });
 
 // Persona scenarios.

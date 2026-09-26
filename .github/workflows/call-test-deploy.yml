@@ -51,6 +51,11 @@ on:
         required: false
         type: string
         default: ""
+      architectures:
+        description: "🏗️ Space-separated architecture pool the matrix spreads its rows over (amd64, arm64). Empty: both."
+        required: false
+        type: string
+        default: ""
       marker:
         description: "Optional suffix appended to the discover job name (e.g. ' ⭐' for a priority chunk)"
         required: false
@@ -107,6 +112,11 @@ on:
         required: false
         type: string
         default: ""
+      architectures:
+        description: "🏗️ Architecture pool the matrix spreads its rows over. Empty: amd64 and arm64"
+        required: false
+        type: string
+        default: ""
       tor:
         description: "🧅 Tor axis; see .github/workflows/README.md for what each value does"
         required: false
@@ -135,6 +145,7 @@ env:
   INFINITO_API_OPENROUTER_KEY: ${{ secrets.API_OPENROUTER_KEY || vars.API_OPENROUTER_KEY }}
   INFINITO_APP_DISCOVERY_RUNNER: host
   INFINITO_DOCKER_FILESYSTEM_ALLOWED: ${{ inputs.filesystem }}
+  INFINITO_ARCHITECTURES: ${{ inputs.architectures }}
   INFINITO_LIFECYCLES: ${{ inputs.lifecycles }}
   INFINITO_DISCOVERY_SEED: ${{ github.run_id }}
 
@@ -204,6 +215,7 @@ jobs:
           INFINITO_CI_CHUNK_SIZE: ${{ inputs.chunk_size }}
           PLAN_DISTROS: ${{ inputs.distros }}
           PLAN_FILESYSTEM: ${{ inputs.filesystem }}
+          PLAN_ARCHITECTURES: ${{ inputs.architectures }}
           PLAN_WHITELIST: ${{ steps.resolve_wl.outputs.whitelist }}
           PLAN_PRIORITY: ${{ inputs.priority }}
           PLAN_MODES: ${{ inputs.modes }}
@@ -215,6 +227,7 @@ jobs:
           "${PYTHON}" -m cli.meta.ci.plan \
             --distros "${PLAN_DISTROS}" \
             --filesystem "${PLAN_FILESYSTEM}" \
+            --architectures "${PLAN_ARCHITECTURES}" \
             --whitelist "${PLAN_WHITELIST}" \
             --priority "${PLAN_PRIORITY}" \
             --modes "${PLAN_MODES}" \
@@ -226,7 +239,7 @@ jobs:
   deploy:
     name: "${{ matrix.label }}"
     if: needs.discover.outputs.apps != '' && needs.discover.outputs.apps != '[]'
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
     timeout-minutes: 355
     needs: discover
 
@@ -248,6 +261,7 @@ jobs:
       INFINITO_DOCKER_FILESYSTEM_ALLOWED: ${{ inputs.filesystem }}
       INFINITO_DOCKER_FILESYSTEM_PICK: ${{ matrix.filesystem }}
       INFINITO_DOCKER_FILESYSTEM_ENFORCED: ${{ matrix.enforce_filesystem }}
+      INFINITO_ARCHITECTURE: ${{ matrix.architecture }}
       RESCHED_TIMEOUT: "120"
       SCRIPTS: scripts/tests/deploy/swarm/routine
 
@@ -267,6 +281,10 @@ jobs:
       - name: "⬇️ Checkout"
         if: ${{ !env.ACT }}
         uses: actions/checkout@v7.0.0
+
+      - name: "🏗️ Confirm the runner is the assigned architecture"
+        shell: bash
+        run: ./scripts/github/runner/assert_architecture.sh
 
       - name: "📥 Load rescue-diagnostics SPOT into job env"
         shell: bash
@@ -332,7 +350,7 @@ jobs:
         timeout-minutes: 350
         shell: bash
         env:
-          apps: ${{ matrix.apps }}
+          apps: ${{ matrix.instructions != '' && format('{0},web-app-docs', matrix.apps) || matrix.apps }}
           variant: ${{ matrix.variant }}
           disable: ${{ matrix.disable || inputs.disable }}
           ANSIBLE_LOG_PATH: /tmp/ansible-${{ matrix.apps }}.log
@@ -428,17 +446,3 @@ jobs:
         timeout-minutes: 15
         run: scripts/tests/deploy/swarm/utils/clean/teardown.sh
 
-      - name: "📖 Replay the ${{ matrix.apps }} README instructions"
-        if: ${{ matrix.instructions != '' }}
-        env:
-          GUIDE_ROLE: ${{ matrix.apps }}
-          GUIDE_MODE: ${{ matrix.instructions }}
-        run: ./scripts/tests/deploy/distros.sh scripts/github/guide/one.sh
-
-      - name: "⬆️ Upload instructions rescue diagnostics"
-        if: ${{ always() && matrix.instructions != '' && !env.ACT }}
-        uses: actions/upload-artifact@v7
-        with:
-          name: rescue-diagnostics-instructions-${{ matrix.artifact }}
-          path: ${{ env.INFINITO_RESCUE_DIAGNOSTICS_BASE }}/
-          if-no-files-found: ignore

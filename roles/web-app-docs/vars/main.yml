@@ -1,0 +1,50 @@
+---
+application_id: "web-app-docs"
+entity_name: "{{ application_id | get_entity_name }}"
+
+DOCS_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
+DOCS_SERVICE: "{{ entity_name }}"
+
+DOCS_IMAGE: "{{ lookup('config', application_id, 'services.docs.image') }}"
+DOCS_VERSION: "{{ lookup('config', application_id, 'services.docs.version') }}"
+DOCS_SOURCE_REPO: "{{ lookup('config', application_id, 'services.docs.source_repository') }}"
+DOCS_MERMAID_VERSION: "{{ lookup('config', application_id, 'services.docs.mermaid_version') }}"
+DOCS_MERMAID_SHA256: "{{ lookup('config', application_id, 'services.docs.mermaid_sha256') }}"
+DOCS_FETCH_INTERVAL: "{{ lookup('config', application_id, 'services.docs.fetch_interval') }}"
+DOCS_BUILD_JOBS: "{{ lookup('config', application_id, 'services.docs.build_jobs') }}"
+DOCS_PORT: "{{ lookup('config', application_id, 'services.docs.ports.internal.http') }}"
+DOCS_DATA_DIR: "/data"
+DOCS_TOOLING_DIR: "{{ [ lookup('container', application_id, 'directories.instance'), 'sphinx' ] | path_join }}"
+DOCS_SNAPSHOT_DIR: "/snapshot"
+DOCS_SNAPSHOT_PATHS:
+  - AGENTS.md
+  - CHANGELOG.md
+  - CODE_OF_CONDUCT.md
+  - CONTRIBUTING.md
+  - LICENSE.md
+  - README.md
+  - SECURITY.md
+  - SUPPORT.md
+  - TODO.md
+  - ansible.cfg
+  - assets
+  - cli
+  - default.env
+  - docs
+  - group_vars
+  - index.rst
+  - inventories/bundles
+  - inventories/development
+  - library
+  - locale
+  - meta
+  - playbook.yml
+  - plugins
+  - pyproject.toml
+  - roles
+  - scripts
+  - skills
+  - tasks
+  - templates
+  - tests
+  - utils

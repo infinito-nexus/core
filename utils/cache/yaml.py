@@ -11,6 +11,7 @@ through and evicts the cached entry. `invalidate(path)` is the explicit
 escape hatch when a caller knows a file was changed externally.
 
 CACHE SEMANTICS
+
 - Cache key: `(str(Path(path).resolve()), st_mtime_ns, st_size)`.
   Symlinks resolve once at the cache boundary so the same target shares
   an entry regardless of how callers spell the path. The mtime+size
@@ -130,6 +131,7 @@ def load_yaml(path, *, default_if_missing: Any = _MISSING) -> dict[str, Any]:
     """Load a YAML file as a dict, memoised by absolute path.
 
     `default_if_missing` controls the missing-file behaviour:
+
     - Default (`_MISSING`): raise `FileNotFoundError` for callers that
       want to fail loud (resolution code).
     - Pass a value (typically `{}`): return that value when the file

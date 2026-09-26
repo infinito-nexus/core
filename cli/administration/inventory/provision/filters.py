@@ -5,9 +5,11 @@ from typing import Any
 
 def parse_roles_list(raw_roles: list[str] | None) -> set[str] | None:
     """
-    Parse a list of IDs supplied on the CLI. Supports:
+    Parse a list of IDs supplied on the CLI. Supports::
+
       --include web-app-nextcloud web-app-mastodon
       --include web-app-nextcloud,web-app-mastodon
+
     Same logic is reused for --exclude and --roles.
     """
     if not raw_roles:
@@ -50,7 +52,8 @@ def filter_dynamic_inventory(
     legacy_roles_filter: set[str] | None,
 ) -> dict[str, Any]:
     """
-    Apply include/exclude/legacy role filters in the same order as before:
+    Apply include/exclude/legacy role filters in the same order as before::
+
       include -> exclude -> legacy roles
     """
     if include_filter:

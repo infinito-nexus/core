@@ -1,0 +1,50 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🥾 For '{{ application_id }}': bootstrap the compose host once"
+  ansible.builtin.include_role:
+    name: sys-svc-compose
+    tasks_from: 00_core.yml
+  when: run_once_sys_svc_compose is not defined
+
+- name: "🛑 Refuse a backend flavor the role does not carry"
+  ansible.builtin.assert:
+    that:
+      - S1_FLAVOR in ['laya', 'torch', 'onnx']
+    fail_msg: "services.s1.flavor must be 'laya', 'torch' or 'onnx' (got '{{ S1_FLAVOR }}')"
+    quiet: true
+
+- name: "🎮 Look for the GPU and the runtime that hands it to a container"
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  register: s1_gpu_stat
+  loop:
+    - "{{ S1_NVIDIA_DEVICE }}"
+    - "{{ S1_NVIDIA_RUNTIME }}"
+
+- name: "🎮 Decide whether this deploy builds the CUDA image"
+  ansible.builtin.set_fact:
+    S1_GPU: "{{ (S1_GPU_REQUESTED | bool) and (s1_gpu_stat.results | map(attribute='stat.exists') | select | list | length == 2) }}"
+
+- name: "📦 Stage the System One build context"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "{{ lookup('path_absolute', 'roles/svc-ai-s1/files/shell/build.sh') }}"
+        dest: "{{ [S1_BUILD_DIR, 'build.sh'] | path_join }}"
+        mode: "0644"
+        notify: [compose-build, compose-up]
+      - src: "{{ lookup('path_absolute', 'roles/svc-ai-s1/files/shell/entrypoint.sh') }}"
+        dest: "{{ [S1_BUILD_DIR, 'entrypoint.sh'] | path_join }}"
+        mode: "0644"
+        notify: [compose-build, compose-up]
+
+- name: "🔧 Setup container network for {{ application_id }}"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
+  vars:
+    compose_handlers_flush: true
+
+- name: "🔥 Manager-side model warm-up on the hosting node"
+  ansible.builtin.include_tasks: 01_manager_ops.yml
+  when: IS_STACK_HOST | bool
