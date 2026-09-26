@@ -23966,9 +23966,11 @@ msgstr ""
 msgid "Implemented by **Marko Pjevac, Kevin Veen-Birkenbach**. Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
 msgstr ""
 
+# nocheck: url
 msgid "Implemented by **[Alejandro Roman Ibanez](https://social.infinito.nexus/profile/alexromanibanez/profile)**. Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
 msgstr ""
 
+# nocheck: url
 msgid "Implemented by **[Evangelos Tsakoudis](https://social.infinito.nexus/profile/evangelostsakoudis/profile)**. Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
 msgstr ""
 

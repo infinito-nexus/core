@@ -19,202 +19,202 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-certbot:description"
 msgid "ACME client for automated Let's Encrypt SSL/TLS certificate issuance and renewal via webroot or DNS-01 challenges"
 msgstr "Trình khách ACME cho chứng nhận SSL/TLS mã hóa và tái tạo thông qua trang web root hoặc DNS-01 Thử thách"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.ai:title"
 msgid "AI Services"
 msgstr "Dịch vụ AI"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Artificial Intelligence:description"
 msgid "AI tools and frameworks for running, managing, and experimenting with models."
 msgstr "Công cụ AI và khuôn khổ để chạy, quản lý và thử nghiệm với mô hình."
 
+# translated-by: libretranslate
 msgctxt "role:dsk-gnt-cursor:description"
 msgid "AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
-msgstr ""
+msgstr "Trình biên tập mã Al-I đầu tiên được cài đặt vào trạm làm việc, có ghi đè cuối điểm vẫn còn một bước điều hành"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Server Administration:description"
 msgid "Administration Tools für servers"
 msgstr "Name"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "category:dsk.gnt:title"
 msgid "Agents"
-msgstr "Sự kiện"
+msgstr "Đặc vụ"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-all:description"
 msgid "Aggregate NGINX sub-filter injector adding Matomo tracking, global theming, iFrame and JS snippets by feature flag"
 msgstr "Trình tiêm chủng NGINX phụ bổ sung theo dõi Matomo, toàn cầu, iFrame và JS bằng cờ tính năng"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-gnome:description"
 msgid "Aggregate desktop environment bundling caffeine, shell extensions, and terminal into a complete GNOME setup on Linux"
 msgstr "Môi trường màn hình nền tích tụ cà phê, mở rộng vỏ bọc, và thiết bị cuối thành một thiết lập GNOME hoàn chỉnh trên Linux"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.ctl.alm:title"
 msgid "Alerting"
 msgstr "Báo động"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
 msgstr "Phân tích"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
 msgstr "Vai trò trợ giúp có khả năng nhận diện sự kiên trì và tra cứu các biểu tượng ứng dụng cho người dùng trong một cửa hàng YAML cục bộ"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:web.app:title"
 msgid "Applications"
 msgstr "Ứng dụng"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Sales:description"
 msgid "Applications for e-commerce, ticketing, and sales management."
 msgstr "Ứng dụng điện tử, vé và quản lý bán hàng."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:drv-epson-multiprinter:description"
 msgid "Arch Linux driver bundle for Epson multifunction printing and scanning via escpr and imagescan"
 msgstr "Arch Linux gói trình điều khiển cho việc in đa chức năng Epson và quét thông qua escppp và ảnh"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Artificial Intelligence:title"
 msgid "Artificial Intelligence"
 msgstr "Trí thông minh nhân tạo"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Asset Management:title"
 msgid "Asset Management"
 msgstr "Quản lý Tài sản"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
 msgstr "Dịch vụ phục hồi tự động thoát hoặc không lành mạnh Docker Compose chồng và giải quyết xung đột cổng"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-dns-hetzner-rdns:description"
 msgid "Automation role for reverse DNS (PTR) records on Hetzner Cloud servers, primary IPs, floating IPs, and load balancers"
 msgstr "Vai trò tự động hoá cho DNS ngược (PTR) Ghi chép về máy chủ mây Htzner, IP chính, IP nổi, và bộ cân bằng nạp"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.ctl.bkp:title"
 msgid "Backup & Restore"
 msgstr "Sao lưu và Phục hồi"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.bkp:title"
 msgid "Backup Services"
 msgstr "Dịch vụ sao lưu"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.ctl.bkp:description"
 msgid "Backup strategies & restore procedures"
 msgstr "Phương pháp sao lưu và phục hồi"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:dev-core:description"
 msgid "Base development environment for software engineers on Linux, with core editors and language-agnostic tooling"
 msgstr "Môi trường phát triển cơ bản cho các kỹ sư phần mềm trên Linux, với các biên tập lõi và quá trình phát triển ngôn ngữ bất khả thi"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-daemon:description"
 msgid "Base role for systemd manager configuration via drop-ins, default settings, and unit validation"
 msgstr "Vai trò cơ bản cho cấu hình trình quản lý có hệ thống thông qua thả, cài đặt mặc định và hợp lệ hoá đơn vị"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-roulette-wheel:description"
 msgid "Browser-based spinning wheel app for decision making, random selection, and gamification"
 msgstr "Ứng dụng quay bánh xe dựa trên trình duyệt để quyết định, lựa chọn ngẫu nhiên, và gamification"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-litellm:description"
 msgid "Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy"
 msgstr "Giao diện quảng cáo trình duyệt cho cửa ra UM chia sẻ, xuất bản trên miền riêng của nó đằng sau ủy nhiệm phía trước"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:dev-fakeroot:description"
 msgid "Build-time tool for simulating root-owned file operations without elevated privileges during package builds"
 msgstr "Công cụ xây dựng thời gian để mô phỏng hoạt động tập tin gốc mà không có quyền cao trong khi gói xây dựng"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.runner:title"
 msgid "CI Runner"
 msgstr "Name"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-db-typesense:description"
 msgid "Central Dockerized search engine shared by multiple apps with per-consumer scoped API keys"
 msgstr "Công cụ tìm kiếm trung tâm Dockerized được chia sẻ bởi nhiều ứng dụng với các khoá trên mỗi đối tượng được bao gồm bởi API"
 
+# translated-by: libretranslate
 msgctxt "role:svc-ai-tika:description"
 msgid "Central document extraction engine that turns uploaded files into text for retrieval-augmented chat"
-msgstr ""
+msgstr "Cơ chế thu thập tài liệu trung tâm mà đã biến tập tin đã tải lên thành văn bản để cấu hình lại cuộc trò chuyện"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Help:description"
 msgid "Central help resources, including documentation, support tools, and guidance."
 msgstr "Nguồn tài nguyên trung tâm, tài liệu, công cụ hỗ trợ và hướng dẫn."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-db-memcached:description"
 msgid "Central in-memory caching engine with per-consumer key-prefix isolation, usable centrally or as an embedded sidecar"
 msgstr "Trung tâm nhớ lưu trữ động cơ mở khóa với sự cô lập chìa khóa một chiều, có thể sử dụng trung tâm hoặc như một chiếc xe phụ gắn kết"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-service-loader:description"
 msgid "Central loader role for ordered shared-service preloading and queued post-load role inclusions across the deployment"
 msgstr "Vai trò tải trung tâm cho việc sắp xếp dịch vụ nạp trước và xếp hàng sau khi đăng xuất"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-logout:description"
 msgid "Central logout proxy for single-action sign-out across all OIDC-connected apps, with Nginx snippets and a live status UI"
 msgstr "Name"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-mail:description"
 msgid "Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
 msgstr "Trình chuyển đổi màn hình nền trung tâm cho máy chủ hướng dẫn thư qua Mailu, msmtp, hoặc một trình tiếp SMTP cục bộ tùy chọn"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
 msgstr "Trình đệ quy trung tâm/ tua lại máy giải quyết DNS (Unbound, etc.)"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-dns-unbound:description"
 msgid "Central recursive/forwarding DNSSEC resolver on a static IP for consumer stacks to target as their DNS"
 msgstr "Trung tâm đệ quy/ tua lại bộ giải quyết DNSSEC trên một IP tĩnh cho chồng tiêu dùng tới mục tiêu là DNS của họ"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-db-elasticsearch:description"
 msgid "Central search and analytics engine with per-consumer index namespaces isolating tenants in a shared Docker deployment"
 msgstr "Tìm kiếm trung tâm và công cụ phân tích với chỉ mục per-consumer không gian tên người thuê trong một hoạt động chung của Docker"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-db-qdrant:description"
 msgid "Central vector database engine for storing and searching per-consumer embeddings shared across the stack"
 msgstr "Cơ chế cơ sở dữ liệu trung tâm để tích trữ và tìm kiếm mỗi tập hợp chia sẻ trên chồng"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-rdbms:description"
 msgid "Centralized MariaDB or PostgreSQL database service shared across applications via Docker Compose"
 msgstr "Trung tâm hoá MariaDB hay PostgreSQL Dịch vụ cơ sở dữ liệu chia sẻ qua ứng dụng thông qua Docker Compose"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-certs:description"
 msgid "Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
 msgstr "Dịch vụ ACME hướng dẫn Certbot cho phép mã hóa một hành động và ký tự đại diện cho hệ thống trong miền NGINX"
@@ -223,83 +223,82 @@ msgctxt "logout:checking"
 msgid "Checking your other sessions…"
 msgstr "Đang kiểm tra các phiên khác của bạn…"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.ctl.cln:title"
 msgid "Cleanup"
 msgstr "Làm sạch"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-cln-domains:description"
 msgid "Cleanup routine for deprecated domains, removing Nginx configs and revoking their Certbot certificates"
 msgstr "Làm sạch thường lệ cho miền bị phản đối, gỡ bỏ Nginx conbigs và phục hồi chứng nhận Certbot"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-cln-disc-space:description"
 msgid "Cleanup routine for reclaiming disk space from temp files, package caches, optional Docker data and old backups"
 msgstr "Làm sạch thường lệ để lấy lại không gian đĩa từ tập tin tạm thời, bộ nhớ tạm gói, dữ liệu Docker và bản sao cũ"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-storage-nfs-client:description"
 msgid "Client-side NFS setup for mounting a remote server export on every swarm node, with a deploy-time reachability probe"
 msgstr "Thiết lập bên khách NFS để lắp đặt một máy chủ từ xa xuất khẩu trên mỗi nút thu nhỏ, với một thăm dò khả năng sử dụng thời gian"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-net-wireguard-plain:description"
 msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
 msgstr "Vai trò khách hàng bên Wire Guard VPN cho việc kết nối ổn định với một dịch vụ hệ thống và văn lệnh mà giai điệu giao diện MT"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Bộ quản lý bảng tạm với lịch sử soạn thảo, hành động tự chọn và hỗ trợ văn lệnh"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Cloud:title"
 msgid "Cloud"
 msgstr "Mây"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-dns:description"
 msgid "Cloudflare DNS bootstrap role for apex and wildcard A/AAAA records (and optional CAA) across a web stack's base domains"
 msgstr "Vai trò của DNS khởi động cho đỉnh và thẻ A/AAA (và tùy chọn CAA) qua các miền gốc của chồng web"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-registry-docker:description"
 msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
 msgstr "Danh sách công cụ chứa ảnh nhómlocal để phục vụ các ảnh được xây dựng riêng Docker Swarm nút nhân"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-registry-cache:description"
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
 msgstr "Bộ nhớ tạm xếp chồng-local thông qua cho các động tác kéo căn cứ Docker, cắt đôi chuyển giao và giới hạn tốc độ"
 
+# translated-by: libretranslate
 msgctxt "category:dsk.gnt:description"
 msgid "Coding agents installed on the workstation (Claude Code, Cursor, Pi)"
-msgstr ""
+msgstr "Các đặc vụ liên kết được cài đặt vào trạm làm việc (Claude Code. CursorPhi)"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-mediawiki:description"
 msgid "Collaborative wiki platform for user-driven documentation with an extensible extension ecosystem and content management"
 msgstr "Nền tảng sinh thái hợp tác cho tài liệu hướng dẫn người dùng với hệ thống mở rộng mở rộng và quản lý nội dung"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-jrnl:description"
 msgid "Command-line journal application for creating and managing personal diary entries from the terminal"
 msgstr "Ứng dụng nhật ký dòng lệnh cho việc tạo và quản lý mục nhật ký cá nhân từ thiết bị cuối"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Commerce:title"
 msgid "Commerce"
 msgstr "Thương mại"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Communication:title"
 msgid "Communication"
 msgstr "Liên lạc"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Community:title"
 msgid "Community"
 msgstr "Ghi chú"
@@ -308,82 +307,82 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-stk-full:description"
 msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
 msgstr "Tính năng xếp chồng hợp nhất co giật một hậu phương cơ sở dữ liệu đã công cụ hoá với giao diện điều khiển đảo ngược HTTP cho truy cập web"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.swarm:title"
 msgid "Container Orchestration"
 msgstr "Comment"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.registry:title"
 msgid "Container Registries"
 msgstr "Thư mục chứa"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-container:description"
 msgid "Container engine runtime with Compose for building and running application containers on Linux hosts"
 msgstr "Name"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-swarm-node:description"
 msgid "Container orchestration cluster for scheduling services across pooled manager and worker nodes"
 msgstr "Comment"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.registry:description"
 msgid "Container-registry services - local registry and pull-through cache."
 msgstr "Dịch vụ chứa đồ - đăng nhập địa phương và qua bộ nhớ tạm."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-navigator:description"
 msgid "Containerized Reveal.js slide deck for presenting the platform to admins, developers, users, and investors"
 msgstr "Comment Reveal.js Sàn trượt để trình bày nền tảng cho ban quản trị, nhà phát triển, người dùng và nhà đầu tư"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
 msgstr "Máy phục vụ biểu tượng bị khóa cho việc tổ chức Simple Icons Name"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-db-postgres:description"
 msgid "Containerized relational database with automated database, user, and privilege provisioning"
 msgstr "Comment"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Content Management:title"
 msgid "Content Management"
 msgstr "Quản lý nội dung"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Content Management:description"
 msgid "Content Management Systems (CMS) and web publishing platforms"
 msgstr "Hệ thống quản lý nội dung (Bộ phát âm) và nền tảng xuất bản web"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-wordpress:description"
 msgid "Content management system for building and managing websites, blogs, and multisite networks with themes and plugins"
 msgstr "Hệ thống quản lý nội dung để xây dựng và quản lý các trang web, blog và mạng đa vùng với các sắc thái và bổ sung"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.ctl:title"
 msgid "Control"
 msgstr "Ctrl"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.ctl:description"
 msgid "Control layer for system lifecycle management—handling cleanup, monitoring, backups, alerting, maintenance, and repair tasks."
 msgstr "Phòng điều khiển cho hệ thống quản lý xe đạp cứu hộ, làm sạch, theo dõi, dự phòng, cảnh báo, bảo trì, và sửa chữa công việc."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.ai:description"
 msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
 msgstr "Core AI xây dựng khối - mdel phục vụ, OpenAI- tương ứng với cổng, cơ sở dữ liệu vector, dàn nhạc, và trò chuyện UIs."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Trình phục vụ Mạng Core NGINX với HTTP và TCP/UDP hỗ trợ luồng và các mặc định hiệu suất"
@@ -396,699 +395,687 @@ msgctxt "logout:stalled"
 msgid "Could not confirm every sign-out."
 msgstr "Không thể xác nhận mọi lần đăng xuất."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:dev-nix:description"
 msgid "Cross-distribution installer for the Nix package manager with checksum-verified, reproducible multi-user setup"
 msgstr "Bộ cài đặt cài đặt đa phân cách đối với bộ quản lý gói Nix với thiết lập kiểm tra tổng hợp, có khả năng tái sử dụng đa người dùng"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
 msgstr "Chương trình bảo trì phân phối chéo cho việc sửa đổi đĩa thông qua CN, container, và xây dựng môi trường"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Customer Relationship:title"
 msgid "Customer Relationship"
 msgstr "Quan hệ tự chọn"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
 msgstr "Quản lý quan hệ tự chọn (CRM) Phần mềm quản lý các mối quan hệ khách hàng, đường ống bán hàng, tiếp thị và hỗ trợ hoạt động."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.dns:title"
 msgid "DNS Automation"
 msgstr "Tự động hoá DNS"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.dns:title"
 msgid "DNS Resolvers"
 msgstr "Bộ giải quyết DNS"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.dns:description"
 msgid "DNS providers, records, and rDNS management (Cloudflare, Hetzner, etc.)."
 msgstr "Nhà cung cấp DNS, hồ sơ và quản lý RDNS (Mây, Hetzner, vân vân.)."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-dns-cloudflare-records:description"
 msgid "Data-driven role for managing Cloudflare DNS records (A/AAAA, CNAME, MX, TXT, SRV) across apps and environments"
 msgstr "Vai trò điều khiển dữ liệu cho việc quản lý hồ sơ DNS Cloudfre (A/AAAAA, CNAME, MX, TXT, SRV) trên các ứng dụng và môi trường"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.db:description"
 msgid "Database applications (DBMS, LDAP, Redis, etc.)"
 msgstr "Ứng dụng co sở dữ liệu (DBMS, LDAP, Redis, vv.)"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.db:title"
 msgid "Databases"
 msgstr "Cơ sở dữ liệu"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-peertube:description"
 msgid "Decentralized, federated platform for peer-to-peer video hosting, streaming, and live broadcasting"
 msgstr "Một nền tảng phân tán, phát sóng cho các chương trình video có tính ngang hàng, truyền hình trực tiếp và truyền hình trực tiếp"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-pixelfed:description"
 msgid "Decentralized, federated platform for photo sharing and image feeds across the fediverse"
 msgstr "Một nền tảng phân tán, phát triển để chia sẻ ảnh chụp và cung cấp dữ liệu qua các miền liên bang"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-friendica:description"
 msgid "Decentralized, federated social-networking platform for peer-to-peer communication and community building"
 msgstr "Một nền tảng xã hội bị phân tán, nuôi dưỡng cho việc làm ăn đồng nghiệp và xây dựng cộng đồng"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:user-administrator:description"
 msgid "Dedicated administrator account with SSH key access and password-authenticated sudo for secure privilege escalation"
 msgstr "Tài khoản quản trị đã hiến dâng với truy cập khóa SSH và mật khẩu tự động làm sudo để đảm bảo tăng cường đặc quyền"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:user-backup:description"
 msgid "Dedicated system account with SSH-restricted commands and passwordless rsync sudo for secure backup access"
 msgstr "Tài khoản hệ thống đã hiến tặng với các lệnh đã được mã hóa SSH và mật khẩu rsync sudo để truy cập sao lưu bảo mật"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-service-terminator:description"
 msgid "Deferred-start orchestrator for enabling and starting collected systemd services once a play completes"
 msgstr "Name"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
 msgstr "Các ứng dụng web có thể triển khai (GitLab. Nextcloud. Mastodon, etc.)"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "category:dsk:title"
 msgid "Desktop"
 msgstr "Màn hình nền"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-spotify:description"
 msgid "Desktop client for streaming music, playlists, and podcasts"
 msgstr "Trình khách màn hình để truyền nhạc, danh sách các bản nhạc và harcast"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-nextcloud:description"
 msgid "Desktop client setup linking home folders into the cloud-synced directory for integrated file synchronization"
 msgstr "Trình khách môi trường thiết lập liên kết thư mục chính vào thư mục đặc trưng đám mây để đồng bộ hoá tập tin"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-gnome-extensions:description"
 msgid "Desktop config role for activating GNOME Shell extensions and installing a CLI tool to manage them"
 msgstr "Vai trò cấu hình môi trường để khởi động GNOME Shell Phần mở rộng và cài đặt một công cụ CLI để quản lý chúng"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "category:dsk:description"
 msgid "Desktop environment roles & apps (GNOME, browser, LibreOffice, etc.)"
 msgstr "& Ứng dụng môi trường làm việc (GNOME, trình duyệt, LibreOffice, etc.)"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-bluray-player:description"
 msgid "Desktop media-player setup with VLC and AACS/BD+ libraries for Blu-ray disc decryption and playback on Arch Linux"
 msgstr "Name"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-libreoffice:description"
 msgid "Desktop office suite for documents, spreadsheets, and presentations with Liberation fonts and language packs"
 msgstr "Bộ công cụ văn phòng máy tính cho tài liệu, bảng tính và trình bày với các phông chữ giải phóng và gói ngôn ngữ"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-gnome-caffeine:description"
 msgid "Desktop utility for inhibiting screen blanking and sleep, autostarted on the GNOME desktop"
 msgstr "Tiện ích màn hình để ức chế việc trống và ngủ, tự động khởi chạy trên màn hình GNOME"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-zoom:description"
 msgid "Desktop video conferencing client for online meetings, webinars, and screen sharing"
 msgstr "Trình khách tham khảo phim màn hình cho các cuộc họp trực tuyến, webinars, và chia sẻ màn hình"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Development:title"
 msgid "Development"
 msgstr "Phát triển"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Development:description"
 msgid "Development and CI/CD tools"
 msgstr "Công cụ phát triển và CN/CD"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
 msgstr "Phân phối chữ S3- Các cửa hàng vật thể tương ứng cho việc chia sẻ, mỗi đối tượng đóng gói các vai trò cung cấp qua web-app"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:dev-git:description"
 msgid "Distributed version control system for tracking source code changes and coordinating development work"
 msgstr "Hệ thống quản lý phiên bản phân tán để theo dõi các thay đổi mã nguồn và phối hợp phát triển"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Name (Bộ biên dịch, liên kết, làm) cho việc biên dịch phần mềm từ nguồn"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-stk-backend:description"
 msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
 msgstr "Bộ soạn thảo Docker cho cơ sở dữ liệu quan hệ có kết nối với bản sao lưu, người dùng và quản lý cho phép"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
 msgid "Docker Swarm cluster bootstrap and node-membership roles for multi-host service deployment."
 msgstr "Docker Swarm strap và các vai trò của trưởng nhóm trong việc triển khai dịch vụ đa chủ thể."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-onlyoffice:description"
 msgid "Document server backend for real-time in-browser editing of documents, spreadsheets, and presentations"
 msgstr "Hậu phương của máy phục vụ tài liệu cho việc biên tập tài liệu, bảng tính và trình bày thời gian thực"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Documentation:title"
 msgid "Documentation"
 msgstr "Tài liệu"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Documentation:description"
 msgid "Documentation and Wiki Applications"
 msgstr "Tài liệu khiêu dâm và ứng dụng Wiki"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-opt-keyboard-color:description"
 msgid "Driver integration for dynamic keyboard color and RGB lighting control on MSI laptops"
 msgstr "Name"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:drv:title"
 msgid "Drivers"
 msgstr "Trình điều khiển"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Education:title"
 msgid "Education"
 msgstr "Giáo dục"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-ai-robot:description"
 msgid "Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device"
 msgstr "Nền tảng rô bốt cho Hermes trên một thiết bị đơn hỗ trợ mạng"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-mcp-reconcile:description"
 msgid "End-of-play convergence of every deployed MCP client against the complete provider set"
 msgstr "Kết thúc của lượt chơi hội tụ của mỗi trình khách MCP đang triển khai chống lại bộ nhà cung cấp đầy đủ"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-engine:description"
 msgid "Engine-agnostic wiring layer for shared cache, queue, search, and vector engines with per-consumer provisioning"
 msgstr "Lớp dây điện bất khả thi cho phép chia sẻ bộ nhớ tạm, hàng đợi, tìm kiếm và máy véc tơ với sự cung cấp một chiều"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-confluence:description"
 msgid "Enterprise wiki and team collaboration platform for creating, organizing, and sharing content"
 msgstr "Nền tảng hợp tác của tầu Enterprise"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Events:description"
 msgid "Event and ticket management tools"
 msgstr "Công cụ quản lý vé và sự kiện"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Events:title"
 msgid "Events"
 msgstr "Sự kiện"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-neovim:description"
 msgid "Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
 msgstr "Trình soạn thảo văn bản theo dòng lệnh có khả năng tăng cường cho trình soạn thảo mã và cấu hình thiết bị cuối"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-chess:description"
 msgid "Federated chess server for playing and following rule-validated games over ActivityPub across the Fediverse"
 msgstr "Máy chủ cờ vua Federated cho chơi và sau đó các trò chơi quy tắc được chỉnh sửa trên hoạt độngPub qua Fediver"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-matrix:description"
 msgid "Federated, end-to-end-encrypted messaging platform with a web client and protocol bridges to external chat networks"
 msgstr "Một nền tảng tin nhắn được mã hóa với một trình khách và giao thức kết nối đến mạng chat bên ngoài"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-mobilizon:description"
 msgid "Federated, self-hosted platform for organizing events and building communities and groups"
 msgstr "Nền tảng liên bang, tự chủ để tổ chức sự kiện và xây dựng cộng đồng và nhóm"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
 msgstr "Name (Name), giao thức AT (Bluesky), và Indieweb"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Finance & Accounting:title"
 msgid "Finance & Accounting"
 msgstr "Tài chính & Kế toán"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Finance & Accounting:description"
 msgid "Financial and accounting software"
 msgstr "Phần mềm kế toán và tài chính"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-coturn:description"
 msgid "Free and open-source TURN/STUN relay server for NAT traversal in WebRTC and real-time communication"
 msgstr "Máy phục vụ chuyển tiếp mã nguồn miễn phí và mã nguồn mở cho NAT trên mạng Internet và truyền thông thời gian thực"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-obs:description"
 msgid "Free and open-source desktop application for live video streaming and screen recording"
 msgstr "Ứng dụng bàn làm việc miễn phí và mã nguồn mở cho việc truyền hình trực tiếp và thu hình màn hình"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-gnucash:description"
 msgid "Free and open-source desktop application for personal and small-business accounting and financial management"
 msgstr "Ứng dụng bàn làm việc miễn phí và mã nguồn mở cho kế toán cá nhân và thương mại nhỏ và quản lý tài chính"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-dashboard:description"
 msgid "Front-end JS injection notifying parent windows of iframe location changes and forcing external links into new tabs"
 msgstr "Trước-end JS thông báo cửa sổ cha mẹ của tôi khung thay đổi vị trí và ép liên kết bên ngoài vào tab mới"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-stk-front-base:description"
 msgid "Front-layer base for web apps: HTTPS foundation, optional Cloudflare setup, and reverse-proxy handler wiring"
 msgstr "Cơ sở dịch vụ trước cho ứng dụng Mạng: Tổ chức HTTPS, thiết lập đám mây tùy chọn, và hệ thống quản lý oxy ngược"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.front:description"
 msgid "Frontend helpers for reverse-proxied apps (injection, shared assets, CDN plumbing)."
 msgstr "Giao diện người trợ giúp cho ứng dụng ngược (bơm, chia sẻ tài sản, ống nước CDN)."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Games:title"
 msgid "Games"
 msgstr "Trò chơi"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Games:description"
 msgid "Gaming platforms and entertainment applications."
 msgstr "Diễn đàn trò chơi và ứng dụng giải trí."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:gen:title"
 msgid "Generic"
 msgstr "Giống loài"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:test-e2e-playwright:description"
 msgid "Generic end-to-end test runner executing role-provided Playwright specs in Docker against deployed applications"
 msgstr "Chung chung kết thúc bài kiểm tra lần chạy thử thực hiện vai trò được chứng minh trong Docker chống lại các ứng dụng đã triển khai"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-dotlinker:description"
 msgid "Generic role installing the doli CLI and applying dotfile symlink mappings passed in by other roles"
 msgstr "Vai trò chung của việc cài đặt doli CLI và áp dụng các bản đồ giao tiếp dotfile được thông qua bởi các vai trò khác"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "Lớp tiêm JavaScript toàn cục cho phản ứng HTML NGINX qua sub_filter, Với âm thanh của kênh CNP"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-css:description"
 msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
 msgstr "Name"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
 msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
 msgstr "Cấu hình trình nền OpenSSH cứng cho phép truy cập từ xa dựa trên phím với đăng nhập root và mật khẩu bị tắt"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-chromium:description"
 msgid "Hardened desktop web browser with enforced privacy and password-manager extensions via Enterprise Policies"
 msgstr "Trình duyệt mạng bàn làm việc cứng với sự riêng tư và phần mở rộng quản lý mật khẩu thông qua hệ thống chính sách Enterprise"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-ai-lmstudio:description"
 msgid "Headless local model server for open LLMs with an OpenAI-compatible API on the container network"
 msgstr "Trình phục vụ máy chủ cục bộ không đầu cho việc mở LMs với một trình phục vụ OpenAI tương ứng API trên mạng container"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-volumes:description"
 msgid "Health check for orphaned anonymous Docker volumes unbound to containers, with whitelist and alerting"
 msgstr "Kiểm tra sức khỏe cho trẻ mồ côi vô danh Docker âm lượng không bị hạn chế cho các thùng chứa, với danh sách trắng và báo động"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Help:title"
 msgid "Help"
 msgstr "Trợ giúp"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
 msgstr "Đang hỗ trợ việc cài đặt tài sản phun CA tin cậy cho Docker Compose Chứng nhận CA dự án và hợp lệ hoá"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:gen:description"
 msgid "Helper roles & installers (git, locales, timer, etc.)"
 msgstr "Bộ trợ giúp (git, locales, timer, etc.)"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Tools:description"
 msgid "Helpful Tools"
 msgstr "Công cụ hữu ích"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
 msgstr "Các giải pháp lưu trữ có hiệu quả cao, tự lưu trữ để quản lý, phóng to và truy cập dữ liệu chưa cấu trúc — bao gồm các đối tượng lưu trữ tương thích với Amazon S3 ADIs."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-net-wireguard-core:description"
 msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
 msgstr "Dịch vụ Wire cao cấp máy bảo vệ VPN với wg-quick conrig, gói cài đặt, và IP-backing Sysctl cho đường hầm bảo mật"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr "Cấu hình cấp máy cho trình nền ghi nhật ký hệ thống với giới hạn ghi nhớ và truyền dữ liệu trực tiếp"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:dev-shell:description"
 msgid "Host-level configuration linking Bash and Zsh login shells to a shared .profile for consistent environment loading"
 msgstr "Cấu hình cấp chủ kết nối đến hệ thống đăng nhập Bash và Zsh tới một hệ thống chung. Đặc điểm cho việc tải môi trường nhất định"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-version:description"
 msgid "Host-level provisioning for exposing the project's pyproject.toml version system-wide via /etc/environment"
 msgstr "Việc cung cấp máy chủ để phơi bày dự án pyproject.toml phiên bản toàn hệ thống thông qua /etc/vironment"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:user-root:description"
 msgid "Host-level role provisioning a root RSA 4096-bit SSH key pair for secure automated administrative access"
 msgstr "Chỉ định tên máy 4096- cặp chìa khóa SSH để bảo mật truy cập hành chính tự động"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-openbao:description"
 msgid "Identity-based secrets, PKI and encryption manager with OIDC login, group-mapped policies and static-seal auto-unseal"
 msgstr "Bí mật dựa trên danh tính, PKI và bộ quản lý mã hóa với đăng nhập OIDC, các chính sách được vẽ nhóm và báo động tự động"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-db-redis:description"
 msgid "In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
 msgstr "Bộ nhớ tạm giá trị mã khóa và cửa hàng, được chia sẻ trung tâm với sự cô lập trên một chiều kim đồng hồ hoặc được nhúng như một chiếc xe phụ"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-docs:description"
 msgid "Infinito.Nexus documentation for the latest commit and every release, built on demand with Sphinx"
 msgstr "Infinito.Nexus Tài liệu hướng dẫn cho các cam kết mới nhất và mỗi bản ra mắt, được xây dựng theo yêu cầu với Sphinx"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Infrastructure:title"
 msgid "Infrastructure"
 msgstr "Cơ sở dữ liệu"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Infrastructure:description"
 msgid "Infrastructure and networking tools"
 msgstr "Công cụ mạng và cấu trúc"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-compose:description"
 msgid "Infrastructure role for managing containerized-application project structures, .env files, and lifecycle handlers"
 msgstr "Vai trò cấu trúc bên trong để quản lý cấu trúc công cụ hóa công cụ kiến trúc, tập tin .env, và quản lý xe đạp"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-service:description"
 msgid "Infrastructure role for managing systemd service units: cleanup, deployment, timers, and shared failure diagnostics"
 msgstr "Vai trò cấu trúc quản lý đơn vị dịch vụ hệ thống: dọn dẹp, triển khai, đồng hồ hẹn giờ và chẩn đoán thất bại"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc:description"
 msgid "Infrastructure services like databases"
 msgstr "Comment"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.front.inj:title"
 msgid "Injection"
 msgstr "In trip"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
 msgstr "Intel VA-API Trình điều khiển phương tiện cho phép giải mã video được tăng tốc và mã hóa qua bản phân phối Linux"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-mig:description"
 msgid "Interactive graph visualization of all Infinito.Nexus roles and their dependencies for architecture transparency"
 msgstr "Hình ảnh đồ thị tương tác cho tất cả Infinito.Nexus Vai trò và phụ thuộc của họ cho độ trong suốt kiến trúc"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-jira:description"
 msgid "Issue and project tracking platform for software teams, with agile boards, workflows, and optional OIDC SSO"
 msgstr "Phát hành và dự án theo dõi nền tảng cho các đội phần mềm, với bảng nhanh nhẹn, luồng công việc, và tùy chọn OIDC SSO"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "Chạy JavaScript thời gian để xây dựng và chạy ứng dụng cạnh máy chủ và phát triển tooling"
 
+# translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
 msgid "Kernel backend that runs the code a chat writes, in a container instead of in the browser sandbox"
-msgstr ""
+msgstr "Hậu phương hạt nhân mà chạy mã một chat ghi, trong một container thay vì trong hộp cát duyệt"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-hermes:description"
 msgid "Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to models through the shared LLM gateway"
 msgstr "Nhân viên thời gian chạy bị phá vỡ nhân viên phục vụ một OpenAI tương ứng API, được chuyển tới mô hình qua cổng M chung"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.virt:description"
 msgid "Kernel-isolating container runtimes on the container host: Kata Containers microVMs and the gVisor userspace fallback."
 msgstr "Hộp chế tạo hạt nhân thời gian chạy trên máy công-ten-ten-nơ: Kata ngăn chặn microVMs và ngược không gian gVisor."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-virt-kata:description"
 msgid "Kernel-isolating container runtimes that sandbox untrusted workloads in a microVM or a userspace kernel"
 msgstr "Hộp cát không đáng tin cậy tải công việc trong một microVM hoặc hạt nhân không gian người dùng"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-storage-nfs-server:description"
 msgid "Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts"
 msgstr "Máy chủ NFS cấp hạt nhân để xuất khẩu một cây thư mục chia sẻ với các máy chủ sở hữu thông tin IP-recited"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "Học tập, công cụ hợp tác trong lớp học, và môi trường giáo dục số."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-front-tls-letsencrypt:description"
 msgid "Let's Encrypt provider for the front-facing TLS layer ensuring automated certificate issuance and presence"
 msgstr "Chúng ta hãy cung cấp mã hóa cho các lớp tôn giáo sai lệch phía trước bảo đảm tự động chứng nhận an ninh và hiện diện"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-retroarch:description"
 msgid "Libretro-based frontend for emulators, game engines, and media players, with XMB and Ozone menu styles"
 msgstr "Giao diện điều khiển nền tảng cho trình giả lập, động cơ trò chơi và người chơi phương tiện, với kiểu dáng trình đơn XMB và Ozone"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-mail-msmtp:description"
 msgid "Lightweight SMTP client and sendmail replacement for delivering mail through an external SMTP server"
 msgstr "Trình khách Sổ tay nhẹ và gửi thư cho việc gửi thư qua máy chủ Sổ tay bên ngoài"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-gitea:description"
 msgid "Lightweight self-hosted Git service for code collaboration, version control, and repository management"
 msgstr "Dịch vụ Git hạng nhẹ giúp hợp tác mã, quản lý phiên bản và kho phần mềm"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-nss:description"
 msgid "Local name resolution for the domains the target serves, via the myhostname NSS module"
 msgstr "Độ phân giải tên máy cho miền mà mục tiêu phục vụ, qua mô- đun máy của tôi tên NSS"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ca-selfsigned:description"
 msgid "Local self-signed Root CA for issuing trust so containers accept internal TLS endpoints"
 msgstr "CA gốc tự ký địa phương cho việc phát hành sự tin tưởng để các thùng chứa chấp nhận điểm kết thúc nội bộ của USD"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-keepassxc:description"
 msgid "Local-first cross-platform desktop password manager storing credentials in an encrypted KeePass-format database"
 msgstr "Name"
 
+# translated-by: libretranslate
 msgctxt "role:dsk-laya:description"
 msgid "Local-first notification command center that aggregates Slack, mail and issue trackers into approvable action cards"
-msgstr ""
+msgstr "Trung tâm điều khiển thông báo cục bộ thứ nhất tổng hợp Slack, mail và yêu cầu theo dõi vào thẻ hành động có thể chấp nhận được"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-lock:description"
 msgid "Locking mechanism for gating maintenance tasks until critical services stop, with configurable retry and timeout"
 msgstr "Đang khoá cơ chế để chuyển đổi tác vụ bảo trì cho đến khi dịch vụ quan trọng dừng lại, với việc thử lại và thời hạn có thể cấu hình"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-mail-smtp:description"
 msgid "Loopback-only Postfix relay for lightweight outbound mail delivery via localhost when no central mail stack runs"
 msgstr "Phụ đề được thực hiện bởi Động Phim"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-flowise:description"
 msgid "Low-code visual builder for creating, testing, and publishing LLM and RAG workflows as HTTP endpoints"
 msgstr "Những công trình xây dựng hình ảnh thấp để tạo ra, thử nghiệm, và xuất bản LM và RAG luồng như điểm cuối HTTP"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:title"
 msgid "Maintenance"
 msgstr "Bảo trì"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:description"
 msgid "Maintenance roles for certificates, system upkeep, and recurring operational tasks."
 msgstr "Vai trò bảo trì cho chứng nhận, quản lý hệ thống, và lặp lại các nhiệm vụ hoạt động."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
 msgstr "Đánh dấu vai trò của máy Docker Swarm nút quản lý, với logic init ủy thác cho svc-swarm-node"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Marketing:title"
 msgid "Marketing"
 msgstr "Khu chợ"
 
+# translated-by: libretranslate
 msgctxt "role:svc-ai-searxng:description"
 msgid "Metasearch engine the platform queries for web results without handing a user's query to a tracking search provider"
-msgstr ""
+msgstr "Máy siêu tìm kiếm nền tảng các kết quả web mà không cần giao yêu cầu của người dùng cho nhà cung cấp tìm kiếm theo dõi"
 
+# translated-by: libretranslate
 msgctxt "role:dsk-gnt-pi:description"
 msgid "Minimal terminal coding agent with a lazy-loading skill system, wired to the platform's own model gateway"
-msgstr ""
+msgstr "Nhân viên bộ mã thiết bị cuối tối thiểu với một hệ thống tải kỹ năng lười biếng, nối kết với cổng ra vào của nền tảng"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.ctl.hlth:title"
 msgid "Monitoring"
 msgstr "Theo dõi"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:gen-hunspell:description"
 msgid "Multi-language spell checker with configurable dictionary packs for desktop and office text editing"
 msgstr "Comment"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-opt-rdr-domains:description"
 msgid "NGINX glue role for 301 redirects from source to target domains with automatic SSL for the source hosts"
 msgstr "Chức năng dán NGINX 301 Chuyển đổi từ nguồn sang miền đích bằng SSL tự động cho máy nguồn"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-webserver-https:description"
 msgid "NGINX layer for HTTPS with Let's Encrypt ACME challenge handling, port 80 to 443 redirect, and stale vHost cleanup"
 msgstr "Lớp NGINX cho HTTPS với thách thức ACME, cổng 80 phải 443 Chuyển hướng, và dọn dẹp cũ kỹ"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-opt-rdr-www:description"
 msgid "NGINX server blocks that permanently redirect www subdomains to their non-www apex domains"
 msgstr "Máy phục vụ tNX chặn vĩnh viễn chuyển hướng www subdomais đến miền không phải là www."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-matomo:description"
 msgid "NGINX subfilter injector adding Matomo analytics script and noscript image tracker to served HTML pages"
 msgstr "Trình tiêm chủng phụ NGINX thêm hệ thống phân tích Matomo và trình theo dõi ảnh không dùng để phục vụ trang HTML"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-html:description"
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
 msgstr "NGINX v máy phục vụ các trang web HTML tĩnh trên HTTPS với tự động mã hóa chứng nhận"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-prx-openresty:description"
 msgid "NGINX-based web platform and reverse proxy with validated config reloads and Let's Encrypt integration"
 msgstr "Nền tảng web dựa trên NGINX và đảo ngược ủy nhiệm với thẩm quyền cấu hình nạp lại và chúng ta hãy kết hợp mã hóa"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
 msgstr "Cấu hình trang tĩnh NGINX (Inpressum) từ Jinja2 mẫu"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.net:title"
 msgid "Network"
 msgstr "Mạng"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.net:description"
 msgid "Network setup (DNS, Let's Encrypt HTTP, WireGuard, etc.)"
 msgstr "Thiết lập mạng (DNS, hãy mã hóa HTTP, Wire Guard, etc.)"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "Hang ổ DNS toàn mạng cho việc chặn quảng cáo và theo dõi trên mọi thiết bị, với DHCP và bảng điều khiển quảng cáo trên mạng"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-net-wireguard-firewalled:description"
 msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
 msgstr "Trình trợ giúp mạng cho iptables chuyển tiếp và phát thanh NT của một khách hàng Wire Guard chạy phía sau NAT hoặc tường lửa"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-logout:description"
 msgid "Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
 msgstr "Nginx sub_filter mũi tiêm JavaScript chuyển đổi mọi hành động đăng xuất tới một điểm kết thúc xuất đơn IDC"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-cdn:description"
 msgid "Nginx-based content delivery network for serving shared static assets to internal web applications"
 msgstr "Mạng nội dung của Nginx cho việc chia sẻ tài sản tĩnh cho ứng dụng mạng nội bộ"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-mirror:description"
 msgid "Nginx-based privacy proxy that mirrors whitelisted third-party assets under a first-party domain"
 msgstr "Ủy nhiệm riêng tư dựa trên Nginx mà phản ánh trắng danh sách tài sản bên thứ ba dưới một miền bên đầu tiên"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-asset:description"
 msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
 msgstr "Máy chủ dựa vào Nginx để tổ chức các tài sản tĩnh đã sao chép từ thư mục nguồn đến đường dẫn dữ liệu web"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
 msgstr "Node.js Name"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.ctl.alm:description"
 msgid "Notification handlers for system events"
 msgstr "Name"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:update:description"
 msgid "OS & package updates"
 msgstr "Comment"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-objstore:description"
 msgid "Object-storage layer for SeaweedFS/MinIO backend resolution and per-consumer bucket and credential provisioning"
 msgstr "Lớp trang trí đối tượng cho độ phân giải hậu phương SeaweedFS/MinIO và một xô một chiều và cung cấp credential"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr "Tự động hoạt động để tạo và kích hoạt không gian trao đổi thông qua một tập lệnh trao đổi nhân bản"
@@ -1101,123 +1088,122 @@ msgctxt "logout:no_check_hint"
 msgid "Open the logout page and sign out of the remaining services yourself."
 msgstr "Mở trang đăng xuất và tự đăng xuất khỏi các dịch vụ còn lại."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-espocrm:description"
 msgid "Open-source CRM platform for managing sales, customer interactions, and business processes across teams"
 msgstr "Nền tảng mã nguồn mở cho việc quản lý bán hàng, tương tác khách hàng, và các quá trình kinh doanh qua các nhóm"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-suitecrm:description"
 msgid "Open-source CRM platform for sales, service, cases, and campaign management with workflow automation"
 msgstr "Nền tảng mã nguồn mở cho doanh thu, dịch vụ, trường hợp, và quản lý chiến dịch với sự tự động hóa công việc"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-odoo:description"
 msgid "Open-source ERP suite for CRM, sales, accounting, inventory, HR, and website management"
 msgstr "Bộ y tế mã nguồn mở cho CRM, kinh doanh, kế toán, kiểm kê, nhân sự và quản lý trang web"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-checkmk:description"
 msgid "Open-source IT and application monitoring server behind SSO with native LDAP user management"
 msgstr "Bộ quản lý người dùng LDAP bản xứ"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-snipe-it:description"
 msgid "Open-source IT asset management system for tracking hardware and software inventory"
 msgstr "Hệ thống quản lý tài sản mã nguồn mở cho việc theo dõi phần cứng và kho phần mềm"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-kix:description"
 msgid "Open-source ITSM and helpdesk platform (OTRS fork) for ticketing, CMDB, knowledge base, and reporting"
 msgstr "Phần mềm TSM mã nguồn mở và hỗ trợdesk (Name) cho vé, CMDB, nền tảng kiến thức, và báo cáo"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-taiga:description"
 msgid "Open-source agile project management platform for Scrum, Kanban, and hybrid team workflows"
 msgstr "Nền tảng quản lý dự án mã nguồn mở cho Scrum, Kanban, và các luồng công việc của nhóm lai"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-jenkins:description"
 msgid "Open-source automation server for CI/CD pipelines, builds, and plugin-driven deployment workflows"
 msgstr "Máy phục vụ tự động mã nguồn mở cho đường ống CI/CD, xây dựng, và kích hoạt bổ sung"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-fider:description"
 msgid "Open-source community feedback platform for collecting, voting on, and prioritizing feature requests and ideas"
 msgstr "Nền tảng phản hồi cộng đồng mã nguồn mở để thu thập, bỏ phiếu, và ưu tiên các yêu cầu và ý tưởng"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-joomla:description"
 msgid "Open-source content management system for building websites, intranets, and online applications without writing code"
 msgstr "Hệ thống quản lý nội dung mã nguồn mở cho việc xây dựng trang web, mạng nội bộ và ứng dụng trực tuyến mà không cần viết mã"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-qbittorrent:description"
 msgid "Open-source desktop BitTorrent client for downloading and sharing files over the BitTorrent protocol"
 msgstr "Trình khách BitTorrent mã nguồn mở để tải và chia sẻ tập tin qua giao thức BitTorrent"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-discourse:description"
 msgid "Open-source discussion and community forum platform with moderation, notifications, and plugin support"
 msgstr "Bàn luận mã nguồn mở và nền tảng diễn đàn cộng đồng với sự điều độ, thông báo và hỗ trợ bổ sung"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-shopware:description"
 msgid "Open-source ecommerce platform built on Symfony and Vue.js for building and scaling online storefronts"
 msgstr "Nền tảng môi trường mã nguồn mở được xây dựng trên Symfiny và Vue.js để xây dựng và phóng đại các cửa hàng trực tuyến"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-zammad:description"
 msgid "Open-source helpdesk and ticketing system for handling customer requests via email, chat, phone, and web"
 msgstr "Hỗ trợ mã nguồn mở và hệ thống vé để xử lý các yêu cầu khách hàng qua email, chat, điện thoại và mạng"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-moodle:description"
 msgid "Open-source learning management system for creating, managing, and delivering online courses and e-learning"
 msgstr "Hệ thống quản lý học mã nguồn mở để tạo, quản lý, và thực hiện các khóa học trực tuyến và học e- learning"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-prometheus:description"
 msgid "Open-source monitoring and alerting toolkit for storing metrics as time-series data and querying them with PromQL"
 msgstr "Theo dõi mã nguồn mở và báo động công cụkit để lưu trữ các bộ đo thời gian như dữ liệu thời gian và truy vấn chúng với promQL"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-decidim:description"
 msgid "Open-source participatory democracy platform for public consultations, civic processes, and community voting"
 msgstr "Nền tảng dân chủ mở cho các tư vấn cộng đồng, các quy trình công dân, và bầu cử cộng đồng"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-mattermost:description"
 msgid "Open-source, self-hosted team messaging platform for real-time collaboration via channels, threads, and integrations"
 msgstr "Hệ thống mã nguồn mở, hệ thống tin nhắn cho sự hợp tác thời gian thực thông qua các kênh, mạch và sự kết hợp"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-ai-litellm:description"
 msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
 msgstr "Name1 kết thúc điểm tới hậu phương mô hình cục bộ và máy chủ với các phím trên máy chủ"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:dev-java:description"
 msgid "OpenJDK 11 runtime and development kit for Java applications on Pacman-based systems"
 msgstr "OpenJDK 11 Name Java ứng dụng trên hệ thống dựa trên Pacman"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-ssh:description"
 msgid "OpenSSH client package for secure remote shell access and key-based authentication"
 msgstr "Gói khách hàng OpenSSH để bảo mật truy cập hệ vỏ từ xa và xác thực dựa vào phím"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.opt:description"
 msgid "Optimation Services to improve your system"
 msgstr "Dịch vụ làm báp têm để cải thiện hệ thống của bạn"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Optimize biên dịch công cụchain để xây dựng C, C++, và các chương trình bản địa-language"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
 msgstr "Gói dự phòng cho việc cung cấp một cửa sổ lNGINX cung cấp với chứng nhận TLS, vHost models, và tùy chọn OAuth2"
@@ -1226,37 +1212,37 @@ msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
 msgstr "Qua Tor việc này có thể lâu hơn."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:dev-make:description"
 msgid "Package installation for the GNU Make build automation tool on Arch Linux via Pacman"
 msgstr "Cài đặt gói cho GNU Make xây dựng công cụ tự động hóa trên Arch Linux thông qua Pacman"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-pip:description"
 msgid "Package manager for installing and managing Python packages on the target host"
 msgstr "Trình quản lý gói để cài đặt và quản lý các gói Python trên máy đích"
 
+# translated-by: libretranslate
 msgctxt "role:svc-ai-agent-broker:description"
 msgid "Per-user Hermes and OpenClaw agents started on demand behind an OpenAI-compatible endpoint"
-msgstr ""
+msgstr "Name OpenClaw Đặc vụ bắt đầu theo yêu cầu đằng sau điểm kết thúc OpenAI"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-msmtp:description"
 msgid "Periodic health check for outbound mail delivery, sending a test message via msmtp and alerting on failure"
 msgstr "Định kỳ y tế kiểm tra gửi thư bị hạn chế, gửi một thông điệp kiểm tra thông qua msmtp và báo động về thất bại"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-ssh:description"
 msgid "Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
-msgstr "Người dùng- dịch vụ SSH có hệ thống cho máy tính Wayland, với cấu hình « .sh » đồng bộ từ Git"
+msgstr "Người dùng- dịch vụ SSH bền bỉ hệ thống cho bàn làm việc Wayland, với cấu hình « .sh » đồng bộ từ Git"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
 msgstr "Vai trò giữ chỗ cho tương lai XMPP Trình phục vụ/ hậu phương triển khai, thực hiện đang chờ"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Commerce:description"
 msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
 msgstr "Nền tảng để xây dựng và quản lý các cửa hàng trực tuyến, danh mục sản phẩm, và các kênh bán hàng kỹ thuật số, bao gồm thanh toán, hàng hóa và tính năng khách hàng."
@@ -1269,472 +1255,472 @@ msgctxt "logout:keep_open"
 msgid "Please keep this page open until this is done."
 msgstr "Giữ trang này mở cho đến khi xong."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-bkp-local-2-device:description"
 msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
 msgstr "Các bản sao lưu được thêm vào cho ảnh chụp phức tạp của cây sao lưu địa phương trên thiết bị USB có thể trao đổi"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-firefox:description"
 msgid "Policy-managed web browser for Arch Linux desktops with auto-installed enterprise extensions"
 msgstr "Trình duyệt web được quản lý chính sách cho Arch Linux với phần mở rộng doanh nghiệp tự động"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:drv-lid-switch:description"
 msgid "Power-aware systemd logind configuration for predictable laptop lid-close behavior across battery, AC, and docked states"
 msgstr "Hệ thống nhận biết điện đã đăng nhập cho các hành vi đóng nắp máy tính xách tay có thể dự đoán được thông qua ắc quy, AC, và kết nối các bang"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-socialhome:description"
 msgid "Privacy-first social platform for households, federating peer-to-peer over WebRTC on an embedded SQLite store"
 msgstr "Nền tảng xã hội riêng tư đầu tiên cho các hộ gia đình, Liên kết ngang hàng trên WebTC trên một cửa hàng QT"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-sudo:description"
 msgid "Privilege-escalation package and hardened sudoers configuration with /etc/sudoers.d drop-in support"
 msgstr "Name"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Project Management:title"
 msgid "Project Management"
 msgstr "Quản lý dự án"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Project Management:description"
 msgid "Project Management Tools"
 msgstr "Công cụ quản lý dự án"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:drv-non-free:description"
 msgid "Proprietary GPU driver installer for Arch-based systems via mhwd nonfree hardware detection"
 msgstr "Trình điều khiển trình điều khiển GPU cho các hệ thống dựa vào Arch- nền thông qua việc phát hiện phần cứng không tự do sthwd"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-dns-wildcards:description"
 msgid "Provisioning role for Cloudflare wildcard DNS records (*.parent) on parent hosts and the apex domain"
 msgstr "Vai trò sắp xếp cho các hồ sơ DNS hoang dã (*Cha) trên máy cha và miền đỉnh"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:user-workstation:description"
 msgid "Provisioning role for a workstation login account with its shell dotfiles, SSH authorized keys, and environment"
 msgstr "Đang sắp xếp vai trò cho tài khoản đăng nhập trạm làm việc với các tập tin kiểu hệ vỏ, các phím SSH cho phép và môi trường"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:user:description"
 msgid "Provisioning role for per-user environment setup, managing shell dotfiles and SSH authorized_keys"
 msgstr "Đang cung cấp vai trò cho mỗi người dùng thiết lập môi trường, quản lý chấm file hệ vỏ và SSH authorized_keys"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.prx:title"
 msgid "Proxy Servers"
 msgstr "Máy phục vụ ủy nhiệm"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-api:description"
 msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
 msgstr "CÔNG VIỆC API Đang phục vụ dữ liệu, lịch sử và các bản dịch của Infinito.Nexus Cho mỗi phần lõi và nĩa của nó"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:pkgmgr:description"
 msgid "Python CLI package manager for cloning multiple code repositories and automating common Git operations"
 msgstr "Trình quản lý gói CLI Python cho phép nhân bản nhiều kho mã và tự động hoá các thao tác Git chung"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-lint:description"
 msgid "Release pins for the GitHub-release lint tools the toolchain installs"
 msgstr "Phát hành ghim cho GitHub-reease liet công cụ công cụ cài đặt"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.ctl.rpr:title"
 msgid "Repair"
 msgstr "Sửa"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.ctl.rpr:description"
 msgid "Repair and recovery roles—handling hard/soft recovery of Docker, Btrfs balancers, and other low-level system fixes."
 msgstr "Sửa chữa và phục hồi các vai trò - xử lý khó khăn/thường phục hồi của Docker, Btrfs cân bằng, và các hệ thống cấp thấp khác sửa chữa."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-util-git-pull:description"
 msgid "Reusable Git pull primitive for shallow clones, detached-safe updates, tag pinning, and reliable change detection"
 msgstr "Name Git kéo nguyên thủy cho nhân bản nông cạn, các bản cập nhật an toàn tách biệt, thẻ đạo đức, và đáng tin cậy thay đổi phát hiện"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-ai-mcp-adapter:description"
 msgid "Reusable per-provider MCP adapter exposing a narrow allowlisted read surface"
 msgstr "Bộ thích nghi MCP cho phép sử dụng bề mặt đọc thông tin cá nhân"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-proxy:description"
 msgid "Reverse proxy front-end for Docker-hosted services with automatic TLS, WebSocket support, and per-app vHost templating"
 msgstr "Giao diện điều khiển ủy nhiệm ngược cho dịch vụ của Docker-host với sự hỗ trợ máy chủ tự động của USD, WebSoet, và một app vHost vHolating"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-front-tls:description"
 msgid "Reverse-proxy TLS orchestration layer selecting Let's Encrypt, self-signed, or disabled certificate providers for Nginx"
 msgstr "Trình sắp xếp chứng nhận ngược thời gian"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.prx:description"
 msgid "Reverse-proxy roles for routing and load-balancing traffic to backend services"
 msgstr "Vai trò ngược oxy cho việc định tuyến và tải trọng giao thông đến dịch vụ hậu phương"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.ctl.cln:description"
 msgid "Roles for cleaning up various system resources—old backups, unused certificates, temporary files, Docker volumes, disk caches, deprecated domains, and more."
 msgstr "Vai trò của việc làm sạch các tài nguyên hệ thống -- bản sao cũ, chứng nhận không sử dụng, tập tin tạm thời, âm lượng Docker, bộ nhớ tạm đĩa, miền bị bỏ hoang, và nhiều thứ khác nữa."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:drv:description"
 msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
 msgstr "Vai trò của việc cài đặt và cấu hình trình điều khiển phần cứng - xóa các máy in, đồ họa, thiết bị nhập và hỗ trợ ngoại biên khác."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:web:description"
 msgid "Roles for managing web infrastructure—covering static content services and deployable web applications."
 msgstr "Vai trò quản lý cơ sở hạ tầng web - phục hồi các dịch vụ nội dung tĩnh và các ứng dụng web có thể triển khai."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.ctl.hlth:description"
 msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
 msgstr "Vai trò của việc giám sát hệ thống và kiểm tra sức khỏe và kiểm tra sức khỏe của robot tự động kiểm tra và các màn hình tầm thấp lõi cho bản ghi, hộp, sử dụng đĩa, và nhiều thứ khác nữa."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-front-tls-selfsigned:description"
 msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
 msgstr "Nhà cung cấp chứng nhận SAN- ý thức được tạo ra và lưu trữ các chứng nhận hệ điều hành hệ thống máy phục vụ chính của mình cho lớp dựa trên thay đổi thời gian"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Sales:title"
 msgid "Sales"
 msgstr "Bán"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.virt:title"
 msgid "Sandboxed Runtimes"
 msgstr "Name"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-bkp-nfs-2-local:description"
 msgid "Scheduled backup job for hard-linked differential rsync snapshots of an NFS export into the local backup tree"
 msgstr "Lên lịch công việc sao lưu cho ảnh chụp vi phân quy tắc rsync của xuất khẩu NFS vào cây sao lưu cục bộ"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-cln-certs:description"
 msgid "Scheduled cleanup tool for revoking and deleting unused Let's Encrypt certificates"
 msgstr "Công cụ dọn dẹp đã lên lịch cho việc phục hồi và xóa bỏ chứng nhận mã hóa không dùng"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-bkp-secrets-2-local:description"
 msgid "Scheduled deduplicating backup of host secrets, CA, ACME credentials, and node identity to the local backup directory"
 msgstr "Đã lên lịch việc sao lưu các bí mật máy, CA, ACME, và tên nút để sao lưu vào thư mục cục bộ"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-bkp-volume-2-local:description"
 msgid "Scheduled deduplicating backup system for Docker container volumes to a local directory, with consistent SQL dumps"
 msgstr "Comment"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-csp:description"
 msgid "Scheduled health check crawling configured domains for CSP-blocked resources via a Puppeteer-based Node.js checker"
 msgstr "Đã lên lịch kiểm tra sức khỏe khu vực cấu hình bò cho các nguồn tài nguyên đã bị chặn qua một Puppeteer dựa trên Node.js checker"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-btrfs:description"
 msgid "Scheduled health check for Btrfs filesystems that alerts on non-zero device error counters"
 msgstr "Kiểm tra sức khỏe đã lên lịch cho hệ thống tập tin Btrfs cảnh báo trên các lỗi thiết bị phi Zero"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-disc-space:description"
 msgid "Scheduled health check for filesystem disk usage, alerting when any mount exceeds its warning threshold"
 msgstr "Kiểm tra sức khỏe đã lên lịch cho việc sử dụng đĩa tập tin, cảnh báo khi bất kỳ gắn kết nào vượt quá ngưỡng cảnh báo của nó"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-journalctl:description"
 msgid "Scheduled health check scanning the systemd journal for daily errors and alerting on matches"
 msgstr "Kiểm tra sức khỏe đã lên lịch quét nhật ký hệ thống cho lỗi sai mỗi ngày và cảnh báo về các trận đấu"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-webserver:description"
 msgid "Scheduled health check verifying each NGINX domain returns its expected HTTP status and alerting on deviations"
 msgstr "Kiểm tra sức khỏe đã lên lịch kiểm tra mỗi miền NGINX trả lại trạng thái HTTP mong đợi và báo động độ lệch"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-cln-faild-bkps:description"
 msgid "Scheduled maintenance service for detecting and removing failed Docker backups while keeping recent sets intact"
 msgstr "Dịch vụ bảo trì đã lên lịch để phát hiện và gỡ bỏ các bản sao chép Docker thất bại trong khi giữ nguyên các thiết lập gần đây"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-cln-anon-volumes:description"
 msgid "Scheduled maintenance task for reclaiming disk space by removing unused anonymous Docker volumes and their symlinks"
 msgstr "Nhiệm vụ bảo trì đã lên lịch để lấy lại không gian trên đĩa bằng cách gỡ bỏ âm lượng Docker vô danh và liên kết tượng trưng"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-bkp-remote-2-local:description"
 msgid "Scheduled pull-style backup replicating remote hosts onto this host over SSH and rsync as hard-linked snapshots"
 msgstr "Đã lên lịch sao chép kiểu kéo sao chép các máy từ xa trên máy này qua SSH và rsync như hình ảnh liên kết cứng"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-cln-bkps:description"
 msgid "Scheduled systemd maintenance service for pruning outdated backup versions when disk usage exceeds a threshold"
 msgstr "Dịch vụ bảo trì có hệ thống để tỉa phiên bản sao lưu đã lỗi thời khi sử dụng đĩa vượt quá ngưỡng"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-rpr-btrfs-balancer:description"
 msgid "Scheduled systemd service and timer for rebalancing Btrfs file systems to keep storage allocation optimal"
 msgstr "Comment"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-mtn-cert-renew:description"
 msgid "Scheduled systemd-timer job renewing Let's Encrypt SSL/TLS certificates via Certbot and reloading NGINX afterward"
 msgstr "Lên lịch công việc làm lại giờ đã định Hãy mã hóa chứng nhận SSL/TLS qua Certbot và tải lại NGINX sau đó"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-runner:description"
 msgid "Self-hosted CI runner infrastructure for executing GitHub Actions workflow jobs in ephemeral Docker containers"
 msgstr "Tự chủ chạy cơ sở hạ tầng để thực hiện hành động GitHub làm việc dòng chảy công việc trong hộp đựng đồ ăn cá nhân"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-gitlab:description"
 msgid "Self-hosted DevOps platform for Git source-code management, CI/CD pipelines, and issue tracking"
 msgstr "Nền tảng tự chủ DevOps cho quản lý mã nguồn Git, đường ống CI/CD, và theo dõi vấn đề"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-fediwall:description"
 msgid "Self-hosted Fediverse wall for showing recent public posts by hashtag or account in a live masonry grid"
 msgstr "Bức tường tự chủ cho việc hiển thị các bài viết công cộng gần đây bởi hashtag hoặc tài khoản trong một mạng lưới nề sống"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.runner:description"
 msgid "Self-hosted GitHub Actions runner deployment and configuration"
 msgstr "Comment"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
 msgstr "Comment5 Hộp cát để duyệt và chạy bản demo động cơ nhẹ và trò chơi trong trình duyệt"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-db-openldap:description"
 msgid "Self-hosted LDAP directory service for centralized user, group, and schema management with TLS-secured access"
 msgstr "Dịch vụ thư mục LDAP tự chủ cho người dùng tập trung, nhóm và bộ quản lý giản đồ với quyền truy cập đã được trợ giúp dựa trên máy phục vụ KDE"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-minio:description"
 msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
 msgstr "Tự chủ S3- Lưu trữ vật thể tương ứng cho tập tin, phương tiện truyền thông, bản sao lưu, và cổ vật AI"
 
+# translated-by: libretranslate
 msgctxt "role:svc-ai-s1:description"
 msgid "Self-hosted System One classifier that answers typed questions so the gateway can route without generating"
-msgstr ""
+msgstr "Tự chủ System One classifier mà trả lời câu hỏi đã gõ để các cổng ra có thể con đường mà không tạo ra"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-yourls:description"
 msgid "Self-hosted URL shortener for creating, tracking, and managing short links with built-in click analytics"
 msgstr "Bộ ngắn địa chỉ URL tự chủ để tạo, theo dõi và quản lý liên kết ngắn có sẵn bằng cách nhấn vào nút phân tích"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-jitsi:description"
 msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
 msgstr "Phần mềm WebTEC tự chủ cho video có thể kết hợp với xác thực bị hạn chế"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-mini-qr:description"
 msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
 msgstr "Công cụ duyệt tự chủ để tạo ra mã QR từ văn bản hay địa chỉ URL có khả năng vẽ riêng lẻ"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-openwebui:description"
 msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
 msgstr "Giao diện trò chuyện tự chủ để tương tác với mô hình AI cục bộ và tư nhân thông qua hậu phương như Ollama"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-nextcloud:description"
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
 msgstr "Nền tảng đám mây tự tạo cho các tập tin đồng bộ, chia sẻ, hợp tác thời gian thực, và không gian làm việc nhóm dưới miền riêng của bạn"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Cloud:description"
 msgid "Self-hosted cloud solutions for file synchronization, collaboration, and data sharing."
 msgstr "Tự tạo ra các giải pháp cho việc đồng bộ hóa tập tin, hợp tác và chia sẻ dữ liệu."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-bluesky:description"
 msgid "Self-hosted decentralized social network on the open AT Protocol, with its own Personal Data Server"
 msgstr "Mạng xã hội tự phân cấp hóa trên giao thức AT mở, với máy chủ dữ liệu cá nhân riêng"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-penpot:description"
 msgid "Self-hosted design and prototyping platform for UI/UX work, real-time collaboration, and developer handoff"
 msgstr "Thiết kế tự chủ và nền tảng ptyping cho công việc UI/UX, hợp tác thời gian thực, và phát triển tay"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-magento:description"
 msgid "Self-hosted e-commerce platform for catalog management, checkout, promotions, and multi-store online retail"
 msgstr "Phần mềm điện tử tự tạo ra cho bộ quản lý danh mục, thanh toán, thăng tiến và bán lẻ trực tuyến"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-xwiki:description"
 msgid "Self-hosted enterprise wiki and knowledge-management platform with collaboration and app-based extensibility"
 msgstr "Nền tảng kinh doanh tự chủ và quản lý tri thức với sự hợp tác và khả năng mở rộng dựa trên ứng dụng"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-bookwyrm:description"
 msgid "Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
 msgstr "Phần mềm đọc sách tự chủ cho việc xem xét sách và đọc theo dõi qua Fediver"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-mastodon:description"
 msgid "Self-hosted federated social network for microblogging, real-time timelines, and community moderation"
 msgstr "Mạng xã hội tự nuôi dưỡng cho vi phim, dòng thời gian thực, và điều độ cộng đồng"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-keycloak:description"
 msgid "Self-hosted identity and access management platform for single sign-on, multi-factor authentication, and user federation"
 msgstr "Nhận diện tự chủ và nền tảng quản lý truy cập cho một dấu hiệu, xác thực đa chiều, và liên kết với người dùng"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-n8n:description"
 msgid "Self-hosted low-code automation platform for connecting services and building workflow integrations visually"
 msgstr "Nền tảng tự động mã thấp tự động cho việc kết nối dịch vụ và xây dựng các luồng công việc hoạt động trực quan"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-mailu:description"
 msgid "Self-hosted mail server suite with SMTP/IMAP/POP3, webmail, spam filtering, antivirus, DKIM signing, and TLS"
 msgstr "Trình phục vụ thư tự chủ có SMTP/IMAP/POP3, webmail, bộ lọc thư rác , kháng virus , tín hiệu DKIM, và BAR"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-jellyfin:description"
 msgid "Self-hosted media server for streaming and organizing movies, TV, music, and photos, with OIDC and LDAP login"
 msgstr "Trình phục vụ phương tiện truyền thông tự chủ để truyền tải và tổ chức phim ảnh, truyền hình, âm nhạc và ảnh chụp với OIDC và LDAP đăng nhập"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-ai-ollama:description"
 msgid "Self-hosted model server for running open LLMs locally behind a simple HTTP API"
 msgstr "Trình phục vụ mô hình tự chủ để chạy đồ thị mở kho cục bộ phía sau một HTTP đơn giản API"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-baserow:description"
 msgid "Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
 msgstr "Một nền tảng cơ sở dữ liệu không mã hoá với giao diện giống bảng tính để xây dựng và hợp tác trên dữ liệu"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-collabora:description"
 msgid "Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
 msgstr "Hậu phương văn phòng trực tuyến tự chủ cho việc biên tập tài liệu, bảng tính và trình bày"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-erpnext:description"
 msgid "Self-hosted open-source ERP suite for finance, CRM, inventory, manufacturing, HR, sales, and projects"
 msgstr "Phòng phòng cấp cứu mã nguồn mở cho tài chính, CRM, kho hàng, sản xuất, nhân sự, doanh thu và dự án"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-libretranslate:description"
 msgid "Self-hosted open-source machine translation API for translating and detecting text across languages"
 msgstr "Trình dịch mã nguồn mở tự chủ API để dịch và phát hiện văn bản trong nhiều ngôn ngữ"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-openclaw:description"
 msgid "Self-hosted personal AI agent gateway with a browser control UI, sandboxed in a Kata microVM or gVisor runtime"
 msgstr "Tự tạo cửa ra vào với một trình duyệt điều khiển UI, hộp cát trong một microVM hay gViser runtime"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-opencloud:description"
 msgid "Self-hosted platform for file sync, sharing, and collaboration with Keycloak SSO and central LDAP directory"
 msgstr "Nền tảng tự chủ cho phép đồng bộ tập tin, chia sẻ và hợp tác với Keycloak SSO và thư mục trung tâm LDAP"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-listmonk:description"
 msgid "Self-hosted platform for newsletters and mailing lists with subscriber segmentation and campaign analytics"
 msgstr "Nền tảng tự chủ cho các tin tức và các danh sách gửi kèm theo phân đoạn dài hạn và chiến dịch phân tích"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-akaunting:description"
 msgid "Self-hosted platform for online accounting, bookkeeping, and business finance management"
 msgstr "Nền tảng tự chủ cho việc kế toán trực tuyến, quản lý sổ sách và kinh doanh"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-openproject:description"
 msgid "Self-hosted platform for project management, work-package tracking, Gantt planning, and team collaboration"
 msgstr "Nền tảng tự chủ cho quản lý dự án, theo dõi công việc, lên kế hoạch Gantt, và hợp tác nhóm"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-dashboard:description"
 msgid "Self-hosted portal for unified access to all deployed applications via a customizable tile and menu interface"
 msgstr "Cổng tự tạo cho phép truy cập hợp nhất tới tất cả các ứng dụng được triển khai thông qua giao diện bảng điều khiển và trình đơn tùy chỉnh"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-pretix:description"
 msgid "Self-hosted ticketing platform for events with online sales, registration management, and secure payments"
 msgstr "Phần mềm tự đăng ký cho các sự kiện với doanh thu trực tuyến, quản lý đăng ký và thanh toán bảo mật"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-bigbluebutton:description"
 msgid "Self-hosted web conferencing platform for virtual classrooms, online meetings, and real-time collaboration"
 msgstr "Phần mềm web tự chủ tham khảo cho lớp học ảo, họp trực tuyến và hợp tác thời gian thực"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-funkwhale:description"
 msgid "Self-hosted, federated platform for sharing, hosting, and streaming your own music and audio library"
 msgstr "Tự chủ, phát triển để chia sẻ, chủ trì, và truyền tải âm nhạc và thư viện âm thanh của riêng bạn"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-matomo:description"
 msgid "Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
 msgstr "Trình phân tích web tự chủ, riêng tư đầu tiên cho trình theo dõi và địa chỉ trang web"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Server Administration:title"
 msgid "Server Administration"
 msgstr "Quản lý máy phục vụ"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.opt:title"
 msgid "Service Optimation"
 msgstr "Làm báp têm"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "Hỗ trợ cấp dịch vụ và phục hồi các thành phần tự động chụp ảnh dữ liệu, dự phòng từ xa, dịch vụ đồng bộ hóa, và dàn nhạc dự phòng trên cơ sở dữ liệu, tập tin và các công cụ."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-css:description"
 msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
 msgstr "Bộ phận phục vụ đóng vai trò sở hữu chính điển `css` Cờ và chuyển tên máy CN sang ngược dòng CDN"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc:title"
 msgid "Services"
 msgstr "Dịch vụ"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:web.svc:title"
 msgid "Services"
 msgstr "Dịch vụ"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.storage:title"
 msgid "Shared Storage"
 msgstr "Lưu trữ chung"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-openssl:description"
 msgid "Shared host dependency ensuring the OpenSSL CLI is installed once for roles that invoke openssl commands"
 msgstr "Các máy phụ thuộc chia sẻ bảo đảm các cL OpenSSL được cài đặt một lần cho vai trò mà mở ra lệnh"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-db-rabbitmq:description"
 msgid "Shared message broker for async messaging with per-consumer virtual host and user isolation"
 msgstr "Trình môi giới thông điệp chia sẻ cho một tin nhắn đồng loạt với máy ảo và người dùng cô lập"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "hậu phương bền bỉ chia sẻ được dùng bởi triển khai đa node — NFSv4 máy chủ và vai trò khách hàng."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
 msgstr "Máy phục vụ cơ sở dữ liệu quan hệ chia sẻ cho ứng dụng cần lưu trữ ở trung tâm MIME, chạy trong Docker"
@@ -1752,162 +1738,162 @@ msgctxt "logout:running"
 msgid "Signing you out of your services…"
 msgstr "Đang đăng xuất bạn khỏi các dịch vụ…"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-postmarks:description"
 msgid "Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
 msgstr "Đánh dấu nơi Mạng Chỉ người dùng Mastodon và Fediver"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-homeassistant:description"
 msgid "Smart-home automation hub with device integrations, dashboards and a built-in MCP server for AI agent access"
 msgstr "Trung tâm tự động hoá thông minh với sự tích hợp thiết bị, bảng điều khiển và một máy chủ MCP có sẵn cho truy cập của đặc vụ Al"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Social Media:title"
 msgid "Social Media"
 msgstr "Truyền thông xã hội"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Social Media:description"
 msgid "Social Media Tools"
 msgstr "Công cụ truyền thông xã hội"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:dev:title"
 msgid "Software Development Utilties"
 msgstr "Sự phát triển phần mềm"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-opentalk:description"
 msgid "Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
 msgstr "Thống trị mã nguồn mở hội thảo nền tảng cho các cuộc gọi âm thanh/video, chia sẻ màn hình, các phòng trốn thoát, và SSO"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.stk:title"
 msgid "Stack"
 msgstr "Bộ"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.stk:description"
 msgid "Stack levels to setup the server"
 msgstr "Comment"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:web.svc:description"
 msgid "Static content servers (assets, HTML, legal, files)"
 msgstr "Máy chủ nội dung tĩnh (Tài sản, HTML, tập tin hợp pháp)"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-file:description"
 msgid "Static file server over HTTPS with directory listing, .well-known handling, and automatic TLS certificates"
 msgstr "Máy phục vụ tập tin tĩnh trên HTTPS với danh sách thư mục, khả năng xử lý .well- nổi tiếng, và tự động chứng nhận DOS"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-hugo:description"
 msgid "Static site generator building HTML from an upstream Git repository at build time and serving it via nginx"
 msgstr "Name Git Kho lúc xây dựng và phục vụ nó thông qua nginx"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Storage:title"
 msgid "Storage"
 msgstr "Lưu trữ"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys:title"
 msgid "System"
 msgstr "Hệ thống"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.front:title"
 msgid "System Frontend Helpers"
 msgstr "Name"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:dev-locales:description"
 msgid "System configuration role for setting up and generating localesvia locale.gen and locale.conf templates"
 msgstr "Vai trò cấu hình hệ thống để thiết lập và tạo ra localesvia locale.gen và locale.conf Mẫu"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-hostname:description"
 msgid "System hostname configuration derived from the inventory host entry"
 msgstr "Cấu hình tên máy hệ thống bắt nguồn từ mục nhập máy hàng đợi"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys:description"
 msgid "System near components. Will be automaticly called if necessary from other roles."
 msgstr "Hệ thống gần các thành phần. Sẽ được gọi tự động nếu cần thiết từ các vai khác."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:update:description"
 msgid "System-maintenance role for refreshing the package index and upgrading installed packages via the OS package manager"
 msgstr "Vai trò tăng cường hệ thống để làm tươi tỉnh chỉ mục gói và nâng cấp các gói đã cài đặt qua trình quản lý gói hệ thống"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-cli:description"
 msgid "System-wide command-line interface for managing and operating the entire self-hosted platform environment from the shell"
 msgstr "Giao diện dòng lệnh toàn hệ thống để quản lý và điều hành toàn bộ môi trường nền tảng tự chủ từ vỏ"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-pip-install:description"
 msgid "System-wide pip helper for installing or upgrading a Python package via the host's system Python"
 msgstr "hỗ trợ ống dẫn toàn hệ thống để cài đặt hoặc nâng cấp một gói Python thông qua Python của máy"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-mtn-cert-deploy:description"
 msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
 msgstr "Dịch vụ và đồng bộ giờ hệ thống cho việc đồng bộ hoá chứng nhận hãy mã hóa vào Docker Compose NGINX chồng có tải nóng"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-timer:description"
 msgid "Systemd timer unit for starting a service on a recurring calendar schedule for automated task execution"
 msgstr "Đơn vị đồng hồ hẹn giờ hệ thống để bắt đầu một dịch vụ trên lịch lặp lại cho việc tự động thực hiện nhiệm vụ"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-cln-docker:description"
 msgid "Systemd-driven cleanup service pruning anonymous Docker volumes plus images, containers, networks, and build cache"
 msgstr "Dịch vụ dọn dẹp không tên của Docker, thêm hình ảnh, hộp, mạng và xây dựng bộ nhớ tạm"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-rpr-container-hard:description"
 msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
 msgstr "Vai trò bảo trì có sẵn hệ thống cho đầy đủ Docker Compose chồng khởi chạy lại, với khởi chạy lại khó cho chồng như Mailu"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-container:description"
 msgid "Systemd-timed monitor for detecting unhealthy or non-zero-exited Docker containers and raising failure alerts"
 msgstr "Trình theo dõi thời gian hệ thống để phát hiện các hộp Docker không lành mạnh hoặc không được cung cấp và tăng cảnh báo thất bại"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-alm-email:description"
 msgid "Systemd-triggered msmtp notifier for emailing operators when a monitored service unit fails"
 msgstr "Bộ thông báo msmp hệ thống cho những người sử dụng thư điện tử khi một đơn vị dịch vụ giám sát thất bại"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-alm-telegram:description"
 msgid "Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"
 msgstr "Comment"
 
+# translated-by: libretranslate
 msgctxt "role:dsk-gnt-claude:description"
 msgid "Terminal coding agent from Anthropic, pointed at the platform's own model gateway instead of the vendor API"
-msgstr ""
+msgstr "Nhân viên mã hóa thiết bị cuối từ Antropic, chỉ vào cổng mẫu của chính nền tảng thay vì nhà cung cấp API"
 
+# translated-by: libretranslate
 msgctxt "role:dsk-gnt-codex:description"
 msgid "Terminal coding agent from OpenAI, pointed at the platform's own model gateway instead of the vendor API"
-msgstr ""
+msgstr "Đặc vụ mã hóa thiết bị cuối từ OpenAI, chỉ vào cổng mẫu của chính nền tảng thay vì nhà cung cấp API"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-gnome-terminal:description"
 msgid "Terminal emulator for the GNOME desktop, giving command-line access on Arch Linux workstations"
 msgstr "Trình giả lập thiết bị cuối cho bàn làm việc GNOME, cho phép truy cập dòng lệnh trên Arch Linux"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-micro:description"
 msgid "Terminal-based text editor with modern keybindings and syntax highlighting for Pacman-based workstations"
 msgstr "Trình soạn thảo văn bản dựa trên thiết bị cuối với các tổ hợp phím hiện đại và tô sáng cú pháp cho các trạm làm việc dựa trên Pacman"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:test-e2e-cli:description"
 msgid "Test-harness role running end-to-end CLI test scripts for roles that declare a test environment template"
 msgstr "Chức năng thử ra chạy từ đầu đến cuối các tập lệnh thử nghiệm CRI cho các vai trò mà tuyên bố một mẫu môi trường thử"
@@ -1916,79 +1902,77 @@ msgctxt "logout:pace"
 msgid "This usually takes a few seconds."
 msgstr "Việc này thường mất vài giây."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-opt-ssd-hdd:description"
 msgid "Tiering role placing Docker volumes on SSD or HDD by workload type, with symlinks keeping paths consistent"
 msgstr "Cột vai đặt âm lượng Docker trên hệ thống SSD hoặc HD bằng kiểu tải công việc, với liên kết cộng giữ đường dẫn nhất định"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:dev-python:description"
 msgid "Toolchain for Python scripting, application development, and data science on Linux"
 msgstr "Name"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Tools:title"
 msgid "Tools"
 msgstr "Công cụ"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:User Management:description"
 msgid "Tools for Identity and Access Management, including authentication, user provisioning, and secure access control."
 msgstr "Công cụ quản lý nhân dạng và Truy cập, bao gồm xác thực, cung cấp người dùng, và điều khiển truy cập bảo mật."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Communication:description"
 msgid "Tools for communication"
 msgstr "Công cụ giao tiếp"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Marketing:description"
 msgid "Tools for email campaigns, audience engagement, automation, and digital marketing workflows."
 msgstr "Công cụ cho các chiến dịch email, đính hôn khán giả, tự động hóa và tiếp thị kỹ thuật số."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Asset Management:description"
 msgid "Tools to inventory, track, and manage hardware and software assets across your organization."
 msgstr "Công cụ để kiểm kê, theo dõi, quản lý phần cứng và phần mềm trong tổ chức của bạn."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Community:description"
 msgid "Tools to manage the community"
 msgstr "Công cụ quản lý cộng đồng"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Analytics:description"
 msgid "Tools to measure, visualize, and optimize website performance and user behavior through data-driven insights."
 msgstr "Công cụ để đo, hình dung, và tối ưu hóa các hoạt động trang web và hành vi người dùng thông qua các thấu hiểu dữ liệu."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:web.opt:description"
 msgid "Tools which help to optimize webservers"
 msgstr "Công cụ giúp tối ưu hóa máy phục vụ web"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-net-tor:description"
 msgid "Tor daemon publishing the node as a v3 onion service"
 msgstr "Tor trình nền xuất bản nút là một v3 hành tây"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "Trình khách mạng Tor và phóng tên lửa trình duyệt vô danh, tập trung duyệt mạng cá nhân"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"
 msgid "Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack"
 msgstr "Kiểu...2 Trình siêu giám sát máy ảo trên trạm làm việc Pacman, với mô-đun hạt nhân và gói mở rộng"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-alm-compose:description"
 msgid "Unified systemd notification service dispatching service-failure alerts through both Telegram and email channels"
 msgstr "Name"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:update:title"
 msgid "Updates & Package Management"
 msgstr "Cập nhật khả năng quản lý gói"
@@ -2001,88 +1985,87 @@ msgctxt "logout:stalled_hint"
 msgid "Use the links below to sign out of the services still listed."
 msgstr "Dùng các liên kết bên dưới để đăng xuất khỏi những dịch vụ còn được liệt kê."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:User Management:title"
 msgid "User Management"
 msgstr "Quản lý người dùng"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:user:description"
 msgid "User accounts & access control"
 msgstr "Điều khiển & truy cập tài khoản người dùng"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:user:title"
 msgid "Users & Access"
 msgstr "Người dùng & truy cập"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-git:description"
 msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
 msgstr "Trình khách điều khiển phiên bản cho trạm làm việc cá nhân, cấu hình sẵn với danh tính, ký và hợp nhất mặc định"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
 msgstr "Name"
 
+# translated-by: libretranslate
 msgctxt "role:dsk-code:description"
 msgid "Visual Studio Code workstation editor in a selectable flavor, carrying the extensions of the agents the host deploys"
-msgstr ""
+msgstr "Phòng thu hình ảnh Code Trình biên tập trạm làm việc theo một hương vị chọn được, mang theo phần mở rộng của các đại diện máy triển khai"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:web:title"
 msgid "Web Infrastructure"
 msgstr "Comment"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-semaphore:description"
 msgid "Web UI and API for running Ansible, Terraform/OpenTofu, and shell automation on a schedule or on demand"
 msgstr "Name API cho chạy Ansable, Terraform/ openTofu, và tự động hóa hệ vỏ theo thời gian biểu hoặc yêu cầu"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-lam:description"
 msgid "Web interface for administering LDAP directories: managing users, groups, and other directory objects"
 msgstr "Giao diện Mạng để quản lý thư mục LDAP: Quản lý người dùng, nhóm và các đối tượng thư mục khác"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-fusiondirectory:description"
 msgid "Web-based LDAP administration interface for managing users, groups, and directory objects"
 msgstr "Giao diện quản lý LDAP dựa trên Web cho người dùng, nhóm và thư mục"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-phpldapadmin:description"
 msgid "Web-based LDAP client for browsing, searching, and administering directory entries in LDAP servers"
 msgstr "Trình khách LDAP dựa vào Mạng để duyệt, tìm kiếm và quản lý mục nhập thư mục trong máy chủ LDAP"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
 msgstr "Nền tảng quản lý và phát triển dựa trên mạng để quản lý nhiều máy chủ PostgreSQL, với OAuth tùy chọn2 Đăng nhập"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-phpmyadmin:description"
 msgid "Web-based administration tool for MySQL and MariaDB with schema management, querying, and import/export"
 msgstr "Công cụ quản lý dựa trên Web cho Bất động và MariaDB với bộ quản lý giản đồ, yêu cầu, và xuất/ xuất khẩu"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:web.opt:title"
 msgid "Webserver Optimation"
 msgstr "Comment"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
 msgstr "Name Docker Compose với người dùng cục bộ trong nhóm docker cho việc sử dụng phát triển không gốc"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:dev-arduino:description"
 msgid "Workstation toolchain and serial-port permissions for Arduino board development on Linux"
 msgstr "Name"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:pkgmgr-install:description"
 msgid "Wrapper role for idempotent package installation and updates through the pkgmgr universal package manager"
 msgstr "Một phần của gói mã nhận diện việc cài đặt gói và cập nhật thông qua bộ quản lý gói chung pkgmgr"
@@ -2095,7 +2078,7 @@ msgctxt "logout:st_failed"
 msgid "failed"
 msgstr "thất bại"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-net-firewall:description"
 msgid "nftables packet filter whose rules each role owns as its own table, replaced atomically and reloaded at boot"
 msgstr "Bộ lọc túi nftables có quy tắc mỗi vai trò là bảng riêng của nó, thay thế nguyên tử và nạp lại tại khởi động"

@@ -19,1055 +19,1042 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-certbot:description"
 msgid "ACME client for automated Let's Encrypt SSL/TLS certificate issuance and renewal via webroot or DNS-01 challenges"
 msgstr "Client ACME pentru automatizate Let's criptate SSL/TLS certificate de eliberare și reînnoire prin webroot sau DNS-01 provocări"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.ai:title"
 msgid "AI Services"
 msgstr "Servicii AI"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Artificial Intelligence:description"
 msgid "AI tools and frameworks for running, managing, and experimenting with models."
 msgstr "Instrumente AI și cadre pentru rulare, gestionare și experimentare cu modele."
 
+# translated-by: libretranslate
 msgctxt "role:dsk-gnt-cursor:description"
 msgid "AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
-msgstr ""
+msgstr "Editor de cod AI-primul instalat pe postul de lucru, al cărui obiectiv de anulare rămâne un pas operator"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Server Administration:description"
 msgid "Administration Tools für servers"
 msgstr "Administration Tools für servers"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "category:dsk.gnt:title"
 msgid "Agents"
-msgstr "Evenimente"
+msgstr "Agenţi"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-all:description"
 msgid "Aggregate NGINX sub-filter injector adding Matomo tracking, global theming, iFrame and JS snippets by feature flag"
 msgstr "Injector de subfiltru NGINX combinat care adaugă urmărire Matomo, tematică globală, fragmente iFrame și JS de pavilion caracteristică"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-gnome:description"
 msgid "Aggregate desktop environment bundling caffeine, shell extensions, and terminal into a complete GNOME setup on Linux"
 msgstr "Agregat mediu de birou gruparea cofeina, extensii coajă, și terminal într-un setup complet GNOME pe Linux"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.ctl.alm:title"
 msgid "Alerting"
 msgstr "Alertare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Analytics:title"
 msgid "Analytics"
 msgstr "Analize"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
 msgstr "Rolul de ajutor vizibil pentru persistența și căutarea jetoanelor de aplicații per utilizator într-un magazin local YAML"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:web.app:title"
 msgid "Applications"
 msgstr "Cereri"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Sales:description"
 msgid "Applications for e-commerce, ticketing, and sales management."
 msgstr "Aplicații pentru comerțul electronic, tichete și managementul vânzărilor."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:drv-epson-multiprinter:description"
 msgid "Arch Linux driver bundle for Epson multifunction printing and scanning via escpr and imagescan"
 msgstr "Pachet de drivere Arch Linux pentru imprimarea și scanarea multifuncțională Epson prin escPR și imaginican"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Artificial Intelligence:title"
 msgid "Artificial Intelligence"
 msgstr "Inteligență artificială"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Asset Management:title"
 msgid "Asset Management"
 msgstr "Gestionarea activelor"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-rpr-container-soft:description"
 msgid "Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
 msgstr "Serviciul automat de recuperare repornirea ieșirilor sau nesănătoase Docker Compose stive și rezolvarea conflictelor portuare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-dns-hetzner-rdns:description"
 msgid "Automation role for reverse DNS (PTR) records on Hetzner Cloud servers, primary IPs, floating IPs, and load balancers"
 msgstr "Rolul automatizării pentru DNS inversă (PTR) înregistrări pe serverele Hetzner Cloud, IP-uri primare, IP-uri plutitoare și balansoare de sarcină"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.ctl.bkp:title"
 msgid "Backup & Restore"
 msgstr "Restaurează"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.bkp:title"
 msgid "Backup Services"
 msgstr "Servicii de rezervă"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.ctl.bkp:description"
 msgid "Backup strategies & restore procedures"
 msgstr "Strategii de rezervă și proceduri de restaurare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:dev-core:description"
 msgid "Base development environment for software engineers on Linux, with core editors and language-agnostic tooling"
 msgstr "Mediu de dezvoltare de bază pentru inginerii de software pe Linux, cu editori de bază și instrumentare limbaj-agnostic"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-daemon:description"
 msgid "Base role for systemd manager configuration via drop-ins, default settings, and unit validation"
 msgstr "Rolul de bază pentru configurarea managerului sistemat prin drop-in-uri, setările implicite și validarea unității"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-roulette-wheel:description"
 msgid "Browser-based spinning wheel app for decision making, random selection, and gamification"
 msgstr "Aplicație de rotire pe bază de browser pentru luarea deciziilor, selecție aleatorie și gamificare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-litellm:description"
 msgid "Browser-facing admin interface for the shared LLM gateway, published on its own domain behind the front proxy"
 msgstr "Interfața admin cu care se confruntă browserul pentru poarta LLM comună, publicată pe propriul domeniu din spatele proxy-ului frontal"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:dev-fakeroot:description"
 msgid "Build-time tool for simulating root-owned file operations without elevated privileges during package builds"
 msgstr "Unealtă cu timp de construcție pentru simularea operațiunilor cu fișiere deținute fără privilegii ridicate în timpul construirii pachetelor"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.runner:title"
 msgid "CI Runner"
 msgstr "IÎ Runner"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-db-typesense:description"
 msgid "Central Dockerized search engine shared by multiple apps with per-consumer scoped API keys"
 msgstr "Motorul central de căutare Dockerized partajat de mai multe aplicații cu tastele API per-consumator"
 
+# translated-by: libretranslate
 msgctxt "role:svc-ai-tika:description"
 msgid "Central document extraction engine that turns uploaded files into text for retrieval-augmented chat"
-msgstr ""
+msgstr "Motorul central de extragere a documentelor care transformă fișierele încărcate în text pentru chat augmentat de recuperare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Help:description"
 msgid "Central help resources, including documentation, support tools, and guidance."
 msgstr "Resursele centrale de ajutor, inclusiv documentarea, instrumentele de sprijin și orientările."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-db-memcached:description"
 msgid "Central in-memory caching engine with per-consumer key-prefix isolation, usable centrally or as an embedded sidecar"
 msgstr "Motor central de cache în memorie cu izolație prefixă per consumator, utilizabil central sau ca ataș încorporat"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-service-loader:description"
 msgid "Central loader role for ordered shared-service preloading and queued post-load role inclusions across the deployment"
 msgstr "Rolul incarcator central pentru preincarcarea si includerea rolurilor post-sarcina comandate in timpul implementarii"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-logout:description"
 msgid "Central logout proxy for single-action sign-out across all OIDC-connected apps, with Nginx snippets and a live status UI"
 msgstr "Procurorul de autentificare centrală pentru sign-out de o singură acțiune pe toate aplicațiile conectate la OIDC, cu fragmente Nginx și un status live UI"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-mail:description"
 msgid "Central mail orchestration layer routing host mail through Mailu, msmtp, or an optional local SMTP relay"
 msgstr "Strat de orchestrare centrala de rutare mail gazda prin Mailu, msmtp, sau un releu local opțional SMTP"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.dns:description"
 msgid "Central recursive/forwarding DNS resolver engines (Unbound, etc.)"
 msgstr "Motoare cu piston cu aprindere prin scânteie cu aprindere prin scânteie (Unbound, etc.)"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-dns-unbound:description"
 msgid "Central recursive/forwarding DNSSEC resolver on a static IP for consumer stacks to target as their DNS"
 msgstr "Rezolvator DNSSEC central recursiv/forwarding pe un IP static pentru stivele de consum pentru a le viza ca DNS"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-db-elasticsearch:description"
 msgid "Central search and analytics engine with per-consumer index namespaces isolating tenants in a shared Docker deployment"
 msgstr "Motor central de căutare și analiză cu nume de spațiu per consumator izola chiriași într-o implementare comună Docker"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-db-qdrant:description"
 msgid "Central vector database engine for storing and searching per-consumer embeddings shared across the stack"
 msgstr "Motor de baza de date vectoriala centrala pentru stocarea si cautarea incorporarilor per consumator impartite pe stivă"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-rdbms:description"
 msgid "Centralized MariaDB or PostgreSQL database service shared across applications via Docker Compose"
 msgstr "Servicii de baze de date MariaDB centralizate sau PostgreSQL partajate pe aplicații prin Docker Compose"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-certs:description"
 msgid "Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
 msgstr "Serviciul ACME bazat pe Certbot pentru Criptarea certificatelor pentru un singur domeniu și wildcard TLS pe domenii NGINX"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "logout:checking"
 msgid "Checking your other sessions…"
 msgstr "Verificarea celorlalte sesiuni..."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.ctl.cln:title"
 msgid "Cleanup"
 msgstr "Curățare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-cln-domains:description"
 msgid "Cleanup routine for deprecated domains, removing Nginx configs and revoking their Certbot certificates"
 msgstr "Curățare rutină pentru domenii depreciate, eliminarea configurilor Nginx și revocarea certificatelor Certbot"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-cln-disc-space:description"
 msgid "Cleanup routine for reclaiming disk space from temp files, package caches, optional Docker data and old backups"
 msgstr "Curățare de rutină pentru recuperarea spațiului discului din fișiere temporare, cache-uri de pachet, date opționale Docker și backup-uri vechi"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-storage-nfs-client:description"
 msgid "Client-side NFS setup for mounting a remote server export on every swarm node, with a deploy-time reachability probe"
 msgstr "Client-side NFS setup pentru montarea unui export de server la distanță pe fiecare nod roi, cu o sondă de accesibilitate în timp"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-net-wireguard-plain:description"
 msgid "Client-side WireGuard VPN role for stable connectivity with a systemd service and script that tune interface MTU"
 msgstr "Client-side WireGuard VPN rol pentru conectivitate stabilă cu un serviciu sistemat și script care ton interfata MTU"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Manager clipboard cu istorie editabilă, acțiuni personalizate și suport de scripting"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Cloud:title"
 msgid "Cloud"
 msgstr "Nor"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-dns:description"
 msgid "Cloudflare DNS bootstrap role for apex and wildcard A/AAAA records (and optional CAA) across a web stack's base domains"
 msgstr "Cloudflare DNS rol bootstrap pentru apex și wildcard A/AAAA înregistrări (și opțional AAC) peste domeniile de bază ale unui stack web"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-registry-docker:description"
 msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
 msgstr "Cluster-local container imagine registru pentru servire personalizate-construit imagini la noduri Docker Swarm lucrător"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-registry-cache:description"
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
 msgstr "Cache local-cluster pentru trageri de imagini de bază comune Docker Hub, tăiere transferuri duplicate și limite de rată"
 
+# translated-by: libretranslate
 msgctxt "category:dsk.gnt:description"
 msgid "Coding agents installed on the workstation (Claude Code, Cursor, Pi)"
-msgstr ""
+msgstr "Agenţi de codificare instalaţi pe staţia de lucru (Claude Code, CursorPi.)"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-mediawiki:description"
 msgid "Collaborative wiki platform for user-driven documentation with an extensible extension ecosystem and content management"
 msgstr "Platforma Wiki colaborativă pentru documentarea bazată pe utilizator cu un ecosistem extins și gestionarea conținutului"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-jrnl:description"
 msgid "Command-line journal application for creating and managing personal diary entries from the terminal"
 msgstr "Aplicaţie de jurnal de comandă pentru crearea şi gestionarea jurnalelor personale din terminal"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Commerce:title"
 msgid "Commerce"
 msgstr "Comerț"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Communication:title"
 msgid "Communication"
 msgstr "Comunicare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Community:title"
 msgid "Community"
 msgstr "Comunitate"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "Roluri de injectare HTML composabile (CSS, JS, interceptor de logare, analiză, iframe de bord) pentru Nginx/OpenResty via sub_filter/Lua cu active garantate cu CDN."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-stk-full:description"
 msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
 msgstr "Rol compozit stiva gruparea unui suport de baza de date containerizat cu un frontend HTTP invers-proxy pentru acces web"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.swarm:title"
 msgid "Container Orchestration"
 msgstr "Orchestrarea containerelor"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.registry:title"
 msgid "Container Registries"
 msgstr "Registrele containerelor"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-container:description"
 msgid "Container engine runtime with Compose for building and running application containers on Linux hosts"
 msgstr "Timpul de funcționare al motorului containerului cu Compus pentru construirea și rularea containerelor de aplicații pe gazdele Linux"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-swarm-node:description"
 msgid "Container orchestration cluster for scheduling services across pooled manager and worker nodes"
 msgstr "Cluster de orchestrare a containerelor pentru servicii de programare în nodurile de administrare și de lucrător cumulate"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.registry:description"
 msgid "Container-registry services - local registry and pull-through cache."
 msgstr "Servicii de evidenţă-container - registru local şi cache-uri."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-navigator:description"
 msgid "Containerized Reveal.js slide deck for presenting the platform to admins, developers, users, and investors"
 msgstr "Containere Reveal.js punte slide pentru prezentarea platformei către administratori, dezvoltatori, utilizatori și investitori"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-simpleicons:description"
 msgid "Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
 msgstr "Server de pictogramă containerizat pentru găzduirea Simple Icons brand SVG şi PNG pentru utilizare web şi documentaţie"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-db-postgres:description"
 msgid "Containerized relational database with automated database, user, and privilege provisioning"
 msgstr "Baza de date relaţională containerizată cu bază de date automatizată, utilizator şi furnizarea de privilegii"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Content Management:title"
 msgid "Content Management"
 msgstr "Gestionarea conţinutului"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Content Management:description"
 msgid "Content Management Systems (CMS) and web publishing platforms"
 msgstr "Sisteme de gestionare a conținutului (CMS) și platforme de publicare web"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-wordpress:description"
 msgid "Content management system for building and managing websites, blogs, and multisite networks with themes and plugins"
 msgstr "Sistem de management al conținutului pentru construirea și gestionarea site-urilor web, blogurilor și rețelelor multisite cu teme și module"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.ctl:title"
 msgid "Control"
 msgstr "Control"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.ctl:description"
 msgid "Control layer for system lifecycle management—handling cleanup, monitoring, backups, alerting, maintenance, and repair tasks."
 msgstr "Stratul de control pentru managementul ciclului de viata al sistemului"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.ai:description"
 msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
 msgstr "Central AI building building blocks"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-webserver-core:description"
 msgid "Core NGINX webserver with HTTP and TCP/UDP stream support and performance-tuned defaults"
 msgstr "Server NGINX de bază cu HTTP și suport flux TCP/UDP și implicite de performanță"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "logout:no_check"
 msgid "Could not check your other sessions."
 msgstr "Nu am putut verifica celelalte sesiuni."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "logout:stalled"
 msgid "Could not confirm every sign-out."
 msgstr "Nu am putut confirma fiecare semn-out."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:dev-nix:description"
 msgid "Cross-distribution installer for the Nix package manager with checksum-verified, reproducible multi-user setup"
 msgstr "Instalator de distribuție încrucișată pentru administratorul de pachete Nix cu configurare multiutilizatoare verificabilă și reproductibilă"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
 msgstr "De rutină de întreținere de distribuție încrucișată pentru recuperarea discului peste CI, container, și medii de construcție"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Customer Relationship:title"
 msgid "Customer Relationship"
 msgstr "Relația cu clienții"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
 msgstr "Managementul relaţiilor cu clienţii (CRM) software pentru gestionarea relaţiilor cu clienţii, conducte de vânzări, marketing şi activităţi de suport."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.dns:title"
 msgid "DNS Automation"
 msgstr "Automatizare DNS"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.dns:title"
 msgid "DNS Resolvers"
 msgstr "DNS Rezolvatoare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.dns:description"
 msgid "DNS providers, records, and rDNS management (Cloudflare, Hetzner, etc.)."
 msgstr "Furnizorii de DNS, înregistrările și gestionarea RDNS (Cloudflare, Hetzner etc.)."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-dns-cloudflare-records:description"
 msgid "Data-driven role for managing Cloudflare DNS records (A/AAAA, CNAME, MX, TXT, SRV) across apps and environments"
 msgstr "Rolul bazat pe date pentru gestionarea înregistrărilor Cloudflare DNS (A/AAAA, CNAME, MX, TXT, SRV) pe aplicații și medii"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.db:description"
 msgid "Database applications (DBMS, LDAP, Redis, etc.)"
 msgstr "Aplicații de baze de date (DBMS, LDAP, Redis etc.)"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.db:title"
 msgid "Databases"
 msgstr "Baze de date"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-peertube:description"
 msgid "Decentralized, federated platform for peer-to-peer video hosting, streaming, and live broadcasting"
 msgstr "Platformă descentralizată, federalizată pentru găzduire video peer-to-peer, streaming și transmisiuni live"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-pixelfed:description"
 msgid "Decentralized, federated platform for photo sharing and image feeds across the fediverse"
 msgstr "Platformă descentralizată, federalizată pentru partajarea fotografiilor și imagini de-a lungul Fediversului"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-friendica:description"
 msgid "Decentralized, federated social-networking platform for peer-to-peer communication and community building"
 msgstr "Platformă de socializare descentralizată și federalizată pentru comunicarea inter pares și construirea comunității"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:user-administrator:description"
 msgid "Dedicated administrator account with SSH key access and password-authenticated sudo for secure privilege escalation"
 msgstr "Cont dedicat administratorului cu acces cheie SSH și sudo autentificat parola pentru escaladarea sigură a privilegiilor"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:user-backup:description"
 msgid "Dedicated system account with SSH-restricted commands and passwordless rsync sudo for secure backup access"
 msgstr "Cont de sistem dedicat cu comenzi SSH-restricționate și sudo rsync fără parolă pentru acces securizat de rezervă"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-service-terminator:description"
 msgid "Deferred-start orchestrator for enabling and starting collected systemd services once a play completes"
 msgstr "Orchestrator cu pornire prin scânteie pentru facilitarea și pornirea serviciilor de sistem colectate odată ce piesa se termină"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:web.app:description"
 msgid "Deployable web applications (GitLab, Nextcloud, Mastodon, etc.)"
 msgstr "Aplicații web disponibile (GitLab, Nextcloud, Mastodont etc.)"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "category:dsk:title"
 msgid "Desktop"
 msgstr "Birou"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-spotify:description"
 msgid "Desktop client for streaming music, playlists, and podcasts"
 msgstr "Client de birou pentru streaming muzică, liste de redare și podcast-uri"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-nextcloud:description"
 msgid "Desktop client setup linking home folders into the cloud-synced directory for integrated file synchronization"
 msgstr "Setare client de birou conectarea folderelor de acasă în directorul cloud-sinced pentru sincronizarea integrată a fișierelor"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-gnome-extensions:description"
 msgid "Desktop config role for activating GNOME Shell extensions and installing a CLI tool to manage them"
-msgstr "Desktop rol de configurare pentru activarea extensiilor GNOME Shell și instalarea unui instrument CLI pentru a le gestiona"
+msgstr "Rolul de configurare al biroului pentru activarea GNOME Shell extensii și instalarea unui instrument CLI pentru gestionarea acestora"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "category:dsk:description"
 msgid "Desktop environment roles & apps (GNOME, browser, LibreOffice, etc.)"
-msgstr "Roluri și aplicații de mediu de birou (GNOME, browser, LibreOffice etc.)"
+msgstr "Roluri și aplicații de mediu de birou (GNOME, browser, LibreOffice, etc.)"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-bluray-player:description"
 msgid "Desktop media-player setup with VLC and AACS/BD+ libraries for Blu-ray disc decryption and playback on Arch Linux"
 msgstr "Desktop media-player setup cu biblioteci VLC și AACS/BD+ pentru decriptarea discului Blu-ray și redarea pe Arch Linux"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-libreoffice:description"
 msgid "Desktop office suite for documents, spreadsheets, and presentations with Liberation fonts and language packs"
 msgstr "Apartament birou de birou pentru documente, foi de calcul și prezentări cu fonturi de eliberare și pachete lingvistice"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-gnome-caffeine:description"
 msgid "Desktop utility for inhibiting screen blanking and sleep, autostarted on the GNOME desktop"
 msgstr "Utilitar de birou pentru inhibarea golirii ecranului și a somnului, pornit automat pe biroul GNOME"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-zoom:description"
 msgid "Desktop video conferencing client for online meetings, webinars, and screen sharing"
 msgstr "Desktop video conferința clientului pentru întâlniri online, Webinars, și partajarea ecranului"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Development:title"
 msgid "Development"
 msgstr "Dezvoltare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Development:description"
 msgid "Development and CI/CD tools"
 msgstr "Dezvoltarea și instrumentele CI/CD"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
 msgstr "S distribuit3- magazin de obiecte compatibile pentru furnizarea de găleată comună, per consumator, pe roluri de aplicație web"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:dev-git:description"
 msgid "Distributed version control system for tracking source code changes and coordinating development work"
 msgstr "Sistem de control al versiunii distribuite pentru urmărirea modificărilor codului sursă și coordonarea lucrărilor de dezvoltare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Lanțuri de scule pentru construcții de bază specifice (compilatoare, linkere, make) pentru compilarea software-ului din surse"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-stk-backend:description"
 msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
 msgstr "Docker Compose stiva pentru baze de date relaționale containerizate cu backup, utilizator, și gestionarea permisiunii"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
 msgid "Docker Swarm cluster bootstrap and node-membership roles for multi-host service deployment."
 msgstr "Docker Swarm cluster bootstrap și roluri Node-membrare pentru implementarea de servicii multi-host."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-onlyoffice:description"
 msgid "Document server backend for real-time in-browser editing of documents, spreadsheets, and presentations"
 msgstr "Platforma serverului document pentru editarea în timp real a documentelor, foilor de calcul și prezentărilor"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Documentation:title"
 msgid "Documentation"
 msgstr "Documentație"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Documentation:description"
 msgid "Documentation and Wiki Applications"
 msgstr "Documentaţie şi aplicaţii Wiki"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-opt-keyboard-color:description"
 msgid "Driver integration for dynamic keyboard color and RGB lighting control on MSI laptops"
 msgstr "Integrare drivere pentru culoarea dinamica a clapei si controlul iluminatului RGB pe laptopurile MSI"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:drv:title"
 msgid "Drivers"
 msgstr "Șoferi"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Education:title"
 msgid "Education"
 msgstr "Educație"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-ai-robot:description"
 msgid "Embodied robot platform for Hermes on a dedicated, network-segmented single-tenant device"
 msgstr "Platforma robotului înglobat pentru Hermes pe un dispozitiv dedicat, de sine stătătoare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-mcp-reconcile:description"
 msgid "End-of-play convergence of every deployed MCP client against the complete provider set"
 msgstr "Convergența finală a fiecărui client MCP implementat împotriva setului complet de furnizori"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-engine:description"
 msgid "Engine-agnostic wiring layer for shared cache, queue, search, and vector engines with per-consumer provisioning"
 msgstr "Stratul de cabluri agnostice pentru cache-uri comune, cozi, motoare de căutare și vector cu alimentare per consumator"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-confluence:description"
 msgid "Enterprise wiki and team collaboration platform for creating, organizing, and sharing content"
 msgstr "Enterprise wiki și platforma de colaborare a echipei pentru crearea, organizarea și partajarea conținutului"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Events:description"
 msgid "Event and ticket management tools"
 msgstr "Instrumente de gestionare a evenimentelor și a biletelor"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Events:title"
 msgid "Events"
 msgstr "Evenimente"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-neovim:description"
 msgid "Extensible Vim-based command-line text editor for terminal-driven code and configuration editing"
 msgstr "Editor de text extensibil pe linie de comandă Vim pentru cod terminal și editare de configurare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-chess:description"
 msgid "Federated chess server for playing and following rule-validated games over ActivityPub across the Fediverse"
 msgstr "Server de șah Federat pentru a juca și a urma jocuri peste activityPub peste Fediverse"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-matrix:description"
 msgid "Federated, end-to-end-encrypted messaging platform with a web client and protocol bridges to external chat networks"
 msgstr "Platformă de mesagerie criptată, cu un client web și poduri de protocol către rețele de chat externe"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-mobilizon:description"
 msgid "Federated, self-hosted platform for organizing events and building communities and groups"
 msgstr "Platforma de organizare a evenimentelor şi de construcţie a comunităţilor şi a grupurilor"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
 msgstr "Podul Federaţiei care conectează ActivitateaPub (Fedivers), Protocolul AT (Bluesky), și IndieWeb"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Finance & Accounting:title"
 msgid "Finance & Accounting"
 msgstr "Finanţe şi contabilitate"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Finance & Accounting:description"
 msgid "Financial and accounting software"
 msgstr "Software financiar și contabil"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-coturn:description"
 msgid "Free and open-source TURN/STUN relay server for NAT traversal in WebRTC and real-time communication"
 msgstr "Server gratuit și open-source TURN/STUN pentru NAT traversal în WebRTC și comunicare în timp real"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-obs:description"
 msgid "Free and open-source desktop application for live video streaming and screen recording"
 msgstr "Aplicație gratuită și open-source desktop pentru streaming video live și înregistrare ecran"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-gnucash:description"
 msgid "Free and open-source desktop application for personal and small-business accounting and financial management"
 msgstr "Aplicație de birou gratuită și open-source pentru contabilitate și gestiune financiară personală și pentru întreprinderi mici"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-dashboard:description"
 msgid "Front-end JS injection notifying parent windows of iframe location changes and forcing external links into new tabs"
 msgstr "Injecție Front-end JS notificarea ferestrelor părinte de modificări de locație iframe și forțarea link-uri externe în file noi"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-stk-front-base:description"
 msgid "Front-layer base for web apps: HTTPS foundation, optional Cloudflare setup, and reverse-proxy handler wiring"
 msgstr "Baza din față pentru aplicații web: fundație HTTPS, configurare opțională Cloudflare și cabluri handler invers-proxy"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.front:description"
 msgid "Frontend helpers for reverse-proxied apps (injection, shared assets, CDN plumbing)."
 msgstr "Ajutor frontal pentru aplicații cu profil invers (injecție, active partajate, instalații sanitare CDN)."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Games:title"
 msgid "Games"
 msgstr "Jocuri"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Games:description"
 msgid "Gaming platforms and entertainment applications."
 msgstr "Platforme de jocuri și aplicații de divertisment."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:gen:title"
 msgid "Generic"
 msgstr "Generic"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:test-e2e-playwright:description"
 msgid "Generic end-to-end test runner executing role-provided Playwright specs in Docker against deployed applications"
 msgstr "Generic end-to-end test runner executand specificatiile Playwright furnizate in Docker impotriva aplicatiilor implementate"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-dotlinker:description"
 msgid "Generic role installing the doli CLI and applying dotfile symlink mappings passed in by other roles"
 msgstr "Rolul generic de instalare a Doli CLI și aplicarea map-uri Symlink dotfile transmise de alte roluri"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "Strat de injectare Global JavaScript pentru răspunsurile NGINX HTML prin sub_filter, cu hashing CSP"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-css:description"
 msgid "Global stylesheet injection for NGINX-served apps, unifying light and dark theming from a dynamic colorscheme"
 msgstr "Injectie globala de foi de stil pentru aplicatii NGINX-servite, lumina unificatoare si lezarea intunecata dintr-un sistem dinamic de culoare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
 msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
 msgstr "Configurație de demon OpenSSH întărită pentru acces la distanță bazat pe taste cu login rădăcină și autentificare parolă dezactivată"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-chromium:description"
 msgid "Hardened desktop web browser with enforced privacy and password-manager extensions via Enterprise Policies"
 msgstr "Browser web desktop Hardened cu confidențialitate impusă și extensii de parolă-manager prin intermediul politicilor Enterprise"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-ai-lmstudio:description"
 msgid "Headless local model server for open LLMs with an OpenAI-compatible API on the container network"
 msgstr "Server model local fără cap pentru LLM deschise cu un API compatibil OpenAI pe rețeaua container"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-volumes:description"
 msgid "Health check for orphaned anonymous Docker volumes unbound to containers, with whitelist and alerting"
 msgstr "Verificare medicală pentru volumele anonime orfane Docker nelegate de containere, cu lista albă și alertare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Help:title"
 msgid "Help"
 msgstr "Ajutor"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
 msgstr "Rol de ajutor instalarea activelor de injectare CA-trust pentru stive Docker Compose și validarea certificatului CA proiect"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:gen:description"
 msgid "Helper roles & installers (git, locales, timer, etc.)"
 msgstr "Roluri și instalatori de ajutor (git, localuri, cronometru etc.)"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Tools:description"
 msgid "Helpful Tools"
 msgstr "Unelte utile"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Storage:description"
 msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
 msgstr "Soluții de stocare de înaltă performanță, auto-hosted pentru gestionarea, scalarea și accesarea datelor nestructurate 3 API."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-net-wireguard-core:description"
 msgid "Host-level WireGuard VPN service with wg-quick config, package install, and IP-forwarding sysctl for secure tunnels"
 msgstr "Serviciul WireGuard WireGuard VPN cu configurare wg-quick, instalare pachet, și IP-forwarding Sysctl pentru tuneluri securizate"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-journalctl:description"
 msgid "Host-level configuration for the systemd-journald logging daemon with retention limits and live log streaming"
 msgstr "Configurație la nivelul gazdei pentru demonul de logare sistemat-jurnald cu limite de reținere și streaming live log"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:dev-shell:description"
 msgid "Host-level configuration linking Bash and Zsh login shells to a shared .profile for consistent environment loading"
 msgstr "Configurație la nivelul gazdei care leagă scoicile de conectare Bash și Zsh de un profil comun pentru încărcarea consistentă a mediului"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-version:description"
 msgid "Host-level provisioning for exposing the project's pyproject.toml version system-wide via /etc/environment"
 msgstr "Furnizarea la nivel de gazdă pentru expunerea proiectului pyproject.toml versiune la nivel de sistem prin /etc/mediu"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:user-root:description"
 msgid "Host-level role provisioning a root RSA 4096-bit SSH key pair for secure automated administrative access"
 msgstr "Rolul la nivel de gazdă care prevede o RSA rădăcină 4096-Bit SSH cheie pereche pentru acces administrativ automat securizat"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-openbao:description"
 msgid "Identity-based secrets, PKI and encryption manager with OIDC login, group-mapped policies and static-seal auto-unseal"
 msgstr "Secrete bazate pe identitate, PKI și manager de criptare cu login OIDC, politici cartografiate în grup și autodezactivare statică"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-db-redis:description"
 msgid "In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
 msgstr "Cache-ul și depozitul cu valoare-cheie în memorie, împărțit central cu izolarea ACL per consumator sau încorporat ca ataș"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-docs:description"
 msgid "Infinito.Nexus documentation for the latest commit and every release, built on demand with Sphinx"
 msgstr "Infinito.Nexus documentaţie pentru ultima comitere şi fiecare lansare, construită la cerere cu Sfinx"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Infrastructure:title"
 msgid "Infrastructure"
 msgstr "Infrastructura"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Infrastructure:description"
 msgid "Infrastructure and networking tools"
 msgstr "Instrumente de infrastructură și de rețea"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-compose:description"
 msgid "Infrastructure role for managing containerized-application project structures, .env files, and lifecycle handlers"
 msgstr "Rolul infrastructurii pentru gestionarea structurilor de proiecte de aplicare containerizate, fișiere .env și responsabilii cu ciclul de viață"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-service:description"
 msgid "Infrastructure role for managing systemd service units: cleanup, deployment, timers, and shared failure diagnostics"
 msgstr "Rolul infrastructurii pentru gestionarea unităților de servicii sistemate: curățarea, implementarea, cronometrele și diagnosticarea defecțiunilor partajate"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc:description"
 msgid "Infrastructure services like databases"
 msgstr "Servicii de infrastructură precum baze de date"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.front.inj:title"
 msgid "Injection"
 msgstr "Injecţie"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
 msgstr "Intel VA-API driver media pentru hardware-accelerate video decodează și codifică distribuțiile Linux"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-mig:description"
 msgid "Interactive graph visualization of all Infinito.Nexus roles and their dependencies for architecture transparency"
 msgstr "Vizualizarea interactivă a graficului tuturor Infinito.Nexus roluri și dependențele lor pentru transparența arhitecturii"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-jira:description"
 msgid "Issue and project tracking platform for software teams, with agile boards, workflows, and optional OIDC SSO"
 msgstr "Platforma de urmărire a proiectelor și emisiunilor pentru echipe de software, cu plăci agile, fluxuri de lucru și OIDC SSO opțional"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "Timp de rulare JavaScript pentru construirea și rularea aplicațiilor de server și instrumentare dezvoltator"
 
+# translated-by: libretranslate
 msgctxt "role:svc-ai-jupyter:description"
 msgid "Kernel backend that runs the code a chat writes, in a container instead of in the browser sandbox"
-msgstr ""
+msgstr "Platforma Kernel care ruleaza codul un chat scrie, într-un container în loc de în cutia de nisip browser"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-hermes:description"
 msgid "Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to models through the shared LLM gateway"
 msgstr "Agent izolat Kernel servind un API compatibil cu OpenAI, direcţionat către modele prin poarta LLM comună"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.virt:description"
 msgid "Kernel-isolating container runtimes on the container host: Kata Containers microVMs and the gVisor userspace fallback."
 msgstr "Kernel-izolarea containerelor runtimes pe gazda containerului: Kata Containere microVMS și gVisor de rezervă spațiu de utilizare."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-virt-kata:description"
 msgid "Kernel-isolating container runtimes that sandbox untrusted workloads in a microVM or a userspace kernel"
 msgstr "Izolarea kernel-container runtimes care nisipbox volum de lucru neîncrezător într-un microVM sau un kernel spațiu de utilizare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-storage-nfs-server:description"
 msgid "Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts"
 msgstr "Server NFS de nivel Kernel pentru exportul unui director comun cu acces limitat la IP pentru gazdele roi-nod"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "Platforme de învățare, instrumente de colaborare în clasă și medii de educație digitală."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-front-tls-letsencrypt:description"
 msgid "Let's Encrypt provider for the front-facing TLS layer ensuring automated certificate issuance and presence"
 msgstr "Sa Cripteze furnizorul pentru front-față TLS strat care asigură eliberarea automată a certificatului și prezența"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-retroarch:description"
 msgid "Libretro-based frontend for emulators, game engines, and media players, with XMB and Ozone menu styles"
 msgstr "Libretro-based frontend pentru emulatori, motoare de joc, și jucători media, cu XMB și stiluri de meniu Ozone"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-mail-msmtp:description"
 msgid "Lightweight SMTP client and sendmail replacement for delivering mail through an external SMTP server"
 msgstr "Client SMTP ușor și de înlocuire de e-mail pentru livrarea de mail printr-un server SMTP extern"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-gitea:description"
 msgid "Lightweight self-hosted Git service for code collaboration, version control, and repository management"
 msgstr "Serviciul Git gazduit Lightweight pentru colaborare cod, control versiune, și gestionarea depozit"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-nss:description"
 msgid "Local name resolution for the domains the target serves, via the myhostname NSS module"
 msgstr "Rezolutia numelor locale pentru domeniile deservite de tinta, prin intermediul modulului Myhostname NSS"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ca-selfsigned:description"
 msgid "Local self-signed Root CA for issuing trust so containers accept internal TLS endpoints"
 msgstr "Local auto-semnat Root CA pentru emiterea de încredere astfel încât containerele să accepte obiectivele interne TLS"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-keepassxc:description"
 msgid "Local-first cross-platform desktop password manager storing credentials in an encrypted KeePass-format database"
 msgstr "Administrator de parole desktop cu platformă transversală locală stochând acreditări într-o bază de date KeePass-format criptată"
 
+# translated-by: libretranslate
 msgctxt "role:dsk-laya:description"
 msgid "Local-first notification command center that aggregates Slack, mail and issue trackers into approvable action cards"
-msgstr ""
+msgstr "Centru de comandă de notificare local care agregate Slack, mail și emite trackere în carduri de acțiune approvable"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-lock:description"
 msgid "Locking mechanism for gating maintenance tasks until critical services stop, with configurable retry and timeout"
 msgstr "Mecanismul de blocare a sarcinilor de întreținere până la oprirea serviciilor critice, cu rejudecare configurabilă și temporizare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-mail-smtp:description"
 msgid "Loopback-only Postfix relay for lightweight outbound mail delivery via localhost when no central mail stack runs"
 msgstr "Releu Postfix numai cu loopback pentru livrare prin e-mail prin intermediul localhost atunci când nu ruleaza stack-ul central de mail"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-flowise:description"
 msgid "Low-code visual builder for creating, testing, and publishing LLM and RAG workflows as HTTP endpoints"
 msgstr "Constructor vizual cu cod redus pentru crearea, testarea și publicarea fluxurilor de lucru LLM și LAR ca obiective HTTP"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:title"
 msgid "Maintenance"
 msgstr "Întreţinere"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:description"
 msgid "Maintenance roles for certificates, system upkeep, and recurring operational tasks."
 msgstr "Roluri de întreținere pentru certificate, întreținerea sistemului și sarcini operaționale recurente."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
 msgstr "Marker rol etichetarea o gazdă ca Docker Swarm Nod manager, cu logica iniţială delegată svc-swarm-node"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Marketing:title"
 msgid "Marketing"
 msgstr "Marketing"
 
+# translated-by: libretranslate
 msgctxt "role:svc-ai-searxng:description"
 msgid "Metasearch engine the platform queries for web results without handing a user's query to a tracking search provider"
-msgstr ""
+msgstr "Metasearch motor platforma interogări pentru rezultatele web, fără predarea interogării unui utilizator la un furnizor de căutare de urmărire"
 
+# translated-by: libretranslate
 msgctxt "role:dsk-gnt-pi:description"
 msgid "Minimal terminal coding agent with a lazy-loading skill system, wired to the platform's own model gateway"
-msgstr ""
+msgstr "Agent minimal de codare terminal cu un sistem de calificare de încărcare leneș, cu fir la propria poartă model platforma"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.ctl.hlth:title"
 msgid "Monitoring"
 msgstr "Monitorizare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:gen-hunspell:description"
 msgid "Multi-language spell checker with configurable dictionary packs for desktop and office text editing"
 msgstr "Verificator de vrăji multi-limbă cu pachete de dicționar configurabile pentru editarea desktop și text de birou"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-opt-rdr-domains:description"
 msgid "NGINX glue role for 301 redirects from source to target domains with automatic SSL for the source hosts"
 msgstr "NGINX rol adeziv pentru 301 redirecționări de la sursă la domenii țintă cu SSL automat pentru gazde sursă"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-webserver-https:description"
 msgid "NGINX layer for HTTPS with Let's Encrypt ACME challenge handling, port 80 to 443 redirect, and stale vHost cleanup"
 msgstr "Strat NGINX pentru HTTPS cu Sa Cripteze ACME provocare de manipulare, port 80 la 443 redirecționare, și vechi vHost curățare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-opt-rdr-www:description"
 msgid "NGINX server blocks that permanently redirect www subdomains to their non-www apex domains"
 msgstr "Blocuri server NGINX care redirecționează permanent subdomeniile www către domeniile lor non-www apex"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-matomo:description"
 msgid "NGINX subfilter injector adding Matomo analytics script and noscript image tracker to served HTML pages"
 msgstr "injector NGINX subfiltru adăugare Matomo analytics script și noscrip tracker imagine pentru a servi pagini HTML"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-html:description"
 msgid "NGINX vhost for serving static HTML websites over HTTPS with automatic Let's Encrypt certificates"
 msgstr "NGINX vhost pentru servirea site-uri HTML statice peste HTTPS cu certificate automate Let's Encript"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-prx-openresty:description"
 msgid "NGINX-based web platform and reverse proxy with validated config reloads and Let's Encrypt integration"
 msgstr "Platformă web bazată pe NGINX și proxy inversă cu reîncărcare validată a config-ului și integrarea criptării"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-legal:description"
 msgid "NGINX-served static page rendering a legal imprint (Impressum) from a Jinja2 template"
 msgstr "Pagină statică NGINX care face o imprimare legală (Impresie) de la un Jinja2 machetă"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.net:title"
 msgid "Network"
 msgstr "Rețea"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.net:description"
 msgid "Network setup (DNS, Let's Encrypt HTTP, WireGuard, etc.)"
 msgstr "Configurare rețea (DNS, Să criptăm HTTP, WireGuard etc.)"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "Canal DNS la nivel de rețea pentru blocarea anunțurilor și a trackerelor pe toate dispozitivele, cu DHCP și un panou de bord web admin"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-net-wireguard-firewalled:description"
 msgid "Networking helper for iptables forwarding and NAT masquerading of a WireGuard client running behind NAT or a firewall"
 msgstr "Asistent de rețea pentru iptables forwarding și Masquerading NAT de un client WireGuard rulează în spatele NAT sau un firewall"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-front-inj-logout:description"
 msgid "Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
 msgstr "Nginx sub_filter Injecţia JavaScript redirecţionează toate acţiunile de logare către un obiectiv centralizat OIDC unic de ieşire"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-cdn:description"
 msgid "Nginx-based content delivery network for serving shared static assets to internal web applications"
 msgstr "Reţeaua de livrare a conţinutului bazată pe Nginx pentru a deservi active statice comune aplicaţiilor web interne"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-mirror:description"
 msgid "Nginx-based privacy proxy that mirrors whitelisted third-party assets under a first-party domain"
 msgstr "Procurorul de confidențialitate bazat pe Nginx care reflectă activele terțe cotate pe lista albă într-un domeniu de primă parte"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-asset:description"
 msgid "Nginx-based server for hosting static assets copied from a source directory to the web data path"
 msgstr "Server bazat pe Nginx pentru găzduirea activelor statice copiate dintr-un director sursă pe calea de date web"
@@ -1076,1067 +1063,1063 @@ msgctxt "role:dev-npm:description"
 msgid "Node.js package-manager setup installing npm and optionally running 'npm ci' inside a project directory"
 msgstr ""
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.ctl.alm:description"
 msgid "Notification handlers for system events"
 msgstr "Manipulatoare de notificare pentru evenimente de sistem"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:update:description"
 msgid "OS & package updates"
 msgstr "Actualizări & pachete OS"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-objstore:description"
 msgid "Object-storage layer for SeaweedFS/MinIO backend resolution and per-consumer bucket and credential provisioning"
 msgstr "Stratul de stocare obiect pentru rezoluția SeaweedFS/MinIO și găleata per consumator și furnizarea de credibilități"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
 msgstr "Automatizarea la țintă pentru crearea și activarea spațiului de swap printr-un script de swap file clonat"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "logout:open_logout"
 msgid "Open the logout page"
 msgstr "Deschide pagina de logare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "logout:no_check_hint"
 msgid "Open the logout page and sign out of the remaining services yourself."
 msgstr "Deschideți pagina de logare și semna din serviciile rămase vă."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-espocrm:description"
 msgid "Open-source CRM platform for managing sales, customer interactions, and business processes across teams"
 msgstr "Platforma CRM cu sursă deschisă pentru gestionarea vânzărilor, a interacțiunilor cu clienții și a proceselor de afaceri între echipe"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-suitecrm:description"
 msgid "Open-source CRM platform for sales, service, cases, and campaign management with workflow automation"
 msgstr "Platforma CRM cu sursă deschisă pentru vânzări, servicii, cazuri și gestionarea campaniilor cu automatizare flux de lucru"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-odoo:description"
 msgid "Open-source ERP suite for CRM, sales, accounting, inventory, HR, and website management"
 msgstr "Apartament ERP open-source pentru CRM, vânzări, contabilitate, inventar, HR, și managementul site-ului"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-checkmk:description"
 msgid "Open-source IT and application monitoring server behind SSO with native LDAP user management"
 msgstr "Open-source IT și server de monitorizare a aplicațiilor în spatele SSO cu managementul utilizatorului nativ LDAP"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-snipe-it:description"
 msgid "Open-source IT asset management system for tracking hardware and software inventory"
 msgstr "Sistem de gestionare a activelor IT cu sursă deschisă pentru urmărirea inventarului hardware și software"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-kix:description"
 msgid "Open-source ITSM and helpdesk platform (OTRS fork) for ticketing, CMDB, knowledge base, and reporting"
 msgstr "Platforma Open-Source ITSM și Helpdesk (Furculiță OTRS) pentru bilete, CMDB, baza de cunoștințe și raportare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-taiga:description"
 msgid "Open-source agile project management platform for Scrum, Kanban, and hybrid team workflows"
 msgstr "Platforma de management al proiectului Open-Source pentru Scrum, Kanban și fluxurile de lucru ale echipei hibride"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-jenkins:description"
 msgid "Open-source automation server for CI/CD pipelines, builds, and plugin-driven deployment workflows"
 msgstr "Server de automatizare open-source pentru conductele CI/CD, construiește și fluxuri de lucru de implementare bazate pe modul"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-fider:description"
 msgid "Open-source community feedback platform for collecting, voting on, and prioritizing feature requests and ideas"
 msgstr "Platforma de feedback comunitar open-source pentru colectarea, votarea și prioritizarea cererilor de caracteristici și idei"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-joomla:description"
 msgid "Open-source content management system for building websites, intranets, and online applications without writing code"
 msgstr "Sistem de management al conținutului cu sursă deschisă pentru construirea de site-uri web, intraneturi și aplicații online fără cod de scriere"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-qbittorrent:description"
 msgid "Open-source desktop BitTorrent client for downloading and sharing files over the BitTorrent protocol"
 msgstr "Open-source desktop BitTorrent client pentru descărcarea și partajarea fișierelor prin protocolul BitTorrent"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-discourse:description"
 msgid "Open-source discussion and community forum platform with moderation, notifications, and plugin support"
 msgstr "Discuții open-source și platforma forumului comunitar cu moderație, notificări și suport de modul"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-shopware:description"
 msgid "Open-source ecommerce platform built on Symfony and Vue.js for building and scaling online storefronts"
 msgstr "Platformă de comerț electronic cu sursă deschisă construită pe Symfony și Vue.js pentru construirea și scalarea magazinelor online"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-zammad:description"
 msgid "Open-source helpdesk and ticketing system for handling customer requests via email, chat, phone, and web"
 msgstr "Open-source helpdesk și sistem de ticketing pentru manipularea cererilor clienților prin e-mail, chat, telefon, și web"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-moodle:description"
 msgid "Open-source learning management system for creating, managing, and delivering online courses and e-learning"
 msgstr "Sistemul de management al învățării cu sursă deschisă pentru crearea, gestionarea și furnizarea de cursuri online și e-learning"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-prometheus:description"
 msgid "Open-source monitoring and alerting toolkit for storing metrics as time-series data and querying them with PromQL"
 msgstr "Open-source monitoring and alerting toolkit for store metrics as time-series data and interoging them with PromQL"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-decidim:description"
 msgid "Open-source participatory democracy platform for public consultations, civic processes, and community voting"
 msgstr "Platforma democrației participative cu sursă deschisă pentru consultări publice, procese civice și vot comunitar"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-mattermost:description"
 msgid "Open-source, self-hosted team messaging platform for real-time collaboration via channels, threads, and integrations"
 msgstr "Open-source, auto-hosted echipa platforma de mesagerie pentru colaborarea în timp real prin canale, fire, și integrări"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-ai-litellm:description"
 msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
 msgstr "OpenAI-compatibil LLM gateway ruta un singur /v1 Obiectivul final al platformei locale și găzduite cu chei per consumator"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:dev-java:description"
 msgid "OpenJDK 11 runtime and development kit for Java applications on Pacman-based systems"
 msgstr "OpenJDK 11 kit de execuție și dezvoltare pentru aplicații Java pe sisteme Pacman"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-ssh:description"
 msgid "OpenSSH client package for secure remote shell access and key-based authentication"
 msgstr "Pachet de clienti OpenSSH pentru acces securizat la distanta si autentificare bazata pe tasta"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.opt:description"
 msgid "Optimation Services to improve your system"
 msgstr "Servicii de optimizare pentru îmbunătățirea sistemului"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Optimizarea lanțului de instrumente compilator pentru construirea C, C++ și a altor programe native"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-stk-front-proxy:description"
 msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
 msgstr "Înveliș de orchestrare pentru furnizarea de certificate TLS, șabloane vHost și OAuth opționale2"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
 msgstr "Peste Tor poate dura ceva timp."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:dev-make:description"
 msgid "Package installation for the GNU Make build automation tool on Arch Linux via Pacman"
 msgstr "Instalare pachet pentru GNU Make instrument de automatizare construi pe Arch Linux via Pacman"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-pip:description"
 msgid "Package manager for installing and managing Python packages on the target host"
 msgstr "Pachet manager pentru instalarea și gestionarea pachete Python pe gazda țintă"
 
+# translated-by: libretranslate
 msgctxt "role:svc-ai-agent-broker:description"
 msgid "Per-user Hermes and OpenClaw agents started on demand behind an OpenAI-compatible endpoint"
-msgstr ""
+msgstr "Per-utilizator Hermes și OpenClaw medicamente care au început la cerere în spatele unui obiectiv compatibil cu OpenAI"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-msmtp:description"
 msgid "Periodic health check for outbound mail delivery, sending a test message via msmtp and alerting on failure"
 msgstr "Verificarea periodică a stării de sănătate pentru livrarea prin e-mail de ieșire, trimiterea unui mesaj de testare prin msmtp și alertarea privind eșecul"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-ssh:description"
 msgid "Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
-msgstr "Agent SSH pentru desktopuri Wayland sistemat permanent, cu .ssh configurat sincronizat de la Git"
+msgstr "Agent SSH pentru desktopuri Wayland, sistemat persistent, cu .ssh config sincronizat de la Git"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
 msgstr "Stub rol titular pentru o viitoare implementare server/container XMPP, implementare în curs"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Commerce:description"
 msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
 msgstr "Platforme pentru construirea și gestionarea magazinelor online, cataloage de produse, și canale de vânzări digitale"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "logout:keep_closed"
 msgid "Please do not close this page yet."
 msgstr "Vă rugăm să nu închideți această pagină încă."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "logout:keep_open"
 msgid "Please keep this page open until this is done."
 msgstr "Vă rugăm să păstrați această pagină deschisă până când acest lucru se face."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-bkp-local-2-device:description"
 msgid "Plug-triggered systemd backup for hard-link deduplicated snapshots of the local backup tree onto a swappable USB device"
 msgstr "Plug-triggered sistemed backup for hard-link deduplicated instantaneus of the local backup tree on a swappable USB device"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-firefox:description"
 msgid "Policy-managed web browser for Arch Linux desktops with auto-installed enterprise extensions"
 msgstr "Navigator web gestionat de politici pentru desktop-uri Arch Linux cu extensii autoinstalate ale întreprinderilor"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:drv-lid-switch:description"
 msgid "Power-aware systemd logind configuration for predictable laptop lid-close behavior across battery, AC, and docked states"
 msgstr "Configurație de conectare sistem de putere pentru laptop predictibil-cap de închidere comportament pe baterie, AC, și stări andocate"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-socialhome:description"
 msgid "Privacy-first social platform for households, federating peer-to-peer over WebRTC on an embedded SQLite store"
 msgstr "Prima platforma sociala de confidentialitate pentru gospodarii, Federating peer-to-peer peste WebRTC pe un magazin SQLite încorporat"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-sudo:description"
 msgid "Privilege-escalation package and hardened sudoers configuration with /etc/sudoers.d drop-in support"
 msgstr "Pachet de creştere a priorităţilor şi configuraţie întărită a sufleurilor cu /etc/sumewers.d"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Project Management:title"
 msgid "Project Management"
 msgstr "Gestionarea proiectelor"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Project Management:description"
 msgid "Project Management Tools"
 msgstr "Instrumente de gestionare a proiectelor"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:drv-non-free:description"
 msgid "Proprietary GPU driver installer for Arch-based systems via mhwd nonfree hardware detection"
 msgstr "Instalator de drivere GPU propriu pentru sisteme bazate pe arc prin mhwd de detectare hardware nonfree"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-dns-wildcards:description"
 msgid "Provisioning role for Cloudflare wildcard DNS records (*.parent) on parent hosts and the apex domain"
 msgstr "Rolul de furnizare pentru înregistrările DNS wildcard Cloudflare (*. Parinte) privind gazdele-mamă și domeniul apex"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:user-workstation:description"
 msgid "Provisioning role for a workstation login account with its shell dotfiles, SSH authorized keys, and environment"
 msgstr "Furnizarea de rol pentru un cont de conectare stație de lucru cu fișierele sale de dotfile shell, cheile autorizate SSH, și mediu"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:user:description"
 msgid "Provisioning role for per-user environment setup, managing shell dotfiles and SSH authorized_keys"
 msgstr "Asigurarea rolului pentru configurarea mediului per utilizator, gestionarea fișierelor de puncte și SSH authorized_keys"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.prx:title"
 msgid "Proxy Servers"
 msgstr "Servere proxy"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-api:description"
 msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
 msgstr "Public REST API servind date de rol, istorie și traduceri ale Infinito.Nexus pentru fiecare arbitru de miez şi furculiţe"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:pkgmgr:description"
 msgid "Python CLI package manager for cloning multiple code repositories and automating common Git operations"
 msgstr "Python CLI pachet manager pentru clonarea mai multor depozite de coduri și automatizarea operațiunilor comune Git"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-lint:description"
 msgid "Release pins for the GitHub-release lint tools the toolchain installs"
 msgstr "Ace de lansare pentru GitHub-release scame instrumente de instalează lanț de unelte"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.ctl.rpr:title"
 msgid "Repair"
 msgstr "Reparații"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.ctl.rpr:description"
 msgid "Repair and recovery roles—handling hard/soft recovery of Docker, Btrfs balancers, and other low-level system fixes."
 msgstr "Reparații și roluri de recuperare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-util-git-pull:description"
 msgid "Reusable Git pull primitive for shallow clones, detached-safe updates, tag pinning, and reliable change detection"
 msgstr "Reutilizabile Git trage primitiv pentru clone superficiale, actualizări detaşate-safe, tag pinning, şi fiabile de detectare schimbare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-ai-mcp-adapter:description"
 msgid "Reusable per-provider MCP adapter exposing a narrow allowlisted read surface"
 msgstr "Adaptor MCP reutilizabil per furnizor care expune o suprafață de citire îngustă"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-proxy:description"
 msgid "Reverse proxy front-end for Docker-hosted services with automatic TLS, WebSocket support, and per-app vHost templating"
 msgstr "Invers proxy front-end pentru Docker-hosted servicii cu TLS automată, suport WebSocket, și per-app vHost templating"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-front-tls:description"
 msgid "Reverse-proxy TLS orchestration layer selecting Let's Encrypt, self-signed, or disabled certificate providers for Nginx"
 msgstr "Invers-proxy TLS orchestration strat selecting Let's cripted, auto-semnate, or disabled certificate providers for Nginx"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.prx:description"
 msgid "Reverse-proxy roles for routing and load-balancing traffic to backend services"
 msgstr "Roluri inverse pentru rutarea și echilibrarea traficului către serviciile suport"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.ctl.cln:description"
 msgid "Roles for cleaning up various system resources—old backups, unused certificates, temporary files, Docker volumes, disk caches, deprecated domains, and more."
 msgstr ""
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:drv:description"
 msgid "Roles for installing and configuring hardware drivers—covering printers, graphics, input devices, and other peripheral support."
 msgstr ""
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:web:description"
 msgid "Roles for managing web infrastructure—covering static content services and deployable web applications."
 msgstr "Roluri pentru gestionarea infrastructurii web care acoperă serviciile de conținut static și aplicațiile web disponibile."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.ctl.hlth:description"
 msgid "Roles for system monitoring and health checks—encompassing bot-style automated checks and core low-level monitors for logs, containers, disk usage, and more."
 msgstr ""
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-front-tls-selfsigned:description"
 msgid "SAN-aware certificate provider generating and storing self-signed TLS certificates for the front-proxy TLS layer"
 msgstr "Furnizorul de certificate SAN-aware care generează și stochează certificate TLS autosemnate pentru stratul TLS frontal"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Sales:title"
 msgid "Sales"
 msgstr "Vânzări"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.virt:title"
 msgid "Sandboxed Runtimes"
 msgstr "Sandboxed Runtimes"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-bkp-nfs-2-local:description"
 msgid "Scheduled backup job for hard-linked differential rsync snapshots of an NFS export into the local backup tree"
 msgstr "Post de backup programat pentru fotografii diferențial rsync hard-legate de un export NFS în arborele de rezervă local"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-cln-certs:description"
 msgid "Scheduled cleanup tool for revoking and deleting unused Let's Encrypt certificates"
 msgstr "Unealtă de curățare programată pentru revocarea și ștergerea certificatelor neutilizate Să criptăm"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-bkp-secrets-2-local:description"
 msgid "Scheduled deduplicating backup of host secrets, CA, ACME credentials, and node identity to the local backup directory"
 msgstr "Programat deduplicarea de rezervă a secretelor gazdelor, CA, ACME acreditări, și identitatea nodului la directorul local de rezervă"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-bkp-volume-2-local:description"
 msgid "Scheduled deduplicating backup system for Docker container volumes to a local directory, with consistent SQL dumps"
 msgstr "Sistem de deduplicare programat pentru volumele containerelor Docker într-un director local, cu gropi SQL consistente"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-csp:description"
 msgid "Scheduled health check crawling configured domains for CSP-blocked resources via a Puppeteer-based Node.js checker"
 msgstr "Verificare de sănătate programată crawling domenii configurate pentru resurse blocate CSP prin intermediul unui păpușar-based Node.js checker"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-btrfs:description"
 msgid "Scheduled health check for Btrfs filesystems that alerts on non-zero device error counters"
 msgstr "Verificarea stării de sănătate programată pentru sistemele de fișiere Btrfs care alertează contoarele de erori non-zero ale dispozitivului"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-disc-space:description"
 msgid "Scheduled health check for filesystem disk usage, alerting when any mount exceeds its warning threshold"
 msgstr "Verificarea stării de sănătate programată pentru utilizarea disk-ului sistemului de fișiere, alertarea atunci când orice montare depășește pragul său de avertizare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-journalctl:description"
 msgid "Scheduled health check scanning the systemd journal for daily errors and alerting on matches"
 msgstr "Verificare de sănătate programată scanarea jurnalului de sistem pentru erori zilnice și alertarea privind meciurile"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-webserver:description"
 msgid "Scheduled health check verifying each NGINX domain returns its expected HTTP status and alerting on deviations"
 msgstr "Verificarea sanatatii programate verificand fiecare domeniu NGINX returneaza starea prevazuta HTTP si alertand deviatiile"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-cln-faild-bkps:description"
 msgid "Scheduled maintenance service for detecting and removing failed Docker backups while keeping recent sets intact"
 msgstr "Serviciul de întreținere programat pentru detectarea și eliminarea backup-urilor Docker eșuate, păstrând în același timp seturi recente intacte"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-cln-anon-volumes:description"
 msgid "Scheduled maintenance task for reclaiming disk space by removing unused anonymous Docker volumes and their symlinks"
 msgstr "Sarcina de întreținere programată pentru recuperarea spațiului discului prin eliminarea volumelor anonime de Docker neutilizate și a simlinkurilor lor"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-bkp-remote-2-local:description"
 msgid "Scheduled pull-style backup replicating remote hosts onto this host over SSH and rsync as hard-linked snapshots"
 msgstr "Programat pentru copie de rezervă replicarea gazdelor de la distanță pe această gazdă peste SSH și rsync ca instantanee hard-legate"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-cln-bkps:description"
 msgid "Scheduled systemd maintenance service for pruning outdated backup versions when disk usage exceeds a threshold"
 msgstr "Servicii de întreținere a sistemelor programate pentru tăierea versiunilor de rezervă depășite atunci când utilizarea discurilor depășește un prag"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-rpr-btrfs-balancer:description"
 msgid "Scheduled systemd service and timer for rebalancing Btrfs file systems to keep storage allocation optimal"
 msgstr "Serviciul sistemat programat și cronometrul pentru reechilibrarea sistemelor de fișiere Btrfs pentru a menține alocarea de stocare optimă"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-mtn-cert-renew:description"
 msgid "Scheduled systemd-timer job renewing Let's Encrypt SSL/TLS certificates via Certbot and reloading NGINX afterward"
 msgstr "Programat de sistem-timer de locuri de muncă reînnoire Să Cripteze certificatele SSL/TLS prin Certbot și reîncărcare NGINX după aceea"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-runner:description"
 msgid "Self-hosted CI runner infrastructure for executing GitHub Actions workflow jobs in ephemeral Docker containers"
 msgstr "Infrastructură auto-hostată a alergătorului CI pentru executarea lucrărilor GitHub Acţiuni Flux de lucru în containerele Docker efemere"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-gitlab:description"
 msgid "Self-hosted DevOps platform for Git source-code management, CI/CD pipelines, and issue tracking"
 msgstr "Platforma Auto-hosted DevOps pentru managementul codului sursă Git, conductele CI/CD și urmărirea emisiunilor"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-fediwall:description"
 msgid "Self-hosted Fediverse wall for showing recent public posts by hashtag or account in a live masonry grid"
 msgstr "Perete Fedivers auto-hosted pentru a arăta posturi publice recente de hashtag sau cont într-o grilă zidarie live"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.runner:description"
 msgid "Self-hosted GitHub Actions runner deployment and configuration"
 msgstr "Implementarea și configurarea rulmenţilor GitHub Acţiuni GitHub"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-littlejs:description"
 msgid "Self-hosted HTML5 game sandbox for browsing and running lightweight engine demos and games in the browser"
 msgstr "Auto-hosted HTML5 joc sandbox pentru navigarea și rularea demo-uri ușoare motor și jocuri în browser"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-db-openldap:description"
 msgid "Self-hosted LDAP directory service for centralized user, group, and schema management with TLS-secured access"
 msgstr "Auto-hosted serviciu director LDAP pentru utilizator centralizat, grup, și gestionarea schemei cu acces securizat TLS"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-minio:description"
 msgid "Self-hosted S3-compatible object storage for files, media, backups, and AI artifacts"
 msgstr "Auto-hosted S3- depozitare compatibila a obiectelor pentru fisiere, media, backup-uri si artefacte AI"
 
+# translated-by: libretranslate
 msgctxt "role:svc-ai-s1:description"
 msgid "Self-hosted System One classifier that answers typed questions so the gateway can route without generating"
-msgstr ""
+msgstr "Auto-hosted System One Clasificator care răspunde la întrebări tastat astfel încât poarta poate ruta fără a genera"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-yourls:description"
 msgid "Self-hosted URL shortener for creating, tracking, and managing short links with built-in click analytics"
 msgstr "Name"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-jitsi:description"
 msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
 msgstr "Platformă WebRTC auto-hostată pentru conferinţe video criptabile de la un capăt la altul cu autentificare federală"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-mini-qr:description"
 msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
 msgstr "Instrument de browser auto-hosted pentru generarea codurilor QR din text sau URL-uri cu redare locală prietenoasă cu confidențialitatea"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-openwebui:description"
 msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
 msgstr "Interfata de chat auto-hosted pentru interactionarea cu modelele locale si private AI prin backend-uri cum ar fi Ollama"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-nextcloud:description"
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
 msgstr "Platforma de cloud auto-hosted pentru sincronizarea fișierelor, partajarea, colaborarea în timp real, și spațiu de lucru echipa sub propriul domeniu"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Cloud:description"
 msgid "Self-hosted cloud solutions for file synchronization, collaboration, and data sharing."
 msgstr "Soluții cloud auto-hosted pentru sincronizarea fișierelor, colaborarea și schimbul de date."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-bluesky:description"
 msgid "Self-hosted decentralized social network on the open AT Protocol, with its own Personal Data Server"
 msgstr "Rețea socială descentralizată auto-hostată pe protocolul AT deschis, cu propriul server de date personale"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-penpot:description"
 msgid "Self-hosted design and prototyping platform for UI/UX work, real-time collaboration, and developer handoff"
 msgstr "Design auto-hosted și platforma de prototipare pentru munca UI / UX, colaborare în timp real, și handoff dezvoltator"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-magento:description"
 msgid "Self-hosted e-commerce platform for catalog management, checkout, promotions, and multi-store online retail"
 msgstr "Auto-hosted platforma de e-commerce pentru managementul catalogului, checkout, promoții, și mai multe magazine de retail online"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-xwiki:description"
 msgid "Self-hosted enterprise wiki and knowledge-management platform with collaboration and app-based extensibility"
 msgstr "Platforma Wiki și de gestionare a cunoștințelor, cu colaborare și extensibilitate bazată pe aplicații"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-bookwyrm:description"
 msgid "Self-hosted federated reading platform for book reviews and reading tracking across the Fediverse"
 msgstr "Platforma de lectură federată pentru recenzii de carte și lectură de urmărire pe Fediverse"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-mastodon:description"
 msgid "Self-hosted federated social network for microblogging, real-time timelines, and community moderation"
 msgstr "Rețea socială auto-hostată pentru microblogging, cronologie în timp real și moderație comunitară"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-keycloak:description"
 msgid "Self-hosted identity and access management platform for single sign-on, multi-factor authentication, and user federation"
 msgstr "Platforma de gestionare a identităţii şi accesului auto-hostate pentru autentificarea unică, multifactori şi federaţia de utilizatori"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-n8n:description"
 msgid "Self-hosted low-code automation platform for connecting services and building workflow integrations visually"
 msgstr "Platforma de automatizare low-coduri pentru conectarea serviciilor și integrarea fluxului de lucru în construcții"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-mailu:description"
 msgid "Self-hosted mail server suite with SMTP/IMAP/POP3, webmail, spam filtering, antivirus, DKIM signing, and TLS"
 msgstr "Apartament de server de e-mail auto-hosted cu SMTP/IMAP/POP3, webmail, filtrare spam, antivirus, semnarea DKIM, și TLS"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-jellyfin:description"
 msgid "Self-hosted media server for streaming and organizing movies, TV, music, and photos, with OIDC and LDAP login"
 msgstr "Server media auto-hosted pentru streaming și organizarea de filme, TV, muzică și fotografii, cu conectare OIDC și LDAP"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-ai-ollama:description"
 msgid "Self-hosted model server for running open LLMs locally behind a simple HTTP API"
 msgstr "Auto-hosted model server pentru rularea LLM deschise locale în spatele unui simplu HTTP API"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-baserow:description"
 msgid "Self-hosted no-code database platform with a spreadsheet-like interface for building and collaborating on data"
 msgstr "Platformă de baze de date fără cod cu o interfață tip foaie de calcul pentru construirea și colaborarea pe date"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-collabora:description"
 msgid "Self-hosted online office backend for real-time in-browser editing of documents, spreadsheets, and presentations"
 msgstr "Auto-hosted online office backend pentru în timp real în-browser editarea documentelor, foi de calcul, și prezentări"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-erpnext:description"
 msgid "Self-hosted open-source ERP suite for finance, CRM, inventory, manufacturing, HR, sales, and projects"
 msgstr "Suite ERP open-source pentru finanţe, CRM, inventar, producţie, HR, vânzări şi proiecte"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-libretranslate:description"
 msgid "Self-hosted open-source machine translation API for translating and detecting text across languages"
 msgstr "Auto-hosted open-source traducere API pentru traducerea și detectarea textului în toate limbile"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-openclaw:description"
 msgid "Self-hosted personal AI agent gateway with a browser control UI, sandboxed in a Kata microVM or gVisor runtime"
 msgstr "Gateway de agent AI personal auto-hosted cu un sistem de control al browser-ului UI, sandboxed in a Kata microVM sau gVisor runtime"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-opencloud:description"
 msgid "Self-hosted platform for file sync, sharing, and collaboration with Keycloak SSO and central LDAP directory"
 msgstr "Platformă auto-hosted pentru sincronizarea fișierelor, partajarea, și colaborarea cu Keycloak SSO și directorul central LDAP"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-listmonk:description"
 msgid "Self-hosted platform for newsletters and mailing lists with subscriber segmentation and campaign analytics"
 msgstr "Platforma auto-hosted pentru buletine informative și liste de corespondență cu segmentarea abonaților și analiza campaniei"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-akaunting:description"
 msgid "Self-hosted platform for online accounting, bookkeeping, and business finance management"
 msgstr "Platforma auto-hosted pentru contabilitate online, contabilitate și gestionarea finanțelor de afaceri"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-openproject:description"
 msgid "Self-hosted platform for project management, work-package tracking, Gantt planning, and team collaboration"
 msgstr "Platformă auto-hostată pentru managementul proiectelor, urmărirea pachetelor de lucru, planificarea Gantt și colaborarea echipei"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-dashboard:description"
 msgid "Self-hosted portal for unified access to all deployed applications via a customizable tile and menu interface"
 msgstr "Portal auto-hostat pentru acces unificat la toate aplicațiile implementate prin intermediul unei interfețe personalizabile pentru plăci și meniu"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-pretix:description"
 msgid "Self-hosted ticketing platform for events with online sales, registration management, and secure payments"
 msgstr "Platforma de tichete auto-hosted pentru evenimente cu vânzări online, managementul înregistrării, și plăți sigure"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-bigbluebutton:description"
 msgid "Self-hosted web conferencing platform for virtual classrooms, online meetings, and real-time collaboration"
 msgstr "Platforma de conferinţe web pentru sălile de clasă virtuale, întâlnirile online şi colaborarea în timp real"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-funkwhale:description"
 msgid "Self-hosted, federated platform for sharing, hosting, and streaming your own music and audio library"
 msgstr "Auto-hosted, platforma Federated pentru partajarea, găzduire și streaming propria ta muzică și bibliotecă audio"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-matomo:description"
 msgid "Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
 msgstr "Auto-hosted, intimitate-prima platformă de analiză web pentru urmărire vizitatori în timp real și indicatori site"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Server Administration:title"
 msgid "Server Administration"
 msgstr "Administrare server"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.opt:title"
 msgid "Service Optimation"
 msgstr "Optimizarea serviciului"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.bkp:description"
 msgid "Service-level backup and recovery components—handling automated data snapshots, remote backups, synchronization services, and backup orchestration across databases, files, and containers."
 msgstr "Componentele de backup și de recuperare de la nivel de serviciu se bazează pe capturi automatizate de date, backup-uri de la distanță, servicii de sincronizare și orchestrare de rezervă prin baze de date, fișiere și containere."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-css:description"
 msgid "Service-registry role owning the canonical `css` flag and redirecting the CSS hostname to the CDN upstream"
 msgstr "Rolul de serviciu-registru detinerea canonica `css` pavilion și redirecționarea numele gazdei CSS către CDN în amonte"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc:title"
 msgid "Services"
 msgstr "Servicii"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:web.svc:title"
 msgid "Services"
 msgstr "Servicii"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.storage:title"
 msgid "Shared Storage"
 msgstr "Stocare partajată"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-openssl:description"
 msgid "Shared host dependency ensuring the OpenSSL CLI is installed once for roles that invoke openssl commands"
 msgstr "Dependența de gazde partajate care asigură instalarea CLI OpenSSL o dată pentru rolurile care invocă comenzile Openssl"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-db-rabbitmq:description"
 msgid "Shared message broker for async messaging with per-consumer virtual host and user isolation"
 msgstr "broker de mesaje partajate pentru mesaje asinc cu gazda virtuală per-consumator și izolarea utilizatorilor"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "Platforme de stocare persistente partajate utilizate de aplicații multi-node4 roluri de server și client."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
 msgstr "Server de baze de date relaționale partajate pentru aplicații care necesită stocare centrală SQL, rulează în Docker"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "logout:all_done"
 msgid "Signed out everywhere."
 msgstr "Semnat peste tot."
 
-# libretranslate
+# translated-by: libretranslate
 #, python-brace-format
 msgctxt "logout:partial"
 msgid "Signed out, except {failed} of {total} services."
 msgstr "Semnat, cu excepția {failed} din {total} Servicii."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "logout:running"
 msgid "Signing you out of your services…"
 msgstr "Să te conectez la serviciile tale..."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-postmarks:description"
 msgid "Single-user ActivityPub bookmarking site federating public bookmarks to Mastodon and the Fediverse"
 msgstr "Single-user ActivityPub bookmarking site Federating public bookmarks to Mastodont and the Fediverse"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-homeassistant:description"
 msgid "Smart-home automation hub with device integrations, dashboards and a built-in MCP server for AI agent access"
 msgstr "Hub de automatizare Smart-home cu integrarea dispozitivelor, borduri și un server MCP încorporat pentru accesul agentului AI"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Social Media:title"
 msgid "Social Media"
 msgstr "Media socială"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Social Media:description"
 msgid "Social Media Tools"
 msgstr "Instrumente de media socială"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:dev:title"
 msgid "Software Development Utilties"
 msgstr "Utilităţile de dezvoltare software"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-opentalk:description"
 msgid "Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
 msgstr "Platforma de conferinţe video open-source pentru apeluri audio/video, partajarea ecranelor, săli de spargere şi SSO"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.stk:title"
 msgid "Stack"
 msgstr "Stack"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.stk:description"
 msgid "Stack levels to setup the server"
 msgstr "Nivele stiva pentru configurarea serverului"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:web.svc:description"
 msgid "Static content servers (assets, HTML, legal, files)"
 msgstr "Servere de conținut statice (active, HTML, legal, fișiere)"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-svc-file:description"
 msgid "Static file server over HTTPS with directory listing, .well-known handling, and automatic TLS certificates"
 msgstr "Server de fișiere statice peste HTTPS cu listare director, .bine-cunoscut de manipulare, și certificate TLS automate"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-hugo:description"
 msgid "Static site generator building HTML from an upstream Git repository at build time and serving it via nginx"
 msgstr "Static site generator building HTML dintr-un depozit Git în amonte la timp de construcție și servind-o prin nginx"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Storage:title"
 msgid "Storage"
 msgstr "Depozitare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys:title"
 msgid "System"
 msgstr "Sistem"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys.front:title"
 msgid "System Frontend Helpers"
 msgstr "Helpers frontale de sistem"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:dev-locales:description"
 msgid "System configuration role for setting up and generating localesvia locale.gen and locale.conf templates"
 msgstr "Rolul de configurare a sistemului pentru înființarea și generarea localesvia locale.gen şi locale.conf șabloane"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-hostname:description"
 msgid "System hostname configuration derived from the inventory host entry"
 msgstr "Configuraţia numelui gazdei de sistem derivată din înregistrarea gazdei de inventar"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:sys:description"
 msgid "System near components. Will be automaticly called if necessary from other roles."
 msgstr "Sistem în apropierea componentelor. Va fi apelat automat dacă este necesar din alte roluri."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:update:description"
 msgid "System-maintenance role for refreshing the package index and upgrading installed packages via the OS package manager"
 msgstr "Rolul de întreținere a sistemului pentru revigorarea indicelui pachetului și modernizarea pachetelor instalate prin intermediul managerului pachetului OS"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-cli:description"
 msgid "System-wide command-line interface for managing and operating the entire self-hosted platform environment from the shell"
 msgstr "Interfață de linie de comandă la nivel de sistem pentru gestionarea și operarea întregului mediu de platformă auto-hosted din coajă"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-pip-install:description"
 msgid "System-wide pip helper for installing or upgrading a Python package via the host's system Python"
 msgstr "Asistent pip la nivel de sistem pentru instalarea sau modernizarea unui pachet Python prin intermediul sistemului gazdă Python"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-mtn-cert-deploy:description"
 msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
 msgstr "Serviciu sistemat și cronometru pentru sincronizare Să cripteze certificatele în Docker Compose Stive NGINX cu reîncărcare la cald"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-timer:description"
 msgid "Systemd timer unit for starting a service on a recurring calendar schedule for automated task execution"
 msgstr "Unitate cu cronometru sistemat pentru pornirea unui serviciu pe un calendar periodic pentru executarea automată a sarcinilor"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-cln-docker:description"
 msgid "Systemd-driven cleanup service pruning anonymous Docker volumes plus images, containers, networks, and build cache"
 msgstr "Servicii de curățare bazate pe sisteme de tăiere anonim volume Docker plus imagini, containere, rețele, și construi cache"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-rpr-container-hard:description"
 msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
 msgstr "Rolul de întreținere programat pentru reporniri complete Docker Compose stiva, cu reporniri dure pentru stive cum ar fi Mailu"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-container:description"
 msgid "Systemd-timed monitor for detecting unhealthy or non-zero-exited Docker containers and raising failure alerts"
 msgstr "Comment"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-alm-email:description"
 msgid "Systemd-triggered msmtp notifier for emailing operators when a monitored service unit fails"
 msgstr "Notificator de msmtp cu declanşare sistematică pentru e-mailul operatorilor atunci când o unitate de servicii monitorizată eşuează"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-alm-telegram:description"
 msgid "Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"
 msgstr "Notificatorul cu declanşare prin sistem pentru furnizarea de alerte prin esecuri la un chat prin telegramă"
 
+# translated-by: libretranslate
 msgctxt "role:dsk-gnt-claude:description"
 msgid "Terminal coding agent from Anthropic, pointed at the platform's own model gateway instead of the vendor API"
-msgstr ""
+msgstr "Agent de codare terminal de la Antropic, a arătat la propria poartă model platformei în loc de vânzător API"
 
+# translated-by: libretranslate
 msgctxt "role:dsk-gnt-codex:description"
 msgid "Terminal coding agent from OpenAI, pointed at the platform's own model gateway instead of the vendor API"
-msgstr ""
+msgstr "Agent de codificare terminal de la OpenAI, a arătat la poarta de acces propriul model platforma în loc de vânzător API"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-gnome-terminal:description"
 msgid "Terminal emulator for the GNOME desktop, giving command-line access on Arch Linux workstations"
 msgstr "Emulator terminal pentru desktop-ul GNOME, oferind acces la linia de comandă pe staţiile de lucru Arch Linux"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-micro:description"
 msgid "Terminal-based text editor with modern keybindings and syntax highlighting for Pacman-based workstations"
 msgstr "Editor de text bazat pe terminal, cu legături cheie moderne și evidențierea sintaxei pentru stațiile de lucru Pacman"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:test-e2e-cli:description"
 msgid "Test-harness role running end-to-end CLI test scripts for roles that declare a test environment template"
 msgstr "Scripturi de testare CLI pentru roluri care declară un șablon de mediu de testare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "logout:pace"
 msgid "This usually takes a few seconds."
 msgstr "De obicei durează câteva secunde."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-opt-ssd-hdd:description"
 msgid "Tiering role placing Docker volumes on SSD or HDD by workload type, with symlinks keeping paths consistent"
 msgstr "De stabilire a rolului plasarea volumelor Docker pe SSD sau HDD în funcție de tipul de muncă, cu Symlinks păstrarea căi coerente"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:dev-python:description"
 msgid "Toolchain for Python scripting, application development, and data science on Linux"
 msgstr "Toolchain pentru scripting Python, dezvoltarea de aplicații, și știința datelor pe Linux"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Tools:title"
 msgid "Tools"
 msgstr "Unelte"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:User Management:description"
 msgid "Tools for Identity and Access Management, including authentication, user provisioning, and secure access control."
 msgstr "Instrumente pentru gestionarea identității și a accesului, inclusiv autentificarea, furnizarea utilizatorilor și controlul securizat al accesului."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Communication:description"
 msgid "Tools for communication"
 msgstr "Instrumente de comunicare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Marketing:description"
 msgid "Tools for email campaigns, audience engagement, automation, and digital marketing workflows."
 msgstr "Instrumente pentru campanii de e-mail, implicarea publicului, automatizare, și fluxuri de lucru de marketing digitale."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Asset Management:description"
 msgid "Tools to inventory, track, and manage hardware and software assets across your organization."
 msgstr "Unelte pentru inventarierea, urmărirea și gestionarea activelor hardware și software în întreaga organizație."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Community:description"
 msgid "Tools to manage the community"
 msgstr "Instrumente de gestionare a comunității"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:Analytics:description"
 msgid "Tools to measure, visualize, and optimize website performance and user behavior through data-driven insights."
 msgstr "Instrumente pentru a măsura, vizualiza și optimiza performanța site-ului și comportamentul utilizatorului prin perspective bazate pe date."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:web.opt:description"
 msgid "Tools which help to optimize webservers"
 msgstr "Unelte care ajută la optimizarea serverelor web"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-net-tor:description"
 msgid "Tor daemon publishing the node as a v3 onion service"
 msgstr "Tor daemon publishing the node as a v3 Servicii de ceapă"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-torbrowser:description"
 msgid "Tor network client and browser launcher for anonymous, privacy-focused web browsing"
 msgstr "Client de rețea Tor și lansator browser pentru navigare web anonimă, axată pe confidențialitate"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-virtualbox:description"
 msgid "Type-2 hypervisor for virtual machines on Pacman workstations, with kernel modules and extension pack"
 msgstr "Tip2 hipervisor pentru masini virtuale pe statii de lucru Pacman, cu module de nucleu si pachet de extensie"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-ctl-alm-compose:description"
 msgid "Unified systemd notification service dispatching service-failure alerts through both Telegram and email channels"
 msgstr "Serviciul unificat de notificare prin sistem de expediere a alertelor prin serviciul de e-mail"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:update:title"
 msgid "Updates & Package Management"
 msgstr "Actualizări și gestionarea pachetelor"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "logout:partial_hint"
 msgid "Use the links below to sign out of the rest yourself."
 msgstr "Utilizați link-urile de mai jos pentru a semna din restul te."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "logout:stalled_hint"
 msgid "Use the links below to sign out of the services still listed."
 msgstr "Utilizați link-urile de mai jos pentru a semna din serviciile încă enumerate."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "menu:User Management:title"
 msgid "User Management"
 msgstr "Gestionarea utilizatorilor"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:user:description"
 msgid "User accounts & access control"
 msgstr "Conturile utilizatorilor și controlul accesului"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:user:title"
 msgid "Users & Access"
 msgstr "Utilizatori și acces"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-git:description"
 msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
 msgstr "Client de control versiune pentru posturi de lucru personale, preconfigurat cu identitatea, semnarea și fuzionarea implicitelor"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
 msgstr "Versiuneat activ-tree layout pentru livrarea CDN cu directoare comune, vânzător, și pe rol"
 
+# translated-by: libretranslate
 msgctxt "role:dsk-code:description"
 msgid "Visual Studio Code workstation editor in a selectable flavor, carrying the extensions of the agents the host deploys"
-msgstr ""
+msgstr "Visual Studio Code editor stație de lucru într-o aromă selectabilă, care transportă extensiile agenților pe care gazda le desfășoară"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:web:title"
 msgid "Web Infrastructure"
 msgstr "Infrastructură web"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-semaphore:description"
 msgid "Web UI and API for running Ansible, Terraform/OpenTofu, and shell automation on a schedule or on demand"
 msgstr "Web UI și API pentru rularea Ansible, Terraform/OpenTofu, și automatizarea coajă pe un program sau la cerere"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-lam:description"
 msgid "Web interface for administering LDAP directories: managing users, groups, and other directory objects"
 msgstr "Interfață web pentru administrarea directoarelor LDAP: gestionarea utilizatorilor, grupurilor și a altor obiecte directoare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-fusiondirectory:description"
 msgid "Web-based LDAP administration interface for managing users, groups, and directory objects"
 msgstr "Interfață de administrare web LDAP pentru gestionarea utilizatorilor, grupurilor și obiectelor directoare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-phpldapadmin:description"
 msgid "Web-based LDAP client for browsing, searching, and administering directory entries in LDAP servers"
 msgstr "Client web-based LDAP pentru navigare, căutare, și administrarea de intrări director în servere LDAP"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-pgadmin:description"
 msgid "Web-based administration and development platform for managing multiple PostgreSQL servers, with optional OAuth2 login"
 msgstr "Platforma web de administrare si dezvoltare pentru administrarea mai multor servere PostgreSQL, cu OAuth opţional2 autentificare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:web-app-phpmyadmin:description"
 msgid "Web-based administration tool for MySQL and MariaDB with schema management, querying, and import/export"
 msgstr "Instrument de administrare bazat pe web pentru MySQL și MariaDB cu management schema, interogare și import/export"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "category:web.opt:title"
 msgid "Webserver Optimation"
 msgstr "Optimizarea serverului web"
 
-# libretranslate
-#, fuzzy
+# translated-by: libretranslate
 msgctxt "role:dsk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
-msgstr "Stație de lucru pentru Docker și Docker Compose cu utilizatorul local în grupul docker pentru utilizarea fără rădăcină de dezvoltare"
+msgstr "Stație de lucru pentru Docker și Docker Compose cu utilizatorul local în grupul docker pentru utilizare fără rădăcini de dezvoltare"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:dev-arduino:description"
 msgid "Workstation toolchain and serial-port permissions for Arduino board development on Linux"
 msgstr "Stație de lucru instrumentchain și permisiuni de port serial pentru dezvoltarea bord Arduino pe Linux"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:pkgmgr-install:description"
 msgid "Wrapper role for idempotent package installation and updates through the pkgmgr universal package manager"
 msgstr "Rolul Wrapper pentru instalarea de pachete idempotent și actualizări prin intermediul managerului de pachete universale pkgmgr"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "logout:may_close"
 msgid "You can close this page now."
 msgstr "Poţi închide pagina acum."
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "logout:st_failed"
 msgid "failed"
 msgstr "a eșuat"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "role:svc-net-firewall:description"
 msgid "nftables packet filter whose rules each role owns as its own table, replaced atomically and reloaded at boot"
 msgstr "filtru de pachete nftables ale cărui reguli fiecare rol deține ca masă proprie, înlocuit atomic și reîncărcat la boot"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "logout:st_unconfirmed"
 msgid "not confirmed"
 msgstr "neconfirmat"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "logout:manual"
 msgid "sign out manually"
 msgstr "Semnează manual"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "logout:st_done"
 msgid "signed out"
 msgstr "semnat"
 
-# libretranslate
+# translated-by: libretranslate
 msgctxt "logout:st_pending"
 msgid "signing out"
 msgstr "semnare"
 
-# libretranslate
+# translated-by: libretranslate
 #, python-brace-format
 msgctxt "logout:counter"
 msgid "{done} of {total} services signed out"
