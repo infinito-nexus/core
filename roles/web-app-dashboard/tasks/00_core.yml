@@ -18,17 +18,42 @@
     dashboard_i18n_content: "{{ lookup('i18n_content', 'role:', 'menu:') }}"
   run_once: true
 
-- name: "📁 Ensure the port-ui content catalog directory exists on every node"
+- name: "📁 Ensure the port-ui content catalog directory exists in the build context"
   ansible.builtin.file:
     path: "{{ DASHBOARD_I18N_CONTENT_DIR }}"
     state: directory
     mode: "0755"
+  when: IS_STACK_HOST | bool
 
-- name: "🌐 Render the port-ui content catalogs (local + swarm peers)"
-  ansible.builtin.include_tasks:
-    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
-  vars:
-    role_templates: "{{ dashboard_i18n_content | i18n_content_templates(DASHBOARD_I18N_CONTENT_DIR, 'i18n-content.yaml.j2') }}"
+- name: "🌐 Render the port-ui content catalogs into the build context"
+  stack_host_template:
+    src: "i18n-content.yaml.j2"
+    dest: "{{ [ DASHBOARD_I18N_CONTENT_DIR, item ~ '.yaml' ] | path_join }}"
+  loop: "{{ dashboard_i18n_content | list | sort }}"
+  notify:
+    - compose-build
+    - compose-up
+    - container-recreate
+
+- name: "🔎 Find the port-ui content catalogs already in the build context"
+  ansible.builtin.find:
+    paths: "{{ DASHBOARD_I18N_CONTENT_DIR }}"
+    patterns: "*.yaml"
+    file_type: file
+  register: dashboard_i18n_rendered
+
+- name: "🗑️ Drop the catalog of a language core no longer translates"
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ dashboard_i18n_rendered.files }}"
+  loop_control:
+    label: "{{ item.path | basename }}"
+  when: item.path | basename | regex_replace('[.]yaml$', '') not in dashboard_i18n_content
+  notify:
+    - compose-build
+    - compose-up
+    - container-recreate
 
 - name: "👔 Dashboard manager-side operations (file deploys + container exec)"
   include_tasks: 02_manager_ops.yml
