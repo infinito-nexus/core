@@ -61,6 +61,56 @@ class TestIsSuppressedAt(unittest.TestCase):
         lines = ["# noqa: email", "", "", "email:"]
         self.assertTrue(is_suppressed_at(lines, 4, "email", mode="line-above"))
 
+    def test_block_above_reaches_past_a_later_annotation(self):
+        """A gettext entry stacks comments; the newest one lands closest.
+
+        ``translate.py`` appends ``translated-by`` when it fills an entry,
+        which pushes an older marker one line further from the msgid. Under
+        ``line-above`` the marker would silently stop working.
+        """
+        lines = [
+            "# nocheck: url",
+            "# translated-by: libretranslate",
+            'msgid "see https://example.invalid/"',
+        ]
+        self.assertTrue(is_suppressed_at(lines, 3, "url", mode="block-above"))
+        self.assertFalse(is_suppressed_at(lines, 3, "url", mode="line-above"))
+
+    def test_block_above_covers_the_translation_too(self):
+        """A gettext entry repeats the URL in msgid and msgstr.
+
+        Only the msgid follows the comments; the msgstr follows the msgid.
+        A marker that stopped at the first non-comment line would leave the
+        translation unguarded.
+        """
+        lines = [
+            "# nocheck: url",
+            "# translated-by: libretranslate",
+            'msgid "see https://example.invalid/"',
+            'msgstr "siehe https://example.invalid/"',
+        ]
+        self.assertTrue(is_suppressed_at(lines, 3, "url", mode="block-above"))
+        self.assertTrue(is_suppressed_at(lines, 4, "url", mode="block-above"))
+
+    def test_block_above_stops_at_the_blank_line_between_entries(self):
+        lines = [
+            "# nocheck: url",
+            'msgid "guarded"',
+            'msgstr ""',
+            "",
+            'msgid "see https://example.invalid/"',
+            'msgstr ""',
+        ]
+        self.assertFalse(is_suppressed_at(lines, 5, "url", mode="block-above"))
+
+    def test_block_above_accepts_the_marker_directly_above(self):
+        lines = ["# nocheck: url", 'msgid "see https://example.invalid/"']
+        self.assertTrue(is_suppressed_at(lines, 2, "url", mode="block-above"))
+
+    def test_block_above_accepts_the_marker_on_the_line_itself(self):
+        lines = ['msgid "see https://example.invalid/"  # nocheck: url']
+        self.assertTrue(is_suppressed_at(lines, 1, "url", mode="block-above"))
+
     def test_default_mode_accepts_either(self):
         same = ["foo  # nocheck: url"]
         above = ["# nocheck: url", "foo"]

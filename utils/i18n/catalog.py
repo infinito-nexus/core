@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 LOCALE_DIR = Path("locale")
 PROJECT = "infinito-nexus"
-MACHINE_TRANSLATION = "libretranslate"
+MACHINE_TRANSLATION = "translated-by: libretranslate"
 STAMP = datetime.datetime(2026, 1, 1, tzinfo=datetime.UTC)
 CONTACT = f"{SOFTWARE_AUTHOR} <{SOFTWARE_EMAIL}>"
 HEADER = f"""\
