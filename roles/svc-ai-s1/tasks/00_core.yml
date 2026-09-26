@@ -1,6 +1,10 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- include_tasks: utils/load/handlers.yml
+  vars:
+    handler_role_name: "sys-svc-compose"
+
 - name: "🛑 Refuse a backend flavor the role does not carry"
   ansible.builtin.assert:
     that:
