@@ -1,4 +1,9 @@
 ---
+# nocheck: dynamic-flag  the desktop base is the premise of every dsk role, not a per-host option
+desktop-base:
+  bond: 1
+  enabled: true
+  shared: true
 ssh:
   modes:
     host:

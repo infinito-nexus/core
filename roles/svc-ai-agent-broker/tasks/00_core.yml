@@ -34,7 +34,7 @@
 
 - name: "🛡️ Install the isolating runtime every agent runs under"
   ansible.builtin.include_role:
-    name: svc-virt-kata
+    name: svc-virt-kata # nocheck: services-declared-load  the edge would set kata.enabled on a role pinned to the manager, which test_no_placement_manager_with_sandbox rejects as unschedulable
 
 - name: "📦 Stage the agent broker build context"
   ansible.builtin.include_tasks:

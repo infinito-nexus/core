@@ -1,6 +1,6 @@
 # 025 - MCP Role Integration
 
-> **Revalidation required:** [035 - MCP Proxy Expansion and Application Interconnection](035-mcp-proxy-expansion.md) records the exhaustive 169-role audit and supersedes this document where this document assumes an empty baseline, treats metadata as enforcement, or marks client provisioning and end-to-end authorization complete. Checked items below describe the original implementation slice and MUST NOT be read as proof that the stricter identity, revocation, transport, restart, proxy, and real-tool-call criteria in requirement 035 are complete.
+> **Revalidation required:** [ADR 0003 - One MCP surface per provider, and a disposition for every role](../architecture/decisions/0003-mcp-surface-per-provider.md) holds the exhaustive per-role audit and the standing contract, and supersedes this document where this document assumes an empty baseline, treats metadata as enforcement, or marks client provisioning and end-to-end authorization complete. The remaining work is tracked in [035 - MCP Proxy Expansion and Application Interconnection](035-mcp-proxy-expansion.md). Checked items below describe the original implementation slice and MUST NOT be read as proof that the stricter identity, revocation, transport, restart, proxy, and real-tool-call criteria in requirement 035 are complete.
 
 ## User Story
 

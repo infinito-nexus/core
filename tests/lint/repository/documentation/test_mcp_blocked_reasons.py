@@ -29,7 +29,13 @@ from . import PROJECT_ROOT
 from .test_mcp_audit_completeness import _audit_lists
 
 _RULE = "mcp-blocked-reasons"
-_REQUIREMENT = PROJECT_ROOT / "docs" / "requirements" / "035-mcp-proxy-expansion.md"
+_RECORD = (
+    PROJECT_ROOT
+    / "docs"
+    / "architecture"
+    / "decisions"
+    / "0003-mcp-surface-per-provider.md"
+)
 _BLOCKED = "blocked"
 
 _REASON_ROW = re.compile(
@@ -42,7 +48,7 @@ _VOCABULARY = re.compile(
 
 def _allowed_reasons() -> set[str]:
     """Return the reason tokens the requirement documents as allowed."""
-    text = read_text(str(_REQUIREMENT))
+    text = read_text(str(_RECORD))
     match = _VOCABULARY.search(text)
     if match is None:
         return set()
@@ -60,7 +66,7 @@ def _blocked_roles() -> list[str]:
 def _reason_rows() -> dict[str, str]:
     """Return ``{role: reason}`` for every row of the blocked reason table."""
     rows: dict[str, str] = {}
-    for line in read_text(str(_REQUIREMENT)).splitlines():
+    for line in read_text(str(_RECORD)).splitlines():
         match = _REASON_ROW.match(line.strip())
         if match and match["blocker"].strip("- "):
             rows[match["role"]] = match["reason"]

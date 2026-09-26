@@ -32,7 +32,7 @@ from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 from . import PROJECT_ROOT
 
 _RULE = "mcp-audit-completeness"
-_REQUIREMENT = PROJECT_ROOT / "docs" / "requirements" / "035-mcp-proxy-expansion.md"
+_RECORD = PROJECT_ROOT / "docs" / "architecture" / "decisions" / "0003-mcp-surface-per-provider.md"
 _AUDIT_HEADING = "## Exhaustive Application-ID Audit"
 
 _SECTION_HEADING = re.compile(r"^###\s+(?P<title>.+?)\s+\((?P<count>\d+)\)\s*$")
@@ -50,7 +50,7 @@ def _audit_lists() -> dict[str, list[str]]:
     ``**`reason` (n):**`` lead-in or to the nearest ``### Title (n)`` heading.
     Prose that merely mentions a backticked term is not a list and is ignored.
     """
-    lines = read_text(str(_REQUIREMENT)).splitlines()
+    lines = read_text(str(_RECORD)).splitlines()
     start = next(i for i, line in enumerate(lines) if line.strip() == _AUDIT_HEADING)
     lists: dict[str, list[str]] = {}
     heading: tuple[str, int] | None = None
@@ -102,7 +102,7 @@ class TestMcpAuditCompleteness(unittest.TestCase):
             [],
             missing,
             f"roles absent from the MCP audit ({len(missing)}); absence is not a "
-            f"disposition, so each needs a list in {_REQUIREMENT.name}:\n"
+            f"disposition, so each needs a list in {_RECORD.name}:\n"
             + "\n".join(f"  - {app}" for app in missing),
         )
 

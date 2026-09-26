@@ -1,0 +1,6 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "👤 Ensure the account the desktop roles write for exists"
+  ansible.builtin.include_role:
+    name: user-workstation
