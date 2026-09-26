@@ -220,7 +220,7 @@
         ['container', 'run', '--rm', '--ipc=host', '--shm-size=1g']
         + (
             ['--network', 'host']
-            if DEPLOYMENT_MODE == 'swarm'
+            if IS_SWARM_MODE
             else (
               ['--add-host=host.docker.internal:host-gateway']
               + (

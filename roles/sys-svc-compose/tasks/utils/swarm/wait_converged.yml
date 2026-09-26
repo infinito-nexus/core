@@ -6,7 +6,7 @@
 # Param: wait_service_name   - explicit swarm service name; overrides container_service(application_id, wait_service_key) for a service in another stack
 # Param: wait_retries        - retries (default 600)
 # Param: wait_delay          - delay seconds (default 2)
-- when: DEPLOYMENT_MODE == 'swarm'
+- when: IS_SWARM_MODE
   vars:
     _wait_service_name: "{{ (wait_service_name | default('')) or lookup('container_service', application_id, wait_service_key) }}"
   block:

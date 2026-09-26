@@ -49,6 +49,6 @@
   ansible.builtin.command: "mountpoint -q {{ DIR_VAR_LIB }}"
   changed_when: false
   when:
-    - DEPLOYMENT_MODE == 'swarm'
+    - IS_SWARM_MODE
     - (storage.backend | default('local')) == 'nfs'
     - (groups['svc-storage-nfs-server'] | default([])) | length > 0

@@ -15,13 +15,13 @@
 - name: "🔄 Restart Odoo container after initialization (compose)"
   ansible.builtin.command: container restart {{ ODOO_CONTAINER }}
   changed_when: true
-  when: DEPLOYMENT_MODE == 'compose'
+  when: IS_COMPOSE_MODE
 
 - name: "🔄 Restart Odoo service after initialization (swarm)"
   ansible.builtin.command: "container service update --force {{ lookup('container_service', application_id, ODOO_SERVICE) }}"
   changed_when: true
   timeout: "{{ lookup('timeout', 600) | int }}"
-  when: DEPLOYMENT_MODE == 'swarm'
+  when: IS_SWARM_MODE
 
 - name: "🔍 Re-resolve Odoo hosting node + container id after the init restart"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"

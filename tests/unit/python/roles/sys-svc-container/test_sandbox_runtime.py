@@ -69,7 +69,11 @@ class TestSandboxRuntimeRegistration(unittest.TestCase):
         env.filters["bool"] = _ansible_bool
         env.filters["to_json"] = json.dumps
         env.globals["lookup"] = _lookup
-        raw = env.get_template("daemon.json.j2").render({**BASE, **overrides})
+        variables = {**BASE, **overrides}
+        mode = variables["DEPLOYMENT_MODE"]
+        variables["IS_COMPOSE_MODE"] = mode == "compose"
+        variables["IS_SWARM_MODE"] = mode == "swarm"
+        raw = env.get_template("daemon.json.j2").render(variables)
         return json.loads(raw)
 
     def test_absent_shim_is_never_registered(self):
@@ -153,7 +157,11 @@ class TestDaemonStorageDriver(unittest.TestCase):
         env.filters["bool"] = _ansible_bool
         env.filters["to_json"] = json.dumps
         env.globals["lookup"] = _lookup
-        raw = env.get_template("daemon.json.j2").render({**BASE, **overrides})
+        variables = {**BASE, **overrides}
+        mode = variables["DEPLOYMENT_MODE"]
+        variables["IS_COMPOSE_MODE"] = mode == "compose"
+        variables["IS_SWARM_MODE"] = mode == "swarm"
+        raw = env.get_template("daemon.json.j2").render(variables)
         return json.loads(raw)
 
     def test_docker_in_docker_overrides_the_storage_driver(self):

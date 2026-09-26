@@ -1,7 +1,7 @@
 """Flag ``condition: service_healthy`` (and
 ``service_completed_successfully``) under ``depends_on:`` in
 ``compose.yml.j2`` templates when the line is NOT inside a
-``{% if DEPLOYMENT_MODE == 'compose' %}`` (or equivalent compose-only)
+``{% if IS_COMPOSE_MODE %}`` (or equivalent compose-only)
 Jinja gate.
 
 ``docker stack deploy`` accepts only the list form of ``depends_on``;
@@ -33,12 +33,10 @@ _ELIF = re.compile(r"\{%\s*elif\s+(?P<expr>.+?)\s*%\}")
 _ELSE = re.compile(r"\{%\s*else\s*%\}")
 _ENDIF = re.compile(r"\{%\s*endif\s*%\}")
 _COMPOSE_ONLY_GATE = re.compile(
-    r"DEPLOYMENT_MODE\s*!=\s*['\"]swarm['\"]"
-    r"|DEPLOYMENT_MODE\s*==\s*['\"]compose['\"]"
+    r"not\s+IS_SWARM_MODE|IS_COMPOSE_MODE"
 )
 _SWARM_ONLY_GATE = re.compile(
-    r"DEPLOYMENT_MODE\s*==\s*['\"]swarm['\"]"
-    r"|DEPLOYMENT_MODE\s*!=\s*['\"]compose['\"]"
+    r"(?<!not )IS_SWARM_MODE|not\s+IS_COMPOSE_MODE"
 )
 
 
@@ -100,7 +98,7 @@ class TestComposeTemplateNoUnguardedDependsOnCondition(unittest.TestCase):
                 "conditions.\n\n"
                 "Fix: split depends_on per mode. Example:\n\n"
                 "    depends_on:\n"
-                "    {% if DEPLOYMENT_MODE == 'swarm' %}\n"
+                "    {% if IS_SWARM_MODE %}\n"
                 "          - {{ MATOMO_SERVICE }}\n"
                 "    {% else %}\n"
                 "          {{ MATOMO_SERVICE }}:\n"

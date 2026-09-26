@@ -9,7 +9,7 @@
         FRIENDICA_VERSION: "{{ FRIENDICA_VERSION }}"
     environment:
       FRIENDICA_CONFIG_FILE: "{{ FRIENDICA_CONFIG_FILE }}"
-      {% if DEPLOYMENT_MODE == 'swarm' %}
+      {% if IS_SWARM_MODE %}
       TASK_SLOT: "{% raw %}{{.Task.Slot}}{% endraw %}"
       {% endif %}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}

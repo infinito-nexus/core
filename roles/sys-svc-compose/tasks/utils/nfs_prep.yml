@@ -12,7 +12,7 @@
   loop_control:
     label: "{{ item.key }}"
   when:
-    - DEPLOYMENT_MODE == 'swarm'
+    - IS_SWARM_MODE
     - (storage.backend | default('local')) == 'nfs'
     - (groups['svc-storage-nfs-server'] | default([])) | length > 0
     - item.value is mapping
@@ -32,7 +32,7 @@
   loop_control:
     label: "{{ item.0.key }} @ {{ item.1 }}"
   when:
-    - DEPLOYMENT_MODE == 'swarm'
+    - IS_SWARM_MODE
     - (storage.backend | default('local')) == 'nfs'
     - (groups['svc-storage-nfs-server'] | default([])) | length > 0
     - item.0.value is mapping

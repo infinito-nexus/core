@@ -2,7 +2,7 @@
 shell calls from swarm-compat lints.
 
 A task whose `when:` evaluates compose-only at deploy time (e.g.
-`when: DEPLOYMENT_MODE != 'swarm'` or `when: DEPLOYMENT_MODE == 'compose'`)
+`when: not IS_SWARM_MODE` or `when: IS_COMPOSE_MODE`)
 never reaches a swarm host, so `compose <verb>` / `chdir: directories.instance`
 inside that task body is legitimate. This module gives the lints a
 heuristic to recognise that gate without parsing YAML.
@@ -11,7 +11,7 @@ The detection is line-based: the task block is the span between the
 nearest `- name:` (at indent N) above the offending line and the next
 top-level structural marker (`- name:` at indent <= N, or end of
 file). Within that span we look for any `when:` clause whose textual
-value matches a compose-only DEPLOYMENT_MODE expression.
+value names the compose-only boolean.
 """
 
 from __future__ import annotations
@@ -26,20 +26,16 @@ _TASK_NAME_RE = re.compile(
     r"^(?P<indent>\s*)-\s+(?:name|block|include_tasks|import_tasks|hosts)\s*:"
 )
 _WHEN_RE = re.compile(r"^\s*when\s*:\s*(?P<expr>.+?)\s*$")
-_COMPOSE_ONLY_EXPR = re.compile(
-    r"DEPLOYMENT_MODE\s*!=\s*['\"]swarm['\"]"
-    r"|DEPLOYMENT_MODE\s*==\s*['\"]compose['\"]"
-)
+_COMPOSE_ONLY_EXPR = re.compile(r"not\s+IS_SWARM_MODE|IS_COMPOSE_MODE")
 _FILE_COMPOSE_ONLY_HEADER = re.compile(
-    r"^\s*#\s*include-gated\s*:\s*when\s*:\s*DEPLOYMENT_MODE\s*"
-    r"(?:!=\s*['\"]swarm['\"]|==\s*['\"]compose['\"])"
+    r"^\s*#\s*include-gated\s*:\s*when\s*:\s*(?:not\s+IS_SWARM_MODE|IS_COMPOSE_MODE)"
 )
 
 
 def is_file_compose_only_by_header(lines: Sequence[str]) -> bool:
     """True iff the file declares a top-of-file marker
 
-        # include-gated: when: DEPLOYMENT_MODE != "swarm"
+        # include-gated: when: not IS_SWARM_MODE
 
     that documents the entire file is meant to be `include_tasks:` from
     a parent that already carries the compose-only `when:` guard. The
@@ -77,8 +73,8 @@ def is_task_compose_only_gated(lines: Sequence[str], idx: int) -> bool:
     """True iff the task body containing *idx* — or any enclosing parent
     `- block:` / `- name:` block — carries a `when:` clause whose textual
     expression evaluates compose-only at deploy time. Walks upwards to
-    recognise block-level gates: a single `when: DEPLOYMENT_MODE !=
-    'swarm'` on a parent `- block:` covers every child task underneath.
+    recognise block-level gates: a single `when: IS_COMPOSE_MODE`
+    on a parent `- block:` covers every child task underneath.
     """
     cur_idx = idx
     while True:

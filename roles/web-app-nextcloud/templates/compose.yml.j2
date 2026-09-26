@@ -9,7 +9,7 @@
     {{ lookup('compose_restart') }}
     {{ lookup('container_ports', ['nextcloud', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
-    {{ lookup('container_healthcheck', service_name, samples=(groups[application_id] | default([]) | length) if DEPLOYMENT_MODE == 'swarm' else 1) | indent(4) }}
+    {{ lookup('container_healthcheck', service_name, samples=(groups[application_id] | default([]) | length) if IS_SWARM_MODE else 1) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_extra_hosts', extra_hosts=(
          ['host.docker.internal:host-gateway'] if NEXTCLOUD_HPB_NETWORK_MODE == 'host' else []
@@ -23,7 +23,7 @@
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
 
     {{ lookup('container_volumes', service_name) | indent(4) }}
-    {% if DEPLOYMENT_MODE == 'swarm' %}
+    {% if IS_SWARM_MODE %}
     environment:
       TASK_SLOT: "{% raw %}{{.Task.Slot}}{% endraw %}"
     {% endif %}

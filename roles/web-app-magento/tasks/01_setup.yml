@@ -105,7 +105,7 @@
   register: magento_nginx_restart_compose
   changed_when: magento_nginx_restart_compose.rc == 0
   when:
-    - DEPLOYMENT_MODE == 'compose'
+    - IS_COMPOSE_MODE
     - magento_nginx_conf is changed or magento_install is changed
 
 - name: "🔄 Restart nginx so it picks up Magento's vhost (swarm)"
@@ -116,5 +116,5 @@
   changed_when: magento_nginx_restart_swarm.rc == 0
   timeout: "{{ lookup('timeout', 600) | int }}"
   when:
-    - DEPLOYMENT_MODE == 'swarm'
+    - IS_SWARM_MODE
     - magento_nginx_conf is changed or magento_install is changed

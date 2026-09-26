@@ -63,6 +63,6 @@
 {{ lookup('compose_networks') }}
   {% if GITEA_MCP_ENABLED | bool %}
   {{ GITEA_MCP_UPSTREAM_NETWORK }}:
-    driver: {{ 'overlay' if DEPLOYMENT_MODE == 'swarm' else 'bridge' }}
+    driver: {{ 'overlay' if IS_SWARM_MODE else 'bridge' }}
     internal: true
   {% endif %}

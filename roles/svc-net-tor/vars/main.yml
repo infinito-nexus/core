@@ -44,7 +44,7 @@ TOR_DNSMASQ_DROPIN: "/etc/systemd/system/dnsmasq.service.d/infinito-restart.conf
 # nocheck: host-local-fact  meta/services.yml pins this role to the manager, so the fact describes the node the hidden service forwards on
 TOR_CONTAINER_DNS_HOST: "{{ ansible_facts['docker0']['ipv4']['address'] | default('', true) }}"
 # nocheck: host-local-fact  meta/services.yml pins this role to the manager, so the fact describes the node the hidden service forwards on
-TOR_HS_BACKEND_HOST: "{{ ansible_facts['default_ipv4']['address'] if DEPLOYMENT_MODE == 'swarm' else (TOR_CONTAINER_DNS_HOST | ternary(TOR_CONTAINER_DNS_HOST, '127.0.0.1'))
+TOR_HS_BACKEND_HOST: "{{ ansible_facts['default_ipv4']['address'] if IS_SWARM_MODE else (TOR_CONTAINER_DNS_HOST | ternary(TOR_CONTAINER_DNS_HOST, '127.0.0.1'))
   }}"
 
 TOR_DATA_DIR: "{{ [ DIR_VAR_LIB, application_id, 'data' ] | path_join }}"

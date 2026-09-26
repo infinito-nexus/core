@@ -13,7 +13,7 @@
 # Param: resolve_cid_filters      - extra `container ps` filters for the cid lookup (default '')
 - name: "🔧 resolve_host_cid | resolve swarm service name for '{{ resolve_service_key }}'"
   ansible.builtin.set_fact:
-    _resolve_service_name: "{{ (resolve_service_name | default('')) or (lookup('container_service', application_id, resolve_service_key) if DEPLOYMENT_MODE == 'swarm'
+    _resolve_service_name: "{{ (resolve_service_name | default('')) or (lookup('container_service', application_id, resolve_service_key) if IS_SWARM_MODE
       else '') }}"
 
 - name: "⏳ resolve_host_cid | wait for '{{ resolve_service_key }}' to converge"
@@ -35,15 +35,15 @@
   delay: 2
   until: (_resolve_node.stdout | trim) | length > 0
   delegate_to: "{{ STACK_HOST }}"
-  when: DEPLOYMENT_MODE == 'swarm'
+  when: IS_SWARM_MODE
 
 - name: "🔧 resolve_host_cid | set {{ resolve_output_prefix }}_HOST_NODE"
   ansible.builtin.set_fact:
-    "{{ resolve_output_prefix }}_HOST_NODE": "{{ (_resolve_node.stdout | trim) if DEPLOYMENT_MODE == 'swarm' else inventory_hostname }}"
+    "{{ resolve_output_prefix }}_HOST_NODE": "{{ (_resolve_node.stdout | trim) if IS_SWARM_MODE else inventory_hostname }}"
 
 - name: "🔍 resolve_host_cid | resolve local container id for '{{ resolve_service_key }}'"
   ansible.builtin.shell: |
-    {% if DEPLOYMENT_MODE == 'swarm' %}
+    {% if IS_SWARM_MODE %}
     container ps \
       --filter "label=com.docker.swarm.service.name={{ _resolve_service_name }}" \
       --filter status=running {{ resolve_cid_filters | default('') }} \
@@ -55,7 +55,7 @@
   changed_when: false
   retries: 30
   delay: 2
-  until: DEPLOYMENT_MODE == 'compose' or (_resolve_cid.stdout | trim) | length > 0
+  until: IS_COMPOSE_MODE or (_resolve_cid.stdout | trim) | length > 0
   delegate_to: "{{ lookup('vars', resolve_output_prefix ~ '_HOST_NODE') }}"
 
 - name: "🔧 resolve_host_cid | set {{ resolve_output_prefix }}_LOCAL_CID"

@@ -19,7 +19,7 @@ LMSTUDIO_NFS_SERVER: "{{ (groups['svc-storage-nfs-server'] | default([]))[0] | d
 LMSTUDIO_SHARED_MODELS_PATH: "{{ [ STORAGE_NFS_STATE_PATH, lookup('volume', application_id, 'lmstudio_models').name ] | path_join }}"
 LMSTUDIO_SHARED_STAGING_PATH: "{{ [ STORAGE_NFS_STATE_PATH, '.lmstudio-staging' ] | path_join }}"
 LMSTUDIO_PRESEED_ENABLED: >-
-  {{ (DEPLOYMENT_MODE == 'swarm')
+  {{ (IS_SWARM_MODE)
      and (storage.backend == 'nfs')
      and ((groups['svc-storage-nfs-server'] | default([])) | length > 0)
      and (lookup('volume', application_id, 'lmstudio_models').nfs is not false)

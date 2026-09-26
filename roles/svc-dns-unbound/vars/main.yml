@@ -14,4 +14,4 @@ UNBOUND_FORWARD_DNS: "{{ (DOCKER_IN_CONTAINER | bool) or ('microsoft' in lookup(
 
 UNBOUND_ONION_FORWARD_ADDR: >-
   {{ (lookup('subnet_gateway') ~ '@' ~ lookup('config', 'svc-net-tor', 'services.tor.ports.local.dns'))
-     if ('svc-net-tor' in group_names and DEPLOYMENT_MODE == 'compose') else '' }}
+     if ('svc-net-tor' in group_names and IS_COMPOSE_MODE) else '' }}

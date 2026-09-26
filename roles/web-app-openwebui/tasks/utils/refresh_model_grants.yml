@@ -3,7 +3,7 @@
   ansible.builtin.command:
     argv: >-
       {{ ['container', 'service', 'ls', '-q', '--filter', 'name=' ~ lookup('container_service', application_id, entity_name)]
-         if DEPLOYMENT_MODE == 'swarm'
+         if IS_SWARM_MODE
          else ['container', 'ps', '-q', '--filter', 'status=running', '--filter', 'name=^' ~ OPENWEBUI_CONTAINER ~ '$'] }}
   register: openwebui_running
   changed_when: false

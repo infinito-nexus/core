@@ -30,7 +30,7 @@
   changed_when: true
   when:
     - "'OIDC_SLK_CHANGED' in erpnext_oidc_apply.stdout"
-    - DEPLOYMENT_MODE == 'compose'
+    - IS_COMPOSE_MODE
   timeout: "{{ lookup('timeout', 120) | int }}"
 
 - name: "🔄 Restart Frappe on Social Login Key change (swarm)"
@@ -39,7 +39,7 @@
   changed_when: true
   when:
     - "'OIDC_SLK_CHANGED' in erpnext_oidc_apply.stdout"
-    - DEPLOYMENT_MODE == 'swarm'
+    - IS_SWARM_MODE
   timeout: "{{ lookup('timeout', 600) | int }}"
 
 - name: "🔍 Re-resolve ERPNext backend node + CID after OIDC restart"

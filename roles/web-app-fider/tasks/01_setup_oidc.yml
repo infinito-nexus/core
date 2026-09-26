@@ -12,7 +12,7 @@
     port: "{{ lookup('config', application_id, 'services.fider.ports.local.http') }}"
     delay: 5
     timeout: "{{ lookup('timeout', 300) | int }}"
-  when: DEPLOYMENT_MODE == 'compose'
+  when: IS_COMPOSE_MODE
 
 - name: "⏳ Wait for {{ application_id }} HTTP endpoint (swarm in-container)"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
@@ -23,7 +23,7 @@
   delay: 5
   until: fider_http_ready.rc == 0
   delegate_to: "{{ FIDER_HOST_NODE }}"
-  when: DEPLOYMENT_MODE == 'swarm'
+  when: IS_SWARM_MODE
 
 - name: "🔎 Fider | Check if tenant is already initialized"
   database_query:
@@ -42,7 +42,7 @@
     body: "{{ FIDER_TENANT_BOOTSTRAP_BODY }}"
     status_code: [200, 201]
   when:
-    - DEPLOYMENT_MODE == 'compose'
+    - IS_COMPOSE_MODE
     - (fider_tenant_count.rows[0][0] | int) == 0
 
 - name: "🥾 Fider | Bootstrap initial tenant via API (swarm, routing-mesh port)"
@@ -56,7 +56,7 @@
   changed_when: true
   delegate_to: "{{ FIDER_HOST_NODE }}"
   when:
-    - DEPLOYMENT_MODE == 'swarm'
+    - IS_SWARM_MODE
     - (fider_tenant_count.rows[0][0] | int) == 0
 
 - name: "📁 Fider | Create admin user (bypass email verification)"

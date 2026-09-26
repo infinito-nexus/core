@@ -8,7 +8,7 @@ is not allowed*. The two modes therefore need different YAML shapes:
 * swarm   -> list form (just service names; swarm ignores depends_on
   ordering semantically but accepts the syntax)
 
-Hand-writing the ``{% if DEPLOYMENT_MODE == 'swarm' %} … {% else %} …
+Hand-writing the ``{% if IS_SWARM_MODE %} … {% else %} …
 {% endif %}`` per service is repetitive and easy to get wrong (forgot
 gate, wrong condition default, inconsistent indent). This lookup
 emits the whole block and switches on ``DEPLOYMENT_MODE`` itself.
