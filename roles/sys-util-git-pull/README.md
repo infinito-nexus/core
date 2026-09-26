@@ -67,5 +67,3 @@ Typical use cases include:
 - Machine-readable state (`CHANGED=…`) is written to **stdout**
 - This guarantees reliable `changed_when` behavior in Ansible
 - The Python helper is intentionally self-contained and unit-testable
-
----

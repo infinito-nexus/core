@@ -45,5 +45,3 @@ All tasks are idempotent. Once your certificates are in place and your configura
 
 This role is released under the **Infinito.Nexus Community License (Non-Commercial)**.
 See [https://s.infinito.nexus/license](https://s.infinito.nexus/license) for details.
-
----

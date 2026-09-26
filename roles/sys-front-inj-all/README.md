@@ -22,5 +22,3 @@ This role core role for Nginx HTML injection of Matomo, theming, iFrame and JS s
   Uses NGINX's `sub_filter` to insert the tracking and theming snippets right before the closing `</head>` tag of your HTML documents.
 
 This will automatically activate Matomo tracking and/or global theming based on your configuration.
-
----

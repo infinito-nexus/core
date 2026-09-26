@@ -21,5 +21,3 @@ This role injects a JS snippet into HTML to notify parent windows of iframe loca
 
 - **Easy CSP Integration**  
   Calculates a CSP hash for the injected script so you can safely allow it via your Content Security Policy.
-
----

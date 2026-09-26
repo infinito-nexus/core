@@ -130,5 +130,3 @@ It is a **generic infrastructure helper**.
 - Use stable `application_id` values
 - Let application roles create tokens
 - Let `sys-token-store` handle persistence
-
----
