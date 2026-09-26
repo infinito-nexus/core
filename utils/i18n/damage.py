@@ -1,13 +1,15 @@
 """Whether a translation broke something its source carried.
 
-:func:`harms` is the single predicate both ends of the pipeline ask; the rest
-of this module are the criteria it folds together.
+:func:`reason` is the single predicate both ends of the pipeline ask, and
+:func:`harms` is its boolean face; the rest of this module are the criteria it
+folds together.
 """
 
 from __future__ import annotations
 
 import re
 from collections import Counter
+from dataclasses import dataclass
 
 from utils.i18n import names
 from utils.i18n.repairs import resegment, tighten
@@ -152,8 +154,21 @@ def structure(text: str) -> Counter:
     return Counter(character for character in text if character in STRUCTURE)
 
 
-def harms(source: str, translation: str, language: str = "") -> bool:
-    """Return whether ``translation`` broke something ``source`` carried.
+@dataclass(frozen=True)
+class Rejected:
+    """A translation that was turned down, kept so the catalog shows why.
+
+    Args:
+        text: what the server produced.
+        reason: the criterion it broke.
+    """
+
+    text: str
+    reason: str
+
+
+def reason(source: str, translation: str, language: str = "") -> str:
+    """Return the criterion ``translation`` broke, empty when it broke none.
 
     Single source of truth for both ends of the pipeline: the client drops a
     translation this rejects, and the release gate reports one that survived
@@ -174,14 +189,33 @@ def harms(source: str, translation: str, language: str = "") -> bool:
             criterion reads both strings alone.
     """
     if translation == source:
-        return sum(character.isalpha() for character in prose(source)) >= ECHO_FLOOR
-    return bool(
-        protected_spans(translation) != protected_spans(source)
-        or missing_names(source, translation)
-        or stutters(source, translation)
-        or untranslated(translation, language)
-        or truncated(source, translation)
-        or structure(translation) != structure(source)
-        or tighten(translation) != translation
-        or resegment(translation, mask(source).spans, source) != translation
-    )
+        alphabetic = sum(character.isalpha() for character in prose(source))
+        return "echo" if alphabetic >= ECHO_FLOOR else ""
+    if protected_spans(translation) != protected_spans(source):
+        return "protected-span"
+    if missing_names(source, translation):
+        return "missing-name"
+    if stutters(source, translation):
+        return "stutter"
+    if untranslated(translation, language):
+        return "untranslated"
+    if truncated(source, translation):
+        return "truncated"
+    if structure(translation) != structure(source):
+        return "structure"
+    if tighten(translation) != translation:
+        return "spacing"
+    if resegment(translation, mask(source).spans, source) != translation:
+        return "segmentation"
+    return ""
+
+
+def harms(source: str, translation: str, language: str = "") -> bool:
+    """Return whether ``translation`` broke something ``source`` carried.
+
+    Args:
+        source: the source message.
+        translation: what came back for it.
+        language: ISO 639-1 code of the catalog, when the caller knows it.
+    """
+    return bool(reason(source, translation, language))

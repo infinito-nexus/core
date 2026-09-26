@@ -7,16 +7,20 @@ from typing import ClassVar
 
 from babel.messages.catalog import Catalog
 
+from utils.annotations.suppress import is_suppressed_at
 from utils.i18n.catalog import (
     ENGINE,
     MACHINE_TRANSLATION,
     REFUSAL_PREFIX,
+    REJECTED_PREFIX,
     TRANSLATION_REFUSED,
     build_template,
     merge,
+    render,
 )
 from utils.i18n.libretranslate import LibreTranslate
-from utils.i18n.translate import apply, damaged, pending, retry
+from utils.i18n.placeholders import Rejected
+from utils.i18n.translate import URL_SUPPRESSION, apply, damaged, pending, retry
 
 TOKEN = re.compile(r'<x id="\d+"></x>')
 
@@ -118,7 +122,14 @@ class TestTranslate(unittest.TestCase):
         self.assertEqual(discarded, 1)
         lossy = catalog.get("lossy {count} items", context="lossy")
         self.assertFalse(lossy.string)
-        self.assertEqual(lossy.user_comments, [TRANSLATION_REFUSED])
+        self.assertEqual(
+            lossy.user_comments,
+            [
+                f"{REFUSAL_PREFIX} {ENGINE} lost-token",
+                URL_SUPPRESSION,
+                f"{REJECTED_PREFIX} DE lossy items",
+            ],
+        )
         self.assertNotIn(lossy, pending(catalog))
 
 
@@ -176,7 +187,91 @@ class TestRefusalIsRemembered(unittest.TestCase):
 
         apply([message], [None])
 
-        self.assertEqual(message.user_comments, [f"{REFUSAL_PREFIX} {ENGINE} damaged-span"])
+        self.assertEqual(
+            message.user_comments, [f"{REFUSAL_PREFIX} {ENGINE} damaged-span"]
+        )
+
+    def test_the_rejected_translation_stays_readable_beside_the_mark(self):
+        _, message = self._entry()
+
+        apply([message], [Rejected("verlustig Einträge", "protected-span")])
+
+        self.assertEqual(
+            message.user_comments,
+            [
+                f"{REFUSAL_PREFIX} {ENGINE} protected-span",
+                URL_SUPPRESSION,
+                f"{REJECTED_PREFIX} verlustig Einträge",
+            ],
+        )
+        self.assertFalse(message.string)
+
+    def test_the_catalog_carries_the_rejection_as_a_comment(self):
+        catalog, message = self._entry()
+
+        apply([message], [Rejected("verlustig Einträge", "protected-span")])
+        written = render(catalog).decode("utf-8")
+
+        self.assertIn(f"# {REJECTED_PREFIX} verlustig Einträge\n", written)
+        self.assertNotIn('verlustig Einträge"', written)
+
+    def test_a_mangled_link_in_a_rejection_is_not_probed(self):
+        catalog, message = self._entry()
+
+        apply(
+            [message],
+            [Rejected("Siehe [den Leitfaden]](https://gone.invalid/a)", "structure")],
+        )
+        lines = render(catalog).decode("utf-8").splitlines()
+        quoted = next(
+            number
+            for number, line in enumerate(lines, start=1)
+            if line.startswith(f"# {REJECTED_PREFIX}")
+        )
+
+        self.assertTrue(is_suppressed_at(lines, quoted, "url", mode="block-above"))
+
+    def test_a_rejected_translation_never_spills_over_its_comment_line(self):
+        _, message = self._entry()
+
+        apply([message], [Rejected("erste Zeile\nzweite Zeile", "structure")])
+
+        self.assertEqual(
+            message.user_comments[2],
+            f"{REJECTED_PREFIX} erste Zeile\\nzweite Zeile",
+        )
+
+    def test_a_second_rejection_replaces_the_first(self):
+        _, message = self._entry()
+
+        apply([message], [Rejected("erster Versuch", "structure")])
+        apply([message], [Rejected("zweiter Versuch", "stutter")])
+
+        self.assertEqual(
+            message.user_comments,
+            [
+                f"{REFUSAL_PREFIX} {ENGINE} stutter",
+                URL_SUPPRESSION,
+                f"{REJECTED_PREFIX} zweiter Versuch",
+            ],
+        )
+
+    def test_a_translation_that_lands_clears_the_quoted_rejection(self):
+        _, message = self._entry()
+
+        apply([message], [Rejected("verlustig Einträge", "protected-span")])
+        apply([message], ["verlustig {count} Einträge"])
+
+        self.assertEqual(message.user_comments, [MACHINE_TRANSLATION])
+
+    def test_a_suppression_the_source_carries_survives_the_cleanup(self):
+        """Sphinx hands a source comment to the catalog; it is not ours to drop."""
+        _, message = self._entry([URL_SUPPRESSION])
+
+        apply([message], [Rejected("verlustig Einträge", "protected-span")])
+        apply([message], ["verlustig {count} Einträge"])
+
+        self.assertEqual(message.user_comments, [URL_SUPPRESSION, MACHINE_TRANSLATION])
 
     def test_a_refusal_from_another_engine_counts_and_clears(self):
         """The mark is matched by prefix, not by the engine this run uses."""

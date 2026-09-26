@@ -29,8 +29,12 @@ def _round_trip(source: str, translated: str) -> str | None:
     Args:
         source: the source message.
         translated: what the translator returned for the masked request.
+
+    Returns:
+        The restored translation, ``None`` when it was turned down.
     """
-    return unmask(translated, mask(source), source)
+    restored = unmask(translated, mask(source), source)
+    return restored if isinstance(restored, str) else None
 
 
 class TestCollapse(unittest.TestCase):

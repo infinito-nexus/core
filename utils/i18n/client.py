@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING
 
 from utils.i18n.languages import SOURCE_LANGUAGE
 from utils.i18n.limits import BATCH_SIZE
-from utils.i18n.placeholders import mask, unmask
+from utils.i18n.placeholders import Rejected, mask, unmask
 from utils.i18n.untranslatable import untranslatable
 
 if TYPE_CHECKING:
@@ -38,13 +38,15 @@ class Outcome:
     otherwise zip against the four fields instead of the translations.
 
     Args:
-        values: one translation per source, None where it was discarded.
+        values: one entry per source: the translation, a ``Rejected`` carrying
+            what came back and why it was turned down, or None when the server
+            never answered.
         refused: requests the server turned down, retries included.
         damaged: translations that altered a protected span.
         refusal: the last refusal's message, empty when none happened.
     """
 
-    values: list[str | None]
+    values: list[str | Rejected | None]
     refused: int
     damaged: int
     refusal: str
@@ -52,7 +54,7 @@ class Outcome:
 
 def merge(outcomes: Iterable[Outcome]) -> Outcome:
     """Fold per-text outcomes back into one for the whole batch."""
-    values: list[str | None] = []
+    values: list[str | Rejected | None] = []
     refused = damaged = 0
     refusal = ""
     for outcome in outcomes:
@@ -162,7 +164,7 @@ class LibreTranslate:
             unmask(translated, item, text, target)
             for translated, item, text in zip(result, masked, texts, strict=True)
         ]
-        damaged = sum(1 for text in values if text is None)
+        damaged = sum(1 for text in values if isinstance(text, Rejected))
         return Outcome(values, refused, damaged, refusal)
 
     def translate(self, texts: list[str], target: str) -> Outcome:
@@ -182,7 +184,7 @@ class LibreTranslate:
             OSError: the server is unreachable; every further request would
                 fail too, so the run stops instead of discarding the rest.
         """
-        results: list[str | None] = list(texts)
+        results: list[str | Rejected | None] = list(texts)
         wordy = [index for index, text in enumerate(texts) if not untranslatable(text)]
         size = self.batch_size
         batches = [wordy[i : i + size] for i in range(0, len(wordy), size)]

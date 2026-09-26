@@ -21,9 +21,11 @@ from utils.i18n.damage import STUTTER as STUTTER
 from utils.i18n.damage import TRUNCATION_FLOOR as TRUNCATION_FLOOR
 from utils.i18n.damage import TRUNCATION_RATIO as TRUNCATION_RATIO
 from utils.i18n.damage import WORDS as WORDS
+from utils.i18n.damage import Rejected as Rejected
 from utils.i18n.damage import harms as harms
 from utils.i18n.damage import missing_names as missing_names
 from utils.i18n.damage import protected_spans as protected_spans
+from utils.i18n.damage import reason as reason
 from utils.i18n.damage import structure as structure
 from utils.i18n.damage import stutters as stutters
 from utils.i18n.damage import truncated as truncated
@@ -51,8 +53,12 @@ from utils.i18n.spans import prose as prose
 
 def unmask(
     translated: str, masked: Masked, source: str, language: str = ""
-) -> str | None:
-    """Return the plain translation, or ``None`` when it damaged a protected span.
+) -> str | Rejected:
+    """Return the plain translation, or what was rejected and the criterion it broke.
+
+    The rejected text travels with the verdict so the catalog can record it:
+    a bare mark says an entry is unanswerable, the text says what the server
+    answered, which is what an operator needs to judge the criterion.
 
     Args:
         translated: the HTML the translator returned for ``masked``.
@@ -66,7 +72,7 @@ def unmask(
     for match in TOKEN.finditer(translated):
         index = int(match.group(1))
         if index >= len(masked.spans):
-            return None
+            return Rejected(translated, "unknown-token")
         pieces.append(html.unescape(translated[position : match.start()]))
         pieces.append(masked.spans[index])
         seen.append(index)
@@ -75,7 +81,8 @@ def unmask(
     restored = resegment(tighten("".join(pieces).strip()), masked.spans, source)
     restored = recapitalise(terminate(collapse(restored, source), source), source)
     if sorted(seen) != list(range(len(masked.spans))):
-        return None
-    if not restored or harms(source, restored, language):
-        return None
-    return restored
+        return Rejected(restored, "lost-token")
+    if not restored:
+        return Rejected(translated, "empty")
+    broke = reason(source, restored, language)
+    return Rejected(restored, broke) if broke else restored

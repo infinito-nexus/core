@@ -1,6 +1,14 @@
 import unittest
 
-from utils.i18n.placeholders import MARKUP, TOKEN, mask, resegment, tighten, unmask
+from utils.i18n.placeholders import (
+    MARKUP,
+    TOKEN,
+    Rejected,
+    mask,
+    resegment,
+    tighten,
+    unmask,
+)
 
 
 class TestMaskRoundTrip(unittest.TestCase):
@@ -40,32 +48,43 @@ class TestMaskRoundTrip(unittest.TestCase):
 
 
 class TestMaskRejects(unittest.TestCase):
+    def _rejection(self, translated: str, source: str) -> Rejected:
+        rejected = unmask(translated, mask(source), source)
+        self.assertIsInstance(rejected, Rejected)
+        return rejected
+
     def test_dropped_token_discards_the_translation(self):
         source = "Signed out, except {failed} of {total} services."
-        masked = mask(source)
 
-        self.assertIsNone(
-            unmask('Abgemeldet, außer <x id="0"></x> Diensten.', masked, source)
+        self.assertEqual(
+            self._rejection(
+                'Abgemeldet, außer <x id="0"></x> Diensten.', source
+            ).reason,
+            "lost-token",
         )
 
     def test_duplicated_token_discards_the_translation(self):
         source = "Open {url}"
-        masked = mask(source)
 
-        self.assertIsNone(
-            unmask('<x id="0"></x> <x id="0"></x> öffnen', masked, source)
+        self.assertEqual(
+            self._rejection('<x id="0"></x> <x id="0"></x> öffnen', source).reason,
+            "lost-token",
         )
 
     def test_unknown_token_discards_the_translation(self):
         source = "Open {url}"
-        masked = mask(source)
 
-        self.assertIsNone(unmask('<x id="7"></x> öffnen', masked, source))
+        self.assertEqual(
+            self._rejection('<x id="7"></x> öffnen', source).reason, "unknown-token"
+        )
 
     def test_translator_inventing_a_placeholder_discards_the_translation(self):
         source = "Plain sentence."
+        rejected = self._rejection("Satz mit {extra}.", source)
 
-        self.assertIsNone(unmask("Satz mit {extra}.", mask(source), source))
+        self.assertEqual(
+            (rejected.reason, rejected.text), ("protected-span", "Satz mit {extra}.")
+        )
 
 
 class TestPathsStayIntact(unittest.TestCase):
