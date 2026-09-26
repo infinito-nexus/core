@@ -87,9 +87,8 @@ msgstr "\"{{ lookup('unit_name', system_service_id, suffix=False) }}\" # järell
 msgid "# Locally-built image (no registry upstream). {{ lookup('container_image', application_id, 'x', custom=True) }}"
 msgstr "# Kohalikult ehitatud pilt (registrit ülespoole). {{ lookup('container_image', application_id, 'x', custom=True) }}"
 
-# libretranslate
-msgid "# include-gated: when: DEPLOYMENT_MODE != \"swarm\""
-msgstr "# include-gated: kui: DEPLOYMENT_MODE ! \"swarm\""
+msgid "# include-gated: when: not IS_SWARM_MODE"
+msgstr ""
 
 msgid "# nocheck: pip-version package_name: \"automtu==1.1.1\""
 msgstr ""
@@ -1317,10 +1316,6 @@ msgid "**Canonical CDN service:** Provides the primary `cdn` service entry consu
 msgstr "**Kanooniline CDN-teenus:** Annab esmase `cdn` tarbitud teenus `services.cdn` üle virna."
 
 # libretranslate
-msgid "**Capabilities** — the containers/components this role deploys (from `meta/services.yml`)."
-msgstr "**Võimekus** — konteinerid/komponendid, mida see funktsioon kasutab (pärit `meta/services.yml`)."
-
-# libretranslate
 msgid "**Case-sensitive keys**"
 msgstr "**Tõstutundlikud võtmed**"
 
@@ -1870,10 +1865,6 @@ msgid "**Cosmos**      – the mermaid diagram, from ``meta/services.yml``."
 msgstr "**Cosmos** – merineitsiskeem, alates ``meta/services.yml``."
 
 # libretranslate
-msgid "**Cosmos** — the outward reach: federation peers, external networks bridged in, upstream projects."
-msgstr "**Cosmos** — väljapoole suunatud tegevus: föderatsiooni partnerid, välisvõrgustikud, eeletapi projektid."
-
-# libretranslate
 msgid "**Cost:** The agent has read access to all files under `~/.ssh/`, including private keys. A compromised or prompt-injected agent could load those keys into the transcript via read tools (which are NOT gated by `ask`). Mitigations relied upon:"
 msgstr "**Maksumus:** Agent on lugenud ligipääsu kõigile failidele `~/.ssh/`, sealhulgas privaatvõtmed. Kompromissiga või kohe süstitud agent võib need võtmed lugemisvahendite kaudu transkriptsiooni laadida (mis ei ole suletud `ask`). Leevendamised, millele tuginetakse:"
 
@@ -2221,10 +2212,6 @@ msgstr "**Kustuta kõik kirju järjekorras**:"
 # libretranslate
 msgid "**Dependencies**"
 msgstr "**Sõltuvused**"
-
-# libretranslate
-msgid "**Dependencies** — the central services and sibling roles it consumes (the `enabled: \"{{ '<role>' in group_names }}\"` service flags, plus `run_after` and any `meta/main.yml` `dependencies`)."
-msgstr "**Sõltuvused** — kesksed teenused ja õe-venna rollid, mida ta tarbib (need `enabled: \"{{ '<role>' in group_names }}\"` teenistuslipud, pluss `run_after` ja iga `meta/main.yml` `dependencies`)."
 
 # libretranslate
 msgid "**Dependency Integration:** Works in conjunction with related roles for comprehensive backup management."
@@ -12215,9 +12202,8 @@ msgstr "4. Koondme metaandmed"
 msgid "4. CI Image Build 🐳"
 msgstr "4. CI Pildiehitus 🐳"
 
-# libretranslate
-msgid "4. Cosmos (required) 🌌"
-msgstr "4. Cosmos (nõutud) 🌌"
+msgid "4. Features (required) ✨"
+msgstr ""
 
 # libretranslate
 msgid "4. Fix file permissions"
@@ -12249,10 +12235,6 @@ msgid "5. Code Tests 🧪"
 msgstr "5. Koodikatsed 🧪"
 
 # libretranslate
-msgid "5. Features (required) ✨"
-msgstr "5. (nõutud) ✨"
-
-# libretranslate
 msgid "5. No Role-Specific Configuration"
 msgstr "5. Rollipõhised seadistused puuduvad"
 
@@ -12267,6 +12249,9 @@ msgstr "5. Taaskäivitusteenused ja testi sisselogimine"
 msgid "5. Set Permissions"
 msgstr "5. Määra õigused"
 
+msgid "5. Use Cases (optional) 🎯"
+msgstr ""
+
 # libretranslate
 msgid "6. (Optional) Keep the old domain as an alias"
 msgstr "6. (Valikuline) Säilita vana domeen aliasena"
@@ -12275,9 +12260,8 @@ msgstr "6. (Valikuline) Säilita vana domeen aliasena"
 msgid "6. Code Quality Gate 🚦"
 msgstr "6. Koodi kvaliteedivärav 🚦"
 
-# libretranslate
-msgid "6. Use Cases (optional) 🎯"
-msgstr "6. Kasuta kohvrid (vabatahtlik) 🎯"
+msgid "6. Developer Notes (optional) 🔧"
+msgstr ""
 
 # libretranslate
 msgid "6. Zone Resources"
@@ -12299,13 +12283,8 @@ msgstr "7. Tokeni loomine ja salvestamine"
 msgid "7. DNS Tests 🌐"
 msgstr "7. DNS testid 🌐"
 
-# libretranslate
-msgid "7. Developer Notes (optional) 🔧"
-msgstr "7. Arendaja märkmed (vabatahtlik) 🔧"
-
-# libretranslate
-msgid "8. Further Resources (optional) 🔗"
-msgstr "8. Täiendavad ressursid (vabatahtlik) 🔗"
+msgid "7. Further Resources (optional) 🔗"
+msgstr ""
 
 # libretranslate
 msgid "8. Image Mirroring 🪞"
@@ -12314,10 +12293,6 @@ msgstr "8. Pildi peegeldumine 🪞"
 # libretranslate
 msgid "9 of 9"
 msgstr "9 ühest 9"
-
-# libretranslate
-msgid "9. Credits (required) 🙏"
-msgstr "9. Autorid (nõutud) 🙏"
 
 # libretranslate
 msgid "9. Deploy Tests 🚀"
@@ -12366,6 +12341,9 @@ msgstr ":func:`existing_archives` loetleb kettal olevad arhiivifailid."
 # libretranslate
 msgid ":func:`failed_selections` reproduces the combination that broke, which is what a handful of red rows deserves. Once most of the ranking is red the question is no longer which combination broke but whether the role comes up at all, and a token per combination spends the priority budget proving the same role red twice. The role name lets the rotation pick the axes."
 msgstr ":func:`failed_selections` reprodutseerib murdunud kombinatsiooni, mis on see, mida käputäis punaseid ridu väärib. Kui suurem osa edetabelist on punane, ei ole enam küsimus selles, milline kombinatsioon katkes, vaid selles, kas roll üldse üles kerkib, ja märk kombinatsiooni kohta kulutab prioriteetse eelarve, mis tõestab sama rolli punast kaks korda. Rollinimi võimaldab pöörlemisel kirveid valida."
+
+msgid ":func:`harms` is the single predicate both ends of the pipeline ask; the rest of this module are the criteria it folds together."
+msgstr ""
 
 # libretranslate
 msgid ":func:`image_healthcheck` plus which address answered."
@@ -12451,6 +12429,15 @@ msgid ":mod:`.run`   — :func:`_run_deploy`, one deploy pass inside the contain
 msgstr ":mod:`.run` — :func:`_run_deploy`, üks lähetuspääs konteinerisse"
 
 msgid ":mod:`.spec`            — :class:`~.spec.DevInventorySpec` + ``PlanEntry`` type"
+msgstr ""
+
+msgid ":mod:`utils.i18n.damage`   whether what came back broke any of them"
+msgstr ""
+
+msgid ":mod:`utils.i18n.repairs`  the cosmetic repairs a restored string goes through"
+msgstr ""
+
+msgid ":mod:`utils.i18n.spans`    which parts are protected, and how they are masked"
 msgstr ""
 
 # libretranslate
@@ -12576,10 +12563,6 @@ msgstr "Playwrighti rollis peab olema:"
 # libretranslate
 msgid "A Tor node's resolv.conf names only the local dnsmasq, so probing its entries alone cannot say whether the pinned upstream was still alive when that dnsmasq went silent. Anything unreadable or keyless yields []."
 msgstr "Tor-sõlme resolv.conf Nimetab ainult kohalikku dnsmasqi, nii et ainuüksi selle sissekannete uurimine ei saa öelda, kas kinnine ülesvoolu oli veel elus, kui see dnsmasq vaikis. Kõik loetamatu või võtmeta saagikus []."
-
-# libretranslate
-msgid "A `## Cosmos` section MUST contain a single Mermaid `flowchart` that places the role in the Infinito.Nexus cosmos. Group the nodes with `subgraph`s into three families:"
-msgstr "A `## Cosmos` Osa PEAB sisaldama ühte merineitsi `flowchart` mis paneb rolli Infinito.Nexus kosmos. Sõlmed rühmitatakse `subgraph`s kolme perekonda:"
 
 # libretranslate
 msgid "A `Dockerfile.j2` with **Jinja2 control-flow logic** emits a **warning only**. The warning signals that the file should be reviewed to see whether the logic can be eliminated and the file migrated."
@@ -13393,10 +13376,6 @@ msgid "A recurring property of these extensions is that many of them exist **onl
 msgstr "Nende laienduste korduv omadus on see, et paljud neist on olemas **ainult sillaks teise rolli**: `ldapauth` ja `user_ldap` sild `svc-db-openldap`; `sociallogin`, `oidc-authenticator`, `OpenIDConnect`, `plg_system_keycloak`, ja WordPress OIDC plugin sild SSO pakkuja (`web-app-keycloak`); `wp-discourse` sildu `web-app-discourse`; XWiki `matomo` pluginad `web-app-matomo`. Täna on see sild varjatud. See nõue muudab selgesõnaliselt: **Lisand, et sillad teise rolli PEAB deklareerima silla teenust ja see teenus PEAB olema rollis kohal `meta/services.yml`.**"
 
 # libretranslate
-msgid "A red deploy skips the replay: the step carries no `always()`, so the runner state a failed deploy leaves behind never reaches the guide."
-msgstr "Punane juurutamine jätab korduse vahele: samm ei kanna `always()`, nii et jooksja olek ebaõnnestunud kasutuselevõtu jätab maha ei jõua kunagi juhendini."
-
-# libretranslate
 msgid "A red job could not be reproduced by re-running its sweep, which is the property the whole rotation exists to provide."
 msgstr "Punast tööd ei saa reprodutseerida selle pühkimisega, mis on omadus, mida kogu rotatsioon pakub."
 
@@ -13585,6 +13564,9 @@ msgstr "Väheste ridadega roll ei jätaks kunagi oma esimest arhitektuuri ja rol
 msgid "A role's `meta/services.yml` MAY contain (per-service-entity):"
 msgstr "Rolli `meta/services.yml` VÕIB sisaldada (teenuste kaupa):"
 
+msgid "A role's author is declared in ``galaxy_info.author`` and rendered without a link, so nothing here feeds the README generator any more. What remains backs the ``credits-attribution`` lint: it reads the linked mentions already present in prose and holds them to one link per person."
+msgstr ""
+
 # libretranslate
 msgid "A role's entry for its own entity is skipped: a role does not bond to itself, and those entries carry unrelated topics such as users or domains."
 msgstr "Rolli kanne oma üksuse kohta jäetakse vahele: roll ei seo ennast ise ja need kirjed sisaldavad mitteseotud teemasid, nagu kasutajad või domeenid."
@@ -13746,9 +13728,8 @@ msgstr "Lihtne ja turvaline privaatne infrastruktuur peredele ja väikestele usa
 msgid "A single OpenAI-compatible **LLM gateway** ([LiteLLM Proxy](https://docs.litellm.ai/docs/simple_proxy)) fronts every backend: local `svc-ai-ollama`, a new `svc-ai-lmstudio`, OpenRouter, and any other provider LiteLLM supports. Consumers speak only the gateway `/v1` with a model alias; provider selection and routing are gateway config. This requirement promotes the existing Flowise-local LiteLLM pattern to a shared `svc-ai-litellm` role and makes it the one place backends are declared."
 msgstr "Üks OpenAI- ga ühilduv **LLM gateway** ([LiteLLM puhverserver](https://docs.litellm.ai/docs/simple_proxy)) iga taustaprogrammi esikülg: kohalik `svc-ai-ollama`, uue `svc-ai-lmstudio`, OpenRouter ja kõik teised LiteLLM-i pakkujad. Tarbijad räägivad ainult väravast `/v1` mudeli aliasega; teenusepakkuja valik ja marsruutimine on lüüsikonfiguratsioon. Selle nõudega edendatakse olemasolevat Flowise-local LiteLLM mudelit ühiseks `svc-ai-litellm` See on üks koht ja see on üks koht, kus taustaprogramme deklareeritakse."
 
-# libretranslate
-msgid "A single SPOT for every service-level YAML key that is structurally incompatible with `docker stack deploy` and must therefore be omitted when DEPLOYMENT_MODE == 'swarm'. Currently used for:"
-msgstr "Üks SPOT iga teenusetaseme YAML võtme kohta, mis ei ole struktuuriliselt ühilduv `docker stack deploy` ning tuleb seetõttu välja jätta, kui DEPLOYMENT_MODE == 'swarm'. Praegu kasutatakse:"
+msgid "A single SPOT for every service-level YAML key that is structurally incompatible with `docker stack deploy` and must therefore be omitted when IS_SWARM_MODE. Currently used for:"
+msgstr ""
 
 # libretranslate
 msgid "A single YAML file's parsed root, keyed by absolute path. Every other module routes its YAML reads through here so each file is parsed at most once per process."
@@ -13860,9 +13841,8 @@ msgstr "Pühkimine 85 teenuseosutaja viidete rakenduse rollid (`openai`, `ollama
 msgid "A target other than localhost is a remote ``[user@]host`` reached over ssh."
 msgstr "Sihtmärk, mis ei ole localhost, on kaugjuhtimispult ``[user@]host`` üle ssh."
 
-# libretranslate
-msgid "A task whose `when:` evaluates compose-only at deploy time (e.g. `when: DEPLOYMENT_MODE != 'swarm'` or `when: DEPLOYMENT_MODE == 'compose'`) never reaches a swarm host, so `compose <verb>` / `chdir: directories.instance` inside that task body is legitimate. This module gives the lints a heuristic to recognise that gate without parsing YAML."
-msgstr "Ülesanne, mille `when:` ainult komponeerimise hindamine käivitamise ajal (nt. `when: DEPLOYMENT_MODE != 'swarm'` või `when: DEPLOYMENT_MODE == 'compose'`) ei jõua kunagi parveperemeheni, nii et `compose <verb>` / `chdir: directories.instance` Selle organi sees on seaduslik. See moodul annab lintidele heuristiku, et ära tunda värav ilma YAML- i parsimiseta."
+msgid "A task whose `when:` evaluates compose-only at deploy time (e.g. `when: not IS_SWARM_MODE` or `when: IS_COMPOSE_MODE`) never reaches a swarm host, so `compose <verb>` / `chdir: directories.instance` inside that task body is legitimate. This module gives the lints a heuristic to recognise that gate without parsing YAML."
+msgstr ""
 
 # libretranslate
 msgid "A templated value (`\"{{ ... }}\"`), whether a `lookup(..., 'secrets.credentials.<name>')` call or another variable reference, is accepted; a bare scalar literal (string without `{{`, or a raw int/bool) is a hard-coded secret and is rejected."
@@ -14733,10 +14713,6 @@ msgid "Adding a Variable ➕"
 msgstr "Muutuja ➕ lisamine"
 
 # libretranslate
-msgid "Adding a contributor therefore needs no code change: one linked credit anywhere makes the generator emit that link for every role they author."
-msgstr "Kaastöötaja lisamine ei vaja seega koodi muutmist: üks seotud krediit kõikjal paneb generaatori väljastama seda linki iga rolli kohta, mida nad autorid."
-
-# libretranslate
 msgid "Adding a future `kubernetes` backend MUST be additive (new render path consuming the same per-role inputs) rather than a rewrite of the role tree. The same per-role declarations (`replicas`, `update_config`, `placement`, volumes, networks) MUST translate to whichever backend is selected."
 msgstr "Tuleviku lisamine `kubernetes` taustaprogramm PEAB olema lisand (uus renderdamise tee, mis tarbib samu rollipõhiseid sisendeid) Pigem rollipuu ümberkirjutamise asemel. Samad rollipõhised deklaratsioonid (`replicas`, `update_config`, `placement`, mahud, võrgustikud) TULEB tõlkida ükskõik millisesse taustaprogrammi."
 
@@ -15583,9 +15559,8 @@ msgstr "Lubatud rakendusväärtused PEAB saama `native`, `plugin`, `sidecar`, `a
 msgid "Allows JavaScript to substitute a value for an unset environment variable. Reserved for a value the code itself owns and no role renders. Normalising to `\"\"`, `\"[]\"`, `false`, `0` or another `process.env` entry needs no marker."
 msgstr "Võimaldab JavaScriptil asendada määramata keskkonnamuutuja väärtuse. Reserveeritud väärtusele, mida kood ise omab ja millel pole rolli. normaliseerib `\"\"`, `\"[]\"`, `false`, `0` või `process.env` Sissepääs ei vaja markerit."
 
-# libretranslate
-msgid "Allows `*_CONTAINER_ADDRESS | quote` in a role task file. Reserved for sites that never see the swarm `$(...)` fragment (`DEPLOYMENT_MODE == 'compose'`-gated tasks, `compose_mode_force` roles) or consumers that re-evaluate the argument themselves."
-msgstr "Lubab `*_CONTAINER_ADDRESS | quote` rolliülesande failis. Reserveeritud saitidele, mis kunagi ei näe sülemit `$(...)` fragment (`DEPLOYMENT_MODE == 'compose'`-saavutatud ülesanded, `compose_mode_force` rollid) Või tarbijad, kes hindavad argumente ise ümber."
+msgid "Allows `*_CONTAINER_ADDRESS | quote` in a role task file. Reserved for sites that never see the swarm `$(...)` fragment (`IS_COMPOSE_MODE`-gated tasks, `compose_mode_force` roles) or consumers that re-evaluate the argument themselves."
+msgstr ""
 
 # libretranslate
 msgid "Allows `... | bool == True/False/true/false` when a real tri-state guard is intended (distinguishing `None` from `False`)."
@@ -15814,10 +15789,6 @@ msgstr "Lahenda alati žetoonid järgmiselt: **``users → token store → empty
 # libretranslate
 msgid "Always resolve tokens as: **`users → token store → empty`**"
 msgstr "Lahenda alati žetoonid järgmiselt: **`users → token store → empty`**"
-
-# libretranslate
-msgid "Always the last section. MUST follow this fixed format:"
-msgstr "Alati viimane osa. PEAB järgima seda kindlat vormi:"
 
 # libretranslate
 msgid "Always up-to-date packages; minimal base; fast feedback on upstream changes"
@@ -18879,6 +18850,9 @@ msgstr "CI torujuhtme läbimine: PR-vool lukustab nüüd env-maatriksi uue detek
 # libretranslate
 msgid "CI release triggering Release logic is now driven by commit tags instead of tag-push events."
 msgstr "CI vabastamist käivitav Vabastusloogika käivitatakse nüüd sildipuks sündmuste asemel siduvate siltide abil."
+
+msgid "CI replays the Production block off the published page rather than off this file, so the instructions that are tested are the ones a reader sees. See [instructions.md](../../../tools/github/actions/instructions.md)."
+msgstr ""
 
 # libretranslate
 msgid "CI runner"
@@ -22123,6 +22097,9 @@ msgstr "Korrektne nõue 025aegunud nõuded ja lisada ammendav auditi/salli staat
 msgid "Corrections to Existing MCP Metadata"
 msgstr "Olemasolevate MCP metaandmete parandused"
 
+msgid "Cosmetic repairs a restored translation goes through."
+msgstr ""
+
 # libretranslate
 msgid "Cosmos"
 msgstr "Cosmos"
@@ -23735,6 +23712,9 @@ msgstr "Tuletatakse ühe CI töövoo käivitus- tüki eelarve."
 msgid "Derive the role-README section schema from the Jinja template."
 msgstr "Tuleta rolli-README sektsiooni skeem Jinja mallist."
 
+msgid "Derived from"
+msgstr ""
+
 # libretranslate
 msgid "Derived from ``meta/services.yml.<primary_entity>.modes.<mode>.enabled``: a mode is skipped iff its ``enabled`` flag is ``false``."
 msgstr "Tuletatud ``meta/services.yml.<primary_entity>.modes.<mode>.enabled``: režiim jäetakse vahele, kui ``enabled`` lipp ``false``."
@@ -24770,10 +24750,6 @@ msgid "Drafts 📝"
 msgstr "drafts 📝"
 
 # libretranslate
-msgid "Draw only what the role metadata declares; do not invent services. Mermaid node ids MUST NOT be reserved words (`call`, `end`, `click`, `class`, `graph`, `style`, `subgraph`)."
-msgstr "Näitab ainult seda, mida rolli metaandmed deklareerivad; ei leiuta teenuseid. Merineitsi sõlme ID-d ei tohi olla reserveeritud sõnad (`call`, `end`, `click`, `class`, `graph`, `style`, `subgraph`)."
-
-# libretranslate
 msgid "Draw the axes at random per row"
 msgstr "Telgede joonistamine suvaliselt reas"
 
@@ -25197,6 +25173,9 @@ msgstr "Igal moodulil on privaatne `_reset()` mis puhastab oma vahemälu diktid.
 # libretranslate
 msgid "Each module, class, or function MUST have exactly one responsibility so that changes to one concern do not ripple into unrelated code."
 msgstr "Igal moodulil, klassil või funktsioonil PEAB olema täpselt üks vastutus, nii et ühe probleemi muudatused ei muutuks mitteseotud koodiks."
+
+msgid "Each one undoes a shape a translator produced and the source did not ask for. They read the source only to decide whether something was lost, never to change what the translation says."
+msgstr ""
 
 # libretranslate
 msgid "Each operator workflow has a skill that routes the agent to its authoritative procedure and drives it — clarifying open requirements first, then acting autonomously to completion. Most are `i8-` skills specific to this repository; a few (such as `triage`) are portable skills shared across projects."
@@ -26693,6 +26672,12 @@ msgstr "Näited:"
 # libretranslate
 msgid "Exception: a `default:` is written into the inventory verbatim, so on the next read it arrives here as if an operator had typed it. Every default in the repository is a Jinja reference, and a pattern describes the rendered secret, not the template text that will produce it."
 msgstr "Erand: a `default:` kirjutatakse inventari sõna-sõnalt, nii et järgmisel lugemisel saabub see siia, nagu oleks operaator selle sisestanud. Iga hoidla vaikeväärtus on Jinja viide ja muster kirjeldab muudetud saladust, mitte malli teksti, mis seda tekitab."
+
+msgid "Exception: a re-entrant call returns before ``_MERGED_APPLICATIONS_CACHE`` is written, because its payload carries no users and keeps its volumes. It is therefore memoised on the render guard instead, which drops it when the guard releases. Without that, one template render recomputed the payload for every ``lookup('applications')`` it made."
+msgstr ""
+
+msgid "Exception: the env pair wins over git. The test container mounts the checkout but not the contributor's git configuration, so asking git there yields nothing; ``utils/env/handlers/infinito/git_identity.py`` records the host's answer in the ``.env`` the container reads."
+msgstr ""
 
 # libretranslate
 msgid "Exceptional stability, large community, predictable release cadence, broad package availability"
@@ -29298,6 +29283,9 @@ msgstr "Genereeri mirrors.yml konteineris, kasutades cli.contributing.mirror.res
 msgid "Generate the invokable-role overview table in the repository README."
 msgstr "Loo hoidlas README invokable-roll ülevaatetabel."
 
+msgid "Generated Sections 🤖"
+msgstr ""
+
 # libretranslate
 msgid "Generated by `make integration-matrix`. Do not edit by hand, edit the generator's `EDGES` map and re-run."
 msgstr "Loodud `make integration-matrix`. Ärge redigeerige käsitsi, redigeerige generaatorit `EDGES` kaardistada ja uuesti käivitada."
@@ -29812,10 +29800,9 @@ msgstr "Hadolint (Kõrge raskusaste)"
 msgid "Hand one entry per role the replay, and give its label the 📖."
 msgstr "Käsi üks kirje rolli kohta kordus ja anna selle sildile 📖."
 
-# libretranslate
 #, no-python-format, python-brace-format
-msgid "Hand-writing the ``{% if DEPLOYMENT_MODE == 'swarm' %} … {% else %} … {% endif %}`` per service is repetitive and easy to get wrong (forgot gate, wrong condition default, inconsistent indent). This lookup emits the whole block and switches on ``DEPLOYMENT_MODE`` itself."
-msgstr "Käsitsi kirjutamine ``{% if DEPLOYMENT_MODE == 'swarm' %} … {% else %} … {% endif %}`` Üks teenus on korduv ja lihtne eksida. (Unustatud värav, vale tingimus vaikimisi, vastuoluline taane). See otsing kiirgab kogu ploki ja lülitub sisse ``DEPLOYMENT_MODE`` ise."
+msgid "Hand-writing the ``{% if IS_SWARM_MODE %} … {% else %} … {% endif %}`` per service is repetitive and easy to get wrong (forgot gate, wrong condition default, inconsistent indent). This lookup emits the whole block and switches on ``DEPLOYMENT_MODE`` itself."
+msgstr ""
 
 # libretranslate
 msgid "Handle Docker image creation rules:"
@@ -30235,9 +30222,8 @@ msgstr "Kodumajapidamised ja väikesed kogukonnad jagavad faile, kommunikatsioon
 msgid "How Authentication Works 🔑"
 msgstr "Kuidas autentimine toimib 🔑"
 
-# libretranslate
-msgid "How CI proves that a role README's `### Production` block still deploys the role."
-msgstr "Kuidas CI tõestab, et roll on README `### Production` Blokk kasutab endiselt rolli."
+msgid "How CI proves that the `### Production` block a role's documentation publishes still deploys that role."
+msgstr ""
 
 # libretranslate
 msgid "How Infinito.Nexus runs its tests, and how to add your own hardware to the CI pool."
@@ -30502,6 +30488,9 @@ msgstr "INFINITO_FORK_ACCOUNT: GitHubi konto, mis hoiab operaatori kahvlit, vaik
 # libretranslate
 msgid "INFINITO_FORK_REPOSITORY_URL: GitHub URL of the operator's fork, composed from INFINITO_FORK_ACCOUNT and INFINITO_FORK_REPOSITORY_NAME."
 msgstr "INFINITO_FORK_REPOSITORY_URL: operaatori kahvli GitHub URL, mis koosneb INFINITO_FORK_ACCOUNT ja INFINITO_FORK_REPOSITORY_NAME."
+
+msgid "INFINITO_GIT_AUTHOR_NAME / INFINITO_GIT_AUTHOR_EMAIL: the identity this checkout commits under. The test container mounts the checkout but not the contributor's git configuration, so the suite cannot ask git who is about to commit; the ``.env`` carries the answer across."
+msgstr ""
 
 msgid "INFINITO_GPU_COUNT: GPUs the compose services reserve, 'all' when the docker daemon registers an NVIDIA runtime, else 0."
 msgstr ""
@@ -31507,49 +31496,17 @@ msgstr "Rakendamine: [suppress.py](../../../../utils/annotations/suppress.py)."
 msgid "Implemented by **Marko Pjevac, Kevin Veen-Birkenbach**. Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
 msgstr "Rakendatud **Marko Pjevac, Kevin Veen-Birkenbach**Osake [Infinito.Nexus Projekt](https://s.infinito.nexus/code) ja säilitavad [Kevin Veen-Birkenbach](https://www.veen.world). Litsentseeritud [Infinito.Nexus Ühenduse litsents (Mittekaubanduslik)](https://s.infinito.nexus/license)."
 
-# libretranslate
-msgid "Implemented by **Marko Pjevac, Kevin Veen-Birkenbach**. Part of the `Infinito.Nexus Project <https://s.infinito.nexus/code>`__ and maintained by `Kevin Veen-Birkenbach <https://www.veen.world>`__. Licensed under the `Infinito.Nexus Community License (Non-Commercial) <https://s.infinito.nexus/license>`__."
-msgstr "Rakendatud **Marko Pjevac, Kevin Veen-Birkenbach**Osake `Infinito.Nexus Project <https://s.infinito.nexus/code>`__ ja säilitavad `Kevin Veen-Birkenbach <https://www.veen.world>`__. Litsentseeritud `Infinito.Nexus Community License (Non-Commercial) <https://s.infinito.nexus/license>`__."
+msgid "Implemented by **[Alejandro Roman Ibanez](https://social.infinito.nexus/profile/alexromanibanez/profile)**. Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
+msgstr ""
 
-# libretranslate
-msgid "Implemented by **[Alejandro Roman Ibanez](https://github.com/AlejandroRomanIbanez)**. Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
-msgstr "Rakendatud **[Alejandro Roman Ibanez](https://github.com/AlejandroRomanIbanez)**Osake [Infinito.Nexus Projekt](https://s.infinito.nexus/code) ja säilitavad [Kevin Veen-Birkenbach](https://www.veen.world). Litsentseeritud [Infinito.Nexus Ühenduse litsents (Mittekaubanduslik)](https://s.infinito.nexus/license)."
+msgid "Implemented by **[Evangelos Tsakoudis](https://social.infinito.nexus/profile/evangelostsakoudis/profile)**. Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
+msgstr ""
 
-# libretranslate
-msgid "Implemented by **[Evangelos Tsakoudis](https://github.com/evangelostsak)**. Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
-msgstr "Rakendatud **[Evangelos Tsakoudis](https://github.com/evangelostsak)**Osake [Infinito.Nexus Projekt](https://s.infinito.nexus/code) ja säilitavad [Kevin Veen-Birkenbach](https://www.veen.world). Litsentseeritud [Infinito.Nexus Ühenduse litsents (Mittekaubanduslik)](https://s.infinito.nexus/license)."
+msgid "Implemented by **[Kevin Veen-Birkenbach](https://social.infinito.nexus/profile/kevinveenbirkenbach/profile)**. Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
+msgstr ""
 
-# libretranslate
-msgid "Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**. Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
-msgstr "Rakendatud **[Kevin Veen-Birkenbach](https://www.veen.world)**Osake [Infinito.Nexus Projekt](https://s.infinito.nexus/code) ja säilitavad [Kevin Veen-Birkenbach](https://www.veen.world)Litsentseeritud [Infinito.Nexus Ühenduse litsents (Mittekaubanduslik)](https://s.infinito.nexus/license)."
-
-# libretranslate
-msgid "Implemented by **[Kevin Veen-Birkenbach](https://www.veen.world)**. Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
-msgstr "Rakendatud **[Kevin Veen-Birkenbach](https://www.veen.world)**Osake [Infinito.Nexus Projekt](https://s.infinito.nexus/code) ja säilitavad [Kevin Veen-Birkenbach](https://www.veen.world)Litsentseeritud [Infinito.Nexus Ühenduse litsents (Mittekaubanduslik)](https://s.infinito.nexus/license). Litsentseeritud [Infinito.Nexus Ühenduse litsents (Mittekaubanduslik)](https://s.infinito.nexus/license)."
-
-# libretranslate
-msgid "Implemented by **[Prageeth Panicker](https://github.com/pragepani)**. Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
-msgstr "Rakendatud **[Prageeth Panicker](https://github.com/pragepani)**Osake [Infinito.Nexus Projekt](https://s.infinito.nexus/code) ja säilitavad [Kevin Veen-Birkenbach](https://www.veen.world). Litsentseeritud [Infinito.Nexus Ühenduse litsents (Mittekaubanduslik)](https://s.infinito.nexus/license)."
-
-# libretranslate
-msgid "Implemented by `Alejandro Roman Ibanez <https://github.com/AlejandroRomanIbanez>`__. Part of the `Infinito.Nexus Project <https://s.infinito.nexus/code>`__ and maintained by `Kevin Veen-Birkenbach <https://www.veen.world>`__. Licensed under the `Infinito.Nexus Community License (Non-Commercial) <https://s.infinito.nexus/license>`__."
-msgstr "Rakendatud `Alejandro Roman Ibanez <https://github.com/AlejandroRomanIbanez>`__. Osake `Infinito.Nexus Project <https://s.infinito.nexus/code>`__ ja säilitavad `Kevin Veen-Birkenbach <https://www.veen.world>`__. Litsentseeritud `Infinito.Nexus Community License (Non-Commercial) <https://s.infinito.nexus/license>`__."
-
-# libretranslate
-msgid "Implemented by `Evangelos Tsakoudis <https://github.com/evangelostsak>`__. Part of the `Infinito.Nexus Project <https://s.infinito.nexus/code>`__ and maintained by `Kevin Veen-Birkenbach <https://www.veen.world>`__. Licensed under the `Infinito.Nexus Community License (Non-Commercial) <https://s.infinito.nexus/license>`__."
-msgstr "Rakendatud `Evangelos Tsakoudis <https://github.com/evangelostsak>`__. Osake `Infinito.Nexus Project <https://s.infinito.nexus/code>`__ ja säilitavad `Kevin Veen-Birkenbach <https://www.veen.world>`__. Litsentseeritud `Infinito.Nexus Community License (Non-Commercial) <https://s.infinito.nexus/license>`__."
-
-# libretranslate
-msgid "Implemented by `Kevin Veen-Birkenbach <https://www.veen.world>`__. Part of the `Infinito.Nexus Project <https://s.infinito.nexus/code>`__ and maintained by `Kevin Veen-Birkenbach <https://www.veen.world>`__. Licensed under the `Infinito.Nexus Community License (Non-Commercial) <https://s.infinito.nexus/license>`__."
-msgstr "Rakendatud `Kevin Veen-Birkenbach <https://www.veen.world>`__. Osake `Infinito.Nexus Project <https://s.infinito.nexus/code>`__ ja säilitavad `Kevin Veen-Birkenbach <https://www.veen.world>`__Litsentseeritud `Infinito.Nexus Community License (Non-Commercial) <https://s.infinito.nexus/license>`__."
-
-# libretranslate
-msgid "Implemented by `Kevin Veen-Birkenbach <https://www.veen.world>`__. Part of the `Infinito.Nexus Project <https://s.infinito.nexus/code>`__ and maintained by `Kevin Veen-Birkenbach <https://www.veen.world>`__. Licensed under the `Infinito.Nexus Community License (Non-Commercial) <https://s.infinito.nexus/license>`__. Licensed under the `Infinito.Nexus Community License (Non-Commercial) <https://s.infinito.nexus/license>`__."
-msgstr "Rakendatud `Kevin Veen-Birkenbach <https://www.veen.world>`__. Osake `Infinito.Nexus Project <https://s.infinito.nexus/code>`__ ja säilitavad `Kevin Veen-Birkenbach <https://www.veen.world>`__Litsentseeritud `Infinito.Nexus Community License (Non-Commercial) <https://s.infinito.nexus/license>`__. Litsentseeritud `Infinito.Nexus Community License (Non-Commercial) <https://s.infinito.nexus/license>`__."
-
-# libretranslate
-msgid "Implemented by `Prageeth Panicker <https://github.com/pragepani>`__. Part of the `Infinito.Nexus Project <https://s.infinito.nexus/code>`__ and maintained by `Kevin Veen-Birkenbach <https://www.veen.world>`__. Licensed under the `Infinito.Nexus Community License (Non-Commercial) <https://s.infinito.nexus/license>`__."
-msgstr "Rakendatud `Prageeth Panicker <https://github.com/pragepani>`__. Osake `Infinito.Nexus Project <https://s.infinito.nexus/code>`__ ja säilitavad `Kevin Veen-Birkenbach <https://www.veen.world>`__. Litsentseeritud `Infinito.Nexus Community License (Non-Commercial) <https://s.infinito.nexus/license>`__."
+msgid "Implemented by **[Prageeth Panicker](https://social.infinito.nexus/profile/prageethpanicker/profile)**. Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
+msgstr ""
 
 # libretranslate
 msgid "Implemented robust, idempotent PostgreSQL superuser password rotation"
@@ -37142,10 +37099,6 @@ msgstr "NSS"
 msgid "Name"
 msgstr "Nimi"
 
-# libretranslate
-msgid "Name -> URL for every person credited with exactly one URL repo-wide."
-msgstr "Nimi -> URL iga isiku kohta, kes on krediteeritud täpselt ühe URL-i repo-lai."
-
 msgid "Name every question the run will **not** answer because a candidate was pinned to one side of it. A line that verifies a fix in compose and says nothing about swarm is a legitimate choice; a line that does that silently is not, because its green result reads like a full answer."
 msgstr ""
 
@@ -37184,10 +37137,6 @@ msgstr "Nimede nimekiri, otsing ja tööriistad rakenduse esmaste kirjete jaoks"
 # libretranslate
 msgid "Named volume (or host path) backing the nested Docker directory. Generator overrides to `/mnt/docker` on GHA."
 msgstr "Nimeline köide (või hosti asukohta) Toetan pesastatud Dockeri kataloogi. Generaator tühistab `/mnt/docker` GHA-l."
-
-# libretranslate
-msgid "Names linked to conflicting URLs are omitted, so an ambiguous mapping never silently picks a winner."
-msgstr "Vastuoluliste URL-idega seotud nimed jäetakse välja, nii et ebaselge kaardistamine ei vali kunagi vaikselt võitjat."
 
 msgid "Nameservers pinned under the ``dns`` key of /etc/docker/daemon.json."
 msgstr ""
@@ -38405,6 +38354,9 @@ msgstr "Kui Matomo bootstrap on käivitatud, kas hiljem samas mängus või järg
 msgid "Once the failing mode is green in its focused loop, you MUST resume the roundtrip over the failed app plus the apps that have not run yet (`apps=\"<failed-app> <still-untested apps in complexity order>\"`), and you MUST NOT restart the full sweep from the top. Apps that already went green earlier in the same run stay green; re-running them wastes one swarm rebuild each."
 msgstr "Kui tõrkerežiim on oma fokuseeritud silmuses roheline, peate jätkama edasi-tagasi reisi ebaõnnestunud rakenduse ja rakenduste kaudu, mis pole veel töötanud. (`apps=\"<failed-app> <still-untested apps in complexity order>\"`), Ja te ei tohi alustada täielikku pühkimist ülevalt. Rakendused, mis sama aja jooksul juba varem roheliseks läksid, jäävad roheliseks; nende uuesti käivitamine raiskab iga sülem rekonstrueerimist."
 
+msgid "Once the machine is up, the repository checkout mounted into it is prepared with [scripts/tests/workspace/base/01_install.sh](../../../../../scripts/tests/workspace/base/01_install.sh), the same step the workspace suite uses: system packages through `INFINITO_PACKAGE_INSTALL_SCRIPT`, then `make install`. Only then is the block replayed, so it meets a machine prepared exactly the way the documentation tells a reader to prepare one."
+msgstr ""
+
 # libretranslate
 msgid "Once the root cause is understood, you MUST apply the real fix in the repository files and then continue the redeploy loop with the usual commands from this page. In-container fixes are only for diagnosis or short validation and MUST NOT replace the repo change."
 msgstr "Kui algpõhjus on arusaadav, PEATE rakendama hoidla failides tegelikku parandust ja seejärel jätkama selle lehe tavapäraste käskudega uuesti paigutamist. Konteinerisisesed parandused on mõeldud ainult diagnoosimiseks või lühikeseks valideerimiseks ja EI TOHI asendada repovahetust."
@@ -38557,6 +38509,9 @@ msgstr "Ühe valiku märgina :class:`Pin`."
 # libretranslate
 msgid "One selection token, taken apart."
 msgstr "Üks valikmärk, lahutatud."
+
+msgid "One service serves both block shapes, because the demands of the two overlap: a host install needs `/sbin/init` as the entrypoint and the cgroup mount to deploy systemd units, and it needs the daemon socket too, since a role without a compose template of its own still pulls in containerised dependencies. A containerised block needs that socket to nest its `docker run` one level below the machine, and a work directory mounted at the same absolute path on both sides so the bind sources it names resolve on the daemon. The union is the machine, and the block decides what it does with it."
+msgstr ""
 
 # libretranslate
 msgid "One single-database dump inside a generation."
@@ -40700,6 +40655,9 @@ msgstr "Kohatäitja DN tühjana `groupOfNames` grupid"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
 msgstr "XMPP serveri/konteineri tulevase kasutuselevõtu kohatäitja stubi roll, rakendamine on pooleli"
 
+msgid "Placeholders (`<your-domain>`, `<your-ssh-public-key>`, `<your-clearnet-resolver>`) are filled from the deployment's own values, `HOST` is forced to `localhost`, and `-it` is dropped."
+msgstr ""
+
 # libretranslate
 msgid "Placement"
 msgstr "Paigutus"
@@ -42646,6 +42604,9 @@ msgstr "Haru/märgi reeglistiku lugemine või muteerimine (filiaali kaitse päri
 # libretranslate
 msgid "Reading or mutating repository webhooks."
 msgstr "Hoidla veebikonksude lugemine või muteerimine."
+
+msgid "Reading the block off the page rather than out of the tree is the point: a reader copies from the site, so that is what has to work. Nothing in the repository is consulted at replay time."
+msgstr ""
 
 # libretranslate
 msgid "Reading the result"
@@ -44830,6 +44791,10 @@ msgstr "Tagasi ``{application_id: [override_0, ...]}``, toores `meta/variants.ym
 msgid "Return ``{application_id: [variant_0, ...]}`` cached per ``roles_dir``. Each variant is the role's effective configuration after the corresponding `meta/variants.yml` override has been deep-merged on top of `meta/services.yml`."
 msgstr "Tagasi ``{application_id: [variant_0, ...]}`` vahemälus ``roles_dir``. Iga variant on rolli efektiivne konfiguratsioon pärast vastavat `meta/variants.yml` ülevõtmine on sügavale sulanud `meta/services.yml`."
 
+#, python-brace-format
+msgid "Return ``{author name: canonical address}`` as ``.mailmap`` declares it."
+msgstr ""
+
 # libretranslate
 #, python-brace-format
 msgid "Return ``{provider: {topic: value}}`` demanded by the round's payloads."
@@ -44906,9 +44871,8 @@ msgstr "Tagastab rakendatud rakenduse ID- de sorteeritud nimekirja, mis vastab k
 msgid "Return a sorted list of role IDs whose Prometheus alert rules belong in this deploy: every role that ships a template at ``roles/<role_id>/templates/prometheus/alert_rules.yml.j2`` and is actually scraped, i.e. appears in ``native_metrics_apps``."
 msgstr "Tagastab ülesannete ID- de sorteeritud nimekirja, mille Prometheus häirereeglid kuuluvad sellesse kasutusse: iga roll, mis saadab malli ``roles/<role_id>/templates/prometheus/alert_rules.yml.j2`` ja on tegelikult kraabitud, st ilmub ``native_metrics_apps``."
 
-# libretranslate
-msgid "Return a template catalog holding ``messages``."
-msgstr "Tagastab mallikataloogi positsiooni ``messages``."
+msgid "Return a template catalog holding the translatable part of ``messages``."
+msgstr ""
 
 # libretranslate
 msgid "Return all currently occupied subnets at the requested prefix length."
@@ -44957,12 +44921,12 @@ msgstr "Tagastab kõik arhiivifailid *archive_dir* sorditud laskudes failinime j
 msgid "Return every capture of *pattern* in the body of *url*."
 msgstr "Tagastab iga tabamuse *muster* kehas *url*."
 
-msgid "Return every credited person's name, sorted."
-msgstr ""
-
 # libretranslate
 msgid "Return every declared addon across all roles' ``meta/addons/*.yml``."
 msgstr "Tagastab iga deklareeritud lisandi kõigis rollides ``meta/addons/*.yml``."
+
+msgid "Return every declared role author, sorted and without duplicates."
+msgstr ""
 
 msgid "Return every declared role title, sorted and without duplicates."
 msgstr ""
@@ -45177,9 +45141,18 @@ msgstr "Tagastab aadressi, mille Docker määrab ``subnet``."
 msgid "Return the aliases file content, downloading once per repository."
 msgstr "Tagastab varjunimede faili sisu, laadides alla ühe korra hoidla kohta."
 
+msgid "Return the app whose guide is replayed, ``application_id`` when it is alone."
+msgstr ""
+
 # libretranslate
 msgid "Return the application_id from the role's vars/main.yml, or None."
 msgstr "Tagastage application_id rollist vars/main.yml, või Puudub."
+
+msgid "Return the applications payload for *variables*, cached per key."
+msgstr ""
+
+msgid "Return the apps the operator asked for, the round's groups otherwise."
+msgstr ""
 
 # libretranslate
 msgid "Return the bond a user typed, or None when they cleared the field."
@@ -45306,6 +45279,12 @@ msgstr "Tagastab kõrgeima avaldatud versiooni ``package``, või Puudub."
 msgid "Return the identifiers ``role_dir`` names its upstream product by."
 msgstr ""
 
+msgid "Return the identity ``.mailmap`` folds ``name``/``email`` into."
+msgstr ""
+
+msgid "Return the identity a commit made here right now would carry."
+msgstr ""
+
 # libretranslate
 msgid "Return the immediate subdirectories of ``cli/<parts>/``, split into runnable commands (``__main__.py`` present) and category folders. Empty support packages (no command anywhere underneath) are skipped."
 msgstr "Tagastab vahetud alamkataloogid ``cli/<parts>/``, jagatud käivitatavateks käskudeks (``__main__.py`` kohalolev) ja kategooria kaustad. Tühjad tugipaketid (all pole ühtegi käsku) jäetakse vahele."
@@ -45366,6 +45345,9 @@ msgstr "Tagastab parsitud manifesti (indeksit) jaoks ``image:reference``."
 msgid "Return the path of the ``domain`` catalog of language ``code``."
 msgstr "Tagastab asukoha ``domain`` keelekataloog ``code``."
 
+msgid "Return the people ``role_dir`` names as its authors."
+msgstr ""
+
 # libretranslate
 msgid "Return the per-service mount block (``volumes:`` + ``configs:`` + ``secrets:``) as a YAML string starting at column 0."
 msgstr "Tagastab teenusepõhise ühendamise ploki (``volumes:`` + ``configs:`` + ``secrets:``) YAML stringina, mis algab veerust 0."
@@ -45385,6 +45367,9 @@ msgstr "Tagastab kaitstud ajavahemiku ``text`` nende paljususega."
 # libretranslate
 msgid "Return the provider's declared secret and the owner it belongs to."
 msgstr "Tagastage pakkuja salajane ja omanik, kellele see kuulub."
+
+msgid "Return the public profile the address names, empty for a foreign one."
+msgstr ""
 
 # libretranslate
 msgid "Return the repository root inside the deploy container."
@@ -48308,6 +48293,9 @@ msgstr "Saladused 📋"
 msgid "Secrets 🔐"
 msgstr "Saladused 🔐"
 
+msgid "Section"
+msgstr ""
+
 # libretranslate
 msgid "Secure your pgAdmin access by integrating an external OAuth2 provider."
 msgstr "Kindlustage oma pgAdmin-juurdepääs välise OAuthi integreerimisega2 varustaja."
@@ -49916,10 +49904,6 @@ msgstr "Vaikimisi blobstore'i pehme kvoot. Arvutatakse pool vaba kettana vahemä
 # libretranslate
 msgid "Solid `1:1` edges are fixed relationships; dashed `0..1` edges are conditional (enabled only in matching deployments); red `0..0` edges are turned off in this role. Node markers show the role's deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in `meta/main.yml`."
 msgstr "Solid `1:1` servad on fikseeritud suhted; purustatud `0..1` servad on tingimuslikud (lubatud ainult sobitamise korral); punane; `0..0` Selles rollis on ääred välja lülitatud. Sõlmetähised näitavad rolli juurutamisrežiime (💻 võõrustaja, 🐳 komponeerida, 🐝 parve); ❌ tähistab teenust, mis on sõnaselgelt välja lülitatud, ja ⚙️ a rollisõltuvuse deklareerimine `meta/main.yml`."
-
-# libretranslate
-msgid "Solid ``1:1`` edges are fixed relationships; dashed ``0..1`` edges are conditional (enabled only in matching deployments); red ``0..0`` edges are turned off in this role. Node markers show the role’s deploy modes (💻 host, 🐳 compose, 🐝 swarm); ❌ marks a service that is explicitly turned off, and ⚙️ an Ansible role dependency declared in ``meta/main.yml``."
-msgstr "Solid ``1:1`` servad on fikseeritud suhted; purustatud ``0..1`` servad on tingimuslikud (lubatud ainult sobitamise korral); punane; ``0..0`` Selles rollis on ääred välja lülitatud. Sõlmemarkerid näitavad rolli juurutamisrežiime (💻 võõrustaja, 🐳 komponeerida, 🐝 parve); ❌ tähistab teenust, mis on sõnaselgelt välja lülitatud, ja ⚙️ a rollisõltuvuse deklareerimine ``meta/main.yml``."
 
 # libretranslate
 msgid "Some CI failures (most notably OOM-kills such as [#162](https://github.com/infinito-nexus/core/issues/162), PeerTube plugin install with `rc=137`) only surface under the memory and CPU ceiling of the GitHub-hosted runner and cannot be reproduced on a workstation with plenty of RAM. To reproduce these failures locally, you MUST cap the resources of the top-level `infinito` service in [compose.yml](../../../../compose.yml) to values that match (or undercut) the runner specs below."
@@ -52736,6 +52720,9 @@ msgstr "CLI prindib planeeritud kaustade nimekirja init ajal ja per-round kokkuv
 msgid "The CLI probe sizes its prompt off the smallest declared window, so the model holding that window is the one the request must exclude, and the model that answers instead is what shows the filter ran. `smollm2:135m` is deliberately not the smallest: `8dbdd31b22` measured it running to `n_gen=22011` with context shifts at `n_left=4091`, and a route's `max_tokens` is a default a consumer can override rather than a cap, so it is kept away from the window at which it was seen to run away."
 msgstr ""
 
+msgid "The CLI test prints the block it fetched and the output of the replay. The role's own deploy snapshots live in `rescue-diagnostics-<artifact>`."
+msgstr ""
+
 # libretranslate
 msgid "The CLI under [cli/meta/ci/logs](../../../../cli/meta/ci/logs/README.md) pulls a run's job logs and artefacts in one shot and clusters them by root failure."
 msgstr "CLI all [cli/meta/ci/logs](../../../../cli/meta/ci/logs/README.md) tõmbab jooksu töö logid ja artefaktid ühe löögiga ja klapib need juureviga."
@@ -53015,10 +53002,6 @@ msgstr "Tõmmake taotlus PEAB olema seotud vastava tööga [project.infinito.nex
 # libretranslate
 msgid "The Python helper is intentionally self-contained and unit-testable"
 msgstr "Pythoni abimees on tahtlikult iseseisev ja ühiktestitav"
-
-# libretranslate
-msgid "The README section :file:`scripts/github/guide/compose_deploy.sh` replays. A role without it has no instructions to test."
-msgstr "Osa README :file:`scripts/github/guide/compose_deploy.sh` kordusi. Rollil ilma selleta pole juhiseid testimiseks."
 
 # libretranslate
 msgid "The REST API answers ``inputs: null`` for a finished workflow_dispatch, so the inputs are recovered from the run itself: short ones from the title (``config_from_title``), the long ones from a called job's log (``inputs_from_jobs``), which the title truncates."
@@ -53823,9 +53806,18 @@ msgstr "Varukoopia hosti ei lisata klastri inventuurile: see elab õel-vennal ``
 msgid "The base URL to translate against."
 msgstr ""
 
+msgid "The base layer of :mod:`utils.i18n.placeholders`: it knows the protection rules and nothing about damage or repair, so :mod:`utils.i18n.damage` can build on it without an import cycle."
+msgstr ""
+
 # libretranslate
 msgid "The behaviour is fail-loud by design. Missing or mistyped secret names MUST surface as a failed workflow run rather than as a PR with an unintended author."
 msgstr "Käitumine on disainilt lohakas. Puuduvad või valesti kirjutatud salajased nimed PEAVAD pinnale pigem ebaõnnestunud töövoo jooksu kui soovimatu autoriga PR-i."
+
+msgid "The block is replayed once systemd reports `running` or `degraded`. A block that opens with `git clone` is a host install: those two lines are dropped and the mounted checkout is used instead, so the replay runs against the tree under test."
+msgstr ""
+
+msgid "The block then runs inside a throwaway machine, never on the stack host itself. [machine.sh](../../../../../roles/web-app-docs/files/test/machine.sh) brings it up through [files/test/compose.yml](../../../../../roles/web-app-docs/files/test/compose.yml) under the project `docs-guide-<role>`, and tears it down with `down -v --rmi local`."
+msgstr ""
 
 # libretranslate
 msgid "The branch MUST exist and MUST NOT be checked out anywhere else; resolve a collision with `make worktree-prune` or `make worktree-down` first. Pass `base=<dir>` only when the operator names a different parent directory, and then repeat that same `base=` in every later `make worktree-down` call."
@@ -54341,9 +54333,8 @@ msgstr "Disain järgib lihtsaid kompositsioonipõhimõtteid, nii et keskkonnasei
 msgid "The destructive drill, sync pass only. It proves the backup is restorable rather than merely present — the property a backup exists for."
 msgstr "Destruktiivne puurimine, ainult sünkroniseerimine. See tõestab, et varukoopia on taastatav, mitte lihtsalt olemas - varukoopia on olemas."
 
-# libretranslate
-msgid "The detection is line-based: the task block is the span between the nearest `- name:` (at indent N) above the offending line and the next top-level structural marker (`- name:` at indent <= N, or end of file). Within that span we look for any `when:` clause whose textual value matches a compose-only DEPLOYMENT_MODE expression."
-msgstr "Detekteerimine on reapõhine: ülesandeplokk on kaugus lähimast `- name:` (taandes N) üle rikkuva joone ja järgmise tipptaseme struktuurimarkeri (`- name:` taandes <= N või faili lõpus)Selle ajavahemiku jooksul otsime me kõiki `when:` klausel, mille tekstiväärtus vastab ainult komponeeritud DEPLOYMENT_MODE ilme."
+msgid "The detection is line-based: the task block is the span between the nearest `- name:` (at indent N) above the offending line and the next top-level structural marker (`- name:` at indent <= N, or end of file). Within that span we look for any `when:` clause whose textual value names the compose-only boolean."
+msgstr ""
 
 # libretranslate
 msgid "The dev-deploy CLI threads the variant index through three layers so a variant's `variants.yml` overlay reaches the credential subprocess."
@@ -56208,10 +56199,6 @@ msgid "The lid switch is a hardware component on laptops that triggers power sta
 msgstr "Kaanelüliti on sülearvutite riistvarakomponent, mis käivitab toiteseisundi muutused (magama, talveunele, lukku) kui kaas on suletud. Linuxis ``logind`` deemon haldab kaaslüliti sündmusi ``/etc/systemd/logind.conf``. ```setup-hibernate`` <https://github.com/kevinveenbirkenbach/setup-hibernate>` tööriist pakub talveune toetamise konfiguratsiooni."
 
 # libretranslate
-msgid "The link that belongs to a credited person lives nowhere but the Credits lines themselves: ``galaxy_info.author`` carries the name without a URL, and ``galaxy_info.company`` names the project owner rather than the role's author, so neither can supply it. This module derives the name -> URL map from the linked mentions already present in the repository, which keeps the README generator and the ``credits-attribution`` lint reading the same source instead of a hand-maintained list."
-msgstr "Link, mis kuulub krediteeritud isikule, ei ela kusagil, kuid Krediitread ise: ``galaxy_info.author`` kannab nime ilma URL-ita ja ``galaxy_info.company`` Nimetage projekti omanik, mitte rolli autor, nii et kumbki ei saa seda pakkuda. See moodul tuletab nime -> URL-kaart lingitud mainimistest, mis on hoidlas juba olemas, mis hoiab README generaatorit ja ``credits-attribution`` Lugedes sama allikat käsitsi hooldatud nimekirja asemel."
-
-# libretranslate
 msgid "The lint (`tests/lint/ansible/roles/meta/test_info.py`) rejects any other top-level key so the file does not become a dumping ground."
 msgstr "Lint (`tests/lint/ansible/roles/meta/test_info.py`) lükkab tagasi mis tahes muu tipptaseme võtme, nii et fail ei muutuks dumpinguks."
 
@@ -56306,6 +56293,12 @@ msgstr "Otsing ühendab täpselt kaks allikat:"
 msgid "The loop"
 msgstr "Ring"
 
+msgid "The machine starts from the **distribution base image**, not from an image this project publishes, so the replay also exercises the installation. `MACHINE_BASE_IMAGE` is read as `INFINITO_PARENT_IMAGE` out of the `.env` of the mounted checkout, where the env layer has already composed it from the [meta/distros.yml](../../../../../meta/distros.yml) SPOT and honoured any `custom.env` override. A missing `.env` fails the test with a pointer to `make dotenv`. The one build step of [files/test/Dockerfile](../../../../../roles/web-app-docs/files/test/Dockerfile) runs [init.sh](../../../../../roles/web-app-docs/files/test/init.sh), which returns immediately when the base already carries `/sbin/init`."
+msgstr ""
+
+msgid "The machine 🐳"
+msgstr ""
+
 # libretranslate
 msgid "The main entry points are:"
 msgstr "Peamised sisenemispunktid on:"
@@ -56353,6 +56346,9 @@ msgstr "Käsitsi sisestamise töövoog (`entry-manual-steer.yml`) seab `cancel-i
 # libretranslate
 msgid "The marked row carries `instructions: <mode>` in the matrix JSON and a 📖 in its job title, between the variant number and the ⭐ of a priority row."
 msgstr "Märgitud rida kannab `instructions: <mode>` maatriksis JSON ja 📖 ametinimetuses variandi numbri ja prioriteedirea kWh vahel."
+
+msgid "The marker adds `web-app-docs` to that row's `apps`, so the documentation is deployed beside the role under test. Its own CLI test then reads the role's page, takes the Production block out of the rendered HTML, and runs it."
+msgstr ""
 
 # libretranslate
 msgid "The marker file carries the same name as the swarm drill's (`scripts/tests/deploy/swarm/routine/backup/base.sh`) — one name for one concept. The implementations stay apart on purpose: the swarm drill follows a single token across five hops on four machines from the controller, which has nothing in common with marking every subject of one host beyond the three lines that write a file and read it back."
@@ -56458,9 +56454,6 @@ msgstr "Nimi ei sisalda kunagi tühikut: ``whitelist`` ja ``priority`` töövoo 
 # libretranslate
 msgid "The name of the matching role directory."
 msgstr "Sobiva rollikataloogi nimi."
-
-msgid "The names are derived from the ``## Credits`` sections themselves rather than kept as a list, so crediting a contributor needs no code change. The derivation lives in :mod:`utils.roles.credits`; this module is the entry point for readers that want the names alone."
-msgstr ""
 
 # libretranslate
 msgid "The names in declaration order, aliases substituted."
@@ -56670,7 +56663,7 @@ msgstr "Rada ``INFINITO_SRC_DIR`` nimed."
 msgid "The pattern for hyphenated role names, which hold wherever they appear, and the one for titles, which holds only on a capitalised occurrence."
 msgstr ""
 
-msgid "The people the repository credits, as one source for every reader."
+msgid "The people the roles name as their authors."
 msgstr ""
 
 # libretranslate
@@ -57023,6 +57016,9 @@ msgstr ""
 msgid "The proxy filters methods and paths, not request bodies. `POST /volumes/create` stays on the allowlist because the broker creates a volume per agent, and a local-driver volume with `o=bind,device=/` is a host bind mount that arrives as a volume. Fields such as `Privileged`, `PidMode` or `CapAdd` on `containers/create` are likewise unfiltered. The isolation therefore holds against a compromised **agent**, which reaches no socket at all, not against a compromised **broker**."
 msgstr ""
 
+msgid "The public entry point of three layers, each importable on its own:"
+msgstr ""
+
 # libretranslate
 msgid "The published (host) port is ``ports.local.<proto>`` when declared, else ``ports.public.<proto>``; the container port is ``ports.internal.<proto>``."
 msgstr "Avaldatud (võõrustaja) sadam ``ports.local.<proto>`` deklareerimise korral, muul juhul ``ports.public.<proto>``; konteinerisadam on ``ports.internal.<proto>``."
@@ -57252,21 +57248,15 @@ msgstr "Väänatud `Corefile` ehitab artefakti ja peab jääma `.gitignore`."
 msgid "The rendered fragment MUST start at the ``groups:`` item level (two-space indented ``- name: <group>`` entries), because it is concatenated into the single ``groups:`` list of the Prometheus rule file."
 msgstr "Sulatatud fragment peab algama ``groups:`` eseme tasandil (kahetühikuline trepp ``- name: <group>`` sissekandeid), sest see on konteneerunud üheks ``groups:`` nimekirja Prometheus reeglitoimik."
 
-# libretranslate
-msgid "The replay is a second deploy on the same runner, so the row it picks must be one the guide can actually deploy: the README has to carry a Production block, and the guide's own mode (``compose`` for a role that ships a stack, ``host`` for one installed onto the machine) has to be a mode the role runs and tests."
-msgstr "Kordus on sama jooksja teine juurutamine, nii et rida, mille ta valib, peab olema üks, mida juhend saab tegelikult kasutada: README peab kandma tootmisplokki ja juhendi enda režiimi (``compose`` rolli eest, mis laevab virna, ``host`` masinale paigaldatud) See peab olema režiim, mida rollid jooksevad ja testivad."
+msgid "The replay is a second deploy on the same runner, so the row it picks must be one the guide can actually deploy: the role has to be invokable, because that is what makes the documentation build give it a Production block, and the guide's own mode (``compose`` for a role that ships a stack, ``host`` for one installed onto the machine) has to be a mode the role runs and tests."
+msgstr ""
 
-# libretranslate
-msgid "The replay rides along on a deploy row of the sweep instead of holding a job of its own. `utils/roles/guide.py` marks one row per role:"
-msgstr "Kordussõit sõidab mööda pühkimise käivitamise rida, selle asemel, et hoida oma tööd. `utils/roles/guide.py` märgib ühe rea rolli kohta:"
+msgid "The replay rides along on a deploy row of the sweep instead of holding a job of its own. [guide.py](../../../../../utils/roles/guide.py) marks one row per role:"
+msgstr ""
 
 # libretranslate
 msgid "The replay used to be a job of its own, picking one random role per run. It rides on a deploy row instead: the role's smallest variant among the rows this sweep actually deploys, marked with ``instructions`` (the mode the replay runs in) and a 📖 in the job title. :mod:`utils.roles.guide` decides which variant that is; this module is what turns the decision into matrix entries."
 msgstr "Kordus oli varem omaette töö, valides ühe juhusliku rolli jooksu kohta. See sõidab hoopis käivitusreas: rolli väikseim variant ridade seas, mida see pühkimine tegelikult kasutab, tähistatud ``instructions`` (kordumise režiim) ja 📖 ametinimetuses. :mod:`utils.roles.guide` otsustab, milline variant see on; see moodul muudab otsuse maatrikskirjeteks."
-
-# libretranslate
-msgid "The replay writes its rescue snapshots under `INFINITO_RESCUE_DIAGNOSTICS_BASE/<distro>/<role>`, uploaded as `rescue-diagnostics-instructions-<artifact>`. The deploy's own snapshots live in `rescue-diagnostics-<artifact>`."
-msgstr "Replay kirjutab oma päästepildid alla `INFINITO_RESCUE_DIAGNOSTICS_BASE/<distro>/<role>`, üleslaaditud `rescue-diagnostics-instructions-<artifact>`.Sissejuhatuse enda pildid elavad `rescue-diagnostics-<artifact>`."
 
 # libretranslate
 msgid "The repo treats `biber` as the canonical non-admin RBAC fixture: the user is provisioned by `roles/svc-db-openldap` and exposed to specs via the `lookup('users', 'biber')` filter. ~19 role specs already consume `BIBER_USERNAME` / `BIBER_PASSWORD` from `roles/<role>/templates/playwright.env.j2` and drive at least one non-admin scenario (typically: SSO login via Keycloak, land on the expected post-login surface, optionally assert that admin-only UI is absent)."
@@ -57335,6 +57325,9 @@ msgstr "Tulemuseks on täielik, reprodutseeritav domeeni kasutuselevõtt ühes m
 # libretranslate
 msgid "The result is canonical_domains_map(applications, DOMAIN_PRIMARY). Per-app domain declarations live in `applications.<app>.domains` (canonical/aliases) and flow through the regular applications-merge pipeline."
 msgstr "Tulemuseks on canonical_domains_map(rakendusi, DOMAIN_PRIMARY). Rakenduste domeenideklaratsioonid elavad `applications.<app>.domains` (kanoonilised/aliaasid) ja voolavad läbi regulaarse rakenduste ühendamise torujuhtme."
+
+msgid "The result is immutable and one source message is masked once per target language, so the same string arrives dozens of times per run."
+msgstr ""
 
 msgid "The result is stored on the stack host and rendered back into `model_info.traits.speed` on the same deploy, so the gateway restarts once with the numbers it just produced. A re-measured rate that moved less than 10% keeps its stored value, because no two runs measure the same machine and an unclamped result would restart the gateway for nothing. A model the measurement could not reach keeps its stored rate rather than losing it, so one bad minute does not unrank a model against its peers."
 msgstr ""
@@ -57974,6 +57967,9 @@ msgstr "Liivakast aktiveeritakse tingimusteta `\"sandbox\": { \"enabled\": true 
 # libretranslate
 msgid "The sandbox's `denyRead` list (`~/.gnupg`, `~/.kube`, `~/.aws`, `~/.config/gcloud`) is the primary mechanism that prevents the agent from reading host credentials. Every credential store an operator uses on the host is assumed to be covered, **with the documented exception of `~/.ssh`** (see Assumption 10)."
 msgstr "Liivakastid `denyRead` nimekirja (`~/.gnupg`, `~/.kube`, `~/.aws`, `~/.config/gcloud`) See on peamine mehhanism, mis takistab agendil hosti volitusi lugeda. Eeldatakse, et hõlmatud on iga volituse kauplus, mida käitaja hostis kasutab; **koos dokumenteeritud erandiga `~/.ssh`** (oletust 10)."
+
+msgid "The scan is cached behind a fresh list, because one source message is scanned once per target language and callers may sort or trim the result."
+msgstr ""
 
 # libretranslate
 msgid "The scheduled `🔄 Update versions` pipeline (version bumps and PR open/refresh)."
@@ -60045,6 +60041,9 @@ msgstr "See on **mudellennuk**Tööriistalennuk (MCP) eraldi ([025](025-mcp-role
 msgid "This is the **routing plane**. The model plane is [031](031-llm-gateway-model-backends.md), the tool plane is [025](025-mcp-role-integration.md), and the agent fleet that benefits most is [032](032-agent-employees-firecracker.md)."
 msgstr ""
 
+msgid "This is the ``core`` domain's counterpart to the sphinx transform the ``docs`` domain carries: ``core`` never passes through sphinx, so a message that is nothing but a name would otherwise reach its catalog while the same message is withheld from the other domain."
+msgstr ""
+
 # libretranslate
 #, python-brace-format
 msgid "This is the mechanism that lets variants control whether a shared service is pulled in: a variant override pins `services.<service>.{enabled,shared}` to a literal boolean; the round's include resolution reads the variant-merged services map; the provider role's group materialises in (or drops out of) the inventory accordingly."
@@ -62106,9 +62105,8 @@ msgstr "Lähtesüsteemi taastamiseks kandke soovitud põlvkond sellele üle (tee
 msgid "To reduce setup time and ensure consistency across developer workstations, this role prepares a functional and extensible foundation for software engineering work."
 msgstr "Seadistamisaja vähendamiseks ja arendajate tööjaamade järjepidevuse tagamiseks valmistab see roll ette tarkvaratehnika töö funktsionaalse ja laiendatava aluse."
 
-# libretranslate
-msgid "To reproduce one locally, export `GUIDE_ROLE`, `GUIDE_MODE`, `INFINITO_DISTRO` and run `scripts/github/guide/one.sh`."
-msgstr "Ühe kohaliku reprodutseerimiseks eksportige `GUIDE_ROLE`, `GUIDE_MODE`, `INFINITO_DISTRO` joosta `scripts/github/guide/one.sh`."
+msgid "To reproduce one locally, deploy the role together with the documentation and let the CLI test run:"
+msgstr ""
 
 # libretranslate
 msgid "To resend queued mails, use this command:"
@@ -62603,9 +62601,8 @@ msgstr "Tõene, kui tõmmatakse läbi vahemälu pinu."
 msgid "True iff the role renders its own container stack, i.e. ships a ``templates/*compose*.yml.j2``. Host-only roles (backup cron, wireguard, swapfile) and pure service-injectors carry no compose template and return False. Presence (not an ``image`` key) is the signal so build-from-source stacks that pull no registry image still count as a stack."
 msgstr "Tõene, kui roll muudab oma konteineri virna, st laevad ``templates/*compose*.yml.j2``. Ainult peremehe rollid (varukoopia cron, juhtmekaitse, vahetusfail) ja puhtad hooldussüstijad ei kanna komponeeritud malli ja tagastavad Vale. Kohalolek (mitte ``image`` võti) on signaal, nii et lähtekoodist ehitatavad korstnad, mis ei tõmba registripilti, loetakse endiselt korstnaks."
 
-# libretranslate
-msgid "True iff the task body containing *idx* — or any enclosing parent `- block:` / `- name:` block — carries a `when:` clause whose textual expression evaluates compose-only at deploy time. Walks upwards to recognise block-level gates: a single `when: DEPLOYMENT_MODE != 'swarm'` on a parent `- block:` covers every child task underneath."
-msgstr "Tõene, kui tööorgan sisaldab *Idx* – või mis tahes lähedast vanemat `- block:` / `- name:` blokk – kannab `when:` klausel, mille tekstiavaldis hindab ainult komponeerimist käivitusajal. Kõnnib ülespoole, et ära tunda blokitaseme väravad: üks `when: DEPLOYMENT_MODE != 'swarm'` vanemal `- block:` See hõlmab kõiki lapse ülesandeid allpool."
+msgid "True iff the task body containing *idx* — or any enclosing parent `- block:` / `- name:` block — carries a `when:` clause whose textual expression evaluates compose-only at deploy time. Walks upwards to recognise block-level gates: a single `when: IS_COMPOSE_MODE` on a parent `- block:` covers every child task underneath."
+msgstr ""
 
 # libretranslate
 msgid "True iff this instance runs the cache stack rather than sharing it."
@@ -62631,6 +62628,9 @@ msgstr "Tõene, kui tuleks kasutada SMTPS- i."
 msgid "True when `exc` is, or was caused by, an `UnresolvableValueError`."
 msgstr "Tõsi, `exc` on või oli põhjustatud `UnresolvableValueError`."
 
+msgid "True when `role_id` sits at or below a category marked ``invokable: true``."
+msgstr ""
+
 # libretranslate
 msgid "True when a `web-app-mailu` host is reachable (otherwise local delivery)."
 msgstr "Tõsi, kui `web-app-mailu` host on kättesaadav (muul juhul kohalik tarnimine)."
@@ -62638,10 +62638,6 @@ msgstr "Tõsi, kui `web-app-mailu` host on kättesaadav (muul juhul kohalik tarn
 # libretranslate
 msgid "True when an IPv6 default route exists on a non-loopback interface."
 msgstr "Tõene IPv korral6 vaikimisi marsruut on olemas mitte-loopback-liidesel."
-
-# libretranslate
-msgid "True when any node along `role_id`'s category path has `invokable: true`."
-msgstr "Tõene, kui mõni sõlm on `role_id`kategooria asukoht `invokable: true`."
 
 # libretranslate
 msgid "True when any standard CI signal is set."
@@ -66153,6 +66149,9 @@ msgstr "Kas sõlme taga võib kasutada maatriksrida."
 msgid "Whether a resolver answers on the bridge is not something the host's own ``resolv.conf`` can say - a systemd-resolved stub and a node dnsmasq both read as loopback-only, and only the second one also binds the bridge. Until that is declared rather than inferred, the bridge may be an address nothing serves, so it never goes out alone: a list that would carry it by itself gets the project's public resolver behind it. Without that the daemon has a single dead nameserver and every container and image build loses DNS."
 msgstr "Kas lahendaja sillal vastab, pole võõrustaja enda asi. ``resolv.conf`` Võib öelda - süsteemne lahendatud stub ja sõlm dnsmasq mõlemad lugeda ainult loopback-ainult, ja ainult teine seob silla ka. Kuni seda pole kuulutatud, mitte järeldatud, võib sild olla aadress, mida miski ei teeni, nii et see ei lähe kunagi üksi välja: nimekiri, mis seda ise kannaks, saab projekti avaliku lahendaja selle taga. Ilma selleta on deemonil üks surnud nimeserver ja iga konteiner ja pildiehitus kaotab DNS-i."
 
+msgid "Whether a translation broke something its source carried."
+msgstr ""
+
 # libretranslate
 msgid "Whether an application can legitimately be invoked under a given deployment type (e.g. `server`, `workstation`, `universal`)."
 msgstr "Kas konkreetse kasutuselevõtuliigi puhul saab rakendust õiguspäraselt kasutada (nt. `server`, `workstation`, `universal`)."
@@ -66217,6 +66216,9 @@ msgstr "Milliseid alternatiive kaaluti?"
 msgid "Which deploy row replays the role's README instructions, and in what mode."
 msgstr "Mis kasutab rida kordab rolli README juhiseid ja millises režiimis."
 
+msgid "Which deployed role's published guide a replay should read."
+msgstr ""
+
 # libretranslate
 msgid "Which host(s) are targeted"
 msgstr "Võõrustaja(s) sihitakse"
@@ -66228,6 +66230,9 @@ msgstr "Milline maatriksi sissekanne kordab oma rolli README juhiseid."
 # libretranslate
 msgid "Which package, package source, or integration was added or changed?"
 msgstr "Millist paketti, paketti või integratsiooni lisati või muudeti?"
+
+msgid "Which parts of a message are protected, and how they are masked for a request."
+msgstr ""
 
 # libretranslate
 msgid "Which project holds a dump is read from the containers themselves, before the host goes down: each running container's mounts are recorded, and a dump's volume names its owner. No image is matched, and the database's engine is resolved by the chain from the repository's service definitions."
@@ -66292,6 +66297,9 @@ msgstr "Whitelists/flags/hashes lugeda:"
 # libretranslate
 msgid "Whitespace inside the heading becomes a ``·`` so a display name never holds a space and stays one token in the space-separated ``whitelist`` and ``priority`` inputs. Variation selectors left behind by an emoji in the heading are dropped."
 msgstr "Pealkirja sees olev tühik muutub ``·`` nii et kuva nimi ei sisalda kunagi tühikut ja jääb ruumi eraldatud ``whitelist`` ja ``priority`` sisendid. Variatsiooni valijad, mis on jäetud maha emoji pealkirjas, jäetakse välja."
+
+msgid "Who an author is, and where their public profile lives."
+msgstr ""
 
 # libretranslate
 msgid "Whole namespace asked: `logout` is operator-scope DoS; `token` prints the OAuth/PAT to stdout where it would land in the transcript permanently if approved (operator MUST decline unless they explicitly want the token captured); `switch` silently changes the active identity; `setup-git` rewrites global git config; `login`/`refresh`/`status` are lower-risk but kept inside the same gate for symmetry. The trade-off vs. an explicit `deny` on `logout`/`token` is that approval is now a single click; operators must read the prompt before tapping through."
@@ -74851,10 +74859,6 @@ msgid "`.env` is consumed by bash `source` and docker-compose `--env-file`, neit
 msgstr "`.env` tarbitakse bashi `source` ja dokkerikompositsioon `--env-file`, millest kumbki ei lükka edasi-tagasi mitmerealisi väärtusi; seetõttu lükkab kirjanik need tagasi. Teised NIX_CONFIG seaded (`accept-flake-config`, `experimental-features`, ...) kuulu `/etc/nix/nix.conf` (Dockerfile süstib need dev konteinerisse; host operaatorid seavad need üks kord sisse `~/.config/nix/nix.conf`)."
 
 # libretranslate
-msgid "`.github/workflows/call-test-deploy.yml` runs the replay as the job's last step, after the row's own deploy and after the swarm teardown: the replay deploys the role a second time and needs the runner's ports. It calls `scripts/tests/deploy/distros.sh scripts/github/guide/one.sh` with `GUIDE_ROLE` set to the row's app and `GUIDE_MODE` to the mode the marker carries, which is independent of the deploy mode the rotation gave the row. A swarm row therefore still replays a `compose` guide."
-msgstr "`.github/workflows/call-test-deploy.yml` käivitab korduse töö viimase sammuna pärast rea enda käivitamist ja pärast parve rebenemist: kordus kasutab rolli teist korda ja vajab jooksja porte. Kutsub `scripts/tests/deploy/distros.sh scripts/github/guide/one.sh` koos `GUIDE_ROLE` rea rakendusse ja `GUIDE_MODE` olekusse, mida marker kannab, mis ei sõltu käivitusrežiimist, mille pööramine rea andis. Sülemirida kordab seetõttu endiselt `compose` teejuht."
-
-# libretranslate
 msgid "`.npmrc` URL-rewrite"
 msgstr "`.npmrc` URL- i ümberkirjutamine"
 
@@ -74966,10 +74970,6 @@ msgid "`ApplicationsLookup` reads `services.email` for the target `application_i
 msgstr "`ApplicationsLookup` loeb `services.email` sihtmärgile `application_id`. Tundmatud rakendused PEVAD andma tühja diktaadi."
 
 # libretranslate
-msgid "`Author name` MUST equal `galaxy_info.author` in the role's `meta/main.yml` (the author single point of truth). It MAY be wrapped in a Markdown link as shown, or left as plain bold text (`Implemented by **Author name**.`) when no author URL applies."
-msgstr "`Author name` Peab olema võrdne `galaxy_info.author` rollis `meta/main.yml` (autori ainus tõepunkt). See VÕIB olla pakitud Markdowni lingile, nagu näidatud, või jätta tavaliseks paksuks tekstiks. (`Implemented by **Author name**.`) kui autori URL puudub."
-
-# libretranslate
 msgid "`Authorization: Bearer <token>`, a Moodle web-service token"
 msgstr "`Authorization: Bearer <token>`, Moodle veebiteenuse märgis"
 
@@ -75060,6 +75060,9 @@ msgstr "`Corefile.tmpl`: `${VAR}` mall töödeldi korstna alguses."
 # libretranslate
 msgid "`Corefile`: rendered output, bind-mounted read-only into the `coredns` container at `/Corefile`."
 msgstr "`Corefile`: renderdatud väljund, seotakse ainult lugemisega `coredns` konteineris `/Corefile`."
+
+msgid "`Cosmos`, `Quick Setup` and `Credits` MUST NOT appear in a committed role README. The documentation build derives them from role metadata and writes them into its own scratch checkout, so a committed copy goes stale without anyone noticing. [test_readme.py](../../../../../tests/lint/ansible/roles/test_readme.py) fails on one."
+msgstr ""
 
 # libretranslate
 msgid "`Coturn <https://github.com/coturn/coturn>`__ is a free and open-source **TURN (Traversal Using Relays around NAT)** and **STUN (Session Traversal Utilities for NAT)** server."
@@ -75712,6 +75715,12 @@ msgstr "``(msgctxt, msgid)`` paarid allika järjekorras."
 msgid "``(msgctxt, msgid)`` pairs; ``msgctxt`` may be ``None``."
 msgstr "``(msgctxt, msgid)`` paarid; ``msgctxt`` võib ``None``."
 
+msgid "``(name, email)``, unchanged when the mailmap knows the address not."
+msgstr ""
+
+msgid "``(name, email)``; either is empty when neither source knows it."
+msgstr ""
+
 # libretranslate
 msgid "``(payload_bytes, total_bytes)`` on success"
 msgstr "``(payload_bytes, total_bytes)`` edule"
@@ -75731,6 +75740,9 @@ msgstr "``--index`` Seejärel trükitakse üks tükk maatriksiks JSON. Iga tüki
 # libretranslate
 msgid "``--matrix`` renders the full ordered candidate list, so the matrix order IS the selection priority. Every human-facing view of that list goes through here rather than re-deriving the sort and the filter: hand-rolling ``--sort \"$INFINITO_DISCOVERY_SORT\" --filter \"compose == true\"`` reads the wrong column (``compose`` is what a role can do, ``test_compose`` is what CI tests), which silently shows an order no run will ever take."
 msgstr "``--matrix`` renderdab täieliku järjestatud kandidaatide nimekirja, nii et maatriksi järjekord on valikuprioriteet. Iga inimese ees olev vaade sellest nimekirjast läbib siin, selle asemel, et sorti ja filtrit uuesti saada: käsitsi rullimine ``--sort \"$INFINITO_DISCOVERY_SORT\" --filter \"compose == true\"`` loeb valet veergu (``compose`` on see, mida roll võib teha, ``test_compose`` mida CI testid), mis vaikselt näitab korraldust, mida ükski jooks ei võta."
+
+msgid "``.mailmap`` maps every address a person has committed under to their ``@infinito.nexus`` address, and that address names their profile: the local part is the profile slug. One social profile is therefore the single point of truth for an author, and nothing here keeps a second copy of their name, URL or avatar."
+msgstr ""
 
 # libretranslate
 msgid "``.po`` or ``.pot`` file."
@@ -76393,6 +76405,9 @@ msgstr "``force_regen`` (bool): kui see on tõene, eemaldada ja taastada võti/c
 msgid "``forward[A]`` is the list of provider roles that ``A`` directly depends on (services it embeds). ``reverse[B]`` is the list of roles that directly depend on ``B`` (consumers that embed ``B``)."
 msgstr "``forward[A]`` See on nimekiri teenusepakkuja rollidest, mis ``A`` sõltub otseselt (teenused). ``reverse[B]`` Nimekiri rollidest, mis otseselt sõltuvad ``B`` (kinnistunud tarbijad ``B``)."
 
+msgid "``galaxy_info.author`` is where a role records who implemented it, so that is where the names are read. A role may credit more than one person, comma separated."
+msgstr ""
+
 # libretranslate
 msgid "``getent`` honours nsswitch and cannot address a server, so on its own it cannot say which of the resolvers in resolv.conf refused. Where the distro ships a query tool, ask every nameserver directly; where it does not, the per-name verdicts still stand on their own."
 msgstr "``getent`` Ta ei saa serveriga ühendust võtta, seega ei saa ta ise öelda, millised lahendajad resolv.conf keeldus. Kui distro saadab päringu tööriista, küsige igalt nimeserverilt otse; kui see ei ole, jäävad kohtuotsused nime kohta endiselt omaette."
@@ -76507,6 +76522,9 @@ msgstr "``locale.conf``: komplektid : ``LANG`` ja ``LANGUAGE`` keskkonnamuutujad
 # libretranslate
 msgid "``locale.gen``: uncomment or specify the locales you need"
 msgstr "``locale.gen``: lahti kommenteerida või määrata vajalikud lokaalid"
+
+msgid "``lookup('guide_role', application_id)`` picks the first invokable app the round deployed beside ``application_id``. Invokability comes from :func:`utils.roles.validation.invokable.list_invokable_app_ids`, so no caller re-derives it from role-name prefixes."
+msgstr ""
 
 # libretranslate
 msgid "``lookup('users', user_key).authorized_keys`` (list; may be empty)"
@@ -77893,6 +77911,9 @@ msgstr ""
 # libretranslate
 msgid "`full` orchestration: resolve source, discover repos, recover in order"
 msgstr "`full` orkestratsioon: lahenda allikas, avasta repod, taasta kord"
+
+msgid "`galaxy_info.author` in `meta/main.yml`"
+msgstr ""
 
 # libretranslate
 msgid "`gem`, `composer`, `go`, `curl https://…` (Ansible task in runner)"
@@ -79936,6 +79957,9 @@ msgstr "ASCII vorm (``web-app-nextcloud#0,2@swarm+tor%debian/zfs:arm64``)."
 # libretranslate
 msgid "an ``ansible_facts`` mapping. task_vars carries bare keys, the setup module returns them ``ansible_``-prefixed."
 msgstr "anne ``ansible_facts`` kaardistamine. task_vars sisaldab paljaid võtmeid, seadistusmoodul tagastab need ``ansible_``- eeltäidetud."
+
+msgid "an author's address."
+msgstr ""
 
 # libretranslate
 msgid "an effective ``API`` mapping, as returned by ``resolve_api``."
@@ -82175,6 +82199,9 @@ msgstr "iga rakenduse ID `APPS_CSV` (Tavaliselt kogu host-avastatud komplekt)"
 msgid "every app in the existing inventory (host wrapper recomputes the list for log clarity)"
 msgstr "iga rakendus olemasolevas inventuuris (masina ümbris arvutab logi selguse huvides nimekirja uuesti)"
 
+msgid "every app that publishes a guide."
+msgstr ""
+
 # libretranslate
 msgid "every backup-stored type, in order"
 msgstr "kõik varukoopiad, järjekorras"
@@ -83470,12 +83497,11 @@ msgid "only when every mount agrees. An entry that lands at different paths per 
 msgstr "ainult siis, kui kõik mäed on nõus. Kirje, mis maandub teenuse kohta erinevatel radadel, jätab võtme välja, mitte ei vali seda; loe ``targets[service]`` seal."
 
 # libretranslate
-msgid "only when the README carries a `### Production` heading;"
-msgstr "Ainult siis, kui README kannab `### Production` suund;"
-
-# libretranslate
 msgid "only when the guide's own mode (`compose` for a role shipping a container stack, `host` otherwise) is enabled in `meta/services.yml` and not listed under `skip` in `meta/tests.yml`."
 msgstr "Ainult siis, kui juht on oma režiimis (`compose` konteinerite saatmiseks, `host` muidu) on sisse lülitatud `meta/services.yml` ja ei ole loetletud `skip` sisse `meta/tests.yml`."
+
+msgid "only when the role is invokable, because that is what makes the documentation build emit a Production block for it;"
+msgstr ""
 
 # libretranslate
 msgid "only; removed from non-invokable roles)."
@@ -84239,6 +84265,9 @@ msgstr "plugins.lookup.fediwall\\ active moodul"
 msgid "plugins.lookup.group\\_roles module"
 msgstr "plugins.lookup.group\\ rollide moodul"
 
+msgid "plugins.lookup.guide\\_role module"
+msgstr ""
+
 # libretranslate
 msgid "plugins.lookup.i18n\\_catalogue module"
 msgstr "plugins.lookup.i18n\\ kataloogimoodul"
@@ -84841,6 +84870,9 @@ msgstr "hoidla juur, mida kasutatakse tuletamiseks ``roles_dir`` registreerimist
 # libretranslate
 msgid "repository root."
 msgstr "hoidla juur."
+
+msgid "repository root; defaults to this checkout."
+msgstr ""
 
 # libretranslate
 msgid "reproducible system deployments"
@@ -85763,6 +85795,9 @@ msgstr "need `roles:` nimekiri on tühi või"
 msgid "the `root` account"
 msgstr "need `root` konto"
 
+msgid "the address the commit carries."
+msgstr ""
+
 # libretranslate
 msgid "the admin account session continues to authenticate after a fresh login."
 msgstr "admin konto seanss jätkab autentimist pärast värsket sisselogimist."
@@ -85793,6 +85828,9 @@ msgstr "Taotlus, mille alusel toetused lahendatakse."
 # libretranslate
 msgid "the applications SPOT."
 msgstr "rakendused SPOT."
+
+msgid "the apps this round deploys."
+msgstr ""
 
 # libretranslate
 msgid "the architecture has no label. Falling back to the amd64     runner would deploy an arm64 row on amd64 hardware and report it     green under an arm64 job title."
@@ -86098,6 +86136,9 @@ msgstr ""
 msgid "the module's own return dict, tagged with the module that produced it. A module that dies on an unhandled exception never carries ``msg`` -- the AnsiballZ wrapper returns only ``failed`` and ``exception``, whose event holds the sole account of what went wrong."
 msgstr "mooduli enda tagastusdikt, millele on märgitud selle tootnud moodul. Käsitlemata erandil surev moodul ei kanna kunagi kaasas ``msg`` -- AnsiballZ ümbris tagastab ainult ``failed`` ja ``exception``, kelle üritusel on ainult ülevaade sellest, mis läks valesti."
 
+msgid "the name the commit carries."
+msgstr ""
+
 # libretranslate
 msgid "the new task transitions to `running` within a documented timeout;"
 msgstr "uue ülesande üleminek `running` dokumenteeritud aja jooksul;"
@@ -86285,6 +86326,9 @@ msgstr "retriggeri prioriteet tihvtid, mille read väljuvad tavaliinist."
 msgid "the role and the run permit nothing in common. Dropping     the row instead would report a green run for a role that never     deployed, and picking one anyway would deploy it on hardware one     of the two sides ruled out."
 msgstr "Töö ja töö ei võimalda midagi ühist. Selle asemel rea kukutamine annaks teada rohelisest jooksmisest rollile, mida kunagi ei rakendatud, ja selle valimine võtaks selle riistvarale kasutusele üks kahest küljest välistatud."
 
+msgid "the role asking, which is skipped as its own peer."
+msgstr ""
+
 # libretranslate
 msgid "the role directory the pin lives in."
 msgstr "rollikataloogis, kus pin elab."
@@ -86297,13 +86341,15 @@ msgstr "roll paigaldab laienduse ja suunab selle OpenAI-ga ühilduva pakkuja vä
 msgid "the role the domain belongs to."
 msgstr "roll, millesse domeen kuulub."
 
+msgid "the role to classify."
+msgstr ""
+
 # libretranslate
 msgid "the role to filter by."
 msgstr "filtreeritav roll."
 
-# libretranslate
-msgid "the role's **smallest variant**, the one whose `meta/variants.yml` overlay enables the fewest services, because that is the shape the README describes;"
-msgstr "rollis **väikseim variant**, kelle `meta/variants.yml` katmine võimaldab kõige vähem teenuseid, sest see on kuju, mida README kirjeldab;"
+msgid "the role's **smallest variant**, the one whose `meta/variants.yml` overlay enables the fewest services, because that is the shape the instructions describe;"
+msgstr ""
 
 # libretranslate
 msgid "the role's [`playwright.env.j2`](./templates/playwright.env.j2) MUST NOT carry stale `BIBER_USERNAME` / `BIBER_PASSWORD` keys (the lint at [`test_env_keys_used.py`](../../tests/lint/ansible/roles/web-app/playwright/test_env_keys_used.py) enforces this);"
@@ -86323,6 +86369,9 @@ msgstr ""
 msgid "the role's directory."
 msgstr ""
 
+msgid "the role's invokability in `categories.yml`, plus `meta/services.yml` `guide_companions`"
+msgstr ""
+
 # libretranslate
 msgid "the role's rendered variant configs, in index order."
 msgstr "rolli teisendatud variandi seadistused indeksi järjekorras."
@@ -86334,6 +86383,9 @@ msgstr "rollitüüpi predikaat elab :mod:`utils.roles.type` (näha :func:`utils.
 # libretranslate
 msgid "the role."
 msgstr "rolli."
+
+msgid "the roles directory whose sibling ``categories.yml`` decides."
+msgstr ""
 
 # libretranslate
 msgid "the roles resolved into this inventory."
@@ -86536,6 +86588,9 @@ msgstr "sihtjaotus, mis on nimetatud vahelejätmise põhjuses."
 # libretranslate
 msgid "the task file holding the pin."
 msgstr "ülesandefail, milles on tihvt."
+
+msgid "the task variables the lookup was called with."
+msgstr ""
 
 # libretranslate
 msgid "the templar used to render a deferred ``application_id``."
@@ -87089,6 +87144,9 @@ msgstr "utils.env.handlers.infinito.fork.account mooduli"
 msgid "utils.env.handlers.infinito.fork.repository\\_url module"
 msgstr "utils.env.handlers.infinito.fork.repository\\ URL moodul"
 
+msgid "utils.env.handlers.infinito.git\\_identity module"
+msgstr ""
+
 msgid "utils.env.handlers.infinito.gpu\\_count module"
 msgstr ""
 
@@ -87310,6 +87368,9 @@ msgstr "utils.i18n.catalog mooduli"
 msgid "utils.i18n.client module"
 msgstr ""
 
+msgid "utils.i18n.damage module"
+msgstr ""
+
 # libretranslate
 msgid "utils.i18n.extract module"
 msgstr "utils.i18n.extract mooduli"
@@ -87335,6 +87396,12 @@ msgstr ""
 # libretranslate
 msgid "utils.i18n.placeholders module"
 msgstr "utils.i18n.placeholders mooduli"
+
+msgid "utils.i18n.repairs module"
+msgstr ""
+
+msgid "utils.i18n.spans module"
+msgstr ""
 
 # libretranslate
 msgid "utils.i18n.translate module"
@@ -87508,6 +87575,9 @@ msgid "utils.meta package"
 msgstr "utils.meta pakett"
 
 msgid "utils.meta.authors module"
+msgstr ""
+
+msgid "utils.meta.identity module"
 msgstr ""
 
 # libretranslate
