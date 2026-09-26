@@ -1747,9 +1747,10 @@ msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "Bendro naudojimo nuolatinės saugyklos programinė sąsaja, naudojama diegiant kelis mazgus - NFSv4 serverio ir kliento vaidmenis."
 
+# translated-by: libretranslate
 msgctxt "role:dsk-base:description"
 msgid "Shared premise of every desktop role, the login account its files belong to"
-msgstr ""
+msgstr "Bendra prielaida kiekvieno darbastalio vaidmenį, prisijungimo sąskaitą jos failai priklauso"
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"

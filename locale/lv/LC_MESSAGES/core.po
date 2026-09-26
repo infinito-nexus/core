@@ -1745,9 +1745,10 @@ msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "Koplietošanas pastāvīgas glabāšanas aizmugures, ko izmanto multimezglu izvietošanā – NFSv4 servera un klienta lomas."
 
+# translated-by: libretranslate
 msgctxt "role:dsk-base:description"
 msgid "Shared premise of every desktop role, the login account its files belong to"
-msgstr ""
+msgstr "Koplietošanas premisa katru darbvirsmas lomu, pieteikšanās konts tā faili pieder"
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"

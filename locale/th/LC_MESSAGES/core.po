@@ -1747,9 +1747,10 @@ msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "แบ็คเอนต์จัดการร่วมกันแบบต่อเนื่องที่ถูกใช้โดยการใช้งานหลายแบบ — NFSv4 แม่ข่ายและบทลูกค้า"
 
+# translated-by: libretranslate
 msgctxt "role:dsk-base:description"
 msgid "Shared premise of every desktop role, the login account its files belong to"
-msgstr ""
+msgstr "ข้อกําหนดการใช้ร่วมกันของทุกบทบาทของพื้นที่ทํางาน, บัญชีล็อกอินจะเป็นแฟ้ม"
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"

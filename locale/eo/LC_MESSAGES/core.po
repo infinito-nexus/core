@@ -1732,9 +1732,10 @@ msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "Komunaj persista-haltaj dorsofinoj uzitaj per multi-node deplojoj - NFSv4 servilo kaj kliento roloj."
 
+# translated-by: libretranslate
 msgctxt "role:dsk-base:description"
 msgid "Shared premise of every desktop role, the login account its files belong to"
-msgstr ""
+msgstr "Komuna kondiĉo de ĉiu labortablo, la loginkonto ĝiaj dosieroj apartenas al"
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"

@@ -1766,9 +1766,10 @@ msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "多节点部署所使用的共享持久存储后端——NFSv4 服务器和客户端角色。"
 
+# translated-by: libretranslate
 msgctxt "role:dsk-base:description"
 msgid "Shared premise of every desktop role, the login account its files belong to"
-msgstr ""
+msgstr "每个桌面角色的共同前提,其文件所属的登录账户"
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"

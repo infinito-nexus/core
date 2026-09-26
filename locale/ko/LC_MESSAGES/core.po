@@ -1789,9 +1789,10 @@ msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "멀티 노드 배포에 의해 사용되는 공유 영구 저장 백엔드 - NFSv4 서버 및 클라이언트 역할."
 
+# translated-by: libretranslate
 msgctxt "role:dsk-base:description"
 msgid "Shared premise of every desktop role, the login account its files belong to"
-msgstr ""
+msgstr "모든 데스크톱 역할의 공유 전제, 로그인 계정 그 파일에 속한다"
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"

@@ -1725,9 +1725,10 @@ msgctxt "category:svc.storage:description"
 msgid "Shared persistent-storage backends used by multi-node deployments — NFSv4 server and client roles."
 msgstr "hậu phương bền bỉ chia sẻ được dùng bởi triển khai đa node — NFSv4 máy chủ và vai trò khách hàng."
 
+# translated-by: libretranslate
 msgctxt "role:dsk-base:description"
 msgid "Shared premise of every desktop role, the login account its files belong to"
-msgstr ""
+msgstr "Tiền đề chia sẻ của mỗi vai trò màn hình nền, tài khoản đăng nhập của nó thuộc về"
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-mariadb:description"
