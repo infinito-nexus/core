@@ -698,9 +698,11 @@ class TestGetMergedApplicationsMemoisesTheGuardedPath(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             roles = _seed_minimal_roles(Path(tmp))
             cache_apps._RENDER_GUARD.applications = True
+            before = set(cache_apps._MERGED_APPLICATIONS_CACHE)
+
             self._merged(roles)
 
-            self.assertEqual(cache_apps._MERGED_APPLICATIONS_CACHE, {})
+            self.assertEqual(set(cache_apps._MERGED_APPLICATIONS_CACHE), before)
 
 
 if __name__ == "__main__":
