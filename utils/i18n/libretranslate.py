@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import secrets
 import subprocess
 import time
 import urllib.request
@@ -34,6 +35,7 @@ RUNNER_TIMEOUT_SECONDS = 300
 SERVICE_TIMEOUT_SECONDS = 300
 INVENTORY_DIR = Path.home() / "inventories" / "infinito-i18n"
 DEPLOY_PID_FILE = Path("build") / "deploy.pid"
+DEPLOY_ROUTER = "deploy/main.sh"
 GPU_STAMP = Path("build") / "i18n-gpu.stamp"
 INVENTORY_VARS = Path("i18n") / "inventory.yml"
 
@@ -122,6 +124,13 @@ def unaccelerated(root: Path) -> bool:
 def deploying(root: Path) -> bool:
     """Return whether the deploy router still holds the machine.
 
+    A live pid is not proof on its own: the router records the pid it has in
+    its own namespace, and every sandboxed command gets a fresh one where the
+    low numbers belong to that sandbox's own shell and children. A stale file
+    then names a process that exists and is not a deploy, which blocked every
+    translation run until the file was deleted by hand. The recorded process
+    has to name the router in its command line to count.
+
     Args:
         root: repository root.
     """
@@ -129,10 +138,14 @@ def deploying(root: Path) -> bool:
         raw = (
             root / DEPLOY_PID_FILE
         ).read_text()  # nocheck: cache-read - the router rewrites this file per run; the cached reader is an lru_cache without mtime invalidation
-        os.kill(int(raw), 0)
+        pid = int(raw)
+        os.kill(pid, 0)
+        command = Path(
+            f"/proc/{pid}/cmdline"
+        ).read_bytes()  # nocheck: cache-read - /proc is per-pid and vanishes with the process; a cached cmdline would answer for whatever holds that pid next
     except (OSError, ValueError):
         return False
-    return True
+    return DEPLOY_ROUTER.encode() in command
 
 
 def environment(root: Path) -> dict[str, str]:
@@ -327,7 +340,7 @@ def container(image: str, codes: list[str], threads: int) -> Iterator[str]:
     Yields:
         The base URL of the running server.
     """
-    name = f"infinito-i18n-libretranslate-{os.getpid()}"
+    name = f"infinito-i18n-libretranslate-{secrets.token_hex(4)}"
     command = [
         "docker",
         "run",

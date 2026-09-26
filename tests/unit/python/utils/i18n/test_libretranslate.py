@@ -25,8 +25,27 @@ class TestParallelDeployIsRefused(unittest.TestCase):
             pass
         started.assert_not_called()
 
+    def test_a_live_pid_that_is_not_the_router_reports_no_deploy(self) -> None:
+        """This process is alive and is not a deploy.
+
+        The guard used to answer yes to any live pid. Every sandboxed command
+        runs in its own pid namespace where the low numbers belong to that
+        sandbox, so a stale file naming pid 8 blocked every translation run.
+        """
+        self.assertFalse(deploying(self._root_holding(os.getpid())))
+
     def test_a_live_router_pid_reports_a_deploy(self) -> None:
-        self.assertTrue(deploying(self._root_holding(os.getpid())))
+        root = Path(self._tmp.name)
+        router = root / "scripts" / "deploy" / "main.sh"
+        router.parent.mkdir(parents=True, exist_ok=True)
+        router.write_text("read -r _\n", encoding="utf-8")
+        held = subprocess.Popen(
+            ["bash", str(router)],
+            stdin=subprocess.PIPE,
+        )
+        self.addCleanup(held.kill)
+
+        self.assertTrue(deploying(self._root_holding(held.pid)))
 
     def test_a_stale_pid_file_reports_no_deploy(self) -> None:
         root = self._root_holding(4242)
