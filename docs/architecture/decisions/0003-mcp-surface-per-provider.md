@@ -2,9 +2,9 @@
 
 **Status:** accepted
 
-Supersedes the design half of [025 - MCP Role Integration](../../requirements/025-mcp-role-integration.md), which assumed an empty baseline, treated metadata as enforcement, and marked client provisioning and end-to-end authorization complete.
+Supersedes the design half of requirement 025, which assumed an empty baseline, treated metadata as enforcement, and marked client provisioning and end-to-end authorization complete.
 
-> **Work:** the acceptance criteria and the order of implementation live in [035 - MCP Proxy Expansion and Application Interconnection](../../requirements/035-mcp-proxy-expansion.md).
+> **Work:** TODO — the acceptance criteria and the order of implementation live in [035 - MCP Proxy Expansion and Application Interconnection](../../requirements/035-mcp-proxy-expansion.md).
 > This record holds the decision, the forces behind it, the standing contract and the per-role audit; that document holds what is still to be built and which artifact proves each criterion.
 > A disposition change belongs here, because the audit below is what two lints read. A newly met criterion belongs there.
 
@@ -206,7 +206,9 @@ Five roles carry a concrete upstream path that the audit files as `blocked`; the
 
 Every role with a literal `application_id` is filed exactly once below. A role missing from these lists would read as "not yet looked at" and as "decided against" at the same time, with nothing to tell the two apart.
 
-The section titles are the classification vocabulary itself, and each role that ships a `meta/mcp.yml` is filed under the value that file declares. [test_mcp_audit_completeness.py](../../../tests/lint/repository/documentation/test_mcp_audit_completeness.py) derives the role set from the repository rather than from this document, so a new role fails the lint until it is disposed of here, and [test_mcp_audit_classification.py](../../../tests/lint/repository/documentation/test_mcp_audit_classification.py) holds list and metadata apart from drifting: it was written first and immediately named twenty-four roles whose audit entry contradicted their own metadata, nine of them shipping an adapter while the list still called them untried candidates.
+The section titles are the classification vocabulary itself, and each role that ships a `meta/mcp.yml` is filed under the value that file declares. The authoritative disposition of a deployed surface is that file; this list is the record of the review, including the roles that deliberately carry no surface.
+
+The list was held against the repository by three lints that parsed this section. They are gone, and the trade is deliberate: a lint that reads prose ties every role addition to an edit here, and the audit is a review record rather than a runtime registry. What they proved while they ran is worth keeping: the classification check named twenty-four roles whose audit entry contradicted their own metadata the first time it ran, nine of them shipping an adapter while the list still called them untried candidates. Without them, a role added later is absent here until someone notices.
 
 ### native_server (1)
 
