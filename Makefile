@@ -337,6 +337,13 @@ i18n-extract:
 i18n-prune:
 	@"$${PYTHON}" -m cli.build.i18n prune $(if $(domain),--domain "$(domain)") $(if $(languages),--languages "$(languages)")
 
+.PHONY: i18n-retry
+# Offer the entries a previous run recorded as refused again, after the masking or the damage predicate changed.
+# Param domain: core | docs (empty: both)
+# Param languages: comma-separated ISO 639-1 codes (empty: every language)
+i18n-retry:
+	@"$${PYTHON}" -m cli.build.i18n retry $(if $(domain),--domain "$(domain)") $(if $(languages),--languages "$(languages)")
+
 .PHONY: i18n-translate
 # Machine-translate the empty and fuzzy entries of the gettext catalogs, deploying the i18n LibreTranslate runner when it does not answer.
 # Param domain: core | docs (empty: both)

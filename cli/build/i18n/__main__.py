@@ -5,6 +5,7 @@ Usage:
   python -m cli.build.i18n translate --domain core|docs [--languages de,fr]
   python -m cli.build.i18n languages [--domain core|docs]
   python -m cli.build.i18n prune [--domain core|docs] [--languages de,fr]
+  python -m cli.build.i18n retry [--domain core|docs] [--languages de,fr]
   python -m cli.build.i18n tune [--language de]
 """
 
@@ -40,7 +41,7 @@ from utils.i18n.libretranslate import (
     LibreTranslate,
     server,
 )
-from utils.i18n.translate import apply, damaged, discard, pending
+from utils.i18n.translate import apply, damaged, discard, pending, retry
 
 CHUNK_SIZE = 500
 SPHINX_JOBS_FLOOR = 2
@@ -107,6 +108,26 @@ def prune(domains: list[str], requested: list[str]) -> int:
             cleared += len(broken)
             print(f"{domain}/{code}: {len(broken)} damaged translations cleared")
         print(f"{domain}: {cleared} translations cleared")
+    return 0
+
+
+def retry_refused(domains: list[str], requested: list[str]) -> int:
+    loaded = load_languages(PROJECT_ROOT)
+    for domain in domains:
+        codes = requested or domain_languages(loaded, domain)
+        cleared = 0
+        for code in sorted(codes):
+            path = catalog_path(PROJECT_ROOT, code, domain)
+            if not path.is_file():
+                continue
+            catalog = read_catalog(path)
+            offered = retry(catalog)
+            if not offered:
+                continue
+            write_catalog(path, catalog)
+            cleared += offered
+            print(f"{domain}/{code}: {offered} refusals dropped")
+        print(f"{domain}: {cleared} refusals dropped")
     return 0
 
 
@@ -207,6 +228,15 @@ def main() -> int:
         default="",
         help="Comma-separated ISO 639-1 codes; empty for every language.",
     )
+    retry_parser = commands.add_parser(
+        "retry", help="Offer the entries a previous run recorded as refused again."
+    )
+    retry_parser.add_argument("--domain", choices=DOMAINS)
+    retry_parser.add_argument(
+        "--languages",
+        default="",
+        help="Comma-separated ISO 639-1 codes; empty for every language.",
+    )
     tune_parser = commands.add_parser(
         "tune", help="Measure the fastest client settings on this host."
     )
@@ -226,6 +256,11 @@ def main() -> int:
         return languages([args.domain] if args.domain else list(DOMAINS))
     if args.command == "prune":
         return prune(
+            [args.domain] if args.domain else list(DOMAINS),
+            [c for c in args.languages.split(",") if c],
+        )
+    if args.command == "retry":
+        return retry_refused(
             [args.domain] if args.domain else list(DOMAINS),
             [c for c in args.languages.split(",") if c],
         )

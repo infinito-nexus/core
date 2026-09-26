@@ -7,9 +7,16 @@ from typing import ClassVar
 
 from babel.messages.catalog import Catalog
 
-from utils.i18n.catalog import MACHINE_TRANSLATION, build_template, merge
+from utils.i18n.catalog import (
+    ENGINE,
+    MACHINE_TRANSLATION,
+    REFUSAL_PREFIX,
+    TRANSLATION_REFUSED,
+    build_template,
+    merge,
+)
 from utils.i18n.libretranslate import LibreTranslate
-from utils.i18n.translate import apply, damaged, pending
+from utils.i18n.translate import apply, damaged, pending, retry
 
 TOKEN = re.compile(r'<x id="\d+"></x>')
 
@@ -109,7 +116,75 @@ class TestTranslate(unittest.TestCase):
             ("DE New source", [MACHINE_TRANSLATION]),
         )
         self.assertEqual(discarded, 1)
-        self.assertFalse(catalog.get("lossy {count} items", context="lossy").string)
+        lossy = catalog.get("lossy {count} items", context="lossy")
+        self.assertFalse(lossy.string)
+        self.assertEqual(lossy.user_comments, [TRANSLATION_REFUSED])
+        self.assertNotIn(lossy, pending(catalog))
+
+
+class TestRefusalIsRemembered(unittest.TestCase):
+    """A refusal is deterministic for an unchanged source, so it is recorded.
+
+    Without the mark every run spends a masking pass, a request and an
+    inference to reach the same verdict: 34 languages produced 185 requests
+    and no translation before this landed.
+    """
+
+    def _entry(self, comments: list[str] | None = None):
+        catalog = Catalog(locale="de")
+        catalog.add("lossy {count} items", "", context="lossy")
+        message = catalog.get("lossy {count} items", context="lossy")
+        message.user_comments = list(comments or [])
+        return catalog, message
+
+    def test_a_refused_entry_is_not_offered_again(self):
+        catalog, message = self._entry([TRANSLATION_REFUSED])
+
+        self.assertNotIn(message, pending(catalog))
+
+    def test_an_entry_without_the_mark_stays_pending(self):
+        catalog, message = self._entry()
+
+        self.assertIn(message, pending(catalog))
+
+    def test_the_mark_is_written_once(self):
+        _, message = self._entry([TRANSLATION_REFUSED])
+
+        apply([message], [None])
+
+        self.assertEqual(message.user_comments, [TRANSLATION_REFUSED])
+
+    def test_a_translation_that_lands_clears_the_mark(self):
+        _, message = self._entry([TRANSLATION_REFUSED])
+
+        apply([message], ["verlustig {count} Einträge"])
+
+        self.assertEqual(message.user_comments, [MACHINE_TRANSLATION])
+        self.assertEqual(message.string, "verlustig {count} Einträge")
+
+    def test_retry_offers_the_entry_again(self):
+        catalog, message = self._entry([MACHINE_TRANSLATION, TRANSLATION_REFUSED])
+
+        cleared = retry(catalog)
+
+        self.assertEqual(cleared, 1)
+        self.assertEqual(message.user_comments, [MACHINE_TRANSLATION])
+        self.assertIn(message, pending(catalog))
+
+    def test_the_mark_names_the_engine_that_tried(self):
+        _, message = self._entry()
+
+        apply([message], [None])
+
+        self.assertEqual(message.user_comments, [f"{REFUSAL_PREFIX} {ENGINE} damaged-span"])
+
+    def test_a_refusal_from_another_engine_counts_and_clears(self):
+        """The mark is matched by prefix, not by the engine this run uses."""
+        catalog, message = self._entry([f"{REFUSAL_PREFIX} someone-else damaged-span"])
+
+        self.assertNotIn(message, pending(catalog))
+        self.assertEqual(retry(catalog), 1)
+        self.assertIn(message, pending(catalog))
 
 
 class TestDamagedMarkup(unittest.TestCase):
