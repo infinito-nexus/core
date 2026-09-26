@@ -22935,8 +22935,9 @@ msgstr "DR matkap: backup + geri"
 msgid "Daily contact keeps intent aligned."
 msgstr "Daily əməkdaşlığı uyğunlaşdırır."
 
+# translated-by: libretranslate
 msgid "Daniel Kahneman's split names the shape. The models behind the gateway are System II: slow, general, token-generating. What is missing is System I: fast, typed, no generation, deciding which System II model answers. TypeSafe released [Jev](https://en.wikipedia.org/wiki/Jev_(AI_model)) on 2026-09-15 as a model of exactly that kind, and [jev-router](https://github.com/prismhq/jev-router) wires one into LiteLLM as a pre-call hook. This requirement takes that shape and keeps the decision deterministic; decision 8 records why."
-msgstr ""
+msgstr "Daniel Kahneman'ın bölgəsi forma. Ağacaqın ardıcı modellər Sistem II: yavaş, general, token-gening. Qeydiyyatdan keçən sistem I: sürətli, nömrəli, heç bir istehsal, sistem II model cavabları cavab. TypeSafe azad [J](https://en.wikipedia.org/wiki/Jev_(AI_model)) haqqında 2026-09-15 tam o cür bir model kimi, və [Qeydiyyat](https://github.com/prismhq/jev-router) Pre-call çiçək kimi LiteLLM bir tels. Bu tələb olar ki, forma və qəbul deterministic saxlamaq; qəbul 8 Oxunub:."
 
 # translated-by: libretranslate
 msgid "Dashboard"
@@ -23207,8 +23208,9 @@ msgstr "Galaxy məlumatları `dependencies:`. No project-internal `run_after:` /
 msgid "Declaring it"
 msgstr "Qeydiyyat"
 
+# translated-by: libretranslate
 msgid "Declaring what the catalog already states is forbidden, because it duplicates a fact this project does not own and rots silently in the dangerous direction: a stale `supports_vision` keeps a model eligible for requests it can no longer serve. Cost is not declared either. Whether a route is free follows from what it is: a route with an `api_base` or a `mock_response` is served by this deployment and costs nothing, and a keyed route the catalog does not price sorts behind every route it does."
-msgstr ""
+msgstr "Kateqoriyanın artıq dövlətlərin qarşısını almaq, çünki bu layihə öz və çürüklüyə malik deyil: bir stale `supports_vision` İstehsal etmək üçün uyğun bir model tutur. Yadda saxla Bir marşrut pulsuz deyil ki,: bir rota ilə `api_base` yaxşı `mock_response` Bu quraşdırma və heç bir şey xidmətləri tərəfindən servis edilir, və kataloq hər hansı bir marşrut xidmət deyil."
 
 # translated-by: libretranslate
 msgid "Decompose <backups>/<machine-hash>/<repo>/<generation> into its parts."
@@ -23250,8 +23252,9 @@ msgstr "Deep kompressiya, klassik stil"
 msgid "Default"
 msgstr "Ümumi"
 
+# translated-by: libretranslate
 msgid "Default (`_MISSING`): raise `FileNotFoundError` for callers that want to fail loud (resolution code)."
-msgstr ""
+msgstr "Ümumi (`_MISSING`): Qeydiyyat `FileNotFoundError` Daha yüksək yüksək olmaq istəyir (Qeyd kodu)."
 
 # translated-by: libretranslate
 msgid "Default (non-variant) include resolution for the matrix planner."
@@ -23622,8 +23625,9 @@ msgstr "Bir NGINX stream proxy ilə TLS-secured əməkdaşlığı ilə Docker m�
 msgid "Deploy `Social Home <https://github.com/social-home-io/socialhome>`__, a privacy-first federated social platform built for a single household. One container, an embedded SQLite database, and peer-to-peer federation between households over Ed25519-signed WebRTC data channels — no ActivityPub, no message broker, no object store."
 msgstr "Daxil ol `Social Home <https://github.com/social-home-io/socialhome>`__, bir ev üçün inşa edilmiş gizlilik ilk beynəlxalq platforma. Bir konteyner, gömülmüş SQLite bazası və Eduro üzrə evlər arasında aero-to-peer Federasiyası25519- WebRTC məlumat kanalları imzalayıb - heç bir ActivityPub, heç bir mesaj broker, heç bir cüt mağazası."
 
+# translated-by: libretranslate
 msgid "Deploy a LibreTranslate the translator can reach, or run a throwaway one."
-msgstr ""
+msgstr "Daxil ol LibreTranslate translator , , , , , ,."
 
 # translated-by: libretranslate
 msgid "Deploy a round that includes your app (e.g. `make compose-deploy apps=<application_id>`); its specs run with those of every other role the round deploys."
@@ -23954,15 +23958,17 @@ msgstr "Bir CI işıq işıq işıqlarının qaldırılması-chunk səyahəti."
 msgid "Derive the role-README section schema from the Jinja template."
 msgstr "Jinja şablonundan rol-README bölmə metrini daxil edin."
 
+# translated-by: libretranslate
 msgid "Derived from"
-msgstr ""
+msgstr "Qalereya"
 
 # translated-by: libretranslate
 msgid "Derived from ``meta/services.yml.<primary_entity>.modes.<mode>.enabled``: a mode is skipped iff its ``enabled`` flag is ``false``."
 msgstr "Qalereya ``meta/services.yml.<primary_entity>.modes.<mode>.enabled``: bir rejimi atılır iff onun ``enabled`` flag ``false``."
 
+# translated-by: libretranslate
 msgid "Derived from the ca_trust_paths SPOT plus SOFTWARE_NAME (group_vars); consumed by ``scripts/system/tls/trust/*.sh`` so the path never lives in shell literals. SOFTWARE_NAME is line-parsed instead of yaml-loaded: the env generator runs on the bare bootstrap python before any dependency (PyYAML) is installed."
-msgstr ""
+msgstr "Qalereya ca_trust_paths SPOT plus SOFTWARE_NAME (group_vars); Qısa ``scripts/system/tls/trust/*.sh`` yol heç bir zaman shell realları yaşayır. SOFTWARE_NAME yaml-loaded yerine line-parsed: Env generator hər hansı bir bağımlılığından əvvəl çərçivək python qurmaq çalışır (Qalereya) quraşdırılmışdır."
 
 # translated-by: libretranslate
 msgid "Derived from the host's default-route interface MTU so the compose bridge never exceeds the path MTU (TLS handshakes silently drop fragments otherwise). When no default route is readable (agent sandboxes run in a network namespace whose /proc/net/route is empty, while /sys/class/net still shows the host NICs), falls back to the minimum MTU across UP physical interfaces; only if that finds nothing either does the static default from ``default.env`` apply."
@@ -24823,11 +24829,13 @@ msgstr "Doc: `External Authentication <https://docs.bigbluebutton.org/greenlight
 msgid "Document any plugin-specific task arguments in the plugin docstring and README."
 msgstr "plugin docstring və yeniləşdirilməsi haqqında hər hansı bir plugin xüsusi iş müzakirələri."
 
+# translated-by: libretranslate
 msgid "Document extraction (``svc-ai-tika``), web search (``svc-ai-searxng``) and the code interpreter (``svc-ai-jupyter``) are wired but off by default. Deploying those roles is not enough: each is a ``services.<name>`` flag on this role, and only that flag both attaches Open WebUI to the provider’s network and renders the matching environment block. Turning all three on adds 3.5 GB of memory limit to the closure that every role reaches through Open WebUI, which is more than the variant budget in ``tests/integration/roles/meta/variants/test_resource_budget.py`` has left, so the choice stays with the operator:"
-msgstr ""
+msgstr "Sertifikat ekstraksiyası (``svc-ai-tika``), Web axtarış (``svc-ai-searxng``) Qeydiyyat (``svc-ai-jupyter``) teld lakin default tərəfindən. Bu rollerin işləndirilməsi əvvəl deyil: haqqında ``services.<name>`` Bu rolda bayrağı, və yalnız o bayrağın əlavə Open WebUI İstehsalçının şəhərinə və uyğunlaşdırma məhsulunu təmin edir. Bütün üç kateqoriyalar 3.5 Hər bir rol əvvəl gəlir ki, yaxınlığında Open WebUIDaha çox var ki, variant büddə ``tests/integration/roles/meta/variants/test_resource_budget.py`` sol, sosial operator ilə qaldırır:"
 
+# translated-by: libretranslate
 msgid "Document extraction (`svc-ai-tika`), web search (`svc-ai-searxng`) and the code interpreter (`svc-ai-jupyter`) are wired but off by default. Deploying those roles is not enough: each is a `services.<name>` flag on this role, and only that flag both attaches Open WebUI to the provider's network and renders the matching environment block. Turning all three on adds 3.5 GB of memory limit to the closure that every role reaches through Open WebUI, which is more than the variant budget in `tests/integration/roles/meta/variants/test_resource_budget.py` has left, so the choice stays with the operator:"
-msgstr ""
+msgstr "Sertifikat ekstraksiyası (`svc-ai-tika`), Web axtarış (`svc-ai-searxng`) Qeydiyyat (`svc-ai-jupyter`) teld lakin default tərəfindən. Bu rollerin işləndirilməsi əvvəl deyil: haqqında `services.<name>` Bu rolda bayrağı, və yalnız o bayrağın əlavə Open WebUI İstehsalçının şəhərinə və uyğunlaşdırma məhsulunu təmin edir. Bütün üç kateqoriyalar 3.5 Hər bir rol əvvəl gəlir ki, yaxınlığında Open WebUIDaha çox var ki, variant büddə `tests/integration/roles/meta/variants/test_resource_budget.py` sol, sosial operator ilə qaldırır:"
 
 # translated-by: libretranslate
 msgid "Document intentional exceptions close to the relevant code so they stay visible until they can be removed."
@@ -24857,8 +24865,9 @@ msgstr "Sertifikatlaşdırma Generatorları 📝"
 msgid "Documentation Lint 📄"
 msgstr "Tarix Lint 📄"
 
+# translated-by: libretranslate
 msgid "Documentation Pull Request"
-msgstr ""
+msgstr "Yadda saxla"
 
 # translated-by: libretranslate
 msgid "Documentation Structure 🗂️"
@@ -25061,101 +25070,133 @@ msgstr "Drv-lid-switch rol"
 msgid "Drv-non-free Role"
 msgstr "Drv-non-free Rol"
 
+# translated-by: libretranslate
 msgid "Dsk-bluray-player Role"
-msgstr ""
+msgstr "Dsk-bluray-player rol"
 
+# translated-by: libretranslate
 msgid "Dsk-chromium Role"
-msgstr ""
+msgstr "Dsk-chromium rol"
 
+# translated-by: libretranslate
 msgid "Dsk-code Role"
-msgstr ""
+msgstr "Dsk-code Rol"
 
+# translated-by: libretranslate
 msgid "Dsk-copyq Role"
-msgstr ""
+msgstr "Dsk-copyq rolu"
 
+# translated-by: libretranslate
 msgid "Dsk-docker Role"
-msgstr ""
+msgstr "Dsk-docker rol"
 
+# translated-by: libretranslate
 msgid "Dsk-dotlinker Role"
-msgstr ""
+msgstr "Dsk-dotlinker rol"
 
+# translated-by: libretranslate
 msgid "Dsk-firefox Role"
-msgstr ""
+msgstr "Dsk-firefox rolu"
 
+# translated-by: libretranslate
 msgid "Dsk-git Role"
-msgstr ""
+msgstr "Dsk-git rol"
 
+# translated-by: libretranslate
 msgid "Dsk-gnome Role"
-msgstr ""
+msgstr "Dsk-gnome rol"
 
+# translated-by: libretranslate
 msgid "Dsk-gnome-caffeine Role"
-msgstr ""
+msgstr "Dsk-gnome-caffein rolu"
 
+# translated-by: libretranslate
 msgid "Dsk-gnome-extensions Role"
-msgstr ""
+msgstr "Dsk-gnome-extens rol"
 
+# translated-by: libretranslate
 msgid "Dsk-gnome-terminal Role"
-msgstr ""
+msgstr "Dsk-gnome-terminal rol"
 
+# translated-by: libretranslate
 msgid "Dsk-gnt-claude Role"
-msgstr ""
+msgstr "Dsk-gnt-claude rol"
 
+# translated-by: libretranslate
 msgid "Dsk-gnt-codex Role"
-msgstr ""
+msgstr "Dsk-gnt-codex rol"
 
+# translated-by: libretranslate
 msgid "Dsk-gnt-cursor Role"
-msgstr ""
+msgstr "Dsk-gnt-cursor rol"
 
+# translated-by: libretranslate
 msgid "Dsk-gnt-pi Role"
-msgstr ""
+msgstr "Dsk-gnt-pi rol"
 
+# translated-by: libretranslate
 msgid "Dsk-gnucash Role"
-msgstr ""
+msgstr "Dsk-gnucash rol"
 
+# translated-by: libretranslate
 msgid "Dsk-jrnl Role"
-msgstr ""
+msgstr "Dsk-jrnl Rol"
 
+# translated-by: libretranslate
 msgid "Dsk-keepassxc Role"
-msgstr ""
+msgstr "Dsk-abilassxc rol"
 
+# translated-by: libretranslate
 msgid "Dsk-laya Role"
-msgstr ""
+msgstr "Dsk-laya rol"
 
+# translated-by: libretranslate
 msgid "Dsk-libreoffice Role"
-msgstr ""
+msgstr "Dsk-libreoffice rol"
 
+# translated-by: libretranslate
 msgid "Dsk-micro Role"
-msgstr ""
+msgstr "Dsk-mikro Rol"
 
+# translated-by: libretranslate
 msgid "Dsk-neovim Role"
-msgstr ""
+msgstr "Dsk-neovim Rol"
 
+# translated-by: libretranslate
 msgid "Dsk-nextcloud Role"
-msgstr ""
+msgstr "Daxil ol"
 
+# translated-by: libretranslate
 msgid "Dsk-obs Role"
-msgstr ""
+msgstr "Dsk-obs rol"
 
+# translated-by: libretranslate
 msgid "Dsk-qbittorrent Role"
-msgstr ""
+msgstr "Dsk-qbittorrent Rol"
 
+# translated-by: libretranslate
 msgid "Dsk-retroarch Role"
-msgstr ""
+msgstr "Dsk-retroarch rol"
 
+# translated-by: libretranslate
 msgid "Dsk-spotify Role"
-msgstr ""
+msgstr "Dsk-spotify rol"
 
+# translated-by: libretranslate
 msgid "Dsk-ssh Role"
-msgstr ""
+msgstr "Dsk-ssh rol"
 
+# translated-by: libretranslate
 msgid "Dsk-torbrowser Role"
-msgstr ""
+msgstr "Daxil ol"
 
+# translated-by: libretranslate
 msgid "Dsk-virtualbox Role"
-msgstr ""
+msgstr "Dsk-virtualbox rol"
 
+# translated-by: libretranslate
 msgid "Dsk-zoom Role"
-msgstr ""
+msgstr "Dsk-zoom Rol"
 
 # translated-by: libretranslate
 msgid "Dual clearnet+onion with `Onion-Location` bridge and mirrored SSO realms; per-app dedicated onions / Tor Client Authorization; distributed backups over onion; transparent full-egress torification (only `.onion`-destination mail egress is in phase 2); migration of existing clearnet nodes."
@@ -25193,8 +25234,9 @@ msgstr "Bütün layihələri haqqında2 board."
 msgid "Duplicates are returned as-is so the uniqueness lint can report all offenders instead of failing on the first one."
 msgstr "Duplicates as-is olaraq geri çevrilir, belə unikalness lint ilki başarısız olmaq üçün bütün pozulucuları bildirə bilər."
 
+# translated-by: libretranslate
 msgid "Durations of the deploy jobs, grouped by axis and by value."
-msgstr ""
+msgstr "Qarışıq işlərinin müddəti, ağ tərəfindən qrupla və dəyərlənir."
 
 # translated-by: libretranslate
 msgid "During the autonomous req 019 rollout, `make compose-deploy mode=reinstall apps=web-app-keycloak full_cycle=true` failed with two unrelated assertions:"
@@ -25340,8 +25382,9 @@ msgstr "Haqqımızda `ports` blok:"
 msgid "Each entry has exactly one structural class chain. New auxiliary classes SHOULD be added under `LDAP.USER.OBJECTS.AUXILIARY` so consumers can probe them by symbolic name instead of literal string."
 msgstr "Hər bir giriş tam bir struktur sinifəsi var. Yeni yardımçı sinifləri SHOULD altında əlavə olun `LDAP.USER.OBJECTS.AUXILIARY` Əgər müştərilər onları real string əlavə rəsmi adı ilə inkişaf edə bilər."
 
+# translated-by: libretranslate
 msgid "Each factor carries the weight `services.yml` gives it, and a zero weight removes it"
-msgstr ""
+msgstr "Hər hansı bir fayl kilometr edir `services.yml` verir, və sıfır kilo onu aradan qaldırır"
 
 # translated-by: libretranslate
 msgid "Each file in this directory SHOULD declare its purpose and the hooks it registers at the top of the file so readers can understand why it cannot be switched off."
@@ -25415,8 +25458,9 @@ msgstr "Haqqımızda `_reset()` öz önbellek dicts aydındır. Paket səviyyəs
 msgid "Each module, class, or function MUST have exactly one responsibility so that changes to one concern do not ripple into unrelated code."
 msgstr "Hər bir modul, sinif və ya funksiya MUST bir məsuliyyət dəyişdirilməsi, bir səhifə dəyişikliklərin bağlı koda daxil deyil."
 
+# translated-by: libretranslate
 msgid "Each one undoes a shape a translator produced and the source did not ask for. They read the source only to decide whether something was lost, never to change what the translation says."
-msgstr ""
+msgstr "Hər bir dəstək istehsalçının istehsal edilməsi və məhsulun sorğusu deyil. Onlar yalnız bir şey itildiyini qarşılamaq üçün, çevirinin deyil kiyini dəyişdirmək."
 
 # translated-by: libretranslate
 msgid "Each operator workflow has a skill that routes the agent to its authoritative procedure and drives it — clarifying open requirements first, then acting autonomously to completion. Most are `i8-` skills specific to this repository; a few (such as `triage`) are portable skills shared across projects."
@@ -25463,8 +25507,9 @@ msgstr "MUST haqqında yaşayır `test-*.js` Modul (e.g. `test-login-oidc.js`, `
 msgid "Each script MUST be entered via `cli.administration.deploy.development exec --env KEY=VAL` (or an equivalent `docker exec -e …` invocation) so the host wrapper can inject the required environment. Each script MUST assert its required env-vars at the top with `: \"${VAR:?}\"` so missing context surfaces immediately. Each script MUST `cd \"${INFINITO_SRC_DIR}\"` before running anything so relative paths resolve against the bind-mounted repo. Each script SHOULD run `./scripts/docker/entry.sh true` for entry bootstrap before the deploy step."
 msgstr "MUST haqqında girilir `cli.administration.deploy.development exec --env KEY=VAL` (və ya əlaqə `docker exec -e …` in) ev sahibi sarsıcı tələb olunan texnika enjekte edə bilər. Hər bir script MUST tərəfli env-vars iddia edir `: \"${VAR:?}\"` Əgər komponentləri dərhal. Haqqımızda `cd \"${INFINITO_SRC_DIR}\"` əvvvəl bir şey çalışan əvvəl əvvəl olaraq qarşılaşdırmaq. SHOULD run `./scripts/docker/entry.sh true` giriş botlarrap üçün istifadə addım."
 
+# translated-by: libretranslate
 msgid "Each service entry lives in the provider role's own `meta/services.yml`, where the file root IS the services map keyed by `<entity_name>` (no `compose:` and no `services:` wrapper). See [layout.md](layout.md) for the full per-role meta layout."
-msgstr ""
+msgstr "Hər bir xidmət giriş xidmətlərinin öz xüsusi rolunda yaşayır `meta/services.yml`, the the `<entity_name>` (qeyd `compose:` and `services:` wrap). Bakı [layout.md](layout.md) tam per-role meta struktur üçün."
 
 # translated-by: libretranslate
 msgid "Each service in host vars MAY carry a `mirror_policy` field that controls how the override is applied:"
@@ -25756,8 +25801,9 @@ msgstr "Daxil ol"
 msgid "Empty tokens are rejected explicitly."
 msgstr "Boş heç bir oyuncaq."
 
+# translated-by: libretranslate
 msgid "Empty when the role declares no ``modes`` block, which leaves the caller on its own default. A role that names a mode its stack shape would not imply (an injector asking for compose) is stating an intent, so the declaration outranks the shape."
-msgstr ""
+msgstr "Rol heç bir şey hesab zaman ``modes`` block the . . Bir modul onun yığın forması adlar rol səviyyət deyil (Domen adı qeydiyyatdan keçir) Bir həyata göstərir, belə bildirib forma."
 
 # translated-by: libretranslate
 msgid "Enable ChatGPT by default"
@@ -26417,8 +26463,9 @@ msgstr "Hər apt suite bir neçə var, bir kez upstream aynası. Nexus bir qrup 
 msgid "Every archive file is named `<padded-semver>-<release-date>.md`, where each numeric component of the semver is zero-padded to three digits and the date is the `YYYY-MM-DD` value parsed from the original entry's header. Padded names sort lexicographically in the same order as the underlying versions, so a directory listing is already in chronological order."
 msgstr "Haqqımızda `<padded-semver>-<release-date>.md`, semver haqqında hər numeric komponenti üç dəfə sıfır-padded və tarixi `YYYY-MM-DD` orijinal girişin başlığından əvvəl parsed. Padded adlar aşağıdakı versiyalar kimi eyni siqnalda lexicographically, belə bir addım artıq chronological order var."
 
+# translated-by: libretranslate
 msgid "Every axis is pinned, so the report is not about what was left open. It is about what each pin rests on: the measurement, the row's own failing combination, or the pool default. A pin from the pool default is a guess, and a green row under it answers a question nobody asked."
-msgstr ""
+msgstr "Haqqında haqqında hər kəsr olunmuşdur. Bu, hər bir pin üzrə hansılardır: ölçü, sıranın öz uğursuzluq birləşdirilməsi, və ya havuz default. Domen adı qeydiyyatdan keçirt »."
 
 # translated-by: libretranslate
 msgid "Every call returns a flat dict with the following keys. Each key MAY be overridden from inventory by setting the matching `SYSTEM_EMAIL_<KEY>` variable (uppercase, with the `SYSTEM_EMAIL_` prefix)."
@@ -26468,8 +26515,9 @@ msgstr "Hər hansı bir deyil ki, bildirib."
 msgid "Every deploy mode a role's primary entity may toggle. ``compose``/``swarm`` target stack roles (own container stack); ``host`` targets invokable roles that configure the host instead of shipping a stack."
 msgstr "Hər hansı bir rolun əsas müştəri aparmaq ola bilər. ``compose``/``swarm`` Qrup rolları (öz konteyner yığını); Oxunub: ``host`` bir yığın göndərmək üçün ev sahibini konfiqurasiya dəyişik rollar."
 
+# translated-by: libretranslate
 msgid "Every deploy opens with a `=== compose-deploy:` line listing the arguments it actually resolved. Read it instead of trusting the command you typed: rewriting `apps=` is where `disable=` and `full_cycle=` get lost, and the line shows what is missing before the play starts."
-msgstr ""
+msgstr "Haqqımızda `=== compose-deploy:` xüsusiyyətlərin qeyd edilməsi. Siz növbət göstərdiyiniz komandanın məsulunu oxuyun: rewrite `apps=` yer `disable=` and `full_cycle=` qazanmaq, və line oyun başlanğıcdan əvvəlsiz olduğunu göstərir."
 
 # translated-by: libretranslate
 msgid "Every discovered endpoint authenticates through a header. A provider that keys its session by URL segment instead cannot scope that segment per consumer or revoke it, so it is fronted by an adapter and the segment stays between the adapter and its upstream."
@@ -26538,23 +26586,26 @@ msgstr "test haqqında hər hansı bir invokable rol, onun upstream əsas, bir g
 msgid "Every key MUST be the fully qualified form :func:`override_key` builds; a short form is rejected rather than guessed at, because the same short key names different credentials on different apps."
 msgstr "Hər hansı MUST tam sənaye forma :func:`override_key` qurmaq; bir qısa forması, müxtəlif apps haqqında eyni qısa əsas adları müxtəlif məlumatdan daha çox redaktə edilir."
 
+# translated-by: libretranslate
 msgid "Every line of the file named by ``ANSIBLE_LOG_PATH`` carries ``<ts> p=<pid> u=<user> n=<name> <LEVEL>|`` and a space in front of the message that also went to stdout. Left unstripped, that prefix defeats every line-anchored matcher a reader applies, so a reader that mixes an anchored match with an unanchored one silently sees an empty log instead of failing."
-msgstr ""
+msgstr "Qeyd olunan faylın haqqında ``ANSIBLE_LOG_PATH`` Daxil ol ``<ts> p=<pid> u=<user> n=<name> <LEVEL>|`` və qazanmaq üçün getdi mesaj ön yer. Sol unstripped, ki, əvvəl qarşı bir hər kəs-anchored Matcher bir oxuyucu təşkil edir, belə ki, bir qarışıq olmayan bir çərçivə bir çərçivə bir çərçivə bir çərçivə dəyişən bir boş gün görür."
 
 # translated-by: libretranslate
 msgid "Every literal a rendered segment can start with, so any of them ends the value before it."
 msgstr "Hər hansı bir təklif segmenti ilə başlaya bilər, ki, onlardan hər hansı dəyişdirir."
 
+# translated-by: libretranslate
 msgid "Every matrix variant overrides the sample count to 1. At that setting the single sample is kept rather than discarded as cold, because what a CI round proves is that the measurement, the store and the re-render ran, not what the rate was on a shared runner."
-msgstr ""
+msgstr "Her matrix variant overrides nümunə sayı 1. Bir nümun yerləşdirilməsi yaxşı qarışıqdan daha çox saxlanılır, çünki bir CI turu ölçü, mağaza və re-render batareya, faizin paylaşıldığı halda."
 
 # translated-by: libretranslate
 msgid "Every mode is read; there is no scope to narrow to. A run that failed in swarm and in compose comes back as two tokens for the same role."
 msgstr "Hər bir rejimi oxuyur; paslanmayan bir mövzu var. swarm-da başarısız olan bir run və forma eyni rol üçün iki balans kimi geri gəlir."
 
+# translated-by: libretranslate
 #, python-brace-format
 msgid "Every model LiteLLM publishes, as ``{alias, params, context, traits}``."
-msgstr ""
+msgstr "Hər model LiteLLM yayımlar, kimi ``{alias, params, context, traits}``."
 
 # translated-by: libretranslate
 msgid "Every module here SHOULD expose a callable function for in-process use and a `__main__` shim so the same code path is reachable from shell orchestrators via `python -m utils.cleanup.<module>`."
@@ -26584,8 +26635,9 @@ msgstr "Hər səhifə onun yanbar bir versiya keçirir. Switching cari səhifə 
 msgid "Every path either deploys on the assigned kind, reports the substitution, or fails. None of them substitutes in silence."
 msgstr "Heç bir yol ya qurulmuş növü, substitution və ya qeyd. Onlardan heç biri sənaye dəyişdirir."
 
+# translated-by: libretranslate
 msgid "Every path that cannot route rejects the request with its reason instead of answering. The hook returns a string when the proxy has no router or when no served model can take the request, and the proxy turns that into a `RejectedRequestError` carrying the text. The alias's own `model_list` entry exists only so the name is listable and carries `mock_response: litellm.InternalServerError`, so reaching it at all raises. Both halves matter, because a router that silently served whatever was first would hide its own failure behind a plausible reply, and the alias exists precisely so callers do not have to know which model answered."
-msgstr ""
+msgstr "Heç bir yol, təklif etməsinin səviyyəti ilə istəyir. Ağcaq proxy bir router və ya xidmət model almaq zaman bir string geri verir, və proxy birbaşa çevirir `RejectedRequestError` məhsulun aparılması. Alias öz `model_list` giriş yalnız mövcuddur ki, adı qeydiyyatdan keçirilir və gətirir `mock_response: litellm.InternalServerError`, Əgər bütün gəlir. Hər halda, bir router ilk səviyyəli bir cavabın arxasında öz çatışmazlığı gizləyən, və alias tam olaraq, əgər hansı model cavab bilmək lazım deyil."
 
 # translated-by: libretranslate
 msgid "Every per-tool module MUST expose the same surface so the dispatcher can call it uniformly:"
@@ -26595,11 +26647,13 @@ msgstr "Hər bir per-tool modul MUST eyni səviyyə göstərir, belə avtobuser 
 msgid "Every persona scenario MUST run the CSP injection assertion at least once on the role's canonical surface. When an injector service (`asset`, `cdn`, `css`, `javascript`, `simpleicons`, `matomo`) is enabled, the page's `Content-Security-Policy` header MUST list the injector's host. The assertion is centralised in [`personas/utils/csp.js`](../../../../../roles/test-e2e-playwright/files/personas/utils/csp.js) so every spec gets the check by default."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Every plugin and mu-plugin is declared in ``meta/addons/`` under the unified addon contract. The OIDC and WP-Discourse runtime config lives in each addon’s ``config:`` block. Both install paths read those declarations: a ``required`` addon that fails to install stops the deploy, an optional one warns and is skipped."
-msgstr ""
+msgstr "Hər hansı bir addım və qazanmaq ``meta/addons/`` Birləşmiş addon konfransı altında. OIDC və WP-Discourse runtime config haqqında hər hansı bir addon ``config:`` blok. Ən yüksək yolları o deklaraları olaraq: ``required`` quraşdırmaq üçün cavab vermək, isteğe bağlı bir sifariş verir və atılır."
 
+# translated-by: libretranslate
 msgid "Every plugin and mu-plugin is declared in `meta/addons/` under the unified addon contract. The OIDC and WP-Discourse runtime config lives in each addon's `config:` block. Both install paths read those declarations: a `required` addon that fails to install stops the deploy, an optional one warns and is skipped."
-msgstr ""
+msgstr "Hər hansı bir addım və qazanmaq `meta/addons/` Birləşmiş addon konfransı altında. OIDC və WP-Discourse runtime config haqqında `config:` blok. Ən yüksək yolları o deklaraları olaraq: `required` quraşdırmaq üçün cavab vermək, isteğe bağlı bir sifariş verir və atılır."
 
 # translated-by: libretranslate
 msgid "Every probe here targets the container's own loopback, so a request that a proxy picks up is wrong by definition -- the Wget probe has said so with ``--proxy=off`` since it was written. Both spellings come from here so the exec form and the shell form cannot drift: the shell form needs the wildcard quoted and the exec form needs it bare, which is exactly the kind of difference that rots when it is written out three times."
@@ -26689,8 +26743,9 @@ msgstr "MUST hər hansı bir giriş-out dövründə browser ilə son."
 msgid "Every selected run is attempted before anything is reported; abandoning the rest on the first rejection would leave them burning runners. `HTTP 409` means the run already finished and is not a rejection at all. Any other rejection is logged as an `ERROR` line, but only a denied token fails the job — a rate limit or a run that vanished between listing and cancel is transient, and a red check for those is a red check nobody reads."
 msgstr "Hər seçilmiş run heç bir şey bildirilmişdir; ilk redaktə üzərində geri qarşısını almaq onları yanaşmaq üçün. `HTTP 409` axtarış artıq bitdi və bütün bir redaktə deyil. Digər redaktə kimi giriş `ERROR` line, lakin yalnız inkar bir token iş deyil - bir dəqiq limit və ya siyahısı arasında qarşılanan bir run və bu üçün qırmızı çek heç bir oxumaq."
 
+# translated-by: libretranslate
 msgid "Every selection names every axis: role, variant, mode, onion state, distro and filesystem. Nothing is left to the rotation."
-msgstr ""
+msgstr "Hər hansı bir xüsusiyyət adı: rol, variant, rejimi, soğan dövrü, distro və fayl sistemi. Heç bir şey düzelir."
 
 # translated-by: libretranslate
 msgid "Every service-dependent step uses `skipUnlessServiceEnabled(...)`. Direct `process.env` reads of `<NAME>_SERVICE_ENABLED` are forbidden."
@@ -26912,11 +26967,13 @@ msgstr "kateqoriya:"
 msgid "Exception: a `default:` is written into the inventory verbatim, so on the next read it arrives here as if an operator had typed it. Every default in the repository is a Jinja reference, and a pattern describes the rendered secret, not the template text that will produce it."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "Exception: a re-entrant call returns before ``_MERGED_APPLICATIONS_CACHE`` is written, because its payload carries no users and keeps its volumes. It is therefore memoised on the render guard instead, which drops it when the guard releases. Without that, one template render recomputed the payload for every ``lookup('applications')`` it made."
-msgstr ""
+msgstr "Dövlət: bir re-entrant xidməti ``_MERGED_APPLICATIONS_CACHE`` yazılıdır, onun ödənişin heç bir istifadəçinin idarə etdiyi və onun həyatalarını saxlayır. Buna görə qazanmaq üçün istifadə olunmuşdur ki, bu, əvvəl istifadə edir. Bundan əvvəl, bir şablon hər şey üçün ödənişini yeniləyir ``lookup('applications')`` Yaponiya."
 
+# translated-by: libretranslate
 msgid "Exception: the env pair wins over git. The test container mounts the checkout but not the contributor's git configuration, so asking git there yields nothing; ``utils/env/handlers/infinito/git_identity.py`` records the host's answer in the ``.env`` the container reads."
-msgstr ""
+msgstr "Digər: env cüt dəyişdirir. Test konteyneri çekindən asılıdır, lakin iştirakçının konfiqurasiyasını yoxlamaq, belə bir şey yoxdur; ``utils/env/handlers/infinito/git_identity.py`` ev sahibinin cavabını olaraq ``.env`` konteyner olaraq."
 
 # translated-by: libretranslate
 msgid "Exceptional stability, large community, predictable release cadence, broad package availability"
@@ -27224,8 +27281,9 @@ msgstr "İdman `sys_token_store_token`"
 msgid "Expose app-specific base URLs, issuer URLs, feature flags, and credentials only when the spec consumes them."
 msgstr "Expose app- xüsusi baza URLs, məhsul URLs, xüsusiyyət bayrağı, və yalnız spektr onları istehsal zaman."
 
+# translated-by: libretranslate
 msgid "Expose the LiteLLM route builder to the proxy config template."
-msgstr ""
+msgstr "Bonus config şablonuna LiteLLM marşrutu inşaatçısı."
 
 # translated-by: libretranslate
 msgid "Expose the status codes that prove a domain is served to templates."
@@ -27287,11 +27345,13 @@ msgstr "Geniş Docker image versiyası dəstəkləyir ghcr.io,,  depth-aware  co
 msgid "Extended timeout for the flaky *setupSuperUser* step"
 msgstr "Flaky üçün geniş vaxt *Proqramlar* addım"
 
+# translated-by: libretranslate
 msgid "Extensions are declared in ``meta/addons/`` under the unified addon contract. Each one is installed through the XWiki Extension Manager and pins its upstream version; the Maven coordinate is carried under the addon’s ``config.id``:"
-msgstr ""
+msgstr "Daxil ol ``meta/addons/`` Birləşmiş addon konfransı altında. Hər bir biri quraşdırılır XWiki Daxili meneceri və pins onun upstream versiyası; Maven koordinat ekon altında keçirilir ``config.id``:"
 
+# translated-by: libretranslate
 msgid "Extensions are declared in `meta/addons/` under the unified addon contract. Each one is installed through the XWiki Extension Manager and pins its upstream version; the Maven coordinate is carried under the addon's `config.id`:"
-msgstr ""
+msgstr "Daxil ol `meta/addons/` Birləşmiş addon konfransı altında. Hər bir biri quraşdırılır XWiki Daxili meneceri və pins onun upstream versiyası; Maven koordinat ekon altında keçirilir `config.id`:"
 
 # translated-by: libretranslate
 msgid "Extensive deploy and end-to-end hardening, much of it reproduced in Docker-in-Docker: native username and password login fallbacks for the no-SSO admin persona across Akaunting, Snipe-IT, YOURLS and OpenProject; OpenProject linked to the LDAP auth source for header SSO to fix a trusted-header 401, with all rails-runner Ruby extracted to dedicated files under *files/ruby/*; Shopware retries asset and theme builds against a restarting SeaweedFS; Mailu retries user creation and waits for antispam readiness before DKIM keygen; YOURLS creates its database schema on deploy; and OpenProject boots db:migrate under Ruby 4.0."
@@ -27356,7 +27416,7 @@ msgstr "the ``owner/repo`` sl github.com URL (Yadda saxla)."
 
 # translated-by: libretranslate
 msgid "Extracted Code 📤"
-msgstr ""
+msgstr "Ümumi Code 📤"
 
 # translated-by: libretranslate
 msgid "Extracted cleanup logic into a dedicated script"
@@ -27754,8 +27814,9 @@ msgstr "Fayllar MUST model istifadə `NN_<topic>.yml`, `NN` sıfır-padded iki-d
 msgid "Files in `library/` should use:"
 msgstr "Proqramlar `library/` istifadə etmək lazımdır:"
 
+# translated-by: libretranslate
 msgid "Files produced by the containerized runner (e.g. `__pycache__/*.pyc` under [`tests/`](tests/), build artefacts) are often owned by `nobody` or another in-container UID and cannot be removed from the host. When a host-level `rm`/`chmod`/edit fails with `Permission denied` on such paths, agents MUST run the cleanup via `make compose-exec` (see [compose.yml](compose.yml); the repo is mounted at `/opt/src/infinito`) and MUST NOT ask the operator which path to take."
-msgstr ""
+msgstr "Konteynerize idman tərəfindən hazırlanmış fayllar (e.g. `__pycache__/*.pyc` qeyd [`tests/`](tests/), art) Xüsusi `nobody` və ya digər iştirakçı UID və hostindən silinməz. Bir host-level `rm`/`chmod`/ qazanmaq `Permission denied` Bu yollarda, agentlər MUST təmizləyir `make compose-exec` (Bakı [compose.yml](compose.yml); repo oturacaq `/opt/src/infinito`) və MUST almaq üçün yol operator soruşdur."
 
 # translated-by: libretranslate
 msgid "Files that fail to read (permission errors, non-UTF-8) are silently skipped — that matches the prior caller behaviour of wrapping ``open().read()`` in a bare ``try/except Exception: continue``."
@@ -27789,8 +27850,9 @@ msgstr "Proqramlar"
 msgid "Fill `image`/`version` only if they are blank or absent"
 msgstr "Qeydiyyat `image`/`version` yalnız onlar boş və ya qeyd"
 
+# translated-by: libretranslate
 msgid "Fill this in for any change. A specialised template carries extra prompts for its area; to open one, append its `template=` parameter to the pull request creation URL, for example `?quick_pull=1&template=server.md`."
-msgstr ""
+msgstr "Bunu hər hansı bir dəyişiklik üçün doldurun. Xüsusi hazırlanmış şablon onun sahəsi üçün əlavə istehsal edir; bir açmaq üçün, append onun `template=` the the , , , `?quick_pull=1&template=server.md`."
 
 # translated-by: libretranslate
 msgid "Filter Nexus `/service/rest/v1/repositories` JSON (stdin) down to apt-format proxy repo names, one per line (stdout). Exit 1 if no matching repo is found or input is malformed."
@@ -28124,8 +28186,9 @@ msgstr "Qalereya:"
 msgid "Flat schema entries keep the same shape:"
 msgstr "Düz şema girişləri eyni forma saxlayın:"
 
+# translated-by: libretranslate
 msgid "Flatten domains from the global domains mapping entry."
-msgstr ""
+msgstr "The . . ."
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -28217,16 +28280,18 @@ msgstr "Focused modulları test və əvvəl daha asandır."
 msgid "Fold every module result of one package_install task into one result."
 msgstr "Birinin həvvə versiyası package_install bir nəşrə qəbul."
 
+# translated-by: libretranslate
 msgid "Fold per-text outcomes back into one for the whole batch."
-msgstr ""
+msgstr "Bütün partiya üçün birbaşa ehtiyacları kateqoriya."
 
 # translated-by: libretranslate
 msgid "Folder-per-round model 🎛️"
 msgstr "Kater-per-round model 🎛️"
 
+# translated-by: libretranslate
 #, no-python-format
 msgid "Follow the instructions from AGENTS.md, then build and dispatch the priority line by following the procedure in `docs/agents/action/ci-trigger-priority.md` (relative to the Infinito.Nexus repository root) exactly. That document is the source of truth; this skill only routes you there. Begin by clarifying every open requirement with the `active-listening` skill (escalating any root-cause or design question you are not ~99% sure of to the `dialectic` skill), then work under the `robot` skill. Every token MUST pin all six axes; a token that leaves one to the rotation is not a verification row and MUST NOT be dispatched. Never dispatch a line the validator refuses, and report per candidate what each pin rests on and which question the run will not answer."
-msgstr ""
+msgstr "Müəlliflik hüquququ AGENTS.md, sonra inşa və proqram aşağıdakı tərəfindən əvvvəllik xidmət göstərir `docs/agents/action/ci-trigger-priority.md` (Bakı Infinito.Nexus polad kök) tam. Bu səhifə haqqında mövcuddur; Bu bacarıq yalnız sizə yollar. Hər bir açıq tərəfindən aydınlaşdırmaqla başlayın `active-listening` skill (hər hansı bir kök əvvəl və ya dizayn sualınız deyil -99% əmin et `dialectic` skill)sonra işləyir `robot` skill Hər bir token MUST pin bütün altı axes; bir token dəyişən bir torpaq bir doğrulama sıra deyil və MUST təqdim olunmaq deyil. Heç bir xüsusiyyət göstərir, və hər hansı bir pin üzərində hər hansı bir pin dəstəkləyir və run cavab vermir."
 
 # translated-by: libretranslate
 #, no-python-format
@@ -28318,9 +28383,10 @@ msgstr "Müəlliflik hüquququ AGENTS.md, sonra run `make worktree-up branch=<br
 msgid "Follow the instructions from AGENTS.md, then run and validate tests for the requested scope by following the procedure in `docs/agents/action/testing.md` (relative to the Infinito.Nexus repository root) exactly. That document is the source of truth; this skill only routes you there. Begin by clarifying every open requirement with the `active-listening` skill (escalating any root-cause or design question you are not ~99% sure of to the `dialectic` skill), then work under the `robot` skill."
 msgstr "Müəlliflik hüquququ AGENTS.md, Daha sonra işləyir və proqram aşağıdakılar tərəfindən istəyən məlumatlar üçün testlər təklif edir `docs/agents/action/testing.md` (Bakı Infinito.Nexus polad kök) tam. Bu səhifə haqqında mövcuddur; Bu bacarıq yalnız sizə yollar. Hər bir açıq tərəfindən aydınlaşdırmaqla başlayın `active-listening` skill (hər hansı bir kök əvvəl və ya dizayn sualınız deyil -99% əmin et `dialectic` skill)sonra işləyir `robot` skill"
 
+# translated-by: libretranslate
 #, no-python-format
 msgid "Follow the instructions from AGENTS.md, then run both verification lanes by following the procedure in `docs/agents/action/verify-parallel.md` (relative to the Infinito.Nexus repository root) exactly. That document is the source of truth; this skill only routes you there. Begin by clarifying every open requirement with the `active-listening` skill (escalating any root-cause or design question you are not ~99% sure of to the `dialectic` skill), then work under the `robot` skill. The CI lane MUST be dispatched by invoking the `i8-ci-trigger-priority` skill rather than by building a line here, so the two skills cannot drift on what a verification row is. The two lanes run at once because they run on different machines; inside the local lane deploys stay serial. Never dispatch a second CI run while the triage loop is armed, and close each question by naming which lane answered it."
-msgstr ""
+msgstr "Müəlliflik hüquququ AGENTS.md, Əvvəlki proqram aşağıdakı proqramları izləyir `docs/agents/action/verify-parallel.md` (Bakı Infinito.Nexus polad kök) tam. Bu səhifə haqqında mövcuddur; Bu bacarıq yalnız sizə yollar. Hər bir açıq tərəfindən aydınlaşdırmaqla başlayın `active-listening` skill (hər hansı bir kök əvvəl və ya dizayn sualınız deyil -99% əmin et `dialectic` skill)sonra işləyir `robot` skill CI şerit MUST invoking tərəfindən göstərilir `i8-ci-trigger-priority` Burada bir xüsusiyyət inşa edən bacarıqlar, iki bacarıq bir doğrulama sıra necə çıxa bilər. İki şeritlər müxtəlif maşınlarda işləyir, çünki yerli şerit daxildir seriyası. Triage loop silahlı deyil zaman ikinci CI run heç vaxt, və qazanmaq ilə hər hansı bir sual."
 
 # translated-by: libretranslate
 msgid "Follow the instructions from AGENTS.md, then run the sequence below. The branch to merge is the skill argument; default to `feature/swarm-nfs` when none is given."
@@ -28432,7 +28498,7 @@ msgstr "Fork üçün, Sizin GitHub istifadəçisi təchiz olun, bu da sizin repo
 
 # translated-by: libretranslate
 msgid "For a full reference of permitted Claude Code operations and their security rationale, see [claude/](claude/README.md)."
-msgstr ""
+msgstr "Qeydiyyatdan keçmək Claude Code Əməliyyat və onların təhlükəsizliyi sənayesi, görə [cl](claude/README.md)."
 
 # translated-by: libretranslate
 msgid "For a hard reset, which will delete all data and stop all services, use the following commands:"
@@ -28591,8 +28657,9 @@ msgstr "Haqqımızda capacity__ (`/28 → 14`, `/24 → 254`...)."
 msgid "For email contact, write to [contact@infinito.nexus](mailto:contact@infinito.nexus)."
 msgstr "E-poçt ünvanı [contact@infinito.nexus](mailto:contact@infinito.nexus)."
 
+# translated-by: libretranslate
 msgid "For every Mastodon-API-compatible Fediverse sibling listed under the SPOT ``meta/services.yml.fediwall.fediverse_siblings`` that is also active on the current host (i.e. its application_id is in ``group_names``), return one entry per ``want_path``::"
-msgstr ""
+msgstr "Haqqında Mastodon-API- SPOT altında listelenen uyğun Fediverse sibling ``meta/services.yml.fediwall.fediverse_siblings`` Bu da cari hostində aktivdir (i.e application_id Oxunub: ``group_names``), bir giriş geri ``want_path``Bakı"
 
 # translated-by: libretranslate
 msgid "For every addon entry with a non-empty `bridges:` list, each listed service key MUST be declared as a service block in the same role's `meta/services.yml`, following the established cross-role flag pattern."
@@ -28691,7 +28758,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "For general agent workflow rules shared across all agents (Claude Code, Codex, Gemini, others), see [common.md](../common.md). For the Claude Code permission model reference, see [docs.anthropic.com](https://docs.anthropic.com/en/docs/claude-code/settings)."
-msgstr ""
+msgstr "Bütün agentlər arasında paylaşılan ümumi agent işıqlandırma qaydaları (Claude Code, Codex, Gemini, başqaları), Bakı [common.md](../common.md). For Claude Code Yadda saxla [docs.anthropic.com](https://docs.anthropic.com/en/docs/claude-code/settings)."
 
 # translated-by: libretranslate
 msgid "For general background on SMTP, see [SMTP on Wikipedia](https://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol).   For details about Postfix itself, see [Postfix on Wikipedia](https://en.wikipedia.org/wiki/Postfix_(software))."
@@ -28789,8 +28856,9 @@ msgstr ""
 msgid "For multi-variant roles you MAY restrict any of the `make compose-deploy` invocations above (and the dev CLI subcommands) to one or more matrix rounds by setting `variant=<csv>` — a single index pins one round, a comma-separated list iterates that subset (the runner-split bundle CI produces), and empty/unset is the full matrix:"
 msgstr "Multi-variant rollar üçün MAY, hər hansı birini qarşılaşdırır `make compose-deploy` yuxarıda (and  the) bir və ya daha çox matrix turşusu `variant=<csv>` — bir indeks pins bir dəfə, bir kompüterli siyahısı subsettlər (Böyük Britaniya paketi CI istehsal edir), və boş/unset tam matrixdir:"
 
+# translated-by: libretranslate
 msgid "For multi-variant roles you MUST set `variant=<idx>` (see [Pinning Variants](#pinning-variants-single-or-bundle-)) so the reuse path targets the round's folder. Without `variant=`, the reuse target points at `<INFINITO_INVENTORY_DIR>` which only exists for single-variant roles."
-msgstr ""
+msgstr "Siz MUST setin çox-variant rolları üçün `variant=<idx>` (Bakı [Qalereya](#pinning-variants-single-or-bundle-)) Bu dəyişdirilməsi yolu səyahətin qarşısını alır. Vaxt `variant=`, Ətraflı qaydaları `<INFINITO_INVENTORY_DIR>` yalnız bir-variant rollar üçün var."
 
 # translated-by: libretranslate
 msgid "For optimal personal security, we RECOMMEND the following:"
@@ -29064,8 +29132,9 @@ msgstr "Bu çağırışları sürücü axtarış kataloq üçün [workflows.md](
 msgid "For vulnerability reporting and disclosure, see [SECURITY.md](SECURITY.md)."
 msgstr "Qeydiyyatdan keçmək və açıqlamaq üçün, baxın [SECURITY.md](SECURITY.md)."
 
+# translated-by: libretranslate
 msgid "For when a spec MUST be added or updated (including the `javascript.js` / `style.css` trigger), see the Triggers section of [`playwright.spec.js`](../../artefact/files/role/playwright.specs.js.md#triggers-when-to-add-or-update-a-scenario-)."
-msgstr ""
+msgstr "MUST əlavə olunmuş və ya yeniləndirilən zaman (daxil olmaqla `javascript.js` / `style.css` axtarış), the of [`playwright.spec.js`](../../artefact/files/role/playwright.specs.js.md#triggers-when-to-add-or-update-a-scenario-)."
 
 # translated-by: libretranslate
 msgid "Force ``shared: true`` on every svc-db-* provider service in the swarm-test inventory host_vars."
@@ -29333,8 +29402,9 @@ msgstr "Tam idem gücü (çox vaxt işləyir)"
 msgid "Functional email system for Greenlight SMTP"
 msgstr "Greenlight SMTP üçün funksional e-poçt sistemi"
 
+# translated-by: libretranslate
 msgid "Functional requirements live under [`docs/requirements/`](docs/requirements/) and follow a fixed format with a User Story and checkable Acceptance Criteria. See [requirements.md](docs/contributing/requirements.md) for the authoring guide."
-msgstr ""
+msgstr "Funksional tələblər yaşayır [`docs/requirements/`](docs/requirements/) və sabit formatı birləşdirin User Kateqoriya və çekləndirilməsi Bakı [requirements.md](docs/contributing/requirements.md) Müəlliflik guide üçün."
 
 # translated-by: libretranslate
 msgid "Funkwhale renders its sign-in control as a bare ``div``. The helper matches ``getByRole(\"link\"|\"button\")``, which cannot select it, so the in-app fallback misses as well."
@@ -29519,8 +29589,9 @@ msgstr "Gene mirrors.yml konteyner daxili cli.contributing.mirror.resolver."
 msgid "Generate the invokable-role overview table in the repository README."
 msgstr "rep osit . ."
 
+# translated-by: libretranslate
 msgid "Generated Sections 🤖"
-msgstr ""
+msgstr "Konfranslar 🤖"
 
 # translated-by: libretranslate
 msgid "Generated by `make integration-matrix`. Do not edit by hand, edit the generator's `EDGES` map and re-run."
@@ -29617,8 +29688,9 @@ msgstr "Ən uzun uyğun kateqoriya yol aradan qeydiyyatdan istifadə edərək bi
 msgid "Get the marker schema as JSON for piping into `jq`:"
 msgstr "JSON kimi nümayiş almaq `jq`:"
 
+# translated-by: libretranslate
 msgid "Gettext and LibreTranslate env handlers."
-msgstr ""
+msgstr "E-poçt ünvanı LibreTranslate env handlers."
 
 # translated-by: libretranslate
 msgid "Git Workflow Helpers 🔐"
@@ -29993,8 +30065,9 @@ msgstr "Qeydiyyat (port 80): düz aynalar `deb.debian.org`, `archive.ubuntu.com`
 msgid "HTTP CA trust (infinito-http-ca-trust.php) 🔐"
 msgstr "Yadda saxla (Infinito-http-ca-trust.php) 🔐"
 
+# translated-by: libretranslate
 msgid "HTTP client for the LibreTranslate API."
-msgstr ""
+msgstr "HTTP müşaviri üçün LibreTranslate API."
 
 # translated-by: libretranslate
 msgid "HTTP onion SOCKS (infinito-http-onion-socks.php) 🧅"
@@ -30036,9 +30109,10 @@ msgstr "Hadolint (Yüksəklik)"
 msgid "Hand one entry per role the replay, and give its label the 📖."
 msgstr "rol üçün bir giriş, və onun etiket ver 📖."
 
+# translated-by: libretranslate
 #, no-python-format, python-brace-format
 msgid "Hand-writing the ``{% if IS_SWARM_MODE %} … {% else %} … {% endif %}`` per service is repetitive and easy to get wrong (forgot gate, wrong condition default, inconsistent indent). This lookup emits the whole block and switches on ``DEPLOYMENT_MODE`` itself."
-msgstr ""
+msgstr "El yazmaq ``{% if IS_SWARM_MODE %} … {% else %} … {% endif %}`` xidmət dəstəkdir və yanlış almaq üçün asandır (qapı, yanlış şəkil, qarşılıqsız indent). Bu baxma bütün blok yaymaq və dəyişdirir ``DEPLOYMENT_MODE`` özü."
 
 # translated-by: libretranslate
 msgid "Handle Docker image creation rules:"
@@ -30180,8 +30254,9 @@ msgstr "Yardım"
 msgid "Help reviewers focus on the riskiest parts of this PR. For repository-wide contribution and review expectations, see [CONTRIBUTING.md](../../CONTRIBUTING.md)."
 msgstr "Bu PR riskli hissələrinə baxmayaraqlar. Reository-wide əməliyyat və gözəlliklər üçün, baxın [CONTRIBUTING.md](../../CONTRIBUTING.md)."
 
+# translated-by: libretranslate
 msgid "Help reviewers focus on the riskiest parts of this PR. For repository-wide contribution and review expectations, see [CONTRIBUTING.md](../CONTRIBUTING.md)."
-msgstr ""
+msgstr "Bu PR riskli hissələrinə baxmayaraqlar. Reository-wide əməliyyat və gözəlliklər üçün, baxın [CONTRIBUTING.md](../CONTRIBUTING.md)."
 
 # translated-by: libretranslate
 msgid "Helper"
@@ -30279,8 +30354,9 @@ msgstr "Gizli uğursuzluq daha sonra daha çox hadisə edir."
 msgid "Hide or disable application UI fields that are sourced from OIDC or LDAP, per the rules in [javascript.js.md](../../artefact/files/role/javascript.js.md)."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "High Quality Gate"
-msgstr ""
+msgstr "High Quality Gate"
 
 # translated-by: libretranslate
 msgid "High-side-effect operations"
@@ -30447,8 +30523,9 @@ msgstr "Hostname və ya konteyner adı"
 msgid "Hosts that store credentials to high-blast-radius targets (production servers, infrastructure root) SHOULD NOT rely on this assumption; instead use an SSH-agent socket with `~/.ssh` left denied, or switch the git remote to HTTPS plus a narrowly-scoped token."
 msgstr "Yüksək-blast-radius bacarıqlarına saxla (istehsalçıları, infrastruktur kök) SHOULD bu göstərilməyə qəbul edir; əlavə bir SSH-agent yuva istifadə edin `~/.ssh` sol qeyd, və ya HTTPS uzaq qazanmaq artıq paslanmaya."
 
+# translated-by: libretranslate
 msgid "Hosts the pre-call hook; publishes the `auto` alias"
-msgstr ""
+msgstr "Əvvvəl avtomobillər; yayımlar `auto` a"
 
 # translated-by: libretranslate
 msgid "Households and small communities sharing files, communication, and media."
@@ -30458,8 +30535,9 @@ msgstr "Evlər və kiçik uşaqlar faylları, səyahət və media bölüşür."
 msgid "How Authentication Works 🔑"
 msgstr "E-poçt ünvanı 🔑"
 
+# translated-by: libretranslate
 msgid "How CI proves that the `### Production` block a role's documentation publishes still deploys that role."
-msgstr ""
+msgstr "CI necə ki, `### Production` rolun məlumatlarını bloklayın ki, rolu yayımlar."
 
 # translated-by: libretranslate
 msgid "How Infinito.Nexus runs its tests, and how to add your own hardware to the CI pool."
@@ -30505,8 +30583,9 @@ msgstr "Necə giriş, logout, proxying, saxlama və ya mail inteqrasiyası bu d�
 msgid "How do triggers, permissions, concurrency, or artifacts behave after this change?"
 msgstr "Bu dəyişiklikdən sonra necə sənaye, saxlama, və ya məhsullar davranır?"
 
+# translated-by: libretranslate
 msgid "How does it integrate with the existing stack?"
-msgstr ""
+msgstr "Bu mövcud yığınla necə birləşdirilir?"
 
 # translated-by: libretranslate
 msgid "How does this behave on the tested distro(s)?"
@@ -30608,8 +30687,9 @@ msgstr "Necə istifadə etmək"
 msgid "How to use 🧭"
 msgstr "Necə istifadə olunur 🧭"
 
+# translated-by: libretranslate
 msgid "Hugging Face repository those flavors download at build time"
-msgstr ""
+msgstr "Qeydiyyatdan istifadə et"
 
 # translated-by: libretranslate
 msgid "Hugo: Administration"
@@ -30619,8 +30699,9 @@ msgstr "E-poçt ünvanı"
 msgid "Human chat UI to models (and MCP client per [025](025-mcp-role-integration.md))"
 msgstr "İnsan chat UI modellər üçün (MCP müştəri [025](025-mcp-role-integration.md))"
 
+# translated-by: libretranslate
 msgid "Human chat UI, may select `auto` like any other model"
-msgstr ""
+msgstr "İnsan chat UI, seçin `auto` digər model kimi"
 
 # translated-by: libretranslate
 msgid "Human contributors working alongside AI agents MUST read [here](docs/contributing/tools/agents/common.md)."
@@ -30657,8 +30738,9 @@ msgstr "INFINITO_CACHE_PACKAGE_BLOBSTORE_MAX: Nexus blobstore kompüter (pulsuz 
 msgid "INFINITO_CACHE_PACKAGE_DIRECT_MEM: Nexus direct-memory budget; tied to INFINITO_CACHE_PACKAGE_HEAP."
 msgstr "INFINITO_CACHE_PACKAGE_DIRECT_MEM: Nexus birbaşa-memory qiymət; bağlı INFINITO_CACHE_PACKAGE_HEAP."
 
+# translated-by: libretranslate
 msgid "INFINITO_CACHE_PACKAGE_FRONTEND_CONF: nginx upstream map the shared package-cache frontend mounts, taken from the primary checkout unless INFINITO_CACHE_CONF_SOURCE says worktree."
-msgstr ""
+msgstr "INFINITO_CACHE_PACKAGE_FRONTEND_CONF: nginx upstream xüsusi paket-cache ön əvvəl axtarış, birincil çekdən qeyd olunub INFINITO_CACHE_CONF_SOURCE iştree deyil."
 
 # translated-by: libretranslate
 msgid "INFINITO_CACHE_PACKAGE_HEAP: Nexus JVM heap size (half of MemAvailable, cap 2g, floor 1g)."
@@ -30724,17 +30806,21 @@ msgstr ""
 msgid "INFINITO_FORK_REPOSITORY_URL: GitHub URL of the operator's fork, composed from INFINITO_FORK_ACCOUNT and INFINITO_FORK_REPOSITORY_NAME."
 msgstr "INFINITO_FORK_REPOSITORY_URL: operatorun fork şəhərin GitHub URL INFINITO_FORK_ACCOUNT and INFINITO_FORK_REPOSITORY_NAME."
 
+# translated-by: libretranslate
 msgid "INFINITO_GIT_AUTHOR_NAME / INFINITO_GIT_AUTHOR_EMAIL: the identity this checkout commits under. The test container mounts the checkout but not the contributor's git configuration, so the suite cannot ask git who is about to commit; the ``.env`` carries the answer across."
-msgstr ""
+msgstr "INFINITO_GIT_AUTHOR_NAME / INFINITO_GIT_AUTHOR_EMAIL: Bu çekin qarşısını alır. Test konteyneri çekindən asılıdır, lakin iştirakçının konfiqurasiyasını almaq deyil, belə ki, suite kimyə razı ola bilər; ``.env`` cavab gəlir."
 
+# translated-by: libretranslate
 msgid "INFINITO_GPU_COUNT: GPUs the compose services reserve, 'all' when the docker daemon registers an NVIDIA runtime, else 0."
-msgstr ""
+msgstr "INFINITO_GPU_COUNT: Kommunikasiya xidməti, 'all' Docker daemon bir NVIDIA runtime qeydiyyat zaman, digər 0."
 
+# translated-by: libretranslate
 msgid "INFINITO_I18N_BATCH_SIZE / INFINITO_I18N_LANES: client settings `make i18n-tune` measured on this host, falling back to the shipped defaults."
-msgstr ""
+msgstr "INFINITO_I18N_BATCH_SIZE / INFINITO_I18N_LANES: müştəri ayarları `make i18n-tune` Bu hostində ölçüləndirilmiş defaults geri düşmək."
 
+# translated-by: libretranslate
 msgid "INFINITO_I18N_LIBRETRANSLATE_PORT: loopback port the i18n runner forwards to its LibreTranslate, read from roles/web-svc-libretranslate/meta/services.yml."
-msgstr ""
+msgstr "INFINITO_I18N_LIBRETRANSLATE_PORT: qazanma limanı18nömrəli onun üçün qazanır LibreTranslateOxunub: roles/web-svc-libretranslate/meta/services.yml."
 
 # translated-by: libretranslate
 msgid "INFINITO_IMAGE: fully-qualified GHCR image reference assembled from owner, repo, distro and tag (GHA-only)."
@@ -30838,14 +30924,16 @@ msgstr "Bakı 639-1 Qalereya ``{english: translation}`` Ən azı bir sayt mesaj�
 msgid "ISO 639-1 code mapped to ``{key: text, \"dir\": direction}``; a key a language leaves untranslated keeps its English text."
 msgstr "Bakı 639-1 Qalereya ``{key: text, \"dir\": direction}``; Əsas bir dil untranslated öz İngilis məhsulunu davam edir."
 
+# translated-by: libretranslate
 msgid "ISO 639-1 code of the catalog being filled."
-msgstr ""
+msgstr "Bakı 639-1 Kataloq kodu doludur."
 
 msgid "ISO 639-1 code of the catalog, when the caller knows it. The script comparison is the one check that needs it; every other criterion reads both strings alone."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "ISO 639-1 code of the catalog."
-msgstr ""
+msgstr "Bakı 639-1 kataloq kodu."
 
 # translated-by: libretranslate
 msgid "ISO 639-1 code of the language."
@@ -31371,7 +31459,7 @@ msgstr "Yadda saxla `enable_wildcard_certificate`, Bu addımları elan etmək **
 
 # translated-by: libretranslate
 msgid "If you experience or witness any behavior that violates this Code of Conduct, please report it promptly. Reports should be sent to <kevin@veen.world>. All reports will be treated with discretion and confidentiality."
-msgstr ""
+msgstr "Siz təcrübə edin və ya bu davranışı müdafiə edir Code Əgərlik, dərhal bildir. Hesabatlar göndərilir <kevin@veen.world>. Bütün hesablar xüsusi və gizlilik ilə müalicə olunacaq."
 
 # translated-by: libretranslate
 msgid "If you have imported posts from Instagram, you can clean up the imported data and files as follows:"
@@ -31730,18 +31818,22 @@ msgid "Implemented by **Marko Pjevac, Kevin Veen-Birkenbach**. Part of the [Infi
 msgstr "Qeydiyyat **Marko Pjevac, Kevin Veen-Birkenbach**. Ünvanı [Infinito.Nexus Project](https://s.infinito.nexus/code) qazanmaq [Yadda saxla](https://www.veen.world). Lisenziya altında [Infinito.Nexus Qeydiyyat (Qeydiyyat)](https://s.infinito.nexus/license)."
 
 # nocheck: url
+# translated-by: libretranslate
 msgid "Implemented by **[Alejandro Roman Ibanez](https://social.infinito.nexus/profile/alexromanibanez/profile)**. Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
-msgstr ""
+msgstr "Qeydiyyat **[Aleksandr Roman Ibanez](https://social.infinito.nexus/profile/alexromanibanez/profile)**. Ünvanı [Infinito.Nexus Project](https://s.infinito.nexus/code) qazanmaq [Yadda saxla](https://www.veen.world). Lisenziya altında [Infinito.Nexus Qeydiyyat (Qeydiyyat)](https://s.infinito.nexus/license)."
 
 # nocheck: url
+# translated-by: libretranslate
 msgid "Implemented by **[Evangelos Tsakoudis](https://social.infinito.nexus/profile/evangelostsakoudis/profile)**. Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
-msgstr ""
+msgstr "Qeydiyyat **[Evangelos Tsakoudis](https://social.infinito.nexus/profile/evangelostsakoudis/profile)**. Ünvanı [Infinito.Nexus Project](https://s.infinito.nexus/code) qazanmaq [Yadda saxla](https://www.veen.world). Lisenziya altında [Infinito.Nexus Qeydiyyat (Qeydiyyat)](https://s.infinito.nexus/license)."
 
+# translated-by: libretranslate
 msgid "Implemented by **[Kevin Veen-Birkenbach](https://social.infinito.nexus/profile/kevinveenbirkenbach/profile)**. Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
-msgstr ""
+msgstr "Qeydiyyat **[Yadda saxla](https://social.infinito.nexus/profile/kevinveenbirkenbach/profile)**. Ünvanı [Infinito.Nexus Project](https://s.infinito.nexus/code) qazanmaq [Yadda saxla](https://www.veen.world). Lisenziya altında [Infinito.Nexus Qeydiyyat (Qeydiyyat)](https://s.infinito.nexus/license)."
 
+# translated-by: libretranslate
 msgid "Implemented by **[Prageeth Panicker](https://social.infinito.nexus/profile/prageethpanicker/profile)**. Part of the [Infinito.Nexus Project](https://s.infinito.nexus/code) and maintained by [Kevin Veen-Birkenbach](https://www.veen.world). Licensed under the [Infinito.Nexus Community License (Non-Commercial)](https://s.infinito.nexus/license)."
-msgstr ""
+msgstr "Qeydiyyat **[Oxunub](https://social.infinito.nexus/profile/prageethpanicker/profile)**. Ünvanı [Infinito.Nexus Project](https://s.infinito.nexus/code) qazanmaq [Yadda saxla](https://www.veen.world). Lisenziya altında [Infinito.Nexus Qeydiyyat (Qeydiyyat)](https://s.infinito.nexus/license)."
 
 # translated-by: libretranslate
 msgid "Implemented robust, idempotent PostgreSQL superuser password rotation"
@@ -31964,7 +32056,7 @@ msgstr "Daxili rejimi (`shared: false`) Bir istehsalçının forması, UI və ya
 
 # translated-by: libretranslate
 msgid "In order to foster a welcoming, open, and respectful community for everyone, we expect all contributors and participants in the Infinito.Nexus project to abide by the following Code of Conduct."
-msgstr ""
+msgstr "Əgər, açıq və hər hansı bir ictimai əməkdaşlıq üçün, biz bütün iştirakçıları və iştirakçıları gözləyirik Infinito.Nexus aşağıdakı məlumatlara uyğun olaraq Code İctimai."
 
 # translated-by: libretranslate
 msgid "In short, `utils/domains/` exists to make domain handling consistent, central, and easy to evolve without scattering similar logic throughout the repository. 🧩"
@@ -32389,8 +32481,9 @@ msgstr "konteynerində, bir yazı redaktoru yüklemek və konfiqurasiyasını re
 msgid "Inside the interactive shell, run the following commands:"
 msgstr "interaktiv shell daxil, aşağıdakı xidmətlər çalışır:"
 
+# translated-by: libretranslate
 msgid "Inside the local lane nothing is parallel. `iteration/compose.md` requires deploys to be serial, and a second deploy or a `make test` started next to a running one is the SIGKILL that costs the whole round."
-msgstr ""
+msgstr "Yerli şeridində bir şey paralel deyil. `iteration/compose.md` seriyası, ikinci daşınma və ya avadanlıq `make test` bir çalışana yeni başlayan SIGKILL bütün tura mal olur."
 
 # translated-by: libretranslate
 msgid "Inspect LDAP Entries 🩺"
@@ -32540,14 +32633,17 @@ msgstr "Daxil ol Blue-ray Disc birbaşa hedef maşın üzərində: depozit klonu
 msgid "Install Chromium directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):"
 msgstr "Chromium birbaşa hedef maşın üzərindən quraşdırın: repository klonlama, OS önkəmləri və repository alətchain, sonra yerlihost qarşısını yerli əlaqə (No SSH, heç bir konteyner):"
 
+# translated-by: libretranslate
 msgid "Install Claude Code directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):"
-msgstr ""
+msgstr "Daxil ol Claude Code birbaşa hedef maşın üzərində: depozit klonu, OS önkəmlərini və depozit alətini yükləyin, sonra yerlihosta qarşı bir yerli əlaqə üzərindən qaldırmaq (No SSH, heç bir konteyner):"
 
+# translated-by: libretranslate
 msgid "Install Code directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):"
-msgstr ""
+msgstr "Daxil ol Code birbaşa hedef maşın üzərində: depozit klonu, OS önkəmlərini və depozit alətini yükləyin, sonra yerlihosta qarşı bir yerli əlaqə üzərindən qaldırmaq (No SSH, heç bir konteyner):"
 
+# translated-by: libretranslate
 msgid "Install Codex directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):"
-msgstr ""
+msgstr "Daxil ol Codex birbaşa hedef maşın üzərində: depozit klonu, OS önkəmlərini və depozit alətini yükləyin, sonra yerlihosta qarşı bir yerli əlaqə üzərindən qaldırmaq (No SSH, heç bir konteyner):"
 
 # translated-by: libretranslate
 msgid "Install CopyQ directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):"
@@ -32557,8 +32653,9 @@ msgstr "CopyQ'i birbaşa hedef maşın üzərindən qəbul edin: depozit klonunu
 msgid "Install Corporate Design directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):"
 msgstr "Daxil ol Corporate Design birbaşa hedef maşın üzərində: depozit klonu, OS önkəmlərini və depozit alətini yükləyin, sonra yerlihosta qarşı bir yerli əlaqə üzərindən qaldırmaq (No SSH, heç bir konteyner):"
 
+# translated-by: libretranslate
 msgid "Install Cursor directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):"
-msgstr ""
+msgstr "Daxil ol Cursor birbaşa hedef maşın üzərində: depozit klonu, OS önkəmlərini və depozit alətini yükləyin, sonra yerlihosta qarşı bir yerli əlaqə üzərindən qaldırmaq (No SSH, heç bir konteyner):"
 
 # translated-by: libretranslate
 msgid "Install Docker Swarm Manager directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):"
@@ -32648,8 +32745,9 @@ msgstr "KeePassXC'yi birbaşa hedef maşın üzərindən qəbul edin: Reository 
 msgid "Install LID Switch Driver directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):"
 msgstr "Daxil ol LID Switch Driver birbaşa hedef maşın üzərində: depozit klonu, OS önkəmlərini və depozit alətini yükləyin, sonra yerlihosta qarşı bir yerli əlaqə üzərindən qaldırmaq (No SSH, heç bir konteyner):"
 
+# translated-by: libretranslate
 msgid "Install Laya directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):"
-msgstr ""
+msgstr "Daxil ol Laya birbaşa hedef maşın üzərində: depozit klonu, OS önkəmlərini və depozit alətini yükləyin, sonra yerlihosta qarşı bir yerli əlaqə üzərindən qaldırmaq (No SSH, heç bir konteyner):"
 
 # translated-by: libretranslate
 msgid "Install LibreOffice directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):"
@@ -32687,8 +32785,9 @@ msgstr "OBS Studio'yu birbaşa hedef maşında quraşdırın: repository klonlay
 msgid "Install Package update directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):"
 msgstr "Daxil ol Package update birbaşa hedef maşın üzərində: depozit klonu, OS önkəmlərini və depozit alətini yükləyin, sonra yerlihosta qarşı bir yerli əlaqə üzərindən qaldırmaq (No SSH, heç bir konteyner):"
 
+# translated-by: libretranslate
 msgid "Install Pi Coding Agent directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):"
-msgstr ""
+msgstr "Daxil ol Pi Coding Agent birbaşa hedef maşın üzərində: depozit klonu, OS önkəmlərini və depozit alətini yükləyin, sonra yerlihosta qarşı bir yerli əlaqə üzərindən qaldırmaq (No SSH, heç bir konteyner):"
 
 # translated-by: libretranslate
 msgid "Install Proprietary Drivers directly onto the target machine: clone the repository, install the OS prerequisites and the repository toolchain, then deploy against localhost over a local connection (no SSH, no container):"
@@ -33243,8 +33342,9 @@ msgstr "İnteqrasiya testləri"
 msgid "Integration tests (real component boundaries)"
 msgstr "İnteqrasiya testləri (real komponent məlumatları)"
 
+# translated-by: libretranslate
 msgid "Integration tests for Ansible-native artefacts: action plugins, filter plugins, lookup plugins, handlers, group_vars, inventory, Jinja templates, playbooks, and role-local [`vars/`](vars/) / `defaults/`."
-msgstr ""
+msgstr "Ansible-native artefacts üçün inteqrasiya testləri: fəaliyyət addımları, filter plugins, görünüşlü plugins, handlers, group_vars,, Jinja şablonları, playbooks, and role-local [`vars/`](vars/) / `defaults/`."
 
 # translated-by: libretranslate
 msgid "Integration tests for `.github/workflows/*.yml` and supporting scripts: PR scope/branch-prefix resolvers, PR-run cancellation, Dependabot coverage of every ecosystem in the repo, and CodeQL security-workflow coverage."
@@ -33660,8 +33760,9 @@ msgstr "Invoke onun slash komandası ilə bir bacarıq `/i8-develop` yaxşı `/i
 msgid "Invoke it via the dedicated Make target (preferred, matches the agent permission model in [`.claude/settings.json`](../../../../../.claude/settings.json)):"
 msgstr "Daxil ol (Seçdiyiniz, agent məlumat modelini seçmək [`.claude/settings.json`](../../../../../.claude/settings.json)):"
 
+# translated-by: libretranslate
 msgid "Invoke the `i8-ci-trigger-priority` skill. It builds the priority line and dispatches it; this lane does not re-derive candidates or axes of its own, so that the two skills cannot drift apart on what a verification row is."
-msgstr ""
+msgstr "Invoke `i8-ci-trigger-priority` skill Bu əvvvəllik xidməti və onu təklif edir; bu şerit öz tərəfdaşları və ya birxes deyil, ki, iki bacarıq bir doğrulama sıra ayrı ola bilər."
 
 # translated-by: libretranslate
 msgid "Invoke with `make roundtrip apps=\"<app> [app...]\"`. Each app is taken through the mode sequence in order, and the run stops at the first failure (fail-fast)."
@@ -33679,8 +33780,9 @@ msgstr "Invoked scripts/github/resolve/pr_affected_roles.sh vaxt ``python -m cli
 msgid "Isolated?"
 msgstr "Neft?"
 
+# translated-by: libretranslate
 msgid "Isolation"
-msgstr ""
+msgstr "Qarabağ"
 
 # translated-by: libretranslate
 msgid "Isolation is real in compose"
@@ -33854,8 +33956,9 @@ msgstr "It replays hər-database ilə ``baudolo-restore <engine> --empty``. İki
 msgid "It replays every single-database dump with `baudolo-restore <engine> --empty`. Two rules make it safe rather than convenient:"
 msgstr "It replays hər-database ilə `baudolo-restore <engine> --empty`. İki qaydalar rahat daha rahat edir:"
 
+# translated-by: libretranslate
 msgid "It reports the median wall-clock per axis value off the finished runs of the branch, with the sample count behind each one. Measured on this repository, the spread is not marginal: `swarm` costs roughly twice what `compose` costs, and an onion row roughly a third more than a clearnet one."
-msgstr ""
+msgstr "Bu, median divar-saat xəstək dəyişdirilməsində, hər birin ardıcıl növbəti ilə brauzun bitməsində dəyişiklik edir. Bu depozitə uyğunlaşdırılmış, yayılması marjinal deyil: `swarm` hansı bir neçə `compose` Əməliyyat və bir onion sıra bir açıqdan üçüncü daha çox."
 
 # translated-by: libretranslate
 msgid "It runs from [01_constructor.yml](../../../../../tasks/stages/01_constructor.yml) before the normal application stage."
@@ -34041,8 +34144,9 @@ msgstr "Elan"
 msgid "Jitsi Meet"
 msgstr "Jitsi"
 
+# translated-by: libretranslate
 msgid "Jobs of the last *runs_back* finished runs of *branch*."
-msgstr ""
+msgstr "Sonuncu *runs_back* bitdi *Daxili*."
 
 # translated-by: libretranslate
 msgid "Jobs plus the run title, in one ``gh`` call."
@@ -34132,8 +34236,9 @@ msgstr "Bütün proqnozlaşdırmaq (Yadda saxla) Bu rol-yerli meta faylları dax
 msgid "Keep all user and application keys lowercase"
 msgstr "Bütün istifadəçi və proqramı açar aşağı halda"
 
+# translated-by: libretranslate
 msgid "Keep app-specific Keycloak protocol mappers in a per-client scope file under the Keycloak `roles/web-app-keycloak/templates/import/scopes/` directory. Do not extend [default.json.j2](../../../../roles/web-app-keycloak/templates/import/clients/default.json.j2)."
-msgstr ""
+msgstr "Appalereya Keycloak protokol xüsusiyyətli mövzuda Keycloak `roles/web-app-keycloak/templates/import/scopes/` Kataloq Daxil ol [default.json.j2](../../../../roles/web-app-keycloak/templates/import/clients/default.json.j2)."
 
 # translated-by: libretranslate
 msgid "Keep branch up-to-date"
@@ -34275,8 +34380,9 @@ msgstr "Ansible səyahət və səyahət ucuz bu modulsuz saxlayın: Env kağız 
 msgid "Keep tier and exact self-managed endpoint availability as hard gates. Use a project/group-scoped token and exclude mutation tools until separately enabled."
 msgstr "Pulsuz qapılar kimi tam self-managed endpoint mövcudluğu saxlayın. Bir layihə / qrup-kəvəli token və ayrı birləşdirilməyə qəbul edir."
 
+# translated-by: libretranslate
 msgid "Keep two things from its report: the run URL, and the candidate table saying what each pin rests on. The second one decides the local lane's scope."
-msgstr ""
+msgstr "Onun hesabatından iki şey tutun: run URL, və müvafiq masa hər bir pin dinləyir. İkincii yerli şeritin mövzuuna cavab verir."
 
 # translated-by: libretranslate
 msgid "Keeping recent backups safe"
@@ -34310,8 +34416,9 @@ msgstr "generator girişpoint ki, bir sibling importable modul kimi Kept ki, ki�
 msgid "Kept in its own module so ``utils.cache.applications`` stays under the repo's per-file line cap. Strictly ansible-free (stdlib only) so the runner-host CLI path keeps importing it without ansible installed."
 msgstr "Öz modulunda kept ``utils.cache.applications`` repo'nun per-file xidmət kapital altında kalır. Strictly ansible-free (Yalnız) Əgər-host CLI yolu quraşdırılmış olmadan onu səyahət edir."
 
+# translated-by: libretranslate
 msgid "Kernel backend that runs the code a chat writes, in a container instead of in the browser sandbox"
-msgstr ""
+msgstr "Bir chat yazmaq kodu çalışır, browser sandbox yerine bir konteyner"
 
 # translated-by: libretranslate
 msgid "Kernel-isolated agent runtime serving an OpenAI-compatible API, routed to models through the shared LLM gateway"
@@ -34417,8 +34524,9 @@ msgstr "Qeydiyyatdan keçirilir"
 msgid "Keycloak base URL (`https://auth.<domain>`)."
 msgstr "Keycloak bazası URL (`https://auth.<domain>`)."
 
+# translated-by: libretranslate
 msgid "Keycloak client definitions are imported from `roles/web-app-keycloak/templates/import/clients/`. The default template in [default.json.j2](../../../../roles/web-app-keycloak/templates/import/clients/default.json.j2) is shared by every application client."
-msgstr ""
+msgstr "Keycloak müştəri xüsusiyyətləri istehsal edir `roles/web-app-keycloak/templates/import/clients/`. default şablon [default.json.j2](../../../../roles/web-app-keycloak/templates/import/clients/default.json.j2) hər bir proqram müştəri ilə paylaşılır."
 
 # translated-by: libretranslate
 msgid "Keycloak group path that maps onto Joomla's `Editor` (id 4)."
@@ -34646,11 +34754,13 @@ msgstr "GitHub yayımları üçün ən yaxşı ödəniş və aktiv downloader."
 msgid "Launch Snipe‑IT quickly with Docker Compose and Ansible automation for a production‑ready platform."
 msgstr "Axtarış Snipe‑IT haqqında Docker Compose və istehsalçı platforma üçün Ansible avtomatlaşdırma."
 
+# translated-by: libretranslate
 msgid "Laya keeps its own settings in ``~/.laya/``, including the model providers it talks to. This role does not render that file: upstream documents the provider types but not the on-disk schema, so the provider is an operator step in the application’s own settings. Pointing it at the platform gateway means adding a provider of type ``openai_compatible``."
-msgstr ""
+msgstr "Laya öz ayarlarına malikdir ``~/.laya/``, model avadanlıqları daxildir. Bu rol o faylını göstərir: təchizatçı nömrələri, lakin on-disk şema deyil, belə təchizatçı tətbiqinin öz ayarlarında operator addımdır. Platforma serverində yerləşdirilməsi nömrəçinin nömrəsini əlavə edir ``openai_compatible``."
 
+# translated-by: libretranslate
 msgid "Laya keeps its own settings in `~/.laya/`, including the model providers it talks to. This role does not render that file: upstream documents the provider types but not the on-disk schema, so the provider is an operator step in the application's own settings. Pointing it at the platform gateway means adding a provider of type `openai_compatible`."
-msgstr ""
+msgstr "Laya öz ayarlarına malikdir `~/.laya/`, model avadanlıqları daxildir. Bu rol o faylını göstərir: təchizatçı nömrələri, lakin on-disk şema deyil, belə təchizatçı bir operator addımdır. Platforma serverində yerləşdirilməsi nömrəçinin nömrəsini əlavə edir `openai_compatible`."
 
 # translated-by: libretranslate
 msgid "Layer"
@@ -34672,11 +34782,13 @@ msgstr "🗂️"
 msgid "Layout 🗺️"
 msgstr "🗺️"
 
+# translated-by: libretranslate
 msgid "Lead a CI run with a priority line 🔎"
-msgstr ""
+msgstr "Bir CI-nin əvvəllik xidməti ilə işləyir 🔎"
 
+# translated-by: libretranslate
 msgid "Leading a CI run with a priority line that verifies the branch's open questions"
-msgstr ""
+msgstr "Dəstənin açıq suallarını verən bir CI-nin əvvəlliyi ilə çalışır"
 
 # translated-by: libretranslate
 msgid "Learn More"
@@ -34863,8 +34975,9 @@ msgstr "License ⚖️"
 msgid "Liest die Datei rel_path (relative zum PROJECT_ROOT), ersetzt rekursiv alle \"{% include 'path' %}\"-Zeilen durch den Inhalt der jeweiligen Datei (mit gleicher Einrückung)."
 msgstr "Kateqoriya rel_path (Bakı PROJECT_ROOT), ersetzt rekursiv alle \"{% include 'path' %}\"-Zeilen durch den Inhalt der jeweiligen Tarixi (Yadda saxla)."
 
+# translated-by: libretranslate
 msgid "Lifecycle"
-msgstr ""
+msgstr "Axtarış"
 
 # translated-by: libretranslate
 msgid "Lifecycle + ordering"
@@ -35045,8 +35158,9 @@ msgstr "Daxili agentlik faylları siyahısı."
 msgid "List the touched documentation files and audience."
 msgstr ". . . . . . ."
 
+# translated-by: libretranslate
 msgid "List what this change touches."
-msgstr ""
+msgstr "Bu dəyişiklik dokunuşları siyahısı."
 
 msgid "Listing ``dir()`` instead sweeps in whatever the module imported, so every shim re-exported ``Path`` and ``Any``. Sphinx then found the same python target in nine packages and reported 320 ambiguous cross-references."
 msgstr ""
@@ -35136,8 +35250,9 @@ msgstr "Yük sifarişləri (e.g., ``svc-prx-openresty``)"
 msgid "Load handler utilities (e.g., `svc-prx-openresty`)"
 msgstr "Yük sifarişləri (e.g., `svc-prx-openresty`)"
 
+# translated-by: libretranslate
 msgid "Load metadata from ``meta/main.yml``."
-msgstr ""
+msgstr "Yük metadata ``meta/main.yml``."
 
 # translated-by: libretranslate
 msgid "Load nested roles YAML and return dash-joined paths where 'invokable' is False or missing. Appends suffix if provided."
@@ -35303,8 +35418,9 @@ msgstr "Yerli başsız modellər"
 msgid "Local model backend: [svc-ai-ollama](../../roles/svc-ai-ollama/)"
 msgstr "Yerli model backend: [svc-ai-ollama](../../roles/svc-ai-ollama/)"
 
+# translated-by: libretranslate
 msgid "Local name for the image reference the mirror commands pass around."
-msgstr ""
+msgstr "Image istiqamət üçün yerli adı aynanın qarşısını alır."
 
 # translated-by: libretranslate
 msgid "Local overrides MUST NOT set `sandbox.enabled: false`, `sandbox.failIfUnavailable: false`, or `sandbox.allowUnsandboxedCommands: true`. The security model depends on the sandbox being on and fail-closed."
@@ -35595,8 +35711,9 @@ msgstr "Bakı `subnet_address_regex`: rolun yerli subnet hər hansı bir ünvanl
 msgid "Lookup `subnet_gateway`: the gateway address of the role's local subnet."
 msgstr "Bakı `subnet_gateway`: rolun yerli subnet giriş ünvanı."
 
+# translated-by: libretranslate
 msgid "Lookup form — the app config is resolved internally, so callers no longer pipe ``lookup('applications')`` in::"
-msgstr ""
+msgstr "Domen adı qeydiyyatdan keçirt » ``lookup('applications')`` in:"
 
 # translated-by: libretranslate
 msgid "Lookup order:"
@@ -36174,8 +36291,9 @@ msgstr "Kart rolu -> [:class:`Failure`] hər halda işləyir."
 msgid "Map the repository palette onto those variables. Add selector overrides only for surfaces that cannot be reached through variables."
 msgstr "Bu növlərin üzərində repository paleti. Selector overrides'i yalnız dəyişikliklərlə çatmaq mümkün olmayan səviyyələr üçün əlavə edin."
 
+# translated-by: libretranslate
 msgid "Mapping, from compose ``docker_restart_policy`` to swarm ``condition``:"
-msgstr ""
+msgstr "Mapping, forma ``docker_restart_policy`` torpaq ``condition``:"
 
 # translated-by: libretranslate
 msgid "MariaDB database provisioning via the ``sys-svc-rdbms`` role"
@@ -36294,7 +36412,7 @@ msgstr "Axtarış kimi `changed` if:"
 
 # translated-by: libretranslate
 msgid "Match commands exactly as Claude Code does: literal prefix, `*` wildcard, `deny` overrides `allow`."
-msgstr ""
+msgstr "Match tam olaraq Claude Code does: real prefix, `*` avtomobil, `deny` kateqoriya `allow`."
 
 # translated-by: libretranslate
 msgid "Match every user entry, used for sync jobs and listings"
@@ -36472,8 +36590,9 @@ msgstr "Siz Delete"
 msgid "Measure progress with working software."
 msgstr "İş proqramı ilə təqdim edir."
 
+# translated-by: libretranslate
 msgid "Measure the fastest client settings against the deployed LibreTranslate."
-msgstr ""
+msgstr "Daxil olunan yüksək müştəri ayarları LibreTranslate."
 
 # translated-by: libretranslate
 msgid "Measured at"
@@ -36508,8 +36627,9 @@ msgstr "Media Platforma"
 msgid "Media library on a **named Docker volume** (`/media`), plus `/config` + `/cache`."
 msgstr "Media kitabxanası **Docker haqqında** (`/media`), `/config` + `/cache`."
 
+# translated-by: libretranslate
 msgid "Medians, not means: a job that hit a queue wait or a network stall is a long tail on an otherwise cheap axis, and averaging lets one such job outvote a hundred normal ones."
-msgstr ""
+msgstr "Medians, demək deyil: bir sıra gözləyir və ya bir şəhər sərfə dəyişən bir iş, aksiya ucuz bir eksendə uzun bir qatdır, və averaging yüz normal olanları bir iş outvote imkan verir."
 
 # translated-by: libretranslate
 msgid "Meeting/status/job/log reads only"
@@ -36543,8 +36663,9 @@ msgstr "Memoized multi-document YAML yükü."
 msgid "Merge Strategy 🔀"
 msgstr "Merge Strategiya 🔀"
 
+# translated-by: libretranslate
 msgid "Merge a Sibling Branch"
-msgstr ""
+msgstr "Sibling Branch"
 
 # translated-by: libretranslate
 msgid "Merge commits ARE allowed"
@@ -36614,8 +36735,9 @@ msgstr "Metadata altında müxtəlif olmalıdır:"
 msgid "Metadata required by the Infinito Deployer (title, description, logo, etc.)"
 msgstr "Infinito Deployer tərəfindən hazırlanmış Metadata (title,  description, logo, s.)"
 
+# translated-by: libretranslate
 msgid "Metasearch engine the platform queries for web results without handing a user's query to a tracking search provider"
-msgstr ""
+msgstr "Bir istifadəçinin araşdırma avadanlıqçısı üçün web nəticələri üçün platforma sorğuları"
 
 # translated-by: libretranslate
 msgid "Method"
@@ -36685,8 +36807,9 @@ msgstr "Rol üçün proqramı təsvir edirik."
 msgid "Minimal logging of secrets"
 msgstr "secrets  Minimal"
 
+# translated-by: libretranslate
 msgid "Minimal terminal coding agent with a lazy-loading skill system, wired to the platform's own model gateway"
-msgstr ""
+msgstr "Minimal terminal kodlaşdırma agentliyi sistemi ilə, platformanın öz model ağacaq"
 
 # translated-by: libretranslate
 msgid "Minimum number of usable client IPs the role's subnet MUST hold."
@@ -36857,11 +36980,13 @@ msgstr "Model"
 msgid "Model plane (LLM gateway) this depends on: [031-llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)"
 msgstr "Model proqramı (LLM Gateway) Bu bağlıdır: [031-llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)"
 
+# translated-by: libretranslate
 msgid "Model plane this builds on: [031-llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)"
-msgstr ""
+msgstr "Model bu yaradılması: [031-llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)"
 
+# translated-by: libretranslate
 msgid "Model visibility"
-msgstr ""
+msgstr "Model ölçüsü"
 
 # translated-by: libretranslate
 msgid "Models route through the 031 gateway: light intents to a small local `svc-ai-ollama`, heavy reasoning to an external backend."
@@ -37135,8 +37260,9 @@ msgstr "Multi-tenancy / Multi-site (Frappe's `bench --site`) Axtarış **scope**
 msgid "Multi-user (daemon) installation mode"
 msgstr "Multi-user (da) quraşdırma rejimi"
 
+# translated-by: libretranslate
 msgid "Multiple paths (returns list, one result per term)::"
-msgstr ""
+msgstr "Bir çox yol (qeydiyyatdan keçin, müddətindən biri)Bakı"
 
 # translated-by: libretranslate
 msgid "Multiple roles or shared code"
@@ -37329,8 +37455,9 @@ msgstr "Uşaq"
 msgid "Name"
 msgstr "Ad Soyad"
 
+# translated-by: libretranslate
 msgid "Name every question the run will **not** answer because a candidate was pinned to one side of it. A line that verifies a fix in compose and says nothing about swarm is a legitimate choice; a line that does that silently is not, because its green result reads like a full answer."
-msgstr ""
+msgstr "Hər hansı bir sual olacaq **deyil** cavab, avadanlıq onun bir tərəfindən pinned idi. Bir dəyişdirilməsi və swarm haqqında heç bir şey deyir bir xüsusi seçim; o, səssiz deyil, çünki onun yaşıl nəticə tam cavab kimi olaraq."
 
 # translated-by: libretranslate
 msgid "Name of the application/role to check."
@@ -37434,11 +37561,13 @@ msgstr "Axtarış"
 msgid "Native-OIDC flavor precedent: [024 ERPNext](024-web-app-erpnext.md)"
 msgstr "Yerli-OIDC tat əvvəl [024 ERPNext](024-web-app-erpnext.md)"
 
+# translated-by: libretranslate
 msgid "Navigate to the ``roles/dsk-docker`` directory."
-msgstr ""
+msgstr "Navigate ``roles/dsk-docker`` Kataloq."
 
+# translated-by: libretranslate
 msgid "Navigate to the ``roles/dsk-qbittorrent`` directory."
-msgstr ""
+msgstr "Navigate ``roles/dsk-qbittorrent`` Kataloq."
 
 # translated-by: libretranslate
 msgid "Navigate to the ``roles/hunspell`` directory within the repository."
@@ -37448,11 +37577,13 @@ msgstr "Navigate ``roles/hunspell`` Reository daxili fayllar."
 msgid "Navigate to the ``roles/java`` directory within the repository."
 msgstr "Navigate ``roles/java`` Reository daxili fayllar."
 
+# translated-by: libretranslate
 msgid "Navigate to the `roles/dsk-docker` directory."
-msgstr ""
+msgstr "Navigate `roles/dsk-docker` Kataloq."
 
+# translated-by: libretranslate
 msgid "Navigate to the `roles/dsk-qbittorrent` directory."
-msgstr ""
+msgstr "Navigate `roles/dsk-qbittorrent` Kataloq."
 
 # translated-by: libretranslate
 msgid "Navigate to the `roles/hunspell` directory within the repository."
@@ -37482,18 +37613,21 @@ msgstr "Ne (``!``) and ``**`` globstar vasitəsilə dəstəkləmir - repo's ``.g
 msgid "Neither Odoo SA nor the OCA publishes a server; the leading third party carries 197 of 231 commits from one author, keeps its access control in a separate Odoo Apps store module outside any pinnable tag, and defaults to a mutating tool scope."
 msgstr "Ne Odoo SA ne de OCA bir server yayımlamaq; aparıcı üçüncü partiya gəlir 197 Oxunub 231 Bir yazardan işləyir, hər bir pinnable tag daxil olmaqla ayrı Odoo Apps mağazası modulunda giriş nəzarətini saxlamaq, və bir mutating alətin defaults."
 
+# translated-by: libretranslate
 msgid "Neither correction works alone, which is why both ship. Declaring 8192 while still estimating 5461 leaves the model eligible; estimating 8192 while still declaring 16384 does the same. Together the demand becomes 8192 plus the 16 output tokens, which exceeds the honest window and excludes the route. The constant is therefore `services.litellm.router_min_chars_per_token`, named as a floor rather than an average, and it is rendered into both the hook and the probe so the two cannot drift."
-msgstr ""
+msgstr "Ne düzelmə işləyir, ki, həm də həmçinin. Dec 8192 haqqında 5461 model uyğun olaraq; sənaye 8192 haqqında 16384 eyni. Bütün hüquqlar qorunur 8192 artıq 16 çıxış çıxışları, səviyyəli qaydaları və marşrutları istisna. Bu halda daimidir `services.litellm.router_min_chars_per_token`, orta daha çox bir yer kimi adlandırılmış, və bu iki qızıl və son daxil edilir."
 
+# translated-by: libretranslate
 msgid "Neither lane alone closes a question. CI says whether a row comes up green on a clean host but hands you a log hours later. The local stack answers in minutes and lets you exec into the container, but it is one host with one slot and it never proves the swarm path the way five distros do."
-msgstr ""
+msgstr "Hər hansı bir səhifə dəyişdirir. CI bir sıra təmiz bir ev sahibi üzərində yaşıl gəlir, lakin bir log saat sonra sifariş edir. Yerli yığını dərhal cavab verir və konteyner əlavə imkan verir, lakin bir slot ilə bir ev və bu beş distros yolu heç bir heç bir hesab edir."
 
 # translated-by: libretranslate
 msgid "Neither side wins by default. Decide per hunk:"
 msgstr "Ne yan qoymaq default. hunk başına qorunur:"
 
+# translated-by: libretranslate
 msgid "Neither strategy is chosen by hand. `services.litellm.router_strategy` derives from `services.jeff.enabled`: with the System One service deployed the gateway asks it, and without it there is nothing to ask, so the gateway falls to the strategy it can compute itself. Reading the service flag rather than `group_names` keeps one path from the deployment to the behaviour."
-msgstr ""
+msgstr "Ne strategiya tərəfindən seçilir. `services.litellm.router_strategy` axtarış `services.jeff.enabled`: ilə System One Ağacaq şəkildən istifadə etmək istəyir, və istəmək üçün heç bir şey yoxdur, belə ağacaq sistemə düşən. Xidmət bayrağını daha çox `group_names` davranış quraşdırılmasından bir yol tutur."
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -37772,8 +37906,9 @@ msgstr "No SSO. Proqram öz istifadəçi masasına qarşı asanlaşdırmaq və O
 msgid "No Unsandboxed Escape Hatch 🚪"
 msgstr "No Unsandboxed Escape 🚪"
 
+# translated-by: libretranslate
 msgid "No `--mode`, `--tor`, `--distros` or `--filesystem`. Those inputs pin an axis for the whole run, which the tokens already do per row, and a run-level pool that disagrees with a token refuses it. The only reason to reach for them is a line where every row genuinely shares one value, and even then the token form is what the report has to show."
-msgstr ""
+msgstr "Noyabr `--mode`, `--tor`, `--distros` yaxşı `--filesystem`. Bu girişlər bütün run üçün bir aksanı pin, heç bir sıra edir, və bir token ilə razı olmayan bir run-level havuz. Onlara çatmaq üçün yalnız səfər hər bir sıra bir dəyər dəyişdirir bir sıra, və daha sonra token forması göstərmək lazımdır."
 
 msgid "No ``__all__``: declaring the re-exported name makes autodoc document the class here as well as where it is defined, and sphinx then finds two targets for every ``ImageRef`` annotation."
 msgstr ""
@@ -37933,8 +38068,9 @@ msgstr "Heç bir mövcuddur. İctimai delegelər ``utils.roles.applications.serv
 msgid "No prior server-side Tor art in the repo (`desk-torbrowser` is desktop client only)"
 msgstr "No prior server-side Tor sənayesi (`desk-torbrowser` masaüstü müştəri yalnız)"
 
+# translated-by: libretranslate
 msgid "No privileged mode, no host network, pid, ipc or user namespace, no host bind mount, no container-engine socket."
-msgstr ""
+msgstr "No imtiyazlı rejimi, heç bir host network, pid, ipc və ya istifadəçi adıspace, heç bir host bağlayıcı dağ, heç bir konteyner-engine yuva."
 
 # translated-by: libretranslate
 msgid "No provider or client `enabled` or `shared` expression may enumerate concrete peer role names. Provider enablement MUST be explicit operator/variant state or derived through a common direction-aware lookup. Every client MUST declare supported transports and authentication schemes. The discovery result MUST include selected entries and rejected entries with a stable rejection code such as `consumer_not_allowed`, `transport_unsupported`, `auth_unsupported`, `credential_missing`, or `endpoint_unreachable`."
@@ -37968,8 +38104,9 @@ msgstr "Qeyd olunan statistikalar Xüsusi funksiyası."
 msgid "No value is ever substituted. Ansible's Linux hardware collector reads `/sys/block/<dev>/size` without a None guard and takes every hardware fact with it when that read fails, which is why the facts are a preferred source here rather than the only one."
 msgstr "Heç bir dəyişdirilməsi. Linux hardware kollektoru `/sys/block/<dev>/size` Heç bir sifariş olmadan və oxuyduğu zaman hər bir hardware müştəri almaq, ki, reallar yalnız bir daha burada tercih edilir."
 
+# translated-by: libretranslate
 msgid "No weighting sends a restricted request out of the cluster"
-msgstr ""
+msgstr "Qarışıq qarşısını almaq"
 
 # translated-by: libretranslate
 msgid "No-code builder for LLM apps / agent flows"
@@ -38135,8 +38272,9 @@ msgstr "Oxunub 📝"
 msgid "Notes:"
 msgstr "Qeyd:"
 
+# translated-by: libretranslate
 msgid "Nothing recorded that cost, so the choice used to be made by assertion. Deploy job titles carry the whole row (:func:`utils.github.variant.axes.parse_label`) and the API gives every job a start and an end, so the cost per axis value is read back off the runs that already happened."
-msgstr ""
+msgstr "Heç bir şey bu səyahəti qeyd etdi, sərfə tərəfindən istifadə edilən seçimi. İş ünvanları bütün sıra idarə edir (:func:`utils.github.variant.axes.parse_label`) the API hər işi bir start və son verir, bu qanun dəyişdirilməsi artıq qiymət artıq əvvəl olduqdan sonra geri olar."
 
 # translated-by: libretranslate
 msgid "Notifies NGINX to restart after removing configurations."

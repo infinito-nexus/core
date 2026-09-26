@@ -8996,8 +8996,9 @@ msgstr "**القيمة:** `\"9oVizYIYVGlZ3VtWQIKRS5UghyXiqGoUNlCtIE7LiA\"`"
 msgid "**Variant 1 of `svc-ai-ollama` serves three models with different windows.** A router is only observable when the routes differ in something the request can demand. Variant 1 therefore preloads `qwen2.5:0.5b`, `smollm2:135m` and `llama3.2:1b` with declared windows of 4096, 16384 and 65536. A declared window below what the tag supports is deliberate: it bounds the KV cache, and it is the number the filter reads."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**Variant 2 of `svc-ai-litellm` carries `system_one` on three mocks, and no fourth variant is added.** The strategy is only observable when the routes differ in the one thing it ranks on, so that variant publishes mocks with windows of 4096, 16384 and 131072. Mocks pull no model and cost no wall clock, and they carry no measured rate, so nothing but the window separates them and the round tests exactly the axis the strategy adds. `mock/deterministic` keeps its name and its 131072 window, because the agent broker runs its agents on it in every round."
-msgstr ""
+msgstr "**البديل 2 of of `svc-ai-litellm` حمل `system_one` على ثلاثة مراكب، وليس هناك متغير رابع.** الإستراتيجية لا يمكن ملاحظتها إلا عندما تتباين الطرق في الشيء الوحيد الذي ترتاده لذا ينشر المتغير نوافذ 4096.. 16384 و 131072. المراكب لا تسحب أي نموذج ولا تكلف أي ساعة حائطية ولا تحمل سعراً مقاسياً لذا لا شيء سوى النوافذ تفصلهم `mock/deterministic` يحتفظ باسمه 131072 النافذة، لأن الوسيط العميل يدير عملائه في كل جولة."
 
 # translated-by: libretranslate
 msgid "**Variant-matrix coverage:** Ships ``meta/variants.yml`` exercising both polarities of the ``cdn`` dependency."
@@ -9171,11 +9172,13 @@ msgstr "**مهندس سير العمل:** العمليات والإخطارات 
 msgid "**Workload-neutral contract.** The `meta/addons/` contract applies to any role type that declares role-level extensions, including desktop roles such as `desk-gnome-extensions`. The materialised path still uses the role's assembled application entry, `applications.<role_id>.addons`."
 msgstr "**عقد محايد** The `meta/addons/` ينطبق العقد على أي نوع من الأدوار يعلن التمديدات على مستوى الدور، بما في ذلك الأدوار المكتبية مثل `desk-gnome-extensions`. الطريق المادي لا يزال يستخدم دخول تطبيق الدور المجمّع `applications.<role_id>.addons`."
 
+# translated-by: libretranslate
 msgid "**Workstation scope:** Targets the desktop tier (``dsk-*``) and stays out of server inventories."
-msgstr ""
+msgstr "**نطاق التشغيل:** الأهداف المكتبية (``dsk-*``) ويبقى خارج قوائم الخواديم."
 
+# translated-by: libretranslate
 msgid "**Workstation scope:** Targets the desktop tier (`dsk-*`) and stays out of server inventories."
-msgstr ""
+msgstr "**نطاق التشغيل:** الأهداف المكتبية (`dsk-*`) ويبقى خارج قوائم الخواديم."
 
 # translated-by: libretranslate
 msgid "**Wrapper Task:** Reusable Ansible include in ``tasks/utils/debug.yml`` for calling and printing the shared diagnostics."
@@ -9332,8 +9335,9 @@ msgstr ""
 msgid "**`frappe`** (Gunicorn) — Python web backend"
 msgstr "**`frappe`** (Gunicorn) - Python web backend"
 
+# translated-by: libretranslate
 msgid "**`host_execution_boundary` (45):** `dev-arduino`, `dev-core`, `dev-java`, `dev-locales`, `dev-make`, `dev-nix`, `dev-nodejs`, `dev-python`, `drv-epson-multiprinter`, `drv-intel`, `drv-lid-switch`, `drv-non-free`, `dsk-bluray-player`, `dsk-chromium`, `dsk-code`, `dsk-copyq`, `dsk-docker`, `dsk-dotlinker`, `dsk-firefox`, `dsk-git`, `dsk-gnome`, `dsk-gnome-caffeine`, `dsk-gnome-extensions`, `dsk-gnome-terminal`, `dsk-gnt-claude`, `dsk-gnt-codex`, `dsk-gnt-cursor`, `dsk-gnt-pi`, `dsk-gnucash`, `dsk-jrnl`, `dsk-keepassxc`, `dsk-laya`, `dsk-libreoffice`, `dsk-micro`, `dsk-neovim`, `dsk-nextcloud`, `dsk-obs`, `dsk-qbittorrent`, `dsk-retroarch`, `dsk-spotify`, `dsk-ssh`, `dsk-torbrowser`, `dsk-virtualbox`, `dsk-zoom`, `gen-hunspell`. These roles operate a workstation, developer toolchain, device, or host package; bridging them would amount to shared shell, filesystem, browser-session, device, or host execution without an application-specific remote identity."
-msgstr ""
+msgstr "**`host_execution_boundary` (45):** `dev-arduino`.. `dev-core`.. `dev-java`.. `dev-locales`.. `dev-make`.. `dev-nix`.. `dev-nodejs`.. `dev-python`.. `drv-epson-multiprinter`.. `drv-intel`.. `drv-lid-switch`.. `drv-non-free`.. `dsk-bluray-player`.. `dsk-chromium`.. `dsk-code`.. `dsk-copyq`.. `dsk-docker`.. `dsk-dotlinker`.. `dsk-firefox`.. `dsk-git`.. `dsk-gnome`.. `dsk-gnome-caffeine`.. `dsk-gnome-extensions`.. `dsk-gnome-terminal`.. `dsk-gnt-claude`.. `dsk-gnt-codex`.. `dsk-gnt-cursor`.. `dsk-gnt-pi`.. `dsk-gnucash`.. `dsk-jrnl`.. `dsk-keepassxc`.. `dsk-laya`.. `dsk-libreoffice`.. `dsk-micro`.. `dsk-neovim`.. `dsk-nextcloud`.. `dsk-obs`.. `dsk-qbittorrent`.. `dsk-retroarch`.. `dsk-spotify`.. `dsk-ssh`.. `dsk-torbrowser`.. `dsk-virtualbox`.. `dsk-zoom`.. `gen-hunspell`. ويدير هذان الدوران محطة عمل، أو مجموعة أدوات مطورة، أو جهاز، أو مجموعة مضيفة؛ وسيمثل سدهما قذيفة مشتركة، وملفات، وحياة مكبرات، أو جهاز، أو التنفيذ المضيف بدون هوية نائية محددة التطبيق."
 
 # translated-by: libretranslate
 msgid "**`hostname`** (string):"
@@ -9370,8 +9374,9 @@ msgstr "**`mechanism: bridge`** علامة إضافات *هو* a network/appserv
 msgid "**`no_remote_surface` (27):** `svc-ai-ollama`, `svc-ai-robot`, `svc-ai-s1`, `svc-ai-searxng`, `svc-ai-tika`, `web-app-chess`, `web-app-dashboard`, `web-app-docs`, `web-app-fediwall`, `web-app-hugo`, `web-app-littlejs`, `web-app-mig`, `web-app-mini-qr`, `web-app-navigator`, `web-app-roulette-wheel`, `web-opt-rdr-domains`, `web-opt-rdr-www`, `web-svc-asset`, `web-svc-cdn`, `web-svc-coturn`, `web-svc-css`, `web-svc-file`, `web-svc-html`, `web-svc-legal`, `web-svc-logout`, `web-svc-mirror`, `web-svc-simpleicons`. These roles have no independently useful authenticated remote action contract at the pinned implementation. Static published content MAY later be consumed through one owning application's bounded `resource_readonly` adapter, but a new MCP sidecar that merely reimplements a static site's behavior does not count as integration. Model tool calling in Ollama does not by itself make Ollama an MCP client or server."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**`privileged_control_plane` (27):** `svc-ai-agent-broker`, `svc-ai-jupyter`, `svc-bkp-local-2-device`, `svc-bkp-nfs-2-local`, `svc-bkp-remote-2-local`, `svc-bkp-secrets-2-local`, `svc-bkp-volume-2-local`, `svc-dns-unbound`, `svc-net-firewall`, `svc-net-tor`, `svc-net-wireguard-core`, `svc-net-wireguard-firewalled`, `svc-net-wireguard-plain`, `svc-opt-keyboard-color`, `svc-opt-ssd-hdd`, `svc-opt-swapfile`, `svc-prx-openresty`, `svc-registry-cache`, `svc-registry-docker`, `svc-runner`, `svc-storage-nfs-client`, `svc-storage-nfs-server`, `svc-swarm-manager`, `svc-swarm-node`, `svc-virt-kata`, `update`, `web-app-openbao`. These roles can recover secrets, alter routing or host state, run code, change deployment state, or reach storage/control-plane sockets; they require a separate audited operations gateway and human approval rather than general-purpose application MCP."
-msgstr ""
+msgstr "**`privileged_control_plane` (27):** `svc-ai-agent-broker`.. `svc-ai-jupyter`.. `svc-bkp-local-2-device`.. `svc-bkp-nfs-2-local`.. `svc-bkp-remote-2-local`.. `svc-bkp-secrets-2-local`.. `svc-bkp-volume-2-local`.. `svc-dns-unbound`.. `svc-net-firewall`.. `svc-net-tor`.. `svc-net-wireguard-core`.. `svc-net-wireguard-firewalled`.. `svc-net-wireguard-plain`.. `svc-opt-keyboard-color`.. `svc-opt-ssd-hdd`.. `svc-opt-swapfile`.. `svc-prx-openresty`.. `svc-registry-cache`.. `svc-registry-docker`.. `svc-runner`.. `svc-storage-nfs-client`.. `svc-storage-nfs-server`.. `svc-swarm-manager`.. `svc-swarm-node`.. `svc-virt-kata`.. `update`.. `web-app-openbao`. ويمكن أن تسترد هذه الأدوار الأسرار، أو تغير مسارات أو دولة مضيفة، أو تشغيل الشفرة، أو تغيير حالة النشر، أو الوصول إلى جوارب التخزين/الخطة المراقبة؛ وهي تحتاج إلى بوابة عمليات منفصلة ومراجعة والموافقة على البشر بدلاً من تطبيق الفينول الخماسي الكلور للأغراض العامة."
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -9441,14 +9446,16 @@ msgstr "**`wsl2.sh`**- التمكين من النظام على أنه WSL2 نظ�
 msgid "**`wsl2.sh`**. installs the CA into the Windows trust store and updates the Windows hosts file (WSL2 only)"
 msgstr "**`wsl2.sh`**يُركّزُ CA إلى مخزنِ ويندوز الإستئماني ويُحدّثُ ملف ويندوز المضيف (WSL2 فقط)"
 
+# translated-by: libretranslate
 msgid "**a fix that landed after the source run's verdict.** CI has never judged it; the local stack can, today."
-msgstr ""
+msgstr "**إصلاح هبط بعد حكم المصدر** لم تحكم عليه المخابرات المركزية أبداً، الحزمة المحلية تستطيع اليوم."
 
 msgid "**a pin that came from the pool default.** The CI row will be green or red for a combination nobody chose, so its verdict answers a different question than the one asked."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**a role whose failure was about container state** rather than placement: credentials, migrations, a healthcheck, a missing route. Those reproduce locally in full. Placement, overlay networking and replica counts do not."
-msgstr ""
+msgstr "**دور كان فشله عن دولة الحاويات** بدلا من التنسيب: وثائق التفويض، والهجرة، والفحص الصحي، والطريق المفقود. هؤلاء يتكاثرون محلياً بالكامل التنسيب والربط الشبكي وحسابات التكرار لا تفعل."
 
 # translated-by: libretranslate
 msgid "**account**"
@@ -9493,8 +9500,9 @@ msgstr "**الدعم** (دليل) إكتشفْ + إستعادة `nfs → volume 
 msgid "**baseline exclusions** — `web-app-fider` and `web-app-bookwyrm` (also keycloak-job, n8n) were red before the tor branch and stay out of scope for it; bookwyrm fails its oauth2 trusted-header session spec, fider its baseline. Fix separately from the onion work. espocrm has left this list: its onion variant failed in the shared admin persona (fixed in b97cf8888) and its clearnet variant returns HTTP 500 on GET /api/v1/App/user, cause still open."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "**both red, different errors**: two causes, not one. Split them."
-msgstr ""
+msgstr "**أخطاء حمراء مختلفة**: سببان , ليس واحد انفصلوا."
 
 # translated-by: libretranslate
 msgid "**bridgy-fed**"
@@ -9512,8 +9520,9 @@ msgstr "**castling.club** هو خادم شطرنج اتحادي مبني على 
 msgid "**cdn**"
 msgstr "**cdn**"
 
+# translated-by: libretranslate
 msgid "**company**: Kevin Veen-Birkenbach https://www.veen.world"
-msgstr ""
+msgstr "**الشركة**: Kevin Veen-Birkenbach https://www.veen.world"
 
 # translated-by: libretranslate
 msgid "**compose** is the default. Single host, local docker volumes, no cluster awareness. Every role works in this mode unchanged."
@@ -9547,7 +9556,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**description**: Aggregate NGINX sub-filter injector adding Matomo tracking, global theming, iFrame and JS snippets by feature flag"
-msgstr ""
+msgstr "**الوصف**: Aggregate NGINX sub-filter injector added Matomo التتبع، والعولمة، والإيفرامي، والقنابل المشتركة حسب العلم"
 
 # translated-by: libretranslate
 msgid "**description**: Aggregate desktop environment bundling caffeine, shell extensions, and terminal into a complete GNOME setup on Linux"
@@ -9563,7 +9572,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**description**: Automated recovery service restarting exited or unhealthy Docker Compose stacks and resolving port conflicts"
-msgstr ""
+msgstr "**الوصف**: Automated recovery service restarting out or unhealth Docker Compose الحزم وحل النزاعات في الموانئ"
 
 # translated-by: libretranslate
 msgid "**description**: Automation role for reverse DNS (PTR) records on Hetzner Cloud servers, primary IPs, floating IPs, and load balancers"
@@ -9591,10 +9600,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**description**: Central Dockerized search engine shared by multiple apps with per-consumer scoped API keys"
-msgstr ""
+msgstr "**الوصف**: Central Dockerized search motor shared by multiple apps with per-consumer scoped API مفاتيح"
 
+# translated-by: libretranslate
 msgid "**description**: Central document extraction engine that turns uploaded files into text for retrieval-augmented chat"
-msgstr ""
+msgstr "**الوصف**: المحركات المركزية لاستخراج الوثائق التي تحولت إلى تحميل الملفات في النص لاسترجاعها"
 
 # translated-by: libretranslate
 msgid "**description**: Central in-memory caching engine with per-consumer key-prefix isolation, usable centrally or as an embedded sidecar"
@@ -9633,7 +9643,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**description**: Cleanup routine for deprecated domains, removing Nginx configs and revoking their Certbot certificates"
-msgstr ""
+msgstr "**الوصف**: Cleanup routine for deprecated domains, removing Nginx configs and revoking their Certbot الشهادات"
 
 # translated-by: libretranslate
 msgid "**description**: Cleanup routine for reclaiming disk space from temp files, package caches, optional Docker data and old backups"
@@ -9688,7 +9698,7 @@ msgstr "**الوصف**: الحاويات Reveal.js ينزلق سطح الأرض 
 
 # translated-by: libretranslate
 msgid "**description**: Containerized icon server for hosting the Simple Icons brand SVG and PNG collection for web and documentation use"
-msgstr ""
+msgstr "**الوصف**: Containerized icon server for hosting the Simple Icons مجموعة برمجيات SVG و PNG من أجل استخدام الإنترنت والتوثيق"
 
 # translated-by: libretranslate
 msgid "**description**: Containerized relational database with automated database, user, and privilege provisioning"
@@ -9748,7 +9758,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**description**: Desktop config role for activating GNOME Shell extensions and installing a CLI tool to manage them"
-msgstr ""
+msgstr "**الوصف**: Desktop config role for activating GNOME Shell تمديد وتركيب أداة من أدوات الحرف اليدوية لإدارة تلك الأجهزة"
 
 # translated-by: libretranslate
 msgid "**description**: Desktop media-player setup with VLC and AACS/BD+ libraries for Blu-ray disc decryption and playback on Arch Linux"
