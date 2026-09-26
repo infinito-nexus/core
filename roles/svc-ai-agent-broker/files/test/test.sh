@@ -102,8 +102,15 @@ broker_env() {
 }
 
 relayed() {
-	container docker logs --since "$1" "${AGENT_BROKER_CONTAINER}" 2>&1 |
-		grep -qF "\"event\": \"relay\", \"owner\": \"$2\", \"platform\": \"$3\", \"path\": \"/v1/chat/completions\", \"status\": 200"
+	local _attempt
+	for _attempt in {1..10}; do
+		if container docker logs --since "$1" "${AGENT_BROKER_CONTAINER}" 2>&1 |
+			grep -F "\"event\": \"relay\", \"owner\": \"$2\", \"platform\": \"$3\", \"path\": \"/v1/chat/completions\", \"status\": 200" >/dev/null; then
+			return 0
+		fi
+		sleep 1
+	done
+	return 1
 }
 
 # shellcheck disable=SC2329,SC2317 # reached through the EXIT trap below, which shellcheck does not follow.
