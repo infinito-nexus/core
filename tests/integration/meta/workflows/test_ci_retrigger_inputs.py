@@ -42,6 +42,7 @@ _VALUES = {
     "mode": "swarm",
     "filesystem": "btrfs",
     "tor": "enforced",
+    "vpn": "enforced",
     "offset": "40",
     "chunk_size": "25",
     "chunk_gate": "false",

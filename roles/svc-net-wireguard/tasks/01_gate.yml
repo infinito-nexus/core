@@ -1,0 +1,80 @@
+---
+# Rationale: the layer is binary. Either every swarm deploy proceeds over the
+# mesh or none does, so this gate runs before swarm init and fails the deploy
+# rather than letting a role discover the partition later.
+- name: "🔍 Read the peer state of every interface"
+  ansible.builtin.command: "wg show {{ mesh_name | quote }} peers"
+  loop: "{{ WIREGUARD_MESH_NAMES }}"
+  loop_control:
+    loop_var: mesh_name
+  register: wireguard_peer_state
+  changed_when: false
+
+- name: "🛑 Fail when an interface carries no peer"
+  ansible.builtin.fail:
+    msg: >-
+      WireGuard interface '{{ item.mesh_name }}' on {{ inventory_hostname }}
+      came up with no peer. The mesh in this host's inventory is incomplete.
+  loop: "{{ wireguard_peer_state.results }}"
+  loop_control:
+    label: "{{ item.mesh_name }}"
+  when: (item.stdout | trim) | length == 0
+
+# Exception: the handshake is the proof, not a ping. wg reports it directly, it
+# needs no tooling the host might not carry, and it stays true where ICMP is
+# filtered. A peer that has never completed one reports a literal 0.
+- name: "⏳ Wait until every spoke interface has handshaked with its hub"
+  ansible.builtin.command: "wg show {{ mesh_name | quote }} latest-handshakes"
+  loop: "{{ WIREGUARD_SPOKE_MESH_NAMES }}"
+  loop_control:
+    loop_var: mesh_name
+  register: wireguard_handshakes
+  changed_when: false
+  failed_when: false
+  retries: 24
+  delay: 5
+  until: wireguard_handshakes.stdout is not search('\t0')
+
+- name: "🛑 Fail hard when a spoke never reached its hub"
+  ansible.builtin.fail:
+    msg: >-
+      WireGuard interface '{{ item.mesh_name }}' on {{ inventory_hostname }}
+      never completed a handshake with its hub. No swarm deploy can proceed
+      over a partitioned mesh.
+  loop: "{{ wireguard_handshakes.results | default([]) }}"
+  loop_control:
+    label: "{{ item.mesh_name }}"
+  when: (item.stdout | default('\t0')) is search('\t0')
+
+# Exception: ping is optional tooling, so the MTU probe is skipped rather than
+# failed when it is absent. The handshake above already proves the tunnel; this
+# only proves the path carries a full-size frame, which is the VXLAN-inside-
+# WireGuard trap.
+- name: "🔍 Check whether ping is available for the MTU probe"
+  ansible.builtin.stat:
+    path: "{{ WIREGUARD_PING_BINARY }}"
+  register: wireguard_ping
+
+- name: "📏 Prove the path carries a full-size payload without fragmenting"
+  ansible.builtin.command: >-
+    {{ WIREGUARD_PING_BINARY }} -c 2 -W 2 -M do
+    -s {{ wireguard_overlay_mtu | int - 28 }} {{ item | quote }}
+  loop: "{{ WIREGUARD_EXPECTED_PEERS }}"
+  register: wireguard_mtu_probe
+  changed_when: false
+  failed_when: false
+  when: wireguard_ping.stat.exists
+
+- name: "🛑 Fail when the overlay MTU does not survive the tunnel"
+  ansible.builtin.fail:
+    msg: >-
+      A {{ wireguard_overlay_mtu | int }}-byte payload does not reach
+      {{ oversized | map(attribute='item') | join(', ') }} from
+      {{ inventory_hostname }}. Stacked VXLAN inside WireGuard needs the
+      overlay MTU at or below the tunnel's, or large payloads drop silently.
+  vars:
+    oversized: >-
+      {{ wireguard_mtu_probe.results | default([])
+         | rejectattr('skipped', 'defined')
+         | rejectattr('rc', 'equalto', 0) | list }}
+  when: oversized | length > 0

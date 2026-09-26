@@ -111,6 +111,18 @@
   ansible.builtin.include_role:
     name: user-root
 
+# Exception: ahead of the dist-upgrade, and ahead of the swarm bootstrap far
+# below. The mesh is the transport the rest of the deploy is meant to run over,
+# so it comes up before anything else touches the host; installing after the
+# upgrade leaves apt unable to satisfy the tooling's dependencies. svc-swarm-node
+# is staged explicitly rather than through the dependency walk, so run_after
+# never orders it, and swarm init would advertise a mesh address whose
+# interface does not exist yet.
+- name: "🥾 Bootstrap svc-net-wireguard"
+  ansible.builtin.include_role:
+    name: svc-net-wireguard
+  when: "'svc-net-wireguard' | application_allowed(group_names, lookup('deployment').whitelist)"
+
 - name: 🔄 update device
   ansible.builtin.include_role:
     name: update

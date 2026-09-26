@@ -13,3 +13,9 @@
       - check
   changed_when: false
   timeout: "{{ lookup('timeout', 660) | int }}"
+
+- name: "🔄 Refresh the package index"
+  ansible.builtin.apt:
+    update_cache: true
+    lock_timeout: 600
+  changed_when: false

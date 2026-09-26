@@ -7,7 +7,13 @@ STORAGE_NFS_MOUNT_OPTS: "{{ lookup('nfs_mount_opts') }}"
 STORAGE_NFS_FSTYPE: "{{ lookup('nfs_fstype') }}"
 STORAGE_NFS_CLIENT_SRC: "{{ lookup('nfs_client_src') }}"
 
+# Rationale: the controller reaches the NFS server on its own address. Where a
+# VPN joins the cluster and the controller is not a member, the server's mesh
+# address is unroutable from there, so the two mounts cannot share one source.
+STORAGE_NFS_CONTROLLER_SRC: "{{ lookup('nfs_client_src', 'controller') }}"
+
 storage:
   backend: local
   nfs:
     server: ""
+    controller_server: ""

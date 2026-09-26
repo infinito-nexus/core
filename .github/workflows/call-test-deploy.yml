@@ -60,6 +60,10 @@ on:
         required: false
         type: string
         default: auto
+      vpn:
+        required: false
+        type: string
+        default: auto
       disable:
         description: "Comma-separated provider keys removed from the test inventory; used when the matrix row carries none of its own."
         required: false
@@ -191,6 +195,7 @@ jobs:
           INFINITO_PRIORITY: ${{ inputs.priority }}
           INFINITO_MODES: ${{ inputs.modes }}
           INFINITO_TOR: ${{ inputs.tor }}
+          INFINITO_VPN: ${{ inputs.vpn }}
           INFINITO_CI_SWEEP: ${{ inputs.sweep }}
           INFINITO_CI_CHUNK: ${{ inputs.index }}
           INFINITO_CI_OFFSET: ${{ inputs.offset }}
@@ -209,6 +214,7 @@ jobs:
           PLAN_MODES: ${{ inputs.modes }}
           PLAN_LIFECYCLES: ${{ inputs.lifecycles }}
           PLAN_TOR: ${{ inputs.tor }}
+          PLAN_VPN: ${{ inputs.vpn }}
           PLAN_OFFSET: ${{ inputs.offset }}
         run: |
           source scripts/meta/env/load.sh
@@ -220,6 +226,7 @@ jobs:
             --modes "${PLAN_MODES}" \
             --lifecycles "${PLAN_LIFECYCLES}" \
             --tor "${PLAN_TOR}" \
+            --vpn "${PLAN_VPN}" \
             --offset "${PLAN_OFFSET}" \
             >> "$GITHUB_STEP_SUMMARY"
 
@@ -325,6 +332,7 @@ jobs:
         env:
           variant: ${{ matrix.variant }}
           disable: ${{ matrix.disable || inputs.disable }}
+          INFINITO_SWARM_VPN: ${{ matrix.vpn }}
         run: ./scripts/tests/deploy/distros.sh "${{ env.SCRIPTS }}/00_one.sh" 2>&1 | tee "/tmp/ansible-${{ matrix.apps }}.log"
 
       - name: 🚀 Deploy app

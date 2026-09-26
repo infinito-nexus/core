@@ -13,7 +13,11 @@ back the job title of the run they want repeated:
 
 * the job label CI emits (``🐳🧅🌀🦓网络应用·Nextcloud#2``) -- the glyphs carry
   mode, onion state, distro and filesystem, the ``#`` shard the variants;
-* an ASCII form (``web-app-nextcloud#0,2@swarm+tor%debian/zfs``).
+* an ASCII form (``web-app-nextcloud#0,2@swarm+tor%debian/zfs&vpn``).
+
+The mesh state takes its own ``&`` separator rather than more ``+`` words: ``+``
+is the onion axis, and one separator meaning two things could not be read back
+off a job title unambiguously.
 
 The onion state spells out as ``+tor``/``+clearnet`` rather than as a ``-tor``
 suffix: a role id may itself end in ``-tor`` (``svc-net-tor``), and a suffix
@@ -46,7 +50,11 @@ DISTRO_SEPARATOR = "%"
 
 FILESYSTEM_SEPARATOR = "/"
 
+VPN_SEPARATOR = "&"
+
 TOR_WORDS = {"tor": True, "clearnet": False}
+
+VPN_WORDS = {"vpn": True, "direct": False}
 
 _STRIPPED_GLYPHS = ("priority", "test_host")
 
@@ -58,6 +66,7 @@ _SEPARATORS = (
     + TOR_SEPARATOR
     + DISTRO_SEPARATOR
     + FILESYSTEM_SEPARATOR
+    + VPN_SEPARATOR
 )
 
 _TOKEN = re.compile(
@@ -66,7 +75,8 @@ _TOKEN = re.compile(
     r"(?:" + re.escape(MODE_SEPARATOR) + r"(?P<mode>[a-z]+))?"
     r"(?:" + re.escape(TOR_SEPARATOR) + r"(?P<tor>[a-z]+))?"
     r"(?:" + re.escape(DISTRO_SEPARATOR) + r"(?P<distro>[a-z0-9]+))?"
-    r"(?:" + re.escape(FILESYSTEM_SEPARATOR) + r"(?P<filesystem>[a-z0-9]+))?$"
+    r"(?:" + re.escape(FILESYSTEM_SEPARATOR) + r"(?P<filesystem>[a-z0-9]+))?"
+    r"(?:" + re.escape(VPN_SEPARATOR) + r"(?P<vpn>[a-z]+))?$"
 )
 
 _SYNTAX = (
@@ -92,19 +102,22 @@ class Pin(NamedTuple):
     tor: bool | None = None
     distro: str | None = None
     filesystem: str | None = None
+    vpn: bool | None = None
 
     @property
     def pinned(self) -> bool:
         """Whether the token narrows anything at all beyond the role name."""
         return bool(self.variants) or any(
             axis is not None
-            for axis in (self.mode, self.tor, self.distro, self.filesystem)
+            for axis in (self.mode, self.tor, self.distro, self.filesystem, self.vpn)
         )
 
     @property
-    def axes(self) -> tuple[str | None, bool | None, str | None, str | None]:
+    def axes(
+        self,
+    ) -> tuple[str | None, bool | None, str | None, str | None, bool | None]:
         """What the token narrows, as the key two tokens are equal under."""
-        return (self.mode, self.tor, self.distro, self.filesystem)
+        return (self.mode, self.tor, self.distro, self.filesystem, self.vpn)
 
 
 def describe(pin: Pin) -> str:
@@ -121,6 +134,11 @@ def describe(pin: Pin) -> str:
         )
         + (f"{DISTRO_SEPARATOR}{pin.distro}" if pin.distro else "")
         + (f"{FILESYSTEM_SEPARATOR}{pin.filesystem}" if pin.filesystem else "")
+        + (
+            f"{VPN_SEPARATOR}{'vpn' if pin.vpn else 'direct'}"
+            if pin.vpn is not None
+            else ""
+        )
     )
 
 
@@ -134,12 +152,15 @@ def _word_glyph(text: str, words: Iterable[str]) -> tuple[str, str | None]:
     return text, found
 
 
-def _glyphs(text: str) -> tuple[str, str | None, bool | None, str | None, str | None]:
+def _glyphs(
+    text: str,
+) -> tuple[str, str | None, bool | None, str | None, str | None, bool | None]:
     """Take the label glyphs off a pasted job title and read them as axes."""
     text, mode = _word_glyph(text, MODES)
     text, onion = _word_glyph(text, TOR_WORDS)
     text, distro = _word_glyph(text, DISTROS)
     text, filesystem = _word_glyph(text, FILESYSTEMS)
+    text, mesh = _word_glyph(text, VPN_WORDS)
     for word in _STRIPPED_GLYPHS:
         text = text.replace(to_emoji(word), "")
     return (
@@ -148,6 +169,7 @@ def _glyphs(text: str) -> tuple[str, str | None, bool | None, str | None, str | 
         None if onion is None else TOR_WORDS[onion],
         distro,
         filesystem,
+        None if mesh is None else VPN_WORDS[mesh],
     )
 
 
@@ -173,7 +195,7 @@ def parse(token: str) -> Pin:
             that does not exist. A typo must abort the run rather than narrow
             it to nothing.
     """
-    text, glyph_mode, glyph_tor, glyph_distro, glyph_fs = _glyphs(
+    text, glyph_mode, glyph_tor, glyph_distro, glyph_fs, glyph_vpn = _glyphs(
         _VARIATION.sub("", token.strip())
     )
     match = _TOKEN.match(text)
@@ -185,6 +207,7 @@ def parse(token: str) -> Pin:
         ("tor", "onion state", TOR_WORDS),
         ("distro", "distro", DISTROS),
         ("filesystem", "filesystem", FILESYSTEMS),
+        ("vpn", "mesh state", VPN_WORDS),
     ):
         value = match.group(group)
         if value is not None and value not in declared:
@@ -196,6 +219,7 @@ def parse(token: str) -> Pin:
     name = match.group("name")
     variants = match.group("variants")
     word = match.group("tor")
+    mesh_word = match.group("vpn")
     return Pin(
         display_names().decode(name) or name,
         tuple(int(index) for index in variants.split(",")) if variants else (),
@@ -203,6 +227,7 @@ def parse(token: str) -> Pin:
         _agree(TOR_WORDS[word] if word else None, glyph_tor, token, "onion"),
         _agree(match.group("distro"), glyph_distro, token, "distro"),
         _agree(match.group("filesystem"), glyph_fs, token, "filesystem"),
+        _agree(VPN_WORDS[mesh_word] if mesh_word else None, glyph_vpn, token, "mesh"),
     )
 
 
@@ -227,7 +252,10 @@ def covers(pin: Pin, entry: Mapping[str, Any]) -> bool:
     ):
         if value is not None and entry.get(key) != value:
             return False
-    return pin.tor is None or (entry.get("tor") == "true") == pin.tor
+    for pinned, key in ((pin.tor, "tor"), (pin.vpn, "vpn")):
+        if pinned is not None and (entry.get(key) == "true") != pinned:
+            return False
+    return True
 
 
 def parse_list(tokens: str) -> list[Pin]:
@@ -309,6 +337,7 @@ def apply(
                     "pin_tor": pin.tor,
                     "pin_distro": pin.distro,
                     "pin_filesystem": pin.filesystem,
+                    "pin_vpn": pin.vpn,
                 }
             )
     for index, pin in enumerate(pins):

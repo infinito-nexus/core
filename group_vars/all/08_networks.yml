@@ -22,6 +22,7 @@ NETWORK_DOCKER_ADDRESS_POOLS:
   - base: "10.208.0.0/12"
     size: 24
 NETWORK_TOR_VIRTUAL_CIDR: "10.240.0.0/12" # Range tor answers for .onion instead of routing; must not overlap the pool above
+NETWORK_MESH_POOL: "10.100.0.0/16" # Every WireGuard mesh subnet is carved from here; clears the docker pools, the swarm lab and the per-role range
 NETWORK_CONTAINER_BRIDGE_RESOLVER: false
 NETWORK_NESTED_DOCKER_BIP: "192.168.67.1/24"
 NETWORK_NESTED_DOCKER_ADDRESS_POOLS:

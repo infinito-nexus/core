@@ -43,16 +43,22 @@
   loop: "{{ groups['svc-swarm-node'] | default([]) }}"
   when: hostvars[item].ansible_facts.default_ipv4 is not defined
 
+# Exception: the mesh pool is allowed alongside the underlay addresses. A
+# client that mounts over WireGuard arrives from its mesh address, not from the
+# default_ipv4 fact, and a worker routed through the hub can present either
+# end of that hop. The export then refuses the mount outright -- 'mount system
+# call failed' rather than a timeout, because the packets do arrive.
 - name: "🧮 Compute swarm-member IPs allowed to mount"
   ansible.builtin.set_fact:
     svc_storage_nfs_server_allowed_ips: >-
       {{
-        (groups['svc-swarm-node']
-         | default([])
-         | map('extract', hostvars, ['ansible_facts', 'default_ipv4', 'address'])
-         | select('defined')
-         | list)
-        or [ansible_facts.default_ipv4.address | default('127.0.0.1')]
+        ((groups['svc-swarm-node']
+          | default([])
+          | map('extract', hostvars, ['ansible_facts', 'default_ipv4', 'address'])
+          | select('defined')
+          | list)
+         or [ansible_facts.default_ipv4.address | default('127.0.0.1')])
+        + ((WIREGUARD_SUBNET_POOLS | list) if (WIREGUARD_ENABLED | bool) else [])
       }}
 
 - name: "✅ Assert at least one allowed IP was resolved"

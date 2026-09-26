@@ -127,11 +127,41 @@ def ensure_swarm_keypairs() -> dict[str, str]:
     }
 
 
+def _mesh_address(host_vars_dir: Path, host: str, mesh: str, fallback: str) -> str:
+    """The host's address in ``mesh``, or ``fallback`` when it has none.
+
+    Read from the host_vars the mesh writer produced earlier in the round
+    rather than recomputed, so the allocation stays in one place. Falling back
+    to the underlay keeps a round without a mesh working unchanged.
+    """
+    path = host_vars_dir / f"{host}.yml"
+    if not path.exists():
+        return fallback
+    document = load_yaml(str(path))
+    address = (
+        document.get("applications", {})
+        .get("svc-net-wireguard", {})
+        .get("meshes", {})
+        .get(mesh, {})
+        .get("address")
+    )
+    return address or fallback
+
+
 def main() -> int:
     nfs_ip = os.environ["NFS_IP"]
     mgr_ip = os.environ["MGR_IP"]
     mgr = os.environ["MGR"]
     out_path = Path(os.environ.get("OUT_PATH", "/tmp/swarm-nfs-extras.yml"))  # noqa: S108 - ephemeral swarm-test path, overridable via OUT_PATH
+
+    # Exception: swarm and NFS must be addressed on the mesh, not the underlay.
+    # Pinning them to the lab addresses leaves every tunnel up and carrying
+    # nothing, because both sides keep talking over 192.168.244.0/24.
+    host_vars_dir = out_path.parent / "host_vars"
+    mgr_addr = _mesh_address(host_vars_dir, mgr, "swarm", mgr_ip)
+    nfs_addr = _mesh_address(
+        host_vars_dir, os.environ.get("NFS_SERVER", ""), "data", nfs_ip
+    )
 
     pubkeys = ensure_swarm_keypairs()
 
@@ -153,11 +183,15 @@ def main() -> int:
         "storage": {
             "backend": "nfs",
             "nfs": {
-                "server": nfs_ip,
+                "server": nfs_addr,
+                # Exception: the controller is not a mesh member, so it reaches
+                # the export on the lab address. Pointing it at the mesh one
+                # times out the delegated controller mount.
+                "controller_server": nfs_ip,
             },
         },
         "swarm": {
-            "manager": {"advertise_addr": mgr_ip},
+            "manager": {"advertise_addr": mgr_addr},
             "registry": {"host": mgr, "port": 5000},
             "network": {"encryption": True},
         },

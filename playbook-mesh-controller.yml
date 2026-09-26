@@ -1,0 +1,26 @@
+---
+# Bring the machine driving the deploy onto the mesh, so the pass that follows
+# can reach the nodes over it.
+#
+# Separate from playbook.yml on purpose. The controller is not a managed host:
+# it runs the deploy rather than being deployed to, and the main play targets
+# `all` with `become: true`, so putting the controller in that inventory hands
+# it the whole host bootstrap -- package installs, docker, the DNS check that
+# expects the test domain to resolve. It needs one interface, not a build-out.
+#
+# That one-host inventory is also why the play sets WIREGUARD_ENABLED itself:
+# the variable derives from DEPLOYMENT_MODE, which counts the members of
+# svc-swarm-node, and an inventory holding only the controller has no such
+# group. Left derived, it reads `compose` and the role skips itself.
+- name: "🔒 Put the deploy controller on the mesh"
+  hosts: all
+  connection: local
+  become: true
+  vars:
+    WIREGUARD_ENABLED: true
+  pre_tasks:
+    - name: "🔓 Get apt ready before the first apt task"
+      ansible.builtin.include_tasks: "./tasks/utils/apt/ready.yml"
+      when: ansible_facts['os_family'] == 'Debian'
+  roles:
+    - svc-net-wireguard

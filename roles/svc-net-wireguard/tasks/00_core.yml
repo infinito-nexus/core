@@ -1,0 +1,98 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🛑 Fail when the inventory carries no mesh for this host"
+  ansible.builtin.fail:
+    msg: >-
+      {{ inventory_hostname }} is in a swarm deploy but its inventory declares
+      no WireGuard mesh. Run cli.administration.inventory.mesh over every
+      inventory of this deploy before the play; the mesh is written by that one
+      cross-host pass, never by this role.
+  when: WIREGUARD_MESH_NAMES | length == 0
+
+- name: "📦 Install the WireGuard tooling"
+  package_install:
+    id:
+      - wireguard
+      - iproute
+      - iputils-ping
+
+- name: "📦 Install automtu via pip (system-wide)"
+  include_role:
+    name: sys-pip-install
+  vars:
+    package_name: "automtu==1.1.1"
+    global_install: true
+
+- name: "🔍 Detect the path MTU the tunnel has to fit inside"
+  ansible.builtin.command:
+    argv:
+      - "{{ ansible_python_interpreter }}"
+      - -m
+      - automtu
+      - --pmtu-target
+      - "{{ WIREGUARD_PMTU_TARGETS | join(',') }}"
+      - --pmtu-policy
+      - min
+      - --print-mtu
+      - effective
+  register: wireguard_pmtu
+  changed_when: false
+
+- name: "✅ Assert automtu returned an integer MTU"
+  ansible.builtin.assert:
+    that:
+      - wireguard_pmtu.stdout is match('^[0-9]+$')
+      - (wireguard_pmtu.stdout | int) >= 576
+      - (wireguard_pmtu.stdout | int) <= 9000
+    fail_msg: "automtu returned unexpected MTU output: '{{ wireguard_pmtu.stdout | default('') }}'"
+
+- name: "🔧 Derive the tunnel and overlay MTUs from the measured path"
+  ansible.builtin.set_fact:
+    wireguard_mtu: "{{ wireguard_pmtu.stdout | int - WIREGUARD_HEADER_BYTES | int }}"
+    wireguard_overlay_mtu: >-
+      {{ wireguard_pmtu.stdout | int
+         - WIREGUARD_HEADER_BYTES | int
+         - WIREGUARD_VXLAN_HEADER_BYTES | int }}
+  changed_when: false
+
+- name: "📁 Create {{ WIREGUARD_CONFIG_DIR }}"
+  ansible.builtin.file:
+    path: "{{ WIREGUARD_CONFIG_DIR }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: "📄 Render the interface of every mesh this host belongs to"
+  ansible.builtin.template: # nocheck: stack-host-template (per-host system config; every member writes its own /etc/wireguard, and gating on the stack host would leave every spoke without an interface)
+    src: wg.conf.j2
+    dest: "{{ [WIREGUARD_CONFIG_DIR, mesh_name ~ '.conf'] | path_join }}"
+    owner: root
+    group: root
+    mode: "0600"
+  loop: "{{ WIREGUARD_MESH_NAMES }}"
+  loop_control:
+    loop_var: mesh_name
+  vars:
+    mesh: "{{ WIREGUARD_ACTIVE_MESHES[mesh_name] }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: wireguard_rendered
+
+- name: "🔀 Enable forwarding on the hub"
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: "1"
+    sysctl_set: true
+    state: present
+    reload: true
+  when: WIREGUARD_IS_HUB | bool
+
+- name: "🚿 Bring every rendered interface up"
+  ansible.builtin.include_tasks: utils/interface_up.yml
+  loop: "{{ WIREGUARD_MESH_NAMES }}"
+  loop_control:
+    loop_var: mesh_name
+
+- name: "✅ Gate: prove the layer works before anything depends on it"
+  ansible.builtin.include_tasks: 01_gate.yml

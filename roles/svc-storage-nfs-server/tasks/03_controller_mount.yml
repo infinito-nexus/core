@@ -43,12 +43,12 @@
   when:
     - (_ctrl_premount_state.stdout | trim) == 'mounted'
     - (_ctrl_mount_src.stdout | trim) | length > 0
-    - (_ctrl_mount_src.stdout | trim) != STORAGE_NFS_CLIENT_SRC
+    - (_ctrl_mount_src.stdout | trim) != STORAGE_NFS_CONTROLLER_SRC
 
 - name: "🔗 Mount cluster-shared infinito state on controller"
   ansible.posix.mount:
     path: "{{ DIR_VAR_LIB }}"
-    src: "{{ STORAGE_NFS_CLIENT_SRC }}"
+    src: "{{ STORAGE_NFS_CONTROLLER_SRC }}"
     fstype: "{{ STORAGE_NFS_FSTYPE }}"
     opts: "{{ STORAGE_NFS_MOUNT_OPTS }}"
     state: ephemeral

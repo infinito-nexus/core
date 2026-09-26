@@ -1,4 +1,0 @@
----
-application_id: svc-net-wireguard-core
-
-WG0_CONF_DEST: "/etc/wireguard/wg0.conf"

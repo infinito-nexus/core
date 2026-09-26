@@ -1,0 +1,22 @@
+---
+WIREGUARD_SUBNET_POOL: "{{ NETWORK_MESH_POOL }}"
+
+WIREGUARD_SUBNET_POOLS: "{{ [WIREGUARD_SUBNET_POOL] }}"
+
+WIREGUARD_MESHES:
+  - name: swarm
+    hub_group: svc-swarm-manager
+    spoke_groups:
+      - svc-swarm-node
+    subnet: "10.100.0.0/24"
+    listen_port: 51820
+  - name: data
+    hub_group: svc-swarm-manager
+    spoke_groups:
+      - svc-storage-nfs-server
+    spoke_group_prefixes:
+      - svc-bkp-
+    subnet: "10.100.1.0/24"
+    listen_port: 51821
+
+WIREGUARD_ENABLED: "{{ DEPLOYMENT_MODE == 'swarm' }}"

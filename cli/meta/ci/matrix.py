@@ -35,7 +35,7 @@ import sys
 
 from cli.meta.ci import chunks, query, slots
 from utils.cache.applications import get_variants
-from utils.github.variant import axes, instructions, pools, selection, tor
+from utils.github.variant import axes, instructions, pools, selection, tor, vpn
 from utils.roles.display import display_names
 
 DROPPED = ("priority", "id", "covered", "clone")
@@ -89,6 +89,7 @@ def entries_of(
     lifecycles: str,
     sweep: int,
     tor_mode: str,
+    vpn_mode: str,
     distros: tuple[str, ...],
     filesystems: tuple[str, ...],
 ) -> list[dict[str, str]]:
@@ -102,6 +103,7 @@ def entries_of(
         ),
         sweep=sweep,
         tor_mode=tor_mode,
+        vpn_mode=vpn_mode,
         distros=distros,
         filesystems=filesystems,
         variants_per_app=get_variants(),
@@ -184,6 +186,7 @@ def build_sweep(
     lifecycles: str,
     sweep: int,
     tor_mode: str,
+    vpn_mode: str,
     distros: tuple[str, ...],
     filesystems: tuple[str, ...],
     offset: int = 0,
@@ -197,6 +200,7 @@ def build_sweep(
             lifecycles=lifecycles,
             sweep=sweep,
             tor_mode=tor_mode,
+            vpn_mode=vpn_mode,
             distros=distros,
             filesystems=filesystems,
         ),
@@ -215,6 +219,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--priority", default="")
     parser.add_argument("--lifecycles", default="")
     parser.add_argument("--tor", default=None)
+    parser.add_argument("--vpn", default=None)
     parser.add_argument("--distros", default="")
     parser.add_argument("--filesystem", default="")
     parser.add_argument("--offset", default=None)
@@ -232,6 +237,7 @@ def main(argv: list[str] | None = None) -> int:
         lifecycles=args.lifecycles,
         sweep=sweep,
         tor_mode=tor.resolve_tor_mode(args.tor),
+        vpn_mode=vpn.resolve_vpn_mode(args.vpn),
         distros=pools.resolve_distros(args.distros),
         filesystems=pools.resolve_filesystems(args.filesystem),
         offset=resolve_offset(args.offset),

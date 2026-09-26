@@ -21,15 +21,17 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import shutil
-import subprocess
 import sys
-import time
 
 from utils import PROJECT_ROOT
-from utils.env.runtime import mem_available_mb, mem_stall_pct, mem_total_mb
 from utils.storage.constrained import host_storage_constrained
 from utils.tests.swarm.derive_includes import derive_includes, variant_scope
+from utils.tests.swarm.mesh import (
+    mesh_controller,
+    switch_to_mesh_transport,
+    write_mesh,
+)
+from utils.tests.swarm.run import DISK_FLOOR_MB, run_step
 from utils.tests.swarm.write.extras import ensure_swarm_keypairs
 
 _SWARM_DIR = PROJECT_ROOT / "scripts" / "tests" / "deploy" / "swarm"
@@ -37,86 +39,6 @@ _SWARM_SCRIPTS = _SWARM_DIR / "routine"
 _ROLES_DIR = str(PROJECT_ROOT / "roles")
 _SWARM_EXTRAS_VARS = "inventories/development/swarm.yml"
 _DEFAULT_INVENTORY_DIR = "/tmp/inv"  # noqa: S108 - ephemeral swarm-test inventory base in CI
-DISK_FLOOR_MB = 6 * 2**10
-MEM_FLOOR_RATIO = 0.06
-
-
-def _abort(proc: subprocess.Popen[bytes], banner: str, probe: list[str]) -> int:
-    print(banner, flush=True)
-    subprocess.run(probe, check=False)
-    proc.terminate()
-    try:
-        proc.wait(timeout=30)
-    except subprocess.TimeoutExpired:
-        proc.kill()
-        proc.wait()
-    return 75
-
-
-def _run(cmd: list[str], *, env: dict[str, str], label: str) -> int:
-    """Announce a matrix step, run it, and report what it cost.
-
-    Args:
-        cmd: argv of the step.
-        env: environment the step runs with.
-        label: phase name for the banners.
-
-    Returns:
-        The step's exit code.
-    """
-    print(f"=== swarm-matrix: {label} ===", flush=True)
-    started = time.monotonic()
-    rc = _run_watched(cmd, env=env)
-    print(
-        f"=== swarm-matrix: {label} took {time.monotonic() - started:.0f}s (rc={rc}) ===",
-        flush=True,
-    )
-    return rc
-
-
-def _run_watched(cmd: list[str], *, env: dict[str, str]) -> int:
-    """Run a step, aborting visibly before the runner disk or RAM fills.
-
-    The Actions Worker dies silently on ENOSPC while writing its own logs, so
-    a full disk truncates the job without diagnostics; terminating the step at
-    DISK_FLOOR_MB keeps enough room for rescue artifacts and the log upload.
-
-    Args:
-        cmd: argv of the step.
-        env: environment the step runs with.
-
-    Returns:
-        The step's exit code, or the abort code when a floor was hit.
-    """
-    proc = subprocess.Popen(cmd, cwd=str(PROJECT_ROOT), env=env)
-    while True:
-        try:
-            return int(proc.wait(timeout=30))
-        except subprocess.TimeoutExpired:
-            free_mb = shutil.disk_usage("/").free // 2**20
-            if free_mb < DISK_FLOOR_MB:
-                return _abort(
-                    proc,
-                    "=== swarm-matrix: DISK EXHAUSTION IMMINENT "
-                    f"(<{DISK_FLOOR_MB}M free on /) - aborting step ===",
-                    ["df", "-h", "/"],
-                )
-            avail = mem_available_mb()
-            total = mem_total_mb()
-            stall = mem_stall_pct()
-            print(
-                f"=== swarm-matrix: host mem {avail}M/{total}M available, "
-                f"disk {free_mb}M free on /, stall60 {stall:.1f}% ===",
-                flush=True,
-            )
-            if total and avail < total * MEM_FLOOR_RATIO:
-                return _abort(
-                    proc,
-                    "=== swarm-matrix: MEMORY EXHAUSTION IMMINENT "
-                    f"({avail}M available, below {MEM_FLOOR_RATIO:.0%} of RAM)"
-                    " - aborting step ===",
-                    ["free", "-m"],
-                )
 
 
 def _provision(
@@ -127,7 +49,7 @@ def _provision(
     env["INFINITO_INVENTORY_DIR"] = inv_dir
     env["INFINITO_APP_VARIANTS"] = json.dumps(round_variants, sort_keys=True)
     env["INFINITO_VARS_PAYLOAD"] = json.dumps(vars_payload, sort_keys=True)
-    return _run(
+    return run_step(
         ["bash", str(_SWARM_SCRIPTS / "02_provision_inventory.sh")],
         env=env,
         label=f"provision inventory ({inv_dir})",
@@ -141,7 +63,7 @@ def _extend_inventory(
     env["APP_ID"] = app_id
     env["INV_PATH"] = f"{inv_dir}/devices.yml"
     env["INFINITO_APP_VARIANTS"] = json.dumps(round_variants, sort_keys=True)
-    return _run(
+    return run_step(
         ["python3", "-m", "utils.tests.swarm.extend_inventory"],
         env=env,
         label="extend inventory (workers + group memberships)",
@@ -151,7 +73,7 @@ def _extend_inventory(
 def _force_shared_db(*, inv_dir: str) -> int:
     env = os.environ.copy()
     env["INV_DIR"] = inv_dir
-    return _run(
+    return run_step(
         ["python3", "-m", "utils.tests.swarm.force_shared_db"],
         env=env,
         label="force shared DB (swarm: embedded DB is compose-only)",
@@ -161,7 +83,7 @@ def _force_shared_db(*, inv_dir: str) -> int:
 def _write_extras(*, extras_path: str) -> int:
     env = os.environ.copy()
     env["OUT_PATH"] = extras_path
-    return _run(
+    return run_step(
         ["python3", "-m", "utils.tests.swarm.write.extras"],
         env=env,
         label=f"write runtime extras ({extras_path})",
@@ -183,7 +105,7 @@ def _reset_credentials(
     subprocess each for credentials provision never generated. Every declared
     user password still rotates, so PASS 2 has to carry all of them.
     """
-    return _run(
+    return run_step(
         [
             "python3",
             "-m",
@@ -247,7 +169,7 @@ def _deploy(
     else:
         label = f"deploy round {round_index + 1}/{total}"
         print(f"=== {pass_label} PASS 1 (sync) ===", flush=True)
-    return _run(env=env, cmd=cmd, label=label)
+    return run_step(env=env, cmd=cmd, label=label)
 
 
 def _deploy_backup_host(*, app_id: str, inv_dir: str, extras_path: str) -> int:
@@ -268,20 +190,20 @@ def _deploy_backup_host(*, app_id: str, inv_dir: str, extras_path: str) -> int:
         "-e",
         f"@{extras_path}",
     ]
-    return _run(env=env, cmd=cmd, label="deploy backup host (backup.yml)")
+    return run_step(env=env, cmd=cmd, label="deploy backup host (backup.yml)")
 
 
 def _converge_and_verify(*, app_id: str) -> int:
     env = os.environ.copy()
     env["APP_ID"] = app_id
-    rc = _run(
+    rc = run_step(
         ["bash", str(_SWARM_SCRIPTS / "03_wait_converge.sh")],
         env=env,
         label="wait for stack convergence",
     )
     if rc != 0:
         return rc
-    return _run(
+    return run_step(
         ["bash", str(_SWARM_SCRIPTS / "04_verify_reachable.sh")],
         env=env,
         label="verify reachability",
@@ -294,7 +216,7 @@ def _backup_restore_drill(*, app_id: str, inv_dir: str, extras_path: str) -> int
     env["INFINITO_INVENTORY_DIR"] = inv_dir
     env["DRILL_EXTRAS"] = extras_path
     env["DISK_FLOOR_MB"] = str(DISK_FLOOR_MB)
-    return _run(
+    return run_step(
         ["bash", str(_SWARM_SCRIPTS / "backup" / "base.sh")],
         env=env,
         label="backup + restore DR drill",
@@ -304,7 +226,7 @@ def _backup_restore_drill(*, app_id: str, inv_dir: str, extras_path: str) -> int
 def _verify_recovered_marker(*, app_id: str) -> int:
     env = os.environ.copy()
     env["APP_ID"] = app_id
-    return _run(
+    return run_step(
         ["bash", str(_SWARM_SCRIPTS / "backup" / "verify_recovered_marker.sh")],
         env=env,
         label="verify recovered marker (post update pass)",
@@ -316,7 +238,7 @@ def _purge(*, purge_set: tuple[str, ...]) -> int:
         return 0
     env = os.environ.copy()
     env["apps"] = ",".join(purge_set)
-    return _run(
+    return run_step(
         ["bash", str(_SWARM_DIR / "utils" / "clean" / "purge_stacks.sh")],
         env=env,
         label=f"purge prior-round stacks ({', '.join(purge_set)})",
@@ -442,6 +364,8 @@ def main(argv: list[str] | None = None) -> int:
                 app_id=app_id, inv_dir=inv_root, round_variants=round_variants
             )
         if rc == 0:
+            rc = write_mesh(inv_dir=inv_root)
+        if rc == 0:
             rc = _write_extras(extras_path=extras_path)
         if rc == 0:
             rc = _deploy(
@@ -467,6 +391,12 @@ def main(argv: list[str] | None = None) -> int:
             rc = _reset_credentials(
                 app_id=app_id, inv_dir=inv_root, round_variants=round_variants
             )
+        if rc == 0:
+            rc = write_mesh(inv_dir=inv_root)
+        if rc == 0:
+            rc = mesh_controller(inv_dir=inv_root)
+        if rc == 0:
+            rc = switch_to_mesh_transport(inv_dir=inv_root)
         if rc == 0:
             rc = _deploy(
                 app_id=app_id,

@@ -1,0 +1,29 @@
+---
+# An interface that is already up is reconfigured in place with `wg syncconf`,
+# never torn down. Once Ansible reaches a host over the mesh, `wg-quick down`
+# on that interface kills the connection carrying the play, and the `up` that
+# would restore it never runs. syncconf applies new keys and peers to the live
+# interface, so a rotated mesh converges without dropping the session that is
+# rotating it. `wg-quick strip` renders the config without the wg-quick-only
+# directives that `wg` itself rejects.
+- name: "🔍 Check whether '{{ mesh_name }}' is already up"
+  ansible.builtin.command: "wg show {{ mesh_name | quote }}"
+  register: wireguard_present
+  changed_when: false
+  failed_when: false
+
+- name: "🔺 Bring '{{ mesh_name }}' up"
+  ansible.builtin.command: "wg-quick up {{ mesh_name | quote }}"
+  register: wireguard_up
+  changed_when: wireguard_up.rc == 0
+  when: wireguard_present.rc != 0
+
+- name: "♻️ Reconfigure the live '{{ mesh_name }}' in place"
+  ansible.builtin.shell: >
+    set -o pipefail && wg syncconf {{ mesh_name | quote }}
+    <(wg-quick strip {{ mesh_name | quote }})
+  args:
+    executable: /bin/bash
+  register: wireguard_synced
+  changed_when: wireguard_synced.rc == 0
+  when: wireguard_present.rc == 0

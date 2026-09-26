@@ -22,6 +22,7 @@ def _entry(
         "variant": variant,
         "mode": mode,
         "tor": "true" if variant == "0" else "false",
+        "vpn": "true" if mode == "swarm" else "false",
         "disable": "",
         "priority": "true" if priority else "false",
         "instructions": instructions,

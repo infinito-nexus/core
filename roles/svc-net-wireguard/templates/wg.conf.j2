@@ -1,0 +1,18 @@
+[Interface]
+Address = {{ mesh.address }}/{{ mesh.subnet.split('/')[1] }}
+PrivateKey = {{ WIREGUARD_PRIVATE_KEY }}
+MTU = {{ wireguard_mtu | int }}
+{% if mesh.is_hub %}
+ListenPort = {{ mesh.listen_port | int }}
+{% endif %}
+
+{% for peer in mesh.peers %}
+[Peer]
+PublicKey = {{ peer.public_key }}
+AllowedIPs = {{ peer.allowed_ips }}
+{% if peer.is_hub %}
+Endpoint = {{ peer.host }}:{{ mesh.listen_port | int }}
+PersistentKeepalive = 25
+{% endif %}
+
+{% endfor %}

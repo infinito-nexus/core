@@ -43,6 +43,18 @@ _DOCKER_VARS: dict[str, str] = {
 _NAMES = parse_static_env(PROJECT_ROOT / "default.env")
 _PREFIX = f"{os.environ['SWARM_NAME']}-" if os.environ.get("SWARM_NAME") else ""
 _MANAGER = f"{_PREFIX}{_NAMES['INFINITO_SWARM_MGR_NAME']}"
+
+
+def mesh_enabled() -> bool:
+    """Whether this deploy carries the WireGuard mesh.
+
+    Driven by the run's ``vpn`` axis. When it is off the role is left out of
+    the inventory entirely rather than deployed disabled, so the arm proves
+    swarm works with no mesh logic anywhere in the path.
+    """
+    return (os.environ.get("INFINITO_SWARM_VPN") or "").strip().lower() == "true"
+
+
 _WORKERS = (
     f"{_PREFIX}{_NAMES['INFINITO_SWARM_WRK1_NAME']}",
     f"{_PREFIX}{_NAMES['INFINITO_SWARM_WRK2_NAME']}",
@@ -58,6 +70,17 @@ def _host_topology(app_id: str) -> list[tuple[str, str]]:
     # fetch. Keep it manager-only.
     if app_id != "svc-swarm-manager" and get_role_placement(app_id) != "manager":
         app_hosts.extend((app_id, w) for w in _WORKERS)
+    mesh_hosts: list[tuple[str, str]] = []
+    if mesh_enabled():
+        # Exception: the mesh spans every member, not only the swarm nodes that
+        # pull the role as a dependency. The NFS and backup hosts are spokes of
+        # the data mesh, and without the role they never bring an interface up
+        # -- the manager then holds peers that cannot answer.
+        mesh_hosts = [
+            ("svc-net-wireguard", _MANAGER),
+            *[("svc-net-wireguard", w) for w in _WORKERS],
+            ("svc-net-wireguard", _NFS_SERVER),
+        ]
     return [
         ("svc-swarm-node", _MANAGER),
         *[("svc-swarm-node", w) for w in _WORKERS],
@@ -65,6 +88,7 @@ def _host_topology(app_id: str) -> list[tuple[str, str]]:
         ("svc-storage-nfs-client", _MANAGER),
         *[("svc-storage-nfs-client", w) for w in _WORKERS],
         ("svc-storage-nfs-server", _NFS_SERVER),
+        *mesh_hosts,
         *app_hosts,
     ]
 
@@ -130,7 +154,11 @@ def main() -> int:
         "all": {
             "children": {
                 group: {"hosts": {_BACKUP: dict(_DOCKER_VARS)}}
-                for group in ("svc-bkp-remote-2-local", "svc-bkp-local-2-device")
+                for group in (
+                    "svc-bkp-remote-2-local",
+                    "svc-bkp-local-2-device",
+                    *(("svc-net-wireguard",) if mesh_enabled() else ()),
+                )
             }
         }
     }

@@ -61,6 +61,15 @@ class ModuleCall:
     retry: RetryPolicy | None = None
 
 
+MANAGER_ARGS: dict[str, dict[str, Any]] = {"apt": {"install_recommends": False}}
+"""Arguments only one package manager understands, keyed by its module name.
+
+apt installs recommends by default, and a recommend can name a virtual package
+whose only providers are kernel images: `wireguard-tools` recommends
+`wireguard-modules`, so a plain install pulls a whole kernel into a container,
+fails there, and leaves a broken state that every later apt call trips over."""
+
+
 def package_call(names: list[str], state: str) -> ModuleCall:
     """Install or remove *names* through the host's own package manager."""
     return ModuleCall(
