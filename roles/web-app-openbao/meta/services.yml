@@ -51,7 +51,7 @@ openbao:
   pids_limit: 512
   min_storage: 60MB
   image: openbao/openbao
-  version: "2.6.2"
+  version: "2.7.0"
   backup:
     no_stop_required: false
   # nocheck: single-replica  single-node raft: a second replica would need a real raft join/bootstrap flow, and two tasks against one BoltDB directory corrupt the store
