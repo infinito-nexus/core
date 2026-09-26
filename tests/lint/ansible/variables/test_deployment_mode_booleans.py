@@ -71,7 +71,9 @@ class TestDeploymentModeBooleans(unittest.TestCase):
         declared = read_text(str(PROJECT_ROOT / DEFINITION))
 
         for name in ("IS_COMPOSE_MODE", "IS_SWARM_MODE"):
-            self.assertIn(f"{name}:", declared, f"{DEFINITION} no longer defines {name}")
+            self.assertIn(
+                f"{name}:", declared, f"{DEFINITION} no longer defines {name}"
+            )
 
 
 if __name__ == "__main__":

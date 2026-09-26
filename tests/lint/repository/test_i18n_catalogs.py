@@ -135,15 +135,13 @@ class TestI18nCatalogs(unittest.TestCase):
             cls.findings = []
             return
         workers = min(len(tasks), os.cpu_count() or 1)
-        with ProcessPoolExecutor(max_workers=workers, initializer=_load_expected) as pool:
+        with ProcessPoolExecutor(
+            max_workers=workers, initializer=_load_expected
+        ) as pool:
             cls.findings = list(pool.map(inspect, tasks, chunksize=1))
 
     def _all(self, attribute: str) -> list:
-        return [
-            entry
-            for found in self.findings
-            for entry in getattr(found, attribute)
-        ]
+        return [entry for found in self.findings for entry in getattr(found, attribute)]
 
     def test_every_language_has_a_core_catalog(self):
         missing = sorted(

@@ -211,9 +211,7 @@ class TestWriterAndGateAgree(unittest.TestCase):
                 self.assertFalse(harms(label, label))
 
     def test_a_sentence_that_comes_back_unchanged_is_a_failed_translation(self) -> None:
-        sentence = (
-            "Centralized database service shared across applications via Docker."
-        )
+        sentence = "Centralized database service shared across applications via Docker."
 
         self.assertTrue(
             harms(sentence, sentence),

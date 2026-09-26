@@ -183,9 +183,7 @@ class LibreTranslate:
                 fail too, so the run stops instead of discarding the rest.
         """
         results: list[str | None] = list(texts)
-        wordy = [
-            index for index, text in enumerate(texts) if not untranslatable(text)
-        ]
+        wordy = [index for index, text in enumerate(texts) if not untranslatable(text)]
         size = self.batch_size
         batches = [wordy[i : i + size] for i in range(0, len(wordy), size)]
         refused = damaged = 0

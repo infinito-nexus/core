@@ -13,8 +13,8 @@
 # Param: resolve_cid_filters      - extra `container ps` filters for the cid lookup (default '')
 - name: "🔧 resolve_host_cid | resolve swarm service name for '{{ resolve_service_key }}'"
   ansible.builtin.set_fact:
-    _resolve_service_name: "{{ (resolve_service_name | default('')) or (lookup('container_service', application_id, resolve_service_key) if IS_SWARM_MODE
-      else '') }}"
+    _resolve_service_name: "{{ (resolve_service_name | default('')) or (lookup('container_service', application_id, resolve_service_key) if IS_SWARM_MODE else '')
+      }}"
 
 - name: "⏳ resolve_host_cid | wait for '{{ resolve_service_key }}' to converge"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/wait_converged.yml') }}"

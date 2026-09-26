@@ -57,7 +57,9 @@ class TestDirectoryIndex(unittest.TestCase):
         (self.src / "guide").mkdir()
         (self.src / "guide" / "README.md").write_text("# Guide\n", encoding="utf-8")
         (self.src / "manual").mkdir()
-        (self.src / "manual" / "index.rst").write_text("Manual\n======\n", encoding="utf-8")
+        (self.src / "manual" / "index.rst").write_text(
+            "Manual\n======\n", encoding="utf-8"
+        )
         (self.src / "both").mkdir()
         (self.src / "both" / "index.rst").write_text("Both\n====\n", encoding="utf-8")
         (self.src / "both" / "README.md").write_text("# Both\n", encoding="utf-8")

@@ -128,7 +128,7 @@ class TestNoOversizedAnsibleBlock(unittest.TestCase):
                 "      when: not IS_SWARM_MODE\n"
                 "      include_tasks: <NN>_<descriptive>.yml\n\n"
                 "If the sub-file is when-gated, mark it with the header\n"
-                '    # include-gated: when: not IS_SWARM_MODE\n'
+                "    # include-gated: when: not IS_SWARM_MODE\n"
                 "(see utils/annotations/task_gate.py) so the swarm-compat "
                 f"lints exempt it.\n\nOffenders:\n{formatted}"
             )

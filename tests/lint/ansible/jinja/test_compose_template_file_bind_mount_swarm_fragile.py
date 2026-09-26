@@ -37,12 +37,8 @@ _IF = re.compile(r"\{%\s*if\s+(?P<expr>.+?)\s*%\}")
 _ELIF = re.compile(r"\{%\s*elif\s+(?P<expr>.+?)\s*%\}")
 _ELSE = re.compile(r"\{%\s*else\s*%\}")
 _ENDIF = re.compile(r"\{%\s*endif\s*%\}")
-_COMPOSE_ONLY_GATE = re.compile(
-    r"not\s+IS_SWARM_MODE|IS_COMPOSE_MODE"
-)
-_SWARM_ONLY_GATE = re.compile(
-    r"(?<!not )IS_SWARM_MODE|not\s+IS_COMPOSE_MODE"
-)
+_COMPOSE_ONLY_GATE = re.compile(r"not\s+IS_SWARM_MODE|IS_COMPOSE_MODE")
+_SWARM_ONLY_GATE = re.compile(r"(?<!not )IS_SWARM_MODE|not\s+IS_COMPOSE_MODE")
 
 _SHORT_FORM_RO = re.compile(
     r"""

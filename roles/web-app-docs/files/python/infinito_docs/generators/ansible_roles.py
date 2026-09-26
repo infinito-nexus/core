@@ -7,7 +7,6 @@ from pathlib import Path
 from utils.cache.yaml import load_yaml
 from utils.roles.mapping import ROLE_FILE_META_MAIN, ROLE_FILE_README
 
-
 SECTION_CHARS = set("=-`:'\"~^_*+#<>")
 
 
@@ -91,10 +90,7 @@ def generate_ansible_roles_doc(roles_dir, output_dir):
             "Variables",
             "---------",
             "",
-            *(
-                f"- **{key}**: {_one_line(value)}"
-                for key, value in galaxy_info.items()
-            ),
+            *(f"- **{key}**: {_one_line(value)}" for key, value in galaxy_info.items()),
         ]
         text = "\n".join(lines) + "\n"
 

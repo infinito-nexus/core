@@ -29,7 +29,6 @@ if TYPE_CHECKING:
     from typing import Any
 
 
-
 def _enabled_services(variant: Mapping[str, Any]) -> int:
     services = variant.get("services") or {}
     return sum(

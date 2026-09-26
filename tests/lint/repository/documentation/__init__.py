@@ -1,8 +1,7 @@
 from pathlib import Path
 
-from utils.cache.files import iter_non_ignored_files
-
 from tests.lint.repository import PROJECT_ROOT
+from utils.cache.files import iter_non_ignored_files
 
 INDEX_FILES = ("index.rst", "index.md", "README.md", "README.rst")
 
@@ -31,7 +30,8 @@ def markdown_files() -> list[Path]:
     return [
         path
         for raw in iter_non_ignored_files(extensions=(".md",))
-        if not set(AGENT_STATE) & set((path := Path(raw)).relative_to(PROJECT_ROOT).parts)
+        if not set(AGENT_STATE)
+        & set((path := Path(raw)).relative_to(PROJECT_ROOT).parts)
     ]
 
 

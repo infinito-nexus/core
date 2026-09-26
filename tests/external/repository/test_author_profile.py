@@ -58,7 +58,9 @@ class TestAuthorProfile(unittest.TestCase):
         status, detail = _probe(self.url)
         if status is None:
             warning(f"{self.url} was not answered ({detail}); profile unverified")
-            raise unittest.SkipTest("the instance answered the canary but not the probe")
+            raise unittest.SkipTest(
+                "the instance answered the canary but not the probe"
+            )
 
         self.assertIn(
             status,

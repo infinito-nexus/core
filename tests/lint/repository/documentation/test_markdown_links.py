@@ -12,12 +12,14 @@ from __future__ import annotations
 
 import re
 import unittest
-from pathlib import Path
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from utils.cache.files import read_text
 
 from . import INDEX_FILES, PROJECT_ROOT, index_page, markdown_files
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 _MD_LINK_RE = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
 

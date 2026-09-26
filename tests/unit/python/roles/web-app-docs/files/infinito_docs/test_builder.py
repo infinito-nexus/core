@@ -158,7 +158,8 @@ class TestBuilder(LibraryFixture, unittest.TestCase):
         self.library.fetch()
         self._drain()
         site = self.library.translations / "latest" / "de" / "html" / "version.txt"
-        self.assertEqual(site.read_text(encoding="utf-8"), "first")  # nocheck: cache-read
+        built = site.read_text(encoding="utf-8")  # nocheck: cache-read
+        self.assertEqual(built, "first")
 
         _commit(self.repo, "second")
         self.library.fetch()
@@ -170,7 +171,8 @@ class TestBuilder(LibraryFixture, unittest.TestCase):
             "a version rebuild must not leave its translated sites on the old commit",
         )
         self.assertEqual(self._site("latest", "version.txt"), "second")
-        self.assertEqual(site.read_text(encoding="utf-8"), "second")  # nocheck: cache-read
+        rebuilt = site.read_text(encoding="utf-8")  # nocheck: cache-read
+        self.assertEqual(rebuilt, "second")
 
     def test_a_failing_language_does_not_mark_the_version_failed(self) -> None:
         self._translated_repo("de")
@@ -179,9 +181,7 @@ class TestBuilder(LibraryFixture, unittest.TestCase):
         self.library.build("latest")
         self.assertEqual(self._state(self.library, "latest")["state"], "ready")
 
-        with patch.object(
-            builder.Builder, "_run", side_effect=OSError("sphinx died")
-        ):
+        with patch.object(builder.Builder, "_run", side_effect=OSError("sphinx died")):
             self.library.build_language("latest", "de")
 
         self.assertEqual(

@@ -52,7 +52,9 @@ class TestMermaidFences(unittest.TestCase):
         self.assertNotIn("<y>", rendered)
 
     def test_other_languages_stay_literal_blocks(self) -> None:
-        document = _transform(nodes.literal_block("echo hi", "echo hi", language="bash"))
+        document = _transform(
+            nodes.literal_block("echo hi", "echo hi", language="bash")
+        )
 
         self.assertEqual(len(list(document.findall(nodes.raw))), 0)
         self.assertEqual(len(list(document.findall(nodes.literal_block))), 1)

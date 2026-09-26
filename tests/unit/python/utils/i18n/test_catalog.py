@@ -28,7 +28,9 @@ class TestBuildTemplate(unittest.TestCase):
     def test_a_message_without_a_word_never_enters_the_template(self) -> None:
         template = build_template([("a", "`x`"), ("b", "Real prose.")], "core")
 
-        self.assertEqual([message.id for message in template if message.id], ["Real prose."])
+        self.assertEqual(
+            [message.id for message in template if message.id], ["Real prose."]
+        )
 
 
 class TestMerge(unittest.TestCase):

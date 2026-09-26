@@ -106,10 +106,12 @@ class TestCommittingAs(unittest.TestCase):
             self.assertEqual(committing_as(), ("Carried Name", "carried@example.com"))
 
     def test_an_empty_carried_address_falls_through_to_git(self) -> None:
-        with mock.patch.dict("os.environ", {"INFINITO_GIT_AUTHOR_EMAIL": "  "}):
-            with mock.patch("subprocess.run") as run:
-                run.return_value = mock.Mock(stdout="from-git\n")
-                self.assertEqual(committing_as(), ("from-git", "from-git"))
+        with (
+            mock.patch.dict("os.environ", {"INFINITO_GIT_AUTHOR_EMAIL": "  "}),
+            mock.patch("subprocess.run") as run,
+        ):
+            run.return_value = mock.Mock(stdout="from-git\n")
+            self.assertEqual(committing_as(), ("from-git", "from-git"))
 
 
 if __name__ == "__main__":

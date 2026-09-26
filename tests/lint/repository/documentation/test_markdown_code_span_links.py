@@ -16,13 +16,15 @@ from __future__ import annotations
 
 import re
 import unittest
-from pathlib import Path
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
 
 from . import PROJECT_ROOT, index_page, markdown_files
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 _RULE = "markdown-code-span-linkable"
 
