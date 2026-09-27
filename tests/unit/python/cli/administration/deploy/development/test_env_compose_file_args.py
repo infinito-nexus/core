@@ -44,7 +44,7 @@ class TestComposeFileArgs(unittest.TestCase):
                 "-f",
                 "compose/cache.override.yml",
                 "-f",
-                "i18n/compose.override.yml",
+                "compose/i18n.override.yml",
             ],
         )
 
@@ -62,7 +62,7 @@ class TestComposeFileArgs(unittest.TestCase):
                 "-f",
                 "compose/cache.shared.override.yml",
                 "-f",
-                "i18n/compose.override.yml",
+                "compose/i18n.override.yml",
             ],
         )
 
@@ -76,7 +76,7 @@ class TestComposeFileArgs(unittest.TestCase):
                 "-f",
                 "compose/cache.override.yml",
                 "-f",
-                "i18n/compose.override.yml",
+                "compose/i18n.override.yml",
             ],
         )
 
@@ -92,7 +92,7 @@ class TestComposeFileArgs(unittest.TestCase):
                 "-f",
                 "compose/cache.override.yml",
                 "-f",
-                "i18n/compose.override.yml",
+                "compose/i18n.override.yml",
             ],
         )
 
@@ -106,7 +106,7 @@ class TestComposeFileArgs(unittest.TestCase):
                 "-f",
                 "compose/worktree.override.yml",
                 "-f",
-                "i18n/compose.override.yml",
+                "compose/i18n.override.yml",
             ],
         )
 
@@ -114,7 +114,7 @@ class TestComposeFileArgs(unittest.TestCase):
     def test_ci_loads_no_override_at_all(self) -> None:
         self.assertEqual(
             compose_file_args(),
-            ["-f", "compose.yml", "-f", "i18n/compose.override.yml"],
+            ["-f", "compose.yml", "-f", "compose/i18n.override.yml"],
         )
 
     @patch.dict(
