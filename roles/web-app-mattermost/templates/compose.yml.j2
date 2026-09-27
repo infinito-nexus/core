@@ -36,7 +36,7 @@
       - ALL
     security_opt:
       - no-new-privileges:true
-    environment:
+    environment: # nocheck: compose-environment-from-env-file mattermostmcp overrides docker_compose_env with mcp/upstream.env, so this role's env.j2 never reaches it and these keys would instead land in the primary mattermost container, which must not receive ADAPTER_BEARER; ADAPTER_CONTRACT also carries compose $$ escaping that an env_file would not unescape
       ADAPTER_CONTRACT: {{ MATTERMOST_MCP_CONTRACT | to_json | to_json | replace('$', '$$') }}
       ADAPTER_BEARER: {{ MATTERMOST_MCP_BEARER | to_json }}
       ADAPTER_PORT: "{{ MATTERMOST_MCP_PORT }}"

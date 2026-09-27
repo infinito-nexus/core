@@ -4,7 +4,7 @@
     {{ lookup('compose_only', 'container_name', GITLAB_WEBSERVICE_CONTAINER) }}
     {{ lookup('container_image', application_id, service_name) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    environment:
+    environment: # nocheck: compose-environment-from-env-file six services share this role's single env.j2; CONFIG_TEMPLATE_DIRECTORY is /etc/gitaly/templates in gitaly and /srv/gitlab-config in shell, and GITLAB_WEBSERVER/ACTION_CABLE_IN_APP belong to webservice alone
       CONFIG_TEMPLATE_DIRECTORY: "/var/opt/gitlab/config/templates"
       CONFIG_DIRECTORY: "/srv/gitlab/config"
       GITLAB_WEBSERVER: "PUMA"
@@ -22,7 +22,7 @@
     {{ lookup('compose_only', 'container_name', GITLAB_WORKHORSE_CONTAINER) }}
     {{ lookup('container_image', application_id, service_name) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    environment:
+    environment: # nocheck: compose-environment-from-env-file six services share this role's single env.j2; CONFIG_TEMPLATE_DIRECTORY differs in gitaly and shell, and the GITLAB_WORKHORSE_* keys belong to workhorse alone
       CONFIG_TEMPLATE_DIRECTORY: "/var/opt/gitlab/config/templates"
       CONFIG_DIRECTORY: "/srv/gitlab/config"
       GITLAB_WORKHORSE_AUTH_BACKEND: "http://{{ GITLAB_WEBSERVICE_SERVICE_NAME }}:{{ GITLAB_WEBSERVICE_PORT }}"
@@ -42,7 +42,7 @@
     {{ lookup('compose_only', 'container_name', GITLAB_SIDEKIQ_CONTAINER) }}
     {{ lookup('container_image', application_id, service_name) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    environment:
+    environment: # nocheck: compose-environment-from-env-file six services share this role's single env.j2; CONFIG_TEMPLATE_DIRECTORY is /etc/gitaly/templates in gitaly and /srv/gitlab-config in shell, and gitaly carries no CONFIG_DIRECTORY at all
       CONFIG_TEMPLATE_DIRECTORY: "/var/opt/gitlab/config/templates"
       CONFIG_DIRECTORY: "/srv/gitlab/config"
     command: ["/scripts/wait-for-deps", "/scripts/process-wrapper"]
@@ -59,7 +59,7 @@
     {{ lookup('compose_only', 'container_name', GITLAB_GITALY_CONTAINER) }}
     {{ lookup('container_image', application_id, service_name) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    environment:
+    environment: # nocheck: compose-environment-from-env-file gitaly's CONFIG_TEMPLATE_DIRECTORY differs from the five sibling services that share this role's single env.j2
       CONFIG_TEMPLATE_DIRECTORY: "/etc/gitaly/templates"
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
@@ -71,7 +71,7 @@
     {{ lookup('compose_only', 'container_name', GITLAB_SHELL_CONTAINER) }}
     {{ lookup('container_image', application_id, service_name) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    environment:
+    environment: # nocheck: compose-environment-from-env-file shell's CONFIG_TEMPLATE_DIRECTORY and CONFIG_DIRECTORY differ from the five sibling services that share this role's single env.j2, and SSH_DAEMON belongs to shell alone
       CONFIG_TEMPLATE_DIRECTORY: "/srv/gitlab-config"
       CONFIG_DIRECTORY: "/srv/gitlab-shell"
       SSH_DAEMON: "gitlab-sshd"
@@ -93,7 +93,7 @@
     {{ lookup('compose_only', 'container_name', GITLAB_MIGRATIONS_CONTAINER) }}
     {{ lookup('container_image', application_id, service_name) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    environment:
+    environment: # nocheck: compose-environment-from-env-file six services share this role's single env.j2; CONFIG_TEMPLATE_DIRECTORY differs in gitaly and shell, and BYPASS_SCHEMA_VERSION belongs to the migrations job alone
       CONFIG_TEMPLATE_DIRECTORY: "/var/opt/gitlab/config/templates"
       CONFIG_DIRECTORY: "/srv/gitlab/config"
       BYPASS_SCHEMA_VERSION: "true"
@@ -120,7 +120,7 @@
       - ALL
     security_opt:
       - no-new-privileges:true
-    environment:
+    environment: # nocheck: compose-environment-from-env-file gitlabmcp overrides docker_compose_env with mcp/upstream.env, so this role's env.j2 never reaches it and these keys would instead leak into the six GitLab services
       ADAPTER_CONTRACT: {{ GITLAB_MCP_CONTRACT | to_json | to_json | replace('$', '$$') }}
       ADAPTER_BEARER: {{ GITLAB_MCP_BEARER | to_json }}
       ADAPTER_PORT: "{{ GITLAB_MCP_PORT }}"

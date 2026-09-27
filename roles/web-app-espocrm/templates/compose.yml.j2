@@ -52,7 +52,7 @@
     stop_signal: SIGTERM
     stop_grace_period: 30s
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    environment:
+    environment: # nocheck: compose-environment-from-env-file websocket-only keys; this role sets no docker_compose_env, so its single env.j2 is read by the espocrm and daemon services too, and files/shell/sidecar_boot.sh calls applyConfigEnv, which would then write the websocket listener's SUBSCRIBER_DSN bind address into the shared config.php from all three containers
       - ESPOCRM_CONFIG_USE_WEB_SOCKET=true
       - ESPOCRM_CONFIG_WEB_SOCKET_URL={{  lookup('tls', application_id, 'protocols.websocket') }}://{{ lookup('domain',application_id) }}/ws
       - ESPOCRM_CONFIG_WEB_SOCKET_ZERO_M_Q_SUBSCRIBER_DSN=tcp://*:7777

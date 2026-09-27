@@ -28,7 +28,7 @@
       - ALL
     security_opt:
       - no-new-privileges:true
-    environment:
+    environment: # nocheck: compose-environment-from-env-file listmonkmcp-only keys; this role sets no docker_compose_env, so its single templates/env.j2 is also the env_file of the primary listmonk container, which must not receive ADAPTER_BEARER or ADAPTER_UPSTREAM_KEY
       ADAPTER_CONTRACT: {{ LISTMONK_MCP_CONTRACT | to_json | to_json | replace('$', '$$') }}
       ADAPTER_BEARER: {{ LISTMONK_MCP_BEARER | to_json }}
       ADAPTER_PORT: "{{ LISTMONK_MCP_PORT }}"

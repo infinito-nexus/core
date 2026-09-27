@@ -131,7 +131,7 @@ build:
     {{ lookup('compose_only', 'container_name', TAIGA_MANAGER_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_image', application_id, 'manager', image='taigaio/taiga-back', version=TAIGA_VERSION) }}
-    environment:
+    environment: # nocheck: compose-environment-from-env-file manager-only key; this role sets no docker_compose_env, so its single env.j2 is the env_file of all nine services, and CELERY_ENABLED=False there would also reach the taiga back and async worker containers, which carry no such key today and run celery
       CELERY_ENABLED: "False"
     entrypoint: ["sleep", "infinity"]
     {{ lookup('container_depends_on', application_id, extra={

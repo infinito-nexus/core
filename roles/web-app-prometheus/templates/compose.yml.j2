@@ -87,6 +87,7 @@
       - ALL
     security_opt:
       - no-new-privileges:true
+    # nocheck: compose-environment-from-env-file the role's single env_file reaches all six services, so ADAPTER_BEARER would leak into prometheus, blackbox-exporter, alertmanager, cadvisor and node-exporter
     environment:
       ADAPTER_CONTRACT: {{ PROMETHEUS_MCP_CONTRACT | to_json | to_json | replace('$', '$$') }}
       ADAPTER_BEARER: {{ PROMETHEUS_MCP_BEARER | to_json }}

@@ -24,7 +24,7 @@
     user: "110010100"
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('depends_on', {KIX_BACKEND_SERVICE: 'service_healthy'} | combine({'redis': 'service_healthy'} if lookup('engine', 'redis', application_id, 'local') else {})) }}
-    environment:
+    environment: # nocheck: compose-environment-from-env-file  frontend-only keys; the role's single env.j2 is shared by the backend and proxy services, so moving them would inject REDIS_CACHE_PASSWORD and the frontend URLs into both
       - USE_SSL=0
       - REDIS_CACHE_HOST={{ lookup('engine', 'redis', application_id, 'host') }}
       - REDIS_CACHE_PORT={{ lookup('engine', 'redis', application_id, 'port') }}
