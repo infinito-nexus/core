@@ -9,23 +9,13 @@ const LATER_KEY = "dns_opt";
 exports.register = function (shared) {
   test("a yaml source page shows the file as one highlighted block", async ({ page, request }) => {
     test.setTimeout(resolveTimeout(3_000_000)); // the English Sphinx build of the deployed working tree
-    await expect
-      .poll(async () => {
-        try {
-          const response = await request.get(`${shared.appBaseUrl}${YAML_PAGE}`, {
-            failOnStatusCode: false,
-            timeout: resolveTimeout(30_000),
-          });
-          return response.status();
-        } catch {
-          return 0; // the server refuses connections while it builds; a throw would end the poll
-        }
-      }, {
-        message: "Expected the deployed YAML page to finish building before it is asserted",
-        timeout: resolveTimeout(2_700_000),
-        intervals: [30_000],
-      })
-      .toBe(200);
+    await shared.pollStatus(
+      request,
+      `${shared.appBaseUrl}${YAML_PAGE}`,
+      200,
+      "Expected the deployed YAML page to finish building before it is asserted",
+      2_700_000,
+    );
 
     const response = await gotoOnion(page, `${shared.appBaseUrl}${YAML_PAGE}`);
     expect(response, `Expected a response for ${YAML_PAGE}`).toBeTruthy();

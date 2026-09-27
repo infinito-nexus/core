@@ -8,33 +8,7 @@ function normalized(text) {
   return (text || "").replace(/\s+/g, " ");
 }
 
-let lastTransportError = null;
-
-async function statusOf(request, url) {
-  try {
-    const response = await request.get(url, { failOnStatusCode: false, maxRedirects: 0, timeout: resolveTimeout(30_000) });
-    lastTransportError = null;
-    return response.status();
-  } catch (error) {
-    lastTransportError = error;
-    return 0;
-  }
-}
-
-async function pollStatus(request, url, expected, message, timeout) {
-  lastTransportError = null;
-  try {
-    await expect
-      .poll(() => statusOf(request, url), { message, timeout: resolveTimeout(timeout), intervals: [30_000] })
-      .toBe(expected);
-  } catch (failure) {
-    if (!lastTransportError) throw failure;
-    throw new Error(
-      `${failure.message}\nlast transport error reaching ${url}: ${lastTransportError.message}`,
-      { cause: failure },
-    );
-  }
-}
+const { pollStatus } = require("./_shared");
 
 exports.register = function (shared) {
   test("the deployed working tree is published in German with a language switcher", async ({ page, request }) => {
