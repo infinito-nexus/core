@@ -6826,7 +6826,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**Migrated compose files** from *docker-compose.yml* to *compose.yml*, including override and CA override variants, and unified compose-related configuration keys"
-msgstr "**Мигацияланган композиттик файлдар** дан *Docker-compose.yml* үчүн *compose.yml*Бул, анын ичинде, жокко чыгаруу жана CA жокко чыгаруу варианттары жана бирдиктүү композицияга байланыштуу конфигурация ачкычтары."
+msgstr ""
 
 # translation-refused: libretranslate stutter
 # nocheck: url
@@ -18378,11 +18378,11 @@ msgstr "Агенттин файл эрежелери 📁"
 
 # translated-by: libretranslate
 msgid "Agent fleet that consumes the gateway: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "Эшикти керектеген агенттик флот: [032- агенттик кызматкерлер -firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Agent fleet that consumes this gateway: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "Бул шлюзду керектеген агенттик флот: [032- агенттик кызматкерлер -firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Agent group_vars rules"
@@ -18418,7 +18418,7 @@ msgstr "Агенттик жөндөмдүүлүктөр орнотулган э�
 
 # translated-by: libretranslate
 msgid "Agent that consumes it (isolated home-assistant scenario): [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "Аны керектөөчү агент (Үй-бүлөлүк жардам берүүчү сценарий): [032- агенттик кызматкерлер -firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Agent token restricted by Zammad groups; redact sensitive articles; no ticket, article, user, role, or configuration mutation"
@@ -18753,7 +18753,7 @@ msgstr "Башкалардын баары `4xx`/ / / / / / / / / / / / / / / / /
 
 # translated-by: libretranslate
 msgid "All other scopes MUST run the full [call-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml)."
-msgstr "Бардык башка чөйрөлөр толук кандуу иштеши керек [чалуу-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml)...."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "All post-bootstrap configuration (OIDC Social Login Key, LDAP Settings, outbound Email Account, group-role mapping) runs as Python scripts piped to ``python`` inside the backend container (see ``files/scripts/``)."
@@ -21215,7 +21215,7 @@ msgstr "Аткаруудан мурун, агент окушу керек [AGENT
 
 # translated-by: libretranslate
 msgid "Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Compose Loop](../agents/action/iteration/compose.md), [Swarm Loop](../agents/action/iteration/swarm.md), [deployment-modes.md](../contributing/design/deployment-modes.md), the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md), and the IAM pages [common.md](../contributing/design/iam/common.md), [oidc.md](../contributing/design/iam/oidc.md) and [rbac.md](../contributing/design/iam/rbac.md)."
-msgstr "Аткаруудан мурун, агент окушу керек [AGENTS.md](../../AGENTS.md), анда [Композиттик цикл](../agents/action/iteration/compose.md), [Жылуу цикл](../agents/action/iteration/swarm.md), [ишке киргизүү -modes.md](../contributing/design/deployment-modes.md), [Playright келишими](../contributing/artefact/files/role/playwright.specs.js.md), IAM баракчалары [common.md](../contributing/design/iam/common.md), [oidc.md](../contributing/design/iam/oidc.md) жана жана [rbac.md](../contributing/design/iam/rbac.md)...."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Role Loop](../agents/action/iteration/compose.md) and the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md)."
@@ -22588,7 +22588,7 @@ msgstr "Сиздин вилкаңыздагы CI жашыл болушу кер�
 
 # translated-by: libretranslate
 msgid "CI is triggered automatically on pull-request events and on pushes to the branches listed in the entry-workflow row in [workflows.md](../../tools/github/actions/workflows.md). The pipeline is composed of reusable workflow files under [.github/workflows/](../../../../.github/workflows/). The central coordinator is [call-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml), which is called by the entry workflows."
-msgstr "CI автоматтык түрдө тартылуу-талап окуяларында жана кирүү-иш агымы катарында көрсөтүлгөн бутактарга түрткү берүү учурунда иштетилет [workflows.md](../../tools/github/actions/workflows.md). Бул түтүк кайра колдонула турган иш агымынын файлдарынан турат. [Гитубдар жана жумуш агымдары](../../../../.github/workflows/). Борбордук координатор [чалуу-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml), Бул кирүү иш агымдары менен аталат."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CI on Tag Push 🤖"
@@ -24834,7 +24834,7 @@ msgstr "CodeQL (Жогорку оордук)"
 
 # translated-by: libretranslate
 msgid "CodeQL static analysis. Invoked by [call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) so every CI run produces a single scan; additionally runs on a weekly cron so coverage does not drop when no pushes land on `main`. See [pipeline.md](../../../artefact/git/pipeline.md) for the gating behaviour."
-msgstr "CodeQL статикалык анализи Сураныч, [чалуу-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) Ар бир CI бир сканерди чыгарат, ошондой эле бир жумалык крондо иштейт, ошондуктан эч кандай түртпөгөн учурда камтуу түшпөйт. `main`. Көрдүңөр. [pipeline.md](../../../artefact/git/pipeline.md) Gating жүрүм-туруму үчүн."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CodeQL ✅"
@@ -29391,7 +29391,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Each PR-opening job in [cron-update.yml](../../../../../.github/workflows/cron-update.yml) runs an `actions/create-github-app-token@v2` step gated on `steps.diff.outputs.changed == 'true'`, then forwards the minted token as `GH_TOKEN` and the resolved `APP_SLUG` to the subsequent PR step. The job's `permissions:` block keeps the workflow-provided `GITHUB_TOKEN` read-only; write access is provided exclusively by the App token, scoped to the App's repository permissions."
-msgstr "Ар бир PR ачылышы [Крон-update.yml](../../../../../.github/workflows/cron-update.yml) чуркоо `actions/create-github-app-token@v2` кадам менен дарбаза `steps.diff.outputs.changed == 'true'`, Андан кийин чыгарылган белгини жөнөтөт: `GH_TOKEN` жана чечилген `APP_SLUG` Кийинки PR баскычына. Жумуштун өзү `permissions:` Блок жумуш агымын камсыз кылат `GITHUB_TOKEN` Жазуу мүмкүнчүлүгү колдонмонун шилтемеси менен гана берилет, ал колдонмонун репозиторийдик уруксаттарына тиешелүү."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Each Raspberry Pi joins the swarm as an agent node labelled `kata-capable` with the isolating runtime as its daemon-wide default (Decision #3, applied per node). Flowise and the gateway run on a manager node. Swarm distributes agent replicas across the Pis; adding a Pi adds agent capacity with no code change. The Pis do **not** run large models locally: agents speak only the gateway `/v1`, which routes light work to a small local `svc-ai-ollama` and heavy work to a GPU or external backend. All node-run images MUST be `arm64`."
@@ -29961,7 +29961,7 @@ msgstr "Электрондук почта: [kevinveenbirkenbach@infinito.nexus](
 
 # translated-by: libretranslate
 msgid "Embodied-mode decision and scenario: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "Дене режиминин чечими жана сценарийи: [032- агенттик кызматкерлер -firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Emit one error annotation per item in *items*."
@@ -31122,7 +31122,7 @@ msgstr "Ар бир стектин өзүнүн домени бар. (`INFINITO_
 
 # translated-by: libretranslate
 msgid "Every stateful role in the repo keeps both modes on; only host-level and infrastructure roles disable swarm. See [deployment-modes.md](../contributing/design/deployment-modes.md)."
-msgstr "Реподогу ар бир мамлекеттик рол эки режимди тең кармап турат; кожоюн деңгээлиндеги жана инфраструктуралык ролдор гана үйүрдү өчүрөт. караңыз [ишке киргизүү -modes.md](../contributing/design/deployment-modes.md)...."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Every sweep exercises both architectures across the catalogue instead of proving amd64 and claiming nothing, at no extra job count."
@@ -34834,7 +34834,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "HTTP CA trust (infinito-http-ca-trust.php) 🔐"
-msgstr "HTTP CA ишеним (Infinito-http-ca-trust.php) 🔐"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "HTTP client for the LibreTranslate API."
@@ -35103,7 +35103,7 @@ msgstr "Системанын натыйжалуулугун жана турук�
 
 # translated-by: libretranslate
 msgid "Hermes Agent: [hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com/)"
-msgstr "Гермес агенти: [Гермелер -agent.nousresearch.com](https://hermes-agent.nousresearch.com/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Hermes consumes MCP; it does not serve one in this deployment. Every MCP server role that is deployed alongside and marked shared is discovered through `MCP_DISCOVERED_SERVERS` and rendered into the agent config at `/opt/data/config.yaml`."
@@ -41403,7 +41403,7 @@ msgstr "Техникалык тейлөө 🛠️"
 
 # translated-by: libretranslate
 msgid "Maintenance, dependency, and tooling updates (incl. branches created by [cron-update.yml](../../../../.github/workflows/cron-update.yml))"
-msgstr "Техникалык тейлөө, көз карандылык жана куралдарды жаңыртуу (анын ичинде филиалдар тарабынан түзүлгөн [Крон-update.yml](../../../../.github/workflows/cron-update.yml))"
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -43969,7 +43969,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "OIDC -> RBAC mapping (infinito-oidc-rbac-mapper.php) 🎫"
-msgstr "OIDC - RBAC картасы (Infinitooidc-rbac-mapper.php) 🎫"
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -51032,7 +51032,7 @@ msgstr "Калгандары `INFINITO_INVENTORY_DIR`, `INFINITO_INVENTORY_FILE`
 
 # translated-by: libretranslate
 msgid "Resolves a browser-facing URL for a frontend dependency declared in the role's own package-lock.json, mirroring jsdelivr's npm path scheme so the internal and external forms differ only by host:"
-msgstr "Бул браузерге багытталган URL дарегин ролдордун өз пакетинде жарыяланган фронт-энд көз карандылыгы үчүн өзгөртөт.lock.json, Jsdelivr npm жол схемасын чагылдырып, ички жана тышкы формалар хостко гана айырмаланат:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Resolves a source to a local backup-root, then discovers the newest generation of each repo present under it and recovers each type in order (nfs -> volume -> secrets) against the target via the per-type Recoverers. The source is one of:"
@@ -53471,7 +53471,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Routine maintenance: dependabot bumps of *actions/checkout* 6 to 7, *docker/login-action* 4.1.0 to 4.3.0 and *docker/setup-buildx-action* 4.0.0 to 4.2.0; *skills-lock.json* refresh."
-msgstr "Кадимки техникалык тейлөө: көз карандылык дөңгөлөктөрү *иш-аракеттер жана текшерүү* 6 үчүн 7, *Docker жана Login иш-аракеттери* 4.1.0 үчүн 4.3.0 жана жана *Docker, орнотуу-курулуш иш-аракеттери* 4.0.0 үчүн 4.2.0; *жөндөмдүүлүктөр -lock.json* сергитүү."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Routine maintenance: dependabot bumps of *docker/login-action* 4.3.0 to 4.4.0 and *eslint-plugin-playwright* 2.10.4 to 2.10.5; removed a stray *.claude/settings.local.json*."

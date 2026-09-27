@@ -605,7 +605,7 @@ msgstr "**Outras plataformas** (incluíndo Arch Linux ARM, Debian, Ubuntu, Fedor
 
 # translated-by: libretranslate
 msgid "**All-or-nothing:** a partial shift (web onion, identity clearnet) breaks oauth2-proxy email matching ([oauth2-proxy-keycloak.cfg.j2:32](../../roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2) sets `email_domains = \"{{ DOMAIN_PRIMARY }}\"`). Fresh onion nodes only; migrating an existing clearnet node is out of scope (base DN + all identities would shift)."
-msgstr "**Todo ou nada:** Cambio parcial (Web onion, Identidade Clearnet) Rompendo oauth2correo electrónico proxy matching ([Oauth2-proxy-keycloak.cfg.j2::32](../../roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2) sets `email_domains = \"{{ DOMAIN_PRIMARY }}\"`)Só os nodos de cebola frescos; migrar un nodo claro xa existente está fóra de alcance (base DN + todas as identidades cambiarían)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Allowlist on ``tools/call``:** Filtering only ``tools/list`` would leave every unlisted operation callable by name."
@@ -6105,7 +6105,7 @@ msgstr "**Metros vía `unauthenticated_metrics_access = true`** No ouvinte inter
 
 # translated-by: libretranslate
 msgid "**Migrated compose files** from *docker-compose.yml* to *compose.yml*, including override and CA override variants, and unified compose-related configuration keys"
-msgstr "**Mesturar arquivos** de *Docker-compose.yml* para *compose.yml*, incluíndo variantes de override e CA, e claves de configuración relacionadas coa composición unificadas"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Migration outline (~4-6h):**"
@@ -9199,7 +9199,7 @@ msgstr "**A matriz de integración é un artefacto xerado cun xerador sancionado
 
 # translated-by: libretranslate
 msgid "**The integration matrix is the cross-role addon backlog.** The full role×role capability map lives in the generated companion [027-integration-matrix.md](027-integration-matrix.md) (source of truth: [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py)). ☑️ cells are integrations **already wired** through an infinito-native service flag in the row role's `meta/services.yml` (e.g. `sso`→keycloak, `matomo`, `prometheus`, `email`→mailu), derived by scanning the repo, no action required. ✅ cells are verified **upstream app↔app plugins not yet declared** as addons, the backlog this requirement commits to wire. 🪙 cells are the same as ✅ but gated behind a commercial tier (opt-in, operator-enabled). ❌ cells have no known integration. The matrix MUST be regenerated (not hand-edited) whenever a role or an integration is added; the `meta/addons/` migrations turn ✅ into ☑️ over time."
-msgstr "**A matriz de integración é o backlog addon cross-role.** O mapa completo de capacidade role×role vive no compañeiro xerado. [027-integración-matrix.md](027-integration-matrix.md) (Fonte da verdade: [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py)). ☑️ As células son integracións. **Xa enredado** a través dunha bandeira de servizo infinito-nativo no papel da fila `meta/services.yml` (e.g. `sso`Tecloak, `matomo`, `prometheus`, `email`mailu), derivado de escanear o repositorio, sen necesidade de acción. ✅ Células verificadas **Upstream App, plugins aínda non declarados** Como addons, o backlog este requisito comprométese a fío. 🪙 As células son as mesmas que ✅ pero detrás dunha marea comercial (opt-in, operador habilitado). ❌ As células non teñen unha integración coñecida. A matriz debe ser rexenerada (Non editada a man) sempre que se incorpore unha función ou unha integración, `meta/addons/` As migracións xiran ✅ En ☑️ ao longo do tempo."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**The job proves the machine before it deploys.** [assert_architecture.sh](../../../scripts/github/runner/assert_architecture.sh) compares `uname -m` against the assigned value and fails the row on a mismatch. Without it, a label that stops resolving to arm64 hardware would report every arm64 row green from an amd64 machine, which is the exact failure the axis exists to rule out."
@@ -15903,11 +15903,11 @@ msgstr "Axente de ficheiros regras 📁"
 
 # translated-by: libretranslate
 msgid "Agent fleet that consumes the gateway: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "Axente que consome a porta: [032- emprego-firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Agent fleet that consumes this gateway: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "Axentes que consomen esta pasarela: [032- emprego-firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Agent group_vars rules"
@@ -15943,7 +15943,7 @@ msgstr "Habilidades non instaladas. Correr `make install-skills` Permite o home 
 
 # translated-by: libretranslate
 msgid "Agent that consumes it (isolated home-assistant scenario): [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "Axente que o consume (Escenarios caseiros):: [032- emprego-firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Agent token restricted by Zammad groups; redact sensitive articles; no ticket, article, user, role, or configuration mutation"
@@ -18480,7 +18480,7 @@ msgstr "Antes de entrar en vigor, o axente debe ler [AGENTS.md](../../AGENTS.md)
 
 # translated-by: libretranslate
 msgid "Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Compose Loop](../agents/action/iteration/compose.md), [Swarm Loop](../agents/action/iteration/swarm.md), [deployment-modes.md](../contributing/design/deployment-modes.md), the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md), and the IAM pages [common.md](../contributing/design/iam/common.md), [oidc.md](../contributing/design/iam/oidc.md) and [rbac.md](../contributing/design/iam/rbac.md)."
-msgstr "Antes de entrar en vigor, o axente debe ler [AGENTS.md](../../AGENTS.md), Entón [Compose Loop](../agents/action/iteration/compose.md), [Swarm Loop](../agents/action/iteration/swarm.md), [despregue-modes.md](../contributing/design/deployment-modes.md), el [contrato Playwright](../contributing/artefact/files/role/playwright.specs.js.md), As páxinas IAM [common.md](../contributing/design/iam/common.md), [oidc.md](../contributing/design/iam/oidc.md) e [rbac.md](../contributing/design/iam/rbac.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Role Loop](../agents/action/iteration/compose.md) and the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md)."
@@ -19465,7 +19465,7 @@ msgstr "Constrúe as imaxes base per-distro CI consumidas por todos os traballos
 
 # translated-by: libretranslate
 msgid "Buildx setup resilience: the CI image build pre-pulls and pins the *moby/buildkit* image with a retry loop before *docker/setup-buildx-action*, so a transient *registry-1.docker.io* timeout during the buildkit bootstrap no longer aborts the build — buildx falls back to the locally cached image once it is present."
-msgstr "resiliencia de configuración de Buildx: a imaxe CI constrúe pre-pulls e pon o *Moby /buildkit* Imaxe cun bucle de retry antes *Comentarios en Docker/setup-buildx*Así que transitorio *Registro-1.docker.io* timeout durante a correa de arranque do buildkit xa non aborta o buildx cae de volta á imaxe caché local unha vez que está presente."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Built as a central engine (mirroring ``svc-db-postgres``), this role:"
@@ -20440,7 +20440,7 @@ msgstr "Centralizar a lóxica de execución de contedores"
 
 # translated-by: libretranslate
 msgid "Cert generation runs in a throw-away alpine container driven by [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) before the frontend starts."
-msgstr "A xeración de Cert corre nun recipiente alpino lanzado por [paquete-front-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) antes de que empece a fronte."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Cert generation, Nexus repo bootstrap, and runner trust-store install run from [compose.py](../../../cli/administration/deploy/development/compose.py)."
@@ -22089,7 +22089,7 @@ msgstr "Compañeiro `.js` Axudantes (módulos de utilidade local, como `web-app-
 
 # translated-by: libretranslate
 msgid "Companion artifact for [026-unified-addon-syntax.md](026-unified-addon-syntax.md). Axes are the **entity names** of every `web-app-*` and `web-svc-*` role. A cell marks whether the **row** role ships an addon/plugin that wires in the **column** role."
-msgstr "Artistas para [026unificado-addon-syntax.md](026-unified-addon-syntax.md). Os sexos son **Nome da entidade** de cada `web-app-*` e `web-svc-*` Papel. Unha célula marca que o **row** rol nave un addon/plugin que conecta **columna** Papel."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Companion to the static ``inventories/development/swarm.yml``; both are loaded by the deploy step. Generates an ed25519 keypair at ``KEY_PATH`` if missing so the public half can land in ``users.administrator.authorized_keys``."
@@ -22940,7 +22940,7 @@ msgstr "Controla se Playwright mantén trazas, capturas de pantalla e vídeo par
 
 # translated-by: libretranslate
 msgid "Controls whether automated update PRs are created. Covers both the workflow-driven jobs in [cron-update.yml](../../../../../.github/workflows/cron-update.yml) (Docker image versions, agent skills) and PRs opened by Dependabot (gated via [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml), which auto-closes them)."
-msgstr "Controla se se crean PRs de actualización automática. cobre tanto os traballos impulsados polo fluxo de traballo en [cron-update.yml](../../../../../.github/workflows/cron-update.yml) (Versións de imaxe de Docker, habilidades de axente) Apertura de PR para Dependabot (Vía [entrada-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml), que os autopequen)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Controls whether pushes to `main` trigger the CI pipeline. Pushes to all other branches covered by the workflow (`feature/**`, `hotfix/**`, `fix/**`, `alert-autofix-*`) are unaffected."
@@ -24379,7 +24379,7 @@ msgstr "Actualizacións de versión dependabot ❌"
 
 # translated-by: libretranslate
 msgid "Dependabot cannot read repository variables itself, so [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml) listens on `pull_request_target` (`opened`, `reopened`) and closes any PR authored by `dependabot[bot]` while `CI_ENABLE_AUTO_UPDATES != 'true'`. The workflow does not check out PR code, which keeps the elevated `pull_request_target` context safe."
-msgstr "Dependabot non pode ler as variables dos repositorios. [entrada-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml) Escoita en `pull_request_target` (`opened`, `reopened`) e pechar calquera pr escrito por `dependabot[bot]` Mentres `CI_ENABLE_AUTO_UPDATES != 'true'`. O fluxo de traballo non comproba o código PR, que mantén o elevado `pull_request_target` contexto seguro."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dependencies"
@@ -26582,7 +26582,7 @@ msgstr "Email: [kevinveenbirkenbach@infinito.nexus](mailto:kevinveenbirkenbach@i
 
 # translated-by: libretranslate
 msgid "Embodied-mode decision and scenario: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "Resolución e guión: [032- emprego-firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Emit one error annotation per item in *items*."
@@ -27674,7 +27674,7 @@ msgstr "Cada pila ten o seu propio dominio debaixo del. (`INFINITO_DOMAIN`): O c
 
 # translated-by: libretranslate
 msgid "Every stateful role in the repo keeps both modes on; only host-level and infrastructure roles disable swarm. See [deployment-modes.md](../contributing/design/deployment-modes.md)."
-msgstr "Cada función estatal no descanso mantén os dous modos; só os roles de host e infraestrutura inutilizan o enxame. Ver [despregue-modes.md](../contributing/design/deployment-modes.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Every sweep exercises both architectures across the catalogue instead of proving amd64 and claiming nothing, at no extra job count."
@@ -30172,7 +30172,7 @@ msgstr "Forma"
 
 # translated-by: libretranslate
 msgid "Formalised as its own role in [033-web-app-homeassistant.md](033-web-app-homeassistant.md). Hermes runs on a single Raspberry Pi as a household assistant, kernel-isolated, reachable over voice/chat, controlling home devices through MCP without ever getting host access."
-msgstr "formalizado como o seu propio papel [033Web-app-homeassistant.md](033-web-app-homeassistant.md). Hermes corre nun único Raspberry Pi como asistente doméstico, illado por kernel, accesible por voz e voz, controlando os dispositivos domésticos a través de MCP sen ter acceso ao servidor."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Format"
@@ -31035,7 +31035,7 @@ msgstr "HTTP (Porto 80): Espellos para `deb.debian.org`, `archive.ubuntu.com`, `
 
 # translated-by: libretranslate
 msgid "HTTP CA trust (infinito-http-ca-trust.php) 🔐"
-msgstr "HTTP CA Trust (infinito http-ca-trust.php) 🔐"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "HTTP client for the LibreTranslate API."
@@ -31065,7 +31065,7 @@ msgstr "HTTP/2 Integración TLS/SSL"
 
 # translated-by: libretranslate
 msgid "HTTPS (port 443): per-hostname server certs signed by a dedicated CA. Used by the `infinito` runner (Ansible-driven `pip install`, `gem install`, `composer install`, `curl https://…`). The runner trusts the CA via [package-frontend-ca.sh](../../../scripts/docker/cache/package-frontend/ca.sh)."
-msgstr "HTTPS (Porto 443)- Certas de servidor per-hostname asinadas por unha CA dedicada. Usado por `infinito` runner (Ansible-driven `pip install`, `gem install`, `composer install`, `curl https://…`)O corredor confía na CA [paquete-front-ca.sh](../../../scripts/docker/cache/package-frontend/ca.sh)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "HTTPS OAuth Redirect Fix"
@@ -32373,7 +32373,7 @@ msgstr "Se a corrente ascendente é só HTTP e interno.`dockerd` que o necesite,
 
 # translated-by: libretranslate
 msgid "If the upstream uses HTTPS, add it to `HOSTNAMES` in [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) so a leaf cert is issued."
-msgstr "Se usa HTTPS, engádea. `HOSTNAMES` En [paquete-front-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) Así mesmo, emítese un certificado de follas."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "If the user answers **no**, continue without refactoring."
@@ -41825,7 +41825,7 @@ msgstr "Subnet Per-Role `meta/server.yml.networks.local.subnet`"
 
 # translated-by: libretranslate
 msgid "Per-role update PRs: the Docker-image-version and repository-ref updaters now open one pull request per affected role instead of a single combined PR, and they recompute the diff against the latest *main* at run time — the update jobs check out *main* rather than the triggering commit, so a queued or stale run no longer proposes already-merged changes or bundles unrelated roles. Each role gets its own branch (*update/<type>-<role>-<date>-<fingerprint>*) and a role-scoped duplicate check, while the *skills-lock.json* updater deliberately stays a single PR. See [the update workflow catalog](docs/contributing/tools/github/actions/workflows.md)."
-msgstr "PRs de actualización de per-role: os actualización de Docker-image-version e repositorio-ref agora abren unha solicitude de pull por rol afectado en vez de unha única PR combinada, e eles recompute o diff contra o último. *Principais* Tempo de execución - a actualización de postos de traballo comprobar *Principais* En vez de cometer o erro desencadeante, de xeito que unha carreira de cola ou estala xa non propón cambios xa combinados ou paquetes non relacionados. Cada función ten a súa propia rama (*actualización/<type>-<role>-<date>-<fingerprint>*) unha copia duplicada, mentres que a *Habilidades-lock.json* A actualización mantense deliberadamente como unha única PR. Ver [Actualización do catálogo de fluxo de traballo](docs/contributing/tools/github/actions/workflows.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Per-role views over CI deploy runs, turning Ansible profiling output into comparable, downloadable role-timing metrics."
@@ -42656,7 +42656,7 @@ msgstr "Preferiblemente estruturas."
 
 # translated-by: libretranslate
 msgid "Prefer the manual workflow in [entry-manual-steer.yml](../../../../.github/workflows/entry-manual-steer.yml):"
-msgstr "Prefire o fluxo de traballo manual [Entrada-manual-steer.yml](../../../../.github/workflows/entry-manual-steer.yml)::"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Prefer the smallest implementation that still satisfies the requirement and remains easy to maintain."
@@ -45246,7 +45246,7 @@ msgstr "Eliminando bandeiras de imaxe/versión enganosa (Categoría: Nextcloud)"
 
 # translated-by: libretranslate
 msgid "Removed obsolete debug code referencing a non-existent *--debug* parameter **Base Image Changes**"
-msgstr "Eliminado código obsoleto que fai referencia a un non existente. *-Debug* parámetros **Cambios de imaxe base**"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Removed obsolete legacy paths now that systemd is universally available"
@@ -48402,7 +48402,7 @@ msgstr "Mantemento rutineiro: un forro que impón unha FROM parametrizada no pap
 
 # translated-by: libretranslate
 msgid "Routine maintenance: dependabot bumps of *actions/checkout* 6 to 7, *docker/login-action* 4.1.0 to 4.3.0 and *docker/setup-buildx-action* 4.0.0 to 4.2.0; *skills-lock.json* refresh."
-msgstr "Mantemento de rutina: dependebot bumps *Accións / Checkout* 6 para 7, *Docker/Login-action* 4.1.0 para 4.3.0 e *Comentarios en Docker/setup-buildx* 4.0.0 para 4.2.0; *Habilidades-lock.json* refresco."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Routine maintenance: dependabot bumps of *docker/login-action* 4.3.0 to 4.4.0 and *eslint-plugin-playwright* 2.10.4 to 2.10.5; removed a stray *.claude/settings.local.json*."
@@ -50360,7 +50360,7 @@ msgstr "Ver [regression.md](../../docs/contributing/actions/testing/regression.m
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: Ver [Test \
+# translation-rejected: Ver [Test
 # estados.py](../../../../../tests/lint/docker/dockerfile/test_templates.py)
 # para a aplicación.
 msgid "See [test\\_templates.py](../../../../../tests/lint/docker/dockerfile/test_templates.py) for the implementation."
@@ -56199,7 +56199,7 @@ msgstr "As pezas comúns son:"
 
 # translated-by: libretranslate
 msgid "The companion [027-integration-matrix.md](027-integration-matrix.md) is a generated role×role matrix over the entity names of every `web-app-*` and `web-svc-*` role. Each cell marks whether the **row** role wires in the **column** role:"
-msgstr "O compañeiro [027-integración-matrix.md](027-integration-matrix.md) é unha matriz de role×role xerada sobre os nomes da entidade de cada `web-app-*` e `web-svc-*` Papel. Cada célula indica que **row** Papeles en el **columna** Papel:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The complete model is machine-readable in [`schema.yml`](schema.yml)."
@@ -62192,7 +62192,7 @@ msgstr "Este directorio contén a capa de arranque de ambiente compartido para I
 
 # translated-by: libretranslate
 msgid "This directory contains the shell helpers that [entry-pr-translate.yml](../../../.github/workflows/entry-pr-translate.yml) calls: resolving the languages LibreTranslate supports into the job matrix, merging the source strings of the `core` and `docs` domains into `locale/`, and machine-translating one language per runner."
-msgstr "Este directorio contén os colaboradores shell que [Entrada-pr-translate.yml](../../../.github/workflows/entry-pr-translate.yml) Etiquetas: resolución de idiomas LibreTranslate soportes para a matriz de emprego, fusionando as cadeas fonte do `core` e `docs` dominios en `locale/`, Traducir unha lingua por corredor."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This directory contains variable definition files for the `svc-db-mariadb` Ansible role. It centralizes all configurable values related to MariaDB deployment and can be adjusted without modifying task logic."
@@ -71837,7 +71837,7 @@ msgstr "[ ] fluxo de traballo executado en fork ou validación equivalente"
 
 # translated-by: libretranslate
 msgid "[ ] [027-integration-matrix.md](027-integration-matrix.md) is regenerated from [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py) and committed; a check fails if the committed matrix differs from a fresh generation (no hand edits). The generator derives ☑️ edges by scanning every role's `meta/services.yml` integration keys and renders ✅/🪙 from the curated `EDGES` map."
-msgstr "[ ] [027-integración-matrix.md](027-integration-matrix.md) que se rexenera de [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py) un cheque falla se a matriz comprometida difire dunha nova xeración (No hand edits)O xerador deriva ☑️ Escaneando cada función `meta/services.yml` Claves de integración e renders ✅/🪙 do curado `EDGES` Mapa."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ ] [dsk-gnome-extensions](../../roles/dsk-gnome-extensions/) declares its extensions in `meta/addons/` with `mechanism: extension` and no `bridges`."
@@ -75138,7 +75138,7 @@ msgstr "[`plugins/lookup/tls.py`](../../plugins/lookup/tls.py) Resolución TLS"
 
 # translated-by: libretranslate
 msgid "[`registry-cache`](../../../compose/registry-cache/README.md) runs `rpardini/docker-registry-proxy` and transparently MITMs every Docker image pull from the inner `dockerd`, regardless of upstream registry (`docker.io`, `ghcr.io`, `mcr.microsoft.com`, …). The runner trusts the proxy CA via [registry-ca.sh](../../../scripts/docker/cache/registry-ca.sh)."
-msgstr "[`registry-cache`](../../../compose/registry-cache/README.md) Corre `rpardini/docker-registry-proxy` e transparentemente MITM cada imaxe de Docker tira do interior `dockerd`, Independentemente do rexistro (`docker.io`, `ghcr.io`, `mcr.microsoft.com`...)O corredor confía no proxy CA [Registro-ca.sh](../../../scripts/docker/cache/registry-ca.sh)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[`remove.sh`](remove.sh) for DNS teardown"
@@ -75470,7 +75470,7 @@ msgstr "[cron-update.yml](../../../../../.github/workflows/cron-update.yml)"
 
 # translated-by: libretranslate
 msgid "[cron-update.yml](../../../../../.github/workflows/cron-update.yml), [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml)"
-msgstr "[cron-update.yml](../../../../../.github/workflows/cron-update.yml), [entrada-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[cron-update.yml](../../../../../.github/workflows/cron-update.yml): `🔄 Update versions`"
@@ -75486,7 +75486,7 @@ msgstr "[database.py](database.py) Resolve o backend activo da base de datos par
 
 # translated-by: libretranslate
 msgid "[deployment-modes.md](../../contributing/design/deployment-modes.md) for the `mode` axis."
-msgstr "[despregue-modes.md](../../contributing/design/deployment-modes.md) Para o `mode` eixe."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[dev CLI tree](../../../cli/administration/deploy/development/)"
@@ -75574,19 +75574,19 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-delete-branch.yml](../../../../../.github/workflows/entry-delete-branch.yml): `🚫 Cancel: Runs on Branch Delete`"
-msgstr "[entrada-de-branch.yml](../../../../../.github/workflows/entry-delete-branch.yml):: `🚫 Cancel: Runs on Branch Delete`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-manual-mirror-cleanup.yml](../../../../../.github/workflows/entry-manual-mirror-cleanup.yml): `🧹 Images: Cleanup GHCR`"
-msgstr "[entrada-espello-cleanup.yml](../../../../../.github/workflows/entry-manual-mirror-cleanup.yml):: `🧹 Images: Cleanup GHCR`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-manual-steer.yml](../../../../../.github/workflows/entry-manual-steer.yml): `🕹️ Manual`"
-msgstr "[Entrada-manual-steer.yml](../../../../../.github/workflows/entry-manual-steer.yml):: `🕹️ Manual`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-manual-steer.yml](../../../../.github/workflows/entry-manual-steer.yml): dispatches the orchestrator manually for a chosen distro set and whitelist."
-msgstr "[Entrada-manual-steer.yml](../../../../.github/workflows/entry-manual-steer.yml): envía o orquestrador manualmente para un conxunto de distro escollido e unha lista branca."
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -75614,27 +75614,27 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml): `🚫 Dependabot: Close while auto-updates disabled`"
-msgstr "[entrada-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml):: `🚫 Dependabot: Close while auto-updates disabled`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml)"
-msgstr "[Entrada-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml): `🌐 Translate catalogs`"
-msgstr "[Entrada-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml):: `🌐 Translate catalogs`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml)"
-msgstr "[Entrada-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml): `📤 Push`"
-msgstr "[Entrada-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml):: `📤 Push`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../.github/workflows/entry-push-latest.yml): calls the orchestrator for pushes on the supported branch prefixes and additionally invokes the release workflow on version tags. For the contributor-facing release procedure see [release.md](../../actions/release.md)."
-msgstr "[Entrada-push-latest.yml](../../../../.github/workflows/entry-push-latest.yml): Chama ao orquestrador para empurrar os prefixos de ramificación soportados e tamén invoca o fluxo de traballo de lanzamento en etiquetas de versións. Para o procedemento de publicación orientado a contribucións ver [release.md](../../actions/release.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[env-vars](https://semaphoreui.com/docs/admin-guide/configuration/env-vars)"
@@ -75670,7 +75670,7 @@ msgstr "[image_discovery.py](../../../../../utils/docker/image/discovery.py) Enu
 
 # translated-by: libretranslate
 msgid "[infinito-http-ca-trust.php](infinito-http-ca-trust.php) points WordPress's HTTP API at the deployment's CA bundle so outbound calls to internal HTTPS endpoints (OIDC discovery, REST loopback) verify instead of failing."
-msgstr "[infinito http-ca-trust.php](infinito-http-ca-trust.php) Puntos WordPressHTTP API no paquete CA despregable, así chamadas saíntes aos endpoints internos HTTPS (Descubrimento de OIDC, loopback REST) Comprobar en lugar de fallar."
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -76023,11 +76023,11 @@ msgstr "[sistema /](systemd/) por WSL2 Axudantes sistematizados"
 
 # translated-by: libretranslate
 msgid "[test-mcp-guest.js](../../roles/web-app-homeassistant/files/playwright/test-mcp-guest.js)"
-msgstr "[Test-mcp-guest.js](../../roles/web-app-homeassistant/files/playwright/test-mcp-guest.js)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[test-oidc-login.js](../../roles/web-app-litellm/files/playwright/test-oidc-login.js), gated on `services.sso`"
-msgstr "[Test-oidc-login.js](../../roles/web-app-litellm/files/playwright/test-oidc-login.js), engado en `services.sso`"
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -82178,7 +82178,7 @@ msgstr "`provides:` Utilízase só cando o nome do servizo público difire do no
 
 # translated-by: libretranslate
 msgid "`proxy.conf`: systemd drop-in for `docker.service`. Sets `HTTP_PROXY`/`HTTPS_PROXY` to the proxy and registers [registry-ca.sh](../../scripts/docker/cache/registry-ca.sh) as `ExecStartPre`."
-msgstr "`proxy.conf`: sistematizado drop-in para `docker.service`. sets `HTTP_PROXY`/`HTTPS_PROXY` Para o proxy e os rexistros [Registro-ca.sh](../../scripts/docker/cache/registry-ca.sh) como `ExecStartPre`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`pull_policy` — swarm rejects it as \"Additional property pull_policy is not allowed\" (compose-only extension)."
@@ -84371,7 +84371,7 @@ msgstr "cli.administration.deploy.development.inventory.spec módulo"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: cli.administration.deploy.development.logmódulo \
+# translation-rejected: cli.administration.deploy.development.logmódulo
 # utils
 msgid "cli.administration.deploy.development.log\\_utils module"
 msgstr ""
@@ -91066,14 +91066,14 @@ msgstr "utils.env.handlers.infinito.package> paquete"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: utils.env.handlers.infinito.package\ cache.admin\
+# translation-rejected: utils.env.handlers.infinito.package\ cache.admin
 # password
 msgid "utils.env.handlers.infinito.package\\_cache.admin\\_password module"
 msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: utils.env.handlers.infinito.package\ cache.blobstore\
+# translation-rejected: utils.env.handlers.infinito.package\ cache.blobstore
 # max
 msgid "utils.env.handlers.infinito.package\\_cache.blobstore\\_max module"
 msgstr ""
@@ -92584,7 +92584,7 @@ msgstr "💾 **Instalación en Arch Linux**"
 
 # translated-by: libretranslate
 msgid "📁 **Unified CSS Base Configuration** deployment for all NGINX applications"
-msgstr "📁 **Configuración de base CSS unificada** Implementación de todas as aplicacións NGINX"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "📈 **Burn-down Charts & Metrics:** Monitor velocity and progress."

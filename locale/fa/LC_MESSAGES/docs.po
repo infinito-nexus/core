@@ -12020,7 +12020,7 @@ msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: **galaxy_tags**: ['nginx', 'javascript', 'csp'"Sub\
+# translation-rejected: **galaxy_tags**: ['nginx', 'javascript', 'csp'"Sub
 # filter"، 'injection', 'global']
 msgid "**galaxy_tags**: ['nginx', 'javascript', 'csp', 'sub\\_filter', 'injection', 'global']"
 msgstr ""
@@ -12034,7 +12034,7 @@ msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: **galaxy_tags**: ['nginx', 'tls', 'ssl', "reverse\
+# translation-rejected: **galaxy_tags**: ['nginx', 'tls', 'ssl', "reverse
 # proxy" 'letsencrypt'«خود امضا»]
 msgid "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'reverse\\_proxy', 'letsencrypt', 'self\\_signed']"
 msgstr ""
@@ -20341,7 +20341,7 @@ msgstr "ساخت تصاویر پایه CI هر رشته ای که توسط تم�
 
 # translated-by: libretranslate
 msgid "Buildx setup resilience: the CI image build pre-pulls and pins the *moby/buildkit* image with a retry loop before *docker/setup-buildx-action*, so a transient *registry-1.docker.io* timeout during the buildkit bootstrap no longer aborts the build — buildx falls back to the locally cached image once it is present."
-msgstr "انعطاف پذیری تنظیمات Buildx: تصویر CI ساخت pre-pulls و پین ها *جمع آوری و ساخت* تصویر با یک حلقه دوباره قبل از *docker/setup-buildx*بنابراین یک مسیر *رجیستری1...docker.io* زمان بندی در طول ساخت بوت استریپ دیگر ساخت را متوقف نمی کند - buildx به تصویر ذخیره شده محلی هنگامی که وجود دارد باز می گردد."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Built as a central engine (mirroring ``svc-db-postgres``), this role:"
@@ -21622,7 +21622,7 @@ msgstr "Chunk یک پیچ را پر می کند، که توسط بلوک های 
 
 # translated-by: libretranslate
 msgid "Chunk blocks call-orchestrator.yml declares, the most a sweep may plan."
-msgstr "بلوک های Call-orchestrator.yml بیشتر بخوانید:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Claim Attributes 🏷️"
@@ -23083,7 +23083,7 @@ msgstr "اصحاب یمین `.js` کمک کنندگان (ماژول های کا�
 
 # translated-by: libretranslate
 msgid "Companion artifact for [026-unified-addon-syntax.md](026-unified-addon-syntax.md). Axes are the **entity names** of every `web-app-*` and `web-svc-*` role. A cell marks whether the **row** role ships an addon/plugin that wires in the **column** role."
-msgstr "همکاری برای [026اضافه شده-addon-syntax.md](026-unified-addon-syntax.md). Axes **نام تجاری** هر یک از `web-app-*` و `web-svc-*` نقش سلول نشان می دهد که آیا **ردیف** نقش کشتی های Addon/plugin که سیم ها در **ستون ستون** نقش"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Companion to the static ``inventories/development/swarm.yml``; both are loaded by the deploy step. Generates an ed25519 keypair at ``KEY_PATH`` if missing so the public half can land in ``users.administrator.authorized_keys``."
@@ -39416,7 +39416,7 @@ msgstr "سیاست آینه 📋"
 
 # translated-by: libretranslate
 msgid "Mirror addon-gating.js envKey(): upper-case, non-alphanumeric runs -> '_'."
-msgstr "آینه Addon-gating.js Invkey(): بالا: عددی غیر آلفا اجرا می شود -> '_'..."
+msgstr ""
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -78946,7 +78946,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[cron-security-codeql.yml](../../../../../.github/workflows/cron-security-codeql.yml): `🔐 Scan with CodeQL`"
-msgstr "[امنیت-امنیت-codeql.yml](../../../../../.github/workflows/cron-security-codeql.yml): `🔐 Scan with CodeQL`"
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -79153,15 +79153,15 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml)"
-msgstr "[ورودی-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml): `📤 Push`"
-msgstr "[ورودی-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml): `📤 Push`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../.github/workflows/entry-push-latest.yml): calls the orchestrator for pushes on the supported branch prefixes and additionally invokes the release workflow on version tags. For the contributor-facing release procedure see [release.md](../../actions/release.md)."
-msgstr "[ورودی-push-latest.yml](../../../../.github/workflows/entry-push-latest.yml): فراخوان ارکستر برای فشار بر پیشوندهای شاخه پشتیبانی شده و همچنین جریان آزاد کار بر روی تگ های نسخه را ذکر می کند. برای روش انتشار مشارکت کنندگان، ببینید [release.md](../../actions/release.md)..."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[env-vars](https://semaphoreui.com/docs/admin-guide/configuration/env-vars)"
@@ -88684,7 +88684,7 @@ msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: cli.administration.inventory.provision.hostماژول \
+# translation-rejected: cli.administration.inventory.provision.hostماژول
 # vars
 msgid "cli.administration.inventory.provision.host\\_vars module"
 msgstr ""
@@ -88726,14 +88726,14 @@ msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: cli.administration.inventory.provision.roleماژول \
+# translation-rejected: cli.administration.inventory.provision.roleماژول
 # resolver
 msgid "cli.administration.inventory.provision.role\\_resolver module"
 msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: cli.administration.inventory.provision.ruamelماژول \
+# translation-rejected: cli.administration.inventory.provision.ruamelماژول
 # io
 msgid "cli.administration.inventory.provision.ruamel\\_io module"
 msgstr ""
@@ -88757,7 +88757,7 @@ msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: cli.administration.inventory.provision.usersماژول \
+# translation-rejected: cli.administration.inventory.provision.usersماژول
 # generator
 msgid "cli.administration.inventory.provision.users\\_generator module"
 msgstr ""
@@ -89057,7 +89057,7 @@ msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: cli.contributing.changelog.archive.packageماژول \
+# translation-rejected: cli.contributing.changelog.archive.packageماژول
 # mirror
 msgid "cli.contributing.changelog.archive.package\\_mirror module"
 msgstr ""
@@ -96304,14 +96304,14 @@ msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: utils.env.handlers.infinito.package\ cache.admin\
+# translation-rejected: utils.env.handlers.infinito.package\ cache.admin
 # password Module
 msgid "utils.env.handlers.infinito.package\\_cache.admin\\_password module"
 msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: utils.env.handlers.infinito.package\ cache.blobstore\
+# translation-rejected: utils.env.handlers.infinito.package\ cache.blobstore
 # max ماژول
 msgid "utils.env.handlers.infinito.package\\_cache.blobstore\\_max module"
 msgstr ""
@@ -96372,7 +96372,7 @@ msgstr "utils.env.handlers.infinito.rescue.diagnostics\\ dir Module"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: utils.env.handlers.infinito.rescue.dns53ماژول \
+# translation-rejected: utils.env.handlers.infinito.rescue.dns53ماژول
 # sampler\ log
 msgid "utils.env.handlers.infinito.rescue.dns53\\_sampler\\_log module"
 msgstr ""

@@ -539,7 +539,7 @@ msgstr "**Все остальные платформы** (Arch Linux ARM, Debian
 
 # translated-by: libretranslate
 msgid "**All-or-nothing:** a partial shift (web onion, identity clearnet) breaks oauth2-proxy email matching ([oauth2-proxy-keycloak.cfg.j2:32](../../roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2) sets `email_domains = \"{{ DOMAIN_PRIMARY }}\"`). Fresh onion nodes only; migrating an existing clearnet node is out of scope (base DN + all identities would shift)."
-msgstr "**Все или ничего:** частичный сдвиг (веб-лук, клиренс идентификации) Сломать Oauth2-proxy email matching ([оут2- прокси-keycloak.cfg.j2:32](../../roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2) набор `email_domains = \"{{ DOMAIN_PRIMARY }}\"`)Только свежие луковые узлы; миграция существующего узла клирента выходит за рамки (Базовый DN + все идентичности меняются)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Allowlist on ``tools/call``:** Filtering only ``tools/list`` would leave every unlisted operation callable by name."

@@ -271,6 +271,10 @@ msgctxt "role:svc-registry-docker:description"
 msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
 msgstr "ثبت تصویر محلی خوشه ای برای خدمت به تصاویر ساخته شده سفارشی برای گره های کارگر Docker Swarm"
 
+msgctxt "role:svc-cache-package:description"
+msgid "Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-registry-cache:description"
 msgid "Cluster-local pull-through cache for shared Docker Hub base-image pulls, cutting duplicate transfers and rate limits"
@@ -1236,6 +1240,10 @@ msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
 msgstr "از طریق Tor ممکن است بیشتر طول بکشد."
 
+msgctxt "category:svc.cache:title"
+msgid "Package Caches"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:dev-make:description"
 msgid "Package installation for the GNU Make build automation tool on Arch Linux via Pacman"
@@ -1343,6 +1351,10 @@ msgstr "Proxy Servers"
 msgctxt "role:web-svc-api:description"
 msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
 msgstr "REST API عمومی ارائه داده های نقش، تاریخ و ترجمه های Infinito.Nexus و هر آینه ای از آن و"
+
+msgctxt "category:svc.cache:description"
+msgid "Pull-through caches for package upstreams - proxy repositories and the TLS frontend that answers for them."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:pkgmgr:description"

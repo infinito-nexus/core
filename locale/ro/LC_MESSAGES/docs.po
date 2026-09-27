@@ -539,7 +539,7 @@ msgstr "**Toate celelalte platforme** (inclusiv Arch Linux ARM, Debian, Ubuntu, 
 
 # translated-by: libretranslate
 msgid "**All-or-nothing:** a partial shift (web onion, identity clearnet) breaks oauth2-proxy email matching ([oauth2-proxy-keycloak.cfg.j2:32](../../roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2) sets `email_domains = \"{{ DOMAIN_PRIMARY }}\"`). Fresh onion nodes only; migrating an existing clearnet node is out of scope (base DN + all identities would shift)."
-msgstr "**Toate sau nimic:** o schimbare parțială (ceapa web, clearnet identitate) Break oauth2- proxy e-mail potrivire ([oauth2- Proxi...keycloak.cfg.j2:32](../../roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2) seturi `email_domains = \"{{ DOMAIN_PRIMARY }}\"`). Noduri de ceapă proaspătă numai; migrarea unui nod existent de clearnet este în afara domeniului de aplicare (Baza DN + toate identităţile s-ar schimba)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Allowlist on ``tools/call``:** Filtering only ``tools/list`` would leave every unlisted operation callable by name."
@@ -6014,7 +6014,7 @@ msgstr "**Metrică prin `unauthenticated_metrics_access = true`** pe ascultător
 
 # translated-by: libretranslate
 msgid "**Migrated compose files** from *docker-compose.yml* to *compose.yml*, including override and CA override variants, and unified compose-related configuration keys"
-msgstr "**Fișiere migrate compun** din *Docker...compose.yml* la *compose.yml*, inclusiv variantele de suprascriere și de suprascriere CA și tastele de configurare unificate legate de compunere"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Migration outline (~4-6h):**"
@@ -9008,7 +9008,7 @@ msgstr "**Matricea de integrare este un artefact generat cu un generator sancţi
 
 # translated-by: libretranslate
 msgid "**The integration matrix is the cross-role addon backlog.** The full role×role capability map lives in the generated companion [027-integration-matrix.md](027-integration-matrix.md) (source of truth: [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py)). ☑️ cells are integrations **already wired** through an infinito-native service flag in the row role's `meta/services.yml` (e.g. `sso`→keycloak, `matomo`, `prometheus`, `email`→mailu), derived by scanning the repo, no action required. ✅ cells are verified **upstream app↔app plugins not yet declared** as addons, the backlog this requirement commits to wire. 🪙 cells are the same as ✅ but gated behind a commercial tier (opt-in, operator-enabled). ❌ cells have no known integration. The matrix MUST be regenerated (not hand-edited) whenever a role or an integration is added; the `meta/addons/` migrations turn ✅ into ☑️ over time."
-msgstr "**Matricea de integrare este backlog-ul Addon.** Pe deplin rol × rol capabilitatii harta traieste in companionul generat [027-integrare...matrix.md](027-integration-matrix.md) (sursa adevărului: [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py)). ☑️ celulele sunt integrări **deja cu fir** prin intermediul unui steag de serviciu infinito-nativ în rolul rândului `meta/services.yml` (De exemplu: `sso`→cloak, `matomo`, `prometheus`, `email`→mailu), derivat prin scanarea repo, nici o acțiune necesară. ✅ celulele sunt verificate **Module de aplicație în amonte ↔ App încă nedeclarate** În plus, această cerinţă se angajează să se lege. 🪙 celulele sunt la fel ca ✅ dar poarta în spatele unui nivel comercial (opt-in, activat de operator). ❌ celulele nu au o integrare cunoscută. Matricea trebuie regenerată. (needitate manual) atunci când se adaugă un rol sau o integrare; `meta/addons/` migraţiile se transformă ✅ în ☑️ în timp."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**The job proves the machine before it deploys.** [assert_architecture.sh](../../../scripts/github/runner/assert_architecture.sh) compares `uname -m` against the assigned value and fails the row on a mismatch. Without it, a label that stops resolving to arm64 hardware would report every arm64 row green from an amd64 machine, which is the exact failure the axis exists to rule out."
@@ -11311,14 +11311,14 @@ msgstr "**galaxy_tags**: ['nginx', 'logout', 'oidc', 'javascript', 'csp', 'sub\\
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: **galaxy_tags**: ['nginx', 'tls', 'ssl', 'reverse\
+# translation-rejected: **galaxy_tags**: ['nginx', 'tls', 'ssl', 'reverse
 # proxy', 'letsencrypt', "self\ signed"]
 msgid "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'reverse\\_proxy', 'letsencrypt', 'self\\_signed']"
 msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: **galaxy_tags**: ['nginx', 'tls', 'ssl', "self\
+# translation-rejected: **galaxy_tags**: ['nginx', 'tls', 'ssl', "self
 # signed," 'certificates', 'openssl']
 msgid "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'self\\_signed', 'certificates', 'openssl']"
 msgstr ""
@@ -15614,11 +15614,11 @@ msgstr "Regulile dosarului agentului 📁"
 
 # translated-by: libretranslate
 msgid "Agent fleet that consumes the gateway: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "Flota agent care consumă poarta: [032-Agenţi angajaţi...firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Agent fleet that consumes this gateway: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "Flota agent care consumă această poartă: [032-Agenţi angajaţi...firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Agent group_vars rules"
@@ -15654,7 +15654,7 @@ msgstr "Abilităţi de agent neinstalate. Fugi! `make install-skills` pentru a p
 
 # translated-by: libretranslate
 msgid "Agent that consumes it (isolated home-assistant scenario): [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "Agent care o consumă. (scenariu izolat de asistență la domiciliu): [032-Agenţi angajaţi...firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Agent token restricted by Zammad groups; redact sensitive articles; no ticket, article, user, role, or configuration mutation"
@@ -15955,7 +15955,7 @@ msgstr "Toate celelalte `4xx`/`5xx` coduri și erori de conectare (DNS, SSL) pic
 
 # translated-by: libretranslate
 msgid "All other scopes MUST run the full [call-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml)."
-msgstr "Toate celelalte domenii de aplicare TREBUIE să fie complete [Sună...orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "All post-bootstrap configuration (OIDC Social Login Key, LDAP Settings, outbound Email Account, group-role mapping) runs as Python scripts piped to ``python`` inside the backend container (see ``files/scripts/``)."
@@ -19128,7 +19128,7 @@ msgstr "Construiește imaginile de bază per-distro CI consumate de toate locuri
 
 # translated-by: libretranslate
 msgid "Buildx setup resilience: the CI image build pre-pulls and pins the *moby/buildkit* image with a retry loop before *docker/setup-buildx-action*, so a transient *registry-1.docker.io* timeout during the buildkit bootstrap no longer aborts the build — buildx falls back to the locally cached image once it is present."
-msgstr "Rezistenţa la configurarea buildx: imaginea CI construieşte pre-pusuri şi pini *moby/buildkit* imagine cu o buclă de rejudecată înainte *Docker/setup-buildx-action*, deci un tranzitor *registru-1.docker.io* timeout în timpul buildkit bootstrap nu mai abandonează buildx cade înapoi la imaginea locală cached odată ce este prezent."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Built as a central engine (mirroring ``svc-db-postgres``), this role:"
@@ -19416,7 +19416,7 @@ msgstr "Informatorul din furculiţă trebuie să fie verde."
 
 # translated-by: libretranslate
 msgid "CI is triggered automatically on pull-request events and on pushes to the branches listed in the entry-workflow row in [workflows.md](../../tools/github/actions/workflows.md). The pipeline is composed of reusable workflow files under [.github/workflows/](../../../../.github/workflows/). The central coordinator is [call-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml), which is called by the entry workflows."
-msgstr "IÎ se declanşează automat la evenimente de extragere şi la împingeri către ramurile enumerate în rândul fluxului de intrare la locul de muncă în [workflows.md](../../tools/github/actions/workflows.md). Conducta este compusă din fișiere reutilizabile de flux de lucru sub [.github/fluxuri de lucru/](../../../../.github/workflows/). Coordonatorul central este [Sună...orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml), care este numit de fluxurile de lucru de intrare."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CI on Tag Push 🤖"
@@ -20090,7 +20090,7 @@ msgstr "Centralizează logica de execuție container"
 
 # translated-by: libretranslate
 msgid "Cert generation runs in a throw-away alpine container driven by [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) before the frontend starts."
-msgstr "Generație Cert ruleaza într-un container alpine arunca-alungul condus de [pachet-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) înainte de a începe frontend."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Cert generation, Nexus repo bootstrap, and runner trust-store install run from [compose.py](../../../cli/administration/deploy/development/compose.py)."
@@ -20338,7 +20338,7 @@ msgstr "Bucata blocheaza o umplutura de matura, acoperita de blocurile pe care l
 
 # translated-by: libretranslate
 msgid "Chunk blocks call-orchestrator.yml declares, the most a sweep may plan."
-msgstr "Bucăţi de blocuri...orchestrator.yml declară, cel mai mult o matura poate planifica."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Claim Attributes 🏷️"
@@ -21531,7 +21531,7 @@ msgstr "CodeQL (Severitate mare)"
 
 # translated-by: libretranslate
 msgid "CodeQL static analysis. Invoked by [call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) so every CI run produces a single scan; additionally runs on a weekly cron so coverage does not drop when no pushes land on `main`. See [pipeline.md](../../../artefact/git/pipeline.md) for the gating behaviour."
-msgstr "Analiza statică codeQL. Invocat de [Sună...orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) astfel încât fiecare alergare CI produce o singură scanare; în plus rulează pe un cron săptămânal astfel încât acoperirea nu scade atunci când nu împinge aterizează pe `main`. Vezi? [pipeline.md](../../../artefact/git/pipeline.md) pentru comportamentul de gating."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CodeQL ✅"
@@ -21735,7 +21735,7 @@ msgstr "Însoțitor `.js` ajutoare (module de utilitate locală, cum ar fi `web-
 
 # translated-by: libretranslate
 msgid "Companion artifact for [026-unified-addon-syntax.md](026-unified-addon-syntax.md). Axes are the **entity names** of every `web-app-*` and `web-svc-*` role. A cell marks whether the **row** role ships an addon/plugin that wires in the **column** role."
-msgstr "Artefact pentru companie [026- Unificat-Addon...syntax.md](026-unified-addon-syntax.md). Axele sunt **denumirea entității** din fiecare `web-app-*` şi `web-svc-*` rol. O celulă marchează dacă **rând** rol nave un addon/plugin care fire în **coloană** rol."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Companion to the static ``inventories/development/swarm.yml``; both are loaded by the deploy step. Generates an ed25519 keypair at ``KEY_PATH`` if missing so the public half can land in ``users.administrator.authorized_keys``."
@@ -22565,11 +22565,11 @@ msgstr "Controlor *versiune* Comment *pyproject.toml* (cu retrogradarea poeziei)
 
 # translated-by: libretranslate
 msgid "Controls whether Playwright keeps trace, screenshot, and video for every test or only for failing tests in the deploy-test workflow ([call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml)). For the full propagation chain, the inventory override, and the local equivalents, see [Playwright Tests](../../../actions/testing/playwright.md#artefact-retention-)."
-msgstr "Controls whether Playwright keep trace, screenshot, and video for every tests or only for failing tests in the dislay-test workflow ([Call-test...deploy.yml](../../../../../.github/workflows/call-test-deploy.yml))Pentru întregul lanț de propagare, suprascrie inventar, și echivalente locale, a se vedea [Teste de dramaturg](../../../actions/testing/playwright.md#artefact-retention-)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Controls whether automated update PRs are created. Covers both the workflow-driven jobs in [cron-update.yml](../../../../../.github/workflows/cron-update.yml) (Docker image versions, agent skills) and PRs opened by Dependabot (gated via [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml), which auto-closes them)."
-msgstr "Controlează dacă sunt create PR-uri automatizate de actualizare. Include atât locurile de muncă bazate pe fluxul de lucru în [Cron...update.yml](../../../../../.github/workflows/cron-update.yml) (Docker imagini versiuni, abilități de agent) și PR deschise de Dependabot (Poartă prin [entry-pr-open-dependentabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml), care le închide automat)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Controls whether pushes to `main` trigger the CI pipeline. Pushes to all other branches covered by the workflow (`feature/**`, `hotfix/**`, `fix/**`, `alert-autofix-*`) are unaffected."
@@ -23987,7 +23987,7 @@ msgstr "Actualizări ale versiunii dependentabot ❌"
 
 # translated-by: libretranslate
 msgid "Dependabot cannot read repository variables itself, so [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml) listens on `pull_request_target` (`opened`, `reopened`) and closes any PR authored by `dependabot[bot]` while `CI_ENABLE_AUTO_UPDATES != 'true'`. The workflow does not check out PR code, which keeps the elevated `pull_request_target` context safe."
-msgstr "Dependabot nu poate citi variabilele depozitului în sine, deci [entry-pr-open-dependentabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml) asculta pe `pull_request_target` (`opened`, `reopened`) și închide orice PR autor de `dependabot[bot]` în timp `CI_ENABLE_AUTO_UPDATES != 'true'`. Fluxul de lucru nu verifică codul PR, care păstrează ridicat `pull_request_target` context sigur."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dependencies"
@@ -25712,7 +25712,7 @@ msgstr "Fiecare **Criteriul de acceptare** TREBUIE să fie scris ca un element d
 
 # translated-by: libretranslate
 msgid "Each PR-opening job in [cron-update.yml](../../../../../.github/workflows/cron-update.yml) runs an `actions/create-github-app-token@v2` step gated on `steps.diff.outputs.changed == 'true'`, then forwards the minted token as `GH_TOKEN` and the resolved `APP_SLUG` to the subsequent PR step. The job's `permissions:` block keeps the workflow-provided `GITHUB_TOKEN` read-only; write access is provided exclusively by the App token, scoped to the App's repository permissions."
-msgstr "Fiecare post de PR-deschidere în [Cron...update.yml](../../../../../.github/workflows/cron-update.yml) rulează o `actions/create-github-app-token@v2` pas poarta pe `steps.diff.outputs.changed == 'true'`, apoi înainte token mented ca `GH_TOKEN` şi soluţionat `APP_SLUG` la etapa de PR ulterioară. Treaba e `permissions:` bloc păstrează fluxul de lucru furnizat `GITHUB_TOKEN` numai pentru citire; accesul la scriere este furnizat exclusiv de App token, domeniu de aplicare la permisiunile depozitului App."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Each Raspberry Pi joins the swarm as an agent node labelled `kata-capable` with the isolating runtime as its daemon-wide default (Decision #3, applied per node). Flowise and the gateway run on a manager node. Swarm distributes agent replicas across the Pis; adding a Pi adds agent capacity with no code change. The Pis do **not** run large models locally: agents speak only the gateway `/v1`, which routes light work to a small local `svc-ai-ollama` and heavy work to a GPU or external backend. All node-run images MUST be `arm64`."
@@ -26166,7 +26166,7 @@ msgstr "E-mail: [kevinveenbirkenbach@infinito.nexus](mailto:kevinveenbirkenbach@
 
 # translated-by: libretranslate
 msgid "Embodied-mode decision and scenario: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "Decizia și scenariul în modul încorporat: [032-Agenţi angajaţi...firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Emit one error annotation per item in *items*."
@@ -26223,7 +26223,7 @@ msgstr "Name"
 
 # translated-by: libretranslate
 msgid "Empty result (no open PR): create one as draft via `gh pr create --draft` using the matching template per [pull-request.md](./pull-request.md)."
-msgstr "Rezultatul gol (fără PR deschis): crearea unui proiect prin intermediul `gh pr create --draft` utilizarea șablonului corespunzător per [Trage...request.md](./pull-request.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Empty string (`''`)"

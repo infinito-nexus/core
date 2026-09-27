@@ -11028,7 +11028,7 @@ msgstr "**통합 matrix는 sanctioned 발전기로 생성 된 artifact입니다.
 
 # translated-by: libretranslate
 msgid "**The integration matrix is the cross-role addon backlog.** The full role×role capability map lives in the generated companion [027-integration-matrix.md](027-integration-matrix.md) (source of truth: [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py)). ☑️ cells are integrations **already wired** through an infinito-native service flag in the row role's `meta/services.yml` (e.g. `sso`→keycloak, `matomo`, `prometheus`, `email`→mailu), derived by scanning the repo, no action required. ✅ cells are verified **upstream app↔app plugins not yet declared** as addons, the backlog this requirement commits to wire. 🪙 cells are the same as ✅ but gated behind a commercial tier (opt-in, operator-enabled). ❌ cells have no known integration. The matrix MUST be regenerated (not hand-edited) whenever a role or an integration is added; the `meta/addons/` migrations turn ✅ into ☑️ over time."
-msgstr "**통합 matrix는 cross-role addon backlog입니다.** 전체 role×role 기능 맵은 생성 된 동반자에 살고 있습니다. [027- 통합-matrix.md](027-integration-matrix.md) (진실의 근원: [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py))· ☑️ 셀은 통합 **이미 유선** 행 역할의 infinito-native service flag를 통해 `meta/services.yml` (사이트맵 `sso`→keycloak, `matomo`· `prometheus`· `email`→메일), repo를 검사해서 파생해, 요구되는 활동 없음. ✅ 세포는 확인됩니다 **upstream app↔app 플러그인 아직 선언되지 않음** addons로, backlog 이 필요조건은 철사에 투입합니다. 🪙 세포는 동일하 ✅ 그러나 상업적인 층 뒤에 문질러 (선택, 연산자 지원)· ❌ 세포는 알려진 통합이 없습니다. 매트릭스 MUST 재생 (손 편집) 역할 또는 통합이 추가될 때마다; `meta/addons/` 이전 턴 ✅ 로그인 ☑️ 시간 이상."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**The job proves the machine before it deploys.** [assert_architecture.sh](../../../scripts/github/runner/assert_architecture.sh) compares `uname -m` against the assigned value and fails the row on a mismatch. Without it, a label that stops resolving to arm64 hardware would report every arm64 row green from an amd64 machine, which is the exact failure the axis exists to rule out."
@@ -19418,11 +19418,11 @@ msgstr "Agent 파일 규칙 📁"
 
 # translated-by: libretranslate
 msgid "Agent fleet that consumes the gateway: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "게이트웨이를 소비하는 대리인 함대: [032- 시약-employees-firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Agent fleet that consumes this gateway: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "이 게이트웨이를 소비하는 대리인 함대: [032- 시약-employees-firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -19460,7 +19460,7 @@ msgstr "에이전트는 설치하지 않습니다. 지원하다 `make install-sk
 
 # translated-by: libretranslate
 msgid "Agent that consumes it (isolated home-assistant scenario): [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "그것을 소비하는 대리인 (고립된 home-assistant 시나리오):: [032- 시약-employees-firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Agent token restricted by Zammad groups; redact sensitive articles; no ticket, article, user, role, or configuration mutation"
@@ -19802,7 +19802,7 @@ msgstr "다른 것 `4xx`·`5xx` 코드 및 연결 오류 (DNS, SSL) 테스트 �
 
 # translated-by: libretranslate
 msgid "All other scopes MUST run the full [call-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml)."
-msgstr "다른 모든 범위 MUST 전체 실행 [전화-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml)·."
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -23501,7 +23501,7 @@ msgstr "모든 시험 작업에 의해 소모되는 per-distro CI 기본 이미�
 
 # translated-by: libretranslate
 msgid "Buildx setup resilience: the CI image build pre-pulls and pins the *moby/buildkit* image with a retry loop before *docker/setup-buildx-action*, so a transient *registry-1.docker.io* timeout during the buildkit bootstrap no longer aborts the build — buildx falls back to the locally cached image once it is present."
-msgstr "Buildx 설정 탄력성 : CI 이미지는 pre-pulls를 구축하고 핀 *모비/buildkit* retry 루프가있는 이미지 *docker/setup-buildx 활동*, 그래서 transient *등록-1·docker.io* buildkit bootstrap의 타임 아웃은 더 이상 빌드를 낙관하지 않습니다 - buildx는 로컬로 캐시 된 이미지로 돌아갑니다."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Built as a central engine (mirroring ``svc-db-postgres``), this role:"
@@ -23824,7 +23824,7 @@ msgstr "당신의 포크 MUST에 있는 CI는 녹색 일 것입니다."
 
 # translated-by: libretranslate
 msgid "CI is triggered automatically on pull-request events and on pushes to the branches listed in the entry-workflow row in [workflows.md](../../tools/github/actions/workflows.md). The pipeline is composed of reusable workflow files under [.github/workflows/](../../../../.github/workflows/). The central coordinator is [call-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml), which is called by the entry workflows."
-msgstr "CI는 Pull-request 이벤트에서 자동으로 트리거되며, 항목-workflow 행에 나열된 지점에 푸시합니다. [workflows.md](../../tools/github/actions/workflows.md). 파이프라인은 재사용할 수 있는 워크플로 파일로 구성되어 있습니다. [.github/작업 흐름/](../../../../.github/workflows/). 중앙 조정기는 입니다 [전화-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml), 항목 워크플로에 의해 호출되는."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CI on Tag Push 🤖"
@@ -24557,7 +24557,7 @@ msgstr "컨테이너 실행 논리를 구분"
 
 # translated-by: libretranslate
 msgid "Cert generation runs in a throw-away alpine container driven by [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) before the frontend starts."
-msgstr "Cert 생성은 던지고 있는 알파인 콘테이너에서 몹니다 [패키지 프런트 엔드-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) 프론트엔드 시작 전에."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Cert generation, Nexus repo bootstrap, and runner trust-store install run from [compose.py](../../../cli/administration/deploy/development/compose.py)."
@@ -24839,7 +24839,7 @@ msgstr "Chunk 블록 청소, YAML 선언 블록에 의해 캡핑."
 
 # translated-by: libretranslate
 msgid "Chunk blocks call-orchestrator.yml declares, the most a sweep may plan."
-msgstr "Chunk 블록 호출-orchestrator.yml 선언, 대부분의 청소 계획 할 수 있습니다."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Claim Attributes 🏷️"
@@ -26096,7 +26096,7 @@ msgstr "코드QL (높은 신뢰성)"
 
 # translated-by: libretranslate
 msgid "CodeQL static analysis. Invoked by [call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) so every CI run produces a single scan; additionally runs on a weekly cron so coverage does not drop when no pushes land on `main`. See [pipeline.md](../../../artefact/git/pipeline.md) for the gating behaviour."
-msgstr "CodeQL 정적 분석. 에 의해 호출 [전화-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) 그래서 모든 CI는 단일 스캔을 생산; 추가로 매주 cron에서 실행 그래서 적용은 땅을 밀어 때 떨어지지 않습니다 `main`. 보기 [pipeline.md](../../../artefact/git/pipeline.md) 행동을 위해."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CodeQL ✅"
@@ -27216,7 +27216,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Controls whether Playwright keeps trace, screenshot, and video for every test or only for failing tests in the deploy-test workflow ([call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml)). For the full propagation chain, the inventory override, and the local equivalents, see [Playwright Tests](../../../actions/testing/playwright.md#artefact-retention-)."
-msgstr "Playwright가 추적, 스크린 샷 및 모든 테스트에 대한 비디오를 유지하거나 배포 테스트 워크플로우에서 실패하는 테스트를 위해 ([전화 테스트-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml)). 가득 차있는 전파 사슬을 위해, 재고 override 및 국부적으로 동등물은, 봅니다 [Playwright 테스트](../../../actions/testing/playwright.md#artefact-retention-)·."
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -28846,7 +28846,7 @@ msgstr "Dependabot 버전 업데이트 ❌"
 
 # translated-by: libretranslate
 msgid "Dependabot cannot read repository variables itself, so [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml) listens on `pull_request_target` (`opened`, `reopened`) and closes any PR authored by `dependabot[bot]` while `CI_ENABLE_AUTO_UPDATES != 'true'`. The workflow does not check out PR code, which keeps the elevated `pull_request_target` context safe."
-msgstr "Dependabot은 저장소 변수 자체를 읽을 수 없습니다. [입장-pr 개방-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml) 관련 기사 `pull_request_target` (`opened`· `reopened`) 그리고 모든 PR 승인 `dependabot[bot]` 한국어 `CI_ENABLE_AUTO_UPDATES != 'true'`. 작업 흐름은 PR 코드를 확인하지 않습니다, 이는 높은 유지 `pull_request_target` 안전하다."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dependencies"
@@ -31275,7 +31275,7 @@ msgstr "이메일: [kevinveenbirkenbach@infinito.nexus](mailto:kevinveenbirkenba
 
 # translated-by: libretranslate
 msgid "Embodied-mode decision and scenario: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "Embodied-mode 결정과 시나리오: [032- 시약-employees-firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Emit one error annotation per item in *items*."
@@ -31355,7 +31355,7 @@ msgstr "빈 키 또는 out-of-deployment 기본 URL은 배포 실패"
 
 # translated-by: libretranslate
 msgid "Empty result (no open PR): create one as draft via `gh pr create --draft` using the matching template per [pull-request.md](./pull-request.md)."
-msgstr "빈 결과 (열린 PR): 을 통해 초안으로 만들기 `gh pr create --draft` 일치하는 템플릿을 사용하여 [풀-request.md](./pull-request.md)·."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Empty string (`''`)"
@@ -36369,7 +36369,7 @@ msgstr "웹 사이트 (항구 항구 80): 일반 미러 `deb.debian.org`· `arch
 
 # translated-by: libretranslate
 msgid "HTTP CA trust (infinito-http-ca-trust.php) 🔐"
-msgstr "HTTP CA 신뢰 (인피니토 http-ca-trust.php) 🔐"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "HTTP client for the LibreTranslate API."
@@ -36377,7 +36377,7 @@ msgstr "HTTP 클라이언트 LibreTranslate API·."
 
 # translated-by: libretranslate
 msgid "HTTP onion SOCKS (infinito-http-onion-socks.php) 🧅"
-msgstr "HTTP 양파 SOCKS (인피니토 http-onion-socks.php) 🧅"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "HTTP status codes for a deployed domain."
@@ -36397,7 +36397,7 @@ msgstr "HTTP/사용자2 지원, TLS/SSL 통합"
 
 # translated-by: libretranslate
 msgid "HTTPS (port 443): per-hostname server certs signed by a dedicated CA. Used by the `infinito` runner (Ansible-driven `pip install`, `gem install`, `composer install`, `curl https://…`). The runner trusts the CA via [package-frontend-ca.sh](../../../scripts/docker/cache/package-frontend/ca.sh)."
-msgstr "다운로드 (항구 항구 443): 전용 CA에 의해 서명된 per-hostname 서버 certs. 에 의해 사용 `infinito` 주 메뉴 (연락처 `pip install`· `gem install`· `composer install`· `curl https://…`). 런너는 CA를 통해 신뢰합니다 [패키지 프런트 엔드-ca.sh](../../../scripts/docker/cache/package-frontend/ca.sh)·."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "HTTPS OAuth Redirect Fix"
@@ -37685,7 +37685,7 @@ msgstr "만약에 **뚱 베어** 단계 실패, 클러스터가 왼쪽 (실패 �
 
 # translated-by: libretranslate
 msgid "If the app explicitly disables a token on the *base* (e.g. style-src.unsafe-inline: false), that token is removed from the merged base even if present in elem/attr."
-msgstr "앱이 명시적으로 토큰을 비활성화하면 *기본 정보* (e.g. 스타일-src.unsafe-inline: 거짓), 토큰은 elem/attr에서 존재하는 경우에도 합병 된 기지에서 제거됩니다."
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -37833,7 +37833,7 @@ msgstr "상류가 HTTP-only 및 inner-인 경우`dockerd` 빌드가 필요할 �
 
 # translated-by: libretranslate
 msgid "If the upstream uses HTTPS, add it to `HOSTNAMES` in [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) so a leaf cert is issued."
-msgstr "업스트림이 HTTPS를 사용하는 경우, 그것을 추가 `HOSTNAMES` 내 계정 [패키지 프런트 엔드-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) 그래서 잎 cert는 발행됩니다."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "If the user answers **no**, continue without refactoring."
@@ -41577,7 +41577,7 @@ msgstr "LID 스위치 드라이버"
 
 # translated-by: libretranslate
 msgid "LLM gateway: [031-llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)"
-msgstr "LLM 출입구: [031-llm-gateway 모델-backends.md](031-llm-gateway-model-backends.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "LUKS device/image → local backup root"
@@ -44105,11 +44105,11 @@ msgstr "모델 번호:"
 
 # translated-by: libretranslate
 msgid "Model plane (LLM gateway) this depends on: [031-llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)"
-msgstr "모델 비행기 (LLM 게이트웨이) 이것은에 달려 있습니다: [031-llm-gateway 모델-backends.md](031-llm-gateway-model-backends.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Model plane this builds on: [031-llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)"
-msgstr "모형 비행기 이 구조에: [031-llm-gateway 모델-backends.md](031-llm-gateway-model-backends.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Model visibility"
@@ -45674,7 +45674,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "OIDC -> RBAC mapping (infinito-oidc-rbac-mapper.php) 🎫"
-msgstr "OIDC -> RBAC 매핑 (인피니토-oidc-rbac-mapper.php) 🎫"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "OIDC / Keycloak"
@@ -47835,11 +47835,11 @@ msgstr "PR는 그들 없이 합병될 수 없습니다"
 
 # translated-by: libretranslate
 msgid "PR pipelines use `cancel-in-progress: true` so only the newest run per PR and event type is active. The group does not always reap a long orchestrator sweep, which then leaves the newer run parked on `pending`; [entry-cancel-superseded.yml](../../../../.github/workflows/entry-cancel-superseded.yml) cancels those leftovers through the API, see [cancel/README.md](../../../../scripts/github/cancel/README.md)."
-msgstr "PR 파이프라인 사용 `cancel-in-progress: true` PR 및 이벤트 유형 당 최신 실행만 활성화됩니다. 그룹은 항상 긴 오케스트라 스윕을 제거하지 않습니다, 그 다음 더 새로운 실행에 주차 `pending`· [입력-cancel-superseded.yml](../../../../.github/workflows/entry-cancel-superseded.yml) 자주 묻는 질문 API, 참조 [cancel/README.md](../../../../scripts/github/cancel/README.md)·."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "PR target and template rules live in [pull-request.md](./pull-request.md) and MUST be followed before running the commands below."
-msgstr "PR 대상 및 템플릿 규칙 라이브 [풀-request.md](./pull-request.md) 아래 명령을 실행하기 전에 MUST가 수행됩니다."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "PRs MUST target the canonical repository that <https://s.infinito.nexus/code> redirects to, unless the operator explicitly names a different target. Before creating the PR, the agent MUST resolve the redirect (e.g. `curl -sSIL https://s.infinito.nexus/code | grep -i '^location:'`) to obtain the canonical repository URL, then compare it against `git remote get-url origin`. If the two do not point to the same repository (host + owner + repo, ignoring `.git` suffix and `https://` vs. `git@` scheme), stop and ask the operator before creating the PR."
@@ -53031,7 +53031,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Resolves a browser-facing URL for a frontend dependency declared in the role's own package-lock.json, mirroring jsdelivr's npm path scheme so the internal and external forms differ only by host:"
-msgstr "역할 자체 패키지에 선언된 frontend Dependency에 대한 브라우저 기반 URL을 해결합니다.lock.json, 미러링 jsdelivr의 npm 경로 계획 그래서 내부 및 외부 형태는 호스트에 의해서만 다릅니다:"
+msgstr ""
 
 # translation-refused: libretranslate truncated
 # nocheck: url
@@ -58148,7 +58148,7 @@ msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: 이름 * [테스트\
+# translation-rejected: 이름 * [테스트
 # templates.py](../../../../../tests/lint/docker/dockerfile/test_templates.py)
 # 구현을 위해.
 msgid "See [test\\_templates.py](../../../../../tests/lint/docker/dockerfile/test_templates.py) for the implementation."
@@ -63785,7 +63785,7 @@ msgstr "더 보기 `biber` 문제가없는 OIDC를 통해 로그인하십시오.
 
 # translated-by: libretranslate
 msgid "The `build-ci-images` stage uses [call-images-build-ci.yml](../../../../.github/workflows/call-images-build-ci.yml) to build Docker images for the target distributions (`arch`, `debian`, `ubuntu`, `fedora`, `centos`). These images are consumed by all subsequent test jobs."
-msgstr "더 보기 `build-ci-images` 단계 사용 [전화-images-build-ci.yml](../../../../.github/workflows/call-images-build-ci.yml) 대상 배포를 위한 Docker 이미지 구축 (`arch`· `debian`· `ubuntu`· `fedora`· `centos`). 이 이미지는 모든 후속 시험 일에 의해 소모됩니다."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The `bundles=` make arg (comma-separated bundle names) is REQUIRED for both entry points. The compose-deploy recipe sets the resulting `bundles` env var read by these scripts."
@@ -63884,7 +63884,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "The `lint` job runs [call-lint.yml](../../../../.github/workflows/call-lint.yml): `make lint` fans every lint check out in parallel, plus a hadolint SARIF job. It MUST pass before the pipeline continues."
-msgstr "더 보기 `lint` 작업 실행 [전화-lint.yml](../../../../.github/workflows/call-lint.yml):: `make lint` 팬 모든 lint 체크 아웃 병렬, 플러스 해설 SARIF 작업. 그것은 파이프라인의 앞에 MUST 통행 계속."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The `listmonk` service command runs `./listmonk --install --idempotent --yes` on every container start, so the schema is seeded automatically on the first deploy."
@@ -63997,7 +63997,7 @@ msgstr "더 보기 `test-workspace` 단계는 workspace 작업 흐름을 나열�
 
 # translated-by: libretranslate
 msgid "The `test` job runs [call-test.yml](../../../../.github/workflows/call-test.yml): `make test` fans the unit, integration, lint and external suites out in parallel on the runner host. It MUST pass `code-quality-gate`."
-msgstr "더 보기 `test` 작업 실행 [전화-test.yml](../../../../.github/workflows/call-test.yml):: `make test` 팬들은 런너 호스트에 병렬에서 Unit, Integration, lint 및 External suites를 제공합니다. 그것은 MUST 통행 `code-quality-gate`·."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The `tor` input decides what the onion axis is allowed to do at all:"
@@ -70793,7 +70793,7 @@ msgstr "동서 폴더 이름은 배포 의도를 표현합니다. 스크립트 �
 
 # translated-by: libretranslate
 msgid "The version is read from roles/<application_id>/files/package-lock.json, so the URL is always the exact pinned, lockfile-reproducible version."
-msgstr "버전은 역할/에서 읽습니다<application_id>/files/패키지-lock.json, 그래서 URL은 항상 정확한 핀, lockfile-reproducible 버전입니다."
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -74857,7 +74857,7 @@ msgstr "이 역할은 한 개 이상의 GitHub Actions 자체 호스팅 CI 런�
 
 # translated-by: libretranslate
 msgid "This role provisions a local Root CA (self-signed, CA:TRUE) for trusting internal TLS endpoints. Produces /etc/infinito.nexus/ca/root-ca.crt for sys-svc-compose-ca injection."
-msgstr "이 역할은 로컬 루트 CA의 규정 (셀프 서명, CA:TRUE) 내부 TLS 엔드포인트를 신뢰합니다. 생산 /etc/infinito.nexus/ca / 루트-ca.crt 제품정보 sys-svc-compose-ca 주입."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role provisions the isolating runtime layer of a container host. It installs the pinned gVisor binary, then re-runs the daemon configuration of the container role so the freshly installed runtime is registered and the daemon is restarted onto it. In swarm mode it additionally labels the node as sandbox-isolating, which is the placement constraint that keeps sandboxed workloads off nodes that still default to the shared kernel."
@@ -80856,7 +80856,7 @@ msgstr "Workflow 업데이트 작업"
 
 # translated-by: libretranslate
 msgid "Workflows communicate through *inputs* (on `workflow_call` / `workflow_dispatch`), *outputs*, *concurrency groups* (which cancel or serialize runs with the same group key), and the `GITHUB_TOKEN` / repository secrets and variables. The entry points of this repository (`entry-*.yml`) translate external triggers into a call to the central [call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml). Most other workflows are reusable building blocks invoked from the orchestrator."
-msgstr "작업 흐름을 통해 통신 *제품정보* (에 의해 `workflow_call` · `workflow_dispatch`)· *출력 전압*· *통화 그룹* (같은 그룹 키로 취소 또는 serialize 실행), 그리고 `GITHUB_TOKEN` / 저장소 비밀과 변수. 이 저장소의 항목 점 (`entry-*.yml`) 외부 방아쇠를 중앙으로 번역 [전화-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml). 다른 대부분의 작업은 관현관에서 부각 한 건물 블록입니다."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Working mode"
@@ -83588,7 +83588,7 @@ msgstr "[ ] Workflow는 포크 또는 동등한 유효성에서 실행됩니다.
 
 # translated-by: libretranslate
 msgid "[ ] [027-integration-matrix.md](027-integration-matrix.md) is regenerated from [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py) and committed; a check fails if the committed matrix differs from a fresh generation (no hand edits). The generator derives ☑️ edges by scanning every role's `meta/services.yml` integration keys and renders ✅/🪙 from the curated `EDGES` map."
-msgstr "[ ] [027- 통합-matrix.md](027-integration-matrix.md) 에서 재생 [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py) 그리고 최선을 다하고; 최상의 매트릭스가 신선한 세대와 다릅니다 경우 확인 실패 (손 편집). 발전기 파생물 ☑️ 모든 역할의 스캔에 의한 가장자리 `meta/services.yml` 통합 키 및 렌더링 ✅·🪙 curated에서 `EDGES` 지도."
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -87159,7 +87159,7 @@ msgstr "[`plugins/lookup/tls.py`](../../plugins/lookup/tls.py) — TLS 해결책
 
 # translated-by: libretranslate
 msgid "[`registry-cache`](../../../compose/registry-cache/README.md) runs `rpardini/docker-registry-proxy` and transparently MITMs every Docker image pull from the inner `dockerd`, regardless of upstream registry (`docker.io`, `ghcr.io`, `mcr.microsoft.com`, …). The runner trusts the proxy CA via [registry-ca.sh](../../../scripts/docker/cache/registry-ca.sh)."
-msgstr "[`registry-cache`](../../../compose/registry-cache/README.md) 지원하다 `rpardini/docker-registry-proxy` 그리고 투명하게 MITMs 각 도커 이미지는 안에서 당깁니다 `dockerd`, 업스트림 레지스트리에 관계없이 (`docker.io`· `ghcr.io`· `mcr.microsoft.com`, ...). 런너는 proxy CA를 통해 신뢰합니다. [등록-ca.sh](../../../scripts/docker/cache/registry-ca.sh)·."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[`remove.sh`](remove.sh) for DNS teardown"
@@ -87364,23 +87364,23 @@ msgstr "[base.md](role/services/base.md) 서비스 등록, 선적 및 주입"
 
 # translated-by: libretranslate
 msgid "[call-images-build-ci.yml](../../../../../.github/workflows/call-images-build-ci.yml): `🖼️ Build: CI Images (all distros)`"
-msgstr "[전화-images-build-ci.yml](../../../../../.github/workflows/call-images-build-ci.yml):: `🖼️ Build: CI Images (all distros)`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml): `🪞 Mirror: Docker Hub → GHCR (only missing)`"
-msgstr "[전화-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml):: `🪞 Mirror: Docker Hub → GHCR (only missing)`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) copies only missing upstream refs into GHCR via `cli.contributing.mirror.sync --only-missing`. Optional Docker Hub credentials reduce source-side rate limits during that sync."
-msgstr "[전화-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) 복사만 누락된 업스트림 refs into GHCR via `cli.contributing.mirror.sync --only-missing`. 선택적인 Docker 허브 credentials는 그 동기화 도중 근원 측 비율 한계를 감소시킵니다."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) mirrors any missing upstream images in parallel with the DNS tests so later deploy jobs pull from GHCR instead of Docker Hub, MCR, or other external registries. This shields CI from upstream rate limits, geo-blocking, and transient registry outages."
-msgstr "[전화-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) DNS 테스트와 병렬에 누락 된 업스트림 이미지를 미러링하여 나중에 Docker Hub, MCR 또는 기타 외부 레지스트리 대신 GHCR에서 일자리를 배치합니다. 이 방패는 상류 비율 한계, geo-blocking, 및 transient 레지스트리 부족에서 CI를 보호합니다."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-lint.yml](../../../../../.github/workflows/call-lint.yml): `🧹 Lint`"
-msgstr "[전화-lint.yml](../../../../../.github/workflows/call-lint.yml):: `🧹 Lint`"
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -87396,47 +87396,47 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml): `🎵 CI: Orchestrator`"
-msgstr "[전화-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml):: `🎵 CI: Orchestrator`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-release-version.yml](../../../../../.github/workflows/call-release-version.yml): `🚀 Release: Version Logic`"
-msgstr "[전화 출시-version.yml](../../../../../.github/workflows/call-release-version.yml):: `🚀 Release: Version Logic`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-release-version.yml](../../../.github/workflows/call-release-version.yml)"
-msgstr "[전화 출시-version.yml](../../../.github/workflows/call-release-version.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml)"
-msgstr "[전화 테스트-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml): `🚀 Test: Deploy`"
-msgstr "[전화 테스트-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml):: `🚀 Test: Deploy`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-test-deploy.yml](../../../../.github/workflows/call-test-deploy.yml) narrows its app matrix to the set of roles actually impacted by the branch's diff against `origin/main`. The `discover` job resolves an effective whitelist before [output_apps.sh](../../../../scripts/github/resolve/output_apps.sh) runs, using the following precedence:"
-msgstr "[전화 테스트-deploy.yml](../../../../.github/workflows/call-test-deploy.yml) 앱 매트릭스를 좁히고, 실제로 지점의 디퓨에 영향을 미치는 역할 세트로 `origin/main`· `discover` 작업은 전에 효과적인 백리스트를 해결 [output_apps.sh](../../../../scripts/github/resolve/output_apps.sh) 실행, 다음 precedence를 사용하여:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-test-dns.yml](../../../../../.github/workflows/call-test-dns.yml): `💬 Test: DNS`"
-msgstr "[전화 테스트-dns.yml](../../../../../.github/workflows/call-test-dns.yml):: `💬 Test: DNS`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-test-dns.yml](../../../../.github/workflows/call-test-dns.yml) validates DNS configuration across all target distributions."
-msgstr "[전화 테스트-dns.yml](../../../../.github/workflows/call-test-dns.yml) 모든 타겟 배포에서 DNS 구성을 검증합니다."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-test-install.yml](../../../../../.github/workflows/call-test-install.yml): `📦 Test: Install`"
-msgstr "[전화 테스트-install.yml](../../../../../.github/workflows/call-test-install.yml):: `📦 Test: Install`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-test-workspace.yml](../../../../../.github/workflows/call-test-workspace.yml): `💻 Test: Workspace`"
-msgstr "[전화 테스트-workspace.yml](../../../../../.github/workflows/call-test-workspace.yml):: `💻 Test: Workspace`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-test.yml](../../../../../.github/workflows/call-test.yml): `🧪 Test`"
-msgstr "[전화-test.yml](../../../../../.github/workflows/call-test.yml):: `🧪 Test`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[cancel/](cancel/)"
@@ -87508,19 +87508,19 @@ msgstr "[자격 /](../../../cli/administration/inventory/credentials/__main__.py
 
 # translated-by: libretranslate
 msgid "[cron-cleanup-stale.yml](../../../../../.github/workflows/cron-cleanup-stale.yml): `🧹 Prune stale data`"
-msgstr "[cron-클린업-stale.yml](../../../../../.github/workflows/cron-cleanup-stale.yml):: `🧹 Prune stale data`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[cron-images-cleanup-ci.yml](../../../../../.github/workflows/cron-images-cleanup-ci.yml): `🧹 Prune CI images`"
-msgstr "[cron-images-클립업-ci.yml](../../../../../.github/workflows/cron-images-cleanup-ci.yml):: `🧹 Prune CI images`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml), [call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml)"
-msgstr "[cron-images-미러-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml)· [전화-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml): `🪞 Mirror all images`"
-msgstr "[cron-images-미러-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml):: `🪞 Mirror all images`"
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -87583,7 +87583,7 @@ msgstr "[database.py](database.py) Application의 Active Database 백엔드를 �
 
 # translated-by: libretranslate
 msgid "[deployment-modes.md](../../contributing/design/deployment-modes.md) for the `mode` axis."
-msgstr "[설치-modes.md](../../contributing/design/deployment-modes.md) 제품정보 `mode` 축선."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[dev CLI tree](../../../cli/administration/deploy/development/)"
@@ -87668,7 +87668,7 @@ msgstr "[email.py](../../../../../plugins/lookup/email.py) 플러그인."
 
 # translated-by: libretranslate
 msgid "[entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml): `🚫 Cancel: Superseded Runs`"
-msgstr "[입력-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml):: `🚫 Cancel: Superseded Runs`"
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -87680,7 +87680,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-manual-mirror-cleanup.yml](../../../../../.github/workflows/entry-manual-mirror-cleanup.yml): `🧹 Images: Cleanup GHCR`"
-msgstr "[입학-수업-mirror-cleanup.yml](../../../../../.github/workflows/entry-manual-mirror-cleanup.yml):: `🧹 Images: Cleanup GHCR`"
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -87700,39 +87700,39 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-pr-change-orchestrate.yml](../../../../../.github/workflows/entry-pr-change-orchestrate.yml): `🔀 Pull Request`"
-msgstr "[입장-pr-change-orchestrate.yml](../../../../../.github/workflows/entry-pr-change-orchestrate.yml):: `🔀 Pull Request`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml): detects PR scope and conditionally calls the orchestrator."
-msgstr "[입장-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml): PR 범위와 조건으로 관현관을 호출합니다."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-pr-closed-cancel-workflows.yml](../../../../../.github/workflows/entry-pr-closed-cancel-workflows.yml): `🚫 Cancel: PR Runs on Close`"
-msgstr "[입학-pr-closed-cancel-workflows.yml](../../../../../.github/workflows/entry-pr-closed-cancel-workflows.yml):: `🚫 Cancel: PR Runs on Close`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml): `🚫 Dependabot: Close while auto-updates disabled`"
-msgstr "[입장-pr 개방-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml):: `🚫 Dependabot: Close while auto-updates disabled`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml)"
-msgstr "[입장-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml): `🌐 Translate catalogs`"
-msgstr "[입장-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml):: `🌐 Translate catalogs`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml)"
-msgstr "[입력-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml): `📤 Push`"
-msgstr "[입력-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml):: `📤 Push`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../.github/workflows/entry-push-latest.yml): calls the orchestrator for pushes on the supported branch prefixes and additionally invokes the release workflow on version tags. For the contributor-facing release procedure see [release.md](../../actions/release.md)."
-msgstr "[입력-push-latest.yml](../../../../.github/workflows/entry-push-latest.yml): 지원되는 지점 접두사에 푸시용 오케스트라를 호출하고 버전 태그에 릴리스 워크플로를 추가적으로 호출합니다. contributor-facing 릴리스 절차 참조 [release.md](../../actions/release.md)·."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[env-vars](https://semaphoreui.com/docs/admin-guide/configuration/env-vars)"
@@ -87778,11 +87778,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[infinito-http-onion-socks.php](infinito-http-onion-socks.php) sends server-side `wp_remote_*` calls whose host ends in `.onion` through the Tor SOCKS proxy named by `WORDPRESS_OIDC_SOCKS_PROXY`, which [env.j2](../../templates/env.j2) sets only when the OIDC issuer is an onion, so a clearnet deployment never routes through Tor."
-msgstr "[인피니토 http-onion-socks.php](infinito-http-onion-socks.php) 서버 측을 보냅니다 `wp_remote_*` 해당 호스트가 종료된 호출 `.onion` Tor SOCKS 프록시를 통해 `WORDPRESS_OIDC_SOCKS_PROXY`· [env.j2](../../templates/env.j2) OIDC 발행자가 onion일 때만 설정하므로, clearnet 배포는 Tor를 통해 절대 경로가 없습니다."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[infinito-oidc-rbac-mapper.php](infinito-oidc-rbac-mapper.php) implements the OIDC -> WordPress role contract:"
-msgstr "[인피니토-oidc-rbac-mapper.php](infinito-oidc-rbac-mapper.php) OIDC를 구현 -> WordPress 역할 계약:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[instructions.md](instructions.md): how the role README's Production block is replayed inside a deploy row."
@@ -88179,11 +88179,11 @@ msgstr "[체계적인/](systemd/) WSL의 경우2 체계적인 helpers"
 
 # translated-by: libretranslate
 msgid "[test-mcp-guest.js](../../roles/web-app-homeassistant/files/playwright/test-mcp-guest.js)"
-msgstr "[테스트-mcp-guest.js](../../roles/web-app-homeassistant/files/playwright/test-mcp-guest.js)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[test-oidc-login.js](../../roles/web-app-litellm/files/playwright/test-oidc-login.js), gated on `services.sso`"
-msgstr "[테스트-oidc-login.js](../../roles/web-app-litellm/files/playwright/test-oidc-login.js), 문에 `services.sso`"
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -105151,14 +105151,14 @@ msgstr "utils.env.handlers.infinito.package\\ cache 패키지"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: utils.env.handlers.infinito.package\ cache.admin\
+# translation-rejected: utils.env.handlers.infinito.package\ cache.admin
 # password 모듈
 msgid "utils.env.handlers.infinito.package\\_cache.admin\\_password module"
 msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: utils.env.handlers.infinito.package\ cache.blobstore\
+# translation-rejected: utils.env.handlers.infinito.package\ cache.blobstore
 # max 모듈
 msgid "utils.env.handlers.infinito.package\\_cache.blobstore\\_max module"
 msgstr ""
@@ -106312,7 +106312,7 @@ msgstr "{{ 30 | curl }} -> 컬 -s --connect-timeout 5 --최대 시간 30 --레�
 
 # translated-by: libretranslate
 msgid "{{ SOFTWARE_DOMAIN | ca_cert_host }}  -> /etc/<software_domain>/ca/root-ca.crt"
-msgstr "{{ SOFTWARE_DOMAIN | ca_cert_host }} -> /등/<software_domain>/ca / 루트-ca.crt"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "{{ lookup('compose_replicas') }}              # topology default {{ lookup('compose_replicas', 1) }}           # force replicas: 1 {{ lookup('compose_replicas', N) }}           # force replicas: N"

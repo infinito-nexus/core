@@ -539,7 +539,7 @@ msgstr "**Todas as outras plataformas** (incluindo Arch Linux ARM, Debian, Ubunt
 
 # translated-by: libretranslate
 msgid "**All-or-nothing:** a partial shift (web onion, identity clearnet) breaks oauth2-proxy email matching ([oauth2-proxy-keycloak.cfg.j2:32](../../roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2) sets `email_domains = \"{{ DOMAIN_PRIMARY }}\"`). Fresh onion nodes only; migrating an existing clearnet node is out of scope (base DN + all identities would shift)."
-msgstr "**Tudo ou nada.** uma mudança parcial (Cebola web, identidade clearnet) quebra oauth2- correspondência de e- mail proxy ([oauth2- Proxy...keycloak.cfg.j2:32](../../roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2) conjuntos `email_domains = \"{{ DOMAIN_PRIMARY }}\"`). Apenas nós de cebola frescos; migrar um nó clearnet existente está fora de escopo (base DN + todas as identidades mudariam)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Allowlist on ``tools/call``:** Filtering only ``tools/list`` would leave every unlisted operation callable by name."
@@ -5979,7 +5979,7 @@ msgstr "**Metrics via `unauthenticated_metrics_access = true`** no ouvinte inter
 
 # translated-by: libretranslate
 msgid "**Migrated compose files** from *docker-compose.yml* to *compose.yml*, including override and CA override variants, and unified compose-related configuration keys"
-msgstr "**Arquivos de composição migrados** de *Docker...compose.yml* para *compose.yml*, incluindo variantes de sobreposição e CA, e chaves de configuração relacionadas com composição unificada"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Migration outline (~4-6h):**"
@@ -8975,7 +8975,7 @@ msgstr "**A matriz de integração é um artefato gerado com um gerador sanciona
 
 # translated-by: libretranslate
 msgid "**The integration matrix is the cross-role addon backlog.** The full role×role capability map lives in the generated companion [027-integration-matrix.md](027-integration-matrix.md) (source of truth: [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py)). ☑️ cells are integrations **already wired** through an infinito-native service flag in the row role's `meta/services.yml` (e.g. `sso`→keycloak, `matomo`, `prometheus`, `email`→mailu), derived by scanning the repo, no action required. ✅ cells are verified **upstream app↔app plugins not yet declared** as addons, the backlog this requirement commits to wire. 🪙 cells are the same as ✅ but gated behind a commercial tier (opt-in, operator-enabled). ❌ cells have no known integration. The matrix MUST be regenerated (not hand-edited) whenever a role or an integration is added; the `meta/addons/` migrations turn ✅ into ☑️ over time."
-msgstr "**A matriz de integração é o backlog de addon de papel cruzado.** O mapa completo da capacidade do papel×role vive no companheiro gerado [027-integração...matrix.md](027-integration-matrix.md) (fonte da verdade: [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py)). ☑️ as células são integrações **já ligado** através de uma bandeira de serviço infinito-nativo na linha `meta/services.yml` (Por exemplo: `sso`→keycloak, `matomo`, `prometheus`, `email`→mailu), derivado da varredura do repo, nenhuma ação necessária. ✅ células são verificadas **plug- ins app↔app upstream ainda não declarados** como addons, o backlog deste requisito se compromete a fio. 🪙 as células são as mesmas que ✅ mas fechado atrás de uma camada comercial (opt-in, operador habilitado). ❌ as células não têm integração conhecida. A matriz DEVE ser regenerada (não editada à mão) Sempre que for adicionado um papel ou uma integração; `meta/addons/` volta migrações ✅ em ☑️ Com o tempo."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**The job proves the machine before it deploys.** [assert_architecture.sh](../../../scripts/github/runner/assert_architecture.sh) compares `uname -m` against the assigned value and fails the row on a mismatch. Without it, a label that stops resolving to arm64 hardware would report every arm64 row green from an amd64 machine, which is the exact failure the axis exists to rule out."
@@ -14603,7 +14603,7 @@ msgstr "Testes de Plugin de Ação 🧩"
 
 # translated-by: libretranslate
 msgid "Actions performed with the workflow-provided `GITHUB_TOKEN` do not start further workflow runs. When [cron-update.yml](../../../../../.github/workflows/cron-update.yml) opens an update PR with `GITHUB_TOKEN`, the `pull_request` and `pull_request_target` events that drive [entry-pr-change-orchestrate.yml](../../../../../.github/workflows/entry-pr-change-orchestrate.yml) do not fire on that PR, so the CI orchestrator never runs against it."
-msgstr "Ações realizadas com o fluxo de trabalho fornecido `GITHUB_TOKEN` não iniciar mais operações de fluxo de trabalho. Quando [cron...update.yml](../../../../../.github/workflows/cron-update.yml) abre um PR de atualização com `GITHUB_TOKEN`, `pull_request` e `pull_request_target` eventos que conduzem [Entrada-pr-change-orchestrate.yml](../../../../../.github/workflows/entry-pr-change-orchestrate.yml) Não disparem sobre o PR, por isso o orquestrador da IC nunca corre contra ele."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Actions 🚀"
@@ -15507,11 +15507,11 @@ msgstr "Regras do arquivo do agente 📁"
 
 # translated-by: libretranslate
 msgid "Agent fleet that consumes the gateway: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "Uma frota de agentes que consome o portal. [032- Agente-empregados...firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Agent fleet that consumes this gateway: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "Uma frota agente que consome este portal. [032- Agente-empregados...firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Agent group_vars rules"
@@ -15547,7 +15547,7 @@ msgstr "Habilidades de agente não instaladas. Executar `make install-skills` pa
 
 # translated-by: libretranslate
 msgid "Agent that consumes it (isolated home-assistant scenario): [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "Agente que o consome. (Cenário isolado de assistência domiciliar): [032- Agente-empregados...firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Agent token restricted by Zammad groups; redact sensitive articles; no ticket, article, user, role, or configuration mutation"
@@ -15850,7 +15850,7 @@ msgstr "Todos os outros `4xx`/`5xx` códigos e erros de ligação (DNS, SSL) fal
 
 # translated-by: libretranslate
 msgid "All other scopes MUST run the full [call-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml)."
-msgstr "Todos os outros escopos DEVE executar o [Chama...orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "All post-bootstrap configuration (OIDC Social Login Key, LDAP Settings, outbound Email Account, group-role mapping) runs as Python scripts piped to ``python`` inside the backend container (see ``files/scripts/``)."
@@ -18035,7 +18035,7 @@ msgstr "Antes da implementação, o agente DEVE ler [AGENTS.md](../../AGENTS.md)
 
 # translated-by: libretranslate
 msgid "Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Compose Loop](../agents/action/iteration/compose.md), [Swarm Loop](../agents/action/iteration/swarm.md), [deployment-modes.md](../contributing/design/deployment-modes.md), the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md), and the IAM pages [common.md](../contributing/design/iam/common.md), [oidc.md](../contributing/design/iam/oidc.md) and [rbac.md](../contributing/design/iam/rbac.md)."
-msgstr "Antes da implementação, o agente DEVE ler [AGENTS.md](../../AGENTS.md), então [Compor o Ciclo](../agents/action/iteration/compose.md), [Enxame Loop](../agents/action/iteration/swarm.md), [implantação-modes.md](../contributing/design/deployment-modes.md), [Contrato de dramaturgo](../contributing/artefact/files/role/playwright.specs.js.md), e as páginas IAM [common.md](../contributing/design/iam/common.md), [oidc.md](../contributing/design/iam/oidc.md) e [rbac.md](../contributing/design/iam/rbac.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Role Loop](../agents/action/iteration/compose.md) and the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md)."
@@ -19004,7 +19004,7 @@ msgstr "Constrói as imagens base de CI per-distro consumidas por todos os traba
 
 # translated-by: libretranslate
 msgid "Buildx setup resilience: the CI image build pre-pulls and pins the *moby/buildkit* image with a retry loop before *docker/setup-buildx-action*, so a transient *registry-1.docker.io* timeout during the buildkit bootstrap no longer aborts the build — buildx falls back to the locally cached image once it is present."
-msgstr "Resistência de configuração Buildx: a imagem CI constrói pré-pulls e fixa o *moby/buildkit* imagem com um ciclo de repetição antes *docker/setup-buildx-action*, então um transitório *registo-1.docker.io* tempo limite durante o buildkit bootstrap não aborta mais a compilação — buildx cai de volta para a imagem em cache local uma vez que ela está presente."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Built as a central engine (mirroring ``svc-db-postgres``), this role:"
@@ -19301,7 +19301,7 @@ msgstr "O informador no seu garfo deve ser verde."
 
 # translated-by: libretranslate
 msgid "CI is triggered automatically on pull-request events and on pushes to the branches listed in the entry-workflow row in [workflows.md](../../tools/github/actions/workflows.md). The pipeline is composed of reusable workflow files under [.github/workflows/](../../../../.github/workflows/). The central coordinator is [call-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml), which is called by the entry workflows."
-msgstr "O CI é acionado automaticamente em eventos pull-request e em pushes para os ramos listados na linha entrada-workflow em [workflows.md](../../tools/github/actions/workflows.md). O gasoduto é composto por arquivos de fluxo de trabalho reutilizáveis sob [.github/fluxos de trabalho/](../../../../.github/workflows/). O coordenador central é [Chama...orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml), que é chamado pelos fluxos de trabalho de entrada."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CI on Tag Push 🤖"
@@ -20009,7 +20009,7 @@ msgstr "Centraliza a lógica de execução do contentor"
 
 # translated-by: libretranslate
 msgid "Cert generation runs in a throw-away alpine container driven by [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) before the frontend starts."
-msgstr "Geração de certificados roda em um recipiente alpino descartável conduzido por [pacote-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) Antes que o frontend comece."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Cert generation, Nexus repo bootstrap, and runner trust-store install run from [compose.py](../../../cli/administration/deploy/development/compose.py)."
@@ -20257,7 +20257,7 @@ msgstr "Chunk bloqueia uma varredura enche, tampado pelos blocos que o YAML decl
 
 # translated-by: libretranslate
 msgid "Chunk blocks call-orchestrator.yml declares, the most a sweep may plan."
-msgstr "O Chunk Blocks chama...orchestrator.yml declara, o máximo que uma varredura pode planejar."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Claim Attributes 🏷️"
@@ -21452,7 +21452,7 @@ msgstr "CódigoQL (Alta gravidade)"
 
 # translated-by: libretranslate
 msgid "CodeQL static analysis. Invoked by [call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) so every CI run produces a single scan; additionally runs on a weekly cron so coverage does not drop when no pushes land on `main`. See [pipeline.md](../../../artefact/git/pipeline.md) for the gating behaviour."
-msgstr "Análise estática do CodeQL. Invocado por [Chama...orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) assim, cada execução CI produz uma única varredura; adicionalmente roda em um cron semanal para que a cobertura não caia quando nenhum pushes aterrissar em `main`. Ver [pipeline.md](../../../artefact/git/pipeline.md) para o comportamento de ligação."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CodeQL ✅"
@@ -21650,7 +21650,7 @@ msgstr "Acompanhante `.js` ajudantes (módulos de utilitário local- role, como 
 
 # translated-by: libretranslate
 msgid "Companion artifact for [026-unified-addon-syntax.md](026-unified-addon-syntax.md). Axes are the **entity names** of every `web-app-*` and `web-svc-*` role. A cell marks whether the **row** role ships an addon/plugin that wires in the **column** role."
-msgstr "Artefacto de acompanhante para [026- Addon unificado...syntax.md](026-unified-addon-syntax.md). Os machados são os **nomes das entidades** de cada `web-app-*` e `web-svc-*` Papel. Uma célula marca se o **linha** role envia um addon/plugin que fios no **coluna** Papel."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Companion to the static ``inventories/development/swarm.yml``; both are loaded by the deploy step. Generates an ed25519 keypair at ``KEY_PATH`` if missing so the public half can land in ``users.administrator.authorized_keys``."
@@ -22498,7 +22498,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Controls whether automated update PRs are created. Covers both the workflow-driven jobs in [cron-update.yml](../../../../../.github/workflows/cron-update.yml) (Docker image versions, agent skills) and PRs opened by Dependabot (gated via [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml), which auto-closes them)."
-msgstr "Controla se RPs de atualização automatizadas são criadas. Abrange ambos os trabalhos orientados para o fluxo de trabalho em [cron...update.yml](../../../../../.github/workflows/cron-update.yml) (Versões da imagem do Docker, habilidades do agente) e PRs abertos pelo Debabot (fechado via [entrada-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml), que os fecha automaticamente)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Controls whether pushes to `main` trigger the CI pipeline. Pushes to all other branches covered by the workflow (`feature/**`, `hotfix/**`, `fix/**`, `alert-autofix-*`) are unaffected."
@@ -22639,7 +22639,7 @@ msgstr "Fluxo de trabalho do desenvolvedor principal (`make install`, `make setu
 # translated-by: libretranslate
 #, python-brace-format
 msgid "Core has no gettext today. The only catalogue is [logout_i18n.yml](../../roles/web-app-keycloak/files/logout_i18n.yml): 30 languages keyed by language code, named keys, `{placeholder}` slots and a `dir` value, inlined as JSON by [logout-panel.js.j2](../../roles/web-app-keycloak/templates/logout-panel.js.j2)."
-msgstr "O Core não tem gettext hoje. O único catálogo é [logout_i18n.yml](../../roles/web-app-keycloak/files/logout_i18n.yml): 30 línguas chaveadas por código de idioma, `{placeholder}` slots e a `dir` valor, embutido como JSON por [Sair...panel.js.j2](../../roles/web-app-keycloak/templates/logout-panel.js.j2)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Core identity, internet attributes, UNIX account fields"
@@ -23913,7 +23913,7 @@ msgstr "Atualizações de Versão do Dependebot ❌"
 
 # translated-by: libretranslate
 msgid "Dependabot cannot read repository variables itself, so [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml) listens on `pull_request_target` (`opened`, `reopened`) and closes any PR authored by `dependabot[bot]` while `CI_ENABLE_AUTO_UPDATES != 'true'`. The workflow does not check out PR code, which keeps the elevated `pull_request_target` context safe."
-msgstr "Dependebot não consegue ler as próprias variáveis do repositório, então [entrada-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml) escuta `pull_request_target` (`opened`, `reopened`) e fecha qualquer PR de autoria de `dependabot[bot]` enquanto `CI_ENABLE_AUTO_UPDATES != 'true'`. O fluxo de trabalho não verifica o código PR, que mantém o elevado `pull_request_target` Contexto seguro."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dependencies"
@@ -25633,7 +25633,7 @@ msgstr "Cada **Critério de aceitação** Deve ser escrito como um item da lista
 
 # translated-by: libretranslate
 msgid "Each PR-opening job in [cron-update.yml](../../../../../.github/workflows/cron-update.yml) runs an `actions/create-github-app-token@v2` step gated on `steps.diff.outputs.changed == 'true'`, then forwards the minted token as `GH_TOKEN` and the resolved `APP_SLUG` to the subsequent PR step. The job's `permissions:` block keeps the workflow-provided `GITHUB_TOKEN` read-only; write access is provided exclusively by the App token, scoped to the App's repository permissions."
-msgstr "Cada tarefa de abertura de PR em [cron...update.yml](../../../../../.github/workflows/cron-update.yml) executa uma `actions/create-github-app-token@v2` passo fechado `steps.diff.outputs.changed == 'true'`, em seguida, encaminha o token cunhado como `GH_TOKEN` e o resolvido `APP_SLUG` à etapa de RP subsequente. O trabalho é... `permissions:` bloco mantém o fluxo de trabalho fornecido `GITHUB_TOKEN` somente leitura; o acesso de escrita é fornecido exclusivamente pelo token do App, escopo das permissões do repositório do App."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Each Raspberry Pi joins the swarm as an agent node labelled `kata-capable` with the isolating runtime as its daemon-wide default (Decision #3, applied per node). Flowise and the gateway run on a manager node. Swarm distributes agent replicas across the Pis; adding a Pi adds agent capacity with no code change. The Pis do **not** run large models locally: agents speak only the gateway `/v1`, which routes light work to a small local `svc-ai-ollama` and heavy work to a GPU or external backend. All node-run images MUST be `arm64`."
@@ -26097,7 +26097,7 @@ msgstr "E- mail: [kevinveenbirkenbach@infinito.nexus](mailto:kevinveenbirkenbach
 
 # translated-by: libretranslate
 msgid "Embodied-mode decision and scenario: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "Decisão e cenário de modo encorpado: [032- Agente-empregados...firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Emit one error annotation per item in *items*."
@@ -26154,7 +26154,7 @@ msgstr "A chave vazia ou URL base fora de implantação falhou a implantação"
 
 # translated-by: libretranslate
 msgid "Empty result (no open PR): create one as draft via `gh pr create --draft` using the matching template per [pull-request.md](./pull-request.md)."
-msgstr "Resultado vazio (sem PR aberto): criar um como rascunho via `gh pr create --draft` usando o modelo correspondente por [Puxa...request.md](./pull-request.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Empty string (`''`)"
@@ -27163,7 +27163,7 @@ msgstr "Cada pilha tem seu próprio domínio abaixo dele (`INFINITO_DOMAIN`): o 
 
 # translated-by: libretranslate
 msgid "Every stateful role in the repo keeps both modes on; only host-level and infrastructure roles disable swarm. See [deployment-modes.md](../contributing/design/deployment-modes.md)."
-msgstr "Cada papel de estado no repo mantém ambos os modos ligados; apenas os papéis de nível de host e infraestrutura desactivam o enxame. Ver [implantação-modes.md](../contributing/design/deployment-modes.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Every sweep exercises both architectures across the catalogue instead of proving amd64 and claiming nothing, at no extra job count."

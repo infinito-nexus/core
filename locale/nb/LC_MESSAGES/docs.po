@@ -15556,7 +15556,7 @@ msgstr "Handlingstilleggstester 🧩"
 
 # translated-by: libretranslate
 msgid "Actions performed with the workflow-provided `GITHUB_TOKEN` do not start further workflow runs. When [cron-update.yml](../../../../../.github/workflows/cron-update.yml) opens an update PR with `GITHUB_TOKEN`, the `pull_request` and `pull_request_target` events that drive [entry-pr-change-orchestrate.yml](../../../../../.github/workflows/entry-pr-change-orchestrate.yml) do not fire on that PR, so the CI orchestrator never runs against it."
-msgstr "Handlinger som utføres med arbeidsflyten `GITHUB_TOKEN` Start ikke videre arbeidsflyt. Når [cron-update.yml](../../../../../.github/workflows/cron-update.yml) Åpner en oppdatering PR med `GITHUB_TOKEN`, den `pull_request` og `pull_request_target` hendelser som driver [Entry-pr-change-orchestrate.yml](../../../../../.github/workflows/entry-pr-change-orchestrate.yml) Ikke brann på den PR, så CI orkesterspiller aldri går imot det."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Actions 🚀"
@@ -16489,11 +16489,11 @@ msgstr "Agent filregler 📁"
 
 # translated-by: libretranslate
 msgid "Agent fleet that consumes the gateway: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "Agent flåte som forbruker porten: [032-agent-arbeidere-firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Agent fleet that consumes this gateway: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "Agent flåte som bruker denne gatewayen: [032-agent-arbeidere-firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Agent group_vars rules"
@@ -16834,7 +16834,7 @@ msgstr "Alt annet `4xx`/`5xx` Koder og tilkoblingsfeil (DNS, SSL) feiler testen.
 
 # translated-by: libretranslate
 msgid "All other scopes MUST run the full [call-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml)."
-msgstr "Alle andre omfang må kjøre hele [Ring-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml).."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "All post-bootstrap configuration (OIDC Social Login Key, LDAP Settings, outbound Email Account, group-role mapping) runs as Python scripts piped to ``python`` inside the backend container (see ``files/scripts/``)."
@@ -19094,7 +19094,7 @@ msgstr "Før implementering, må agenten lese [AGENTS.md](../../AGENTS.md), mål
 
 # translated-by: libretranslate
 msgid "Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Compose Loop](../agents/action/iteration/compose.md), [Swarm Loop](../agents/action/iteration/swarm.md), [deployment-modes.md](../contributing/design/deployment-modes.md), the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md), and the IAM pages [common.md](../contributing/design/iam/common.md), [oidc.md](../contributing/design/iam/oidc.md) and [rbac.md](../contributing/design/iam/rbac.md)."
-msgstr "Før implementering, må agenten lese [AGENTS.md](../../AGENTS.md), så [Kombiner sløyfe](../agents/action/iteration/compose.md), [Swarm Loop](../agents/action/iteration/swarm.md), [implementasjon-modes.md](../contributing/design/deployment-modes.md), den [Playwright kontrakt](../contributing/artefact/files/role/playwright.specs.js.md), og IAM sider [common.md](../contributing/design/iam/common.md), [oidc.md](../contributing/design/iam/oidc.md) og [rbac.md](../contributing/design/iam/rbac.md).."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Role Loop](../agents/action/iteration/compose.md) and the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md)."
@@ -20075,7 +20075,7 @@ msgstr "Bygger per-distro CI-basebilder som forbrukes av alle testjobber."
 
 # translated-by: libretranslate
 msgid "Buildx setup resilience: the CI image build pre-pulls and pins the *moby/buildkit* image with a retry loop before *docker/setup-buildx-action*, so a transient *registry-1.docker.io* timeout during the buildkit bootstrap no longer aborts the build — buildx falls back to the locally cached image once it is present."
-msgstr "Buildx setup resistance: CI-bildet bygger pre-piller og pinner *moby/buildkit* bildet med en reprøv løkke før *docker/setup-buildx-action*Så forbigående *register-1..docker.io* tidsavbrudd under buildkit bootstrap ikke lenger avbryter bygningen - buildx faller tilbake til det lokale cachede bildet når det er til stede."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Built as a central engine (mirroring ``svc-db-postgres``), this role:"
@@ -20366,7 +20366,7 @@ msgstr "KI i gaffelen må være grønn."
 
 # translated-by: libretranslate
 msgid "CI is triggered automatically on pull-request events and on pushes to the branches listed in the entry-workflow row in [workflows.md](../../tools/github/actions/workflows.md). The pipeline is composed of reusable workflow files under [.github/workflows/](../../../../.github/workflows/). The central coordinator is [call-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml), which is called by the entry workflows."
-msgstr "CI utløses automatisk ved trekk-spørring hendelser og ved skyver til greinene som er oppført i inngangs-arbeidsflyten i [workflows.md](../../tools/github/actions/workflows.md). Rørledningen består av gjenbrukbare arbeidsflytfiler under [.github/arbeidsflyter/](../../../../.github/workflows/). Den sentrale koordinatoren er [Ring-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml), som kalles av inngangsarbeidsflytene."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CI on Tag Push 🤖"
@@ -21055,7 +21055,7 @@ msgstr "Sentraliserer containerutførelseslogikk"
 
 # translated-by: libretranslate
 msgid "Cert generation runs in a throw-away alpine container driven by [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) before the frontend starts."
-msgstr "Cert generasjonen kjører i en kast-away alpin beholder drevet av [pakke-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) Før fronten starter."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Cert generation, Nexus repo bootstrap, and runner trust-store install run from [compose.py](../../../cli/administration/deploy/development/compose.py)."
@@ -21303,7 +21303,7 @@ msgstr "Chunk blokkerer et feiefyll, som er dekket av blokkene som YAML erklære
 
 # translated-by: libretranslate
 msgid "Chunk blocks call-orchestrator.yml declares, the most a sweep may plan."
-msgstr "Chunk blokkerer anrop-orchestrator.yml Dess mest suppe kan planlegge."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Claim Attributes 🏷️"
@@ -22499,7 +22499,7 @@ msgstr "CodeQL (Høy alvorlighetsgrad)"
 
 # translated-by: libretranslate
 msgid "CodeQL static analysis. Invoked by [call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) so every CI run produces a single scan; additionally runs on a weekly cron so coverage does not drop when no pushes land on `main`. See [pipeline.md](../../../artefact/git/pipeline.md) for the gating behaviour."
-msgstr "KodeQL statisk analyse. Innkalt av [Ring-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) så hver CI-kjøring produserer en enkelt skanning; også kjører på en ukentlig krone så dekning ikke faller når ingen presser land på `main`. Se [pipeline.md](../../../artefact/git/pipeline.md) for gating oppførsel."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CodeQL ✅"
@@ -23560,7 +23560,7 @@ msgstr "Kontrollerer om Playwright holder spor, skjermbilde og video for hver te
 
 # translated-by: libretranslate
 msgid "Controls whether automated update PRs are created. Covers both the workflow-driven jobs in [cron-update.yml](../../../../../.github/workflows/cron-update.yml) (Docker image versions, agent skills) and PRs opened by Dependabot (gated via [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml), which auto-closes them)."
-msgstr "Kontrollerer om automatiserte oppdateringer opprettes. Dekker både arbeidsflytdrevet jobb i [cron-update.yml](../../../../../.github/workflows/cron-update.yml) (Docker image versjoner, agent ferdigheter) og PRs åpnet av Dependentabot (portet via [post-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml), som lukker dem automatisk).."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Controls whether pushes to `main` trigger the CI pipeline. Pushes to all other branches covered by the workflow (`feature/**`, `hotfix/**`, `fix/**`, `alert-autofix-*`) are unaffected."
@@ -25009,7 +25009,7 @@ msgstr "Dependentabot versjonsoppdateringer ❌"
 
 # translated-by: libretranslate
 msgid "Dependabot cannot read repository variables itself, so [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml) listens on `pull_request_target` (`opened`, `reopened`) and closes any PR authored by `dependabot[bot]` while `CI_ENABLE_AUTO_UPDATES != 'true'`. The workflow does not check out PR code, which keeps the elevated `pull_request_target` context safe."
-msgstr "Dependabot kan ikke lese arkivvariabler selv, så [post-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml) Hører på `pull_request_target` (`opened`, `reopened`) og stenger enhver PR forfatter `dependabot[bot]` mens `CI_ENABLE_AUTO_UPDATES != 'true'`. Arbeidsflyten sjekker ikke ut PR-koden som holder den forhøyede `pull_request_target` sammenheng trygt."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dependencies"
@@ -27253,7 +27253,7 @@ msgstr "E-post: [kevinveenbirkenbach@infinito.nexus](mailto:kevinveenbirkenbach@
 
 # translated-by: libretranslate
 msgid "Embodied-mode decision and scenario: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "Utformet beslutning og scenario: [032-agent-arbeidere-firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Emit one error annotation per item in *items*."
@@ -27310,7 +27310,7 @@ msgstr "Tom nøkkel eller ut-av-distribusjonsbase URL mislykkes utplasseringen"
 
 # translated-by: libretranslate
 msgid "Empty result (no open PR): create one as draft via `gh pr create --draft` using the matching template per [pull-request.md](./pull-request.md)."
-msgstr "Tomt resultat (ingen åpen PR): Opprett et som utkast via `gh pr create --draft` bruker den matchende malen per [trekk-request.md](./pull-request.md).."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Empty string (`''`)"
@@ -28340,7 +28340,7 @@ msgstr "Hver stabel har sitt eget domene under den (`INFINITO_DOMAIN`): Den prim
 
 # translated-by: libretranslate
 msgid "Every stateful role in the repo keeps both modes on; only host-level and infrastructure roles disable swarm. See [deployment-modes.md](../contributing/design/deployment-modes.md)."
-msgstr "Alle tilstandsfulle roller i repo holder begge moduser på; bare vertsnivå- og infrastrukturroller deaktiverer sverm. Se [implementasjon-modes.md](../contributing/design/deployment-modes.md).."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Every sweep exercises both architectures across the catalogue instead of proving amd64 and claiming nothing, at no extra job count."
@@ -30823,7 +30823,7 @@ msgstr "Fork PR kan ikke publisere pakker selv, så deres upålitelige `pull_req
 
 # translated-by: libretranslate
 msgid "Fork PRs run under the `pull_request` event without write permissions. Privileged steps (image builds, package writes) run via `pull_request_target`. The fork CI waits for those privileged images before proceeding. See [pull-request.md](pull-request.md) for the contributor-facing fork workflow."
-msgstr "Fork PRs løper under `pull_request` hendelse uten skriveløyve. Priviligerte trinn (bilde bygger, pakke skriver) løp via `pull_request_target`. Gafflen CI venter på de privilegerte bildene før den fortsetter. Se [trekk-request.md](pull-request.md) for den bidragsyter-vendte gaffel arbeidsflyten."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Fork PRs 🍴"
@@ -31761,7 +31761,7 @@ msgstr "HTTP/2 støtte, TLS/SSL-integrasjon"
 
 # translated-by: libretranslate
 msgid "HTTPS (port 443): per-hostname server certs signed by a dedicated CA. Used by the `infinito` runner (Ansible-driven `pip install`, `gem install`, `composer install`, `curl https://…`). The runner trusts the CA via [package-frontend-ca.sh](../../../scripts/docker/cache/package-frontend/ca.sh)."
-msgstr "HTTPS (port 443): per-hostname server sertifikater signert av en dedikert CA. Brukes av `infinito` løper (Ansible-drevet `pip install`, `gem install`, `composer install`, `curl https://…`)Runneren stoler på CA via [pakke-frontend-ca.sh](../../../scripts/docker/cache/package-frontend/ca.sh).."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "HTTPS OAuth Redirect Fix"
@@ -31985,7 +31985,7 @@ msgstr "Hjelper til å sikre at systemet har tilstrekkelig bytteplass for bedre 
 
 # translated-by: libretranslate
 msgid "Hermes Agent: [hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com/)"
-msgstr "Hermes Agent: [Hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Hermes consumes MCP; it does not serve one in this deployment. Every MCP server role that is deployed alongside and marked shared is discovered through `MCP_DISCOVERED_SERVERS` and rendered into the agent config at `/opt/data/config.yaml`."
@@ -33095,7 +33095,7 @@ msgstr "Hvis oppstrøms er HTTP-bare og indre-`dockerd` Bygg trenger det, også 
 
 # translated-by: libretranslate
 msgid "If the upstream uses HTTPS, add it to `HOSTNAMES` in [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) so a leaf cert is issued."
-msgstr "Hvis oppstrøms bruker HTTPS, legger den til `HOSTNAMES` i [pakke-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) Et blad cert er gitt."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "If the user answers **no**, continue without refactoring."
@@ -40909,7 +40909,7 @@ msgstr "På en Tor node løser noden dnsmasq ``.onion`` gjennom Tors DNSPort og 
 
 # translated-by: libretranslate
 msgid "On a long orchestrator sweep the concurrency group sometimes fails to reap its occupant: the occupant's run-level status sits on `queued` — the normal state of a run whose matrix jobs are still waiting for runners — and the newer run parks on `pending` behind it until someone cancels the sweep by hand. Whether `queued` is the cause or another symptom cannot be decided from outside GitHub; what is observable is that the group does not always reap. The API cancel does not depend on any of that, so [entry-cancel-superseded.yml](../../../.github/workflows/entry-cancel-superseded.yml) calls these helpers on every new commit as well. That workflow deliberately declares no concurrency group: the run holding a group cannot be the run that frees it."
-msgstr "På en lang orkesterspiller feir konovalutagruppen noen ganger ikke å høste sin beboer: beboerens kjørenivå status sitter på `queued` — den normale tilstanden i en løp hvis matrise jobber fortsatt venter på løpere - og den nyere kjører parker på `pending` Bak den til noen kansellerer feien for hånd. Om `queued` er årsaken eller et annet symptom kan ikke bestemmes utenfor GitHub; det som er observerbart er at gruppen ikke alltid høster. Den API kansellering avhenger ikke av noe av det, så [Cancel-superseded.yml](../../../.github/workflows/entry-cancel-superseded.yml) Disse hjelpere også på alle nye forpliktelser. Denne arbeidsflyten erklærer bevisst ingen konvalutagruppe: løpet som holder en gruppe kan ikke være det løp som frigjør den."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "On a recent Docker engine the swarm step can abort at job setup; run `make act-runner-image` once and prefix the run with `ACT_PLATFORM_IMAGE=local/act-runner-fixed:latest` (see [Workflow Loop](workflow.md))."
@@ -42412,11 +42412,11 @@ msgstr "PR kan ikke slås sammen uten dem"
 
 # translated-by: libretranslate
 msgid "PR pipelines use `cancel-in-progress: true` so only the newest run per PR and event type is active. The group does not always reap a long orchestrator sweep, which then leaves the newer run parked on `pending`; [entry-cancel-superseded.yml](../../../../.github/workflows/entry-cancel-superseded.yml) cancels those leftovers through the API, see [cancel/README.md](../../../../scripts/github/cancel/README.md)."
-msgstr "Bruk av PR-rørledninger `cancel-in-progress: true` Så bare den nyeste kjøringen per PR og hendelsestypen er aktiv. Gruppen høster ikke alltid en lang orkestertor feie, som deretter etterlater den nyere løp parkert på `pending`; [Cancel-superseded.yml](../../../../.github/workflows/entry-cancel-superseded.yml) kansellerer de restene gjennom APISe [cancel/README.md](../../../../scripts/github/cancel/README.md).."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "PR target and template rules live in [pull-request.md](./pull-request.md) and MUST be followed before running the commands below."
-msgstr "PR-mål og malregler lever i [trekk-request.md](./pull-request.md) og må følges før du kjører kommandoene nedenfor."
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -42977,7 +42977,7 @@ msgstr "Per-role subnet i `meta/server.yml.networks.local.subnet`"
 
 # translated-by: libretranslate
 msgid "Per-role update PRs: the Docker-image-version and repository-ref updaters now open one pull request per affected role instead of a single combined PR, and they recompute the diff against the latest *main* at run time — the update jobs check out *main* rather than the triggering commit, so a queued or stale run no longer proposes already-merged changes or bundles unrelated roles. Each role gets its own branch (*update/<type>-<role>-<date>-<fingerprint>*) and a role-scoped duplicate check, while the *skills-lock.json* updater deliberately stays a single PR. See [the update workflow catalog](docs/contributing/tools/github/actions/workflows.md)."
-msgstr "Per-role oppdatering PRs: Docker-image-version og arkiv-ref oppdateringer nå åpner en trekkforespørsel per berørt rolle i stedet for en enkelt kombinert PR, og de reberegner diff mot den nyeste *hoved* på kjøretid - oppdateringsjobbene sjekk ut *hoved* I stedet for utløsende forpliktelse, så en køet eller utholdenhet kjøre ikke lenger foreslå allerede-mergede endringer eller pakker urelaterte roller. Hver rolle får sin egen gren (*Oppdater/<type>-<role>-<date>-<fingerprint>*) og en rolle-spekulert duplikatkontroll, mens *ferdigheter-lock.json* Updater forblir bevisst en enkelt PR. Se [katalog for oppdateringsarbeidsflyt](docs/contributing/tools/github/actions/workflows.md).."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Per-role views over CI deploy runs, turning Ansible profiling output into comparable, downloadable role-timing metrics."
@@ -47219,7 +47219,7 @@ msgstr "Løser `INFINITO_INVENTORY_DIR`, `INFINITO_INVENTORY_FILE`, og `INFINITO
 
 # translated-by: libretranslate
 msgid "Resolves a browser-facing URL for a frontend dependency declared in the role's own package-lock.json, mirroring jsdelivr's npm path scheme so the internal and external forms differ only by host:"
-msgstr "Løser en nettleser-vendende URL for en frontend avhengighet erklært i rollens egen pakke-lock.json, speiling jsdelivrs npm-stiskjema slik at de interne og eksterne former kun varierer etter vert:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Resolves a source to a local backup-root, then discovers the newest generation of each repo present under it and recovers each type in order (nfs -> volume -> secrets) against the target via the per-type Recoverers. The source is one of:"
@@ -49554,7 +49554,7 @@ msgstr "Rutinvedlikehold: en lint som håndhever en parameterisert fra i rolle D
 
 # translated-by: libretranslate
 msgid "Routine maintenance: dependabot bumps of *actions/checkout* 6 to 7, *docker/login-action* 4.1.0 to 4.3.0 and *docker/setup-buildx-action* 4.0.0 to 4.2.0; *skills-lock.json* refresh."
-msgstr "Rutinsk vedlikehold: avhengigebot bumps av *handling/utsjekking* 6 til 7, *docker/login-action* 4.1.0 til 4.3.0 og *docker/setup-buildx-action* 4.0.0 til 4.2.0; *ferdigheter-lock.json* Oppdater."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Routine maintenance: dependabot bumps of *docker/login-action* 4.3.0 to 4.4.0 and *eslint-plugin-playwright* 2.10.4 to 2.10.5; removed a stray *.claude/settings.local.json*."
@@ -51955,7 +51955,7 @@ msgstr "Se [regression.md](../../docs/contributing/actions/testing/regression.md
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: Se [test\
+# translation-rejected: Se [test
 # templates.py](../../../../../tests/lint/docker/dockerfile/test_templates.py)
 # til gjennomføringen.
 msgid "See [test\\_templates.py](../../../../../tests/lint/docker/dockerfile/test_templates.py) for the implementation."
@@ -52988,7 +52988,7 @@ msgstr "Send det første verdifulle steget tidlig."
 
 # translated-by: libretranslate
 msgid "Shipping a branch: commit per [commit.md](commit.md), then run `git-sign-push` outside the sandbox. Open the pull request against `origin/main` per [pull-request.md](pull-request.md)."
-msgstr "Frakt en gren: forplikte per [commit.md](commit.md), så løp `git-sign-push` Utenfor sandkassen. Åpne trekkforespørselen mot `origin/main` per [trekk-request.md](pull-request.md).."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Ships an embedded sidecar snippet (``templates/service.yml.j2``) for the ``shared: false`` opt-out path."
@@ -57862,7 +57862,7 @@ msgstr "Vanlige stykker er:"
 
 # translated-by: libretranslate
 msgid "The companion [027-integration-matrix.md](027-integration-matrix.md) is a generated role×role matrix over the entity names of every `web-app-*` and `web-svc-*` role. Each cell marks whether the **row** role wires in the **column** role:"
-msgstr "Følgeren [027-integrasjon-matrix.md](027-integration-matrix.md) er en generert rollexrolematrise over enhetsnavnene til hver `web-app-*` og `web-svc-*` Rolle. Hver celle markerer om **rad** rolle ledninger i **kolonne** Rolle:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The complete model is machine-readable in [`schema.yml`](schema.yml)."
@@ -62744,7 +62744,7 @@ msgstr "Verbmappenavnet uttrykker utplasseringens hensikt. Manusnavnet uttrykker
 
 # translated-by: libretranslate
 msgid "The version is read from roles/<application_id>/files/package-lock.json, so the URL is always the exact pinned, lockfile-reproducible version."
-msgstr "Versjonen leses fra roller/<application_id>/filer/pakke-lock.json, så URL er alltid den nøyaktig festede, låsefil-reprodusible versjonen."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The vhost is identified by the ``domains.canonical`` key that carries the domain, which is the same key ``server.status_codes`` uses. A domain that is not canonical, or a key that declares nothing, falls back to the declared ``default``."
@@ -63859,7 +63859,7 @@ msgstr "Denne katalogen inneholder det felles miljø bootstrap laget for Infinit
 
 # translated-by: libretranslate
 msgid "This directory contains the shell helpers that [entry-pr-translate.yml](../../../.github/workflows/entry-pr-translate.yml) calls: resolving the languages LibreTranslate supports into the job matrix, merging the source strings of the `core` and `docs` domains into `locale/`, and machine-translating one language per runner."
-msgstr "Denne katalogen inneholder skallhjelpere som [Entry-pr-translate.yml](../../../.github/workflows/entry-pr-translate.yml) samtaler: å løse språkene LibreTranslate støtter i jobbmatrisen, slå sammen kildestrengene til `core` og `docs` Domene i `locale/`, og maskinomsetter ett språk per løper."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This directory contains variable definition files for the `svc-db-mariadb` Ansible role. It centralizes all configurable values related to MariaDB deployment and can be adjusted without modifying task logic."
@@ -65849,7 +65849,7 @@ msgstr "Denne rollen tilveiebringer en dedikert maskin som en eller flere GitHub
 
 # translated-by: libretranslate
 msgid "This role provisions a local Root CA (self-signed, CA:TRUE) for trusting internal TLS endpoints. Produces /etc/infinito.nexus/ca/root-ca.crt for sys-svc-compose-ca injection."
-msgstr "Denne rollen bestemmer en lokal rot CA (Selvsignert, CA:TRUE) For å stole på interne TLS-endepunkter. Produsere /etc/infinito.nexus/ca/rot-ca.crt for sys-svc-compose-ca injeksjon."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This role provisions the isolating runtime layer of a container host. It installs the pinned gVisor binary, then re-runs the daemon configuration of the container role so the freshly installed runtime is registered and the daemon is restarted onto it. In swarm mode it additionally labels the node as sandbox-isolating, which is the placement constraint that keeps sandboxed workloads off nodes that still default to the shared kernel."
@@ -69142,7 +69142,7 @@ msgstr "I stedet for å skynde."
 
 # translated-by: libretranslate
 msgid "Wait until the CI in your fork is green. See [pull-request.md](artefact/git/pull-request.md) for required CI scope."
-msgstr "Vent til CI i gaffelen din er grønn. Se [trekk-request.md](artefact/git/pull-request.md) For nødvendig omfang av CI."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Waits MUST target meaningful page state (visible elements, URL changes, attached locators). Fixed sleeps MUST NOT be used where an explicit wait is available."
@@ -70968,7 +70968,7 @@ msgstr "Med megleren utplassert, Open WebUI løper med `BYPASS_MODEL_ACCESS_CONT
 
 # translated-by: libretranslate
 msgid "With the label set, the `detect-affected-roles` job in [entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml) calls [pr_affected_roles.sh](../../../../scripts/github/resolve/pr_affected_roles.sh), which runs the [cli.meta.ci.subset_roles](../../../../cli/meta/ci/subset_roles.py) module. The module reads the first fenced block whose YAML carries a `roles:` key (the heading text is not matched) and emits that list as the `whitelist` output, which flows into the deploy tests as precedence rung 2 above. Without the label, the diff-driven precedence applies."
-msgstr "Med etikettsettet, `detect-affected-roles` jobb i [Entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml) Ringer [pr_affected_roles.sh](../../../../scripts/github/resolve/pr_affected_roles.sh), som kjører [cli.meta.ci.subset_roles](../../../../cli/meta/ci/subset_roles.py) modul. Modulen leser den første inngjerdet blokken som YAML bærer en `roles:` nøkkel (overskriftsteksten er ikke matchet) og avgir denne listen som `whitelist` utgang, som strømmer inn i utplasseringsprøvene som forrangsløp 2 Over. Uten etiketten gjelder diff-drevet forrang."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "With the service enabled, ``tasks/utils/mcp.yml`` reads the token stored for ``administrator`` under this role’s id, probes it against the running instance with a JSON-RPC ``initialize`` call, mints a replacement through ``gitlab-rails runner`` when the stored token is missing or rejected, writes the fresh token back through ``sys-token-store``, and fails the deploy when the re-probe is still rejected. The minted token is a personal access token carrying the ``mcp`` scope with a 364-day expiry. That scope is filtered out of the interactive token picker, so tokens for this endpoint are created programmatically."
@@ -71142,7 +71142,7 @@ msgstr "Workflow oppdatering jobber"
 
 # translated-by: libretranslate
 msgid "Workflows communicate through *inputs* (on `workflow_call` / `workflow_dispatch`), *outputs*, *concurrency groups* (which cancel or serialize runs with the same group key), and the `GITHUB_TOKEN` / repository secrets and variables. The entry points of this repository (`entry-*.yml`) translate external triggers into a call to the central [call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml). Most other workflows are reusable building blocks invoked from the orchestrator."
-msgstr "Arbeidsflyter kommuniserer gjennom *Innganger* (på `workflow_call` / `workflow_dispatch`), *utganger*, *konovalutagrupper* (som kansellerer eller serialiserer kjører med samme gruppenøkkel)og `GITHUB_TOKEN` / arkiv hemmeligheter og variabler. Inngangspunktene i dette lageret (`entry-*.yml`) oversette eksterne utløsere til en samtale til den sentrale [Ring-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml). De fleste andre arbeidsflyter er gjenbrukbare byggesteiner som påføres fra orkesteret."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Working mode"
@@ -73516,7 +73516,7 @@ msgstr "[ ] Arbeidsflyt i gaffel eller tilsvarende validering"
 
 # translated-by: libretranslate
 msgid "[ ] [027-integration-matrix.md](027-integration-matrix.md) is regenerated from [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py) and committed; a check fails if the committed matrix differs from a fresh generation (no hand edits). The generator derives ☑️ edges by scanning every role's `meta/services.yml` integration keys and renders ✅/🪙 from the curated `EDGES` map."
-msgstr "[ ] [027-integrasjon-matrix.md](027-integration-matrix.md) regenerert fra [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py) og begått; en kontroll mislykkes hvis den engasjerte matrisen skiller seg fra en ny generasjon (Ingen håndredigeringer). generatoren stammer ☑️ kanter ved å skanne hver rolle `meta/services.yml` integrasjonsnøkler og render ✅/🪙 fra kurated `EDGES` Kart."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ ] [dsk-gnome-extensions](../../roles/dsk-gnome-extensions/) declares its extensions in `meta/addons/` with `mechanism: extension` and no `bridges`."
@@ -76778,7 +76778,7 @@ msgstr "[`plugins/lookup/tls.py`](../../plugins/lookup/tls.py) — TLS-oppløsni
 
 # translated-by: libretranslate
 msgid "[`registry-cache`](../../../compose/registry-cache/README.md) runs `rpardini/docker-registry-proxy` and transparently MITMs every Docker image pull from the inner `dockerd`, regardless of upstream registry (`docker.io`, `ghcr.io`, `mcr.microsoft.com`, …). The runner trusts the proxy CA via [registry-ca.sh](../../../scripts/docker/cache/registry-ca.sh)."
-msgstr "[`registry-cache`](../../../compose/registry-cache/README.md) kjører `rpardini/docker-registry-proxy` og transparent MITM hvert Docker-bilde trekk fra det indre `dockerd`, uansett oppstrøms register (`docker.io`, `ghcr.io`, `mcr.microsoft.com`,...). Runneren stoler på proxy CA via [register-ca.sh](../../../scripts/docker/cache/registry-ca.sh).."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[`remove.sh`](remove.sh) for DNS teardown"
@@ -76937,7 +76937,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) compares `github.ref` for the same reason: a called workflow inherits the caller's ref, which is `refs/pull/<n>/merge` for a `pull_request` caller but `refs/heads/main` for a `pull_request_target` one. The `ci-orchestrator` job of `entry-pr-change-orchestrate.yml` is fenced to `github.event_name == 'pull_request'`, so the ref the orchestrator sees from that caller is always the merge ref; widening that fence would silently put fork runs into main's group."
-msgstr "[Ring-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) Sammenligner `github.ref` av samme grunn: en kalt arbeidsflyt arver kallerens ref, som er `refs/pull/<n>/merge` for a `pull_request` Ringer men `refs/heads/main` for a `pull_request_target` En. Den `ci-orchestrator` jobb av `entry-pr-change-orchestrate.yml` er inngjerdet til `github.event_name == 'pull_request'`, så rev orkesteret ser fra den oppkalleren er alltid sammenslåingsref; å utvide det gjerdet ville stille sette gaffelen i hovedgruppen."
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -76957,7 +76957,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-release-version.yml](../../../.github/workflows/call-release-version.yml)"
-msgstr "[Call-release-version.yml](../../../.github/workflows/call-release-version.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml)"
@@ -77108,7 +77108,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[cron-release-highest.yml](../../../.github/workflows/cron-release-highest.yml)"
-msgstr "[cron-utgivelse-highest.yml](../../../.github/workflows/cron-release-highest.yml)"
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -77124,7 +77124,7 @@ msgstr "[cron-update.yml](../../../../../.github/workflows/cron-update.yml)"
 
 # translated-by: libretranslate
 msgid "[cron-update.yml](../../../../../.github/workflows/cron-update.yml), [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml)"
-msgstr "[cron-update.yml](../../../../../.github/workflows/cron-update.yml), [post-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml)"
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -77144,7 +77144,7 @@ msgstr "[database.py](database.py) løser den aktive databasebakstykket for et p
 
 # translated-by: libretranslate
 msgid "[deployment-modes.md](../../contributing/design/deployment-modes.md) for the `mode` axis."
-msgstr "[implementasjon-modes.md](../../contributing/design/deployment-modes.md) For `mode` aksen."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[dev CLI tree](../../../cli/administration/deploy/development/)"
@@ -77256,7 +77256,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-manual-steer.yml](../../../../.github/workflows/entry-manual-steer.yml): dispatches the orchestrator manually for a chosen distro set and whitelist."
-msgstr "[post-manual-steer.yml](../../../../.github/workflows/entry-manual-steer.yml): sender orkesteret manuelt for et valgt distro sett og whitelist."
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -77268,7 +77268,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml): detects PR scope and conditionally calls the orchestrator."
-msgstr "[Entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml): detekterer PR omfang og betinget kaller orkesteret."
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -77288,7 +77288,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml)"
-msgstr "[Entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml)"
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -77300,7 +77300,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml)"
-msgstr "[post-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml)"
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -77312,7 +77312,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../.github/workflows/entry-push-latest.yml): calls the orchestrator for pushes on the supported branch prefixes and additionally invokes the release workflow on version tags. For the contributor-facing release procedure see [release.md](../../actions/release.md)."
-msgstr "[post-push-latest.yml](../../../../.github/workflows/entry-push-latest.yml): kaller orkestratoren for å presse på de støttede grenpresene og påkaller i tillegg utgivelsesarbeidsflyten på versjonstags. For den bidragsytende utgivelsesprosedyren se [release.md](../../actions/release.md).."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[env-vars](https://semaphoreui.com/docs/admin-guide/configuration/env-vars)"
@@ -77397,7 +77397,7 @@ msgstr "[lokale distribusjonsskript](../../../scripts/tests/deploy/local/)"
 # translated-by: libretranslate
 #, python-brace-format
 msgid "[logout-panel.js.j2](../../roles/web-app-keycloak/templates/logout-panel.js.j2) inlines [logout_i18n.yml](../../roles/web-app-keycloak/files/logout_i18n.yml) as a `{language: {key: text, dir}}` object, and [logout-panel.js](../../roles/web-app-keycloak/files/javascript/logout-panel.js) picks the language from `<html lang>` and `navigator.language`. Its 29 non-English blocks are the only human translations core owns."
-msgstr "[Logg ut-panel.js.j2](../../roles/web-app-keycloak/templates/logout-panel.js.j2) Inlines [logout_i18n.yml](../../roles/web-app-keycloak/files/logout_i18n.yml) som a `{language: {key: text, dir}}` objekt, og [Logg ut-panel.js](../../roles/web-app-keycloak/files/javascript/logout-panel.js) Velger språket fra `<html lang>` og `navigator.language`. Dens 29 ikke-engelske blokker er de eneste menneskelige oversettelser kjerne eier."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[macOS](platform/macos.md)"
@@ -77713,7 +77713,7 @@ msgstr "[test-oidc-login.js](../../roles/web-app-litellm/files/playwright/test-o
 
 # translated-by: libretranslate
 msgid "[test-system-one-router.js](../../roles/web-app-openwebui/files/playwright/test-system-one-router.js)"
-msgstr "[testsystem-en-router.js](../../roles/web-app-openwebui/files/playwright/test-system-one-router.js)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[test_agent_identity.py](../../tests/lint/ansible/services/test_agent_identity.py) holds the claim, the absence of any role on the account, and the absence of a second credential for it, over the roles derived from the sandbox-runtime scan rather than a list."

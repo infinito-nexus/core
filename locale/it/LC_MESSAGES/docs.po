@@ -581,7 +581,7 @@ msgstr "**Tutte le piattaforme** (incluso Arch Linux ARM, Debian, Ubuntu, Fedora
 
 # translated-by: libretranslate
 msgid "**All-or-nothing:** a partial shift (web onion, identity clearnet) breaks oauth2-proxy email matching ([oauth2-proxy-keycloak.cfg.j2:32](../../roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2) sets `email_domains = \"{{ DOMAIN_PRIMARY }}\"`). Fresh onion nodes only; migrating an existing clearnet node is out of scope (base DN + all identities would shift)."
-msgstr "**Tutto o niente:** uno spostamento parziale (web onion, identità clearnet) le vacanze2-proxy email corrispondenza ([Oauth2-proxy-keycloak.cfg.j2:32](../../roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2) Set set `email_domains = \"{{ DOMAIN_PRIMARY }}\"`). solo nodi di cipolla fresca; la migrazione di un nodo di rete trasparente esistente è fuori portata (base DN + tutte le identità cambierebbe)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Allowlist on ``tools/call``:** Filtering only ``tools/list`` would leave every unlisted operation callable by name."
@@ -12121,7 +12121,7 @@ msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: **galaxy_tags**: ['nginx'♪ 'javascript'♪ 'csp''sub\
+# translation-rejected: **galaxy_tags**: ['nginx'♪ 'javascript'♪ 'csp''sub
 # filter', 'injection'♪ 'global']
 msgid "**galaxy_tags**: ['nginx', 'javascript', 'csp', 'sub\\_filter', 'injection', 'global']"
 msgstr ""
@@ -12135,14 +12135,14 @@ msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: **galaxy_tags**: ['nginx'♪ 'tls'♪ 'ssl', 'reverse\
+# translation-rejected: **galaxy_tags**: ['nginx'♪ 'tls'♪ 'ssl', 'reverse
 # proxy', 'letsencrypt', 'self\ signed']
 msgid "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'reverse\\_proxy', 'letsencrypt', 'self\\_signed']"
 msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: **galaxy_tags**: ['nginx'♪ 'tls'♪ 'ssl', 'self\
+# translation-rejected: **galaxy_tags**: ['nginx'♪ 'tls'♪ 'ssl', 'self
 # signed' 'certificates'♪ 'openssl']
 msgid "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'self\\_signed', 'certificates', 'openssl']"
 msgstr ""
@@ -16700,11 +16700,11 @@ msgstr "Regole dei file dell'agente 📁"
 
 # translated-by: libretranslate
 msgid "Agent fleet that consumes the gateway: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "Agente flotta che consuma il gateway: [032- I dipendenti-firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Agent fleet that consumes this gateway: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "Agente flotta che consuma questo gateway: [032- I dipendenti-firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Agent group_vars rules"
@@ -16740,7 +16740,7 @@ msgstr "Competenze dell'agente non installate. Corri! `make install-skills` abil
 
 # translated-by: libretranslate
 msgid "Agent that consumes it (isolated home-assistant scenario): [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "Agente che lo consuma (scenario isolato home-assist): [032- I dipendenti-firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Agent token restricted by Zammad groups; redact sensitive articles; no ticket, article, user, role, or configuration mutation"
@@ -17058,7 +17058,7 @@ msgstr "Tutti gli altri `4xx`/`5xx` codici e errori di connessione (DNS, SSL) fa
 
 # translated-by: libretranslate
 msgid "All other scopes MUST run the full [call-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml)."
-msgstr "Tutti gli altri ambiti Devo eseguire il pieno [Chiama...orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "All post-bootstrap configuration (OIDC Social Login Key, LDAP Settings, outbound Email Account, group-role mapping) runs as Python scripts piped to ``python`` inside the backend container (see ``files/scripts/``)."
@@ -20758,7 +20758,7 @@ msgstr "CI nella tua forchetta deve essere verde."
 
 # translated-by: libretranslate
 msgid "CI is triggered automatically on pull-request events and on pushes to the branches listed in the entry-workflow row in [workflows.md](../../tools/github/actions/workflows.md). The pipeline is composed of reusable workflow files under [.github/workflows/](../../../../.github/workflows/). The central coordinator is [call-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml), which is called by the entry workflows."
-msgstr "CI viene attivato automaticamente su eventi di pull-request e su spinte ai rami elencati nella riga entry-workflow in [workflows.md](../../tools/github/actions/workflows.md). La pipeline è composta da file di flusso di lavoro riutilizzabili sotto [.github/flusso di lavoro/](../../../../.github/workflows/). Il coordinatore centrale è [Chiama...orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml), che è chiamato dai flussi di lavoro di entrata."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CI on Tag Push 🤖"
@@ -21474,7 +21474,7 @@ msgstr "Centralizza la logica di esecuzione dei container"
 
 # translated-by: libretranslate
 msgid "Cert generation runs in a throw-away alpine container driven by [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) before the frontend starts."
-msgstr "La generazione di Cert si svolge in un contenitore alpino di scarto guidato da [pacchetto-front-end-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) prima dell'inizio del frontend."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Cert generation, Nexus repo bootstrap, and runner trust-store install run from [compose.py](../../../cli/administration/deploy/development/compose.py)."
@@ -22936,7 +22936,7 @@ msgstr "Codice (Alta gravità)"
 
 # translated-by: libretranslate
 msgid "CodeQL static analysis. Invoked by [call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) so every CI run produces a single scan; additionally runs on a weekly cron so coverage does not drop when no pushes land on `main`. See [pipeline.md](../../../artefact/git/pipeline.md) for the gating behaviour."
-msgstr "Analisi statica CodeQL. Invocato da [Chiama...orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) così ogni CI run produce una singola scansione; inoltre funziona su un cron settimanale così la copertura non scende quando nessuna spinta atterrare `main`. Vedi [pipeline.md](../../../artefact/git/pipeline.md) per il comportamento gating."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CodeQL ✅"
@@ -27841,7 +27841,7 @@ msgstr "Email: [kevinveenbirkenbach@infinito.nexus](mailto:kevinveenbirkenbach@i
 
 # translated-by: libretranslate
 msgid "Embodied-mode decision and scenario: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "Decisioni e scenari corporei: [032- I dipendenti-firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Emit one error annotation per item in *items*."
@@ -32613,7 +32613,7 @@ msgstr "Aiuta a garantire che il sistema abbia spazio di swap adeguato per migli
 
 # translated-by: libretranslate
 msgid "Hermes Agent: [hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com/)"
-msgstr "Agente Hermes: [hermes...agent.nousresearch.com](https://hermes-agent.nousresearch.com/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Hermes consumes MCP; it does not serve one in this deployment. Every MCP server role that is deployed alongside and marked shared is discovered through `MCP_DISCOVERED_SERVERS` and rendered into the agent config at `/opt/data/config.yaml`."
@@ -33611,7 +33611,7 @@ msgstr "Se il **Lotta** passo fallito, il cluster è lasciato in su (fallimentar
 
 # translated-by: libretranslate
 msgid "If the app explicitly disables a token on the *base* (e.g. style-src.unsafe-inline: false), that token is removed from the merged base even if present in elem/attr."
-msgstr "Se l'app disabilita esplicitamente un token *base di base* (ad esempio, stile...src.unsafe-inline: falso), quel token viene rimosso dalla base fusa anche se presente in elem/attr."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "If the application's primary background is dark or black, you MUST use `--color-01-00` as the default theme color. If it is light or white, you MUST use `--color-01-99`. All other application colors MUST be mapped to one of these two anchors. Colors from categories `02`–`09` MUST be derived from and kept in visual relation to the chosen anchor."
@@ -33744,7 +33744,7 @@ msgstr "Se l'upstream è HTTP-solo e interno-`dockerd` costruisce bisogno di ess
 
 # translated-by: libretranslate
 msgid "If the upstream uses HTTPS, add it to `HOSTNAMES` in [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) so a leaf cert is issued."
-msgstr "Se il upstream utilizza HTTPS, aggiungerlo `HOSTNAMES` in [pacchetto-front-end-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) così una foglia cert è rilasciato."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "If the user answers **no**, continue without refactoring."
@@ -35696,7 +35696,7 @@ msgstr "Nome del procedimento (utente, password)."
 
 # translated-by: libretranslate
 msgid "Instance: [bsky-debug.app](https://bsky-debug.app)"
-msgstr "Istituzione [bsky...debug.app](https://bsky-debug.app)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Instantiating per provider means the adapter is deployed as many times as there are surfaces, each with its own credential, network attachment and endpoint. That is the price of the boundary: a shared instance would be one process to run and one credential to steal."
@@ -38406,7 +38406,7 @@ msgstr "Cablaggio client MCP: il nativo `@modelcontextprotocol/sdk` il client è
 
 # translated-by: libretranslate
 msgid "MCP contract: [025-mcp-role-integration.md](025-mcp-role-integration.md)"
-msgstr "Contratto MCP: [025- Mcp-role-integration.md](025-mcp-role-integration.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "MCP direction"
@@ -38434,7 +38434,7 @@ msgstr "I ruoli del server MCP espongono le funzionalità dell'applicazione attr
 
 # translated-by: libretranslate
 msgid "MCP tool plane: [025-mcp-role-integration.md](025-mcp-role-integration.md)"
-msgstr "Piano utensili MCP: [025- Mcp-role-integration.md](025-mcp-role-integration.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "MDAD inventory rendered"
@@ -39502,7 +39502,7 @@ msgstr "Politica dello specchio 📋"
 
 # translated-by: libretranslate
 msgid "Mirror addon-gating.js envKey(): upper-case, non-alphanumeric runs -> '_'."
-msgstr "Specchio addon...gating.js Evviva!(): maiuscolo, non alfanumerico - > '_'."
+msgstr ""
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -43554,7 +43554,7 @@ msgstr "Subnet Per-role in `meta/server.yml.networks.local.subnet`"
 
 # translated-by: libretranslate
 msgid "Per-role update PRs: the Docker-image-version and repository-ref updaters now open one pull request per affected role instead of a single combined PR, and they recompute the diff against the latest *main* at run time — the update jobs check out *main* rather than the triggering commit, so a queued or stale run no longer proposes already-merged changes or bundles unrelated roles. Each role gets its own branch (*update/<type>-<role>-<date>-<fingerprint>*) and a role-scoped duplicate check, while the *skills-lock.json* updater deliberately stays a single PR. See [the update workflow catalog](docs/contributing/tools/github/actions/workflows.md)."
-msgstr "Per-role update PRs: il Docker-image-versione e repository-ref updaters ora aprire una richiesta pull per ruolo interessato invece di una singola PR combinata, e ricomputo il diff contro l'ultima *principale* in tempo di esecuzione — i lavori di aggiornamento controllano *principale* piuttosto che il commit di attivazione, quindi una corsa in coda o stallo non propone più cambiamenti già sorti o fasci ruoli non correlati. Ogni ruolo ottiene il proprio ramo (*aggiornamento /<type>- No.<role>- No.<date>- No.<fingerprint>*) e un controllo duplicato a ruolo, mentre il *competenze...lock.json* updater deliberatamente rimane una sola PR. Vedi [il catalogo del flusso di lavoro di aggiornamento](docs/contributing/tools/github/actions/workflows.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Per-role views over CI deploy runs, turning Ansible profiling output into comparable, downloadable role-timing metrics."
@@ -47868,7 +47868,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Resolves a browser-facing URL for a frontend dependency declared in the role's own package-lock.json, mirroring jsdelivr's npm path scheme so the internal and external forms differ only by host:"
-msgstr "Risostituisce un URL di interfaccia del browser per una dipendenza di frontend dichiarata nel proprio pacchetto del ruolo-lock.json, lo schema di percorso npm di mirroring jsdelivr in modo che le forme interne ed esterne differiscano solo da host:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Resolves a source to a local backup-root, then discovers the newest generation of each repo present under it and recovers each type in order (nfs -> volume -> secrets) against the target via the per-type Recoverers. The source is one of:"
@@ -52226,7 +52226,7 @@ msgstr "Vedi [regression.md](../../docs/contributing/actions/testing/regression.
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: Vedi [test\
+# translation-rejected: Vedi [test
 # templates.py](../../../../../tests/lint/docker/dockerfile/test_templates.py)
 # per l'attuazione.
 msgid "See [test\\_templates.py](../../../../../tests/lint/docker/dockerfile/test_templates.py) for the implementation."
@@ -57495,7 +57495,7 @@ msgstr "The `ldap` blocco di servizio in [`meta/services.yml`](./meta/services.y
 
 # translated-by: libretranslate
 msgid "The `lint` job runs [call-lint.yml](../../../../.github/workflows/call-lint.yml): `make lint` fans every lint check out in parallel, plus a hadolint SARIF job. It MUST pass before the pipeline continues."
-msgstr "The `lint` funzioni [Chiama...lint.yml](../../../../.github/workflows/call-lint.yml): `make lint` ventilatori ogni lint check out in parallelo, più un hadolint SARIF lavoro. Deve passare prima che la pipeline continui."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The `listmonk` service command runs `./listmonk --install --idempotent --yes` on every container start, so the schema is seeded automatically on the first deploy."
@@ -57595,7 +57595,7 @@ msgstr "The `test-workspace` il flusso di lavoro dello spazio di lavoro elencato
 
 # translated-by: libretranslate
 msgid "The `test` job runs [call-test.yml](../../../../.github/workflows/call-test.yml): `make test` fans the unit, integration, lint and external suites out in parallel on the runner host. It MUST pass `code-quality-gate`."
-msgstr "The `test` funzioni [Chiama...test.yml](../../../../.github/workflows/call-test.yml): `make test` fan l'unità, l'integrazione, lint e suite esterne in parallelo sul runner host. Deve passare. `code-quality-gate`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The `tor` input decides what the onion axis is allowed to do at all:"
@@ -78910,15 +78910,15 @@ msgstr "[call-images-mirror-missing.yml](../../../../.github/workflows/call-imag
 
 # translated-by: libretranslate
 msgid "[call-lint.yml](../../../../../.github/workflows/call-lint.yml): `🧹 Lint`"
-msgstr "[Chiama...lint.yml](../../../../../.github/workflows/call-lint.yml): `🧹 Lint`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) compares `github.ref` for the same reason: a called workflow inherits the caller's ref, which is `refs/pull/<n>/merge` for a `pull_request` caller but `refs/heads/main` for a `pull_request_target` one. The `ci-orchestrator` job of `entry-pr-change-orchestrate.yml` is fenced to `github.event_name == 'pull_request'`, so the ref the orchestrator sees from that caller is always the merge ref; widening that fence would silently put fork runs into main's group."
-msgstr "[Chiama...orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) comparazione `github.ref` per la stessa ragione: un flusso di lavoro chiamato eredita la ref del chiamante, che è `refs/pull/<n>/merge` per una `pull_request` chiamante ma `refs/heads/main` per una `pull_request_target` Uno. The `ci-orchestrator` lavoro `entry-pr-change-orchestrate.yml` è recintato a `github.event_name == 'pull_request'`, così il ref l'orchestratore vede da quel chiamante è sempre il ref di fusione; l'ampliamento che la recinzione avrebbe silenziosamente messo forcella corre nel gruppo principale."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml): `🎵 CI: Orchestrator`"
-msgstr "[Chiama...orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml): `🎵 CI: Orchestrator`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-release-version.yml](../../../../../.github/workflows/call-release-version.yml): `🚀 Release: Version Logic`"
@@ -78958,7 +78958,7 @@ msgstr "[call-test-workspace.yml](../../../../../.github/workflows/call-test-wor
 
 # translated-by: libretranslate
 msgid "[call-test.yml](../../../../../.github/workflows/call-test.yml): `🧪 Test`"
-msgstr "[Chiama...test.yml](../../../../../.github/workflows/call-test.yml): `🧪 Test`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[cancel/](cancel/)"
@@ -79022,7 +79022,7 @@ msgstr "[cron-cleanup-stale.yml](../../../../../.github/workflows/cron-cleanup-s
 
 # translated-by: libretranslate
 msgid "[cron-images-cleanup-ci.yml](../../../../../.github/workflows/cron-images-cleanup-ci.yml): `🧹 Prune CI images`"
-msgstr "[Cron-images-cleanup-ci.yml](../../../../../.github/workflows/cron-images-cleanup-ci.yml): `🧹 Prune CI images`"
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -79034,7 +79034,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml): `🪞 Mirror all images`"
-msgstr "[Cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml): `🪞 Mirror all images`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[cron-release-highest.yml](../../../../../.github/workflows/cron-release-highest.yml): `🚀 Release missing tag`"
@@ -79173,11 +79173,11 @@ msgstr "[entry-cancel-superseded.yml](../../../../../.github/workflows/entry-can
 
 # translated-by: libretranslate
 msgid "[entry-delete-branch.yml](../../../../../.github/workflows/entry-delete-branch.yml): `🚫 Cancel: Runs on Branch Delete`"
-msgstr "[entrata-delete-branch.yml](../../../../../.github/workflows/entry-delete-branch.yml): `🚫 Cancel: Runs on Branch Delete`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-manual-mirror-cleanup.yml](../../../../../.github/workflows/entry-manual-mirror-cleanup.yml): `🧹 Images: Cleanup GHCR`"
-msgstr "[entrata-manuale-mirror-cleanup.yml](../../../../../.github/workflows/entry-manual-mirror-cleanup.yml): `🧹 Images: Cleanup GHCR`"
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -79229,15 +79229,15 @@ msgstr "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-trans
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml)"
-msgstr "[Voce principale:latest.yml](../../../../../.github/workflows/entry-push-latest.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml): `📤 Push`"
-msgstr "[Voce principale:latest.yml](../../../../../.github/workflows/entry-push-latest.yml): `📤 Push`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../.github/workflows/entry-push-latest.yml): calls the orchestrator for pushes on the supported branch prefixes and additionally invokes the release workflow on version tags. For the contributor-facing release procedure see [release.md](../../actions/release.md)."
-msgstr "[Voce principale:latest.yml](../../../../.github/workflows/entry-push-latest.yml): chiama l'orchestratore per le spinte sui prefissi di ramo supportati e richiama inoltre il flusso di lavoro di rilascio sui tag di versione. Per la procedura di rilascio rivolta al contributore vedi [release.md](../../actions/release.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[env-vars](https://semaphoreui.com/docs/admin-guide/configuration/env-vars)"
@@ -88757,7 +88757,7 @@ msgstr "cli.administration.deploy.development.inventory.spec modulo"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: cli.administration.deploy.development.logModulo \
+# translation-rejected: cli.administration.deploy.development.logModulo
 # utils
 msgid "cli.administration.deploy.development.log\\_utils module"
 msgstr ""
@@ -88800,7 +88800,7 @@ msgstr "cli.administration.deploy.development.up modulo"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: cli.administration.deploy.development.variantModulo \
+# translation-rejected: cli.administration.deploy.development.variantModulo
 # select
 msgid "cli.administration.deploy.development.variant\\_select module"
 msgstr ""
@@ -88890,7 +88890,7 @@ msgstr "cli.administration.inventory.provision.filters modulo"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: cli.administration.inventory.provision.hostModulo \
+# translation-rejected: cli.administration.inventory.provision.hostModulo
 # vars
 msgid "cli.administration.inventory.provision.host\\_vars module"
 msgstr ""
@@ -88904,7 +88904,7 @@ msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: cli.administration.inventory.provision.mirrorModulo \
+# translation-rejected: cli.administration.inventory.provision.mirrorModulo
 # overrides
 msgid "cli.administration.inventory.provision.mirror\\_overrides module"
 msgstr ""
@@ -88923,14 +88923,14 @@ msgstr "cli.administration.inventory.provision.reset modulo"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: cli.administration.inventory.provision.roleModulo \
+# translation-rejected: cli.administration.inventory.provision.roleModulo
 # resolver
 msgid "cli.administration.inventory.provision.role\\_resolver module"
 msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: cli.administration.inventory.provision.ruamelModulo \
+# translation-rejected: cli.administration.inventory.provision.ruamelModulo
 # io
 msgid "cli.administration.inventory.provision.ruamel\\_io module"
 msgstr ""
@@ -88951,14 +88951,14 @@ msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: cli.administration.inventory.provision.torModulo \
+# translation-rejected: cli.administration.inventory.provision.torModulo
 # node
 msgid "cli.administration.inventory.provision.tor\\_node module"
 msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: cli.administration.inventory.provision.usersModulo \
+# translation-rejected: cli.administration.inventory.provision.usersModulo
 # generatore
 msgid "cli.administration.inventory.provision.users\\_generator module"
 msgstr ""
@@ -89135,14 +89135,14 @@ msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: cli.contributing.changelog.archive.changelogModulo \
+# translation-rejected: cli.contributing.changelog.archive.changelogModulo
 # md
 msgid "cli.contributing.changelog.archive.changelog\\_md module"
 msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: cli.contributing.changelog.archive.packageModulo \
+# translation-rejected: cli.contributing.changelog.archive.packageModulo
 # mirror
 msgid "cli.contributing.changelog.archive.package\\_mirror module"
 msgstr ""

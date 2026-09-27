@@ -570,7 +570,7 @@ msgstr "**Digər platformalar** (Arch Linux ARM daxil olmaqla, Debian, Fedora, E
 
 # translated-by: libretranslate
 msgid "**All-or-nothing:** a partial shift (web onion, identity clearnet) breaks oauth2-proxy email matching ([oauth2-proxy-keycloak.cfg.j2:32](../../roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2) sets `email_domains = \"{{ DOMAIN_PRIMARY }}\"`). Fresh onion nodes only; migrating an existing clearnet node is out of scope (base DN + all identities would shift)."
-msgstr "**All-or-nothing:** partial  partial (web , , ,) Oauth2-proxy e-poçt ([o2-proxy-keycloak.cfg.j2:32](../../roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2) sets `email_domains = \"{{ DOMAIN_PRIMARY }}\"`). Yalnız Fresh soğan nömrələri; mövcud aydınnet node istehsalçılıq (bazar DN + bütün şəkillər dəyir)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Allowlist on ``tools/call``:** Filtering only ``tools/list`` would leave every unlisted operation callable by name."
@@ -6256,7 +6256,7 @@ msgstr "**Uşaqlar `unauthenticated_metrics_access = true`** Daxili dinçi, yaln
 
 # translated-by: libretranslate
 msgid "**Migrated compose files** from *docker-compose.yml* to *compose.yml*, including override and CA override variants, and unified compose-related configuration keys"
-msgstr "**Migrated faylları** Oxunub: *Docker-compose.yml* Oxunub *compose.yml*, override və CA override variantları daxil olmaqla, və birləşmiş konfiqurasiya keyfələri"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Migration outline (~4-6h):**"
@@ -9432,7 +9432,7 @@ msgstr "**İnteqrasiya matrisi sanctioned generator ilə yaradılmış mövzudur
 
 # translated-by: libretranslate
 msgid "**The integration matrix is the cross-role addon backlog.** The full role×role capability map lives in the generated companion [027-integration-matrix.md](027-integration-matrix.md) (source of truth: [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py)). ☑️ cells are integrations **already wired** through an infinito-native service flag in the row role's `meta/services.yml` (e.g. `sso`→keycloak, `matomo`, `prometheus`, `email`→mailu), derived by scanning the repo, no action required. ✅ cells are verified **upstream app↔app plugins not yet declared** as addons, the backlog this requirement commits to wire. 🪙 cells are the same as ✅ but gated behind a commercial tier (opt-in, operator-enabled). ❌ cells have no known integration. The matrix MUST be regenerated (not hand-edited) whenever a role or an integration is added; the `meta/addons/` migrations turn ✅ into ☑️ over time."
-msgstr "**İnteqrasiya matrix cross-role addon backlog edir.** Tam rol ×role xüsusiyyət kartı yaradılmış yoldaşda yaşayır [027-matrix.md](027-integration-matrix.md) (Qeyd: [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py)). ☑️ hüquqlar inteqrasiyalardır **artıq teld** satır rolunda infinito-native xidmət bayrağı ilə `meta/services.yml` (e.g. `sso`→keycloak, `matomo`, `prometheus`, `email`→), repo tarama tərəfindən yaradılmış, heç bir fəaliyyət lazımdır. ✅ hüquqlar təqdim edilir **upstream app↔app plugins haqqında** addons kimi, backlog bu tələb tel edir. 🪙 hüquqlar eyni ✅ lakin kommersiya tier arxasında qapılı (opt-in, operator-aktiv). ❌ hüquqlar heç bir inteqrasiya var. matrix MUST yenilənir (qazanmaq) Bir rol və ya inteqrasiya əlavə edilir zaman; `meta/addons/` Uşaqlar dönüş ✅ into ☑️ vaxt."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**The job proves the machine before it deploys.** [assert_architecture.sh](../../../scripts/github/runner/assert_architecture.sh) compares `uname -m` against the assigned value and fails the row on a mismatch. Without it, a label that stops resolving to arm64 hardware would report every arm64 row green from an amd64 machine, which is the exact failure the axis exists to rule out."
@@ -20953,7 +20953,7 @@ msgstr "Sənaye səyahət mərkəzi"
 
 # translated-by: libretranslate
 msgid "Cert generation runs in a throw-away alpine container driven by [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) before the frontend starts."
-msgstr "Cert istehsalçısı tərəfindən aparılan at-away alpine konteyner çalışır [paket-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) Önend başlayır."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Cert generation, Nexus repo bootstrap, and runner trust-store install run from [compose.py](../../../cli/administration/deploy/development/compose.py)."
@@ -21207,7 +21207,7 @@ msgstr "Yadda saxla"
 
 # translated-by: libretranslate
 msgid "Chunk blocks call-orchestrator.yml declares, the most a sweep may plan."
-msgstr "Chunk bloklar çağırış-orchestrator.yml heç bir sübut planlaşdırır."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Claim Attributes 🏷️"
@@ -22617,7 +22617,7 @@ msgstr "Oxunub `.js` Yardımçılar (rol-yeri yardım modulları, kimi `web-app-
 
 # translated-by: libretranslate
 msgid "Companion artifact for [026-unified-addon-syntax.md](026-unified-addon-syntax.md). Axes are the **entity names** of every `web-app-*` and `web-svc-*` role. A cell marks whether the **row** role ships an addon/plugin that wires in the **column** role."
-msgstr "Axtarış [026-on-addon-syntax.md](026-unified-addon-syntax.md). Axes **Ad Soyad** haqqında `web-app-*` and `web-svc-*` rol Bir qazanmaq **arxa** rol qazanmaq əvvəl bir addon / fişin **column** rol"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Companion to the static ``inventories/development/swarm.yml``; both are loaded by the deploy step. Generates an ed25519 keypair at ``KEY_PATH`` if missing so the public half can land in ``users.administrator.authorized_keys``."
@@ -24983,7 +24983,7 @@ msgstr "Asabot Version Updates ❌"
 
 # translated-by: libretranslate
 msgid "Dependabot cannot read repository variables itself, so [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml) listens on `pull_request_target` (`opened`, `reopened`) and closes any PR authored by `dependabot[bot]` while `CI_ENABLE_AUTO_UPDATES != 'true'`. The workflow does not check out PR code, which keeps the elevated `pull_request_target` context safe."
-msgstr "Asabot nümunələrin özünü oxuya bilməz, belə [giriş-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml) Oxunub `pull_request_target` (`opened`, `reopened`) Heç bir PR müxtəlif `dependabot[bot]` while `CI_ENABLE_AUTO_UPDATES != 'true'`. İşıq yüksək olan PR kodunu yoxdur. `pull_request_target` Konfrans təhlükəsiz."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dependencies"
@@ -31802,7 +31802,7 @@ msgstr "Qeydiyyat (port 80): düz aynalar `deb.debian.org`, `archive.ubuntu.com`
 
 # translated-by: libretranslate
 msgid "HTTP CA trust (infinito-http-ca-trust.php) 🔐"
-msgstr "Yadda saxla (Infinito-http-ca-trust.php) 🔐"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "HTTP client for the LibreTranslate API."
@@ -31810,7 +31810,7 @@ msgstr "HTTP müşaviri üçün LibreTranslate API."
 
 # translated-by: libretranslate
 msgid "HTTP onion SOCKS (infinito-http-onion-socks.php) 🧅"
-msgstr "Yadda saxla (Infinito-http-onion-socks.php) 🧅"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "HTTP status codes for a deployed domain."
@@ -31830,7 +31830,7 @@ msgstr "Yadda saxla2 support, TLS/SSL Integration"
 
 # translated-by: libretranslate
 msgid "HTTPS (port 443): per-hostname server certs signed by a dedicated CA. Used by the `infinito` runner (Ansible-driven `pip install`, `gem install`, `composer install`, `curl https://…`). The runner trusts the CA via [package-frontend-ca.sh](../../../scripts/docker/cache/package-frontend/ca.sh)."
-msgstr "Uşaq (port 443): xüsusi CA tərəfindən imzalanmış xidmət server. tərəfindən istifadə olunur `infinito` İdman (Ansible-based `pip install`, `gem install`, `composer install`, `curl https://…`). Böyük Britaniya [paket-frontend-ca.sh](../../../scripts/docker/cache/package-frontend/ca.sh)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "HTTPS OAuth Redirect Fix"
@@ -33035,7 +33035,7 @@ msgstr "Yaxşı **sw** addım başarısız oldu, çəkisi sol (qeyd-fast deyil).
 
 # translated-by: libretranslate
 msgid "If the app explicitly disables a token on the *base* (e.g. style-src.unsafe-inline: false), that token is removed from the merged base even if present in elem/attr."
-msgstr "Proqram açıq bir token dəyişdirir *Bazar* (e.g. stil-src.unsafe-inline: yalan), bu token elem/attr təsdiq etdiyi halda birləşmiş bazdan silinir."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "If the application's primary background is dark or black, you MUST use `--color-01-00` as the default theme color. If it is light or white, you MUST use `--color-01-99`. All other application colors MUST be mapped to one of these two anchors. Colors from categories `02`–`09` MUST be derived from and kept in visual relation to the chosen anchor."
@@ -33171,7 +33171,7 @@ msgstr "Yadda saxla`dockerd` Əgər lazımdır, əlavə et `_CACHE_HTTP_HOSTNAME
 
 # translated-by: libretranslate
 msgid "If the upstream uses HTTPS, add it to `HOSTNAMES` in [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) so a leaf cert is issued."
-msgstr "Yadda saxla `HOSTNAMES` in [paket-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) Əgər cert verilir."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "If the user answers **no**, continue without refactoring."
@@ -40341,7 +40341,7 @@ msgstr "Oxunub (native)"
 
 # translated-by: libretranslate
 msgid "OIDC -> RBAC mapping (infinito-oidc-rbac-mapper.php) 🎫"
-msgstr "OIDC -> RBAC (Infinito-oidc-rbac-mapper.php) 🎫"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "OIDC / Keycloak"
@@ -40657,7 +40657,7 @@ msgstr "Tor node dnsmasq haqqında ``.onion`` Tor's DNSPort və açıq upstream 
 
 # translated-by: libretranslate
 msgid "On a long orchestrator sweep the concurrency group sometimes fails to reap its occupant: the occupant's run-level status sits on `queued` — the normal state of a run whose matrix jobs are still waiting for runners — and the newer run parks on `pending` behind it until someone cancels the sweep by hand. Whether `queued` is the cause or another symptom cannot be decided from outside GitHub; what is observable is that the group does not always reap. The API cancel does not depend on any of that, so [entry-cancel-superseded.yml](../../../.github/workflows/entry-cancel-superseded.yml) calls these helpers on every new commit as well. That workflow deliberately declares no concurrency group: the run holding a group cannot be the run that frees it."
-msgstr "Uzun bir orqantor koncurrency qrupu əvvəl onun uşaqlarını çıxmaq üçün kömək edir: uşaqların run-level statusu oturur `queued` - matrix işlərinin normal dövrü həmçilər üçün gözləyir - və yeni tərəfindən parklar run `pending` biri tərəfindən sübut edəcək geri. Yaxşı `queued` məhsul və ya digər sənaye GitHub daxil ola bilməz; observable qrup hər zaman çıxış deyil. Axtarış API Heç bir asılı deyil, bu da [giriş-cancel-superseded.yml](../../../.github/workflows/entry-cancel-superseded.yml) Bu yardımçıları hər yeni işləyir. Bu işgüzar olaraq heç bir concurrency qrupu hesab edir: bir qrup tutan run bu pulsuz run ola bilər."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "On a recent Docker engine the swarm step can abort at job setup; run `make act-runner-image` once and prefix the run with `ACT_PLATFORM_IMAGE=local/act-runner-fixed:latest` (see [Workflow Loop](workflow.md))."
@@ -42158,7 +42158,7 @@ msgstr "PR onlar olmadan birləşməz"
 
 # translated-by: libretranslate
 msgid "PR pipelines use `cancel-in-progress: true` so only the newest run per PR and event type is active. The group does not always reap a long orchestrator sweep, which then leaves the newer run parked on `pending`; [entry-cancel-superseded.yml](../../../../.github/workflows/entry-cancel-superseded.yml) cancels those leftovers through the API, see [cancel/README.md](../../../../scripts/github/cancel/README.md)."
-msgstr "PR borular istifadə `cancel-in-progress: true` yalnız PR üçün yeni run və event növü aktivdir. Qrup həmişə uzun bir rəsmçi süpürməyi deyil, sonra yeni run parked bırakır `pending`; Oxunub: [giriş-cancel-superseded.yml](../../../../.github/workflows/entry-cancel-superseded.yml) Bu solovers sifariş APIBakı [cancel/README.md](../../../../scripts/github/cancel/README.md)."
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -43595,7 +43595,7 @@ msgstr "Sparse strukturları üçün."
 
 # translated-by: libretranslate
 msgid "Prefer the manual workflow in [entry-manual-steer.yml](../../../../.github/workflows/entry-manual-steer.yml):"
-msgstr "Elmi işıqlandırmaq [giriş-manual-steer.yml](../../../../.github/workflows/entry-manual-steer.yml):"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Prefer the smallest implementation that still satisfies the requirement and remains easy to maintain."
@@ -46172,7 +46172,7 @@ msgstr "Avtomatik səhifə / sənayesi (e.g. Nextcloud)"
 
 # translated-by: libretranslate
 msgid "Removed obsolete debug code referencing a non-existent *--debug* parameter **Base Image Changes**"
-msgstr "Ətraflı debug kodunun qeyd edilməsi *--* parametr **Bazar dəyişiklikləri**"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Removed obsolete legacy paths now that systemd is universally available"
@@ -51383,7 +51383,7 @@ msgstr "Bakı [regression.md](../../docs/contributing/actions/testing/regression
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: Bakı [test\
+# translation-rejected: Bakı [test
 # templates.py](../../../../../tests/lint/docker/dockerfile/test_templates.py)
 # tətbiq üçün.
 msgid "See [test\\_templates.py](../../../../../tests/lint/docker/dockerfile/test_templates.py) for the implementation."
@@ -56534,7 +56534,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "The `build-ci-images` stage uses [call-images-build-ci.yml](../../../../.github/workflows/call-images-build-ci.yml) to build Docker images for the target distributions (`arch`, `debian`, `ubuntu`, `fedora`, `centos`). These images are consumed by all subsequent test jobs."
-msgstr "Axtarış `build-ci-images` mövcuddur [call-images-build-build-ci.yml](../../../../.github/workflows/call-images-build-ci.yml) Docker şəkillərini həyata keçirmək üçün (`arch`, `debian`, `ubuntu`, `fedora`, `centos`). Bu şəkillər bütün sonra test işləri tələb olunur."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The `bundles=` make arg (comma-separated bundle names) is REQUIRED for both entry points. The compose-deploy recipe sets the resulting `bundles` env var read by these scripts."
@@ -57388,7 +57388,7 @@ msgstr "Ümumi parçalar:"
 
 # translated-by: libretranslate
 msgid "The companion [027-integration-matrix.md](027-integration-matrix.md) is a generated role×role matrix over the entity names of every `web-app-*` and `web-svc-*` role. Each cell marks whether the **row** role wires in the **column** role:"
-msgstr "Yoldaş [027-matrix.md](027-integration-matrix.md) yaradılmış rol ×role matrix haqqında `web-app-*` and `web-svc-*` rol Haqqımızda **arxa** rol tels rol **column** rol:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The complete model is machine-readable in [`schema.yml`](schema.yml)."
@@ -71142,7 +71142,7 @@ msgstr "Avtomobil vasitəsi ilə, Open WebUI Axtarış `BYPASS_MODEL_ACCESS_CONT
 
 # translated-by: libretranslate
 msgid "With the label set, the `detect-affected-roles` job in [entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml) calls [pr_affected_roles.sh](../../../../scripts/github/resolve/pr_affected_roles.sh), which runs the [cli.meta.ci.subset_roles](../../../../cli/meta/ci/subset_roles.py) module. The module reads the first fenced block whose YAML carries a `roles:` key (the heading text is not matched) and emits that list as the `whitelist` output, which flows into the deploy tests as precedence rung 2 above. Without the label, the diff-driven precedence applies."
-msgstr "Etiket set ilə, `detect-affected-roles` iş [giriş-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml) axtarış [pr_affected_roles.sh](../../../../scripts/github/resolve/pr_affected_roles.sh), O, işləyir [cli.meta.ci.subset_roles](../../../../cli/meta/ci/subset_roles.py) modul. Modul, YAML olan ilk səviyyəli bloku olaraq `roles:` key (Baş məhsul uyğun deyil) və o siyahısı kimi yaymaq `whitelist` çıxış, əvvəllik rung kimi dağıtma testləri axtarır 2 yuxarı. etiket olmadan, diff-based əvvəllik edir."
+msgstr ""
 
 # translated-by: libretranslate
 # translation-refused: libretranslate stutter
@@ -73755,7 +73755,7 @@ msgstr "[ ] İşflow axtarış və ya əvvəl validation"
 
 # translated-by: libretranslate
 msgid "[ ] [027-integration-matrix.md](027-integration-matrix.md) is regenerated from [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py) and committed; a check fails if the committed matrix differs from a fresh generation (no hand edits). The generator derives ☑️ edges by scanning every role's `meta/services.yml` integration keys and renders ✅/🪙 from the curated `EDGES` map."
-msgstr "[ ] [027-matrix.md](027-integration-matrix.md) yenilənmişdir [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py) və işıqlı; işıqlı maşın təhlükəsiz maşın bir təşkilatdan həyata keçirir (heç bir qazanmaq). generator axtarır ☑️ hər rolun taranması tərəfdaşları `meta/services.yml` İnteqrasiya tuşları və renderləri ✅/🪙 Ətraflı `EDGES` .."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ ] [dsk-gnome-extensions](../../roles/dsk-gnome-extensions/) declares its extensions in `meta/addons/` with `mechanism: extension` and no `bridges`."
@@ -77211,7 +77211,7 @@ msgstr "[base.md](role/services/base.md) xidmət qeydiyyatı, yüksək və enjek
 
 # translated-by: libretranslate
 msgid "[call-images-build-ci.yml](../../../../../.github/workflows/call-images-build-ci.yml): `🖼️ Build: CI Images (all distros)`"
-msgstr "[call-images-build-build-ci.yml](../../../../../.github/workflows/call-images-build-ci.yml): `🖼️ Build: CI Images (all distros)`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml): `🪞 Mirror: Docker Hub → GHCR (only missing)`"
@@ -77399,15 +77399,15 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[cron-images-cleanup-ci.yml](../../../../../.github/workflows/cron-images-cleanup-ci.yml): `🧹 Prune CI images`"
-msgstr "[chn-images-cleanup-ci.yml](../../../../../.github/workflows/cron-images-cleanup-ci.yml): `🧹 Prune CI images`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml), [call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml)"
-msgstr "[chn-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml), [call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml): `🪞 Mirror all images`"
-msgstr "[chn-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml): `🪞 Mirror all images`"
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -77549,39 +77549,39 @@ msgstr "[email.py](../../../../../plugins/lookup/email.py) plugin üçün."
 
 # translated-by: libretranslate
 msgid "[entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml): `🚫 Cancel: Superseded Runs`"
-msgstr "[giriş-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml): `🚫 Cancel: Superseded Runs`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-delete-branch.yml](../../../../../.github/workflows/entry-delete-branch.yml): `🚫 Cancel: Runs on Branch Delete`"
-msgstr "[giriş-delete-branch.yml](../../../../../.github/workflows/entry-delete-branch.yml): `🚫 Cancel: Runs on Branch Delete`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-manual-mirror-cleanup.yml](../../../../../.github/workflows/entry-manual-mirror-cleanup.yml): `🧹 Images: Cleanup GHCR`"
-msgstr "[giriş-manual-mirror-cleanup.yml](../../../../../.github/workflows/entry-manual-mirror-cleanup.yml): `🧹 Images: Cleanup GHCR`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-manual-steer.yml](../../../../../.github/workflows/entry-manual-steer.yml): `🕹️ Manual`"
-msgstr "[giriş-manual-steer.yml](../../../../../.github/workflows/entry-manual-steer.yml): `🕹️ Manual`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-manual-steer.yml](../../../../.github/workflows/entry-manual-steer.yml): dispatches the orchestrator manually for a chosen distro set and whitelist."
-msgstr "[giriş-manual-steer.yml](../../../../.github/workflows/entry-manual-steer.yml): seçilmiş distro set və ağlist üçün orkestor elan edir."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-pr-change-orchestrate.yml](../../../../../.github/workflows/entry-pr-change-orchestrate.yml): `🔀 Pull Request`"
-msgstr "[giriş-pr-change-orchestrate.yml](../../../../../.github/workflows/entry-pr-change-orchestrate.yml): `🔀 Pull Request`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml): detects PR scope and conditionally calls the orchestrator."
-msgstr "[giriş-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml): PR mövcudluğu və kondisioner çağırır."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-pr-closed-cancel-workflows.yml](../../../../../.github/workflows/entry-pr-closed-cancel-workflows.yml): `🚫 Cancel: PR Runs on Close`"
-msgstr "[giriş-pr-closed-cancel-workflows.yml](../../../../../.github/workflows/entry-pr-closed-cancel-workflows.yml): `🚫 Cancel: PR Runs on Close`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml): `🚫 Dependabot: Close while auto-updates disabled`"
-msgstr "[giriş-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml): `🚫 Dependabot: Close while auto-updates disabled`"
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -77600,15 +77600,15 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml)"
-msgstr "[giriş-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml): `📤 Push`"
-msgstr "[giriş-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml): `📤 Push`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../.github/workflows/entry-push-latest.yml): calls the orchestrator for pushes on the supported branch prefixes and additionally invokes the release workflow on version tags. For the contributor-facing release procedure see [release.md](../../actions/release.md)."
-msgstr "[giriş-push-latest.yml](../../../../.github/workflows/entry-push-latest.yml): dəstəkləndirilmiş filtr əvvəlliyyatdan keçirmək üçün orqantoru çağırır və əlavə versiya etiketləri üzrə yayım işləyir. əvvvəlki istifadə proqramı [release.md](../../actions/release.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[env-vars](https://semaphoreui.com/docs/admin-guide/configuration/env-vars)"
@@ -77654,11 +77654,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[infinito-http-onion-socks.php](infinito-http-onion-socks.php) sends server-side `wp_remote_*` calls whose host ends in `.onion` through the Tor SOCKS proxy named by `WORDPRESS_OIDC_SOCKS_PROXY`, which [env.j2](../../templates/env.j2) sets only when the OIDC issuer is an onion, so a clearnet deployment never routes through Tor."
-msgstr "[Infinito-http-onion-socks.php](infinito-http-onion-socks.php) server-side `wp_remote_*` ev sahibliyinin bitməsi `.onion` Tor Downloader proxy ilə adı `WORDPRESS_OIDC_SOCKS_PROXY`, [env.j2](../../templates/env.j2) OIDC sayr bir soğan olduğu zaman, sosial bir quraşdırma Tor vasitələri heç bir zaman."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[infinito-oidc-rbac-mapper.php](infinito-oidc-rbac-mapper.php) implements the OIDC -> WordPress role contract:"
-msgstr "[Infinito-oidc-rbac-mapper.php](infinito-oidc-rbac-mapper.php) OIDC -> WordPress role:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[instructions.md](instructions.md): how the role README's Production block is replayed inside a deploy row."
@@ -78030,7 +78030,7 @@ msgstr "[test-oidc-login.js](../../roles/web-app-litellm/files/playwright/test-o
 
 # translated-by: libretranslate
 msgid "[test-system-one-router.js](../../roles/web-app-openwebui/files/playwright/test-system-one-router.js)"
-msgstr "[test-sistem-one-router.js](../../roles/web-app-openwebui/files/playwright/test-system-one-router.js)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[test_agent_identity.py](../../tests/lint/ansible/services/test_agent_identity.py) holds the claim, the absence of any role on the account, and the absence of a second credential for it, over the roles derived from the sandbox-runtime scan rather than a list."
@@ -83428,7 +83428,7 @@ msgstr "`entry-manual-steer.yml` declares `cancel-in-progress: true` öz qrupu �
 
 # translated-by: libretranslate
 msgid "`entry-push-latest.yml` declares exactly that expression, and it fires only on `push`, where `github.ref_name` is always the pushed branch. [entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml) carries no concurrency group of its own — it is the API fallback for that group — but its push job repeats the same predicate as a job `if`, so it never touches `main` either."
-msgstr "`entry-push-latest.yml` tam o deyil ki, ifade, və yalnız haqqında `push`, `github.ref_name` hər zaman itilmiş filtrdir. [giriş-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml) öz öz bir concurrency qrupu gəlir - bu, API Bu qrup üçün düşmə - lakin onun itti işi bir iş kimi eyni predikate deyir `if`, o, heç bir zaman tapmaq `main` ya."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`environment` reads `external`, `TLS_ENABLED`, `DOCKER_IN_CONTAINER`."
@@ -93112,14 +93112,14 @@ msgstr "utils.env.handlers.infinito.package\\ cache paketi"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: utils.env.handlers.infinito.package\ cache.admin\
+# translation-rejected: utils.env.handlers.infinito.package\ cache.admin
 # password modul
 msgid "utils.env.handlers.infinito.package\\_cache.admin\\_password module"
 msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: utils.env.handlers.infinito.package\ cache.blobstore\
+# translation-rejected: utils.env.handlers.infinito.package\ cache.blobstore
 # max modul
 msgid "utils.env.handlers.infinito.package\\_cache.blobstore\\_max module"
 msgstr ""
@@ -94603,7 +94603,7 @@ msgstr "💾 **Arch Linux üzrə proqram**"
 
 # translated-by: libretranslate
 msgid "📁 **Unified CSS Base Configuration** deployment for all NGINX applications"
-msgstr "📁 **Yadda saxla** Bütün NGINX proqramları üçün istifadə"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "📈 **Burn-down Charts & Metrics:** Monitor velocity and progress."

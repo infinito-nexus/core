@@ -570,7 +570,7 @@ msgstr "**Всички останали платформи** (включител
 
 # translated-by: libretranslate
 msgid "**All-or-nothing:** a partial shift (web onion, identity clearnet) breaks oauth2-proxy email matching ([oauth2-proxy-keycloak.cfg.j2:32](../../roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2) sets `email_domains = \"{{ DOMAIN_PRIMARY }}\"`). Fresh onion nodes only; migrating an existing clearnet node is out of scope (base DN + all identities would shift)."
-msgstr "**Всичко или нищо:** частична смяна (уеб лук, идентичност cleannet) unit synonyms forecast2-прокси имейли съвпадение ([oouth2- Прокси-keycloak.cfg.j2:32](../../roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2) Комплекти `email_domains = \"{{ DOMAIN_PRIMARY }}\"`). Само свежи лукови възли; миграция на съществуващ clearnet възел е извън обхвата (основа DN + всички самоличности ще се променят)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Allowlist on ``tools/call``:** Filtering only ``tools/list`` would leave every unlisted operation callable by name."
@@ -6073,7 +6073,7 @@ msgstr "**Метрици чрез `unauthenticated_metrics_access = true`** на
 
 # translated-by: libretranslate
 msgid "**Migrated compose files** from *docker-compose.yml* to *compose.yml*, including override and CA override variants, and unified compose-related configuration keys"
-msgstr "**Мигрирани композиционни файлове** от *Докър...compose.yml* до *compose.yml*, включително overover and CA overput варианти, и единни конфигурационни ключове, свързани със композиране"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**Migration outline (~4-6h):**"
@@ -9149,7 +9149,7 @@ msgstr "**Интеграционната матрица е генериран а
 
 # translated-by: libretranslate
 msgid "**The integration matrix is the cross-role addon backlog.** The full role×role capability map lives in the generated companion [027-integration-matrix.md](027-integration-matrix.md) (source of truth: [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py)). ☑️ cells are integrations **already wired** through an infinito-native service flag in the row role's `meta/services.yml` (e.g. `sso`→keycloak, `matomo`, `prometheus`, `email`→mailu), derived by scanning the repo, no action required. ✅ cells are verified **upstream app↔app plugins not yet declared** as addons, the backlog this requirement commits to wire. 🪙 cells are the same as ✅ but gated behind a commercial tier (opt-in, operator-enabled). ❌ cells have no known integration. The matrix MUST be regenerated (not hand-edited) whenever a role or an integration is added; the `meta/addons/` migrations turn ✅ into ☑️ over time."
-msgstr "**Интеграционната матрица е кръстосан адон беклог.** Пълната карта на възможностите за role xrole живее в генерирания спътник [027-интеграция...matrix.md](027-integration-matrix.md) (източник на истината: [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py)). ☑️ Клетките са интеграция. **Вече са свързани.** Чрез инфинито-народна услуга флаг в ред роля `meta/services.yml` (напр. `sso`→ключ, `matomo`, `prometheus`, `email`→mailu), получени чрез сканиране на обратно изкупуване, не се изисква действие. ✅ Клетките се проверяват **Приложение ↔app плъгини все още не са обявени** Като допълнение, това изискване се задължава да се свърже. 🪙 Клетките са същите като ✅ но затворен зад търговски етаж (възможност за включване и включване на оператора). ❌ Клетките нямат известна интеграция. Матрицата трябва да се регенерира (без ръчно редактиране) когато се добавя роля или интеграция; `meta/addons/` Миграциите се обръщат ✅ в ☑️ С времето."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "**The job proves the machine before it deploys.** [assert_architecture.sh](../../../scripts/github/runner/assert_architecture.sh) compares `uname -m` against the assigned value and fails the row on a mismatch. Without it, a label that stops resolving to arm64 hardware would report every arm64 row green from an amd64 machine, which is the exact failure the axis exists to rule out."
@@ -11514,14 +11514,14 @@ msgstr "**galaxy_tags**: ['nginx', 'logout', 'oidc', 'javascript', 'csp', 'sub\\
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: **galaxy_tags**: ['nginx', 'tls', 'ssl', "verse\
+# translation-rejected: **galaxy_tags**: ['nginx', 'tls', 'ssl', "verse
 # proxy," 'letsencrypt', "Iself\ signed"]
 msgid "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'reverse\\_proxy', 'letsencrypt', 'self\\_signed']"
 msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: **galaxy_tags**: ['nginx', 'tls', 'ssl', "self\
+# translation-rejected: **galaxy_tags**: ['nginx', 'tls', 'ssl', "self
 # signed," 'certificates', 'openssl']
 msgid "**galaxy_tags**: ['nginx', 'tls', 'ssl', 'self\\_signed', 'certificates', 'openssl']"
 msgstr ""
@@ -14935,7 +14935,7 @@ msgstr "Тестове за приставка за действие 🧩"
 
 # translated-by: libretranslate
 msgid "Actions performed with the workflow-provided `GITHUB_TOKEN` do not start further workflow runs. When [cron-update.yml](../../../../../.github/workflows/cron-update.yml) opens an update PR with `GITHUB_TOKEN`, the `pull_request` and `pull_request_target` events that drive [entry-pr-change-orchestrate.yml](../../../../../.github/workflows/entry-pr-change-orchestrate.yml) do not fire on that PR, so the CI orchestrator never runs against it."
-msgstr "Дейности, извършени с предоставения работен поток `GITHUB_TOKEN` не започвайте да работите допълнително. Кога [Крон...update.yml](../../../../../.github/workflows/cron-update.yml) отваря обновена PR с `GITHUB_TOKEN`, `pull_request` както и `pull_request_target` събития, които шофират [вписване- пре- промяна-orchestrate.yml](../../../../../.github/workflows/entry-pr-change-orchestrate.yml) Не стреляйте по пиар, така че оркестърът на CI никога не се бори срещу него."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Actions 🚀"
@@ -15856,11 +15856,11 @@ msgstr "Правила за досиетата на агентите 📁"
 
 # translated-by: libretranslate
 msgid "Agent fleet that consumes the gateway: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "Агент Флот, който поглъща портала: [032- Агенти-служители...firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Agent fleet that consumes this gateway: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "Агент Флот, който консумира тази врата: [032- Агенти-служители...firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Agent group_vars rules"
@@ -15896,7 +15896,7 @@ msgstr "Уменията на агентите не са инсталирани.
 
 # translated-by: libretranslate
 msgid "Agent that consumes it (isolated home-assistant scenario): [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "Агент, който го консумира (изолиран случай на домашен асистент): [032- Агенти-служители...firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Agent token restricted by Zammad groups; redact sensitive articles; no ticket, article, user, role, or configuration mutation"
@@ -16197,7 +16197,7 @@ msgstr "Всички останали `4xx`/`5xx` кодове и грешки �
 
 # translated-by: libretranslate
 msgid "All other scopes MUST run the full [call-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml)."
-msgstr "Всички други обхвати трябва да работят пълно [Обади се...orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "All post-bootstrap configuration (OIDC Social Login Key, LDAP Settings, outbound Email Account, group-role mapping) runs as Python scripts piped to ``python`` inside the backend container (see ``files/scripts/``)."
@@ -18393,7 +18393,7 @@ msgstr "Преди изпълнение агентът трябва да про�
 
 # translated-by: libretranslate
 msgid "Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Compose Loop](../agents/action/iteration/compose.md), [Swarm Loop](../agents/action/iteration/swarm.md), [deployment-modes.md](../contributing/design/deployment-modes.md), the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md), and the IAM pages [common.md](../contributing/design/iam/common.md), [oidc.md](../contributing/design/iam/oidc.md) and [rbac.md](../contributing/design/iam/rbac.md)."
-msgstr "Преди изпълнение агентът трябва да прочете [AGENTS.md](../../AGENTS.md), тогава [Композиран възел](../agents/action/iteration/compose.md), [Примка](../agents/action/iteration/swarm.md), [Разположение...modes.md](../contributing/design/deployment-modes.md), [Договор за драматургия](../contributing/artefact/files/role/playwright.specs.js.md), и страниците на IAM [common.md](../contributing/design/iam/common.md), [oidc.md](../contributing/design/iam/oidc.md) както и [rbac.md](../contributing/design/iam/rbac.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Role Loop](../agents/action/iteration/compose.md) and the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md)."
@@ -19362,7 +19362,7 @@ msgstr "Изгражда изображенията, използвани от �
 
 # translated-by: libretranslate
 msgid "Buildx setup resilience: the CI image build pre-pulls and pins the *moby/buildkit* image with a retry loop before *docker/setup-buildx-action*, so a transient *registry-1.docker.io* timeout during the buildkit bootstrap no longer aborts the build — buildx falls back to the locally cached image once it is present."
-msgstr "Устойчивост на настройката на Buildx: изображението на CI изгражда предварително отвори и пинове *moby/buildkit* изображение с обратен цикъл преди *Docker/setup-buildx-action*, така че преходни *регистър...1.docker.io* Тайм аут по време на изграждането на bootstrap вече не абортира изграждането на  горно buildx пада обратно към локално кеширан образ след като той е налице."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Built as a central engine (mirroring ``svc-db-postgres``), this role:"
@@ -19650,7 +19650,7 @@ msgstr "Информаторът във вилицата трябва да е з
 
 # translated-by: libretranslate
 msgid "CI is triggered automatically on pull-request events and on pushes to the branches listed in the entry-workflow row in [workflows.md](../../tools/github/actions/workflows.md). The pipeline is composed of reusable workflow files under [.github/workflows/](../../../../.github/workflows/). The central coordinator is [call-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml), which is called by the entry workflows."
-msgstr "CI се задейства автоматично при събития с искане за изтегляне и при бутане към клоновете, изброени в реда на работния процес в [workflows.md](../../tools/github/actions/workflows.md). Тръбопроводът се състои от повторно използваеми работни файлове под [.github/работни потоци/](../../../../.github/workflows/). Централният координатор е [Обади се...orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml), който се нарича от входящите работни потоци."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CI on Tag Push 🤖"
@@ -20324,7 +20324,7 @@ msgstr "Centralizes контейнер за изпълнение логика"
 
 # translated-by: libretranslate
 msgid "Cert generation runs in a throw-away alpine container driven by [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) before the frontend starts."
-msgstr "Генерация Cert работи в изхвърлен алпийски контейнер, управляван от [пакет-преден-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) Преди да започне фронта."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Cert generation, Nexus repo bootstrap, and runner trust-store install run from [compose.py](../../../cli/administration/deploy/development/compose.py)."
@@ -20572,7 +20572,7 @@ msgstr "Чънк блокира запълвания, обградени от б
 
 # translated-by: libretranslate
 msgid "Chunk blocks call-orchestrator.yml declares, the most a sweep may plan."
-msgstr "Блоковете се обаждат...orchestrator.yml декларира, че най-много може да се планира."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Claim Attributes 🏷️"
@@ -21769,7 +21769,7 @@ msgstr "Код QL (Висока тежест)"
 
 # translated-by: libretranslate
 msgid "CodeQL static analysis. Invoked by [call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) so every CI run produces a single scan; additionally runs on a weekly cron so coverage does not drop when no pushes land on `main`. See [pipeline.md](../../../artefact/git/pipeline.md) for the gating behaviour."
-msgstr "Код QL статичен анализ. Покана от [Обади се...orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) Така че всеки CI run произвежда едно сканиране; допълнително работи на седмична крона, така че покритие не пада, когато не се приземи на `main`. Вижте [pipeline.md](../../../artefact/git/pipeline.md) за гингинговото поведение."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "CodeQL ✅"
@@ -21972,7 +21972,7 @@ msgstr "Сподвижник `.js` Помощници (ролево-локалн
 
 # translated-by: libretranslate
 msgid "Companion artifact for [026-unified-addon-syntax.md](026-unified-addon-syntax.md). Axes are the **entity names** of every `web-app-*` and `web-svc-*` role. A cell marks whether the **row** role ships an addon/plugin that wires in the **column** role."
-msgstr "Спътник артефакт за [026- Обединен-адон--syntax.md](026-unified-addon-syntax.md). Брадвите са **Име на субекта** от всеки `web-app-*` както и `web-svc-*` Роля. Клетката показва дали **Ред** ролеви кораби добавка / плъгин, който проводници в **колона** Роля."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Companion to the static ``inventories/development/swarm.yml``; both are loaded by the deploy step. Generates an ed25519 keypair at ``KEY_PATH`` if missing so the public half can land in ``users.administrator.authorized_keys``."
@@ -22805,11 +22805,11 @@ msgstr "От страната на контролера *версия* Търс�
 
 # translated-by: libretranslate
 msgid "Controls whether Playwright keeps trace, screenshot, and video for every test or only for failing tests in the deploy-test workflow ([call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml)). For the full propagation chain, the inventory override, and the local equivalents, see [Playwright Tests](../../../actions/testing/playwright.md#artefact-retention-)."
-msgstr "Контрол дали Playwright поддържа следа, снимка на екрана и видео за всеки тест или само за неуспехи на изпитванията в работния процес на внедряване ([кол-тест...deploy.yml](../../../../../.github/workflows/call-test-deploy.yml)). За пълната верига на разпространение, инвентара, и местните еквиваленти, вж. [Тестове на драматург](../../../actions/testing/playwright.md#artefact-retention-)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Controls whether automated update PRs are created. Covers both the workflow-driven jobs in [cron-update.yml](../../../../../.github/workflows/cron-update.yml) (Docker image versions, agent skills) and PRs opened by Dependabot (gated via [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml), which auto-closes them)."
-msgstr "Контролира дали се създават автоматизирани PR-та. Включва и двете работни места, управлявани от работния процес в [Крон...update.yml](../../../../../.github/workflows/cron-update.yml) (Докер версии на изображения, умения на агенти) и PR-та, открити от Depabot (Портиран през [вход- пр- отворен- зависибот-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml), което ги затваря автоматично)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Controls whether pushes to `main` trigger the CI pipeline. Pushes to all other branches covered by the workflow (`feature/**`, `hotfix/**`, `fix/**`, `alert-autofix-*`) are unaffected."
@@ -22950,7 +22950,7 @@ msgstr "Работен поток на основния разработчик (
 # translated-by: libretranslate
 #, python-brace-format
 msgid "Core has no gettext today. The only catalogue is [logout_i18n.yml](../../roles/web-app-keycloak/files/logout_i18n.yml): 30 languages keyed by language code, named keys, `{placeholder}` slots and a `dir` value, inlined as JSON by [logout-panel.js.j2](../../roles/web-app-keycloak/templates/logout-panel.js.j2)."
-msgstr "Ядрото няма текст днес. Единственият каталог е [logout_i18n.yml](../../roles/web-app-keycloak/files/logout_i18n.yml): 30 езици, свързани с езиковия код, с имена на ключове, `{placeholder}` Слотове и а `dir` value, inlined as JSON by [изход...panel.js.j2](../../roles/web-app-keycloak/templates/logout-panel.js.j2)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Core identity, internet attributes, UNIX account fields"
@@ -23391,7 +23391,7 @@ msgstr "В момента не се извършват проверки"
 
 # translated-by: libretranslate
 msgid "Cursor's CLI cannot be pointed at a custom OpenAI-compatible endpoint: it exchanges the key for Cursor session tokens and talks its own protocol afterwards. The editor does carry an \"Override OpenAI Base URL\" field, but it lives in Cursor's own state database rather than in a file this role could render."
-msgstr "КЛИ на курсора не може да се насочи към обичай OpenAI-съвместима крайна точка: той разменя ключа за Cursor сесия символи и говори свой собствен протокол след това. Редакторът наистина носи \"Отмяна на адреса на базата OpenAI\" поле, но тя живее в CursorСобствена държавна база данни, а не във файл, който тази роля може да направи."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Cursor’s CLI cannot be pointed at a custom OpenAI-compatible endpoint: it exchanges the key for Cursor session tokens and talks its own protocol afterwards. The editor does carry an “Override OpenAI Base URL” field, but it lives in Cursor’s own state database rather than in a file this role could render."
@@ -24241,7 +24241,7 @@ msgstr "Обновяване на версията на зависимостта
 
 # translated-by: libretranslate
 msgid "Dependabot cannot read repository variables itself, so [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml) listens on `pull_request_target` (`opened`, `reopened`) and closes any PR authored by `dependabot[bot]` while `CI_ENABLE_AUTO_UPDATES != 'true'`. The workflow does not check out PR code, which keeps the elevated `pull_request_target` context safe."
-msgstr "Depabot не може да чете променливите в хранилището, така че [вход- пр- отворен- зависибот-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml) слуша `pull_request_target` (`opened`, `reopened`) И затваря всеки PR автор от `dependabot[bot]` докато `CI_ENABLE_AUTO_UPDATES != 'true'`. Работният поток не проверява PR кода, който поддържа повишените `pull_request_target` Безопасен контекст."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Dependencies"
@@ -25972,7 +25972,7 @@ msgstr "Всеки **Критерий за приемане** Трябва да 
 
 # translated-by: libretranslate
 msgid "Each PR-opening job in [cron-update.yml](../../../../../.github/workflows/cron-update.yml) runs an `actions/create-github-app-token@v2` step gated on `steps.diff.outputs.changed == 'true'`, then forwards the minted token as `GH_TOKEN` and the resolved `APP_SLUG` to the subsequent PR step. The job's `permissions:` block keeps the workflow-provided `GITHUB_TOKEN` read-only; write access is provided exclusively by the App token, scoped to the App's repository permissions."
-msgstr "Всеки PR- отваряне на работа в [Крон...update.yml](../../../../../.github/workflows/cron-update.yml) тичане `actions/create-github-app-token@v2` стъпи на вратата. `steps.diff.outputs.changed == 'true'`, след това препраща изсечения знак като `GH_TOKEN` и решените `APP_SLUG` на следващата стъпка PR. Работата е... `permissions:` блокът поддържа работния поток предоставен `GITHUB_TOKEN` само за четене; достъпът до писане се предоставя изключително от символа на приложението, който е с обхват до разрешенията на хранилището на приложението."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Each Raspberry Pi joins the swarm as an agent node labelled `kata-capable` with the isolating runtime as its daemon-wide default (Decision #3, applied per node). Flowise and the gateway run on a manager node. Swarm distributes agent replicas across the Pis; adding a Pi adds agent capacity with no code change. The Pis do **not** run large models locally: agents speak only the gateway `/v1`, which routes light work to a small local `svc-ai-ollama` and heavy work to a GPU or external backend. All node-run images MUST be `arm64`."
@@ -26439,7 +26439,7 @@ msgstr "Е- поща: [kevinveenbirkenbach@infinito.nexus](mailto:kevinveenbirke
 
 # translated-by: libretranslate
 msgid "Embodied-mode decision and scenario: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr "Решение и сценарий в гъвкав режим: [032- Агенти-служители...firecracker.md](032-agent-employees-firecracker.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Emit one error annotation per item in *items*."
@@ -26496,7 +26496,7 @@ msgstr "Базата URL на празния ключ или извън него
 
 # translated-by: libretranslate
 msgid "Empty result (no open PR): create one as draft via `gh pr create --draft` using the matching template per [pull-request.md](./pull-request.md)."
-msgstr "Празен резултат (няма отворен PR): създаване на един като проект чрез `gh pr create --draft` използване на образеца за съответствие за всеки [Дърпай...request.md](./pull-request.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Empty string (`''`)"
@@ -27505,7 +27505,7 @@ msgstr "Всеки стек има свой домейн под него (`INFIN
 
 # translated-by: libretranslate
 msgid "Every stateful role in the repo keeps both modes on; only host-level and infrastructure roles disable swarm. See [deployment-modes.md](../contributing/design/deployment-modes.md)."
-msgstr "Всяка държавна роля в репо-сделката запазва двата режима; само на ниво домакин и инфраструктурни роли деактивират рояка. Виж. [Разположение...modes.md](../contributing/design/deployment-modes.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Every sweep exercises both architectures across the catalogue instead of proving amd64 and claiming nothing, at no extra job count."
@@ -29912,7 +29912,7 @@ msgstr "Вилица PR не могат да публикуват самите �
 
 # translated-by: libretranslate
 msgid "Fork PRs run under the `pull_request` event without write permissions. Privileged steps (image builds, package writes) run via `pull_request_target`. The fork CI waits for those privileged images before proceeding. See [pull-request.md](pull-request.md) for the contributor-facing fork workflow."
-msgstr "Вилица PR работи под `pull_request` събитие без разрешение за писане. Привилегировани стъпки (image builes, package writes) през `pull_request_target`. Вилицата чака тези привилегировани изображения преди да продължи. Виж. [Дърпай...request.md](pull-request.md) за работния поток на вилките, обърнати към доставчика."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Fork PRs 🍴"
@@ -29952,7 +29952,7 @@ msgstr "Форма"
 
 # translated-by: libretranslate
 msgid "Formalised as its own role in [033-web-app-homeassistant.md](033-web-app-homeassistant.md). Hermes runs on a single Raspberry Pi as a household assistant, kernel-isolated, reachable over voice/chat, controlling home devices through MCP without ever getting host access."
-msgstr "Формализирана като своя роля в [033- Web-app-homeassistant.md](033-web-app-homeassistant.md). Hermes работи на един единствен Raspberry Pi като домакински асистент, ядро-изолиран, достъпни над глас / чат, контролиране на домашни устройства чрез MCP, без някога да получите достъп домакин."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Format"
@@ -30841,7 +30841,7 @@ msgstr "HTTP/2 подкрепа, интеграция на TLS/SSL"
 
 # translated-by: libretranslate
 msgid "HTTPS (port 443): per-hostname server certs signed by a dedicated CA. Used by the `infinito` runner (Ansible-driven `pip install`, `gem install`, `composer install`, `curl https://…`). The runner trusts the CA via [package-frontend-ca.sh](../../../scripts/docker/cache/package-frontend/ca.sh)."
-msgstr "HTTPS (порт 443): на сървър за хоста, подписан от специален CA. Използва се от `infinito` бегач (Задвижвани от ансибилизатори `pip install`, `gem install`, `composer install`, `curl https://…`). Runner се доверява на CA чрез [пакет-преден-ca.sh](../../../scripts/docker/cache/package-frontend/ca.sh)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "HTTPS OAuth Redirect Fix"
@@ -31058,7 +31058,7 @@ msgstr "Помага да се гарантира, че системата им�
 
 # translated-by: libretranslate
 msgid "Hermes Agent: [hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com/)"
-msgstr "Hermes Agent: [Хермес...agent.nousresearch.com](https://hermes-agent.nousresearch.com/)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Hermes consumes MCP; it does not serve one in this deployment. Every MCP server role that is deployed alongside and marked shared is discovered through `MCP_DISCOVERED_SERVERS` and rendered into the agent config at `/opt/data/config.yaml`."
@@ -32025,7 +32025,7 @@ msgstr "Ако **рояк** Стъпката е неуспешна. (Неусп�
 
 # translated-by: libretranslate
 msgid "If the app explicitly disables a token on the *base* (e.g. style-src.unsafe-inline: false), that token is removed from the merged base even if present in elem/attr."
-msgstr "Ако приложението изрично деактивира символ на *база* (Например стил...src.unsafe-inline: false), Този знак се отстранява от слятата база, дори ако присъства в elem/attr."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "If the application's primary background is dark or black, you MUST use `--color-01-00` as the default theme color. If it is light or white, you MUST use `--color-01-99`. All other application colors MUST be mapped to one of these two anchors. Colors from categories `02`–`09` MUST be derived from and kept in visual relation to the chosen anchor."
@@ -32153,7 +32153,7 @@ msgstr "Ако нагоре по течението е само HTTP и вътр
 
 # translated-by: libretranslate
 msgid "If the upstream uses HTTPS, add it to `HOSTNAMES` in [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) so a leaf cert is issued."
-msgstr "Ако нагоре по веригата използва HTTPS, добавете го към `HOSTNAMES` в [пакет-преден-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) Така че се издава серт на листа."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "If the user answers **no**, continue without refactoring."
@@ -32795,7 +32795,7 @@ msgstr "Подобрява стабилността на CI чрез разши�
 
 # translated-by: libretranslate
 msgid "In [cron-update.yml](../../../../../.github/workflows/cron-update.yml) each job carries a job-level guard:"
-msgstr "В [Крон...update.yml](../../../../../.github/workflows/cron-update.yml) Всяка работа носи охрана на ниво работа:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "In `TLS_MODE=self_signed`, the role requires `CA_TRUST.cert_host`, `CA_TRUST.wrapper_host`, and `CA_TRUST.trust_name` and fails early if cert/wrapper files are missing."
@@ -34031,7 +34031,7 @@ msgstr "Наименование на съда (потребител, парол
 
 # translated-by: libretranslate
 msgid "Instance: [bsky-debug.app](https://bsky-debug.app)"
-msgstr "Инстанция: [Бски...debug.app](https://bsky-debug.app)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Instantiating per provider means the adapter is deployed as many times as there are surfaces, each with its own credential, network attachment and endpoint. That is the price of the boundary: a shared instance would be one process to run and one credential to steal."
@@ -35521,7 +35521,7 @@ msgstr "Превключвател на ЛПД"
 
 # translated-by: libretranslate
 msgid "LLM gateway: [031-llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)"
-msgstr "LLM портал: [031-Ум-гейт-модел...backends.md](031-llm-gateway-model-backends.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "LUKS device/image → local backup root"
@@ -36612,7 +36612,7 @@ msgstr "MCP клиент окабеляване: местните `@modelcontext
 
 # translated-by: libretranslate
 msgid "MCP contract: [025-mcp-role-integration.md](025-mcp-role-integration.md)"
-msgstr "Договор за MCP: [025-Mcp-role-integration.md](025-mcp-role-integration.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "MCP direction"
@@ -36640,7 +36640,7 @@ msgstr "MCP сървър роли показват възможности за �
 
 # translated-by: libretranslate
 msgid "MCP tool plane: [025-mcp-role-integration.md](025-mcp-role-integration.md)"
-msgstr "равнина на инструмента MCP: [025-Mcp-role-integration.md](025-mcp-role-integration.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "MDAD inventory rendered"
@@ -36888,7 +36888,7 @@ msgstr "Поддръжка 🛠️"
 
 # translated-by: libretranslate
 msgid "Maintenance, dependency, and tooling updates (incl. branches created by [cron-update.yml](../../../../.github/workflows/cron-update.yml))"
-msgstr "Поддръжка, зависимост и актуализации на инструментите (включително клоновете, създадени от [Крон...update.yml](../../../../.github/workflows/cron-update.yml))"
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -37683,7 +37683,7 @@ msgstr "Политика на огледалото 📋"
 
 # translated-by: libretranslate
 msgid "Mirror addon-gating.js envKey(): upper-case, non-alphanumeric runs -> '_'."
-msgstr "Огледален адон...gating.js EnvKey(): главни, не-алфачислителни пробеги - > '_'."
+msgstr ""
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -37804,11 +37804,11 @@ msgstr "Образец"
 
 # translated-by: libretranslate
 msgid "Model plane (LLM gateway) this depends on: [031-llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)"
-msgstr "Образец на равнина (LLM портал) зависи от: [031-Ум-гейт-модел...backends.md](031-llm-gateway-model-backends.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Model plane this builds on: [031-llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)"
-msgstr "Модел на равнина, която се основава на: [031-Ум-гейт-модел...backends.md](031-llm-gateway-model-backends.md)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Model visibility"
@@ -39484,7 +39484,7 @@ msgstr "На възела на възела на възела Dnsmasq решав
 
 # translated-by: libretranslate
 msgid "On a long orchestrator sweep the concurrency group sometimes fails to reap its occupant: the occupant's run-level status sits on `queued` — the normal state of a run whose matrix jobs are still waiting for runners — and the newer run parks on `pending` behind it until someone cancels the sweep by hand. Whether `queued` is the cause or another symptom cannot be decided from outside GitHub; what is observable is that the group does not always reap. The API cancel does not depend on any of that, so [entry-cancel-superseded.yml](../../../.github/workflows/entry-cancel-superseded.yml) calls these helpers on every new commit as well. That workflow deliberately declares no concurrency group: the run holding a group cannot be the run that frees it."
-msgstr "На дълъг оркестър претърсване на валутите група понякога не успява да жъне своя обитател: статусът на пътника седи на `queued` ..нормалното състояние на бягане, чиито матрични работни места все още чакат бегачите и новите паркове. `pending` Докато някой не отмени претърсването на ръка. Дали `queued` е причината или друг симптом не може да се реши извън GitHub; това, което се наблюдава е, че групата не винаги жъне. API анулирането не зависи от нищо от това, така че [вход- канцел...superseded.yml](../../../.github/workflows/entry-cancel-superseded.yml) призовава тези помощници за всеки нов ангажимент. Този работен поток умишлено декларира, че не е група валути: управляващата група не може да бъде тази, която го освобождава."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "On a recent Docker engine the swarm step can abort at job setup; run `make act-runner-image` once and prefix the run with `ACT_PLATFORM_IMAGE=local/act-runner-fixed:latest` (see [Workflow Loop](workflow.md))."
@@ -40939,11 +40939,11 @@ msgstr "PR не може да се слее без тях."
 
 # translated-by: libretranslate
 msgid "PR pipelines use `cancel-in-progress: true` so only the newest run per PR and event type is active. The group does not always reap a long orchestrator sweep, which then leaves the newer run parked on `pending`; [entry-cancel-superseded.yml](../../../../.github/workflows/entry-cancel-superseded.yml) cancels those leftovers through the API, see [cancel/README.md](../../../../scripts/github/cancel/README.md)."
-msgstr "Използване на PR тръбопроводи `cancel-in-progress: true` Така че само най-новото движение на PR и тип събитие е активен. Групата не винаги жъне дълга обиколка на оркестъра, която след това оставя по-новия паркиран на `pending`; [вход- канцел...superseded.yml](../../../../.github/workflows/entry-cancel-superseded.yml) Отменя остатъците през API. [cancel/README.md](../../../../scripts/github/cancel/README.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "PR target and template rules live in [pull-request.md](./pull-request.md) and MUST be followed before running the commands below."
-msgstr "ПР цел и правила на шаблона живеят в [Дърпай...request.md](./pull-request.md) и трябва да се следват преди изпълнение на командите по-долу."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "PRs MUST target the canonical repository that <https://s.infinito.nexus/code> redirects to, unless the operator explicitly names a different target. Before creating the PR, the agent MUST resolve the redirect (e.g. `curl -sSIL https://s.infinito.nexus/code | grep -i '^location:'`) to obtain the canonical repository URL, then compare it against `git remote get-url origin`. If the two do not point to the same repository (host + owner + repo, ignoring `.git` suffix and `https://` vs. `git@` scheme), stop and ask the operator before creating the PR."
@@ -41506,7 +41506,7 @@ msgstr "По- role subnet in `meta/server.yml.networks.local.subnet`"
 
 # translated-by: libretranslate
 msgid "Per-role update PRs: the Docker-image-version and repository-ref updaters now open one pull request per affected role instead of a single combined PR, and they recompute the diff against the latest *main* at run time — the update jobs check out *main* rather than the triggering commit, so a queued or stale run no longer proposes already-merged changes or bundles unrelated roles. Each role gets its own branch (*update/<type>-<role>-<date>-<fingerprint>*) and a role-scoped duplicate check, while the *skills-lock.json* updater deliberately stays a single PR. See [the update workflow catalog](docs/contributing/tools/github/actions/workflows.md)."
-msgstr "Обновяване на PR: Docker-image-version и хранилище-ref updaters сега отварят едно искане за дърпане за засегната роля, вместо един комбиниран PR, и те отново да се изчисли diff срещу най-новите *Основна* в работно време . . *Основна* Вместо задействането се ангажират, така че на опашката или застоял ход вече не предлага вече смесени промени или пакети несвързани роли. Всяка роля получава своя клон (*актуализация/<type>-<role>-<date>-<fingerprint>*) и проверка с ролеви огледала, докато *Умения...lock.json* Обновител умишлено остава един пиар. Виж. [каталога за обновяване на работния поток](docs/contributing/tools/github/actions/workflows.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Per-role views over CI deploy runs, turning Ansible profiling output into comparable, downloadable role-timing metrics."
@@ -42335,7 +42335,7 @@ msgstr "Предпочитам оскъдни структури."
 
 # translated-by: libretranslate
 msgid "Prefer the manual workflow in [entry-manual-steer.yml](../../../../.github/workflows/entry-manual-steer.yml):"
-msgstr "Предпочитам ръчния работен поток в [Вход-ръководство-steer.yml](../../../../.github/workflows/entry-manual-steer.yml):"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Prefer the smallest implementation that still satisfies the requirement and remains easy to maintain."
@@ -44843,7 +44843,7 @@ msgstr "Премахване на подвеждащи/отхвърлени зн
 
 # translated-by: libretranslate
 msgid "Removed obsolete debug code referencing a non-existent *--debug* parameter **Base Image Changes**"
-msgstr "Премахване на остарял код за дебъгване на несъществуващ *-- debug* параметър **Основни промени в изображението**"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Removed obsolete legacy paths now that systemd is universally available"
@@ -45700,7 +45700,7 @@ msgstr "Възстановяване `INFINITO_INVENTORY_DIR`, `INFINITO_INVENTO
 
 # translated-by: libretranslate
 msgid "Resolves a browser-facing URL for a frontend dependency declared in the role's own package-lock.json, mirroring jsdelivr's npm path scheme so the internal and external forms differ only by host:"
-msgstr "Релеф на браузъра URL адрес за предна зависимост деклариран в собствения пакет на ролята-lock.json, огледално Jsdelivr е npm път схема, така че вътрешните и външните форми се различават само по домакин:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Resolves a source to a local backup-root, then discovers the newest generation of each repo present under it and recovers each type in order (nfs -> volume -> secrets) against the target via the per-type Recoverers. The source is one of:"
@@ -48014,7 +48014,7 @@ msgstr "Рутинна поддръжка: мъх, който налага па�
 
 # translated-by: libretranslate
 msgid "Routine maintenance: dependabot bumps of *actions/checkout* 6 to 7, *docker/login-action* 4.1.0 to 4.3.0 and *docker/setup-buildx-action* 4.0.0 to 4.2.0; *skills-lock.json* refresh."
-msgstr "Рутинна поддръжка: зависимости от подутини на *действия/проверка* 6 до 7, *докер/логин-действие* 4.1.0 до 4.3.0 както и *Docker/setup-buildx-action* 4.0.0 до 4.2.0; *Умения...lock.json* Освежи се."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Routine maintenance: dependabot bumps of *docker/login-action* 4.3.0 to 4.4.0 and *eslint-plugin-playwright* 2.10.4 to 2.10.5; removed a stray *.claude/settings.local.json*."
@@ -49925,7 +49925,7 @@ msgstr "Виж. [regression.md](../../docs/contributing/actions/testing/regressi
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: Виж. [тест\
+# translation-rejected: Виж. [тест
 # templates.py](../../../../../tests/lint/docker/dockerfile/test_templates.py)
 # за изпълнение.
 msgid "See [test\\_templates.py](../../../../../tests/lint/docker/dockerfile/test_templates.py) for the implementation."
@@ -50956,7 +50956,7 @@ msgstr "Кораб първото ценно увеличение рано."
 
 # translated-by: libretranslate
 msgid "Shipping a branch: commit per [commit.md](commit.md), then run `git-sign-push` outside the sandbox. Open the pull request against `origin/main` per [pull-request.md](pull-request.md)."
-msgstr "Доставка на клон: се ангажира на [commit.md](commit.md), след това тичам `git-sign-push` извън пясъчника. Отваряне на искането за изтегляне срещу `origin/main` per [Дърпай...request.md](pull-request.md)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Ships an embedded sidecar snippet (``templates/service.yml.j2``) for the ``shared: false`` opt-out path."
@@ -51181,7 +51181,7 @@ msgstr "Единичен източник на истината за идент�
 
 # translated-by: libretranslate
 msgid "Single source of truth for the per-addon enable flags consumed by the Playwright addon-gating helper (``tests/addon-gating.js`` -> ``skipUnlessAddonEnabled``). Replaces the error-prone per-template Jinja loop: it resolves the materialised ``addons`` mapping for ``application_id`` and returns one ``<ADDON_ID>_ADDON_ENABLED=<true|false>`` line per declared addon (sorted by env key, newline-joined), where the env-key derivation matches addon-gating.js exactly."
-msgstr "Единичен източник на истината за per-addon позволява знамена, консумирани от Playwright addon-ging помощник (``tests/addon-gating.js`` - > ``skipUnlessAddonEnabled``). Замяна на погрешен-променен за templete Jinja цикъл: тя решава материализираните ``addons`` карта за ``application_id`` и връща един ``<ADDON_ID>_ADDON_ENABLED=<true|false>`` ред за обявена добавка (сортирано по env ключ, newline-joined), където енв-ключът съвпада addon--gating.js Точно така."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Single source of truth for: parsing raw service-config resource scalars, evaluating the enabled/shared/container predicates, walking a role's services (resolving template-gated shared services to the provider role's entity via the service registry, loading each service once unless ``dedup=False``), and aggregating the collected rows into a budget."
@@ -54938,7 +54938,7 @@ msgstr "На `biber` persona влиза през OIDC без проблеми; �
 
 # translated-by: libretranslate
 msgid "The `build-ci-images` stage uses [call-images-build-ci.yml](../../../../.github/workflows/call-images-build-ci.yml) to build Docker images for the target distributions (`arch`, `debian`, `ubuntu`, `fedora`, `centos`). These images are consumed by all subsequent test jobs."
-msgstr "На `build-ci-images` използване на етапи [Изображения...ci.yml](../../../../.github/workflows/call-images-build-ci.yml) за изграждане на Docker изображения за целевите дистрибуции (`arch`, `debian`, `ubuntu`, `fedora`, `centos`). Тези изображения се консумират от всички последващи тест работни места."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The `bundles=` make arg (comma-separated bundle names) is REQUIRED for both entry points. The compose-deploy recipe sets the resulting `bundles` env var read by these scripts."
@@ -55025,7 +55025,7 @@ msgstr "На `ldap` сервизен блок в [`meta/services.yml`](./meta/se
 
 # translated-by: libretranslate
 msgid "The `lint` job runs [call-lint.yml](../../../../.github/workflows/call-lint.yml): `make lint` fans every lint check out in parallel, plus a hadolint SARIF job. It MUST pass before the pipeline continues."
-msgstr "На `lint` Работа [Обади се...lint.yml](../../../../.github/workflows/call-lint.yml): `make lint` Феновете на всеки мъх се проверяват успоредно, плюс работа на Хадолинт САРИФ. Трябва да премине преди тръбопроводът да продължи."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The `listmonk` service command runs `./listmonk --install --idempotent --yes` on every container start, so the schema is seeded automatically on the first deploy."
@@ -55125,7 +55125,7 @@ msgstr "На `test-workspace` етап работи работната сред�
 
 # translated-by: libretranslate
 msgid "The `test` job runs [call-test.yml](../../../../.github/workflows/call-test.yml): `make test` fans the unit, integration, lint and external suites out in parallel on the runner host. It MUST pass `code-quality-gate`."
-msgstr "На `test` Работа [Обади се...test.yml](../../../../.github/workflows/call-test.yml): `make test` фенове на единицата, интеграция, мъх и външни апартаменти в паралел на бегача домакин. Трябва да мине. `code-quality-gate`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The `tor` input decides what the onion axis is allowed to do at all:"
@@ -55769,7 +55769,7 @@ msgstr "Общите парчета са:"
 
 # translated-by: libretranslate
 msgid "The companion [027-integration-matrix.md](027-integration-matrix.md) is a generated role×role matrix over the entity names of every `web-app-*` and `web-svc-*` role. Each cell marks whether the **row** role wires in the **column** role:"
-msgstr "Компаньонката. [027-интеграция...matrix.md](027-integration-matrix.md) е генерирана матрица на role×role върху имената на всяка единица `web-app-*` както и `web-svc-*` Роля. Всяка клетка отбелязва дали **Ред** ролеви жици в **колона** роля:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The complete model is machine-readable in [`schema.yml`](schema.yml)."
@@ -60530,7 +60530,7 @@ msgstr "Името на глаголната папка изразява нам�
 
 # translated-by: libretranslate
 msgid "The version is read from roles/<application_id>/files/package-lock.json, so the URL is always the exact pinned, lockfile-reproducible version."
-msgstr "Версията се чете от роли/<application_id>/файлове/пакет-lock.json, така че URL-ът винаги е точно закован, lockfile-reducible версия."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "The vhost is identified by the ``domains.canonical`` key that carries the domain, which is the same key ``server.status_codes`` uses. A domain that is not canonical, or a key that declares nothing, falls back to the declared ``default``."
@@ -61608,7 +61608,7 @@ msgstr "Тази директория съдържа [Ансибилизация
 
 # translated-by: libretranslate
 msgid "This directory contains the helpers invoked by [cron-update.yml](../../../.github/workflows/cron-update.yml) to bump pinned upstream versions and open a pull request once per day. The helpers are thin wrappers: the image-version and repository-ref bumpers delegate to Python CLIs under [cli/contributing/](../../../cli/contributing/) that scan `roles/*/meta/services.yml` and rewrite version pins in place; the PR-open helper commits, force-pushes the update branch, and creates or refreshes the PR via `gh`. Helpers MUST NOT be called from workflows other than `🔄 Update versions`; the `CI_ENABLE_AUTO_UPDATES` gate is enforced once, at the workflow's job level, and bypassing it from another caller would create PRs even when auto-updates are intentionally disabled."
-msgstr "Тази директория съдържа помощниците, поискани от [Крон...update.yml](../../../.github/workflows/cron-update.yml) да се издърпа нагоре версии и да се отвори искане дърпане веднъж на ден. Помощниците са тънки опаковки: изображението-версия и хранилище-реф броня делегат на Python CLIs по [климатик/доставчик/](../../../cli/contributing/) Това сканиране... `roles/*/meta/services.yml` и да пренапише версия пинове на място; PR-отворен помощник се ангажира, сила-пушете клон актуализация, и създава или освежава PR чрез `gh`. Помощниците не трябва да се наричат от работни потоци, различни от `🔄 Update versions`; `CI_ENABLE_AUTO_UPDATES` Порталът се прилага веднъж, на работното ниво на работния процес, и заобикалянето му от друг слушател би създало PR, дори когато авто-актуализациите са умишлено изключени."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This directory contains the iteration loops agents follow while driving a role end to end: the [Compose Loop](compose.md), the [Swarm Loop](swarm.md), the [Playwright Spec Loop](playwright.md), the [Workflow Loop](workflow.md), and the cross-mode [Roundtrip Loop](roundtrip.md) gate that runs compose then swarm. Its scope is the mechanics of those loops."
@@ -61628,7 +61628,7 @@ msgstr "Тази директория съдържа споделения сло
 
 # translated-by: libretranslate
 msgid "This directory contains the shell helpers that [entry-pr-translate.yml](../../../.github/workflows/entry-pr-translate.yml) calls: resolving the languages LibreTranslate supports into the job matrix, merging the source strings of the `core` and `docs` domains into `locale/`, and machine-translating one language per runner."
-msgstr "Тази директория съдържа помощници, които [entry- pr-translate.yml](../../../.github/workflows/entry-pr-translate.yml) разговори: решаване на езиците LibreTranslate поддържа в матрицата на работата, сливане на изходните низове на `core` както и `docs` домейни в `locale/`, и машина-транслиране на един език на бегач."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "This directory contains variable definition files for the `svc-db-mariadb` Ansible role. It centralizes all configurable values related to MariaDB deployment and can be adjusted without modifying task logic."
@@ -66875,7 +66875,7 @@ msgstr "Изчакай, вместо да бързаш."
 
 # translated-by: libretranslate
 msgid "Wait until the CI in your fork is green. See [pull-request.md](artefact/git/pull-request.md) for required CI scope."
-msgstr "Изчакай докато информаторът ти стане зелен. Виж. [Дърпай...request.md](artefact/git/pull-request.md) за изисквания обхват на ПО."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Waits MUST target meaningful page state (visible elements, URL changes, attached locators). Fixed sleeps MUST NOT be used where an explicit wait is available."
@@ -68669,7 +68669,7 @@ msgstr "След като брокерът е разгърнат, Open WebUI р�
 
 # translated-by: libretranslate
 msgid "With the label set, the `detect-affected-roles` job in [entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml) calls [pr_affected_roles.sh](../../../../scripts/github/resolve/pr_affected_roles.sh), which runs the [cli.meta.ci.subset_roles](../../../../cli/meta/ci/subset_roles.py) module. The module reads the first fenced block whose YAML carries a `roles:` key (the heading text is not matched) and emits that list as the `whitelist` output, which flows into the deploy tests as precedence rung 2 above. Without the label, the diff-driven precedence applies."
-msgstr "С комплекта етикет, `detect-affected-roles` работа в [вписване- пре- промяна-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml) Обаждания [pr_affected_roles.sh](../../../../scripts/github/resolve/pr_affected_roles.sh), който управлява [cli.meta.ci.subset_roles](../../../../cli/meta/ci/subset_roles.py) модул. Модулът чете първия ограден блок, чийто YAML носи `roles:` ключ (Текстът на заглавието не съвпада) и издава този списък като `whitelist` изход, който преминава през изпитванията за разполагане като предварителен етап 2 над. Без етикета се прилага предимството на диференциала."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "With the service enabled, ``tasks/utils/mcp.yml`` reads the token stored for ``administrator`` under this role’s id, probes it against the running instance with a JSON-RPC ``initialize`` call, mints a replacement through ``gitlab-rails runner`` when the stored token is missing or rejected, writes the fresh token back through ``sys-token-store``, and fails the deploy when the re-probe is still rejected. The minted token is a personal access token carrying the ``mcp`` scope with a 364-day expiry. That scope is filtered out of the interactive token picker, so tokens for this endpoint are created programmatically."
@@ -68841,7 +68841,7 @@ msgstr "Обновяване на работните процеси"
 
 # translated-by: libretranslate
 msgid "Workflows communicate through *inputs* (on `workflow_call` / `workflow_dispatch`), *outputs*, *concurrency groups* (which cancel or serialize runs with the same group key), and the `GITHUB_TOKEN` / repository secrets and variables. The entry points of this repository (`entry-*.yml`) translate external triggers into a call to the central [call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml). Most other workflows are reusable building blocks invoked from the orchestrator."
-msgstr "Работните потоци комуникират чрез *входове* (на `workflow_call` / `workflow_dispatch`), *изходи*, *Конверсионни групи* (които отменят или серийни работи със същия групов ключ), и `GITHUB_TOKEN` / хранилище тайни и променливи. Входните пунктове на този регистър (`entry-*.yml`) Превежда външни задействания в повикване към центъра [Обади се...orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml). Повечето други работни потоци са повторно използваеми градивни блокове, ползвани от оркестъра."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Working mode"
@@ -71200,7 +71200,7 @@ msgstr "[ ] Работен поток в вилица или еквивален�
 
 # translated-by: libretranslate
 msgid "[ ] [027-integration-matrix.md](027-integration-matrix.md) is regenerated from [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py) and committed; a check fails if the committed matrix differs from a fresh generation (no hand edits). The generator derives ☑️ edges by scanning every role's `meta/services.yml` integration keys and renders ✅/🪙 from the curated `EDGES` map."
-msgstr "[ ] [027-интеграция...matrix.md](027-integration-matrix.md) се регенерира от [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py) и се ангажира; проверката се проваля, ако ангажираната матрица се различава от ново поколение (без редактиране на ръка). Генераторът извлича ☑️ ръбове чрез сканиране на всяка роля `meta/services.yml` Интеграционни ключове и ключове ✅/🪙 от курирания `EDGES` карта."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[ ] [dsk-gnome-extensions](../../roles/dsk-gnome-extensions/) declares its extensions in `meta/addons/` with `mechanism: extension` and no `bridges`."
@@ -74470,7 +74470,7 @@ msgstr "[`plugins/lookup/tls.py`](../../plugins/lookup/tls.py) Резолюци�
 
 # translated-by: libretranslate
 msgid "[`registry-cache`](../../../compose/registry-cache/README.md) runs `rpardini/docker-registry-proxy` and transparently MITMs every Docker image pull from the inner `dockerd`, regardless of upstream registry (`docker.io`, `ghcr.io`, `mcr.microsoft.com`, …). The runner trusts the proxy CA via [registry-ca.sh](../../../scripts/docker/cache/registry-ca.sh)."
-msgstr "[`registry-cache`](../../../compose/registry-cache/README.md) тичане `rpardini/docker-registry-proxy` и прозрачно MITM е всяко изображение на Docker дърпане от вътрешната `dockerd`, независимо от регистъра нагоре по веригата (`docker.io`, `ghcr.io`, `mcr.microsoft.com`, ...). Runner се доверява на прокси CA чрез [регистър...ca.sh](../../../scripts/docker/cache/registry-ca.sh)."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[`remove.sh`](remove.sh) for DNS teardown"
@@ -74666,71 +74666,71 @@ msgstr "[base.md](role/services/base.md) за регистрация, товар
 
 # translated-by: libretranslate
 msgid "[call-images-build-ci.yml](../../../../../.github/workflows/call-images-build-ci.yml): `🖼️ Build: CI Images (all distros)`"
-msgstr "[Изображения...ci.yml](../../../../../.github/workflows/call-images-build-ci.yml): `🖼️ Build: CI Images (all distros)`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml): `🪞 Mirror: Docker Hub → GHCR (only missing)`"
-msgstr "[Огледало...missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml): `🪞 Mirror: Docker Hub → GHCR (only missing)`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) copies only missing upstream refs into GHCR via `cli.contributing.mirror.sync --only-missing`. Optional Docker Hub credentials reduce source-side rate limits during that sync."
-msgstr "[Огледало...missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) Липсват само копия в GHCR `cli.contributing.mirror.sync --only-missing`. Опционални Docker Hub акредитации намаляват лимита на скоростта на източника по време на този синхрон."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) mirrors any missing upstream images in parallel with the DNS tests so later deploy jobs pull from GHCR instead of Docker Hub, MCR, or other external registries. This shields CI from upstream rate limits, geo-blocking, and transient registry outages."
-msgstr "[Огледало...missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) огледала всички липсващи изображения нагоре по веригата успоредно с DNS тестове, така че по-късно се разгръщат работни места дърпат от GHCR вместо Docker Hub, MMD, или други външни регистри. Това предпазва CI от пределни стойности на скоростта, гео-блокиране и преходни прекъсвания на регистъра."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-lint.yml](../../../../../.github/workflows/call-lint.yml): `🧹 Lint`"
-msgstr "[Обади се...lint.yml](../../../../../.github/workflows/call-lint.yml): `🧹 Lint`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) compares `github.ref` for the same reason: a called workflow inherits the caller's ref, which is `refs/pull/<n>/merge` for a `pull_request` caller but `refs/heads/main` for a `pull_request_target` one. The `ci-orchestrator` job of `entry-pr-change-orchestrate.yml` is fenced to `github.event_name == 'pull_request'`, so the ref the orchestrator sees from that caller is always the merge ref; widening that fence would silently put fork runs into main's group."
-msgstr "[Обади се...orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) сравнение `github.ref` По същата причина: наречен работен поток наследява рефера на обаждащия се, който е `refs/pull/<n>/merge` за `pull_request` Обаждащ се, но `refs/heads/main` за `pull_request_target` Едно. На `ci-orchestrator` на `entry-pr-change-orchestrate.yml` е ограден до `github.event_name == 'pull_request'`, Реферът, който оркестърът вижда от този слушател, винаги е обединяването; разширяването на оградата безмълвно ще вкара вилица в групата на Мейн."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml): `🎵 CI: Orchestrator`"
-msgstr "[Обади се...orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml): `🎵 CI: Orchestrator`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-release-version.yml](../../../../../.github/workflows/call-release-version.yml): `🚀 Release: Version Logic`"
-msgstr "[Обаждане...version.yml](../../../../../.github/workflows/call-release-version.yml): `🚀 Release: Version Logic`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-release-version.yml](../../../.github/workflows/call-release-version.yml)"
-msgstr "[Обаждане...version.yml](../../../.github/workflows/call-release-version.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml)"
-msgstr "[кол-тест...deploy.yml](../../../../../.github/workflows/call-test-deploy.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml): `🚀 Test: Deploy`"
-msgstr "[кол-тест...deploy.yml](../../../../../.github/workflows/call-test-deploy.yml): `🚀 Test: Deploy`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-test-deploy.yml](../../../../.github/workflows/call-test-deploy.yml) narrows its app matrix to the set of roles actually impacted by the branch's diff against `origin/main`. The `discover` job resolves an effective whitelist before [output_apps.sh](../../../../scripts/github/resolve/output_apps.sh) runs, using the following precedence:"
-msgstr "[кол-тест...deploy.yml](../../../../.github/workflows/call-test-deploy.yml) Стеснява матрицата на приложението си до набор от роли, действително засегнати от разликата на клона срещу `origin/main`. `discover` работата решава ефективен бял списък преди [output_apps.sh](../../../../scripts/github/resolve/output_apps.sh) работи, като се използва следното предимство:"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-test-dns.yml](../../../../../.github/workflows/call-test-dns.yml): `💬 Test: DNS`"
-msgstr "[кол-тест...dns.yml](../../../../../.github/workflows/call-test-dns.yml): `💬 Test: DNS`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-test-dns.yml](../../../../.github/workflows/call-test-dns.yml) validates DNS configuration across all target distributions."
-msgstr "[кол-тест...dns.yml](../../../../.github/workflows/call-test-dns.yml) Заверява конфигурацията на DNS във всички целеви разпределения."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-test-install.yml](../../../../../.github/workflows/call-test-install.yml): `📦 Test: Install`"
-msgstr "[кол-тест...install.yml](../../../../../.github/workflows/call-test-install.yml): `📦 Test: Install`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-test-workspace.yml](../../../../../.github/workflows/call-test-workspace.yml): `💻 Test: Workspace`"
-msgstr "[кол-тест...workspace.yml](../../../../../.github/workflows/call-test-workspace.yml): `💻 Test: Workspace`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-test.yml](../../../../../.github/workflows/call-test.yml): `🧪 Test`"
-msgstr "[Обади се...test.yml](../../../../../.github/workflows/call-test.yml): `🧪 Test`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[cancel/](cancel/)"
@@ -74790,43 +74790,43 @@ msgstr "[препоръки/](../../../cli/administration/inventory/credentials/
 
 # translated-by: libretranslate
 msgid "[cron-cleanup-stale.yml](../../../../../.github/workflows/cron-cleanup-stale.yml): `🧹 Prune stale data`"
-msgstr "[Почистване на крони...stale.yml](../../../../../.github/workflows/cron-cleanup-stale.yml): `🧹 Prune stale data`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[cron-images-cleanup-ci.yml](../../../../../.github/workflows/cron-images-cleanup-ci.yml): `🧹 Prune CI images`"
-msgstr "[Почистване на крони...ci.yml](../../../../../.github/workflows/cron-images-cleanup-ci.yml): `🧹 Prune CI images`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml), [call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml)"
-msgstr "[Крон-изображения-огледало-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml), [Огледало...missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml): `🪞 Mirror all images`"
-msgstr "[Крон-изображения-огледало-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml): `🪞 Mirror all images`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[cron-release-highest.yml](../../../../../.github/workflows/cron-release-highest.yml): `🚀 Release missing tag`"
-msgstr "[Крон-освобождаване...highest.yml](../../../../../.github/workflows/cron-release-highest.yml): `🚀 Release missing tag`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[cron-release-highest.yml](../../../.github/workflows/cron-release-highest.yml)"
-msgstr "[Крон-освобождаване...highest.yml](../../../.github/workflows/cron-release-highest.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[cron-security-codeql.yml](../../../../../.github/workflows/cron-security-codeql.yml): `🔐 Scan with CodeQL`"
-msgstr "[Крон-сигурност...codeql.yml](../../../../../.github/workflows/cron-security-codeql.yml): `🔐 Scan with CodeQL`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[cron-update.yml](../../../../../.github/workflows/cron-update.yml)"
-msgstr "[Крон...update.yml](../../../../../.github/workflows/cron-update.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[cron-update.yml](../../../../../.github/workflows/cron-update.yml), [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml)"
-msgstr "[Крон...update.yml](../../../../../.github/workflows/cron-update.yml), [вход- пр- отворен- зависибот-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[cron-update.yml](../../../../../.github/workflows/cron-update.yml): `🔄 Update versions`"
-msgstr "[Крон...update.yml](../../../../../.github/workflows/cron-update.yml): `🔄 Update versions`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[csp_filters.py](../../plugins/filter/csp_filters.py) adds a provider origin to `connect-src` only for known feature flags such as `simpleicons`. [web-app-mig](../../roles/web-app-mig/templates/compose.yml.j2) renders no environment and no API origin."
@@ -74838,7 +74838,7 @@ msgstr "[database.py](database.py) решава активната база да
 
 # translated-by: libretranslate
 msgid "[deployment-modes.md](../../contributing/design/deployment-modes.md) for the `mode` axis."
-msgstr "[Разположение...modes.md](../../contributing/design/deployment-modes.md) за `mode` ос."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[dev CLI tree](../../../cli/administration/deploy/development/)"
@@ -74918,59 +74918,59 @@ msgstr "[email.py](../../../../../plugins/lookup/email.py) за плъгин."
 
 # translated-by: libretranslate
 msgid "[entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml): `🚫 Cancel: Superseded Runs`"
-msgstr "[вход- канцел...superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml): `🚫 Cancel: Superseded Runs`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-delete-branch.yml](../../../../../.github/workflows/entry-delete-branch.yml): `🚫 Cancel: Runs on Branch Delete`"
-msgstr "[запис-изтриване-branch.yml](../../../../../.github/workflows/entry-delete-branch.yml): `🚫 Cancel: Runs on Branch Delete`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-manual-mirror-cleanup.yml](../../../../../.github/workflows/entry-manual-mirror-cleanup.yml): `🧹 Images: Cleanup GHCR`"
-msgstr "[Вход-ръководство- огледало-cleanup.yml](../../../../../.github/workflows/entry-manual-mirror-cleanup.yml): `🧹 Images: Cleanup GHCR`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-manual-steer.yml](../../../../../.github/workflows/entry-manual-steer.yml): `🕹️ Manual`"
-msgstr "[Вход-ръководство-steer.yml](../../../../../.github/workflows/entry-manual-steer.yml): `🕹️ Manual`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-manual-steer.yml](../../../../.github/workflows/entry-manual-steer.yml): dispatches the orchestrator manually for a chosen distro set and whitelist."
-msgstr "[Вход-ръководство-steer.yml](../../../../.github/workflows/entry-manual-steer.yml): изпраща оркестъра ръчно за избран дистро комплект и бял списък."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-pr-change-orchestrate.yml](../../../../../.github/workflows/entry-pr-change-orchestrate.yml): `🔀 Pull Request`"
-msgstr "[вписване- пре- промяна-orchestrate.yml](../../../../../.github/workflows/entry-pr-change-orchestrate.yml): `🔀 Pull Request`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml): detects PR scope and conditionally calls the orchestrator."
-msgstr "[вписване- пре- промяна-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml): открива PR обхват и условно призовава оркестъра."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-pr-closed-cancel-workflows.yml](../../../../../.github/workflows/entry-pr-closed-cancel-workflows.yml): `🚫 Cancel: PR Runs on Close`"
-msgstr "[вход-при-затворен-канцел-workflows.yml](../../../../../.github/workflows/entry-pr-closed-cancel-workflows.yml): `🚫 Cancel: PR Runs on Close`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml): `🚫 Dependabot: Close while auto-updates disabled`"
-msgstr "[вход- пр- отворен- зависибот-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml): `🚫 Dependabot: Close while auto-updates disabled`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml)"
-msgstr "[entry- pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml): `🌐 Translate catalogs`"
-msgstr "[entry- pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml): `🌐 Translate catalogs`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml)"
-msgstr "[влизане-натискане-latest.yml](../../../../../.github/workflows/entry-push-latest.yml)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml): `📤 Push`"
-msgstr "[влизане-натискане-latest.yml](../../../../../.github/workflows/entry-push-latest.yml): `📤 Push`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../.github/workflows/entry-push-latest.yml): calls the orchestrator for pushes on the supported branch prefixes and additionally invokes the release workflow on version tags. For the contributor-facing release procedure see [release.md](../../actions/release.md)."
-msgstr "[влизане-натискане-latest.yml](../../../../.github/workflows/entry-push-latest.yml): призовава оркестъра за бутане на помощните настройки на клона и допълнително се позовава на работния поток на версията. За процедурата за освобождаване на доставчика на входящи данни вж. [release.md](../../actions/release.md)."
+msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -75058,7 +75058,7 @@ msgstr "[локални скриптове за разполагане](../../..
 # translated-by: libretranslate
 #, python-brace-format
 msgid "[logout-panel.js.j2](../../roles/web-app-keycloak/templates/logout-panel.js.j2) inlines [logout_i18n.yml](../../roles/web-app-keycloak/files/logout_i18n.yml) as a `{language: {key: text, dir}}` object, and [logout-panel.js](../../roles/web-app-keycloak/files/javascript/logout-panel.js) picks the language from `<html lang>` and `navigator.language`. Its 29 non-English blocks are the only human translations core owns."
-msgstr "[изход...panel.js.j2](../../roles/web-app-keycloak/templates/logout-panel.js.j2) вътрешни линии [logout_i18n.yml](../../roles/web-app-keycloak/files/logout_i18n.yml) като `{language: {key: text, dir}}` предмет, и [изход...panel.js](../../roles/web-app-keycloak/files/javascript/logout-panel.js) избира езика от `<html lang>` както и `navigator.language`. 29 Не-Английски блокове са единствените човешки преводи ядрото притежава."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[macOS](platform/macos.md)"
@@ -75361,15 +75361,15 @@ msgstr "[систематизиран/](systemd/) за WSL2 Системни п�
 
 # translated-by: libretranslate
 msgid "[test-mcp-guest.js](../../roles/web-app-homeassistant/files/playwright/test-mcp-guest.js)"
-msgstr "[тест-mcp-guest.js](../../roles/web-app-homeassistant/files/playwright/test-mcp-guest.js)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[test-oidc-login.js](../../roles/web-app-litellm/files/playwright/test-oidc-login.js), gated on `services.sso`"
-msgstr "[тест- idc-login.js](../../roles/web-app-litellm/files/playwright/test-oidc-login.js), Вратата е отворена. `services.sso`"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[test-system-one-router.js](../../roles/web-app-openwebui/files/playwright/test-system-one-router.js)"
-msgstr "[тест-система-едно-router.js](../../roles/web-app-openwebui/files/playwright/test-system-one-router.js)"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "[test_agent_identity.py](../../tests/lint/ansible/services/test_agent_identity.py) holds the claim, the absence of any role on the account, and the absence of a second credential for it, over the roles derived from the sandbox-runtime scan rather than a list."
@@ -80500,7 +80500,7 @@ msgstr "`entry-manual-steer.yml` декларира `cancel-in-progress: true` �
 
 # translated-by: libretranslate
 msgid "`entry-push-latest.yml` declares exactly that expression, and it fires only on `push`, where `github.ref_name` is always the pushed branch. [entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml) carries no concurrency group of its own — it is the API fallback for that group — but its push job repeats the same predicate as a job `if`, so it never touches `main` either."
-msgstr "`entry-push-latest.yml` декларира точно този израз и стреля само по `push`, където `github.ref_name` винаги е избутаното клонче. [вход- канцел...superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml) не разполага с конкурентна група на собствената си ... API Отстъпка за тази група, но нейната работа натискане повтаря същата предварителна като работа `if`, така че никога не докосва `main` или."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`environment` reads `external`, `TLS_ENABLED`, `DOCKER_IN_CONTAINER`."
@@ -81334,7 +81334,7 @@ msgstr "`provides:` се използва само когато името на 
 
 # translated-by: libretranslate
 msgid "`proxy.conf`: systemd drop-in for `docker.service`. Sets `HTTP_PROXY`/`HTTPS_PROXY` to the proxy and registers [registry-ca.sh](../../scripts/docker/cache/registry-ca.sh) as `ExecStartPre`."
-msgstr "`proxy.conf`: systemd drop-in for `docker.service`. Комплекти `HTTP_PROXY`/`HTTPS_PROXY` до пълномощника и регистрите [регистър...ca.sh](../../scripts/docker/cache/registry-ca.sh) като `ExecStartPre`."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "`pull_policy` — swarm rejects it as \"Additional property pull_policy is not allowed\" (compose-only extension)."
@@ -83616,7 +83616,7 @@ msgstr "cli.administration.inventory.provision.filters модул"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: cli.administration.inventory.provision.hostМодул \
+# translation-rejected: cli.administration.inventory.provision.hostМодул
 # vars
 msgid "cli.administration.inventory.provision.host\\_vars module"
 msgstr ""
@@ -83627,7 +83627,7 @@ msgstr "cli.administration.inventory.provision.inventory\\ генераторе�
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: cli.administration.inventory.provision.mirrorМодул \
+# translation-rejected: cli.administration.inventory.provision.mirrorМодул
 # overrides
 msgid "cli.administration.inventory.provision.mirror\\_overrides module"
 msgstr ""
@@ -83646,7 +83646,7 @@ msgstr "cli.administration.inventory.provision.reset модул"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: cli.administration.inventory.provision.roleМодул \
+# translation-rejected: cli.administration.inventory.provision.roleМодул
 # разрешител
 msgid "cli.administration.inventory.provision.role\\_resolver module"
 msgstr ""
@@ -86949,7 +86949,7 @@ msgstr "plugins.lookup.api\\ възможен модул"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: plugins.lookup.applicationМодул за затваряне \
+# translation-rejected: plugins.lookup.applicationМодул за затваряне
 msgid "plugins.lookup.application\\_closure module"
 msgstr ""
 
@@ -90216,14 +90216,14 @@ msgstr "utils.env.handlers.infinito.package\\ cache пакет"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: utils.env.handlers.infinito.package\ cache.admin\
+# translation-rejected: utils.env.handlers.infinito.package\ cache.admin
 # password модул
 msgid "utils.env.handlers.infinito.package\\_cache.admin\\_password module"
 msgstr ""
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: utils.env.handlers.infinito.package\ cache.blobstore\
+# translation-rejected: utils.env.handlers.infinito.package\ cache.blobstore
 # max модул
 msgid "utils.env.handlers.infinito.package\\_cache.blobstore\\_max module"
 msgstr ""
@@ -90491,7 +90491,7 @@ msgstr "utils.install.collections модул"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
-# translation-rejected: utils.install.githubМодул за освобождаване \
+# translation-rejected: utils.install.githubМодул за освобождаване
 msgid "utils.install.github\\_release module"
 msgstr ""
 
@@ -91725,7 +91725,7 @@ msgstr "💾 **Postfix монтаж на Arch Linux**"
 
 # translated-by: libretranslate
 msgid "📁 **Unified CSS Base Configuration** deployment for all NGINX applications"
-msgstr "📁 **Обединена CSS базова конфигурация** разполагане за всички приложения на NGINX"
+msgstr ""
 
 # translated-by: libretranslate
 msgid "📈 **Burn-down Charts & Metrics:** Monitor velocity and progress."
