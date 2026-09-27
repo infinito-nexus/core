@@ -276,5 +276,38 @@ class TestBeforeTheFirstFetch(unittest.TestCase):
             self.assertIsNone(shelf.next_queued())
 
 
+class TestOutdated(unittest.TestCase):
+    BUILT = "a" * 64
+    STAGED = "b" * 64
+
+    def _shelf(self, td, built, staged):
+        shelf = library.Library("unused", Path(td), 1, Path(td), Path(td) / "snapshot")
+        patch.object(shelf, "refs", lambda: ("head", ())).start()
+        patch.object(shelf, "servable", lambda version: True).start()
+        patch.object(shelf, "built_ref", lambda version: built).start()
+        patch.object(shelf, "snapshot_ref", lambda: staged).start()
+        patch.object(shelf, "_language_index_is_current", lambda version: True).start()
+        self.addCleanup(patch.stopall)
+        return shelf
+
+    def test_a_deployed_build_of_an_older_snapshot_is_outdated(self) -> None:
+        with TemporaryDirectory() as td:
+            shelf = self._shelf(td, self.BUILT, self.STAGED)
+
+            self.assertTrue(shelf.outdated("deployed"))
+
+    def test_a_deployed_build_of_the_staged_snapshot_is_not(self) -> None:
+        with TemporaryDirectory() as td:
+            shelf = self._shelf(td, self.BUILT, self.BUILT)
+
+            self.assertFalse(shelf.outdated("deployed"))
+
+    def test_latest_may_serve_its_previous_build_while_rebuilding(self) -> None:
+        with TemporaryDirectory() as td:
+            shelf = self._shelf(td, self.BUILT, self.STAGED)
+
+            self.assertFalse(shelf.outdated("latest"))
+
+
 if __name__ == "__main__":
     unittest.main()

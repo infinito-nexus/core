@@ -126,6 +126,22 @@ class Library(Sites, Queue, Builder):
             and self._language_index_is_current(version)
         )
 
+    def outdated(self, version) -> bool:
+        """Whether a built site answers for a snapshot it was not built from.
+
+        ``deployed`` names the working tree a run just staged, so serving an
+        earlier build under it is a wrong answer rather than a stale one. A
+        released tag cannot move, and ``latest`` is allowed to serve its
+        previous build while the next one is still being made.
+
+        Args:
+            version: ``latest``, ``deployed`` or a release tag.
+        """
+        if version != DEPLOYED:
+            return False
+        head, _ = self.refs()
+        return not self._current(version, head)
+
     def _translation_current(self, version, code, head):
         return self.translation_servable(version, code) and self.translation_ref(
             version, code

@@ -124,7 +124,7 @@ class DocsHandler(SimpleHTTPRequestHandler):
             self.send_error(HTTPStatus.NOT_FOUND)
         elif not slash:
             self._redirect(f"/{version}/")
-        elif not self.library.servable(version):
+        elif not self.library.servable(version) or self.library.outdated(version):
             self.library.request(version)
             body = BUILDING.format(version=html.escape(version))
             self._page(HTTPStatus.ACCEPTED, f"Building {version}", body, head)
