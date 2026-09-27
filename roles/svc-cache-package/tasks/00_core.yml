@@ -23,6 +23,10 @@
     - "{{ CACHE_PACKAGE_CA_DIR_HOST }}"
     - "{{ CACHE_PACKAGE_CERTS_DIR_HOST }}"
 
+- name: "🐳 Install the container manager the certificate issuer runs in"
+  ansible.builtin.include_role:
+    name: sys-svc-container
+
 - name: "🔐 Issue the frontend CA and one leaf per TLS host"
   ansible.builtin.command:
     cmd: "{{ [CACHE_PACKAGE_SHELL_DIR, 'certs.sh'] | path_join }}"
