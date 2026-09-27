@@ -564,7 +564,7 @@ msgstr "**Gach ardáin eile** (lena n-áirítear Arch Linux ARM, Debian, Ubuntu,
 
 # translated-by: libretranslate
 msgid "**All-or-nothing:** a partial shift (web onion, identity clearnet) breaks oauth2-proxy email matching ([oauth2-proxy-keycloak.cfg.j2:32](../../roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2) sets `email_domains = \"{{ DOMAIN_PRIMARY }}\"`). Fresh onion nodes only; migrating an existing clearnet node is out of scope (base DN + all identities would shift)."
-msgstr ""
+msgstr "**Gach-nó-nochtadh:** athrú páirteach (onion gréasáin, clearnet aitheantais) Seirbhís do Chustaiméirí2-proxy meaitseála ríomhphost ([oauth2-proxy-keycloak.cfg.j2:32](../../roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2) Leagann `email_domains = \"{{ DOMAIN_PRIMARY }}\"`). Nóid oinniún úra amháin; Tá migrating nód soiléir atá ann cheana féin as raon feidhme (bonn DN + Bheadh gach céannachtaí athrú)."
 
 # translated-by: libretranslate
 msgid "**Allowlist on ``tools/call``:** Filtering only ``tools/list`` would leave every unlisted operation callable by name."
@@ -15876,11 +15876,11 @@ msgstr "Rialacha comhaid Gníomhaire 📁"
 
 # translated-by: libretranslate
 msgid "Agent fleet that consumes the gateway: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr ""
+msgstr "Gníomhaire cabhlach a itheann an geata: [032- - - - -agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
 
 # translated-by: libretranslate
 msgid "Agent fleet that consumes this gateway: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr ""
+msgstr "Gníomhaire cabhlach a itheann an geata: [032- - - - -agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
 
 # translated-by: libretranslate
 msgid "Agent group_vars rules"
@@ -15916,7 +15916,7 @@ msgstr "Scileanna gníomhairí nach bhfuil suiteáilte. Rith `make install-skill
 
 # translated-by: libretranslate
 msgid "Agent that consumes it (isolated home-assistant scenario): [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr ""
+msgstr "Gníomhaire a itheann sé (scoite baile cás cúnta): [032- - - - -agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
 
 # translated-by: libretranslate
 msgid "Agent token restricted by Zammad groups; redact sensitive articles; no ticket, article, user, role, or configuration mutation"
@@ -16230,7 +16230,7 @@ msgstr "Gach ceann eile `4xx`/ Baile`5xx` cóid agus earráidí nasc (DNS, SSL) 
 
 # translated-by: libretranslate
 msgid "All other scopes MUST run the full [call-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml)."
-msgstr ""
+msgstr "Gach raon feidhme eile MUST reáchtáil an iomlán [call-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml)."
 
 # translated-by: libretranslate
 msgid "All post-bootstrap configuration (OIDC Social Login Key, LDAP Settings, outbound Email Account, group-role mapping) runs as Python scripts piped to ``python`` inside the backend container (see ``files/scripts/``)."
@@ -19440,7 +19440,7 @@ msgstr "Tógann na buníomhánna in aghaidh an-distro CI arna gcaitheamh ag gach
 
 # translated-by: libretranslate
 msgid "Buildx setup resilience: the CI image build pre-pulls and pins the *moby/buildkit* image with a retry loop before *docker/setup-buildx-action*, so a transient *registry-1.docker.io* timeout during the buildkit bootstrap no longer aborts the build — buildx falls back to the locally cached image once it is present."
-msgstr ""
+msgstr "Resilience buildx thus: an íomhá CI a thógáil réamh-pulls agus bioráin an *tréimhse saoil: ilbhliantúil* íomhá le lúb retry roimh *docker / setup-buildx-gníomh*, mar sin transient *registry-1.docker.io* timeout le linn an boottrap buildkit a thuilleadh aborts an thógáil - Titeann buildx ar ais go dtí an íomhá go háitiúil i dtaisce nuair a bhíonn sé i láthair."
 
 # translated-by: libretranslate
 msgid "Built as a central engine (mirroring ``svc-db-postgres``), this role:"
@@ -19738,7 +19738,7 @@ msgstr "CI i do MUST forc a bheith glas."
 
 # translated-by: libretranslate
 msgid "CI is triggered automatically on pull-request events and on pushes to the branches listed in the entry-workflow row in [workflows.md](../../tools/github/actions/workflows.md). The pipeline is composed of reusable workflow files under [.github/workflows/](../../../../.github/workflows/). The central coordinator is [call-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml), which is called by the entry workflows."
-msgstr ""
+msgstr "Tá CI spreagtha go huathoibríoch ar imeachtaí tarraingthe agus ar bhrúnna chuig na brainsí atá liostaithe sa tsraith sreafa oibre iontrála i [workflows.md](../../tools/github/actions/workflows.md). Tá an píblíne comhdhéanta de chomhaid sreabhadh oibre in-athúsáidte faoi [.github / sreabhadh oibre /](../../../../.github/workflows/). Tá an comhordaitheoir lárnach [call-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml), ar a dtugtar ag na sreabhadh oibre iontrála."
 
 # translated-by: libretranslate
 msgid "CI on Tag Push 🤖"
@@ -20412,7 +20412,7 @@ msgstr "Lárnaigh loighic fhorghníomhú coimeádán"
 
 # translated-by: libretranslate
 msgid "Cert generation runs in a throw-away alpine container driven by [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) before the frontend starts."
-msgstr ""
+msgstr "Ritheann an ghlúin Teastas i gcoimeádán alpach le caith-away tiomáinte ag [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) sula dtosaíonn an tús."
 
 # translated-by: libretranslate
 msgid "Cert generation, Nexus repo bootstrap, and runner trust-store install run from [compose.py](../../../cli/administration/deploy/development/compose.py)."
@@ -20660,7 +20660,7 @@ msgstr "Chunk bloic líonta sweep, capped ag na bloic Dearbhaíonn an YAML."
 
 # translated-by: libretranslate
 msgid "Chunk blocks call-orchestrator.yml declares, the most a sweep may plan."
-msgstr ""
+msgstr "Bloic Chunk call-orchestrator.yml Dearbhaíonn, d'fhéadfadh an chuid is mó a sweep plean."
 
 # translated-by: libretranslate
 msgid "Claim Attributes 🏷️"
@@ -21866,7 +21866,7 @@ msgstr "Clár na dToghthóirí (Ard-déine)"
 
 # translated-by: libretranslate
 msgid "CodeQL static analysis. Invoked by [call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) so every CI run produces a single scan; additionally runs on a weekly cron so coverage does not drop when no pushes land on `main`. See [pipeline.md](../../../artefact/git/pipeline.md) for the gating behaviour."
-msgstr ""
+msgstr "Anailís statach CodeQL. Agairt ag [call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) mar sin Táirgeann gach CI reáchtáil scanadh amháin; chomh maith ritheann ar cron seachtainiúil mar sin ní chlúdaíonn titim nuair a bhrúnn aon talamh ar `main`. Féach [pipeline.md](../../../artefact/git/pipeline.md) don iompar gating."
 
 # translated-by: libretranslate
 msgid "CodeQL ✅"
@@ -22918,7 +22918,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Controls whether automated update PRs are created. Covers both the workflow-driven jobs in [cron-update.yml](../../../../../.github/workflows/cron-update.yml) (Docker image versions, agent skills) and PRs opened by Dependabot (gated via [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml), which auto-closes them)."
-msgstr ""
+msgstr "Rialuithe cibé acu PRanna nuashonrú uathoibrithe a cruthaíodh. Clúdaíonn an dá na poist sreabhadh oibre i [cron-update.yml](../../../../../.github/workflows/cron-update.yml) (Leaganacha íomhá Docker, scileanna gníomhaire) agus PRanna oscailte ag (gated via [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml), a auto-dlúth iad)."
 
 # translated-by: libretranslate
 msgid "Controls whether pushes to `main` trigger the CI pipeline. Pushes to all other branches covered by the workflow (`feature/**`, `hotfix/**`, `fix/**`, `alert-autofix-*`) are unaffected."
@@ -24350,7 +24350,7 @@ msgstr "Roghanna Uasoiliúna agus Athoiliúna ❌"
 
 # translated-by: libretranslate
 msgid "Dependabot cannot read repository variables itself, so [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml) listens on `pull_request_target` (`opened`, `reopened`) and closes any PR authored by `dependabot[bot]` while `CI_ENABLE_AUTO_UPDATES != 'true'`. The workflow does not check out PR code, which keeps the elevated `pull_request_target` context safe."
-msgstr ""
+msgstr "Ní féidir le Spleáchas athróg stór a léamh féin, mar sin [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml) éisteacht ar `pull_request_target` (`opened`, `reopened`) agus dúnann aon PR údar ag `dependabot[bot]` le linn `CI_ENABLE_AUTO_UPDATES != 'true'`. Ní dhéanann an sreabhadh oibre seiceáil amach cód PR, a choimeádann an ardaithe `pull_request_target` comhthéacs sábháilte."
 
 # translated-by: libretranslate
 msgid "Dependencies"
@@ -26537,7 +26537,7 @@ msgstr "Ríomhphost: [kevinveenbirkenbach@infinito.nexus](mailto:kevinveenbirken
 
 # translated-by: libretranslate
 msgid "Embodied-mode decision and scenario: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr ""
+msgstr "Cinneadh agus cás Embodied-mode: [032- - - - -agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
 
 # translated-by: libretranslate
 msgid "Emit one error annotation per item in *items*."
@@ -26594,7 +26594,7 @@ msgstr "Folamh eochair nó as-de-imscaradh URL bonn theipeann ar an imscaradh"
 
 # translated-by: libretranslate
 msgid "Empty result (no open PR): create one as draft via `gh pr create --draft` using the matching template per [pull-request.md](./pull-request.md)."
-msgstr ""
+msgstr "Toradh folamh (Níl aon PR): ceann amháin a chruthú mar dhréacht via `gh pr create --draft` ag baint úsáide as an teimpléad meaitseáil in aghaidh [pull-request.md](./pull-request.md)."
 
 # translated-by: libretranslate
 msgid "Empty string (`''`)"
@@ -30082,7 +30082,7 @@ msgstr "Ní féidir Fork PRs pacáistí a fhoilsiú iad féin, mar sin a n-neamh
 
 # translated-by: libretranslate
 msgid "Fork PRs run under the `pull_request` event without write permissions. Privileged steps (image builds, package writes) run via `pull_request_target`. The fork CI waits for those privileged images before proceeding. See [pull-request.md](pull-request.md) for the contributor-facing fork workflow."
-msgstr ""
+msgstr "Fork PRs reáchtáil faoi na `pull_request` imeacht gan ceadanna a scríobh. céimeanna Pribhléid (tógáil íomhá, scríobhann pacáiste) reáchtáil via `pull_request_target`. Fanann an forc CI do na híomhánna phribhléid roimh dul ar aghaidh. Féach ar [pull-request.md](pull-request.md) don sreabhadh oibre forcing ranníocóir."
 
 # translated-by: libretranslate
 msgid "Fork PRs 🍴"
@@ -32382,7 +32382,7 @@ msgstr "Má tá an sruth an HTTP-amháin agus istigh-`dockerd` Tógann gá é, f
 
 # translated-by: libretranslate
 msgid "If the upstream uses HTTPS, add it to `HOSTNAMES` in [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) so a leaf cert is issued."
-msgstr ""
+msgstr "Má úsáideann HTTPS an sruth, cuir é leis `HOSTNAMES` i [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) mar sin eisítear cert duille."
 
 # translated-by: libretranslate
 msgid "If the user answers **no**, continue without refactoring."
@@ -41278,7 +41278,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "PR target and template rules live in [pull-request.md](./pull-request.md) and MUST be followed before running the commands below."
-msgstr ""
+msgstr "Rialacha sprioc PR agus teimpléid beo i [pull-request.md](./pull-request.md) agus MUST a leanúint roimh rith na horduithe thíos."
 
 # translated-by: libretranslate
 msgid "PRs MUST target the canonical repository that <https://s.infinito.nexus/code> redirects to, unless the operator explicitly names a different target. Before creating the PR, the agent MUST resolve the redirect (e.g. `curl -sSIL https://s.infinito.nexus/code | grep -i '^location:'`) to obtain the canonical repository URL, then compare it against `git remote get-url origin`. If the two do not point to the same repository (host + owner + repo, ignoring `.git` suffix and `https://` vs. `git@` scheme), stop and ask the operator before creating the PR."
@@ -41844,7 +41844,7 @@ msgstr "Folíon Per-ról i `meta/server.yml.networks.local.subnet`"
 
 # translated-by: libretranslate
 msgid "Per-role update PRs: the Docker-image-version and repository-ref updaters now open one pull request per affected role instead of a single combined PR, and they recompute the diff against the latest *main* at run time — the update jobs check out *main* rather than the triggering commit, so a queued or stale run no longer proposes already-merged changes or bundles unrelated roles. Each role gets its own branch (*update/<type>-<role>-<date>-<fingerprint>*) and a role-scoped duplicate check, while the *skills-lock.json* updater deliberately stays a single PR. See [the update workflow catalog](docs/contributing/tools/github/actions/workflows.md)."
-msgstr ""
+msgstr "PRanna cothrom le dáta Per-role: an Docker-image-leagan agus updaters stór-ref oscailt anois iarratas tarraingt amháin in aghaidh an ról difear in ionad amháin PR comhcheangailte, agus recompute siad an diff in aghaidh na déanaí *príomhthionscadal* ag am a reáchtáil - seiceáil na poist cothrom le dáta amach *príomhthionscadal* seachas an tiomantas truicir, mar sin reáchtáil scuaine nó stale a thuilleadh Molann cheana féin-thiomsú athruithe nó bundles róil nach bhfuil baint acu. Faigheann gach ról a brainse féin (*nuashonrú /<type>- - - - -<role>- - - - -<date>- - - - -<fingerprint>*) agus seiceáil dúblach róscóipthe, agus an *skills-lock.json* updater fhanann d'aon ghnó PR amháin. Féach ar [an chatalóg sreabhadh oibre cothrom le dáta](docs/contributing/tools/github/actions/workflows.md)."
 
 # translated-by: libretranslate
 msgid "Per-role views over CI deploy runs, turning Ansible profiling output into comparable, downloadable role-timing metrics."
@@ -45188,7 +45188,7 @@ msgstr "Bainte míthreoir / Bratacha íomhá / frithdhílse (e.g. Nextcloud)"
 
 # translated-by: libretranslate
 msgid "Removed obsolete debug code referencing a non-existent *--debug* parameter **Base Image Changes**"
-msgstr ""
+msgstr "Bain as feidhm cód debug tagairt neamh-existent *- Debug* paraiméadar paraiméadar **Base Íomhá Athruithe**"
 
 # translated-by: libretranslate
 msgid "Removed obsolete legacy paths now that systemd is universally available"
@@ -46045,7 +46045,7 @@ msgstr "Uisce agus Séarachas `INFINITO_INVENTORY_DIR`, `INFINITO_INVENTORY_FILE
 
 # translated-by: libretranslate
 msgid "Resolves a browser-facing URL for a frontend dependency declared in the role's own package-lock.json, mirroring jsdelivr's npm path scheme so the internal and external forms differ only by host:"
-msgstr ""
+msgstr "Resolves a bhrabhsálaí-facing URL do spleáchas tosaigh dearbhaithe sa ról féin package-lock.json, scáthánú scéim cosán npm jsdelivr mar sin éagsúil leis na foirmeacha inmheánacha agus seachtracha ach amháin trí óstach:"
 
 # translated-by: libretranslate
 msgid "Resolves a source to a local backup-root, then discovers the newest generation of each repo present under it and recovers each type in order (nfs -> volume -> secrets) against the target via the per-type Recoverers. The source is one of:"
@@ -48373,7 +48373,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Routine maintenance: dependabot bumps of *actions/checkout* 6 to 7, *docker/login-action* 4.1.0 to 4.3.0 and *docker/setup-buildx-action* 4.0.0 to 4.2.0; *skills-lock.json* refresh."
-msgstr ""
+msgstr "Cothabháil gnáth: bumps dependabot de *gníomhaíochtaí / Seiceáil amach* 6 go dtí 7, *docker / imoibriú* 4.1.0 go dtí 4.3.0 agus *docker / setup-buildx-gníomh* 4.0.0 go dtí 4.2.0; *skills-lock.json* athnuachan."
 
 # translated-by: libretranslate
 msgid "Routine maintenance: dependabot bumps of *docker/login-action* 4.3.0 to 4.4.0 and *eslint-plugin-playwright* 2.10.4 to 2.10.5; removed a stray *.claude/settings.local.json*."
@@ -51385,7 +51385,7 @@ msgstr "Long an chéad incrimint luachmhar go luath."
 
 # translated-by: libretranslate
 msgid "Shipping a branch: commit per [commit.md](commit.md), then run `git-sign-push` outside the sandbox. Open the pull request against `origin/main` per [pull-request.md](pull-request.md)."
-msgstr ""
+msgstr "Loingseoireacht brainse: tiomantas in aghaidh [commit.md](commit.md), ansin reáchtáil `git-sign-push` taobh amuigh den bhosca gainimh. Oscail an t-iarratas tarraingt i gcoinne `origin/main` in aghaidh an [pull-request.md](pull-request.md)."
 
 # translated-by: libretranslate
 msgid "Ships an embedded sidecar snippet (``templates/service.yml.j2``) for the ``shared: false`` opt-out path."
@@ -55405,7 +55405,7 @@ msgstr "An bhfuil `biber` logaí persona i trí OIDC gan deacracht; cad nach fé
 
 # translated-by: libretranslate
 msgid "The `build-ci-images` stage uses [call-images-build-ci.yml](../../../../.github/workflows/call-images-build-ci.yml) to build Docker images for the target distributions (`arch`, `debian`, `ubuntu`, `fedora`, `centos`). These images are consumed by all subsequent test jobs."
-msgstr ""
+msgstr "An bhfuil `build-ci-images` úsáidí stáitse [call-images-build-ci.yml](../../../../.github/workflows/call-images-build-ci.yml) a thógáil íomhánna Docker do na dáiltí sprioc (`arch`, `debian`, `ubuntu`, `fedora`, `centos`). Déantar na híomhánna seo a chaitheamh ag gach post tástála ina dhiaidh sin."
 
 # translated-by: libretranslate
 msgid "The `bundles=` make arg (comma-separated bundle names) is REQUIRED for both entry points. The compose-deploy recipe sets the resulting `bundles` env var read by these scripts."
@@ -55485,7 +55485,7 @@ msgstr "An bhfuil `ldap` bloc seirbhíse i [`meta/services.yml`](./meta/services
 
 # translated-by: libretranslate
 msgid "The `lint` job runs [call-lint.yml](../../../../.github/workflows/call-lint.yml): `make lint` fans every lint check out in parallel, plus a hadolint SARIF job. It MUST pass before the pipeline continues."
-msgstr ""
+msgstr "An bhfuil `lint` Ritheann an post [call-lint.yml](../../../../.github/workflows/call-lint.yml): `make lint` lucht leanúna gach lint seiceáil amach i comhthreomhar, móide post hadolint SARIF. MÓR é pas sula leanann an phíblíne."
 
 # translated-by: libretranslate
 msgid "The `listmonk` service command runs `./listmonk --install --idempotent --yes` on every container start, so the schema is seeded automatically on the first deploy."
@@ -55585,7 +55585,7 @@ msgstr "An bhfuil `test-workspace` Ritheann céim an sreabhadh oibre spás oibre
 
 # translated-by: libretranslate
 msgid "The `test` job runs [call-test.yml](../../../../.github/workflows/call-test.yml): `make test` fans the unit, integration, lint and external suites out in parallel on the runner host. It MUST pass `code-quality-gate`."
-msgstr ""
+msgstr "An bhfuil `test` Ritheann an post [call-test.yml](../../../../.github/workflows/call-test.yml): `make test` lucht leanúna an t-aonad, comhtháthú, lint agus sraitheanna seachtracha amach go comhthreomhar ar an óstach dara háit. Tá sé MUST pas `code-quality-gate`."
 
 # translated-by: libretranslate
 msgid "The `tor` input decides what the onion axis is allowed to do at all:"
@@ -61040,7 +61040,7 @@ msgstr "Léiríonn an t-ainm fillteán focal an intinn imscaradh. Léiríonn ain
 
 # translated-by: libretranslate
 msgid "The version is read from roles/<application_id>/files/package-lock.json, so the URL is always the exact pinned, lockfile-reproducible version."
-msgstr ""
+msgstr "Tá an leagan a léamh ó róil /<application_id>/ comhaid /package-lock.json, mar sin tá an URL i gcónaí ar an pinned cruinn, glas comhad-laghdaithe leagan."
 
 # translated-by: libretranslate
 msgid "The vhost is identified by the ``domains.canonical`` key that carries the domain, which is the same key ``server.status_codes`` uses. A domain that is not canonical, or a key that declares nothing, falls back to the declared ``default``."
@@ -62139,7 +62139,7 @@ msgstr "Tá an eolaire ar an timpeallacht roinnte buataisí ciseal do Infinito.N
 
 # translated-by: libretranslate
 msgid "This directory contains the shell helpers that [entry-pr-translate.yml](../../../.github/workflows/entry-pr-translate.yml) calls: resolving the languages LibreTranslate supports into the job matrix, merging the source strings of the `core` and `docs` domains into `locale/`, and machine-translating one language per runner."
-msgstr ""
+msgstr "Tá an eolaire na cúntóirí bhlaosc go [entry-pr-translate.yml](../../../.github/workflows/entry-pr-translate.yml) glaonna: na teangacha a réiteach LibreTranslate tacaíochtaí isteach sa maitrís post, chumasc na teaghráin foinse an `core` agus `docs` fearainn isteach `locale/`, agus meaisín-aistriú teanga amháin in aghaidh an dara háit."
 
 # translated-by: libretranslate
 msgid "This directory contains variable definition files for the `svc-db-mariadb` Ansible role. It centralizes all configurable values related to MariaDB deployment and can be adjusted without modifying task logic."
@@ -67433,7 +67433,7 @@ msgstr "Fan seachas Rush."
 
 # translated-by: libretranslate
 msgid "Wait until the CI in your fork is green. See [pull-request.md](artefact/git/pull-request.md) for required CI scope."
-msgstr ""
+msgstr "Fan go dtí go bhfuil an CI i do fork glas. Féach ar [pull-request.md](artefact/git/pull-request.md) le haghaidh raon feidhme CI riachtanach."
 
 # translated-by: libretranslate
 msgid "Waits MUST target meaningful page state (visible elements, URL changes, attached locators). Fixed sleeps MUST NOT be used where an explicit wait is available."
@@ -69444,7 +69444,7 @@ msgstr "Poist a thabhairt cothrom le dáta Sreabhadh Oibre"
 
 # translated-by: libretranslate
 msgid "Workflows communicate through *inputs* (on `workflow_call` / `workflow_dispatch`), *outputs*, *concurrency groups* (which cancel or serialize runs with the same group key), and the `GITHUB_TOKEN` / repository secrets and variables. The entry points of this repository (`entry-*.yml`) translate external triggers into a call to the central [call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml). Most other workflows are reusable building blocks invoked from the orchestrator."
-msgstr ""
+msgstr "Déanann sreabhadh oibre cumarsáid trí *ionchuir* (ar aghaidh `workflow_call` / Baile `workflow_dispatch`), *aschur*, *grúpaí concurrency* (a ritheann ar ceal nó a srathú leis an eochair ghrúpa céanna), agus an `GITHUB_TOKEN` / rúin stór agus athróga. Pointí iontrála an stór seo (`entry-*.yml`) aistriú triggers seachtrach isteach glaoch ar an lárnach [call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml). Tá an chuid is mó de shreabhadh oibre eile bloic tógála in-athúsáidte agairt as an orchestrator."
 
 # translated-by: libretranslate
 msgid "Working mode"
@@ -75049,7 +75049,7 @@ msgstr "[`plugins/lookup/tls.py`](../../plugins/lookup/tls.py) — Rún TLS"
 
 # translated-by: libretranslate
 msgid "[`registry-cache`](../../../compose/registry-cache/README.md) runs `rpardini/docker-registry-proxy` and transparently MITMs every Docker image pull from the inner `dockerd`, regardless of upstream registry (`docker.io`, `ghcr.io`, `mcr.microsoft.com`, …). The runner trusts the proxy CA via [registry-ca.sh](../../../scripts/docker/cache/registry-ca.sh)."
-msgstr ""
+msgstr "[`registry-cache`](../../../compose/registry-cache/README.md) Ritheann `rpardini/docker-registry-proxy` agus trédhearcach MITMs gach íomhá Docker tarraingt as an istigh `dockerd`, beag beann ar chlárlann in aghaidh srutha (`docker.io`, `ghcr.io`, `mcr.microsoft.com`, ...). iontaobhais an dara háit an seachfhreastalaí CA via [registry-ca.sh](../../../scripts/docker/cache/registry-ca.sh)."
 
 # translated-by: libretranslate
 msgid "[`remove.sh`](remove.sh) for DNS teardown"
@@ -75191,31 +75191,31 @@ msgstr "[base.md](role/services/base.md) le haghaidh clárú seirbhíse, luchtú
 
 # translated-by: libretranslate
 msgid "[call-images-build-ci.yml](../../../../../.github/workflows/call-images-build-ci.yml): `🖼️ Build: CI Images (all distros)`"
-msgstr ""
+msgstr "[call-images-build-ci.yml](../../../../../.github/workflows/call-images-build-ci.yml): `🖼️ Build: CI Images (all distros)`"
 
 # translated-by: libretranslate
 msgid "[call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml): `🪞 Mirror: Docker Hub → GHCR (only missing)`"
-msgstr ""
+msgstr "[call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml): `🪞 Mirror: Docker Hub → GHCR (only missing)`"
 
 # translated-by: libretranslate
 msgid "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) copies only missing upstream refs into GHCR via `cli.contributing.mirror.sync --only-missing`. Optional Docker Hub credentials reduce source-side rate limits during that sync."
-msgstr ""
+msgstr "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) cóipeanna ar iarraidh ach amháin refs sruth isteach GHCR trí `cli.contributing.mirror.sync --only-missing`. dintiúir Docker Roghnach Hub laghdú teorainneacha ráta foinse-taobh le linn sin sync."
 
 # translated-by: libretranslate
 msgid "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) mirrors any missing upstream images in parallel with the DNS tests so later deploy jobs pull from GHCR instead of Docker Hub, MCR, or other external registries. This shields CI from upstream rate limits, geo-blocking, and transient registry outages."
-msgstr ""
+msgstr "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) scátháin aon íomhánna sruth in easnamh i gcomhthráth leis na tástálacha DNS mar sin níos déanaí imscaradh poist tarraingt ó GHCR in ionad Docker Hub, MCR, nó clárlanna seachtracha eile. Tá na sciatha seo CI ó theorainneacha ráta réamhtheachtach, geobhlocáil, agus eisreachtanna clárlainne neamhbhuana."
 
 # translated-by: libretranslate
 msgid "[call-lint.yml](../../../../../.github/workflows/call-lint.yml): `🧹 Lint`"
-msgstr ""
+msgstr "[call-lint.yml](../../../../../.github/workflows/call-lint.yml): `🧹 Lint`"
 
 # translated-by: libretranslate
 msgid "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) compares `github.ref` for the same reason: a called workflow inherits the caller's ref, which is `refs/pull/<n>/merge` for a `pull_request` caller but `refs/heads/main` for a `pull_request_target` one. The `ci-orchestrator` job of `entry-pr-change-orchestrate.yml` is fenced to `github.event_name == 'pull_request'`, so the ref the orchestrator sees from that caller is always the merge ref; widening that fence would silently put fork runs into main's group."
-msgstr ""
+msgstr "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) i gcomparáid le `github.ref` ar an gcúis chéanna: hoidhreacht sreabhadh oibre ar a dtugtar ref an glaoiteora, atá `refs/pull/<n>/merge` ar feadh `pull_request` caller ach `refs/heads/main` ar feadh `pull_request_target` ceann. An bhfuil `ci-orchestrator` post ar `entry-pr-change-orchestrate.yml` Tá fálú go `github.event_name == 'pull_request'`, mar sin an ref Feiceann an t-eolaire as go bhfuil an glaoiteoir i gcónaí ar an ref chumasc; leathnú go mbeadh fál a chur go ciúin forc ritheann isteach i ngrúpa is mó."
 
 # translated-by: libretranslate
 msgid "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml): `🎵 CI: Orchestrator`"
-msgstr ""
+msgstr "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml): `🎵 CI: Orchestrator`"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -75293,7 +75293,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-test.yml](../../../../../.github/workflows/call-test.yml): `🧪 Test`"
-msgstr ""
+msgstr "[call-test.yml](../../../../../.github/workflows/call-test.yml): `🧪 Test`"
 
 # translated-by: libretranslate
 msgid "[cancel/](cancel/)"
@@ -75362,7 +75362,7 @@ msgstr "[dintiúir/](../../../cli/administration/inventory/credentials/__main__.
 
 # translated-by: libretranslate
 msgid "[cron-cleanup-stale.yml](../../../../../.github/workflows/cron-cleanup-stale.yml): `🧹 Prune stale data`"
-msgstr ""
+msgstr "[cron-cleanup-stale.yml](../../../../../.github/workflows/cron-cleanup-stale.yml): `🧹 Prune stale data`"
 
 # translated-by: libretranslate
 msgid "[cron-images-cleanup-ci.yml](../../../../../.github/workflows/cron-images-cleanup-ci.yml): `🧹 Prune CI images`"
@@ -75370,11 +75370,11 @@ msgstr "[cron-images-cleanup-ci.yml](../../../../../.github/workflows/cron-image
 
 # translated-by: libretranslate
 msgid "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml), [call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml)"
-msgstr ""
+msgstr "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml), [call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml)"
 
 # translated-by: libretranslate
 msgid "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml): `🪞 Mirror all images`"
-msgstr ""
+msgstr "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml): `🪞 Mirror all images`"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -75393,7 +75393,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[cron-security-codeql.yml](../../../../../.github/workflows/cron-security-codeql.yml): `🔐 Scan with CodeQL`"
-msgstr ""
+msgstr "[cron-security-codeql.yml](../../../../../.github/workflows/cron-security-codeql.yml): `🔐 Scan with CodeQL`"
 
 # translated-by: libretranslate
 msgid "[cron-update.yml](../../../../../.github/workflows/cron-update.yml)"
@@ -75401,7 +75401,7 @@ msgstr "[cron-update.yml](../../../../../.github/workflows/cron-update.yml)"
 
 # translated-by: libretranslate
 msgid "[cron-update.yml](../../../../../.github/workflows/cron-update.yml), [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml)"
-msgstr ""
+msgstr "[cron-update.yml](../../../../../.github/workflows/cron-update.yml), [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml)"
 
 # translated-by: libretranslate
 msgid "[cron-update.yml](../../../../../.github/workflows/cron-update.yml): `🔄 Update versions`"
@@ -75517,7 +75517,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-manual-mirror-cleanup.yml](../../../../../.github/workflows/entry-manual-mirror-cleanup.yml): `🧹 Images: Cleanup GHCR`"
-msgstr ""
+msgstr "[entry-manual-mirror-cleanup.yml](../../../../../.github/workflows/entry-manual-mirror-cleanup.yml): `🧹 Images: Cleanup GHCR`"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -75554,19 +75554,19 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-pr-closed-cancel-workflows.yml](../../../../../.github/workflows/entry-pr-closed-cancel-workflows.yml): `🚫 Cancel: PR Runs on Close`"
-msgstr ""
+msgstr "[entry-pr-closed-cancel-workflows.yml](../../../../../.github/workflows/entry-pr-closed-cancel-workflows.yml): `🚫 Cancel: PR Runs on Close`"
 
 # translated-by: libretranslate
 msgid "[entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml): `🚫 Dependabot: Close while auto-updates disabled`"
-msgstr ""
+msgstr "[entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml): `🚫 Dependabot: Close while auto-updates disabled`"
 
 # translated-by: libretranslate
 msgid "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml)"
-msgstr ""
+msgstr "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml)"
 
 # translated-by: libretranslate
 msgid "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml): `🌐 Translate catalogs`"
-msgstr ""
+msgstr "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml): `🌐 Translate catalogs`"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -75992,15 +75992,15 @@ msgstr "[córasach /](systemd/) do WSL2 Cúntóirí córasach"
 
 # translated-by: libretranslate
 msgid "[test-mcp-guest.js](../../roles/web-app-homeassistant/files/playwright/test-mcp-guest.js)"
-msgstr ""
+msgstr "[test-mcp-guest.js](../../roles/web-app-homeassistant/files/playwright/test-mcp-guest.js)"
 
 # translated-by: libretranslate
 msgid "[test-oidc-login.js](../../roles/web-app-litellm/files/playwright/test-oidc-login.js), gated on `services.sso`"
-msgstr ""
+msgstr "[test-oidc-login.js](../../roles/web-app-litellm/files/playwright/test-oidc-login.js), gated ar `services.sso`"
 
 # translated-by: libretranslate
 msgid "[test-system-one-router.js](../../roles/web-app-openwebui/files/playwright/test-system-one-router.js)"
-msgstr ""
+msgstr "[test-system-one-router.js](../../roles/web-app-openwebui/files/playwright/test-system-one-router.js)"
 
 # translated-by: libretranslate
 msgid "[test_agent_identity.py](../../tests/lint/ansible/services/test_agent_identity.py) holds the claim, the absence of any role on the account, and the absence of a second credential for it, over the roles derived from the sandbox-runtime scan rather than a list."
@@ -80854,6 +80854,11 @@ msgstr ""
 msgid "[x] v1 scope is single-manager. Multi-manager Raft-quorum HA (3+ managers) is explicitly out of scope for this requirement and tracked under [Future Extensions](#future-extensions)."
 msgstr ""
 
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: [x x x x x] web-app-dashboard bácálacha catalóg ábhar
+# port-ui in aghaidh na teanga go bhfuil teaghrán Painéal na nIonstraimí
+# aistrithe isteach ina íomhá, a ghintear ó `core.po` ag am imscaradh.
 msgid "[x] web-app-dashboard bakes one port-ui content catalog per language that has a translated dashboard string into its image, generated from `core.po` at deploy time."
 msgstr ""
 
@@ -84872,7 +84877,7 @@ msgstr "`provides:` a úsáidtear ach amháin nuair a bhíonn an t-ainm seirbhí
 
 # translated-by: libretranslate
 msgid "`proxy.conf`: systemd drop-in for `docker.service`. Sets `HTTP_PROXY`/`HTTPS_PROXY` to the proxy and registers [registry-ca.sh](../../scripts/docker/cache/registry-ca.sh) as `ExecStartPre`."
-msgstr ""
+msgstr "`proxy.conf`: titim córasach isteach `docker.service`. Socraigh `HTTP_PROXY`/ Baile`HTTPS_PROXY` chuig an seachvótálaí agus na cláir [registry-ca.sh](../../scripts/docker/cache/registry-ca.sh) mar atá `ExecStartPre`."
 
 # translated-by: libretranslate
 msgid "`pull_policy` — swarm rejects it as \"Additional property pull_policy is not allowed\" (compose-only extension)."
@@ -91011,8 +91016,9 @@ msgstr "port-ui Is seoladh tíl le aon sraith admin, mar sin an ``administrator`
 msgid "port-ui is a tile launcher with no admin tier, so the `administrator` persona has no admin-only surface to assert against beyond the same login chain. With SSO enabled both personas run."
 msgstr "port-ui Is seoladh tíl le aon sraith admin, mar sin an `administrator` persona Tá aon dromchla admin-amháin a dhearbhú i gcoinne thar an slabhra logála céanna. Le SSO cumasaithe araon personas reáchtáil."
 
+# translated-by: libretranslate
 msgid "port-ui translates the rendered `config.yaml` through `app/i18n/content/<code>.yaml`, a flat mapping from the English source string to its translation for the keys `description`, `info`, `name`, `subtitel`, `text`, `title` and `warning`. [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) mounts only `config.yaml`, and the upstream image ships no catalog, so every card and menu text stays English until the role builds them in."
-msgstr ""
+msgstr "port-ui aistríonn an rinneadh `config.yaml` trí mheán `app/i18n/content/<code>.yaml`, mapáil cothrom ón teaghrán foinse Béarla a aistriúchán do na heochracha `description`, `info`, `name`, `subtitel`, `text`, `title` agus `warning`. [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) Méideanna amháin `config.yaml`, agus na longa íomhá upstream aon chatalóg, mar sin fanann gach cárta agus téacs roghchlár Béarla go dtí go gcuireann an ról iad i."
 
 # translated-by: libretranslate
 msgid "ports:"
@@ -95405,7 +95411,7 @@ msgstr "💾 **Postfix Suiteáil ar Arch Linux**"
 
 # translated-by: libretranslate
 msgid "📁 **Unified CSS Base Configuration** deployment for all NGINX applications"
-msgstr ""
+msgstr "📁 **CSS aontaithe Base Cumraíocht** imscaradh do gach iarratas NGINX"
 
 # translated-by: libretranslate
 msgid "📈 **Burn-down Charts & Metrics:** Monitor velocity and progress."

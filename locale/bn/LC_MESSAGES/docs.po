@@ -634,7 +634,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "**All-or-nothing:** a partial shift (web onion, identity clearnet) breaks oauth2-proxy email matching ([oauth2-proxy-keycloak.cfg.j2:32](../../roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2) sets `email_domains = \"{{ DOMAIN_PRIMARY }}\"`). Fresh onion nodes only; migrating an existing clearnet node is out of scope (base DN + all identities would shift)."
-msgstr ""
+msgstr "**সকল-র জন্য:** আংশিক স্থানান্তর (ওয়েব-সাইট) বিরতি মুলতুবি2- বিশেষ মিল ([oauth2-proxy-keycloak.cfg.j2:32](../../roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2) নির্ধারণ করা হয়েছে `email_domains = \"{{ DOMAIN_PRIMARY }}\"`)নতুন নোডের মধ্যে কেবল নতুন আরম্ভ করা হয়েছে; একটি বিদ্যমান নেটের নোডগুলি থেকে অনেক দূরে (বেস DN + এর সকল পরিচয় পরিবর্তন করা হবে). ."
 
 # translated-by: libretranslate
 msgid "**Allowlist on ``tools/call``:** Filtering only ``tools/list`` would leave every unlisted operation callable by name."
@@ -16702,7 +16702,7 @@ msgstr "কর্ম পরীক্ষণ 🧩"
 
 # translated-by: libretranslate
 msgid "Actions performed with the workflow-provided `GITHUB_TOKEN` do not start further workflow runs. When [cron-update.yml](../../../../../.github/workflows/cron-update.yml) opens an update PR with `GITHUB_TOKEN`, the `pull_request` and `pull_request_target` events that drive [entry-pr-change-orchestrate.yml](../../../../../.github/workflows/entry-pr-change-orchestrate.yml) do not fire on that PR, so the CI orchestrator never runs against it."
-msgstr ""
+msgstr "কর্ম দ্বারা কর্ম সঞ্চালিত `GITHUB_TOKEN` আর কাজের রোফ্লো চালিত শুরু করবে না। কখন [cron-update.yml](../../../../../.github/workflows/cron-update.yml) উন্মুক্ত সিস্টেমের সাথে যুক্ত একটি আপডেট খোলা হয়েছে `GITHUB_TOKEN`এবং `pull_request` এবং `pull_request_target` যে ইভেন্ট [entry-pr-change-orchestrate.yml](../../../../../.github/workflows/entry-pr-change-orchestrate.yml) ঐ জনসংযোগে গুলি করবে না, তাই কন্ডাক্টর কখনো এর বিরুদ্ধে যুদ্ধ করবে না।."
 
 # translated-by: libretranslate
 msgid "Actions 🚀"
@@ -17728,11 +17728,11 @@ msgstr "এজেন্ট ফাইলের নিয়ম 📁"
 
 # translated-by: libretranslate
 msgid "Agent fleet that consumes the gateway: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr ""
+msgstr "এজেন্ট বহর যে গেটওয়েটি গ্রাস করে [032-কি?agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
 
 # translated-by: libretranslate
 msgid "Agent fleet that consumes this gateway: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr ""
+msgstr "এজেন্ট বহর যারা এই গেটওয়ে গ্রাস করে: [032-কি?agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
 
 # translated-by: libretranslate
 msgid "Agent group_vars rules"
@@ -17771,7 +17771,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Agent that consumes it (isolated home-assistant scenario): [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr ""
+msgstr "এজেন্ট যে এটি গ্রাস করে (বিচ্ছিন্ন বাড়ির দৃশ্য): [032-কি?agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
 
 # translated-by: libretranslate
 msgid "Agent token restricted by Zammad groups; redact sensitive articles; no ticket, article, user, role, or configuration mutation"
@@ -21708,7 +21708,7 @@ msgstr "সকল পরীক্ষা-নিরীক্ষার মাধ্
 
 # translated-by: libretranslate
 msgid "Buildx setup resilience: the CI image build pre-pulls and pins the *moby/buildkit* image with a retry loop before *docker/setup-buildx-action*, so a transient *registry-1.docker.io* timeout during the buildkit bootstrap no longer aborts the build — buildx falls back to the locally cached image once it is present."
-msgstr ""
+msgstr "বিল্ডx প্রস্তুত করুন: সি আই ছবি প্রাক-প্লাল এবং পিন নির্মাণ করুন *সুবিশাল/বাকি* একটি ভিন্ন লুপ সহ ছবি *ডকার/লোস-ল্ডিংক্স*তাই বাতিল করে *registry-1.docker.io* নির্মানের সময় বুটস্ট্র্যাপ এখন আর নির্মাণ বন্ধ করে দেওয়া হয় না — ক্যাশেগুলো স্থানীয়ভাবে ক্যাশে করা ছবিতে ফিরে যায় ।."
 
 # translated-by: libretranslate
 msgid "Built as a central engine (mirroring ``svc-db-postgres``), this role:"
@@ -25359,7 +25359,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Controls whether automated update PRs are created. Covers both the workflow-driven jobs in [cron-update.yml](../../../../../.github/workflows/cron-update.yml) (Docker image versions, agent skills) and PRs opened by Dependabot (gated via [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml), which auto-closes them)."
-msgstr ""
+msgstr "স্বয়ংক্রিয় ভাবে আপডেট তৈরী করা হবে কিনা তা নির্ধারণ করে। চাকরির কাজ দুটো কভার করে [cron-update.yml](../../../../../.github/workflows/cron-update.yml) (ডকার ছবির সংস্করণ, এজেন্ট এর সংস্করণ) এবং ওপেনসট খুলে দেয় জনসংযোগ (দরজার মাধ্যমে [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml), যারা চলে থাকে , অদৃশ ্ য হয়ে যায় ,). ."
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -28790,7 +28790,7 @@ msgstr "প্রত্যেক **অনুমোদন** MTA-কে গুর�
 
 # translated-by: libretranslate
 msgid "Each PR-opening job in [cron-update.yml](../../../../../.github/workflows/cron-update.yml) runs an `actions/create-github-app-token@v2` step gated on `steps.diff.outputs.changed == 'true'`, then forwards the minted token as `GH_TOKEN` and the resolved `APP_SLUG` to the subsequent PR step. The job's `permissions:` block keeps the workflow-provided `GITHUB_TOKEN` read-only; write access is provided exclusively by the App token, scoped to the App's repository permissions."
-msgstr ""
+msgstr "প্রতিটি জনসংযোগের কাজ শুরু [cron-update.yml](../../../../../.github/workflows/cron-update.yml) চালানো হবে `actions/create-github-app-token@v2` সামনের দরজার সামনে `steps.diff.outputs.changed == 'true'`, অতঃপর পৃথিবীকে মসৃণ সমতলভূমি করে ছাড়বেন । `GH_TOKEN` তারপর আমরা তা স ্ থাপন করলাম , `APP_SLUG` পরবর্তী জনসংযোগ পদক্ষেপ। কাজ হচ্ছে `permissions:` ব্লক দ্বারা কাজের ধারা যাচাই করা হয় `GITHUB_TOKEN` শুধুমাত্র পড়তে হবে; এ অ্যাপের রিপোজিটরিতে প্রবেশের অনুমতি নিয়ে লেখা আছে।."
 
 # translated-by: libretranslate
 msgid "Each Raspberry Pi joins the swarm as an agent node labelled `kata-capable` with the isolating runtime as its daemon-wide default (Decision #3, applied per node). Flowise and the gateway run on a manager node. Swarm distributes agent replicas across the Pis; adding a Pi adds agent capacity with no code change. The Pis do **not** run large models locally: agents speak only the gateway `/v1`, which routes light work to a small local `svc-ai-ollama` and heavy work to a GPU or external backend. All node-run images MUST be `arm64`."
@@ -29329,7 +29329,7 @@ msgstr "ই-মেইল: [kevinveenbirkenbach@infinito.nexus](mailto:kevinveenb
 
 # translated-by: libretranslate
 msgid "Embodied-mode decision and scenario: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr ""
+msgstr "এম্বোডিড-mode সিদ্ধান্ত এবং দৃষ্টিভঙ্গি: [032-কি?agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
 
 # translated-by: libretranslate
 msgid "Emit one error annotation per item in *items*."
@@ -29394,7 +29394,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Empty result (no open PR): create one as draft via `gh pr create --draft` using the matching template per [pull-request.md](./pull-request.md)."
-msgstr ""
+msgstr "ফাঁকা ফলাফল (কোন উন্মুক্ত জনসংযোগ নেই।): তৈরি করেছেন এক খসড়ার মাধ্যমে `gh pr create --draft` টেমপ্লেট ব্যবহার করে & বদলাও [pull-request.md](./pull-request.md). ."
 
 # translated-by: libretranslate
 msgid "Empty string (`''`)"
@@ -30505,7 +30505,7 @@ msgstr "প্রত্যেকটা স্ট্যাকর নিজস্�
 
 # translated-by: libretranslate
 msgid "Every stateful role in the repo keeps both modes on; only host-level and infrastructure roles disable swarm. See [deployment-modes.md](../contributing/design/deployment-modes.md)."
-msgstr ""
+msgstr "পুন:স্থাপনের প্রতিটি রাষ্ট্রগত ভূমিকা দুই স্তরেই থাকে; শুধুমাত্র হোস্ট লেভেল এবং অবকাঠামোর ভূমিকার গতি কমে যায়। দেখুন [deployment-modes.md](../contributing/design/deployment-modes.md). ."
 
 # translated-by: libretranslate
 msgid "Every sweep exercises both architectures across the catalogue instead of proving amd64 and claiming nothing, at no extra job count."
@@ -33188,7 +33188,7 @@ msgstr "k জনসংযোগ নিজেই প্যাকেজ প্র�
 
 # translated-by: libretranslate
 msgid "Fork PRs run under the `pull_request` event without write permissions. Privileged steps (image builds, package writes) run via `pull_request_target`. The fork CI waits for those privileged images before proceeding. See [pull-request.md](pull-request.md) for the contributor-facing fork workflow."
-msgstr ""
+msgstr "পিকে জনসংযোগের জন্য নীচে। `pull_request` লেখার অনুমতি বিনা অনুষ্ঠান স্থাপন করা হবে। প্রাথমিক ধাপ (ছবি বিল্ড, প্যাকেজ লিখেছে) দিয়ে চালানো হবে `pull_request_target`.. fork CII যারা সুযোগপ্রাপ্ত ছবির জন্য অপেক্ষা করুন. দেখুন [pull-request.md](pull-request.md) প্রদায়কদের কাজের প্রবাহের জন্য।."
 
 # translated-by: libretranslate
 msgid "Fork PRs 🍴"
@@ -33236,6 +33236,12 @@ msgid "Form"
 msgstr "থেকে"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# lost=['web-app-homeassistant.md'] gained=[]
+# nocheck: url
+# translation-rejected: নিজেকে নিজের ভূমিকার জন্য অযোগ্য মনে করা
+# [033-কি?web-app-homeassistantডি. এম.](033-web-app-homeassistant.md). কোন
+# হোস্ট ছাড়া এমসিপি ডিভাইস নিয়ন্ত্রণ করতে পারে না।.
 msgid "Formalised as its own role in [033-web-app-homeassistant.md](033-web-app-homeassistant.md). Hermes runs on a single Raspberry Pi as a household assistant, kernel-isolated, reachable over voice/chat, controlling home devices through MCP without ever getting host access."
 msgstr ""
 
@@ -34150,7 +34156,7 @@ msgstr "ক্লায়েন্টের জন্য HTTP ক্লায�
 
 # translated-by: libretranslate
 msgid "HTTP onion SOCKS (infinito-http-onion-socks.php) 🧅"
-msgstr ""
+msgstr "SOCKS সার্ভার (infinito-http-onion-socks.php) 🧅"
 
 # translated-by: libretranslate
 msgid "HTTP status codes for a deployed domain."
@@ -36279,7 +36285,7 @@ msgstr "কাজের ধারা প্রসারিত করার ম�
 
 # translated-by: libretranslate
 msgid "In [cron-update.yml](../../../../../.github/workflows/cron-update.yml) each job carries a job-level guard:"
-msgstr ""
+msgstr "ইন [cron-update.yml](../../../../../.github/workflows/cron-update.yml) প্রতিটি কাজ চাকরির দায়িত্ব নেয়:"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -37597,7 +37603,7 @@ msgstr "প্রদর্শনযোগ্য ইনস্ট্যান্�
 
 # translated-by: libretranslate
 msgid "Instance: [bsky-debug.app](https://bsky-debug.app)"
-msgstr ""
+msgstr "ইনস্ট্যান্স: [bsky-debug.app](https://bsky-debug.app)"
 
 # translated-by: libretranslate
 msgid "Instantiating per provider means the adapter is deployed as many times as there are surfaces, each with its own credential, network attachment and endpoint. That is the price of the boundary: a shared instance would be one process to run and one credential to steal."
@@ -39244,7 +39250,7 @@ msgstr "LID পরিবর্তন ড্রাইভার"
 
 # translated-by: libretranslate
 msgid "LLM gateway: [031-llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)"
-msgstr ""
+msgstr "গেটওয়ে: [031-কি?llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)"
 
 # translated-by: libretranslate
 msgid "LUKS device/image → local backup root"
@@ -40681,7 +40687,7 @@ msgstr "রক্ষণাবেক্ষণকারী 🛠️"
 
 # translated-by: libretranslate
 msgid "Maintenance, dependency, and tooling updates (incl. branches created by [cron-update.yml](../../../../.github/workflows/cron-update.yml))"
-msgstr ""
+msgstr "মেইনটেনেন্স, নির্ভরতা, এবং টুলিং আপডেট (গাছের শাখা তৈরি [cron-update.yml](../../../../.github/workflows/cron-update.yml))"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -41659,11 +41665,11 @@ msgstr "মডেল"
 
 # translated-by: libretranslate
 msgid "Model plane (LLM gateway) this depends on: [031-llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)"
-msgstr ""
+msgstr "মডেল প্লেন (গেটওয়ে) এটা নির্ভর করছে: [031-কি?llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)"
 
 # translated-by: libretranslate
 msgid "Model plane this builds on: [031-llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)"
-msgstr ""
+msgstr "মডেল প্লেন এই নকশার উপর: [031-কি?llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)"
 
 # translated-by: libretranslate
 msgid "Model visibility"
@@ -43155,7 +43161,7 @@ msgstr "ও- আই- ডি (নেটিভ)"
 
 # translated-by: libretranslate
 msgid "OIDC -> RBAC mapping (infinito-oidc-rbac-mapper.php) 🎫"
-msgstr ""
+msgstr "OIDC -> RBA ম্যাপিং (infinito-oidc-rbac-mapper.php) 🎫"
 
 # translated-by: libretranslate
 msgid "OIDC / Keycloak"
@@ -43544,7 +43550,7 @@ msgstr "একটি টোর নোড দ্বারা নোড ডেন�
 
 # translated-by: libretranslate
 msgid "On a long orchestrator sweep the concurrency group sometimes fails to reap its occupant: the occupant's run-level status sits on `queued` — the normal state of a run whose matrix jobs are still waiting for runners — and the newer run parks on `pending` behind it until someone cancels the sweep by hand. Whether `queued` is the cause or another symptom cannot be decided from outside GitHub; what is observable is that the group does not always reap. The API cancel does not depend on any of that, so [entry-cancel-superseded.yml](../../../.github/workflows/entry-cancel-superseded.yml) calls these helpers on every new commit as well. That workflow deliberately declares no concurrency group: the run holding a group cannot be the run that frees it."
-msgstr ""
+msgstr "একটি দীর্ঘদলীয় দল মাঝে মাঝে তাদের দখলের প্রক্রিয়া শেষ করতে ব্যর্থ হয়। `queued` — খেলার স্বাভাবিক অবস্থা, যার স্বনামধন্য কাজের জন্য এখনো অপেক্ষা করছে — আর নতুন রানিং পার্ক `pending` যতক্ষণ না কেউ হাত দিয়ে টুকরো টুকরো করে ফেলে। উইজেটটির ইনপুট ফোকাস আছে কিনা `queued` কারন বা অন্য কোন লক্ষণ গিত্তাহাবের বাইরে থেকে ঠিক করা যাবে না; এটা কি বিস্ময়কর যে এই দল সব সময় চাষ করে না। এটা API বাতিল করার কোনো কারণ নেই, তাই [entry-cancel-superseded.yml](../../../.github/workflows/entry-cancel-superseded.yml) যারা সব নতুন কাজ করতে সাহায্য করে. এই কাজের ফলে ইচ্ছাকৃতভাবে ঘোষণা প্রদান করা হয় যে, তারা কোন ধরনের অনুনয়মূলক দল নয়।."
 
 # translated-by: libretranslate
 msgid "On a recent Docker engine the swarm step can abort at job setup; run `make act-runner-image` once and prefix the run with `ACT_PLATFORM_IMAGE=local/act-runner-fixed:latest` (see [Workflow Loop](workflow.md))."
@@ -45158,11 +45164,11 @@ msgstr "তাদের ছাড়া জন একত্রিত করা �
 
 # translated-by: libretranslate
 msgid "PR pipelines use `cancel-in-progress: true` so only the newest run per PR and event type is active. The group does not always reap a long orchestrator sweep, which then leaves the newer run parked on `pending`; [entry-cancel-superseded.yml](../../../../.github/workflows/entry-cancel-superseded.yml) cancels those leftovers through the API, see [cancel/README.md](../../../../scripts/github/cancel/README.md)."
-msgstr ""
+msgstr "পাইপ-লাইন ব্যবহার করা হবে `cancel-in-progress: true` তাই জনসংযোগ এবং ইভেন্টে শুধুমাত্র নতুন ধরনের চালনা সক্রিয়। দলটি সব সময়ে একটি লম্বা অর্কেস্ট্রা দল চাষ করে না, যার ফলে নতুন খেলা শুরু হয়। `pending`; [entry-cancel-superseded.yml](../../../../.github/workflows/entry-cancel-superseded.yml) বাতিল করে দেয় বামদিক থেকে APIএবং দেখতে থাকুন [cancel/README.md](../../../../scripts/github/cancel/README.md). ."
 
 # translated-by: libretranslate
 msgid "PR target and template rules live in [pull-request.md](./pull-request.md) and MUST be followed before running the commands below."
-msgstr ""
+msgstr "গণ টার্গেট এবং টেমপ্লেট নিয়ম মেনে চলে [pull-request.md](./pull-request.md) এবং নিচে কমান্ড চালানোর আগে এমএসটি-এর অনুসরণ করা হবে।."
 
 # translated-by: libretranslate
 msgid "PRs MUST target the canonical repository that <https://s.infinito.nexus/code> redirects to, unless the operator explicitly names a different target. Before creating the PR, the agent MUST resolve the redirect (e.g. `curl -sSIL https://s.infinito.nexus/code | grep -i '^location:'`) to obtain the canonical repository URL, then compare it against `git remote get-url origin`. If the two do not point to the same repository (host + owner + repo, ignoring `.git` suffix and `https://` vs. `git@` scheme), stop and ask the operator before creating the PR."
@@ -45788,7 +45794,7 @@ msgstr "I- Add- On `meta/server.yml.networks.local.subnet`"
 
 # translated-by: libretranslate
 msgid "Per-role update PRs: the Docker-image-version and repository-ref updaters now open one pull request per affected role instead of a single combined PR, and they recompute the diff against the latest *main* at run time — the update jobs check out *main* rather than the triggering commit, so a queued or stale run no longer proposes already-merged changes or bundles unrelated roles. Each role gets its own branch (*update/<type>-<role>-<date>-<fingerprint>*) and a role-scoped duplicate check, while the *skills-lock.json* updater deliberately stays a single PR. See [the update workflow catalog](docs/contributing/tools/github/actions/workflows.md)."
-msgstr ""
+msgstr "পের- নিজেদের আপডেট: ডকার-ছবি-ছবি-ছবি-ছবি এবং রিপোটার্স বর্তমানে একটি একক জনসংযোগের পরিবর্তে ক্ষতিগ্রস্ত ভূমিকার জন্য একটি অনুরোধ উন্মুক্ত করে দিয়েছে এবং তারা সাম্প্রতিকের বিরুদ্ধে যে বৈষম্য তৈরি করেছে তা পুনরায় পূরণ করেছে। *প্রধান* কর্ম সমাপ্তির সময় — আপডেটের তালিকা পরীক্ষা করুন *প্রধান* ট্রিগারে চাপ দেওয়ার পরিবর্তে, একটি অপেক্ষারত অথবা পুরোনো রানিং চালানোর বদলে এখন আর পরিবর্তন বা কোন সম্পর্কহীন ভূমিকা নেই। প্রত্যেক ভূমিকা নিজের শাখা পায় (*আপডেট/ আপডেট<type>-কি?<role>-কি?<date>-কি?<fingerprint>*) এবং একটি গুরুত্বপূর্ণ নকল চেক, যখন *skills-lock.json* আপডেটকারীরা ইচ্ছাকৃতভাবে একটি একক জনসংযোগ করে। দেখুন [কাজের ধারার ক্যাটালগ আপডেট করা হচ্ছে](docs/contributing/tools/github/actions/workflows.md). ."
 
 # translated-by: libretranslate
 msgid "Per-role views over CI deploy runs, turning Ansible profiling output into comparable, downloadable role-timing metrics."
@@ -49358,7 +49364,7 @@ msgstr "উপেক্ষিত/Buffer ইমেজ/সংস্করণ ফ�
 
 # translated-by: libretranslate
 msgid "Removed obsolete debug code referencing a non-existent *--debug* parameter **Base Image Changes**"
-msgstr ""
+msgstr "অনুপস্থিত হওয়ার কারণ বর্জন করা হয়েছে *--gdk-debug* পরামিতি **Base ছবি পরিবর্তন**"
 
 # translated-by: libretranslate
 msgid "Removed obsolete legacy paths now that systemd is universally available"
@@ -50261,7 +50267,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "Resolves a browser-facing URL for a frontend dependency declared in the role's own package-lock.json, mirroring jsdelivr's npm path scheme so the internal and external forms differ only by host:"
-msgstr ""
+msgstr "ভূমিকার জন্য একটি সম্মুখপ্রান্ত নির্ভরতার জন্য একটি ব্রাউজার-ফাইক ইউআরএল সমাধান করুন package-lock.json, জেসডেলভিরের এনএমপি পাথ পরিকল্পনা তাই অভ্যন্তরীণ এবং বাইরের ফর্ম শুধুমাত্র:"
 
 # translated-by: libretranslate
 msgid "Resolves a source to a local backup-root, then discovers the newest generation of each repo present under it and recovers each type in order (nfs -> volume -> secrets) against the target via the per-type Recoverers. The source is one of:"
@@ -55910,7 +55916,7 @@ msgstr "প্রথম মূল্যবান ঘুমের জাহাজ
 
 # translated-by: libretranslate
 msgid "Shipping a branch: commit per [commit.md](commit.md), then run `git-sign-push` outside the sandbox. Open the pull request against `origin/main` per [pull-request.md](pull-request.md)."
-msgstr ""
+msgstr "একটা শাখা নিয়ে: [commit.md](commit.md), তারপর চলমান হয় `git-sign-push` বালিবক্সের বাইরে। অনুরোধের বিরুদ্ধে অঙ্কনের প্রক্রিয়া খুলুন `origin/main` প্রতি [pull-request.md](pull-request.md). ."
 
 # translated-by: libretranslate
 msgid "Ships an embedded sidecar snippet (``templates/service.yml.j2``) for the ``shared: false`` opt-out path."
@@ -56158,7 +56164,7 @@ msgstr "নোড সনাক্তকরণের জন্য একটি �
 
 # translated-by: libretranslate
 msgid "Single source of truth for the per-addon enable flags consumed by the Playwright addon-gating helper (``tests/addon-gating.js`` -> ``skipUnlessAddonEnabled``). Replaces the error-prone per-template Jinja loop: it resolves the materialised ``addons`` mapping for ``application_id`` and returns one ``<ADDON_ID>_ADDON_ENABLED=<true|false>`` line per declared addon (sorted by env key, newline-joined), where the env-key derivation matches addon-gating.js exactly."
-msgstr ""
+msgstr "প্রতিটি সোর্সের জন্য পৃথক অবস্থানের উপর সক্রিয় করা হবে (``tests/addon-gating.js`` -> ``skipUnlessAddonEnabled``). thy-ini-inhibit-inhibit-property পরিবর্তন করে: এটি বিষয়বস্তু সমাধান করে ``addons`` ম্যাপিং ``application_id`` এবং একটি ফেরত ``<ADDON_ID>_ADDON_ENABLED=<true|false>`` উল্লিখিত পংক্তিতে রেখা (কি প্রাপ্ত হয়েছে, নতুন আরম্ভ করা হয়েছে)যেখানে এনভ-কি যুদ ্ ধ করে addon-gating.js ঠিক তাই।."
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -61193,7 +61199,7 @@ msgstr "সাধারণ কিছু বিষয়:"
 
 # translated-by: libretranslate
 msgid "The companion [027-integration-matrix.md](027-integration-matrix.md) is a generated role×role matrix over the entity names of every `web-app-*` and `web-svc-*` role. Each cell marks whether the **row** role wires in the **column** role:"
-msgstr ""
+msgstr "সঙ্গী [027-কি?integration-matrix.md](027-integration-matrix.md) প্রতিটি স্বত্বার নামের মাধ্যমে নির্মিত ভূমিকাxexextris দ্বারা নির্মিত `web-app-*` এবং `web-svc-*` ভূমিকা। প্রতিটি ঘরের টুলটিপ হিসাবে চিহ্নিত করা হবে কি না **সারি** তারের মধ্যে ভূমিকা **সেশন বন্ধ হয়ে গিয়েছেcolumn** ভূমিকা:"
 
 # translated-by: libretranslate
 msgid "The complete model is machine-readable in [`schema.yml`](schema.yml)."
@@ -67925,7 +67931,7 @@ msgstr "এই ডিরেক্টরির মধ্যে ডিরেক্
 
 # translated-by: libretranslate
 msgid "This directory contains the helpers invoked by [cron-update.yml](../../../.github/workflows/cron-update.yml) to bump pinned upstream versions and open a pull request once per day. The helpers are thin wrappers: the image-version and repository-ref bumpers delegate to Python CLIs under [cli/contributing/](../../../cli/contributing/) that scan `roles/*/meta/services.yml` and rewrite version pins in place; the PR-open helper commits, force-pushes the update branch, and creates or refreshes the PR via `gh`. Helpers MUST NOT be called from workflows other than `🔄 Update versions`; the `CI_ENABLE_AUTO_UPDATES` gate is enforced once, at the workflow's job level, and bypassing it from another caller would create PRs even when auto-updates are intentionally disabled."
-msgstr ""
+msgstr "এই ডিরেক্টরির মধ্যে সাহায্যকারী সংক্রান্ত তথ্য উপস্থিত রয়েছে [cron-update.yml](../../../.github/workflows/cron-update.yml) ক্ষতিগ্রস্ত এলাকায় প্রবেশ করতে পারার জন্য তারা প্রতিদিন একটি অনুরোধ করে। এই সমস্ত সাহায্যকারীরা আপনার সংক্ষিপ্ত রূপ দিচ্ছে: ছবি-সংস্করণ এবং রিপোজিটরির প্রতিনিধি পাইথন সিএলআই এর নিচে [cl/attricate /](../../../cli/contributing/) যে স্ক্যান `roles/*/meta/services.yml` এবং সেখানে প্রয়োজনীয় সংস্করণ পুনরায় ছাপাতে হবে; জনসংযোগ-মুক্ত সহায়তাকারী প্রতিষ্ঠান, জোর করে শাখাটি নতুন করে তৈরি করতে হবে, অথবা জনসংযোগকে পুন:স্থাপন করতে হবে। `gh`. আল ্ লাহ ব ্ যতীত তাকে সাহায ্ য করার কোন লোক হল না এবং সে নিজেও প ্ রতিকারকারী । `🔄 Update versions`; `CI_ENABLE_AUTO_UPDATES` কাজ রোণ্ডের কাজের পর্যায়ে গেট খুলে দেওয়া হয়েছে, আর অন্য ফোন থেকে পাশ কাটিয়ে গেলে জনসংযোগের জন্য জনসংযোগও তৈরি হবে।."
 
 # translated-by: libretranslate
 msgid "This directory contains the iteration loops agents follow while driving a role end to end: the [Compose Loop](compose.md), the [Swarm Loop](swarm.md), the [Playwright Spec Loop](playwright.md), the [Workflow Loop](workflow.md), and the cross-mode [Roundtrip Loop](roundtrip.md) gate that runs compose then swarm. Its scope is the mechanics of those loops."
@@ -67945,7 +67951,7 @@ msgstr "এই ডিরেক্টরীতে শেয়ার করা �
 
 # translated-by: libretranslate
 msgid "This directory contains the shell helpers that [entry-pr-translate.yml](../../../.github/workflows/entry-pr-translate.yml) calls: resolving the languages LibreTranslate supports into the job matrix, merging the source strings of the `core` and `docs` domains into `locale/`, and machine-translating one language per runner."
-msgstr ""
+msgstr "এই ডিরেক্টরির মধ্যে শেল সাহায্য উপস্থিত রয়েছে [entry-pr-translate.yml](../../../.github/workflows/entry-pr-translate.yml) কল: ভাষা মীমাংসা করা হচ্ছে LibreTranslate কাজের পরিভাষায় সমর্থন করে, সোর্সের বর্ণনাকে একত্রিত করে `core` এবং `docs` ডোমেইনগুলি `locale/`...আর ইঞ্জিনের জন্য একটা ভাষা তৈরি করবে."
 
 # translated-by: libretranslate
 msgid "This directory contains variable definition files for the `svc-db-mariadb` Ansible role. It centralizes all configurable values related to MariaDB deployment and can be adjusted without modifying task logic."
@@ -73745,7 +73751,7 @@ msgstr "অপেক্ষা করো."
 
 # translated-by: libretranslate
 msgid "Wait until the CI in your fork is green. See [pull-request.md](artefact/git/pull-request.md) for required CI scope."
-msgstr ""
+msgstr "তোমার forkে সি আই কে অপেক্ষা করো। দেখুন [pull-request.md](artefact/git/pull-request.md) CI এর জন্য দরকার।."
 
 # translated-by: libretranslate
 msgid "Waits MUST target meaningful page state (visible elements, URL changes, attached locators). Fixed sleeps MUST NOT be used where an explicit wait is available."
@@ -75705,7 +75711,7 @@ msgstr "ব্রোঞ্জের সাথে... Open WebUI সহ `BYPASS_MO
 
 # translated-by: libretranslate
 msgid "With the label set, the `detect-affected-roles` job in [entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml) calls [pr_affected_roles.sh](../../../../scripts/github/resolve/pr_affected_roles.sh), which runs the [cli.meta.ci.subset_roles](../../../../cli/meta/ci/subset_roles.py) module. The module reads the first fenced block whose YAML carries a `roles:` key (the heading text is not matched) and emits that list as the `whitelist` output, which flows into the deploy tests as precedence rung 2 above. Without the label, the diff-driven precedence applies."
-msgstr ""
+msgstr "লেবেল ব্যবহার করে `detect-affected-roles` কাজ [entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml) কল [pr_affected_roles.sh](../../../../scripts/github/resolve/pr_affected_roles.sh), আর যারা বিতাড়িত করে প ্ রবল বিতাড়নে , [cli.meta.ci.subset_roles](../../../../cli/meta/ci/subset_roles.py) মডিউল। এই মডিউলটি প্রথম বেড়ার ব্লক পড়া হয়েছে যার ওয়াইএমএল একটি বহন করে `roles:` কি (শিরোনামগুলোর মিল পাওয়া যায়নি) তখন এর ফলে সৈন ্ যদলকে ভেদ করে যায় । `whitelist` আউটপুট, যেটি প্রোগ্রেশন পরীক্ষা করে তাতে প্রভাব ফেলে 2 উপরে। লেবেল ছাড়া, ডিড-ড্রেনের প্রয়োগ করা হয়।."
 
 # translated-by: libretranslate
 msgid "With the service enabled, ``tasks/utils/mcp.yml`` reads the token stored for ``administrator`` under this role’s id, probes it against the running instance with a JSON-RPC ``initialize`` call, mints a replacement through ``gitlab-rails runner`` when the stored token is missing or rejected, writes the fresh token back through ``sys-token-store``, and fails the deploy when the re-probe is still rejected. The minted token is a personal access token carrying the ``mcp`` scope with a 364-day expiry. That scope is filtered out of the interactive token picker, so tokens for this endpoint are created programmatically."
@@ -78539,7 +78545,7 @@ msgstr "[ ] সঞ্চালনযোগ্য কর্ম চিহ্নক
 
 # translated-by: libretranslate
 msgid "[ ] [027-integration-matrix.md](027-integration-matrix.md) is regenerated from [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py) and committed; a check fails if the committed matrix differs from a fresh generation (no hand edits). The generator derives ☑️ edges by scanning every role's `meta/services.yml` integration keys and renders ✅/🪙 from the curated `EDGES` map."
-msgstr ""
+msgstr "[ ] [027-কি?integration-matrix.md](027-integration-matrix.md) sop থেকে কি প্রাপ্ত হয়েছে [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py) এবং তা করা হয়েছে; চেক ফেল ব্যর্থ হলে তা এক নতুন প্রজন্ম থেকে আলাদা কিনা (কোনো হাত সম্পাদন করা হবে না)আর থাকবে সমুন ্ নত শয ্ যায় । ☑️ প্রতিটি ভূমিকার ভার যাচাই করে `meta/services.yml` কি সুসংগত ও প্রকাশ করুন ✅/🪙 যা চামড়া তুলে দিবে । `EDGES` ম্যাপ."
 
 # translated-by: libretranslate
 msgid "[ ] [dsk-gnome-extensions](../../roles/dsk-gnome-extensions/) declares its extensions in `meta/addons/` with `mechanism: extension` and no `bridges`."
@@ -82802,19 +82808,19 @@ msgstr "[base.md](role/services/base.md) সার্ভিস নিবন্�
 
 # translated-by: libretranslate
 msgid "[call-images-build-ci.yml](../../../../../.github/workflows/call-images-build-ci.yml): `🖼️ Build: CI Images (all distros)`"
-msgstr ""
+msgstr "[call-images-build-ci.yml](../../../../../.github/workflows/call-images-build-ci.yml): `🖼️ Build: CI Images (all distros)`"
 
 # translated-by: libretranslate
 msgid "[call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml): `🪞 Mirror: Docker Hub → GHCR (only missing)`"
-msgstr ""
+msgstr "[call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml): `🪞 Mirror: Docker Hub → GHCR (only missing)`"
 
 # translated-by: libretranslate
 msgid "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) copies only missing upstream refs into GHCR via `cli.contributing.mirror.sync --only-missing`. Optional Docker Hub credentials reduce source-side rate limits during that sync."
-msgstr ""
+msgstr "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) প্রতিলিপি শুধুমাত্র GHCR-র মাধ্যমে স্ট্রিমের প্রতিলিপি পাওয়া যায়নি `cli.contributing.mirror.sync --only-missing`. ঐচ্ছিক ডকার হাব নির্দেশ করে, সুনির্দিষ্ট সময়ে উৎস সংখ্যার সীমা হ্রাস করা হয়।."
 
 # translated-by: libretranslate
 msgid "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) mirrors any missing upstream images in parallel with the DNS tests so later deploy jobs pull from GHCR instead of Docker Hub, MCR, or other external registries. This shields CI from upstream rate limits, geo-blocking, and transient registry outages."
-msgstr ""
+msgstr "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) ডিএনএ পরীক্ষা এর সাথে তুলনা করে যে কোন আয়নার ছবি দেখা যাচ্ছে না। তাই পরে জিএইচআর, ডকার হাব, এমসিআর বা বাইরের পুন:স্থাপনের পরিবর্তে জিএইচআর, জিসিআর, এমসিআর বা বাইরের পুন:গঠনকারী। উচ্চ হার, ভূ- ব্লকিং এবং অস্থায়ী নিবন্ধন বিচ্ছিন্নতার এই ঢাল সি আই।."
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -82992,7 +82998,7 @@ msgstr "[ক্রেডেনশিয়ালস](../../../cli/administration
 
 # translated-by: libretranslate
 msgid "[cron-cleanup-stale.yml](../../../../../.github/workflows/cron-cleanup-stale.yml): `🧹 Prune stale data`"
-msgstr ""
+msgstr "[cron-cleanup-stale.yml](../../../../../.github/workflows/cron-cleanup-stale.yml): `🧹 Prune stale data`"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -83012,7 +83018,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml): `🪞 Mirror all images`"
-msgstr ""
+msgstr "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml): `🪞 Mirror all images`"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -83031,11 +83037,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[cron-security-codeql.yml](../../../../../.github/workflows/cron-security-codeql.yml): `🔐 Scan with CodeQL`"
-msgstr ""
+msgstr "[cron-security-codeql.yml](../../../../../.github/workflows/cron-security-codeql.yml): `🔐 Scan with CodeQL`"
 
 # translated-by: libretranslate
 msgid "[cron-update.yml](../../../../../.github/workflows/cron-update.yml)"
-msgstr ""
+msgstr "[cron-update.yml](../../../../../.github/workflows/cron-update.yml)"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -83047,7 +83053,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[cron-update.yml](../../../../../.github/workflows/cron-update.yml): `🔄 Update versions`"
-msgstr ""
+msgstr "[cron-update.yml](../../../../../.github/workflows/cron-update.yml): `🔄 Update versions`"
 
 # translated-by: libretranslate
 msgid "[csp_filters.py](../../plugins/filter/csp_filters.py) adds a provider origin to `connect-src` only for known feature flags such as `simpleicons`. [web-app-mig](../../roles/web-app-mig/templates/compose.yml.j2) renders no environment and no API origin."
@@ -83063,7 +83069,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[deployment-modes.md](../../contributing/design/deployment-modes.md) for the `mode` axis."
-msgstr ""
+msgstr "[deployment-modes.md](../../contributing/design/deployment-modes.md) এর জন্য `mode` অক্ষ।."
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -83151,7 +83157,7 @@ msgstr "[email.py](../../../../../plugins/lookup/email.py) প্লাগ-ই�
 
 # translated-by: libretranslate
 msgid "[entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml): `🚫 Cancel: Superseded Runs`"
-msgstr ""
+msgstr "[entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml): `🚫 Cancel: Superseded Runs`"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -83163,7 +83169,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-manual-mirror-cleanup.yml](../../../../../.github/workflows/entry-manual-mirror-cleanup.yml): `🧹 Images: Cleanup GHCR`"
-msgstr ""
+msgstr "[entry-manual-mirror-cleanup.yml](../../../../../.github/workflows/entry-manual-mirror-cleanup.yml): `🧹 Images: Cleanup GHCR`"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -83183,11 +83189,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-pr-change-orchestrate.yml](../../../../../.github/workflows/entry-pr-change-orchestrate.yml): `🔀 Pull Request`"
-msgstr ""
+msgstr "[entry-pr-change-orchestrate.yml](../../../../../.github/workflows/entry-pr-change-orchestrate.yml): `🔀 Pull Request`"
 
 # translated-by: libretranslate
 msgid "[entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml): detects PR scope and conditionally calls the orchestrator."
-msgstr ""
+msgstr "[entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml): ধারণা করা হচ্ছে জনসংযোগ ক্ষেত্র এবং রাষ্ট্রীয়ভাবে অর্কেস্ট্রাকে ডাকা হচ্ছে।."
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -83199,15 +83205,15 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml): `🚫 Dependabot: Close while auto-updates disabled`"
-msgstr ""
+msgstr "[entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml): `🚫 Dependabot: Close while auto-updates disabled`"
 
 # translated-by: libretranslate
 msgid "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml)"
-msgstr ""
+msgstr "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml)"
 
 # translated-by: libretranslate
 msgid "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml): `🌐 Translate catalogs`"
-msgstr ""
+msgstr "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml): `🌐 Translate catalogs`"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -83277,11 +83283,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[infinito-http-onion-socks.php](infinito-http-onion-socks.php) sends server-side `wp_remote_*` calls whose host ends in `.onion` through the Tor SOCKS proxy named by `WORDPRESS_OIDC_SOCKS_PROXY`, which [env.j2](../../templates/env.j2) sets only when the OIDC issuer is an onion, so a clearnet deployment never routes through Tor."
-msgstr ""
+msgstr "[infinito-http-onion-socks.php](infinito-http-onion-socks.php) সার্ভার- এ পাঠায় `wp_remote_*` যে হোস্টে সব কল সমাপ্ত হবে `.onion` এ. এম. `WORDPRESS_OIDC_SOCKS_PROXY`, কোন [env.j2](../../templates/env.j2) শুধুমাত্র সময় নির্ধারণ করা হয় যখন ও আইআইডিসি জাতের দায়িত্ব আছে, তাই টর মাধ্যমে একটি পরিষ্কার নেট চলাচল কখনো রুটে প্রবেশ করবে না।."
 
 # translated-by: libretranslate
 msgid "[infinito-oidc-rbac-mapper.php](infinito-oidc-rbac-mapper.php) implements the OIDC -> WordPress role contract:"
-msgstr ""
+msgstr "[infinito-oidc-rbac-mapper.php](infinito-oidc-rbac-mapper.php) OIDC দ্বারা প্রয়োগ করা হয় -> WordPress ভূমিকা:"
 
 # translated-by: libretranslate
 msgid "[instructions.md](instructions.md): how the role README's Production block is replayed inside a deploy row."
@@ -83668,15 +83674,15 @@ msgstr "[সিস্টেম/সেকেন্ড](systemd/) এস. এস. 
 
 # translated-by: libretranslate
 msgid "[test-mcp-guest.js](../../roles/web-app-homeassistant/files/playwright/test-mcp-guest.js)"
-msgstr ""
+msgstr "[test-mcp-guest.js](../../roles/web-app-homeassistant/files/playwright/test-mcp-guest.js)"
 
 # translated-by: libretranslate
 msgid "[test-oidc-login.js](../../roles/web-app-litellm/files/playwright/test-oidc-login.js), gated on `services.sso`"
-msgstr ""
+msgstr "[test-oidc-login.js](../../roles/web-app-litellm/files/playwright/test-oidc-login.js), যখন জান ্ নাতকে উপস ্ থিত করা হবে , `services.sso`"
 
 # translated-by: libretranslate
 msgid "[test-system-one-router.js](../../roles/web-app-openwebui/files/playwright/test-system-one-router.js)"
-msgstr ""
+msgstr "[test-system-one-router.js](../../roles/web-app-openwebui/files/playwright/test-system-one-router.js)"
 
 # translated-by: libretranslate
 msgid "[test_agent_identity.py](../../tests/lint/ansible/services/test_agent_identity.py) holds the claim, the absence of any role on the account, and the absence of a second credential for it, over the roles derived from the sandbox-runtime scan rather than a list."
@@ -86223,8 +86229,9 @@ msgstr "[এক্স] Arast- র উপর উপস্থিত ইনস্�
 msgid "[x] v1 scope is single-manager. Multi-manager Raft-quorum HA (3+ managers) is explicitly out of scope for this requirement and tracked under [Future Extensions](#future-extensions)."
 msgstr "[এক্স] voice1 উপ্র একটি-বিজ্ঞ। মাল্টি-ম্যান রাফ্ট- অ-কোট্রি (3+ ব্যবস্থাপক) এই চাহিদা পূরণ ও অনুসরণের ক্ষেত্রে স্পষ্টভাবে: [ভবিষ্যৎ‌য়ের এক্সটেনশন](#future-extensions). ."
 
+# translated-by: libretranslate
 msgid "[x] web-app-dashboard bakes one port-ui content catalog per language that has a translated dashboard string into its image, generated from `core.po` at deploy time."
-msgstr ""
+msgstr "[এক্স] web-app-dashboard ভাষার প্রতি একটি পোর্ট-লু উপাদানের ক্যাটালগ যা একটি অনুবাদ ড্যাশবোর্ড এর ছবিতে ধারণ করেছে, সেটি থেকে তৈরি হয়েছে `core.po` নির্দিষ্ট সময়।."
 
 # translated-by: libretranslate
 msgid "[x] web-app-mig enables the `api` service when web-svc-api is deployed and renders the API base URL into its environment."
@@ -89909,7 +89916,7 @@ msgstr "`entry-manual-steer.yml` ঘোষনা `cancel-in-progress: true` স�
 
 # translated-by: libretranslate
 msgid "`entry-push-latest.yml` declares exactly that expression, and it fires only on `push`, where `github.ref_name` is always the pushed branch. [entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml) carries no concurrency group of its own — it is the API fallback for that group — but its push job repeats the same predicate as a job `if`, so it never touches `main` either."
-msgstr ""
+msgstr "`entry-push-latest.yml` ঠিক সেই অভিব্যক্তির কথা ঘোষণা করে, এবং এটি কেবল আগুন জ্বালিয়ে দেয়। `push`, কোথায় `github.ref_name` সব সময় ধাক্কা দেওয়া শাখা। [entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml) নিজ নিজ পরিবারের কোনো দায়িত্ব নেই — এটাই হল সেই মাধ্যম API ওই দলের জন্য ফল- কিন্তু এর ফলে কাজের প্রতি চাপ কমে যাচ্ছে। `if`, তা কেউ প ্ রতিরোধ করতে পারবে না । `main` হয়।."
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -90929,7 +90936,7 @@ msgstr "`provides:` শুধুমাত্র নাম ব্যবহৃত 
 
 # translated-by: libretranslate
 msgid "`proxy.conf`: systemd drop-in for `docker.service`. Sets `HTTP_PROXY`/`HTTPS_PROXY` to the proxy and registers [registry-ca.sh](../../scripts/docker/cache/registry-ca.sh) as `ExecStartPre`."
-msgstr ""
+msgstr "`proxy.conf`: সিস্টেম ড্রপ- ডাউন ব্যবস্থা `docker.service`. নিঃসন ্ দেহ আল ্ লাহ ্ ‌ র কাছে নিকৃষ ্ ট । `HTTP_PROXY`/`HTTPS_PROXY` প্রক্সি এবং রেজিস্টারের জন্য উপলব্ধ [registry-ca.sh](../../scripts/docker/cache/registry-ca.sh) যেমন `ExecStartPre`. ."
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -97538,6 +97545,15 @@ msgstr "পোর্ট-কি একটি টালি লঞ্চার, ক
 msgid "port-ui is a tile launcher with no admin tier, so the `administrator` persona has no admin-only surface to assert against beyond the same login chain. With SSO enabled both personas run."
 msgstr "পোর্ট-কি একটি টালি লঞ্চার, কোন অ্যাডমিন টাইলার নেই, তো `administrator` একই লগ-ইন চেইনের বাইরে কোন প্রশাসক নেই। এসওএস-এর সাথে উভয় ব্যক্তিই সক্রিয় ছিল।."
 
+# translation-refused: libretranslate protected-span lost=[] gained=['%s']
+# nocheck: url
+# translation-rejected: পোর্ট-কি অনুবাদ করলে অনুবাদ করা হয়েছে `config.yaml`
+# এই দিয়ে `app/i18n/content/<code>.yaml`- ইংরেজি উৎস থেকে অনুবাদের জন্য একটি
+# সমতল ম্যাপিং `description`'%s' `info`'%s' `name`'%s' `subtitel`'%s'
+# `text`'%s' `title` এবং `warning`. .
+# [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml)
+# শুধুমাত্র মাউন্ট করা হবে `config.yaml`এখানে কোন ক্যাটালগ নেই, তাই প্রত্যেক
+# কার্ড এবং মেনু ইংরেজী ভাষায় লেখা থাকবে যতক্ষণ না তাদের ভূমিকা তৈরী হচ্ছে।.
 msgid "port-ui translates the rendered `config.yaml` through `app/i18n/content/<code>.yaml`, a flat mapping from the English source string to its translation for the keys `description`, `info`, `name`, `subtitel`, `text`, `title` and `warning`. [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) mounts only `config.yaml`, and the upstream image ships no catalog, so every card and menu text stays English until the role builds them in."
 msgstr ""
 
@@ -102033,7 +102049,7 @@ msgstr "💾 **সংরক্ষিত লিনাক্সে পোস্ট
 
 # translated-by: libretranslate
 msgid "📁 **Unified CSS Base Configuration** deployment for all NGINX applications"
-msgstr ""
+msgstr "📁 **উপলব্ধ নয় Base কনফিগারেশন** সকল NGINX অ্যাপ্লিকেশনের জন্য প্রেরণ করা হচ্ছে"
 
 # translated-by: libretranslate
 msgid "📈 **Burn-down Charts & Metrics:** Monitor velocity and progress."

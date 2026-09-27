@@ -20341,7 +20341,7 @@ msgstr "ساخت تصاویر پایه CI هر رشته ای که توسط تم�
 
 # translated-by: libretranslate
 msgid "Buildx setup resilience: the CI image build pre-pulls and pins the *moby/buildkit* image with a retry loop before *docker/setup-buildx-action*, so a transient *registry-1.docker.io* timeout during the buildkit bootstrap no longer aborts the build — buildx falls back to the locally cached image once it is present."
-msgstr ""
+msgstr "انعطاف پذیری تنظیمات Buildx: تصویر CI ساخت pre-pulls و پین ها *جمع آوری و ساخت* تصویر با یک حلقه دوباره قبل از *docker/setup-buildx*بنابراین یک مسیر *registry-1.docker.io* زمان بندی در طول ساخت بوت استریپ دیگر ساخت را متوقف نمی کند - buildx به تصویر ذخیره شده محلی هنگامی که وجود دارد باز می گردد."
 
 # translated-by: libretranslate
 msgid "Built as a central engine (mirroring ``svc-db-postgres``), this role:"
@@ -21622,7 +21622,7 @@ msgstr "Chunk یک پیچ را پر می کند، که توسط بلوک های 
 
 # translated-by: libretranslate
 msgid "Chunk blocks call-orchestrator.yml declares, the most a sweep may plan."
-msgstr ""
+msgstr "بلوک های Chunk call-orchestrator.yml بیشتر بخوانید:."
 
 # translated-by: libretranslate
 msgid "Claim Attributes 🏷️"
@@ -23083,7 +23083,7 @@ msgstr "اصحاب یمین `.js` کمک کنندگان (ماژول های کا�
 
 # translated-by: libretranslate
 msgid "Companion artifact for [026-unified-addon-syntax.md](026-unified-addon-syntax.md). Axes are the **entity names** of every `web-app-*` and `web-svc-*` role. A cell marks whether the **row** role ships an addon/plugin that wires in the **column** role."
-msgstr ""
+msgstr "همکاری برای [026-unified-addon-syntax.md](026-unified-addon-syntax.md). Axes **نام تجاری** هر یک از `web-app-*` و `web-svc-*` نقش سلول نشان می دهد که آیا **ردیف** نقش کشتی های Addon/plugin که سیم ها در **ستون ستون** نقش."
 
 # translated-by: libretranslate
 msgid "Companion to the static ``inventories/development/swarm.yml``; both are loaded by the deploy step. Generates an ed25519 keypair at ``KEY_PATH`` if missing so the public half can land in ``users.administrator.authorized_keys``."
@@ -39415,6 +39415,10 @@ msgid "Mirror Policy 📋"
 msgstr "سیاست آینه 📋"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate stutter
+# nocheck: url
+# translation-rejected: آینه آینه آینه addon-gating.js Invkey(): بالا: عددی
+# غیر آلفا اجرا می شود -> '_'...
 msgid "Mirror addon-gating.js envKey(): upper-case, non-alphanumeric runs -> '_'."
 msgstr ""
 
@@ -78946,7 +78950,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[cron-security-codeql.yml](../../../../../.github/workflows/cron-security-codeql.yml): `🔐 Scan with CodeQL`"
-msgstr ""
+msgstr "[cron-security-codeql.yml](../../../../../.github/workflows/cron-security-codeql.yml): `🔐 Scan with CodeQL`"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -79153,15 +79157,15 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml)"
-msgstr ""
+msgstr "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml)"
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml): `📤 Push`"
-msgstr ""
+msgstr "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml): `📤 Push`"
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../.github/workflows/entry-push-latest.yml): calls the orchestrator for pushes on the supported branch prefixes and additionally invokes the release workflow on version tags. For the contributor-facing release procedure see [release.md](../../actions/release.md)."
-msgstr ""
+msgstr "[entry-push-latest.yml](../../../../.github/workflows/entry-push-latest.yml): فراخوان ارکستر برای فشار بر پیشوندهای شاخه پشتیبانی شده و همچنین جریان آزاد کار بر روی تگ های نسخه را ذکر می کند. برای روش انتشار مشارکت کنندگان، ببینید [release.md](../../actions/release.md)..."
 
 # translated-by: libretranslate
 msgid "[env-vars](https://semaphoreui.com/docs/admin-guide/configuration/env-vars)"
@@ -81797,8 +81801,9 @@ msgstr ""
 msgid "[x] v1 scope is single-manager. Multi-manager Raft-quorum HA (3+ managers) is explicitly out of scope for this requirement and tracked under [Future Extensions](#future-extensions)."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "[x] web-app-dashboard bakes one port-ui content catalog per language that has a translated dashboard string into its image, generated from `core.po` at deploy time."
-msgstr ""
+msgstr "[x] web-app-dashboard یک کاتالوگ محتوای پورت-ui را به هر زبان که دارای یک رشته داشبورد ترجمه شده به تصویر آن، تولید شده از آن، `core.po` در زمان استقرار."
 
 # translated-by: libretranslate
 msgid "[x] web-app-mig enables the `api` service when web-svc-api is deployed and renders the API base URL into its environment."
@@ -93202,8 +93207,9 @@ msgstr "پورت-ui یک پرتاب کننده کاشی با هیچ لایه م�
 msgid "port-ui is a tile launcher with no admin tier, so the `administrator` persona has no admin-only surface to assert against beyond the same login chain. With SSO enabled both personas run."
 msgstr "پورت-ui یک پرتاب کننده کاشی با هیچ لایه مدیریتی است، بنابراین `administrator` persona هیچ سطح مدیریتی ندارد که بر خلاف زنجیره ورود مشابه تاکید کند. با استفاده از SSO هر دو شخص را به اجرا در آورد."
 
+# translated-by: libretranslate
 msgid "port-ui translates the rendered `config.yaml` through `app/i18n/content/<code>.yaml`, a flat mapping from the English source string to its translation for the keys `description`, `info`, `name`, `subtitel`, `text`, `title` and `warning`. [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) mounts only `config.yaml`, and the upstream image ships no catalog, so every card and menu text stays English until the role builds them in."
-msgstr ""
+msgstr "پورت-ui ترجمه شده `config.yaml` از طریق `app/i18n/content/<code>.yaml`, یک نقشه برداری مسطح از رشته منبع انگلیسی به ترجمه آن برای کلیدها `description`, `info`, `name`, `subtitel`, `text`, `title` و `warning`... [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) کوه ها فقط `config.yaml`و تصویر بالادستی هیچ کاتالوگی ندارد، بنابراین هر کارت و متن منو تا زمانی که نقش آنها را ایجاد کند، انگلیسی باقی می ماند."
 
 # translated-by: libretranslate
 msgid "ports:"

@@ -269,9 +269,10 @@ msgctxt "role:svc-registry-docker:description"
 msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
 msgstr "Клъстер-локален регистър на изображенията на контейнери за обслужване на персонализирани изображения Docker Swarm Работни възли"
 
+# translated-by: libretranslate
 msgctxt "role:svc-cache-package:description"
 msgid "Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
-msgstr ""
+msgstr "Клъстер-местни прокси кеш за пакет нагоре по течението, обслужващи apt, pipp, npm и сурови артефакти всяка роля декларира"
 
 # translated-by: libretranslate
 # translation-refused: libretranslate untranslated
@@ -1238,9 +1239,10 @@ msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
 msgstr "Може да отнеме известно време."
 
+# translated-by: libretranslate
 msgctxt "category:svc.cache:title"
 msgid "Package Caches"
-msgstr ""
+msgstr "Пакетни каши"
 
 # translated-by: libretranslate
 msgctxt "role:dev-make:description"
@@ -1352,9 +1354,10 @@ msgctxt "role:web-svc-api:description"
 msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
 msgstr "Public REST API обслужващи ролеви данни, история и преводи на Infinito.Nexus за всеки рефер на ядрото и неговите вилици"
 
+# translated-by: libretranslate
 msgctxt "category:svc.cache:description"
 msgid "Pull-through caches for package upstreams - proxy repositories and the TLS frontend that answers for them."
-msgstr ""
+msgstr "Издърпайте чрез кешове за пакет нагоре по течението - прокси хранилки и TLS отпред, които отговарят за тях."
 
 # translated-by: libretranslate
 msgctxt "role:pkgmgr:description"

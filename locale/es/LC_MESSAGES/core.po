@@ -268,9 +268,10 @@ msgctxt "role:svc-registry-docker:description"
 msgid "Cluster-local container image registry for serving custom-built images to Docker Swarm worker nodes"
 msgstr "Registro de imagen de contenedor local para servir imágenes personalizadas a los nodos trabajadores de Docker Swarm"
 
+# translated-by: libretranslate
 msgctxt "role:svc-cache-package:description"
 msgid "Cluster-local proxy cache for package upstreams, serving apt, pip, npm and raw artefacts every role declares"
-msgstr ""
+msgstr "Cluster-local proxy cache para paquetes aguas arriba, sirviendo apt, pip, npm y artefactos crudos declara cada papel"
 
 # translated-by: libretranslate
 msgctxt "role:svc-registry-cache:description"
@@ -1229,9 +1230,10 @@ msgctxt "logout:pace_tor"
 msgid "Over Tor this can take a while."
 msgstr "A través de Tor puede tardar más."
 
+# translated-by: libretranslate
 msgctxt "category:svc.cache:title"
 msgid "Package Caches"
-msgstr ""
+msgstr "Caches de paquete"
 
 # translated-by: libretranslate
 msgctxt "role:dev-make:description"
@@ -1345,9 +1347,10 @@ msgctxt "role:web-svc-api:description"
 msgid "Public REST API serving role data, history and translations of Infinito.Nexus for every ref of core and its forks"
 msgstr "Public REST API que sirve datos de papel, historia y traducciones de Infinito.Nexus para cada ref de núcleo y sus tenedores"
 
+# translated-by: libretranslate
 msgctxt "category:svc.cache:description"
 msgid "Pull-through caches for package upstreams - proxy repositories and the TLS frontend that answers for them."
-msgstr ""
+msgstr "Cajas de avance para paquetes upstreams - repositorios proxy y el frontend TLS que responde para ellos."
 
 # translated-by: libretranslate
 msgctxt "role:pkgmgr:description"

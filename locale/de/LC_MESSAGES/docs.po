@@ -15504,11 +15504,11 @@ msgstr "Regeln für Agentendateien 📁"
 
 # translated-by: libretranslate
 msgid "Agent fleet that consumes the gateway: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr ""
+msgstr "Agentenflotte, die das Gateway verbraucht: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
 
 # translated-by: libretranslate
 msgid "Agent fleet that consumes this gateway: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr ""
+msgstr "Agentenflotte, die dieses Gateway verbraucht: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
 
 # translated-by: libretranslate
 msgid "Agent group_vars rules"
@@ -15544,7 +15544,7 @@ msgstr "Agent Fähigkeiten nicht installiert. Lauf `make install-skills` Caveman
 
 # translated-by: libretranslate
 msgid "Agent that consumes it (isolated home-assistant scenario): [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr ""
+msgstr "Agent, der es konsumiert (isoliertes Heimassistenz-Szenario): [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
 
 # translated-by: libretranslate
 msgid "Agent token restricted by Zammad groups; redact sensitive articles; no ticket, article, user, role, or configuration mutation"
@@ -19021,7 +19021,7 @@ msgstr "Erstellt die von allen Testaufträgen verbrauchten CI-Basisbilder per Di
 
 # translated-by: libretranslate
 msgid "Buildx setup resilience: the CI image build pre-pulls and pins the *moby/buildkit* image with a retry loop before *docker/setup-buildx-action*, so a transient *registry-1.docker.io* timeout during the buildkit bootstrap no longer aborts the build — buildx falls back to the locally cached image once it is present."
-msgstr ""
+msgstr "Buildx Setup Resilience: Das CI Image Build Pre-Pulls und Pins *Moby/Buildkit* Bild mit einer Retry Loop vor *Docker/Setup-Builddx-Aktion*, also ein Transient *registry-1.docker.io* Timeout während des Buildkit-Bootstraps bricht den Build nicht mehr ab – buildx fällt zurück auf das lokal zwischengespeicherte Bild, sobald es vorhanden ist."
 
 # translated-by: libretranslate
 msgid "Built as a central engine (mirroring ``svc-db-postgres``), this role:"
@@ -20241,7 +20241,7 @@ msgstr "Chunk blockiert eine Sweep-Füllung, gedeckelt von den Blöcken, die die
 
 # translated-by: libretranslate
 msgid "Chunk blocks call-orchestrator.yml declares, the most a sweep may plan."
-msgstr ""
+msgstr "Bruchblöcke call-orchestrator.yml erklärt, am meisten kann ein Sweep planen."
 
 # translated-by: libretranslate
 msgid "Claim Attributes 🏷️"
@@ -26074,7 +26074,7 @@ msgstr "E-Mail: [kevinveenbirkenbach@infinito.nexus](mailto:kevinveenbirkenbach@
 
 # translated-by: libretranslate
 msgid "Embodied-mode decision and scenario: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
-msgstr ""
+msgstr "Verkörperte Entscheidung und Szenario: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
 
 # translated-by: libretranslate
 msgid "Emit one error annotation per item in *items*."
@@ -29608,7 +29608,7 @@ msgstr "Formblatt"
 
 # translated-by: libretranslate
 msgid "Formalised as its own role in [033-web-app-homeassistant.md](033-web-app-homeassistant.md). Hermes runs on a single Raspberry Pi as a household assistant, kernel-isolated, reachable over voice/chat, controlling home devices through MCP without ever getting host access."
-msgstr ""
+msgstr "Formalisiert als eigene Rolle in [033-web-app-homeassistant.md](033-web-app-homeassistant.md). Hermes läuft auf einem einzelnen Raspberry Pi als Haushaltsassistent, Kernel-isoliert, erreichbar über Voice/Chat und steuert Heimgeräte über MCP, ohne jemals einen Hostzugriff zu erhalten."
 
 # translated-by: libretranslate
 msgid "Format"
@@ -30475,7 +30475,7 @@ msgstr "HTTP-Client für die LibreTranslate API."
 
 # translated-by: libretranslate
 msgid "HTTP onion SOCKS (infinito-http-onion-socks.php) 🧅"
-msgstr ""
+msgstr "HTTP Onion SOCKES (infinito-http-onion-socks.php) 🧅"
 
 # translated-by: libretranslate
 msgid "HTTP status codes for a deployed domain."
@@ -30717,7 +30717,7 @@ msgstr "Hilft sicherzustellen, dass das System über ausreichenden Austauschplat
 
 # translated-by: libretranslate
 msgid "Hermes Agent: [hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com/)"
-msgstr ""
+msgstr "Hermes Agent: [hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com/)"
 
 # translated-by: libretranslate
 msgid "Hermes consumes MCP; it does not serve one in this deployment. Every MCP server role that is deployed alongside and marked shared is discovered through `MCP_DISCOVERED_SERVERS` and rendered into the agent config at `/opt/data/config.yaml`."
@@ -31672,7 +31672,7 @@ msgstr "Wenn der Schritt **swarm** fehlgeschlagen ist, wird der Cluster verlasse
 
 # translated-by: libretranslate
 msgid "If the app explicitly disables a token on the *base* (e.g. style-src.unsafe-inline: false), that token is removed from the merged base even if present in elem/attr."
-msgstr ""
+msgstr "Wenn die App explizit ein Token auf dem *Basis* (z.B. style-src.unsafe-inline: falsch), dass Token von der zusammengeführten Basis entfernt wird, auch wenn es in elem/attr vorhanden ist."
 
 # translated-by: libretranslate
 msgid "If the application's primary background is dark or black, you MUST use `--color-01-00` as the default theme color. If it is light or white, you MUST use `--color-01-99`. All other application colors MUST be mapped to one of these two anchors. Colors from categories `02`–`09` MUST be derived from and kept in visual relation to the chosen anchor."
@@ -37315,7 +37315,7 @@ msgstr "Mirror Policy 📋"
 
 # translated-by: libretranslate
 msgid "Mirror addon-gating.js envKey(): upper-case, non-alphanumeric runs -> '_'."
-msgstr ""
+msgstr "Spiegel addon-gating.js envKey(): Großbuchstaben, nicht alphanumerische Läufe -> '_'."
 
 # translated-by: libretranslate
 #, python-brace-format
@@ -38786,7 +38786,7 @@ msgstr "OIDC (nativ)"
 
 # translated-by: libretranslate
 msgid "OIDC -> RBAC mapping (infinito-oidc-rbac-mapper.php) 🎫"
-msgstr ""
+msgstr "OIDC -> RBAC-Mapping (infinito-oidc-rbac-mapper.php) 🎫"
 
 # translated-by: libretranslate
 msgid "OIDC / Keycloak"
@@ -39102,7 +39102,7 @@ msgstr "Auf einem Tor-Knoten löst sich der Knoten dnsmasq auf ``.onion`` Tors d
 
 # translated-by: libretranslate
 msgid "On a long orchestrator sweep the concurrency group sometimes fails to reap its occupant: the occupant's run-level status sits on `queued` — the normal state of a run whose matrix jobs are still waiting for runners — and the newer run parks on `pending` behind it until someone cancels the sweep by hand. Whether `queued` is the cause or another symptom cannot be decided from outside GitHub; what is observable is that the group does not always reap. The API cancel does not depend on any of that, so [entry-cancel-superseded.yml](../../../.github/workflows/entry-cancel-superseded.yml) calls these helpers on every new commit as well. That workflow deliberately declares no concurrency group: the run holding a group cannot be the run that frees it."
-msgstr ""
+msgstr "Bei einem langen Orchestrator-Sweep scheitert die Parallelitätsgruppe manchmal daran, ihren Insassen zu ernten: Der Run-Level-Status des Insassen sitzt auf `queued` - der normale Zustand eines Laufs, dessen Matrixjobs noch auf Läufer warten - und der neuere Lauf parkt auf `pending` Dahinter, bis jemand den Sweep von Hand abbricht. ob `queued` ist die Ursache oder ein anderes Symptom kann nicht von außerhalb von GitHub entschieden werden; was beobachtbar ist, ist, dass die Gruppe nicht immer erntet. Die API Abbrechen hängt nicht davon ab, also [entry-cancel-superseded.yml](../../../.github/workflows/entry-cancel-superseded.yml) ruft diese Helfer auch bei jedem neuen Commit an. Dieser Workflow deklariert bewusst keine Parallelitätsgruppe: Der Lauf, der eine Gruppe hält, kann nicht der Lauf sein, der sie freigibt."
 
 # translated-by: libretranslate
 msgid "On a recent Docker engine the swarm step can abort at job setup; run `make act-runner-image` once and prefix the run with `ACT_PLATFORM_IMAGE=local/act-runner-fixed:latest` (see [Workflow Loop](workflow.md))."
@@ -40590,7 +40590,7 @@ msgstr "PR kann nicht ohne sie zusammengeführt werden"
 
 # translated-by: libretranslate
 msgid "PR pipelines use `cancel-in-progress: true` so only the newest run per PR and event type is active. The group does not always reap a long orchestrator sweep, which then leaves the newer run parked on `pending`; [entry-cancel-superseded.yml](../../../../.github/workflows/entry-cancel-superseded.yml) cancels those leftovers through the API, see [cancel/README.md](../../../../scripts/github/cancel/README.md)."
-msgstr ""
+msgstr "PR-Pipelines nutzen `cancel-in-progress: true` Es ist also nur der neueste Lauf pro PR- und Ereignistyp aktiv. Die Gruppe erntet nicht immer einen langen Orchestrator-Sweep, der dann den neueren Lauf parken lässt. `pending`; [entry-cancel-superseded.yml](../../../../.github/workflows/entry-cancel-superseded.yml) Storniert diese Reste durch die API, siehe [cancel/README.md](../../../../scripts/github/cancel/README.md)."
 
 # translated-by: libretranslate
 # [Zugrequest.md](./pull-request.md) Und sie müssen befolgt werden, bevor sie
@@ -61161,7 +61161,7 @@ msgstr "Dieses Verzeichnis enthält den Shared Environment Bootstrap Layer für 
 
 # translated-by: libretranslate
 msgid "This directory contains the shell helpers that [entry-pr-translate.yml](../../../.github/workflows/entry-pr-translate.yml) calls: resolving the languages LibreTranslate supports into the job matrix, merging the source strings of the `core` and `docs` domains into `locale/`, and machine-translating one language per runner."
-msgstr ""
+msgstr "Dieses Verzeichnis enthält die Shell-Helfer, die [entry-pr-translate.yml](../../../.github/workflows/entry-pr-translate.yml) Calls: Sprachen auflösen LibreTranslate unterstützt in die Job-Matrix, die Zusammenführung der Source-Strings des `core` und `docs` Domänen in `locale/`, und maschinelle Übersetzung einer Sprache pro Läufer."
 
 # translated-by: libretranslate
 msgid "This directory contains variable definition files for the `svc-db-mariadb` Ansible role. It centralizes all configurable values related to MariaDB deployment and can be adjusted without modifying task logic."
@@ -73826,7 +73826,7 @@ msgstr "[`plugins/lookup/tls.py`](../../plugins/lookup/tls.py) — TLS-Auflösun
 
 # translated-by: libretranslate
 msgid "[`registry-cache`](../../../compose/registry-cache/README.md) runs `rpardini/docker-registry-proxy` and transparently MITMs every Docker image pull from the inner `dockerd`, regardless of upstream registry (`docker.io`, `ghcr.io`, `mcr.microsoft.com`, …). The runner trusts the proxy CA via [registry-ca.sh](../../../scripts/docker/cache/registry-ca.sh)."
-msgstr ""
+msgstr "[`registry-cache`](../../../compose/registry-cache/README.md) Läufe `rpardini/docker-registry-proxy` und transparent MITMs jedes Docker-Bild ziehen von innen `dockerd`, unabhängig vom Upstream-Register (`docker.io`, `ghcr.io`, `mcr.microsoft.com`, ...)Der Läufer vertraut der Proxy CA über [registry-ca.sh](../../../scripts/docker/cache/registry-ca.sh)."
 
 # translated-by: libretranslate
 msgid "[`remove.sh`](remove.sh) for DNS teardown"
@@ -74289,7 +74289,7 @@ msgstr "[email.py](../../../../../plugins/lookup/email.py) Für das Plugin."
 
 # translated-by: libretranslate
 msgid "[entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml): `🚫 Cancel: Superseded Runs`"
-msgstr ""
+msgstr "[entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml): `🚫 Cancel: Superseded Runs`"
 
 # translated-by: libretranslate
 # [Entry-Löschungbranch.yml](../../../../../.github/workflows/entry-delete-branch.yml):
@@ -74334,23 +74334,23 @@ msgstr "[entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/en
 
 # translated-by: libretranslate
 msgid "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml)"
-msgstr ""
+msgstr "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml)"
 
 # translated-by: libretranslate
 msgid "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml): `🌐 Translate catalogs`"
-msgstr ""
+msgstr "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml): `🌐 Translate catalogs`"
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml)"
-msgstr ""
+msgstr "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml)"
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml): `📤 Push`"
-msgstr ""
+msgstr "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml): `📤 Push`"
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../.github/workflows/entry-push-latest.yml): calls the orchestrator for pushes on the supported branch prefixes and additionally invokes the release workflow on version tags. For the contributor-facing release procedure see [release.md](../../actions/release.md)."
-msgstr ""
+msgstr "[entry-push-latest.yml](../../../../.github/workflows/entry-push-latest.yml): ruft den Orchestrator für Pushes auf den unterstützten Branch-Präfixen auf und ruft zusätzlich den Release-Workflow auf Versions-Tags auf. Für das mitwirkende Freigabeverfahren siehe [release.md](../../actions/release.md)."
 
 # translated-by: libretranslate
 msgid "[env-vars](https://semaphoreui.com/docs/admin-guide/configuration/env-vars)"
@@ -74740,11 +74740,11 @@ msgstr "[systematisch/](systemd/) für WSL2-systemd Helfer"
 
 # translated-by: libretranslate
 msgid "[test-mcp-guest.js](../../roles/web-app-homeassistant/files/playwright/test-mcp-guest.js)"
-msgstr ""
+msgstr "[test-mcp-guest.js](../../roles/web-app-homeassistant/files/playwright/test-mcp-guest.js)"
 
 # translated-by: libretranslate
 msgid "[test-oidc-login.js](../../roles/web-app-litellm/files/playwright/test-oidc-login.js), gated on `services.sso`"
-msgstr ""
+msgstr "[test-oidc-login.js](../../roles/web-app-litellm/files/playwright/test-oidc-login.js), gated on `services.sso`"
 
 # [Testsystem-onerouter.js](../../roles/web-app-openwebui/files/playwright/test-system-one-router.js)
 # gained=['onerouter.js']
@@ -79761,7 +79761,7 @@ msgstr "`entry-manual-steer.yml` erklärt `cancel-in-progress: true` direkt in s
 
 # translated-by: libretranslate
 msgid "`entry-push-latest.yml` declares exactly that expression, and it fires only on `push`, where `github.ref_name` is always the pushed branch. [entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml) carries no concurrency group of its own — it is the API fallback for that group — but its push job repeats the same predicate as a job `if`, so it never touches `main` either."
-msgstr ""
+msgstr "`entry-push-latest.yml` erklärt genau diesen Ausdruck, und er feuert nur auf `push`, wobei `github.ref_name` ist immer der gedrückte Zweig. [entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml) Es gibt keine eigene Gruppe, es ist die API Fallback für diese Gruppe - aber ihr Push-Job wiederholt dasselbe Prädikat wie ein Job `if`, so dass es nie berührt `main` entweder."
 
 # translated-by: libretranslate
 msgid "`environment` reads `external`, `TLS_ENABLED`, `DOCKER_IN_CONTAINER`."
@@ -80577,7 +80577,7 @@ msgstr "`provides:` wird nur verwendet, wenn sich der Name der öffentlichen Die
 
 # translated-by: libretranslate
 msgid "`proxy.conf`: systemd drop-in for `docker.service`. Sets `HTTP_PROXY`/`HTTPS_PROXY` to the proxy and registers [registry-ca.sh](../../scripts/docker/cache/registry-ca.sh) as `ExecStartPre`."
-msgstr ""
+msgstr "`proxy.conf`: Systemd Drop-In für `docker.service`. Sätze `HTTP_PROXY`/`HTTPS_PROXY` Proxy und Register [registry-ca.sh](../../scripts/docker/cache/registry-ca.sh) als `ExecStartPre`."
 
 # translated-by: libretranslate
 msgid "`pull_policy` — swarm rejects it as \"Additional property pull_policy is not allowed\" (compose-only extension)."

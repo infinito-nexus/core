@@ -6692,7 +6692,7 @@ msgstr "**Metriks metrik melalui `unauthenticated_metrics_access = true`** Pada 
 
 # translated-by: libretranslate
 msgid "**Migrated compose files** from *docker-compose.yml* to *compose.yml*, including override and CA override variants, and unified compose-related configuration keys"
-msgstr ""
+msgstr "**Berkas compose yang dimigrasikan** Dari *docker-compose.yml* Ke *compose.yml*, termasuk pembatalan dan varian penimpaan CA, dan kunci konfigurasi terkait-komposisi terpadu"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -17751,10 +17751,22 @@ msgid "Agent file rules 📁"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# lost=['agent-employees-firecracker.md'] gained=['Tidak.agent',
+# 'employees-firecracker.md']
+# nocheck: url
+# translation-rejected: Agen armada yang mengkonsumsi pintu gerbang: [032-
+# Tidak.agent-employees-firecracker.md](032-agent-employees-firecracker.md)
 msgid "Agent fleet that consumes the gateway: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# lost=['agent-employees-firecracker.md'] gained=['Tidak.agent',
+# 'employees-firecracker.md']
+# nocheck: url
+# translation-rejected: Agen armada yang mengkonsumsi gerbang ini: [032-
+# Tidak.agent-employees-firecracker.md](032-agent-employees-firecracker.md)
 msgid "Agent fleet that consumes this gateway: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
 msgstr ""
 
@@ -17800,6 +17812,13 @@ msgid "Agent skills not installed. Run `make install-skills` to enable caveman a
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# lost=['agent-employees-firecracker.md'] gained=['Tidak.agent',
+# 'employees-firecracker.md']
+# nocheck: url
+# translation-rejected: Agen yang mengkonsumsinya (skenario rumah-asistan
+# terpencil): KANTOR: [032-
+# Tidak.agent-employees-firecracker.md](032-agent-employees-firecracker.md)
 msgid "Agent that consumes it (isolated home-assistant scenario): [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
 msgstr ""
 
@@ -18127,7 +18146,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "All other scopes MUST run the full [call-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml)."
-msgstr ""
+msgstr "Semua ruang lingkup lain harus berjalan penuh [call-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml)."
 
 # translated-by: libretranslate
 msgid "All post-bootstrap configuration (OIDC Social Login Key, LDAP Settings, outbound Email Account, group-role mapping) runs as Python scripts piped to ``python`` inside the backend container (see ``files/scripts/``)."
@@ -20668,7 +20687,7 @@ msgstr "Sebelum implementasi, agen MUST membaca [AGENTS.md](../../AGENTS.md), pe
 
 # translated-by: libretranslate
 msgid "Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Compose Loop](../agents/action/iteration/compose.md), [Swarm Loop](../agents/action/iteration/swarm.md), [deployment-modes.md](../contributing/design/deployment-modes.md), the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md), and the IAM pages [common.md](../contributing/design/iam/common.md), [oidc.md](../contributing/design/iam/oidc.md) and [rbac.md](../contributing/design/iam/rbac.md)."
-msgstr ""
+msgstr "Sebelum implementasi, agen MUST membaca [AGENTS.md](../../AGENTS.md), Kalau begitu [Blog](../agents/action/iteration/compose.md), [Gelung Aneh](../agents/action/iteration/swarm.md), [deployment-modes.md](../contributing/design/deployment-modes.md), yang [Kontrak Playwright](../contributing/artefact/files/role/playwright.specs.js.md), Dan halaman IAM [common.md](../contributing/design/iam/common.md), [oidc.md](../contributing/design/iam/oidc.md) Dan [rbac.md](../contributing/design/iam/rbac.md)."
 
 # translated-by: libretranslate
 msgid "Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Role Loop](../agents/action/iteration/compose.md) and the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md)."
@@ -22044,7 +22063,7 @@ msgstr "CI CI di garpu Anda MUST hijau."
 
 # translated-by: libretranslate
 msgid "CI is triggered automatically on pull-request events and on pushes to the branches listed in the entry-workflow row in [workflows.md](../../tools/github/actions/workflows.md). The pipeline is composed of reusable workflow files under [.github/workflows/](../../../../.github/workflows/). The central coordinator is [call-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml), which is called by the entry workflows."
-msgstr ""
+msgstr "CI CI dipicu secara otomatis pada peristiwa tarik-ulang dan pada mendorong ke cabang-cabang yang tercantum dalam baris masuk-aliran kerja dalam [workflows.md](../../tools/github/actions/workflows.md). Jalur pipa terdiri dari berkas alur kerja yang dapat digunakan di bawah [.github/aliran kerja/](../../../../.github/workflows/). Pusat koordinator adalah [call-orchestrator.yml](../../../../.github/workflows/call-orchestrator.yml), Yang disebut aliran kerja masuk."
 
 # translated-by: libretranslate
 msgid "CI on Tag Push 🤖"
@@ -22778,7 +22797,7 @@ msgstr "Menyangkut logika eksekusi kontainer"
 
 # translated-by: libretranslate
 msgid "Cert generation runs in a throw-away alpine container driven by [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) before the frontend starts."
-msgstr ""
+msgstr "Generasi vedion Cert berjalan dalam wadah alpine membuang-pergi didorong oleh [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) Sebelum frontend dimulai."
 
 # translated-by: libretranslate
 msgid "Cert generation, Nexus repo bootstrap, and runner trust-store install run from [compose.py](../../../cli/administration/deploy/development/compose.py)."
@@ -23028,7 +23047,7 @@ msgstr "Chunk blok isi sapuan, ditutup oleh blok-blok menyatakan YAML."
 
 # translated-by: libretranslate
 msgid "Chunk blocks call-orchestrator.yml declares, the most a sweep may plan."
-msgstr ""
+msgstr "Blok Chunk call-orchestrator.yml Menyatakan, rencana paling hebat."
 
 # translated-by: libretranslate
 msgid "Claim Attributes 🏷️"
@@ -24249,7 +24268,7 @@ msgstr "CodeQL (Keparahan tinggi)"
 
 # translated-by: libretranslate
 msgid "CodeQL static analysis. Invoked by [call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) so every CI run produces a single scan; additionally runs on a weekly cron so coverage does not drop when no pushes land on `main`. See [pipeline.md](../../../artefact/git/pipeline.md) for the gating behaviour."
-msgstr ""
+msgstr "Analisis statistik CodeQL. Dipanggil oleh [call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) Jadi setiap CI menjalankan menghasilkan scan tunggal; tambahan berjalan pada cron mingguan sehingga cakupan tidak drop ketika tidak mendorong mendarat `main`. Lihat [pipeline.md](../../../artefact/git/pipeline.md) Untuk perilaku makan."
 
 # translated-by: libretranslate
 msgid "CodeQL ✅"
@@ -24467,6 +24486,14 @@ msgid "Companion `.js` helpers (role-local utility modules, like `web-app-dashbo
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# lost=['unified-addon-syntax.md'] gained=['Tidak.unified', 'addon-syntax.md']
+# nocheck: url
+# translation-rejected: Artefak palsu untuk [026-
+# Tidak.unified-addon-syntax.md](026-unified-addon-syntax.md). Kapak adalah
+# **Nama entitas** Setiap `web-app-*` Dan `web-svc-*` Peran. Sebuah sel sel
+# menandai apakah **baris** Peranan kapal addon/plugin yang kabel di **Kolom**
+# Peran.
 msgid "Companion artifact for [026-unified-addon-syntax.md](026-unified-addon-syntax.md). Axes are the **entity names** of every `web-app-*` and `web-svc-*` role. A cell marks whether the **row** role ships an addon/plugin that wires in the **column** role."
 msgstr ""
 
@@ -25340,7 +25367,7 @@ msgstr "Sisi-pengontrol *versi* Plugin pencarian dari map *pyproject.toml* (Keba
 
 # translated-by: libretranslate
 msgid "Controls whether Playwright keeps trace, screenshot, and video for every test or only for failing tests in the deploy-test workflow ([call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml)). For the full propagation chain, the inventory override, and the local equivalents, see [Playwright Tests](../../../actions/testing/playwright.md#artefact-retention-)."
-msgstr ""
+msgstr "Pengendali apakah Playwright menyimpan jejak, cuplikan layar, dan video untuk setiap tes atau hanya karena gagal tes dalam aliran kerja uji-terangkat ([call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml))Untuk rantai propagasi penuh, inventori override, dan setara lokal, lihat [Tes Playwright](../../../actions/testing/playwright.md#artefact-retention-)."
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -29323,6 +29350,12 @@ msgid "Email: [kevinveenbirkenbach@infinito.nexus](mailto:kevinveenbirkenbach@in
 msgstr "Email: [kevinveenbirkenbach@infinito.nexus](mailto:kevinveenbirkenbach@infinito.nexus)"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# lost=['agent-employees-firecracker.md'] gained=['Tidak.agent',
+# 'employees-firecracker.md']
+# nocheck: url
+# translation-rejected: Keputusan dan skenario yang sederhana: [032-
+# Tidak.agent-employees-firecracker.md](032-agent-employees-firecracker.md)
 msgid "Embodied-mode decision and scenario: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)"
 msgstr ""
 
@@ -29385,7 +29418,7 @@ msgstr "Kunci kosong atau URL dasar out-of-deployment gagal dikerahkan"
 
 # translated-by: libretranslate
 msgid "Empty result (no open PR): create one as draft via `gh pr create --draft` using the matching template per [pull-request.md](./pull-request.md)."
-msgstr ""
+msgstr "Hasil Kosong (Tidak ada PR terbuka): Buat satu sebagai draf melalui `gh pr create --draft` Woindon menggunakan templat pencocokan per [pull-request.md](./pull-request.md)."
 
 # translated-by: libretranslate
 msgid "Empty string (`''`)"
@@ -30469,7 +30502,7 @@ msgstr "Setiap tumpukan memiliki domain sendiri di bawahnya (`INFINITO_DOMAIN`):
 
 # translated-by: libretranslate
 msgid "Every stateful role in the repo keeps both modes on; only host-level and infrastructure roles disable swarm. See [deployment-modes.md](../contributing/design/deployment-modes.md)."
-msgstr ""
+msgstr "Setiap peran negara bagian dalam repo menjaga baik mode on; hanya peran tingkat tuan rumah dan infrastruktur menonaktifkan segerombolan. Lihat [deployment-modes.md](../contributing/design/deployment-modes.md)."
 
 # translated-by: libretranslate
 msgid "Every sweep exercises both architectures across the catalogue instead of proving amd64 and claiming nothing, at no extra job count."
@@ -33212,7 +33245,7 @@ msgstr "Humas Fork tidak dapat mempublikasikan paket sendiri, sehingga mereka ti
 
 # translated-by: libretranslate
 msgid "Fork PRs run under the `pull_request` event without write permissions. Privileged steps (image builds, package writes) run via `pull_request_target`. The fork CI waits for those privileged images before proceeding. See [pull-request.md](pull-request.md) for the contributor-facing fork workflow."
-msgstr ""
+msgstr "Para pria Fork berlari di bawah `pull_request` Event tanpa izin menulis. Langkah - langkah yang menyimpang (build gambar, penulisan paket) Dijalankan melalui `pull_request_target`. CI garpu menunggu gambar-gambar istimewa sebelum melanjutkan. Lihat [pull-request.md](pull-request.md) - Tidak."
 
 # translated-by: libretranslate
 msgid "Fork PRs 🍴"
@@ -34166,7 +34199,7 @@ msgstr "HTTP (pelabuhan 80): Untuk cermin polos `deb.debian.org`, `archive.ubunt
 
 # translated-by: libretranslate
 msgid "HTTP CA trust (infinito-http-ca-trust.php) 🔐"
-msgstr ""
+msgstr "Kepercayaan HTTP CA (infinito-http-ca-trust.php) 🔐"
 
 # translated-by: libretranslate
 msgid "HTTP client for the LibreTranslate API."
@@ -34174,7 +34207,7 @@ msgstr "Klien HTTP untuk LibreTranslate API."
 
 # translated-by: libretranslate
 msgid "HTTP onion SOCKS (infinito-http-onion-socks.php) 🧅"
-msgstr ""
+msgstr "SOCKS bawang bombay (infinito-http-onion-socks.php) 🧅"
 
 # translated-by: libretranslate
 msgid "HTTP status codes for a deployed domain."
@@ -35425,6 +35458,11 @@ msgid "If the **swarm** step failed, the cluster is left up (fail-fast skips the
 msgstr "Jika **Kerumunan** Gagal langkah, gugus ditinggalkan (Dia melewatkan rilisnya.). Periksa dengan `make swarm-exec node=<app>-swarm-mgr-01 cmd='...'` Fiji atau `make swarm-shell name=<app>` --- [Gelung Aneh](swarm.md), Pastikan perbaikan pada gugus langsung, lalu jalankan ulang. Lepaskan secara manual dengan `make swarm-down name=<app>` Setelah selesai."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span lost=[] gained=['(']
+# nocheck: url
+# translation-rejected: Jika aplikasi secara eksplisit menonaktifkan token
+# pada *basis* ((c.g. style-src.unsafe-inline: salah), token itu dikeluarkan
+# dari dasar gabungan meskipun hadir dalam elem/attr.
 msgid "If the app explicitly disables a token on the *base* (e.g. style-src.unsafe-inline: false), that token is removed from the merged base even if present in elem/attr."
 msgstr ""
 
@@ -35554,7 +35592,7 @@ msgstr "Jika hulu adalah HTTP-hanya dan dalam-`dockerd` membangun membutuhkannya
 
 # translated-by: libretranslate
 msgid "If the upstream uses HTTPS, add it to `HOSTNAMES` in [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) so a leaf cert is issued."
-msgstr ""
+msgstr "Jika hulu menggunakan HTTPS, tambahkan ke `HOSTNAMES` dalam [package-frontend-certs.sh](../../../scripts/docker/cache/package-frontend/certs.sh) Jadi sebuah peti daun dikeluarkan."
 
 # translated-by: libretranslate
 msgid "If the user answers **no**, continue without refactoring."
@@ -39139,6 +39177,12 @@ msgid "LID Switch Driver"
 msgstr "Pengemudi Beralih LID oleh:"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# lost=['llm-gateway-model-backends.md'] gained=['Tidak.llm',
+# 'gateway-model-backends.md']
+# nocheck: url
+# translation-rejected: Gateway LLM: [031-
+# Tidak.llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)
 msgid "LLM gateway: [031-llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)"
 msgstr ""
 
@@ -40314,6 +40358,11 @@ msgid "MCP client wiring: the native `@modelcontextprotocol/sdk` client is confi
 msgstr "Klien MCP wiring: penduduk asli `@modelcontextprotocol/sdk` Klien berkonfigurasi melalui `openclaw.json`, Bukan env."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# lost=['mcp-role-integration.md'] gained=['Tidak.mcp', 'role-integration.md']
+# nocheck: url
+# translation-rejected: Kontrak MCP: [025-
+# Tidak.mcp-role-integration.md](025-mcp-role-integration.md)
 msgid "MCP contract: [025-mcp-role-integration.md](025-mcp-role-integration.md)"
 msgstr ""
 
@@ -40342,6 +40391,11 @@ msgid "MCP server roles expose application capabilities through an authenticated
 msgstr "Peran server MCP yang diekspos kemampuan aplikasi melalui titik akhir MCP yang diotentikasi."
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# lost=['mcp-role-integration.md'] gained=['Tidak.mcp', 'role-integration.md']
+# nocheck: url
+# translation-rejected: Pesawat peralatan MCP: [025-
+# Tidak.mcp-role-integration.md](025-mcp-role-integration.md)
 msgid "MCP tool plane: [025-mcp-role-integration.md](025-mcp-role-integration.md)"
 msgstr ""
 
@@ -41595,10 +41649,23 @@ msgid "Model"
 msgstr "Model"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# lost=['llm-gateway-model-backends.md'] gained=['Tidak.llm',
+# 'gateway-model-backends.md']
+# nocheck: url
+# translation-rejected: Pesawat model (Pintu gerbang LLM) Ini tergantung pada:
+# [031-
+# Tidak.llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)
 msgid "Model plane (LLM gateway) this depends on: [031-llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)"
 msgstr ""
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# lost=['llm-gateway-model-backends.md'] gained=['Tidak.llm',
+# 'gateway-model-backends.md']
+# nocheck: url
+# translation-rejected: Pesawat model ini membangun di: [031-
+# Tidak.llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)
 msgid "Model plane this builds on: [031-llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)"
 msgstr ""
 
@@ -43396,7 +43463,7 @@ msgstr "Pada node Tor node node dnsmasq menyelesaikan ``.onion`` Melalui DNSPort
 
 # translated-by: libretranslate
 msgid "On a long orchestrator sweep the concurrency group sometimes fails to reap its occupant: the occupant's run-level status sits on `queued` — the normal state of a run whose matrix jobs are still waiting for runners — and the newer run parks on `pending` behind it until someone cancels the sweep by hand. Whether `queued` is the cause or another symptom cannot be decided from outside GitHub; what is observable is that the group does not always reap. The API cancel does not depend on any of that, so [entry-cancel-superseded.yml](../../../.github/workflows/entry-cancel-superseded.yml) calls these helpers on every new commit as well. That workflow deliberately declares no concurrency group: the run holding a group cannot be the run that frees it."
-msgstr ""
+msgstr "Pada orkestra panjang menyapu kelompok concurrency kadang-kadang gagal untuk menuai penghuninya: status run-level penghuni duduk di `queued` Ini adalah keadaan normal dari sebuah pelarian yang pekerjaan matriksnya masih menunggu pelari — dan yang baru menjalankan taman di `pending` Di belakangnya sampai seseorang membatalkan penyapuan dengan tangan. Entah `queued` Penyebabnya atau gejala lain tidak dapat diputuskan dari luar GitHub; yang dapat diamati adalah bahwa kelompok tersebut tidak selalu menuai. Perancis API Mebatalkan tidak tergantung pada semua itu, jadi [entry-cancel-superseded.yml](../../../.github/workflows/entry-cancel-superseded.yml) Orang-orang ini juga memanggil para pembantu ini untuk melakukan setiap tindakan baru. Aliran kerja itu dengan sengaja menyatakan tidak ada kelompok konkurensi: menjalankan memegang kelompok tidak dapat menjalankan yang membebaskannya."
 
 # translated-by: libretranslate
 msgid "On a recent Docker engine the swarm step can abort at job setup; run `make act-runner-image` once and prefix the run with `ACT_PLATFORM_IMAGE=local/act-runner-fixed:latest` (see [Workflow Loop](workflow.md))."
@@ -44958,7 +45025,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "PR target and template rules live in [pull-request.md](./pull-request.md) and MUST be followed before running the commands below."
-msgstr ""
+msgstr "Target PR dan aturan template langsung masuk [pull-request.md](./pull-request.md) Dan harus diikuti sebelum menjalankan perintah dibawah."
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -45557,7 +45624,7 @@ msgstr "Kapal selam Per-role dalam `meta/server.yml.networks.local.subnet`"
 
 # translated-by: libretranslate
 msgid "Per-role update PRs: the Docker-image-version and repository-ref updaters now open one pull request per affected role instead of a single combined PR, and they recompute the diff against the latest *main* at run time — the update jobs check out *main* rather than the triggering commit, so a queued or stale run no longer proposes already-merged changes or bundles unrelated roles. Each role gets its own branch (*update/<type>-<role>-<date>-<fingerprint>*) and a role-scoped duplicate check, while the *skills-lock.json* updater deliberately stays a single PR. See [the update workflow catalog](docs/contributing/tools/github/actions/workflows.md)."
-msgstr ""
+msgstr "Per-role update PRs: Pemutakhiran Docker-image-version dan repository-ref sekarang membuka satu permintaan tarik per peran terpengaruh daripada PR gabungan tunggal, dan mereka menghitung ulang diff terhadap yang terbaru *Utama* Tidak ada waktu untuk menjalankannya — update job check out *Utama* Alih-alih pemicu commit, sehingga run antrian atau basi tidak lagi mengusulkan perubahan yang sudah muncul atau bundel tidak terkait peran. Setiap peran mendapat cabang sendiri (*update/<type>- Tidak.<role>- Tidak.<date>- Tidak.<fingerprint>*) Dan cek duplikat, sementara *skills-lock.json* Pemutakhiran sengaja tetap satu PR. Lihat [Berdasarkan katalog update workflow](docs/contributing/tools/github/actions/workflows.md)."
 
 # translated-by: libretranslate
 msgid "Per-role views over CI deploy runs, turning Ansible profiling output into comparable, downloadable role-timing metrics."
@@ -46427,7 +46494,7 @@ msgstr "Lebih suka struktur jarang."
 
 # translated-by: libretranslate
 msgid "Prefer the manual workflow in [entry-manual-steer.yml](../../../../.github/workflows/entry-manual-steer.yml):"
-msgstr ""
+msgstr "Lebih suka aliran kerja manual dalam [entry-manual-steer.yml](../../../../.github/workflows/entry-manual-steer.yml)KANTOR:"
 
 # translated-by: libretranslate
 msgid "Prefer the smallest implementation that still satisfies the requirement and remains easy to maintain."
@@ -55781,7 +55848,7 @@ msgstr "Kapal kapal pertama berharga kenaikan awal."
 
 # translated-by: libretranslate
 msgid "Shipping a branch: commit per [commit.md](commit.md), then run `git-sign-push` outside the sandbox. Open the pull request against `origin/main` per [pull-request.md](pull-request.md)."
-msgstr ""
+msgstr "Pengiriman sebuah cabang: commit per [commit.md](commit.md), Kalau begitu larilah. `git-sign-push` Di luar kotak pasir. Buka permintaan tarikan terhadap `origin/main` setiap [pull-request.md](pull-request.md)."
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -60302,7 +60369,7 @@ msgstr "Perancis `biber` Persona login melalui OIDC tanpa masalah; yang tidak da
 
 # translated-by: libretranslate
 msgid "The `build-ci-images` stage uses [call-images-build-ci.yml](../../../../.github/workflows/call-images-build-ci.yml) to build Docker images for the target distributions (`arch`, `debian`, `ubuntu`, `fedora`, `centos`). These images are consumed by all subsequent test jobs."
-msgstr ""
+msgstr "Perancis `build-ci-images` Penggunaan panggung [call-images-build-ci.yml](../../../../.github/workflows/call-images-build-ci.yml) Untuk membangun gambar Docker untuk distribusi target (`arch`, `debian`, `ubuntu`, `fedora`, `centos`)Gambar-gambar ini dikonsumsi oleh semua pekerjaan tes berikutnya."
 
 # translated-by: libretranslate
 msgid "The `bundles=` make arg (comma-separated bundle names) is REQUIRED for both entry points. The compose-deploy recipe sets the resulting `bundles` env var read by these scripts."
@@ -60403,7 +60470,7 @@ msgstr "Perancis `ldap` blok layanan di [`meta/services.yml`](./meta/services.ym
 
 # translated-by: libretranslate
 msgid "The `lint` job runs [call-lint.yml](../../../../.github/workflows/call-lint.yml): `make lint` fans every lint check out in parallel, plus a hadolint SARIF job. It MUST pass before the pipeline continues."
-msgstr ""
+msgstr "Perancis `lint` Pekerjaan bisnis bisnis [call-lint.yml](../../../../.github/workflows/call-lint.yml): KANTOR: `make lint` Penggemar-penggemar dari setiap lint check out secara paralel, ditambah pekerjaan SARIF Hadolint. Ini harus lulus sebelum pipa berlanjut."
 
 # translated-by: libretranslate
 msgid "The `listmonk` service command runs `./listmonk --install --idempotent --yes` on every container start, so the schema is seeded automatically on the first deploy."
@@ -60508,7 +60575,7 @@ msgstr "Perancis `test-workspace` Tahap lentur menjalankan alur kerja ruang kerj
 
 # translated-by: libretranslate
 msgid "The `test` job runs [call-test.yml](../../../../.github/workflows/call-test.yml): `make test` fans the unit, integration, lint and external suites out in parallel on the runner host. It MUST pass `code-quality-gate`."
-msgstr ""
+msgstr "Perancis `test` Pekerjaan bisnis bisnis [call-test.yml](../../../../.github/workflows/call-test.yml): KANTOR: `make test` Para fans dari unit, integrasi, lint dan suite luar keluar secara paralel pada runner host. Ini harus lulus `code-quality-gate`."
 
 # translated-by: libretranslate
 msgid "The `tor` input decides what the onion axis is allowed to do at all:"
@@ -61256,6 +61323,14 @@ msgid "The common pieces are:"
 msgstr "Potongan-potongan umum adalah:"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# lost=['integration-matrix.md'] gained=['Tidak.integration', 'matrix.md']
+# nocheck: url
+# translation-rejected: Pasangan [027-
+# Tidak.integration-matrix.md](027-integration-matrix.md) Dia adalah sebuah
+# matriks×role peran yang dihasilkan atas nama entitas setiap `web-app-*` Dan
+# `web-svc-*` Peran. Setiap sel masing-masing menandai apakah **baris**
+# Kabel-kabel dalam peran **Kolom** Peran:
 msgid "The companion [027-integration-matrix.md](027-integration-matrix.md) is a generated role×role matrix over the entity names of every `web-app-*` and `web-svc-*` role. Each cell marks whether the **row** role wires in the **column** role:"
 msgstr ""
 
@@ -66747,7 +66822,7 @@ msgstr "Nama folder kata kerja menyatakan niat menyebarkan. Nama skrip menyataka
 
 # translated-by: libretranslate
 msgid "The version is read from roles/<application_id>/files/package-lock.json, so the URL is always the exact pinned, lockfile-reproducible version."
-msgstr ""
+msgstr "Versi ini dibaca dari peran/<application_id>/berkas/package-lock.json, sehingga URL selalu yang tepat disematkan, lockfile-reproducible versi."
 
 # translated-by: libretranslate
 msgid "The vhost is identified by the ``domains.canonical`` key that carries the domain, which is the same key ``server.status_codes`` uses. A domain that is not canonical, or a key that declares nothing, falls back to the declared ``default``."
@@ -67942,7 +68017,7 @@ msgstr "Direktori ini berisi lapisan bootstrap lingkungan bersama untuk Infinito
 
 # translated-by: libretranslate
 msgid "This directory contains the shell helpers that [entry-pr-translate.yml](../../../.github/workflows/entry-pr-translate.yml) calls: resolving the languages LibreTranslate supports into the job matrix, merging the source strings of the `core` and `docs` domains into `locale/`, and machine-translating one language per runner."
-msgstr ""
+msgstr "Direktori ini berisi para pembantu shell yang [entry-pr-translate.yml](../../../.github/workflows/entry-pr-translate.yml) Panggilan: menyelesaikan bahasa LibreTranslate Dia mendukung ke dalam matriks pekerjaan, menggabungkan sumber string dari `core` Dan `docs` domain ke dalam `locale/`, Dan mesin-translating satu bahasa per pelari."
 
 # translated-by: libretranslate
 msgid "This directory contains variable definition files for the `svc-db-mariadb` Ansible role. It centralizes all configurable values related to MariaDB deployment and can be adjusted without modifying task logic."
@@ -73942,7 +74017,7 @@ msgstr "Tunggu daripada terburu-buru."
 
 # translated-by: libretranslate
 msgid "Wait until the CI in your fork is green. See [pull-request.md](artefact/git/pull-request.md) for required CI scope."
-msgstr ""
+msgstr "Tunggu sampai CI di garpu Anda hijau. Lihat [pull-request.md](artefact/git/pull-request.md) Untuk Skop CI yang diperlukan."
 
 # translated-by: libretranslate
 msgid "Waits MUST target meaningful page state (visible elements, URL changes, attached locators). Fixed sleeps MUST NOT be used where an explicit wait is available."
@@ -76064,7 +76139,7 @@ msgstr "Dengan broker dikerahkan, Open WebUI Dijalankan dengan `BYPASS_MODEL_ACC
 
 # translated-by: libretranslate
 msgid "With the label set, the `detect-affected-roles` job in [entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml) calls [pr_affected_roles.sh](../../../../scripts/github/resolve/pr_affected_roles.sh), which runs the [cli.meta.ci.subset_roles](../../../../cli/meta/ci/subset_roles.py) module. The module reads the first fenced block whose YAML carries a `roles:` key (the heading text is not matched) and emits that list as the `whitelist` output, which flows into the deploy tests as precedence rung 2 above. Without the label, the diff-driven precedence applies."
-msgstr ""
+msgstr "Dengan label set, `detect-affected-roles` Pekerjaan di [entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml) Panggilan [pr_affected_roles.sh](../../../../scripts/github/resolve/pr_affected_roles.sh), yang menjalankan [cli.meta.ci.subset_roles](../../../../cli/meta/ci/subset_roles.py) module. Modul itu membaca blok pagar pertama yang YAML membawa `roles:` Kunci (Teks tajuk tidak sepadan) Dan memancarkan daftar itu sebagai `whitelist` Keluaran, yang mengalir ke uji penyebaran sebagai rung preseden 2 Di atas. Tanpa label, diff-driven preseden berlaku."
 
 # translated-by: libretranslate
 msgid "With the service enabled, ``tasks/utils/mcp.yml`` reads the token stored for ``administrator`` under this role’s id, probes it against the running instance with a JSON-RPC ``initialize`` call, mints a replacement through ``gitlab-rails runner`` when the stored token is missing or rejected, writes the fresh token back through ``sys-token-store``, and fails the deploy when the re-probe is still rejected. The minted token is a personal access token carrying the ``mcp`` scope with a 364-day expiry. That scope is filtered out of the interactive token picker, so tokens for this endpoint are created programmatically."
@@ -76255,7 +76330,7 @@ msgstr "Pekerjaan update aliran kerja"
 
 # translated-by: libretranslate
 msgid "Workflows communicate through *inputs* (on `workflow_call` / `workflow_dispatch`), *outputs*, *concurrency groups* (which cancel or serialize runs with the same group key), and the `GITHUB_TOKEN` / repository secrets and variables. The entry points of this repository (`entry-*.yml`) translate external triggers into a call to the central [call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml). Most other workflows are reusable building blocks invoked from the orchestrator."
-msgstr ""
+msgstr "Aliran kerja yang berkomunikasi melalui *input* (Pada `workflow_call` / / / // `workflow_dispatch`), *keluaran*, *Kelompok konkursi* (Nama variabel yang batal atau seri dijalankan dengan kunci grup yang sama)Dan `GITHUB_TOKEN` Projek / repositori rahasia dan variabel. Tambahkan ke repositori (`entry-*.yml`) terjemahkan pemicu eksternal ke panggilan ke pusat [call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml). Kebanyakan aliran kerja lainnya adalah blok bangunan yang dapat digunakan kembali yang dipanggil dari orkestrator."
 
 # translated-by: libretranslate
 msgid "Working mode"
@@ -78964,6 +79039,16 @@ msgid "[ ] Workflow run in fork or equivalent validation"
 msgstr "[ ] Aliran kerja Workflow dijalankan dalam fork atau validasi setara"
 
 # translated-by: libretranslate
+# translation-refused: libretranslate protected-span
+# lost=['integration-matrix.md'] gained=['Tidak.integration', 'matrix.md']
+# nocheck: url
+# translation-rejected: [ ] [027-
+# Tidak.integration-matrix.md](027-integration-matrix.md) Bejana dari
+# [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py)
+# dan dilakukan; pemeriksaan gagal jika matriks berkomitmen berbeda dari
+# generasi baru (Tidak ada suntingan tangan)Generatornya mati ☑️ Dipinggirkan
+# dengan memindai setiap peran `meta/services.yml` kunci integrasi dan render
+# ✅/ / / //🪙 Dari pinggir `EDGES` Peta.
 msgid "[ ] [027-integration-matrix.md](027-integration-matrix.md) is regenerated from [cli/build/docs/integration_matrix](../../cli/build/docs/integration_matrix/__main__.py) and committed; a check fails if the committed matrix differs from a fresh generation (no hand edits). The generator derives ☑️ edges by scanning every role's `meta/services.yml` integration keys and renders ✅/🪙 from the curated `EDGES` map."
 msgstr ""
 
@@ -82869,71 +82954,71 @@ msgstr "[base.md](role/services/base.md) Untuk pendaftaran layanan, pemuatan, da
 
 # translated-by: libretranslate
 msgid "[call-images-build-ci.yml](../../../../../.github/workflows/call-images-build-ci.yml): `🖼️ Build: CI Images (all distros)`"
-msgstr ""
+msgstr "[call-images-build-ci.yml](../../../../../.github/workflows/call-images-build-ci.yml): `🖼️ Build: CI Images (all distros)`"
 
 # translated-by: libretranslate
 msgid "[call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml): `🪞 Mirror: Docker Hub → GHCR (only missing)`"
-msgstr ""
+msgstr "[call-images-mirror-missing.yml](../../../../../.github/workflows/call-images-mirror-missing.yml): `🪞 Mirror: Docker Hub → GHCR (only missing)`"
 
 # translated-by: libretranslate
 msgid "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) copies only missing upstream refs into GHCR via `cli.contributing.mirror.sync --only-missing`. Optional Docker Hub credentials reduce source-side rate limits during that sync."
-msgstr ""
+msgstr "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) Salinan salinan hanya hilang refs hulu ke GHCR via `cli.contributing.mirror.sync --only-missing`. Kelayakan Docker Hub opsional mengurangi batas tingkat sisi sumber selama sinkronisasi itu."
 
 # translated-by: libretranslate
 msgid "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) mirrors any missing upstream images in parallel with the DNS tests so later deploy jobs pull from GHCR instead of Docker Hub, MCR, or other external registries. This shields CI from upstream rate limits, geo-blocking, and transient registry outages."
-msgstr ""
+msgstr "[call-images-mirror-missing.yml](../../../../.github/workflows/call-images-mirror-missing.yml) Becermin cermin setiap gambar hulu yang hilang secara paralel dengan tes DNS sehingga kemudian mengerahkan pekerjaan tarikan dari GHCR daripada Docker Hub, MCR, atau registri eksternal lainnya. Ini perisai CI dari batas tingkat hulu, geo-blok, dan transient registry outages."
 
 # translated-by: libretranslate
 msgid "[call-lint.yml](../../../../../.github/workflows/call-lint.yml): `🧹 Lint`"
-msgstr ""
+msgstr "[call-lint.yml](../../../../../.github/workflows/call-lint.yml): `🧹 Lint`"
 
 # translated-by: libretranslate
 msgid "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) compares `github.ref` for the same reason: a called workflow inherits the caller's ref, which is `refs/pull/<n>/merge` for a `pull_request` caller but `refs/heads/main` for a `pull_request_target` one. The `ci-orchestrator` job of `entry-pr-change-orchestrate.yml` is fenced to `github.event_name == 'pull_request'`, so the ref the orchestrator sees from that caller is always the merge ref; widening that fence would silently put fork runs into main's group."
-msgstr ""
+msgstr "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml) Perbandingan `github.ref` Untuk alasan yang sama: yang disebut alur kerja mewarisi ref pemanggil, yaitu `refs/pull/<n>/merge` Untuk sebuah `pull_request` Penelepon tetapi `refs/heads/main` Untuk sebuah `pull_request_target` Satu. Perancis `ci-orchestrator` Pekerjaan `entry-pr-change-orchestrate.yml` Pagar pagar ke `github.event_name == 'pull_request'`, sehingga ref orkestrator melihat dari pemanggil itu selalu ref bergabung; melebar bahwa pagar akan diam-diam menempatkan garpu berjalan ke dalam kelompok utama."
 
 # translated-by: libretranslate
 msgid "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml): `🎵 CI: Orchestrator`"
-msgstr ""
+msgstr "[call-orchestrator.yml](../../../../../.github/workflows/call-orchestrator.yml): `🎵 CI: Orchestrator`"
 
 # translated-by: libretranslate
 msgid "[call-release-version.yml](../../../../../.github/workflows/call-release-version.yml): `🚀 Release: Version Logic`"
-msgstr ""
+msgstr "[call-release-version.yml](../../../../../.github/workflows/call-release-version.yml): `🚀 Release: Version Logic`"
 
 # translated-by: libretranslate
 msgid "[call-release-version.yml](../../../.github/workflows/call-release-version.yml)"
-msgstr ""
+msgstr "[call-release-version.yml](../../../.github/workflows/call-release-version.yml)"
 
 # translated-by: libretranslate
 msgid "[call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml)"
-msgstr ""
+msgstr "[call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml)"
 
 # translated-by: libretranslate
 msgid "[call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml): `🚀 Test: Deploy`"
-msgstr ""
+msgstr "[call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml): `🚀 Test: Deploy`"
 
 # translated-by: libretranslate
 msgid "[call-test-deploy.yml](../../../../.github/workflows/call-test-deploy.yml) narrows its app matrix to the set of roles actually impacted by the branch's diff against `origin/main`. The `discover` job resolves an effective whitelist before [output_apps.sh](../../../../scripts/github/resolve/output_apps.sh) runs, using the following precedence:"
-msgstr ""
+msgstr "[call-test-deploy.yml](../../../../.github/workflows/call-test-deploy.yml) Mesempit matriks aplikasinya ke set peran benar-benar terpengaruh oleh cabang diff terhadap `origin/main`. The `discover` Pekerjaan menyelesaikan daftar putih yang efektif sebelum [output_apps.sh](../../../../scripts/github/resolve/output_apps.sh) larian, menggunakan contoh berikut:"
 
 # translated-by: libretranslate
 msgid "[call-test-dns.yml](../../../../../.github/workflows/call-test-dns.yml): `💬 Test: DNS`"
-msgstr ""
+msgstr "[call-test-dns.yml](../../../../../.github/workflows/call-test-dns.yml): `💬 Test: DNS`"
 
 # translated-by: libretranslate
 msgid "[call-test-dns.yml](../../../../.github/workflows/call-test-dns.yml) validates DNS configuration across all target distributions."
-msgstr ""
+msgstr "[call-test-dns.yml](../../../../.github/workflows/call-test-dns.yml) Adonan mengesahkan konfigurasi DNS di semua distribusi target."
 
 # translated-by: libretranslate
 msgid "[call-test-install.yml](../../../../../.github/workflows/call-test-install.yml): `📦 Test: Install`"
-msgstr ""
+msgstr "[call-test-install.yml](../../../../../.github/workflows/call-test-install.yml): `📦 Test: Install`"
 
 # translated-by: libretranslate
 msgid "[call-test-workspace.yml](../../../../../.github/workflows/call-test-workspace.yml): `💻 Test: Workspace`"
-msgstr ""
+msgstr "[call-test-workspace.yml](../../../../../.github/workflows/call-test-workspace.yml): `💻 Test: Workspace`"
 
 # translated-by: libretranslate
 msgid "[call-test.yml](../../../../../.github/workflows/call-test.yml): `🧪 Test`"
-msgstr ""
+msgstr "[call-test.yml](../../../../../.github/workflows/call-test.yml): `🧪 Test`"
 
 # translated-by: libretranslate
 msgid "[cancel/](cancel/)"
@@ -83180,11 +83265,11 @@ msgstr "[email.py](../../../../../plugins/lookup/email.py) Untuk plugin."
 
 # translated-by: libretranslate
 msgid "[entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml): `🚫 Cancel: Superseded Runs`"
-msgstr ""
+msgstr "[entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml): `🚫 Cancel: Superseded Runs`"
 
 # translated-by: libretranslate
 msgid "[entry-delete-branch.yml](../../../../../.github/workflows/entry-delete-branch.yml): `🚫 Cancel: Runs on Branch Delete`"
-msgstr ""
+msgstr "[entry-delete-branch.yml](../../../../../.github/workflows/entry-delete-branch.yml): `🚫 Cancel: Runs on Branch Delete`"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -83196,47 +83281,47 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-manual-steer.yml](../../../../../.github/workflows/entry-manual-steer.yml): `🕹️ Manual`"
-msgstr ""
+msgstr "[entry-manual-steer.yml](../../../../../.github/workflows/entry-manual-steer.yml): `🕹️ Manual`"
 
 # translated-by: libretranslate
 msgid "[entry-manual-steer.yml](../../../../.github/workflows/entry-manual-steer.yml): dispatches the orchestrator manually for a chosen distro set and whitelist."
-msgstr ""
+msgstr "[entry-manual-steer.yml](../../../../.github/workflows/entry-manual-steer.yml): Menyatukan orkestrator secara manual untuk distro set yang dipilih dan daftar putih."
 
 # translated-by: libretranslate
 msgid "[entry-pr-change-orchestrate.yml](../../../../../.github/workflows/entry-pr-change-orchestrate.yml): `🔀 Pull Request`"
-msgstr ""
+msgstr "[entry-pr-change-orchestrate.yml](../../../../../.github/workflows/entry-pr-change-orchestrate.yml): `🔀 Pull Request`"
 
 # translated-by: libretranslate
 msgid "[entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml): detects PR scope and conditionally calls the orchestrator."
-msgstr ""
+msgstr "[entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml): mendeteksi ruang lingkup PR dan secara kondisional memanggil orkestra."
 
 # translated-by: libretranslate
 msgid "[entry-pr-closed-cancel-workflows.yml](../../../../../.github/workflows/entry-pr-closed-cancel-workflows.yml): `🚫 Cancel: PR Runs on Close`"
-msgstr ""
+msgstr "[entry-pr-closed-cancel-workflows.yml](../../../../../.github/workflows/entry-pr-closed-cancel-workflows.yml): `🚫 Cancel: PR Runs on Close`"
 
 # translated-by: libretranslate
 msgid "[entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml): `🚫 Dependabot: Close while auto-updates disabled`"
-msgstr ""
+msgstr "[entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml): `🚫 Dependabot: Close while auto-updates disabled`"
 
 # translated-by: libretranslate
 msgid "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml)"
-msgstr ""
+msgstr "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml)"
 
 # translated-by: libretranslate
 msgid "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml): `🌐 Translate catalogs`"
-msgstr ""
+msgstr "[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml): `🌐 Translate catalogs`"
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml)"
-msgstr ""
+msgstr "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml)"
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml): `📤 Push`"
-msgstr ""
+msgstr "[entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml): `📤 Push`"
 
 # translated-by: libretranslate
 msgid "[entry-push-latest.yml](../../../../.github/workflows/entry-push-latest.yml): calls the orchestrator for pushes on the supported branch prefixes and additionally invokes the release workflow on version tags. For the contributor-facing release procedure see [release.md](../../actions/release.md)."
-msgstr ""
+msgstr "[entry-push-latest.yml](../../../../.github/workflows/entry-push-latest.yml): Panggilan orkestrator untuk dorongan pada awalan cabang yang didukung dan secara tambahan memanggil alur kerja rilis pada tag versi. Untuk prosedur pembebasan penyumbang lihat [release.md](../../actions/release.md)."
 
 # translated-by: libretranslate
 msgid "[env-vars](https://semaphoreui.com/docs/admin-guide/configuration/env-vars)"
@@ -83277,11 +83362,11 @@ msgstr "[image_discovery.py](../../../../../utils/docker/image/discovery.py) Amu
 
 # translated-by: libretranslate
 msgid "[infinito-http-ca-trust.php](infinito-http-ca-trust.php) points WordPress's HTTP API at the deployment's CA bundle so outbound calls to internal HTTPS endpoints (OIDC discovery, REST loopback) verify instead of failing."
-msgstr ""
+msgstr "[infinito-http-ca-trust.php](infinito-http-ca-trust.php) Poin WordPressHTTP API Di tempat penempatan CA jadi panggilan outbound ke titik akhir HTTPS internal (Penemuan OIDC, REST loopback) Verifikasinya bukan gagal."
 
 # translated-by: libretranslate
 msgid "[infinito-http-onion-socks.php](infinito-http-onion-socks.php) sends server-side `wp_remote_*` calls whose host ends in `.onion` through the Tor SOCKS proxy named by `WORDPRESS_OIDC_SOCKS_PROXY`, which [env.j2](../../templates/env.j2) sets only when the OIDC issuer is an onion, so a clearnet deployment never routes through Tor."
-msgstr ""
+msgstr "[infinito-http-onion-socks.php](infinito-http-onion-socks.php) Nakgon mengirim server-side `wp_remote_*` Panggilan yang hostnya berakhir di `.onion` melalui proksi Tor SOCKS bernama oleh `WORDPRESS_OIDC_SOCKS_PROXY`, yang [env.j2](../../templates/env.j2) Hanya set ketika oIDC penerbit adalah bawang, sehingga clearnet penyebaran tidak pernah rute melalui Tor."
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -83683,7 +83768,7 @@ msgstr "[Sistemd/](systemd/) Naina untuk WSL2 Feeder sistem"
 
 # translated-by: libretranslate
 msgid "[test-mcp-guest.js](../../roles/web-app-homeassistant/files/playwright/test-mcp-guest.js)"
-msgstr ""
+msgstr "[test-mcp-guest.js](../../roles/web-app-homeassistant/files/playwright/test-mcp-guest.js)"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -83695,7 +83780,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[test-system-one-router.js](../../roles/web-app-openwebui/files/playwright/test-system-one-router.js)"
-msgstr ""
+msgstr "[test-system-one-router.js](../../roles/web-app-openwebui/files/playwright/test-system-one-router.js)"
 
 # translated-by: libretranslate
 msgid "[test_agent_identity.py](../../tests/lint/ansible/services/test_agent_identity.py) holds the claim, the absence of any role on the account, and the absence of a second credential for it, over the roles derived from the sandbox-runtime scan rather than a list."
@@ -86365,8 +86450,9 @@ msgstr "[x x] openresty's ada per-app `upstream <service> { server <host>:<port>
 msgid "[x] v1 scope is single-manager. Multi-manager Raft-quorum HA (3+ managers) is explicitly out of scope for this requirement and tracked under [Future Extensions](#future-extensions)."
 msgstr "[x x] v1 Skop SSH adalah pengurus tunggal. Multi-manager Raft-quorum HA (3Manajer + manajer) Secara eksplisit tidak dalam lingkup untuk persyaratan ini dan dilacak di bawah [Sambungan Mata Uang](#future-extensions)."
 
+# translated-by: libretranslate
 msgid "[x] web-app-dashboard bakes one port-ui content catalog per language that has a translated dashboard string into its image, generated from `core.po` at deploy time."
-msgstr ""
+msgstr "[x x] web-app-dashboard Mereka memanggang satu katalog konten port-ui per bahasa yang memiliki string dashboard yang diterjemahkan ke dalam gambarnya, dihasilkan dari `core.po` Di waktu pengiriman."
 
 # translated-by: libretranslate
 msgid "[x] web-app-mig enables the `api` service when web-svc-api is deployed and renders the API base URL into its environment."
@@ -89954,7 +90040,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "`entry-push-latest.yml` declares exactly that expression, and it fires only on `push`, where `github.ref_name` is always the pushed branch. [entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml) carries no concurrency group of its own — it is the API fallback for that group — but its push job repeats the same predicate as a job `if`, so it never touches `main` either."
-msgstr ""
+msgstr "`entry-push-latest.yml` menyatakan persis bahwa ekspresi, dan api hanya pada `push`, Di mana `github.ref_name` Dan selalu cabang yang didorong. [entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml) Tidak ada kelompok konkurensi sendiri — itu adalah API Fallback untuk kelompok itu — tetapi pekerjaan pushnya mengulangi predikat yang sama dengan pekerjaan `if`, Jadi itu tidak pernah menyentuh `main` Juga."
 
 # translated-by: libretranslate
 msgid "`environment` reads `external`, `TLS_ENABLED`, `DOCKER_IN_CONTAINER`."
@@ -97500,8 +97586,9 @@ msgstr "port-ui adalah peluncur ubin tanpa tier admin, jadi ``administrator`` Pe
 msgid "port-ui is a tile launcher with no admin tier, so the `administrator` persona has no admin-only surface to assert against beyond the same login chain. With SSO enabled both personas run."
 msgstr "port-ui adalah peluncur ubin tanpa tier admin, jadi `administrator` Persona madya tidak memiliki permukaan admin-only untuk menegaskan melawan melampaui rantai login yang sama. Dengan SSO memungkinkan kedua persona dijalankan."
 
+# translated-by: libretranslate
 msgid "port-ui translates the rendered `config.yaml` through `app/i18n/content/<code>.yaml`, a flat mapping from the English source string to its translation for the keys `description`, `info`, `name`, `subtitel`, `text`, `title` and `warning`. [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) mounts only `config.yaml`, and the upstream image ships no catalog, so every card and menu text stays English until the role builds them in."
-msgstr ""
+msgstr "port-ui menerjemahkan terjemahan `config.yaml` melalui `app/i18n/content/<code>.yaml`, pemetaan datar dari sumber Inggris string ke terjemahannya untuk kunci `description`, `info`, `name`, `subtitel`, `text`, `title` Dan `warning`. [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) leung uduk saja `config.yaml`, dan kapal gambar hulu tidak ada katalog, sehingga setiap kartu dan teks menu tetap bahasa Inggris sampai peran membangun mereka masuk."
 
 # translated-by: libretranslate
 msgid "ports:"

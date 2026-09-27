@@ -23041,7 +23041,7 @@ msgstr "يبني الصور الأساسية للمخابرات المركزية
 
 # translated-by: libretranslate
 msgid "Buildx setup resilience: the CI image build pre-pulls and pins the *moby/buildkit* image with a retry loop before *docker/setup-buildx-action*, so a transient *registry-1.docker.io* timeout during the buildkit bootstrap no longer aborts the build — buildx falls back to the locally cached image once it is present."
-msgstr ""
+msgstr "Buildx setup resilience: the CI image build pre-pulls and tanks the *الموبي/المبني* صورة مع حلقة إعادة النظر قبل *docker/setup-buildx-action*لذا *registry-1.docker.io* والوقت الذي يستغرقه بناء الحذاء لم يعد يلغي البناء - يتراجع البناء إلى الصورة المخبأة محليا بمجرد حضوره."
 
 # translated-by: libretranslate
 msgid "Built as a central engine (mirroring ``svc-db-postgres``), this role:"
@@ -24421,7 +24421,7 @@ msgstr "تشانك يحجب ملاءة تمزيقها بواسطة القطع ا
 
 # translated-by: libretranslate
 msgid "Chunk blocks call-orchestrator.yml declares, the most a sweep may plan."
-msgstr ""
+msgstr "شبانك call-orchestrator.yml يُعلنُ، الأكثر a مسح قَدْ يُخطّطُ."
 
 # translated-by: libretranslate
 # translation-refused: libretranslate protected-span
@@ -45724,7 +45724,7 @@ msgstr "على موكب تورد، عزيمة الدنمارك ``.onion`` من �
 
 # translated-by: libretranslate
 msgid "On a long orchestrator sweep the concurrency group sometimes fails to reap its occupant: the occupant's run-level status sits on `queued` — the normal state of a run whose matrix jobs are still waiting for runners — and the newer run parks on `pending` behind it until someone cancels the sweep by hand. Whether `queued` is the cause or another symptom cannot be decided from outside GitHub; what is observable is that the group does not always reap. The API cancel does not depend on any of that, so [entry-cancel-superseded.yml](../../../.github/workflows/entry-cancel-superseded.yml) calls these helpers on every new commit as well. That workflow deliberately declares no concurrency group: the run holding a group cannot be the run that frees it."
-msgstr ""
+msgstr "على مُنظمة طويلة تَكْسفُ مجموعةَ المُتَفَقَة أحياناً تَخْسرُ لِنْ يَحصَلَ على شاغلِها: `queued` - الحالة العادية للركض الذي لا تزال وظائفه المصفوفة تنتظر الهاربين - والمتنزهات الأحدث على `pending` خلفه حتى يلغي شخص ما المسح باليد سواء `queued` والسبب هو أنه لا يمكن البت في أعراض أخرى من خارج غيت هوب؛ وما هو جدير بالملاحظة هو أن المجموعة لا تجني دائما. The API الإلغاء لا يعتمد على أي من ذلك [entry-cancel-superseded.yml](../../../.github/workflows/entry-cancel-superseded.yml) يدعو هؤلاء المساعدين على كل التزام جديد أيضا. ولا يعلن هذا التدفق عمداً عن عدم وجود مجموعة تطابق: فلا يمكن أن يكون الركض الذي يحرره."
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -47388,7 +47388,7 @@ msgstr "لا يمكن دمج العلاقات العامة بدونها"
 
 # translated-by: libretranslate
 msgid "PR pipelines use `cancel-in-progress: true` so only the newest run per PR and event type is active. The group does not always reap a long orchestrator sweep, which then leaves the newer run parked on `pending`; [entry-cancel-superseded.yml](../../../../.github/workflows/entry-cancel-superseded.yml) cancels those leftovers through the API, see [cancel/README.md](../../../../scripts/github/cancel/README.md)."
-msgstr ""
+msgstr "استخدام خطوط أنابيب استراتيجية الحد من الفقر `cancel-in-progress: true` لذا فإن أحدث طريقة لكل نوع من العلاقات العامة والأحداث نشطة المجموعة لا تجني دائماً مسحاً طويلاً من الأوركسترات، الذي يترك الركض الأحدث متوقفاً `pending`; [entry-cancel-superseded.yml](../../../../.github/workflows/entry-cancel-superseded.yml) تلغي تلك البقايا من خلال APIانظر [cancel/README.md](../../../../scripts/github/cancel/README.md)."
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -51805,7 +51805,7 @@ msgstr "إزالة الأعلام المضللة/المستهلكة للصور/�
 
 # translated-by: libretranslate
 msgid "Removed obsolete debug code referencing a non-existent *--debug* parameter **Base Image Changes**"
-msgstr ""
+msgstr "إلغاء قانون ديباغ القديم الذي يشير إلى عدم وجود *--debug* البارامتر **Base التغيرات في الصور**"
 
 # translated-by: libretranslate
 # translation-refused: libretranslate echo
@@ -63102,7 +63102,7 @@ msgstr "The `biber` الأشخاص الذين يسجلون أنفسهم من خ�
 
 # translated-by: libretranslate
 msgid "The `build-ci-images` stage uses [call-images-build-ci.yml](../../../../.github/workflows/call-images-build-ci.yml) to build Docker images for the target distributions (`arch`, `debian`, `ubuntu`, `fedora`, `centos`). These images are consumed by all subsequent test jobs."
-msgstr ""
+msgstr "The `build-ci-images` استخدامات المرحلة [call-images-build-ci.yml](../../../../.github/workflows/call-images-build-ci.yml) لبناء صور دوكر للتوزيعات المستهدفة (`arch`.. `debian`.. `ubuntu`.. `fedora`.. `centos`)وتستهلك هذه الصور جميع وظائف الاختبار اللاحقة."
 
 # translated-by: libretranslate
 msgid "The `bundles=` make arg (comma-separated bundle names) is REQUIRED for both entry points. The compose-deploy recipe sets the resulting `bundles` env var read by these scripts."
@@ -86445,7 +86445,7 @@ msgstr "[base.md](role/services/base.md) تسجيل الخدمات والتحم�
 
 # translated-by: libretranslate
 msgid "[call-images-build-ci.yml](../../../../../.github/workflows/call-images-build-ci.yml): `🖼️ Build: CI Images (all distros)`"
-msgstr ""
+msgstr "[call-images-build-ci.yml](../../../../../.github/workflows/call-images-build-ci.yml): `🖼️ Build: CI Images (all distros)`"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -86506,11 +86506,11 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[call-release-version.yml](../../../../../.github/workflows/call-release-version.yml): `🚀 Release: Version Logic`"
-msgstr ""
+msgstr "[call-release-version.yml](../../../../../.github/workflows/call-release-version.yml): `🚀 Release: Version Logic`"
 
 # translated-by: libretranslate
 msgid "[call-release-version.yml](../../../.github/workflows/call-release-version.yml)"
-msgstr ""
+msgstr "[call-release-version.yml](../../../.github/workflows/call-release-version.yml)"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -86663,15 +86663,15 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml): `🪞 Mirror all images`"
-msgstr ""
+msgstr "[cron-images-mirror-all.yml](../../../../../.github/workflows/cron-images-mirror-all.yml): `🪞 Mirror all images`"
 
 # translated-by: libretranslate
 msgid "[cron-release-highest.yml](../../../../../.github/workflows/cron-release-highest.yml): `🚀 Release missing tag`"
-msgstr ""
+msgstr "[cron-release-highest.yml](../../../../../.github/workflows/cron-release-highest.yml): `🚀 Release missing tag`"
 
 # translated-by: libretranslate
 msgid "[cron-release-highest.yml](../../../.github/workflows/cron-release-highest.yml)"
-msgstr ""
+msgstr "[cron-release-highest.yml](../../../.github/workflows/cron-release-highest.yml)"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -86791,7 +86791,7 @@ msgstr "[email.py](../../../../../plugins/lookup/email.py) من أجل البل�
 
 # translated-by: libretranslate
 msgid "[entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml): `🚫 Cancel: Superseded Runs`"
-msgstr ""
+msgstr "[entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml): `🚫 Cancel: Superseded Runs`"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -86803,7 +86803,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "[entry-manual-mirror-cleanup.yml](../../../../../.github/workflows/entry-manual-mirror-cleanup.yml): `🧹 Images: Cleanup GHCR`"
-msgstr ""
+msgstr "[entry-manual-mirror-cleanup.yml](../../../../../.github/workflows/entry-manual-mirror-cleanup.yml): `🧹 Images: Cleanup GHCR`"
 
 # translation-refused: libretranslate protected-span
 # nocheck: url
@@ -89903,8 +89903,9 @@ msgstr ""
 msgid "[x] v1 scope is single-manager. Multi-manager Raft-quorum HA (3+ managers) is explicitly out of scope for this requirement and tracked under [Future Extensions](#future-extensions)."
 msgstr "[x] v1 النطاق واحد Multi-manager Raft-quorum HA (3+ المديرين) غير مُتاحة صراحة لهذا الشرط ومُتَّبعة بموجبه [التمديدات المقبلة](#future-extensions)."
 
+# translated-by: libretranslate
 msgid "[x] web-app-dashboard bakes one port-ui content catalog per language that has a translated dashboard string into its image, generated from `core.po` at deploy time."
-msgstr ""
+msgstr "[x] web-app-dashboard يخبز كتيباً واحداً للمحتوى الخاص بالموانئ لكل لغة لديها سلسلة مترجمة من لوحة الدونات في صورتها، متولدة من `core.po` في وقت النشر."
 
 # translated-by: libretranslate
 msgid "[x] web-app-mig enables the `api` service when web-svc-api is deployed and renders the API base URL into its environment."
@@ -93589,7 +93590,7 @@ msgstr "`entry-manual-steer.yml` تعلن `cancel-in-progress: true` تماما�
 
 # translated-by: libretranslate
 msgid "`entry-push-latest.yml` declares exactly that expression, and it fires only on `push`, where `github.ref_name` is always the pushed branch. [entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml) carries no concurrency group of its own — it is the API fallback for that group — but its push job repeats the same predicate as a job `if`, so it never touches `main` either."
-msgstr ""
+msgstr "`entry-push-latest.yml` يُعلنُ بالضبط ذلك التعبيرِ، ويَضْربُ فقط على `push`, أين `github.ref_name` دائماً ما يكون الفرع المدفوع [entry-cancel-superseded.yml](../../../../../.github/workflows/entry-cancel-superseded.yml) لا توجد مجموعة تطابق خاصة بها - بل هي API التراجع بالنسبة لتلك المجموعة - ولكن وظيفة دفعها تكرر نفس الفرضية كوظيفة `if`, لذا لا يلمس أبداً `main` أيضاً."
 
 # translated-by: libretranslate
 msgid "`environment` reads `external`, `TLS_ENABLED`, `DOCKER_IN_CONTAINER`."
@@ -101290,8 +101291,9 @@ msgstr ""
 msgid "port-ui is a tile launcher with no admin tier, so the `administrator` persona has no admin-only surface to assert against beyond the same login chain. With SSO enabled both personas run."
 msgstr ""
 
+# translated-by: libretranslate
 msgid "port-ui translates the rendered `config.yaml` through `app/i18n/content/<code>.yaml`, a flat mapping from the English source string to its translation for the keys `description`, `info`, `name`, `subtitel`, `text`, `title` and `warning`. [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) mounts only `config.yaml`, and the upstream image ships no catalog, so every card and menu text stays English until the role builds them in."
-msgstr ""
+msgstr "ترجمــة ترجمــة `config.yaml` من خلال `app/i18n/content/<code>.yaml`, خريطة مسطحة من سلسلة المصدر الإنجليزي إلى ترجمتها للمفاتيح `description`.. `info`.. `name`.. `subtitel`.. `text`.. `title` و `warning`. [web-app-dashboard](../../roles/web-app-dashboard/meta/volumes.yml) الجبال فقط `config.yaml`والصورة في أعلى المجرى لا توجد كتالوج لذا كل بطاقة و نص قائمة تبقى الإنجليزية حتى يقوم الدور ببناءها."
 
 # translated-by: libretranslate
 msgid "ports:"
@@ -105808,7 +105810,7 @@ msgstr ""
 
 # translated-by: libretranslate
 msgid "📁 **Unified CSS Base Configuration** deployment for all NGINX applications"
-msgstr ""
+msgstr "📁 **وحدة دعم البرامج Base الاتحاد** نشر جميع تطبيقات الشبكة"
 
 # translated-by: libretranslate
 msgid "📈 **Burn-down Charts & Metrics:** Monitor velocity and progress."
