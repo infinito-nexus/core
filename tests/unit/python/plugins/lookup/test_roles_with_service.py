@@ -43,17 +43,27 @@ class RolesWithServiceLookupTests(unittest.TestCase):
         lm._loader = mock.MagicMock()
         return lm
 
-    def _run(self, terms, applications: dict, vars_: dict | None = None, **kwargs):
+    def _run(
+        self,
+        terms,
+        applications: dict,
+        vars_: dict | None = None,
+        url_host: str | None = None,
+        **kwargs,
+    ):
         """Run the lookup with the ``applications`` and ``tls`` sub-lookups
-        patched to stay hermetic. The stubbed tls resolves
-        ``[role_id, "url.base"]`` to a deterministic URL so the lookup
-        can finish building each result entry without the real domain
-        machinery."""
+        patched to stay hermetic. The stubbed tls answers
+        ``[role_id, "url.base"]`` with the role's own configured domain, which
+        is what a clearnet deployment resolves; pass ``url_host`` to model a
+        deployment whose URL host differs, such as an onion one."""
         lookup = self._make_lookup(vars_ or {})
+        resolve = self.mod._resolve_canonical_domain
 
         class _StubTls:
             def run(self, terms_, variables=None, **kwargs):
-                return [f"https://{terms_[0]}.example.com"]
+                role = str(terms_[0])
+                host = url_host or resolve(role, applications.get(role, {}))
+                return [f"https://{host or role + '.example.com'}"]
 
         class _StubApplications:
             def run(self, terms_, variables=None, **kwargs):
@@ -94,11 +104,30 @@ class RolesWithServiceLookupTests(unittest.TestCase):
                     {
                         "id": "web-app-foo",
                         "canonical_domain": "foo.example.com",
-                        "canonical_url": "https://web-app-foo.example.com",
+                        "canonical_url": "https://foo.example.com",
                         "iframe": True,
                     }
                 ]
             ],
+        )
+
+    def test_canonical_domain_follows_an_onion_url(self):
+        applications = {
+            "web-app-foo": {
+                "services": {
+                    "dashboard": {"enabled": True, "shared": True},
+                },
+                "domains": {"canonical": ["foo.example.com"]},
+            },
+        }
+
+        result = self._run(["dashboard"], applications, url_host="foo.abcd1234.onion")
+
+        self.assertEqual(
+            result[0][0]["canonical_domain"],
+            "foo.abcd1234.onion",
+            "a consumer matching this against a rendered href would miss every "
+            "tile on an onion host if it stayed clearnet",
         )
 
     def test_iframe_defaults_to_enabled_when_unset(self):
@@ -285,7 +314,7 @@ class RolesWithServiceLookupTests(unittest.TestCase):
                     {
                         "id": "web-app-foo",
                         "canonical_domain": "foo.example.com",
-                        "canonical_url": "https://web-app-foo.example.com",
+                        "canonical_url": "https://foo.example.com",
                         "iframe": True,
                     }
                 ]

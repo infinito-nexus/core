@@ -6,6 +6,11 @@ role whose merged applications config declares
 ``services.<service>.iframe`` (defaulting to ``enabled``) so consumers
 can tell embeddable cards from those that must open in a new tab.
 
+``canonical_domain`` is the host of ``canonical_url``, not the configured
+domain, so both follow the onion substitution a Tor deployment applies. A
+consumer that compares it against what a page actually renders would
+otherwise never match on an onion host.
+
 A role keeps declaring the service for inventory completeness but can
 opt out of this consumer-target list by setting
 ``services.<service>.scrape: false`` or ``services.<service>.track: false``.
@@ -42,6 +47,7 @@ Kwargs:
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
+from urllib.parse import urlsplit
 
 from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
@@ -184,6 +190,7 @@ class LookupModule(LookupBase):
                     [str(role_id), "url.base"], variables=variables
                 )
                 canonical_url = str(resolved[0]).rstrip("/")
+                canonical = urlsplit(canonical_url).hostname or canonical
             iframe = (
                 bool(block["iframe"])
                 if "iframe" in block
