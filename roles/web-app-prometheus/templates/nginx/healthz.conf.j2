@@ -28,6 +28,8 @@
         end
       end
 
+{% set _probe_backend = lookup('probeable_backend', application_id) %}
+{% if _probe_backend %}
       -- Step 2: TCP/HTTP reachability — catches crashed or exited containers.
       if alive then
         local res = ngx.location.capture("/_live_probe")
@@ -35,6 +37,7 @@
           alive = false
         end
       end
+{% endif %}
 
       if alive then
         ngx.status = ngx.HTTP_OK
@@ -48,6 +51,7 @@
     }
   }
 
+{% if _probe_backend %}
 {% set prometheus_backend = lookup('proxy_pass', application_id, proxy_service_key | default(application_id | get_entity_name), 'http', tail='/', local_port=http_port, internal_port=proxy_internal_port | default('')) %}
   location = /_live_probe {
     internal;
@@ -66,3 +70,4 @@
     proxy_read_timeout      5s;
     proxy_intercept_errors  off;
   }
+{% endif %}
