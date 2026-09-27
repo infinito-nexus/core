@@ -13,6 +13,7 @@ from __future__ import annotations
 import re
 import subprocess
 import unittest
+from functools import lru_cache
 from typing import TYPE_CHECKING, NamedTuple
 
 from utils.cache.files import read_text
@@ -45,10 +46,18 @@ class BrokenLink(NamedTuple):
     reason: str
 
 
-def _tracked_paths() -> frozenset[str]:
-    """Return every path git tracks, repo-root relative."""
+@lru_cache(maxsize=1)
+def _tracked_files() -> frozenset[str]:
+    """Return every path git tracks, repo-root relative.
+
+    Exception: ``safe.directory`` is set for this invocation because the test
+    container mounts the repository under a different owner, where git
+    otherwise refuses the directory outright. Asking ``.gitignore`` instead
+    would answer a different question, since a pattern keeps matching a file
+    that was committed before it and git tracks it regardless.
+    """
     listed = subprocess.run(
-        ["git", "-C", str(PROJECT_ROOT), "ls-files", "-z"],
+        ["git", "-c", "safe.directory=*", "-C", str(PROJECT_ROOT), "ls-files", "-z"],
         capture_output=True,
         text=True,
         check=True,
@@ -56,7 +65,7 @@ def _tracked_paths() -> frozenset[str]:
     return frozenset(entry for entry in listed.stdout.split("\0") if entry)
 
 
-def _unresolvable(resolved: Path, tracked: frozenset[str]) -> str:
+def _unresolvable(resolved: Path) -> str:
     """Return why ``resolved`` cannot back a link, empty when it can.
 
     A directory is only a link target because an index page stands in for it:
@@ -65,12 +74,11 @@ def _unresolvable(resolved: Path, tracked: frozenset[str]) -> str:
     place and as a missing cross-reference in the other.
 
     A generated file is present for whoever ran the generator and absent
-    everywhere else, including the documentation build, which reads the
-    tracked tree. Existing on this disk is therefore not enough.
+    everywhere else, including the documentation build, which reads what
+    git would track. Existing on this disk is therefore not enough.
 
     Args:
         resolved: the absolute path a link target resolved to.
-        tracked: every path git tracks, repo-root relative.
     """
     if not resolved.exists():
         return "no such path"
@@ -78,7 +86,7 @@ def _unresolvable(resolved: Path, tracked: frozenset[str]) -> str:
         if index_page(resolved) is None:
             return f"directory without any of {', '.join(INDEX_FILES)}"
         return ""
-    if resolved.relative_to(PROJECT_ROOT).as_posix() not in tracked:
+    if resolved.relative_to(PROJECT_ROOT).as_posix() not in _tracked_files():
         return "untracked, so it is absent from a fresh checkout and the docs build"
     return ""
 
@@ -143,16 +151,11 @@ def _extract_links(file: Path) -> list[tuple[int, str]]:
     return results
 
 
-def _check_file(file: Path, root: Path, tracked: frozenset[str]) -> list[BrokenLink]:
+def _check_file(file: Path, root: Path) -> list[BrokenLink]:
     """Return BrokenLink entries for every unresolvable link in file.
 
     Relative paths are resolved against the file's directory.
     Absolute paths (starting with '/') are resolved against the repo root.
-
-    Args:
-        file: the markdown file to scan.
-        root: repository root, which repo-absolute targets resolve against.
-        tracked: every path git tracks, repo-root relative.
     """
     broken: list[BrokenLink] = []
     base = file.parent
@@ -167,7 +170,7 @@ def _check_file(file: Path, root: Path, tracked: frozenset[str]) -> list[BrokenL
         else:
             resolved = (base / path_part).resolve()
 
-        reason = _unresolvable(resolved, tracked)
+        reason = _unresolvable(resolved)
         if reason:
             broken.append(
                 BrokenLink(
@@ -190,10 +193,9 @@ class TestMarkdownLinks(unittest.TestCase):
         md_files = markdown_files()
         self.assertTrue(md_files, "No .md files found.")
 
-        tracked = _tracked_paths()
         broken: list[BrokenLink] = []
         for file in sorted(md_files):
-            broken.extend(_check_file(file, root, tracked))
+            broken.extend(_check_file(file, root))
 
         if not broken:
             return
